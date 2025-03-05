@@ -69,7 +69,10 @@ async function save() {
 			<div class="flex flex-col gap-3">
 				<div class="flex flex-row gap-1 items-center">
 					<span>{{ t('sharedTexts.enabled') }}</span>
-					<Switch v-model="formValue.enabled" />
+					<Switch
+						:model-value="formValue.enabled"
+						@update:model-value="() => formValue.enabled = !formValue.enabled"
+					/>
 				</div>
 
 				<CommandButton name="8ball" />
