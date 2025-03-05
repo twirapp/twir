@@ -11,6 +11,12 @@ Use Composition API with TypeScript
 Use <script setup lang="ts"> for component definitions
 Use  defineProps,  defineEmits, and  defineSlots with proper TypeScript types
 
+Forms:
+For forms use vee-validate with hook. When using this hook, you should use base html <form>, not <Form> component
+For formfields use v-slot="{ componentField }" bindings
+Do not forget use FormMessage component
+For switches, checkboxes use v-slot="{ value, handleChange }"
+
 Styling:
 Use Tailwind CSS for styling
 Follow the project's existing Tailwind configuration and color schemes

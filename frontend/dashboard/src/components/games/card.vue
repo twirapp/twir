@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { IconSettings } from '@tabler/icons-vue'
-import { NButton } from 'naive-ui'
+import { Settings } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import type { FunctionalComponent } from 'vue'
 
 import { useUserAccessFlagChecker } from '@/api'
 import Card from '@/components/card/card.vue'
+import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 withDefaults(defineProps<{
@@ -28,23 +28,20 @@ const userCanManageGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.Ma
 </script>
 
 <template>
-	<Card :title="title" :icon="icon" :icon-stroke="iconStroke" :icon-fill="iconFill" class="h-full">
+	<Card :title="title" :icon="icon" :icon-stroke="iconStroke" :icon-fill="iconFill" class="h-full" icon-width="28px" icon-height="28px">
 		<template #content>
 			<p>{{ description }}</p>
 		</template>
 		<template #footer>
-			<NButton
+			<Button
 				v-if="showSettings"
 				:disabled="!userCanManageGames"
-				secondary
-				size="large"
+				variant="secondary"
 				@click="$emit('openSettings')"
 			>
-				<div class="flex gap-[6px]">
-					<span>{{ t('sharedButtons.settings') }}</span>
-					<IconSettings />
-				</div>
-			</NButton>
+				{{ t('sharedButtons.settings') }}
+				<Settings class="ml-2 h-4 w-4" />
+			</Button>
 		</template>
 	</Card>
 </template>

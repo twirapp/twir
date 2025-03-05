@@ -50,7 +50,7 @@ export function newRouter() {
 					name: 'Integrations',
 					path: '/dashboard/integrations',
 					component: () => import('../pages/Integrations.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewIntegrations },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewIntegrations, noPadding: true },
 				},
 				{
 					path: '/dashboard/commands/:system',
@@ -186,7 +186,7 @@ export function newRouter() {
 				{
 					path: '/dashboard/games',
 					component: () => import('../pages/Games.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewGames },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewGames, noPadding: true },
 				},
 				{
 					path: '/dashboard/files',

@@ -85,7 +85,7 @@ const { t } = useI18n()
 					<Button
 						v-if="withSettings"
 						:disabled="!userCanManageIntegrations"
-						variant="outline"
+						variant="secondary"
 						size="sm"
 						@click="showSettings = true"
 					>

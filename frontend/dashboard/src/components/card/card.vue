@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { NCard, NSpace, useThemeVars } from 'naive-ui'
+import { useThemeVars } from 'naive-ui'
 import { computed } from 'vue'
 
 import type { FunctionalComponent } from 'vue'
+
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 
 withDefaults(defineProps<{
 	title: string
@@ -16,7 +18,7 @@ withDefaults(defineProps<{
 }>(), {
 	withStroke: true,
 	iconWidth: '48px',
-	iconHeight: '48px'
+	iconHeight: '48px',
 })
 
 defineEmits<{
@@ -34,48 +36,47 @@ const titleColor = computed(() => themeVars.value.textColor1)
 </script>
 
 <template>
-	<n-card embedded>
-		<div class="flex flex-col flex-1 h-full">
-			<component
-				:is="icon"
-				v-if="icon"
-				:style="{
-					color: iconFill,
-					fill: iconFill ? 'currentColor' : null,
-					stroke: withStroke ? '#61e8bb' : null,
-					strokeWidth: iconStroke,
-					width: iconWidth,
-					height: iconHeight,
-					marginBottom: '16px',
-				}"
-			/>
-			<n-space justify="space-between">
-				<h2 class="text-xl mb-3" :style="{ color: titleColor }">
+	<Card class="flex flex-col h-full">
+		<CardHeader class="space-y-4">
+			<div class="flex gap-2 items-center">
+				<component
+					:is="icon"
+					v-if="icon"
+					:style="{
+						color: iconFill,
+						fill: iconFill ? 'currentColor' : null,
+						stroke: withStroke ? '#61e8bb' : null,
+						strokeWidth: iconStroke,
+						width: iconWidth,
+						height: iconHeight,
+					}"
+				/>
+				<h2 class="text-xl font-semibold" :style="{ color: titleColor }">
 					{{ title }}
 				</h2>
 				<slot name="headerExtra" />
-			</n-space>
-			<div :style="{ color: themeVars.textColor3, marginBottom: '10px' }">
-				<slot name="content" />
 			</div>
-			<div class="footer flex gap-2 mt-auto flex-wrap">
+		</CardHeader>
+
+		<CardContent :style="{ color: themeVars.textColor3 }">
+			<slot name="content" />
+		</CardContent>
+
+		<CardFooter class="mt-auto">
+			<div class="flex gap-2 flex-wrap w-full">
 				<slot name="footer" />
 			</div>
-		</div>
-	</n-card>
+		</CardFooter>
+	</Card>
 </template>
 
 <style scoped>
-.footer :deep(button span) {
+:deep(button span) {
 	@apply text-sm;
 }
 
-.footer :deep(button svg) {
-	@apply h-5 w-5;
-}
-
 @media (max-width: 568px) {
-	.footer :deep(button) {
+	:deep(button) {
 		@apply w-full;
 	}
 }

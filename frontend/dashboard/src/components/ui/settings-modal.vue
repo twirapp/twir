@@ -25,7 +25,7 @@ const { t } = useI18n()
 	<Dialog :open="open" @update:open="$emit('update:open', $event)">
 		<DialogTrigger asChild>
 			<Button
-				variant="outline"
+				variant="secondary"
 				:disabled="buttonDisabled"
 			>
 				<div class="flex items-center gap-1">

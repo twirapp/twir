@@ -11,25 +11,32 @@ import Spotify from '@/components/integrations/spotify.vue'
 import Streamlabs from '@/components/integrations/streamlabs.vue'
 import Valorant from '@/components/integrations/valorant.vue'
 import Vk from '@/components/integrations/vk.vue'
+import PageLayout from '@/layout/page-layout.vue'
 </script>
 
 <template>
-	<div class="container">
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<SevenTv />
-			<Discord />
-			<Spotify />
-			<Lastfm />
-			<Vk />
-			<Donationalerts />
-			<Streamlabs />
-			<Donatello />
-			<Donatepay />
-			<Donatestream />
-			<Faceit />
-			<Valorant />
-		</div>
-	</div>
+	<PageLayout>
+		<template #title>
+			Integrations
+		</template>
+
+		<template #content>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<SevenTv />
+				<Discord />
+				<Spotify />
+				<Lastfm />
+				<Vk />
+				<Donationalerts />
+				<Streamlabs />
+				<Donatello />
+				<Donatepay />
+				<Donatestream />
+				<Faceit />
+				<Valorant />
+			</div>
+		</template>
+	</PageLayout>
 </template>
 
 <style>

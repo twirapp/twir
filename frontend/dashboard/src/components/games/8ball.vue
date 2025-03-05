@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { IconMessageCircleQuestion, IconTrash } from '@tabler/icons-vue'
-import { NButton, NDivider, NInput, NModal, NSwitch, useMessage } from 'naive-ui'
+import { MessageCircle, Trash } from 'lucide-vue-next'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import Card from './card.vue'
-
 import { useGamesApi } from '@/api/games/games.js'
+import Card from '@/components/games/card.vue'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import { useToast } from '@/components/ui/toast/use-toast'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
-
 const maxAnswers = 25
 
 const gamesManager = useGamesApi()
@@ -31,8 +34,7 @@ watch(data, (v) => {
 }, { immediate: true })
 
 const { t } = useI18n()
-
-const notifications = useMessage()
+const { toast } = useToast()
 
 async function save() {
 	await updater.executeMutation({
@@ -41,78 +43,84 @@ async function save() {
 			enabled: formValue.value.enabled,
 		},
 	})
-	notifications.success(t('sharedTexts.saved'))
+	toast({
+		title: t('sharedTexts.saved'),
+		variant: 'success',
+	})
 }
 </script>
 
 <template>
 	<Card
 		title="8ball"
-		:icon="IconMessageCircleQuestion"
+		:icon="MessageCircle"
 		:icon-stroke="1"
 		:description="t('games.8ball.description')"
+		show-settings
 		@open-settings="isModalOpened = true"
 	/>
 
-	<NModal
-		v-model:show="isModalOpened"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		title="8ball"
-		content-style="padding: 10px; width: 100%"
-		style="width: 500px; max-width: calc(100vw - 40px)"
-	>
-		<div class="flex gap-6">
-			<div class="flex flex-col gap-1 items-center">
-				<span>{{ t('sharedTexts.enabled') }}</span>
-				<NSwitch v-model:value="formValue.enabled"></NSwitch>
+	<Dialog v-model:open="isModalOpened">
+		<DialogContent class="sm:max-w-[500px]">
+			<DialogHeader>
+				<DialogTitle>8ball</DialogTitle>
+			</DialogHeader>
+
+			<div class="flex flex-col gap-3">
+				<div class="flex flex-row gap-1 items-center">
+					<span>{{ t('sharedTexts.enabled') }}</span>
+					<Switch v-model="formValue.enabled" />
+				</div>
+
+				<CommandButton name="8ball" />
 			</div>
 
-			<CommandButton name="8ball" />
-		</div>
+			<Separator />
 
-		<NDivider />
+			<div class="space-y-4">
+				<h3 class="font-medium">
+					{{ t('games.8ball.answers') }} ({{ formValue.answers.length }}/{{ maxAnswers }})
+				</h3>
 
-		<h3>{{ t('games.8ball.answers') }} ({{ formValue.answers.length }}/{{ maxAnswers }})</h3>
+				<div class="space-y-2">
+					<div
+						v-for="(_, index) of formValue.answers"
+						:key="index"
+						class="flex gap-2"
+					>
+						<Input
+							v-model="formValue.answers[index]"
+							placeholder="Yes"
+							class="flex-1"
+						/>
 
-		<div class="flex flex-col gap-2">
-			<div
-				v-for="(_, index) of formValue.answers"
-				:key="index"
-				class="flex gap-1"
-			>
-				<NInput
-					v-model:value="formValue.answers[index]"
-					placeholder="Yes"
-				/>
+						<Button
+							variant="destructive"
+							size="icon"
+							@click="() => {
+								formValue.answers = formValue.answers.filter((_, i) => i != index)
+							}"
+						>
+							<Trash class="h-4 w-4" />
+						</Button>
+					</div>
 
-				<NButton
-					secondary
-					type="error"
-					@click="() => {
-						formValue.answers = formValue.answers.filter((_, i) => i != index)
-					}"
-				>
-					<IconTrash />
-				</NButton>
+					<Button
+						variant="secondary"
+						class="w-full"
+						:disabled="formValue.answers.length >= maxAnswers"
+						@click="() => formValue.answers.push('')"
+					>
+						{{ t('sharedButtons.create') }}
+					</Button>
+				</div>
 			</div>
 
-			<NButton
-				secondary
-				type="info"
-				block
-				:disabled="formValue.answers.length >= maxAnswers"
-				@click="() => formValue.answers.push('')"
-			>
-				{{ t('sharedButtons.create') }}
-			</NButton>
-		</div>
+			<Separator />
 
-		<NDivider />
-
-		<NButton block secondary type="success" @click="save">
-			{{ t('sharedButtons.save') }}
-		</NButton>
-	</NModal>
+			<Button variant="default" class="w-full" @click="save">
+				{{ t('sharedButtons.save') }}
+			</Button>
+		</DialogContent>
+	</Dialog>
 </template>

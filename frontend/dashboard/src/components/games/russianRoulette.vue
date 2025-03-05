@@ -1,16 +1,7 @@
 <script setup lang="ts">
-import { IconBomb } from '@tabler/icons-vue'
-import {
-	NButton,
-	NDivider,
-	NFormItem,
-	NInput,
-	NInputNumber,
-	NModal,
-	NSpace,
-	NSwitch,
-} from 'naive-ui'
-import { ref, toRaw, watch } from 'vue'
+import { Bomb } from 'lucide-vue-next'
+import { useForm } from 'vee-validate'
+import { onMounted, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import Card from './card.vue'
@@ -18,7 +9,36 @@ import Card from './card.vue'
 import type { GamesQuery } from '@/gql/graphql'
 
 import { useGamesApi } from '@/api/games/games'
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import { useToast } from '@/components/ui/toast/use-toast'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
@@ -41,132 +61,224 @@ const initialSettings: Duel = {
 	tumberSize: 6,
 }
 
-const formValue = ref<Duel>({ ...initialSettings })
+const rouletteForm = useForm<Duel>({
+	initialValues: initialSettings,
+	validateOnMount: false,
+	keepValuesOnUnmount: true,
+})
+
+onMounted(() => {
+	if (!settings.value) return
+	rouletteForm.setValues(structuredClone(toRaw(settings.value.gamesRussianRoulette)))
+})
 
 watch(settings, (v) => {
 	if (!v) return
-
 	const raw = toRaw(v)
-
-	formValue.value = structuredClone(raw.gamesRussianRoulette)
+	rouletteForm.setValues(structuredClone(raw.gamesRussianRoulette))
 }, { immediate: true })
 
 const { t } = useI18n()
+const { toast } = useToast()
 
-const { dialog, notification } = useNaiveDiscrete()
-
-async function save() {
-	await updater.executeMutation({ opts: formValue.value })
-	notification.success({
+const save = rouletteForm.handleSubmit(async () => {
+	await updater.executeMutation({ opts: rouletteForm.values })
+	toast({
 		title: t('sharedTexts.saved'),
-		duration: 2500,
+		variant: 'success',
 	})
-}
+	isModalOpened.value = false
+})
 
-function resetSettings() {
-	dialog.create({
-		type: 'warning',
-		title: t('sharedTexts.dangerZone'),
-		content: t('sharedTexts.setDefaultSettings'),
-		positiveText: t('sharedButtons.confirm'),
-		negativeText: t('sharedButtons.close'),
-		onPositiveClick: () => {
-			formValue.value = initialSettings
-			save()
-		},
-	})
+async function resetSettings() {
+	rouletteForm.setValues(initialSettings)
 }
 </script>
 
 <template>
-	<Card
-		title="Russian Roulette"
-		:icon="IconBomb"
-		:icon-stroke="1"
-		:description="t('games.russianRoulette.description')"
-		@open-settings="isModalOpened = true"
-	/>
+	<Dialog v-model:open="isModalOpened">
+		<DialogTrigger asChild>
+			<Card
+				title="Russian Roulette"
+				:icon="Bomb"
+				:icon-stroke="1"
+				:description="t('games.russianRoulette.description')"
+			/>
+		</DialogTrigger>
 
-	<NModal
-		v-model:show="isModalOpened"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		title="Russian Roulette"
-		content-style="padding: 10px; width: 100%"
-		style="width: 500px; max-width: calc(100vw - 40px)"
-	>
-		<div class="flex gap-6">
-			<div class="flex flex-col gap-1 items-start">
-				<span>{{ t('sharedTexts.enabled') }}</span>
-				<NSwitch v-model:value="formValue.enabled" />
-			</div>
+		<DialogContent class="sm:max-w-[500px]">
+			<DialogHeader>
+				<DialogTitle>Russian Roulette</DialogTitle>
+			</DialogHeader>
 
-			<CommandButton name="roulette" />
-		</div>
+			<form>
+				<div class="space-y-4">
+					<div class="flex flex-col gap-4">
+						<FormField v-slot="{ value, handleChange }" name="enabled">
+							<FormItem class="flex gap-2 space-y-0 items-center">
+								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
+								<FormControl>
+									<Switch
+										:checked="value"
+										@update:checked="handleChange"
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						</FormField>
 
-		<NDivider />
+						<CommandButton name="roulette" />
+					</div>
 
-		<div class="flex flex-col gap-2 mt-[10px]">
-			<NFormItem :label="t('games.russianRoulette.canBeUsedByModerator')">
-				<NSwitch v-model:value="formValue.canBeUsedByModerator" />
-			</NFormItem>
+					<Separator />
 
-			<NFormItem :label="t('games.russianRoulette.tumberSize')">
-				<NInputNumber v-model:value="formValue.tumberSize" :min="2" :max="100" />
-			</NFormItem>
+					<FormField v-slot="{ value, handleChange }" name="canBeUsedByModerator">
+						<FormItem class="flex gap-2 space-y-0 items-center">
+							<FormLabel>{{ t('games.russianRoulette.canBeUsedByModerator') }}</FormLabel>
+							<FormControl>
+								<Switch
+									:checked="value"
+									@update:checked="handleChange"
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+				</div>
 
-			<NFormItem
-				:label="t('games.russianRoulette.chargedBullets', { tumberSize: formValue.tumberSize })"
-			>
-				<NInputNumber
-					v-model:value="formValue.chargedBullets" :min="1"
-					:max="formValue.tumberSize - 1"
-				/>
-			</NFormItem>
+				<Separator />
 
-			<NFormItem :label="t('games.russianRoulette.timeoutSeconds')">
-				<NInputNumber v-model:value="formValue.timeoutSeconds" :max="86400" />
-			</NFormItem>
+				<FormField v-slot="{ componentField }" name="timeoutSeconds">
+					<FormItem>
+						<FormLabel>{{ t('games.russianRoulette.timeoutSeconds') }}</FormLabel>
+						<FormControl>
+							<Input
+								v-bind="componentField"
+								type="number"
+								:max="86400"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-			<NFormItem :label="t('games.russianRoulette.decisionSeconds')">
-				<NInputNumber v-model:value="formValue.decisionSeconds" :max="60" />
-			</NFormItem>
+				<FormField v-slot="{ componentField }" name="decisionSeconds">
+					<FormItem>
+						<FormLabel>{{ t('games.russianRoulette.decisionSeconds') }}</FormLabel>
+						<FormControl>
+							<Input
+								v-bind="componentField"
+								type="number"
+								:max="60"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-			<NDivider />
+				<Separator />
 
-			<NFormItem :label="t('games.russianRoulette.initMessage')">
-				<NInput
-					v-model:value="formValue.initMessage" :maxlength="450" type="textarea" autosize
-					:rows="1"
-				/>
-			</NFormItem>
+				<FormField v-slot="{ componentField }" name="initMessage">
+					<FormItem>
+						<FormLabel>{{ t('games.russianRoulette.initMessage') }}</FormLabel>
+						<FormControl>
+							<Input
+								v-bind="componentField"
+								:maxlength="450"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-			<NFormItem :label="t('games.russianRoulette.surviveMessage')">
-				<NInput
-					v-model:value="formValue.surviveMessage" :maxlength="450" type="textarea" autosize
-					:rows="1"
-				/>
-			</NFormItem>
+				<FormField v-slot="{ componentField }" name="surviveMessage">
+					<FormItem>
+						<FormLabel>{{ t('games.russianRoulette.surviveMessage') }}</FormLabel>
+						<FormControl>
+							<Input
+								v-bind="componentField"
+								:maxlength="450"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-			<NFormItem :label="t('games.russianRoulette.deathMessage')">
-				<NInput
-					v-model:value="formValue.deathMessage" :maxlength="450" type="textarea" autosize
-					:rows="1"
-				/>
-			</NFormItem>
-		</div>
+				<FormField v-slot="{ componentField }" name="deathMessage">
+					<FormItem>
+						<FormLabel>{{ t('games.russianRoulette.deathMessage') }}</FormLabel>
+						<FormControl>
+							<Input
+								v-bind="componentField"
+								:maxlength="450"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-		<NDivider />
+				<FormField v-slot="{ componentField }" name="chargedBullets">
+					<FormItem>
+						<FormLabel>{{ t('games.russianRoulette.chargedBullets') }}</FormLabel>
+						<FormControl>
+							<Input
+								v-bind="componentField"
+								type="number"
+								:min="1"
+								:max="6"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-		<NSpace vertical>
-			<NButton block secondary type="warning" @click="resetSettings">
-				{{ t('sharedButtons.setDefaultSettings') }}
-			</NButton>
+				<FormField v-slot="{ componentField }" name="tumberSize">
+					<FormItem>
+						<FormLabel>{{ t('games.russianRoulette.tumberSize') }}</FormLabel>
+						<FormControl>
+							<Input
+								v-bind="componentField"
+								type="number"
+								:min="6"
+								:max="12"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-			<NButton block secondary type="success" @click="save">
-				{{ t('sharedButtons.save') }}
-			</NButton>
-		</NSpace>
-	</NModal>
+				<Separator class="my-4" />
+
+				<div class="flex justify-between">
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button variant="outline">
+								{{ t('sharedButtons.setDefaultSettings') }}
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>{{ t('sharedTexts.areYouSure') }}</AlertDialogTitle>
+								<AlertDialogDescription>
+									Are you sure?
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>
+									{{ t('sharedButtons.cancel') }}
+								</AlertDialogCancel>
+								<AlertDialogAction @click="resetSettings">
+									{{ t('sharedButtons.confirm') }}
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+
+					<Button type="submit" @click="save">
+						{{ t('sharedButtons.save') }}
+					</Button>
+				</div>
+			</form>
+		</DialogContent>
+	</Dialog>
 </template>
