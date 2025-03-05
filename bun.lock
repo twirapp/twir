@@ -8,7 +8,6 @@
         "@types/bun": "1.2.2",
         "@types/node": "20.12.7",
         "@vue/language-server": "2.2.8",
-        "eslint-plugin-astro": "0.34.0",
         "rimraf": "5.0.5",
         "typescript": "5.7.3",
       },
