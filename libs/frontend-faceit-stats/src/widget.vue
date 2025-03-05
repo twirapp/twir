@@ -102,8 +102,8 @@ const borderRadius = computed(() => {
 				<div class="separator"></div>
 
 				<div class="item">
-					<span class="text-sm">{{ stats.lastMatches.avgKd }}/{{ stats.lastMatches.avgKr }}%</span>
-					<span class="text-xs">Avg. K/D / K/R</span>
+					<span class="text-sm">{{ stats.lastMatches.avgKd }}/{{ stats.lastMatches.avgKr }}</span>
+					<span class="text-xs">Avg. KD / KR</span>
 				</div>
 			</div>
 		</div>

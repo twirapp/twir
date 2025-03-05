@@ -81,14 +81,14 @@ export async function computeStats(nickname: string, game: string): Promise<Stat
 		averages[key] = totals[key] / counts[key]
 	}
 
-	const winRate = (counts['1'] || 0) / lastGames.items.length // Assuming "1" indicates a wi
+	const winRate = ((counts['1'] || 0) / lastGames.items.length) * 100 // Multiply by 100 to get percentage
 
 	result.lastMatches = {
 		avgKills: averages.Kills.toFixed(),
 		headshots: averages['Headshots %'].toFixed(),
-		winRate: winRate.toString(),
+		winRate: winRate.toFixed(), // This will now be a proper percentage value
 		avgKd: averages['K/D Ratio'].toFixed(2),
-		avgKr: averages['K/R Ratio'].toFixed(2),
+		avgKr: averages['K/R Ratio'].toFixed(2), // Remove % as this is not a percentage
 	}
 
 	result.worldRanking = positionResponse ?? ''
