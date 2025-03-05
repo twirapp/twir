@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import type { FunctionalComponent } from 'vue'
 
@@ -24,8 +23,6 @@ defineSlots<{
 	additionalFooter?: FunctionalComponent
 	description: FunctionalComponent
 }>()
-
-const { t } = useI18n()
 
 const showSettings = ref(false)
 const userCanManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations)
