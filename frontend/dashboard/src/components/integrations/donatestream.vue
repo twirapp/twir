@@ -1,78 +1,136 @@
 <script setup lang="ts">
-import { NTimeline, NTimelineItem, NText, NInput, NButton, NInputGroup, NA } from 'naive-ui';
-import { computed, ref } from 'vue';
+import { ExternalLink, Info } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 
-import { useDonateStreamIntegration } from '@/api/index.js';
-import DonateStreamSVG from '@/assets/integrations/donatestream.svg?use';
-import CopyInput from '@/components/copyInput.vue';
-import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
-import WithSettings from '@/components/integrations/variants/withSettings.vue';
+import { useDonateStreamIntegration } from '@/api/index.js'
+import DonateStreamSVG from '@/assets/integrations/donatestream.svg?use'
+import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
+import WithSettings from '@/components/integrations/variants/withSettings.vue'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import CopyInput from '@/components/ui/copy-input/CopyInput.vue'
+import { Input } from '@/components/ui/input'
 
-const integration = useDonateStreamIntegration();
-const { data } = integration.useGetData();
-const { mutateAsync } = integration.usePost();
+const integration = useDonateStreamIntegration()
+const { data } = integration.useGetData()
+const { mutateAsync } = integration.usePost()
 
-const currentPageUrl = `${window.location.origin}/api/webhooks/integrations/donatestream`;
+const currentPageUrl = `${window.location.origin}/api/webhooks/integrations/donatestream`
 const webhookUrl = computed(() => {
-	return `${currentPageUrl}/${data.value?.integrationId}`;
-});
+	return `${currentPageUrl}/${data.value?.integrationId}`
+})
 
-const secret = ref('');
+const secret = ref('')
 
 async function saveSecret() {
-	if (!secret.value) return;
-	await mutateAsync(secret.value);
+	if (!secret.value) return
+	await mutateAsync(secret.value)
 }
 </script>
 
 <template>
-	<with-settings
+	<WithSettings
 		title="Donate.stream"
 		:icon="DonateStreamSVG"
 		icon-width="9rem"
 	>
 		<template #description>
-			<donate-description />
+			<DonateDescription />
 		</template>
+
 		<template #settings>
-			<n-timeline>
-				<n-timeline-item type="info" title="Step 1">
-					<n-text>
-						Paste that link into input on the
-						<n-a
-							href="https://lk.donate.stream/settings/api"
-							target="_blank"
-						>
-							https://lk.donate.stream/settings/api
-						</n-a>
-						<copy-input :text="webhookUrl" class="mt-1" />
-					</n-text>
-				</n-timeline-item>
-				<n-timeline-item type="info" title="Step 2">
-					<n-text>
-						Paste the
-						<n-a
-							href="https://i.imgur.com/OtW97pV.png"
-							target="_blank"
-						>
-							secret key
-						</n-a>
-						from page and click SAVE
-					</n-text>
-					<n-input-group>
-						<n-input
-							v-model:value="secret" type="text" size="small"
-							placeholder="secret from page"
+			<div class="space-y-8">
+				<!-- Step 1 -->
+				<div class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-[1px] before:bg-border">
+					<div class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium">
+						1
+					</div>
+					<div class="space-y-2">
+						<div class="flex items-center gap-2">
+							<h4 class="font-medium leading-none">
+								Copy webhook URL
+							</h4>
+							<a
+								href="https://lk.donate.stream/settings/api"
+								target="_blank"
+								class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+							>
+								Open donate.stream
+								<ExternalLink class="h-3 w-3" />
+							</a>
+						</div>
+						<p class="text-sm text-muted-foreground">
+							Paste this link into the input field on donate.stream settings page
+						</p>
+						<CopyInput
+							:text="webhookUrl"
+							:disabled="!data"
+							class="relative"
 						/>
-						<n-button size="small" secondary type="success" @click="saveSecret">
-							Save
-						</n-button>
-					</n-input-group>
-				</n-timeline-item>
-				<n-timeline-item type="info" title="Step 3">
-					<n-text>Back to donate.stream and click "confirm" button</n-text>
-				</n-timeline-item>
-			</n-timeline>
+					</div>
+				</div>
+
+				<!-- Step 2 -->
+				<div class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-[1px] before:bg-border">
+					<div class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium">
+						2
+					</div>
+					<div class="space-y-2">
+						<div class="flex items-center gap-2">
+							<h4 class="font-medium leading-none">
+								Enter secret key
+							</h4>
+							<a
+								href="https://i.imgur.com/OtW97pV.png"
+								target="_blank"
+								class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+							>
+								View example
+								<ExternalLink class="h-3 w-3" />
+							</a>
+						</div>
+						<p class="text-sm text-muted-foreground">
+							Copy the secret key from donate.stream and paste it below
+						</p>
+						<div class="flex gap-2">
+							<Input
+								v-model="secret"
+								placeholder="Secret key from donate.stream"
+								class="max-w-md"
+							/>
+							<Button
+								variant="default"
+								:disabled="!secret"
+								@click="saveSecret"
+							>
+								Save
+							</Button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Step 3 -->
+				<div class="relative pl-8">
+					<div class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium">
+						3
+					</div>
+					<div class="space-y-2">
+						<h4 class="font-medium leading-none">
+							Confirm integration
+						</h4>
+						<p class="text-sm text-muted-foreground">
+							Return to donate.stream and click the "Confirm" button to complete the setup
+						</p>
+					</div>
+				</div>
+
+				<Alert>
+					<Info class="h-4 w-4" />
+					<AlertDescription>
+						After completing these steps, your Donate.stream integration will be active
+					</AlertDescription>
+				</Alert>
+			</div>
 		</template>
-	</with-settings>
+	</WithSettings>
 </template>

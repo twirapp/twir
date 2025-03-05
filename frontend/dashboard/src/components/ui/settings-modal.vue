@@ -1,0 +1,60 @@
+<script setup lang="ts">
+import { IconSettings } from '@tabler/icons-vue'
+import { useI18n } from 'vue-i18n'
+
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+
+const props = defineProps<{
+	open: boolean
+	title: string
+	showSave?: boolean
+	saveDisabled?: boolean
+	buttonDisabled?: boolean
+}>()
+
+defineEmits<{
+	'update:open': [value: boolean]
+	'save': []
+}>()
+
+const { t } = useI18n()
+</script>
+
+<template>
+	<Dialog :open="open" @update:open="$emit('update:open', $event)">
+		<DialogTrigger asChild>
+			<Button
+				variant="outline"
+				:disabled="buttonDisabled"
+			>
+				<div class="flex items-center gap-1">
+					<span>{{ t('sharedButtons.settings') }}</span>
+					<IconSettings class="h-4 w-4" />
+				</div>
+			</Button>
+		</DialogTrigger>
+		<DialogContent class="sm:max-w-[80vw] sm:max-h-[80vh] overflow-y-auto">
+			<DialogHeader>
+				<DialogTitle>{{ title }}</DialogTitle>
+			</DialogHeader>
+
+			<div class="py-4">
+				<slot />
+			</div>
+
+			<DialogFooter>
+				<Button variant="outline" @click="$emit('update:open', false)">
+					{{ t('sharedButtons.close') }}
+				</Button>
+				<Button
+					v-if="showSave"
+					:disabled="saveDisabled"
+					@click="$emit('save')"
+				>
+					{{ t('sharedButtons.save') }}
+				</Button>
+			</DialogFooter>
+		</DialogContent>
+	</Dialog>
+</template>

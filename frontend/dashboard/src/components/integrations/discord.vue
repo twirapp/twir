@@ -171,7 +171,6 @@ const { data: currentUser } = useProfile()
 		title="Discord"
 		:save="saveSettings"
 		:isLoading="isDataLoading"
-		modal-width="80vw"
 		:icon="IconDiscord"
 		icon-fill="#5865F2"
 	>
@@ -203,8 +202,8 @@ const { data: currentUser } = useProfile()
 					</template>
 
 					<div class="flex flex-col gap-3">
-						<div class="block">
-							<div class="flex flex-col gap-2 w-1/2">
+						<div class="flex flex-wrap gap-4">
+							<div class="flex flex-col gap-2">
 								<span class="text-base">
 									{{ t('integrations.discord.alerts.label') }}
 								</span>
@@ -305,8 +304,8 @@ const { data: currentUser } = useProfile()
 								</NAlert>
 							</div>
 
-							<div class="w-1/2">
-								<DiscordMessages>
+							<div>
+								<DiscordMessages class="rounded-md">
 									<DiscordMessage :bot="true" author="TwirApp" avatar="/twir.svg">
 										<template v-for="m, _ of guild.liveNotificationMessage.split(' ')" :key="_">
 											<DiscordMention

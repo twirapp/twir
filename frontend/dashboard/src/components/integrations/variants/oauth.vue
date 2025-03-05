@@ -1,21 +1,34 @@
 <script setup lang="ts">
-import { IconLogin, IconLogout, IconSettings } from '@tabler/icons-vue';
-import { NButton, NAvatar, useThemeVars, NModal, NSpace } from 'naive-ui';
-import { FunctionalComponent, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { LogIn, LogOut, Settings } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api';
-import Card from '@/components/card/card.vue';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
+import type { FunctionalComponent } from 'vue'
 
-const themeVars = useThemeVars();
+import { useUserAccessFlagChecker } from '@/api'
+import { Button } from '@/components/ui/button'
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = withDefaults(defineProps<{
-	title: string,
+	title: string
 	isLoading?: boolean
 	data: { userName?: string, avatar?: string } | undefined
 	logout: () => any
-	authLink?: string,
+	authLink?: string
 	icon: FunctionalComponent<any>
 	iconWidth?: string
 	iconColor?: string
@@ -24,117 +37,112 @@ const props = withDefaults(defineProps<{
 }>(), {
 	authLink: '',
 	description: '',
-});
+})
 
 defineSlots<{
-	settings?: FunctionalComponent,
-	description?: FunctionalComponent | string,
-}>();
+	settings?: FunctionalComponent
+	description?: FunctionalComponent | string
+}>()
 
-const showSettings = ref(false);
+const showSettings = ref(false)
 
 async function login() {
-	if (!props.authLink) return;
+	if (!props.authLink) return
 
-	window.open(props.authLink, 'Twir connect integration', 'width=800,height=600');
+	window.open(props.authLink, 'Twir connect integration', 'width=800,height=600')
 }
 
 async function saveSettings() {
-	await props.save?.();
-	showSettings.value = false;
+	await props.save?.()
+	showSettings.value = false
 }
 
-const userCanManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations);
+const userCanManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations)
 
-const { t } = useI18n();
+const { t } = useI18n()
 </script>
 
 <template>
-	<card
-		:title="title"
-		style="height: 100%;"
-		:with-stroke="false"
-		:icon="icon"
-		:icon-width="iconWidth"
-		:is-loading="isLoading"
-	>
-		<template #content>
-			<slot class="description" name="description" />
-		</template>
+	<Card class="flex flex-col h-full">
+		<CardHeader>
+			<CardTitle class="flex items-center gap-2">
+				<component
+					:is="icon"
+					:style="{ width: iconWidth }"
+					class="w-8 h-8"
+				/>
+				{{ title }}
+			</CardTitle>
+		</CardHeader>
 
-		<template #footer>
-			<div class="flex justify-between flex-wrap items-center gap-1 w-full">
+		<CardContent class="flex-grow">
+			<slot name="description" />
+		</CardContent>
+
+		<CardFooter class="mt-auto">
+			<div class="flex justify-between flex-wrap items-center gap-4 w-full">
 				<div class="flex gap-2 flex-wrap">
-					<n-button
+					<Button
 						v-if="withSettings"
 						:disabled="!userCanManageIntegrations"
-						secondary
-						size="large"
+						variant="outline"
+						size="sm"
 						@click="showSettings = true"
 					>
-						<div class="flex gap-1">
-							<span>{{ t('sharedButtons.settings') }}</span>
-							<IconSettings />
-						</div>
-					</n-button>
-					<n-button
+						<Settings class="mr-2 h-4 w-4" />
+						{{ t('sharedButtons.settings') }}
+					</Button>
+
+					<Button
 						:disabled="!userCanManageIntegrations || !authLink"
-						secondary
-						size="large"
-						:type="data?.userName ? 'error' : 'success'"
+						:variant="data?.userName ? 'destructive' : 'default'"
+						size="sm"
 						@click="data?.userName ? logout() : login()"
 					>
-						<div class="flex gap-1">
-							<span>
-								{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
-							</span>
-							<IconLogout v-if="data?.userName" />
-							<IconLogin v-else />
-						</div>
-					</n-button>
+						<LogOut
+							v-if="data?.userName"
+							class="mr-2 h-4 w-4"
+						/>
+						<LogIn
+							v-else
+							class="mr-2 h-4 w-4"
+						/>
+						{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
+					</Button>
 				</div>
+
 				<div
 					v-if="data?.userName"
-					class="flex gap-2 rounded-[var(--n-border-radius)]"
-					:style="{ backgroundColor: themeVars.buttonColor2 }"
+					class="flex items-center gap-2 rounded-md bg-muted px-3 h-9 text-sm"
 				>
-					<div class="flex items-center gap-2 h-full px-4 py-2">
-						<n-avatar v-if="data?.avatar" round :src="data?.avatar" class="h-6 w-6" />
-						<span>{{ data.userName }}</span>
-					</div>
+					<img
+						v-if="data?.avatar"
+						:src="data.avatar"
+						:alt="data.userName"
+						class="h-5 w-5 rounded-full object-cover"
+					/>
+					<span>{{ data.userName }}</span>
 				</div>
 			</div>
-		</template>
-	</card>
+		</CardFooter>
 
-	<n-modal
-		v-if="withSettings"
-		v-model:show="showSettings"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		:title="title"
-		class="modal"
-		:style="{
-			width: '50vw',
-			top: '5%',
-			bottom: '5%'
-		}"
-	>
-		<template #header>
-			{{ title }}
-		</template>
-		<slot name="settings" />
+		<Dialog v-if="withSettings" v-model:open="showSettings">
+			<DialogContent class="sm:max-w-[425px]">
+				<DialogHeader>
+					<DialogTitle>{{ title }}</DialogTitle>
+				</DialogHeader>
 
-		<template #action>
-			<n-space justify="end">
-				<n-button secondary @click="showSettings = false">
-					{{ t('sharedButtons.close') }}
-				</n-button>
-				<n-button v-if="save" secondary type="success" @click="saveSettings">
-					{{ t('sharedButtons.save') }}
-				</n-button>
-			</n-space>
-		</template>
-	</n-modal>
+				<slot name="settings" />
+
+				<DialogFooter>
+					<Button variant="outline" @click="showSettings = false">
+						{{ t('sharedButtons.close') }}
+					</Button>
+					<Button v-if="save" variant="default" @click="saveSettings">
+						{{ t('sharedButtons.save') }}
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	</Card>
 </template>
