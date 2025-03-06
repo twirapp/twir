@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 
 	"github.com/lib/pq"
 	"github.com/pressly/goose/v3"
@@ -39,6 +40,9 @@ func upSeparateSpotify(ctx context.Context, tx *sql.Tx) error {
 		"SELECT id FROM integrations WHERE service = 'SPOTIFY'",
 	).Scan(&spotifyIntegration.ID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
 		return err
 	}
 
@@ -48,6 +52,9 @@ func upSeparateSpotify(ctx context.Context, tx *sql.Tx) error {
 		spotifyIntegration.ID,
 	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
 		return err
 	}
 	channelsIntegrations := []channelsIntegrationsSpotify20250227132205{}
