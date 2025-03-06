@@ -266,7 +266,11 @@ function goToRoute() {
 									v-for="child in item.child"
 									:key="child.name"
 								>
-									<SidebarMenuButton as-child @click="goToRoute">
+									<SidebarMenuButton
+										as-child
+										:variant="currentRoute.path === child.path || currentRoute.fullPath === child.path ? 'active' : 'default'"
+										@click="goToRoute"
+									>
 										<RouterLink :to="child.path!">
 											<component :is="child.icon" />
 											<span>{{ child.name }}</span>
