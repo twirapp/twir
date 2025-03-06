@@ -12,13 +12,12 @@
     "graphql-codegen": "bunx --bun graphql-codegen"
   },
   "dependencies": {
-    "@twir/api": "workspace:*",
-    "@nuxt-alt/proxy": "2.5.8",
     "@nuxt/fonts": "0.9.2",
     "@nuxt/image": "1.8.1",
     "@pinia/nuxt": "0.9.0",
     "@std/async": "npm:@jsr/std__async",
     "@tanstack/vue-table": "8.16.0",
+    "@twir/api": "workspace:*",
     "@twir/brand": "workspace:*",
     "@urql/core": "5.1.0",
     "@urql/vue": "1.4.2",

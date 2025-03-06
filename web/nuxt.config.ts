@@ -30,7 +30,6 @@ export default defineNuxtConfig({
 		'@nuxt/fonts',
 		'nuxt-svgo',
 		'@vueuse/nuxt',
-		'@nuxt-alt/proxy',
 		gqlcodegen,
 	],
 
@@ -51,26 +50,26 @@ export default defineNuxtConfig({
 
 	css: ['~/assets/css/global.css'],
 
-	proxy: {
-		debug: true,
-		experimental: {
-			listener: true,
-		},
-		proxies: {
-			'/api': {
-				target: 'http://127.0.0.1:3009',
-				changeHost: false,
-				rewrite: (path) => path.replace(/^\/api/, ''),
-				ws: true,
-			},
-			'/socket': {
-				target: 'http://127.0.0.1:3004',
-				changeHost: false,
-				rewrite: (path) => path.replace(/^\/socket/, ''),
-				ws: true,
-			},
-		},
-	},
+	// proxy: {
+	// 	debug: true,
+	// 	experimental: {
+	// 		listener: true,
+	// 	},
+	// 	proxies: {
+	// 		'/api': {
+	// 			target: 'http://127.0.0.1:3009',
+	// 			changeHost: false,
+	// 			rewrite: (path) => path.replace(/^\/api/, ''),
+	// 			ws: true,
+	// 		},
+	// 		'/socket': {
+	// 			target: 'http://127.0.0.1:3004',
+	// 			changeHost: false,
+	// 			rewrite: (path) => path.replace(/^\/socket/, ''),
+	// 			ws: true,
+	// 		},
+	// 	},
+	// },
 
 	nitro: {
 		preset: 'bun',
