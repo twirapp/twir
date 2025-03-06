@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { intlFormat } from 'date-fns'
+import { computed } from 'vue'
 
 import type { ChatMessage } from '@/gql/graphql'
 
@@ -17,6 +18,24 @@ const formattedDate = intlFormat(createdAt, {
 	month: 'numeric',
 	year: 'numeric',
 })
+
+const parsedMessage = computed(() => {
+	const urlRegex = /(https?:\/\/[^\s]+)/g
+	const parts = props.message.text.split(urlRegex)
+
+	return parts.map(part => {
+		if (urlRegex.test(part)) {
+			return {
+				type: 'url',
+				content: part,
+			}
+		}
+		return {
+			type: 'text',
+			content: part,
+		}
+	})
+})
 </script>
 
 <template>
@@ -27,6 +46,17 @@ const formattedDate = intlFormat(createdAt, {
 			<span :style="{ color: message.userColor }">{{ message.userDisplayName }}</span>:
 		</span>
 		{{ ' ' }}
-		<span class="break-words">{{ message.text }}</span>
+		<span class="break-words">
+			<template v-for="(part, index) in parsedMessage" :key="index">
+				<a
+					v-if="part.type === 'url'"
+					:href="part.content"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline"
+				>{{ part.content }}</a>
+				<span v-else>{{ part.content }}</span>
+			</template>
+		</span>
 	</span>
 </template>
