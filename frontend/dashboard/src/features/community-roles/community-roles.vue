@@ -1,12 +1,5 @@
 <script setup lang='ts'>
-import { IconPlus } from '@tabler/icons-vue'
-import {
-	NButton,
-	NCard,
-	NPopconfirm,
-	NSpace,
-	NText,
-} from 'naive-ui'
+import { PlusIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -17,6 +10,9 @@ import type { ChannelRolesQuery } from '@/gql/graphql'
 import { useUserAccessFlagChecker } from '@/api/index.js'
 import { useRoles } from '@/api/roles'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import ActionConfirm from '@/components/ui/action-confirm.vue'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ChannelRolePermissionEnum, RoleTypeEnum } from '@/gql/graphql'
 
@@ -26,9 +22,23 @@ const rolesDeleter = rolesManager.useRolesDeleteMutation()
 
 const editableRole = ref<ChannelRolesQuery['roles'][number] | null>(null)
 const showModal = ref(false)
+const showDelete = ref(false)
+const roleToDelete = ref<string | null>(null)
+
 function openModal(role: ChannelRolesQuery['roles'][number] | null) {
 	editableRole.value = role
 	showModal.value = true
+}
+
+function openDelete(roleId: string) {
+	roleToDelete.value = roleId
+	showDelete.value = true
+}
+
+async function deleteRole() {
+	if (roleToDelete.value) {
+		await rolesDeleter.executeMutation({ id: roleToDelete.value })
+	}
 }
 
 const userCanManageRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageRoles)
@@ -38,56 +48,51 @@ const { t } = useI18n()
 
 <template>
 	<div class="flex flex-col gap-2">
-		<NCard
+		<Card
 			class="min-w-[400px]"
-			:style="{ cursor: userCanManageRoles ? 'pointer' : 'not-allowed' }"
-			size="small"
-			bordered
-			hoverable
+			:class="{ 'cursor-pointer': userCanManageRoles, 'cursor-not-allowed': !userCanManageRoles }"
 			@click="() => {
 				if (userCanManageRoles) {
 					openModal(null)
 				}
 			}"
 		>
-			<NSpace align="center" justify="center" vertical>
-				<NText class="text-[30px]">
-					<IconPlus />
-				</NText>
-			</NSpace>
-		</NCard>
-		<NCard
+			<CardContent class="flex items-center justify-center p-6">
+				<PlusIcon class="h-8 w-8" />
+			</CardContent>
+		</Card>
+
+		<Card
 			v-for="role in roles?.roles"
 			:key="role.id"
-			size="small"
 			class="min-w-[400px]"
-			hoverable
 		>
-			<NSpace justify="space-between" align="center">
-				<NText class="text-[30px]">
+			<CardContent class="flex items-center justify-between p-6">
+				<span class="text-2xl">
 					{{ role.name }}
-				</NText>
-				<NSpace>
-					<NButton :disabled="!userCanManageRoles" secondary type="success" @click="openModal(role)">
-						{{ t('sharedButtons.edit') }}
-					</NButton>
-					<NPopconfirm
-						v-if="role.type === RoleTypeEnum.Custom"
-						:positive-text="t('deleteConfirmation.confirm')"
-						:negative-text="t('deleteConfirmation.cancel')"
-						@positive-click="() => rolesDeleter.executeMutation({ id: role.id })"
+				</span>
+				<div class="flex gap-2">
+					<Button
+						:disabled="!userCanManageRoles"
+						variant="outline"
+						@click="openModal(role)"
 					>
-						<template #trigger>
-							<NButton :disabled="role.type !== 'CUSTOM' || !userCanManageRoles" secondary type="error">
-								{{ t('sharedButtons.delete') }}
-							</NButton>
-						</template>
-						{{ t('deleteConfirmation.text') }}
-					</NPopconfirm>
-				</NSpace>
-			</NSpace>
-		</NCard>
+						{{ t('sharedButtons.edit') }}
+					</Button>
+
+					<Button
+						v-if="role.type === RoleTypeEnum.Custom"
+						:disabled="role.type !== 'CUSTOM' || !userCanManageRoles"
+						variant="destructive"
+						@click="openDelete(role.id)"
+					>
+						{{ t('sharedButtons.delete') }}
+					</Button>
+				</div>
+			</CardContent>
+		</Card>
 	</div>
+
 	<Dialog v-model:open="showModal">
 		<DialogOrSheet>
 			<DialogHeader>
@@ -99,4 +104,9 @@ const { t } = useI18n()
 			<RoleModal :role="editableRole" />
 		</DialogOrSheet>
 	</Dialog>
+
+	<ActionConfirm
+		v-model:open="showDelete"
+		@confirm="deleteRole"
+	/>
 </template>

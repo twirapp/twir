@@ -1,178 +1,223 @@
 <script setup lang='ts'>
-import {
-	type FormInst,
-	type FormItemRule,
-	type FormRules,
-	NButton,
-	NCheckbox,
-	NCheckboxGroup,
-	NDivider,
-	NForm,
-	NFormItem,
-	NGrid,
-	NGridItem,
-	NInput,
-	NInputNumber
-} from 'naive-ui'
-import { onMounted, ref, toRaw } from 'vue'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useForm } from 'vee-validate'
+import { onMounted , toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { z } from 'zod'
+
+import type {
+	ChannelRolesQuery,
+	RolesCreateOrUpdateOpts,
+} from '@/gql/graphql'
 
 import { PERMISSIONS_FLAGS } from '@/api/index.js'
 import { useRoles } from '@/api/roles'
-import UsersMultiSearch from '@/components/twitchUsers/multiple.vue'
+import UsersMultiSearch from '@/components/twitchUsers/twitch-users-select.vue'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/toast'
 import {
 	ChannelRolePermissionEnum,
-	type ChannelRolesQuery,
-	type RolesCreateOrUpdateOpts
 } from '@/gql/graphql'
 
 const props = defineProps<{
 	role?: ChannelRolesQuery['roles'][number] | null
 }>()
-defineEmits<{
+
+const emit = defineEmits<{
 	close: []
 }>()
 
 const { t } = useI18n()
+const { toast } = useToast()
 
-const formRef = ref<FormInst | null>(null)
-const formValue = ref<RolesCreateOrUpdateOpts>({
+const formSchema = toTypedSchema(z.object({
+	name: z.string().min(1, t('roles.validations.nameRequired')).max(50),
+	permissions: z.array(z.nativeEnum(ChannelRolePermissionEnum)),
+	users: z.array(z.string()),
+	settings: z.object({
+		requiredMessages: z.number().min(0).max(99999999),
+		requiredUserChannelPoints: z.number().min(0).max(999999999999),
+		requiredWatchTime: z.number().min(0).max(99999999),
+	}),
+}))
+
+const initialValues = {
 	name: '',
 	permissions: [],
 	users: [],
 	settings: {
 		requiredMessages: 0,
 		requiredUserChannelPoints: 0,
-		requiredWatchTime: 0
-	}
-})
-
-const rules: FormRules = {
-	name: {
-		trigger: ['input', 'blur'],
-		validator: (_: FormItemRule, value: string) => {
-			if (!value || !value.length) {
-				return new Error(t('roles.validations.nameRequired'))
-			}
-
-			return true
-		}
-	}
+		requiredWatchTime: 0,
+	},
 }
+
+const { handleSubmit, setValues } = useForm({
+	validationSchema: formSchema,
+	initialValues,
+	keepValuesOnUnmount: true,
+	validateOnMount: false,
+})
 
 onMounted(() => {
 	if (!props.role) return
-
 	const raw = structuredClone(toRaw(props.role))
-	formValue.value.name = raw.name
-	formValue.value.permissions = raw.permissions
-	formValue.value.settings = raw.settings
-	if (props.role.users.length) {
-		formValue.value.users = props.role.users.map(u => u.id)
-	}
+	setValues({
+		name: raw.name,
+		permissions: raw.permissions,
+		settings: raw.settings,
+		users: props.role.users.map(u => u.id),
+	})
 })
 
 const rolesManager = useRoles()
 const rolesUpdater = rolesManager.useRolesUpdateMutation()
 const rolesCreator = rolesManager.useRolesCreateMutation()
 
-const toast = useToast()
-
-async function save() {
-	if (!formRef.value || !formValue.value) return
-	await formRef.value.validate()
-
-	const data = formValue.value
-
+const onSubmit = handleSubmit(async (formData) => {
 	if (props.role?.id) {
 		await rolesUpdater.executeMutation({
 			id: props.role.id,
-			opts: data
+			opts: formData as RolesCreateOrUpdateOpts,
 		})
 	} else {
 		await rolesCreator.executeMutation({
-			opts: {
-				...data
-			}
+			opts: formData as RolesCreateOrUpdateOpts,
 		})
 	}
 
-	toast.toast({
+	toast({
 		title: t('sharedTexts.saved'),
-		duration: 1500
+		duration: 1500,
 	})
-}
+
+	emit('close')
+})
 </script>
 
 <template>
-	<NForm ref="formRef" :model="formValue" :rules="rules">
-		<NFormItem :label="t('sharedTexts.name')" path="name" show-require-mark>
-			<NInput v-model:value="formValue.name" />
-		</NFormItem>
+	<form>
+		<div class="grid gap-6">
+			<FormField v-slot="{ componentField }" name="name">
+				<FormItem>
+					<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
+					<FormControl>
+						<Input v-bind="componentField" />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			</FormField>
 
-		<NDivider>{{ t('roles.modal.accessToUsers') }}</NDivider>
+			<Separator />
 
-		<UsersMultiSearch v-model="formValue.users" />
+			<div class="space-y-2">
+				<h4 class="font-medium">
+					{{ t('roles.modal.accessToUsers') }}
+				</h4>
+				<FormField v-slot="{ componentField }" name="users">
+					<FormItem>
+						<UsersMultiSearch :model-value="componentField.modelValue" @update:model-value="componentField['onUpdate:modelValue']" />
+						<FormMessage />
+					</FormItem>
+				</FormField>
+			</div>
 
-		<NDivider>{{ t('roles.modal.accessByStats') }}</NDivider>
+			<Separator />
 
-		<NGrid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-			<NGridItem :span="1">
-				<NFormItem :label="t('roles.modal.requiredWatchTime')">
-					<NInputNumber
-						v-model:value="formValue.settings!.requiredWatchTime"
-						:min="0" :max="99999999"
-					/>
-				</NFormItem>
-			</NGridItem>
+			<div class="space-y-2">
+				<h4 class="font-medium">
+					{{ t('roles.modal.accessByStats') }}
+				</h4>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<FormField v-slot="{ componentField }" name="settings.requiredWatchTime">
+						<FormItem>
+							<FormLabel>{{ t('roles.modal.requiredWatchTime') }}</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									v-bind="componentField"
+									min="0"
+									max="99999999"
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
 
-			<NGridItem :span="1">
-				<NFormItem :label="t('roles.modal.requiredMessages')">
-					<NInputNumber
-						v-model:value="formValue.settings!.requiredMessages"
-						:min="0"
-						:max="99999999"
-					/>
-				</NFormItem>
-			</NGridItem>
+					<FormField v-slot="{ componentField }" name="settings.requiredMessages">
+						<FormItem>
+							<FormLabel>{{ t('roles.modal.requiredMessages') }}</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									v-bind="componentField"
+									min="0"
+									max="99999999"
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
 
-			<NGridItem :span="1">
-				<NFormItem :label="t('roles.modal.requiredChannelPoints')">
-					<NInputNumber
-						v-model:value="formValue.settings!.requiredUserChannelPoints"
-						:min="0"
-						:max="999999999999"
-					/>
-				</NFormItem>
-			</NGridItem>
-		</NGrid>
+					<FormField v-slot="{ componentField }" name="settings.requiredUserChannelPoints">
+						<FormItem>
+							<FormLabel>{{ t('roles.modal.requiredChannelPoints') }}</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									v-bind="componentField"
+									min="0"
+									max="999999999999"
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+				</div>
+			</div>
 
-		<NDivider>{{ t('roles.modal.permissions') }}</NDivider>
+			<Separator />
 
-		<NCheckboxGroup v-model:value="formValue.permissions">
-			<NGrid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-				<NGridItem
-					v-for="(permission, index) of PERMISSIONS_FLAGS"
-					:key="index"
-					:span="permission === 'delimiter' ? 2 : 1"
-				>
-					<NCheckbox
-						v-if="permission !== 'delimiter'"
-						:disabled="formValue.permissions.some(p => p === ChannelRolePermissionEnum.CanAccessDashboard)
-							&& permission.perm !== ChannelRolePermissionEnum.CanAccessDashboard
-						"
-						:value="permission.perm"
-						:label="permission.description"
-					/>
-				</NGridItem>
-			</NGrid>
-		</NCheckboxGroup>
+			<div class="space-y-2">
+				<h4 class="font-medium">
+					{{ t('roles.modal.permissions') }}
+				</h4>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+					<FormField v-slot="{ value, handleChange }" name="permissions">
+						<template v-for="(permission, index) of PERMISSIONS_FLAGS" :key="index">
+							<div v-if="permission === 'delimiter'" class="col-span-2" />
+							<FormItem v-else class="flex flex-row items-start space-x-3 space-y-0">
+								<FormControl>
+									<Checkbox
+										:checked="value?.includes(permission.perm)"
+										:disabled="value?.some((p: ChannelRolePermissionEnum) => p === ChannelRolePermissionEnum.CanAccessDashboard)
+											&& permission.perm !== ChannelRolePermissionEnum.CanAccessDashboard"
+										@update:checked="(checked) => {
+											if (checked) {
+												handleChange([...(value || []), permission.perm])
+											}
+											else {
+												handleChange(value?.filter((p: ChannelRolePermissionEnum) => p !== permission.perm) || [])
+											}
+										}"
+									/>
+								</FormControl>
+								<FormLabel class="font-normal">
+									{{ permission.description }}
+								</FormLabel>
+							</FormItem>
+						</template>
+					</FormField>
+				</div>
+			</div>
 
-		<NDivider />
-
-		<NButton secondary type="success" block class="mt-3.5" @click="save">
-			{{ t('sharedButtons.save') }}
-		</NButton>
-	</NForm>
+			<Button type="submit" class="w-full" @click="onSubmit">
+				{{ t('sharedButtons.save') }}
+			</Button>
+		</div>
+	</Form>
 </template>
