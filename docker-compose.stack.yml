@@ -57,7 +57,7 @@ services:
         constraints:
           - node.role == manager
 
-  postgres:
+  postgres-old:
     image: 'bitnami/postgresql:17'
     environment:
       POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
@@ -71,6 +71,31 @@ services:
       - twir_postgres_db
     volumes:
       - twir-postgres-data:/bitnami/postgresql
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases-1 == tru
+
+  postgres:
+    image: 'twirapp/postgres:latest'
+    command: postgres -c max_connections=1000 -c shared_buffers=1536MB -c effective_cache_size=4608MB -c maintenance_work_mem=384MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200 -c work_mem=786kB -c huge_pages=off -c min_wal_size=1GB -c max_wal_size=4GB -c shared_preload_libraries='pgx_ulid'
+    environment:
+      POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
+      POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
+    secrets:
+      - twir_postgres_user
+      - twir_postgres_password
+      - twir_postgres_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - twir
     deploy:
@@ -679,7 +704,7 @@ services:
     networks:
       - twir
 
-# This is https://github.com/twirapp/music-recognizer repository, which is doing "Shazam for twitch stream".
+  # This is https://github.com/twirapp/music-recognizer repository, which is doing "Shazam for twitch stream".
   music-recognizer:
     image: registry.twir.app/twirapp/music-recognizer:latest
     secrets:
