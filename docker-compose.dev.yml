@@ -15,7 +15,7 @@ services:
   postgres:
     image: twirapp/postgres:latest
     restart: unless-stopped
-    command: postgres -c max_connections=500
+    command: postgres -c max_connections=500 -c shared_preload_libraries='pgx_ulid'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
