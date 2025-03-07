@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import type { DropdownMenuContentProps } from 'radix-vue'
 
-import { useAuthLink, useLogout, useProfile } from '~~/layers/landing/api/user'
+import { UserStoreKey } from '~/stores/user'
 
-const pageUrl = useRequestURL()
+const userStore = useAuth()
 
-const redirectUrl = computed(() => {
-	return `${pageUrl.origin}/dashboard`
-})
-
-const [
-	{ data: profile },
-	{ data: authLinkData },
-] = await Promise.all([
-	useProfile(),
-	useAuthLink(redirectUrl),
+await Promise.all([
+	callOnce(UserStoreKey, () => userStore.getUserData()),
 ])
 
 const dropdownProps = computed((): DropdownMenuContentProps & { class?: string } => {
@@ -25,30 +17,28 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 		sideOffset: 4,
 	}
 })
-
-const logout = useLogout()
 </script>
 
 <template>
-	<a
-		v-if="!profile"
+	<button
+		v-if="!userStore.user"
 		class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
-		:href="authLinkData?.authLink"
+		@click="userStore.login"
 	>
 		Login
 		<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
-	</a>
+	</button>
 
-	<UiDropdownMenu v-else>
+	<UiDropdownMenu v-else-if="userStore.user">
 		<UiDropdownMenuTrigger class="inline-flex items-center gap-3 text-white/75 hover:text-white transition-colors" as="button">
 			<div class="flex items-center gap-3 min-w-0">
 				<img
-					:src="profile.authenticatedUser.twitchProfile.profileImageUrl"
-					:alt="profile.authenticatedUser.twitchProfile.displayName"
+					:src="userStore.user.twitchProfile.profileImageUrl"
+					:alt="userStore.user.twitchProfile.displayName"
 					class="w-8 h-8 rounded-full flex-shrink-0"
 				/>
 				<span class="max-[600px]:hidden truncate">
-					{{ profile.authenticatedUser.twitchProfile.login }}
+					{{ userStore.user.twitchProfile.login }}
 				</span>
 				<Icon name="lucide:chevron-down" class="w-4 h-4 flex-shrink-0" />
 			</div>
@@ -64,7 +54,7 @@ const logout = useLogout()
 
 			<UiDropdownMenuSeparator />
 
-			<UiDropdownMenuItem as="button" class="flex w-full items-center text-destructive" @click="logout">
+			<UiDropdownMenuItem as="button" class="flex w-full items-center text-destructive" @click="userStore.logout">
 				<Icon name="lucide:log-out" class="mr-2 h-4 w-4" />
 				Logout
 			</UiDropdownMenuItem>

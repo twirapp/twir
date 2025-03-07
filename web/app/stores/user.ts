@@ -38,16 +38,19 @@ export const authedUserQuery = createRequest(graphql(`
 	}
 `), {})
 
+export const UserStoreKey = 'auth-store-user'
+
 export const useAuth = defineStore('auth-store', () => {
-	const { data, executeQuery: fetchUser, fetching, error } = useQuery({
+	const router = useRouter()
+
+	const { data, executeQuery: fetchUser, fetching } = useQuery({
 		query: authedUserQuery.query,
 		context: {
 			key: authedUserQuery.key,
+			additionalTypenames: [UserStoreKey],
 		},
 		variables: {},
 	})
-
-	const router = useRouter()
 
 	const user = computed(() => data.value?.authenticatedUser)
 
@@ -58,34 +61,55 @@ export const useAuth = defineStore('auth-store', () => {
 	`))
 
 	async function logout(withRedirect = false) {
-		await executeLogout({})
+		await executeLogout({}, { additionalTypenames: [UserStoreKey] })
 		if (withRedirect) {
 			await router.push('/')
 		}
-		await fetchUser({ requestPolicy: 'network-only' })
 	}
 
-	const { data: authLinkData, executeQuery: fetchAuthLink } = useQuery({
+	const redirectTo = computed(() => {
+		const currentRoute = router.currentRoute.value
+
+		const isPublic = currentRoute.matched.at(0)?.path.startsWith('/p/:channelName()')
+
+		if (isPublic) {
+			return currentRoute.fullPath
+		} else {
+			return '/dashboard'
+		}
+	})
+
+	const { executeQuery: fetchAuthLink } = useQuery({
 		query: graphql(`
 			query AuthLink($redirectTo: String!) {
 				authLink(redirectTo: $redirectTo)
 			}
 		`),
 		get variables() {
-			return { redirectTo: router.currentRoute.value.fullPath }
+			return { redirectTo: redirectTo.value }
 		},
+		pause: true,
 	})
 
-	const authLink = computed(() => authLinkData.value?.authLink ?? null)
+	async function getUserData() {
+		const { data } = await fetchUser()
+		return data.value?.authenticatedUser
+	}
+
+	async function login() {
+		const { data } = await fetchAuthLink()
+		if (!data.value) return
+
+		window.location.replace(data.value.authLink)
+	}
 
 	return {
 		user,
-		authLink,
 		isLoading: fetching,
 
-		refetch: fetchUser,
-		fetchAuthLink,
+		getUserData,
 		logout,
+		login,
 	}
 })
 

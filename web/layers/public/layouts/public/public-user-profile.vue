@@ -3,9 +3,13 @@ import { computed } from 'vue'
 
 import type { DropdownMenuContentProps } from 'radix-vue'
 
-const authStore = useAuth()
-await useAsyncData('user', async () => authStore.refetch().then(() => true))
-await useAsyncData('authLink', async () => authStore.fetchAuthLink().then(() => true))
+import { UserStoreKey } from '~/stores/user'
+
+const userStore = useAuth()
+
+await Promise.all([
+	callOnce(UserStoreKey, () => userStore.getUserData()),
+])
 
 const dropdownProps = computed((): DropdownMenuContentProps & { class?: string } => {
 	return {
@@ -26,20 +30,20 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 </script>
 
 <template>
-	<UiSidebarMenuButton v-if="!authStore.user" size="lg" class="items-center justify-center" :href="authStore.authLink" as="a">
+	<UiSidebarMenuButton v-if="!userStore.user" size="lg" class="items-center justify-center" @click="userStore.login">
 		Login with Twitch
 	</UiSidebarMenuButton>
 
 	<UiDropdownMenu v-else>
 		<UiDropdownMenuTrigger as-child>
 			<UiSidebarMenuButton
-				v-if="authStore.user"
+				v-if="userStore.user"
 				size="lg"
 				class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 			>
-				<img :src="authStore.user.twitchProfile.profileImageUrl" class="size-8 rounded-full" />
+				<img :src="userStore.user.twitchProfile.profileImageUrl" class="size-8 rounded-full" />
 				<div class="grid flex-1 text-left text-sm leading-tight">
-					<span class="truncate font-semibold">{{ authStore.user.twitchProfile.displayName }}</span>
+					<span class="truncate font-semibold">{{ userStore.user.twitchProfile.displayName }}</span>
 					<span class="truncate text-xs">Logged as</span>
 				</div>
 				<Icon name="lucide:chevrons-up-down" class="ml-auto size-4" />
@@ -58,7 +62,7 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 
 			<!--			<UiDropdownMenuSeparator /> -->
 
-			<UiDropdownMenuItem @click="() => authStore.logout()">
+			<UiDropdownMenuItem @click="() => userStore.logout()">
 				<Icon name="lucide:log-out" class="mr-2 size-4" />
 				Logout
 			</UiDropdownMenuItem>

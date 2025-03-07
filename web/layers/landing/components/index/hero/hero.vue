@@ -3,31 +3,14 @@ import { DISCORD_INVITE_URL } from '@twir/brand'
 
 import HeroChat from './hero-chat.vue'
 
-import { useAuthLink, useProfile } from '~~/layers/landing/api/user'
+import { UserStoreKey } from '~/stores/user'
 import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
 
-const pageUrl = useRequestURL()
+const userStore = useAuth()
 
-const redirectUrl = computed(() => {
-	return `${pageUrl.origin}/dashboard`
-})
-
-const [{ data: profile }, { data: authLinkData }] = await Promise.all([
-	useProfile(),
-	useAuthLink(redirectUrl),
+await Promise.all([
+	callOnce(UserStoreKey, () => userStore.getUserData()),
 ])
-
-const isLogged = computed(() => {
-	return !!profile.value
-})
-
-const startButtonHref = computed(() => {
-	return isLogged.value ? '/dashboard' : authLinkData.value?.authLink
-})
-
-const startButtonText = computed(() => {
-	return isLogged.value ? 'Dashboard' : 'Start for free'
-})
 </script>
 
 <template>
@@ -60,8 +43,11 @@ const startButtonText = computed(() => {
 						<UiButton href="#" variant="secondary">
 							Learn more
 						</UiButton>
-						<UiButton :href="startButtonHref" variant="primary">
-							{{ startButtonText }}
+						<UiButton v-if="userStore.user" href="/dashboard" variant="primary">
+							Dashboard
+						</UiButton>
+						<UiButton v-else as="button" variant="primary" @click="userStore.login()">
+							Start for free
 						</UiButton>
 					</div>
 				</div>
