@@ -1,6 +1,7 @@
 package cfg
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,11 +17,10 @@ type Config struct {
 	RedisUrl           string `required:"true"  default:"redis://localhost:6379/0"    envconfig:"REDIS_URL"`
 	TwitchClientId     string `required:"true"                                        envconfig:"TWITCH_CLIENTID"`
 	TwitchClientSecret string `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
-	TwitchCallbackUrl  string `required:"true"  default:"http://localhost:3005/login" envconfig:"TWITCH_CALLBACKURL"`
 	DatabaseUrl        string `required:"true"                                        envconfig:"DATABASE_URL"`
 	AppEnv             string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
 	SentryDsn          string `required:"false"                                       envconfig:"SENTRY_DSN"`
-	SiteBaseUrl        string `required:"false" default:"localhost:3005" envconfig:"SITE_BASE_URL"`
+	SiteBaseUrl        string `required:"false" default:"http://localhost:3005" envconfig:"SITE_BASE_URL"`
 	TokensCipherKey    string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
 	TTSServiceUrl      string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
 	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
@@ -50,6 +50,15 @@ type Config struct {
 
 	ToxicityAddr        string `required:"false" envconfig:"TOXICITY_ADDR"`
 	MusicRecognizerAddr string `required:"false" envconfig:"MUSIC_RECOGNIZER_ADDR"`
+}
+
+func (c *Config) GetTwitchCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("login").String()
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

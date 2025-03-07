@@ -7,8 +7,6 @@ import (
 	"github.com/guregu/null"
 	"github.com/satont/twir/apps/parser/internal/types"
 
-	"github.com/samber/lo"
-
 	model "github.com/satont/twir/libs/gomodels"
 )
 
@@ -27,14 +25,13 @@ var SrListCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		url := fmt.Sprintf(
-			"%s://%s/p/%s/songs-requests",
-			lo.If(parseCtx.Services.Config.AppEnv == "development", "http").Else("https"),
+		link := fmt.Sprintf(
+			"%s/p/%s/songs-requests",
 			parseCtx.Services.Config.SiteBaseUrl,
 			parseCtx.Channel.Name,
 		)
 
-		result.Result = append(result.Result, url)
+		result.Result = append(result.Result, link)
 		return result, nil
 	},
 }

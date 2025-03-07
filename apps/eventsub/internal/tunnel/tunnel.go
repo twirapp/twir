@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"net/url"
 	"time"
 
 	"github.com/avast/retry-go/v4"
@@ -69,12 +70,14 @@ func New(cfg config.Config, lc fx.Lifecycle, log logger.Logger) (*AppTunnel, err
 }
 
 func (c *AppTunnel) GetAddr() string {
+	baseUrl, _ := url.Parse(c.cfg.SiteBaseUrl)
+
 	return lo.
 		If(
 			c.cfg.AppEnv != "production",
 			"https://"+c.Listener.Addr().String(),
 		).
-		Else(fmt.Sprintf("https://eventsub.%s", c.cfg.SiteBaseUrl))
+		Else(fmt.Sprintf("https://eventsub.%s", baseUrl.Host))
 }
 
 func createDefaultTun() (net.Listener, error) {

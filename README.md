@@ -72,10 +72,9 @@ We'll use `twir.localhost` domain, which is enables ability to grant ssl out of 
 
 * Add `https://twir.localhost/login` to your twitch application redirect url's
 
-* Edit `.env`, change site base url and protocol for twitch callback:
+* Edit `.env`, change site base url:
 ```ini
-SITE_BASE_URL=twir.localhost
-TWITCH_CALLBACKURL=https://$SITE_BASE_URL/login
+SITE_BASE_URL=https://twir.localhost
 ```
 
 * Start application as usual:

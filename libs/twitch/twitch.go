@@ -59,7 +59,7 @@ func NewAppClientWithContext(
 		ctx, &helix.Options{
 			ClientID:       config.TwitchClientId,
 			ClientSecret:   config.TwitchClientSecret,
-			RedirectURI:    config.TwitchCallbackUrl,
+			RedirectURI:    config.GetTwitchCallbackUrl(),
 			RateLimitFunc:  rateLimitCallback,
 			AppAccessToken: appToken.AccessToken,
 			HTTPClient:     createHttpClient(),
@@ -101,7 +101,7 @@ func NewUserClientWithContext(
 		&helix.Options{
 			ClientID:        config.TwitchClientId,
 			ClientSecret:    config.TwitchClientSecret,
-			RedirectURI:     config.TwitchCallbackUrl,
+			RedirectURI:     config.GetTwitchCallbackUrl(),
 			RateLimitFunc:   rateLimitCallback,
 			UserAccessToken: userToken.AccessToken,
 			HTTPClient:      createHttpClient(),
@@ -139,7 +139,7 @@ func NewBotClientWithContext(
 		ctx, &helix.Options{
 			ClientID:        config.TwitchClientId,
 			ClientSecret:    config.TwitchClientSecret,
-			RedirectURI:     config.TwitchCallbackUrl,
+			RedirectURI:     config.GetTwitchCallbackUrl(),
 			RateLimitFunc:   rateLimitCallback,
 			UserAccessToken: botToken.AccessToken,
 			HTTPClient:      createHttpClient(),

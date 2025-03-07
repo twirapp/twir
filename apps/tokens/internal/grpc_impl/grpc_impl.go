@@ -78,7 +78,7 @@ func NewTokens(opts Opts) error {
 		&helix.Options{
 			ClientID:      opts.Config.TwitchClientId,
 			ClientSecret:  opts.Config.TwitchClientSecret,
-			RedirectURI:   opts.Config.TwitchCallbackUrl,
+			RedirectURI:   opts.Config.GetTwitchCallbackUrl(),
 			RateLimitFunc: rateLimitFunc,
 		},
 	)
