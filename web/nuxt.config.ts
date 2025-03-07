@@ -38,6 +38,7 @@ export default defineNuxtConfig({
 	},
 
 	devServer: {
+		host: '0.0.0.0',
 		port: 3010,
 	},
 
@@ -49,27 +50,6 @@ export default defineNuxtConfig({
 	},
 
 	css: ['~/assets/css/global.css'],
-
-	// proxy: {
-	// 	debug: true,
-	// 	experimental: {
-	// 		listener: true,
-	// 	},
-	// 	proxies: {
-	// 		'/api': {
-	// 			target: 'http://127.0.0.1:3009',
-	// 			changeHost: false,
-	// 			rewrite: (path) => path.replace(/^\/api/, ''),
-	// 			ws: true,
-	// 		},
-	// 		'/socket': {
-	// 			target: 'http://127.0.0.1:3004',
-	// 			changeHost: false,
-	// 			rewrite: (path) => path.replace(/^\/socket/, ''),
-	// 			ws: true,
-	// 		},
-	// 	},
-	// },
 
 	nitro: {
 		preset: 'bun',

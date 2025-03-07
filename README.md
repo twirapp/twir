@@ -72,16 +72,15 @@ We'll use `twir.localhost` domain, which is enables ability to grant ssl out of 
 
 * Add `https://twir.localhost/login` to your twitch application redirect url's
 
-* Edit `.env` entries:
+* Edit `.env`, change site base url and protocol for twitch callback:
 ```ini
-TWITCH_CALLBACKURL=https://twir.localhost/login
 SITE_BASE_URL=twir.localhost
-USE_WSS=true
+TWITCH_CALLBACKURL=https://$SITE_BASE_URL/login
 ```
 
-* Start caddy:
+* Start application as usual:
 ```bash
-bun cli proxy
+bun dev
 ```
 
 * Open https://twir.localhost
