@@ -26,7 +26,7 @@
     "graphql": "16.8.1",
     "graphql-ws": "5.16.0",
     "lucide-vue-next": "0.368.0",
-    "nuxt": "3.15.4",
+    "nuxt": "3.16.0",
     "nuxt-svgo": "4.0.6",
     "nuxt-typed-router": "3.7.0",
     "pinia": "2.3.1",
