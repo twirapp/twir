@@ -20,28 +20,8 @@ jobs:
         with:
           bun-version-file: ".bun-version"
 
-      - name: Cache node_modules
-        id: cache-node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-
-      - name: Install js
-        if: steps.cache-node_modules.outputs.cache-hit != 'true'
-        run: bun install
-
       - name: Install go dependencies
-        run: bun cli deps --skip-node
+        run: bun cli deps
 
       - name: Build
         run: bun cli build
-
-      # - name: Lint javascript
-      #   run: pnpm run lint
-
-      # - name: golangci-lint
-      #   uses: golangci/golangci-lint-action@v3
-      #   with:
-      #     version: v1.55.2
