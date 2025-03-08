@@ -1,6 +1,6 @@
-version: v1
+version: v2
 plugins:
-  - plugin: go
+  - local: ["go", "tool", "google.golang.org/protobuf/cmd/protoc-gen-go"]
     out: ./
     opt:
       - paths=source_relative

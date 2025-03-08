@@ -31,7 +31,7 @@ func (c *Integrations) IntegrationsDiscordGetAuthLink(
 		return nil, errors.New("discord not enabled on our side, please be patient")
 	}
 
-	redirectUrl := fmt.Sprintf("http://%s/dashboard/integrations/discord", c.Config.SiteBaseUrl)
+	redirectUrl := fmt.Sprintf("%s/dashboard/integrations/discord", c.Config.SiteBaseUrl)
 
 	q := u.Query()
 	q.Add("client_id", c.Config.DiscordClientID)
@@ -242,7 +242,7 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 				"grant_type": "authorization_code",
 				"code":       data.GetCode(),
 				"redirect_uri": fmt.Sprintf(
-					"http://%s/dashboard/integrations/discord",
+					"%s/dashboard/integrations/discord",
 					c.Config.SiteBaseUrl,
 				),
 			},

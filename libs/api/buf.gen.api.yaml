@@ -1,10 +1,10 @@
-version: v1
+version: v2
 plugins:
-  - plugin: twirp
+  - local: ["go", "tool", "github.com/twitchtv/twirp/protoc-gen-twirp"]
     out: ./
     opt:
       - paths=source_relative
-  - plugin: ts
+  - local: ["bunx", "protoc-gen-ts"]
     opt:
       - optimize_code_size
       - generate_dependencies

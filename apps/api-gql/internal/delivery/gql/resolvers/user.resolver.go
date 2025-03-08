@@ -269,7 +269,7 @@ func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string
 	twitchClient, err := helix.NewClientWithContext(
 		ctx, &helix.Options{
 			ClientID:    r.deps.Config.TwitchClientId,
-			RedirectURI: r.deps.Config.TwitchCallbackUrl,
+			RedirectURI: r.deps.Config.GetTwitchCallbackUrl(),
 		},
 	)
 	if err != nil {

@@ -66,7 +66,6 @@ var Cmd = &cli.Command{
 					return err
 				}
 
-				binariesWg.Go(binaries.InstallGoBinaries)
 				binariesWg.Go(binaries.InstallProtoc)
 
 				if err := binariesWg.Wait(); err != nil {
