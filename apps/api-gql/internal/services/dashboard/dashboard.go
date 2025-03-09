@@ -214,7 +214,7 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 
 	result := entity.BotStatus{
 		Enabled: dbUser.Channel.IsEnabled,
-		IsMod:   true,
+		IsMod:   false,
 	}
 
 	var errgrp errgroup.Group
@@ -222,6 +222,7 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 	errgrp.Go(
 		func() error {
 			if channelID == dbUser.Channel.BotID {
+				result.IsMod = true
 				return nil
 			}
 
@@ -239,7 +240,7 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 			}
 
 			if len(mods.Data.Moderators) > 0 {
-				result.IsMod = false
+				result.IsMod = true
 			}
 
 			return nil
