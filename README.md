@@ -2,34 +2,16 @@
 
 ## Requirements
 
-* [Bun (1.2.2+)](https://bun.sh)
+* [Bun (1.2.4+)](https://bun.sh)
 * [Go (1.21+)](https://go.dev/)
 
 * [Docker](https://docs.docker.com/engine/)
 
-## Cli
+
+### Development
 
 > [!NOTE]
 > For MOST of project management tasks we use own written cli. You can use `bun cli help` for print cli usage
-
-* Run needed services (Postgres, Adminer, Redis, Minio)
-```bash
-docker compose -f docker-compose.dev.yml up -d
-```
-
-* Install dependencies
-```bash
-bun cli deps
-```
-
-* Build libs
-```bash
-bun run build libs
-```
-
-### Configure project for development
-
-Well, now we are almost ready for developing project, just few steps.
 
 * Create twitch application https://dev.twitch.tv/console/apps
 * Set `http://localhost:3005/login` and `https://tokens-generator.twir.app` as your redirect url's for twitch application
@@ -37,9 +19,12 @@ Well, now we are almost ready for developing project, just few steps.
   ALL SCOPES
 * `cp .env.example .env` and fill required envs
 
-### Run project
+* Run needed services (Postgres, Adminer, Redis, Minio, e.t.c)
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
 
-* Start dev mode
+* Start project
 ```bash
 bun dev
 ```
@@ -56,15 +41,10 @@ bun cli migrations create
 cd libs/migrations/migrations
 ```
 
-* Run new created migrations (optional, because it's running when you execute `pnpm dev`)
+* Run new created migrations (optional, because it's running when you execute `bun dev`)
 ```bash
 bun cli migrations run
 ```
-##### Write `go` models
-
-* Go to `libs/gomodels`
-* Create new file and describe the go schema
-* Do not forget about `TableName()` for struct
 
 ## Https on localhost (optional)
 
