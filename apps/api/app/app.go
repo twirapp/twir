@@ -10,7 +10,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/files"
 	"github.com/satont/twir/apps/api/internal/handlers"
-	"github.com/satont/twir/apps/api/internal/impl_admin"
 	"github.com/satont/twir/apps/api/internal/impl_protected"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected"
 	"github.com/satont/twir/apps/api/internal/interceptors"
@@ -68,11 +67,9 @@ var App = fx.Options(
 		interceptors.New,
 		impl_protected.New,
 		impl_unprotected.New,
-		impl_admin.New,
 		ttscache.NewTTSSettings,
 		handlers.AsHandler(twirp_handlers.NewProtected),
 		handlers.AsHandler(twirp_handlers.NewUnProtected),
-		handlers.AsHandler(twirp_handlers.NewAdmin),
 		handlers.AsHandler(webhooks.NewDonateStream),
 		handlers.AsHandler(webhooks.NewDonatello),
 		handlers.AsHandler(files.NewFiles),

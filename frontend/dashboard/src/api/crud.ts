@@ -3,7 +3,7 @@ import { unref } from 'vue'
 
 import { protectedApiClient } from './twirp.js'
 
-import type { adminApiClient, unprotectedApiClient } from './twirp.js'
+import type { unprotectedApiClient } from './twirp.js'
 import type { RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc'
 import type { MaybeRefOrGetter } from 'vue'
 
@@ -20,7 +20,7 @@ export function createCrudManager<
 	Create extends CallFunc<any, any>,
 	Update extends CallFunc<any, any>,
 >(opts: {
-	client: typeof protectedApiClient | typeof adminApiClient | typeof unprotectedApiClient
+	client: typeof protectedApiClient | typeof unprotectedApiClient
 	getAll: GetAll
 	getOne?: GetOne | null
 	deleteOne: Delete

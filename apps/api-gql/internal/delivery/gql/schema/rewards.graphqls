@@ -13,4 +13,5 @@ type TwitchReward {
 	backgroundColor: String!
 	enabled: Boolean!
 	usedTimes: Int!
+	userInputRequired: Boolean!
 }

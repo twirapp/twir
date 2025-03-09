@@ -50,14 +50,16 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 		}
 
 		gqlRewards = append(
-			gqlRewards, gqlmodel.TwitchReward{
-				ID:              reward.ID,
-				Title:           reward.Title,
-				Cost:            reward.Cost,
-				ImageUrls:       imageUrls,
-				BackgroundColor: reward.BackgroundColor,
-				Enabled:         false,
-				UsedTimes:       int(usedTimes),
+			gqlRewards,
+			gqlmodel.TwitchReward{
+				ID:                reward.ID,
+				Title:             reward.Title,
+				Cost:              reward.Cost,
+				ImageUrls:         imageUrls,
+				BackgroundColor:   reward.BackgroundColor,
+				Enabled:           false,
+				UsedTimes:         int(usedTimes),
+				UserInputRequired: reward.IsUserInputRequired,
 			},
 		)
 	}

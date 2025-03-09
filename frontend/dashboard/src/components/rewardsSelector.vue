@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { VNodeChild } from 'vue'
 
-import { useTwitchRewards } from '@/api'
+import { useTwitchRewardsNew } from '@/api/twitch.ts'
 import RewardFallbackImg from '@/assets/images/reward-fallback.png?url'
 
 const props = defineProps<{
@@ -21,9 +21,9 @@ const { t } = useI18n()
 
 const {
 	data: rewardsData,
-	isLoading: isRewardsLoading,
-	isError: isRewardsError,
-} = useTwitchRewards()
+	fetching: isRewardsLoading,
+	error: isRewardsError,
+} = useTwitchRewardsNew()
 
 type RewardSelectOptions = SelectOption & {
 	image?: string
@@ -32,17 +32,17 @@ type RewardSelectOptions = SelectOption & {
 
 const rewardsSelectOptions = computed(() => {
 	const rewards: RewardSelectOptions[] = []
-	if (!rewardsData.value?.rewards) return rewards
+	if (!rewardsData.value?.twitchRewards) return rewards
 
-	for (const reward of rewardsData.value.rewards) {
-		if (props.onlyWithInput && !reward.isUserInputRequired) continue
+	for (const reward of rewardsData.value.twitchRewards) {
+		if (props.onlyWithInput && !reward.userInputRequired) continue
 
 		rewards.push({
 			value: reward.id,
 			label: reward.title,
-			image: reward.image?.url4X,
+			image: reward.imageUrls?.at(-1),
 			color: reward.backgroundColor,
-			disabled: !reward.isEnabled,
+			disabled: !reward.enabled,
 		})
 	}
 
@@ -91,7 +91,7 @@ function renderRewardTag(props: { option: SelectOption, handleClose: () => void 
 		:loading="isRewardsLoading"
 		:render-label="renderRewardLabel"
 		:render-tag="renderRewardTag"
-		:disabled="isRewardsError"
+		:disabled="isRewardsError !== undefined"
 		:clearable="clearable"
 		:virtual-scroll="false"
 		filterable

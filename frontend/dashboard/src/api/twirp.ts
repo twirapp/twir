@@ -1,5 +1,5 @@
 import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport'
-import { AdminClient, ProtectedClient, UnProtectedClient } from '@twir/api/api.client'
+import { ProtectedClient, UnProtectedClient } from '@twir/api/api.client'
 
 import type { MethodInfo, NextUnaryFn, RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc'
 
@@ -26,4 +26,3 @@ const transport = new TwirpFetchTransport({
 })
 export const protectedApiClient = new ProtectedClient(transport)
 export const unprotectedApiClient = new UnProtectedClient(transport)
-export const adminApiClient = new AdminClient(transport)

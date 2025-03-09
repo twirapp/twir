@@ -4,13 +4,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/apps/api/internal/impl_unprotected/badges"
-	"github.com/satont/twir/apps/api/internal/impl_unprotected/commands"
-	"github.com/satont/twir/apps/api/internal/impl_unprotected/community"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/modules"
-	"github.com/satont/twir/apps/api/internal/impl_unprotected/songs"
-	"github.com/satont/twir/apps/api/internal/impl_unprotected/stats"
-	"github.com/satont/twir/apps/api/internal/impl_unprotected/tts"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
@@ -27,13 +21,7 @@ import (
 
 type UnProtected struct {
 	*twitch.Twitch
-	*stats.Stats
-	*commands.Commands
 	*modules.Modules
-	*songs.Songs
-	*tts.Tts
-	*community.Community
-	*badges.Badges
 }
 
 type Opts struct {
@@ -75,18 +63,8 @@ func New(opts Opts) *UnProtected {
 		Twitch: &twitch.Twitch{
 			Deps: d,
 		},
-		Stats: stats.New(d),
-		Commands: &commands.Commands{
-			Deps: d,
-		},
 		Modules: &modules.Modules{
 			Deps: d,
 		},
-		Songs: &songs.Songs{
-			Deps: d,
-		},
-		Tts:       &tts.Tts{Deps: d},
-		Community: &community.Community{Deps: d},
-		Badges:    &badges.Badges{Deps: d},
 	}
 }

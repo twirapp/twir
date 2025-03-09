@@ -6,10 +6,8 @@ package api;
 import "google/protobuf/empty.proto";
 import "messages/meta/meta.proto";
 
-import "messages/community/community.proto";
 import "messages/events/events.proto";
 import "messages/moderation/moderation.proto";
-import "messages/users/users.proto";
 
 import "messages/integrations_donate_stream/integrations_donate_stream.proto";
 import "messages/integrations_donatello/integrations_donatello.proto";
@@ -30,22 +28,13 @@ import "messages/overlays_kappagen/overlays_kappagen.proto";
 import "messages/overlays_be_right_back/overlays_be_right_back.proto";
 import "messages/overlays_dudes/overlays_dudes.proto";
 
-import "messages/rewards/rewards.proto";
-
-import "messages/built_in_variables/built_in_variables.proto";
-
-import "messages/dashboard/dashboard.proto";
 import "messages/twitch_protected/twitch_protected.proto";
 import "messages/files/files.proto";
 import "messages/overlays/overlays.proto";
 
-import "messages/feedback/feedback.proto";
-
 import "messages/integrations_seventv/integrations_seventv.proto";
 
 service Protected {
-	rpc CommunityResetStats(messages.community.ResetStatsRequest) returns (google.protobuf.Empty) {}
-
 	rpc EventsGetAll(google.protobuf.Empty) returns (messages.events.GetAllResponse) {}
 	rpc EventsGetById(messages.events.GetByIdRequest) returns (messages.events.Event) {}
 	rpc EventsCreate(messages.events.CreateRequest) returns (messages.events.Event) {}
@@ -123,13 +112,6 @@ service Protected {
 	rpc OverlayKappaGenGet(google.protobuf.Empty) returns (messages.overlays_kappagen.Settings) {}
 	rpc OverlayKappaGenUpdate(messages.overlays_kappagen.Settings) returns (messages.overlays_kappagen.Settings) {}
 
-	rpc RewardsGet(google.protobuf.Empty) returns (messages.rewards.GetResponse) {}
-
-	rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (messages.built_in_variables.GetAllResponse) {}
-
-	rpc GetDashboardStats(google.protobuf.Empty) returns (messages.dashboard.DashboardStatsResponse) {}
-	rpc GetDashboardEventsList(google.protobuf.Empty) returns (messages.dashboard.DashboardEventsList) {}
-
 	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest) returns (google.protobuf.Empty) {}
@@ -153,11 +135,6 @@ service Protected {
 	rpc ModerationEnableOrDisable(messages.moderation.PatchRequest) returns (messages.moderation.ItemWithId) {}
 	rpc ModerationAvailableLanguages(google.protobuf.Empty) returns (messages.moderation.AvailableLanguagesResponse) {}
 
-	rpc UsersRegenerateApiKey(messages.users.RegenerateApiKeyRequest) returns (google.protobuf.Empty) {}
-	rpc UsersUpdate(messages.users.UpdateUserRequest) returns (google.protobuf.Empty) {}
-
-	rpc LeaveFeedback(messages.feedback.LeaveFeedbackRequest) returns (google.protobuf.Empty) {}
-
 	rpc IntegrationsSevenTvGetData(google.protobuf.Empty) returns (messages.integrations_seventv.GetDataResponse) {}
 	rpc IntegrationsSevenTvUpdate(messages.integrations_seventv.UpdateDataRequest) returns (google.protobuf.Empty) {}
 
@@ -174,46 +151,12 @@ service Protected {
 }
 
 // UnProtected
-import "messages/stats/stats.proto";
 import "messages/twitch/twitch.proto";
-import "messages/commands_unprotected/commands_unprotected.proto";
 import "messages/songs_unprotected/songs_unprotected.proto";
-import "messages/tts_unprotected/tts_unprotected.proto";
-import "messages/badges_unprotected/badges_unprotected.proto";
 
 service UnProtected {
 	rpc TwitchGetUsers(messages.twitch.TwitchGetUsersRequest) returns (messages.twitch.TwitchGetUsersResponse) {}
 	rpc TwitchSearchChannels(messages.twitch.TwitchSearchChannelsRequest) returns (messages.twitch.TwitchSearchChannelsResponse) {}
 
-	rpc GetStats(google.protobuf.Empty) returns (messages.stats.Response) {}
-	rpc GetStatsTwirStreamers(google.protobuf.Empty) returns (messages.stats.GetTwirStreamersResponse) {}
-
-	rpc CommunityGetUsers(messages.community.GetUsersRequest) returns (messages.community.GetUsersResponse) {}
-
-	rpc GetChannelCommands(messages.commands_unprotected.GetChannelCommandsRequest) returns (messages.commands_unprotected.GetChannelCommandsResponse) {}
-	rpc GetSongsQueue(messages.songs_unprotected.GetSongsQueueRequest) returns (messages.songs_unprotected.GetSongsQueueResponse) {}
-
-
 	rpc ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse) {}
-
-	rpc GetTTSChannelSettings(messages.tts_unprotected.GetChannelSettingsRequest) returns (messages.tts_unprotected.Settings) {}
-	rpc GetTTSUsersSettings(messages.tts_unprotected.GetUsersSettingsRequest) returns (messages.tts_unprotected.GetUsersSettingsResponse) {}
-
-	rpc GetBadgesWithUsers(google.protobuf.Empty) returns (messages.badges_unprotected.GetBadgesResponse) {}
 }
-
-import "messages/admin_users/admin_users.proto";
-import "messages/admin_badges/admin_badges.proto";
-
-service Admin {
-	rpc UserSwitchBan(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
-	rpc UserSwitchAdmin(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
-	rpc GetUsers(messages.admin_users.UsersGetRequest) returns (messages.admin_users.UsersGetResponse) {}
-
-	rpc BadgesCreate(messages.admin_badges.CreateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
-	rpc BadgesUpdate(messages.admin_badges.UpdateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
-	rpc BadgesDelete(messages.admin_badges.DeleteBadgeRequest) returns (google.protobuf.Empty) {}
-	rpc BadgeAddUser(messages.admin_badges.AddUserRequest) returns (google.protobuf.Empty) {}
-	rpc BadgeDeleteUser(messages.admin_badges.DeleteUserRequest) returns (google.protobuf.Empty) {}
-}
-

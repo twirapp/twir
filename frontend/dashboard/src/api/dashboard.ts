@@ -1,25 +1,11 @@
-import { useQuery } from '@tanstack/vue-query'
 import { useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
-
-import { protectedApiClient } from './twirp'
 
 import type { DashboardEventsSubscription } from '@/gql/graphql'
 
 import { useMutation } from '@/composables/use-mutation.ts'
 import { graphql } from '@/gql'
-
-export function useDashboardStats() {
-	return useQuery({
-		queryKey: ['dashboardStats'],
-		queryFn: async () => {
-			const call = await protectedApiClient.getDashboardStats({})
-
-			return call.response
-		},
-	})
-}
 
 export type DashboardWidgetEvent = DashboardEventsSubscription['dashboardWidgetsEvents']['events'][number]
 

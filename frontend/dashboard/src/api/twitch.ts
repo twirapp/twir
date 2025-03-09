@@ -3,7 +3,6 @@ import { useQuery as useGqlQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { isRef, unref } from 'vue'
 
-import type { GetResponse as RewardsResponse } from '@twir/api/messages/rewards/rewards'
 import type { TwitchGetUsersResponse, TwitchSearchChannelsRequest, TwitchSearchChannelsResponse } from '@twir/api/messages/twitch/twitch'
 import type { ComputedRef, MaybeRef, Ref } from 'vue'
 
@@ -59,16 +58,6 @@ export function useTwitchSearchChannels(params: Ref<TwitchSearchChannelsRequest>
 	})
 }
 
-export function useTwitchRewards() {
-	return useQuery({
-		queryKey: ['twitchRewards'],
-		queryFn: async (): Promise<RewardsResponse> => {
-			const call = await protectedApiClient.rewardsGet({})
-			return call.response
-		},
-	})
-}
-
 export const useTwitchRewardsNew = createGlobalState(() => useGqlQuery({
 	query: graphql(`
 		query GetChannelRewards {
@@ -80,6 +69,7 @@ export const useTwitchRewardsNew = createGlobalState(() => useGqlQuery({
 				backgroundColor
 				enabled
 				usedTimes
+				userInputRequired
 			}
 		}
 	`),
