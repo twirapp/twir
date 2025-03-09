@@ -52,6 +52,7 @@ func (c *Handler) handleChannelUpdate(
 			map[string]any{
 				"title":    event.Title,
 				"gameName": event.CategoryName,
+				"gameId":   event.CategoryID,
 			},
 		).Error
 	if err != nil {
