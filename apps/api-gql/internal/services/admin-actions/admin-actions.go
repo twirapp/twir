@@ -7,7 +7,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/timers"
@@ -68,9 +67,9 @@ func (c *Service) DropAllAuthSessions(ctx context.Context) error {
 }
 
 type EventSubSubscribeInput struct {
-	Type      string                            `json:"type"`
-	Version   string                            `json:"version"`
-	Condition entity.EventsubSubscribeCondition `json:"condition"`
+	Type      string                      `json:"type"`
+	Version   string                      `json:"version"`
+	Condition model.EventsubConditionType `json:"condition"`
 }
 
 func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribeInput) error {

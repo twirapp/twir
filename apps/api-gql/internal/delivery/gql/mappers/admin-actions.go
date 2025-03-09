@@ -1,17 +1,17 @@
 package mappers
 
 import (
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-var eventSubConditionTypeGqlToEntity = map[gqlmodel.EventsubSubscribeConditionInput]entity.EventsubSubscribeCondition{
-	gqlmodel.EventsubSubscribeConditionInputChannel:                entity.EventsubSubscribeConditionChannel,
-	gqlmodel.EventsubSubscribeConditionInputUser:                   entity.EventsubSubscribeConditionUser,
-	gqlmodel.EventsubSubscribeConditionInputChannelWithModeratorID: entity.EventsubSubscribeConditionChannelWithModeratorID,
-	gqlmodel.EventsubSubscribeConditionInputChannelWithBotID:       entity.EventsubSubscribeConditionChannelWithBotID,
+var eventSubConditionTypeGqlToEntity = map[gqlmodel.EventsubSubscribeConditionInput]model.EventsubConditionType{
+	gqlmodel.EventsubSubscribeConditionInputChannel:                model.EventsubConditionTypeBroadcasterUserID,
+	gqlmodel.EventsubSubscribeConditionInputUser:                   model.EventsubConditionTypeUserID,
+	gqlmodel.EventsubSubscribeConditionInputChannelWithModeratorID: model.EventsubConditionTypeBroadcasterWithModeratorID,
+	gqlmodel.EventsubSubscribeConditionInputChannelWithBotID:       model.EventsubConditionTypeBroadcasterWithUserID,
 }
 
-func ConditionTypeGqlToEntity(conditionType gqlmodel.EventsubSubscribeConditionInput) entity.EventsubSubscribeCondition {
+func ConditionTypeGqlToEntity(conditionType gqlmodel.EventsubSubscribeConditionInput) model.EventsubConditionType {
 	return eventSubConditionTypeGqlToEntity[conditionType]
 }

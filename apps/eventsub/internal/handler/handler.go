@@ -123,6 +123,8 @@ func New(opts Opts) *Handler {
 	handler.HandleChannelPointsRewardAdd = myHandler.handleChannelPointsRewardAdd
 	handler.HandleChannelPointsRewardUpdate = myHandler.handleChannelPointsRewardUpdate
 	handler.HandleChannelPointsRewardRemove = myHandler.handleChannelPointsRewardRemove
+	handler.HandleChannelVipAdd = myHandler.handleChannelVipAdd
+	handler.HandleChannelVipRemove = myHandler.handleChannelVipRemove
 
 	httpHandler := otelhttp.NewHandler(handler, "")
 
