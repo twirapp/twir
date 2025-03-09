@@ -4,7 +4,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/apps/api/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api/internal/impl_protected/build_in_variables"
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
 	"github.com/satont/twir/apps/api/internal/impl_protected/dashboard"
@@ -36,7 +35,6 @@ import (
 type Protected struct {
 	*integrations.Integrations
 	*modules.Modules
-	*bot.Bot
 	*community.Community
 	*events.Events
 	*rewards.Rewards
@@ -92,7 +90,6 @@ func New(opts Opts) *Protected {
 	return &Protected{
 		Integrations:     &integrations.Integrations{Deps: d},
 		Modules:          &modules.Modules{Deps: d},
-		Bot:              &bot.Bot{Deps: d},
 		Community:        &community.Community{Deps: d},
 		Events:           &events.Events{Deps: d},
 		Rewards:          &rewards.Rewards{Deps: d},

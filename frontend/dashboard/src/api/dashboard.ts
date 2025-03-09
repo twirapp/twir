@@ -7,6 +7,7 @@ import { protectedApiClient } from './twirp'
 
 import type { DashboardEventsSubscription } from '@/gql/graphql'
 
+import { useMutation } from '@/composables/use-mutation.ts'
 import { graphql } from '@/gql'
 
 export function useDashboardStats() {
@@ -114,4 +115,36 @@ export function useRealtimeDashboardStats() {
 	})
 
 	return { stats, isPaused, fetching }
+}
+
+export function useBotStatus() {
+	const { data, isPaused, fetching, executeSubscription } = useSubscription({
+		query: graphql(`
+			subscription botStatus {
+				botStatus {
+					isMod
+					botId
+					botName
+					enabled
+				}
+			}
+		`),
+		context: {
+			additionalTypenames: ['BotStatus'],
+		},
+	})
+
+	const botStatus = computed(() => {
+		return data.value?.botStatus
+	})
+
+	return { botStatus, isPaused, fetching, executeSubscription }
+}
+
+export function useBotJoinPart() {
+	return useMutation(graphql(`
+		mutation BotJoinPart($action: BotJoinLeaveAction!) {
+			botJoinLeave(action: $action)
+		}
+	`), ['BotStatus'])
 }

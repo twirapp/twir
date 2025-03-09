@@ -6,7 +6,6 @@ package api;
 import "google/protobuf/empty.proto";
 import "messages/meta/meta.proto";
 
-import "messages/bots/bots.proto";
 import "messages/community/community.proto";
 import "messages/events/events.proto";
 import "messages/moderation/moderation.proto";
@@ -45,9 +44,6 @@ import "messages/feedback/feedback.proto";
 import "messages/integrations_seventv/integrations_seventv.proto";
 
 service Protected {
-	rpc BotInfo(messages.meta.BaseRequestMeta) returns (messages.bots.BotInfo) {}
-	rpc BotJoinPart(messages.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
-
 	rpc CommunityResetStats(messages.community.ResetStatsRequest) returns (google.protobuf.Empty) {}
 
 	rpc EventsGetAll(google.protobuf.Empty) returns (messages.events.GetAllResponse) {}

@@ -6,13 +6,42 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 )
+
+// BotJoinLeave is the resolver for the botJoinLeave field.
+func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.BotJoinLeaveAction) (bool, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	var convertedAction string
+	if action == gqlmodel.BotJoinLeaveActionJoin {
+		convertedAction = dashboard.BotJoinLeaveActionJoin
+	} else {
+		convertedAction = dashboard.BotJoinLeaveActionLeave
+	}
+
+	_, err = r.deps.DashboardService.BotJoinLeave(ctx, dashboardID, convertedAction)
+	if err != nil {
+		return false, fmt.Errorf("cannot join/leave bot: %w", err)
+	}
+
+	return true, nil
+}
 
 // DashboardStats is the resolver for the dashboardStats field.
 func (r *subscriptionResolver) DashboardStats(ctx context.Context) (<-chan *gqlmodel.DashboardStats, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
 	channel := make(chan *gqlmodel.DashboardStats, 1)
 
 	go func() {
@@ -23,12 +52,50 @@ func (r *subscriptionResolver) DashboardStats(ctx context.Context) (<-chan *gqlm
 			case <-ctx.Done():
 				return
 			default:
-				stats, err := r.getDashboardStats(ctx)
+				stats, err := r.deps.DashboardService.GetDashboardStats(ctx, dashboardID)
 				if err != nil {
 					return
 				}
 
-				channel <- stats
+				convertedStats := mappers.DashboardStatsEntityToGql(stats)
+
+				channel <- &convertedStats
+
+				time.Sleep(5 * time.Second)
+			}
+		}
+	}()
+
+	return channel, nil
+}
+
+// BotStatus is the resolver for the botStatus field.
+func (r *subscriptionResolver) BotStatus(ctx context.Context) (<-chan *gqlmodel.BotStatus, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	channel := make(chan *gqlmodel.BotStatus, 1)
+
+	go func() {
+		defer close(channel)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			default:
+				botStatus, err := r.deps.DashboardService.GetBotStatus(ctx, dashboardID)
+
+				if err != nil {
+					return
+				}
+
+				convertedBotStatus := mappers.DashboardBotInfoEntityToGql(botStatus)
+
+				channel <- &convertedBotStatus
 
 				time.Sleep(5 * time.Second)
 			}

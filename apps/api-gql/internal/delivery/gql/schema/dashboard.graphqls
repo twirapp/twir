@@ -1,5 +1,10 @@
 extend type Subscription {
 	dashboardStats: DashboardStats! @isAuthenticated
+	botStatus: BotStatus! @isAuthenticated
+}
+
+extend type Mutation {
+	botJoinLeave(action: BotJoinLeaveAction!): Boolean! @isAuthenticated
 }
 
 type DashboardStats {
@@ -13,4 +18,16 @@ type DashboardStats {
 	usedEmotes: Int!
 	requestedSongs: Int!
 	subs: Int!
+}
+
+type BotStatus {
+	isMod: Boolean!
+	botId: String!
+	botName: String!
+	enabled: Boolean!
+}
+
+enum BotJoinLeaveAction {
+	JOIN
+	LEAVE
 }

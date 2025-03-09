@@ -4,12 +4,13 @@ import { useIntervalFn } from '@vueuse/core'
 import { intervalToDuration } from 'date-fns'
 import { ChevronDownIcon } from 'lucide-vue-next'
 import { NText } from 'naive-ui'
-import { computed, h, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, h, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import StreamInfoEditor from '../stream-info-editor.vue'
 
-import { useBotInfo, useBotJoinPart, useRealtimeDashboardStats } from '@/api'
+import { useRealtimeDashboardStats } from '@/api'
+import { useBotJoinPart, useBotStatus } from '@/api/dashboard'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -18,11 +19,12 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
+import { BotJoinLeaveAction } from '@/gql/graphql.ts'
 import { padTo2Digits } from '@/helpers/convertMillisToTime'
 
 const { stats } = useRealtimeDashboardStats()
 const stateMutation = useBotJoinPart()
-const { data: botInfo, refetch: refetchBotStatus } = useBotInfo()
+const { botStatus, executeSubscription } = useBotStatus()
 
 const currentTime = ref(new Date())
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {
@@ -50,10 +52,6 @@ onBeforeUnmount(() => {
 	pauseUptimeInterval()
 })
 
-onMounted(async () => {
-	refetchBotStatus()
-})
-
 const { t } = useI18n()
 
 const discrete = useNaiveDiscrete()
@@ -69,10 +67,18 @@ function openInfoEditor() {
 	})
 }
 
-async function changeChatState() {
-	const action = botInfo.value?.enabled ? 'part' : 'join'
+const waitingBotStatusData = ref(true)
 
-	await stateMutation.mutateAsync(action)
+watch(botStatus, () => {
+	waitingBotStatusData.value = false
+})
+
+async function changeChatState() {
+	const action = botStatus.value?.enabled ? BotJoinLeaveAction.Leave : BotJoinLeaveAction.Join
+
+	waitingBotStatusData.value = true
+	await stateMutation.executeMutation({ action })
+	executeSubscription()
 }
 </script>
 
@@ -157,14 +163,14 @@ async function changeChatState() {
 		</div>
 
 		<div class="flex justify-end flex-end items-center">
-			<Button v-if="!botInfo?.enabled" size="sm" @click="changeChatState">
+			<Button v-if="!botStatus?.enabled" size="sm" :disabled="waitingBotStatusData" @click="changeChatState">
 				Join channel
 			</Button>
 			<DropdownMenu v-else>
 				<DropdownMenuTrigger as-child>
-					<Button variant="secondary" size="sm">
+					<Button variant="secondary" size="sm" :disabled="waitingBotStatusData">
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-0.5 text-green-400 ping"><circle cx="12" cy="12" r="5" fill="currentColor"></circle><circle cx="12" cy="12" r="6" fill="currentColor" style="animation: 1s cubic-bezier(0, 0, 0.2, 1) 0s infinite normal none running ping; transform-origin: center center;"></circle></svg>
-						{{ botInfo.botName }} online
+						{{ botStatus.botName }} online
 						<ChevronDownIcon class="ml-2 size-4" />
 					</Button>
 				</DropdownMenuTrigger>

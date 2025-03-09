@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -93,6 +94,7 @@ type Deps struct {
 	SongRequestsService                   *song_requests.Service
 	CommunityRedemptionsService           *community_redemptions.Service
 	StreamElementsService                 *streamelements.Service
+	DashboardService                      *dashboard.Service
 	Config                                config.Config
 }
 

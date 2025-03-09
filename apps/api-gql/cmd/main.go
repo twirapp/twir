@@ -30,6 +30,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -93,7 +94,6 @@ import (
 
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
-	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -213,6 +213,7 @@ func main() {
 			song_requests.New,
 			community_redemptions.New,
 			streamelements.New,
+			dashboard.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -247,7 +248,6 @@ func main() {
 		),
 		fx.Invoke(
 			gql.New,
-			uptrace.NewFx("api-gql"),
 			publicroutes.New,
 			http_webhooks.New,
 			authroutes.New,
