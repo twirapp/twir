@@ -1,0 +1,36 @@
+extend type Query {
+	streamelementsGetAuthorizationUrl: String! @isAuthenticated
+	streamelementsExchangeDataByCode(code: String!): StreamElementsImportDataOutput! @isAuthenticated
+}
+
+type StreamElementsImportDataOutput {
+	commands: [StreamElementsCommand!]!
+	timers: [StreamElementsTimer!]!
+}
+
+type StreamElementsCommand {
+	id: String!
+	name: String!
+	enabled: Boolean!
+	cooldown: Int!
+	aliases: [String!]!
+	response: String!
+	accessLevel: Int!
+	enabledOnline: Boolean!
+	enabledOffline: Boolean!
+	hidden: Boolean!
+	type: String!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+type StreamElementsTimer {
+	id: String!
+	name: String!
+	enabled: Boolean!
+	chatLines: Int!
+	message: String!
+	createdAt: Time!
+	updatedAt: Time!
+}
+

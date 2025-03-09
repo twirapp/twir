@@ -50,6 +50,9 @@ type Config struct {
 
 	ToxicityAddr        string `required:"false" envconfig:"TOXICITY_ADDR"`
 	MusicRecognizerAddr string `required:"false" envconfig:"MUSIC_RECOGNIZER_ADDR"`
+
+	StreamElementsClientId     string `required:"false" envconfig:"STREAM_ELEMENTS_CLIENT_ID"`
+	StreamElementsClientSecret string `required:"false" envconfig:"STREAM_ELEMENTS_CLIENT_SECRET"`
 }
 
 func (c *Config) GetTwitchCallbackUrl() string {

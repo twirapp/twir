@@ -4,6 +4,7 @@ extend type Query {
 
 extend type Mutation {
 	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersCreateMany(opts: [TimerCreateInput!]!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
 	timersUpdate(id: UUID!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
 	timersRemove(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
 }

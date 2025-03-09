@@ -1,9 +1,13 @@
 package mappers
 
 import (
+	"github.com/google/uuid"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
+	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
 
 var commandsExpiresAtMap = map[model.ChannelCommandExpiresType]gqlmodel.CommandExpiresType{
@@ -109,4 +113,76 @@ func CommandResponseTo(e entity.CommandResponse) gqlmodel.CommandResponse {
 	}
 
 	return m
+}
+
+func CommandGqlInputToService(
+	channelID, actorID string,
+	input gqlmodel.CommandsCreateOpts,
+) commands.CreateInput {
+	responses := make([]commands.CreateInputResponse, len(input.Responses))
+	for idx, res := range input.Responses {
+		responses[idx] = commands.CreateInputResponse{
+			Text:              &res.Text,
+			Order:             idx,
+			TwitchCategoryIDs: res.TwitchCategoriesIds,
+		}
+	}
+
+	var groupId *uuid.UUID
+	if input.GroupID.IsSet() && input.GroupID.Value() != nil {
+		parsedGroupId, err := uuid.Parse(*input.GroupID.Value())
+		if err == nil {
+			groupId = &parsedGroupId
+		}
+	}
+
+	var expiresType *string
+	if input.ExpiresType.IsSet() && input.ExpiresType.Value() != nil {
+		expiresType = lo.ToPtr(input.ExpiresType.Value().String())
+	}
+
+	return commands.CreateInput{
+		ChannelID:                 channelID,
+		ActorID:                   actorID,
+		Name:                      input.Name,
+		Cooldown:                  input.Cooldown,
+		CooldownType:              input.CooldownType,
+		Enabled:                   input.Enabled,
+		Aliases:                   input.Aliases,
+		Description:               input.Description,
+		Visible:                   input.Visible,
+		IsReply:                   input.IsReply,
+		KeepResponsesOrder:        input.KeepResponsesOrder,
+		DeniedUsersIDS:            input.DeniedUsersIds,
+		AllowedUsersIDS:           input.AllowedUsersIds,
+		RolesIDS:                  input.RolesIds,
+		OnlineOnly:                input.OnlineOnly,
+		CooldownRolesIDs:          input.CooldownRolesIds,
+		EnabledCategories:         input.EnabledCategories,
+		RequiredWatchTime:         input.RequiredWatchTime,
+		RequiredMessages:          input.RequiredMessages,
+		RequiredUsedChannelPoints: input.RequiredUsedChannelPoints,
+		GroupID:                   groupId,
+		ExpiresAt:                 input.ExpiresAt.Value(),
+		ExpiresType:               expiresType,
+		Responses:                 responses,
+	}
+}
+
+func StreamElementsCommandToGql(m streamelements.Command) gqlmodel.StreamElementsCommand {
+	return gqlmodel.StreamElementsCommand{
+		ID:             m.ID,
+		Name:           m.Name,
+		Enabled:        m.Enabled,
+		Cooldown:       m.Cooldown.Global,
+		Aliases:        m.Aliases,
+		Response:       m.Response,
+		AccessLevel:    m.AccessLevel,
+		EnabledOnline:  m.EnabledOnline,
+		EnabledOffline: m.EnabledOffline,
+		Hidden:         m.Hidden,
+		Type:           m.Type,
+		CreatedAt:      m.CreatedAt,
+		UpdatedAt:      m.UpdatedAt,
+	}
 }

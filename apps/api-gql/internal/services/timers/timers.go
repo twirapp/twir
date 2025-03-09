@@ -3,6 +3,7 @@ package timers
 import (
 	"errors"
 
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -19,6 +20,7 @@ type Opts struct {
 	Logger           logger.Logger
 	TwirBus          *buscore.Bus
 	TimersRepository timersrepository.Repository
+	TrmManager       trm.Manager
 }
 
 func New(opts Opts) *Service {
@@ -27,6 +29,7 @@ func New(opts Opts) *Service {
 		logger:           opts.Logger,
 		twirbus:          opts.TwirBus,
 		timersRepository: opts.TimersRepository,
+		trmManager:       opts.TrmManager,
 	}
 }
 
@@ -35,6 +38,7 @@ type Service struct {
 	logger           logger.Logger
 	twirbus          *buscore.Bus
 	timersRepository timersrepository.Repository
+	trmManager       trm.Manager
 }
 
 const MaxPerChannel = 10

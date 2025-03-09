@@ -85,3 +85,24 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 
 	return c.dbToModel(timer), nil
 }
+
+func (c *Service) CreateMany(ctx context.Context, data []CreateInput) (bool, error) {
+	txErr := c.trmManager.Do(
+		ctx,
+		func(txCtx context.Context) error {
+			for _, d := range data {
+				_, err := c.Create(txCtx, d)
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		},
+	)
+	if txErr != nil {
+		return false, fmt.Errorf("failed to create timers: %w", txErr)
+	}
+
+	return false, nil
+}

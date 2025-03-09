@@ -30,6 +30,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
@@ -91,6 +92,7 @@ type Deps struct {
 	TTSService                            *tts.Service
 	SongRequestsService                   *song_requests.Service
 	CommunityRedemptionsService           *community_redemptions.Service
+	StreamElementsService                 *streamelements.Service
 	Config                                config.Config
 }
 

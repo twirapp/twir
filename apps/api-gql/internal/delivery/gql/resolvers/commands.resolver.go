@@ -17,7 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
+	commandsservice "github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 )
 
@@ -76,56 +76,7 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		return nil, err
 	}
 
-	var groupId *uuid.UUID
-	if opts.GroupID.IsSet() && opts.GroupID.Value() != nil {
-		parsedGroupId, err := uuid.Parse(*opts.GroupID.Value())
-		if err != nil {
-			return nil, err
-		}
-
-		groupId = &parsedGroupId
-	}
-
-	var expiresType *string
-	if opts.ExpiresType.IsSet() && opts.ExpiresType.Value() != nil {
-		expiresType = lo.ToPtr(opts.ExpiresType.Value().String())
-	}
-
-	responses := make([]commands.CreateInputResponse, len(opts.Responses))
-	for idx, res := range opts.Responses {
-		responses[idx] = commands.CreateInputResponse{
-			Text:              &res.Text,
-			Order:             idx,
-			TwitchCategoryIDs: res.TwitchCategoriesIds,
-		}
-	}
-
-	createInput := commands.CreateInput{
-		ChannelID:                 dashboardId,
-		ActorID:                   user.ID,
-		Name:                      opts.Name,
-		Cooldown:                  opts.Cooldown,
-		CooldownType:              opts.CooldownType,
-		Enabled:                   opts.Enabled,
-		Aliases:                   opts.Aliases,
-		Description:               opts.Description,
-		Visible:                   opts.Visible,
-		IsReply:                   opts.IsReply,
-		KeepResponsesOrder:        opts.KeepResponsesOrder,
-		DeniedUsersIDS:            opts.DeniedUsersIds,
-		AllowedUsersIDS:           opts.AllowedUsersIds,
-		RolesIDS:                  opts.RolesIds,
-		OnlineOnly:                opts.OnlineOnly,
-		CooldownRolesIDs:          opts.CooldownRolesIds,
-		EnabledCategories:         opts.EnabledCategories,
-		RequiredWatchTime:         opts.RequiredWatchTime,
-		RequiredMessages:          opts.RequiredMessages,
-		RequiredUsedChannelPoints: opts.RequiredUsedChannelPoints,
-		GroupID:                   groupId,
-		ExpiresAt:                 opts.ExpiresAt.Value(),
-		ExpiresType:               expiresType,
-		Responses:                 responses,
-	}
+	createInput := mappers.CommandGqlInputToService(dashboardId, user.ID, opts)
 
 	newCmd, err := r.deps.CommandsService.Create(ctx, createInput)
 	if err != nil {
@@ -239,7 +190,7 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bo
 	}
 
 	err = r.deps.CommandsService.Delete(
-		ctx, commands.DeleteInput{
+		ctx, commandsservice.DeleteInput{
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
 			ID:        id,
@@ -247,6 +198,32 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bo
 	)
 	if err != nil {
 		return false, fmt.Errorf("cannot delete command: %w", err)
+	}
+
+	return true, nil
+}
+
+// CommandsCreateMultiple is the resolver for the commandsCreateMultiple field.
+func (r *mutationResolver) CommandsCreateMultiple(ctx context.Context, commands []gqlmodel.CommandsCreateOpts) (bool, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	inputs := make([]commandsservice.CreateInput, 0, len(commands))
+	for _, cmd := range commands {
+		createInput := mappers.CommandGqlInputToService(dashboardId, user.ID, cmd)
+
+		inputs = append(inputs, createInput)
+	}
+
+	if err := r.deps.CommandsService.CreateMultiple(ctx, inputs); err != nil {
+		return false, err
 	}
 
 	return true, nil

@@ -9,8 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger/audit"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/libs/repositories/commands"
@@ -165,11 +163,32 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 			NewValue:      convertedCommand,
 			ActorID:       &input.ActorID,
 			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
+			System:        "channels_commands", // TODO: use some enum
 			OperationType: audit.OperationCreate,
 			ObjectID:      lo.ToPtr(convertedCommand.ID.String()),
 		},
 	)
 
 	return convertedCommand, nil
+}
+
+func (c *Service) CreateMultiple(ctx context.Context, input []CreateInput) error {
+	txErr := c.trManager.Do(
+		ctx,
+		func(txCtx context.Context) error {
+			for _, cmd := range input {
+				_, err := c.Create(txCtx, cmd)
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		},
+	)
+	if txErr != nil {
+		return fmt.Errorf("failed to create commands: %w", txErr)
+	}
+
+	return nil
 }

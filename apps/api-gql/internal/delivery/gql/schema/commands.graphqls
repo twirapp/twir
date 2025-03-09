@@ -7,6 +7,7 @@ extend type Mutation {
 	commandsCreate(opts: CommandsCreateOpts!): CommandCreatePayload! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 	commandsUpdate(id: UUID!, opts: CommandsUpdateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 	commandsRemove(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsCreateMultiple(commands: [CommandsCreateOpts!]!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 }
 
 type Command {

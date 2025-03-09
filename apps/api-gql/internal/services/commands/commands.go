@@ -11,8 +11,6 @@ import (
 	deprectatedmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/logger/audit"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/commands"
@@ -118,7 +116,7 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 			OldValue:      command,
 			ActorID:       &input.ActorID,
 			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
+			System:        "channels_commands", // TODO: use some enum
 			OperationType: audit.OperationDelete,
 			ObjectID:      lo.ToPtr(command.ID.String()),
 		},

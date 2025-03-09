@@ -3,6 +3,7 @@ package mappers
 import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
 
 func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
@@ -25,5 +26,17 @@ func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
 		TimeInterval:    m.TimeInterval,
 		MessageInterval: m.MessageInterval,
 		Responses:       responses,
+	}
+}
+
+func StreamElementsTimerToGql(m streamelements.Timer) gqlmodel.StreamElementsTimer {
+	return gqlmodel.StreamElementsTimer{
+		ID:        m.Id,
+		Name:      m.Name,
+		Enabled:   m.Enabled,
+		ChatLines: m.ChatLines,
+		Message:   m.Message,
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
 	}
 }

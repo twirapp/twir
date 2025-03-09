@@ -16,7 +16,7 @@ COPY libs/brand ./libs/brand
 COPY libs/config ./libs/config
 COPY libs/api ./libs/api
 COPY web ./web
-COPY apps/api-gql/schema ./apps/api-gql/schema
+COPY apps/api-gql/internal/delivery/gql/schema ./apps/api-gql/internal/delivery/gql/schema
 
 ENV NODE_ENV=production
 RUN bun --filter=@twir/web run build

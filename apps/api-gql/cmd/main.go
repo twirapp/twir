@@ -38,6 +38,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
@@ -211,6 +212,7 @@ func main() {
 			tts.New,
 			song_requests.New,
 			community_redemptions.New,
+			streamelements.New,
 		),
 		// grpc clients
 		fx.Provide(

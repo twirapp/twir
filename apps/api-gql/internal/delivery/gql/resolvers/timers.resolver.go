@@ -51,6 +51,48 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 	return &converted, nil
 }
 
+// TimersCreateMany is the resolver for the timersCreateMany field.
+func (r *mutationResolver) TimersCreateMany(ctx context.Context, opts []gqlmodel.TimerCreateInput) (bool, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	inputs := make([]timers.CreateInput, 0, len(opts))
+	for _, opt := range opts {
+		responses := make([]timers.CreateResponse, 0, len(opt.Responses))
+		for _, response := range opt.Responses {
+			responses = append(
+				responses,
+				timers.CreateResponse{
+					Text:       response.Text,
+					IsAnnounce: response.IsAnnounce,
+				},
+			)
+		}
+
+		inputs = append(
+			inputs,
+			timers.CreateInput{
+				ChannelID:       dashboardId,
+				ActorID:         user.ID,
+				Name:            opt.Name,
+				Enabled:         opt.Enabled,
+				TimeInterval:    opt.TimeInterval,
+				MessageInterval: opt.MessageInterval,
+				Responses:       responses,
+			},
+		)
+	}
+
+	return r.deps.TimersService.CreateMany(ctx, inputs)
+}
+
 // TimersUpdate is the resolver for the timersUpdate field.
 func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
