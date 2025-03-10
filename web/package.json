@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "bunx --bun nuxt build",
-    "dev": "bunx --bun --env-file=../.env nuxt dev",
+    "dev": "bunx --bun --env-file=../.env nuxt dev --no-fork",
     "start": "bun --bun run .output/server/index.mjs",
     "generate": "bunx --bun nuxt generate",
     "preview": "bunx --bun nuxt preview",
