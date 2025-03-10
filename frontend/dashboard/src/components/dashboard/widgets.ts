@@ -2,7 +2,7 @@ import { useLocalStorage } from '@vueuse/core'
 
 import type { LayoutItem } from 'grid-layout-plus'
 
-const version = '9'
+const version = '10'
 
 export type WidgetItem = LayoutItem & { visible: boolean }
 
@@ -44,16 +44,6 @@ export function useWidgets() {
 			w: 3,
 			h: 8,
 			i: 'audit-logs',
-			minW: 3,
-			minH: 8,
-			visible: true,
-		},
-		{
-			x: 3,
-			y: 9,
-			w: 3,
-			h: 8,
-			i: 'bot-status',
 			minW: 3,
 			minH: 8,
 			visible: true,
