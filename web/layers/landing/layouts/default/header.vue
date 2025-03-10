@@ -18,7 +18,7 @@ onMounted(() => {
 	observer.observe(el!)
 })
 
-const title = `Twir ${import.meta.dev ? 'dev' : ''}`
+const title = `Twir${import.meta.dev ? ' dev' : ''}`
 </script>
 
 <template>
