@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const description = 'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.'
-const siteName = 'Twir'
+const siteName = `Twir ${import.meta.dev ? ' dev' : ''}`
 const keywords = 'twitch, bot, chat, moderation, moderation bot, twitch bot, twitch chat, twitch moderation, twitch moderation bot'
 
 useColorMode()

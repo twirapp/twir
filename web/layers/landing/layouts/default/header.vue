@@ -10,13 +10,15 @@ onMounted(() => {
 	const el = document.querySelector('header')
 	const observer = new IntersectionObserver(
 		([e]) => {
-			e.target.classList.toggle('sticky-header', e.intersectionRatio < 1)
+			e?.target.classList.toggle('sticky-header', e?.intersectionRatio < 1)
 		},
 		{ threshold: [1] },
 	)
 
 	observer.observe(el!)
 })
+
+const title = `Twir ${import.meta.dev ? 'dev' : ''}`
 </script>
 
 <template>
@@ -31,7 +33,7 @@ onMounted(() => {
 				<div class="flex items-center gap-[4px] divide-x-2">
 					<NuxtLink to="/" class="flex items-center gap-[12px] cursor-pointer">
 						<TwirLogo :src="TwirLogo" alt="Twir" class="w-9 h-9" />
-						<span class="text-2xl font-semibold text-white">Twir</span>
+						<span class="text-2xl font-semibold text-white">{{ title }}</span>
 					</NuxtLink>
 
 					<div class="bg-red inline-block h-full"></div>
