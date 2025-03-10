@@ -1,5 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Backend" type="CompoundRunConfigurationType">
+    <toRun name="[Backend] Eval" type="BunRunConfiguration" />
+    <toRun name="[Backend] Integrations" type="BunRunConfiguration" />
     <toRun name="Dev Api" type="GoApplicationRunConfiguration" />
     <toRun name="Dev Api-gql" type="GoApplicationRunConfiguration" />
     <toRun name="Dev Bots" type="GoApplicationRunConfiguration" />
@@ -13,8 +15,6 @@
     <toRun name="Dev Tokens" type="GoApplicationRunConfiguration" />
     <toRun name="Dev WebSockets" type="GoApplicationRunConfiguration" />
     <toRun name="Dev Ytsr" type="GoApplicationRunConfiguration" />
-    <toRun name="[Backend] Eval" type="ShConfigurationType" />
-    <toRun name="[Backend] Integrations" type="ShConfigurationType" />
     <method v="2" />
   </configuration>
 </component>
