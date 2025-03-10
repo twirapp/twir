@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Frontend" type="CompoundRunConfigurationType">
     <toRun name="[Frontend] Dashboard" type="ShConfigurationType" />
-    <toRun name="[Frontend] Landing" type="ShConfigurationType" />
     <toRun name="[Frontend] Overlays" type="ShConfigurationType" />
+    <toRun name="[Frontend] Web" type="ShConfigurationType" />
     <method v="2" />
   </configuration>
 </component>
