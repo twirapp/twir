@@ -25,7 +25,6 @@ export default defineNuxtModule((_options, nuxt) => {
 
 	if (nuxt.options.dev) {
 		nuxt.hook('builder:watch', async (event, path) => {
-			console.log('because of wtch')
 			if (!globs.some((glob) => glob.match(path))) return
 
 			runBuild()
