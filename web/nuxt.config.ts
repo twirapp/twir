@@ -22,7 +22,7 @@ export default defineNuxtConfig({
 		'@pinia/nuxt',
 		'@bicou/nuxt-urql',
 		'@nuxtjs/tailwindcss',
-		'radix-vue/nuxt',
+		'reka-ui/nuxt',
 		'@nuxtjs/color-mode',
 		'shadcn-nuxt',
 		'@nuxt/image',

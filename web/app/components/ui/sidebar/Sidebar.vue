@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { SIDEBAR_WIDTH_MOBILE, useSidebar } from './utils'
 
-import type { SidebarProps } from './index'
+import type { SidebarProps } from '.'
 
-import { cn } from '@/lib/utils'
 import { Sheet, SheetContent } from '~/components/ui/sheet'
+import { cn } from '~/lib/utils'
 
 defineOptions({
 	inheritAttrs: false,

@@ -13,19 +13,11 @@ await Promise.all([
 
 const dropdownProps = computed((): DropdownMenuContentProps & { class?: string } => {
 	return {
-		class: 'w-[--radix-dropdown-menu-trigger-width]',
+		class: 'w-[--reka-dropdown-menu-trigger-width]',
 		side: 'bottom',
 		align: 'end',
 		sideOffset: 4,
 	}
-
-	// return {
-	// 	class: 'w-[300px]',
-	// 	alignOffset: -4,
-	// 	align: 'start',
-	// 	sideOffset: 12,
-	// 	side: 'right',
-	// }
 })
 </script>
 
