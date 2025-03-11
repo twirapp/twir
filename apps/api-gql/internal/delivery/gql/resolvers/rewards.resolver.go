@@ -14,7 +14,10 @@ import (
 )
 
 // TwitchRewards is the resolver for the twitchRewards field.
-func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([]gqlmodel.TwitchReward, error) {
+func (r *queryResolver) TwitchRewards(
+	ctx context.Context,
+	channelID *string,
+) ([]gqlmodel.TwitchReward, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -57,7 +60,7 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 				Cost:              reward.Cost,
 				ImageUrls:         imageUrls,
 				BackgroundColor:   reward.BackgroundColor,
-				Enabled:           false,
+				Enabled:           reward.IsEnabled,
 				UsedTimes:         int(usedTimes),
 				UserInputRequired: reward.IsUserInputRequired,
 			},
