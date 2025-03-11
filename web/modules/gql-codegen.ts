@@ -14,13 +14,18 @@ const globs = codegenConfig.documents!.map((doc) => {
 })
 const runBuild = debounce(async () => await $`bun run graphql-codegen`, 1000)
 
-export default defineNuxtModule((options, nuxt) => {
+let alreadyBuilt = false
+
+export default defineNuxtModule((_options, nuxt) => {
 	nuxt.hook('build:before', async () => {
+		if (alreadyBuilt) return
 		await $`bun run graphql-codegen`
+		alreadyBuilt = true
 	})
 
 	if (nuxt.options.dev) {
 		nuxt.hook('builder:watch', async (event, path) => {
+			console.log('because of wtch')
 			if (!globs.some((glob) => glob.match(path))) return
 
 			runBuild()
