@@ -18,6 +18,8 @@ export default defineNuxtConfig({
 		},
 	},
 
+	site: { indexable: true },
+
 	modules: [
 		'@pinia/nuxt',
 		'@bicou/nuxt-urql',
@@ -30,6 +32,7 @@ export default defineNuxtConfig({
 		'@nuxt/fonts',
 		'nuxt-svgo',
 		'@vueuse/nuxt',
+		'@nuxtjs/seo',
 		gqlcodegen,
 	],
 
@@ -90,5 +93,9 @@ export default defineNuxtConfig({
 				? 'http://localhost:3009/query'
 				: 'http://api-gql:3009/query',
 		},
+	},
+
+	robots: {
+		blockAiBots: true,
 	},
 })
