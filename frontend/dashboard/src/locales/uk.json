@@ -50,7 +50,7 @@
     "messages": "Повідомлення",
     "asc": "За зростанням",
     "desc": "За спаданням",
-    "hide": "Приховати",
+    "hide": "Сховати",
     "view": "Перегляд",
     "toggleColumns": "Перемкнути стовпці",
     "copied": "Скопійовано",
@@ -88,7 +88,7 @@
     "import": "Імпортувати",
     "community": "Спільнота",
     "logout": "Вийти",
-    "loggedAs": "Зареєстровано як",
+    "loggedAs": "Авторизований як",
     "lang": "Мова",
     "darkTheme": "Темна тема",
     "lightTheme": "Світла тема",
@@ -101,7 +101,7 @@
   },
   "haveNoAccess": {
     "title": "Немає доступу",
-    "description": "У вас немає прав для перегляду цієї сторінки, зверніться до стримера за доступом."
+    "description": "У вас немає прав, зверніться до стримера за доступом."
   },
   "pageNotFound": {
     "title": "404 Сторінка не знайдена",
@@ -249,11 +249,11 @@
         "title": "Керування ботом та інформація"
       },
       "audit-logs": {
-        "title": "Журнали аудиту",
+        "title": "Журнал аудиту",
         "search-label": "Пошук по",
         "search": {
           "channel": "Канал",
-          "actor": "Актор"
+          "actor": "Ініціатор"
         },
         "operation-type-label": "Тип операції",
         "operation-type": {
@@ -266,12 +266,12 @@
           "badge": "Значок",
           "badge-user": "Значок користувача",
           "channel-command": "Команда",
-          "channel-command-group": "Командна група",
+          "channel-command-group": "Група команди",
           "channel-variable": "Змінна",
-          "channel-games-eight-ball": "магічна вісімкааа",
-          "channel-games-duel": "Поєдинок",
+          "channel-games-eight-ball": "8ball",
+          "channel-games-duel": "Дуель",
           "channel-games-russian-roulette": "Російська рулетка",
-          "channel-games-seppuku": "Seppuku",
+          "channel-games-seppuku": "Сеппуку",
           "channel-games-voteban": "Проголосувати",
           "channel-greeting": "Привітання",
           "channel-keyword": "Ключове слово",
@@ -678,7 +678,7 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Інтервал у хвилинах",
+        "intervalInMinutes": "Інтервал в хвилинах",
         "intervalInMessages": "Інтервал рядка чату"
       }
     },
@@ -754,7 +754,7 @@
     "overlayLabel": "Сповіщення - це графічна частина реалізації команди або події. Ви можете налаштувати сповіщення із заданим звуком, зображенням і текстом, а потім призначити його певній команді, події, ключовому слову або привітанню. Також не забудьте вставити URL-адресу накладання як джерело браузера у вашу сцену додатку для трансляцій! (наприклад, OBS, XSplit тощо)",
     "copyOverlayLink": "Скопіювати посилання на оверлей",
     "name": "Назва",
-    "rewards": "Нагороди",
+    "rewards": "Винагороди",
     "commands": "Команди",
     "validations": {
       "name": "Назва не може бути порожньою і містити понад 30 символів!"
@@ -766,14 +766,14 @@
       "greetings": "Привітання для тригера"
     },
     "select": {
-      "audio": "Налаштувати звук",
+      "audio": "Налаштувати аудіо",
       "image": "Налаштувати зображення",
       "text": "Налаштувати текст"
     },
-    "audioVolume": "Гучність звуку",
-    "createAlert": "Створити оповіщення",
-    "editAlert": "Редагувати оповіщення",
-    "tableEmpty": "Сповіщення не знайдені"
+    "audioVolume": "Гучність аудіо",
+    "createAlert": "Створити сповіщення",
+    "editAlert": "Редагувати сповіщення",
+    "tableEmpty": "Сповіщення відсутні"
   },
   "games": {
     "command": "Команда",
@@ -831,9 +831,9 @@
       }
     },
     "seppuku": {
-      "description": "Сеппуку – це форма японського ритуалістського самогубства шляхом невдоволення.",
+      "description": "Сеппуку – це форма японського ритуального самогубства шляхом невдоволення.",
       "message": "Повідомлення",
-      "timeoutModerators": "Увімкнути seppuku для модераторів",
+      "timeoutModerators": "Увімкнути Сеппуку для модераторів",
       "messageModerators": "Повідомлення, якщо модератор використовує seppuku",
       "timeoutSeconds": "Час очікування секунд"
     },
@@ -877,17 +877,17 @@
       "searchPlaceholder": "Пошук смайлів...",
       "table": {
         "emote": "Емоція",
-        "usages": "історія",
+        "usages": "Загальне використання",
         "users": "Користувачі",
         "empty": "Без емоцій",
-        "chart": "Використовуваний графік",
+        "chart": "Графік використання",
         "lastDay": "День",
         "lastWeek": "Тиждень",
         "lastMonth": "Місяць",
         "lastThreeMonth": "3 місяці",
         "lastYear": "Рік"
       },
-      "total": "Загальна кількість емоцій: {total}",
+      "total": "Всього емоцій: {total}",
       "details": {
         "stats": "Статистика",
         "users": "Користувачі",
@@ -1040,12 +1040,12 @@
     "notifications": {
       "title": "Сповіщення",
       "formTitle": "Надіслати або відредагувати сповіщення",
-      "emptyNotifications": "Немає повідомлень",
+      "emptyNotifications": "Немає сповіщень",
       "userLabel": "Користувачі",
       "userPlaceholder": "Виберіть користувача",
       "messageLabel": "Повідомлення",
       "messagePreview": "Попередній перегляд",
-      "createdAt": "Створено в",
+      "createdAt": "Створено",
       "globals": "Глобальні",
       "users": "Користувачі",
       "confirmResetForm": "Ви впевнені, що бажаєте скинути форму?"
@@ -1057,13 +1057,13 @@
       "followers": "Послідовники",
       "noUsers": "Немає користувачів",
       "filters": "Фільтри",
-      "clearFilters": "Прибрати фільтри",
-      "countSelected": "Вибрано {count}",
+      "clearFilters": "Очистити фільтри",
+      "countSelected": "Обрано {count}",
       "isAdmin": "Адмін",
       "isBanned": "Заблокований",
-      "isBotEnabled": "Бот увімкнено",
+      "isBotEnabled": "Бот увімкнений",
       "statusGroup": "Статус",
-      "badgesGroup": "Позначки",
+      "badgesGroup": "Бейджи",
       "giveBan": "Заблокувати користувача",
       "unBan": "Розблокувати користувача",
       "giveMod": "Надати адміністратора",
@@ -1071,9 +1071,9 @@
       "dropSession": "Видалити сесію"
     },
     "manageBadges": {
-      "title": "Позначки",
+      "title": "Бейджи",
       "formTitle": "Створити або редагувати значок",
-      "name": "Ім’я",
+      "name": "Назва",
       "users": "Користувачі",
       "slot": "Слот",
       "image": "Зображення",
