@@ -60,7 +60,7 @@
     "settings": "Налаштування",
     "create": "Створити",
     "edit": "Редагувати",
-    "noData": "No data"
+    "noData": "Дані відсутні"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -132,7 +132,7 @@
         }
       },
       "aliases": {
-        "label": "Additional names"
+        "label": "Додаткові назви"
       },
       "gameCategories": {
         "label": "Увімкнути команду лише в певних категоріях (залиште порожнім для вимкнення)"
@@ -140,7 +140,7 @@
       "expiration": {
         "label": "Термін дії",
         "actionsLabel": "Дія на закінчення терміну дії",
-        "defaultWarning": "Expiration cannot be set for default command",
+        "defaultWarning": "Термін дії не можна встановити для команди за замовчуванням",
         "actions": {
           "delete": "Команда буде видалена",
           "disable": "Команда буде вимкнута"
@@ -164,8 +164,8 @@
         "placeholder": "Оберіть ролі, які матимуть дозволи на використання команд",
         "deniedUsers": "Користувачі, які не можуть використовувати цю команду.",
         "allowedUsers": "Користувачі, які можуть обійти обмеження ролей для цієї команди.",
-        "exceptions": "Exceptions",
-        "blocked": "Blocked users"
+        "exceptions": "Винятки",
+        "blocked": "Заблоковані користувачі"
       },
       "restrictions": {
         "name": "Обмеження за статистикою",
