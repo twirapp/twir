@@ -38,6 +38,7 @@ async function save() {
 		:save="save"
 		:icon="DonatePaySVG"
 		icon-width="80px"
+		dialog-content-class="w-[600px]"
 	>
 		<template #description>
 			<DonateDescription />

@@ -1,0 +1,30 @@
+extend type Subscription {
+	sevenTvData: SevenTvIntegration! @isAuthenticated
+}
+
+extend type Mutation {
+	sevenTvUpdate(input: SevenTvUpdateInput!): Boolean! @isAuthenticated
+}
+
+type SevenTvProfile {
+	id: String!
+	username: String!
+	displayName: String!
+	avatarUri: String!
+}
+
+type SevenTvIntegration {
+	isEditor: Boolean!
+	botSeventvProfile: SevenTvProfile!
+	userSeventvProfile: SevenTvProfile!
+	rewardIdForAddEmote: String
+	rewardIdForRemoveEmote: String
+	emoteSetId: String
+	deleteEmotesOnlyAddedByApp: Boolean!
+}
+
+input SevenTvUpdateInput {
+	rewardIdForAddEmote: String
+	rewardIdForRemoveEmote: String
+	deleteEmotesOnlyAddedByApp: Boolean!
+}

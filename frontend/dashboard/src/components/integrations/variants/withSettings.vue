@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<{
 	save?: () => void | Promise<void>
 	isLoading?: boolean
 	saveDisabled?: boolean
+	dialogContentClass?: string
 }>(), {})
 
 defineSlots<{
@@ -64,6 +65,7 @@ async function callSave() {
 						:show-save="!!save"
 						:save-disabled="saveDisabled"
 						:button-disabled="!userCanManageIntegrations"
+						:content-class="dialogContentClass"
 						@save="callSave"
 					>
 						<slot name="settings" />

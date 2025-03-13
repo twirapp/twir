@@ -6,11 +6,11 @@ import Donatestream from '@/components/integrations/donatestream.vue'
 import Donationalerts from '@/components/integrations/donationalerts.vue'
 import Faceit from '@/components/integrations/faceit.vue'
 import Lastfm from '@/components/integrations/lastfm.vue'
-import SevenTv from '@/components/integrations/seven-tv.vue'
 import Spotify from '@/components/integrations/spotify.vue'
 import Streamlabs from '@/components/integrations/streamlabs.vue'
 import Valorant from '@/components/integrations/valorant.vue'
 import Vk from '@/components/integrations/vk.vue'
+import SevenTv from '@/features/integrations/ui/seventv/seven-tv.vue'
 import PageLayout from '@/layout/page-layout.vue'
 </script>
 

@@ -32,8 +32,6 @@ import "messages/twitch_protected/twitch_protected.proto";
 import "messages/files/files.proto";
 import "messages/overlays/overlays.proto";
 
-import "messages/integrations_seventv/integrations_seventv.proto";
-
 service Protected {
 	rpc EventsGetAll(google.protobuf.Empty) returns (messages.events.GetAllResponse) {}
 	rpc EventsGetById(messages.events.GetByIdRequest) returns (messages.events.Event) {}
@@ -134,9 +132,6 @@ service Protected {
 	rpc ModerationUpdate(messages.moderation.UpdateRequest) returns (messages.moderation.ItemWithId) {}
 	rpc ModerationEnableOrDisable(messages.moderation.PatchRequest) returns (messages.moderation.ItemWithId) {}
 	rpc ModerationAvailableLanguages(google.protobuf.Empty) returns (messages.moderation.AvailableLanguagesResponse) {}
-
-	rpc IntegrationsSevenTvGetData(google.protobuf.Empty) returns (messages.integrations_seventv.GetDataResponse) {}
-	rpc IntegrationsSevenTvUpdate(messages.integrations_seventv.UpdateDataRequest) returns (google.protobuf.Empty) {}
 
 	rpc OverlayDudesGet(messages.overlays_dudes.GetRequest) returns (messages.overlays_dudes.Settings) {}
 	rpc OverlayDudesGetAll(google.protobuf.Empty) returns (messages.overlays_dudes.GetAllResponse) {}

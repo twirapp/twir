@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { IconSettings } from '@tabler/icons-vue'
+import { clsx } from 'clsx'
 import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
@@ -11,6 +12,7 @@ defineProps<{
 	showSave?: boolean
 	saveDisabled?: boolean
 	buttonDisabled?: boolean
+	contentClass?: string
 }>()
 
 defineEmits<{
@@ -34,7 +36,7 @@ const { t } = useI18n()
 				</div>
 			</Button>
 		</DialogTrigger>
-		<DialogContent class="sm:max-w-[80vw] sm:max-h-[80vh] overflow-y-auto">
+		<DialogContent :class="clsx('sm:max-w-[80vw] sm:max-h-[80vh] overflow-y-auto', contentClass)">
 			<DialogHeader>
 				<DialogTitle>{{ title }}</DialogTitle>
 			</DialogHeader>

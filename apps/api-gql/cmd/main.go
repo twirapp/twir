@@ -38,6 +38,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -91,6 +92,12 @@ import (
 	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users_with_channel/pgx"
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
+
+	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
+	seventvintegrationpostgres "github.com/twirapp/twir/libs/repositories/seventv_integration/datasource/postgres"
+
+	botsrepository "github.com/twirapp/twir/libs/repositories/bots"
+	botspostgres "github.com/twirapp/twir/libs/repositories/bots/datasource/postgres"
 
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
@@ -182,6 +189,14 @@ func main() {
 				channelsintegrationsspotifypgx.NewFx,
 				fx.As(new(channelsintegrationsspotify.Repository)),
 			),
+			fx.Annotate(
+				seventvintegrationpostgres.NewFx,
+				fx.As(new(seventvintegrationrepository.Repository)),
+			),
+			fx.Annotate(
+				botspostgres.NewFx,
+				fx.As(new(botsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -214,6 +229,7 @@ func main() {
 			community_redemptions.New,
 			streamelements.New,
 			dashboard.New,
+			seventv_integration.New,
 		),
 		// grpc clients
 		fx.Provide(

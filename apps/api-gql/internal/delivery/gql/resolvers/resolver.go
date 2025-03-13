@@ -30,6 +30,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -95,6 +96,7 @@ type Deps struct {
 	CommunityRedemptionsService           *community_redemptions.Service
 	StreamElementsService                 *streamelements.Service
 	DashboardService                      *dashboard.Service
+	SevenTvIntegrationService             *seventv_integration.Service
 	Config                                config.Config
 }
 

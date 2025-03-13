@@ -1,31 +1,43 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import type {
-	UpdateDataRequest,
-} from '@twir/api/messages/integrations_seventv/integrations_seventv';
+import { useMutation, useSubscription } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
 
-import { protectedApiClient } from '@/api/twirp';
+import { graphql } from '@/gql'
 
-export const useSevenTvIntegration = () => {
-	const queryClient = useQueryClient();
+export const useSevenTvIntegration = createGlobalState(() => {
+	const subscription = useSubscription({
+		query: graphql(`
+			subscription SevenTvData {
+				sevenTvData {
+					botSeventvProfile {
+						id
+						username
+						displayName
+						avatarUri
+					}
+					userSeventvProfile {
+						id
+						username
+						displayName
+						avatarUri
+					}
+					deleteEmotesOnlyAddedByApp
+					emoteSetId
+					isEditor
+					rewardIdForAddEmote
+					rewardIdForRemoveEmote
+				}
+			}
+		`),
+	})
+
+	const updater = useMutation(graphql(`
+		mutation SevenTvUpdate($input: SevenTvUpdateInput!) {
+			sevenTvUpdate(input: $input)
+		}
+	`))
 
 	return {
-		useData: () => useQuery({
-			queryKey: ['sevenTvIntegration'],
-			refetchInterval: 5000,
-			queryFn: async () => {
-				const request = await protectedApiClient.integrationsSevenTvGetData({});
-				return request.response;
-			},
-		}),
-		useUpdate: () => useMutation({
-			mutationKey: ['sevenTvIntegration'],
-			mutationFn: async (data: UpdateDataRequest) => {
-				const request = await protectedApiClient.integrationsSevenTvUpdate(data);
-				return request.response;
-			},
-			async onSuccess() {
-				await queryClient.invalidateQueries(['sevenTvIntegration']);
-			},
-		}),
-	};
-};
+		subscription,
+		updater,
+	}
+})

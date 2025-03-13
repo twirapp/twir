@@ -33,6 +33,7 @@ async function saveSecret() {
 		title="Donate.stream"
 		:icon="DonateStreamSVG"
 		icon-width="9rem"
+		dialog-content-class="w-[700px]"
 	>
 		<template #description>
 			<DonateDescription />
