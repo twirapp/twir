@@ -39,10 +39,7 @@ func upSeparateSpotify(ctx context.Context, tx *sql.Tx) error {
 		ctx,
 		"SELECT id FROM integrations WHERE service = 'SPOTIFY'",
 	).Scan(&spotifyIntegration.ID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil
-		}
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
 
@@ -51,10 +48,7 @@ func upSeparateSpotify(ctx context.Context, tx *sql.Tx) error {
 		`SELECT id, "accessToken", "refreshToken", enabled, "channelId", data FROM channels_integrations WHERE "integrationId" = $1`,
 		spotifyIntegration.ID,
 	)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil
-		}
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
 	channelsIntegrations := []channelsIntegrationsSpotify20250227132205{}
@@ -75,7 +69,7 @@ func upSeparateSpotify(ctx context.Context, tx *sql.Tx) error {
 		}
 		channelsIntegrations = append(channelsIntegrations, channelIntegration)
 	}
-	if rows.Err() != nil {
+	if rows.Err() != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
 
