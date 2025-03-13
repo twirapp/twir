@@ -3,15 +3,18 @@ package bus_listener
 import (
 	"context"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/timers/internal/workflow"
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/redis_keys"
 	"go.uber.org/fx"
 )
 
 type server struct {
 	workflow *workflow.Workflow
+	redis    *redis.Client
 }
 
 type Opts struct {
@@ -21,11 +24,13 @@ type Opts struct {
 	Logger   logger.Logger
 	Workflow *workflow.Workflow
 	Bus      *buscore.Bus
+	Redis    *redis.Client
 }
 
 func New(opts Opts) error {
 	s := &server{
 		workflow: opts.Workflow,
+		redis:    opts.Redis,
 	}
 
 	opts.Lc.Append(
@@ -49,6 +54,9 @@ func New(opts Opts) error {
 }
 
 func (c *server) addTimerToQueue(ctx context.Context, t timers.AddOrRemoveTimerRequest) struct{} {
+	c.redis.Del(ctx, redis_keys.TimersCurrentResponse(t.TimerID))
+
+	c.workflow.RemoveTimer(ctx, t.TimerID)
 	c.workflow.AddTimer(ctx, t.TimerID)
 
 	return struct{}{}

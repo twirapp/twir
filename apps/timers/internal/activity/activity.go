@@ -79,7 +79,7 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 		return 0, nil
 	}
 
-	currentResponse, err := c.redis.Get(ctx, "timers:current_response:"+timerId).Int()
+	currentResponse, err := c.redis.Get(ctx, redis_keys.TimersCurrentResponse(timerId)).Int()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return currentResponse, err
 	}
@@ -133,7 +133,7 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 		nextIndex = 0
 	}
 
-	err = c.redis.Set(ctx, "timers:current_response:"+timerId, nextIndex, 24*time.Hour).Err()
+	err = c.redis.Set(ctx, redis_keys.TimersCurrentResponse(timerId), nextIndex, 24*time.Hour).Err()
 	if err != nil {
 		return nextIndex, err
 	}
