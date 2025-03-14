@@ -57,31 +57,31 @@ services:
         constraints:
           - node.role == manager
 
-  postgres-old:
-    image: 'bitnami/postgresql:17'
-    environment:
-      POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
-      POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
-      POSTGRESQL_POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
-      POSTGRESQL_MAX_CONNECTIONS: 1000
-    secrets:
-      - twir_postgres_user
-      - twir_postgres_password
-      - twir_postgres_db
-    volumes:
-      - twir-postgres-data:/bitnami/postgresql
-    networks:
-      - twir
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.labels.databases-1 == tru
+#  postgres-old:
+#    image: 'bitnami/postgresql:17'
+#    environment:
+#      POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
+#      POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
+#      POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
+#      POSTGRESQL_POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
+#      POSTGRESQL_MAX_CONNECTIONS: 1000
+#    secrets:
+#      - twir_postgres_user
+#      - twir_postgres_password
+#      - twir_postgres_db
+#    volumes:
+#      - twir-postgres-data:/bitnami/postgresql
+#    networks:
+#      - twir
+#    deploy:
+#      restart_policy:
+#        condition: any
+#        delay: 30s
+#        max_attempts: 30
+#      endpoint_mode: dnsrr
+#      placement:
+#        constraints:
+#          - node.labels.databases-1 == tru
 
   postgres:
     image: 'twirapp/postgres:latest'
