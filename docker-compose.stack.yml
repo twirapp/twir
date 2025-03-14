@@ -3,8 +3,6 @@ version: '3.9'
 services:
   adminer:
     image: adminer
-    environment:
-      - ADMINER_PLUGINS=enum-types
     networks:
       - twir
       - traefik-public
