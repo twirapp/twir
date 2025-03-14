@@ -93,7 +93,7 @@ services:
       - twir_postgres_password
       - twir_postgres_db
     volumes:
-      - twir-postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - twir
     deploy:
@@ -730,8 +730,6 @@ services:
           - node.labels.databases != true
 
 volumes:
-  twir-postgres-data:
-    external: true
   postgres-data:
   redis-data:
   minio-data:
