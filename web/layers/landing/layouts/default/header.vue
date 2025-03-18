@@ -37,15 +37,6 @@ const title = `Twir${import.meta.dev ? ' dev' : ''}`
 					</NuxtLink>
 
 					<div class="bg-red inline-block h-full"></div>
-
-					<span class="pl-2 text-sm text-white/70 hidden sm:inline-block">
-						Hosted by
-						<a
-							href="https://avoro.eu/cp/aff.php?aff=82"
-							target="_blank"
-							class="underline"
-						>avoro.eu</a>
-					</span>
 				</div>
 
 				<Nav />
