@@ -72,6 +72,15 @@ const addable = computed(() => {
 	return userCanEditOverlays.value && (entities.value?.nowPlayingOverlays.length ?? 0) < 5
 })
 
+watch(entities, () => {
+	if (!entities.value?.nowPlayingOverlays.at(0)) {
+		openedTab.value = undefined
+		return
+	}
+
+	openedTab.value = entities.value.nowPlayingOverlays.at(0)!.id
+}, { once: true })
+
 watch(openedTab, async (v) => {
 	const entity = entities.value?.nowPlayingOverlays.find(s => s.id === v)
 	if (!entity) return
