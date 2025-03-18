@@ -16,10 +16,7 @@ import (
 )
 
 // BotJoinLeave is the resolver for the botJoinLeave field.
-func (r *mutationResolver) BotJoinLeave(
-	ctx context.Context,
-	action gqlmodel.BotJoinLeaveAction,
-) (bool, error) {
+func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.BotJoinLeaveAction) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -41,10 +38,7 @@ func (r *mutationResolver) BotJoinLeave(
 }
 
 // DashboardStats is the resolver for the dashboardStats field.
-func (r *subscriptionResolver) DashboardStats(ctx context.Context) (
-	<-chan *gqlmodel.DashboardStats,
-	error,
-) {
+func (r *subscriptionResolver) DashboardStats(ctx context.Context) (<-chan *gqlmodel.DashboardStats, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err

@@ -13,8 +13,21 @@ import { CommandExpiresType } from '@/gql/graphql'
 
 export const formSchema = object({
 	id: string().optional(),
-	name: string().min(1).max(50),
-	aliases: array(string().max(50)).max(50),
+	name: string()
+		.min(1)
+		.max(50)
+		.refine(
+			(val) => !val.startsWith('!'),
+			{ message: 'Command name cannot start with "!"' },
+		),
+	aliases: array(
+		string()
+			.max(50)
+			.refine(
+				(val) => !val.startsWith('!'),
+				{ message: 'Alias cannot start with "!"' },
+			),
+	).max(50),
 	enabled: boolean(),
 	responses: array(
 		object({

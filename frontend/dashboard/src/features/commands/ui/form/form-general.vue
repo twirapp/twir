@@ -11,7 +11,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
 	Select,
@@ -94,6 +101,9 @@ function computeSelectedGroupColor(id: string) {
 							<TagsInputInput :placeholder="t('commands.modal.aliases.label')" />
 						</TagsInput>
 					</FormControl>
+					<FormDescription>
+						Alternative names for triggering this command. Press enter to submit.
+					</FormDescription>
 					<FormMessage />
 				</FormItem>
 			</FormField>
@@ -104,6 +114,9 @@ function computeSelectedGroupColor(id: string) {
 					<FormControl>
 						<Input v-bind="componentField" />
 					</FormControl>
+					<FormDescription>
+						Description which is showed on public page, in command help, in FFZ addon, e.t.c.
+					</FormDescription>
 					<FormMessage />
 				</FormItem>
 			</FormField>
