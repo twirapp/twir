@@ -81,20 +81,37 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		StreamStartedAt:    &stream.StartedAt,
 	}
 
+	channelTwitchClient, err := twitch.NewUserClientWithContext(
+		ctx,
+		channelID,
+		c.config,
+		c.tokensClient,
+	)
+	if err != nil {
+		return entity.DashboardStats{}, err
+	}
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		followers, err := c.cachedTwitchClient.GetChannelFollowersCountByChannelId(
-			ctx,
-			channelID,
+		followers, err := channelTwitchClient.GetChannelFollows(
+			&helix.GetChannelFollowsParams{
+				BroadcasterID: channelID,
+			},
 		)
-
 		if err != nil {
-			result.Followers = followers
+			c.logger.Error("cannot get followers", slog.Any("err", err))
+			return
 		}
+		if followers.ErrorMessage != "" {
+			c.logger.Error("cannot get followers", slog.String("error", followers.ErrorMessage))
+			return
+		}
+
+		result.Followers = followers.Data.Total
 	}()
 
 	wg.Add(1)

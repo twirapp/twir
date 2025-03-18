@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -15,7 +16,10 @@ import (
 )
 
 // BotJoinLeave is the resolver for the botJoinLeave field.
-func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.BotJoinLeaveAction) (bool, error) {
+func (r *mutationResolver) BotJoinLeave(
+	ctx context.Context,
+	action gqlmodel.BotJoinLeaveAction,
+) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -37,7 +41,10 @@ func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.Bot
 }
 
 // DashboardStats is the resolver for the dashboardStats field.
-func (r *subscriptionResolver) DashboardStats(ctx context.Context) (<-chan *gqlmodel.DashboardStats, error) {
+func (r *subscriptionResolver) DashboardStats(ctx context.Context) (
+	<-chan *gqlmodel.DashboardStats,
+	error,
+) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -54,6 +61,7 @@ func (r *subscriptionResolver) DashboardStats(ctx context.Context) (<-chan *gqlm
 			default:
 				stats, err := r.deps.DashboardService.GetDashboardStats(ctx, dashboardID)
 				if err != nil {
+					r.deps.Logger.Error("cannot get dashboard stats", slog.Any("err", err))
 					return
 				}
 
