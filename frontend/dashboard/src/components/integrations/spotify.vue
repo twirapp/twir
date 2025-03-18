@@ -1,25 +1,23 @@
 <script setup lang="ts">
-import { useSpotifyIntegration } from '@/api/index.js';
-import IconSpotify from '@/assets/integrations/spotify.svg?use';
-import SongDescription from '@/components/integrations/helpers/songDescription.vue';
-import OauthComponent from '@/components/integrations/variants/oauth.vue';
+import { useSpotifyIntegration } from '@/api/integrations/spotify.ts'
+import IconSpotify from '@/assets/integrations/spotify.svg?use'
+import SongDescription from '@/components/integrations/helpers/songDescription.vue'
+import OauthComponent from '@/components/integrations/variants/oauth.vue'
 
-const manager = useSpotifyIntegration();
-const { data } = manager.useData();
-const logout = manager.useLogout();
-const { data: authLink } = manager.useAuthLink();
+const manager = useSpotifyIntegration()
+const { data } = manager.spotifyData
 </script>
 
 <template>
-	<oauth-component
+	<OauthComponent
 		title="Spotify"
-		:data="data"
-		:logout="() => logout.mutateAsync({})"
-		:authLink="authLink?.link"
+		:data="data?.profile"
+		:logout="() => manager.logout.executeMutation({})"
+		:authLink="data?.spotifyAuthLink"
 		:icon="IconSpotify"
 	>
 		<template #description>
-			<song-description />
+			<SongDescription />
 		</template>
-	</oauth-component>
+	</OauthComponent>
 </template>

@@ -77,5 +77,8 @@ func (c *Spotify) refreshToken(ctx context.Context) error {
 		return fmt.Errorf("cannot save spotify token: %w", err)
 	}
 
+	c.channelIntegration.AccessToken = data.AccessToken
+	c.channelIntegration.RefreshToken = data.RefreshToken
+
 	return nil
 }

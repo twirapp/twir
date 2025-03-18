@@ -68,20 +68,24 @@ func (c *Spotify) getTrackByCurrentPlayingTrack(ctx context.Context) (*GetTrackR
 		SetSuccessResult(&data).
 		Get("https://api.spotify.com/v1/me/player/currently-playing")
 
-	if resp.StatusCode == 401 && !c.isRetry {
+	if resp != nil && resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
-		defer func() {
-			c.isRetry = false
-		}()
+
 		if err := c.refreshToken(ctx); err != nil {
+			c.isRetry = false
 			return nil, err
 		}
+		c.isRetry = false
 
 		return c.GetTrack(ctx)
 	}
 	if err != nil {
 		return nil, err
 	}
+	if resp == nil {
+		return nil, fmt.Errorf("cannot get spotify track: %s", "empty response")
+	}
+
 	if !resp.IsSuccessState() {
 		return nil, fmt.Errorf("cannot get spotify track: %s", resp.String())
 	}

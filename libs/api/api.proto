@@ -15,7 +15,6 @@ import "messages/integrations_donatepay/integrations_donatepay.proto";
 import "messages/integrations_donationalerts/integrations_donationalerts.proto";
 import "messages/integrations_faceit/integrations_faceit.proto";
 import "messages/integrations_lastfm/integrations_lastfm.proto";
-import "messages/integrations_spotify/integrations_spotify.proto";
 import "messages/integrations_streamlabs/integrations_streamlabs.proto";
 import "messages/integrations_vk/integrations_vk.proto";
 import "messages/integrations_valorant/integrations_valorant.proto";
@@ -63,12 +62,6 @@ service Protected {
 	rpc IntegrationsLastFMGetData(google.protobuf.Empty) returns (messages.integrations_lastfm.GetDataResponse) {}
 	rpc IntegrationsLastFMPostCode(messages.integrations_lastfm.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsLastFMLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-
-	rpc IntegrationsSpotifyGetAuthLink(google.protobuf.Empty) returns (messages.integrations_spotify.GetAuthLink) {}
-	rpc IntegrationsSpotifyGetData(google.protobuf.Empty) returns (messages.integrations_spotify.GetDataResponse) {}
-	rpc IntegrationsSpotifyPostCode(messages.integrations_spotify.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsSpotifyLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
 	rpc IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetAuthLink) {}
 	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse) {}

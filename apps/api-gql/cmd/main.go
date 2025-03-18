@@ -40,6 +40,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
@@ -98,6 +99,9 @@ import (
 
 	botsrepository "github.com/twirapp/twir/libs/repositories/bots"
 	botspostgres "github.com/twirapp/twir/libs/repositories/bots/datasource/postgres"
+
+	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
+	integrationspostgres "github.com/twirapp/twir/libs/repositories/integrations/datasource/postgres"
 
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
@@ -197,6 +201,10 @@ func main() {
 				botspostgres.NewFx,
 				fx.As(new(botsrepository.Repository)),
 			),
+			fx.Annotate(
+				integrationspostgres.NewFx,
+				fx.As(new(integrationsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -230,6 +238,7 @@ func main() {
 			streamelements.New,
 			dashboard.New,
 			seventv_integration.New,
+			spotify_integration.New,
 		),
 		// grpc clients
 		fx.Provide(

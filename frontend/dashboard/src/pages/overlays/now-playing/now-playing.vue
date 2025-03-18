@@ -7,10 +7,10 @@ import { useI18n } from 'vue-i18n'
 import {
 	useLastfmIntegration,
 	useNowPlayingOverlayApi,
-	useSpotifyIntegration,
 	useUserAccessFlagChecker,
 	useVKIntegration,
 } from '@/api'
+import { useSpotifyIntegration } from '@/api/integrations/spotify.js'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 import NowPlayingForm from '@/pages/overlays/now-playing/now-playing-form.vue'
@@ -28,12 +28,12 @@ const nowPlayingOverlayManager = useNowPlayingOverlayApi()
 const creator = nowPlayingOverlayManager.useNowPlayingCreate()
 const deleter = nowPlayingOverlayManager.useNowPlayingDelete()
 
-const { data: spotifyData } = useSpotifyIntegration().useData()
+const { data: spotifyData } = useSpotifyIntegration().spotifyData
 const { data: lastFmData } = useLastfmIntegration().useData()
 const { data: vkData } = useVKIntegration().useData()
 
 const isSomeSongIntegrationEnabled = computed(() => {
-	return spotifyData.value?.userName || lastFmData.value?.userName || vkData.value?.userName
+	return spotifyData.value?.profile?.userName || lastFmData.value?.userName || vkData.value?.userName
 })
 
 const {

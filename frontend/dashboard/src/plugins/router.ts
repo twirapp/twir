@@ -10,6 +10,10 @@ import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 export function newRouter() {
 	const routes: ReadonlyArray<RouteRecordRaw> = [
 		{
+			path: '/dashboard/integrations/spotify',
+			component: () => import('../pages/IntegrationsCallbackSpotify.vue'),
+		},
+		{
 			path: '/dashboard/integrations/:integrationName',
 			component: () => import('../pages/IntegrationsCallback.vue'),
 		},
