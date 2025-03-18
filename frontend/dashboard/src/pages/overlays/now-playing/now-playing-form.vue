@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type Font, FontSelector } from '@twir/fontsource'
-import { NButton, NColorPicker, NFormItem, NInputNumber, NSelect, NSwitch, useThemeVars } from 'naive-ui'
+import { NColorPicker } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -12,12 +12,35 @@ import {
 	useUserAccessFlagChecker,
 } from '@/api'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import {
+	Command,
+	CommandGroup,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()
 
-const themeVars = useThemeVars()
 const discrete = useNaiveDiscrete()
 const { copyOverlayLink } = useCopyOverlayLink('now-playing')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
@@ -31,6 +54,7 @@ const canCopyLink = computed(() => {
 
 const manager = useNowPlayingOverlayApi()
 const updater = manager.useNowPlayingUpdate()
+const deleter = manager.useNowPlayingDelete()
 
 async function save() {
 	if (!formValue.value?.id) return
@@ -55,7 +79,6 @@ async function save() {
 
 const fontData = ref<Font | null>(null)
 watch(() => fontData.value, (font) => {
-	console.log(font)
 	if (!font) return
 	formValue.value.fontFamily = font.id
 }, { deep: true })
@@ -67,74 +90,122 @@ const fontWeightOptions = computed(() => {
 </script>
 
 <template>
-	<div v-if="formValue" class="card">
-		<div class="card-header">
-			<NButton
-				secondary
-				type="info"
-				:disabled="!formValue.id || !canCopyLink"
-				@click="copyOverlayLink({ id: formValue.id! })"
-			>
-				{{ t('overlays.copyOverlayLink') }}
-			</NButton>
-			<NButton secondary type="success" @click="save">
-				{{ t('sharedButtons.save') }}
-			</NButton>
-		</div>
+	<Card v-if="formValue" class="card">
+		<CardContent class="pt-4 flex flex-col gap-4">
+			<div class="flex flex-col gap-2">
+				<Label for="preset">Style</Label>
+				<Select id="preset" v-model:model-value="formValue.preset" default-value="AIDEN_REDESIGN">
+					<SelectTrigger class="w-[180px]">
+						<SelectValue placeholder="Select a preset" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectGroup>
+							<SelectItem value="AIDEN_REDESIGN">
+								Aiden Redesign
+							</SelectItem>
+							<SelectItem value="TRANSPARENT">
+								Transparent
+							</SelectItem>
+							<SelectItem value="SIMPLE_LINE">
+								Simple line
+							</SelectItem>
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</div>
 
-		<div class="card-body-column">
-			<NFormItem label="Style">
-				<NSelect
-					v-model:value="formValue.preset"
-					:options="[
-						{ label: 'Aiden Redesign', value: 'AIDEN_REDESIGN' },
-						{ label: 'Transparent', value: 'TRANSPARENT' },
-						{ label: 'Simple line', value: 'SIMPLE_LINE' },
-					]"
+			<div class="flex flex-col gap-2">
+				<Label for="showImage">Show image</Label>
+				<Switch
+					id="showImage"
+					v-model:checked="formValue.showImage"
+					@update:checked="formValue.showImage = $event"
 				/>
-			</NFormItem>
+			</div>
 
-			<NFormItem label="Show image">
-				<NSwitch v-model:value="formValue.showImage" />
-			</NFormItem>
-
-			<NFormItem label="Background color">
+			<div class="flex flex-col gap-2">
+				<Label for="backgroundColor">Background color</Label>
 				<NColorPicker
 					v-model:value="formValue.backgroundColor"
 				/>
-			</NFormItem>
+			</div>
 
-			<NFormItem :label="t('overlays.chat.fontFamily')">
+			<div class="flex flex-col gap-2">
+				<Label for="fontFamily">{{ t('overlays.chat.fontFamily') }}</Label>
 				<FontSelector
+					id="fontFamily"
 					v-model:font="fontData"
 					:font-family="formValue.fontFamily"
 					:font-weight="formValue.fontWeight"
 					font-style="normal"
 				/>
-			</NFormItem>
+			</div>
 
-			<NFormItem :label="t('overlays.chat.fontWeight')">
-				<NSelect
-					v-model:value="formValue.fontWeight"
-					:options="fontWeightOptions"
-				/>
-			</NFormItem>
+			<div class="flex flex-col gap-2">
+				<Label for="fontWeight">{{ t('overlays.chat.fontWeight') }}</Label>
 
-			<NFormItem :label="t('overlays.chat.hideTimeout')">
-				<NInputNumber
-					v-model:value="formValue.hideTimeout"
+				<Popover>
+					<PopoverTrigger as-child>
+						<Button
+							variant="outline"
+							size="sm"
+							class="w-[150px] justify-start"
+						>
+							<template v-if="formValue.fontWeight">
+								{{ formValue.fontWeight }}
+							</template>
+							<template v-else>
+								+ Set font weight
+							</template>
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent class="p-0" side="right" align="start">
+						<Command>
+							<CommandList>
+								<CommandGroup>
+									<CommandItem
+										v-for="weight in fontWeightOptions"
+										:key="weight.value"
+										:value="weight.value"
+										@select="() => {
+											formValue.fontWeight = weight.value
+										}"
+									>
+										{{ weight.label }}
+									</CommandItem>
+								</CommandGroup>
+							</CommandList>
+						</Command>
+					</PopoverContent>
+				</Popover>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<Label for="hideTimeout">{{ t('overlays.chat.hideTimeout') }}</Label>
+				<Input
+					id="hideTimeout"
+					v-model:model-value="formValue.hideTimeout"
+					type="number"
 					:min="0"
 					:max="600"
 				/>
-			</NFormItem>
-		</div>
-	</div>
+			</div>
+		</CardContent>
+
+		<CardFooter class="flex justify-end gap-2">
+			<Button variant="destructive" @click="deleter.executeMutation({ id: formValue.id! })">
+				{{ t('sharedButtons.delete') }}
+			</Button>
+			<Button
+				:disabled="!formValue.id || !canCopyLink"
+				variant="secondary"
+				@click="copyOverlayLink({ id: formValue.id! })"
+			>
+				{{ t('overlays.copyOverlayLink') }}
+			</Button>
+			<Button @click="save">
+				{{ t('sharedButtons.save') }}
+			</Button>
+		</CardFooter>
+	</Card>
 </template>
-
-<style scoped>
-@import '../styles.css';
-
-.card {
-	background-color: v-bind('themeVars.cardColor');
-}
-</style>

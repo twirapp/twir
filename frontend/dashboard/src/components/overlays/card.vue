@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { IconCopy, IconSettings } from '@tabler/icons-vue'
-import { NButton, NTooltip } from 'naive-ui'
+import { CopyIcon, SettingsIcon } from 'lucide-vue-next'
+import { NTooltip } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
 import { useCopyOverlayLink } from './copyOverlayLink.js'
@@ -9,6 +9,7 @@ import type { FunctionalComponent } from 'vue'
 
 import { useProfile, useUserAccessFlagChecker } from '@/api/index.js'
 import Card from '@/components/card/card.vue'
+import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = withDefaults(defineProps<{
@@ -47,27 +48,25 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 		</template>
 
 		<template #footer>
-			<NButton
-				v-if="showSettings" :disabled="!userCanEditOverlays" secondary size="large"
+			<Button
+				v-if="showSettings" :disabled="!userCanEditOverlays"
+				variant="outline"
+				class="flex items-center gap-2"
 				@click="$emit('openSettings')"
 			>
-				<div class="flex gap-1">
-					<span>{{ t('sharedButtons.settings') }}</span>
-					<IconSettings />
-				</div>
-			</NButton>
+				<SettingsIcon class="size-4" />
+				<span>{{ t('sharedButtons.settings') }}</span>
+			</Button>
 			<NTooltip v-if="showCopy" :disabled="profile?.id !== profile?.selectedDashboardId">
 				<template #trigger>
-					<NButton
-						size="large"
+					<Button
 						:disabled="copyDisabled || profile?.id !== profile?.selectedDashboardId"
+						class="flex items-center gap-2"
 						@click="copyOverlayLink()"
 					>
-						<div class="flex gap-1">
-							<span>{{ t('overlays.copyOverlayLink') }}</span>
-							<IconCopy />
-						</div>
-					</NButton>
+						<CopyIcon class="size-4" />
+						<span>{{ t('overlays.copyOverlayLink') }}</span>
+					</Button>
 				</template>
 				<span v-if="profile?.id !== profile?.selectedDashboardId">{{ t('overlays.noAccess') }}</span>
 				<span v-else>{{ t('overlays.uncongirured') }}</span>
