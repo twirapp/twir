@@ -67,6 +67,7 @@ onMounted(async () => {
 				module: undefined,
 				name: '',
 				responses: command.responses.map(r => ({ text: r.text, twitchCategoriesIds: [] })),
+				aliases: [],
 			}))
 			loading.value = false
 			return
