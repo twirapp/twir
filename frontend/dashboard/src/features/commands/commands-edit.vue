@@ -58,6 +58,21 @@ const { handleSubmit, setValues } = useForm({
 const title = ref('')
 
 onMounted(async () => {
+	if (typeof route.query.commandIdForCopy === 'string') {
+		const command = await findCommand(route.query.commandIdForCopy)
+		if (command) {
+			setValues(toRaw({
+				...command,
+				id: undefined,
+				module: undefined,
+				name: '',
+				responses: command.responses.map(r => ({ text: r.text, twitchCategoriesIds: [] })),
+			}))
+			loading.value = false
+			return
+		}
+	}
+
 	if (typeof route.params.id !== 'string') {
 		return
 	}

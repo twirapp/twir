@@ -16,6 +16,9 @@ import type { RouteLocationNormalized } from 'vue-router'
 
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { Toaster } from '@/components/ui/toast'
+import {
+	TooltipProvider,
+} from '@/components/ui/tooltip'
 import { useTheme } from '@/composables/use-theme.js'
 import Sidebar from '@/layout/sidebar/sidebar.vue'
 
@@ -48,30 +51,32 @@ function getTransition(route: RouteLocationNormalized) {
 		:breakpoints="{ 'xs': 0, 's': 640, 'm': 1024, 'l': 1280, 'xl': 1536, 'xxl': 1920, '2xl': 2560 }"
 	>
 		<NNotificationProvider :max="5">
-			<NMessageProvider :duration="2500" :closable="true">
-				<NDialogProvider>
-					<Sidebar>
-						<SidebarFloatingButton />
-						<RouterView v-slot="{ Component, route }">
-							<transition :name="getTransition(route)" mode="out-in">
-								<div
-									:key="route.path"
-									:style="{
-										padding: route.meta?.noPadding ? undefined : '24px',
-										height: '100%',
-									}"
-									class="dark:bg-[#101014]"
-								>
-									<component :is="Component" />
-								</div>
-							</transition>
-						</RouterView>
+			<TooltipProvider :delay-duration="100">
+				<NMessageProvider :duration="2500" :closable="true">
+					<NDialogProvider>
+						<Sidebar>
+							<SidebarFloatingButton />
+							<RouterView v-slot="{ Component, route }">
+								<transition :name="getTransition(route)" mode="out-in">
+									<div
+										:key="route.path"
+										:style="{
+											padding: route.meta?.noPadding ? undefined : '24px',
+											height: '100%',
+										}"
+										class="dark:bg-[#101014]"
+									>
+										<component :is="Component" />
+									</div>
+								</transition>
+							</RouterView>
 
-						<Toaster />
-						<Sonner />
-					</Sidebar>
-				</NDialogProvider>
-			</NMessageProvider>
+							<Toaster />
+							<Sonner />
+						</Sidebar>
+					</NDialogProvider>
+				</NMessageProvider>
+			</TooltipProvider>
 		</NNotificationProvider>
 	</NConfigProvider>
 </template>

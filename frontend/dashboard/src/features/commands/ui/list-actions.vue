@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { PencilIcon, TrashIcon } from 'lucide-vue-next'
+import { CopyIcon, PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 import type { Command } from '@/gql/graphql'
 
@@ -11,9 +12,15 @@ import ActionConfirmation from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/toast/use-toast'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = defineProps<{ row: Command }>()
+const router = useRouter()
 const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands)
 
 const manager = useCommandsApi()
@@ -49,6 +56,15 @@ async function deleteCommand() {
 		duration: 1500,
 	})
 }
+
+function goToCopyCommand() {
+	router.push({
+		path: '/dashboard/commands/custom/create',
+		query: {
+			commandIdForCopy: props.row.id,
+		},
+	})
+}
 </script>
 
 <template>
@@ -59,6 +75,21 @@ async function deleteCommand() {
 			@update:checked="switchEnabled"
 		/>
 		<div class="flex gap-2">
+			<Tooltip>
+				<TooltipTrigger>
+					<Button
+						:disabled="!userCanManageCommands"
+						size="icon"
+						@click="goToCopyCommand"
+					>
+						<CopyIcon class="h-4 w-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>Copy command as new</p>
+				</TooltipContent>
+			</Tooltip>
+
 			<RouterLink v-slot="{ href, navigate }" custom :to="`/dashboard/commands/custom/${row.id}`">
 				<Button
 					as="a"
