@@ -181,6 +181,9 @@ function computeSelectedGroupColor(id: string) {
 						</AlertDescription>
 					</Alert>
 					<FormMessage />
+					<FormDescription>
+						Groups used to create "folder" of commands in dashboard and public page, so you can stick related commands together.
+					</FormDescription>
 				</FormItem>
 			</FormField>
 		</CardContent>

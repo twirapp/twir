@@ -4,7 +4,14 @@ import { useI18n } from 'vue-i18n'
 
 import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
@@ -46,6 +53,9 @@ const { t } = useI18n()
 						/>
 					</FormControl>
 					<FormMessage />
+					<FormDescription>
+						Users, who can bypass roles restriction for that command.
+					</FormDescription>
 				</FormItem>
 			</FormField>
 
@@ -60,6 +70,9 @@ const { t } = useI18n()
 						/>
 					</FormControl>
 					<FormMessage />
+					<FormDescription>
+						Users, who cannot use that command.
+					</FormDescription>
 				</FormItem>
 			</FormField>
 
