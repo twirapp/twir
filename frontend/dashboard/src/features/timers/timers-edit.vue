@@ -133,6 +133,9 @@ const responsesHasError = computed(() => {
 					<Label
 						:class="{ 'text-destructive': responsesHasError }"
 					>{{ t('sharedTexts.responses') }}</Label>
+					<span class="text-sm text-muted-foreground">
+						Responses are sent in sequence: the first on the initial trigger, the second after <b>{{ controlledValues.timeInterval }}</b> minutes, etc., cycling back to the first after last are sent.
+					</span>
 
 					<FieldArray v-slot="{ fields, push, remove }" name="responses">
 						<VueDraggable
