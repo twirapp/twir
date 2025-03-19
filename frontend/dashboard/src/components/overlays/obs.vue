@@ -1,23 +1,24 @@
 <script setup lang="ts">
-import { NModal } from 'naive-ui';
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import Settings from './obs/settings.vue';
+import Settings from './obs/settings.vue'
 
-import { useObsOverlayManager } from '@/api/index.js';
-import BroadcastIcon from '@/assets/overlays/broadcast.svg?use';
-import Card from '@/components/overlays/card.vue';
+import { useObsOverlayManager } from '@/api/index.js'
+import BroadcastIcon from '@/assets/overlays/broadcast.svg?use'
+import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import Card from '@/components/overlays/card.vue'
+import { Dialog } from '@/components/ui/dialog'
 
-const isModalOpened = ref(false);
-const obsManager = useObsOverlayManager();
-const { data: obsSettings, isError } = obsManager.getSettings(false);
+const isModalOpened = ref(false)
+const obsManager = useObsOverlayManager()
+const { data: obsSettings, isError } = obsManager.getSettings(false)
 
-const { t } = useI18n();
+const { t } = useI18n()
 </script>
 
 <template>
-	<card
+	<Card
 		:icon="BroadcastIcon"
 		:icon-stroke="2"
 		title="OBS"
@@ -26,17 +27,11 @@ const { t } = useI18n();
 		:copy-disabled="!obsSettings || isError"
 		@open-settings="isModalOpened = true"
 	>
-	</card>
+	</Card>
 
-	<n-modal
-		v-model:show="isModalOpened"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		title="OBS"
-		content-style="padding: 10px; width: 100%"
-		style="width: 500px; max-width: calc(100vw - 40px)"
-	>
-		<Settings />
-	</n-modal>
+	<Dialog v-model:open="isModalOpened">
+		<DialogOrSheet class="w-full md:max-w-xl">
+			<Settings />
+		</DialogOrSheet>
+	</Dialog>
 </template>

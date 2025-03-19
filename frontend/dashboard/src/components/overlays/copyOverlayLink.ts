@@ -1,13 +1,13 @@
-import { useNotification } from 'naive-ui'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '@/api/auth.js'
+import { useToast } from '@/components/ui/toast'
 
 export function useCopyOverlayLink(overlayPath: string) {
 	const { data: profile } = useProfile()
 	const { t } = useI18n()
-	const messages = useNotification()
+	const { toast } = useToast()
 
 	const overlayLink = computed(() => {
 		return `${window.location.origin}/overlays/${profile.value?.apiKey}/${overlayPath}`
@@ -22,7 +22,8 @@ export function useCopyOverlayLink(overlayPath: string) {
 		}
 
 		navigator.clipboard.writeText(url.toString())
-		messages.success({
+
+		toast({
 			title: t('overlays.copied'),
 			duration: 5000,
 		})
