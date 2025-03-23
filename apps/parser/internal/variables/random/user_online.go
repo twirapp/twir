@@ -2,12 +2,10 @@ package random
 
 import (
 	"context"
-	"errors"
-	"math/rand"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 )
 
 var OnlineUser = &types.Variable{
@@ -20,30 +18,20 @@ var OnlineUser = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		var onlineCount int64
-		err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Model(&model.UsersOnline{}).
-			Where(`"channelId" = ? `, parseCtx.Channel.ID).
-			Count(&onlineCount).Error
-		if err != nil || onlineCount == 0 {
-			return nil, errors.New("no users online")
+		randomUser, err := parseCtx.Services.UsersRepo.GetRandomOnlineUser(
+			ctx,
+			usersrepository.GetRandomOnlineUserInput{
+				ChannelID: parseCtx.Channel.ID,
+			},
+		)
+		if err != nil {
+			return result, &types.CommandHandlerError{
+				Message: "cannot get online user",
+				Err:     err,
+			}
 		}
 
-		randCount := rand.Intn(int(onlineCount)-0) + 0
-
-		randomUser := &model.UsersOnline{}
-		err = parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Where(`"channelId" = ? `, parseCtx.Channel.ID).
-			Offset(randCount).
-			First(randomUser).Error
-
-		if err != nil || randomUser == nil {
-			return nil, errors.New("cannot get online user")
-		}
-
-		result.Result = randomUser.UserName.String
+		result.Result = randomUser.UserName
 		return result, nil
 	},
 }

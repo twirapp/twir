@@ -2,6 +2,8 @@ package pgx
 
 import (
 	"context"
+	"errors"
+	"math/rand/v2"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
@@ -147,4 +149,53 @@ func (c *Pgx) Update(ctx context.Context, id string, input users.UpdateInput) (m
 	}
 
 	return user, nil
+}
+
+func (c *Pgx) GetRandomOnlineUser(
+	ctx context.Context,
+	input users.GetRandomOnlineUserInput,
+) (model.OnlineUser, error) {
+	var onlineCount int64
+	if err := c.pool.QueryRow(
+		ctx,
+		`SELECT COUNT(*) FROM users_online WHERE "channelId" = $1`,
+		input.ChannelID,
+	).Scan(&onlineCount); err != nil {
+		return model.NilOnlineUser, err
+	}
+
+	randCount := rand.IntN(int(onlineCount)-0) + 0
+
+	queryBuilder := sq.Select(
+		"users_online.id",
+		`"users_online"."channelId"`,
+		`"users_online"."userId"`,
+		`"users_online"."userName"`,
+	).
+		From("users_online").
+		Where(squirrel.Eq{`"users_online"."channelId"`: input.ChannelID}).
+		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_online"."userId")`).
+		Limit(1).
+		Offset(uint64(randCount))
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return model.NilOnlineUser, err
+	}
+
+	rows, err := c.pool.Query(ctx, query, args...)
+	if err != nil {
+		return model.NilOnlineUser, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.OnlineUser])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.NilOnlineUser, nil
+		}
+
+		return model.NilOnlineUser, err
+	}
+
+	return result, nil
 }

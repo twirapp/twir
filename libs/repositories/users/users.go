@@ -10,6 +10,7 @@ type Repository interface {
 	GetByID(ctx context.Context, id string) (model.User, error)
 	GetManyByIDS(ctx context.Context, input GetManyInput) ([]model.User, error)
 	Update(ctx context.Context, id string, input UpdateInput) (model.User, error)
+	GetRandomOnlineUser(ctx context.Context, input GetRandomOnlineUserInput) (model.OnlineUser, error)
 }
 
 type GetManyInput struct {
@@ -26,4 +27,8 @@ type UpdateInput struct {
 	ApiKey            *string
 	HideOnLandingPage *bool
 	TokenID           *string
+}
+
+type GetRandomOnlineUserInput struct {
+	ChannelID string
 }

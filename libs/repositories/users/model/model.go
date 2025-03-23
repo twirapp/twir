@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 )
 
@@ -15,3 +16,12 @@ type User struct {
 }
 
 var Nil = User{}
+
+type OnlineUser struct {
+	ID        uuid.UUID
+	ChannelID string
+	UserID    string
+	UserName  string
+}
+
+var NilOnlineUser = OnlineUser{}

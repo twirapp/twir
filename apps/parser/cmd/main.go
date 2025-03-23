@@ -31,6 +31,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
@@ -169,6 +170,7 @@ func main() {
 	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
+	usersRepo := usersrepositorypgx.New(usersrepositorypgx.Opts{PgxPool: pgxconn})
 
 	s := &services.Services{
 		Config: config,
@@ -193,6 +195,7 @@ func main() {
 		CommandsPrefixRepository: commandsPrefixRepo,
 		TTSCache:                 ttsSettingsCacher,
 		SpotifyRepo:              spotifyRepo,
+		UsersRepo:                usersRepo,
 	}
 
 	variablesService := variables.New(

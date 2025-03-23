@@ -19,6 +19,7 @@ import (
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	"github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -49,4 +50,5 @@ type Services struct {
 	CommandsPrefixRepository channelscommandsprefixrepository.Repository
 	TTSCache                 *generic_cacher.GenericCacher[modules.TTSSettings]
 	SpotifyRepo              channelsintegrationsspotify.Repository
+	UsersRepo                users.Repository
 }
