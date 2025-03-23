@@ -1,6 +1,9 @@
 package twitch
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,10 +16,27 @@ import (
 type spanRoundTripper struct{}
 
 func (t *spanRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
+	span := trace.SpanFromContext(r.Context())
+	defer span.End()
+
 	// TODO: remove this when helixmoderation/warnings will be fixed
 	// https://github.com/nicklaw5/helix/pull/237
 	if r.URL.Path == "/helixmoderation/warnings" {
 		r.URL.Path = "/helix/moderation/warnings"
+	}
+
+	if r.Body != nil {
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read request body: %v", err)
+		}
+
+		span.SetAttributes(
+			attribute.String("twitch.request.body", string(bodyBytes)),
+		)
+
+		// Restore the body since reading it consumes it
+		r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	}
 
 	resp, err := http.DefaultTransport.RoundTrip(r)
@@ -24,8 +44,6 @@ func (t *spanRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	span := trace.SpanFromContext(r.Context())
-	defer span.End()
 	span.SetAttributes(
 		attribute.String("twitch.rate-limit.reset", resp.Header.Get("Ratelimit-Reset")),
 	)
@@ -58,6 +76,21 @@ func (t *spanRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 				time.Unix(int64(parsedReset), 0).String(),
 			),
 		)
+	}
+
+	// response body
+	if resp.Body != nil {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read response body: %v", err)
+		}
+
+		span.SetAttributes(
+			attribute.String("twitch.response.body", string(bodyBytes)),
+		)
+
+		// Restore the body since reading it consumes it
+		resp.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	}
 
 	if userID, ok := r.Context().Value(userIDCtxKey{}).(string); ok {
