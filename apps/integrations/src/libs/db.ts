@@ -83,8 +83,9 @@ export async function updateIntegration(id: string, data: {
 }
 
 export async function insertDonation(data: Donate) {
+	console.log(data)
 	const preparedData = {
-		chyannelId: data.twitchUserId,
+		channel_id: data.twitchUserId,
 		type: 'DONATION',
 		data: {
 			donationAmount: data.amount.toString(),
@@ -95,7 +96,7 @@ export async function insertDonation(data: Donate) {
 	}
 
 	await sql`
-	INSERT INTO channels_events_list (channel_id, type, data)
+	INSERT INTO channels_events_list
 	${sql(preparedData)}
 `
 }
