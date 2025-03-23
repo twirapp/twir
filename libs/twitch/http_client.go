@@ -13,6 +13,15 @@ import (
 type spanRoundTripper struct{}
 
 func (t *spanRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
+	// TODO: remove this when helixmoderation/warnings will be fixed
+	// https://github.com/nicklaw5/helix/pull/237
+	patchedUrl := r.URL
+	if patchedUrl.Path == "/helixmoderation/warnings" {
+		patchedUrl.Path = "/helix/moderation/warnings"
+	}
+
+	r.URL = patchedUrl
+
 	resp, err := http.DefaultTransport.RoundTrip(r)
 	if err != nil {
 		return nil, err

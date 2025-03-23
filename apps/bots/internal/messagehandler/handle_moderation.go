@@ -67,7 +67,6 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			continue
 		}
 
-		twitchActionStart := time.Now()
 		if res.IsWarn {
 			err := c.twitchActions.DeleteMessage(
 				ctx,
@@ -122,8 +121,6 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 				)
 			}
 		}
-
-		c.logger.Info("moderation twitch action", slog.Duration("time", time.Since(twitchActionStart)))
 
 		return nil
 	}
@@ -238,8 +235,19 @@ func (c *MessageHandler) moderationHandleResult(
 	}
 
 	if settings.MaxWarnings > 0 && settings.MaxWarnings > warningCount {
-		c.redis.Incr(ctx, warningRedisKey)
-		c.redis.Expire(ctx, warningRedisKey, 24*time.Hour)
+		c.redis.Pipelined(
+			ctx, func(pipe redis.Pipeliner) error {
+				if pErr := pipe.Incr(ctx, warningRedisKey).Err(); pErr != nil {
+					return pErr
+				}
+
+				if pErr := pipe.Persist(ctx, warningRedisKey).Err(); pErr != nil {
+					return pErr
+				}
+
+				return nil
+			},
+		)
 
 		return &moderationHandleResult{
 			IsWarn:  true,
