@@ -183,6 +183,7 @@ func (c *MessageHandler) moderationHandleResult(
 	msg handleMessage,
 	settings model.ChannelModerationSettings,
 ) *moderationHandleResult {
+	rolesStart := time.Now()
 	var channelRoles []model.ChannelRole
 	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?`, msg.ChatterUserId).Where(
 		`"channelId" = ?`,
@@ -193,6 +194,7 @@ func (c *MessageHandler) moderationHandleResult(
 		c.logger.Error("cannot get channel roles", slog.Any("err", err))
 		return nil
 	}
+	c.logger.Info("moderation get roles", slog.Duration("time", time.Since(rolesStart)))
 
 	badges := createUserBadges(msg.Badges)
 
@@ -230,6 +232,7 @@ func (c *MessageHandler) moderationHandleResult(
 		}
 	}
 
+	warningsStart := time.Now()
 	warningRedisKey := fmt.Sprintf(
 		"channels:%s:moderation_warns:%s:%s:*", settings.ChannelID,
 		msg.ChatterUserId, settings.Type,
@@ -244,7 +247,9 @@ func (c *MessageHandler) moderationHandleResult(
 		c.logger.Error("cannot get warnings", slog.Any("err", err))
 		return nil
 	}
+	c.logger.Info("moderation get warnings", slog.Duration("time", time.Since(warningsStart)))
 
+	actionStart := time.Now()
 	if settings.MaxWarnings > 0 && settings.MaxWarnings > len(warningsKeys) {
 		c.redis.Set(
 			ctx,
@@ -259,6 +264,8 @@ func (c *MessageHandler) moderationHandleResult(
 			24*time.Hour,
 		)
 
+		c.logger.Info("moderation action", slog.Duration("time", time.Since(actionStart)))
+
 		return &moderationHandleResult{
 			IsWarn:  true,
 			Message: settings.WarningMessage,
@@ -269,6 +276,8 @@ func (c *MessageHandler) moderationHandleResult(
 		for _, key := range warningsKeys {
 			c.redis.Del(ctx, key)
 		}
+
+		c.logger.Info("moderation action", slog.Duration("time", time.Since(actionStart)))
 
 		return &moderationHandleResult{
 			IsWarn:  false,
