@@ -75,7 +75,7 @@ function goToCopyCommand() {
 			@update:checked="switchEnabled"
 		/>
 		<div class="flex gap-2">
-			<Tooltip>
+			<Tooltip v-if="row.module === 'CUSTOM'">
 				<TooltipTrigger>
 					<Button
 						:disabled="!userCanManageCommands"
