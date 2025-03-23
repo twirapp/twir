@@ -73,5 +73,5 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword
 		c.logger.Error("failed to invalidate keywords cache", err)
 	}
 
-	return entity.KeywordNil, nil
+	return c.dbToModel(newKeyword), nil
 }
