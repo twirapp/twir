@@ -16,7 +16,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
 
@@ -26,7 +25,6 @@ type moderationHandleResult struct {
 	IsWarn  bool
 }
 
-var messagesTimeouterStore = utils.NewTtlSyncMap[struct{}](10 * time.Second)
 var moderationFunctionsMapping = map[model.ModerationSettingsType]func(
 	c *MessageHandler,
 	ctx context.Context,
@@ -53,22 +51,27 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 		}
 	}
 
+	settingsStart := time.Now()
 	settings, err := c.getChannelModerationSettings(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
+	c.logger.Info("moderation get settings", slog.Duration("time", time.Since(settingsStart)))
 
 	for _, entity := range settings {
+		functionStart := time.Now()
 		function, ok := moderationFunctionsMapping[entity.Type]
 		if !ok {
 			continue
 		}
-		res := function(c, ctx, entity, msg)
 
+		res := function(c, ctx, entity, msg)
+		c.logger.Info("moderation function", slog.Duration("time", time.Since(functionStart)))
 		if res == nil {
 			continue
 		}
 
+		twitchActionStart := time.Now()
 		if res.IsWarn {
 			err := c.twitchActions.DeleteMessage(
 				ctx,
@@ -124,20 +127,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			}
 		}
 
-		// maybe back it if user asked for chat message
-		// if _, exists := messagesTimeouterStore.Get(msg.BroadcasterUserId); !exists {
-		// 	opts := twitchactions.SendMessageOpts{
-		// 		Message:       entity.BanMessage,
-		// 		SenderID:      msg.DbChannel.BotID,
-		// 		BroadcasterID: msg.BroadcasterUserId,
-		// 	}
-		//
-		// 	if opts.Message != "" {
-		// 		c.twitchActions.SendMessage(ctx, opts)
-		// 	}
-		//
-		// 	messagesTimeouterStore.Add(msg.BroadcasterUserId, struct{}{})
-		// }
+		c.logger.Info("moderation twitch action", slog.Duration("time", time.Since(twitchActionStart)))
 
 		return nil
 	}
