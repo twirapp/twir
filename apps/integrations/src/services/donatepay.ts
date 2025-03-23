@@ -40,7 +40,7 @@ export class DonatePay {
 
 		this.#subscription = this.#centrifuge.subscribe(`$public:${userData.id}`, (data) => this.#eventCallback(data))
 
-		const logDisconnect = (args: any[]) => console.info(`DonatePay(${this.twitchUserId}): disconnected`, ...args)
+		const logDisconnect = (args: any[]) => console.info(`DonatePay(${this.twitchUserId}): disconnected`, args)
 
 		this.#centrifuge.on('disconnect', logDisconnect)
 		this.#subscription.on('disconnect', logDisconnect)
