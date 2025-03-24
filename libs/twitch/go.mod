@@ -10,7 +10,7 @@ replace (
 
 require (
 	github.com/imroc/req/v3 v3.48.0
-	github.com/nicklaw5/helix/v2 v2.30.0
+	github.com/nicklaw5/helix/v2 v2.31.1
 	github.com/satont/twir/libs/config v0.0.0-20241105005614-f68dbf11ade1
 	github.com/twirapp/twir/libs/grpc v0.0.0-20241105005614-f68dbf11ade1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.58.0
@@ -27,7 +27,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect

@@ -25,8 +25,10 @@ func (c *TwitchActions) WarnUser(ctx context.Context, opts WarnUserOpts) error {
 		&helix.SendModeratorWarnChatMessageParams{
 			BroadcasterID: opts.BroadcasterID,
 			ModeratorID:   opts.ModeratorID,
-			UserID:        opts.UserID,
-			Reason:        opts.Reason,
+			Body: helix.SendModeratorWarnMessageRequestBody{
+				UserID: opts.UserID,
+				Reason: opts.Reason,
+			},
 		},
 	)
 	if err != nil {
