@@ -19,12 +19,6 @@ func (t *spanRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	span := trace.SpanFromContext(r.Context())
 	defer span.End()
 
-	// TODO: remove this when helixmoderation/warnings will be fixed
-	// https://github.com/nicklaw5/helix/pull/237
-	if r.URL.Path == "/helixmoderation/warnings" {
-		r.URL.Path = "/helix/moderation/warnings"
-	}
-
 	if r.Body != nil {
 		bodyBytes, err := io.ReadAll(r.Body)
 		if err != nil {
