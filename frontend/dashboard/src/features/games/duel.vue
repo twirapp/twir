@@ -147,6 +147,78 @@ function resetSettings() {
 
 					<div class="rounded-lg border p-4">
 						<h4 class="mb-4 text-sm font-medium">
+							{{ t('games.duel.settings.title') }}
+						</h4>
+						<div class="grid grid-cols-2 gap-4">
+							<FormField
+								v-slot="{ componentField }"
+								name="timeoutSeconds"
+							>
+								<FormItem>
+									<FormLabel>{{ t('games.duel.settings.timeoutTime') }}</FormLabel>
+									<FormControl>
+										<Input type="number" v-bind="componentField" :max="84000" />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							</FormField>
+
+							<FormField
+								v-slot="{ componentField }"
+								name="secondsToAccept"
+							>
+								<FormItem>
+									<FormLabel>{{ t('games.duel.settings.secondsToAccept') }}</FormLabel>
+									<FormControl>
+										<Input type="number" v-bind="componentField" :max="3600" />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							</FormField>
+
+							<FormField
+								v-slot="{ componentField }"
+								name="bothDiePercent"
+							>
+								<FormItem>
+									<FormLabel>{{ t('games.duel.settings.bothDiePercent') }}</FormLabel>
+									<FormControl>
+										<Input type="number" v-bind="componentField" :max="100" />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							</FormField>
+
+							<!--							<FormField -->
+							<!--								v-slot="{ componentField }" -->
+							<!--								name="pointsPerWin" -->
+							<!--							> -->
+							<!--								<FormItem> -->
+							<!--									<FormLabel>{{ t('games.duel.settings.pointsPerWin') }}</FormLabel> -->
+							<!--									<FormControl> -->
+							<!--										<Input type="number" v-bind="componentField" :max="999999" /> -->
+							<!--									</FormControl> -->
+							<!--									<FormMessage /> -->
+							<!--								</FormItem> -->
+							<!--							</FormField> -->
+
+							<!--							<FormField -->
+							<!--								v-slot="{ componentField }" -->
+							<!--								name="pointsPerLose" -->
+							<!--							> -->
+							<!--								<FormItem> -->
+							<!--									<FormLabel>{{ t('games.duel.settings.pointsPerLose') }}</FormLabel> -->
+							<!--									<FormControl> -->
+							<!--										<Input type="number" v-bind="componentField" :max="999999" /> -->
+							<!--									</FormControl> -->
+							<!--									<FormMessage /> -->
+							<!--								</FormItem> -->
+							<!--							</FormField> -->
+						</div>
+					</div>
+
+					<div class="rounded-lg border p-4">
+						<h4 class="mb-4 text-sm font-medium">
 							{{ t('games.duel.messages.title') }}
 						</h4>
 						<div class="space-y-4">
