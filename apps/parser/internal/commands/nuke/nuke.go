@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"slices"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/guregu/null"
@@ -13,10 +16,12 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"go.uber.org/zap"
 )
 
 const (
 	nukePhraseArgName = "phrase"
+	nukeTimeArgName   = "time"
 	nukeRedisPrefix   = "channels:%s:nuked_messages:%s"
 )
 
@@ -24,13 +29,17 @@ var Command = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name: "nuke",
 		Description: null.StringFrom(
-			"Mass remove messages in chat by message content. Usage: <b>!nuke phrase</b>",
+			"Mass remove messages in chat by message content. Usage: !nuke 10m phrase, !nuke 10 phrase, !nuke 1h5m phrase",
 		),
 		RolesIDS: pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:   "MODERATION",
 	},
 	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name:     nukeTimeArgName,
+			Optional: false,
+		},
 		command_arguments.VariadicString{
 			Name: nukePhraseArgName,
 		},
@@ -39,6 +48,13 @@ var Command = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
+		duration, err := parseDuration(parseCtx.ArgsParser.Get(nukeTimeArgName).String())
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "invalid duration. Examples: !nuke 10m phrase, !nuke 10 phrase, !nuke 1h5m phrase",
+			}
+		}
+
 		phrase := parseCtx.ArgsParser.Get(nukePhraseArgName).String()
 
 		var messages []model.ChatMessage
@@ -62,12 +78,15 @@ var Command = &types.DefaultCommand{
 			Scan(
 				ctx,
 				0,
-				fmt.Sprintf("channels:%s:nuked_messages:*", parseCtx.Channel.ID),
+				fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID, "*"),
 				0,
 			).
 			Iterator()
 		for iter.Next(ctx) {
-			handledMessagesIds = append(handledMessagesIds, iter.Val())
+			handledMessagesIds = append(
+				handledMessagesIds,
+				strings.Replace(iter.Val(), fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID, ""), "", 1),
+			)
 		}
 		if err := iter.Err(); err != nil {
 			return nil, &types.CommandHandlerError{
@@ -83,17 +102,48 @@ var Command = &types.DefaultCommand{
 			}
 		}
 
-		if err := parseCtx.Services.Bus.Bots.DeleteMessage.Publish(
-			bots.DeleteMessageRequest{
-				ChannelId:   parseCtx.Channel.ID,
-				MessageIds:  mappedMessagesIDs,
-				ChannelName: &parseCtx.Channel.Name,
-			},
-		); err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot delete messages",
-				Err:     err,
+		if duration <= 0 {
+			if err := parseCtx.Services.Bus.Bots.DeleteMessage.Publish(
+				bots.DeleteMessageRequest{
+					ChannelId:   parseCtx.Channel.ID,
+					MessageIds:  mappedMessagesIDs,
+					ChannelName: &parseCtx.Channel.Name,
+				},
+			); err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot delete messages",
+					Err:     err,
+				}
 			}
+		} else {
+			var wg sync.WaitGroup
+
+			for _, m := range messages {
+				if slices.Contains(handledMessagesIds, m.ID.String()) {
+					continue
+				}
+
+				wg.Add(1)
+				m := m
+
+				go func() {
+					defer wg.Done()
+					if err := parseCtx.Services.Bus.Bots.BanUser.Publish(
+						bots.BanRequest{
+							ChannelID:      parseCtx.Channel.ID,
+							UserID:         m.UserID,
+							Reason:         "nuked by twir",
+							BanTime:        duration,
+							IsModerator:    false,
+							AddModAfterBan: false,
+						},
+					); err != nil {
+						parseCtx.Services.Logger.Error("cannot ban user", zap.Error(err))
+					}
+				}()
+			}
+
+			wg.Wait()
 		}
 
 		parseCtx.Services.Redis.Pipelined(
@@ -116,4 +166,18 @@ var Command = &types.DefaultCommand{
 
 		return nil, nil
 	},
+}
+
+func parseDuration(input string) (int, error) {
+	asNumber, err := strconv.Atoi(input)
+	if err == nil {
+		return asNumber, nil
+	}
+
+	duration, err := time.ParseDuration(input)
+	if err == nil {
+		return int(duration.Seconds()), nil
+	}
+
+	return 0, fmt.Errorf("cannot parse duration")
 }
