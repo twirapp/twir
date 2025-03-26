@@ -269,7 +269,7 @@ func (c *MessageHandler) moderationLinksParser(
 	settings model.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
-	containLink := c.moderationHelpers.HasLink(msg.Message.Text)
+	containLink := c.moderationHelpers.HasLink(msg.Message.Text, settings.CheckClips)
 
 	if !containLink {
 		return nil
