@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { PlusIcon } from 'lucide-vue-next'
 import { ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -81,6 +82,7 @@ async function createNewItem(itemType: string) {
 			<DropdownMenu>
 				<DropdownMenuTrigger as-child>
 					<Button :disabled="!canEditModeration">
+						<PlusIcon class="size-4 mr-2" />
 						{{ t('sharedButtons.create') }}
 					</Button>
 				</DropdownMenuTrigger>
