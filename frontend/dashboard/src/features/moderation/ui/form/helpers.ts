@@ -7,29 +7,30 @@ import {
 	IconMessageOff,
 	IconMoodOff,
 	type SVGProps,
-} from '@tabler/icons-vue';
-import type { ItemCreateMessage, Item as GrpcItem } from '@twir/api/messages/moderation/moderation';
-import { ref, type FunctionalComponent } from 'vue';
+} from '@tabler/icons-vue'
+import { type FunctionalComponent, ref } from 'vue'
+
+import type { Item as GrpcItem, ItemCreateMessage } from '@twir/api/messages/moderation/moderation'
 
 export type Item = ItemCreateMessage & {
 	icon: FunctionalComponent<SVGProps>
 }
 
 export type ItemData = Omit<GrpcItem, 'createdAt' | 'channelId' | 'updatedAt'>
-export type ItemWithOptionalId = {
+export interface ItemWithOptionalId {
 	id?: string
 	data?: ItemData
 }
 
 export const Icons: Readonly<Record<string, (props: SVGProps) => FunctionalComponent<SVGProps, any, any>>> = Object.freeze({
-	'links': IconLinkOff,
-	'language': IconLanguageOff,
-	'deny_list': IconListLetters,
-	'long_message': IconMessageOff,
-	'caps': IconAbc,
-	'emotes': IconMoodOff,
-	'symbols': IconAsteriskSimple,
-});
+	links: IconLinkOff,
+	language: IconLanguageOff,
+	deny_list: IconListLetters,
+	long_message: IconMessageOff,
+	caps: IconAbc,
+	emotes: IconMoodOff,
+	symbols: IconAsteriskSimple,
+})
 
 export const availableSettings: ItemData[] = [
 	{
@@ -130,17 +131,17 @@ export const availableSettings: ItemData[] = [
 		type: 'symbols',
 		warningMessage: 'Too many symbols [warning]',
 	},
-];
+]
 
-export const availableSettingsTypes = availableSettings.map(n => n.type);
+export const availableSettingsTypes = availableSettings.map(n => n.type)
 
-const editableItem = ref<ItemWithOptionalId>();
+const editableItem = ref<ItemWithOptionalId>()
 
-export const useEditableItem = () => {
-	const reset = () => editableItem.value = undefined;
+export function useEditableItem() {
+	const reset = () => editableItem.value = undefined
 
 	return {
 		editableItem,
 		reset,
-	};
-};
+	}
+}

@@ -142,12 +142,6 @@ const links = computed(() => {
 			],
 		},
 		{
-			name: t('sidebar.moderation'),
-			icon: Shield,
-			disabled: !canViewModeration.value,
-			path: '/dashboard/moderation',
-		},
-		{
 			name: t('sidebar.community'),
 			icon: Users,
 			path: '/dashboard/community',
@@ -181,6 +175,12 @@ const links = computed(() => {
 					isNew: true,
 				},
 			],
+		},
+		{
+			name: t('sidebar.moderation'),
+			icon: Shield,
+			disabled: !canViewModeration.value,
+			path: '/dashboard/moderation',
 		},
 		{
 			name: t('sidebar.timers'),

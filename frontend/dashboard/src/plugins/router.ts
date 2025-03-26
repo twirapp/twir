@@ -205,8 +205,8 @@ export function newRouter() {
 				{
 					name: 'Moderation',
 					path: '/dashboard/moderation',
-					component: () => import('../pages/Moderation.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ManageModeration },
+					component: () => import('../features/moderation/moderation.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ManageModeration, noPadding: true },
 				},
 				{
 					name: 'Settings',

@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { useField } from 'vee-validate'
+import { computed } from 'vue'
+
+import type { RoleTypeEnum } from '@/gql/graphql.ts'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
 import { useCommandEditV2 } from '@/features/commands/composables/use-command-edit-v2'
 
-const props = defineProps<{ fieldName: string }>()
+const props = defineProps<{
+	fieldName: string
+	excludedTypes?: RoleTypeEnum[]
+	hideEveryone?: boolean
+}>()
 
 const { channelRoles } = useCommandEditV2()
 
@@ -15,19 +22,24 @@ const { setValue } = useField(props.fieldName)
 function uncheckAll() {
 	setValue([])
 }
+
+const roles = computed(() => {
+	if (!channelRoles.value?.roles) return []
+	return channelRoles.value.roles.filter(r => !props.excludedTypes?.includes(r.type))
+})
 </script>
 
 <template>
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-1 xl:max-w-[50%]">
 		<FormField
-			v-for="(role, index) in channelRoles?.roles" v-slot="{ value, handleChange }"
+			v-for="(role, index) in roles" v-slot="{ value, handleChange }"
 			:key="role.id"
 			type="checkbox"
 			:value="role.id"
 			:unchecked-value="false"
 			:name="fieldName"
 		>
-			<div v-if="index === 0" class="role" @click="uncheckAll">
+			<div v-if="index === 0 && !hideEveryone" class="role" @click="uncheckAll">
 				<Checkbox id="allRoles" :checked="!value?.length" />
 				<Label for="allRoles" class="capitalize">Everyone</Label>
 			</div>
