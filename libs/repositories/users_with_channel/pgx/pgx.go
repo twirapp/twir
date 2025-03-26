@@ -107,16 +107,15 @@ func (c *Pgx) GetManyByIDS(
 			`u."apiKey"`,
 			"u.hide_on_landing_page",
 			"u.is_banned",
-			"uc.id",
-			`uc."isBotMod"`,
-			`uc."isEnabled"`,
-			`uc."isTwitchBanned"`,
-			`uc."botId"`,
+			"uc.id AS channel_id",
+			`uc."isBotMod" AS channel_is_bot_mod`,
+			`uc."isEnabled" AS channel_is_enabled`,
+			`uc."isTwitchBanned" AS channel_is_twitch_banned`,
+			`uc."botId" AS channel_bot_id`,
 		).
 		From("users u").
 		LeftJoin("channels uc ON u.id = uc.id").
 		LeftJoin("badges_users bu ON u.id = bu.user_id").
-		GroupBy("u.id", "uc.id").
 		OrderBy("u.id asc")
 
 	if len(input.IDs) > 0 {
