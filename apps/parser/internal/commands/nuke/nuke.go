@@ -59,9 +59,20 @@ var Command = &types.DefaultCommand{
 
 		var messages []model.ChatMessage
 		if err := parseCtx.Services.Gorm.
+			Debug().
 			Where("channel_id = ?", parseCtx.Channel.ID).
 			Where("created_at > ?", time.Now().Add(-10*time.Minute)).
 			Where("text ILIKE ?", "%"+phrase+"%").
+			Joins("User").
+			Joins(
+				"User.Stats",
+				parseCtx.Services.Gorm.Where(&model.UsersStats{ChannelID: parseCtx.Channel.ID}),
+			).
+			Where(
+				`"User__Stats"."is_mod" = ? AND "User__Stats"."is_vip" = ? AND "User__Stats"."is_subscriber" = ?`,
+				false, false, false,
+			).
+			Where(`"User"."id" != ?`, parseCtx.Channel.ID).
 			Find(&messages).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get messages",
