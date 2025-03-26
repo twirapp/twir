@@ -43,7 +43,6 @@ func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 
 	err := row.Scan(
 		&userWithChannel.User.ID,
-		&userWithChannel.User.IsTester,
 		&userWithChannel.User.IsBotAdmin,
 		&userWithChannel.User.TokenID,
 		&userWithChannel.User.ApiKey,
@@ -74,7 +73,7 @@ func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.UserWithChannel, error) {
 	query := `
-SELECT u.id, u."isTester", u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned,
+SELECT u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned,
 			 uc.id, uc."isBotMod", uc."isEnabled", uc."isTwitchBanned", uc."botId"
 FROM users u
 LEFT JOIN channels uc ON u.id = uc.id
@@ -103,7 +102,6 @@ func (c *Pgx) GetManyByIDS(
 	selectQuery := sq.
 		Select(
 			"u.id",
-			`u."isTester"`,
 			`u."isBotAdmin"`,
 			`u."tokenId"`,
 			`u."apiKey"`,

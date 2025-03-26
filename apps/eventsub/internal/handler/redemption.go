@@ -184,7 +184,6 @@ func (c *Handler) countUserChannelPoints(userId, channelId string, count int) er
 		user = &model.Users{
 			ID:         "",
 			TokenID:    sql.NullString{},
-			IsTester:   false,
 			IsBotAdmin: false,
 			ApiKey:     uuid.New().String(),
 			Stats: &model.UsersStats{

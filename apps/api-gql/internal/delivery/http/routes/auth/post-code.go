@@ -100,7 +100,6 @@ func (a *Auth) handleAuthPostCode(
 	if dbUser.ID == "" {
 		newUser := &model.Users{
 			ID:         twitchUser.ID,
-			IsTester:   false,
 			IsBotAdmin: false,
 			ApiKey:     uuid.NewString(),
 			Channel: &model.Channels{

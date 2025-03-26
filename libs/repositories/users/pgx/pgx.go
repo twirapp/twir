@@ -36,7 +36,7 @@ type Pgx struct {
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.User, error) {
 	query := `
-SELECT id, "tokenId", "isTester", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page
+SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page
 FROM users
 WHERE id = $1
 `
@@ -58,7 +58,6 @@ func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]mod
 	selectBuilder := sq.Select(
 		"id",
 		`"tokenId"`,
-		`"isTester"`,
 		"isBotAdmin",
 		"apiKey",
 		"is_banned",
@@ -131,7 +130,7 @@ func (c *Pgx) Update(ctx context.Context, id string, input users.UpdateInput) (m
 		updateBuilder = updateBuilder.Set(`"tokenId"`, input.TokenID)
 	}
 
-	updateBuilder = updateBuilder.Suffix(`RETURNING id, "tokenId", "isTester", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page`)
+	updateBuilder = updateBuilder.Suffix(`RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page`)
 
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {

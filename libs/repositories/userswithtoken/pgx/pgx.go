@@ -40,7 +40,7 @@ type Pgx struct {
 
 func (c *Pgx) GetByID(ctx context.Context, userID string) (model.UserWithToken, error) {
 	query := `
-SELECT u.id, u."isTester", u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned,
+SELECT u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned,
        t.id token_id, t."accessToken" token_access_token, t."refreshToken" token_refresh_token, t."obtainmentTimestamp" token_obtainment_timestamp, t.scopes token_scopes, t."expiresIn" token_expires_in
 FROM users u
 LEFT JOIN tokens t ON u."tokenId" = t.id
@@ -59,7 +59,6 @@ WHERE u.id = $1
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	err := conn.QueryRow(ctx, query, userID).Scan(
 		&user.User.ID,
-		&user.User.IsTester,
 		&user.User.IsBotAdmin,
 		&user.User.TokenID,
 		&user.User.ApiKey,

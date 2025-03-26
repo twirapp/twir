@@ -8,7 +8,6 @@ import (
 type User struct {
 	ID                string
 	TokenID           null.String
-	IsTester          bool
 	IsBotAdmin        bool
 	ApiKey            string
 	IsBanned          bool

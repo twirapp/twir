@@ -34,7 +34,6 @@ func (c *Service) modelToEntity(m userswithchannelmodel.UserWithChannel) entity.
 		User: entity.User{
 			ID:                m.User.ID,
 			TokenID:           m.User.TokenID.Ptr(),
-			IsTester:          m.User.IsTester,
 			IsBotAdmin:        m.User.IsBotAdmin,
 			ApiKey:            m.User.ApiKey,
 			IsBanned:          m.User.IsBanned,

@@ -37,7 +37,6 @@ func (c *Service) modelToEntity(m model.User) entity.User {
 	return entity.User{
 		ID:                m.ID,
 		TokenID:           m.TokenID.Ptr(),
-		IsTester:          m.IsTester,
 		IsBotAdmin:        m.IsBotAdmin,
 		ApiKey:            m.ApiKey,
 		IsBanned:          m.IsBanned,
