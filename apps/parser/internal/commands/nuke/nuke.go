@@ -2,10 +2,10 @@ package nuke
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -22,7 +22,7 @@ import (
 const (
 	nukePhraseArgName = "phrase"
 	nukeTimeArgName   = "time"
-	nukeRedisPrefix   = "channels:%s:nuked_messages:%s"
+	nukeRedisPrefix   = "channels:%s:nuked_messages"
 )
 
 var Command = &types.DefaultCommand{
@@ -73,22 +73,11 @@ var Command = &types.DefaultCommand{
 			return nil, nil
 		}
 
-		var handledMessagesIds []string
-		iter := parseCtx.Services.Redis.
-			Scan(
-				ctx,
-				0,
-				fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID, "*"),
-				0,
-			).
-			Iterator()
-		for iter.Next(ctx) {
-			handledMessagesIds = append(
-				handledMessagesIds,
-				strings.Replace(iter.Val(), fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID, ""), "", 1),
-			)
-		}
-		if err := iter.Err(); err != nil {
+		handledMessagesIds, err := parseCtx.Services.Redis.SMembers(
+			ctx,
+			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID),
+		).Result()
+		if err != nil && !errors.Is(err, redis.Nil) {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get handled messages",
 				Err:     err,
@@ -146,22 +135,15 @@ var Command = &types.DefaultCommand{
 			wg.Wait()
 		}
 
-		parseCtx.Services.Redis.Pipelined(
+		parseCtx.Services.Redis.SAdd(
 			ctx,
-			func(pipe redis.Pipeliner) error {
-				for _, msgID := range mappedMessagesIDs {
-					if err := pipe.Set(
-						ctx,
-						fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID, msgID),
-						true,
-						20*time.Minute,
-					).Err(); err != nil {
-						return err
-					}
-				}
-
-				return nil
-			},
+			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID),
+			mappedMessagesIDs,
+		)
+		parseCtx.Services.Redis.Expire(
+			ctx,
+			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID),
+			20*time.Minute,
 		)
 
 		return nil, nil
