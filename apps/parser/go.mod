@@ -28,7 +28,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/mazznoer/csscolorparser v0.1.3
 	github.com/nats-io/nats.go v1.37.0
-	github.com/nicklaw5/helix/v2 v2.30.0
+	github.com/nicklaw5/helix/v2 v2.31.1
 	github.com/prometheus/client_golang v1.20.5
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/samber/lo v1.47.0
@@ -65,7 +65,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.23.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -97,6 +97,8 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/uptrace/uptrace-go v1.31.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/xhit/go-str2duration v1.2.0 // indirect
+	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.58.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.56.0 // indirect

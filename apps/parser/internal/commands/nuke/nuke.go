@@ -16,6 +16,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/xhit/go-str2duration/v2"
 	"go.uber.org/zap"
 )
 
@@ -40,6 +41,8 @@ var Command = &types.DefaultCommand{
 			Name:     nukeTimeArgName,
 			Optional: false,
 		},
+		//
+		// !nuke 0 ban 10m super duper phrase
 		command_arguments.VariadicString{
 			Name: nukePhraseArgName,
 		},
@@ -167,9 +170,12 @@ func parseDuration(input string) (int, error) {
 		return asNumber, nil
 	}
 
-	duration, err := time.ParseDuration(input)
+	durationFromString, err := str2duration.ParseDuration(input)
+	if durationFromString.Hours() >= 336 { // 2 weeks
+		return 0, fmt.Errorf("duration of timeout cannot be longer than 2 weeks")
+	}
 	if err == nil {
-		return int(duration.Seconds()), nil
+		return int(durationFromString.Seconds()), nil
 	}
 
 	return 0, fmt.Errorf("cannot parse duration")
