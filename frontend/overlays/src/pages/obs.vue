@@ -57,7 +57,7 @@ watch(internalSocket.data, (message) => {
 		case 'disableAudio':
 			obs.toggleAudioSource(data.audioSourceName, false)
 			break
-		case 'startStart':
+		case 'startStream':
 			obs.startStream()
 			break
 		case 'stopStream':
