@@ -169,7 +169,7 @@ func parseDuration(input string) (int, error) {
 	}
 
 	durationFromString, err := str2duration.ParseDuration(input)
-	if durationFromString.Hours() >= 336 { // 2 weeks
+	if durationFromString.Hours() > 336 { // 2 weeks
 		return 0, fmt.Errorf("duration of timeout cannot be longer than 2 weeks")
 	}
 	if err == nil {

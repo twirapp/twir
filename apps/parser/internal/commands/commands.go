@@ -134,7 +134,7 @@ func New(opts *Opts) *Commands {
 			vips.Add,
 			vips.Remove,
 			vips.List,
-			vips.Extend,
+			vips.SetExpire,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

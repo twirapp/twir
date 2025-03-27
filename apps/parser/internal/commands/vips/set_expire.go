@@ -7,18 +7,20 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	scheduledvipmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
 	"github.com/xhit/go-str2duration/v2"
 )
 
-var Extend = &types.DefaultCommand{
+var SetExpire = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
-		Name:        "vips extend",
-		Description: null.StringFrom("Set new expiration time for vip schedule."),
+		Name:        "vips setexpire",
+		Description: null.StringFrom("Set new expiration time for vip."),
 		RolesIDS: pq.StringArray{
 			model.ChannelRoleTypeModerator.String(),
 		},
@@ -48,22 +50,15 @@ var Extend = &types.DefaultCommand{
 			}
 		}
 
-		user := parseCtx.Mentions[0]
-
-		vip, err := parseCtx.Services.ScheduledVipsRepo.GetByUserAndChannelID(
-			ctx,
-			user.UserId,
+		channelTwitchClient, err := twitch.NewUserClient(
 			parseCtx.Channel.ID,
+			*parseCtx.Services.Config,
+			parseCtx.Services.GrpcClients.Tokens,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get scheduled vip",
+				Message: "cannot create broadcaster twitch client",
 				Err:     err,
-			}
-		}
-		if vip == scheduledvipmodel.Nil {
-			return nil, &types.CommandHandlerError{
-				Message: "user is not scheduled vip",
 			}
 		}
 
@@ -78,19 +73,56 @@ var Extend = &types.DefaultCommand{
 
 		newUnvipAt := time.Now().Add(duration)
 
-		err = parseCtx.Services.ScheduledVipsRepo.Update(
+		user := parseCtx.Mentions[0]
+
+		vip, err := parseCtx.Services.ScheduledVipsRepo.GetByUserAndChannelID(
 			ctx,
-			vip.ID,
-			scheduledvipsrepository.UpdateInput{
-				RemoveAt: &newUnvipAt,
-			},
+			user.UserId,
+			parseCtx.Channel.ID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot update scheduled vip",
+				Message: "cannot get scheduled vip",
 				Err:     err,
 			}
 		}
+		if vip == scheduledvipmodel.Nil {
+			err := parseCtx.Services.ScheduledVipsRepo.Create(
+				ctx,
+				scheduledvipsrepository.CreateInput{
+					ChannelID: parseCtx.Channel.ID,
+					UserID:    user.UserId,
+				},
+			)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot create scheduled vip",
+					Err:     err,
+				}
+			}
+		} else {
+			err = parseCtx.Services.ScheduledVipsRepo.Update(
+				ctx,
+				vip.ID,
+				scheduledvipsrepository.UpdateInput{
+					RemoveAt: &newUnvipAt,
+				},
+			)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot update scheduled vip",
+					Err:     err,
+				}
+			}
+		}
+
+		// ignore error
+		channelTwitchClient.AddChannelVip(
+			&helix.AddChannelVipParams{
+				BroadcasterID: parseCtx.Channel.ID,
+				UserID:        user.UserId,
+			},
+		)
 
 		result := &types.CommandsHandlerResult{
 			Result: []string{
