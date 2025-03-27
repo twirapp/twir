@@ -4,6 +4,7 @@ type VariadicString struct {
 	value    string
 	Name     string
 	Optional bool
+	Hint     string
 }
 
 var _ Arg = VariadicString{}
@@ -20,6 +21,14 @@ func (c VariadicString) String() string {
 
 func (c VariadicString) GetName() string {
 	return c.Name
+}
+
+func (c VariadicString) GetHint() string {
+	if c.Hint == "" {
+		return c.Name
+	}
+
+	return c.Hint
 }
 
 func (c VariadicString) IsOptional() bool {

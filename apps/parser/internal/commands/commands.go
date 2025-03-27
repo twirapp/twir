@@ -17,6 +17,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/cacher"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	seventv "github.com/satont/twir/apps/parser/internal/commands/7tv"
+	"github.com/satont/twir/apps/parser/internal/commands/categories_aliases"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/twir/apps/parser/internal/commands/channel/title"
 	"github.com/satont/twir/apps/parser/internal/commands/clip"
@@ -126,6 +127,9 @@ func New(opts *Opts) *Commands {
 			clip.MakeClip,
 			marker.Marker,
 			prefix.SetPrefix,
+			categories_aliases.Add,
+			categories_aliases.List,
+			categories_aliases.Remove,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

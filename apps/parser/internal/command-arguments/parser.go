@@ -95,31 +95,31 @@ func (c *Parser) BuildUsageString(args []Arg, cmdName string) string {
 	for _, arg := range args {
 		switch typedArgument := arg.(type) {
 		case VariadicString:
-			usage += fmt.Sprintf(" [%s]", typedArgument.Name)
+			usage += fmt.Sprintf(" [%s]", typedArgument.GetHint())
 		case String:
 			if len(typedArgument.OneOf) > 0 {
 				usage += fmt.Sprintf(
 					" <%s (%s)>",
-					typedArgument.Name,
+					typedArgument.GetHint(),
 					strings.Join(typedArgument.OneOf, "|"),
 				)
 			} else {
-				usage += fmt.Sprintf(" <%s>", typedArgument.Name)
+				usage += fmt.Sprintf(" <%s>", typedArgument.GetHint())
 			}
 		case Int:
 			if typedArgument.Min != nil && typedArgument.Max != nil {
 				usage += fmt.Sprintf(
 					" <%s (min %d, max %d)>",
-					typedArgument.Name,
+					typedArgument.GetHint(),
 					*typedArgument.Min,
 					*typedArgument.Max,
 				)
 			} else if typedArgument.Min != nil {
-				usage += fmt.Sprintf(" <%s (min %d)>", typedArgument.Name, *typedArgument.Min)
+				usage += fmt.Sprintf(" <%s (min %d)>", typedArgument.GetHint(), *typedArgument.Min)
 			} else if typedArgument.Max != nil {
-				usage += fmt.Sprintf(" <%s (max %d)>", typedArgument.Name, *typedArgument.Max)
+				usage += fmt.Sprintf(" <%s (max %d)>", typedArgument.GetHint(), *typedArgument.Max)
 			} else {
-				usage += fmt.Sprintf(" <%s>", typedArgument.Name)
+				usage += fmt.Sprintf(" <%s>", typedArgument.GetHint())
 			}
 		}
 	}

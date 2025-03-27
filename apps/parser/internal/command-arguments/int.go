@@ -6,6 +6,7 @@ type Int struct {
 	Min      *int
 	Max      *int
 	Optional bool
+	Hint     string
 }
 
 var _ Arg = Int{}
@@ -22,6 +23,14 @@ func (c Int) String() string {
 
 func (c Int) GetName() string {
 	return c.Name
+}
+
+func (c Int) GetHint() string {
+	if c.Hint == "" {
+		return c.Name
+	}
+
+	return c.Hint
 }
 
 func (c Int) IsOptional() bool {

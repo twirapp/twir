@@ -30,6 +30,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -171,6 +172,7 @@ func main() {
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
 	usersRepo := usersrepositorypgx.New(usersrepositorypgx.Opts{PgxPool: pgxconn})
+	channelsCategoriesAliasesRepo := channelscategoriesaliasespgx.New(channelscategoriesaliasespgx.Opts{PgxPool: pgxconn})
 
 	s := &services.Services{
 		Config: config,
@@ -196,6 +198,7 @@ func main() {
 		TTSCache:                 ttsSettingsCacher,
 		SpotifyRepo:              spotifyRepo,
 		UsersRepo:                usersRepo,
+		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,
 	}
 
 	variablesService := variables.New(

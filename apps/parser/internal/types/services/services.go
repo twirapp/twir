@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/grpc/ytsr"
 	"github.com/twirapp/twir/libs/integrations/seventv"
+	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
@@ -51,4 +52,5 @@ type Services struct {
 	TTSCache                 *generic_cacher.GenericCacher[modules.TTSSettings]
 	SpotifyRepo              channelsintegrationsspotify.Repository
 	UsersRepo                users.Repository
+	CategoriesAliasesRepo    channelscategoriesaliases.Repository
 }

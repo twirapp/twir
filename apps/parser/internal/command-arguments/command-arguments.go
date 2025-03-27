@@ -8,4 +8,5 @@ type Arg interface {
 	Int() int
 	// IsOptional only latest argument can be optional
 	IsOptional() bool
+	GetHint() string
 }
