@@ -92,9 +92,12 @@ const { toast } = useToast()
 
 const handleSubmit = moderationForm.handleSubmit(async (values) => {
 	if (!values?.id) {
-		await creator.mutateAsync({
+		const newRule = await creator.mutateAsync({
 			data: values,
 		})
+		if (newRule.id) {
+			moderationForm.setFieldValue('id', newRule.id)
+		}
 	} else {
 		await updater.mutateAsync({
 			id: values.id,
