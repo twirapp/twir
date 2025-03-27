@@ -41,8 +41,6 @@ var Command = &types.DefaultCommand{
 			Name:     nukeTimeArgName,
 			Optional: false,
 		},
-		//
-		// !nuke 0 ban 10m super duper phrase
 		command_arguments.VariadicString{
 			Name: nukePhraseArgName,
 		},
