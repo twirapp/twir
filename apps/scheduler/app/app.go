@@ -12,6 +12,9 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
+
+	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 )
 
 const service = "scheduler"
@@ -28,6 +31,10 @@ var App = fx.Module(
 		},
 		services.NewRoles,
 		services.NewCommands,
+		fx.Annotate(
+			scheduledvipsrepositorypgx.NewFx,
+			fx.As(new(scheduledvipsrepository.Repository)),
+		),
 	),
 	fx.Invoke(
 		uptrace.NewFx(service),
@@ -39,6 +46,7 @@ var App = fx.Module(
 		timers.NewBannedChannels,
 		timers.NewWatched,
 		timers.NewExpiredCommands,
+		timers.NewScheduledVips,
 		func(l logger.Logger) {
 			l.Info("Started")
 		},

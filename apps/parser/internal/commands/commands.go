@@ -36,6 +36,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/spam"
 	"github.com/satont/twir/apps/parser/internal/commands/stats"
 	"github.com/satont/twir/apps/parser/internal/commands/tts"
+	"github.com/satont/twir/apps/parser/internal/commands/vips"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
@@ -130,6 +131,10 @@ func New(opts *Opts) *Commands {
 			categories_aliases.Add,
 			categories_aliases.List,
 			categories_aliases.Remove,
+			vips.Add,
+			vips.Remove,
+			vips.List,
+			vips.Extend,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

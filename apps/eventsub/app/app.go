@@ -15,6 +15,9 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+
+	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -37,6 +40,10 @@ var App = fx.Options(
 		fx.Annotate(
 			channelscommandsprefixpgx.NewFx,
 			fx.As(new(channelscommandsprefixrepository.Repository)),
+		),
+		fx.Annotate(
+			scheduledvipsrepositorypgx.NewFx,
+			fx.As(new(scheduledvipsrepository.Repository)),
 		),
 		channelscommandsprefixcache.New,
 		tunnel.New,

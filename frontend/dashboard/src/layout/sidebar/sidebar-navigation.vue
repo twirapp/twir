@@ -8,6 +8,7 @@ import {
 	Box,
 	ChevronRight,
 	Dices,
+	GemIcon,
 	Import,
 	LayoutDashboard,
 	MessageCircleHeart,
@@ -146,7 +147,6 @@ const links = computed(() => {
 			icon: Users,
 			path: '/dashboard/community',
 			openStateKey: 'community',
-			isNew: true,
 			child: [
 				{
 					name: 'Chat Logs',
@@ -172,7 +172,6 @@ const links = computed(() => {
 					name: 'Rewards history',
 					icon: SparklesIcon,
 					path: '/dashboard/community?tab=rewards-history',
-					isNew: true,
 				},
 			],
 		},
@@ -205,6 +204,12 @@ const links = computed(() => {
 			icon: MessageCircleHeart,
 			disabled: !canViewGreetings.value,
 			path: '/dashboard/greetings',
+		},
+		{
+			name: 'Exping Vips',
+			icon: GemIcon,
+			path: '/dashboard/expiring-vips',
+			isNew: true,
 		},
 		{
 			name: t('sidebar.import'),

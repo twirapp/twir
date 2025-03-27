@@ -100,6 +100,11 @@ export function newRouter() {
 					},
 				},
 				{
+					path: '/dashboard/expiring-vips',
+					component: () => import('@/features/expiring-vips/expiring-vips.vue'),
+					meta: { noPadding: true },
+				},
+				{
 					path: '/dashboard/community',
 					component: () => import('../pages/community.vue'),
 					meta: { noPadding: true },

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
@@ -10,6 +11,7 @@ import (
 	"github.com/satont/twir/libs/types/types/api/modules"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/dota"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -20,6 +22,7 @@ import (
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -42,6 +45,7 @@ type Services struct {
 	GrpcClients              *Grpc
 	TaskDistributor          task_queue.TaskDistributor
 	Bus                      *buscore.Bus
+	TrmManager               trm.Manager
 	CommandsCache            *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	CommandsPrefixCache      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	SevenTvCache             *generic_cacher.GenericCacher[*seventv.ProfileResponse]
@@ -53,4 +57,6 @@ type Services struct {
 	SpotifyRepo              channelsintegrationsspotify.Repository
 	UsersRepo                users.Repository
 	CategoriesAliasesRepo    channelscategoriesaliases.Repository
+	ScheduledVipsRepo        scheduledvipsrepository.Repository
+	CacheTwitchCient         *twitch.CachedTwitchClient
 }

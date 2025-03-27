@@ -30,6 +30,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
@@ -99,6 +100,7 @@ type Deps struct {
 	DashboardService                      *dashboard.Service
 	SevenTvIntegrationService             *seventv_integration.Service
 	SpotifyIntegrationService             *spotify_integration.Service
+	ScheduledVipsService                  *scheduled_vips.Service
 	Config                                config.Config
 }
 

@@ -38,6 +38,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
@@ -99,6 +100,9 @@ import (
 
 	botsrepository "github.com/twirapp/twir/libs/repositories/bots"
 	botspostgres "github.com/twirapp/twir/libs/repositories/bots/datasource/postgres"
+
+	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	scheduledvipsrepositorypostgres "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 
 	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
 	integrationspostgres "github.com/twirapp/twir/libs/repositories/integrations/datasource/postgres"
@@ -205,6 +209,10 @@ func main() {
 				integrationspostgres.NewFx,
 				fx.As(new(integrationsrepository.Repository)),
 			),
+			fx.Annotate(
+				scheduledvipsrepositorypostgres.NewFx,
+				fx.As(new(scheduledvipsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -239,6 +247,7 @@ func main() {
 			dashboard.New,
 			seventv_integration.New,
 			spotify_integration.New,
+			scheduled_vips.New,
 		),
 		// grpc clients
 		fx.Provide(

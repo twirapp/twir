@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
@@ -27,11 +29,13 @@ import (
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
+	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -167,19 +171,31 @@ func main() {
 
 	redSync := redsync.New(goredis.NewPool(redisClient))
 
+	trmManager, err := manager.New(trmpgx.NewDefaultFactory(pgxconn))
+	if err != nil {
+		panic(err)
+	}
+
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
 	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
 	usersRepo := usersrepositorypgx.New(usersrepositorypgx.Opts{PgxPool: pgxconn})
 	channelsCategoriesAliasesRepo := channelscategoriesaliasespgx.New(channelscategoriesaliasespgx.Opts{PgxPool: pgxconn})
+	scheduledVipsRepo := scheduledvipsrepositorypgx.New(scheduledvipsrepositorypgx.Opts{PgxPool: pgxconn})
+
+	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
+	if err != nil {
+		panic(err)
+	}
 
 	s := &services.Services{
-		Config: config,
-		Logger: logger,
-		Gorm:   db,
-		Sqlx:   pgConn,
-		Redis:  redisClient,
+		Config:     config,
+		Logger:     logger,
+		Gorm:       db,
+		Sqlx:       pgConn,
+		Redis:      redisClient,
+		TrmManager: trmManager,
 		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
 			Dota:       clients.NewDota(config.AppEnv),
@@ -199,6 +215,8 @@ func main() {
 		SpotifyRepo:              spotifyRepo,
 		UsersRepo:                usersRepo,
 		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,
+		ScheduledVipsRepo:        scheduledVipsRepo,
+		CacheTwitchCient:         cachedTwitchClient,
 	}
 
 	variablesService := variables.New(

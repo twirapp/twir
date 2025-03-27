@@ -1,0 +1,31 @@
+extend type Query {
+	scheduledVips: [ScheduledVip!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	scheduledVipsCreate(input: ScheduledVipsCreateInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	scheduledVipsRemove(id: String!, input: ScheduledVipsRemoveInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	scheduledVipsUpdate(id: String!, input: ScheduledVipsUpdateInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type ScheduledVip {
+	id: String!
+	userID: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	channelID: String!
+	createdAt: Time!
+	removeAt: Time
+}
+
+input ScheduledVipsCreateInput {
+	userID: String! @validate(constraint: "max=90")
+	removeAt: Int
+}
+
+input ScheduledVipsRemoveInput {
+	keepVip: Boolean
+}
+
+input ScheduledVipsUpdateInput {
+	removeAt: Int!
+}

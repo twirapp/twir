@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
@@ -31,12 +32,13 @@ import (
 type Handler struct {
 	logger logger.Logger
 
-	eventsGrpc     events.EventsClient
-	parserGrpc     parser.ParserClient
-	websocketsGrpc websockets.WebsocketClient
-	tokensGrpc     tokens.TokensClient
-	tracer         trace.Tracer
-	manager        *manager.Manager
+	eventsGrpc        events.EventsClient
+	parserGrpc        parser.ParserClient
+	websocketsGrpc    websockets.WebsocketClient
+	tokensGrpc        tokens.TokensClient
+	tracer            trace.Tracer
+	manager           *manager.Manager
+	scheduledVipsRepo scheduledvipsrepository.Repository
 
 	gorm        *gorm.DB
 	redisClient *redis.Client
@@ -53,10 +55,11 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	EventsGrpc     events.EventsClient
-	ParserGrpc     parser.ParserClient
-	WebsocketsGrpc websockets.WebsocketClient
-	TokensGrpc     tokens.TokensClient
+	EventsGrpc        events.EventsClient
+	ParserGrpc        parser.ParserClient
+	WebsocketsGrpc    websockets.WebsocketClient
+	TokensGrpc        tokens.TokensClient
+	ScheduledVipsRepo scheduledvipsrepository.Repository
 
 	Tracer  trace.Tracer
 	Tunn    *tunnel.AppTunnel
@@ -75,19 +78,20 @@ func New(opts Opts) *Handler {
 	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{
-		manager:        opts.Manager,
-		logger:         opts.Logger,
-		config:         opts.Config,
-		gorm:           opts.Gorm,
-		redisClient:    opts.Redis,
-		eventsGrpc:     opts.EventsGrpc,
-		parserGrpc:     opts.ParserGrpc,
-		websocketsGrpc: opts.WebsocketsGrpc,
-		tokensGrpc:     opts.TokensGrpc,
-		tracer:         opts.Tracer,
-		bus:            opts.Bus,
-		seventvCache:   seventv.New(opts.Redis),
-		prefixCache:    opts.PrefixCache,
+		manager:           opts.Manager,
+		logger:            opts.Logger,
+		config:            opts.Config,
+		gorm:              opts.Gorm,
+		redisClient:       opts.Redis,
+		eventsGrpc:        opts.EventsGrpc,
+		parserGrpc:        opts.ParserGrpc,
+		websocketsGrpc:    opts.WebsocketsGrpc,
+		tokensGrpc:        opts.TokensGrpc,
+		tracer:            opts.Tracer,
+		bus:               opts.Bus,
+		seventvCache:      seventv.New(opts.Redis),
+		prefixCache:       opts.PrefixCache,
+		scheduledVipsRepo: opts.ScheduledVipsRepo,
 	}
 
 	handler.OnNotification = myHandler.onNotification

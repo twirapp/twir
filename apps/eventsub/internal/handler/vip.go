@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
+	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
+	scheduledmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -40,5 +43,24 @@ func (c *Handler) handleChannelVipRemove(
 		Where(`"userId" = ? and "channelId" = ?`, event.UserId, event.BroadcasterUserId).
 		Update(`"is_vip"`, false).Error; err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	scheduledVip, err := c.scheduledVipsRepo.GetByUserAndChannelID(
+		ctx,
+		event.UserId,
+		event.BroadcasterUserId,
+	)
+	if err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+		return
+	}
+
+	if scheduledVip != scheduledmodel.Nil {
+		if err := c.scheduledVipsRepo.Delete(ctx, scheduledVip.ID); err != nil {
+			c.logger.Error(err.Error(), slog.Any("err", err))
+		}
 	}
 }

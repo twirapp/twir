@@ -12,6 +12,8 @@ import SongRequestsSvg from 'assets/icons/features/song-requests.svg?component'
 import StatsSvg from 'assets/icons/features/stats.svg?component'
 import TimersSvg from 'assets/icons/features/timers.svg?component'
 
+import { Icon } from '#components'
+
 interface Feature {
 	title: string
 	description: string
@@ -24,7 +26,11 @@ export const featuresData: Feature[] = [
 		title: 'Music Recognition',
 		description: 'Shazam for your twitch stream! Free, without the need to connect any music services.',
 		icon: MusicRecognizeSvg,
-		fullWidth: true,
+	},
+	{
+		title: 'Vips',
+		description: 'Manage your vips through bot, schedule vips to be removed at a specific time.',
+		icon: h(Icon, { name: 'lucide:gem' }),
 	},
 	{
 		title: 'Commands',
