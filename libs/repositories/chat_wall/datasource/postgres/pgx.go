@@ -162,32 +162,32 @@ WHERE channel_id = $1
 }
 
 func (c *Pgx) GetMany(ctx context.Context, input chat_wall.GetManyInput) ([]model.ChatWall, error) {
-	query := `
-SELECT
-	id,
-	channel_id,
-	created_at,
-	updated_at,
-	phrase,
-	enabled,
-	action,
-	duration_seconds,
-	timeout_duration_seconds,
-	(SELECT COUNT(*) FROM channels_chat_wall_log WHERE wall_id = channels_chat_wall.id) AS affected_messages
-FROM channels_chat_wall
-WHERE channel_id = $1
-ORDER BY created_at DESC
-`
-
-	queryArgs := []any{input.ChannelID}
+	builder := sq.Select(
+		"id",
+		"channel_id",
+		"created_at",
+		"updated_at",
+		"phrase",
+		"enabled",
+		"action",
+		"duration_seconds",
+		"timeout_duration_seconds",
+		"(SELECT COUNT(*) FROM channels_chat_wall_log WHERE wall_id = channels_chat_wall.id) AS affected_messages",
+	).From("channels_chat_wall").
+		Where(squirrel.Eq{"channel_id": input.ChannelID}).
+		OrderBy("created_at DESC")
 
 	if input.Enabled != nil {
-		query += " AND enabled = $2"
-		queryArgs = append(queryArgs, input.Enabled)
+		builder = builder.Where(squirrel.Eq{"enabled": *input.Enabled})
+	}
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
 	}
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, queryArgs...)
+	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
