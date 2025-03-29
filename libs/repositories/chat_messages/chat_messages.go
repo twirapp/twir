@@ -13,6 +13,7 @@ type Repository interface {
 }
 
 type CreateInput struct {
+	ID              string
 	ChannelID       string
 	UserID          string
 	Text            string

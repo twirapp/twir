@@ -21,6 +21,7 @@ import (
 	"github.com/lib/pq"
 	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
 	"github.com/satont/twir/apps/parser/internal/nats"
+	chatwallservice "github.com/satont/twir/apps/parser/internal/services/chat_wall"
 	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
 	cfg "github.com/satont/twir/libs/config"
@@ -42,6 +43,9 @@ import (
 	"google.golang.org/grpc"
 
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+
+	chatwallcache "github.com/twirapp/twir/libs/cache/chat_wall"
+	chatwallpgx "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -183,11 +187,26 @@ func main() {
 	usersRepo := usersrepositorypgx.New(usersrepositorypgx.Opts{PgxPool: pgxconn})
 	channelsCategoriesAliasesRepo := channelscategoriesaliasespgx.New(channelscategoriesaliasespgx.Opts{PgxPool: pgxconn})
 	scheduledVipsRepo := scheduledvipsrepositorypgx.New(scheduledvipsrepositorypgx.Opts{PgxPool: pgxconn})
+	chatWallRepository := chatwallpgx.New(chatwallpgx.Opts{PgxPool: pgxconn})
 
 	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
 	if err != nil {
 		panic(err)
 	}
+
+	chatWallCache := chatwallcache.NewEnabledOnly(chatWallRepository, redisClient)
+
+	chatWallService := chatwallservice.New(
+		chatwallservice.Opts{
+			ChatWallRepository: chatWallRepository,
+			Gorm:               db,
+			ChatWallCache:      chatWallCache,
+			Redis:              redisClient,
+			Config:             *config,
+			TokensClient:       tokensGrpc,
+			TwirBus:            bus,
+		},
+	)
 
 	s := &services.Services{
 		Config:     config,
@@ -206,6 +225,9 @@ func main() {
 		TaskDistributor:          taskQueueDistributor,
 		Bus:                      bus,
 		CommandsCache:            commandscache.New(db, redisClient),
+		ChatWallRepo:             chatWallRepository,
+		ChatWallCache:            chatWallCache,
+		ChatWallService:          chatWallService,
 		SevenTvCache:             seventv.New(redisClient),
 		SevenTvCacheBySevenTvID:  seventv.NewBySeventvID(redisClient),
 		RedSync:                  redSync,
@@ -216,7 +238,7 @@ func main() {
 		UsersRepo:                usersRepo,
 		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,
 		ScheduledVipsRepo:        scheduledVipsRepo,
-		CacheTwitchCient:         cachedTwitchClient,
+		CacheTwitchClient:        cachedTwitchClient,
 	}
 
 	variablesService := variables.New(

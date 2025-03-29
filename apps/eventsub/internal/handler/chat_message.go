@@ -129,6 +129,7 @@ func (c *Handler) handleChannelChatMessage(
 	}
 
 	data := twitch.TwitchChatMessage{
+		ID:                   event.MessageID,
 		BroadcasterUserId:    event.BroadcasterUserID,
 		BroadcasterUserName:  event.BroadcasterUserName,
 		BroadcasterUserLogin: event.BroadcasterUserLogin,

@@ -1,0 +1,45 @@
+extend type Query {
+	chatWalls: [ChatWall!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODERATION)
+	chatWallSettings: ChatWallSettings! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODERATION)
+	chatWallLogs(id: String!): [ChatWallLog!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODERATION)
+}
+
+extend type Mutation {
+	chatWallSettingsUpdate(opts: ChatWallSettingsUpdateInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODERATION)
+}
+
+type ChatWall {
+	id: String!
+	phrase: String!
+	enabled: Boolean!
+	action: ChatWallAction!
+	durationSeconds: Int!
+	timeoutDurationSeconds: Int
+	affectedMessages: Int!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+enum ChatWallAction {
+	DELETE
+	BAN
+	TIMEOUT
+}
+
+type ChatWallSettings {
+	muteSubscribers: Boolean!
+	muteVips: Boolean!
+}
+
+type ChatWallLog {
+	id: String!
+	userId: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	text: String!
+	createdAt: Time!
+}
+
+input ChatWallSettingsUpdateInput {
+	muteSubscribers: Boolean!
+	muteVips: Boolean!
+}

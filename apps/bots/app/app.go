@@ -20,6 +20,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
@@ -34,6 +35,8 @@ import (
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
+	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
+	chatwallrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
@@ -78,6 +81,10 @@ var App = fx.Module(
 			channelscommandsprefixpgx.NewFx,
 			fx.As(new(channelscommandsprefixrepository.Repository)),
 		),
+		fx.Annotate(
+			chatwallrepositorypostgres.NewFx,
+			fx.As(new(chatwallrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -93,6 +100,8 @@ var App = fx.Module(
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
+		chatwallcacher.NewEnabledOnly,
+		chatwallcacher.NewSettings,
 		fx.Annotate(
 			mod_task_queue.NewRedisModTaskDistributor,
 			fx.As(new(mod_task_queue.TaskDistributor)),

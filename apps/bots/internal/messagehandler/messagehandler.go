@@ -28,6 +28,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
+	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
+	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	"go.uber.org/fx"
@@ -55,6 +57,9 @@ type Opts struct {
 	CommandService         *commands.Service
 	TTSService             *tts.Service
 	Config                 cfg.Config
+	ChatWallCacher         *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
+	ChatWallRepository     chatwallrepository.Repository
+	ChatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 }
 
 type MessageHandler struct {
@@ -71,6 +76,9 @@ type MessageHandler struct {
 	bus                    *buscore.Bus
 	votebanMutex           *redsync.Mutex
 	greetingsCache         *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+	chatWallCacher         *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
+	chatWallRepository     chatwallrepository.Repository
+	chatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 
 	keywordsService *keywords.Service
 	commandsService *commands.Service
@@ -99,6 +107,9 @@ func New(opts Opts) *MessageHandler {
 		greetingsCache:         opts.GreetingsCache,
 		commandsService:        opts.CommandService,
 		ttsService:             opts.TTSService,
+		chatWallCacher:         opts.ChatWallCacher,
+		chatWallRepository:     opts.ChatWallRepository,
+		chatWallSettingsCacher: opts.ChatWallSettingsCacher,
 	}
 
 	return handler
@@ -126,6 +137,7 @@ var handlersForExecute = []func(
 	(*MessageHandler).handleModeration,
 	(*MessageHandler).handleFirstStreamUserJoin,
 	(*MessageHandler).handleGamesVoteban,
+	(*MessageHandler).handleChatWall,
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {

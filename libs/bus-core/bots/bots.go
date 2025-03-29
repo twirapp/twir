@@ -4,6 +4,7 @@ const (
 	SendMessageSubject   = "bots.send_message"
 	DeleteMessageSubject = "bots.delete_message"
 	BanSubject           = "bots.ban"
+	BanMultipleSubject   = "bots.ban_multiple"
 	ShoutOutSubject      = "bots.shoutout"
 )
 

@@ -5,6 +5,7 @@ import (
 	"github.com/go-redsync/redsync/v4"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/parser/internal/services/chat_wall"
 	"github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
@@ -22,6 +23,8 @@ import (
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
+	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/zap"
@@ -50,6 +53,8 @@ type Services struct {
 	CommandsPrefixCache      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	SevenTvCache             *generic_cacher.GenericCacher[*seventv.ProfileResponse]
 	SevenTvCacheBySevenTvID  *generic_cacher.GenericCacher[*seventv.ProfileResponse]
+	ChatWallCache            *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
+	ChatWallService          *chat_wall.Service
 	RedSync                  *redsync.Redsync
 	CommandsLock             *redsync.Mutex
 	CommandsPrefixRepository channelscommandsprefixrepository.Repository
@@ -58,5 +63,6 @@ type Services struct {
 	UsersRepo                users.Repository
 	CategoriesAliasesRepo    channelscategoriesaliases.Repository
 	ScheduledVipsRepo        scheduledvipsrepository.Repository
-	CacheTwitchCient         *twitch.CachedTwitchClient
+	CacheTwitchClient        *twitch.CachedTwitchClient
+	ChatWallRepo             chatwallrepository.Repository
 }

@@ -58,6 +58,7 @@ func New(opts Opts) (*BusListener, error) {
 				listener.bus.Bots.DeleteMessage.SubscribeGroup("bots", listener.deleteMessage)
 				listener.bus.ChatMessages.SubscribeGroup("bots", listener.handleChatMessage)
 				listener.bus.Bots.BanUser.SubscribeGroup("bots", listener.banUser)
+				listener.bus.Bots.BanUsers.SubscribeGroup("bots", listener.banUsers)
 				listener.bus.Bots.ShoutOut.SubscribeGroup("bots", listener.handleShoutOut)
 
 				return nil

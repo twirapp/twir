@@ -92,6 +92,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
+			BanUsers: NewNatsQueue[[]botsservice.BanRequest, struct{}](
+				nc,
+				botsservice.BanMultipleSubject,
+				5*time.Minute,
+				nats.GOB_ENCODER,
+			),
 			ShoutOut: NewNatsQueue[botsservice.SentShoutOutRequest, struct{}](
 				nc,
 				botsservice.ShoutOutSubject,

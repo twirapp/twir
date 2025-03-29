@@ -40,6 +40,7 @@ var Command = &types.DefaultCommand{
 		command_arguments.String{
 			Name:     nukeTimeArgName,
 			Optional: false,
+			Hint:     "time, examples: 10m, 10, 1h5m",
 		},
 		command_arguments.VariadicString{
 			Name: nukePhraseArgName,

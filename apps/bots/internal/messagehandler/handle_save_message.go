@@ -23,7 +23,12 @@ func (c *MessageHandler) handleSaveMessage(
 
 	handleSaveMessagesQueue = append(handleSaveMessagesQueue, msg)
 
-	if len(handleSaveMessagesQueue) < 5 {
+	bufferSize := 5
+	if c.config.AppEnv != "production" {
+		bufferSize = 1
+	}
+
+	if len(handleSaveMessagesQueue) < bufferSize {
 		return nil
 	}
 
@@ -32,6 +37,7 @@ func (c *MessageHandler) handleSaveMessage(
 		inputs = append(
 			inputs,
 			chat_messages.CreateInput{
+				ID:              m.ID,
 				ChannelID:       m.BroadcasterUserId,
 				UserID:          m.ChatterUserId,
 				Text:            m.Message.Text,

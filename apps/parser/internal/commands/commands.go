@@ -20,6 +20,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/categories_aliases"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/twir/apps/parser/internal/commands/channel/title"
+	"github.com/satont/twir/apps/parser/internal/commands/chat_wall"
 	"github.com/satont/twir/apps/parser/internal/commands/clip"
 	"github.com/satont/twir/apps/parser/internal/commands/dudes"
 	"github.com/satont/twir/apps/parser/internal/commands/games"
@@ -135,6 +136,10 @@ func New(opts *Opts) *Commands {
 			vips.Remove,
 			vips.List,
 			vips.SetExpire,
+			chat_wall.Delete,
+			chat_wall.Ban,
+			chat_wall.Timeout,
+			chat_wall.Stop,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

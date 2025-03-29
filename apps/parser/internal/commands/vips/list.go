@@ -57,7 +57,7 @@ var List = &types.DefaultCommand{
 			usersIds = append(usersIds, vip.UserID)
 		}
 
-		twitchUsers, err := parseCtx.Services.CacheTwitchCient.GetUsersByIds(ctx, usersIds)
+		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, usersIds)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get twitch users",

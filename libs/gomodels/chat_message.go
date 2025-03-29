@@ -17,7 +17,8 @@ type ChatMessage struct {
 	CreatedAt       time.Time `gorm:"column:created_at;type:timestamp"`
 	UpdatedAt       time.Time `gorm:"column:updated_at;type:timestamp"`
 
-	User *Users `gorm:"foreignKey:UserID;references:ID"`
+	User    *Users    `gorm:"foreignKey:UserID;references:ID"`
+	Channel *Channels `gorm:"foreignKey:ChannelID;references:ID"`
 }
 
 func (c *ChatMessage) TableName() string {

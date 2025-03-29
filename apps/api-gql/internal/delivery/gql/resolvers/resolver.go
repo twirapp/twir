@@ -18,6 +18,7 @@ import (
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
@@ -101,6 +102,7 @@ type Deps struct {
 	SevenTvIntegrationService             *seventv_integration.Service
 	SpotifyIntegrationService             *spotify_integration.Service
 	ScheduledVipsService                  *scheduled_vips.Service
+	ChatWallService                       *chat_wall.Service
 	Config                                config.Config
 }
 

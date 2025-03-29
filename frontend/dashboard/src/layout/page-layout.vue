@@ -113,13 +113,13 @@ watch(y, (value) => {
 								<ChevronLeft />
 							</Button>
 							<h1 class="text-4xl">
-								<slot name="title" />
+								<slot name="title" :activeTab="activeTab" />
 							</h1>
 						</div>
-						<slot name="title-footer" />
+						<slot name="title-footer" :activeTab="activeTab" />
 					</div>
 
-					<slot name="action" />
+					<slot name="action" :activeTab="activeTab" />
 				</div>
 
 				<div v-if="props.tabs" class="flex gap-2">
@@ -149,7 +149,7 @@ watch(y, (value) => {
 					v-for="tab of props.tabs" :key="tab.name" :value="tab.name"
 					class="outline-none"
 				>
-					<component :is="tab.component" />
+					<component :is="tab.component" :activeTab="activeTab" />
 				</TabsContent>
 			</template>
 
