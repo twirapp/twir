@@ -63,7 +63,8 @@ func (c *NatsQueue[Req, Res]) SubscribeGroup(
 		c.subject,
 		queueGroup,
 		func(subject, reply string, data *Req) {
-			ctx, _ := context.WithTimeout(context.Background(), c.timeout)
+			ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+			defer cancel()
 			response := cb(ctx, *data)
 			c.nc.Publish(reply, &response)
 		},

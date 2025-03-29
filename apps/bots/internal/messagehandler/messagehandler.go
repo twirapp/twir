@@ -133,7 +133,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 		TwitchChatMessage: req,
 	}
 
-	errwg, errWgCtx := errgroup.WithContext(context.TODO())
+	errwg, errWgCtx := errgroup.WithContext(ctx)
 
 	errwg.Go(
 		func() error {
@@ -220,15 +220,12 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	var wg sync.WaitGroup
 	wg.Add(len(handlersForExecute))
 
-	// TODO: i dont know why grpc context canceling before this function finished
-	funcsCtx := context.Background()
-
 	for _, f := range handlersForExecute {
 		f := f
 
 		go func() {
 			defer wg.Done()
-			if err := f(c, funcsCtx, msg); err != nil {
+			if err := f(c, ctx, msg); err != nil {
 				c.logger.Error(
 					"error when executing message handler function",
 					slog.Any("err", err),

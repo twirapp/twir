@@ -113,7 +113,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 	}
 
 	_, err = c.eventsGrpc.GreetingSended(
-		context.Background(),
+		ctx,
 		&events.GreetingSendedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: msg.BroadcasterUserId},
 			UserId:          msg.ChatterUserId,

@@ -144,17 +144,25 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				},
 			)
 			msgErr = err
+			if resp == nil {
+				return fmt.Errorf("cannot send message with unknown reason: %w", err)
+			}
+
+			var rateLimitGroup slog.Attr
+			if resp != nil {
+				rateLimitGroup = slog.Group(
+					"rate_limit",
+					slog.Int("limit", resp.GetRateLimit()),
+					slog.Int("remaining", resp.GetRateLimitRemaining()),
+					slog.Int("reset", resp.GetRateLimitReset()),
+				)
+			}
 
 			c.logger.Info(
 				"Message sent",
 				slog.String("channel_id", opts.BroadcasterID),
 				slog.String("sender_id", opts.SenderID),
-				slog.Group(
-					"rate_limit",
-					slog.Int("limit", resp.GetRateLimit()),
-					slog.Int("remaining", resp.GetRateLimitRemaining()),
-					slog.Int("reset", resp.GetRateLimitReset()),
-				),
+				rateLimitGroup,
 			)
 
 			for _, m := range resp.Data.Messages {
