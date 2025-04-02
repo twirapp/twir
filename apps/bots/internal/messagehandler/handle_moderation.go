@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -478,7 +479,9 @@ func (c *MessageHandler) moderationLanguageParser(
 	hasDeniedLanguage := lo.SomeBy(
 		detected,
 		func(item langDetectLang) bool {
-			return slices.Contains(settings.DeniedChatLanguages, string(item.Code))
+			code := strconv.Itoa(item.Code)
+
+			return slices.Contains(settings.DeniedChatLanguages, code)
 		},
 	)
 
