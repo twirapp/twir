@@ -427,6 +427,12 @@ func (c *MessageHandler) moderationLanguageParser(
 		text = strings.ReplaceAll(text, emote, "")
 	}
 
+	for _, fragment := range msg.Message.Fragments {
+		if fragment.Mention != nil {
+			text = strings.ReplaceAll(text, fragment.Text, "")
+		}
+	}
+
 	text = strings.TrimSpace(text)
 
 	detected, err := c.moderationDetectLanguage(text)
