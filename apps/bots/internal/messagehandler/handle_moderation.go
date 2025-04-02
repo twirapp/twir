@@ -17,7 +17,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
 
 type moderationHandleResult struct {
@@ -354,12 +353,8 @@ func (c *MessageHandler) moderationCapsParser(
 ) *moderationHandleResult {
 	text := msg.Message.Text
 
-	for _, f := range msg.Message.Fragments {
-		if f.Type != twitch.FragmentType_EMOTE && f.Type != twitch.FragmentType_CHEERMOTE {
-			continue
-		}
-
-		text = strings.ReplaceAll(text, f.Text, "")
+	for emote, _ := range msg.ParsedEmotes {
+		text = strings.ReplaceAll(text, emote, "")
 	}
 
 	if utf8.RuneCountInString(text) < settings.TriggerLength {
@@ -384,51 +379,8 @@ func (c *MessageHandler) moderationEmotesParser(
 		return nil
 	}
 
-	emotes := make(map[string]int)
-	splittedMsg := strings.Fields(msg.Message.Text)
-
-	for _, f := range msg.Message.Fragments {
-		if f.Type != twitch.FragmentType_EMOTE {
-			continue
-		}
-
-		emotes[f.Text] += 1
-	}
-
-	for _, part := range splittedMsg {
-		// do not make redis requests if emote already present in map
-		var isTwitchEmote bool
-		for _, fragment := range msg.Message.Fragments {
-			if fragment.Emote != nil && strings.TrimSpace(fragment.Text) == part {
-				isTwitchEmote = true
-				break
-			}
-		}
-
-		if emote, ok := emotes[part]; !isTwitchEmote && ok {
-			emotes[part] = emote + 1
-			continue
-		}
-
-		if exists, _ := c.redis.Exists(
-			ctx,
-			fmt.Sprintf("emotes:channel:%s:%s", msg.BroadcasterUserId, part),
-		).Result(); exists == 1 {
-			emotes[part] += 1
-			continue
-		}
-
-		if exists, _ := c.redis.Exists(
-			ctx,
-			fmt.Sprintf("emotes:global:%s", part),
-		).Result(); exists == 1 {
-			emotes[part] += 1
-			continue
-		}
-	}
-
 	var totalEmotesInMessage int
-	for _, count := range emotes {
+	for _, count := range msg.ParsedEmotes {
 		totalEmotesInMessage += count
 	}
 
@@ -470,9 +422,19 @@ func (c *MessageHandler) moderationLanguageParser(
 	settings model.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
+	text := msg.Message.Text
+	for emote, _ := range msg.ParsedEmotes {
+		text = strings.ReplaceAll(text, emote, "")
+	}
 
-	detected, err := c.moderationDetectLanguage(msg.Message.Text)
+	text = strings.TrimSpace(text)
+
+	detected, err := c.moderationDetectLanguage(text)
 	if err != nil || len(detected) == 0 {
+		return nil
+	}
+
+	if len(detected) == 1 && detected[0].Code == 75 {
 		return nil
 	}
 
