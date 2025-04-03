@@ -40,6 +40,7 @@ func (t *spanRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 
 	span.SetAttributes(
 		attribute.String("twitch.rate-limit.reset", resp.Header.Get("Ratelimit-Reset")),
+		attribute.Int("http_status_code", resp.StatusCode),
 	)
 
 	parsedLimit, _ := strconv.Atoi(resp.Header.Get("Ratelimit-Limit"))
