@@ -148,15 +148,20 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 		TwitchChatMessage: req,
 	}
 
-	emotes, _ := c.countEmotes(ctx, msg)
-	msg.ParsedEmotes = emotes
+	var errwg errgroup.Group
 
-	errwg, errWgCtx := errgroup.WithContext(ctx)
+	errwg.Go(
+		func() error {
+			emotes, _ := c.countEmotes(ctx, msg)
+			msg.ParsedEmotes = emotes
+			return nil
+		},
+	)
 
 	errwg.Go(
 		func() error {
 			stream := &deprecatedgormmodel.ChannelsStreams{}
-			if err := c.gorm.WithContext(errWgCtx).Where(
+			if err := c.gorm.WithContext(ctx).Where(
 				`"userId" = ?`,
 				req.BroadcasterUserId,
 			).First(stream).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -190,7 +195,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 			}
 
 			dbChannel := &deprecatedgormmodel.Channels{}
-			if err := c.gorm.WithContext(errWgCtx).Where(
+			if err := c.gorm.WithContext(ctx).Where(
 				"id = ?",
 				req.BroadcasterUserId,
 			).First(dbChannel).
