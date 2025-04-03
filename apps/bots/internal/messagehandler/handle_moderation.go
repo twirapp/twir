@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -392,9 +391,9 @@ func (c *MessageHandler) moderationEmotesParser(
 }
 
 type langDetectLang struct {
-	Name    string `json:"name"`
-	Code    int    `json:"code"`
-	Iso6933 int    `json:"iso_693_3"`
+	ISO6391    string `json:"iso_639_1"`
+	Name       string `json:"name"`
+	NativeName string `json:"native_name"`
 }
 
 func (c *MessageHandler) moderationDetectLanguage(text string) ([]langDetectLang, error) {
@@ -440,16 +439,10 @@ func (c *MessageHandler) moderationLanguageParser(
 		return nil
 	}
 
-	if len(detected) == 1 && detected[0].Code == 75 {
-		return nil
-	}
-
 	hasDeniedLanguage := lo.SomeBy(
 		detected,
 		func(item langDetectLang) bool {
-			code := strconv.Itoa(item.Code)
-
-			return slices.Contains(settings.DeniedChatLanguages, code)
+			return slices.Contains(settings.DeniedChatLanguages, item.ISO6391)
 		},
 	)
 

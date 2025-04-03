@@ -124,7 +124,6 @@ service Protected {
 	rpc ModerationDelete(messages.moderation.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc ModerationUpdate(messages.moderation.UpdateRequest) returns (messages.moderation.ItemWithId) {}
 	rpc ModerationEnableOrDisable(messages.moderation.PatchRequest) returns (messages.moderation.ItemWithId) {}
-	rpc ModerationAvailableLanguages(google.protobuf.Empty) returns (messages.moderation.AvailableLanguagesResponse) {}
 
 	rpc OverlayDudesGet(messages.overlays_dudes.GetRequest) returns (messages.overlays_dudes.Settings) {}
 	rpc OverlayDudesGetAll(google.protobuf.Empty) returns (messages.overlays_dudes.GetAllResponse) {}

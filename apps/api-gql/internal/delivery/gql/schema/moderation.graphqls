@@ -1,0 +1,13 @@
+extend type Query {
+	moderationLanguagesAvailableLanguages: ModerationLanguagesAvailableLanguagesOutput! @isAuthenticated
+}
+
+type ModerationLanguagesAvailableLanguagesOutput {
+	languages: [ModerationLanguagesAvailableLanguage!]!
+}
+
+type ModerationLanguagesAvailableLanguage {
+	iso_639_1: String!
+	name: String!
+	nativeName: String!
+}

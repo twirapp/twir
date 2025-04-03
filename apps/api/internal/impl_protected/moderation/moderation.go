@@ -2,12 +2,10 @@ package moderation
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
@@ -204,45 +202,5 @@ func (c *Moderation) ModerationEnableOrDisable(
 	return &moderation.ItemWithId{
 		Id:   entity.ID,
 		Data: c.convertDbToGrpc(entity).Data,
-	}, nil
-}
-
-type availableLanguage struct {
-	Code    int    `json:"code"`
-	Iso6933 int    `json:"iso_693_3"`
-	Name    string `json:"name"`
-}
-
-func (c *Moderation) ModerationAvailableLanguages(
-	ctx context.Context,
-	_ *emptypb.Empty,
-) (*moderation.AvailableLanguagesResponse, error) {
-	var reqUrl string
-	if c.Config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-detector:3012")
-	} else {
-		reqUrl = "http://localhost:3012"
-	}
-
-	var resp []availableLanguage
-	res, err := req.R().SetSuccessResult(&resp).Get(reqUrl + "/languages")
-	if err != nil {
-		return nil, err
-	}
-	if !res.IsSuccessState() {
-		return nil, errors.New("cannot get response")
-	}
-
-	langs := make([]*moderation.AvailableLanguagesResponse_Lang, len(resp))
-	for i, lang := range resp {
-		langs[i] = &moderation.AvailableLanguagesResponse_Lang{
-			Code:      int32(lang.Code),
-			Iso_693_3: int32(lang.Iso6933),
-			Name:      lang.Name,
-		}
-	}
-
-	return &moderation.AvailableLanguagesResponse{
-		Langs: langs,
 	}, nil
 }

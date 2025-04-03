@@ -42,10 +42,11 @@ type ChannelModerationSettings struct {
 	BanMessage     string `gorm:"column:ban_message;type:TEXT;" json:"ban_message"`
 	WarningMessage string `gorm:"column:warning_message;type:TEXT;" json:"warning_message"`
 
-	CheckClips          bool           `gorm:"column:check_clips;type:BOOL;default:false;" json:"check_clips"`
-	TriggerLength       int            `gorm:"column:trigger_length;type:INT4;default:300;" json:"trigger_length"`
-	MaxPercentage       int            `gorm:"column:max_percentage;type:INT4;default:50;" json:"max_percentage"`
-	DenyList            pq.StringArray `gorm:"column:deny_list;type:JSONB;default:[];" json:"deny_list"`
+	CheckClips    bool           `gorm:"column:check_clips;type:BOOL;default:false;" json:"check_clips"`
+	TriggerLength int            `gorm:"column:trigger_length;type:INT4;default:300;" json:"trigger_length"`
+	MaxPercentage int            `gorm:"column:max_percentage;type:INT4;default:50;" json:"max_percentage"`
+	DenyList      pq.StringArray `gorm:"column:deny_list;type:JSONB;default:[];" json:"deny_list"`
+	// ISO639_1
 	DeniedChatLanguages pq.StringArray `gorm:"column:denied_chat_languages;type:JSONB;default:[];" json:"accepted_chat_languages"`
 	ExcludedRoles       pq.StringArray `gorm:"column:excluded_roles;type:JSONB;default:[];" json:"excluded_roles"`
 	MaxWarnings         int            `gorm:"column:max_warnings;type:INT4;default:0;" json:"max_warnings"`

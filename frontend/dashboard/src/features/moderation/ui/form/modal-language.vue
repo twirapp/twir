@@ -12,16 +12,17 @@ import { useModerationAvailableLanguages } from '@/api'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 const { editableItem } = useEditableItem()
-const { data: availableLanguages } = useModerationAvailableLanguages()
+const languagesApi = useModerationAvailableLanguages()
+const { data: availableLanguages } = languagesApi.query()
 const { t } = useI18n()
 
 const sourceSearch = ref('')
 const targetSearch = ref('')
 
 const allLanguages = computed(() =>
-	availableLanguages?.value?.langs.map(l => ({
+	availableLanguages?.value?.moderationLanguagesAvailableLanguages.languages.map(l => ({
 		label: l.name,
-		value: l.code.toString(),
+		value: l.iso_639_1,
 	})) ?? [],
 )
 

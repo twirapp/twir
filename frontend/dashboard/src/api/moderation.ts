@@ -1,11 +1,24 @@
-import { useQuery } from '@tanstack/vue-query';
+import { useQuery } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
 
-import { protectedApiClient } from './twirp';
+import { graphql } from '@/gql'
 
-export const useModerationAvailableLanguages = () => useQuery({
-	queryKey: ['moderationAvailableLanguages'],
-	queryFn: async () => {
-		const request = await protectedApiClient.moderationAvailableLanguages({});
-		return request.response;
-	},
-});
+export const useModerationAvailableLanguages = createGlobalState(() => {
+	const query = () => useQuery({
+		query: graphql(`
+			query ModerationAvailableLanguages {
+				moderationLanguagesAvailableLanguages {
+					languages {
+						name
+						iso_639_1
+						nativeName
+					}
+				}
+			}
+		`),
+	})
+
+	return {
+		query,
+	}
+})

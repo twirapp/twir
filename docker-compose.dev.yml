@@ -57,7 +57,7 @@ services:
       - twir-dev
 
   language-detector:
-    image: ghcr.io/twirapp/language-detector:latest
+    image: twirapp/language-detector:latest
     restart: always
     ports:
       - '3012:3012'

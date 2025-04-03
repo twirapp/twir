@@ -61,13 +61,3 @@ message PatchRequest {
 	string id = 1;
 	bool enabled = 2;
 }
-
-message AvailableLanguagesResponse {
-	message Lang {
-		int32 code = 1;
-		int32 iso_693_3 = 2;
-		string name = 3;
-	}
-
-	repeated Lang langs = 1;
-}
