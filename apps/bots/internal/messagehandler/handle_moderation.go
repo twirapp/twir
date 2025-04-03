@@ -434,6 +434,10 @@ func (c *MessageHandler) moderationLanguageParser(
 
 	text = strings.TrimSpace(text)
 
+	if utf8.RuneCountInString(text) < 10 {
+		return nil
+	}
+
 	detected, err := c.moderationDetectLanguage(text)
 	if err != nil || len(detected) == 0 {
 		return nil
