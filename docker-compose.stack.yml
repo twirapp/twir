@@ -681,6 +681,29 @@ services:
     networks:
       - twir
 
+  chat-translator:
+    image: twirapp/chat-translator:latest
+    secrets:
+      - twir_doppler_token
+    environment:
+      - APP_ENV=production
+    deploy:
+      update_config:
+        parallelism: 2
+      mode: replicated
+      replicas: 4
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      placement:
+        constraints:
+          - node.labels.databases != true
+          - node.role != manager
+    networks:
+      - twir
+
   toxicity-detector:
     image: twirapp/toxicity-detector:latest
     environment:
