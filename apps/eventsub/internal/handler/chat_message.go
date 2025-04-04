@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 	"unicode/utf8"
@@ -149,6 +150,12 @@ func (c *Handler) handleChannelChatMessage(
 		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
 	}
 
+	emotes, emotesErr := c.chatMessageCountEmotes(ctx, data)
+	if emotesErr != nil {
+		c.logger.Error("cannot count emotes", slog.Any("err", emotesErr))
+	}
+	data.UsedEmotesWithThirdParty = emotes
+
 	if err := c.bus.ChatMessages.Publish(data); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 	}
@@ -214,4 +221,62 @@ func (c *Handler) handleChannelChatMessageDelete(
 	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
+}
+
+func (c *Handler) chatMessageCountEmotes(
+	ctx context.Context,
+	msg twitch.TwitchChatMessage,
+) (map[string]int, error) {
+	if msg.Message == nil {
+		return nil, nil
+	}
+
+	splittedMsg := strings.Fields(msg.Message.Text)
+	emotes := make(map[string]int, len(splittedMsg))
+
+	for _, f := range msg.Message.Fragments {
+		if f.Type != twitch.FragmentType_EMOTE || f.Text == "" {
+			continue
+		}
+		emotes[f.Text] += 1
+	}
+
+	for _, part := range splittedMsg {
+		// do not make redis requests if part already present in map
+		var isTwitchEmote bool
+		for _, fragment := range msg.Message.Fragments {
+			if fragment.Emote != nil && strings.TrimSpace(fragment.Text) == part {
+				isTwitchEmote = true
+				break
+			}
+
+			if fragment.Cheermote != nil && strings.TrimSpace(fragment.Text) == part {
+				isTwitchEmote = true
+				break
+			}
+		}
+
+		if emote, ok := emotes[part]; !isTwitchEmote && ok {
+			emotes[part] = emote + 1
+			continue
+		}
+
+		if exists, _ := c.redisClient.Exists(
+			ctx,
+			fmt.Sprintf("emotes:channel:%s:%s", msg.BroadcasterUserId, part),
+		).Result(); exists == 1 {
+			emotes[part] += 1
+			continue
+		}
+
+		if exists, _ := c.redisClient.Exists(
+			ctx,
+			fmt.Sprintf("emotes:global:%s", part),
+		).Result(); exists == 1 {
+			emotes[part] += 1
+			continue
+		}
+	}
+
+	return emotes, nil
 }

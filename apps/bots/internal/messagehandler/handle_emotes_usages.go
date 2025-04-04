@@ -12,10 +12,10 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 	if msg.DbStream == nil {
 		return nil
 	}
-	
+
 	var emotesForCreate []model.ChannelEmoteUsage
 
-	for key, count := range msg.ParsedEmotes {
+	for key, count := range msg.UsedEmotesWithThirdParty {
 		for i := 0; i < count; i++ {
 			emotesForCreate = append(
 				emotesForCreate, model.ChannelEmoteUsage{

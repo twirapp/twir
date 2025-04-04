@@ -16,6 +16,8 @@ type TwitchChatMessage struct {
 	MessageType                 string              `json:"message_type"`
 	ChannelPointsCustomRewardId string              `json:"channel_points_custom_reward_id"`
 	Badges                      []ChatMessageBadge  `json:"badges,omitempty"`
+
+	UsedEmotesWithThirdParty map[string]int `json:"used_emotes_with_third_party"`
 }
 
 type FragmentType int32

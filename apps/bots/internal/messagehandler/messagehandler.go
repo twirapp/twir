@@ -3,11 +3,9 @@ package messagehandler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"reflect"
 	"runtime"
-	"strings"
 	"sync"
 	"time"
 
@@ -118,10 +116,9 @@ func New(opts Opts) *MessageHandler {
 }
 
 type handleMessage struct {
-	DbChannel    *deprecatedgormmodel.Channels
-	DbStream     *deprecatedgormmodel.ChannelsStreams
-	DbUser       *deprecatedgormmodel.Users
-	ParsedEmotes map[string]int
+	DbChannel *deprecatedgormmodel.Channels
+	DbStream  *deprecatedgormmodel.ChannelsStreams
+	DbUser    *deprecatedgormmodel.Users
 	twitch.TwitchChatMessage
 }
 
@@ -149,15 +146,6 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	}
 
 	var errwg errgroup.Group
-
-	errwg.Go(
-		func() error {
-			emotes, _ := c.countEmotes(ctx, msg)
-			msg.ParsedEmotes = emotes
-			return nil
-		},
-	)
-
 	errwg.Go(
 		func() error {
 			stream := &deprecatedgormmodel.ChannelsStreams{}
@@ -261,59 +249,4 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	wg.Wait()
 
 	return nil
-}
-
-func (c *MessageHandler) countEmotes(ctx context.Context, msg handleMessage) (
-	map[string]int,
-	error,
-) {
-	emotes := make(map[string]int)
-
-	for _, f := range msg.Message.Fragments {
-		if f.Type != twitch.FragmentType_EMOTE {
-			continue
-		}
-		emotes[f.Text] += 1
-	}
-
-	splittedMsg := strings.Fields(msg.Message.Text)
-
-	for _, part := range splittedMsg {
-		// do not make redis requests if part already present in map
-		var isTwitchEmote bool
-		for _, fragment := range msg.Message.Fragments {
-			if fragment.Emote != nil && strings.TrimSpace(fragment.Text) == part {
-				isTwitchEmote = true
-				break
-			}
-
-			if fragment.Cheermote != nil && strings.TrimSpace(fragment.Text) == part {
-				isTwitchEmote = true
-				break
-			}
-		}
-
-		if emote, ok := emotes[part]; !isTwitchEmote && ok {
-			emotes[part] = emote + 1
-			continue
-		}
-
-		if exists, _ := c.redis.Exists(
-			ctx,
-			fmt.Sprintf("emotes:channel:%s:%s", msg.BroadcasterUserId, part),
-		).Result(); exists == 1 {
-			emotes[part] += 1
-			continue
-		}
-
-		if exists, _ := c.redis.Exists(
-			ctx,
-			fmt.Sprintf("emotes:global:%s", part),
-		).Result(); exists == 1 {
-			emotes[part] += 1
-			continue
-		}
-	}
-
-	return emotes, nil
 }

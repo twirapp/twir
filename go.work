@@ -4,6 +4,7 @@ use (
 	./apps/api
 	./apps/api-gql
 	./apps/bots
+	./apps/chat-translator
 	./apps/discord
 	./apps/emotes-cacher
 	./apps/events
