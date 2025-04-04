@@ -56,11 +56,11 @@ services:
     networks:
       - twir-dev
 
-  language-detector:
-    image: twirapp/language-detector:latest
+  language-processor:
+    image: twirapp/language-processor:latest
     restart: always
     ports:
-      - '3012:3012'
+      - '3012:8000'
     environment:
       - APP_ENV=development
 

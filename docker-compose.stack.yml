@@ -658,8 +658,8 @@ services:
         constraints:
           - node.labels.databases != true
 
-  language-detector:
-    image: twirapp/language-detector:latest
+  language-processor:
+    image: twirapp/language-processor:latest
     secrets:
       - twir_doppler_token
     environment:
@@ -668,7 +668,7 @@ services:
       update_config:
         parallelism: 1
       mode: replicated
-      replicas: 2
+      replicas: 4
       endpoint_mode: dnsrr
       restart_policy:
         condition: any

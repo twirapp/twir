@@ -11,7 +11,6 @@ export const useModerationAvailableLanguages = createGlobalState(() => {
 					languages {
 						name
 						iso_639_1
-						nativeName
 					}
 				}
 			}

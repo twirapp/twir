@@ -9,27 +9,29 @@ import (
 	"errors"
 	"fmt"
 
-	req "github.com/imroc/req/v3"
+	"github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
 // ModerationLanguagesAvailableLanguages is the resolver for the moderationLanguagesAvailableLanguages field.
-func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (*gqlmodel.ModerationLanguagesAvailableLanguagesOutput, error) {
+func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (
+	*gqlmodel.ModerationLanguagesAvailableLanguagesOutput,
+	error,
+) {
 	type availableLanguage struct {
-		ISO6391    string `json:"iso_639_1"`
-		Name       string `json:"name"`
-		NativeName string `json:"native_name"`
+		Iso6391 string `json:"iso_639_1"`
+		Name    string `json:"name"`
 	}
 
 	var reqUrl string
 	if r.deps.Config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-detector:3012")
+		reqUrl = fmt.Sprint("http://language-processor:3012")
 	} else {
 		reqUrl = "http://localhost:3012"
 	}
 
 	var resp []availableLanguage
-	res, err := req.R().SetSuccessResult(&resp).Get(reqUrl + "/languages")
+	res, err := req.R().SetSuccessResult(&resp).Get(reqUrl + "/detect/languages")
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +47,8 @@ func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Contex
 		gqlResp.Languages = append(
 			gqlResp.Languages,
 			gqlmodel.ModerationLanguagesAvailableLanguage{
-				Iso639_1:   lang.ISO6391,
-				Name:       lang.Name,
-				NativeName: lang.NativeName,
+				Iso639_1: lang.Iso6391,
+				Name:     lang.Name,
 			},
 		)
 	}

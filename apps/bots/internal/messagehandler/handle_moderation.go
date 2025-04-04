@@ -13,7 +13,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -390,21 +389,26 @@ func (c *MessageHandler) moderationEmotesParser(
 	return c.moderationHandleResult(ctx, msg, settings)
 }
 
-type langDetectLang struct {
-	ISO6391    string `json:"iso_639_1"`
-	Name       string `json:"name"`
-	NativeName string `json:"native_name"`
+type detectedLang struct {
+	Language    string  `json:"language"`
+	Probability float64 `json:"probability"`
 }
 
-func (c *MessageHandler) moderationDetectLanguage(text string) ([]langDetectLang, error) {
+type langDetectResult struct {
+	Text              string         `json:"text"`
+	CleanedText       string         `json:"cleaned_text"`
+	DetectedLanguages []detectedLang `json:"detected_languages"`
+}
+
+func (c *MessageHandler) moderationDetectLanguage(text string) (*langDetectResult, error) {
 	var reqUrl string
 	if c.config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-detector:3012")
+		reqUrl = fmt.Sprint("http://language-processor:8000/detect")
 	} else {
-		reqUrl = "http://localhost:3012"
+		reqUrl = "http://localhost:3012/detect"
 	}
 
-	var resp []langDetectLang
+	resp := langDetectResult{}
 	res, err := req.R().SetQueryParam("text", text).SetSuccessResult(&resp).Get(reqUrl)
 	if err != nil {
 		return nil, err
@@ -413,7 +417,7 @@ func (c *MessageHandler) moderationDetectLanguage(text string) ([]langDetectLang
 		return nil, errors.New("cannot get response")
 	}
 
-	return resp, nil
+	return &resp, nil
 }
 
 func (c *MessageHandler) moderationLanguageParser(
@@ -439,18 +443,12 @@ func (c *MessageHandler) moderationLanguageParser(
 	}
 
 	detected, err := c.moderationDetectLanguage(text)
-	if err != nil || len(detected) == 0 {
+	if err != nil || detected == nil || len(detected.DetectedLanguages) == 0 {
 		return nil
 	}
 
-	hasDeniedLanguage := lo.SomeBy(
-		detected,
-		func(item langDetectLang) bool {
-			return slices.Contains(settings.DeniedChatLanguages, item.ISO6391)
-		},
-	)
-
-	if !hasDeniedLanguage {
+	bestDetected := detected.DetectedLanguages[0]
+	if !slices.Contains(settings.DeniedChatLanguages, bestDetected.Language) {
 		return nil
 	}
 
