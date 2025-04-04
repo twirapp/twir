@@ -2,7 +2,9 @@ module github.com/twirapp/twir/libs/bus-core
 
 go 1.24.1
 
-replace github.com/satont/twir/libs/config => ../config
+replace (
+	github.com/satont/twir/libs/config => ../config
+)
 
 require (
 	github.com/google/uuid v1.6.0
