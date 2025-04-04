@@ -54,11 +54,11 @@ const filteredOptions = computed(() => {
 	)
 })
 
-const selectedLabels = computed(() => {
-	return props.options
-		.filter(option => selectedValues.value.has(option.value))
-		.map(option => option.label)
-})
+// const selectedLabels = computed(() => {
+// 	return props.options
+// 		.filter(option => selectedValues.value.has(option.value))
+// 		.map(option => option.label)
+// })
 
 function toggleOption(value: string) {
 	const newSelectedValues = new Set(selectedValues.value)
@@ -78,9 +78,9 @@ function removeOption(value: string) {
 	emit('update:modelValue', Array.from(newSelectedValues))
 }
 
-function clearOptions() {
-	emit('update:modelValue', [])
-}
+// function clearOptions() {
+// 	emit('update:modelValue', [])
+// }
 
 // Reset search when popover closes
 watch(open, (isOpen) => {
@@ -104,7 +104,7 @@ watch(open, (isOpen) => {
 			>
 				<div class="flex gap-1 flex-wrap">
 					<Badge
-						v-for="(value, i) in props.modelValue"
+						v-for="(value) in props.modelValue"
 						:key="value"
 						variant="default"
 						class="mr-1 mb-1"
