@@ -351,7 +351,7 @@ func (c *MessageHandler) moderationCapsParser(
 ) *moderationHandleResult {
 	text := msg.Message.Text
 
-	for emote, _ := range msg.ParsedEmotes {
+	for emote, _ := range msg.UsedEmotesWithThirdParty {
 		text = strings.ReplaceAll(text, emote, "")
 	}
 
@@ -378,7 +378,7 @@ func (c *MessageHandler) moderationEmotesParser(
 	}
 
 	var totalEmotesInMessage int
-	for _, count := range msg.ParsedEmotes {
+	for _, count := range msg.UsedEmotesWithThirdParty {
 		totalEmotesInMessage += count
 	}
 
@@ -426,7 +426,7 @@ func (c *MessageHandler) moderationLanguageParser(
 	msg handleMessage,
 ) *moderationHandleResult {
 	text := msg.Message.Text
-	for emote, _ := range msg.ParsedEmotes {
+	for emote, _ := range msg.UsedEmotesWithThirdParty {
 		text = strings.ReplaceAll(text, emote, "")
 	}
 

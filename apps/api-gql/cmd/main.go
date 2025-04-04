@@ -25,6 +25,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
@@ -110,6 +111,9 @@ import (
 
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallpostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
+
+	chattranslationrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
+	chattranslationpostgres "github.com/twirapp/twir/libs/repositories/chat_translation/datasource/postgres"
 
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
@@ -221,6 +225,10 @@ func main() {
 				chatwallpostgres.NewFx,
 				fx.As(new(chatwallrepository.Repository)),
 			),
+			fx.Annotate(
+				chattranslationpostgres.NewFx,
+				fx.As(new(chattranslationrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -257,6 +265,7 @@ func main() {
 			spotify_integration.New,
 			scheduled_vips.New,
 			chat_wall.New,
+			chat_translation.New,
 		),
 		// grpc clients
 		fx.Provide(

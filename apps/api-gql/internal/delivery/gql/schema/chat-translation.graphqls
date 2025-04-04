@@ -1,0 +1,37 @@
+extend type Query {
+    chatTranslation: ChatTranslation @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODULES)
+}
+
+extend type Mutation {
+    chatTranslationCreate(input: ChatTranslationCreateInput!): ChatTranslation! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+    chatTranslationUpdate(id: String!, input: ChatTranslationUpdateInput!): ChatTranslation! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+    chatTranslationDelete(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+}
+
+type ChatTranslation {
+    id: String!
+    channelID: String!
+    enabled: Boolean!
+    targetLanguage: String!
+    excludedLanguages: [String!]!
+    useItalic: Boolean!
+    excludedUsersIDs: [String!]!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+input ChatTranslationCreateInput {
+    enabled: Boolean!
+    targetLanguage: String!
+    excludedLanguages: [String!]!
+    useItalic: Boolean!
+    excludedUsersIDs: [String!]!
+}
+
+input ChatTranslationUpdateInput {
+    enabled: Boolean
+    targetLanguage: String
+    excludedLanguages: [String!]
+    useItalic: Boolean
+    excludedUsersIDs: [String!]
+}

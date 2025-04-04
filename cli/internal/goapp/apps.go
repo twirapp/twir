@@ -21,6 +21,7 @@ var Apps = []TwirGoApp{
 	{Name: "ytsr"},
 	{Name: "scheduler"},
 	{Name: "discord"},
+	{Name: "chat-translator"},
 	{
 		Name: "api-gql",
 		Port: lo.ToPtr(3009),
