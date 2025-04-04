@@ -4,10 +4,11 @@ import { computed } from 'vue'
 
 import type { FunctionalComponent } from 'vue'
 
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card'
 
 withDefaults(defineProps<{
 	title: string
+	description?: string
 	icon?: FunctionalComponent
 	iconStroke?: number
 	withStroke?: boolean
@@ -56,6 +57,10 @@ const titleColor = computed(() => themeVars.value.textColor1)
 				</h2>
 				<slot name="headerExtra" />
 			</div>
+
+			<CardDescription v-if="description">
+				{{ description }}
+			</CardDescription>
 		</CardHeader>
 
 		<CardContent :style="{ color: themeVars.textColor3 }">

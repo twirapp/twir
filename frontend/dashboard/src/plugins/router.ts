@@ -72,6 +72,11 @@ export function newRouter() {
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewTimers, noPadding: true },
 				},
 				{
+					path: '/dashboard/modules',
+					component: () => import('../features/modules/modules.vue'),
+					meta: { noPadding: true },
+				},
+				{
 					path: '/dashboard/timers/:id',
 					component: () => import('../features/timers/timers-edit.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageTimers, noPadding: true },

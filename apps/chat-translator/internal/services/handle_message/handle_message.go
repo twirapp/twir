@@ -7,7 +7,10 @@ import (
 	"log/slog"
 	"slices"
 	"strings"
+	"time"
 
+	redislimiter "github.com/aidenwallis/go-ratelimiting/redis"
+	redislimiteradapter "github.com/aidenwallis/go-ratelimiting/redis/adapters/go-redis"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
@@ -43,6 +46,7 @@ func New(opts Opts) *Service {
 		channelsRepository:             opts.ChannelsRepository,
 		channelsTranslationsRepository: opts.ChannelsTranslationsRepository,
 		channelsTranslationsCache:      opts.ChannelsTranslationsCache,
+		rateLimiter:                    redislimiter.NewSlidingWindow(redislimiteradapter.NewAdapter(opts.Redis)),
 	}
 }
 
@@ -54,6 +58,8 @@ type Service struct {
 	channelsRepository             channelsrepository.Repository
 	channelsTranslationsRepository channelschattrenslationsrepository.Repository
 	channelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]
+
+	rateLimiter redislimiter.SlidingWindow
 }
 
 func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) struct{} {
@@ -67,6 +73,21 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 	}
 
 	if msg.Message == nil || (msg.ChatterUserId == channel.BotID && c.config.AppEnv == "production") {
+		return struct{}{}
+	}
+
+	resp, err := c.rateLimiter.Use(
+		ctx, &redislimiter.SlidingWindowOptions{
+			Key:             fmt.Sprintf("chat-translator:rate_limit:%s", msg.BroadcasterUserId),
+			MaximumCapacity: 30,
+			Window:          30 * time.Second,
+		},
+	)
+	if err != nil {
+		c.logger.Error("cannot use rate limiter", slog.Any("err", err))
+		return struct{}{}
+	}
+	if !resp.Success {
 		return struct{}{}
 	}
 
