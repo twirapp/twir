@@ -9,12 +9,15 @@ import (
 	"errors"
 	"fmt"
 
-	req "github.com/imroc/req/v3"
+	"github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
 // ModerationLanguagesAvailableLanguages is the resolver for the moderationLanguagesAvailableLanguages field.
-func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (*gqlmodel.ModerationLanguagesAvailableLanguagesOutput, error) {
+func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (
+	*gqlmodel.ModerationLanguagesAvailableLanguagesOutput,
+	error,
+) {
 	type availableLanguage struct {
 		Iso6391 string `json:"iso_639_1"`
 		Name    string `json:"name"`
@@ -22,7 +25,7 @@ func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Contex
 
 	var reqUrl string
 	if r.deps.Config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-processor:3012")
+		reqUrl = fmt.Sprint("http://language-processor:8000")
 	} else {
 		reqUrl = "http://localhost:3012"
 	}
