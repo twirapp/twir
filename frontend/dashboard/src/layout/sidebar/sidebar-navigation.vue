@@ -7,6 +7,7 @@ import {
 	Blend,
 	Box,
 	ChevronRight,
+	ComponentIcon,
 	Dices,
 	GemIcon,
 	Import,
@@ -62,6 +63,7 @@ const canViewGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.View
 const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAlerts)
 const canViewGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGames)
 const canViewModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModeration)
+const canViewModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModules)
 
 const twirSidebarOpenedStates = useLocalStorage<Record<string, boolean>>('twir-sidebar-opened-states', {
 	commands: false,
@@ -80,6 +82,13 @@ const links = computed(() => {
 			name: 'Bot Settings',
 			icon: SettingsIcon,
 			path: '/dashboard/bot-settings',
+		},
+		{
+			name: 'Modules',
+			icon: ComponentIcon,
+			disabled: !canViewModules.value,
+			path: '/dashboard/modules',
+			isNew: true,
 		},
 		{
 			name: t('sidebar.integrations'),

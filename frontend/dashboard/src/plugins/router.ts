@@ -74,7 +74,7 @@ export function newRouter() {
 				{
 					path: '/dashboard/modules',
 					component: () => import('../features/modules/modules.vue'),
-					meta: { noPadding: true },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewModules, noPadding: true },
 				},
 				{
 					path: '/dashboard/timers/:id',

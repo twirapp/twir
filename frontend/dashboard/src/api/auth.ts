@@ -217,6 +217,10 @@ export const PERMISSIONS_FLAGS: Flag[] = [
 	'delimiter',
 	{ perm: ChannelRolePermissionEnum.ViewBotSettings, description: 'View bot settings' },
 	{ perm: ChannelRolePermissionEnum.ManageBotSettings, description: 'Manage bot settings' },
+
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewModules, description: 'View modules' },
+	{ perm: ChannelRolePermissionEnum.ManageModules, description: 'Manage modules' },
 ]
 
 export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {

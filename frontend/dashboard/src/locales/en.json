@@ -853,6 +853,41 @@
 			"timeoutModerators": "Enable voteban on moderators"
 		}
   },
+  "modules": {
+    "chatTranslations": {
+      "title": "Chat translations",
+      "description": "Translate chat in real time",
+      "settings": {
+        "title": "Chat Translation Settings",
+        "enabled": {
+          "label": "Enabled",
+          "description": "Enable chat translation for your channel"
+        },
+        "targetLanguage": {
+          "label": "Target Language",
+          "description": "Messages will be translated to this language",
+          "placeholder": "Select a language"
+        },
+        "excludedLanguages": {
+          "label": "Excluded Languages",
+          "description": "Messages in these languages will not be translated",
+          "placeholder": "Select languages to exclude"
+        },
+        "useItalic": {
+          "label": "Use Italic",
+          "description": "Display translated messages in italic"
+        },
+        "excludedUsers": {
+          "title": "Excluded Users",
+          "description": "Messages from these users will not be translated"
+        },
+        "buttons": {
+          "update": "Update Settings",
+          "create": "Create Settings"
+        }
+      }
+    }
+  },
   "community": {
     "title": "Community",
     "users": {

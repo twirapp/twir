@@ -1,13 +1,14 @@
+import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
-import { useMutation, useQuery } from '@urql/vue'
 
+import { useMutation } from '@/composables/use-mutation'
 import { graphql } from '@/gql/gql'
 
 const invalidationKey = 'ChatTranslation'
 
 export const useChatTranslationApi = createGlobalState(() => {
-  const useQueryChatTranslation = () => useQuery({
-    query: graphql(`
+	const useQueryChatTranslation = () => useQuery({
+		query: graphql(`
       query GetChatTranslation {
         chatTranslation {
           id
@@ -22,10 +23,10 @@ export const useChatTranslationApi = createGlobalState(() => {
         }
       }
     `),
-    context: { additionalTypenames: [invalidationKey] },
-  })
+		context: { additionalTypenames: [invalidationKey] },
+	})
 
-  const useMutationCreateChatTranslation = () => useMutation(graphql(`
+	const useMutationCreateChatTranslation = () => useMutation(graphql(`
     mutation CreateChatTranslation($input: ChatTranslationCreateInput!) {
       chatTranslationCreate(input: $input) {
         id
@@ -41,7 +42,7 @@ export const useChatTranslationApi = createGlobalState(() => {
     }
   `), [invalidationKey])
 
-  const useMutationUpdateChatTranslation = () => useMutation(graphql(`
+	const useMutationUpdateChatTranslation = () => useMutation(graphql(`
     mutation UpdateChatTranslation($id: String!, $input: ChatTranslationUpdateInput!) {
       chatTranslationUpdate(id: $id, input: $input) {
         id
@@ -57,9 +58,9 @@ export const useChatTranslationApi = createGlobalState(() => {
     }
   `), [invalidationKey])
 
-  return {
-    useQueryChatTranslation,
-    useMutationCreateChatTranslation,
-    useMutationUpdateChatTranslation,
-  }
+	return {
+		useQueryChatTranslation,
+		useMutationCreateChatTranslation,
+		useMutationUpdateChatTranslation,
+	}
 })

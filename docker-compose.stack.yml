@@ -666,7 +666,7 @@ services:
       - APP_ENV=production
     deploy:
       update_config:
-        parallelism: 1
+        parallelism: 2
       mode: replicated
       replicas: 4
       endpoint_mode: dnsrr
