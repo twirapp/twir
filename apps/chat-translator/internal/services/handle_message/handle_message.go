@@ -156,6 +156,10 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 		return struct{}{}
 	}
 
+	if res.TranslatedText[0] == msg.Message.Text {
+		return struct{}{}
+	}
+
 	var resultText strings.Builder
 	if channelTranslationSettings.UseItalic {
 		resultText.WriteString("/me ")
