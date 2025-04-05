@@ -128,6 +128,10 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 		return struct{}{}
 	}
 
+	if msgLang.DetectedLanguages[0].Language == channelTranslationSettings.TargetLanguage {
+		return struct{}{}
+	}
+
 	bestDetected := msgLang.DetectedLanguages[0]
 
 	if slices.Contains(channelTranslationSettings.ExcludedLanguages, bestDetected.Language) {
