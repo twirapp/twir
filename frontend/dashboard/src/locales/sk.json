@@ -855,7 +855,7 @@
   },
   "modules": {
     "chatTranslations": {
-      "title": "Chat translations",
+      "title": "Preklady četu",
       "description": "Translate chat in real time",
       "settings": {
         "title": "Chat Translation Settings",
