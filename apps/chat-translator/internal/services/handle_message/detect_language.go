@@ -21,7 +21,7 @@ type langDetectResult struct {
 func (c *Service) detectLanguage(ctx context.Context, text string) (*langDetectResult, error) {
 	var reqUrl string
 	if c.config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-processor:8000/detect")
+		reqUrl = fmt.Sprint("http://language-processor:3012/detect")
 	} else {
 		reqUrl = "http://localhost:3012/detect"
 	}

@@ -27,7 +27,7 @@ func (c *Service) translate(
 ) (*translateResult, error) {
 	var reqUrl string
 	if c.config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-processor:8000/translate")
+		reqUrl = fmt.Sprint("http://language-processor:3012/translate")
 	} else {
 		reqUrl = "http://localhost:3012/translate"
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/logger/audit"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	repo "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
 	"go.uber.org/fx"
@@ -21,18 +22,21 @@ type Opts struct {
 
 	ChatTranslationRepository repo.Repository
 	Logger                    logger.Logger
+	TranslationsSettingsCache *generic_cacher.GenericCacher[model.ChatTranslation]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		chatTranslationRepository: opts.ChatTranslationRepository,
 		logger:                    opts.Logger,
+		translationsSettingsCache: opts.TranslationsSettingsCache,
 	}
 }
 
 type Service struct {
 	chatTranslationRepository repo.Repository
 	logger                    logger.Logger
+	translationsSettingsCache *generic_cacher.GenericCacher[model.ChatTranslation]
 }
 
 func chatTranslationModelToEntity(m model.ChatTranslation) entity.ChatTranslation {
@@ -102,6 +106,10 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (
 		},
 	)
 
+	if err := s.translationsSettingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.ChatTranslation{}, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return chatTranslationModelToEntity(translation), nil
 }
 
@@ -161,6 +169,10 @@ func (s *Service) Update(
 		},
 	)
 
+	if err := s.translationsSettingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.ChatTranslation{}, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return chatTranslationModelToEntity(translation), nil
 }
 
@@ -195,6 +207,10 @@ func (s *Service) Delete(ctx context.Context, input DeleteInput) error {
 			ObjectID:      lo.ToPtr(oldTranslation.ID.String()),
 		},
 	)
+
+	if err := s.translationsSettingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return fmt.Errorf("failed to invalidate cache: %w", err)
+	}
 
 	return nil
 }
