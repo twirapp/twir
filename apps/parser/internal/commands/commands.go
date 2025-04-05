@@ -46,8 +46,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
-	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -223,32 +221,12 @@ func (c *Commands) FindChannelCommandInInput(
 	return &res
 }
 
-func (c *Commands) getCommandsPrefix(ctx context.Context, channelId string) (string, error) {
-	var commandsPrefix string
-	fetchedCommandsPrefix, err := c.services.CommandsPrefixCache.Get(ctx, channelId)
-	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
-		return "", err
-	}
-
-	if fetchedCommandsPrefix == channelscommandsprefixmodel.Nil {
-		commandsPrefix = "!"
-	} else {
-		commandsPrefix = fetchedCommandsPrefix.Prefix
-	}
-
-	return commandsPrefix, nil
-}
-
 func (c *Commands) ParseCommandResponses(
 	ctx context.Context,
 	command *FindByMessageResult,
 	requestData twitch.TwitchChatMessage,
 ) *busparser.CommandParseResponse {
-	commandsPrefix, err := c.getCommandsPrefix(ctx, requestData.BroadcasterUserId)
-	if err != nil {
-		c.services.Logger.Sugar().Error(err)
-		return nil
-	}
+	commandsPrefix := requestData.ChannelCommandPrefix
 
 	result := &busparser.CommandParseResponse{
 		KeepOrder: command.Cmd.KeepResponsesOrder,
@@ -472,11 +450,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	*busparser.CommandParseResponse,
 	error,
 ) {
-	commandsPrefix, err := c.getCommandsPrefix(ctx, data.BroadcasterUserId)
-	if err != nil {
-		c.services.Logger.Sugar().Error(err)
-		return nil, err
-	}
+	commandsPrefix := data.ChannelCommandPrefix
 
 	if !strings.HasPrefix(data.Message.Text, commandsPrefix) {
 		return nil, nil

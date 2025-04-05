@@ -14,7 +14,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
-	"github.com/satont/twir/apps/bots/internal/services/commands"
 	"github.com/satont/twir/apps/bots/internal/services/keywords"
 	"github.com/satont/twir/apps/bots/internal/services/tts"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
@@ -54,7 +53,6 @@ type Opts struct {
 	Bus                    *buscore.Bus
 	KeywordsService        *keywords.Service
 	GreetingsCache         *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
-	CommandService         *commands.Service
 	TTSService             *tts.Service
 	Config                 cfg.Config
 	ChatWallCacher         *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
@@ -81,7 +79,6 @@ type MessageHandler struct {
 	chatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 
 	keywordsService *keywords.Service
-	commandsService *commands.Service
 	ttsService      *tts.Service
 	config          cfg.Config
 }
@@ -105,7 +102,6 @@ func New(opts Opts) *MessageHandler {
 		greetingsRepository:    opts.GreetingsRepository,
 		chatMessagesRepository: opts.ChatMessagesRepository,
 		greetingsCache:         opts.GreetingsCache,
-		commandsService:        opts.CommandService,
 		ttsService:             opts.TTSService,
 		chatWallCacher:         opts.ChatWallCacher,
 		chatWallRepository:     opts.ChatWallRepository,

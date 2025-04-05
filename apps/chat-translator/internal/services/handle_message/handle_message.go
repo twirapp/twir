@@ -126,6 +126,10 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 
 	bestDetected := msgLang.DetectedLanguages[0]
 
+	if slices.Contains(channelTranslationSettings.ExcludedLanguages, bestDetected.Language) {
+		return struct{}{}
+	}
+
 	excludedWords := make([]string, 0, len(msg.UsedEmotesWithThirdParty))
 	for k := range msg.UsedEmotesWithThirdParty {
 		excludedWords = append(excludedWords, k)

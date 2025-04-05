@@ -9,15 +9,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/imroc/req/v3"
+	req "github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
 // ModerationLanguagesAvailableLanguages is the resolver for the moderationLanguagesAvailableLanguages field.
-func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (
-	*gqlmodel.ModerationLanguagesAvailableLanguagesOutput,
-	error,
-) {
+func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (*gqlmodel.ModerationLanguagesAvailableLanguagesOutput, error) {
 	type availableLanguage struct {
 		Iso6391 string `json:"iso_639_1"`
 		Name    string `json:"name"`

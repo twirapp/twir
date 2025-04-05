@@ -8,7 +8,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -156,36 +155,16 @@ func (c *Handler) handleChannelChatMessage(
 	}
 	data.UsedEmotesWithThirdParty = emotes
 
-	if err := c.bus.ChatMessages.Publish(data); err != nil {
-		c.logger.Error("cannot handle message", slog.Any("err", err))
-	}
-
-	channel := &model.Channels{}
-	if err := c.gorm.WithContext(ctx).Where(
-		"id = ?",
-		data.BroadcasterUserId,
-	).Find(channel).Error; err != nil {
-		c.logger.Error("cannot get channel", slog.Any("err", err))
-		return
-	}
-	if channel.ID == "" {
-		return
-	}
-	if channel.BotID == data.ChatterUserId && c.config.AppEnv == "production" {
-		return
-	}
-
-	var commandsPrefix string
-	fetchedCommandsPrefix, err := c.prefixCache.Get(ctx, data.BroadcasterUserId)
-	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+	commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, data.BroadcasterUserId)
+	if err != nil {
 		c.logger.Error("cannot get prefix", slog.Any("err", err))
 		return
 	}
 
-	if fetchedCommandsPrefix == channelscommandsprefixmodel.Nil {
-		commandsPrefix = "!"
-	} else {
-		commandsPrefix = fetchedCommandsPrefix.Prefix
+	data.ChannelCommandPrefix = commandsPrefix
+
+	if err := c.bus.ChatMessages.Publish(data); err != nil {
+		c.logger.Error("cannot handle message", slog.Any("err", err))
 	}
 
 	if strings.HasPrefix(data.Message.Text, commandsPrefix) {
@@ -279,4 +258,21 @@ func (c *Handler) chatMessageCountEmotes(
 	}
 
 	return emotes, nil
+}
+
+func (c *Handler) chatMessageGetChannelCommandPrefix(ctx context.Context, channelId string) (
+	string,
+	error,
+) {
+	commandsPrefix := "!"
+	fetchedCommandsPrefix, err := c.prefixCache.Get(ctx, channelId)
+	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+		return "", err
+	}
+
+	if fetchedCommandsPrefix != channelscommandsprefixmodel.Nil {
+		commandsPrefix = fetchedCommandsPrefix.Prefix
+	}
+
+	return commandsPrefix, nil
 }

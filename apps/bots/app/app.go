@@ -9,7 +9,6 @@ import (
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/satont/twir/apps/bots/internal/mod-task-queue"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
-	"github.com/satont/twir/apps/bots/internal/services/commands"
 	"github.com/satont/twir/apps/bots/internal/services/keywords"
 	toxicity_check "github.com/satont/twir/apps/bots/internal/services/toxicity-check"
 	"github.com/satont/twir/apps/bots/internal/services/tts"
@@ -115,7 +114,6 @@ var App = fx.Module(
 		moderationhelpers.New,
 		messagehandler.New,
 		keywords.New,
-		commands.New,
 		tts.New,
 	),
 	fx.Invoke(
