@@ -63,6 +63,10 @@ type Service struct {
 }
 
 func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) struct{} {
+	if msg.Message == nil || strings.HasPrefix(msg.Message.Text, msg.ChannelCommandPrefix) {
+		return struct{}{}
+	}
+
 	channel, err := c.getCachedChannel(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
@@ -72,7 +76,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 		return struct{}{}
 	}
 
-	if msg.Message == nil || (msg.ChatterUserId == channel.BotID && c.config.AppEnv == "production") {
+	if msg.ChatterUserId == channel.BotID && c.config.AppEnv == "production" {
 		return struct{}{}
 	}
 
