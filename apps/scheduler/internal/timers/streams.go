@@ -43,7 +43,10 @@ type streams struct {
 }
 
 func NewStreams(opts StreamOpts) {
-	timeTick := lo.If(opts.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
+	timeTick := 15 * time.Second
+	if opts.Config.AppEnv == "production" {
+		timeTick = 5 * time.Minute
+	}
 	ticker := time.NewTicker(timeTick)
 
 	ctx, cancel := context.WithCancel(context.Background())

@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/samber/lo"
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
@@ -26,7 +25,10 @@ type WatchedOpts struct {
 }
 
 func NewWatched(opts WatchedOpts) {
-	timeTick := lo.If(opts.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
+	timeTick := 15 * time.Second
+	if opts.Config.AppEnv == "production" {
+		timeTick = 5 * time.Minute
+	}
 	ticker := time.NewTicker(timeTick)
 
 	ctx, cancel := context.WithCancel(context.Background())

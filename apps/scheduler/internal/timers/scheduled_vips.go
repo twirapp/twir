@@ -27,7 +27,10 @@ type ScheduledVipsOpts struct {
 }
 
 func NewScheduledVips(opts ScheduledVipsOpts) {
-	timeTick := lo.If(opts.Config.AppEnv != "production", 15*time.Second).Else(1 * time.Minute)
+	timeTick := 15 * time.Second
+	if opts.Config.AppEnv == "production" {
+		timeTick = 5 * time.Minute
+	}
 	ticker := time.NewTicker(timeTick)
 
 	ctx, cancel := context.WithCancel(context.Background())

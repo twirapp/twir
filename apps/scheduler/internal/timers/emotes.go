@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/samber/lo"
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
@@ -27,7 +26,10 @@ type EmotesOpts struct {
 }
 
 func NewEmotes(opts EmotesOpts) {
-	timeTick := lo.If(opts.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
+	timeTick := 15 * time.Second
+	if opts.Config.AppEnv == "production" {
+		timeTick = 5 * time.Minute
+	}
 
 	channelsTicker := time.NewTicker(timeTick)
 	globalTicker := time.NewTicker(timeTick)
