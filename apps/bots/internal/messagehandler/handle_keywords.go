@@ -86,7 +86,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 		c.twitchActions.SendMessage(
 			ctx, twitchactions.SendMessageOpts{
 				BroadcasterID:        msg.BroadcasterUserId,
-				SenderID:             msg.DbChannel.BotID,
+				SenderID:             msg.EnrichedData.DbChannel.BotID,
 				Message:              response,
 				ReplyParentMessageID: lo.If(k.IsReply, msg.MessageId).Else(""),
 			},

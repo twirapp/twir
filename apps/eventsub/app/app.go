@@ -7,12 +7,15 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 
@@ -38,6 +41,10 @@ var App = fx.Options(
 			return clients.NewWebsocket(config.AppEnv)
 		},
 		fx.Annotate(
+			channelsrepositorypgx.NewFx,
+			fx.As(new(channelsrepository.Repository)),
+		),
+		fx.Annotate(
 			channelscommandsprefixpgx.NewFx,
 			fx.As(new(channelscommandsprefixrepository.Repository)),
 		),
@@ -45,6 +52,7 @@ var App = fx.Options(
 			scheduledvipsrepositorypgx.NewFx,
 			fx.As(new(scheduledvipsrepository.Repository)),
 		),
+		channelcache.New,
 		channelscommandsprefixcache.New,
 		tunnel.New,
 		manager.NewCreds,

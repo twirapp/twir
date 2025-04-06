@@ -18,8 +18,8 @@ import (
 
 func (c *MessageHandler) handleChatWall(ctx context.Context, msg handleMessage) error {
 	if msg.Message == nil ||
-		msg.ChatterUserId == msg.DbChannel.ID ||
-		msg.ChatterUserId == msg.DbChannel.BotID {
+		msg.ChatterUserId == msg.EnrichedData.DbChannel.ID ||
+		msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
 		return nil
 	}
 
@@ -97,7 +97,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg handleMessage) 
 				ctx,
 				twitchactions.DeleteMessageOpts{
 					BroadcasterID: msg.BroadcasterUserId,
-					ModeratorID:   msg.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
 					MessageID:     msg.ID,
 				},
 			); err != nil {
@@ -116,7 +116,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg handleMessage) 
 					Reason:        "banned by twir for chat wall phrase: " + wall.Phrase,
 					BroadcasterID: msg.BroadcasterUserId,
 					UserID:        msg.ChatterUserId,
-					ModeratorID:   msg.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
 				},
 			); err != nil {
 				return err
@@ -162,7 +162,9 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg handleMessage) 
 	}
 
 	if shouldInvalidate {
-		c.chatWallCacher.Invalidate(ctx, msg.BroadcasterUserId)
+		if err := c.chatWallCacher.Invalidate(ctx, msg.BroadcasterUserId); err != nil {
+			return err
+		}
 	}
 
 	return nil

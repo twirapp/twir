@@ -114,7 +114,7 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 					Reason:         message,
 					BroadcasterID:  msg.BroadcasterUserId,
 					UserID:         voteEntity.TargetUserId,
-					ModeratorID:    msg.DbChannel.BotID,
+					ModeratorID:    msg.EnrichedData.DbChannel.BotID,
 					IsModerator:    voteEntity.TargetIsMod,
 					AddModAfterBan: true,
 				},
@@ -127,7 +127,7 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 			ctx,
 			twitchactions.SendMessageOpts{
 				BroadcasterID: msg.BroadcasterUserId,
-				SenderID:      msg.DbChannel.BotID,
+				SenderID:      msg.EnrichedData.DbChannel.BotID,
 				Message:       message,
 			},
 		); err != nil {

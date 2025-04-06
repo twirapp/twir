@@ -7,11 +7,9 @@ import (
 	"reflect"
 	"runtime"
 	"sync"
-	"time"
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
-	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/services/keywords"
@@ -112,9 +110,8 @@ func New(opts Opts) *MessageHandler {
 }
 
 type handleMessage struct {
-	DbChannel *deprecatedgormmodel.Channels
-	DbStream  *deprecatedgormmodel.ChannelsStreams
-	DbUser    *deprecatedgormmodel.Users
+	DbStream *deprecatedgormmodel.ChannelsStreams
+	DbUser   *deprecatedgormmodel.Users
 	twitch.TwitchChatMessage
 }
 
@@ -160,57 +157,11 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 		},
 	)
 
-	errwg.Go(
-		func() error {
-			cacheKey := "cache:bots:channels:" + req.BroadcasterUserId
-
-			cachedData, err := c.redis.Get(ctx, cacheKey).Bytes()
-			if err != nil && !errors.Is(err, redis.Nil) {
-				return err
-			}
-
-			if len(cachedData) > 0 {
-				dbChannel := &deprecatedgormmodel.Channels{}
-				if err := json.Unmarshal(cachedData, dbChannel); err != nil {
-					return err
-				}
-				msg.DbChannel = dbChannel
-				return nil
-			}
-
-			dbChannel := &deprecatedgormmodel.Channels{}
-			if err := c.gorm.WithContext(ctx).Where(
-				"id = ?",
-				req.BroadcasterUserId,
-			).First(dbChannel).
-				Error; err != nil {
-				return err
-			}
-			msg.DbChannel = dbChannel
-
-			cacheBytes, err := json.Marshal(dbChannel)
-			if err != nil {
-				return err
-			}
-
-			if err := c.redis.Set(
-				ctx,
-				cacheKey,
-				cacheBytes,
-				5*time.Minute,
-			).Err(); err != nil {
-				return err
-			}
-
-			return nil
-		},
-	)
-
 	if err := errwg.Wait(); err != nil {
 		return err
 	}
 
-	if !msg.DbChannel.IsEnabled {
+	if !msg.EnrichedData.DbChannel.IsEnabled {
 		return nil
 	}
 
@@ -220,7 +171,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	}
 	msg.DbUser = dbUser
 
-	if req.ChatterUserId == msg.DbChannel.BotID && c.config.AppEnv == "production" {
+	if req.ChatterUserId == msg.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 		return nil
 	}
 
@@ -228,8 +179,6 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	wg.Add(len(handlersForExecute))
 
 	for _, f := range handlersForExecute {
-		f := f
-
 		go func() {
 			defer wg.Done()
 			if err := f(c, ctx, msg); err != nil {

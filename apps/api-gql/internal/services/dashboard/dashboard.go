@@ -15,9 +15,11 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/redis_keys"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -33,6 +35,7 @@ type Opts struct {
 	TokensClient       tokens.TokensClient
 	Logger             logger.Logger
 	TwirBus            *buscore.Bus
+	ChannelsCache      *generic_cacher.GenericCacher[channelmodel.Channel]
 }
 
 func New(opts Opts) *Service {
@@ -44,6 +47,7 @@ func New(opts Opts) *Service {
 		tokensClient:       opts.TokensClient,
 		logger:             opts.Logger,
 		twirBus:            opts.TwirBus,
+		channelsCache:      opts.ChannelsCache,
 	}
 }
 
@@ -55,6 +59,7 @@ type Service struct {
 	tokensClient       tokens.TokensClient
 	logger             logger.Logger
 	twirBus            *buscore.Bus
+	channelsCache      *generic_cacher.GenericCacher[channelmodel.Channel]
 }
 
 func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
@@ -379,6 +384,8 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 			return false, fmt.Errorf("cannot add channel moderator: %s", addModResp.ErrorMessage)
 		}
 	}
+
+	c.channelsCache.Invalidate(ctx, channelID)
 
 	return true, nil
 }

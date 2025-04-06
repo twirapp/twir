@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
@@ -39,6 +40,7 @@ type Handler struct {
 	tracer            trace.Tracer
 	manager           *manager.Manager
 	scheduledVipsRepo scheduledvipsrepository.Repository
+	channelsCache     *generic_cacher.GenericCacher[channelmodel.Channel]
 
 	gorm        *gorm.DB
 	redisClient *redis.Client
@@ -60,6 +62,7 @@ type Opts struct {
 	WebsocketsGrpc    websockets.WebsocketClient
 	TokensGrpc        tokens.TokensClient
 	ScheduledVipsRepo scheduledvipsrepository.Repository
+	ChannelsRepo      *generic_cacher.GenericCacher[channelmodel.Channel]
 
 	Tracer  trace.Tracer
 	Tunn    *tunnel.AppTunnel
@@ -92,6 +95,7 @@ func New(opts Opts) *Handler {
 		seventvCache:      seventv.New(opts.Redis),
 		prefixCache:       opts.PrefixCache,
 		scheduledVipsRepo: opts.ScheduledVipsRepo,
+		channelsCache:     opts.ChannelsRepo,
 	}
 
 	handler.OnNotification = myHandler.onNotification

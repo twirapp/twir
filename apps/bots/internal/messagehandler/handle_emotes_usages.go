@@ -15,7 +15,7 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 
 	var emotesForCreate []model.ChannelEmoteUsage
 
-	for key, count := range msg.UsedEmotesWithThirdParty {
+	for key, count := range msg.EnrichedData.UsedEmotesWithThirdParty {
 		for i := 0; i < count; i++ {
 			emotesForCreate = append(
 				emotesForCreate, model.ChannelEmoteUsage{

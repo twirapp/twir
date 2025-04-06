@@ -63,7 +63,10 @@ type Service struct {
 }
 
 func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) struct{} {
-	if msg.Message == nil || strings.HasPrefix(msg.Message.Text, msg.ChannelCommandPrefix) {
+	if msg.Message == nil || strings.HasPrefix(
+		msg.Message.Text,
+		msg.EnrichedData.ChannelCommandPrefix,
+	) {
 		return struct{}{}
 	}
 
@@ -114,7 +117,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 	}
 
 	textForDetect := msg.Message.Text
-	for emoteName := range msg.UsedEmotesWithThirdParty {
+	for emoteName := range msg.EnrichedData.UsedEmotesWithThirdParty {
 		textForDetect = strings.ReplaceAll(textForDetect, emoteName, "")
 	}
 
@@ -138,8 +141,8 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 		return struct{}{}
 	}
 
-	excludedWords := make([]string, 0, len(msg.UsedEmotesWithThirdParty))
-	for k := range msg.UsedEmotesWithThirdParty {
+	excludedWords := make([]string, 0, len(msg.EnrichedData.UsedEmotesWithThirdParty))
+	for k := range msg.EnrichedData.UsedEmotesWithThirdParty {
 		excludedWords = append(excludedWords, k)
 	}
 

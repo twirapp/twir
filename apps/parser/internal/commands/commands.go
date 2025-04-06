@@ -226,7 +226,7 @@ func (c *Commands) ParseCommandResponses(
 	command *FindByMessageResult,
 	requestData twitch.TwitchChatMessage,
 ) *busparser.CommandParseResponse {
-	commandsPrefix := requestData.ChannelCommandPrefix
+	commandsPrefix := requestData.EnrichedData.ChannelCommandPrefix
 
 	result := &busparser.CommandParseResponse{
 		KeepOrder: command.Cmd.KeepResponsesOrder,
@@ -450,7 +450,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	*busparser.CommandParseResponse,
 	error,
 ) {
-	commandsPrefix := data.ChannelCommandPrefix
+	commandsPrefix := data.EnrichedData.ChannelCommandPrefix
 
 	if !strings.HasPrefix(data.Message.Text, commandsPrefix) {
 		return nil, nil

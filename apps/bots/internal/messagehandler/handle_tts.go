@@ -10,7 +10,7 @@ import (
 )
 
 func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error {
-	if strings.HasPrefix(msg.Message.Text, msg.ChannelCommandPrefix) {
+	if strings.HasPrefix(msg.Message.Text, msg.EnrichedData.ChannelCommandPrefix) {
 		return nil
 	}
 
@@ -46,7 +46,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 	}
 
 	var msgText strings.Builder
-	msgText.WriteString(msg.ChannelCommandPrefix + ttsCommand.Name)
+	msgText.WriteString(msg.EnrichedData.ChannelCommandPrefix + ttsCommand.Name)
 
 	if settings.ReadChatMessagesNicknames {
 		msgText.WriteString(" " + msg.ChatterUserLogin)

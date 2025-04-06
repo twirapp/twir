@@ -52,6 +52,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
@@ -285,6 +286,7 @@ func main() {
 			auth.NewSessions,
 			minio.New,
 			twitchcache.New,
+			channelcache.New,
 			channelscommandsprefixcache.New,
 			greetingscache.New,
 			commandscache.New,

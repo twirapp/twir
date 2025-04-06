@@ -70,7 +70,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 				ctx,
 				twitchactions.DeleteMessageOpts{
 					BroadcasterID: msg.BroadcasterUserId,
-					ModeratorID:   msg.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
 					MessageID:     msg.MessageId,
 				},
 			)
@@ -86,7 +86,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			err = c.twitchActions.WarnUser(
 				ctx, twitchactions.WarnUserOpts{
 					BroadcasterID: msg.BroadcasterUserId,
-					ModeratorID:   msg.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
 					UserID:        msg.ChatterUserId,
 					Reason:        entity.WarningMessage,
 				},
@@ -106,7 +106,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 					Reason:        entity.BanMessage,
 					BroadcasterID: msg.BroadcasterUserId,
 					UserID:        msg.ChatterUserId,
-					ModeratorID:   msg.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
 				},
 			)
 
@@ -351,7 +351,7 @@ func (c *MessageHandler) moderationCapsParser(
 ) *moderationHandleResult {
 	text := msg.Message.Text
 
-	for emote, _ := range msg.UsedEmotesWithThirdParty {
+	for emote, _ := range msg.EnrichedData.UsedEmotesWithThirdParty {
 		text = strings.ReplaceAll(text, emote, "")
 	}
 
@@ -378,7 +378,7 @@ func (c *MessageHandler) moderationEmotesParser(
 	}
 
 	var totalEmotesInMessage int
-	for _, count := range msg.UsedEmotesWithThirdParty {
+	for _, count := range msg.EnrichedData.UsedEmotesWithThirdParty {
 		totalEmotesInMessage += count
 	}
 
@@ -426,7 +426,7 @@ func (c *MessageHandler) moderationLanguageParser(
 	msg handleMessage,
 ) *moderationHandleResult {
 	text := msg.Message.Text
-	for emote, _ := range msg.UsedEmotesWithThirdParty {
+	for emote, _ := range msg.EnrichedData.UsedEmotesWithThirdParty {
 		text = strings.ReplaceAll(text, emote, "")
 	}
 

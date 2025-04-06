@@ -14,6 +14,7 @@ import (
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/otel/attribute"
+	"golang.org/x/sync/errgroup"
 )
 
 func convertFragmentTypeToEnumValue(t string) twitch.FragmentType {
@@ -149,25 +150,58 @@ func (c *Handler) handleChannelChatMessage(
 		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
 	}
 
-	emotes, emotesErr := c.chatMessageCountEmotes(ctx, data)
-	if emotesErr != nil {
-		c.logger.Error("cannot count emotes", slog.Any("err", emotesErr))
-	}
-	data.UsedEmotesWithThirdParty = emotes
+	var errwg errgroup.Group
 
-	commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, data.BroadcasterUserId)
-	if err != nil {
-		c.logger.Error("cannot get prefix", slog.Any("err", err))
+	errwg.Go(
+		func() error {
+			emotes, emotesErr := c.chatMessageCountEmotes(ctx, data)
+			if emotesErr != nil {
+				c.logger.Error("cannot count emotes", slog.Any("err", emotesErr))
+			}
+			data.EnrichedData.UsedEmotesWithThirdParty = emotes
+
+			return nil
+		},
+	)
+
+	errwg.Go(
+		func() error {
+			commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, data.BroadcasterUserId)
+			if err != nil {
+				return err
+			}
+			data.EnrichedData.ChannelCommandPrefix = commandsPrefix
+
+			return nil
+		},
+	)
+
+	errwg.Go(
+		func() error {
+			channel, err := c.channelsCache.Get(ctx, data.BroadcasterUserId)
+			if err != nil {
+				return err
+			}
+			data.EnrichedData.DbChannel = channel
+
+			return nil
+		},
+	)
+
+	if err := errwg.Wait(); err != nil {
+		c.logger.Error("cannot handle message", slog.Any("err", err))
 		return
 	}
-
-	data.ChannelCommandPrefix = commandsPrefix
 
 	if err := c.bus.ChatMessages.Publish(data); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 	}
 
-	if strings.HasPrefix(data.Message.Text, commandsPrefix) {
+	isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
+	// ignore bot himself from chat commands
+	if isCommand && data.ChatterUserId == data.BroadcasterUserId && c.config.AppEnv == "production" {
+		return
+	} else if data.EnrichedData.DbChannel.IsEnabled {
 		if err := c.bus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
 			c.logger.Error("cannot process command", slog.Any("err", err))
 		}

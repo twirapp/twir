@@ -1,5 +1,9 @@
 package twitch
 
+import (
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+)
+
 type TwitchChatMessage struct {
 	Message                     *ChatMessageMessage `json:"message,omitempty"`
 	Cheer                       *ChatMessageCheer   `json:"cheer,omitempty"`
@@ -17,8 +21,13 @@ type TwitchChatMessage struct {
 	ChannelPointsCustomRewardId string              `json:"channel_points_custom_reward_id"`
 	Badges                      []ChatMessageBadge  `json:"badges,omitempty"`
 
-	UsedEmotesWithThirdParty map[string]int `json:"used_emotes_with_third_party"`
-	ChannelCommandPrefix     string         `json:"channel_command_prefix"`
+	EnrichedData ChatMessageEnrichedData `json:"enriched_data,omitempty"`
+}
+
+type ChatMessageEnrichedData struct {
+	UsedEmotesWithThirdParty map[string]int        `json:"used_emotes_with_third_party"`
+	ChannelCommandPrefix     string                `json:"channel_command_prefix"`
+	DbChannel                channelsmodel.Channel `json:"db_channel"`
 }
 
 type FragmentType int32

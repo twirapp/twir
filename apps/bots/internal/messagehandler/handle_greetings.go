@@ -37,32 +37,6 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return nil
 	}
 
-	go func() {
-		alert := model.ChannelAlert{}
-		if err := c.gorm.
-			WithContext(ctx).
-			Where(
-				"channel_id = ? AND greetings_ids && ?",
-				msg.BroadcasterUserId,
-				pq.StringArray{greeting.ID.String()},
-			).Find(&alert).Error; err != nil {
-			c.logger.Error("cannot find channel alert", slog.Any("err", err))
-			return
-		}
-
-		if alert.ID == "" {
-			return
-		}
-
-		c.websocketsGrpc.TriggerAlert(
-			ctx,
-			&websockets.TriggerAlertRequest{
-				ChannelId: msg.BroadcasterUserId,
-				AlertId:   alert.ID,
-			},
-		)
-	}()
-
 	if _, err := c.greetingsRepository.Update(
 		ctx,
 		greeting.ID,
@@ -95,7 +69,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		c.twitchActions.SendMessage(
 			ctx, twitchactions.SendMessageOpts{
 				BroadcasterID:        msg.BroadcasterUserId,
-				SenderID:             msg.DbChannel.BotID,
+				SenderID:             msg.EnrichedData.DbChannel.BotID,
 				Message:              res.Data.Text,
 				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageId).Else(""),
 			},
@@ -124,6 +98,28 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 	)
 	if err != nil {
 		return err
+	}
+
+	alert := model.ChannelAlert{}
+	if err := c.gorm.
+		WithContext(ctx).
+		Where(
+			"channel_id = ? AND greetings_ids && ?",
+			msg.BroadcasterUserId,
+			pq.StringArray{greeting.ID.String()},
+		).Find(&alert).Error; err != nil {
+		c.logger.Error("cannot find channel alert", slog.Any("err", err))
+		return err
+	}
+
+	if alert.ID != "" {
+		c.websocketsGrpc.TriggerAlert(
+			ctx,
+			&websockets.TriggerAlertRequest{
+				ChannelId: msg.BroadcasterUserId,
+				AlertId:   alert.ID,
+			},
+		)
 	}
 
 	return nil
