@@ -19,13 +19,13 @@ const { globalMappedBadges, channelMappedBadges } = useMappedBadges()
 					:key="badgeName + badgeValue"
 				>
 					<img
-						v-if="channelMappedBadges[badgeName]"
+						v-if="channelMappedBadges[badgeName]?.versions[badgeValue]"
 						:src="channelMappedBadges[badgeName]!.versions[badgeValue].image_url_4x"
 						class="badge"
 					/>
 
 					<img
-						v-if="globalMappedBadges[badgeName]"
+						v-if="globalMappedBadges[badgeName]?.versions[badgeValue]"
 						:src="globalMappedBadges[badgeName]!.versions[badgeValue].image_url_4x"
 						class="badge"
 					/>
