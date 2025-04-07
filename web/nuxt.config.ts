@@ -34,6 +34,7 @@ export default defineNuxtConfig({
 		'@vueuse/nuxt',
 		'@nuxtjs/seo',
 		gqlcodegen,
+		'@nuxtjs/fontaine',
 	],
 
 	icon: {
