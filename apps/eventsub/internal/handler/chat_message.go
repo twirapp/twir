@@ -199,7 +199,7 @@ func (c *Handler) handleChannelChatMessage(
 
 	isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
 	// ignore bot himself from chat commands
-	if isCommand && data.ChatterUserId == data.BroadcasterUserId && c.config.AppEnv == "production" {
+	if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 		return
 	} else if data.EnrichedData.DbChannel.IsEnabled {
 		if err := c.bus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
