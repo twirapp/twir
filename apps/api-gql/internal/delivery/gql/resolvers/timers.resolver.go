@@ -14,7 +14,10 @@ import (
 )
 
 // TimersCreate is the resolver for the timersCreate field.
-func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersCreate(
+	ctx context.Context,
+	opts gqlmodel.TimerCreateInput,
+) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -32,6 +35,7 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 			timers.CreateResponse{
 				Text:       response.Text,
 				IsAnnounce: response.IsAnnounce,
+				Count:      response.Count,
 			},
 		)
 	}
@@ -46,13 +50,19 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 			Responses:       responses,
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	converted := mappers.TimerEntityToGql(timer)
 	return &converted, nil
 }
 
 // TimersCreateMany is the resolver for the timersCreateMany field.
-func (r *mutationResolver) TimersCreateMany(ctx context.Context, opts []gqlmodel.TimerCreateInput) (bool, error) {
+func (r *mutationResolver) TimersCreateMany(
+	ctx context.Context,
+	opts []gqlmodel.TimerCreateInput,
+) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -94,7 +104,11 @@ func (r *mutationResolver) TimersCreateMany(ctx context.Context, opts []gqlmodel
 }
 
 // TimersUpdate is the resolver for the timersUpdate field.
-func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersUpdate(
+	ctx context.Context,
+	id uuid.UUID,
+	opts gqlmodel.TimerUpdateInput,
+) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -112,6 +126,7 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 			timers.CreateResponse{
 				Text:       response.Text,
 				IsAnnounce: response.IsAnnounce,
+				Count:      response.Count,
 			},
 		)
 	}

@@ -6,23 +6,25 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
-	"github.com/satont/twir/apps/timers/internal/repositories/timers"
 	config "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/redis_keys"
+	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
+	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
 	"go.uber.org/fx"
 )
 
 type Opts struct {
 	fx.In
 
-	TimersRepository   timers.Repository
+	TimersRepository   timersrepository.Repository
 	ChannelsRepository channels.Repository
 	StreamsRepository  streams.Repository
 	Cfg                config.Config
@@ -44,7 +46,7 @@ func New(opts Opts) *Activity {
 }
 
 type Activity struct {
-	timersRepository   timers.Repository
+	timersRepository   timersrepository.Repository
 	channelsRepository channels.Repository
 	streamsRepository  streams.Repository
 	cfg                config.Config
@@ -61,7 +63,12 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 	int,
 	error,
 ) {
-	timer, err := c.timersRepository.GetById(timerId)
+	parsedUuid, err := uuid.Parse(timerId)
+	if err != nil {
+		return 0, err
+	}
+
+	timer, err := c.timersRepository.GetByID(ctx, parsedUuid)
 	if err != nil {
 		return 0, err
 	}
@@ -110,7 +117,7 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 		return currentResponse, nil
 	}
 
-	var response timers.TimerResponse
+	var response timersmodel.Response
 	for index, r := range timer.Responses {
 		if index == currentResponse {
 			response = r
@@ -118,11 +125,11 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 		}
 	}
 
-	if response.ID == "" || response.Text == "" {
+	if response.Text == "" {
 		return currentResponse, nil
 	}
 
-	err = c.sendMessage(ctx, stream, channel.ID, response.Text, response.IsAnnounce)
+	err = c.sendMessage(ctx, stream, channel.ID, response.Text, response.IsAnnounce, response.Count)
 	if err != nil {
 		return currentResponse, err
 	}
@@ -154,6 +161,7 @@ func (c *Activity) sendMessage(
 	stream streams.Stream,
 	channelId, text string,
 	isAnnounce bool,
+	count int,
 ) error {
 	parseReq, err := c.bus.Parser.ParseVariablesInText.Request(
 		ctx,
@@ -167,17 +175,19 @@ func (c *Activity) sendMessage(
 		return err
 	}
 
-	err = c.bus.Bots.SendMessage.Publish(
-		bots.SendMessageRequest{
-			ChannelId:      channelId,
-			ChannelName:    &stream.UserLogin,
-			Message:        parseReq.Data.Text,
-			IsAnnounce:     isAnnounce,
-			SkipRateLimits: true,
-		},
-	)
-	if err != nil {
-		return err
+	for i := 0; i < count; i++ {
+		err = c.bus.Bots.SendMessage.Publish(
+			bots.SendMessageRequest{
+				ChannelId:      channelId,
+				ChannelName:    &stream.UserLogin,
+				Message:        parseReq.Data.Text,
+				IsAnnounce:     isAnnounce,
+				SkipRateLimits: true,
+			},
+		)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { BadgePlus, Ellipsis, GripVertical, Trash } from 'lucide-vue-next'
+import { BadgePlus, GripVertical, TrashIcon } from 'lucide-vue-next'
 import { FieldArray, useForm } from 'vee-validate'
 import { computed, onMounted, ref, toRaw } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
@@ -9,13 +9,7 @@ import { useRoute } from 'vue-router'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
 	FormControl,
 	FormDescription,
@@ -42,7 +36,7 @@ const { resetForm, handleSubmit, controlledValues, errors, setValues } = useForm
 	initialValues: {
 		timeInterval: 1,
 		messageInterval: 0,
-		responses: [{ text: '', isAnnounce: false }],
+		responses: [{ text: '', isAnnounce: false, count: 1 }],
 	},
 })
 
@@ -144,56 +138,55 @@ const responsesHasError = computed(() => {
 							class="flex flex-col gap-2"
 						>
 							<div v-for="(field, index) in fields" :key="`responses-text-${field.key}`">
-								<FormField v-slot="{ componentField }" :name="`responses[${index}].text`">
-									<FormItem>
-										<div class="relative flex items-center">
-											<FormControl>
-												<div class="w-full">
-													<div
-														class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle"
-													>
-														<GripVertical class="my-auto size-6" />
-													</div>
+								<Card class="relative flex items-center">
+									<div
+										class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle"
+									>
+										<GripVertical class="my-auto size-6" />
+									</div>
+									<CardContent class="pt-2 w-full">
+										<FormField v-slot="{ componentField }" :name="`responses[${index}].text`">
+											<FormItem class="flex flex-col gap-4">
+												<FormControl>
 													<VariableInput
 														input-type="textarea"
-														class="pl-6 !pr-14"
+														class="relative p-2"
 														:model-value="componentField.modelValue"
 														:min-rows="1"
 														:rows="1"
 														popoverAlign="end"
 														popoverSide="bottom"
 														@update:model-value="componentField.onChange"
-													>
-														<template #additional-buttons>
-															<DropdownMenu>
-																<DropdownMenuTrigger as-child>
-																	<button class="hover:bg-accent p-1 rounded-md">
-																		<Ellipsis class="size-4 opacity-50" />
-																	</button>
-																</DropdownMenuTrigger>
+													/>
 
-																<DropdownMenuContent :hideWhenDetached="false">
-																	<DropdownMenuCheckboxItem
-																		v-model:checked="(field.value as any).isAnnounce"
-																	>
-																		Send as announcement
-																	</DropdownMenuCheckboxItem>
-																	<DropdownMenuItem @click="remove">
-																		<div class="flex items-center gap-2">
-																			<Trash class="size-4" />
-																			Remove
-																		</div>
-																	</DropdownMenuItem>
-																</DropdownMenuContent>
-															</DropdownMenu>
-														</template>
-													</VariableInput>
-												</div>
-											</FormControl>
-										</div>
-										<FormMessage />
-									</FormItem>
-								</FormField>
+													<div class="flex flex-row flex-wrap gap-4">
+														<div class="flex flex-col gap-2">
+															<Label :for="`responses[${index}].count`">
+																How many times send this message on trigger
+															</Label>
+
+															<Input :id="`responses[${index}].count`" v-model:modelValue="(field.value as any).count" type="number" />
+														</div>
+
+														<div class="flex flex-col gap-2">
+															<Label :for="`responses[${index}].isAnnounce`">
+																Send as announcement
+															</Label>
+															<Checkbox :id="`responses[${index}].isAnnounce`" v-model:checked="(field.value as any).isAnnounce" />
+														</div>
+													</div>
+
+													<Button variant="outline" class="flex gap-2 place-self-end" @click="remove(index)">
+														<TrashIcon class="size-4" />
+														Remove
+													</Button>
+												</FormControl>
+
+												<FormMessage />
+											</FormItem>
+										</FormField>
+									</CardContent>
+								</Card>
 							</div>
 						</VueDraggable>
 						<Button
@@ -202,7 +195,7 @@ const responsesHasError = computed(() => {
 							size="sm"
 							class="text-xs w-full flex gap-2 items-center mt-2"
 							:disabled="(controlledValues.responses?.length ?? 0) >= 10"
-							@click="push({ text: '', isAnnounce: false })"
+							@click="push({ text: '', isAnnounce: false, count: 1 })"
 						>
 							<BadgePlus class="size-4" />
 							Add response {{ controlledValues.responses?.length ?? 0 }} / 10

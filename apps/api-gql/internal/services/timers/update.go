@@ -37,11 +37,17 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Timer, e
 
 	responses := make([]timersrepository.CreateResponse, 0, len(data.Responses))
 	for _, response := range data.Responses {
+		count := response.Count
+		if count == 0 {
+			count = 1
+		}
+
 		responses = append(
 			responses,
 			timersrepository.CreateResponse{
 				Text:       response.Text,
 				IsAnnounce: response.IsAnnounce,
+				Count:      count,
 			},
 		)
 	}

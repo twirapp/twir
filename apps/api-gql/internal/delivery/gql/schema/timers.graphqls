@@ -22,6 +22,7 @@ type TimerResponse {
 	id: UUID!
 	text: String!
 	isAnnounce: Boolean!
+	count: Int!
 }
 
 input TimerCreateInput {
@@ -35,6 +36,7 @@ input TimerCreateInput {
 input TimerResponseCreateInput {
 	text: String! @validate(constraint: "max=500")
 	isAnnounce: Boolean!
+	count: Int! = 1 @validate(constraint: "min=1,max=20")
 }
 
 input TimerUpdateInput {
@@ -48,4 +50,5 @@ input TimerUpdateInput {
 input TimerResponseUpdateInput {
 	text: String! @validate(constraint: "max=500")
 	isAnnounce: Boolean!
+	count: Int! = 1 @validate(constraint: "min=1,max=20")
 }

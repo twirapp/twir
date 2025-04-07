@@ -28,6 +28,7 @@ type CreateInput struct {
 type CreateResponse struct {
 	Text       string
 	IsAnnounce bool
+	Count      int
 }
 
 type UpdateInput struct {

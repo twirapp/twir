@@ -20,6 +20,7 @@ type Response struct {
 	Text       string
 	IsAnnounce bool
 	TimerID    uuid.UUID
+	Count      int
 }
 
 var Nil = Timer{}

@@ -5,7 +5,6 @@ import (
 	bus_listener "github.com/satont/twir/apps/timers/internal/bus-listener"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
-	"github.com/satont/twir/apps/timers/internal/repositories/timers"
 	"github.com/satont/twir/apps/timers/internal/worker"
 	"github.com/satont/twir/apps/timers/internal/workflow"
 	cfg "github.com/satont/twir/libs/config"
@@ -13,6 +12,8 @@ import (
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
+	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -21,7 +22,10 @@ var App = fx.Module(
 	"timers",
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "timers"}),
 	fx.Provide(
-		timers.NewGorm,
+		fx.Annotate(
+			timersrepositorypgx.NewFx,
+			fx.As(new(timersrepository.Repository)),
+		),
 		activity.New,
 		workflow.New,
 		channels.NewGorm,

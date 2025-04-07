@@ -54,6 +54,7 @@ func (c *Service) dbToModel(m timersmodel.Timer) entity.Timer {
 				ID:         r.ID,
 				Text:       r.Text,
 				IsAnnounce: r.IsAnnounce,
+				Count:      r.Count,
 			},
 		)
 	}

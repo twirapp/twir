@@ -15,6 +15,7 @@ func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
 				ID:         r.ID,
 				Text:       r.Text,
 				IsAnnounce: r.IsAnnounce,
+				Count:      r.Count,
 			},
 		)
 	}

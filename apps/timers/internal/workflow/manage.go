@@ -4,25 +4,31 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/satont/twir/apps/timers/internal/shared"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/temporal"
 )
 
 func (c *Workflow) AddTimer(ctx context.Context, timerId string) error {
-	timer, err := c.timersRepository.GetById(timerId)
+	parsedUuid, err := uuid.Parse(timerId)
 	if err != nil {
 		return err
 	}
 
-	scheduleID := timer.ID
-	workflowID := "timers-" + timer.ID
+	timer, err := c.timersRepository.GetByID(ctx, parsedUuid)
+	if err != nil {
+		return err
+	}
+
+	scheduleID := timer.ID.String()
+	workflowID := "timers-" + timer.ID.String()
 
 	var every time.Duration
 	if c.config.AppEnv == "development" {
-		every = time.Duration(timer.Interval) * time.Second
+		every = time.Duration(timer.TimeInterval) * time.Second
 	} else {
-		every = time.Duration(timer.Interval) * time.Minute
+		every = time.Duration(timer.TimeInterval) * time.Minute
 	}
 
 	_, err = c.cl.ScheduleClient().Create(

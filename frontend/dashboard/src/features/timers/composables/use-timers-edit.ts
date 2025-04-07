@@ -13,8 +13,9 @@ export const formSchema = object({
 	messageInterval: number().int().min(0).max(5000).default(0),
 	responses: array(
 		object({
-			text: string().min(1).max(500),
+			text: string().min(1).max(1000),
 			isAnnounce: boolean(),
+			count: number().int().min(1).max(20).default(1),
 		}),
 	).min(1),
 	enabled: boolean().default(true),

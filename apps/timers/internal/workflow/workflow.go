@@ -6,11 +6,12 @@ import (
 	"github.com/satont/twir/apps/timers/internal/activity"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
-	"github.com/satont/twir/apps/timers/internal/repositories/timers"
 	"github.com/satont/twir/apps/timers/internal/shared"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
+	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
@@ -26,7 +27,7 @@ type Opts struct {
 	Logger logger.Logger
 	Cfg    cfg.Config
 
-	TimersRepository   timers.Repository
+	TimersRepository   timersrepository.Repository
 	ChannelsRepository channels.Repository
 	StreamsRepository  streams.Repository
 
@@ -65,7 +66,7 @@ type Workflow struct {
 	db     *gorm.DB
 	cl     client.Client
 
-	timersRepository   timers.Repository
+	timersRepository   timersrepository.Repository
 	channelsRepository channels.Repository
 	streamsRepository  streams.Repository
 
@@ -73,7 +74,7 @@ type Workflow struct {
 	activity   *activity.Activity
 }
 
-func (c *Workflow) Flow(ctx workflow.Context, timer timers.Timer) error {
+func (c *Workflow) Flow(ctx workflow.Context, timer timersmodel.Timer) error {
 	options := workflow.ActivityOptions{
 		StartToCloseTimeout: time.Second * 5,
 		HeartbeatTimeout:    time.Second * 10,

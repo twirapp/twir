@@ -42,7 +42,7 @@ type Pgx struct {
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Timer, error) {
 	query := `
 SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
-			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id
+			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
 WHERE
@@ -62,6 +62,7 @@ ORDER BY t.id;
 			responseID, responseTimerID sql.Null[uuid.UUID]
 			responseText                sql.Null[string]
 			responseIsAnnounce          sql.Null[bool]
+			responseCount               sql.Null[int]
 		)
 
 		if err := rows.Scan(
@@ -76,6 +77,7 @@ ORDER BY t.id;
 			&responseText,
 			&responseIsAnnounce,
 			&responseTimerID,
+			&responseCount,
 		); err != nil {
 			return model.Nil, err
 		}
@@ -87,6 +89,7 @@ ORDER BY t.id;
 					Text:       responseText.V,
 					IsAnnounce: responseIsAnnounce.V,
 					TimerID:    responseTimerID.V,
+					Count:      responseCount.V,
 				},
 			)
 		}
@@ -114,9 +117,9 @@ VALUES ($1, $2, $3, $4, $5)
 RETURNING "id", "channelId", "name", "enabled", "timeInterval", "messageInterval"
 `
 	createResponseQuery := `
-INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId")
-VALUES ($1, $2, $3, $4)
-RETURNING "id", "text", "isAnnounce", "timerId"
+INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING "id", "text", "isAnnounce", "timerId", count
 `
 	tx, err := c.pool.Begin(ctx)
 	if err != nil {
@@ -156,11 +159,13 @@ RETURNING "id", "text", "isAnnounce", "timerId"
 			r.Text,
 			r.IsAnnounce,
 			newTimer.ID,
+			r.Count,
 		).Scan(
 			&newResponse.ID,
 			&newResponse.Text,
 			&newResponse.IsAnnounce,
 			&newResponse.TimerID,
+			&newResponse.Count,
 		); err != nil {
 			return model.Nil, err
 		}
@@ -177,7 +182,7 @@ RETURNING "id", "text", "isAnnounce", "timerId"
 func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Timer, error) {
 	query := `
 SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
-			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id
+			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
 WHERE t."channelId" = $1
@@ -197,6 +202,7 @@ ORDER BY t."id";
 			responseID, responseTimerID sql.Null[uuid.UUID]
 			responseText                sql.Null[string]
 			responseIsAnnounce          sql.Null[bool]
+			responseCount               sql.Null[int]
 		)
 
 		if err := rows.Scan(
@@ -211,6 +217,7 @@ ORDER BY t."id";
 			&responseText,
 			&responseIsAnnounce,
 			&responseTimerID,
+			&responseCount,
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan row: %v, %w", timer.ID, err)
 		}
@@ -225,6 +232,7 @@ ORDER BY t."id";
 					Text:       responseText.V,
 					IsAnnounce: responseIsAnnounce.V,
 					TimerID:    responseTimerID.V,
+					Count:      responseCount.V,
 				},
 			)
 		}
@@ -295,11 +303,12 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 		for _, r := range data.Responses {
 			_, err := tx.Exec(
 				ctx,
-				`INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId") VALUES ($1, $2, $3, $4)`,
+				`INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count) VALUES ($1, $2, $3, $4, $5)`,
 				uuid.New(),
 				r.Text,
 				r.IsAnnounce,
 				id,
+				r.Count,
 			)
 			if err != nil {
 				return model.Nil, err

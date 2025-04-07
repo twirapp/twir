@@ -60,7 +60,7 @@ services:
     image: twirapp/language-processor:latest
     restart: always
     ports:
-      - '3012:8000'
+      - '3012:3012'
     environment:
       - APP_ENV=development
 

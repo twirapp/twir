@@ -26,6 +26,7 @@ export const useTimersApi = createGlobalState(() => {
 					responses {
 						text
 						isAnnounce
+						count
 					}
 				}
 			}
