@@ -20,7 +20,8 @@
     "send": "Відправити",
     "next": "Далі",
     "previous": "Назад",
-    "reset": "Скинути"
+    "reset": "Скинути",
+    "popout": "Відкрити у новому вікні"
   },
   "sharedTexts": {
     "saved": "Збережено",
@@ -35,7 +36,7 @@
       "text": "Бот надсилатиме команди відповіді як відповідь"
     },
     "response": "Відповідь",
-    "user": "User",
+    "user": "Користувач",
     "userName": "Ім’я користувача",
     "dangerZone": "Небезпечна зона",
     "deleted": "Видалено",
@@ -43,20 +44,23 @@
     "disabled": "Вимкнено",
     "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?",
     "placeCursorMessage": "Помістіть курсор після \"$\", щоб змінити змінну",
-    "pagination": "{page} page(s) / {total} item(s)",
-    "paginationPerPage": "Per page",
+    "pagination": "{page} сторінок / {total} елементів",
+    "paginationPerPage": "К-ть записів",
     "searchPlaceholder": "Найти",
-    "messages": "Messages",
-    "asc": "Asc",
-    "desc": "Desc",
-    "hide": "Hide",
-    "view": "View",
-    "toggleColumns": "Toggle columns",
-    "copied": "Copied",
-    "userSelected": "{count} users selected",
-    "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found",
-    "settings": "Settings"
+    "messages": "Повідомлення",
+    "asc": "За зростанням",
+    "desc": "За спаданням",
+    "hide": "Сховати",
+    "view": "Вигляд",
+    "toggleColumns": "Відображення колонок",
+    "copied": "Скопійовано",
+    "userSelected": "{count} користувачів обрано",
+    "userSelectPlaceholder": "Виберіть користувача|Виберіть користувачів",
+    "userNotFound": "Користувачів не знайдено",
+    "settings": "Налаштування",
+    "create": "Створити",
+    "edit": "Редагувати",
+    "noData": "Дані відсутні"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -80,13 +84,15 @@
     "games": "Ігри",
     "users": "Глядачі",
     "moderation": "Модерація",
-    "import": "Імпортувати",
-    "community": "Community"
-  },
-  "navbar": {
-    "logout": "Вийти",
     "publicPage": "Публічна сторінка",
-    "seeAll": "Показати всі"
+    "import": "Імпортувати",
+    "community": "Спільнота",
+    "logout": "Вийти",
+    "loggedAs": "Авторизований як",
+    "lang": "Мова",
+    "darkTheme": "Темна тема",
+    "lightTheme": "Світла тема",
+    "notifications": "Сповіщення"
   },
   "deleteConfirmation": {
     "text": "Ви впевнені, що хочете видалити це?",
@@ -94,8 +100,8 @@
     "confirm": "Підтвердити"
   },
   "haveNoAccess": {
-    "title": "No access",
-    "description": "You are not authorized to this, ask the broadcaster to provide it."
+    "title": "Немає доступу",
+    "description": "У вас немає прав, зверніться до стримера за доступом."
   },
   "pageNotFound": {
     "title": "404 Сторінка не знайдена",
@@ -126,10 +132,19 @@
         }
       },
       "aliases": {
-        "label": "Псевдоніми"
+        "label": "Додаткові назви"
       },
       "gameCategories": {
         "label": "Увімкнути команду лише в певних категоріях (залиште порожнім для вимкнення)"
+      },
+      "expiration": {
+        "label": "Термін дії",
+        "actionsLabel": "Дія на закінчення терміну дії",
+        "defaultWarning": "Термін дії не можна встановити для команди за замовчуванням",
+        "actions": {
+          "delete": "Команда буде видалена",
+          "disable": "Команда буде вимкнута"
+        }
       },
       "description": {
         "label": "Опис команди"
@@ -148,7 +163,9 @@
         "name": "Ролі",
         "placeholder": "Оберіть ролі, які матимуть дозволи на використання команд",
         "deniedUsers": "Користувачі, які не можуть використовувати цю команду.",
-        "allowedUsers": "Користувачі, які можуть обійти обмеження ролей для цієї команди."
+        "allowedUsers": "Користувачі, які можуть обійти обмеження ролей для цієї команди.",
+        "exceptions": "Винятки",
+        "blocked": "Заблоковані користувачі"
       },
       "restrictions": {
         "name": "Обмеження за статистикою",
@@ -230,6 +247,45 @@
       },
       "bot": {
         "title": "Керування ботом та інформація"
+      },
+      "audit-logs": {
+        "title": "Журнал аудиту",
+        "search-label": "Пошук по",
+        "search": {
+          "channel": "Канал",
+          "actor": "Ініціатор"
+        },
+        "operation-type-label": "Тип операції",
+        "operation-type": {
+          "create": "Створена",
+          "delete": "Видалено",
+          "update": "Відредаговано"
+        },
+        "systems-label": "Системі",
+        "systems": {
+          "badge": "Бейдж",
+          "badge-user": "Бейдж користувача",
+          "channel-command": "Команда",
+          "channel-command-group": "Група команди",
+          "channel-variable": "Змінна",
+          "channel-games-eight-ball": "8ball",
+          "channel-games-duel": "Дуель",
+          "channel-games-russian-roulette": "Російська рулетка",
+          "channel-games-seppuku": "Сеппуку",
+          "channel-games-voteban": "Проголосувати",
+          "channel-greeting": "Привітання",
+          "channel-keyword": "Ключове слово",
+          "channel-moderation-setting": "Налаштування модерації",
+          "channel-overlay-chat": "Оверлей чату",
+          "channel-overlay-dudes": "Оверлей Dudes",
+          "channel-overlay-now-playing": "Оверлей поточної пісні",
+          "channel-roles": "Роль",
+          "channel-timers": "Лічильник",
+          "channel-song-requests": "Запити на пісні",
+          "channel-integrations": "Інтеграція",
+          "channel-alerts": "Сповіщення",
+          "channel-chat-alerts": "Сповіщення чату"
+        }
       }
     }
   },
@@ -273,7 +329,7 @@
     },
     "sevenTv": {
       "description": "Ми можемо керувати емодзі 7tv каналів, коли ця інтеграція увімкнена.",
-      "alert": "Ви також можете зробити розширений потік через систему {0} для управління 7tv смайлами.",
+      "alert": "Ви також можете зробити розширений потік через систему {0} для управління 7tv емоціями.",
       "connected": "Під’єднано",
       "notConnected": "Не під’єднано",
       "notRegistered": "Ви не зареєстровані на {0}",
@@ -592,7 +648,7 @@
       "deniedUsers": "Користувачі, які не можуть замовляти пісні",
       "deniedSongs": "Заблоковані для замовлення пісні",
       "takeSongFromDonationMessage": "Бере посилання пісні з донат повідомлень?",
-      "confirmClearQueue": "Are you sure you want to clear the queue?",
+      "confirmClearQueue": "Ви впевнені, що хочете очистити чергу?",
       "users": {
         "maxRequests": "Максимальна кількість замовлень для користувача",
         "minimalWatchTime": "Мінімальний час перегляду для замовлення пісні (у хвилинах)",
@@ -610,7 +666,7 @@
       "general": "Загальні",
       "users": "Налаштування користувачів",
       "songs": "Звукові налаштування",
-      "translations": "Translations"
+      "translations": "Переклади"
     },
     "ban": {
       "user": "Заблокувати користувача",
@@ -622,8 +678,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Інтервал (у хвилинах)",
-        "intervalInMessages": "Інтервал у повідомленнях (встановіть 0, щоб вимкнути)"
+        "intervalInMinutes": "Інтервал в хвилинах",
+        "intervalInMessages": "Інтервал рядка чату"
       }
     },
     "modal": {
@@ -636,7 +692,7 @@
       }
     },
     "limitExceeded": "Ліміт перевищено!",
-    "newTimer": "New timer"
+    "newTimer": "Новий таймер"
   },
   "roles": {
     "modal": {
@@ -654,9 +710,9 @@
   "keywords": {
     "title": "Ключові слова",
     "info": {
-      "text": "Keywords helps you to trigger chat message on certain words matching."
+      "text": "Ключові слова допоможуть вам запускати повідомлення в чаті на певних словах співпадіння."
     },
-    "create": "Create keyword",
+    "create": "Створити ключове слово",
     "triggerText": "Текст тригеру",
     "usages": "Кількість використань",
     "isRegular": "Є регулярним виразом?",
@@ -681,8 +737,8 @@
   },
   "greetings": {
     "title": "Привітання",
-    "create": "Create greeting",
-    "edit": "Edit greeting",
+    "create": "Створити привітання",
+    "edit": "Редагувати привітання",
     "info": {
       "title": "Інформація про привітання",
       "text": "Привітання - це той тип повідомлень, які використовує бот, щоб привітати відомих глядачів трансляції, коли вони надсилають своє перше повідомлення в чаті. Якщо ви бажаєте вітати кожного користувача у чаті, ви можете подивитися на категорію подій замість категорії привітань."
@@ -696,10 +752,10 @@
     "title": "Сповіщення",
     "info": "Інформація про сповіщення",
     "overlayLabel": "Сповіщення - це графічна частина реалізації команди або події. Ви можете налаштувати сповіщення із заданим звуком, зображенням і текстом, а потім призначити його певній команді, події, ключовому слову або привітанню. Також не забудьте вставити URL-адресу накладання як джерело браузера у вашу сцену додатку для трансляцій! (наприклад, OBS, XSplit тощо)",
-    "copyOverlayLink": "Copy overlay link",
+    "copyOverlayLink": "Скопіювати посилання на оверлей",
     "name": "Назва",
-    "rewards": "Rewards",
-    "commands": "Commands",
+    "rewards": "Винагороди",
+    "commands": "Команди",
     "validations": {
       "name": "Назва не може бути порожньою і містити понад 30 символів!"
     },
@@ -710,14 +766,14 @@
       "greetings": "Привітання для тригера"
     },
     "select": {
-      "audio": "Confugure an audio",
-      "image": "Configure an image",
-      "text": "Configure text"
+      "audio": "Налаштувати аудіо",
+      "image": "Налаштувати зображення",
+      "text": "Налаштувати текст"
     },
-    "audioVolume": "Audio volume",
-    "createAlert": "Create alert",
-    "editAlert": "Edit alert",
-    "tableEmpty": "No alerts found"
+    "audioVolume": "Гучність аудіо",
+    "createAlert": "Створити сповіщення",
+    "editAlert": "Редагувати сповіщення",
+    "tableEmpty": "Сповіщення відсутні"
   },
   "games": {
     "command": "Команда",
@@ -775,69 +831,104 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-      "message": "Message",
-      "timeoutModerators": "Enable seppuku for moderators",
-      "messageModerators": "Message when moderator used seppuku",
-      "timeoutSeconds": "Timeout seconds"
+      "description": "Сеппуку – це форма японського ритуального самогубства шляхом невдоволення.",
+      "message": "Повідомлення",
+      "timeoutModerators": "Увімкнути Сеппуку для модераторів",
+      "messageModerators": "Повідомлення, якщо модератор використав Сеппуку",
+      "timeoutSeconds": "Тайм-аут в секундах"
     },
     "voteban": {
-      "description": "Commence jury trial of the guilty chatterer!",
-      "banMessage": "Message on ban",
-      "banMessageModerators": "Message for ban moderator",
-      "surviveMessage": "Survive message",
-      "surviveMessageModerators": "Survive message for moderators",
-      "initialMessage": "Init message",
-      "neededVotes": "Needed votes",
-      "banDuration": "Duration of ban",
-      "voteMode": "Mode of vote",
-      "voteDuration": "Duration of vote in seconds",
-      "wordsNegative": "Words for vote to \"no\" option",
-      "wordsPositive": "Words for vote to \"yes\" option",
-      "timeoutModerators": "Enable voteban on moderators"
+      "description": "Перейти до суду над винним учасником чату!",
+      "banMessage": "Повідомлення у випадку блокування",
+      "banMessageModerators": "Повідомлення для блокування модератора",
+      "surviveMessage": "Повідомлення у випадку виживання",
+      "surviveMessageModerators": "Повідомлення у випадку виживання для модераторів",
+      "initialMessage": "Початкове повідомлення",
+      "neededVotes": "Потрібно голосів",
+      "banDuration": "Тривалість блокування",
+      "voteMode": "Спосіб голосування",
+      "voteDuration": "Тривалість голосування в секундах",
+      "wordsNegative": "Слова за голосування в опції \"ні\"",
+      "wordsPositive": "Слова за голосування в опції \"так\"",
+      "timeoutModerators": "Можливість заблокувати модератора"
+    }
+  },
+  "modules": {
+    "chatTranslations": {
+      "title": "Переклад чату",
+      "description": "Перекладайте чат у реальному часі",
+      "settings": {
+        "title": "Налаштування перекладу чата",
+        "enabled": {
+          "label": "Увімкнено",
+          "description": "Увімкніть переклад чату для вашого каналу"
+        },
+        "targetLanguage": {
+          "label": "Мова перекладу",
+          "description": "Повідомлення будуть перекладені на цю мову",
+          "placeholder": "Обрати мову"
+        },
+        "excludedLanguages": {
+          "label": "Вийняткові мови",
+          "description": "Повідомлення цими мовами не будуть перекладені",
+          "placeholder": "Оберіть вийняткові мови"
+        },
+        "useItalic": {
+          "label": "Використовувати курсив",
+          "description": "Показувати перекладені повідомлення курсивом"
+        },
+        "excludedUsers": {
+          "title": "Вийняткові користувачі",
+          "description": "Повідомлення від цих користувачів не будуть перекладені"
+        },
+        "buttons": {
+          "update": "Оновити налаштування",
+          "create": "Створити налаштування"
+        }
+      }
     }
   },
   "community": {
-    "title": "Community",
+    "title": "Спільнота",
     "users": {
-      "title": "Users",
-      "searchPlaceholder": "Search users...",
+      "title": "Користувачі",
+      "searchPlaceholder": "Пошук користувачів...",
       "table": {
         "user": "Користувач",
         "watchedTime": "Час перегляду",
         "messages": "Повідомлення",
         "usedEmotes": "Використано емодзі",
         "usedChannelPoints": "Використані бали каналу",
-        "empty": "No users"
+        "empty": "Немає користувачів"
       },
       "total": "Всього {total} користувачів",
       "reset": {
-        "label": "Reset",
+        "label": "Скинути",
         "resetQuestion": "Ви впевнені, що хочете скинути значення {title}?"
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
-      "searchPlaceholder": "Search emotes...",
+      "title": "Статистика емоцій",
+      "searchPlaceholder": "Пошук емоцій...",
       "table": {
-        "emote": "Emote",
-        "usages": "Total usages",
-        "users": "Users",
-        "empty": "No emotes",
-        "chart": "Usages chart",
-        "lastDay": "Day",
-        "lastWeek": "Week",
-        "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
-        "lastYear": "Year"
+        "emote": "Емоція",
+        "usages": "Загальне використання",
+        "users": "Користувачі",
+        "empty": "Статистика емоцій відсутня",
+        "chart": "Графік використання",
+        "lastDay": "День",
+        "lastWeek": "Тиждень",
+        "lastMonth": "Місяць",
+        "lastThreeMonth": "3 місяці",
+        "lastYear": "Рік"
       },
-      "total": "Total emotes: {total}",
+      "total": "Всього емоцій: {total}",
       "details": {
-        "stats": "Stats",
-        "users": "Users",
+        "stats": "Статистика",
+        "users": "Користувачі",
         "usersTabs": {
-          "top": "Top",
-          "history": "History"
+          "top": "Топ",
+          "history": "Історія"
         }
       }
     }
@@ -879,7 +970,7 @@
     "ban": {
       "alertInfo": "Встановіть час на 0, щоб виводити повідомлення в разі перманентного блокування<br>",
       "countLabel": "Час (у хвилинах)",
-      "ignoreTimeoutFrom": "Ignore timeouts from"
+      "ignoreTimeoutFrom": "Ігнорувати тайм-аути від"
     },
     "labels": {
       "followers": "Фоловери",
@@ -894,7 +985,7 @@
       "userBanned": "Заблокувати користувача",
       "channelUnbanRequestCreate": "Запит на зняття блокування створений",
       "channelUnbanRequestResolve": "Запит на зняття блокування вирішений",
-      "messageDelete": "Message Deleted"
+      "messageDelete": "Повідомлення видалено"
     }
   },
   "moderation": {
@@ -936,7 +1027,7 @@
       },
       "emotes": {
         "name": "Емодзі",
-        "description": "Виявляє частоту та кількість смайликів, які використовуються в повідомленнях, уникаючи їх надмірного використання та спаму.",
+        "description": "Виявляє частоту та кількість емоцій, які використовуються в повідомленнях, уникаючи їх надмірного використання та спаму.",
         "triggerLength": "Максимальна кількість використання емодзі"
       },
       "language": {
@@ -980,71 +1071,74 @@
     }
   },
   "adminPanel": {
-    "title": "Admin Panel",
+    "title": "Панель адміністратора",
     "notifications": {
-      "title": "Notifications",
-      "formTitle": "Send or edit notification",
-      "emptyNotifications": "No notifications",
-      "userLabel": "User",
-      "userPlaceholder": "Select a user",
-      "messageLabel": "Message",
-      "messagePreview": "Preview",
-      "createdAt": "Created At",
-      "globals": "Globals",
-      "users": "Users",
-      "confirmResetForm": "Are you sure you want to reset the form?"
+      "title": "Сповіщення",
+      "formTitle": "Надіслати або відредагувати сповіщення",
+      "emptyNotifications": "Немає сповіщень",
+      "userLabel": "Користувач",
+      "userPlaceholder": "Виберіть користувача",
+      "messageLabel": "Повідомлення",
+      "messagePreview": "Попередній перегляд",
+      "createdAt": "Створено",
+      "globals": "Глобальні",
+      "users": "Користувачі",
+      "confirmResetForm": "Ви впевнені, що бажаєте скинути форму?"
     },
     "manageUsers": {
-      "title": "Users",
-      "user": "User",
-      "userId": "User ID",
-      "followers": "Followers",
-      "noUsers": "No users",
-      "filters": "Filters",
-      "clearFilters": "Clear filters",
-      "countSelected": "{count} selected",
-      "isAdmin": "Admin",
-      "isBanned": "Banned",
-      "isBotEnabled": "Bot enabled",
-      "statusGroup": "Status",
-      "badgesGroup": "Badges",
-      "giveBan": "Ban user",
-      "unBan": "Unban user",
-      "giveMod": "Give admin",
-      "unMod": "Remove admin",
-      "dropSession": "Drop session"
+      "title": "Користувачі",
+      "user": "Користувач",
+      "userId": "ID користувача",
+      "followers": "Підписники",
+      "noUsers": "Немає користувачів",
+      "filters": "Фільтри",
+      "clearFilters": "Очистити фільтри",
+      "countSelected": "Обрано {count}",
+      "isAdmin": "Адмін",
+      "isBanned": "Заблокований",
+      "isBotEnabled": "Бот увімкнений",
+      "statusGroup": "Статус",
+      "badgesGroup": "Бейджи",
+      "giveBan": "Заблокувати користувача",
+      "unBan": "Розблокувати користувача",
+      "giveMod": "Надати адміністратора",
+      "unMod": "Видалити адміністратора",
+      "dropSession": "Видалити сесію"
     },
     "manageBadges": {
-      "title": "Badges",
-      "formTitle": "Create or edit badge",
-      "name": "Name",
-      "users": "Users",
-      "slot": "Slot",
-      "image": "Image",
-      "preview": "Preview",
-      "usesCount": "Uses {count}",
-      "badgeSlot": "Slot {slot}"
+      "title": "Бейджи",
+      "formTitle": "Створити або редагувати бейдж",
+      "name": "Назва",
+      "users": "Користувачі",
+      "slot": "Слот",
+      "image": "Зображення",
+      "preview": "Попередній перегляд",
+      "usesCount": "{count} використано",
+      "badgeSlot": "Слот {slot}"
     },
     "adminActions": {
-      "title": "Actions",
+      "title": "Дії",
       "eventsub": {
-        "title": "Subscribe to EventSub",
-        "condition": "Condition",
-        "type": "Type",
-        "typeError": "Please select a type",
-        "version": "Version",
-        "user": "User",
-        "channel": "Channel",
-        "channelWithBotId": "Channel with bot ID",
-        "channelWithModeratorId": "Channel with moderator ID"
+        "title": "Підписатися на EventSub",
+        "condition": "Умова",
+        "type": "Тип",
+        "typeError": "Будь ласка, оберіть тип",
+        "version": "Версія",
+        "user": "Користувач",
+        "channel": "Канал",
+        "channelWithBotId": "Канал з ID бота",
+        "channelWithModeratorId": "Канал з ID модератора"
       },
       "dangerZone": {
-        "title": "Danger Zone",
-        "revoke": "Revoke",
-        "revokeSessions": "Revoke sessions",
-        "revokeAllSessionsDescription": "All user sessions will be revoked",
-        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+        "title": "Небезпечна зона",
+        "revoke": "Скасувати",
+        "revokeSessions": "Скасувати сесії",
+        "revokeAllSessionsDescription": "Усі сеанси користувачів буде скасовано",
+        "revokeAllSessionsConfirm": "Ви впевнені, що хочете скасувати всі сесії?"
       }
+    },
+    "auditLogs": {
+      "title": "Журнал аудиту"
     }
   }
 }
