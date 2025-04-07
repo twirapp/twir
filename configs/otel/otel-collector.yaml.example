@@ -6,6 +6,9 @@ receivers:
   redis:
     endpoint: localhost:6379
     collection_interval: 10s
+	haproxy:
+    endpoint: http://haproxy:8404/stats
+    metrics:
   postgresql:
     endpoint: localhost:5432
     transport: tcp
@@ -62,6 +65,6 @@ service:
       processors: [batch]
       exporters: [otlp]
     metrics:
-      receivers: [otlp, redis, postgresql, docker_stats]
+      receivers: [otlp, redis, postgresql, docker_stats, haproxy]
       processors: [cumulativetodelta, batch, resourcedetection]
       exporters: [otlp]
