@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/satont/twir/apps/bots/internal/mod-task-queue"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
+	"github.com/satont/twir/apps/bots/internal/workers"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
@@ -36,6 +37,7 @@ type Opts struct {
 	MessageHandler *messagehandler.MessageHandler
 	Bus            *bus_core.Bus
 	Cfg            cfg.Config
+	WorkersPool    *workers.Pool
 }
 
 func New(opts Opts) (*BusListener, error) {
@@ -54,12 +56,70 @@ func New(opts Opts) (*BusListener, error) {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				listener.bus.Bots.SendMessage.SubscribeGroup("bots", listener.sendMessage)
-				listener.bus.Bots.DeleteMessage.SubscribeGroup("bots", listener.deleteMessage)
-				listener.bus.ChatMessages.SubscribeGroup("bots", listener.handleChatMessage)
-				listener.bus.Bots.BanUser.SubscribeGroup("bots", listener.banUser)
-				listener.bus.Bots.BanUsers.SubscribeGroup("bots", listener.banUsers)
-				listener.bus.Bots.ShoutOut.SubscribeGroup("bots", listener.handleShoutOut)
+				listener.bus.Bots.SendMessage.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data bots.SendMessageRequest) struct{} {
+						opts.WorkersPool.Submit(
+							func() {
+								listener.sendMessage(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}
+					},
+				)
+				listener.bus.Bots.DeleteMessage.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data bots.DeleteMessageRequest) struct{} {
+						opts.WorkersPool.Submit(
+							func() {
+								listener.deleteMessage(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}
+					},
+				)
+				listener.bus.ChatMessages.SubscribeGroup(
+					"bots",
+					listener.handleChatMessage,
+				)
+				listener.bus.Bots.BanUser.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data bots.BanRequest) struct{} {
+						opts.WorkersPool.Submit(
+							func() {
+								listener.banUser(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}
+					},
+				)
+				listener.bus.Bots.BanUsers.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data []bots.BanRequest) struct{} {
+						opts.WorkersPool.Submit(
+							func() {
+								listener.banUsers(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}
+					},
+				)
+				listener.bus.Bots.ShoutOut.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data bots.SentShoutOutRequest) struct{} {
+						opts.WorkersPool.Submit(
+							func() {
+								listener.handleShoutOut(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}
+					},
+				)
 
 				return nil
 			},
@@ -137,6 +197,7 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 		c.logger.Error(
 			"cannot get channel",
 			slog.String("channelId", req.ChannelId),
+			slog.Any("err", err),
 		)
 		return struct{}{}
 	}

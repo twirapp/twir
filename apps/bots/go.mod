@@ -28,7 +28,7 @@ require (
 	github.com/hibiken/asynq v0.25.0
 	github.com/imroc/req/v3 v3.48.0
 	github.com/lib/pq v1.10.9
-	github.com/nicklaw5/helix/v2 v2.30.0
+	github.com/nicklaw5/helix/v2 v2.31.1
 	github.com/prometheus/client_golang v1.20.5
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/samber/lo v1.47.0
@@ -56,6 +56,7 @@ require golang.org/x/net v0.34.0 // indirect
 
 require (
 	github.com/Masterminds/squirrel v1.5.4 // indirect
+	github.com/alitto/pond/v2 v2.3.2 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.0 // indirect
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.0 // indirect
@@ -70,7 +71,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.23.0 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect

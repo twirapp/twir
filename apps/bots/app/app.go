@@ -14,6 +14,7 @@ import (
 	"github.com/satont/twir/apps/bots/internal/services/tts"
 	stream_handlers "github.com/satont/twir/apps/bots/internal/stream-handlers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
+	"github.com/satont/twir/apps/bots/internal/workers"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
@@ -99,6 +100,7 @@ var App = fx.Module(
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
+		workers.New,
 		chatwallcacher.NewEnabledOnly,
 		chatwallcacher.NewSettings,
 		fx.Annotate(

@@ -70,16 +70,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 		return struct{}{}
 	}
 
-	channel, err := c.getCachedChannel(ctx, msg.BroadcasterUserId)
-	if err != nil {
-		if errors.Is(err, channelsrepository.ErrNotFound) {
-			return struct{}{}
-		}
-		c.logger.Error("cannot get channel", slog.Any("err", err))
-		return struct{}{}
-	}
-
-	if msg.ChatterUserId == channel.BotID && c.config.AppEnv == "production" {
+	if msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
 		return struct{}{}
 	}
 

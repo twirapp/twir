@@ -35,6 +35,27 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, error) {
+	query := `
+SELECT COUNT(*)
+FROM channels
+`
+
+	if input.OnlyEnabled {
+		query += `
+WHERE "isEnabled" = true
+`
+	}
+
+	var count int
+	err := c.pool.QueryRow(ctx, query).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (c *Pgx) GetByID(ctx context.Context, channelID string) (model.Channel, error) {
 	query := `
 SELECT "id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"

@@ -4,9 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"reflect"
-	"runtime"
-	"sync"
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
@@ -15,6 +12,7 @@ import (
 	"github.com/satont/twir/apps/bots/internal/services/keywords"
 	"github.com/satont/twir/apps/bots/internal/services/tts"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
+	"github.com/satont/twir/apps/bots/internal/workers"
 	cfg "github.com/satont/twir/libs/config"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
@@ -24,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
@@ -56,6 +55,9 @@ type Opts struct {
 	ChatWallCacher         *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
 	ChatWallRepository     chatwallrepository.Repository
 	ChatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
+	ChannelsRepository     channelsrepository.Repository
+
+	WorkersPool *workers.Pool
 }
 
 type MessageHandler struct {
@@ -79,6 +81,7 @@ type MessageHandler struct {
 	keywordsService *keywords.Service
 	ttsService      *tts.Service
 	config          cfg.Config
+	workersPool     *workers.Pool
 }
 
 func New(opts Opts) *MessageHandler {
@@ -104,6 +107,7 @@ func New(opts Opts) *MessageHandler {
 		chatWallCacher:         opts.ChatWallCacher,
 		chatWallRepository:     opts.ChatWallRepository,
 		chatWallSettingsCacher: opts.ChatWallSettingsCacher,
+		workersPool:            opts.WorkersPool,
 	}
 
 	return handler
@@ -175,23 +179,21 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 		return nil
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(len(handlersForExecute))
+	// tasks will be stopped if context is canceled
+	handleTask := c.workersPool.NewGroupContext(ctx)
 
 	for _, f := range handlersForExecute {
-		go func() {
-			defer wg.Done()
-			if err := f(c, ctx, msg); err != nil {
-				c.logger.Error(
-					"error when executing message handler function",
-					slog.Any("err", err),
-					slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
-				)
-			}
-		}()
+		handleTask.SubmitErr(
+			func() error {
+				return f(c, ctx, msg)
+			},
+		)
 	}
 
-	wg.Wait()
+	if err := handleTask.Wait(); err != nil {
+		c.logger.Error("error on execution all handlers", slog.Any("err", err))
+		return err
+	}
 
 	return nil
 }
