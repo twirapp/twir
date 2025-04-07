@@ -201,7 +201,7 @@ func (c *Handler) handleChannelChatMessage(
 	// ignore bot himself from chat commands
 	if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 		return
-	} else if data.EnrichedData.DbChannel.IsEnabled {
+	} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
 		if err := c.bus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
 			c.logger.Error("cannot process command", slog.Any("err", err))
 		}
