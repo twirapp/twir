@@ -855,35 +855,35 @@
   },
   "modules": {
     "chatTranslations": {
-      "title": "Chat translations",
-      "description": "Translate chat in real time",
+      "title": "Переклад чату",
+      "description": "Перекладайте чат у реальному часі",
       "settings": {
-        "title": "Chat Translation Settings",
+        "title": "Налаштування перекладу чата",
         "enabled": {
-          "label": "Enabled",
-          "description": "Enable chat translation for your channel"
+          "label": "Увімкнено",
+          "description": "Увімкніть переклад чату для вашого каналу"
         },
         "targetLanguage": {
-          "label": "Target Language",
-          "description": "Messages will be translated to this language",
-          "placeholder": "Select a language"
+          "label": "Мова перекладу",
+          "description": "Повідомлення будуть перекладені на цю мову",
+          "placeholder": "Обрати мову"
         },
         "excludedLanguages": {
-          "label": "Excluded Languages",
-          "description": "Messages in these languages will not be translated",
-          "placeholder": "Select languages to exclude"
+          "label": "Вийняткові мови",
+          "description": "Повідомлення цими мовами не будуть перекладені",
+          "placeholder": "Оберіть вийняткові мови"
         },
         "useItalic": {
-          "label": "Use Italic",
-          "description": "Display translated messages in italic"
+          "label": "Використовувати курсив",
+          "description": "Показувати перекладені повідомлення курсивом"
         },
         "excludedUsers": {
-          "title": "Excluded Users",
-          "description": "Messages from these users will not be translated"
+          "title": "Вийняткові користувачі",
+          "description": "Повідомлення від цих користувачів не будуть перекладені"
         },
         "buttons": {
-          "update": "Update Settings",
-          "create": "Create Settings"
+          "update": "Оновити налаштування",
+          "create": "Створити налаштування"
         }
       }
     }
