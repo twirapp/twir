@@ -55,7 +55,7 @@ func New(opts Opts) (*BusListener, error) {
 
 	opts.LC.Append(
 		fx.Hook{
-			OnStart: func(ctx context.Context) error {
+			OnStart: func(_ context.Context) error {
 				listener.bus.Bots.SendMessage.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data bots.SendMessageRequest) struct{} {
