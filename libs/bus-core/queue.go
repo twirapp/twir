@@ -63,10 +63,12 @@ func (c *NatsQueue[Req, Res]) SubscribeGroup(
 		c.subject,
 		queueGroup,
 		func(subject, reply string, data *Req) {
-			ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
-			defer cancel()
-			response := cb(ctx, *data)
-			c.nc.Publish(reply, &response)
+			go func() {
+				ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+				defer cancel()
+				response := cb(ctx, *data)
+				c.nc.Publish(reply, &response)
+			}()
 		},
 	)
 
@@ -81,9 +83,12 @@ func (c *NatsQueue[Req, Res]) Subscribe(
 	sub, err := c.nc.Subscribe(
 		c.subject,
 		func(subject, reply string, data *Req) {
-			ctx, _ := context.WithTimeout(context.Background(), c.timeout)
-			response := cb(ctx, *data)
-			c.nc.Publish(reply, &response)
+			go func() {
+				ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+				defer cancel()
+				response := cb(ctx, *data)
+				c.nc.Publish(reply, &response)
+			}()
 		},
 	)
 
