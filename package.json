@@ -4,8 +4,7 @@
   "private": true,
   "author": "Satont <satontworldwide@gmail.com>",
   "engines": {
-    "node": ">=20",
-    "bun": ">=1.2.4"
+    "bun": ">=1.2.9"
   },
   "workspaces": [
     "libs/*",

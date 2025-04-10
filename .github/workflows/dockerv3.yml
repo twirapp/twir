@@ -50,6 +50,8 @@ jobs:
           files: |
             ${{ env.folder }}/${{ env.app }}/**
             libs/**
+            .bun-version
+            package.json
 
       - uses: oven-sh/setup-bun@v2
         with:
