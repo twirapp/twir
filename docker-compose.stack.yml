@@ -321,6 +321,10 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+      replicas: 4
+      mode: replicated
+      update_config:
+        parallelism: 2
       placement:
         constraints:
           - node.labels.databases != true
