@@ -888,41 +888,6 @@
       }
     }
   },
-  "modules": {
-    "chatTranslations": {
-      "title": "Перевод чата",
-      "description": "Переводите сообщения чата в реальном времени",
-      "settings": {
-        "title": "Настройки перевода чата",
-        "enabled": {
-          "label": "Включено",
-          "description": "Включить перевод чата для вашего канала"
-        },
-        "targetLanguage": {
-          "label": "Целевой язык",
-          "description": "Сообщения будут переведены на этот язык",
-          "placeholder": "Выберите язык"
-        },
-        "excludedLanguages": {
-          "label": "Исключенные языки",
-          "description": "Сообщения на этих языках не будут переводиться",
-          "placeholder": "Выберите языки для исключения"
-        },
-        "useItalic": {
-          "label": "Использовать курсив",
-          "description": "Отображать переведенные сообщения курсивом"
-        },
-        "excludedUsers": {
-          "title": "Исключенные пользователи",
-          "description": "Сообщения от этих пользователей не будут переводиться"
-        },
-        "buttons": {
-          "update": "Обновить настройки",
-          "create": "Создать настройки"
-        }
-      }
-    }
-  },
   "community": {
     "title": "Сообщество",
     "users": {
@@ -1174,6 +1139,63 @@
     },
     "auditLogs": {
       "title": "Журналы аудита"
+    }
+  },
+  "expiringVips": {
+    "title": "Запланированные VIP",
+    "description": {
+      "line1": "С помощью этой функции вы можете создавать VIP для вашего канала, которые будут удалены через выбранное время.",
+      "line2": "Для этого вы можете использовать команды из встроенного модуля {module}."
+    },
+    "comingSoon": "Скоро, но уже доступно через команды",
+    "commands": {
+      "add": "Добавить VIP",
+      "remove": "Удалить VIP",
+      "list": "Список VIP",
+      "setExpire": "Продлить время истечения для существующего временного VIP или добавить срок действия для некоторого VIP пользователя"
+    },
+    "alert": {
+      "title": "Внимание!",
+      "description": "Это список VIP с истекающим сроком действия, а не список всех VIP канала."
+    }
+  },
+  "moderationRules": {
+    "description": {
+      "line1": "Create rules to moderate your chat.",
+      "line2": "Be careful."
+    }
+  },
+  "chatWall": {
+    "description": {
+      "line1": "Mass ban/delete/timeout messages that contains specific phrase.",
+      "line2": "Improper usage may result in a permanent ban you in TwirApp service. "
+    },
+    "settings": {
+      "title": "Настройка",
+      "muteSubscribers": "Отключить подписчиков",
+      "muteVips": "Отключить VIP"
+    },
+    "commands": {
+      "title": "Команды",
+      "delete": "Удаление стены чата",
+      "ban": "Бан стены чата",
+      "timeout": "Таймаут стены чата",
+      "stop": "Остановка стены чата"
+    },
+    "table": {
+      "phrase": "Фраза",
+      "createdAt": "Создано",
+      "inProcess": "В процессе",
+      "action": "Действие",
+      "yes": "Да",
+      "no": "Нет",
+      "affectedMessages": "Затронутые сообщения",
+      "logs": {
+        "title": "Затронутые сообщения",
+        "user": "Пользователь",
+        "message": "Сообщение"
+      },
+      "timeout": "сек"
     }
   }
 }
