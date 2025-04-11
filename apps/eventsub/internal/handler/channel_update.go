@@ -5,15 +5,18 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
+	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleChannelUpdate(
 	_ *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelUpdate,
 ) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	c.logger.Info(
 		"channel update",
 		slog.String("title", event.Title),
@@ -23,7 +26,7 @@ func (c *Handler) handleChannelUpdate(
 	)
 
 	c.eventsGrpc.TitleOrCategoryChanged(
-		context.Background(),
+		ctx,
 		&events.TitleOrCategoryChangedMessage{
 			BaseInfo:    &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			NewTitle:    event.Title,
@@ -31,28 +34,26 @@ func (c *Handler) handleChannelUpdate(
 		},
 	)
 
-	err := c.gorm.Create(
-		&model.ChannelInfoHistory{
-			ID:        uuid.New().String(),
-			Category:  event.CategoryName,
-			Title:     event.Title,
-			CreatedAt: time.Now().UTC(),
+	if err := c.channelsInfoHistoryRepo.Create(
+		ctx,
+		channelsinfohistory.CreateInput{
 			ChannelID: event.BroadcasterUserID,
+			Title:     event.Title,
+			Category:  event.CategoryName,
 		},
-	).Error
-
-	if err != nil {
+	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	err = c.gorm.
+	err := c.gorm.
+		WithContext(ctx).
 		Model(&model.ChannelsStreams{}).
 		Where(`"userId" = ?`, event.BroadcasterUserID).
 		Updates(
 			map[string]any{
-				"title":    event.Title,
-				"gameName": event.CategoryName,
-				"gameId":   event.CategoryID,
+				"title":      event.Title,
+				`"gameName"`: event.CategoryName,
+				`"gameId"`:   event.CategoryID,
 			},
 		).Error
 	if err != nil {

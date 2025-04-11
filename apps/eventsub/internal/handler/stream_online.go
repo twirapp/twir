@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
@@ -18,13 +19,16 @@ func (c *Handler) handleStreamOnline(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventStreamOnline,
 ) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	c.logger.Info(
 		"stream online",
 		slog.String("channelId", event.BroadcasterUserID),
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	twitchClient, err := twitch.NewAppClient(c.config, c.tokensGrpc)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
@@ -52,7 +56,7 @@ func (c *Handler) handleStreamOnline(
 
 	stream := streamsReq.Data.Streams[0]
 
-	err = c.gorm.Where(
+	err = c.gorm.WithContext(ctx).Where(
 		`"userId" = ?`,
 		event.BroadcasterUserID,
 	).Delete(&model.ChannelsStreams{}).Error
@@ -92,7 +96,7 @@ func (c *Handler) handleStreamOnline(
 	}
 
 	_, err = c.eventsGrpc.StreamOnline(
-		context.Background(),
+		ctx,
 		&events.StreamOnlineMessage{
 			BaseInfo: &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			Title:    streamsReq.Data.Streams[0].Title,
@@ -114,4 +118,13 @@ func (c *Handler) handleStreamOnline(
 			StartedAt:    stream.StartedAt,
 		},
 	)
+
+	// c.channelsInfoHistoryRepo.Create(
+	// 	ctx,
+	// 	channelsinfohistory.CreateInput{
+	// 		ChannelID: stream.UserID,
+	// 		Title:     stream.Title,
+	// 		Category:  stream.GameName,
+	// 	},
+	// )
 }

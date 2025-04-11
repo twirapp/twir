@@ -18,6 +18,8 @@ import (
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
@@ -51,6 +53,10 @@ var App = fx.Options(
 		fx.Annotate(
 			scheduledvipsrepositorypgx.NewFx,
 			fx.As(new(scheduledvipsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelsinfohistorypostgres.NewFx,
+			fx.As(new(channelsinfohistory.Repository)),
 		),
 		channelcache.New,
 		channelscommandsprefixcache.New,

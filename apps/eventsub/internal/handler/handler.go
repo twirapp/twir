@@ -22,6 +22,7 @@ import (
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -33,14 +34,15 @@ import (
 type Handler struct {
 	logger logger.Logger
 
-	eventsGrpc        events.EventsClient
-	parserGrpc        parser.ParserClient
-	websocketsGrpc    websockets.WebsocketClient
-	tokensGrpc        tokens.TokensClient
-	tracer            trace.Tracer
-	manager           *manager.Manager
-	scheduledVipsRepo scheduledvipsrepository.Repository
-	channelsCache     *generic_cacher.GenericCacher[channelmodel.Channel]
+	eventsGrpc              events.EventsClient
+	parserGrpc              parser.ParserClient
+	websocketsGrpc          websockets.WebsocketClient
+	tokensGrpc              tokens.TokensClient
+	tracer                  trace.Tracer
+	manager                 *manager.Manager
+	scheduledVipsRepo       scheduledvipsrepository.Repository
+	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsInfoHistoryRepo channelsinfohistory.Repository
 
 	gorm        *gorm.DB
 	redisClient *redis.Client
@@ -57,12 +59,13 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	EventsGrpc        events.EventsClient
-	ParserGrpc        parser.ParserClient
-	WebsocketsGrpc    websockets.WebsocketClient
-	TokensGrpc        tokens.TokensClient
-	ScheduledVipsRepo scheduledvipsrepository.Repository
-	ChannelsRepo      *generic_cacher.GenericCacher[channelmodel.Channel]
+	EventsGrpc              events.EventsClient
+	ParserGrpc              parser.ParserClient
+	WebsocketsGrpc          websockets.WebsocketClient
+	TokensGrpc              tokens.TokensClient
+	ScheduledVipsRepo       scheduledvipsrepository.Repository
+	ChannelsRepo            *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsInfoHistoryRepo channelsinfohistory.Repository
 
 	Tracer  trace.Tracer
 	Tunn    *tunnel.AppTunnel
@@ -81,21 +84,22 @@ func New(opts Opts) *Handler {
 	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{
-		manager:           opts.Manager,
-		logger:            opts.Logger,
-		config:            opts.Config,
-		gorm:              opts.Gorm,
-		redisClient:       opts.Redis,
-		eventsGrpc:        opts.EventsGrpc,
-		parserGrpc:        opts.ParserGrpc,
-		websocketsGrpc:    opts.WebsocketsGrpc,
-		tokensGrpc:        opts.TokensGrpc,
-		tracer:            opts.Tracer,
-		bus:               opts.Bus,
-		seventvCache:      seventv.New(opts.Redis),
-		prefixCache:       opts.PrefixCache,
-		scheduledVipsRepo: opts.ScheduledVipsRepo,
-		channelsCache:     opts.ChannelsRepo,
+		manager:                 opts.Manager,
+		logger:                  opts.Logger,
+		config:                  opts.Config,
+		gorm:                    opts.Gorm,
+		redisClient:             opts.Redis,
+		eventsGrpc:              opts.EventsGrpc,
+		parserGrpc:              opts.ParserGrpc,
+		websocketsGrpc:          opts.WebsocketsGrpc,
+		tokensGrpc:              opts.TokensGrpc,
+		tracer:                  opts.Tracer,
+		bus:                     opts.Bus,
+		seventvCache:            seventv.New(opts.Redis),
+		prefixCache:             opts.PrefixCache,
+		scheduledVipsRepo:       opts.ScheduledVipsRepo,
+		channelsCache:           opts.ChannelsRepo,
+		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
 	}
 
 	handler.OnNotification = myHandler.onNotification

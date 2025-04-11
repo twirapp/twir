@@ -42,6 +42,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 
+	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 
 	chatwallcache "github.com/twirapp/twir/libs/cache/chat_wall"
@@ -188,6 +189,7 @@ func main() {
 	channelsCategoriesAliasesRepo := channelscategoriesaliasespgx.New(channelscategoriesaliasespgx.Opts{PgxPool: pgxconn})
 	scheduledVipsRepo := scheduledvipsrepositorypgx.New(scheduledvipsrepositorypgx.Opts{PgxPool: pgxconn})
 	chatWallRepository := chatwallpgx.New(chatwallpgx.Opts{PgxPool: pgxconn})
+	channelsInfoHistoryRepo := channelsinfohistorypostgres.New(channelsinfohistorypostgres.Opts{PgxPool: pgxconn})
 
 	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
 	if err != nil {
@@ -239,6 +241,7 @@ func main() {
 		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,
 		ScheduledVipsRepo:        scheduledVipsRepo,
 		CacheTwitchClient:        cachedTwitchClient,
+		ChannelsInfoHistoryRepo:  channelsInfoHistoryRepo,
 	}
 
 	variablesService := variables.New(

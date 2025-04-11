@@ -63,8 +63,9 @@ type DurationOptsHide struct {
 }
 
 type DurationOpts struct {
-	UseUtc bool
-	Hide   DurationOptsHide
+	UseUtc   bool
+	Hide     DurationOptsHide
+	FromTime time.Time
 }
 
 func Duration(t time.Time, opts *DurationOpts) string {
@@ -73,7 +74,10 @@ func Duration(t time.Time, opts *DurationOpts) string {
 	}
 
 	date := strings.Builder{}
-	currentTime := time.Now()
+	currentTime := opts.FromTime
+	if currentTime.IsZero() {
+		currentTime = time.Now()
+	}
 	var y, m, d, h, mi, s int
 
 	if opts.UseUtc == true {
