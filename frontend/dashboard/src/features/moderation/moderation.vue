@@ -58,15 +58,15 @@ const tabs: PageLayoutTab[] = [
 
 		<template #title-footer="{ activeTab }">
 			<div v-if="activeTab === 'rules'" class="flex flex-col gap-0.5">
-				<span>Create rules to moderate your chat.</span>
-				<span class="text-xs">Be careful.</span>
+				<span>{{ t('moderationRules.description.line1') }}</span>
+				<span class="text-xs">{{ t('moderationRules.description.line2') }}</span>
 			</div>
 			<div v-if="activeTab === 'chat-wall'" class="flex flex-col gap-0.5">
 				<span>
-					Mass ban/delete/timeout messages that contains specific phrase.
+					{{ t('chatWall.description.line1') }}
 				</span>
 				<span class="text-xs text-orange-500">
-					Improper usage may result in a permanent ban you in TwirApp service.
+					{{ t('chatWall.description.line2') }}
 				</span>
 			</div>
 		</template>

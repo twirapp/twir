@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import type { ChatWall } from '@/api/moderation-chat-wall.ts'
 
@@ -13,6 +14,8 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table/index.ts'
+
+const { t } = useI18n()
 
 const props = defineProps<{
 	chatWall: ChatWall
@@ -34,22 +37,22 @@ watch(dialogOpened, (v) => {
 	<Dialog v-model:open="dialogOpened">
 		<DialogTrigger as-child>
 			<Button :disabled="!chatWall.affectedMessages" size="sm">
-				Affected messages ({{ chatWall.affectedMessages }})
+				{{ t('chatWall.table.affectedMessages') }} ({{ chatWall.affectedMessages }})
 			</Button>
 		</DialogTrigger>
 		<DialogOrSheet>
 			<DialogHeader>
-				<DialogTitle>Affected messages</DialogTitle>
+				<DialogTitle>{{ t('chatWall.table.logs.title') }}</DialogTitle>
 			</DialogHeader>
 
 			<Table class="bg-sidebar rounded">
 				<TableHeader>
 					<TableRow>
 						<TableHead class="w-[10%]">
-							User
+							{{ t('chatWall.table.logs.user') }}
 						</TableHead>
 						<TableHead>
-							Message
+							{{ t('chatWall.table.logs.message') }}
 						</TableHead>
 					</TableRow>
 				</TableHeader>

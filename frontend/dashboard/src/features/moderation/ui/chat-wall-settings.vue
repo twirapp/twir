@@ -45,7 +45,7 @@ const onSubmit = chatSettingsForm.handleSubmit(async (values) => {
 <template>
 	<Card>
 		<CardHeader>
-			<CardTitle>Setup</CardTitle>
+			<CardTitle>{{ t('chatWall.settings.title') }}</CardTitle>
 		</CardHeader>
 		<form @submit.prevent="onSubmit">
 			<CardContent :class="cn('relative', { 'pointer-events-none': fetching })">
@@ -60,7 +60,7 @@ const onSubmit = chatSettingsForm.handleSubmit(async (values) => {
 						<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 							<div class="space-y-0.5">
 								<FormLabel class="text-base">
-									Mute subscribers
+									{{ t('chatWall.settings.muteSubscribers') }}
 								</FormLabel>
 							</div>
 							<FormControl>
@@ -77,7 +77,7 @@ const onSubmit = chatSettingsForm.handleSubmit(async (values) => {
 						<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 							<div class="space-y-0.5">
 								<FormLabel class="text-base">
-									Mute VIPs
+									{{ t('chatWall.settings.muteVips') }}
 								</FormLabel>
 							</div>
 							<FormControl>
@@ -101,25 +101,25 @@ const onSubmit = chatSettingsForm.handleSubmit(async (values) => {
 		<Separator />
 
 		<CardHeader>
-			<CardTitle>Commands</CardTitle>
+			<CardTitle>{{ t('chatWall.commands.title') }}</CardTitle>
 		</CardHeader>
 		<CardContent>
-			<div class="flex flex-col gap-4">
+			<div class="flex flex-row flex-wrap gap-4">
 				<CommandButton
 					name="chat wall delete"
-					title="Chat wall delete"
+					:title="t('chatWall.commands.delete')"
 				/>
 				<CommandButton
 					name="chat wall ban"
-					title="Chat wall ban"
+					:title="t('chatWall.commands.ban')"
 				/>
 				<CommandButton
 					name="chat wall timeout"
-					title="Chat wall timeout"
+					:title="t('chatWall.commands.timeout')"
 				/>
 				<CommandButton
 					name="chat wall stop"
-					title="Chat wall stop"
+					:title="t('chatWall.commands.stop')"
 				/>
 			</div>
 		</CardContent>
