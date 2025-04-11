@@ -19,16 +19,16 @@ const { t } = useI18n()
 <template>
 	<PageLayout>
 		<template #title>
-			Scheduled vips
+			{{ t('expiringVips.title') }}
 		</template>
 
 		<template #title-footer>
 			<div class="flex flex-col">
 				<span>
-					With this feature you can creat vips for your channel, which will be removed after selected time.
+					{{ t('expiringVips.description.line1') }}
 				</span>
 				<span>
-					You can use commands from built-in <b class="font-bold">VIPS</b> module for that.
+					{{ t('expiringVips.description.line2', { module: 'VIPS' }) }}
 				</span>
 			</div>
 		</template>
@@ -41,7 +41,7 @@ const { t } = useI18n()
 						{{ t('sharedButtons.create') }}
 					</span>
 					<span class="text-xs">
-						Soon, but already available through commands
+						{{ t('expiringVips.comingSoon') }}
 					</span>
 				</div>
 			</Button>
@@ -51,23 +51,23 @@ const { t } = useI18n()
 			<div class="flex flex-col gap-4">
 				<Card>
 					<CardHeader>
-						<CardTitle>Commands</CardTitle>
+						<CardTitle>{{ t('sidebar.commands.label') }}</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div class="flex flex-wrap gap-4">
-							<CommandButton name="vips add" title="Add vip" />
-							<CommandButton name="vips remove" title="Remove vip" />
-							<CommandButton name="vips list" title="List vips" />
-							<CommandButton name="vips setexpire" title="Extend expiring time for exited timed vip, or add expiration for some vip user" />
+							<CommandButton name="vips add" :title="t('expiringVips.commands.add')" />
+							<CommandButton name="vips remove" :title="t('expiringVips.commands.remove')" />
+							<CommandButton name="vips list" :title="t('expiringVips.commands.list')" />
+							<CommandButton name="vips setexpire" :title="t('expiringVips.commands.setExpire')" />
 						</div>
 					</CardContent>
 				</Card>
 
 				<Alert>
 					<InfoIcon class="h-4 w-4" />
-					<AlertTitle>Heads up!</AlertTitle>
+					<AlertTitle>{{ t('expiringVips.alert.title') }}</AlertTitle>
 					<AlertDescription>
-						It's a list of expiring vips, not list of all channel vips.
+						{{ t('expiringVips.alert.description') }}
 					</AlertDescription>
 				</Alert>
 
