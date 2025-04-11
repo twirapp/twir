@@ -51,7 +51,7 @@ const tabs: PageLayoutTab[] = [
 </script>
 
 <template>
-	<PageLayout active-tab="rules" :tabs="tabs" sticky-header>
+	<PageLayout active-tab="rules" :tabs="tabs">
 		<template #title>
 			{{ t('sidebar.moderation') }}
 		</template>
