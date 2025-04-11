@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { onMounted, ref, toRaw } from 'vue'
+import { computed, onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
@@ -23,7 +23,7 @@ const { findCommand, submit } = useCommandEditV2()
 
 const loading = ref(true)
 
-const { handleSubmit, setValues } = useForm({
+const { handleSubmit, setValues, values } = useForm({
 	validationSchema: toTypedSchema(formSchema),
 	initialValues: {
 		enabled: true,
@@ -88,11 +88,19 @@ onMounted(async () => {
 })
 
 const onSubmit = handleSubmit(submit)
+
+const backButton = computed(() => {
+	if (values.module === 'CUSTOM') {
+		return '/dashboard/commands/custom'
+	}
+
+	return '/dashboard/commands/builtin'
+})
 </script>
 
 <template>
 	<form :class="{ 'blur-sm': loading }" @submit="onSubmit">
-		<PageLayout stickyHeader show-back back-redirect-to="/dashboard/commands/custom">
+		<PageLayout stickyHeader show-back :back-redirect-to="backButton">
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>
 				<span v-else>Edit "{{ title }}"</span>
