@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next'
+import { InfoIcon, PlusIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import Table from '@/components/table.vue'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 import {
 	useExpiringVipsTable,
 } from '@/features/expiring-vips/composables/use-expiring-vips-table.ts'
@@ -45,7 +48,31 @@ const { t } = useI18n()
 		</template>
 
 		<template #content>
-			<Table :table="expiringVipsTable.table" :is-loading="expiringVipsTable.isLoading.value" />
+			<div class="flex flex-col gap-4">
+				<Card>
+					<CardHeader>
+						<CardTitle>Commands</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div class="flex flex-wrap gap-4">
+							<CommandButton name="vips add" title="Add vip" />
+							<CommandButton name="vips remove" title="Remove vip" />
+							<CommandButton name="vips list" title="List vips" />
+							<CommandButton name="vips setexpire" title="Extend expiring time for exited timed vip, or add expiration for some vip user" />
+						</div>
+					</CardContent>
+				</Card>
+
+				<Alert>
+					<InfoIcon class="h-4 w-4" />
+					<AlertTitle>Heads up!</AlertTitle>
+					<AlertDescription>
+						It's a list of expiring vips, not list of all channel vips.
+					</AlertDescription>
+				</Alert>
+
+				<Table :table="expiringVipsTable.table" :is-loading="expiringVipsTable.isLoading.value" />
+			</div>
 		</template>
 	</PageLayout>
 </template>
