@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 
 import { formSchema, useDuelForm } from './composables/use-duel-form'
 
+import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import Card from '@/components/games/card.vue'
 import {
 	AlertDialog,
@@ -21,7 +22,6 @@ import {
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
-	DialogContent,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
@@ -79,7 +79,7 @@ function resetSettings() {
 			/>
 		</DialogTrigger>
 
-		<DialogContent class="sm:max-w-[625px]">
+		<DialogOrSheet class="sm:max-w-[625px]">
 			<DialogHeader>
 				<DialogTitle>{{ t('games.duel.title') }}</DialogTitle>
 			</DialogHeader>
@@ -300,6 +300,6 @@ function resetSettings() {
 					</div>
 				</div>
 			</form>
-		</DialogContent>
+		</DialogOrSheet>
 	</Dialog>
 </template>
