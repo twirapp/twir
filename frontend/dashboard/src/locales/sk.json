@@ -1145,57 +1145,57 @@
     "title": "Naplánované VIP",
     "description": {
       "line1": "Pomocou tejto funkcie môžete pre svoj kanál vytvoriť VIP, ktoré budú po uplynutí zvoleného času odstránené.",
-      "line2": "Môžete na to použiť príkazy zo zabudovaného modulu {module}."
+      "line2": "Môžete na to použiť príkazy z vstavaného modulu {module}."
     },
     "comingSoon": "Dostupné čoskoro, ale už teraz je k dispozícii prostredníctvom príkazov",
     "commands": {
       "add": "Pridať VIP",
       "remove": "Odstrániť VIP",
       "list": "Zoznam VIP",
-      "setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
+      "setExpire": "Predĺženie doby platnosti pre existujúce časovo obmedzené VIP alebo pridanie doby platnosti pre používateľov VIP, ktorí ju nemajú"
     },
     "alert": {
-      "title": "Heads up!",
-      "description": "It's a list of expiring VIPs, not list of all channel VIPs."
+      "title": "Pozor!",
+      "description": "Je to zoznam VIP členov, ktorým čoskoro vyprší platnosť, nie zoznam všetkých VIP členov kanála."
     }
   },
   "moderationRules": {
     "description": {
-      "line1": "Create rules to moderate your chat.",
-      "line2": "Be careful."
+      "line1": "Vytvor pravidlá na moderovanie tvojho chatu.",
+      "line2": "Buď opatrný."
     }
   },
   "chatWall": {
     "description": {
-      "line1": "Mass ban/delete/timeout messages that contains specific phrase.",
-      "line2": "Improper usage may result in a permanent ban you in TwirApp service. "
+      "line1": "Hromadne zablokuj/odstráň/časovo obmedz správy, ktoré obsahujú konkrétnu frázu.",
+      "line2": "Nesprávne používanie môže viesť k trvalému banu v službe TwirApp. "
     },
     "settings": {
-      "title": "Setup",
-      "muteSubscribers": "Mute subscribers",
-      "muteVips": "Mute VIPs"
+      "title": "Nastavenie",
+      "muteSubscribers": "Stíšiť predplatiteľov",
+      "muteVips": "Stíšiť VIP"
     },
     "commands": {
-      "title": "Commands",
+      "title": "Príkazy",
       "delete": "Chat wall delete",
       "ban": "Chat wall ban",
       "timeout": "Chat wall timeout",
       "stop": "Chat wall stop"
     },
     "table": {
-      "phrase": "Phrase",
-      "createdAt": "Created at",
-      "inProcess": "In process",
-      "action": "Action",
-      "yes": "Yes",
-      "no": "No",
-      "affectedMessages": "Affected messages",
+      "phrase": "Fráza",
+      "createdAt": "Vytvorené",
+      "inProcess": "V procese",
+      "action": "Akcia",
+      "yes": "Áno",
+      "no": "Nie",
+      "affectedMessages": "Postihnuté správy",
       "logs": {
-        "title": "Affected messages",
-        "user": "User",
-        "message": "Message"
+        "title": "Postihnuté správy",
+        "user": "Užívateľ",
+        "message": "Správa"
       },
-      "timeout": "sec"
+      "timeout": "sek."
     }
   }
 }
