@@ -10,6 +10,7 @@ import { type Command, type Group, createGroups, isCommand } from '~~/layers/pub
 
 definePageMeta({
 	layout: 'public',
+	alias: ['/p/:channelName/commands'],
 })
 
 const { data } = await useCommands()
