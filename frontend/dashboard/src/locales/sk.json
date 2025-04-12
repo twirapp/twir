@@ -1142,16 +1142,16 @@
     }
   },
   "expiringVips": {
-    "title": "Scheduled VIPs",
+    "title": "Naplánované VIP",
     "description": {
-      "line1": "With this feature you can create VIPs for your channel, which will be removed after selected time.",
-      "line2": "You can use commands from built-in {module} module for that."
+      "line1": "Pomocou tejto funkcie môžete pre svoj kanál vytvoriť VIP, ktoré budú po uplynutí zvoleného času odstránené.",
+      "line2": "Môžete na to použiť príkazy zo zabudovaného modulu {module}."
     },
-    "comingSoon": "Soon, but already available through commands",
+    "comingSoon": "Dostupné čoskoro, ale už teraz je k dispozícii prostredníctvom príkazov",
     "commands": {
-      "add": "Add VIP",
-      "remove": "Remove VIP",
-      "list": "List VIPs",
+      "add": "Pridať VIP",
+      "remove": "Odstrániť VIP",
+      "list": "Zoznam VIP",
       "setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
     },
     "alert": {
