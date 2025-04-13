@@ -287,6 +287,7 @@ services:
 
         # Router for /api (twir-api-gql)
         - "traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api`)"
+        - "traefik.http.routers.twir-api-gql.service=twir-api-gql"
         - "traefik.http.routers.twir-api-gql.middlewares=api-gql-stripprefix"
         - "traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api"
 
@@ -298,7 +299,7 @@ services:
         - "traefik.http.routers.twir-api-shortener.middlewares=api-shortener-rewrite"
 
         # Service definition (shared for both routers)
-        - "traefik.http.services.twir-api.loadbalancer.server.port=3009"
+        - "traefik.http.services.twir-api-gql.loadbalancer.server.port=3009"
 
         - traefik.docker.network=traefik-public
       update_config:
