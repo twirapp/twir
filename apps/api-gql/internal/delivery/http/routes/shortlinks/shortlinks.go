@@ -160,9 +160,9 @@ type createLinkOutput struct {
 }
 
 type linkOutputDto struct {
-	Id       string `json:"id"`
-	Url      string `json:"url"`
-	ShortUrl string `json:"short_url"`
+	Id       string `json:"id" example:"KKMEa"`
+	Url      string `json:"url" example:"https://example.com"`
+	ShortUrl string `json:"short_url" example:"https://twir.app/s/KKMEa"`
 }
 
 type linkRedirectOutput struct {
