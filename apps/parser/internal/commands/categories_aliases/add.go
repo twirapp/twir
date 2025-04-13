@@ -6,7 +6,6 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
@@ -71,50 +70,26 @@ var Add = &types.DefaultCommand{
 			}
 		}
 
-		twitchClient, err := twitch.NewAppClientWithContext(
-			ctx,
-			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
-		)
+		foundTwitchCategory, err := twitch.SearchCategory(ctx, category)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create twitch client",
+				Message: "cannot get category",
 				Err:     err,
 			}
 		}
 
-		categoriesResponse, err := twitchClient.SearchCategories(
-			&helix.SearchCategoriesParams{
-				Query: category,
-			},
-		)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot get categories",
-				Err:     err,
-			}
-		}
-		if categoriesResponse.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot get categories",
-				Err:     fmt.Errorf(categoriesResponse.ErrorMessage),
-			}
-		}
-
-		if len(categoriesResponse.Data.Categories) == 0 {
+		if foundTwitchCategory == nil {
 			return nil, &types.CommandHandlerError{
 				Message: "category not found",
 			}
 		}
-
-		twitchCategory := categoriesResponse.Data.Categories[0]
 
 		err = parseCtx.Services.CategoriesAliasesRepo.Create(
 			ctx,
 			categoriesaliasesrepository.CreateInput{
 				ChannelID:  parseCtx.Channel.ID,
 				Alias:      aliase,
-				CategoryID: twitchCategory.ID,
+				CategoryID: foundTwitchCategory.ID,
 			},
 		)
 		if err != nil {
@@ -129,7 +104,7 @@ var Add = &types.DefaultCommand{
 				fmt.Sprintf(
 					"Category aliase %s added with category %s",
 					aliase,
-					twitchCategory.Name,
+					foundTwitchCategory.Name,
 				),
 			},
 		}
