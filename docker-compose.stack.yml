@@ -291,11 +291,11 @@ services:
         - "traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api"
 
         # Router for /s (twir-api-shortener-redirect)
-        - "traefik.http.routers.twir-api-shortener-redirect.rule=Host(`twir.app`) && PathPrefix(`/s`)"
-        - "traefik.http.routers.twir-api-shortener-redirect.middlewares=api-shortener-stripprefix,app-shortener-rewrite"
-        - "traefik.http.middlewares.api-shortener-stripprefix.stripprefix.prefixes=/s"
-        - "traefik.http.middlewares.app-shortener-rewrite.redirectregex.regex=^/s(.*)"
-        - "traefik.http.middlewares.app-shortener-rewrite.redirectregex.replacement=/v1/short-links$${1}"
+        - "traefik.http.routers.twir-api-shortener.rule=Host(`twir.app`) && PathPrefix(`/s`)"
+        - "traefik.http.routers.twir-api-shortener.service=twir-api"
+        - "traefik.http.middlewares.api-shortener-rewrite.replacepathregex.regex=^/s/(.*)"
+        - "traefik.http.middlewares.api-shortener-rewrite.replacepathregex.replacement=/v1/short-links/$$1"
+        - "traefik.http.routers.twir-api-shortener.middlewares=api-shortener-rewrite"
 
         # Service definition (shared for both routers)
         - "traefik.http.services.twir-api.loadbalancer.server.port=3009"
