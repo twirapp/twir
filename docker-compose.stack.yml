@@ -484,6 +484,7 @@ services:
     networks:
       - twir
       - traefik-public
+      - cloudflared
     deploy:
       restart_policy:
         condition: any
