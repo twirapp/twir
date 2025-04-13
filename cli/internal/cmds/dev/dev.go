@@ -66,12 +66,13 @@ func CreateDevCommand() *cli.Command {
 			return nil
 		},
 		Action: func(c *cli.Context) error {
-			go func() {
-				if err := proxy.Cmd.Run(c); err != nil {
-					pterm.Fatal.Println(err)
-					return
-				}
-			}()
+			proxyStartedChan, err := proxy.StartProxy()
+			if err != nil {
+				pterm.Fatal.Println(err)
+				return err
+			}
+			// wait proxy to up
+			<-proxyStartedChan
 
 			skipDeps := c.Bool("skip-deps")
 			isDebugEnabled := c.Bool("debug")
