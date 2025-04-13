@@ -22,6 +22,7 @@ import (
 	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
 	"github.com/satont/twir/apps/parser/internal/nats"
 	chatwallservice "github.com/satont/twir/apps/parser/internal/services/chat_wall"
+	"github.com/satont/twir/apps/parser/internal/services/shortenedurls"
 	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
 	cfg "github.com/satont/twir/libs/config"
@@ -44,6 +45,8 @@ import (
 
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+
+	shortenedurlspgx "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 
 	chatwallcache "github.com/twirapp/twir/libs/cache/chat_wall"
 	chatwallpgx "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
@@ -190,6 +193,7 @@ func main() {
 	scheduledVipsRepo := scheduledvipsrepositorypgx.New(scheduledvipsrepositorypgx.Opts{PgxPool: pgxconn})
 	chatWallRepository := chatwallpgx.New(chatwallpgx.Opts{PgxPool: pgxconn})
 	channelsInfoHistoryRepo := channelsinfohistorypostgres.New(channelsinfohistorypostgres.Opts{PgxPool: pgxconn})
+	shortenedUrlsRepo := shortenedurlspgx.New(shortenedurlspgx.Opts{PgxPool: pgxconn})
 
 	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
 	if err != nil {
@@ -241,6 +245,12 @@ func main() {
 		ScheduledVipsRepo:        scheduledVipsRepo,
 		CacheTwitchClient:        cachedTwitchClient,
 		ChannelsInfoHistoryRepo:  channelsInfoHistoryRepo,
+		ShortUrlServices: shortenedurls.New(
+			shortenedurls.Opts{
+				Repository: shortenedUrlsRepo,
+				Config:     *config,
+			},
+		),
 	}
 
 	variablesService := variables.New(

@@ -22,6 +22,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/variables/repeat"
 	"github.com/satont/twir/apps/parser/internal/variables/request"
 	"github.com/satont/twir/apps/parser/internal/variables/sender"
+	"github.com/satont/twir/apps/parser/internal/variables/shorturl"
 	"github.com/satont/twir/apps/parser/internal/variables/song"
 	"github.com/satont/twir/apps/parser/internal/variables/stream"
 	"github.com/satont/twir/apps/parser/internal/variables/subscribers"
@@ -140,6 +141,7 @@ func New(opts *Opts) *Variables {
 			seventv.ProfileCreatedAt,
 			seventv.UnlockedPaints,
 			repeat.Variable,
+			shorturl.Variable,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},

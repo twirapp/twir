@@ -32,6 +32,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/kappagen"
 	"github.com/satont/twir/apps/parser/internal/commands/permit"
 	"github.com/satont/twir/apps/parser/internal/commands/prefix"
+	"github.com/satont/twir/apps/parser/internal/commands/shorturl"
 	"github.com/satont/twir/apps/parser/internal/commands/shoutout"
 	"github.com/satont/twir/apps/parser/internal/commands/song"
 	sr_youtube "github.com/satont/twir/apps/parser/internal/commands/songrequest/youtube"
@@ -139,6 +140,7 @@ func New(opts *Opts) *Commands {
 			chat_wall.Ban,
 			chat_wall.Timeout,
 			chat_wall.Stop,
+			shorturl.Command,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
