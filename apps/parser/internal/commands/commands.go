@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -238,9 +239,6 @@ func (c *Commands) ParseCommandResponses(
 	// this shit comes from 7tv for bypass message duplicate
 	params = strings.ReplaceAll(params, "\U000e0000", "")
 	params = strings.TrimSpace(params)
-	if len(params) > 0 {
-		cmdParams = &params
-	}
 
 	var defaultCommand *types.DefaultCommand
 
@@ -648,5 +646,34 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		data,
 	)
 
+	responsesWithRepeats := make([]string, 0, len(result.Responses))
+	for _, r := range result.Responses {
+		if !repeatRegexp.MatchString(r) {
+			responsesWithRepeats = append(responsesWithRepeats, r)
+			continue
+		}
+
+		parsedMarker := repeatRegexp.FindString(r)
+		if parsedMarker == "" {
+			responsesWithRepeats = append(responsesWithRepeats, r)
+			continue
+		}
+
+		repeatCountMatch := repeatRegexp.FindStringSubmatch(r)
+		repeatCount, _ := strconv.Atoi(repeatCountMatch[1])
+
+		if repeatCount < 1 {
+			repeatCount = 1
+		}
+
+		for i := 0; i < repeatCount; i++ {
+			responsesWithRepeats = append(responsesWithRepeats, strings.ReplaceAll(r, parsedMarker, ""))
+		}
+	}
+
+	result.Responses = responsesWithRepeats
+
 	return result, nil
 }
+
+var repeatRegexp = regexp.MustCompile(`__REPEAT_MARKER_(\d+)__`)

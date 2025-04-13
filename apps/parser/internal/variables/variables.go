@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 
@@ -18,6 +19,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/variables/followers"
 	"github.com/satont/twir/apps/parser/internal/variables/keywords"
 	"github.com/satont/twir/apps/parser/internal/variables/random"
+	"github.com/satont/twir/apps/parser/internal/variables/repeat"
 	"github.com/satont/twir/apps/parser/internal/variables/request"
 	"github.com/satont/twir/apps/parser/internal/variables/sender"
 	"github.com/satont/twir/apps/parser/internal/variables/song"
@@ -131,6 +133,7 @@ func New(opts *Opts) *Variables {
 			seventv.EmoteSetLink,
 			seventv.EmoteSetName,
 			seventv.EmoteSetCount,
+			repeat.Variable,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},
@@ -155,6 +158,17 @@ func (c *Variables) ParseVariablesInText(
 	variablesParseCtx := &types.VariableParseContext{
 		ParseContext: parseCtx,
 	}
+
+	variablesCopy := make([]*types.Variable, 0, len(c.Store))
+	for _, v := range c.Store {
+		variablesCopy = append(variablesCopy, v)
+	}
+
+	slices.SortFunc(
+		variablesCopy, func(a, b *types.Variable) int {
+			return b.Priority - a.Priority
+		},
+	)
 
 	for _, s := range Regexp.FindAllString(input, len(input)) {
 		wg.Add(1)

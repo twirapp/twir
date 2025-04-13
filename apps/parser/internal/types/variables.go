@@ -29,6 +29,7 @@ type Variable struct {
 	DisableInCustomVariables bool
 	CanBeUsedInRegistry      bool
 	NotCachable              bool
+	Priority                 int // Higher number = higher priority, default 0
 }
 
 type VariableParseContext struct {
