@@ -8,7 +8,7 @@ async function generateSwagger() {
 		try {
 			await generateApi({
 				name: 'openapi.ts',
-				url: 'http://localhost:3009/openapi.yaml',
+				url: 'http://localhost:3009/docs/openapi.json',
 				output: fileURLToPath(new URL(`./`, import.meta.url)),
 				generateClient: true,
 				httpClientType: 'fetch',

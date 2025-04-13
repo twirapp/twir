@@ -60,6 +60,12 @@ export interface CreateLinkInputDto {
    * @format uri
    */
   $schema?: string;
+  /**
+   * @format uri
+   * @minLength 1
+   * @maxLength 2000
+   * @pattern ^https?://.*
+   */
   url: string;
 }
 
@@ -108,6 +114,7 @@ export interface LinkOutputDto {
    * @format uri
    */
   $schema?: string;
+  id: string;
   short_url: string;
   url: string;
 }
@@ -158,7 +165,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "";
+  public baseUrl: string = "https://twir.localhost/api";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -325,6 +332,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Twir Api
  * @version 1.0.0
+ * @baseUrl https://twir.localhost/api
  */
 export class Api<SecurityDataType extends unknown> {
   http: HttpClient<SecurityDataType>;
@@ -333,56 +341,6 @@ export class Api<SecurityDataType extends unknown> {
     this.http = http;
   }
 
-  api = {
-    /**
-     * No description
-     *
-     * @tags Shortened urls api
-     * @name GetShortUrl
-     * @summary Get short url data
-     * @request GET:/api/links
-     * @response `200` `LinkOutputDto` OK
-     * @response `default` `ErrorModel` Error
-     */
-    getShortUrl: (
-      query: {
-        /**
-         * @minLength 1
-         * @maxLength 5
-         * @pattern ^[a-zA-Z0-9]+$
-         */
-        shortId: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<LinkOutputDto, any>({
-        path: `/api/links`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Shortened urls api
-     * @name CreateShortUrl
-     * @summary Create short url
-     * @request POST:/api/links
-     * @response `200` `LinkOutputDto` OK
-     * @response `default` `ErrorModel` Error
-     */
-    createShortUrl: (data: CreateLinkInputDto, params: RequestParams = {}) =>
-      this.http.request<LinkOutputDto, any>({
-        path: `/api/links`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-  };
   auth = {
     /**
      * No description
@@ -440,21 +398,69 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
-  };
-  shortId = {
+
     /**
      * No description
      *
-     * @tags Shortened urls
-     * @name GetShortUrl
+     * @tags Short links
+     * @name ShortUrlGetInfo
+     * @summary Get short url data
+     * @request GET:/v1/short-links
+     * @response `200` `LinkOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortUrlGetInfo: (
+      query: {
+        /**
+         * @minLength 1
+         * @maxLength 5
+         * @pattern ^[a-zA-Z0-9]+$
+         */
+        shortId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<LinkOutputDto, any>({
+        path: `/v1/short-links`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortUrlCreate
+     * @summary Create short url
+     * @request POST:/v1/short-links
+     * @response `200` `LinkOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortUrlCreate: (data: CreateLinkInputDto, params: RequestParams = {}) =>
+      this.http.request<LinkOutputDto, any>({
+        path: `/v1/short-links`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortUrlRedirect
      * @summary Redirect to url
-     * @request GET:/{shortId}
+     * @request GET:/v1/short-links/{shortId}
      * @response `301` `void` Moved Permanently
      * @response `default` `ErrorModel` Error
      */
-    getShortUrl: (shortId: string, params: RequestParams = {}) =>
+    shortUrlRedirect: (shortId: string, params: RequestParams = {}) =>
       this.http.request<ErrorModel, void>({
-        path: `/${shortId}`,
+        path: `/v1/short-links/${shortId}`,
         method: "GET",
         format: "json",
         ...params,

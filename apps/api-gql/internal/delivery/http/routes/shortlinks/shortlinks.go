@@ -24,7 +24,7 @@ func New(opts Opts) {
 	huma.Register(
 		opts.Api,
 		huma.Operation{
-			OperationID: "create-short-url",
+			OperationID: "short-url-create",
 			Method:      http.MethodPost,
 			Path:        "/v1/short-links",
 			Tags:        []string{"Short links"},
@@ -78,7 +78,7 @@ func New(opts Opts) {
 	huma.Register(
 		opts.Api,
 		huma.Operation{
-			OperationID: "get-short-url",
+			OperationID: "short-url-get-info",
 			Method:      http.MethodGet,
 			Path:        "/v1/short-links",
 			Tags:        []string{"Short links"},
@@ -116,7 +116,7 @@ func New(opts Opts) {
 	huma.Register(
 		opts.Api,
 		huma.Operation{
-			OperationID:   "get-short-url",
+			OperationID:   "short-url-redirect",
 			Method:        http.MethodGet,
 			Path:          "/v1/short-links/{shortId}",
 			Tags:          []string{"Short links"},
