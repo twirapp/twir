@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -13,6 +12,7 @@ import (
 	"github.com/satont/twir/apps/parser/pkg/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
+	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
 
 const emoteFindArgName = "emoteName"
@@ -38,34 +38,32 @@ var EmoteFind = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		profile, err := parseCtx.Services.SevenTvCache.Get(ctx, parseCtx.Channel.ID)
+		client := seventvintegration.NewClient(parseCtx.Services.Config.SevenTvToken)
+
+		profile, err := client.GetProfileByTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv profile"),
+				Message: fmt.Sprintf("Failed to get 7tv profile: %v", err),
 				Err:     err,
 			}
 		}
 
-		if profile.EmoteSet == nil {
+		if profile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv emote set"),
-				Err:     fmt.Errorf("emote set is not set"),
-			}
-		}
-
-		if len(profile.EmoteSet.Emotes) == 0 {
-			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv emotes"),
-				Err:     fmt.Errorf("emotes are not set"),
+				Message: fmt.Sprintf("Emote set is not set"),
 			}
 		}
 
 		arg := strings.ToLower(parseCtx.ArgsParser.Get(emoteFindArgName).String())
 
-		var foundEmote *seventvintegration.Emote
-		for _, emote := range profile.EmoteSet.Emotes {
-			loweredName := strings.ToLower(emote.Name)
-			if loweredName == arg {
+		var foundEmote *seventvintegrationapi.TwirSeventvUserStyleActiveEmoteSetEmotesEmoteSetEmoteSearchResultItemsEmoteSetEmote
+		for _, emote := range profile.Users.UserByConnection.Style.ActiveEmoteSet.Emotes.Items {
+			if strings.ToLower(emote.Alias) == arg {
+				foundEmote = &emote
+				break
+			}
+
+			if strings.ToLower(emote.Emote.DefaultName) == arg {
 				foundEmote = &emote
 				break
 			}
@@ -79,30 +77,26 @@ var EmoteFind = &types.DefaultCommand{
 			}, nil
 		}
 
-		adderProfile, err := parseCtx.Services.SevenTvCacheBySevenTvID.Get(
-			ctx,
-			foundEmote.ActorId,
-		)
+		adderProfile, err := client.GetProfileById(ctx, *foundEmote.AddedById)
 		if err != nil {
-			parseCtx.Services.Logger.Sugar().Error(err)
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get adder 7tv profile"),
+				Message: fmt.Sprintf("Failed to get 7tv profile of adder: %v", err),
+				Err:     err,
 			}
 		}
 
 		if adderProfile == nil {
 			parseCtx.Services.Logger.Sugar().Error("Failed to get adder 7tv profile")
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get adder 7tv profile"),
+				Message: "Failed to get adder 7tv profile",
 				Err:     err,
 			}
 		}
 
-		addedBy := fmt.Sprintf("%s", adderProfile.Username)
-		emoteLink := fmt.Sprintf("https://7tv.app/emotes/%s", foundEmote.Id)
+		emoteLink := "https://7tv.app/emotes/" + foundEmote.Id
 
 		addedAgo := helpers.Duration(
-			time.UnixMilli(foundEmote.Timestamp),
+			foundEmote.AddedAt,
 			&helpers.DurationOpts{
 				UseUtc: true,
 				Hide: helpers.DurationOptsHide{
@@ -112,17 +106,17 @@ var EmoteFind = &types.DefaultCommand{
 		)
 		author := fmt.Sprintf(
 			"%s: https://7tv.app/users/%s",
-			foundEmote.Data.Owner.Username,
-			foundEmote.Data.Owner.Id,
+			foundEmote.Emote.Owner.MainConnection.PlatformDisplayName,
+			foundEmote.Emote.Owner.Id,
 		)
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
 					"%s: %s · Added by @%s %v ago · Author %s",
-					foundEmote.Name,
+					foundEmote.Emote.DefaultName,
 					emoteLink,
-					addedBy,
+					adderProfile.Users.User.MainConnection.PlatformDisplayName,
 					addedAgo,
 					author,
 				),

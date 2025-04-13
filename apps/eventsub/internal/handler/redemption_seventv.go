@@ -38,30 +38,35 @@ func (c *Handler) handleRewardsSevenTvEmote(
 	}
 
 	ctx := context.TODO()
-	broadcasterProfile, err := seventv.GetProfile(ctx, event.BroadcasterUserID)
+
+	client := seventv.NewClient(c.config.SevenTvToken)
+
+	broadcasterProfile, err := client.GetProfileByTwitchId(ctx, event.BroadcasterUserID)
 	if err != nil {
 		return err
 	}
 
-	if broadcasterProfile.EmoteSet == nil {
+	if broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
 		return nil
 	}
 
-	emoteId := seventv.FindEmoteIdInInput(event.UserInput)
-	if emoteId == "" {
-		return nil
+	emote, err := client.GetOneEmoteByNameOrLink(ctx, event.UserInput)
+	if err != nil {
+		return err
 	}
+
+	emoteId := emote.Id
 
 	if event.Reward.ID == settings.RewardIdForRemoveEmote.String {
 		if settings.DeleteEmotesOnlyAddedByApp && !slices.Contains(settings.AddedEmotes, emoteId) {
 			return nil
 		}
 
-		err = seventv.RemoveEmote(
+		err = client.RemoveEmote(
 			ctx,
-			c.config.SevenTvToken,
+			broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet.Id,
 			event.UserInput,
-			broadcasterProfile.EmoteSet.Id,
+			emoteId,
 		)
 		if err != nil {
 			zap.S().Error(err)
@@ -80,11 +85,11 @@ func (c *Handler) handleRewardsSevenTvEmote(
 	}
 
 	if event.Reward.ID == settings.RewardIdForAddEmote.String {
-		err = seventv.AddEmote(
+		err = client.AddEmote(
 			ctx,
-			c.config.SevenTvToken,
-			event.UserInput,
-			broadcasterProfile.EmoteSet.Id,
+			broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet.Id,
+			emoteId,
+			emote.DefaultName,
 		)
 		if err != nil {
 			return err
@@ -94,8 +99,6 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		err = c.gorm.Save(settings).Error
 		return err
 	}
-
-	c.seventvCache.Invalidate(ctx, event.BroadcasterUserID)
 
 	return nil
 }

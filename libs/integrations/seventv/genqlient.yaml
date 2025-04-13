@@ -1,0 +1,13 @@
+# Default genqlient config; for full documentation see:
+# https://github.com/Khan/genqlient/blob/main/docs/genqlient.yaml
+schema: gql/schema.graphqls
+operations:
+  - gql/operations.graphqls
+generated: api/generated.go
+optional: pointer
+bindings:
+  # To bind a scalar:
+  Id:
+    type: string
+  DateTime:
+    type: time.Time

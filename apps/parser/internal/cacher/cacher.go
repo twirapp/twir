@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	model "github.com/satont/twir/libs/gomodels"
+	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
 
 type locks struct {
@@ -48,6 +49,8 @@ type cache struct {
 	channelIntegrations []*model.ChannelsIntegrations
 
 	valorantMatches []types.ValorantMatch
+	
+	seventvprofile *seventvintegrationapi.TwirSeventvUser
 }
 
 type cacher struct {

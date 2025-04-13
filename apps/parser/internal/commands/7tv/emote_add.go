@@ -10,10 +10,12 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
-	"go.uber.org/zap"
 )
 
-const emoteForAddArgLink = "link"
+const (
+	emoteForAddArgLink   = "link"
+	emoteForAddArgAliase = "aliase"
+)
 
 var EmoteAdd = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
@@ -30,57 +32,69 @@ var EmoteAdd = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: emoteForAddArgLink,
+			Hint: "link or name",
+		},
+		command_arguments.String{
+			Name:     emoteForAddArgAliase,
+			Optional: true,
+			Hint:     "optional name",
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		profile, err := parseCtx.Services.SevenTvCache.Get(ctx, parseCtx.Channel.ID)
+		client := seventvintegration.NewClient(parseCtx.Services.Config.SevenTvToken)
+
+		sevenTvUser, err := client.GetProfileByTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv profile"),
+				Message: fmt.Sprintf("Failed to get 7tv profile: %v", err),
+				Err:     err,
+			}
+		}
+		if sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSetId == nil {
+			return &types.CommandsHandlerResult{
+				Result: []string{
+					`❌ No active emote set`,
+				},
+			}, nil
+		}
+
+		nameOrLinkArgument := parseCtx.ArgsParser.Get(emoteForAddArgLink).String()
+
+		emote, err := client.GetOneEmoteByNameOrLink(ctx, nameOrLinkArgument)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: fmt.Sprintf("Failed to get 7tv emote: %v", err),
 				Err:     err,
 			}
 		}
 
-		if profile.EmoteSet == nil {
-			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv emote set"),
-				Err:     fmt.Errorf("emote set is not set"),
-			}
+		var emoteName string
+		aliaseArgument := parseCtx.ArgsParser.Get(emoteForAddArgAliase)
+		if aliaseArgument != nil {
+			emoteName = aliaseArgument.String()
+		} else {
+			emoteName = emote.DefaultName
 		}
 
-		arg := parseCtx.ArgsParser.Get(emoteForAddArgLink).String()
-
-		link := seventvintegration.FindEmoteIdInInput(arg)
-		if link == "" {
-			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Invalid arg, link should be used"),
-			}
-		}
-
-		err = seventvintegration.AddEmote(
+		err = client.AddEmote(
 			ctx,
-			parseCtx.Services.Config.SevenTvToken,
-			arg,
-			profile.EmoteSet.Id,
+			*sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSetId,
+			emote.Id,
+			emoteName,
 		)
-
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to add 7tv emote: %s", err.Error()),
+				Message: fmt.Sprintf("Failed to add 7tv emote: %v", err),
 				Err:     err,
 			}
-		}
-
-		if err := parseCtx.Services.SevenTvCache.Invalidate(ctx, parseCtx.Channel.ID); err != nil {
-			parseCtx.Services.Logger.Error("cannot invalidate channel seventv cache", zap.Error(err))
 		}
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(`✅ Emote added`),
+				`✅ Emote added`,
 			},
 		}, nil
 	},

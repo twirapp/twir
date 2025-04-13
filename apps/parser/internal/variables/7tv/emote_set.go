@@ -3,6 +3,7 @@ package seventv
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -17,20 +18,19 @@ var EmoteSetName = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		profile, err := parseCtx.Services.SevenTvCache.Get(ctx, parseCtx.Channel.ID)
+		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
 			return &result, nil
 		}
-		if profile.EmoteSet == nil {
+		if profile.Style.ActiveEmoteSet == nil {
 			result.Result = fmt.Sprintf(
-				"[Twir err] Failed to get 7tv emote set: %s",
-				"emote set is not set",
+				"[Twir err] No active emote set",
 			)
 			return &result, nil
 		}
 
-		result.Result = profile.EmoteSet.Name
+		result.Result = profile.Style.ActiveEmoteSet.Name
 
 		return &result, nil
 	},
@@ -45,20 +45,19 @@ var EmoteSetLink = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		profile, err := parseCtx.Services.SevenTvCache.Get(ctx, parseCtx.Channel.ID)
+		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
 			return &result, nil
 		}
-		if profile.EmoteSet == nil {
+		if profile.Style.ActiveEmoteSet == nil {
 			result.Result = fmt.Sprintf(
-				"[Twir err] Failed to get 7tv emote set: %s",
-				"emote set is not set",
+				"[Twir err] No active emote set",
 			)
 			return &result, nil
 		}
 
-		result.Result = fmt.Sprintf("https://7tv.app/emote-sets/%s", profile.EmoteSet.Id)
+		result.Result = fmt.Sprintf("https://7tv.app/emote-sets/%s", profile.Style.ActiveEmoteSet.Id)
 
 		return &result, nil
 	},
@@ -73,20 +72,48 @@ var EmoteSetCount = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		profile, err := parseCtx.Services.SevenTvCache.Get(ctx, parseCtx.Channel.ID)
+		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
 			return &result, nil
 		}
-		if profile.EmoteSet == nil {
+		if profile.Style.ActiveEmoteSet == nil {
 			result.Result = fmt.Sprintf(
-				"[Twir err] Failed to get 7tv emote set: %s",
-				"emote set is not set",
+				"[Twir err] No active emote set",
 			)
 			return &result, nil
 		}
 
-		result.Result = fmt.Sprint(len(profile.EmoteSet.Emotes))
+		result.Result = fmt.Sprint(len(profile.Style.ActiveEmoteSet.Emotes.Items))
+
+		return &result, nil
+	},
+}
+
+var EmoteSetCapacity = &types.Variable{
+	Name:         "7tv.emoteset.capacity",
+	Description:  lo.ToPtr("Capacity of set"),
+	CommandsOnly: true,
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
+		result := types.VariableHandlerResult{}
+
+		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
+		if err != nil {
+			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
+			return &result, nil
+		}
+		if profile.Style.ActiveEmoteSet == nil {
+			result.Result = "[Twir err] No active emote set"
+			return &result, nil
+		}
+		if profile.Style.ActiveEmoteSet.Capacity == nil {
+			result.Result = "0"
+			return &result, nil
+		}
+
+		result.Result = strconv.Itoa(*profile.Style.ActiveEmoteSet.Capacity)
 
 		return &result, nil
 	},

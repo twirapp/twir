@@ -13,13 +13,11 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/cache/7tv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
@@ -47,10 +45,9 @@ type Handler struct {
 	gorm        *gorm.DB
 	redisClient *redis.Client
 
-	bus          *bus_core.Bus
-	seventvCache *generic_cacher.GenericCacher[*seventvintegration.ProfileResponse]
-	prefixCache  *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
-	config       cfg.Config
+	bus         *bus_core.Bus
+	prefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+	config      cfg.Config
 }
 
 type Opts struct {
@@ -95,7 +92,6 @@ func New(opts Opts) *Handler {
 		tokensGrpc:              opts.TokensGrpc,
 		tracer:                  opts.Tracer,
 		bus:                     opts.Bus,
-		seventvCache:            seventv.New(opts.Redis),
 		prefixCache:             opts.PrefixCache,
 		scheduledVipsRepo:       opts.ScheduledVipsRepo,
 		channelsCache:           opts.ChannelsRepo,

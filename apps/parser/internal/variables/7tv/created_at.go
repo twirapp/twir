@@ -6,11 +6,12 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/pkg/helpers"
 )
 
-var ProfileLink = &types.Variable{
-	Name:         "7tv.profile.link",
-	Description:  lo.ToPtr("Link to 7tv profile"),
+var ProfileCreatedAt = &types.Variable{
+	Name:         "7tv.profile.createdAt",
+	Description:  lo.ToPtr("Date when profile created on 7tv"),
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
@@ -21,7 +22,7 @@ var ProfileLink = &types.Variable{
 		if err != nil {
 			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
 		} else {
-			result.Result = "https://7tv.app/users/" + profile.Id
+			result.Result = helpers.Duration(profile.MainConnection.LinkedAt, &helpers.DurationOpts{})
 		}
 
 		return &result, nil

@@ -18,7 +18,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/grpc/ytsr"
-	"github.com/twirapp/twir/libs/integrations/seventv"
+	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
@@ -52,8 +52,7 @@ type Services struct {
 	TrmManager               trm.Manager
 	CommandsCache            *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	CommandsPrefixCache      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
-	SevenTvCache             *generic_cacher.GenericCacher[*seventv.ProfileResponse]
-	SevenTvCacheBySevenTvID  *generic_cacher.GenericCacher[*seventv.ProfileResponse]
+	SevenTvCache             *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser]
 	ChatWallCache            *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
 	ChatWallService          *chat_wall.Service
 	RedSync                  *redsync.Redsync

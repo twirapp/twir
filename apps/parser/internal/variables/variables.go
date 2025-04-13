@@ -133,6 +133,12 @@ func New(opts *Opts) *Variables {
 			seventv.EmoteSetLink,
 			seventv.EmoteSetName,
 			seventv.EmoteSetCount,
+			seventv.Roles,
+			seventv.EmoteSetCapacity,
+			seventv.Paint,
+			seventv.EditorForCount,
+			seventv.ProfileCreatedAt,
+			seventv.UnlockedPaints,
 			repeat.Variable,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v

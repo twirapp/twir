@@ -15,13 +15,13 @@ type SevenTvProfile struct {
 	Username    string
 	DisplayName string
 	Editors     []SevenTvProfileEditor
+	EditorFor   []SevenTvProfileEditor
 	EmoteSetID  *string
 	AvatarURI   string
 }
 
 type SevenTvProfileEditor struct {
-	ID          string
-	Permissions int
-	Visible     bool
-	AddedAt     int64
+	ID                   string
+	HasEmotesPermissions bool
+	AddedAt              int64
 }

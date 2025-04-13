@@ -11,7 +11,12 @@ require (
 )
 
 require (
+	github.com/Khan/genqlient v0.8.0 // indirect
+	github.com/agnivade/levenshtein v1.1.1 // indirect
+	github.com/alexflint/go-arg v1.4.2 // indirect
+	github.com/alexflint/go-scalar v1.0.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/cloudflare/circl v1.5.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
@@ -32,6 +37,7 @@ require (
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.19 // indirect
 	go.uber.org/mock v0.5.0 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
@@ -43,4 +49,7 @@ require (
 	golang.org/x/time v0.7.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
 	google.golang.org/protobuf v1.36.4-0.20250116160514-2005adbe0cf6 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+tool github.com/Khan/genqlient

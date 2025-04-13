@@ -3,10 +3,9 @@ package seventv_integration
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
+	config "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twirapp/twir/libs/repositories/bots"
@@ -20,6 +19,7 @@ type Opts struct {
 	SeventvRepository seventvintegrationrepository.Repository
 	BotsRepository    bots.Repository
 	Redis             *redis.Client
+	Config            config.Config
 }
 
 func New(opts Opts) *Service {
@@ -27,6 +27,7 @@ func New(opts Opts) *Service {
 		seventvRepository: opts.SeventvRepository,
 		botsRepository:    opts.BotsRepository,
 		redis:             opts.Redis,
+		config:            opts.Config,
 	}
 }
 
@@ -34,59 +35,52 @@ type Service struct {
 	seventvRepository seventvintegrationrepository.Repository
 	redis             *redis.Client
 	botsRepository    bots.Repository
+	config            config.Config
 }
 
-const botSevenTvProfileKey = "cache:api:seventv:bot_profile"
-
 func (c *Service) getBotSevenTvProfile(ctx context.Context) (entity.SevenTvProfile, error) {
-	cachedBytes, err := c.redis.Get(ctx, botSevenTvProfileKey).Bytes()
-	if len(cachedBytes) > 0 {
-		parsedCached := entity.SevenTvProfile{}
-		if err := json.Unmarshal(cachedBytes, &parsedCached); err != nil {
-			return entity.SevenTvProfile{}, err
-		}
-
-		return parsedCached, nil
-	}
-
 	defaultBot, err := c.botsRepository.GetDefault(ctx)
 	if err != nil {
 		return entity.SevenTvProfile{}, fmt.Errorf("failed to get default bot: %w", err)
 	}
 
-	resp, err := seventv.GetProfile(ctx, defaultBot.ID)
+	client := seventv.NewClient(c.config.SevenTvToken)
+
+	resp, err := client.GetProfileByTwitchId(ctx, defaultBot.ID)
 	if err != nil {
 		return entity.SevenTvProfile{}, fmt.Errorf("failed to get bot profile: %w", err)
 	}
 
-	editors := make([]entity.SevenTvProfileEditor, 0, len(resp.User.Editors))
-	for _, editor := range resp.User.Editors {
-		editors = append(
-			editors,
+	editorFor := make([]entity.SevenTvProfileEditor, 0, len(resp.Users.UserByConnection.EditorFor))
+	for _, editor := range resp.Users.UserByConnection.EditorFor {
+		var hasEmotesPermissions bool
+		if editor.Permissions.SuperAdmin || (editor.Permissions.Emote.Admin && editor.Permissions.EmoteSet.Admin) {
+			hasEmotesPermissions = true
+		}
+
+		editorFor = append(
+			editorFor,
 			entity.SevenTvProfileEditor{
-				ID:          editor.Id,
-				Permissions: editor.Permissions,
-				Visible:     editor.Visible,
-				AddedAt:     editor.AddedAt,
+				ID:                   editor.EditorId,
+				AddedAt:              editor.AddedAt.UnixMilli(),
+				HasEmotesPermissions: hasEmotesPermissions,
 			},
 		)
 	}
 
+	var avatarUrl string
+	if resp.Users.UserByConnection.MainConnection.PlatformAvatarUrl != nil {
+		avatarUrl = *resp.Users.UserByConnection.MainConnection.PlatformAvatarUrl
+	}
+
 	profile := entity.SevenTvProfile{
-		ID:          resp.User.Id,
-		Username:    resp.Username,
-		DisplayName: resp.DisplayName,
-		Editors:     editors,
-		AvatarURI:   resp.User.AvatarUrl,
-	}
-
-	profileBytes, err := json.Marshal(profile)
-	if err != nil {
-		return entity.SevenTvProfile{}, fmt.Errorf("failed to marshal profile: %w", err)
-	}
-
-	if err := c.redis.Set(ctx, botSevenTvProfileKey, profileBytes, 1*time.Hour).Err(); err != nil {
-		return entity.SevenTvProfile{}, fmt.Errorf("failed to cache profile: %w", err)
+		ID:          resp.Users.UserByConnection.Id,
+		Username:    resp.Users.UserByConnection.MainConnection.PlatformUsername,
+		DisplayName: resp.Users.UserByConnection.MainConnection.PlatformDisplayName,
+		Editors:     nil,
+		EditorFor:   editorFor,
+		AvatarURI:   avatarUrl,
+		EmoteSetID:  resp.Users.UserByConnection.Style.ActiveEmoteSetId,
 	}
 
 	return profile, nil
@@ -96,34 +90,43 @@ func (c *Service) getUserSevenTvResponse(ctx context.Context, userID string) (
 	entity.SevenTvProfile,
 	error,
 ) {
-	resp, err := seventv.GetProfile(ctx, userID)
+	client := seventv.NewClient(c.config.SevenTvToken)
+
+	resp, err := client.GetProfileByTwitchId(ctx, userID)
 	if err != nil {
 		return entity.SevenTvProfile{}, fmt.Errorf("failed to get bot profile: %w", err)
 	}
 
-	editors := make([]entity.SevenTvProfileEditor, 0, len(resp.User.Editors))
-	for _, editor := range resp.User.Editors {
+	editors := make([]entity.SevenTvProfileEditor, 0, len(resp.Users.UserByConnection.Editors))
+	for _, editor := range resp.Users.UserByConnection.Editors {
+		var hasEmotesPermissions bool
+		if editor.Permissions.SuperAdmin || (editor.Permissions.Emote.Admin && editor.Permissions.EmoteSet.Admin) {
+			hasEmotesPermissions = true
+		}
+
 		editors = append(
 			editors,
 			entity.SevenTvProfileEditor{
-				ID:          editor.Id,
-				Permissions: editor.Permissions,
-				Visible:     editor.Visible,
-				AddedAt:     editor.AddedAt,
+				ID:                   editor.EditorId,
+				AddedAt:              editor.AddedAt.UnixMilli(),
+				HasEmotesPermissions: hasEmotesPermissions,
 			},
 		)
 	}
 
-	profile := entity.SevenTvProfile{
-		ID:          resp.User.Id,
-		Username:    resp.Username,
-		DisplayName: resp.DisplayName,
-		Editors:     editors,
-		AvatarURI:   resp.User.AvatarUrl,
+	var avatarUrl string
+	if resp.Users.UserByConnection.MainConnection.PlatformAvatarUrl != nil {
+		avatarUrl = *resp.Users.UserByConnection.MainConnection.PlatformAvatarUrl
 	}
 
-	if resp.EmoteSet != nil {
-		profile.EmoteSetID = &resp.EmoteSet.Id
+	profile := entity.SevenTvProfile{
+		ID:          resp.Users.UserByConnection.Id,
+		Username:    resp.Users.UserByConnection.MainConnection.PlatformUsername,
+		DisplayName: resp.Users.UserByConnection.MainConnection.PlatformDisplayName,
+		Editors:     editors,
+		EditorFor:   nil,
+		AvatarURI:   avatarUrl,
+		EmoteSetID:  resp.Users.UserByConnection.Style.ActiveEmoteSetId,
 	}
 
 	return profile, nil

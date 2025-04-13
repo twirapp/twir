@@ -3,7 +3,6 @@ package seventv
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -11,7 +10,6 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
-	"go.uber.org/zap"
 )
 
 const emoteOldNameArgName = "oldName"
@@ -41,69 +39,67 @@ var EmoteRename = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		profile, err := parseCtx.Services.SevenTvCache.Get(ctx, parseCtx.Channel.ID)
+		client := seventvintegration.NewClient(parseCtx.Services.Config.SevenTvToken)
+
+		sevenTvUser, err := client.GetProfileByTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv profile"),
+				Message: fmt.Sprintf("Failed to get 7tv profile: %v", err),
 				Err:     err,
 			}
 		}
-
-		if profile.EmoteSet == nil {
-			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv emote set"),
-				Err:     fmt.Errorf("emote set is not set"),
-			}
-		}
-
-		if len(profile.EmoteSet.Emotes) == 0 {
-			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv emotes"),
-				Err:     fmt.Errorf("emotes are not set"),
-			}
-		}
-
-		arg := strings.ToLower(parseCtx.ArgsParser.Get(emoteOldNameArgName).String())
-
-		var foundEmote *seventvintegration.Emote
-		for _, emote := range profile.EmoteSet.Emotes {
-			loweredName := strings.ToLower(emote.Name)
-			if loweredName == arg {
-				foundEmote = &emote
-				break
-			}
-		}
-
-		if foundEmote == nil {
+		if sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSetId == nil {
 			return &types.CommandsHandlerResult{
 				Result: []string{
-					fmt.Sprintf(`Emote "%s" not found`, arg),
+					`❌ No active emote set`,
 				},
 			}, nil
 		}
 
+		oldName := parseCtx.ArgsParser.Get(emoteOldNameArgName).String()
 		newName := parseCtx.ArgsParser.Get(emoteNewNameArgName).String()
 
-		err = seventvintegration.RenameEmote(
-			ctx, parseCtx.Services.Config.SevenTvToken,
-			profile.EmoteSet.Id,
-			foundEmote.Id,
+		var foundEmoteId string
+		for _, emote := range sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSet.Emotes.Items {
+			if emote.Alias == oldName {
+				foundEmoteId = emote.Emote.Id
+				break
+			}
+
+			if emote.Emote.DefaultName == oldName {
+				foundEmoteId = emote.Emote.Id
+				break
+			}
+		}
+
+		if foundEmoteId == "" {
+			return &types.CommandsHandlerResult{
+				Result: []string{
+					fmt.Sprintf(
+						`Emote "%s" not found in set %s`,
+						oldName,
+						sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSet.Name,
+					),
+				},
+			}, nil
+		}
+
+		err = client.RenameEmote(
+			ctx,
+			*sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSetId,
+			foundEmoteId,
 			newName,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to rename 7tv emote"),
+				Message: fmt.Sprintf("Failed to rename 7tv emote: %v", err),
 				Err:     err,
 			}
 		}
 
-		if err := parseCtx.Services.SevenTvCache.Invalidate(ctx, parseCtx.Channel.ID); err != nil {
-			parseCtx.Services.Logger.Error("cannot invalidate channel seventv cache", zap.Error(err))
-		}
-
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(`✅ Emote "%s" renamed to "%s"`, foundEmote.Name, newName),
+				fmt.Sprintf(`✅ Emote "%s" renamed to "%s"`, oldName, newName),
 			},
 		}, nil
 	},

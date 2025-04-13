@@ -1,0 +1,227 @@
+fragment TwirSeventvUser on User {
+	id
+	mainConnection {
+		platform
+		platformDisplayName
+		platformUsername
+		linkedAt
+		platformAvatarUrl
+	}
+	updatedAt
+	editors {
+		state
+		addedById
+		userId
+		editorId
+		addedAt
+		permissions {
+			user {
+				admin
+				manageBilling
+				manageEditors
+				managePersonalEmoteSet
+				manageProfile
+			}
+			emoteSet {
+				admin
+				create
+				manage
+			}
+			emote {
+				manage
+				create
+				admin
+				transfer
+			}
+			superAdmin
+		}
+	}
+	editorFor {
+		addedById
+		userId
+		editorId
+		addedAt
+		permissions {
+			user {
+				admin
+				manageBilling
+				manageEditors
+				managePersonalEmoteSet
+				manageProfile
+			}
+			emoteSet {
+				admin
+				create
+				manage
+			}
+			emote {
+				manage
+				create
+				admin
+				transfer
+			}
+			superAdmin
+		}
+	}
+	emoteSets {
+		id
+		name
+		kind
+		emotes {
+			items {
+				id
+				alias
+				emote {
+					id
+					defaultName
+					owner {
+						id
+						mainConnection {
+							platform
+							platformUsername
+							platformDisplayName
+						}
+					}
+				}
+				addedById
+				addedAt
+			}
+		}
+	}
+	roles {
+		name
+	}
+	style {
+		activePaint {
+			id
+			name
+		}
+		activeEmoteSet {
+			id
+			name
+			kind
+			emotes {
+				items {
+					id
+					alias
+					emote {
+						id
+						defaultName
+						owner {
+							id
+							mainConnection {
+								platform
+								platformUsername
+								platformDisplayName
+							}
+						}
+					}
+					addedById
+					addedAt
+				}
+			}
+			capacity
+		}
+		activeEmoteSetId
+	}
+	inventory {
+		badges {
+			to {
+				badge {
+					updatedAt
+					name
+					searchUpdatedAt
+				}
+			}
+		}
+		paints {
+			to {
+				paint {
+					id
+				}
+			}
+		}
+	}
+}
+
+fragment TwirSeventvEmote on Emote {
+	id
+	defaultName
+	images {
+		size
+		width
+		height
+		mime
+		url
+	}
+	ownerId
+	owner {
+		...TwirSeventvUser
+	}
+}
+
+query SearchEmoteByName($query: String!) {
+	emotes {
+		search(query: $query, sort: { order: DESCENDING, sortBy: TOP_ALL_TIME }) {
+			items {
+				...TwirSeventvEmote
+			}
+		}
+	}
+}
+
+query GetOneEmoteById($id: Id!) {
+	emotes {
+		emote(id: $id) {
+			...TwirSeventvEmote
+		}
+	}
+}
+
+mutation AddEmoteToSet($emoteSetId: Id!, $emoteId: EmoteSetEmoteId!) {
+	emoteSets {
+		emoteSet(id: $emoteSetId) {
+			addEmote(id: $emoteId) {
+				id
+				name
+			}
+		}
+	}
+}
+
+mutation DeleteEmoteFromSet($emotesetId: Id!, $emoteId: EmoteSetEmoteId!) {
+	emoteSets {
+		emoteSet(id: $emotesetId) {
+			removeEmote(id: $emoteId) {
+				id
+				name
+			}
+		}
+	}
+}
+
+query GetProfileByTwitchId($id: String!) {
+	users {
+		userByConnection(platform: TWITCH, platformId: $id) {
+			...TwirSeventvUser
+		}
+	}
+}
+
+query GetProfileById($id: Id!) {
+	users {
+		user(id: $id) {
+			...TwirSeventvUser
+		}
+	}
+}
+
+mutation RenameEmote($emoteSetId: Id!, $emoteId: EmoteSetEmoteId!, $alias: String!) {
+	emoteSets {
+		emoteSet(id: $emoteSetId) {
+			updateEmoteAlias(id: $emoteId, alias: $alias) {
+				id
+			}
+		}
+	}
+}

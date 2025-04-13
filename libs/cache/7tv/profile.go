@@ -5,50 +5,32 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	config "github.com/satont/twir/libs/config"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
+	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
 
 func New(
 	redis *redis.Client,
-) *generic_cacher.GenericCacher[*seventvintegration.ProfileResponse] {
-	return generic_cacher.New[*seventvintegration.ProfileResponse](
-		generic_cacher.Opts[*seventvintegration.ProfileResponse]{
+	cfg config.Config,
+) *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser] {
+	return generic_cacher.New[seventvintegrationapi.TwirSeventvUser](
+		generic_cacher.Opts[seventvintegrationapi.TwirSeventvUser]{
 			Redis:     redis,
-			KeyPrefix: "cache:twir:seventv:profile:",
+			KeyPrefix: "cache:twir:seventv:profilev2:",
 			LoadFn: func(ctx context.Context, key string) (
-				*seventvintegration.ProfileResponse,
+				seventvintegrationapi.TwirSeventvUser,
 				error,
 			) {
-				profile, err := seventvintegration.GetProfile(ctx, key)
+				client := seventvintegration.NewClient(cfg.SevenTvToken)
+
+				profile, err := client.GetProfileByTwitchId(ctx, key)
 				if err != nil {
-					return nil, err
+					return seventvintegrationapi.TwirSeventvUser{}, err
 				}
 
-				return &profile, nil
-			},
-			Ttl: 5 * time.Minute,
-		},
-	)
-}
-
-func NewBySeventvID(
-	redis *redis.Client,
-) *generic_cacher.GenericCacher[*seventvintegration.ProfileResponse] {
-	return generic_cacher.New[*seventvintegration.ProfileResponse](
-		generic_cacher.Opts[*seventvintegration.ProfileResponse]{
-			Redis:     redis,
-			KeyPrefix: "cache:twir:seventv:profile:by-seventv-id:",
-			LoadFn: func(ctx context.Context, key string) (
-				*seventvintegration.ProfileResponse,
-				error,
-			) {
-				profile, err := seventvintegration.GetProfileBySevenTvID(ctx, key)
-				if err != nil {
-					return nil, err
-				}
-
-				return &profile, nil
+				return profile.Users.UserByConnection.TwirSeventvUser, nil
 			},
 			Ttl: 5 * time.Minute,
 		},

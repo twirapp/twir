@@ -33,18 +33,20 @@ func (c *Activity) SevenTvEmoteManage(
 		return nil
 	}
 
-	broadcasterProfile, err := seventv.GetProfile(ctx, data.ChannelID)
+	client := seventv.NewClient(c.cfg.SevenTvToken)
+
+	broadcasterProfile, err := client.GetProfileByTwitchId(ctx, data.ChannelID)
 	if err != nil {
 		return err
 	}
 
-	if broadcasterProfile.EmoteSet == nil {
+	if broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
 		return nil
 	}
 
-	emoteId := seventv.FindEmoteIdInInput(hydratedString)
-	if emoteId == "" {
-		return nil
+	emote, err := client.GetOneEmoteByNameOrLink(ctx, hydratedString)
+	if err != nil {
+		return err
 	}
 
 	settings := &model.ChannelsIntegrationsSettingsSeventv{}
@@ -61,45 +63,17 @@ func (c *Activity) SevenTvEmoteManage(
 	}
 
 	if operation.Type == model.OperationSevenTvAddEmote {
-		err := seventv.AddEmote(
+		err = client.AddEmote(
 			ctx,
-			c.cfg.SevenTvToken,
-			hydratedString,
-			broadcasterProfile.EmoteSet.Id,
+			broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet.Id,
+			emote.Id,
+			emote.DefaultName,
 		)
 		if err != nil {
 			return err
 		}
 
-		settings.AddedEmotes = append(settings.AddedEmotes, emoteId)
-		err = c.db.WithContext(ctx).Save(settings).Error
-		if err != nil {
-			return err
-		}
-
-		return nil
-	} else {
-		if settings.DeleteEmotesOnlyAddedByApp && !slices.Contains(settings.AddedEmotes, emoteId) {
-			return nil
-		}
-
-		err := seventv.RemoveEmote(
-			ctx,
-			c.cfg.SevenTvToken,
-			hydratedString,
-			broadcasterProfile.EmoteSet.Id,
-		)
-		if err != nil {
-			return err
-		}
-
-		settings.AddedEmotes = lo.Filter(
-			settings.AddedEmotes,
-			func(s string, _ int) bool {
-				return s != emoteId
-			},
-		)
-
+		settings.AddedEmotes = append(settings.AddedEmotes, emote.Id)
 		err = c.db.WithContext(ctx).Save(settings).Error
 		if err != nil {
 			return err
@@ -107,4 +81,32 @@ func (c *Activity) SevenTvEmoteManage(
 
 		return nil
 	}
+
+	if settings.DeleteEmotesOnlyAddedByApp && !slices.Contains(settings.AddedEmotes, emote.Id) {
+		return nil
+	}
+
+	err = client.RemoveEmote(
+		ctx,
+		broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet.Id,
+		emote.DefaultName,
+		emote.Id,
+	)
+	if err != nil {
+		return err
+	}
+
+	settings.AddedEmotes = lo.Filter(
+		settings.AddedEmotes,
+		func(s string, _ int) bool {
+			return s != emote.Id
+		},
+	)
+
+	err = c.db.WithContext(ctx).Save(settings).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
