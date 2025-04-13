@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
@@ -42,6 +43,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
@@ -90,6 +92,8 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
+	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
+	shortenedurlsrepositorypostgres "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -231,6 +235,10 @@ func main() {
 				chattranslationpostgres.NewFx,
 				fx.As(new(chattranslationrepository.Repository)),
 			),
+			fx.Annotate(
+				shortenedurlsrepositorypostgres.NewFx,
+				fx.As(new(shortenedurlsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -268,6 +276,7 @@ func main() {
 			scheduled_vips.New,
 			chat_wall.New,
 			chat_translation.New,
+			shortenedurls.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -307,6 +316,7 @@ func main() {
 			publicroutes.New,
 			http_webhooks.New,
 			authroutes.New,
+			shortlinks.New,
 		),
 	).Run()
 }

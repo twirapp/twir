@@ -32,6 +32,7 @@ jobs:
           - apps/websockets
           - apps/ytsr
           - apps/chat-translator
+          - apps/url-shortener
           - frontend/dashboard
           - frontend/overlays
     steps:

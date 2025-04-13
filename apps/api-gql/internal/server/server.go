@@ -29,7 +29,7 @@ type Server struct {
 
 func New(opts Opts) *Server {
 	r := gin.New()
-
+	r.Use(gin.Logger())
 	r.Use(
 		cors.New(
 			cors.Config{

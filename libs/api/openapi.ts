@@ -54,6 +54,15 @@ export interface CommandDtoResponse {
   text: string;
 }
 
+export interface CreateLinkInputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  url: string;
+}
+
 export interface ErrorDetail {
   /** Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
   location?: string;
@@ -91,6 +100,16 @@ export interface ErrorModel {
    * @default "about:blank"
    */
   type?: string;
+}
+
+export interface LinkOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  short_url: string;
+  url: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -314,6 +333,56 @@ export class Api<SecurityDataType extends unknown> {
     this.http = http;
   }
 
+  api = {
+    /**
+     * No description
+     *
+     * @tags Shortened urls api
+     * @name GetShortUrl
+     * @summary Get short url data
+     * @request GET:/api/links
+     * @response `200` `LinkOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    getShortUrl: (
+      query: {
+        /**
+         * @minLength 1
+         * @maxLength 5
+         * @pattern ^[a-zA-Z0-9]+$
+         */
+        shortId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<LinkOutputDto, any>({
+        path: `/api/links`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Shortened urls api
+     * @name CreateShortUrl
+     * @summary Create short url
+     * @request POST:/api/links
+     * @response `200` `LinkOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    createShortUrl: (data: CreateLinkInputDto, params: RequestParams = {}) =>
+      this.http.request<LinkOutputDto, any>({
+        path: `/api/links`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
   auth = {
     /**
      * No description
@@ -367,6 +436,25 @@ export class Api<SecurityDataType extends unknown> {
     publicChannelPublicCommands: (channelId: string, params: RequestParams = {}) =>
       this.http.request<CommandDto[], any>({
         path: `/v1/public/channels/${channelId}/commands`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  shortId = {
+    /**
+     * No description
+     *
+     * @tags Shortened urls
+     * @name GetShortUrl
+     * @summary Redirect to url
+     * @request GET:/{shortId}
+     * @response `301` `void` Moved Permanently
+     * @response `default` `ErrorModel` Error
+     */
+    getShortUrl: (shortId: string, params: RequestParams = {}) =>
+      this.http.request<ErrorModel, void>({
+        path: `/${shortId}`,
         method: "GET",
         format: "json",
         ...params,
