@@ -1155,7 +1155,7 @@
       "setExpire": "Predĺženie doby platnosti pre existujúce časovo obmedzené VIP alebo pridanie doby platnosti pre používateľov VIP, ktorí ju nemajú"
     },
     "alert": {
-      "title": "Pozor!",
+      "title": "Upozornenie!",
       "description": "Je to zoznam VIP členov, ktorým čoskoro vyprší platnosť, nie zoznam všetkých VIP členov kanála."
     }
   },
