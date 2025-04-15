@@ -14,10 +14,7 @@ import (
 )
 
 // ChatMessages is the resolver for the chatMessages field.
-func (r *queryResolver) ChatMessages(
-	ctx context.Context,
-	input gqlmodel.ChatMessageInput,
-) ([]gqlmodel.ChatMessage, error) {
+func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMessageInput) ([]gqlmodel.ChatMessage, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get selected dashboard: %w", err)
@@ -53,10 +50,7 @@ func (r *queryResolver) ChatMessages(
 }
 
 // ChatMessages is the resolver for the chatMessages field.
-func (r *subscriptionResolver) ChatMessages(ctx context.Context) (
-	<-chan *gqlmodel.ChatMessage,
-	error,
-) {
+func (r *subscriptionResolver) ChatMessages(ctx context.Context) (<-chan *gqlmodel.ChatMessage, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get selected dashboard: %w", err)
@@ -86,10 +80,7 @@ func (r *subscriptionResolver) ChatMessages(ctx context.Context) (
 }
 
 // AdminChatMessages is the resolver for the adminChatMessages field.
-func (r *subscriptionResolver) AdminChatMessages(ctx context.Context) (
-	<-chan *gqlmodel.ChatMessage,
-	error,
-) {
+func (r *subscriptionResolver) AdminChatMessages(ctx context.Context) (<-chan *gqlmodel.ChatMessage, error) {
 	ch := r.deps.ChatMessagesService.SubscribeToNewMessages()
 	gqlCh := make(chan *gqlmodel.ChatMessage)
 

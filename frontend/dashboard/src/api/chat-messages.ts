@@ -15,6 +15,8 @@ export function useChatMessages(input: MaybeRef<ChatMessageInput>) {
 				chatMessages(input: $input) {
 					id
 					channelId
+					channelName
+					channelLogin
 					userID
 					userName
 					userDisplayName
@@ -40,6 +42,8 @@ export function useChatMessagesSubscription() {
 				chatMessages {
 					id
 					channelId
+					channelLogin
+					channelName
 					userID
 					userName
 					userDisplayName

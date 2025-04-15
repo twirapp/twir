@@ -75,6 +75,8 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 	msg := entity.ChatMessage{
 		ID:              uuid.New(),
 		ChannelID:       data.BroadcasterUserId,
+		ChannelLogin:    data.BroadcasterUserLogin,
+		ChannelName:     data.BroadcasterUserName,
 		UserID:          data.ChatterUserId,
 		UserName:        data.ChatterUserLogin,
 		UserDisplayName: data.ChatterUserName,

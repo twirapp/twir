@@ -9,6 +9,8 @@ import (
 type ChatMessage struct {
 	ID              uuid.UUID
 	ChannelID       string
+	ChannelLogin    string
+	ChannelName     string
 	UserID          string
 	UserName        string
 	UserDisplayName string

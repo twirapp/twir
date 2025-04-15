@@ -6,6 +6,7 @@ import type { ChatMessage } from '@/gql/graphql'
 
 const props = defineProps<{
 	message: ChatMessage
+	withChannel?: boolean
 }>()
 
 const createdAt = new Date(props.message.createdAt)
@@ -42,6 +43,10 @@ const parsedMessage = computed(() => {
 	<span>
 		<span class="text-xs text-zinc-400">{{ formattedDate }}</span>
 		{{ ' ' }}
+		<template v-if="withChannel">
+			<span class="text-zinc-400">#{{ message.channelLogin }}</span>
+			{{ ' | ' }}
+		</template>
 		<span>
 			<span :style="{ color: message.userColor }">{{ message.userDisplayName }}</span>:
 		</span>

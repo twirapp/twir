@@ -17,6 +17,8 @@ input ChatMessageInput {
 type ChatMessage {
 	id: UUID!
 	channelId: String!
+	channelLogin: String!
+	channelName: String!
 	userID: String!
 	userName: String!
 	userDisplayName: String!

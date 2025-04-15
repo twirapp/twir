@@ -9,6 +9,8 @@ func ChatMessageToGQL(input entity.ChatMessage) gqlmodel.ChatMessage {
 	return gqlmodel.ChatMessage{
 		ID:              input.ID,
 		ChannelID:       input.ChannelID,
+		ChannelName:     input.ChannelName,
+		ChannelLogin:    input.ChannelLogin,
 		UserID:          input.UserID,
 		UserName:        input.UserName,
 		UserDisplayName: input.UserDisplayName,

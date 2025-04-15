@@ -9,6 +9,8 @@ export function useAllChatMessagesSubscription() {
 				adminChatMessages {
 					id
 					channelId
+					channelLogin
+					channelName
 					userID
 					userName
 					userDisplayName

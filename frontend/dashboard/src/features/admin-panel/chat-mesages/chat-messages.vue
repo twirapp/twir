@@ -27,6 +27,7 @@ watch(subscription.data, (v) => {
 			<ChatMessage
 				v-for="message of messages"
 				:key="message.id"
+				with-channel
 				:message="message"
 			/>
 		</CardContent>
