@@ -1,0 +1,26 @@
+import { useSubscription } from '@urql/vue'
+
+import { graphql } from '@/gql'
+
+export function useAllChatMessagesSubscription() {
+	return useSubscription({
+		query: graphql(`
+			subscription AdminChatMessageSubscription {
+				adminChatMessages {
+					id
+					channelId
+					userID
+					userName
+					userDisplayName
+					userColor
+					text
+					createdAt
+					updatedAt
+				}
+			}
+		`),
+		get variables() {
+			return {}
+		},
+	})
+}

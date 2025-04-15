@@ -22,11 +22,15 @@ type Opts struct {
 	TwirBus                *buscore.Bus
 }
 
+const allMessagesSubKey = "ALL"
+
 func New(opts Opts) *Service {
 	s := &Service{
 		chatMessagesRepository: opts.ChatMessagesRepository,
 		subs:                   make(map[string]chan entity.ChatMessage),
 	}
+
+	s.subs[allMessagesSubKey] = make(chan entity.ChatMessage)
 
 	opts.LC.Append(
 		fx.Hook{
@@ -64,34 +68,43 @@ func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 }
 
 func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessage) struct{} {
-	if ch, ok := c.subs[data.BroadcasterUserId]; ok {
-		textBuilder := strings.Builder{}
-		for _, fragment := range data.Message.Fragments {
-			textBuilder.WriteString(fragment.Text)
-		}
+	textBuilder := strings.Builder{}
+	for _, fragment := range data.Message.Fragments {
+		textBuilder.WriteString(fragment.Text)
+	}
+	msg := entity.ChatMessage{
+		ID:              uuid.New(),
+		ChannelID:       data.BroadcasterUserId,
+		UserID:          data.ChatterUserId,
+		UserName:        data.ChatterUserLogin,
+		UserDisplayName: data.ChatterUserName,
+		UserColor:       data.Color,
+		Text:            textBuilder.String(),
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
 
-		ch <- entity.ChatMessage{
-			ID:              uuid.New(),
-			ChannelID:       data.BroadcasterUserId,
-			UserID:          data.ChatterUserId,
-			UserName:        data.ChatterUserLogin,
-			UserDisplayName: data.ChatterUserName,
-			UserColor:       data.Color,
-			Text:            textBuilder.String(),
-			CreatedAt:       time.Now(),
-			UpdatedAt:       time.Now(),
-		}
+	if ch, ok := c.subs[data.BroadcasterUserId]; ok {
+		ch <- msg
+	}
+
+	if ch, ok := c.subs[allMessagesSubKey]; ok {
+		ch <- msg
 	}
 
 	return struct{}{}
 }
 
-func (c *Service) SubscribeToNewMessages(channelID string) <-chan entity.ChatMessage {
+func (c *Service) SubscribeToNewMessagesByChannelID(channelID string) <-chan entity.ChatMessage {
 	if _, ok := c.subs[channelID]; !ok {
 		c.subs[channelID] = make(chan entity.ChatMessage)
 	}
 
 	return c.subs[channelID]
+}
+
+func (c *Service) SubscribeToNewMessages() <-chan entity.ChatMessage {
+	return c.subs[allMessagesSubKey]
 }
 
 func (c *Service) UnsubscribeFromNewMessages(channelID string) {

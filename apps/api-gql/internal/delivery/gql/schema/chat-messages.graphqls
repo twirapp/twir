@@ -4,6 +4,7 @@ extend type Query {
 
 extend type Subscription {
 	chatMessages: ChatMessage! @isAuthenticated @hasAccessToSelectedDashboard
+	adminChatMessages: ChatMessage! @isAuthenticated @hasAccessToSelectedDashboard @isAdmin
 }
 
 input ChatMessageInput {
