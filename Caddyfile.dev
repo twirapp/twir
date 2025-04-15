@@ -1,5 +1,6 @@
 {$SITE_BASE_URL} {
     reverse_proxy http://127.0.0.1:3010
+    tls internal
 
     handle_path /api/* {
         reverse_proxy 127.0.0.1:3009

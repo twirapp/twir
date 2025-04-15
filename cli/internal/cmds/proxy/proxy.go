@@ -18,12 +18,12 @@ var Cmd = &cli.Command{
 	Name:  "proxy",
 	Usage: "Run https proxy",
 	Action: func(context *cli.Context) error {
-		_, err := StartProxy()
+		_, err := StartProxy(true)
 		return err
 	},
 }
 
-func StartProxy() (<-chan struct{}, error) {
+func StartProxy(block bool) (<-chan struct{}, error) {
 	startChannel := make(chan struct{})
 
 	wd, err := os.Getwd()
@@ -88,18 +88,29 @@ func StartProxy() (<-chan struct{}, error) {
 		close(startChannel)
 	}()
 
-	go func() {
-		err = shell.ExecCommand(
-			shell.ExecCommandOpts{
-				Command: "go tool github.com/caddyserver/caddy/v2/cmd/caddy run --watch --config Caddyfile.dev --envfile .env",
-				Stdout:  os.Stdout,
-				Stderr:  os.Stderr,
-				Pwd:     wd,
-			},
-		)
+	commandOpts := shell.ExecCommandOpts{
+		Command: "go tool github.com/caddyserver/caddy/v2/cmd/caddy run --watch --config Caddyfile.dev --envfile .env",
+		Stdout:  os.Stdout,
+		Stderr:  os.Stderr,
+		Pwd:     wd,
+	}
+
+	if block {
+		err = shell.ExecCommand(commandOpts)
 		if err != nil {
 			panic(err)
 		}
+	} else {
+		go func() {
+			err = shell.ExecCommand(commandOpts)
+			if err != nil {
+				panic(err)
+			}
+		}()
+	}
+
+	go func() {
+
 	}()
 
 	return startChannel, err

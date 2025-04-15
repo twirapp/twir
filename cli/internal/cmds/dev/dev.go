@@ -66,7 +66,7 @@ func CreateDevCommand() *cli.Command {
 			return nil
 		},
 		Action: func(c *cli.Context) error {
-			proxyStartedChan, err := proxy.StartProxy()
+			proxyStartedChan, err := proxy.StartProxy(false)
 			if err != nil {
 				pterm.Fatal.Println(err)
 				return err
