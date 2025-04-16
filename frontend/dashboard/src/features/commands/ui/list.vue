@@ -36,7 +36,7 @@ const columns: ColumnDef<Command | Group>[] = [
 			if (isCommand(row.original)) {
 				return h(
 					'div',
-					{ class: 'flex gap-2 items-center select-none' },
+					{ class: 'flex gap-2 items-center' },
 					[chevron, `!${row.getValue('name')}` as string],
 				)
 			}

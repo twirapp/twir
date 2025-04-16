@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { InfoIcon, PlusIcon } from 'lucide-vue-next'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { useCommandsApi } from '@/api/commands/commands.ts'
 import Table from '@/components/table.vue'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import CommandButton from '@/features/commands/ui/command-button.vue'
+import CommandsList from '@/features/commands/ui/list.vue'
 import {
 	useExpiringVipsTable,
 } from '@/features/expiring-vips/composables/use-expiring-vips-table.ts'
@@ -14,6 +16,13 @@ import PageLayout from '@/layout/page-layout.vue'
 
 const expiringVipsTable = useExpiringVipsTable()
 const { t } = useI18n()
+
+const commandsApi = useCommandsApi()
+const { data: commands } = commandsApi.useQueryCommands()
+
+const expiringVipsCommands = computed(() => {
+	return commands.value?.commands?.filter(c => c.module === 'VIPS')
+})
 </script>
 
 <template>
@@ -54,12 +63,12 @@ const { t } = useI18n()
 						<CardTitle>{{ t('sidebar.commands.label') }}</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div class="flex flex-wrap gap-4">
-							<CommandButton name="vips add" :title="t('expiringVips.commands.add')" />
-							<CommandButton name="vips remove" :title="t('expiringVips.commands.remove')" />
-							<CommandButton name="vips list" :title="t('expiringVips.commands.list')" />
-							<CommandButton name="vips setexpire" :title="t('expiringVips.commands.setExpire')" />
-						</div>
+						<CommandsList
+							v-if="expiringVipsCommands"
+							class="bg-red-400"
+							:commands="expiringVipsCommands"
+							show-background
+						/>
 					</CardContent>
 				</Card>
 
