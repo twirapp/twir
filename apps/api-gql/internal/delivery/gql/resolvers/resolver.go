@@ -26,6 +26,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
@@ -106,6 +107,7 @@ type Deps struct {
 	ChatTranslationService                *chat_translation.Service
 	ChatWallService                       *chat_wall.Service
 	Config                                config.Config
+	GiveawaysService                      *giveaways.Service
 }
 
 type Resolver struct {
@@ -136,7 +138,11 @@ func GetNestedPreloads(
 		preloads = append(preloads, prefixColumn)
 		preloads = append(
 			preloads,
-			GetNestedPreloads(ctx, graphql.CollectFields(ctx, column.Selections, nil), prefixColumn)...,
+			GetNestedPreloads(
+				ctx,
+				graphql.CollectFields(ctx, column.Selections, nil),
+				prefixColumn,
+			)...,
 		)
 	}
 	return

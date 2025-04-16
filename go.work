@@ -15,6 +15,7 @@ use (
 	./apps/tokens
 	./apps/websockets
 	./apps/ytsr
+	./apps/giveaways
 	./cli
 	./libs/api
 	./libs/baseapp

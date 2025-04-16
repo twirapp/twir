@@ -1,0 +1,52 @@
+extend type Query {
+	giveaways: [ChannelGiveaway!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+	giveaway(giveawayId: String!): ChannelGiveaway!  @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+
+	giveawayParticipants(giveawayId: String!): [ChannelGiveawayParticipants!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+}
+
+extend type Mutation {
+	giveawaysCreate(opts: GiveawaysCreateInput!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysUpdate(id: String!, opts: GiveawaysUpdateInput!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysRemove(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+}
+
+input GiveawaysCreateInput {
+	keyword: String! @validate(constraint: "max=100")
+}
+
+input GiveawaysUpdateInput {
+	startedAt: Time
+	endedAt: Time
+	isRunning: Boolean
+	isStopped: Boolean
+	isFinished: Boolean
+	keyword: String
+	archivedAt: Time
+	isArchived: Boolean
+}
+
+
+type ChannelGiveaway {
+	id: String!
+	channelId: String!
+	createdAt: Time!
+	updatedAt: Time!
+	startedAt: Time
+	endedAt: Time
+	isRunning: Boolean!
+	isStopped: Boolean!
+	isFinished: Boolean!
+	keyword: String!
+	createdByUserId: String!
+	archivedAt: Time
+	isArchived: Boolean!
+}
+
+type ChannelGiveawayParticipants {
+	displayName: String!
+	userId: String!
+	isWinner: Boolean!
+	id: String!
+	giveawayId: String!
+}
