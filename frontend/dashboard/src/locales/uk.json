@@ -1142,38 +1142,38 @@
     }
   },
   "expiringVips": {
-    "title": "Scheduled VIPs",
+    "title": "Заплановані VIP",
     "description": {
-      "line1": "With this feature you can create VIPs for your channel, which will be removed after selected time.",
-      "line2": "You can use commands from built-in {module} module for that."
+      "line1": "За допомогою цієї функції ви можете створювати VIP для вашого каналу, які будуть видалені після обраного часу.",
+      "line2": "Ви можете використовувати команди з вбудованого {module} модуля для цього."
     },
     "comingSoon": "Скоро але вже доступно через команди",
     "commands": {
       "add": "Додати VIP",
       "remove": "Видалити VIP",
-      "list": "List VIPs",
-      "setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
+      "list": "Список VIP",
+      "setExpire": "Продовжити час завершення існуючого VIP, або додати термін дії для деяких VIP користувачів"
     },
     "alert": {
-      "title": "Heads up!",
-      "description": "It's a list of expiring VIPs, not list of all channel VIPs."
+      "title": "Увага!",
+      "description": "Це список VIP зі строком дії, що спливає, а не список усіх VIP каналу."
     }
   },
   "moderationRules": {
     "description": {
-      "line1": "Create rules to moderate your chat.",
-      "line2": "Be careful."
+      "line1": "Створити правила для модерації вашого чату.",
+      "line2": "Будьте обережні."
     }
   },
   "chatWall": {
     "description": {
-      "line1": "Mass ban/delete/timeout messages that contains specific phrase.",
-      "line2": "Improper usage may result in a permanent ban you in TwirApp service. "
+      "line1": "Масові бани/видалення/тайм-аути повідомлень, які містять конкретну фразу.",
+      "line2": "Неправильне використання може призвести до постійного блокування в сервісі TwirApp. "
     },
     "settings": {
-      "title": "Setup",
-      "muteSubscribers": "Mute subscribers",
-      "muteVips": "Mute VIPs"
+      "title": "Налаштування",
+      "muteSubscribers": "Заглушити підписників",
+      "muteVips": "Заглушити VIP"
     },
     "commands": {
       "title": "Команди",
@@ -1183,19 +1183,19 @@
       "stop": "Chat wall stop"
     },
     "table": {
-      "phrase": "Phrase",
+      "phrase": "Фраза",
       "createdAt": "Створено",
-      "inProcess": "In process",
-      "action": "Action",
-      "yes": "Yes",
-      "no": "No",
-      "affectedMessages": "Affected messages",
+      "inProcess": "В процесі",
+      "action": "Дія",
+      "yes": "Так",
+      "no": "Ні",
+      "affectedMessages": "Зачеплені повідомлення",
       "logs": {
-        "title": "Affected messages",
-        "user": "User",
-        "message": "Message"
+        "title": "Зачеплені повідомлення",
+        "user": "Користувач",
+        "message": "Повідомлення"
       },
-      "timeout": "sec"
+      "timeout": "сек"
     }
   }
 }
