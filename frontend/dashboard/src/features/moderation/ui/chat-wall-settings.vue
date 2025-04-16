@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
+import { useCommandsApi } from '@/api/commands/commands.ts'
 import { useModerationChatWall } from '@/api/moderation-chat-wall.ts'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import CommandButton from '@/features/commands/ui/command-button.vue'
+import CommandsList from '@/features/commands/ui/list.vue'
 import { cn } from '@/lib/utils'
 
 const { t } = useI18n()
@@ -39,6 +40,20 @@ const onSubmit = chatSettingsForm.handleSubmit(async (values) => {
 	await update.executeMutation({
 		opts: values,
 	})
+})
+
+const commandsApi = useCommandsApi()
+const { data: commands } = commandsApi.useQueryCommands()
+
+const chatWallCommandsNames = [
+	'chat wall delete',
+	'chat wall ban',
+	'chat wall timeout',
+	'chat wall stop',
+]
+
+const chatWallCommands = computed(() => {
+	return commands.value?.commands?.filter(c => chatWallCommandsNames.includes(c.defaultName))
 })
 </script>
 
@@ -105,21 +120,10 @@ const onSubmit = chatSettingsForm.handleSubmit(async (values) => {
 		</CardHeader>
 		<CardContent>
 			<div class="flex flex-row flex-wrap gap-4">
-				<CommandButton
-					name="chat wall delete"
-					:title="t('chatWall.commands.delete')"
-				/>
-				<CommandButton
-					name="chat wall ban"
-					:title="t('chatWall.commands.ban')"
-				/>
-				<CommandButton
-					name="chat wall timeout"
-					:title="t('chatWall.commands.timeout')"
-				/>
-				<CommandButton
-					name="chat wall stop"
-					:title="t('chatWall.commands.stop')"
+				<CommandsList
+					v-if="chatWallCommands"
+					:commands="chatWallCommands"
+					show-background
 				/>
 			</div>
 		</CardContent>
