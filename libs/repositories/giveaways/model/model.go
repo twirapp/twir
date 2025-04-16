@@ -12,12 +12,9 @@ type ChannelGiveaway struct {
 	CreatedAt       time.Time  `db:"created_at"`
 	UpdatedAt       time.Time  `db:"updated_at"`
 	StartedAt       *time.Time `db:"started_at"`
-	ArchivedAt      *time.Time
+	StoppedAt       *time.Time `db:"stopped_at"`
+	ArchivedAt      *time.Time `db:"archived_at"`
 	EndedAt         *time.Time `db:"ended_at"`
-	IsRunning       bool       `db:"is_running"`
-	IsStopped       bool       `db:"is_stopped"`
-	IsFinished      bool       `db:"is_finished"`
-	IsArchived      bool       `db:"is_archived"`
 	Keyword         string     `db:"keyword"`
 	CreatedByUserID string     `db:"created_by_user_id"`
 }

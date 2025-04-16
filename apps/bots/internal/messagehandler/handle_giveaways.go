@@ -23,25 +23,29 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage)
 		return nil
 	}
 
+	/*
+		Here we can try to check info in database but for premium users only.
+	*/
+
 	for _, giveaway := range giveaways {
 		if giveaway == model.ChannelGiveawayNil {
 			continue
 		}
 
-		if !giveaway.IsRunning {
+		if giveaway.StartedAt != nil {
 			continue
 		}
 
-		if giveaway.IsStopped {
+		if giveaway.StoppedAt != nil {
 			continue
 		}
 
-		if giveaway.IsFinished {
+		if giveaway.EndedAt != nil {
 			_ = c.giveawaysCacher.Invalidate(ctx, msg.BroadcasterUserId)
 			continue
 		}
 
-		if giveaway.IsArchived {
+		if giveaway.ArchivedAt != nil {
 			_ = c.giveawaysCacher.Invalidate(ctx, msg.BroadcasterUserId)
 			continue
 		}

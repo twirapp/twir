@@ -13,13 +13,10 @@ type ChannelGiveaway struct {
 	UpdatedAt       time.Time
 	StartedAt       *time.Time
 	EndedAt         *time.Time
-	IsRunning       bool
-	IsStopped       bool
-	IsFinished      bool
 	Keyword         string
 	CreatedByUserID string
 	ArchivedAt      *time.Time
-	IsArchived      bool
+	StoppedAt       *time.Time
 }
 
 var ChannelGiveawayNil = ChannelGiveaway{}

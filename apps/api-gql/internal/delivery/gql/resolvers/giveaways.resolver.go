@@ -8,12 +8,33 @@ import (
 	"context"
 	"fmt"
 
+	ulid "github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 )
 
 // GiveawaysCreate is the resolver for the giveawaysCreate field.
 func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.GiveawaysCreateInput) (*gqlmodel.ChannelGiveaway, error) {
-	panic(fmt.Errorf("not implemented: GiveawaysCreate - giveawaysCreate"))
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = r.deps.GiveawaysService.Create(ctx, giveaways.CreateInput{
+		ChannelID:       dashboardId,
+		Keyword:         opts.Keyword,
+		CreatedByUserID: user.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 // GiveawaysUpdate is the resolver for the giveawaysUpdate field.
@@ -33,11 +54,17 @@ func (r *queryResolver) Giveaways(ctx context.Context) ([]gqlmodel.ChannelGiveaw
 
 // Giveaway is the resolver for the giveaway field.
 func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (*gqlmodel.ChannelGiveaway, error) {
-	panic(fmt.Errorf("not implemented: Giveaway - giveaway"))
+	// giveaway, err := r.deps.GiveawaysService.
+	return nil, nil
 }
 
 // GiveawayParticipants is the resolver for the giveawayParticipants field.
 func (r *queryResolver) GiveawayParticipants(ctx context.Context, giveawayID string) ([]gqlmodel.ChannelGiveawayParticipants, error) {
-	// r.deps.GiveawaysService.
+	parsedID, err := ulid.Parse(giveawayID)
+	if err != nil {
+		return nil, err
+	}
+
+	r.deps.GiveawaysService.GetParticipantsForGiveaway(ctx, parsedID)
 	return nil, nil
 }

@@ -18,12 +18,9 @@ input GiveawaysCreateInput {
 input GiveawaysUpdateInput {
 	startedAt: Time
 	endedAt: Time
-	isRunning: Boolean
-	isStopped: Boolean
-	isFinished: Boolean
 	keyword: String
 	archivedAt: Time
-	isArchived: Boolean
+	stoppedAt: Time
 }
 
 
@@ -34,13 +31,10 @@ type ChannelGiveaway {
 	updatedAt: Time!
 	startedAt: Time
 	endedAt: Time
-	isRunning: Boolean!
-	isStopped: Boolean!
-	isFinished: Boolean!
+	stoppedAt: Time
 	keyword: String!
 	createdByUserId: String!
 	archivedAt: Time
-	isArchived: Boolean!
 }
 
 type ChannelGiveawayParticipants {

@@ -10,6 +10,10 @@ import (
 
 type Repository interface {
 	GetManyByChannelID(ctx context.Context, channelID string) ([]model.ChannelGiveaway, error)
+	GetByChannelIDAndKeyword(
+		ctx context.Context,
+		channelID, keyword string,
+	) (model.ChannelGiveaway, error)
 	GetByID(ctx context.Context, id ulid.ULID) (model.ChannelGiveaway, error)
 	Create(ctx context.Context, input CreateInput) (model.ChannelGiveaway, error)
 	Delete(ctx context.Context, id ulid.ULID) error
@@ -25,10 +29,7 @@ type CreateInput struct {
 type UpdateInput struct {
 	StartedAt  *time.Time
 	EndedAt    *time.Time
-	IsRunning  *bool
-	IsStopped  *bool
-	IsFinished *bool
 	Keyword    *string
 	ArchivedAt *time.Time
-	IsArchived *bool
+	StoppedAt  *time.Time
 }

@@ -45,7 +45,7 @@ func (p *Pgx) Create(
 	query := `
 INSERT INTO channels_giveaways ("channel_id", "keyword", "created_by_user_id") VALUES (
 	$1, $2, $3
-) RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, is_running, is_stopped, is_finished, keyword, created_by_user, archived_at, is_archived
+) RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user, archived_at
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -86,9 +86,37 @@ DELETE FROM channels_giveaways WHERE id = $1
 	return nil
 }
 
+func (p *Pgx) GetByChannelIDAndKeyword(
+	ctx context.Context,
+	channelID, keyword string,
+) (model.ChannelGiveaway, error) {
+	query := `
+SELECT id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user_id, archived_at
+FROM channels_giveaways
+WHERE channel_id = $1 AND keyword = $2
+	`
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Query(ctx, query, channelID, keyword)
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelGiveaway])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.ChannelGiveawayNil, giveaways.ErrNotFound
+		}
+
+		return model.ChannelGiveawayNil, err
+	}
+
+	return result, nil
+}
+
 func (p *Pgx) GetByID(ctx context.Context, id ulid.ULID) (model.ChannelGiveaway, error) {
 	query := `
-SELECT id, channel_id, created_at, updated_at, started_at, ended_at, is_running, is_stopped, is_finished, keyword, created_by_user_id, archived_at, is_archived
+SELECT id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user_id, archived_at
 FROM channels_giveaways
 WHERE id = $1
 	`
@@ -115,7 +143,7 @@ func (p *Pgx) GetManyByChannelID(
 	ctx context.Context,
 	channelID string,
 ) ([]model.ChannelGiveaway, error) {
-	selectBuilder := sq.Select("id", "channel_id", "created_at", "updated_at", "started_at", "ended_at", "is_running", "is_stopped", "is_finished", "archived_at", "is_archived").
+	selectBuilder := sq.Select("id", "channel_id", "created_at", "updated_at", "started_at", "ended_at", "stopped_at", "archived_at").
 		From("channels_giveaways").
 		Where(squirrel.Eq{`"channel_id"`: channelID})
 
@@ -145,18 +173,15 @@ func (p *Pgx) Update(
 ) (model.ChannelGiveaway, error) {
 	updateBuilder := sq.Update("channels_giveaways").
 		Where(squirrel.Eq{"id": id}).
-		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, is_running, is_stopped, is_finished, keyword, created_by_user_id, archived_at, is_archived`)
+		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, keyword, created_by_user_id, archived_at, stopped_at`)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,
 		map[string]any{
 			"started_at":  input.StartedAt,
 			"ended_at":    input.EndedAt,
-			"is_running":  input.IsRunning,
-			"is_stopped":  input.IsStopped,
-			"is_finished": input.IsFinished,
 			"keyword":     input.Keyword,
 			"archived_at": input.ArchivedAt,
-			"is_archived": input.IsArchived,
+			"stopped_at":  input.StoppedAt,
 		},
 	)
 
