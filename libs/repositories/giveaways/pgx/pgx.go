@@ -1,0 +1,180 @@
+package pgx
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/Masterminds/squirrel"
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/oklog/ulid/v2"
+	"github.com/twirapp/twir/libs/repositories"
+	"github.com/twirapp/twir/libs/repositories/giveaways"
+	"github.com/twirapp/twir/libs/repositories/giveaways/model"
+)
+
+type Opts struct {
+	PgxPool *pgxpool.Pool
+}
+
+func New(opts Opts) *Pgx {
+	return &Pgx{
+		pool:   opts.PgxPool,
+		getter: trmpgx.DefaultCtxGetter,
+	}
+}
+
+func NewFx(pool *pgxpool.Pool) *Pgx {
+	return New(Opts{PgxPool: pool})
+}
+
+var _ giveaways.Repository = (*Pgx)(nil)
+var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+
+type Pgx struct {
+	pool   *pgxpool.Pool
+	getter *trmpgx.CtxGetter
+}
+
+func (p *Pgx) Create(
+	ctx context.Context,
+	input giveaways.CreateInput,
+) (model.ChannelGiveaway, error) {
+	query := `
+INSERT INTO channels_giveaways ("channel_id", "keyword", "created_by_user_id") VALUES (
+	$1, $2, $3
+) RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, is_running, is_stopped, is_finished, keyword, created_by_user, archived_at, is_archived
+	`
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Query(
+		ctx,
+		query,
+		input.ChannelID,
+		input.Keyword,
+		input.CreatedByUserID,
+	)
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelGiveaway])
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	return result, nil
+}
+
+func (p *Pgx) Delete(ctx context.Context, id ulid.ULID) error {
+	query := `
+DELETE FROM channels_giveaways WHERE id = $1
+	`
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	if rows.RowsAffected() != 1 {
+		return fmt.Errorf("expected 1 row to be affected, got %d", rows.RowsAffected())
+	}
+
+	return nil
+}
+
+func (p *Pgx) GetByID(ctx context.Context, id ulid.ULID) (model.ChannelGiveaway, error) {
+	query := `
+SELECT id, channel_id, created_at, updated_at, started_at, ended_at, is_running, is_stopped, is_finished, keyword, created_by_user_id, archived_at, is_archived
+FROM channels_giveaways
+WHERE id = $1
+	`
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Query(ctx, query, id)
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelGiveaway])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.ChannelGiveawayNil, giveaways.ErrNotFound
+		}
+
+		return model.ChannelGiveawayNil, err
+	}
+
+	return result, nil
+}
+
+func (p *Pgx) GetManyByChannelID(
+	ctx context.Context,
+	channelID string,
+) ([]model.ChannelGiveaway, error) {
+	selectBuilder := sq.Select("id", "channel_id", "created_at", "updated_at", "started_at", "ended_at", "is_running", "is_stopped", "is_finished", "archived_at", "is_archived").
+		From("channels_giveaways").
+		Where(squirrel.Eq{`"channel_id"`: channelID})
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ChannelGiveaway])
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (p *Pgx) Update(
+	ctx context.Context,
+	id ulid.ULID,
+	input giveaways.UpdateInput,
+) (model.ChannelGiveaway, error) {
+	updateBuilder := sq.Update("channels_giveaways").
+		Where(squirrel.Eq{"id": id}).
+		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, is_running, is_stopped, is_finished, keyword, created_by_user_id, archived_at, is_archived`)
+	updateBuilder = repositories.SquirrelApplyPatch(
+		updateBuilder,
+		map[string]any{
+			"started_at":  input.StartedAt,
+			"ended_at":    input.EndedAt,
+			"is_running":  input.IsRunning,
+			"is_stopped":  input.IsStopped,
+			"is_finished": input.IsFinished,
+			"keyword":     input.Keyword,
+			"archived_at": input.ArchivedAt,
+			"is_archived": input.IsArchived,
+		},
+	)
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelGiveaway])
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	return result, nil
+}
