@@ -53,7 +53,9 @@ const chatWallCommandsNames = [
 ]
 
 const chatWallCommands = computed(() => {
-	return commands.value?.commands?.filter(c => chatWallCommandsNames.includes(c.defaultName))
+	return commands.value?.commands?.filter(c => {
+		return c.defaultName && chatWallCommandsNames.includes(c.defaultName)
+	})
 })
 </script>
 
