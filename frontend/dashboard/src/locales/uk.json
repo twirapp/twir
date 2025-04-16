@@ -1147,10 +1147,10 @@
       "line1": "With this feature you can create VIPs for your channel, which will be removed after selected time.",
       "line2": "You can use commands from built-in {module} module for that."
     },
-    "comingSoon": "Soon, but already available through commands",
+    "comingSoon": "Скоро але вже доступно через команди",
     "commands": {
-      "add": "Add VIP",
-      "remove": "Remove VIP",
+      "add": "Додати VIP",
+      "remove": "Видалити VIP",
       "list": "List VIPs",
       "setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
     },
@@ -1176,7 +1176,7 @@
       "muteVips": "Mute VIPs"
     },
     "commands": {
-      "title": "Commands",
+      "title": "Команди",
       "delete": "Chat wall delete",
       "ban": "Chat wall ban",
       "timeout": "Chat wall timeout",
@@ -1184,7 +1184,7 @@
     },
     "table": {
       "phrase": "Phrase",
-      "createdAt": "Created at",
+      "createdAt": "Створено",
       "inProcess": "In process",
       "action": "Action",
       "yes": "Yes",
