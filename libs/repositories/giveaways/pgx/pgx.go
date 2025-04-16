@@ -45,7 +45,7 @@ func (p *Pgx) Create(
 	query := `
 INSERT INTO channels_giveaways ("channel_id", "keyword", "created_by_user_id") VALUES (
 	$1, $2, $3
-) RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user, archived_at
+) RETURNING id, channel_id, keyword, created_at, updated_at, started_at, ended_at, stopped_at, created_by_user_id, archived_at
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -93,7 +93,7 @@ func (p *Pgx) GetByChannelIDAndKeyword(
 	query := `
 SELECT id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user_id, archived_at
 FROM channels_giveaways
-WHERE channel_id = $1 AND keyword = $2
+WHERE channel_id = $1 AND keyword = $2 AND archived_at IS NULL
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -143,9 +143,36 @@ func (p *Pgx) GetManyByChannelID(
 	ctx context.Context,
 	channelID string,
 ) ([]model.ChannelGiveaway, error) {
-	selectBuilder := sq.Select("id", "channel_id", "created_at", "updated_at", "started_at", "ended_at", "stopped_at", "archived_at").
+	selectBuilder := sq.Select("id", "channel_id", "created_at", "keyword", "updated_at", "started_at", "ended_at", "created_by_user_id", "stopped_at", "archived_at").
 		From("channels_giveaways").
 		Where(squirrel.Eq{`"channel_id"`: channelID})
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ChannelGiveaway])
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (p *Pgx) GetManyActiveByChannelID(
+	ctx context.Context,
+	channelID string,
+) ([]model.ChannelGiveaway, error) {
+	selectBuilder := sq.Select("id", "channel_id", "created_at", "keyword", "updated_at", "started_at", "ended_at", "created_by_user_id", "stopped_at", "archived_at").
+		From("channels_giveaways").
+		Where(squirrel.Eq{`"channel_id"`: channelID}, squirrel.Eq{`"archived_at"`: `NULL`})
 
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {

@@ -10,6 +10,7 @@ import (
 
 type Repository interface {
 	GetManyByChannelID(ctx context.Context, channelID string) ([]model.ChannelGiveaway, error)
+	GetManyActiveByChannelID(ctx context.Context, channelID string) ([]model.ChannelGiveaway, error)
 	GetByChannelIDAndKeyword(
 		ctx context.Context,
 		channelID, keyword string,

@@ -12,7 +12,7 @@ extend type Mutation {
 }
 
 input GiveawaysCreateInput {
-	keyword: String! @validate(constraint: "max=100")
+	keyword: String! @validate(constraint: "min=3,max=100")
 }
 
 input GiveawaysUpdateInput {

@@ -135,11 +135,6 @@ func (c *Service) GiveawaysGetMany(
 		return nil, err
 	}
 
-	err = c.giveawaysCacher.SetValue(ctx, channelID, dbGiveaways)
-	if err != nil {
-		return nil, err
-	}
-
 	return lo.Map(
 		dbGiveaways,
 		func(item giveawaysmodel.ChannelGiveaway, _ int) entity.ChannelGiveaway {
@@ -220,7 +215,7 @@ so we are do probably some unnecessarily work here but provide better consistenc
 Also, limits for max giveaways per channel is low, so it will be fast, I suppose.
 */
 func (c *Service) updateGiveawaysCacheForChannel(ctx context.Context, channelID string) error {
-	dbGiveaways, err := c.giveawaysRepository.GetManyByChannelID(ctx, channelID)
+	dbGiveaways, err := c.giveawaysRepository.GetManyActiveByChannelID(ctx, channelID)
 	if err != nil {
 		return err
 	}

@@ -19,7 +19,7 @@ func New(
 			Redis:     redis,
 			KeyPrefix: "cache:twir:giveaways:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]model.ChannelGiveaway, error) {
-				return repo.GetManyByChannelID(ctx, key)
+				return repo.GetManyActiveByChannelID(ctx, key)
 			},
 			Ttl: 24 * 7 * time.Hour,
 		},

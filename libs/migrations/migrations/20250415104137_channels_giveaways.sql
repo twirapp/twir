@@ -4,15 +4,14 @@ SELECT 'up SQL query';
 
 CREATE TABLE channels_giveaways (
 	id ulid PRIMARY KEY DEFAULT gen_ulid(),
-	channel_id TEXT NOT NULL UNIQUE,
+	channel_id TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	started_at TIMESTAMPTZ,
 	ended_at TIMESTAMPTZ,
-	is_running BOOLEAN NOT NULL DEFAULT false,
-	is_stopped BOOLEAN NOT NULL DEFAULT false,
-	is_finished BOOLEAN NOT NULL DEFAULT false,
-	keyword varchar(100) NOT NULL,
+	archived_at TIMESTAMPTZ,
+	stopped_at TIMESTAMPTZ,
+	keyword TEXT NOT NULL,
 	created_by_user_id TEXT,
 
 	FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
@@ -21,7 +20,7 @@ CREATE TABLE channels_giveaways (
 
 CREATE TABLE channels_giveaways_participants (
 	id ulid PRIMARY KEY DEFAULT gen_ulid(),
-	giveaway_id ulid NOT NULL UNIQUE,
+	giveaway_id ulid NOT NULL,
 	is_winner BOOLEAN NOT NULL DEFAULT false,
 	display_name TEXT NOT NULL,
 	user_id TEXT NOT NULL,

@@ -10,6 +10,7 @@ import (
 
 	ulid "github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 )
 
@@ -25,16 +26,18 @@ func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.Gi
 		return nil, err
 	}
 
-	_, err = r.deps.GiveawaysService.Create(ctx, giveaways.CreateInput{
+	dbGiveaway, err := r.deps.GiveawaysService.Create(ctx, giveaways.CreateInput{
 		ChannelID:       dashboardId,
 		Keyword:         opts.Keyword,
 		CreatedByUserID: user.ID,
 	})
 	if err != nil {
+
 		return nil, err
 	}
 
-	return nil, nil
+	converted := mappers.GiveawayEntityTo(dbGiveaway)
+	return &converted, nil
 }
 
 // GiveawaysUpdate is the resolver for the giveawaysUpdate field.
