@@ -65,7 +65,6 @@ const expiringVipsCommands = computed(() => {
 					<CardContent>
 						<CommandsList
 							v-if="expiringVipsCommands"
-							class="bg-red-400"
 							:commands="expiringVipsCommands"
 							show-background
 						/>
