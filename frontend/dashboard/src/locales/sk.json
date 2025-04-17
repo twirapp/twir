@@ -36,7 +36,7 @@
       "text": "Bot odošle odpovede na príkazy ako odpoveď"
     },
     "response": "Odpoveď",
-    "user": "Užívateľ",
+    "user": "Používateľ",
     "userName": "Používateľské meno",
     "dangerZone": "Nebezpečná zóna",
     "deleted": "Odstránené",
@@ -208,7 +208,7 @@
   },
   "dashboard": {
     "header": {
-      "managingUser": "Spravujúci užívateľ",
+      "managingUser": "Spravujúci používateľ",
       "channelsAccess": "Kanály, ku ktorým máš prístup"
     },
     "botManage": {
