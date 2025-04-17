@@ -9,7 +9,6 @@ import (
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
@@ -39,7 +38,7 @@ type Pgx struct {
 }
 
 func (p *Pgx) ResetWinners(
-	ctx context.Context, participantsIds ...ulid.ULID,
+	ctx context.Context, participantsIds ...string,
 ) error {
 	query := `
 UPDATE channels_giveaways_participants
@@ -86,7 +85,7 @@ RETURNING id, giveaway_id, is_winner, display_name, user_id
 	return result, nil
 }
 
-func (p *Pgx) Delete(ctx context.Context, id ulid.ULID) error {
+func (p *Pgx) Delete(ctx context.Context, id string) error {
 	query := `
 DELETE FROM channels_giveaways_participants WHERE id = $1
 	`
@@ -104,7 +103,7 @@ DELETE FROM channels_giveaways_participants WHERE id = $1
 	return nil
 }
 
-func (p *Pgx) GetByID(ctx context.Context, id ulid.ULID) (model.ChannelGiveawayParticipant, error) {
+func (p *Pgx) GetByID(ctx context.Context, id string) (model.ChannelGiveawayParticipant, error) {
 	query := `
 SELECT id, giveaway_id, is_winner, display_name, user_id FROM channels_giveaways_participants WHERE id = $1
 	`
@@ -132,9 +131,9 @@ SELECT id, giveaway_id, is_winner, display_name, user_id FROM channels_giveaways
 
 func (p *Pgx) GetManyByGiveawayID(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID string,
 ) ([]model.ChannelGiveawayParticipant, error) {
-	selectBuilder := sq.Select().
+	selectBuilder := sq.Select("id", "giveaway_id", "is_winner", "display_name", "user_id").
 		From("channels_giveaways_participants").
 		Where(squirrel.Eq{`"giveaway_id"`: giveawayID})
 
@@ -159,7 +158,7 @@ func (p *Pgx) GetManyByGiveawayID(
 
 func (p *Pgx) GetWinnerForGiveaway(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID string,
 ) (model.ChannelGiveawayParticipant, error) {
 	query := `
 SELECT id, giveaway_id, is_winner, display_name, user_id FROM channels_giveaways_participants WHERE giveaway_id = $1 AND is_winner = true
@@ -188,10 +187,10 @@ SELECT id, giveaway_id, is_winner, display_name, user_id FROM channels_giveaways
 
 func (p *Pgx) Update(
 	ctx context.Context,
-	id ulid.ULID,
+	id string,
 	input giveaways_participants.UpdateInput,
 ) (model.ChannelGiveawayParticipant, error) {
-	updateBuilder := sq.Update("channels_giveaways").
+	updateBuilder := sq.Update("channels_giveaways_participants").
 		Where(squirrel.Eq{"id": id}).
 		Suffix(`RETURNING id, giveaway_id, is_winner, display_name, user_id`)
 	updateBuilder = repositories.SquirrelApplyPatch(

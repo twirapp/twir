@@ -2,11 +2,15 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"math/rand"
+	"time"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	"github.com/oklog/ulid/v2"
+	"github.com/guregu/null"
 	"github.com/samber/lo"
+	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/giveaways/internal/entity"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
@@ -20,6 +24,7 @@ type Opts struct {
 	TxManager                       trm.Manager
 	GiveawaysRepository             giveaways.Repository
 	GiveawaysParticipantsRepository giveaways_participants.Repository
+	Logger                          logger.Logger
 }
 
 func New(opts Opts) *Service {
@@ -27,6 +32,7 @@ func New(opts Opts) *Service {
 		txManager:                       opts.TxManager,
 		giveawaysRepository:             opts.GiveawaysRepository,
 		giveawaysParticipantsRepository: opts.GiveawaysParticipantsRepository,
+		logger:                          opts.Logger,
 	}
 }
 
@@ -34,14 +40,16 @@ type Service struct {
 	txManager                       trm.Manager
 	giveawaysRepository             giveaways.Repository
 	giveawaysParticipantsRepository giveaways_participants.Repository
+	logger                          logger.Logger
 }
 
 func (c *Service) TryAddParticipant(
 	ctx context.Context,
 	userID string,
 	displayName string,
-	giveawayID ulid.ULID,
+	giveawayID string,
 ) error {
+	// TODO: check for  err={"error":"ERROR: duplicate key value violates unique constraint \"channels_giveaways_participants_unique\" (SQLSTATE 23505)","kind":"*pgconn.PgError","stack":null} service=giveaways source={"file":"/home/danluki/Projects/twir/apps/giveaways/internal/bus-listener/bus-listener.go","function":"github.com/twirapp/twir/apps/giveaways/internal/bus-listener.(*giveawaysListener).tryAddParticipant","line":70}
 	_, err := c.giveawaysParticipantsRepository.Create(ctx, giveaways_participants.CreateInput{
 		GiveawayID:  giveawayID,
 		DisplayName: displayName,
@@ -56,15 +64,16 @@ func (c *Service) TryAddParticipant(
 
 func (c *Service) ChooseWinner(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID string,
 ) ([]entity.Winner, error) {
 	participants, err := c.giveawaysParticipantsRepository.GetManyByGiveawayID(ctx, giveawayID)
 	if err != nil {
+		c.logger.Error("cannot get participants", slog.Any("err", err))
 		return nil, err
 	}
 
 	if len(participants) == 0 {
-		return nil, nil
+		return nil, fmt.Errorf("Cannot do roll with empty participants")
 	}
 
 	winners := []model.ChannelGiveawayParticipant{}
@@ -73,12 +82,13 @@ func (c *Service) ChooseWinner(
 			ctx,
 			lo.Map(
 				participants,
-				func(participant model.ChannelGiveawayParticipant, _ int) ulid.ULID {
-					return participant.ID
+				func(participant model.ChannelGiveawayParticipant, _ int) string {
+					return participant.ID.String()
 				},
 			)...,
 		)
 		if err != nil {
+			c.logger.Error("reset winners error", slog.Any("err", err))
 			return err
 		}
 
@@ -87,19 +97,33 @@ func (c *Service) ChooseWinner(
 		var winner model.ChannelGiveawayParticipant
 		winner, err = c.giveawaysParticipantsRepository.Update(
 			ctx,
-			participants[winnerInd].ID,
+			string(participants[winnerInd].ID.String()),
 			giveaways_participants.UpdateInput{
 				IsWinner: lo.ToPtr(true),
 			},
 		)
 		if err != nil {
+			c.logger.Error("update winner error", slog.Any("err", err))
 			return err
 		}
 		winners = append(winners, winner)
 
+		_, err = c.giveawaysRepository.UpdateStatuses(
+			ctx,
+			winner.GiveawayID,
+			giveaways.UpdateStatusInput{
+				EndedAt: null.NewTime(time.Now(), true),
+			},
+		)
+		if err != nil {
+			c.logger.Error("update error", slog.Any("err", err))
+			return err
+		}
+
 		return nil
 	})
 	if err != nil {
+		c.logger.Error("tx error", slog.Any("err", err))
 		return nil, err
 	}
 

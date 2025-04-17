@@ -19,4 +19,9 @@ type ChannelGiveaway struct {
 	StoppedAt       *time.Time
 }
 
+type ChannelGiveawayWinner struct {
+	DisplayName string
+	UserID      string
+}
+
 var ChannelGiveawayNil = ChannelGiveaway{}

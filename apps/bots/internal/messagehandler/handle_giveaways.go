@@ -26,13 +26,12 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage)
 	/*
 		Here we can try to check info in database but for premium users only.
 	*/
-
 	for _, giveaway := range giveaways {
 		if giveaway == model.ChannelGiveawayNil {
 			continue
 		}
 
-		if giveaway.StartedAt != nil {
+		if giveaway.StartedAt == nil {
 			continue
 		}
 
@@ -55,8 +54,9 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage)
 		}
 
 		err = c.bus.Giveaways.TryAddParticipant.Publish(giveawaysbus.TryAddParticipantRequest{
-			UserID:     msg.ChatterUserId,
-			GiveawayID: giveaway.ID,
+			UserID:      msg.ChatterUserId,
+			DisplayName: msg.ChatterUserName,
+			GiveawayID:  giveaway.ID.String(),
 		})
 		if err != nil {
 			return err

@@ -31,3 +31,12 @@ func GiveawayParticipantEntityTo(
 		GiveawayID:  e.GiveawayID.String(),
 	}
 }
+
+func GiveawayWinnerEntityTo(
+	e entity.ChannelGiveawayWinner,
+) gqlmodel.ChannelGiveawayWinner {
+	return gqlmodel.ChannelGiveawayWinner{
+		DisplayName: e.DisplayName,
+		UserID:      e.UserID,
+	}
+}

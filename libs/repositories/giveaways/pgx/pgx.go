@@ -74,7 +74,7 @@ DELETE FROM channels_giveaways WHERE id = $1
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	rows, err := conn.Exec(ctx, query, id)
+	rows, err := conn.Exec(ctx, query, id.String())
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ WHERE id = $1
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	rows, err := conn.Query(ctx, query, id)
+	rows, err := conn.Query(ctx, query, id.String())
 	if err != nil {
 		return model.ChannelGiveawayNil, err
 	}
@@ -193,13 +193,65 @@ func (p *Pgx) GetManyActiveByChannelID(
 	return result, nil
 }
 
+func (p *Pgx) UpdateStatuses(
+	ctx context.Context,
+	id ulid.ULID,
+	input giveaways.UpdateStatusInput,
+) (model.ChannelGiveaway, error) {
+	updateBuilder := sq.Update("channels_giveaways").
+		Where(squirrel.Eq{"id": id.String()}).
+		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, keyword, created_by_user_id, archived_at, stopped_at`)
+
+	if input.StartedAt.Valid {
+		updateBuilder = updateBuilder.Set("started_at", input.StartedAt)
+	} else {
+		updateBuilder = updateBuilder.Set("started_at", nil)
+	}
+
+	if input.EndedAt.Valid {
+		updateBuilder = updateBuilder.Set("ended_at", input.EndedAt)
+	} else {
+		updateBuilder = updateBuilder.Set("ended_at", nil)
+	}
+
+	if input.ArchivedAt.Valid {
+		updateBuilder = updateBuilder.Set("archived_at", input.ArchivedAt)
+	} else {
+		updateBuilder = updateBuilder.Set("archived_at", nil)
+	}
+
+	if input.StoppedAt.Valid {
+		updateBuilder = updateBuilder.Set("stopped_at", input.StoppedAt)
+	} else {
+		updateBuilder = updateBuilder.Set("stopped_at", nil)
+	}
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelGiveaway])
+	if err != nil {
+		return model.ChannelGiveawayNil, err
+	}
+
+	return result, nil
+}
+
 func (p *Pgx) Update(
 	ctx context.Context,
 	id ulid.ULID,
 	input giveaways.UpdateInput,
 ) (model.ChannelGiveaway, error) {
 	updateBuilder := sq.Update("channels_giveaways").
-		Where(squirrel.Eq{"id": id}).
+		Where(squirrel.Eq{"id": id.String()}).
 		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, keyword, created_by_user_id, archived_at, stopped_at`)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,

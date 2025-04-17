@@ -6,11 +6,13 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	ulid "github.com/oklog/ulid/v2"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 )
 
@@ -32,7 +34,6 @@ func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.Gi
 		CreatedByUserID: user.ID,
 	})
 	if err != nil {
-
 		return nil, err
 	}
 
@@ -42,23 +43,171 @@ func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.Gi
 
 // GiveawaysUpdate is the resolver for the giveawaysUpdate field.
 func (r *mutationResolver) GiveawaysUpdate(ctx context.Context, id string, opts gqlmodel.GiveawaysUpdateInput) (*gqlmodel.ChannelGiveaway, error) {
-	panic(fmt.Errorf("not implemented: GiveawaysUpdate - giveawaysUpdate"))
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedID, err := ulid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+
+	dbGiveaway, err := r.deps.GiveawaysService.GiveawayUpdate(ctx, parsedID, dashboardId, giveaways.UpdateInput{
+		StartedAt:  opts.StartedAt.Value(),
+		EndedAt:    opts.EndedAt.Value(),
+		Keyword:    opts.Keyword.Value(),
+		ArchivedAt: opts.ArchivedAt.Value(),
+		StoppedAt:  opts.StoppedAt.Value(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.GiveawayEntityTo(dbGiveaway)
+	return &converted, nil
 }
 
 // GiveawaysRemove is the resolver for the giveawaysRemove field.
 func (r *mutationResolver) GiveawaysRemove(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
-	panic(fmt.Errorf("not implemented: GiveawaysRemove - giveawaysRemove"))
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedID, err := ulid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, r.deps.GiveawaysService.GiveawayRemove(ctx, parsedID, dashboardId)
+}
+
+// GiveawaysStart is the resolver for the giveawaysStart field.
+func (r *mutationResolver) GiveawaysStart(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedID, err := ulid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+
+	dbGiveaway, err := r.deps.GiveawaysService.Start(ctx, parsedID, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.GiveawayEntityTo(dbGiveaway)
+	return &converted, nil
+}
+
+// GiveawaysStop is the resolver for the giveawaysStop field.
+func (r *mutationResolver) GiveawaysStop(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedID, err := ulid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+
+	dbGiveaway, err := r.deps.GiveawaysService.Stop(ctx, parsedID, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.GiveawayEntityTo(dbGiveaway)
+	return &converted, nil
+}
+
+// GiveawaysArchive is the resolver for the giveawaysArchive field.
+func (r *mutationResolver) GiveawaysArchive(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedID, err := ulid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+
+	dbGiveaway, err := r.deps.GiveawaysService.GiveawayUpdate(ctx, parsedID, dashboardId, giveaways.UpdateInput{
+		ArchivedAt: lo.ToPtr(time.Now()),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.GiveawayEntityTo(dbGiveaway)
+	return &converted, nil
+}
+
+// GiveawaysChooseWinners is the resolver for the giveawaysChooseWinners field.
+func (r *mutationResolver) GiveawaysChooseWinners(ctx context.Context, id string) ([]gqlmodel.ChannelGiveawayWinner, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedID, err := ulid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+
+	winners, err := r.deps.GiveawaysService.ChooseWinners(ctx, parsedID, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(winners, func(item entity.ChannelGiveawayWinner, _ int) gqlmodel.ChannelGiveawayWinner {
+		return mappers.GiveawayWinnerEntityTo(item)
+	}), nil
 }
 
 // Giveaways is the resolver for the giveaways field.
 func (r *queryResolver) Giveaways(ctx context.Context) ([]gqlmodel.ChannelGiveaway, error) {
-	panic(fmt.Errorf("not implemented: Giveaways - giveaways"))
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dbGiveaways, err := r.deps.GiveawaysService.GiveawaysGetMany(ctx, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := lo.Map(dbGiveaways, func(item entity.ChannelGiveaway, _ int) gqlmodel.ChannelGiveaway {
+		return mappers.GiveawayEntityTo(item)
+	})
+
+	return converted, nil
 }
 
 // Giveaway is the resolver for the giveaway field.
 func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (*gqlmodel.ChannelGiveaway, error) {
-	// giveaway, err := r.deps.GiveawaysService.
-	return nil, nil
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedID, err := ulid.Parse(giveawayID)
+	if err != nil {
+		return nil, err
+	}
+
+	dbGiveaway, err := r.deps.GiveawaysService.GiveawayGet(ctx, parsedID, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.GiveawayEntityTo(dbGiveaway)
+	return &converted, nil
 }
 
 // GiveawayParticipants is the resolver for the giveawayParticipants field.

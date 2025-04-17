@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/guregu/null"
 	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/libs/repositories/giveaways/model"
 )
@@ -19,6 +20,11 @@ type Repository interface {
 	Create(ctx context.Context, input CreateInput) (model.ChannelGiveaway, error)
 	Delete(ctx context.Context, id ulid.ULID) error
 	Update(ctx context.Context, id ulid.ULID, input UpdateInput) (model.ChannelGiveaway, error)
+	UpdateStatuses(
+		ctx context.Context,
+		id ulid.ULID,
+		input UpdateStatusInput,
+	) (model.ChannelGiveaway, error)
 }
 
 type CreateInput struct {
@@ -33,4 +39,11 @@ type UpdateInput struct {
 	Keyword    *string
 	ArchivedAt *time.Time
 	StoppedAt  *time.Time
+}
+
+type UpdateStatusInput struct {
+	StartedAt  null.Time
+	EndedAt    null.Time
+	ArchivedAt null.Time
+	StoppedAt  null.Time
 }

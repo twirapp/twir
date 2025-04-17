@@ -9,6 +9,10 @@ extend type Mutation {
 	giveawaysCreate(opts: GiveawaysCreateInput!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 	giveawaysUpdate(id: String!, opts: GiveawaysUpdateInput!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 	giveawaysRemove(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysStart(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysStop(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysArchive(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysChooseWinners(id: String!): [ChannelGiveawayWinner!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 }
 
 input GiveawaysCreateInput {
@@ -35,6 +39,11 @@ type ChannelGiveaway {
 	keyword: String!
 	createdByUserId: String!
 	archivedAt: Time
+}
+
+type ChannelGiveawayWinner {
+	displayName: String!
+	userId: String!
 }
 
 type ChannelGiveawayParticipants {

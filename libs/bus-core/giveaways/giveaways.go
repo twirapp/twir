@@ -1,7 +1,5 @@
 package giveaways
 
-import "github.com/oklog/ulid/v2"
-
 const (
 	TryAddParticipantSubject = "giveaways.try_add_participant"
 	ChooseWinnerSubject      = "giveaways.choose_winner"
@@ -10,11 +8,11 @@ const (
 type TryAddParticipantRequest struct {
 	UserID      string
 	DisplayName string
-	GiveawayID  ulid.ULID
+	GiveawayID  string
 }
 
 type ChooseWinnerRequest struct {
-	GiveawayID ulid.ULID
+	GiveawayID string
 }
 
 type ChooseWinnerResponse struct {
