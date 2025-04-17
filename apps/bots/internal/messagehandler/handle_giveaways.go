@@ -9,10 +9,9 @@ import (
 )
 
 func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage) error {
-	// TODO: uncomment in prod
-	// if msg.DbStream == nil {
-	// return nil
-	// }
+	if msg.DbStream == nil {
+		return nil
+	}
 
 	giveaways, err := c.giveawaysCacher.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {

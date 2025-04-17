@@ -49,7 +49,6 @@ func (c *Service) TryAddParticipant(
 	displayName string,
 	giveawayID string,
 ) error {
-	// TODO: check for  err={"error":"ERROR: duplicate key value violates unique constraint \"channels_giveaways_participants_unique\" (SQLSTATE 23505)","kind":"*pgconn.PgError","stack":null} service=giveaways source={"file":"/home/danluki/Projects/twir/apps/giveaways/internal/bus-listener/bus-listener.go","function":"github.com/twirapp/twir/apps/giveaways/internal/bus-listener.(*giveawaysListener).tryAddParticipant","line":70}
 	_, err := c.giveawaysParticipantsRepository.Create(ctx, giveaways_participants.CreateInput{
 		GiveawayID:  giveawayID,
 		DisplayName: displayName,
