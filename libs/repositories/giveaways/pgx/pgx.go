@@ -172,7 +172,8 @@ func (p *Pgx) GetManyActiveByChannelID(
 ) ([]model.ChannelGiveaway, error) {
 	selectBuilder := sq.Select("id", "channel_id", "created_at", "keyword", "updated_at", "started_at", "ended_at", "created_by_user_id", "stopped_at", "archived_at").
 		From("channels_giveaways").
-		Where(squirrel.Eq{`"channel_id"`: channelID}, squirrel.Eq{`"archived_at"`: `NULL`})
+		Where(squirrel.Eq{`"channel_id"`: channelID}).
+		Where(squirrel.Expr("archived_at IS NULL"))
 
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
