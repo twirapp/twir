@@ -3,22 +3,34 @@ package moderationhelpers
 import (
 	"regexp"
 	"strings"
-
-	"github.com/samber/lo"
 )
+
+const denyUnicodeAwareBoundaryPrefix = `(?i)(?:^|\s|[^\p{L}\p{N}])`
+const denyUnicodeAwareBoundarySuffix = `(?:$|\s|[^\p{L}\p{N}])`
 
 func (c *ModerationHelpers) HasDeniedWord(msg string, list []string) bool {
 	msg = strings.ToLower(msg)
 
-	return lo.SomeBy(
-		list,
-		func(item string) bool {
-			r, err := regexp.Compile(item)
-			if err == nil {
-				return r.MatchString(msg)
-			}
+	for _, item := range list {
+		if item == "" {
+			continue
+		}
 
-			return strings.Contains(msg, strings.ToLower(item))
-		},
-	)
+		r, err := regexp.Compile(item)
+		if err == nil {
+			matched := r.MatchString(msg)
+			if matched {
+				return true
+			}
+		}
+
+		wordRg := regexp.MustCompile(denyUnicodeAwareBoundaryPrefix + regexp.QuoteMeta(strings.ToLower(item)) + denyUnicodeAwareBoundarySuffix)
+		matched := wordRg.MatchString(msg)
+
+		if matched {
+			return true
+		}
+	}
+
+	return false
 }
