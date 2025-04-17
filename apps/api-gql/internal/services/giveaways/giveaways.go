@@ -174,10 +174,6 @@ func (c *Service) ChooseWinners(
 		return nil, fmt.Errorf("Cannot choose winners for archived giveaways")
 	}
 
-	if dbGiveaway.StartedAt == nil && dbGiveaway.StoppedAt == nil {
-		return nil, fmt.Errorf("Cannot choose winners for not started giveaways")
-	}
-
 	winners, err := c.twirBus.Giveaways.ChooseWinner.Request(ctx, giveawaysbus.ChooseWinnerRequest{
 		GiveawayID: giveawayID.String(),
 	})
