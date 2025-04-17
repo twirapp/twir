@@ -71,6 +71,10 @@ func (c *Service) Start(
 		return entity.ChannelGiveawayNil, fmt.Errorf("Giveaway doesnt exists")
 	}
 
+	if dbGiveaway.ArchivedAt != nil {
+		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot run archived giveaway")
+	}
+
 	if dbGiveaway.EndedAt != nil {
 		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot run ended giveaway")
 	}
@@ -127,6 +131,10 @@ func (c *Service) Stop(
 
 	if dbGiveaway == entity.ChannelGiveawayNil {
 		return entity.ChannelGiveawayNil, fmt.Errorf("Giveaway doesnt exists")
+	}
+
+	if dbGiveaway.ArchivedAt != nil {
+		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot stop archived giveaway")
 	}
 
 	if dbGiveaway.EndedAt != nil {
@@ -212,7 +220,6 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 		}
 	}
 
-	// TODO: need to check for unqiue only for non archived giveaways only
 	if dbGiveaway != model.ChannelGiveawayNil {
 		return entity.ChannelGiveawayNil, fmt.Errorf(
 			"Giveaways with same keyword already exists on this channel",
@@ -298,6 +305,30 @@ func (c *Service) GiveawaysGetMany(
 			return c.giveawayModelToEntity(item)
 		},
 	), nil
+}
+
+func (c *Service) ArchiveGiveaway(
+	ctx context.Context,
+	giveawayID ulid.ULID,
+	channelID string,
+) (entity.ChannelGiveaway, error) {
+	giveaway, err := c.giveawaysRepository.UpdateStatuses(
+		ctx,
+		giveawayID,
+		giveaways.UpdateStatusInput{
+			ArchivedAt: null.NewTime(time.Now(), true),
+		},
+	)
+	if err != nil {
+		return entity.ChannelGiveawayNil, err
+	}
+
+	err = c.updateGiveawaysCacheForChannel(ctx, channelID)
+	if err != nil {
+		return entity.ChannelGiveawayNil, err
+	}
+
+	return c.giveawayModelToEntity(giveaway), nil
 }
 
 func (c *Service) GiveawayRemove(

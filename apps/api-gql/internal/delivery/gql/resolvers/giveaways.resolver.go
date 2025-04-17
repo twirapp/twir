@@ -6,7 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"time"
 
 	ulid "github.com/oklog/ulid/v2"
 	"github.com/samber/lo"
@@ -137,9 +136,7 @@ func (r *mutationResolver) GiveawaysArchive(ctx context.Context, id string) (*gq
 		return nil, err
 	}
 
-	dbGiveaway, err := r.deps.GiveawaysService.GiveawayUpdate(ctx, parsedID, dashboardId, giveaways.UpdateInput{
-		ArchivedAt: lo.ToPtr(time.Now()),
-	})
+	dbGiveaway, err := r.deps.GiveawaysService.ArchiveGiveaway(ctx, parsedID, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -217,6 +214,15 @@ func (r *queryResolver) GiveawayParticipants(ctx context.Context, giveawayID str
 		return nil, err
 	}
 
-	r.deps.GiveawaysService.GetParticipantsForGiveaway(ctx, parsedID)
-	return nil, nil
+	dbParticipants, err := r.deps.GiveawaysService.GetParticipantsForGiveaway(ctx, parsedID)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(dbParticipants, func(
+		item entity.ChannelGiveawayParticipant,
+		_ int,
+	) gqlmodel.ChannelGiveawayParticipants {
+		return mappers.GiveawayParticipantEntityTo(item)
+	}), nil
 }
