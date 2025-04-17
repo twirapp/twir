@@ -37,7 +37,7 @@
     },
     "response": "Odpoveď",
     "user": "Užívateľ",
-    "userName": "Užívateľské meno",
+    "userName": "Používateľské meno",
     "dangerZone": "Nebezpečná zóna",
     "deleted": "Odstránené",
     "updated": "Aktualizované",
@@ -1177,10 +1177,10 @@
     },
     "commands": {
       "title": "Príkazy",
-      "delete": "Chat wall delete",
-      "ban": "Chat wall ban",
-      "timeout": "Chat wall timeout",
-      "stop": "Chat wall stop"
+      "delete": "Mazacia chatová stena",
+      "ban": "Ban chatová stenu",
+      "timeout": "Timeout chatová stena",
+      "stop": "Stop chatová stena"
     },
     "table": {
       "phrase": "Fráza",
