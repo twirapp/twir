@@ -38,5 +38,6 @@ func GiveawayWinnerEntityTo(
 	return gqlmodel.ChannelGiveawayWinner{
 		DisplayName: e.DisplayName,
 		UserID:      e.UserID,
+		UserLogin:   e.UserLogin,
 	}
 }

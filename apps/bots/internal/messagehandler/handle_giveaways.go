@@ -9,9 +9,10 @@ import (
 )
 
 func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage) error {
-	if msg.DbStream == nil {
-		return nil
-	}
+	// TODO: uncomment in prod
+	// if msg.DbStream == nil {
+	// 	return nil
+	// }
 
 	giveaways, err := c.giveawaysCacher.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
@@ -52,11 +53,14 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage)
 			return nil
 		}
 
-		err = c.bus.Giveaways.TryAddParticipant.Publish(giveawaysbus.TryAddParticipantRequest{
-			UserID:      msg.ChatterUserId,
-			DisplayName: msg.ChatterUserName,
-			GiveawayID:  giveaway.ID.String(),
-		})
+		err = c.bus.Giveaways.TryAddParticipant.Publish(
+			giveawaysbus.TryAddParticipantRequest{
+				UserID:          msg.ChatterUserId,
+				UserLogin:       msg.ChatterUserLogin,
+				UserDisplayName: msg.ChatterUserName,
+				GiveawayID:      giveaway.ID.String(),
+			},
+		)
 		if err != nil {
 			return err
 		}

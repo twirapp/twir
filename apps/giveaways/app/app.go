@@ -9,6 +9,7 @@ import (
 	bus_listener "github.com/twirapp/twir/apps/giveaways/internal/bus-listener"
 	"github.com/twirapp/twir/apps/giveaways/internal/services"
 	"github.com/twirapp/twir/libs/baseapp"
+	giveawayscacher "github.com/twirapp/twir/libs/cache/giveaways"
 	giveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
 	giveawaysrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways/pgx"
 	giveawaysparticipantsrepository "github.com/twirapp/twir/libs/repositories/giveaways_participants"
@@ -30,6 +31,7 @@ var App = fx.Module(
 		),
 	),
 	fx.Provide(
+		giveawayscacher.New,
 		services.New,
 	),
 	fx.Invoke(

@@ -20,8 +20,9 @@ type ChannelGiveaway struct {
 }
 
 type ChannelGiveawayWinner struct {
-	DisplayName string
 	UserID      string
+	UserLogin   string
+	DisplayName string
 }
 
 var ChannelGiveawayNil = ChannelGiveaway{}

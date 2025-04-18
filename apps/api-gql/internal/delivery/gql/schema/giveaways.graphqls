@@ -15,6 +15,10 @@ extend type Mutation {
 	giveawaysChooseWinners(id: String!): [ChannelGiveawayWinner!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 }
 
+extend type Subscription {
+	giveawaysParticipants(giveawayId: String!): ChannelGiveawaySubscriptionParticipant! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+}
+
 input GiveawaysCreateInput {
 	keyword: String! @validate(constraint: "min=3,max=100")
 }
@@ -27,7 +31,6 @@ input GiveawaysUpdateInput {
 	stoppedAt: Time
 }
 
-
 type ChannelGiveaway {
 	id: String!
 	channelId: String!
@@ -39,11 +42,15 @@ type ChannelGiveaway {
 	keyword: String!
 	createdByUserId: String!
 	archivedAt: Time
+
+	winners: [ChannelGiveawayWinner!]! @goField(forceResolver: true)
 }
 
 type ChannelGiveawayWinner {
 	displayName: String!
 	userId: String!
+	userLogin: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 }
 
 type ChannelGiveawayParticipants {
@@ -51,5 +58,13 @@ type ChannelGiveawayParticipants {
 	userId: String!
 	isWinner: Boolean!
 	id: String!
+	giveawayId: String!
+}
+
+type ChannelGiveawaySubscriptionParticipant {
+	userId: String!
+	userLogin: String!
+	userDisplayName: String!
+	isWinner: Boolean!
 	giveawayId: String!
 }

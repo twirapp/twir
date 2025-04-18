@@ -49,6 +49,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
+			NewParticipants: NewNatsQueue[giveaways.NewParticipant, struct{}](
+				nc,
+				giveaways.NewParticipantsSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
 		},
 		AuditLogs: &auditLogsBus{
 			Logs: NewNatsQueue[auditlog.NewAuditLogMessage, struct{}](

@@ -3,12 +3,14 @@ package giveaways
 const (
 	TryAddParticipantSubject = "giveaways.try_add_participant"
 	ChooseWinnerSubject      = "giveaways.choose_winner"
+	NewParticipantsSubject   = "giveaways.new_participants"
 )
 
 type TryAddParticipantRequest struct {
-	UserID      string
-	DisplayName string
-	GiveawayID  string
+	UserID          string
+	UserLogin       string
+	UserDisplayName string
+	GiveawayID      string
 }
 
 type ChooseWinnerRequest struct {
@@ -20,6 +22,14 @@ type ChooseWinnerResponse struct {
 }
 
 type Winner struct {
-	UserID      string
-	DisplayName string
+	UserID          string
+	UserLogin       string
+	UserDisplayName string
+}
+
+type NewParticipant struct {
+	GiveawayID      string
+	UserID          string
+	UserLogin       string
+	UserDisplayName string
 }

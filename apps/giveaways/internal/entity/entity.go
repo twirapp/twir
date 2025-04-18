@@ -1,6 +1,7 @@
 package entity
 
 type Winner struct {
-	UserID      string
-	DisplayName string
+	UserID          string
+	UserLogin       string
+	UserDisplayName string
 }

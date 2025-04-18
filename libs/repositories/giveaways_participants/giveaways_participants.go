@@ -10,6 +10,7 @@ type Repository interface {
 	GetManyByGiveawayID(
 		ctx context.Context,
 		giveawayID string,
+		input GetManyInput,
 	) ([]model.ChannelGiveawayParticipant, error)
 	GetByID(ctx context.Context, id string) (model.ChannelGiveawayParticipant, error)
 	Create(ctx context.Context, input CreateInput) (model.ChannelGiveawayParticipant, error)
@@ -29,9 +30,15 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	GiveawayID  string
-	DisplayName string
-	UserID      string
+	GiveawayID      string
+	UserID          string
+	UserLogin       string
+	UserDisplayName string
+}
+
+type GetManyInput struct {
+	OnlyWinners   bool
+	IgnoreWinners bool
 }
 
 type UpdateInput struct {

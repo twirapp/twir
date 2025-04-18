@@ -9,9 +9,9 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/oklog/ulid/v2"
-	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -25,22 +25,46 @@ import (
 
 type Opts struct {
 	fx.In
+	LC fx.Lifecycle
 
 	GiveawaysRepository             giveaways.Repository
 	GiveawaysParticipantsRepository giveaways_participants.Repository
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]model.ChannelGiveaway]
 	TwirBus                         *buscore.Bus
 	Logger                          logger.Logger
+	WsRouter                        wsrouter.WsRouter
 }
 
 func New(opts Opts) *Service {
-	return &Service{
+	s := &Service{
 		giveawaysRepository:             opts.GiveawaysRepository,
 		giveawaysParticipantsRepository: opts.GiveawaysParticipantsRepository,
 		giveawaysCacher:                 opts.GiveawaysCacher,
 		twirBus:                         opts.TwirBus,
 		logger:                          opts.Logger,
+		wsRouter:                        opts.WsRouter,
 	}
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				return s.twirBus.Giveaways.NewParticipants.SubscribeGroup(
+					"api-gql",
+					func(ctx context.Context, data giveawaysbus.NewParticipant) struct{} {
+						s.handleNewParticipants(ctx, data)
+
+						return struct{}{}
+					},
+				)
+			},
+			OnStop: func(ctx context.Context) error {
+				s.twirBus.Giveaways.NewParticipants.Unsubscribe()
+				return nil
+			},
+		},
+	)
+
+	return s
 }
 
 type Service struct {
@@ -49,12 +73,25 @@ type Service struct {
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]model.ChannelGiveaway]
 	twirBus                         *buscore.Bus
 	logger                          logger.Logger
+	wsRouter                        wsrouter.WsRouter
 }
 
 type CreateInput struct {
 	ChannelID       string
 	Keyword         string
 	CreatedByUserID string
+}
+
+func (c *Service) handleNewParticipants(
+	ctx context.Context,
+	participant giveawaysbus.NewParticipant,
+) {
+	if err := c.wsRouter.Publish(
+		CreateNewPariticipantSubscriptionKeyByGiveawayID(participant.GiveawayID),
+		participant,
+	); err != nil {
+		c.logger.Error("cannot publish new participant", slog.Any("err", err))
+	}
 }
 
 func (c *Service) Start(
@@ -182,16 +219,18 @@ func (c *Service) ChooseWinners(
 		return nil, fmt.Errorf("Cannot choose winners for archived giveaways")
 	}
 
-	winners, err := c.twirBus.Giveaways.ChooseWinner.Request(ctx, giveawaysbus.ChooseWinnerRequest{
-		GiveawayID: giveawayID.String(),
-	})
+	winners, err := c.twirBus.Giveaways.ChooseWinner.Request(
+		ctx, giveawaysbus.ChooseWinnerRequest{
+			GiveawayID: giveawayID.String(),
+		},
+	)
 	if err != nil {
 		c.logger.Error("Cannot choose winners", slog.Any("err", err))
 		return nil, err
 	}
 
 	if len(winners.Data.Winners) == 0 {
-		return nil, fmt.Errorf("Cannot process winners for now, please retry.")
+		return nil, fmt.Errorf("Cannot choose winner, probably there is no more participants?")
 	}
 
 	var result []entity.ChannelGiveawayWinner
@@ -214,10 +253,8 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 		input.ChannelID,
 		input.Keyword,
 	)
-	if err != nil {
-		if !errors.Is(err, giveaways.ErrNotFound) {
-			return entity.ChannelGiveawayNil, err
-		}
+	if err != nil && !errors.Is(err, giveaways.ErrNotFound) {
+		return entity.ChannelGiveawayNil, err
 	}
 
 	if dbGiveaway != model.ChannelGiveawayNil {
@@ -246,24 +283,32 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 	return c.giveawayModelToEntity(giveaway), nil
 }
 
+type GetParticipantsInput struct {
+	OnlyWinners bool
+}
+
 func (c *Service) GetParticipantsForGiveaway(
 	ctx context.Context,
 	giveawayID ulid.ULID,
+	input GetParticipantsInput,
 ) ([]entity.ChannelGiveawayParticipant, error) {
 	participants, err := c.giveawaysParticipantsRepository.GetManyByGiveawayID(
 		ctx,
 		giveawayID.String(),
+		giveaways_participants.GetManyInput{
+			OnlyWinners: input.OnlyWinners,
+		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return lo.Map(
-		participants,
-		func(item giveawaysparticipantsmodel.ChannelGiveawayParticipant, _ int) entity.ChannelGiveawayParticipant {
-			return c.giveawayParticipantModelToEntity(item)
-		},
-	), nil
+	mappedParticipants := make([]entity.ChannelGiveawayParticipant, 0, len(participants))
+	for _, participant := range participants {
+		mappedParticipants = append(mappedParticipants, c.giveawayParticipantModelToEntity(participant))
+	}
+
+	return mappedParticipants, nil
 }
 
 func (c *Service) GiveawayGet(
@@ -272,10 +317,8 @@ func (c *Service) GiveawayGet(
 	channelID string,
 ) (entity.ChannelGiveaway, error) {
 	giveaway, err := c.giveawaysRepository.GetByID(ctx, giveawayID)
-	if err != nil {
-		if !errors.Is(err, giveaways.ErrNotFound) {
-			return entity.ChannelGiveawayNil, err
-		}
+	if err != nil && !errors.Is(err, giveaways.ErrNotFound) {
+		return entity.ChannelGiveawayNil, err
 	}
 
 	if giveaway == giveawaysmodel.ChannelGiveawayNil {
@@ -299,12 +342,12 @@ func (c *Service) GiveawaysGetMany(
 		return nil, err
 	}
 
-	return lo.Map(
-		dbGiveaways,
-		func(item giveawaysmodel.ChannelGiveaway, _ int) entity.ChannelGiveaway {
-			return c.giveawayModelToEntity(item)
-		},
-	), nil
+	mappedGiveaways := make([]entity.ChannelGiveaway, 0, len(dbGiveaways))
+	for _, giveaway := range dbGiveaways {
+		mappedGiveaways = append(mappedGiveaways, c.giveawayModelToEntity(giveaway))
+	}
+
+	return mappedGiveaways, nil
 }
 
 func (c *Service) ArchiveGiveaway(
@@ -360,13 +403,15 @@ func (c *Service) GiveawayUpdate(
 	channelID string,
 	input UpdateInput,
 ) (entity.ChannelGiveaway, error) {
-	dbGiveaway, err := c.giveawaysRepository.Update(ctx, giveawayID, giveaways.UpdateInput{
-		StartedAt:  input.StartedAt,
-		EndedAt:    input.EndedAt,
-		Keyword:    input.Keyword,
-		ArchivedAt: input.ArchivedAt,
-		StoppedAt:  input.StoppedAt,
-	})
+	dbGiveaway, err := c.giveawaysRepository.Update(
+		ctx, giveawayID, giveaways.UpdateInput{
+			StartedAt:  input.StartedAt,
+			EndedAt:    input.EndedAt,
+			Keyword:    input.Keyword,
+			ArchivedAt: input.ArchivedAt,
+			StoppedAt:  input.StoppedAt,
+		},
+	)
 	if err != nil {
 		return entity.ChannelGiveawayNil, err
 	}
@@ -433,6 +478,7 @@ func (c *Service) giveawayParticipantModelToEntity(
 	m giveawaysparticipantsmodel.ChannelGiveawayParticipant,
 ) entity.ChannelGiveawayParticipant {
 	return entity.ChannelGiveawayParticipant{
+		UserLogin:   m.UserLogin,
 		DisplayName: m.DisplayName,
 		UserID:      m.UserID,
 		IsWinner:    m.IsWinner,
@@ -445,8 +491,9 @@ func (c *Service) giveawayWinnerBusModelToEntity(
 	m giveawaysbus.Winner,
 ) entity.ChannelGiveawayWinner {
 	return entity.ChannelGiveawayWinner{
-		DisplayName: m.DisplayName,
 		UserID:      m.UserID,
+		UserLogin:   m.UserLogin,
+		DisplayName: m.UserDisplayName,
 	}
 }
 

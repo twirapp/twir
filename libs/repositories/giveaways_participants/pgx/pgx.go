@@ -58,8 +58,8 @@ func (p *Pgx) Create(
 	input giveaways_participants.CreateInput,
 ) (model.ChannelGiveawayParticipant, error) {
 	query := `
-INSERT INTO channels_giveaways_participants("giveaway_id", "display_name", "user_id") VALUES ($1, $2, $3)
-RETURNING id, giveaway_id, is_winner, display_name, user_id
+INSERT INTO channels_giveaways_participants("giveaway_id", "display_name", "user_id", "user_login") VALUES ($1, $2, $3, $4)
+RETURNING id, giveaway_id, is_winner, display_name, user_id, user_login
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -67,8 +67,9 @@ RETURNING id, giveaway_id, is_winner, display_name, user_id
 		ctx,
 		query,
 		input.GiveawayID,
-		input.DisplayName,
+		input.UserDisplayName,
 		input.UserID,
+		input.UserLogin,
 	)
 	if err != nil {
 		return model.ChannelGiveawayParticipantNil, err
@@ -105,7 +106,7 @@ DELETE FROM channels_giveaways_participants WHERE id = $1
 
 func (p *Pgx) GetByID(ctx context.Context, id string) (model.ChannelGiveawayParticipant, error) {
 	query := `
-SELECT id, giveaway_id, is_winner, display_name, user_id FROM channels_giveaways_participants WHERE id = $1
+SELECT id, giveaway_id, is_winner, display_name, user_id, user_login FROM channels_giveaways_participants WHERE id = $1
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -132,10 +133,24 @@ SELECT id, giveaway_id, is_winner, display_name, user_id FROM channels_giveaways
 func (p *Pgx) GetManyByGiveawayID(
 	ctx context.Context,
 	giveawayID string,
+	input giveaways_participants.GetManyInput,
 ) ([]model.ChannelGiveawayParticipant, error) {
-	selectBuilder := sq.Select("id", "giveaway_id", "is_winner", "display_name", "user_id").
+	selectBuilder := sq.Select(
+		"id",
+		"giveaway_id",
+		"is_winner",
+		"display_name",
+		"user_id",
+		"user_login",
+	).
 		From("channels_giveaways_participants").
 		Where(squirrel.Eq{`"giveaway_id"`: giveawayID})
+
+	if input.OnlyWinners {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"is_winner": true})
+	} else if input.IgnoreWinners {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"is_winner": false})
+	}
 
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
@@ -161,7 +176,7 @@ func (p *Pgx) GetWinnerForGiveaway(
 	giveawayID string,
 ) (model.ChannelGiveawayParticipant, error) {
 	query := `
-SELECT id, giveaway_id, is_winner, display_name, user_id FROM channels_giveaways_participants WHERE giveaway_id = $1 AND is_winner = true
+SELECT id, giveaway_id, is_winner, display_name, user_id, user_login FROM channels_giveaways_participants WHERE giveaway_id = $1 AND is_winner = true
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -192,7 +207,7 @@ func (p *Pgx) Update(
 ) (model.ChannelGiveawayParticipant, error) {
 	updateBuilder := sq.Update("channels_giveaways_participants").
 		Where(squirrel.Eq{"id": id}).
-		Suffix(`RETURNING id, giveaway_id, is_winner, display_name, user_id`)
+		Suffix(`RETURNING id, giveaway_id, is_winner, display_name, user_id, user_login`)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,
 		map[string]any{
