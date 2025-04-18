@@ -86,6 +86,9 @@ enum ChannelRolePermissionEnum {
 
 	VIEW_MODULES
 	MANAGE_MODULES
+
+	VIEW_GIVEAWAYS
+	MANAGE_GIVEAWAYS
 }
 
 directive @hasChannelRolesDashboardPermission(permission: ChannelRolePermissionEnum) on FIELD_DEFINITION
