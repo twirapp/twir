@@ -1,5 +1,6 @@
 import './main.css'
 import './assets/index.css'
+
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
