@@ -241,6 +241,9 @@ func (c *Commands) ParseCommandResponses(
 	// this shit comes from 7tv for bypass message duplicate
 	params = strings.ReplaceAll(params, "\U000e0000", "")
 	params = strings.TrimSpace(params)
+	if params != "" {
+		cmdParams = &params
+	}
 
 	var defaultCommand *types.DefaultCommand
 
