@@ -90,9 +90,10 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 		ch <- msg
 	}
 
-	if ch, ok := c.subs[allMessagesSubKey]; ok {
-		ch <- msg
-	}
+	// TODO: fix this, temporary commented becuase api crashes because noone reading from this channel
+	// if ch, ok := c.subs[allMessagesSubKey]; ok {
+	// 	ch <- msg
+	// }
 
 	return struct{}{}
 }
