@@ -1,32 +1,30 @@
 <script setup lang="ts">
-import { h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { PageLayoutTab } from '@/layout/page-layout.vue'
 
-import GiveawaysPagesCurrentGiveaway
-	from '@/features/giveaways/pages/giveaways-pages-current-giveaway.vue'
 import GiveawaysPagesHistory from '@/features/giveaways/pages/giveaways-pages-history.vue'
+import GiveawaysPagesList from '@/features/giveaways/pages/giveaways-pages-list.vue'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()
 
 const tabs: PageLayoutTab[] = [
 	{
-		name: 'current',
-		component: () => h(GiveawaysPagesCurrentGiveaway),
-		title: t('giveaways.pages.current.title'),
+		name: 'list',
+		component: GiveawaysPagesList,
+		title: t('giveaways.pages.list.title'),
 	},
 	{
 		name: 'history',
-		component: () => h(GiveawaysPagesHistory),
+		component: GiveawaysPagesHistory,
 		title: t('giveaways.pages.history.title'),
 	},
 ]
 </script>
 
 <template>
-	<PageLayout :tabs="tabs" active-tab="current">
+	<PageLayout :tabs="tabs" active-tab="list">
 		<template #title>
 			Giveaways
 		</template>
