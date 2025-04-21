@@ -56,24 +56,15 @@ func (r *subscriptionResolver) ChatMessages(ctx context.Context) (<-chan *gqlmod
 		return nil, fmt.Errorf("failed to get selected dashboard: %w", err)
 	}
 
-	ch := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelID(dashboardID)
-	gqlCh := make(chan *gqlmodel.ChatMessage)
+	ch := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelID(ctx, dashboardID)
+	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {
-		defer func() {
-			r.deps.ChatMessagesService.UnsubscribeFromNewMessages(dashboardID)
-			close(gqlCh)
-		}()
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case data := <-ch:
-				converted := mappers.ChatMessageToGQL(data)
-				gqlCh <- &converted
-			}
+		for msg := range ch {
+			converted := mappers.ChatMessageToGQL(msg)
+			gqlCh <- &converted
 		}
+		close(gqlCh)
 	}()
 
 	return gqlCh, nil
@@ -81,23 +72,15 @@ func (r *subscriptionResolver) ChatMessages(ctx context.Context) (<-chan *gqlmod
 
 // AdminChatMessages is the resolver for the adminChatMessages field.
 func (r *subscriptionResolver) AdminChatMessages(ctx context.Context) (<-chan *gqlmodel.ChatMessage, error) {
-	ch := r.deps.ChatMessagesService.SubscribeToNewMessages()
-	gqlCh := make(chan *gqlmodel.ChatMessage)
+	ch := r.deps.ChatMessagesService.SubscribeToNewMessages(ctx)
+	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {
-		defer func() {
-			close(gqlCh)
-		}()
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case data := <-ch:
-				converted := mappers.ChatMessageToGQL(data)
-				gqlCh <- &converted
-			}
+		for msg := range ch {
+			converted := mappers.ChatMessageToGQL(msg)
+			gqlCh <- &converted
 		}
+		close(gqlCh)
 	}()
 
 	return gqlCh, nil
