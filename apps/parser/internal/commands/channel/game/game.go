@@ -122,7 +122,7 @@ var SetCommand = &types.DefaultCommand{
 			}
 		}
 
-		category, err := twitch.SearchCategory(ctx, categoryArg)
+		category, err := parseCtx.Services.CacheTwitchClient.SearchCategory(ctx, categoryArg)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "game not found on twitch",
