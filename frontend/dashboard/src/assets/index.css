@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
 	:root {
 		--background: 0 0% 100%;
@@ -82,6 +83,23 @@
 		--border:240 3.7% 15.9%;
 		--input:240 3.7% 15.9%;
 		--ring:240 4.9% 83.9%;
+	}
+
+	::-webkit-scrollbar {
+		width: 6px;
+		display: block;
+		height: 4px;
+		position: unset;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		cursor: pointer;
+		border-radius: 19px;
+		background-color: hsl(var(--sidebar-accent));
 	}
 
 	/* notifications list */
