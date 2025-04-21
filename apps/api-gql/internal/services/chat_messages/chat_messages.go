@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -42,6 +43,7 @@ func New(opts Opts) *Service {
 		chatMessagesRepository: opts.ChatMessagesRepository,
 		wsRouter:               opts.WsRouter,
 		logger:                 opts.Logger,
+		chanSubs:               make(map[string]struct{}),
 	}
 
 	opts.LC.Append(
@@ -62,8 +64,10 @@ func New(opts Opts) *Service {
 type Service struct {
 	chatMessagesRepository chat_messages.Repository
 
-	wsRouter wsrouter.WsRouter
-	logger   logger.Logger
+	wsRouter   wsrouter.WsRouter
+	logger     logger.Logger
+	chanSubs   map[string]struct{}
+	chanSubsMu sync.RWMutex
 }
 
 func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
@@ -99,15 +103,19 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 		UpdatedAt:       time.Now(),
 	}
 
-	err := c.wsRouter.Publish(chatMessagesSubscriptionKeyCreate(data.BroadcasterUserId), msg)
-	if err != nil {
-		c.logger.Error(
-			"Cannot publish some message to separate broadcaster messages",
-			slog.Any("err", err),
-		)
+	c.chanSubsMu.RLock()
+	if _, ok := c.chanSubs[data.BroadcasterUserId]; ok {
+		err := c.wsRouter.Publish(chatMessagesSubscriptionKeyCreate(data.BroadcasterUserId), msg)
+		if err != nil {
+			c.logger.Error(
+				"Cannot publish some message to separate broadcaster messages",
+				slog.Any("err", err),
+			)
+		}
 	}
+	c.chanSubsMu.RUnlock()
 
-	err = c.wsRouter.Publish(chatMessagesSubscriptionKeyAll, msg)
+	err := c.wsRouter.Publish(chatMessagesSubscriptionKeyAll, msg)
 	if err != nil {
 		c.logger.Error("Cannot publish some message to all messages", slog.Any("err", err))
 	}
@@ -119,6 +127,10 @@ func (c *Service) SubscribeToNewMessagesByChannelID(
 	ctx context.Context,
 	channelID string,
 ) <-chan entity.ChatMessage {
+	c.chanSubsMu.Lock()
+	c.chanSubs[channelID] = struct{}{}
+	c.chanSubsMu.Unlock()
+
 	channel := make(chan entity.ChatMessage)
 	go func() {
 		sub, err := c.wsRouter.Subscribe(
@@ -130,6 +142,9 @@ func (c *Service) SubscribeToNewMessagesByChannelID(
 			panic(err)
 		}
 		defer func() {
+			c.chanSubsMu.Lock()
+			delete(c.chanSubs, channelID)
+			c.chanSubsMu.Unlock()
 			sub.Unsubscribe()
 			close(channel)
 		}()
@@ -138,7 +153,11 @@ func (c *Service) SubscribeToNewMessagesByChannelID(
 			select {
 			case <-ctx.Done():
 				return
-			case data := <-sub.GetChannel():
+			case data, ok := <-sub.GetChannel():
+				if !ok {
+					return
+				}
+
 				var msg entity.ChatMessage
 				if err := json.Unmarshal(data, &msg); err != nil {
 					panic(err)
@@ -172,7 +191,10 @@ func (c *Service) SubscribeToNewMessages(ctx context.Context) <-chan entity.Chat
 			select {
 			case <-ctx.Done():
 				return
-			case data := <-sub.GetChannel():
+			case data, ok := <-sub.GetChannel():
+				if !ok {
+					return
+				}
 				var msg entity.ChatMessage
 				if err := json.Unmarshal(data, &msg); err != nil {
 					panic(err)
