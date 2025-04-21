@@ -3,31 +3,46 @@ package twitch
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/imroc/req/v3"
 )
 
-const categorySearchQuery = `[{"operationName":"SearchTray_SearchSuggestions",
-"variables":{"queryFragment":"%s"},"extensions":{"persistedQuery":{"version":1,
-"sha256Hash":"34e1899cd559b7d6a4ac25e3bdaad37a83324644b0085b4cc478d0f845f8f0de"}}}]`
+const categorySearchQuery = `[{"operationName":"EditBroadcastCategoryDropdownSearch","variables":{"query":"%s"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"ccad6fa3d84008d710f2d69f7f9bcbd30d6b54ed1cecea5fd9a0a28e3f2508c7"}}}]`
 
 type TwitchGqlSearchCategoryResponse struct {
 	Data *struct {
-		SearchSuggestions *struct {
+		SearchCategories *struct {
 			Edges []struct {
-				Node *struct {
-					Content *struct {
+				Cursor string `json:"cursor"`
+				Node   struct {
+					BoxArtURL                           string    `json:"boxArtURL"`
+					DisplayName                         string    `json:"displayName"`
+					Id                                  string    `json:"id"`
+					Name                                string    `json:"name"`
+					ViewersCount                        int       `json:"viewersCount"`
+					FollowersCount                      int       `json:"followersCount"`
+					IsRestrictedForCurrentUserAndRegion bool      `json:"isRestrictedForCurrentUserAndRegion"`
+					IsMature                            bool      `json:"isMature"`
+					OriginalReleaseDate                 time.Time `json:"originalReleaseDate"`
+					Platforms                           []string  `json:"platforms"`
+					Publishers                          []string  `json:"publishers"`
+					Tags                                []struct {
+						Id       string `json:"id"`
 						Typename string `json:"__typename"`
-						Game     *struct {
-							ID   string `json:"id"`
-							Slug string `json:"slug"`
-						} `json:"game"`
-					} `json:"content"`
-					Text string `json:"text"`
+					} `json:"tags"`
+					Typename string `json:"__typename"`
 				} `json:"node"`
-			}
-		}
-	}
+				Typename string `json:"__typename"`
+			} `json:"edges"`
+			Typename string `json:"__typename"`
+		} `json:"searchCategories"`
+	} `json:"data"`
+	Extensions struct {
+		DurationMilliseconds int    `json:"durationMilliseconds"`
+		OperationName        string `json:"operationName"`
+		RequestID            string `json:"requestID"`
+	} `json:"extensions"`
 }
 
 type FoundCategory struct {
@@ -51,30 +66,13 @@ func SearchCategory(ctx context.Context, query string) (*FoundCategory, error) {
 	}
 
 	if len(searchResponse) == 0 || searchResponse[0].Data == nil ||
-		searchResponse[0].Data.SearchSuggestions == nil ||
-		len(searchResponse[0].Data.SearchSuggestions.Edges) == 0 {
+		searchResponse[0].Data.SearchCategories == nil ||
+		len(searchResponse[0].Data.SearchCategories.Edges) == 0 {
 		return nil, fmt.Errorf("cannot get game from twitch: empty response")
 	}
 
-	var foundCategory *FoundCategory
-
-	for _, edge := range searchResponse[0].Data.SearchSuggestions.Edges {
-		if edge.Node == nil || edge.Node.Content == nil || edge.Node.Content.Game == nil {
-			continue
-		}
-
-		if edge.Node.Content.Typename == "SearchSuggestionCategory" {
-			foundCategory = &FoundCategory{
-				ID:   edge.Node.Content.Game.ID,
-				Name: edge.Node.Text,
-			}
-			break
-		}
-	}
-
-	if foundCategory == nil {
-		return nil, fmt.Errorf("cannot get game from twitch: category not found")
-	}
-
-	return foundCategory, nil
+	return &FoundCategory{
+		ID:   searchResponse[0].Data.SearchCategories.Edges[0].Node.Id,
+		Name: searchResponse[0].Data.SearchCategories.Edges[0].Node.Name,
+	}, nil
 }
