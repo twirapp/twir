@@ -95,17 +95,17 @@
     "notifications": "Notifikácie"
   },
   "deleteConfirmation": {
-    "text": "Ste si istí, že to chcete odstrániť?",
+    "text": "Naozaj to chceš odstrániť?",
     "cancel": "Zrušiť",
     "confirm": "Potvrdiť"
   },
   "haveNoAccess": {
     "title": "Žiadny prístup",
-    "description": "Nemáte na to oprávnenie, požiadajte vysielateľa, aby vám ho poskytol."
+    "description": "Nemáš na to oprávnenie, požiadaj vysielateľa, aby ti ho poskytol."
   },
   "pageNotFound": {
     "title": "404 Nenájdená",
-    "description": "Viete, život je vždy smiešny."
+    "description": "Vieš, život je proste vždy na hlavu."
   },
   "commands": {
     "name": "Príkaz | Príkazy",
@@ -151,9 +151,9 @@
       },
       "responses": {
         "add": "Pridať odpoveď",
-        "description": "Toto je vaša odpoveď na príkaz. Môžete použiť príkazové premenné ako {0}.",
+        "description": "Toto je odpoveď na príkaz môžeš použiť premenné ako {0}.",
         "validations": {
-          "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžete vynechať.",
+          "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžeš vynechať.",
           "len": "Odpoveď by mala mať menej ako 500 znakov."
         },
         "defaultWarning": "Odpovede predvolených príkazov nie je možné upravovať."
@@ -161,8 +161,8 @@
       "permissions": {
         "divider": "Oprávnenia",
         "name": "Roly",
-        "placeholder": "Výber rolí na udelenie oprávnení na používanie príkazov",
-        "deniedUsers": "Používatelia, ktorí tento príkaz nemôžu použiť.",
+        "placeholder": "Vyber roly, ktorým sa má udeliť povolenie na používanie príkazov",
+        "deniedUsers": "Používatelia, ktorí nemôžu použiť tento príkaz.",
         "allowedUsers": "Používatelia, ktorí môžu obísť obmedzenie rolí pre tento príkaz.",
         "exceptions": "Výnimky",
         "blocked": "Blokovaní užívatelia"
@@ -174,10 +174,10 @@
         "channelsPoints": "Požadované vernostné body kanálov na použitie tohto príkazu."
       },
       "cooldown": {
-        "label": "Vychladnutie",
+        "label": "Cooldown",
         "value": "Cooldown v sekundách",
         "type": {
-          "name": "Vychladnutie za",
+          "name": "Cooldown na",
           "global": "Globálne",
           "user": "Individuálne (na používateľa)"
         }
@@ -186,14 +186,14 @@
         "divider": "Nastavenia",
         "visible": {
           "label": "Viditeľnosť",
-          "text": "Viditeľnosť príkazov na stránke verejného zoznamu príkazov."
+          "text": "Viditeľnosť príkazu na stránke verejného zoznamu príkazov."
         },
         "keepOrder": {
           "label": "Zachovať poradie",
           "text": "Bot zachová toto poradie odpovedí pri ich odosielaní do chatu."
         },
         "onlineOnly": {
-          "label": "Len ak online",
+          "label": "Iba keď je online",
           "text": "Tento príkaz bude fungovať len vtedy, keď je stream online."
         },
         "other": {
@@ -202,7 +202,7 @@
         }
       },
       "alert": {
-        "label": "Vyberte upozornenie, ktoré sa spustí pri použití príkazu."
+        "label": "Vyber upozornenie, ktoré sa spustí pri použití príkazu."
       }
     }
   },
@@ -215,7 +215,7 @@
       "title": "Stav bota",
       "success": "Povolené a so statusom moderátora",
       "notEnabledTitle": "Bot nie je povolený na kanáli",
-      "notModerator": "Zistili sme, že bot nie je moderátorom na tomto kanáli. Prosím, použite {0}, inak bot nebude posielať správy v chate a väčšina funkcií nebude fungovať",
+      "notModerator": "Zistili sme, že bot nie je moderátorom na tomto kanáli. Prosím, použi {0}, inak bot nebude môcť posielať správy do chatu a väčšina funkcií nebude fungovať",
       "leave": "Zakázať",
       "join": "Povoliť"
     },
