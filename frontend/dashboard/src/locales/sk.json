@@ -42,8 +42,8 @@
     "deleted": "Odstránené",
     "updated": "Aktualizované",
     "disabled": "Vypnuté",
-    "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
-    "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
+    "setDefaultSettings": "Naozaj chcete obnoviť predvolené nastavenia?",
+    "placeCursorMessage": "Umiestni kurzor za \"$\" na zmenu premennej",
     "pagination": "{page} strana(y) / {total} položka(y)",
     "paginationPerPage": "Na stranu",
     "searchPlaceholder": "Hľadať...",
@@ -855,7 +855,7 @@
   },
   "modules": {
     "chatTranslations": {
-      "title": "Preklady četu",
+      "title": "Preklady chatu",
       "description": "Preklad chatu v reálnom čase",
       "settings": {
         "title": "Nastavenia prekladu chatu",
@@ -871,7 +871,7 @@
         "excludedLanguages": {
           "label": "Vylúčené jazyky",
           "description": "Správy v týchto jazykoch nebudú preložené",
-          "placeholder": "Vyberte jazyky, ktoré chcete vylúčiť"
+          "placeholder": "Vyber jazyky, ktoré chceš vylúčiť"
         },
         "useItalic": {
           "label": "Použiť kurzívu",
@@ -1178,7 +1178,7 @@
     "commands": {
       "title": "Príkazy",
       "delete": "Mazacia chatová stena",
-      "ban": "Ban chatová stenu",
+      "ban": "Banovacia chatová stena",
       "timeout": "Timeout chatová stena",
       "stop": "Stop chatová stena"
     },
