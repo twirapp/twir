@@ -43,7 +43,7 @@
     "updated": "Aktualizované",
     "disabled": "Vypnuté",
     "setDefaultSettings": "Naozaj chcete obnoviť predvolené nastavenia?",
-    "placeCursorMessage": "Umiestni kurzor za \"$\" na zmenu premennej",
+    "placeCursorMessage": "Umiestni kurzor za znak „$“ pre úpravu premennej",
     "pagination": "{page} strana(y) / {total} položka(y)",
     "paginationPerPage": "Na stranu",
     "searchPlaceholder": "Hľadať...",
