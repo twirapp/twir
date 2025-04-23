@@ -222,8 +222,8 @@
     "statsWidgets": {
       "streamInfo": {
         "noTitle": "Nemôžem získať názov streamu!",
-        "noCategory": "Nemožno získať kategóriu!",
-        "modalTitle": "Upravte informácie o streame",
+        "noCategory": "Nemôžem získať kategóriu!",
+        "modalTitle": "Upraviť informácie o streame",
         "title": "Názov streamu",
         "category": "Kategória"
       },
@@ -301,22 +301,22 @@
         "label": "Upozornenia",
         "showTitle": "Zobraziť názov streamu?",
         "showCategory": "Zobraziť kategóriu streamu?",
-        "showViewers": "Zobraziť počítadlo divákov?",
+        "showViewers": "Zobraziť počet divákov?",
         "showPreview": "Zobraziť náhľad streamu?",
         "showProfileImage": "Zobraziť avatar profilu Twitch?",
         "channelsSelect": "Kde sa budú zverejňovať upozornenia?",
-        "streamOnlineLabel": "Správa o upozornení na stream",
-        "streamOnlinePlaceholder": "Túto správu odošle Twir pri spustení streamu.",
+        "streamOnlineLabel": "Správa upozornenia na stream",
+        "streamOnlinePlaceholder": "Twir pošle túto správu, keď stream začne.",
         "streamOfflineLabel": "Správa o ukončení streamu",
         "streamOfflinePlaceholder": "Túto správu odošle Twir, keď stream skončí.",
-        "updateAlert": "Twir bude pravidelne aktualizovať vloženú správu, aby sa uistil, že je synchronizovaná so stavom vášho streamu. (diváci, názov, kategória atď.)",
-        "shouldDeleteMessageOnOffline": "Odstránenie upozorňujúcej správy namiesto jej úpravy, keď je stream vypnutý?",
-        "additionalUsersIdsForLiveCheck": "Ďalší zoznam používateľov služby Twitch, ktorých môžete sledovať na odosielanie upozornení na stream."
+        "updateAlert": "Twir bude pravidelne aktualizovať vloženú správu, aby sa zabezpečilo, že je synchronizovaná so stavom tvojho streamu (diváci, názov, kategória, atď.)",
+        "shouldDeleteMessageOnOffline": "Vymazať upozornenie namiesto jeho úpravy, keď stream prejde do offline režimu?",
+        "additionalUsersIdsForLiveCheck": "Ďalší používatelia na kontrolu online stavu pre upozornenia."
       },
       "connectGuild": "+ Pripojiť server",
       "disconnectGuild": "Odpojiť server",
       "noGuilds": "Žiadne pripojené servery",
-      "cannotSendMessage": "Bot nemá možnosť odosielať správy v tomto kanáli. Pozrite sa na oprávnenia kanála, aby ste to vyriešili."
+      "cannotSendMessage": "Bot nemá možnosť posielať správy v tomto kanáli. Skontroluj oprávnenia kanála, aby sito opravil."
     },
     "faceit": {
       "info": "Poskytnutie prístupu k tejto službe umožní Twiru sledovať vaše zápasy Faceit a nastaví príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších."
@@ -328,13 +328,13 @@
       "info": "Poskytnutie prístupu k tejto službe umožňuje Twiru sledovať vaše zápasy Valorant a nastaviť príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších. "
     },
     "sevenTv": {
-      "description": "Môžeme spravovať emotikony 7TV, keď je táto integrácia povolená.",
-      "alert": "Prostredníctvom systému {0} môžete tiež vytvoriť advanced flow na ovládanie emotikonov 7TV.",
+      "description": "Po aktivovaní tejto integrácie môžeme spravovať 7TV emoty na tvojom kanáli.",
+      "alert": "Môžeš tiež využiť pokročilý flow cez systém {0} na správu 7TV emotov.",
       "connected": "Pripojené",
       "notConnected": "Nepripojené",
       "notRegistered": "Nie ste registrovaný na {0}",
-      "errorSameReward": "Nemôžete použiť rovnakú odmenu za pridanie a odstránenie emotov!",
-      "deleteOnlyAddedByApp": "Vymazať emotikony pridané Twirom",
+      "errorSameReward": "Nemôžeš použiť tú istú odmenu na pridávanie aj odstraňovanie emotov!",
+      "deleteOnlyAddedByApp": "Odstrániť len emoty pridané cez Twir",
       "connectSteps": {
         "step1": "Otvorte svoj profil {0}",
         "step2": "Kliknite na tlačidlo \"Pridať editorov\"",
@@ -342,7 +342,7 @@
       },
       "rewardForAddEmote": "Odmena za pridanie emotu",
       "rewardForRemoveEmote": "Odmena za odstránenie emotu",
-      "rewardSelectorDescription": "Mali by ste vytvárať odmeny so vstupom. Užívatelia musia pri aktivácii odmeny použiť odkaz 7tv."
+      "rewardSelectorDescription": "Vytvor odmenu s vstupom. Používatelia musia použiť 7TV odkaz na emote, keď aktivujú odmenu."
     }
   },
   "events": {
@@ -354,13 +354,13 @@
     "targetCommand": "Cieľový príkaz",
     "targetVariable": "Cieľová premenná",
     "targetTwitchReward": "Vyberte odmenu za kanál",
-    "targetKeyword": "Cielené kľúčové slovo",
+    "targetKeyword": "Cieľové kľúčové slovo",
     "operations": {
       "divider": "Akcie",
       "name": "Činnosť",
       "inputs": {
         "message": "Správa na odoslanie (podporuje premenné)",
-        "default": "Text činnosti (podporuje premenné)",
+        "default": "Text akcie (podporuje premenné)",
         "vipSlots": "Množstvo VIP slotov",
         "username": "Používateľské meno (podporuje premenné)",
         "variableValue": "Nová hodnota premennej (podporuje premenné)",
