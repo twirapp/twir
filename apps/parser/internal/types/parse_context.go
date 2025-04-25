@@ -5,6 +5,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
 type ParseContextSender struct {
@@ -39,7 +40,8 @@ type ParseContext struct {
 
 	Text *string
 
-	Command *model.ChannelsCommands
+	Command       *model.ChannelsCommands
+	ChannelStream *streamsmodel.Stream
 
 	Services *services.Services
 

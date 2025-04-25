@@ -2,7 +2,6 @@ package messagehandler
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"github.com/go-redsync/redsync/v4"
@@ -28,8 +27,8 @@ import (
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"go.uber.org/fx"
-	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
@@ -114,7 +113,7 @@ func New(opts Opts) *MessageHandler {
 }
 
 type handleMessage struct {
-	DbStream *deprecatedgormmodel.ChannelsStreams
+	DbStream *streamsmodel.Stream
 	DbUser   *deprecatedgormmodel.Users
 	twitch.TwitchChatMessage
 }
@@ -140,29 +139,6 @@ var handlersForExecute = []func(
 func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {
 	msg := handleMessage{
 		TwitchChatMessage: req,
-	}
-
-	var errwg errgroup.Group
-	errwg.Go(
-		func() error {
-			stream := &deprecatedgormmodel.ChannelsStreams{}
-			if err := c.gorm.WithContext(ctx).Where(
-				`"userId" = ?`,
-				req.BroadcasterUserId,
-			).First(stream).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				return err
-			}
-			if stream.ID == "" {
-				msg.DbStream = nil
-			} else {
-				msg.DbStream = stream
-			}
-			return nil
-		},
-	)
-
-	if err := errwg.Wait(); err != nil {
-		return err
 	}
 
 	if !msg.EnrichedData.DbChannel.IsEnabled {

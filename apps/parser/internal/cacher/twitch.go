@@ -4,82 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 )
-
-// GetChannelStream implements types.VariablesCacher
-func (c *cacher) GetChannelStream(ctx context.Context) *model.ChannelsStreams {
-	c.locks.stream.Lock()
-	defer c.locks.stream.Unlock()
-
-	if c.cache.stream != nil {
-		return c.cache.stream
-	}
-
-	twitchClient, err := twitch.NewAppClientWithContext(
-		ctx,
-		*c.services.Config,
-		c.services.GrpcClients.Tokens,
-	)
-	if err != nil {
-		return nil
-	}
-
-	stream := model.ChannelsStreams{}
-
-	err = c.services.Gorm.
-		WithContext(ctx).
-		Where(`"userId" = ?`, c.parseCtxChannel.ID).
-		First(&stream).Error
-
-	if err != nil {
-		c.services.Logger.Sugar().Error(err)
-
-		streams, err := twitchClient.GetStreams(
-			&helix.StreamsParams{
-				UserIDs: []string{c.parseCtxChannel.ID},
-			},
-		)
-
-		if err != nil || len(streams.Data.Streams) == 0 {
-			return nil
-		}
-
-		helixStream := streams.Data.Streams[0]
-
-		tags := pq.StringArray{}
-		for _, t := range helixStream.TagIDs {
-			tags = append(tags, t)
-		}
-		stream = model.ChannelsStreams{
-			ID:           helixStream.ID,
-			UserId:       helixStream.UserID,
-			UserLogin:    helixStream.UserLogin,
-			UserName:     helixStream.UserName,
-			GameId:       helixStream.GameID,
-			GameName:     helixStream.GameName,
-			CommunityIds: []string{},
-			Type:         helixStream.Type,
-			Title:        helixStream.Title,
-			ViewerCount:  helixStream.ViewerCount,
-			StartedAt:    helixStream.StartedAt,
-			Language:     helixStream.Language,
-			ThumbnailUrl: helixStream.ThumbnailURL,
-			TagIds:       &tags,
-			IsMature:     helixStream.IsMature,
-		}
-
-		c.services.Gorm.Save(&stream)
-		c.cache.stream = &stream
-	} else {
-		c.cache.stream = &stream
-	}
-
-	return c.cache.stream
-}
 
 // GetFollowAge implements types.VariablesCacher
 func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.ChannelFollow {

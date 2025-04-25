@@ -7,6 +7,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/redis_keys"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -19,6 +20,13 @@ func (c *Handler) handleStreamOffline(
 		slog.String("channelId", event.BroadcasterUserID),
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
+
+	if err := c.redisClient.Del(
+		context.Background(),
+		redis_keys.StreamByChannelID(event.BroadcasterUserID),
+	).Err(); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	_, err := c.eventsGrpc.StreamOffline(
 		context.Background(),

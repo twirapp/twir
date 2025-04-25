@@ -17,14 +17,13 @@ var Uptime = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		stream := parseCtx.Cacher.GetChannelStream(ctx)
-		if stream == nil {
+		if parseCtx.ChannelStream == nil {
 			result.Result = "offline"
 			return &result, nil
 		}
 
 		result.Result = helpers.Duration(
-			stream.StartedAt, &helpers.DurationOpts{
+			parseCtx.ChannelStream.StartedAt, &helpers.DurationOpts{
 				UseUtc: true,
 				Hide:   helpers.DurationOptsHide{},
 			},

@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	"github.com/twirapp/twir/libs/repositories/streams"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
@@ -41,6 +42,7 @@ type Handler struct {
 	scheduledVipsRepo       scheduledvipsrepository.Repository
 	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	channelsInfoHistoryRepo channelsinfohistory.Repository
+	streamsrepository       streams.Repository
 
 	gorm        *gorm.DB
 	redisClient *redis.Client
@@ -63,6 +65,7 @@ type Opts struct {
 	ScheduledVipsRepo       scheduledvipsrepository.Repository
 	ChannelsRepo            *generic_cacher.GenericCacher[channelmodel.Channel]
 	ChannelsInfoHistoryRepo channelsinfohistory.Repository
+	StreamsRepository       streams.Repository
 
 	Tracer  trace.Tracer
 	Tunn    *tunnel.AppTunnel
@@ -96,6 +99,7 @@ func New(opts Opts) *Handler {
 		scheduledVipsRepo:       opts.ScheduledVipsRepo,
 		channelsCache:           opts.ChannelsRepo,
 		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
+		streamsrepository:       opts.StreamsRepository,
 	}
 
 	handler.OnNotification = myHandler.onNotification

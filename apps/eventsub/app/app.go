@@ -21,6 +21,9 @@ import (
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
+
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -57,6 +60,10 @@ var App = fx.Options(
 		fx.Annotate(
 			channelsinfohistorypostgres.NewFx,
 			fx.As(new(channelsinfohistory.Repository)),
+		),
+		fx.Annotate(
+			streamsrepositorypostgres.NewFx,
+			fx.As(new(streamsrepository.Repository)),
 		),
 		channelcache.New,
 		channelscommandsprefixcache.New,

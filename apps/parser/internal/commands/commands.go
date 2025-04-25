@@ -49,7 +49,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type Commands struct {
@@ -333,21 +332,10 @@ func (c *Commands) ParseCommandResponses(
 				ParseCtxText:    cmdParams,
 			},
 		),
-		Emotes:   emotes,
-		Mentions: mentions,
-		Command:  command.Cmd,
-	}
-
-	channelStream := model.ChannelsStreams{}
-	if err := c.services.Gorm.WithContext(ctx).First(&channelStream).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			c.services.Logger.Sugar().Error(
-				"error happened on getting channel stream",
-				zap.Error(err),
-				zap.String("channel_id", requestData.BroadcasterUserId),
-			)
-			return nil
-		}
+		ChannelStream: requestData.EnrichedData.ChannelStream,
+		Emotes:        emotes,
+		Mentions:      mentions,
+		Command:       command.Cmd,
 	}
 
 	if command.Cmd.Default && defaultCommand != nil {
@@ -407,11 +395,11 @@ func (c *Commands) ParseCommandResponses(
 	} else {
 		responsesForCategory := make([]model.ChannelsCommandsResponses, 0, len(command.Cmd.Responses))
 		for _, r := range command.Cmd.Responses {
-			if len(r.TwitchCategoryIDs) > 0 && channelStream.ID != "" {
+			if len(r.TwitchCategoryIDs) > 0 && requestData.EnrichedData.ChannelStream != nil {
 				if !lo.ContainsBy(
 					r.TwitchCategoryIDs,
 					func(categoryId string) bool {
-						return categoryId == channelStream.GameId
+						return categoryId == requestData.EnrichedData.ChannelStream.GameId
 					},
 				) {
 					continue
@@ -509,14 +497,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	if cmd.Cmd.OnlineOnly {
-		stream := &model.ChannelsStreams{}
-		err = c.services.Gorm.
-			WithContext(ctx).
-			Where(`"userId" = ?`, data.BroadcasterUserId).
-			Find(stream).Error
-		if err != nil {
-			return nil, err
-		}
+		stream := data.EnrichedData.ChannelStream
 		if stream == nil || stream.ID == "" {
 			return nil, nil
 		}

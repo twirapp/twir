@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -33,6 +34,31 @@ var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 type Pgx struct {
 	pool   *pgxpool.Pool
 	getter *trmpgx.CtxGetter
+}
+
+func (c *Pgx) GetByChannelID(ctx context.Context, channelID string) (model.Stream, error) {
+	query := `
+SELECT id, "userId", "userLogin", "userName", "gameId", "gameName", "communityIds", type, title, "viewerCount", "startedAt", "language", "thumbnailUrl", "tagIds", tags, "isMature"
+FROM channels_streams
+WHERE "userId" = $1
+LIMIT 1
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, channelID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Stream])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, nil
+		}
+		return model.Nil, err
+	}
+
+	return result, nil
 }
 
 func (c *Pgx) GetList(ctx context.Context) ([]model.Stream, error) {

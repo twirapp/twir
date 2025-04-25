@@ -9,7 +9,6 @@ import (
 )
 
 type DataCacher interface {
-	GetChannelStream(ctx context.Context) *model.ChannelsStreams
 	GetEnabledChannelIntegrations(ctx context.Context) []*model.ChannelsIntegrations
 
 	GetFaceitLatestMatches(ctx context.Context) ([]*FaceitMatch, error)
