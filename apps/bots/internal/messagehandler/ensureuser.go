@@ -61,7 +61,7 @@ func (c *MessageHandler) ensureUser(ctx context.Context, msg handleMessage) (*mo
 			Reputation:        0,
 			Emotes:            0,
 		}
-	} else if msg.DbStream != nil {
+	} else if msg.EnrichedData.ChannelStream != nil {
 		user.Stats.Messages += 1
 	}
 

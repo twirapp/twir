@@ -27,7 +27,6 @@ import (
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
-	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -113,8 +112,7 @@ func New(opts Opts) *MessageHandler {
 }
 
 type handleMessage struct {
-	DbStream *streamsmodel.Stream
-	DbUser   *deprecatedgormmodel.Users
+	DbUser *deprecatedgormmodel.Users
 	twitch.TwitchChatMessage
 }
 

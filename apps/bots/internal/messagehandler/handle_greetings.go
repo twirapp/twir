@@ -16,7 +16,7 @@ import (
 )
 
 func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage) error {
-	if msg.DbStream == nil {
+	if msg.EnrichedData.ChannelStream == nil {
 		return nil
 	}
 
