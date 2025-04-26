@@ -22,10 +22,7 @@ import (
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(
-	ctx context.Context,
-	obj *gqlmodel.Command,
-) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
 	if obj == nil || obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -34,10 +31,7 @@ func (r *commandResolver) Responses(
 }
 
 // Group is the resolver for the group field.
-func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (
-	*gqlmodel.CommandGroup,
-	error,
-) {
+func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (*gqlmodel.CommandGroup, error) {
 	if obj == nil || obj.GroupID == nil {
 		return nil, nil
 	}
@@ -56,10 +50,7 @@ func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (
 }
 
 // TwitchCategories is the resolver for the twitchCategories field.
-func (r *commandResponseResolver) TwitchCategories(
-	ctx context.Context,
-	obj *gqlmodel.CommandResponse,
-) ([]gqlmodel.TwitchCategory, error) {
+func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gqlmodel.CommandResponse) ([]gqlmodel.TwitchCategory, error) {
 	categories, err := data_loader.GetTwitchCategoriesByIDs(ctx, obj.TwitchCategoriesIds)
 	if err != nil {
 		return nil, err
@@ -74,10 +65,7 @@ func (r *commandResponseResolver) TwitchCategories(
 }
 
 // CommandsCreate is the resolver for the commandsCreate field
-func (r *mutationResolver) CommandsCreate(
-	ctx context.Context,
-	opts gqlmodel.CommandsCreateOpts,
-) (*gqlmodel.CommandCreatePayload, error) {
+func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (*gqlmodel.CommandCreatePayload, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -99,11 +87,7 @@ func (r *mutationResolver) CommandsCreate(
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(
-	ctx context.Context,
-	id uuid.UUID,
-	opts gqlmodel.CommandsUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -220,10 +204,7 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bo
 }
 
 // CommandsCreateMultiple is the resolver for the commandsCreateMultiple field.
-func (r *mutationResolver) CommandsCreateMultiple(
-	ctx context.Context,
-	commands []gqlmodel.CommandsCreateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsCreateMultiple(ctx context.Context, commands []gqlmodel.CommandsCreateOpts) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -249,10 +230,7 @@ func (r *mutationResolver) CommandsCreateMultiple(
 }
 
 // Group is the resolver for the group field.
-func (r *publicCommandResolver) Group(
-	ctx context.Context,
-	obj *gqlmodel.PublicCommand,
-) (*gqlmodel.CommandGroup, error) {
+func (r *publicCommandResolver) Group(ctx context.Context, obj *gqlmodel.PublicCommand) (*gqlmodel.CommandGroup, error) {
 	if obj == nil || obj.GroupID == nil {
 		return nil, nil
 	}
@@ -292,10 +270,7 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 }
 
 // CommandsPublic is the resolver for the commandsPublic field.
-func (r *queryResolver) CommandsPublic(
-	ctx context.Context,
-	channelID string,
-) ([]gqlmodel.PublicCommand, error) {
+func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
 	if channelID == "" {
 		return nil, fmt.Errorf("channelID is required")
 	}
