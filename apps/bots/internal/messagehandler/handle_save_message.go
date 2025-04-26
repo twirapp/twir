@@ -48,6 +48,8 @@ func (c *MessageHandler) handleSaveMessage(
 		)
 	}
 
+	handleSaveMessagesQueue = nil
+
 	err := c.chatMessagesRepository.CreateMany(
 		ctx,
 		inputs,
@@ -56,6 +58,5 @@ func (c *MessageHandler) handleSaveMessage(
 		return err
 	}
 
-	handleSaveMessagesQueue = nil
 	return nil
 }
