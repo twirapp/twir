@@ -21,7 +21,7 @@ var EmoteAdd = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "7tv add",
 		Description: null.StringFrom("Add 7tv emote to current set by link"),
-		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "7tv",
 		Visible:     true,
 		IsReply:     true,

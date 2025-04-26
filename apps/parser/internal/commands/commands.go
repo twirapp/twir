@@ -125,6 +125,7 @@ func New(opts *Opts) *Commands {
 			seventv.EmoteRename,
 			seventv.EmoteDelete,
 			seventv.EmoteAdd,
+			seventv.EmoteCopy,
 			clip.MakeClip,
 			marker.Marker,
 			prefix.SetPrefix,

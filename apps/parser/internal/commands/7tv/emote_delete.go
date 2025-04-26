@@ -18,7 +18,7 @@ var EmoteDelete = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "7tv delete",
 		Description: null.StringFrom("Delete 7tv emote in current set"),
-		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "7tv",
 		Visible:     true,
 		IsReply:     true,
