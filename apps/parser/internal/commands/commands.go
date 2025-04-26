@@ -162,8 +162,6 @@ func (c *Commands) GetChannelCommands(
 	return c.services.CommandsCache.Get(ctx, channelId)
 }
 
-var splittedNameRegexp = regexp.MustCompile(`[^\s]+`)
-
 type FindByMessageResult struct {
 	Cmd     *model.ChannelsCommands
 	FoundBy string
@@ -178,7 +176,7 @@ func (c *Commands) FindChannelCommandInInput(
 	cmds []model.ChannelsCommands,
 ) *FindByMessageResult {
 	msg := strings.ToLower(input)
-	splittedName := splittedNameRegexp.FindAllString(msg, -1)
+	splittedName := strings.Fields(msg)
 
 	res := FindByMessageResult{}
 
