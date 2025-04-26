@@ -175,17 +175,17 @@ func (c *Commands) FindChannelCommandInInput(
 	input string,
 	cmds []model.ChannelsCommands,
 ) *FindByMessageResult {
-	msg := strings.ToLower(input)
-	splittedName := strings.Fields(msg)
+	input = strings.ToLower(input)
+	splitName := strings.Fields(input)
 
 	res := FindByMessageResult{}
 
-	length := len(splittedName)
+	length := len(splitName)
 
 	for i := 0; i < length; i++ {
-		query := strings.Join(splittedName, " ")
+		query := strings.Join(splitName, " ")
 		for _, cmd := range cmds {
-			if cmd.Name == query {
+			if strings.ToLower(cmd.Name) == query {
 				res.FoundBy = query
 				res.Cmd = &cmd
 				break
@@ -193,7 +193,7 @@ func (c *Commands) FindChannelCommandInInput(
 
 			if lo.SomeBy(
 				cmd.Aliases, func(item string) bool {
-					return item == query
+					return strings.ToLower(item) == query
 				},
 			) {
 				res.FoundBy = query
@@ -205,7 +205,7 @@ func (c *Commands) FindChannelCommandInInput(
 		if res.Cmd != nil {
 			break
 		} else {
-			splittedName = splittedName[:len(splittedName)-1]
+			splitName = splitName[:len(splitName)-1]
 			continue
 		}
 	}
