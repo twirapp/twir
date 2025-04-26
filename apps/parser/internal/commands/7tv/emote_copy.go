@@ -17,7 +17,7 @@ import (
 const (
 	emoteForCopyArgName = "emoteName"
 	emoteForCopyChannel = "channel"
-	emoteForCopyAliase  = "aliase"
+	emoteForCopyAlias   = "alias"
 )
 
 var EmoteCopy = &types.DefaultCommand{
@@ -28,8 +28,9 @@ var EmoteCopy = &types.DefaultCommand{
 		Module:      "7tv",
 		Visible:     true,
 		IsReply:     true,
-		Aliases:     []string{},
-		Enabled:     false,
+		Aliases: []string{
+			"7tv yoink",
+		},
 	},
 	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
@@ -43,7 +44,7 @@ var EmoteCopy = &types.DefaultCommand{
 			Hint:     "@channel",
 		},
 		command_arguments.String{
-			Name:     emoteForCopyAliase,
+			Name:     emoteForCopyAlias,
 			Optional: true,
 			Hint:     "aliase for emote",
 		},
@@ -125,7 +126,7 @@ var EmoteCopy = &types.DefaultCommand{
 		}
 
 		emoteName := targetEmote.Alias
-		if alias := parseCtx.ArgsParser.Get(emoteForCopyAliase); alias != nil {
+		if alias := parseCtx.ArgsParser.Get(emoteForCopyAlias); alias != nil {
 			emoteName = alias.String()
 		}
 
