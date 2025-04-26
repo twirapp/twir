@@ -98,7 +98,7 @@ func (c *Pgx) GetMany(ctx context.Context, input chat_messages.GetManyInput) (
 func (c *Pgx) Create(ctx context.Context, input chat_messages.CreateInput) error {
 	query := `
 INSERT INTO chat_messages (id, channel_id, user_id, text, user_name, user_display_name, user_color)
-VALUES ($1, $2, $3, $4, $5, $6, &7);
+VALUES ($1, $2, $3, $4, $5, $6, $7);
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
