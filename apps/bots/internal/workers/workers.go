@@ -36,7 +36,7 @@ func New(opts Opts) *Pool {
 				go func() {
 					for {
 						select {
-						case <-ctx.Done():
+						case <-workersResizerCtx.Done():
 							return
 						case <-time.After(1 * time.Minute):
 							w.setSize(workersResizerCtx)
