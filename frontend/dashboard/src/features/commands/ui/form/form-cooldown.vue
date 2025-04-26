@@ -76,7 +76,7 @@ const { t } = useI18n()
 							</template>
 						</CommunityRolesModal>
 					</span>
-					<FormRolesSelector field-name="cooldownRolesIds" />
+					<FormRolesSelector field-name="cooldownRolesIds" hide-broadcaster />
 				</div>
 			</div>
 		</CardContent>
