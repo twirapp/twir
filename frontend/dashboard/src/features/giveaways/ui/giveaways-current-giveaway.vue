@@ -78,76 +78,78 @@ const ended = computed(() => {
 const archived = computed(() => {
 	return currentGiveaway.value?.archivedAt
 })
+
+const canBeRunned = computed(() => {
+	return !currentGiveaway.value?.startedAt && !currentGiveaway.value?.stoppedAt && !currentGiveaway.value?.endedAt && !currentGiveaway.value?.archivedAt
+})
 </script>
 
 <template>
-	<div class="flex flex-row flex-wrap-reverse gap-4 h-[calc(100dvh-200px)] p-4">
+	<div class="flex flex-row flex-wrap-reverse gap-4 h-[98dvh] p-4">
 		<Card class="flex-1 h-full">
-			<CardHeader class="flex-row items-center p-2 justify-between border-b border-border border-solid">
-				<CardTitle class="flex flex-col">
-					<span>
-						{{ currentGiveaway?.keyword }}
-					</span>
-					<span class="text-xs font-normal text-muted-foreground">
-						{{ participants.length }} participants
-					</span>
-				</CardTitle>
+			<Tabs v-model="activeTab" class="h-full flex flex-col">
+				<CardHeader class="flex-row items-center p-2 justify-between border-b border-border border-solid">
+					<CardTitle class="flex items-center">
+						<span>
+							{{ currentGiveaway?.keyword }}
+						</span>
+					</CardTitle>
+					<div class="ml-2 flex flex-row gap-1">
+						<Button
+							v-if="canBeRunned"
+							size="sm"
+							class="flex gap-2 items-center"
+							@click="handleStartGiveaway"
+						>
+							<PlayIcon class="size-4" />
+							Start
+						</Button>
 
-				<div class="flex flex-row gap-1">
-					<Button
-						v-if="!currentGiveaway?.startedAt && !(!stopped || !ended || !archived)"
-						size="sm"
-						class="flex gap-2 items-center"
-						@click="handleStartGiveaway"
-					>
-						<PlayIcon class="size-4" />
-						Start
-					</Button>
+						<Button
+							v-if="isActive && !stopped"
+							size="sm"
+							variant="outline"
+							class="flex gap-2 items-center"
+							@click="handleStopGiveaway"
+						>
+							<BanIcon class="size-4" />
+							Stop
+						</Button>
 
-					<Button
-						v-if="isActive && !stopped"
-						size="sm"
-						variant="outline"
-						class="flex gap-2 items-center"
-						@click="handleStopGiveaway"
-					>
-						<BanIcon class="size-4" />
-						Stop
-					</Button>
+						<Button
+							v-if="!archived"
+							size="sm"
+							variant="destructive"
+							class="flex gap-2 items-center"
+							@click="handleArchiveGiveaway"
+						>
+							<ArchiveIcon class="size-4" />
+							Archive
+						</Button>
+					</div>
 
-					<Button
-						v-if="!archived"
-						size="sm"
-						variant="destructive"
-						class="flex gap-2 items-center"
-						@click="handleArchiveGiveaway"
-					>
-						<ArchiveIcon class="size-4" />
-						Archive
-					</Button>
-				</div>
-			</CardHeader>
-			<CardContent class="h-[calc(100%-56px)] p-0">
-				<Tabs v-model="activeTab" class="h-full flex flex-col">
-					<div class="border-b px-4 p-2">
+					<div>
 						<TabsList>
-							<TabsTrigger value="participants" class="flex gap-2">
-								<UsersIcon class="size-4" />
+							<TabsTrigger value="participants" class="flex flex-row gap-2">
+								<UsersIcon class="size-4 inline" />
 								Participants
 								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
 									{{ participants.length }}
 								</span>
 							</TabsTrigger>
-							<TabsTrigger value="winners" class="flex gap-2">
-								<TrophyIcon class="size-4" />
-								Winners
-								<span v-if="winners.length > 0" class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
+							<TabsTrigger value="winners" class="flex flex-row gap-2">
+								<TrophyIcon class="size-4 inline" />
+								<span>
+									Winners
+								</span>
+								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
 									{{ winners.length }}
 								</span>
 							</TabsTrigger>
 						</TabsList>
 					</div>
-
+				</CardHeader>
+				<CardContent class="h-[calc(100%-56px)] p-0">
 					<TabsContent value="participants" class="flex-1 mt-0 border-none">
 						<GiveawaysCurrentGiveawayParticipants />
 					</TabsContent>
@@ -170,8 +172,8 @@ const archived = computed(() => {
 							<GiveawaysCurrentGiveawayWinners />
 						</div>
 					</TabsContent>
-				</Tabs>
-			</CardContent>
+				</CardContent>
+			</Tabs>
 		</Card>
 		<Card class="flex-1 h-full">
 			<CardContent class="p-0 h-full">

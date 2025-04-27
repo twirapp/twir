@@ -56,7 +56,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 			{
 				accessorKey: 'actions',
 				size: 40,
-				header: () => h(Dialog, { 'onUpdate:open': (val) => showCreateDialog.value = val }, {
+				header: () => h(Dialog, { 'onUpdate:open': (val) => showCreateDialog.value = val, 'open': showCreateDialog.value }, {
 					default: () => [
 						h(DialogTrigger, { asChild: true }, {
 							default: () => h(Button, { size: 'sm', class: 'flex gap-2 items-center' }, {

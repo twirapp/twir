@@ -44,6 +44,7 @@ const giveawayCreateForm = useForm({
 	initialValues: {
 		keyword: '',
 	},
+	validateOnMount: false,
 })
 
 const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
@@ -70,14 +71,14 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 
 		<form class="space-y-4" @submit.prevent="handleSubmit">
 			<FormField
-				v-slot="{ componentField, errorMessage, value }"
+				v-slot="{ componentField, errorMessage }"
 				name="keyword"
 			>
 				<FormItem>
 					<FormLabel>Keyword</FormLabel>
 					<FormControl>
 						<Input
-							placeholder="Enter keyword (e.g. 'giveaway')"
+							placeholder="Enter keyword (e.g. '!giveaway' or 'raffle')"
 							v-bind="componentField"
 						/>
 					</FormControl>
