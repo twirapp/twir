@@ -1,115 +1,42 @@
 <script setup lang="ts">
 import { MessageSquareIcon } from 'lucide-vue-next'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+
+import type { ChatMessage } from '@/api/chat-messages'
 
 import { useChatMessagesApi } from '@/api/chat-messages'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useToast } from '@/components/ui/toast'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 
-// Import chat messages API
-
-const { winners, currentGiveawayId } = useGiveaways()
-const { toast } = useToast()
+const { winners } = useGiveaways()
 
 // Chat messages state
 const chatMessagesApi = useChatMessagesApi()
-const chatMessages = ref([])
+const chatMessages = ref<ChatMessage[]>([])
 const isLoadingMessages = ref(false)
 const selectedWinnerId = ref('')
 
-// Get selected winner's messages
-const selectedWinnerMessages = computed(() => {
-	if (!selectedWinnerId.value) return []
+const { data: chatMessagesQueryData } = chatMessagesApi.useQuery({})
+watch(chatMessagesQueryData, (data) => {
+	if (data?.chatMessages) {
+		chatMessages.value = data.chatMessages
+	}
+})
+
+const { data: chatMessagesSubscriptionData } = chatMessagesApi.subscribeToChatMessages()
+watch(chatMessagesSubscriptionData, (data) => {
+	if (data?.chatMessages) {
+		chatMessages.value.unshift(data.chatMessages)
+	}
+})
+
+const filteredMessages = computed(() => {
 	return chatMessages.value.filter(msg => msg.userID === selectedWinnerId.value)
 })
 
-// Get selected winner
-const selectedWinner = computed(() => {
-	if (!selectedWinnerId.value) return null
-	return winners.value.find(w => w.userId === selectedWinnerId.value)
-})
-
-// Store messages by user ID
-const messagesByUserId = ref({})
-
-// Load chat messages for a winner
-async function loadWinnerMessages(userId: string) {
-	if (!userId) return
-
-	selectedWinnerId.value = userId
-	isLoadingMessages.value = true
-
-	try {
-		// Check if we already have messages for this user
-		if (!messagesByUserId.value[userId]) {
-			// Fetch chat messages
-			const result = await chatMessagesApi.fetchChatMessages({
-				userIdIn: [userId], // Use exact userID instead of username for more reliable results
-				perPage: 100,
-			})
-
-			if (result.data?.chatMessages) {
-				// Store messages for this user
-				messagesByUserId.value[userId] = result.data.chatMessages
-			} else {
-				messagesByUserId.value[userId] = []
-			}
-		}
-
-		// Set current messages to the stored messages for this user
-		chatMessages.value = messagesByUserId.value[userId] || []
-	} catch (error) {
-		toast({
-			variant: 'destructive',
-			title: 'Error loading messages',
-			description: error instanceof Error ? error.message : 'Unknown error',
-		})
-		chatMessages.value = []
-	} finally {
-		isLoadingMessages.value = false
-	}
+function handleSelectWinner(winnerId: string) {
+	selectedWinnerId.value = winnerId
 }
-
-// Subscribe to chat messages
-onMounted(() => {
-	// Subscribe to chat messages
-	const { data: newChatMessages } = chatMessagesApi.subscribeToChatMessages()
-
-	// Watch for new chat messages
-	watch(newChatMessages, (newMessage) => {
-		if (newMessage?.chatMessages) {
-			const message = newMessage.chatMessages
-			const userId = message.userID
-
-			// Check if this user is a winner
-			const isWinner = winners.value.some(w => w.userId === userId)
-
-			if (isWinner) {
-				// Initialize the messages array for this user if it doesn't exist
-				if (!messagesByUserId.value[userId]) {
-					messagesByUserId.value[userId] = []
-				}
-
-				// Add the new message to the user's messages
-				messagesByUserId.value[userId] = [message, ...messagesByUserId.value[userId]]
-
-				// If this is the currently selected winner, update the displayed messages
-				if (userId === selectedWinnerId.value) {
-					chatMessages.value = [message, ...chatMessages.value]
-				}
-			}
-		}
-	})
-})
-
-// Watch for winners changes
-watch(winners, (newWinners) => {
-	if (newWinners.length > 0 && !selectedWinnerId.value) {
-		// Select the first winner by default
-		loadWinnerMessages(newWinners[0].userId)
-	}
-}, { immediate: true })
 </script>
 
 <template>
@@ -137,7 +64,7 @@ watch(winners, (newWinners) => {
 							'bg-muted': winner.userId !== selectedWinnerId,
 							'bg-primary text-primary-foreground': winner.userId === selectedWinnerId,
 						}"
-						@click="loadWinnerMessages(winner.userId)"
+						@click="handleSelectWinner(winner.userId)"
 					>
 						<img
 							:src="winner.twitchProfile.profileImageUrl"
@@ -167,13 +94,13 @@ watch(winners, (newWinners) => {
 							Loading messages...
 						</div>
 
-						<div v-else-if="selectedWinnerMessages.length === 0" class="p-4 text-center text-muted-foreground">
+						<div v-else-if="filteredMessages.length === 0" class="p-4 text-center text-muted-foreground">
 							No messages found for this winner
 						</div>
 
 						<div v-else class="p-2 space-y-1">
 							<div
-								v-for="message in selectedWinnerMessages"
+								v-for="message in filteredMessages"
 								:key="message.id"
 								class="py-1 px-2 flex items-start gap-2 hover:bg-muted rounded-sm"
 							>
