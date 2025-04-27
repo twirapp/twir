@@ -134,7 +134,7 @@ export const useGiveaways = createGlobalState(() => {
 			if (result.error) {
 				throw new Error(result.error.message)
 			}
-			winners.value = result.data?.giveawaysChooseWinners || []
+			winners.value = result.data?.giveawaysChooseWinners as GiveawayWinner[] || []
 			toast({
 				title: 'Winners chosen',
 				description: `${winners.value.length} winners have been chosen`,
@@ -155,50 +155,52 @@ export const useGiveaways = createGlobalState(() => {
 		router.push(`/dashboard/giveaways/view/${id}`)
 	}
 
-	// Load giveaway data (participants and winners)
+	// Use the API with reactive giveaway ID directly
+	const { data: giveawayData } = giveawaysApi.useGiveaway(currentGiveawayId)
+	const { data: participantsData } = giveawaysApi.useGiveawayParticipants(currentGiveawayId)
+	const { data: participantsSubscriptionData } = giveawaysApi.useSubscriptionGiveawayParticipants(currentGiveawayId)
+
+	// Watch for giveaway data changes
+	watch(giveawayData, (giveawayData) => {
+		if (!giveawayData?.giveaway) return
+		const g = giveawayData.giveaway as unknown as Giveaway
+		if (g?.winners && g.winners.length > 0) {
+			winners.value = g.winners as GiveawayWinner[]
+		}
+	}, { immediate: true })
+
+	// Watch for participants data changes
+	watch(participantsData, (participantsData) => {
+		const newParticipants = participantsData?.giveawayParticipants
+
+		if (newParticipants) {
+			participants.value = newParticipants as GiveawayParticipant[]
+		}
+	}, { immediate: true })
+
+	// Watch for new participants from subscription
+	watch(participantsSubscriptionData, (data) => {
+		if (!data) return
+		const newParticipant = data.giveawaysParticipants
+		const participant = newParticipant as unknown as GiveawayParticipant
+
+		const exists = participants.value.some(p => p.userId === participant.userId)
+		if (!exists) {
+			// Add new participant
+			participants.value.push({
+				id: `temp-${Date.now()}`,
+				giveawayId: participant.giveawayId,
+				userId: participant.userId,
+				displayName: participant.displayName,
+				isWinner: participant.isWinner,
+			})
+		}
+	})
+
+	// Function to set the current giveaway ID
 	function loadParticipants(giveawayId: string) {
 		if (!giveawayId) return
-
 		currentGiveawayId.value = giveawayId
-
-		// Load giveaway details to get winners
-		const { data: giveawayData } = giveawaysApi.useGiveaway(giveawayId)
-		watch(giveawayData, (newData) => {
-			if (newData?.giveaway) {
-				// Set winners from giveaway data
-				if (newData.giveaway.winners && newData.giveaway.winners.length > 0) {
-					winners.value = newData.giveaway.winners
-				}
-			}
-		}, { immediate: true })
-
-		// Load participants
-		const { data } = giveawaysApi.useGiveawayParticipants(giveawayId)
-		watch(data, (newData) => {
-			if (newData?.giveawayParticipants) {
-				participants.value = newData.giveawayParticipants
-			}
-		}, { immediate: true })
-
-		// Subscribe to new participants
-		const { data: subscriptionData } = giveawaysApi.useSubscriptionGiveawayParticipants(giveawayId)
-		watch(subscriptionData, (newData) => {
-			if (newData?.giveawaysParticipants) {
-				const newParticipant = newData.giveawaysParticipants
-				// Check if participant already exists
-				const exists = participants.value.some(p => p.userId === newParticipant.userId)
-				if (!exists) {
-					// Add new participant
-					participants.value.push({
-						id: `temp-${Date.now()}`,
-						giveawayId: newParticipant.giveawayId,
-						userId: newParticipant.userId,
-						displayName: newParticipant.userDisplayName,
-						isWinner: newParticipant.isWinner,
-					})
-				}
-			}
-		})
 	}
 
 	return {

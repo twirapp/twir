@@ -1,12 +1,14 @@
 import { useMutation, useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
+import { unref } from 'vue'
 
 import type {
-	ChannelGiveawayParticipantsFragment,
-	ChannelGiveawaySubscriptionParticipantFragment,
-	ChannelGiveawayWinnerFragment,
+	ChannelGiveawaySubscriptionParticipant,
 	GiveawayFragment,
+	GiveawayParticipantFragment,
+	GiveawayWinnerFragment,
 } from '@/gql/graphql.ts'
+import type { MaybeRef } from 'vue'
 
 import { graphql } from '@/gql'
 
@@ -56,9 +58,9 @@ graphql(`
 `)
 
 export type Giveaway = GiveawayFragment
-export type GiveawayParticipant = ChannelGiveawayParticipantsFragment
-export type GiveawayWinner = ChannelGiveawayWinnerFragment
-export type GiveawaySubscriptionParticipant = ChannelGiveawaySubscriptionParticipantFragment
+export type GiveawayParticipant = GiveawayParticipantFragment
+export type GiveawayWinner = GiveawayWinnerFragment
+export type GiveawaySubscriptionParticipant = ChannelGiveawaySubscriptionParticipant
 
 export const useGiveawaysApi = createGlobalState(() => {
 	// Queries
@@ -72,7 +74,7 @@ export const useGiveawaysApi = createGlobalState(() => {
 		`),
 	})
 
-	const useGiveaway = (giveawayId: string) => useQuery({
+	const useGiveaway = (giveawayId: MaybeRef<string | null>) => useQuery({
 		query: graphql(`
 			query GiveawayById($giveawayId: String!) {
 				giveaway(giveawayId: $giveawayId) {
@@ -80,11 +82,14 @@ export const useGiveawaysApi = createGlobalState(() => {
 				}
 			}
 		`),
-		variables: { giveawayId },
-		pause: !giveawayId,
+		get variables() {
+			const id = unref(giveawayId)!
+			return { giveawayId: id }
+		},
+		pause: !!unref(giveawayId),
 	})
 
-	const useGiveawayParticipants = (giveawayId: string) => useQuery({
+	const useGiveawayParticipants = (giveawayId: MaybeRef<string | null>) => useQuery({
 		query: graphql(`
 			query GetGiveawayParticipants($giveawayId: String!) {
 				giveawayParticipants(giveawayId: $giveawayId) {
@@ -92,8 +97,11 @@ export const useGiveawaysApi = createGlobalState(() => {
 				}
 			}
 		`),
-		variables: { giveawayId },
-		pause: !giveawayId,
+		get variables() {
+			const id = unref(giveawayId)!
+			return { giveawayId: id }
+		},
+		pause: !!unref(giveawayId),
 	})
 
 	// Mutations
@@ -154,7 +162,7 @@ export const useGiveawaysApi = createGlobalState(() => {
 	`))
 
 	// Subscriptions
-	const useSubscriptionGiveawayParticipants = (giveawayId: string) => useSubscription({
+	const useSubscriptionGiveawayParticipants = (giveawayId: MaybeRef<string | null>) => useSubscription({
 		query: graphql(`
 			subscription SubscribeToGiveawayParticipants($giveawayId: String!) {
 				giveawaysParticipants(giveawayId: $giveawayId) {
@@ -162,8 +170,11 @@ export const useGiveawaysApi = createGlobalState(() => {
 				}
 			}
 		`),
-		variables: { giveawayId },
-		pause: !giveawayId,
+		get variables() {
+			const id = unref(giveawayId)!
+			return { giveawayId: id }
+		},
+		pause: !!unref(giveawayId),
 	})
 
 	return {
