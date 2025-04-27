@@ -97,7 +97,7 @@ var FirstFollowers = &types.DefaultCommand{
 				formattedFollowers,
 				fmt.Sprintf(
 					"%s (%s)",
-					f.Login,
+					helpers.ResolveDisplayName(f.Login, f.DisplayName),
 					strings.TrimSpace(time),
 				),
 			)
