@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 import GiveawaysCurrentGiveawayParticipants from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue'
-import GiveawaysCurrentGiveawayWinners from '@/features/giveaways/ui/giveaways-current-giveaway-winners.vue'
+import GiveawaysCurrentGiveawayWinners from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners.vue'
 
 const {
 	participants,
@@ -160,7 +160,7 @@ const archived = computed(() => {
 									size="sm"
 									variant="secondary"
 									class="flex gap-2 items-center"
-									:disabled="participants.length === 0"
+									:disabled="participants.length === 0 || winners.length == participants.length"
 									@click="handleChooseWinners"
 								>
 									<ShuffleIcon class="size-4" />

@@ -2,9 +2,9 @@
 import { MessageSquareIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import type { ChatMessage } from '@/api/chat-messages'
+import type { ChatMessage } from '@/api/chat-messages.ts'
 
-import { useChatMessagesApi } from '@/api/chat-messages'
+import { useChatMessagesApi } from '@/api/chat-messages.ts'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 
@@ -14,7 +14,7 @@ const { winners } = useGiveaways()
 const chatMessagesApi = useChatMessagesApi()
 const chatMessages = ref<ChatMessage[]>([])
 const isLoadingMessages = ref(false)
-const selectedWinnerId = ref('')
+const selectedWinnerUserId = ref('')
 
 const { executeQuery: refetchMessages } = chatMessagesApi.useQuery({
 	perPage: 1000,
@@ -34,11 +34,11 @@ watch(chatMessagesSubscriptionData, (data) => {
 })
 
 const filteredMessages = computed(() => {
-	return chatMessages.value.filter(msg => msg.userID === selectedWinnerId.value)
+	return chatMessages.value.filter(msg => msg.userID === selectedWinnerUserId.value)
 })
 
 function handleSelectWinner(winnerId: string) {
-	selectedWinnerId.value = winnerId
+	selectedWinnerUserId.value = winnerId
 }
 </script>
 
@@ -64,8 +64,8 @@ function handleSelectWinner(winnerId: string) {
 						:key="winner.userId"
 						class="flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors w-full lg:w-auto"
 						:class="{
-							'bg-muted': winner.userId !== selectedWinnerId,
-							'bg-primary text-primary-foreground': winner.userId === selectedWinnerId,
+							'bg-muted': winner.userId !== selectedWinnerUserId,
+							'bg-primary text-primary-foreground': winner.userId === selectedWinnerUserId,
 						}"
 						@click="handleSelectWinner(winner.userId)"
 					>
@@ -76,14 +76,14 @@ function handleSelectWinner(winnerId: string) {
 						/>
 						<div class="flex flex-col">
 							<span class="font-medium">{{ winner.twitchProfile.displayName }}</span>
-							<span class="text-xs" :class="{ 'text-muted-foreground': winner.userId !== selectedWinnerId, 'text-primary-foreground/80': winner.userId === selectedWinnerId }">@{{ winner.twitchProfile.login }}</span>
+							<span class="text-xs" :class="{ 'text-muted-foreground': winner.userId !== selectedWinnerUserId, 'text-primary-foreground/80': winner.userId === selectedWinnerUserId }">@{{ winner.twitchProfile.login }}</span>
 						</div>
 					</div>
 				</div>
 			</ScrollArea>
 
 			<!-- Winner's chat messages -->
-			<div v-if="selectedWinnerId" class="flex-1 flex flex-col">
+			<div v-if="selectedWinnerUserId" class="flex-1 flex flex-col">
 				<div class="p-2 border-b border-border">
 					<h3 class="text-sm font-medium flex items-center gap-2">
 						<MessageSquareIcon class="size-4" />

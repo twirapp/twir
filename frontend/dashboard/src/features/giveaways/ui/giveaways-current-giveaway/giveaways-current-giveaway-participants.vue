@@ -3,9 +3,8 @@ import { useVirtualizer } from '@tanstack/vue-virtual'
 import { debouncedRef } from '@vueuse/core'
 import { computed, ref, useTemplateRef } from 'vue'
 
-import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 
 const { participants } = useGiveaways()
 
@@ -13,7 +12,7 @@ const searchTerm = ref('')
 const debouncerSearchTerm = debouncedRef(searchTerm, 200)
 const filteredParticipants = computed(() => {
 	return participants.value.filter(p =>
-		p.displayName.toLowerCase().includes(debouncerSearchTerm.value.toLowerCase())
+		p.displayName.toLowerCase().includes(debouncerSearchTerm.value.toLowerCase()),
 	)
 })
 
@@ -34,12 +33,6 @@ const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
 
 <template>
 	<div class="flex-1 flex flex-col">
-		<div class="py-2 px-2 border-b border-border">
-			<div class="flex items-center justify-between mb-2">
-				<span class="text-sm font-medium">Total participants: {{ participants.length }}</span>
-			</div>
-			<Input v-model="searchTerm" placeholder="Search participants..." class="h-8" />
-		</div>
 		<div ref="participantsRef" class="overflow-auto flex-1">
 			<div
 				:style="{
@@ -63,7 +56,9 @@ const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
 					}"
 				>
 					<span>{{ filteredParticipants[virtualRow.index].displayName }}</span>
-					<Badge v-if="filteredParticipants[virtualRow.index].isWinner" variant="success">Winner</Badge>
+					<Badge v-if="filteredParticipants[virtualRow.index].isWinner" variant="success">
+						Winner
+					</Badge>
 				</div>
 			</div>
 		</div>
