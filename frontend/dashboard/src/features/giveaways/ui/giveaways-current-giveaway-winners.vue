@@ -157,33 +157,32 @@ watch(winners, (newWinners) => {
 				<div class="p-2 border-b border-border">
 					<h3 class="text-sm font-medium flex items-center gap-2">
 						<MessageSquareIcon class="size-4" />
-						Chat messages from {{ selectedWinner?.twitchProfile.displayName }}
+						Chat messages
 					</h3>
 				</div>
 
-				<ScrollArea class="flex-1">
-					<div v-if="isLoadingMessages" class="p-4 text-center text-muted-foreground">
-						Loading messages...
-					</div>
-
-					<div v-else-if="selectedWinnerMessages.length === 0" class="p-4 text-center text-muted-foreground">
-						No messages found for this winner
-					</div>
-
-					<div v-else class="p-2 space-y-2">
-						<div
-							v-for="message in selectedWinnerMessages"
-							:key="message.id"
-							class="p-2 rounded-md bg-muted"
-						>
-							<div class="flex items-center gap-2 mb-1">
-								<span class="font-medium text-sm">{{ message.userDisplayName }}</span>
-								<span class="text-xs text-muted-foreground">{{ new Date(message.createdAt).toLocaleString() }}</span>
-							</div>
-							<p>{{ message.text }}</p>
+				<div class="flex-1 relative overflow-hidden">
+					<ScrollArea class="absolute inset-0">
+						<div v-if="isLoadingMessages" class="p-4 text-center text-muted-foreground">
+							Loading messages...
 						</div>
-					</div>
-				</ScrollArea>
+
+						<div v-else-if="selectedWinnerMessages.length === 0" class="p-4 text-center text-muted-foreground">
+							No messages found for this winner
+						</div>
+
+						<div v-else class="p-2 space-y-1">
+							<div
+								v-for="message in selectedWinnerMessages"
+								:key="message.id"
+								class="py-1 px-2 flex items-start gap-2 hover:bg-muted rounded-sm"
+							>
+								<span class="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{{ new Date(message.createdAt).toLocaleTimeString() }}</span>
+								<span class="text-sm break-words">{{ message.text }}</span>
+							</div>
+						</div>
+					</ScrollArea>
+				</div>
 			</div>
 
 			<div v-else class="flex-1 flex items-center justify-center text-muted-foreground">

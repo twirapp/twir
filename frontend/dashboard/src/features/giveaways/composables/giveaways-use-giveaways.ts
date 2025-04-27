@@ -1,8 +1,8 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
-import type { Giveaway, GiveawayParticipant, GiveawaySubscriptionParticipant, GiveawayWinner } from '@/api/giveaways.js'
+import type { Giveaway, GiveawayParticipant, GiveawayWinner } from '@/api/giveaways.js'
 
 import { useGiveawaysApi } from '@/api/giveaways.js'
 import { useToast } from '@/components/ui/toast'
@@ -10,7 +10,6 @@ import { useToast } from '@/components/ui/toast'
 export const useGiveaways = createGlobalState(() => {
 	const giveawaysApi = useGiveawaysApi()
 	const { data: giveaways, fetching: giveawaysListFetching } = giveawaysApi.useGiveawaysList()
-	const route = useRoute()
 	const router = useRouter()
 	const { toast } = useToast()
 
@@ -24,17 +23,17 @@ export const useGiveaways = createGlobalState(() => {
 		return giveaways.value?.giveaways as Giveaway[] ?? []
 	})
 
-	const activeGiveaways = computed(() => {
+	const activeGiveaways = computed<Giveaway[]>(() => {
 		return giveawaysList.value.filter(g => !g.archivedAt && !g.endedAt)
 	})
 
-	const archivedGiveaways = computed(() => {
+	const archivedGiveaways = computed<Giveaway[]>(() => {
 		return giveawaysList.value.filter(g => g.archivedAt || g.endedAt)
 	})
 
 	const currentGiveaway = computed(() => {
 		if (!currentGiveawayId.value) return null
-		return giveawaysList.value.find(g => g.id === currentGiveawayId.value) || null
+		return giveawaysList.value.find(g => g.id === currentGiveawayId.value) as Giveaway
 	})
 
 	// Mutations
