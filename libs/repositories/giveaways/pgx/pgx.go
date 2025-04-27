@@ -94,6 +94,7 @@ func (p *Pgx) GetByChannelIDAndKeyword(
 SELECT id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user_id, archived_at
 FROM channels_giveaways
 WHERE channel_id = $1 AND keyword = $2 AND archived_at IS NULL
+ORDER BY created_at DESC;
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -119,6 +120,7 @@ func (p *Pgx) GetByID(ctx context.Context, id ulid.ULID) (model.ChannelGiveaway,
 SELECT id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user_id, archived_at
 FROM channels_giveaways
 WHERE id = $1
+LIMIT 1;
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -143,8 +145,20 @@ func (p *Pgx) GetManyByChannelID(
 	ctx context.Context,
 	channelID string,
 ) ([]model.ChannelGiveaway, error) {
-	selectBuilder := sq.Select("id", "channel_id", "created_at", "keyword", "updated_at", "started_at", "ended_at", "created_by_user_id", "stopped_at", "archived_at").
+	selectBuilder := sq.Select(
+		"id",
+		"channel_id",
+		"created_at",
+		"keyword",
+		"updated_at",
+		"started_at",
+		"ended_at",
+		"created_by_user_id",
+		"stopped_at",
+		"archived_at",
+	).
 		From("channels_giveaways").
+		OrderBy("created_at DESC").
 		Where(squirrel.Eq{`"channel_id"`: channelID})
 
 	query, args, err := selectBuilder.ToSql()
@@ -170,8 +184,20 @@ func (p *Pgx) GetManyActiveByChannelID(
 	ctx context.Context,
 	channelID string,
 ) ([]model.ChannelGiveaway, error) {
-	selectBuilder := sq.Select("id", "channel_id", "created_at", "keyword", "updated_at", "started_at", "ended_at", "created_by_user_id", "stopped_at", "archived_at").
+	selectBuilder := sq.Select(
+		"id",
+		"channel_id",
+		"created_at",
+		"keyword",
+		"updated_at",
+		"started_at",
+		"ended_at",
+		"created_by_user_id",
+		"stopped_at",
+		"archived_at",
+	).
 		From("channels_giveaways").
+		OrderBy("created_at DESC").
 		Where(squirrel.Eq{`"channel_id"`: channelID}).
 		Where(squirrel.Expr("archived_at IS NULL"))
 

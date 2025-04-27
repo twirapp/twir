@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MessageSquareIcon } from 'lucide-vue-next'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import type { ChatMessage } from '@/api/chat-messages'
 
@@ -16,11 +16,14 @@ const chatMessages = ref<ChatMessage[]>([])
 const isLoadingMessages = ref(false)
 const selectedWinnerId = ref('')
 
-const { data: chatMessagesQueryData } = chatMessagesApi.useQuery({})
-watch(chatMessagesQueryData, (data) => {
-	if (data?.chatMessages) {
-		chatMessages.value = data.chatMessages
-	}
+const { executeQuery: refetchMessages } = chatMessagesApi.useQuery({
+	perPage: 1000,
+}, { manual: true })
+
+onMounted(async () => {
+	const { data: messages } = await refetchMessages()
+	if (!messages?.value?.chatMessages) return
+	chatMessages.value = messages.value.chatMessages ?? []
 })
 
 const { data: chatMessagesSubscriptionData } = chatMessagesApi.subscribeToChatMessages()
@@ -80,7 +83,7 @@ function handleSelectWinner(winnerId: string) {
 			</ScrollArea>
 
 			<!-- Winner's chat messages -->
-			<div v-if="selectedWinnerId" class="flex-1 overflow-hidden flex flex-col">
+			<div v-if="selectedWinnerId" class="flex-1 flex flex-col">
 				<div class="p-2 border-b border-border">
 					<h3 class="text-sm font-medium flex items-center gap-2">
 						<MessageSquareIcon class="size-4" />
@@ -88,27 +91,25 @@ function handleSelectWinner(winnerId: string) {
 					</h3>
 				</div>
 
-				<div class="flex-1 relative overflow-hidden">
-					<ScrollArea class="absolute inset-0">
-						<div v-if="isLoadingMessages" class="p-4 text-center text-muted-foreground">
-							Loading messages...
-						</div>
+				<div class="flex-1 relative overflow-auto">
+					<div v-if="isLoadingMessages" class="p-4 text-center text-muted-foreground">
+						Loading messages...
+					</div>
 
-						<div v-else-if="filteredMessages.length === 0" class="p-4 text-center text-muted-foreground">
-							No messages found for this winner
-						</div>
+					<div v-else-if="filteredMessages.length === 0" class="p-4 text-center text-muted-foreground">
+						No messages found for this winner
+					</div>
 
-						<div v-else class="p-2 space-y-1">
-							<div
-								v-for="message in filteredMessages"
-								:key="message.id"
-								class="py-1 px-2 flex items-start gap-2 hover:bg-muted rounded-sm"
-							>
-								<span class="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{{ new Date(message.createdAt).toLocaleTimeString() }}</span>
-								<span class="text-sm break-words">{{ message.text }}</span>
-							</div>
+					<div v-else class="p-2 space-y-1">
+						<div
+							v-for="message in filteredMessages"
+							:key="message.id"
+							class="py-1 px-2 flex items-start gap-2 hover:bg-muted rounded-sm"
+						>
+							<span class="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{{ new Date(message.createdAt).toLocaleString() }}</span>
+							<span class="text-sm break-words">{{ message.text }}</span>
 						</div>
-					</ScrollArea>
+					</div>
 				</div>
 			</div>
 

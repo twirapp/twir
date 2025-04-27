@@ -63,7 +63,7 @@ export function useChatMessagesSubscription() {
 
 // Global state for chat messages API
 export const useChatMessagesApi = createGlobalState(() => {
-	const useChatMessagesQuery = (input: MaybeRef<ChatMessageInput>) => useQuery({
+	const useChatMessagesQuery = (input: MaybeRef<ChatMessageInput>, opts?: { manual?: boolean }) => useQuery({
 		query: graphql(`
 			query ChatMessage($input: ChatMessageInput!) {
 				chatMessages(input: $input) {
@@ -86,6 +86,7 @@ export const useChatMessagesApi = createGlobalState(() => {
 				input: unref(input),
 			}
 		},
+		pause: opts?.manual ?? false,
 	})
 
 	// Subscription for new chat messages

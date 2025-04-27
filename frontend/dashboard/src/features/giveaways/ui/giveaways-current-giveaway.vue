@@ -64,18 +64,18 @@ async function handleChooseWinners() {
 }
 
 const isActive = computed(() => {
-	return currentGiveaway.value?.startedAt && !currentGiveaway.value?.stoppedAt && !currentGiveaway.value?.endedAt
+	return !!(currentGiveaway.value?.startedAt && !currentGiveaway.value?.stoppedAt && !currentGiveaway.value?.endedAt)
 })
 
-const isStopped = computed(() => {
+const stopped = computed(() => {
 	return currentGiveaway.value?.stoppedAt
 })
 
-const isEnded = computed(() => {
+const ended = computed(() => {
 	return currentGiveaway.value?.endedAt
 })
 
-const isArchived = computed(() => {
+const archived = computed(() => {
 	return currentGiveaway.value?.archivedAt
 })
 </script>
@@ -95,7 +95,7 @@ const isArchived = computed(() => {
 
 				<div class="flex flex-row gap-1">
 					<Button
-						v-if="(!isActive && !isEnded && !isArchived) || isStopped"
+						v-if="!isActive && stopped === null && archived === null"
 						size="sm"
 						class="flex gap-2 items-center"
 						@click="handleStartGiveaway"
@@ -105,7 +105,7 @@ const isArchived = computed(() => {
 					</Button>
 
 					<Button
-						v-if="isActive && !isStopped"
+						v-if="isActive && !stopped"
 						size="sm"
 						variant="outline"
 						class="flex gap-2 items-center"
@@ -116,7 +116,7 @@ const isArchived = computed(() => {
 					</Button>
 
 					<Button
-						v-if="!isArchived"
+						v-if="!archived"
 						size="sm"
 						variant="destructive"
 						class="flex gap-2 items-center"
