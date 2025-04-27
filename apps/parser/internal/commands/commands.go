@@ -39,6 +39,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/spam"
 	"github.com/satont/twir/apps/parser/internal/commands/stats"
 	"github.com/satont/twir/apps/parser/internal/commands/tts"
+	"github.com/satont/twir/apps/parser/internal/commands/utility"
 	"github.com/satont/twir/apps/parser/internal/commands/vips"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/types/services"
@@ -141,6 +142,7 @@ func New(opts *Opts) *Commands {
 			chat_wall.Timeout,
 			chat_wall.Stop,
 			shorturl.Command,
+			utility.FirstFollowers,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
