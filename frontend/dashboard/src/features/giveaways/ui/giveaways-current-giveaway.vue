@@ -95,7 +95,7 @@ const isArchived = computed(() => {
 
 				<div class="flex flex-row gap-1">
 					<Button
-						v-if="!isActive && !isStopped && !isEnded && !isArchived"
+						v-if="(!isActive && !isEnded && !isArchived) || isStopped"
 						size="sm"
 						class="flex gap-2 items-center"
 						@click="handleStartGiveaway"
@@ -105,7 +105,7 @@ const isArchived = computed(() => {
 					</Button>
 
 					<Button
-						v-if="isActive"
+						v-if="isActive && !isStopped"
 						size="sm"
 						variant="outline"
 						class="flex gap-2 items-center"
@@ -129,7 +129,7 @@ const isArchived = computed(() => {
 			</CardHeader>
 			<CardContent class="h-[calc(100%-56px)] p-0">
 				<Tabs v-model="activeTab" class="h-full flex flex-col">
-					<div class="border-b px-4 pt-2">
+					<div class="border-b px-4 p-2">
 						<TabsList>
 							<TabsTrigger value="participants" class="flex gap-2">
 								<UsersIcon class="size-4" />
@@ -157,7 +157,7 @@ const isArchived = computed(() => {
 									size="sm"
 									variant="secondary"
 									class="flex gap-2 items-center"
-									:disabled="!isActive || participants.length === 0"
+									:disabled="participants.length === 0"
 									@click="handleChooseWinners"
 								>
 									<ShuffleIcon class="size-4" />

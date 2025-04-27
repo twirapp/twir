@@ -72,6 +72,10 @@ func (c *Pgx) GetMany(ctx context.Context, input chat_messages.GetManyInput) (
 		builder = builder.Where(squirrel.ILike{"text": fmt.Sprintf("%%%s%%", *input.TextLike)})
 	}
 
+	if len(input.UserIDs) > 0 {
+		builder = builder.Where(squirrel.Eq{"user_id": input.UserIDs})
+	}
+
 	builder = builder.OrderBy("created_at DESC").
 		Offset(uint64(input.Page * perPage)).
 		Limit(uint64(perPage))

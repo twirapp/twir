@@ -8,6 +8,7 @@ extend type Subscription {
 }
 
 input ChatMessageInput {
+	userIdIn: [String!]
 	userNameLike: String @validate(constraint: "max=40")
 	textLike: String @validate(constraint: "max=500")
 	page: Int @validate(constraint: "gte=0")

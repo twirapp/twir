@@ -156,13 +156,25 @@ export const useGiveaways = createGlobalState(() => {
 		router.push(`/dashboard/giveaways/view/${id}`)
 	}
 
-	// Load participants for current giveaway
+	// Load giveaway data (participants and winners)
 	function loadParticipants(giveawayId: string) {
 		if (!giveawayId) return
 
 		currentGiveawayId.value = giveawayId
-		const { data } = giveawaysApi.useGiveawayParticipants(giveawayId)
 
+		// Load giveaway details to get winners
+		const { data: giveawayData } = giveawaysApi.useGiveaway(giveawayId)
+		watch(giveawayData, (newData) => {
+			if (newData?.giveaway) {
+				// Set winners from giveaway data
+				if (newData.giveaway.winners && newData.giveaway.winners.length > 0) {
+					winners.value = newData.giveaway.winners
+				}
+			}
+		}, { immediate: true })
+
+		// Load participants
+		const { data } = giveawaysApi.useGiveawayParticipants(giveawayId)
 		watch(data, (newData) => {
 			if (newData?.giveawayParticipants) {
 				participants.value = newData.giveawayParticipants
@@ -171,7 +183,6 @@ export const useGiveaways = createGlobalState(() => {
 
 		// Subscribe to new participants
 		const { data: subscriptionData } = giveawaysApi.useSubscriptionGiveawayParticipants(giveawayId)
-
 		watch(subscriptionData, (newData) => {
 			if (newData?.giveawaysParticipants) {
 				const newParticipant = newData.giveawaysParticipants
