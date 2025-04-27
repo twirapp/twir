@@ -1,7 +1,12 @@
-import { useQuery } from '@urql/vue'
+import { useMutation, useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { GiveawayFragment } from '@/gql/graphql.ts'
+import type {
+	ChannelGiveawayParticipantsFragment,
+	ChannelGiveawaySubscriptionParticipantFragment,
+	ChannelGiveawayWinnerFragment,
+	GiveawayFragment,
+} from '@/gql/graphql.ts'
 
 import { graphql } from '@/gql'
 
@@ -17,12 +22,46 @@ graphql(`
 		keyword
 		createdByUserId
 		archivedAt
+		winners {
+			...GiveawayWinner
+		}
+	}
+
+	fragment GiveawayWinner on ChannelGiveawayWinner {
+		displayName
+		userId
+		userLogin
+		twitchProfile {
+			profileImageUrl
+			displayName
+			login
+		}
+	}
+
+	fragment GiveawayParticipant on ChannelGiveawayParticipants {
+		displayName
+		userId
+		isWinner
+		id
+		giveawayId
+	}
+
+	fragment GiveawaySubscriptionParticipant on ChannelGiveawaySubscriptionParticipant {
+		userId
+		userLogin
+		userDisplayName
+		isWinner
+		giveawayId
 	}
 `)
 
 export type Giveaway = GiveawayFragment
+export type GiveawayParticipant = ChannelGiveawayParticipantsFragment
+export type GiveawayWinner = ChannelGiveawayWinnerFragment
+export type GiveawaySubscriptionParticipant = ChannelGiveawaySubscriptionParticipantFragment
 
 export const useGiveawaysApi = createGlobalState(() => {
+	// Queries
 	const useGiveawaysList = () => useQuery({
 		query: graphql(`
 			query GiveawaysList {
@@ -33,7 +72,116 @@ export const useGiveawaysApi = createGlobalState(() => {
 		`),
 	})
 
+	const useGiveaway = (giveawayId: string) => useQuery({
+		query: graphql(`
+			query GiveawayById($giveawayId: String!) {
+				giveaway(giveawayId: $giveawayId) {
+					...Giveaway
+				}
+			}
+		`),
+		variables: { giveawayId },
+		pause: !giveawayId,
+	})
+
+	const useGiveawayParticipants = (giveawayId: string) => useQuery({
+		query: graphql(`
+			query GetGiveawayParticipants($giveawayId: String!) {
+				giveawayParticipants(giveawayId: $giveawayId) {
+					...GiveawayParticipant
+				}
+			}
+		`),
+		variables: { giveawayId },
+		pause: !giveawayId,
+	})
+
+	// Mutations
+	const useMutationCreateGiveaway = () => useMutation(graphql(`
+		mutation CreateGiveaway($opts: GiveawaysCreateInput!) {
+			giveawaysCreate(opts: $opts) {
+				...Giveaway
+			}
+		}
+	`))
+
+	const useMutationUpdateGiveaway = () => useMutation(graphql(`
+		mutation UpdateGiveaway($id: String!, $opts: GiveawaysUpdateInput!) {
+			giveawaysUpdate(id: $id, opts: $opts) {
+				...Giveaway
+			}
+		}
+	`))
+
+	const useMutationRemoveGiveaway = () => useMutation(graphql(`
+		mutation RemoveGiveaway($id: String!) {
+			giveawaysRemove(id: $id) {
+				...Giveaway
+			}
+		}
+	`))
+
+	const useMutationStartGiveaway = () => useMutation(graphql(`
+		mutation StartGiveaway($id: String!) {
+			giveawaysStart(id: $id) {
+				...Giveaway
+			}
+		}
+	`))
+
+	const useMutationStopGiveaway = () => useMutation(graphql(`
+		mutation StopGiveaway($id: String!) {
+			giveawaysStop(id: $id) {
+				...Giveaway
+			}
+		}
+	`))
+
+	const useMutationArchiveGiveaway = () => useMutation(graphql(`
+		mutation ArchiveGiveaway($id: String!) {
+			giveawaysArchive(id: $id) {
+				...Giveaway
+			}
+		}
+	`))
+
+	const useMutationChooseWinners = () => useMutation(graphql(`
+		mutation ChooseWinners($id: String!) {
+			giveawaysChooseWinners(id: $id) {
+				...GiveawayWinner
+			}
+		}
+	`))
+
+	// Subscriptions
+	const useSubscriptionGiveawayParticipants = (giveawayId: string) => useSubscription({
+		query: graphql(`
+			subscription SubscribeToGiveawayParticipants($giveawayId: String!) {
+				giveawaysParticipants(giveawayId: $giveawayId) {
+					...GiveawaySubscriptionParticipant
+				}
+			}
+		`),
+		variables: { giveawayId },
+		pause: !giveawayId,
+	})
+
 	return {
+		// Queries
 		useGiveawaysList,
+		useGiveaway,
+		useGiveawayParticipants,
+
+		// Mutations
+		useMutationCreateGiveaway,
+		useMutationUpdateGiveaway,
+		useMutationRemoveGiveaway,
+		useMutationStartGiveaway,
+		useMutationStopGiveaway,
+		useMutationArchiveGiveaway,
+		useMutationChooseWinners,
+
+		// Subscriptions
+		useSubscriptionGiveawayParticipants,
 	}
 })

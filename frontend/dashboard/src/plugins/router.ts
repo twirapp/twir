@@ -77,6 +77,12 @@ export function newRouter() {
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewGiveaways, noPadding: true },
 				},
 				{
+					name: 'giveaways-view',
+					path: '/dashboard/giveaways/view/:id',
+					component: () => import('../features/giveaways/giveaways.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewGiveaways, noPadding: true },
+				},
+				{
 					path: '/dashboard/modules',
 					component: () => import('../features/modules/modules.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewModules, noPadding: true },
