@@ -169,6 +169,10 @@ func GetFirstChannelFollowers(ctx context.Context, channelName string) ([]FirstF
 
 	followers := make([]FirstFollower, 0, len(firstEdge.Data.User.Followers.Edges))
 	for _, edge := range firstEdge.Data.User.Followers.Edges {
+		if edge.Node == nil {
+			continue
+		}
+
 		followers = append(
 			followers, FirstFollower{
 				Id:          edge.Node.Id,
