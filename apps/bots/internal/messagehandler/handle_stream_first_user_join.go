@@ -10,11 +10,15 @@ import (
 )
 
 func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg handleMessage) error {
-	if msg.DbStream == nil {
+	if msg.EnrichedData.ChannelStream == nil {
 		return nil
 	}
 
-	redisKey := fmt.Sprintf("first:stream:user:join:%s:%s", msg.DbStream.ID, msg.ChatterUserId)
+	redisKey := fmt.Sprintf(
+		"first:stream:user:join:%s:%s",
+		msg.EnrichedData.ChannelStream.ID,
+		msg.ChatterUserId,
+	)
 	exists, err := c.redis.Exists(ctx, redisKey).Result()
 	if err != nil {
 		return err

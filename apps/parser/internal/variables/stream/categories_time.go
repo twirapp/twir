@@ -20,8 +20,7 @@ var CategoryTime = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		stream := parseCtx.Cacher.GetChannelStream(ctx)
-		if stream == nil {
+		if parseCtx.ChannelStream != nil {
 			result.Result = "Offline or error on getting category"
 			return &result, nil
 		}
@@ -30,7 +29,7 @@ var CategoryTime = &types.Variable{
 			ctx,
 			channelsinfohistory.GetManyInput{
 				ChannelID: parseCtx.Channel.ID,
-				After:     stream.StartedAt,
+				After:     parseCtx.ChannelStream.StartedAt,
 				Limit:     100,
 			},
 		)
@@ -48,7 +47,7 @@ var CategoryTime = &types.Variable{
 
 		var category *model.ChannelInfoHistory
 		for _, item := range history {
-			if item.Category == stream.GameName {
+			if item.Category == parseCtx.ChannelStream.GameName {
 				category = &item
 				break
 			}

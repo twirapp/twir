@@ -2,6 +2,7 @@ package twitch
 
 import (
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
 type TwitchChatMessage struct {
@@ -28,6 +29,7 @@ type ChatMessageEnrichedData struct {
 	UsedEmotesWithThirdParty map[string]int        `json:"used_emotes_with_third_party"`
 	ChannelCommandPrefix     string                `json:"channel_command_prefix"`
 	DbChannel                channelsmodel.Channel `json:"db_channel"`
+	ChannelStream            *streamsmodel.Stream  `json:"channel_stream"`
 }
 
 type FragmentType int32

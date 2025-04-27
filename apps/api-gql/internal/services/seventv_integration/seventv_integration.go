@@ -51,6 +51,10 @@ func (c *Service) getBotSevenTvProfile(ctx context.Context) (entity.SevenTvProfi
 		return entity.SevenTvProfile{}, fmt.Errorf("failed to get bot profile: %w", err)
 	}
 
+	if resp == nil || resp.Users.UserByConnection == nil {
+		return entity.SevenTvProfile{}, fmt.Errorf("failed to get bot profile: %w", err)
+	}
+
 	editorFor := make([]entity.SevenTvProfileEditor, 0, len(resp.Users.UserByConnection.EditorFor))
 	for _, editor := range resp.Users.UserByConnection.EditorFor {
 		var hasEmotesPermissions bool
@@ -94,7 +98,11 @@ func (c *Service) getUserSevenTvResponse(ctx context.Context, userID string) (
 
 	resp, err := client.GetProfileByTwitchId(ctx, userID)
 	if err != nil {
-		return entity.SevenTvProfile{}, fmt.Errorf("failed to get bot profile: %w", err)
+		return entity.SevenTvProfile{}, fmt.Errorf("failed to get user profile: %w", err)
+	}
+
+	if resp == nil || resp.Users.UserByConnection == nil {
+		return entity.SevenTvProfile{}, fmt.Errorf("failed to get user profile: %w", err)
 	}
 
 	editors := make([]entity.SevenTvProfileEditor, 0, len(resp.Users.UserByConnection.Editors))

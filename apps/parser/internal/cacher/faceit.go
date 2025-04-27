@@ -49,11 +49,13 @@ func (c *cacher) GetFaceitLatestMatches(ctx context.Context) ([]*types.FaceitMat
 	}
 
 	var matches []*types.FaceitMatch
-	stream := c.GetChannelStream(ctx)
-	if stream == nil {
-		return matches, nil
-	}
-	startedDate := stream.StartedAt.UnixMilli()
+	// TODO: use stream time
+	// stream := c.GetChannelStream(ctx)
+	// if stream == nil {
+	// 	return matches, nil
+	// }
+	// startedDate := stream.StartedAt.UnixMilli()
+	startedDate := time.Now().UTC().Truncate(24*time.Hour).UnixMilli() + 1000
 
 	for i, match := range reqResult {
 		matchCreatedAt := time.UnixMilli(match.UpdateAt).UnixMilli()

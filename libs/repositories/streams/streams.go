@@ -8,6 +8,7 @@ import (
 )
 
 type Repository interface {
+	GetByChannelID(ctx context.Context, channelID string) (model.Stream, error)
 	GetList(ctx context.Context) ([]model.Stream, error)
 	Update(ctx context.Context, channelID string, input UpdateInput) error
 }

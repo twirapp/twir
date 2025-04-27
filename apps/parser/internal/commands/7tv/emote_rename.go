@@ -19,7 +19,7 @@ var EmoteRename = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "7tv rename",
 		Description: null.StringFrom("Rename 7tv emote in current set"),
-		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "7tv",
 		Visible:     true,
 		IsReply:     true,

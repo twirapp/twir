@@ -10,16 +10,19 @@ import (
 	"github.com/Khan/genqlient/graphql"
 	"github.com/twirapp/twir/libs/integrations/seventv/api"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 func NewClient(token string) Client {
 	// client with header
 
 	httpClient := &http.Client{
-		Transport: &headerTransport{
-			base:  http.DefaultTransport,
-			token: token,
-		},
+		Transport: otelhttp.NewTransport(
+			&headerTransport{
+				base:  http.DefaultTransport,
+				token: token,
+			},
+		),
 	}
 
 	client := graphql.NewClient("https://api.7tv.app/v4/gql", httpClient)

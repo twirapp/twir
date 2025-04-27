@@ -7,6 +7,7 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/redis_keys"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
@@ -16,6 +17,13 @@ func (c *Handler) handleChannelUpdate(
 ) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	
+	if err := c.redisClient.Del(
+		ctx,
+		redis_keys.StreamByChannelID(event.BroadcasterUserID),
+	).Err(); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	c.logger.Info(
 		"channel update",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
@@ -54,27 +55,31 @@ func (c *Service) IsNameConflicting(
 	aliases []string,
 	exceptions []uuid.UUID,
 ) (bool, error) {
+	name = strings.ToLower(name)
+
 	for _, command := range cmds {
 		if slices.Contains(exceptions, command.ID) {
 			continue
 		}
 
-		if command.Name == name {
+		if strings.ToLower(command.Name) == name {
 			return true, nil
 		}
 		for _, aliase := range command.Aliases {
-			if aliase == name {
+			if strings.ToLower(aliase) == name {
 				return true, nil
 			}
 		}
 
 		for _, aliase := range aliases {
-			if command.Name == aliase {
+			if strings.ToLower(command.Name) == strings.ToLower(aliase) {
 				return true, nil
 			}
 
-			if slices.Contains(command.Aliases, aliase) {
-				return true, nil
+			for _, cmdAliase := range command.Aliases {
+				if strings.ToLower(cmdAliase) == strings.ToLower(aliase) {
+					return true, nil
+				}
 			}
 		}
 	}

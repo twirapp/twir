@@ -292,7 +292,7 @@ func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([
 	}
 
 	convertedCommands := make([]gqlmodel.PublicCommand, 0, len(entities))
-	for _, cmd := range entities {
+	for _, cmd := range filteredCommands {
 		var description string
 		if cmd.Command.Description != nil {
 			description = *cmd.Command.Description

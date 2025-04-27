@@ -2,17 +2,17 @@
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
 
-import type { RoleTypeEnum } from '@/gql/graphql.ts'
-
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
 import { useCommandEditV2 } from '@/features/commands/composables/use-command-edit-v2'
+import { RoleTypeEnum } from '@/gql/graphql.ts'
 
 const props = defineProps<{
 	fieldName: string
 	excludedTypes?: RoleTypeEnum[]
 	hideEveryone?: boolean
+	hideBroadcaster?: boolean
 }>()
 
 const { channelRoles } = useCommandEditV2()
@@ -39,12 +39,17 @@ const roles = computed(() => {
 			:unchecked-value="false"
 			:name="fieldName"
 		>
+			<div v-if="index === 0 && !hideBroadcaster" class="role">
+				<Checkbox id="allRoles" checked disabled />
+				<Label for="allRoles" class="capitalize">Broadcaster</Label>
+			</div>
+
 			<div v-if="index === 0 && !hideEveryone" class="role" @click="uncheckAll">
 				<Checkbox id="allRoles" :checked="!value?.length" />
 				<Label for="allRoles" class="capitalize">Everyone</Label>
 			</div>
 
-			<FormItem class="space-y-0">
+			<FormItem v-if="role.type !== RoleTypeEnum.Broadcaster" class="space-y-0">
 				<FormLabel class="role">
 					<FormControl>
 						<Checkbox

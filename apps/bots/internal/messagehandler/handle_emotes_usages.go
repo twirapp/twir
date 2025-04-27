@@ -9,7 +9,7 @@ import (
 )
 
 func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessage) error {
-	if msg.DbStream == nil {
+	if msg.EnrichedData.ChannelStream == nil {
 		return nil
 	}
 

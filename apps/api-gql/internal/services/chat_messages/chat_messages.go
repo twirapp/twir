@@ -2,11 +2,16 @@ package chat_messages
 
 import (
 	"context"
+	"encoding/json"
+	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -20,17 +25,26 @@ type Opts struct {
 
 	ChatMessagesRepository chat_messages.Repository
 	TwirBus                *buscore.Bus
+	WsRouter               wsrouter.WsRouter
+	Logger                 logger.Logger
 }
 
-const allMessagesSubKey = "ALL"
+const (
+	chatMessagesSubscriptionKey    = "api.chatMessages"
+	chatMessagesSubscriptionKeyAll = chatMessagesSubscriptionKey + ".All"
+)
+
+func chatMessagesSubscriptionKeyCreate(channelId string) string {
+	return chatMessagesSubscriptionKey + "." + channelId
+}
 
 func New(opts Opts) *Service {
 	s := &Service{
 		chatMessagesRepository: opts.ChatMessagesRepository,
-		subs:                   make(map[string]chan entity.ChatMessage),
+		wsRouter:               opts.WsRouter,
+		logger:                 opts.Logger,
+		chanSubs:               make(map[string]struct{}),
 	}
-
-	s.subs[allMessagesSubKey] = make(chan entity.ChatMessage)
 
 	opts.LC.Append(
 		fx.Hook{
@@ -50,7 +64,10 @@ func New(opts Opts) *Service {
 type Service struct {
 	chatMessagesRepository chat_messages.Repository
 
-	subs map[string]chan entity.ChatMessage
+	wsRouter   wsrouter.WsRouter
+	logger     logger.Logger
+	chanSubs   map[string]struct{}
+	chanSubsMu sync.RWMutex
 }
 
 func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
@@ -86,32 +103,107 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 		UpdatedAt:       time.Now(),
 	}
 
-	if ch, ok := c.subs[data.BroadcasterUserId]; ok {
-		ch <- msg
+	c.chanSubsMu.RLock()
+	if _, ok := c.chanSubs[data.BroadcasterUserId]; ok {
+		err := c.wsRouter.Publish(chatMessagesSubscriptionKeyCreate(data.BroadcasterUserId), msg)
+		if err != nil {
+			c.logger.Error(
+				"Cannot publish some message to separate broadcaster messages",
+				slog.Any("err", err),
+			)
+		}
 	}
+	c.chanSubsMu.RUnlock()
 
-	if ch, ok := c.subs[allMessagesSubKey]; ok {
-		ch <- msg
+	err := c.wsRouter.Publish(chatMessagesSubscriptionKeyAll, msg)
+	if err != nil {
+		c.logger.Error("Cannot publish some message to all messages", slog.Any("err", err))
 	}
 
 	return struct{}{}
 }
 
-func (c *Service) SubscribeToNewMessagesByChannelID(channelID string) <-chan entity.ChatMessage {
-	if _, ok := c.subs[channelID]; !ok {
-		c.subs[channelID] = make(chan entity.ChatMessage)
-	}
+func (c *Service) SubscribeToNewMessagesByChannelID(
+	ctx context.Context,
+	channelID string,
+) <-chan entity.ChatMessage {
+	c.chanSubsMu.Lock()
+	c.chanSubs[channelID] = struct{}{}
+	c.chanSubsMu.Unlock()
 
-	return c.subs[channelID]
+	channel := make(chan entity.ChatMessage)
+	go func() {
+		sub, err := c.wsRouter.Subscribe(
+			[]string{
+				chatMessagesSubscriptionKeyCreate(channelID),
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+		defer func() {
+			c.chanSubsMu.Lock()
+			delete(c.chanSubs, channelID)
+			c.chanSubsMu.Unlock()
+			sub.Unsubscribe()
+			close(channel)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data, ok := <-sub.GetChannel():
+				if !ok {
+					return
+				}
+
+				var msg entity.ChatMessage
+				if err := json.Unmarshal(data, &msg); err != nil {
+					panic(err)
+				}
+
+				channel <- msg
+			}
+		}
+	}()
+
+	return channel
 }
 
-func (c *Service) SubscribeToNewMessages() <-chan entity.ChatMessage {
-	return c.subs[allMessagesSubKey]
-}
+func (c *Service) SubscribeToNewMessages(ctx context.Context) <-chan entity.ChatMessage {
+	channel := make(chan entity.ChatMessage)
+	go func() {
+		sub, err := c.wsRouter.Subscribe(
+			[]string{
+				chatMessagesSubscriptionKeyAll,
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+		defer func() {
+			sub.Unsubscribe()
+			close(channel)
+		}()
 
-func (c *Service) UnsubscribeFromNewMessages(channelID string) {
-	if ch, ok := c.subs[channelID]; ok {
-		close(ch)
-		delete(c.subs, channelID)
-	}
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data, ok := <-sub.GetChannel():
+				if !ok {
+					return
+				}
+				var msg entity.ChatMessage
+				if err := json.Unmarshal(data, &msg); err != nil {
+					panic(err)
+				}
+
+				channel <- msg
+			}
+		}
+	}()
+
+	return channel
 }

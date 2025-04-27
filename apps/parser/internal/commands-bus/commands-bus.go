@@ -12,14 +12,17 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/repositories/streams"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"go.uber.org/zap"
 )
 
 type CommandsBus struct {
-	bus              *buscore.Bus
-	services         *services.Services
-	commandService   *commands.Commands
-	variablesService *variables.Variables
+	bus               *buscore.Bus
+	services          *services.Services
+	commandService    *commands.Commands
+	variablesService  *variables.Variables
+	streamsRepository streams.Repository
 }
 
 func New(
@@ -27,12 +30,14 @@ func New(
 	s *services.Services,
 	commandService *commands.Commands,
 	variablesService *variables.Variables,
+	streamsRepository streams.Repository,
 ) *CommandsBus {
 	b := &CommandsBus{
-		bus:              bus,
-		services:         s,
-		commandService:   commandService,
-		variablesService: variablesService,
+		bus:               bus,
+		services:          s,
+		commandService:    commandService,
+		variablesService:  variablesService,
+		streamsRepository: streamsRepository,
 	}
 
 	return b
@@ -57,6 +62,16 @@ func (c *CommandsBus) Subscribe() error {
 			ctx context.Context,
 			data parser.ParseVariablesInTextRequest,
 		) parser.ParseVariablesInTextResponse {
+			foundStream, err := c.streamsRepository.GetByChannelID(ctx, data.ChannelID)
+			if err != nil {
+				zap.S().Error(err)
+			}
+
+			var stream *streamsmodel.Stream
+			if foundStream.ID != "" {
+				stream = &foundStream
+			}
+
 			channel := &types.ParseContextChannel{
 				ID:   data.ChannelID,
 				Name: data.ChannelName,
@@ -87,6 +102,7 @@ func (c *CommandsBus) Subscribe() error {
 							ParseCtxText:    &data.Text,
 						},
 					),
+					ChannelStream: stream,
 				},
 				data.Text,
 			)

@@ -6,12 +6,17 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"time"
 	"unicode/utf8"
 
+	"github.com/goccy/go-json"
+	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/redis_keys"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/otel/attribute"
 	"golang.org/x/sync/errgroup"
@@ -188,6 +193,19 @@ func (c *Handler) handleChannelChatMessage(
 		},
 	)
 
+	errwg.Go(
+		func() error {
+			stream, err := c.chatMessageGetChannelStream(ctx, data.BroadcasterUserId)
+			if err != nil {
+				return err
+			}
+
+			data.EnrichedData.ChannelStream = stream
+
+			return nil
+		},
+	)
+
 	if err := errwg.Wait(); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 		return
@@ -309,4 +327,44 @@ func (c *Handler) chatMessageGetChannelCommandPrefix(ctx context.Context, channe
 	}
 
 	return commandsPrefix, nil
+}
+
+func (c *Handler) chatMessageGetChannelStream(
+	ctx context.Context,
+	channelId string,
+) (*streamsmodel.Stream, error) {
+	cacheKey := redis_keys.StreamByChannelID(channelId)
+	cachedBytes, err := c.redisClient.Get(ctx, cacheKey).Bytes()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return nil, err
+	}
+
+	if len(cachedBytes) > 0 {
+		var stream streamsmodel.Stream
+		if err := json.Unmarshal(cachedBytes, &stream); err != nil {
+			return nil, err
+		}
+
+		return &stream, nil
+	}
+
+	stream, err := c.streamsrepository.GetByChannelID(ctx, channelId)
+	if err != nil {
+		return nil, err
+	}
+
+	if stream.ID == "" {
+		return nil, nil
+	}
+
+	streamBytes, err := json.Marshal(stream)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := c.redisClient.Set(ctx, cacheKey, streamBytes, 30*time.Second); err != nil {
+
+	}
+
+	return &stream, nil
 }

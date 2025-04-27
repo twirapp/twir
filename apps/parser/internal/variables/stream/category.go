@@ -16,9 +16,8 @@ var Category = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		stream := parseCtx.Cacher.GetChannelStream(ctx)
-		if stream != nil {
-			result.Result = stream.GameName
+		if parseCtx.ChannelStream != nil {
+			result.Result = parseCtx.ChannelStream.GameName
 		} else {
 			channelInfo := parseCtx.Cacher.GetTwitchChannel(ctx)
 			if channelInfo != nil {

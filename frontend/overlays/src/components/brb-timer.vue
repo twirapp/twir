@@ -103,10 +103,12 @@ const countDownFontSize = computed(() => {
 	<Transition v-if="settings" name="overlay" appear>
 		<div
 			v-if="countDownInterval.isActive.value || countUpInterval.isActive.value"
+			id="brb-overlay"
 			class="overlay"
 		>
 			<div
 				v-if="showCountDown"
+				id="brb-count-up"
 				class="count-up"
 			>
 				{{ text || settings.text }}
@@ -118,6 +120,7 @@ const countDownFontSize = computed(() => {
 			</div>
 			<div
 				v-if="countUpInterval.isActive.value && settings.late?.enabled"
+				id="brb-count-down"
 				class="count-down"
 			>
 				{{ settings.late?.text }} {{ millisecondsToTime(countUpTicks * 1000) }}

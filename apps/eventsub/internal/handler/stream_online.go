@@ -11,6 +11,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/redis_keys"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.uber.org/zap"
 )
@@ -21,6 +22,13 @@ func (c *Handler) handleStreamOnline(
 ) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	if err := c.redisClient.Del(
+		ctx,
+		redis_keys.StreamByChannelID(event.BroadcasterUserID),
+	).Err(); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	c.logger.Info(
 		"stream online",

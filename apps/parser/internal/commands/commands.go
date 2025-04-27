@@ -39,6 +39,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/spam"
 	"github.com/satont/twir/apps/parser/internal/commands/stats"
 	"github.com/satont/twir/apps/parser/internal/commands/tts"
+	"github.com/satont/twir/apps/parser/internal/commands/utility"
 	"github.com/satont/twir/apps/parser/internal/commands/vips"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/types/services"
@@ -49,7 +50,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type Commands struct {
@@ -126,6 +126,7 @@ func New(opts *Opts) *Commands {
 			seventv.EmoteRename,
 			seventv.EmoteDelete,
 			seventv.EmoteAdd,
+			seventv.EmoteCopy,
 			clip.MakeClip,
 			marker.Marker,
 			prefix.SetPrefix,
@@ -141,6 +142,7 @@ func New(opts *Opts) *Commands {
 			chat_wall.Timeout,
 			chat_wall.Stop,
 			shorturl.Command,
+			utility.FirstFollowers,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -162,8 +164,6 @@ func (c *Commands) GetChannelCommands(
 	return c.services.CommandsCache.Get(ctx, channelId)
 }
 
-var splittedNameRegexp = regexp.MustCompile(`[^\s]+`)
-
 type FindByMessageResult struct {
 	Cmd     *model.ChannelsCommands
 	FoundBy string
@@ -177,17 +177,17 @@ func (c *Commands) FindChannelCommandInInput(
 	input string,
 	cmds []model.ChannelsCommands,
 ) *FindByMessageResult {
-	msg := strings.ToLower(input)
-	splittedName := splittedNameRegexp.FindAllString(msg, -1)
+	input = strings.ToLower(input)
+	splitName := strings.Fields(input)
 
 	res := FindByMessageResult{}
 
-	length := len(splittedName)
+	length := len(splitName)
 
 	for i := 0; i < length; i++ {
-		query := strings.Join(splittedName, " ")
+		query := strings.Join(splitName, " ")
 		for _, cmd := range cmds {
-			if cmd.Name == query {
+			if strings.ToLower(cmd.Name) == query {
 				res.FoundBy = query
 				res.Cmd = &cmd
 				break
@@ -195,7 +195,7 @@ func (c *Commands) FindChannelCommandInInput(
 
 			if lo.SomeBy(
 				cmd.Aliases, func(item string) bool {
-					return item == query
+					return strings.ToLower(item) == query
 				},
 			) {
 				res.FoundBy = query
@@ -207,7 +207,7 @@ func (c *Commands) FindChannelCommandInInput(
 		if res.Cmd != nil {
 			break
 		} else {
-			splittedName = splittedName[:len(splittedName)-1]
+			splitName = splitName[:len(splitName)-1]
 			continue
 		}
 	}
@@ -241,6 +241,9 @@ func (c *Commands) ParseCommandResponses(
 	// this shit comes from 7tv for bypass message duplicate
 	params = strings.ReplaceAll(params, "\U000e0000", "")
 	params = strings.TrimSpace(params)
+	if params != "" {
+		cmdParams = &params
+	}
 
 	var defaultCommand *types.DefaultCommand
 
@@ -330,21 +333,10 @@ func (c *Commands) ParseCommandResponses(
 				ParseCtxText:    cmdParams,
 			},
 		),
-		Emotes:   emotes,
-		Mentions: mentions,
-		Command:  command.Cmd,
-	}
-
-	channelStream := model.ChannelsStreams{}
-	if err := c.services.Gorm.WithContext(ctx).First(&channelStream).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			c.services.Logger.Sugar().Error(
-				"error happened on getting channel stream",
-				zap.Error(err),
-				zap.String("channel_id", requestData.BroadcasterUserId),
-			)
-			return nil
-		}
+		ChannelStream: requestData.EnrichedData.ChannelStream,
+		Emotes:        emotes,
+		Mentions:      mentions,
+		Command:       command.Cmd,
 	}
 
 	if command.Cmd.Default && defaultCommand != nil {
@@ -404,11 +396,11 @@ func (c *Commands) ParseCommandResponses(
 	} else {
 		responsesForCategory := make([]model.ChannelsCommandsResponses, 0, len(command.Cmd.Responses))
 		for _, r := range command.Cmd.Responses {
-			if len(r.TwitchCategoryIDs) > 0 && channelStream.ID != "" {
+			if len(r.TwitchCategoryIDs) > 0 && requestData.EnrichedData.ChannelStream != nil {
 				if !lo.ContainsBy(
 					r.TwitchCategoryIDs,
 					func(categoryId string) bool {
-						return categoryId == channelStream.GameId
+						return categoryId == requestData.EnrichedData.ChannelStream.GameId
 					},
 				) {
 					continue
@@ -506,14 +498,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	if cmd.Cmd.OnlineOnly {
-		stream := &model.ChannelsStreams{}
-		err = c.services.Gorm.
-			WithContext(ctx).
-			Where(`"userId" = ?`, data.BroadcasterUserId).
-			Find(stream).Error
-		if err != nil {
-			return nil, err
-		}
+		stream := data.EnrichedData.ChannelStream
 		if stream == nil || stream.ID == "" {
 			return nil, nil
 		}

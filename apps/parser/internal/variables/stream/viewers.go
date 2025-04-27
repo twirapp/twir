@@ -17,9 +17,8 @@ var Viewers = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		stream := parseCtx.Cacher.GetChannelStream(ctx)
-		if stream != nil {
-			result.Result = strconv.Itoa(stream.ViewerCount)
+		if parseCtx.ChannelStream != nil {
+			result.Result = strconv.Itoa(parseCtx.ChannelStream.ViewerCount)
 		} else {
 			result.Result = "offline"
 		}
