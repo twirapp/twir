@@ -95,7 +95,7 @@ const archived = computed(() => {
 
 				<div class="flex flex-row gap-1">
 					<Button
-						v-if="!currentGiveaway?.startedAt && !stopped && !ended"
+						v-if="!currentGiveaway?.startedAt && !(!stopped || !ended || !archived)"
 						size="sm"
 						class="flex gap-2 items-center"
 						@click="handleStartGiveaway"
@@ -164,7 +164,7 @@ const archived = computed(() => {
 									@click="handleChooseWinners"
 								>
 									<ShuffleIcon class="size-4" />
-									Choose winners
+									Choose winner
 								</Button>
 							</div>
 							<GiveawaysCurrentGiveawayWinners />

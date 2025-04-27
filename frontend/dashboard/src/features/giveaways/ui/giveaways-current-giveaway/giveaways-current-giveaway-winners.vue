@@ -5,7 +5,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { ChatMessage } from '@/api/chat-messages.ts'
 
 import { useChatMessagesApi } from '@/api/chat-messages.ts'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 
 const { winners } = useGiveaways()
@@ -57,12 +56,12 @@ function handleSelectWinner(winnerId: string) {
 		<!-- Winners content -->
 		<template v-else>
 			<!-- Winners list -->
-			<ScrollArea class="border-b border-border p-2">
+			<div class="border-b border-border p-2">
 				<div class="flex flex-wrap gap-2">
 					<div
 						v-for="winner in winners"
 						:key="winner.userId"
-						class="flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors w-full lg:w-auto"
+						class="flex items-center gap-2 p-1 px-2 rounded-md cursor-pointer transition-colors w-full lg:w-auto"
 						:class="{
 							'bg-muted': winner.userId !== selectedWinnerUserId,
 							'bg-primary text-primary-foreground': winner.userId === selectedWinnerUserId,
@@ -72,15 +71,12 @@ function handleSelectWinner(winnerId: string) {
 						<img
 							:src="winner.twitchProfile.profileImageUrl"
 							:alt="winner.twitchProfile.displayName"
-							class="w-8 h-8 rounded-full"
+							class="size-6 rounded-full"
 						/>
-						<div class="flex flex-col">
-							<span class="font-medium">{{ winner.twitchProfile.displayName }}</span>
-							<span class="text-xs" :class="{ 'text-muted-foreground': winner.userId !== selectedWinnerUserId, 'text-primary-foreground/80': winner.userId === selectedWinnerUserId }">@{{ winner.twitchProfile.login }}</span>
-						</div>
+						<span class="font-medium">{{ winner.twitchProfile.displayName }}</span>
 					</div>
 				</div>
-			</ScrollArea>
+			</div>
 
 			<!-- Winner's chat messages -->
 			<div v-if="selectedWinnerUserId" class="flex-1 flex flex-col">
@@ -91,7 +87,7 @@ function handleSelectWinner(winnerId: string) {
 					</h3>
 				</div>
 
-				<div class="flex-1 relative overflow-auto">
+				<div class="flex-1 overflow-y-auto">
 					<div v-if="isLoadingMessages" class="p-4 text-center text-muted-foreground">
 						Loading messages...
 					</div>

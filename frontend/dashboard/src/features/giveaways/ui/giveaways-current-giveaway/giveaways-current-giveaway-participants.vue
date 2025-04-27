@@ -4,6 +4,7 @@ import { debouncedRef } from '@vueuse/core'
 import { computed, ref, useTemplateRef } from 'vue'
 
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 
 const { participants } = useGiveaways()
@@ -33,6 +34,9 @@ const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
 
 <template>
 	<div class="flex-1 flex flex-col">
+		<div class="p-2 border-b">
+			<Input v-model="searchTerm" placeholder="Search..." class="h-10" />
+		</div>
 		<div ref="participantsRef" class="overflow-auto flex-1">
 			<div
 				:style="{
