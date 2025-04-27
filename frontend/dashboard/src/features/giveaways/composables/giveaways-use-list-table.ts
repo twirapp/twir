@@ -1,6 +1,6 @@
 import { getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
-import { ArchiveIcon, BanIcon, EyeIcon, PlayIcon, PlusIcon } from 'lucide-vue-next'
+import { ArchiveIcon, BanIcon, EyeIcon, PlayIcon } from 'lucide-vue-next'
 import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -9,7 +9,6 @@ import type { ColumnDef } from '@tanstack/vue-table'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 import GiveawaysCreateDialog from '@/features/giveaways/ui/giveaways-create-dialog.vue'
 
@@ -56,22 +55,9 @@ export const useGiveawaysListTable = createGlobalState(() => {
 			{
 				accessorKey: 'actions',
 				size: 40,
-				header: () => h(Dialog, { 'onUpdate:open': (val) => showCreateDialog.value = val, 'open': showCreateDialog.value }, {
-					default: () => [
-						h(DialogTrigger, { asChild: true }, {
-							default: () => h(Button, { size: 'sm', class: 'flex gap-2 items-center' }, {
-								default: () => [
-									h(PlusIcon, { class: 'size-4' }),
-									t('giveaways.createNew'),
-								],
-							}),
-						}),
-						h(GiveawaysCreateDialog, {
-							'open': showCreateDialog.value,
-							'onUpdate:open': (val) => showCreateDialog.value = val,
-						}),
-					],
-				}),
+				header: () => h('div', { class: 'flex justify-end' }, [
+					h(GiveawaysCreateDialog),
+				]),
 				cell: ({ row }) => h('div', { class: 'flex gap-2 justify-end' }, [
 					// View button
 					h(Button, {

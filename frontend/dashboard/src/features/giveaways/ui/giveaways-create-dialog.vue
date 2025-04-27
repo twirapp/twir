@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
+import { PlusIcon } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
-import {
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent ,	DialogDescription,	DialogFooter,	DialogHeader,	DialogTitle,	DialogTrigger } from '@/components/ui/dialog'
 import {
 	FormControl,
 	FormField,
@@ -21,14 +18,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 
-const props = defineProps<{
-	open: boolean
-}>()
-
-const emit = defineEmits<{
-	'update:open': [value: boolean]
-}>()
-
+const { t } = useI18n()
+const open = ref(false)
 const { createGiveaway } = useGiveaways()
 
 // Form validation schema
@@ -52,7 +43,6 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 		const result = await createGiveaway(values.keyword)
 		if (result) {
 			giveawayCreateForm.resetForm()
-			emit('update:open', false)
 		}
 	} catch (error) {
 		console.error(error)
@@ -61,45 +51,54 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 </script>
 
 <template>
-	<DialogContent class="sm:max-w-[425px]">
-		<DialogHeader>
-			<DialogTitle>Create New Giveaway</DialogTitle>
-			<DialogDescription>
-				Enter a keyword for your giveaway. Users will use this keyword to participate.
-			</DialogDescription>
-		</DialogHeader>
+	<Dialog v-model:open="open">
+		<DialogTrigger as-child>
+			<Button size="sm" class="flex gap-2 items-center">
+				<PlusIcon class="size-4" />
+				{{ t('giveaways.createNew') }}
+			</Button>
+		</DialogTrigger>
 
-		<form class="space-y-4" @submit.prevent="handleSubmit">
-			<FormField
-				v-slot="{ componentField, errorMessage }"
-				name="keyword"
-			>
-				<FormItem>
-					<FormLabel>Keyword</FormLabel>
-					<FormControl>
-						<Input
-							placeholder="Enter keyword (e.g. '!giveaway' or 'raffle')"
-							v-bind="componentField"
-						/>
-					</FormControl>
-					<FormMessage>{{ errorMessage }}</FormMessage>
-				</FormItem>
-			</FormField>
+		<DialogContent class="sm:max-w-[425px]">
+			<DialogHeader>
+				<DialogTitle>Create New Giveaway</DialogTitle>
+				<DialogDescription>
+					Enter a keyword for your giveaway. Users will use this keyword to participate.
+				</DialogDescription>
+			</DialogHeader>
 
-			<DialogFooter>
-				<Button
-					type="button"
-					variant="outline"
-					@click="emit('update:open', false)"
+			<form class="space-y-4" @submit.prevent="handleSubmit">
+				<FormField
+					v-slot="{ componentField, errorMessage }"
+					name="keyword"
 				>
-					Cancel
-				</Button>
-				<Button
-					type="submit"
-				>
-					Create
-				</Button>
-			</DialogFooter>
-		</form>
-	</DialogContent>
+					<FormItem>
+						<FormLabel>Keyword</FormLabel>
+						<FormControl>
+							<Input
+								placeholder="Enter keyword (e.g. '!giveaway' or 'raffle')"
+								v-bind="componentField"
+							/>
+						</FormControl>
+						<FormMessage>{{ errorMessage }}</FormMessage>
+					</FormItem>
+				</FormField>
+
+				<DialogFooter>
+					<Button
+						type="button"
+						variant="outline"
+						@click="open = false"
+					>
+						Cancel
+					</Button>
+					<Button
+						type="submit"
+					>
+						Create
+					</Button>
+				</DialogFooter>
+			</form>
+		</dialogcontent>
+	</Dialog>
 </template>
