@@ -1,10 +1,12 @@
 import { useQuery, useSubscription } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
 import { unref } from 'vue'
 
 import type { ChatMessageInput, ChatMessageQuery } from '@/gql/graphql'
 import type { MaybeRef } from 'vue'
 
 import { graphql } from '@/gql/gql'
+import { urqlClient } from '@/plugins/urql'
 
 export type ChatMessage = ChatMessageQuery['chatMessages'][number]
 
@@ -59,3 +61,56 @@ export function useChatMessagesSubscription() {
 		},
 	})
 }
+
+// Global state for chat messages API
+export const useChatMessagesApi = createGlobalState(() => {
+	// Direct query for chat messages
+	const fetchChatMessages = async (input: ChatMessageInput) => {
+		return await urqlClient.value.executeQuery({
+			query: graphql(`
+				query FetchChatMessages($input: ChatMessageInput!) {
+					chatMessages(input: $input) {
+						id
+						channelId
+						channelName
+						channelLogin
+						userID
+						userName
+						userDisplayName
+						userColor
+						text
+						createdAt
+						updatedAt
+					}
+				}
+			`),
+			variables: { input },
+		})
+	}
+
+	// Subscription for new chat messages
+	const subscribeToChatMessages = () => useSubscription({
+		query: graphql(`
+			subscription SubscribeToChatMessages {
+				chatMessages {
+					id
+					channelId
+					channelLogin
+					channelName
+					userID
+					userName
+					userDisplayName
+					userColor
+					text
+					createdAt
+					updatedAt
+				}
+			}
+		`),
+	})
+
+	return {
+		fetchChatMessages,
+		subscribeToChatMessages,
+	}
+})
