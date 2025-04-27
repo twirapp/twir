@@ -2,9 +2,16 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import type { Giveaway, GiveawayParticipant, GiveawayWinner } from '@/api/giveaways.js'
+import type {
+	Giveaway,
+	GiveawayParticipant,
+	GiveawaySubscriptionParticipant,
+	GiveawayWinner,
+} from '@/api/giveaways.js'
 
-import { useGiveawaysApi } from '@/api/giveaways.js'
+import {
+	useGiveawaysApi,
+} from '@/api/giveaways.js'
 import { useToast } from '@/components/ui/toast'
 
 export const useGiveaways = createGlobalState(() => {
@@ -182,7 +189,7 @@ export const useGiveaways = createGlobalState(() => {
 	watch(participantsSubscriptionData, (data) => {
 		if (!data) return
 		const newParticipant = data.giveawaysParticipants
-		const participant = newParticipant as unknown as GiveawayParticipant
+		const participant = newParticipant as unknown as GiveawaySubscriptionParticipant
 
 		const exists = participants.value.some(p => p.userId === participant.userId)
 		if (!exists) {
@@ -191,7 +198,7 @@ export const useGiveaways = createGlobalState(() => {
 				id: `temp-${Date.now()}`,
 				giveawayId: participant.giveawayId,
 				userId: participant.userId,
-				displayName: participant.displayName,
+				displayName: participant.userDisplayName,
 				isWinner: participant.isWinner,
 			})
 		}

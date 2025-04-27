@@ -95,7 +95,7 @@ const archived = computed(() => {
 
 				<div class="flex flex-row gap-1">
 					<Button
-						v-if="!isActive && stopped === null && archived === null"
+						v-if="!currentGiveaway?.startedAt && !stopped && !ended"
 						size="sm"
 						class="flex gap-2 items-center"
 						@click="handleStartGiveaway"
@@ -134,6 +134,9 @@ const archived = computed(() => {
 							<TabsTrigger value="participants" class="flex gap-2">
 								<UsersIcon class="size-4" />
 								Participants
+								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
+									{{ participants.length }}
+								</span>
 							</TabsTrigger>
 							<TabsTrigger value="winners" class="flex gap-2">
 								<TrophyIcon class="size-4" />
@@ -151,7 +154,7 @@ const archived = computed(() => {
 
 					<TabsContent value="winners" class="flex-1 mt-0 border-none">
 						<div class="flex flex-col h-full">
-							<div class="p-2 border-b flex justify-between items-center">
+							<div class="p-2 border-b flex justify-between flex-wrap gap-2 items-center">
 								<span class="text-sm font-medium">Total winners: {{ winners.length }}</span>
 								<Button
 									size="sm"
