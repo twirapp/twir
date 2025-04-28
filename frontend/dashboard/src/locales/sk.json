@@ -61,7 +61,7 @@
     "create": "Vytvoriť",
     "edit": "Upraviť",
     "noData": "Žiadne údaje",
-    "loading": "Loading..."
+    "loading": "Načitávanie..."
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -94,7 +94,7 @@
     "darkTheme": "Tmavá téma",
     "lightTheme": "Svetlá téma",
     "notifications": "Notifikácie",
-    "giveaways": "Giveaways"
+    "giveaways": "Giveawaye"
   },
   "deleteConfirmation": {
     "text": "Naozaj to chceš odstrániť?",
@@ -1201,48 +1201,48 @@
     }
   },
   "giveaways": {
-    "title": "Giveaways",
-    "createNew": "Create New Giveaway",
-    "keyword": "Keyword",
-    "createdAt": "Created At",
-    "startedAt": "Started At",
-    "stoppedAt": "Stopped At",
-    "winners": "Winners",
-    "view": "View",
-    "start": "Start",
-    "stop": "Stop",
+    "title": "Giveawaye",
+    "createNew": "Vytvoriť nový giveaway",
+    "keyword": "Kľúčové slovo",
+    "createdAt": "Vytvorené o",
+    "startedAt": "Začiatok",
+    "stoppedAt": "Koniec",
+    "winners": "Výhercovia",
+    "view": "Zobraziť",
+    "start": "Spustiť",
+    "stop": "Zastaviť",
     "chooseWinner": "Vybrať víťaza",
     "pages": {
       "list": {
-        "title": "Active Giveaways"
+        "title": "Prebiehajuce giveawaye"
       },
       "history": {
-        "title": "Giveaway History"
+        "title": "História giveawayov"
       }
     },
     "createDialog": {
-      "title": "Create New Giveaway",
-      "description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
+      "title": "Vytvoriť nový giveaway",
+      "description": "Zadaj kľúčové slovo pre tvoj giveaway. Používatelia budú používať toto kľúčové slovo na účasť.",
       "keywordLabel": "Kľúčové slovo",
-      "keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
+      "keywordPlaceholder": "Zadaj kľúčové slovo (napr. „!giveaway\" alebo „raffle\")",
       "cancel": "Zrušiť",
-      "create": "Create"
+      "create": "Vytvoriť"
     },
     "notifications": {
-      "created": "Giveaway created",
-      "createdDescription": "Giveaway with keyword \"{keyword}\" has been created",
-      "error": "Error creating giveaway",
-      "winnersChosen": "Winners chosen",
-      "winnersChosenDescription": "{count} winners have been chosen",
-      "errorChoosingWinners": "Error choosing winners"
+      "created": "Giveaway vytvorený",
+      "createdDescription": "Giveaway s kľúčovým slovom '{keyword}' bol vytvorený",
+      "error": "Chyba pri vytváraní giveaway",
+      "winnersChosen": "Víťazi vybraní",
+      "winnersChosenDescription": "{count} víťazov bolo vybraných",
+      "errorChoosingWinners": "Chyba pri výbere víťazov"
     },
     "currentGiveaway": {
-      "totalParticipants": "Total participants: {count}",
-      "totalWinners": "Total winners: {count}",
-      "selectWinner": "Select a winner to view their chat logs and profile",
+      "totalParticipants": "Celkový počet účastníkov: {count}",
+      "totalWinners": "Celkový počet víťazov: {count}",
+      "selectWinner": "Vyber víťaza na zobrazenie jeho záznamov z chatu a profilu",
       "tabs": {
-        "participants": "Participants",
-        "winners": "Winners"
+        "participants": "Účastníci",
+        "winners": "Výhercovia"
       }
     }
   }
