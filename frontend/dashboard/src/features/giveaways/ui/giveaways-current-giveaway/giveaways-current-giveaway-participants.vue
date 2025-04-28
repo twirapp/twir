@@ -36,11 +36,11 @@ const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
 </script>
 
 <template>
-	<div class="flex-1 flex flex-col">
+	<div class="flex-1 flex flex-col h-full min-h-0">
 		<div class="p-2 border-b">
 			<Input v-model="searchTerm" :placeholder="t('sharedTexts.searchPlaceholder')" class="h-10" />
 		</div>
-		<div ref="participantsRef" class="overflow-auto flex-1">
+		<div ref="participantsRef" class="overflow-y-auto h-full flex-1">
 			<div
 				:style="{
 					height: `${totalSize}px`,

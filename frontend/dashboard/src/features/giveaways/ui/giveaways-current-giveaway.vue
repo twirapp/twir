@@ -125,7 +125,7 @@ async function handleChooseWinners() {
 					</div>
 				</CardHeader>
 				<CardContent class="h-[calc(100%-56px)] min-h-0 p-0">
-					<TabsContent value="participants" class="flex-1 mt-0 border-none">
+					<TabsContent value="participants" class="h-full mt-0 border-none">
 						<GiveawaysCurrentGiveawayParticipants />
 					</TabsContent>
 
