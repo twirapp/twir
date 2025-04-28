@@ -1211,7 +1211,7 @@
     "view": "View",
     "start": "Start",
     "stop": "Stop",
-    "chooseWinner": "Choose winner",
+    "chooseWinner": "Vybrať víťaza",
     "pages": {
       "list": {
         "title": "Active Giveaways"
@@ -1223,9 +1223,9 @@
     "createDialog": {
       "title": "Create New Giveaway",
       "description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
-      "keywordLabel": "Keyword",
+      "keywordLabel": "Kľúčové slovo",
       "keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
-      "cancel": "Cancel",
+      "cancel": "Zrušiť",
       "create": "Create"
     },
     "notifications": {
