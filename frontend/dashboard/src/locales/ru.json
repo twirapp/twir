@@ -60,7 +60,8 @@
     "settings": "Настройки",
     "create": "Создать",
     "edit": "Редактировать",
-    "noData": "Нет данных"
+    "noData": "Нет данных",
+    "loading": "Загрузка..."
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -92,7 +93,8 @@
     "lang": "Язык",
     "darkTheme": "Тёмная тема",
     "lightTheme": "Светлая тема",
-    "notifications": "Уведомление"
+    "notifications": "Уведомление",
+    "giveaways": "Розыгрыши"
   },
   "deleteConfirmation": {
     "text": "Вы уверены, что хотите удалить это?",
@@ -1221,6 +1223,52 @@
         "message": "Сообщение"
       },
       "timeout": "сек"
+    }
+  },
+  "giveaways": {
+    "title": "Розыгрыши",
+    "createNew": "Создать новый розыгрыш",
+    "keyword": "Ключевое слово",
+    "createdAt": "Создан",
+    "startedAt": "Начат",
+    "stoppedAt": "Остановлен",
+    "winners": "Победители",
+    "view": "Просмотр",
+    "start": "Начать",
+    "stop": "Остановить",
+    "chooseWinner": "Выбрать победителя",
+    "pages": {
+      "list": {
+        "title": "Активные розыгрыши"
+      },
+      "history": {
+        "title": "История розыгрышей"
+      }
+    },
+    "createDialog": {
+      "title": "Создать новый розыгрыш",
+      "description": "Введите ключевое слово для вашего розыгрыша. Пользователи будут использовать это ключевое слово для участия.",
+      "keywordLabel": "Ключевое слово",
+      "keywordPlaceholder": "Введите ключевое слово (например, '!розыгрыш' или 'раффл')",
+      "cancel": "Отмена",
+      "create": "Создать"
+    },
+    "notifications": {
+      "created": "Розыгрыш создан",
+      "createdDescription": "Розыгрыш с ключевым словом \"{keyword}\" был создан",
+      "error": "Ошибка при создании розыгрыша",
+      "winnersChosen": "Победители выбраны",
+      "winnersChosenDescription": "Выбрано {count} победителей",
+      "errorChoosingWinners": "Ошибка при выборе победителей"
+    },
+    "currentGiveaway": {
+      "totalParticipants": "Всего участников: {count}",
+      "totalWinners": "Всего победителей: {count}",
+      "selectWinner": "Выберите победителя, чтобы просмотреть его чат-логи и профиль",
+      "tabs": {
+        "participants": "Участники",
+        "winners": "Победители"
+      }
     }
   }
 }

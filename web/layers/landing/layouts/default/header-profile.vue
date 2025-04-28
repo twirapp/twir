@@ -23,7 +23,7 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 	<button
 		v-if="!userStore.user"
 		class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
-		@click="userStore.login"
+		@click="() => userStore.login()"
 	>
 		Login
 		<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />

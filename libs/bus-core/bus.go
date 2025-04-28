@@ -10,6 +10,7 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
@@ -28,12 +29,33 @@ type Bus struct {
 	Eval          *evalBus
 	EventSub      *eventSubBus
 	Scheduler     *schedulerBus
+	Giveaways     *giveawaysBus
 	ChatMessages  Queue[twitch.TwitchChatMessage, struct{}]
 	RedemptionAdd Queue[twitch.ActivatedRedemption, struct{}]
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
 	return &Bus{
+		Giveaways: &giveawaysBus{
+			TryAddParticipant: NewNatsQueue[giveaways.TryAddParticipantRequest, struct{}](
+				nc,
+				giveaways.TryAddParticipantSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			ChooseWinner: NewNatsQueue[giveaways.ChooseWinnerRequest, giveaways.ChooseWinnerResponse](
+				nc,
+				giveaways.ChooseWinnerSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			NewParticipants: NewNatsQueue[giveaways.NewParticipant, struct{}](
+				nc,
+				giveaways.NewParticipantsSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+		},
 		AuditLogs: &auditLogsBus{
 			Logs: NewNatsQueue[auditlog.NewAuditLogMessage, struct{}](
 				nc,

@@ -1,24 +1,6 @@
 {
   "name": "twir",
-  "type": "module",
-  "private": true,
   "author": "Satont <satontworldwide@gmail.com>",
-  "engines": {
-    "bun": ">=1.2.9"
-  },
-  "workspaces": [
-    "libs/*",
-    "apps/*",
-    "frontend/*",
-    "web"
-  ],
-  "scripts": {
-    "dev": "bun run cli dev",
-    "build": "bun run cli build",
-    "cli": "go run ./cli/main.go",
-    "lint": "eslint ./frontend",
-    "lint:fix": "eslint . --fix"
-  },
   "devDependencies": {
     "@antfu/eslint-config": "2.14.0",
     "@types/bun": "1.2.2",
@@ -26,6 +8,17 @@
     "@vue/language-server": "2.2.8",
     "rimraf": "5.0.5",
     "typescript": "5.7.3"
+  },
+  "engines": {
+    "bun": ">=1.2.9"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "bun run cli dev",
+    "build": "bun run cli build",
+    "cli": "go run ./cli/main.go",
+    "lint": "eslint ./frontend",
+    "lint:fix": "eslint . --fix"
   },
   "trustedDependencies": [
     "@parcel/watcher",
@@ -35,5 +28,12 @@
     "protobufjs",
     "sharp",
     "vue-demi"
+  ],
+  "type": "module",
+  "workspaces": [
+    "libs/*",
+    "apps/*",
+    "frontend/*",
+    "web"
   ]
 }

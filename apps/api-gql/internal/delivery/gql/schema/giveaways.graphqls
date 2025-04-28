@@ -1,0 +1,65 @@
+extend type Query {
+	giveaways: [ChannelGiveaway!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+	giveaway(giveawayId: String!): ChannelGiveaway!  @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+
+	giveawayParticipants(giveawayId: String!): [ChannelGiveawayParticipants!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+}
+
+extend type Mutation {
+	giveawaysCreate(opts: GiveawaysCreateInput!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysUpdate(id: String!, opts: GiveawaysUpdateInput!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysRemove(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysStart(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysStop(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysChooseWinners(id: String!): [ChannelGiveawayWinner!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+}
+
+extend type Subscription {
+	giveawaysParticipants(giveawayId: String!): ChannelGiveawaySubscriptionParticipant! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+}
+
+input GiveawaysCreateInput {
+	keyword: String! @validate(constraint: "min=3,max=100")
+}
+
+input GiveawaysUpdateInput {
+	startedAt: Time
+	keyword: String
+	stoppedAt: Time
+}
+
+type ChannelGiveaway {
+	id: String!
+	channelId: String!
+	createdAt: Time!
+	updatedAt: Time!
+	startedAt: Time
+	stoppedAt: Time
+	keyword: String!
+	createdByUserId: String!
+
+	winners: [ChannelGiveawayWinner!]! @goField(forceResolver: true)
+}
+
+type ChannelGiveawayWinner {
+	displayName: String!
+	userId: String!
+	userLogin: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+}
+
+type ChannelGiveawayParticipants {
+	displayName: String!
+	userId: String!
+	isWinner: Boolean!
+	id: String!
+	giveawayId: String!
+}
+
+type ChannelGiveawaySubscriptionParticipant {
+	userId: String!
+	userLogin: String!
+	userDisplayName: String!
+	isWinner: Boolean!
+	giveawayId: String!
+}

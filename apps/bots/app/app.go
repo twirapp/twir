@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/libs/baseapp"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
+	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
@@ -37,6 +38,8 @@ import (
 	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
+	giveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
+	giveawaysrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways/pgx"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
@@ -85,6 +88,10 @@ var App = fx.Module(
 			chatwallrepositorypostgres.NewFx,
 			fx.As(new(chatwallrepository.Repository)),
 		),
+		fx.Annotate(
+			giveawaysrepositorypgx.NewFx,
+			fx.As(new(giveawaysrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -103,6 +110,7 @@ var App = fx.Module(
 		workers.New,
 		chatwallcacher.NewEnabledOnly,
 		chatwallcacher.NewSettings,
+		giveawayscache.New,
 		fx.Annotate(
 			mod_task_queue.NewRedisModTaskDistributor,
 			fx.As(new(mod_task_queue.TaskDistributor)),

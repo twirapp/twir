@@ -14,6 +14,7 @@ type GetManyInput struct {
 	TextLike     *string
 	Page         int
 	PerPage      int
+	UserIDs      []string
 }
 
 func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.ChatMessage, error) {
@@ -25,6 +26,7 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.Cha
 			ChannelID:    input.ChannelID,
 			UserNameLike: input.UserNameLike,
 			TextLike:     input.TextLike,
+			UserIDs:      input.UserIDs,
 		},
 	)
 	if err != nil {

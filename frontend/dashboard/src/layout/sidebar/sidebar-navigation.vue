@@ -10,6 +10,7 @@ import {
 	ComponentIcon,
 	Dices,
 	GemIcon,
+	GiftIcon,
 	Import,
 	LayoutDashboard,
 	MessageCircleHeart,
@@ -64,6 +65,7 @@ const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAle
 const canViewGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGames)
 const canViewModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModeration)
 const canViewModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModules)
+const canViewGiveaways = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGiveaways)
 
 const twirSidebarOpenedStates = useLocalStorage<Record<string, boolean>>('twir-sidebar-opened-states', {
 	commands: false,
@@ -195,6 +197,13 @@ const links = computed(() => {
 			icon: Timer,
 			disabled: !canViewTimers.value,
 			path: '/dashboard/timers',
+		},
+		{
+			name: t('sidebar.giveaways'),
+			icon: GiftIcon,
+			disabled: !canViewGiveaways.value,
+			path: '/dashboard/giveaways',
+			isNew: true,
 		},
 		{
 			name: t('sidebar.keywords'),

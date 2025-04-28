@@ -29,4 +29,5 @@ type GetManyInput struct {
 	ChannelID    *string
 	UserNameLike *string
 	TextLike     *string
+	UserIDs      []string
 }

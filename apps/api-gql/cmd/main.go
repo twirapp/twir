@@ -8,21 +8,21 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
+	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
+	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
+	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
@@ -34,7 +34,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
@@ -48,7 +49,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
+	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
@@ -58,6 +59,7 @@ import (
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -123,6 +125,12 @@ import (
 
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+
+	channelsgiveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
+	channelsgiveawaysrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways/pgx"
+
+	channelsgiveawaysparticipantsrepository "github.com/twirapp/twir/libs/repositories/giveaways_participants"
+	channelsgiveawaysparticipantsrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways_participants/pgx"
 	"go.uber.org/fx"
 )
 
@@ -239,6 +247,14 @@ func main() {
 				shortenedurlsrepositorypostgres.NewFx,
 				fx.As(new(shortenedurlsrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsgiveawaysparticipantsrepositorypgx.NewFx,
+				fx.As(new(channelsgiveawaysparticipantsrepository.Repository)),
+			),
+			fx.Annotate(
+				channelsgiveawaysrepositorypgx.NewFx,
+				fx.As(new(channelsgiveawaysrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -277,6 +293,7 @@ func main() {
 			chat_wall.New,
 			chat_translation.New,
 			shortenedurls.New,
+			giveaways.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -300,6 +317,7 @@ func main() {
 			greetingscache.New,
 			commandscache.New,
 			keywordscacher.New,
+			giveawayscache.New,
 			chattranslationssettignscache.New,
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,

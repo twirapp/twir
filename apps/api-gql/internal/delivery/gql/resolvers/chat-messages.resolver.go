@@ -26,6 +26,7 @@ func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMes
 		ChannelID:    &dashboardID,
 		UserNameLike: input.UserNameLike.Value(),
 		TextLike:     input.TextLike.Value(),
+		UserIDs:      input.UserIDIn.Value(),
 	}
 
 	if input.Page.IsSet() {

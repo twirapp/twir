@@ -25,6 +25,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
+	giveawaysmodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	"go.uber.org/fx"
@@ -54,6 +55,7 @@ type Opts struct {
 	ChatWallRepository     chatwallrepository.Repository
 	ChatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 	ChannelsRepository     channelsrepository.Repository
+	GiveawaysCacher        *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 
 	WorkersPool *workers.Pool
 }
@@ -75,6 +77,7 @@ type MessageHandler struct {
 	chatWallCacher         *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
 	chatWallRepository     chatwallrepository.Repository
 	chatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
+	giveawaysCacher        *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 
 	keywordsService *keywords.Service
 	ttsService      *tts.Service
@@ -105,7 +108,9 @@ func New(opts Opts) *MessageHandler {
 		chatWallCacher:         opts.ChatWallCacher,
 		chatWallRepository:     opts.ChatWallRepository,
 		chatWallSettingsCacher: opts.ChatWallSettingsCacher,
-		workersPool:            opts.WorkersPool,
+		giveawaysCacher:        opts.GiveawaysCacher,
+
+		workersPool: opts.WorkersPool,
 	}
 
 	return handler
@@ -132,6 +137,7 @@ var handlersForExecute = []func(
 	(*MessageHandler).handleFirstStreamUserJoin,
 	(*MessageHandler).handleGamesVoteban,
 	(*MessageHandler).handleChatWall,
+	(*MessageHandler).handleGiveaways,
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {

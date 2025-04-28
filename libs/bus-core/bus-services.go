@@ -6,6 +6,7 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
@@ -67,4 +68,11 @@ type eventSubBus struct {
 type schedulerBus struct {
 	CreateDefaultCommands Queue[scheduler.CreateDefaultCommandsRequest, struct{}]
 	CreateDefaultRoles    Queue[scheduler.CreateDefaultRolesRequest, struct{}]
+}
+
+type giveawaysBus struct {
+	TryAddParticipant Queue[giveaways.TryAddParticipantRequest, struct{}]
+	ChooseWinner      Queue[giveaways.ChooseWinnerRequest, giveaways.ChooseWinnerResponse]
+
+	NewParticipants Queue[giveaways.NewParticipant, struct{}]
 }

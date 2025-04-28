@@ -230,7 +230,8 @@ func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gql
 			},
 		)
 		if err != nil {
-			panic(err)
+			r.deps.Logger.Error("subscription", slog.Any("err", err))
+			return
 		}
 		defer func() {
 			sub.Unsubscribe()

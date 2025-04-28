@@ -2,27 +2,43 @@ package users
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/nicklaw5/helix/v2"
+	config "github.com/satont/twir/libs/config"
+	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Opts struct {
 	fx.In
 
 	UsersRepository users.Repository
+	Gorm            *gorm.DB
+	TokensService   tokens.TokensClient
+	Config          config.Config
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		usersRepository: opts.UsersRepository,
+		gorm:            opts.Gorm,
+		tokensService:   opts.TokensService,
+		config:          opts.Config,
 	}
 }
 
 type Service struct {
 	usersRepository users.Repository
+	gorm            *gorm.DB
+	tokensService   tokens.TokensClient
+	config          config.Config
 }
 
 type UpdateInput struct {
@@ -101,4 +117,82 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.Use
 	}
 
 	return entities, nil
+}
+
+type ChannelUserInfoInput struct {
+	ChannelID string
+	UserID    string
+}
+
+func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoInput) (
+	entity.ChannelUserInfo,
+	error,
+) {
+	if input.ChannelID == "" || input.UserID == "" {
+		return entity.ChannelUserInfo{}, fmt.Errorf("channel_id and user_id are required")
+	}
+
+	dbUserInfo := deprecatedgormmodel.Users{}
+	if err := c.gorm.
+		WithContext(ctx).
+		Where("id = ?", input.UserID).
+		Preload("Stats", `"channelId" = ? AND "userId" = ?`, input.ChannelID, input.UserID).
+		First(&dbUserInfo).
+		Error; err != nil {
+		return entity.ChannelUserInfo{}, err
+	}
+
+	info := entity.ChannelUserInfo{
+		ID:                dbUserInfo.ID,
+		Messages:          0,
+		Watched:           0,
+		UsedEmotes:        0,
+		UsedChannelPoints: 0,
+		IsMod:             false,
+		IsVip:             false,
+		IsSubscriber:      false,
+		FollowerSince:     nil,
+	}
+
+	if dbUserInfo.Stats != nil {
+		info.Messages = int(dbUserInfo.Stats.Messages)
+		info.Watched = int(dbUserInfo.Stats.Watched)
+		info.UsedEmotes = dbUserInfo.Stats.Emotes
+		info.UsedChannelPoints = int(dbUserInfo.Stats.UsedChannelPoints)
+		info.IsMod = dbUserInfo.Stats.IsMod
+		info.IsVip = dbUserInfo.Stats.IsVip
+		info.IsSubscriber = dbUserInfo.Stats.IsSubscriber
+	}
+
+	channelTwitchClient, err := twitch.NewUserClientWithContext(
+		ctx,
+		input.ChannelID,
+		c.config,
+		c.tokensService,
+	)
+	if err != nil {
+		return entity.ChannelUserInfo{}, fmt.Errorf("cannot create channel twitch client: %w", err)
+	}
+
+	follows, err := channelTwitchClient.GetChannelFollows(
+		&helix.GetChannelFollowsParams{
+			BroadcasterID: input.ChannelID,
+			UserID:        input.UserID,
+		},
+	)
+	if err != nil {
+		return entity.ChannelUserInfo{}, fmt.Errorf("cannot get channel follows: %w", err)
+	}
+	if follows.ErrorMessage != "" {
+		return entity.ChannelUserInfo{}, fmt.Errorf(
+			"cannot get channel follows: %s",
+			follows.ErrorMessage,
+		)
+	}
+
+	if len(follows.Data.Channels) != 0 {
+		info.FollowerSince = &follows.Data.Channels[0].Followed.Time
+	}
+	
+	return info, nil
 }

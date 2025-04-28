@@ -17,6 +17,7 @@ import (
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"gorm.io/gorm"
 )
 
@@ -33,6 +34,11 @@ func (r *authenticatedUserResolver) SelectedDashboardTwitchUser(ctx context.Cont
 // AvailableDashboards is the resolver for the availableDashboards field.
 func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj *gqlmodel.AuthenticatedUser) ([]gqlmodel.Dashboard, error) {
 	return r.getAvailableDashboards(ctx, obj)
+}
+
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *channelUserInfoResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChannelUserInfo) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
@@ -314,13 +320,50 @@ func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string
 	return url, nil
 }
 
+// ChannelUserInfo is the resolver for the channelUserInfo field.
+func (r *queryResolver) ChannelUserInfo(ctx context.Context, userID string) (*gqlmodel.ChannelUserInfo, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := r.deps.UsersService.GetChannelUserInfo(
+		ctx, users.ChannelUserInfoInput{
+			ChannelID: dashboardID,
+			UserID:    userID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.ChannelUserInfo{
+		UserID:            info.ID,
+		TwitchProfile:     nil,
+		IsMod:             info.IsMod,
+		IsVip:             info.IsVip,
+		IsSubscriber:      info.IsSubscriber,
+		WatchedMs:         info.Watched,
+		Messages:          info.Messages,
+		UsedEmotes:        info.UsedEmotes,
+		UsedChannelPoints: info.UsedChannelPoints,
+		FollowerSince:     info.FollowerSince,
+	}, nil
+}
+
 // AuthenticatedUser returns graph.AuthenticatedUserResolver implementation.
 func (r *Resolver) AuthenticatedUser() graph.AuthenticatedUserResolver {
 	return &authenticatedUserResolver{r}
+}
+
+// ChannelUserInfo returns graph.ChannelUserInfoResolver implementation.
+func (r *Resolver) ChannelUserInfo() graph.ChannelUserInfoResolver {
+	return &channelUserInfoResolver{r}
 }
 
 // Dashboard returns graph.DashboardResolver implementation.
 func (r *Resolver) Dashboard() graph.DashboardResolver { return &dashboardResolver{r} }
 
 type authenticatedUserResolver struct{ *Resolver }
+type channelUserInfoResolver struct{ *Resolver }
 type dashboardResolver struct{ *Resolver }
