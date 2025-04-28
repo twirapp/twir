@@ -12,10 +12,8 @@ func GiveawayEntityTo(e entity.ChannelGiveaway) gqlmodel.ChannelGiveaway {
 		CreatedAt:       e.CreatedAt,
 		UpdatedAt:       e.UpdatedAt,
 		StartedAt:       e.StartedAt,
-		EndedAt:         e.EndedAt,
 		StoppedAt:       e.StoppedAt,
 		Keyword:         e.Keyword,
-		ArchivedAt:      e.ArchivedAt,
 		CreatedByUserID: e.CreatedByUserID,
 	}
 }

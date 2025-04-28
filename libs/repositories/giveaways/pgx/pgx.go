@@ -45,7 +45,7 @@ func (p *Pgx) Create(
 	query := `
 INSERT INTO channels_giveaways ("channel_id", "keyword", "created_by_user_id") VALUES (
 	$1, $2, $3
-) RETURNING id, channel_id, keyword, created_at, updated_at, started_at, ended_at, stopped_at, created_by_user_id, archived_at
+) RETURNING id, channel_id, keyword, created_at, updated_at, started_at, stopped_at, created_by_user_id
 	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -91,9 +91,9 @@ func (p *Pgx) GetByChannelIDAndKeyword(
 	channelID, keyword string,
 ) (model.ChannelGiveaway, error) {
 	query := `
-SELECT id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user_id, archived_at
+SELECT id, channel_id, created_at, updated_at, started_at, stopped_at, keyword, created_by_user_id
 FROM channels_giveaways
-WHERE channel_id = $1 AND keyword = $2 AND archived_at IS NULL
+WHERE channel_id = $1 AND keyword = $2 AND stopped_at IS NULL
 ORDER BY created_at DESC;
 	`
 
@@ -117,7 +117,7 @@ ORDER BY created_at DESC;
 
 func (p *Pgx) GetByID(ctx context.Context, id ulid.ULID) (model.ChannelGiveaway, error) {
 	query := `
-SELECT id, channel_id, created_at, updated_at, started_at, ended_at, stopped_at, keyword, created_by_user_id, archived_at
+SELECT id, channel_id, created_at, updated_at, started_at, stopped_at, keyword, created_by_user_id
 FROM channels_giveaways
 WHERE id = $1
 LIMIT 1;
@@ -152,10 +152,8 @@ func (p *Pgx) GetManyByChannelID(
 		"keyword",
 		"updated_at",
 		"started_at",
-		"ended_at",
 		"created_by_user_id",
 		"stopped_at",
-		"archived_at",
 	).
 		From("channels_giveaways").
 		OrderBy("created_at DESC").
@@ -191,15 +189,13 @@ func (p *Pgx) GetManyActiveByChannelID(
 		"keyword",
 		"updated_at",
 		"started_at",
-		"ended_at",
 		"created_by_user_id",
 		"stopped_at",
-		"archived_at",
 	).
 		From("channels_giveaways").
 		OrderBy("created_at DESC").
 		Where(squirrel.Eq{`"channel_id"`: channelID}).
-		Where(squirrel.Expr("archived_at IS NULL"))
+		Where(squirrel.Expr("stopped_at IS NULL"))
 
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
@@ -227,24 +223,12 @@ func (p *Pgx) UpdateStatuses(
 ) (model.ChannelGiveaway, error) {
 	updateBuilder := sq.Update("channels_giveaways").
 		Where(squirrel.Eq{"id": id.String()}).
-		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, keyword, created_by_user_id, archived_at, stopped_at`)
+		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, keyword, created_by_user_id, stopped_at`)
 
 	if input.StartedAt.Valid {
 		updateBuilder = updateBuilder.Set("started_at", input.StartedAt)
 	} else {
 		updateBuilder = updateBuilder.Set("started_at", nil)
-	}
-
-	if input.EndedAt.Valid {
-		updateBuilder = updateBuilder.Set("ended_at", input.EndedAt)
-	} else {
-		updateBuilder = updateBuilder.Set("ended_at", nil)
-	}
-
-	if input.ArchivedAt.Valid {
-		updateBuilder = updateBuilder.Set("archived_at", input.ArchivedAt)
-	} else {
-		updateBuilder = updateBuilder.Set("archived_at", nil)
 	}
 
 	if input.StoppedAt.Valid {
@@ -279,15 +263,13 @@ func (p *Pgx) Update(
 ) (model.ChannelGiveaway, error) {
 	updateBuilder := sq.Update("channels_giveaways").
 		Where(squirrel.Eq{"id": id.String()}).
-		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, ended_at, keyword, created_by_user_id, archived_at, stopped_at`)
+		Suffix(`RETURNING id, channel_id, created_at, updated_at, started_at, keyword, created_by_user_id, stopped_at`)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,
 		map[string]any{
-			"started_at":  input.StartedAt,
-			"ended_at":    input.EndedAt,
-			"keyword":     input.Keyword,
-			"archived_at": input.ArchivedAt,
-			"stopped_at":  input.StoppedAt,
+			"started_at": input.StartedAt,
+			"keyword":    input.Keyword,
+			"stopped_at": input.StoppedAt,
 		},
 	)
 

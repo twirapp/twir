@@ -16,7 +16,6 @@ const {
 	currentGiveawayId,
 	startGiveaway,
 	stopGiveaway,
-	// archiveGiveaway,
 	chooseWinners,
 	winners,
 } = useGiveaways()
@@ -51,37 +50,11 @@ async function handleStopGiveaway() {
 	}
 }
 
-// async function handleArchiveGiveaway() {
-// 	if (currentGiveawayId.value) {
-// 		await archiveGiveaway(currentGiveawayId.value)
-// 	}
-// }
-
 async function handleChooseWinners() {
 	if (currentGiveawayId.value) {
 		await chooseWinners(currentGiveawayId.value)
 	}
 }
-
-const isActive = computed(() => {
-	return !!(currentGiveaway.value?.startedAt && !currentGiveaway.value?.stoppedAt && !currentGiveaway.value?.endedAt)
-})
-
-const stopped = computed(() => {
-	return currentGiveaway.value?.stoppedAt
-})
-
-// const ended = computed(() => {
-// 	return currentGiveaway.value?.endedAt
-// })
-//
-// const archived = computed(() => {
-// 	return currentGiveaway.value?.archivedAt
-// })
-
-const canBeRunned = computed(() => {
-	return !currentGiveaway.value?.startedAt && !currentGiveaway.value?.stoppedAt && !currentGiveaway.value?.endedAt && !currentGiveaway.value?.archivedAt
-})
 </script>
 
 <template>
@@ -96,7 +69,7 @@ const canBeRunned = computed(() => {
 					</CardTitle>
 					<div class="ml-2 flex flex-row gap-1">
 						<Button
-							v-if="canBeRunned"
+							v-if="!currentGiveaway?.startedAt"
 							size="sm"
 							class="flex gap-2 items-center"
 							@click="handleStartGiveaway"
@@ -106,7 +79,7 @@ const canBeRunned = computed(() => {
 						</Button>
 
 						<Button
-							v-if="isActive && !stopped"
+							v-if="!currentGiveaway?.stoppedAt && currentGiveaway?.startedAt"
 							size="sm"
 							class="flex gap-2 items-center"
 							@click="handleStopGiveaway"

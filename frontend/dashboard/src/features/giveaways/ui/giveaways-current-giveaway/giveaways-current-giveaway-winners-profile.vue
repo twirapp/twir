@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { BubblesIcon, EyeIcon, HeartIcon, MessageSquareIcon, ShieldUserIcon, SmileIcon } from 'lucide-vue-next'
-import { watch } from 'vue'
+import { nextTick, toRef, watch } from 'vue'
 
 import { useChannelUserInfo } from '@/api/users.ts'
 
@@ -8,13 +8,18 @@ const props = defineProps<{
 	userId?: string
 }>()
 
+const userId = toRef(() => props.userId)
+
 const {
 	data: selectedWinnerChannelInformation,
 	executeQuery: refetchWinnerChannelInfo,
-} = useChannelUserInfo(props.userId)
+} = useChannelUserInfo(userId, { manual: true })
 
-watch(() => props.userId, () => {
-	refetchWinnerChannelInfo()
+watch(userId, async () => {
+	await nextTick()
+	await refetchWinnerChannelInfo({ requestPolicy: 'cache-and-network' })
+}, {
+	immediate: true,
 })
 </script>
 

@@ -19,11 +19,9 @@ graphql(`
 		createdAt
 		updatedAt
 		startedAt
-		endedAt
 		stoppedAt
 		keyword
 		createdByUserId
-		archivedAt
 		winners {
 			...GiveawayWinner
 		}
@@ -145,14 +143,6 @@ export const useGiveawaysApi = createGlobalState(() => {
 		}
 	`))
 
-	const useMutationArchiveGiveaway = () => useMutation(graphql(`
-		mutation ArchiveGiveaway($id: String!) {
-			giveawaysArchive(id: $id) {
-				...Giveaway
-			}
-		}
-	`))
-
 	const useMutationChooseWinners = () => useMutation(graphql(`
 		mutation ChooseWinners($id: String!) {
 			giveawaysChooseWinners(id: $id) {
@@ -189,7 +179,6 @@ export const useGiveawaysApi = createGlobalState(() => {
 		useMutationRemoveGiveaway,
 		useMutationStartGiveaway,
 		useMutationStopGiveaway,
-		useMutationArchiveGiveaway,
 		useMutationChooseWinners,
 
 		// Subscriptions

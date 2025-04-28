@@ -34,16 +34,12 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
-	StartedAt  *time.Time
-	EndedAt    *time.Time
-	Keyword    *string
-	ArchivedAt *time.Time
-	StoppedAt  *time.Time
+	StartedAt *time.Time
+	Keyword   *string
+	StoppedAt *time.Time
 }
 
 type UpdateStatusInput struct {
-	StartedAt  null.Time
-	EndedAt    null.Time
-	ArchivedAt null.Time
-	StoppedAt  null.Time
+	StartedAt null.Time
+	StoppedAt null.Time
 }

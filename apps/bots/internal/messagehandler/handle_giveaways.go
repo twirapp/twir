@@ -39,16 +39,6 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage)
 			continue
 		}
 
-		if giveaway.EndedAt != nil {
-			_ = c.giveawaysCacher.Invalidate(ctx, msg.BroadcasterUserId)
-			continue
-		}
-
-		if giveaway.ArchivedAt != nil {
-			_ = c.giveawaysCacher.Invalidate(ctx, msg.BroadcasterUserId)
-			continue
-		}
-
 		if !strings.Contains(strings.ToLower(msg.Message.Text), strings.ToLower(giveaway.Keyword)) {
 			return nil
 		}

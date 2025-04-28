@@ -1,13 +1,12 @@
 import { getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
-import { ArchiveIcon, BanIcon, EyeIcon, PlayIcon } from 'lucide-vue-next'
+import { BanIcon, EyeIcon, PlayIcon } from 'lucide-vue-next'
 import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { Giveaway } from '@/api/giveaways.ts'
 import type { ColumnDef } from '@tanstack/vue-table'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 import GiveawaysCreateDialog from '@/features/giveaways/ui/giveaways-create-dialog.vue'
@@ -20,7 +19,6 @@ export const useGiveawaysListTable = createGlobalState(() => {
 		viewGiveaway,
 		startGiveaway,
 		stopGiveaway,
-		archiveGiveaway,
 	} = useGiveaways()
 
 	const showCreateDialog = ref(false)
@@ -33,11 +31,11 @@ export const useGiveawaysListTable = createGlobalState(() => {
 				header: () => h('div', {}, t('giveaways.keyword')),
 				cell: ({ row }) => h('div', { class: 'flex items-center gap-2' }, [
 					h('span', {}, row.original.keyword),
-					row.original.startedAt && !row.original.stoppedAt && !row.original.endedAt
-						? h(Badge, { variant: 'success' }, () => 'Active')
-						: row.original.stoppedAt
-							? h(Badge, { variant: 'secondary' }, () => 'Stopped')
-							: h(Badge, { variant: 'outline' }, () => 'Created'),
+					// row.original.startedAt && !row.original.stoppedAt && !row.original.endedAt
+					// 	? h(Badge, { variant: 'success' }, () => 'Active')
+					// 	: row.original.stoppedAt
+					// 		? h(Badge, { variant: 'secondary' }, () => 'Stopped')
+					// 		: h(Badge, { variant: 'outline' }, () => 'Created'),
 				]),
 			},
 			{
@@ -101,19 +99,6 @@ export const useGiveawaysListTable = createGlobalState(() => {
 							],
 						})
 						: null,
-
-					// Archive button
-					h(Button, {
-						size: 'sm',
-						variant: 'destructive',
-						class: 'flex gap-2 items-center',
-						onClick: () => archiveGiveaway(row.original.id),
-					}, {
-						default: () => [
-							h(ArchiveIcon, { class: 'size-4' }),
-							t('giveaways.archive'),
-						],
-					}),
 				]),
 			},
 		]

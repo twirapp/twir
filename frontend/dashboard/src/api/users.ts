@@ -5,7 +5,7 @@ import type { MaybeRef } from 'vue'
 
 import { graphql } from '@/gql'
 
-export function useChannelUserInfo(userId: MaybeRef<string | null | undefined>) {
+export function useChannelUserInfo(userId: MaybeRef<string | null | undefined>, opts?: { manual?: boolean }) {
 	return useQuery({
 		query: graphql(`
 			query ChannelUserInfo($userId: String!) {
@@ -29,10 +29,15 @@ export function useChannelUserInfo(userId: MaybeRef<string | null | undefined>) 
 			}
 	`),
 		get variables() {
+			const id = unref(userId)
+			if (!id) {
+				throw new Error('userId is not set')
+			}
+
 			return {
-				userId: unref(userId)!,
+				userId: id,
 			}
 		},
-		pause: !!unref(userId),
+		pause: opts?.manual ?? false,
 	})
 }

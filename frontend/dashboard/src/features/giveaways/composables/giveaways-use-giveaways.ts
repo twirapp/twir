@@ -31,11 +31,11 @@ export const useGiveaways = createGlobalState(() => {
 	})
 
 	const activeGiveaways = computed<Giveaway[]>(() => {
-		return giveawaysList.value.filter(g => !g.archivedAt && !g.endedAt)
+		return giveawaysList.value.filter(g => !g.stoppedAt)
 	})
 
 	const archivedGiveaways = computed<Giveaway[]>(() => {
-		return giveawaysList.value.filter(g => g.archivedAt || g.endedAt)
+		return giveawaysList.value.filter(g => g.stoppedAt)
 	})
 
 	const currentGiveaway = computed(() => {
@@ -47,7 +47,6 @@ export const useGiveaways = createGlobalState(() => {
 	const createGiveawayMutation = giveawaysApi.useMutationCreateGiveaway()
 	const startGiveawayMutation = giveawaysApi.useMutationStartGiveaway()
 	const stopGiveawayMutation = giveawaysApi.useMutationStopGiveaway()
-	const archiveGiveawayMutation = giveawaysApi.useMutationArchiveGiveaway()
 	const chooseWinnersMutation = giveawaysApi.useMutationChooseWinners()
 
 	// Actions
@@ -108,27 +107,6 @@ export const useGiveaways = createGlobalState(() => {
 			toast({
 				variant: 'destructive',
 				title: 'Error stopping giveaway',
-				description: error instanceof Error ? error.message : 'Unknown error',
-			})
-			return null
-		}
-	}
-
-	async function archiveGiveaway(id: string) {
-		try {
-			const result = await archiveGiveawayMutation.executeMutation({ id })
-			if (result.error) {
-				throw new Error(result.error.message)
-			}
-			toast({
-				title: 'Giveaway archived',
-				description: 'The giveaway has been archived successfully',
-			})
-			return result.data?.giveawaysArchive
-		} catch (error) {
-			toast({
-				variant: 'destructive',
-				title: 'Error archiving giveaway',
 				description: error instanceof Error ? error.message : 'Unknown error',
 			})
 			return null
@@ -225,7 +203,6 @@ export const useGiveaways = createGlobalState(() => {
 		createGiveaway,
 		startGiveaway,
 		stopGiveaway,
-		archiveGiveaway,
 		chooseWinners,
 		viewGiveaway,
 		loadParticipants,

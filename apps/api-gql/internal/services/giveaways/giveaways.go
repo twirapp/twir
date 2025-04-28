@@ -108,14 +108,6 @@ func (c *Service) Start(
 		return entity.ChannelGiveawayNil, fmt.Errorf("Giveaway doesnt exists")
 	}
 
-	if dbGiveaway.ArchivedAt != nil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot run archived giveaway")
-	}
-
-	if dbGiveaway.EndedAt != nil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot run ended giveaway")
-	}
-
 	if dbGiveaway.StoppedAt != nil {
 		dbGiveaway, err = c.GiveawayUpdateStatus(
 			ctx,
@@ -170,14 +162,6 @@ func (c *Service) Stop(
 		return entity.ChannelGiveawayNil, fmt.Errorf("Giveaway doesnt exists")
 	}
 
-	if dbGiveaway.ArchivedAt != nil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot stop archived giveaway")
-	}
-
-	if dbGiveaway.EndedAt != nil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot stop ended giveaway")
-	}
-
 	if dbGiveaway.StartedAt == nil {
 		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot stop not started giveaway")
 	}
@@ -213,10 +197,6 @@ func (c *Service) ChooseWinners(
 
 	if dbGiveaway == entity.ChannelGiveawayNil {
 		return nil, fmt.Errorf("Giveaway doesnt exists")
-	}
-
-	if dbGiveaway.ArchivedAt != nil {
-		return nil, fmt.Errorf("Cannot choose winners for archived giveaways")
 	}
 
 	winners, err := c.twirBus.Giveaways.ChooseWinner.Request(
@@ -350,30 +330,6 @@ func (c *Service) GiveawaysGetMany(
 	return mappedGiveaways, nil
 }
 
-func (c *Service) ArchiveGiveaway(
-	ctx context.Context,
-	giveawayID ulid.ULID,
-	channelID string,
-) (entity.ChannelGiveaway, error) {
-	giveaway, err := c.giveawaysRepository.UpdateStatuses(
-		ctx,
-		giveawayID,
-		giveaways.UpdateStatusInput{
-			ArchivedAt: null.NewTime(time.Now(), true),
-		},
-	)
-	if err != nil {
-		return entity.ChannelGiveawayNil, err
-	}
-
-	err = c.updateGiveawaysCacheForChannel(ctx, channelID)
-	if err != nil {
-		return entity.ChannelGiveawayNil, err
-	}
-
-	return c.giveawayModelToEntity(giveaway), nil
-}
-
 func (c *Service) GiveawayRemove(
 	ctx context.Context,
 	giveawayID ulid.ULID,
@@ -390,11 +346,9 @@ func (c *Service) GiveawayRemove(
 }
 
 type UpdateInput struct {
-	StartedAt  *time.Time
-	EndedAt    *time.Time
-	Keyword    *string
-	ArchivedAt *time.Time
-	StoppedAt  *time.Time
+	StartedAt *time.Time
+	Keyword   *string
+	StoppedAt *time.Time
 }
 
 func (c *Service) GiveawayUpdate(
@@ -405,11 +359,9 @@ func (c *Service) GiveawayUpdate(
 ) (entity.ChannelGiveaway, error) {
 	dbGiveaway, err := c.giveawaysRepository.Update(
 		ctx, giveawayID, giveaways.UpdateInput{
-			StartedAt:  input.StartedAt,
-			EndedAt:    input.EndedAt,
-			Keyword:    input.Keyword,
-			ArchivedAt: input.ArchivedAt,
-			StoppedAt:  input.StoppedAt,
+			StartedAt: input.StartedAt,
+			Keyword:   input.Keyword,
+			StoppedAt: input.StoppedAt,
 		},
 	)
 	if err != nil {
@@ -425,10 +377,8 @@ func (c *Service) GiveawayUpdate(
 }
 
 type UpdateStatusInput struct {
-	StartedAt  null.Time
-	EndedAt    null.Time
-	ArchivedAt null.Time
-	StoppedAt  null.Time
+	StartedAt null.Time
+	StoppedAt null.Time
 }
 
 func (c *Service) GiveawayUpdateStatus(
@@ -441,10 +391,8 @@ func (c *Service) GiveawayUpdateStatus(
 		ctx,
 		giveawayID,
 		giveaways.UpdateStatusInput{
-			StartedAt:  input.StartedAt,
-			EndedAt:    input.EndedAt,
-			ArchivedAt: input.ArchivedAt,
-			StoppedAt:  input.StoppedAt,
+			StartedAt: input.StartedAt,
+			StoppedAt: input.StoppedAt,
 		},
 	)
 	if err != nil {
@@ -466,10 +414,8 @@ func (c *Service) giveawayModelToEntity(m giveawaysmodel.ChannelGiveaway) entity
 		CreatedAt:       m.CreatedAt,
 		UpdatedAt:       m.UpdatedAt,
 		StartedAt:       m.StartedAt,
-		EndedAt:         m.EndedAt,
 		Keyword:         m.Keyword,
 		CreatedByUserID: m.CreatedByUserID,
-		ArchivedAt:      m.ArchivedAt,
 		StoppedAt:       m.StoppedAt,
 	}
 }

@@ -12,10 +12,8 @@ type ChannelGiveaway struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	StartedAt       *time.Time
-	EndedAt         *time.Time
 	Keyword         string
 	CreatedByUserID string
-	ArchivedAt      *time.Time
 	StoppedAt       *time.Time
 }
 

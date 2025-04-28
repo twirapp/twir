@@ -176,7 +176,7 @@ func (c *Service) ChooseWinner(
 				txCtx,
 				winner.GiveawayID,
 				giveaways.UpdateStatusInput{
-					EndedAt: null.NewTime(time.Now(), true),
+					StoppedAt: null.NewTime(time.Now(), true),
 				},
 			)
 			if err != nil {

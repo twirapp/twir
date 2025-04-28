@@ -11,7 +11,6 @@ extend type Mutation {
 	giveawaysRemove(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 	giveawaysStart(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 	giveawaysStop(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
-	giveawaysArchive(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 	giveawaysChooseWinners(id: String!): [ChannelGiveawayWinner!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 }
 
@@ -25,9 +24,7 @@ input GiveawaysCreateInput {
 
 input GiveawaysUpdateInput {
 	startedAt: Time
-	endedAt: Time
 	keyword: String
-	archivedAt: Time
 	stoppedAt: Time
 }
 
@@ -37,11 +34,9 @@ type ChannelGiveaway {
 	createdAt: Time!
 	updatedAt: Time!
 	startedAt: Time
-	endedAt: Time
 	stoppedAt: Time
 	keyword: String!
 	createdByUserId: String!
-	archivedAt: Time
 
 	winners: [ChannelGiveawayWinner!]! @goField(forceResolver: true)
 }
