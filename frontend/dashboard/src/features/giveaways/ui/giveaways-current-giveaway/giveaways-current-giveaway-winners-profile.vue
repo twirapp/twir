@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { BubblesIcon, EyeIcon, HeartIcon, MessageSquareIcon, ShieldUserIcon, SmileIcon } from 'lucide-vue-next'
-import { nextTick, toRef, watch } from 'vue'
+import { BubblesIcon, EyeIcon, GemIcon, HeartIcon, MessageSquareIcon, ShieldUserIcon, SmileIcon, SwordIcon } from 'lucide-vue-next'
+import { computed, nextTick, toRef, watch } from 'vue'
 
 import { useChannelUserInfo } from '@/api/users.ts'
 
@@ -21,68 +21,99 @@ watch(userId, async () => {
 }, {
 	immediate: true,
 })
+
+const ONE_HOUR = 60 * 60 * 1000
+
+const userHaveSomeRole = computed(() => {
+	const info = selectedWinnerChannelInformation?.value?.channelUserInfo
+	if (!info) return false
+
+	return info.isMod || info.isVip || info.isSubscriber
+})
 </script>
 
 <template>
-	<div v-if="selectedWinnerChannelInformation" class="shrink-0 p-2 border-b border-border flex flex-col space-y-1">
-		<div class="flex">
-			<h3 class="text-sm font-medium flex items-center gap-2">
-				<MessageSquareIcon class="size-4" />
-				Total messages
-			</h3>
-			<div class="ml-auto">
-				{{ selectedWinnerChannelInformation.channelUserInfo.messages }}
-			</div>
-		</div>
-		<div class="flex">
-			<h3 class="text-sm font-medium flex items-center gap-2">
-				<EyeIcon class="size-4" />
-				Watched time
-			</h3>
-			<div class="ml-auto">
-				{{ selectedWinnerChannelInformation.channelUserInfo.watchedMs }}
-			</div>
-		</div>
-		<div class="flex">
-			<h3 class="text-sm font-medium flex items-center gap-2">
-				<SmileIcon class="size-4" />
-				Used emotes
-			</h3>
-			<div class="ml-auto">
-				{{ selectedWinnerChannelInformation.channelUserInfo.usedEmotes }}
-			</div>
-		</div>
-		<div class="flex">
-			<h3 class="text-sm font-medium flex items-center gap-2">
-				<BubblesIcon class="size-4" />
-				Used channel points
-			</h3>
-			<div class="ml-auto">
-				{{ selectedWinnerChannelInformation.channelUserInfo.usedChannelPoints }}
-			</div>
-		</div>
-		<div class="flex">
-			<h3 class="text-sm font-medium flex items-center gap-2">
-				<ShieldUserIcon class="size-4" />
-				Roles
-			</h3>
-			<div class="ml-auto flex gap-0.5">
-				<span v-if="selectedWinnerChannelInformation.channelUserInfo.isMod" class="font-light">MOD</span>
-				<span v-if="selectedWinnerChannelInformation.channelUserInfo.isVip" class="font-light">VIP</span>
-				<span v-if="selectedWinnerChannelInformation.channelUserInfo.isSubscriber" class="font-light">SUB</span>
-			</div>
-		</div>
-		<div class="flex">
-			<h3 class="text-sm font-medium flex items-center gap-2">
-				<HeartIcon class="size-4" />
-				Follower since
-			</h3>
-			<div class="ml-auto">
-				<span v-if="selectedWinnerChannelInformation.channelUserInfo.followerSince">
-					{{ new Date(selectedWinnerChannelInformation.channelUserInfo.followerSince).toLocaleString() }}
-				</span>
-				<span v-else class="font-light text-muted-foreground">Not a follower</span>
-			</div>
-		</div>
+	<div class="p-2 border-b border-border">
+		<table class="table-auto w-full">
+			<tbody>
+				<tr>
+					<td class="table-td">
+						<MessageSquareIcon class="size-4" />
+						Total messages
+					</td>
+					<td>
+						{{ selectedWinnerChannelInformation?.channelUserInfo.messages }}
+					</td>
+				</tr>
+				<tr>
+					<td class="table-td">
+						<EyeIcon class="size-4" />
+						Watched time
+					</td>
+					<td>
+						{{ `${(Number(selectedWinnerChannelInformation?.channelUserInfo.watchedMs) / ONE_HOUR).toFixed(1)}h` }}
+					</td>
+				</tr>
+				<tr>
+					<td class="table-td">
+						<SmileIcon class="size-4" />
+						Used emotes
+					</td>
+					<td>
+						{{ selectedWinnerChannelInformation?.channelUserInfo.usedEmotes }}
+					</td>
+				</tr>
+				<tr>
+					<td class="table-td">
+						<BubblesIcon class="size-4" />
+						Used channel points
+					</td>
+					<td>
+						{{ selectedWinnerChannelInformation?.channelUserInfo.usedChannelPoints }}
+					</td>
+				</tr>
+				<tr>
+					<td class="table-td">
+						<ShieldUserIcon class="size-4" />
+						Roles
+					</td>
+					<td>
+						<div class="flex gap-0.5">
+							<span v-if="!userHaveSomeRole" class="font-light text-muted-foreground">
+								No roles
+							</span>
+
+							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isMod" class="font-light">
+								<SwordIcon class="size-4" />
+								MOD
+							</span>
+							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isVip" class="font-light">
+								<GemIcon class="size-4" />
+								VIP
+							</span>
+							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isSubscriber" class="font-light">SUB</span>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td class="table-td">
+						<HeartIcon class="size-4" />
+						Follower since
+					</td>
+					<td>
+						<span v-if="selectedWinnerChannelInformation?.channelUserInfo.followerSince">
+							{{ new Date(selectedWinnerChannelInformation.channelUserInfo.followerSince).toLocaleString() }}
+						</span>
+						<span v-else class="font-light text-muted-foreground">Not a follower</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </template>
+
+<style scoped>
+.table-td {
+	@apply text-sm font-medium inline-flex items-center gap-2
+}
+</style>

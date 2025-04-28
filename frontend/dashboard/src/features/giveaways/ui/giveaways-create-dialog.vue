@@ -6,6 +6,9 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
+import type { Giveaway } from '@/api/giveaways.ts'
+
+import { useUserAccessFlagChecker } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent ,	DialogDescription,	DialogFooter,	DialogHeader,	DialogTitle,	DialogTrigger } from '@/components/ui/dialog'
 import {
@@ -17,10 +20,13 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.ts'
 
 const { t } = useI18n()
 const open = ref(false)
-const { createGiveaway } = useGiveaways()
+const { createGiveaway, viewGiveaway } = useGiveaways()
+
+const canManageGiveaways = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGiveaways)
 
 // Form validation schema
 const formSchema = toTypedSchema(z.object({
@@ -43,6 +49,7 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 		const result = await createGiveaway(values.keyword)
 		if (result) {
 			giveawayCreateForm.resetForm()
+			viewGiveaway((result as Giveaway).id)
 		}
 	} catch (error) {
 		console.error(error)
@@ -53,7 +60,7 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 <template>
 	<Dialog v-model:open="open">
 		<DialogTrigger as-child>
-			<Button size="sm" class="flex gap-2 items-center">
+			<Button size="sm" class="flex gap-2 items-center" :disabled="!canManageGiveaways">
 				<PlusIcon class="size-4" />
 				{{ t('giveaways.createNew') }}
 			</Button>

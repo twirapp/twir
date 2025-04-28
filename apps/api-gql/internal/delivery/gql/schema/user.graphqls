@@ -2,7 +2,7 @@ extend type Query {
 	authenticatedUser: AuthenticatedUser! @isAuthenticated
 	userPublicSettings(userId: String): PublicSettings!
 	authLink(redirectTo: String!): String!
-	channelUserInfo(userId: String!): ChannelUserInfo!
+	channelUserInfo(userId: String!): ChannelUserInfo! @isAuthenticated
 }
 
 extend type Mutation {

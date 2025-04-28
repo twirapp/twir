@@ -7,9 +7,11 @@ import { useI18n } from 'vue-i18n'
 import type { Giveaway } from '@/api/giveaways.ts'
 import type { ColumnDef } from '@tanstack/vue-table'
 
+import { useUserAccessFlagChecker } from '@/api'
 import { Button } from '@/components/ui/button'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 import GiveawaysCreateDialog from '@/features/giveaways/ui/giveaways-create-dialog.vue'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.ts'
 
 export const useGiveawaysListTable = createGlobalState(() => {
 	const { t } = useI18n()
@@ -20,6 +22,8 @@ export const useGiveawaysListTable = createGlobalState(() => {
 		startGiveaway,
 		stopGiveaway,
 	} = useGiveaways()
+
+	const canManageGiveaways = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGiveaways)
 
 	const showCreateDialog = ref(false)
 
@@ -76,6 +80,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 							size: 'sm',
 							variant: 'default',
 							class: 'flex gap-2 items-center',
+							disabled: !canManageGiveaways.value,
 							onClick: () => startGiveaway(row.original.id),
 						}, {
 							default: () => [
@@ -91,6 +96,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 							size: 'sm',
 							variant: 'secondary',
 							class: 'flex gap-2 items-center',
+							disabled: !canManageGiveaways.value,
 							onClick: () => stopGiveaway(row.original.id),
 						}, {
 							default: () => [

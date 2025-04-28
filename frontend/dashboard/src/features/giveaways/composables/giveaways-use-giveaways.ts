@@ -119,7 +119,7 @@ export const useGiveaways = createGlobalState(() => {
 			if (result.error) {
 				throw new Error(result.error.message)
 			}
-			winners.value = result.data?.giveawaysChooseWinners as GiveawayWinner[] || []
+			winners.value.push(...result.data?.giveawaysChooseWinners as GiveawayWinner[] || [])
 			toast({
 				title: 'Winners chosen',
 				description: `${winners.value.length} winners have been chosen`,
@@ -188,11 +188,21 @@ export const useGiveaways = createGlobalState(() => {
 		currentGiveawayId.value = giveawayId
 	}
 
+	const participantsWithFixedWinners = computed(() => {
+		return participants.value.map((p) => {
+			const isWinner = winners.value.some(w => w.userId === p.userId)
+			return {
+				...p,
+				isWinner,
+			}
+		})
+	})
+
 	return {
 		// State
 		giveawaysList,
 		giveawaysListFetching,
-		participants,
+		participants: participantsWithFixedWinners,
 		winners,
 		currentGiveawayId,
 		currentGiveaway,

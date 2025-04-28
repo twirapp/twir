@@ -87,7 +87,7 @@ function handleSelectWinner(winnerId: string) {
 				<div class="shrink-0 p-2 border-b border-border">
 					<h3 class="text-sm font-medium flex items-center gap-2">
 						<MessageSquareIcon class="size-4" />
-						Chat messages
+						Logs
 					</h3>
 				</div>
 
@@ -114,7 +114,7 @@ function handleSelectWinner(winnerId: string) {
 			</div>
 
 			<div v-else class="flex-1 flex items-center justify-center text-muted-foreground">
-				Select a winner to view their chat messages
+				Select a winner to view their chat logs and profile
 			</div>
 		</template>
 	</div>
