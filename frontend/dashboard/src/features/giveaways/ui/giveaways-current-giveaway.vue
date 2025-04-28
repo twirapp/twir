@@ -86,7 +86,7 @@ const canBeRunned = computed(() => {
 
 <template>
 	<div class="flex flex-row flex-wrap-reverse gap-4 h-[98dvh] p-4">
-		<Card class="flex-1 h-full">
+		<Card class="flex-1 h-full min-h-0">
 			<Tabs v-model="activeTab" class="h-full flex flex-col">
 				<CardHeader class="flex-row items-center p-2 justify-between border-b border-border border-solid">
 					<CardTitle class="flex items-center">
@@ -149,12 +149,12 @@ const canBeRunned = computed(() => {
 						</TabsList>
 					</div>
 				</CardHeader>
-				<CardContent class="h-[calc(100%-56px)] p-0">
+				<CardContent class="h-[calc(100%-56px)] min-h-0 p-0">
 					<TabsContent value="participants" class="flex-1 mt-0 border-none">
 						<GiveawaysCurrentGiveawayParticipants />
 					</TabsContent>
 
-					<TabsContent value="winners" class="flex-1 mt-0 border-none">
+					<TabsContent value="winners" class="mt-0 h-full border-none">
 						<div class="flex flex-col h-full">
 							<div class="p-2 border-b flex justify-between flex-wrap gap-2 items-center">
 								<span class="text-sm font-medium">Total winners: {{ winners.length }}</span>

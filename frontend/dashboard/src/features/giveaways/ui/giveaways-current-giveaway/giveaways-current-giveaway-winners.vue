@@ -42,7 +42,7 @@ function handleSelectWinner(winnerId: string) {
 </script>
 
 <template>
-	<div class="flex flex-col h-full">
+	<div class="flex flex-col h-full min-h-0">
 		<!-- No winners message -->
 		<div v-if="winners.length === 0" class="flex-1 flex items-center justify-center flex-col gap-4 p-4 text-muted-foreground">
 			<div class="text-center">
@@ -56,7 +56,7 @@ function handleSelectWinner(winnerId: string) {
 		<!-- Winners content -->
 		<template v-else>
 			<!-- Winners list -->
-			<div class="border-b border-border p-2">
+			<div class="border-b shrink-0 border-border p-2">
 				<div class="flex flex-wrap gap-2">
 					<div
 						v-for="winner in winners"
@@ -79,15 +79,15 @@ function handleSelectWinner(winnerId: string) {
 			</div>
 
 			<!-- Winner's chat messages -->
-			<div v-if="selectedWinnerUserId" class="flex-1 flex flex-col">
-				<div class="p-2 border-b border-border">
+			<div v-if="selectedWinnerUserId" class="h-0 min-h-0 flex-1 flex flex-col">
+				<div class="shrink-0 p-2 border-b border-border">
 					<h3 class="text-sm font-medium flex items-center gap-2">
 						<MessageSquareIcon class="size-4" />
 						Chat messages
 					</h3>
 				</div>
 
-				<div class="flex-1 overflow-y-auto">
+				<div class="flex-1 overflow-y-auto h-full">
 					<div v-if="isLoadingMessages" class="p-4 text-center text-muted-foreground">
 						Loading messages...
 					</div>
