@@ -2,10 +2,13 @@
 import { useVirtualizer } from '@tanstack/vue-virtual'
 import { debouncedRef } from '@vueuse/core'
 import { computed, ref, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
+
+const { t } = useI18n()
 
 const { participants } = useGiveaways()
 
@@ -35,7 +38,7 @@ const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
 <template>
 	<div class="flex-1 flex flex-col">
 		<div class="p-2 border-b">
-			<Input v-model="searchTerm" placeholder="Search..." class="h-10" />
+			<Input v-model="searchTerm" :placeholder="t('sharedTexts.searchPlaceholder')" class="h-10" />
 		</div>
 		<div ref="participantsRef" class="overflow-auto flex-1">
 			<div
@@ -61,7 +64,7 @@ const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
 				>
 					<span>{{ filteredParticipants[virtualRow.index].displayName }}</span>
 					<Badge v-if="filteredParticipants[virtualRow.index].isWinner" variant="success">
-						Winner
+						{{ t('giveaways.currentGiveaway.tabs.winners') }}
 					</Badge>
 				</div>
 			</div>

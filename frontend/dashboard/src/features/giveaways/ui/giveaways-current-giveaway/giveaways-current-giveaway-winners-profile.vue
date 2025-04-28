@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BubblesIcon, EyeIcon, GemIcon, HeartIcon, MessageSquareIcon, ShieldUserIcon, SmileIcon, SwordIcon } from 'lucide-vue-next'
+import { BubblesIcon, EyeIcon, HeartIcon, MessageSquareIcon, ShieldUserIcon, SmileIcon } from 'lucide-vue-next'
 import { computed, nextTick, toRef, watch } from 'vue'
 
 import { useChannelUserInfo } from '@/api/users.ts'
@@ -84,11 +84,9 @@ const userHaveSomeRole = computed(() => {
 							</span>
 
 							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isMod" class="font-light">
-								<SwordIcon class="size-4" />
 								MOD
 							</span>
 							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isVip" class="font-light">
-								<GemIcon class="size-4" />
 								VIP
 							</span>
 							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isSubscriber" class="font-light">SUB</span>

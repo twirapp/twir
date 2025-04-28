@@ -39,7 +39,7 @@ const tabs: PageLayoutTab[] = [
 	<!-- Otherwise show the main giveaways page with tabs -->
 	<PageLayout v-else :tabs="tabs" active-tab="list">
 		<template #title>
-			Giveaways
+			{{ t('giveaways.title') }}
 		</template>
 	</PageLayout>
 </template>

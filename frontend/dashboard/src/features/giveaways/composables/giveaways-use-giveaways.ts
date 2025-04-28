@@ -1,5 +1,6 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import type {
@@ -19,6 +20,7 @@ export const useGiveaways = createGlobalState(() => {
 	const { data: giveaways, fetching: giveawaysListFetching } = giveawaysApi.useGiveawaysList()
 	const router = useRouter()
 	const { toast } = useToast()
+	const { t } = useI18n()
 
 	// Current giveaway state
 	const currentGiveawayId = ref<string | null>(null)
@@ -57,14 +59,14 @@ export const useGiveaways = createGlobalState(() => {
 				throw new Error(result.error.message)
 			}
 			toast({
-				title: 'Giveaway created',
-				description: `Giveaway with keyword "${keyword}" has been created`,
+				title: t('giveaways.notifications.created'),
+				description: t('giveaways.notifications.createdDescription', { keyword }),
 			})
 			return result.data?.giveawaysCreate
 		} catch (error) {
 			toast({
 				variant: 'destructive',
-				title: 'Error creating giveaway',
+				title: t('giveaways.notifications.error'),
 				description: error instanceof Error ? error.message : 'Unknown error',
 			})
 			return null
@@ -121,14 +123,14 @@ export const useGiveaways = createGlobalState(() => {
 			}
 			winners.value.push(...result.data?.giveawaysChooseWinners as GiveawayWinner[] || [])
 			toast({
-				title: 'Winners chosen',
-				description: `${winners.value.length} winners have been chosen`,
+				title: t('giveaways.notifications.winnersChosen'),
+				description: t('giveaways.notifications.winnersChosenDescription', { count: winners.value.length }),
 			})
 			return winners.value
 		} catch (error) {
 			toast({
 				variant: 'destructive',
-				title: 'Error choosing winners',
+				title: t('giveaways.notifications.errorChoosingWinners'),
 				description: error instanceof Error ? error.message : 'Unknown error',
 			})
 			return []

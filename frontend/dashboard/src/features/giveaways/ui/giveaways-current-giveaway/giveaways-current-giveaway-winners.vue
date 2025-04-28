@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { MessageSquareIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import type { ChatMessage } from '@/api/chat-messages.ts'
 
@@ -8,6 +9,8 @@ import { useChatMessagesApi } from '@/api/chat-messages.ts'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 import GiveawaysCurrentGiveawayWinnersProfile
 	from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners-profile.vue'
+
+const { t } = useI18n()
 
 const { winners } = useGiveaways()
 
@@ -48,9 +51,9 @@ function handleSelectWinner(winnerId: string) {
 		<!-- No winners message -->
 		<div v-if="winners.length === 0" class="flex-1 flex items-center justify-center flex-col gap-4 p-4 text-muted-foreground">
 			<div class="text-center">
-				<p>No winners have been chosen yet.</p>
+				<p>{{ t('sharedTexts.noData') }}</p>
 				<p class="text-sm">
-					Use the "Choose winners" button to select winners for this giveaway.
+					{{ t('giveaways.chooseWinner') }}
 				</p>
 			</div>
 		</div>
@@ -93,11 +96,11 @@ function handleSelectWinner(winnerId: string) {
 
 				<div class="flex-1 overflow-y-auto h-full">
 					<div v-if="isLoadingMessages" class="p-4 text-center text-muted-foreground">
-						Loading messages...
+						{{ t('sharedTexts.loading') || 'Loading messages...' }}
 					</div>
 
 					<div v-else-if="filteredMessages.length === 0" class="p-4 text-center text-muted-foreground">
-						No messages found for this winner
+						{{ t('sharedTexts.noData') }}
 					</div>
 
 					<div v-else class="p-2 space-y-1">
@@ -114,7 +117,7 @@ function handleSelectWinner(winnerId: string) {
 			</div>
 
 			<div v-else class="flex-1 flex items-center justify-center text-muted-foreground">
-				Select a winner to view their chat logs and profile
+				{{ t('giveaways.currentGiveaway.selectWinner') || 'Select a winner to view their chat logs and profile' }}
 			</div>
 		</template>
 	</div>

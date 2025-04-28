@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { BanIcon, PlayIcon, ShuffleIcon, TrophyIcon, UsersIcon } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '@/api'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
 import GiveawaysCurrentGiveawayParticipants from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue'
 import GiveawaysCurrentGiveawayWinners from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners.vue'
+
+const { t } = useI18n()
 
 const {
 	participants,
@@ -75,7 +78,7 @@ async function handleChooseWinners() {
 							@click="handleStartGiveaway"
 						>
 							<PlayIcon class="size-4" />
-							Start
+							{{ t('giveaways.start') }}
 						</Button>
 
 						<Button
@@ -85,7 +88,7 @@ async function handleChooseWinners() {
 							@click="handleStopGiveaway"
 						>
 							<BanIcon class="size-4" />
-							Stop
+							{{ t('giveaways.stop') }}
 						</Button>
 
 						<!--						<Button -->
@@ -104,7 +107,7 @@ async function handleChooseWinners() {
 						<TabsList>
 							<TabsTrigger value="participants" class="flex flex-row gap-2">
 								<UsersIcon class="size-4 inline" />
-								Participants
+								{{ t('giveaways.currentGiveaway.tabs.participants') }}
 								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
 									{{ participants.length }}
 								</span>
@@ -112,7 +115,7 @@ async function handleChooseWinners() {
 							<TabsTrigger value="winners" class="flex flex-row gap-2">
 								<TrophyIcon class="size-4 inline" />
 								<span>
-									Winners
+									{{ t('giveaways.currentGiveaway.tabs.winners') }}
 								</span>
 								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
 									{{ winners.length }}
@@ -129,7 +132,7 @@ async function handleChooseWinners() {
 					<TabsContent value="winners" class="mt-0 h-full border-none">
 						<div class="flex flex-col h-full">
 							<div class="p-2 border-b flex justify-between flex-wrap gap-2 items-center">
-								<span class="text-sm font-medium">Total winners: {{ winners.length }}</span>
+								<span class="text-sm font-medium">{{ t('giveaways.currentGiveaway.totalWinners', { count: winners.length }) }}</span>
 								<Button
 									size="sm"
 									variant="secondary"
@@ -138,7 +141,7 @@ async function handleChooseWinners() {
 									@click="handleChooseWinners"
 								>
 									<ShuffleIcon class="size-4" />
-									Choose winner
+									{{ t('giveaways.chooseWinner') }}
 								</Button>
 							</div>
 							<GiveawaysCurrentGiveawayWinners />

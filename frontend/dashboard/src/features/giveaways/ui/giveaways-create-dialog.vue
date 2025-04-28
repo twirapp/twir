@@ -68,9 +68,9 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 
 		<DialogContent class="sm:max-w-[425px]">
 			<DialogHeader>
-				<DialogTitle>Create New Giveaway</DialogTitle>
+				<DialogTitle>{{ t('giveaways.createDialog.title') }}</DialogTitle>
 				<DialogDescription>
-					Enter a keyword for your giveaway. Users will use this keyword to participate.
+					{{ t('giveaways.createDialog.description') }}
 				</DialogDescription>
 			</DialogHeader>
 
@@ -80,10 +80,10 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 					name="keyword"
 				>
 					<FormItem>
-						<FormLabel>Keyword</FormLabel>
+						<FormLabel>{{ t('giveaways.createDialog.keywordLabel') }}</FormLabel>
 						<FormControl>
 							<Input
-								placeholder="Enter keyword (e.g. '!giveaway' or 'raffle')"
+								:placeholder="t('giveaways.createDialog.keywordPlaceholder')"
 								v-bind="componentField"
 							/>
 						</FormControl>
@@ -97,12 +97,12 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 						variant="outline"
 						@click="open = false"
 					>
-						Cancel
+						{{ t('giveaways.createDialog.cancel') }}
 					</Button>
 					<Button
 						type="submit"
 					>
-						Create
+						{{ t('giveaways.createDialog.create') }}
 					</Button>
 				</DialogFooter>
 			</form>
