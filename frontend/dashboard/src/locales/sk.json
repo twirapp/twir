@@ -60,7 +60,8 @@
     "settings": "Nastavenia",
     "create": "Vytvoriť",
     "edit": "Upraviť",
-    "noData": "Žiadne údaje"
+    "noData": "Žiadne údaje",
+    "loading": "Loading..."
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -92,7 +93,8 @@
     "lang": "Jazyk",
     "darkTheme": "Tmavá téma",
     "lightTheme": "Svetlá téma",
-    "notifications": "Notifikácie"
+    "notifications": "Notifikácie",
+    "giveaways": "Giveaways"
   },
   "deleteConfirmation": {
     "text": "Naozaj to chceš odstrániť?",
@@ -1196,6 +1198,52 @@
         "message": "Správa"
       },
       "timeout": "sek."
+    }
+  },
+  "giveaways": {
+    "title": "Giveaways",
+    "createNew": "Create New Giveaway",
+    "keyword": "Keyword",
+    "createdAt": "Created At",
+    "startedAt": "Started At",
+    "stoppedAt": "Stopped At",
+    "winners": "Winners",
+    "view": "View",
+    "start": "Start",
+    "stop": "Stop",
+    "chooseWinner": "Choose winner",
+    "pages": {
+      "list": {
+        "title": "Active Giveaways"
+      },
+      "history": {
+        "title": "Giveaway History"
+      }
+    },
+    "createDialog": {
+      "title": "Create New Giveaway",
+      "description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
+      "keywordLabel": "Keyword",
+      "keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
+      "cancel": "Cancel",
+      "create": "Create"
+    },
+    "notifications": {
+      "created": "Giveaway created",
+      "createdDescription": "Giveaway with keyword \"{keyword}\" has been created",
+      "error": "Error creating giveaway",
+      "winnersChosen": "Winners chosen",
+      "winnersChosenDescription": "{count} winners have been chosen",
+      "errorChoosingWinners": "Error choosing winners"
+    },
+    "currentGiveaway": {
+      "totalParticipants": "Total participants: {count}",
+      "totalWinners": "Total winners: {count}",
+      "selectWinner": "Select a winner to view their chat logs and profile",
+      "tabs": {
+        "participants": "Participants",
+        "winners": "Winners"
+      }
     }
   }
 }
