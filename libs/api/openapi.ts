@@ -165,7 +165,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "https://dev.twir.app/api";
+  public baseUrl: string = "https://twir.localhost/api";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -332,7 +332,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Twir Api
  * @version 1.0.0
- * @baseUrl https://dev.twir.app/api
+ * @baseUrl https://twir.localhost/api
  */
 export class Api<SecurityDataType extends unknown> {
   http: HttpClient<SecurityDataType>;

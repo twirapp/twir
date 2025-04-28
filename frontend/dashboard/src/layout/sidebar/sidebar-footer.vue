@@ -6,7 +6,8 @@ import { useI18n } from 'vue-i18n'
 import SidebarProfile from './sidebar-profile.vue'
 import { usePublicPageHref } from '../use-public-page-href'
 
-// import GithubLogo from '@/assets/integrations/github.svg?use'
+import DiscordLogo from '@/assets/integrations/discord.svg?use'
+import GithubLogo from '@/assets/integrations/github.svg?use'
 import Badge from '@/components/ui/badge/Badge.vue'
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 import { useNotifications } from '@/composables/use-notifications'
@@ -23,13 +24,13 @@ const { notificationsCounter } = useNotifications()
 			<div class="flex gap-2 group-data-[collapsible=icon]:flex-col">
 				<SidebarMenuButton class="flex justify-center" variant="active" as-child tooltip="Discord">
 					<a :href="DISCORD_INVITE_URL" target="_blank">
-						<!--						<DiscordLogo /> -->
+						<DiscordLogo />
 					</a>
 				</SidebarMenuButton>
 
 				<SidebarMenuButton class="flex justify-center" variant="active" as-child tooltip="GitHub">
 					<a :href="GITHUB_REPOSITORY_URL" target="_blank">
-						<!--						<GithubLogo /> -->
+						<GithubLogo />
 					</a>
 				</SidebarMenuButton>
 			</div>
