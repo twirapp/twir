@@ -6,6 +6,8 @@ import type { ChatMessage } from '@/api/chat-messages.ts'
 
 import { useChatMessagesApi } from '@/api/chat-messages.ts'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
+import GiveawaysCurrentGiveawayWinnersProfile
+	from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners-profile.vue'
 
 const { winners } = useGiveaways()
 
@@ -80,6 +82,8 @@ function handleSelectWinner(winnerId: string) {
 
 			<!-- Winner's chat messages -->
 			<div v-if="selectedWinnerUserId" class="h-0 min-h-0 flex-1 flex flex-col">
+				<GiveawaysCurrentGiveawayWinnersProfile :user-id="selectedWinnerUserId" />
+
 				<div class="shrink-0 p-2 border-b border-border">
 					<h3 class="text-sm font-medium flex items-center gap-2">
 						<MessageSquareIcon class="size-4" />

@@ -33,6 +33,11 @@ export const featuresData: Feature[] = [
 		icon: h(Icon, { name: 'lucide:gem' }),
 	},
 	{
+		title: 'Giveaways',
+		description: 'Create giveaways, manage participants, choose winners, and archive giveaways for future reference',
+		icon: h(Icon, { name: 'lucide:gift' }),
+	},
+	{
 		title: 'Commands',
 		description:
 			'A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling.',

@@ -97,7 +97,9 @@ export const useAuth = defineStore('auth-store', () => {
 	}
 
 	async function login() {
+		console.log(redirectTo.value)
 		const { data } = await fetchAuthLink()
+		console.log(data)
 		if (!data.value) return
 
 		window.location.replace(data.value.authLink)

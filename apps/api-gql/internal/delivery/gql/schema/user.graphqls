@@ -2,6 +2,7 @@ extend type Query {
 	authenticatedUser: AuthenticatedUser! @isAuthenticated
 	userPublicSettings(userId: String): PublicSettings!
 	authLink(redirectTo: String!): String!
+	channelUserInfo(userId: String!): ChannelUserInfo!
 }
 
 extend type Mutation {
@@ -55,4 +56,17 @@ input UserUpdatePublicSettingsInput {
 input SocialLinkInput {
 	title: String! @validate(constraint: "max=50")
 	href: String! @validate(constraint: "max=500")
+}
+
+type ChannelUserInfo {
+	userId: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	isMod: Boolean!
+	isVip: Boolean!
+	isSubscriber: Boolean!
+	watchedMs: Int!
+	messages: Int!
+	usedEmotes: Int!
+	usedChannelPoints: Int!
+	followerSince: Time
 }

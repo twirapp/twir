@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArchiveIcon, BanIcon, PlayIcon, ShuffleIcon, TrophyIcon, UsersIcon } from 'lucide-vue-next'
+import { BanIcon, PlayIcon, ShuffleIcon, TrophyIcon, UsersIcon } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 
 import { useProfile } from '@/api'
@@ -16,7 +16,7 @@ const {
 	currentGiveawayId,
 	startGiveaway,
 	stopGiveaway,
-	archiveGiveaway,
+	// archiveGiveaway,
 	chooseWinners,
 	winners,
 } = useGiveaways()
@@ -51,11 +51,11 @@ async function handleStopGiveaway() {
 	}
 }
 
-async function handleArchiveGiveaway() {
-	if (currentGiveawayId.value) {
-		await archiveGiveaway(currentGiveawayId.value)
-	}
-}
+// async function handleArchiveGiveaway() {
+// 	if (currentGiveawayId.value) {
+// 		await archiveGiveaway(currentGiveawayId.value)
+// 	}
+// }
 
 async function handleChooseWinners() {
 	if (currentGiveawayId.value) {
@@ -71,13 +71,13 @@ const stopped = computed(() => {
 	return currentGiveaway.value?.stoppedAt
 })
 
-const ended = computed(() => {
-	return currentGiveaway.value?.endedAt
-})
-
-const archived = computed(() => {
-	return currentGiveaway.value?.archivedAt
-})
+// const ended = computed(() => {
+// 	return currentGiveaway.value?.endedAt
+// })
+//
+// const archived = computed(() => {
+// 	return currentGiveaway.value?.archivedAt
+// })
 
 const canBeRunned = computed(() => {
 	return !currentGiveaway.value?.startedAt && !currentGiveaway.value?.stoppedAt && !currentGiveaway.value?.endedAt && !currentGiveaway.value?.archivedAt
@@ -108,7 +108,6 @@ const canBeRunned = computed(() => {
 						<Button
 							v-if="isActive && !stopped"
 							size="sm"
-							variant="outline"
 							class="flex gap-2 items-center"
 							@click="handleStopGiveaway"
 						>
@@ -116,16 +115,16 @@ const canBeRunned = computed(() => {
 							Stop
 						</Button>
 
-						<Button
-							v-if="!archived"
-							size="sm"
-							variant="destructive"
-							class="flex gap-2 items-center"
-							@click="handleArchiveGiveaway"
-						>
-							<ArchiveIcon class="size-4" />
-							Archive
-						</Button>
+						<!--						<Button -->
+						<!--							v-if="!archived" -->
+						<!--							size="sm" -->
+						<!--							variant="destructive" -->
+						<!--							class="flex gap-2 items-center" -->
+						<!--							@click="handleArchiveGiveaway" -->
+						<!--						> -->
+						<!--							<ArchiveIcon class="size-4" /> -->
+						<!--							Archive -->
+						<!--						</Button> -->
 					</div>
 
 					<div>
@@ -162,7 +161,7 @@ const canBeRunned = computed(() => {
 									size="sm"
 									variant="secondary"
 									class="flex gap-2 items-center"
-									:disabled="participants.length === 0 || winners.length == participants.length"
+									:disabled="participants.length === 0 || winners.length === participants.length"
 									@click="handleChooseWinners"
 								>
 									<ShuffleIcon class="size-4" />
