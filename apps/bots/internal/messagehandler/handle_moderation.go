@@ -15,6 +15,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
+	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 )
 
 type moderationHandleResult struct {
@@ -23,19 +24,19 @@ type moderationHandleResult struct {
 	IsWarn  bool
 }
 
-var moderationFunctionsMapping = map[model.ModerationSettingsType]func(
+var moderationFunctionsMapping = map[channelsmoderationsettingsmodel.ModerationSettingsType]func(
 	c *MessageHandler,
 	ctx context.Context,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult{
-	model.ModerationSettingsTypeLinks:       (*MessageHandler).moderationLinksParser,
-	model.ModerationSettingsTypeDenylist:    (*MessageHandler).moderationDenyListParser,
-	model.ModerationSettingsTypeSymbols:     (*MessageHandler).moderationSymbolsParser,
-	model.ModerationSettingsTypeLongMessage: (*MessageHandler).moderationLongMessageParser,
-	model.ModerationSettingsTypeCaps:        (*MessageHandler).moderationCapsParser,
-	model.ModerationSettingsTypeEmotes:      (*MessageHandler).moderationEmotesParser,
-	model.ModerationSettingsTypeLanguage:    (*MessageHandler).moderationLanguageParser,
+	channelsmoderationsettingsmodel.ModerationSettingsTypeLinks:       (*MessageHandler).moderationLinksParser,
+	channelsmoderationsettingsmodel.ModerationSettingsTypeDenylist:    (*MessageHandler).moderationDenyListParser,
+	channelsmoderationsettingsmodel.ModerationSettingsTypeSymbols:     (*MessageHandler).moderationSymbolsParser,
+	channelsmoderationsettingsmodel.ModerationSettingsTypeLongMessage: (*MessageHandler).moderationLongMessageParser,
+	channelsmoderationsettingsmodel.ModerationSettingsTypeCaps:        (*MessageHandler).moderationCapsParser,
+	channelsmoderationsettingsmodel.ModerationSettingsTypeEmotes:      (*MessageHandler).moderationEmotesParser,
+	channelsmoderationsettingsmodel.ModerationSettingsTypeLanguage:    (*MessageHandler).moderationLanguageParser,
 }
 
 var excludedModerationBadges = []string{"BROADCASTER", "MODERATOR"}
@@ -127,7 +128,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 }
 
 func (c *MessageHandler) getChannelModerationSettings(ctx context.Context, channelId string) (
-	[]model.ChannelModerationSettings,
+	[]channelsmoderationsettingsmodel.ChannelModerationSettings,
 	error,
 ) {
 	cacheKey := fmt.Sprintf("channels:%s:moderation_settings", channelId)
@@ -137,7 +138,7 @@ func (c *MessageHandler) getChannelModerationSettings(ctx context.Context, chann
 		return nil, err
 	}
 
-	var settings []model.ChannelModerationSettings
+	var settings []channelsmoderationsettingsmodel.ChannelModerationSettings
 
 	if len(cached) > 0 {
 		if err := json.Unmarshal(cached, &settings); err != nil {
@@ -172,7 +173,7 @@ func (c *MessageHandler) getChannelModerationSettings(ctx context.Context, chann
 func (c *MessageHandler) moderationHandleResult(
 	ctx context.Context,
 	msg handleMessage,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 ) *moderationHandleResult {
 	var channelRoles []model.ChannelRole
 	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?`, msg.ChatterUserId).Where(
@@ -264,7 +265,7 @@ func (c *MessageHandler) moderationHandleResult(
 
 func (c *MessageHandler) moderationLinksParser(
 	ctx context.Context,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
 	containLink := c.moderationHelpers.HasLink(msg.Message.Text, settings.CheckClips)
@@ -295,7 +296,7 @@ func (c *MessageHandler) moderationLinksParser(
 
 func (c *MessageHandler) moderationDenyListParser(
 	ctx context.Context,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
 	if len(settings.DenyList) == 0 {
@@ -312,7 +313,7 @@ func (c *MessageHandler) moderationDenyListParser(
 
 func (c *MessageHandler) moderationSymbolsParser(
 	ctx context.Context,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
 	if utf8.RuneCountInString(msg.Message.Text) < settings.TriggerLength {
@@ -332,7 +333,7 @@ func (c *MessageHandler) moderationSymbolsParser(
 
 func (c *MessageHandler) moderationLongMessageParser(
 	ctx context.Context,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
 	isToLong := c.moderationHelpers.IsTooLong(msg.Message.Text, settings.TriggerLength)
@@ -346,7 +347,7 @@ func (c *MessageHandler) moderationLongMessageParser(
 
 func (c *MessageHandler) moderationCapsParser(
 	ctx context.Context,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
 	text := msg.Message.Text
@@ -370,7 +371,7 @@ func (c *MessageHandler) moderationCapsParser(
 
 func (c *MessageHandler) moderationEmotesParser(
 	ctx context.Context,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
 	if settings.TriggerLength == 0 {
@@ -422,7 +423,7 @@ func (c *MessageHandler) moderationDetectLanguage(text string) (*langDetectResul
 
 func (c *MessageHandler) moderationLanguageParser(
 	ctx context.Context,
-	settings model.ChannelModerationSettings,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
 	text := msg.Message.Text

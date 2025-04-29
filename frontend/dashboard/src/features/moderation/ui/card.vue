@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { Settings, Trash2 } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { Icons } from './form/helpers.ts'
+import type { EditableItem } from '@/features/moderation/composables/use-moderation-form.ts'
 
-import type { ItemWithId } from '@twir/api/messages/moderation/moderation'
-
-import { useModerationManager, useUserAccessFlagChecker } from '@/api'
+import { useUserAccessFlagChecker } from '@/api'
 import Card from '@/components/card/card.vue'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,34 +16,43 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast/use-toast.ts'
+import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.ts'
+import { Icons } from '@/features/moderation/composables/use-moderation-form.ts'
 import { ChannelRolePermissionEnum } from '@/gql/graphql.ts'
 
 const props = defineProps<{
-	item: ItemWithId
+	item: EditableItem
 }>()
 
 defineEmits<{
 	showSettings: []
 }>()
 
-const manager = useModerationManager()
-const patcher = manager.patch!
-const deleter = manager.deleteOne
+const manager = useModerationApi()
 
 const patchExecuting = ref(false)
 const showDeleteDialog = ref(false)
 
 const { t } = useI18n()
-const { toast } = useToast()
 
 const userCanManageModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageModeration)
 
 async function switchState(id: string, v: boolean) {
 	patchExecuting.value = true
+	const item = manager.items.value.find(i => i.id === id)
+	if (!item) return
+
+	const data = structuredClone(toRaw(item))
+
+	delete data.id
+	delete data.createdAt
+	delete data.updatedAt
 
 	try {
-		await patcher.mutateAsync({ id, enabled: v })
+		await manager.update(id, {
+			...data,
+			enabled: v,
+		})
 	} catch (error) {
 		console.error(error)
 	} finally {
@@ -54,32 +61,34 @@ async function switchState(id: string, v: boolean) {
 }
 
 async function removeItem() {
-	await deleter.mutateAsync({ id: props.item.id })
+	if (!props.item.id) return
+
+	await manager.remove(props.item.id)
 	showDeleteDialog.value = false
-	toast({
-		title: t('sharedTexts.deleted'),
-		duration: 2000,
-	})
 }
 </script>
 
 <template>
 	<Card
-		:title="t(`moderation.types.${item.data!.type}.name`)"
-		:icon="Icons[item.data!.type]"
+		:title="t(`moderation.types.${item.type}.name`)"
+		:icon="Icons[item.type]"
 		class="h-full"
 	>
 		<template #headerExtra>
 			<Switch
+				v-if="item.id"
 				:disabled="!userCanManageModeration"
-				:checked="item.data!.enabled"
+				:checked="item.enabled"
 				:aria-disabled="patchExecuting"
-				@update:checked="(v) => switchState(item.id, v)"
+				@update:checked="(v) => switchState(item.id!, v)"
 			/>
 		</template>
 
 		<template #content>
-			{{ t(`moderation.types.${item.data!.type}.description`) }}
+			<div class="flex flex-col gap-2">
+				<span v-if="item.name" class="text-xl text-white">{{ item.name }}</span>
+				{{ t(`moderation.types.${item.type}.description`) }}
+			</div>
 		</template>
 
 		<template #footer>

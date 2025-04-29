@@ -20,6 +20,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	channelsmoderationsettingscache "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
@@ -121,6 +122,7 @@ var App = fx.Module(
 		keywordscache.New,
 		greetingscache.New,
 		twitchactions.New,
+		channelsmoderationsettingscache.New,
 		moderationhelpers.New,
 		messagehandler.New,
 		keywords.New,

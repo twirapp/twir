@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
@@ -36,48 +37,50 @@ type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Logger                 logger.Logger
-	ParserGrpc             parser.ParserClient
-	WebsocketsGrpc         websockets.WebsocketClient
-	EventsGrpc             events.EventsClient
-	GreetingsRepository    greetings.Repository
-	ChatMessagesRepository chat_messages.Repository
-	Gorm                   *gorm.DB
-	Redis                  *redis.Client
-	TwitchActions          *twitchactions.TwitchActions
-	ModerationHelpers      *moderationhelpers.ModerationHelpers
-	Bus                    *buscore.Bus
-	KeywordsService        *keywords.Service
-	GreetingsCache         *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
-	TTSService             *tts.Service
-	Config                 cfg.Config
-	ChatWallCacher         *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
-	ChatWallRepository     chatwallrepository.Repository
-	ChatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
-	ChannelsRepository     channelsrepository.Repository
-	GiveawaysCacher        *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
+	Logger                           logger.Logger
+	ParserGrpc                       parser.ParserClient
+	WebsocketsGrpc                   websockets.WebsocketClient
+	EventsGrpc                       events.EventsClient
+	GreetingsRepository              greetings.Repository
+	ChatMessagesRepository           chat_messages.Repository
+	Gorm                             *gorm.DB
+	Redis                            *redis.Client
+	TwitchActions                    *twitchactions.TwitchActions
+	ModerationHelpers                *moderationhelpers.ModerationHelpers
+	Bus                              *buscore.Bus
+	KeywordsService                  *keywords.Service
+	GreetingsCache                   *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+	TTSService                       *tts.Service
+	Config                           cfg.Config
+	ChatWallCacher                   *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
+	ChatWallRepository               chatwallrepository.Repository
+	ChatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
+	ChannelsRepository               channelsrepository.Repository
+	GiveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
+	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 
 	WorkersPool *workers.Pool
 }
 
 type MessageHandler struct {
-	logger                 logger.Logger
-	parserGrpc             parser.ParserClient
-	websocketsGrpc         websockets.WebsocketClient
-	eventsGrpc             events.EventsClient
-	greetingsRepository    greetings.Repository
-	chatMessagesRepository chat_messages.Repository
-	gorm                   *gorm.DB
-	redis                  *redis.Client
-	twitchActions          *twitchactions.TwitchActions
-	moderationHelpers      *moderationhelpers.ModerationHelpers
-	bus                    *buscore.Bus
-	votebanMutex           *redsync.Mutex
-	greetingsCache         *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
-	chatWallCacher         *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
-	chatWallRepository     chatwallrepository.Repository
-	chatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
-	giveawaysCacher        *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
+	logger                           logger.Logger
+	parserGrpc                       parser.ParserClient
+	websocketsGrpc                   websockets.WebsocketClient
+	eventsGrpc                       events.EventsClient
+	greetingsRepository              greetings.Repository
+	chatMessagesRepository           chat_messages.Repository
+	gorm                             *gorm.DB
+	redis                            *redis.Client
+	twitchActions                    *twitchactions.TwitchActions
+	moderationHelpers                *moderationhelpers.ModerationHelpers
+	bus                              *buscore.Bus
+	votebanMutex                     *redsync.Mutex
+	greetingsCache                   *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+	chatWallCacher                   *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
+	chatWallRepository               chatwallrepository.Repository
+	chatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
+	giveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
+	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 
 	keywordsService *keywords.Service
 	ttsService      *tts.Service
@@ -89,26 +92,27 @@ func New(opts Opts) *MessageHandler {
 	votebanLock := redsync.New(goredis.NewPool(opts.Redis))
 
 	handler := &MessageHandler{
-		logger:                 opts.Logger,
-		gorm:                   opts.Gorm,
-		redis:                  opts.Redis,
-		twitchActions:          opts.TwitchActions,
-		parserGrpc:             opts.ParserGrpc,
-		websocketsGrpc:         opts.WebsocketsGrpc,
-		eventsGrpc:             opts.EventsGrpc,
-		moderationHelpers:      opts.ModerationHelpers,
-		config:                 opts.Config,
-		bus:                    opts.Bus,
-		votebanMutex:           votebanLock.NewMutex("bots:voteban_handle_message"),
-		keywordsService:        opts.KeywordsService,
-		greetingsRepository:    opts.GreetingsRepository,
-		chatMessagesRepository: opts.ChatMessagesRepository,
-		greetingsCache:         opts.GreetingsCache,
-		ttsService:             opts.TTSService,
-		chatWallCacher:         opts.ChatWallCacher,
-		chatWallRepository:     opts.ChatWallRepository,
-		chatWallSettingsCacher: opts.ChatWallSettingsCacher,
-		giveawaysCacher:        opts.GiveawaysCacher,
+		logger:                           opts.Logger,
+		gorm:                             opts.Gorm,
+		redis:                            opts.Redis,
+		twitchActions:                    opts.TwitchActions,
+		parserGrpc:                       opts.ParserGrpc,
+		websocketsGrpc:                   opts.WebsocketsGrpc,
+		eventsGrpc:                       opts.EventsGrpc,
+		moderationHelpers:                opts.ModerationHelpers,
+		config:                           opts.Config,
+		bus:                              opts.Bus,
+		votebanMutex:                     votebanLock.NewMutex("bots:voteban_handle_message"),
+		keywordsService:                  opts.KeywordsService,
+		greetingsRepository:              opts.GreetingsRepository,
+		chatMessagesRepository:           opts.ChatMessagesRepository,
+		greetingsCache:                   opts.GreetingsCache,
+		ttsService:                       opts.TTSService,
+		chatWallCacher:                   opts.ChatWallCacher,
+		chatWallRepository:               opts.ChatWallRepository,
+		chatWallSettingsCacher:           opts.ChatWallSettingsCacher,
+		giveawaysCacher:                  opts.GiveawaysCacher,
+		channelsModerationSettingsCacher: opts.ChannelsModerationSettingsCacher,
 
 		workersPool: opts.WorkersPool,
 	}

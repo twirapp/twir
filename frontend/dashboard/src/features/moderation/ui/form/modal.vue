@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
+import { useField, useResetForm, useSetFormValues, useSubmitForm } from 'vee-validate'
 import { onMounted, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { z } from 'zod'
 
-import { availableSettings, useEditableItem } from './helpers.ts'
 import ModalCaps from './modal-caps.vue'
 import ModalDenylist from './modal-denylist.vue'
 import ModalEmotes from './modal-emotes.vue'
@@ -14,7 +11,8 @@ import ModalLinks from './modal-links.vue'
 import ModalLongMessage from './modal-longmessage.vue'
 import ModalSymbols from './modal-symbols.vue'
 
-import { useModerationManager } from '@/api'
+import type { EditableItem } from '@/features/moderation/composables/use-moderation-form.ts'
+
 import { Button } from '@/components/ui/button'
 import {
 	FormControl,
@@ -28,92 +26,56 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
-import { RoleTypeEnum } from '@/gql/graphql.ts'
+import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.ts'
+import { ModerationSettingsType , RoleTypeEnum } from '@/gql/graphql.ts'
 
 const { t } = useI18n()
 
-const manager = useModerationManager()
-const updater = manager.update
-const creator = manager.create
+const manager = useModerationApi()
 
-const { editableItem } = useEditableItem()
-
-const validationSchema = toTypedSchema(z.object({
-	id: z.string().optional(),
-	banMessage: z.string().max(500),
-	banTime: z.number().min(0).max(86400),
-	warningMessage: z.string().max(500),
-	maxWarnings: z.number().min(0).max(10),
-	excludedRoles: z.array(z.string()),
-	enabled: z.boolean(),
-	checkClips: z.boolean(),
-	triggerLength: z.number().min(0).max(10000),
-	maxPercentage: z.number().min(0).max(100),
-	denyList: z.array(z.string()),
-	deniedChatLanguages: z.array(z.string()),
-	type: z.string(),
-}))
-
-const moderationForm = useForm({
-	validationSchema,
-	keepValuesOnUnmount: false,
-	validateOnMount: false,
-})
+const formReset = useResetForm()
+const { value: currentItemId, setValue: setCurrentItemId } = useField<string | undefined>('id')
+const setFormValues = useSetFormValues<EditableItem>()
+const { value: currentEditType } = useField<ModerationSettingsType>('type')
 
 onMounted(() => {
-	if (editableItem.value?.id && editableItem.value?.data) {
-		moderationForm.setFieldValue('id', editableItem.value.id)
-		moderationForm.setValues(structuredClone(toRaw(editableItem.value.data)))
-		return
+	formReset()
+
+	if (currentItemId.value) {
+		const item = manager.items.value.find(i => i.id === currentItemId.value)
+		if (!item) return
+
+		const values = structuredClone(toRaw(item))
+
+		setFormValues(values)
 	}
-
-	const currentType = availableSettings.find(s => s.type === editableItem.value?.data?.type)
-
-	moderationForm.setValues({
-		type: currentType?.type,
-		banMessage: currentType?.banMessage,
-		banTime: currentType?.banTime,
-		warningMessage: currentType?.warningMessage,
-		maxWarnings: currentType?.maxWarnings,
-		excludedRoles: currentType?.excludedRoles ?? [],
-		enabled: currentType?.enabled,
-		checkClips: currentType?.checkClips,
-		triggerLength: currentType?.triggerLength,
-		maxPercentage: currentType?.maxPercentage,
-		denyList: currentType?.denyList ?? [],
-		deniedChatLanguages: currentType?.deniedChatLanguages ?? [],
-		id: editableItem.value?.id,
-	})
 })
 
-const { toast } = useToast()
-
-const handleSubmit = moderationForm.handleSubmit(async (values) => {
-	if (!values?.id) {
-		const newRule = await creator.mutateAsync({
-			data: values,
-		})
-		if (newRule.id) {
-			moderationForm.setFieldValue('id', newRule.id)
+const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
+	if (!currentItemId.value) {
+		const newRule = await manager.create(values)
+		if (newRule?.id) {
+			setCurrentItemId(newRule.id)
 		}
 	} else {
-		await updater.mutateAsync({
-			id: values.id,
-			data: values,
-		})
+		await manager.update(currentItemId.value, values)
 	}
-
-	toast({
-		title: t('sharedTexts.saved'),
-		duration: 2000,
-	})
 })
 </script>
 
 <template>
 	<form class="flex flex-col gap-3" @submit.prevent="handleSubmit">
+		<FormField v-slot="{ field }" name="name">
+			<FormItem>
+				<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
+				<FormControl>
+					<Input type="text" v-bind="field" placeholder="Name of filter, just for your reference" />
+				</FormControl>
+				<FormMessage />
+			</FormItem>
+		</FormField>
+
 		<FormField v-slot="{ field }" name="enabled">
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
@@ -132,27 +94,27 @@ const handleSubmit = moderationForm.handleSubmit(async (values) => {
 		</FormField>
 
 		<ModalSymbols
-			v-if="editableItem?.data?.type === 'symbols'"
+			v-if="currentEditType === ModerationSettingsType.Symbols"
 		/>
 
 		<ModalLanguage
-			v-if="editableItem?.data?.type === 'language'"
+			v-if="currentEditType === ModerationSettingsType.Language"
 		/>
 
 		<ModalLongMessage
-			v-if="editableItem?.data?.type === 'long_message'"
+			v-if="currentEditType === ModerationSettingsType.LongMessage"
 		/>
 
 		<ModalCaps
-			v-if="editableItem?.data?.type === 'caps'"
+			v-if="currentEditType === ModerationSettingsType.Caps"
 		/>
 
 		<ModalEmotes
-			v-if="editableItem?.data?.type === 'emotes'"
+			v-if="currentEditType === ModerationSettingsType.Emotes"
 		/>
 
 		<ModalLinks
-			v-if="editableItem?.data?.type === 'links'"
+			v-if="currentEditType === ModerationSettingsType.Links"
 		/>
 
 		<Separator label="Timeouts" />
@@ -209,12 +171,13 @@ const handleSubmit = moderationForm.handleSubmit(async (values) => {
 			<FormRolesSelector
 				field-name="excludedRoles"
 				hide-everyone
+				hide-broadcaster
 				:excluded-types="[RoleTypeEnum.Broadcaster, RoleTypeEnum.Moderator]"
 			/>
 		</div>
 
 		<ModalDenylist
-			v-if="editableItem?.data?.type === 'deny_list'"
+			v-if="currentEditType === ModerationSettingsType.DenyList"
 		/>
 
 		<Button type="submit">

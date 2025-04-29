@@ -7,7 +7,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
 	"github.com/satont/twir/apps/api/internal/impl_protected/files"
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
-	"github.com/satont/twir/apps/api/internal/impl_protected/moderation"
 	"github.com/satont/twir/apps/api/internal/impl_protected/modules"
 	"github.com/satont/twir/apps/api/internal/impl_protected/overlays"
 	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
@@ -33,7 +32,6 @@ type Protected struct {
 	*twitch.Twitch
 	*files.Files
 	*overlays.Overlays
-	*moderation.Moderation
 }
 
 type Opts struct {
@@ -82,6 +80,5 @@ func New(opts Opts) *Protected {
 		Twitch:       &twitch.Twitch{Deps: d},
 		Files:        files.New(d),
 		Overlays:     &overlays.Overlays{Deps: d},
-		Moderation:   &moderation.Moderation{Deps: d},
 	}
 }

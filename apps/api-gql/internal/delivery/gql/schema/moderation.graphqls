@@ -1,5 +1,12 @@
 extend type Query {
+	moderationSettings: [ModerationSettingsItem!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODERATION)
 	moderationLanguagesAvailableLanguages: ModerationLanguagesAvailableLanguagesOutput! @isAuthenticated
+}
+
+extend type Mutation {
+	moderationSettingsCreate(input: ModerationSettingsCreateOrUpdateInput!): ModerationSettingsItem! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODERATION)
+	moderationSettingsUpdate(id: UUID!, input: ModerationSettingsCreateOrUpdateInput!): ModerationSettingsItem! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODERATION)
+	moderationSettingsDelete(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODERATION)
 }
 
 type ModerationLanguagesAvailableLanguagesOutput {
@@ -9,4 +16,55 @@ type ModerationLanguagesAvailableLanguagesOutput {
 type ModerationLanguagesAvailableLanguage {
 	iso_639_1: String!
 	name: String!
+}
+
+enum ModerationSettingsType {
+	links
+	deny_list
+	symbols
+	long_message
+	caps
+	emotes
+	language
+}
+
+type ModerationSettingsItem {
+	id: UUID!
+	type: ModerationSettingsType!
+	name: String
+	enabled: Boolean!
+	banTime: Int!
+	banMessage: String!
+	warningMessage: String!
+	checkClips: Boolean!
+	triggerLength: Int!
+	maxPercentage: Int!
+	denyList: [String!]!
+	deniedChatLanguages: [String!]!
+	denyListRegexpEnabled: Boolean!
+	denyListWordBoundaryEnabled: Boolean!
+	denyListSensitivityEnabled: Boolean!
+	excludedRoles: [String!]!
+	maxWarnings: Int!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+input ModerationSettingsCreateOrUpdateInput {
+	type: ModerationSettingsType!
+	name: String
+	enabled: Boolean!
+	banTime: Int!
+	banMessage: String!
+	warningMessage: String!
+	checkClips: Boolean!
+	triggerLength: Int!
+	maxPercentage: Int!
+	denyList: [String!]!
+	deniedChatLanguages: [String!]!
+	denyListRegexpEnabled: Boolean!
+	denyListWordBoundaryEnabled: Boolean!
+	denyListSensitivityEnabled: Boolean!
+	excludedRoles: [String!]!
+	maxWarnings: Int!
 }

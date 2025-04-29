@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { PlusIcon } from 'lucide-vue-next'
+import { useForm } from 'vee-validate'
 import { h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -13,28 +14,19 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useModerationRules } from '@/features/moderation/composables/use-moderation-rules.ts'
+import {
+	Icons,
+	moderationValidationRules,
+	setModerationEditModalState,
+} from '@/features/moderation/composables/use-moderation-form.ts'
 import ModerationTabChatWall from '@/features/moderation/tabs/moderation-tab-chat-wall.vue'
 import ModerationTabRules from '@/features/moderation/tabs/moderation-tab-rules.vue'
-import { Icons, availableSettings, availableSettingsTypes, useEditableItem } from '@/features/moderation/ui/form/helpers.ts'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum, ModerationSettingsType } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
-
-const { editableItem } = useEditableItem()
-const rules = useModerationRules()
 
 const { t } = useI18n()
 
 const canEditModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageModeration)
-
-async function createNewItem(itemType: string) {
-	const defaultSettings = availableSettings.find(s => s.type === itemType)
-	if (!defaultSettings) return
-	editableItem.value = {
-		data: structuredClone(defaultSettings),
-	}
-	rules.settingsOpened.value = true
-}
 
 const tabs: PageLayoutTab[] = [
 	{
@@ -48,6 +40,18 @@ const tabs: PageLayoutTab[] = [
 		component: h(ModerationTabChatWall),
 	},
 ]
+
+// place it in top component, so it available in all tabs
+const { setFieldValue } = useForm({
+	validationSchema: moderationValidationRules,
+	keepValuesOnUnmount: false,
+	validateOnMount: false,
+})
+
+function createNewRule(ruleType: ModerationSettingsType) {
+	setModerationEditModalState(true)
+	setFieldValue('type', ruleType)
+}
 </script>
 
 <template>
@@ -81,9 +85,9 @@ const tabs: PageLayoutTab[] = [
 				</DropdownMenuTrigger>
 				<DropdownMenuContent>
 					<DropdownMenuItem
-						v-for="itemType of availableSettingsTypes"
+						v-for="itemType of ModerationSettingsType"
 						:key="itemType"
-						@click="createNewItem(itemType)"
+						@click="createNewRule(itemType)"
 					>
 						<div class="flex items-center gap-1">
 							<component

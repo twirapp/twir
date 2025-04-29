@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
@@ -108,6 +109,7 @@ type Deps struct {
 	ChatWallService                       *chat_wall.Service
 	Config                                config.Config
 	GiveawaysService                      *giveaways.Service
+	ChannelsModerationSettingsService     *channels_moderation_settings.Service
 }
 
 type Resolver struct {
