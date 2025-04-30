@@ -10,17 +10,14 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/imroc/req/v3"
+	req "github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 )
 
 // ModerationSettingsCreate is the resolver for the moderationSettingsCreate field.
-func (r *mutationResolver) ModerationSettingsCreate(
-	ctx context.Context,
-	input gqlmodel.ModerationSettingsCreateOrUpdateInput,
-) (*gqlmodel.ModerationSettingsItem, error) {
+func (r *mutationResolver) ModerationSettingsCreate(ctx context.Context, input gqlmodel.ModerationSettingsCreateOrUpdateInput) (*gqlmodel.ModerationSettingsItem, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -56,11 +53,7 @@ func (r *mutationResolver) ModerationSettingsCreate(
 }
 
 // ModerationSettingsUpdate is the resolver for the moderationSettingsUpdate field.
-func (r *mutationResolver) ModerationSettingsUpdate(
-	ctx context.Context,
-	id uuid.UUID,
-	input gqlmodel.ModerationSettingsCreateOrUpdateInput,
-) (*gqlmodel.ModerationSettingsItem, error) {
+func (r *mutationResolver) ModerationSettingsUpdate(ctx context.Context, id uuid.UUID, input gqlmodel.ModerationSettingsCreateOrUpdateInput) (*gqlmodel.ModerationSettingsItem, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -96,10 +89,7 @@ func (r *mutationResolver) ModerationSettingsUpdate(
 }
 
 // ModerationSettingsDelete is the resolver for the moderationSettingsDelete field.
-func (r *mutationResolver) ModerationSettingsDelete(ctx context.Context, id uuid.UUID) (
-	bool,
-	error,
-) {
+func (r *mutationResolver) ModerationSettingsDelete(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -114,10 +104,7 @@ func (r *mutationResolver) ModerationSettingsDelete(ctx context.Context, id uuid
 }
 
 // ModerationSettings is the resolver for the moderationSettings field.
-func (r *queryResolver) ModerationSettings(ctx context.Context) (
-	[]gqlmodel.ModerationSettingsItem,
-	error,
-) {
+func (r *queryResolver) ModerationSettings(ctx context.Context) ([]gqlmodel.ModerationSettingsItem, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -137,10 +124,7 @@ func (r *queryResolver) ModerationSettings(ctx context.Context) (
 }
 
 // ModerationLanguagesAvailableLanguages is the resolver for the moderationLanguagesAvailableLanguages field.
-func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (
-	*gqlmodel.ModerationLanguagesAvailableLanguagesOutput,
-	error,
-) {
+func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (*gqlmodel.ModerationLanguagesAvailableLanguagesOutput, error) {
 	type availableLanguage struct {
 		Iso6391 string `json:"iso_639_1"`
 		Name    string `json:"name"`

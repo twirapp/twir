@@ -70,7 +70,7 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 			<FormItem>
 				<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
 				<FormControl>
-					<Input type="text" v-bind="field" placeholder="Name of filter, just for your reference" />
+					<Input type="text" v-bind="field" :placeholder="t('moderation.name')" />
 				</FormControl>
 				<FormMessage />
 			</FormItem>
