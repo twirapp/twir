@@ -991,6 +991,7 @@
     }
   },
   "moderation": {
+    "name": "Name of rule, just for your convenience to see name in list",
     "createNewRule": "Створити нове правило модерації",
     "banTime": "Час очікування",
     "banDescription": "Встановіть значення 0 для перманентного блокування.",
@@ -1008,7 +1009,15 @@
         "description": "Допомагає підтримувати чистий чат, фільтрувавши слова чи фрази, вказані у попередньо визначеному списку, не дозволяючи їм відображатися.",
         "empty": "Список заборонених слів порожній! Ви можете додати нове.",
         "regexp": "Якщо ви досвідчений користувач, заборонений список слів також підтримує регулярні вирази. Регулярний вираз повинен бути написаний у форматі golang! Дивіться {0}.",
-        "regexpCheatSheet": "шпаргалка"
+        "regexpCheatSheet": "шпаргалка",
+        "wordBoundary": {
+          "label": "Word boundary",
+          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+        },
+        "caseSensitive": {
+          "label": "Case sensitive",
+          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+        }
       },
       "symbols": {
         "name": "Символи",
