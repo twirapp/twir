@@ -991,6 +991,7 @@
     }
   },
   "moderation": {
+    "name": "Name of rule, just for your convenience to see name in list",
     "createNewRule": "Create a New Moderation Rule",
     "banTime": "Timeout Time",
     "banDescription": "Set to 0 for ban permamently.",
@@ -1008,7 +1009,15 @@
         "description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
         "empty": "List of disallowed words is empty! You can add one there.",
         "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
-        "regexpCheatSheet": "cheat sheet"
+        "regexpCheatSheet": "cheat sheet",
+        "wordBoundary": {
+          "label": "Word boundary",
+          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+        },
+        "caseSensitive": {
+          "label": "Case sensitive",
+          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+        }
       },
       "symbols": {
         "name": "Symbols",
