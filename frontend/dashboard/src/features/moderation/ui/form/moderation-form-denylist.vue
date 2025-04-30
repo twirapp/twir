@@ -30,7 +30,7 @@ function addItem() {
 	<div class="flex flex-col gap-4">
 		<Separator />
 
-		<FormField v-slot="{ value, handleChange }" name="denyListRegexpEnabled">
+		<FormField v-slot="{ field }" name="denyListRegexpEnabled">
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
 					<FormLabel class="flex gap-2 items-center text-base">
@@ -51,14 +51,15 @@ function addItem() {
 				</div>
 				<FormControl>
 					<Switch
-						:model-value="value"
-						@update:model-value="handleChange"
+						:checked="field.value"
+						default-checked
+						@update:checked="field['onUpdate:modelValue']"
 					/>
 				</FormControl>
 			</FormItem>
 		</FormField>
 
-		<FormField v-slot="{ value, handleChange }" name="denyListWordBoundaryEnabled">
+		<FormField v-slot="{ field }" name="denyListWordBoundaryEnabled">
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
 					<FormLabel class="flex gap-2 items-center text-base">
@@ -71,14 +72,15 @@ function addItem() {
 				</div>
 				<FormControl>
 					<Switch
-						:model-value="value"
-						@update:model-value="handleChange"
+						:checked="field.value"
+						default-checked
+						@update:checked="field['onUpdate:modelValue']"
 					/>
 				</FormControl>
 			</FormItem>
 		</FormField>
 
-		<FormField v-slot="{ value, handleChange }" name="denyListSensitivityEnabled">
+		<FormField v-slot="{ field }" name="denyListSensitivityEnabled">
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
 					<FormLabel class="flex gap-2 items-center text-base">
@@ -91,8 +93,9 @@ function addItem() {
 				</div>
 				<FormControl>
 					<Switch
-						:model-value="value"
-						@update:model-value="handleChange"
+						:checked="field.value"
+						default-checked
+						@update:checked="field['onUpdate:modelValue']"
 					/>
 				</FormControl>
 				<FormMessage />

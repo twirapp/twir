@@ -35,6 +35,8 @@ import (
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
+	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -92,6 +94,10 @@ var App = fx.Module(
 		fx.Annotate(
 			giveawaysrepositorypgx.NewFx,
 			fx.As(new(giveawaysrepository.Repository)),
+		),
+		fx.Annotate(
+			channelsmoderationsettingsrepositorypostgres.NewFx,
+			fx.As(new(channelsmoderationsettingsrepository.Repository)),
 		),
 	),
 	fx.Provide(

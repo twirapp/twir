@@ -16,7 +16,7 @@ export const useModerationApi = createGlobalState(() => {
 	const { t } = useI18n()
 	const { toast } = useToast()
 
-	const { data: moderationItems, fetching } = api.useQuery()
+	const { data: moderationItems, fetching, executeQuery: refetchItems } = api.useQuery()
 	const items = computed<ModerationItem[]>(() => {
 		return moderationItems?.value?.moderationSettings ?? []
 	})
@@ -95,9 +95,14 @@ export const useModerationApi = createGlobalState(() => {
 		}
 	}
 
+	async function fetchItems() {
+		await refetchItems()
+	}
+
 	return {
 		items,
 		isLoading: fetching,
+		fetchItems,
 
 		update,
 		create,

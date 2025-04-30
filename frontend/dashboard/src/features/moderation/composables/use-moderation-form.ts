@@ -8,7 +8,6 @@ import {
 	IconMoodOff,
 } from '@tabler/icons-vue'
 import { toTypedSchema } from '@vee-validate/zod'
-import { ref } from 'vue'
 import { z } from 'zod'
 
 import type { ModerationItem } from '@/api'
@@ -52,9 +51,3 @@ export const moderationValidationRules = toTypedSchema(z.object({
 	denyListWordBoundaryEnabled: z.boolean().default(false),
 	denyListSensitivityEnabled: z.boolean().default(false),
 }))
-
-export const isModerationEditModalOpened = ref(false)
-
-export function setModerationEditModalState(state: boolean) {
-	isModerationEditModalOpened.value = state
-}

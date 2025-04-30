@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { PlusIcon } from 'lucide-vue-next'
-import { useForm } from 'vee-validate'
 import { h } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 import type { PageLayoutTab } from '@/layout/page-layout.vue'
 
@@ -16,8 +16,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {
 	Icons,
-	moderationValidationRules,
-	setModerationEditModalState,
 } from '@/features/moderation/composables/use-moderation-form.ts'
 import ModerationTabChatWall from '@/features/moderation/tabs/moderation-tab-chat-wall.vue'
 import ModerationTabRules from '@/features/moderation/tabs/moderation-tab-rules.vue'
@@ -25,6 +23,7 @@ import { ChannelRolePermissionEnum, ModerationSettingsType } from '@/gql/graphql
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 
 const canEditModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageModeration)
 
@@ -41,16 +40,8 @@ const tabs: PageLayoutTab[] = [
 	},
 ]
 
-// place it in top component, so it available in all tabs
-const { setFieldValue } = useForm({
-	validationSchema: moderationValidationRules,
-	keepValuesOnUnmount: false,
-	validateOnMount: false,
-})
-
 function createNewRule(ruleType: ModerationSettingsType) {
-	setModerationEditModalState(true)
-	setFieldValue('type', ruleType)
+	router.push({ name: 'ModerationForm', query: { ruleType }, params: { id: 'new' } })
 }
 </script>
 
