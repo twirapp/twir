@@ -20,6 +20,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	channelsmoderationsettingscache "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
@@ -34,6 +35,8 @@ import (
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
+	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -92,6 +95,10 @@ var App = fx.Module(
 			giveawaysrepositorypgx.NewFx,
 			fx.As(new(giveawaysrepository.Repository)),
 		),
+		fx.Annotate(
+			channelsmoderationsettingsrepositorypostgres.NewFx,
+			fx.As(new(channelsmoderationsettingsrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -121,6 +128,7 @@ var App = fx.Module(
 		keywordscache.New,
 		greetingscache.New,
 		twitchactions.New,
+		channelsmoderationsettingscache.New,
 		moderationhelpers.New,
 		messagehandler.New,
 		keywords.New,

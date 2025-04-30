@@ -9,9 +9,119 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	req "github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 )
+
+// ModerationSettingsCreate is the resolver for the moderationSettingsCreate field.
+func (r *mutationResolver) ModerationSettingsCreate(ctx context.Context, input gqlmodel.ModerationSettingsCreateOrUpdateInput) (*gqlmodel.ModerationSettingsItem, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	createInput := channels_moderation_settings.CreateOrUpdateInput{
+		Name:                        input.Name.Value(),
+		ChannelID:                   dashboardID,
+		Type:                        mappers.ModerationSettingsTypeToEntity(input.Type),
+		Enabled:                     input.Enabled,
+		BanTime:                     int32(input.BanTime),
+		BanMessage:                  input.BanMessage,
+		WarningMessage:              input.WarningMessage,
+		CheckClips:                  input.CheckClips,
+		TriggerLength:               input.TriggerLength,
+		MaxPercentage:               input.MaxPercentage,
+		DenyList:                    input.DenyList,
+		DenyListRegexpEnabled:       input.DenyListRegexpEnabled,
+		DenyListWordBoundaryEnabled: input.DenyListWordBoundaryEnabled,
+		DenyListSensitivityEnabled:  input.DenyListSensitivityEnabled,
+		DeniedChatLanguages:         input.DeniedChatLanguages,
+		ExcludedRoles:               input.ExcludedRoles,
+		MaxWarnings:                 input.MaxWarnings,
+	}
+
+	newItem, err := r.deps.ChannelsModerationSettingsService.Create(ctx, createInput)
+	if err != nil {
+		return nil, err
+	}
+
+	mappedItem := mappers.ModerationSettingsEntityToGql(newItem)
+	return &mappedItem, nil
+}
+
+// ModerationSettingsUpdate is the resolver for the moderationSettingsUpdate field.
+func (r *mutationResolver) ModerationSettingsUpdate(ctx context.Context, id uuid.UUID, input gqlmodel.ModerationSettingsCreateOrUpdateInput) (*gqlmodel.ModerationSettingsItem, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	createInput := channels_moderation_settings.CreateOrUpdateInput{
+		Name:                        input.Name.Value(),
+		ChannelID:                   dashboardID,
+		Type:                        mappers.ModerationSettingsTypeToEntity(input.Type),
+		Enabled:                     input.Enabled,
+		BanTime:                     int32(input.BanTime),
+		BanMessage:                  input.BanMessage,
+		WarningMessage:              input.WarningMessage,
+		CheckClips:                  input.CheckClips,
+		TriggerLength:               input.TriggerLength,
+		MaxPercentage:               input.MaxPercentage,
+		DenyList:                    input.DenyList,
+		DenyListRegexpEnabled:       input.DenyListRegexpEnabled,
+		DenyListWordBoundaryEnabled: input.DenyListWordBoundaryEnabled,
+		DenyListSensitivityEnabled:  input.DenyListSensitivityEnabled,
+		DeniedChatLanguages:         input.DeniedChatLanguages,
+		ExcludedRoles:               input.ExcludedRoles,
+		MaxWarnings:                 input.MaxWarnings,
+	}
+
+	newItem, err := r.deps.ChannelsModerationSettingsService.Update(ctx, id, createInput)
+	if err != nil {
+		return nil, err
+	}
+
+	mappedItem := mappers.ModerationSettingsEntityToGql(newItem)
+	return &mappedItem, nil
+}
+
+// ModerationSettingsDelete is the resolver for the moderationSettingsDelete field.
+func (r *mutationResolver) ModerationSettingsDelete(ctx context.Context, id uuid.UUID) (bool, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.deps.ChannelsModerationSettingsService.Delete(ctx, id, dashboardID)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// ModerationSettings is the resolver for the moderationSettings field.
+func (r *queryResolver) ModerationSettings(ctx context.Context) ([]gqlmodel.ModerationSettingsItem, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items, err := r.deps.ChannelsModerationSettingsService.GetByChannelID(ctx, dashboardID)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := make([]gqlmodel.ModerationSettingsItem, 0, len(items))
+	for _, item := range items {
+		converted = append(converted, mappers.ModerationSettingsEntityToGql(item))
+	}
+
+	return converted, nil
+}
 
 // ModerationLanguagesAvailableLanguages is the resolver for the moderationLanguagesAvailableLanguages field.
 func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Context) (*gqlmodel.ModerationLanguagesAvailableLanguagesOutput, error) {

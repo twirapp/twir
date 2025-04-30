@@ -145,15 +145,3 @@ export function useOverlaysRegistry() {
 		getOne: protectedApiClient?.overlaysGetOne,
 	})
 }
-
-export function useModerationManager() {
-	return createCrudManager({
-		client: protectedApiClient,
-		queryKey: 'moderation',
-		getAll: protectedApiClient?.moderationGetAll,
-		update: protectedApiClient?.moderationUpdate,
-		create: protectedApiClient?.moderationCreate,
-		deleteOne: protectedApiClient?.moderationDelete,
-		patch: protectedApiClient?.moderationEnableOrDisable,
-	})
-}

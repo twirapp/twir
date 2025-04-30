@@ -5,26 +5,52 @@ import (
 	"strings"
 )
 
-const denyUnicodeAwareBoundaryPrefix = `(?i)(?:^|\s|[^\p{L}\p{N}])`
+const denyUnicodeAwareBoundaryPrefix = `(?:^|\s|[^\p{L}\p{N}])`
 const denyUnicodeAwareBoundarySuffix = `(?:$|\s|[^\p{L}\p{N}])`
 
-func (c *ModerationHelpers) HasDeniedWord(msg string, list []string) bool {
-	msg = strings.ToLower(msg)
+type HasDeniedWordInput struct {
+	Message             string
+	RulesList           []string
+	RegexpEnabled       bool
+	WordBoundaryEnabled bool
+	SensitivityEnabled  bool
+}
 
-	for _, item := range list {
-		if item == "" {
+func (c *ModerationHelpers) HasDeniedWord(input HasDeniedWordInput) bool {
+	msg := input.Message
+	if !input.SensitivityEnabled {
+		msg = strings.ToLower(msg)
+	}
+
+	for _, rule := range input.RulesList {
+		if rule == "" {
 			continue
 		}
 
-		r, err := regexp.Compile(item)
-		if err == nil {
-			matched := r.MatchString(msg)
-			if matched {
-				return true
-			}
+		if !input.SensitivityEnabled {
+			rule = strings.ToLower(rule)
 		}
 
-		wordRg := regexp.MustCompile(denyUnicodeAwareBoundaryPrefix + regexp.QuoteMeta(strings.ToLower(item)) + denyUnicodeAwareBoundarySuffix)
+		// if regexp enabled - we handle regexp and just go through other words
+		if input.RegexpEnabled {
+			r, err := regexp.Compile(rule)
+			if err == nil {
+				matched := r.MatchString(msg)
+				if matched {
+					return true
+				}
+			}
+			continue
+		}
+
+		if !input.WordBoundaryEnabled {
+			if strings.Contains(msg, rule) {
+				return true
+			}
+			continue
+		}
+
+		wordRg := regexp.MustCompile(denyUnicodeAwareBoundaryPrefix + regexp.QuoteMeta(strings.ToLower(rule)) + denyUnicodeAwareBoundarySuffix)
 		matched := wordRg.MatchString(msg)
 
 		if matched {

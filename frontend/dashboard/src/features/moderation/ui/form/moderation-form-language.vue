@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { Search } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useEditableItem } from './helpers.ts'
-import Button from '../../../../components/ui/button/Button.vue'
-import Input from '../../../../components/ui/input/Input.vue'
-
 import { useModerationAvailableLanguages } from '@/api'
+import Button from '@/components/ui/button/Button.vue'
+import Input from '@/components/ui/input/Input.vue'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
-const { editableItem } = useEditableItem()
 const languagesApi = useModerationAvailableLanguages()
 const { data: availableLanguages } = languagesApi.query()
 const { t } = useI18n()
@@ -26,14 +23,7 @@ const allLanguages = computed(() =>
 	})) ?? [],
 )
 
-const deniedLanguages = computed({
-	get: () => editableItem.value?.data?.deniedChatLanguages ?? [],
-	set: (value) => {
-		if (editableItem.value?.data) {
-			editableItem.value.data.deniedChatLanguages = value
-		}
-	},
-})
+const { value: deniedLanguages, setValue: setDenyList } = useField<string[]>('deniedChatLanguages')
 
 const allowedLanguages = computed(() =>
 	allLanguages.value.filter(lang => !deniedLanguages.value.includes(lang.value)),
@@ -54,18 +44,12 @@ const filteredDeniedLanguages = computed(() =>
 )
 
 function moveToDisallowed(value: string) {
-	deniedLanguages.value = [...deniedLanguages.value, value]
+	setDenyList([...deniedLanguages.value, value])
 }
 
 function moveToAllowed(value: string) {
-	deniedLanguages.value = deniedLanguages.value.filter(v => v !== value)
+	setDenyList(deniedLanguages.value.filter(v => v !== value))
 }
-
-const field = useField('deniedChatLanguages')
-
-watch(deniedLanguages, () => {
-	field.setValue(deniedLanguages.value)
-})
 </script>
 
 <template>
@@ -87,6 +71,7 @@ watch(deniedLanguages, () => {
 					<Button
 						v-for="lang in filteredAllowedLanguages"
 						:key="lang.value"
+						type="button"
 						variant="ghost"
 						class="w-full justify-start"
 						@click="moveToDisallowed(lang.value)"

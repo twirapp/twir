@@ -7,7 +7,6 @@ import "google/protobuf/empty.proto";
 import "messages/meta/meta.proto";
 
 import "messages/events/events.proto";
-import "messages/moderation/moderation.proto";
 
 import "messages/integrations_donate_stream/integrations_donate_stream.proto";
 import "messages/integrations_donatello/integrations_donatello.proto";
@@ -117,13 +116,6 @@ service Protected {
 	rpc OverlaysDelete(messages.overlays.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc OverlaysCreate(messages.overlays.CreateRequest) returns (messages.overlays.Overlay) {}
 	rpc OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse) {}
-
-
-	rpc ModerationGetAll(google.protobuf.Empty) returns (messages.moderation.GetAllResponse) {}
-	rpc ModerationCreate(messages.moderation.CreateRequest) returns (messages.moderation.ItemWithId) {}
-	rpc ModerationDelete(messages.moderation.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc ModerationUpdate(messages.moderation.UpdateRequest) returns (messages.moderation.ItemWithId) {}
-	rpc ModerationEnableOrDisable(messages.moderation.PatchRequest) returns (messages.moderation.ItemWithId) {}
 
 	rpc OverlayDudesGet(messages.overlays_dudes.GetRequest) returns (messages.overlays_dudes.Settings) {}
 	rpc OverlayDudesGetAll(google.protobuf.Empty) returns (messages.overlays_dudes.GetAllResponse) {}

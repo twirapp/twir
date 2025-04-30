@@ -25,6 +25,7 @@ import (
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
@@ -57,6 +58,7 @@ import (
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	channelsmoderationsettingsccahe "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
@@ -131,6 +133,9 @@ import (
 
 	channelsgiveawaysparticipantsrepository "github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	channelsgiveawaysparticipantsrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways_participants/pgx"
+
+	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
+	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	"go.uber.org/fx"
 )
 
@@ -255,6 +260,10 @@ func main() {
 				channelsgiveawaysrepositorypgx.NewFx,
 				fx.As(new(channelsgiveawaysrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsmoderationsettingsrepositorypostgres.NewFx,
+				fx.As(new(channelsmoderationsettingsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -294,6 +303,7 @@ func main() {
 			chat_translation.New,
 			shortenedurls.New,
 			giveaways.New,
+			channels_moderation_settings.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -318,6 +328,7 @@ func main() {
 			commandscache.New,
 			keywordscacher.New,
 			giveawayscache.New,
+			channelsmoderationsettingsccahe.New,
 			chattranslationssettignscache.New,
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,

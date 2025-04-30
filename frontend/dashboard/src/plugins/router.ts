@@ -230,6 +230,12 @@ export function newRouter() {
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageModeration, noPadding: true },
 				},
 				{
+					name: 'ModerationForm',
+					path: '/dashboard/moderation/:id',
+					component: () => import('../features/moderation/moderation-form.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ManageModeration, noPadding: true },
+				},
+				{
 					name: 'Settings',
 					path: '/dashboard/settings',
 					component: () => import('../pages/user-settings/user-settings.vue'),
