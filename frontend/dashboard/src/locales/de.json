@@ -991,6 +991,7 @@
     }
   },
   "moderation": {
+    "name": "Name of rule, just for your convenience to see name in list",
     "createNewRule": "Erstelle eine neue Moderations-Regel",
     "banTime": "Timeout Zeit",
     "banDescription": "Auf 0 gesetzt für permanenten Bann.",
@@ -1008,7 +1009,15 @@
         "description": "Hilft beim Erhalt eines sauberen Chats, indem man Wörter oder Phrasen aus einer vordefinierten Liste herausfiltert und verhindert, dass sie angezeigt werden.",
         "empty": "Liste der nicht erlaubten Wörter ist leer! Du kannst dort welche hinzufügen.",
         "regexp": "Wenn du ein fortgeschrittener Benutzer bist, unterstützt die Liste nicht erlaubter Wörter auch reguläre Ausdrücke. Reguläre Ausdrücke sollten im golang-Format geschrieben werden! Siehe {0} hier.",
-        "regexpCheatSheet": "Spickzettel"
+        "regexpCheatSheet": "Spickzettel",
+        "wordBoundary": {
+          "label": "Word boundary",
+          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+        },
+        "caseSensitive": {
+          "label": "Case sensitive",
+          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+        }
       },
       "symbols": {
         "name": "Symbole",
