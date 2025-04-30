@@ -2,7 +2,10 @@ package messagehandler
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
+	"reflect"
+	"runtime"
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
@@ -169,7 +172,16 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	for _, f := range handlersForExecute {
 		handleTask.SubmitErr(
 			func() error {
-				return f(c, ctx, msg)
+				handlerError := f(c, ctx, msg)
+				if handlerError != nil {
+					return fmt.Errorf(
+						"error executing %s handler: %w",
+						runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name(),
+						handlerError,
+					)
+				}
+
+				return nil
 			},
 		)
 	}

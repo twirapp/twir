@@ -10,9 +10,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/goccy/go-json"
 	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
@@ -52,7 +52,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 
 	settings, err := c.getChannelModerationSettings(ctx, msg.BroadcasterUserId)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get moderation settings: %w", err)
 	}
 
 	for _, entity := range settings {
@@ -84,22 +84,23 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 				)
 			}
 
-			err = c.twitchActions.WarnUser(
-				ctx, twitchactions.WarnUserOpts{
-					BroadcasterID: msg.BroadcasterUserId,
-					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
-					UserID:        msg.ChatterUserId,
-					Reason:        entity.WarningMessage,
-				},
-			)
-			if err != nil {
-				c.logger.Error(
-					"cannot warn user",
-					slog.String("userId", msg.ChatterUserId),
-					slog.String("channelId", msg.BroadcasterUserId),
-					slog.Any("err", err),
-				)
-			}
+			// TODO: uncomment
+			// err = c.twitchActions.WarnUser(
+			// 	ctx, twitchactions.WarnUserOpts{
+			// 		BroadcasterID: msg.BroadcasterUserId,
+			// 		ModeratorID:   msg.EnrichedData.DbChannel.BotID,
+			// 		UserID:        msg.ChatterUserId,
+			// 		Reason:        entity.WarningMessage,
+			// 	},
+			// )
+			// if err != nil {
+			// 	c.logger.Error(
+			// 		"cannot warn user",
+			// 		slog.String("userId", msg.ChatterUserId),
+			// 		slog.String("channelId", msg.BroadcasterUserId),
+			// 		slog.Any("err", err),
+			// 	)
+			// }
 		} else {
 			err := c.twitchActions.Ban(
 				ctx, twitchactions.BanOpts{
@@ -131,39 +132,8 @@ func (c *MessageHandler) getChannelModerationSettings(ctx context.Context, chann
 	[]channelsmoderationsettingsmodel.ChannelModerationSettings,
 	error,
 ) {
-	cacheKey := fmt.Sprintf("channels:%s:moderation_settings", channelId)
-
-	cached, err := c.redis.Get(ctx, cacheKey).Bytes()
-	if err != nil && !errors.Is(err, redis.Nil) {
-		return nil, err
-	}
-
-	var settings []channelsmoderationsettingsmodel.ChannelModerationSettings
-
-	if len(cached) > 0 {
-		if err := json.Unmarshal(cached, &settings); err != nil {
-			return nil, err
-		}
-
-		return settings, nil
-	}
-
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(
-			`"channel_id" = ? AND "enabled" = ?`,
-			channelId,
-			true,
-		).Find(&settings).Error; err != nil {
-		return nil, err
-	}
-
-	settingsBytes, err := json.Marshal(settings)
+	settings, err := c.channelsModerationSettingsCacher.Get(ctx, channelId)
 	if err != nil {
-		return nil, err
-	}
-
-	if err := c.redis.Set(ctx, cacheKey, settingsBytes, 24*time.Hour).Err(); err != nil {
 		return nil, err
 	}
 
@@ -303,7 +273,15 @@ func (c *MessageHandler) moderationDenyListParser(
 		return nil
 	}
 
-	hasDeniedWord := c.moderationHelpers.HasDeniedWord(msg.Message.Text, settings.DenyList)
+	hasDeniedWord := c.moderationHelpers.HasDeniedWord(
+		moderationhelpers.HasDeniedWordInput{
+			Message:             msg.Message.Text,
+			RulesList:           settings.DenyList,
+			RegexpEnabled:       settings.DenyListRegexpEnabled,
+			WordBoundaryEnabled: settings.DenyListWordBoundaryEnabled,
+			SensitivityEnabled:  settings.DenyListSensitivityEnabled,
+		},
+	)
 	if !hasDeniedWord {
 		return nil
 	}

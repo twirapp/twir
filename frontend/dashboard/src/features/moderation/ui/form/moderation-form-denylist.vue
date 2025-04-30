@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea'
 const { t } = useI18n()
 
 const { value: denyList, setValue: setDenyList } = useField<string[]>('denyList')
+const { value: isRegexpEnabled } = useField<boolean>('denyListRegexpEnabled')
 
 function addItem() {
 	setDenyList([...(denyList.value || []), ''])
@@ -66,12 +67,18 @@ function addItem() {
 						<WholeWordIcon />
 						{{ t('moderation.types.deny_list.wordBoundary.label') }}
 					</FormLabel>
-					<FormDescription>
-						{{ t('moderation.types.deny_list.wordBoundary.description') }}
+					<FormDescription class="flex flex-col">
+						<span>
+							{{ t('moderation.types.deny_list.wordBoundary.description') }}
+						</span>
+						<span class="text-xs text-orange-600">
+							Word boundary cannot be used within regular expressions.
+						</span>
 					</FormDescription>
 				</div>
 				<FormControl>
 					<Switch
+						:disabled="isRegexpEnabled"
 						:checked="field.value"
 						default-checked
 						@update:checked="field['onUpdate:modelValue']"
