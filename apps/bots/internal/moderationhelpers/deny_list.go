@@ -3,6 +3,8 @@ package moderationhelpers
 import (
 	"regexp"
 	"strings"
+
+	"github.com/dlclark/regexp2"
 )
 
 const denyUnicodeAwareBoundaryPrefix = `(?:^|\s|[^\p{L}\p{N}])`
@@ -33,10 +35,10 @@ func (c *ModerationHelpers) HasDeniedWord(input HasDeniedWordInput) bool {
 
 		// if regexp enabled - we handle regexp and just go through other words
 		if input.RegexpEnabled {
-			r, err := regexp.Compile(rule)
+			r, err := regexp2.Compile(rule, regexp2.RE2)
 			if err == nil {
-				matched := r.MatchString(msg)
-				if matched {
+				matched, err := r.MatchString(msg)
+				if matched && err == nil {
 					return true
 				}
 			}
