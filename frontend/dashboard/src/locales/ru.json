@@ -991,6 +991,7 @@
     }
   },
   "moderation": {
+    "name": "Name of rule, just for your convenience to see name in list",
     "createNewRule": "Создать новое правило модерации",
     "banTime": "Время отстранения",
     "banDescription": "Установите значение 0 для перманентного бана.",
