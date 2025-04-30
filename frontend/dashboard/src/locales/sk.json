@@ -991,6 +991,7 @@
     }
   },
   "moderation": {
+    "name": "Name of rule, just for your convenience to see name in list",
     "createNewRule": "Vytvorenie nového pravidla moderácie",
     "banTime": "Dĺžka timeoutu",
     "banDescription": "Nastavte na 0 pre trvalý ban.",
@@ -1008,7 +1009,15 @@
         "description": "Pomáha udržiavať čistý chat filtrovaním slov alebo fráz uvedených v preddefinovanom zozname, čím zabraňuje ich zobrazovaniu.",
         "empty": "Zoznam nepovolených slov je prázdny! Môžete ho vytvoriť tu.",
         "regexp": "Ak ste pokročilý používateľ, zoznam zakázaných slov podporuje aj regulárne výrazy. Regulárny výraz by mal byť zapísaný vo formáte golang! Pozri {0} tu.",
-        "regexpCheatSheet": "Ťahák"
+        "regexpCheatSheet": "Ťahák",
+        "wordBoundary": {
+          "label": "Word boundary",
+          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+        },
+        "caseSensitive": {
+          "label": "Case sensitive",
+          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+        }
       },
       "symbols": {
         "name": "Symboly",
