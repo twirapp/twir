@@ -84,23 +84,22 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 				)
 			}
 
-			// TODO: uncomment
-			// err = c.twitchActions.WarnUser(
-			// 	ctx, twitchactions.WarnUserOpts{
-			// 		BroadcasterID: msg.BroadcasterUserId,
-			// 		ModeratorID:   msg.EnrichedData.DbChannel.BotID,
-			// 		UserID:        msg.ChatterUserId,
-			// 		Reason:        entity.WarningMessage,
-			// 	},
-			// )
-			// if err != nil {
-			// 	c.logger.Error(
-			// 		"cannot warn user",
-			// 		slog.String("userId", msg.ChatterUserId),
-			// 		slog.String("channelId", msg.BroadcasterUserId),
-			// 		slog.Any("err", err),
-			// 	)
-			// }
+			err = c.twitchActions.WarnUser(
+				ctx, twitchactions.WarnUserOpts{
+					BroadcasterID: msg.BroadcasterUserId,
+					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
+					UserID:        msg.ChatterUserId,
+					Reason:        entity.WarningMessage,
+				},
+			)
+			if err != nil {
+				c.logger.Error(
+					"cannot warn user",
+					slog.String("userId", msg.ChatterUserId),
+					slog.String("channelId", msg.BroadcasterUserId),
+					slog.Any("err", err),
+				)
+			}
 		} else {
 			err := c.twitchActions.Ban(
 				ctx, twitchactions.BanOpts{

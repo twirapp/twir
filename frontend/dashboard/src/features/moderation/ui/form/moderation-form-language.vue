@@ -50,12 +50,6 @@ function moveToDisallowed(value: string) {
 function moveToAllowed(value: string) {
 	setDenyList(deniedLanguages.value.filter(v => v !== value))
 }
-
-const field = useField('deniedChatLanguages')
-
-// watch(deniedLanguages, () => {
-// 	field.setValue(deniedLanguages.value)
-// })
 </script>
 
 <template>
