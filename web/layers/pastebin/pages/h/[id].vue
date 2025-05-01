@@ -24,13 +24,6 @@ if (data.value) {
 	pasteStore.setCurrentPaste(data.value)
 }
 
-// onMounted(() => {
-// 	console.log(data.value)
-// 	if (data.value) {
-// 		pasteStore.setCurrentPaste(data.value)
-// 	}
-// })
-
 const pageTitle = computed(() => {
 	return data.value ? `Paste ${route.params.id}` : 'Loading paste...'
 })

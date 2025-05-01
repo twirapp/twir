@@ -17,3 +17,7 @@ export const usePasteStore = defineStore('paste', () => {
 		editableContent,
 	}
 })
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(usePasteStore, import.meta.hot))
+}

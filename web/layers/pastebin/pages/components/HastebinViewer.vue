@@ -8,19 +8,16 @@ const { currentPaste } = storeToRefs(usePasteStore())
 	<Shiki
 		v-if="currentPaste?.content"
 		:code="currentPaste.content"
-		as="div"
 		class="h-full"
 	/>
 </template>
 
 <style scoped>
-:deep(.shiki) {
-  @apply h-full w-full;
-}
-
 :deep(code) {
   counter-reset: step;
   counter-increment: step 0;
+
+	@apply break-words text-wrap
 }
 
 :deep(pre code) {

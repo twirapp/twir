@@ -7,7 +7,7 @@ defineProps<{
 <template>
 	<div>
 		<Head>
-			<Title>{{ title || 'Hastebin' }} - Twir</Title>
+			<Title>{{ title || 'Hastebin' }}</Title>
 		</Head>
 		<div class="flex h-screen bg-[#1E1E1E]">
 			<slot />

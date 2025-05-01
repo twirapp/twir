@@ -32,8 +32,11 @@ async function duplicate() {
 	await router.push('/h')
 }
 
-function newPaste() {
+async function newPaste() {
+	await router.push('/h')
+
 	editableContent.value = ''
+	store.setCurrentPaste(undefined)
 
 	// Focus the editor after it's rendered
 	nextTick(() => {
