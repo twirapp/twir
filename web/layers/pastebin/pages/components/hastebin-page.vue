@@ -10,6 +10,8 @@ const requestUrl = useRequestURL()
 const api = useOapi()
 
 const content = ref<string>()
+const isEditMode = ref(!props.item)
+const textareaRef = ref<HTMLTextAreaElement>()
 
 async function create() {
 	if (!content.value?.length) return
@@ -24,9 +26,43 @@ async function create() {
 	await router.push(`/h/${req.data?.id}`)
 }
 
-async function duplicate(newContent: string) {
+async function duplicate() {
+	if (!props.item) return
 
+	content.value = props.item.content
+	isEditMode.value = true
+
+	// Focus the textarea after it's rendered
+	nextTick(() => {
+		textareaRef.value?.focus()
+	})
 }
+
+function newPaste() {
+	content.value = ''
+	isEditMode.value = true
+
+	// Focus the textarea after it's rendered
+	nextTick(() => {
+		textareaRef.value?.focus()
+	})
+}
+
+// Focus textarea when component is mounted if in edit mode
+onMounted(() => {
+	if (isEditMode.value) {
+		textareaRef.value?.focus()
+	}
+})
+
+// Watch for changes to isEditMode and focus textarea when it becomes true
+watch(isEditMode, (newValue) => {
+	if (newValue) {
+		nextTick(() => {
+			textareaRef.value?.focus()
+		})
+	}
+})
 
 const topButtons = computed<{
 	name: string
@@ -36,7 +72,7 @@ const topButtons = computed<{
 	href?: string
 	onClick?: () => void
 }[]>(() => {
-			const isItemProped = !!props.item
+			const isItemProped = !!props.item && !isEditMode.value
 
 			return [
 				{
@@ -50,13 +86,14 @@ const topButtons = computed<{
 					name: 'new',
 					icon: 'lucide:file-plus',
 					tooltip: 'New',
+					onClick: newPaste,
 				},
 				{
 					name: 'copy',
 					icon: 'lucide:copy',
 					disabled: !isItemProped,
 					tooltip: 'Copy',
-					onClick: () => duplicate(props.item!.content),
+					onClick: duplicate,
 				},
 				{
 					name: 'text',
@@ -87,8 +124,13 @@ const topButtons = computed<{
 				<Icon class="icon" :name="button.icon" />
 			</UiButton>
 		</div>
-		<Shiki v-if="item" :code="item.content" as="div" class="h-full" />
-		<textarea v-else v-model="content" class="h-full w-full p-2 bg-transparent outline-none rounded-md input" />
+		<Shiki v-if="props.item && !isEditMode" :code="props.item.content" as="div" class="h-full" />
+		<textarea
+			v-else
+			ref="textareaRef"
+			v-model="content"
+			class="h-full w-full p-2 bg-transparent outline-none rounded-md input"
+		/>
 	</div>
 </template>
 
