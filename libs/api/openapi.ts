@@ -108,6 +108,17 @@ export interface ErrorModel {
   type?: string;
 }
 
+export interface GetManyOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  items: PasteBinOutputDto[];
+  /** @format int64 */
+  total: number;
+}
+
 export interface LinkOutputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -394,21 +405,41 @@ export class Api<SecurityDataType extends unknown> {
   };
   v1 = {
     /**
-     * No description
+     * @description Requires api-key header.
      *
      * @tags Pastebin
      * @name PastebinGetUserList
      * @summary Get authenticated user pastebins
      * @request GET:/v1/pastebin
      * @secure
-     * @response `204` `void` No Content
+     * @response `200` `GetManyOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
-    pastebinGetUserList: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+    pastebinGetUserList: (
+      query?: {
+        /**
+         * @format int64
+         * @min 1
+         * @default 1
+         * @example 1
+         */
+        page?: number;
+        /**
+         * @format int64
+         * @min 0
+         * @default 20
+         * @example 20
+         */
+        perPage?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetManyOutputDto, any>({
         path: `/v1/pastebin`,
         method: "GET",
+        query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -428,6 +459,26 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Pastebin
+     * @name PastebinDelete
+     * @summary Delete pastebin
+     * @request DELETE:/v1/pastebin/{id}
+     * @secure
+     * @response `200` `PasteBinOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    pastebinDelete: (id: string, params: RequestParams = {}) =>
+      this.http.request<PasteBinOutputDto, any>({
+        path: `/v1/pastebin/${id}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),

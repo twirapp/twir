@@ -9,11 +9,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	config "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
+	"go.uber.org/fx"
 )
 
-func NewHuma(router *server.Server, cfg config.Config, loader *dataloader.LoaderFactory) (
+type HumaOpts struct {
+	fx.In
+
+	Router   *server.Server
+	Cfg      config.Config
+	Loader   *dataloader.LoaderFactory
+	Sessions *auth.Auth
+}
+
+func NewHuma(opts HumaOpts) (
 	huma.API,
 	error,
 ) {
@@ -38,7 +49,7 @@ func NewHuma(router *server.Server, cfg config.Config, loader *dataloader.Loader
 		},
 	}
 
-	serverUrl, err := url.Parse(cfg.SiteBaseUrl)
+	serverUrl, err := url.Parse(opts.Cfg.SiteBaseUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -57,21 +68,22 @@ func NewHuma(router *server.Server, cfg config.Config, loader *dataloader.Loader
 	}
 	humaConfig.OpenAPIPath = "/docs/openapi"
 
-	router.GET(
+	opts.Router.GET(
 		"/docs", func(c *gin.Context) {
 			c.Header("Content-Type", "text/html")
 			_, _ = c.Writer.Write(docs)
 		},
 	)
 
-	api := humagin.New(router.Engine, humaConfig)
+	api := humagin.New(opts.Router.Engine, humaConfig)
 	api.UseMiddleware(
 		func(ctx huma.Context, next func(huma.Context)) {
-			ctx = huma.WithValue(ctx, dataloader.LoadersKey, loader.Load())
+			ctx = huma.WithValue(ctx, dataloader.LoadersKey, opts.Loader.Load())
 
 			next(ctx)
 		},
 	)
+	api.UseMiddleware(NewAuthMiddleware(api, opts.Sessions))
 
 	return api, nil
 }

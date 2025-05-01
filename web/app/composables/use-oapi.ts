@@ -7,7 +7,13 @@ export function useOapi() {
 		? process.env.NODE_ENV === 'production' ? 'http://api-gql:3009' : 'http://localhost:3009'
 		: `${window.location.origin}/api`
 
+	const headers = useRequestHeaders(['cookie', 'session'])
+
 	return new Api(new HttpClient({
 		baseUrl: apiUrl,
+		baseApiParams: {
+			credentials: 'include',
+			headers,
+		},
 	}))
 }

@@ -92,7 +92,7 @@ WHERE id = $1
 }
 
 func (c *Pgx) GetManyByOwner(ctx context.Context, input pastebins.GetManyInput) (
-	[]model.Pastebin,
+	pastebins.GetManyOutput,
 	error,
 ) {
 	builder := sq.Select(
@@ -105,25 +105,46 @@ func (c *Pgx) GetManyByOwner(ctx context.Context, input pastebins.GetManyInput) 
 		Where(squirrel.Eq{"owner_user_id": input.OwnerUserID}).
 		OrderBy("created_at DESC")
 
+	perPage := input.PerPage
+	if perPage == 0 {
+		perPage = 20
+	}
+
+	offset := input.Page * perPage
+
 	if input.Page > 0 && input.PerPage > 0 {
-		builder = builder.Limit(uint64(input.PerPage)).Offset(uint64(input.Page * input.PerPage))
+		builder = builder.Limit(uint64(perPage)).Offset(uint64(offset))
 	}
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		return nil, err
+		return pastebins.GetManyOutput{}, err
 	}
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return pastebins.GetManyOutput{}, err
 	}
 
 	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.Pastebin])
 	if err != nil {
-		return nil, err
+		return pastebins.GetManyOutput{}, err
 	}
 
-	return result, nil
+	countQuery := `
+SELECT COUNT(*) FROM pastebins
+WHERE "owner_user_id" = $1
+`
+
+	var count int
+	err = conn.QueryRow(ctx, countQuery, input.OwnerUserID).Scan(&count)
+	if err != nil {
+		return pastebins.GetManyOutput{}, err
+	}
+
+	return pastebins.GetManyOutput{
+		Items: result,
+		Total: count,
+	}, nil
 }

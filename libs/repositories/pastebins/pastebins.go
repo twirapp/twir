@@ -11,7 +11,7 @@ type Repository interface {
 	Create(ctx context.Context, input CreateInput) (model.Pastebin, error)
 	GetByID(ctx context.Context, id string) (model.Pastebin, error)
 	Delete(ctx context.Context, id string) error
-	GetManyByOwner(ctx context.Context, input GetManyInput) ([]model.Pastebin, error)
+	GetManyByOwner(ctx context.Context, input GetManyInput) (GetManyOutput, error)
 }
 
 type CreateInput struct {
@@ -25,4 +25,9 @@ type GetManyInput struct {
 	Page        int
 	PerPage     int
 	OwnerUserID string
+}
+
+type GetManyOutput struct {
+	Items []model.Pastebin
+	Total int
 }

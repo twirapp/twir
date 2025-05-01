@@ -28,15 +28,50 @@ func New(opts Opts) {
 		huma.Operation{
 			OperationID: "pastebin-get-user-list",
 			Summary:     "Get authenticated user pastebins",
+			Description: "Requires api-key header.",
 			Method:      http.MethodGet,
 			Tags:        []string{"Pastebin"},
 			Path:        "/v1/pastebin",
 			Security: []map[string][]string{
-				{"api-key": {"scope1"}},
+				{"api-key": {}},
 			},
-		}, func(ctx context.Context, input *struct{}) (*struct{}, error) {
-			// TODO: operation implementation goes here
-			return nil, nil
+		}, func(ctx context.Context, input *getManyInput) (*getManyOutput, error) {
+			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			if user == nil || err != nil {
+				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
+			}
+
+			data, err := opts.Service.GetUserMany(
+				ctx, pastebins.GetManyInput{
+					Page:        int(input.Page),
+					PerPage:     int(input.PerPage),
+					OwnerUserID: user.ID,
+				},
+			)
+			if err != nil {
+				return nil, huma.NewError(http.StatusInternalServerError, "Cannot get pastebins", err)
+			}
+
+			result := make([]pasteBinOutputDto, 0, len(data.Items))
+			for _, bin := range data.Items {
+				result = append(
+					result,
+					pasteBinOutputDto{
+						ID:          bin.ID,
+						CreatedAt:   bin.CreatedAt,
+						Content:     bin.Content,
+						ExpireAt:    bin.ExpireAt,
+						OwnerUserID: bin.OwnerUserID,
+					},
+				)
+			}
+
+			return &getManyOutput{
+				Body: getManyOutputDto{
+					Total: data.Total,
+					Items: result,
+				},
+			}, nil
 		},
 	)
 
@@ -120,6 +155,43 @@ func New(opts Opts) {
 			}, nil
 		},
 	)
+
+	huma.Register(
+		opts.Api,
+		huma.Operation{
+			OperationID: "pastebin-delete",
+			Method:      http.MethodDelete,
+			Path:        "/v1/pastebin/{id}",
+			Tags:        []string{"Pastebin"},
+			Summary:     "Delete pastebin",
+			Security: []map[string][]string{
+				{"api-key": {}},
+			},
+		}, func(
+			ctx context.Context,
+			input *struct {
+				ID string `path:"id" maxLength:"5" minLength:"1" pattern:"^[-_a-zA-Z0-9]+$" required:"true"`
+			},
+		) (
+			*getByIdOutput, error,
+		) {
+			paste, err := opts.Service.GetByID(ctx, input.ID)
+			if err != nil {
+				return nil, huma.NewError(http.StatusNotFound, "Cannot get pastebin", err)
+			}
+
+			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			if user == nil || err != nil || paste.OwnerUserID == nil || *paste.OwnerUserID != user.ID {
+				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
+			}
+
+			if err := opts.Service.Delete(ctx, input.ID); err != nil {
+				return nil, huma.NewError(http.StatusInternalServerError, "Cannot delete pastebin", err)
+			}
+
+			return nil, nil
+		},
+	)
 }
 
 type getByIdOutput struct {
@@ -137,4 +209,18 @@ type pasteBinOutputDto struct {
 type pasteBinCreateDto struct {
 	Content  string     `json:"content" required:"true" minLength:"1" maxLength:"100000" example:"Hello world"`
 	ExpireAt *time.Time `json:"expire_at" format:"date-time" nullable:"true" required:"false"`
+}
+
+type getManyInput struct {
+	Page    uint `json:"page" query:"page" example:"1" default:"1" minimum:"1"`
+	PerPage uint `json:"perPage" query:"perPage" example:"20" default:"20"`
+}
+
+type getManyOutput struct {
+	Body getManyOutputDto
+}
+
+type getManyOutputDto struct {
+	Total int                 `json:"total" example:"1"`
+	Items []pasteBinOutputDto `json:"items"`
 }

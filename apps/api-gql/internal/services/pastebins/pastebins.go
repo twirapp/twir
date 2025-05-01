@@ -55,6 +55,14 @@ func makeRedisCache(id string) string {
 	return "twir:cache:pastebins:" + id
 }
 
+func (c *Service) deleteIfNeed(ctx context.Context, p entity.Pastebin) (bool, error) {
+	if p.ExpireAt != nil && p.ExpireAt.Before(time.Now()) {
+		return true, c.Delete(ctx, p.ID)
+	}
+
+	return false, nil
+}
+
 func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, error) {
 	cacheKey := makeRedisCache(id)
 	cachedBytes, err := c.redis.Get(ctx, cacheKey).Bytes()
@@ -67,6 +75,12 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, erro
 			return entity.PastebinNil, err
 		}
 
+		if deleted, err := c.deleteIfNeed(ctx, bin); err != nil {
+			return entity.PastebinNil, err
+		} else if deleted {
+			return entity.PastebinNil, ErrNotFound
+		}
+
 		return bin, nil
 	}
 
@@ -77,6 +91,12 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, erro
 		}
 
 		return entity.PastebinNil, err
+	}
+
+	if deleted, err := c.deleteIfNeed(ctx, c.mapToEntity(bin)); err != nil {
+		return entity.PastebinNil, err
+	} else if deleted {
+		return entity.PastebinNil, ErrNotFound
 	}
 
 	var cacheTime time.Duration
@@ -131,4 +151,64 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Pastebi
 	}
 
 	return c.mapToEntity(bin), nil
+}
+
+type GetManyInput struct {
+	Page        int
+	PerPage     int
+	OwnerUserID string
+}
+
+type GetManyOutput struct {
+	Items []entity.Pastebin
+	Total int
+}
+
+func (c *Service) GetUserMany(ctx context.Context, input GetManyInput) (
+	GetManyOutput,
+	error,
+) {
+	bins, err := c.repo.GetManyByOwner(
+		ctx,
+		pastebins.GetManyInput{
+			Page:        input.Page - 1,
+			PerPage:     input.PerPage,
+			OwnerUserID: input.OwnerUserID,
+		},
+	)
+	if err != nil {
+		return GetManyOutput{}, err
+	}
+
+	output := GetManyOutput{
+		Items: make([]entity.Pastebin, 0, len(bins.Items)),
+		Total: bins.Total,
+	}
+
+	for _, bin := range bins.Items {
+		output.Items = append(output.Items, c.mapToEntity(bin))
+	}
+
+	for i, bin := range output.Items {
+		if deleted, err := c.deleteIfNeed(ctx, bin); err != nil {
+			return GetManyOutput{}, err
+		} else if deleted {
+			output.Items = append(output.Items[:i], output.Items[i+1:]...)
+		}
+	}
+
+	return output, nil
+}
+
+func (c *Service) Delete(ctx context.Context, id string) error {
+	err := c.repo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if err := c.redis.Del(ctx, makeRedisCache(id)).Err(); err != nil && !errors.Is(err, redis.Nil) {
+		return err
+	}
+
+	return nil
 }
