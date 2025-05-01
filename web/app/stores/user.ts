@@ -71,8 +71,9 @@ export const useAuth = defineStore('auth-store', () => {
 		const currentRoute = router.currentRoute.value
 
 		const isPublic = currentRoute.matched.at(0)?.path.startsWith('/p/:channelName()')
+		const isPaste = currentRoute.matched.at(0)?.path.startsWith('/h')
 
-		if (isPublic) {
+		if (isPublic || isPaste) {
 			return currentRoute.fullPath
 		} else {
 			return '/dashboard'
@@ -97,9 +98,7 @@ export const useAuth = defineStore('auth-store', () => {
 	}
 
 	async function login() {
-		console.log(redirectTo.value)
 		const { data } = await fetchAuthLink()
-		console.log(data)
 		if (!data.value) return
 
 		window.location.replace(data.value.authLink)

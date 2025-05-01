@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
-import { BellIcon, ExternalLink, Globe } from 'lucide-vue-next'
+import { BellIcon, ClipboardPenLine, ExternalLink, Globe } from 'lucide-vue-next'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import SidebarProfile from './sidebar-profile.vue'
@@ -16,6 +17,10 @@ const { t } = useI18n()
 const { setOpenMobile } = useSidebar()
 const publicPageHref = usePublicPageHref()
 const { notificationsCounter } = useNotifications()
+
+const hastebinLink = computed(() => {
+	return `${window.location.origin}/h`
+})
 </script>
 
 <template>
@@ -60,6 +65,13 @@ const { notificationsCounter } = useNotifications()
 					<a :href="publicPageHref" target="_blank">
 						<Globe />
 						<span>{{ t('sidebar.publicPage') }}</span>
+						<ExternalLink class="ml-auto" />
+					</a>
+				</SidebarMenuButton>
+				<SidebarMenuButton as-child :tooltip="t('sidebar.publicPage')">
+					<a :href="hastebinLink" target="_blank">
+						<ClipboardPenLine />
+						<span>Hastebin</span>
 						<ExternalLink class="ml-auto" />
 					</a>
 				</SidebarMenuButton>

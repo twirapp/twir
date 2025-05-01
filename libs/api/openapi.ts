@@ -108,6 +108,17 @@ export interface ErrorModel {
   type?: string;
 }
 
+export interface GetManyOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  items: PasteBinOutputDto[];
+  /** @format int64 */
+  total: number;
+}
+
 export interface LinkOutputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -117,6 +128,36 @@ export interface LinkOutputDto {
   id: string;
   short_url: string;
   url: string;
+}
+
+export interface PasteBinCreateDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /**
+   * @minLength 1
+   * @maxLength 100000
+   */
+  content: string;
+  /** @format date-time */
+  expire_at?: string | null;
+}
+
+export interface PasteBinOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  content: string;
+  /** @format date-time */
+  created_at: string;
+  /** @format date-time */
+  expire_at: string | null;
+  id: string;
+  owner_user_id: string | null;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -363,6 +404,103 @@ export class Api<SecurityDataType extends unknown> {
       }),
   };
   v1 = {
+    /**
+     * @description Requires api-key header.
+     *
+     * @tags Pastebin
+     * @name PastebinGetUserList
+     * @summary Get authenticated user pastebins
+     * @request GET:/v1/pastebin
+     * @secure
+     * @response `200` `GetManyOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    pastebinGetUserList: (
+      query?: {
+        /**
+         * @format int64
+         * @min 1
+         * @default 1
+         * @example 1
+         */
+        page?: number;
+        /**
+         * @format int64
+         * @min 0
+         * @default 20
+         * @example 20
+         */
+        perPage?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetManyOutputDto, any>({
+        path: `/v1/pastebin`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Pastebin
+     * @name PastebinCreate
+     * @summary Create pastebin
+     * @request POST:/v1/pastebin
+     * @response `200` `PasteBinOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    pastebinCreate: (data: PasteBinCreateDto, params: RequestParams = {}) =>
+      this.http.request<PasteBinOutputDto, any>({
+        path: `/v1/pastebin`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Pastebin
+     * @name PastebinDelete
+     * @summary Delete pastebin
+     * @request DELETE:/v1/pastebin/{id}
+     * @secure
+     * @response `200` `PasteBinOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    pastebinDelete: (id: string, params: RequestParams = {}) =>
+      this.http.request<PasteBinOutputDto, any>({
+        path: `/v1/pastebin/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Pastebin
+     * @name PastebinGetById
+     * @summary Get pastebin by id
+     * @request GET:/v1/pastebin/{id}
+     * @response `200` `PasteBinOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    pastebinGetById: (id: string, params: RequestParams = {}) =>
+      this.http.request<PasteBinOutputDto, any>({
+        path: `/v1/pastebin/${id}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
     /**
      * @description Get created badges for twitch chat
      *

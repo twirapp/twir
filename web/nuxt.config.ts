@@ -35,6 +35,7 @@ export default defineNuxtConfig({
 		'@nuxtjs/seo',
 		gqlcodegen,
 		'@nuxtjs/fontaine',
+		'nuxt-shiki',
 	],
 
 	icon: {
@@ -98,5 +99,10 @@ export default defineNuxtConfig({
 
 	robots: {
 		blockAiBots: true,
+	},
+
+	shiki: {
+		bundledThemes: ['dark-plus'],
+		defaultTheme: 'dark-plus',
 	},
 })
