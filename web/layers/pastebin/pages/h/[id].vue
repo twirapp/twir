@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import HastebinPage from '#layers/pastebin/pages/components/hastebin-page.vue'
+import HastebinPage from '#layers/pastebin/pages/components/HastebinpPage.vue'
 import { useOapi } from '~/composables/use-oapi'
 
 const route = useRoute()
