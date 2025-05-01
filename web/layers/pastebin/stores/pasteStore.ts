@@ -6,15 +6,8 @@ export const usePasteStore = defineStore('paste', () => {
 	const currentPaste = ref<PasteBinOutputDto>()
 	const editableContent = ref<string>()
 
-	function setCurrentPaste(paste: PasteBinOutputDto) {
+	function setCurrentPaste(paste?: PasteBinOutputDto) {
 		currentPaste.value = paste
-	}
-
-	function duplicate() {
-		if (!currentPaste.value) return
-
-		editableContent.value = currentPaste.value.content
-		currentPaste.value = undefined
 	}
 
 	return {
@@ -22,7 +15,5 @@ export const usePasteStore = defineStore('paste', () => {
 		setCurrentPaste,
 
 		editableContent,
-
-		duplicate,
 	}
 })

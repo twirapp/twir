@@ -26,7 +26,9 @@ async function create() {
 async function duplicate() {
 	if (!currentPaste.value) return
 
-	store.duplicate()
+	editableContent.value = currentPaste.value.content
+	store.setCurrentPaste(undefined)
+
 	await router.push('/h')
 }
 
