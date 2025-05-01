@@ -23,7 +23,7 @@ defineExpose({
 	<textarea
 		ref="textareaRef"
 		v-model="editableContent"
-		class="h-screen w-full p-2 bg-transparent outline-none rounded-md input resize-none"
+		class="h-full w-full p-2 bg-transparent outline-none rounded-md input resize-none"
 	/>
 </template>
 

@@ -65,7 +65,7 @@ const buttons = computed(() => {
 </script>
 
 <template>
-	<div class="flex flex-row gap-2 items-center absolute top-2 right-4 h-14 p-2 bg-gray-500/50 rounded-md">
+	<div class="flex flex-row gap-2 items-center fixed top-2 right-4 h-14 p-2 bg-gray-500/50 rounded-md">
 		<UiButton
 			v-for="button of buttons"
 			:key="button.name"

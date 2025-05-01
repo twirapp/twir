@@ -46,7 +46,7 @@ async function newPaste() {
 </script>
 
 <template>
-	<div class="h-full w-full p-4 relative">
+	<div class="min-h-screen w-full p-4 relative">
 		<HastebinToolbar
 			@save="create"
 			@new="newPaste"

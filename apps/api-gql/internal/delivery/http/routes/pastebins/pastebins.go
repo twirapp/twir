@@ -8,6 +8,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	config "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"go.uber.org/fx"
 )
@@ -15,9 +16,10 @@ import (
 type Opts struct {
 	fx.In
 
-	Api     huma.API
-	Config  config.Config
-	Service *pastebins.Service
+	Api      huma.API
+	Config   config.Config
+	Service  *pastebins.Service
+	Sessions *auth.Auth
 }
 
 func New(opts Opts) {
@@ -75,13 +77,17 @@ func New(opts Opts) {
 		) (
 			*getByIdOutput, error,
 		) {
-			bin, err := opts.Service.Create(
-				ctx,
-				pastebins.CreateInput{
-					Content:  input.Body.Content,
-					ExpireAt: input.Body.ExpireAt,
-				},
-			)
+			createInput := pastebins.CreateInput{
+				Content:  input.Body.Content,
+				ExpireAt: input.Body.ExpireAt,
+			}
+
+			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			if err == nil && user != nil {
+				createInput.OwnerUserID = &user.ID
+			}
+
+			bin, err := opts.Service.Create(ctx, createInput)
 			if err != nil {
 				return nil, huma.NewError(http.StatusInternalServerError, "Cannot create pastebin", err)
 			}
