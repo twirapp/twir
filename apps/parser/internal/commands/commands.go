@@ -31,6 +31,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/brb"
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/kappagen"
 	"github.com/satont/twir/apps/parser/internal/commands/permit"
+	"github.com/satont/twir/apps/parser/internal/commands/predictions"
 	"github.com/satont/twir/apps/parser/internal/commands/prefix"
 	"github.com/satont/twir/apps/parser/internal/commands/shorturl"
 	"github.com/satont/twir/apps/parser/internal/commands/shoutout"
@@ -143,6 +144,10 @@ func New(opts *Opts) *Commands {
 			chat_wall.Stop,
 			shorturl.Command,
 			utility.FirstFollowers,
+			predictions.Resolve,
+			predictions.Cancel,
+			predictions.Lock,
+			// predictions.Start,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
