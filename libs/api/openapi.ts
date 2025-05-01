@@ -397,6 +397,25 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Pastebin
+     * @name PastebinGetUserList
+     * @summary Get authenticated user pastebins
+     * @request GET:/v1/pastebin
+     * @secure
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    pastebinGetUserList: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/v1/pastebin`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Pastebin
      * @name PastebinCreate
      * @summary Create pastebin
      * @request POST:/v1/pastebin

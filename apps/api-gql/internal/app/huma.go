@@ -27,6 +27,17 @@ func NewHuma(router *server.Server, cfg config.Config, loader *dataloader.Loader
 	humaConfig := huma.DefaultConfig("Twir Api", "1.0.0")
 	huma.DefaultArrayNullable = false
 
+	humaConfig.Components.SecuritySchemes = map[string]*huma.SecurityScheme{
+		// Example alternative describing the use of JWTs without documenting how
+		// they are issued or which flows might be supported. This is simpler but
+		// tells clients less information.
+		"api-key": {
+			Type:        "apiKey",
+			In:          "header",
+			Description: "Api key from twir dashboard",
+		},
+	}
+
 	serverUrl, err := url.Parse(cfg.SiteBaseUrl)
 	if err != nil {
 		return nil, err

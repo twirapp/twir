@@ -8,6 +8,11 @@ const emit = defineEmits<{
 	copy: []
 }>()
 
+const router = useRouter()
+
+const userStore = useAuth()
+await callOnce(UserStoreKey, () => userStore.getUserData())
+
 const pasteStore = usePasteStore()
 const { currentPaste, editableContent } = storeToRefs(pasteStore)
 
@@ -53,6 +58,14 @@ const buttons = computed(() => {
 			disabled: !currentPaste.value,
 			tooltip: 'Text',
 			href: currentPaste.value?.id ? `${requestUrl.origin}/h/${currentPaste.value?.id}/raw` : undefined,
+		},
+		{
+			name: 'Profile',
+			icon: 'lucide:user',
+			tooltip: 'Profile',
+			disabled: !userStore.user,
+			href: `${requestUrl.origin}/h/profile`,
+			onClick: () => router.push('/h/profile'),
 		},
 		{
 			name: 'Api',

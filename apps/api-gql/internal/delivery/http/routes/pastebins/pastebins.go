@@ -26,6 +26,23 @@ func New(opts Opts) {
 	huma.Register(
 		opts.Api,
 		huma.Operation{
+			OperationID: "pastebin-get-user-list",
+			Summary:     "Get authenticated user pastebins",
+			Method:      http.MethodGet,
+			Tags:        []string{"Pastebin"},
+			Path:        "/v1/pastebin",
+			Security: []map[string][]string{
+				{"api-key": {"scope1"}},
+			},
+		}, func(ctx context.Context, input *struct{}) (*struct{}, error) {
+			// TODO: operation implementation goes here
+			return nil, nil
+		},
+	)
+
+	huma.Register(
+		opts.Api,
+		huma.Operation{
 			OperationID: "pastebin-get-by-id",
 			Method:      http.MethodGet,
 			Path:        "/v1/pastebin/{id}",
