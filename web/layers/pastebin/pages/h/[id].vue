@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import HastebinPage from '#layers/pastebin/pages/components/HastebinpPage.vue'
-import { useOapi } from '~/composables/use-oapi'
+import HastebinLayout from '../components/HastebinLayout.vue'
+import HastebinPage from '../components/HastebinPage.vue'
 
 const route = useRoute()
 const api = useOapi()
 
-const { data } = await useAsyncData(
+const { data, pending, error } = await useAsyncData(
 	'hastebin',
 	async () => {
 		const req = await api.v1.pastebinGetById(route.params.id as string)
@@ -16,10 +16,22 @@ const { data } = await useAsyncData(
 		return req.data
 	},
 )
+
+const pageTitle = computed(() => {
+	return data.value ? `Paste ${route.params.id}` : 'Loading paste...'
+})
 </script>
 
 <template>
-	<div class="flex h-screen bg-[#1E1E1E]">
-		<HastebinPage :item="data" />
-	</div>
+	<HastebinLayout :title="pageTitle">
+		<div v-if="pending" class="flex items-center justify-center w-full h-full text-white">
+			<p>Loading paste...</p>
+		</div>
+
+		<div v-else-if="error" class="flex items-center justify-center w-full h-full text-white">
+			<p>Error loading paste: {{ error.message }}</p>
+		</div>
+
+		<HastebinPage v-else :item="data" />
+	</HastebinLayout>
 </template>

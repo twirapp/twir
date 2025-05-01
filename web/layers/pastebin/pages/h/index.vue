@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import HastebinPage from '#layers/pastebin/pages/components/HastebinpPage.vue'
+import HastebinLayout from '#layers/pastebin/pages/components/HastebinLayout.vue'
+import HastebinPage from '#layers/pastebin/pages/components/HastebinPage.vue'
 </script>
 
 <template>
-	<div class="flex h-screen bg-[#1E1E1E]">
+	<HastebinLayout title="New Paste">
 		<HastebinPage />
-	</div>
+	</HastebinLayout>
 </template>

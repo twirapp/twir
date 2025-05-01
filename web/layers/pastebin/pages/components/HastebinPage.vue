@@ -98,7 +98,3 @@ const canViewRaw = computed(() => {
 		/>
 	</div>
 </template>
-
-<style scoped>
-/* No styles needed here as they've been moved to their respective components */
-</style>
