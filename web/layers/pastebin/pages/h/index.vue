@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import HastebinLayout from '#layers/pastebin/pages/components/HastebinLayout.vue'
-import HastebinPage from '#layers/pastebin/pages/components/HastebinPage.vue'
+import HastebinLayout from '../components/HastebinLayout.vue'
+import HastebinPage from '../components/HastebinPage.vue'
 </script>
 
 <template>

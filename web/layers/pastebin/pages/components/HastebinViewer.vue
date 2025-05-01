@@ -1,11 +1,16 @@
 <script setup lang="ts">
-defineProps<{
-	code: string
-}>()
+import { usePasteStore } from '#layers/pastebin/stores/pasteStore'
+
+const pasteStore = usePasteStore()
 </script>
 
 <template>
-	<Shiki :code="code" as="div" class="h-full" />
+	<Shiki
+		v-if="pasteStore.currentPaste?.content"
+		:code="pasteStore.currentPaste.content"
+		as="div"
+		class="h-full"
+	/>
 </template>
 
 <style scoped>

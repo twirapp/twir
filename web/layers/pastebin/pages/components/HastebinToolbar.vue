@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '#components'
-
-const props = defineProps<{
-	canSave: boolean
-	canCopy: boolean
-	canViewRaw: boolean
-	itemId?: string
-}>()
+import { usePasteStore } from '#layers/pastebin/stores/pasteStore'
 
 const emit = defineEmits<{
 	save: []
@@ -14,14 +8,30 @@ const emit = defineEmits<{
 	copy: []
 }>()
 
+const pasteStore = usePasteStore()
+const { currentPaste, editableContent } = storeToRefs(pasteStore)
+
 const requestUrl = useRequestURL()
+
+const canSave = computed(() => {
+	console.log(currentPaste.value)
+	if (currentPaste.value) {
+		return false
+	}
+
+	return editableContent.value?.length
+})
+
+const canCopy = computed(() => {
+	return !!currentPaste.value
+})
 
 const buttons = computed(() => {
 	return [
 		{
 			name: 'save',
 			icon: 'lucide:save',
-			disabled: !props.canSave,
+			disabled: !canSave.value,
 			tooltip: 'Save',
 			onClick: () => emit('save'),
 		},
@@ -34,19 +44,21 @@ const buttons = computed(() => {
 		{
 			name: 'copy',
 			icon: 'lucide:copy',
-			disabled: !props.canCopy,
+			disabled: canCopy,
 			tooltip: 'Copy',
 			onClick: () => emit('copy'),
 		},
 		{
 			name: 'text',
 			icon: 'lucide:text',
-			disabled: !props.canViewRaw,
+			disabled: !currentPaste.value,
 			tooltip: 'Text',
-			href: props.itemId ? `${requestUrl.origin}/h/${props.itemId}/raw` : undefined,
+			href: currentPaste.value?.id ? `${requestUrl.origin}/h/${currentPaste.value?.id}/raw` : undefined,
 		},
 	]
 })
+
+console.log(buttons.value)
 </script>
 
 <template>
