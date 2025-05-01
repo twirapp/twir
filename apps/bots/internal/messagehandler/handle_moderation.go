@@ -56,6 +56,10 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 	}
 
 	for _, entity := range settings {
+		if !entity.Enabled {
+			continue
+		}
+
 		function, ok := moderationFunctionsMapping[entity.Type]
 		if !ok {
 			continue
