@@ -26,7 +26,6 @@ const canCopy = computed(() => {
 })
 
 const buttons = computed(() => {
-	console.log(canSave.value)
 	return [
 		{
 			name: 'Save',

@@ -24,5 +24,6 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
+	setResponseHeader(event, 'Content-Type', 'text/plain')
 	return req.data.content
 })
