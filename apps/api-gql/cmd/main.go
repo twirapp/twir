@@ -13,6 +13,7 @@ import (
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
@@ -40,6 +41,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
+	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
@@ -136,6 +138,10 @@ import (
 
 	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
+
+	pastebinsrepository "github.com/twirapp/twir/libs/repositories/pastebins"
+	pastebinsrepositorypgx "github.com/twirapp/twir/libs/repositories/pastebins/datasource/postgres"
+
 	"go.uber.org/fx"
 )
 
@@ -264,6 +270,10 @@ func main() {
 				channelsmoderationsettingsrepositorypostgres.NewFx,
 				fx.As(new(channelsmoderationsettingsrepository.Repository)),
 			),
+			fx.Annotate(
+				pastebinsrepositorypgx.NewFx,
+				fx.As(new(pastebinsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -304,6 +314,7 @@ func main() {
 			shortenedurls.New,
 			giveaways.New,
 			channels_moderation_settings.New,
+			pastebinsservice.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -346,6 +357,7 @@ func main() {
 			http_webhooks.New,
 			authroutes.New,
 			shortlinks.New,
+			pastebins.New,
 		),
 	).Run()
 }

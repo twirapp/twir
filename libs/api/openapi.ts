@@ -119,6 +119,36 @@ export interface LinkOutputDto {
   url: string;
 }
 
+export interface PasteBinCreateDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /**
+   * @minLength 1
+   * @maxLength 100000
+   */
+  content: string;
+  /** @format date-time */
+  expire_at?: string | null;
+}
+
+export interface PasteBinOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  content: string;
+  /** @format date-time */
+  created_at: string;
+  /** @format date-time */
+  expire_at: string | null;
+  id: string;
+  owner_user_id: string | null;
+}
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -363,6 +393,44 @@ export class Api<SecurityDataType extends unknown> {
       }),
   };
   v1 = {
+    /**
+     * No description
+     *
+     * @tags Pastebin
+     * @name PastebinCreate
+     * @summary Create pastebin
+     * @request POST:/v1/pastebin
+     * @response `200` `PasteBinOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    pastebinCreate: (data: PasteBinCreateDto, params: RequestParams = {}) =>
+      this.http.request<PasteBinOutputDto, any>({
+        path: `/v1/pastebin`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Pastebin
+     * @name PastebinGetById
+     * @summary Get pastebin by id
+     * @request GET:/v1/pastebin/{id}
+     * @response `200` `PasteBinOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    pastebinGetById: (id: string, params: RequestParams = {}) =>
+      this.http.request<PasteBinOutputDto, any>({
+        path: `/v1/pastebin/${id}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
     /**
      * @description Get created badges for twitch chat
      *

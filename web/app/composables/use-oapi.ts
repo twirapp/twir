@@ -1,0 +1,13 @@
+import process from 'node:process'
+
+import { Api, HttpClient } from '@twir/api/openapi'
+
+export function useOapi() {
+	const apiUrl = import.meta.server
+		? process.env.NODE_ENV === 'production' ? 'http://api-gql:3009' : 'http://localhost:3009'
+		: `${window.location.origin}/api`
+
+	return new Api(new HttpClient({
+		baseUrl: apiUrl,
+	}))
+}

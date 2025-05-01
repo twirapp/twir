@@ -44,7 +44,9 @@ useSeoMeta({
 </script>
 
 <template>
-	<NuxtLayout>
-		<NuxtPage />
-	</NuxtLayout>
+	<UiTooltipProvider :delay-duration="100">
+		<NuxtLayout>
+			<NuxtPage />
+		</NuxtLayout>
+	</UiTooltipProvider>
 </template>
