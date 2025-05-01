@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { usePasteStore } from '#layers/pastebin/stores/pasteStore'
 
-const pasteStore = usePasteStore()
+const { currentPaste } = storeToRefs(usePasteStore())
 </script>
 
 <template>
 	<Shiki
-		v-if="pasteStore.currentPaste?.content"
-		:code="pasteStore.currentPaste.content"
+		v-if="currentPaste?.content"
+		:code="currentPaste.content"
 		as="div"
 		class="h-full"
 	/>

@@ -7,13 +7,14 @@ import { usePasteStore } from '../../stores/pasteStore'
 const editorRef = ref<InstanceType<typeof HastebinEditor>>()
 const router = useRouter()
 const api = useOapi()
-const pasteStore = usePasteStore()
+const store = usePasteStore()
+const { currentPaste, editableContent } = storeToRefs(store)
 
 async function create() {
-	if (!pasteStore.editableContent) return
+	if (!editableContent.value) return
 
 	const req = await api.v1.pastebinCreate({
-		content: pasteStore.editableContent,
+		content: editableContent.value,
 	})
 	if (req.error) {
 		throw req.error
@@ -23,17 +24,14 @@ async function create() {
 }
 
 async function duplicate() {
-	if (!pasteStore.currentPaste) return
+	if (!currentPaste.value) return
 
-	pasteStore.duplicate()
-
-	console.log('here')
-	// Redirect to the new paste page
+	store.duplicate()
 	await router.push('/h')
 }
 
 function newPaste() {
-	pasteStore.editableContent = ''
+	editableContent.value = ''
 
 	// Focus the editor after it's rendered
 	nextTick(() => {
@@ -51,7 +49,7 @@ function newPaste() {
 		/>
 
 		<HastebinViewer
-			v-if="pasteStore.currentPaste"
+			v-if="currentPaste"
 		/>
 
 		<HastebinEditor

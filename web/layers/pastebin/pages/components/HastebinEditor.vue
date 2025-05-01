@@ -2,7 +2,7 @@
 import { usePasteStore } from '../../stores/pasteStore'
 
 const textareaRef = ref<HTMLTextAreaElement>()
-const pasteStore = usePasteStore()
+const { editableContent } = storeToRefs(usePasteStore())
 
 // Focus textarea when component is mounted
 onMounted(() => {
@@ -22,7 +22,7 @@ defineExpose({
 <template>
 	<textarea
 		ref="textareaRef"
-		v-model="pasteStore.editableContent"
+		v-model="editableContent"
 		class="h-full w-full p-2 bg-transparent outline-none rounded-md input"
 	/>
 </template>

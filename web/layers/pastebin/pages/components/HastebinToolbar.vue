@@ -14,7 +14,6 @@ const { currentPaste, editableContent } = storeToRefs(pasteStore)
 const requestUrl = useRequestURL()
 
 const canSave = computed(() => {
-	console.log(currentPaste.value)
 	if (currentPaste.value) {
 		return false
 	}
@@ -44,7 +43,7 @@ const buttons = computed(() => {
 		{
 			name: 'copy',
 			icon: 'lucide:copy',
-			disabled: canCopy,
+			disabled: !canCopy.value,
 			tooltip: 'Copy',
 			onClick: () => emit('copy'),
 		},
@@ -57,8 +56,6 @@ const buttons = computed(() => {
 		},
 	]
 })
-
-console.log(buttons.value)
 </script>
 
 <template>
