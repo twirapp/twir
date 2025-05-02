@@ -27,6 +27,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -110,6 +111,7 @@ type Deps struct {
 	Config                                config.Config
 	GiveawaysService                      *giveaways.Service
 	ChannelsModerationSettingsService     *channels_moderation_settings.Service
+	EventsService                         *events.Service
 }
 
 type Resolver struct {

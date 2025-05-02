@@ -1,0 +1,86 @@
+extend type Query {
+	events: [Event!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_EVENTS)
+	eventById(id: String!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_EVENTS)
+}
+
+extend type Mutation {
+	eventCreate(input: EventCreateInput!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventUpdate(id: String!, input: EventUpdateInput!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventDelete(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventEnableOrDisable(id: String!, enabled: Boolean!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+}
+
+type Event {
+	id: String!
+	channelId: String!
+	type: String!
+	rewardId: String
+	commandId: String
+	keywordId: String
+	description: String!
+	enabled: Boolean!
+	onlineOnly: Boolean!
+	operations: [EventOperation!]!
+}
+
+type EventOperation {
+	id: String!
+	type: String!
+	input: String
+	delay: Int!
+	repeat: Int!
+	useAnnounce: Boolean!
+	timeoutTime: Int!
+	timeoutMessage: String
+	target: String
+	enabled: Boolean!
+	filters: [EventOperationFilter!]!
+}
+
+type EventOperationFilter {
+	id: String!
+	type: String!
+	left: String!
+	right: String!
+}
+
+input EventCreateInput {
+	type: String! @validate(constraint: "required")
+	rewardId: String
+	commandId: String
+	keywordId: String
+	description: String! @validate(constraint: "required")
+	enabled: Boolean!
+	onlineOnly: Boolean!
+	operations: [EventOperationInput!]!
+}
+
+input EventUpdateInput {
+	type: String
+	rewardId: String
+	commandId: String
+	keywordId: String
+	description: String
+	enabled: Boolean
+	onlineOnly: Boolean
+	operations: [EventOperationInput!]
+}
+
+input EventOperationInput {
+	type: String! @validate(constraint: "required")
+	input: String
+	delay: Int!
+	repeat: Int!
+	useAnnounce: Boolean!
+	timeoutTime: Int!
+	timeoutMessage: String
+	target: String
+	enabled: Boolean!
+	filters: [EventOperationFilterInput!]!
+}
+
+input EventOperationFilterInput {
+	type: String! @validate(constraint: "required")
+	left: String! @validate(constraint: "required")
+	right: String! @validate(constraint: "required")
+}

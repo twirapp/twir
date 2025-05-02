@@ -37,6 +37,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -140,6 +141,9 @@ import (
 
 	pastebinsrepository "github.com/twirapp/twir/libs/repositories/pastebins"
 	pastebinsrepositorypgx "github.com/twirapp/twir/libs/repositories/pastebins/datasource/postgres"
+
+	eventsrepository "github.com/twirapp/twir/libs/repositories/events"
+	eventsrepositorypgx "github.com/twirapp/twir/libs/repositories/events/pgx"
 
 	"go.uber.org/fx"
 )
@@ -270,6 +274,10 @@ func main() {
 				fx.As(new(channelsmoderationsettingsrepository.Repository)),
 			),
 			fx.Annotate(
+				eventsrepositorypgx.NewFx,
+				fx.As(new(eventsrepository.Repository)),
+			),
+			fx.Annotate(
 				pastebinsrepositorypgx.NewFx,
 				fx.As(new(pastebinsrepository.Repository)),
 			),
@@ -314,6 +322,7 @@ func main() {
 			giveaways.New,
 			channels_moderation_settings.New,
 			pastebinsservice.New,
+			events.New,
 		),
 		// grpc clients
 		fx.Provide(
