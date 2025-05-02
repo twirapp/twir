@@ -202,7 +202,7 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/events/:id',
-					component: () => import('../features/events/event-form.vue'),
+					component: () => import('../features/events/event-form-new.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageEvents, noPadding: true },
 				},
 				{

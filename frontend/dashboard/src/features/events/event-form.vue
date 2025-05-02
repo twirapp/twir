@@ -1,52 +1,19 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { PlusIcon, Trash2 } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import * as z from 'zod'
 
-import { useCommandsApi } from '@/api/commands/commands'
 import { useEventsApi } from '@/api/events'
-import { useKeywordsApi } from '@/api/keywords'
-import { eventTypeSelectOptions, flatOperations, operationTypeSelectOptions } from '@/components/events/helpers'
-import TwitchRewardsSelector from '@/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
-import {
-	Form,
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@/components/ui/tabs'
+import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/toast/use-toast'
-import VariableInput from '@/components/variable-input.vue'
 import PageLayout from '@/layout/page-layout.vue'
+import EventBasicInfo from './components/event-basic-info.vue'
+import OperationsTab from './components/operations-tab.vue'
+import FormActions from './components/form-actions.vue'
 
 const { t } = useI18n()
 const router = useRouter()
