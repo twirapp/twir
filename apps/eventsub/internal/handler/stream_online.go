@@ -10,7 +10,6 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/redis_keys"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.uber.org/zap"
@@ -103,19 +102,7 @@ func (c *Handler) handleStreamOnline(
 		}
 	}
 
-	_, err = c.eventsGrpc.StreamOnline(
-		ctx,
-		&events.StreamOnlineMessage{
-			BaseInfo: &events.BaseInfo{ChannelId: event.BroadcasterUserID},
-			Title:    streamsReq.Data.Streams[0].Title,
-			Category: streamsReq.Data.Streams[0].GameName,
-		},
-	)
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-	}
-
-	c.bus.Channel.StreamOnline.Publish(
+	c.twirBus.Channel.StreamOnline.Publish(
 		bustwitch.StreamOnlineMessage{
 			ChannelID:    event.BroadcasterUserID,
 			StreamID:     event.ID,

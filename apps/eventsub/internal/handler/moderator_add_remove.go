@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -17,6 +18,17 @@ func (c *Handler) handleChannelModeratorAdd(
 		slog.String("userName", event.UserLogin),
 	)
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, true)
+
+	c.twirBus.Events.ModeratorAdded.Publish(
+		events.ModeratorAddedMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
+			UserID:   event.UserID,
+			UserName: event.UserLogin,
+		},
+	)
 
 	if err := c.updateUserModStatus(event.BroadcasterUserID, event.UserID, true); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
@@ -34,6 +46,17 @@ func (c *Handler) handleChannelModeratorRemove(
 		slog.String("userName", event.UserLogin),
 	)
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, false)
+
+	c.twirBus.Events.ModeratorRemoved.Publish(
+		events.ModeratorRemovedMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
+			UserID:   event.UserID,
+			UserName: event.UserLogin,
+		},
+	)
 
 	if err := c.updateUserModStatus(event.BroadcasterUserID, event.UserID, false); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))

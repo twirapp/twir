@@ -1,14 +1,13 @@
 package handler
 
 import (
-	"context"
 	"log/slog"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -42,14 +41,16 @@ func (c *Handler) handleChannelRaid(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	if _, err := c.eventsGrpc.Raided(
-		context.Background(),
-		&events.RaidedMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.ToBroadcasterUserID},
+	if err := c.twirBus.Events.Raided.Publish(
+		events.RaidedMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelName: event.ToBroadcasterUserID,
+				ChannelID:   event.ToBroadcasterUserID,
+			},
+			UserID:          event.FromBroadcasterUserID,
 			UserName:        event.FromBroadcasterUserLogin,
 			UserDisplayName: event.FromBroadcasterUserName,
 			Viewers:         int64(event.Viewers),
-			UserId:          event.FromBroadcasterUserID,
 		},
 	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))

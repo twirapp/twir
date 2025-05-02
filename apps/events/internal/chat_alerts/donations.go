@@ -7,13 +7,13 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *ChatAlerts) donation(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.DonateMessage,
+	req events.DonateMessage,
 ) error {
 	if !settings.Donations.Enabled {
 		return nil
@@ -36,7 +36,7 @@ func (c *ChatAlerts) donation(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        sample,
 			SkipRateLimits: true,
 		},

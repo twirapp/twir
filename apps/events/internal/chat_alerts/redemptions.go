@@ -8,13 +8,13 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *ChatAlerts) redemption(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.RedemptionCreatedMessage,
+	req events.RedemptionCreatedMessage,
 ) error {
 	if !settings.Redemptions.Enabled {
 		return nil
@@ -24,7 +24,7 @@ func (c *ChatAlerts) redemption(
 		return nil
 	}
 
-	if slices.Contains(settings.Redemptions.IgnoredRewardsIDS, req.Id) {
+	if slices.Contains(settings.Redemptions.IgnoredRewardsIDS, req.ID) {
 		return nil
 	}
 
@@ -40,7 +40,7 @@ func (c *ChatAlerts) redemption(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        text,
 			SkipRateLimits: true,
 		},

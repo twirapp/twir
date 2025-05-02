@@ -46,9 +46,9 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/zap"
 )
@@ -592,20 +592,21 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	go func() {
 		gCtx := context.Background()
 
-		c.services.GrpcClients.Events.CommandUsed(
-			// this should be background, because we don't want to wait for response
-			gCtx,
-			&events.CommandUsedMessage{
-				BaseInfo:           &events.BaseInfo{ChannelId: data.BroadcasterUserId},
-				CommandId:          cmd.Cmd.ID,
+		c.services.Bus.Events.CommandUsed.Publish(
+			events.CommandUsedMessage{
+				BaseInfo: events.BaseInfo{
+					ChannelID:   data.BroadcasterUserId,
+					ChannelName: data.BroadcasterUserLogin,
+				},
+				CommandID:          cmd.Cmd.ID,
 				CommandName:        cmd.Cmd.Name,
 				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy)+1:]),
 				UserName:           data.ChatterUserLogin,
 				UserDisplayName:    data.ChatterUserName,
-				UserId:             data.ChatterUserId,
+				UserID:             data.ChatterUserId,
 				IsDefault:          cmd.Cmd.Default,
 				DefaultCommandName: cmd.Cmd.DefaultName.String,
-				MessageId:          data.MessageId,
+				MessageID:          data.MessageId,
 			},
 		)
 

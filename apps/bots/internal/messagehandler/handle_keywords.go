@@ -14,8 +14,8 @@ import (
 	"github.com/satont/twir/apps/bots/internal/services/keywords"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
@@ -131,14 +131,16 @@ func (c *MessageHandler) keywordsTriggerEvent(
 	keyword entity.Keyword,
 	response string,
 ) {
-	_, err := c.eventsGrpc.KeywordMatched(
-		ctx,
-		&events.KeywordMatchedMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: msg.BroadcasterUserId},
-			KeywordId:       keyword.ID.String(),
+	err := c.twirBus.Events.KeywordMatched.Publish(
+		events.KeywordMatchedMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   msg.BroadcasterUserId,
+				ChannelName: msg.BroadcasterUserLogin,
+			},
+			KeywordID:       keyword.ID.String(),
 			KeywordName:     keyword.Text,
 			KeywordResponse: response,
-			UserId:          msg.ChatterUserId,
+			UserID:          msg.ChatterUserId,
 			UserName:        msg.ChatterUserLogin,
 			UserDisplayName: msg.ChatterUserName,
 		},
@@ -162,7 +164,7 @@ func (c *MessageHandler) keywordsParseResponse(
 		return ""
 	}
 
-	res, err := c.bus.Parser.ParseVariablesInText.Request(
+	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
 			ChannelID:   msg.BroadcasterUserId,
 			ChannelName: msg.BroadcasterUserLogin,

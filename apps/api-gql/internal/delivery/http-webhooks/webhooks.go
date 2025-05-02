@@ -6,7 +6,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
-	"github.com/twirapp/twir/libs/grpc/events"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -14,21 +14,21 @@ import (
 type Opts struct {
 	fx.In
 
-	Server     *server.Server
-	Redis      *redis.Client
-	Db         *gorm.DB
-	EventsGrpc events.EventsClient
-	Logger     logger.Logger
-	Config     cfg.Config
+	Server  *server.Server
+	Redis   *redis.Client
+	Db      *gorm.DB
+	Logger  logger.Logger
+	Config  cfg.Config
+	TwirBus *buscore.Bus
 }
 
 type Webhooks struct {
-	redis      *redis.Client
-	db         *gorm.DB
-	eventsGrpc events.EventsClient
-	logger     logger.Logger
-	config     cfg.Config
-	pubSub     *pubsub.PubSub
+	redis   *redis.Client
+	db      *gorm.DB
+	logger  logger.Logger
+	config  cfg.Config
+	pubSub  *pubsub.PubSub
+	twirBus *buscore.Bus
 }
 
 func New(opts Opts) (*Webhooks, error) {
@@ -38,12 +38,12 @@ func New(opts Opts) (*Webhooks, error) {
 	}
 
 	p := &Webhooks{
-		redis:      opts.Redis,
-		db:         opts.Db,
-		eventsGrpc: opts.EventsGrpc,
-		logger:     opts.Logger,
-		config:     opts.Config,
-		pubSub:     pb,
+		redis:   opts.Redis,
+		db:      opts.Db,
+		logger:  opts.Logger,
+		config:  opts.Config,
+		pubSub:  pb,
+		twirBus: opts.TwirBus,
 	}
 
 	opts.Server.POST("/webhooks/integrations/donatestream/:id", p.donateStreamHandler)

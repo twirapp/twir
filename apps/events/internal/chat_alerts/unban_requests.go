@@ -7,13 +7,13 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *ChatAlerts) unbanRequestCreate(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.ChannelUnbanRequestCreateMessage,
+	req events.ChannelUnbanRequestCreateMessage,
 ) error {
 	if !settings.UnbanRequestCreate.Enabled {
 		return nil
@@ -35,7 +35,7 @@ func (c *ChatAlerts) unbanRequestCreate(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        text,
 			SkipRateLimits: true,
 		},
@@ -45,7 +45,7 @@ func (c *ChatAlerts) unbanRequestCreate(
 func (c *ChatAlerts) unbanRequestResolved(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.ChannelUnbanRequestResolveMessage,
+	req events.ChannelUnbanRequestResolveMessage,
 ) error {
 	if !settings.UnbanRequestResolve.Enabled {
 		return nil
@@ -74,7 +74,7 @@ func (c *ChatAlerts) unbanRequestResolved(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        text,
 			SkipRateLimits: true,
 		},

@@ -9,7 +9,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/bots"
 )
 
-type SubscribMessage struct {
+type SubscribeMessage struct {
 	UserName  string `json:"user_name"`
 	Months    int    `json:"months"`
 	ChannelId string `json:"channel_id"`
@@ -18,7 +18,7 @@ type SubscribMessage struct {
 func (c *ChatAlerts) subscribe(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *SubscribMessage,
+	req SubscribeMessage,
 ) error {
 	if !settings.Subscribers.Enabled {
 		return nil

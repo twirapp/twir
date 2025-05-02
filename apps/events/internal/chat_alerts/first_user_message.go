@@ -7,13 +7,13 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *ChatAlerts) firstUserMessage(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.FirstUserMessageMessage,
+	req events.FirstUserMessageMessage,
 ) error {
 	if !settings.FirstUserMessage.Enabled {
 		return nil
@@ -34,7 +34,7 @@ func (c *ChatAlerts) firstUserMessage(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        text,
 			SkipRateLimits: true,
 		},

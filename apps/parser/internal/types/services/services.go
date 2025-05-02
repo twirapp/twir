@@ -15,7 +15,6 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/dota"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/grpc/ytsr"
@@ -37,7 +36,6 @@ type Grpc struct {
 	WebSockets websockets.WebsocketClient
 	Dota       dota.DotaClient
 	Tokens     tokens.TokensClient
-	Events     events.EventsClient
 	Ytsr       ytsr.YtsrClient
 }
 

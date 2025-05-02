@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"context"
 	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -60,11 +59,13 @@ func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChat
 			slog.String("channelId", event.BroadcasterUserID),
 		)
 	}
-	c.eventsGrpc.SubGift(
-		context.Background(),
-		&events.SubGiftMessage{
-			BaseInfo:          &events.BaseInfo{ChannelId: event.BroadcasterUserID},
-			SenderUserId:      event.ChatterUserID,
+	c.twirBus.Events.SubGift.Publish(
+		events.SubGiftMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
+			SenderUserID:      event.ChatterUserID,
 			SenderUserName:    event.ChatterUserLogin,
 			SenderDisplayName: event.ChatterUserName,
 			TargetUserName:    event.SubGift.RecipientUserName,

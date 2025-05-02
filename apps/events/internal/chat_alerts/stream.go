@@ -7,13 +7,13 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
 
 func (c *ChatAlerts) streamOnline(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.StreamOnlineMessage,
+	req twitch.StreamOnlineMessage,
 ) error {
 	if !settings.StreamOnline.Enabled {
 		return nil
@@ -26,7 +26,7 @@ func (c *ChatAlerts) streamOnline(
 	sample := lo.Sample(settings.StreamOnline.Messages)
 	text := sample.Text
 	text = strings.ReplaceAll(text, "{title}", req.Title)
-	text = strings.ReplaceAll(text, "{category}", req.Category)
+	text = strings.ReplaceAll(text, "{category}", req.CategoryName)
 
 	if text == "" {
 		return nil
@@ -34,7 +34,7 @@ func (c *ChatAlerts) streamOnline(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.ChannelID,
 			Message:        text,
 			SkipRateLimits: true,
 		},
@@ -44,7 +44,7 @@ func (c *ChatAlerts) streamOnline(
 func (c *ChatAlerts) streamOffline(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.StreamOfflineMessage,
+	req twitch.StreamOfflineMessage,
 ) error {
 	if !settings.StreamOffline.Enabled {
 		return nil
@@ -63,7 +63,7 @@ func (c *ChatAlerts) streamOffline(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.ChannelID,
 			Message:        text,
 			SkipRateLimits: true,
 		},

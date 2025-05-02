@@ -9,13 +9,13 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *ChatAlerts) ban(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.ChannelBanMessage,
+	req events.ChannelBanMessage,
 ) error {
 	if !settings.Ban.Enabled {
 		return nil
@@ -73,7 +73,7 @@ func (c *ChatAlerts) ban(
 
 	err := c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        sample,
 			SkipRateLimits: true,
 		},

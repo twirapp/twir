@@ -68,7 +68,6 @@ import (
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
@@ -320,9 +319,6 @@ func main() {
 		fx.Provide(
 			func(config cfg.Config) tokens.TokensClient {
 				return clients.NewTokens(config.AppEnv)
-			},
-			func(config cfg.Config) events.EventsClient {
-				return clients.NewEvents(config.AppEnv)
 			},
 		),
 		// app itself

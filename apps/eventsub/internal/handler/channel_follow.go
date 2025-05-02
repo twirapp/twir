@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/bus-core/events"
 
-	"github.com/twirapp/twir/libs/grpc/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -49,13 +49,15 @@ func (c *Handler) handleChannelFollow(
 		},
 	)
 
-	c.eventsGrpc.Follow(
-		ctx,
-		&events.FollowMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	c.twirBus.Events.Follow.Publish(
+		events.FollowMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
-			UserId:          event.UserID,
+			UserID:          event.UserID,
 		},
 	)
 }

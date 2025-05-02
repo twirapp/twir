@@ -11,13 +11,13 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -70,18 +70,19 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	// fire event to events microsevice
-	_, err = c.eventsGrpc.RedemptionCreated(
-		context.Background(),
-		&events.RedemptionCreatedMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	err = c.twirBus.Events.RedemptionCreated.Publish(
+		events.RedemptionCreatedMessage{
+			ID: event.Reward.ID,
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
+			UserID:          event.UserID,
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
-			Id:              event.Reward.ID,
 			RewardName:      event.Reward.Title,
 			RewardCost:      strconv.Itoa(event.Reward.Cost),
 			Input:           lo.If(event.UserInput != "", &event.UserInput).Else(nil),
-			UserId:          event.UserID,
 		},
 	)
 	if err != nil {
@@ -120,7 +121,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	}()
 
 	go func() {
-		if redemptionAddErr := c.bus.RedemptionAdd.Publish(
+		if redemptionAddErr := c.twirBus.RedemptionAdd.Publish(
 			twitch.ActivatedRedemption{
 				ID:                   event.ID,
 				BroadcasterUserID:    event.BroadcasterUserID,
@@ -263,7 +264,7 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
-	res, err := c.bus.Parser.GetCommandResponse.Request(
+	res, err := c.twirBus.Parser.GetCommandResponse.Request(
 		context.Background(), twitch.TwitchChatMessage{
 			BroadcasterUserId:    event.BroadcasterUserID,
 			BroadcasterUserName:  event.BroadcasterUserName,
@@ -286,7 +287,7 @@ func (c *Handler) handleYoutubeSongRequests(
 	}
 
 	for _, response := range res.Data.Responses {
-		c.bus.Bots.SendMessage.Publish(
+		c.twirBus.Bots.SendMessage.Publish(
 			bots.SendMessageRequest{
 				ChannelId:      event.BroadcasterUserID,
 				ChannelName:    &event.BroadcasterUserLogin,

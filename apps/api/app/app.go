@@ -16,14 +16,12 @@ import (
 	"github.com/satont/twir/apps/api/internal/proxy"
 	"github.com/satont/twir/apps/api/internal/sessions"
 	"github.com/satont/twir/apps/api/internal/twirp_handlers"
-	"github.com/satont/twir/apps/api/internal/webhooks"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -52,9 +50,6 @@ var App = fx.Options(
 		func(c cfg.Config) parser.ParserClient {
 			return clients.NewParser(c.AppEnv)
 		},
-		func(c cfg.Config) events.EventsClient {
-			return clients.NewEvents(c.AppEnv)
-		},
 		func(c cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(c.AppEnv)
 		},
@@ -70,8 +65,6 @@ var App = fx.Options(
 		ttscache.NewTTSSettings,
 		handlers.AsHandler(twirp_handlers.NewProtected),
 		handlers.AsHandler(twirp_handlers.NewUnProtected),
-		handlers.AsHandler(webhooks.NewDonateStream),
-		handlers.AsHandler(webhooks.NewDonatello),
 		handlers.AsHandler(files.NewFiles),
 		handlers.AsHandler(proxy.New),
 		fx.Annotate(

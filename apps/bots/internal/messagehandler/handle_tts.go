@@ -62,7 +62,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 	originalCopy.Text = text
 	newMessage.Message = &originalCopy
 
-	_, err = c.bus.Parser.ProcessMessageAsCommand.Request(ctx, newMessage)
+	_, err = c.twirBus.Parser.ProcessMessageAsCommand.Request(ctx, newMessage)
 	if err != nil {
 		return err
 	}

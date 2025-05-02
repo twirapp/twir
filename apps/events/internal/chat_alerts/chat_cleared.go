@@ -6,13 +6,13 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *ChatAlerts) chatCleared(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.ChatClearMessage,
+	req events.ChatClearMessage,
 ) error {
 	if !settings.ChatCleared.Enabled {
 		return nil
@@ -30,7 +30,7 @@ func (c *ChatAlerts) chatCleared(
 
 	err := c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        sample.Text,
 			SkipRateLimits: true,
 		},
