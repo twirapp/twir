@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"context"
 	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -31,10 +30,12 @@ func (c *Handler) handleChannelChatClear(
 		},
 	)
 
-	c.eventsGrpc.ChatClear(
-		context.Background(),
-		&events.ChatClearMessage{
-			BaseInfo: &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	c.twirBus.Events.ChatClear.Publish(
+		events.ChatClearMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 		},
 	)
 }

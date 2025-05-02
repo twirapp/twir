@@ -5,6 +5,7 @@ import (
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/eval"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -75,4 +76,36 @@ type giveawaysBus struct {
 	ChooseWinner      Queue[giveaways.ChooseWinnerRequest, giveaways.ChooseWinnerResponse]
 
 	NewParticipants Queue[giveaways.NewParticipant, struct{}]
+}
+
+type eventsBus struct {
+	Follow                     Queue[events.FollowMessage, struct{}]
+	Subscribe                  Queue[events.SubscribeMessage, struct{}]
+	SubGift                    Queue[events.SubGiftMessage, struct{}]
+	ReSubscribe                Queue[events.ReSubscribeMessage, struct{}]
+	RedemptionCreated          Queue[events.RedemptionCreatedMessage, struct{}]
+	CommandUsed                Queue[events.CommandUsedMessage, struct{}]
+	FirstUserMessage           Queue[events.FirstUserMessageMessage, struct{}]
+	Raided                     Queue[events.RaidedMessage, struct{}]
+	TitleOrCategoryChanged     Queue[events.TitleOrCategoryChangedMessage, struct{}]
+	ChatClear                  Queue[events.ChatClearMessage, struct{}]
+	Donate                     Queue[events.DonateMessage, struct{}]
+	KeywordMatched             Queue[events.KeywordMatchedMessage, struct{}]
+	GreetingSended             Queue[events.GreetingSendedMessage, struct{}]
+	PollBegin                  Queue[events.PollBeginMessage, struct{}]
+	PollProgress               Queue[events.PollProgressMessage, struct{}]
+	PollEnd                    Queue[events.PollEndMessage, struct{}]
+	PredictionBegin            Queue[events.PredictionBeginMessage, struct{}]
+	PredictionProgress         Queue[events.PredictionProgressMessage, struct{}]
+	PredictionLock             Queue[events.PredictionLockMessage, struct{}]
+	PredictionEnd              Queue[events.PredictionEndMessage, struct{}]
+	StreamFirstUserJoin        Queue[events.StreamFirstUserJoinMessage, struct{}]
+	ChannelBan                 Queue[events.ChannelBanMessage, struct{}]
+	ChannelUnbanRequestCreate  Queue[events.ChannelUnbanRequestCreateMessage, struct{}]
+	ChannelUnbanRequestResolve Queue[events.ChannelUnbanRequestResolveMessage, struct{}]
+	ChannelMessageDelete       Queue[events.ChannelMessageDeleteMessage, struct{}]
+	VipAdded                   Queue[events.VipAddedMessage, struct{}]
+	VipRemoved                 Queue[events.VipRemovedMessage, struct{}]
+	ModeratorAdded             Queue[events.ModeratorAddedMessage, struct{}]
+	ModeratorRemoved           Queue[events.ModeratorRemovedMessage, struct{}]
 }

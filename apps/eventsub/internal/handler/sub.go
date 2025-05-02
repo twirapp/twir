@@ -1,14 +1,13 @@
 package handler
 
 import (
-	"context"
 	"log/slog"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -53,13 +52,16 @@ func (c *Handler) handleChannelSubscribe(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	if _, err := c.eventsGrpc.Subscribe(
-		context.Background(), &events.SubscribeMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	if err := c.twirBus.Events.Subscribe.Publish(
+		events.SubscribeMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
+			UserID:          event.UserID,
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
 			Level:           level,
-			UserId:          event.UserID,
 		},
 	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
@@ -98,9 +100,13 @@ func (c *Handler) handleChannelSubscriptionMessage(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	if _, err := c.eventsGrpc.ReSubscribe(
-		context.Background(), &events.ReSubscribeMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	if err := c.twirBus.Events.ReSubscribe.Publish(
+		events.ReSubscribeMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
+			UserID:          event.UserID,
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
 			Months:          int64(event.CumulativeTotal),
@@ -108,7 +114,6 @@ func (c *Handler) handleChannelSubscriptionMessage(
 			IsPrime:         level == "prime",
 			Message:         event.Message.Text,
 			Level:           level,
-			UserId:          event.UserID,
 		},
 	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))

@@ -11,8 +11,8 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
@@ -211,7 +211,7 @@ func (c *Handler) handleChannelChatMessage(
 		return
 	}
 
-	if err := c.bus.ChatMessages.Publish(data); err != nil {
+	if err := c.twirBus.ChatMessages.Publish(data); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 	}
 
@@ -220,7 +220,7 @@ func (c *Handler) handleChannelChatMessage(
 	if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 		return
 	} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
-		if err := c.bus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
+		if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
 			c.logger.Error("cannot process command", slog.Any("err", err))
 		}
 	}
@@ -238,10 +238,12 @@ func (c *Handler) handleChannelChatMessageDelete(
 		slog.String("userName", event.TargetUserLogin),
 	)
 
-	if _, err := c.eventsGrpc.ChannelMessageDelete(
-		context.Background(),
-		&events.ChannelMessageDeleteMessage{
-			BaseInfo:             &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	if err := c.twirBus.Events.ChannelMessageDelete.Publish(
+		events.ChannelMessageDeleteMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 			UserId:               event.TargetUserID,
 			UserName:             event.TargetUserLogin,
 			UserLogin:            event.TargetUserName,

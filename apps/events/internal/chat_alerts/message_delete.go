@@ -7,13 +7,13 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *ChatAlerts) messageDelete(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.ChannelMessageDeleteMessage,
+	req events.ChannelMessageDeleteMessage,
 ) error {
 	if !settings.MessageDelete.Enabled {
 		return nil
@@ -33,7 +33,7 @@ func (c *ChatAlerts) messageDelete(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        text,
 			SkipRateLimits: true,
 		},

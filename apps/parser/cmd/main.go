@@ -227,7 +227,6 @@ func main() {
 			WebSockets: clients.NewWebsocket(config.AppEnv),
 			Dota:       clients.NewDota(config.AppEnv),
 			Tokens:     tokensGrpc,
-			Events:     clients.NewEvents(config.AppEnv),
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
 		TaskDistributor:          taskQueueDistributor,

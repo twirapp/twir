@@ -1,21 +1,21 @@
 package handler
 
 import (
-	"context"
 	"log/slog"
 
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.uber.org/zap"
 )
 
-func convertChoices(choices []eventsub_bindings.PollChoice) []*events.PollInfo_Choice {
-	converted := make([]*events.PollInfo_Choice, 0, len(choices))
+func convertChoices(choices []eventsub_bindings.PollChoice) []events.PollChoice {
+	converted := make([]events.PollChoice, 0, len(choices))
 
 	for _, choice := range choices {
 		converted = append(
-			converted, &events.PollInfo_Choice{
-				Id:                  choice.ID,
+			converted,
+			events.PollChoice{
+				ID:                  choice.ID,
 				Title:               choice.Title,
 				BitsVotes:           uint64(choice.BitsVotes),
 				ChannelsPointsVotes: uint64(choice.ChannelPointsVotes),
@@ -40,25 +40,28 @@ func (c *Handler) handleChannelPollBegin(
 
 	choices := convertChoices(event.Choices)
 
-	msg := &events.PollBeginMessage{
-		BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	msg := events.PollBeginMessage{
+		BaseInfo: events.BaseInfo{
+			ChannelID:   event.BroadcasterUserID,
+			ChannelName: event.BroadcasterUserLogin,
+		},
 		UserName:        event.BroadcasterUserLogin,
 		UserDisplayName: event.BroadcasterUserName,
-		Info: &events.PollInfo{
+		Info: events.PollInfo{
 			Title:   event.Title,
 			Choices: choices,
-			ChannelsPointsVoting: &events.PollInfo_ChannelPointsVotes{
+			ChannelsPointsVoting: events.PollChannelPointsVotes{
 				Enabled:       event.ChannelPointsVoting.IsEnabled,
 				AmountPerVote: uint64(event.ChannelPointsVoting.AmountPerVote),
 			},
-			BitsVoting: &events.PollInfo_BitsVotes{
+			BitsVoting: events.PollBitsVotes{
 				Enabled:       event.BitsVoting.IsEnabled,
 				AmountPerVote: uint64(event.BitsVoting.AmountPerVote),
 			},
 		},
 	}
 
-	_, err := c.eventsGrpc.PollBegin(context.Background(), msg)
+	err := c.twirBus.Events.PollBegin.Publish(msg)
 	if err != nil {
 		zap.S().Error(err)
 	}
@@ -77,25 +80,28 @@ func (c *Handler) handleChannelPollProgress(
 
 	choices := convertChoices(event.Choices)
 
-	msg := &events.PollProgressMessage{
-		BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	msg := events.PollProgressMessage{
+		BaseInfo: events.BaseInfo{
+			ChannelID:   event.BroadcasterUserID,
+			ChannelName: event.BroadcasterUserLogin,
+		},
 		UserName:        event.BroadcasterUserLogin,
 		UserDisplayName: event.BroadcasterUserName,
-		Info: &events.PollInfo{
+		Info: events.PollInfo{
 			Title:   event.Title,
 			Choices: choices,
-			ChannelsPointsVoting: &events.PollInfo_ChannelPointsVotes{
+			ChannelsPointsVoting: events.PollChannelPointsVotes{
 				Enabled:       event.ChannelPointsVoting.IsEnabled,
 				AmountPerVote: uint64(event.ChannelPointsVoting.AmountPerVote),
 			},
-			BitsVoting: &events.PollInfo_BitsVotes{
+			BitsVoting: events.PollBitsVotes{
 				Enabled:       event.BitsVoting.IsEnabled,
 				AmountPerVote: uint64(event.BitsVoting.AmountPerVote),
 			},
 		},
 	}
 
-	_, err := c.eventsGrpc.PollProgress(context.Background(), msg)
+	err := c.twirBus.Events.PollProgress.Publish(msg)
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
@@ -114,25 +120,28 @@ func (c *Handler) handleChannelPollEnd(
 
 	choices := convertChoices(event.Choices)
 
-	msg := &events.PollEndMessage{
-		BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	msg := events.PollEndMessage{
+		BaseInfo: events.BaseInfo{
+			ChannelID:   event.BroadcasterUserID,
+			ChannelName: event.BroadcasterUserLogin,
+		},
 		UserName:        event.BroadcasterUserLogin,
 		UserDisplayName: event.BroadcasterUserName,
-		Info: &events.PollInfo{
+		Info: events.PollInfo{
 			Title:   event.Title,
 			Choices: choices,
-			ChannelsPointsVoting: &events.PollInfo_ChannelPointsVotes{
+			ChannelsPointsVoting: events.PollChannelPointsVotes{
 				Enabled:       event.ChannelPointsVoting.IsEnabled,
 				AmountPerVote: uint64(event.ChannelPointsVoting.AmountPerVote),
 			},
-			BitsVoting: &events.PollInfo_BitsVotes{
+			BitsVoting: events.PollBitsVotes{
 				Enabled:       event.BitsVoting.IsEnabled,
 				AmountPerVote: uint64(event.BitsVoting.AmountPerVote),
 			},
 		},
 	}
 
-	_, err := c.eventsGrpc.PollEnd(context.Background(), msg)
+	err := c.twirBus.Events.PollEnd.Publish(msg)
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}

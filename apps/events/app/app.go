@@ -3,8 +3,8 @@ package app
 import (
 	eventsActivity "github.com/satont/twir/apps/events/internal/activities/events"
 	"github.com/satont/twir/apps/events/internal/chat_alerts"
-	"github.com/satont/twir/apps/events/internal/grpc_impl"
 	"github.com/satont/twir/apps/events/internal/hydrator"
+	"github.com/satont/twir/apps/events/internal/listener"
 	"github.com/satont/twir/apps/events/internal/song_request"
 	"github.com/satont/twir/apps/events/internal/workers"
 	"github.com/satont/twir/apps/events/internal/workflows"
@@ -47,7 +47,7 @@ var App = fx.Module(
 	fx.Invoke(
 		uptrace.NewFx("events"),
 		workers.NewEventsWorker,
-		grpc_impl.New,
+		listener.New,
 		func(l logger.Logger) {
 			l.Info("Events service started")
 		},

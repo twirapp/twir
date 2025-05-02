@@ -1,20 +1,19 @@
 package handler
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []*events.PredictionInfo_OutCome {
-	out := make([]*events.PredictionInfo_OutCome, 0, len(outcomes))
+func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []events.PredictionOutcome {
+	out := make([]events.PredictionOutcome, 0, len(outcomes))
 
 	for _, outcome := range outcomes {
 		topPredictors := make(
-			[]*events.PredictionInfo_OutCome_TopPredictor,
+			[]events.PredictionTopPredictor,
 			0,
 			len(outcome.TopPredictors),
 		)
@@ -22,10 +21,10 @@ func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []*events.Pr
 		for _, predictor := range outcome.TopPredictors {
 			won := uint64(predictor.ChannelPointsWon)
 			topPredictors = append(
-				topPredictors, &events.PredictionInfo_OutCome_TopPredictor{
+				topPredictors, events.PredictionTopPredictor{
 					UserName:        predictor.UserLogin,
 					UserDisplayName: predictor.UserName,
-					UserId:          predictor.UserID,
+					UserID:          predictor.UserID,
 					PointsUsed:      uint64(predictor.ChannelPointsUsed),
 					PointsWin: lo.
 						If(predictor.ChannelPointsWon > 0, &won).
@@ -35,8 +34,8 @@ func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []*events.Pr
 		}
 
 		out = append(
-			out, &events.PredictionInfo_OutCome{
-				Id:            outcome.ID,
+			out, events.PredictionOutcome{
+				ID:            outcome.ID,
 				Title:         outcome.Title,
 				Color:         outcome.Color,
 				Users:         uint64(outcome.Users),
@@ -61,13 +60,15 @@ func (c *Handler) handleChannelPredictionBegin(
 
 	outComes := convertOutCome(event.Outcomes)
 
-	_, err := c.eventsGrpc.PredictionBegin(
-		context.Background(),
-		&events.PredictionBeginMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	err := c.twirBus.Events.PredictionBegin.Publish(
+		events.PredictionBeginMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 			UserName:        event.BroadcasterUserLogin,
 			UserDisplayName: event.BroadcasterUserName,
-			Info: &events.PredictionInfo{
+			Info: events.PredictionInfo{
 				Title:    event.Title,
 				Outcomes: outComes,
 			},
@@ -92,13 +93,15 @@ func (c *Handler) handleChannelPredictionProgress(
 
 	outComes := convertOutCome(event.Outcomes)
 
-	_, err := c.eventsGrpc.PredictionProgress(
-		context.Background(),
-		&events.PredictionProgressMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	err := c.twirBus.Events.PredictionProgress.Publish(
+		events.PredictionProgressMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 			UserName:        event.BroadcasterUserLogin,
 			UserDisplayName: event.BroadcasterUserName,
-			Info: &events.PredictionInfo{
+			Info: events.PredictionInfo{
 				Title:    event.Title,
 				Outcomes: outComes,
 			},
@@ -123,13 +126,15 @@ func (c *Handler) handleChannelPredictionLock(
 
 	outComes := convertOutCome(event.Outcomes)
 
-	_, err := c.eventsGrpc.PredictionLock(
-		context.Background(),
-		&events.PredictionLockMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	err := c.twirBus.Events.PredictionLock.Publish(
+		events.PredictionLockMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 			UserName:        event.BroadcasterUserLogin,
 			UserDisplayName: event.BroadcasterUserName,
-			Info: &events.PredictionInfo{
+			Info: events.PredictionInfo{
 				Title:    event.Title,
 				Outcomes: outComes,
 			},
@@ -159,17 +164,19 @@ func (c *Handler) handleChannelPredictionEnd(
 
 	outComes := convertOutCome(event.Outcomes)
 
-	_, err := c.eventsGrpc.PredictionEnd(
-		context.Background(),
-		&events.PredictionEndMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	err := c.twirBus.Events.PredictionEnd.Publish(
+		events.PredictionEndMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 			UserName:        event.BroadcasterUserLogin,
 			UserDisplayName: event.BroadcasterUserName,
-			Info: &events.PredictionInfo{
+			Info: events.PredictionInfo{
 				Title:    event.Title,
 				Outcomes: outComes,
 			},
-			WinningOutcomeId: event.WinningOutcomeID,
+			WinningOutcomeID: event.WinningOutcomeID,
 		},
 	)
 

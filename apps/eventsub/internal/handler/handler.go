@@ -14,7 +14,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -33,7 +32,6 @@ import (
 type Handler struct {
 	logger logger.Logger
 
-	eventsGrpc              events.EventsClient
 	parserGrpc              parser.ParserClient
 	websocketsGrpc          websockets.WebsocketClient
 	tokensGrpc              tokens.TokensClient
@@ -47,7 +45,7 @@ type Handler struct {
 	gorm        *gorm.DB
 	redisClient *redis.Client
 
-	bus         *bus_core.Bus
+	twirBus     *bus_core.Bus
 	prefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
 	config      cfg.Config
 }
@@ -58,7 +56,6 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	EventsGrpc              events.EventsClient
 	ParserGrpc              parser.ParserClient
 	WebsocketsGrpc          websockets.WebsocketClient
 	TokensGrpc              tokens.TokensClient
@@ -89,12 +86,11 @@ func New(opts Opts) *Handler {
 		config:                  opts.Config,
 		gorm:                    opts.Gorm,
 		redisClient:             opts.Redis,
-		eventsGrpc:              opts.EventsGrpc,
 		parserGrpc:              opts.ParserGrpc,
 		websocketsGrpc:          opts.WebsocketsGrpc,
 		tokensGrpc:              opts.TokensGrpc,
 		tracer:                  opts.Tracer,
-		bus:                     opts.Bus,
+		twirBus:                 opts.Bus,
 		prefixCache:             opts.PrefixCache,
 		scheduledVipsRepo:       opts.ScheduledVipsRepo,
 		channelsCache:           opts.ChannelsRepo,

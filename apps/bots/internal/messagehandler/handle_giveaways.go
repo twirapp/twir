@@ -43,7 +43,7 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage)
 			return nil
 		}
 
-		err = c.bus.Giveaways.TryAddParticipant.Publish(
+		err = c.twirBus.Giveaways.TryAddParticipant.Publish(
 			giveawaysbus.TryAddParticipantRequest{
 				UserID:          msg.ChatterUserId,
 				UserLogin:       msg.ChatterUserLogin,

@@ -8,8 +8,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
@@ -51,7 +51,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return err
 	}
 
-	res, err := c.bus.Parser.ParseVariablesInText.Request(
+	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
 			ChannelID:   msg.BroadcasterUserId,
 			ChannelName: msg.BroadcasterUserLogin,
@@ -86,11 +86,13 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		)
 	}
 
-	_, err = c.eventsGrpc.GreetingSended(
-		ctx,
-		&events.GreetingSendedMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: msg.BroadcasterUserId},
-			UserId:          msg.ChatterUserId,
+	err = c.twirBus.Events.GreetingSended.Publish(
+		events.GreetingSendedMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   msg.BroadcasterUserId,
+				ChannelName: msg.BroadcasterUserLogin,
+			},
+			UserID:          msg.ChatterUserId,
 			UserName:        msg.ChatterUserLogin,
 			UserDisplayName: msg.ChatterUserName,
 			GreetingText:    greeting.Text,

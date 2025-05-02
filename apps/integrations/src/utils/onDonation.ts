@@ -1,5 +1,5 @@
 import { insertDonation } from '../libs/db.ts'
-import { eventsGrpcClient } from '../libs/eventsGrpc.ts'
+import { twirBus } from '../libs/twirbus.ts'
 
 export interface Donate {
 	twitchUserId: string
@@ -16,11 +16,11 @@ export async function onDonation(donate: Donate) {
 
 	const msg = donate.message || ''
 
-	await eventsGrpcClient.donate({
+	await twirBus.Events.Donate.publish({
+		base_info: { channel_id: donate.twitchUserId, channel_name: '' },
+		user_name: userName,
 		amount: donate.amount.toString(),
-		message: msg,
 		currency: donate.currency,
-		baseInfo: { channelId: donate.twitchUserId },
-		userName,
+		message: msg,
 	})
 }

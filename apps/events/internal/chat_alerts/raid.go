@@ -7,13 +7,13 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *ChatAlerts) raid(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
-	req *events.RaidedMessage,
+	req events.RaidedMessage,
 ) error {
 	if !settings.Raids.Enabled {
 		return nil
@@ -33,7 +33,7 @@ func (c *ChatAlerts) raid(
 
 	return c.bus.Bots.SendMessage.Publish(
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelId,
+			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        sample,
 			SkipRateLimits: true,
 		},

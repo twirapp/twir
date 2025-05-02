@@ -10,7 +10,6 @@ import (
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -35,9 +34,6 @@ var App = fx.Options(
 	fx.Provide(
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
-		},
-		func(config cfg.Config) events.EventsClient {
-			return clients.NewEvents(config.AppEnv)
 		},
 		func(config cfg.Config) parser.ParserClient {
 			return clients.NewParser(config.AppEnv)

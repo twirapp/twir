@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"context"
 	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -40,10 +39,12 @@ func (c *Handler) handleChannelUnbanRequestCreate(
 		},
 	)
 
-	c.eventsGrpc.ChannelUnbanRequestCreate(
-		context.Background(),
-		&events.ChannelUnbanRequestCreateMessage{
-			BaseInfo:             &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	c.twirBus.Events.ChannelUnbanRequestCreate.Publish(
+		events.ChannelUnbanRequestCreateMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 			UserName:             event.UserName,
 			UserLogin:            event.UserLogin,
 			BroadcasterUserName:  event.BroadcasterUserName,
@@ -90,10 +91,12 @@ func (c *Handler) handleChannelUnbanRequestResolve(
 		},
 	)
 
-	c.eventsGrpc.ChannelUnbanRequestResolve(
-		context.Background(),
-		&events.ChannelUnbanRequestResolveMessage{
-			BaseInfo:             &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+	c.twirBus.Events.ChannelUnbanRequestResolve.Publish(
+		events.ChannelUnbanRequestResolveMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
 			UserName:             event.UserName,
 			UserLogin:            event.UserLogin,
 			BroadcasterUserName:  event.BroadcasterUserName,

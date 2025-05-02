@@ -6,7 +6,7 @@ import (
 	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
 func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg handleMessage) error {
@@ -45,10 +45,11 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg hand
 		return err
 	}
 
-	_, err = c.eventsGrpc.StreamFirstUserJoin(
-		ctx, &events.StreamFirstUserJoinMessage{
-			BaseInfo: &events.BaseInfo{
-				ChannelId: msg.BroadcasterUserId,
+	err = c.twirBus.Events.StreamFirstUserJoin.Publish(
+		events.StreamFirstUserJoinMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   msg.BroadcasterUserId,
+				ChannelName: msg.BroadcasterUserLogin,
 			},
 			UserName: msg.ChatterUserName,
 		},

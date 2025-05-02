@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
@@ -58,15 +58,16 @@ func (c *Handler) handleBan(
 		),
 	)
 
-	c.eventsGrpc.ChannelBan(
-		context.TODO(), &events.ChannelBanMessage{
-			BaseInfo: &events.BaseInfo{
-				ChannelId: event.BroadcasterUserID,
+	c.twirBus.Events.ChannelBan.Publish(
+		events.ChannelBanMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
 			},
 			UserName:             event.UserName,
 			UserLogin:            event.UserLogin,
 			BroadcasterUserName:  event.BroadcasterUserName,
-			BroadcasterUserLogin: event.BroadcasterUserLogin,
+			BroadcasterUserLogin: event.BroadcasterUserName,
 			ModeratorUserName:    event.ModeratorUserName,
 			ModeratorUserLogin:   event.ModeratorUserLogin,
 			Reason:               event.Reason,

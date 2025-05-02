@@ -6,7 +6,6 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/redis_keys"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
@@ -28,16 +27,6 @@ func (c *Handler) handleStreamOffline(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	_, err := c.eventsGrpc.StreamOffline(
-		context.Background(),
-		&events.StreamOfflineMessage{
-			BaseInfo: &events.BaseInfo{ChannelId: event.BroadcasterUserID},
-		},
-	)
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-	}
-
 	dbStream := model.ChannelsStreams{}
 	if err := c.gorm.Where(
 		`"userId" = ?`,
@@ -47,14 +36,14 @@ func (c *Handler) handleStreamOffline(
 		return
 	}
 
-	c.bus.Channel.StreamOffline.Publish(
+	c.twirBus.Channel.StreamOffline.Publish(
 		twitch.StreamOfflineMessage{
 			ChannelID: event.BroadcasterUserID,
 			StartedAt: dbStream.StartedAt,
 		},
 	)
 
-	err = c.gorm.Where(
+	err := c.gorm.Where(
 		`"userId" = ?`,
 		event.BroadcasterUserID,
 	).Delete(&model.ChannelsStreams{}).Error

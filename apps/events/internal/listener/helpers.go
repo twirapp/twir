@@ -1,13 +1,13 @@
-package grpc_impl
+package listener
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/bus-core/events"
 )
 
-func predictionMapTopPredictors(predictors []*events.PredictionInfo_OutCome_TopPredictor) string {
+func predictionMapTopPredictors(predictors []events.PredictionTopPredictor) string {
 	mapped := make([]string, 0, len(predictors))
 
 	for _, p := range predictors {

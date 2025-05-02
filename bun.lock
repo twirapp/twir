@@ -29,10 +29,12 @@
     "apps/integrations": {
       "name": "@twir/integrations",
       "dependencies": {
+        "@twir/bus-core": "workspace:*",
         "@twir/config": "workspace:*",
         "@twir/grpc": "workspace:*",
         "@twir/pubsub": "workspace:*",
         "centrifuge": "2.8.5",
+        "nats": "2.22.0",
         "nice-grpc": "2.1.8",
         "protobufjs": "7.2.6",
         "rate-limiter-algorithms": "2.1.0",

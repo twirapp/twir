@@ -21,7 +21,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -43,7 +42,6 @@ type Opts struct {
 	Logger                           logger.Logger
 	ParserGrpc                       parser.ParserClient
 	WebsocketsGrpc                   websockets.WebsocketClient
-	EventsGrpc                       events.EventsClient
 	GreetingsRepository              greetings.Repository
 	ChatMessagesRepository           chat_messages.Repository
 	Gorm                             *gorm.DB
@@ -69,14 +67,13 @@ type MessageHandler struct {
 	logger                           logger.Logger
 	parserGrpc                       parser.ParserClient
 	websocketsGrpc                   websockets.WebsocketClient
-	eventsGrpc                       events.EventsClient
 	greetingsRepository              greetings.Repository
 	chatMessagesRepository           chat_messages.Repository
 	gorm                             *gorm.DB
 	redis                            *redis.Client
 	twitchActions                    *twitchactions.TwitchActions
 	moderationHelpers                *moderationhelpers.ModerationHelpers
-	bus                              *buscore.Bus
+	twirBus                          *buscore.Bus
 	votebanMutex                     *redsync.Mutex
 	greetingsCache                   *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 	chatWallCacher                   *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
@@ -101,10 +98,9 @@ func New(opts Opts) *MessageHandler {
 		twitchActions:                    opts.TwitchActions,
 		parserGrpc:                       opts.ParserGrpc,
 		websocketsGrpc:                   opts.WebsocketsGrpc,
-		eventsGrpc:                       opts.EventsGrpc,
 		moderationHelpers:                opts.ModerationHelpers,
 		config:                           opts.Config,
-		bus:                              opts.Bus,
+		twirBus:                          opts.Bus,
 		votebanMutex:                     votebanLock.NewMutex("bots:voteban_handle_message"),
 		keywordsService:                  opts.KeywordsService,
 		greetingsRepository:              opts.GreetingsRepository,
