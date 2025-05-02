@@ -9,4 +9,5 @@ type Arg interface {
 	// IsOptional only latest argument can be optional
 	IsOptional() bool
 	GetHint() string
+	Value() any
 }

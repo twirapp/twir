@@ -34,3 +34,7 @@ func (c VariadicString) GetHint() string {
 func (c VariadicString) IsOptional() bool {
 	return c.Optional
 }
+
+func (c VariadicString) Value() any {
+	return c.value
+}

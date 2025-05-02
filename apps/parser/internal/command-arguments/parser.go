@@ -9,7 +9,8 @@ import (
 )
 
 type Parser struct {
-	store map[string]Arg
+	store     map[string]Arg
+	delimiter string
 }
 
 func (c *Parser) Get(name string) Arg {
@@ -19,26 +20,42 @@ func (c *Parser) Get(name string) Arg {
 var ErrInvalidCommand = errors.New("[bug] command is invalid")
 var ErrInvalidArg = errors.New("arg is invalid")
 
-func NewParser(args []Arg, input string) (*Parser, error) {
-	store := &Parser{}
+type Opts struct {
+	Args          []Arg
+	Input         string
+	ArgsDelimiter string
+}
 
-	store.store = make(map[string]Arg)
-	inputFields := strings.Fields(input)
-
-	if len(args) == 0 {
-		return store, nil
+func NewParser(opts Opts) (*Parser, error) {
+	p := &Parser{
+		store:     make(map[string]Arg),
+		delimiter: " ",
+	}
+	if opts.ArgsDelimiter != "" {
+		p.delimiter = opts.ArgsDelimiter
 	}
 
-	argsLen := len(args)
-	if args[argsLen-1].IsOptional() {
+	inputFields := strings.Split(opts.Input, p.delimiter)
+	inputFields = slices.DeleteFunc(
+		inputFields, func(s string) bool {
+			return s == ""
+		},
+	)
+
+	if len(opts.Args) == 0 {
+		return p, nil
+	}
+
+	argsLen := len(opts.Args)
+	if opts.Args[argsLen-1].IsOptional() {
 		argsLen--
 	}
 
 	if len(inputFields) < argsLen {
-		return store, ErrInvalidCommand
+		return p, ErrInvalidCommand
 	}
 
-	for i, arg := range args {
+	for i, arg := range opts.Args {
 		if i >= len(inputFields) && arg.IsOptional() {
 			break
 		}
@@ -47,20 +64,20 @@ func NewParser(args []Arg, input string) (*Parser, error) {
 		case VariadicString:
 			value := strings.Join(inputFields[i:], " ")
 
-			store.store[typedArgument.Name] = &VariadicString{
+			p.store[typedArgument.Name] = &VariadicString{
 				Name:  typedArgument.Name,
 				value: value,
 			}
 		case String:
 			if len(typedArgument.OneOf) > 0 {
 				if !slices.Contains(typedArgument.OneOf, inputFields[i]) {
-					return store, ErrInvalidArg
+					return p, ErrInvalidArg
 				}
 			}
 
 			value := inputFields[i]
 
-			store.store[typedArgument.Name] = &String{
+			p.store[typedArgument.Name] = &String{
 				Name:  typedArgument.Name,
 				value: value,
 			}
@@ -68,61 +85,100 @@ func NewParser(args []Arg, input string) (*Parser, error) {
 		case Int:
 			parsedInt, err := strconv.Atoi(inputFields[i])
 			if err != nil {
-				return store, ErrInvalidArg
+				return p, ErrInvalidArg
 			}
 
 			if typedArgument.Max != nil && parsedInt > *typedArgument.Max {
-				return store, ErrInvalidArg
+				return p, ErrInvalidArg
 			}
 
 			if typedArgument.Min != nil && parsedInt < *typedArgument.Min {
-				return store, ErrInvalidArg
+				return p, ErrInvalidArg
 			}
 
-			store.store[typedArgument.Name] = &Int{
+			p.store[typedArgument.Name] = &Int{
 				Name:  typedArgument.Name,
 				value: parsedInt,
 			}
 		}
 	}
 
-	return store, nil
+	return p, nil
 }
 
 func (c *Parser) BuildUsageString(args []Arg, cmdName string) string {
-	usage := "!" + cmdName
+	var usageBuidler strings.Builder
 
-	for _, arg := range args {
+	usageBuidler.WriteString("!")
+	usageBuidler.WriteString(cmdName)
+	usageBuidler.WriteString(" ")
+
+	for idx, arg := range args {
+		if idx != 0 {
+			usageBuidler.WriteString(c.delimiter)
+		}
+
 		switch typedArgument := arg.(type) {
 		case VariadicString:
-			usage += fmt.Sprintf(" [%s]", typedArgument.GetHint())
+			usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint()))
 		case String:
 			if len(typedArgument.OneOf) > 0 {
-				usage += fmt.Sprintf(
-					" <%s (%s)>",
-					typedArgument.GetHint(),
-					strings.Join(typedArgument.OneOf, "|"),
+				usageBuidler.WriteString(
+					c.buildUsagePrefixAndSuffix(
+						fmt.Sprintf("%s %s", typedArgument.Name, typedArgument.GetHint()),
+					),
 				)
 			} else {
-				usage += fmt.Sprintf(" <%s>", typedArgument.GetHint())
+				usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint()))
 			}
 		case Int:
 			if typedArgument.Min != nil && typedArgument.Max != nil {
-				usage += fmt.Sprintf(
-					" <%s (min %d, max %d)>",
-					typedArgument.GetHint(),
-					*typedArgument.Min,
-					*typedArgument.Max,
+				usageBuidler.WriteString(
+					c.buildUsagePrefixAndSuffix(
+						fmt.Sprintf(
+							"%s (min %d, max %d)",
+							typedArgument.GetHint(),
+							*typedArgument.Min,
+							*typedArgument.Max,
+						),
+					),
 				)
 			} else if typedArgument.Min != nil {
-				usage += fmt.Sprintf(" <%s (min %d)>", typedArgument.GetHint(), *typedArgument.Min)
+				usageBuidler.WriteString(
+					c.buildUsagePrefixAndSuffix(
+						fmt.Sprintf(
+							"%s (min %d)",
+							typedArgument.GetHint(),
+							*typedArgument.Min,
+						),
+					),
+				)
 			} else if typedArgument.Max != nil {
-				usage += fmt.Sprintf(" <%s (max %d)>", typedArgument.GetHint(), *typedArgument.Max)
+				usageBuidler.WriteString(
+					c.buildUsagePrefixAndSuffix(
+						fmt.Sprintf(
+							"%s (max %d)",
+							typedArgument.GetHint(),
+							*typedArgument.Max,
+						),
+					),
+				)
 			} else {
-				usage += fmt.Sprintf(" <%s>", typedArgument.GetHint())
+				usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint()))
 			}
 		}
 	}
 
-	return usage
+	return usageBuidler.String()
+}
+
+func (c *Parser) buildUsagePrefixAndSuffix(input string) string {
+	prefix := "<"
+	suffix := ">"
+	if c.delimiter != " " {
+		prefix = ""
+		suffix = ""
+	}
+
+	return prefix + input + suffix
 }

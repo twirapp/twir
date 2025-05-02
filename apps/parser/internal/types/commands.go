@@ -28,5 +28,6 @@ type DefaultCommand struct {
 		error,
 	)
 	Args              []command_arguments.Arg
+	ArgsDelimiter     string
 	SkipToxicityCheck bool
 }

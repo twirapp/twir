@@ -34,3 +34,7 @@ func (c String) GetHint() string {
 func (c String) IsOptional() bool {
 	return c.Optional
 }
+
+func (c String) Value() any {
+	return c.value
+}

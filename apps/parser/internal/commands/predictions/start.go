@@ -24,23 +24,25 @@ const (
 var Start = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "prediction start",
-		Description: null.StringFrom("Start prediction"),
+		Description: null.StringFrom("Start prediction. Example usage: !prediction start 100 | Will we win this game? | Yes, win / No, lose"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "PREDICTIONS",
 		IsReply:     true,
 	},
 	SkipToxicityCheck: true,
+	ArgsDelimiter:     " | ",
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name: startPredictionDuration,
-			Hint: "duration in seconds",
+			Hint: "120",
 		},
-		command_arguments.Int{
-			Name: startPredictionArgVariants,
-			Hint: "example: yes win|no lose",
-		},
-		command_arguments.VariadicString{
+		command_arguments.String{
 			Name: startPredictionArgTitle,
+			Hint: "Will we win this game?",
+		},
+		command_arguments.String{
+			Name: startPredictionArgVariants,
+			Hint: "Yes, win / No, lose",
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -64,7 +66,7 @@ var Start = &types.DefaultCommand{
 		durationArg := parseCtx.ArgsParser.Get(startPredictionDuration).Int()
 		titleArg := parseCtx.ArgsParser.Get(startPredictionArgTitle).String()
 
-		parsedVariants := strings.Split(variantsArg, "|")
+		parsedVariants := strings.Split(variantsArg, " / ")
 		outcomes := make([]helix.PredictionChoiceParam, 0, len(parsedVariants))
 		for _, variant := range parsedVariants {
 			outcomes = append(

@@ -147,7 +147,7 @@ func New(opts *Opts) *Commands {
 			predictions.Resolve,
 			predictions.Cancel,
 			predictions.Lock,
-			// predictions.Start,
+			predictions.Start,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -345,7 +345,13 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	if command.Cmd.Default && defaultCommand != nil {
-		argsParser, err := command_arguments.NewParser(defaultCommand.Args, params)
+		argsParser, err := command_arguments.NewParser(
+			command_arguments.Opts{
+				Args:          defaultCommand.Args,
+				Input:         params,
+				ArgsDelimiter: defaultCommand.ArgsDelimiter,
+			},
+		)
 		if err != nil {
 			usage := argsParser.BuildUsageString(defaultCommand.Args, defaultCommand.Name)
 
