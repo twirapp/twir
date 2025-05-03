@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { RpcError } from '@protobuf-ts/runtime-rpc'
-import { TwirEventType } from '@twir/api/messages/events/events'
 import { useDebounceFn } from '@vueuse/core'
 import { CopyIcon } from 'lucide-vue-next'
 import { NButton, NButtonGroup, NTabPane, NTabs, useThemeVars } from 'naive-ui'
@@ -22,13 +21,13 @@ import { useToast } from '@/components/ui/toast'
 import { flatEvents } from '@/features/events/constants/helpers.js'
 
 const availableEvents = Object.values(flatEvents)
-	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])
+	.filter(e => e.enumValue !== undefined)
 	.map(e => {
 		return {
 			name: e.name,
-			value: e.enumValue,
+			value: e.enumValue!.toString(),
 		}
-	}) as Array<{ name: string, value: TwirEventType }>
+	}) as Array<{ name: string, value: string }>
 
 const themeVars = useThemeVars()
 const { t } = useI18n()
@@ -82,7 +81,7 @@ watch(settings, (s) => {
 	const events = toRaw(s.events)
 
 	for (const event of availableEvents) {
-		const isExists = events.some(e => e.event === event.value)
+		const isExists = events.some(e => e.event.toString() === event.value.toString())
 		if (isExists) continue
 
 		events.push({ event: event.value, disabledStyles: [], enabled: false })
