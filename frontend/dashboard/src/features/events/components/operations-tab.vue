@@ -73,6 +73,11 @@ function removeOperation(operationIndex: number) {
 							class="w-full rounded-lg border py-1 px-2 cursor-pointer items-center flex flex-row justify-between"
 							:class="{
 								'outline outline-1 outline-zinc-700': operationIndex === selectedOperation,
+								'border-b': flatOperations[operation.value.type]?.color,
+								'border-b-red-900': flatOperations[operation.value.type]?.color === 'error',
+								'border-b-green-900': flatOperations[operation.value.type]?.color === 'success',
+								'border-b-blue-900': flatOperations[operation.value.type]?.color === 'info',
+								'border-b-yellow-900': flatOperations[operation.value.type]?.color === 'warning',
 							}"
 							@click="selectOperation(operationIndex)"
 						>
