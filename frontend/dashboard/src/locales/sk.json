@@ -991,7 +991,7 @@
     }
   },
   "moderation": {
-    "name": "Name of rule, just for your convenience to see name in list",
+    "name": "Názov pravidla, len pre tvoju orientáciu v zozname",
     "createNewRule": "Vytvorenie nového pravidla moderácie",
     "banTime": "Dĺžka timeoutu",
     "banDescription": "Nastavte na 0 pre trvalý ban.",
@@ -1011,7 +1011,7 @@
         "regexp": "Ak ste pokročilý používateľ, zoznam zakázaných slov podporuje aj regulárne výrazy. Regulárny výraz by mal byť zapísaný vo formáte golang! Pozri {0} tu.",
         "regexpCheatSheet": "Ťahák",
         "wordBoundary": {
-          "label": "Word boundary",
+          "label": "Hranica slova\n",
           "description": "Hranica slova pri filtrovaní označuje začiatok alebo koniec slova, čím zabezpečuje, že filtre zodpovedajú celým slovám (napr. „cat“), ale nie častiam slov (napr. „category“)."
         },
         "caseSensitive": {
