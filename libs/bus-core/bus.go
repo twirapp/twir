@@ -408,6 +408,30 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
+			VipAdded: NewNatsQueue[events.VipAddedMessage, struct{}](
+				nc,
+				events.VipAddedSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			VipRemoved: NewNatsQueue[events.VipRemovedMessage, struct{}](
+				nc,
+				events.VipRemovedSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			ModeratorAdded: NewNatsQueue[events.ModeratorAddedMessage, struct{}](
+				nc,
+				events.ModeratorAddedSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			ModeratorRemoved: NewNatsQueue[events.ModeratorRemovedMessage, struct{}](
+				nc,
+				events.ModeratorRemovedSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
 		},
 	}
 }
