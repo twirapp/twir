@@ -1,5 +1,5 @@
-import { EventsOptions } from './events.js'
-import { EventOperations } from './operations.js'
+import { EventsOptions } from './events.ts'
+import { EventOperations } from './operations.ts'
 
 interface SelectGeneric {
 	type?: 'group'

@@ -9,7 +9,6 @@ import OperationDetails from './operation.vue'
 
 import type { EventOperation } from '@/api/events'
 
-import { flatOperations } from '@/components/events/helpers'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -17,6 +16,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
+import { flatOperations } from '@/features/events/constants/helpers'
 import { EventOperationType } from '@/gql/graphql'
 
 const { t } = useI18n()

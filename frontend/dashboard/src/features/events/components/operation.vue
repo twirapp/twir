@@ -8,7 +8,6 @@ import OperationFilter from './filter.vue'
 
 import type { EventFilter, EventOperation } from '@/api/events'
 
-import { flatOperations } from '@/components/events/helpers'
 import { Button } from '@/components/ui/button'
 import {
 	FormControl,
@@ -26,6 +25,7 @@ import OperationActionSelector from '@/features/events/components/operation-acti
 import OperationInputAlert from '@/features/events/components/operation-input-alert.vue'
 import OperationInputObsSelector
 	from '@/features/events/components/operation-input-obs-selector.vue'
+import { flatOperations } from '@/features/events/constants/helpers'
 import { EventOperationType } from '@/gql/graphql'
 
 const props = withDefaults(defineProps<{

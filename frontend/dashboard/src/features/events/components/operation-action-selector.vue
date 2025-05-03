@@ -6,8 +6,6 @@ import { useI18n } from 'vue-i18n'
 
 import type { EventOperation } from '@/api/events.ts'
 
-import { flatOperations } from '@/components/events/helpers.ts'
-import { EventOperations } from '@/components/events/operations.ts'
 import { Button } from '@/components/ui/button'
 import {
 	Command,
@@ -19,6 +17,8 @@ import {
 } from '@/components/ui/command'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { flatOperations } from '@/features/events/constants/helpers.ts'
+import { EventOperations } from '@/features/events/constants/operations.ts'
 import { EventOperationType } from '@/gql/graphql.ts'
 import { cn } from '@/lib/utils.ts'
 

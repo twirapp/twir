@@ -1,4 +1,4 @@
-import { EventOperationType } from '@/gql/graphql'
+import { EventOperationType } from '@/gql/graphql.ts'
 
 export interface Operation {
 	name: string

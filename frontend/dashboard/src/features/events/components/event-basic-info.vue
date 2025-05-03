@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getEventName } from '@twir/dashboard/src/components/events/helpers.ts'
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
@@ -8,7 +7,6 @@ import { useI18n } from 'vue-i18n'
 import { useCommandsApi } from '@/api/commands/commands'
 import { EventType } from '@/api/events.ts'
 import { useKeywordsApi } from '@/api/keywords'
-import { EventsOptions } from '@/components/events/events.ts'
 import TwitchRewardsSelector from '@/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,6 +37,8 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover'
 import { Switch } from '@/components/ui/switch'
+import { EventsOptions } from '@/features/events/constants/events.ts'
+import { getEventName } from '@/features/events/constants/helpers.ts'
 import { cn } from '@/lib/utils'
 
 const { t } = useI18n()

@@ -17,9 +17,9 @@ import type {
 } from '@twir/api/messages/overlays_kappagen/overlays_kappagen'
 
 import { useKappaGenOverlayManager, useProfile } from '@/api'
-import { flatEvents } from '@/components/events/helpers.js'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
 import { useToast } from '@/components/ui/toast'
+import { flatEvents } from '@/features/events/constants/helpers.js'
 
 const availableEvents = Object.values(flatEvents)
 	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])

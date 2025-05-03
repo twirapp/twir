@@ -9,15 +9,15 @@ const { t } = useI18n()
 const router = useRouter()
 
 function createEvent() {
-  router.push('/dashboard/events/new')
+	router.push('/dashboard/events/new')
 }
 </script>
 
 <template>
-  <div class="flex gap-2">
-    <Button @click="createEvent">
-      <PlusIcon class="size-4 mr-2" />
-      {{ t('events.create') }}
-    </Button>
-  </div>
+	<div class="flex gap-2">
+		<Button @click="createEvent">
+			<PlusIcon class="size-4 mr-2" />
+			{{ t('events.create') }}
+		</Button>
+	</div>
 </template>

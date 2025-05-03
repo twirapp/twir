@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import EventsTableActions from '../ui/events-table-actions.vue'
 
 import { type Event, useEventsApi } from '@/api/events'
-import { getEventName } from '@/components/events/helpers'
+import { flatEvents, getEventName } from '@/features/events/constants/helpers'
 
 export const useEventsTable = createGlobalState(() => {
 	const { t } = useI18n()
@@ -21,27 +21,28 @@ export const useEventsTable = createGlobalState(() => {
 	const tableColumns = computed<ColumnDef<Event>[]>(() => [
 		{
 			accessorKey: 'type',
-			size: 20,
+			size: 10,
 			header: () => h('div', {}, t('events.type')),
 			cell: ({ row }) => h('div', { class: 'flex items-center gap-2' }, [
+				h(flatEvents[row.original.type]?.icon ?? 'div'),
 				h('span', {}, getEventName(row.original.type)),
 			]),
 		},
 		{
 			accessorKey: 'description',
-			size: 40,
+			size: 20,
 			header: () => h('div', {}, t('events.description')),
 			cell: ({ row }) => h('span', row.original.description),
 		},
 		{
 			accessorKey: 'operations',
-			size: 30,
+			size: 60,
 			header: () => h('div', {}, t('events.operations')),
 			cell: ({ row }) => h('span', {}, `${row.original.operations.length} ${t('events.operations')}`),
 		},
 		{
 			accessorKey: 'actions',
-			size: 10,
+			size: 5,
 			header: () => '',
 			cell: ({ row }) => h(EventsTableActions, { event: row.original }),
 		},
