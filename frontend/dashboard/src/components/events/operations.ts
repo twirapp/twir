@@ -1,3 +1,5 @@
+import { EventOperationType } from '@/gql/graphql'
+
 export interface Operation {
 	name: string
 	haveInput?: boolean
@@ -6,23 +8,25 @@ export interface Operation {
 	dependsOnEvents?: string[]
 	color?: 'default' | 'success' | 'error' | 'warning' | 'info'
 	type?: 'group'
-	childrens?: Record<string, Operation>
+	childrens?: Partial<Record<EventOperationType, Operation>>
+	inputKeyTranslatePath?: string
 }
 
-export const OPERATIONS: Record<string, Operation> = {
-	SEND_MESSAGE: {
+export const EventOperations: Record<EventOperationType | string, Operation> = {
+	[EventOperationType.SendMessage]: {
 		name: 'Send message in chat',
 		haveInput: true,
 		additionalValues: ['useAnnounce'],
 		color: 'success',
+		inputKeyTranslatePath: 'events.operations.inputs.message',
 	},
-	MESSAGE_DELETE: {
+	[EventOperationType.MessageDelete]: {
 		name: 'Delete message',
 		color: 'error',
 		dependsOnEvents: ['COMMAND_USED'],
 	},
 
-	TRIGGER_ALERT: {
+	[EventOperationType.TriggerAlert]: {
 		name: 'Trigger alert',
 		additionalValues: ['target'],
 		color: 'success',
@@ -32,34 +36,38 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Bans, Timeouts',
 		type: 'group',
 		childrens: {
-			BAN: {
+			[EventOperationType.Ban]: {
 				name: 'Ban user',
 				haveInput: true,
 				additionalValues: ['timeoutMessage'],
 				color: 'error',
 			},
-			UNBAN: {
+			[EventOperationType.Unban]: {
 				name: 'Unban user',
 				haveInput: true,
 				color: 'success',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			BAN_RANDOM: {
+			[EventOperationType.BanRandom]: {
 				name: 'Ban random online user',
 				producedVariables: ['bannedUserName'],
 				additionalValues: ['timeoutMessage'],
 				color: 'warning',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			TIMEOUT: {
+			[EventOperationType.Timeout]: {
 				name: 'Timeout user',
 				haveInput: true,
 				additionalValues: ['timeoutTime', 'timeoutMessage'],
 				color: 'error',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			TIMEOUT_RANDOM: {
+			[EventOperationType.TimeoutRandom]: {
 				name: 'Timeout random online user',
 				producedVariables: ['bannedUserName'],
 				additionalValues: ['timeoutTime', 'timeoutMessage'],
 				color: 'warning',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
 		},
 	},
@@ -68,26 +76,29 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Manage vips',
 		type: 'group',
 		childrens: {
-			VIP: {
+			[EventOperationType.Vip]: {
 				name: 'Vip user',
 				haveInput: true,
 				color: 'info',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			UNVIP: {
+			[EventOperationType.Unvip]: {
 				name: 'Unvip user',
 				haveInput: true,
 				color: 'error',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			UNVIP_RANDOM: {
+			[EventOperationType.UnvipRandom]: {
 				name: 'Unvip random user',
 				producedVariables: ['unvipedUserName'],
 				color: 'warning',
 			},
-			UNVIP_RANDOM_IF_NO_SLOTS: {
+			[EventOperationType.UnvipRandomIfNoSlots]: {
 				name: 'Unvip random user if no slots',
 				haveInput: true,
 				producedVariables: ['unvipedUserName'],
 				color: 'warning',
+				inputKeyTranslatePath: 'events.operations.inputs.vipSlots',
 			},
 		},
 	},
@@ -96,17 +107,19 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Manage moderators',
 		type: 'group',
 		childrens: {
-			MOD: {
+			[EventOperationType.Mod]: {
 				name: 'Give user moderation',
 				haveInput: true,
 				color: 'info',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			UNMOD: {
+			[EventOperationType.Unmod]: {
 				name: 'Remove moderation from user',
 				haveInput: true,
 				color: 'error',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			UNMOD_RANDOM: {
+			[EventOperationType.UnmodRandom]: {
 				name: 'Remove moderation from random user',
 				producedVariables: ['unmodedUserName'],
 				color: 'warning',
@@ -118,12 +131,12 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Manage stream',
 		type: 'group',
 		childrens: {
-			CHANGE_TITLE: {
+			[EventOperationType.ChangeTitle]: {
 				name: 'Change title of stream',
 				haveInput: true,
 				color: 'warning',
 			},
-			CHANGE_CATEGORY: {
+			[EventOperationType.ChangeCategory]: {
 				name: 'Change category of stream',
 				haveInput: true,
 				color: 'warning',
@@ -143,26 +156,26 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Manage chat',
 		type: 'group',
 		childrens: {
-			ENABLE_SUBMODE: {
+			[EventOperationType.EnableSubmode]: {
 				name: 'Enable submode',
 				color: 'success',
 			},
-			DISABLE_SUBMODE: {
+			[EventOperationType.DisableSubmode]: {
 				name: 'Disable submode',
 				color: 'error',
 			},
-			ENABLE_EMOTEONLY: {
+			[EventOperationType.EnableEmoteOnly]: {
 				name: 'Enable emoteonly',
 				color: 'success',
 			},
-			DISABLE_EMOTEONLY: {
+			[EventOperationType.DisableEmoteOnly]: {
 				name: 'Disable emoteonly',
 				color: 'error',
 			},
 		},
 	},
 
-	CREATE_GREETING: {
+	[EventOperationType.CreateGreeting]: {
 		name:
 			'Create greeting for user. Available only for rewards event, and requires user input.',
 		dependsOnEvents: ['REDEMPTION_CREATED'],
@@ -173,54 +186,54 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'OBS Manage',
 		type: 'group',
 		childrens: {
-			OBS_SET_SCENE: {
+			[EventOperationType.ObsChangeScene]: {
 				name: 'Change scene',
 				additionalValues: ['target'],
 				color: 'default',
 			},
-			OBS_TOGGLE_SOURCE: {
+			[EventOperationType.ObsToggleSource]: {
 				name: `Toggle source visibility`,
 				additionalValues: ['target'],
 				color: 'default',
 			},
-			OBS_TOGGLE_AUDIO: {
+			[EventOperationType.ObsToggleAudio]: {
 				name: 'Toggle audio on/off',
 				additionalValues: ['target'],
 				color: 'default',
 			},
-			OBS_AUDIO_SET_VOLUME: {
+			[EventOperationType.ObsSetAudioVolume]: {
 				name: 'Set audio volume',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'default',
 			},
-			OBS_AUDIO_DECREASE_VOLUME: {
+			[EventOperationType.ObsDecreaseAudioVolume]: {
 				name: 'Decrease audio volume',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'default',
 			},
-			OBS_AUDIO_INCREASE_VOLUME: {
+			[EventOperationType.ObsIncreaseAudioVolume]: {
 				name: 'Increase audio volume',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'default',
 			},
-			OBS_ENABLE_AUDIO: {
+			[EventOperationType.ObsEnableAudio]: {
 				name: 'Enable audio source',
 				additionalValues: ['target'],
 				color: 'default',
 			},
-			OBS_DISABLE_AUDIO: {
+			[EventOperationType.ObsDisableAudio]: {
 				name: 'Disable audio source',
 				additionalValues: ['target'],
 				color: 'default',
 			},
-			OBS_START_STREAM: {
+			[EventOperationType.ObsStartStream]: {
 				name: 'Start stream',
 				color: 'default',
 			},
-			OBS_STOP_STREAM: {
+			[EventOperationType.ObsStopStream]: {
 				name: 'Stop stream',
 				color: 'default',
 			},
@@ -231,22 +244,25 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Variables',
 		type: 'group',
 		childrens: {
-			CHANGE_VARIABLE: {
+			[EventOperationType.ChangeVariable]: {
 				name: 'Change variable',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'warning',
+				inputKeyTranslatePath: 'events.operations.inputs.variableValue',
 			},
-			DECREMENT_VARIABLE: {
+			[EventOperationType.DecrementVariable]: {
 				name: 'Decrement number variable',
 				haveInput: true,
 				color: 'warning',
+				inputKeyTranslatePath: 'events.operations.inputs.variableValue',
 			},
-			INCREMENT_VARIABLE: {
+			[EventOperationType.IncrementVariable]: {
 				name: 'Increment number variable',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'warning',
+				inputKeyTranslatePath: 'events.operations.inputs.variableValue',
 			},
 		},
 	},
@@ -255,12 +271,12 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: '7tv',
 		type: 'group',
 		childrens: {
-			SEVENTV_ADD_EMOTE: {
+			[EventOperationType.SeventvAddEmote]: {
 				name: 'Add emote',
 				haveInput: true,
 				color: 'success',
 			},
-			SEVENTV_REMOVE_EMOTE: {
+			[EventOperationType.SeventvRemoveEmote]: {
 				name: 'Remove emote',
 				haveInput: true,
 				color: 'error',
@@ -272,32 +288,32 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Text to speech (TTS)',
 		type: 'group',
 		childrens: {
-			TTS_SAY: {
+			[EventOperationType.TtsSay]: {
 				name: 'Say text',
 				haveInput: true,
 				color: 'info',
 			},
-			TTS_DISABLE: {
+			[EventOperationType.TtsDisable]: {
 				name: 'Disable TTS',
 				color: 'info',
 			},
-			TTS_ENABLE: {
+			[EventOperationType.TtsEnable]: {
 				name: 'Enable TTS',
 				color: 'info',
 			},
-			TTS_SKIP: {
+			[EventOperationType.TtsSkip]: {
 				name: 'Skip current text',
 				color: 'info',
 			},
-			TTS_SWITCH_AUTOREAD: {
+			[EventOperationType.TtsSwitchAutoread]: {
 				name: 'Switch autoread messages on/off',
 				color: 'info',
 			},
-			TTS_DISABLE_AUTOREAD: {
+			[EventOperationType.TtsDisableAutoread]: {
 				name: 'Disable autoread messages',
 				color: 'info',
 			},
-			TTS_ENABLE_AUTOREAD: {
+			[EventOperationType.TtsEnableAutoread]: {
 				name: 'Enable autoread messages',
 				color: 'info',
 			},
@@ -308,7 +324,7 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Raids',
 		type: 'group',
 		childrens: {
-			RAID_CHANNEL: {
+			[EventOperationType.RaidChannel]: {
 				name: 'Raid channel',
 				haveInput: true,
 				color: 'warning',
@@ -320,34 +336,42 @@ export const OPERATIONS: Record<string, Operation> = {
 		name: 'Commands manage',
 		type: 'group',
 		childrens: {
-			ALLOW_COMMAND_TO_USER: {
+			[EventOperationType.AllowCommandToUser]: {
 				name: 'Allow command to user',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'success',
+
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			REMOVE_ALLOW_COMMAND_TO_USER: {
+			[EventOperationType.RemoveAllowCommandToUser]: {
 				name: 'Remove allow command to user',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'error',
+
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			DENY_COMMAND_TO_USER: {
+			[EventOperationType.DenyCommandToUser]: {
 				name: 'Deny command to user',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'error',
+
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
-			REMOVE_DENY_COMMAND_TO_USER: {
+			[EventOperationType.RemoveDenyCommandToUser]: {
 				name: 'Remove deny command to user',
 				haveInput: true,
 				additionalValues: ['target'],
 				color: 'success',
+
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
 		},
 	},
 
-	SHOUTOUT_CHANNEL: {
+	[EventOperationType.ShoutoutChannel]: {
 		name: 'Shoutout channel',
 		haveInput: true,
 		color: 'info',

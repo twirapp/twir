@@ -125,6 +125,7 @@ const (
 	EventOperationTypeUnvipRandomIfNoSlots     EventOperationType = "UNVIP_RANDOM_IF_NO_SLOTS"
 	EventOperationTypeMod                      EventOperationType = "MOD"
 	EventOperationTypeUnmod                    EventOperationType = "UNMOD"
+	EventOperationTypeUnmodRandom              EventOperationType = "UNMOD_RANDOM"
 	EventOperationTypeRaidChannel              EventOperationType = "RAID_CHANNEL"
 	EventOperationTypeChangeVariable           EventOperationType = "CHANGE_VARIABLE"
 	EventOperationTypeIncrementVariable        EventOperationType = "INCREMENT_VARIABLE"
@@ -152,6 +153,7 @@ var AllEventOperationType = []EventOperationType{
 	EventOperationTypeUnvipRandomIfNoSlots,
 	EventOperationTypeMod,
 	EventOperationTypeUnmod,
+	EventOperationTypeUnmodRandom,
 	EventOperationTypeRaidChannel,
 	EventOperationTypeChangeVariable,
 	EventOperationTypeIncrementVariable,
@@ -166,7 +168,7 @@ var AllEventOperationType = []EventOperationType{
 
 func (e EventOperationType) IsValid() bool {
 	switch e {
-	case EventOperationTypeSendMessage, EventOperationTypeMessageDelete, EventOperationTypeTriggerAlert, EventOperationTypeTimeout, EventOperationTypeTimeoutRandom, EventOperationTypeBan, EventOperationTypeUnban, EventOperationTypeBanRandom, EventOperationTypeVip, EventOperationTypeUnvip, EventOperationTypeUnvipRandom, EventOperationTypeUnvipRandomIfNoSlots, EventOperationTypeMod, EventOperationTypeUnmod, EventOperationTypeRaidChannel, EventOperationTypeChangeVariable, EventOperationTypeIncrementVariable, EventOperationTypeDecrementVariable, EventOperationTypeTtsSay, EventOperationTypeTtsSkip, EventOperationTypeTtsEnable, EventOperationTypeTtsDisable, EventOperationTypeAllowCommandToUser, EventOperationTypeRemoveAllowCommandToUser:
+	case EventOperationTypeSendMessage, EventOperationTypeMessageDelete, EventOperationTypeTriggerAlert, EventOperationTypeTimeout, EventOperationTypeTimeoutRandom, EventOperationTypeBan, EventOperationTypeUnban, EventOperationTypeBanRandom, EventOperationTypeVip, EventOperationTypeUnvip, EventOperationTypeUnvipRandom, EventOperationTypeUnvipRandomIfNoSlots, EventOperationTypeMod, EventOperationTypeUnmod, EventOperationTypeRaidChannel, EventOperationTypeChangeVariable, EventOperationTypeIncrementVariable, EventOperationTypeDecrementVariable, EventOperationTypeTtsSay, EventOperationTypeTtsSkip, EventOperationTypeTtsEnable, EventOperationTypeTtsDisable, EventOperationTypeAllowCommandToUser, EventOperationTypeRemoveAllowCommandToUser, EventOperationTypeUnmodRandom:
 		return true
 	}
 	return false

@@ -1,5 +1,5 @@
 import { EventsOptions } from './events.js'
-import { OPERATIONS } from './operations.js'
+import { EventOperations } from './operations.js'
 
 interface SelectGeneric {
 	type?: 'group'
@@ -21,6 +21,6 @@ function createFlat<T extends SelectGeneric>(values: Record<string, T>): Record<
 }
 
 export const flatEvents = createFlat(EventsOptions)
-export const flatOperations = createFlat(OPERATIONS)
+export const flatOperations = createFlat(EventOperations)
 
 export const getEventName = (eventType: string) => flatEvents[eventType]?.name ?? eventType

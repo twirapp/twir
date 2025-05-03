@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import EventBasicInfo from './components/event-basic-info.vue'
+import OperationsTab from './components/operations-tab.vue'
 
 import { EventType, useEventsApi } from '@/api/events'
 import { Button } from '@/components/ui/button'
@@ -110,21 +111,17 @@ const onSubmit = eventForm.handleSubmit(async (input) => {
 		})
 	}
 })
-
-function goBack() {
-	router.push('/dashboard/events')
-}
 </script>
 
 <template>
-	<PageLayout>
+	<PageLayout sticky-header>
 		<template #title>
 			{{ isNewEvent ? t('events.create') : t('events.edit') }}
 		</template>
 
 		<template #action>
-			<Button variant="outline" @click="goBack">
-				{{ t('sharedTexts.back') }}
+			<Button type="submit" :disabled="eventForm.values.operations?.length === 0">
+				{{ t('sharedButtons.save') }}
 			</Button>
 		</template>
 
@@ -135,7 +132,7 @@ function goBack() {
 
 			<form v-else class="space-y-6" @submit="onSubmit">
 				<EventBasicInfo />
-				<!--				<OperationsTab /> -->
+				<OperationsTab />
 				<!--				<FormActions -->
 				<!--					:is-new-event="isNewEvent" -->
 				<!--					:on-cancel="goBack" -->

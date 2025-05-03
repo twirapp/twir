@@ -14,10 +14,7 @@ import (
 )
 
 // EventCreate is the resolver for the eventCreate field.
-func (r *mutationResolver) EventCreate(
-	ctx context.Context,
-	input gqlmodel.EventCreateInput,
-) (*gqlmodel.Event, error) {
+func (r *mutationResolver) EventCreate(ctx context.Context, input gqlmodel.EventCreateInput) (*gqlmodel.Event, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -75,11 +72,7 @@ func (r *mutationResolver) EventCreate(
 }
 
 // EventUpdate is the resolver for the eventUpdate field.
-func (r *mutationResolver) EventUpdate(
-	ctx context.Context,
-	id string,
-	input gqlmodel.EventUpdateInput,
-) (*gqlmodel.Event, error) {
+func (r *mutationResolver) EventUpdate(ctx context.Context, id string, input gqlmodel.EventUpdateInput) (*gqlmodel.Event, error) {
 	var operations *[]events.OperationInput
 
 	ops := make([]events.OperationInput, 0, len(input.Operations.Value()))
@@ -148,11 +141,7 @@ func (r *mutationResolver) EventDelete(ctx context.Context, id string) (bool, er
 }
 
 // EventEnableOrDisable is the resolver for the eventEnableOrDisable field.
-func (r *mutationResolver) EventEnableOrDisable(
-	ctx context.Context,
-	id string,
-	enabled bool,
-) (*gqlmodel.Event, error) {
+func (r *mutationResolver) EventEnableOrDisable(ctx context.Context, id string, enabled bool) (*gqlmodel.Event, error) {
 	event, err := r.deps.EventsService.Update(
 		ctx, id, events.UpdateInput{
 			Enabled: &enabled,

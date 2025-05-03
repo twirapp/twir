@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getEventName } from '@twir/dashboard/src/components/events/helpers.ts'
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
@@ -38,13 +39,6 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 
@@ -57,7 +51,10 @@ const commands = computed(() => commandsData.value?.commands || [])
 const keywordsApi = useKeywordsApi()
 const { data: keywordsData } = keywordsApi.useQueryKeywords()
 const keywords = computed(() => keywordsData.value?.keywords || [])
+
 const { value: currentEventType, setValue: setCurrentEventType } = useField<EventType>('type')
+const { value: currentCommandId, setValue: setCurrentCommandId } = useField<string>('commandId')
+const { value: currentKeywordId, setValue: setCurrentKeywordId } = useField<string>('keywordId')
 
 const typeSelectOptions = Object.values(EventsOptions).map<{
 	isGroup: boolean
@@ -101,9 +98,9 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 									<Button
 										variant="outline"
 										role="combobox"
-										:class="cn('w-[200px] justify-between', !currentEventType && 'text-muted-foreground')"
+										:class="cn('w-[400px] justify-between', !currentEventType && 'text-muted-foreground')"
 									>
-										{{ currentEventType ? getEventName(currentEventType) ? 'Select language...' }}
+										{{ currentEventType ? getEventName(currentEventType) : 'Select...' }}
 										<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 									</Button>
 								</FormControl>
@@ -223,29 +220,48 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 
 			<div v-if="currentEventType === EventType.CommandUsed">
 				<FormField
-					v-slot="{ componentField }"
 					name="commandId"
 				>
-					<FormItem>
-						<FormLabel>{{ t('events.command') }}</FormLabel>
+					<FormItem class="flex flex-col gap-2">
+						<FormLabel>Command</FormLabel>
 						<FormControl>
-							<Select
-								v-bind="componentField"
-								:placeholder="t('events.selectCommand')"
-							>
-								<SelectTrigger>
-									<SelectValue :placeholder="t('events.selectCommand')" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem
-										v-for="command in commands"
-										:key="command.id"
-										:value="command.id"
-									>
-										{{ command.name }}
-									</SelectItem>
-								</SelectContent>
-							</Select>
+							<Popover>
+								<PopoverTrigger as-child>
+									<FormControl>
+										<Button
+											variant="outline"
+											role="combobox"
+											:class="cn('w-[200px] justify-between', !currentCommandId && 'text-muted-foreground')"
+										>
+											{{ currentCommandId ? commands.find(c => c.id === currentCommandId)?.name : 'Select command' }}
+											<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+										</Button>
+									</FormControl>
+								</PopoverTrigger>
+								<PopoverContent class="w-[200px] p-0">
+									<Command>
+										<CommandInput placeholder="Search command..." />
+										<CommandEmpty>Nothing found.</CommandEmpty>
+										<CommandList>
+											<CommandGroup>
+												<CommandItem
+													v-for="command in commands"
+													:key="command.id"
+													:value="command.name"
+													@select="() => {
+														setCurrentCommandId(command.id)
+													}"
+												>
+													{{ command.name }}
+													<CheckIcon
+														:class="cn('ml-auto h-4 w-4', currentCommandId === command.id ? 'opacity-100' : 'opacity-0')"
+													/>
+												</CommandItem>
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -254,29 +270,48 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 
 			<div v-if="currentEventType === EventType.KeywordMatched">
 				<FormField
-					v-slot="{ componentField }"
 					name="keywordId"
 				>
 					<FormItem>
 						<FormLabel>{{ t('events.keyword') }}</FormLabel>
-						<FormControl>
-							<Select
-								v-bind="componentField"
-								:placeholder="t('events.selectKeyword')"
-							>
-								<SelectTrigger>
-									<SelectValue :placeholder="t('events.selectKeyword')" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem
-										v-for="keyword in keywords"
-										:key="keyword.id"
-										:value="keyword.id"
-									>
-										{{ keyword.text }}
-									</SelectItem>
-								</SelectContent>
-							</Select>
+						<FormControl class="flex flex-col gap-2">
+							<Popover>
+								<PopoverTrigger as-child>
+									<FormControl>
+										<Button
+											variant="outline"
+											role="combobox"
+											:class="cn('w-[200px] justify-between', !currentKeywordId && 'text-muted-foreground')"
+										>
+											{{ currentKeywordId ? keywords.find(c => c.id === currentKeywordId)?.text : 'Select keyword' }}
+											<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+										</Button>
+									</FormControl>
+								</PopoverTrigger>
+								<PopoverContent class="w-[200px] p-0">
+									<Command>
+										<CommandInput placeholder="Search Keyword..." />
+										<CommandEmpty>Nothing found.</CommandEmpty>
+										<CommandList>
+											<CommandGroup>
+												<CommandItem
+													v-for="keyword in keywords"
+													:key="keyword.id"
+													:value="keyword.text"
+													@select="() => {
+														setCurrentKeywordId(keyword.id)
+													}"
+												>
+													{{ keyword.text }}
+													<CheckIcon
+														:class="cn('ml-auto h-4 w-4', currentKeywordId === keyword.id ? 'opacity-100' : 'opacity-0')"
+													/>
+												</CommandItem>
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
 						</FormControl>
 						<FormMessage />
 					</FormItem>

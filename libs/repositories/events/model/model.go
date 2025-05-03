@@ -125,6 +125,7 @@ const (
 	EventOperationTypeUnvipRandomIfNoSlots     EventOperationType = "UNVIP_RANDOM_IF_NO_SLOTS"
 	EventOperationTypeMod                      EventOperationType = "MOD"
 	EventOperationTypeUnmod                    EventOperationType = "UNMOD"
+	EventOperationTypeUnmodRandom              EventOperationType = "UNMOD_RANDOM"
 	EventOperationTypeRaidChannel              EventOperationType = "RAID_CHANNEL"
 	EventOperationTypeChangeVariable           EventOperationType = "CHANGE_VARIABLE"
 	EventOperationTypeIncrementVariable        EventOperationType = "INCREMENT_VARIABLE"
@@ -133,8 +134,33 @@ const (
 	EventOperationTypeTtsSkip                  EventOperationType = "TTS_SKIP"
 	EventOperationTypeTtsEnable                EventOperationType = "TTS_ENABLE"
 	EventOperationTypeTtsDisable               EventOperationType = "TTS_DISABLE"
+	EventOperationTypeTtsSwitchAutoread        EventOperationType = "TTS_SWITCH_AUTOREAD"
+	EventOperationTypeTtsEnableAutoread        EventOperationType = "TTS_ENABLE_AUTOREAD"
+	EventOperationTypeTtsDisableAutoread       EventOperationType = "TTS_DISABLE_AUTOREAD"
 	EventOperationTypeAllowCommandToUser       EventOperationType = "ALLOW_COMMAND_TO_USER"
 	EventOperationTypeRemoveAllowCommandToUser EventOperationType = "REMOVE_ALLOW_COMMAND_TO_USER"
+	EventOperationTypeDenyCommandToUser        EventOperationType = "DENY_COMMAND_TO_USER"
+	EventOperationTypeRemoveDenyCommandToUser  EventOperationType = "REMOVE_DENY_COMMAND_TO_USER"
+	EventOperationTypeChangeTitle              EventOperationType = "CHANGE_TITLE"
+	EventOperationTypeChangeCategory           EventOperationType = "CHANGE_CATEGORY"
+	EventOperationTypeEnableSubmode            EventOperationType = "ENABLE_SUBMODE"
+	EventOperationTypeDisableSubmode           EventOperationType = "DISABLE_SUBMODE"
+	EventOperationTypeEnableEmoteOnly          EventOperationType = "ENABLE_EMOTE_ONLY"
+	EventOperationTypeDisableEmoteOnly         EventOperationType = "DISABLE_EMOTE_ONLY"
+	EventOperationTypeCreateGreeting           EventOperationType = "CREATE_GREETING"
+	EventOperationTypeObsChangeScene           EventOperationType = "OBS_CHANGE_SCENE"
+	EventOperationTypeObsToggleSource          EventOperationType = "OBS_TOGGLE_SOURCE"
+	EventOperationTypeObsToggleAudio           EventOperationType = "OBS_TOGGLE_AUDIO"
+	EventOperationTypeObsSetAudioVolume        EventOperationType = "OBS_SET_AUDIO_VOLUME"
+	EventOperationTypeObsDecreaseAudioVolume   EventOperationType = "OBS_DECREASE_AUDIO_VOLUME"
+	EventOperationTypeObsIncreaseAudioVolume   EventOperationType = "OBS_INCREASE_AUDIO_VOLUME"
+	EventOperationTypeObsEnableAudio           EventOperationType = "OBS_ENABLE_AUDIO"
+	EventOperationTypeObsDisableAudio          EventOperationType = "OBS_DISABLE_AUDIO"
+	EventOperationTypeObsStartStream           EventOperationType = "OBS_START_STREAM"
+	EventOperationTypeObsStopStream            EventOperationType = "OBS_STOP_STREAM"
+	EventOperationTypeSeventvAddEmote          EventOperationType = "SEVENTV_ADD_EMOTE"
+	EventOperationTypeSeventvRemoveEmote       EventOperationType = "SEVENTV_REMOVE_EMOTE"
+	EventOperationTypeShoutoutChannel          EventOperationType = "SHOUTOUT_CHANNEL"
 )
 
 var AllEventOperationType = []EventOperationType{
@@ -152,6 +178,7 @@ var AllEventOperationType = []EventOperationType{
 	EventOperationTypeUnvipRandomIfNoSlots,
 	EventOperationTypeMod,
 	EventOperationTypeUnmod,
+	EventOperationTypeUnmodRandom,
 	EventOperationTypeRaidChannel,
 	EventOperationTypeChangeVariable,
 	EventOperationTypeIncrementVariable,
@@ -160,13 +187,38 @@ var AllEventOperationType = []EventOperationType{
 	EventOperationTypeTtsSkip,
 	EventOperationTypeTtsEnable,
 	EventOperationTypeTtsDisable,
+	EventOperationTypeTtsSwitchAutoread,
+	EventOperationTypeTtsEnableAutoread,
+	EventOperationTypeTtsDisableAutoread,
 	EventOperationTypeAllowCommandToUser,
 	EventOperationTypeRemoveAllowCommandToUser,
+	EventOperationTypeDenyCommandToUser,
+	EventOperationTypeRemoveDenyCommandToUser,
+	EventOperationTypeChangeTitle,
+	EventOperationTypeChangeCategory,
+	EventOperationTypeEnableSubmode,
+	EventOperationTypeDisableSubmode,
+	EventOperationTypeEnableEmoteOnly,
+	EventOperationTypeDisableEmoteOnly,
+	EventOperationTypeCreateGreeting,
+	EventOperationTypeObsChangeScene,
+	EventOperationTypeObsToggleSource,
+	EventOperationTypeObsToggleAudio,
+	EventOperationTypeObsSetAudioVolume,
+	EventOperationTypeObsDecreaseAudioVolume,
+	EventOperationTypeObsIncreaseAudioVolume,
+	EventOperationTypeObsEnableAudio,
+	EventOperationTypeObsDisableAudio,
+	EventOperationTypeObsStartStream,
+	EventOperationTypeObsStopStream,
+	EventOperationTypeSeventvAddEmote,
+	EventOperationTypeSeventvRemoveEmote,
+	EventOperationTypeShoutoutChannel,
 }
 
 func (e EventOperationType) IsValid() bool {
 	switch e {
-	case EventOperationTypeSendMessage, EventOperationTypeMessageDelete, EventOperationTypeTriggerAlert, EventOperationTypeTimeout, EventOperationTypeTimeoutRandom, EventOperationTypeBan, EventOperationTypeUnban, EventOperationTypeBanRandom, EventOperationTypeVip, EventOperationTypeUnvip, EventOperationTypeUnvipRandom, EventOperationTypeUnvipRandomIfNoSlots, EventOperationTypeMod, EventOperationTypeUnmod, EventOperationTypeRaidChannel, EventOperationTypeChangeVariable, EventOperationTypeIncrementVariable, EventOperationTypeDecrementVariable, EventOperationTypeTtsSay, EventOperationTypeTtsSkip, EventOperationTypeTtsEnable, EventOperationTypeTtsDisable, EventOperationTypeAllowCommandToUser, EventOperationTypeRemoveAllowCommandToUser:
+	case EventOperationTypeSendMessage, EventOperationTypeMessageDelete, EventOperationTypeTriggerAlert, EventOperationTypeTimeout, EventOperationTypeTimeoutRandom, EventOperationTypeBan, EventOperationTypeUnban, EventOperationTypeBanRandom, EventOperationTypeVip, EventOperationTypeUnvip, EventOperationTypeUnvipRandom, EventOperationTypeUnvipRandomIfNoSlots, EventOperationTypeMod, EventOperationTypeUnmod, EventOperationTypeUnmodRandom, EventOperationTypeRaidChannel, EventOperationTypeChangeVariable, EventOperationTypeIncrementVariable, EventOperationTypeDecrementVariable, EventOperationTypeTtsSay, EventOperationTypeTtsSkip, EventOperationTypeTtsEnable, EventOperationTypeTtsDisable, EventOperationTypeTtsSwitchAutoread, EventOperationTypeTtsEnableAutoread, EventOperationTypeTtsDisableAutoread, EventOperationTypeAllowCommandToUser, EventOperationTypeRemoveAllowCommandToUser, EventOperationTypeDenyCommandToUser, EventOperationTypeRemoveDenyCommandToUser, EventOperationTypeChangeTitle, EventOperationTypeChangeCategory, EventOperationTypeEnableSubmode, EventOperationTypeDisableSubmode, EventOperationTypeEnableEmoteOnly, EventOperationTypeDisableEmoteOnly, EventOperationTypeCreateGreeting, EventOperationTypeObsChangeScene, EventOperationTypeObsToggleSource, EventOperationTypeObsToggleAudio, EventOperationTypeObsSetAudioVolume, EventOperationTypeObsDecreaseAudioVolume, EventOperationTypeObsIncreaseAudioVolume, EventOperationTypeObsEnableAudio, EventOperationTypeObsDisableAudio, EventOperationTypeObsStartStream, EventOperationTypeObsStopStream, EventOperationTypeSeventvAddEmote, EventOperationTypeSeventvRemoveEmote, EventOperationTypeShoutoutChannel:
 		return true
 	}
 	return false
