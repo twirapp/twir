@@ -1012,11 +1012,11 @@
         "regexpCheatSheet": "Ťahák",
         "wordBoundary": {
           "label": "Word boundary",
-          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+          "description": "Hranica slova pri filtrovaní označuje začiatok alebo koniec slova, čím zabezpečuje, že filtre zodpovedajú celým slovám (napr. „cat“), ale nie častiam slov (napr. „category“)."
         },
         "caseSensitive": {
-          "label": "Case sensitive",
-          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+          "label": "Citlivosť na veľkosť písmen\n\n",
+          "description": "Rozlišovanie veľkosti písmen pri filtrovaní znamená, že filter nájde len slová s presne rovnakým použitím veľkých a malých písmen ako má filter (napríklad „Cat“ sa nezhoduje s „cat“)."
         }
       },
       "symbols": {
