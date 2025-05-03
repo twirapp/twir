@@ -78,6 +78,21 @@ useDraggable(draggableRef, operations.fields, {
 				<div
 					class="basis-1/3 h-full w-full lg:w-[30%] lg:max-w-[30%] lg:min-w-[30%] flex flex-col gap-2 flex-wrap items-center rounded-lg border p-3 shadow-sm"
 				>
+					<Button
+						type="button"
+						:disabled="operations.fields.value.length >= 10"
+						class="flex items-center gap-2 w-full"
+						variant="outline"
+						@click="addOperation"
+					>
+						<template v-if="operations.fields.value.length < 10">
+							<PlusIcon class="size-4" />
+							Create new
+						</template>
+						<template v-else>
+							Maximum limit reached
+						</template>
+					</Button>
 					<div
 						ref="draggableRef"
 						class="w-full flex flex-col gap-2"
@@ -113,22 +128,6 @@ useDraggable(draggableRef, operations.fields, {
 							</div>
 						</template>
 					</div>
-
-					<Button
-						type="button"
-						:disabled="operations.fields.value.length >= 10"
-						class="flex items-center gap-2 w-full"
-						variant="outline"
-						@click="addOperation"
-					>
-						<template v-if="operations.fields.value.length < 10">
-							<PlusIcon class="size-4" />
-							Create new
-						</template>
-						<template v-else>
-							Maximum limit reached
-						</template>
-					</Button>
 				</div>
 
 				<div class="w-full h-full">

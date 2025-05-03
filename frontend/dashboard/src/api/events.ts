@@ -141,7 +141,6 @@ export const useEventsApi = createGlobalState(() => {
         }
       }
     `),
-		[invalidationKey],
 	)
 
 	return {

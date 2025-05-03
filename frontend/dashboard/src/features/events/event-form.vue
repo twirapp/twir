@@ -11,6 +11,7 @@ import { EventType, useEventsApi } from '@/api/events'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { eventFormSchema } from '@/features/events/event-form-schema.ts'
+import { EventOperationType } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()
@@ -32,7 +33,16 @@ const eventForm = useForm({
 		description: '',
 		enabled: true,
 		onlineOnly: false,
-		operations: [],
+		operations: [
+			{
+				type: EventOperationType.SendMessage,
+				enabled: true,
+				filters: [],
+				repeat: 0,
+				delay: 0,
+				useAnnounce: false,
+			},
+		],
 	},
 	keepValuesOnUnmount: true,
 })

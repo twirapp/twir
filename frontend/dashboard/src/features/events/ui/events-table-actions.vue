@@ -8,6 +8,7 @@ import { useUserAccessFlagChecker } from '@/api'
 import { type Event, useEventsApi } from '@/api/events'
 import ActionConfirmation from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
@@ -47,10 +48,33 @@ async function deleteEvent() {
 		})
 	}
 }
+const updater = eventsApi.useMutationEnableOrDisableEvent()
+
+async function toggleSwitch(newState: boolean) {
+	if (!userCanManageEvents.value) return
+
+	try {
+		const { error } = await updater.executeMutation({ id: props.event.id, enabled: newState })
+		if (error) {
+			throw error
+		}
+	} catch (error) {
+		console.error(error)
+		toast({
+			description: `${error}`,
+			variant: 'destructive',
+		})
+	}
+}
 </script>
 
 <template>
 	<div class="flex items-center gap-2">
+		<Switch
+			:checked="props.event.enabled"
+			@update:checked="toggleSwitch"
+		/>
+
 		<Button
 			type="button"
 			variant="secondary"
