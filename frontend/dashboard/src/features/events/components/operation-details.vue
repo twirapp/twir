@@ -49,7 +49,7 @@ const currentOperationPath = computed(() => `operations.${props.operationIndex}`
 const { value: currentOperation } = useField<Omit<EventOperation, 'id'> | undefined>(currentOperationPath)
 
 const currentOperationFiltersPath = computed(() => `${currentOperationPath.value}.filters`)
-const { fields: filters, insert: insertFilter, remove: removeFilter } = useFieldArray<EventFilter | undefined>(currentOperationFiltersPath)
+const { fields: filters, insert: insertFilter, remove: removeFilter, replace: updateFilters } = useFieldArray<EventFilter | undefined>(currentOperationFiltersPath)
 
 const { t } = useI18n()
 
@@ -88,7 +88,11 @@ function onAddFilter() {
 }
 
 function onRemoveFilter(filterIndex: number) {
-	removeFilter(filterIndex)
+	if (filterIndex === 0) {
+		updateFilters([])
+	} else {
+		removeFilter(filterIndex)
+	}
 }
 </script>
 

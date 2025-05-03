@@ -34,6 +34,7 @@ const eventForm = useForm({
 		onlineOnly: false,
 		operations: [],
 	},
+	keepValuesOnUnmount: true,
 })
 
 onMounted(async () => {
