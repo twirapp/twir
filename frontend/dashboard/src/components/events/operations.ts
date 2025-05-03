@@ -28,7 +28,6 @@ export const EventOperations: Record<EventOperationType | string, Operation> = {
 
 	[EventOperationType.TriggerAlert]: {
 		name: 'Trigger alert',
-		additionalValues: ['target'],
 		color: 'success',
 	},
 
@@ -41,6 +40,7 @@ export const EventOperations: Record<EventOperationType | string, Operation> = {
 				haveInput: true,
 				additionalValues: ['timeoutMessage'],
 				color: 'error',
+				inputKeyTranslatePath: 'events.operations.inputs.username',
 			},
 			[EventOperationType.Unban]: {
 				name: 'Unban user',
@@ -188,45 +188,37 @@ export const EventOperations: Record<EventOperationType | string, Operation> = {
 		childrens: {
 			[EventOperationType.ObsChangeScene]: {
 				name: 'Change scene',
-				additionalValues: ['target'],
 				color: 'default',
 			},
 			[EventOperationType.ObsToggleSource]: {
 				name: `Toggle source visibility`,
-				additionalValues: ['target'],
 				color: 'default',
 			},
 			[EventOperationType.ObsToggleAudio]: {
 				name: 'Toggle audio on/off',
-				additionalValues: ['target'],
 				color: 'default',
 			},
 			[EventOperationType.ObsSetAudioVolume]: {
 				name: 'Set audio volume',
 				haveInput: true,
-				additionalValues: ['target'],
 				color: 'default',
 			},
 			[EventOperationType.ObsDecreaseAudioVolume]: {
 				name: 'Decrease audio volume',
 				haveInput: true,
-				additionalValues: ['target'],
 				color: 'default',
 			},
 			[EventOperationType.ObsIncreaseAudioVolume]: {
 				name: 'Increase audio volume',
 				haveInput: true,
-				additionalValues: ['target'],
 				color: 'default',
 			},
 			[EventOperationType.ObsEnableAudio]: {
 				name: 'Enable audio source',
-				additionalValues: ['target'],
 				color: 'default',
 			},
 			[EventOperationType.ObsDisableAudio]: {
 				name: 'Disable audio source',
-				additionalValues: ['target'],
 				color: 'default',
 			},
 			[EventOperationType.ObsStartStream]: {

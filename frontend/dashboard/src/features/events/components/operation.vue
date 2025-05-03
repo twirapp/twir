@@ -24,6 +24,8 @@ import { Switch } from '@/components/ui/switch'
 import VariableInput from '@/components/variable-input.vue'
 import OperationActionSelector from '@/features/events/components/operation-action-selector.vue'
 import OperationInputAlert from '@/features/events/components/operation-input-alert.vue'
+import OperationInputObsSelector
+	from '@/features/events/components/operation-input-obs-selector.vue'
 import { EventOperationType } from '@/gql/graphql'
 
 const props = withDefaults(defineProps<{
@@ -143,6 +145,25 @@ function onRemoveFilter(filterIndex: number) {
 
 			<div v-if="currentOperation?.type === EventOperationType.TriggerAlert">
 				<OperationInputAlert :operation-index="operationIndex" />
+			</div>
+
+			<div
+				v-if="[
+					EventOperationType.ObsChangeScene,
+					EventOperationType.ObsDecreaseAudioVolume,
+					EventOperationType.ObsDisableAudio,
+					EventOperationType.ObsEnableAudio,
+					EventOperationType.ObsIncreaseAudioVolume,
+					EventOperationType.ObsSetAudioVolume,
+					EventOperationType.ObsStartStream,
+					EventOperationType.ObsStopStream,
+					EventOperationType.ObsToggleAudio,
+					EventOperationType.ObsToggleSource,
+				].includes(currentOperation.type)"
+			>
+				<OperationInputObsSelector
+					:operation-index="operationIndex"
+				/>
 			</div>
 
 			<div v-if="flatOperations[currentOperation?.type]?.additionalValues?.includes('timeoutTime')">

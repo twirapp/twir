@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { useAlertsApi } from '@/api/alerts.ts'
 import {
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -54,7 +53,6 @@ const { data } = alertsApi.useAlertsQuery()
 					</SelectContent>
 				</Select>
 			</FormControl>
-			<FormDescription>{{ t('events.targetAlertDescription') }}</FormDescription>
 			<FormMessage />
 		</FormItem>
 	</FormField>
