@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from 'lucide-vue-next'
+import { PlusIcon } from 'lucide-vue-next'
 import { useField, useFieldArray } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -9,16 +9,7 @@ import OperationFilter from './filter.vue'
 import type { EventFilter, EventOperation } from '@/api/events'
 
 import { flatOperations } from '@/components/events/helpers'
-import { EventOperations } from '@/components/events/operations'
 import { Button } from '@/components/ui/button'
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command'
 import {
 	FormControl,
 	FormDescription,
@@ -28,16 +19,12 @@ import {
 	FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import VariableInput from '@/components/variable-input.vue'
+import OperationActionSelector from '@/features/events/components/operation-action-selector.vue'
+import OperationInputAlert from '@/features/events/components/operation-input-alert.vue'
 import { EventOperationType } from '@/gql/graphql'
-import { cn } from '@/lib/utils'
 
 const props = withDefaults(defineProps<{
 	operationIndex: number
@@ -52,31 +39,6 @@ const currentOperationFiltersPath = computed(() => `${currentOperationPath.value
 const { fields: filters, insert: insertFilter, remove: removeFilter, replace: updateFilters } = useFieldArray<EventFilter | undefined>(currentOperationFiltersPath)
 
 const { t } = useI18n()
-
-const typeSelectOptions = Object.entries(EventOperations).map<{
-	isGroup: boolean
-	name: string
-	value?: EventOperationType
-	childrens: Array<{ name: string, value: EventOperationType }>
-}>(([key, value]) => {
-	if (value.childrens) {
-		return {
-			isGroup: true,
-			name: value.name,
-			childrens: Object.entries(value.childrens!).map(([childKey, childValue]) => ({
-				name: childValue.name,
-				value: Object.values(EventOperationType).find(v => v === childKey)!,
-			})),
-		}
-	}
-
-	return {
-		isGroup: false,
-		name: value.name,
-		value: Object.values(EventOperationType).find(v => v === key)!,
-		childrens: [],
-	}
-})
 
 function onAddFilter() {
 	insertFilter(filters.value.length, {
@@ -99,75 +61,9 @@ function onRemoveFilter(filterIndex: number) {
 <template>
 	<div class="min-h-[50dvh]">
 		<div v-if="currentOperation" class="space-y-4">
-			<FormField
-				:name="`operations.${operationIndex}.type`"
-			>
-				<FormItem class="flex flex-col">
-					<FormLabel>{{ t('events.operations.name') }}</FormLabel>
-					<FormControl>
-						<Popover>
-							<PopoverTrigger as-child>
-								<FormControl>
-									<Button
-										variant="outline"
-										role="combobox"
-										:class="cn('w-[300px] max-w-[300px] justify-between truncate', !currentOperation?.type && 'text-muted-foreground')"
-									>
-										{{ flatOperations[currentOperation?.type] ? flatOperations[currentOperation?.type].name : 'Select...' }}
-										<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-									</Button>
-								</FormControl>
-							</PopoverTrigger>
-							<PopoverContent class="w-[400px] p-0">
-								<Command>
-									<CommandInput placeholder="Search language..." />
-									<CommandEmpty>Nothing found.</CommandEmpty>
-									<CommandList>
-										<template v-for="selectOption of typeSelectOptions">
-											<CommandGroup
-												v-if="selectOption.isGroup"
-												:key="selectOption.name"
-												:heading="selectOption.name"
-											>
-												<CommandItem
-													v-for="operation of selectOption.childrens"
-													:key="operation.name"
-													:value="operation.value"
-													@select="() => {
-														if (!currentOperation) return;
-														currentOperation.type = operation.value;
-													}"
-												>
-													{{ operation.name }}
-													<CheckIcon
-														:class="cn('ml-auto h-4 w-4', currentOperation?.type === operation.value ? 'opacity-100' : 'opacity-0')"
-													/>
-												</CommandItem>
-											</CommandGroup>
-
-											<CommandItem
-												v-else
-												:key="selectOption.name!"
-												:value="selectOption.value!"
-												@select="() => {
-													if (!currentOperation) return;
-													currentOperation.type = selectOption.value!;
-												}"
-											>
-												{{ selectOption.name }}
-												<CheckIcon :class="cn('ml-auto h-4 w-4', currentOperation?.type === selectOption.value ? 'opacity-100' : 'opacity-0')" />
-											</CommandItem>
-										</template>
-										<CommandGroup>
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
-					</FormControl>
-					<FormMessage />
-				</FormItem>
-			</FormField>
+			<OperationActionSelector
+				:current-operation-index="operationIndex"
+			/>
 
 			<div v-if="flatOperations[currentOperation?.type]?.haveInput">
 				<FormField
@@ -243,6 +139,10 @@ function onRemoveFilter(filterIndex: number) {
 						</FormControl>
 					</FormItem>
 				</FormField>
+			</div>
+
+			<div v-if="currentOperation?.type === EventOperationType.TriggerAlert">
+				<OperationInputAlert :operation-index="operationIndex" />
 			</div>
 
 			<div v-if="flatOperations[currentOperation?.type]?.additionalValues?.includes('timeoutTime')">
