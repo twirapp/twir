@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button'
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
@@ -82,8 +81,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 <template>
 	<Card>
 		<CardHeader>
-			<CardTitle>{{ t('events.basicInfo') }}</CardTitle>
-			<CardDescription>{{ t('events.basicInfoDescription') }}</CardDescription>
+			<CardTitle>General</CardTitle>
 		</CardHeader>
 		<CardContent class="space-y-4">
 			<FormField
@@ -161,7 +159,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 				<FormItem>
 					<FormLabel>{{ t('events.description') }}</FormLabel>
 					<FormControl>
-						<Input v-bind="componentField" :placeholder="t('events.descriptionPlaceholder')" />
+						<Input v-bind="componentField" />
 					</FormControl>
 					<FormMessage />
 				</FormItem>

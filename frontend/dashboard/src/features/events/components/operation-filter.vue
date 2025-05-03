@@ -5,7 +5,6 @@ import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import {
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -20,7 +19,7 @@ import {
 } from '@/components/ui/select'
 import VariableInput from '@/components/variable-input.vue'
 
-const props = defineProps<{
+defineProps<{
 	operationIndex: number
 	filterIndex: number
 	onRemove: (operationIndex: number, filterIndex: number) => void
@@ -33,7 +32,7 @@ const { t } = useI18n()
 	<div class="border rounded-md p-4 mb-4">
 		<div class="flex justify-between items-center mb-4">
 			<h4 class="font-medium">
-				{{ t('events.filter') }} {{ filterIndex + 1 }}
+				{{ t('events.operations.filters.label') }} {{ filterIndex + 1 }}
 			</h4>
 			<Button
 				type="button"
@@ -48,10 +47,22 @@ const { t } = useI18n()
 		<div class="space-y-4">
 			<FormField
 				v-slot="{ componentField }"
+				:name="`operations.${operationIndex}.filters.${filterIndex}.left`"
+			>
+				<FormItem>
+					<FormLabel>{{ t('events.operations.filters.placeholderLeft') }}</FormLabel>
+					<FormControl>
+						<VariableInput v-bind="componentField" />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			</FormField>
+
+			<FormField
+				v-slot="{ componentField }"
 				:name="`operations.${operationIndex}.filters.${filterIndex}.type`"
 			>
 				<FormItem>
-					<FormLabel>{{ t('events.filterType') }}</FormLabel>
 					<FormControl>
 						<Select
 							v-bind="componentField"
@@ -62,34 +73,34 @@ const { t } = useI18n()
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="EQUALS">
-									{{ t('events.filterEquals') }}
+									=
 								</SelectItem>
 								<SelectItem value="NOT_EQUALS">
-									{{ t('events.filterNotEquals') }}
+									!=
 								</SelectItem>
 								<SelectItem value="CONTAINS">
-									{{ t('events.filterContains') }}
+									contains
 								</SelectItem>
 								<SelectItem value="NOT_CONTAINS">
-									{{ t('events.filterNotContains') }}
+									not contains
 								</SelectItem>
 								<SelectItem value="STARTS_WITH">
-									{{ t('events.filterStartsWith') }}
+									starts with
 								</SelectItem>
 								<SelectItem value="ENDS_WITH">
-									{{ t('events.filterEndsWith') }}
+									ends with
 								</SelectItem>
 								<SelectItem value="GREATER_THAN">
-									{{ t('events.filterGreaterThan') }}
+									>
 								</SelectItem>
 								<SelectItem value="LESS_THAN">
-									{{ t('events.filterLessThan') }}
+									{{ '<' }}
 								</SelectItem>
 								<SelectItem value="GREATER_THAN_OR_EQUALS">
-									{{ t('events.filterGreaterThanOrEquals') }}
+									>=
 								</SelectItem>
 								<SelectItem value="LESS_THAN_OR_EQUALS">
-									{{ t('events.filterLessThanOrEquals') }}
+									{{ '<=' }}
 								</SelectItem>
 							</SelectContent>
 						</Select>
@@ -100,28 +111,13 @@ const { t } = useI18n()
 
 			<FormField
 				v-slot="{ componentField }"
-				:name="`operations.${operationIndex}.filters.${filterIndex}.left`"
-			>
-				<FormItem>
-					<FormLabel>{{ t('events.filterLeft') }}</FormLabel>
-					<FormControl>
-						<VariableInput v-bind="componentField" />
-					</FormControl>
-					<FormDescription>{{ t('events.filterLeftDescription') }}</FormDescription>
-					<FormMessage />
-				</FormItem>
-			</FormField>
-
-			<FormField
-				v-slot="{ componentField }"
 				:name="`operations.${operationIndex}.filters.${filterIndex}.right`"
 			>
 				<FormItem>
-					<FormLabel>{{ t('events.filterRight') }}</FormLabel>
+					<FormLabel>{{ t('events.operations.filters.placeholderRight') }}</FormLabel>
 					<FormControl>
 						<VariableInput v-bind="componentField" />
 					</FormControl>
-					<FormDescription>{{ t('events.filterRightDescription') }}</FormDescription>
 					<FormMessage />
 				</FormItem>
 			</FormField>

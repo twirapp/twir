@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { GripVerticalIcon, PlusIcon, TrashIcon } from 'lucide-vue-next'
 import { useFieldArray } from 'vee-validate'
-import { ref } from 'vue'
+import { ref, useTemplateRef } from 'vue'
+import { useDraggable } from 'vue-draggable-plus'
 import { useI18n } from 'vue-i18n'
 
 import OperationDetails from './operation-details.vue'
@@ -13,7 +14,6 @@ import { Button } from '@/components/ui/button'
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
@@ -54,47 +54,64 @@ function removeOperation(operationIndex: number) {
 	operations.remove(operationIndex)
 	selectedOperation.value = 0
 }
+
+const draggableRef = useTemplateRef('draggableRef')
+useDraggable(draggableRef, operations.fields, {
+	animation: 150,
+	handle: '.drag-handle',
+	onUpdate(event) {
+		if (event.oldIndex !== undefined && event.newIndex !== undefined) {
+			operations.move(event.oldIndex, event.newIndex)
+			selectedOperation.value = event.newIndex
+		}
+	},
+})
 </script>
 
 <template>
 	<Card>
 		<CardHeader>
-			<CardTitle>{{ t('events.operations') }}</CardTitle>
-			<CardDescription>{{ t('events.operationsDescription') }}</CardDescription>
+			<CardTitle>{{ t('events.operations.name') }}</CardTitle>
 		</CardHeader>
 		<CardContent>
 			<div class="flex flex-col lg:flex-row gap-4">
 				<div
-					class="basis-1/3 h-full w-[30%] max-w-[30%] min-w-[30%] flex flex-col gap-2 flex-wrap items-center rounded-lg border p-3 shadow-sm"
+					class="basis-1/3 h-full w-full lg:w-[30%] lg:max-w-[30%] lg:min-w-[30%] flex flex-col gap-2 flex-wrap items-center rounded-lg border p-3 shadow-sm"
 				>
-					<template v-if="operations.fields.value.length">
-						<div
-							v-for="(operation, operationIndex) in operations.fields.value" :key="operationIndex"
-							class="w-full rounded-lg border py-1 px-2 cursor-pointer items-center flex flex-row justify-between"
-							:class="{
-								'outline outline-1 outline-zinc-700': operationIndex === selectedOperation,
-								'border-b': flatOperations[operation.value.type]?.color,
-								'border-b-red-900': flatOperations[operation.value.type]?.color === 'error',
-								'border-b-green-900': flatOperations[operation.value.type]?.color === 'success',
-								'border-b-blue-900': flatOperations[operation.value.type]?.color === 'info',
-								'border-b-yellow-900': flatOperations[operation.value.type]?.color === 'warning',
-							}"
-							@click="selectOperation(operationIndex)"
-						>
-							<GripVerticalIcon class="min-size-4 cursor-grab" />
-							<span v-if="operation.value" class="truncate">
-								{{ flatOperations[operation.value.type]?.name ?? 'Unknown Operation' }}
-							</span>
-							<Button
-								class="flex items-center"
-								size="sm"
-								variant="ghost"
-								@click.stop="() => removeOperation(operationIndex)"
+					<div
+						ref="draggableRef"
+						class="w-full flex flex-col gap-2"
+					>
+						<template v-if="operations.fields.value.length">
+							<div
+								v-for="(operation, operationIndex) in operations.fields.value"
+								:key="operationIndex"
+								class="w-full rounded-lg border py-1 px-2 cursor-pointer items-center flex flex-row justify-between"
+								:class="{
+									'outline outline-1 outline-zinc-700': operationIndex === selectedOperation,
+									'border-b': flatOperations[operation.value?.type]?.color,
+									'border-b-red-900': flatOperations[operation.value?.type]?.color === 'error',
+									'border-b-green-900': flatOperations[operation.value?.type]?.color === 'success',
+									'border-b-blue-900': flatOperations[operation.value?.type]?.color === 'info',
+									'border-b-yellow-900': flatOperations[operation.value?.type]?.color === 'warning',
+								}"
+								@click="selectOperation(operationIndex)"
 							>
-								<TrashIcon class="size-4" />
-							</Button>
-						</div>
-					</template>
+								<GripVerticalIcon class="min-size-4 cursor-grab drag-handle" />
+								<span v-if="operation.value" class="truncate">
+									{{ flatOperations[operation.value?.type]?.name ?? 'Unknown Operation' }}
+								</span>
+								<Button
+									class="flex items-center"
+									size="sm"
+									variant="ghost"
+									@click.stop="() => removeOperation(operationIndex)"
+								>
+									<TrashIcon class="size-4" />
+								</Button>
+							</div>
+						</template>
+					</div>
 
 					<Button
 						:disabled="operations.fields.value.length >= 10"

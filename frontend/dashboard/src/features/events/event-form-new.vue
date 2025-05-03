@@ -114,9 +114,9 @@ const onSubmit = eventForm.handleSubmit(async (input) => {
 </script>
 
 <template>
-	<PageLayout sticky-header>
+	<PageLayout sticky-header show-back back-to="/dashboard/events">
 		<template #title>
-			{{ isNewEvent ? t('events.create') : t('events.edit') }}
+			{{ isNewEvent ? t('sharedTexts.create') : t('sharedTexts.edit') }}
 		</template>
 
 		<template #action>
@@ -133,10 +133,6 @@ const onSubmit = eventForm.handleSubmit(async (input) => {
 			<form v-else class="space-y-6" @submit="onSubmit">
 				<EventBasicInfo />
 				<OperationsTab />
-				<!--				<FormActions -->
-				<!--					:is-new-event="isNewEvent" -->
-				<!--					:on-cancel="goBack" -->
-				<!--				/> -->
 			</form>
 		</template>
 	</PageLayout>

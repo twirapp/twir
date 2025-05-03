@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from 'lucide-vue-next'
-import { useField } from 'vee-validate'
+import { useField, useFieldArray } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EventOperation } from '@/api/events'
+import OperationFilter from './operation-filter.vue'
+
+import type { EventFilter, EventOperation } from '@/api/events'
 
 import { flatOperations } from '@/components/events/helpers'
 import { EventOperations } from '@/components/events/operations'
@@ -31,6 +33,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
+import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import VariableInput from '@/components/variable-input.vue'
 import { EventOperationType } from '@/gql/graphql'
@@ -44,6 +47,9 @@ const props = withDefaults(defineProps<{
 
 const currentOperationPath = computed(() => `operations.${props.operationIndex}`)
 const { value: currentOperation } = useField<Omit<EventOperation, 'id'> | undefined>(currentOperationPath)
+
+const currentOperationFiltersPath = computed(() => `${currentOperationPath.value}.filters`)
+const { fields: filters, insert: insertFilter, remove: removeFilter } = useFieldArray<EventFilter | undefined>(currentOperationFiltersPath)
 
 const { t } = useI18n()
 
@@ -71,6 +77,19 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 		childrens: [],
 	}
 })
+
+function onAddFilter() {
+	insertFilter(filters.value.length, {
+		id: '',
+		type: 'EQUALS',
+		left: '',
+		right: '',
+	})
+}
+
+function onRemoveFilter(filterIndex: number) {
+	removeFilter(filterIndex)
+}
 </script>
 
 <template>
@@ -80,7 +99,7 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 				:name="`operations.${operationIndex}.type`"
 			>
 				<FormItem class="flex flex-col">
-					<FormLabel>{{ t('events.operationType') }}</FormLabel>
+					<FormLabel>{{ t('events.operations.name') }}</FormLabel>
 					<FormControl>
 						<Popover>
 							<PopoverTrigger as-child>
@@ -293,31 +312,34 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 				</FormItem>
 			</FormField>
 
-			<!-- Filters section -->
+			<Separator />
+
 			<div class="mt-6">
 				<div class="flex justify-between items-center mb-4">
 					<h3 class="text-lg font-medium">
-						{{ t('events.filters') }}
+						{{ t('events.operations.filters.label') }}
 					</h3>
-					<Button variant="outline" size="sm" @click="() => onAddFilter(operationIndex)">
+					<Button variant="outline" size="sm" @click="() => onAddFilter()">
 						<PlusIcon class="h-4 w-4 mr-2" />
-						{{ t('events.addFilter') }}
+						{{ t('sharedTexts.create') }}
 					</Button>
 				</div>
 
-				<div v-if="currentOperation?.filters?.length === 0" class="text-center py-4 border rounded-md">
+				<div v-if="currentOperation.filters?.length === 0" class="text-center p-4 border rounded-md">
 					<p class="text-muted-foreground">
-						{{ t('events.noFilters') }}
+						{{ t('events.operations.filters.description') }}
 					</p>
 				</div>
 
-			<!-- <OperationFilter
-				v-for="(filter, filterIndex) in operation.filters"
-				:key="filterIndex"
-				:operation-index="operationIndex"
-				:filter-index="filterIndex"
-				:on-remove="onRemoveFilter"
-			/> -->
+				<template v-else>
+					<OperationFilter
+						v-for="(_, filterIndex) in currentOperation.filters"
+						:key="filterIndex"
+						:operation-index="operationIndex"
+						:filter-index="filterIndex"
+						:on-remove="onRemoveFilter"
+					/>
+				</template>
 			</div>
 		</div>
 
