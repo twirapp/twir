@@ -116,9 +116,9 @@ const backButton = computed(() => {
 				<div class="flex flex-col gap-4">
 					<FormGeneral />
 					<FormResponses />
-					<FormCooldown />
-					<FormConditions />
 					<FormPermissions />
+					<FormConditions />
+					<FormCooldown />
 					<FormExpiration />
 				</div>
 			</template>
