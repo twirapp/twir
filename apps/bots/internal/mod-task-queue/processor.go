@@ -2,6 +2,7 @@ package mod_task_queue
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
@@ -9,7 +10,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -71,7 +71,7 @@ func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
 			},
 			ErrorHandler: asynq.ErrorHandlerFunc(
 				func(ctx context.Context, task *asynq.Task, err error) {
-					opts.Logger.Error("error processing task", zap.Any("task", task), zap.Error(err))
+					opts.Logger.Error("error processing task", slog.Any("task", task), slog.Any("err", err))
 				},
 			),
 			LogLevel: asynq.ErrorLevel,
@@ -112,6 +112,7 @@ func (p *RedisTaskProcessor) Start() error {
 
 	mux.HandleFunc(TaskModUser, p.ProcessDistributeMod)
 
+	p.logger.Info("Registered task handler", slog.String("task", TaskModUser))
 	return p.server.Start(mux)
 }
 

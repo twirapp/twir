@@ -23,7 +23,6 @@ import (
 	"github.com/satont/twir/apps/parser/internal/nats"
 	chatwallservice "github.com/satont/twir/apps/parser/internal/services/chat_wall"
 	"github.com/satont/twir/apps/parser/internal/services/shortenedurls"
-	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -158,24 +157,6 @@ func main() {
 
 	tokensGrpc := clients.NewTokens(config.AppEnv)
 
-	taskQueueDistributor := task_queue.NewRedisTaskDistributor(config, logger)
-	queueProcessor := task_queue.NewRedisTaskProcessor(
-		task_queue.RedisTaskProcessorOpts{
-			Cfg:        *config,
-			Logger:     logger,
-			Gorm:       db,
-			TokensGrpc: tokensGrpc,
-		},
-	)
-	defer queueProcessor.Stop()
-
-	go func() {
-		err := queueProcessor.Start()
-		if err != nil {
-			logger.Fatal("Error starting queue processor", zap.Error(err))
-		}
-	}()
-
 	bus := buscore.NewNatsBus(nc)
 
 	redSync := redsync.New(goredis.NewPool(redisClient))
@@ -229,7 +210,6 @@ func main() {
 			Tokens:     tokensGrpc,
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
-		TaskDistributor:          taskQueueDistributor,
 		Bus:                      bus,
 		CommandsCache:            commandscache.New(db, redisClient),
 		ChatWallRepo:             chatWallRepository,

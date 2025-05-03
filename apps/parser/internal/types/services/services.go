@@ -7,7 +7,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/parser/internal/services/chat_wall"
 	"github.com/satont/twir/apps/parser/internal/services/shortenedurls"
-	"github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/api/modules"
@@ -46,7 +45,6 @@ type Services struct {
 	Sqlx                     *sqlx.DB
 	Redis                    *redis.Client
 	GrpcClients              *Grpc
-	TaskDistributor          task_queue.TaskDistributor
 	Bus                      *buscore.Bus
 	TrmManager               trm.Manager
 	CommandsCache            *generic_cacher.GenericCacher[[]model.ChannelsCommands]
