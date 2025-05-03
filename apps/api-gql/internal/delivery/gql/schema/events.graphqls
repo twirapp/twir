@@ -10,10 +10,66 @@ extend type Mutation {
 	eventEnableOrDisable(id: String!, enabled: Boolean!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
 }
 
+enum EventOperationType {
+  SEND_MESSAGE
+  MESSAGE_DELETE
+  TRIGGER_ALERT
+  TIMEOUT
+  TIMEOUT_RANDOM
+  BAN
+  UNBAN
+  BAN_RANDOM
+  VIP
+  UNVIP
+  UNVIP_RANDOM
+  UNVIP_RANDOM_IF_NO_SLOTS
+  MOD
+  UNMOD
+  RAID_CHANNEL
+  CHANGE_VARIABLE
+  INCREMENT_VARIABLE
+  DECREMENT_VARIABLE
+  TTS_SAY
+  TTS_SKIP
+  TTS_ENABLE
+  TTS_DISABLE
+  ALLOW_COMMAND_TO_USER
+  REMOVE_ALLOW_COMMAND_TO_USER
+}
+
+enum EventType {
+	FOLLOW
+	SUBSCRIBE
+	RESUBSCRIBE
+	SUB_GIFT
+	REDEMPTION_CREATED
+	COMMAND_USED
+	FIRST_USER_MESSAGE
+	RAIDED
+	TITLE_OR_CATEGORY_CHANGED
+	STREAM_ONLINE
+	STREAM_OFFLINE
+	ON_CHAT_CLEAR
+	DONATE
+	KEYWORD_MATCHED
+	GREETING_SENDED
+	POLL_BEGIN
+	POLL_PROGRESS
+	POLL_END
+	PREDICTION_BEGIN
+	PREDICTION_PROGRESS
+	PREDICTION_END
+	PREDICTION_LOCK
+	CHANNEL_BAN
+	CHANNEL_UNBAN_REQUEST_CREATE
+	CHANNEL_UNBAN_REQUEST_RESOLVE
+	CHANNEL_MESSAGE_DELETE
+}
+
 type Event {
 	id: String!
 	channelId: String!
-	type: String!
+	type: EventType!
 	rewardId: String
 	commandId: String
 	keywordId: String
@@ -25,7 +81,7 @@ type Event {
 
 type EventOperation {
 	id: String!
-	type: String!
+	type: EventOperationType!
 	input: String
 	delay: Int!
 	repeat: Int!
@@ -45,36 +101,36 @@ type EventOperationFilter {
 }
 
 input EventCreateInput {
-	type: String! @validate(constraint: "required")
-	rewardId: String
-	commandId: String
-	keywordId: String
-	description: String! @validate(constraint: "required")
+	type: EventType! @validate(constraint: "required")
+	rewardId: String @validate(constraint: "uuid4,omitempty")
+	commandId: String @validate(constraint: "uuid4,omitempty")
+	keywordId: String @validate(constraint: "uuid4,omitempty")
+	description: String! @validate(constraint: "required,max=20")
 	enabled: Boolean!
 	onlineOnly: Boolean!
 	operations: [EventOperationInput!]!
 }
 
 input EventUpdateInput {
-	type: String
-	rewardId: String
-	commandId: String
-	keywordId: String
-	description: String
+	type: EventType
+	rewardId: String @validate(constraint: "uuid4,omitempty")
+	commandId: String @validate(constraint: "uuid4,omitempty")
+	keywordId: String @validate(constraint: "uuid4,omitempty")
+	description: String @validate(constraint: "max=20,omitempty")
 	enabled: Boolean
 	onlineOnly: Boolean
 	operations: [EventOperationInput!]
 }
 
 input EventOperationInput {
-	type: String! @validate(constraint: "required")
-	input: String
-	delay: Int!
-	repeat: Int!
+	type: EventOperationType! @validate(constraint: "required")
+	input: String @validate(constraint: "max=1000,omitempty")
+	delay: Int! @validate(constraint: "min=0")
+	repeat: Int! @validate(constraint: "min=0")
 	useAnnounce: Boolean!
-	timeoutTime: Int!
-	timeoutMessage: String
-	target: String
+	timeoutTime: Int! @validate(constraint: "min=0")
+	timeoutMessage: String @validate(constraint: "max=500,omitempty")
+	target: String @validate(constraint: "max=1000,omitempty")
 	enabled: Boolean!
 	filters: [EventOperationFilterInput!]!
 }

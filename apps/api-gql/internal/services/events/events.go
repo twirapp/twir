@@ -49,7 +49,7 @@ func (s *Service) mapToEntity(m model.Event) entity.Event {
 		operations = append(
 			operations, entity.EventOperation{
 				ID:             op.ID,
-				Type:           op.Type,
+				Type:           entity.EventOperationType(op.Type),
 				Input:          op.Input,
 				Delay:          op.Delay,
 				Repeat:         op.Repeat,
@@ -66,7 +66,7 @@ func (s *Service) mapToEntity(m model.Event) entity.Event {
 	return entity.Event{
 		ID:          m.ID,
 		ChannelID:   m.ChannelID,
-		Type:        m.Type,
+		Type:        entity.EventType(m.Type),
 		RewardID:    m.RewardID,
 		CommandID:   m.CommandID,
 		KeywordID:   m.KeywordID,
@@ -106,7 +106,7 @@ func (s *Service) GetByID(ctx context.Context, id string) (entity.Event, error) 
 func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, error) {
 	repoInput := events.CreateInput{
 		ChannelID:   input.ChannelID,
-		Type:        input.Type,
+		Type:        model.EventType(input.Type),
 		RewardID:    input.RewardID,
 		CommandID:   input.CommandID,
 		KeywordID:   input.KeywordID,
@@ -130,7 +130,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, 
 
 		repoInput.Operations = append(
 			repoInput.Operations, events.OperationInput{
-				Type:           op.Type,
+				Type:           model.EventOperationType(op.Type),
 				Input:          op.Input,
 				Delay:          op.Delay,
 				Repeat:         op.Repeat,
@@ -153,8 +153,13 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, 
 }
 
 func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (entity.Event, error) {
+	var convertedType *model.EventType
+	if input.Type != nil {
+		convertedType = (*model.EventType)(input.Type)
+	}
+
 	repoInput := events.UpdateInput{
-		Type:        input.Type,
+		Type:        convertedType,
 		RewardID:    input.RewardID,
 		CommandID:   input.CommandID,
 		KeywordID:   input.KeywordID,
@@ -179,7 +184,7 @@ func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 
 			operations = append(
 				operations, events.OperationInput{
-					Type:           op.Type,
+					Type:           model.EventOperationType(op.Type),
 					Input:          op.Input,
 					Delay:          op.Delay,
 					Repeat:         op.Repeat,
@@ -217,7 +222,7 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 
 type CreateInput struct {
 	ChannelID   string
-	Type        string
+	Type        entity.EventType
 	RewardID    *string
 	CommandID   *string
 	KeywordID   *string
@@ -228,7 +233,7 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
-	Type        *string
+	Type        *entity.EventType
 	RewardID    *string
 	CommandID   *string
 	KeywordID   *string
@@ -239,7 +244,7 @@ type UpdateInput struct {
 }
 
 type OperationInput struct {
-	Type           string
+	Type           entity.EventOperationType
 	Input          *string
 	Delay          int
 	Repeat         int

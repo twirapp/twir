@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { PlusIcon, Trash2 } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, PlusIcon, Trash2 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import DraggableOperations from './draggable-operations.vue'
 import OperationDetails from './operation-details.vue'
-
-import type { useForm } from 'vee-validate'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -21,10 +20,6 @@ import {
 	TabsList,
 	TabsTrigger,
 } from '@/components/ui/tabs'
-
-const props = defineProps<{
-	form: ReturnType<typeof useForm>
-}>()
 
 const { t } = useI18n()
 
@@ -78,6 +73,30 @@ function removeFilter(operationIndex: number, filterIndex: number) {
 	operations[operationIndex].filters.splice(filterIndex, 1)
 	props.form.setFieldValue('operations', operations)
 }
+
+function moveOperationUp(index: number) {
+	if (index <= 0) return // Уже первый элемент
+
+	const operations = [...props.form.values.operations]
+	const temp = operations[index]
+	operations[index] = operations[index - 1]
+	operations[index - 1] = temp
+
+	props.form.setFieldValue('operations', operations)
+	selectedOperationTab.value = index - 1
+}
+
+function moveOperationDown(index: number) {
+	const operations = [...props.form.values.operations]
+	if (index >= operations.length - 1) return // Уже последний элемент
+
+	const temp = operations[index]
+	operations[index] = operations[index + 1]
+	operations[index + 1] = temp
+
+	props.form.setFieldValue('operations', operations)
+	selectedOperationTab.value = index + 1
+}
 </script>
 
 <template>
@@ -98,6 +117,11 @@ function removeFilter(operationIndex: number, filterIndex: number) {
 			</div>
 
 			<div v-else>
+				<DraggableOperations
+					:form="form"
+					:selected-tab="selectedOperationTab"
+					:on-tab-change="(index) => selectedOperationTab = index"
+				/>
 				<Tabs v-model="selectedOperationTab">
 					<div class="flex justify-between items-center mb-4">
 						<TabsList>
@@ -111,6 +135,24 @@ function removeFilter(operationIndex: number, filterIndex: number) {
 						</TabsList>
 
 						<div class="flex gap-2">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								:disabled="selectedOperationTab <= 0"
+								@click="moveOperationUp(selectedOperationTab)"
+							>
+								<ArrowUp class="h-4 w-4" />
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								:disabled="selectedOperationTab >= form.values.operations.length - 1"
+								@click="moveOperationDown(selectedOperationTab)"
+							>
+								<ArrowDown class="h-4 w-4" />
+							</Button>
 							<Button type="button" variant="outline" size="sm" @click="addOperation">
 								<PlusIcon class="h-4 w-4" />
 							</Button>

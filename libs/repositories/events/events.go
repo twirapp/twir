@@ -17,7 +17,7 @@ type Repository interface {
 
 type CreateInput struct {
 	ChannelID   string
-	Type        string
+	Type        model.EventType
 	RewardID    *string
 	CommandID   *string
 	KeywordID   *string
@@ -28,7 +28,7 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
-	Type        *string
+	Type        *model.EventType
 	RewardID    *string
 	CommandID   *string
 	KeywordID   *string
@@ -39,7 +39,7 @@ type UpdateInput struct {
 }
 
 type OperationInput struct {
-	Type           string
+	Type           model.EventOperationType
 	Input          *string
 	Delay          int
 	Repeat         int

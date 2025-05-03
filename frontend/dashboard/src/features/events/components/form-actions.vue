@@ -3,9 +3,8 @@ import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
 
-const props = defineProps<{
+defineProps<{
 	isNewEvent: boolean
-	isSubmitting: boolean
 	onCancel: () => void
 }>()
 
@@ -18,8 +17,8 @@ const { t } = useI18n()
 			{{ t('sharedTexts.cancel') }}
 		</Button>
 
-		<Button type="submit" :disabled="isSubmitting">
-			{{ isSubmitting ? t('sharedTexts.saving') : (isNewEvent ? t('sharedTexts.create') : t('sharedTexts.save')) }}
+		<Button type="submit">
+			{{ isNewEvent ? t('sharedTexts.create') : t('sharedTexts.save') }}
 		</Button>
 	</div>
 </template>

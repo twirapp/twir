@@ -23,7 +23,7 @@ func MapEventToGQL(event entity.Event) gqlmodel.Event {
 		operations = append(
 			operations, gqlmodel.EventOperation{
 				ID:             op.ID,
-				Type:           op.Type,
+				Type:           gqlmodel.EventOperationType(op.Type),
 				Input:          op.Input,
 				Delay:          op.Delay,
 				Repeat:         op.Repeat,
@@ -40,7 +40,7 @@ func MapEventToGQL(event entity.Event) gqlmodel.Event {
 	return gqlmodel.Event{
 		ID:          event.ID,
 		ChannelID:   event.ChannelID,
-		Type:        event.Type,
+		Type:        gqlmodel.EventType(event.Type),
 		RewardID:    event.RewardID,
 		CommandID:   event.CommandID,
 		KeywordID:   event.KeywordID,

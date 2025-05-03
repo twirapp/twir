@@ -6,10 +6,10 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 )
 
@@ -37,8 +37,9 @@ func (r *mutationResolver) EventCreate(
 		}
 
 		operations = append(
-			operations, events.OperationInput{
-				Type:           op.Type,
+			operations,
+			events.OperationInput{
+				Type:           entity.EventOperationType(op.Type),
 				Input:          op.Input.Value(),
 				Delay:          op.Delay,
 				Repeat:         op.Repeat,
@@ -55,7 +56,7 @@ func (r *mutationResolver) EventCreate(
 	event, err := r.deps.EventsService.Create(
 		ctx, events.CreateInput{
 			ChannelID:   dashboardID,
-			Type:        input.Type,
+			Type:        entity.EventType(input.Type),
 			RewardID:    input.RewardID.Value(),
 			CommandID:   input.CommandID.Value(),
 			KeywordID:   input.KeywordID.Value(),
@@ -96,7 +97,7 @@ func (r *mutationResolver) EventUpdate(
 
 		ops = append(
 			ops, events.OperationInput{
-				Type:           op.Type,
+				Type:           entity.EventOperationType(op.Type),
 				Input:          op.Input.Value(),
 				Delay:          op.Delay,
 				Repeat:         op.Repeat,
@@ -111,9 +112,14 @@ func (r *mutationResolver) EventUpdate(
 	}
 	operations = &ops
 
+	var convertedType *entity.EventType
+	if input.Type.IsSet() {
+		convertedType = (*entity.EventType)(input.Type.Value())
+	}
+
 	event, err := r.deps.EventsService.Update(
 		ctx, id, events.UpdateInput{
-			Type:        input.Type.Value(),
+			Type:        convertedType,
 			RewardID:    input.RewardID.Value(),
 			CommandID:   input.CommandID.Value(),
 			KeywordID:   input.KeywordID.Value(),
@@ -182,5 +188,11 @@ func (r *queryResolver) Events(ctx context.Context) ([]gqlmodel.Event, error) {
 
 // EventByID is the resolver for the eventById field.
 func (r *queryResolver) EventByID(ctx context.Context, id string) (*gqlmodel.Event, error) {
-	panic(fmt.Errorf("not implemented: EventByID - eventById"))
+	event, err := r.deps.EventsService.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.MapEventToGQL(event)
+	return &converted, nil
 }

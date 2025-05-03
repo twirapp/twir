@@ -1,38 +1,11 @@
-import { TWIR_EVENTS } from './events.js'
+import { EventsOptions } from './events.js'
 import { OPERATIONS } from './operations.js'
-
-import type { Operation } from './operations.js'
-import type { SelectGroupOption, SelectOption } from 'naive-ui'
 
 interface SelectGeneric {
 	type?: 'group'
 	name: string
 	childrens?: Record<string, SelectGeneric>
 }
-
-export function createSelectOptions(values: Record<string, SelectGeneric>): (SelectOption | SelectGroupOption)[] {
-	return Object.entries(values)
-		.map(([key, value]) => {
-			const result: SelectOption | SelectGroupOption = {
-				value: key,
-				label: value.name,
-			}
-
-			if (value.type === 'group' && value.childrens) {
-				result.key = value.name
-				result.type = 'group'
-				result.children = Object.entries(value.childrens).map(([childKey, childValue]) => ({
-					value: childKey,
-					label: childValue.name,
-				}))
-			}
-
-			return result
-		})
-}
-
-export const eventTypeSelectOptions = createSelectOptions(TWIR_EVENTS)
-export const operationTypeSelectOptions = createSelectOptions(OPERATIONS)
 
 function createFlat<T extends SelectGeneric>(values: Record<string, T>): Record<string, T> {
 	return Object.entries(values).reduce((acc, curr) => {
@@ -47,11 +20,7 @@ function createFlat<T extends SelectGeneric>(values: Record<string, T>): Record<
 	}, {} as Record<string, T>)
 }
 
-export const flatEvents = createFlat(TWIR_EVENTS)
+export const flatEvents = createFlat(EventsOptions)
 export const flatOperations = createFlat(OPERATIONS)
-
-export function getOperation(type: string): Operation | undefined {
-	return flatOperations[type]
-}
 
 export const getEventName = (eventType: string) => flatEvents[eventType]?.name ?? eventType

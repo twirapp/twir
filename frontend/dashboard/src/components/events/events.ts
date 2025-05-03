@@ -1,7 +1,8 @@
-import { IconAccessPoint, IconAccessPointOff, IconAward, IconBracketsContain, IconCashBanknote, IconDeviceDesktopAnalytics, IconDice6, IconEraser, IconGift, IconHeartHandshake, IconMessageExclamation, IconPick, IconStar, IconTransform, IconUserCancel, IconUserDollar, IconUserHeart, IconUserPlus, IconUserStar } from '@tabler/icons-vue'
-import { TwirEventType } from '@twir/api/messages/events/events'
+import { IconAccessPoint, IconAccessPointOff, IconAward, IconBracketsContain, IconCashBanknote, IconDeviceDesktopAnalytics, IconDice6, IconEraser, IconGift, IconHeartHandshake, IconMessageExclamation, IconPick, IconStar, IconTransform, IconUserCancel, IconUserDollar, IconUserHeart, IconUserStar } from '@tabler/icons-vue'
 
 import type { FunctionalComponent } from 'vue'
+
+import { EventType } from '@/api/events.ts'
 
 export interface TwirEvent {
 	name: string
@@ -9,15 +10,15 @@ export interface TwirEvent {
 	variables?: string[]
 	type?: 'group'
 	childrens?: Record<string, TwirEvent>
-	enumValue?: TwirEventType
+	enumValue?: EventType
 }
 
-export const TWIR_EVENTS: Record<string, TwirEvent> = {
-	FOLLOW: {
+export const EventsOptions: Record<string, TwirEvent> = {
+	[EventType.Follow]: {
 		name: 'Follow',
 		icon: IconUserHeart,
 		variables: ['userName', 'userDisplayName'],
-		enumValue: TwirEventType.FOLLOW,
+		enumValue: EventType.Follow,
 	},
 
 	SUBS: {
@@ -28,7 +29,7 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 				name: 'Subscribe',
 				icon: IconUserDollar,
 				variables: ['userName', 'userDisplayName', 'subLevel'],
-				enumValue: TwirEventType.SUBSCRIBE,
+				enumValue: EventType.Subscribe,
 			},
 			RESUBSCRIBE: {
 				name: 'Resubscribe',
@@ -41,7 +42,7 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 					'resubStreak',
 					'resubMessage',
 				],
-				enumValue: TwirEventType.RESUBSCRIBE,
+				enumValue: EventType.Resubscribe,
 			},
 			SUB_GIFT: {
 				name: 'Subscribe Gift',
@@ -53,45 +54,46 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 					'targetDisplayName',
 					'subLevel',
 				],
-				enumValue: TwirEventType.SUB_GIFT,
+				enumValue: EventType.SubGift,
 			},
 		},
 	},
-	REDEMPTION_CREATED: {
+	[EventType.RedemptionCreated]: {
 		name: 'Reward Activated',
 		icon: IconAward,
 		variables: ['userName', 'userDisplayName', 'rewardName', 'rewardCost', 'rewardInput'],
-		enumValue: TwirEventType.REDEMPTION_CREATED,
+		enumValue: EventType.RedemptionCreated,
 	},
-	COMMAND_USED: {
+	[EventType.CommandUsed]: {
 		name: 'Command used',
 		icon: IconStar,
 		variables: ['userName', 'userDisplayName', 'commandName', 'commandInput'],
-		enumValue: TwirEventType.COMMAND_USED,
+		enumValue: EventType.CommandUsed,
 	},
-	FIRST_USER_MESSAGE: {
+	[EventType.FirstUserMessage]: {
 		name: 'First User Message',
 		icon: IconMessageExclamation,
 		variables: ['userName', 'userDisplayName'],
-		enumValue: TwirEventType.FIRST_USER_MESSAGE,
+		enumValue: EventType.FirstUserMessage,
 	},
 
 	STREAM: {
 		name: 'Stream',
 		type: 'group',
 		childrens: {
-			STREAM_FIRST_USER_JOIN: {
-				name: 'User Joined Stream For First Time',
-				icon: IconUserPlus,
-				variables: ['userName'],
-			},
-			RAIDED: {
+			// [EventType.FirstUserMessage]: {
+			// 	name: 'User Joined Stream For First Time',
+			// 	icon: IconUserPlus,
+			// 	variables: ['userName'],
+			// 	enumValue: EventType.FirstUserMessage,
+			// },
+			[EventType.Raided]: {
 				name: 'Raided',
 				icon: IconPick,
 				variables: ['userName', 'userDisplayName', 'raidViewers'],
-				enumValue: TwirEventType.RAIDED,
+				enumValue: EventType.Raided,
 			},
-			TITLE_OR_CATEGORY_CHANGED: {
+			[EventType.TitleOrCategoryChanged]: {
 				name: 'Title or Category Changed',
 				icon: IconTransform,
 				variables: [
@@ -100,65 +102,65 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 					'oldStreamCategory',
 					'newStreamCategory',
 				],
-				enumValue: TwirEventType.TITLE_OR_CATEGORY_CHANGED,
+				enumValue: EventType.TitleOrCategoryChanged,
 			},
-			STREAM_ONLINE: {
+			[EventType.StreamOnline]: {
 				name: 'Stream Online',
 				icon: IconAccessPoint,
 				variables: ['streamTitle', 'streamCategory'],
-				enumValue: TwirEventType.STREAM_ONLINE,
+				enumValue: EventType.StreamOnline,
 			},
-			STREAM_OFFLINE: {
+			[EventType.StreamOffline]: {
 				name: 'Stream Offline',
 				icon: IconAccessPointOff,
 				variables: [],
-				enumValue: TwirEventType.STREAM_OFFLINE,
+				enumValue: EventType.StreamOffline,
 			},
 		},
 	},
 
-	ON_CHAT_CLEAR: {
+	[EventType.OnChatClear]: {
 		name: 'On Chat Clear',
 		icon: IconEraser,
 		variables: [],
-		enumValue: TwirEventType.CHAT_CLEAR,
+		enumValue: EventType.OnChatClear,
 	},
-	DONATE: {
+	[EventType.Donate]: {
 		name: 'Donate',
 		icon: IconCashBanknote,
 		variables: ['userName', 'donateAmount', 'donateCurrency', 'donateMessage'],
-		enumValue: TwirEventType.DONATE,
+		enumValue: EventType.Donate,
 	},
-	KEYWORD_MATCHED: {
+	[EventType.KeywordMatched]: {
 		name: 'Keyword Matched',
 		icon: IconBracketsContain,
 		variables: ['userName', 'userDisplayName', 'keywordName', 'keywordResponse'],
-		enumValue: TwirEventType.KEYWORD_USED,
+		enumValue: EventType.KeywordMatched,
 	},
-	GREETING_SENDED: {
+	[EventType.GreetingSended]: {
 		name: 'Greeting Sended',
 		icon: IconHeartHandshake,
 		variables: ['userName', 'userDisplayName', 'greetingText'],
-		enumValue: TwirEventType.GREETING_SENDED,
+		enumValue: EventType.GreetingSended,
 	},
 
 	POLLS: {
 		name: 'Polls',
 		type: 'group',
 		childrens: {
-			POLL_BEGIN: {
+			[EventType.PollBegin]: {
 				name: 'Poll Begin',
 				icon: IconDeviceDesktopAnalytics,
 				variables: ['pollTitle', 'pollOptionsNames'],
-				enumValue: TwirEventType.POLL_STARTED,
+				enumValue: EventType.PollBegin,
 			},
-			POLL_PROGRESS: {
+			[EventType.PollProgress]: {
 				name: 'Poll Progress',
 				icon: IconDeviceDesktopAnalytics,
 				variables: ['pollTitle', 'pollOptionsNames', 'pollTotalVotes'],
-				enumValue: TwirEventType.POLL_VOTED,
+				enumValue: EventType.PollProgress,
 			},
-			POLL_END: {
+			[EventType.PollEnd]: {
 				name: 'Poll End',
 				icon: IconDeviceDesktopAnalytics,
 				variables: [
@@ -170,7 +172,7 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 					'pollWinnerChannelsPointsVotes',
 					'pollWinnerTotalVotes',
 				],
-				enumValue: TwirEventType.POLL_ENDED,
+				enumValue: EventType.PollEnd,
 			},
 		},
 	},
@@ -179,13 +181,13 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 		name: 'Predictions',
 		type: 'group',
 		childrens: {
-			PREDICTION_BEGIN: {
+			[EventType.PredictionBegin]: {
 				name: 'Prediction Begin',
 				icon: IconDice6,
 				variables: ['predictionTitle', 'predictionOptionsNames'],
-				enumValue: TwirEventType.PREDICTION_STARTED,
+				enumValue: EventType.PredictionBegin,
 			},
-			PREDICTION_PROGRESS: {
+			[EventType.PredictionProgress]: {
 				name: 'Prediction Progress',
 				icon: IconDice6,
 				variables: [
@@ -193,9 +195,9 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 					'predictionOptionsNames',
 					'predictionTotalChannelPoints',
 				],
-				enumValue: TwirEventType.PREDICTION_VOTED,
+				enumValue: EventType.PredictionProgress,
 			},
-			PREDICTION_LOCK: {
+			[EventType.PredictionLock]: {
 				name: 'Prediction Lock',
 				icon: IconDice6,
 				variables: [
@@ -203,9 +205,9 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 					'predictionOptionsNames',
 					'predictionTotalChannelPoints',
 				],
-				enumValue: TwirEventType.PREDICTION_LOCKED,
+				enumValue: EventType.PredictionLock,
 			},
-			PREDICTION_END: {
+			[EventType.PredictionEnd]: {
 				name: 'Prediction End',
 				icon: IconDice6,
 				variables: [
@@ -217,7 +219,7 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 					`predictionWinner.totalPoints`,
 					`predictionWinner.topUsers`,
 				],
-				enumValue: TwirEventType.PREDICTION_ENDED,
+				enumValue: EventType.PredictionEnd,
 			},
 		},
 	},
@@ -226,21 +228,23 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 		name: 'Bans',
 		type: 'group',
 		childrens: {
-			CHANNEL_BAN: {
+			[EventType.ChannelBan]: {
 				name: 'User banned/timeouted',
 				icon: IconUserCancel,
 				variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'banReason', 'banEndsInMinutes'],
-				enumValue: TwirEventType.USER_BANNED,
+				enumValue: EventType.ChannelBan,
 			},
-			CHANNEL_UNBAN_REQUEST_CREATE: {
+			[EventType.ChannelUnbanRequestCreate]: {
 				name: 'User Unban Request Created',
 				icon: IconUserCancel,
 				variables: ['userName', 'userDisplayName', 'message'],
+				enumValue: EventType.ChannelUnbanRequestCreate,
 			},
-			CHANNEL_UNBAN_REQUEST_RESOLVE: {
+			[EventType.ChannelUnbanRequestResolve]: {
 				name: 'User Unban Request Accepted/Declined',
 				icon: IconUserCancel,
 				variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'message'],
+				enumValue: EventType.ChannelUnbanRequestResolve,
 			},
 		},
 	},

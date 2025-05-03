@@ -1,12 +1,13 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { Event } from '@/gql/graphql'
+import type { Event as GqlEvent } from '@/gql/graphql'
 
 import { useMutation } from '@/composables/use-mutation'
 import { graphql } from '@/gql'
 
-export type EventType = Event
+export type Event = GqlEvent
+export { EventType } from '@/gql/graphql'
 
 const invalidationKey = 'Events'
 
@@ -90,6 +91,7 @@ export const useEventsApi = createGlobalState(() => {
 		context: {
 			additionalTypenames: [invalidationKey],
 		},
+		pause: true,
 	})
 
 	// Create a new event
