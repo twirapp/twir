@@ -5,7 +5,7 @@ import { ref, useTemplateRef } from 'vue'
 import { useDraggable } from 'vue-draggable-plus'
 import { useI18n } from 'vue-i18n'
 
-import OperationDetails from './operation-details.vue'
+import OperationDetails from './operation.vue'
 
 import type { EventOperation } from '@/api/events'
 

@@ -4,7 +4,7 @@ import { useField, useFieldArray } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import OperationFilter from './operation-filter.vue'
+import OperationFilter from './filter.vue'
 
 import type { EventFilter, EventOperation } from '@/api/events'
 
@@ -323,7 +323,7 @@ function onRemoveFilter(filterIndex: number) {
 					<h3 class="text-lg font-medium">
 						{{ t('events.operations.filters.label') }}
 					</h3>
-					<Button variant="outline" size="sm" @click="() => onAddFilter()">
+					<Button type="button" variant="outline" size="sm" @click="() => onAddFilter()">
 						<PlusIcon class="h-4 w-4 mr-2" />
 						{{ t('sharedTexts.create') }}
 					</Button>
