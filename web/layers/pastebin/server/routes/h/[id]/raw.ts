@@ -1,7 +1,7 @@
 import { useOapi } from '~/composables/use-oapi'
 
 export default defineEventHandler(async (event) => {
-	const api = useOapi()
+	const api = useOapi({ headers: event.node.req.headers })
 	const id = getRouterParam(event, 'id')
 	if (!id) {
 		throw createError({
