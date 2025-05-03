@@ -1,21 +1,25 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
-import { computed, h } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import EventsTableActions from '../ui/events-table-actions.vue'
 
 import { type Event, useEventsApi } from '@/api/events'
 import { flatEvents, getEventName } from '@/features/events/constants/helpers'
+import EventsTableOperations from '@/features/events/ui/events-table-operations.vue'
 
 export const useEventsTable = createGlobalState(() => {
 	const { t } = useI18n()
 	const eventsApi = useEventsApi()
+	const search = ref('')
 
 	const { data, fetching } = eventsApi.useQueryEvents()
 	const events = computed<Event[]>(() => {
 		if (!data.value) return []
-		return data.value.events
+		return data.value.events.filter((e) => {
+			return getEventName(e.type)?.includes(search.value) || e.description.includes(search.value)
+		})
 	})
 
 	const tableColumns = computed<ColumnDef<Event>[]>(() => [
@@ -37,8 +41,8 @@ export const useEventsTable = createGlobalState(() => {
 		{
 			accessorKey: 'operations',
 			size: 60,
-			header: () => h('div', {}, t('events.operations')),
-			cell: ({ row }) => h('span', {}, `${row.original.operations.length} ${t('events.operations')}`),
+			header: () => h('div', {}, t('events.operations.name')),
+			cell: ({ row }) => h(EventsTableOperations, { operations: row.original.operations }),
 		},
 		{
 			accessorKey: 'actions',
@@ -59,6 +63,7 @@ export const useEventsTable = createGlobalState(() => {
 	})
 
 	return {
+		search,
 		isLoading: fetching,
 		table,
 	}

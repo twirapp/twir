@@ -94,6 +94,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 							<PopoverTrigger as-child>
 								<FormControl>
 									<Button
+										type="button"
 										variant="outline"
 										role="combobox"
 										:class="cn('w-[400px] justify-between', !currentEventType && 'text-muted-foreground')"
@@ -227,6 +228,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 								<PopoverTrigger as-child>
 									<FormControl>
 										<Button
+											type="button"
 											variant="outline"
 											role="combobox"
 											:class="cn('w-[200px] justify-between', !currentCommandId && 'text-muted-foreground')"
@@ -277,6 +279,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 								<PopoverTrigger as-child>
 									<FormControl>
 										<Button
+											type="button"
 											variant="outline"
 											role="combobox"
 											:class="cn('w-[200px] justify-between', !currentKeywordId && 'text-muted-foreground')"

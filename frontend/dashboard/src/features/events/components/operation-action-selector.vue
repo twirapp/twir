@@ -67,6 +67,7 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 					<PopoverTrigger as-child>
 						<FormControl>
 							<Button
+								type="button"
 								variant="outline"
 								role="combobox"
 								:class="cn('w-[300px] max-w-[300px] justify-between truncate', !currentOperation?.type && 'text-muted-foreground')"

@@ -9,7 +9,7 @@ export const eventFormSchema = toTypedSchema(z.object({
 	enabled: z.boolean().default(true),
 	onlineOnly: z.boolean().default(false),
 	rewardId: z.string().max(50).optional(),
-	commandId: z.string().max(50),
+	commandId: z.string().max(50).optional(),
 	keywordId: z.string().max(50).optional(),
 	operations: z.array(z.object({
 		type: z.nativeEnum(EventOperationType),

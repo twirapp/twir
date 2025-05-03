@@ -30,7 +30,7 @@ function addOperation() {
 		return
 	}
 
-	operations.insert(operations.fields.value.length - 1, {
+	operations.insert(operations.fields?.value?.length ?? 0, {
 		type: EventOperationType.SendMessage,
 		delay: 0,
 		enabled: true,
@@ -102,6 +102,7 @@ useDraggable(draggableRef, operations.fields, {
 									{{ flatOperations[operation.value?.type]?.name ?? 'Unknown Operation' }}
 								</span>
 								<Button
+									type="button"
 									class="flex items-center"
 									size="sm"
 									variant="ghost"
@@ -114,6 +115,7 @@ useDraggable(draggableRef, operations.fields, {
 					</div>
 
 					<Button
+						type="button"
 						:disabled="operations.fields.value.length >= 10"
 						class="flex items-center gap-2 w-full"
 						variant="outline"

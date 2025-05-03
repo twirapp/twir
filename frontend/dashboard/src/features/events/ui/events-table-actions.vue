@@ -1,21 +1,12 @@
 <script setup lang="ts">
-import { Pencil, Trash2 } from 'lucide-vue-next'
+import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { useUserAccessFlagChecker } from '@/api'
 import { type Event, useEventsApi } from '@/api/events'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import ActionConfirmation from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
@@ -60,28 +51,25 @@ async function deleteEvent() {
 
 <template>
 	<div class="flex items-center gap-2">
-		<Button variant="ghost" size="icon" :disabled="!userCanManageEvents" @click="editEvent">
-			<Pencil class="h-4 w-4" />
+		<Button
+			type="button"
+			variant="secondary"
+			size="icon"
+			:disabled="!userCanManageEvents" @click="editEvent"
+		>
+			<PencilIcon class="size-4" />
 		</Button>
-		<Button variant="ghost" size="icon" :disabled="!userCanManageEvents" @click="showDeleteDialog = true">
-			<Trash2 class="h-4 w-4" />
+		<Button
+			type="button"
+			variant="destructive"
+			size="icon" :disabled="!userCanManageEvents" @click="showDeleteDialog = true"
+		>
+			<TrashIcon class="size-4" />
 		</Button>
 
-		<AlertDialog :open="showDeleteDialog" @update:open="showDeleteDialog = $event">
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>{{ t('events.deleteConfirmTitle') }}</AlertDialogTitle>
-					<AlertDialogDescription>
-						{{ t('events.deleteConfirmDescription') }}
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel>{{ t('sharedTexts.cancel') }}</AlertDialogCancel>
-					<AlertDialogAction @click="deleteEvent">
-						{{ t('sharedTexts.delete') }}
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+		<ActionConfirmation
+			v-model:open="showDeleteDialog"
+			@confirm="deleteEvent"
+		/>
 	</div>
 </template>

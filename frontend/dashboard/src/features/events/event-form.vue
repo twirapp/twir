@@ -87,27 +87,30 @@ const updateEventMutation = eventsApi.useMutationUpdateEvent()
 const onSubmit = eventForm.handleSubmit(async (input) => {
 	try {
 		if (isNewEvent.value) {
-			await createEventMutation.executeMutation({
+			const { error } = await createEventMutation.executeMutation({
 				input,
 			})
+			if (error) {
+				throw error
+			}
 		} else {
-			await updateEventMutation.executeMutation({
+			const { error } = await updateEventMutation.executeMutation({
 				id: eventId.value,
 				input,
 			})
+			if (error) {
+				throw error
+			}
 		}
 
 		toast({
-			title: t('events.createSuccess'),
-			description: isNewEvent.value ? t('events.createSuccessDescription') : t('events.updateSuccessDescription'),
+			title: t('sharedTexts.saved'),
 			duration: 2500,
 		})
-		router.push('/dashboard/events')
 	} catch (error) {
 		console.error(error)
 		toast({
-			title: isNewEvent.value ? t('events.createError') : t('events.updateError'),
-			description: isNewEvent.value ? t('events.createErrorDescription') : t('events.updateErrorDescription'),
+			description: `${error}`,
 			variant: 'destructive',
 		})
 	}
@@ -115,26 +118,28 @@ const onSubmit = eventForm.handleSubmit(async (input) => {
 </script>
 
 <template>
-	<PageLayout sticky-header show-back back-to="/dashboard/events">
-		<template #title>
-			{{ isNewEvent ? t('sharedTexts.create') : t('sharedTexts.edit') }}
-		</template>
+	<form @submit="onSubmit">
+		<PageLayout sticky-header show-back back-to="/dashboard/events">
+			<template #title>
+				{{ isNewEvent ? t('sharedTexts.create') : t('sharedTexts.edit') }}
+			</template>
 
-		<template #action>
-			<Button type="submit" :disabled="eventForm.values.operations?.length === 0">
-				{{ t('sharedButtons.save') }}
-			</Button>
-		</template>
+			<template #action>
+				<Button type="submit" :disabled="eventForm.values.operations?.length === 0">
+					{{ t('sharedButtons.save') }}
+				</Button>
+			</template>
 
-		<template #content>
-			<div v-if="isLoadingEvent && !isNewEvent" class="flex justify-center items-center h-64">
-				<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-			</div>
+			<template #content>
+				<div v-if="isLoadingEvent && !isNewEvent" class="flex justify-center items-center h-64">
+					<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+				</div>
 
-			<form v-else class="space-y-6" @submit="onSubmit">
-				<EventBasicInfo />
-				<OperationsTab />
-			</form>
-		</template>
-	</PageLayout>
+				<div v-else class="space-y-6">
+					<EventBasicInfo />
+					<OperationsTab />
+				</div>
+			</template>
+		</PageLayout>
+	</form>
 </template>

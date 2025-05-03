@@ -40,15 +40,15 @@ type Pgx struct {
 
 func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model.Event, error) {
 	query := `
-SELECT 
-    e.id, 
-    e."channelId", 
-    e.type, 
-    e."rewardId", 
-    e."commandId", 
-    e."keywordId", 
-    e.description, 
-    e.enabled, 
+SELECT
+    e.id,
+    e."channelId",
+    e."type",
+    e."rewardId",
+    e."commandId",
+    e."keywordId",
+    e.description,
+    e.enabled,
     e.online_only,
     COALESCE(
         (
@@ -101,7 +101,7 @@ WHERE e."channelId" = $1
 	for rows.Next() {
 		var event model.Event
 		var operationsJSON []byte
-		
+
 		err := rows.Scan(
 			&event.ID,
 			&event.ChannelID,
@@ -134,15 +134,15 @@ WHERE e."channelId" = $1
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.Event, error) {
 	query := `
-SELECT 
-    e.id, 
-    e."channelId", 
-    e.type, 
-    e."rewardId", 
-    e."commandId", 
-    e."keywordId", 
-    e.description, 
-    e.enabled, 
+SELECT
+    e.id,
+    e."channelId",
+    e.type,
+    e."rewardId",
+    e."commandId",
+    e."keywordId",
+    e.description,
+    e.enabled,
     e.online_only,
     COALESCE(
         (
@@ -189,7 +189,7 @@ WHERE e.id = $1
 
 	var event model.Event
 	var operationsJSON []byte
-	
+
 	err := row.Scan(
 		&event.ID,
 		&event.ChannelID,
@@ -226,7 +226,7 @@ func (c *Pgx) Create(ctx context.Context, input events.CreateInput) (model.Event
 	// Create event
 	eventID := uuid.New().String()
 	query := `
-INSERT INTO channels_events (id, "channelId", type, "rewardId", "commandId", "keywordId", description, enabled, online_only)
+INSERT INTO channels_events (id, "channelId", "type", "rewardId", "commandId", "keywordId", description, enabled, online_only)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id
 `
@@ -249,11 +249,11 @@ RETURNING id
 	}
 
 	// Create operations
-	for _, op := range input.Operations {
+	for idx, op := range input.Operations {
 		operationID := uuid.New().String()
 		query := `
-INSERT INTO channels_events_operations (id, "eventId", type, input, delay, repeat, "useAnnounce", "timeoutTime", "timeoutMessage", target, enabled)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+INSERT INTO channels_events_operations ("id", "eventId", "type", "input", "delay", "repeat", "useAnnounce", "timeoutTime", "timeoutMessage", "target", "enabled", "order")
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 RETURNING id
 `
 
@@ -271,6 +271,7 @@ RETURNING id
 			op.TimeoutMessage,
 			op.Target,
 			op.Enabled,
+			idx,
 		)
 		if err != nil {
 			return model.Nil, fmt.Errorf("insert operation: %w", err)
@@ -280,7 +281,7 @@ RETURNING id
 		for _, filter := range op.Filters {
 			filterID := uuid.New().String()
 			query := `
-INSERT INTO channels_events_operations_filters (id, "operationId", type, left, right)
+INSERT INTO channels_events_operations_filters ("id", "operationId", "type", "left", "right")
 VALUES ($1, $2, $3, $4, $5)
 `
 
@@ -307,7 +308,10 @@ VALUES ($1, $2, $3, $4, $5)
 	return c.GetByID(ctx, eventID)
 }
 
-func (c *Pgx) Update(ctx context.Context, id string, input events.UpdateInput) (model.Event, error) {
+func (c *Pgx) Update(ctx context.Context, id string, input events.UpdateInput) (
+	model.Event,
+	error,
+) {
 	tx, err := c.pool.Begin(ctx)
 	if err != nil {
 		return model.Nil, fmt.Errorf("begin transaction: %w", err)
@@ -318,7 +322,7 @@ func (c *Pgx) Update(ctx context.Context, id string, input events.UpdateInput) (
 	updateBuilder := sq.Update("channels_events").Where(squirrel.Eq{"id": id})
 
 	if input.Type != nil {
-		updateBuilder = updateBuilder.Set("type", *input.Type)
+		updateBuilder = updateBuilder.Set(`"type"`, *input.Type)
 	}
 	if input.RewardID != nil {
 		updateBuilder = updateBuilder.Set(`"rewardId"`, *input.RewardID)
@@ -358,11 +362,11 @@ func (c *Pgx) Update(ctx context.Context, id string, input events.UpdateInput) (
 		}
 
 		// Create new operations
-		for _, op := range *input.Operations {
+		for idx, op := range *input.Operations {
 			operationID := uuid.New().String()
 			query := `
-INSERT INTO channels_events_operations (id, "eventId", type, input, delay, repeat, "useAnnounce", "timeoutTime", "timeoutMessage", target, enabled)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+INSERT INTO channels_events_operations ("id", "eventId", "type", "input", "delay", "repeat", "useAnnounce", "timeoutTime", "timeoutMessage", "target", "enabled", "order")
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 RETURNING id
 `
 
@@ -380,6 +384,7 @@ RETURNING id
 				op.TimeoutMessage,
 				op.Target,
 				op.Enabled,
+				idx,
 			)
 			if err != nil {
 				return model.Nil, fmt.Errorf("insert operation: %w", err)
@@ -389,7 +394,7 @@ RETURNING id
 			for _, filter := range op.Filters {
 				filterID := uuid.New().String()
 				query := `
-INSERT INTO channels_events_operations_filters (id, "operationId", type, left, right)
+INSERT INTO channels_events_operations_filters ("id", "operationId", "type", "left", "right")
 VALUES ($1, $2, $3, $4, $5)
 `
 
@@ -419,12 +424,12 @@ VALUES ($1, $2, $3, $4, $5)
 
 func (c *Pgx) Delete(ctx context.Context, id string) error {
 	query := `DELETE FROM channels_events WHERE id = $1`
-	
+
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	_, err := conn.Exec(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("delete event: %w", err)
 	}
-	
+
 	return nil
 }
