@@ -98,7 +98,6 @@ function onRemoveFilter(filterIndex: number) {
 								v-bind="componentField"
 								type="number"
 								min="0"
-								:placeholder="t('events.delayPlaceholder')"
 							/>
 						</FormControl>
 						<FormMessage />
@@ -272,7 +271,7 @@ function onRemoveFilter(filterIndex: number) {
 			v-else
 			class="flex flex-col flex-grow items-center justify-center border-2 rounded-md p-4 border-dashed"
 		>
-			Create operation first.
+			Create operation.
 		</div>
 	</div>
 </template>

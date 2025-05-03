@@ -86,7 +86,7 @@ useDraggable(draggableRef, operations.fields, {
 							<div
 								v-for="(operation, operationIndex) in operations.fields.value"
 								:key="operationIndex"
-								class="w-full rounded-lg border py-1 px-2 cursor-pointer items-center flex flex-row justify-between"
+								class="w-full rounded-lg border py-1 px-2 cursor-pointer items-center flex flex-row justify-between select-none"
 								:class="{
 									'outline outline-1 outline-zinc-700': operationIndex === selectedOperation,
 									'border-b': flatOperations[operation.value?.type]?.color,

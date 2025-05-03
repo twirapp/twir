@@ -78,13 +78,13 @@ func (s *Service) mapToEntity(m model.Event) entity.Event {
 }
 
 func (s *Service) GetAll(ctx context.Context, channelID string) ([]entity.Event, error) {
-	events, err := s.eventsRepository.GetManyByChannelID(ctx, channelID)
+	channelEvents, err := s.eventsRepository.GetManyByChannelID(ctx, channelID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get events: %w", err)
+		return nil, fmt.Errorf("failed to get channelEvents: %w", err)
 	}
 
-	result := make([]entity.Event, 0, len(events))
-	for _, e := range events {
+	result := make([]entity.Event, 0, len(channelEvents))
+	for _, e := range channelEvents {
 		result = append(result, s.mapToEntity(e))
 	}
 
@@ -104,6 +104,15 @@ func (s *Service) GetByID(ctx context.Context, id string) (entity.Event, error) 
 }
 
 func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, error) {
+	channelEvents, err := s.eventsRepository.GetManyByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.EventNil, fmt.Errorf("failed to get channelEvents: %w", err)
+	}
+
+	if len(channelEvents) >= 10 {
+		return entity.EventNil, fmt.Errorf("maximum number of channelEvents reached")
+	}
+
 	repoInput := events.CreateInput{
 		ChannelID:   input.ChannelID,
 		Type:        model.EventType(input.Type),

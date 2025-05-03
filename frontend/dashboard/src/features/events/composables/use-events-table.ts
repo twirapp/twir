@@ -16,7 +16,7 @@ export const useEventsTable = createGlobalState(() => {
 
 	const { data, fetching } = eventsApi.useQueryEvents()
 	const events = computed<Event[]>(() => {
-		if (!data.value) return []
+		if (!data.value?.events) return []
 		return data.value.events.filter((e) => {
 			return getEventName(e.type)?.includes(search.value) || e.description.includes(search.value)
 		})

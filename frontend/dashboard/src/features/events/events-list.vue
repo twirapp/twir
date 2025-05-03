@@ -24,7 +24,7 @@ const { t } = useI18n()
 
 		<template #content>
 			<div class="flex flex-col w-full gap-4">
-				<Input v-model="eventsTable.search" placeholder="Search..." class="w-full lg:w-[40%]" />
+				<Input v-model="eventsTable.search.value" placeholder="Search..." class="w-full lg:w-[40%]" />
 				<Table :table="eventsTable.table" :is-loading="eventsTable.isLoading.value" />
 			</div>
 		</template>
