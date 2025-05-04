@@ -2,7 +2,6 @@ package variables
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"slices"
 	"strings"
@@ -178,9 +177,11 @@ func (c *Variables) ParseVariablesInText(
 		},
 	)
 
-	for _, s := range Regexp.FindAllString(input, len(input)) {
-		wg.Add(1)
+	if parseCtx.Text != nil && len(*parseCtx.Text) > 0 {
+		input = strings.ReplaceAll(input, "$(command.param)", *parseCtx.Text)
+	}
 
+	for _, s := range Regexp.FindAllString(input, len(input)) {
 		v := Regexp.FindStringSubmatch(s)
 		all := v[1]
 		params := v[3]
@@ -188,27 +189,26 @@ func (c *Variables) ParseVariablesInText(
 		variable, ok := c.Store[all]
 
 		if !ok {
-			wg.Done()
 			continue
 		}
 
 		if variable.CommandsOnly && !parseCtx.IsCommand {
-			mu.Lock()
-			input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
-			mu.Unlock()
-			wg.Done()
+			// mu.Lock()
+			// input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
+			// mu.Unlock()
 			continue
 		}
 
 		if variable.DisableInCustomVariables && parseCtx.IsInCustomVar {
-			mu.Lock()
-			input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
-			mu.Unlock()
-			wg.Done()
+			// mu.Lock()
+			// input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
+			// mu.Unlock()
 			continue
 		}
 
 		str := s
+
+		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			res, err := variable.Handler(
