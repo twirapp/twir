@@ -1,0 +1,98 @@
+extend type Query {
+	overlaysKappagen: KappagenOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	overlaysKappagenUpdate(input: KappagenUpdateInput!): KappagenOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+enum KappagenEmojiStyle {
+	OPENMOJI
+	TWEMOJI
+	BLOBMOJI
+	NOTO
+}
+
+type KappagenOverlay {
+	id: UUID!
+	enableSpawn: Boolean!
+	excludedEmotes: [String!]!
+	enableRave: Boolean!
+	animation: KappagenOverlayAnimationSettings!
+	animations: [KappagenOverlayAnimationsSettings!]!
+}
+
+type KappagenOverlayEmotesSettings {
+	time: Int!
+	max: Int!
+	queue: Int!
+	ffz_enabled: Boolean!
+	bttv_enabled: Boolean!
+	seven_tv_enabled: Boolean!
+	emoji_style: KappagenEmojiStyle!
+}
+
+type KappagenOverlaySizeSettings {
+	rationNormal: Float!
+	rationSmall: Float!
+	min: Int!
+	max: Int!
+}
+
+type KappagenOverlayCubeSettings {
+	speed: Int!
+}
+
+type KappagenOverlayAnimationSettings {
+	fadeIn: Boolean!
+	fadeOut: Boolean!
+	zoomIn: Boolean!
+	zoomOut: Boolean!
+}
+
+type KappagenOverlayAnimationsPrefsSettings {
+	size: Float!
+	center: Float!
+	speed: Int!
+	faces: Boolean!
+	message: [String!]!
+	time: Int!
+}
+
+type KappagenOverlayAnimationsSettings {
+	style: String!
+	prefs: KappagenOverlayAnimationsPrefsSettings!
+	count: Int!
+	enabled: Boolean!
+}
+
+input KappagenUpdateInput {
+	enableSpawn: Boolean!
+	excludedEmotes: [String!]
+	enableRave: Boolean!
+	animation: KappagenOverlayAnimationSettingsInput!
+	animations: [KappagenOverlayAnimationsSettingsInput!]
+}
+
+input KappagenOverlayAnimationSettingsInput {
+	fadeIn: Boolean!
+	fadeOut: Boolean!
+	zoomIn: Boolean!
+	zoomOut: Boolean!
+}
+
+input KappagenOverlayAnimationsPrefsSettingsInput {
+	size: Float!
+	center: Float!
+	speed: Int!
+	faces: Boolean!
+	message: [String!]!
+	time: Int!
+}
+
+input KappagenOverlayAnimationsSettingsInput {
+	style: String!
+	prefs: KappagenOverlayAnimationsPrefsSettingsInput!
+	count: Int!
+	enabled: Boolean!
+}

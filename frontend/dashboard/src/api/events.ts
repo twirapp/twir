@@ -53,6 +53,7 @@ export const useEventsApi = createGlobalState(() => {
 		context: {
 			additionalTypenames: [invalidationKey],
 		},
+		variables: {},
 	})
 
 	// Query a single event by ID

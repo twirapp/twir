@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
@@ -155,6 +156,7 @@ func main() {
 				AppName: "api-gql",
 			},
 		),
+		di.OverlaysKappagenModule,
 		// repositories
 		fx.Provide(
 			fx.Annotate(
