@@ -11,6 +11,7 @@ extend type Subscription {
 }
 
 enum KappagenEmojiStyle {
+	NONE
 	OPENMOJI
 	TWEMOJI
 	BLOBMOJI
@@ -24,27 +25,21 @@ type KappagenOverlay {
 	enableRave: Boolean!
 	animation: KappagenOverlayAnimationSettings!
 	animations: [KappagenOverlayAnimationsSettings!]!
+	emotes: KappagenEmoteSettings!
+	size: KappagenSizeSettings!
+	events: [KappagenOverlayEvent!]!
+	createdAt: Time!
+	updatedAt: Time!
 }
 
-type KappagenOverlayEmotesSettings {
+type KappagenEmoteSettings {
 	time: Int!
 	max: Int!
 	queue: Int!
-	ffz_enabled: Boolean!
-	bttv_enabled: Boolean!
-	seven_tv_enabled: Boolean!
-	emoji_style: KappagenEmojiStyle!
-}
-
-type KappagenOverlaySizeSettings {
-	rationNormal: Float!
-	rationSmall: Float!
-	min: Int!
-	max: Int!
-}
-
-type KappagenOverlayCubeSettings {
-	speed: Int!
+	ffzEnabled: Boolean!
+	bttvEnabled: Boolean!
+	sevenTvEnabled: Boolean!
+	emojiStyle: KappagenEmojiStyle!
 }
 
 type KappagenOverlayAnimationSettings {
@@ -70,12 +65,28 @@ type KappagenOverlayAnimationsSettings {
 	enabled: Boolean!
 }
 
+type KappagenOverlayEvent {
+	event: String!
+	disabledAnimations: [String!]!
+	enabled: Boolean!
+}
+
+type KappagenSizeSettings {
+	rationNormal: Float!
+	rationSmall: Float!
+	min: Int!
+	max: Int!
+}
+
 input KappagenUpdateInput {
 	enableSpawn: Boolean!
-	excludedEmotes: [String!]
+	excludedEmotes: [String!]!
 	enableRave: Boolean!
 	animation: KappagenOverlayAnimationSettingsInput!
-	animations: [KappagenOverlayAnimationsSettingsInput!]
+	animations: [KappagenOverlayAnimationsSettingsInput!]!
+	emotes: KappagenEmoteSettingsInput!
+	size: KappagenSizeSettingsInput!
+	events: [KappagenOverlayEventInput!]!
 }
 
 input KappagenOverlayAnimationSettingsInput {
@@ -87,7 +98,7 @@ input KappagenOverlayAnimationSettingsInput {
 
 input KappagenOverlayAnimationsPrefsSettingsInput {
 	size: Float!
-	center: Float!
+	center: Boolean!
 	speed: Int!
 	faces: Boolean!
 	message: [String!]!
@@ -99,4 +110,27 @@ input KappagenOverlayAnimationsSettingsInput {
 	prefs: KappagenOverlayAnimationsPrefsSettingsInput!
 	count: Int!
 	enabled: Boolean!
+}
+
+input KappagenOverlayEventInput {
+	event: String!
+	disabledAnimations: [String!]!
+	enabled: Boolean!
+}
+
+input KappagenEmoteSettingsInput {
+	time: Int!
+	max: Int!
+	queue: Int!
+	ffzEnabled: Boolean!
+	bttvEnabled: Boolean!
+	sevenTvEnabled: Boolean!
+	emojiStyle: KappagenEmojiStyle!
+}
+
+input KappagenSizeSettingsInput {
+	rationNormal: Float!
+	rationSmall: Float!
+	min: Int!
+	max: Int!
 }

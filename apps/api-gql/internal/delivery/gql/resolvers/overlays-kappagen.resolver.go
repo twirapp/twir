@@ -8,34 +8,95 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 )
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
-func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gqlmodel.KappagenUpdateInput) (*gqlmodel.KappagenOverlay, error) {
+func (r *mutationResolver) OverlaysKappagenUpdate(
+	ctx context.Context,
+	input gqlmodel.KappagenUpdateInput,
+) (*gqlmodel.KappagenOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
-	if err != nil {
-		return nil, err
+	animations := make([]entity.KappagenOverlayAnimationsSettings, 0, len(input.Animations))
+	for _, a := range input.Animations {
+		animations = append(
+			animations, entity.KappagenOverlayAnimationsSettings{
+				Style: a.Style,
+				Prefs: entity.KappagenOverlayAnimationsPrefsSettings{
+					Size:    a.Prefs.Size,
+					Center:  a.Prefs.Center,
+					Speed:   a.Prefs.Speed,
+					Faces:   a.Prefs.Faces,
+					Message: a.Prefs.Message,
+					Time:    a.Prefs.Time,
+				},
+				Count:   a.Count,
+				Enabled: a.Enabled,
+			},
+		)
 	}
 
-	currentOverlay, err := r.deps.KappagenService.GetOrCreate(ctx, dashboardID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get current kappagen overlay: %w", err)
+	events := make([]entity.KappagenOverlayEvent, 0, len(input.Events))
+	for _, e := range input.Events {
+		events = append(
+			events, entity.KappagenOverlayEvent{
+				Event:              entity.EventType(e.Event),
+				DisabledAnimations: e.DisabledAnimations,
+				Enabled:            e.Enabled,
+			},
+		)
+	}
+
+	updateInput := entity.KappagenOverlaySettings{
+		EnableSpawn:    input.EnableSpawn,
+		ExcludedEmotes: input.ExcludedEmotes,
+		EnableRave:     input.EnableRave,
+		Animation: entity.KappagenOverlayAnimationSettings{
+			FadeIn:  input.Animation.FadeIn,
+			FadeOut: input.Animation.FadeOut,
+			ZoomIn:  input.Animation.ZoomIn,
+			ZoomOut: input.Animation.ZoomOut,
+		},
+		Animations: animations,
+		Emotes: entity.KappagenOverlayEmotesSettings{
+			Time:           input.Emotes.Time,
+			Max:            input.Emotes.Max,
+			Queue:          input.Emotes.Queue,
+			FfzEnabled:     input.Emotes.FfzEnabled,
+			BttvEnabled:    input.Emotes.BttvEnabled,
+			SevenTvEnabled: input.Emotes.SevenTvEnabled,
+			EmojiStyle:     mappers.MapGqlKappagenEmoteStyleToEntity(input.Emotes.EmojiStyle),
+		},
+		Size: entity.KappagenOverlaySizeSettings{
+			RatioNormal: input.Size.RationNormal,
+			RatioSmall:  input.Size.RationSmall,
+			Min:         input.Size.Min,
+			Max:         input.Size.Max,
+		},
+		Events: events,
 	}
 
 	// Update the overlay
-	updatedOverlay, err := r.deps.KappagenService.Update(ctx, dashboardID, entityInput)
+	updatedOverlay, err := r.deps.KappagenService.Update(
+		ctx, kappagen.UpdateInput{
+			ChannelID: dashboardID,
+			Settings:  updateInput,
+		},
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update kappagen overlay: %w", err)
 	}
 
-	return mapEntityToGQL(updatedOverlay), nil
+	converted := mappers.MapKappagenEntityToGQL(updatedOverlay)
+	return &converted, nil
 }
 
 // OverlaysKappagen is the resolver for the overlaysKappagen field.
@@ -55,6 +116,51 @@ func (r *queryResolver) OverlaysKappagen(ctx context.Context) (*gqlmodel.Kappage
 }
 
 // OverlaysKappagen is the resolver for the overlaysKappagen field.
-func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (<-chan *gqlmodel.KappagenOverlay, error) {
-	panic(fmt.Errorf("not implemented: OverlaysKappagen - overlaysKappagen"))
+func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (
+	<-chan *gqlmodel.KappagenOverlay,
+	error,
+) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateSubscriptionKey(dashboardID)})
+	if err != nil {
+		return nil, err
+	}
+
+	chann := make(chan *gqlmodel.KappagenOverlay, 1)
+
+	settings, err := r.deps.KappagenService.GetOrCreate(ctx, dashboardID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get kappagen overlay: %w", err)
+	}
+
+	converted := mappers.MapKappagenEntityToGQL(settings)
+	chann <- &converted
+
+	go func() {
+		defer func() {
+			wsRouterSub.Unsubscribe()
+			close(chann)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data := <-wsRouterSub.GetChannel():
+				var newSettings entity.KappagenOverlay
+				if err := json.Unmarshal(data, &newSettings); err != nil {
+					panic(err)
+				}
+
+				newSettingsConverted := mappers.MapKappagenEntityToGQL(newSettings)
+
+				chann <- &newSettingsConverted
+			}
+		}
+	}()
+
+	return chann, nil
 }

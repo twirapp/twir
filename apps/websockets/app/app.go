@@ -9,7 +9,6 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
@@ -22,6 +21,9 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
+
+	kappagenrepository "github.com/twirapp/twir/libs/repositories/overlays_kappagen"
+	kappagenrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_kappagen/pgx"
 )
 
 const service = "Websockets"
@@ -29,6 +31,12 @@ const service = "Websockets"
 var App = fx.Module(
 	service,
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
+	fx.Provide(
+		fx.Annotate(
+			kappagenrepositorypgx.NewFx,
+			fx.As(new(kappagenrepository.Repository)),
+		),
+	),
 	fx.Provide(
 		func(cfg config.Config) parser.ParserClient {
 			return clients.NewParser(cfg.AppEnv)
@@ -40,7 +48,6 @@ var App = fx.Module(
 		obs.NewObs,
 		youtube.NewYouTube,
 		alerts.NewAlerts,
-		kappagen.New,
 		overlays.New,
 		be_right_back.New,
 		dudes.New,

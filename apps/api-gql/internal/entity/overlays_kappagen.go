@@ -1,67 +1,82 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
-type KappagenEmojiStyle string
+type KappagenEmojiStyle int
 
 const (
-	KappagenEmojiStyleOpenmoji KappagenEmojiStyle = "OPENMOJI"
-	KappagenEmojiStyleTwemoji  KappagenEmojiStyle = "TWEMOJI"
-	KappagenEmojiStyleBlobmoji KappagenEmojiStyle = "BLOBMOJI"
-	KappagenEmojiStyleNoto     KappagenEmojiStyle = "NOTO"
+	KappagenEmojiStyleNone KappagenEmojiStyle = iota
+	KappagenEmojiStyleTwemoji
+	KappagenEmojiStyleOpenmoji
+	KappagenEmojiStyleNoto
+	KappagenEmojiStyleBlobmoji
 )
 
 type KappagenOverlay struct {
-	ID             uuid.UUID                           `json:"id"`
-	EnableSpawn    bool                                `json:"enableSpawn"`
-	ExcludedEmotes []string                            `json:"excludedEmotes"`
-	EnableRave     bool                                `json:"enableRave"`
-	Animation      KappagenOverlayAnimationSettings    `json:"animation"`
-	Animations     []KappagenOverlayAnimationsSettings `json:"animations"`
+	ID        uuid.UUID
+	ChannelID string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Settings  KappagenOverlaySettings
+}
+
+type KappagenOverlaySettings struct {
+	EnableSpawn    bool
+	ExcludedEmotes []string
+	EnableRave     bool
+	Animation      KappagenOverlayAnimationSettings
+	Animations     []KappagenOverlayAnimationsSettings
+	Emotes         KappagenOverlayEmotesSettings
+	Size           KappagenOverlaySizeSettings
+	Events         []KappagenOverlayEvent
 }
 
 type KappagenOverlayEmotesSettings struct {
-	Time           int                `json:"time"`
-	Max            int                `json:"max"`
-	Queue          int                `json:"queue"`
-	FfzEnabled     bool               `json:"ffz_enabled"`
-	BttvEnabled    bool               `json:"bttv_enabled"`
-	SevenTvEnabled bool               `json:"seven_tv_enabled"`
-	EmojiStyle     KappagenEmojiStyle `json:"emoji_style"`
+	Time           int
+	Max            int
+	Queue          int
+	FfzEnabled     bool
+	BttvEnabled    bool
+	SevenTvEnabled bool
+	EmojiStyle     KappagenEmojiStyle
 }
 
 type KappagenOverlaySizeSettings struct {
-	RationNormal float64 `json:"rationNormal"`
-	RationSmall  float64 `json:"rationSmall"`
-	Min          int     `json:"min"`
-	Max          int     `json:"max"`
-}
-
-type KappagenOverlayCubeSettings struct {
-	Speed int `json:"speed"`
+	RatioNormal float64
+	RatioSmall  float64
+	Min         int
+	Max         int
 }
 
 type KappagenOverlayAnimationSettings struct {
-	FadeIn  bool `json:"fadeIn"`
-	FadeOut bool `json:"fadeOut"`
-	ZoomIn  bool `json:"zoomIn"`
-	ZoomOut bool `json:"zoomOut"`
+	FadeIn  bool
+	FadeOut bool
+	ZoomIn  bool
+	ZoomOut bool
 }
 
 type KappagenOverlayAnimationsPrefsSettings struct {
-	Size    float64  `json:"size"`
-	Center  bool     `json:"center"`
-	Speed   int      `json:"speed"`
-	Faces   bool     `json:"faces"`
-	Message []string `json:"message"`
-	Time    int      `json:"time"`
+	Size    float64
+	Center  bool
+	Speed   int
+	Faces   bool
+	Message []string
+	Time    int
 }
 
 type KappagenOverlayAnimationsSettings struct {
-	Style   string                                 `json:"style"`
-	Prefs   KappagenOverlayAnimationsPrefsSettings `json:"prefs"`
-	Count   int                                    `json:"count"`
-	Enabled bool                                   `json:"enabled"`
+	Style   string
+	Prefs   KappagenOverlayAnimationsPrefsSettings
+	Count   int
+	Enabled bool
+}
+
+type KappagenOverlayEvent struct {
+	Event              EventType
+	DisabledAnimations []string
+	Enabled            bool
 }
