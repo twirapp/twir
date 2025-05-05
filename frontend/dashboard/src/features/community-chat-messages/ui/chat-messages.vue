@@ -16,6 +16,7 @@ const filters = useChatMessagesFilters()
 
 const { data, executeQuery } = useChatMessages(filters.computedFilters)
 
+const boxRef = useTemplateRef('boxRef')
 const messages = ref<ChatMessageType[]>([])
 
 watch(data, (v) => {
@@ -36,8 +37,8 @@ onMounted(() => {
 	executeQuery({ requestPolicy: 'cache-and-network' })
 })
 
-const boxRef = useTemplateRef('boxRef')
 const totalMessages = computed(() => messages.value.length)
+
 const rowVirtualizer = useVirtualizer({
 	get count() {
 		return totalMessages.value
