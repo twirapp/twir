@@ -78,3 +78,18 @@ func (c *Service) GetByUrl(ctx context.Context, url string) (model.ShortenedUrl,
 
 	return link, nil
 }
+
+type UpdateInput struct {
+	Views *int
+}
+
+func (c *Service) Update(ctx context.Context, id string, input UpdateInput) error {
+	_, err := c.repository.Update(
+		ctx,
+		id,
+		shortenedurlsrepository.UpdateInput{
+			Views: input.Views,
+		},
+	)
+	return err
+}

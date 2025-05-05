@@ -35,9 +35,42 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) Update(
+	ctx context.Context,
+	id string,
+	input shortened_urls.UpdateInput,
+) (model.ShortenedUrl, error) {
+	updateBuilder := sq.Update("shortened_urls").
+		Where(squirrel.Eq{"short_id": id}).
+		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views")
+
+	if input.Views != nil {
+		updateBuilder = updateBuilder.Set("views", *input.Views)
+	}
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return model.Nil, err
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ShortenedUrl])
+	if err != nil {
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) GetByUrl(ctx context.Context, url string) (model.ShortenedUrl, error) {
 	query := `
-SELECT short_id, created_at, updated_at, url, created_by_user_id from shortened_urls
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views
+FROM shortened_urls
 WHERE url = $1
 LIMIT 1
 `
@@ -61,7 +94,8 @@ LIMIT 1
 
 func (c *Pgx) GetByShortID(ctx context.Context, id string) (model.ShortenedUrl, error) {
 	query := `
-SELECT short_id, created_at, updated_at, url, created_by_user_id from shortened_urls
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views
+FROM shortened_urls
 WHERE short_id = $1
 LIMIT 1
 `
@@ -90,7 +124,7 @@ func (c *Pgx) Create(ctx context.Context, input shortened_urls.CreateInput) (
 	query := `
 INSERT INTO shortened_urls (short_id, url, created_by_user_id)
 VALUES ($1, $2, $3)
-RETURNING short_id, created_at, updated_at, url, created_by_user_id
+RETURNING short_id, created_at, updated_at, url, created_by_user_id, views
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)

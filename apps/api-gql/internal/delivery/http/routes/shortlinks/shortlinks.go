@@ -49,6 +49,7 @@ func New(opts Opts) {
 						Id:       existedLink.ShortID,
 						Url:      existedLink.URL,
 						ShortUrl: baseUrl.String(),
+						Views:    existedLink.Views,
 					},
 				}, nil
 			}
@@ -70,6 +71,7 @@ func New(opts Opts) {
 					Id:       link.ShortID,
 					Url:      input.Body.Url,
 					ShortUrl: baseUrl.String(),
+					Views:    link.Views,
 				},
 			}, nil
 		},
@@ -139,6 +141,16 @@ func New(opts Opts) {
 				return nil, huma.NewError(http.StatusNotFound, "Link not found")
 			}
 
+			if err := opts.Service.Update(
+				ctx,
+				link.ShortID,
+				shortenedurls.UpdateInput{
+					Views: &link.Views,
+				},
+			); err != nil {
+				return nil, huma.NewError(http.StatusInternalServerError, "Cannot update link", err)
+			}
+
 			return &linkRedirectOutput{
 				Status:   http.StatusPermanentRedirect,
 				Location: link.URL,
@@ -163,6 +175,7 @@ type linkOutputDto struct {
 	Id       string `json:"id" example:"KKMEa"`
 	Url      string `json:"url" example:"https://example.com"`
 	ShortUrl string `json:"short_url" example:"https://twir.app/s/KKMEa"`
+	Views    int    `json:"views" example:"1"`
 }
 
 type linkRedirectOutput struct {

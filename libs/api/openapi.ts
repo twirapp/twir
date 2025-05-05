@@ -128,6 +128,8 @@ export interface LinkOutputDto {
   id: string;
   short_url: string;
   url: string;
+  /** @format int64 */
+  views: number;
 }
 
 export interface PasteBinCreateDto {
