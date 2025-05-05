@@ -2,14 +2,15 @@ package pgx
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"slices"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen"
 	kappagenmodel "github.com/twirapp/twir/libs/repositories/overlays_kappagen/model"
 )
@@ -41,234 +42,199 @@ const kappagenOverlayType = "kappagen_overlay"
 
 func (p *Pgx) Get(ctx context.Context, channelID string) (kappagenmodel.KappagenOverlay, error) {
 	query := `
-SELECT id, "channelId", settings
-FROM channels_modules_settings
-WHERE "channelId" = $1 AND type = $2
-LIMIT 1
-`
+		SELECT
+			co.id AS overlay_id,
+			co.channel_id,
+			co.enable_spawn,
+			co.excluded_emotes,
+			co.enable_rave,
+			co.created_at AS overlay_created_at,
+			co.updated_at AS overlay_updated_at,
+			ca.id AS animation_id,
+			ca.overlay_id,
+			ca.style,
+			ca.count,
+			ca.enabled,
+			ca.created_at AS animation_created_at,
+			ca.updated_at AS animation_updated_at,
+			cap.id AS prefs_id,
+			cap.animation_id AS prefs_animation_id,
+			cap.size,
+			cap.center,
+			cap.speed,
+			cap.faces,
+			cap.message,
+			cap.time,
+			cap.created_at AS prefs_created_at,
+			cap.updated_at AS prefs_updated_at
+		FROM channels_overlays_kappagen co
+		LEFT JOIN channels_overlays_kappagen_animations ca ON co.id = ca.overlay_id
+		LEFT JOIN channels_overlays_kappagen_animations_prefs cap ON ca.id = cap.animation_id
+		WHERE co.channel_id = $1
+		ORDER BY ca.created_at, cap.created_at
+	`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	row := conn.QueryRow(ctx, query, channelID, kappagenOverlayType)
-
-	var id uuid.UUID
-	var dbChannelID string
-	var settingsBytes []byte
-
-	if err := row.Scan(&id, &dbChannelID, &settingsBytes); err != nil {
-		return kappagenmodel.Nil, overlays_kappagen.ErrNotFound
-	}
-
-	var settings model.KappagenOverlaySettings
-	if err := json.Unmarshal(settingsBytes, &settings); err != nil {
-		return kappagenmodel.Nil, fmt.Errorf("failed to unmarshal settings: %w", err)
-	}
-
-	return mapModelToEntity(id, dbChannelID, settings), nil
-}
-
-func (p *Pgx) Create(ctx context.Context, input overlays_kappagen.CreateInput) (kappagenmodel.KappagenOverlay, error) {
-	id := uuid.New()
-	settings := mapCreateInputToModel(input)
-
-	settingsBytes, err := json.Marshal(settings)
+	rows, err := conn.Query(ctx, query, channelID)
 	if err != nil {
-		return kappagenmodel.Nil, fmt.Errorf("failed to marshal settings: %w", err)
+		return kappagenmodel.KappagenOverlay{}, err
 	}
+	defer rows.Close()
 
-	query := `
-INSERT INTO channels_modules_settings (id, "channelId", type, settings)
-VALUES ($1, $2, $3, $4)
-RETURNING id, "channelId"
-`
+	var overlay *kappagenmodel.KappagenOverlay
+	animationsMap := make(map[string]*kappagenmodel.KappagenOverlayAnimationsSettings)
 
-	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	row := conn.QueryRow(ctx, query, id, input.ChannelID, kappagenOverlayType, settingsBytes)
+	for rows.Next() {
+		var (
+			overlayID         string
+			selectedChannelId string
+			enableSpawn       bool
+			excludedEmotes    []string
+			enableRave        bool
+			overlayCreatedAt  time.Time
+			overlayUpdatedAt  time.Time
+			animationID       *string
+			animOverlayID     *string
+			animStyle         *string
+			animCount         *int
+			animEnabled       *bool
+			animCreatedAt     *time.Time
+			animUpdatedAt     *time.Time
+			prefsID           *string
+			prefsAnimationID  *string
+			prefsSize         *float64
+			prefsCenter       *bool
+			prefsSpeed        *int
+			prefsFaces        *bool
+			prefsMessage      *[]string
+			prefsTime         *int
+			prefsCreatedAt    *time.Time
+			prefsUpdatedAt    *time.Time
+		)
 
-	var resultID uuid.UUID
-	var channelID string
-	if err := row.Scan(&resultID, &channelID); err != nil {
-		return kappagenmodel.Nil, fmt.Errorf("failed to create kappagen overlay: %w", err)
-	}
+		err := rows.Scan(
+			&overlayID,
+			&selectedChannelId,
+			&enableSpawn,
+			&excludedEmotes,
+			&enableRave,
+			&overlayCreatedAt,
+			&overlayUpdatedAt,
+			&animationID,
+			&animOverlayID,
+			&animStyle,
+			&animCount,
+			&animEnabled,
+			&animCreatedAt,
+			&animUpdatedAt,
+			&prefsID,
+			&prefsAnimationID,
+			&prefsSize,
+			&prefsCenter,
+			&prefsSpeed,
+			&prefsFaces,
+			&prefsMessage,
+			&prefsTime,
+			&prefsCreatedAt,
+			&prefsUpdatedAt,
+		)
+		if err != nil {
+			return kappagenmodel.KappagenOverlay{}, err
+		}
 
-	return mapModelToEntity(resultID, channelID, settings), nil
-}
+		parsedOverlayID, err := uuid.Parse(overlayID)
+		if err != nil {
+			return kappagenmodel.KappagenOverlay{}, err
+		}
 
-func (p *Pgx) Update(ctx context.Context, channelID string, input overlays_kappagen.UpdateInput) (kappagenmodel.KappagenOverlay, error) {
-	// First, get the current settings
-	currentOverlay, err := p.Get(ctx, channelID)
-	if err != nil {
-		return kappagenmodel.Nil, err
-	}
-
-	// Update with new values
-	settings := model.KappagenOverlaySettings{
-		EnableSpawn:    input.EnableSpawn,
-		ExcludedEmotes: input.ExcludedEmotes,
-		EnableRave:     input.EnableRave,
-		Animation: model.KappagenOverlaySettingsAnimation{
-			FadeIn:  input.Animation.FadeIn,
-			FadeOut: input.Animation.FadeOut,
-			ZoomIn:  input.Animation.ZoomIn,
-			ZoomOut: input.Animation.ZoomOut,
-		},
-		Animations: mapAnimationsToModel(input.Animations),
-		// Preserve existing values for these fields
-		Emotes: model.KappagenOverlaySettingsEmotes{
-			Time:           currentOverlay.Emotes.Time,
-			Max:            currentOverlay.Emotes.Max,
-			Queue:          currentOverlay.Emotes.Queue,
-			FfzEnabled:     currentOverlay.Emotes.FfzEnabled,
-			BttvEnabled:    currentOverlay.Emotes.BttvEnabled,
-			SevenTvEnabled: currentOverlay.Emotes.SevenTvEnabled,
-			EmojiStyle:     model.KappagenOverlaySettingsEmotesEmojiStyle(currentOverlay.Emotes.EmojiStyle),
-		},
-		Size: model.KappagenOverlaySettingsSize{
-			RatioNormal: currentOverlay.Size.RatioNormal,
-			RatioSmall:  currentOverlay.Size.RatioSmall,
-			Min:         currentOverlay.Size.Min,
-			Max:         currentOverlay.Size.Max,
-		},
-		Cube: model.KappagenOverlaySettingsCube{
-			Speed: currentOverlay.Cube.Speed,
-		},
-	}
-
-	settingsBytes, err := json.Marshal(settings)
-	if err != nil {
-		return kappagenmodel.Nil, fmt.Errorf("failed to marshal settings: %w", err)
-	}
-
-	query := `
-UPDATE channels_modules_settings
-SET settings = $1
-WHERE "channelId" = $2 AND type = $3
-RETURNING id, "channelId"
-`
-
-	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	row := conn.QueryRow(ctx, query, settingsBytes, channelID, kappagenOverlayType)
-
-	var id uuid.UUID
-	var dbChannelID string
-	if err := row.Scan(&id, &dbChannelID); err != nil {
-		return kappagenmodel.Nil, fmt.Errorf("failed to update kappagen overlay: %w", err)
-	}
-
-	return mapModelToEntity(id, dbChannelID, settings), nil
-}
-
-// Helper functions to map between entity and model
-func mapModelToEntity(id uuid.UUID, channelID string, model model.KappagenOverlaySettings) kappagenmodel.KappagenOverlay {
-	animations := make([]kappagenmodel.KappagenOverlayAnimationsSettings, 0, len(model.Animations))
-	for _, a := range model.Animations {
-		var prefs *kappagenmodel.KappagenOverlayAnimationsPrefsSettings
-		if a.Prefs != nil {
-			prefs = &kappagenmodel.KappagenOverlayAnimationsPrefsSettings{
-				Size:    a.Prefs.Size,
-				Center:  a.Prefs.Center,
-				Speed:   a.Prefs.Speed,
-				Faces:   a.Prefs.Faces,
-				Message: a.Prefs.Message,
-				Time:    a.Prefs.Time,
+		if overlay == nil {
+			overlay = &kappagenmodel.KappagenOverlay{
+				ID:             parsedOverlayID,
+				ChannelID:      channelID,
+				EnableSpawn:    enableSpawn,
+				ExcludedEmotes: excludedEmotes,
+				EnableRave:     enableRave,
+				CreatedAt:      overlayCreatedAt,
+				UpdatedAt:      overlayUpdatedAt,
 			}
 		}
-		
-		animations = append(animations, kappagenmodel.KappagenOverlayAnimationsSettings{
-			Style:   a.Style,
-			Prefs:   prefs,
-			Count:   a.Count,
-			Enabled: a.Enabled,
-		})
-	}
 
-	return kappagenmodel.KappagenOverlay{
-		ID:             id,
-		ChannelID:      channelID,
-		EnableSpawn:    model.EnableSpawn,
-		ExcludedEmotes: model.ExcludedEmotes,
-		EnableRave:     model.EnableRave,
-		Animation: kappagenmodel.KappagenOverlayAnimationSettings{
-			FadeIn:  model.Animation.FadeIn,
-			FadeOut: model.Animation.FadeOut,
-			ZoomIn:  model.Animation.ZoomIn,
-			ZoomOut: model.Animation.ZoomOut,
-		},
-		Animations: animations,
-		Emotes: kappagenmodel.KappagenOverlayEmotesSettings{
-			Time:           model.Emotes.Time,
-			Max:            model.Emotes.Max,
-			Queue:          model.Emotes.Queue,
-			FfzEnabled:     model.Emotes.FfzEnabled,
-			BttvEnabled:    model.Emotes.BttvEnabled,
-			SevenTvEnabled: model.Emotes.SevenTvEnabled,
-			EmojiStyle:     kappagenmodel.KappagenEmojiStyle(model.Emotes.EmojiStyle),
-		},
-		Size: kappagenmodel.KappagenOverlaySizeSettings{
-			RatioNormal: model.Size.RatioNormal,
-			RatioSmall:  model.Size.RatioSmall,
-			Min:         model.Size.Min,
-			Max:         model.Size.Max,
-		},
-		Cube: kappagenmodel.KappagenOverlayCubeSettings{
-			Speed: model.Cube.Speed,
-		},
-	}
-}
+		if animationID != nil {
+			parsedAnimationID, err := ulid.Parse(*animationID)
+			if err != nil {
+				return kappagenmodel.KappagenOverlay{}, err
+			}
 
-func mapCreateInputToModel(input overlays_kappagen.CreateInput) model.KappagenOverlaySettings {
-	return model.KappagenOverlaySettings{
-		EnableSpawn:    input.EnableSpawn,
-		ExcludedEmotes: input.ExcludedEmotes,
-		EnableRave:     input.EnableRave,
-		Animation: model.KappagenOverlaySettingsAnimation{
-			FadeIn:  input.Animation.FadeIn,
-			FadeOut: input.Animation.FadeOut,
-			ZoomIn:  input.Animation.ZoomIn,
-			ZoomOut: input.Animation.ZoomOut,
-		},
-		Animations: mapAnimationsToModel(input.Animations),
-		Emotes: model.KappagenOverlaySettingsEmotes{
-			Time:           input.Emotes.Time,
-			Max:            input.Emotes.Max,
-			Queue:          input.Emotes.Queue,
-			FfzEnabled:     input.Emotes.FfzEnabled,
-			BttvEnabled:    input.Emotes.BttvEnabled,
-			SevenTvEnabled: input.Emotes.SevenTvEnabled,
-			EmojiStyle:     model.KappagenOverlaySettingsEmotesEmojiStyle(input.Emotes.EmojiStyle),
-		},
-		Size: model.KappagenOverlaySettingsSize{
-			RatioNormal: input.Size.RatioNormal,
-			RatioSmall:  input.Size.RatioSmall,
-			Min:         input.Size.Min,
-			Max:         input.Size.Max,
-		},
-		Cube: model.KappagenOverlaySettingsCube{
-			Speed: input.Cube.Speed,
-		},
-	}
-}
+			if anim, exists := animationsMap[*animationID]; !exists {
+				anim = &kappagenmodel.KappagenOverlayAnimationsSettings{
+					ID:        parsedAnimationID,
+					OverlayID: parsedOverlayID,
+					Style:     *animStyle,
+					Count:     *animCount,
+					Enabled:   *animEnabled,
+					CreatedAt: *animCreatedAt,
+					UpdatedAt: *animUpdatedAt,
+				}
+				animationsMap[*animationID] = anim
+			}
 
-func mapAnimationsToModel(animations []kappagenmodel.KappagenOverlayAnimationsSettings) []model.KappagenOverlaySettingsAnimationSettings {
-	result := make([]model.KappagenOverlaySettingsAnimationSettings, 0, len(animations))
-	for _, a := range animations {
-		var prefs *model.KappagenOverlaySettingsAnimationSettingsPrefs
-		if a.Prefs != nil {
-			prefs = &model.KappagenOverlaySettingsAnimationSettingsPrefs{
-				Size:    a.Prefs.Size,
-				Center:  a.Prefs.Center,
-				Speed:   a.Prefs.Speed,
-				Faces:   a.Prefs.Faces,
-				Message: a.Prefs.Message,
-				Time:    a.Prefs.Time,
+			if prefsID != nil {
+				parsedPrefsID, err := ulid.Parse(*prefsID)
+				if err != nil {
+					return kappagenmodel.KappagenOverlay{}, err
+				}
+
+				prefs := kappagenmodel.KappagenOverlayAnimationsPrefsSettings{
+					ID:          parsedPrefsID,
+					AnimationID: parsedAnimationID,
+					Size:        *prefsSize,
+					Center:      *prefsCenter,
+					Speed:       *prefsSpeed,
+					Faces:       *prefsFaces,
+					Message:     *prefsMessage,
+					Time:        *prefsTime,
+					CreatedAt:   *prefsCreatedAt,
+					UpdatedAt:   *prefsUpdatedAt,
+				}
+
+				animationsMap[*animationID].Prefs = prefs
 			}
 		}
-		
-		result = append(result, model.KappagenOverlaySettingsAnimationSettings{
-			Style:   a.Style,
-			Prefs:   prefs,
-			Count:   a.Count,
-			Enabled: a.Enabled,
-		})
 	}
-	return result
+
+	if rows.Err() != nil {
+		return kappagenmodel.KappagenOverlay{}, rows.Err()
+	}
+
+	if overlay == nil {
+		return kappagenmodel.KappagenOverlay{}, fmt.Errorf("not found")
+	}
+
+	for _, anim := range animationsMap {
+		overlay.Animations = append(overlay.Animations, *anim)
+	}
+
+	slices.SortFunc(
+		overlay.Animations,
+		func(a, b kappagenmodel.KappagenOverlayAnimationsSettings) int {
+			return a.ID.Compare(b.ID)
+		},
+	)
+
+	return *overlay, nil
+}
+
+func (p *Pgx) Create(
+	ctx context.Context,
+	input overlays_kappagen.CreateInput,
+) (kappagenmodel.KappagenOverlay, error) {
+	panic("")
+}
+
+func (p *Pgx) Update(
+	ctx context.Context,
+	channelID string,
+	input overlays_kappagen.UpdateInput,
+) (kappagenmodel.KappagenOverlay, error) {
+	panic("")
 }

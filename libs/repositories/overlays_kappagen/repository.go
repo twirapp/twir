@@ -9,10 +9,10 @@ import (
 type Repository interface {
 	// Get returns the kappagen overlay for the given channel ID
 	Get(ctx context.Context, channelID string) (model.KappagenOverlay, error)
-	
+
 	// Create creates a new kappagen overlay for the given channel ID
 	Create(ctx context.Context, input CreateInput) (model.KappagenOverlay, error)
-	
+
 	// Update updates the kappagen overlay for the given channel ID
 	Update(ctx context.Context, channelID string, input UpdateInput) (model.KappagenOverlay, error)
 }

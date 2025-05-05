@@ -1,7 +1,10 @@
 package model
 
 import (
+	"time"
+
 	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 )
 
 type KappagenEmojiStyle int32
@@ -25,23 +28,25 @@ type KappagenOverlay struct {
 	Emotes         KappagenOverlayEmotesSettings
 	Size           KappagenOverlaySizeSettings
 	Cube           KappagenOverlayCubeSettings
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type KappagenOverlayEmotesSettings struct {
-	Time          int32
-	Max           int32
-	Queue         int32
-	FfzEnabled    bool
-	BttvEnabled   bool
+	Time           int
+	Max            int
+	Queue          int
+	FfzEnabled     bool
+	BttvEnabled    bool
 	SevenTvEnabled bool
-	EmojiStyle    KappagenEmojiStyle
+	EmojiStyle     KappagenEmojiStyle
 }
 
 type KappagenOverlaySizeSettings struct {
 	RatioNormal float64
 	RatioSmall  float64
-	Min         int32
-	Max         int32
+	Min         int
+	Max         int
 }
 
 type KappagenOverlayCubeSettings struct {
@@ -56,19 +61,27 @@ type KappagenOverlayAnimationSettings struct {
 }
 
 type KappagenOverlayAnimationsPrefsSettings struct {
-	Size    *float64
-	Center  *bool
-	Speed   *int32
-	Faces   *bool
-	Message []string
-	Time    *int32
+	ID          ulid.ULID
+	AnimationID ulid.ULID
+	Size        float64
+	Center      bool
+	Speed       int
+	Faces       bool
+	Message     []string
+	Time        int
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type KappagenOverlayAnimationsSettings struct {
-	Style   string
-	Prefs   *KappagenOverlayAnimationsPrefsSettings
-	Count   *int32
-	Enabled bool
+	ID        ulid.ULID
+	OverlayID uuid.UUID
+	Style     string
+	Prefs     KappagenOverlayAnimationsPrefsSettings
+	Count     int
+	Enabled   bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 var Nil = KappagenOverlay{}

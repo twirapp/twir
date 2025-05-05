@@ -4,8 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
-	"github.com/satont/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen/model"
 	"go.uber.org/fx"
@@ -28,7 +27,10 @@ type Service struct {
 }
 
 // GetOrCreate gets the kappagen overlay for the given channel ID or creates a new one with default settings if it doesn't exist
-func (s *Service) GetOrCreate(ctx context.Context, channelID string) (entity.KappagenOverlay, error) {
+func (s *Service) GetOrCreate(ctx context.Context, channelID string) (
+	entity.KappagenOverlay,
+	error,
+) {
 	overlay, err := s.repository.Get(ctx, channelID)
 	if err != nil {
 		if errors.Is(err, overlays_kappagen.ErrNotFound) {
@@ -45,28 +47,60 @@ func (s *Service) GetOrCreate(ctx context.Context, channelID string) (entity.Kap
 	return mapModelToEntity(overlay), nil
 }
 
-// Update updates the kappagen overlay for the given channel ID
-func (s *Service) Update(ctx context.Context, channelID string, input entity.KappagenOverlay) (entity.KappagenOverlay, error) {
-	// Try to get the overlay first
-	_, err := s.repository.Get(ctx, channelID)
-	if err != nil {
-		if errors.Is(err, overlays_kappagen.ErrNotFound) {
-			// Create a new overlay with the provided settings
-			createInput := createDefaultOverlayInput(channelID)
-			// Override default values with provided input
-			createInput.EnableSpawn = input.EnableSpawn
-			createInput.ExcludedEmotes = input.ExcludedEmotes
-			createInput.EnableRave = input.EnableRave
-			createInput.Animation = mapEntityAnimationToModel(input.Animation)
-			createInput.Animations = mapEntityAnimationsToModel(input.Animations)
+type UpdateInput struct {
+	ChannelID string
 
-			created, err := s.repository.Create(ctx, createInput)
-			if err != nil {
-				return entity.KappagenOverlay{}, err
-			}
-			return mapModelToEntity(created), nil
-		}
-		return entity.KappagenOverlay{}, err
+	EnableSpawn    bool
+	ExcludedEmotes []string
+	EnableRave     bool
+	Animation      UpdateInputAnimationSettings
+	Animations     []entity.KappagenOverlayAnimationsSettings
+}
+type UpdateInputAnimationSettings struct {
+	FadeIn  bool
+	FadeOut bool
+	ZoomIn  bool
+	ZoomOut bool
+}
+
+type UpdateInputAnimationsSettings struct {
+	Style   string
+	Prefs   UpdateInputAnimationsPrefsSettings
+	Count   int
+	Enabled bool
+}
+
+type UpdateInputAnimationsPrefsSettings struct {
+	Size    float64
+	Center  bool
+	Speed   int
+	Faces   bool
+	Message []string
+	Time    int
+}
+
+// Update updates the kappagen overlay for the given channel ID
+func (s *Service) Update(
+	ctx context.Context,
+	input UpdateInput,
+) (entity.KappagenOverlay, error) {
+	animations := make([]model.KappagenOverlayAnimationsSettings, 0, len(input.Animations))
+	for _, a := range input.Animations {
+		animations = append(
+			animations, model.KappagenOverlayAnimationsSettings{
+				Style: a.Style,
+				Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+					Size:    a.Prefs.Size,
+					Center:  a.Prefs.Center,
+					Speed:   a.Prefs.Speed,
+					Faces:   a.Prefs.Faces,
+					Message: a.Prefs.Message,
+					Time:    a.Prefs.Time,
+				},
+				Count:   a.Count,
+				Enabled: a.Enabled,
+			},
+		)
 	}
 
 	// Update the existing overlay
@@ -74,11 +108,16 @@ func (s *Service) Update(ctx context.Context, channelID string, input entity.Kap
 		EnableSpawn:    input.EnableSpawn,
 		ExcludedEmotes: input.ExcludedEmotes,
 		EnableRave:     input.EnableRave,
-		Animation:      mapEntityAnimationToModel(input.Animation),
-		Animations:     mapEntityAnimationsToModel(input.Animations),
+		Animation: model.KappagenOverlayAnimationSettings{
+			FadeIn:  input.Animation.FadeIn,
+			FadeOut: input.Animation.FadeOut,
+			ZoomIn:  input.Animation.ZoomIn,
+			ZoomOut: input.Animation.ZoomOut,
+		},
+		Animations: animations,
 	}
 
-	updated, err := s.repository.Update(ctx, channelID, updateInput)
+	updated, err := s.repository.Update(ctx, input.ChannelID, updateInput)
 	if err != nil {
 		return entity.KappagenOverlay{}, err
 	}
@@ -90,54 +129,23 @@ func (s *Service) Update(ctx context.Context, channelID string, input entity.Kap
 func mapModelToEntity(model model.KappagenOverlay) entity.KappagenOverlay {
 	animations := make([]entity.KappagenOverlayAnimationsSettings, 0, len(model.Animations))
 	for _, a := range model.Animations {
-		var prefs entity.KappagenOverlayAnimationsPrefsSettings
-		if a.Prefs != nil {
-			var size float64
-			if a.Prefs.Size != nil {
-				size = *a.Prefs.Size
-			}
-
-			var center float64
-			if a.Prefs.Center != nil && *a.Prefs.Center {
-				center = 1
-			}
-
-			var speed int
-			if a.Prefs.Speed != nil {
-				speed = int(*a.Prefs.Speed)
-			}
-
-			var faces bool
-			if a.Prefs.Faces != nil {
-				faces = *a.Prefs.Faces
-			}
-
-			var time int
-			if a.Prefs.Time != nil {
-				time = int(*a.Prefs.Time)
-			}
-
-			prefs = entity.KappagenOverlayAnimationsPrefsSettings{
-				Size:    size,
-				Center:  center,
-				Speed:   speed,
-				Faces:   faces,
-				Message: a.Prefs.Message,
-				Time:    time,
-			}
+		prefs := entity.KappagenOverlayAnimationsPrefsSettings{
+			Size:    a.Prefs.Size,
+			Center:  a.Prefs.Center,
+			Speed:   a.Prefs.Speed,
+			Faces:   a.Prefs.Faces,
+			Message: a.Prefs.Message,
+			Time:    a.Prefs.Time,
 		}
 
-		var count int
-		if a.Count != nil {
-			count = int(*a.Count)
-		}
-
-		animations = append(animations, entity.KappagenOverlayAnimationsSettings{
-			Style:   a.Style,
-			Prefs:   prefs,
-			Count:   count,
-			Enabled: a.Enabled,
-		})
+		animations = append(
+			animations, entity.KappagenOverlayAnimationsSettings{
+				Style:   a.Style,
+				Prefs:   prefs,
+				Count:   a.Count,
+				Enabled: a.Enabled,
+			},
+		)
 	}
 
 	return entity.KappagenOverlay{
@@ -155,53 +163,8 @@ func mapModelToEntity(model model.KappagenOverlay) entity.KappagenOverlay {
 	}
 }
 
-func mapEntityAnimationToModel(animation entity.KappagenOverlayAnimationSettings) model.KappagenOverlayAnimationSettings {
-	return model.KappagenOverlayAnimationSettings{
-		FadeIn:  animation.FadeIn,
-		FadeOut: animation.FadeOut,
-		ZoomIn:  animation.ZoomIn,
-		ZoomOut: animation.ZoomOut,
-	}
-}
-
-func mapEntityAnimationsToModel(animations []entity.KappagenOverlayAnimationsSettings) []model.KappagenOverlayAnimationsSettings {
-	result := make([]model.KappagenOverlayAnimationsSettings, 0, len(animations))
-	for _, a := range animations {
-		size := float64(a.Prefs.Size)
-		center := a.Prefs.Center > 0
-		speed := int32(a.Prefs.Speed)
-		faces := a.Prefs.Faces
-		time := int32(a.Prefs.Time)
-		count := int32(a.Count)
-
-		result = append(result, model.KappagenOverlayAnimationsSettings{
-			Style: a.Style,
-			Prefs: &model.KappagenOverlayAnimationsPrefsSettings{
-				Size:    &size,
-				Center:  &center,
-				Speed:   &speed,
-				Faces:   &faces,
-				Message: a.Prefs.Message,
-				Time:    &time,
-			},
-			Count:   &count,
-			Enabled: a.Enabled,
-		})
-	}
-	return result
-}
-
 // createDefaultOverlayInput creates input for default kappagen overlay
 func createDefaultOverlayInput(channelID string) overlays_kappagen.CreateInput {
-	size := float64(1)
-	speedInt32 := int32(5)
-	timeInt32 := int32(5000)
-	countInt32 := int32(10)
-	falseValue := false
-	trueValue := true
-	centerFalse := false
-	centerTrue := true
-
 	return overlays_kappagen.CreateInput{
 		ChannelID:      channelID,
 		EnableSpawn:    true,
@@ -210,54 +173,92 @@ func createDefaultOverlayInput(channelID string) overlays_kappagen.CreateInput {
 		Animation: model.KappagenOverlayAnimationSettings{
 			FadeIn:  true,
 			FadeOut: true,
-			ZoomIn:  false,
-			ZoomOut: false,
+			ZoomIn:  true,
+			ZoomOut: true,
 		},
 		Animations: []model.KappagenOverlayAnimationsSettings{
 			{
-				Style: "rain",
-				Prefs: &model.KappagenOverlayAnimationsPrefsSettings{
-					Size:    &size,
-					Center:  &centerFalse,
-					Speed:   &speedInt32,
-					Faces:   &falseValue,
+				Style: "TheCube",
+				Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+					Size:    0.2,
+					Center:  false,
+					Faces:   false,
+					Speed:   6,
 					Message: []string{},
-					Time:    &timeInt32,
 				},
-				Count:   &countInt32,
 				Enabled: true,
 			},
 			{
-				Style: "explode",
-				Prefs: &model.KappagenOverlayAnimationsPrefsSettings{
-					Size:    &size,
-					Center:  &centerTrue,
-					Speed:   &speedInt32,
-					Faces:   &falseValue,
-					Message: []string{},
-					Time:    &timeInt32,
+				Style: "Text",
+				Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+					Message: []string{"Twir"},
+					Time:    3,
 				},
-				Count:   &countInt32,
+				Enabled: true,
+			},
+			{
+				Style:   "Confetti",
+				Count:   150,
+				Enabled: true,
+			},
+			{
+				Style:   "Spiral",
+				Count:   150,
+				Enabled: true,
+			},
+			{
+				Style:   "Stampede",
+				Count:   150,
+				Enabled: true,
+			},
+			{
+				Style:   "Burst",
+				Count:   50,
+				Enabled: true,
+			},
+			{
+				Style:   "Fountain",
+				Count:   50,
+				Enabled: true,
+			},
+			{
+				Style:   "SmallPyramid",
+				Enabled: true,
+			},
+			{
+				Style:   "Pyramid",
+				Enabled: true,
+			},
+			{
+				Style:   "Fireworks",
+				Count:   150,
+				Enabled: true,
+			},
+			{
+				Style: "Conga",
+				Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+					Message: []string{},
+				},
 				Enabled: true,
 			},
 		},
 		Emotes: model.KappagenOverlayEmotesSettings{
-			Time:           5000,
-			Max:            50,
-			Queue:          10,
+			Time:           5,
+			Max:            0,
+			Queue:          0,
 			FfzEnabled:     true,
 			BttvEnabled:    true,
 			SevenTvEnabled: true,
 			EmojiStyle:     model.KappagenEmojiStyleTwemoji,
 		},
 		Size: model.KappagenOverlaySizeSettings{
-			RatioNormal: 7,
-			RatioSmall:  14,
-			Min:         30,
-			Max:         100,
+			RatioNormal: 0.05,
+			RatioSmall:  0.02,
+			Min:         1,
+			Max:         256,
 		},
 		Cube: model.KappagenOverlayCubeSettings{
-			Speed: 5,
+			Speed: 6,
 		},
 	}
 }

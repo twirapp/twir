@@ -2,14 +2,12 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/minio/minio-go/v7"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
@@ -18,7 +16,6 @@ import (
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
@@ -34,6 +31,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
@@ -161,27 +159,4 @@ func GetPreloadString(prefix, name string) string {
 		return prefix + "." + name
 	}
 	return name
-}
-
-func (r *Resolver) getDashboardIDFromContext(ctx context.Context) (string, error) {
-	user, err := r.getUserFromContext(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	dashboardID := ctx.Value("dashboardId")
-	if dashboardID == nil {
-		return "", fmt.Errorf("dashboard ID not found in context")
-	}
-
-	return dashboardID.(string), nil
-}
-
-func (r *Resolver) getUserFromContext(ctx context.Context) (*model.Users, error) {
-	user := ctx.Value("user")
-	if user == nil {
-		return nil, fmt.Errorf("user not found in context")
-	}
-
-	return user.(*model.Users), nil
 }

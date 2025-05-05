@@ -9,14 +9,52 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
 func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gqlmodel.KappagenUpdateInput) (*gqlmodel.KappagenOverlay, error) {
-	panic(fmt.Errorf("not implemented: OverlaysKappagenUpdate - overlaysKappagenUpdate"))
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	currentOverlay, err := r.deps.KappagenService.GetOrCreate(ctx, dashboardID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get current kappagen overlay: %w", err)
+	}
+
+	// Update the overlay
+	updatedOverlay, err := r.deps.KappagenService.Update(ctx, dashboardID, entityInput)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update kappagen overlay: %w", err)
+	}
+
+	return mapEntityToGQL(updatedOverlay), nil
 }
 
 // OverlaysKappagen is the resolver for the overlaysKappagen field.
 func (r *queryResolver) OverlaysKappagen(ctx context.Context) (*gqlmodel.KappagenOverlay, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	overlay, err := r.deps.KappagenService.GetOrCreate(ctx, dashboardID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get kappagen overlay: %w", err)
+	}
+
+	converted := mappers.MapKappagenEntityToGQL(overlay)
+	return &converted, nil
+}
+
+// OverlaysKappagen is the resolver for the overlaysKappagen field.
+func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (<-chan *gqlmodel.KappagenOverlay, error) {
 	panic(fmt.Errorf("not implemented: OverlaysKappagen - overlaysKappagen"))
 }

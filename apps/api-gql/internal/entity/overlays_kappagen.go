@@ -14,22 +14,22 @@ const (
 )
 
 type KappagenOverlay struct {
-	ID             uuid.UUID                        `json:"id"`
-	EnableSpawn    bool                             `json:"enableSpawn"`
-	ExcludedEmotes []string                         `json:"excludedEmotes"`
-	EnableRave     bool                             `json:"enableRave"`
-	Animation      KappagenOverlayAnimationSettings `json:"animation"`
+	ID             uuid.UUID                           `json:"id"`
+	EnableSpawn    bool                                `json:"enableSpawn"`
+	ExcludedEmotes []string                            `json:"excludedEmotes"`
+	EnableRave     bool                                `json:"enableRave"`
+	Animation      KappagenOverlayAnimationSettings    `json:"animation"`
 	Animations     []KappagenOverlayAnimationsSettings `json:"animations"`
 }
 
 type KappagenOverlayEmotesSettings struct {
-	Time          int               `json:"time"`
-	Max           int               `json:"max"`
-	Queue         int               `json:"queue"`
-	FfzEnabled    bool              `json:"ffz_enabled"`
-	BttvEnabled   bool              `json:"bttv_enabled"`
-	SevenTvEnabled bool             `json:"seven_tv_enabled"`
-	EmojiStyle    KappagenEmojiStyle `json:"emoji_style"`
+	Time           int                `json:"time"`
+	Max            int                `json:"max"`
+	Queue          int                `json:"queue"`
+	FfzEnabled     bool               `json:"ffz_enabled"`
+	BttvEnabled    bool               `json:"bttv_enabled"`
+	SevenTvEnabled bool               `json:"seven_tv_enabled"`
+	EmojiStyle     KappagenEmojiStyle `json:"emoji_style"`
 }
 
 type KappagenOverlaySizeSettings struct {
@@ -52,7 +52,7 @@ type KappagenOverlayAnimationSettings struct {
 
 type KappagenOverlayAnimationsPrefsSettings struct {
 	Size    float64  `json:"size"`
-	Center  float64  `json:"center"`
+	Center  bool     `json:"center"`
 	Speed   int      `json:"speed"`
 	Faces   bool     `json:"faces"`
 	Message []string `json:"message"`
@@ -60,8 +60,8 @@ type KappagenOverlayAnimationsPrefsSettings struct {
 }
 
 type KappagenOverlayAnimationsSettings struct {
-	Style   string                               `json:"style"`
+	Style   string                                 `json:"style"`
 	Prefs   KappagenOverlayAnimationsPrefsSettings `json:"prefs"`
-	Count   int                                  `json:"count"`
-	Enabled bool                                 `json:"enabled"`
+	Count   int                                    `json:"count"`
+	Enabled bool                                   `json:"enabled"`
 }

@@ -6,6 +6,10 @@ extend type Mutation {
 	overlaysKappagenUpdate(input: KappagenUpdateInput!): KappagenOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
 }
 
+extend type Subscription {
+	overlaysKappagen: KappagenOverlay! @isAuthenticated
+}
+
 enum KappagenEmojiStyle {
 	OPENMOJI
 	TWEMOJI
@@ -52,7 +56,7 @@ type KappagenOverlayAnimationSettings {
 
 type KappagenOverlayAnimationsPrefsSettings {
 	size: Float!
-	center: Float!
+	center: Boolean!
 	speed: Int!
 	faces: Boolean!
 	message: [String!]!
