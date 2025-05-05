@@ -13,7 +13,7 @@ var Cmd = &cli.Command{
 	Usage:   "kill any runed twir services (except docker)",
 	Aliases: []string{"k"},
 	Action: func(c *cli.Context) error {
-		pterm.Info.Println("Killing")
+		pterm.Info.Println("Killing runed zombie processes")
 
 		shell.ExecCommand(
 			shell.ExecCommandOpts{

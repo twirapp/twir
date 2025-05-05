@@ -6,6 +6,8 @@ import (
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	eventmodel "github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen/model"
@@ -14,21 +16,44 @@ import (
 
 type Opts struct {
 	fx.In
+	LC fx.Lifecycle
 
 	Repository overlays_kappagen.Repository
 	WsRouter   wsrouter.WsRouter
+	TwirBus    *buscore.Bus
 }
 
 func New(opts Opts) *Service {
-	return &Service{
+	s := &Service{
 		repository: opts.Repository,
 		wsRouter:   opts.WsRouter,
+		twirBus:    opts.TwirBus,
 	}
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				opts.TwirBus.Api.TriggerKappagen.SubscribeGroup(
+					"api",
+					s.handleTriggerKappagenEvent,
+				)
+
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				opts.TwirBus.Api.TriggerKappagen.Unsubscribe()
+				return nil
+			},
+		},
+	)
+
+	return s
 }
 
 type Service struct {
 	repository overlays_kappagen.Repository
 	wsRouter   wsrouter.WsRouter
+	twirBus    *buscore.Bus
 }
 
 // GetOrCreate gets the kappagen overlay for the given channel ID or creates a new one with default settings if it doesn't exist
@@ -81,7 +106,7 @@ func (s *Service) Update(
 	}
 
 	if err := s.wsRouter.Publish(
-		CreateSubscriptionKey(input.ChannelID),
+		CreateSettingsSubscriptionKey(input.ChannelID),
 		mapModelToEntity(updated),
 	); err != nil {
 		return entity.KappagenOverlay{}, err
@@ -423,6 +448,19 @@ func createDefaultOverlayInput(channelID string) overlays_kappagen.CreateInput {
 	}
 }
 
-func CreateSubscriptionKey(channelId string) string {
+func CreateSettingsSubscriptionKey(channelId string) string {
 	return "api.kappagensettings." + channelId
+}
+
+func CreateTriggerSubscriptionKey(channelId string) string {
+	return "api.kappagen.trigger." + channelId
+}
+
+func (s *Service) handleTriggerKappagenEvent(
+	ctx context.Context,
+	msg api.TriggerKappagenMessage,
+) struct{} {
+	s.wsRouter.Publish(CreateTriggerSubscriptionKey(msg.ChannelId), msg)
+
+	return struct{}{}
 }

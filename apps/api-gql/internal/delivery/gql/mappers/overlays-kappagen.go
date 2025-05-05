@@ -32,7 +32,7 @@ func MapKappagenEntityToGQL(entity entity.KappagenOverlay) gqlmodel.KappagenOver
 	for _, e := range entity.Settings.Events {
 		events = append(
 			events, gqlmodel.KappagenOverlayEvent{
-				Event:              string(e.Event),
+				Event:              gqlmodel.EventType(e.Event),
 				DisabledAnimations: e.DisabledAnimations,
 				Enabled:            e.Enabled,
 			},

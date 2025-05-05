@@ -21,6 +21,7 @@ export function useKappagenOverlaySocket(options: Options) {
 					baseInfo {
 						channelId
 						channelName
+						type
 					}
 				}
 			}
@@ -109,17 +110,23 @@ export function useKappagenOverlaySocket(options: Options) {
 		}
 	}
 
+	watch(eventsData, (event) => {
+		if (!event.twirEvents.baseInfo || !settings.value?.overlaysKappagen) return
+
+		if (!settings.value.overlaysKappagen.events.some((e) => e.event.type === event.twirEvents.baseInfo.type)) {
+			return
+		}
+
+		const generatedEmotes = options.emotesBuilder.buildKappagenEmotes([])
+
+		const animation = randomAnimation()
+		if (!animation) return
+
+		options.playAnimation(generatedEmotes, animation)
+	})
+
 	watch(data, (d: string) => {
 		const event = JSON.parse(d) as TwirWebSocketEvent
-
-		if (event.eventName === 'event') {
-			const generatedEmotes = options.emotesBuilder.buildKappagenEmotes([])
-
-			const animation = randomAnimation()
-			if (!animation) return
-
-			options.playAnimation(generatedEmotes, animation)
-		}
 
 		if (event.eventName === 'kappagen') {
 			const data = event.data as { text: string, emotes?: KappagenTriggerRequestEmote[] }

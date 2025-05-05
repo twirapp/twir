@@ -1,6 +1,7 @@
 package buscore
 
 import (
+	"github.com/twirapp/twir/libs/bus-core/api"
 	auditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -108,4 +109,8 @@ type eventsBus struct {
 	VipRemoved                 Queue[events.VipRemovedMessage, struct{}]
 	ModeratorAdded             Queue[events.ModeratorAddedMessage, struct{}]
 	ModeratorRemoved           Queue[events.ModeratorRemovedMessage, struct{}]
+}
+
+type apiBus struct {
+	TriggerKappagen Queue[api.TriggerKappagenMessage, struct{}]
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	auditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -34,6 +35,7 @@ type Bus struct {
 	ChatMessages  Queue[twitch.TwitchChatMessage, struct{}]
 	RedemptionAdd Queue[twitch.ActivatedRedemption, struct{}]
 	Events        *eventsBus
+	Api           *apiBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -405,6 +407,15 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			ChannelMessageDelete: NewNatsQueue[events.ChannelMessageDeleteMessage, struct{}](
 				nc,
 				events.ChannelMessageDeleteSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+		},
+
+		Api: &apiBus{
+			TriggerKappagen: NewNatsQueue[api.TriggerKappagenMessage, struct{}](
+				nc,
+				api.TriggerKappagenSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),

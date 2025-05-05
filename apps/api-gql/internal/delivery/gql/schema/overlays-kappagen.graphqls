@@ -8,6 +8,7 @@ extend type Mutation {
 
 extend type Subscription {
 	overlaysKappagen: KappagenOverlay! @isAuthenticated
+	overlaysKappagenTrigger: KappagenTriggerPayload! @isAuthenticated
 }
 
 enum KappagenEmojiStyle {
@@ -66,7 +67,7 @@ type KappagenOverlayAnimationsSettings {
 }
 
 type KappagenOverlayEvent {
-	event: String!
+	event: EventType!
 	disabledAnimations: [String!]!
 	enabled: Boolean!
 }
@@ -133,4 +134,14 @@ input KappagenSizeSettingsInput {
 	rationSmall: Float!
 	min: Int!
 	max: Int!
+}
+
+type KappagenTriggerPayload {
+	text: String!
+	emotes: [KappagenTriggerRequestEmote!]!
+}
+
+type KappagenTriggerRequestEmote {
+	id: String!
+	positions: [String!]!
 }

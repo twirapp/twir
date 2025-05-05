@@ -9,6 +9,7 @@ interface EventMessage {
 type EventBaseInfo {
 	channelId: String!
 	channelName: String!
+	type: EventType!
 }
 
 type EventFollowMessage implements EventMessage {

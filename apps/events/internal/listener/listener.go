@@ -318,20 +318,6 @@ func (c *EventsGrpcImplementation) Follow(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_FOLLOW.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -376,20 +362,6 @@ func (c *EventsGrpcImplementation) Subscribe(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_SUBSCRIBE.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -430,20 +402,6 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 				api_events.TwirEventType_RESUBSCRIBE,
 				msg,
 			)
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_RESUBSCRIBE.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
 		},
 	)
 
@@ -491,20 +449,6 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_REDEMPTION_CREATED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -537,23 +481,6 @@ func (c *EventsGrpcImplementation) CommandUsed(
 			}
 		},
 	)
-
-	if msg.DefaultCommandName != "kappagen" {
-		wg.Go(
-			func() {
-				_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-					ctx,
-					&websockets.TriggerKappagenByEventRequest{
-						ChannelId: msg.BaseInfo.ChannelID,
-						Event:     int32(api_events.TwirEventType_COMMAND_USED.Number()),
-					},
-				)
-				if err != nil {
-					c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-				}
-			},
-		)
-	}
 
 	wg.Wait()
 
@@ -592,21 +519,6 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 				api_events.TwirEventType_FIRST_USER_MESSAGE,
 				msg,
 			)
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx,
-				&websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_FIRST_USER_MESSAGE.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
 		},
 	)
 
@@ -651,21 +563,6 @@ func (c *EventsGrpcImplementation) Raided(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx,
-				&websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_RAIDED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -692,20 +589,6 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", slog.Any("err", err))
-			}
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_TITLE_OR_CATEGORY_CHANGED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
 			}
 		},
 	)
@@ -749,20 +632,6 @@ func (c *EventsGrpcImplementation) StreamOnline(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.ChannelID,
-					Event:     int32(api_events.TwirEventType_STREAM_ONLINE.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -800,20 +669,6 @@ func (c *EventsGrpcImplementation) StreamOffline(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.ChannelID,
-					Event:     int32(api_events.TwirEventType_STREAM_OFFLINE.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -840,20 +695,6 @@ func (c *EventsGrpcImplementation) SubGift(
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", slog.Any("err", err))
-			}
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_SUB_GIFT.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
 			}
 		},
 	)
@@ -895,20 +736,6 @@ func (c *EventsGrpcImplementation) ChatClear(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_CHAT_CLEAR.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -947,20 +774,6 @@ func (c *EventsGrpcImplementation) Donate(
 				api_events.TwirEventType_DONATE,
 				msg,
 			)
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_DONATE.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
 		},
 	)
 
@@ -1011,20 +824,6 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_KEYWORD_USED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -1051,20 +850,6 @@ func (c *EventsGrpcImplementation) GreetingSended(
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", slog.Any("err", err))
-			}
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_GREETING_SENDED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
 			}
 		},
 	)
@@ -1101,20 +886,6 @@ func (c *EventsGrpcImplementation) PollBegin(
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", slog.Any("err", err))
-			}
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_POLL_STARTED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
 			}
 		},
 	)
@@ -1157,20 +928,6 @@ func (c *EventsGrpcImplementation) PollProgress(
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", slog.Any("err", err))
-			}
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_POLL_VOTED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
 			}
 		},
 	)
@@ -1228,20 +985,6 @@ func (c *EventsGrpcImplementation) PollEnd(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_POLL_ENDED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -1273,20 +1016,6 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", slog.Any("err", err))
-			}
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_PREDICTION_STARTED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
 			}
 		},
 	)
@@ -1332,20 +1061,6 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_PREDICTION_VOTED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -1384,20 +1099,6 @@ func (c *EventsGrpcImplementation) PredictionLock(
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", slog.Any("err", err))
-			}
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_PREDICTION_LOCKED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
 			}
 		},
 	)
@@ -1456,20 +1157,6 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 		},
 	)
 
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_PREDICTION_ENDED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
-		},
-	)
-
 	wg.Wait()
 
 	return struct{}{}
@@ -1492,20 +1179,6 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", slog.Any("err", err))
-			}
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_FIRST_USER_MESSAGE.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
 			}
 		},
 	)
@@ -1549,20 +1222,6 @@ func (c *EventsGrpcImplementation) ChannelBan(
 				api_events.TwirEventType_USER_BANNED,
 				msg,
 			)
-		},
-	)
-
-	wg.Go(
-		func() {
-			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
-				ctx, &websockets.TriggerKappagenByEventRequest{
-					ChannelId: msg.BaseInfo.ChannelID,
-					Event:     int32(api_events.TwirEventType_USER_BANNED.Number()),
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
-			}
 		},
 	)
 

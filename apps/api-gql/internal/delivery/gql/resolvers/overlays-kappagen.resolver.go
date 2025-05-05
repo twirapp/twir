@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
+	"github.com/twirapp/twir/libs/bus-core/api"
 )
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
@@ -118,7 +119,7 @@ func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (<-chan *gq
 	if err != nil {
 		return nil, err
 	}
-	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateSubscriptionKey(dashboardID)})
+	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateSettingsSubscriptionKey(dashboardID)})
 	if err != nil {
 		return nil, err
 	}
@@ -152,6 +153,56 @@ func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (<-chan *gq
 				newSettingsConverted := mappers.MapKappagenEntityToGQL(newSettings)
 
 				chann <- &newSettingsConverted
+			}
+		}
+	}()
+
+	return chann, nil
+}
+
+// OverlaysKappagenTrigger is the resolver for the overlaysKappagenTrigger field.
+func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context) (<-chan *gqlmodel.KappagenTriggerPayload, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateTriggerSubscriptionKey(dashboardID)})
+	if err != nil {
+		return nil, err
+	}
+
+	chann := make(chan *gqlmodel.KappagenTriggerPayload, 1)
+
+	go func() {
+		defer func() {
+			wsRouterSub.Unsubscribe()
+			close(chann)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data := <-wsRouterSub.GetChannel():
+				var msg api.TriggerKappagenMessage
+				if err := json.Unmarshal(data, &msg); err != nil {
+					panic(err)
+				}
+
+				emotes := make([]gqlmodel.KappagenTriggerRequestEmote, 0, len(msg.Emotes))
+				for _, e := range msg.Emotes {
+					emotes = append(
+						emotes, gqlmodel.KappagenTriggerRequestEmote{
+							ID:        e.Id,
+							Positions: e.Positions,
+						},
+					)
+				}
+
+				chann <- &gqlmodel.KappagenTriggerPayload{
+					Text:   msg.Text,
+					Emotes: emotes,
+				}
 			}
 		}
 	}()

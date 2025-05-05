@@ -65,6 +65,10 @@ const (
 	EventTypeChannelUnbanRequestCreate  EventType = "CHANNEL_UNBAN_REQUEST_CREATE"
 	EventTypeChannelUnbanRequestResolve EventType = "CHANNEL_UNBAN_REQUEST_RESOLVE"
 	EventTypeChannelMessageDelete       EventType = "CHANNEL_MESSAGE_DELETE"
+	EventTypeVipAdded                   EventType = "VIP_ADDED"
+	EventTypeVipRemoved                 EventType = "VIP_REMOVED"
+	EventTypeModeratorAdded             EventType = "MODERATOR_ADDED"
+	EventTypeModeratorRemoved           EventType = "MODERATOR_REMOVED"
 )
 
 var AllEventType = []EventType{
