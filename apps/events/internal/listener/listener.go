@@ -1487,7 +1487,7 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 				model.EventStreamFirstUserJoin,
 				shared.EventData{
 					ChannelID: msg.BaseInfo.ChannelID,
-					UserName:  msg.UserName,
+					UserName:  msg.UserLogin,
 				},
 			)
 			if err != nil {

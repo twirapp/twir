@@ -156,13 +156,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		Channel: &channelBus{
 			StreamOnline: NewNatsQueue[twitch.StreamOnlineMessage, struct{}](
 				nc,
-				STREAM_ONLINE_SUBJECT,
+				events.StreamOnlineSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
 			StreamOffline: NewNatsQueue[twitch.StreamOfflineMessage, struct{}](
 				nc,
-				STREAM_OFFLINE_SUBJECT,
+				events.StreamOfflineSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),

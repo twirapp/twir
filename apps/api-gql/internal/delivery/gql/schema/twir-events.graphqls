@@ -1,0 +1,311 @@
+extend type Subscription {
+	twirEvents: EventMessage! @isAuthenticated
+}
+
+interface EventMessage {
+	baseInfo: EventBaseInfo!
+}
+
+type EventBaseInfo {
+	channelId: String!
+	channelName: String!
+}
+
+type EventFollowMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	userId: String!
+}
+
+type EventSubscribeMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	level: String!
+	userId: String!
+}
+
+type EventSubGiftMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	senderUserName: String!
+	senderDisplayName: String!
+	targetUserName: String!
+	targetDisplayName: String!
+	level: String!
+	senderUserId: String!
+}
+
+type EventReSubscribeMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	months: Int!
+	streak: Int!
+	isPrime: Boolean!
+	message: String!
+	level: String!
+	userId: String!
+}
+
+type EventRedemptionCreatedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	id: String!
+	rewardName: String!
+	rewardCost: String!
+	input: String
+	userId: String!
+}
+
+type EventCommandUsedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	commandId: String!
+	commandName: String!
+	userName: String!
+	userDisplayName: String!
+	commandInput: String!
+	userId: String!
+	isDefault: Boolean!
+	defaultCommandName: String!
+	messageId: String!
+}
+
+type EventFirstUserMessageMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+	messageId: String!
+}
+
+type EventRaidedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	viewers: Int!
+	userId: String!
+}
+
+type EventTitleOrCategoryChangedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	oldTitle: String!
+	newTitle: String!
+	oldCategory: String!
+	newCategory: String!
+}
+
+type EventChatClearMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+}
+
+type EventDonateMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	amount: String!
+	currency: String!
+	message: String!
+}
+
+type EventKeywordMatchedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	keywordId: String!
+	keywordName: String!
+	keywordResponse: String!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+}
+
+type EventGreetingSendedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+	greetingText: String!
+}
+
+type EventPollChoice {
+	id: String!
+	title: String!
+	bitsVotes: Int!
+	channelsPointsVotes: Int!
+	votes: Int!
+}
+
+type EventPollBitsVotes {
+	enabled: Boolean!
+	amountPerVote: Int!
+}
+
+type EventPollChannelPointsVotes {
+	enabled: Boolean!
+	amountPerVote: Int!
+}
+
+type EventPollInfo {
+	title: String!
+	choices: [EventPollChoice!]!
+	bitsVoting: EventPollBitsVotes!
+	channelsPointsVoting: EventPollChannelPointsVotes!
+}
+
+type EventPollBeginMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	info: EventPollInfo!
+}
+
+type EventPollProgressMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	info: EventPollInfo!
+}
+
+type EventPollEndMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	info: EventPollInfo!
+}
+
+type EventPredictionTopPredictor {
+	userName: String!
+	userDisplayName: String!
+	userId: String!
+	pointsUsed: Int!
+	pointsWin: Int
+}
+
+type EventPredictionOutcome {
+	id: String!
+	title: String!
+	color: String!
+	users: Int!
+	channelPoints: Int!
+	topPredictors: [EventPredictionTopPredictor!]!
+}
+
+type EventPredictionInfo {
+	title: String!
+	outcomes: [EventPredictionOutcome!]!
+}
+
+type EventPredictionBeginMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	info: EventPredictionInfo!
+}
+
+type EventPredictionProgressMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	info: EventPredictionInfo!
+}
+
+type EventPredictionLockMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	info: EventPredictionInfo!
+}
+
+type EventPredictionEndMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userName: String!
+	userDisplayName: String!
+	info: EventPredictionInfo!
+}
+
+type EventStreamOnlineMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	startedAt: Time!
+}
+
+type EventStreamOfflineMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	endedAt: Time!
+}
+
+type EventStreamFirstUserJoinMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+}
+
+type EventChannelBanMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+	moderatorId: String!
+	moderatorName: String!
+	moderatorDisplayName: String!
+	reason: String
+	isPermanent: Boolean!
+	expiresAt: String
+}
+
+type EventChannelUnbanRequestCreateMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+	message: String!
+}
+
+type EventChannelUnbanRequestResolveMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+	moderatorId: String!
+	moderatorName: String!
+	moderatorDisplayName: String!
+	approved: Boolean!
+}
+
+type EventChannelMessageDeleteMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	messageId: String!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+	moderatorId: String!
+	moderatorName: String!
+	moderatorDisplayName: String!
+}
+
+type EventVipAddedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+}
+
+type EventVipRemovedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+}
+
+type EventModeratorAddedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+}
+
+type EventModeratorRemovedMessage implements EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+}

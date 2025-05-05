@@ -42,6 +42,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -114,6 +115,7 @@ type Deps struct {
 	ChannelsModerationSettingsService     *channels_moderation_settings.Service
 	EventsService                         *events.Service
 	KappagenService                       *kappagen.Service
+	TwirEventsService                     *twir_events.Service
 }
 
 type Resolver struct {

@@ -9,13 +9,13 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
-	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
+	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
@@ -54,6 +54,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -325,6 +326,7 @@ func main() {
 			channels_moderation_settings.New,
 			pastebinsservice.New,
 			events.New,
+			twir_events.New,
 		),
 		// grpc clients
 		fx.Provide(
