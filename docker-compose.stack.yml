@@ -425,30 +425,6 @@ services:
         constraints:
           - node.labels.databases != true
 
-  eval:
-    image: twirapp/eval:latest
-    secrets:
-      - twir_doppler_token
-    deploy:
-      mode: replicated
-      replicas: 8
-      update_config:
-        parallelism: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      resources:
-        limits:
-          cpus: '0.3'
-          memory: 256M
-      placement:
-        constraints:
-          - node.labels.databases != true
-    networks:
-      - twir
-
   integrations:
     image: twirapp/integrations:latest
     secrets:

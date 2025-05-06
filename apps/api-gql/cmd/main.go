@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/satont/twir/apps/parser/pkg/executron"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
@@ -276,6 +277,7 @@ func main() {
 		),
 		// services
 		fx.Provide(
+			executron.New,
 			dashboard_widget_events.New,
 			variables.New,
 			timers.New,

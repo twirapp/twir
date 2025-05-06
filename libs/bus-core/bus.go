@@ -8,7 +8,6 @@ import (
 	auditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
-	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
@@ -27,7 +26,6 @@ type Bus struct {
 	Bots          *botsBus
 	EmotesCacher  *emotesCacherBus
 	Timers        *timersBus
-	Eval          *evalBus
 	EventSub      *eventSubBus
 	Scheduler     *schedulerBus
 	Giveaways     *giveawaysBus
@@ -195,15 +193,6 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				timers.RemoveTimerSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
-			),
-		},
-
-		Eval: &evalBus{
-			Evaluate: NewNatsQueue[eval.EvalRequest, eval.EvalResponse](
-				nc,
-				eval.EvalEvaluateSubject,
-				1*time.Minute,
-				nats.JSON_ENCODER,
 			),
 		},
 

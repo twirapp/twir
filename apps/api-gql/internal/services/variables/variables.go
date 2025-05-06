@@ -6,11 +6,11 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
+	"github.com/satont/twir/apps/parser/pkg/executron"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -31,6 +31,7 @@ type Opts struct {
 	Gorm                *gorm.DB
 	Logger              logger.Logger
 	VariablesRepository variables.Repository
+	Executron           executron.Executron
 }
 
 type Service struct {
@@ -41,6 +42,7 @@ type Service struct {
 	gorm                *gorm.DB
 	logger              logger.Logger
 	variablesRepository variables.Repository
+	executron           executron.Executron
 }
 
 func New(opts Opts) *Service {
@@ -52,6 +54,7 @@ func New(opts Opts) *Service {
 		gorm:                opts.Gorm,
 		logger:              opts.Logger,
 		variablesRepository: opts.VariablesRepository,
+		executron:           opts.Executron,
 	}
 }
 
@@ -125,28 +128,18 @@ func (c *Service) EvaluateScript(
 			return "", fmt.Errorf("cannot parse variables in text: %w", err)
 		}
 
-		result, err := c.twirbus.Eval.Evaluate.Request(
-			ctx,
-			eval.EvalRequest{
-				Expression: preparedEvalValue.Data.Text,
-			},
-		)
+		result, err := c.executron.ExecuteUserCode(ctx, "javascript", preparedEvalValue.Data.Text)
 		if err != nil {
 			return "", fmt.Errorf("cannot evaluate script: %w", err)
 		}
 
-		return result.Data.Result, nil
+		return result, nil
 	}
 
-	result, err := c.twirbus.Eval.Evaluate.Request(
-		ctx,
-		eval.EvalRequest{
-			Expression: script,
-		},
-	)
+	result, err := c.executron.ExecuteUserCode(ctx, "javascript", script)
 	if err != nil {
 		return "", fmt.Errorf("cannot evaluate script: %w", err)
 	}
 
-	return result.Data.Result, nil
+	return result, nil
 }

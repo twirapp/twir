@@ -6,7 +6,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/twirapp/twir/libs/bus-core/eval"
 )
 
 var ChatEval = &types.Variable{
@@ -27,20 +26,14 @@ var ChatEval = &types.Variable{
 
 		script := fmt.Sprintf(`return %s`, *parseCtx.Text)
 
-		res, err := parseCtx.Services.Bus.Eval.Evaluate.Request(
-			ctx,
-			eval.EvalRequest{
-				Expression: script,
-			},
-		)
-
+		res, err := parseCtx.Services.Executron.ExecuteUserCode(ctx, "javascript", script)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
-			result.Result = "Probably you're doing some suspicious things."
+			result.Result = "Probably you're doing some suspicious things or wrote wrong code."
 			return result, nil
 		}
 
-		result.Result = lo.Substring(res.Data.Result, 0, 500)
+		result.Result = res
 		return result, nil
 	},
 }

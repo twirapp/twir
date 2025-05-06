@@ -1,15 +1,10 @@
-import { evalSubject } from './eval/eval.ts'
 import * as Events from './events/events.ts'
 import { Queue } from './queue.js'
 
-import type { EvalRequest, EvalResponse } from './eval/eval.ts'
 import type { NatsConnection } from 'nats'
 
 export function newBus(nc: NatsConnection) {
 	return {
-		Eval: {
-			Evaluate: new Queue<EvalRequest, EvalResponse>(nc, evalSubject),
-		},
 		Events: {
 			Follow: new Queue<Events.FollowMessage, any>(nc, Events.FollowSubject),
 			Subscribe: new Queue<Events.SubscribeMessage, any>(nc, Events.SubscribeSubject),

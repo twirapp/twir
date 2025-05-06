@@ -48,7 +48,7 @@ services:
   redis:
     image: redis:7.4.2
     command: redis-server --save 60 1 --loglevel warning
-    restart: always
+    restart: unless-stopped
     ports:
       - '6385:6379'
     volumes:
@@ -58,7 +58,7 @@ services:
 
   language-processor:
     image: twirapp/language-processor:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - '3012:3012'
     environment:
@@ -66,7 +66,7 @@ services:
 
   tts:
     image: aculeasis/rhvoice-rest
-    restart: always
+    restart: unless-stopped
     ports:
       - '7001:8080'
     networks:
@@ -75,7 +75,7 @@ services:
   minio:
     image: quay.io/minio/minio
     command: server /data --console-address ":9090"
-    restart: always
+    restart: unless-stopped
     ports:
       - '8000:9000'
       - '8090:9090'
@@ -87,7 +87,7 @@ services:
 
   temporal:
     image: temporalio/auto-setup:1.22.2
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
     environment:
@@ -111,7 +111,7 @@ services:
 
   temporal-admin-tools:
     image: temporalio/admin-tools:1.22.2
-    restart: always
+    restart: unless-stopped
     depends_on:
       - temporal
     environment:
@@ -124,7 +124,7 @@ services:
 
   temporal-ui:
     image: temporalio/ui:2.21.0
-    restart: always
+    restart: unless-stopped
     depends_on:
       - temporal
     environment:
@@ -138,10 +138,21 @@ services:
   nats:
     image: nats:2.10.11-scratch
     command: -js -m 8222
-    restart: always
+    restart: unless-stopped
     ports:
       - '4222:4222'
       - '8222:8222'
+    networks:
+      - twir-dev
+
+  executron:
+    image: twirapp/executron:latest
+    ports:
+      - '7003:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+    restart: unless-stopped
     networks:
       - twir-dev
 

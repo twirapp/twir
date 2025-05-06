@@ -4,7 +4,6 @@ import (
 	auditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
-	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
@@ -53,10 +52,6 @@ type emotesCacherBus struct {
 type timersBus struct {
 	AddTimer    Queue[timers.AddOrRemoveTimerRequest, struct{}]
 	RemoveTimer Queue[timers.AddOrRemoveTimerRequest, struct{}]
-}
-
-type evalBus struct {
-	Evaluate Queue[eval.EvalRequest, eval.EvalResponse]
 }
 
 type eventSubBus struct {

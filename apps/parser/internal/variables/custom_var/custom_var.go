@@ -9,7 +9,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 )
 
@@ -68,13 +67,11 @@ var CustomVar = &types.Variable{
 				return nil, err
 			}
 
-			res, err := parseCtx.Services.Bus.Eval.Evaluate.Request(
-				requestCtx,
-				eval.EvalRequest{
-					Expression: filledWithVariablesValue.Data.Text,
-				},
+			res, err := parseCtx.Services.Executron.ExecuteUserCode(
+				ctx,
+				"javascript",
+				filledWithVariablesValue.Data.Text,
 			)
-
 			if err != nil {
 				parseCtx.Services.Logger.Sugar().Error(err)
 
@@ -83,7 +80,7 @@ var CustomVar = &types.Variable{
 				)
 			}
 
-			result.Result = res.Data.Result
+			result.Result = res
 		}
 
 		if v.Type == model.CustomVarText || v.Type == model.CustomVarNumber {

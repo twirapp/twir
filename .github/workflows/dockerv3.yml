@@ -21,7 +21,6 @@ jobs:
           - apps/bots
           - apps/discord
           - apps/emotes-cacher
-          - apps/eval
           - apps/events
           - apps/eventsub
           - apps/integrations

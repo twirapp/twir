@@ -24,6 +24,7 @@ import (
 	chatwallservice "github.com/satont/twir/apps/parser/internal/services/chat_wall"
 	"github.com/satont/twir/apps/parser/internal/services/shortenedurls"
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
+	"github.com/satont/twir/apps/parser/pkg/executron"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
@@ -232,6 +233,7 @@ func main() {
 				Config:     *config,
 			},
 		),
+		Executron: executron.New(*config),
 	}
 
 	variablesService := variables.New(
