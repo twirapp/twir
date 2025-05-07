@@ -111,6 +111,7 @@ func New(opts *Opts) *Variables {
 			user.EmotesTop,
 			user.Watched,
 			user.Commands,
+			user.ID,
 			last_donate.Amount,
 			last_donate.Currency,
 			last_donate.UserName,
