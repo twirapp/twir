@@ -51,7 +51,7 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg hand
 				ChannelID:   msg.BroadcasterUserId,
 				ChannelName: msg.BroadcasterUserLogin,
 			},
-			UserName: msg.ChatterUserName,
+			UserLogin: msg.ChatterUserName,
 		},
 	)
 	if err != nil {

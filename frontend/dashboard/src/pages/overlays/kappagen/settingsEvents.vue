@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { TwirEventType } from '@twir/api/messages/events/events';
-import { NTabs, NTabPane, NSwitch, NGrid, NGridItem, NCheckbox } from 'naive-ui';
-import { watch } from 'vue';
+import { TwirEventType } from '@twir/api/messages/events/events'
+import { NCheckbox, NGrid, NGridItem, NSwitch, NTabPane, NTabs } from 'naive-ui'
+import { watch } from 'vue'
 
-import { useKappagenFormSettings } from './store.js';
+import { useKappagenFormSettings } from './store.js'
 
-import { flatEvents } from '@/components/events/helpers.js';
+import { flatEvents } from '@/features/events/constants/helpers.js'
 
 const availableEvents = Object.values(flatEvents)
 	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])
@@ -13,27 +13,27 @@ const availableEvents = Object.values(flatEvents)
 		return {
 			name: e.name,
 			value: e.enumValue,
-		};
-	}) as Array<{ name: string, value: TwirEventType }>;
-const { settings: formValue } = useKappagenFormSettings();
+		}
+	}) as Array<{ name: string, value: TwirEventType }>
+const { settings: formValue } = useKappagenFormSettings()
 
 watch(formValue.value.events, (v) => {
 	for (const event of availableEvents) {
-		const exists = v.find(e => e.event === event.value);
-		if (exists) continue;
+		const exists = v.find(e => e.event === event.value)
+		if (exists) continue
 
 		formValue.value.events.push({
 			event: event.value,
 			disabledStyles: [],
 			enabled: true,
-		});
+		})
 	}
-}, { immediate: true });
+}, { immediate: true })
 </script>
 
 <template>
-	<n-tabs type="line" placement="left">
-		<n-tab-pane
+	<NTabs type="line" placement="left">
+		<NTabPane
 			v-for="(event) of formValue.events" :key="event.event" :name="event.event"
 			:tab="availableEvents.find(e => e.value === event.event)?.name"
 		>
@@ -42,13 +42,13 @@ watch(formValue.value.events, (v) => {
 					<span>
 						{{ availableEvents.find(e => e.value === event.event)?.name }}
 					</span>
-					<n-switch v-model:value="event.enabled" />
+					<NSwitch v-model:value="event.enabled" />
 				</div>
 			</template>
 
-			<n-grid :cols="2" :x-gap="8" :y-gap="8" responsive="self">
-				<n-grid-item v-for="animation of formValue.animations" :key="animation.style" :span="1">
-					<n-checkbox
+			<NGrid :cols="2" :x-gap="8" :y-gap="8" responsive="self">
+				<NGridItem v-for="animation of formValue.animations" :key="animation.style" :span="1">
+					<NCheckbox
 						:checked="!event.disabledStyles.includes(animation.style)"
 						@update:checked="(checked: boolean) => {
 							if (checked) event.disabledStyles = event.disabledStyles.filter(s => s !== animation.style)
@@ -56,11 +56,11 @@ watch(formValue.value.events, (v) => {
 						}"
 					>
 						{{ animation.style }}
-					</n-checkbox>
-				</n-grid-item>
-			</n-grid>
-		</n-tab-pane>
-	</n-tabs>
+					</NCheckbox>
+				</NGridItem>
+			</NGrid>
+		</NTabPane>
+	</NTabs>
 </template>
 
 <style scoped>

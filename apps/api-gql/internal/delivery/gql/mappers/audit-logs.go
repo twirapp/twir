@@ -60,6 +60,7 @@ var tableToGqlModel = map[string]gqlmodel.AuditLogSystem{
 	"channels_moderation_settings":    gqlmodel.AuditLogSystemChannelModerationSetting,
 	"channels_overlays_chat":          gqlmodel.AuditLogSystemChannelOverlayChat,
 	"channels_overlays_dudes":         gqlmodel.AuditLogSystemChannelOverlayDudes,
+	"channels_overlays_kappagen":      gqlmodel.AuditLogSystemChannelOverlayKappagen,
 	"channels_overlays_now_playing":   gqlmodel.AuditLogSystemChannelOverlayNowPlaying,
 	"channels_roles":                  gqlmodel.AuditLogSystemChannelRoles,
 	"channels_timers":                 gqlmodel.AuditLogSystemChannelTimers,
