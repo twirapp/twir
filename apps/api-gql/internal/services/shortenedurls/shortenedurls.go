@@ -140,3 +140,7 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) ([]entity.Sho
 
 	return converted, nil
 }
+
+func (c *Service) Delete(ctx context.Context, id string) error {
+	return c.repository.Delete(ctx, id)
+}

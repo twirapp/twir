@@ -12,6 +12,7 @@ type Repository interface {
 	Create(ctx context.Context, input CreateInput) (model.ShortenedUrl, error)
 	Update(ctx context.Context, id string, input UpdateInput) (model.ShortenedUrl, error)
 	GetList(ctx context.Context, input GetListInput) ([]model.ShortenedUrl, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type CreateInput struct {

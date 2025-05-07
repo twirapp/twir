@@ -36,6 +36,17 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) Delete(ctx context.Context, id string) error {
+	query := `
+DELETE FROM shortened_urls
+WHERE short_id = $1
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	_, err := conn.Exec(ctx, query, id)
+	return err
+}
+
 func (c *Pgx) Update(
 	ctx context.Context,
 	id string,

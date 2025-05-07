@@ -1,9 +1,10 @@
 extend type Query {
-	adminShortUrls(input: AdminShortUrlsInput!): AdminShortUrlsPayload!
+	adminShortUrls(input: AdminShortUrlsInput!): AdminShortUrlsPayload! @isAuthenticated @isAdmin
 }
 
 extend type Mutation {
 	adminShortUrlCreate(input: AdminShortUrlCreateInput!): Boolean! @isAuthenticated @isAdmin
+	adminShortUrlDelete(id: String!): Boolean! @isAuthenticated @isAdmin
 }
 
 input AdminShortUrlCreateInput {
