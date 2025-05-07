@@ -48,6 +48,8 @@ var CustomVar = &types.Variable{
 			text := v.EvalValue
 			if parseCtx.Text != nil {
 				text = strings.ReplaceAll(text, "$(command.param)", *parseCtx.Text)
+			} else {
+				text = strings.ReplaceAll(text, "$(command.param)", "")
 			}
 
 			filledWithVariablesValue, err := parseCtx.Services.Bus.Parser.ParseVariablesInText.Request(
