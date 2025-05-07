@@ -17,6 +17,9 @@ type AdminShortUrl {
 	link: String!
 	userId: String
 	userProfile: TwirUserTwitchInfo @goField(forceResolver: true)
+	views: Int!
+	createdAt: Time!
+	updatedAt: Time!
 }
 
 input AdminShortUrlsInput {

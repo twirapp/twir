@@ -154,15 +154,29 @@ RETURNING short_id, created_at, updated_at, url, created_by_user_id, views
 }
 
 func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
-	[]model.ShortenedUrl,
+	shortened_urls.GetListOutput,
 	error,
 ) {
 	queryBuilder := sq.Select("short_id, created_at, updated_at, url, created_by_user_id, views").
 		From("shortened_urls").
 		OrderBy("created_at DESC")
 
+	countQueryBUilder := sq.Select("COUNT(*)").From("shortened_urls")
+
 	if input.UserID != nil {
 		queryBuilder = queryBuilder.Where("created_by_user_id", *input.UserID)
+		countQueryBUilder = countQueryBUilder.Where("created_by_user_id", *input.UserID)
+	}
+
+	countQuery, countArgs, err := countQueryBUilder.ToSql()
+	if err != nil {
+		return shortened_urls.GetListOutput{}, fmt.Errorf("count query error: %w", err)
+	}
+
+	var count int64
+	err = c.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&count)
+	if err != nil {
+		return shortened_urls.GetListOutput{}, fmt.Errorf("count query error: %w", err)
 	}
 
 	perPage := input.PerPage
@@ -177,23 +191,26 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 
 	query, args, err := queryBuilder.ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("query error: %w", err)
+		return shortened_urls.GetListOutput{}, fmt.Errorf("query error: %w", err)
 	}
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("query error: %w", err)
+		return shortened_urls.GetListOutput{}, fmt.Errorf("query error: %w", err)
 	}
 
 	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ShortenedUrl])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return []model.ShortenedUrl{}, shortened_urls.ErrNotFound
+			return shortened_urls.GetListOutput{}, shortened_urls.ErrNotFound
 		}
 
-		return nil, fmt.Errorf("query error: %w", err)
+		return shortened_urls.GetListOutput{}, fmt.Errorf("query error: %w", err)
 	}
 
-	return models, nil
+	return shortened_urls.GetListOutput{
+		Items: models,
+		Total: int(count),
+	}, nil
 }

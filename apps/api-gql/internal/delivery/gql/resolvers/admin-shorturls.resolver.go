@@ -80,7 +80,7 @@ func (r *queryResolver) AdminShortUrls(
 		perPage = *input.PerPage.Value()
 	}
 
-	list, err := r.deps.ShortenedUrlsService.GetList(
+	data, err := r.deps.ShortenedUrlsService.GetList(
 		ctx, shortenedurls.GetListInput{
 			Page:        page,
 			PerPage:     perPage,
@@ -91,21 +91,24 @@ func (r *queryResolver) AdminShortUrls(
 		return nil, fmt.Errorf("error getting shortened urls: %w", err)
 	}
 
-	converted := make([]gqlmodel.AdminShortURL, 0, len(list))
-	for _, url := range list {
+	converted := make([]gqlmodel.AdminShortURL, 0, len(data.List))
+	for _, url := range data.List {
 		converted = append(
 			converted,
 			gqlmodel.AdminShortURL{
-				ID:     url.ID,
-				Link:   url.Link,
-				UserID: url.OwnerUserID,
+				ID:        url.ID,
+				Link:      url.Link,
+				UserID:    url.OwnerUserID,
+				Views:     url.Views,
+				CreatedAt: url.CreatedAt,
+				UpdatedAt: url.UpdatedAt,
 			},
 		)
 	}
 
 	return &gqlmodel.AdminShortUrlsPayload{
 		Items: converted,
-		Total: 0,
+		Total: data.Total,
 	}, nil
 }
 

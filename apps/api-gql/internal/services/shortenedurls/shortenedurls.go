@@ -101,7 +101,12 @@ type GetListInput struct {
 	OwnerUserID *string
 }
 
-func (c *Service) GetList(ctx context.Context, input GetListInput) ([]entity.ShortenedUrl, error) {
+type GetListOutput struct {
+	List  []entity.ShortenedUrl
+	Total int
+}
+
+func (c *Service) GetList(ctx context.Context, input GetListInput) (GetListOutput, error) {
 	page := input.Page
 	if page < 0 {
 		page = 0
@@ -112,7 +117,7 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) ([]entity.Sho
 		perPage = 20
 	}
 
-	list, err := c.repository.GetList(
+	data, err := c.repository.GetList(
 		ctx, shortenedurlsrepository.GetListInput{
 			Page:    page,
 			PerPage: perPage,
@@ -120,11 +125,11 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) ([]entity.Sho
 		},
 	)
 	if err != nil {
-		return nil, err
+		return GetListOutput{}, err
 	}
 
-	converted := make([]entity.ShortenedUrl, 0, len(list))
-	for _, link := range list {
+	converted := make([]entity.ShortenedUrl, 0, len(data.Items))
+	for _, link := range data.Items {
 		converted = append(
 			converted,
 			entity.ShortenedUrl{
@@ -138,7 +143,10 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) ([]entity.Sho
 		)
 	}
 
-	return converted, nil
+	return GetListOutput{
+		List:  converted,
+		Total: data.Total,
+	}, nil
 }
 
 func (c *Service) Delete(ctx context.Context, id string) error {

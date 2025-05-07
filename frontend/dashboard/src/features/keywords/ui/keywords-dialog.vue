@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 import VariableInput from '@/components/variable-input.vue'
 
 const props = defineProps<{
@@ -118,14 +119,14 @@ const rules: FormRules = {
 		<DialogOrSheet class="sm:max-w-[424px]">
 			<DialogHeader>
 				<DialogTitle>
-					{{ keyword ? t('greetings.edit') : t('greetings.create') }}
+					{{ keyword ? t('keywords.edit') : t('keywords.create') }}
 				</DialogTitle>
 			</DialogHeader>
 			<NForm ref="formRef" :model="formValue" :rules="rules">
 				<div class="grid gap-4 py-4">
 					<NSpace vertical class="w-full">
 						<NFormItem :label="t('keywords.triggerText')" path="text" show-require-mark>
-							<Input v-model="formValue.text" />
+							<Textarea v-model="formValue.text" />
 						</NFormItem>
 
 						<div class="flex flex-col gap-2 pb-4">
