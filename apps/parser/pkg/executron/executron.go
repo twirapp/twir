@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/go-redis/redis_rate/v10"
 	"github.com/imroc/req/v3"
+	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
 )
 
@@ -19,17 +21,33 @@ type Response struct {
 	Error  string `json:"error"`
 }
 
-func New(cfg config.Config) Executron {
+func New(cfg config.Config, redisClient *redis.Client) Executron {
 	return Executron{
-		apiUrl: cfg.ExecutronAddr,
+		apiUrl:  cfg.ExecutronAddr,
+		limiter: redis_rate.NewLimiter(redisClient),
 	}
 }
 
 type Executron struct {
-	apiUrl string
+	apiUrl  string
+	limiter *redis_rate.Limiter
 }
 
-func (c *Executron) ExecuteUserCode(ctx context.Context, language, code string) (*Response, error) {
+func (c *Executron) ExecuteUserCode(
+	ctx context.Context,
+	channelId,
+	language,
+	code string,
+) (*Response, error) {
+	limitRes, err := c.limiter.Allow(ctx, "limits:executron:"+channelId, redis_rate.PerSecond(1))
+	if err != nil {
+		return nil, fmt.Errorf("cannot check rate limits for execute script: %w", err)
+	}
+
+	if limitRes.Allowed == 0 {
+		return nil, fmt.Errorf("maximum 1 script execution per second per channel")
+	}
+
 	u, _ := url.Parse(c.apiUrl)
 	u.Path = "/run"
 

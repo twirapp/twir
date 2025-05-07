@@ -128,7 +128,12 @@ func (c *Service) EvaluateScript(
 			return "", fmt.Errorf("cannot parse variables in text: %w", err)
 		}
 
-		result, err := c.executron.ExecuteUserCode(ctx, "javascript", preparedEvalValue.Data.Text)
+		result, err := c.executron.ExecuteUserCode(
+			ctx,
+			channelID,
+			"javascript",
+			preparedEvalValue.Data.Text,
+		)
 		if err != nil {
 			return "", fmt.Errorf("cannot evaluate script: %w", err)
 		}
@@ -143,7 +148,7 @@ func (c *Service) EvaluateScript(
 		return res, nil
 	}
 
-	result, err := c.executron.ExecuteUserCode(ctx, "javascript", script)
+	result, err := c.executron.ExecuteUserCode(ctx, channelID, "javascript", script)
 	if err != nil {
 		return "", fmt.Errorf("cannot evaluate script: %w", err)
 	}

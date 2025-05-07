@@ -233,7 +233,7 @@ func main() {
 				Config:     *config,
 			},
 		),
-		Executron: executron.New(*config),
+		Executron: executron.New(*config, redisClient),
 	}
 
 	variablesService := variables.New(

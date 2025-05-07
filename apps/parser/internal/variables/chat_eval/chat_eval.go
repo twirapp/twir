@@ -26,7 +26,12 @@ var ChatEval = &types.Variable{
 
 		script := fmt.Sprintf(`return %s`, *parseCtx.Text)
 
-		req, err := parseCtx.Services.Executron.ExecuteUserCode(ctx, "javascript", script)
+		req, err := parseCtx.Services.Executron.ExecuteUserCode(
+			ctx,
+			parseCtx.Channel.ID,
+			"javascript",
+			script,
+		)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = "Probably you're doing some suspicious things or wrote wrong code."

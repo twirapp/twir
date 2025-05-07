@@ -1,7 +1,6 @@
 package nodejs
 
 var appsForStart = []twirApp{
-	{name: "eval"},
 	{name: "integrations"},
 }
 

@@ -71,6 +71,7 @@ var CustomVar = &types.Variable{
 
 			res, err := parseCtx.Services.Executron.ExecuteUserCode(
 				ctx,
+				parseCtx.Channel.ID,
 				"javascript",
 				filledWithVariablesValue.Data.Text,
 			)
