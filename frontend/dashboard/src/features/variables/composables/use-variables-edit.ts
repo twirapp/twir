@@ -112,7 +112,7 @@ export const useVariablesEdit = createGlobalState(() => {
 			testFromUserName: unref(testFromUserName),
 		})
 
-		return result.data?.executeScript
+		return result.data?.executeScript ?? result.error?.message
 	}
 
 	return {
