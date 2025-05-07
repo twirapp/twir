@@ -82,7 +82,11 @@ var CustomVar = &types.Variable{
 				)
 			}
 
-			result.Result = res
+			if res.Result != "" {
+				result.Result = res.Result
+			} else if res.Error != "" {
+				result.Result = res.Error
+			}
 		}
 
 		if v.Type == model.CustomVarText || v.Type == model.CustomVarNumber {

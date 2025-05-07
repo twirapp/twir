@@ -14,7 +14,7 @@ type request struct {
 	Code     string `json:"code"`
 }
 
-type response struct {
+type Response struct {
 	Result string `json:"result"`
 	Error  string `json:"error"`
 }
@@ -29,11 +29,11 @@ type Executron struct {
 	apiUrl string
 }
 
-func (c *Executron) ExecuteUserCode(ctx context.Context, language, code string) (string, error) {
+func (c *Executron) ExecuteUserCode(ctx context.Context, language, code string) (*Response, error) {
 	u, _ := url.Parse(c.apiUrl)
 	u.Path = "/run"
 
-	var executeResponse response
+	var executeResponse Response
 	resp, err := req.R().
 		SetContext(ctx).
 		SetBodyJsonMarshal(
@@ -45,15 +45,15 @@ func (c *Executron) ExecuteUserCode(ctx context.Context, language, code string) 
 		SetSuccessResult(&executeResponse).
 		Post(u.String())
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if !resp.IsSuccessState() {
-		return "", fmt.Errorf("cannot execute code: %s", resp.String())
+		return nil, fmt.Errorf("cannot execute code: %s", resp.String())
 	}
 
 	if executeResponse.Error != "" {
-		return "", fmt.Errorf("cannot execute code: %s", executeResponse.Error)
+		return nil, fmt.Errorf("cannot execute code: %s", executeResponse.Error)
 	}
 
-	return executeResponse.Result, nil
+	return &executeResponse, nil
 }

@@ -133,7 +133,14 @@ func (c *Service) EvaluateScript(
 			return "", fmt.Errorf("cannot evaluate script: %w", err)
 		}
 
-		return result, nil
+		var res string
+		if result.Result != "" {
+			res = result.Result
+		} else if result.Error != "" {
+			res = result.Error
+		}
+
+		return res, nil
 	}
 
 	result, err := c.executron.ExecuteUserCode(ctx, "javascript", script)
@@ -141,5 +148,12 @@ func (c *Service) EvaluateScript(
 		return "", fmt.Errorf("cannot evaluate script: %w", err)
 	}
 
-	return result, nil
+	var res string
+	if result.Result != "" {
+		res = result.Result
+	} else if result.Error != "" {
+		res = result.Error
+	}
+
+	return res, nil
 }
