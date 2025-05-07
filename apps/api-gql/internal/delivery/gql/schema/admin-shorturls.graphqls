@@ -1,0 +1,33 @@
+extend type Query {
+	adminShortUrls(input: AdminShortUrlsInput!): AdminShortUrlsPayload! @isAuthenticated @isAdmin
+}
+
+extend type Mutation {
+	adminShortUrlCreate(input: AdminShortUrlCreateInput!): Boolean! @isAuthenticated @isAdmin
+	adminShortUrlDelete(id: String!): Boolean! @isAuthenticated @isAdmin
+}
+
+input AdminShortUrlCreateInput {
+	shortId: String
+	link: String!
+}
+
+type AdminShortUrl {
+	id: String!
+	link: String!
+	userId: String
+	userProfile: TwirUserTwitchInfo @goField(forceResolver: true)
+	views: Int!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+input AdminShortUrlsInput {
+	perPage: Int = 20 @validate(constraint: "lte=100")
+	page: Int = 0
+}
+
+type AdminShortUrlsPayload {
+	items: [AdminShortUrl!]!
+	total: Int!
+}

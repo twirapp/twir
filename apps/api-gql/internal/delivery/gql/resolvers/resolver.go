@@ -36,6 +36,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
@@ -110,6 +111,7 @@ type Deps struct {
 	Config                                config.Config
 	GiveawaysService                      *giveaways.Service
 	ChannelsModerationSettingsService     *channels_moderation_settings.Service
+	ShortenedUrlsService                  *shortenedurls.Service
 }
 
 type Resolver struct {

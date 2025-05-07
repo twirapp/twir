@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -33,6 +34,17 @@ var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 type Pgx struct {
 	pool   *pgxpool.Pool
 	getter *trmpgx.CtxGetter
+}
+
+func (c *Pgx) Delete(ctx context.Context, id string) error {
+	query := `
+DELETE FROM shortened_urls
+WHERE short_id = $1
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	_, err := conn.Exec(ctx, query, id)
+	return err
 }
 
 func (c *Pgx) Update(
@@ -139,4 +151,66 @@ RETURNING short_id, created_at, updated_at, url, created_by_user_id, views
 	}
 
 	return result, nil
+}
+
+func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
+	shortened_urls.GetListOutput,
+	error,
+) {
+	queryBuilder := sq.Select("short_id, created_at, updated_at, url, created_by_user_id, views").
+		From("shortened_urls").
+		OrderBy("created_at DESC")
+
+	countQueryBUilder := sq.Select("COUNT(*)").From("shortened_urls")
+
+	if input.UserID != nil {
+		queryBuilder = queryBuilder.Where("created_by_user_id", *input.UserID)
+		countQueryBUilder = countQueryBUilder.Where("created_by_user_id", *input.UserID)
+	}
+
+	countQuery, countArgs, err := countQueryBUilder.ToSql()
+	if err != nil {
+		return shortened_urls.GetListOutput{}, fmt.Errorf("count query error: %w", err)
+	}
+
+	var count int64
+	err = c.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&count)
+	if err != nil {
+		return shortened_urls.GetListOutput{}, fmt.Errorf("count query error: %w", err)
+	}
+
+	perPage := input.PerPage
+	if perPage == 0 {
+		perPage = 20
+	}
+
+	if input.Page > 0 && perPage > 0 {
+		offset := input.Page * perPage
+		queryBuilder = queryBuilder.Limit(uint64(perPage)).Offset(uint64(offset))
+	}
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return shortened_urls.GetListOutput{}, fmt.Errorf("query error: %w", err)
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return shortened_urls.GetListOutput{}, fmt.Errorf("query error: %w", err)
+	}
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ShortenedUrl])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return shortened_urls.GetListOutput{}, shortened_urls.ErrNotFound
+		}
+
+		return shortened_urls.GetListOutput{}, fmt.Errorf("query error: %w", err)
+	}
+
+	return shortened_urls.GetListOutput{
+		Items: models,
+		Total: int(count),
+	}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
@@ -92,4 +93,62 @@ func (c *Service) Update(ctx context.Context, id string, input UpdateInput) erro
 		},
 	)
 	return err
+}
+
+type GetListInput struct {
+	Page        int
+	PerPage     int
+	OwnerUserID *string
+}
+
+type GetListOutput struct {
+	List  []entity.ShortenedUrl
+	Total int
+}
+
+func (c *Service) GetList(ctx context.Context, input GetListInput) (GetListOutput, error) {
+	page := input.Page
+	if page < 0 {
+		page = 0
+	}
+
+	perPage := input.PerPage
+	if perPage < 1 || perPage > 100 {
+		perPage = 20
+	}
+
+	data, err := c.repository.GetList(
+		ctx, shortenedurlsrepository.GetListInput{
+			Page:    page,
+			PerPage: perPage,
+			UserID:  input.OwnerUserID,
+		},
+	)
+	if err != nil {
+		return GetListOutput{}, err
+	}
+
+	converted := make([]entity.ShortenedUrl, 0, len(data.Items))
+	for _, link := range data.Items {
+		converted = append(
+			converted,
+			entity.ShortenedUrl{
+				ID:          link.ShortID,
+				Link:        link.URL,
+				Views:       link.Views,
+				CreatedAt:   link.CreatedAt,
+				UpdatedAt:   link.UpdatedAt,
+				OwnerUserID: link.CreatedByUserId,
+			},
+		)
+	}
+
+	return GetListOutput{
+		List:  converted,
+		Total: data.Total,
+	}, nil
+}
+
+func (c *Service) Delete(ctx context.Context, id string) error {
+	return c.repository.Delete(ctx, id)
 }
