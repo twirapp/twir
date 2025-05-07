@@ -80,6 +80,7 @@ func New(opts *Opts) *Variables {
 			random.Phrase,
 			sender.Sender,
 			sender.SenderDisplayName,
+			sender.ID,
 			song.CurrentSong,
 			song.Cover,
 			stream.Category,
