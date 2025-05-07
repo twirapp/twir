@@ -54,7 +54,7 @@ type Config struct {
 	StreamElementsClientId     string `required:"false" envconfig:"STREAM_ELEMENTS_CLIENT_ID"`
 	StreamElementsClientSecret string `required:"false" envconfig:"STREAM_ELEMENTS_CLIENT_SECRET"`
 
-	ExecutronAddr string `required:"false" defualt:"http://localhost:7003" envconfig:"EXECUTRON_ADDR"`
+	ExecutronAddr string `required:"false" default:"http://localhost:7003" envconfig:"EXECUTRON_ADDR"`
 }
 
 func (c *Config) GetTwitchCallbackUrl() string {
