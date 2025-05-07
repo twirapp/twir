@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -139,4 +140,49 @@ RETURNING short_id, created_at, updated_at, url, created_by_user_id, views
 	}
 
 	return result, nil
+}
+
+func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
+	[]model.ShortenedUrl,
+	error,
+) {
+	queryBuilder := sq.Select("short_id, created_at, updated_at, url, created_by_user_id, views").
+		From("shortened_urls").
+		OrderBy("created_at DESC")
+
+	if input.UserID != nil {
+		queryBuilder = queryBuilder.Where("created_by_user_id", *input.UserID)
+	}
+
+	perPage := input.PerPage
+	if perPage == 0 {
+		perPage = 20
+	}
+
+	if input.Page > 0 && perPage > 0 {
+		offset := input.Page * perPage
+		queryBuilder = queryBuilder.Limit(uint64(perPage)).Offset(uint64(offset))
+	}
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("query error: %w", err)
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("query error: %w", err)
+	}
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ShortenedUrl])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return []model.ShortenedUrl{}, shortened_urls.ErrNotFound
+		}
+
+		return nil, fmt.Errorf("query error: %w", err)
+	}
+
+	return models, nil
 }
