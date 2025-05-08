@@ -84,6 +84,8 @@ func New(opts *Opts) *Variables {
 			song.CurrentSong,
 			song.Cover,
 			song.History,
+			song.HistorySpotify,
+			song.HistoryLastfm,
 			stream.Category,
 			stream.Title,
 			stream.Uptime,
