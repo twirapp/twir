@@ -15,10 +15,7 @@ import (
 )
 
 // UserProfile is the resolver for the userProfile field.
-func (r *adminShortUrlResolver) UserProfile(
-	ctx context.Context,
-	obj *gqlmodel.AdminShortURL,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminShortUrlResolver) UserProfile(ctx context.Context, obj *gqlmodel.AdminShortURL) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}
@@ -27,10 +24,7 @@ func (r *adminShortUrlResolver) UserProfile(
 }
 
 // AdminShortURLCreate is the resolver for the adminShortUrlCreate field.
-func (r *mutationResolver) AdminShortURLCreate(
-	ctx context.Context,
-	input gqlmodel.AdminShortURLCreateInput,
-) (bool, error) {
+func (r *mutationResolver) AdminShortURLCreate(ctx context.Context, input gqlmodel.AdminShortURLCreateInput) (bool, error) {
 	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
@@ -65,10 +59,7 @@ func (r *mutationResolver) AdminShortURLDelete(ctx context.Context, id string) (
 }
 
 // AdminShortUrls is the resolver for the adminShortUrls field.
-func (r *queryResolver) AdminShortUrls(
-	ctx context.Context,
-	input gqlmodel.AdminShortUrlsInput,
-) (*gqlmodel.AdminShortUrlsPayload, error) {
+func (r *queryResolver) AdminShortUrls(ctx context.Context, input gqlmodel.AdminShortUrlsInput) (*gqlmodel.AdminShortUrlsPayload, error) {
 	var (
 		page    int
 		perPage int

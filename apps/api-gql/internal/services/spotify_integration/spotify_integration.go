@@ -179,7 +179,7 @@ func (s *Service) GetAuthLink(
 	q := link.Query()
 	q.Add("response_type", "code")
 	q.Add("client_id", *integration.ClientID)
-	q.Add("scope", "user-read-currently-playing user-read-playback-state")
+	q.Add("scope", "user-read-currently-playing user-read-playback-state user-read-recently-played")
 	q.Add("redirect_uri", *integration.RedirectURL)
 	link.RawQuery = q.Encode()
 

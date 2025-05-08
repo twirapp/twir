@@ -83,6 +83,7 @@ func New(opts *Opts) *Variables {
 			sender.ID,
 			song.CurrentSong,
 			song.Cover,
+			song.History,
 			stream.Category,
 			stream.Title,
 			stream.Uptime,
