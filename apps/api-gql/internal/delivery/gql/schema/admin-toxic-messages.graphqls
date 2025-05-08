@@ -1,0 +1,22 @@
+extend type Query {
+	adminToxicMessages(input: AdminToxicMessagesInput!): AdminToxicMessagesPayload! @isAuthenticated @isAdmin
+}
+
+input AdminToxicMessagesInput {
+	page: Int
+	perPage: Int = 10 @validate(constraint: "lte=100")
+}
+
+type ToxicMessage {
+	id: UUID!
+	channelId: String
+	channelProfile: TwirUserTwitchInfo @goField(forceResolver: true)
+	replyToUserId: String
+	text: String!
+	createdAt: Time!
+}
+
+type AdminToxicMessagesPayload {
+	items: [ToxicMessage!]!
+	total: Int!
+}

@@ -41,6 +41,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/toxic_messages"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -112,6 +113,7 @@ type Deps struct {
 	GiveawaysService                      *giveaways.Service
 	ChannelsModerationSettingsService     *channels_moderation_settings.Service
 	ShortenedUrlsService                  *shortenedurls.Service
+	ToxicMessagesService                  *toxic_messages.Service
 }
 
 type Resolver struct {

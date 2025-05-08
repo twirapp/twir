@@ -53,6 +53,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/toxic_messages"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -141,6 +142,9 @@ import (
 
 	pastebinsrepository "github.com/twirapp/twir/libs/repositories/pastebins"
 	pastebinsrepositorypgx "github.com/twirapp/twir/libs/repositories/pastebins/datasource/postgres"
+
+	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
+	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
 
 	"go.uber.org/fx"
 )
@@ -274,6 +278,10 @@ func main() {
 				pastebinsrepositorypgx.NewFx,
 				fx.As(new(pastebinsrepository.Repository)),
 			),
+			fx.Annotate(
+				toxicmessagesrepositorypgx.NewFx,
+				fx.As(new(toxicmessagesrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -316,6 +324,7 @@ func main() {
 			giveaways.New,
 			channels_moderation_settings.New,
 			pastebinsservice.New,
+			toxic_messages.New,
 		),
 		// grpc clients
 		fx.Provide(
