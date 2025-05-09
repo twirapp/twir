@@ -69,6 +69,7 @@ func New(opts *Opts) *Commands {
 		[]*types.DefaultCommand{
 			song.CurrentSong,
 			song.Playlist,
+			song.History,
 			channel_game.SetCommand,
 			channel_game.History,
 			channel_title.SetCommand,
