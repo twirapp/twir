@@ -3,14 +3,26 @@ package request
 import (
 	"context"
 	"fmt"
-	"strings"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var supportedContentType = "text/plain"
+
+const requestTemplate = `
+const req = await fetch("%s");
+if (!req.ok) {
+	return "Request failed: " + req.status;
+}
+
+if (req.headers.get("content-type") !== "%s") {
+	return "Unsupported content type: " + req.headers.get("content-type");
+}
+
+const response = await req.text();
+return response;
+`
 
 var Request = &types.Variable{
 	Name:                     "request",
@@ -33,32 +45,25 @@ var Request = &types.Variable{
 			return result, nil
 		}
 
-		request, err := req.Get(param)
+		script := fmt.Sprintf(requestTemplate, param, supportedContentType)
+
+		req, err := parseCtx.Services.Executron.ExecuteUserCode(
+			ctx,
+			parseCtx.Channel.ID,
+			"javascript",
+			script,
+		)
 		if err != nil {
-			result.Result = fmt.Sprintf(
-				`Cannot fetch %s %s`,
-				param,
-				"network error, probably url is wrong or server is down",
-			)
-			return result, nil
-		}
-		if !request.IsSuccessState() {
-			result.Result = fmt.Sprintf(`Request to %s failed: %s`, param, request.String())
+			parseCtx.Services.Logger.Sugar().Error(err)
+			result.Result = "Cannot execute request"
 			return result, nil
 		}
 
-		responseContentType := request.GetContentType()
-		if !strings.HasPrefix(responseContentType, supportedContentType) {
-			result.Result = fmt.Sprintf(
-				`%s responded with "%s", must respond with "%s" content`,
-				param,
-				responseContentType,
-				supportedContentType,
-			)
-			return result, nil
+		if req.Result != "" {
+			result.Result = req.Result
+		} else if req.Error != "" {
+			result.Result = req.Error
 		}
-
-		result.Result = request.String()
 
 		return result, nil
 	},
