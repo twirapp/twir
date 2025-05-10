@@ -5,6 +5,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
 
@@ -31,4 +32,9 @@ type DataCacher interface {
 		ctx context.Context,
 		userId string,
 	) (*seventvintegrationapi.TwirSeventvUser, error)
+
+	GetSubAgeInfo(ctx context.Context, channelName, userName string) (
+		*twitch.UserSubscribePayload,
+		error,
+	)
 }

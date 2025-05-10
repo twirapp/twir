@@ -39,6 +39,7 @@ import (
 	sr_youtube "github.com/satont/twir/apps/parser/internal/commands/songrequest/youtube"
 	"github.com/satont/twir/apps/parser/internal/commands/spam"
 	"github.com/satont/twir/apps/parser/internal/commands/stats"
+	"github.com/satont/twir/apps/parser/internal/commands/subage"
 	"github.com/satont/twir/apps/parser/internal/commands/tts"
 	"github.com/satont/twir/apps/parser/internal/commands/utility"
 	"github.com/satont/twir/apps/parser/internal/commands/vips"
@@ -149,6 +150,7 @@ func New(opts *Opts) *Commands {
 			predictions.Cancel,
 			predictions.Lock,
 			predictions.Start,
+			subage.SubAge,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
