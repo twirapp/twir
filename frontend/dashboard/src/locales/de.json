@@ -61,7 +61,7 @@
     "create": "Erstelle",
     "edit": "Bearbeite",
     "noData": "Keine Daten verfügbar",
-    "loading": "Loading..."
+    "loading": "Wird geladen..."
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -94,7 +94,7 @@
     "darkTheme": "Dunkles Design",
     "lightTheme": "Helles Design",
     "notifications": "Benachrichtigungen",
-    "giveaways": "Giveaways"
+    "giveaways": "Gewinnspiele"
   },
   "deleteConfirmation": {
     "text": "Bist du sicher, dass du das löschen möchtest?",
@@ -857,35 +857,35 @@
   },
   "modules": {
     "chatTranslations": {
-      "title": "Chat translations",
-      "description": "Translate chat in real time",
+      "title": "Chat-Übersetzungen",
+      "description": "Chat in Echtzeit übertragen",
       "settings": {
-        "title": "Chat Translation Settings",
+        "title": "Chatübersetzungs-Einstellungen",
         "enabled": {
-          "label": "Enabled",
-          "description": "Enable chat translation for your channel"
+          "label": "Aktiviert",
+          "description": "Chat-Übersetzung für deinen Kanal aktivieren"
         },
         "targetLanguage": {
-          "label": "Target Language",
-          "description": "Messages will be translated to this language",
-          "placeholder": "Select a language"
+          "label": "Zielsprache",
+          "description": "Nachrichten werden in diese Sprache übersetzt",
+          "placeholder": "Wähle eine Sprache aus"
         },
         "excludedLanguages": {
-          "label": "Excluded Languages",
-          "description": "Messages in these languages will not be translated",
-          "placeholder": "Select languages to exclude"
+          "label": "Ausgeschlossene Sprachen",
+          "description": "Nachrichten in diesen Sprachen werden nicht übersetzt",
+          "placeholder": "Wähle Sprachen aus, die ausgeschlossen werden sollen"
         },
         "useItalic": {
-          "label": "Use Italic",
-          "description": "Display translated messages in italic"
+          "label": "Verwende Kursives Schreiben",
+          "description": "Zeige übersetzte Nachrichten in kursiver Schreibweise an"
         },
         "excludedUsers": {
-          "title": "Excluded Users",
-          "description": "Messages from these users will not be translated"
+          "title": "Ausgeschlossene Benutzer",
+          "description": "Nachrichten von diesen Benutzern werden nicht übersetzt"
         },
         "buttons": {
-          "update": "Update Settings",
-          "create": "Create Settings"
+          "update": "Einstellungen aktualisieren",
+          "create": "Erstelle Einstellungen"
         }
       }
     }
@@ -991,7 +991,7 @@
     }
   },
   "moderation": {
-    "name": "Name of rule, just for your convenience to see name in list",
+    "name": "Name der Regel, nur damit du den Namen bequem in der Liste sehen kannst",
     "createNewRule": "Erstelle eine neue Moderations-Regel",
     "banTime": "Timeout Zeit",
     "banDescription": "Auf 0 gesetzt für permanenten Bann.",
@@ -1011,8 +1011,8 @@
         "regexp": "Wenn du ein fortgeschrittener Benutzer bist, unterstützt die Liste nicht erlaubter Wörter auch reguläre Ausdrücke. Reguläre Ausdrücke sollten im golang-Format geschrieben werden! Siehe {0} hier.",
         "regexpCheatSheet": "Spickzettel",
         "wordBoundary": {
-          "label": "Word boundary",
-          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+          "label": "Wortgrenze",
+          "description": "Eine Wortgrenze in der Filterung markiert den Anfang oder das Ende eines Wortes und stellt sicher, dass Filter mit ganzen Wörtern übereinstimmen. ., \"Katze\") aber nicht Teile von Wörtern (z. B. \"Kategorie\")."
         },
         "caseSensitive": {
           "label": "Case sensitive",
