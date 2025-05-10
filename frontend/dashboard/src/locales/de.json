@@ -1015,8 +1015,8 @@
           "description": "Eine Wortgrenze in der Filterung markiert den Anfang oder das Ende eines Wortes und stellt sicher, dass Filter mit ganzen Wörtern übereinstimmen. ., \"Katze\") aber nicht Teile von Wörtern (z. B. \"Kategorie\")."
         },
         "caseSensitive": {
-          "label": "Case sensitive",
-          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+          "label": "Sensibilität des Falls",
+          "description": "Sensibilität des Falls in der Filterung bedeutet, dass der Filter nur Wörter mit der exakten gleichen Großschreibung wie der Filter (z.B. \"Katze\" stimmt nicht mit \"Katze\" überein)."
         }
       },
       "symbols": {
@@ -1153,105 +1153,105 @@
     }
   },
   "expiringVips": {
-    "title": "Scheduled VIPs",
+    "title": "Geplante VIPs",
     "description": {
-      "line1": "With this feature you can create VIPs for your channel, which will be removed after selected time.",
-      "line2": "You can use commands from built-in {module} module for that."
+      "line1": "Mit dieser Funktion kannst du VIP Slots für deinen Kanal vergeben, die nach der gewählten Zeit entfernt werden.",
+      "line2": "Dafür kannst du Befehle aus dem eingebauten {module} Modul verwenden."
     },
-    "comingSoon": "Soon, but already available through commands",
+    "comingSoon": "Bald, aber bereits über Befehle verfügbar",
     "commands": {
-      "add": "Add VIP",
-      "remove": "Remove VIP",
-      "list": "List VIPs",
-      "setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
+      "add": "VIP hinzufügen",
+      "remove": "VIP entfernen",
+      "list": "VIPs anzeigen",
+      "setExpire": "Verlängere die Ablaufzeit für bestehende VIPs oder füge eine Ablaufzeit für einen VIP-Benutzer hinzu"
     },
     "alert": {
-      "title": "Heads up!",
-      "description": "It's a list of expiring VIPs, not list of all channel VIPs."
+      "title": "Achtung!",
+      "description": "Es ist eine Liste von auslaufenden VIPs, keine Übersicht aller VIPs."
     }
   },
   "moderationRules": {
     "description": {
-      "line1": "Create rules to moderate your chat.",
-      "line2": "Be careful."
+      "line1": "Erstelle Regeln, um deinen Chat zu moderieren.",
+      "line2": "Sei vorsichtig."
     }
   },
   "chatWall": {
     "description": {
-      "line1": "Mass ban/delete/timeout messages that contains specific phrase.",
-      "line2": "Improper usage may result in a permanent ban you in TwirApp service. "
+      "line1": "Nachrichten die bestimmte Phrasen enthalten Massenbannen/Löschen/Timeouten.",
+      "line2": "Unpassende Nutzung kann zu einem permanenten Verbot im TwirApp-Dienst führen."
     },
     "settings": {
-      "title": "Setup",
-      "muteSubscribers": "Mute subscribers",
-      "muteVips": "Mute VIPs"
+      "title": "Einstellungen",
+      "muteSubscribers": "Abonnenten stummschalten",
+      "muteVips": "VIPs stummschalten"
     },
     "commands": {
-      "title": "Commands",
-      "delete": "Chat wall delete",
-      "ban": "Chat wall ban",
-      "timeout": "Chat wall timeout",
-      "stop": "Chat wall stop"
+      "title": "Befehle",
+      "delete": "Chat-Wand löschen",
+      "ban": "Chat-Wand Bann",
+      "timeout": "Chat-Wand Timeout",
+      "stop": "Chat-Wand Stopp"
     },
     "table": {
       "phrase": "Phrase",
-      "createdAt": "Created at",
-      "inProcess": "In process",
-      "action": "Action",
-      "yes": "Yes",
-      "no": "No",
-      "affectedMessages": "Affected messages",
+      "createdAt": "Erstellt am",
+      "inProcess": "In Bearbeitung",
+      "action": "Aktion",
+      "yes": "Ja",
+      "no": "Nein",
+      "affectedMessages": "Betroffene Nachrichten",
       "logs": {
-        "title": "Affected messages",
-        "user": "User",
-        "message": "Message"
+        "title": "Betroffene Nachrichten",
+        "user": "Benutzer",
+        "message": "Nachricht"
       },
-      "timeout": "sec"
+      "timeout": "Sek"
     }
   },
   "giveaways": {
-    "title": "Giveaways",
-    "createNew": "Create New Giveaway",
-    "keyword": "Keyword",
-    "createdAt": "Created At",
-    "startedAt": "Started At",
-    "stoppedAt": "Stopped At",
-    "winners": "Winners",
-    "view": "View",
+    "title": "Gewinnspiele",
+    "createNew": "Neues Gewinnspiel erstellen",
+    "keyword": "Schlüsselwort",
+    "createdAt": "Erstellt am",
+    "startedAt": "Gestartet um",
+    "stoppedAt": "Gestoppt bei",
+    "winners": "Gewinner",
+    "view": "Anzeigen",
     "start": "Start",
-    "stop": "Stop",
-    "chooseWinner": "Choose winner",
+    "stop": "Stopp",
+    "chooseWinner": "Gewinner auswählen",
     "pages": {
       "list": {
-        "title": "Active Giveaways"
+        "title": "Aktive Gewinnspiele"
       },
       "history": {
-        "title": "Giveaway History"
+        "title": "Gewinnspiel Verlauf"
       }
     },
     "createDialog": {
-      "title": "Create New Giveaway",
-      "description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
-      "keywordLabel": "Keyword",
-      "keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
-      "cancel": "Cancel",
-      "create": "Create"
+      "title": "Neues Gewinnspiel erstellen",
+      "description": "Gebe ein Schlüsselwort für ein Giveaway ein. Benutzer verwenden dieses Schlüsselwort um daran teilzunehmen.",
+      "keywordLabel": "Schlüsselwort",
+      "keywordPlaceholder": "Schlüsselwort eingeben (z.B. '!giveaway' oder 'Tombola')",
+      "cancel": "Abbrechen",
+      "create": "Erstelle"
     },
     "notifications": {
-      "created": "Giveaway created",
-      "createdDescription": "Giveaway with keyword \"{keyword}\" has been created",
-      "error": "Error creating giveaway",
-      "winnersChosen": "Winners chosen",
-      "winnersChosenDescription": "{count} winners have been chosen",
-      "errorChoosingWinners": "Error choosing winners"
+      "created": "Gewinnspiel erstellt",
+      "createdDescription": "Gewinnspiel mit dem Schlüsselwort \"{keyword}\" wurde erstellt",
+      "error": "Fehler beim Erstellen des Gewinnspiels",
+      "winnersChosen": "Gewählte Gewinner",
+      "winnersChosenDescription": "{count} Gewinner wurden ausgewählt",
+      "errorChoosingWinners": "Fehler beim Auswählen der Gewinner"
     },
     "currentGiveaway": {
-      "totalParticipants": "Total participants: {count}",
-      "totalWinners": "Total winners: {count}",
-      "selectWinner": "Select a winner to view their chat logs and profile",
+      "totalParticipants": "Gesamte Teilnehmer: {count}",
+      "totalWinners": "Gesamtsieger: {count}",
+      "selectWinner": "Wähle einen Gewinner aus, um seine Chat-Nachrichten und sein Profil anzusehen",
       "tabs": {
-        "participants": "Participants",
-        "winners": "Winners"
+        "participants": "Teilnehmer",
+        "winners": "Gewinner"
       }
     }
   }
