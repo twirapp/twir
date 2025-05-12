@@ -15,6 +15,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.followers'),
 		component: () => h(Settings, {
 			formKey: 'followers',
+			title: t('chatAlerts.labels.followers'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: 'Yay, there is new follower, say hello to {user}!',
@@ -29,6 +30,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.raids'),
 		component: () => h(Settings, {
 			formKey: 'raids',
+			title: t('chatAlerts.labels.raids'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: '{user} raided us with {count} viewers PogChamp',
@@ -46,6 +48,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.donations'),
 		component: () => h(Settings, {
 			formKey: 'donations',
+			title: t('chatAlerts.labels.donations'),
 			minCooldown: 0,
 			maxMessages: 20,
 			count: {
@@ -63,6 +66,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.subscriptions'),
 		component: () => h(Settings, {
 			formKey: 'subscribers',
+			title: t('chatAlerts.labels.subscriptions'),
 			minCooldown: 0,
 			maxMessages: 500,
 			count: {
@@ -80,6 +84,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.rewards'),
 		component: () => h(Settings, {
 			formKey: 'redemptions',
+			title: t('chatAlerts.labels.rewards'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: '{user} activated {reward} reward',
@@ -96,6 +101,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.firstUserMessage'),
 		component: () => h(Settings, {
 			formKey: 'firstUserMessage',
+			title: t('chatAlerts.labels.firstUserMessage'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: '{user} new on the channel! Say hello.',
@@ -110,6 +116,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.streamOnline'),
 		component: () => h(Settings, {
 			formKey: 'streamOnline',
+			title: t('chatAlerts.labels.streamOnline'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: 'We\'re just online in {category} | {title}',
@@ -124,6 +131,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.streamOffline'),
 		component: () => h(Settings, {
 			formKey: 'streamOffline',
+			title: t('chatAlerts.labels.streamOffline'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: 'We\'re now offline, stay in touch, follow socials.',
@@ -137,6 +145,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.chatCleared'),
 		component: () => h(Settings, {
 			formKey: 'chatCleared',
+			title: t('chatAlerts.labels.chatCleared'),
 			minCooldown: 2,
 			maxMessages: 20,
 			defaultMessageText: 'Chat cleared, but who knows why? Kappa',
@@ -150,6 +159,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.userBanned'),
 		component: () => h(Settings, {
 			formKey: 'ban',
+			title: t('chatAlerts.labels.userBanned'),
 			minCooldown: 2,
 			maxMessages: 20,
 			defaultMessageText: 'How dare are you {userName}? Glad we have {moderatorName} to calm you down. Please sit {time} in prison for {reason}, and think about your behavior.',
@@ -171,6 +181,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.channelUnbanRequestCreate'),
 		component: () => h(Settings, {
 			formKey: 'unbanRequestCreate',
+			title: t('chatAlerts.labels.channelUnbanRequestCreate'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: 'User {userName} requesting unban with message {message}',
@@ -185,6 +196,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.channelUnbanRequestResolve'),
 		component: () => h(Settings, {
 			formKey: 'unbanRequestResolve',
+			title: t('chatAlerts.labels.channelUnbanRequestResolve'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: 'User {userName} unban request resolved with message {message} by moderator {moderatorName}',
@@ -199,6 +211,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 		title: t('chatAlerts.labels.messageDelete'),
 		component: () => h(Settings, {
 			formKey: 'messageDelete',
+			title: t('chatAlerts.labels.messageDelete'),
 			minCooldown: 0,
 			maxMessages: 20,
 			defaultMessageText: 'Message of user {userName} deleted',
