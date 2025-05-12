@@ -153,7 +153,7 @@ const { t } = useI18n()
 
 								<Button
 									:disabled="!hasAccessToManageAlerts"
-									variant="secondary"
+									variant="destructive"
 									size="icon"
 									@click="removeMessage(index)"
 								>
@@ -165,7 +165,7 @@ const { t } = useI18n()
 					<Button
 						:disabled="(formValue[formKey]!.messages?.length === maxMessages) || !hasAccessToManageAlerts"
 						variant="secondary"
-						class="flex mx-auto"
+						class="flex w-full"
 						@click="createMessage"
 					>
 						<span v-if="formValue[formKey]!.messages?.length">{{ t('sharedButtons.create') }} ({{ formValue[formKey]!.messages.length }} / {{ maxMessages }})</span>
