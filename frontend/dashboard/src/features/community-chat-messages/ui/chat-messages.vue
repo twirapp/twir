@@ -64,24 +64,25 @@ const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
 						width: '100%',
 						position: 'relative',
 					}"
-					class="flex-1 overflow-auto"
 				>
 					<div
-						v-for="virtualRow in virtualRows"
-						:key="virtualRow.index"
-						class="border-b border-border pl-2 flex items-center justify-between pr-2"
 						:style="{
 							position: 'absolute',
 							top: 0,
 							left: 0,
 							width: '100%',
-							height: `${virtualRow.size}px`,
-							transform: `translateY(${virtualRow.start}px)`,
+							transform: `translateY(${virtualRows[0]?.start ?? 0}px)`,
 						}"
 					>
-						<ChatMessage
-							:message="messages[virtualRow.index]"
-						/>
+						<div
+							v-for="virtualRow in virtualRows"
+							:key="virtualRow.index"
+							class="border-b border-border px-2 py-0.5 flex items-center justify-between"
+						>
+							<ChatMessage
+								:message="messages[virtualRow.index]"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
