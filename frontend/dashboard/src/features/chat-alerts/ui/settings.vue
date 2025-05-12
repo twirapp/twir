@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TrashIcon } from 'lucide-vue-next'
+import { Plus, TrashIcon } from 'lucide-vue-next'
 import {
 	NAlert,
 	NCard,
@@ -168,6 +168,7 @@ const { t } = useI18n()
 						class="flex w-full"
 						@click="createMessage"
 					>
+						<Plus class="mr-1" />
 						<span v-if="formValue[formKey]!.messages?.length">{{ t('sharedButtons.create') }} ({{ formValue[formKey]!.messages.length }} / {{ maxMessages }})</span>
 						<span v-else>{{ t('sharedButtons.create') }}</span>
 					</Button>
