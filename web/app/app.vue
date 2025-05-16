@@ -8,7 +8,7 @@ useHead({
 	title: siteName,
 	titleTemplate: (title) => title === siteName ? title : `${title} - ${siteName}`,
 	meta: [
-		{ name: 'darkreader-lock' },
+		{ name: 'darkreader-lock', content: '' },
 		{ name: 'author', content: 'Satont, me@satont.dev' },
 		{ name: 'keywords', content: keywords },
 		{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
