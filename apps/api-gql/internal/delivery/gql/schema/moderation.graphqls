@@ -26,6 +26,7 @@ enum ModerationSettingsType {
 	caps
 	emotes
 	language
+	one_man_spam
 }
 
 type ModerationSettingsItem {
@@ -46,6 +47,8 @@ type ModerationSettingsItem {
 	denyListSensitivityEnabled: Boolean!
 	excludedRoles: [String!]!
 	maxWarnings: Int!
+	oneManSpamMinimumStoredMessages: Int!
+	oneManSpamMessageMemorySeconds: Int!
 	createdAt: Time!
 	updatedAt: Time!
 }
@@ -67,4 +70,6 @@ input ModerationSettingsCreateOrUpdateInput {
 	denyListSensitivityEnabled: Boolean!
 	excludedRoles: [String!]!
 	maxWarnings: Int!
+	oneManSpamMinimumStoredMessages: Int!
+	oneManSpamMessageMemorySeconds: Int!
 }

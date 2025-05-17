@@ -10,6 +10,7 @@ import ModalEmotes from './ui/form/moderation-form-emotes.vue'
 import ModalLanguage from './ui/form/moderation-form-language.vue'
 import ModalLinks from './ui/form/moderation-form-links.vue'
 import ModalLongMessage from './ui/form/moderation-form-longmessage.vue'
+import ModalOneManSpam from './ui/form/moderation-form-one-man-spam.vue'
 import ModalSymbols from './ui/form/moderation-form-symbols.vue'
 
 import type {
@@ -74,6 +75,7 @@ onMounted(async () => {
 		setFormValues(values)
 	} else if (id === 'new' && type) {
 		setFieldValue('type', type)
+		setFieldValue('name', t(`moderation.types.${type}.name`))
 	} else {
 		router.push({ name: 'Moderation' })
 	}
@@ -160,6 +162,10 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 
 						<ModalLinks
 							v-if="currentEditType === ModerationSettingsType.Links"
+						/>
+
+						<ModalOneManSpam
+							v-if="currentEditType === ModerationSettingsType.OneManSpam"
 						/>
 
 						<Separator label="Timeouts" />

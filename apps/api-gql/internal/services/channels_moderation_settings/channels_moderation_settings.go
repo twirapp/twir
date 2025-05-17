@@ -33,26 +33,28 @@ type Service struct {
 
 func (c *Service) modelToEntity(m model.ChannelModerationSettings) entity.ChannelModerationSettings {
 	return entity.ChannelModerationSettings{
-		ID:                          m.ID,
-		Type:                        entity.ModerationSettingsType(m.Type.String()),
-		ChannelID:                   m.ChannelID,
-		Enabled:                     m.Enabled,
-		Name:                        m.Name,
-		BanTime:                     m.BanTime,
-		BanMessage:                  m.BanMessage,
-		WarningMessage:              m.WarningMessage,
-		CheckClips:                  m.CheckClips,
-		TriggerLength:               m.TriggerLength,
-		MaxPercentage:               m.MaxPercentage,
-		DeniedChatLanguages:         m.DeniedChatLanguages,
-		ExcludedRoles:               m.ExcludedRoles,
-		MaxWarnings:                 m.MaxWarnings,
-		DenyList:                    m.DenyList,
-		DenyListRegexpEnabled:       m.DenyListRegexpEnabled,
-		DenyListWordBoundaryEnabled: m.DenyListWordBoundaryEnabled,
-		DenyListSensitivityEnabled:  m.DenyListSensitivityEnabled,
-		CreatedAt:                   m.CreatedAt,
-		UpdatedAt:                   m.UpdatedAt,
+		ID:                              m.ID,
+		Type:                            entity.ModerationSettingsType(m.Type.String()),
+		ChannelID:                       m.ChannelID,
+		Enabled:                         m.Enabled,
+		Name:                            m.Name,
+		BanTime:                         m.BanTime,
+		BanMessage:                      m.BanMessage,
+		WarningMessage:                  m.WarningMessage,
+		CheckClips:                      m.CheckClips,
+		TriggerLength:                   m.TriggerLength,
+		MaxPercentage:                   m.MaxPercentage,
+		DeniedChatLanguages:             m.DeniedChatLanguages,
+		ExcludedRoles:                   m.ExcludedRoles,
+		MaxWarnings:                     m.MaxWarnings,
+		DenyList:                        m.DenyList,
+		DenyListRegexpEnabled:           m.DenyListRegexpEnabled,
+		DenyListWordBoundaryEnabled:     m.DenyListWordBoundaryEnabled,
+		DenyListSensitivityEnabled:      m.DenyListSensitivityEnabled,
+		OneManSpamMinimumStoredMessages: m.OneManSpamMinimumStoredMessages,
+		OneManSpamMessageMemorySeconds:  m.OneManSpamMessageMemorySeconds,
+		CreatedAt:                       m.CreatedAt,
+		UpdatedAt:                       m.UpdatedAt,
 	}
 }
 
@@ -86,23 +88,25 @@ func (c *Service) GetByChannelID(ctx context.Context, channelID string) (
 }
 
 type CreateOrUpdateInput struct {
-	Name                        *string
-	ChannelID                   string
-	Type                        entity.ModerationSettingsType
-	Enabled                     bool
-	BanTime                     int32
-	BanMessage                  string
-	WarningMessage              string
-	CheckClips                  bool
-	TriggerLength               int
-	MaxPercentage               int
-	DenyList                    []string
-	DenyListRegexpEnabled       bool
-	DenyListWordBoundaryEnabled bool
-	DenyListSensitivityEnabled  bool
-	DeniedChatLanguages         []string
-	ExcludedRoles               []string
-	MaxWarnings                 int
+	Name                            *string
+	ChannelID                       string
+	Type                            entity.ModerationSettingsType
+	Enabled                         bool
+	BanTime                         int32
+	BanMessage                      string
+	WarningMessage                  string
+	CheckClips                      bool
+	TriggerLength                   int
+	MaxPercentage                   int
+	DenyList                        []string
+	DenyListRegexpEnabled           bool
+	DenyListWordBoundaryEnabled     bool
+	DenyListSensitivityEnabled      bool
+	DeniedChatLanguages             []string
+	ExcludedRoles                   []string
+	MaxWarnings                     int
+	OneManSpamMinimumStoredMessages int
+	OneManSpamMessageMemorySeconds  int
 }
 
 func (c *Service) Create(
@@ -112,23 +116,25 @@ func (c *Service) Create(
 	item, err := c.repo.Create(
 		ctx,
 		channels_moderation_settings.CreateOrUpdateInput{
-			Name:                        input.Name,
-			ChannelID:                   input.ChannelID,
-			Type:                        model.ModerationSettingsType(input.Type.String()),
-			Enabled:                     input.Enabled,
-			BanTime:                     input.BanTime,
-			BanMessage:                  input.BanMessage,
-			WarningMessage:              input.WarningMessage,
-			CheckClips:                  input.CheckClips,
-			TriggerLength:               input.TriggerLength,
-			MaxPercentage:               input.MaxPercentage,
-			DenyList:                    input.DenyList,
-			DenyListRegexpEnabled:       input.DenyListRegexpEnabled,
-			DenyListWordBoundaryEnabled: input.DenyListWordBoundaryEnabled,
-			DenyListSensitivityEnabled:  input.DenyListSensitivityEnabled,
-			DeniedChatLanguages:         input.DeniedChatLanguages,
-			ExcludedRoles:               input.ExcludedRoles,
-			MaxWarnings:                 input.MaxWarnings,
+			Name:                            input.Name,
+			ChannelID:                       input.ChannelID,
+			Type:                            model.ModerationSettingsType(input.Type.String()),
+			Enabled:                         input.Enabled,
+			BanTime:                         input.BanTime,
+			BanMessage:                      input.BanMessage,
+			WarningMessage:                  input.WarningMessage,
+			CheckClips:                      input.CheckClips,
+			TriggerLength:                   input.TriggerLength,
+			MaxPercentage:                   input.MaxPercentage,
+			DenyList:                        input.DenyList,
+			DenyListRegexpEnabled:           input.DenyListRegexpEnabled,
+			DenyListWordBoundaryEnabled:     input.DenyListWordBoundaryEnabled,
+			DenyListSensitivityEnabled:      input.DenyListSensitivityEnabled,
+			DeniedChatLanguages:             input.DeniedChatLanguages,
+			ExcludedRoles:                   input.ExcludedRoles,
+			MaxWarnings:                     input.MaxWarnings,
+			OneManSpamMinimumStoredMessages: input.OneManSpamMinimumStoredMessages,
+			OneManSpamMessageMemorySeconds:  input.OneManSpamMessageMemorySeconds,
 		},
 	)
 	if err != nil {
@@ -155,23 +161,25 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input CreateOrUpdate
 		ctx,
 		id,
 		channels_moderation_settings.CreateOrUpdateInput{
-			Name:                        input.Name,
-			ChannelID:                   item.ChannelID,
-			Type:                        model.ModerationSettingsType(input.Type.String()),
-			Enabled:                     input.Enabled,
-			BanTime:                     input.BanTime,
-			BanMessage:                  input.BanMessage,
-			WarningMessage:              input.WarningMessage,
-			CheckClips:                  input.CheckClips,
-			TriggerLength:               input.TriggerLength,
-			MaxPercentage:               input.MaxPercentage,
-			DenyList:                    input.DenyList,
-			DenyListRegexpEnabled:       input.DenyListRegexpEnabled,
-			DenyListWordBoundaryEnabled: input.DenyListWordBoundaryEnabled,
-			DenyListSensitivityEnabled:  input.DenyListSensitivityEnabled,
-			DeniedChatLanguages:         input.DeniedChatLanguages,
-			ExcludedRoles:               input.ExcludedRoles,
-			MaxWarnings:                 input.MaxWarnings,
+			Name:                            input.Name,
+			ChannelID:                       item.ChannelID,
+			Type:                            model.ModerationSettingsType(input.Type.String()),
+			Enabled:                         input.Enabled,
+			BanTime:                         input.BanTime,
+			BanMessage:                      input.BanMessage,
+			WarningMessage:                  input.WarningMessage,
+			CheckClips:                      input.CheckClips,
+			TriggerLength:                   input.TriggerLength,
+			MaxPercentage:                   input.MaxPercentage,
+			DenyList:                        input.DenyList,
+			DenyListRegexpEnabled:           input.DenyListRegexpEnabled,
+			DenyListWordBoundaryEnabled:     input.DenyListWordBoundaryEnabled,
+			DenyListSensitivityEnabled:      input.DenyListSensitivityEnabled,
+			DeniedChatLanguages:             input.DeniedChatLanguages,
+			ExcludedRoles:                   input.ExcludedRoles,
+			MaxWarnings:                     input.MaxWarnings,
+			OneManSpamMinimumStoredMessages: input.OneManSpamMinimumStoredMessages,
+			OneManSpamMessageMemorySeconds:  input.OneManSpamMessageMemorySeconds,
 		},
 	)
 	if err != nil {

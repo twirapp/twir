@@ -31,6 +31,9 @@ type ChannelModerationSettings struct {
 	DenyListWordBoundaryEnabled bool
 	DenyListSensitivityEnabled  bool
 
+	OneManSpamMinimumStoredMessages int
+	OneManSpamMessageMemorySeconds  int
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -49,4 +52,5 @@ const (
 	ModerationSettingsTypeCaps        ModerationSettingsType = "caps"
 	ModerationSettingsTypeEmotes      ModerationSettingsType = "emotes"
 	ModerationSettingsTypeLanguage    ModerationSettingsType = "language"
+	ModerationSettingsTypeOneManSpam  ModerationSettingsType = "one_man_spam"
 )

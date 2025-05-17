@@ -52,6 +52,8 @@ export const useChannelModerationSettingsApi = createGlobalState(() => {
 					denyListSensitivityEnabled
 					excludedRoles
 					maxWarnings
+					oneManSpamMessageMemorySeconds
+					oneManSpamMinimumStoredMessages
 					createdAt
 					updatedAt
 				}

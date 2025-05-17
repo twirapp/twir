@@ -37,6 +37,7 @@ var moderationFunctionsMapping = map[channelsmoderationsettingsmodel.ModerationS
 	channelsmoderationsettingsmodel.ModerationSettingsTypeCaps:        (*MessageHandler).moderationCapsParser,
 	channelsmoderationsettingsmodel.ModerationSettingsTypeEmotes:      (*MessageHandler).moderationEmotesParser,
 	channelsmoderationsettingsmodel.ModerationSettingsTypeLanguage:    (*MessageHandler).moderationLanguageParser,
+	channelsmoderationsettingsmodel.ModerationSettingsTypeOneManSpam:  (*MessageHandler).moderationOneManSpam,
 }
 
 var excludedModerationBadges = []string{"BROADCASTER", "MODERATOR"}
@@ -88,12 +89,26 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 				)
 			}
 
+			var warningMessage = strings.TrimSpace(entity.WarningMessage)
+
+			if warningMessage == "" && entity.Name != nil && *entity.Name != "" {
+				warningMessage = fmt.Sprintf(
+					"Reason: %s",
+					*entity.Name,
+				)
+			} else if warningMessage == "" {
+				warningMessage = fmt.Sprintf(
+					"Reason: %s",
+					strings.Join(strings.Split(entity.Type.String(), "_"), " "),
+				)
+			}
+
 			err = c.twitchActions.WarnUser(
 				ctx, twitchactions.WarnUserOpts{
 					BroadcasterID: msg.BroadcasterUserId,
 					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
 					UserID:        msg.ChatterUserId,
-					Reason:        entity.WarningMessage,
+					Reason:        warningMessage,
 				},
 			)
 			if err != nil {
@@ -435,4 +450,73 @@ func (c *MessageHandler) moderationLanguageParser(
 	}
 
 	return c.moderationHandleResult(ctx, msg, settings)
+}
+
+func (c *MessageHandler) moderationOneManSpam(
+	ctx context.Context,
+	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
+	msg handleMessage,
+) *moderationHandleResult {
+	if len(msg.Message.Text) < settings.TriggerLength {
+		return nil
+	}
+
+	if settings.OneManSpamMessageMemorySeconds == 0 || settings.OneManSpamMinimumStoredMessages == 0 {
+		return nil
+	}
+
+	redisKey := fmt.Sprintf(
+		"channels:%s:moderation:one_man_spam:%s",
+		msg.BroadcasterUserId,
+		msg.ChatterUserId,
+	)
+
+	defer func() {
+		deferCtx, deferCtxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer deferCtxCancel()
+
+		if err := c.redis.HSet(
+			deferCtx,
+			redisKey,
+			msg.ID,
+			msg.Message.Text,
+		).Err(); err != nil {
+			c.logger.Error("cannot set one man spam to redis", slog.Any("err", err))
+			return
+		}
+
+		if err := c.redis.HExpire(
+			deferCtx,
+			redisKey,
+			time.Duration(settings.OneManSpamMessageMemorySeconds)*time.Second,
+			msg.ID,
+		).Err(); err != nil {
+			c.logger.Error("cannot expire one man spam redis key", slog.Any("err", err))
+			return
+		}
+	}()
+
+	storedData, err := c.redis.HGetAll(ctx, redisKey).Result()
+	if err != nil {
+		return nil
+	}
+
+	messages := make([]string, 0, len(storedData))
+	for _, value := range storedData {
+		messages = append(messages, value)
+	}
+
+	if len(messages) < settings.OneManSpamMinimumStoredMessages {
+		return nil
+	}
+
+	if c.moderationHelpers.ContainsSimilar(
+		msg.Message.Text,
+		messages,
+		float64(settings.MaxPercentage),
+	) {
+		return c.moderationHandleResult(ctx, msg, settings)
+	}
+
+	return nil
 }

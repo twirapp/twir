@@ -1,19 +1,8 @@
-import {
-	IconAbc,
-	IconAsteriskSimple,
-	IconLanguageOff,
-	IconLinkOff,
-	IconListLetters,
-	IconMessageOff,
-	IconMoodOff,
-} from '@tabler/icons-vue'
 import { toTypedSchema } from '@vee-validate/zod'
+import { AsteriskIcon, CaseUpperIcon, LanguagesIcon, LetterTextIcon, Link2OffIcon, Repeat1Icon, RulerDimensionLineIcon, SmileIcon } from 'lucide-vue-next'
 import { z } from 'zod'
 
 import type { ModerationItem } from '@/api'
-import type {
-	SVGProps,
-} from '@tabler/icons-vue'
 import type { FunctionalComponent } from 'vue'
 
 import { ModerationSettingsType } from '@/gql/graphql.ts'
@@ -22,14 +11,15 @@ export type EditableItem = Omit<Omit<ModerationItem, 'id'> & {
 	id?: string
 }, 'createdAt' | 'channelId' | 'updatedAt'>
 
-export const Icons: Readonly<Record<ModerationSettingsType, (props: SVGProps) => FunctionalComponent<SVGProps, any, any>>> = Object.freeze({
-	[ModerationSettingsType.Links]: IconLinkOff,
-	[ModerationSettingsType.Language]: IconLanguageOff,
-	[ModerationSettingsType.DenyList]: IconListLetters,
-	[ModerationSettingsType.LongMessage]: IconMessageOff,
-	[ModerationSettingsType.Caps]: IconAbc,
-	[ModerationSettingsType.Emotes]: IconMoodOff,
-	[ModerationSettingsType.Symbols]: IconAsteriskSimple,
+export const Icons: Readonly<Record<ModerationSettingsType, FunctionalComponent>> = Object.freeze({
+	[ModerationSettingsType.Links]: Link2OffIcon,
+	[ModerationSettingsType.Language]: LanguagesIcon,
+	[ModerationSettingsType.DenyList]: LetterTextIcon,
+	[ModerationSettingsType.LongMessage]: RulerDimensionLineIcon,
+	[ModerationSettingsType.Caps]: CaseUpperIcon,
+	[ModerationSettingsType.Emotes]: SmileIcon,
+	[ModerationSettingsType.Symbols]: AsteriskIcon,
+	[ModerationSettingsType.OneManSpam]: Repeat1Icon,
 })
 
 export const moderationValidationRules = toTypedSchema(z.object({
@@ -50,4 +40,6 @@ export const moderationValidationRules = toTypedSchema(z.object({
 	denyListRegexpEnabled: z.boolean().default(false),
 	denyListWordBoundaryEnabled: z.boolean().default(false),
 	denyListSensitivityEnabled: z.boolean().default(false),
+	oneManSpamMinimumStoredMessages: z.number().min(0).max(20).default(5),
+	oneManSpamMessageMemorySeconds: z.number().min(0).max(600).default(30),
 }))

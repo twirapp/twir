@@ -17,10 +17,7 @@ import (
 )
 
 // VariablesCreate is the resolver for the variablesCreate field
-func (r *mutationResolver) VariablesCreate(
-	ctx context.Context,
-	opts gqlmodel.VariableCreateInput,
-) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.VariableCreateInput) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -53,11 +50,7 @@ func (r *mutationResolver) VariablesCreate(
 }
 
 // VariablesUpdate is the resolver for the variablesUpdate field.
-func (r *mutationResolver) VariablesUpdate(
-	ctx context.Context,
-	id uuid.UUID,
-	opts gqlmodel.VariableUpdateInput,
-) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.VariableUpdateInput) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -117,12 +110,7 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id uuid.UUID) (b
 }
 
 // ExecuteScript is the resolver for the executeScript field.
-func (r *mutationResolver) ExecuteScript(
-	ctx context.Context,
-	script string,
-	language gqlmodel.VariableScriptLanguage,
-	testAsUserName *string,
-) (string, error) {
+func (r *mutationResolver) ExecuteScript(ctx context.Context, script string, language gqlmodel.VariableScriptLanguage, testAsUserName *string) (string, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return "", err
