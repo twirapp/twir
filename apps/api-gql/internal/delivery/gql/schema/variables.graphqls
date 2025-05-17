@@ -7,13 +7,18 @@ extend type Mutation {
 	variablesCreate(opts: VariableCreateInput!): Variable! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
 	variablesUpdate(id: UUID!, opts: VariableUpdateInput!): Variable! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
 	variablesDelete(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
-	executeScript(script: String!, testAsUserName: String): String! @isAuthenticated
+	executeScript(script: String!, language: VariableScriptLanguage!, testAsUserName: String): String! @isAuthenticated
 }
 
 enum VariableType {
 	SCRIPT
 	TEXT
 	NUMBER
+}
+
+enum VariableScriptLanguage {
+	JAVASCRIPT
+	PYTHON
 }
 
 type Variable {
@@ -23,6 +28,7 @@ type Variable {
 	type: VariableType!
 	evalValue: String!
 	response: String!
+	scriptLanguage: VariableScriptLanguage!
 }
 
 input VariableCreateInput {
@@ -31,6 +37,7 @@ input VariableCreateInput {
 	type: VariableType!
 	evalValue: String! @validate(constraint: "max=10000")
 	response: String! @validate(constraint: "max=500")
+	scriptLanguage: VariableScriptLanguage!
 }
 
 input VariableUpdateInput {
@@ -39,6 +46,7 @@ input VariableUpdateInput {
 	type: VariableType
 	evalValue: String @validate(constraint: "max=10000")
 	response: String @validate(constraint: "max=500")
+	scriptLanguage: VariableScriptLanguage
 }
 
 type BuiltInVariable {

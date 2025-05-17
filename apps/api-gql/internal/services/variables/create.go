@@ -18,11 +18,12 @@ type CreateInput struct {
 	ChannelID string
 	ActorID   string
 
-	Name        string
-	Description *string
-	Type        entity.CustomVarType
-	EvalValue   string
-	Response    string
+	Name           string
+	Description    *string
+	Type           entity.CustomVarType
+	EvalValue      string
+	Response       string
+	ScriptLanguage string
 }
 
 func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVariable, error) {
@@ -37,12 +38,13 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVa
 
 	variable, err := c.variablesRepository.Create(
 		ctx, variablesrepository.CreateInput{
-			ChannelID:   data.ChannelID,
-			Name:        data.Name,
-			Description: null.StringFromPtr(data.Description),
-			Type:        model.CustomVarType(data.Type),
-			EvalValue:   data.EvalValue,
-			Response:    data.Response,
+			ChannelID:      data.ChannelID,
+			Name:           data.Name,
+			Description:    null.StringFromPtr(data.Description),
+			Type:           model.CustomVarType(data.Type),
+			EvalValue:      data.EvalValue,
+			Response:       data.Response,
+			ScriptLanguage: (*model.ScriptLanguage)(&data.ScriptLanguage),
 		},
 	)
 	if err != nil {

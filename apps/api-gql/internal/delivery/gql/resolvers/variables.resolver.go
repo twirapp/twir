@@ -31,13 +31,14 @@ func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.Va
 	variable, err := r.deps.VariablesService.Create(
 		ctx,
 		variables.CreateInput{
-			ChannelID:   dashboardId,
-			ActorID:     user.ID,
-			Name:        opts.Name,
-			Description: opts.Description.Value(),
-			Type:        entity.CustomVarType(opts.Type),
-			EvalValue:   opts.EvalValue,
-			Response:    opts.Response,
+			ChannelID:      dashboardId,
+			ActorID:        user.ID,
+			Name:           opts.Name,
+			Description:    opts.Description.Value(),
+			Type:           entity.CustomVarType(opts.Type),
+			EvalValue:      opts.EvalValue,
+			Response:       opts.Response,
+			ScriptLanguage: mappers.VariableScriptLanguageToEntity(opts.ScriptLanguage).String(),
 		},
 	)
 	if err != nil {
@@ -60,14 +61,21 @@ func (r *mutationResolver) VariablesUpdate(ctx context.Context, id uuid.UUID, op
 		return nil, err
 	}
 
+	var scriptLanguage *entity.CustomVarScriptLanguage
+	if opts.ScriptLanguage.IsSet() {
+		lang := opts.ScriptLanguage.Value()
+		scriptLanguage = lo.ToPtr(mappers.VariableScriptLanguageToEntity(*lang))
+	}
+
 	input := variables.UpdateInput{
-		ID:          id,
-		ChannelID:   dashboardId,
-		ActorID:     user.ID,
-		Name:        opts.Name.Value(),
-		Description: opts.Description.Value(),
-		EvalValue:   opts.EvalValue.Value(),
-		Response:    opts.Response.Value(),
+		ID:             id,
+		ChannelID:      dashboardId,
+		ActorID:        user.ID,
+		Name:           opts.Name.Value(),
+		Description:    opts.Description.Value(),
+		EvalValue:      opts.EvalValue.Value(),
+		Response:       opts.Response.Value(),
+		ScriptLanguage: scriptLanguage,
 	}
 	if opts.Type.Value() != nil {
 		input.Type = lo.ToPtr(entity.CustomVarType(*opts.Type.Value()))
@@ -102,13 +110,19 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id uuid.UUID) (b
 }
 
 // ExecuteScript is the resolver for the executeScript field.
-func (r *mutationResolver) ExecuteScript(ctx context.Context, script string, testAsUserName *string) (string, error) {
+func (r *mutationResolver) ExecuteScript(ctx context.Context, script string, language gqlmodel.VariableScriptLanguage, testAsUserName *string) (string, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	return r.deps.VariablesService.EvaluateScript(ctx, dashboardID, script, testAsUserName)
+	return r.deps.VariablesService.EvaluateScript(
+		ctx,
+		dashboardID,
+		script,
+		mappers.VariableScriptLanguageToEntity(language),
+		testAsUserName,
+	)
 }
 
 // Variables is the resolver for the variables field.

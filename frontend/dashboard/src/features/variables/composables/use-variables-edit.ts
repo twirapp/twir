@@ -10,13 +10,14 @@ import type { TypeOf } from 'zod'
 
 import { useVariablesApi } from '@/api/variables.js'
 import { useToast } from '@/components/ui/toast'
-import { VariableType } from '@/gql/graphql.js'
+import { VariableScriptLanguage, VariableType } from '@/gql/graphql.js'
 
 export const formSchema = object({
 	id: string().optional(),
 	name: string().min(1).max(50),
 	description: string().max(500).nullable().optional(),
 	type: nativeEnum(VariableType),
+	scriptLanguage: nativeEnum(VariableScriptLanguage).default(VariableScriptLanguage.Javascript),
 }).and(object({
 	response: string().max(500),
 	evalValue: string().max(5000),
@@ -63,6 +64,7 @@ export const useVariablesEdit = createGlobalState(() => {
 	}
 
 	async function submit(data: FormSchema) {
+		console.log(data)
 		if (data.id) {
 			await update.executeMutation({
 				id: data.id,
@@ -106,10 +108,11 @@ export const useVariablesEdit = createGlobalState(() => {
 		})
 	}
 
-	async function runScript(expression: MaybeRef<string>) {
+	async function runScript(expression: MaybeRef<string>, language: MaybeRef<VariableScriptLanguage> = VariableScriptLanguage.Javascript) {
 		const result = await scriptExecutor.executeMutation({
 			expression: unref(expression),
 			testFromUserName: unref(testFromUserName),
+			language: unref(language),
 		})
 
 		return result.data?.executeScript ?? result.error?.message

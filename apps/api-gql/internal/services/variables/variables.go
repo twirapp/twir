@@ -64,19 +64,22 @@ var ErrNotFound = errors.New("variable not found")
 
 func (c *Service) dbToModel(m model.CustomVariable) entity.CustomVariable {
 	return entity.CustomVariable{
-		ID:          m.ID,
-		ChannelID:   m.ChannelID,
-		Name:        m.Name,
-		Description: m.Description.Ptr(),
-		Type:        entity.CustomVarType(m.Type),
-		EvalValue:   m.EvalValue,
-		Response:    m.Response,
+		ID:             m.ID,
+		ChannelID:      m.ChannelID,
+		Name:           m.Name,
+		Description:    m.Description.Ptr(),
+		Type:           entity.CustomVarType(m.Type),
+		EvalValue:      m.EvalValue,
+		Response:       m.Response,
+		ScriptLanguage: entity.CustomVarScriptLanguage(m.ScriptLanguage),
 	}
 }
 
 func (c *Service) EvaluateScript(
 	ctx context.Context,
-	channelID, script string,
+	channelID,
+	script string,
+	language entity.CustomVarScriptLanguage,
 	testAsUserName *string,
 ) (string, error) {
 	if testAsUserName != nil && *testAsUserName != "" {
@@ -131,7 +134,7 @@ func (c *Service) EvaluateScript(
 		result, err := c.executron.ExecuteUserCode(
 			ctx,
 			channelID,
-			"javascript",
+			language.String(),
 			preparedEvalValue.Data.Text,
 		)
 		if err != nil {
@@ -148,7 +151,7 @@ func (c *Service) EvaluateScript(
 		return res, nil
 	}
 
-	result, err := c.executron.ExecuteUserCode(ctx, channelID, "javascript", script)
+	result, err := c.executron.ExecuteUserCode(ctx, channelID, language.String(), script)
 	if err != nil {
 		return "", fmt.Errorf("cannot evaluate script: %w", err)
 	}

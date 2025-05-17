@@ -27,6 +27,7 @@ export const useVariablesApi = createGlobalState(() => {
 					name
 					evalValue
 					response
+					scriptLanguage
 				}
 				variablesBuiltIn {
 					name
@@ -51,6 +52,7 @@ export const useVariablesApi = createGlobalState(() => {
 			type: variable.type,
 			response: variable.response,
 			evalValue: variable.evalValue,
+			scriptLanguage: variable.scriptLanguage,
 		})) ?? []
 
 		return mapped
@@ -103,8 +105,8 @@ export const useVariablesApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	const useMutationExecuteScript = () => useMutation(graphql(`
-		mutation ExecuteScript($expression: String!, $testFromUserName: String) {
-			executeScript(script: $expression, testAsUserName: $testFromUserName)
+		mutation ExecuteScript($expression: String!, $language: VariableScriptLanguage!, $testFromUserName: String) {
+			executeScript(script: $expression, language: $language, testAsUserName: $testFromUserName)
 		}
 	`))
 

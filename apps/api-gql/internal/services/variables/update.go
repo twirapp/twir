@@ -18,11 +18,12 @@ type UpdateInput struct {
 	ChannelID string
 	ActorID   string
 
-	Name        *string
-	Description *string
-	Type        *entity.CustomVarType
-	EvalValue   *string
-	Response    *string
+	Name           *string
+	Description    *string
+	Type           *entity.CustomVarType
+	EvalValue      *string
+	Response       *string
+	ScriptLanguage *entity.CustomVarScriptLanguage
 }
 
 func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.CustomVariable, error) {
@@ -35,11 +36,17 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.CustomVa
 		return entity.CustomVarNil, ErrNotFound
 	}
 
+	var scriptLanguage *model.ScriptLanguage
+	if data.ScriptLanguage != nil {
+		scriptLanguage = (*model.ScriptLanguage)(data.ScriptLanguage)
+	}
+
 	input := variablesrepository.UpdateInput{
-		Name:        data.Name,
-		Description: data.Description,
-		EvalValue:   data.EvalValue,
-		Response:    data.Response,
+		Name:           data.Name,
+		Description:    data.Description,
+		EvalValue:      data.EvalValue,
+		Response:       data.Response,
+		ScriptLanguage: scriptLanguage,
 	}
 
 	if data.Type != nil {
