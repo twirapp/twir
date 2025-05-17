@@ -57,7 +57,7 @@
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found",
-		"settings": "Settings",
+    "settings": "Settings",
     "create": "Create",
     "edit": "Edit",
     "noData": "No data",
@@ -711,10 +711,10 @@
   },
   "keywords": {
     "title": "Keywords",
-		"info": {
-			"text": "Keywords helps you to trigger chat message on certain words matching."
-		},
-		"create": "Create keyword",
+    "info": {
+      "text": "Keywords help you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Trigger Text",
     "usages": "Usage Count",
     "isRegular": "Is a Regular Expression?",
@@ -768,7 +768,7 @@
       "greetings": "Greeting Trigger"
     },
     "select": {
-      "audio": "Confugure an audio",
+      "audio": "Configure an audio",
       "image": "Configure an image",
       "text": "Configure text"
     },
@@ -832,28 +832,28 @@
         "bothDiePercent": "Percent of chance both users die"
       }
     },
-		"seppuku": {
-			"description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-			"message": "Message",
-			"timeoutModerators": "Enable seppuku for moderators",
-			"messageModerators": "Message when moderator used seppuku",
-			"timeoutSeconds": "Timeout seconds"
-		},
-		"voteban": {
-			"description": "Commence jury trial of the guilty chatterer!",
-			"banMessage": "Message on ban",
-			"banMessageModerators": "Message for ban moderator",
-			"surviveMessage": "Survive message",
-			"surviveMessageModerators": "Survive message for moderators",
-			"initialMessage": "Init message",
-			"neededVotes": "Needed votes",
-			"banDuration": "Duration of ban",
-			"voteMode": "Mode of vote",
-			"voteDuration": "Duration of vote in seconds",
-			"wordsNegative": "Words for vote to \"no\" option",
-			"wordsPositive": "Words for vote to \"yes\" option",
-			"timeoutModerators": "Enable voteban on moderators"
-		}
+    "seppuku": {
+      "description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
+      "message": "Message",
+      "timeoutModerators": "Enable seppuku for moderators",
+      "messageModerators": "Message when moderator used seppuku",
+      "timeoutSeconds": "Timeout duration (seconds)"
+    },
+    "voteban": {
+      "description": "Commence jury trial of the guilty chatterer!",
+      "banMessage": "Message on ban",
+      "banMessageModerators": "Message for banned moderators",
+      "surviveMessage": "Survive message",
+      "surviveMessageModerators": "Survive message for moderators",
+      "initialMessage": "Initial message",
+      "neededVotes": "Needed votes",
+      "banDuration": "Ban duration (seconds)",
+      "voteMode": "Voting mode",
+      "voteDuration": "Voting duration (seconds)",
+      "wordsNegative": "Words to vote for \"no\" option",
+      "wordsPositive": "Words to vote for \"yes\" option",
+      "timeoutModerators": "Enable voteban on moderators"
+    }
   },
   "modules": {
     "chatTranslations": {
@@ -914,14 +914,14 @@
       "searchPlaceholder": "Search emotes...",
       "table": {
         "emote": "Emote",
-        "usages": "Total usages",
+        "usages": "Total usage",
         "users": "Users",
         "empty": "No emotes",
-        "chart": "Usages chart",
+        "chart": "Usage chart",
         "lastDay": "Day",
         "lastWeek": "Week",
         "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
+        "lastThreeMonth": "3 Months",
         "lastYear": "Year"
       },
       "total": "Total emotes: {total}",
@@ -1046,6 +1046,14 @@
         "description": "Scans and filters out inappropriate languages.",
         "allowedLanguages": "Allowed Languages List",
         "disallowedLanguages": "Disallowed Languages List"
+      },
+      "one_man_spam": {
+        "name": "One Man Spam",
+        "description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
+        "triggerLength": "Minimal message length to trigger storing and filtering",
+        "minimumStoredMessages": "Number of stored messages to begin filter",
+        "messageMemorySeconds": "How long to store user message in seconds",
+        "maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
       }
     }
   },
@@ -1155,7 +1163,7 @@
   "expiringVips": {
     "title": "Scheduled VIPs",
     "description": {
-      "line1": "With this feature you can create VIPs for your channel, which will be removed after selected time.",
+      "line1": "With this feature, you can create VIPs for your channel, which will be removed after a selected time.",
       "line2": "You can use commands from built-in {module} module for that."
     },
     "comingSoon": "Soon, but already available through commands",
@@ -1163,7 +1171,7 @@
       "add": "Add VIP",
       "remove": "Remove VIP",
       "list": "List VIPs",
-      "setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
+      "setExpire": "Extend the expiration time for existing timed VIPs, or add an expiration for VIP users who don't have one"
     },
     "alert": {
       "title": "Heads up!",
@@ -1178,8 +1186,8 @@
   },
   "chatWall": {
     "description": {
-      "line1": "Mass ban/delete/timeout messages that contains specific phrase.",
-      "line2": "Improper usage may result in a permanent ban you in TwirApp service. "
+      "line1": "Mass ban/delete/timeout messages that contain a specific phrase.",
+      "line2": "Improper usage may result in a permanent ban from the TwirApp service. "
     },
     "settings": {
       "title": "Setup",
