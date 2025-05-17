@@ -1046,6 +1046,14 @@
         "description": "Scans and filters out inappropriate languages.",
         "allowedLanguages": "Allowed Languages List",
         "disallowedLanguages": "Disallowed Languages List"
+      },
+      "one_man_spam": {
+        "name": "One Man Spam",
+        "description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
+        "triggerLength": "Minimal message length to trigger storing and filtering",
+        "minimumStoredMessages": "Number of stored messages to begin filter",
+        "messageMemorySeconds": "How long to store user message in seconds",
+        "maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
       }
     }
   },
