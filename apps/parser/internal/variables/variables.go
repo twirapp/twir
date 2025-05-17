@@ -12,6 +12,7 @@ import (
 	seventv "github.com/satont/twir/apps/parser/internal/variables/7tv"
 	"github.com/satont/twir/apps/parser/internal/variables/channel"
 	"github.com/satont/twir/apps/parser/internal/variables/chat_eval"
+	"github.com/satont/twir/apps/parser/internal/variables/counttime"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/last_donate"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/top_donate"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/top_donate_stream"
@@ -146,6 +147,8 @@ func New(opts *Opts) *Variables {
 			seventv.UnlockedPaints,
 			repeat.Variable,
 			shorturl.Variable,
+			counttime.CountDown,
+			counttime.CountUp,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},

@@ -55,4 +55,10 @@ type BuiltInVariable {
 	description: String!
 	visible: Boolean!
 	canBeUsedInRegistry: Boolean!
+	links: [BuiltInVariableLink!]!
+}
+
+type BuiltInVariableLink {
+	name: String!
+	href: String!
 }

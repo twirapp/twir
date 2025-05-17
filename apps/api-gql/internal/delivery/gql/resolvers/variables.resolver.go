@@ -17,7 +17,10 @@ import (
 )
 
 // VariablesCreate is the resolver for the variablesCreate field
-func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.VariableCreateInput) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesCreate(
+	ctx context.Context,
+	opts gqlmodel.VariableCreateInput,
+) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -50,7 +53,11 @@ func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.Va
 }
 
 // VariablesUpdate is the resolver for the variablesUpdate field.
-func (r *mutationResolver) VariablesUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.VariableUpdateInput) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesUpdate(
+	ctx context.Context,
+	id uuid.UUID,
+	opts gqlmodel.VariableUpdateInput,
+) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -110,7 +117,12 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id uuid.UUID) (b
 }
 
 // ExecuteScript is the resolver for the executeScript field.
-func (r *mutationResolver) ExecuteScript(ctx context.Context, script string, language gqlmodel.VariableScriptLanguage, testAsUserName *string) (string, error) {
+func (r *mutationResolver) ExecuteScript(
+	ctx context.Context,
+	script string,
+	language gqlmodel.VariableScriptLanguage,
+	testAsUserName *string,
+) (string, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return "", err
@@ -154,6 +166,16 @@ func (r *queryResolver) VariablesBuiltIn(ctx context.Context) ([]gqlmodel.BuiltI
 
 	result := make([]gqlmodel.BuiltInVariable, 0, len(vars.Data))
 	for _, v := range vars.Data {
+		links := make([]gqlmodel.BuiltInVariableLink, 0, len(v.Links))
+		for _, l := range v.Links {
+			links = append(
+				links, gqlmodel.BuiltInVariableLink{
+					Name: l.Name,
+					Href: l.Href,
+				},
+			)
+		}
+
 		result = append(
 			result,
 			gqlmodel.BuiltInVariable{
@@ -162,6 +184,7 @@ func (r *queryResolver) VariablesBuiltIn(ctx context.Context) ([]gqlmodel.BuiltI
 				Example:             v.Example,
 				Visible:             v.Visible,
 				CanBeUsedInRegistry: v.CanBeUsedInRegistry,
+				Links:               links,
 			},
 		)
 	}

@@ -26,6 +26,16 @@ func New(
 	}
 
 	for _, variable := range variablesService.Store {
+		links := make([]parser.BuiltInVariableLink, 0, len(variable.Links))
+		for _, l := range variable.Links {
+			links = append(
+				links, parser.BuiltInVariableLink{
+					Name: l.Name,
+					Href: l.Href,
+				},
+			)
+		}
+
 		b.vars = append(
 			b.vars,
 			parser.BuiltInVariable{
@@ -34,6 +44,7 @@ func New(
 				Description:         lo.FromPtr(variable.Description),
 				Visible:             lo.FromPtr(variable.Visible),
 				CanBeUsedInRegistry: variable.CanBeUsedInRegistry,
+				Links:               links,
 			},
 		)
 	}

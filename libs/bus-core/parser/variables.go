@@ -8,4 +8,10 @@ type BuiltInVariable struct {
 	Description         string
 	Visible             bool
 	CanBeUsedInRegistry bool
+	Links               []BuiltInVariableLink
+}
+
+type BuiltInVariableLink struct {
+	Name string
+	Href string
 }

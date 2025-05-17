@@ -30,6 +30,12 @@ type Variable struct {
 	CanBeUsedInRegistry      bool
 	NotCachable              bool
 	Priority                 int // Higher number = higher priority, default 0
+	Links                    []VariableLink
+}
+
+type VariableLink struct {
+	Name string
+	Href string
 }
 
 type VariableParseContext struct {

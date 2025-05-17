@@ -42,6 +42,7 @@ const selectVariables = computed(() => {
 		label: `$(${variable.example})`,
 		value: `$(${variable.example})`,
 		description: variable.description,
+		links: variable.links,
 	}))
 })
 
@@ -68,7 +69,7 @@ function handleSelect(value: string) {
 			</div>
 		</div>
 		<PopoverContent
-			class="p-0 z-[9999] max-w-[400px]"
+			class="p-0 z-[9999] max-w-[600px]"
 			:align="popoverAlign"
 			:side="popoverSide"
 		>
@@ -90,6 +91,11 @@ function handleSelect(value: string) {
 							<div class="flex flex-wrap flex-col gap-0.5">
 								<span>{{ option.label }}</span>
 								<span v-if="option.description" class="text-xs">{{ option.description }}</span>
+								<div v-if="option.links" class="flex flex-wrap gap-4">
+									<a v-for="link of option.links" :key="link.href" :href="link.href" target="_blank" class="text-xs underline" @click.stop>
+										{{ link.name }}
+									</a>
+								</div>
 							</div>
 						</CommandItem>
 					</CommandGroup>

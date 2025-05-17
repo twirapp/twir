@@ -35,6 +35,10 @@ export const useVariablesApi = createGlobalState(() => {
 					description
 					visible
 					canBeUsedInRegistry
+					links {
+						href
+						name
+					}
 				}
 			}
 		`),
@@ -53,6 +57,7 @@ export const useVariablesApi = createGlobalState(() => {
 			response: variable.response,
 			evalValue: variable.evalValue,
 			scriptLanguage: variable.scriptLanguage,
+			links: [],
 		})) ?? []
 
 		return mapped
@@ -66,6 +71,7 @@ export const useVariablesApi = createGlobalState(() => {
 			example: variable.example || `${variable.name}`,
 			isBuiltIn: true,
 			canBeUsedInRegistry: variable.canBeUsedInRegistry,
+			links: variable.links,
 		})) ?? []
 
 		return mapped
