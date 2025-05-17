@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EditIcon } from 'lucide-vue-next'
+import { EditIcon, RefreshCcwIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,10 +21,13 @@ const { t } = useI18n()
 
 <template>
 	<Card>
-		<CardHeader>
-			<CardTitle>{{ t('commands.modal.cooldown.label') }}</CardTitle>
+		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
+			<CardTitle class="flex items-center gap-2">
+				<RefreshCcwIcon />
+				{{ t('commands.modal.cooldown.label') }}
+			</CardTitle>
 		</CardHeader>
-		<CardContent>
+		<CardContent class="pt-4">
 			<div class="flex flex-col gap-4">
 				<FormField v-slot="{ componentField }" name="cooldown">
 					<FormItem>

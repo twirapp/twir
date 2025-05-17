@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BadgePlus, Ellipsis, GripVertical, Settings, Trash } from 'lucide-vue-next'
+import { BadgePlus, Ellipsis, GripVertical, MessageCircleReplyIcon, Settings, Trash } from 'lucide-vue-next'
 import { FieldArray, useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
@@ -50,12 +50,13 @@ const editable = computed(() => !command.value?.default)
 
 <template>
 	<Card>
-		<CardHeader>
-			<CardTitle :class="{ 'text-destructive': responsesErrors.length }">
+		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
+			<CardTitle :class="{ 'text-destructive': responsesErrors.length }" class="flex items-center gap-2">
+				<MessageCircleReplyIcon />
 				{{ t('sharedTexts.responses') }}
 			</CardTitle>
 		</CardHeader>
-		<CardContent v-if="editable" class="flex flex-col gap-2">
+		<CardContent v-if="editable" class="flex flex-col gap-2 pt-4">
 			<FieldArray v-slot="{ fields, remove }" name="responses">
 				<VueDraggable
 					v-model="value"

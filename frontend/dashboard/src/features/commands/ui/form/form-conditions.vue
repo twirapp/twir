@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SlidersHorizontalIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -43,10 +44,13 @@ const checkboxes = computed(() => {
 
 <template>
 	<Card>
-		<CardHeader>
-			<CardTitle>Conditions</CardTitle>
+		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
+			<CardTitle class="flex items-center gap-2">
+				<SlidersHorizontalIcon />
+				Conditions
+			</CardTitle>
 		</CardHeader>
-		<CardContent class="flex flex-col gap-2">
+		<CardContent class="flex flex-col gap-2 pt-4">
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
 				<FormField
 					v-for="checkbox of checkboxes"
