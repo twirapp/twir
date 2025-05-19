@@ -23,6 +23,10 @@ func (s *Auth) GetAuthenticatedUser(ctx context.Context) (*model.Users, error) {
 		return nil, fmt.Errorf("cannot get user from db: %w", err)
 	}
 
+	if freshUser.IsBanned {
+		return nil, fmt.Errorf("forbidden")
+	}
+
 	return &freshUser, nil
 }
 
