@@ -4,6 +4,7 @@ const (
 	EventsubSubscribeAllSubject = "eventsub.subscribeAll"
 	EventsubSubscribeSubject    = "eventsub.subscribe"
 	EventsubInitChannelsSubject = "eventsub.initChannels"
+	EventsubUnsubscribeSubject  = "eventsub.unsubscribe"
 )
 
 type EventsubSubscribeToAllEventsRequest struct {

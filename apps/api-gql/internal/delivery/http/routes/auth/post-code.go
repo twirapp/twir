@@ -74,6 +74,10 @@ func (a *Auth) handleAuthPostCode(
 		return nil, huma.Error500InternalServerError("Cannot find user", err)
 	}
 
+	if dbUser.IsBanned {
+		return nil, huma.Error403Forbidden("Forbidden", nil)
+	}
+
 	defaultBot := &model.Bots{}
 	err = a.gorm.WithContext(ctx).Where("type = ?", "DEFAULT").Find(defaultBot).Error
 	if err != nil {

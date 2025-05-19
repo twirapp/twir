@@ -131,3 +131,19 @@ func (c *Service) EventsubReinitChannels() error {
 
 	return nil
 }
+
+func (c *Service) BanUser(ctx context.Context, userId string) error {
+	if err := c.gorm.
+		WithContext(ctx).
+		Model(&model.Users{}).
+		Where("id = ?", userId).
+		Update("is_banned", true).Error; err != nil {
+		return err
+	}
+
+	if err := c.twirbus.EventSub.Unsubscribe.Publish(userId); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -9,6 +9,8 @@ import (
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
@@ -23,6 +25,7 @@ type Opts struct {
 	Gorm            *gorm.DB
 	TokensService   tokens.TokensClient
 	Config          config.Config
+	TwirBus         *buscore.Bus
 }
 
 func New(opts Opts) *Service {
@@ -31,6 +34,7 @@ func New(opts Opts) *Service {
 		gorm:            opts.Gorm,
 		tokensService:   opts.TokensService,
 		config:          opts.Config,
+		twirBus:         opts.TwirBus,
 	}
 }
 
@@ -39,6 +43,7 @@ type Service struct {
 	gorm            *gorm.DB
 	tokensService   tokens.TokensClient
 	config          config.Config
+	twirBus         *buscore.Bus
 }
 
 type UpdateInput struct {
@@ -74,6 +79,16 @@ func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 	)
 	if err != nil {
 		return entity.UserNil, err
+	}
+
+	if input.IsBanned != nil && *input.IsBanned {
+		if *input.IsBanned {
+			c.twirBus.EventSub.Unsubscribe.Publish(id)
+		} else {
+			c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: id},
+			)
+		}
 	}
 
 	return c.modelToEntity(newUser), nil
@@ -193,6 +208,6 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 	if len(follows.Data.Channels) != 0 {
 		info.FollowerSince = &follows.Data.Channels[0].Followed.Time
 	}
-	
+
 	return info, nil
 }

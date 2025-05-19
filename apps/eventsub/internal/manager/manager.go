@@ -104,7 +104,7 @@ func (c *Manager) SubscribeToNeededEvents(
 	var wg sync.WaitGroup
 	newSubsCount := atomic.NewInt64(0)
 
-	if err := c.unsubscribeChannel(ctx, broadcasterId); err != nil {
+	if err := c.UnsubscribeChannel(ctx, broadcasterId); err != nil {
 		c.logger.Error(
 			"failed to unsubscribe from topics",
 			slog.Any("err", err),

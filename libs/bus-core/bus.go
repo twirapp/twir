@@ -215,6 +215,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
+			Unsubscribe: NewNatsQueue[string, struct{}](
+				nc,
+				eventsub.EventsubUnsubscribeSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
 		},
 
 		Scheduler: &schedulerBus{
