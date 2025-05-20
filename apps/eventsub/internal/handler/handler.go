@@ -82,7 +82,15 @@ type Opts struct {
 }
 
 func New(opts Opts) *Handler {
-	handler := eventsub_framework.NewSubHandler(true, []byte(opts.Config.TwitchClientSecret))
+	var doSignatureVerification = true
+	if opts.Config.EventSubDisableSignatureVerification {
+		doSignatureVerification = false
+	}
+
+	handler := eventsub_framework.NewSubHandler(
+		doSignatureVerification,
+		[]byte(opts.Config.TwitchClientSecret),
+	)
 	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{

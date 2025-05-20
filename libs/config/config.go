@@ -55,6 +55,8 @@ type Config struct {
 	StreamElementsClientSecret string `required:"false" envconfig:"STREAM_ELEMENTS_CLIENT_SECRET"`
 
 	ExecutronAddr string `required:"false" default:"http://localhost:7003" envconfig:"EXECUTRON_ADDR"`
+
+	EventSubDisableSignatureVerification bool `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
 }
 
 func (c *Config) GetTwitchCallbackUrl() string {
