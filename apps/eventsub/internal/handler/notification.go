@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
@@ -46,6 +49,18 @@ func (c *Handler) onNotification(
 		return
 	}
 
+	redisKey := fmt.Sprintf(
+		"eventsub:cache:notification:check:%s:%s",
+		notification.Subscription.Type,
+		userId,
+	)
+	if exists, err := c.redisClient.Exists(context.Background(), redisKey).Result(); err != nil {
+		c.logger.Error("failed to check redis", slog.Any("err", err))
+		return
+	} else if exists == 1 {
+		return
+	}
+
 	var topicId uuid.UUID
 	if cachedTopic, topicFound := knownTopicsEntitiesCache[notification.Subscription.Type]; topicFound {
 		topicId = cachedTopic.ID
@@ -84,4 +99,6 @@ func (c *Handler) onNotification(
 	).Error; err != nil {
 		c.logger.Error("failed to create/update subscription", slog.Any("err", err))
 	}
+
+	c.redisClient.Set(context.Background(), redisKey, "true", 1*time.Minute)
 }
