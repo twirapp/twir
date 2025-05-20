@@ -116,7 +116,7 @@ func New(opts Opts) *Handler {
 	myHandler.redemptionsBatcher = utils.NewBatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd](
 		utils.BatchProcessorOpts[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]{
 			Interval:  500 * time.Millisecond,
-			BatchSize: 200,
+			BatchSize: 100,
 			Callback:  myHandler.handleChannelPointsRewardRedemptionAddBatched,
 		},
 	)
