@@ -10,140 +10,149 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
+
+func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
+	ctx context.Context,
+	data []eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+) {
+	for _, event := range data {
+		c.logger.Info(
+			"channel points reward redemption add",
+			slog.String("reward", event.Reward.Title),
+			slog.String("userName", event.UserLogin),
+			slog.String("userId", event.UserID),
+			slog.String("channelName", event.BroadcasterUserLogin),
+			slog.String("channelId", event.BroadcasterUserID),
+		)
+
+		err := c.gorm.WithContext(ctx).Create(
+			&model.ChannelRedemption{
+				ID:           uuid.MustParse(event.ID),
+				ChannelID:    event.BroadcasterUserID,
+				UserID:       event.UserID,
+				RewardID:     uuid.MustParse(event.Reward.ID),
+				RewardTitle:  event.Reward.Title,
+				RewardPrompt: null.StringFrom(event.UserInput),
+				RewardCost:   event.Reward.Cost,
+				RedeemedAt:   time.Now().UTC(),
+			},
+		).Error
+		if err != nil {
+			c.logger.Error(err.Error(), slog.Any("err", err))
+		}
+
+		err = c.gorm.WithContext(ctx).Create(
+			&model.ChannelsEventsListItem{
+				ID:        uuid.New().String(),
+				ChannelID: event.BroadcasterUserID,
+				UserID:    event.UserID,
+				Type:      model.ChannelEventListItemTypeRedemptionCreated,
+				CreatedAt: time.Now().UTC(),
+				Data: &model.ChannelsEventsListItemData{
+					RedemptionInput:           event.UserInput,
+					RedemptionTitle:           event.Reward.Title,
+					RedemptionUserName:        event.UserLogin,
+					RedemptionUserDisplayName: event.UserName,
+					RedemptionCost:            strconv.Itoa(event.Reward.Cost),
+				},
+			},
+		).Error
+		if err != nil {
+			c.logger.Error(err.Error(), slog.Any("err", err))
+		}
+
+		err = c.twirBus.Events.RedemptionCreated.Publish(
+			events.RedemptionCreatedMessage{
+				ID: event.Reward.ID,
+				BaseInfo: events.BaseInfo{
+					ChannelID:   event.BroadcasterUserID,
+					ChannelName: event.BroadcasterUserLogin,
+				},
+				UserID:          event.UserID,
+				UserName:        event.UserLogin,
+				UserDisplayName: event.UserName,
+				RewardName:      event.Reward.Title,
+				RewardCost:      strconv.Itoa(event.Reward.Cost),
+				Input:           lo.If(event.UserInput != "", &event.UserInput).Else(nil),
+			},
+		)
+		if err != nil {
+			c.logger.Error(err.Error(), slog.Any("err", err))
+		}
+
+		// update user spend points
+		go func() {
+			e := c.countUserChannelPoints(event.UserID, event.BroadcasterUserID, event.Reward.Cost)
+			if e != nil {
+				c.logger.Error(e.Error(), slog.Any("err", e))
+			}
+		}()
+
+		// youtube song requests
+
+		go func() {
+			e := c.handleYoutubeSongRequests(&event)
+			if e != nil {
+				c.logger.Error(e.Error(), slog.Any("e", err))
+			}
+		}()
+
+		go func() {
+			e := c.handleAlerts(&event)
+			if e != nil {
+				c.logger.Error(e.Error(), slog.Any("e", err))
+			}
+		}()
+
+		go func() {
+			e := c.handleRewardsSevenTvEmote(&event)
+			if e != nil {
+				c.logger.Error(e.Error(), slog.Any("err", e))
+			}
+		}()
+
+		go func() {
+			if redemptionAddErr := c.twirBus.RedemptionAdd.Publish(
+				twitch.ActivatedRedemption{
+					ID:                   event.ID,
+					BroadcasterUserID:    event.BroadcasterUserID,
+					BroadcasterUserLogin: event.BroadcasterUserLogin,
+					BroadcasterUserName:  event.BroadcasterUserName,
+					UserID:               event.UserID,
+					UserLogin:            event.UserLogin,
+					UserName:             event.UserName,
+					UserInput:            event.UserInput,
+					Status:               event.Status,
+					RedeemedAt:           time.Now(),
+					Reward: twitch.ActivatedRedemptionReward{
+						ID:     event.Reward.ID,
+						Title:  event.Reward.Title,
+						Prompt: event.Reward.Prompt,
+						Cost:   event.Reward.Cost,
+					},
+				},
+			); redemptionAddErr != nil {
+				c.logger.Error(redemptionAddErr.Error(), slog.Any("err", redemptionAddErr))
+			}
+		}()
+	}
+}
 
 func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) {
-	c.logger.Info(
-		"channel points reward redemption add",
-		slog.String("reward", event.Reward.Title),
-		slog.String("userName", event.UserLogin),
-		slog.String("userId", event.UserID),
-		slog.String("channelName", event.BroadcasterUserLogin),
-		slog.String("channelId", event.BroadcasterUserID),
-	)
-
-	err := c.gorm.Create(
-		&model.ChannelRedemption{
-			ID:           uuid.MustParse(event.ID),
-			ChannelID:    event.BroadcasterUserID,
-			UserID:       event.UserID,
-			RewardID:     uuid.MustParse(event.Reward.ID),
-			RewardTitle:  event.Reward.Title,
-			RewardPrompt: null.StringFrom(event.UserInput),
-			RewardCost:   event.Reward.Cost,
-			RedeemedAt:   time.Now().UTC(),
-		},
-	).Error
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-	}
-
-	err = c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
-			ChannelID: event.BroadcasterUserID,
-			UserID:    event.UserID,
-			Type:      model.ChannelEventListItemTypeRedemptionCreated,
-			CreatedAt: time.Now().UTC(),
-			Data: &model.ChannelsEventsListItemData{
-				RedemptionInput:           event.UserInput,
-				RedemptionTitle:           event.Reward.Title,
-				RedemptionUserName:        event.UserLogin,
-				RedemptionUserDisplayName: event.UserName,
-				RedemptionCost:            strconv.Itoa(event.Reward.Cost),
-			},
-		},
-	).Error
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-	}
-
-	err = c.twirBus.Events.RedemptionCreated.Publish(
-		events.RedemptionCreatedMessage{
-			ID: event.Reward.ID,
-			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
-				ChannelName: event.BroadcasterUserLogin,
-			},
-			UserID:          event.UserID,
-			UserName:        event.UserLogin,
-			UserDisplayName: event.UserName,
-			RewardName:      event.Reward.Title,
-			RewardCost:      strconv.Itoa(event.Reward.Cost),
-			Input:           lo.If(event.UserInput != "", &event.UserInput).Else(nil),
-		},
-	)
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-	}
-
-	// update user spend points
-	go func() {
-		e := c.countUserChannelPoints(event.UserID, event.BroadcasterUserID, event.Reward.Cost)
-		if e != nil {
-			c.logger.Error(e.Error(), slog.Any("err", e))
-		}
-	}()
-
-	// youtube song requests
-
-	go func() {
-		e := c.handleYoutubeSongRequests(event)
-		if e != nil {
-			c.logger.Error(e.Error(), slog.Any("e", err))
-		}
-	}()
-
-	go func() {
-		e := c.handleAlerts(event)
-		if e != nil {
-			c.logger.Error(e.Error(), slog.Any("e", err))
-		}
-	}()
-
-	go func() {
-		e := c.handleRewardsSevenTvEmote(event)
-		if e != nil {
-			c.logger.Error(e.Error(), slog.Any("err", e))
-		}
-	}()
-
-	go func() {
-		if redemptionAddErr := c.twirBus.RedemptionAdd.Publish(
-			twitch.ActivatedRedemption{
-				ID:                   event.ID,
-				BroadcasterUserID:    event.BroadcasterUserID,
-				BroadcasterUserLogin: event.BroadcasterUserLogin,
-				BroadcasterUserName:  event.BroadcasterUserName,
-				UserID:               event.UserID,
-				UserLogin:            event.UserLogin,
-				UserName:             event.UserName,
-				UserInput:            event.UserInput,
-				Status:               event.Status,
-				RedeemedAt:           time.Now(),
-				Reward: twitch.ActivatedRedemptionReward{
-					ID:     event.Reward.ID,
-					Title:  event.Reward.Title,
-					Prompt: event.Reward.Prompt,
-					Cost:   event.Reward.Cost,
-				},
-			},
-		); redemptionAddErr != nil {
-			c.logger.Error(redemptionAddErr.Error(), slog.Any("err", redemptionAddErr))
-		}
-	}()
+	c.redemptionsBatcher.Add(*event)
 }
 
 func (c *Handler) handleChannelPointsRewardRedemptionUpdate(

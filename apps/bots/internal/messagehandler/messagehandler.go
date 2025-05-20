@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"reflect"
 	"runtime"
+	"time"
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
@@ -18,6 +19,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/utils"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -86,6 +88,10 @@ type MessageHandler struct {
 	ttsService      *tts.Service
 	config          cfg.Config
 	workersPool     *workers.Pool
+
+	messagesSaveBatcher    *utils.BatchProcessor[handleMessage]
+	messagesLurkersBatcher *utils.BatchProcessor[handleMessage]
+	messagesEmotesBatcher  *utils.BatchProcessor[handleMessage]
 }
 
 func New(opts Opts) *MessageHandler {
@@ -115,6 +121,58 @@ func New(opts Opts) *MessageHandler {
 
 		workersPool: opts.WorkersPool,
 	}
+
+	batcherCtx, batcherCancel := context.WithCancel(context.Background())
+
+	handler.messagesSaveBatcher = utils.NewBatchProcessor[handleMessage](
+		utils.BatchProcessorOpts[handleMessage]{
+			Interval:  100 * time.Millisecond,
+			BatchSize: 100,
+			Callback:  handler.handleSaveMessageBatched,
+		},
+	)
+	handler.messagesLurkersBatcher = utils.NewBatchProcessor[handleMessage](
+		utils.BatchProcessorOpts[handleMessage]{
+			Interval:  100 * time.Millisecond,
+			BatchSize: 100,
+			Callback:  handler.handleRemoveLurkerBatched,
+		},
+	)
+	handler.messagesEmotesBatcher = utils.NewBatchProcessor[handleMessage](
+		utils.BatchProcessorOpts[handleMessage]{
+			Interval:  100 * time.Millisecond,
+			BatchSize: 200,
+			Callback:  handler.handleEmotesUsagesBatched,
+		},
+	)
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				go func() {
+					handler.messagesSaveBatcher.Start(batcherCtx)
+				}()
+
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				if err := handler.messagesSaveBatcher.Shutdown(ctx); err != nil {
+					return err
+				}
+
+				if err := handler.messagesLurkersBatcher.Shutdown(ctx); err != nil {
+					return err
+				}
+
+				if err := handler.messagesEmotesBatcher.Shutdown(ctx); err != nil {
+					return err
+				}
+
+				batcherCancel()
+				return nil
+			},
+		},
+	)
 
 	return handler
 }

@@ -8,6 +8,7 @@ replace (
 	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
+	github.com/satont/twir/libs/utils => ../../libs/utils
 	github.com/twirapp/twir/libs/baseapp => ../../libs/baseapp
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/cache => ../../libs/cache
@@ -31,6 +32,7 @@ require (
 	github.com/satont/twir/libs/gomodels v0.0.0-20241105005614-f68dbf11ade1
 	github.com/satont/twir/libs/logger v0.0.0-20241105005614-f68dbf11ade1
 	github.com/satont/twir/libs/twitch v0.0.0-20241105005614-f68dbf11ade1
+	github.com/satont/twir/libs/utils v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20241105005614-f68dbf11ade1
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20241105005614-f68dbf11ade1
 	github.com/twirapp/twir/libs/cache v0.0.0-20250424191405-c936edd07aca

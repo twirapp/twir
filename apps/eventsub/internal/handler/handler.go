@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	duplicate_tracker "github.com/satont/twir/apps/eventsub/internal/duplicate-tracker"
@@ -12,6 +13,7 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/utils"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -23,6 +25,7 @@ import (
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -48,6 +51,8 @@ type Handler struct {
 	twirBus     *bus_core.Bus
 	prefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
 	config      cfg.Config
+
+	redemptionsBatcher *utils.BatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]
 }
 
 type Opts struct {
@@ -97,6 +102,16 @@ func New(opts Opts) *Handler {
 		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
 		streamsrepository:       opts.StreamsRepository,
 	}
+
+	batcherCtx, batcherStop := context.WithCancel(context.Background())
+
+	myHandler.redemptionsBatcher = utils.NewBatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd](
+		utils.BatchProcessorOpts[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]{
+			Interval:  500 * time.Millisecond,
+			BatchSize: 200,
+			Callback:  myHandler.handleChannelPointsRewardRedemptionAddBatched,
+		},
+	)
 
 	handler.OnNotification = myHandler.onNotification
 	handler.HandleUserAuthorizationRevoke = myHandler.handleUserAuthorizationRevoke
@@ -148,8 +163,19 @@ func New(opts Opts) *Handler {
 					}
 				}()
 
+				go func() {
+					myHandler.redemptionsBatcher.Start(batcherCtx)
+				}()
+
 				opts.Logger.Info("Handler started")
 
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				if err := myHandler.redemptionsBatcher.Shutdown(ctx); err != nil {
+					return err
+				}
+				batcherStop()
 				return nil
 			},
 		},
