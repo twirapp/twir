@@ -21,7 +21,7 @@ require (
 	github.com/goccy/go-json v0.10.3
 	github.com/google/uuid v1.6.0
 	github.com/guregu/null v4.0.0+incompatible
-	github.com/nicklaw5/helix/v2 v2.30.0
+	github.com/nicklaw5/helix/v2 v2.31.1
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/samber/lo v1.47.0
 	github.com/satont/twir/libs/config v0.0.0-20241105005614-f68dbf11ade1
@@ -67,7 +67,7 @@ require (
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gogo/status v1.1.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
@@ -114,6 +114,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
+	github.com/twirapp/batch-processor v0.0.1 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
 	github.com/uptrace/uptrace-go v1.31.0 // indirect

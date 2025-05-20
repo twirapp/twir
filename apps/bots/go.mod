@@ -115,6 +115,7 @@ require (
 	github.com/satont/twir/libs/sentry v0.0.0-20241105005614-f68dbf11ade1 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
+	github.com/twirapp/batch-processor v0.0.1 // indirect
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20241105005614-f68dbf11ade1 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect

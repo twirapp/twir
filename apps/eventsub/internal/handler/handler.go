@@ -13,7 +13,7 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/utils"
+	batchprocessor "github.com/twirapp/batch-processor"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -52,7 +52,7 @@ type Handler struct {
 	prefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
 	config      cfg.Config
 
-	redemptionsBatcher *utils.BatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]
+	redemptionsBatcher *batchprocessor.BatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]
 }
 
 type Opts struct {
@@ -113,8 +113,8 @@ func New(opts Opts) *Handler {
 
 	batcherCtx, batcherStop := context.WithCancel(context.Background())
 
-	myHandler.redemptionsBatcher = utils.NewBatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd](
-		utils.BatchProcessorOpts[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]{
+	myHandler.redemptionsBatcher = batchprocessor.NewBatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd](
+		batchprocessor.BatchProcessorOpts[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]{
 			Interval:  500 * time.Millisecond,
 			BatchSize: 100,
 			Callback:  myHandler.handleChannelPointsRewardRedemptionAddBatched,
