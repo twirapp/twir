@@ -6,18 +6,18 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
+	channelsemotesusages "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 )
 
 func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []handleMessage) {
-	var emotesForCreate []model.ChannelEmoteUsage
+	var createEmoteUsageInputs []channelsemotesusages.ChannelEmoteUsageInput
 
 	for _, msg := range data {
 		for key, count := range msg.EnrichedData.UsedEmotesWithThirdParty {
 			for i := 0; i < count; i++ {
-				emotesForCreate = append(
-					emotesForCreate,
-					model.ChannelEmoteUsage{
+				createEmoteUsageInputs = append(
+					createEmoteUsageInputs,
+					channelsemotesusages.ChannelEmoteUsageInput{
 						ID:        uuid.NewString(),
 						ChannelID: msg.BroadcasterUserId,
 						UserID:    msg.ChatterUserId,
@@ -29,17 +29,13 @@ func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []h
 		}
 	}
 
-	err := c.gorm.WithContext(ctx).CreateInBatches(
-		emotesForCreate,
-		100,
-	).Error
+	err := c.channelsEmotesUsagesRepository.CreateMany(ctx, createEmoteUsageInputs)
 	if err != nil {
 		c.logger.Error("cannot create emotes usages", slog.Any("err", err))
 	}
 }
 
-func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessage) error {
+func (c *MessageHandler) handleEmotesUsages(_ context.Context, msg handleMessage) error {
 	c.messagesEmotesBatcher.Add(msg)
-
 	return nil
 }
