@@ -153,6 +153,14 @@ func New(opts Opts) *MessageHandler {
 					handler.messagesSaveBatcher.Start(batcherCtx)
 				}()
 
+				go func() {
+					handler.messagesEmotesBatcher.Start(batcherCtx)
+				}()
+
+				go func() {
+					handler.messagesLurkersBatcher.Start(batcherCtx)
+				}()
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
