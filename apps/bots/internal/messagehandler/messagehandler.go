@@ -26,6 +26,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -46,6 +47,7 @@ type Opts struct {
 	WebsocketsGrpc                   websockets.WebsocketClient
 	GreetingsRepository              greetings.Repository
 	ChatMessagesRepository           chat_messages.Repository
+	ChannelsEmotesUsagesRepository   channels_emotes_usages.Repository
 	Gorm                             *gorm.DB
 	Redis                            *redis.Client
 	TwitchActions                    *twitchactions.TwitchActions
@@ -71,6 +73,7 @@ type MessageHandler struct {
 	websocketsGrpc                   websockets.WebsocketClient
 	greetingsRepository              greetings.Repository
 	chatMessagesRepository           chat_messages.Repository
+	channelsEmotesUsagesRepository   channels_emotes_usages.Repository
 	gorm                             *gorm.DB
 	redis                            *redis.Client
 	twitchActions                    *twitchactions.TwitchActions
@@ -111,6 +114,7 @@ func New(opts Opts) *MessageHandler {
 		keywordsService:                  opts.KeywordsService,
 		greetingsRepository:              opts.GreetingsRepository,
 		chatMessagesRepository:           opts.ChatMessagesRepository,
+		channelsEmotesUsagesRepository:   opts.ChannelsEmotesUsagesRepository,
 		greetingsCache:                   opts.GreetingsCache,
 		ttsService:                       opts.TTSService,
 		chatWallCacher:                   opts.ChatWallCacher,
@@ -126,8 +130,8 @@ func New(opts Opts) *MessageHandler {
 
 	handler.messagesSaveBatcher = batchprocessor.NewBatchProcessor[handleMessage](
 		batchprocessor.BatchProcessorOpts[handleMessage]{
-			Interval:  100 * time.Millisecond,
-			BatchSize: 100,
+			Interval:  500 * time.Millisecond,
+			BatchSize: 1000,
 			Callback:  handler.handleSaveMessageBatched,
 		},
 	)
@@ -140,8 +144,8 @@ func New(opts Opts) *MessageHandler {
 	)
 	handler.messagesEmotesBatcher = batchprocessor.NewBatchProcessor[handleMessage](
 		batchprocessor.BatchProcessorOpts[handleMessage]{
-			Interval:  100 * time.Millisecond,
-			BatchSize: 200,
+			Interval:  500 * time.Millisecond,
+			BatchSize: 1000,
 			Callback:  handler.handleEmotesUsagesBatched,
 		},
 	)

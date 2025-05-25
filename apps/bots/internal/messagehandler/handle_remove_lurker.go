@@ -50,8 +50,7 @@ func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []h
 	}
 }
 
-func (c *MessageHandler) handleRemoveLurker(ctx context.Context, msg handleMessage) error {
+func (c *MessageHandler) handleRemoveLurker(_ context.Context, msg handleMessage) error {
 	c.messagesLurkersBatcher.Add(msg)
-
 	return nil
 }
