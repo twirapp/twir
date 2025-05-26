@@ -13,10 +13,14 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
+	channelredemptionshistorypostgres "github.com/twirapp/twir/libs/repositories/channel_redemptions_history/datasources/postgres"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 
@@ -60,6 +64,14 @@ var App = fx.Options(
 		fx.Annotate(
 			streamsrepositorypostgres.NewFx,
 			fx.As(new(streamsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelredemptionshistorypostgres.NewFx,
+			fx.As(new(channelredemptionshistory.Repository)),
+		),
+		fx.Annotate(
+			channelseventslistpostgres.NewFx,
+			fx.As(new(channelseventslist.Repository)),
 		),
 		channelcache.New,
 		channelscommandsprefixcache.New,

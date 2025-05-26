@@ -11,6 +11,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/overlays"
 	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
 	config "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	apimodules "github.com/satont/twir/libs/types/types/api/modules"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -49,9 +50,10 @@ type Opts struct {
 	DB             *gorm.DB
 	SessionManager *scs.SessionManager
 
-	Bus               *buscore.Bus
-	TTSSettingsCacher *generic_cacher.GenericCacher[apimodules.TTSSettings]
-	Config            config.Config
+	Bus                               *buscore.Bus
+	TTSSettingsCacher                 *generic_cacher.GenericCacher[apimodules.TTSSettings]
+	Config                            config.Config
+	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
 }
 
 func New(opts Opts) *Protected {
@@ -67,10 +69,11 @@ func New(opts Opts) *Protected {
 			Websockets:   opts.WebsocketsGrpc,
 			Discord:      opts.DiscordGrpc,
 		},
-		Logger:            opts.Logger,
-		Bus:               opts.Bus,
-		TTSSettingsCacher: opts.TTSSettingsCacher,
-		SpotifyRepo:       opts.SpotifyRepository,
+		Logger:                            opts.Logger,
+		Bus:                               opts.Bus,
+		TTSSettingsCacher:                 opts.TTSSettingsCacher,
+		SpotifyRepo:                       opts.SpotifyRepository,
+		ChannelsEventsWithOperationsCache: opts.ChannelsEventsWithOperationsCache,
 	}
 
 	return &Protected{

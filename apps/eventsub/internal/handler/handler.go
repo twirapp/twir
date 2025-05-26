@@ -19,8 +19,10 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/streams"
@@ -35,15 +37,17 @@ import (
 type Handler struct {
 	logger logger.Logger
 
-	parserGrpc              parser.ParserClient
-	websocketsGrpc          websockets.WebsocketClient
-	tokensGrpc              tokens.TokensClient
-	tracer                  trace.Tracer
-	manager                 *manager.Manager
-	scheduledVipsRepo       scheduledvipsrepository.Repository
-	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
-	channelsInfoHistoryRepo channelsinfohistory.Repository
-	streamsrepository       streams.Repository
+	parserGrpc                   parser.ParserClient
+	websocketsGrpc               websockets.WebsocketClient
+	tokensGrpc                   tokens.TokensClient
+	tracer                       trace.Tracer
+	manager                      *manager.Manager
+	scheduledVipsRepo            scheduledvipsrepository.Repository
+	channelsCache                *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsInfoHistoryRepo      channelsinfohistory.Repository
+	streamsrepository            streams.Repository
+	redemptionsHistoryRepository channelredemptionshistory.Repository
+	eventsListRepository         channelseventslist.Repository
 
 	gorm        *gorm.DB
 	redisClient *redis.Client
@@ -61,13 +65,15 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	ParserGrpc              parser.ParserClient
-	WebsocketsGrpc          websockets.WebsocketClient
-	TokensGrpc              tokens.TokensClient
-	ScheduledVipsRepo       scheduledvipsrepository.Repository
-	ChannelsRepo            *generic_cacher.GenericCacher[channelmodel.Channel]
-	ChannelsInfoHistoryRepo channelsinfohistory.Repository
-	StreamsRepository       streams.Repository
+	ParserGrpc                   parser.ParserClient
+	WebsocketsGrpc               websockets.WebsocketClient
+	TokensGrpc                   tokens.TokensClient
+	ScheduledVipsRepo            scheduledvipsrepository.Repository
+	ChannelsRepo                 *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsInfoHistoryRepo      channelsinfohistory.Repository
+	StreamsRepository            streams.Repository
+	RedemptionsHistoryRepository channelredemptionshistory.Repository
+	EventsListRepository         channelseventslist.Repository
 
 	Tracer  trace.Tracer
 	Tunn    *tunnel.AppTunnel
@@ -94,21 +100,23 @@ func New(opts Opts) *Handler {
 	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{
-		manager:                 opts.Manager,
-		logger:                  opts.Logger,
-		config:                  opts.Config,
-		gorm:                    opts.Gorm,
-		redisClient:             opts.Redis,
-		parserGrpc:              opts.ParserGrpc,
-		websocketsGrpc:          opts.WebsocketsGrpc,
-		tokensGrpc:              opts.TokensGrpc,
-		tracer:                  opts.Tracer,
-		twirBus:                 opts.Bus,
-		prefixCache:             opts.PrefixCache,
-		scheduledVipsRepo:       opts.ScheduledVipsRepo,
-		channelsCache:           opts.ChannelsRepo,
-		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
-		streamsrepository:       opts.StreamsRepository,
+		manager:                      opts.Manager,
+		logger:                       opts.Logger,
+		config:                       opts.Config,
+		gorm:                         opts.Gorm,
+		redisClient:                  opts.Redis,
+		parserGrpc:                   opts.ParserGrpc,
+		websocketsGrpc:               opts.WebsocketsGrpc,
+		tokensGrpc:                   opts.TokensGrpc,
+		tracer:                       opts.Tracer,
+		twirBus:                      opts.Bus,
+		prefixCache:                  opts.PrefixCache,
+		scheduledVipsRepo:            opts.ScheduledVipsRepo,
+		channelsCache:                opts.ChannelsRepo,
+		channelsInfoHistoryRepo:      opts.ChannelsInfoHistoryRepo,
+		streamsrepository:            opts.StreamsRepository,
+		redemptionsHistoryRepository: opts.RedemptionsHistoryRepository,
+		eventsListRepository:         opts.EventsListRepository,
 	}
 
 	batcherCtx, batcherStop := context.WithCancel(context.Background())

@@ -19,6 +19,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
@@ -59,6 +60,7 @@ var App = fx.Options(
 		func(r *redis.Client) *scs.SessionManager {
 			return sessions.New(r)
 		},
+		channelseventswithoperations.New,
 		interceptors.New,
 		impl_protected.New,
 		impl_unprotected.New,

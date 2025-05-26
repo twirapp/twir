@@ -8,13 +8,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
@@ -25,7 +26,10 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 	ctx context.Context,
 	data []eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) {
-	for _, event := range data {
+	itemsForHistoryCreate := make([]channelredemptionshistory.CreateInput, len(data))
+	itemsForEventsCreate := make([]channelseventslist.CreateInput, len(data))
+
+	for i, event := range data {
 		c.logger.Info(
 			"channel points reward redemption add",
 			slog.String("reward", event.Reward.Title),
@@ -35,43 +39,29 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			slog.String("channelId", event.BroadcasterUserID),
 		)
 
-		err := c.gorm.WithContext(ctx).Create(
-			&model.ChannelRedemption{
-				ID:           uuid.MustParse(event.ID),
-				ChannelID:    event.BroadcasterUserID,
-				UserID:       event.UserID,
-				RewardID:     uuid.MustParse(event.Reward.ID),
-				RewardTitle:  event.Reward.Title,
-				RewardPrompt: null.StringFrom(event.UserInput),
-				RewardCost:   event.Reward.Cost,
-				RedeemedAt:   time.Now().UTC(),
-			},
-		).Error
-		if err != nil {
-			c.logger.Error(err.Error(), slog.Any("err", err))
+		itemsForHistoryCreate[i] = channelredemptionshistory.CreateInput{
+			ChannelID:    event.BroadcasterUserID,
+			UserID:       event.UserID,
+			RewardID:     uuid.MustParse(event.Reward.ID),
+			RewardTitle:  event.Reward.Title,
+			RewardPrompt: &event.UserInput,
+			RewardCost:   event.Reward.Cost,
 		}
 
-		err = c.gorm.WithContext(ctx).Create(
-			&model.ChannelsEventsListItem{
-				ID:        uuid.New().String(),
-				ChannelID: event.BroadcasterUserID,
-				UserID:    event.UserID,
-				Type:      model.ChannelEventListItemTypeRedemptionCreated,
-				CreatedAt: time.Now().UTC(),
-				Data: &model.ChannelsEventsListItemData{
-					RedemptionInput:           event.UserInput,
-					RedemptionTitle:           event.Reward.Title,
-					RedemptionUserName:        event.UserLogin,
-					RedemptionUserDisplayName: event.UserName,
-					RedemptionCost:            strconv.Itoa(event.Reward.Cost),
-				},
+		itemsForEventsCreate[i] = channelseventslist.CreateInput{
+			ChannelID: event.BroadcasterUserID,
+			UserID:    &event.UserID,
+			Type:      model.ChannelEventListItemTypeRedemptionCreated,
+			Data: &model.ChannelsEventsListItemData{
+				RedemptionInput:           event.UserInput,
+				RedemptionTitle:           event.Reward.Title,
+				RedemptionUserName:        event.UserLogin,
+				RedemptionUserDisplayName: event.UserName,
+				RedemptionCost:            strconv.Itoa(event.Reward.Cost),
 			},
-		).Error
-		if err != nil {
-			c.logger.Error(err.Error(), slog.Any("err", err))
 		}
 
-		err = c.twirBus.Events.RedemptionCreated.Publish(
+		err := c.twirBus.Events.RedemptionCreated.Publish(
 			events.RedemptionCreatedMessage{
 				ID: event.Reward.ID,
 				BaseInfo: events.BaseInfo{
@@ -146,6 +136,22 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			}
 		}()
 	}
+
+	go func() {
+		if len(itemsForHistoryCreate) > 0 {
+			err := c.redemptionsHistoryRepository.CreateMany(ctx, itemsForHistoryCreate)
+			if err != nil {
+				c.logger.Error(err.Error(), slog.Any("err", err))
+			}
+		}
+
+		if len(itemsForEventsCreate) > 0 {
+			err := c.eventsListRepository.CreateMany(ctx, itemsForEventsCreate)
+			if err != nil {
+				c.logger.Error(err.Error(), slog.Any("err", err))
+			}
+		}
+	}()
 }
 
 func (c *Handler) handleChannelPointsRewardRedemptionAdd(

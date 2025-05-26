@@ -11,6 +11,8 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
+	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -43,6 +45,8 @@ var App = fx.Module(
 		eventsActivity.New,
 		workflows.NewEventsWorkflow,
 		chat_alerts.New,
+		channelseventswithoperations.New,
+		chatalertscache.New,
 	),
 	fx.Invoke(
 		uptrace.NewFx("events"),

@@ -48,6 +48,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -114,6 +115,7 @@ type Deps struct {
 	ChannelsModerationSettingsService     *channels_moderation_settings.Service
 	ShortenedUrlsService                  *shortenedurls.Service
 	ToxicMessagesService                  *toxic_messages.Service
+	ChatAlertsCache                       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
 }
 
 type Resolver struct {

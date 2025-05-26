@@ -64,6 +64,7 @@ import (
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	channelsmoderationsettingsccahe "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
+	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
@@ -346,6 +347,7 @@ func main() {
 			commandscache.New,
 			keywordscacher.New,
 			giveawayscache.New,
+			chatalertscache.New,
 			channelsmoderationsettingsccahe.New,
 			chattranslationssettignscache.New,
 			fx.Annotate(
