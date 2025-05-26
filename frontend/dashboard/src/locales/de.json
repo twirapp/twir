@@ -1048,12 +1048,12 @@
         "disallowedLanguages": "Liste der nicht erlaubten Sprachen"
       },
       "one_man_spam": {
-        "name": "One Man Spam",
-        "description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
-        "triggerLength": "Minimal message length to trigger storing and filtering",
-        "minimumStoredMessages": "Number of stored messages to begin filter",
-        "messageMemorySeconds": "How long to store user message in seconds",
-        "maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
+        "name": "Eine Person Spam",
+        "description": "Erkennt und beschränkt Benutzer, die im Chat in kurzer Zeit viele Nachrichten spammen.",
+        "triggerLength": "Minimale Nachrichtenlänge zum Speichern und Filtern",
+        "minimumStoredMessages": "Anzahl der gespeicherten Nachrichten, um den Filter zu starten",
+        "messageMemorySeconds": "Wie lange die Benutzernachricht in Sekunden gespeichert wird",
+        "maxPercentage": "Maximale Textähnlichkeit prozentual. Levenshtein Abstand wird zur Berechnung verwendet."
       }
     }
   },
