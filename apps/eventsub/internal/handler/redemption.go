@@ -22,12 +22,19 @@ import (
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
+type userForIncrementUsedEmotes struct {
+	userId    string
+	channelId string
+	cost      int
+}
+
 func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 	ctx context.Context,
 	data []eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) {
 	itemsForHistoryCreate := make([]channelredemptionshistory.CreateInput, len(data))
 	itemsForEventsCreate := make([]channelseventslist.CreateInput, len(data))
+	usersForIncrementUsedEmotes := make(map[string]*userForIncrementUsedEmotes)
 
 	for i, event := range data {
 		c.logger.Info(
@@ -80,13 +87,15 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			c.logger.Error(err.Error(), slog.Any("err", err))
 		}
 
-		// update user spend points
-		go func() {
-			e := c.countUserChannelPoints(event.UserID, event.BroadcasterUserID, event.Reward.Cost)
-			if e != nil {
-				c.logger.Error(e.Error(), slog.Any("err", e))
+		if _, ok := usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID]; ok {
+			usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID].cost += event.Reward.Cost
+		} else {
+			usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID] = &userForIncrementUsedEmotes{
+				userId:    event.UserID,
+				channelId: event.BroadcasterUserID,
+				cost:      event.Reward.Cost,
 			}
-		}()
+		}
 
 		// youtube song requests
 
@@ -138,6 +147,17 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 	}
 
 	go func() {
+		for _, userForIncrement := range usersForIncrementUsedEmotes {
+			err := c.countUserChannelPoints(
+				userForIncrement.userId,
+				userForIncrement.channelId,
+				userForIncrement.cost,
+			)
+			if err != nil {
+				c.logger.Error(err.Error(), slog.Any("err", err))
+			}
+		}
+
 		if len(itemsForHistoryCreate) > 0 {
 			err := c.redemptionsHistoryRepository.CreateMany(ctx, itemsForHistoryCreate)
 			if err != nil {
