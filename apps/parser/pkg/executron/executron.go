@@ -39,7 +39,7 @@ func (c *Executron) ExecuteUserCode(
 	language,
 	code string,
 ) (*Response, error) {
-	limitRes, err := c.limiter.Allow(ctx, "limits:executron:"+channelId, redis_rate.PerSecond(1))
+	limitRes, err := c.limiter.Allow(ctx, "limits:executron:"+channelId, redis_rate.PerSecond(5))
 	if err != nil {
 		return nil, fmt.Errorf("cannot check rate limits for execute script: %w", err)
 	}
