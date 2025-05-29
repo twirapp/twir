@@ -61,7 +61,7 @@
     "create": "Створити",
     "edit": "Редагувати",
     "noData": "Дані відсутні",
-    "loading": "Loading..."
+    "loading": "Завантаження..."
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -94,7 +94,7 @@
     "darkTheme": "Темна тема",
     "lightTheme": "Світла тема",
     "notifications": "Сповіщення",
-    "giveaways": "Giveaways"
+    "giveaways": "Розіграші"
   },
   "deleteConfirmation": {
     "text": "Ви впевнені, що хочете видалити це?",
@@ -991,7 +991,7 @@
     }
   },
   "moderation": {
-    "name": "Name of rule, just for your convenience to see name in list",
+    "name": "Назва правила, лише для вашої зручності, щоб побачити назву в списку",
     "createNewRule": "Створити нове правило модерації",
     "banTime": "Час очікування",
     "banDescription": "Встановіть значення 0 для перманентного блокування.",
@@ -1220,8 +1220,8 @@
   "giveaways": {
     "title": "Giveaways",
     "createNew": "Create New Giveaway",
-    "keyword": "Keyword",
-    "createdAt": "Created At",
+    "keyword": "Ключове слово",
+    "createdAt": "Створено",
     "startedAt": "Started At",
     "stoppedAt": "Stopped At",
     "winners": "Winners",
