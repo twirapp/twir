@@ -1011,12 +1011,12 @@
         "regexp": "Якщо ви досвідчений користувач, заборонений список слів також підтримує регулярні вирази. Регулярний вираз повинен бути написаний у форматі golang! Дивіться {0}.",
         "regexpCheatSheet": "шпаргалка",
         "wordBoundary": {
-          "label": "Word boundary",
-          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+          "label": "Границя слова",
+          "description": "Межа слова у фільтрації позначає початок або кінець слова, забезпечуючи, щоб фільтри відповідали цілим словам (наприклад, \"міф\"), але не частинам слів (наприклад, \"міфічний\")."
         },
         "caseSensitive": {
-          "label": "Case sensitive",
-          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+          "label": "З урахуванням регістру",
+          "description": "Чутливість регістру символів у фільтруванні означає, що фільтр буде відповідати лише словам з тією ж самою капіталізацією, що й фільтр (наприклад, \"Кіт\" не буде співпадати \"кіт\")."
         }
       },
       "symbols": {
@@ -1048,12 +1048,12 @@
         "disallowedLanguages": "Список заборонених мов"
       },
       "one_man_spam": {
-        "name": "One Man Spam",
-        "description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
-        "triggerLength": "Minimal message length to trigger storing and filtering",
-        "minimumStoredMessages": "Number of stored messages to begin filter",
-        "messageMemorySeconds": "How long to store user message in seconds",
-        "maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
+        "name": "Спам від однієї людини",
+        "description": "Виявляти та обмежувати користувачів, які спамлять у чаті великою кількістю повідомлень за короткий проміжок часу.",
+        "triggerLength": "Мінімальна довжина повідомлення для тригеру зберігання та фільтрації",
+        "minimumStoredMessages": "Кількість збережених повідомлень для початку фільтрації",
+        "messageMemorySeconds": "Як довго зберігати повідомлення користувача в секундах",
+        "maxPercentage": "Максимальний відсоток схожості тексту. Відстань Levenshtein, що використовується для обчислення."
       }
     }
   },
@@ -1196,10 +1196,10 @@
     },
     "commands": {
       "title": "Команди",
-      "delete": "Chat wall delete",
-      "ban": "Chat wall ban",
-      "timeout": "Chat wall timeout",
-      "stop": "Chat wall stop"
+      "delete": "Видалити стіну чату",
+      "ban": "Заблокувати стіну чату",
+      "timeout": "Тайм-аут стіни чату",
+      "stop": "Зупинити стіну чату"
     },
     "table": {
       "phrase": "Фраза",
@@ -1218,48 +1218,48 @@
     }
   },
   "giveaways": {
-    "title": "Giveaways",
-    "createNew": "Create New Giveaway",
+    "title": "Розіграші",
+    "createNew": "Створити новий розіграш",
     "keyword": "Ключове слово",
     "createdAt": "Створено",
-    "startedAt": "Started At",
-    "stoppedAt": "Stopped At",
-    "winners": "Winners",
-    "view": "View",
-    "start": "Start",
-    "stop": "Stop",
-    "chooseWinner": "Choose winner",
+    "startedAt": "Розпочато",
+    "stoppedAt": "Зупинено",
+    "winners": "Переможці",
+    "view": "Вигляд",
+    "start": "Старт",
+    "stop": "Стоп",
+    "chooseWinner": "Оберіть переможця",
     "pages": {
       "list": {
-        "title": "Active Giveaways"
+        "title": "Активні розіграші"
       },
       "history": {
-        "title": "Giveaway History"
+        "title": "Історія розіграшів"
       }
     },
     "createDialog": {
-      "title": "Create New Giveaway",
-      "description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
-      "keywordLabel": "Keyword",
-      "keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
-      "cancel": "Cancel",
-      "create": "Create"
+      "title": "Створити новий розіграш",
+      "description": "Введіть ключове слово для роздачі. Користувачі будуть використовувати це ключове слово для участі.",
+      "keywordLabel": "Ключове слово",
+      "keywordPlaceholder": "Введіть ключове слово (напр. '!giveaway' або 'raffle')",
+      "cancel": "Скасувати",
+      "create": "Створити"
     },
     "notifications": {
-      "created": "Giveaway created",
-      "createdDescription": "Giveaway with keyword \"{keyword}\" has been created",
-      "error": "Error creating giveaway",
-      "winnersChosen": "Winners chosen",
-      "winnersChosenDescription": "{count} winners have been chosen",
-      "errorChoosingWinners": "Error choosing winners"
+      "created": "Розіграш створений",
+      "createdDescription": "Розіграш з ключовим словом \"{keyword}\" було створено",
+      "error": "При створенні розіграшу виникла помилка",
+      "winnersChosen": "Вибрано переможців",
+      "winnersChosenDescription": "{count} переможців обрано",
+      "errorChoosingWinners": "Під час вибору переможців виникла помилка"
     },
     "currentGiveaway": {
-      "totalParticipants": "Total participants: {count}",
-      "totalWinners": "Total winners: {count}",
-      "selectWinner": "Select a winner to view their chat logs and profile",
+      "totalParticipants": "Всього учасників: {count}",
+      "totalWinners": "Всього переможців: {count}",
+      "selectWinner": "Оберіть переможця для перегляду журналу чату та профілю",
       "tabs": {
-        "participants": "Participants",
-        "winners": "Winners"
+        "participants": "Учасники",
+        "winners": "Переможці"
       }
     }
   }
