@@ -17,9 +17,12 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
+	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -36,10 +39,15 @@ var App = fx.Module(
 		func(cfg config.Config) tokens.TokensClient {
 			return clients.NewTokens(cfg.AppEnv)
 		},
+		fx.Annotate(
+			alertsrepositorypgx.NewFx,
+			fx.As(new(alertsrepository.Repository)),
+		),
 		tts.NewTts,
 		obs.NewObs,
 		youtube.NewYouTube,
 		alerts.NewAlerts,
+		channelalertscache.New,
 		kappagen.New,
 		overlays.New,
 		be_right_back.New,

@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strconv"
 	"time"
 
-	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -338,25 +338,27 @@ func (c *Handler) handleYoutubeSongRequests(
 func (c *Handler) handleAlerts(
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) error {
-	alert := model.ChannelAlert{}
-
-	if err := c.gorm.Where(
-		"channel_id = ? AND reward_ids && ?",
-		event.BroadcasterUserID,
-		pq.StringArray{event.Reward.ID},
-	).Find(&alert).Error; err != nil {
+	alerts, err := c.alertsCache.Get(context.Background(), event.BroadcasterUserID)
+	if err != nil {
 		return err
 	}
 
-	if alert.ID == "" {
+	var foundAlertId uuid.UUID
+	for _, alert := range alerts {
+		if slices.Contains(alert.RewardIDS, event.Reward.ID) {
+			foundAlertId = alert.ID
+			break
+		}
+	}
+	if foundAlertId == uuid.Nil {
 		return nil
 	}
 
-	_, err := c.websocketsGrpc.TriggerAlert(
+	_, err = c.websocketsGrpc.TriggerAlert(
 		context.TODO(),
 		&websockets.TriggerAlertRequest{
 			ChannelId: event.BroadcasterUserID,
-			AlertId:   alert.ID,
+			AlertId:   foundAlertId.String(),
 		},
 	)
 

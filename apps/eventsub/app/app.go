@@ -8,11 +8,14 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
+	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
+	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
 	channelredemptionshistorypostgres "github.com/twirapp/twir/libs/repositories/channel_redemptions_history/datasources/postgres"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -73,8 +76,13 @@ var App = fx.Options(
 			channelseventslistpostgres.NewFx,
 			fx.As(new(channelseventslist.Repository)),
 		),
+		fx.Annotate(
+			alertsrepositorypgx.NewFx,
+			fx.As(new(alertsrepository.Repository)),
+		),
 		channelcache.New,
 		channelscommandsprefixcache.New,
+		channelalertscache.New,
 		tunnel.New,
 		manager.NewCreds,
 		manager.NewManager,

@@ -32,6 +32,8 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+
+	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
 )
 
 type Handler struct {
@@ -54,6 +56,7 @@ type Handler struct {
 
 	twirBus     *bus_core.Bus
 	prefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+	alertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert]
 	config      cfg.Config
 
 	redemptionsBatcher *batchprocessor.BatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]
@@ -81,8 +84,9 @@ type Opts struct {
 	Gorm    *gorm.DB
 	Redis   *redis.Client
 
-	Bus         *bus_core.Bus
-	PrefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+	Bus                *bus_core.Bus
+	PrefixCache        *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+	ChannelAlertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert]
 
 	Config cfg.Config
 }
@@ -117,6 +121,7 @@ func New(opts Opts) *Handler {
 		streamsrepository:            opts.StreamsRepository,
 		redemptionsHistoryRepository: opts.RedemptionsHistoryRepository,
 		eventsListRepository:         opts.EventsListRepository,
+		alertsCache:                  opts.ChannelAlertsCache,
 	}
 
 	batcherCtx, batcherStop := context.WithCancel(context.Background())

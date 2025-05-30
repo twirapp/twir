@@ -61,6 +61,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
+	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	channelsmoderationsettingsccahe "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
@@ -348,6 +349,7 @@ func main() {
 			keywordscacher.New,
 			giveawayscache.New,
 			chatalertscache.New,
+			channelalertscache.New,
 			channelsmoderationsettingsccahe.New,
 			chattranslationssettignscache.New,
 			fx.Annotate(

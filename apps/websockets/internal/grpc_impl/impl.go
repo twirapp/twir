@@ -15,8 +15,10 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
 	"github.com/satont/twir/libs/logger"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
@@ -47,6 +49,7 @@ type GrpcImpl struct {
 	kappagenServer         *kappagen.Kappagen
 	beRightBackServer      *be_right_back.BeRightBack
 	dudesServer            *dudes.Dudes
+	alertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
 }
 
 type GrpcOpts struct {
@@ -65,6 +68,7 @@ type GrpcOpts struct {
 	KappagenServer         *kappagen.Kappagen
 	BeRightBackServer      *be_right_back.BeRightBack
 	DudesServer            *dudes.Dudes
+	AlertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
 }
 
 func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
@@ -80,6 +84,7 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		kappagenServer:         opts.KappagenServer,
 		beRightBackServer:      opts.BeRightBackServer,
 		dudesServer:            opts.DudesServer,
+		alertsCache:            opts.AlertsCache,
 	}
 
 	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))

@@ -4,30 +4,31 @@ import (
 	"context"
 	"fmt"
 
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (c *GrpcImpl) TriggerAlert(ctx context.Context, req *websockets.TriggerAlertRequest) (
 	*emptypb.Empty, error,
 ) {
-	entity := model.ChannelAlert{}
-	if err := c.gorm.WithContext(ctx).Where(
-		"channel_id = ? and id = ?", req.ChannelId,
-		req.AlertId,
-	).Find(&entity).Error; err != nil {
+	alerts, err := c.alertsCache.Get(ctx, req.ChannelId)
+	if err != nil {
 		return nil, err
 	}
 
-	if entity.ID == "" {
-		return nil, fmt.Errorf(
-			"cannot find alert with id %s and channel_id %s",
-			req.AlertId,
-			req.ChannelId,
-		)
+	var foundAlert alertmodel.Alert
+	for _, alert := range alerts {
+		if alert.ID.String() == req.AlertId {
+			foundAlert = alert
+			break
+		}
+	}
+	if foundAlert.ID == uuid.Nil {
+		return nil, fmt.Errorf("cannot find alert with id %s", req.AlertId)
 	}
 
-	err := c.alertsServer.SendEvent(req.ChannelId, "trigger", entity)
+	err = c.alertsServer.SendEvent(req.ChannelId, "trigger", foundAlert)
 	return &emptypb.Empty{}, err
 }
