@@ -2,15 +2,13 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"slices"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 func (c *Handler) handleRewardsSevenTvEmote(
@@ -20,16 +18,15 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		return nil
 	}
 
-	settings := &model.ChannelsIntegrationsSettingsSeventv{}
-	err := c.gorm.
-		Where(`"channel_id" = ?`, event.BroadcasterUserID).
-		First(settings).
-		Error
+	settings, err := c.channelsIntegrationsSettingsSeventv.Get(
+		context.Background(),
+		event.BroadcasterUserID,
+	)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
-		}
 		return err
+	}
+	if settings.ID == uuid.Nil {
+		return nil
 	}
 
 	if event.Reward.ID != settings.RewardIdForRemoveEmote.String &&

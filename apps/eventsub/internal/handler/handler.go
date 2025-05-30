@@ -55,12 +55,13 @@ type Handler struct {
 	gorm        *gorm.DB
 	redisClient *redis.Client
 
-	twirBus                          *bus_core.Bus
-	prefixCache                      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
-	alertsCache                      *generic_cacher.GenericCacher[[]alertmodel.Alert]
-	commandsCache                    *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
-	channelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
-	config                           cfg.Config
+	twirBus                             *bus_core.Bus
+	prefixCache                         *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	alertsCache                         *generic_cacher.GenericCacher[[]alertmodel.Alert]
+	commandsCache                       *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
+	channelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
+	channelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
+	config                              cfg.Config
 
 	redemptionsBatcher *batchprocessor.BatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]
 }
@@ -71,17 +72,18 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	ParserGrpc                       parser.ParserClient
-	WebsocketsGrpc                   websockets.WebsocketClient
-	TokensGrpc                       tokens.TokensClient
-	ScheduledVipsRepo                scheduledvipsrepository.Repository
-	ChannelsRepo                     *generic_cacher.GenericCacher[channelmodel.Channel]
-	ChannelsInfoHistoryRepo          channelsinfohistory.Repository
-	StreamsRepository                streams.Repository
-	RedemptionsHistoryRepository     channelredemptionshistory.Repository
-	EventsListRepository             channelseventslist.Repository
-	CommandsCache                    *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
-	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
+	ParserGrpc                          parser.ParserClient
+	WebsocketsGrpc                      websockets.WebsocketClient
+	TokensGrpc                          tokens.TokensClient
+	ScheduledVipsRepo                   scheduledvipsrepository.Repository
+	ChannelsRepo                        *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsInfoHistoryRepo             channelsinfohistory.Repository
+	StreamsRepository                   streams.Repository
+	RedemptionsHistoryRepository        channelredemptionshistory.Repository
+	EventsListRepository                channelseventslist.Repository
+	CommandsCache                       *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
+	ChannelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
+	ChannelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
 
 	Tracer  trace.Tracer
 	Tunn    *tunnel.AppTunnel
@@ -109,26 +111,27 @@ func New(opts Opts) *Handler {
 	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{
-		manager:                          opts.Manager,
-		logger:                           opts.Logger,
-		config:                           opts.Config,
-		gorm:                             opts.Gorm,
-		redisClient:                      opts.Redis,
-		parserGrpc:                       opts.ParserGrpc,
-		websocketsGrpc:                   opts.WebsocketsGrpc,
-		tokensGrpc:                       opts.TokensGrpc,
-		tracer:                           opts.Tracer,
-		twirBus:                          opts.Bus,
-		prefixCache:                      opts.PrefixCache,
-		scheduledVipsRepo:                opts.ScheduledVipsRepo,
-		channelsCache:                    opts.ChannelsRepo,
-		channelsInfoHistoryRepo:          opts.ChannelsInfoHistoryRepo,
-		streamsrepository:                opts.StreamsRepository,
-		redemptionsHistoryRepository:     opts.RedemptionsHistoryRepository,
-		eventsListRepository:             opts.EventsListRepository,
-		alertsCache:                      opts.ChannelAlertsCache,
-		commandsCache:                    opts.CommandsCache,
-		channelSongRequestsSettingsCache: opts.ChannelSongRequestsSettingsCache,
+		manager:                             opts.Manager,
+		logger:                              opts.Logger,
+		config:                              opts.Config,
+		gorm:                                opts.Gorm,
+		redisClient:                         opts.Redis,
+		parserGrpc:                          opts.ParserGrpc,
+		websocketsGrpc:                      opts.WebsocketsGrpc,
+		tokensGrpc:                          opts.TokensGrpc,
+		tracer:                              opts.Tracer,
+		twirBus:                             opts.Bus,
+		prefixCache:                         opts.PrefixCache,
+		scheduledVipsRepo:                   opts.ScheduledVipsRepo,
+		channelsCache:                       opts.ChannelsRepo,
+		channelsInfoHistoryRepo:             opts.ChannelsInfoHistoryRepo,
+		streamsrepository:                   opts.StreamsRepository,
+		redemptionsHistoryRepository:        opts.RedemptionsHistoryRepository,
+		eventsListRepository:                opts.EventsListRepository,
+		alertsCache:                         opts.ChannelAlertsCache,
+		commandsCache:                       opts.CommandsCache,
+		channelSongRequestsSettingsCache:    opts.ChannelSongRequestsSettingsCache,
+		channelsIntegrationsSettingsSeventv: opts.ChannelsIntegrationsSettingsSeventv,
 	}
 
 	batcherCtx, batcherStop := context.WithCancel(context.Background())
