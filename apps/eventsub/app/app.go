@@ -9,7 +9,9 @@ import (
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
+	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -83,6 +85,8 @@ var App = fx.Options(
 		channelcache.New,
 		channelscommandsprefixcache.New,
 		channelalertscache.New,
+		commandscache.New,
+		channelsongrequestssettingscache.New,
 		tunnel.New,
 		manager.NewCreds,
 		manager.NewManager,

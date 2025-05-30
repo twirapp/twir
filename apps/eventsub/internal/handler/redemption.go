@@ -271,31 +271,31 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
-	entity := &model.ChannelSongRequestsSettings{}
-	err := c.gorm.
-		Where(`"channel_id" = ?`, event.BroadcasterUserID).
-		Find(entity).
-		Error
+	entity, err := c.channelSongRequestsSettingsCache.Get(
+		context.Background(),
+		event.BroadcasterUserID,
+	)
 	if err != nil {
 		return err
 	}
-	if entity.ID == "" {
+	if entity.ID == "" || !entity.Enabled || event.Reward.ID != entity.ChannelPointsRewardID.String {
 		return nil
 	}
 
-	if !entity.Enabled || event.Reward.ID != entity.ChannelPointsRewardID.String {
-		return nil
-	}
-
-	command := &model.ChannelsCommands{}
-	err = c.gorm.
-		Where(`"channelId" = ? AND "defaultName" = ?`, event.BroadcasterUserID, "sr").
-		Find(command).Error
+	var foundCommand *model.ChannelsCommands
+	commands, err := c.commandsCache.Get(context.Background(), event.BroadcasterUserID)
 	if err != nil {
 		return err
 	}
-	if command.ID == "" {
-		c.logger.Warn("no command sr", slog.String("channelId", event.BroadcasterUserID))
+
+	for _, command := range commands {
+		if command.DefaultName.String == "sr" && command.Enabled {
+			foundCommand = &command
+			break
+		}
+	}
+
+	if foundCommand == nil {
 		return nil
 	}
 
@@ -309,7 +309,7 @@ func (c *Handler) handleYoutubeSongRequests(
 			ChatterUserLogin:     event.UserLogin,
 			MessageId:            event.ID,
 			Message: &twitch.ChatMessageMessage{
-				Text: fmt.Sprintf("!%s %s", command.Name, event.UserInput),
+				Text: fmt.Sprintf("!%s %s", foundCommand.Name, event.UserInput),
 			},
 		},
 	)

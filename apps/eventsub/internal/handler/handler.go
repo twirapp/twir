@@ -12,6 +12,7 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
+	deprecatedmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	batchprocessor "github.com/twirapp/batch-processor"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
@@ -21,7 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
@@ -54,10 +55,12 @@ type Handler struct {
 	gorm        *gorm.DB
 	redisClient *redis.Client
 
-	twirBus     *bus_core.Bus
-	prefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
-	alertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert]
-	config      cfg.Config
+	twirBus                          *bus_core.Bus
+	prefixCache                      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	alertsCache                      *generic_cacher.GenericCacher[[]alertmodel.Alert]
+	commandsCache                    *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
+	channelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
+	config                           cfg.Config
 
 	redemptionsBatcher *batchprocessor.BatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]
 }
@@ -68,15 +71,17 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	ParserGrpc                   parser.ParserClient
-	WebsocketsGrpc               websockets.WebsocketClient
-	TokensGrpc                   tokens.TokensClient
-	ScheduledVipsRepo            scheduledvipsrepository.Repository
-	ChannelsRepo                 *generic_cacher.GenericCacher[channelmodel.Channel]
-	ChannelsInfoHistoryRepo      channelsinfohistory.Repository
-	StreamsRepository            streams.Repository
-	RedemptionsHistoryRepository channelredemptionshistory.Repository
-	EventsListRepository         channelseventslist.Repository
+	ParserGrpc                       parser.ParserClient
+	WebsocketsGrpc                   websockets.WebsocketClient
+	TokensGrpc                       tokens.TokensClient
+	ScheduledVipsRepo                scheduledvipsrepository.Repository
+	ChannelsRepo                     *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsInfoHistoryRepo          channelsinfohistory.Repository
+	StreamsRepository                streams.Repository
+	RedemptionsHistoryRepository     channelredemptionshistory.Repository
+	EventsListRepository             channelseventslist.Repository
+	CommandsCache                    *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
+	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
 
 	Tracer  trace.Tracer
 	Tunn    *tunnel.AppTunnel
@@ -85,7 +90,7 @@ type Opts struct {
 	Redis   *redis.Client
 
 	Bus                *bus_core.Bus
-	PrefixCache        *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+	PrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	ChannelAlertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert]
 
 	Config cfg.Config
@@ -104,24 +109,26 @@ func New(opts Opts) *Handler {
 	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{
-		manager:                      opts.Manager,
-		logger:                       opts.Logger,
-		config:                       opts.Config,
-		gorm:                         opts.Gorm,
-		redisClient:                  opts.Redis,
-		parserGrpc:                   opts.ParserGrpc,
-		websocketsGrpc:               opts.WebsocketsGrpc,
-		tokensGrpc:                   opts.TokensGrpc,
-		tracer:                       opts.Tracer,
-		twirBus:                      opts.Bus,
-		prefixCache:                  opts.PrefixCache,
-		scheduledVipsRepo:            opts.ScheduledVipsRepo,
-		channelsCache:                opts.ChannelsRepo,
-		channelsInfoHistoryRepo:      opts.ChannelsInfoHistoryRepo,
-		streamsrepository:            opts.StreamsRepository,
-		redemptionsHistoryRepository: opts.RedemptionsHistoryRepository,
-		eventsListRepository:         opts.EventsListRepository,
-		alertsCache:                  opts.ChannelAlertsCache,
+		manager:                          opts.Manager,
+		logger:                           opts.Logger,
+		config:                           opts.Config,
+		gorm:                             opts.Gorm,
+		redisClient:                      opts.Redis,
+		parserGrpc:                       opts.ParserGrpc,
+		websocketsGrpc:                   opts.WebsocketsGrpc,
+		tokensGrpc:                       opts.TokensGrpc,
+		tracer:                           opts.Tracer,
+		twirBus:                          opts.Bus,
+		prefixCache:                      opts.PrefixCache,
+		scheduledVipsRepo:                opts.ScheduledVipsRepo,
+		channelsCache:                    opts.ChannelsRepo,
+		channelsInfoHistoryRepo:          opts.ChannelsInfoHistoryRepo,
+		streamsrepository:                opts.StreamsRepository,
+		redemptionsHistoryRepository:     opts.RedemptionsHistoryRepository,
+		eventsListRepository:             opts.EventsListRepository,
+		alertsCache:                      opts.ChannelAlertsCache,
+		commandsCache:                    opts.CommandsCache,
+		channelSongRequestsSettingsCache: opts.ChannelSongRequestsSettingsCache,
 	}
 
 	batcherCtx, batcherStop := context.WithCancel(context.Background())

@@ -70,14 +70,15 @@ type Deps struct {
 
 	SpotifyRepository channelsintegrationsspotify.Repository
 
-	Sessions             *auth.Auth
-	Gorm                 *gorm.DB
-	CachedTwitchClient   *twitchcahe.CachedTwitchClient
-	CachedCommandsClient *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
-	Minio                *minio.Client
-	TwirBus              *bus_core.Bus
-	Redis                *redis.Client
-	TwirStats            *twir_stats.TwirStats
+	Sessions                         *auth.Auth
+	Gorm                             *gorm.DB
+	CachedTwitchClient               *twitchcahe.CachedTwitchClient
+	CachedCommandsClient             *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
+	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedgormmodel.ChannelSongRequestsSettings]
+	Minio                            *minio.Client
+	TwirBus                          *bus_core.Bus
+	Redis                            *redis.Client
+	TwirStats                        *twir_stats.TwirStats
 
 	DashboardWidgetEventsService          *dashboard_widget_events.Service
 	VariablesService                      *variables.Service
