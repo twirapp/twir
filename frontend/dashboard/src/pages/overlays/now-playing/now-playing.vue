@@ -51,6 +51,7 @@ const {
 
 const {
 	data: entities,
+	executeQuery: fetchEntities,
 } = nowPlayingOverlayManager.useNowPlayingQuery()
 
 const openedTab = ref<string>()
@@ -72,17 +73,22 @@ const addable = computed(() => {
 	return userCanEditOverlays.value && (entities.value?.nowPlayingOverlays.length ?? 0) < 5
 })
 
-watch(entities, () => {
+watch(entities, (newValue, oldValue) => {
+	if (newValue?.nowPlayingOverlays.length === oldValue?.nowPlayingOverlays.length) {
+		return
+	}
+
 	if (!entities.value?.nowPlayingOverlays.at(0)) {
 		openedTab.value = undefined
 		return
 	}
 
 	openedTab.value = entities.value.nowPlayingOverlays.at(0)!.id
-}, { once: true })
+}, { immediate: true })
 
 watch(openedTab, async (v) => {
 	const entity = entities.value?.nowPlayingOverlays.find(s => s.id === v)
+	console.log(entity)
 	if (!entity) return
 	setData(entity)
 })
@@ -157,6 +163,7 @@ const nowPlayingTrack = computed(() => {
 				v-else
 				:default-value="0"
 				orientation="vertical"
+				class="min-h-[45dvh]"
 				@update:model-value="(e) => openedTab = entities?.nowPlayingOverlays[e].id"
 			>
 				<TabsList aria-label="tabs example" class="flex flex-wrap items-center overflow-x-auto -mb-px">
