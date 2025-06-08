@@ -51,7 +51,6 @@ const {
 
 const {
 	data: entities,
-	executeQuery: fetchEntities,
 } = nowPlayingOverlayManager.useNowPlayingQuery()
 
 const openedTab = ref<string>()

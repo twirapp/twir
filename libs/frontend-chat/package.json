@@ -13,10 +13,10 @@
     "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
     "@vueuse/core": "11.2.0",
-    "vue": "3.5.13"
+    "vue": "catalog:"
   },
   "devDependencies": {
-    "vue-tsc": "2.1.10",
-    "typescript": "5.7.3"
+    "vue-tsc": "catalog:",
+    "typescript": "catalog:"
   }
 }

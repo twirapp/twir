@@ -70,9 +70,9 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 		return struct{}{}
 	}
 
-	if msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
-		return struct{}{}
-	}
+	// if msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
+	// 	return struct{}{}
+	// }
 
 	resp, err := c.rateLimiter.Use(
 		ctx, &redislimiter.SlidingWindowOptions{
