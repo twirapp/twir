@@ -70,7 +70,6 @@ func (c *Spotify) getTrackByCurrentPlayingTrack(ctx context.Context) (*GetTrackR
 
 	if resp != nil && resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
-
 		if err := c.refreshToken(ctx); err != nil {
 			c.isRetry = false
 			return nil, err
@@ -153,7 +152,11 @@ func (c *Spotify) getTrackByPlayerState(ctx context.Context) (*GetTrackResponse,
 		Get("https://api.spotify.com/v1/me/player")
 	if stateResp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
-		c.refreshToken(ctx)
+		if err := c.refreshToken(ctx); err != nil {
+			c.isRetry = false
+			return nil, err
+		}
+		c.isRetry = false
 		return c.getTrackByPlayerState(ctx)
 	}
 	if err != nil {
@@ -246,7 +249,12 @@ func (c *Spotify) getPlaylist(ctx context.Context, id string) (*GetTrackResponse
 		Get(fmt.Sprintf("https://api.spotify.com/v1/playlists/%s", id))
 	if resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
-		c.refreshToken(ctx)
+		if err := c.refreshToken(ctx); err != nil {
+			c.isRetry = false
+			return nil, err
+		}
+		c.isRetry = false
+
 		return c.getPlaylist(ctx, id)
 	}
 	if err != nil {
