@@ -26,10 +26,7 @@ import (
 )
 
 // SongRequestsUpdate is the resolver for the songRequestsUpdate field.
-func (r *mutationResolver) SongRequestsUpdate(
-	ctx context.Context,
-	opts gqlmodel.SongRequestsSettingsOpts,
-) (bool, error) {
+func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel.SongRequestsSettingsOpts) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -200,10 +197,7 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 }
 
 // SongRequestsSearchChannelOrVideo is the resolver for the songRequestsSearchChannelOrVideo field.
-func (r *queryResolver) SongRequestsSearchChannelOrVideo(
-	ctx context.Context,
-	opts gqlmodel.SongRequestsSearchChannelOrVideoOpts,
-) (*gqlmodel.SongRequestsSearchChannelOrVideoResponse, error) {
+func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, opts gqlmodel.SongRequestsSearchChannelOrVideoOpts) (*gqlmodel.SongRequestsSearchChannelOrVideoResponse, error) {
 	response := &gqlmodel.SongRequestsSearchChannelOrVideoResponse{
 		Items: make([]gqlmodel.SongRequestsSearchChannelOrVideoItem, 0, len(opts.Query)),
 	}
@@ -283,10 +277,7 @@ func (r *queryResolver) SongRequestsSearchChannelOrVideo(
 }
 
 // SongRequestsPublicQueue is the resolver for the songRequestsPublicQueue field.
-func (r *queryResolver) SongRequestsPublicQueue(
-	ctx context.Context,
-	channelID string,
-) ([]gqlmodel.SongRequestPublic, error) {
+func (r *queryResolver) SongRequestsPublicQueue(ctx context.Context, channelID string) ([]gqlmodel.SongRequestPublic, error) {
 	queue, err := r.deps.SongRequestsService.GetPublicQueue(ctx, channelID)
 	if err != nil {
 		return nil, err
@@ -301,10 +292,7 @@ func (r *queryResolver) SongRequestsPublicQueue(
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *songRequestPublicResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.SongRequestPublic,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *songRequestPublicResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.SongRequestPublic) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
