@@ -72,13 +72,13 @@ func (c *Spotify) refreshToken(ctx context.Context) error {
 
 	if data.RefreshToken != "" {
 		input.RefreshToken = &data.RefreshToken
+		c.channelIntegration.RefreshToken = data.RefreshToken
 	}
 	if err := c.repo.Update(ctx, c.channelIntegration.ID, input); err != nil {
 		return fmt.Errorf("cannot save spotify token: %w", err)
 	}
 
 	c.channelIntegration.AccessToken = data.AccessToken
-	c.channelIntegration.RefreshToken = data.RefreshToken
 
 	return nil
 }
