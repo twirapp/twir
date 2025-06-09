@@ -24,7 +24,7 @@
 		"xmlhttprequest": "1.8.0"
 	},
 	"devDependencies": {
-		"@types/bun": "1.2.2",
+		"@types/bun": "catalog:",
 		"@types/node": "20.12.7",
 		"@types/socket.io-client": "1.4.36",
 		"@types/ws": "8.5.10"

@@ -3,7 +3,7 @@
   "author": "Satont <satontworldwide@gmail.com>",
   "devDependencies": {
     "@antfu/eslint-config": "2.14.0",
-    "@types/bun": "1.2.2",
+    "@types/bun": "catalog:",
     "@types/node": "20.12.7",
     "@vue/language-server": "2.2.8",
     "rimraf": "5.0.5",
@@ -44,7 +44,8 @@
       "vite": "5.4.6",
       "typescript": "5.8.2",
       "graphql": "16.10.0",
-      "graphql-ws": "6.0.4"
+      "graphql-ws": "6.0.4",
+      "@types/bun": "1.2.15"
     }
   }
 }
