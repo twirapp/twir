@@ -10,7 +10,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@vueuse/core": "11.2.0",
+    "@vueuse/core": "catalog:",
     "lucide-vue-next": "0.368.0",
     "vue": "catalog:"
   },

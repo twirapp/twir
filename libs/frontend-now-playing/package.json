@@ -12,7 +12,7 @@
   "dependencies": {
     "@twir/fontsource": "workspace:*",
     "@twir/types": "workspace:*",
-    "@vueuse/core": "10.9.0",
+    "@vueuse/core": "catalog:",
     "vue": "catalog:"
   },
   "devDependencies": {
