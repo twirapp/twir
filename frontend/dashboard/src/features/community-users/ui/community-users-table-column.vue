@@ -1,45 +1,31 @@
 <script setup lang="ts">
-import { ArrowDown, ArrowDownUp, ArrowUp, EyeOff, Trash } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ArrowDown, ArrowDownUp, ArrowUp, EyeOff } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import type { CommunityUsersResetType } from '@/gql/graphql.js'
 import type { Column } from '@tanstack/vue-table'
 
-import { useCommunityUsersApi } from '@/api/community-users.js'
-import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
-	DropdownMenuTrigger
+	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils.js'
 
 defineOptions({
-	inheritAttrs: false
+	inheritAttrs: false,
 })
 
-const props = defineProps<{
+defineProps<{
 	columnType?: CommunityUsersResetType
 	column: Column<any, any>
 	title: string
 }>()
 
 const { t } = useI18n()
-const communityUsersApi = useCommunityUsersApi()
-const communityResetMutation = communityUsersApi.useMutationCommunityReset()
-
-const showConfirm = ref(false)
-async function resetColumn() {
-	if (!props.columnType) return
-
-	await communityResetMutation.executeMutation({
-		type: props.columnType
-	})
-}
 </script>
 
 <template>
@@ -71,10 +57,6 @@ async function resetColumn() {
 					<EyeOff class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					{{ t('sharedTexts.hide') }}
 				</DropdownMenuItem>
-				<DropdownMenuItem v-if="columnType" @click="showConfirm = true">
-					<Trash class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-					{{ t('community.users.reset.label') }}
-				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	</div>
@@ -82,10 +64,4 @@ async function resetColumn() {
 	<div v-else :class="$attrs.class">
 		{{ title }}
 	</div>
-
-	<ActionConfirm
-		v-model:open="showConfirm"
-		:confirm-text="t('community.users.reset.resetQuestion', { title })"
-		@confirm="resetColumn"
-	/>
 </template>
