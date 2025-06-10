@@ -905,7 +905,7 @@
       },
       "total": "Celkový počet používateľov: {total}",
       "reset": {
-        "label": "Resetovať",
+        "label": "Reset stats",
         "resetQuestion": "Ste si istí, že chcete obnoviť {title}?"
       }
     },
