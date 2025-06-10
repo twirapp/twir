@@ -905,7 +905,7 @@
       },
       "total": "Total users: {total}",
       "reset": {
-        "label": "Reset",
+        "label": "Reset stats",
         "resetQuestion": "Are you sure you want to reset {title}?"
       }
     },
