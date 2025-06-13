@@ -46,8 +46,8 @@ services:
       -  '6432:6432'
 
   redis:
-    image: redis:7.4.2
-    command: redis-server --save 60 1 --loglevel warning
+    image: redis:8.0.2
+    command: redis-server --save 60 1 --loglevel warning --io-threads 2
     restart: unless-stopped
     ports:
       - '6385:6379'
