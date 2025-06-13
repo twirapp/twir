@@ -268,13 +268,17 @@ func (c *Handler) chatMessageCountEmotes(
 	emotes := make(map[string]int, len(splittedMsg))
 
 	for _, f := range msg.Message.Fragments {
-		if f.Type != twitch.FragmentType_EMOTE || f.Text == "" {
+		if f.Type != twitch.FragmentType_EMOTE || f.Text == "" || f.Text == " " {
 			continue
 		}
 		emotes[f.Text] += 1
 	}
 
 	for _, part := range splittedMsg {
+		if part == "" || part == " " {
+			continue
+		}
+
 		// do not make redis requests if part already present in map
 		var isTwitchEmote bool
 		for _, fragment := range msg.Message.Fragments {
