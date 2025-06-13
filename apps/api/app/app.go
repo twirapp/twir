@@ -8,7 +8,6 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/api/internal/files"
 	"github.com/satont/twir/apps/api/internal/handlers"
 	"github.com/satont/twir/apps/api/internal/impl_protected"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected"
@@ -67,7 +66,6 @@ var App = fx.Options(
 		ttscache.NewTTSSettings,
 		handlers.AsHandler(twirp_handlers.NewProtected),
 		handlers.AsHandler(twirp_handlers.NewUnProtected),
-		handlers.AsHandler(files.NewFiles),
 		handlers.AsHandler(proxy.New),
 		fx.Annotate(
 			func(handlers []handlers.IHandler) *http.ServeMux {

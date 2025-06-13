@@ -3,6 +3,7 @@ import { useWebSocket } from '@vueuse/core'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { openApi } from '@/api.ts'
 import { generateSocketUrlWithParams } from '@/helpers.js'
 
 declare global {
@@ -23,14 +24,14 @@ const route = useRoute()
 
 const apiKey = route.params.apiKey as string
 const alertsUrl = generateSocketUrlWithParams('/overlays/alerts', {
-	apiKey
+	apiKey,
 })
 
 const socket = useWebSocket(alertsUrl, {
 	immediate: true,
 	autoReconnect: {
-		delay: 500
-	}
+		delay: 500,
+	},
 })
 
 watch(socket.data, (message) => {
@@ -44,6 +45,8 @@ watch(socket.data, (message) => {
 		}
 	}
 })
+
+const cachedFiles: Record<string, AudioBuffer> = {}
 
 async function processQueue(): Promise<void> {
 	if (queue.value.length === 0) {
@@ -62,26 +65,36 @@ async function processQueue(): Promise<void> {
 	processQueue()
 }
 
+const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+
 async function playAudio(channelId: string, audioId: string, volume: number): Promise<unknown> {
-	const query = new URLSearchParams({
-		channel_id: channelId,
-		file_id: audioId
-	})
-	const req = await fetch(`${window.location.origin}/api-old/files/?${query}`)
-	if (!req.ok) {
-		console.error(await req.text())
+	let data: AudioBuffer
+	if (cachedFiles[audioId]) {
+		data = cachedFiles[audioId]
+	} else {
+		const req = await openApi.v1.channelsFilesContentDetail(channelId, audioId)
+		if (!req.ok) {
+			console.error(await req.text())
+			return
+		}
+
+		const arrayBuffer = await req.arrayBuffer()
+
+		data = await audioContext.decodeAudioData(arrayBuffer)
+		cachedFiles[audioId] = data
+	}
+
+	if (!data) {
+		console.error('Cannot play audio, no data')
 		return
 	}
 
-	const audioContext = new (window.AudioContext || window.webkitAudioContext)()
 	const gainNode = audioContext.createGain()
-
-	const data = await req.arrayBuffer()
 
 	const source = audioContext.createBufferSource()
 	currentAudioBuffer.value = source
 
-	source.buffer = await audioContext.decodeAudioData(data)
+	source.buffer = data
 
 	gainNode.gain.value = volume / 100
 	source.connect(gainNode)

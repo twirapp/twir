@@ -5,7 +5,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
-	"github.com/satont/twir/apps/api/internal/impl_protected/files"
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
 	"github.com/satont/twir/apps/api/internal/impl_protected/modules"
 	"github.com/satont/twir/apps/api/internal/impl_protected/overlays"
@@ -31,7 +30,6 @@ type Protected struct {
 	*modules.Modules
 	*events.Events
 	*twitch.Twitch
-	*files.Files
 	*overlays.Overlays
 }
 
@@ -81,7 +79,6 @@ func New(opts Opts) *Protected {
 		Modules:      &modules.Modules{Deps: d},
 		Events:       &events.Events{Deps: d},
 		Twitch:       &twitch.Twitch{Deps: d},
-		Files:        files.New(d),
 		Overlays:     &overlays.Overlays{Deps: d},
 	}
 }

@@ -14,6 +14,7 @@ import (
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
+	channelsfilesroute "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/channels/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
@@ -27,6 +28,7 @@ import (
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
@@ -149,6 +151,9 @@ import (
 
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
+
+	channelsfilesrepository "github.com/twirapp/twir/libs/repositories/channels_files"
+	channelsfilesrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_files/datasource/postgres"
 
 	"go.uber.org/fx"
 )
@@ -286,6 +291,10 @@ func main() {
 				toxicmessagesrepositorypgx.NewFx,
 				fx.As(new(toxicmessagesrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsfilesrepositorypgx.NewFx,
+				fx.As(new(channelsfilesrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -329,6 +338,7 @@ func main() {
 			channels_moderation_settings.New,
 			pastebinsservice.New,
 			toxic_messages.New,
+			channels_files.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -373,6 +383,7 @@ func main() {
 			authroutes.New,
 			shortlinks.New,
 			pastebins.New,
+			channelsfilesroute.New,
 		),
 	).Run()
 }

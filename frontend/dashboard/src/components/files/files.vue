@@ -17,9 +17,7 @@ import {
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { FileMeta } from '@twir/api/messages/files/files'
-
-import { useFileUpload, useFiles, userFileDelete } from '@/api/index.js'
+import { useFilesApi } from '@/api/index.js'
 import { convertBytesToSize } from '@/helpers/convertBytesToSize.js'
 
 const props = withDefaults(defineProps<{
@@ -37,24 +35,17 @@ defineEmits<{
 
 const { t } = useI18n()
 
-const uploader = useFileUpload()
-const deleter = userFileDelete()
+const api = useFilesApi()
+const deleter = api.useDelete()
+const uploader = api.useUpload()
 
-const { data: files } = useFiles()
+const { data: files } = api.useQuery()
 
 const uploadedFilesSize = computed(() => {
 	if (!files.value?.files) return 0
 
 	return files.value?.files.reduce((acc, curr) => acc + Number(curr.size), 0)
 })
-
-function computeFileUrl(f: FileMeta) {
-	const query = new URLSearchParams({
-		channel_id: f.channelId,
-		file_id: f.id,
-	})
-	return `${window.location.origin}/api-old/files/?${query}`
-}
 
 interface Tab {
 	name: string
@@ -88,7 +79,9 @@ async function upload(f: File) {
 	if (!f.type.startsWith(activeTab.value.accept.split('*').at(0)!)) return
 
 	try {
-		await uploader.mutateAsync(f)
+		await uploader.executeMutation({
+			file: f,
+		})
 	} catch (error) {
 		if (error instanceof RpcError) {
 			message.error(error.message)
@@ -122,14 +115,14 @@ async function upload(f: File) {
 					:max="1"
 					:accept="activeTab.accept"
 					:file-list="[]"
-					:disabled="uploader.isLoading.value || uploadedFilesSize >= ((1 << 20) * 100)"
+					:disabled="uploader.fetching.value || uploadedFilesSize >= ((1 << 20) * 100)"
 					@change="(data) => {
 						if (!data.fileList.length) return
 						upload(data.file.file!)
 					}"
 				>
 					<NUploadDragger>
-						<div v-if="!uploader.isLoading.value">
+						<div v-if="!uploader.fetching.value">
 							<div class="mb-3">
 								<NIcon size="30" :depth="3">
 									<IconArchive />
@@ -176,7 +169,7 @@ async function upload(f: File) {
 								type="error"
 								size="small"
 								@click="async () => {
-									await deleter.mutateAsync(f.id)
+									await deleter.executeMutation({ id: f.id })
 									$emit('delete', f.id)
 								}"
 							>
@@ -184,7 +177,7 @@ async function upload(f: File) {
 							</NButton>
 						</template>
 
-						<audio controls :src="computeFileUrl(f)" class="w-full" />
+						<audio controls :src="api.computeFileUrl(f.channelId, f.id)" class="w-full" />
 
 						<template v-if="mode === 'picker'" #footer>
 							<NButton block @click="$emit('select', f.id)">

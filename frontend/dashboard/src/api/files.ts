@@ -1,46 +1,56 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { useQuery } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
 
-import { protectedApiClient } from './twirp';
+import { useMutation } from '@/composables/use-mutation.ts'
+import { graphql } from '@/gql'
 
-
-export const useFileUpload = () => {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationKey: ['filesUpload'],
-		mutationFn: async (f: File) => {
-			const content = new Uint8Array(await f.arrayBuffer());
-
-			await protectedApiClient.filesUpload({
-				name: f.name,
-				mimetype: f.type,
-				content,
-			});
+export const useFilesApi = createGlobalState(() => {
+	const query = () => useQuery({
+		query: graphql(`
+			query ChannelFiles {
+				files {
+					id
+					channelId
+					mimetype
+					name
+					size
+				}
+			}
+		`),
+		variables: {},
+		context: {
+			additionalTypenames: ['files'],
 		},
-		async onSuccess() {
-			await queryClient.invalidateQueries({ queryKey: ['files'] });
-		},
-	});
-};
+	})
 
-export const useFiles = () => useQuery({
-	queryKey: ['files'],
-	queryFn: async () => {
-		const req = await protectedApiClient.filesGetAll({});
-		return req.response;
-	},
-});
+	const useDelete = () => useMutation(
+		graphql(`
+			mutation DeleteFile($id: UUID!) {
+				filesRemove(id: $id)
+			}
+		`),
+		['files'],
+	)
 
-export const userFileDelete = () => {
-	const queryClient = useQueryClient();
+	const useUpload = () => useMutation(
+		graphql(`
+			mutation UploadFile($file: Upload!) {
+				filesUpload(file: $file) {
+					id
+				}
+			}
+		`),
+		['files'],
+	)
 
-	return useMutation({
-		mutationKey: ['filesDelete'],
-		mutationFn: async (id: string) => {
-			await protectedApiClient.filesDelete({ id });
-		},
-		async onSuccess() {
-			await queryClient.invalidateQueries({ queryKey: ['files'] });
-		},
-	});
-};
+	function computeFileUrl(channelId: string, fileId: string) {
+		return `${window.location.origin}/api/v1/channels/${channelId}/files/content/${fileId}`
+	}
+
+	return {
+		useQuery: query,
+		useDelete,
+		useUpload,
+		computeFileUrl,
+	}
+})

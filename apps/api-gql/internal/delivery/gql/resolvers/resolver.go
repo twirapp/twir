@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
@@ -117,6 +118,7 @@ type Deps struct {
 	ShortenedUrlsService                  *shortenedurls.Service
 	ToxicMessagesService                  *toxic_messages.Service
 	ChatAlertsCache                       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
+	ChannelsFilesService                  *channels_files.Service
 }
 
 type Resolver struct {
