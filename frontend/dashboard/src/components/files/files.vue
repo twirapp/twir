@@ -1,23 +1,16 @@
 <script setup lang="ts">
 import { RpcError } from '@protobuf-ts/runtime-rpc'
-import { IconArchive } from '@tabler/icons-vue'
+import { ImageIcon, MusicIcon } from 'lucide-vue-next'
 import {
 	NAlert,
-	NButton,
-	NCard,
-	NGrid,
-	NGridItem,
-	NIcon,
-	NSpin,
-	NText,
-	NUpload,
-	NUploadDragger,
 	useMessage,
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useFilesApi } from '@/api/index.js'
+import { Button, FileButton } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import { convertBytesToSize } from '@/helpers/convertBytesToSize.js'
 
 const props = withDefaults(defineProps<{
@@ -88,27 +81,46 @@ async function upload(f: File) {
 		}
 	}
 }
+
+const maxFileSize = 104857600 // 100mb
+
+const uploadedFilesSizeSlider = computed(() => {
+	if (uploadedFilesSize.value === 0) {
+		return 0
+	}
+
+	return Math.max(Math.abs(uploadedFilesSize.value / 1000000), 5)
+})
 </script>
 
 <template>
-	<div class="flex gap-5">
-		<div class="flex flex-col pr-1">
-			<div v-if="mode === 'list'" class="flex flex-col gap-1">
-				<NButton
-					v-for="tabItem of tabs"
-					:key="tabItem.name"
-					dashed
-					size="large"
-					:disabled="tabItem.disabled"
-					:type="tabItem.name === activeTab.name ? 'success' : 'default'"
-					block
-					@click="activeTab = tabItem"
-				>
-					{{ tabItem.name }}
-				</NButton>
+	<div class="flex flex-col md:flex-row">
+		<div class="flex flex-col p-2 justify-between bg-card h-full border-r-2 border-border border-b-2 md:border-b-0 w-full md:min-w-max-w-52 md:max-w-52 gap-y-8">
+			<div class="flex flex-col gap-1 w-full">
+				<Button class="w-full flex items-center gap-2 justify-center" size="sm" variant="secondary">
+					<MusicIcon class="size-4" />
+					Audios
+				</Button>
+				<Button class="w-full flex items-center gap-2 justify-center" size="sm" variant="secondary" disabled>
+					<ImageIcon class="size-4" />
+					Images (soon)
+				</Button>
 			</div>
-
-			<div>
+			<div class="flex flex-col gap-2 justify-center items-center">
+				<FileButton
+					class="size-28"
+					:accept="activeTab.accept"
+					:disabled="uploader.fetching.value || uploadedFilesSize >= ((1 << 20) * 100)"
+					:loading="uploader.fetching.value"
+					@file-selected="(file) => {
+						if (!file) return
+						upload(file)
+					}"
+				/>
+				<Progress v-model="uploadedFilesSizeSlider" />
+				<span>{{ convertBytesToSize(uploadedFilesSize) }} / {{ convertBytesToSize(maxFileSize) }}</span>
+			</div>
+			<!-- <div>
 				<NUpload
 					multiple
 					directory-dnd
@@ -144,49 +156,48 @@ async function upload(f: File) {
 						})
 					}}
 				</NText>
-			</div>
+			</div> -->
 		</div>
 
-		<div v-if="activeTab.name === 'Audios'">
-			<NAlert v-if="!audios.length" type="info">
-				{{ t('filePicker.emptyText', { type: 'audios' }) }}
-			</NAlert>
+		<div class="p-4 w-full min-h-0 overflow-auto">
+			<div v-if="activeTab.name === 'Audios'">
+				<NAlert v-if="!audios.length" type="info">
+					{{ t('filePicker.emptyText', { type: 'audios' }) }}
+				</NAlert>
 
-			<NGrid v-else cols="1 s:1 m:2 l:3" responsive="screen" :x-gap="8" :y-gap="8">
-				<NGridItem
-					v-for="f of audios"
-					:key="f.id"
-					:span="1"
-				>
-					<NCard
-						:title="`${f.name} (${convertBytesToSize(Number(f.size))})`"
-						size="small"
-						segmented
+				<div v-else class="flex flex-col gap-4 overflow-y-auto">
+					<div
+						v-for="audio of audios"
+						:key="audio.id"
+						class="flex flex-col rounded-md bg-card p-2 border-2 border-border"
 					>
-						<template #header-extra>
-							<NButton
-								secondary
-								type="error"
-								size="small"
-								@click="async () => {
-									await deleter.executeMutation({ id: f.id })
-									$emit('delete', f.id)
-								}"
-							>
-								{{ t('sharedButtons.delete') }}
-							</NButton>
-						</template>
+						<h1 class="break-all">
+							{{ audio.name }}
+						</h1>
+						<audio controls :src="api.computeFileUrl(audio.channelId, audio.id)" class="w-full" />
 
-						<audio controls :src="api.computeFileUrl(f.channelId, f.id)" class="w-full" />
+						<div class="flex justify-between flex-wrap items-end">
+							<span>{{ convertBytesToSize(audio.size) }}</span>
 
-						<template v-if="mode === 'picker'" #footer>
-							<NButton block @click="$emit('select', f.id)">
-								{{ t('sharedButtons.select') }}
-							</NButton>
-						</template>
-					</NCard>
-				</NGridItem>
-			</NGrid>
+							<div class="flex gap-1">
+								<Button
+									variant="destructive"
+									size="sm"
+									@click="async () => {
+										await deleter.executeMutation({ id: audio.id })
+										$emit('delete', audio.id)
+									}"
+								>
+									{{ t('sharedButtons.delete') }}
+								</Button>
+								<Button size="sm" variant="secondary" @click="$emit('select', audio.id)">
+									{{ t('sharedButtons.select') }}
+								</Button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>

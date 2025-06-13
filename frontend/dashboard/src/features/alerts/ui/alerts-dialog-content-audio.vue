@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { PauseIcon, PlayIcon, TrashIcon } from 'lucide-vue-next'
-import { NScrollbar } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -113,28 +112,26 @@ function setVolume(audioId: string, volume: number) {
 					</Button>
 				</DialogTrigger>
 
-				<DialogOrSheet class="p-0">
+				<DialogOrSheet class="p-0 gap-0 h-[80dvh] md:h-auto">
 					<DialogHeader class="p-6 border-b-[1px]">
 						<DialogTitle>
 							{{ t('alerts.select.audio') }}
 						</DialogTitle>
 					</DialogHeader>
 
-					<NScrollbar class="p-6 max-h-[85vh]" trigger="none">
-						<FilesPicker
-							mode="picker"
-							tab="audios"
-							@select="(id) => {
-								audioId = id
-								showAudioDialog = false
-							}"
-							@delete="(id) => {
-								if (id === audioId) {
-									audioId = undefined
-								}
-							}"
-						/>
-					</NScrollbar>
+					<FilesPicker
+						mode="picker"
+						tab="audios"
+						@select="(id) => {
+							audioId = id
+							showAudioDialog = false
+						}"
+						@delete="(id) => {
+							if (id === audioId) {
+								audioId = undefined
+							}
+						}"
+					/>
 				</DialogOrSheet>
 			</Dialog>
 
