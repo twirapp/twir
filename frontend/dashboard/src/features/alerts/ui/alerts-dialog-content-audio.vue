@@ -120,6 +120,7 @@ function setVolume(audioId: string, volume: number) {
 					</DialogHeader>
 
 					<FilesPicker
+						class="h-auto md:max-h-[50dvh]"
 						mode="picker"
 						tab="audios"
 						@select="(id) => {
