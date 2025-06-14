@@ -179,7 +179,7 @@
         "label": "Cooldown",
         "value": "Cooldown v sekundách",
         "type": {
-          "name": "Cooldown na",
+          "name": "Cooldown pre",
           "global": "Globálne",
           "user": "Individuálne (na používateľa)"
         }
@@ -804,7 +804,7 @@
         "stats": "Štatistiky"
       },
       "cooldown": {
-        "title": "Vychladnutie duelu",
+        "title": "Cooldown duelu",
         "user": "Individuálne",
         "global": "Global"
       },
@@ -968,7 +968,7 @@
     "randomedMessage": "Ak existuje niekoľko variantov upozornení v chate, vyberú sa náhodne.",
     "randomMessageWithCount": "Ak existuje niekoľko variantov s rovnakým číslom počítadla, vyberú sa náhodne.",
     "replacedInfo": "Dostupné premenné: {vars}. Budú nahradené aktuálnymi informáciami v upozornení.",
-    "cooldown": "Vychladnutie správy (v sekundách)",
+    "cooldown": "Cooldown správy (v sekundách)",
     "ban": {
       "alertInfo": "Nastavte čas na 0, aby sa odoslala správa, keď je používateľ trvalo zablokovaný.",
       "countLabel": "Čas (minútach)",
