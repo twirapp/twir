@@ -318,7 +318,7 @@
       "connectGuild": "+ Pripojiť server",
       "disconnectGuild": "Odpojiť server",
       "noGuilds": "Žiadne pripojené servery",
-      "cannotSendMessage": "Bot nemá možnosť posielať správy v tomto kanáli. Skontroluj oprávnenia kanála, aby sito opravil."
+      "cannotSendMessage": "Bot nemá možnosť posielať správy v tomto kanáli. Skontroluj oprávnenia kanála, aby si to opravil."
     },
     "faceit": {
       "info": "Poskytnutie prístupu k tejto službe umožní Twiru sledovať vaše zápasy Faceit a nastaví príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších."
@@ -905,7 +905,7 @@
       },
       "total": "Celkový počet používateľov: {total}",
       "reset": {
-        "label": "Reset stats",
+        "label": "Vynulovať štatistiky",
         "resetQuestion": "Ste si istí, že chcete obnoviť {title}?"
       }
     },
