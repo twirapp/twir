@@ -5,10 +5,6 @@
     ".": "./src/index.ts"
   },
   "types": "./src/index.ts",
-  "scripts": {
-    "build": "bun run type-check",
-    "type-check": "vue-tsc --noEmit"
-  },
   "dependencies": {
     "@twir/fontsource": "workspace:*",
     "@twir/types": "workspace:*",
