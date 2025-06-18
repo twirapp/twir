@@ -107,7 +107,12 @@ func (s *scheduledVips) process(ctx context.Context) {
 	// remove vips from channel
 	// we'll delete row from db in eventsub service
 	for _, vip := range vips {
-		twitchClient := cachedChannelsTwitchClients[vip.ChannelID]
+		twitchClient, ok := cachedChannelsTwitchClients[vip.ChannelID]
+		if !ok {
+			s.logger.Warn("Twitch client not found", slog.String("channel_id", vip.ChannelID))
+			continue
+		}
+
 		resp, err := twitchClient.RemoveChannelVip(
 			&helix.RemoveChannelVipParams{
 				BroadcasterID: vip.ChannelID,
