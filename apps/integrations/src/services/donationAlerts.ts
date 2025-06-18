@@ -44,8 +44,6 @@ export class DonationAlerts {
 						method: 'POST',
 						body: JSON.stringify(ctx.data),
 						headers: { Authorization: `Bearer ${this.accessToken}` },
-						// eslint-disable-next-line ts/ban-ts-comment
-						// @ts-expect-error
 						verbose: true,
 					})
 
