@@ -434,9 +434,14 @@ func (c *MessageHandler) moderationLanguageParser(
 	}
 
 	text = strings.TrimSpace(text)
+	text = strings.ToLower(text)
 
-	if utf8.RuneCountInString(text) < 10 {
+	if utf8.RuneCountInString(text) < settings.TriggerLength {
 		return nil
+	}
+
+	for _, word := range settings.LanguageExcludedWords {
+		text = strings.ReplaceAll(text, strings.ToLower(word), "")
 	}
 
 	detected, err := c.moderationDetectLanguage(text)

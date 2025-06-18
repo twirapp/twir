@@ -39,6 +39,7 @@ func ModerationSettingsEntityToGql(m entity.ChannelModerationSettings) gqlmodel.
 		DenyListWordBoundaryEnabled:     m.DenyListWordBoundaryEnabled,
 		OneManSpamMinimumStoredMessages: m.OneManSpamMinimumStoredMessages,
 		OneManSpamMessageMemorySeconds:  m.OneManSpamMessageMemorySeconds,
+		LanguageExcludedWords:           m.LanguageExcludedWords,
 	}
 }
 

@@ -56,6 +56,7 @@ export const useChannelModerationSettingsApi = createGlobalState(() => {
 					oneManSpamMinimumStoredMessages
 					createdAt
 					updatedAt
+					languageExcludedWords
 				}
 			}
 		`),

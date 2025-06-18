@@ -51,6 +51,7 @@ type ModerationSettingsItem {
 	oneManSpamMessageMemorySeconds: Int!
 	createdAt: Time!
 	updatedAt: Time!
+	languageExcludedWords: [String!]!
 }
 
 input ModerationSettingsCreateOrUpdateInput {
@@ -72,4 +73,5 @@ input ModerationSettingsCreateOrUpdateInput {
 	maxWarnings: Int!
 	oneManSpamMinimumStoredMessages: Int!
 	oneManSpamMessageMemorySeconds: Int!
+	languageExcludedWords: [String!]!
 }

@@ -25,5 +25,6 @@ func makeCreateOrUpdateMap(input channels_moderation_settings.CreateOrUpdateInpu
 		"deny_list_sensitivity_enabled":        input.DenyListSensitivityEnabled,
 		"one_man_spam_minimum_stored_messages": input.OneManSpamMinimumStoredMessages,
 		"one_man_spam_message_memory_seconds":  input.OneManSpamMessageMemorySeconds,
+		"language_excluded_words":              input.LanguageExcludedWords,
 	}
 }

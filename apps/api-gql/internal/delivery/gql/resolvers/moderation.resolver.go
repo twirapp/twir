@@ -43,6 +43,7 @@ func (r *mutationResolver) ModerationSettingsCreate(ctx context.Context, input g
 		MaxWarnings:                     input.MaxWarnings,
 		OneManSpamMinimumStoredMessages: input.OneManSpamMinimumStoredMessages,
 		OneManSpamMessageMemorySeconds:  input.OneManSpamMessageMemorySeconds,
+		LanguageExcludedWords:           input.LanguageExcludedWords,
 	}
 
 	newItem, err := r.deps.ChannelsModerationSettingsService.Create(ctx, createInput)
@@ -81,6 +82,7 @@ func (r *mutationResolver) ModerationSettingsUpdate(ctx context.Context, id uuid
 		MaxWarnings:                     input.MaxWarnings,
 		OneManSpamMinimumStoredMessages: input.OneManSpamMinimumStoredMessages,
 		OneManSpamMessageMemorySeconds:  input.OneManSpamMessageMemorySeconds,
+		LanguageExcludedWords:           input.LanguageExcludedWords,
 	}
 
 	newItem, err := r.deps.ChannelsModerationSettingsService.Update(ctx, id, createInput)

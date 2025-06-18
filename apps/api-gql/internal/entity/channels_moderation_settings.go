@@ -34,6 +34,8 @@ type ChannelModerationSettings struct {
 	OneManSpamMinimumStoredMessages int
 	OneManSpamMessageMemorySeconds  int
 
+	LanguageExcludedWords []string
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

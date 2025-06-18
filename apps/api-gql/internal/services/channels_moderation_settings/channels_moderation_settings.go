@@ -55,6 +55,7 @@ func (c *Service) modelToEntity(m model.ChannelModerationSettings) entity.Channe
 		OneManSpamMessageMemorySeconds:  m.OneManSpamMessageMemorySeconds,
 		CreatedAt:                       m.CreatedAt,
 		UpdatedAt:                       m.UpdatedAt,
+		LanguageExcludedWords:           m.LanguageExcludedWords,
 	}
 }
 
@@ -107,6 +108,7 @@ type CreateOrUpdateInput struct {
 	MaxWarnings                     int
 	OneManSpamMinimumStoredMessages int
 	OneManSpamMessageMemorySeconds  int
+	LanguageExcludedWords           []string
 }
 
 func (c *Service) Create(
@@ -135,6 +137,7 @@ func (c *Service) Create(
 			MaxWarnings:                     input.MaxWarnings,
 			OneManSpamMinimumStoredMessages: input.OneManSpamMinimumStoredMessages,
 			OneManSpamMessageMemorySeconds:  input.OneManSpamMessageMemorySeconds,
+			LanguageExcludedWords:           input.LanguageExcludedWords,
 		},
 	)
 	if err != nil {
@@ -180,6 +183,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input CreateOrUpdate
 			MaxWarnings:                     input.MaxWarnings,
 			OneManSpamMinimumStoredMessages: input.OneManSpamMinimumStoredMessages,
 			OneManSpamMessageMemorySeconds:  input.OneManSpamMessageMemorySeconds,
+			LanguageExcludedWords:           input.LanguageExcludedWords,
 		},
 	)
 	if err != nil {

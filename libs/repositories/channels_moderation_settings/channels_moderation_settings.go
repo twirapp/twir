@@ -38,4 +38,5 @@ type CreateOrUpdateInput struct {
 	MaxWarnings                     int
 	OneManSpamMinimumStoredMessages int
 	OneManSpamMessageMemorySeconds  int
+	LanguageExcludedWords           []string
 }

@@ -42,4 +42,5 @@ export const moderationValidationRules = toTypedSchema(z.object({
 	denyListSensitivityEnabled: z.boolean().default(false),
 	oneManSpamMinimumStoredMessages: z.number().min(0).max(20).default(5),
 	oneManSpamMessageMemorySeconds: z.number().min(0).max(600).default(30),
+	languageExcludedWords: z.array(z.string()).default([]),
 }))

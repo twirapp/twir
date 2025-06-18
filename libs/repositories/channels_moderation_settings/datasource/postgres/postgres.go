@@ -60,6 +60,7 @@ var selectColumns = []string{
 	"one_man_spam_message_memory_seconds",
 	"created_at",
 	"updated_at",
+	"language_excluded_words",
 }
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.ChannelModerationSettings, error) {
