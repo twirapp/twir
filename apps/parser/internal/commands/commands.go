@@ -421,6 +421,14 @@ func (c *Commands) ParseCommandResponses(
 				}
 			}
 
+			if r.OnlineOnly && requestData.EnrichedData.ChannelStream == nil {
+				continue
+			}
+
+			if r.OfflineOnly && requestData.EnrichedData.ChannelStream != nil {
+				continue
+			}
+
 			responsesForCategory = append(responsesForCategory, *r)
 		}
 

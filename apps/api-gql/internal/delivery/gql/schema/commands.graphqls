@@ -47,6 +47,8 @@ type CommandResponse {
 	text: String!
 	twitchCategoriesIds: [String!]!
 	twitchCategories: [TwitchCategory!]! @goField(forceResolver: true)
+	onlineOnly: Boolean!
+	offlineOnly: Boolean!
 }
 
 type PublicCommand {
@@ -122,6 +124,8 @@ input CommandsUpdateOpts {
 input CreateOrUpdateCommandResponseInput {
 	text: String! @validate(constraint: "max=500")
 	twitchCategoriesIds: [String!]! @validate(constraint: "max=500")
+	onlineOnly: Boolean!
+	offlineOnly: Boolean!
 }
 
 enum CommandExpiresType {

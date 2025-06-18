@@ -32,6 +32,8 @@ const { handleSubmit, setValues, values } = useForm({
 			{
 				text: '',
 				twitchCategoriesIds: [],
+				onlineOnly: false,
+				offlineOnly: false,
 			},
 		],
 		description: '',
@@ -67,7 +69,12 @@ onMounted(async () => {
 				id: undefined,
 				module: undefined,
 				name: '',
-				responses: command.responses.map(r => ({ text: r.text, twitchCategoriesIds: [] })),
+				responses: command.responses.map(r => ({
+					text: r.text,
+					twitchCategoriesIds: [],
+					onlineOnly: r.onlineOnly,
+					offlineOnly: r.offlineOnly,
+				})),
 				aliases: [],
 			}))
 			loading.value = false

@@ -47,6 +47,8 @@ type CreateInputResponse struct {
 	Text              *string
 	Order             int
 	TwitchCategoryIDs []string
+	OnlineOnly        bool
+	OfflineOnly       bool
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command, error) {
@@ -137,6 +139,8 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 						Text:              response.Text,
 						Order:             response.Order,
 						TwitchCategoryIDs: response.TwitchCategoryIDs,
+						OnlineOnly:        response.OnlineOnly,
+						OfflineOnly:       response.OfflineOnly,
 					},
 				)
 				if err != nil {

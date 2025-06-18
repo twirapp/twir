@@ -7,6 +7,8 @@ import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 
+import type { FormSchema } from '../../composables/use-command-edit-v2'
+
 import TwitchCategorySearchShadcnMultiple from '@/components/twitch-category-search-shadcn-multiple.vue'
 import {
 	Alert,
@@ -14,6 +16,7 @@ import {
 } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
 	Dialog,
 	DialogClose,
@@ -29,16 +32,21 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import {
+	FormControl,
+	FormField,
+	FormItem,
+	FormMessage,
+} from '@/components/ui/form'
 import FormLabel from '@/components/ui/form/FormLabel.vue'
 import VariableInput from '@/components/variable-input.vue'
 
 const { t } = useI18n()
 
-const { errors: responsesErrors, value, setValue } = useField<any[]>('responses')
+const { errors: responsesErrors, value, setValue } = useField<FormSchema['responses']>('responses')
 
 function handlePush() {
-	setValue([...value.value, { text: '', twitchCategoriesIds: [] }])
+	setValue([...value.value, { text: '', twitchCategoriesIds: [], onlineOnly: false, offlineOnly: false }])
 }
 
 const responseDialogOpened = ref(false)
@@ -137,6 +145,40 @@ const editable = computed(() => !command.value?.default)
 										</FormControl>
 									</FormItem>
 								</FormField>
+
+								<div class="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+									<FormField
+										v-slot="{ value, handleChange }"
+										type="checkbox"
+										:name="`responses[${index}].onlineOnly`"
+									>
+										<FormItem class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4">
+											<FormControl>
+												<Checkbox :checked="value" @update:checked="handleChange" />
+											</FormControl>
+											<div class="space-y-1 leading-none">
+												<FormLabel>{{	t('commands.modal.settings.onlineOnly.label') }}</FormLabel>
+												<FormMessage />
+											</div>
+										</FormItem>
+									</FormField>
+
+									<FormField
+										v-slot="{ value, handleChange }"
+										type="checkbox"
+										:name="`responses[${index}].offlineOnly`"
+									>
+										<FormItem class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4">
+											<FormControl>
+												<Checkbox :checked="value" @update:checked="handleChange" />
+											</FormControl>
+											<div class="space-y-1 leading-none">
+												<FormLabel>{{	t('commands.modal.settings.offlineOnly.label') }}</FormLabel>
+												<FormMessage />
+											</div>
+										</FormItem>
+									</FormField>
+								</div>
 
 								<DialogFooter>
 									<DialogClose>

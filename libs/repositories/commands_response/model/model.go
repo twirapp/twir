@@ -10,6 +10,8 @@ type Response struct {
 	CommandID         uuid.UUID
 	Order             int
 	TwitchCategoryIDs []string `db:"twitch_category_id"`
+	OnlineOnly        bool
+	OfflineOnly       bool
 }
 
 var Nil = Response{}

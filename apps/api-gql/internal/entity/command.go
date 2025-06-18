@@ -60,6 +60,8 @@ type CommandResponse struct {
 	CommandID         uuid.UUID
 	Order             int
 	TwitchCategoryIDs []string
+	OnlineOnly        bool
+	OfflineOnly       bool
 }
 
 var CommandResponseNil = CommandResponse{}

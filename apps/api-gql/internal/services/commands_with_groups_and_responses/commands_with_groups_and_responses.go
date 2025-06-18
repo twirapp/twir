@@ -108,6 +108,8 @@ func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.Comma
 				CommandID:         r.CommandID,
 				Order:             r.Order,
 				TwitchCategoryIDs: r.TwitchCategoryIDs,
+				OnlineOnly:        r.OnlineOnly,
+				OfflineOnly:       r.OfflineOnly,
 			},
 		)
 	}

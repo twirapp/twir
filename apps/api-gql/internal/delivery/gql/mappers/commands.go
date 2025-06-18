@@ -106,6 +106,8 @@ func CommandResponseTo(e entity.CommandResponse) gqlmodel.CommandResponse {
 		CommandID:           e.CommandID.String(),
 		Text:                "", // will be set later
 		TwitchCategoriesIds: e.TwitchCategoryIDs,
+		OnlineOnly:          e.OnlineOnly,
+		OfflineOnly:         e.OfflineOnly,
 	}
 
 	if e.Text != nil {
@@ -125,6 +127,8 @@ func CommandGqlInputToService(
 			Text:              &res.Text,
 			Order:             idx,
 			TwitchCategoryIDs: res.TwitchCategoriesIds,
+			OnlineOnly:        res.OnlineOnly,
+			OfflineOnly:       res.OfflineOnly,
 		}
 	}
 

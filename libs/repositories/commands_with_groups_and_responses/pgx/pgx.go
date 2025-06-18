@@ -63,6 +63,8 @@ func init() {
 		`r."commandId" response_command_id`,
 		"r.order response_order",
 		"r.twitch_category_id response_twitch_category_id",
+		"r.online_only response_online_only",
+		"r.offline_only response_offline_only",
 	)
 
 	selectColumns = append(selectColumns, columns...)
@@ -87,6 +89,7 @@ func (c *Pgx) scanRow(rows pgx.Rows) (scanModel, error) {
 	var responseText sql.Null[string]
 	var responseTwitchCategoryID []string
 	var responseOrder sql.Null[int]
+	var responseOnlineOnly, responseOfflineOnly sql.Null[bool]
 
 	var groupId sql.Null[uuid.UUID]
 	var groupChannelID, groupName, groupColor sql.Null[string]
@@ -128,6 +131,8 @@ func (c *Pgx) scanRow(rows pgx.Rows) (scanModel, error) {
 		&responseCommandID,
 		&responseOrder,
 		&responseTwitchCategoryID,
+		&responseOnlineOnly,
+		&responseOfflineOnly,
 	); err != nil {
 		return scanModel{}, fmt.Errorf("responses failed to scan row: %w", err)
 	}

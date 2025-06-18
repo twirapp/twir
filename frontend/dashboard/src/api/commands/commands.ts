@@ -29,6 +29,8 @@ export const useCommandsApi = createGlobalState(() => {
 							name
 							boxArtUrl
 						}
+						onlineOnly
+						offlineOnly
 					}
 					cooldown
 					cooldownType

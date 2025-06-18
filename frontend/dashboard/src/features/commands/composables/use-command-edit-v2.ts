@@ -33,6 +33,8 @@ export const formSchema = object({
 		object({
 			text: string().min(1).max(500),
 			twitchCategoriesIds: array(string()).max(100),
+			onlineOnly: boolean(),
+			offlineOnly: boolean(),
 		}),
 	).max(3).default([]),
 	description: string().max(500),
