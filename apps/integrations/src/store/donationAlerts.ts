@@ -44,6 +44,9 @@ export async function addIntegration(integration: Integration) {
 				client_id: integration.integration.clientId,
 				client_secret: integration.integration.clientSecret,
 			}).toString(),
+			// eslint-disable-next-line ts/ban-ts-comment
+			// @ts-expect-error
+			verbose: true,
 		})
 
 		if (!refresh.ok) {
@@ -81,6 +84,9 @@ export async function addIntegration(integration: Integration) {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 			},
+			// eslint-disable-next-line ts/ban-ts-comment
+			// @ts-expect-error
+			verbose: true,
 		})
 
 		if (!request.ok) {
