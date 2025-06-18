@@ -25,7 +25,7 @@ const allLanguages = computed(() =>
 )
 
 const { value: deniedLanguages, setValue: setDenyList } = useField<string[]>('deniedChatLanguages')
-const { value: excludedWords, setValue: setExcludedWords } = useField<string[]>('languageExcludedWords')
+const { value: excludedWords } = useField<string[]>('languageExcludedWords')
 
 const allowedLanguages = computed(() =>
 	allLanguages.value.filter(lang => !deniedLanguages.value.includes(lang.value)),
