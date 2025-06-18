@@ -20,7 +20,7 @@ func (c *Activity) ObsSetScene(
 
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Target.String,
+		operation.Input.String,
 		data,
 	)
 	if hydratedErr != nil {
