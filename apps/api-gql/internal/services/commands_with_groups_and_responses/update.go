@@ -35,6 +35,7 @@ type UpdateInput struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []string
 	OnlineOnly                *bool
+	OfflineOnly               *bool
 	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         *int
@@ -123,6 +124,7 @@ func (c *Service) Update(
 		AllowedUsersIDS:           input.AllowedUsersIDS,
 		RolesIDS:                  input.RolesIDS,
 		OnlineOnly:                input.OnlineOnly,
+		OfflineOnly:               input.OfflineOnly,
 		CooldownRolesIDs:          input.CooldownRolesIDs,
 		EnabledCategories:         input.EnabledCategories,
 		RequiredWatchTime:         input.RequiredWatchTime,

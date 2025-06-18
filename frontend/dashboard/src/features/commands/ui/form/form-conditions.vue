@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { SlidersHorizontalIcon } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { useField } from 'vee-validate'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import TwitchCategorySearchShadcnMultiple from '@/components/twitch-category-search-shadcn-multiple.vue'
@@ -14,6 +15,21 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
+
+const { value: onlineOnly, setValue: setOnlineOnly } = useField<boolean>('onlineOnly')
+const { value: offlineOnly, setValue: setOfflineOnly } = useField<boolean>('offlineOnly')
+
+watch(onlineOnly, (v) => {
+	if (v) {
+		setOfflineOnly(false)
+	}
+})
+
+watch(offlineOnly, (v) => {
+	if (v) {
+		setOnlineOnly(false)
+	}
+})
 
 const { t } = useI18n()
 const checkboxes = computed(() => {
@@ -37,6 +53,11 @@ const checkboxes = computed(() => {
 			name: 'onlineOnly',
 			label: t('commands.modal.settings.onlineOnly.label'),
 			description: t('commands.modal.settings.onlineOnly.text'),
+		},
+		{
+			name: 'offlineOnly',
+			label: t('commands.modal.settings.offlineOnly.label'),
+			description: t('commands.modal.settings.offlineOnly.text'),
 		},
 	]
 })

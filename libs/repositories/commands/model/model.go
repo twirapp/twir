@@ -25,6 +25,7 @@ type Command struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []uuid.UUID
 	OnlineOnly                bool
+	OfflineOnly               bool
 	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         int

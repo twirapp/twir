@@ -43,6 +43,7 @@ export const useCommandsApi = createGlobalState(() => {
 					allowedUsersIds
 					rolesIds
 					onlineOnly
+					offlineOnly
 					cooldownRolesIds
 					enabledCategories
 					requiredWatchTime

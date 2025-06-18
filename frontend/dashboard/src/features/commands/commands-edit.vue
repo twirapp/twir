@@ -48,6 +48,7 @@ const { handleSubmit, setValues, values } = useForm({
 		visible: true,
 		keepResponsesOrder: true,
 		onlineOnly: false,
+		offlineOnly: false,
 		enabledCategories: [],
 		expiresType: null,
 		expiresAt: null,

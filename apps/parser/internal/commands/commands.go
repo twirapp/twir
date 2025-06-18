@@ -518,6 +518,13 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		}
 	}
 
+	if cmd.Cmd.OfflineOnly {
+		stream := data.EnrichedData.ChannelStream
+		if stream != nil && stream.ID != "" {
+			return nil, nil
+		}
+	}
+
 	if len(cmd.Cmd.EnabledCategories) != 0 {
 		stream := &model.ChannelsStreams{}
 		err = c.services.Gorm.

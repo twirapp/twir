@@ -110,6 +110,7 @@ func (c *Pgx) scanRow(rows pgx.Rows) (scanModel, error) {
 		&command.AllowedUsersIDS,
 		&command.RolesIDS,
 		&command.OnlineOnly,
+		&command.OfflineOnly,
 		&command.CooldownRolesIDs,
 		&command.EnabledCategories,
 		&command.RequiredWatchTime,

@@ -29,6 +29,7 @@ type Command {
 	allowedUsersIds: [String!]!
 	rolesIds: [String!]!
 	onlineOnly: Boolean!
+	offlineOnly: Boolean!
 	cooldownRolesIds: [String!]!
 	enabledCategories: [String!]!
 	requiredWatchTime: Int!
@@ -81,6 +82,7 @@ input CommandsCreateOpts {
 	allowedUsersIds: [String!]! @validate(constraint: "dive,max=500")
 	rolesIds: [String!]! @validate(constraint: "dive,max=500")
 	onlineOnly: Boolean!
+	offlineOnly: Boolean!
 	cooldownRolesIds: [String!]! @validate(constraint: "dive,max=500")
 	enabledCategories: [String!]! @validate(constraint: "dive,max=500")
 	requiredWatchTime: Int! @validate(constraint: "lte=900000000000")
@@ -114,6 +116,7 @@ input CommandsUpdateOpts {
 	groupId: String @validate(constraint: "max=500,omitempty")
 	expiresAt: Int @validate(constraint: "lte=90000000000000,omitempty")
 	expiresType: CommandExpiresType
+	offlineOnly: Boolean
 }
 
 input CreateOrUpdateCommandResponseInput {

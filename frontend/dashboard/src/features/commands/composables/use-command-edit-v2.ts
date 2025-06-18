@@ -49,6 +49,7 @@ export const formSchema = object({
 	visible: boolean(),
 	keepResponsesOrder: boolean(),
 	onlineOnly: boolean(),
+	offlineOnly: boolean(),
 	groupId: string().nullable().optional().default(null),
 	enabledCategories: array(string()).max(100),
 	module: string().optional(),
