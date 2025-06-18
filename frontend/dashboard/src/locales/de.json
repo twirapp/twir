@@ -198,6 +198,10 @@
           "label": "Nur wenn Online",
           "text": "Dieser Befehl funktioniert nur, wenn der Stream online ist."
         },
+        "offlineOnly": {
+          "label": "Only When Offline",
+          "text": "This command will work only when the stream is offline."
+        },
         "other": {
           "divider": "Sonstiges",
           "commandGroup": "Befehlsgruppe"
