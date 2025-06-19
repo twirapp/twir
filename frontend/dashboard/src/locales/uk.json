@@ -199,8 +199,8 @@
           "text": "Команда працюватиме лише коли трансляція онлайн."
         },
         "offlineOnly": {
-          "label": "Only When Offline",
-          "text": "This command will work only when the stream is offline."
+          "label": "Тільки коли офлайн",
+          "text": "Команда буде працювати лише коли трансляція офлайн."
         },
         "other": {
           "divider": "Інше",
@@ -909,7 +909,7 @@
       },
       "total": "Всього {total} користувачів",
       "reset": {
-        "label": "Reset stats",
+        "label": "Очистити статистику",
         "resetQuestion": "Ви впевнені, що хочете скинути значення {title}?"
       }
     },
