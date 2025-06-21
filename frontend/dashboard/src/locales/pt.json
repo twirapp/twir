@@ -60,8 +60,8 @@
     "settings": "Configurações",
     "create": "Criar",
     "edit": "Editar",
-    "noData": "No data",
-    "loading": "Loading..."
+    "noData": "Sem Informação",
+    "loading": "Carregando..."
   },
   "sidebar": {
     "dashboard": "Painel de Controle",
@@ -94,7 +94,7 @@
     "darkTheme": "Tema Escuro",
     "lightTheme": "Tema Claro",
     "notifications": "Notificações",
-    "giveaways": "Giveaways"
+    "giveaways": "Sorteios"
   },
   "deleteConfirmation": {
     "text": "Tem certeza em deletar esta coisa?",
@@ -134,7 +134,7 @@
         }
       },
       "aliases": {
-        "label": "Additional names"
+        "label": "Nomes adicionais"
       },
       "gameCategories": {
         "label": "Ativar comando apenas em certas categorias (deixe em branco para desativar)"
@@ -142,7 +142,7 @@
       "expiration": {
         "label": "Expiração",
         "actionsLabel": "Ação ao expirar",
-        "defaultWarning": "Expiration cannot be set for default command",
+        "defaultWarning": "Comando padrão não pode expirar",
         "actions": {
           "delete": "Comando será excluído",
           "disable": "Comando será desativado"
@@ -166,8 +166,8 @@
         "placeholder": "Selecione funções para conceder permissões para usar comandos",
         "deniedUsers": "Usuários, que não podem usar esse comando.",
         "allowedUsers": "Usuários, que podem ignorar as restrições de funções para esse comando.",
-        "exceptions": "Exceptions",
-        "blocked": "Blocked users"
+        "exceptions": "Exceções",
+        "blocked": "Usuários bloqueados"
       },
       "restrictions": {
         "name": "Restrições por estatísticas",
@@ -199,8 +199,8 @@
           "text": "Este comando só funcionará quando a stream estiver online."
         },
         "offlineOnly": {
-          "label": "Only When Offline",
-          "text": "This command will work only when the stream is offline."
+          "label": "Somente quando desligado",
+          "text": "Este comando funcionará apenas quando a transmissão estiver ligada."
         },
         "other": {
           "divider": "Outro",
@@ -274,7 +274,7 @@
           "channel-command": "Comando",
           "channel-command-group": "Grupo de Comando",
           "channel-variable": "Variável",
-          "channel-games-eight-ball": "8ball",
+          "channel-games-eight-ball": "Bola 8",
           "channel-games-duel": "Duelo",
           "channel-games-russian-roulette": "Roleta Russa",
           "channel-games-seppuku": "Seppuku",
