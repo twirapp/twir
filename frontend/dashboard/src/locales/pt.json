@@ -243,7 +243,7 @@
     },
     "widgets": {
       "chat": {
-        "title": "Conversa"
+        "title": "Bate-papo"
       },
       "stream": {
         "title": "Transmissão"
@@ -284,21 +284,21 @@
           "channel-moderation-setting": "Configurações da moderação",
           "channel-overlay-chat": "Sobreposição do chat",
           "channel-overlay-dudes": "Dudes Overlay",
-          "channel-overlay-now-playing": "Now Playing Overlay",
+          "channel-overlay-now-playing": "Sobreposição de Reproduzindo Agora",
           "channel-roles": "Funções",
           "channel-timers": "Temporizadora",
           "channel-song-requests": "Solicitações de músicas",
           "channel-integrations": "Integração",
           "channel-alerts": "Alerta",
-          "channel-chat-alerts": "Chat alerts"
+          "channel-chat-alerts": "Alertas de bate-papo"
         }
       }
     }
   },
   "integrations": {
-    "notLoggedIn": "You have not logged in!",
-    "songServicesInfo": "Providing access to this service allows Twir to automatically get and print your currently playing song into chat when {0} command is being used.",
-    "donateServicesInfo": "Providing access to this service allows Twir to listen to incoming donations, and will setup interactions for you in {0}, {1} categories.",
+    "notLoggedIn": "Você ainda não logou!",
+    "songServicesInfo": "Fornecer acesso a este serviço permite que o Twir obtenha e envie automaticamente sua música atual no bate-papo quando o comando {0} estiver sendo usado.",
+    "donateServicesInfo": "Fornecer acesso a este serviço permite que o Twir ouça as doações recebidas e irá configurar interações para você nas categorias {0}, {1}.",
     "discord": {
       "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
       "guildPluralization": "No servers | 1 server | {count} servers",
