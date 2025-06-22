@@ -354,7 +354,7 @@
   "events": {
     "delay": "Atraso (em segundos)",
     "repeat": "Contagem de testes",
-    "onlineOnly": "Online-Only Execution",
+    "onlineOnly": "Executar somente quando a transmissão estiver ligada",
     "type": "Tipo",
     "description": "Descrição",
     "targetCommand": "Comando de Destino",
@@ -367,17 +367,17 @@
       "inputs": {
         "message": "Message To Send (supports variables)",
         "default": "Action Text (supports variables)",
-        "vipSlots": "VIP Slots Amount",
+        "vipSlots": "Quantidade de Espaços VIP",
         "username": "Username (supports variables)",
         "variableValue": "New Variable Value (supports variables)",
         "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
       },
-      "banMessage": "Ban Message",
-      "banTime": "Ban Time",
+      "banMessage": "Mensagem de Banimento",
+      "banTime": "Tempo de banimento",
       "obs": {
-        "warningTitle": "You need to configure OBS first before proceeding further!",
-        "warningText": "Seems like you have not connected Twir with OBS. You can do it on the “Overlays” page.",
-        "scene": "OBS Scene",
+        "warningTitle": "Você precisa configurar o OBS antes de prosseguir mais!",
+        "warningText": "Parece que você não conectou o Twir ao OBS. Você pode fazer isso na página \"Sobreposições\".",
+        "scene": "Cena do OBS",
         "source": "OBS Source",
         "audioSource": "OBS Audio Source"
       },
