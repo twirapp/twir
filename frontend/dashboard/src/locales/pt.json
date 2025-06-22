@@ -300,9 +300,9 @@
     "songServicesInfo": "Fornecer acesso a este serviço permite que o Twir obtenha e envie automaticamente sua música atual no bate-papo quando o comando {0} estiver sendo usado.",
     "donateServicesInfo": "Fornecer acesso a este serviço permite que o Twir ouça as doações recebidas e irá configurar interações para você nas categorias {0}, {1}.",
     "discord": {
-      "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
-      "guildPluralization": "No servers | 1 server | {count} servers",
-      "connectedGuilds": "{guilds} connected",
+      "description": "Fornecer acesso ao Discord permite que o Twir configure pings automáticos e alertas sobre o estado da transmissão em seus servidores do Discord.",
+      "guildPluralization": "Sem servidores | 1 servidor | {count} servidores",
+      "connectedGuilds": "{guilds} conectadas",
       "alerts": {
         "label": "Alertas",
         "showTitle": "Mostrar título da transmissão?",
