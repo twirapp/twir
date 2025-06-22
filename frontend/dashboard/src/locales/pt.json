@@ -317,42 +317,42 @@
         "streamOfflinePlaceholder": "Esta mensagem é enviada por Twir quando a transmissão é desligada.",
         "updateAlert": "O Twir atualizará a mensagem incorporada periodicamente para garantir que ela seja sincronizada com o estado da sua transmissão. (espectadores, título, categoria, etc.)",
         "shouldDeleteMessageOnOffline": "Excluir mensagem de alerta em vez de editá-la quando a transmissão estiver desligada?",
-        "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
+        "additionalUsersIdsForLiveCheck": "Lista adicional de usuários da Twitch que receberão notificações de transmissão."
       },
-      "connectGuild": "+ Connect Server",
-      "disconnectGuild": "Disconnect Server",
-      "noGuilds": "No Servers Connected",
-      "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
+      "connectGuild": "+ Conectar Servidor",
+      "disconnectGuild": "Desconectar Servidor",
+      "noGuilds": "Sem Servidores Conectados",
+      "cannotSendMessage": "O Bot não tem permissão para enviar mensagens nesse canal. Confira as permissões do canal para resolver isso."
     },
     "faceit": {
-      "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
+      "info": "Fornecer acesso a este serviço permite que o Twir monitore suas partidas do Faceit e configure variáveis ​​de comando como {0}, {1} e muito mais."
     },
     "nightbot": {
-      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
+      "info": "Fornecer acesso a este serviço permite que o Twir importe comandos e temporizadores do Nightbot."
     },
     "valorant": {
-      "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
+      "info": "Fornecer acesso a este serviço permite que o Twir monitore suas partidas do Valorant e configure variáveis ​​de comando como {0}, {1} e muito mais. "
     },
     "sevenTv": {
-      "description": "We can manage 7tv channel emotes, when this integration is enabled.",
-      "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
+      "description": "Podemos gerenciar os emotes do canal do 7tv, quando essa integração é ativada.",
+      "alert": "Você também pode fazer fluxo avançado através do sistema {0} para gerenciar os emotes do 7tv.",
       "connected": "Conectado",
       "notConnected": "Não conectado",
-      "notRegistered": "You are not registered at {0}",
-      "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
-      "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
+      "notRegistered": "Você não tem cadastro no {0}",
+      "errorSameReward": "Você não pode usar a mesma recompensa para adicionar e remover emotes!",
+      "deleteOnlyAddedByApp": "Remover apenas os emotes adicionados por Twir",
       "connectSteps": {
-        "step1": "Open your {0} profile",
-        "step2": "Click on \"Add editors\" button",
-        "step3": "Add {0} as an editor"
+        "step1": "Abra o seu perfil {0}",
+        "step2": "Clique no botão \"Adicionar editores\"",
+        "step3": "Adicionar {0} como um editor"
       },
-      "rewardForAddEmote": "Reward for adding emote",
-      "rewardForRemoveEmote": "Reward for removing emote",
+      "rewardForAddEmote": "Recompensa por adicionar um emote",
+      "rewardForRemoveEmote": "Recompensa por remover um emote",
       "rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
     }
   },
   "events": {
-    "delay": "Delay (in seconds)",
+    "delay": "Atraso (em segundos)",
     "repeat": "Contagem de testes",
     "onlineOnly": "Online-Only Execution",
     "type": "Tipo",
