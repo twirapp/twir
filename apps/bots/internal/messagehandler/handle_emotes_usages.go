@@ -3,9 +3,7 @@ package messagehandler
 import (
 	"context"
 	"log/slog"
-	"time"
 
-	"github.com/google/uuid"
 	channelsemotesusages "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 )
 
@@ -18,11 +16,9 @@ func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []h
 				createEmoteUsageInputs = append(
 					createEmoteUsageInputs,
 					channelsemotesusages.ChannelEmoteUsageInput{
-						ID:        uuid.NewString(),
 						ChannelID: msg.BroadcasterUserId,
 						UserID:    msg.ChatterUserId,
 						Emote:     key,
-						CreatedAt: time.Now().UTC(),
 					},
 				)
 			}

@@ -22,6 +22,7 @@ import (
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -64,6 +65,7 @@ type Services struct {
 	CacheTwitchClient        *twitch.CachedTwitchClient
 	ChatWallRepo             chatwallrepository.Repository
 	ChannelsInfoHistoryRepo  channelsinfohistory.Repository
+	ChannelEmotesUsagesRepo  channelsemotesusagesrepository.Repository
 	ShortUrlServices         *shortenedurls.Service
 	Executron                executron.Executron
 }

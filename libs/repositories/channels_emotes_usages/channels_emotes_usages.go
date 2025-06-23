@@ -2,17 +2,20 @@ package channels_emotes_usages
 
 import (
 	"context"
-	"time"
 )
 
 type Repository interface {
 	CreateMany(ctx context.Context, inputs []ChannelEmoteUsageInput) error
+	Count(ctx context.Context, input CountInput) (uint64, error)
 }
 
 type ChannelEmoteUsageInput struct {
-	ID        string
 	ChannelID string
 	UserID    string
 	Emote     string
-	CreatedAt time.Time
+}
+
+type CountInput struct {
+	ChannelID *string
+	UserID    *string
 }

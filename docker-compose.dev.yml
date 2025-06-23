@@ -156,10 +156,34 @@ services:
     networks:
       - twir-dev
 
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.5-alpine
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_USER=twir
+      - CLICKHOUSE_PASSWORD=twir
+      - CLICKHOUSE_DB=twir
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./configs/clickhouse-config.xml:/etc/clickhouse-server/config.d/override.xml
+    ports:
+      - '8123:8123'
+      - '9000:9000'
+    networks:
+      - twir-dev
+    cap_add:
+      - SYS_NICE
+      - NET_ADMIN
+      - IPC_LOCK
+    ulimits:
+      nofile: 262144
+
 volumes:
   redis-data:
   postgres-data:
   minio-data:
+  clickhouse-data:
 
 networks:
   twir-dev:

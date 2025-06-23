@@ -26,6 +26,7 @@ import (
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
 	"github.com/satont/twir/apps/parser/pkg/executron"
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
@@ -37,6 +38,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
@@ -167,6 +169,12 @@ func main() {
 		panic(err)
 	}
 
+	clickhouseCreator := baseapp.NewClickHouse("parser")
+	clickhouseClient, err := clickhouseCreator(*config)
+	if err != nil {
+		panic(err)
+	}
+
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
 	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
@@ -178,6 +186,7 @@ func main() {
 	channelsInfoHistoryRepo := channelsinfohistorypostgres.New(channelsinfohistorypostgres.Opts{PgxPool: pgxconn})
 	shortenedUrlsRepo := shortenedurlspgx.New(shortenedurlspgx.Opts{PgxPool: pgxconn})
 	streamsRepository := streamsrepositorypostgres.New(streamsrepositorypostgres.Opts{PgxPool: pgxconn})
+	channelsEmotesUsage := channelsemotesusagesrepositoryclickhouse.New(channelsemotesusagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 
 	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
 	if err != nil {
@@ -233,7 +242,8 @@ func main() {
 				Config:     *config,
 			},
 		),
-		Executron: executron.New(*config, redisClient),
+		ChannelEmotesUsagesRepo: channelsEmotesUsage,
+		Executron:               executron.New(*config, redisClient),
 	}
 
 	variablesService := variables.New(

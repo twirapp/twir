@@ -2,6 +2,10 @@ module github.com/twirapp/twir/libs/repositories
 
 go 1.24.1
 
+replace (
+	github.com/twirapp/twir/libs/baseapp => ../baseapp
+)
+
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.0

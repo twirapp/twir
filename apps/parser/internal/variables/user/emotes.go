@@ -6,7 +6,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 )
 
 var Emotes = &types.Variable{
@@ -25,18 +25,18 @@ var Emotes = &types.Variable{
 				},
 			).
 			Else(parseCtx.Sender.ID)
-		var count int64
-		err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Where(`"channelId" = ? AND "userId" = ?`, parseCtx.Channel.ID, targetUserId).
-			Model(&model.ChannelEmoteUsage{}).
-			Count(&count).
-			Error
 
+		count, err := parseCtx.Services.ChannelEmotesUsagesRepo.Count(
+			ctx,
+			channelsemotesusagesrepository.CountInput{
+				ChannelID: &parseCtx.Channel.ID,
+				UserID:    &targetUserId,
+			},
+		)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 
-			result.Result = "internal error"
+			result.Result = "[ERROR]"
 			return result, nil
 		}
 
