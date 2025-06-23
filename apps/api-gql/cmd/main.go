@@ -28,6 +28,7 @@ import (
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
@@ -329,6 +330,7 @@ func main() {
 			channels.New,
 			chat_messages.New,
 			channels_commands_prefix.New,
+			channels_emotes_usages.New,
 			tts.New,
 			song_requests.New,
 			community_redemptions.New,
