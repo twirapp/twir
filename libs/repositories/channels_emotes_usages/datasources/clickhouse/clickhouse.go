@@ -3,6 +3,7 @@ package clickhouse
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Masterminds/squirrel"
@@ -197,57 +198,138 @@ func (c *Clickhouse) GetEmotesRanges(
 	error,
 ) {
 	if len(emotesNames) == 0 {
-		return nil, nil
+		return nil, nil // Return empty map or nil, nil as per original logic
 	}
 
-	// Define time range based on input
-	var startTime time.Time
+	// Define time range and bucketing parameters
+	var startTime time.Time       // The start of the historical period (e.g., 1 day ago)
+	var timeBucketFunc string     // ClickHouse function like 'toStartOfHour' or 'toStartOfDay'
+	var intervalUnit string       // 'HOUR' or 'DAY' for ClickHouse INTERVAL clause
+	var startBucketTime time.Time // The start of the very first time bucket to generate
+	var endBucketTime time.Time   // The start of the very last time bucket to generate (usually current hour/day)
+
 	now := time.Now()
+
 	switch rangeType {
 	case channelsemotesusagesrepository.EmoteStatisticRangeLastDay:
 		startTime = now.AddDate(0, 0, -1)
+		timeBucketFunc = "toStartOfHour"
+		intervalUnit = "HOUR"
+		// Ensure buckets align with hour boundaries
+		startBucketTime = startTime.Truncate(time.Hour)
+		endBucketTime = now.Truncate(time.Hour)
 	case channelsemotesusagesrepository.EmoteStatisticRangeLastWeek:
 		startTime = now.AddDate(0, 0, -7)
+		timeBucketFunc = "toStartOfDay"
+		intervalUnit = "DAY"
+		// Ensure buckets align with day boundaries
+		startBucketTime = startTime.Truncate(24 * time.Hour)
+		endBucketTime = now.Truncate(24 * time.Hour)
 	case channelsemotesusagesrepository.EmoteStatisticRangeLastMonth:
 		startTime = now.AddDate(0, -1, 0)
+		timeBucketFunc = "toStartOfDay"
+		intervalUnit = "DAY"
+		startBucketTime = startTime.Truncate(24 * time.Hour)
+		endBucketTime = now.Truncate(24 * time.Hour)
 	case channelsemotesusagesrepository.EmoteStatisticRangeLastThreeMonth:
 		startTime = now.AddDate(0, -3, 0)
+		timeBucketFunc = "toStartOfDay"
+		intervalUnit = "DAY"
+		startBucketTime = startTime.Truncate(24 * time.Hour)
+		endBucketTime = now.Truncate(24 * time.Hour)
 	case channelsemotesusagesrepository.EmoteStatisticRangeLastYear:
 		startTime = now.AddDate(-1, 0, 0)
+		timeBucketFunc = "toStartOfDay"
+		intervalUnit = "DAY"
+		startBucketTime = startTime.Truncate(24 * time.Hour)
+		endBucketTime = now.Truncate(24 * time.Hour)
 	default:
 		return nil, fmt.Errorf("invalid range type: %s", rangeType)
 	}
 
-	// Determine time bucket based on range
-	var timeBucket string
-	switch rangeType {
-	case channelsemotesusagesrepository.EmoteStatisticRangeLastDay:
-		timeBucket = "toStartOfHour(created_at)"
-	case channelsemotesusagesrepository.EmoteStatisticRangeLastWeek, channelsemotesusagesrepository.EmoteStatisticRangeLastMonth:
-		timeBucket = "toStartOfDay(created_at)"
-	case channelsemotesusagesrepository.EmoteStatisticRangeLastThreeMonth, channelsemotesusagesrepository.EmoteStatisticRangeLastYear:
-		timeBucket = "toStartOfMonth(created_at)"
+	// Calculate the number of intervals needed for numbers() function
+	var durationInUnits int
+	if intervalUnit == "HOUR" {
+		durationInUnits = int(endBucketTime.Sub(startBucketTime).Hours())
+	} else { // DAY
+		durationInUnits = int(endBucketTime.Sub(startBucketTime).Hours() / 24)
+	}
+	numbersCount := durationInUnits + 1 // +1 to include both start and end buckets
+
+	if numbersCount <= 0 {
+		// No intervals to generate (e.g., startBucketTime is after endBucketTime)
+		return make(map[string][]model.EmoteRange), nil
 	}
 
-	// Construct query
+	// Dynamically build the dimensions CTE (channel_id, emote combinations)
+	var emoteDimensionsBuilder strings.Builder
+	for i, emote := range emotesNames {
+		if i > 0 {
+			emoteDimensionsBuilder.WriteString(" UNION ALL ")
+		}
+		// Using single quotes for string literals in SQL.
+		// ClickHouse driver should handle escaping channelID and emote if they contain single quotes.
+		// If not, consider `strings.ReplaceAll(value, "'", "''")` for robustness.
+		emoteDimensionsBuilder.WriteString(
+			fmt.Sprintf(
+				"SELECT '%s' AS channel_id, '%s' AS emote",
+				channelID,
+				emote,
+			),
+		)
+	}
+	emoteDimensions := emoteDimensionsBuilder.String()
+
+	// Construct the full ClickHouse query
+	// This query generates a full time series, cross joins with specified dimensions,
+	// and left joins the actual aggregated data to fill missing points with 0.
 	query := fmt.Sprintf(
 		`
-		SELECT
-			channel_id,
-			emote,
-			%s AS time_bucket,
-			COUNT(*) AS cnt
-		FROM twir.channels_emotes_usages
-		WHERE created_at >= ?
-			AND channel_id = ?
-			AND emote IN (?)
-		GROUP BY channel_id, emote, time_bucket
-		ORDER BY channel_id, emote, time_bucket
-	`, timeBucket,
+    WITH time_series AS (
+        SELECT
+            %s(toDateTime(?)) + INTERVAL number %s AS time_bucket
+        FROM numbers(%d)
+    ),
+    dimensions AS (
+        %s
+    )
+    SELECT
+        ts.time_bucket,
+        d.channel_id,
+        d.emote,
+        COALESCE(tce.cnt, 0) AS cnt
+    FROM time_series AS ts
+    CROSS JOIN dimensions AS d
+    LEFT JOIN (
+        SELECT
+            channel_id,
+            emote,
+            %s(created_at) AS time_bucket,
+            COUNT(*) AS cnt
+        FROM twir.channels_emotes_usages
+        WHERE created_at >= toDateTime(?) -- Use original startTime for filtering raw data
+          AND channel_id = ?
+          AND emote IN (?)
+        GROUP BY channel_id, emote, time_bucket
+    ) AS tce ON ts.time_bucket = tce.time_bucket
+            AND d.channel_id = tce.channel_id
+            AND d.emote = tce.emote
+    ORDER BY ts.time_bucket ASC, d.channel_id ASC, d.emote ASC;
+    `,
+		timeBucketFunc,  // 1. For time_series CTE (e.g., toStartOfHour)
+		intervalUnit,    // 2. For time_series CTE (e.g., HOUR)
+		numbersCount,    // 3. For numbers() table function (e.g., 25)
+		emoteDimensions, // 4. For dimensions CTE (dynamically built UNION ALL)
+		timeBucketFunc,  // 5. For the inner aggregation query (e.g., toStartOfHour)
 	)
 
 	// Execute query
-	rows, err := c.client.Query(ctx, query, startTime, channelID, emotesNames)
+	// The parameters map to the '?' placeholders in order:
+	// 1. `startBucketTime` for the `toDateTime(?)` in the `time_series` CTE.
+	// 2. `startTime` (original) for the `created_at >= toDateTime(?)` in the inner subquery.
+	// 3. `channelID` for the `channel_id = ?` in the inner subquery.
+	// 4. `emotesNames` for the `emote IN (?)` in the inner subquery.
+	rows, err := c.client.Query(ctx, query, startBucketTime, startTime, channelID, emotesNames)
 	if err != nil {
 		return nil, fmt.Errorf("query execution failed: %w", err)
 	}
@@ -257,11 +339,11 @@ func (c *Clickhouse) GetEmotesRanges(
 	result := make(map[string][]model.EmoteRange)
 
 	for rows.Next() {
-		var channelID, emote string
+		var currentChannelID, emote string // Scan into separate variables to avoid modifying the outer channelID
 		var timestamp time.Time
 		var count uint64
 
-		if err := rows.Scan(&channelID, &emote, &timestamp, &count); err != nil {
+		if err := rows.Scan(&timestamp, &currentChannelID, &emote, &count); err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
 
@@ -284,7 +366,7 @@ func (c *Clickhouse) GetEmotesRanges(
 func (c *Clickhouse) GetChannelEmoteUsageHistory(
 	ctx context.Context,
 	input channelsemotesusagesrepository.EmotesUsersTopOrHistoryInput,
-) ([]model.EmoteUsage, error) {
+) ([]model.EmoteUsage, uint64, error) {
 	var (
 		page    = input.Page
 		perPage = input.PerPage
@@ -304,14 +386,14 @@ func (c *Clickhouse) GetChannelEmoteUsageHistory(
 			user_id,
 			created_at
 		FROM channels_emotes_usages
-		WHERE channel_id = ?
+		WHERE channel_id = ? AND emote = ?
 		ORDER BY created_at DESC
 		LIMIT ? OFFSET ?
 	`
 
-	rows, err := c.client.Query(ctx, query, input.ChannelID, perPage, offset)
+	rows, err := c.client.Query(ctx, query, input.ChannelID, input.EmoteName, perPage, offset)
 	if err != nil {
-		return nil, fmt.Errorf("query execution failed: %w", err)
+		return nil, 0, fmt.Errorf("query execution failed: %w", err)
 	}
 	defer rows.Close()
 
@@ -320,33 +402,40 @@ func (c *Clickhouse) GetChannelEmoteUsageHistory(
 		var usage model.EmoteUsage
 		err := rows.Scan(&usage.ID, &usage.ChannelID, &usage.Emote, &usage.UserID, &usage.CreatedAt)
 		if err != nil {
-			return nil, fmt.Errorf("scan failed: %w", err)
+			return nil, 0, fmt.Errorf("scan failed: %w", err)
 		}
 
 		result = append(result, usage)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows error: %w", err)
+		return nil, 0, fmt.Errorf("rows error: %w", err)
 	}
 
-	return result, nil
+	totalQuery := `
+		SELECT COUNT(*) FROM channels_emotes_usages
+		WHERE channel_id = ? AND emote = ?
+`
+
+	var total uint64
+	err = c.client.QueryRow(ctx, totalQuery, input.ChannelID, input.EmoteName).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("total query error: %w", err)
+	}
+
+	return result, total, nil
 }
 
 func (c *Clickhouse) GetChannelEmoteUsageTopUsers(
 	ctx context.Context,
 	input channelsemotesusagesrepository.EmotesUsersTopOrHistoryInput,
-) ([]model.EmoteUsageTopUser, error) {
+) ([]model.EmoteUsageTopUser, uint64, error) {
 	var (
 		page    = input.Page
 		perPage = input.PerPage
 	)
-
-	if perPage == 0 {
-		perPage = 20
-	}
-
-	if perPage > 1000 {
+	
+	if perPage == 0 || perPage > 1000 {
 		perPage = 20
 	}
 
@@ -358,15 +447,15 @@ func (c *Clickhouse) GetChannelEmoteUsageTopUsers(
 			user_id,
 			COUNT(*) AS count
 		FROM channels_emotes_usages
-		WHERE channel_id = ?
+		WHERE channel_id = ? AND emote = ?
 		GROUP BY channel_id, user_id
 		ORDER BY count DESC
 		LIMIT ? OFFSET ?
 	`
 
-	rows, err := c.client.Query(ctx, query, input.ChannelID, perPage, offset)
+	rows, err := c.client.Query(ctx, query, input.ChannelID, input.EmoteName, perPage, offset)
 	if err != nil {
-		return nil, fmt.Errorf("query execution failed: %w", err)
+		return nil, 0, fmt.Errorf("query execution failed: %w", err)
 	}
 	defer rows.Close()
 
@@ -375,15 +464,26 @@ func (c *Clickhouse) GetChannelEmoteUsageTopUsers(
 		var usage model.EmoteUsageTopUser
 		err := rows.Scan(&usage.ChannelID, &usage.UserID, &usage.Count)
 		if err != nil {
-			return nil, fmt.Errorf("scan failed: %w", err)
+			return nil, 0, fmt.Errorf("scan failed: %w", err)
 		}
 
 		result = append(result, usage)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows error: %w", err)
+		return nil, 0, fmt.Errorf("rows error: %w", err)
 	}
 
-	return result, nil
+	totalQuery := `
+		SELECT COUNT(DISTINCT user_id) FROM channels_emotes_usages
+		WHERE channel_id = ? AND emote = ?
+`
+
+	var total uint64
+	err = c.client.QueryRow(ctx, totalQuery, input.ChannelID, input.EmoteName).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("total query error: %w", err)
+	}
+
+	return result, total, nil
 }

@@ -22,11 +22,11 @@ type Repository interface {
 	GetChannelEmoteUsageHistory(
 		ctx context.Context,
 		input EmotesUsersTopOrHistoryInput,
-	) ([]model.EmoteUsage, error)
+	) ([]model.EmoteUsage, uint64, error)
 	GetChannelEmoteUsageTopUsers(
 		ctx context.Context,
 		input EmotesUsersTopOrHistoryInput,
-	) ([]model.EmoteUsageTopUser, error)
+	) ([]model.EmoteUsageTopUser, uint64, error)
 }
 
 type ChannelEmoteUsageInput struct {
@@ -65,6 +65,7 @@ const (
 
 type EmotesUsersTopOrHistoryInput struct {
 	ChannelID string
+	EmoteName string
 	Page      int
 	PerPage   int
 }

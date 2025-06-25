@@ -107,3 +107,66 @@ func (c *Service) GetEmotesRanges(
 
 	return convertedRanges, nil
 }
+
+type GetChannelEmoteUsageHistoryInput struct {
+	ChannelID string
+	EmoteName string
+	Page      int
+	PerPage   int
+}
+
+func (c *Service) GetChannelEmoteUsageTopUsers(
+	ctx context.Context,
+	input GetChannelEmoteUsageHistoryInput,
+) ([]entity.EmoteStatisticTopUser, uint64, error) {
+	topUsers, total, err := c.channelsEmotesUsagesRepository.GetChannelEmoteUsageTopUsers(
+		ctx,
+		channelsemotesusagesrepository.EmotesUsersTopOrHistoryInput{
+			ChannelID: input.ChannelID,
+			EmoteName: input.EmoteName,
+			Page:      input.Page,
+			PerPage:   input.PerPage,
+		},
+	)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	convertedTopUsers := make([]entity.EmoteStatisticTopUser, len(topUsers))
+	for i, topUser := range topUsers {
+		convertedTopUsers[i] = entity.EmoteStatisticTopUser{
+			UserID: topUser.UserID,
+			Count:  int(topUser.Count),
+		}
+	}
+
+	return convertedTopUsers, total, nil
+}
+
+func (c *Service) GetChannelEmoteUsageHistory(
+	ctx context.Context,
+	input GetChannelEmoteUsageHistoryInput,
+) ([]entity.EmoteStatisticUserUsage, uint64, error) {
+	usages, total, err := c.channelsEmotesUsagesRepository.GetChannelEmoteUsageHistory(
+		ctx,
+		channelsemotesusagesrepository.EmotesUsersTopOrHistoryInput{
+			ChannelID: input.ChannelID,
+			EmoteName: input.EmoteName,
+			Page:      input.Page,
+			PerPage:   input.PerPage,
+		},
+	)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	convertedUsages := make([]entity.EmoteStatisticUserUsage, len(usages))
+	for i, usage := range usages {
+		convertedUsages[i] = entity.EmoteStatisticUserUsage{
+			UserID: usage.UserID,
+			Date:   usage.CreatedAt,
+		}
+	}
+
+	return convertedUsages, total, nil
+}
