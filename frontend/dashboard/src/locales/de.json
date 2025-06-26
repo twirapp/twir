@@ -199,8 +199,8 @@
           "text": "Dieser Befehl funktioniert nur, wenn der Stream online ist."
         },
         "offlineOnly": {
-          "label": "Only When Offline",
-          "text": "This command will work only when the stream is offline."
+          "label": "Nur wenn offline",
+          "text": "Dieser Befehl funktioniert nur, wenn der Stream offline ist."
         },
         "other": {
           "divider": "Sonstiges",
@@ -909,7 +909,7 @@
       },
       "total": "Gesamte Benutzer: {total}",
       "reset": {
-        "label": "Reset stats",
+        "label": "Statistiken zurücksetzen",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     },
