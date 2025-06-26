@@ -199,8 +199,8 @@
           "text": "Tento príkaz bude fungovať len vtedy, keď je stream online."
         },
         "offlineOnly": {
-          "label": "Only When Offline",
-          "text": "This command will work only when the stream is offline."
+          "label": "Iba ak offline",
+          "text": "Tento príkaz bude fungovať iba vtedy, keď je stream offline."
         },
         "other": {
           "divider": "Iné",
