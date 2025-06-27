@@ -5,7 +5,9 @@ import { SQL } from 'bun'
 
 import type { Donate } from '../utils/onDonation.ts'
 
-const sql = new SQL(config.DATABASE_URL)
+const sql = new SQL(config.DATABASE_URL, {
+	prepare: false,
+})
 
 try {
 	await sql`SELECT 1`
