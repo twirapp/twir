@@ -38,8 +38,8 @@ func CreateBaseApp(opts Opts) fx.Option {
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: opts.AppName}),
 			uptrace.NewFx(opts.AppName),
 			newRedis,
-			newGorm,
 			newPgxPool,
+			newGorm,
 			NewClickHouse(opts.AppName),
 			buscore.NewNatsBusFx(opts.AppName),
 			fx.Annotate(
