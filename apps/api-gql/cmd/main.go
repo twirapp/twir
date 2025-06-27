@@ -28,6 +28,7 @@ import (
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
@@ -85,10 +86,12 @@ import (
 	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
-	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
+	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
 	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
 	commandsgroupsrepository "github.com/twirapp/twir/libs/repositories/commands_group"
@@ -232,7 +235,7 @@ func main() {
 				fx.As(new(greetingsrepository.Repository)),
 			),
 			fx.Annotate(
-				chatmessagesrepositorypgx.NewFx,
+				chatmessagesrepositoryclickhouse.NewFx,
 				fx.As(new(chatmessagesrepository.Repository)),
 			),
 			fx.Annotate(
@@ -295,6 +298,10 @@ func main() {
 				channelsfilesrepositorypgx.NewFx,
 				fx.As(new(channelsfilesrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsemotesusagesrepositoryclickhouse.NewFx,
+				fx.As(new(channelsemotesusagesrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -323,6 +330,7 @@ func main() {
 			channels.New,
 			chat_messages.New,
 			channels_commands_prefix.New,
+			channels_emotes_usages.New,
 			tts.New,
 			song_requests.New,
 			community_redemptions.New,

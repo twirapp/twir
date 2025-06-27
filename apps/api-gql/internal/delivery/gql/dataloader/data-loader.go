@@ -6,7 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	channelsemotesusages "github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
@@ -24,10 +26,12 @@ const (
 type Opts struct {
 	fx.In
 
+	AuthService              *auth.Auth
 	CachedTwitchClient       *twitch.CachedTwitchClient
 	CommandsGroupsService    *commands_groups.Service
 	CommandsResponsesService *commands_responses.Service
 	TwitchService            *twitchservice.Service
+	EmoteStatisticService    *channelsemotesusages.Service
 }
 
 type dataLoader struct {
@@ -38,6 +42,7 @@ type dataLoader struct {
 	twitchCategoriesByIdLoader  *dataloadgen.Loader[string, *gqlmodel.TwitchCategory]
 	commandsGroupsByIdLoader    *dataloadgen.Loader[uuid.UUID, *gqlmodel.CommandGroup]
 	commandsResponsesByIDLoader *dataloadgen.Loader[uuid.UUID, []gqlmodel.CommandResponse]
+	emoteStatistic              *dataloadgen.Loader[EmoteRangeKey, []gqlmodel.EmoteStatisticUsage]
 }
 
 type LoaderFactory struct {
@@ -77,6 +82,11 @@ func (c *LoaderFactory) Load() *dataLoader {
 
 	loader.commandsResponsesByIDLoader = dataloadgen.NewLoader(
 		loader.getCommandsResponsesByIDs,
+		dataloadgen.WithWait(time.Millisecond),
+	)
+
+	loader.emoteStatistic = dataloadgen.NewLoader(
+		loader.getEmoteStatistic,
 		dataloadgen.WithWait(time.Millisecond),
 	)
 

@@ -19,5 +19,5 @@ RUN cd cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/twir_ap
 
 FROM go_prod_base
 COPY --from=builder /app/twir_application /app/twir_application
-COPY libs/migrations/migrations /app/libs/migrations/migrations
+COPY libs/migrations /app/libs/migrations
 CMD ["sh", "-c", "/app/twir_application m run && sleep 60"]

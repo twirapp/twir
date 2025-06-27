@@ -22,6 +22,16 @@ var createCmd = &cli.Command{
 			return err
 		}
 
+		migrationDb, err := pterm.DefaultInteractiveSelect.WithOptions(
+			[]string{
+				"postgres",
+				"clickhouse",
+			},
+		).Show()
+		if err != nil {
+			return err
+		}
+
 		migrationType, err := pterm.DefaultInteractiveSelect.WithOptions([]string{"sql", "go"}).Show()
 		if err != nil {
 			return err
@@ -32,7 +42,7 @@ var createCmd = &cli.Command{
 			return fmt.Errorf("cannot get working directory: %w", err)
 		}
 
-		dir := filepath.Join(wd, "libs", "migrations", "migrations")
+		dir := filepath.Join(wd, "libs", "migrations", migrationDb)
 
 		log.SetOutput(&emptyLogWriter{})
 		err = goose.Create(nil, dir, migrationName, migrationType)

@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	_ "github.com/satont/twir/libs/migrations/migrations"
+	_ "github.com/satont/twir/libs/migrations/postgres"
 	"github.com/urfave/cli/v2"
 )
 

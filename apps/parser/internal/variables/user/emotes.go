@@ -2,11 +2,10 @@ package user
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
 )
 
 var Emotes = &types.Variable{
@@ -25,22 +24,13 @@ var Emotes = &types.Variable{
 				},
 			).
 			Else(parseCtx.Sender.ID)
-		var count int64
-		err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Where(`"channelId" = ? AND "userId" = ?`, parseCtx.Channel.ID, targetUserId).
-			Model(&model.ChannelEmoteUsage{}).
-			Count(&count).
-			Error
 
-		if err != nil {
-			parseCtx.Services.Logger.Sugar().Error(err)
-
-			result.Result = "internal error"
-			return result, nil
+		dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
+		if dbUser != nil {
+			result.Result = strconv.Itoa(dbUser.Emotes)
+		} else {
+			result.Result = "0"
 		}
-
-		result.Result = fmt.Sprint(count)
 
 		return result, nil
 	},

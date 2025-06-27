@@ -1,4 +1,4 @@
-package migrations
+package postgres
 
 import (
 	"context"

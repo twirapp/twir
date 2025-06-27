@@ -42,9 +42,7 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 	}
 
 	if typeArg == gqlmodel.CommunityUsersResetTypeUsedEmotes {
-		err := r.deps.Gorm.WithContext(ctx).
-			Where(`"channelId" = ?`, user.ID).
-			Delete(&model.ChannelEmoteUsage{}).Error
+		err = r.deps.ChannelsEmotesUsagesService.DeleteRowsByChannelID(ctx, dashboardId)
 		if err != nil {
 			return false, err
 		}
@@ -125,9 +123,10 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	}
 
 	queryBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-		Select(`users_stats.*, COUNT("channels_emotes_usages"."id") AS "emotes"`).
+		Select(
+			`users_stats.*`,
+		).
 		From("users_stats").
-		LeftJoin(`"channels_emotes_usages" ON "channels_emotes_usages"."userId" = "users_stats"."userId" AND "channels_emotes_usages"."channelId" = "users_stats"."channelId"`).
 		Where(
 			squirrel.And{
 				squirrel.Eq{`"users_stats"."channelId"`: opts.ChannelID},
@@ -195,11 +194,6 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 					strings.ToLower(order.String()),
 				),
 			)
-		// GroupBy(fmt.Sprintf(`"users_stats"."%s"`, sortBy))
-	}
-
-	if err != nil {
-		return nil, err
 	}
 
 	query, args, err := queryBuilder.ToSql()

@@ -35,11 +35,11 @@ import (
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
-	channelsemotesusagesrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/pgx"
+	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
-	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
+	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
 	giveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
@@ -81,7 +81,7 @@ var App = fx.Module(
 			fx.As(new(toxicmessagesrepository.Repository)),
 		),
 		fx.Annotate(
-			chatmessagesrepositorypgx.NewFx,
+			chatmessagesrepositoryclickhouse.NewFx,
 			fx.As(new(chatmessagesrepository.Repository)),
 		),
 		fx.Annotate(
@@ -101,7 +101,7 @@ var App = fx.Module(
 			fx.As(new(channelsmoderationsettingsrepository.Repository)),
 		),
 		fx.Annotate(
-			channelsemotesusagesrepositorypgx.NewFx,
+			channelsemotesusagesrepositoryclickhouse.NewFx,
 			fx.As(new(channelsemotesusagesrepository.Repository)),
 		),
 	),

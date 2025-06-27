@@ -18,6 +18,7 @@ type Config struct {
 	TwitchClientId     string `required:"true"                                        envconfig:"TWITCH_CLIENTID"`
 	TwitchClientSecret string `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
 	DatabaseUrl        string `required:"true"                                        envconfig:"DATABASE_URL"`
+	ClickhouseUrl      string `required:"true"  default:"clickhouse://twir:twir@127.0.0.1:9000/twir" envconfig:"CLICKHOUSE_URL"`
 	AppEnv             string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
 	SentryDsn          string `required:"false"                                       envconfig:"SENTRY_DSN"`
 	SiteBaseUrl        string `required:"false" default:"http://localhost:3005" envconfig:"SITE_BASE_URL"`

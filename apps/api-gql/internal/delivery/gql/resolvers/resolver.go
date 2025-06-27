@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
@@ -102,6 +103,7 @@ type Deps struct {
 	TwitchService                         *twitchservice.Service
 	ChatMessagesService                   *chat_messages.Service
 	ChannelsCommandsPrefix                *channels_commands_prefix.Service
+	ChannelsEmotesUsagesService           *channels_emotes_usages.Service
 	TTSService                            *tts.Service
 	SongRequestsService                   *song_requests.Service
 	CommunityRedemptionsService           *community_redemptions.Service

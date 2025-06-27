@@ -40,6 +40,7 @@ func CreateBaseApp(opts Opts) fx.Option {
 			newRedis,
 			newGorm,
 			newPgxPool,
+			NewClickHouse(opts.AppName),
 			buscore.NewNatsBusFx(opts.AppName),
 			fx.Annotate(
 				auditlogs.NewBusPubSubFx,
