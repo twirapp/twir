@@ -812,7 +812,7 @@ volumes:
   redis-data:
   minio-data:
   temporal-postgres-data:
-  clickhouse:
+  clickhouse-data:
 
 networks:
   twir:
