@@ -11,9 +11,7 @@ type UsersStats struct {
 	IsVip             bool   `gorm:"column:is_vip;type:BOOL;default:false;"           json:"isVip" db:"is_vip"`
 	IsSubscriber      bool   `gorm:"column:is_subscriber;type:BOOL;default:false;"    json:"isSubscriber" db:"is_subscriber"`
 	Reputation        int64  `gorm:"column:reputation;type:INT8;default:0;"              json:"reputation" db:"reputation"`
-
-	// internal, not db
-	Emotes int `gorm:"-" json:"emotes" db:"emotes"`
+	Emotes            int    `gorm:"column:emotes;type:INT4;default:0;"              json:"emotes" db:"emotes"`
 }
 
 func (u *UsersStats) TableName() string {

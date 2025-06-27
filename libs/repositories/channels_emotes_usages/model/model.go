@@ -28,3 +28,8 @@ type EmoteUsageTopUser struct {
 	UserID    string
 	Count     uint64
 }
+
+type UserMostUsedEmote struct {
+	Emote string
+	Count uint64
+}

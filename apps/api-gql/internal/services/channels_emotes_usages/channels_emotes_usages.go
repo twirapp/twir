@@ -119,7 +119,7 @@ func (c *Service) GetChannelEmoteUsageTopUsers(
 	ctx context.Context,
 	input GetChannelEmoteUsageHistoryInput,
 ) ([]entity.EmoteStatisticTopUser, uint64, error) {
-	topUsers, total, err := c.channelsEmotesUsagesRepository.GetChannelEmoteUsageTopUsers(
+	topUsers, total, err := c.channelsEmotesUsagesRepository.GetChannelUsageTopUsers(
 		ctx,
 		channelsemotesusagesrepository.EmotesUsersTopOrHistoryInput{
 			ChannelID: input.ChannelID,
@@ -169,4 +169,8 @@ func (c *Service) GetChannelEmoteUsageHistory(
 	}
 
 	return convertedUsages, total, nil
+}
+
+func (c *Service) DeleteRowsByChannelID(ctx context.Context, channelID string) error {
+	return c.channelsEmotesUsagesRepository.DeleteRowsByChannelID(ctx, channelID)
 }

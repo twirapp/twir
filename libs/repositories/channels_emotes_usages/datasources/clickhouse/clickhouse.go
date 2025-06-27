@@ -33,6 +33,55 @@ type Clickhouse struct {
 	client *baseapp.ClickhouseClient
 }
 
+func (c *Clickhouse) GetUserMostUsedEmotes(
+	ctx context.Context,
+	input channelsemotesusagesrepository.UserMostUsedEmotesInput,
+) ([]model.UserMostUsedEmote, error) {
+	limit := input.Limit
+	if limit == 0 || limit > 50 {
+		limit = 10
+	}
+
+	query := `
+SELECT emote, COUNT(*)
+FROM channels_emotes_usages
+WHERE "channel_id" = ? AND "user_id" = ?
+GROUP BY emote
+ORDER BY COUNT(*)
+DESC LIMIT ?
+`
+
+	rows, err := c.client.Query(ctx, query, input.ChannelID, input.UserID, limit)
+	if err != nil {
+		return nil, fmt.Errorf("query execution failed: %w", err)
+	}
+	defer rows.Close()
+
+	var result []model.UserMostUsedEmote
+	for rows.Next() {
+		var emote string
+		var count uint64
+		err := rows.Scan(&emote, &count)
+		if err != nil {
+			return nil, fmt.Errorf("scan failed: %w", err)
+		}
+
+		result = append(
+			result,
+			model.UserMostUsedEmote{
+				Emote: emote,
+				Count: count,
+			},
+		)
+	}
+
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("rows error: %w", rows.Err())
+	}
+
+	return result, nil
+}
+
 func (c *Clickhouse) createBatch(
 	ctx context.Context,
 	input []channelsemotesusagesrepository.ChannelEmoteUsageInput,
@@ -103,6 +152,10 @@ func (c *Clickhouse) Count(ctx context.Context, input channelsemotesusagesreposi
 
 	if input.UserID != nil && *input.UserID != "" {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"user_id": *input.UserID})
+	}
+
+	if input.TimeAfter != nil {
+		selectBuilder = selectBuilder.Where(squirrel.Gt{"created_at": *input.TimeAfter})
 	}
 
 	query, args, err := selectBuilder.ToSql()
@@ -426,7 +479,7 @@ func (c *Clickhouse) GetChannelEmoteUsageHistory(
 	return result, total, nil
 }
 
-func (c *Clickhouse) GetChannelEmoteUsageTopUsers(
+func (c *Clickhouse) GetChannelUsageTopUsers(
 	ctx context.Context,
 	input channelsemotesusagesrepository.EmotesUsersTopOrHistoryInput,
 ) ([]model.EmoteUsageTopUser, uint64, error) {
@@ -434,26 +487,37 @@ func (c *Clickhouse) GetChannelEmoteUsageTopUsers(
 		page    = input.Page
 		perPage = input.PerPage
 	)
-	
+
 	if perPage == 0 || perPage > 1000 {
 		perPage = 20
 	}
 
 	offset := page * perPage
 
-	query := `
-		SELECT
-			channel_id,
-			user_id,
-			COUNT(*) AS count
-		FROM channels_emotes_usages
-		WHERE channel_id = ? AND emote = ?
-		GROUP BY channel_id, user_id
-		ORDER BY count DESC
-		LIMIT ? OFFSET ?
-	`
+	queryBuilder := sq.
+		Select(
+			"channel_id",
+			"user_id",
+			"COUNT(*) AS count",
+		).
+		From("channels_emotes_usages").
+		Where(squirrel.Eq{"channel_id": input.ChannelID}).
+		Where(squirrel.Eq{"emote": input.EmoteName}).
+		GroupBy("channel_id", "user_id").
+		OrderBy("count DESC").
+		Limit(uint64(perPage)).
+		Offset(uint64(offset))
 
-	rows, err := c.client.Query(ctx, query, input.ChannelID, input.EmoteName, perPage, offset)
+	if input.EmoteName != "" {
+		queryBuilder = queryBuilder.Where(squirrel.Eq{"emote": input.EmoteName})
+	}
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build query error: %w", err)
+	}
+
+	rows, err := c.client.Query(ctx, query, args...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("query execution failed: %w", err)
 	}
@@ -486,4 +550,14 @@ func (c *Clickhouse) GetChannelEmoteUsageTopUsers(
 	}
 
 	return result, total, nil
+}
+
+func (c *Clickhouse) DeleteRowsByChannelID(ctx context.Context, channelID string) error {
+	query := `
+		DELETE FROM channels_emotes_usages
+		WHERE channel_id = ?
+	`
+
+	err := c.client.Exec(ctx, query, channelID)
+	return err
 }

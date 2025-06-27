@@ -2,6 +2,7 @@ package channels_emotes_usages
 
 import (
 	"context"
+	"time"
 
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages/model"
 )
@@ -23,10 +24,21 @@ type Repository interface {
 		ctx context.Context,
 		input EmotesUsersTopOrHistoryInput,
 	) ([]model.EmoteUsage, uint64, error)
-	GetChannelEmoteUsageTopUsers(
+	GetChannelUsageTopUsers(
 		ctx context.Context,
 		input EmotesUsersTopOrHistoryInput,
 	) ([]model.EmoteUsageTopUser, uint64, error)
+	DeleteRowsByChannelID(ctx context.Context, channelID string) error
+	GetUserMostUsedEmotes(
+		ctx context.Context,
+		input UserMostUsedEmotesInput,
+	) ([]model.UserMostUsedEmote, error)
+}
+
+type UserMostUsedEmotesInput struct {
+	ChannelID string
+	UserID    string
+	Limit     int
 }
 
 type ChannelEmoteUsageInput struct {
@@ -38,6 +50,7 @@ type ChannelEmoteUsageInput struct {
 type CountInput struct {
 	ChannelID *string
 	UserID    *string
+	TimeAfter *time.Time
 }
 
 type GetEmotesStatisticsInput struct {

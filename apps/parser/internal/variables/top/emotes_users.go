@@ -6,12 +6,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/cache/twitch"
 )
+
+type emotesUsersRow struct {
+	UserID string `gorm:"column:userId" json:"userId" db:"userId"`
+	Emotes int    `gorm:"column:emotes" json:"emotes" db:"emotes"`
+}
 
 var EmotesUsers = &types.Variable{
 	Name:                "top.emotes.users",
@@ -22,16 +25,6 @@ var EmotesUsers = &types.Variable{
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
-
-		twitchClient, err := twitch.NewAppClientWithContext(
-			ctx,
-			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
-		)
-		if err != nil {
-			parseCtx.Services.Logger.Sugar().Error(err)
-			return nil, err
-		}
 
 		limit := 10
 		if variableData.Params != nil {
@@ -45,41 +38,43 @@ var EmotesUsers = &types.Variable{
 			limit = 10
 		}
 
-		var usages []*model.ChannelEmoteUsageWithCount
-		err = parseCtx.Services.Gorm.
-			Model(&model.ChannelEmoteUsageWithCount{}).
-			Select(`"userId", COUNT(*) as count`).
-			Where(`"channelId" = ?`, parseCtx.Channel.ID).
-			Group(`"userId"`).
-			Order("count DESC").
-			Limit(10).
-			Scan(&usages).
-			WithContext(ctx).
-			Error
+		query := `
+SELECT "userId", "emotes"
+FROM users_stats
+WHERE "channelId" = ? AND emotes > 0
+ORDER BY emotes DESC
+LIMIT ?
+`
 
+		usages := make([]emotesUsersRow, 0, limit)
+
+		err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Raw(
+				query, parseCtx.Channel.ID, limit,
+			).
+			Scan(&usages).
+			Error
 		if err != nil {
 			return nil, err
 		}
 
-		twitchUsers, err := twitchClient.GetUsers(
-			&helix.UsersParams{
-				IDs: lo.Map(
-					usages, func(item *model.ChannelEmoteUsageWithCount, _ int) string {
-						return item.UserID
-					},
-				),
-			},
-		)
+		usersIds := make([]string, 0, len(usages))
+		for _, usage := range usages {
+			usersIds = append(usersIds, usage.UserID)
+		}
+
+		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, usersIds)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 			return nil, err
 		}
 
-		mappedTop := []string{}
+		mappedTop := make([]string, 0, len(usages))
 
 		for _, usage := range usages {
 			user, ok := lo.Find(
-				twitchUsers.Data.Users, func(item helix.User) bool {
+				twitchUsers, func(item twitch.TwitchUser) bool {
 					return item.ID == usage.UserID
 				},
 			)
@@ -89,10 +84,11 @@ var EmotesUsers = &types.Variable{
 			}
 
 			mappedTop = append(
-				mappedTop, fmt.Sprintf(
+				mappedTop,
+				fmt.Sprintf(
 					"%s × %v",
 					user.Login,
-					usage.Count,
+					usage.Emotes,
 				),
 			)
 		}
