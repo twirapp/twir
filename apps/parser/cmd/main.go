@@ -17,6 +17,7 @@ import (
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
@@ -105,8 +106,26 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
+	pgxconn, err := pgxpool.New(context.Background(), config.DatabaseUrl)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	sqlDb := stdlib.OpenDBFromPool(pgxconn)
+
+	dialector := postgres.New(
+		postgres.Config{
+			Conn: sqlDb,
+		},
+	)
+
 	// gorm
-	db, err := gorm.Open(postgres.Open(config.DatabaseUrl))
+	db, err := gorm.Open(
+		dialector, &gorm.Config{
+			PrepareStmt:            false,
+			SkipDefaultTransaction: true,
+		},
+	)
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
@@ -130,11 +149,6 @@ func main() {
 	}
 	pgConn, err := sqlx.ConnectContext(appCtx, "postgres", dbConnOpts)
 	defer pgConn.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	pgxconn, err := pgxpool.New(context.Background(), config.DatabaseUrl)
 	if err != nil {
 		log.Fatalln(err)
 	}
