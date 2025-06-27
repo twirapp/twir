@@ -136,11 +136,10 @@ services:
 
       - PGBOUNCER_AUTH_USER=twir
       - PGBOUNCER_DATABASE=twir
-      - PGBOUNCER_DEFAULT_POOL_SIZE=100
-      - PGBOUNCER_MIN_POOL_SIZE=5
-      - PGBOUNCER_RESERVE_POOL_SIZE=20
-      - PGBOUNCER_RESERVE_POOL_TIMEOUT=5
+      - PGBOUNCER_DEFAULT_POOL_SIZE=19
+      - PGBOUNCER_MIN_POOL_SIZE=10
       - PGBOUNCER_MAX_CLIENT_CONN=4000
+      - PGBOUNCER_POOL_MODE=transaction
     networks:
       - twir
     deploy:
@@ -153,9 +152,6 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.labels.databases == true
 
   clickhouse:
     image: clickhouse/clickhouse-server:25.5-alpine
