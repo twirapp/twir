@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql/driver"
-	"errors"
 	"fmt"
 	"time"
 
@@ -105,33 +104,33 @@ type ChannelsEventsListItemData struct {
 	Message string `json:"message,omitempty"`
 }
 
-func (u ChannelsEventsListItemData) Value() (driver.Value, error) {
-	return json.Marshal(u)
+func (u *ChannelsEventsListItemData) Value() (driver.Value, error) {
+	if u == nil {
+		return "{}", nil
+	}
+
+	bytes, err := json.Marshal(u)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(bytes), nil
 }
 
 // Scan implements the sql.Scanner interface for ChannelsEventsListItemData
 func (u *ChannelsEventsListItemData) Scan(src interface{}) error {
-	// Handle nil case (unlikely with default '{}', but included for robustness)
+	// If the column is NULL, src will be nil.
 	if src == nil {
-		*u = ChannelsEventsListItemData{}
+		// Do nothing, the pointer is already nil or will be.
 		return nil
 	}
 
-	// Handle byte slice (JSONB data)
-	switch v := src.(type) {
-	case []byte:
-		// Check for empty JSON object
-		if string(v) == "{}" || len(v) == 0 {
-			*u = ChannelsEventsListItemData{}
-			return nil
-		}
-		// Validate JSON before unmarshaling
-		if !json.Valid(v) {
-			return errors.New("invalid JSON data from database")
-		}
-		// Unmarshal JSON into the struct
-		return json.Unmarshal(v, u)
-	default:
-		return fmt.Errorf("invalid type for ChannelsEventsListItemData: expected []byte, got %v", v)
+	// The database sends jsonb as []byte. We need to cast it.
+	source, ok := src.([]byte)
+	if !ok {
+		return fmt.Errorf("unsupported scan source for ChannelsEventsListItemData: %T", src)
 	}
+
+	// Unmarshal the []byte into the struct.
+	return json.Unmarshal(source, u)
 }
