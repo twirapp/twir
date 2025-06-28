@@ -7,8 +7,8 @@ import (
 )
 
 type Repository interface {
-	CreateMany(ctx context.Context, inputs []CreateInput) error
 	Create(ctx context.Context, input CreateInput) error
+	CreateMany(ctx context.Context, inputs []CreateInput) error
 }
 
 type CreateInput struct {

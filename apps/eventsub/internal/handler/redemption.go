@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
@@ -58,8 +59,8 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 		itemsForEventsCreate[i] = channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &event.UserID,
-			Type:      model.ChannelEventListItemTypeRedemptionCreated,
-			Data: &model.ChannelsEventsListItemData{
+			Type:      channelseventslistmodel.ChannelEventListItemTypeRedemptionCreated,
+			Data: &channelseventslistmodel.ChannelsEventsListItemData{
 				RedemptionInput:           event.UserInput,
 				RedemptionTitle:           event.Reward.Title,
 				RedemptionUserName:        event.UserLogin,
