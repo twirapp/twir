@@ -88,7 +88,7 @@ func New(opts Opts) {
 		}, func(
 			ctx context.Context,
 			input *struct {
-				ShortId string `query:"shortId" maxLength:"5" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+				ShortId string `query:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
 			},
 		) (
 			*createLinkOutput, error,
