@@ -127,7 +127,7 @@ func New(opts Opts) {
 		},
 		func(
 			ctx context.Context, input *struct {
-				ShortId string `path:"shortId" maxLength:"5" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+				ShortId string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
 			},
 		) (
 			*linkRedirectOutput, error,

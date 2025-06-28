@@ -570,7 +570,6 @@ export class Api<SecurityDataType extends unknown> {
       query: {
         /**
          * @minLength 1
-         * @maxLength 5
          * @pattern ^[a-zA-Z0-9]+$
          */
         shortId: string;
