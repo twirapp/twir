@@ -13,9 +13,11 @@ import (
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
+	"github.com/exaring/otelpgx"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -106,10 +108,23 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
-	pgxconn, err := pgxpool.New(context.Background(), config.DatabaseUrl)
+	connConfig, err := pgxpool.ParseConfig(config.DatabaseUrl)
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
+
+	connConfig.ConnConfig.Tracer = otelpgx.NewTracer()
+	connConfig.MaxConnLifetime = time.Hour
+	connConfig.MaxConnIdleTime = 5 * time.Minute
+	connConfig.MaxConns = 100
+	connConfig.MinConns = 1
+	connConfig.HealthCheckPeriod = time.Minute
+	connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+
+	pgxconn, err := pgxpool.NewWithConfig(
+		context.Background(),
+		connConfig,
+	)
 
 	sqlDb := stdlib.OpenDBFromPool(pgxconn)
 
