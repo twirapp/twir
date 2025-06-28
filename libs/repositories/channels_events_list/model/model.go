@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql/driver"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -104,16 +105,33 @@ type ChannelsEventsListItemData struct {
 	Message string `json:"message,omitempty"`
 }
 
-func (a ChannelsEventsListItemData) Value() (driver.Value, error) {
-	return json.Marshal(a)
+func (u ChannelsEventsListItemData) Value() (driver.Value, error) {
+	return json.Marshal(u)
 }
 
-var ErrChannelsEventsListItemDataTypeAssertionFailed = errors.New("type assertion to []byte failed")
-
-func (a *ChannelsEventsListItemData) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return ErrChannelsEventsListItemDataTypeAssertionFailed
+// Scan implements the sql.Scanner interface for ChannelsEventsListItemData
+func (u *ChannelsEventsListItemData) Scan(src interface{}) error {
+	// Handle nil case (unlikely with default '{}', but included for robustness)
+	if src == nil {
+		*u = ChannelsEventsListItemData{}
+		return nil
 	}
-	return json.Unmarshal(b, &a)
+
+	// Handle byte slice (JSONB data)
+	switch v := src.(type) {
+	case []byte:
+		// Check for empty JSON object
+		if string(v) == "{}" || len(v) == 0 {
+			*u = ChannelsEventsListItemData{}
+			return nil
+		}
+		// Validate JSON before unmarshaling
+		if !json.Valid(v) {
+			return errors.New("invalid JSON data from database")
+		}
+		// Unmarshal JSON into the struct
+		return json.Unmarshal(v, u)
+	default:
+		return fmt.Errorf("invalid type for ChannelsEventsListItemData: expected []byte, got %v", v)
+	}
 }

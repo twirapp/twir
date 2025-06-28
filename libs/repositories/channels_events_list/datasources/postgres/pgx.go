@@ -33,6 +33,17 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) Create(ctx context.Context, input channelseventslist.CreateInput) error {
+	query := `
+INSERT INTO channels_events_list (channel_id, user_id, type, data)
+VALUES ($1, $2, $3, $4)
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	_, err := conn.Exec(ctx, query, input.ChannelID, input.UserID, input.Type, input.Data)
+	return err
+}
+
 func (c *Pgx) CreateMany(ctx context.Context, inputs []channelseventslist.CreateInput) error {
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	_, err := conn.CopyFrom(

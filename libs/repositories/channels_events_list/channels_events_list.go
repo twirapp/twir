@@ -3,11 +3,12 @@ package channelseventslist
 import (
 	"context"
 
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 )
 
 type Repository interface {
 	CreateMany(ctx context.Context, inputs []CreateInput) error
+	Create(ctx context.Context, input CreateInput) error
 }
 
 type CreateInput struct {
