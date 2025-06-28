@@ -50,6 +50,7 @@ jobs:
           files: |
             ${{ env.folder }}/${{ env.app }}/**
             libs/**
+            cli/**
             .bun-version
             package.json
 
@@ -138,6 +139,7 @@ jobs:
         with:
           files: |
             libs/migrations/**
+            cli/**
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3

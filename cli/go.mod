@@ -4,8 +4,8 @@ go 1.24.1
 
 replace (
 	github.com/satont/twir/libs/config => ../libs/config
-	github.com/satont/twir/libs/migrations => ../libs/migrations
 	github.com/twirapp/twir/libs/grpc => ../libs/grpc
+	github.com/satont/twir/libs/migrations => ../libs/migrations
 )
 
 require (
