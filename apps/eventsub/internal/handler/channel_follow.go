@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
@@ -35,19 +35,20 @@ func (c *Handler) handleChannelFollow(
 		slog.String("userName", event.UserLogin),
 	)
 
-	c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		context.TODO(),
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    event.UserID,
+			UserID:    &event.UserID,
 			Type:      model.ChannelEventListItemTypeFollow,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				FollowUserName:        event.UserLogin,
 				FollowUserDisplayName: event.UserName,
 			},
 		},
-	)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	c.twirBus.Events.Follow.Publish(
 		events.FollowMessage{

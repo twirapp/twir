@@ -7,11 +7,12 @@ import (
 	"math"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
+	deprecatedmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -30,7 +31,7 @@ func (c *Handler) handleBan(
 	)
 
 	go func() {
-		channel := model.Channels{}
+		channel := deprecatedmodel.Channels{}
 		if err := c.gorm.
 			Where(`"id" = ?`, event.BroadcasterUserID).
 			First(&channel).
@@ -76,13 +77,12 @@ func (c *Handler) handleBan(
 		},
 	)
 
-	c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		context.TODO(),
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    event.UserID,
+			UserID:    &event.UserID,
 			Type:      model.ChannelEventListItemTypeChannelBan,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				BanReason:            event.Reason,
 				BanEndsInMinutes:     endsAt,
@@ -92,7 +92,9 @@ func (c *Handler) handleBan(
 				ModeratorName:        event.ModeratorUserLogin,
 			},
 		},
-	)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	go c.websocketsGrpc.DudesUserPunished(
 		context.TODO(),

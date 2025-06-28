@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
-	"time"
 
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -38,27 +38,22 @@ func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChat
 		slog.String("level", event.SubGift.SubTier),
 	)
 
-	if err := c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		context.TODO(),
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			Type:      model.ChannelEventListItemTypeSubGift,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
-				SubGiftLevel:                 tier,
 				SubGiftUserName:              event.ChatterUserLogin,
 				SubGiftUserDisplayName:       event.ChatterUserName,
 				SubGiftTargetUserName:        event.SubGift.RecipientUserName,
 				SubGiftTargetUserDisplayName: event.SubGift.RecipientUserName,
 			},
 		},
-	).Error; err != nil {
-		c.logger.Error(
-			err.Error(),
-			slog.Any("err", err),
-			slog.String("channelId", event.BroadcasterUserID),
-		)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
+
 	c.twirBus.Events.SubGift.Publish(
 		events.SubGiftMessage{
 			BaseInfo: events.BaseInfo{

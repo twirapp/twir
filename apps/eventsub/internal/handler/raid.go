@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
 	"strconv"
-	"time"
 
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -24,20 +24,19 @@ func (c *Handler) handleChannelRaid(
 		slog.Int("viewers", event.Viewers),
 	)
 
-	if err := c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		context.TODO(),
+		channelseventslist.CreateInput{
 			ChannelID: event.ToBroadcasterUserID,
-			UserID:    event.FromBroadcasterUserID,
+			UserID:    &event.FromBroadcasterUserID,
 			Type:      model.ChannelEventListItemTypeRaided,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				RaidedViewersCount:    strconv.Itoa(event.Viewers),
 				RaidedFromUserName:    event.FromBroadcasterUserLogin,
 				RaidedFromDisplayName: event.FromBroadcasterUserName,
 			},
 		},
-	).Error; err != nil {
+	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
