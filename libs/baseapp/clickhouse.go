@@ -71,10 +71,8 @@ func (c *ClickhouseClient) getCtx(
 	operation,
 	query string,
 ) (context.Context, trace.Span) {
-	span := trace.SpanFromContext(ctx)
-
 	ctx, newSpan := clickhouseTracer.Start(ctx, operation, trace.WithSpanKind(trace.SpanKindClient))
-	ctx = clickhouse.Context(ctx, clickhouse.WithSpan(span.SpanContext()))
+	ctx = clickhouse.Context(ctx, clickhouse.WithSpan(newSpan.SpanContext()))
 
 	newSpan.SetAttributes(
 		attribute.String("db.system", "clickhouse"),
