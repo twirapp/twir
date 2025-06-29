@@ -24,7 +24,6 @@ export function useChatMessages(input: MaybeRef<ChatMessageInput>) {
 					userColor
 					text
 					createdAt
-					updatedAt
 				}
 			}
 		`),
@@ -51,7 +50,6 @@ export function useChatMessagesSubscription() {
 					userColor
 					text
 					createdAt
-					updatedAt
 				}
 			}
 		`),
@@ -77,7 +75,6 @@ export const useChatMessagesApi = createGlobalState(() => {
 					userColor
 					text
 					createdAt
-					updatedAt
 				}
 			}
 		`),
@@ -104,7 +101,6 @@ export const useChatMessagesApi = createGlobalState(() => {
 					userColor
 					text
 					createdAt
-					updatedAt
 				}
 			}
 		`),

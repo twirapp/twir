@@ -17,7 +17,6 @@ export function useAllChatMessagesSubscription() {
 					userColor
 					text
 					createdAt
-					updatedAt
 				}
 			}
 		`),
