@@ -73,7 +73,12 @@ func (c *ChannelsIntegrations) TableName() string {
 }
 
 func (a ChannelsIntegrationsData) Value() (driver.Value, error) {
-	return json.Marshal(a)
+	b, err := json.Marshal(a)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(b), nil
 }
 
 func (a *ChannelsIntegrationsData) Scan(value interface{}) error {

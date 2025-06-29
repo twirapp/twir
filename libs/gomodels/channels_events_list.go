@@ -94,7 +94,12 @@ type ChannelsEventsListItemData struct {
 }
 
 func (a ChannelsEventsListItemData) Value() (driver.Value, error) {
-	return json.Marshal(a)
+	b, err := json.Marshal(a)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(b), nil
 }
 
 func (a *ChannelsEventsListItemData) Scan(value interface{}) error {
