@@ -82,7 +82,7 @@ services:
 #          - node.labels.databases-1 == tru
 
   postgres:
-    image: 'twirapp/postgres:latest'
+    image: twirapp/postgres:latest
     command: postgres -c max_connections=1000 -c shared_buffers=2GB -c effective_cache_size=6GB -c maintenance_work_mem=512MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200 -c work_mem=32MB -c huge_pages=off -c min_wal_size=1GB -c max_wal_size=4GB -c shared_preload_libraries='pg_stat_statements,pgx_ulid'
     environment:
       POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
@@ -248,7 +248,7 @@ services:
           - node.labels.databases != true
 
   migrations:
-    image: twirapp/migrations:latest
+    image: registry.twir.app/twirapp/migrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -279,7 +279,7 @@ services:
           - node.labels.databases == true
 
   api:
-    image: twirapp/api:latest
+    image: registry.twir.app/twirapp/api:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -307,7 +307,7 @@ services:
           - node.labels.databases != true
 
   api-gql:
-    image: twirapp/api-gql:latest
+    image: registry.twir.app/twirapp/api-gql:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -348,7 +348,7 @@ services:
           - node.labels.databases != true
 
   bots:
-    image: twirapp/bots:latest
+    image: registry.twir.app/twirapp/bots:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -375,7 +375,7 @@ services:
           - node.labels.databases != true
 
   parser:
-    image: twirapp/parser:latest
+    image: registry.twir.app/twirapp/parser:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -395,7 +395,7 @@ services:
       - twir
 
   timers:
-    image: twirapp/timers:latest
+    image: registry.twir.app/twirapp/timers:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -415,7 +415,7 @@ services:
           - node.labels.databases != true
 
   scheduler:
-    image: twirapp/scheduler:latest
+    image: registry.twir.app/twirapp/scheduler:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -431,7 +431,7 @@ services:
           - node.labels.databases != true
 
   eventsub:
-    image: twirapp/eventsub:latest
+    image: registry.twir.app/twirapp/eventsub:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -458,7 +458,7 @@ services:
           - node.labels.databases != true
 
   integrations:
-    image: twirapp/integrations:latest
+    image: registry.twir.app/twirapp/integrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -471,7 +471,7 @@ services:
       endpoint_mode: dnsrr
 
   web:
-    image: twirapp/web:latest
+    image: registry.twir.app/twirapp/web:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -498,7 +498,7 @@ services:
           - node.labels.databases != true
 
   dashboard:
-    image: twirapp/dashboard:latest
+    image: registry.twir.app/twirapp/dashboard:latest
     command: --gzip --brotli --threshold 500 --ignore-cache-control-paths "/sw.js,/index.html,/manifest.webmanifest,/pluginWebUpdateNotice/web_version_by_plugin.json"
     secrets:
       - twir_doppler_token
@@ -524,7 +524,7 @@ services:
           - node.labels.databases != true
 
   overlays:
-    image: twirapp/overlays:latest
+    image: registry.twir.app/twirapp/overlays:latest
     command: --gzip --brotli --threshold 500
     networks:
       - twir
@@ -547,7 +547,7 @@ services:
           - node.labels.databases != true
 
   websockets:
-    image: twirapp/websockets:latest
+    image: registry.twir.app/twirapp/websockets:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -571,7 +571,7 @@ services:
           - node.labels.databases != true
 
   tokens:
-    image: twirapp/tokens:latest
+    image: registry.twir.app/twirapp/tokens:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -591,7 +591,7 @@ services:
           - node.labels.databases != true
 
   emotes-cacher:
-    image: twirapp/emotes-cacher:latest
+    image: registry.twir.app/twirapp/emotes-cacher:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -611,7 +611,7 @@ services:
           - node.labels.databases != true
 
   events:
-    image: twirapp/events:latest
+    image: registry.twir.app/twirapp/events:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -631,7 +631,7 @@ services:
           - node.labels.databases != true
 
   ytsr:
-    image: twirapp/ytsr:latest
+    image: registry.twir.app/twirapp/ytsr:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -669,7 +669,7 @@ services:
           - node.labels.databases != true
 
   discord:
-    image: twirapp/discord:latest
+    image: registry.twir.app/twirapp/discord:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -685,7 +685,7 @@ services:
           - node.labels.databases != true
 
   language-processor:
-    image: twirapp/language-processor:latest
+    image: registry.twir.app/twirapp/language-processor:latest
     secrets:
       - twir_doppler_token
     environment:
@@ -709,7 +709,7 @@ services:
       - twir
 
   chat-translator:
-    image: twirapp/chat-translator:latest
+    image: registry.twir.app/twirapp/chat-translator:latest
     secrets:
       - twir_doppler_token
     environment:
@@ -732,7 +732,7 @@ services:
       - twir
 
   toxicity-detector:
-    image: twirapp/toxicity-detector:latest
+    image: registry.twir.app/twirapp/toxicity-detector:latest
     environment:
       TOXICITY_THRESHOLD: -4
     deploy:
@@ -780,7 +780,7 @@ services:
           - node.labels.databases != true
 
   giveaways:
-    image: twirapp/giveaways:latest
+    image: registry.twir.app/twirapp/giveaways:latest
     secrets:
       - twir_doppler_token
     networks:
