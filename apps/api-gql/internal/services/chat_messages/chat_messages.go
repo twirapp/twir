@@ -80,7 +80,6 @@ func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 		UserColor:       m.UserColor,
 		Text:            m.Text,
 		CreatedAt:       m.CreatedAt,
-		UpdatedAt:       m.UpdatedAt,
 	}
 }
 
@@ -100,7 +99,6 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 		UserColor:       data.Color,
 		Text:            textBuilder.String(),
 		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
 	}
 
 	c.chanSubsMu.RLock()

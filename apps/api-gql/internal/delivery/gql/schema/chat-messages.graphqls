@@ -26,5 +26,4 @@ type ChatMessage {
 	userColor: String!
 	text: String!
 	createdAt: Time!
-	updatedAt: Time!
 }

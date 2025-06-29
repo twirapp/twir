@@ -17,6 +17,5 @@ func ChatMessageToGQL(input entity.ChatMessage) gqlmodel.ChatMessage {
 		UserColor:       input.UserColor,
 		Text:            input.Text,
 		CreatedAt:       input.CreatedAt,
-		UpdatedAt:       input.UpdatedAt,
 	}
 }

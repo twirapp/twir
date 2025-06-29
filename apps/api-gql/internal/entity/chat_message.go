@@ -17,5 +17,4 @@ type ChatMessage struct {
 	UserColor       string
 	Text            string
 	CreatedAt       time.Time
-	UpdatedAt       time.Time
 }
