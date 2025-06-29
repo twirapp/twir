@@ -129,7 +129,6 @@ func (c *Clickhouse) GetMany(
 		"user_color",
 		"text",
 		"created_at",
-		"updated_at",
 	).From("chat_messages")
 
 	if input.ChannelID != nil {
@@ -142,6 +141,10 @@ func (c *Clickhouse) GetMany(
 
 	if input.TextLike != nil && *input.TextLike != "" {
 		builder = builder.Where(squirrel.ILike{"text": fmt.Sprintf("%%%s%%", *input.TextLike)})
+	}
+
+	if input.TimeGte != nil {
+		builder = builder.Where(squirrel.GtOrEq{"created_at": *input.TimeGte})
 	}
 
 	if len(input.UserIDs) > 0 {
@@ -175,7 +178,6 @@ func (c *Clickhouse) GetMany(
 			&m.UserColor,
 			&m.Text,
 			&m.CreatedAt,
-			&m.UpdatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan: %w", err)

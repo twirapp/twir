@@ -26,6 +26,7 @@ import (
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
@@ -68,6 +69,7 @@ type Services struct {
 	ChannelsInfoHistoryRepo    channelsinfohistory.Repository
 	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
 	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
+	ChatMessagesRepo           chatmessagesrepository.Repository
 	ShortUrlServices           *shortenedurls.Service
 	Executron                  executron.Executron
 }

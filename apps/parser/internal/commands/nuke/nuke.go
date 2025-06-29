@@ -16,6 +16,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/xhit/go-str2duration/v2"
 	"go.uber.org/zap"
 )
@@ -59,31 +60,44 @@ var Command = &types.DefaultCommand{
 
 		phrase := parseCtx.ArgsParser.Get(nukePhraseArgName).String()
 
-		var messages []model.ChatMessage
-		if err := parseCtx.Services.Gorm.
-			Debug().
-			Where("channel_id = ?", parseCtx.Channel.ID).
-			Where("created_at > ?", time.Now().Add(-10*time.Minute)).
-			Where("text ILIKE ?", "%"+phrase+"%").
-			Joins("User").
-			Joins(
-				"User.Stats",
-				parseCtx.Services.Gorm.Where(&model.UsersStats{ChannelID: parseCtx.Channel.ID}),
-			).
-			Where(
-				`"User__Stats"."is_mod" = ? AND "User__Stats"."is_vip" = ? AND "User__Stats"."is_subscriber" = ?`,
-				false, false, false,
-			).
-			Where(`"User"."id" != ?`, parseCtx.Channel.ID).
-			Find(&messages).Error; err != nil {
+		timeGte := time.Now().Add(-10 * time.Minute)
+
+		messages, err := parseCtx.Services.ChatMessagesRepo.GetMany(
+			ctx,
+			chat_messages.GetManyInput{
+				ChannelID: &parseCtx.Channel.ID,
+				TextLike:  &phrase,
+				Page:      0,
+				PerPage:   1000,
+				TimeGte:   &timeGte,
+			},
+		)
+		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get messages",
 				Err:     err,
 			}
 		}
-
 		if len(messages) == 0 {
 			return nil, nil
+		}
+
+		usersIdsForCheck := make([]string, 0, len(messages))
+		for _, m := range messages {
+			usersIdsForCheck = append(usersIdsForCheck, m.UserID)
+		}
+
+		var usersStats []model.UsersStats
+		if err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"userId" IN ? AND "channelId" = ?`, usersIdsForCheck, parseCtx.Channel.ID).
+			Where(`"is_mod" = ? AND "is_vip" = ? AND "is_subscriber" = ?`, false, false, false).
+			Where(`"userId" != ?`, parseCtx.Channel.ID).
+			Find(&usersStats).Error; err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get users stats",
+				Err:     err,
+			}
 		}
 
 		handledMessagesIds, err := parseCtx.Services.Redis.SMembers(
@@ -99,9 +113,19 @@ var Command = &types.DefaultCommand{
 
 		mappedMessagesIDs := make([]string, 0, len(messages))
 		for _, m := range messages {
-			if !slices.Contains(handledMessagesIds, m.ID.String()) {
-				mappedMessagesIDs = append(mappedMessagesIDs, m.ID.String())
+			if slices.Contains(handledMessagesIds, m.ID.String()) {
+				continue
 			}
+
+			if !slices.ContainsFunc(
+				usersStats, func(stats model.UsersStats) bool {
+					return m.UserID == stats.UserID
+				},
+			) {
+				continue
+			}
+
+			mappedMessagesIDs = append(mappedMessagesIDs, m.ID.String())
 		}
 
 		if duration <= 0 {
@@ -120,10 +144,17 @@ var Command = &types.DefaultCommand{
 		} else {
 			var wg sync.WaitGroup
 
+			var handledUsersIds []string
+
 			for _, m := range messages {
 				if slices.Contains(handledMessagesIds, m.ID.String()) {
 					continue
 				}
+
+				if slices.Contains(handledUsersIds, m.UserID) {
+					continue
+				}
+				handledUsersIds = append(handledUsersIds, m.UserID)
 
 				wg.Add(1)
 				m := m

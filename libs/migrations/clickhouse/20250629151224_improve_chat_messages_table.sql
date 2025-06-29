@@ -20,6 +20,3 @@ INSERT INTO chat_messages (id, channel_id, user_id, user_name, user_display_name
 SELECT id, channel_id, user_id, user_name, user_display_name, user_color, text, created_at
 FROM chat_messages_old;
 -- +goose Down
--- +goose StatementBegin
-SELECT 'down SQL query';
--- +goose StatementEnd

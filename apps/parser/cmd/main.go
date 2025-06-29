@@ -43,6 +43,7 @@ import (
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
+	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
@@ -218,6 +219,7 @@ func main() {
 	streamsRepository := streamsrepositorypostgres.New(streamsrepositorypostgres.Opts{PgxPool: pgxconn})
 	channelsEmotesUsage := channelsemotesusagesrepositoryclickhouse.New(channelsemotesusagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 	channelsCommandsUsagesRepo := channelscommandsusagesclickhouse.New(channelscommandsusagesclickhouse.Opts{Client: clickhouseClient})
+	chatMessagesRepo := chatmessagesrepositoryclickhouse.New(chatmessagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 
 	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
 	if err != nil {
@@ -229,6 +231,7 @@ func main() {
 	chatWallService := chatwallservice.New(
 		chatwallservice.Opts{
 			ChatWallRepository: chatWallRepository,
+			ChatMessagesRepo:   chatMessagesRepo,
 			Gorm:               db,
 			ChatWallCache:      chatWallCache,
 			Redis:              redisClient,
@@ -275,6 +278,7 @@ func main() {
 		),
 		ChannelEmotesUsagesRepo:    channelsEmotesUsage,
 		ChannelsCommandsUsagesRepo: channelsCommandsUsagesRepo,
+		ChatMessagesRepo:           chatMessagesRepo,
 		Executron:                  executron.New(*config, redisClient),
 	}
 
