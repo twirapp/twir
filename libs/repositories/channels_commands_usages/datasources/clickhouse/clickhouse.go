@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/twirapp/twir/libs/baseapp"
+	twirclickhouse "github.com/twirapp/twir/libs/baseapp/clickhouse"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 )
 
 type Opts struct {
-	Client *baseapp.ClickhouseClient
+	Client *twirclickhouse.ClickhouseClient
 }
 
 func New(opts Opts) *Clickhouse {
@@ -18,7 +18,7 @@ func New(opts Opts) *Clickhouse {
 	}
 }
 
-func NewFx(client *baseapp.ClickhouseClient) *Clickhouse {
+func NewFx(client *twirclickhouse.ClickhouseClient) *Clickhouse {
 	return New(Opts{Client: client})
 }
 
@@ -26,7 +26,7 @@ var _ channelscommandsusages.Repository = (*Clickhouse)(nil)
 var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Question)
 
 type Clickhouse struct {
-	client *baseapp.ClickhouseClient
+	client *twirclickhouse.ClickhouseClient
 }
 
 func (c *Clickhouse) Count(ctx context.Context, input channelscommandsusages.CountInput) (

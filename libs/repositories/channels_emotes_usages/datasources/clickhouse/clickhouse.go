@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/twirapp/twir/libs/baseapp"
+	twirclickhouse "github.com/twirapp/twir/libs/baseapp/clickhouse"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages/model"
 )
 
 type Opts struct {
-	Client *baseapp.ClickhouseClient
+	Client *twirclickhouse.ClickhouseClient
 }
 
 func New(opts Opts) *Clickhouse {
@@ -22,7 +22,7 @@ func New(opts Opts) *Clickhouse {
 	}
 }
 
-func NewFx(client *baseapp.ClickhouseClient) *Clickhouse {
+func NewFx(client *twirclickhouse.ClickhouseClient) *Clickhouse {
 	return New(Opts{Client: client})
 }
 
@@ -30,7 +30,7 @@ var _ channelsemotesusagesrepository.Repository = (*Clickhouse)(nil)
 var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Question)
 
 type Clickhouse struct {
-	client *baseapp.ClickhouseClient
+	client *twirclickhouse.ClickhouseClient
 }
 
 func (c *Clickhouse) GetUserMostUsedEmotes(
