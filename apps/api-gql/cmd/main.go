@@ -158,6 +158,9 @@ import (
 	channelsfilesrepository "github.com/twirapp/twir/libs/repositories/channels_files"
 	channelsfilesrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_files/datasource/postgres"
 
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
+	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
+
 	"go.uber.org/fx"
 )
 
@@ -301,6 +304,10 @@ func main() {
 			fx.Annotate(
 				channelsemotesusagesrepositoryclickhouse.NewFx,
 				fx.As(new(channelsemotesusagesrepository.Repository)),
+			),
+			fx.Annotate(
+				channelscommandsusagesclickhouse.NewFx,
+				fx.As(new(channelscommandsusages.Repository)),
 			),
 		),
 		// services

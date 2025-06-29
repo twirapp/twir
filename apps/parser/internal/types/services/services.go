@@ -22,6 +22,7 @@ import (
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
@@ -41,31 +42,32 @@ type Grpc struct {
 }
 
 type Services struct {
-	Config                   *cfg.Config
-	Logger                   *zap.Logger
-	Gorm                     *gorm.DB
-	Sqlx                     *sqlx.DB
-	Redis                    *redis.Client
-	GrpcClients              *Grpc
-	Bus                      *buscore.Bus
-	TrmManager               trm.Manager
-	CommandsCache            *generic_cacher.GenericCacher[[]model.ChannelsCommands]
-	CommandsPrefixCache      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
-	SevenTvCache             *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser]
-	ChatWallCache            *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
-	ChatWallService          *chat_wall.Service
-	RedSync                  *redsync.Redsync
-	CommandsLock             *redsync.Mutex
-	CommandsPrefixRepository channelscommandsprefixrepository.Repository
-	TTSCache                 *generic_cacher.GenericCacher[modules.TTSSettings]
-	SpotifyRepo              channelsintegrationsspotify.Repository
-	UsersRepo                users.Repository
-	CategoriesAliasesRepo    channelscategoriesaliases.Repository
-	ScheduledVipsRepo        scheduledvipsrepository.Repository
-	CacheTwitchClient        *twitch.CachedTwitchClient
-	ChatWallRepo             chatwallrepository.Repository
-	ChannelsInfoHistoryRepo  channelsinfohistory.Repository
-	ChannelEmotesUsagesRepo  channelsemotesusagesrepository.Repository
-	ShortUrlServices         *shortenedurls.Service
-	Executron                executron.Executron
+	Config                     *cfg.Config
+	Logger                     *zap.Logger
+	Gorm                       *gorm.DB
+	Sqlx                       *sqlx.DB
+	Redis                      *redis.Client
+	GrpcClients                *Grpc
+	Bus                        *buscore.Bus
+	TrmManager                 trm.Manager
+	CommandsCache              *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	CommandsPrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	SevenTvCache               *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser]
+	ChatWallCache              *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
+	ChatWallService            *chat_wall.Service
+	RedSync                    *redsync.Redsync
+	CommandsLock               *redsync.Mutex
+	CommandsPrefixRepository   channelscommandsprefixrepository.Repository
+	TTSCache                   *generic_cacher.GenericCacher[modules.TTSSettings]
+	SpotifyRepo                channelsintegrationsspotify.Repository
+	UsersRepo                  users.Repository
+	CategoriesAliasesRepo      channelscategoriesaliases.Repository
+	ScheduledVipsRepo          scheduledvipsrepository.Repository
+	CacheTwitchClient          *twitch.CachedTwitchClient
+	ChatWallRepo               chatwallrepository.Repository
+	ChannelsInfoHistoryRepo    channelsinfohistory.Repository
+	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
+	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
+	ShortUrlServices           *shortenedurls.Service
+	Executron                  executron.Executron
 }

@@ -41,6 +41,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
@@ -216,6 +217,7 @@ func main() {
 	shortenedUrlsRepo := shortenedurlspgx.New(shortenedurlspgx.Opts{PgxPool: pgxconn})
 	streamsRepository := streamsrepositorypostgres.New(streamsrepositorypostgres.Opts{PgxPool: pgxconn})
 	channelsEmotesUsage := channelsemotesusagesrepositoryclickhouse.New(channelsemotesusagesrepositoryclickhouse.Opts{Client: clickhouseClient})
+	channelsCommandsUsagesRepo := channelscommandsusagesclickhouse.New(channelscommandsusagesclickhouse.Opts{Client: clickhouseClient})
 
 	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
 	if err != nil {
@@ -271,8 +273,9 @@ func main() {
 				Config:     *config,
 			},
 		),
-		ChannelEmotesUsagesRepo: channelsEmotesUsage,
-		Executron:               executron.New(*config, redisClient),
+		ChannelEmotesUsagesRepo:    channelsEmotesUsage,
+		ChannelsCommandsUsagesRepo: channelsCommandsUsagesRepo,
+		Executron:                  executron.New(*config, redisClient),
 	}
 
 	variablesService := variables.New(

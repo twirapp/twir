@@ -51,6 +51,7 @@ import (
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	"go.uber.org/zap"
 )
 
@@ -264,16 +265,19 @@ func (c *Commands) ParseCommandResponses(
 		result.SkipToxicityCheck = cmd.SkipToxicityCheck
 	}
 
-	go c.services.Gorm.
-		WithContext(context.TODO()).
-		Create(
-			&model.ChannelsCommandsUsages{
-				ID:        uuid.New().String(),
-				UserID:    requestData.ChatterUserId,
-				ChannelID: requestData.BroadcasterUserId,
-				CommandID: command.Cmd.ID,
-			},
-		)
+	commandUUID, err := uuid.Parse(command.Cmd.ID)
+	if err != nil {
+		return nil
+	}
+
+	go c.services.ChannelsCommandsUsagesRepo.Create(
+		ctx,
+		channelscommandsusages.CreateInput{
+			ChannelID: requestData.BroadcasterUserId,
+			UserID:    requestData.ChatterUserId,
+			CommandID: commandUUID,
+		},
+	)
 
 	parseCtxChannel := &types.ParseContextChannel{
 		ID:   requestData.BroadcasterUserId,

@@ -6,7 +6,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 )
 
 var Commands = &types.Variable{
@@ -18,14 +18,20 @@ var Commands = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		var count int64
-		err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Where(`"channelId" = ? AND "userId" = ?`, parseCtx.Channel.ID, parseCtx.Sender.ID).
-			Model(&model.ChannelsCommandsUsages{}).
-			Count(&count).
-			Error
+		targetUserId := lo.
+			IfF(
+				len(parseCtx.Mentions) > 0, func() string {
+					return parseCtx.Mentions[0].UserId
+				},
+			).
+			Else(parseCtx.Sender.ID)
 
+		count, err := parseCtx.Services.ChannelsCommandsUsagesRepo.Count(
+			ctx, channelscommandsusages.CountInput{
+				ChannelID: &parseCtx.Channel.ID,
+				UserID:    &targetUserId,
+			},
+		)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 
