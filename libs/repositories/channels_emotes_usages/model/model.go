@@ -16,7 +16,6 @@ type EmoteRange struct {
 }
 
 type EmoteUsage struct {
-	ID        string
 	ChannelID string
 	UserID    string
 	Emote     string

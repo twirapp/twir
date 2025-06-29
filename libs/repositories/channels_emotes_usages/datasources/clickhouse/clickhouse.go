@@ -433,7 +433,6 @@ func (c *Clickhouse) GetChannelEmoteUsageHistory(
 
 	query := `
 		SELECT
-			id,
 			channel_id,
 			emote,
 			user_id,
@@ -453,7 +452,7 @@ func (c *Clickhouse) GetChannelEmoteUsageHistory(
 	var result []model.EmoteUsage
 	for rows.Next() {
 		var usage model.EmoteUsage
-		err := rows.Scan(&usage.ID, &usage.ChannelID, &usage.Emote, &usage.UserID, &usage.CreatedAt)
+		err := rows.Scan(&usage.ChannelID, &usage.Emote, &usage.UserID, &usage.CreatedAt)
 		if err != nil {
 			return nil, 0, fmt.Errorf("scan failed: %w", err)
 		}
