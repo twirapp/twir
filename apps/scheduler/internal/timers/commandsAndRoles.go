@@ -5,10 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/scheduler/internal/services"
 	config "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -45,24 +43,12 @@ func NewCommandsAndRoles(opts CommandsAndRolesOpts) {
 							ticker.Stop()
 							return
 						case <-ticker.C:
-							var channels []model.Channels
-							if err := opts.Gorm.WithContext(ctx).Select(`"id"`).Find(&channels).Error; err != nil {
-								opts.Logger.Error("error while getting channels", slog.Any("err", err))
-								return
-							}
-
-							channelIds := lo.Map(
-								channels, func(channel model.Channels, _ int) string {
-									return channel.ID
-								},
-							)
-
-							if err := opts.RolesService.CreateDefaultRoles(ctx, channelIds); err != nil {
+							if err := opts.RolesService.CreateDefaultRoles(ctx); err != nil {
 								opts.Logger.Error("error while creating default roles", slog.Any("err", err))
 								return
 							}
 
-							if err := opts.CommandsService.CreateDefaultCommands(ctx, channelIds); err != nil {
+							if err := opts.CommandsService.CreateDefaultCommands(ctx); err != nil {
 								opts.Logger.Error("error while creating default commands", slog.Any("err", err))
 								return
 							}
