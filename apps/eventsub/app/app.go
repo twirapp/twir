@@ -19,8 +19,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
-	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
-	channelredemptionshistorypostgres "github.com/twirapp/twir/libs/repositories/channel_redemptions_history/datasources/postgres"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -29,6 +27,8 @@ import (
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
+	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
+	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
@@ -72,16 +72,16 @@ var App = fx.Options(
 			fx.As(new(streamsrepository.Repository)),
 		),
 		fx.Annotate(
-			channelredemptionshistorypostgres.NewFx,
-			fx.As(new(channelredemptionshistory.Repository)),
-		),
-		fx.Annotate(
 			channelseventslistpostgres.NewFx,
 			fx.As(new(channelseventslist.Repository)),
 		),
 		fx.Annotate(
 			alertsrepositorypgx.NewFx,
 			fx.As(new(alertsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelsredemptionshistoryclickhouse.NewFx,
+			fx.As(new(channelsredemptionshistory.Repository)),
 		),
 		channelcache.New,
 		channelscommandsprefixcache.New,

@@ -6,13 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type ChannelRedemptionHistory struct {
-	ID           uuid.UUID
+type ChannelsRedemptionHistoryItem struct {
 	ChannelID    string
 	UserID       string
 	RewardID     uuid.UUID
-	RewardTitle  string
 	RewardPrompt *string
-	RewardCost   int
-	RedeemedAt   time.Time
+	RewardTitle  string
+	RewardCost   int32
+	CreatedAt    time.Time
 }

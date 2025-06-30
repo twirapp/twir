@@ -20,11 +20,11 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
@@ -49,7 +49,7 @@ type Handler struct {
 	channelsCache                *generic_cacher.GenericCacher[channelmodel.Channel]
 	channelsInfoHistoryRepo      channelsinfohistory.Repository
 	streamsrepository            streams.Repository
-	redemptionsHistoryRepository channelredemptionshistory.Repository
+	redemptionsHistoryRepository channelsredemptionshistory.Repository
 	eventsListRepository         channelseventslist.Repository
 
 	gorm        *gorm.DB
@@ -79,7 +79,7 @@ type Opts struct {
 	ChannelsRepo                        *generic_cacher.GenericCacher[channelmodel.Channel]
 	ChannelsInfoHistoryRepo             channelsinfohistory.Repository
 	StreamsRepository                   streams.Repository
-	RedemptionsHistoryRepository        channelredemptionshistory.Repository
+	RedemptionsHistoryRepository        channelsredemptionshistory.Repository
 	EventsListRepository                channelseventslist.Repository
 	CommandsCache                       *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
 	ChannelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]

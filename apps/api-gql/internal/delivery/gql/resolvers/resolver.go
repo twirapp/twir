@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
@@ -121,6 +122,7 @@ type Deps struct {
 	ToxicMessagesService                  *toxic_messages.Service
 	ChatAlertsCache                       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
 	ChannelsFilesService                  *channels_files.Service
+	ChannelsRedemptionsHistoryService     *channels_redemptions_history.Service
 }
 
 type Resolver struct {

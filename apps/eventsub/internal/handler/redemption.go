@@ -14,9 +14,9 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channel_redemptions_history"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
+	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"

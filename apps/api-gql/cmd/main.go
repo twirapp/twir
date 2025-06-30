@@ -31,6 +31,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
@@ -90,6 +91,8 @@ import (
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
+	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
@@ -309,6 +312,10 @@ func main() {
 				channelscommandsusagesclickhouse.NewFx,
 				fx.As(new(channelscommandsusages.Repository)),
 			),
+			fx.Annotate(
+				channelsredemptionshistoryclickhouse.NewFx,
+				fx.As(new(channelsredemptionshistory.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -354,6 +361,7 @@ func main() {
 			pastebinsservice.New,
 			toxic_messages.New,
 			channels_files.New,
+			channels_redemptions_history.New,
 		),
 		// grpc clients
 		fx.Provide(
