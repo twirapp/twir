@@ -157,6 +157,7 @@ services:
     image: clickhouse/clickhouse-server:25.5-alpine
     networks:
       - twir
+      - cloudflared
     volumes:
       - clickhouse-data:/var/lib/clickhouse
     configs:
