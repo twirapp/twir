@@ -103,9 +103,11 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	if !opts.SkipToxicityCheck {
 		t, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
 		if err != nil {
-			return fmt.Errorf("cannot send message: %w", err)
+			c.logger.Error("cannot check toxicity", slog.Any("err", err))
+			// return fmt.Errorf("cannot send message: %w", err)
+		} else {
+			toxicity = t
 		}
-		toxicity = t
 	}
 
 	for i, part := range textParts {
