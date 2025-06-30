@@ -19,6 +19,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	channelsmoderationsettingscache "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
@@ -52,6 +53,7 @@ import (
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
+
 	"go.uber.org/fx"
 )
 
@@ -129,6 +131,7 @@ var App = fx.Module(
 		ttscache.NewTTSSettings,
 		keywordscache.New,
 		greetingscache.New,
+		channelcache.New,
 		twitchactions.New,
 		channelsmoderationsettingscache.New,
 		moderationhelpers.New,

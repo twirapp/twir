@@ -191,26 +191,15 @@ func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageR
 }
 
 func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageRequest) struct{} {
-	channel := model.Channels{}
-	err := c.gorm.WithContext(ctx).Where("id = ?", req.ChannelId).Find(&channel).Error
-	if err != nil {
-		c.logger.Error(
-			"cannot get channel",
-			slog.String("channelId", req.ChannelId),
-			slog.Any("err", err),
-		)
+	if req.ChannelId == "" {
 		return struct{}{}
 	}
 
-	if channel.ID == "" {
-		return struct{}{}
-	}
-
-	err = c.twitchActions.SendMessage(
+	err := c.twitchActions.SendMessage(
 		ctx,
 		twitchactions.SendMessageOpts{
 			BroadcasterID:        req.ChannelId,
-			SenderID:             channel.BotID,
+			SenderID:             "",
 			Message:              req.Message,
 			ReplyParentMessageID: req.ReplyTo,
 			IsAnnounce:           req.IsAnnounce,

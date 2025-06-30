@@ -8,8 +8,10 @@ import (
 	toxicity_check "github.com/satont/twir/apps/bots/internal/services/toxicity-check"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/repositories/channels"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
 	"go.uber.org/fx"
@@ -29,6 +31,7 @@ type Opts struct {
 	Redis                   *goredis.Client
 	ToxicityCheck           *toxicity_check.Service
 	Config                  cfg.Config
+	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 }
 
 func New(opts Opts) *TwitchActions {
@@ -43,6 +46,7 @@ func New(opts Opts) *TwitchActions {
 		channelsRepository:      opts.ChannelsRepository,
 		toxicityCheck:           opts.ToxicityCheck,
 		toxicMessagesRepository: opts.ToxicMessagesRepository,
+		channelsCache:           opts.ChannelsCache,
 	}
 
 	return actions
@@ -59,4 +63,5 @@ type TwitchActions struct {
 	gorm                    *gorm.DB
 	toxicityCheck           *toxicity_check.Service
 	config                  cfg.Config
+	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 }
