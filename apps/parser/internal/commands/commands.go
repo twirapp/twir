@@ -618,9 +618,10 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	go func() {
-		gCtx := context.Background()
+		withoutCancel := context.WithoutCancel(ctx)
 
 		c.services.Bus.Events.CommandUsed.Publish(
+			withoutCancel,
 			events.CommandUsedMessage{
 				BaseInfo: events.BaseInfo{
 					ChannelID:   data.BroadcasterUserId,
@@ -639,7 +640,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		)
 
 		alert := model.ChannelAlert{}
-		if err := c.services.Gorm.Where(
+		if err := c.services.Gorm.WithContext(withoutCancel).Where(
 			"channel_id = ? AND command_ids && ?",
 			data.BroadcasterUserId,
 			pq.StringArray{cmd.Cmd.ID},
@@ -652,7 +653,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 			return
 		}
 		c.services.GrpcClients.WebSockets.TriggerAlert(
-			gCtx,
+			withoutCancel,
 			&websockets.TriggerAlertRequest{
 				ChannelId: data.BroadcasterUserId,
 				AlertId:   alert.ID,

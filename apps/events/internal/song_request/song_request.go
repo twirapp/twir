@@ -97,6 +97,7 @@ func (c *SongRequest) ProcessFromDonation(
 
 	for _, song := range ytsrResult.GetSongs() {
 		err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(
+			ctx,
 			twitch.TwitchChatMessage{
 				ID:                   "",
 				BroadcasterUserId:    input.ChannelID,

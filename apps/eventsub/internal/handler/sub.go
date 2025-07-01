@@ -25,6 +25,7 @@ func getSubPlan(plan string) string {
 }
 
 func (c *Handler) handleChannelSubscribe(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelSubscribe,
 ) {
 	level := getSubPlan(event.Tier)
@@ -37,7 +38,7 @@ func (c *Handler) handleChannelSubscribe(
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &event.UserID,
@@ -53,6 +54,7 @@ func (c *Handler) handleChannelSubscribe(
 	}
 
 	if err := c.twirBus.Events.Subscribe.Publish(
+		ctx,
 		events.SubscribeMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -70,6 +72,7 @@ func (c *Handler) handleChannelSubscribe(
 
 // resub
 func (c *Handler) handleChannelSubscriptionMessage(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelSubscriptionMessage,
 ) {
@@ -83,7 +86,7 @@ func (c *Handler) handleChannelSubscriptionMessage(
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &event.UserID,
@@ -101,6 +104,7 @@ func (c *Handler) handleChannelSubscriptionMessage(
 	}
 
 	if err := c.twirBus.Events.ReSubscribe.Publish(
+		ctx,
 		events.ReSubscribeMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

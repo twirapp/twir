@@ -12,6 +12,7 @@ import (
 )
 
 func (c *Handler) handleChannelRaid(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelRaid,
 ) {
@@ -25,7 +26,7 @@ func (c *Handler) handleChannelRaid(
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.ToBroadcasterUserID,
 			UserID:    &event.FromBroadcasterUserID,
@@ -41,6 +42,7 @@ func (c *Handler) handleChannelRaid(
 	}
 
 	if err := c.twirBus.Events.Raided.Publish(
+		ctx,
 		events.RaidedMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelName: event.ToBroadcasterUserID,

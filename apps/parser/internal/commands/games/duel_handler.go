@@ -218,6 +218,7 @@ func (c *duelHandler) timeoutUser(
 	isMod bool,
 ) error {
 	return c.parseCtx.Services.Bus.Bots.BanUser.Publish(
+		ctx,
 		bots.BanRequest{
 			ChannelID:      c.parseCtx.Channel.ID,
 			UserID:         userID,

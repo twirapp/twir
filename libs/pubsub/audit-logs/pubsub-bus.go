@@ -84,10 +84,10 @@ func (b *BusPubSub) Stop() {
 	b.bus.AuditLogs.Logs.Unsubscribe()
 }
 
-func (b *BusPubSub) Publish(_ context.Context, auditLog AuditLog) error {
+func (b *BusPubSub) Publish(ctx context.Context, auditLog AuditLog) error {
 	auditLogMsg := toBusNewAuditLogMessage(auditLog)
 
-	if err := b.bus.AuditLogs.Logs.Publish(auditLogMsg); err != nil {
+	if err := b.bus.AuditLogs.Logs.Publish(ctx, auditLogMsg); err != nil {
 		return fmt.Errorf("publish audit log to bus: %w", err)
 	}
 

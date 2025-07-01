@@ -11,6 +11,7 @@ import (
 )
 
 func (c *Handler) handleUserAuthorizationRevoke(
+	ctx context.Context,
 	h *esb.ResponseHeaders,
 	event *esb.EventUserAuthorizationRevoke,
 ) {
@@ -20,7 +21,7 @@ func (c *Handler) handleUserAuthorizationRevoke(
 		slog.String("user_login", event.UserLogin),
 	)
 
-	if err := c.gorm.Model(&model.Channels{}).
+	if err := c.gorm.WithContext(ctx).Model(&model.Channels{}).
 		Where("id = ?", event.UserID).
 		Update(`"isBotMod"`, false).
 		Update(`"isEnabled"`, false).Error; err != nil {
@@ -29,6 +30,7 @@ func (c *Handler) handleUserAuthorizationRevoke(
 
 	user := &model.Users{}
 	if err := c.gorm.
+		WithContext(ctx).
 		Where("id = ?", event.UserID).
 		First(user).Error; err != nil {
 		c.logger.Error("failed to get user", slog.Any("err", err))
@@ -36,6 +38,7 @@ func (c *Handler) handleUserAuthorizationRevoke(
 
 	if user.TokenID.Valid {
 		if err := c.gorm.
+			WithContext(ctx).
 			Delete(
 				&model.Tokens{},
 				"id = ?",
@@ -48,13 +51,14 @@ func (c *Handler) handleUserAuthorizationRevoke(
 		}
 
 		user.TokenID = sql.NullString{}
-		if err := c.gorm.Save(&user).Error; err != nil {
+		if err := c.gorm.WithContext(ctx).Save(&user).Error; err != nil {
 			c.logger.Error("failed to update user", slog.Any("err", err))
 		}
 	}
 }
 
 func (c *Handler) handleSubRevocate(
+	ctx context.Context,
 	_ *esb.ResponseHeaders,
 	revocation *esb.RevocationNotification,
 ) {
@@ -62,7 +66,7 @@ func (c *Handler) handleSubRevocate(
 
 	if revocation.Subscription.Status == "notification_failures_exceeded" {
 		c.manager.SubscribeWithLimits(
-			context.Background(),
+			ctx,
 			&eventsub_framework.SubRequest{
 				Type:      revocation.Subscription.Type,
 				Condition: revocation.Subscription.Condition,

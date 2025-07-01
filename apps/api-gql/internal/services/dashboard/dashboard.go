@@ -349,6 +349,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 
 	if dbChannel.IsEnabled {
 		c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+			ctx,
 			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID},
 		)
 	}

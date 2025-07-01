@@ -165,6 +165,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 	resultText.WriteString(fmt.Sprintf("%s: %s", msg.ChatterUserName, res.TranslatedText[0]))
 
 	if err := c.twirBus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelName:       &msg.BroadcasterUserLogin,
 			ChannelId:         msg.BroadcasterUserId,

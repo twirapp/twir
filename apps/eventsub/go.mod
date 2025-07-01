@@ -40,7 +40,7 @@ require (
 	github.com/twirapp/twir/libs/redis_keys v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/repositories v0.0.0-20250424191405-c936edd07aca
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20241105005614-f68dbf11ade1
-	github.com/twirapp/twitch-eventsub-framework v1.3.8
+	github.com/twirapp/twitch-eventsub-framework v1.3.9
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.58.0
 	go.opentelemetry.io/otel v1.36.0
 	go.opentelemetry.io/otel/trace v1.36.0

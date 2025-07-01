@@ -156,6 +156,7 @@ func (a *Auth) handleAuthPostCode(
 	}
 
 	err = a.bus.Scheduler.CreateDefaultRoles.Publish(
+		ctx,
 		scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{twitchUser.ID}},
 	)
 	if err != nil {
@@ -163,6 +164,7 @@ func (a *Auth) handleAuthPostCode(
 	}
 
 	err = a.bus.Scheduler.CreateDefaultCommands.Publish(
+		ctx,
 		scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{twitchUser.ID}},
 	)
 	if err != nil {
@@ -174,6 +176,7 @@ func (a *Auth) handleAuthPostCode(
 	a.sessions.Put(ctx, "dashboardId", dbUser.ID)
 
 	if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
+		ctx,
 		eventsub.EventsubSubscribeToAllEventsRequest{
 			ChannelID: dbUser.ID,
 		},

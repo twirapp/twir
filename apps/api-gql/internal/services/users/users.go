@@ -83,9 +83,10 @@ func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 
 	if input.IsBanned != nil && *input.IsBanned {
 		if *input.IsBanned {
-			c.twirBus.EventSub.Unsubscribe.Publish(id)
+			c.twirBus.EventSub.Unsubscribe.Publish(ctx, id)
 		} else {
 			c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+				ctx,
 				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: id},
 			)
 		}

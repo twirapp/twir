@@ -35,6 +35,7 @@ func (c *ChatAlerts) donation(
 	}
 
 	return c.bus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        sample,

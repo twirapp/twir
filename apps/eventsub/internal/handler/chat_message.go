@@ -38,10 +38,10 @@ func convertFragmentTypeToEnumValue(t string) twitch.FragmentType {
 }
 
 func (c *Handler) handleChannelChatMessage(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatMessage,
 ) {
-	ctx := context.Background()
 	_, span := c.tracer.Start(ctx, "handleChannelChatMessage")
 	span.SetAttributes(
 		attribute.String("message_id", event.MessageID),
@@ -211,7 +211,7 @@ func (c *Handler) handleChannelChatMessage(
 		return
 	}
 
-	if err := c.twirBus.ChatMessages.Publish(data); err != nil {
+	if err := c.twirBus.ChatMessages.Publish(ctx, data); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 	}
 
@@ -220,13 +220,14 @@ func (c *Handler) handleChannelChatMessage(
 	if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 		return
 	} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
-		if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
+		if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
 			c.logger.Error("cannot process command", slog.Any("err", err))
 		}
 	}
 }
 
 func (c *Handler) handleChannelChatMessageDelete(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatMessageDelete,
 ) {
@@ -239,6 +240,7 @@ func (c *Handler) handleChannelChatMessageDelete(
 	)
 
 	if err := c.twirBus.Events.ChannelMessageDelete.Publish(
+		ctx,
 		events.ChannelMessageDeleteMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

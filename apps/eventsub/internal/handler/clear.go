@@ -11,6 +11,7 @@ import (
 )
 
 func (c *Handler) handleChannelChatClear(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatClear,
 ) {
@@ -21,7 +22,7 @@ func (c *Handler) handleChannelChatClear(
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    nil,
@@ -33,6 +34,7 @@ func (c *Handler) handleChannelChatClear(
 	}
 
 	c.twirBus.Events.ChatClear.Publish(
+		ctx,
 		events.ChatClearMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

@@ -144,9 +144,10 @@ func (c *CommandsBus) Subscribe() error {
 				}
 
 				if res.KeepOrder {
-					c.bus.Bots.SendMessage.Publish(params)
+					c.bus.Bots.SendMessage.Publish(ctx, params)
 				} else {
-					go c.bus.Bots.SendMessage.Publish(params)
+					withoutCancel := context.WithoutCancel(ctx)
+					go c.bus.Bots.SendMessage.Publish(withoutCancel, params)
 				}
 			}
 

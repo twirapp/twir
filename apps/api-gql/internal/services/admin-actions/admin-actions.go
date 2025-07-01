@@ -87,6 +87,7 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 	for _, channel := range ch {
 		go func() {
 			c.twirbus.EventSub.Subscribe.Publish(
+				ctx,
 				eventsub.EventsubSubscribeRequest{
 					ChannelID:     channel.ID,
 					Topic:         input.Type,
@@ -100,7 +101,7 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 	return nil
 }
 
-func (c *Service) RescheduleTimers() error {
+func (c *Service) RescheduleTimers(ctx context.Context) error {
 	var entities []model.ChannelsTimers
 	if err := c.gorm.Select("id", "enabled").Find(&entities).Error; err != nil {
 		return fmt.Errorf("failed to get timers: %w", err)
@@ -108,6 +109,7 @@ func (c *Service) RescheduleTimers() error {
 
 	for _, timer := range entities {
 		c.twirbus.Timers.RemoveTimer.Publish(
+			ctx,
 			timers.AddOrRemoveTimerRequest{
 				TimerID: timer.ID,
 			},
@@ -115,19 +117,19 @@ func (c *Service) RescheduleTimers() error {
 
 		if timer.Enabled {
 			c.twirbus.Timers.AddTimer.Publish(
+				ctx,
 				timers.AddOrRemoveTimerRequest{
 					TimerID: timer.ID,
 				},
 			)
 		}
-
 	}
 
 	return nil
 }
 
-func (c *Service) EventsubReinitChannels() error {
-	c.twirbus.EventSub.InitChannels.Publish(struct{}{})
+func (c *Service) EventsubReinitChannels(ctx context.Context) error {
+	c.twirbus.EventSub.InitChannels.Publish(ctx, struct{}{})
 
 	return nil
 }
@@ -141,7 +143,7 @@ func (c *Service) BanUser(ctx context.Context, userId string) error {
 		return err
 	}
 
-	if err := c.twirbus.EventSub.Unsubscribe.Publish(userId); err != nil {
+	if err := c.twirbus.EventSub.Unsubscribe.Publish(ctx, userId); err != nil {
 		return err
 	}
 

@@ -11,6 +11,7 @@ import (
 )
 
 func (c *Handler) handleStreamOffline(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventStreamOffline,
 ) {
@@ -21,14 +22,14 @@ func (c *Handler) handleStreamOffline(
 	)
 
 	if err := c.redisClient.Del(
-		context.Background(),
+		ctx,
 		redis_keys.StreamByChannelID(event.BroadcasterUserID),
 	).Err(); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
 	dbStream := model.ChannelsStreams{}
-	if err := c.gorm.Where(
+	if err := c.gorm.WithContext(ctx).Where(
 		`"userId" = ?`,
 		event.BroadcasterUserID,
 	).First(&dbStream).Error; err != nil {
@@ -37,13 +38,14 @@ func (c *Handler) handleStreamOffline(
 	}
 
 	c.twirBus.Channel.StreamOffline.Publish(
+		ctx,
 		twitch.StreamOfflineMessage{
 			ChannelID: event.BroadcasterUserID,
 			StartedAt: dbStream.StartedAt,
 		},
 	)
 
-	err := c.gorm.Where(
+	err := c.gorm.WithContext(ctx).Where(
 		`"userId" = ?`,
 		event.BroadcasterUserID,
 	).Delete(&model.ChannelsStreams{}).Error

@@ -177,6 +177,7 @@ func (c *Activity) sendMessage(
 
 	for i := 0; i < count; i++ {
 		err = c.bus.Bots.SendMessage.Publish(
+			ctx,
 			bots.SendMessageRequest{
 				ChannelId:      channelId,
 				ChannelName:    &stream.UserLogin,

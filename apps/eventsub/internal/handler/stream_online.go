@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"log/slog"
-	"time"
 
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
@@ -16,12 +15,10 @@ import (
 )
 
 func (c *Handler) handleStreamOnline(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventStreamOnline,
 ) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	if err := c.redisClient.Del(
 		ctx,
 		redis_keys.StreamByChannelID(event.BroadcasterUserID),
@@ -77,7 +74,7 @@ func (c *Handler) handleStreamOnline(
 			tagIds = append(tagIds, tagId)
 		}
 
-		err = c.gorm.Create(
+		err = c.gorm.WithContext(ctx).Create(
 			&model.ChannelsStreams{
 				ID:           event.ID,
 				UserId:       event.BroadcasterUserID,
@@ -103,6 +100,7 @@ func (c *Handler) handleStreamOnline(
 	}
 
 	c.twirBus.Channel.StreamOnline.Publish(
+		ctx,
 		bustwitch.StreamOnlineMessage{
 			ChannelID:    event.BroadcasterUserID,
 			StreamID:     event.ID,

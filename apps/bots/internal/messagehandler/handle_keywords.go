@@ -132,6 +132,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 	response string,
 ) {
 	err := c.twirBus.Events.KeywordMatched.Publish(
+		ctx,
 		events.KeywordMatchedMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   msg.BroadcasterUserId,

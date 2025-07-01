@@ -191,6 +191,14 @@ func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageR
 }
 
 func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageRequest) struct{} {
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+	span.SetAttributes(
+		attribute.String("channel_id", req.ChannelId),
+		attribute.String("message", req.Message),
+		attribute.String("reply_to", req.ReplyTo),
+	)
+
 	if req.ChannelId == "" {
 		return struct{}{}
 	}

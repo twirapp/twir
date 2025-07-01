@@ -46,7 +46,7 @@ func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.
 
 // RescheduleTimers is the resolver for the rescheduleTimers field.
 func (r *mutationResolver) RescheduleTimers(ctx context.Context) (bool, error) {
-	if err := r.deps.AdminActionsService.RescheduleTimers(); err != nil {
+	if err := r.deps.AdminActionsService.RescheduleTimers(ctx); err != nil {
 		return false, err
 	}
 
@@ -55,7 +55,7 @@ func (r *mutationResolver) RescheduleTimers(ctx context.Context) (bool, error) {
 
 // EventsubInitChannels is the resolver for the eventsubInitChannels field.
 func (r *mutationResolver) EventsubInitChannels(ctx context.Context) (bool, error) {
-	if err := r.deps.AdminActionsService.EventsubReinitChannels(); err != nil {
+	if err := r.deps.AdminActionsService.EventsubReinitChannels(ctx); err != nil {
 		return false, err
 	}
 

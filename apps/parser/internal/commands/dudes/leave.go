@@ -27,6 +27,7 @@ var Leave = &types.DefaultCommand{
 		result := types.CommandsHandlerResult{}
 
 		err := parseCtx.Services.Bus.Websocket.DudesLeave.Publish(
+			ctx,
 			websockets.DudesLeaveRequest{
 				ChannelID: parseCtx.Channel.ID,
 				UserID:    parseCtx.Sender.ID,

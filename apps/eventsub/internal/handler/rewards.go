@@ -8,11 +8,12 @@ import (
 	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) flushChannelPointsRewardsCache(channelID string) error {
-	return c.redisClient.Del(context.TODO(), twitch.BuildRewardsCacheKeyForId(channelID)).Err()
+func (c *Handler) flushChannelPointsRewardsCache(ctx context.Context, channelID string) error {
+	return c.redisClient.Del(ctx, twitch.BuildRewardsCacheKeyForId(channelID)).Err()
 }
 
 func (c *Handler) handleChannelPointsRewardAdd(
+	ctx context.Context,
 	_ *esb.ResponseHeaders,
 	event *esb.EventChannelPointsRewardAdd,
 ) {
@@ -22,12 +23,13 @@ func (c *Handler) handleChannelPointsRewardAdd(
 		slog.String("channel_id", event.BroadcasterUserID),
 	)
 
-	if err := c.flushChannelPointsRewardsCache(event.BroadcasterUserID); err != nil {
+	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserID); err != nil {
 		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
 	}
 }
 
 func (c *Handler) handleChannelPointsRewardUpdate(
+	ctx context.Context,
 	_ *esb.ResponseHeaders,
 	event *esb.EventChannelPointsRewardUpdate,
 ) {
@@ -37,12 +39,13 @@ func (c *Handler) handleChannelPointsRewardUpdate(
 		slog.String("channel_id", event.BroadcasterUserID),
 	)
 
-	if err := c.flushChannelPointsRewardsCache(event.BroadcasterUserID); err != nil {
+	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserID); err != nil {
 		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
 	}
 }
 
 func (c *Handler) handleChannelPointsRewardRemove(
+	ctx context.Context,
 	_ *esb.ResponseHeaders,
 	event *esb.EventChannelPointsRewardRemove,
 ) {
@@ -52,7 +55,7 @@ func (c *Handler) handleChannelPointsRewardRemove(
 		slog.String("channel_id", event.BroadcasterUserID),
 	)
 
-	if err := c.flushChannelPointsRewardsCache(event.BroadcasterUserID); err != nil {
+	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserID); err != nil {
 		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
 	}
 }

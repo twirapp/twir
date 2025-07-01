@@ -80,14 +80,12 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Timer, e
 		},
 	)
 
-	go func() {
-		timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: newTimer.ID.String()}
-		if newTimer.Enabled {
-			c.twirbus.Timers.AddTimer.Publish(timersReq)
-		} else {
-			c.twirbus.Timers.RemoveTimer.Publish(timersReq)
-		}
-	}()
+	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: newTimer.ID.String()}
+	if newTimer.Enabled {
+		c.twirbus.Timers.AddTimer.Publish(ctx, timersReq)
+	} else {
+		c.twirbus.Timers.RemoveTimer.Publish(ctx, timersReq)
+	}
 
 	return c.dbToModel(newTimer), nil
 }

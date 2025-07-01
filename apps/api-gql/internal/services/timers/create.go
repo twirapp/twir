@@ -72,14 +72,12 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 		return entity.TimerNil, err
 	}
 
-	go func() {
-		timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
-		if timer.Enabled {
-			c.twirbus.Timers.AddTimer.Publish(timersReq)
-		} else {
-			c.twirbus.Timers.RemoveTimer.Publish(timersReq)
-		}
-	}()
+	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
+	if timer.Enabled {
+		c.twirbus.Timers.AddTimer.Publish(ctx, timersReq)
+	} else {
+		c.twirbus.Timers.RemoveTimer.Publish(ctx, timersReq)
+	}
 
 	c.logger.Audit(
 		"Timers create",

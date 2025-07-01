@@ -221,6 +221,7 @@ func (c *Service) HandlePastMessages(
 		}
 
 		err = c.twirBus.Bots.DeleteMessage.Publish(
+			ctx,
 			botsservice.DeleteMessageRequest{
 				ChannelId:  input.ChannelID,
 				MessageIds: mappedMessagesIDs,
@@ -255,7 +256,7 @@ func (c *Service) HandlePastMessages(
 			)
 		}
 
-		err = c.twirBus.Bots.BanUsers.Publish(request)
+		err = c.twirBus.Bots.BanUsers.Publish(ctx, request)
 		if err != nil {
 			return fmt.Errorf("cannot publish ban users: %s", err)
 		}

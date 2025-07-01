@@ -17,6 +17,7 @@ import (
 )
 
 func (c *Handler) handleBan(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelBan,
 ) {
@@ -33,6 +34,7 @@ func (c *Handler) handleBan(
 	go func() {
 		channel := deprecatedmodel.Channels{}
 		if err := c.gorm.
+			WithContext(ctx).
 			Where(`"id" = ?`, event.BroadcasterUserID).
 			First(&channel).
 			Error; err != nil {
@@ -42,7 +44,7 @@ func (c *Handler) handleBan(
 
 		if channel.BotID == event.UserID {
 			channel.IsEnabled = false
-			if err := c.gorm.Save(&channel).Error; err != nil {
+			if err := c.gorm.WithContext(ctx).Save(&channel).Error; err != nil {
 				c.logger.Error("failed to disable channel", slog.Any("err", err))
 			}
 
@@ -60,6 +62,7 @@ func (c *Handler) handleBan(
 	)
 
 	c.twirBus.Events.ChannelBan.Publish(
+		ctx,
 		events.ChannelBanMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -78,7 +81,7 @@ func (c *Handler) handleBan(
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &event.UserID,
@@ -96,8 +99,8 @@ func (c *Handler) handleBan(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	go c.websocketsGrpc.DudesUserPunished(
-		context.TODO(),
+	c.websocketsGrpc.DudesUserPunished(
+		ctx,
 		&websockets.DudesUserPunishedRequest{
 			ChannelId:       event.BroadcasterUserID,
 			UserId:          event.UserID,

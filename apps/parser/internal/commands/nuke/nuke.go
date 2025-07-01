@@ -130,6 +130,7 @@ var Command = &types.DefaultCommand{
 
 		if duration <= 0 {
 			if err := parseCtx.Services.Bus.Bots.DeleteMessage.Publish(
+				ctx,
 				bots.DeleteMessageRequest{
 					ChannelId:   parseCtx.Channel.ID,
 					MessageIds:  mappedMessagesIDs,
@@ -162,6 +163,7 @@ var Command = &types.DefaultCommand{
 				go func() {
 					defer wg.Done()
 					if err := parseCtx.Services.Bus.Bots.BanUser.Publish(
+						ctx,
 						bots.BanRequest{
 							ChannelID:      parseCtx.Channel.ID,
 							UserID:         m.UserID,

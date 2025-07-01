@@ -30,6 +30,7 @@ import (
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -180,7 +181,45 @@ func New(opts Opts) *Handler {
 	handler.HandleChannelVipAdd = myHandler.handleChannelVipAdd
 	handler.HandleChannelVipRemove = myHandler.handleChannelVipRemove
 
-	httpHandler := otelhttp.NewHandler(handler, "")
+	mux := http.NewServeMux()
+	// middleware
+	mux.Handle(
+		"POST /", http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				span := trace.SpanFromContext(r.Context())
+				defer span.End()
+
+				headers := r.Header
+
+				span.SetAttributes(
+					attribute.String("twitcheventsub.retry", headers.Get("Twitch-Eventsub-Message-Retry")),
+					attribute.String(
+						"twitcheventsub.message_type",
+						headers.Get("Twitch-Eventsub-Message-Type"),
+					),
+					attribute.String(
+						"twitcheventsub.subscription_type",
+						headers.Get("Twitch-Eventsub-Subscription-Type"),
+					),
+					attribute.String(
+						"twitcheventsub.subscription_version",
+						headers.Get("Twitch-Eventsub-Subscription-Version"),
+					),
+				)
+
+				if r.Method != "POST" {
+					http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+					return
+				}
+
+				r = r.WithContext(context.WithoutCancel(r.Context()))
+
+				handler.ServeHTTP(w, r)
+			},
+		),
+	)
+
+	httpHandler := otelhttp.NewHandler(mux, "eventsub-server")
 
 	opts.Lc.Append(
 		fx.Hook{

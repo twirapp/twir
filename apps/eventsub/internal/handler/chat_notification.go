@@ -11,18 +11,22 @@ import (
 )
 
 func (c *Handler) handleChannelChatNotification(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatNotification,
 ) {
 	switch event.NoticeType {
 	case "sub_gift":
-		c._notificationSubGift(event)
+		c._notificationSubGift(ctx, event)
 	case "community_sub_gift":
-		c._notificationCommunitySubGift(event)
+		c._notificationCommunitySubGift(ctx, event)
 	}
 }
 
-func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChatNotification) {
+func (c *Handler) _notificationSubGift(
+	ctx context.Context,
+	event *eventsub_bindings.EventChannelChatNotification,
+) {
 	if event.SubGift == nil {
 		return
 	}
@@ -39,7 +43,7 @@ func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChat
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			Type:      model.ChannelEventListItemTypeSubGift,
@@ -55,6 +59,7 @@ func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChat
 	}
 
 	c.twirBus.Events.SubGift.Publish(
+		ctx,
 		events.SubGiftMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -71,6 +76,7 @@ func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChat
 }
 
 func (c *Handler) _notificationCommunitySubGift(
+	ctx context.Context,
 	event *eventsub_bindings.
 		EventChannelChatNotification,
 ) {

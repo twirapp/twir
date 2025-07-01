@@ -236,6 +236,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 					}
 
 					c.bus.Channel.StreamOnline.Publish(
+						ctx,
 						bustwitch.StreamOnlineMessage{
 							ChannelID:    channelStream.UserId,
 							StreamID:     channelStream.ID,
@@ -260,6 +261,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 					}
 
 					c.bus.Channel.StreamOffline.Publish(
+						ctx,
 						bustwitch.StreamOfflineMessage{
 							ChannelID: channelStream.UserId,
 							StartedAt: dbStream.StartedAt,

@@ -14,10 +14,10 @@ import (
 )
 
 func (c *Handler) handleChannelFollow(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelFollow,
 ) {
-	ctx := context.Background()
 	redisKey := fmt.Sprintf("follows-cache:%s:%s", event.BroadcasterUserID, event.UserID)
 	key, _ := c.redisClient.Get(ctx, redisKey).Result()
 
@@ -36,7 +36,7 @@ func (c *Handler) handleChannelFollow(
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &event.UserID,
@@ -51,6 +51,7 @@ func (c *Handler) handleChannelFollow(
 	}
 
 	c.twirBus.Events.Follow.Publish(
+		ctx,
 		events.FollowMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

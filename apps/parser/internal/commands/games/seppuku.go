@@ -76,6 +76,7 @@ var Seppuku = &types.DefaultCommand{
 		}
 
 		if err := parseCtx.Services.Bus.Bots.BanUser.Publish(
+			ctx,
 			bots.BanRequest{
 				ChannelID:      parseCtx.Channel.ID,
 				UserID:         parseCtx.Sender.ID,

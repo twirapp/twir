@@ -87,6 +87,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 	}
 
 	err = c.twirBus.Events.GreetingSended.Publish(
+		ctx,
 		events.GreetingSendedMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   msg.BroadcasterUserId,

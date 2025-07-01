@@ -12,6 +12,7 @@ import (
 )
 
 func (c *Handler) handleRewardsSevenTvEmote(
+	ctx context.Context,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) error {
 	if c.config.SevenTvToken == "" || event.UserInput == "" {
@@ -19,7 +20,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 	}
 
 	settings, err := c.channelsIntegrationsSettingsSeventv.Get(
-		context.Background(),
+		ctx,
 		event.BroadcasterUserID,
 	)
 	if err != nil {
@@ -33,8 +34,6 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		event.Reward.ID != settings.RewardIdForAddEmote.String {
 		return nil
 	}
-
-	ctx := context.TODO()
 
 	client := seventv.NewClient(c.config.SevenTvToken)
 
@@ -76,7 +75,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 			},
 		)
 
-		err = c.gorm.Save(settings).Error
+		err = c.gorm.WithContext(ctx).Save(settings).Error
 
 		return err
 	}
@@ -93,7 +92,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		}
 
 		settings.AddedEmotes = append(settings.AddedEmotes, emoteId)
-		err = c.gorm.Save(settings).Error
+		err = c.gorm.WithContext(ctx).Save(settings).Error
 		return err
 	}
 

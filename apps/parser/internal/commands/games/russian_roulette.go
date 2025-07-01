@@ -76,6 +76,7 @@ var RussianRoulette = &types.DefaultCommand{
 		).Else("")
 
 		err := parseCtx.Services.Bus.Bots.SendMessage.Publish(
+			ctx,
 			bots.SendMessageRequest{
 				ChannelId:      parseCtx.Channel.ID,
 				ChannelName:    &parseCtx.Channel.Name,
@@ -106,6 +107,7 @@ var RussianRoulette = &types.DefaultCommand{
 			return result, nil
 		} else {
 			parseCtx.Services.Bus.Bots.SendMessage.Publish(
+				ctx,
 				bots.SendMessageRequest{
 					ChannelId:      parseCtx.Channel.ID,
 					ChannelName:    &parseCtx.Channel.Name,
@@ -129,6 +131,7 @@ var RussianRoulette = &types.DefaultCommand{
 				}
 
 				err = parseCtx.Services.Bus.Bots.BanUser.Publish(
+					ctx,
 					bots.BanRequest{
 						ChannelID:      parseCtx.Channel.ID,
 						UserID:         parseCtx.Sender.ID,

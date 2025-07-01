@@ -11,6 +11,7 @@ import (
 )
 
 func (c *Handler) handleChannelUnbanRequestCreate(
+	ctx context.Context,
 	_ *esb.ResponseHeaders,
 	event *esb.ChannelUnbanRequestCreate,
 ) {
@@ -25,7 +26,7 @@ func (c *Handler) handleChannelUnbanRequestCreate(
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &event.UserID,
@@ -41,6 +42,7 @@ func (c *Handler) handleChannelUnbanRequestCreate(
 	}
 
 	c.twirBus.Events.ChannelUnbanRequestCreate.Publish(
+		ctx,
 		events.ChannelUnbanRequestCreateMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -56,6 +58,7 @@ func (c *Handler) handleChannelUnbanRequestCreate(
 }
 
 func (c *Handler) handleChannelUnbanRequestResolve(
+	ctx context.Context,
 	r *esb.ResponseHeaders,
 	event *esb.ChannelUnbanRequestResolve,
 ) {
@@ -76,7 +79,7 @@ func (c *Handler) handleChannelUnbanRequestResolve(
 	)
 
 	if err := c.eventsListRepository.Create(
-		context.TODO(),
+		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &event.UserID,
@@ -94,6 +97,7 @@ func (c *Handler) handleChannelUnbanRequestResolve(
 	}
 
 	c.twirBus.Events.ChannelUnbanRequestResolve.Publish(
+		ctx,
 		events.ChannelUnbanRequestResolveMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

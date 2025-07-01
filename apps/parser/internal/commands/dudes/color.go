@@ -90,6 +90,7 @@ var Color = &types.DefaultCommand{
 		}
 
 		err := parseCtx.Services.Bus.Websocket.DudesUserSettings.Publish(
+			ctx,
 			websockets.DudesChangeUserSettingsRequest{
 				ChannelID: parseCtx.Channel.ID,
 				UserID:    parseCtx.Sender.ID,
