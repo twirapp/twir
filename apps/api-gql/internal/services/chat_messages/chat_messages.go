@@ -83,7 +83,10 @@ func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 	}
 }
 
-func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessage) struct{} {
+func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessage) (
+	struct{},
+	error,
+) {
 	textBuilder := strings.Builder{}
 	for _, fragment := range data.Message.Fragments {
 		textBuilder.WriteString(fragment.Text)
@@ -116,9 +119,10 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 	err := c.wsRouter.Publish(chatMessagesSubscriptionKeyAll, msg)
 	if err != nil {
 		c.logger.Error("Cannot publish some message to all messages", slog.Any("err", err))
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *Service) SubscribeToNewMessagesByChannelID(

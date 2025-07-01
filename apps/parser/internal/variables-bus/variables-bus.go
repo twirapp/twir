@@ -62,8 +62,8 @@ func New(
 func (c *VariablesBus) Subscribe() error {
 	if err := c.bus.Parser.GetBuiltInVariables.SubscribeGroup(
 		"parser",
-		func(ctx context.Context, _ struct{}) []parser.BuiltInVariable {
-			return c.vars
+		func(ctx context.Context, _ struct{}) ([]parser.BuiltInVariable, error) {
+			return c.vars, nil
 		},
 	); err != nil {
 		return err

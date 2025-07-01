@@ -6,6 +6,8 @@ const (
 	BanSubject           = "bots.ban"
 	BanMultipleSubject   = "bots.ban_multiple"
 	ShoutOutSubject      = "bots.shoutout"
+	VipSubject           = "bots.vip"
+	UnVipSubject         = "bots.unvip"
 )
 
 type SendMessageRequest struct {
@@ -35,6 +37,16 @@ type BanRequest struct {
 }
 
 type SentShoutOutRequest struct {
+	ChannelID string
+	TargetID  string
+}
+
+type VipRequest struct {
+	ChannelID string
+	TargetID  string
+}
+
+type UnVipRequest struct {
 	ChannelID string
 	TargetID  string
 }

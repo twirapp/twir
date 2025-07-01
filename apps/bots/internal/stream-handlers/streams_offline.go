@@ -12,15 +12,15 @@ import (
 func (c *PubSubHandlers) streamsOffline(
 	ctx context.Context,
 	data twitch.StreamOfflineMessage,
-) struct{} {
+) (struct{}, error) {
 	channel := model.Channels{}
 	if err := c.db.WithContext(ctx).Where("id = ?", data.ChannelID).Find(&channel).Error; err != nil {
 		c.logger.Error("cannot find channel", slog.String("channelId", data.ChannelID))
-		return struct{}{}
+		return struct{}{}, err
 	}
 
 	if channel.ID == "" {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	if err := c.greetingsCacher.Invalidate(ctx, channel.ID); err != nil {
@@ -29,7 +29,8 @@ func (c *PubSubHandlers) streamsOffline(
 			slog.String("channelId", data.ChannelID),
 			slog.Any("err", err),
 		)
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }

@@ -42,6 +42,8 @@ type botsBus struct {
 	BanUser       Queue[botsservice.BanRequest, struct{}]
 	BanUsers      Queue[[]botsservice.BanRequest, struct{}]
 	ShoutOut      Queue[botsservice.SentShoutOutRequest, struct{}]
+	Vip           Queue[botsservice.VipRequest, struct{}]
+	UnVip         Queue[botsservice.UnVipRequest, struct{}]
 }
 
 type emotesCacherBus struct {

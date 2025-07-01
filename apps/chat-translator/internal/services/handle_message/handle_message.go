@@ -62,12 +62,12 @@ type Service struct {
 	rateLimiter redislimiter.SlidingWindow
 }
 
-func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) struct{} {
+func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (struct{}, error) {
 	if msg.Message == nil || strings.HasPrefix(
 		msg.Message.Text,
 		msg.EnrichedData.ChannelCommandPrefix,
 	) {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	// if msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
@@ -83,10 +83,10 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 	)
 	if err != nil {
 		c.logger.Error("cannot use rate limiter", slog.Any("err", err))
-		return struct{}{}
+		return struct{}{}, err
 	}
 	if !resp.Success {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	channelTranslationSettings, err := c.channelsTranslationsCache.Get(
@@ -95,16 +95,16 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 	)
 	if err != nil {
 		if errors.Is(err, channelschattrenslationsrepository.ErrSettingsNotFound) {
-			return struct{}{}
+			return struct{}{}, nil
 		}
 		c.logger.Error("cannot get channel translation settings", slog.Any("err", err))
-		return struct{}{}
+		return struct{}{}, err
 	}
 
 	if channelTranslationSettings.ChannelID == "" ||
 		!channelTranslationSettings.Enabled ||
 		slices.Contains(channelTranslationSettings.ExcludedUsersIDs, msg.ChatterUserId) {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	textForDetect := msg.Message.Text
@@ -115,21 +115,21 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 	msgLang, err := c.detectLanguage(ctx, textForDetect)
 	if err != nil {
 		c.logger.Error("cannot detect language", slog.Any("err", err))
-		return struct{}{}
+		return struct{}{}, err
 	}
 
 	if len(msgLang.DetectedLanguages) == 0 {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	if msgLang.DetectedLanguages[0].Language == channelTranslationSettings.TargetLanguage {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	bestDetected := msgLang.DetectedLanguages[0]
 
 	if slices.Contains(channelTranslationSettings.ExcludedLanguages, bestDetected.Language) {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	excludedWords := make([]string, 0, len(msg.EnrichedData.UsedEmotesWithThirdParty))
@@ -148,14 +148,14 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 	)
 	if err != nil {
 		c.logger.Error("cannot translate message", slog.Any("err", err))
-		return struct{}{}
+		return struct{}{}, err
 	}
 	if res == nil || len(res.TranslatedText) == 0 {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	if res.TranslatedText[0] == msg.Message.Text {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	var resultText strings.Builder
@@ -174,7 +174,8 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) stru
 		},
 	); err != nil {
 		c.logger.Error("cannot send message", slog.Any("err", err))
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }

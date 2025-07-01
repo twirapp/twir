@@ -2,7 +2,9 @@ package bus_listener
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
@@ -13,9 +15,9 @@ import (
 func (c *BusListener) banUser(
 	ctx context.Context,
 	req bots.BanRequest,
-) struct{} {
+) error {
 	if req.ChannelID == req.UserID {
-		return struct{}{}
+		return nil
 	}
 
 	channelEntity := model.Channels{}
@@ -24,7 +26,7 @@ func (c *BusListener) banUser(
 		req.ChannelID,
 	).First(&channelEntity).Error; err != nil {
 		c.logger.Error("cannot get channel entity", slog.Any("err", err))
-		return struct{}{}
+		return err
 	}
 
 	if err := c.twitchActions.Ban(
@@ -40,15 +42,16 @@ func (c *BusListener) banUser(
 		},
 	); err != nil {
 		c.logger.Error("cannot ban user", slog.Any("err", err))
+		return err
 	}
 
-	return struct{}{}
+	return nil
 }
 
 func (c *BusListener) banUsers(
 	ctx context.Context,
 	req []bots.BanRequest,
-) struct{} {
+) error {
 	uniqueChannelsIdsMap := make(map[string]struct{}, len(req))
 	for _, r := range req {
 		if r.ChannelID == r.UserID {
@@ -61,7 +64,7 @@ func (c *BusListener) banUsers(
 	}
 
 	if len(uniqueChannelsIdsMap) == 0 {
-		return struct{}{}
+		return nil
 	}
 
 	uniqueChannelsIds := make([]string, 0, len(uniqueChannelsIdsMap))
@@ -75,10 +78,14 @@ func (c *BusListener) banUsers(
 		uniqueChannelsIds,
 	).Find(&channelsEntities).Error; err != nil {
 		c.logger.Error("cannot get channels entities", slog.Any("err", err))
-		return struct{}{}
+		return err
 	}
 
 	timeoutCtx, _ := context.WithTimeout(context.Background(), 5*time.Minute)
+
+	var wg sync.WaitGroup
+
+	var collectedErrors []error
 
 	for _, r := range req {
 		var channelEntity *model.Channels
@@ -97,7 +104,11 @@ func (c *BusListener) banUsers(
 			continue
 		}
 
+		wg.Add(1)
+
 		go func() {
+			defer wg.Done()
+
 			if err := c.twitchActions.Ban(
 				timeoutCtx,
 				twitchactions.BanOpts{
@@ -111,9 +122,21 @@ func (c *BusListener) banUsers(
 				},
 			); err != nil {
 				c.logger.Error("cannot ban user", slog.Any("err", err))
+				collectedErrors = append(collectedErrors, err)
 			}
 		}()
 	}
 
-	return struct{}{}
+	wg.Wait()
+
+	if len(collectedErrors) > 0 {
+		var gigaError string
+		for _, err := range collectedErrors {
+			gigaError += err.Error() + " "
+		}
+
+		return errors.New(gigaError)
+	}
+
+	return nil
 }

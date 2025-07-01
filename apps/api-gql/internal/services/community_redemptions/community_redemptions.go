@@ -42,12 +42,15 @@ type Service struct {
 	subs map[string]chan twitch.ActivatedRedemption
 }
 
-func (s *Service) handleBusEvent(_ context.Context, data twitch.ActivatedRedemption) struct{} {
+func (s *Service) handleBusEvent(_ context.Context, data twitch.ActivatedRedemption) (
+	struct{},
+	error,
+) {
 	if ch, ok := s.subs[data.BroadcasterUserID]; ok {
 		ch <- data
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (s *Service) Subscribe(channelID string) <-chan twitch.ActivatedRedemption {

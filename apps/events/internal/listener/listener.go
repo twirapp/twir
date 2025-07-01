@@ -286,7 +286,7 @@ type EventsGrpcImplementation struct {
 func (c *EventsGrpcImplementation) Follow(
 	ctx context.Context,
 	msg events.FollowMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -334,13 +334,13 @@ func (c *EventsGrpcImplementation) Follow(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) Subscribe(
 	ctx context.Context,
 	msg events.SubscribeMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -392,13 +392,13 @@ func (c *EventsGrpcImplementation) Subscribe(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) ReSubscribe(
 	ctx context.Context,
 	msg events.ReSubscribeMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -449,13 +449,13 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) RedemptionCreated(
 	ctx context.Context,
 	msg events.RedemptionCreatedMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -507,13 +507,13 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) CommandUsed(
 	ctx context.Context,
 	msg events.CommandUsedMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -557,13 +557,13 @@ func (c *EventsGrpcImplementation) CommandUsed(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) FirstUserMessage(
 	ctx context.Context,
 	msg events.FirstUserMessageMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -612,13 +612,13 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) Raided(
 	ctx context.Context,
 	msg events.RaidedMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -668,13 +668,13 @@ func (c *EventsGrpcImplementation) Raided(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 	ctx context.Context,
 	msg events.TitleOrCategoryChangedMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -712,13 +712,13 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) StreamOnline(
 	ctx context.Context,
 	msg twitch.StreamOnlineMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -765,13 +765,13 @@ func (c *EventsGrpcImplementation) StreamOnline(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) StreamOffline(
 	ctx context.Context,
 	msg twitch.StreamOfflineMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -816,13 +816,13 @@ func (c *EventsGrpcImplementation) StreamOffline(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) SubGift(
 	ctx context.Context,
 	msg events.SubGiftMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -860,13 +860,13 @@ func (c *EventsGrpcImplementation) SubGift(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) ChatClear(
 	ctx context.Context,
 	msg events.ChatClearMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -911,13 +911,13 @@ func (c *EventsGrpcImplementation) ChatClear(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) Donate(
 	ctx context.Context,
 	msg events.DonateMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -981,13 +981,13 @@ func (c *EventsGrpcImplementation) Donate(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) KeywordMatched(
 	ctx context.Context,
 	msg events.KeywordMatchedMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -1027,13 +1027,13 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) GreetingSended(
 	ctx context.Context,
 	msg events.GreetingSendedMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -1071,13 +1071,13 @@ func (c *EventsGrpcImplementation) GreetingSended(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) PollBegin(
 	ctx context.Context,
 	msg events.PollBeginMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -1121,13 +1121,13 @@ func (c *EventsGrpcImplementation) PollBegin(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) PollProgress(
 	ctx context.Context,
 	msg events.PollProgressMessage,
-) struct{} {
+) (struct{}, error) {
 	totalVotes := lo.Reduce(
 		msg.Info.Choices, func(acc int, item events.PollChoice, _ int) int {
 			return acc + int(item.Votes)
@@ -1177,13 +1177,13 @@ func (c *EventsGrpcImplementation) PollProgress(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) PollEnd(
 	ctx context.Context,
 	msg events.PollEndMessage,
-) struct{} {
+) (struct{}, error) {
 	totalVotes := lo.Reduce(
 		msg.Info.Choices, func(acc int, item events.PollChoice, _ int) int {
 			return acc + int(item.Votes)
@@ -1244,12 +1244,12 @@ func (c *EventsGrpcImplementation) PollEnd(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) PredictionBegin(
 	ctx context.Context, msg events.PredictionBeginMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -1293,12 +1293,12 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) PredictionProgress(
 	ctx context.Context, msg events.PredictionProgressMessage,
-) struct{} {
+) (struct{}, error) {
 	totalPoints := lo.Reduce(
 		msg.Info.Outcomes, func(acc int, item events.PredictionOutcome, _ int) int {
 			return acc + int(item.ChannelPoints)
@@ -1348,13 +1348,13 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) PredictionLock(
 	ctx context.Context,
 	msg events.PredictionLockMessage,
-) struct{} {
+) (struct{}, error) {
 	totalPoints := lo.Reduce(
 		msg.Info.Outcomes, func(acc int, item events.PredictionOutcome, _ int) int {
 			return acc + int(item.ChannelPoints)
@@ -1404,13 +1404,13 @@ func (c *EventsGrpcImplementation) PredictionLock(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) PredictionEnd(
 	ctx context.Context,
 	msg events.PredictionEndMessage,
-) struct{} {
+) (struct{}, error) {
 	totalPoints := lo.Reduce(
 		msg.Info.Outcomes, func(acc int, item events.PredictionOutcome, _ int) int {
 			return acc + int(item.ChannelPoints)
@@ -1472,12 +1472,12 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 	ctx context.Context, msg events.StreamFirstUserJoinMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -1512,13 +1512,13 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) ChannelBan(
 	ctx context.Context,
 	msg events.ChannelBanMessage,
-) struct{} {
+) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
@@ -1568,13 +1568,13 @@ func (c *EventsGrpcImplementation) ChannelBan(
 
 	wg.Wait()
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) ChannelUnbanRequestCreate(
 	ctx context.Context,
 	msg events.ChannelUnbanRequestCreateMessage,
-) struct{} {
+) (struct{}, error) {
 	c.chatAlerts.ProcessEvent(
 		ctx,
 		msg.BaseInfo.ChannelID,
@@ -1596,13 +1596,13 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestCreate(
 		c.logger.Error("Error execute workflow", slog.Any("err", err))
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) ChannelUnbanRequestResolve(
 	ctx context.Context,
 	msg events.ChannelUnbanRequestResolveMessage,
-) struct{} {
+) (struct{}, error) {
 	err := c.eventsWorkflow.Execute(
 		ctx,
 		model.EventChannelUnbanRequestResolve,
@@ -1620,13 +1620,13 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestResolve(
 		c.logger.Error("Error execute workflow", slog.Any("err", err))
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *EventsGrpcImplementation) ChannelMessageDelete(
 	ctx context.Context,
 	msg events.ChannelMessageDeleteMessage,
-) struct{} {
+) (struct{}, error) {
 	c.chatAlerts.ProcessEvent(
 		ctx,
 		msg.BaseInfo.ChannelID,
@@ -1648,5 +1648,5 @@ func (c *EventsGrpcImplementation) ChannelMessageDelete(
 		c.logger.Error("Error execute workflow", slog.Any("err", err))
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }

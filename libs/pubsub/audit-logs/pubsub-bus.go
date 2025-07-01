@@ -59,7 +59,7 @@ func NewBusPubSubFx(bus *buscore.Bus, lc fx.Lifecycle) *BusPubSub {
 
 func (b *BusPubSub) Start() error {
 	err := b.bus.AuditLogs.Logs.Subscribe(
-		func(ctx context.Context, msg busauditlog.NewAuditLogMessage) struct{} {
+		func(ctx context.Context, msg busauditlog.NewAuditLogMessage) (struct{}, error) {
 			auditLog := fromBusNewAuditLogMessage(msg)
 
 			b.subsLocker.RLock()
@@ -70,7 +70,7 @@ func (b *BusPubSub) Start() error {
 			}
 			b.subsLocker.RUnlock()
 
-			return struct{}{}
+			return struct{}{}, nil
 		},
 	)
 	if err != nil {

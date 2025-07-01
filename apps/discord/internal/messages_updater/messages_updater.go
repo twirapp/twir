@@ -52,23 +52,25 @@ func New(opts Opts) (*MessagesUpdater, error) {
 			OnStart: func(_ context.Context) error {
 				opts.Bus.Channel.StreamOnline.SubscribeGroup(
 					"discord",
-					func(ctx context.Context, data bustwitch.StreamOnlineMessage) struct{} {
+					func(ctx context.Context, data bustwitch.StreamOnlineMessage) (struct{}, error) {
 						if err := updater.processOnline(ctx, data.ChannelID); err != nil {
 							opts.Logger.Error("Failed to process online", slog.Any("err", err))
+							return struct{}{}, err
 						}
 
-						return struct{}{}
+						return struct{}{}, nil
 					},
 				)
 
 				opts.Bus.Channel.StreamOffline.SubscribeGroup(
 					"discord",
-					func(ctx context.Context, data bustwitch.StreamOfflineMessage) struct{} {
+					func(ctx context.Context, data bustwitch.StreamOfflineMessage) (struct{}, error) {
 						if err := updater.processOffline(ctx, data.ChannelID); err != nil {
 							opts.Logger.Error("Failed to process offline", slog.Any("err", err))
+							return struct{}{}, err
 						}
 
-						return struct{}{}
+						return struct{}{}, nil
 					},
 				)
 

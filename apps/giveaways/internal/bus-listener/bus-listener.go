@@ -63,7 +63,7 @@ func New(opts Opts) error {
 func (c *giveawaysListener) tryAddParticipant(
 	ctx context.Context,
 	req giveaways.TryAddParticipantRequest,
-) struct{} {
+) (struct{}, error) {
 	if err := c.giveawaysService.TryAddParticipant(
 		ctx,
 		req.UserID,
@@ -72,18 +72,19 @@ func (c *giveawaysListener) tryAddParticipant(
 		req.GiveawayID,
 	); err != nil {
 		c.logger.Error("failed to add participant to giveaways", slog.Any("err", err))
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *giveawaysListener) chooseWinner(
 	ctx context.Context,
 	req giveaways.ChooseWinnerRequest,
-) giveaways.ChooseWinnerResponse {
+) (giveaways.ChooseWinnerResponse, error) {
 	winners, err := c.giveawaysService.ChooseWinner(ctx, req.GiveawayID)
 	if err != nil {
-		return giveaways.ChooseWinnerResponse{}
+		return giveaways.ChooseWinnerResponse{}, err
 	}
 
 	mappedWinners := make([]giveaways.Winner, 0, len(winners))
@@ -100,5 +101,5 @@ func (c *giveawaysListener) chooseWinner(
 
 	return giveaways.ChooseWinnerResponse{
 		Winners: mappedWinners,
-	}
+	}, nil
 }

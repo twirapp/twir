@@ -2,6 +2,7 @@ package timers
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -22,6 +23,14 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 	}
 
 	if err := c.timersRepository.Delete(ctx, id); err != nil {
+		c.logger.Error("cannot delete timer", slog.Any("err", err))
+		return err
+	}
+
+	if _, err := c.twirbus.Timers.RemoveTimer.Request(
+		ctx,
+		timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()},
+	); err != nil {
 		return err
 	}
 
@@ -35,11 +44,6 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 			OperationType: audit.OperationDelete,
 			ObjectID:      lo.ToPtr(timer.ID.String()),
 		},
-	)
-
-	c.twirbus.Timers.RemoveTimer.Request(
-		ctx,
-		timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()},
 	)
 
 	return nil

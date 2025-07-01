@@ -2,6 +2,7 @@ package buscore
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -15,7 +16,7 @@ type QueueResponse[T any] struct {
 	Data T
 }
 
-type QueueSubscribeCallback[Req, Res any] func(ctx context.Context, data Req) Res
+type QueueSubscribeCallback[Req, Res any] func(ctx context.Context, data Req) (Res, error)
 
 type Queue[Req, Res any] interface {
 	Publish(ctx context.Context, data Req) error
@@ -47,6 +48,8 @@ func NewNatsQueue[Req, Res any](
 	}
 }
 
+const twirNatsErrorHeader = "TwirError"
+
 func (c *NatsQueue[Req, Res]) Request(ctx context.Context, req Req) (*QueueResponse[Res], error) {
 	tracer := otel.Tracer("nats-publisher")
 	ctx, span := tracer.Start(ctx, "Publish "+c.subject, trace.WithSpanKind(trace.SpanKindProducer))
@@ -63,25 +66,28 @@ func (c *NatsQueue[Req, Res]) Request(ctx context.Context, req Req) (*QueueRespo
 		return nil, err
 	}
 
-	replyKey := nats.NewInbox()
-
 	msg := &nats.Msg{
 		Subject: c.subject,
-		Reply:   replyKey,
+		Reply:   nats.NewInbox(),
 		Header:  nats.Header{},
 		Data:    reqBytes,
-		Sub:     nil,
 	}
 
 	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(msg.Header))
 
 	resp, err := c.nc.RequestMsgWithContext(ctx, msg)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
+	}
+
+	if errMsg := resp.Header.Get(twirNatsErrorHeader); errMsg != "" {
+		return nil, errors.New(errMsg)
 	}
 
 	res, err := natsDecode[Res](c.encoder, resp.Data)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 
@@ -99,11 +105,11 @@ func (c *NatsQueue[Req, Res]) SubscribeGroup(
 	sub, err := c.nc.QueueSubscribe(
 		c.subject,
 		queueGroup,
-		func(m *nats.Msg) {
+		func(requestMsg *nats.Msg) {
 			go func() {
 				ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 				defer cancel()
-				ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.HeaderCarrier(m.Header))
+				ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.HeaderCarrier(requestMsg.Header))
 
 				newCtx, span := tracer.Start(
 					ctx,
@@ -118,19 +124,38 @@ func (c *NatsQueue[Req, Res]) SubscribeGroup(
 					attribute.String("messaging.group", queueGroup),
 				)
 
-				data, err := natsDecode[Req](c.encoder, m.Data)
+				resp := &nats.Msg{
+					Subject: requestMsg.Reply,
+					Header:  nats.Header{},
+				}
+
+				data, err := natsDecode[Req](c.encoder, requestMsg.Data)
 				if err != nil {
+					span.RecordError(err)
+					resp.Header.Set(twirNatsErrorHeader, err.Error())
+					c.nc.PublishMsg(resp)
 					return
 				}
 
-				response := cb(newCtx, data)
+				response, err := cb(newCtx, data)
+				if err != nil {
+					span.RecordError(err)
+					resp.Header.Set(twirNatsErrorHeader, err.Error())
+					c.nc.PublishMsg(resp)
+					return
+				}
 
 				responseBytes, err := natsEncode(c.encoder, response)
 				if err != nil {
+					span.RecordError(err)
+					resp.Header.Set(twirNatsErrorHeader, err.Error())
+					c.nc.PublishMsg(resp)
 					return
 				}
 
-				c.nc.Publish(m.Reply, responseBytes)
+				resp.Data = responseBytes
+
+				c.nc.PublishMsg(resp)
 			}()
 		},
 	)
@@ -165,19 +190,38 @@ func (c *NatsQueue[Req, Res]) Subscribe(
 					attribute.String("messaging.destination", c.subject),
 				)
 
+				resp := &nats.Msg{
+					Subject: m.Reply,
+					Header:  nats.Header{},
+				}
+
 				data, err := natsDecode[Req](c.encoder, m.Data)
 				if err != nil {
+					span.RecordError(err)
+					resp.Header.Set(twirNatsErrorHeader, err.Error())
+					c.nc.PublishMsg(resp)
 					return
 				}
 
-				response := cb(ctx, data)
+				response, err := cb(ctx, data)
+				if err != nil {
+					span.RecordError(err)
+					resp.Header.Set(twirNatsErrorHeader, err.Error())
+					c.nc.PublishMsg(resp)
+					return
+				}
 
 				responseBytes, err := natsEncode(c.encoder, response)
 				if err != nil {
+					span.RecordError(err)
+					resp.Header.Set(twirNatsErrorHeader, err.Error())
+					c.nc.PublishMsg(resp)
 					return
 				}
 
-				c.nc.Publish(m.Reply, responseBytes)
+				resp.Data = responseBytes
+
+				c.nc.PublishMsg(resp)
 			}()
 		},
 	)

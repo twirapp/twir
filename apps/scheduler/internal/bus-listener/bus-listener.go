@@ -66,21 +66,23 @@ func New(opts Opts) error {
 func (c *schedulerListener) createDefaultCommands(
 	ctx context.Context,
 	req scheduler.CreateDefaultCommandsRequest,
-) struct{} {
+) (struct{}, error) {
 	if err := c.commandsService.CreateDefaultCommands(ctx); err != nil {
 		c.logger.Error("failed to create default commands", slog.Any("err", err))
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *schedulerListener) createDefaultRoles(
 	ctx context.Context,
 	req scheduler.CreateDefaultRolesRequest,
-) struct{} {
+) (struct{}, error) {
 	if err := c.rolesService.CreateDefaultRoles(ctx); err != nil {
 		c.logger.Error("failed to create default roles", slog.Any("err", err))
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }

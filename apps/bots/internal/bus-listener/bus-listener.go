@@ -2,6 +2,7 @@ package bus_listener
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
@@ -11,7 +12,6 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/utils"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -19,6 +19,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
@@ -58,26 +59,26 @@ func New(opts Opts) (*BusListener, error) {
 			OnStart: func(_ context.Context) error {
 				listener.bus.Bots.SendMessage.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data bots.SendMessageRequest) struct{} {
-						opts.WorkersPool.Submit(
-							func() {
-								listener.sendMessage(ctx, data)
+					func(ctx context.Context, data bots.SendMessageRequest) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.sendMessage(ctx, data)
 							},
 						).Wait()
 
-						return struct{}{}
+						return struct{}{}, err
 					},
 				)
 				listener.bus.Bots.DeleteMessage.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data bots.DeleteMessageRequest) struct{} {
-						opts.WorkersPool.Submit(
-							func() {
-								listener.deleteMessage(ctx, data)
+					func(ctx context.Context, data bots.DeleteMessageRequest) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.deleteMessage(ctx, data)
 							},
 						).Wait()
 
-						return struct{}{}
+						return struct{}{}, err
 					},
 				)
 				listener.bus.ChatMessages.SubscribeGroup(
@@ -86,38 +87,38 @@ func New(opts Opts) (*BusListener, error) {
 				)
 				listener.bus.Bots.BanUser.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data bots.BanRequest) struct{} {
-						opts.WorkersPool.Submit(
-							func() {
-								listener.banUser(ctx, data)
+					func(ctx context.Context, data bots.BanRequest) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.banUser(ctx, data)
 							},
 						).Wait()
 
-						return struct{}{}
+						return struct{}{}, err
 					},
 				)
 				listener.bus.Bots.BanUsers.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data []bots.BanRequest) struct{} {
-						opts.WorkersPool.Submit(
-							func() {
-								listener.banUsers(ctx, data)
+					func(ctx context.Context, data []bots.BanRequest) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.banUsers(ctx, data)
 							},
 						).Wait()
 
-						return struct{}{}
+						return struct{}{}, err
 					},
 				)
 				listener.bus.Bots.ShoutOut.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data bots.SentShoutOutRequest) struct{} {
-						opts.WorkersPool.Submit(
-							func() {
-								listener.handleShoutOut(ctx, data)
+					func(ctx context.Context, data bots.SentShoutOutRequest) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.handleShoutOut(ctx, data)
 							},
 						).Wait()
 
-						return struct{}{}
+						return struct{}{}, err
 					},
 				)
 
@@ -150,7 +151,7 @@ type BusListener struct {
 	config             cfg.Config
 }
 
-func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageRequest) struct{} {
+func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageRequest) error {
 	channel := model.Channels{}
 	err := c.gorm.WithContext(ctx).Where("id = ?", req.ChannelId).Find(&channel).Error
 	if err != nil {
@@ -158,20 +159,20 @@ func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageR
 			"cannot get channel",
 			slog.String("channelId", req.ChannelId),
 		)
-		return struct{}{}
+		return err
 	}
 
 	if channel.ID == "" {
-		return struct{}{}
+		return nil
 	}
 
-	wg := utils.NewGoroutinesGroup()
+	wg, wgCtx := errgroup.WithContext(ctx)
 
 	for _, m := range req.MessageIds {
 		wg.Go(
-			func() {
+			func() error {
 				e := c.twitchActions.DeleteMessage(
-					ctx,
+					wgCtx,
 					twitchactions.DeleteMessageOpts{
 						BroadcasterID: req.ChannelId,
 						ModeratorID:   channel.BotID,
@@ -180,17 +181,22 @@ func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageR
 				)
 				if e != nil {
 					c.logger.Error("cannot delete message", slog.Any("err", e))
+					return e
 				}
+
+				return nil
 			},
 		)
 	}
 
-	wg.Wait()
+	if err := wg.Wait(); err != nil {
+		return err
+	}
 
-	return struct{}{}
+	return nil
 }
 
-func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageRequest) struct{} {
+func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageRequest) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(
@@ -200,7 +206,7 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 	)
 
 	if req.ChannelId == "" {
-		return struct{}{}
+		return fmt.Errorf("channel id is empty")
 	}
 
 	err := c.twitchActions.SendMessage(
@@ -217,14 +223,15 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 	)
 	if err != nil {
 		c.logger.Error("cannot send message", slog.Any("err", err))
+		return err
 	}
-	return struct{}{}
+	return nil
 }
 
 func (c *BusListener) handleChatMessage(
 	ctx context.Context,
 	req twitch.TwitchChatMessage,
-) struct{} {
+) (struct{}, error) {
 	span := trace.SpanFromContext(ctx)
 	// End the span when the operation we are measuring is done.
 	defer span.End()
@@ -241,12 +248,13 @@ func (c *BusListener) handleChatMessage(
 			slog.String("channelName", req.BroadcasterUserLogin),
 			slog.Any("err", err),
 		)
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
-func (c *BusListener) handleShoutOut(ctx context.Context, req bots.SentShoutOutRequest) struct{} {
+func (c *BusListener) handleShoutOut(ctx context.Context, req bots.SentShoutOutRequest) error {
 	err := c.twitchActions.ShoutOut(
 		ctx,
 		twitchactions.ShoutOutInput{
@@ -256,6 +264,7 @@ func (c *BusListener) handleShoutOut(ctx context.Context, req bots.SentShoutOutR
 	)
 	if err != nil {
 		c.logger.Error("cannot send shoutout", slog.Any("err", err))
+		return err
 	}
-	return struct{}{}
+	return nil
 }

@@ -126,6 +126,18 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				GobEncoder,
 			),
+			Vip: NewNatsQueue[botsservice.VipRequest, struct{}](
+				nc,
+				botsservice.VipSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			UnVip: NewNatsQueue[botsservice.UnVipRequest, struct{}](
+				nc,
+				botsservice.UnVipSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
 		},
 
 		Websocket: &websocketBus{

@@ -46,13 +46,16 @@ func New(
 func (c *CommandsBus) Subscribe() error {
 	c.bus.Parser.GetCommandResponse.SubscribeGroup(
 		"parser",
-		func(ctx context.Context, data twitch.TwitchChatMessage) parser.CommandParseResponse {
+		func(ctx context.Context, data twitch.TwitchChatMessage) (parser.CommandParseResponse, error) {
 			res, err := c.commandService.ProcessChatMessage(ctx, data)
-			if err != nil || res == nil {
-				return parser.CommandParseResponse{}
+			if err != nil {
+				return parser.CommandParseResponse{}, err
+			}
+			if res == nil {
+				return parser.CommandParseResponse{}, nil
 			}
 
-			return *res
+			return *res, nil
 		},
 	)
 
@@ -61,10 +64,11 @@ func (c *CommandsBus) Subscribe() error {
 		func(
 			ctx context.Context,
 			data parser.ParseVariablesInTextRequest,
-		) parser.ParseVariablesInTextResponse {
+		) (parser.ParseVariablesInTextResponse, error) {
 			foundStream, err := c.streamsRepository.GetByChannelID(ctx, data.ChannelID)
 			if err != nil {
 				zap.S().Error(err)
+				return parser.ParseVariablesInTextResponse{}, err
 			}
 
 			var stream *streamsmodel.Stream
@@ -109,7 +113,7 @@ func (c *CommandsBus) Subscribe() error {
 
 			return parser.ParseVariablesInTextResponse{
 				Text: parsed,
-			}
+			}, nil
 		},
 	)
 
@@ -118,14 +122,14 @@ func (c *CommandsBus) Subscribe() error {
 		func(
 			ctx context.Context,
 			data twitch.TwitchChatMessage,
-		) struct{} {
+		) (struct{}, error) {
 			res, err := c.commandService.ProcessChatMessage(ctx, data)
 			if err != nil {
 				zap.S().Error(err)
-				return struct{}{}
+				return struct{}{}, err
 			}
 			if res == nil {
-				return struct{}{}
+				return struct{}{}, nil
 			}
 
 			var replyTo string
@@ -144,14 +148,20 @@ func (c *CommandsBus) Subscribe() error {
 				}
 
 				if res.KeepOrder {
-					c.bus.Bots.SendMessage.Publish(ctx, params)
+					if err := c.bus.Bots.SendMessage.Publish(ctx, params); err != nil {
+						zap.S().Error(err)
+					}
 				} else {
 					withoutCancel := context.WithoutCancel(ctx)
-					go c.bus.Bots.SendMessage.Publish(withoutCancel, params)
+					go func() {
+						if err := c.bus.Bots.SendMessage.Publish(withoutCancel, params); err != nil {
+							zap.S().Error(err)
+						}
+					}()
 				}
 			}
 
-			return struct{}{}
+			return struct{}{}, nil
 		},
 	)
 

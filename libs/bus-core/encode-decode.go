@@ -40,6 +40,11 @@ func natsEncode[T any](encoder QueueEncoder, data T) ([]byte, error) {
 }
 
 func natsDecode[T any](encoder QueueEncoder, data []byte) (T, error) {
+	if len(data) == 0 {
+		var emptyRes T
+		return emptyRes, nil
+	}
+
 	switch encoder {
 	case JsonEncoder:
 		var res T
