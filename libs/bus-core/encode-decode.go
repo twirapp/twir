@@ -48,7 +48,7 @@ func natsDecode[T any](encoder QueueEncoder, data []byte) (T, error) {
 	switch encoder {
 	case JsonEncoder:
 		var res T
-		if err := json.Unmarshal(data, res); err != nil {
+		if err := json.Unmarshal(data, &res); err != nil {
 			return res, err
 		}
 
