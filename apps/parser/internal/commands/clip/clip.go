@@ -45,7 +45,7 @@ var MakeClip = &types.DefaultCommand{
 			ctx,
 			channel.BotID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
+			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{

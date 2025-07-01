@@ -17,7 +17,6 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"go.uber.org/fx"
@@ -35,7 +34,6 @@ type Protected struct {
 type Opts struct {
 	fx.In
 
-	TokensGrpc        tokens.TokensClient
 	IntegrationsGrpc  integrationsGrpc.IntegrationsClient
 	WebsocketsGrpc    websockets.WebsocketClient
 	DiscordGrpc       discord.DiscordClient
@@ -59,7 +57,6 @@ func New(opts Opts) *Protected {
 		Config:         opts.Config,
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
-			Tokens:       opts.TokensGrpc,
 			Integrations: opts.IntegrationsGrpc,
 			Websockets:   opts.WebsocketsGrpc,
 			Discord:      opts.DiscordGrpc,

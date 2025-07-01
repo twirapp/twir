@@ -82,13 +82,13 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	var twitchClient *helix.Client
 	var twitchClientErr error
 	if !opts.IsAnnounce {
-		twitchClient, twitchClientErr = twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
+		twitchClient, twitchClientErr = twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	} else {
 		twitchClient, twitchClientErr = twitch.NewBotClientWithContext(
 			ctx,
 			opts.SenderID,
 			c.config,
-			c.tokensGrpc,
+			c.twirBus,
 		)
 	}
 

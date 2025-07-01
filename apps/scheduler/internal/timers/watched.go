@@ -8,7 +8,7 @@ import (
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -20,8 +20,8 @@ type WatchedOpts struct {
 	Logger logger.Logger
 	Config config.Config
 
-	Gorm       *gorm.DB
-	TokensGrpc tokens.TokensClient
+	Gorm    *gorm.DB
+	TwirBus *buscore.Bus
 }
 
 func NewWatched(opts WatchedOpts) {

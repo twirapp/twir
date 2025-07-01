@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 
 	"github.com/olahol/melody"
 	"github.com/prometheus/client_golang/prometheus"
@@ -16,7 +17,6 @@ import (
 	"github.com/satont/twir/apps/websockets/types"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -24,34 +24,34 @@ import (
 type Kappagen struct {
 	manager *melody.Melody
 
-	gorm       *gorm.DB
-	logger     logger.Logger
-	redis      *redis.Client
-	config     config.Config
-	tokensGrpc tokens.TokensClient
-	counter    prometheus.Gauge
+	gorm    *gorm.DB
+	logger  logger.Logger
+	redis   *redis.Client
+	config  config.Config
+	counter prometheus.Gauge
+	twirBus *buscore.Bus
 }
 
 type Opts struct {
 	fx.In
 
-	Gorm       *gorm.DB
-	Logger     logger.Logger
-	Redis      *redis.Client
-	Config     config.Config
-	TokensGrpc tokens.TokensClient
+	Gorm    *gorm.DB
+	Logger  logger.Logger
+	Redis   *redis.Client
+	Config  config.Config
+	TwirBus *buscore.Bus
 }
 
 func New(opts Opts) *Kappagen {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	kappagen := &Kappagen{
-		manager:    m,
-		gorm:       opts.Gorm,
-		logger:     opts.Logger,
-		redis:      opts.Redis,
-		config:     opts.Config,
-		tokensGrpc: opts.TokensGrpc,
+		manager: m,
+		gorm:    opts.Gorm,
+		logger:  opts.Logger,
+		redis:   opts.Redis,
+		config:  opts.Config,
+		twirBus: opts.TwirBus,
 		counter: promauto.NewGauge(
 			prometheus.GaugeOpts{
 				Name:        "websockets_connections_count",

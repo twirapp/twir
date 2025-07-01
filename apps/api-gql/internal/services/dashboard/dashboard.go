@@ -17,7 +17,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
@@ -33,7 +32,6 @@ type Opts struct {
 	CachedTwitchClient      *twitchcache.CachedTwitchClient
 	Redis                   *redis.Client
 	Config                  config.Config
-	TokensClient            tokens.TokensClient
 	Logger                  logger.Logger
 	TwirBus                 *buscore.Bus
 	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
@@ -46,7 +44,6 @@ func New(opts Opts) *Service {
 		cachedTwitchClient:      opts.CachedTwitchClient,
 		redis:                   opts.Redis,
 		config:                  opts.Config,
-		tokensClient:            opts.TokensClient,
 		logger:                  opts.Logger,
 		twirBus:                 opts.TwirBus,
 		channelsCache:           opts.ChannelsCache,
@@ -59,7 +56,6 @@ type Service struct {
 	cachedTwitchClient      *twitchcache.CachedTwitchClient
 	redis                   *redis.Client
 	config                  config.Config
-	tokensClient            tokens.TokensClient
 	logger                  logger.Logger
 	twirBus                 *buscore.Bus
 	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
@@ -94,7 +90,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		ctx,
 		channelID,
 		c.config,
-		c.tokensClient,
+		c.twirBus,
 	)
 	if err != nil {
 		return entity.DashboardStats{}, err
@@ -238,7 +234,7 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 		return entity.BotStatus{}, fmt.Errorf("user not found")
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelID, c.config, c.tokensClient)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelID, c.config, c.twirBus)
 	if err != nil {
 		return entity.BotStatus{}, err
 	}
@@ -331,7 +327,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 		dbChannel.IsEnabled = false
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensClient)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
 		return false, err
 	}
@@ -358,7 +354,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 		ctx,
 		channelID,
 		c.config,
-		c.tokensClient,
+		c.twirBus,
 	)
 	if err != nil {
 		return false, err

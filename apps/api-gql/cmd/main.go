@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/satont/twir/apps/parser/pkg/executron"
-	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
@@ -77,8 +76,6 @@ import (
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
@@ -362,12 +359,6 @@ func main() {
 			toxic_messages.New,
 			channels_files.New,
 			channels_redemptions_history.New,
-		),
-		// grpc clients
-		fx.Provide(
-			func(config cfg.Config) tokens.TokensClient {
-				return clients.NewTokens(config.AppEnv)
-			},
 		),
 		// app itself
 		fx.Provide(

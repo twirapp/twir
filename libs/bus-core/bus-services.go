@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 )
@@ -75,6 +76,13 @@ type giveawaysBus struct {
 	ChooseWinner      Queue[giveaways.ChooseWinnerRequest, giveaways.ChooseWinnerResponse]
 
 	NewParticipants Queue[giveaways.NewParticipant, struct{}]
+}
+
+type tokensBus struct {
+	RequestAppToken  Queue[struct{}, tokens.TokenResponse]
+	RequestUserToken Queue[tokens.GetUserTokenRequest, tokens.TokenResponse]
+	RequestBotToken  Queue[tokens.GetBotTokenRequest, tokens.TokenResponse]
+	UpdateToken      Queue[tokens.UpdateTokenRequest, struct{}]
 }
 
 type eventsBus struct {

@@ -17,7 +17,6 @@ import (
 	batchprocessor "github.com/twirapp/batch-processor"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
@@ -41,7 +40,6 @@ type Handler struct {
 	logger logger.Logger
 
 	websocketsGrpc               websockets.WebsocketClient
-	tokensGrpc                   tokens.TokensClient
 	tracer                       trace.Tracer
 	manager                      *manager.Manager
 	scheduledVipsRepo            scheduledvipsrepository.Repository
@@ -72,7 +70,6 @@ type Opts struct {
 	Logger logger.Logger
 
 	WebsocketsGrpc                      websockets.WebsocketClient
-	TokensGrpc                          tokens.TokensClient
 	ScheduledVipsRepo                   scheduledvipsrepository.Repository
 	ChannelsRepo                        *generic_cacher.GenericCacher[channelmodel.Channel]
 	ChannelsInfoHistoryRepo             channelsinfohistory.Repository
@@ -115,7 +112,6 @@ func New(opts Opts) *Handler {
 		gorm:                                opts.Gorm,
 		redisClient:                         opts.Redis,
 		websocketsGrpc:                      opts.WebsocketsGrpc,
-		tokensGrpc:                          opts.TokensGrpc,
 		tracer:                              opts.Tracer,
 		twirBus:                             opts.Bus,
 		prefixCache:                         opts.PrefixCache,

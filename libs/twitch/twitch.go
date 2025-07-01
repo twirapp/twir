@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/twirapp/twir/libs/grpc/tokens"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/nicklaw5/helix/v2"
+	cfg "github.com/satont/twir/libs/config"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/tokens"
 )
 
 type userIDCtxKey struct{}
@@ -35,21 +33,20 @@ func rateLimitCallback(lastResponse *helix.Response) error {
 	return nil
 }
 
-func NewAppClient(config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
-	return NewAppClientWithContext(context.Background(), config, tokensGrpc)
+func NewAppClient(config cfg.Config, twirBus *buscore.Bus) (*helix.Client, error) {
+	return NewAppClientWithContext(context.Background(), config, twirBus)
 }
 
 func NewAppClientWithContext(
 	ctx context.Context,
 	config cfg.Config,
-	tokensGrpc tokens.TokensClient,
+	twirBus *buscore.Bus,
 ) (
 	*helix.Client, error,
 ) {
-	appToken, err := tokensGrpc.RequestAppToken(
+	appToken, err := twirBus.Tokens.RequestAppToken.Request(
 		ctx,
-		&emptypb.Empty{},
-		grpc.WaitForReady(true),
+		struct{}{},
 	)
 	if err != nil {
 		return nil, err
@@ -61,7 +58,7 @@ func NewAppClientWithContext(
 			ClientSecret:   config.TwitchClientSecret,
 			RedirectURI:    config.GetTwitchCallbackUrl(),
 			RateLimitFunc:  rateLimitCallback,
-			AppAccessToken: appToken.AccessToken,
+			AppAccessToken: appToken.Data.AccessToken,
 			HTTPClient:     createHttpClient(),
 		},
 	)
@@ -72,25 +69,24 @@ func NewAppClientWithContext(
 	return client, nil
 }
 
-func NewUserClient(userID string, config cfg.Config, tokensGrpc tokens.TokensClient) (
+func NewUserClient(userID string, config cfg.Config, twirBus *buscore.Bus) (
 	*helix.Client,
 	error,
 ) {
-	return NewUserClientWithContext(context.Background(), userID, config, tokensGrpc)
+	return NewUserClientWithContext(context.Background(), userID, config, twirBus)
 }
 
 func NewUserClientWithContext(
 	ctx context.Context,
 	userID string,
 	config cfg.Config,
-	tokensGrpc tokens.TokensClient,
+	twirBus *buscore.Bus,
 ) (*helix.Client, error) {
 	ctx = context.WithValue(ctx, userIDCtxKey{}, userID)
 
-	userToken, err := tokensGrpc.RequestUserToken(
+	userToken, err := twirBus.Tokens.RequestUserToken.Request(
 		ctx,
-		&tokens.GetUserTokenRequest{UserId: userID},
-		grpc.WaitForReady(true),
+		tokens.GetUserTokenRequest{UserId: userID},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("cannot request user token from tokens service: %w", err)
@@ -103,7 +99,7 @@ func NewUserClientWithContext(
 			ClientSecret:    config.TwitchClientSecret,
 			RedirectURI:     config.GetTwitchCallbackUrl(),
 			RateLimitFunc:   rateLimitCallback,
-			UserAccessToken: userToken.AccessToken,
+			UserAccessToken: userToken.Data.AccessToken,
 			HTTPClient:      createHttpClient(),
 		},
 	)
@@ -114,22 +110,21 @@ func NewUserClientWithContext(
 	return client, nil
 }
 
-func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClient) (
+func NewBotClient(botID string, config cfg.Config, twirBus *buscore.Bus) (
 	*helix.Client,
 	error,
 ) {
-	return NewBotClientWithContext(context.Background(), botID, config, tokensGrpc)
+	return NewBotClientWithContext(context.Background(), botID, config, twirBus)
 }
 
 func NewBotClientWithContext(
-	ctx context.Context, botID string, config cfg.Config, tokensGrpc tokens.TokensClient,
+	ctx context.Context, botID string, config cfg.Config, twirBus *buscore.Bus,
 ) (*helix.Client, error) {
 	ctx = context.WithValue(ctx, userIDCtxKey{}, botID)
 
-	botToken, err := tokensGrpc.RequestBotToken(
+	botToken, err := twirBus.Tokens.RequestBotToken.Request(
 		ctx,
-		&tokens.GetBotTokenRequest{BotId: botID},
-		grpc.WaitForReady(true),
+		tokens.GetBotTokenRequest{BotId: botID},
 	)
 	if err != nil {
 		return nil, err
@@ -141,7 +136,7 @@ func NewBotClientWithContext(
 			ClientSecret:    config.TwitchClientSecret,
 			RedirectURI:     config.GetTwitchCallbackUrl(),
 			RateLimitFunc:   rateLimitCallback,
-			UserAccessToken: botToken.AccessToken,
+			UserAccessToken: botToken.Data.AccessToken,
 			HTTPClient:      createHttpClient(),
 		},
 	)

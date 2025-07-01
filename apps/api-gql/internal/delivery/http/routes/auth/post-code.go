@@ -36,7 +36,7 @@ func (a *Auth) handleAuthPostCode(
 		return nil, huma.Error400BadRequest("Cannot decode state", err)
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, a.config, a.tokensGrpc)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, a.config, a.bus)
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Cannot create twitch client", err)
 	}

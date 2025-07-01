@@ -54,7 +54,6 @@ import (
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -67,9 +66,8 @@ import (
 type Deps struct {
 	fx.In
 
-	TokensGrpc tokens.TokensClient
-	Logger     logger.Logger
-	WsRouter   wsrouter.WsRouter
+	Logger   logger.Logger
+	WsRouter wsrouter.WsRouter
 
 	SpotifyRepository channelsintegrationsspotify.Repository
 

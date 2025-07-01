@@ -27,7 +27,7 @@ func (c *Kappagen) SendSettings(userId string) error {
 		return nil
 	}
 
-	twitchClient, err := twitch.NewUserClient(userId, c.config, c.tokensGrpc)
+	twitchClient, err := twitch.NewUserClient(userId, c.config, c.twirBus)
 	if err != nil {
 		return err
 	}

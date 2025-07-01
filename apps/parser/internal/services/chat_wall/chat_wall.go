@@ -14,7 +14,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -32,7 +31,6 @@ type Opts struct {
 	ChatWallCache *generic_cacher.GenericCacher[[]model.ChatWall]
 	Redis         *redis.Client
 	Config        config.Config
-	TokensClient  tokens.TokensClient
 	TwirBus       *buscore.Bus
 }
 
@@ -44,7 +42,6 @@ func New(opts Opts) *Service {
 		chatWallCache:    opts.ChatWallCache,
 		redis:            opts.Redis,
 		config:           opts.Config,
-		tokens:           opts.TokensClient,
 		twirBus:          opts.TwirBus,
 	}
 }
@@ -56,7 +53,6 @@ type Service struct {
 	chatWallCache    *generic_cacher.GenericCacher[[]model.ChatWall]
 	redis            *redis.Client
 	config           config.Config
-	tokens           tokens.TokensClient
 	twirBus          *buscore.Bus
 }
 

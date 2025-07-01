@@ -54,7 +54,7 @@ var Count = &types.Variable{
 			ctx,
 			parseCtx.Channel.ID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
+			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			parseCtx.Services.Logger.Error("cannot create twitch client", zap.Error(err))

@@ -15,7 +15,6 @@ import (
 	"github.com/satont/twir/apps/websockets/types"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -23,34 +22,31 @@ import (
 type BeRightBack struct {
 	manager *melody.Melody
 
-	gorm       *gorm.DB
-	logger     logger.Logger
-	redis      *redis.Client
-	config     config.Config
-	tokensGrpc tokens.TokensClient
-	counter    prometheus.Gauge
+	gorm    *gorm.DB
+	logger  logger.Logger
+	redis   *redis.Client
+	config  config.Config
+	counter prometheus.Gauge
 }
 
 type Opts struct {
 	fx.In
 
-	Gorm       *gorm.DB
-	Logger     logger.Logger
-	Redis      *redis.Client
-	Config     config.Config
-	TokensGrpc tokens.TokensClient
+	Gorm   *gorm.DB
+	Logger logger.Logger
+	Redis  *redis.Client
+	Config config.Config
 }
 
 func New(opts Opts) *BeRightBack {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	brb := &BeRightBack{
-		manager:    m,
-		gorm:       opts.Gorm,
-		logger:     opts.Logger,
-		redis:      opts.Redis,
-		config:     opts.Config,
-		tokensGrpc: opts.TokensGrpc,
+		manager: m,
+		gorm:    opts.Gorm,
+		logger:  opts.Logger,
+		redis:   opts.Redis,
+		config:  opts.Config,
 		counter: promauto.NewGauge(
 			prometheus.GaugeOpts{
 				Name:        "websockets_connections_count",

@@ -43,7 +43,7 @@ func (c *CachedTwitchClient) GetChannelSubscribersCountByChannelId(
 		return subscribers, nil
 	}
 
-	twitchClient, err := twitch.NewUserClient(channelId, c.config, c.tokensClient)
+	twitchClient, err := twitch.NewUserClient(channelId, c.config, c.twirBus)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create twitch client: %w", err)
 	}

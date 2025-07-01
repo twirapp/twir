@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/satont/twir/apps/tokens/internal/grpc_impl"
+	"github.com/satont/twir/apps/tokens/internal/bus_listener"
 	"github.com/satont/twir/apps/tokens/internal/redis"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -24,7 +24,7 @@ var App = fx.Module(
 	),
 	fx.Invoke(
 		uptrace.NewFx("tokens"),
-		grpc_impl.NewTokens,
+		bus_listener.NewTokens,
 		func(l logger.Logger) {
 			l.Info("Started")
 		},

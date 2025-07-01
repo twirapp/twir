@@ -15,7 +15,7 @@ type DeleteMessageOpts struct {
 }
 
 func (c *TwitchActions) DeleteMessage(ctx context.Context, opts DeleteMessageOpts) error {
-	twitchClient, err := twitch.NewBotClientWithContext(ctx, opts.ModeratorID, c.config, c.tokensGrpc)
+	twitchClient, err := twitch.NewBotClientWithContext(ctx, opts.ModeratorID, c.config, c.twirBus)
 	if err != nil {
 		return err
 	}

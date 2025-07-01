@@ -28,7 +28,7 @@ func getTop(
 	twitchClient, err := twitch.NewAppClientWithContext(
 		ctx,
 		*parseCtx.Services.Config,
-		parseCtx.Services.GrpcClients.Tokens,
+		parseCtx.Services.Bus,
 	)
 
 	if err != nil {

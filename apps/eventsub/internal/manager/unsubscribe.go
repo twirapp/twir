@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) error {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
 		return err
 	}

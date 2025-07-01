@@ -13,7 +13,6 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -32,7 +31,6 @@ type Opts struct {
 	SessionManager *scs.SessionManager
 
 	IntegrationsGrpc integrationsGrpc.IntegrationsClient
-	TokensGrpc       tokens.TokensClient
 	DiscordGrpc      discord.DiscordClient
 
 	Bus               *buscore.Bus
@@ -47,7 +45,6 @@ func New(opts Opts) *UnProtected {
 		Config:         opts.Config,
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
-			Tokens:       opts.TokensGrpc,
 			Integrations: opts.IntegrationsGrpc,
 			Discord:      opts.DiscordGrpc,
 		},

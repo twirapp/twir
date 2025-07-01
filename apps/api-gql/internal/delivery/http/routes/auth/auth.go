@@ -9,7 +9,6 @@ import (
 	sessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -17,29 +16,26 @@ import (
 type Opts struct {
 	fx.In
 
-	Huma       huma.API
-	Gorm       *gorm.DB
-	Config     config.Config
-	TokensGrpc tokens.TokensClient
-	Bus        *buscore.Bus
-	Sessions   *sessions.Auth
+	Huma     huma.API
+	Gorm     *gorm.DB
+	Config   config.Config
+	Bus      *buscore.Bus
+	Sessions *sessions.Auth
 }
 
 type Auth struct {
-	gorm       *gorm.DB
-	config     config.Config
-	tokensGrpc tokens.TokensClient
-	bus        *buscore.Bus
-	sessions   *sessions.Auth
+	gorm     *gorm.DB
+	config   config.Config
+	bus      *buscore.Bus
+	sessions *sessions.Auth
 }
 
 func New(opts Opts) *Auth {
 	p := &Auth{
-		gorm:       opts.Gorm,
-		config:     opts.Config,
-		tokensGrpc: opts.TokensGrpc,
-		bus:        opts.Bus,
-		sessions:   opts.Sessions,
+		gorm:     opts.Gorm,
+		config:   opts.Config,
+		bus:      opts.Bus,
+		sessions: opts.Sessions,
 	}
 
 	huma.Register(

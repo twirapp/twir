@@ -10,7 +10,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"go.uber.org/fx"
@@ -23,7 +22,6 @@ type Opts struct {
 	Gorm                       *gorm.DB
 	Logger                     logger.Logger
 	Config                     config.Config
-	GrpcTokensClient           tokens.TokensClient
 	CachedTwitchClient         *twitchcache.CachedTwitchClient
 	ChannelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
 	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
@@ -35,7 +33,6 @@ type TwirStats struct {
 	cachedResponse             *gqlmodel.TwirStats
 	logger                     logger.Logger
 	config                     config.Config
-	grpcTokensClients          tokens.TokensClient
 	cachedTwitchClient         *twitchcache.CachedTwitchClient
 	channelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
 	channelsCommandsUsagesRepo channelscommandsusages.Repository
@@ -47,7 +44,6 @@ func New(opts Opts) *TwirStats {
 		cachedResponse:             &gqlmodel.TwirStats{},
 		logger:                     opts.Logger,
 		config:                     opts.Config,
-		grpcTokensClients:          opts.GrpcTokensClient,
 		cachedTwitchClient:         opts.CachedTwitchClient,
 		channelsEmotesUsagesRepo:   opts.ChannelsEmotesUsagesRepo,
 		channelsCommandsUsagesRepo: opts.ChannelsCommandsUsagesRepo,

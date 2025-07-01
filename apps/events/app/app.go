@@ -14,7 +14,6 @@ import (
 	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
@@ -30,9 +29,6 @@ var App = fx.Module(
 			greetingsrepositorypgx.NewFx,
 			fx.As(new(greetingsrepository.Repository)),
 		),
-		func(config cfg.Config) tokens.TokensClient {
-			return clients.NewTokens(config.AppEnv)
-		},
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},

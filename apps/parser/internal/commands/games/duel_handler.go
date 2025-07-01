@@ -42,7 +42,7 @@ func (c *duelHandler) createHelixClient() (*helix.Client, error) {
 	client, err := twitch.NewUserClient(
 		c.parseCtx.Channel.ID,
 		*c.parseCtx.Services.Config,
-		c.parseCtx.Services.GrpcClients.Tokens,
+		c.parseCtx.Services.Bus,
 	)
 	if err != nil {
 		return nil, err

@@ -19,7 +19,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -34,7 +33,6 @@ type Opts struct {
 	Db     *gorm.DB
 	Redis  *redis.Client
 
-	TokensGrpc     tokens.TokensClient
 	WebsocketsGrpc websockets.WebsocketClient
 
 	ChatAlerts     *chat_alerts.ChatAlerts
@@ -49,7 +47,6 @@ func New(opts Opts) error {
 		redis:          opts.Redis,
 		logger:         opts.Logger,
 		cfg:            opts.Cfg,
-		tokensGrpc:     opts.TokensGrpc,
 		websocketsGrpc: opts.WebsocketsGrpc,
 		chatAlerts:     opts.ChatAlerts,
 		eventsWorkflow: opts.EventsWorkflow,
@@ -274,7 +271,6 @@ type EventsGrpcImplementation struct {
 	logger logger.Logger
 	cfg    cfg.Config
 
-	tokensGrpc     tokens.TokensClient
 	websocketsGrpc websockets.WebsocketClient
 
 	chatAlerts     *chat_alerts.ChatAlerts

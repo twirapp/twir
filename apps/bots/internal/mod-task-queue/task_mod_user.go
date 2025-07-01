@@ -24,7 +24,7 @@ func (p *RedisTaskProcessor) ProcessDistributeMod(
 		ctx,
 		payload.ChannelID,
 		p.config,
-		p.tokensGrpc,
+		p.twirBus,
 	)
 	if err != nil {
 		return err

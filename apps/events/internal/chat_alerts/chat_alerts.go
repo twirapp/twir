@@ -14,7 +14,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -25,7 +24,6 @@ type ChatAlerts struct {
 	redis           *redis.Client
 	logger          logger.Logger
 	cfg             cfg.Config
-	tokensGrpc      tokens.TokensClient
 	websocketsGrpc  websockets.WebsocketClient
 	bus             *buscore.Bus
 	chatAlertsCache *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
@@ -38,7 +36,6 @@ type Opts struct {
 	Redis           *redis.Client
 	Logger          logger.Logger
 	Cfg             cfg.Config
-	TokensGrpc      tokens.TokensClient
 	WebsocketsGrpc  websockets.WebsocketClient
 	Bus             *buscore.Bus
 	ChatAlertsCache *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
@@ -51,7 +48,6 @@ func New(opts Opts) (*ChatAlerts, error) {
 		logger:          opts.Logger,
 		cfg:             opts.Cfg,
 		bus:             opts.Bus,
-		tokensGrpc:      opts.TokensGrpc,
 		websocketsGrpc:  opts.WebsocketsGrpc,
 		chatAlertsCache: opts.ChatAlertsCache,
 	}, nil

@@ -14,7 +14,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
@@ -35,7 +34,6 @@ import (
 
 type Grpc struct {
 	WebSockets websockets.WebsocketClient
-	Tokens     tokens.TokensClient
 }
 
 type Services struct {

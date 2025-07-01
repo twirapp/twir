@@ -13,7 +13,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
 	"go.uber.org/fx"
@@ -26,7 +25,6 @@ type Opts struct {
 
 	TwirBus             *buscore.Bus
 	Config              config.Config
-	TokensGrpc          tokens.TokensClient
 	CachedTwitchClient  *twitch.CachedTwitchClient
 	Gorm                *gorm.DB
 	Logger              logger.Logger
@@ -37,7 +35,6 @@ type Opts struct {
 type Service struct {
 	twirbus             *buscore.Bus
 	config              config.Config
-	tokensGrpc          tokens.TokensClient
 	cachedTwitchClient  *twitch.CachedTwitchClient
 	gorm                *gorm.DB
 	logger              logger.Logger
@@ -49,7 +46,6 @@ func New(opts Opts) *Service {
 	return &Service{
 		twirbus:             opts.TwirBus,
 		config:              opts.Config,
-		tokensGrpc:          opts.TokensGrpc,
 		cachedTwitchClient:  opts.CachedTwitchClient,
 		gorm:                opts.Gorm,
 		logger:              opts.Logger,

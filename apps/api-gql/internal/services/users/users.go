@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 	"go.uber.org/fx"
@@ -23,7 +22,6 @@ type Opts struct {
 
 	UsersRepository users.Repository
 	Gorm            *gorm.DB
-	TokensService   tokens.TokensClient
 	Config          config.Config
 	TwirBus         *buscore.Bus
 }
@@ -32,7 +30,6 @@ func New(opts Opts) *Service {
 	return &Service{
 		usersRepository: opts.UsersRepository,
 		gorm:            opts.Gorm,
-		tokensService:   opts.TokensService,
 		config:          opts.Config,
 		twirBus:         opts.TwirBus,
 	}
@@ -41,7 +38,6 @@ func New(opts Opts) *Service {
 type Service struct {
 	usersRepository users.Repository
 	gorm            *gorm.DB
-	tokensService   tokens.TokensClient
 	config          config.Config
 	twirBus         *buscore.Bus
 }
@@ -184,7 +180,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		ctx,
 		input.ChannelID,
 		c.config,
-		c.tokensService,
+		c.twirBus,
 	)
 	if err != nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("cannot create channel twitch client: %w", err)

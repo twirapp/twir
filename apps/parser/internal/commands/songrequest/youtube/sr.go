@@ -234,7 +234,7 @@ func validate(
 	twitchClient, err := twitch.NewAppClientWithContext(
 		ctx,
 		*services.Config,
-		services.GrpcClients.Tokens,
+		services.Bus,
 	)
 	if err != nil {
 		return err

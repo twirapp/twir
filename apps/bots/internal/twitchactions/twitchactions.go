@@ -8,8 +8,8 @@ import (
 	toxicity_check "github.com/satont/twir/apps/bots/internal/services/toxicity-check"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
@@ -22,7 +22,6 @@ type Opts struct {
 	fx.In
 
 	Logger                  logger.Logger
-	TokensGrpc              tokens.TokensClient
 	ModTaskDistributor      mod_task_queue.TaskDistributor
 	SentMessagesRepository  sentmessages.Repository
 	ChannelsRepository      channels.Repository
@@ -32,13 +31,14 @@ type Opts struct {
 	ToxicityCheck           *toxicity_check.Service
 	Config                  cfg.Config
 	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
+	TwirBus                 *buscore.Bus
 }
 
 func New(opts Opts) *TwitchActions {
 	actions := &TwitchActions{
 		logger:                  opts.Logger,
 		config:                  opts.Config,
-		tokensGrpc:              opts.TokensGrpc,
+		twirBus:                 opts.TwirBus,
 		gorm:                    opts.Gorm,
 		rateLimiter:             redis.NewSlidingWindow(adapter.NewAdapter(opts.Redis)),
 		modTaskDistributor:      opts.ModTaskDistributor,
@@ -54,7 +54,7 @@ func New(opts Opts) *TwitchActions {
 
 type TwitchActions struct {
 	logger                  logger.Logger
-	tokensGrpc              tokens.TokensClient
+	twirBus                 *buscore.Bus
 	rateLimiter             redis.SlidingWindow
 	modTaskDistributor      mod_task_queue.TaskDistributor
 	sentMessagesRepository  sentmessages.Repository

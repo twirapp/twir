@@ -23,7 +23,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/integrations"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
@@ -40,9 +40,6 @@ var App = fx.Options(
 		),
 	),
 	fx.Provide(
-		func(c cfg.Config) tokens.TokensClient {
-			return clients.NewTokens(c.AppEnv)
-		},
 		func(c cfg.Config) integrations.IntegrationsClient {
 			return clients.NewIntegrations(c.AppEnv)
 		},

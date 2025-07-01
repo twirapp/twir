@@ -15,7 +15,6 @@ import (
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -29,7 +28,6 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	TokensGrpc         tokens.TokensClient
 	Tracer             trace.Tracer
 	ModTaskDistributor mod_task_queue.TaskDistributor
 
@@ -46,7 +44,6 @@ func New(opts Opts) (*BusListener, error) {
 		gorm:               opts.Gorm,
 		logger:             opts.Logger,
 		config:             opts.Cfg,
-		tokensGrpc:         opts.TokensGrpc,
 		twitchActions:      opts.TwitchActions,
 		messageHandler:     opts.MessageHandler,
 		tracer:             opts.Tracer,
@@ -141,7 +138,6 @@ func New(opts Opts) (*BusListener, error) {
 
 type BusListener struct {
 	logger             logger.Logger
-	tokensGrpc         tokens.TokensClient
 	tracer             trace.Tracer
 	modTaskDistributor mod_task_queue.TaskDistributor
 	gorm               *gorm.DB

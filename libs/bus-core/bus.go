@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
@@ -34,6 +35,7 @@ type Bus struct {
 	RedemptionAdd Queue[twitch.ActivatedRedemption, struct{}]
 	Events        *eventsBus
 	YTSRSearch    Queue[ytsr.SearchRequest, ytsr.SearchResponse]
+	Tokens        *tokensBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -454,6 +456,26 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			1*time.Minute,
 			JsonEncoder,
 		),
+		Tokens: &tokensBus{
+			RequestAppToken: NewNatsQueue[struct{}, tokens.TokenResponse](
+				nc,
+				tokens.RequestAppTokenSubject,
+				1*time.Minute,
+				JsonEncoder,
+			),
+			RequestUserToken: NewNatsQueue[tokens.GetUserTokenRequest, tokens.TokenResponse](
+				nc,
+				tokens.RequestUserTokenSubject,
+				1*time.Minute,
+				JsonEncoder,
+			),
+			RequestBotToken: NewNatsQueue[tokens.GetBotTokenRequest, tokens.TokenResponse](
+				nc,
+				tokens.RequestBotTokenSubject,
+				1*time.Minute,
+				JsonEncoder,
+			),
+		},
 	}
 }
 

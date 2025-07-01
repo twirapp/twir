@@ -1,4 +1,4 @@
-package grpc_impl
+package bus_listener
 
 import (
 	"time"

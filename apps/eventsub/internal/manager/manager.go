@@ -10,7 +10,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
@@ -20,35 +20,35 @@ import (
 type Manager struct {
 	*eventsub_framework.SubClient
 
-	config     cfg.Config
-	logger     logger.Logger
-	tokensGrpc tokens.TokensClient
-	gorm       *gorm.DB
-	tunnel     *tunnel.AppTunnel
+	config  cfg.Config
+	logger  logger.Logger
+	gorm    *gorm.DB
+	tunnel  *tunnel.AppTunnel
+	twirBus *buscore.Bus
 }
 
 type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Config     cfg.Config
-	Logger     logger.Logger
-	Creds      *Creds
-	TokensGrpc tokens.TokensClient
-	Gorm       *gorm.DB
-	Tunnel     *tunnel.AppTunnel
+	Config  cfg.Config
+	Logger  logger.Logger
+	Creds   *Creds
+	Gorm    *gorm.DB
+	Tunnel  *tunnel.AppTunnel
+	TwirBus *buscore.Bus
 }
 
 func NewManager(opts Opts) (*Manager, error) {
 	client := eventsub_framework.NewSubClient(opts.Creds)
 
 	manager := &Manager{
-		SubClient:  client,
-		config:     opts.Config,
-		logger:     opts.Logger,
-		tokensGrpc: opts.TokensGrpc,
-		gorm:       opts.Gorm,
-		tunnel:     opts.Tunnel,
+		SubClient: client,
+		config:    opts.Config,
+		logger:    opts.Logger,
+		gorm:      opts.Gorm,
+		tunnel:    opts.Tunnel,
+		twirBus:   opts.TwirBus,
 	}
 
 	opts.Lc.Append(

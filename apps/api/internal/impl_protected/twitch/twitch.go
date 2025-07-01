@@ -30,7 +30,7 @@ func (c *Twitch) TwitchSearchCategories(
 		ctx,
 		selectedDashboardId,
 		c.Config,
-		c.Grpc.Tokens,
+		c.Bus,
 	)
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -82,7 +82,7 @@ func (c *Twitch) TwitchSetChannelInformation(
 		ctx,
 		selectedDashboardId,
 		c.Config,
-		c.Grpc.Tokens,
+		c.Bus,
 	)
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -126,7 +126,7 @@ func (c *Twitch) TwitchGetCategories(
 		ctx,
 		dashboardId,
 		c.Config,
-		c.Grpc.Tokens,
+		c.Bus,
 	)
 	if err != nil {
 		return nil, fmt.Errorf(

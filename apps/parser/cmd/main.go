@@ -182,8 +182,6 @@ func main() {
 
 	redisClient.Conn()
 
-	tokensGrpc := clients.NewTokens(config.AppEnv)
-
 	bus := buscore.NewNatsBus(nc)
 
 	redSync := redsync.New(goredis.NewPool(redisClient))
@@ -214,7 +212,7 @@ func main() {
 	channelsCommandsUsagesRepo := channelscommandsusagesclickhouse.New(channelscommandsusagesclickhouse.Opts{Client: clickhouseClient})
 	chatMessagesRepo := chatmessagesrepositoryclickhouse.New(chatmessagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 
-	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
+	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
 		panic(err)
 	}
@@ -229,7 +227,6 @@ func main() {
 			ChatWallCache:      chatWallCache,
 			Redis:              redisClient,
 			Config:             *config,
-			TokensClient:       tokensGrpc,
 			TwirBus:            bus,
 		},
 	)
@@ -243,7 +240,6 @@ func main() {
 		TrmManager: trmManager,
 		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
-			Tokens:     tokensGrpc,
 		},
 		Bus:                      bus,
 		CommandsCache:            commandscache.New(db, redisClient),
@@ -292,7 +288,7 @@ func main() {
 	variablesBus := variables_bus.New(bus, variablesService)
 	variablesBus.Subscribe()
 	defer variablesBus.Unsubscribe()
-	
+
 	logger.Info("Parser microservice started")
 
 	exitSignal := make(chan os.Signal, 1)

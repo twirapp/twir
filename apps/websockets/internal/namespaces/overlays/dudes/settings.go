@@ -32,7 +32,7 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 		return err
 	}
 
-	twitchClient, err := twitch.NewUserClient(userId, c.config, c.tokensGrpc)
+	twitchClient, err := twitch.NewUserClient(userId, c.config, c.twirBus)
 	if err != nil {
 		return err
 	}

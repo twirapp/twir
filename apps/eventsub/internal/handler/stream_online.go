@@ -32,7 +32,7 @@ func (c *Handler) handleStreamOnline(
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
