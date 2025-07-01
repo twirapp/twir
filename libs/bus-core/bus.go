@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
+	"github.com/twirapp/twir/libs/bus-core/ytsr"
 )
 
 type Bus struct {
@@ -32,6 +33,7 @@ type Bus struct {
 	ChatMessages  Queue[twitch.TwitchChatMessage, struct{}]
 	RedemptionAdd Queue[twitch.ActivatedRedemption, struct{}]
 	Events        *eventsBus
+	YTSRSearch    Queue[ytsr.SearchRequest, ytsr.SearchResponse]
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -440,6 +442,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				GobEncoder,
 			),
 		},
+		YTSRSearch: NewNatsQueue[ytsr.SearchRequest, ytsr.SearchResponse](
+			nc,
+			ytsr.SearchSubject,
+			1*time.Minute,
+			JsonEncoder,
+		),
 	}
 }
 

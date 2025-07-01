@@ -1,10 +1,9 @@
-package grpc_impl
+package bus_listener
 
 import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net"
 	"net/url"
 	"regexp"
 	"strings"
@@ -13,16 +12,12 @@ import (
 	"github.com/samber/lo"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/constants"
-	"github.com/twirapp/twir/libs/grpc/ytsr"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	"go.uber.org/fx"
-	"google.golang.org/grpc"
 )
 
 type YtsrServer struct {
-	ytsr.UnimplementedYtsrServer
-
 	ytRegexp    regexp.Regexp
 	linksRegexp regexp.Regexp
 
@@ -34,8 +29,9 @@ type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Config cfg.Config
-	Logger logger.Logger
+	Config  cfg.Config
+	Logger  logger.Logger
+	TwirBus *buscore.Bus
 }
 
 func New(opts Opts) error {
@@ -47,21 +43,13 @@ func New(opts Opts) error {
 		logger: opts.Logger,
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.YTSR_SERVER_PORT))
-	if err != nil {
-		return err
-	}
-	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
-	ytsr.RegisterYtsrServer(grpcServer, impl)
-
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				go grpcServer.Serve(lis)
-				return nil
+				return opts.TwirBus.YTSRSearch.SubscribeGroup("ytsr", impl.search)
 			},
 			OnStop: func(ctx context.Context) error {
-				grpcServer.GracefulStop()
+				opts.TwirBus.YTSRSearch.Unsubscribe()
 				return nil
 			},
 		},
@@ -75,8 +63,8 @@ type internalSong struct {
 	youtubeQuery string
 }
 
-func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (
-	*ytsr.SearchResponse,
+func (c *YtsrServer) search(ctx context.Context, req ytsr.SearchRequest) (
+	ytsr.SearchResponse,
 	error,
 ) {
 	var linkMatches []string
@@ -140,12 +128,12 @@ func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (
 	}
 
 	if len(internalSongs) == 0 {
-		return &ytsr.SearchResponse{}, nil
+		return ytsr.SearchResponse{}, nil
 	}
 
 	var wg sync.WaitGroup
 	var songsMu sync.Mutex
-	songs := make([]*ytsr.Song, 0, len(internalSongs))
+	songs := make([]ytsr.Song, 0, len(internalSongs))
 
 	for _, internalLink := range internalSongs {
 		wg.Add(1)
@@ -188,14 +176,14 @@ func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (
 
 			songs = append(
 				songs,
-				&ytsr.Song{
+				ytsr.Song{
 					Title:        res.Title,
 					Id:           res.ID,
 					Views:        uint64(res.ViewCount),
 					Duration:     uint64(res.Duration),
 					ThumbnailUrl: videoThumbNail,
 					IsLive:       false,
-					Author: &ytsr.SongAuthor{
+					Author: ytsr.SongAuthor{
 						Name:      res.Channel.Title,
 						ChannelId: res.Channel.ID,
 						AvatarUrl: channelThumbNail,
@@ -208,7 +196,7 @@ func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (
 
 	wg.Wait()
 
-	return &ytsr.SearchResponse{
+	return ytsr.SearchResponse{
 		Songs: songs,
 	}, nil
 }

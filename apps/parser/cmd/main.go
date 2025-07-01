@@ -252,7 +252,6 @@ func main() {
 			WebSockets: clients.NewWebsocket(config.AppEnv),
 			Dota:       clients.NewDota(config.AppEnv),
 			Tokens:     tokensGrpc,
-			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
 		Bus:                      bus,
 		CommandsCache:            commandscache.New(db, redisClient),

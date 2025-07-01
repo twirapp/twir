@@ -2,6 +2,7 @@ import * as Events from './events/events.ts'
 import { Queue } from './queue.js'
 
 import type { NatsConnection } from 'nats'
+import { YTSRSearchRequest, YTSRSearchResponse, YTSRSearchSubject } from './ytsr';
 
 export function newBus(nc: NatsConnection) {
 	return {
@@ -38,5 +39,6 @@ export function newBus(nc: NatsConnection) {
 			ModeratorAdded: new Queue<Events.ModeratorAddedMessage, any>(nc, Events.ModeratorAddedSubject),
 			ModeratorRemoved: new Queue<Events.ModeratorRemovedMessage, any>(nc, Events.ModeratorRemovedSubject),
 		},
+		YTSRSearch: new Queue<YTSRSearchRequest, YTSRSearchResponse>(nc, YTSRSearchSubject),
 	}
 }

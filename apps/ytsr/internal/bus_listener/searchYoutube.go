@@ -1,7 +1,8 @@
-package grpc_impl
+package bus_listener
 
 import (
 	"context"
+
 	"github.com/raitonoberu/ytsearch"
 )
 

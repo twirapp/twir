@@ -17,7 +17,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/dota"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/grpc/ytsr"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -39,7 +38,6 @@ type Grpc struct {
 	WebSockets websockets.WebsocketClient
 	Dota       dota.DotaClient
 	Tokens     tokens.TokensClient
-	Ytsr       ytsr.YtsrClient
 }
 
 type Services struct {

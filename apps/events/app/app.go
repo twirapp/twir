@@ -16,7 +16,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/grpc/ytsr"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -36,9 +35,6 @@ var App = fx.Module(
 		},
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
-		},
-		func(config cfg.Config) ytsr.YtsrClient {
-			return clients.NewYtsr(config.AppEnv)
 		},
 		song_request.New,
 		hydrator.New,

@@ -1,4 +1,4 @@
-package grpc_impl
+package bus_listener
 
 import (
 	"context"
@@ -27,7 +27,11 @@ type odesliErrorResponse struct {
 func (c *YtsrServer) searchOdesli(ctx context.Context, query string) (odesliResponse, error) {
 	result := odesliResponse{}
 
-	reqUrl := fmt.Sprintf("https://api.song.link/v1-alpha.1/links?url=%s&key=%s", query, c.config.OdesliApiKey)
+	reqUrl := fmt.Sprintf(
+		"https://api.song.link/v1-alpha.1/links?url=%s&key=%s",
+		query,
+		c.config.OdesliApiKey,
+	)
 	httpClient := &http.Client{
 		Timeout: 5 * time.Second,
 	}
