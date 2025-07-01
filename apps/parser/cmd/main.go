@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -37,22 +36,17 @@ import (
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/constants"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
+	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
+	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
-
-	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
-	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 
 	shortenedurlspgx "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 
@@ -65,7 +59,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/parser/internal/commands"
-	"github.com/satont/twir/apps/parser/internal/grpc_impl"
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	"go.uber.org/zap"
@@ -250,7 +243,6 @@ func main() {
 		TrmManager: trmManager,
 		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
-			Dota:       clients.NewDota(config.AppEnv),
 			Tokens:     tokensGrpc,
 		},
 		Bus:                      bus,
@@ -300,20 +292,7 @@ func main() {
 	variablesBus := variables_bus.New(bus, variablesService)
 	variablesBus.Subscribe()
 	defer variablesBus.Unsubscribe()
-
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.PARSER_SERVER_PORT))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
-	defer grpcServer.GracefulStop()
-	parser.RegisterParserServer(
-		grpcServer,
-		grpc_impl.NewServer(s, commandsService, variablesService),
-	)
-	go grpcServer.Serve(lis)
-	defer grpcServer.GracefulStop()
-
+	
 	logger.Info("Parser microservice started")
 
 	exitSignal := make(chan os.Signal, 1)

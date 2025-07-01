@@ -1,7 +1,0 @@
-syntax = "proto3";
-option go_package = "/generated/api/feedback";
-package api.feedback;
-
-message LeaveFeedbackRequest {
-	string message = 1;
-}

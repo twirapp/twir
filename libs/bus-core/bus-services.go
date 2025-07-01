@@ -23,6 +23,7 @@ type parserBus struct {
 	ProcessMessageAsCommand Queue[twitch.TwitchChatMessage, struct{}]
 	ParseVariablesInText    Queue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
 	GetBuiltInVariables     Queue[struct{}, []parser.BuiltInVariable]
+	GetDefaultCommands      Queue[struct{}, parser.GetDefaultCommandsResponse]
 }
 
 type websocketBus struct {

@@ -95,6 +95,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				5*time.Second,
 				GobEncoder,
 			),
+			GetDefaultCommands: NewNatsQueue[struct{}, parser.GetDefaultCommandsResponse](
+				nc,
+				parser.DefaultCommandsSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
 		},
 
 		Bots: &botsBus{

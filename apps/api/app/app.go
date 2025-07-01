@@ -23,7 +23,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/integrations"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
@@ -46,9 +45,6 @@ var App = fx.Options(
 		},
 		func(c cfg.Config) integrations.IntegrationsClient {
 			return clients.NewIntegrations(c.AppEnv)
-		},
-		func(c cfg.Config) parser.ParserClient {
-			return clients.NewParser(c.AppEnv)
 		},
 		func(c cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(c.AppEnv)

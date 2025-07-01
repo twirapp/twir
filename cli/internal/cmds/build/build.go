@@ -35,6 +35,16 @@ var Cmd = &cli.Command{
 		GqlCmd,
 		AppBuildCmd,
 		LibsCmd,
+		AppsCmd,
+	},
+}
+
+var AppsCmd = &cli.Command{
+	Name: "apps",
+	Action: func(context *cli.Context) error {
+		pterm.Info.Println("Building apps...")
+
+		return build(`bun --filter='./apps/*' run build`, true)
 	},
 }
 

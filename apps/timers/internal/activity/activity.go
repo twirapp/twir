@@ -14,7 +14,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/redis_keys"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
@@ -28,7 +27,6 @@ type Opts struct {
 	ChannelsRepository channels.Repository
 	StreamsRepository  streams.Repository
 	Cfg                config.Config
-	ParserGrpc         parser.ParserClient
 	Redis              *redis.Client
 	Bus                *buscore.Bus
 }
@@ -39,7 +37,6 @@ func New(opts Opts) *Activity {
 		channelsRepository: opts.ChannelsRepository,
 		streamsRepository:  opts.StreamsRepository,
 		cfg:                opts.Cfg,
-		parserGrpc:         opts.ParserGrpc,
 		redis:              opts.Redis,
 		bus:                opts.Bus,
 	}
@@ -50,7 +47,6 @@ type Activity struct {
 	channelsRepository channels.Repository
 	streamsRepository  streams.Repository
 	cfg                config.Config
-	parserGrpc         parser.ParserClient
 	redis              *redis.Client
 	bus                *buscore.Bus
 }

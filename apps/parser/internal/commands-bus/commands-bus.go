@@ -44,6 +44,38 @@ func New(
 }
 
 func (c *CommandsBus) Subscribe() error {
+	c.bus.Parser.GetDefaultCommands.SubscribeGroup(
+		"parser",
+		func(ctx context.Context, data struct{}) (parser.GetDefaultCommandsResponse, error) {
+			resp := parser.GetDefaultCommandsResponse{
+				List: make([]parser.DefaultCommand, 0, len(c.commandService.DefaultCommands)),
+			}
+
+			for _, cmd := range c.commandService.DefaultCommands {
+				rolesNames := make([]string, len(cmd.RolesIDS))
+				for i, roleID := range cmd.RolesIDS {
+					rolesNames[i] = roleID
+				}
+
+				resp.List = append(
+					resp.List,
+					parser.DefaultCommand{
+						Name:               cmd.Name,
+						Description:        cmd.Description.String,
+						Visible:            cmd.Visible,
+						RolesNames:         rolesNames,
+						Module:             cmd.Module,
+						IsReply:            cmd.IsReply,
+						KeepResponsesOrder: cmd.KeepResponsesOrder,
+						Aliases:            cmd.Aliases,
+					},
+				)
+			}
+
+			return resp, nil
+		},
+	)
+
 	c.bus.Parser.GetCommandResponse.SubscribeGroup(
 		"parser",
 		func(ctx context.Context, data twitch.TwitchChatMessage) (parser.CommandParseResponse, error) {
@@ -172,4 +204,5 @@ func (c *CommandsBus) Unsubscribe() {
 	c.bus.Parser.GetCommandResponse.Unsubscribe()
 	c.bus.Parser.ParseVariablesInText.Unsubscribe()
 	c.bus.Parser.ProcessMessageAsCommand.Unsubscribe()
+	c.bus.Parser.GetDefaultCommands.Unsubscribe()
 }

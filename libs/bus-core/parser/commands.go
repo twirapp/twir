@@ -21,3 +21,20 @@ type ParseVariablesInTextRequest struct {
 type ParseVariablesInTextResponse struct {
 	Text string
 }
+
+const DefaultCommandsSubject = "parser.getDefaultCommands"
+
+type GetDefaultCommandsResponse struct {
+	List []DefaultCommand
+}
+
+type DefaultCommand struct {
+	Name               string
+	Description        string
+	Visible            bool
+	RolesNames         []string
+	Module             string
+	IsReply            bool
+	KeepResponsesOrder bool
+	Aliases            []string
+}

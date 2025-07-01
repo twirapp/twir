@@ -17,7 +17,6 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
@@ -38,7 +37,6 @@ type Opts struct {
 
 	TokensGrpc        tokens.TokensClient
 	IntegrationsGrpc  integrationsGrpc.IntegrationsClient
-	ParserGrpc        parser.ParserClient
 	WebsocketsGrpc    websockets.WebsocketClient
 	DiscordGrpc       discord.DiscordClient
 	Logger            logger.Logger
@@ -63,7 +61,6 @@ func New(opts Opts) *Protected {
 		Grpc: &impl_deps.Grpc{
 			Tokens:       opts.TokensGrpc,
 			Integrations: opts.IntegrationsGrpc,
-			Parser:       opts.ParserGrpc,
 			Websockets:   opts.WebsocketsGrpc,
 			Discord:      opts.DiscordGrpc,
 		},

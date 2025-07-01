@@ -28,7 +28,6 @@ import (
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -111,9 +110,6 @@ var App = fx.Module(
 		tlds.New,
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
-		},
-		func(config cfg.Config) parser.ParserClient {
-			return clients.NewParser(config.AppEnv)
 		},
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)

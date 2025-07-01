@@ -14,7 +14,6 @@ import (
 	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
@@ -44,9 +43,6 @@ var App = fx.Options(
 	fx.Provide(
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
-		},
-		func(config cfg.Config) parser.ParserClient {
-			return clients.NewParser(config.AppEnv)
 		},
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)

@@ -14,32 +14,32 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/parser"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/parser"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
 
 type Commands struct {
 	db            *gorm.DB
-	parserGrpc    parser.ParserClient
 	lock          sync.Mutex
 	logger        logger.Logger
 	commandsCache *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	BusCore       *buscore.Bus
 }
 
 func NewCommands(
 	db *gorm.DB,
-	parserGrpc parser.ParserClient,
 	l logger.Logger,
 	redisClient *redis.Client,
+	buscore *buscore.Bus,
 ) *Commands {
 	return &Commands{
 		db:            db,
-		parserGrpc:    parserGrpc,
 		logger:        l,
 		commandsCache: commandscache.New(db, redisClient),
+		BusCore:       buscore,
 	}
 }
 
@@ -52,13 +52,13 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	defaultCommands, err := c.parserGrpc.GetDefaultCommands(ctx, &emptypb.Empty{})
+	defaultCommands, err := c.BusCore.Parser.GetDefaultCommands.Request(ctx, struct{}{})
 	if err != nil {
 		return err
 	}
 
-	defaultCommandsNames := make([]string, len(defaultCommands.List))
-	for i, command := range defaultCommands.List {
+	defaultCommandsNames := make([]string, len(defaultCommands.Data.List))
+	for i, command := range defaultCommands.Data.List {
 		defaultCommandsNames[i] = command.Name
 	}
 
@@ -120,8 +120,8 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
 
 		for _, command := range channel.CommandsToCreate {
 			defaultCommand, ok := lo.Find(
-				defaultCommands.List,
-				func(item *parser.GetDefaultCommandsResponse_DefaultCommand) bool {
+				defaultCommands.Data.List,
+				func(item parser.DefaultCommand) bool {
 					return item.Name == command
 				},
 			)

@@ -19,7 +19,6 @@ import (
 	"github.com/twirapp/twir/libs/baseapp"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
@@ -33,9 +32,6 @@ var App = fx.Module(
 	service,
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
 	fx.Provide(
-		func(cfg config.Config) parser.ParserClient {
-			return clients.NewParser(cfg.AppEnv)
-		},
 		func(cfg config.Config) tokens.TokensClient {
 			return clients.NewTokens(cfg.AppEnv)
 		},

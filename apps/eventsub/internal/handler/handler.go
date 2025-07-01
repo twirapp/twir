@@ -17,7 +17,6 @@ import (
 	batchprocessor "github.com/twirapp/batch-processor"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -41,7 +40,6 @@ import (
 type Handler struct {
 	logger logger.Logger
 
-	parserGrpc                   parser.ParserClient
 	websocketsGrpc               websockets.WebsocketClient
 	tokensGrpc                   tokens.TokensClient
 	tracer                       trace.Tracer
@@ -73,7 +71,6 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	ParserGrpc                          parser.ParserClient
 	WebsocketsGrpc                      websockets.WebsocketClient
 	TokensGrpc                          tokens.TokensClient
 	ScheduledVipsRepo                   scheduledvipsrepository.Repository
@@ -117,7 +114,6 @@ func New(opts Opts) *Handler {
 		config:                              opts.Config,
 		gorm:                                opts.Gorm,
 		redisClient:                         opts.Redis,
-		parserGrpc:                          opts.ParserGrpc,
 		websocketsGrpc:                      opts.WebsocketsGrpc,
 		tokensGrpc:                          opts.TokensGrpc,
 		tracer:                              opts.Tracer,
