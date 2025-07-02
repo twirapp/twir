@@ -2,7 +2,7 @@
 import { useVirtualizer } from '@tanstack/vue-virtual'
 import { watchThrottled } from '@vueuse/core'
 import { ArrowDownToLine, MoveDown } from 'lucide-vue-next'
-import { VNodeRef, computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import ChatMessage from './message.vue'
 import { useChatMessagesFilters } from '../composables/use-filters'
@@ -93,7 +93,7 @@ watchThrottled(
 	{ throttle: 500 }
 )
 
-function measureElement(el: HTMLDivElement): VNodeRef | undefined {
+const measureElement = (el: any) => {
 	if (!el) {
 		return undefined
 	}
