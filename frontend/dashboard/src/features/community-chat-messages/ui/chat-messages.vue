@@ -23,11 +23,15 @@ const boxRef = useTemplateRef('boxRef')
 const messages = ref<ChatMessageType[]>([])
 const isAutoScrolling = ref(true)
 
-watch(data, (v) => {
-	messages.value = v?.chatMessages?.reverse() ?? []
-}, {
-	immediate: true,
-})
+watch(
+	data,
+	(v) => {
+		messages.value = v?.chatMessages?.reverse() ?? []
+	},
+	{
+		immediate: true,
+	}
+)
 
 const subscription = useChatMessagesSubscription()
 
@@ -65,23 +69,31 @@ watch(subscription.data, (v) => {
 	}
 })
 
-watch(messages,() => {
-	nextTick(scrollToBottom)
-}, { once: true })
+watch(
+	messages,
+	() => {
+		nextTick(scrollToBottom)
+	},
+	{ once: true }
+)
 
-watchThrottled(rowVirtualizer, (v) => {
-	const currentScrollPosition = (v.scrollRect?.height || 0) + (v.scrollOffset || 0)
+watchThrottled(
+	rowVirtualizer,
+	(v) => {
+		const currentScrollPosition = (v.scrollRect?.height || 0) + (v.scrollOffset || 0)
 
-	if (v.isScrolling && currentScrollPosition > (v.scrollOffset ?? 0)) {
-		isAutoScrolling.value = false
-	}
+		if (v.isScrolling && currentScrollPosition > (v.scrollOffset ?? 0)) {
+			isAutoScrolling.value = false
+		}
 
-	if (currentScrollPosition >= totalSize.value - 100) {
-		isAutoScrolling.value = true
-	}
-}, { throttle: 500 })
+		if (currentScrollPosition >= totalSize.value - 100) {
+			isAutoScrolling.value = true
+		}
+	},
+	{ throttle: 500 }
+)
 
-function measureElement(el: HTMLDivElement) {
+function measureElement(el: HTMLDivElement): VNodeRef | undefined {
 	if (!el) {
 		return
 	}
@@ -103,11 +115,10 @@ function measureElement(el: HTMLDivElement) {
 			</div>
 			<MoveDown v-if="messages.length !== 0" class="absolute top-4 right-4 opacity-40" />
 			<div
-				ref="boxRef" class="overflow-y-auto h-full flex-1 [contain:strict] [overflow-anchor:none]"
+				ref="boxRef"
+				class="overflow-y-auto h-full flex-1 [contain:strict] [overflow-anchor:none]"
 			>
-				<div v-if="messages.length === 0">
-					No data
-				</div>
+				<div v-if="messages.length === 0">No data</div>
 				<div
 					:style="{
 						height: `${totalSize}px`,
@@ -131,9 +142,7 @@ function measureElement(el: HTMLDivElement) {
 							:data-index="virtualRow.index"
 							class="border-b border-border px-2 py-0.5 flex items-center justify-between"
 						>
-							<ChatMessage
-								:message="messages[virtualRow.index]"
-							/>
+							<ChatMessage :message="messages[virtualRow.index]" />
 						</div>
 					</div>
 				</div>
