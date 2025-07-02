@@ -1,6 +1,6 @@
 import type { ToastRootProps } from 'radix-vue';
 import type { HTMLAttributes } from 'vue';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { type VariantProps, cva } from 'class-variance-authority';
 
 export { default as Toaster } from './Toaster.vue';
 export { default as Toast } from './Toast.vue';

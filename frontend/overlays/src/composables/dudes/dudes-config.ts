@@ -1,6 +1,6 @@
 import { DudesSprite } from '@twir/types/overlays';
 import { DudesLayers } from '@twirapp/dudes-vue';
-import type { SoundAsset, AssetsLoaderOptions, DudesTypes } from '@twirapp/dudes-vue/types';
+import type { AssetsLoaderOptions, DudesTypes, SoundAsset } from '@twirapp/dudes-vue/types';
 
 export const dudeMock = {
 	id: 'Twir',

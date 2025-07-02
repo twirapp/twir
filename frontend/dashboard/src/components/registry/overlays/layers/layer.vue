@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { IconSettings, IconTrash } from '@tabler/icons-vue';
 import { type OverlayLayerType } from '@twir/api/messages/overlays/overlays';
-import { NCard, NButton, useThemeVars } from 'naive-ui';
+import { NButton, NCard, useThemeVars } from 'naive-ui';
 import { computed } from 'vue';
 
 import { convertOverlayLayerTypeToText } from '../helpers.js';

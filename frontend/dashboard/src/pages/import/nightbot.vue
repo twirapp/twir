@@ -3,7 +3,7 @@ import type {
 	ImportCommandsResponse,
 	ImportTimersResponse,
 } from '@twir/api/messages/integrations_nightbot/integrations_nightbot';
-import { NButton, NCard, NAlert } from 'naive-ui';
+import { NAlert, NButton, NCard } from 'naive-ui';
 import { computed, ref } from 'vue';
 
 import { useUserAccessFlagChecker } from '@/api/auth';

@@ -52,9 +52,6 @@ export default antfu({
 					allowTemplateLiterals: true,
 				},
 			],
-			'style/brace-style': [
-				'error',
-			],
 			'style/comma-spacing': 'off',
 			'style/func-call-spacing': 'off',
 			'prefer-const': [
@@ -111,5 +108,5 @@ export default antfu({
 				'always',
 			],
 		},
-	},
+	}
 }, oxlint.configs['flat/recommended'])

@@ -3,11 +3,13 @@
   "author": "Satont <satontworldwide@gmail.com>",
   "devDependencies": {
     "@antfu/eslint-config": "2.14.0",
+    "@prettier/plugin-oxc": "0.0.4",
     "@types/bun": "catalog:",
     "@types/node": "20.12.7",
     "@vue/language-server": "3.0.1",
     "eslint-plugin-oxlint": "1.5.0",
     "oxlint": "1.5.0",
+    "prettier": "3.6.2",
     "rimraf": "5.0.5",
     "typescript": "catalog:"
   },
@@ -19,8 +21,8 @@
     "dev": "bun run cli dev",
     "build": "bun run cli build",
     "cli": "go run ./cli/main.go",
-    "lint": "eslint ./frontend",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix"
   },
   "trustedDependencies": [
     "@parcel/watcher",

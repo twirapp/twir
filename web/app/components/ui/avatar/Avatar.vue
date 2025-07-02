@@ -2,7 +2,7 @@
 import type { HTMLAttributes } from 'vue'
 import { cn } from '~/lib/utils'
 import { AvatarRoot } from 'reka-ui'
-import { avatarVariant, type AvatarVariants } from '.'
+import { type AvatarVariants, avatarVariant } from '.'
 
 const props = withDefaults(defineProps<{
   class?: HTMLAttributes['class']

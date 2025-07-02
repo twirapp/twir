@@ -1,11 +1,11 @@
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
     "bradlc.vscode-tailwindcss",
     "vue.volar",
     "golang.go",
 		"GraphQL.vscode-graphql-syntax",
 		"GraphQL.vscode-graphql",
+    "esbenp.prettier-vscode",
     "oxc.oxc-vscode"
   ]
 }

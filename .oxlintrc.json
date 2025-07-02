@@ -217,13 +217,7 @@
     "unicorn/prefer-string-starts-ends-with": "error",
     "unicorn/prefer-type-error": "error",
     "unicorn/throw-new-error": "error",
-    "curly": "off",
-    "import/no-cycle": [
-      2,
-      {
-        "maxDepth": 1
-      }
-    ]
+    "curly": "off"
   },
   "globals": {
     "computed": "readonly",
@@ -377,6 +371,8 @@
     "**/LICENSE*",
     "**/__snapshots__",
     "**/auto-import?(s).d.ts",
-    "**/components.d.ts"
+    "**/components.d.ts",
+    "**/dashboard/src/gql/**",
+    "**/dashboard/src/components/ui"
   ]
 }

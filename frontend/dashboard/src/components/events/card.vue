@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { IconSettings } from '@tabler/icons-vue';
 import { useThrottleFn } from '@vueuse/core';
-import { NText, NButton, NTooltip, NTag, NRow, NSpace, NSwitch, NPopconfirm } from 'naive-ui';
+import { NButton, NPopconfirm, NRow, NSpace, NSwitch, NTag, NText, NTooltip } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-import { getOperation, flatEvents, getEventName } from './helpers.js';
+import { flatEvents, getEventName, getOperation } from './helpers.js';
 import { EditableEvent } from './types.js';
 
 import { useEventsManager, useUserAccessFlagChecker } from '@/api/index.js';

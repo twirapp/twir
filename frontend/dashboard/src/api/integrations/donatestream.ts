@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/vue-query';
+import { useMutation, useQuery } from '@tanstack/vue-query';
 
 import { protectedApiClient } from '@/api/twirp.js';
 

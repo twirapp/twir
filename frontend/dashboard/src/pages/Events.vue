@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconCalendarPlus } from '@tabler/icons-vue';
-import { NCard, NGrid, NGridItem, NModal, NSkeleton, useThemeVars, NInput } from 'naive-ui';
+import { NCard, NGrid, NGridItem, NInput, NModal, NSkeleton, useThemeVars } from 'naive-ui';
 import { computed, ref, toRaw } from 'vue';
 
 import { useEventsManager, useUserAccessFlagChecker } from '@/api/index.js';

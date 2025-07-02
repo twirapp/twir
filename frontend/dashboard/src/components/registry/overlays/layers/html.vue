@@ -3,7 +3,7 @@
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core';
 import { transform as transformNested } from 'nested-css-to-flat';
-import { ref, watch, nextTick, computed } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
 import { useOverlaysParseHtml } from '@/api/registry';
 
@@ -29,6 +29,7 @@ const { pause, resume } = useIntervalFn(async () => {
 }, 1000, { immediate: true, immediateCallback: true });
 
 const executeFunc = computed(() => {
+// oxlint-disable-next-line no-new-func
 	return new Function(`${props.js}; onDataUpdate();`);
 });
 

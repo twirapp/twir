@@ -2,7 +2,7 @@ import { createChannel, waitForChannelReady } from 'nice-grpc';
 
 export const createClientAddr = (env: string, service: string, port: number): string => {
 	let ip = service;
-	if (env != 'production') {
+	if (env !== 'production') {
 		ip = '127.0.0.1';
 	}
 

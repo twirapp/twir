@@ -10,7 +10,7 @@ import {
   DialogPortal,
   useForwardPropsEmits,
 } from 'reka-ui'
-import { computed, type HTMLAttributes } from 'vue'
+import { type HTMLAttributes, computed } from 'vue'
 import { type SheetVariants, sheetVariants } from '.'
 
 interface SheetContentProps extends DialogContentProps {

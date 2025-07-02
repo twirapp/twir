@@ -1,7 +1,7 @@
 import {
 	useDialog,
-	useNotification,
 	useMessage,
+	useNotification,
 } from 'naive-ui';
 
 

@@ -2,24 +2,24 @@
 import { IconPlayerPlay } from '@tabler/icons-vue';
 import type { GetResponse as TTSSettings } from '@twir/api/messages/modules_tts/modules_tts';
 import {
-	NSlider,
-	NSpace,
-	NButton,
-	NSkeleton,
-	NSwitch,
 	NAlert,
-	NForm,
+	NButton,
 	NDivider,
-	NSelect,
+	NForm,
 	NFormItem,
-	NText,
 	NGrid,
 	NGridItem,
-	NRow,
 	NInput,
+	NRow,
+	NSelect,
+	NSkeleton,
+	NSlider,
+	NSpace,
+	NSwitch,
+	NText,
 	useMessage,
 } from 'naive-ui';
-import { computed, ref, watch, toRaw } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useTtsOverlayManager } from '@/api/index.js';
