@@ -7,6 +7,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
+	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
@@ -83,6 +84,11 @@ type tokensBus struct {
 	RequestUserToken Queue[tokens.GetUserTokenRequest, tokens.TokenResponse]
 	RequestBotToken  Queue[tokens.GetBotTokenRequest, tokens.TokenResponse]
 	UpdateToken      Queue[tokens.UpdateTokenRequest, struct{}]
+}
+
+type integrationsBus struct {
+	Add    Queue[integrations.Request, struct{}]
+	Remove Queue[integrations.Request, struct{}]
 }
 
 type eventsBus struct {

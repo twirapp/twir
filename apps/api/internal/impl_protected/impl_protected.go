@@ -16,7 +16,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/discord"
-	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"go.uber.org/fx"
@@ -34,7 +33,6 @@ type Protected struct {
 type Opts struct {
 	fx.In
 
-	IntegrationsGrpc  integrationsGrpc.IntegrationsClient
 	WebsocketsGrpc    websockets.WebsocketClient
 	DiscordGrpc       discord.DiscordClient
 	Logger            logger.Logger
@@ -57,9 +55,8 @@ func New(opts Opts) *Protected {
 		Config:         opts.Config,
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
-			Integrations: opts.IntegrationsGrpc,
-			Websockets:   opts.WebsocketsGrpc,
-			Discord:      opts.DiscordGrpc,
+			Websockets: opts.WebsocketsGrpc,
+			Discord:    opts.DiscordGrpc,
 		},
 		Logger:                            opts.Logger,
 		Bus:                               opts.Bus,

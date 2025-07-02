@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
+	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
@@ -36,6 +37,7 @@ type Bus struct {
 	Events        *eventsBus
 	YTSRSearch    Queue[ytsr.SearchRequest, ytsr.SearchResponse]
 	Tokens        *tokensBus
+	Integrations  *integrationsBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -472,6 +474,20 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			RequestBotToken: NewNatsQueue[tokens.GetBotTokenRequest, tokens.TokenResponse](
 				nc,
 				tokens.RequestBotTokenSubject,
+				1*time.Minute,
+				JsonEncoder,
+			),
+		},
+		Integrations: &integrationsBus{
+			Add: NewNatsQueue[integrations.Request, struct{}](
+				nc,
+				integrations.AddIntegrationTopic,
+				1*time.Minute,
+				JsonEncoder,
+			),
+			Remove: NewNatsQueue[integrations.Request, struct{}](
+				nc,
+				integrations.RemoveIntegrationTopic,
 				1*time.Minute,
 				JsonEncoder,
 			),

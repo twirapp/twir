@@ -10,16 +10,14 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/discord"
-	"github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"gorm.io/gorm"
 )
 
 type Grpc struct {
-	Integrations integrations.IntegrationsClient
-	Websockets   websockets.WebsocketClient
-	Discord      discord.DiscordClient
+	Websockets websockets.WebsocketClient
+	Discord    discord.DiscordClient
 }
 
 type Deps struct {

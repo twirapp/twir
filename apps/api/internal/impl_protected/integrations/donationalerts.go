@@ -132,7 +132,7 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 		return nil, err
 	}
 
-	if err = c.sendGrpcEvent(ctx, integration.ID, integration.Enabled); err != nil {
+	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled); err != nil {
 		return nil, err
 	}
 
@@ -159,7 +159,7 @@ func (c *Integrations) IntegrationsDonationAlertsLogout(ctx context.Context, _ *
 		return nil, err
 	}
 
-	if err = c.sendGrpcEvent(ctx, integration.ID, integration.Enabled); err != nil {
+	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled); err != nil {
 		return nil, err
 	}
 
