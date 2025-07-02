@@ -2,7 +2,7 @@
 import { useVirtualizer } from '@tanstack/vue-virtual'
 import { watchThrottled } from '@vueuse/core'
 import { ArrowDownToLine, MoveDown } from 'lucide-vue-next'
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { VNodeRef, computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import ChatMessage from './message.vue'
 import { useChatMessagesFilters } from '../composables/use-filters'
