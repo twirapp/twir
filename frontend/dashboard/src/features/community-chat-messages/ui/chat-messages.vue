@@ -95,7 +95,7 @@ watchThrottled(
 
 function measureElement(el: HTMLDivElement): VNodeRef | undefined {
 	if (!el) {
-		return
+		return undefined
 	}
 
 	rowVirtualizer.value.measureElement(el)
