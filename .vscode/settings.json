@@ -51,6 +51,10 @@
     "graphql"
   ],
 
+  "oxc": {
+    "enable": true
+  },
+
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib"
 }

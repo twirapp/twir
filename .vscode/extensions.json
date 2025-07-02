@@ -5,6 +5,7 @@
     "vue.volar",
     "golang.go",
 		"GraphQL.vscode-graphql-syntax",
-		"GraphQL.vscode-graphql"
+		"GraphQL.vscode-graphql",
+    "oxc.oxc-vscode"
   ]
 }

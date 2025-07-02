@@ -1,8 +1,9 @@
 import antfu from '@antfu/eslint-config'
+import oxlint from 'eslint-plugin-oxlint'
 
 export default antfu({
 	typescript: true,
-	astro: true,
+	astro: false,
 	yaml: true,
 	toml: false,
 	jsonc: false,
@@ -111,4 +112,4 @@ export default antfu({
 			],
 		},
 	},
-})
+}, oxlint.configs['flat/recommended'])
