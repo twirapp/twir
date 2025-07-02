@@ -61,9 +61,7 @@ func (c *server) addTimerToQueue(ctx context.Context, t timers.AddOrRemoveTimerR
 		return struct{}{}, err
 	}
 
-	if err := c.workflow.RemoveTimer(ctx, t.TimerID); err != nil {
-		return struct{}{}, err
-	}
+	c.workflow.RemoveTimer(ctx, t.TimerID)
 	if err := c.workflow.AddTimer(ctx, t.TimerID); err != nil {
 		return struct{}{}, err
 	}
@@ -75,9 +73,7 @@ func (c *server) removeTimerFromQueue(
 	ctx context.Context,
 	t timers.AddOrRemoveTimerRequest,
 ) (struct{}, error) {
-	if err := c.workflow.RemoveTimer(ctx, t.TimerID); err != nil {
-		return struct{}{}, err
-	}
+	c.workflow.RemoveTimer(ctx, t.TimerID)
 
 	return struct{}{}, nil
 }
