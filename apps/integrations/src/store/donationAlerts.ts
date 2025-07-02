@@ -9,12 +9,12 @@ export const donationAlertsStore = new Map<string, DonationAlerts>()
 
 export async function addIntegration(integration: Integration) {
 	if (
-		!integration.accessToken
-		|| !integration.refreshToken
-		|| !integration.integration
-		|| !integration.integration.clientId
-		|| !integration.integration.clientSecret
-		|| !integration.enabled
+		!integration.accessToken ||
+		!integration.refreshToken ||
+		!integration.integration ||
+		!integration.integration.clientId ||
+		!integration.integration.clientSecret ||
+		!integration.enabled
 	) {
 		return
 	}
@@ -33,33 +33,39 @@ export async function addIntegration(integration: Integration) {
 			continue
 		}
 
-		const refresh = await fetch('https://www.donationalerts.com/oauth/token', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			body: new URLSearchParams({
-				grant_type: 'refresh_token',
-				refresh_token: integration.refreshToken,
-				client_id: integration.integration.clientId,
-				client_secret: integration.integration.clientSecret,
-			}).toString(),
-			verbose: true,
-		})
+		try {
+			const refresh = await fetch('https://www.donationalerts.com/oauth/token', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					grant_type: 'refresh_token',
+					refresh_token: integration.refreshToken,
+					client_id: integration.integration.clientId,
+					client_secret: integration.integration.clientSecret,
+				}).toString(),
+				verbose: true,
+			})
 
-		if (!refresh.ok) {
-			if (refresh.status === 429) {
-				await sleep(1000)
-				continue
+			if (!refresh.ok) {
+				if (refresh.status === 429) {
+					await sleep(1000)
+					continue
+				}
+				console.error('cannot refresh DA tokens:', await refresh.text())
+				break
 			}
-			console.error('cannot refresh DA tokens:', await refresh.text())
-			break
-		}
 
-		const refreshResponse = await refresh.json()
-		accessToken = refreshResponse.access_token
-		refreshToken = refreshResponse.refresh_token
-		break
+			const refreshResponse = await refresh.json()
+			accessToken = refreshResponse.access_token
+			refreshToken = refreshResponse.refresh_token
+			break
+		} catch (e) {
+			console.log(e)
+			await sleep(1000)
+			continue
+		}
 	}
 
 	if (!accessToken || !refreshToken) {
@@ -108,7 +114,7 @@ export async function addIntegration(integration: Integration) {
 		accessToken,
 		id,
 		socket_connection_token,
-		integration.channelId,
+		integration.channelId
 	)
 	await instance.init()
 

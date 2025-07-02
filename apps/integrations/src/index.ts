@@ -23,15 +23,15 @@ const integrations = await getIntegrations()
 
 for (const integration of integrations) {
 	if (integration.integration.service === Service.DONATIONALERTS) {
-		await addDonationAlertsIntegration(integration)
+		addDonationAlertsIntegration(integration)
 	}
 
 	if (integration.integration.service === Service.STREAMLABS) {
-		await addStreamlabsIntegration(integration)
+		addStreamlabsIntegration(integration)
 	}
 
 	if (integration.integration.service === Service.DONATEPAY) {
-		await addDonatePayIntegration(integration)
+		addDonatePayIntegration(integration)
 	}
 }
 
