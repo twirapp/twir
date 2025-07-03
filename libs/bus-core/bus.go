@@ -341,7 +341,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				nc,
 				events.DonateSubject,
 				1*time.Minute,
-				GobEncoder,
+				JsonEncoder,
 			),
 			KeywordMatched: NewNatsQueue[events.KeywordMatchedMessage, struct{}](
 				nc,
