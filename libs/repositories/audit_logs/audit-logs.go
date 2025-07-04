@@ -3,18 +3,16 @@ package audit_logs
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
 )
 
 type Repository interface {
-	GetByID(ctx context.Context, id uuid.UUID) (model.AuditLog, error)
 	GetMany(ctx context.Context, input GetManyInput) (
 		[]model.AuditLog,
 		error,
 	)
-	Count(ctx context.Context, input GetCountInput) (int, error)
-	Create(ctx context.Context, input CreateInput) (model.AuditLog, error)
+	Count(ctx context.Context, input GetCountInput) (uint64, error)
+	Create(ctx context.Context, input CreateInput) error
 }
 
 type GetManyInput struct {

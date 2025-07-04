@@ -9,19 +9,18 @@ import { AuditLogSystem, AuditOperationType } from '@/gql/graphql'
 
 graphql(`
 	fragment UserLogFragment on AuditLog {
-      id
-      createdAt
-      objectId
-      oldValue
-      newValue
-      operationType
-      system
-      user {
-          id
-          profileImageUrl
-          displayName
-          login
-      }
+		createdAt
+		objectId
+		oldValue
+		newValue
+		operationType
+		system
+		user {
+			id
+			profileImageUrl
+			displayName
+			login
+		}
 	}
 `)
 
@@ -31,36 +30,44 @@ export const useAuditLogs = createGlobalState(() => {
 	const { data: fetchedLogs, fetching } = useQuery({
 		query: graphql(`
 			query UserAuditLogs {
-					auditLog {
-							...UserLogFragment
-          }
+				auditLog {
+					...UserLogFragment
+				}
 			}
 		`),
 		variables: {},
 	})
 
-	watch(fetchedLogs, (newLogs) => {
-		if (!newLogs?.auditLog) return
+	watch(
+		fetchedLogs,
+		(newLogs) => {
+			if (!newLogs?.auditLog) return
 
-		logs.value = newLogs.auditLog as UserLogFragmentFragment[]
-	}, { immediate: true })
+			logs.value = newLogs.auditLog as UserLogFragmentFragment[]
+		},
+		{ immediate: true }
+	)
 
 	const { data: realtimeLog } = useSubscription({
 		query: graphql(`
 			subscription UserAuditLogsSubscription {
-					auditLog {
-							...UserLogFragment
-          }
+				auditLog {
+					...UserLogFragment
+				}
 			}
 		`),
 	})
 
-	watch(realtimeLog, (newLog) => {
-		if (!newLog?.auditLog) return
+	watch(
+		realtimeLog,
+		(newLog) => {
+			if (!newLog?.auditLog) return
 
-		logs.value.unshift(newLog.auditLog as UserLogFragmentFragment)
-		console.log(logs.value)
-	}, { immediate: true })
+			logs.value.unshift(newLog.auditLog as UserLogFragmentFragment)
+			console.log(logs.value)
+		},
+		{ immediate: true }
+	)
 
 	return {
 		logs,

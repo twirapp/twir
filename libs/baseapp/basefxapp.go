@@ -20,7 +20,7 @@ import (
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
-	auditlogsrepositorypgx "github.com/twirapp/twir/libs/repositories/audit_logs/pgx"
+	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -47,7 +47,7 @@ func CreateBaseApp(opts Opts) fx.Option {
 				fx.As(new(auditlogs.PubSub)),
 			),
 			fx.Annotate(
-				auditlogsrepositorypgx.NewFx,
+				auditlogsrepositoryclickhouse.NewFx,
 				fx.As(new(auditlogsrepository.Repository)),
 			),
 			fx.Annotate(

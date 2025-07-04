@@ -7,7 +7,6 @@ extend type Subscription {
 }
 
 type AuditLog {
-	id: UUID!
 	system: AuditLogSystem!
 	operationType: AuditOperationType!
 	oldValue: String

@@ -20,7 +20,6 @@ type AdminAuditLogResponse {
 }
 
 type AdminAuditLog {
-  id: UUID!
   system: AuditLogSystem!
   operationType: AuditOperationType!
   oldValue: String

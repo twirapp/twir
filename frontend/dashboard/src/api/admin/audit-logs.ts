@@ -12,7 +12,6 @@ export function useAdminAuditLogs(input: MaybeRef<AdminAuditLogsInput>) {
 			query AdminAuditLogs($input: AdminAuditLogsInput!) {
 				adminAuditLogs(input: $input) {
 					logs {
-						id
 						createdAt
 						objectId
 						oldValue

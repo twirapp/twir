@@ -31,7 +31,6 @@ type Service struct {
 
 func modelToEntity(m model.AuditLog) entity.AuditLog {
 	return entity.AuditLog{
-		ID:            m.ID,
 		TableName:     m.TableName,
 		OperationType: entity.AuditOperationType(m.OperationType),
 		OldValue:      m.OldValue.Ptr(),
@@ -127,7 +126,7 @@ type GetCountInput struct {
 	ChannelID *string
 }
 
-func (c *Service) Count(ctx context.Context, input GetCountInput) (int, error) {
+func (c *Service) Count(ctx context.Context, input GetCountInput) (uint64, error) {
 	return c.auditLogsRepository.Count(
 		ctx,
 		auditlogsrepository.GetCountInput{

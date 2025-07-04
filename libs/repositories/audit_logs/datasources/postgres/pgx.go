@@ -1,4 +1,4 @@
-package pgx
+package postgres
 
 import (
 	"context"
@@ -32,18 +32,12 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
-func (p *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.AuditLog, error) {
-	// TODO implement me
-	panic("implement me")
-}
-
 func (p *Pgx) GetMany(ctx context.Context, input audit_logs.GetManyInput) (
 	[]model.AuditLog,
 	error,
 ) {
 	selectBuilder := sq.
 		Select(
-			"id",
 			"table_name",
 			"operation_type",
 			"old_value",
@@ -116,7 +110,7 @@ func (p *Pgx) GetMany(ctx context.Context, input audit_logs.GetManyInput) (
 	return logs, err
 }
 
-func (p *Pgx) Count(ctx context.Context, input audit_logs.GetCountInput) (int, error) {
+func (p *Pgx) Count(ctx context.Context, input audit_logs.GetCountInput) (uint64, error) {
 	selectBuilder := sq.
 		Select("COUNT(*)").
 		From("audit_logs")
@@ -130,7 +124,7 @@ func (p *Pgx) Count(ctx context.Context, input audit_logs.GetCountInput) (int, e
 		return 0, err
 	}
 
-	var count int
+	var count uint64
 	err = p.pool.QueryRow(ctx, query, args...).Scan(&count)
 	if err != nil {
 		return 0, err
@@ -139,7 +133,7 @@ func (p *Pgx) Count(ctx context.Context, input audit_logs.GetCountInput) (int, e
 	return count, nil
 }
 
-func (p *Pgx) Create(ctx context.Context, input audit_logs.CreateInput) (model.AuditLog, error) {
+func (p *Pgx) Create(ctx context.Context, input audit_logs.CreateInput) error {
 	insertBuilder := sq.Insert("audit_logs").
 		SetMap(
 			map[string]any{
@@ -151,19 +145,18 @@ func (p *Pgx) Create(ctx context.Context, input audit_logs.CreateInput) (model.A
 				"channel_id":     input.ChannelID,
 				"user_id":        input.UserID,
 			},
-		).
-		Suffix("RETURNING id")
+		)
 
 	query, args, err := insertBuilder.ToSql()
 	if err != nil {
-		return model.Nil, err
+		return err
 	}
 
 	var id uuid.UUID
 	err = p.pool.QueryRow(ctx, query, args...).Scan(&id)
 	if err != nil {
-		return model.Nil, err
+		return err
 	}
 
-	return p.GetByID(ctx, id)
+	return nil
 }
