@@ -9,7 +9,6 @@ import "messages/meta/meta.proto";
 import "messages/events/events.proto";
 
 import "messages/integrations_donate_stream/integrations_donate_stream.proto";
-import "messages/integrations_donatello/integrations_donatello.proto";
 import "messages/integrations_donatepay/integrations_donatepay.proto";
 import "messages/integrations_donationalerts/integrations_donationalerts.proto";
 import "messages/integrations_faceit/integrations_faceit.proto";
@@ -39,8 +38,6 @@ service Protected {
 
 	rpc IntegrationsDonateStreamGet(google.protobuf.Empty) returns (messages.integrations_donate_stream.DonateStreamResponse) {}
 	rpc IntegrationsDonateStreamPostSecret(messages.integrations_donate_stream.DonateStreamPostSecretRequest) returns (google.protobuf.Empty) {}
-
-	rpc IntegrationsDonatelloGet(google.protobuf.Empty) returns (messages.integrations_donatello.GetResponse) {}
 
 	rpc IntegrationsDonatepayGet(google.protobuf.Empty) returns (messages.integrations_donatepay.GetResponse) {}
 	rpc IntegrationsDonatepayPut(messages.integrations_donatepay.PostRequest) returns (google.protobuf.Empty) {}

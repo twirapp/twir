@@ -113,6 +113,8 @@ func (c *Pgx) Create(
 	query := `
 INSERT INTO channels_integrations_spotify (access_token, refresh_token, avatar_uri, username, scopes, channel_id, enabled)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (channel_id)
+DO UPDATE SET access_token = EXCLUDED.access_token, refresh_token = EXCLUDED.refresh_token, avatar_uri = EXCLUDED.avatar_uri, username = EXCLUDED.username, scopes = EXCLUDED.scopes, enabled = EXCLUDED.enabled, updated_at = NOW()
 RETURNING id, access_token, refresh_token, enabled, scopes, channel_id, avatar_uri, username, created_at, updated_at
 `
 

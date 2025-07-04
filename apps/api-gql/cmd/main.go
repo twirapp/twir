@@ -41,6 +41,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -359,6 +360,7 @@ func main() {
 			toxic_messages.New,
 			channels_files.New,
 			channels_redemptions_history.New,
+			donatellointegration.New,
 		),
 		// app itself
 		fx.Provide(

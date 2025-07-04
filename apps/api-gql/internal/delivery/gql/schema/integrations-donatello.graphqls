@@ -1,0 +1,7 @@
+extend type Query {
+	donatello: DonatelloIntegration! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+type DonatelloIntegration {
+	integrationId: UUID!
+}

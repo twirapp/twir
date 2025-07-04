@@ -14,7 +14,6 @@ import {
 	useUserAccessFlagChecker,
 	useVKIntegration,
 } from '@/api'
-import { useSpotifyIntegration } from '@/api/integrations/spotify.js'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -26,6 +25,7 @@ import {
 	defaultSettings,
 	useNowPlayingForm,
 } from '@/pages/overlays/now-playing/use-now-playing-form'
+import { useIntegrations } from '@/api/integrations/integrations.ts'
 
 const { theme } = useTheme()
 const themeVars = useThemeVars()
@@ -36,22 +36,23 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 const nowPlayingOverlayManager = useNowPlayingOverlayApi()
 const creator = nowPlayingOverlayManager.useNowPlayingCreate()
 
-const { data: spotifyData } = useSpotifyIntegration().spotifyData
+const integrationsManager = useIntegrations()
+
+const { data: integrationsData } = integrationsManager.useQuery()
 const { data: lastFmData } = useLastfmIntegration().useData()
 const { data: vkData } = useVKIntegration().useData()
 
 const isSomeSongIntegrationEnabled = computed(() => {
-	return spotifyData.value?.profile?.userName || lastFmData.value?.userName || vkData.value?.userName
+	return (
+		integrationsData.value?.spotifyData?.userName ||
+		lastFmData.value?.userName ||
+		vkData.value?.userName
+	)
 })
 
-const {
-	data: settings,
-	setData,
-} = useNowPlayingForm()
+const { data: settings, setData } = useNowPlayingForm()
 
-const {
-	data: entities,
-} = nowPlayingOverlayManager.useNowPlayingQuery()
+const { data: entities } = nowPlayingOverlayManager.useNowPlayingQuery()
 
 const openedTab = ref<string>()
 
@@ -72,22 +73,25 @@ const addable = computed(() => {
 	return userCanEditOverlays.value && (entities.value?.nowPlayingOverlays.length ?? 0) < 5
 })
 
-watch(entities, (newValue, oldValue) => {
-	if (newValue?.nowPlayingOverlays.length === oldValue?.nowPlayingOverlays.length) {
-		return
-	}
+watch(
+	entities,
+	(newValue, oldValue) => {
+		if (newValue?.nowPlayingOverlays.length === oldValue?.nowPlayingOverlays.length) {
+			return
+		}
 
-	if (!entities.value?.nowPlayingOverlays.at(0)) {
-		openedTab.value = undefined
-		return
-	}
+		if (!entities.value?.nowPlayingOverlays.at(0)) {
+			openedTab.value = undefined
+			return
+		}
 
-	openedTab.value = entities.value.nowPlayingOverlays.at(0)!.id
-}, { immediate: true })
+		openedTab.value = entities.value.nowPlayingOverlays.at(0)!.id
+	},
+	{ immediate: true }
+)
 
 watch(openedTab, async (v) => {
-	const entity = entities.value?.nowPlayingOverlays.find(s => s.id === v)
-	console.log(entity)
+	const entity = entities.value?.nowPlayingOverlays.find((s) => s.id === v)
 	if (!entity) return
 	setData(entity)
 })
@@ -136,10 +140,7 @@ const nowPlayingTrack = computed(() => {
 <template>
 	<div class="flex flex-col gap-3">
 		<div>
-			<NowPlaying
-				:settings="settings ?? { preset: Preset.TRANSPARENT }"
-				:track="nowPlayingTrack"
-			/>
+			<NowPlaying :settings="settings ?? { preset: Preset.TRANSPARENT }" :track="nowPlayingTrack" />
 		</div>
 		<Separator />
 		<div>
@@ -163,10 +164,19 @@ const nowPlayingTrack = computed(() => {
 				:default-value="0"
 				orientation="vertical"
 				class="min-h-[45dvh]"
-				@update:model-value="(e) => openedTab = entities?.nowPlayingOverlays[e].id"
+				@update:model-value="(e) => (openedTab = entities?.nowPlayingOverlays[e].id)"
 			>
-				<TabsList aria-label="tabs example" class="flex flex-wrap items-center overflow-x-auto -mb-px">
-					<Button size="sm" variant="secondary" class="mr-1" :disabled="!addable" @click="handleAdd">
+				<TabsList
+					aria-label="tabs example"
+					class="flex flex-wrap items-center overflow-x-auto -mb-px"
+				>
+					<Button
+						size="sm"
+						variant="secondary"
+						class="mr-1"
+						:disabled="!addable"
+						@click="handleAdd"
+					>
 						<PlusIcon />
 					</Button>
 					<TabsTrigger
@@ -185,9 +195,7 @@ const nowPlayingTrack = computed(() => {
 				</TabsList>
 				<Alert v-if="!entities?.nowPlayingOverlays.length" class="mt-2">
 					<AlertTitle>No overlays!</AlertTitle>
-					<AlertDescription>
-						Create new overlay for edit settings
-					</AlertDescription>
+					<AlertDescription> Create new overlay for edit settings </AlertDescription>
 				</Alert>
 				<TabsContent
 					v-for="(overlay, index) of entities?.nowPlayingOverlays"
@@ -218,6 +226,6 @@ const nowPlayingTrack = computed(() => {
 }
 
 .tabs-trigger {
-	@apply relative z-[1] flex whitespace-nowrap px-3 py-4 text-sm  transition-colors before:absolute before:left-0 before:top-2 before:-z-[1] before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''] data-[state=active]:after:rounded-t-sm font-medium
+	@apply relative z-[1] flex whitespace-nowrap px-3 py-4 text-sm  transition-colors before:absolute before:left-0 before:top-2 before:-z-[1] before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''] data-[state=active]:after:rounded-t-sm font-medium;
 }
 </style>
