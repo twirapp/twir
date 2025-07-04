@@ -7,13 +7,7 @@ import type { FunctionalComponent } from 'vue'
 
 import { useUserAccessFlagChecker } from '@/api'
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import {
 	Dialog,
 	DialogContent,
@@ -23,21 +17,24 @@ import {
 } from '@/components/ui/dialog'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
-const props = withDefaults(defineProps<{
-	title: string
-	isLoading?: boolean
-	data: { userName?: string, avatar?: string } | undefined
-	logout: () => any
-	authLink?: string
-	icon: FunctionalComponent<any>
-	iconWidth?: string
-	iconColor?: string
-	withSettings?: boolean
-	save?: () => any | Promise<any>
-}>(), {
-	authLink: '',
-	description: '',
-})
+const props = withDefaults(
+	defineProps<{
+		title: string
+		isLoading?: boolean
+		data: { userName?: string; avatar?: string } | undefined | null
+		logout: () => any
+		authLink?: string
+		icon: FunctionalComponent<any>
+		iconWidth?: string
+		iconColor?: string
+		withSettings?: boolean
+		save?: () => any | Promise<any>
+	}>(),
+	{
+		authLink: '',
+		description: '',
+	}
+)
 
 defineSlots<{
 	settings?: FunctionalComponent
@@ -57,7 +54,9 @@ async function saveSettings() {
 	showSettings.value = false
 }
 
-const userCanManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations)
+const userCanManageIntegrations = useUserAccessFlagChecker(
+	ChannelRolePermissionEnum.ManageIntegrations
+)
 
 const { t } = useI18n()
 </script>
@@ -66,11 +65,7 @@ const { t } = useI18n()
 	<Card class="flex flex-col h-full">
 		<CardHeader>
 			<CardTitle class="flex items-center gap-2">
-				<component
-					:is="icon"
-					:style="{ width: iconWidth }"
-					class="w-8 h-8"
-				/>
+				<component :is="icon" :style="{ width: iconWidth }" class="w-8 h-8" />
 				{{ title }}
 			</CardTitle>
 		</CardHeader>
@@ -99,14 +94,8 @@ const { t } = useI18n()
 						size="sm"
 						@click="data?.userName ? logout() : login()"
 					>
-						<LogOut
-							v-if="data?.userName"
-							class="mr-2 h-4 w-4"
-						/>
-						<LogIn
-							v-else
-							class="mr-2 h-4 w-4"
-						/>
+						<LogOut v-if="data?.userName" class="mr-2 h-4 w-4" />
+						<LogIn v-else class="mr-2 h-4 w-4" />
 						{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
 					</Button>
 				</div>

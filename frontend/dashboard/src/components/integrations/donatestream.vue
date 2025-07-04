@@ -2,7 +2,7 @@
 import { ExternalLink, Info } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
-import { useDonateStreamIntegration } from '@/api/index.js'
+import { useIntegrations } from '@/api/integrations/integrations.ts'
 import DonateStreamSVG from '@/assets/integrations/donatestream.svg?use'
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
 import WithSettings from '@/components/integrations/variants/withSettings.vue'
@@ -11,20 +11,20 @@ import { Button } from '@/components/ui/button'
 import CopyInput from '@/components/ui/copy-input/CopyInput.vue'
 import { Input } from '@/components/ui/input'
 
-const integration = useDonateStreamIntegration()
-const { data } = integration.useGetData()
-const { mutateAsync } = integration.usePost()
+const manager = useIntegrations()
+const { data } = manager.useQuery()
+const { executeMutation } = manager.donateStreamPostCode()
 
 const currentPageUrl = `${window.location.origin}/api/webhooks/integrations/donatestream`
 const webhookUrl = computed(() => {
-	return `${currentPageUrl}/${data.value?.integrationId}`
+	return `${currentPageUrl}/${data.value?.integrationsDonateStream?.integrationId}`
 })
 
 const secret = ref('')
 
 async function saveSecret() {
 	if (!secret.value) return
-	await mutateAsync(secret.value)
+	await executeMutation({ secret: secret.value })
 }
 </script>
 
@@ -42,15 +42,17 @@ async function saveSecret() {
 		<template #settings>
 			<div class="space-y-8">
 				<!-- Step 1 -->
-				<div class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-[1px] before:bg-border">
-					<div class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium">
+				<div
+					class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-[1px] before:bg-border"
+				>
+					<div
+						class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium"
+					>
 						1
 					</div>
 					<div class="space-y-2">
 						<div class="flex items-center gap-2">
-							<h4 class="font-medium leading-none">
-								Copy webhook URL
-							</h4>
+							<h4 class="font-medium leading-none">Copy webhook URL</h4>
 							<a
 								href="https://lk.donate.stream/settings/api"
 								target="_blank"
@@ -65,22 +67,24 @@ async function saveSecret() {
 						</p>
 						<CopyInput
 							:text="webhookUrl"
-							:disabled="!data"
+							:disabled="!data?.integrationsDonateStream?.integrationId"
 							class="relative"
 						/>
 					</div>
 				</div>
 
 				<!-- Step 2 -->
-				<div class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-[1px] before:bg-border">
-					<div class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium">
+				<div
+					class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-[1px] before:bg-border"
+				>
+					<div
+						class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium"
+					>
 						2
 					</div>
 					<div class="space-y-2">
 						<div class="flex items-center gap-2">
-							<h4 class="font-medium leading-none">
-								Enter secret key
-							</h4>
+							<h4 class="font-medium leading-none">Enter secret key</h4>
 							<a
 								href="https://i.imgur.com/OtW97pV.png"
 								target="_blank"
@@ -99,26 +103,20 @@ async function saveSecret() {
 								placeholder="Secret key from donate.stream"
 								class="max-w-md"
 							/>
-							<Button
-								variant="default"
-								:disabled="!secret"
-								@click="saveSecret"
-							>
-								Save
-							</Button>
+							<Button variant="default" :disabled="!secret" @click="saveSecret"> Save </Button>
 						</div>
 					</div>
 				</div>
 
 				<!-- Step 3 -->
 				<div class="relative pl-8">
-					<div class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium">
+					<div
+						class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium"
+					>
 						3
 					</div>
 					<div class="space-y-2">
-						<h4 class="font-medium leading-none">
-							Confirm integration
-						</h4>
+						<h4 class="font-medium leading-none">Confirm integration</h4>
 						<p class="text-sm text-muted-foreground">
 							Return to donate.stream and click the "Confirm" button to complete the setup
 						</p>

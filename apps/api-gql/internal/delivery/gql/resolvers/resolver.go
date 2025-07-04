@@ -31,6 +31,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
+	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -112,6 +113,7 @@ type Deps struct {
 	SevenTvIntegrationService             *seventv_integration.Service
 	SpotifyIntegrationService             *spotify_integration.Service
 	DonatelloIntegrationService           *donatellointegration.Service
+	DonateStreamIntegrationService        *donatestreamintegration.Service
 	ScheduledVipsService                  *scheduled_vips.Service
 	ChatTranslationService                *chat_translation.Service
 	ChatWallService                       *chat_wall.Service

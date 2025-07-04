@@ -37,7 +37,7 @@ func (c *Webhooks) donateStreamHandler(g *gin.Context) {
 	if body.Type == "confirm" {
 		value, err := c.redis.Get(
 			g.Request.Context(),
-			"donate_stream_confirmation"+integration.IntegrationID,
+			"donate_stream_confirmation"+integration.ID,
 		).Result()
 		if err != nil {
 			c.logger.Error("cannot get confirmation from redis", slog.Any("err", err))

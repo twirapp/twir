@@ -1,0 +1,15 @@
+extend type Query {
+	integrationsDonateStream: DonateStreamResponse! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+extend type Mutation {
+	integrationsDonateStreamPostSecret(input: DonateStreamPostSecret!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+type DonateStreamResponse {
+	integrationId: UUID!
+}
+
+input DonateStreamPostSecret {
+	secret: String!
+}
