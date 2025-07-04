@@ -19,6 +19,12 @@ const isTermsPage = computed(() => route.path === '/terms')
 			>
 				{{ anchor.label }}
 			</a>
+			<NuxtLink
+				to="/h"
+				class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] rounded-md focus-visible:text-[#D5D8DF] navigation-link"
+			>
+				Hastebin
+			</NuxtLink>
 		</template>
 		<NuxtLink
 			v-if="!isTermsPage"
