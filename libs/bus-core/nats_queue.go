@@ -75,25 +75,39 @@ func (c *NatsQueue[Req, Res]) Request(ctx context.Context, req Req) (*QueueRespo
 
 	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(msg.Header))
 
-	resp, err := c.nc.RequestMsgWithContext(ctx, msg)
-	if err != nil {
-		span.RecordError(err)
-		return nil, err
+	var retries int
+	startTime := time.Now()
+
+	for retries < 10 || (c.timeout.Seconds() != 0 && time.Since(startTime) < c.timeout) {
+		resp, err := c.nc.RequestMsgWithContext(ctx, msg)
+		if err != nil {
+			if errors.Is(err, nats.ErrNoResponders) {
+				retries++
+				time.Sleep(1 * time.Second)
+				continue
+			}
+
+			span.RecordError(err)
+			return nil, err
+		}
+
+		if errMsg := resp.Header.Get(twirNatsErrorHeader); errMsg != "" {
+			return nil, errors.New(errMsg)
+		}
+
+		res, err := natsDecode[Res](c.encoder, resp.Data)
+		if err != nil {
+			span.RecordError(err)
+			retries++
+			continue
+		}
+
+		return &QueueResponse[Res]{
+			Data: res,
+		}, nil
 	}
 
-	if errMsg := resp.Header.Get(twirNatsErrorHeader); errMsg != "" {
-		return nil, errors.New(errMsg)
-	}
-
-	res, err := natsDecode[Res](c.encoder, resp.Data)
-	if err != nil {
-		span.RecordError(err)
-		return nil, err
-	}
-
-	return &QueueResponse[Res]{
-		Data: res,
-	}, nil
+	return nil, errors.New("timeout")
 }
 
 func (c *NatsQueue[Req, Res]) SubscribeGroup(
