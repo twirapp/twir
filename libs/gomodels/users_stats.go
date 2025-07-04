@@ -17,6 +17,7 @@ type UsersStats struct {
 	Reputation        int64     `gorm:"column:reputation;type:INT8;default:0;"              json:"reputation" db:"reputation"`
 	Emotes            int       `gorm:"column:emotes;type:INT4;default:0;"              json:"emotes" db:"emotes"`
 	CreatedAt         time.Time `gorm:"column:created_at;type:TIMESTAMPTZ;default:now()" json:"createdAt"`
+	UpdatedAt         time.Time `gorm:"column:updated_at;type:TIMESTAMPTZ;default:now()" json:"updatedAt"`
 }
 
 func (u *UsersStats) TableName() string {
