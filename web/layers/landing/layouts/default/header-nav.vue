@@ -22,6 +22,7 @@ const isTermsPage = computed(() => route.path === '/terms')
 			<NuxtLink
 				to="/h"
 				class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] rounded-md focus-visible:text-[#D5D8DF] navigation-link"
+				prefetch-on="interaction"
 			>
 				Hastebin
 			</NuxtLink>
@@ -30,6 +31,7 @@ const isTermsPage = computed(() => route.path === '/terms')
 			v-if="!isTermsPage"
 			to="/terms"
 			class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] rounded-md focus-visible:text-[#D5D8DF] navigation-link"
+			prefetch-on="interaction"
 		>
 			Terms of Service
 		</NuxtLink>
