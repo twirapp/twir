@@ -17,16 +17,6 @@ func (c *Dudes) handleMessage(session *melody.Session, msg []byte) {
 		return
 	}
 
-	var overlayId string
-	id, ok := session.Get("id")
-
-	if id != nil || ok {
-		casted, castOk := id.(string)
-		if castOk {
-			overlayId = casted
-		}
-	}
-
 	data := &types.WebSocketMessage{
 		CreatedAt: time.Now().UTC().String(),
 	}
@@ -34,13 +24,6 @@ func (c *Dudes) handleMessage(session *melody.Session, msg []byte) {
 	if err != nil {
 		c.logger.Error(err.Error())
 		return
-	}
-
-	if data.EventName == "getSettings" {
-		err := c.SendSettings(channelId.(string), overlayId)
-		if err != nil {
-			c.logger.Error(err.Error())
-		}
 	}
 
 	if data.EventName == "getUserSettings" {
