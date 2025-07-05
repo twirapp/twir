@@ -9,7 +9,6 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
@@ -47,7 +46,6 @@ var App = fx.Module(
 		youtube.NewYouTube,
 		alerts.NewAlerts,
 		channelalertscache.New,
-		kappagen.New,
 		overlays.New,
 		be_right_back.New,
 		dudes.New,

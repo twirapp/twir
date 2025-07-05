@@ -2,8 +2,6 @@ import { useSubscription } from '@urql/vue'
 import { watch } from 'vue'
 
 import type { Buidler } from './use-kappagen-builder.js'
-import type { TwirWebSocketEvent } from '@/api.js'
-import type { KappagenTriggerRequestEmote } from '@/types.js'
 import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js'
@@ -14,7 +12,11 @@ type Options = Omit<KappagenMethods, 'clear'> & {
 }
 
 export function useKappagenOverlaySocket(options: Options) {
-	const { data: eventsData, executeSubscription: connectEvents, pause: pauseEvents } = useSubscription({
+	const {
+		data: eventsData,
+		executeSubscription: connectEvents,
+		pause: pauseEvents,
+	} = useSubscription({
 		query: graphql(`
 			subscription TwirEvents {
 				twirEvents {
@@ -29,7 +31,11 @@ export function useKappagenOverlaySocket(options: Options) {
 		variables: {},
 		pause: true,
 	})
-	const { data: settings, executeSubscription: connectSettings, pause: pauseSettings } = useSubscription({
+	const {
+		data: settings,
+		executeSubscription: connectSettings,
+		pause: pauseSettings,
+	} = useSubscription({
 		query: graphql(`
 			subscription KappagenSettings {
 				overlaysKappagen {
@@ -84,13 +90,27 @@ export function useKappagenOverlaySocket(options: Options) {
 		variables: {},
 		pause: true,
 	})
+	const { data: triggerKappagenData } = useSubscription({
+		query: graphql(`
+			subscription KappagenTrigger {
+				overlaysKappagenTrigger {
+					text
+					emotes {
+						id
+						positions
+					}
+				}
+			}
+		`),
+	})
 
 	const { makeMessageChunks } = useMessageHelpers()
 
 	function randomAnimation(): KappagenAnimations | undefined {
 		if (!settings.value?.overlaysKappagen) return
-		const enabledAnimations = settings.value?.overlaysKappagen.animations
-			.filter((animation) => animation.enabled)
+		const enabledAnimations = settings.value?.overlaysKappagen.animations.filter(
+			(animation) => animation.enabled
+		)
 
 		const index = Math.floor(Math.random() * enabledAnimations.length)
 		const randomed = enabledAnimations[index]
@@ -113,7 +133,11 @@ export function useKappagenOverlaySocket(options: Options) {
 	watch(eventsData, (event) => {
 		if (!event.twirEvents.baseInfo || !settings.value?.overlaysKappagen) return
 
-		if (!settings.value.overlaysKappagen.events.some((e) => e.event.type === event.twirEvents.baseInfo.type)) {
+		if (
+			!settings.value.overlaysKappagen.events.some(
+				(e) => e.event.type === event.twirEvents.baseInfo.type
+			)
+		) {
 			return
 		}
 
@@ -125,33 +149,27 @@ export function useKappagenOverlaySocket(options: Options) {
 		options.playAnimation(generatedEmotes, animation)
 	})
 
-	watch(data, (d: string) => {
-		const event = JSON.parse(d) as TwirWebSocketEvent
+	watch(triggerKappagenData, (v) => {
+		if (!v?.overlaysKappagenTrigger) return
 
-		if (event.eventName === 'kappagen') {
-			const data = event.data as { text: string, emotes?: KappagenTriggerRequestEmote[] }
+		const data = v.overlaysKappagenTrigger
 
-			const emotesList: Record<string, string[]> = {}
-			if (data.emotes) {
-				for (const emote of data.emotes) {
-					emotesList[emote.id] = emote.positions
-				}
+		const emotesList: Record<string, string[]> = {}
+		if (data.emotes) {
+			for (const emote of data.emotes) {
+				emotesList[emote.id] = emote.positions
 			}
-
-			const chunks = makeMessageChunks(
-				data.text,
-				{
-					isSmaller: false,
-					emotesList,
-				},
-			)
-			const emotesForKappagen = options.emotesBuilder.buildKappagenEmotes(chunks)
-
-			const animation = randomAnimation()
-			if (!animation) return
-
-			options.playAnimation(emotesForKappagen, animation)
 		}
+
+		const chunks = makeMessageChunks(data.text, {
+			isSmaller: false,
+			emotesList,
+		})
+
+		const emotesForKappagen = options.emotesBuilder.buildKappagenEmotes(chunks)
+		const animation = randomAnimation()
+		if (!animation) return
+		options.playAnimation(emotesForKappagen, animation)
 	})
 
 	function destroy() {

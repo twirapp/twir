@@ -459,8 +459,6 @@ func CreateTriggerSubscriptionKey(channelId string) string {
 func (s *Service) handleTriggerKappagenEvent(
 	ctx context.Context,
 	msg api.TriggerKappagenMessage,
-) struct{} {
-	s.wsRouter.Publish(CreateTriggerSubscriptionKey(msg.ChannelId), msg)
-
-	return struct{}{}
+) (struct{}, error) {
+	return struct{}{}, s.wsRouter.Publish(CreateTriggerSubscriptionKey(msg.ChannelId), msg)
 }

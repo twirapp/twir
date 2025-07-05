@@ -42,6 +42,7 @@ var Kappagen = &types.DefaultCommand{
 		param := "!" + parseCtx.RawText
 
 		err := parseCtx.Services.Bus.Api.TriggerKappagen.Publish(
+			ctx,
 			api.TriggerKappagenMessage{
 				ChannelId: parseCtx.Channel.ID,
 				Text:      param,
