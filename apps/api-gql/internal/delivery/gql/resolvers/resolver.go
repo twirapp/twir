@@ -36,6 +36,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
@@ -125,6 +126,7 @@ type Deps struct {
 	ChatAlertsCache                       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
 	ChannelsFilesService                  *channels_files.Service
 	ChannelsRedemptionsHistoryService     *channels_redemptions_history.Service
+	OverlaysDudesService                  *overlays_dudes.Service
 }
 
 type Resolver struct {

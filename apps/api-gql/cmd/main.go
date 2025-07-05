@@ -47,6 +47,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
@@ -110,6 +111,8 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
+	overlaysdudesrepository "github.com/twirapp/twir/libs/repositories/overlays_dudes"
+	overlaysdudesrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_dudes/pgx"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	shortenedurlsrepositorypostgres "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
@@ -292,6 +295,10 @@ func main() {
 				fx.As(new(channelsmoderationsettingsrepository.Repository)),
 			),
 			fx.Annotate(
+				overlaysdudesrepositorypgx.NewFx,
+				fx.As(new(overlaysdudesrepository.Repository)),
+			),
+			fx.Annotate(
 				pastebinsrepositorypgx.NewFx,
 				fx.As(new(pastebinsrepository.Repository)),
 			),
@@ -356,6 +363,7 @@ func main() {
 			chat_translation.New,
 			shortenedurls.New,
 			giveaways.New,
+			overlays_dudes.New,
 			channels_moderation_settings.New,
 			pastebinsservice.New,
 			toxic_messages.New,

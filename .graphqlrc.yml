@@ -1,1 +1,1 @@
-schema: './apps/api-gql/internal/delivery/gql/schema/*.graphqls'
+schema: './apps/api-gql/internal/delivery/gql/schema/*.graphql'

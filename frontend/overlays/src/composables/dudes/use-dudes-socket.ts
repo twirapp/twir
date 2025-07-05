@@ -1,16 +1,17 @@
 import { createGlobalState, useWebSocket } from '@vueuse/core'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { getSprite } from './dudes-config.js'
 import { useDudesSettings } from './use-dudes-settings'
 import { useDudes } from './use-dudes.js'
 
 import type { TwirWebSocketEvent } from '@/api.js'
-import type { ChannelData } from '@/types.js'
-import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes'
-import type { DudesSprite , DudesUserSettings } from '@twir/types/overlays'
+import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays'
 
 import { generateSocketUrlWithParams } from '@/helpers.js'
+import { useSubscription } from '@urql/vue'
+import { graphql } from '@/gql'
+import type { DudesSettingsSubscriptionData } from '@/gql/graphql.ts'
 
 declare global {
 	interface GlobalEventHandlersEventMap {
@@ -23,6 +24,7 @@ export const useDudesSocket = createGlobalState(() => {
 	const dudesSettingsStore = useDudesSettings()
 
 	const overlayId = ref('')
+	const apiKey = ref('')
 	const dudesUrl = ref('')
 	const { data, send, open, close, status } = useWebSocket(dudesUrl, {
 		immediate: false,
@@ -34,22 +36,100 @@ export const useDudesSocket = createGlobalState(() => {
 		},
 	})
 
+	const pauseGqlSub = computed(() => {
+		return !overlayId.value || !apiKey.value
+	})
+	const { data: gqlData } = useSubscription({
+		query: graphql(`
+			subscription DudesSettings($id: UUID!, $apiKey: String!) {
+				dudesSettings(id: $id, apiKey: $apiKey) {
+					channelId
+					channelDisplayName
+					channelName
+					settings {
+						id
+						dudeSettings {
+							color
+							eyesColor
+							cosmeticsColor
+							maxLifeTime
+							gravity
+							scale
+							soundsEnabled
+							soundsVolume
+							visibleName
+							growTime
+							growMaxScale
+							maxOnScreen
+							defaultSprite
+						}
+						messageBoxSettings {
+							enabled
+							borderRadius
+							boxColor
+							fontFamily
+							fontSize
+							padding
+							showTime
+							fill
+						}
+						nameBoxSettings {
+							fontFamily
+							fontSize
+							fill
+							lineJoin
+							strokeThickness
+							stroke
+							fillGradientStops
+							fillGradientType
+							fontStyle
+							fontVariant
+							fontWeight
+							dropShadow
+							dropShadowAlpha
+							dropShadowAngle
+							dropShadowBlur
+							dropShadowDistance
+							dropShadowColor
+						}
+						ignoreSettings {
+							ignoreCommands
+							ignoreUsers
+							users
+						}
+						spitterEmoteSettings {
+							enabled
+						}
+					}
+				}
+			}
+		`),
+		pause: pauseGqlSub,
+		get variables() {
+			return {
+				id: overlayId.value,
+				apiKey: apiKey.value,
+			}
+		},
+		context: {},
+	})
+
+	watch(gqlData, (v) => {
+		if (!v?.dudesSettings?.settings) return
+
+		dudesSettingsStore.updateChannelData({
+			channelId: v.dudesSettings.channelId,
+			channelName: v.dudesSettings.channelName,
+			channelDisplayName: v.dudesSettings.channelDisplayName,
+		})
+
+		updateSettingFromSocket(v.dudesSettings.settings)
+	})
+
 	watch(data, async (recieviedData) => {
 		if (!dudes.value?.dudes) return
 
 		const parsedData = JSON.parse(recieviedData) as TwirWebSocketEvent
-		if (parsedData.eventName === 'settings') {
-			const data = parsedData.data as Required<Settings & ChannelData>
-
-			dudesSettingsStore.updateChannelData({
-				channelId: data.channelId,
-				channelName: data.channelName,
-				channelDisplayName: data.channelDisplayName,
-			})
-
-			updateSettingFromSocket(data)
-			return
-		}
 
 		const data = parsedData.data as DudesUserSettings
 		const dude = dudes.value.dudes.getDude(data?.userId)
@@ -65,8 +145,7 @@ export const useDudesSocket = createGlobalState(() => {
 			})
 
 			const spriteData = getSprite(
-				data.dudeSprite
-				?? dudesSettingsStore.dudesSettings.value?.overlay.defaultSprite,
+				data.dudeSprite ?? dudesSettingsStore.dudesSettings.value?.overlay.defaultSprite
 			)
 
 			const createdDude = await createDude({
@@ -89,11 +168,11 @@ export const useDudesSocket = createGlobalState(() => {
 		}
 	})
 
-	async function updateSettingFromSocket(data: Required<Settings>) {
+	async function updateSettingFromSocket(data: DudesSettingsSubscriptionData['settings']) {
 		const fontFamily = await dudesSettingsStore.loadFont(
 			data.nameBoxSettings.fontFamily,
 			data.nameBoxSettings.fontWeight,
-			data.nameBoxSettings.fontStyle,
+			data.nameBoxSettings.fontStyle
 		)
 
 		dudesSettingsStore.updateSettings({
@@ -133,10 +212,11 @@ export const useDudesSocket = createGlobalState(() => {
 		}
 	}
 
-	function connect(apiKey: string, id: string): void {
+	function connect(connectionApiKey: string, id: string): void {
 		overlayId.value = id
+		apiKey.value = connectionApiKey
 		dudesUrl.value = generateSocketUrlWithParams('/overlays/dudes', {
-			apiKey,
+			apiKey: connectionApiKey,
 			id,
 		})
 		open()

@@ -43,19 +43,29 @@ const { data: profile } = useProfile()
 const { data: formValue, reset } = useDudesForm()
 const { sendIframeMessage } = useDudesIframe()
 
-watch(formValue, (form) => {
-	if (!form) return
-	if (!form.nameBoxSettings.fill.length) return
-	sendIframeMessage('update-settings', form)
-}, { deep: true })
+watch(
+	formValue,
+	(form) => {
+		if (!form) return
+		if (!form.nameBoxSettings.fill.length) return
+		sendIframeMessage('update-settings', form)
+	},
+	{ deep: true }
+)
 
-watch(() => formValue.value.dudeSettings.defaultSprite, (dudeSprite) => {
-	sendIframeMessage('update-sprite', dudeSprite)
-})
+watch(
+	() => formValue.value.dudeSettings.defaultSprite,
+	(dudeSprite) => {
+		sendIframeMessage('update-sprite', dudeSprite)
+	}
+)
 
-watch(() => formValue.value.dudeSettings.color, (dudeColor) => {
-	sendIframeMessage('update-color', dudeColor)
-})
+watch(
+	() => formValue.value.dudeSettings.color,
+	(dudeColor) => {
+		sendIframeMessage('update-color', dudeColor)
+	}
+)
 
 const canCopyLink = computed(() => {
 	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays
@@ -67,9 +77,12 @@ const updater = manager.useUpdate()
 async function save() {
 	if (!formValue.value.id) return
 
-	await updater.mutateAsync({
+	// Extract the settings without the id for the input
+	const { id, ...settings } = formValue.value
+
+	await updater.executeMutation({
 		id: formValue.value.id,
-		settings: formValue.value,
+		input: settings,
 	})
 
 	discrete.notification.success({
@@ -109,11 +122,14 @@ const nameBoxFillMessage = computed(() => {
 })
 
 const fontData = ref<Font | null>(null)
-watch(() => fontData.value, (font) => {
-	if (!font) return
-	formValue.value.nameBoxSettings.fontFamily = font.id
-	formValue.value.messageBoxSettings.fontFamily = font.id
-})
+watch(
+	() => fontData.value,
+	(font) => {
+		if (!font) return
+		formValue.value.nameBoxSettings.fontFamily = font.id
+		formValue.value.messageBoxSettings.fontFamily = font.id
+	}
+)
 
 const fontWeightOptions = computed(() => {
 	if (!fontData.value) return []
@@ -162,11 +178,7 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 <template>
 	<div v-if="formValue" class="card">
 		<div class="card-header">
-			<NButton
-				secondary
-				type="error"
-				@click="reset"
-			>
+			<NButton secondary type="error" @click="reset">
 				{{ t('sharedButtons.setDefaultSettings') }}
 			</NButton>
 			<NButton
@@ -184,10 +196,7 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 			<NTabs class="pt-2" type="line" placement="left" default-value="dude" animated>
 				<NTabPane name="dude" :tab="t('overlays.dudes.dudeDivider')">
 					<NFormItem :label="t('overlays.dudes.dudeDefaultSprite')">
-						<NSelect
-							v-model:value="formValue.dudeSettings.defaultSprite"
-							:options="dudesSprites"
-						/>
+						<NSelect v-model:value="formValue.dudeSettings.defaultSprite" :options="dudesSprites" />
 					</NFormItem>
 
 					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeMaxOnScreen')">
@@ -196,29 +205,24 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 							:min="0"
 							:max="128"
 							:step="1"
-							:format-tooltip="(value) => {
-								if (value === 0) {
-									return t('overlays.dudes.dudeMaxOnScreenUnlimited');
-								}
+							:format-tooltip="
+								(value) => {
+									if (value === 0) {
+										return t('overlays.dudes.dudeMaxOnScreenUnlimited')
+									}
 
-								return value;
-							}"
+									return value
+								}
+							"
 						/>
 					</NFormItem>
 
 					<NFormItem :label="t('overlays.dudes.dudeColor')">
-						<NColorPicker
-							v-model:value="formValue.dudeSettings.color"
-							:modes="['hex']"
-						/>
+						<NColorPicker v-model:value="formValue.dudeSettings.color" :modes="['hex']" />
 					</NFormItem>
 
 					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeGravity')">
-						<NSlider
-							v-model:value="formValue.dudeSettings.gravity"
-							:min="100"
-							:max="5000"
-						/>
+						<NSlider v-model:value="formValue.dudeSettings.gravity" :min="100" :max="5000" />
 					</NFormItem>
 
 					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeMaxLifeTime')">
@@ -232,12 +236,7 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 					</NFormItem>
 
 					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeScale')">
-						<NSlider
-							v-model:value="formValue.dudeSettings.scale"
-							:min="1"
-							:max="10"
-							:step="1"
-						/>
+						<NSlider v-model:value="formValue.dudeSettings.scale" :min="1" :max="10" :step="1" />
 					</NFormItem>
 				</NTabPane>
 
@@ -306,7 +305,7 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 				</NTabPane>
 
 				<NTabPane name="name-box" :tab="t('overlays.dudes.nameBoxDivider')">
-					<NScrollbar style="max-height: calc(62vh - var(--layout-header-height));" trigger="none">
+					<NScrollbar style="max-height: calc(62vh - var(--layout-header-height))" trigger="none">
 						<div class="pr-4">
 							<NForm>
 								<NFormItem
@@ -326,30 +325,36 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 										v-model:value="formValue.nameBoxSettings.fill"
 										:disabled="isNameBoxDisabled"
 										:max="6"
-										:render-tag="(tag: string, index: number) => {
-											const rgb = hexToRgb(tag)
-											const textColor = rgb && colorBrightness(rgb) > 128 ? '#000' : '#fff'
+										:render-tag="
+											(tag: string, index: number) => {
+												const rgb = hexToRgb(tag)
+												const textColor = rgb && colorBrightness(rgb) > 128 ? '#000' : '#fff'
 
-											return h(NTag, {
-												closable: true,
-												onClose: () => {
-													formValue.nameBoxSettings.fill.splice(index, 1)
-												},
-												style: {
-													'--n-close-icon-color': textColor,
-													'--n-close-icon-color-hover': textColor,
-												},
-												color: {
-													color: tag,
-													borderColor: tag,
-													textColor,
-												},
-											}, { default: () => tag })
-										}"
+												return h(
+													NTag,
+													{
+														closable: true,
+														onClose: () => {
+															formValue.nameBoxSettings.fill.splice(index, 1)
+														},
+														style: {
+															'--n-close-icon-color': textColor,
+															'--n-close-icon-color-hover': textColor,
+														},
+														color: {
+															color: tag,
+															borderColor: tag,
+															textColor,
+														},
+													},
+													{ default: () => tag }
+												)
+											}
+										"
 									>
 										<template #input="{ submit, deactivate }">
 											<NColorPicker
-												style="width: 80px;"
+												style="width: 80px"
 												size="small"
 												default-show
 												:show-alpha="false"
@@ -373,22 +378,30 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 								>
 									<NDynamicTags
 										v-model:value="fillGradientStops"
-										:render-tag="(tag: string, index: number) => {
-											return h(NTag, {
-												closable: true,
-												onClose: () => {
-													formValue.nameBoxSettings.fillGradientStops.splice(index, 1)
-												},
-											}, { default: () => tag })
-										}"
+										:render-tag="
+											(tag: string, index: number) => {
+												return h(
+													NTag,
+													{
+														closable: true,
+														onClose: () => {
+															formValue.nameBoxSettings.fillGradientStops.splice(index, 1)
+														},
+													},
+													{ default: () => tag }
+												)
+											}
+										"
 										:max="formValue.nameBoxSettings.fill.length"
-										@update:value="(values: string[]) => {
-											formValue.nameBoxSettings.fillGradientStops = values.map(Number)
-										}"
+										@update:value="
+											(values: string[]) => {
+												formValue.nameBoxSettings.fillGradientStops = values.map(Number)
+											}
+										"
 									>
 										<template #input="{ submit, deactivate }">
 											<NInputNumber
-												style="width: 100px;"
+												style="width: 100px"
 												autofocus
 												placeholder=""
 												:max="1"
@@ -397,10 +410,12 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 												:default-value="0.1"
 												size="small"
 												:update-value-on-input="false"
-												:parse="(v) => {
-													const parsedNum = Number(v)
-													return Number.isNaN(parsedNum) ? 0 : parsedNum
-												}"
+												:parse="
+													(v) => {
+														const parsedNum = Number(v)
+														return Number.isNaN(parsedNum) ? 0 : parsedNum
+													}
+												"
 												@keyup.enter="submit($event.target.value)"
 												@confirm="submit($event)"
 												@blur="deactivate"
@@ -536,7 +551,10 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 								/>
 							</NFormItem>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowDistance')">
+							<NFormItem
+								:show-feedback="false"
+								:label="t('overlays.dudes.nameBoxDropShadowDistance')"
+							>
 								<NSlider
 									v-model:value="formValue.nameBoxSettings.dropShadowDistance"
 									:min="0"

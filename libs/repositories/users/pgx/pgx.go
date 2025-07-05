@@ -34,6 +34,25 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
+func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.User, error) {
+	query := `
+SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page
+FROM users
+WHERE "apiKey" = $1
+`
+	rows, err := c.pool.Query(ctx, query, apiKey)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	user, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.User])
+	if err != nil {
+		return model.Nil, err
+	}
+
+	return user, nil
+}
+
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.User, error) {
 	query := `
 SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page

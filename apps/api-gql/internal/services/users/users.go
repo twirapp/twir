@@ -208,3 +208,12 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 
 	return info, nil
 }
+
+func (c *Service) GetByApiKey(ctx context.Context, apiKey string) (entity.User, error) {
+	user, err := c.usersRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		return entity.User{}, err
+	}
+	
+	return c.modelToEntity(user), nil
+}
