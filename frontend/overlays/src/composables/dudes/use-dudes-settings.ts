@@ -3,9 +3,9 @@ import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
 import type { ChannelData } from '@/types.js'
-import type { IgnoreSettings } from '@twir/api/messages/overlays_dudes/overlays_dudes'
 import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays'
 import type { DudesTypes } from '@twirapp/dudes-vue/types'
+import type { DudesIgnoreSettings } from '@/gql/graphql'
 
 export interface DudesOverlaySettings {
 	maxOnScreen: number
@@ -13,7 +13,7 @@ export interface DudesOverlaySettings {
 }
 
 export interface DudesConfig {
-	ignore: IgnoreSettings
+	ignore: DudesIgnoreSettings
 	dudes: {
 		dude: DudesTypes.DudeStyles
 		sounds: DudesTypes.DudeSounds
@@ -41,14 +41,10 @@ export const useDudesSettings = createGlobalState(() => {
 	async function loadFont(
 		fontFamily: string,
 		fontWeight: number,
-		fontStyle: string,
+		fontStyle: string
 	): Promise<string> {
 		try {
-			await fontSource.loadFont(
-				fontFamily,
-				fontWeight,
-				fontStyle,
-			)
+			await fontSource.loadFont(fontFamily, fontWeight, fontStyle)
 
 			const fontKey = `${fontFamily}-${fontWeight}-${fontStyle}`
 			return fontKey

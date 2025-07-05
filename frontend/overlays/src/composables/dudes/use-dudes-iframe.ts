@@ -4,9 +4,7 @@ import { dudeMock, getSprite } from './dudes-config.js'
 import { useDudesSettings } from './use-dudes-settings.js'
 import { useDudesSocket } from './use-dudes-socket.js'
 import { useDudes } from './use-dudes.js'
-
-import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes'
-
+import type { DudesOverlaySettings } from '@/gql/graphql'
 import { randomEmoji } from '@/helpers.js'
 
 interface DudesPostMessage {
@@ -34,7 +32,7 @@ export const useDudesIframe = createGlobalState(() => {
 
 		if (parsedData.data) {
 			if (parsedData.action === 'update-settings') {
-				const settings = parsedData.data as Required<Settings>
+				const settings = parsedData.data as DudesOverlaySettings
 				dudesSocketStore.updateSettingFromSocket(settings)
 				return
 			}
@@ -76,18 +74,21 @@ export const useDudesIframe = createGlobalState(() => {
 			}
 
 			if (parsedData.action === 'show-message') {
-				dude.addMessage(`Hello, ${dudesSettingsStore.channelData.value!.channelDisplayName}! ${randomEmoji('emoticons')}`)
+				dude.addMessage(
+					`Hello, ${dudesSettingsStore.channelData.value!.channelDisplayName}! ${randomEmoji('emoticons')}`
+				)
 			}
 		}
 	}
 
 	async function spawnIframeDude() {
 		if (
-			!dudes.value?.dudes
-			|| !dudesSettingsStore.dudesSettings.value
-			|| !dudesSettingsStore.channelData.value
-			|| dudes.value.dudes.getDude(dudeMock.id)
-		) return
+			!dudes.value?.dudes ||
+			!dudesSettingsStore.dudesSettings.value ||
+			!dudesSettingsStore.channelData.value ||
+			dudes.value.dudes.getDude(dudeMock.id)
+		)
+			return
 
 		const emote = getProxiedEmoteUrl({
 			type: '3rd_party_emote',
@@ -102,7 +103,9 @@ export const useDudesIframe = createGlobalState(() => {
 		})
 
 		updateDudeColors(dude, dudeMock.color)
-		dude.addMessage(`Hello, ${dudesSettingsStore.channelData.value.channelDisplayName}! ${randomEmoji('emoticons')}`)
+		dude.addMessage(
+			`Hello, ${dudesSettingsStore.channelData.value.channelDisplayName}! ${randomEmoji('emoticons')}`
+		)
 		dude.addEmotes([emote])
 	}
 
