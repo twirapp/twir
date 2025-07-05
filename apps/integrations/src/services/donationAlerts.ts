@@ -44,6 +44,7 @@ export class DonationAlerts {
 						method: 'POST',
 						body: JSON.stringify(ctx.data),
 						headers: { Authorization: `Bearer ${this.accessToken}` },
+						verbose: true,
 					})
 
 					const response = await request.json()

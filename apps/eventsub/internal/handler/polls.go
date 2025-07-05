@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -28,6 +29,7 @@ func convertChoices(choices []eventsub_bindings.PollChoice) []events.PollChoice 
 }
 
 func (c *Handler) handleChannelPollBegin(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPollBegin,
 ) {
@@ -61,13 +63,14 @@ func (c *Handler) handleChannelPollBegin(
 		},
 	}
 
-	err := c.twirBus.Events.PollBegin.Publish(msg)
+	err := c.twirBus.Events.PollBegin.Publish(ctx, msg)
 	if err != nil {
 		zap.S().Error(err)
 	}
 }
 
 func (c *Handler) handleChannelPollProgress(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPollProgress,
 ) {
@@ -101,13 +104,14 @@ func (c *Handler) handleChannelPollProgress(
 		},
 	}
 
-	err := c.twirBus.Events.PollProgress.Publish(msg)
+	err := c.twirBus.Events.PollProgress.Publish(ctx, msg)
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }
 
 func (c *Handler) handleChannelPollEnd(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPollEnd,
 ) {
@@ -141,7 +145,7 @@ func (c *Handler) handleChannelPollEnd(
 		},
 	}
 
-	err := c.twirBus.Events.PollEnd.Publish(msg)
+	err := c.twirBus.Events.PollEnd.Publish(ctx, msg)
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}

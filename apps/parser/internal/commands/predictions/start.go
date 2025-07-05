@@ -53,7 +53,7 @@ var Start = &types.DefaultCommand{
 			ctx,
 			parseCtx.Channel.ID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
+			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{

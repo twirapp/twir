@@ -9,12 +9,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/apps/parser/internal/task-queue"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	"gorm.io/gorm"
 )
 
@@ -43,7 +42,7 @@ func (c *duelHandler) createHelixClient() (*helix.Client, error) {
 	client, err := twitch.NewUserClient(
 		c.parseCtx.Channel.ID,
 		*c.parseCtx.Services.Config,
-		c.parseCtx.Services.GrpcClients.Tokens,
+		c.parseCtx.Services.Bus,
 	)
 	if err != nil {
 		return nil, err
@@ -218,45 +217,17 @@ func (c *duelHandler) timeoutUser(
 	userID string,
 	isMod bool,
 ) error {
-	if isMod {
-		err := c.parseCtx.Services.TaskDistributor.DistributeModUser(
-			ctx,
-			&task_queue.TaskModUserPayload{
-				ChannelID: c.parseCtx.Channel.ID,
-				UserID:    userID,
-			}, asynq.ProcessIn(time.Duration(settings.TimeoutSeconds+2)*time.Second),
-		)
-		if err != nil {
-			return fmt.Errorf("cannot distribute mod user: %w", err)
-		}
-
-		_, err = c.helixClient.RemoveChannelModerator(
-			&helix.RemoveChannelModeratorParams{
-				BroadcasterID: c.parseCtx.Channel.ID,
-				UserID:        userID,
-			},
-		)
-		if err != nil {
-			return fmt.Errorf("cannot remove moderator")
-		}
-	}
-
-	_, err := c.helixClient.BanUser(
-		&helix.BanUserParams{
-			BroadcasterID: c.parseCtx.Channel.ID,
-			ModeratorId:   c.parseCtx.Channel.ID,
-			Body: helix.BanUserRequestBody{
-				Duration: int(settings.TimeoutSeconds),
-				Reason:   "lost in duel",
-				UserId:   userID,
-			},
+	return c.parseCtx.Services.Bus.Bots.BanUser.Publish(
+		ctx,
+		bots.BanRequest{
+			ChannelID:      c.parseCtx.Channel.ID,
+			UserID:         userID,
+			Reason:         "lost in duel",
+			BanTime:        int(settings.TimeoutSeconds),
+			IsModerator:    isMod,
+			AddModAfterBan: true,
 		},
 	)
-	if err != nil {
-		return fmt.Errorf("cannot ban user")
-	}
-
-	return nil
 }
 
 func (c *duelHandler) saveResult(

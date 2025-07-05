@@ -61,6 +61,13 @@ func New(opts Opts) (*BusListener, error) {
 					return err
 				}
 
+				if err := impl.bus.EventSub.Unsubscribe.SubscribeGroup(
+					"eventsub",
+					impl.unsubscribe,
+				); err != nil {
+					return err
+				}
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
@@ -78,7 +85,7 @@ func New(opts Opts) (*BusListener, error) {
 func (c *BusListener) subscribeToAllEvents(
 	ctx context.Context,
 	msg eventsub.EventsubSubscribeToAllEventsRequest,
-) struct{} {
+) (struct{}, error) {
 	channel := model.Channels{}
 	err := c.gorm.
 		WithContext(ctx).
@@ -88,13 +95,13 @@ func (c *BusListener) subscribeToAllEvents(
 		).First(&channel).Error
 	if err != nil {
 		c.logger.Error("error getting channel", err)
-		return struct{}{}
+		return struct{}{}, err
 	}
 
 	var topics []model.EventsubTopic
 	if err := c.gorm.WithContext(ctx).Find(&topics).Error; err != nil {
 		c.logger.Error("error getting topics", err)
-		return struct{}{}
+		return struct{}{}, err
 	}
 
 	if err := c.eventSubClient.SubscribeToNeededEvents(
@@ -103,16 +110,16 @@ func (c *BusListener) subscribeToAllEvents(
 		msg.ChannelID,
 		channel.BotID,
 	); err != nil {
-		return struct{}{}
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *BusListener) subscribe(
 	ctx context.Context,
 	msg eventsub.EventsubSubscribeRequest,
-) struct{} {
+) (struct{}, error) {
 	if err := c.eventSubClient.SubscribeToEvent(
 		ctx,
 		msg.ConditionType,
@@ -121,18 +128,29 @@ func (c *BusListener) subscribe(
 		msg.ChannelID,
 	); err != nil {
 		c.logger.Error("error subscribing to event", err)
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *BusListener) reinitChannels(
 	ctx context.Context,
 	_ struct{},
-) struct{} {
+) (struct{}, error) {
 	if err := c.eventSubClient.InitChannels(); err != nil {
 		c.logger.Error("error reinit channels", err)
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
+}
+
+func (c *BusListener) unsubscribe(ctx context.Context, userId string) (struct{}, error) {
+	if err := c.eventSubClient.UnsubscribeChannel(ctx, userId); err != nil {
+		c.logger.Error("error unsubscribe channel", err)
+		return struct{}{}, err
+	}
+
+	return struct{}{}, nil
 }

@@ -33,6 +33,8 @@ export const formSchema = object({
 		object({
 			text: string().min(1).max(500),
 			twitchCategoriesIds: array(string()).max(100),
+			onlineOnly: boolean(),
+			offlineOnly: boolean(),
 		}),
 	).max(3).default([]),
 	description: string().max(500),
@@ -49,6 +51,7 @@ export const formSchema = object({
 	visible: boolean(),
 	keepResponsesOrder: boolean(),
 	onlineOnly: boolean(),
+	offlineOnly: boolean(),
 	groupId: string().nullable().optional().default(null),
 	enabledCategories: array(string()).max(100),
 	module: string().optional(),

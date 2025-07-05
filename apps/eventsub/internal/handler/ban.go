@@ -7,15 +7,17 @@ import (
 	"math"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
+	deprecatedmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleBan(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelBan,
 ) {
@@ -30,8 +32,9 @@ func (c *Handler) handleBan(
 	)
 
 	go func() {
-		channel := model.Channels{}
+		channel := deprecatedmodel.Channels{}
 		if err := c.gorm.
+			WithContext(ctx).
 			Where(`"id" = ?`, event.BroadcasterUserID).
 			First(&channel).
 			Error; err != nil {
@@ -41,7 +44,7 @@ func (c *Handler) handleBan(
 
 		if channel.BotID == event.UserID {
 			channel.IsEnabled = false
-			if err := c.gorm.Save(&channel).Error; err != nil {
+			if err := c.gorm.WithContext(ctx).Save(&channel).Error; err != nil {
 				c.logger.Error("failed to disable channel", slog.Any("err", err))
 			}
 
@@ -59,6 +62,7 @@ func (c *Handler) handleBan(
 	)
 
 	c.twirBus.Events.ChannelBan.Publish(
+		ctx,
 		events.ChannelBanMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -76,13 +80,12 @@ func (c *Handler) handleBan(
 		},
 	)
 
-	c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		ctx,
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    event.UserID,
+			UserID:    &event.UserID,
 			Type:      model.ChannelEventListItemTypeChannelBan,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				BanReason:            event.Reason,
 				BanEndsInMinutes:     endsAt,
@@ -92,10 +95,12 @@ func (c *Handler) handleBan(
 				ModeratorName:        event.ModeratorUserLogin,
 			},
 		},
-	)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
-	go c.websocketsGrpc.DudesUserPunished(
-		context.TODO(),
+	c.websocketsGrpc.DudesUserPunished(
+		ctx,
 		&websockets.DudesUserPunishedRequest{
 			ChannelId:       event.BroadcasterUserID,
 			UserId:          event.UserID,

@@ -32,6 +32,8 @@ func (c *Service) modelToEntity(dbResponse model.Response) entity.CommandRespons
 		CommandID:         dbResponse.CommandID,
 		Text:              dbResponse.Text,
 		TwitchCategoryIDs: dbResponse.TwitchCategoryIDs,
+		OnlineOnly:        dbResponse.OnlineOnly,
+		OfflineOnly:       dbResponse.OfflineOnly,
 	}
 }
 
@@ -64,6 +66,8 @@ type CreateInput struct {
 	Text              *string
 	Order             int
 	TwitchCategoryIDs []string
+	OnlineOnly        bool
+	OfflineOnly       bool
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (
@@ -77,6 +81,8 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (
 			Text:              input.Text,
 			Order:             input.Order,
 			TwitchCategoryIDs: input.TwitchCategoryIDs,
+			OnlineOnly:        input.OnlineOnly,
+			OfflineOnly:       input.OfflineOnly,
 		},
 	)
 	if err != nil {

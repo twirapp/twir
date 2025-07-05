@@ -2,42 +2,38 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"slices"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 func (c *Handler) handleRewardsSevenTvEmote(
+	ctx context.Context,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) error {
 	if c.config.SevenTvToken == "" || event.UserInput == "" {
 		return nil
 	}
 
-	settings := &model.ChannelsIntegrationsSettingsSeventv{}
-	err := c.gorm.
-		Where(`"channel_id" = ?`, event.BroadcasterUserID).
-		First(settings).
-		Error
+	settings, err := c.channelsIntegrationsSettingsSeventv.Get(
+		ctx,
+		event.BroadcasterUserID,
+	)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
-		}
 		return err
+	}
+	if settings.ID == uuid.Nil {
+		return nil
 	}
 
 	if event.Reward.ID != settings.RewardIdForRemoveEmote.String &&
 		event.Reward.ID != settings.RewardIdForAddEmote.String {
 		return nil
 	}
-
-	ctx := context.TODO()
 
 	client := seventv.NewClient(c.config.SevenTvToken)
 
@@ -79,7 +75,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 			},
 		)
 
-		err = c.gorm.Save(settings).Error
+		err = c.gorm.WithContext(ctx).Save(settings).Error
 
 		return err
 	}
@@ -96,7 +92,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		}
 
 		settings.AddedEmotes = append(settings.AddedEmotes, emoteId)
-		err = c.gorm.Save(settings).Error
+		err = c.gorm.WithContext(ctx).Save(settings).Error
 		return err
 	}
 

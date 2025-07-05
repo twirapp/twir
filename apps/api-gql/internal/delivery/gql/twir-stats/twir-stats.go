@@ -1,6 +1,8 @@
 package twir_stats
 
 import (
+	"context"
+	"log/slog"
 	"sync"
 
 	config "github.com/satont/twir/libs/config"
@@ -8,7 +10,8 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -16,31 +19,34 @@ import (
 type Opts struct {
 	fx.In
 
-	Gorm               *gorm.DB
-	Logger             logger.Logger
-	Config             config.Config
-	GrpcTokensClient   tokens.TokensClient
-	CachedTwitchClient *twitchcache.CachedTwitchClient
+	Gorm                       *gorm.DB
+	Logger                     logger.Logger
+	Config                     config.Config
+	CachedTwitchClient         *twitchcache.CachedTwitchClient
+	ChannelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
+	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
 }
 
 type TwirStats struct {
 	gorm *gorm.DB
 
-	cachedResponse     *gqlmodel.TwirStats
-	logger             logger.Logger
-	config             config.Config
-	grpcTokensClients  tokens.TokensClient
-	cachedTwitchClient *twitchcache.CachedTwitchClient
+	cachedResponse             *gqlmodel.TwirStats
+	logger                     logger.Logger
+	config                     config.Config
+	cachedTwitchClient         *twitchcache.CachedTwitchClient
+	channelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
+	channelsCommandsUsagesRepo channelscommandsusages.Repository
 }
 
 func New(opts Opts) *TwirStats {
 	s := &TwirStats{
-		gorm:               opts.Gorm,
-		cachedResponse:     &gqlmodel.TwirStats{},
-		logger:             opts.Logger,
-		config:             opts.Config,
-		grpcTokensClients:  opts.GrpcTokensClient,
-		cachedTwitchClient: opts.CachedTwitchClient,
+		gorm:                       opts.Gorm,
+		cachedResponse:             &gqlmodel.TwirStats{},
+		logger:                     opts.Logger,
+		config:                     opts.Config,
+		cachedTwitchClient:         opts.CachedTwitchClient,
+		channelsEmotesUsagesRepo:   opts.ChannelsEmotesUsagesRepo,
+		channelsCommandsUsagesRepo: opts.ChannelsCommandsUsagesRepo,
 	}
 
 	go s.cacheCounts()
@@ -104,16 +110,31 @@ func (c *TwirStats) cacheCounts() {
 
 	go func() {
 		defer wg.Done()
-		var count int64
-		c.gorm.Model(&model.ChannelEmoteUsage{}).Count(&count)
-		c.cachedResponse.UsedEmotes = int(count)
+
+		emotesCount, err := c.channelsEmotesUsagesRepo.Count(
+			context.TODO(),
+			channelsemotesusagesrepository.CountInput{},
+		)
+		if err != nil {
+			c.logger.Error("cannot count emotes", slog.Any("err", err))
+			return
+		}
+
+		c.cachedResponse.UsedEmotes = int(emotesCount)
 	}()
 
 	go func() {
 		defer wg.Done()
 
-		var count int64
-		c.gorm.Model(&model.ChannelsCommandsUsages{}).Count(&count)
+		count, err := c.channelsCommandsUsagesRepo.Count(
+			context.TODO(),
+			channelscommandsusages.CountInput{},
+		)
+		if err != nil {
+			c.logger.Error("cannot count commands", slog.Any("err", err))
+			return
+		}
+
 		c.cachedResponse.UsedCommands = int(count)
 	}()
 

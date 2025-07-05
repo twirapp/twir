@@ -6,7 +6,7 @@ import (
 	"github.com/guregu/null"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_donatepay"
-	"github.com/twirapp/twir/libs/grpc/integrations"
+	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -49,10 +49,9 @@ func (c *Integrations) IntegrationsDonatepayPut(
 		return nil, err
 	}
 
-	c.Grpc.Integrations.AddIntegration(
-		ctx,
-		&integrations.Request{
-			Id: entity.ID,
+	c.Bus.Integrations.Add.Publish(
+		ctx, integrations.Request{
+			ID: entity.ID,
 		},
 	)
 

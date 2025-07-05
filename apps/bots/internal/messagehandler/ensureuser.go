@@ -65,6 +65,13 @@ func (c *MessageHandler) ensureUser(ctx context.Context, msg handleMessage) (*mo
 		user.Stats.Messages += 1
 	}
 
+	usedEmotesInMessage := 0
+	for _, count := range msg.EnrichedData.UsedEmotesWithThirdParty {
+		usedEmotesInMessage += count
+	}
+
+	user.Stats.Emotes += usedEmotesInMessage
+
 	user.Stats.IsMod = isMod
 	user.Stats.IsVip = isVip
 	user.Stats.IsSubscriber = isSubscriber

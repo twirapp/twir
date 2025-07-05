@@ -49,6 +49,7 @@ func New(opts Opts) {
 						Id:       existedLink.ShortID,
 						Url:      existedLink.URL,
 						ShortUrl: baseUrl.String(),
+						Views:    existedLink.Views,
 					},
 				}, nil
 			}
@@ -70,6 +71,7 @@ func New(opts Opts) {
 					Id:       link.ShortID,
 					Url:      input.Body.Url,
 					ShortUrl: baseUrl.String(),
+					Views:    link.Views,
 				},
 			}, nil
 		},
@@ -86,7 +88,7 @@ func New(opts Opts) {
 		}, func(
 			ctx context.Context,
 			input *struct {
-				ShortId string `query:"shortId" maxLength:"5" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+				ShortId string `query:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
 			},
 		) (
 			*createLinkOutput, error,
@@ -125,7 +127,7 @@ func New(opts Opts) {
 		},
 		func(
 			ctx context.Context, input *struct {
-				ShortId string `path:"shortId" maxLength:"5" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+				ShortId string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
 			},
 		) (
 			*linkRedirectOutput, error,
@@ -137,6 +139,16 @@ func New(opts Opts) {
 
 			if link == model.Nil {
 				return nil, huma.NewError(http.StatusNotFound, "Link not found")
+			}
+
+			if err := opts.Service.Update(
+				ctx,
+				link.ShortID,
+				shortenedurls.UpdateInput{
+					Views: &link.Views,
+				},
+			); err != nil {
+				return nil, huma.NewError(http.StatusInternalServerError, "Cannot update link", err)
 			}
 
 			return &linkRedirectOutput{
@@ -163,6 +175,7 @@ type linkOutputDto struct {
 	Id       string `json:"id" example:"KKMEa"`
 	Url      string `json:"url" example:"https://example.com"`
 	ShortUrl string `json:"short_url" example:"https://twir.app/s/KKMEa"`
+	Views    int    `json:"views" example:"1"`
 }
 
 type linkRedirectOutput struct {

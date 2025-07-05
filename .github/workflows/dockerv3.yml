@@ -21,7 +21,6 @@ jobs:
           - apps/bots
           - apps/discord
           - apps/emotes-cacher
-          - apps/eval
           - apps/events
           - apps/eventsub
           - apps/integrations
@@ -51,8 +50,12 @@ jobs:
           files: |
             ${{ env.folder }}/${{ env.app }}/**
             libs/**
+            cli/**
             .bun-version
             package.json
+            .github/workflows/dockerv3.yml
+            .bunfig.toml
+            bun.lock
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -87,7 +90,6 @@ jobs:
 
       - name: Build gql
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-# check if app is apps/api-gql
         run: |
           if [ "${{ env.app }}" = "api-gql" ]; then
               bun cli build gql
@@ -100,14 +102,6 @@ jobs:
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
-          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
-
       - name: Login to Twir registry
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
@@ -124,7 +118,6 @@ jobs:
           file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
           push: true
           tags: |
-            twirapp/${{ env.app }}:latest
             registry.twir.app/twirapp/${{ env.app }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -139,15 +132,11 @@ jobs:
         with:
           files: |
             libs/migrations/**
+            cli/**
+            .github/workflows/dockerv3.yml
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3
-      - name: Login to Docker Hub
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
-          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
       - name: Login to Twir registry
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
@@ -163,7 +152,6 @@ jobs:
           file: ./libs/migrations/Dockerfile
           push: true
           tags: |
-            twirapp/migrations:latest
             registry.twir.app/twirapp/migrations:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -179,15 +167,14 @@ jobs:
           files: |
             web/**
             libs/**
+            cli/**
+            .bun-version
+            bun.lock
+            package.json
+            .github/workflows/dockerv3.yml
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3
-      - name: Login to Docker Hub
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
-          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
       - name: Login to Twir registry
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
@@ -203,7 +190,6 @@ jobs:
           file: ./web/Dockerfile
           push: true
           tags: |
-            twirapp/web:latest
             registry.twir.app/twirapp/web:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max

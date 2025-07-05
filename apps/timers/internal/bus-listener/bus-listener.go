@@ -53,20 +53,27 @@ func New(opts Opts) error {
 	return nil
 }
 
-func (c *server) addTimerToQueue(ctx context.Context, t timers.AddOrRemoveTimerRequest) struct{} {
-	c.redis.Del(ctx, redis_keys.TimersCurrentResponse(t.TimerID))
+func (c *server) addTimerToQueue(ctx context.Context, t timers.AddOrRemoveTimerRequest) (
+	struct{},
+	error,
+) {
+	if err := c.redis.Del(ctx, redis_keys.TimersCurrentResponse(t.TimerID)).Err(); err != nil {
+		return struct{}{}, err
+	}
 
 	c.workflow.RemoveTimer(ctx, t.TimerID)
-	c.workflow.AddTimer(ctx, t.TimerID)
+	if err := c.workflow.AddTimer(ctx, t.TimerID); err != nil {
+		return struct{}{}, err
+	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *server) removeTimerFromQueue(
 	ctx context.Context,
 	t timers.AddOrRemoveTimerRequest,
-) struct{} {
+) (struct{}, error) {
 	c.workflow.RemoveTimer(ctx, t.TimerID)
 
-	return struct{}{}
+	return struct{}{}, nil
 }

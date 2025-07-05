@@ -34,6 +34,7 @@ func (c *ChatAlerts) unbanRequestCreate(
 	}
 
 	return c.bus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        text,
@@ -73,6 +74,7 @@ func (c *ChatAlerts) unbanRequestResolved(
 	}
 
 	return c.bus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        text,

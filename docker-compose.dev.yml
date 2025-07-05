@@ -8,7 +8,7 @@ services:
       - '8085:8080'
     environment:
       - ADMINER_DEFAULT_SERVER=postgres:5432
-      - ADMINER_PLUGINS=enum-types enum-option json-column
+      - ADMINER_PLUGINS=enum-option json-column
     networks:
       - twir-dev
 
@@ -40,15 +40,16 @@ services:
       - PGBOUNCER_DATABASE=twir
       - PGBOUNCER_MIN_POOL_SIZE=20
       - PGBOUNCER_MAX_CLIENT_CONN=4000
+      - PGBOUNCER_POOL_MODE=transaction
     networks:
       - twir-dev
     ports:
       -  '6432:6432'
 
   redis:
-    image: redis:7.4.2
-    command: redis-server --save 60 1 --loglevel warning
-    restart: always
+    image: redis:8.0.2
+    command: redis-server --save 60 1 --loglevel warning --io-threads 2
+    restart: unless-stopped
     ports:
       - '6385:6379'
     volumes:
@@ -58,7 +59,7 @@ services:
 
   language-processor:
     image: twirapp/language-processor:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - '3012:3012'
     environment:
@@ -66,7 +67,7 @@ services:
 
   tts:
     image: aculeasis/rhvoice-rest
-    restart: always
+    restart: unless-stopped
     ports:
       - '7001:8080'
     networks:
@@ -75,7 +76,7 @@ services:
   minio:
     image: quay.io/minio/minio
     command: server /data --console-address ":9090"
-    restart: always
+    restart: unless-stopped
     ports:
       - '8000:9000'
       - '8090:9090'
@@ -87,7 +88,7 @@ services:
 
   temporal:
     image: temporalio/auto-setup:1.22.2
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
     environment:
@@ -111,7 +112,7 @@ services:
 
   temporal-admin-tools:
     image: temporalio/admin-tools:1.22.2
-    restart: always
+    restart: unless-stopped
     depends_on:
       - temporal
     environment:
@@ -124,7 +125,7 @@ services:
 
   temporal-ui:
     image: temporalio/ui:2.21.0
-    restart: always
+    restart: unless-stopped
     depends_on:
       - temporal
     environment:
@@ -138,17 +139,52 @@ services:
   nats:
     image: nats:2.10.11-scratch
     command: -js -m 8222
-    restart: always
+    restart: unless-stopped
     ports:
       - '4222:4222'
       - '8222:8222'
     networks:
       - twir-dev
 
+  executron:
+    image: twirapp/executron:latest
+    ports:
+      - '7003:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+    restart: unless-stopped
+    networks:
+      - twir-dev
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.5-alpine
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_USER=twir
+      - CLICKHOUSE_PASSWORD=twir
+      - CLICKHOUSE_DB=twir
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./configs/clickhouse-config.xml:/etc/clickhouse-server/config.d/override.xml
+    ports:
+      - '8123:8123'
+      - '9000:9000'
+    networks:
+      - twir-dev
+    cap_add:
+      - SYS_NICE
+      - NET_ADMIN
+      - IPC_LOCK
+    ulimits:
+      nofile: 262144
+
 volumes:
   redis-data:
   postgres-data:
   minio-data:
+  clickhouse-data:
 
 networks:
   twir-dev:

@@ -13,18 +13,18 @@ import (
 func (c *PubSubHandlers) streamsOnline(
 	ctx context.Context,
 	data twitch.StreamOnlineMessage,
-) struct{} {
+) (struct{}, error) {
 	channel := model.Channels{}
 	if err := c.db.WithContext(ctx).Where("id = ?", data.ChannelID).Find(&channel).Error; err != nil {
 		c.logger.Error(
 			"cannot find channel",
 			slog.String("channelId", data.ChannelID),
 		)
-		return struct{}{}
+		return struct{}{}, err
 	}
 
 	if channel.ID == "" {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	err := c.greetingsRepository.UpdateManyByChannelID(
@@ -33,13 +33,13 @@ func (c *PubSubHandlers) streamsOnline(
 			Processed: lo.ToPtr(false),
 		},
 	)
-
 	if err != nil {
 		c.logger.Error(
 			"cannot update channel greetings",
 			slog.String("channelId", data.ChannelID),
 			slog.Any("err", err),
 		)
+		return struct{}{}, err
 	}
 
 	if err = c.greetingsCacher.Invalidate(ctx, channel.ID); err != nil {
@@ -48,7 +48,8 @@ func (c *PubSubHandlers) streamsOnline(
 			slog.String("channelId", data.ChannelID),
 			slog.Any("err", err),
 		)
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }

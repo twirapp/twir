@@ -1,44 +1,35 @@
-import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
 import { useMutation } from '@/composables/use-mutation.ts'
 import { graphql } from '@/gql'
-
-const queryKey = ['spotify']
+import { integrationsCacheKey, useIntegrations } from '@/api/integrations/integrations.ts'
 
 export const useSpotifyIntegration = createGlobalState(() => {
 	const spotifyBroadcaster = new BroadcastChannel('spotify_channel')
+	const integrationsManager = useIntegrations()
+	const { executeQuery: refreshIntegrations } = integrationsManager.useQuery()
 
-	const spotifyData = useQuery({
-		query: graphql(`
-      query SpotifyData {
-        profile: spotifyData {
-          userName
-          avatar
-        }
-				spotifyAuthLink
-      }
-    `),
-		context: {
-			additionalTypenames: queryKey,
-		},
-	})
+	const postCode = useMutation(
+		graphql(`
+			mutation SpotifyPostCode($input: SpotifyPostCodeInput!) {
+				spotifyPostCode(input: $input)
+			}
+		`),
+		[integrationsCacheKey]
+	)
 
-	const postCode = useMutation(graphql(`
-    mutation SpotifyPostCode($input: SpotifyPostCodeInput!) {
-      spotifyPostCode(input: $input)
-    }
-  `), queryKey)
-
-	const logout = useMutation(graphql(`
-    mutation SpotifyLogout {
-      spotifyLogout
-    }
-  `), queryKey)
+	const logout = useMutation(
+		graphql(`
+			mutation SpotifyLogout {
+				spotifyLogout
+			}
+		`),
+		[integrationsCacheKey]
+	)
 
 	spotifyBroadcaster.onmessage = (event) => {
 		if (event.data !== 'refresh') return
-		spotifyData.executeQuery({ requestPolicy: 'network-only' })
+		refreshIntegrations({ requestPolicy: 'network-only' })
 	}
 
 	function broadcastRefresh() {
@@ -46,7 +37,6 @@ export const useSpotifyIntegration = createGlobalState(() => {
 	}
 
 	return {
-		spotifyData,
 		postCode,
 		logout,
 		broadcastRefresh,

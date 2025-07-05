@@ -4,7 +4,7 @@ import {
   DropdownMenuSeparator,
   type DropdownMenuSeparatorProps,
 } from 'reka-ui'
-import { computed, type HTMLAttributes } from 'vue'
+import { type HTMLAttributes, computed } from 'vue'
 
 const props = defineProps<DropdownMenuSeparatorProps & {
   class?: HTMLAttributes['class']

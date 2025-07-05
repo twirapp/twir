@@ -31,6 +31,7 @@ type CreateInput struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []string
 	OnlineOnly                bool
+	OfflineOnly               bool
 	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         int
@@ -55,6 +56,7 @@ type UpdateInput struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []string
 	OnlineOnly                *bool
+	OfflineOnly               *bool
 	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         *int

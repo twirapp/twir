@@ -9,16 +9,16 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
-	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
-	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
+	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
+	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
@@ -38,16 +38,16 @@ var App = fx.Module(
 		),
 	),
 	fx.Provide(
-		func(cfg config.Config) parser.ParserClient {
-			return clients.NewParser(cfg.AppEnv)
-		},
-		func(cfg config.Config) tokens.TokensClient {
-			return clients.NewTokens(cfg.AppEnv)
-		},
+		fx.Annotate(
+			alertsrepositorypgx.NewFx,
+			fx.As(new(alertsrepository.Repository)),
+		),
 		tts.NewTts,
 		obs.NewObs,
 		youtube.NewYouTube,
 		alerts.NewAlerts,
+		channelalertscache.New,
+		kappagen.New,
 		overlays.New,
 		be_right_back.New,
 		dudes.New,

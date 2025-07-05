@@ -128,6 +128,8 @@ export interface LinkOutputDto {
   id: string;
   short_url: string;
   url: string;
+  /** @format int64 */
+  views: number;
 }
 
 export interface PasteBinCreateDto {
@@ -405,6 +407,23 @@ export class Api<SecurityDataType extends unknown> {
   };
   v1 = {
     /**
+     * @description Get file content by id
+     *
+     * @tags Files
+     * @name ChannelsFilesContentDetail
+     * @summary Get file content
+     * @request GET:/v1/channels/{channelId}/files/content/{fileId}
+     * @response `200` `File` File content
+     * @response `default` `ErrorModel` Error
+     */
+    channelsFilesContentDetail: (channelId: string, fileId: string, params: RequestParams = {}) =>
+      this.http.request<File, any>({
+        path: `/v1/channels/${channelId}/files/content/${fileId}`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
      * @description Requires api-key header.
      *
      * @tags Pastebin
@@ -551,7 +570,6 @@ export class Api<SecurityDataType extends unknown> {
       query: {
         /**
          * @minLength 1
-         * @maxLength 5
          * @pattern ^[a-zA-Z0-9]+$
          */
         shortId: string;

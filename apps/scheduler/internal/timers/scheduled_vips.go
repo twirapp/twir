@@ -10,7 +10,7 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"go.uber.org/fx"
 )
@@ -19,9 +19,9 @@ type ScheduledVipsOpts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Config     config.Config
-	Logger     logger.Logger
-	TokensGrpc tokens.TokensClient
+	Config  config.Config
+	Logger  logger.Logger
+	TwirBus *buscore.Bus
 
 	ScheduledVipsRepo scheduledvipsrepository.Repository
 }
@@ -38,7 +38,7 @@ func NewScheduledVips(opts ScheduledVipsOpts) {
 	s := &scheduledVips{
 		config:            opts.Config,
 		logger:            opts.Logger,
-		tokens:            opts.TokensGrpc,
+		twirBus:           opts.TwirBus,
 		scheduledVipsRepo: opts.ScheduledVipsRepo,
 	}
 
@@ -70,7 +70,7 @@ func NewScheduledVips(opts ScheduledVipsOpts) {
 type scheduledVips struct {
 	config            config.Config
 	logger            logger.Logger
-	tokens            tokens.TokensClient
+	twirBus           *buscore.Bus
 	scheduledVipsRepo scheduledvipsrepository.Repository
 }
 
@@ -93,7 +93,7 @@ func (s *scheduledVips) process(ctx context.Context) {
 				ctx,
 				vip.ChannelID,
 				s.config,
-				s.tokens,
+				s.twirBus,
 			)
 			if err != nil {
 				s.logger.Error("failed to create twitch client", slog.Any("err", err))
@@ -107,7 +107,12 @@ func (s *scheduledVips) process(ctx context.Context) {
 	// remove vips from channel
 	// we'll delete row from db in eventsub service
 	for _, vip := range vips {
-		twitchClient := cachedChannelsTwitchClients[vip.ChannelID]
+		twitchClient, ok := cachedChannelsTwitchClients[vip.ChannelID]
+		if !ok {
+			s.logger.Warn("Twitch client not found", slog.String("channel_id", vip.ChannelID))
+			continue
+		}
+
 		resp, err := twitchClient.RemoveChannelVip(
 			&helix.RemoveChannelVipParams{
 				BroadcasterID: vip.ChannelID,

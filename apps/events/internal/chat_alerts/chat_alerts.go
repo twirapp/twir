@@ -5,52 +5,51 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
 	cfg "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/api/messages/events"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	busevents "github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type ChatAlerts struct {
-	db             *gorm.DB
-	redis          *redis.Client
-	logger         logger.Logger
-	cfg            cfg.Config
-	tokensGrpc     tokens.TokensClient
-	websocketsGrpc websockets.WebsocketClient
-	bus            *buscore.Bus
+	db              *gorm.DB
+	redis           *redis.Client
+	logger          logger.Logger
+	cfg             cfg.Config
+	websocketsGrpc  websockets.WebsocketClient
+	bus             *buscore.Bus
+	chatAlertsCache *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
 }
 
 type Opts struct {
 	fx.In
 
-	DB             *gorm.DB
-	Redis          *redis.Client
-	Logger         logger.Logger
-	Cfg            cfg.Config
-	TokensGrpc     tokens.TokensClient
-	WebsocketsGrpc websockets.WebsocketClient
-	Bus            *buscore.Bus
+	DB              *gorm.DB
+	Redis           *redis.Client
+	Logger          logger.Logger
+	Cfg             cfg.Config
+	WebsocketsGrpc  websockets.WebsocketClient
+	Bus             *buscore.Bus
+	ChatAlertsCache *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
 }
 
 func New(opts Opts) (*ChatAlerts, error) {
 	return &ChatAlerts{
-		db:             opts.DB,
-		redis:          opts.Redis,
-		logger:         opts.Logger,
-		cfg:            opts.Cfg,
-		bus:            opts.Bus,
-		tokensGrpc:     opts.TokensGrpc,
-		websocketsGrpc: opts.WebsocketsGrpc,
+		db:              opts.DB,
+		redis:           opts.Redis,
+		logger:          opts.Logger,
+		cfg:             opts.Cfg,
+		bus:             opts.Bus,
+		websocketsGrpc:  opts.WebsocketsGrpc,
+		chatAlertsCache: opts.ChatAlertsCache,
 	}, nil
 }
 
@@ -60,28 +59,17 @@ func (c *ChatAlerts) ProcessEvent(
 	eventType events.TwirEventType,
 	data any,
 ) {
-	entity := model.ChannelModulesSettings{}
-
-	if err := c.db.
-		WithContext(ctx).
-		Where(
-			`"channelId" = ? AND "userId" IS NULL AND type = 'chat_alerts'`,
-			channelId,
-		).First(&entity).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	entity, err := c.chatAlertsCache.Get(ctx, channelId)
+	if err != nil {
+		if errors.Is(err, chatalertscache.ErrChatAlertNotFound) {
 			return
 		}
 
-		c.logger.Error("cannot find channel chat alerts settings", slog.Any("err", err))
-
+		c.logger.Error("cannot get chat alerts", slog.Any("err", err))
 		return
 	}
 
-	parsedSettings := model.ChatAlertsSettings{}
-	if err := json.Unmarshal(entity.Settings, &parsedSettings); err != nil {
-		c.logger.Error("failed to unmarshal settings: %w", slog.Any("err", err))
-		return
-	}
+	parsedSettings := entity.ParsedSettings
 
 	eventCooldown, err := c.isOnCooldown(
 		ctx,

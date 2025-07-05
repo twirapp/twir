@@ -13,6 +13,7 @@ import (
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
@@ -23,12 +24,13 @@ import (
 type EventsWorkflowOpts struct {
 	fx.In
 
-	Cfg            config.Config
-	EventsActivity *eventsActivity.Activity
-	Gorm           *gorm.DB
-	Redis          *redis.Client
-	Hydrator       *hydrator.Hydrator
-	Logger         logger.Logger
+	Cfg                               config.Config
+	EventsActivity                    *eventsActivity.Activity
+	Gorm                              *gorm.DB
+	Redis                             *redis.Client
+	Hydrator                          *hydrator.Hydrator
+	Logger                            logger.Logger
+	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
 }
 
 func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
@@ -43,22 +45,24 @@ func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 	}
 
 	return &EventWorkflow{
-		cfg:            opts.Cfg,
-		cl:             c,
-		eventsActivity: opts.EventsActivity,
-		db:             opts.Gorm,
-		redis:          opts.Redis,
-		hydrator:       opts.Hydrator,
+		cfg:                               opts.Cfg,
+		cl:                                c,
+		eventsActivity:                    opts.EventsActivity,
+		db:                                opts.Gorm,
+		redis:                             opts.Redis,
+		hydrator:                          opts.Hydrator,
+		channelsEventsWithOperationsCache: opts.ChannelsEventsWithOperationsCache,
 	}, nil
 }
 
 type EventWorkflow struct {
-	cfg            config.Config
-	cl             client.Client
-	eventsActivity *eventsActivity.Activity
-	db             *gorm.DB
-	redis          *redis.Client
-	hydrator       *hydrator.Hydrator
+	cfg                               config.Config
+	cl                                client.Client
+	eventsActivity                    *eventsActivity.Activity
+	db                                *gorm.DB
+	redis                             *redis.Client
+	hydrator                          *hydrator.Hydrator
+	channelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
 }
 
 func (c *EventWorkflow) Execute(
@@ -66,6 +70,23 @@ func (c *EventWorkflow) Execute(
 	eventType model.EventType,
 	data shared.EventData,
 ) error {
+	channelEvents, err := c.channelsEventsWithOperationsCache.Get(ctx, data.ChannelID)
+	if err != nil {
+		return err
+	}
+
+	var eventTypeExists bool
+	for _, entity := range channelEvents {
+		if entity.Type == eventType {
+			eventTypeExists = true
+			break
+		}
+	}
+
+	if !eventTypeExists {
+		return nil
+	}
+
 	options := client.StartWorkflowOptions{
 		ID:        fmt.Sprintf("%s - %s", shared.EventsWorkflow, uuid.NewString()),
 		TaskQueue: shared.EventsWorkerTaskQueueName,

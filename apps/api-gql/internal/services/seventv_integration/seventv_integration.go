@@ -3,10 +3,15 @@ package seventv_integration
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twirapp/twir/libs/repositories/bots"
 	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
@@ -20,14 +25,18 @@ type Opts struct {
 	BotsRepository    bots.Repository
 	Redis             *redis.Client
 	Config            config.Config
+	Cacher            *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv]
+	Logger            logger.Logger
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		seventvRepository: opts.SeventvRepository,
-		botsRepository:    opts.BotsRepository,
 		redis:             opts.Redis,
+		botsRepository:    opts.BotsRepository,
 		config:            opts.Config,
+		cacher:            opts.Cacher,
+		logger:            opts.Logger,
 	}
 }
 
@@ -36,6 +45,8 @@ type Service struct {
 	redis             *redis.Client
 	botsRepository    bots.Repository
 	config            config.Config
+	cacher            *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv]
+	logger            logger.Logger
 }
 
 func (c *Service) getBotSevenTvProfile(ctx context.Context) (entity.SevenTvProfile, error) {
@@ -206,7 +217,7 @@ func (c *Service) UpdateSevenTvData(
 		return fmt.Errorf("failed to get integration data: %w", err)
 	}
 
-	return c.seventvRepository.Update(
+	err = c.seventvRepository.Update(
 		ctx,
 		integrationData.ID,
 		seventvintegrationrepository.UpdateInput{
@@ -215,6 +226,11 @@ func (c *Service) UpdateSevenTvData(
 			DeleteEmotesOnlyAddedByApp: input.DeleteEmotesOnlyAddedByApp,
 		},
 	)
+	if err != nil {
+		return fmt.Errorf("failed to update integration data: %w", err)
+	}
+
+	return nil
 }
 
 type CreateInput struct {
@@ -225,7 +241,7 @@ type CreateInput struct {
 }
 
 func (c *Service) CreateSevenTvData(ctx context.Context, input CreateInput) error {
-	return c.seventvRepository.Create(
+	err := c.seventvRepository.Create(
 		ctx,
 		seventvintegrationrepository.CreateInput{
 			ChannelID:                  input.ChannelID,
@@ -234,6 +250,11 @@ func (c *Service) CreateSevenTvData(ctx context.Context, input CreateInput) erro
 			DeleteEmotesOnlyAddedByApp: &input.DeleteEmotesOnlyAddedByApp,
 		},
 	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Service) CreateOrUpdateSevenTvData(ctx context.Context, input CreateInput) error {
@@ -241,6 +262,15 @@ func (c *Service) CreateOrUpdateSevenTvData(ctx context.Context, input CreateInp
 	if err != nil {
 		return fmt.Errorf("failed to get integration data: %w", err)
 	}
+
+	defer func() {
+		invalidateCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := c.cacher.Invalidate(invalidateCtx, input.ChannelID); err != nil {
+			c.logger.Error("failed to invalidate cache", slog.Any("err", err))
+		}
+	}()
 
 	if integrationData.ChannelID == "" {
 		return c.CreateSevenTvData(ctx, input)

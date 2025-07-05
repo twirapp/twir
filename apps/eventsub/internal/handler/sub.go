@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
 	"strconv"
-	"time"
 
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -25,6 +25,7 @@ func getSubPlan(plan string) string {
 }
 
 func (c *Handler) handleChannelSubscribe(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelSubscribe,
 ) {
 	level := getSubPlan(event.Tier)
@@ -36,23 +37,24 @@ func (c *Handler) handleChannelSubscribe(
 		slog.String("level", level),
 	)
 
-	if err := c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		ctx,
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
+			UserID:    &event.UserID,
 			Type:      model.ChannelEventListItemTypeSubscribe,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				SubUserName:        event.UserLogin,
 				SubUserDisplayName: event.UserName,
 				SubLevel:           level,
 			},
 		},
-	).Error; err != nil {
+	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
 	if err := c.twirBus.Events.Subscribe.Publish(
+		ctx,
 		events.SubscribeMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -70,6 +72,7 @@ func (c *Handler) handleChannelSubscribe(
 
 // resub
 func (c *Handler) handleChannelSubscriptionMessage(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelSubscriptionMessage,
 ) {
@@ -82,12 +85,12 @@ func (c *Handler) handleChannelSubscriptionMessage(
 		slog.Int("months", event.CumulativeTotal),
 	)
 
-	if err := c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		ctx,
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
+			UserID:    &event.UserID,
 			Type:      model.ChannelEventListItemTypeReSubscribe,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				ReSubUserName:        event.UserLogin,
 				ReSubUserDisplayName: event.UserName,
@@ -96,11 +99,12 @@ func (c *Handler) handleChannelSubscriptionMessage(
 				ReSubMonths:          strconv.Itoa(event.CumulativeTotal),
 			},
 		},
-	).Error; err != nil {
+	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
 	if err := c.twirBus.Events.ReSubscribe.Publish(
+		ctx,
 		events.ReSubscribeMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
 
@@ -19,16 +20,13 @@ type locks struct {
 	twitchChannel           sync.Mutex
 	cachedTwitchUsersById   sync.Mutex
 	cachedTwitchUsersByName sync.Mutex
-
-	channelIntegrations sync.Mutex
-
-	faceitMatches  sync.Mutex
-	faceitUserData sync.Mutex
-
-	valorantProfile sync.Mutex
-	valorantMatches sync.Mutex
-
-	currentSong sync.Mutex
+	channelIntegrations     sync.Mutex
+	faceitMatches           sync.Mutex
+	faceitUserData          sync.Mutex
+	valorantProfile         sync.Mutex
+	valorantMatches         sync.Mutex
+	currentSong             sync.Mutex
+	subage                  sync.Mutex
 }
 
 type cache struct {
@@ -49,8 +47,10 @@ type cache struct {
 	channelIntegrations []*model.ChannelsIntegrations
 
 	valorantMatches []types.ValorantMatch
-	
+
 	seventvprofile *seventvintegrationapi.TwirSeventvUser
+
+	cachedSubAgeInfo *twitch.UserSubscribePayload
 }
 
 type cacher struct {

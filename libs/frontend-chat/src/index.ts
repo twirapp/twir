@@ -1,11 +1,11 @@
-import ChatBox from './components/chat-box.vue';
+import ChatBox from './components/chat-box.vue'
 
-export * from './types.js';
+export * from './types.js'
 
 export {
 	normalizeDisplayName,
-} from './helpers.js';
+} from './helpers.js'
 
 export {
 	ChatBox,
-};
+}

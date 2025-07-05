@@ -17,7 +17,10 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
@@ -27,21 +30,26 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
+	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/toxic_messages"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
@@ -49,9 +57,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -64,20 +72,20 @@ import (
 type Deps struct {
 	fx.In
 
-	TokensGrpc tokens.TokensClient
-	Logger     logger.Logger
-	WsRouter   wsrouter.WsRouter
+	Logger   logger.Logger
+	WsRouter wsrouter.WsRouter
 
 	SpotifyRepository channelsintegrationsspotify.Repository
 
-	Sessions             *auth.Auth
-	Gorm                 *gorm.DB
-	CachedTwitchClient   *twitchcahe.CachedTwitchClient
-	CachedCommandsClient *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
-	Minio                *minio.Client
-	TwirBus              *bus_core.Bus
-	Redis                *redis.Client
-	TwirStats            *twir_stats.TwirStats
+	Sessions                         *auth.Auth
+	Gorm                             *gorm.DB
+	CachedTwitchClient               *twitchcahe.CachedTwitchClient
+	CachedCommandsClient             *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
+	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedgormmodel.ChannelSongRequestsSettings]
+	Minio                            *minio.Client
+	TwirBus                          *bus_core.Bus
+	Redis                            *redis.Client
+	TwirStats                        *twir_stats.TwirStats
 
 	DashboardWidgetEventsService          *dashboard_widget_events.Service
 	VariablesService                      *variables.Service
@@ -100,6 +108,7 @@ type Deps struct {
 	TwitchService                         *twitchservice.Service
 	ChatMessagesService                   *chat_messages.Service
 	ChannelsCommandsPrefix                *channels_commands_prefix.Service
+	ChannelsEmotesUsagesService           *channels_emotes_usages.Service
 	TTSService                            *tts.Service
 	SongRequestsService                   *song_requests.Service
 	CommunityRedemptionsService           *community_redemptions.Service
@@ -107,12 +116,20 @@ type Deps struct {
 	DashboardService                      *dashboard.Service
 	SevenTvIntegrationService             *seventv_integration.Service
 	SpotifyIntegrationService             *spotify_integration.Service
+	DonatelloIntegrationService           *donatellointegration.Service
+	DonateStreamIntegrationService        *donatestreamintegration.Service
 	ScheduledVipsService                  *scheduled_vips.Service
 	ChatTranslationService                *chat_translation.Service
 	ChatWallService                       *chat_wall.Service
 	Config                                config.Config
 	GiveawaysService                      *giveaways.Service
 	ChannelsModerationSettingsService     *channels_moderation_settings.Service
+	ShortenedUrlsService                  *shortenedurls.Service
+	ToxicMessagesService                  *toxic_messages.Service
+	ChatAlertsCache                       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
+	ChannelsFilesService                  *channels_files.Service
+	ChannelsRedemptionsHistoryService     *channels_redemptions_history.Service
+	OverlaysDudesService                  *overlays_dudes.Service
 	EventsService                         *events.Service
 	KappagenService                       *kappagen.Service
 	TwirEventsService                     *twir_events.Service

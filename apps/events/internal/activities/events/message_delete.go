@@ -21,11 +21,14 @@ func (c *Activity) MessageDelete(
 		return fmt.Errorf("message id is empty: %s", data.ChatMessageId)
 	}
 
-	if err := c.bus.Bots.DeleteMessage.Publish(bots.DeleteMessageRequest{
-		ChannelId:   data.ChannelID,
-		ChannelName: nil,
-		MessageIds:  []string{data.ChatMessageId},
-	}); err != nil {
+	if err := c.bus.Bots.DeleteMessage.Publish(
+		ctx,
+		bots.DeleteMessageRequest{
+			ChannelId:   data.ChannelID,
+			ChannelName: nil,
+			MessageIds:  []string{data.ChatMessageId},
+		},
+	); err != nil {
 		return fmt.Errorf("cannot delete message %w", err)
 	}
 

@@ -8,6 +8,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages/model"
 )
 
 type emote struct {
@@ -39,31 +41,24 @@ var Emotes = &types.Variable{
 			limit = 10
 		}
 
-		emotes := []emote{}
-		err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Raw(
-				`SELECT emote, COUNT(*)
-				FROM channels_emotes_usages
-				WHERE "channelId" = ?
-				Group By emote
-				Order By COUNT(*)
-				DESC LIMIT ?
-			`, parseCtx.Channel.ID, limit,
-			).
-			Scan(&emotes).
-			Error
-
+		emotes, err := parseCtx.Services.ChannelEmotesUsagesRepo.GetEmotesStatistics(
+			ctx,
+			channelsemotesusagesrepository.GetEmotesStatisticsInput{
+				ChannelID: parseCtx.Channel.ID,
+				PerPage:   limit,
+				Sort:      channelsemotesusagesrepository.SortDesc,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
 
 		mappedTop := lo.Map(
-			emotes, func(e emote, _ int) string {
+			emotes, func(e model.EmoteStatistic, _ int) string {
 				return fmt.Sprintf(
 					"%s × %v",
-					e.Emote,
-					e.Count,
+					e.EmoteName,
+					e.TotalUsages,
 				)
 			},
 		)

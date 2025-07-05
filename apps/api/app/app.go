@@ -8,7 +8,6 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/api/internal/files"
 	"github.com/satont/twir/apps/api/internal/handlers"
 	"github.com/satont/twir/apps/api/internal/impl_protected"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected"
@@ -19,12 +18,10 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
-	"github.com/twirapp/twir/libs/grpc/integrations"
-	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
@@ -41,15 +38,6 @@ var App = fx.Options(
 		),
 	),
 	fx.Provide(
-		func(c cfg.Config) tokens.TokensClient {
-			return clients.NewTokens(c.AppEnv)
-		},
-		func(c cfg.Config) integrations.IntegrationsClient {
-			return clients.NewIntegrations(c.AppEnv)
-		},
-		func(c cfg.Config) parser.ParserClient {
-			return clients.NewParser(c.AppEnv)
-		},
 		func(c cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(c.AppEnv)
 		},
@@ -59,13 +47,13 @@ var App = fx.Options(
 		func(r *redis.Client) *scs.SessionManager {
 			return sessions.New(r)
 		},
+		channelseventswithoperations.New,
 		interceptors.New,
 		impl_protected.New,
 		impl_unprotected.New,
 		ttscache.NewTTSSettings,
 		handlers.AsHandler(twirp_handlers.NewProtected),
 		handlers.AsHandler(twirp_handlers.NewUnProtected),
-		handlers.AsHandler(files.NewFiles),
 		handlers.AsHandler(proxy.New),
 		fx.Annotate(
 			func(handlers []handlers.IHandler) *http.ServeMux {

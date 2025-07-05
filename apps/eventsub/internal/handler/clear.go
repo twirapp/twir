@@ -1,16 +1,17 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
-	"time"
 
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleChannelChatClear(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatClear,
 ) {
@@ -20,17 +21,20 @@ func (c *Handler) handleChannelChatClear(
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		ctx,
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
+			UserID:    nil,
 			Type:      model.ChannelEventListItemTypeChatClear,
-			CreatedAt: time.Now().UTC(),
 			Data:      &model.ChannelsEventsListItemData{},
 		},
-	)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	c.twirBus.Events.ChatClear.Publish(
+		ctx,
 		events.ChatClearMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

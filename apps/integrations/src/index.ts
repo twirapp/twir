@@ -1,9 +1,5 @@
 import process from 'node:process'
 
-import { PORTS } from '@twir/grpc/constants/constants'
-import * as Integrations from '@twir/grpc/integrations/integrations'
-import { createServer } from 'nice-grpc'
-
 import { Service, getIntegrations } from './libs/db'
 import {
 	addIntegration as addDonatePayIntegration,
@@ -19,70 +15,58 @@ import {
 } from './store/streamlabs'
 
 import type { Integration } from './libs/db'
-import type { IntegrationsServiceImplementation } from '@twir/grpc/integrations/integrations'
 
 import './pubsub'
+import { twirBus } from './libs/twirbus.ts'
 
 const integrations = await getIntegrations()
 
 for (const integration of integrations) {
 	if (integration.integration.service === Service.DONATIONALERTS) {
-		await addDonationAlertsIntegration(integration)
+		addDonationAlertsIntegration(integration)
 	}
 
 	if (integration.integration.service === Service.STREAMLABS) {
-		await addStreamlabsIntegration(integration)
+		addStreamlabsIntegration(integration)
 	}
 
 	if (integration.integration.service === Service.DONATEPAY) {
-		await addDonatePayIntegration(integration)
+		addDonatePayIntegration(integration)
 	}
 }
 
-const integrationsServer: IntegrationsServiceImplementation = {
-	async addIntegration(data) {
-		const integration = await getIntegrations(data.id)
+twirBus.Integrations.Add.subscribe(async (data) => {
+	console.info(`Adding ${data.id} connection`)
+	const integration = await getIntegrations(data.id)
 
-		if (!integration) {
-			return {}
-		}
+	if (!integration) {
+		return null
+	}
 
-		console.info(`Adding ${integration.id} connection`)
+	if (integration.integration.service === Service.DONATIONALERTS) {
+		await addDonationAlertsIntegration(integration)
+	}
+	if (integration.integration.service === Service.STREAMLABS) {
+		await addStreamlabsIntegration(integration)
+	}
+	if (integration.integration.service === Service.DONATEPAY) {
+		await addDonatePayIntegration(integration)
+	}
 
-		if (integration.integration.service === Service.DONATIONALERTS) {
-			await addDonationAlertsIntegration(integration)
-		}
-		if (integration.integration.service === Service.STREAMLABS) {
-			await addStreamlabsIntegration(integration)
-		}
-		if (integration.integration.service === Service.DONATEPAY) {
-			await addDonatePayIntegration(integration)
-		}
-
-		return {}
-	},
-
-	async removeIntegration(data) {
-		const integration = await getIntegrations(data.id)
-
-		if (!integration) {
-			return {}
-		}
-
-		console.info(`Destroying ${integration.id} connection`)
-		await removeIntegration(integration)
-		return {}
-	},
-}
-
-const server = createServer({
-	'grpc.keepalive_time_ms': 1 * 60 * 1000,
+	return null
 })
 
-server.add(Integrations.IntegrationsDefinition, integrationsServer)
+twirBus.Integrations.Remove.subscribe(async (data) => {
+	console.info(`Destroying ${data.id} connection`)
+	const integration = await getIntegrations(data.id)
 
-await server.listen(`0.0.0.0:${PORTS.INTEGRATIONS_SERVER_PORT}`)
-console.info('Integrations started')
+	if (!integration) {
+		return null
+	}
+
+	await removeIntegration(integration)
+	return null
+})
 
 export async function removeIntegration(integration: Integration) {
 	if (integration.integration.service === Service.STREAMLABS) {
@@ -97,6 +81,8 @@ export async function removeIntegration(integration: Integration) {
 		await removeDonatePayIntegration(integration.channelId)
 	}
 }
+
+console.info('Integrations started')
 
 process.on('uncaughtException', console.error)
 process.on('unhandledRejection', console.error)

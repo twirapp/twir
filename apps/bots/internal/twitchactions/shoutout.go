@@ -26,7 +26,7 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 		ctx,
 		input.BroadcasterID,
 		c.config,
-		c.tokensGrpc,
+		c.twirBus,
 	)
 	if err != nil {
 		return fmt.Errorf("cannot create broadcaster twitch client: %w", err)

@@ -7,11 +7,8 @@ import (
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/worker"
 	"github.com/satont/twir/apps/timers/internal/workflow"
-	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
-	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -30,9 +27,6 @@ var App = fx.Module(
 		workflow.New,
 		channels.NewGorm,
 		streams.NewGorm,
-		func(config cfg.Config) parser.ParserClient {
-			return clients.NewParser(config.AppEnv)
-		},
 	),
 	fx.Invoke(
 		uptrace.NewFx("timers"),

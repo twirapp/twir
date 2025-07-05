@@ -38,6 +38,7 @@ func (c *ChatAlerts) subscribe(
 	}
 
 	return c.bus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelId:      req.ChannelId,
 			Message:        sample,

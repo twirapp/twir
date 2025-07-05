@@ -38,15 +38,10 @@ func (c *EventWorkflow) Flow(
 		return errors.New("channel id is empty")
 	}
 
-	var channelEvents []model.Event
-	err := c.db.
-		Where(`"channelId" = ? AND "type" = ? AND "enabled" = ?`, data.ChannelID, eventType, true).
-		Preload("Channel").
-		Preload("Channel.User").
-		Preload("Operations").
-		Preload("Operations.Filters").
-		Find(&channelEvents).
-		Error
+	eventsCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	channelEvents, err := c.channelsEventsWithOperationsCache.Get(eventsCtx, data.ChannelID)
 	if err != nil {
 		return err
 	}
@@ -62,11 +57,19 @@ func (c *EventWorkflow) Flow(
 	var operations []model.EventOperation
 
 	for _, entity := range channelEvents {
+		if !entity.Enabled {
+			continue
+		}
+
 		if entity.ID == "" {
 			continue
 		}
 
 		if entity.OnlineOnly && stream.ID == "" {
+			continue
+		}
+
+		if entity.Type != eventType {
 			continue
 		}
 

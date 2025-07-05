@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NResult, NButton } from 'naive-ui';
+import { NButton, NResult } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 

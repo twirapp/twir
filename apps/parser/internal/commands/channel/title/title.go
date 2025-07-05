@@ -44,7 +44,7 @@ var SetCommand = &types.DefaultCommand{
 			ctx,
 			parseCtx.Channel.ID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
+			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("cannot create broadcaster twitch api client: %w", err)

@@ -15,7 +15,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -27,15 +27,15 @@ type OnlineUsersOpts struct {
 	Logger logger.Logger
 	Config config.Config
 
-	Gorm       *gorm.DB
-	TokensGrpc tokens.TokensClient
+	Gorm    *gorm.DB
+	TwirBus *buscore.Bus
 }
 
 type onlineUsers struct {
-	config     config.Config
-	logger     logger.Logger
-	db         *gorm.DB
-	tokensGrpc tokens.TokensClient
+	config  config.Config
+	logger  logger.Logger
+	db      *gorm.DB
+	twirBus *buscore.Bus
 }
 
 func NewOnlineUsers(opts OnlineUsersOpts) {
@@ -48,10 +48,10 @@ func NewOnlineUsers(opts OnlineUsersOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &onlineUsers{
-		config:     opts.Config,
-		logger:     opts.Logger,
-		db:         opts.Gorm,
-		tokensGrpc: opts.TokensGrpc,
+		config:  opts.Config,
+		logger:  opts.Logger,
+		db:      opts.Gorm,
+		twirBus: opts.TwirBus,
 	}
 
 	opts.Lc.Append(
@@ -126,7 +126,7 @@ func (c *onlineUsers) updateStreamUsers(
 		ctx,
 		broadcasterID,
 		c.config,
-		c.tokensGrpc,
+		c.twirBus,
 	)
 	if err != nil {
 		return err

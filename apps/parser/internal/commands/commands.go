@@ -39,6 +39,7 @@ import (
 	sr_youtube "github.com/satont/twir/apps/parser/internal/commands/songrequest/youtube"
 	"github.com/satont/twir/apps/parser/internal/commands/spam"
 	"github.com/satont/twir/apps/parser/internal/commands/stats"
+	"github.com/satont/twir/apps/parser/internal/commands/subage"
 	"github.com/satont/twir/apps/parser/internal/commands/tts"
 	"github.com/satont/twir/apps/parser/internal/commands/utility"
 	"github.com/satont/twir/apps/parser/internal/commands/vips"
@@ -50,6 +51,7 @@ import (
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	"go.uber.org/zap"
 )
 
@@ -69,6 +71,7 @@ func New(opts *Opts) *Commands {
 		[]*types.DefaultCommand{
 			song.CurrentSong,
 			song.Playlist,
+			song.History,
 			channel_game.SetCommand,
 			channel_game.History,
 			channel_title.SetCommand,
@@ -148,6 +151,7 @@ func New(opts *Opts) *Commands {
 			predictions.Cancel,
 			predictions.Lock,
 			predictions.Start,
+			subage.SubAge,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -261,16 +265,19 @@ func (c *Commands) ParseCommandResponses(
 		result.SkipToxicityCheck = cmd.SkipToxicityCheck
 	}
 
-	go c.services.Gorm.
-		WithContext(context.TODO()).
-		Create(
-			&model.ChannelsCommandsUsages{
-				ID:        uuid.New().String(),
-				UserID:    requestData.ChatterUserId,
-				ChannelID: requestData.BroadcasterUserId,
-				CommandID: command.Cmd.ID,
-			},
-		)
+	commandUUID, err := uuid.Parse(command.Cmd.ID)
+	if err != nil {
+		return nil
+	}
+
+	go c.services.ChannelsCommandsUsagesRepo.Create(
+		ctx,
+		channelscommandsusages.CreateInput{
+			ChannelID: requestData.BroadcasterUserId,
+			UserID:    requestData.ChatterUserId,
+			CommandID: commandUUID,
+		},
+	)
 
 	parseCtxChannel := &types.ParseContextChannel{
 		ID:   requestData.BroadcasterUserId,
@@ -418,6 +425,14 @@ func (c *Commands) ParseCommandResponses(
 				}
 			}
 
+			if r.OnlineOnly && requestData.EnrichedData.ChannelStream == nil {
+				continue
+			}
+
+			if r.OfflineOnly && requestData.EnrichedData.ChannelStream != nil {
+				continue
+			}
+
 			responsesForCategory = append(responsesForCategory, *r)
 		}
 
@@ -515,6 +530,13 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		}
 	}
 
+	if cmd.Cmd.OfflineOnly {
+		stream := data.EnrichedData.ChannelStream
+		if stream != nil && stream.ID != "" {
+			return nil, nil
+		}
+	}
+
 	if len(cmd.Cmd.EnabledCategories) != 0 {
 		stream := &model.ChannelsStreams{}
 		err = c.services.Gorm.
@@ -596,9 +618,10 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	go func() {
-		gCtx := context.Background()
+		withoutCancel := context.WithoutCancel(ctx)
 
 		c.services.Bus.Events.CommandUsed.Publish(
+			withoutCancel,
 			events.CommandUsedMessage{
 				BaseInfo: events.BaseInfo{
 					ChannelID:   data.BroadcasterUserId,
@@ -617,7 +640,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		)
 
 		alert := model.ChannelAlert{}
-		if err := c.services.Gorm.Where(
+		if err := c.services.Gorm.WithContext(withoutCancel).Where(
 			"channel_id = ? AND command_ids && ?",
 			data.BroadcasterUserId,
 			pq.StringArray{cmd.Cmd.ID},
@@ -630,7 +653,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 			return
 		}
 		c.services.GrpcClients.WebSockets.TriggerAlert(
-			gCtx,
+			withoutCancel,
 			&websockets.TriggerAlertRequest{
 				ChannelId: data.BroadcasterUserId,
 				AlertId:   alert.ID,

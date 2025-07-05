@@ -32,6 +32,7 @@ func (c *ChatAlerts) follow(
 	}
 
 	return c.bus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelId:      req.BaseInfo.ChannelID,
 			Message:        text,

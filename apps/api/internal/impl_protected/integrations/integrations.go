@@ -6,7 +6,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/integrations"
+	"github.com/twirapp/twir/libs/bus-core/integrations"
 )
 
 type Integrations struct {
@@ -72,16 +72,14 @@ func (c *Integrations) getChannelIntegrationByService(
 	return channelIntegration, nil
 }
 
-func (c *Integrations) sendGrpcEvent(ctx context.Context, integrationId string, isAdd bool) error {
-	req := &integrations.Request{
-		Id: integrationId,
+func (c *Integrations) sendBusEvent(ctx context.Context, integrationId string, isAdd bool) error {
+	req := integrations.Request{
+		ID: integrationId,
 	}
 
 	if isAdd {
-		_, err := c.Grpc.Integrations.AddIntegration(ctx, req)
-		return err
+		return c.Bus.Integrations.Add.Publish(ctx, req)
 	} else {
-		_, err := c.Grpc.Integrations.RemoveIntegration(ctx, req)
-		return err
+		return c.Bus.Integrations.Remove.Publish(ctx, req)
 	}
 }

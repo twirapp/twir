@@ -14,8 +14,10 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
 	"github.com/satont/twir/libs/logger"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
@@ -45,6 +47,7 @@ type GrpcImpl struct {
 	overlaysRegistryServer *overlays.Registry
 	beRightBackServer      *be_right_back.BeRightBack
 	dudesServer            *dudes.Dudes
+	alertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
 }
 
 type GrpcOpts struct {
@@ -62,6 +65,7 @@ type GrpcOpts struct {
 	OverlaysRegistryServer *overlays.Registry
 	BeRightBackServer      *be_right_back.BeRightBack
 	DudesServer            *dudes.Dudes
+	AlertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
 }
 
 func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
@@ -76,6 +80,7 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		overlaysRegistryServer: opts.OverlaysRegistryServer,
 		beRightBackServer:      opts.BeRightBackServer,
 		dudesServer:            opts.DudesServer,
+		alertsCache:            opts.AlertsCache,
 	}
 
 	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
@@ -120,8 +125,6 @@ func (c *GrpcImpl) RefreshOverlaySettings(
 		)
 	case websockets.RefreshOverlaySettingsName_BRB:
 		err = c.beRightBackServer.SendSettings(req.GetChannelId())
-	case websockets.RefreshOverlaySettingsName_DUDES:
-		err = c.dudesServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
 	default:
 		return nil, fmt.Errorf("unknown overlay: %s", req.GetOverlayName())
 	}

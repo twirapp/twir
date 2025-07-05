@@ -14,8 +14,10 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/redis_keys"
+	"github.com/twirapp/twir/libs/repositories/chat_messages"
+	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
+	chatmessagemodel "github.com/twirapp/twir/libs/repositories/chat_messages/model"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	"github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	"gorm.io/gorm"
@@ -23,35 +25,35 @@ import (
 
 type Opts struct {
 	ChatWallRepository chatwallrepository.Repository
+	ChatMessagesRepo   chat_messages.Repository
 
 	Gorm          *gorm.DB
 	ChatWallCache *generic_cacher.GenericCacher[[]model.ChatWall]
 	Redis         *redis.Client
 	Config        config.Config
-	TokensClient  tokens.TokensClient
 	TwirBus       *buscore.Bus
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repo:          opts.ChatWallRepository,
-		gorm:          opts.Gorm,
-		chatWallCache: opts.ChatWallCache,
-		redis:         opts.Redis,
-		config:        opts.Config,
-		tokens:        opts.TokensClient,
-		twirBus:       opts.TwirBus,
+		repo:             opts.ChatWallRepository,
+		chatMessagesRepo: opts.ChatMessagesRepo,
+		gorm:             opts.Gorm,
+		chatWallCache:    opts.ChatWallCache,
+		redis:            opts.Redis,
+		config:           opts.Config,
+		twirBus:          opts.TwirBus,
 	}
 }
 
 type Service struct {
-	repo          chatwallrepository.Repository
-	gorm          *gorm.DB
-	chatWallCache *generic_cacher.GenericCacher[[]model.ChatWall]
-	redis         *redis.Client
-	config        config.Config
-	tokens        tokens.TokensClient
-	twirBus       *buscore.Bus
+	repo             chatwallrepository.Repository
+	chatMessagesRepo chat_messages.Repository
+	gorm             *gorm.DB
+	chatWallCache    *generic_cacher.GenericCacher[[]model.ChatWall]
+	redis            *redis.Client
+	config           config.Config
+	twirBus          *buscore.Bus
 }
 
 type CreateInput struct {
@@ -119,26 +121,23 @@ func (c *Service) HandlePastMessages(
 		return fmt.Errorf("cannot get chat wall settings: %s", err)
 	}
 
-	var messages []deprecatedgormmodel.ChatMessage
-	if err := c.gorm.
-		WithContext(ctx).
-		Where("channel_id = ?", input.ChannelID).
-		Where("created_at > ?", time.Now().Add(-10*time.Minute)).
-		Where("text ILIKE ?", "%"+input.Phrase+"%").
-		Joins("Channel").
-		Joins("User").
-		Joins(
-			"User.Stats",
-			c.gorm.Where(&deprecatedgormmodel.UsersStats{ChannelID: input.ChannelID}),
-		).
-		Where(
-			`"User__Stats"."is_mod" = ?`,
-			false,
-		).
-		Where(`"User"."id" != ?`, input.ChannelID).
-		Where(`"User"."id" != "Channel"."botId"`).
-		Find(&messages).Error; err != nil {
+	timeGte := time.Now().Add(-10 * time.Minute)
+
+	messages, err := c.chatMessagesRepo.GetMany(
+		ctx,
+		chatmessagesrepository.GetManyInput{
+			ChannelID: &input.ChannelID,
+			TextLike:  &input.Phrase,
+			Page:      0,
+			PerPage:   1000,
+			TimeGte:   &timeGte,
+		},
+	)
+	if err != nil {
 		return err
+	}
+	if len(messages) == 0 {
+		return nil
 	}
 
 	var isSubscribersMuted bool
@@ -155,18 +154,41 @@ func (c *Service) HandlePastMessages(
 		isVipsMuted = false
 	}
 
+	var usersStats []deprecatedgormmodel.UsersStats
+	if err := c.gorm.
+		WithContext(ctx).
+		Where(
+			`"userId" IN ? AND "channelId" = ?`,
+			lo.Map(
+				messages, func(item chatmessagemodel.ChatMessage, _ int) string {
+					return item.UserID
+				},
+			), input.ChannelID,
+		).
+		Find(&usersStats).Error; err != nil {
+		return fmt.Errorf("cannot get users stats: %s", err)
+	}
+
 	messages = lo.Filter(
 		messages,
-		func(item deprecatedgormmodel.ChatMessage, _ int) bool {
-			if item.User.Stats == nil {
+		func(item chatmessagemodel.ChatMessage, _ int) bool {
+			var foundUserStats *deprecatedgormmodel.UsersStats
+			for _, userStats := range usersStats {
+				if userStats.UserID == item.UserID {
+					foundUserStats = &userStats
+					break
+				}
+			}
+
+			if foundUserStats == nil {
 				return true
 			}
 
-			if !isSubscribersMuted && item.User.Stats.IsSubscriber {
+			if !isSubscribersMuted && foundUserStats.IsSubscriber {
 				return false
 			}
 
-			if !isVipsMuted && item.User.Stats.IsVip {
+			if !isVipsMuted && foundUserStats.IsVip {
 				return false
 			}
 
@@ -195,6 +217,7 @@ func (c *Service) HandlePastMessages(
 		}
 
 		err = c.twirBus.Bots.DeleteMessage.Publish(
+			ctx,
 			botsservice.DeleteMessageRequest{
 				ChannelId:  input.ChannelID,
 				MessageIds: mappedMessagesIDs,
@@ -229,7 +252,7 @@ func (c *Service) HandlePastMessages(
 			)
 		}
 
-		err = c.twirBus.Bots.BanUsers.Publish(request)
+		err = c.twirBus.Bots.BanUsers.Publish(ctx, request)
 		if err != nil {
 			return fmt.Errorf("cannot publish ban users: %s", err)
 		}

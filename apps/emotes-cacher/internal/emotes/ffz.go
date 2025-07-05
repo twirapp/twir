@@ -1,13 +1,9 @@
 package emotes
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
-	"log"
-	"net/http"
+	"context"
 
+	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 )
 
@@ -23,24 +19,18 @@ type FfzResponse struct {
 	Sets map[string]Set `json:"sets"`
 }
 
-func GetChannelFfzEmotes(channelID string) ([]string, error) {
-	resp, err := http.Get("https://api.frankerfacez.com/v1/room/id/" + channelID)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
+func GetChannelFfzEmotes(ctx context.Context, channelID string) ([]string, error) {
 	reqData := FfzResponse{}
-	err = json.Unmarshal(body, &reqData)
+
+	_, err := req.R().
+		SetContext(ctx).
+		SetSuccessResult(&reqData).
+		Get("https://api.frankerfacez.com/v1/room/id/" + channelID)
 	if err != nil {
-		return nil, fmt.Errorf("cannot fetch ffz emotes: %w", err)
+		return nil, err
 	}
 
-	emotes := []string{}
+	var emotes []string
 	for _, set := range reqData.Sets {
 		mapped := lo.Map(
 			set.Emoticons, func(e FfzEmote, _ int) string {
@@ -54,24 +44,18 @@ func GetChannelFfzEmotes(channelID string) ([]string, error) {
 	return emotes, nil
 }
 
-func GetGlobalFfzEmotes() ([]string, error) {
-	resp, err := http.Get("https://api.frankerfacez.com/v1/set/global")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
+func GetGlobalFfzEmotes(ctx context.Context) ([]string, error) {
 	reqData := FfzResponse{}
-	err = json.Unmarshal(body, &reqData)
+
+	_, err := req.R().
+		SetContext(ctx).
+		SetSuccessResult(&reqData).
+		Get("https://api.frankerfacez.com/v1/set/global")
 	if err != nil {
-		return nil, errors.New("cannot fetch ffz emotes")
+		return nil, err
 	}
 
-	emotes := []string{}
+	var emotes []string
 	for _, set := range reqData.Sets {
 		mapped := lo.Map(
 			set.Emoticons, func(e FfzEmote, _ int) string {

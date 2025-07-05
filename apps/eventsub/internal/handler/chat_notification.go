@@ -1,28 +1,32 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
-	"time"
 
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleChannelChatNotification(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatNotification,
 ) {
 	switch event.NoticeType {
 	case "sub_gift":
-		c._notificationSubGift(event)
+		c._notificationSubGift(ctx, event)
 	case "community_sub_gift":
-		c._notificationCommunitySubGift(event)
+		c._notificationCommunitySubGift(ctx, event)
 	}
 }
 
-func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChatNotification) {
+func (c *Handler) _notificationSubGift(
+	ctx context.Context,
+	event *eventsub_bindings.EventChannelChatNotification,
+) {
 	if event.SubGift == nil {
 		return
 	}
@@ -38,28 +42,24 @@ func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChat
 		slog.String("level", event.SubGift.SubTier),
 	)
 
-	if err := c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		ctx,
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			Type:      model.ChannelEventListItemTypeSubGift,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
-				SubGiftLevel:                 tier,
 				SubGiftUserName:              event.ChatterUserLogin,
 				SubGiftUserDisplayName:       event.ChatterUserName,
 				SubGiftTargetUserName:        event.SubGift.RecipientUserName,
 				SubGiftTargetUserDisplayName: event.SubGift.RecipientUserName,
 			},
 		},
-	).Error; err != nil {
-		c.logger.Error(
-			err.Error(),
-			slog.Any("err", err),
-			slog.String("channelId", event.BroadcasterUserID),
-		)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
+
 	c.twirBus.Events.SubGift.Publish(
+		ctx,
 		events.SubGiftMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -76,6 +76,7 @@ func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChat
 }
 
 func (c *Handler) _notificationCommunitySubGift(
+	ctx context.Context,
 	event *eventsub_bindings.
 		EventChannelChatNotification,
 ) {

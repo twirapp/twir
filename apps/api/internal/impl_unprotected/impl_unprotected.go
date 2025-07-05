@@ -12,9 +12,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/discord"
-	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
-	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -32,10 +29,7 @@ type Opts struct {
 	Config         cfg.Config
 	SessionManager *scs.SessionManager
 
-	IntegrationsGrpc integrationsGrpc.IntegrationsClient
-	TokensGrpc       tokens.TokensClient
-	ParserGrpc       parser.ParserClient
-	DiscordGrpc      discord.DiscordClient
+	DiscordGrpc discord.DiscordClient
 
 	Bus               *buscore.Bus
 	Logger            logger.Logger
@@ -49,10 +43,7 @@ func New(opts Opts) *UnProtected {
 		Config:         opts.Config,
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
-			Tokens:       opts.TokensGrpc,
-			Integrations: opts.IntegrationsGrpc,
-			Parser:       opts.ParserGrpc,
-			Discord:      opts.DiscordGrpc,
+			Discord: opts.DiscordGrpc,
 		},
 		Bus:               opts.Bus,
 		Logger:            opts.Logger,

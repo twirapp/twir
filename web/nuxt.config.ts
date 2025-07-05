@@ -105,4 +105,8 @@ export default defineNuxtConfig({
 		bundledThemes: ['dark-plus'],
 		defaultTheme: 'dark-plus',
 	},
+	telemetry: {
+		enabled: true,
+		consent: 1,
+	},
 })

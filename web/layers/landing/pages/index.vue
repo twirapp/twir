@@ -3,7 +3,6 @@ import Features from '~~/layers/landing/components/index/features/features.vue'
 import Hero from '~~/layers/landing/components/index/hero/hero.vue'
 import Integrations from '~~/layers/landing/components/index/integrations/integrations.vue'
 import Stats from '~~/layers/landing/components/index/stats/stats.vue'
-import Team from '~~/layers/landing/components/index/team/team.vue'
 
 definePageMeta({
 	layout: 'landing',
@@ -16,6 +15,6 @@ definePageMeta({
 		<Stats />
 		<Features />
 		<Integrations />
-		<Team />
+		<!--		<Team /> -->
 	</div>
 </template>

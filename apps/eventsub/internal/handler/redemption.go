@@ -5,148 +5,191 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strconv"
 	"time"
 
-	"github.com/guregu/null"
-	"github.com/lib/pq"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
+	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleChannelPointsRewardRedemptionAdd(
-	h *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
-) {
-	c.logger.Info(
-		"channel points reward redemption add",
-		slog.String("reward", event.Reward.Title),
-		slog.String("userName", event.UserLogin),
-		slog.String("userId", event.UserID),
-		slog.String("channelName", event.BroadcasterUserLogin),
-		slog.String("channelId", event.BroadcasterUserID),
-	)
+type userForIncrementUsedEmotes struct {
+	userId    string
+	channelId string
+	cost      int
+}
 
-	err := c.gorm.Create(
-		&model.ChannelRedemption{
-			ID:           uuid.MustParse(event.ID),
+func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
+	ctx context.Context,
+	data []eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+) {
+	itemsForHistoryCreate := make([]channelredemptionshistory.CreateInput, len(data))
+	itemsForEventsCreate := make([]channelseventslist.CreateInput, len(data))
+	usersForIncrementUsedEmotes := make(map[string]*userForIncrementUsedEmotes)
+
+	ctxWithoutCancel := context.WithoutCancel(ctx)
+
+	for i, event := range data {
+		c.logger.Info(
+			"channel points reward redemption add",
+			slog.String("reward", event.Reward.Title),
+			slog.String("userName", event.UserLogin),
+			slog.String("userId", event.UserID),
+			slog.String("channelName", event.BroadcasterUserLogin),
+			slog.String("channelId", event.BroadcasterUserID),
+		)
+
+		itemsForHistoryCreate[i] = channelredemptionshistory.CreateInput{
 			ChannelID:    event.BroadcasterUserID,
 			UserID:       event.UserID,
 			RewardID:     uuid.MustParse(event.Reward.ID),
 			RewardTitle:  event.Reward.Title,
-			RewardPrompt: null.StringFrom(event.UserInput),
+			RewardPrompt: &event.UserInput,
 			RewardCost:   event.Reward.Cost,
-			RedeemedAt:   time.Now().UTC(),
-		},
-	).Error
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-	}
+		}
 
-	err = c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+		itemsForEventsCreate[i] = channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    event.UserID,
-			Type:      model.ChannelEventListItemTypeRedemptionCreated,
-			CreatedAt: time.Now().UTC(),
-			Data: &model.ChannelsEventsListItemData{
+			UserID:    &event.UserID,
+			Type:      channelseventslistmodel.ChannelEventListItemTypeRedemptionCreated,
+			Data: &channelseventslistmodel.ChannelsEventsListItemData{
 				RedemptionInput:           event.UserInput,
 				RedemptionTitle:           event.Reward.Title,
 				RedemptionUserName:        event.UserLogin,
 				RedemptionUserDisplayName: event.UserName,
 				RedemptionCost:            strconv.Itoa(event.Reward.Cost),
 			},
-		},
-	).Error
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-	}
-
-	err = c.twirBus.Events.RedemptionCreated.Publish(
-		events.RedemptionCreatedMessage{
-			ID: event.Reward.ID,
-			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
-				ChannelName: event.BroadcasterUserLogin,
-			},
-			UserID:          event.UserID,
-			UserName:        event.UserLogin,
-			UserDisplayName: event.UserName,
-			RewardName:      event.Reward.Title,
-			RewardCost:      strconv.Itoa(event.Reward.Cost),
-			Input:           lo.If(event.UserInput != "", &event.UserInput).Else(nil),
-		},
-	)
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-	}
-
-	// update user spend points
-	go func() {
-		e := c.countUserChannelPoints(event.UserID, event.BroadcasterUserID, event.Reward.Cost)
-		if e != nil {
-			c.logger.Error(e.Error(), slog.Any("err", e))
 		}
-	}()
 
-	// youtube song requests
-
-	go func() {
-		e := c.handleYoutubeSongRequests(event)
-		if e != nil {
-			c.logger.Error(e.Error(), slog.Any("e", err))
-		}
-	}()
-
-	go func() {
-		e := c.handleAlerts(event)
-		if e != nil {
-			c.logger.Error(e.Error(), slog.Any("e", err))
-		}
-	}()
-
-	go func() {
-		e := c.handleRewardsSevenTvEmote(event)
-		if e != nil {
-			c.logger.Error(e.Error(), slog.Any("err", e))
-		}
-	}()
-
-	go func() {
-		if redemptionAddErr := c.twirBus.RedemptionAdd.Publish(
-			twitch.ActivatedRedemption{
-				ID:                   event.ID,
-				BroadcasterUserID:    event.BroadcasterUserID,
-				BroadcasterUserLogin: event.BroadcasterUserLogin,
-				BroadcasterUserName:  event.BroadcasterUserName,
-				UserID:               event.UserID,
-				UserLogin:            event.UserLogin,
-				UserName:             event.UserName,
-				UserInput:            event.UserInput,
-				Status:               event.Status,
-				RedeemedAt:           time.Now(),
-				Reward: twitch.ActivatedRedemptionReward{
-					ID:     event.Reward.ID,
-					Title:  event.Reward.Title,
-					Prompt: event.Reward.Prompt,
-					Cost:   event.Reward.Cost,
+		err := c.twirBus.Events.RedemptionCreated.Publish(
+			ctx,
+			events.RedemptionCreatedMessage{
+				ID: event.Reward.ID,
+				BaseInfo: events.BaseInfo{
+					ChannelID:   event.BroadcasterUserID,
+					ChannelName: event.BroadcasterUserLogin,
 				},
+				UserID:          event.UserID,
+				UserName:        event.UserLogin,
+				UserDisplayName: event.UserName,
+				RewardName:      event.Reward.Title,
+				RewardCost:      strconv.Itoa(event.Reward.Cost),
+				Input:           lo.If(event.UserInput != "", &event.UserInput).Else(nil),
 			},
-		); redemptionAddErr != nil {
-			c.logger.Error(redemptionAddErr.Error(), slog.Any("err", redemptionAddErr))
+		)
+		if err != nil {
+			c.logger.Error(err.Error(), slog.Any("err", err))
+		}
+
+		if _, ok := usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID]; ok {
+			usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID].cost += event.Reward.Cost
+		} else {
+			usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID] = &userForIncrementUsedEmotes{
+				userId:    event.UserID,
+				channelId: event.BroadcasterUserID,
+				cost:      event.Reward.Cost,
+			}
+		}
+
+		// youtube song requests
+
+		go func() {
+			e := c.handleYoutubeSongRequests(ctxWithoutCancel, &event)
+			if e != nil {
+				c.logger.Error(e.Error(), slog.Any("e", err))
+			}
+		}()
+
+		go func() {
+			e := c.handleAlerts(ctxWithoutCancel, &event)
+			if e != nil {
+				c.logger.Error(e.Error(), slog.Any("e", err))
+			}
+		}()
+
+		go func() {
+			e := c.handleRewardsSevenTvEmote(ctxWithoutCancel, &event)
+			if e != nil {
+				c.logger.Error(e.Error(), slog.Any("err", e))
+			}
+		}()
+
+		go func() {
+			if redemptionAddErr := c.twirBus.RedemptionAdd.Publish(
+				ctx,
+				twitch.ActivatedRedemption{
+					ID:                   event.ID,
+					BroadcasterUserID:    event.BroadcasterUserID,
+					BroadcasterUserLogin: event.BroadcasterUserLogin,
+					BroadcasterUserName:  event.BroadcasterUserName,
+					UserID:               event.UserID,
+					UserLogin:            event.UserLogin,
+					UserName:             event.UserName,
+					UserInput:            event.UserInput,
+					Status:               event.Status,
+					RedeemedAt:           time.Now(),
+					Reward: twitch.ActivatedRedemptionReward{
+						ID:     event.Reward.ID,
+						Title:  event.Reward.Title,
+						Prompt: event.Reward.Prompt,
+						Cost:   event.Reward.Cost,
+					},
+				},
+			); redemptionAddErr != nil {
+				c.logger.Error(redemptionAddErr.Error(), slog.Any("err", redemptionAddErr))
+			}
+		}()
+	}
+
+	go func() {
+		for _, userForIncrement := range usersForIncrementUsedEmotes {
+			err := c.countUserChannelPoints(
+				ctxWithoutCancel,
+				userForIncrement.userId,
+				userForIncrement.channelId,
+				userForIncrement.cost,
+			)
+			if err != nil {
+				c.logger.Error(err.Error(), slog.Any("err", err))
+			}
+		}
+
+		if len(itemsForHistoryCreate) > 0 {
+			err := c.redemptionsHistoryRepository.CreateMany(ctxWithoutCancel, itemsForHistoryCreate)
+			if err != nil {
+				c.logger.Error(err.Error(), slog.Any("err", err))
+			}
+		}
+
+		if len(itemsForEventsCreate) > 0 {
+			err := c.eventsListRepository.CreateMany(ctxWithoutCancel, itemsForEventsCreate)
+			if err != nil {
+				c.logger.Error(err.Error(), slog.Any("err", err))
+			}
 		}
 	}()
 }
 
+func (c *Handler) handleChannelPointsRewardRedemptionAdd(
+	ctx context.Context,
+	h *eventsub_bindings.ResponseHeaders,
+	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+) {
+	c.redemptionsBatcher.Add(*event)
+}
+
 func (c *Handler) handleChannelPointsRewardRedemptionUpdate(
+	ctx context.Context,
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionUpdate,
 ) {
@@ -155,7 +198,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionUpdate(
 	}
 
 	userStats := &model.UsersStats{}
-	err := c.gorm.Where(`"userId" = ?`, event.UserID).Find(userStats).Error
+	err := c.gorm.WithContext(ctx).Where(`"userId" = ?`, event.UserID).Find(userStats).Error
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
@@ -164,16 +207,21 @@ func (c *Handler) handleChannelPointsRewardRedemptionUpdate(
 		return
 	}
 	userStats.UsedChannelPoints -= int64(event.Reward.Cost)
-	err = c.gorm.Save(userStats).Error
+	err = c.gorm.WithContext(ctx).Save(userStats).Error
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
 	}
 }
 
-func (c *Handler) countUserChannelPoints(userId, channelId string, count int) error {
+func (c *Handler) countUserChannelPoints(
+	ctx context.Context,
+	userId, channelId string,
+	count int,
+) error {
 	user := &model.Users{}
 	err := c.gorm.
+		WithContext(ctx).
 		Where("id = ?", userId).
 		Preload("Stats", `"channelId" = ?`, channelId).
 		First(user).Error
@@ -206,7 +254,7 @@ func (c *Handler) countUserChannelPoints(userId, channelId string, count int) er
 
 	if user.Stats != nil {
 		user.Stats.UsedChannelPoints += int64(count)
-		err = c.gorm.Save(user.Stats).Error
+		err = c.gorm.WithContext(ctx).Save(user.Stats).Error
 		if err != nil {
 			return err
 		}
@@ -220,7 +268,7 @@ func (c *Handler) countUserChannelPoints(userId, channelId string, count int) er
 			UsedChannelPoints: int64(count),
 			Emotes:            0,
 		}
-		err = c.gorm.Create(user.Stats).Error
+		err = c.gorm.WithContext(ctx).Create(user.Stats).Error
 		if err != nil {
 			return err
 		}
@@ -230,42 +278,44 @@ func (c *Handler) countUserChannelPoints(userId, channelId string, count int) er
 }
 
 func (c *Handler) handleYoutubeSongRequests(
+	ctx context.Context,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) error {
 	if event.UserInput == "" {
 		return nil
 	}
 
-	entity := &model.ChannelSongRequestsSettings{}
-	err := c.gorm.
-		Where(`"channel_id" = ?`, event.BroadcasterUserID).
-		Find(entity).
-		Error
+	entity, err := c.channelSongRequestsSettingsCache.Get(
+		ctx,
+		event.BroadcasterUserID,
+	)
 	if err != nil {
 		return err
 	}
-	if entity.ID == "" {
+	if entity.ID == "" || !entity.Enabled || event.Reward.ID != entity.ChannelPointsRewardID.String {
 		return nil
 	}
 
-	if !entity.Enabled || event.Reward.ID != entity.ChannelPointsRewardID.String {
-		return nil
-	}
-
-	command := &model.ChannelsCommands{}
-	err = c.gorm.
-		Where(`"channelId" = ? AND "defaultName" = ?`, event.BroadcasterUserID, "sr").
-		Find(command).Error
+	var foundCommand *model.ChannelsCommands
+	commands, err := c.commandsCache.Get(ctx, event.BroadcasterUserID)
 	if err != nil {
 		return err
 	}
-	if command.ID == "" {
-		c.logger.Warn("no command sr", slog.String("channelId", event.BroadcasterUserID))
+
+	for _, command := range commands {
+		if command.DefaultName.String == "sr" && command.Enabled {
+			foundCommand = &command
+			break
+		}
+	}
+
+	if foundCommand == nil {
 		return nil
 	}
 
 	res, err := c.twirBus.Parser.GetCommandResponse.Request(
-		context.Background(), twitch.TwitchChatMessage{
+		ctx,
+		twitch.TwitchChatMessage{
 			BroadcasterUserId:    event.BroadcasterUserID,
 			BroadcasterUserName:  event.BroadcasterUserName,
 			BroadcasterUserLogin: event.BroadcasterUserLogin,
@@ -274,7 +324,7 @@ func (c *Handler) handleYoutubeSongRequests(
 			ChatterUserLogin:     event.UserLogin,
 			MessageId:            event.ID,
 			Message: &twitch.ChatMessageMessage{
-				Text: fmt.Sprintf("!%s %s", command.Name, event.UserInput),
+				Text: fmt.Sprintf("!%s %s", foundCommand.Name, event.UserInput),
 			},
 		},
 	)
@@ -288,6 +338,7 @@ func (c *Handler) handleYoutubeSongRequests(
 
 	for _, response := range res.Data.Responses {
 		c.twirBus.Bots.SendMessage.Publish(
+			ctx,
 			bots.SendMessageRequest{
 				ChannelId:      event.BroadcasterUserID,
 				ChannelName:    &event.BroadcasterUserLogin,
@@ -301,27 +352,30 @@ func (c *Handler) handleYoutubeSongRequests(
 }
 
 func (c *Handler) handleAlerts(
+	ctx context.Context,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) error {
-	alert := model.ChannelAlert{}
-
-	if err := c.gorm.Where(
-		"channel_id = ? AND reward_ids && ?",
-		event.BroadcasterUserID,
-		pq.StringArray{event.Reward.ID},
-	).Find(&alert).Error; err != nil {
+	alerts, err := c.alertsCache.Get(ctx, event.BroadcasterUserID)
+	if err != nil {
 		return err
 	}
 
-	if alert.ID == "" {
+	var foundAlertId uuid.UUID
+	for _, alert := range alerts {
+		if slices.Contains(alert.RewardIDS, event.Reward.ID) {
+			foundAlertId = alert.ID
+			break
+		}
+	}
+	if foundAlertId == uuid.Nil {
 		return nil
 	}
 
-	_, err := c.websocketsGrpc.TriggerAlert(
-		context.TODO(),
+	_, err = c.websocketsGrpc.TriggerAlert(
+		ctx,
 		&websockets.TriggerAlertRequest{
 			ChannelId: event.BroadcasterUserID,
-			AlertId:   alert.ID,
+			AlertId:   foundAlertId.String(),
 		},
 	)
 

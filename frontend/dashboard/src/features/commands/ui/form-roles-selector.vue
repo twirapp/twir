@@ -2,11 +2,12 @@
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
 
+import type { RoleTypeEnum } from '@/gql/graphql.ts'
+
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
 import { useCommandEditV2 } from '@/features/commands/composables/use-command-edit-v2'
-import { RoleTypeEnum } from '@/gql/graphql.ts'
 
 const props = defineProps<{
 	fieldName: string
@@ -32,24 +33,25 @@ const roles = computed(() => {
 <template>
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-1 xl:max-w-[50%]">
 		<FormField
-			v-for="(role, index) in roles" v-slot="{ value, handleChange }"
+			v-for="(role, index) in roles"
+			v-slot="{ value, handleChange }"
 			:key="role.id"
 			type="checkbox"
 			:value="role.id"
 			:unchecked-value="false"
 			:name="fieldName"
 		>
-			<div v-if="index === 0 && !hideBroadcaster" class="role">
-				<Checkbox id="allRoles" checked disabled />
-				<Label for="allRoles" class="capitalize">Broadcaster</Label>
-			</div>
+			<!--			<div v-if="index === 0 && !hideBroadcaster" class="role"> -->
+			<!--				<Checkbox id="allRoles" checked disabled /> -->
+			<!--				<Label for="allRoles" class="capitalize">Broadcaster</Label> -->
+			<!--			</div> -->
 
 			<div v-if="index === 0 && !hideEveryone" class="role" @click="uncheckAll">
 				<Checkbox id="allRoles" :checked="!value?.length" />
 				<Label for="allRoles" class="capitalize">Everyone</Label>
 			</div>
 
-			<FormItem v-if="role.type !== RoleTypeEnum.Broadcaster" class="space-y-0">
+			<FormItem class="space-y-0">
 				<FormLabel class="role">
 					<FormControl>
 						<Checkbox

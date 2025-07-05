@@ -903,7 +903,7 @@
       },
       "total": "Gesamte Benutzer: {total}",
       "reset": {
-        "label": "Zurücksetzen",
+        "label": "Reset stats",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     },

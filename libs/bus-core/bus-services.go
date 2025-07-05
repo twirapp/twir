@@ -5,13 +5,14 @@ import (
 	auditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
-	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
+	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 )
@@ -25,6 +26,7 @@ type parserBus struct {
 	ProcessMessageAsCommand Queue[twitch.TwitchChatMessage, struct{}]
 	ParseVariablesInText    Queue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
 	GetBuiltInVariables     Queue[struct{}, []parser.BuiltInVariable]
+	GetDefaultCommands      Queue[struct{}, parser.GetDefaultCommandsResponse]
 }
 
 type websocketBus struct {
@@ -44,6 +46,8 @@ type botsBus struct {
 	BanUser       Queue[botsservice.BanRequest, struct{}]
 	BanUsers      Queue[[]botsservice.BanRequest, struct{}]
 	ShoutOut      Queue[botsservice.SentShoutOutRequest, struct{}]
+	Vip           Queue[botsservice.VipRequest, struct{}]
+	UnVip         Queue[botsservice.UnVipRequest, struct{}]
 }
 
 type emotesCacherBus struct {
@@ -56,15 +60,12 @@ type timersBus struct {
 	RemoveTimer Queue[timers.AddOrRemoveTimerRequest, struct{}]
 }
 
-type evalBus struct {
-	Evaluate Queue[eval.EvalRequest, eval.EvalResponse]
-}
-
 type eventSubBus struct {
 	SubscribeToAllEvents Queue[eventsub.EventsubSubscribeToAllEventsRequest, struct{}]
 	Subscribe            Queue[eventsub.EventsubSubscribeRequest, struct{}]
 	// Init channels is dangerous, only use it if you know what you're doing
 	InitChannels Queue[struct{}, struct{}]
+	Unsubscribe  Queue[string, struct{}]
 }
 
 type schedulerBus struct {
@@ -77,6 +78,18 @@ type giveawaysBus struct {
 	ChooseWinner      Queue[giveaways.ChooseWinnerRequest, giveaways.ChooseWinnerResponse]
 
 	NewParticipants Queue[giveaways.NewParticipant, struct{}]
+}
+
+type tokensBus struct {
+	RequestAppToken  Queue[struct{}, tokens.TokenResponse]
+	RequestUserToken Queue[tokens.GetUserTokenRequest, tokens.TokenResponse]
+	RequestBotToken  Queue[tokens.GetBotTokenRequest, tokens.TokenResponse]
+	UpdateToken      Queue[tokens.UpdateTokenRequest, struct{}]
+}
+
+type integrationsBus struct {
+	Add    Queue[integrations.Request, struct{}]
+	Remove Queue[integrations.Request, struct{}]
 }
 
 type eventsBus struct {

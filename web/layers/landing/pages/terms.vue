@@ -54,7 +54,7 @@ definePageMeta({
 			Copyright Policy
 		</h2>
 		<p>We respect the intellectual property rights of others. It is our policy to respond to any claim that Content posted on the Service infringes on the copyright or other intellectual property rights ("Infringement") of any person or entity.</p>
-		<p>If you are a copyright owner or authorized on behalf of one and believe that the copyrighted work has been copied in a way that constitutes copyright infringement, please submit your claim via email through our contact form. Include in your claim a detailed description of the alleged Infringement as outlined under "DMCA Notice and Procedure for Copyright Infringement Claims" below.</p>
+		<p>If you are a copyright owner or authorized on behalf of one and believe that the copyrighted work has been copied in a way that constitutes copyright infringement, please submit your claim via email <b>contact@twir.app</b>. Include in your claim a detailed description of the alleged Infringement as outlined under "DMCA Notice and Procedure for Copyright Infringement Claims" below.</p>
 
 		<h3>DMCA Notice and Procedure for Copyright Infringement Claims</h3>
 		<p>
@@ -96,6 +96,6 @@ definePageMeta({
 		<h2 class="text-2xl">
 			Contact Us
 		</h2>
-		<p>If you have any questions about these Terms, please contact us.</p>
+		<p>If you have any questions about these Terms, please contact us. <b>contact@twir.app</b></p>
 	</div>
 </template>

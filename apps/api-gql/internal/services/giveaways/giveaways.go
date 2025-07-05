@@ -50,10 +50,10 @@ func New(opts Opts) *Service {
 			OnStart: func(ctx context.Context) error {
 				return s.twirBus.Giveaways.NewParticipants.SubscribeGroup(
 					"api-gql",
-					func(ctx context.Context, data giveawaysbus.NewParticipant) struct{} {
-						s.handleNewParticipants(ctx, data)
+					func(ctx context.Context, data giveawaysbus.NewParticipant) (struct{}, error) {
+						err := s.handleNewParticipants(ctx, data)
 
-						return struct{}{}
+						return struct{}{}, err
 					},
 				)
 			},
@@ -85,13 +85,16 @@ type CreateInput struct {
 func (c *Service) handleNewParticipants(
 	ctx context.Context,
 	participant giveawaysbus.NewParticipant,
-) {
+) error {
 	if err := c.wsRouter.Publish(
 		CreateNewPariticipantSubscriptionKeyByGiveawayID(participant.GiveawayID),
 		participant,
 	); err != nil {
 		c.logger.Error("cannot publish new participant", slog.Any("err", err))
+		return err
 	}
+
+	return nil
 }
 
 func (c *Service) Start(

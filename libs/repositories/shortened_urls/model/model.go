@@ -10,6 +10,7 @@ type ShortenedUrl struct {
 	UpdatedAt       time.Time
 	URL             string
 	CreatedByUserId *string
+	Views           int
 }
 
 var Nil = ShortenedUrl{}

@@ -46,7 +46,7 @@ func (c *CachedTwitchClient) GetChannelRewards(
 		return rewards, nil
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelID, c.config, c.tokensClient)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelID, c.config, c.twirBus)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"failed to create twitch client for broadcaster #%s: %w", channelID, err,

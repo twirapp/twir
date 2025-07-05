@@ -36,7 +36,7 @@ func (a *Auth) handleAuthPostCode(
 		return nil, huma.Error400BadRequest("Cannot decode state", err)
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, a.config, a.tokensGrpc)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, a.config, a.bus)
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Cannot create twitch client", err)
 	}
@@ -72,6 +72,10 @@ func (a *Auth) handleAuthPostCode(
 	err = a.gorm.WithContext(ctx).Where("id = ?", twitchUser.ID).Preload("Token").Find(dbUser).Error
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Cannot find user", err)
+	}
+
+	if dbUser.IsBanned {
+		return nil, huma.Error403Forbidden("Forbidden", nil)
 	}
 
 	defaultBot := &model.Bots{}
@@ -152,6 +156,7 @@ func (a *Auth) handleAuthPostCode(
 	}
 
 	err = a.bus.Scheduler.CreateDefaultRoles.Publish(
+		ctx,
 		scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{twitchUser.ID}},
 	)
 	if err != nil {
@@ -159,6 +164,7 @@ func (a *Auth) handleAuthPostCode(
 	}
 
 	err = a.bus.Scheduler.CreateDefaultCommands.Publish(
+		ctx,
 		scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{twitchUser.ID}},
 	)
 	if err != nil {
@@ -170,6 +176,7 @@ func (a *Auth) handleAuthPostCode(
 	a.sessions.Put(ctx, "dashboardId", dbUser.ID)
 
 	if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
+		ctx,
 		eventsub.EventsubSubscribeToAllEventsRequest{
 			ChannelID: dbUser.ID,
 		},

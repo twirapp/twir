@@ -10,7 +10,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/ytsr"
+	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -18,26 +18,23 @@ import (
 type Opts struct {
 	fx.In
 
-	Gorm     *gorm.DB
-	TwirBus  *buscore.Bus
-	YtsrGrpc ytsr.YtsrClient
-	Logger   logger.Logger
+	Gorm    *gorm.DB
+	TwirBus *buscore.Bus
+	Logger  logger.Logger
 }
 
 func New(opts Opts) *SongRequest {
 	return &SongRequest{
-		gorm:     opts.Gorm,
-		twirBus:  opts.TwirBus,
-		ytsrGrpc: opts.YtsrGrpc,
-		logger:   opts.Logger,
+		gorm:    opts.Gorm,
+		twirBus: opts.TwirBus,
+		logger:  opts.Logger,
 	}
 }
 
 type SongRequest struct {
-	gorm     *gorm.DB
-	twirBus  *buscore.Bus
-	ytsrGrpc ytsr.YtsrClient
-	logger   logger.Logger
+	gorm    *gorm.DB
+	twirBus *buscore.Bus
+	logger  logger.Logger
 }
 
 type ProcessFromDonationInput struct {
@@ -85,8 +82,9 @@ func (c *SongRequest) ProcessFromDonation(
 		return nil
 	}
 
-	ytsrResult, err := c.ytsrGrpc.Search(
-		ctx, &ytsr.SearchRequest{
+	ytsrResult, err := c.twirBus.YTSRSearch.Request(
+		ctx,
+		ytsr.SearchRequest{
 			Search:    input.Text,
 			OnlyLinks: true,
 		},
@@ -95,8 +93,9 @@ func (c *SongRequest) ProcessFromDonation(
 		return fmt.Errorf("cannot search for ytsrResult: %w", err)
 	}
 
-	for _, song := range ytsrResult.GetSongs() {
+	for _, song := range ytsrResult.Data.Songs {
 		err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(
+			ctx,
 			twitch.TwitchChatMessage{
 				ID:                   "",
 				BroadcasterUserId:    input.ChannelID,
@@ -110,7 +109,7 @@ func (c *SongRequest) ProcessFromDonation(
 					Text: fmt.Sprintf(
 						"!%s https://youtu.be/%s",
 						srCommand.Name,
-						song.GetId(),
+						song.Id,
 					),
 					Fragments: nil,
 				},

@@ -13,7 +13,6 @@ import (
 	"github.com/satont/twir/apps/websockets/types"
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -21,33 +20,30 @@ import (
 type Registry struct {
 	manager *melody.Melody
 
-	gorm       *gorm.DB
-	logger     logger.Logger
-	redis      *redis.Client
-	parserGrpc parser.ParserClient
-	bus        *buscore.Bus
+	gorm   *gorm.DB
+	logger logger.Logger
+	redis  *redis.Client
+	bus    *buscore.Bus
 }
 
 type Opts struct {
 	fx.In
 
-	Gorm       *gorm.DB
-	Logger     logger.Logger
-	Redis      *redis.Client
-	ParserGrpc parser.ParserClient
-	Bus        *buscore.Bus
+	Gorm   *gorm.DB
+	Logger logger.Logger
+	Redis  *redis.Client
+	Bus    *buscore.Bus
 }
 
 func New(opts Opts) *Registry {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	overlaysRegistry := &Registry{
-		manager:    m,
-		gorm:       opts.Gorm,
-		logger:     opts.Logger,
-		redis:      opts.Redis,
-		parserGrpc: opts.ParserGrpc,
-		bus:        opts.Bus,
+		manager: m,
+		gorm:    opts.Gorm,
+		logger:  opts.Logger,
+		redis:   opts.Redis,
+		bus:     opts.Bus,
 	}
 
 	overlaysRegistry.manager.HandleConnect(

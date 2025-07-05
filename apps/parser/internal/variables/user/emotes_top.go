@@ -8,12 +8,9 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages/model"
 )
-
-type userEmotesTopEmote struct {
-	Emote string
-	Count int
-}
 
 var EmotesTop = &types.Variable{
 	Name:         "user.top.emotes",
@@ -37,26 +34,20 @@ var EmotesTop = &types.Variable{
 			limit = 10
 		}
 
-		emotes := []userEmotesTopEmote{}
-		err := parseCtx.Services.Gorm.
-			Raw(
-				`SELECT emote, COUNT(*)
-				FROM channels_emotes_usages
-				WHERE "channelId" = ? AND "userId" = ?
-				Group By emote
-				Order By COUNT(*)
-				DESC LIMIT ?
-			`, parseCtx.Channel.ID, parseCtx.Sender.ID, limit,
-			).
-			Scan(&emotes).
-			Error
-
+		emotes, err := parseCtx.Services.ChannelEmotesUsagesRepo.GetUserMostUsedEmotes(
+			ctx, channelsemotesusagesrepository.UserMostUsedEmotesInput{
+				ChannelID: parseCtx.Channel.ID,
+				UserID:    parseCtx.Sender.ID,
+				Limit:     limit,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
 
 		mappedTop := lo.Map(
-			emotes, func(e userEmotesTopEmote, _ int) string {
+			emotes,
+			func(e model.UserMostUsedEmote, _ int) string {
 				return fmt.Sprintf(
 					"%s × %v",
 					e.Emote,

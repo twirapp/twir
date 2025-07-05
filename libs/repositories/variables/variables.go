@@ -18,18 +18,20 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	ChannelID   string
-	Name        string
-	Description null.String
-	Type        model.CustomVarType
-	EvalValue   string
-	Response    string
+	ChannelID      string
+	Name           string
+	Description    null.String
+	Type           model.CustomVarType
+	EvalValue      string
+	Response       string
+	ScriptLanguage *model.ScriptLanguage
 }
 
 type UpdateInput struct {
-	Name        *string
-	Description *string
-	Type        *model.CustomVarType
-	EvalValue   *string
-	Response    *string
+	Name           *string
+	Description    *string
+	Type           *model.CustomVarType
+	EvalValue      *string
+	Response       *string
+	ScriptLanguage *model.ScriptLanguage
 }

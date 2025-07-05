@@ -1,4 +1,4 @@
-import { useQueryClient, useQuery, useMutation } from '@tanstack/vue-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import type {
 	GetResponse,
 	PostRequest,

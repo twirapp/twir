@@ -25,6 +25,7 @@ type Command struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []uuid.UUID
 	OnlineOnly                bool
+	OfflineOnly               bool
 	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         int
@@ -59,6 +60,8 @@ type CommandResponse struct {
 	CommandID         uuid.UUID
 	Order             int
 	TwitchCategoryIDs []string
+	OnlineOnly        bool
+	OfflineOnly       bool
 }
 
 var CommandResponseNil = CommandResponse{}

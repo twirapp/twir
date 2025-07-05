@@ -44,15 +44,50 @@ func New(
 }
 
 func (c *CommandsBus) Subscribe() error {
-	c.bus.Parser.GetCommandResponse.SubscribeGroup(
+	c.bus.Parser.GetDefaultCommands.SubscribeGroup(
 		"parser",
-		func(ctx context.Context, data twitch.TwitchChatMessage) parser.CommandParseResponse {
-			res, err := c.commandService.ProcessChatMessage(ctx, data)
-			if err != nil || res == nil {
-				return parser.CommandParseResponse{}
+		func(ctx context.Context, data struct{}) (parser.GetDefaultCommandsResponse, error) {
+			resp := parser.GetDefaultCommandsResponse{
+				List: make([]parser.DefaultCommand, 0, len(c.commandService.DefaultCommands)),
 			}
 
-			return *res
+			for _, cmd := range c.commandService.DefaultCommands {
+				rolesNames := make([]string, len(cmd.RolesIDS))
+				for i, roleID := range cmd.RolesIDS {
+					rolesNames[i] = roleID
+				}
+
+				resp.List = append(
+					resp.List,
+					parser.DefaultCommand{
+						Name:               cmd.Name,
+						Description:        cmd.Description.String,
+						Visible:            cmd.Visible,
+						RolesNames:         rolesNames,
+						Module:             cmd.Module,
+						IsReply:            cmd.IsReply,
+						KeepResponsesOrder: cmd.KeepResponsesOrder,
+						Aliases:            cmd.Aliases,
+					},
+				)
+			}
+
+			return resp, nil
+		},
+	)
+
+	c.bus.Parser.GetCommandResponse.SubscribeGroup(
+		"parser",
+		func(ctx context.Context, data twitch.TwitchChatMessage) (parser.CommandParseResponse, error) {
+			res, err := c.commandService.ProcessChatMessage(ctx, data)
+			if err != nil {
+				return parser.CommandParseResponse{}, err
+			}
+			if res == nil {
+				return parser.CommandParseResponse{}, nil
+			}
+
+			return *res, nil
 		},
 	)
 
@@ -61,10 +96,11 @@ func (c *CommandsBus) Subscribe() error {
 		func(
 			ctx context.Context,
 			data parser.ParseVariablesInTextRequest,
-		) parser.ParseVariablesInTextResponse {
+		) (parser.ParseVariablesInTextResponse, error) {
 			foundStream, err := c.streamsRepository.GetByChannelID(ctx, data.ChannelID)
 			if err != nil {
 				zap.S().Error(err)
+				return parser.ParseVariablesInTextResponse{}, err
 			}
 
 			var stream *streamsmodel.Stream
@@ -109,7 +145,7 @@ func (c *CommandsBus) Subscribe() error {
 
 			return parser.ParseVariablesInTextResponse{
 				Text: parsed,
-			}
+			}, nil
 		},
 	)
 
@@ -118,14 +154,14 @@ func (c *CommandsBus) Subscribe() error {
 		func(
 			ctx context.Context,
 			data twitch.TwitchChatMessage,
-		) struct{} {
+		) (struct{}, error) {
 			res, err := c.commandService.ProcessChatMessage(ctx, data)
 			if err != nil {
 				zap.S().Error(err)
-				return struct{}{}
+				return struct{}{}, err
 			}
 			if res == nil {
-				return struct{}{}
+				return struct{}{}, nil
 			}
 
 			var replyTo string
@@ -144,13 +180,20 @@ func (c *CommandsBus) Subscribe() error {
 				}
 
 				if res.KeepOrder {
-					c.bus.Bots.SendMessage.Publish(params)
+					if err := c.bus.Bots.SendMessage.Publish(ctx, params); err != nil {
+						zap.S().Error(err)
+					}
 				} else {
-					go c.bus.Bots.SendMessage.Publish(params)
+					withoutCancel := context.WithoutCancel(ctx)
+					go func() {
+						if err := c.bus.Bots.SendMessage.Publish(withoutCancel, params); err != nil {
+							zap.S().Error(err)
+						}
+					}()
 				}
 			}
 
-			return struct{}{}
+			return struct{}{}, nil
 		},
 	)
 
@@ -161,4 +204,5 @@ func (c *CommandsBus) Unsubscribe() {
 	c.bus.Parser.GetCommandResponse.Unsubscribe()
 	c.bus.Parser.ParseVariablesInText.Unsubscribe()
 	c.bus.Parser.ProcessMessageAsCommand.Unsubscribe()
+	c.bus.Parser.GetDefaultCommands.Unsubscribe()
 }

@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { useMonaco } from '@guolao/vue-monaco-editor'
+import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { toTypedSchema } from '@vee-validate/zod'
 import { InfoIcon, TerminalIcon } from 'lucide-vue-next'
 import { Label } from 'radix-vue'
 import { useForm } from 'vee-validate'
-import { nextTick, onMounted, onUnmounted, ref, toRaw, watchEffect } from 'vue'
+import { onMounted, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
@@ -23,7 +23,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import VariablesList from '@/components/variables-list.vue'
-import { VariableType } from '@/gql/graphql'
+import { VariableScriptLanguage, VariableType } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()
@@ -33,20 +33,34 @@ const { findVariable, submit, runScript, testFromUserName } = useVariablesEdit()
 const loading = ref(true)
 const title = ref('')
 
-const { handleSubmit, setValues, values } = useForm({
-	validationSchema: toTypedSchema(formSchema),
-	initialValues: {
-		description: null,
-		type: VariableType.Text,
-		response: '',
-		evalValue: `// semicolons (;) matters, do not forget put them on end of statements.
+const jsExample = `// semicolons (;) matters, do not forget put them on end of statements.
 // you can use commands variables:
 // const userFollowAge = '$(user.followage)'
 
 const request = await fetch('https://jsonplaceholder.typicode.com/todos/1');
 const response = await request.json();
 // you should return value from your script
-return response.title;`,
+return response.title;
+`
+
+const pythonExample = `import urllib.request
+
+url = "https://jsonplaceholder.typicode.com/todos/1"
+try:
+    with urllib.request.urlopen(url, timeout=2) as response:
+        return response.read().decode()
+except urllib.error.URLError as e:
+    return "Request failed: " + str(e)
+`
+
+const { handleSubmit, setValues, values } = useForm({
+	validationSchema: toTypedSchema(formSchema),
+	initialValues: {
+		description: null,
+		type: VariableType.Text,
+		response: '',
+		evalValue: jsExample,
+		scriptLanguage: VariableScriptLanguage.Javascript,
 	},
 	keepValuesOnUnmount: true,
 })
@@ -65,31 +79,15 @@ onMounted(async () => {
 	loading.value = false
 })
 
-const onSubmit = handleSubmit(submit)
-
-const monacoContainerRef = ref()
-const { monacoRef, unload } = useMonaco()
-
-const stop = watchEffect(async () => {
-	if (values.type !== VariableType.Script || !monacoRef.value) {
-		return
+watch(() => values.scriptLanguage, (newLanguage) => {
+	if (newLanguage === VariableScriptLanguage.Python) {
+		setValues({ evalValue: pythonExample })
+	} else if (newLanguage === VariableScriptLanguage.Javascript) {
+		setValues({ evalValue: jsExample })
 	}
-
-	await nextTick()
-	nextTick(() => stop())
-
-	const instance = monacoRef.value.editor.create(monacoContainerRef.value, {
-		theme: 'vs-dark',
-		language: 'javascript',
-		value: values.evalValue,
-	})
-
-	instance.onDidChangeModelContent(() => {
-		setValues({ evalValue: instance.getValue() })
-	})
 })
 
-onUnmounted(() => !monacoRef.value && unload())
+const onSubmit = handleSubmit(submit)
 
 const executionResult = ref('')
 
@@ -101,7 +99,7 @@ async function executeScript() {
 	executionResult.value = 'Executing...'
 
 	try {
-		const result = await runScript(values.evalValue)
+		const result = await runScript(values.evalValue, values.scriptLanguage)
 		if (result) {
 			executionResult.value = result
 		}
@@ -177,6 +175,31 @@ async function executeScript() {
 					</FormField>
 
 					<div v-show="values.type === VariableType.Script" class="flex flex-col gap-2">
+						<FormField v-slot="{ componentField }" name="scriptLanguage">
+							<FormItem>
+								<FormLabel>Script Language</FormLabel>
+								<Select v-bind="componentField">
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder="Select script language" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										<SelectGroup>
+											<SelectItem
+												v-for="language in Object.values(VariableScriptLanguage)"
+												:key="language"
+												:value="language"
+											>
+												{{ language }}
+											</SelectItem>
+										</SelectGroup>
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						</FormField>
+
 						<span>Execution result</span>
 						<div class="flex flex-row gap-2">
 							<div class="bg-secondary rounded-md h-auto p-2 w-full">
@@ -217,10 +240,13 @@ async function executeScript() {
 							</AlertDescription>
 						</Alert>
 
-						<div
-							ref="monacoContainerRef"
+						<VueMonacoEditor
+							:value="values.evalValue"
+							:language="values.scriptLanguage!.toLowerCase()"
 							class="min-h-[500px] h-full"
-						></div>
+							theme="vs-dark"
+							@change="setValues({ evalValue: $event })"
+						/>
 					</div>
 				</div>
 			</template>

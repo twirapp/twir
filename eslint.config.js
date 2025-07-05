@@ -1,8 +1,9 @@
 import antfu from '@antfu/eslint-config'
+import oxlint from 'eslint-plugin-oxlint'
 
 export default antfu({
 	typescript: true,
-	astro: true,
+	astro: false,
 	yaml: true,
 	toml: false,
 	jsonc: false,
@@ -50,9 +51,6 @@ export default antfu({
 				{
 					allowTemplateLiterals: true,
 				},
-			],
-			'style/brace-style': [
-				'error',
 			],
 			'style/comma-spacing': 'off',
 			'style/func-call-spacing': 'off',
@@ -110,5 +108,5 @@ export default antfu({
 				'always',
 			],
 		},
-	},
-})
+	}
+}, oxlint.configs['flat/recommended'])

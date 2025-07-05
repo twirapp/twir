@@ -46,6 +46,7 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg hand
 	}
 
 	err = c.twirBus.Events.StreamFirstUserJoin.Publish(
+		ctx,
 		events.StreamFirstUserJoinMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   msg.BroadcasterUserId,

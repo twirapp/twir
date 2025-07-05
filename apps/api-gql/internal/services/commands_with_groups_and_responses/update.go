@@ -35,6 +35,7 @@ type UpdateInput struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []string
 	OnlineOnly                *bool
+	OfflineOnly               *bool
 	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         *int
@@ -50,6 +51,8 @@ type UpdateInputResponse struct {
 	Text              *string
 	Order             int
 	TwitchCategoryIDs []string
+	OnlineOnly        bool
+	OfflineOnly       bool
 }
 
 func (c *Service) Update(
@@ -123,6 +126,7 @@ func (c *Service) Update(
 		AllowedUsersIDS:           input.AllowedUsersIDS,
 		RolesIDS:                  input.RolesIDS,
 		OnlineOnly:                input.OnlineOnly,
+		OfflineOnly:               input.OfflineOnly,
 		CooldownRolesIDs:          input.CooldownRolesIDs,
 		EnabledCategories:         input.EnabledCategories,
 		RequiredWatchTime:         input.RequiredWatchTime,
@@ -161,6 +165,8 @@ func (c *Service) Update(
 							Text:              r.Text,
 							Order:             r.Order,
 							TwitchCategoryIDs: r.TwitchCategoryIDs,
+							OnlineOnly:        r.OnlineOnly,
+							OfflineOnly:       r.OfflineOnly,
 						},
 					)
 					if err != nil {

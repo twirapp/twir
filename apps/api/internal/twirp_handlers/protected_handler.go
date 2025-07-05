@@ -8,15 +8,12 @@ import (
 	"github.com/bakins/twirpotel"
 	"github.com/satont/twir/apps/api/internal/wrappers"
 	"github.com/twirapp/twir/libs/api"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"
 )
 
 type Grpc struct {
 	fx.In
-
-	Tokens tokens.TokensClient
 }
 
 func NewProtected(opts Opts) handlers.IHandler {

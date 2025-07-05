@@ -24,7 +24,7 @@ func (c *Activity) ChangeVariableValue(
 	}
 	hydratedInput, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Target.String,
+		operation.Input.String,
 		data,
 	)
 	if hydrateErr != nil {

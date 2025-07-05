@@ -11,6 +11,7 @@ type Repository interface {
 	GetManyByIDS(ctx context.Context, input GetManyInput) ([]model.User, error)
 	Update(ctx context.Context, id string, input UpdateInput) (model.User, error)
 	GetRandomOnlineUser(ctx context.Context, input GetRandomOnlineUserInput) (model.OnlineUser, error)
+	GetByApiKey(ctx context.Context, apiKey string) (model.User, error)
 }
 
 type GetManyInput struct {

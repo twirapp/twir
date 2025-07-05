@@ -5,49 +5,62 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	duplicate_tracker "github.com/satont/twir/apps/eventsub/internal/duplicate-tracker"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
+	deprecatedmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	batchprocessor "github.com/twirapp/batch-processor"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+
+	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
 )
 
 type Handler struct {
 	logger logger.Logger
 
-	parserGrpc              parser.ParserClient
-	websocketsGrpc          websockets.WebsocketClient
-	tokensGrpc              tokens.TokensClient
-	tracer                  trace.Tracer
-	manager                 *manager.Manager
-	scheduledVipsRepo       scheduledvipsrepository.Repository
-	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
-	channelsInfoHistoryRepo channelsinfohistory.Repository
-	streamsrepository       streams.Repository
+	websocketsGrpc               websockets.WebsocketClient
+	tracer                       trace.Tracer
+	manager                      *manager.Manager
+	scheduledVipsRepo            scheduledvipsrepository.Repository
+	channelsCache                *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsInfoHistoryRepo      channelsinfohistory.Repository
+	streamsrepository            streams.Repository
+	redemptionsHistoryRepository channelsredemptionshistory.Repository
+	eventsListRepository         channelseventslist.Repository
 
 	gorm        *gorm.DB
 	redisClient *redis.Client
 
-	twirBus     *bus_core.Bus
-	prefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
-	config      cfg.Config
+	twirBus                             *bus_core.Bus
+	prefixCache                         *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	alertsCache                         *generic_cacher.GenericCacher[[]alertmodel.Alert]
+	commandsCache                       *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
+	channelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
+	channelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
+	config                              cfg.Config
+
+	redemptionsBatcher *batchprocessor.BatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]
 }
 
 type Opts struct {
@@ -56,13 +69,16 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	ParserGrpc              parser.ParserClient
-	WebsocketsGrpc          websockets.WebsocketClient
-	TokensGrpc              tokens.TokensClient
-	ScheduledVipsRepo       scheduledvipsrepository.Repository
-	ChannelsRepo            *generic_cacher.GenericCacher[channelmodel.Channel]
-	ChannelsInfoHistoryRepo channelsinfohistory.Repository
-	StreamsRepository       streams.Repository
+	WebsocketsGrpc                      websockets.WebsocketClient
+	ScheduledVipsRepo                   scheduledvipsrepository.Repository
+	ChannelsRepo                        *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsInfoHistoryRepo             channelsinfohistory.Repository
+	StreamsRepository                   streams.Repository
+	RedemptionsHistoryRepository        channelsredemptionshistory.Repository
+	EventsListRepository                channelseventslist.Repository
+	CommandsCache                       *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
+	ChannelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
+	ChannelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
 
 	Tracer  trace.Tracer
 	Tunn    *tunnel.AppTunnel
@@ -70,33 +86,56 @@ type Opts struct {
 	Gorm    *gorm.DB
 	Redis   *redis.Client
 
-	Bus         *bus_core.Bus
-	PrefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+	Bus                *bus_core.Bus
+	PrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	ChannelAlertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert]
 
 	Config cfg.Config
 }
 
 func New(opts Opts) *Handler {
-	handler := eventsub_framework.NewSubHandler(true, []byte(opts.Config.TwitchClientSecret))
+	var doSignatureVerification = true
+	if opts.Config.EventSubDisableSignatureVerification {
+		doSignatureVerification = false
+	}
+
+	handler := eventsub_framework.NewSubHandler(
+		doSignatureVerification,
+		[]byte(opts.Config.TwitchClientSecret),
+	)
 	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{
-		manager:                 opts.Manager,
-		logger:                  opts.Logger,
-		config:                  opts.Config,
-		gorm:                    opts.Gorm,
-		redisClient:             opts.Redis,
-		parserGrpc:              opts.ParserGrpc,
-		websocketsGrpc:          opts.WebsocketsGrpc,
-		tokensGrpc:              opts.TokensGrpc,
-		tracer:                  opts.Tracer,
-		twirBus:                 opts.Bus,
-		prefixCache:             opts.PrefixCache,
-		scheduledVipsRepo:       opts.ScheduledVipsRepo,
-		channelsCache:           opts.ChannelsRepo,
-		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
-		streamsrepository:       opts.StreamsRepository,
+		manager:                             opts.Manager,
+		logger:                              opts.Logger,
+		config:                              opts.Config,
+		gorm:                                opts.Gorm,
+		redisClient:                         opts.Redis,
+		websocketsGrpc:                      opts.WebsocketsGrpc,
+		tracer:                              opts.Tracer,
+		twirBus:                             opts.Bus,
+		prefixCache:                         opts.PrefixCache,
+		scheduledVipsRepo:                   opts.ScheduledVipsRepo,
+		channelsCache:                       opts.ChannelsRepo,
+		channelsInfoHistoryRepo:             opts.ChannelsInfoHistoryRepo,
+		streamsrepository:                   opts.StreamsRepository,
+		redemptionsHistoryRepository:        opts.RedemptionsHistoryRepository,
+		eventsListRepository:                opts.EventsListRepository,
+		alertsCache:                         opts.ChannelAlertsCache,
+		commandsCache:                       opts.CommandsCache,
+		channelSongRequestsSettingsCache:    opts.ChannelSongRequestsSettingsCache,
+		channelsIntegrationsSettingsSeventv: opts.ChannelsIntegrationsSettingsSeventv,
 	}
+
+	batcherCtx, batcherStop := context.WithCancel(context.Background())
+
+	myHandler.redemptionsBatcher = batchprocessor.NewBatchProcessor[eventsub_bindings.EventChannelPointsRewardRedemptionAdd](
+		batchprocessor.BatchProcessorOpts[eventsub_bindings.EventChannelPointsRewardRedemptionAdd]{
+			Interval:  500 * time.Millisecond,
+			BatchSize: 100,
+			Callback:  myHandler.handleChannelPointsRewardRedemptionAddBatched,
+		},
+	)
 
 	handler.OnNotification = myHandler.onNotification
 	handler.HandleUserAuthorizationRevoke = myHandler.handleUserAuthorizationRevoke
@@ -134,7 +173,45 @@ func New(opts Opts) *Handler {
 	handler.HandleChannelVipAdd = myHandler.handleChannelVipAdd
 	handler.HandleChannelVipRemove = myHandler.handleChannelVipRemove
 
-	httpHandler := otelhttp.NewHandler(handler, "")
+	mux := http.NewServeMux()
+	// middleware
+	mux.Handle(
+		"POST /", http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				span := trace.SpanFromContext(r.Context())
+				defer span.End()
+
+				headers := r.Header
+
+				span.SetAttributes(
+					attribute.String("twitcheventsub.retry", headers.Get("Twitch-Eventsub-Message-Retry")),
+					attribute.String(
+						"twitcheventsub.message_type",
+						headers.Get("Twitch-Eventsub-Message-Type"),
+					),
+					attribute.String(
+						"twitcheventsub.subscription_type",
+						headers.Get("Twitch-Eventsub-Subscription-Type"),
+					),
+					attribute.String(
+						"twitcheventsub.subscription_version",
+						headers.Get("Twitch-Eventsub-Subscription-Version"),
+					),
+				)
+
+				if r.Method != "POST" {
+					http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+					return
+				}
+
+				r = r.WithContext(context.WithoutCancel(r.Context()))
+
+				handler.ServeHTTP(w, r)
+			},
+		),
+	)
+
+	httpHandler := otelhttp.NewHandler(mux, "eventsub-server")
 
 	opts.Lc.Append(
 		fx.Hook{
@@ -148,8 +225,19 @@ func New(opts Opts) *Handler {
 					}
 				}()
 
+				go func() {
+					myHandler.redemptionsBatcher.Start(batcherCtx)
+				}()
+
 				opts.Logger.Info("Handler started")
 
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				if err := myHandler.redemptionsBatcher.Shutdown(ctx); err != nil {
+					return err
+				}
+				batcherStop()
 				return nil
 			},
 		},

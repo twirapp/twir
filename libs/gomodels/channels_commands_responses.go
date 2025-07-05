@@ -22,6 +22,8 @@ type ChannelsCommandsResponses struct {
 	CommandID         string         `gorm:"column:commandId;type:TEXT;"                    json:"commandId"`
 	Order             int            `gorm:"column:order;type:INT"                          json:"order"`
 	TwitchCategoryIDs pq.StringArray `gorm:"column:twitch_category_id;type:UUID;" json:"twitchCategoryID"`
+	OnlineOnly        bool           `gorm:"column:online_only;type:BOOL;"                 json:"onlineOnly"`
+	OfflineOnly       bool           `gorm:"column:offline_only;type:BOOL;"                json:"offlineOnly"`
 }
 
 func (c *ChannelsCommandsResponses) TableName() string {

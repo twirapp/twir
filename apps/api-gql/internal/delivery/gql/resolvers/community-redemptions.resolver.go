@@ -6,14 +6,12 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
-	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 )
 
 // RewardsRedemptionsHistory is the resolver for the rewardsRedemptionsHistory field.
@@ -37,56 +35,21 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 		perPage = *opts.PerPage.Value()
 	}
 
-	if perPage > 500 {
-		return nil, fmt.Errorf("perPage must be less than or equal to 500")
+	if perPage > 100 {
+		perPage = 100
 	}
 
-	query := r.deps.Gorm.
-		WithContext(ctx).
-		Order("redeemed_at DESC")
-
-	var foundTwitchChannels []helix.Channel
-	if opts.UserSearch.IsSet() {
-		channels, err := r.deps.CachedTwitchClient.SearchChannels(ctx, *opts.UserSearch.Value())
-		if err != nil {
-			return nil, err
-		}
-
-		foundTwitchChannels = channels
-	}
-	if len(foundTwitchChannels) > 0 {
-		var ids []string
-		for _, user := range foundTwitchChannels {
-			ids = append(ids, user.ID)
-		}
-
-		query = query.Where(`"channel_redemptions_history"."user_id" IN ?`, ids)
+	serviceInput := channels_redemptions_history.GetManyInput{
+		ChannelID:    channelIdForRequest,
+		Page:         page,
+		PerPage:      perPage,
+		RewardsIDs:   opts.RewardsIds.Value(),
+		UserNameLike: opts.UserSearch.Value(),
 	}
 
-	query = query.Where(`"channel_redemptions_history"."channel_id" = ?`, channelIdForRequest)
-
-	if opts.RewardsIds.IsSet() && len(opts.RewardsIds.Value()) > 0 {
-		query = query.Where(`"channel_redemptions_history"."reward_id" IN ?`, opts.RewardsIds.Value())
-	}
-
-	var total int64
-	if err := query.Model(&model.ChannelRedemption{}).Count(&total).Error; err != nil {
-		return nil, fmt.Errorf("failed to count total redemptions: %w", err)
-	}
-
-	var entities []model.ChannelRedemption
-	if err := query.
-		Limit(perPage).
-		Offset(page * perPage).
-		Find(&entities).Error; err != nil {
+	history, err := r.deps.ChannelsRedemptionsHistoryService.GetMany(ctx, serviceInput)
+	if err != nil {
 		return nil, err
-	}
-
-	if len(entities) == 0 {
-		return &gqlmodel.TwitchRedemptionResponse{
-			Redemptions: nil,
-			Total:       0,
-		}, nil
 	}
 
 	rewards, err := r.Query().TwitchRewards(ctx, &channelIdForRequest)
@@ -94,12 +57,12 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 		return nil, err
 	}
 
-	res := make([]gqlmodel.TwitchRedemption, 0, len(entities))
-	for _, entity := range entities {
+	res := make([]gqlmodel.TwitchRedemption, 0, len(history.Items))
+	for _, entity := range history.Items {
 		reward := gqlmodel.TwitchReward{
 			ID:        entity.RewardID.String(),
 			Title:     entity.RewardTitle,
-			Cost:      entity.RewardCost,
+			Cost:      int(entity.RewardCost),
 			ImageUrls: nil,
 		}
 
@@ -116,12 +79,12 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 		}
 
 		redemption := gqlmodel.TwitchRedemption{
-			ID:         entity.ID.String(),
+			ID:         entity.RewardID.String(),
 			ChannelID:  entity.ChannelID,
 			RedeemedAt: entity.RedeemedAt,
 			User:       &gqlmodel.TwirUserTwitchInfo{ID: entity.UserID},
 			Reward:     &reward,
-			Prompt:     entity.RewardPrompt.Ptr(),
+			Prompt:     entity.RewardPrompt,
 		}
 
 		res = append(res, redemption)
@@ -129,7 +92,7 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 
 	return &gqlmodel.TwitchRedemptionResponse{
 		Redemptions: res,
-		Total:       int(total),
+		Total:       int(history.Total),
 	}, nil
 }
 

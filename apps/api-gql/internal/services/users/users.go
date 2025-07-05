@@ -9,7 +9,8 @@ import (
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 	"go.uber.org/fx"
@@ -21,24 +22,24 @@ type Opts struct {
 
 	UsersRepository users.Repository
 	Gorm            *gorm.DB
-	TokensService   tokens.TokensClient
 	Config          config.Config
+	TwirBus         *buscore.Bus
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		usersRepository: opts.UsersRepository,
 		gorm:            opts.Gorm,
-		tokensService:   opts.TokensService,
 		config:          opts.Config,
+		twirBus:         opts.TwirBus,
 	}
 }
 
 type Service struct {
 	usersRepository users.Repository
 	gorm            *gorm.DB
-	tokensService   tokens.TokensClient
 	config          config.Config
+	twirBus         *buscore.Bus
 }
 
 type UpdateInput struct {
@@ -74,6 +75,17 @@ func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 	)
 	if err != nil {
 		return entity.UserNil, err
+	}
+
+	if input.IsBanned != nil && *input.IsBanned {
+		if *input.IsBanned {
+			c.twirBus.EventSub.Unsubscribe.Publish(ctx, id)
+		} else {
+			c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+				ctx,
+				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: id},
+			)
+		}
 	}
 
 	return c.modelToEntity(newUser), nil
@@ -168,7 +180,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		ctx,
 		input.ChannelID,
 		c.config,
-		c.tokensService,
+		c.twirBus,
 	)
 	if err != nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("cannot create channel twitch client: %w", err)
@@ -193,6 +205,15 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 	if len(follows.Data.Channels) != 0 {
 		info.FollowerSince = &follows.Data.Channels[0].Followed.Time
 	}
-	
+
 	return info, nil
+}
+
+func (c *Service) GetByApiKey(ctx context.Context, apiKey string) (entity.User, error) {
+	user, err := c.usersRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		return entity.User{}, err
+	}
+	
+	return c.modelToEntity(user), nil
 }

@@ -91,7 +91,6 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 		gqllogs = append(
 			gqllogs,
 			gqlmodel.AdminAuditLog{
-				ID:            l.ID,
 				System:        mappers.AuditTableNameToGqlSystem(l.TableName),
 				OperationType: mappers.AuditTypeModelToGql(l.OperationType),
 				OldValue:      l.OldValue,
@@ -111,7 +110,7 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 
 	return &gqlmodel.AdminAuditLogResponse{
 		Logs:  gqllogs,
-		Total: total,
+		Total: int(total),
 	}, nil
 }
 

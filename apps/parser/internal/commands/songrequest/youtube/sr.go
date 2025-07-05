@@ -12,11 +12,11 @@ import (
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/types/services"
+	"github.com/twirapp/twir/libs/bus-core/ytsr"
 
 	"github.com/guregu/null"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/grpc/ytsr"
 	"github.com/valyala/fasttemplate"
 
 	model "github.com/satont/twir/libs/gomodels"
@@ -89,9 +89,9 @@ var SrCommand = &types.DefaultCommand{
 			}
 		}
 
-		req, err := parseCtx.Services.GrpcClients.Ytsr.Search(
-			context.Background(),
-			&ytsr.SearchRequest{
+		req, err := parseCtx.Services.Bus.YTSRSearch.Request(
+			ctx,
+			ytsr.SearchRequest{
 				Search: parseCtx.ArgsParser.Get(songRequestArgName).String(),
 			},
 		)
@@ -101,7 +101,7 @@ var SrCommand = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
-		if len(req.Songs) == 0 {
+		if len(req.Data.Songs) == 0 {
 			result.Result = append(result.Result, moduleSettings.TranslationsSongNotFound)
 			return result, nil
 		}
@@ -119,8 +119,8 @@ var SrCommand = &types.DefaultCommand{
 			}
 		}
 
-		requested := make([]*model.RequestedSong, 0, len(req.Songs))
-		errors := make([]*ReqError, 0, len(req.Songs))
+		requested := make([]*model.RequestedSong, 0, len(req.Data.Songs))
+		errors := make([]*ReqError, 0, len(req.Data.Songs))
 
 		var currentQueueCount int64
 		err = parseCtx.Services.Gorm.WithContext(ctx).
@@ -136,7 +136,7 @@ var SrCommand = &types.DefaultCommand{
 			}
 		}
 
-		for i, song := range req.Songs {
+		for i, song := range req.Data.Songs {
 			err = validate(
 				ctx,
 				parseCtx.Services,
@@ -213,7 +213,7 @@ func validate(
 	services *services.Services,
 	channelId, userId string,
 	settings model.ChannelSongRequestsSettings,
-	song *ytsr.Song,
+	song ytsr.Song,
 ) error {
 	alreadyRequestedSong := &model.RequestedSong{}
 	services.Gorm.WithContext(ctx).Where(
@@ -234,7 +234,7 @@ func validate(
 	twitchClient, err := twitch.NewAppClientWithContext(
 		ctx,
 		*services.Config,
-		services.GrpcClients.Tokens,
+		services.Bus,
 	)
 	if err != nil {
 		return err
@@ -254,15 +254,13 @@ func validate(
 			}
 		}
 
-		if song.Author != nil {
-			for _, word := range settings.DenyListWords {
-				if word == "" {
-					continue
-				}
+		for _, word := range settings.DenyListWords {
+			if word == "" {
+				continue
+			}
 
-				if strings.Contains(strings.ToLower(song.Author.Name), strings.ToLower(word)) {
-					return errors.New(settings.TranslationsSongDenied)
-				}
+			if strings.Contains(strings.ToLower(song.Author.Name), strings.ToLower(word)) {
+				return errors.New(settings.TranslationsSongDenied)
 			}
 		}
 	}
@@ -280,7 +278,7 @@ func validate(
 		}
 	}
 
-	if len(settings.DenyListChannels) > 0 && song.Author != nil {
+	if len(settings.DenyListChannels) > 0 {
 		_, isChannelBlacklisted := lo.Find(
 			settings.DenyListChannels,
 			func(u string) bool {

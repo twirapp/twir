@@ -32,6 +32,8 @@ const { handleSubmit, setValues, values } = useForm({
 			{
 				text: '',
 				twitchCategoriesIds: [],
+				onlineOnly: false,
+				offlineOnly: false,
 			},
 		],
 		description: '',
@@ -48,6 +50,7 @@ const { handleSubmit, setValues, values } = useForm({
 		visible: true,
 		keepResponsesOrder: true,
 		onlineOnly: false,
+		offlineOnly: false,
 		enabledCategories: [],
 		expiresType: null,
 		expiresAt: null,
@@ -66,7 +69,12 @@ onMounted(async () => {
 				id: undefined,
 				module: undefined,
 				name: '',
-				responses: command.responses.map(r => ({ text: r.text, twitchCategoriesIds: [] })),
+				responses: command.responses.map(r => ({
+					text: r.text,
+					twitchCategoriesIds: [],
+					onlineOnly: r.onlineOnly,
+					offlineOnly: r.offlineOnly,
+				})),
 				aliases: [],
 			}))
 			loading.value = false
@@ -116,9 +124,9 @@ const backButton = computed(() => {
 				<div class="flex flex-col gap-4">
 					<FormGeneral />
 					<FormResponses />
-					<FormCooldown />
-					<FormConditions />
 					<FormPermissions />
+					<FormConditions />
+					<FormCooldown />
 					<FormExpiration />
 				</div>
 			</template>

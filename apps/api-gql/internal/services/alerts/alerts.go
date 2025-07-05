@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/alerts"
 	"github.com/twirapp/twir/libs/repositories/alerts/model"
 	"go.uber.org/fx"
@@ -21,18 +22,21 @@ type Opts struct {
 
 	AlertsRepository alerts.Repository
 	Logger           logger.Logger
+	AlertsCache      *generic_cacher.GenericCacher[[]model.Alert]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		alertsRepository: opts.AlertsRepository,
 		logger:           opts.Logger,
+		alertsCache:      opts.AlertsCache,
 	}
 }
 
 type Service struct {
 	alertsRepository alerts.Repository
 	logger           logger.Logger
+	alertsCache      *generic_cacher.GenericCacher[[]model.Alert]
 }
 
 func (c *Service) modelToEntity(m model.Alert) entity.Alert {
@@ -109,6 +113,10 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Alert, 
 		},
 	)
 
+	if err = c.alertsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.AlertNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return c.modelToEntity(alert), nil
 }
 
@@ -168,6 +176,10 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		},
 	)
 
+	if err = c.alertsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.AlertNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return c.modelToEntity(newAlert), nil
 }
 
@@ -183,6 +195,10 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 
 	if err := c.alertsRepository.Delete(ctx, id); err != nil {
 		return err
+	}
+
+	if err = c.alertsCache.Invalidate(ctx, channelID); err != nil {
+		return fmt.Errorf("failed to invalidate cache: %w", err)
 	}
 
 	c.logger.Audit(

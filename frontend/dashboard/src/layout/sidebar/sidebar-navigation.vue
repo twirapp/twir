@@ -21,10 +21,10 @@ import {
 	ScrollTextIcon,
 	SettingsIcon,
 	Shield,
+	ShieldUser,
 	Smile,
 	SparklesIcon,
 	Timer,
-	UserCog,
 	Users,
 	Variable,
 	WholeWord,
@@ -171,7 +171,7 @@ const links = computed(() => {
 				},
 				{
 					name: t('sidebar.roles'),
-					icon: UserCog,
+					icon: ShieldUser,
 					path: '/dashboard/community?tab=permissions',
 				},
 				{

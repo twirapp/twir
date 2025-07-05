@@ -19,21 +19,24 @@ type Repository interface {
 }
 
 type CreateOrUpdateInput struct {
-	Name                        *string
-	ChannelID                   string
-	Type                        model.ModerationSettingsType
-	Enabled                     bool
-	BanTime                     int32
-	BanMessage                  string
-	WarningMessage              string
-	CheckClips                  bool
-	TriggerLength               int
-	MaxPercentage               int
-	DenyList                    []string
-	DenyListRegexpEnabled       bool
-	DenyListWordBoundaryEnabled bool
-	DenyListSensitivityEnabled  bool
-	DeniedChatLanguages         []string
-	ExcludedRoles               []string
-	MaxWarnings                 int
+	Name                            *string
+	ChannelID                       string
+	Type                            model.ModerationSettingsType
+	Enabled                         bool
+	BanTime                         int32
+	BanMessage                      string
+	WarningMessage                  string
+	CheckClips                      bool
+	TriggerLength                   int
+	MaxPercentage                   int
+	DenyList                        []string
+	DenyListRegexpEnabled           bool
+	DenyListWordBoundaryEnabled     bool
+	DenyListSensitivityEnabled      bool
+	DeniedChatLanguages             []string
+	ExcludedRoles                   []string
+	MaxWarnings                     int
+	OneManSpamMinimumStoredMessages int
+	OneManSpamMessageMemorySeconds  int
+	LanguageExcludedWords           []string
 }

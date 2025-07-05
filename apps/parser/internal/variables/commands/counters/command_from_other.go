@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 )
 
 var CommandFromOtherCounter = &types.Variable{
@@ -34,14 +36,26 @@ var CommandFromOtherCounter = &types.Variable{
 			return result, nil
 		}
 
-		count, err := getCount(parseCtx.Services.Gorm, cmd.ID, nil)
+		commandUUID, err := uuid.Parse(cmd.ID)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
-
 			result.Result = "cannot get count"
 			return result, nil
 		}
-		result.Result = count
+
+		count, err := parseCtx.Services.ChannelsCommandsUsagesRepo.Count(
+			ctx, channelscommandsusages.CountInput{
+				ChannelID: &parseCtx.Channel.ID,
+				CommandID: &commandUUID,
+			},
+		)
+		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+			result.Result = "cannot get count"
+			return result, nil
+		}
+
+		result.Result = fmt.Sprint(count)
 
 		return result, nil
 	},

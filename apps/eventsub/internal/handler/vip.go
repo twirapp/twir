@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"log/slog"
-	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -12,6 +11,7 @@ import (
 )
 
 func (c *Handler) handleChannelVipAdd(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.ChannelVipAdd,
 ) {
@@ -23,6 +23,7 @@ func (c *Handler) handleChannelVipAdd(
 	)
 
 	c.twirBus.Events.VipAdded.Publish(
+		ctx,
 		events.VipAddedMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserId,
@@ -33,7 +34,7 @@ func (c *Handler) handleChannelVipAdd(
 		},
 	)
 
-	if err := c.gorm.Model(&model.UsersStats{}).
+	if err := c.gorm.WithContext(ctx).Model(&model.UsersStats{}).
 		Where(`"userId" = ? and "channelId" = ?`, event.UserId, event.BroadcasterUserId).
 		Update(`"is_vip"`, true).Error; err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
@@ -41,6 +42,7 @@ func (c *Handler) handleChannelVipAdd(
 }
 
 func (c *Handler) handleChannelVipRemove(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.ChannelVipRemove,
 ) {
@@ -51,13 +53,14 @@ func (c *Handler) handleChannelVipRemove(
 		slog.String("userName", event.UserLogin),
 	)
 
-	if err := c.gorm.Model(&model.UsersStats{}).
+	if err := c.gorm.WithContext(ctx).Model(&model.UsersStats{}).
 		Where(`"userId" = ? and "channelId" = ?`, event.UserId, event.BroadcasterUserId).
 		Update(`"is_vip"`, false).Error; err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
 	c.twirBus.Events.VipRemoved.Publish(
+		ctx,
 		events.VipRemovedMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserId,
@@ -67,9 +70,6 @@ func (c *Handler) handleChannelVipRemove(
 			UserName: event.UserLogin,
 		},
 	)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 
 	scheduledVip, err := c.scheduledVipsRepo.GetByUserAndChannelID(
 		ctx,

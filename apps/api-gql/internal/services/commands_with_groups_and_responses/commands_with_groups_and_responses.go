@@ -81,6 +81,7 @@ func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.Comma
 			RequiredUsedChannelPoints: m.Command.RequiredUsedChannelPoints,
 			GroupID:                   m.Command.GroupID,
 			ExpiresAt:                 m.Command.ExpiresAt,
+			OfflineOnly:               m.Command.OfflineOnly,
 		},
 	}
 
@@ -107,6 +108,8 @@ func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.Comma
 				CommandID:         r.CommandID,
 				Order:             r.Order,
 				TwitchCategoryIDs: r.TwitchCategoryIDs,
+				OnlineOnly:        r.OnlineOnly,
+				OfflineOnly:       r.OfflineOnly,
 			},
 		)
 	}

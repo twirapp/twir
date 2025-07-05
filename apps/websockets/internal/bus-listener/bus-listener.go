@@ -37,20 +37,19 @@ func New(opts Opts) *BusListener {
 			OnStart: func(_ context.Context) error {
 				if err := listener.bus.Websocket.DudesUserSettings.SubscribeGroup(
 					"websockets",
-					func(ctx context.Context, data websockets.DudesChangeUserSettingsRequest) struct{} {
-						listener.dudes.SendUserSettings(data.ChannelID, data.UserID)
-
-						return struct{}{}
+					func(ctx context.Context, data websockets.DudesChangeUserSettingsRequest) (
+						struct{},
+						error,
+					) {
+						return struct{}{}, listener.dudes.SendUserSettings(data.ChannelID, data.UserID)
 					},
 				); err != nil {
 					return err
 				}
 				if err := listener.bus.Websocket.DudesGrow.SubscribeGroup(
 					"websockets",
-					func(ctx context.Context, data websockets.DudesGrowRequest) struct{} {
-						listener.dudes.SendEvent(data.ChannelID, "grow", data)
-
-						return struct{}{}
+					func(ctx context.Context, data websockets.DudesGrowRequest) (struct{}, error) {
+						return struct{}{}, listener.dudes.SendEvent(data.ChannelID, "grow", data)
 					},
 				); err != nil {
 					return err
@@ -58,10 +57,8 @@ func New(opts Opts) *BusListener {
 
 				if err := listener.bus.Websocket.DudesLeave.SubscribeGroup(
 					"websockets",
-					func(ctx context.Context, data websockets.DudesLeaveRequest) struct{} {
-						listener.dudes.SendEvent(data.ChannelID, "leave", data)
-
-						return struct{}{}
+					func(ctx context.Context, data websockets.DudesLeaveRequest) (struct{}, error) {
+						return struct{}{}, listener.dudes.SendEvent(data.ChannelID, "leave", data)
 					},
 				); err != nil {
 					return err

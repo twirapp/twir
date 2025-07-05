@@ -1,4 +1,4 @@
-FROM debian:12-slim AS prod_base
+FROM mirror.gcr.io/debian:12-slim AS prod_base
 WORKDIR /app
 RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg && \
     curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg && \

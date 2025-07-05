@@ -12,6 +12,7 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	helix "github.com/nicklaw5/helix/v2"
+	redis "github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
@@ -40,17 +41,6 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		return false, fmt.Errorf("you cannot reset stats for this user")
 	}
 
-	if typeArg == gqlmodel.CommunityUsersResetTypeUsedEmotes {
-		err := r.deps.Gorm.WithContext(ctx).
-			Where(`"channelId" = ?`, user.ID).
-			Delete(&model.ChannelEmoteUsage{}).Error
-		if err != nil {
-			return false, err
-		}
-
-		return true, nil
-	}
-
 	var field string
 
 	switch typeArg {
@@ -60,6 +50,8 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		field = "watched"
 	case gqlmodel.CommunityUsersResetTypeUsedChannelsPoints:
 		field = "usedChannelPoints"
+	case gqlmodel.CommunityUsersResetTypeUsedEmotes:
+		field = "emotes"
 	}
 
 	if field == "" {
@@ -70,6 +62,29 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		Model(&model.UsersStats{}).
 		Where(`"channelId" = ?`, dashboardId).
 		Update(field, 0).Error
+	if err != nil {
+		return false, err
+	}
+
+	iter := r.deps.Redis.Scan(
+		ctx,
+		0,
+		fmt.Sprintf("bots:cache:ensureuser:%s:*", dashboardId),
+		100,
+	).Iterator()
+
+	_, err = r.deps.Redis.Pipelined(
+		ctx,
+		func(pipeliner redis.Pipeliner) error {
+			for iter.Next(ctx) {
+				if err := pipeliner.Del(ctx, iter.Val()).Err(); err != nil {
+					return err
+				}
+			}
+
+			return iter.Err()
+		},
+	)
 	if err != nil {
 		return false, err
 	}
@@ -101,9 +116,10 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	}
 
 	queryBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-		Select(`users_stats.*, COUNT("channels_emotes_usages"."id") AS "emotes"`).
+		Select(
+			`users_stats.*`,
+		).
 		From("users_stats").
-		LeftJoin(`"channels_emotes_usages" ON "channels_emotes_usages"."userId" = "users_stats"."userId" AND "channels_emotes_usages"."channelId" = "users_stats"."channelId"`).
 		Where(
 			squirrel.And{
 				squirrel.Eq{`"users_stats"."channelId"`: opts.ChannelID},
@@ -171,11 +187,6 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 					strings.ToLower(order.String()),
 				),
 			)
-		// GroupBy(fmt.Sprintf(`"users_stats"."%s"`, sortBy))
-	}
-
-	if err != nil {
-		return nil, err
 	}
 
 	query, args, err := queryBuilder.ToSql()
@@ -210,6 +221,8 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			&dbUser.IsSubscriber,
 			&dbUser.Reputation,
 			&dbUser.Emotes,
+			&dbUser.CreatedAt,
+			&dbUser.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err

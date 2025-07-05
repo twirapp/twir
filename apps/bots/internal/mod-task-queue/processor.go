@@ -2,14 +2,14 @@ package mod_task_queue
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -30,11 +30,11 @@ type TaskProcessor interface {
 }
 
 type RedisTaskProcessor struct {
-	config     config.Config
-	server     *asynq.Server
-	logger     logger.Logger
-	gorm       *gorm.DB
-	tokensGrpc tokens.TokensClient
+	config  config.Config
+	server  *asynq.Server
+	logger  logger.Logger
+	gorm    *gorm.DB
+	twirBus *buscore.Bus
 }
 
 var _ TaskProcessor = (*RedisTaskProcessor)(nil)
@@ -43,10 +43,10 @@ type RedisTaskProcessorOpts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Cfg        config.Config
-	Logger     logger.Logger
-	Gorm       *gorm.DB
-	TokensGrpc tokens.TokensClient
+	Cfg     config.Config
+	Logger  logger.Logger
+	Gorm    *gorm.DB
+	TwirBus *buscore.Bus
 }
 
 func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
@@ -71,7 +71,7 @@ func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
 			},
 			ErrorHandler: asynq.ErrorHandlerFunc(
 				func(ctx context.Context, task *asynq.Task, err error) {
-					opts.Logger.Error("error processing task", zap.Any("task", task), zap.Error(err))
+					opts.Logger.Error("error processing task", slog.Any("task", task), slog.Any("err", err))
 				},
 			),
 			LogLevel: asynq.ErrorLevel,
@@ -79,11 +79,11 @@ func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
 	)
 
 	processor := &RedisTaskProcessor{
-		config:     opts.Cfg,
-		server:     server,
-		logger:     opts.Logger,
-		gorm:       opts.Gorm,
-		tokensGrpc: opts.TokensGrpc,
+		config:  opts.Cfg,
+		server:  server,
+		logger:  opts.Logger,
+		gorm:    opts.Gorm,
+		twirBus: opts.TwirBus,
 	}
 
 	opts.LC.Append(
@@ -112,6 +112,7 @@ func (p *RedisTaskProcessor) Start() error {
 
 	mux.HandleFunc(TaskModUser, p.ProcessDistributeMod)
 
+	p.logger.Info("Registered task handler", slog.String("task", TaskModUser))
 	return p.server.Start(mux)
 }
 

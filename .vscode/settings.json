@@ -4,11 +4,8 @@
     "--fast"
   ],
 
-  "vue.updateImportsOnFileMove.enabled": true,
-  "vue.codeActions.enabled": true,
-
 	  // Enable the ESlint flat config support
-  "eslint.experimental.useFlatConfig": true,
+  "eslint.useFlatConfig": true,
 
   // Disable the default formatter, use eslint instead
   "prettier.enable": false,
@@ -50,6 +47,8 @@
     "gql",
     "graphql"
   ],
+
+  "oxc.enable": true,
 
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib"

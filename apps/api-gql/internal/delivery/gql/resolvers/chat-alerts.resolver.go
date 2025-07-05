@@ -89,6 +89,10 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 		},
 	)
 
+	if err := r.deps.ChatAlertsCache.Invalidate(ctx, dashboardId); err != nil {
+		r.deps.Logger.Error("failed to invalidate chat alerts cache", err)
+	}
+
 	return r.Query().ChatAlerts(ctx)
 }
 

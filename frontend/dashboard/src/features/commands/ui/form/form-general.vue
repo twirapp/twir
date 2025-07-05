@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EditIcon, XIcon } from 'lucide-vue-next'
+import { EditIcon, WrenchIcon, XIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
@@ -36,6 +36,11 @@ import {
 	TagsInputItemDelete,
 	TagsInputItemText,
 } from '@/components/ui/tags-input'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const { t } = useI18n()
 
@@ -55,25 +60,34 @@ function computeSelectedGroupColor(id: string) {
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row justify-between flex-wrap">
-			<CardTitle>General</CardTitle>
+		<CardHeader class="flex flex-row justify-between flex-wrap p-4 border-b">
+			<div></div>
+
+			<CardTitle class="flex items-center gap-2">
+				<WrenchIcon />
+				General
+			</CardTitle>
 
 			<FormField v-slot="{ field }" name="enabled">
 				<FormItem class="space-y-0 flex items-center gap-4">
-					<FormLabel class="text-base">
-						{{ t('sharedTexts.enabled') }}
-					</FormLabel>
 					<FormControl>
-						<Switch
-							:checked="field.value"
-							default-checked
-							@update:checked="field['onUpdate:modelValue']"
-						/>
+						<Tooltip>
+							<TooltipTrigger as-child>
+								<Switch
+									:checked="field.value"
+									default-checked
+									@update:checked="field['onUpdate:modelValue']"
+								/>
+							</TooltipTrigger>
+							<TooltipContent>
+								{{ t('sharedTexts.enabled') }}
+							</TooltipContent>
+						</Tooltip>
 					</FormControl>
 				</FormItem>
 			</FormField>
 		</CardHeader>
-		<CardContent class="flex flex-col gap-4">
+		<CardContent class="flex flex-col gap-4 pt-4">
 			<FormField v-slot="{ componentField }" name="name">
 				<FormItem>
 					<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>

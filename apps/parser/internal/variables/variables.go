@@ -2,7 +2,6 @@ package variables
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"slices"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	seventv "github.com/satont/twir/apps/parser/internal/variables/7tv"
 	"github.com/satont/twir/apps/parser/internal/variables/channel"
 	"github.com/satont/twir/apps/parser/internal/variables/chat_eval"
+	"github.com/satont/twir/apps/parser/internal/variables/counttime"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/last_donate"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/top_donate"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/top_donate_stream"
@@ -81,8 +81,12 @@ func New(opts *Opts) *Variables {
 			random.Phrase,
 			sender.Sender,
 			sender.SenderDisplayName,
+			sender.ID,
 			song.CurrentSong,
 			song.Cover,
+			song.History,
+			song.HistorySpotify,
+			song.HistoryLastfm,
 			stream.Category,
 			stream.Title,
 			stream.Uptime,
@@ -112,6 +116,7 @@ func New(opts *Opts) *Variables {
 			user.EmotesTop,
 			user.Watched,
 			user.Commands,
+			user.ID,
 			last_donate.Amount,
 			last_donate.Currency,
 			last_donate.UserName,
@@ -142,6 +147,8 @@ func New(opts *Opts) *Variables {
 			seventv.UnlockedPaints,
 			repeat.Variable,
 			shorturl.Variable,
+			counttime.CountDown,
+			counttime.CountUp,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},
@@ -178,9 +185,11 @@ func (c *Variables) ParseVariablesInText(
 		},
 	)
 
-	for _, s := range Regexp.FindAllString(input, len(input)) {
-		wg.Add(1)
+	if parseCtx.Text != nil && len(*parseCtx.Text) > 0 {
+		input = strings.ReplaceAll(input, "$(command.param)", *parseCtx.Text)
+	}
 
+	for _, s := range Regexp.FindAllString(input, len(input)) {
 		v := Regexp.FindStringSubmatch(s)
 		all := v[1]
 		params := v[3]
@@ -188,27 +197,26 @@ func (c *Variables) ParseVariablesInText(
 		variable, ok := c.Store[all]
 
 		if !ok {
-			wg.Done()
 			continue
 		}
 
 		if variable.CommandsOnly && !parseCtx.IsCommand {
-			mu.Lock()
-			input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
-			mu.Unlock()
-			wg.Done()
+			// mu.Lock()
+			// input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
+			// mu.Unlock()
 			continue
 		}
 
 		if variable.DisableInCustomVariables && parseCtx.IsInCustomVar {
-			mu.Lock()
-			input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
-			mu.Unlock()
-			wg.Done()
+			// mu.Lock()
+			// input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
+			// mu.Unlock()
 			continue
 		}
 
 		str := s
+
+		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			res, err := variable.Handler(

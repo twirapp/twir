@@ -33,6 +33,7 @@ func (c *ChatAlerts) streamOnline(
 	}
 
 	return c.bus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelId:      req.ChannelID,
 			Message:        text,
@@ -62,6 +63,7 @@ func (c *ChatAlerts) streamOffline(
 	}
 
 	return c.bus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelId:      req.ChannelID,
 			Message:        text,

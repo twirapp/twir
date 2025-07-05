@@ -1,11 +1,8 @@
-import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import { DudesSprite } from '@twir/types/overlays';
 
-type DeepRequired<T> = Required<{
-	[K in keyof T]: T[K] extends Required<T[K]> ? T[K] : DeepRequired<T[K]>;
-}>;
+import type { DudesOverlaySettings } from '@/gql/graphql';
 
-export type DudesSettingsWithOptionalId = DeepRequired<Omit<Settings, 'id'> & { id?: string }>;
+export type DudesSettingsWithOptionalId = Omit<DudesOverlaySettings, 'id'> & { id?: string };
 
 interface User {
 	id: string;

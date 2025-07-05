@@ -1,0 +1,16 @@
+extend type Query {
+	files: [ChannelFile!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	filesUpload(file: Upload!): ChannelFile! @isAuthenticated @hasAccessToSelectedDashboard
+	filesRemove(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type ChannelFile {
+	id: UUID!
+	mimetype: String!
+	name: String!
+	size: Int!
+	channelId: String!
+}

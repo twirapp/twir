@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { PauseIcon, PlayIcon, TrashIcon } from 'lucide-vue-next'
-import { NScrollbar } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '@/api/auth.js'
-import { useFiles } from '@/api/files.js'
+import { useFilesApi } from '@/api/files.js'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import FilesPicker from '@/components/files/files.vue'
 import { Button } from '@/components/ui/button'
@@ -36,7 +35,8 @@ const volumeInputValue = computed({
 
 const { t } = useI18n()
 const { data: profile } = useProfile()
-const { data: files } = useFiles()
+const filesApi = useFilesApi()
+const { data: files } = filesApi.useQuery()
 
 const selectedAudio = computed(() => {
 	return files.value?.files
@@ -75,12 +75,7 @@ async function getAudio() {
 		return
 	}
 
-	const query = new URLSearchParams({
-		channel_id: profile.value.selectedDashboardId,
-		file_id: audioId,
-	})
-
-	const audio = new Audio(`${window.location.origin}/api-old/files/?${query}`)
+	const audio = new Audio(filesApi.computeFileUrl(profile.value.selectedDashboardId, audioId))
 	audio.addEventListener('error', (error) => {
 		console.error(error)
 	})
@@ -117,28 +112,27 @@ function setVolume(audioId: string, volume: number) {
 					</Button>
 				</DialogTrigger>
 
-				<DialogOrSheet class="p-0">
+				<DialogOrSheet class="p-0 gap-0 h-[80dvh] md:h-auto">
 					<DialogHeader class="p-6 border-b-[1px]">
 						<DialogTitle>
 							{{ t('alerts.select.audio') }}
 						</DialogTitle>
 					</DialogHeader>
 
-					<NScrollbar class="p-6 max-h-[85vh]" trigger="none">
-						<FilesPicker
-							mode="picker"
-							tab="audios"
-							@select="(id) => {
-								audioId = id
-								showAudioDialog = false
-							}"
-							@delete="(id) => {
-								if (id === audioId) {
-									audioId = undefined
-								}
-							}"
-						/>
-					</NScrollbar>
+					<FilesPicker
+						class="h-auto md:max-h-[50dvh]"
+						mode="picker"
+						tab="audios"
+						@select="(id) => {
+							audioId = id
+							showAudioDialog = false
+						}"
+						@delete="(id) => {
+							if (id === audioId) {
+								audioId = undefined
+							}
+						}"
+					/>
 				</DialogOrSheet>
 			</Dialog>
 

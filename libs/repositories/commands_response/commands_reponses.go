@@ -20,10 +20,14 @@ type CreateInput struct {
 	Text              *string
 	Order             int
 	TwitchCategoryIDs []string
+	OnlineOnly        bool
+	OfflineOnly       bool
 }
 
 type UpdateInput struct {
 	Text              *string
 	Order             *int
 	TwitchCategoryIDs []string
+	OnlineOnly        *bool
+	OfflineOnly       *bool
 }

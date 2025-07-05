@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,19 +12,23 @@ import (
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
+	"github.com/exaring/otelpgx"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
 	"github.com/satont/twir/apps/parser/internal/nats"
 	chatwallservice "github.com/satont/twir/apps/parser/internal/services/chat_wall"
 	"github.com/satont/twir/apps/parser/internal/services/shortenedurls"
-	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
+	"github.com/satont/twir/apps/parser/pkg/executron"
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
@@ -33,19 +36,17 @@ import (
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/constants"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
+	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
+	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
+	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
-
-	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
-	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 
 	shortenedurlspgx "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 
@@ -58,7 +59,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/parser/internal/commands"
-	"github.com/satont/twir/apps/parser/internal/grpc_impl"
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	"go.uber.org/zap"
@@ -103,8 +103,39 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
+	connConfig, err := pgxpool.ParseConfig(config.DatabaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	connConfig.ConnConfig.Tracer = otelpgx.NewTracer()
+	connConfig.MaxConnLifetime = time.Hour
+	connConfig.MaxConnIdleTime = 5 * time.Minute
+	connConfig.MaxConns = 100
+	connConfig.MinConns = 1
+	connConfig.HealthCheckPeriod = time.Minute
+	connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+
+	pgxconn, err := pgxpool.NewWithConfig(
+		context.Background(),
+		connConfig,
+	)
+
+	sqlDb := stdlib.OpenDBFromPool(pgxconn)
+
+	dialector := postgres.New(
+		postgres.Config{
+			Conn: sqlDb,
+		},
+	)
+
 	// gorm
-	db, err := gorm.Open(postgres.Open(config.DatabaseUrl))
+	db, err := gorm.Open(
+		dialector, &gorm.Config{
+			PrepareStmt:            false,
+			SkipDefaultTransaction: true,
+		},
+	)
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
@@ -132,11 +163,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	pgxconn, err := pgxpool.New(context.Background(), config.DatabaseUrl)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	// redis
 	url, err := redis.ParseURL(config.RedisUrl)
 
@@ -156,31 +182,17 @@ func main() {
 
 	redisClient.Conn()
 
-	tokensGrpc := clients.NewTokens(config.AppEnv)
-
-	taskQueueDistributor := task_queue.NewRedisTaskDistributor(config, logger)
-	queueProcessor := task_queue.NewRedisTaskProcessor(
-		task_queue.RedisTaskProcessorOpts{
-			Cfg:        *config,
-			Logger:     logger,
-			Gorm:       db,
-			TokensGrpc: tokensGrpc,
-		},
-	)
-	defer queueProcessor.Stop()
-
-	go func() {
-		err := queueProcessor.Start()
-		if err != nil {
-			logger.Fatal("Error starting queue processor", zap.Error(err))
-		}
-	}()
-
 	bus := buscore.NewNatsBus(nc)
 
 	redSync := redsync.New(goredis.NewPool(redisClient))
 
 	trmManager, err := manager.New(trmpgx.NewDefaultFactory(pgxconn))
+	if err != nil {
+		panic(err)
+	}
+
+	clickhouseCreator := baseapp.NewClickHouse("parser")
+	clickhouseClient, err := clickhouseCreator(*config)
 	if err != nil {
 		panic(err)
 	}
@@ -196,8 +208,11 @@ func main() {
 	channelsInfoHistoryRepo := channelsinfohistorypostgres.New(channelsinfohistorypostgres.Opts{PgxPool: pgxconn})
 	shortenedUrlsRepo := shortenedurlspgx.New(shortenedurlspgx.Opts{PgxPool: pgxconn})
 	streamsRepository := streamsrepositorypostgres.New(streamsrepositorypostgres.Opts{PgxPool: pgxconn})
+	channelsEmotesUsage := channelsemotesusagesrepositoryclickhouse.New(channelsemotesusagesrepositoryclickhouse.Opts{Client: clickhouseClient})
+	channelsCommandsUsagesRepo := channelscommandsusagesclickhouse.New(channelscommandsusagesclickhouse.Opts{Client: clickhouseClient})
+	chatMessagesRepo := chatmessagesrepositoryclickhouse.New(chatmessagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 
-	cachedTwitchClient, err := twitch.New(*config, tokensGrpc, redisClient)
+	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
 		panic(err)
 	}
@@ -207,11 +222,11 @@ func main() {
 	chatWallService := chatwallservice.New(
 		chatwallservice.Opts{
 			ChatWallRepository: chatWallRepository,
+			ChatMessagesRepo:   chatMessagesRepo,
 			Gorm:               db,
 			ChatWallCache:      chatWallCache,
 			Redis:              redisClient,
 			Config:             *config,
-			TokensClient:       tokensGrpc,
 			TwirBus:            bus,
 		},
 	)
@@ -225,11 +240,7 @@ func main() {
 		TrmManager: trmManager,
 		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
-			Dota:       clients.NewDota(config.AppEnv),
-			Tokens:     tokensGrpc,
-			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
-		TaskDistributor:          taskQueueDistributor,
 		Bus:                      bus,
 		CommandsCache:            commandscache.New(db, redisClient),
 		ChatWallRepo:             chatWallRepository,
@@ -252,6 +263,10 @@ func main() {
 				Config:     *config,
 			},
 		),
+		ChannelEmotesUsagesRepo:    channelsEmotesUsage,
+		ChannelsCommandsUsagesRepo: channelsCommandsUsagesRepo,
+		ChatMessagesRepo:           chatMessagesRepo,
+		Executron:                  executron.New(*config, redisClient),
 	}
 
 	variablesService := variables.New(
@@ -273,19 +288,6 @@ func main() {
 	variablesBus := variables_bus.New(bus, variablesService)
 	variablesBus.Subscribe()
 	defer variablesBus.Unsubscribe()
-
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.PARSER_SERVER_PORT))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
-	defer grpcServer.GracefulStop()
-	parser.RegisterParserServer(
-		grpcServer,
-		grpc_impl.NewServer(s, commandsService, variablesService),
-	)
-	go grpcServer.Serve(lis)
-	defer grpcServer.GracefulStop()
 
 	logger.Info("Parser microservice started")
 

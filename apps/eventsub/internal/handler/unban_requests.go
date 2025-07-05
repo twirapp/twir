@@ -1,16 +1,17 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
-	"time"
 
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleChannelUnbanRequestCreate(
+	ctx context.Context,
 	_ *esb.ResponseHeaders,
 	event *esb.ChannelUnbanRequestCreate,
 ) {
@@ -24,22 +25,24 @@ func (c *Handler) handleChannelUnbanRequestCreate(
 		slog.Group("user", slog.String("id", event.UserID), slog.String("login", event.UserLogin)),
 	)
 
-	c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		ctx,
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    event.UserID,
+			UserID:    &event.UserID,
 			Type:      model.ChannelEventListItemTypeChannelUnbanRequestCreate,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				UserLogin:       event.UserLogin,
 				UserDisplayName: event.UserName,
 				Message:         event.Text,
 			},
 		},
-	)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	c.twirBus.Events.ChannelUnbanRequestCreate.Publish(
+		ctx,
 		events.ChannelUnbanRequestCreateMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -55,6 +58,7 @@ func (c *Handler) handleChannelUnbanRequestCreate(
 }
 
 func (c *Handler) handleChannelUnbanRequestResolve(
+	ctx context.Context,
 	r *esb.ResponseHeaders,
 	event *esb.ChannelUnbanRequestResolve,
 ) {
@@ -74,13 +78,12 @@ func (c *Handler) handleChannelUnbanRequestResolve(
 		slog.String("status", string(event.Status)),
 	)
 
-	c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		ctx,
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    event.UserID,
+			UserID:    &event.UserID,
 			Type:      model.ChannelEventListItemTypeChannelUnbanRequestResolve,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				UserLogin:            event.UserLogin,
 				UserDisplayName:      event.UserName,
@@ -89,9 +92,12 @@ func (c *Handler) handleChannelUnbanRequestResolve(
 				Message:              event.ResolutionText,
 			},
 		},
-	)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	c.twirBus.Events.ChannelUnbanRequestResolve.Publish(
+		ctx,
 		events.ChannelUnbanRequestResolveMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

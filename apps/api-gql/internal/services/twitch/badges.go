@@ -12,7 +12,7 @@ func (c *Service) GetChannelChatBadges(ctx context.Context, channelID string) (
 	[]helix.ChatBadge,
 	error,
 ) {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensClient)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (c *Service) GetGlobalChatBadges(ctx context.Context) (
 	[]helix.ChatBadge,
 	error,
 ) {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensClient)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
 		return nil, err
 	}

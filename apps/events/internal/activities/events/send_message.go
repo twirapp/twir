@@ -23,6 +23,7 @@ func (c *Activity) SendMessage(
 	}
 
 	if err = c.bus.Bots.SendMessage.Publish(
+		ctx,
 		bots.SendMessageRequest{
 			ChannelId:  data.ChannelID,
 			Message:    msg,

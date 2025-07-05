@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-	NAlert,
-	NButton,
-	NSpace,
-	NTabPane,
-	NTabs,
-	useThemeVars,
-} from 'naive-ui'
+import { NAlert, NButton, NSpace, NTabPane, NTabs, useThemeVars } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -16,11 +9,7 @@ import { useDudesIframe } from './use-dudes-frame.js'
 
 import type { DudesSettingsWithOptionalId } from './dudes-settings.js'
 
-import {
-	useDudesOverlayManager,
-	useProfile,
-	useUserAccessFlagChecker,
-} from '@/api/index.js'
+import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
@@ -35,9 +24,7 @@ const { data: profile } = useProfile()
 const { t } = useI18n()
 const { dialog } = useNaiveDiscrete()
 
-const {
-	data: entities,
-} = dudesOverlayManager.useGetAll()
+const { data: entities } = dudesOverlayManager.useGetAll()
 
 const openedTab = ref<string>()
 
@@ -50,20 +37,24 @@ const dudesIframeUrl = computed(() => {
 const { setData, getDefaultSettings } = useDudesForm()
 
 function resetTab() {
-	if (!entities.value?.settings.at(0)) {
+	if (!entities.value?.dudesGetAll?.at(0)) {
 		openedTab.value = undefined
 		return
 	}
 
-	openedTab.value = entities.value.settings.at(0)?.id
+	openedTab.value = entities.value.dudesGetAll.at(0)?.id
 }
 
-watch(entities, () => {
-	resetTab()
-}, { immediate: true })
+watch(
+	entities,
+	() => {
+		resetTab()
+	},
+	{ immediate: true }
+)
 
 watch(openedTab, (v) => {
-	const entity = entities.value?.settings.find(s => s.id === v) as DudesSettingsWithOptionalId
+	const entity = entities.value?.dudesGetAll?.find((s) => s.id === v) as DudesSettingsWithOptionalId
 	if (!entity) return
 	setData(entity)
 })
@@ -76,53 +67,38 @@ async function handleClose(id: string) {
 		negativeText: 'Cancel',
 		showIcon: false,
 		onPositiveClick: async () => {
-			const entity = entities.value?.settings.find(s => s.id === id)
+			const entity = entities.value?.dudesGetAll?.find((s) => s.id === id)
 			if (!entity?.id) return
 
-			await deleter.mutateAsync(entity.id)
+			await deleter.executeMutation({ id: entity.id })
 			resetTab()
 		},
 	})
 }
 
 async function handleAdd() {
-	await creator.mutateAsync(getDefaultSettings())
+	const { id: _id, ...rest } = getDefaultSettings()
+	console.log(rest)
+	await creator.executeMutation({ input: rest })
 }
 
 const addable = computed(() => {
-	return userCanEditOverlays.value && (entities.value?.settings.length ?? 0) < 5
+	return userCanEditOverlays.value && (entities.value?.dudesGetAll?.length ?? 0) < 5
 })
 </script>
 
 <template>
-	<div class="flex gap-10" style="height: calc(100% - var(--layout-header-height));">
+	<div class="flex gap-10" style="height: calc(100% - var(--layout-header-height))">
 		<div class="relative w-[70%]">
 			<div v-if="dudesIframeUrl">
-				<iframe
-					ref="dudesIframe"
-					style="position: absolute;"
-					:src="dudesIframeUrl"
-					class="iframe"
-				/>
+				<iframe ref="dudesIframe" style="position: absolute" :src="dudesIframeUrl" class="iframe" />
 				<NSpace :size="6" class="absolute top-[18px] left-2">
-					<NButton @click="sendIframeMessage('spawn-emote')">
-						Emote
-					</NButton>
-					<NButton @click="sendIframeMessage('show-message')">
-						Message
-					</NButton>
-					<NButton @click="sendIframeMessage('jump')">
-						Jump
-					</NButton>
-					<NButton @click="sendIframeMessage('grow')">
-						Grow
-					</NButton>
-					<NButton @click="sendIframeMessage('leave')">
-						Leave
-					</NButton>
-					<NButton @click="sendIframeMessage('reset')">
-						Reset
-					</NButton>
+					<NButton @click="sendIframeMessage('spawn-emote')"> Emote </NButton>
+					<NButton @click="sendIframeMessage('show-message')"> Message </NButton>
+					<NButton @click="sendIframeMessage('jump')"> Jump </NButton>
+					<NButton @click="sendIframeMessage('grow')"> Grow </NButton>
+					<NButton @click="sendIframeMessage('leave')"> Leave </NButton>
+					<NButton @click="sendIframeMessage('reset')"> Reset </NButton>
 				</NSpace>
 			</div>
 		</div>
@@ -139,7 +115,7 @@ const addable = computed(() => {
 				type="card"
 				:closable="userCanEditOverlays"
 				:addable="addable"
-				style="margin-top: 1rem;"
+				style="margin-top: 1rem"
 				tab-style="min-width: 80px;"
 				@close="handleClose"
 				@add="handleAdd"
@@ -147,9 +123,9 @@ const addable = computed(() => {
 				<template #prefix>
 					{{ t('overlays.chat.presets') }}
 				</template>
-				<template v-if="entities?.settings.length">
+				<template v-if="entities?.dudesGetAll?.length">
 					<NTabPane
-						v-for="(entity, entityIndex) in entities?.settings"
+						v-for="(entity, entityIndex) in entities?.dudesGetAll"
 						:key="entity.id"
 						:tab="`#${entityIndex + 1}`"
 						:name="entity.id!"
@@ -158,7 +134,7 @@ const addable = computed(() => {
 					</NTabPane>
 				</template>
 			</NTabs>
-			<NAlert v-if="!entities?.settings.length" type="info" class="mt-2">
+			<NAlert v-if="!entities?.dudesGetAll?.length" type="info" class="mt-2">
 				Create new overlay for edit settings
 			</NAlert>
 		</div>

@@ -8,8 +8,8 @@ import (
 	"github.com/satont/twir/libs/twitch"
 )
 
-func (c *Manager) unsubscribeChannel(ctx context.Context, channelID string) error {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
+func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) error {
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
 		return err
 	}

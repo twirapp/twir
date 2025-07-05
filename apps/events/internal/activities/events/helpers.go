@@ -65,14 +65,14 @@ func (c *Activity) getHelixChannelApiClient(ctx context.Context, channelId strin
 	*helix.Client,
 	error,
 ) {
-	return twitch.NewUserClientWithContext(ctx, channelId, c.cfg, c.tokensGrpc)
+	return twitch.NewUserClientWithContext(ctx, channelId, c.cfg, c.bus)
 }
 
 func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
 	*helix.Client,
 	error,
 ) {
-	return twitch.NewBotClientWithContext(ctx, botID, c.cfg, c.tokensGrpc)
+	return twitch.NewBotClientWithContext(ctx, botID, c.cfg, c.bus)
 }
 
 // should be used with broadcaster channel client, otherwise it will return error

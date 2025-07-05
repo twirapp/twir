@@ -1,71 +1,196 @@
-import { useQueryClient, useQuery, useMutation } from '@tanstack/vue-query';
-import type {
-	Settings,
-	UpdateRequest,
-	GetAllResponse,
-} from '@twir/api/messages/overlays_dudes/overlays_dudes';
-import { unref } from 'vue';
-import type { MaybeRef } from 'vue';
+import { createGlobalState } from '@vueuse/core'
 
-import { protectedApiClient } from '@/api/twirp.js';
+import { graphql } from '@/gql'
+import { useQuery } from '@urql/vue'
+import { useMutation } from '@/composables/use-mutation'
+import type { DudesOverlaySettings, DudesOverlaySettingsInput } from '@/gql/graphql'
 
-export const useDudesOverlayManager = () => {
-	const queryClient = useQueryClient();
-	const queryKey = 'dudesOverlay';
+export const useDudesOverlayApi = createGlobalState(() => {
+	const cacheKey = ['dudesOverlay']
+
+	const useDudesQuery = () =>
+		useQuery({
+			query: graphql(`
+				query DudesOverlays {
+					dudesGetAll {
+						id
+						dudeSettings {
+							color
+							eyesColor
+							cosmeticsColor
+							maxLifeTime
+							gravity
+							scale
+							soundsEnabled
+							soundsVolume
+							visibleName
+							growTime
+							growMaxScale
+							maxOnScreen
+							defaultSprite
+						}
+						messageBoxSettings {
+							enabled
+							borderRadius
+							boxColor
+							fontFamily
+							fontSize
+							padding
+							showTime
+							fill
+						}
+						nameBoxSettings {
+							fontFamily
+							fontSize
+							fill
+							lineJoin
+							strokeThickness
+							stroke
+							fillGradientStops
+							fillGradientType
+							fontStyle
+							fontVariant
+							fontWeight
+							dropShadow
+							dropShadowAlpha
+							dropShadowAngle
+							dropShadowBlur
+							dropShadowDistance
+							dropShadowColor
+						}
+						ignoreSettings {
+							ignoreCommands
+							ignoreUsers
+							users
+						}
+						spitterEmoteSettings {
+							enabled
+						}
+					}
+				}
+			`),
+			context: {
+				additionalTypenames: cacheKey,
+			},
+			variables: {},
+		})
+
+	const useDudesByIdQuery = (id: string) =>
+		useQuery({
+			query: graphql(`
+				query DudesOverlayById($id: UUID!) {
+					dudesGetById(id: $id) {
+						id
+						dudeSettings {
+							color
+							eyesColor
+							cosmeticsColor
+							maxLifeTime
+							gravity
+							scale
+							soundsEnabled
+							soundsVolume
+							visibleName
+							growTime
+							growMaxScale
+							maxOnScreen
+							defaultSprite
+						}
+						messageBoxSettings {
+							enabled
+							borderRadius
+							boxColor
+							fontFamily
+							fontSize
+							padding
+							showTime
+							fill
+						}
+						nameBoxSettings {
+							fontFamily
+							fontSize
+							fill
+							lineJoin
+							strokeThickness
+							stroke
+							fillGradientStops
+							fillGradientType
+							fontStyle
+							fontVariant
+							fontWeight
+							dropShadow
+							dropShadowAlpha
+							dropShadowAngle
+							dropShadowBlur
+							dropShadowDistance
+							dropShadowColor
+						}
+						ignoreSettings {
+							ignoreCommands
+							ignoreUsers
+							users
+						}
+						spitterEmoteSettings {
+							enabled
+						}
+					}
+				}
+			`),
+			context: {
+				additionalTypenames: cacheKey,
+			},
+			variables: { id },
+		})
+
+	const useDudesCreate = () =>
+		useMutation(
+			graphql(`
+				mutation DudesOverlayCreate($input: DudesOverlaySettingsInput!) {
+					dudesCreate(input: $input)
+				}
+			`),
+			cacheKey
+		)
+
+	const useDudesUpdate = () =>
+		useMutation(
+			graphql(`
+				mutation DudesOverlayUpdate($id: UUID!, $input: DudesOverlaySettingsInput!) {
+					dudesUpdate(id: $id, input: $input)
+				}
+			`),
+			cacheKey
+		)
+
+	const useDudesDelete = () =>
+		useMutation(
+			graphql(`
+				mutation DudesOverlayDelete($id: UUID!) {
+					dudesDelete(id: $id)
+				}
+			`),
+			cacheKey
+		)
 
 	return {
-		useGet: (id: MaybeRef<string>) => useQuery({
-			queryKey: [queryKey, id],
-			queryFn: async (): Promise<Settings | null> => {
-				try {
-					const call = await protectedApiClient.overlayDudesGet({
-						id: unref(id),
-					});
-					return call.response;
-				} catch {
-					return null;
-				}
-			},
-		}),
-		useGetAll: () => useQuery({
-			queryKey: [queryKey],
-			queryFn: async (): Promise<GetAllResponse> => {
-				const call = await protectedApiClient.overlayDudesGetAll({});
-				return call.response;
-			},
-		}),
-		useCreate: () => useMutation({
-			mutationKey: ['dudesOverlayCreate'],
-			mutationFn: async (opts: MaybeRef<Settings>) => {
-				const data = unref(opts);
-				const call = await protectedApiClient.overlayDudesCreate(data);
-				return call.response;
-			},
-			onSuccess: async () => {
-				await queryClient.invalidateQueries([queryKey]);
-			},
-		}),
-		useUpdate: () => useMutation({
-			mutationKey: ['dudesOverlayUpdate'],
-			mutationFn: async (opts: MaybeRef<UpdateRequest>) => {
-				const data = unref(opts);
-				await protectedApiClient.overlayDudesUpdate(data);
-			},
-			onSuccess: async (_, opts) => {
-				const data = unref(opts);
-				await queryClient.invalidateQueries([queryKey, data.id]);
-			},
-		}),
-		useDelete: () => useMutation({
-			mutationKey: ['dudesOverlayDelete'],
-			mutationFn: async (id: MaybeRef<string>) => {
-				await protectedApiClient.overlayDudesDelete({
-					id: unref(id),
-				});
-			},
-			onSuccess: async () => {
-				await queryClient.invalidateQueries([queryKey]);
-			},
-		}),
-	};
-};
+		useDudesQuery,
+		useDudesByIdQuery,
+		useDudesCreate,
+		useDudesUpdate,
+		useDudesDelete,
+	}
+})
+
+export const useDudesOverlayManager = () => {
+	const api = useDudesOverlayApi()
+
+	return {
+		useGet: (id: string) => api.useDudesByIdQuery(id),
+		useGetAll: () => api.useDudesQuery(),
+		useCreate: () => api.useDudesCreate(),
+		useUpdate: () => api.useDudesUpdate(),
+		useDelete: () => api.useDudesDelete(),
+	}
+}
+
+export type { DudesOverlaySettings, DudesOverlaySettingsInput }

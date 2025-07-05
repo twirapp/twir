@@ -44,6 +44,7 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage)
 		}
 
 		err = c.twirBus.Giveaways.TryAddParticipant.Publish(
+			ctx,
 			giveawaysbus.TryAddParticipantRequest{
 				UserID:          msg.ChatterUserId,
 				UserLogin:       msg.ChatterUserLogin,

@@ -39,7 +39,7 @@ var Remove = &types.DefaultCommand{
 		twitchClient, err := twitch.NewUserClient(
 			parseCtx.Channel.ID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
+			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -79,7 +79,7 @@ var Remove = &types.DefaultCommand{
 				fmt.Sprintf("✅ removed vip from user %s", user.UserLogin),
 			},
 		}
-		
+
 		return result, nil
 	},
 }

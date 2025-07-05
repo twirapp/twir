@@ -123,6 +123,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 		ExpiresAt:                 nil,
 		ExpiresType:               nil,
 		Responses:                 nil, // should be nil
+		OfflineOnly:               opts.OfflineOnly.Value(),
 	}
 
 	if opts.GroupID.IsSet() {
@@ -162,6 +163,8 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 				Text:              &res.Text,
 				Order:             idx,
 				TwitchCategoryIDs: res.TwitchCategoriesIds,
+				OnlineOnly:        res.OnlineOnly,
+				OfflineOnly:       res.OfflineOnly,
 			},
 		)
 	}

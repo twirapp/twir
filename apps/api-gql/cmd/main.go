@@ -1,7 +1,7 @@
 package main
 
 import (
-	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
@@ -13,6 +13,7 @@ import (
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
+	channelsfilesroute "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/channels/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/di"
@@ -27,7 +28,10 @@ import (
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
@@ -38,11 +42,14 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
+	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
@@ -54,6 +61,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/toxic_messages"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
@@ -62,16 +70,18 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
+	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
+	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
 	channelsmoderationsettingsccahe "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
+	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
@@ -80,10 +90,14 @@ import (
 	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
+	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
-	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
+	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
 	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
 	commandsgroupsrepository "github.com/twirapp/twir/libs/repositories/commands_group"
@@ -100,6 +114,8 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
+	overlaysdudesrepository "github.com/twirapp/twir/libs/repositories/overlays_dudes"
+	overlaysdudesrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_dudes/pgx"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	shortenedurlsrepositorypostgres "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
@@ -143,6 +159,15 @@ import (
 
 	pastebinsrepository "github.com/twirapp/twir/libs/repositories/pastebins"
 	pastebinsrepositorypgx "github.com/twirapp/twir/libs/repositories/pastebins/datasource/postgres"
+
+	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
+	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
+
+	channelsfilesrepository "github.com/twirapp/twir/libs/repositories/channels_files"
+	channelsfilesrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_files/datasource/postgres"
+
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
+	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
 
 	eventsrepository "github.com/twirapp/twir/libs/repositories/events"
 	eventsrepositorypgx "github.com/twirapp/twir/libs/repositories/events/pgx"
@@ -225,7 +250,7 @@ func main() {
 				fx.As(new(greetingsrepository.Repository)),
 			),
 			fx.Annotate(
-				chatmessagesrepositorypgx.NewFx,
+				chatmessagesrepositoryclickhouse.NewFx,
 				fx.As(new(chatmessagesrepository.Repository)),
 			),
 			fx.Annotate(
@@ -277,6 +302,10 @@ func main() {
 				fx.As(new(channelsmoderationsettingsrepository.Repository)),
 			),
 			fx.Annotate(
+				overlaysdudesrepositorypgx.NewFx,
+				fx.As(new(overlaysdudesrepository.Repository)),
+			),
+			fx.Annotate(
 				eventsrepositorypgx.NewFx,
 				fx.As(new(eventsrepository.Repository)),
 			),
@@ -284,9 +313,30 @@ func main() {
 				pastebinsrepositorypgx.NewFx,
 				fx.As(new(pastebinsrepository.Repository)),
 			),
+			fx.Annotate(
+				toxicmessagesrepositorypgx.NewFx,
+				fx.As(new(toxicmessagesrepository.Repository)),
+			),
+			fx.Annotate(
+				channelsfilesrepositorypgx.NewFx,
+				fx.As(new(channelsfilesrepository.Repository)),
+			),
+			fx.Annotate(
+				channelsemotesusagesrepositoryclickhouse.NewFx,
+				fx.As(new(channelsemotesusagesrepository.Repository)),
+			),
+			fx.Annotate(
+				channelscommandsusagesclickhouse.NewFx,
+				fx.As(new(channelscommandsusages.Repository)),
+			),
+			fx.Annotate(
+				channelsredemptionshistoryclickhouse.NewFx,
+				fx.As(new(channelsredemptionshistory.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
+			executron.New,
 			dashboard_widget_events.New,
 			variables.New,
 			timers.New,
@@ -311,6 +361,7 @@ func main() {
 			channels.New,
 			chat_messages.New,
 			channels_commands_prefix.New,
+			channels_emotes_usages.New,
 			tts.New,
 			song_requests.New,
 			community_redemptions.New,
@@ -323,6 +374,7 @@ func main() {
 			chat_translation.New,
 			shortenedurls.New,
 			giveaways.New,
+			overlays_dudes.New,
 			channels_moderation_settings.New,
 			pastebinsservice.New,
 			events.New,
@@ -330,9 +382,11 @@ func main() {
 		),
 		// grpc clients
 		fx.Provide(
-			func(config cfg.Config) tokens.TokensClient {
-				return clients.NewTokens(config.AppEnv)
-			},
+			toxic_messages.New,
+			channels_files.New,
+			channels_redemptions_history.New,
+			donatellointegration.New,
+			donatestreamintegration.New,
 		),
 		// app itself
 		fx.Provide(
@@ -348,8 +402,12 @@ func main() {
 			commandscache.New,
 			keywordscacher.New,
 			giveawayscache.New,
+			chatalertscache.New,
+			channelalertscache.New,
 			channelsmoderationsettingsccahe.New,
 			chattranslationssettignscache.New,
+			channelsongrequestssettingscache.New,
+			channelsintegrationssettingsseventvcache.New,
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,
 				fx.As(new(wsrouter.WsRouter)),
@@ -367,6 +425,7 @@ func main() {
 			authroutes.New,
 			shortlinks.New,
 			pastebins.New,
+			channelsfilesroute.New,
 		),
 	).Run()
 }

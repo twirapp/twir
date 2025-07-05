@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	config "github.com/satont/twir/libs/config"
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"go.uber.org/fx"
@@ -25,6 +27,7 @@ const (
 func newGorm(
 	cfg config.Config,
 	lc fx.Lifecycle,
+	pool *pgxpool.Pool,
 ) (*gorm.DB, error) {
 	newLogger := gormlogger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
@@ -37,11 +40,20 @@ func newGorm(
 		},
 	)
 
+	sqlDb := stdlib.OpenDBFromPool(pool)
+
+	dialector := postgres.New(
+		postgres.Config{
+			Conn: sqlDb,
+		},
+	)
+
 	db, err := gorm.Open(
-		postgres.Open(cfg.DatabaseUrl),
+		dialector,
 		&gorm.Config{
 			Logger:                 newLogger,
 			SkipDefaultTransaction: true,
+			PrepareStmt:            false,
 		},
 	)
 	if err != nil {

@@ -903,7 +903,7 @@
       },
       "total": "Всього {total} користувачів",
       "reset": {
-        "label": "Скинути",
+        "label": "Reset stats",
         "resetQuestion": "Ви впевнені, що хочете скинути значення {title}?"
       }
     },

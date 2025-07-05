@@ -2,29 +2,29 @@ package twitch
 
 import (
 	config "github.com/satont/twir/libs/config"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 )
 
 type Opts struct {
 	fx.In
 
-	TokensClient       tokens.TokensClient
+	TwirBus            *buscore.Bus
 	Config             config.Config
 	CachedTwitchClient *twitchcahe.CachedTwitchClient
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		tokensClient:       opts.TokensClient,
+		twirBus:            opts.TwirBus,
 		config:             opts.Config,
 		cachedTwitchClient: opts.CachedTwitchClient,
 	}
 }
 
 type Service struct {
-	tokensClient       tokens.TokensClient
+	twirBus            *buscore.Bus
 	config             config.Config
 	cachedTwitchClient *twitchcahe.CachedTwitchClient
 }

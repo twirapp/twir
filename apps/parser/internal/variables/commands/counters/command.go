@@ -2,9 +2,12 @@ package command_counters
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
+	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 )
 
 var CommandCounter = &types.Variable{
@@ -16,7 +19,7 @@ var CommandCounter = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		count, err := getCount(parseCtx.Services.Gorm, parseCtx.Command.ID, nil)
+		commandUUID, err := uuid.Parse(parseCtx.Command.ID)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 
@@ -24,7 +27,20 @@ var CommandCounter = &types.Variable{
 			return result, nil
 		}
 
-		result.Result = count
+		count, err := parseCtx.Services.ChannelsCommandsUsagesRepo.Count(
+			ctx, channelscommandsusages.CountInput{
+				ChannelID: &parseCtx.Channel.ID,
+				CommandID: &commandUUID,
+			},
+		)
+		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+
+			result.Result = "cannot get count"
+			return result, nil
+		}
+
+		result.Result = fmt.Sprint(count)
 
 		return result, nil
 	},

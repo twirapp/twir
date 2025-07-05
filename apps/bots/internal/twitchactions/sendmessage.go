@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/aidenwallis/go-ratelimiting/redis"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
@@ -60,16 +60,16 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		return nil
 	}
 
-	channel := &model.Channels{}
-	if err = c.gorm.
-		WithContext(ctx).
-		Where("channels.id = ?", opts.BroadcasterID).
-		Joins("User").
-		First(channel).Error; err != nil {
+	channel, err := c.channelsCache.Get(ctx, opts.BroadcasterID)
+	if err != nil {
 		return err
 	}
-	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned || channel.User.IsBanned {
+	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
 		return nil
+	}
+
+	if opts.SenderID == "" {
+		opts.SenderID = channel.BotID
 	}
 
 	c.logger.Info(
@@ -82,13 +82,13 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	var twitchClient *helix.Client
 	var twitchClientErr error
 	if !opts.IsAnnounce {
-		twitchClient, twitchClientErr = twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
+		twitchClient, twitchClientErr = twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	} else {
 		twitchClient, twitchClientErr = twitch.NewBotClientWithContext(
 			ctx,
 			opts.SenderID,
 			c.config,
-			c.tokensGrpc,
+			c.twirBus,
 		)
 	}
 
@@ -100,13 +100,15 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	textParts := splitTextByLength(text)
 
 	toxicity := make([]bool, len(textParts))
-	if !opts.SkipToxicityCheck {
-		t, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
-		if err != nil {
-			return fmt.Errorf("cannot send message: %w", err)
-		}
-		toxicity = t
-	}
+	// if !opts.SkipToxicityCheck {
+	// 	t, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
+	// 	if err != nil {
+	// 		c.logger.Error("cannot check toxicity", slog.Any("err", err))
+	// 		// return fmt.Errorf("cannot send message: %w", err)
+	// 	} else {
+	// 		toxicity = t
+	// 	}
+	// }
 
 	for i, part := range textParts {
 		// Do not send message if it was splitted more than 3 parts
@@ -175,17 +177,23 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 					continue
 				}
 
-				err := c.sentMessagesRepository.Create(
-					ctx, sentmessages.CreateInput{
-						MessageTwitchID: m.MessageID,
-						Content:         message,
-						ChannelID:       opts.BroadcasterID,
-						SenderID:        opts.SenderID,
-					},
-				)
-				if err != nil {
-					c.logger.Warn("Cannot save message to db", slog.Any("err", err))
-				}
+				go func() {
+					createContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+					defer cancel()
+
+					repoCreateError := c.sentMessagesRepository.Create(
+						createContext,
+						sentmessages.CreateInput{
+							MessageTwitchID: m.MessageID,
+							Content:         message,
+							ChannelID:       opts.BroadcasterID,
+							SenderID:        opts.SenderID,
+						},
+					)
+					if repoCreateError != nil {
+						c.logger.Warn("Cannot save message to db", slog.Any("err", repoCreateError))
+					}
+				}()
 			}
 
 			if resp != nil {

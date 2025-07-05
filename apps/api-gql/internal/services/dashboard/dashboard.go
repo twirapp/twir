@@ -17,9 +17,9 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -28,38 +28,38 @@ import (
 type Opts struct {
 	fx.In
 
-	Gorm               *gorm.DB
-	CachedTwitchClient *twitchcache.CachedTwitchClient
-	Redis              *redis.Client
-	Config             config.Config
-	TokensClient       tokens.TokensClient
-	Logger             logger.Logger
-	TwirBus            *buscore.Bus
-	ChannelsCache      *generic_cacher.GenericCacher[channelmodel.Channel]
+	Gorm                    *gorm.DB
+	CachedTwitchClient      *twitchcache.CachedTwitchClient
+	Redis                   *redis.Client
+	Config                  config.Config
+	Logger                  logger.Logger
+	TwirBus                 *buscore.Bus
+	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelEmotesUsagesRepo channelsemotesusagesrepository.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		gorm:               opts.Gorm,
-		cachedTwitchClient: opts.CachedTwitchClient,
-		redis:              opts.Redis,
-		config:             opts.Config,
-		tokensClient:       opts.TokensClient,
-		logger:             opts.Logger,
-		twirBus:            opts.TwirBus,
-		channelsCache:      opts.ChannelsCache,
+		gorm:                    opts.Gorm,
+		cachedTwitchClient:      opts.CachedTwitchClient,
+		redis:                   opts.Redis,
+		config:                  opts.Config,
+		logger:                  opts.Logger,
+		twirBus:                 opts.TwirBus,
+		channelsCache:           opts.ChannelsCache,
+		channelEmotesUsagesRepo: opts.ChannelEmotesUsagesRepo,
 	}
 }
 
 type Service struct {
-	gorm               *gorm.DB
-	cachedTwitchClient *twitchcache.CachedTwitchClient
-	redis              *redis.Client
-	config             config.Config
-	tokensClient       tokens.TokensClient
-	logger             logger.Logger
-	twirBus            *buscore.Bus
-	channelsCache      *generic_cacher.GenericCacher[channelmodel.Channel]
+	gorm                    *gorm.DB
+	cachedTwitchClient      *twitchcache.CachedTwitchClient
+	redis                   *redis.Client
+	config                  config.Config
+	logger                  logger.Logger
+	twirBus                 *buscore.Bus
+	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
 }
 
 func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
@@ -90,7 +90,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		ctx,
 		channelID,
 		c.config,
-		c.tokensClient,
+		c.twirBus,
 	)
 	if err != nil {
 		return entity.DashboardStats{}, err
@@ -182,13 +182,18 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	var errgrp errgroup.Group
 	errgrp.Go(
 		func() error {
-			if err = c.gorm.
-				WithContext(ctx).
-				Model(&model.ChannelEmoteUsage{}).
-				Where(`"channelId" = ? AND "createdAt" >= ?`, channelID, stream.StartedAt).
-				Count(&usedEmotes).Error; err != nil {
+			emotesCount, err := c.channelEmotesUsagesRepo.Count(
+				ctx,
+				channelsemotesusagesrepository.CountInput{
+					ChannelID: &channelID,
+					TimeAfter: &stream.StartedAt,
+				},
+			)
+			if err != nil {
 				return fmt.Errorf("get count of used emotes: %w", err)
 			}
+
+			usedEmotes = int64(emotesCount)
 
 			return nil
 		},
@@ -229,7 +234,7 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 		return entity.BotStatus{}, fmt.Errorf("user not found")
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelID, c.config, c.tokensClient)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelID, c.config, c.twirBus)
 	if err != nil {
 		return entity.BotStatus{}, err
 	}
@@ -322,7 +327,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 		dbChannel.IsEnabled = false
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensClient)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
 		return false, err
 	}
@@ -340,6 +345,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 
 	if dbChannel.IsEnabled {
 		c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+			ctx,
 			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID},
 		)
 	}
@@ -348,7 +354,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 		ctx,
 		channelID,
 		c.config,
-		c.tokensClient,
+		c.twirBus,
 	)
 	if err != nil {
 		return false, err

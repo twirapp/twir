@@ -62,7 +62,7 @@ var Add = &types.DefaultCommand{
 		twitchClient, err := twitch.NewUserClient(
 			parseCtx.Channel.ID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
+			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -117,7 +117,7 @@ var Add = &types.DefaultCommand{
 						Message: fmt.Sprintf("cannot add vip: %s", vipResp.ErrorMessage),
 					}
 				}
-				
+
 				if unvipAt == nil {
 					return nil
 				}

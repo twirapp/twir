@@ -7,8 +7,8 @@ export const anchorLinks = [
 		href: '#integrations',
 		label: 'Integrations',
 	},
-	{
-		href: '#team',
-		label: 'Team',
-	},
+	// {
+	// 	href: '#team',
+	// 	label: 'Team',
+	// },
 ]

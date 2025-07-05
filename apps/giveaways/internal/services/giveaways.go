@@ -87,6 +87,7 @@ func (c *Service) TryAddParticipant(
 	}
 
 	if err := c.twirBus.Giveaways.NewParticipants.Publish(
+		ctx,
 		giveawaysbusmodel.NewParticipant{
 			GiveawayID:      giveawayID,
 			UserID:          userID,

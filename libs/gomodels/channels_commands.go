@@ -35,6 +35,7 @@ type ChannelsCommands struct {
 	AllowedUsersIDS           pq.StringArray               `gorm:"column:allowedUsersIds;type:text[];default:[];"            json:"allowedUsersIds"`
 	RolesIDS                  pq.StringArray               `gorm:"column:rolesIds;type:text[];default:[];"                   json:"rolesIds"`
 	OnlineOnly                bool                         `gorm:"column:online_only;type:BOOL;"                             json:"onlineOnly"`
+	OfflineOnly               bool                         `gorm:"column:offline_only;type:BOOL;"                            json:"offlineOnly"`
 	CooldownRolesIDs          pq.StringArray               `gorm:"column:cooldown_roles_ids;type:text[];default:[];"         json:"cooldownRolesIds"`
 	EnabledCategories         pq.StringArray               `gorm:"column:enabled_categories;type:text[];default:[];"         json:"enabledCategories"`
 	RequiredWatchTime         int                          `gorm:"column:requiredWatchTime;type:INT4;default:0;"             json:"requiredWatchTime"`

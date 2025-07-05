@@ -9,13 +9,13 @@ use (
 	./apps/emotes-cacher
 	./apps/events
 	./apps/eventsub
+	./apps/giveaways
 	./apps/parser
 	./apps/scheduler
 	./apps/timers
 	./apps/tokens
 	./apps/websockets
 	./apps/ytsr
-	./apps/giveaways
 	./cli
 	./libs/api
 	./libs/baseapp

@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
@@ -21,6 +24,7 @@ var conditionKeys = []string{
 var knownTopicsEntitiesCache = map[string]model.EventsubTopic{}
 
 func (c *Handler) onNotification(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	notification *eventsub_bindings.EventNotification,
 ) {
@@ -46,12 +50,25 @@ func (c *Handler) onNotification(
 		return
 	}
 
+	redisKey := fmt.Sprintf(
+		"eventsub:cache:notification:check:%s:%s",
+		notification.Subscription.Type,
+		userId,
+	)
+	if exists, err := c.redisClient.Exists(ctx, redisKey).Result(); err != nil {
+		c.logger.Error("failed to check redis", slog.Any("err", err))
+		return
+	} else if exists == 1 {
+		return
+	}
+
 	var topicId uuid.UUID
 	if cachedTopic, topicFound := knownTopicsEntitiesCache[notification.Subscription.Type]; topicFound {
 		topicId = cachedTopic.ID
 	} else {
 		topicEntity := model.EventsubTopic{}
 		if err := c.gorm.
+			WithContext(ctx).
 			Where("topic = ?", notification.Subscription.Type).
 			First(&topicEntity).
 			Error; err != nil {
@@ -72,7 +89,7 @@ func (c *Handler) onNotification(
 			Columns:   []clause.Column{{Name: "topic_id"}, {Name: "user_id"}},
 			DoUpdates: clause.Assignments(map[string]interface{}{"status": notification.Subscription.Status}),
 		},
-	).Create(
+	).WithContext(ctx).Create(
 		&model.EventsubSubscription{
 			ID:          uuid.New(),
 			UserID:      userId,
@@ -84,4 +101,6 @@ func (c *Handler) onNotification(
 	).Error; err != nil {
 		c.logger.Error("failed to create/update subscription", slog.Any("err", err))
 	}
+
+	c.redisClient.Set(ctx, redisKey, "true", 1*time.Minute)
 }

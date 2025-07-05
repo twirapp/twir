@@ -12,7 +12,6 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -27,12 +26,10 @@ type Opts struct {
 	DB      *gorm.DB
 	Discord *discord_go.Discord
 	Bus     *buscore.Bus
-
-	TokensGrpc tokens.TokensClient
 }
 
 func New(opts Opts) (*MessagesUpdater, error) {
-	twitchClient, err := twitch.NewAppClient(opts.Config, opts.TokensGrpc)
+	twitchClient, err := twitch.NewAppClient(opts.Config, opts.Bus)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +40,8 @@ func New(opts Opts) (*MessagesUpdater, error) {
 		config:       opts.Config,
 		db:           opts.DB,
 		discord:      opts.Discord,
-		tokensGrpc:   opts.TokensGrpc,
 		twitchClient: twitchClient,
+		twirBus:      opts.Bus,
 	}
 
 	opts.LC.Append(
@@ -52,23 +49,25 @@ func New(opts Opts) (*MessagesUpdater, error) {
 			OnStart: func(_ context.Context) error {
 				opts.Bus.Channel.StreamOnline.SubscribeGroup(
 					"discord",
-					func(ctx context.Context, data bustwitch.StreamOnlineMessage) struct{} {
+					func(ctx context.Context, data bustwitch.StreamOnlineMessage) (struct{}, error) {
 						if err := updater.processOnline(ctx, data.ChannelID); err != nil {
 							opts.Logger.Error("Failed to process online", slog.Any("err", err))
+							return struct{}{}, err
 						}
 
-						return struct{}{}
+						return struct{}{}, nil
 					},
 				)
 
 				opts.Bus.Channel.StreamOffline.SubscribeGroup(
 					"discord",
-					func(ctx context.Context, data bustwitch.StreamOfflineMessage) struct{} {
+					func(ctx context.Context, data bustwitch.StreamOfflineMessage) (struct{}, error) {
 						if err := updater.processOffline(ctx, data.ChannelID); err != nil {
 							opts.Logger.Error("Failed to process offline", slog.Any("err", err))
+							return struct{}{}, err
 						}
 
-						return struct{}{}
+						return struct{}{}, nil
 					},
 				)
 
@@ -93,6 +92,6 @@ type MessagesUpdater struct {
 	db      *gorm.DB
 	discord *discord_go.Discord
 
-	tokensGrpc   tokens.TokensClient
+	twirBus      *buscore.Bus
 	twitchClient *helix.Client
 }

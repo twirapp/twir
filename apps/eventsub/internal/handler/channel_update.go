@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"log/slog"
-	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -13,11 +12,9 @@ import (
 )
 
 func (c *Handler) handleChannelUpdate(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelUpdate,
 ) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	if err := c.redisClient.Del(
 		ctx,
 		redis_keys.StreamByChannelID(event.BroadcasterUserID),
@@ -34,6 +31,7 @@ func (c *Handler) handleChannelUpdate(
 	)
 
 	c.twirBus.Events.TitleOrCategoryChanged.Publish(
+		ctx,
 		events.TitleOrCategoryChangedMessage{
 			BaseInfo:    events.BaseInfo{ChannelID: event.BroadcasterUserID},
 			NewTitle:    event.Title,

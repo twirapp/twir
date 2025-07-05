@@ -1,12 +1,9 @@
 package emotes
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
-	"net/http"
+	"context"
 
+	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 )
 
@@ -19,24 +16,18 @@ type BttvResponse struct {
 	SharedEmotes  []BttvEmote `json:"sharedEmotes"`
 }
 
-func GetChannelBttvEmotes(channelID string) ([]string, error) {
-	resp, err := http.Get("https://api.betterttv.net/3/cached/users/twitch/" + channelID)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
+func GetChannelBttvEmotes(ctx context.Context, channelID string) ([]string, error) {
 	reqData := BttvResponse{}
-	err = json.Unmarshal(body, &reqData)
+
+	_, err := req.
+		SetContext(ctx).
+		SetSuccessResult(&reqData).
+		Get("https://api.betterttv.net/3/cached/users/twitch/" + channelID)
 	if err != nil {
-		return nil, fmt.Errorf("cannot fetch bttv emotes: %w", err)
+		return nil, err
 	}
 
-	emotes := []string{}
+	var emotes []string
 
 	mappedChannelEmotes := lo.Map(
 		reqData.ChannelEmotes, func(e BttvEmote, _ int) string {
@@ -55,21 +46,15 @@ func GetChannelBttvEmotes(channelID string) ([]string, error) {
 	return emotes, nil
 }
 
-func GetGlobalBttvEmotes() ([]string, error) {
-	resp, err := http.Get("https://api.betterttv.net/3/cached/emotes/global")
+func GetGlobalBttvEmotes(ctx context.Context) ([]string, error) {
+	var emotes []BttvEmote
+
+	_, err := req.
+		SetContext(ctx).
+		SetSuccessResult(&emotes).
+		Get("https://api.betterttv.net/3/cached/emotes/global")
 	if err != nil {
 		return nil, err
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	emotes := []BttvEmote{}
-	err = json.Unmarshal(body, &emotes)
-	if err != nil {
-		return nil, errors.New("cannot fetch bttv emotes")
 	}
 
 	return lo.Map(

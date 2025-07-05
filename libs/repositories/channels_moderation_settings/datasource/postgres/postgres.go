@@ -56,8 +56,11 @@ var selectColumns = []string{
 	"deny_list_regexp_enabled",
 	"deny_list_word_boundary_enabled",
 	"deny_list_sensitivity_enabled",
+	"one_man_spam_minimum_stored_messages",
+	"one_man_spam_message_memory_seconds",
 	"created_at",
 	"updated_at",
+	"language_excluded_words",
 }
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.ChannelModerationSettings, error) {

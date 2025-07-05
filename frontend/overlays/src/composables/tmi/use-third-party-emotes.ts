@@ -1,5 +1,5 @@
 import { useIntervalFn } from '@vueuse/core';
-import { watch, type Ref } from 'vue';
+import { type Ref, watch } from 'vue';
 
 import { useBetterTv } from './use-bettertv.js';
 import type { ChatSettings } from './use-chat-tmi.js';

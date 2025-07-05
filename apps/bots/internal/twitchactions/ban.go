@@ -28,7 +28,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 		ctx,
 		opts.BroadcasterID,
 		c.config,
-		c.tokensGrpc,
+		c.twirBus,
 	)
 	if err != nil {
 		return fmt.Errorf("cannot create helix client: %w", err)
@@ -38,7 +38,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 		ctx,
 		opts.ModeratorID,
 		c.config,
-		c.tokensGrpc,
+		c.twirBus,
 	)
 	if err != nil {
 		c.logger.Error("cannot create helix client", slog.Any("err", err))

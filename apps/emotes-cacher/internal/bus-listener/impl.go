@@ -62,11 +62,11 @@ func New(opts Opts) {
 }
 
 func (c *BusListener) cacheChannelEmotes(
-	_ context.Context,
+	ctx context.Context,
 	req emotes_cacher.EmotesCacheRequest,
-) struct{} {
+) (struct{}, error) {
 	if req.ChannelID == "" {
-		return struct{}{}
+		return struct{}{}, nil
 	}
 
 	wg := sync.WaitGroup{}
@@ -74,7 +74,7 @@ func (c *BusListener) cacheChannelEmotes(
 
 	resultEmotes := make([]string, 0, 300)
 
-	reqFuncs := []func(c string) ([]string, error){
+	reqFuncs := []func(ctx context.Context, c string) ([]string, error){
 		emotes.GetChannelSevenTvEmotes,
 		emotes.GetChannelBttvEmotes,
 		emotes.GetChannelFfzEmotes,
@@ -85,7 +85,7 @@ func (c *BusListener) cacheChannelEmotes(
 		f := f
 		go func() {
 			defer wg.Done()
-			res, err := f(req.ChannelID)
+			res, err := f(ctx, req.ChannelID)
 			if err != nil {
 				c.logger.Error("cannot get emotes", slog.Any("err", err))
 				return
@@ -101,7 +101,7 @@ func (c *BusListener) cacheChannelEmotes(
 
 	// TODO: lock and unlock redis here, so we handle each channel in queue
 	c.redis.Pipelined(
-		context.Background(),
+		ctx,
 		func(pipe redis.Pipeliner) error {
 			for _, emote := range resultEmotes {
 				if emote == "" {
@@ -109,7 +109,7 @@ func (c *BusListener) cacheChannelEmotes(
 				}
 
 				pipe.Set(
-					context.Background(),
+					ctx,
 					fmt.Sprintf("emotes:channel:%s:%s", req.ChannelID, emote),
 					emote,
 					10*time.Minute,
@@ -120,10 +120,10 @@ func (c *BusListener) cacheChannelEmotes(
 		},
 	)
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
-func (c *BusListener) cacheGlobalEmotes(_ context.Context, _ struct{}) struct{} {
+func (c *BusListener) cacheGlobalEmotes(ctx context.Context, _ struct{}) (struct{}, error) {
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 
@@ -133,7 +133,7 @@ func (c *BusListener) cacheGlobalEmotes(_ context.Context, _ struct{}) struct{} 
 
 	go func() {
 		defer wg.Done()
-		em, err := emotes.GetGlobalSevenTvEmotes()
+		em, err := emotes.GetGlobalSevenTvEmotes(ctx)
 		if err != nil || em == nil || len(em) == 0 {
 			return
 		}
@@ -145,7 +145,7 @@ func (c *BusListener) cacheGlobalEmotes(_ context.Context, _ struct{}) struct{} 
 
 	go func() {
 		defer wg.Done()
-		em, err := emotes.GetGlobalFfzEmotes()
+		em, err := emotes.GetGlobalFfzEmotes(ctx)
 		if err != nil || em == nil || len(em) == 0 {
 			return
 		}
@@ -157,7 +157,7 @@ func (c *BusListener) cacheGlobalEmotes(_ context.Context, _ struct{}) struct{} 
 
 	go func() {
 		defer wg.Done()
-		em, err := emotes.GetGlobalBttvEmotes()
+		em, err := emotes.GetGlobalBttvEmotes(ctx)
 		if err != nil || em == nil || len(em) == 0 {
 			return
 		}
@@ -170,7 +170,7 @@ func (c *BusListener) cacheGlobalEmotes(_ context.Context, _ struct{}) struct{} 
 	wg.Wait()
 
 	c.redis.Pipelined(
-		context.Background(), func(pipe redis.Pipeliner) error {
+		ctx, func(pipe redis.Pipeliner) error {
 			for _, emote := range resultEmotes {
 				if emote == "" {
 					continue
@@ -188,5 +188,5 @@ func (c *BusListener) cacheGlobalEmotes(_ context.Context, _ struct{}) struct{} 
 		},
 	)
 
-	return struct{}{}
+	return struct{}{}, nil
 }

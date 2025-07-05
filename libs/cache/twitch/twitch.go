@@ -5,33 +5,33 @@ import (
 	"github.com/redis/go-redis/v9"
 	cfg "github.com/satont/twir/libs/config"
 	twitchlib "github.com/satont/twir/libs/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 )
 
 type CachedTwitchClient struct {
-	config       cfg.Config
-	tokensClient tokens.TokensClient
-	redis        *redis.Client
-	client       *helix.Client
+	config  cfg.Config
+	redis   *redis.Client
+	client  *helix.Client
+	twirBus *buscore.Bus
 }
 
 func New(
 	config cfg.Config,
-	tokensClient tokens.TokensClient,
+	twirBus *buscore.Bus,
 	redisClient *redis.Client,
 ) (
 	*CachedTwitchClient,
 	error,
 ) {
-	twitchClient, err := twitchlib.NewAppClient(config, tokensClient)
+	twitchClient, err := twitchlib.NewAppClient(config, twirBus)
 	if err != nil {
 		return nil, err
 	}
 
 	return &CachedTwitchClient{
-		client:       twitchClient,
-		redis:        redisClient,
-		config:       config,
-		tokensClient: tokensClient,
+		client:  twitchClient,
+		redis:   redisClient,
+		config:  config,
+		twirBus: twirBus,
 	}, nil
 }

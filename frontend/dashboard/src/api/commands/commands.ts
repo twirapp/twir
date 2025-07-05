@@ -29,6 +29,8 @@ export const useCommandsApi = createGlobalState(() => {
 							name
 							boxArtUrl
 						}
+						onlineOnly
+						offlineOnly
 					}
 					cooldown
 					cooldownType
@@ -43,6 +45,7 @@ export const useCommandsApi = createGlobalState(() => {
 					allowedUsersIds
 					rolesIds
 					onlineOnly
+					offlineOnly
 					cooldownRolesIds
 					enabledCategories
 					requiredWatchTime

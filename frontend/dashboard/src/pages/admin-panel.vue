@@ -8,6 +8,8 @@ import AdminManageBadges from '@/features/admin-panel/manage-badges/manage-badge
 import AdminManageNotifications
 	from '@/features/admin-panel/manage-notifications/manage-notifications.vue'
 import AdminManageUsers from '@/features/admin-panel/manage-users/manage-users.vue'
+import ShortUrls from '@/features/admin-panel/short-urls/short-urls.vue'
+import ToxicMessages from '@/features/admin-panel/toxic-messages/toxic-messages.vue'
 import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue'
 
 const { t } = useI18n()
@@ -42,6 +44,16 @@ const pageTabs: PageLayoutTab[] = [
 		name: 'chat-messages',
 		title: 'Chat logs',
 		component: ChatMessages,
+	},
+	{
+		name: 'short-urls',
+		title: 'Short Urls',
+		component: ShortUrls,
+	},
+	{
+		name: 'toxic-messages',
+		title: 'Toxic messages',
+		component: ToxicMessages,
 	},
 ]
 </script>

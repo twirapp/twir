@@ -41,7 +41,7 @@ func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) (
 	error,
 ) {
 	query := `
-SELECT id, "channelId", description, "evalValue", name, response, type
+SELECT id, "channelId", description, "evalValue", name, response, "type", script_language
 FROM channels_customvars
 WHERE "channelId" = $1
 `
@@ -77,7 +77,7 @@ WHERE "channelId" = $1
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.CustomVariable, error) {
 	query := `
-SELECT id, "channelId", description, "evalValue", name, response, type
+SELECT id, "channelId", description, "evalValue", name, response, "type", script_language
 FROM channels_customvars
 WHERE id = $1
 LIMIT 1
@@ -101,9 +101,9 @@ func (c *Pgx) Create(ctx context.Context, input variables.CreateInput) (
 	error,
 ) {
 	query := `
-INSERT INTO channels_customvars ("channelId", description, "evalValue", name, response, type)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, "channelId", description, "evalValue", name, response, type
+INSERT INTO channels_customvars ("channelId", description, "evalValue", name, response, type, "script_language")
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, "channelId", description, "evalValue", name, response, "type", "script_language"
 `
 
 	rows, err := c.pool.Query(
@@ -115,6 +115,7 @@ RETURNING id, "channelId", description, "evalValue", name, response, type
 		input.Name,
 		input.Response,
 		input.Type,
+		input.ScriptLanguage,
 	)
 	if err != nil {
 		return model.Nil, err
@@ -152,7 +153,11 @@ func (c *Pgx) Update(
 	}
 
 	if input.Type != nil {
-		updateBuilder = updateBuilder.Set("type", *input.Type)
+		updateBuilder = updateBuilder.Set(`"type"`, *input.Type)
+	}
+
+	if input.ScriptLanguage != nil {
+		updateBuilder = updateBuilder.Set(`script_language`, *input.ScriptLanguage)
 	}
 
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})

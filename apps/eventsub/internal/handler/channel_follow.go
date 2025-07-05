@@ -6,18 +6,18 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleChannelFollow(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelFollow,
 ) {
-	ctx := context.Background()
 	redisKey := fmt.Sprintf("follows-cache:%s:%s", event.BroadcasterUserID, event.UserID)
 	key, _ := c.redisClient.Get(ctx, redisKey).Result()
 
@@ -35,21 +35,23 @@ func (c *Handler) handleChannelFollow(
 		slog.String("userName", event.UserLogin),
 	)
 
-	c.gorm.Create(
-		&model.ChannelsEventsListItem{
-			ID:        uuid.New().String(),
+	if err := c.eventsListRepository.Create(
+		ctx,
+		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    event.UserID,
+			UserID:    &event.UserID,
 			Type:      model.ChannelEventListItemTypeFollow,
-			CreatedAt: time.Now().UTC(),
 			Data: &model.ChannelsEventsListItemData{
 				FollowUserName:        event.UserLogin,
 				FollowUserDisplayName: event.UserName,
 			},
 		},
-	)
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	c.twirBus.Events.Follow.Publish(
+		ctx,
 		events.FollowMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

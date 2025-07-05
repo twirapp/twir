@@ -7,7 +7,6 @@ import (
 
 func AuditLogToGql(auditLog entity.AuditLog) gqlmodel.AuditLog {
 	return gqlmodel.AuditLog{
-		ID:            auditLog.ID,
 		System:        AuditTableNameToGqlSystem(auditLog.TableName),
 		OperationType: AuditTypeModelToGql(auditLog.OperationType),
 		OldValue:      auditLog.OldValue,

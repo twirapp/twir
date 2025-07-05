@@ -42,9 +42,9 @@ func (c *Pgx) Create(ctx context.Context, input commands_response.CreateInput) (
 	error,
 ) {
 	query := `
-INSERT INTO channels_commands_responses("commandId", "order", text, twitch_category_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id, "commandId", "order", text, twitch_category_id;
+INSERT INTO channels_commands_responses("commandId", "order", text, twitch_category_id, online_only, offline_only)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, "commandId", "order", text, twitch_category_id, online_only, offline_only;
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -55,6 +55,8 @@ RETURNING id, "commandId", "order", text, twitch_category_id;
 		input.Order,
 		input.Text,
 		append([]string{}, input.TwitchCategoryIDs...),
+		input.OnlineOnly,
+		input.OfflineOnly,
 	)
 	if err != nil {
 		return model.Nil, err
@@ -77,7 +79,7 @@ func (c *Pgx) GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
 	}
 
 	query := `
-SELECT id, "commandId", "order", text, twitch_category_id
+SELECT id, "commandId", "order", text, twitch_category_id, online_only, offline_only
 FROM channels_commands_responses
 WHERE "commandId" = any($1);
 `
@@ -127,13 +129,19 @@ func (c *Pgx) Update(
 ) (model.Response, error) {
 	updateBuilder := sq.Update("channels_commands_responses").
 		Where(squirrel.Eq{"id": id}).
-		Suffix(`RETURNING id, "commandId", "order", text, twitch_category_id`)
+		Suffix(
+			`RETURNING id, "commandId", "order", text, twitch_category_id`,
+			"online_only",
+			"offline_only",
+		)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,
 		map[string]interface{}{
 			"text":               input.Text,
 			"order":              input.Order,
 			"twitch_category_id": input.TwitchCategoryIDs,
+			"online_only":        input.OnlineOnly,
+			"offline_only":       input.OfflineOnly,
 		},
 	)
 

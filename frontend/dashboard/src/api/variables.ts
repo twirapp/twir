@@ -27,6 +27,7 @@ export const useVariablesApi = createGlobalState(() => {
 					name
 					evalValue
 					response
+					scriptLanguage
 				}
 				variablesBuiltIn {
 					name
@@ -34,6 +35,10 @@ export const useVariablesApi = createGlobalState(() => {
 					description
 					visible
 					canBeUsedInRegistry
+					links {
+						href
+						name
+					}
 				}
 			}
 		`),
@@ -51,6 +56,8 @@ export const useVariablesApi = createGlobalState(() => {
 			type: variable.type,
 			response: variable.response,
 			evalValue: variable.evalValue,
+			scriptLanguage: variable.scriptLanguage,
+			links: [],
 		})) ?? []
 
 		return mapped
@@ -64,6 +71,7 @@ export const useVariablesApi = createGlobalState(() => {
 			example: variable.example || `${variable.name}`,
 			isBuiltIn: true,
 			canBeUsedInRegistry: variable.canBeUsedInRegistry,
+			links: variable.links,
 		})) ?? []
 
 		return mapped
@@ -103,8 +111,8 @@ export const useVariablesApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	const useMutationExecuteScript = () => useMutation(graphql(`
-		mutation ExecuteScript($expression: String!, $testFromUserName: String) {
-			executeScript(script: $expression, testAsUserName: $testFromUserName)
+		mutation ExecuteScript($expression: String!, $language: VariableScriptLanguage!, $testFromUserName: String) {
+			executeScript(script: $expression, language: $language, testAsUserName: $testFromUserName)
 		}
 	`))
 

@@ -153,6 +153,7 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 		)
 
 		c.bus.Bots.SendMessage.Publish(
+			ctx,
 			bots.SendMessageRequest{
 				ChannelId:  song.ChannelID,
 				Message:    message,

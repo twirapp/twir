@@ -2,7 +2,7 @@
 import type { SliderRootEmits, SliderRootProps } from 'radix-vue'
 import { cn } from '@/lib/utils'
 import { SliderRange, SliderRoot, SliderThumb, SliderTrack, useForwardPropsEmits } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+import { type HTMLAttributes, computed } from 'vue'
 
 const props = defineProps<SliderRootProps & { class?: HTMLAttributes['class'] }>()
 const emits = defineEmits<SliderRootEmits>()

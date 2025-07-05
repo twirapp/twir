@@ -6,11 +6,10 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"slices"
 
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 )
 
 // TwitchRewards is the resolver for the twitchRewards field.
@@ -39,14 +38,14 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 			reward.Image.Url4x,
 		)
 
-		var usedTimes int64
-		if err := r.deps.Gorm.
-			WithContext(ctx).
-			Where("channel_id = ? AND reward_id = ?", channelIdForRequest, reward.ID).
-			Model(&model.ChannelRedemption{}).
-			Count(&usedTimes).
-			Error; err != nil {
-			return nil, fmt.Errorf("failed to count channel redemptions: %w", err)
+		usedTimes, err := r.deps.ChannelsRedemptionsHistoryService.Count(
+			ctx, channels_redemptions_history.CountInput{
+				ChannelID:  &channelIdForRequest,
+				RewardsIDs: []string{reward.ID},
+			},
+		)
+		if err != nil {
+			return nil, err
 		}
 
 		gqlRewards = append(

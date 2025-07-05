@@ -2,6 +2,7 @@ package chat_messages
 
 import (
 	"context"
+	"time"
 
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
 )
@@ -30,4 +31,6 @@ type GetManyInput struct {
 	UserNameLike *string
 	TextLike     *string
 	UserIDs      []string
+
+	TimeGte *time.Time
 }

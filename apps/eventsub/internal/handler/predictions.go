@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/samber/lo"
@@ -48,6 +49,7 @@ func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []events.Pre
 }
 
 func (c *Handler) handleChannelPredictionBegin(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPredictionBegin,
 ) {
@@ -61,6 +63,7 @@ func (c *Handler) handleChannelPredictionBegin(
 	outComes := convertOutCome(event.Outcomes)
 
 	err := c.twirBus.Events.PredictionBegin.Publish(
+		ctx,
 		events.PredictionBeginMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -81,6 +84,7 @@ func (c *Handler) handleChannelPredictionBegin(
 }
 
 func (c *Handler) handleChannelPredictionProgress(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPredictionProgress,
 ) {
@@ -94,6 +98,7 @@ func (c *Handler) handleChannelPredictionProgress(
 	outComes := convertOutCome(event.Outcomes)
 
 	err := c.twirBus.Events.PredictionProgress.Publish(
+		ctx,
 		events.PredictionProgressMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -114,6 +119,7 @@ func (c *Handler) handleChannelPredictionProgress(
 }
 
 func (c *Handler) handleChannelPredictionLock(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPredictionLock,
 ) {
@@ -127,6 +133,7 @@ func (c *Handler) handleChannelPredictionLock(
 	outComes := convertOutCome(event.Outcomes)
 
 	err := c.twirBus.Events.PredictionLock.Publish(
+		ctx,
 		events.PredictionLockMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
@@ -147,6 +154,7 @@ func (c *Handler) handleChannelPredictionLock(
 }
 
 func (c *Handler) handleChannelPredictionEnd(
+	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPredictionEnd,
 ) {
@@ -165,6 +173,7 @@ func (c *Handler) handleChannelPredictionEnd(
 	outComes := convertOutCome(event.Outcomes)
 
 	err := c.twirBus.Events.PredictionEnd.Publish(
+		ctx,
 		events.PredictionEndMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,

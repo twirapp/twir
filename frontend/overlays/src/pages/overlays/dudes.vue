@@ -3,10 +3,7 @@ import DudesOverlay from '@twirapp/dudes-vue'
 import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import {
-	assetsLoaderOptions,
-	dudesSounds,
-} from '@/composables/dudes/dudes-config.js'
+import { assetsLoaderOptions, dudesSounds } from '@/composables/dudes/dudes-config.js'
 import { useDudesIframe } from '@/composables/dudes/use-dudes-iframe.js'
 import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js'
 import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js'
@@ -33,8 +30,8 @@ async function onMessage(chatMessage: ChatMessage): Promise<void> {
 	if (!dudes.value || chatMessage.type === 'system') return
 
 	if (
-		dudesSettings.value?.ignore.ignoreUsers
-		&& dudesSettings.value.ignore.users.includes(chatMessage.senderId!)
+		dudesSettings.value?.ignore.ignoreUsers &&
+		dudesSettings.value.ignore.users.includes(chatMessage.senderId!)
 	) {
 		return
 	}
@@ -66,7 +63,8 @@ const { destroy } = useChatTmi(chatSettings)
 
 onMounted(async () => {
 	const apiKey = route.params.apiKey as string
-	const overlayId = route.params.id as string
+	const overlayId = route.query.id as string
+
 	dudesSocketStore.connect(apiKey, overlayId)
 	iframe.connect()
 })
@@ -78,11 +76,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-	<DudesOverlay
-		ref="dudes"
-		:assets-loader-options="assetsLoaderOptions"
-		:sounds="dudesSounds"
-	/>
+	<DudesOverlay ref="dudes" :assets-loader-options="assetsLoaderOptions" :sounds="dudesSounds" />
 </template>
 
 <style>

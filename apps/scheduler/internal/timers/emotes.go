@@ -58,6 +58,7 @@ func NewEmotes(opts EmotesOpts) {
 							} else {
 								for _, channel := range channels {
 									err = opts.Bus.EmotesCacher.CacheChannelEmotes.Publish(
+										ctx,
 										emotes_cacher.EmotesCacheRequest{
 											ChannelID: channel.ID,
 										},
@@ -78,7 +79,7 @@ func NewEmotes(opts EmotesOpts) {
 							globalTicker.Stop()
 							break
 						case <-globalTicker.C:
-							err := opts.Bus.EmotesCacher.CacheGlobalEmotes.Publish(struct{}{})
+							err := opts.Bus.EmotesCacher.CacheGlobalEmotes.Publish(ctx, struct{}{})
 							if err != nil {
 								opts.Logger.Error("error while caching global emotes", slog.Any("err", err))
 							}

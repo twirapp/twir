@@ -4,9 +4,6 @@
   "types": "src/index.ts",
   "type": "module",
   "private": true,
-  "scripts": {
-    "build": "tsc"
-  },
   "dependencies": {
     "nats": "2.22.0"
   }

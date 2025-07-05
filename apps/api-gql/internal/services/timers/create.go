@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger/audit"
@@ -72,14 +73,16 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 		return entity.TimerNil, err
 	}
 
-	go func() {
-		timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
-		if timer.Enabled {
-			c.twirbus.Timers.AddTimer.Publish(timersReq)
-		} else {
-			c.twirbus.Timers.RemoveTimer.Publish(timersReq)
+	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
+	if timer.Enabled {
+		if err := c.twirbus.Timers.AddTimer.Publish(ctx, timersReq); err != nil {
+			c.logger.Error("cannot publish add timer", slog.Any("err", err))
 		}
-	}()
+	} else {
+		if err := c.twirbus.Timers.RemoveTimer.Publish(ctx, timersReq); err != nil {
+			c.logger.Error("cannot publish remove timer", slog.Any("err", err))
+		}
+	}
 
 	c.logger.Audit(
 		"Timers create",

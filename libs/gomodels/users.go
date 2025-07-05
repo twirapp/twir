@@ -24,6 +24,7 @@ type Users struct {
 	Token      *Tokens        `gorm:"foreignKey:TokenID"                         json:"token"`
 	Stats      *UsersStats    `gorm:"foreignKey:UserID"                          json:"stats"`
 	IsBanned   bool           `gorm:"column:is_banned;type:BOOL;"       json:"isBanned"`
+	CreatedAt  time.Time      `gorm:"column:created_at;type:TIMESTAMPTZ;default:now()" json:"createdAt"`
 
 	HideOnLandingPage bool `gorm:"column:hide_on_landing_page;type:BOOL;default:false;" json:"hide_on_landing_page"`
 

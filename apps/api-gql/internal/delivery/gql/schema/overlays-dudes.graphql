@@ -1,0 +1,152 @@
+extend type Query {
+	dudesGetById(id: UUID!): DudesOverlaySettings @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	dudesGetAll: [DudesOverlaySettings!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	dudesUpdate(id: UUID!, input: DudesOverlaySettingsInput!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	dudesCreate(input: DudesOverlaySettingsInput!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	dudesDelete(id: UUID!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	dudesSettings(id: UUID!, apiKey: String!): DudesSettingsSubscriptionData!
+}
+
+type DudesDudeSettings {
+	color: String!
+	eyesColor: String!
+	cosmeticsColor: String!
+	maxLifeTime: Int!
+	gravity: Int!
+	scale: Float!
+	soundsEnabled: Boolean!
+	soundsVolume: Float!
+	visibleName: Boolean!
+	growTime: Int!
+	growMaxScale: Int!
+	maxOnScreen: Int!
+	defaultSprite: String!
+}
+
+type DudesMessageBoxSettings {
+	enabled: Boolean!
+	borderRadius: Int!
+	boxColor: String!
+	fontFamily: String!
+	fontSize: Int!
+	padding: Int!
+	showTime: Int!
+	fill: String!
+}
+
+type DudesNameBoxSettings {
+	fontFamily: String!
+	fontSize: Int!
+	fill: [String!]!
+	lineJoin: String!
+	strokeThickness: Int!
+	stroke: String!
+	fillGradientStops: [Float!]!
+	fillGradientType: Int!
+	fontStyle: String!
+	fontVariant: String!
+	fontWeight: Int!
+	dropShadow: Boolean!
+	dropShadowAlpha: Float!
+	dropShadowAngle: Float!
+	dropShadowBlur: Float!
+	dropShadowDistance: Float!
+	dropShadowColor: String!
+}
+
+type DudesIgnoreSettings {
+	ignoreCommands: Boolean!
+	ignoreUsers: Boolean!
+	users: [String!]!
+}
+
+type DudesSpitterEmoteSettings {
+	enabled: Boolean!
+}
+
+type DudesOverlaySettings {
+	id: UUID!
+	dudeSettings: DudesDudeSettings!
+	messageBoxSettings: DudesMessageBoxSettings!
+	nameBoxSettings: DudesNameBoxSettings!
+	ignoreSettings: DudesIgnoreSettings!
+	spitterEmoteSettings: DudesSpitterEmoteSettings!
+}
+
+input DudesDudeSettingsInput {
+	color: String! @validate(constraint: "max=90")
+	eyesColor: String! @validate(constraint: "max=90")
+	cosmeticsColor: String! @validate(constraint: "max=90")
+	maxLifeTime: Int! @validate(constraint: "max=1800000")
+	gravity: Int! @validate(constraint: "max=9000")
+	scale: Float! @validate(constraint: "max=9000")
+	soundsEnabled: Boolean!
+	soundsVolume: Float! @validate(constraint: "max=9000")
+	visibleName: Boolean!
+	growTime: Int! @validate(constraint: "max=900000")
+	growMaxScale: Int! @validate(constraint: "max=9000")
+	maxOnScreen: Int! @validate(constraint: "max=9000")
+	defaultSprite: String! @validate(constraint: "max=90")
+}
+
+input DudesMessageBoxSettingsInput {
+	enabled: Boolean!
+	borderRadius: Int! @validate(constraint: "max=9000")
+	boxColor: String! @validate(constraint: "max=90")
+	fontFamily: String! @validate(constraint: "max=90")
+	fontSize: Int! @validate(constraint: "max=9000")
+	padding: Int! @validate(constraint: "max=9000")
+	showTime: Int! @validate(constraint: "max=900000")
+	fill: String! @validate(constraint: "max=90")
+}
+
+input DudesNameBoxSettingsInput {
+	fontFamily: String! @validate(constraint: "max=90")
+	fontSize: Int! @validate(constraint: "max=9000")
+	fill: [String!]! @validate(constraint: "max=90")
+	lineJoin: String! @validate(constraint: "max=90")
+	strokeThickness: Int! @validate(constraint: "max=9000")
+	stroke: String! @validate(constraint: "max=90")
+	fillGradientStops: [Float!]! @validate(constraint: "max=9000")
+	fillGradientType: Int! @validate(constraint: "max=9000")
+	fontStyle: String! @validate(constraint: "max=90")
+	fontVariant: String! @validate(constraint: "max=90")
+	fontWeight: Int! @validate(constraint: "max=9000")
+	dropShadow: Boolean!
+	dropShadowAlpha: Float! @validate(constraint: "max=9000")
+	dropShadowAngle: Float! @validate(constraint: "max=9000")
+	dropShadowBlur: Float! @validate(constraint: "max=9000")
+	dropShadowDistance: Float! @validate(constraint: "max=9000")
+	dropShadowColor: String! @validate(constraint: "max=90")
+}
+
+input DudesIgnoreSettingsInput {
+	ignoreCommands: Boolean!
+	ignoreUsers: Boolean!
+	users: [String!]! @validate(constraint: "max=90")
+}
+
+input DudesSpitterEmoteSettingsInput {
+	enabled: Boolean!
+}
+
+input DudesOverlaySettingsInput {
+	dudeSettings: DudesDudeSettingsInput!
+	messageBoxSettings: DudesMessageBoxSettingsInput!
+	nameBoxSettings: DudesNameBoxSettingsInput!
+	ignoreSettings: DudesIgnoreSettingsInput!
+	spitterEmoteSettings: DudesSpitterEmoteSettingsInput!
+}
+
+type DudesSettingsSubscriptionData {
+	channelId: String!
+	channelName: String!
+	channelDisplayName: String!
+	settings: DudesOverlaySettings!
+}

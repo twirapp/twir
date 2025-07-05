@@ -8,17 +8,25 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
+	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
+	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
+	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
+	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
+	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
+	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
@@ -32,12 +40,6 @@ import (
 var App = fx.Options(
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "eventsub"}),
 	fx.Provide(
-		func(config cfg.Config) tokens.TokensClient {
-			return clients.NewTokens(config.AppEnv)
-		},
-		func(config cfg.Config) parser.ParserClient {
-			return clients.NewParser(config.AppEnv)
-		},
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
@@ -61,8 +63,24 @@ var App = fx.Options(
 			streamsrepositorypostgres.NewFx,
 			fx.As(new(streamsrepository.Repository)),
 		),
+		fx.Annotate(
+			channelseventslistpostgres.NewFx,
+			fx.As(new(channelseventslist.Repository)),
+		),
+		fx.Annotate(
+			alertsrepositorypgx.NewFx,
+			fx.As(new(alertsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelsredemptionshistoryclickhouse.NewFx,
+			fx.As(new(channelsredemptionshistory.Repository)),
+		),
 		channelcache.New,
 		channelscommandsprefixcache.New,
+		channelalertscache.New,
+		commandscache.New,
+		channelsongrequestssettingscache.New,
+		channelsintegrationssettingsseventvcache.New,
 		tunnel.New,
 		manager.NewCreds,
 		manager.NewManager,

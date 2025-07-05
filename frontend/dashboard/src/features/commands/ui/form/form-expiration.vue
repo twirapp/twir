@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { XIcon } from 'lucide-vue-next'
+import { HourglassIcon, XIcon } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -41,11 +41,14 @@ function reset() {
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row justify-between flex-wrap">
-			<CardTitle>{{ t('commands.modal.expiration.label') }}</CardTitle>
+		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
+			<CardTitle class="flex items-center gap-2">
+				<HourglassIcon />
+				{{ t('commands.modal.expiration.label') }}
+			</CardTitle>
 		</CardHeader>
 
-		<CardContent v-if="isCustom" class="flex flex-col gap-4">
+		<CardContent v-if="isCustom" class="flex flex-col gap-4 pt-4">
 			<FormField v-slot="{ componentField }" name="expiresType">
 				<FormItem>
 					<FormLabel>{{ t('commands.modal.expiration.actionsLabel') }}</FormLabel>

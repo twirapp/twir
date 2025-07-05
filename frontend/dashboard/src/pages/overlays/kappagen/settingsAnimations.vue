@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IconPlayerPlay } from '@tabler/icons-vue';
 import type { Settings_AnimationSettings } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
-import { NGrid, NGridItem, NButton, NSwitch, NInputNumber, NDynamicInput } from 'naive-ui';
+import { NButton, NDynamicInput, NGrid, NGridItem, NInputNumber, NSwitch } from 'naive-ui';
 import { watch } from 'vue';
 
 import { animations } from './kappagen_animations';

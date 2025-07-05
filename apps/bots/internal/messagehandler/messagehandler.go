@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"reflect"
 	"runtime"
+	"time"
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
@@ -18,12 +19,13 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	batchprocessor "github.com/twirapp/batch-processor"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -40,10 +42,10 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	Logger                           logger.Logger
-	ParserGrpc                       parser.ParserClient
 	WebsocketsGrpc                   websockets.WebsocketClient
 	GreetingsRepository              greetings.Repository
 	ChatMessagesRepository           chat_messages.Repository
+	ChannelsEmotesUsagesRepository   channels_emotes_usages.Repository
 	Gorm                             *gorm.DB
 	Redis                            *redis.Client
 	TwitchActions                    *twitchactions.TwitchActions
@@ -65,10 +67,10 @@ type Opts struct {
 
 type MessageHandler struct {
 	logger                           logger.Logger
-	parserGrpc                       parser.ParserClient
 	websocketsGrpc                   websockets.WebsocketClient
 	greetingsRepository              greetings.Repository
 	chatMessagesRepository           chat_messages.Repository
+	channelsEmotesUsagesRepository   channels_emotes_usages.Repository
 	gorm                             *gorm.DB
 	redis                            *redis.Client
 	twitchActions                    *twitchactions.TwitchActions
@@ -86,6 +88,10 @@ type MessageHandler struct {
 	ttsService      *tts.Service
 	config          cfg.Config
 	workersPool     *workers.Pool
+
+	messagesSaveBatcher    *batchprocessor.BatchProcessor[handleMessage]
+	messagesLurkersBatcher *batchprocessor.BatchProcessor[handleMessage]
+	messagesEmotesBatcher  *batchprocessor.BatchProcessor[handleMessage]
 }
 
 func New(opts Opts) *MessageHandler {
@@ -96,7 +102,6 @@ func New(opts Opts) *MessageHandler {
 		gorm:                             opts.Gorm,
 		redis:                            opts.Redis,
 		twitchActions:                    opts.TwitchActions,
-		parserGrpc:                       opts.ParserGrpc,
 		websocketsGrpc:                   opts.WebsocketsGrpc,
 		moderationHelpers:                opts.ModerationHelpers,
 		config:                           opts.Config,
@@ -105,6 +110,7 @@ func New(opts Opts) *MessageHandler {
 		keywordsService:                  opts.KeywordsService,
 		greetingsRepository:              opts.GreetingsRepository,
 		chatMessagesRepository:           opts.ChatMessagesRepository,
+		channelsEmotesUsagesRepository:   opts.ChannelsEmotesUsagesRepository,
 		greetingsCache:                   opts.GreetingsCache,
 		ttsService:                       opts.TTSService,
 		chatWallCacher:                   opts.ChatWallCacher,
@@ -115,6 +121,66 @@ func New(opts Opts) *MessageHandler {
 
 		workersPool: opts.WorkersPool,
 	}
+
+	batcherCtx, batcherCancel := context.WithCancel(context.Background())
+
+	handler.messagesSaveBatcher = batchprocessor.NewBatchProcessor[handleMessage](
+		batchprocessor.BatchProcessorOpts[handleMessage]{
+			Interval:  500 * time.Millisecond,
+			BatchSize: 1000,
+			Callback:  handler.handleSaveMessageBatched,
+		},
+	)
+	handler.messagesLurkersBatcher = batchprocessor.NewBatchProcessor[handleMessage](
+		batchprocessor.BatchProcessorOpts[handleMessage]{
+			Interval:  100 * time.Millisecond,
+			BatchSize: 100,
+			Callback:  handler.handleRemoveLurkerBatched,
+		},
+	)
+	handler.messagesEmotesBatcher = batchprocessor.NewBatchProcessor[handleMessage](
+		batchprocessor.BatchProcessorOpts[handleMessage]{
+			Interval:  500 * time.Millisecond,
+			BatchSize: 1000,
+			Callback:  handler.handleEmotesUsagesBatched,
+		},
+	)
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				go func() {
+					handler.messagesSaveBatcher.Start(batcherCtx)
+				}()
+
+				go func() {
+					handler.messagesEmotesBatcher.Start(batcherCtx)
+				}()
+
+				go func() {
+					handler.messagesLurkersBatcher.Start(batcherCtx)
+				}()
+
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				if err := handler.messagesSaveBatcher.Shutdown(ctx); err != nil {
+					return err
+				}
+
+				if err := handler.messagesLurkersBatcher.Shutdown(ctx); err != nil {
+					return err
+				}
+
+				if err := handler.messagesEmotesBatcher.Shutdown(ctx); err != nil {
+					return err
+				}
+
+				batcherCancel()
+				return nil
+			},
+		},
+	)
 
 	return handler
 }

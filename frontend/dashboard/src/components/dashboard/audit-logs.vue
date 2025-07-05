@@ -20,7 +20,10 @@ const { logs } = useAuditLogs()
 
 const { t } = useI18n()
 
-function computeValueHint(oldValue: string | null | undefined, newValue: string | null | undefined) {
+function computeValueHint(
+	oldValue: string | null | undefined,
+	newValue: string | null | undefined
+) {
 	if (!oldValue && !newValue) return null
 	const oldJson = oldValue ? JSON.parse(oldValue) : null
 	const newJson = newValue ? JSON.parse(newValue) : null
@@ -55,7 +58,7 @@ function openPopup() {
 	window.open(
 		`${window.location.origin}/dashboard/popup/widgets/audit-log?apiKey=${profile.value.apiKey}`,
 		'_blank',
-		`height=${height},width=${width},top=${top},left=${left},status=0,location=0,menubar=0,toolbar=0`,
+		`height=${height},width=${width},top=${top},left=${left},status=0,location=0,menubar=0,toolbar=0`
 	)
 }
 </script>
@@ -76,8 +79,14 @@ function openPopup() {
 
 		<NScrollbar trigger="none">
 			<TransitionGroup name="list">
-				<div v-for="log of logs" :key="log.id" class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-[color:var(--n-border-color)] border-b border-solid @lg:items-center">
-					<div class="flex h-full flex-col @sm:flex-col @lg:flex-row min-h-[40px] gap-2.5 px-2.5 @lg:items-center">
+				<div
+					v-for="log of logs"
+					:key="`${log.system}-${log.objectId}-${log.objectId}-${log.createdAt}`"
+					class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-[color:var(--n-border-color)] border-b border-solid @lg:items-center"
+				>
+					<div
+						class="flex h-full flex-col @sm:flex-col @lg:flex-row min-h-[40px] gap-2.5 px-2.5 @lg:items-center"
+					>
 						<div v-if="log.user" class="flex gap-2 items-center">
 							<img class="size-4 rounded-full" :src="log.user.profileImageUrl" />
 							<span>{{ log.user.displayName }}</span>
@@ -85,7 +94,13 @@ function openPopup() {
 						<Badge :variant="computeOperationBadgeVariant(log.operationType)">
 							{{ t(mapOperationTypeToTranslate(log.operationType)).toLocaleLowerCase() }}
 							<template v-if="log.system">
-								{{ t(mapSystemToTranslate(log.system), {}, { default: log.system }).toLocaleLowerCase() }}
+								{{
+									t(
+										mapSystemToTranslate(log.system),
+										{},
+										{ default: log.system }
+									).toLocaleLowerCase()
+								}}
 							</template>
 						</Badge>
 						<Badge v-if="computeValueHint(log.oldValue, log.newValue)" variant="secondary">

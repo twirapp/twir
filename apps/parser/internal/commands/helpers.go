@@ -18,10 +18,11 @@ func (c *Commands) shouldCheckCooldown(
 		return false
 	}
 
-	if !lo.Contains(badges, "BROADCASTER") &&
-		!lo.Contains(badges, "MODERATOR") &&
-		!lo.Contains(badges, "SUBSCRIBER") &&
-		!lo.Contains(badges, "VIP") {
+	if slices.Contains(badges, "BROADCASTER") {
+		return false
+	}
+
+	if len(command.CooldownRolesIDs) == 0 {
 		return true
 	}
 

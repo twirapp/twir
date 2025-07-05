@@ -1,22 +1,22 @@
 <script setup lang='ts'>
 import { IconSpeakerphone } from '@tabler/icons-vue';
 import {
+	NAlert,
+	NAvatar,
+	NButton,
+	NCard,
+	NCheckbox,
 	NGrid,
 	NGridItem,
-	NCard,
-	NSkeleton,
-	NText,
-	NAlert,
-	NRow,
-	NAvatar,
-	NSpace,
-	NCheckbox,
-	NButton,
 	NInput,
 	NPopconfirm,
+	NRow,
+	NSkeleton,
+	NSpace,
+	NText,
 	useThemeVars,
 } from 'naive-ui';
-import { computed, ref, UnwrapRef, watch } from 'vue';
+import { UnwrapRef, computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useTtsOverlayManager, useTwitchGetUsers } from '@/api/index.js';
@@ -47,7 +47,7 @@ type ListUser = NonNullable<UnwrapRef<typeof ttsUsersData>>['data'][number] & {
 const mappedUsers = computed<ListUser[]>(() => {
 	return ttsUsersData?.value?.data?.map((user) => {
 		const twitchUser = twitchUsers?.data?.value?.users.find((twitchUser) => twitchUser.id === user.userId);
-		if (!twitchUser) return;
+		if (!twitchUser) return null;
 
 		return {
 			...user,

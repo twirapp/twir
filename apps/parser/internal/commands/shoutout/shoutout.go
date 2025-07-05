@@ -7,6 +7,7 @@ import (
 
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/libs/bus-core/tokens"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -16,7 +17,6 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 )
 
 const (
@@ -41,8 +41,9 @@ var ShoutOut = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		token, err := parseCtx.Services.GrpcClients.Tokens.RequestUserToken(
-			ctx, &tokens.GetUserTokenRequest{
+		token, err := parseCtx.Services.Bus.Tokens.RequestUserToken.Request(
+			ctx,
+			tokens.GetUserTokenRequest{
 				UserId: parseCtx.Channel.ID,
 			},
 		)
@@ -52,7 +53,7 @@ var ShoutOut = &types.DefaultCommand{
 		}
 
 		_, ok := lo.Find(
-			token.Scopes, func(item string) bool {
+			token.Data.Scopes, func(item string) bool {
 				return item == "moderator:manage:shoutouts"
 			},
 		)
@@ -68,7 +69,7 @@ var ShoutOut = &types.DefaultCommand{
 			ctx,
 			parseCtx.Channel.ID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
+			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{

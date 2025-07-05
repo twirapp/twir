@@ -19,6 +19,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	channelsmoderationsettingscache "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
@@ -27,17 +28,17 @@ import (
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
-	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
+	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
 	giveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
@@ -50,6 +51,7 @@ import (
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
+
 	"go.uber.org/fx"
 )
 
@@ -79,7 +81,7 @@ var App = fx.Module(
 			fx.As(new(toxicmessagesrepository.Repository)),
 		),
 		fx.Annotate(
-			chatmessagesrepositorypgx.NewFx,
+			chatmessagesrepositoryclickhouse.NewFx,
 			fx.As(new(chatmessagesrepository.Repository)),
 		),
 		fx.Annotate(
@@ -98,15 +100,13 @@ var App = fx.Module(
 			channelsmoderationsettingsrepositorypostgres.NewFx,
 			fx.As(new(channelsmoderationsettingsrepository.Repository)),
 		),
+		fx.Annotate(
+			channelsemotesusagesrepositoryclickhouse.NewFx,
+			fx.As(new(channelsemotesusagesrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
-		func(config cfg.Config) tokens.TokensClient {
-			return clients.NewTokens(config.AppEnv)
-		},
-		func(config cfg.Config) parser.ParserClient {
-			return clients.NewParser(config.AppEnv)
-		},
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
@@ -123,6 +123,7 @@ var App = fx.Module(
 		ttscache.NewTTSSettings,
 		keywordscache.New,
 		greetingscache.New,
+		channelcache.New,
 		twitchactions.New,
 		channelsmoderationsettingscache.New,
 		moderationhelpers.New,

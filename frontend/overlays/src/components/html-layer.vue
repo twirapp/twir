@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { transform } from 'nested-css-to-flat';
-import { watch, nextTick, computed } from 'vue';
+import { computed, nextTick, watch } from 'vue';
 
 import type { Layer } from '@/composables/overlays/use-overlays.js';
 

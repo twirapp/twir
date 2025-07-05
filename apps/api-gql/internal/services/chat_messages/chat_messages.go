@@ -80,11 +80,13 @@ func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 		UserColor:       m.UserColor,
 		Text:            m.Text,
 		CreatedAt:       m.CreatedAt,
-		UpdatedAt:       m.UpdatedAt,
 	}
 }
 
-func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessage) struct{} {
+func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessage) (
+	struct{},
+	error,
+) {
 	textBuilder := strings.Builder{}
 	for _, fragment := range data.Message.Fragments {
 		textBuilder.WriteString(fragment.Text)
@@ -100,7 +102,6 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 		UserColor:       data.Color,
 		Text:            textBuilder.String(),
 		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
 	}
 
 	c.chanSubsMu.RLock()
@@ -118,9 +119,10 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 	err := c.wsRouter.Publish(chatMessagesSubscriptionKeyAll, msg)
 	if err != nil {
 		c.logger.Error("Cannot publish some message to all messages", slog.Any("err", err))
+		return struct{}{}, err
 	}
 
-	return struct{}{}
+	return struct{}{}, nil
 }
 
 func (c *Service) SubscribeToNewMessagesByChannelID(

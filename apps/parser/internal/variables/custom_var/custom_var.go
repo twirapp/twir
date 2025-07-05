@@ -3,19 +3,14 @@ package custom_var
 import (
 	"context"
 	"errors"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 )
-
-var reFirst = regexp.MustCompile(`^return '`)
-var reLast = regexp.MustCompile(`';\s*$`)
 
 var CustomVar = &types.Variable{
 	Name:                     "customvar",
@@ -50,12 +45,19 @@ var CustomVar = &types.Variable{
 			requestCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 			defer cancel()
 
+			text := v.EvalValue
+			if parseCtx.Text != nil {
+				text = strings.ReplaceAll(text, "$(command.param)", *parseCtx.Text)
+			} else {
+				text = strings.ReplaceAll(text, "$(command.param)", "")
+			}
+
 			filledWithVariablesValue, err := parseCtx.Services.Bus.Parser.ParseVariablesInText.Request(
 				requestCtx,
 				parser.ParseVariablesInTextRequest{
 					ChannelID:     parseCtx.Channel.ID,
 					ChannelName:   parseCtx.Channel.Name,
-					Text:          v.EvalValue,
+					Text:          text,
 					UserID:        parseCtx.Sender.ID,
 					UserLogin:     parseCtx.Sender.Name,
 					UserName:      parseCtx.Sender.DisplayName,
@@ -67,22 +69,12 @@ var CustomVar = &types.Variable{
 				return nil, err
 			}
 
-			// TODO: THATS IS NOT HOW IT SHOULD BE DONE, TEMPORAR SOLUTION
-			expression := reFirst.ReplaceAllString(filledWithVariablesValue.Data.Text, "")
-			expression = reLast.ReplaceAllString(expression, "")
-			var text string
-			if parseCtx.Text != nil {
-				text = *parseCtx.Text
-			}
-			expression = strings.ReplaceAll(expression, "$(command.param)", text)
-
-			res, err := parseCtx.Services.Bus.Eval.Evaluate.Request(
-				requestCtx,
-				eval.EvalRequest{
-					Expression: expression,
-				},
+			res, err := parseCtx.Services.Executron.ExecuteUserCode(
+				ctx,
+				parseCtx.Channel.ID,
+				v.ScriptLanguage,
+				filledWithVariablesValue.Data.Text,
 			)
-
 			if err != nil {
 				parseCtx.Services.Logger.Sugar().Error(err)
 
@@ -91,7 +83,11 @@ var CustomVar = &types.Variable{
 				)
 			}
 
-			result.Result = res.Data.Result
+			if res.Result != "" {
+				result.Result = res.Result
+			} else if res.Error != "" {
+				result.Result = res.Error
+			}
 		}
 
 		if v.Type == model.CustomVarText || v.Type == model.CustomVarNumber {

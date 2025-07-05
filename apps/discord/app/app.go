@@ -5,10 +5,7 @@ import (
 	"github.com/satont/twir/apps/discord/internal/grpc"
 	"github.com/satont/twir/apps/discord/internal/messages_updater"
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
-	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
-	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 )
 
@@ -19,9 +16,6 @@ var App = fx.Module(
 		sended_messages_store.New,
 		messages_updater.New,
 		discord_go.New,
-		func(config cfg.Config) tokens.TokensClient {
-			return clients.NewTokens(config.AppEnv)
-		},
 		grpc.New,
 	),
 	fx.Invoke(

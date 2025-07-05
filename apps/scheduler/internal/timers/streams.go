@@ -11,7 +11,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 
@@ -29,17 +28,15 @@ type StreamOpts struct {
 	Config config.Config
 	Logger logger.Logger
 
-	Gorm       *gorm.DB
-	TokensGrpc tokens.TokensClient
-	Bus        *buscore.Bus
+	Gorm    *gorm.DB
+	TwirBus *buscore.Bus
 }
 
 type streams struct {
-	config     config.Config
-	logger     logger.Logger
-	gorm       *gorm.DB
-	tokensGrpc tokens.TokensClient
-	bus        *buscore.Bus
+	config  config.Config
+	logger  logger.Logger
+	gorm    *gorm.DB
+	twirBus *buscore.Bus
 }
 
 func NewStreams(opts StreamOpts) {
@@ -52,11 +49,10 @@ func NewStreams(opts StreamOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &streams{
-		config:     opts.Config,
-		logger:     opts.Logger,
-		gorm:       opts.Gorm,
-		tokensGrpc: opts.TokensGrpc,
-		bus:        opts.Bus,
+		config:  opts.Config,
+		logger:  opts.Logger,
+		gorm:    opts.Gorm,
+		twirBus: opts.TwirBus,
 	}
 
 	opts.Lc.Append(
@@ -155,7 +151,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 		return fmt.Errorf("cannot get existed streams: %w", err)
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client: %w", err)
 	}
@@ -235,7 +231,8 @@ func (c *streams) processStreams(ctx context.Context) error {
 						return
 					}
 
-					c.bus.Channel.StreamOnline.Publish(
+					c.twirBus.Channel.StreamOnline.Publish(
+						ctx,
 						bustwitch.StreamOnlineMessage{
 							ChannelID:    channelStream.UserId,
 							StreamID:     channelStream.ID,
@@ -259,7 +256,8 @@ func (c *streams) processStreams(ctx context.Context) error {
 						return
 					}
 
-					c.bus.Channel.StreamOffline.Publish(
+					c.twirBus.Channel.StreamOffline.Publish(
+						ctx,
 						bustwitch.StreamOfflineMessage{
 							ChannelID: channelStream.UserId,
 							StartedAt: dbStream.StartedAt,

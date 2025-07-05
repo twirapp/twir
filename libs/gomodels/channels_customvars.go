@@ -24,13 +24,14 @@ const (
 )
 
 type ChannelsCustomvars struct {
-	ID          string        `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
-	Name        string        `gorm:"column:name;type:TEXT;"                          json:"name"`
-	Description null.String   `gorm:"column:description;type:TEXT;"                   json:"description" swaggertype:"string"`
-	Type        CustomVarType `gorm:"column:type;type:VARCHAR;"                       json:"type"`
-	EvalValue   string        `gorm:"column:evalValue;type:TEXT;"                     json:"evalValue"   swaggertype:"string"`
-	Response    string        `gorm:"column:response;type:TEXT;"                      json:"response"    swaggertype:"string"`
-	ChannelID   string        `gorm:"column:channelId;type:TEXT;"                     json:"channelId"`
+	ID             string        `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	Name           string        `gorm:"column:name;type:TEXT;"                          json:"name"`
+	Description    null.String   `gorm:"column:description;type:TEXT;"                   json:"description" swaggertype:"string"`
+	Type           CustomVarType `gorm:"column:type;type:VARCHAR;"                       json:"type"`
+	EvalValue      string        `gorm:"column:evalValue;type:TEXT;"                     json:"evalValue"   swaggertype:"string"`
+	Response       string        `gorm:"column:response;type:TEXT;"                      json:"response"    swaggertype:"string"`
+	ChannelID      string        `gorm:"column:channelId;type:TEXT;"                     json:"channelId"`
+	ScriptLanguage string        `gorm:"column:script_language;type:VARCHAR;"       json:"scriptLanguage"`
 }
 
 func (c *ChannelsCustomvars) TableName() string {

@@ -33,7 +33,7 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 		ctx,
 		channel.BotID,
 		*c.services.Config,
-		c.services.GrpcClients.Tokens,
+		c.services.Bus,
 	)
 	if err != nil {
 		return nil
@@ -95,7 +95,7 @@ func (c *cacher) GetTwitchChannel(ctx context.Context) *helix.ChannelInformation
 	twitchClient, err := twitch.NewAppClientWithContext(
 		ctx,
 		*c.services.Config,
-		c.services.GrpcClients.Tokens,
+		c.services.Bus,
 	)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
@@ -138,7 +138,7 @@ func (c *cacher) GetTwitchUserById(ctx context.Context, userId string) (*helix.U
 	twitchClient, err := twitch.NewAppClientWithContext(
 		ctx,
 		*c.services.Config,
-		c.services.GrpcClients.Tokens,
+		c.services.Bus,
 	)
 	if err != nil {
 		return nil, err
@@ -177,7 +177,7 @@ func (c *cacher) GetTwitchUserByName(ctx context.Context, userName string) (*hel
 	twitchClient, err := twitch.NewAppClientWithContext(
 		ctx,
 		*c.services.Config,
-		c.services.GrpcClients.Tokens,
+		c.services.Bus,
 	)
 	if err != nil {
 		return nil, err

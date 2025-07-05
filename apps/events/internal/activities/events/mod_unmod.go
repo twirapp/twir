@@ -22,7 +22,8 @@ func (c *Activity) ModOrUnmod(
 	activity.RecordHeartbeat(ctx, nil)
 
 	hydratedName, hydrationErr := c.hydrator.HydrateStringWithData(
-		data.ChannelID, operation.Input.String,
+		data.ChannelID,
+		operation.Input.String,
 		data,
 	)
 	if hydrationErr != nil || len(hydratedName) == 0 {

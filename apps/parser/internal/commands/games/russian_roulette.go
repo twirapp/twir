@@ -8,14 +8,10 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/task-queue"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
@@ -80,6 +76,7 @@ var RussianRoulette = &types.DefaultCommand{
 		).Else("")
 
 		err := parseCtx.Services.Bus.Bots.SendMessage.Publish(
+			ctx,
 			bots.SendMessageRequest{
 				ChannelId:      parseCtx.Channel.ID,
 				ChannelName:    &parseCtx.Channel.Name,
@@ -104,24 +101,13 @@ var RussianRoulette = &types.DefaultCommand{
 			return result, nil
 		}
 
-		twitchClient, err := twitch.NewUserClient(
-			parseCtx.Channel.ID,
-			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
-		)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
-				Err:     err,
-			}
-		}
-
 		randomized := rand.Intn(entity.TumberSize + 1)
 		if randomized > entity.ChargedBullets {
 			result.Result = []string{surviveMessage}
 			return result, nil
 		} else {
 			parseCtx.Services.Bus.Bots.SendMessage.Publish(
+				ctx,
 				bots.SendMessageRequest{
 					ChannelId:      parseCtx.Channel.ID,
 					ChannelName:    &parseCtx.Channel.Name,
@@ -138,47 +124,21 @@ var RussianRoulette = &types.DefaultCommand{
 			}
 
 			isModerator := slices.Contains(parseCtx.Sender.Badges, "MODERATOR")
-			if entity.CanBeUsedByModerators && isModerator && entity.TimeoutSeconds > 0 {
-				err = parseCtx.Services.TaskDistributor.DistributeModUser(
+
+			if entity.TimeoutSeconds > 0 {
+				if isModerator && !entity.CanBeUsedByModerators {
+					return result, nil
+				}
+
+				err = parseCtx.Services.Bus.Bots.BanUser.Publish(
 					ctx,
-					&task_queue.TaskModUserPayload{
-						ChannelID: parseCtx.Channel.ID,
-						UserID:    parseCtx.Sender.ID,
-					},
-					asynq.ProcessIn(time.Duration(entity.TimeoutSeconds+2)*time.Second),
-				)
-				if err != nil {
-					return nil, &types.CommandHandlerError{
-						Message: "cannot distribute mod user",
-						Err:     err,
-					}
-				}
-
-				_, err = twitchClient.RemoveChannelModerator(
-					&helix.RemoveChannelModeratorParams{
-						UserID:        parseCtx.Sender.ID,
-						BroadcasterID: parseCtx.Channel.ID,
-					},
-				)
-				if err != nil {
-					return nil, &types.CommandHandlerError{
-						Message: "cannot remove moderator",
-						Err:     err,
-					}
-				}
-			}
-
-			if entity.TimeoutSeconds > 0 &&
-				(!isModerator || (isModerator && entity.CanBeUsedByModerators)) {
-				_, err = twitchClient.BanUser(
-					&helix.BanUserParams{
-						BroadcasterID: parseCtx.Channel.ID,
-						ModeratorId:   parseCtx.Channel.ID,
-						Body: helix.BanUserRequestBody{
-							Duration: entity.TimeoutSeconds,
-							Reason:   deathMessage,
-							UserId:   parseCtx.Sender.ID,
-						},
+					bots.BanRequest{
+						ChannelID:      parseCtx.Channel.ID,
+						UserID:         parseCtx.Sender.ID,
+						Reason:         deathMessage,
+						BanTime:        entity.TimeoutSeconds,
+						AddModAfterBan: true,
+						IsModerator:    isModerator,
 					},
 				)
 				if err != nil {

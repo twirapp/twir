@@ -5,18 +5,14 @@
     ".": "./src/index.ts"
   },
   "types": "./src/index.ts",
-  "scripts": {
-    "build": "bun run type-check",
-    "type-check": "vue-tsc --noEmit"
-  },
   "dependencies": {
     "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
-    "@vueuse/core": "11.2.0",
-    "vue": "3.5.13"
+    "@vueuse/core": "catalog:",
+    "vue": "catalog:"
   },
   "devDependencies": {
-    "vue-tsc": "2.1.10",
-    "typescript": "5.7.3"
+    "vue-tsc": "catalog:",
+    "typescript": "catalog:"
   }
 }

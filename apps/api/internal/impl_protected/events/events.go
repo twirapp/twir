@@ -147,6 +147,10 @@ func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest
 		return nil, err
 	}
 
+	if err := c.ChannelsEventsWithOperationsCache.Invalidate(ctx, dashboardId); err != nil {
+		return nil, err
+	}
+
 	return c.convertEntity(entity), nil
 }
 
@@ -162,6 +166,10 @@ func (c *Events) EventsDelete(ctx context.Context, request *events.DeleteRequest
 			request.Id,
 			dashboardId,
 		).Delete(&model.Event{}).Error; err != nil {
+		return nil, err
+	}
+
+	if err := c.ChannelsEventsWithOperationsCache.Invalidate(ctx, dashboardId); err != nil {
 		return nil, err
 	}
 
@@ -245,6 +253,10 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 		return nil, err
 	}
 
+	if err := c.ChannelsEventsWithOperationsCache.Invalidate(ctx, dashboardId); err != nil {
+		return nil, err
+	}
+
 	return c.convertEntity(entity), nil
 }
 
@@ -262,6 +274,10 @@ func (c *Events) EventsEnableOrDisable(
 
 	entity.Enabled = request.Enabled
 	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
+		return nil, err
+	}
+
+	if err := c.ChannelsEventsWithOperationsCache.Invalidate(ctx, dashboardId); err != nil {
 		return nil, err
 	}
 

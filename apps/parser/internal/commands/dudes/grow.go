@@ -27,6 +27,7 @@ var Grow = &types.DefaultCommand{
 		result := types.CommandsHandlerResult{}
 
 		err := parseCtx.Services.Bus.Websocket.DudesGrow.Publish(
+			ctx,
 			websockets.DudesGrowRequest{
 				ChannelID: parseCtx.Channel.ID,
 				UserID:    parseCtx.Sender.ID,
