@@ -20,6 +20,10 @@ func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) erro
 		},
 	)
 
+	if existedSubsRes == nil {
+		return nil
+	}
+
 	if len(existedSubsRes.Data.EventSubSubscriptions) > 0 {
 		for _, sub := range existedSubsRes.Data.EventSubSubscriptions {
 			res, err := twitchClient.RemoveEventSubSubscription(sub.ID)

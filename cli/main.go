@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/dev"
 	"github.com/twirapp/twir/cli/internal/cmds/execbin"
 	"github.com/twirapp/twir/cli/internal/cmds/generate"
+	"github.com/twirapp/twir/cli/internal/cmds/kill"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/twirapp/twir/cli/internal/cmds/proxy"
 	"github.com/urfave/cli/v2"
@@ -46,6 +47,7 @@ func main() {
 			build.Cmd,
 			dev.CreateDevCommand(),
 			execbin.Cmd,
+			kill.Cmd,
 		},
 	}
 

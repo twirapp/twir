@@ -5,6 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	auditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -38,6 +39,7 @@ type Bus struct {
 	YTSRSearch    Queue[ytsr.SearchRequest, ytsr.SearchResponse]
 	Tokens        *tokensBus
 	Integrations  *integrationsBus
+	Api           *apiBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -178,13 +180,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		Channel: &channelBus{
 			StreamOnline: NewNatsQueue[twitch.StreamOnlineMessage, struct{}](
 				nc,
-				STREAM_ONLINE_SUBJECT,
+				events.StreamOnlineSubject,
 				1*time.Minute,
 				GobEncoder,
 			),
 			StreamOffline: NewNatsQueue[twitch.StreamOfflineMessage, struct{}](
 				nc,
-				STREAM_OFFLINE_SUBJECT,
+				events.StreamOfflineSubject,
 				1*time.Minute,
 				GobEncoder,
 			),
@@ -490,6 +492,15 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				integrations.RemoveIntegrationTopic,
 				1*time.Minute,
 				JsonEncoder,
+			),
+		},
+
+		Api: &apiBus{
+			TriggerKappagen: NewNatsQueue[api.TriggerKappagenMessage, struct{}](
+				nc,
+				api.TriggerKappagenSubject,
+				1*time.Minute,
+				GobEncoder,
 			),
 		},
 	}

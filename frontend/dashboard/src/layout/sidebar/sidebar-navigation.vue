@@ -114,7 +114,7 @@ const links = computed(() => {
 			name: t('sidebar.events'),
 			icon: IconCalendarCog,
 			disabled: !canViewEvents.value,
-			path: '/dashboard/events/custom',
+			path: '/dashboard/events',
 		},
 		{
 			name: t('sidebar.overlays'),

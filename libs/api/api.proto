@@ -20,7 +20,6 @@ import "messages/integrations_nightbot/integrations_nightbot.proto";
 
 import "messages/modules_obs_websocket/modules_obs_websocket.proto";
 import "messages/modules_tts/modules_tts.proto";
-import "messages/overlays_kappagen/overlays_kappagen.proto";
 import "messages/overlays_be_right_back/overlays_be_right_back.proto";
 
 import "messages/twitch_protected/twitch_protected.proto";
@@ -89,9 +88,6 @@ service Protected {
 
 	rpc OverlayBeRightBackGet(google.protobuf.Empty) returns (messages.overlays_be_right_back.Settings) {}
 	rpc OverlayBeRightBackUpdate(messages.overlays_be_right_back.Settings) returns (messages.overlays_be_right_back.Settings) {}
-
-	rpc OverlayKappaGenGet(google.protobuf.Empty) returns (messages.overlays_kappagen.Settings) {}
-	rpc OverlayKappaGenUpdate(messages.overlays_kappagen.Settings) returns (messages.overlays_kappagen.Settings) {}
 
 	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}

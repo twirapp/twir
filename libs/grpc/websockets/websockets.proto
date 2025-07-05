@@ -24,9 +24,6 @@ service Websocket {
 
 	rpc TriggerAlert(TriggerAlertRequest) returns (google.protobuf.Empty) {}
 
-	rpc TriggerKappagen(TriggerKappagenRequest) returns (google.protobuf.Empty) {}
-	rpc TriggerKappagenByEvent(TriggerKappagenByEventRequest) returns (google.protobuf.Empty) {}
-
 	rpc TriggerShowBrb(TriggerShowBrbRequest) returns (google.protobuf.Empty) {}
 	rpc TriggerHideBrb(TriggerHideBrbRequest) returns (google.protobuf.Empty) {}
 
@@ -38,7 +35,6 @@ service Websocket {
 
 enum RefreshOverlaySettingsName {
 	CUSTOM = 0;
-	KAPPAGEN = 1;
 	BRB = 2;
 	DUDES = 3;
 	CHAT = 4;
@@ -127,22 +123,6 @@ message RefreshOverlaysRequest {
 	string channel_id = 1;
 	RefreshOverlaySettingsName overlay_name = 2;
 	optional string overlay_id = 3;
-}
-
-message TriggerKappagenRequest {
-	message Emote {
-		string id = 1;
-		repeated string positions = 2;
-	}
-
-	string channel_id = 1;
-	string text = 2;
-	repeated Emote emotes = 3;
-}
-
-message TriggerKappagenByEventRequest {
-	string channel_id = 1;
-	int32 event = 2;
 }
 
 message TriggerShowBrbRequest {

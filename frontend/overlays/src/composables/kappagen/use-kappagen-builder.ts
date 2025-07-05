@@ -1,21 +1,23 @@
-import { EmojiStyle } from '@twir/api/messages/overlays_kappagen/overlays_kappagen'
 import { computed } from 'vue'
 
 import type { MessageChunk } from '@twir/frontend-chat'
 import type { Emote } from '@twirapp/kappagen/types'
 
+import { KappagenEmojiStyle } from '@/gql/graphql.ts'
+
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js'
 import { useEmotes } from '@/composables/tmi/use-emotes.js'
+import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.ts'
 
-function getEmojiStyleName(style: EmojiStyle) {
+function getEmojiStyleName(style: KappagenEmojiStyle) {
 	switch (style) {
-		case EmojiStyle.Blobmoji:
+		case KappagenEmojiStyle.Blobmoji:
 			return 'blob'
-		case EmojiStyle.Noto:
+		case KappagenEmojiStyle.Noto:
 			return 'noto'
-		case EmojiStyle.Openmoji:
+		case KappagenEmojiStyle.Openmoji:
 			return 'openmoji'
-		case EmojiStyle.Twemoji:
+		case KappagenEmojiStyle.Twemoji:
 			return 'twemoji'
 	}
 }
@@ -27,12 +29,12 @@ export interface Buidler {
 
 export function useKappagenEmotesBuilder(): Buidler {
 	const { emotes } = useEmotes()
-	const { overlaySettings } = useKappagenSettings()
+	const { overlaySettings } = useKappagenOverlaySocket()
 
 	const kappagenEmotes = computed(() => {
 		if (!emotes.value) return []
 		const emotesArray = Object.values(emotes.value)
-		return emotesArray.filter(e => !e.isZeroWidth && !e.isModifier)
+		return emotesArray.filter((e) => !e.isZeroWidth && !e.isModifier)
 	})
 
 	// chat events
@@ -42,14 +44,12 @@ export function useKappagenEmotesBuilder(): Buidler {
 		for (const chunk of chunks) {
 			if (chunk.type === 'text') continue
 
-			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? []
-
-			if (chunk.emoteName && overlaySettings.value?.excludedEmotes?.includes(chunk.emoteName)) continue
+			const zwe = chunk.zeroWidthModifiers?.map((z) => ({ url: z })) ?? []
 
 			if (chunk.type === 'emote') {
 				emotes.push({
 					url: chunk.value,
-					zwe: chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [],
+					zwe: chunk.zeroWidthModifiers?.map((z) => ({ url: z })) ?? [],
 				})
 				continue
 			}
@@ -81,11 +81,11 @@ export function useKappagenEmotesBuilder(): Buidler {
 	const buildKappagenEmotes = (chunks: MessageChunk[]) => {
 		const result: Emote[] = []
 
-		const emotesChunks = chunks.filter(c => c.type !== 'text')
+		const emotesChunks = chunks.filter((c) => c.type !== 'text')
 		if (!emotesChunks.length) {
 			const mappedEmotes = kappagenEmotes.value
-				.filter(v => !overlaySettings.value?.excludedEmotes?.includes(v.name))
-				.map(v => ({
+				.filter((v) => !overlaySettings.value?.excludedEmotes?.includes(v.name))
+				.map((v) => ({
 					url: v.urls.at(-1)!,
 					width: v.width,
 					height: v.height,

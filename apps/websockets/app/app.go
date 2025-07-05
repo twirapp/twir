@@ -9,7 +9,6 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
@@ -21,6 +20,9 @@ import (
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
+
+	kappagenrepository "github.com/twirapp/twir/libs/repositories/overlays_kappagen"
+	kappagenrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_kappagen/pgx"
 )
 
 const service = "Websockets"
@@ -28,6 +30,12 @@ const service = "Websockets"
 var App = fx.Module(
 	service,
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
+	fx.Provide(
+		fx.Annotate(
+			kappagenrepositorypgx.NewFx,
+			fx.As(new(kappagenrepository.Repository)),
+		),
+	),
 	fx.Provide(
 		fx.Annotate(
 			alertsrepositorypgx.NewFx,
@@ -38,7 +46,6 @@ var App = fx.Module(
 		youtube.NewYouTube,
 		alerts.NewAlerts,
 		channelalertscache.New,
-		kappagen.New,
 		overlays.New,
 		be_right_back.New,
 		dudes.New,
