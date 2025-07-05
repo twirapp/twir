@@ -10,7 +10,13 @@ import { usePublicPageHref } from '../use-public-page-href'
 import DiscordLogo from '@/assets/integrations/discord.svg?use'
 import GithubLogo from '@/assets/integrations/github.svg?use'
 import Badge from '@/components/ui/badge/Badge.vue'
-import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
+import {
+	SidebarFooter,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	useSidebar,
+} from '@/components/ui/sidebar'
 import { useNotifications } from '@/composables/use-notifications'
 
 const { t } = useI18n()
@@ -49,11 +55,7 @@ const hastebinLink = computed(() => {
 					<RouterLink to="/dashboard/notifications">
 						<BellIcon />
 						<span>{{ t('sidebar.notifications') }}</span>
-						<Badge
-							v-if="notificationsCounter.counter > 0"
-							variant="success"
-							class="ml-auto"
-						>
+						<Badge v-if="notificationsCounter.counter > 0" variant="success" class="ml-auto">
 							{{ notificationsCounter.counter }}
 						</Badge>
 					</RouterLink>
@@ -68,7 +70,7 @@ const hastebinLink = computed(() => {
 						<ExternalLink class="ml-auto" />
 					</a>
 				</SidebarMenuButton>
-				<SidebarMenuButton as-child :tooltip="t('sidebar.publicPage')">
+				<SidebarMenuButton as-child tooltip="Hastebin">
 					<a :href="hastebinLink" target="_blank">
 						<ClipboardPenLine />
 						<span>Hastebin</span>
