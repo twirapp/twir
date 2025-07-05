@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
-    "removeComments": true,
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "sourceMap": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2017",
-    "sourceMap": true,
+    "removeComments": true,
     "skipLibCheck": true
   }
 }
