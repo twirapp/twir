@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommandsApi } from '@/api/commands/commands'
@@ -9,12 +9,7 @@ import { EventType } from '@/api/events.ts'
 import { useKeywordsApi } from '@/api/keywords'
 import TwitchRewardsSelector from '@/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
 	Command,
 	CommandEmpty,
@@ -23,19 +18,9 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command'
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Switch } from '@/components/ui/switch'
 import { EventsOptions } from '@/features/events/constants/events.ts'
 import { getEventName } from '@/features/events/constants/helpers.ts'
@@ -59,13 +44,16 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 	isGroup: boolean
 	name: string
 	value?: EventType
-	childrens: Array<{ name: string, value: EventType }>
+	childrens: Array<{ name: string; value: EventType }>
 }>((value) => {
 	if (value.childrens) {
 		return {
 			isGroup: true,
 			name: value.name,
-			childrens: Object.values(value.childrens!).map(c => ({ name: c.name, value: c.enumValue! })),
+			childrens: Object.values(value.childrens!).map((c) => ({
+				name: c.name,
+				value: c.enumValue!,
+			})),
 		}
 	}
 
@@ -76,6 +64,8 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 		childrens: [],
 	}
 })
+
+const opened = ref(false)
 </script>
 
 <template>
@@ -84,20 +74,20 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 			<CardTitle>General</CardTitle>
 		</CardHeader>
 		<CardContent class="space-y-4">
-			<FormField
-				name="type"
-			>
+			<FormField name="type">
 				<FormItem class="flex flex-col">
 					<FormLabel>{{ t('events.type') }}</FormLabel>
 					<FormControl>
-						<Popover>
+						<Popover v-model:open="opened">
 							<PopoverTrigger as-child>
 								<FormControl>
 									<Button
 										type="button"
 										variant="outline"
 										role="combobox"
-										:class="cn('w-[400px] justify-between', !currentEventType && 'text-muted-foreground')"
+										:class="
+											cn('w-[400px] justify-between', !currentEventType && 'text-muted-foreground')
+										"
 									>
 										{{ currentEventType ? getEventName(currentEventType) : 'Select...' }}
 										<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -119,13 +109,21 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 													v-for="event of selectOption.childrens"
 													:key="event.value"
 													:value="event.value"
-													@select="() => {
-														setCurrentEventType(event.value)
-													}"
+													@select="
+														() => {
+															setCurrentEventType(event.value)
+															opened = false
+														}
+													"
 												>
 													{{ event.name }}
 													<CheckIcon
-														:class="cn('ml-auto h-4 w-4', currentEventType === event.value ? 'opacity-100' : 'opacity-0')"
+														:class="
+															cn(
+																'ml-auto h-4 w-4',
+																currentEventType === event.value ? 'opacity-100' : 'opacity-0'
+															)
+														"
 													/>
 												</CommandItem>
 											</CommandGroup>
@@ -134,16 +132,25 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 												v-else
 												:key="selectOption.value!"
 												:value="selectOption.value!"
-												@select="() => {
-													setCurrentEventType(selectOption.value!)
-												}"
+												@select="
+													() => {
+														setCurrentEventType(selectOption.value!)
+														opened = false
+													}
+												"
 											>
 												{{ selectOption.name }}
-												<CheckIcon :class="cn('ml-auto h-4 w-4', currentEventType === selectOption.value ? 'opacity-100' : 'opacity-0')" />
+												<CheckIcon
+													:class="
+														cn(
+															'ml-auto h-4 w-4',
+															currentEventType === selectOption.value ? 'opacity-100' : 'opacity-0'
+														)
+													"
+												/>
 											</CommandItem>
 										</template>
-										<CommandGroup>
-										</CommandGroup>
+										<CommandGroup> </CommandGroup>
 									</CommandList>
 								</Command>
 							</PopoverContent>
@@ -153,10 +160,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 				</FormItem>
 			</FormField>
 
-			<FormField
-				v-slot="{ componentField }"
-				name="description"
-			>
+			<FormField v-slot="{ componentField }" name="description">
 				<FormItem>
 					<FormLabel>{{ t('events.description') }}</FormLabel>
 					<FormControl>
@@ -167,46 +171,35 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 			</FormField>
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<FormField
-					v-slot="{ value, handleChange }"
-					name="enabled"
-				>
-					<FormItem class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+				<FormField v-slot="{ value, handleChange }" name="enabled">
+					<FormItem
+						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
+					>
 						<div class="space-y-0.5">
 							<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 						</div>
 						<FormControl>
-							<Switch
-								:checked="value"
-								@update:checked="handleChange"
-							/>
+							<Switch :checked="value" @update:checked="handleChange" />
 						</FormControl>
 					</FormItem>
 				</FormField>
 
-				<FormField
-					v-slot="{ value, handleChange }"
-					name="onlineOnly"
-				>
-					<FormItem class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+				<FormField v-slot="{ value, handleChange }" name="onlineOnly">
+					<FormItem
+						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
+					>
 						<div class="space-y-0.5">
 							<FormLabel>{{ t('events.onlineOnly') }}</FormLabel>
 						</div>
 						<FormControl>
-							<Switch
-								:checked="value"
-								@update:checked="handleChange"
-							/>
+							<Switch :checked="value" @update:checked="handleChange" />
 						</FormControl>
 					</FormItem>
 				</FormField>
 			</div>
 
 			<div v-if="currentEventType === EventType.RedemptionCreated">
-				<FormField
-					v-slot="{ componentField }"
-					name="rewardId"
-				>
+				<FormField v-slot="{ componentField }" name="rewardId">
 					<FormItem>
 						<FormLabel>{{ t('events.reward') }}</FormLabel>
 						<FormControl>
@@ -218,9 +211,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 			</div>
 
 			<div v-if="currentEventType === EventType.CommandUsed">
-				<FormField
-					name="commandId"
-				>
+				<FormField name="commandId">
 					<FormItem class="flex flex-col gap-2">
 						<FormLabel>Command</FormLabel>
 						<FormControl>
@@ -231,9 +222,18 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 											type="button"
 											variant="outline"
 											role="combobox"
-											:class="cn('w-[200px] justify-between', !currentCommandId && 'text-muted-foreground')"
+											:class="
+												cn(
+													'w-[200px] justify-between',
+													!currentCommandId && 'text-muted-foreground'
+												)
+											"
 										>
-											{{ currentCommandId ? commands.find(c => c.id === currentCommandId)?.name : 'Select command' }}
+											{{
+												currentCommandId
+													? commands.find((c) => c.id === currentCommandId)?.name
+													: 'Select command'
+											}}
 											<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 										</Button>
 									</FormControl>
@@ -248,13 +248,20 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 													v-for="command in commands"
 													:key="command.id"
 													:value="command.name"
-													@select="() => {
-														setCurrentCommandId(command.id)
-													}"
+													@select="
+														() => {
+															setCurrentCommandId(command.id)
+														}
+													"
 												>
 													{{ command.name }}
 													<CheckIcon
-														:class="cn('ml-auto h-4 w-4', currentCommandId === command.id ? 'opacity-100' : 'opacity-0')"
+														:class="
+															cn(
+																'ml-auto h-4 w-4',
+																currentCommandId === command.id ? 'opacity-100' : 'opacity-0'
+															)
+														"
 													/>
 												</CommandItem>
 											</CommandGroup>
@@ -269,9 +276,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 			</div>
 
 			<div v-if="currentEventType === EventType.KeywordMatched">
-				<FormField
-					name="keywordId"
-				>
+				<FormField name="keywordId">
 					<FormItem>
 						<FormLabel>{{ t('events.keyword') }}</FormLabel>
 						<FormControl class="flex flex-col gap-2">
@@ -282,9 +287,18 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 											type="button"
 											variant="outline"
 											role="combobox"
-											:class="cn('w-[200px] justify-between', !currentKeywordId && 'text-muted-foreground')"
+											:class="
+												cn(
+													'w-[200px] justify-between',
+													!currentKeywordId && 'text-muted-foreground'
+												)
+											"
 										>
-											{{ currentKeywordId ? keywords.find(c => c.id === currentKeywordId)?.text : 'Select keyword' }}
+											{{
+												currentKeywordId
+													? keywords.find((c) => c.id === currentKeywordId)?.text
+													: 'Select keyword'
+											}}
 											<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 										</Button>
 									</FormControl>
@@ -299,13 +313,20 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 													v-for="keyword in keywords"
 													:key="keyword.id"
 													:value="keyword.text"
-													@select="() => {
-														setCurrentKeywordId(keyword.id)
-													}"
+													@select="
+														() => {
+															setCurrentKeywordId(keyword.id)
+														}
+													"
 												>
 													{{ keyword.text }}
 													<CheckIcon
-														:class="cn('ml-auto h-4 w-4', currentKeywordId === keyword.id ? 'opacity-100' : 'opacity-0')"
+														:class="
+															cn(
+																'ml-auto h-4 w-4',
+																currentKeywordId === keyword.id ? 'opacity-100' : 'opacity-0'
+															)
+														"
 													/>
 												</CommandItem>
 											</CommandGroup>

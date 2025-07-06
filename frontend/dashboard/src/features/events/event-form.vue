@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/toast/use-toast'
 import { eventFormSchema } from '@/features/events/event-form-schema.ts'
 import { EventOperationType } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
+import EventVariables from '@/features/events/components/event-variables.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -20,7 +21,7 @@ const route = useRoute()
 const { toast } = useToast()
 const eventsApi = useEventsApi()
 const isNewEvent = computed(() => route.params.id === 'new')
-const eventId = computed(() => isNewEvent.value ? '' : String(route.params.id))
+const eventId = computed(() => (isNewEvent.value ? '' : String(route.params.id)))
 
 // Fetch event data if editing
 const { fetching: isLoadingEvent, executeQuery } = eventsApi.useQueryEventById(eventId.value)
@@ -71,7 +72,7 @@ onMounted(async () => {
 		rewardId: event.rewardId || undefined,
 		commandId: event.commandId || undefined,
 		keywordId: event.keywordId || undefined,
-		operations: event.operations.map(op => ({
+		operations: event.operations.map((op) => ({
 			type: op.type,
 			input: op.input || undefined,
 			delay: op.delay,
@@ -81,7 +82,7 @@ onMounted(async () => {
 			timeoutMessage: op.timeoutMessage || undefined,
 			target: op.target || undefined,
 			enabled: op.enabled,
-			filters: op.filters.map(filter => ({
+			filters: op.filters.map((filter) => ({
 				type: filter.type,
 				left: filter.left,
 				right: filter.right,
@@ -147,6 +148,7 @@ const onSubmit = eventForm.handleSubmit(async (input) => {
 
 				<div v-else class="space-y-6">
 					<EventBasicInfo />
+					<EventVariables />
 					<OperationsTab />
 				</div>
 			</template>
