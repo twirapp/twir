@@ -6,7 +6,7 @@ import AnimationsTab from '@/features/overlays/kappagen/components/animations-ta
 </script>
 
 <template>
-	<div class="w-[45%]">
+	<div>
 		<Tabs default-value="settings">
 			<TabsList class="grid w-full grid-cols-3">
 				<TabsTrigger value="settings">Settings</TabsTrigger>

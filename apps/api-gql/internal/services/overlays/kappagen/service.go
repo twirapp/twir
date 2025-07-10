@@ -243,6 +243,179 @@ func mapSettingsEntityToModel(e entity.KappagenOverlaySettings) model.KappagenOv
 	}
 }
 
+var defaultAnimations = []model.KappagenOverlayAnimationsSettings{
+	{
+		Style: "TheCube",
+		Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+			Size:    0.2,
+			Center:  false,
+			Faces:   false,
+			Speed:   6,
+			Message: []string{},
+		},
+		Enabled: true,
+	},
+	{
+		Style: "Text",
+		Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+			Message: []string{"Twir"},
+			Time:    3,
+		},
+		Enabled: true,
+	},
+	{
+		Style:   "Confetti",
+		Count:   150,
+		Enabled: true,
+	},
+	{
+		Style:   "Spiral",
+		Count:   150,
+		Enabled: true,
+	},
+	{
+		Style:   "Stampede",
+		Count:   150,
+		Enabled: true,
+	},
+	{
+		Style:   "Burst",
+		Count:   50,
+		Enabled: true,
+	},
+	{
+		Style:   "Fountain",
+		Count:   50,
+		Enabled: true,
+	},
+	{
+		Style:   "SmallPyramid",
+		Enabled: true,
+	},
+	{
+		Style:   "Pyramid",
+		Enabled: true,
+	},
+	{
+		Style:   "Fireworks",
+		Count:   150,
+		Enabled: true,
+	},
+	{
+		Style: "Conga",
+		Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+			Message: []string{},
+		},
+		Enabled: true,
+	},
+}
+var defaultEvents = []model.KappagenOverlayEvent{
+	{
+		Event:   eventmodel.EventTypeFollow,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeSubscribe,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeResubscribe,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeSubGift,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeRedemptionCreated,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeFirstUserMessage,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeRaided,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeTitleOrCategoryChanged,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeStreamOnline,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeStreamOffline,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeOnChatClear,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeDonate,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeKeywordMatched,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeGreetingSended,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypePollBegin,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypePollProgress,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypePollEnd,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypePredictionBegin,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypePredictionProgress,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypePredictionEnd,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypePredictionLock,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeChannelBan,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeChannelUnbanRequestCreate,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeChannelUnbanRequestResolve,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeChannelMessageDelete,
+		Enabled: true,
+	},
+	{
+		Event:   eventmodel.EventTypeCommandUsed,
+		Enabled: true,
+	},
+}
+
 // createDefaultOverlayInput creates input for default kappagen overlay
 func createDefaultOverlayInput(channelID string) overlays_kappagen.CreateInput {
 	return overlays_kappagen.CreateInput{
@@ -257,72 +430,7 @@ func createDefaultOverlayInput(channelID string) overlays_kappagen.CreateInput {
 				ZoomIn:  true,
 				ZoomOut: true,
 			},
-			Animations: []model.KappagenOverlayAnimationsSettings{
-				{
-					Style: "TheCube",
-					Prefs: model.KappagenOverlayAnimationsPrefsSettings{
-						Size:    0.2,
-						Center:  false,
-						Faces:   false,
-						Speed:   6,
-						Message: []string{},
-					},
-					Enabled: true,
-				},
-				{
-					Style: "Text",
-					Prefs: model.KappagenOverlayAnimationsPrefsSettings{
-						Message: []string{"Twir"},
-						Time:    3,
-					},
-					Enabled: true,
-				},
-				{
-					Style:   "Confetti",
-					Count:   150,
-					Enabled: true,
-				},
-				{
-					Style:   "Spiral",
-					Count:   150,
-					Enabled: true,
-				},
-				{
-					Style:   "Stampede",
-					Count:   150,
-					Enabled: true,
-				},
-				{
-					Style:   "Burst",
-					Count:   50,
-					Enabled: true,
-				},
-				{
-					Style:   "Fountain",
-					Count:   50,
-					Enabled: true,
-				},
-				{
-					Style:   "SmallPyramid",
-					Enabled: true,
-				},
-				{
-					Style:   "Pyramid",
-					Enabled: true,
-				},
-				{
-					Style:   "Fireworks",
-					Count:   150,
-					Enabled: true,
-				},
-				{
-					Style: "Conga",
-					Prefs: model.KappagenOverlayAnimationsPrefsSettings{
-						Message: []string{},
-					},
-					Enabled: true,
-				},
-			},
+			Animations: defaultAnimations,
 			Emotes: model.KappagenOverlayEmotesSettings{
 				Time:           5,
 				Max:            0,
@@ -338,112 +446,7 @@ func createDefaultOverlayInput(channelID string) overlays_kappagen.CreateInput {
 				Min:         1,
 				Max:         256,
 			},
-			Events: []model.KappagenOverlayEvent{
-				{
-					Event:   eventmodel.EventTypeFollow,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeSubscribe,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeResubscribe,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeSubGift,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeRedemptionCreated,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeFirstUserMessage,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeRaided,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeTitleOrCategoryChanged,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeStreamOnline,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeStreamOffline,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeOnChatClear,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeDonate,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeKeywordMatched,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeGreetingSended,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypePollBegin,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypePollProgress,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypePollEnd,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypePredictionBegin,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypePredictionProgress,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypePredictionEnd,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypePredictionLock,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeChannelBan,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeChannelUnbanRequestCreate,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeChannelUnbanRequestResolve,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeChannelMessageDelete,
-					Enabled: true,
-				},
-				{
-					Event:   eventmodel.EventTypeCommandUsed,
-					Enabled: true,
-				},
-			},
+			Events: defaultEvents,
 		},
 	}
 }
@@ -461,4 +464,13 @@ func (s *Service) handleTriggerKappagenEvent(
 	msg api.TriggerKappagenMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(CreateTriggerSubscriptionKey(msg.ChannelId), msg)
+}
+
+func (s *Service) GetAvailableAnimations() []string {
+	animations := make([]string, len(defaultAnimations))
+	for i, a := range defaultAnimations {
+		animations[i] = a.Style
+	}
+
+	return animations
 }

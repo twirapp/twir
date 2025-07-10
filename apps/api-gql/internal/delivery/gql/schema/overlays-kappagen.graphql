@@ -1,5 +1,6 @@
 extend type Query {
 	overlaysKappagen: KappagenOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	overlaysKappagenAvailableAnimations: [String!]!
 }
 
 extend type Mutation {

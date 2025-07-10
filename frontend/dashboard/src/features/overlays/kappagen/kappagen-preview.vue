@@ -79,7 +79,7 @@ function clear() {
 </script>
 
 <template>
-	<div class="w-[45%] flex flex-col gap-6">
+	<div class="flex flex-col gap-6">
 		<div class="flex flex-wrap justify-between">
 			<span class="text-2xl font-bold">Preview</span>
 			<div class="flex flex-wrap gap-2 justify-end">

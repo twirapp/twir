@@ -198,9 +198,13 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 				<div class="text-muted-foreground">Loading Kappagen settings...</div>
 			</div>
 
-			<form v-else @submit.prevent="onSubmit" class="flex flex-row flex-wrap gap-4">
-				<KappagenForm />
-				<KappagenPreview />
+			<form
+				v-else
+				@submit.prevent="onSubmit"
+				class="flex flex-col-reverse lg:flex-row flex-wrap gap-4"
+			>
+				<KappagenForm class="w-full lg:w-[45%]" />
+				<KappagenPreview class="w-full lg:w-[45%]" />
 			</form>
 		</template>
 	</PageLayout>

@@ -14,10 +14,26 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { EventType } from '@/gql/graphql'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+	EventType,
+	KappagenOverlayAnimationSettings,
+	KappagenOverlayAnimationsSettings,
+	KappagenOverlayEvent,
+} from '@/gql/graphql'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import { flatEvents } from '@/features/events/constants/helpers.ts'
+import { useKappagenApi } from '@/api'
+import { Checkbox } from '@/components/ui/checkbox'
 
-const { fields: events, push: addEvent, remove: removeEvent } = useFieldArray('events')
+const {
+	fields: events,
+	push: addEvent,
+	remove: removeEvent,
+	update: updateEvent,
+} = useFieldArray<KappagenOverlayEvent>('events')
+
+const { fields: animations } = useFieldArray<KappagenOverlayAnimationsSettings>('animations')
 
 const eventTypes = computed(() => {
 	return Object.values(EventType).map((type) => ({
@@ -36,6 +52,29 @@ function createNewEvent() {
 		enabled: true,
 	})
 }
+
+function handleCheckboxChange(
+	eventIndex: number,
+	animation: KappagenOverlayAnimationSettings,
+	value: boolean
+) {
+	if (value) {
+		updateEvent(eventIndex, {
+			...events.value[eventIndex].value,
+			disabledAnimations: events.value[eventIndex].value.disabledAnimations.filter(
+				(anim) => anim !== animation.value.style
+			),
+		})
+	} else {
+		updateEvent(eventIndex, {
+			...events.value[eventIndex].value,
+			disabledAnimations: [
+				...events.value[eventIndex].value.disabledAnimations,
+				animation.value.style,
+			],
+		})
+	}
+}
 </script>
 
 <template>
@@ -48,76 +87,35 @@ function createNewEvent() {
 					specific events
 				</CardDescription>
 			</CardHeader>
-			<CardContent class="space-y-4">
-				<div class="space-y-4">
-					<div
-						v-for="(event, index) in events"
+			<CardContent class="space-y-4 w-full">
+				<Tabs
+					:default-value="EventType.Follow"
+					class="w-full flex flex-col lg:flex-row gap-4"
+					orientation="vertical"
+				>
+					<TabsList class="w-full lg:w-[70%] lg:grid lg:grid-cols-1 flex flex-row flex-wrap">
+						<TabsTrigger v-for="event of events" :key="event.key" :value="event.value.event">
+							{{ flatEvents[event.value.event]?.name ?? event.value.event }}
+						</TabsTrigger>
+					</TabsList>
+
+					<TabsContent
+						v-for="(event, index) of events"
 						:key="event.key"
-						class="border rounded-lg p-4 space-y-4"
+						:value="event.value.event"
+						class="w-auto"
 					>
-						<div class="flex items-center justify-between">
-							<h4 class="font-medium">Event {{ index + 1 }}</h4>
-							<Button type="button" variant="destructive" size="sm" @click="removeEvent(index)">
-								<Trash2 class="h-4 w-4" />
-							</Button>
-						</div>
-
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<FormField :name="`events[${index}].event`">
-								<FormItem>
-									<FormLabel>Event Type</FormLabel>
-									<Select v-model="event.value.event">
-										<SelectTrigger>
-											<SelectValue placeholder="Select event type" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem
-												v-for="eventType in eventTypes"
-												:key="eventType.value"
-												:value="eventType.value"
-											>
-												{{ eventType.label }}
-											</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-
-							<FormField :name="`events[${index}].enabled`">
-								<FormItem
-									class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
-								>
-									<div class="space-y-0.5">
-										<FormLabel>Enabled</FormLabel>
-										<div class="text-[0.8rem] text-muted-foreground">Enable this event trigger</div>
-									</div>
-									<Switch v-model:checked="event.value.enabled" />
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-
-						<FormField :name="`events[${index}].disabledAnimations`">
-							<FormItem>
-								<FormLabel>Disabled Animations</FormLabel>
-								<Input
-									v-model="event.value.disabledAnimations"
-									placeholder="Comma-separated list of disabled animations"
+						<div class="grid grid-cols-1 gap-1">
+							<div class="flex items-center gap-1" v-for="animation of animations">
+								<Checkbox
+									:checked="!event.value.disabledAnimations.includes(animation.value.style)"
+									@update:checked="(v) => handleCheckboxChange(index, animation, v)"
 								/>
-								<div class="text-[0.8rem] text-muted-foreground">
-									Enter animation names separated by commas to disable them for this event
-								</div>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-				</div>
-
-				<Button type="button" variant="outline" @click="createNewEvent">
-					<Plus class="h-4 w-4 mr-2" />
-					Add Event
-				</Button>
+								{{ animation.value.style }}
+							</div>
+						</div>
+					</TabsContent>
+				</Tabs>
 			</CardContent>
 		</Card>
 	</div>

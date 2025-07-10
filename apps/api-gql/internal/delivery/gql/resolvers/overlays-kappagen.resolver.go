@@ -17,7 +17,10 @@ import (
 )
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
-func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gqlmodel.KappagenUpdateInput) (*gqlmodel.KappagenOverlay, error) {
+func (r *mutationResolver) OverlaysKappagenUpdate(
+	ctx context.Context,
+	input gqlmodel.KappagenUpdateInput,
+) (*gqlmodel.KappagenOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -113,8 +116,17 @@ func (r *queryResolver) OverlaysKappagen(ctx context.Context) (*gqlmodel.Kappage
 	return &converted, nil
 }
 
+// OverlaysKappagenAvailableAnimations is the resolver for the overlaysKappagenAvailableAnimations field.
+func (r *queryResolver) OverlaysKappagenAvailableAnimations(ctx context.Context) ([]string, error) {
+	animations := r.deps.KappagenService.GetAvailableAnimations()
+	return animations, nil
+}
+
 // OverlaysKappagen is the resolver for the overlaysKappagen field.
-func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (<-chan *gqlmodel.KappagenOverlay, error) {
+func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (
+	<-chan *gqlmodel.KappagenOverlay,
+	error,
+) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -161,7 +173,10 @@ func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (<-chan *gq
 }
 
 // OverlaysKappagenTrigger is the resolver for the overlaysKappagenTrigger field.
-func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context) (<-chan *gqlmodel.KappagenTriggerPayload, error) {
+func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context) (
+	<-chan *gqlmodel.KappagenTriggerPayload,
+	error,
+) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err

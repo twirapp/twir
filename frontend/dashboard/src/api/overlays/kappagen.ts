@@ -53,6 +53,7 @@ const KappagenOverlayQuery = graphql(`
 			createdAt
 			updatedAt
 		}
+		overlaysKappagenAvailableAnimations
 	}
 `)
 
@@ -181,8 +182,17 @@ export const useKappagenApi = createGlobalState(() => {
 		return subscriptionData.value?.overlaysKappagen || kappagenData.value?.overlaysKappagen
 	})
 
+	const availableAnimations = computed<string[]>(() => {
+		return (
+			subscriptionData.value?.overlaysKappagenAvailableAnimations ||
+			kappagenData.value?.overlaysKappagenAvailableAnimations ||
+			[]
+		)
+	})
+
 	return {
 		kappagen,
+		availableAnimations,
 		isLoading,
 		isUpdating,
 		updateKappagen,
