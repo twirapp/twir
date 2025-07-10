@@ -48,8 +48,8 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		ctx,
 		&redis.SlidingWindowOptions{
 			Key:             fmt.Sprintf("bots:rate_limit:send_message:%s", opts.BroadcasterID),
-			MaximumCapacity: 100,
-			Window:          30,
+			MaximumCapacity: 200,
+			Window:          30 * time.Second,
 		},
 	)
 
