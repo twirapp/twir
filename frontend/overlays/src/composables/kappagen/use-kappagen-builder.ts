@@ -1,13 +1,15 @@
 import { computed } from 'vue'
+import { createGlobalState } from '@vueuse/core'
 
 import type { MessageChunk } from '@twir/frontend-chat'
 import type { Emote } from '@twirapp/kappagen/types'
 
 import { KappagenEmojiStyle } from '@/gql/graphql.ts'
 
-import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js'
 import { useEmotes } from '@/composables/tmi/use-emotes.js'
 import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.ts'
+import type { MaybeRef } from '@vueuse/core'
+import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.ts'
 
 function getEmojiStyleName(style: KappagenEmojiStyle) {
 	switch (style) {
@@ -27,9 +29,9 @@ export interface Buidler {
 	buildSpawnEmotes: (chunks: MessageChunk[]) => Emote[]
 }
 
-export function useKappagenEmotesBuilder(): Buidler {
+export const useKappagenEmotesBuilder = createGlobalState(() => {
 	const { emotes } = useEmotes()
-	const { overlaySettings } = useKappagenOverlaySocket()
+	const { overlaySettings } = useKappagenSettings()
 
 	const kappagenEmotes = computed(() => {
 		if (!emotes.value) return []
@@ -64,12 +66,12 @@ export function useKappagenEmotesBuilder(): Buidler {
 				continue
 			}
 
-			const emojiStyle = overlaySettings.value?.emotes?.emojiStyle
-			if (chunk.type === 'emoji' && emojiStyle) {
+			const style = overlaySettings.value?.emojiStyle
+			if (chunk.type === 'emoji' && style) {
 				const code = chunk.value.codePointAt(0)?.toString(16)
 				if (!code) continue
 				emotes.push({
-					url: `https://cdn.frankerfacez.com/static/emoji/images/${getEmojiStyleName(emojiStyle)}/${code}.png`,
+					url: `https://cdn.frankerfacez.com/static/emoji/images/${getEmojiStyleName(style)}/${code}.png`,
 				})
 			}
 		}
@@ -108,7 +110,7 @@ export function useKappagenEmotesBuilder(): Buidler {
 		buildKappagenEmotes,
 		buildSpawnEmotes,
 	}
-}
+})
 
 export const twirEmote: Emote = {
 	url: 'https://cdn.7tv.app/emote/6548b7074789656a7be787e1/4x.webp',

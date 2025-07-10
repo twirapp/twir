@@ -1,89 +1,86 @@
-import type { Settings as BrbOverlaySettings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
-import type { Settings as KappagenOverlaySettings } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
+import type { Settings as BrbOverlaySettings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back'
 
 // emotes start
 export type SevenTvEmote = {
-	id: string;
-	name: string;
-	flags: number;
+	id: string
+	name: string
+	flags: number
 	data: {
-		animated: boolean;
+		animated: boolean
 		host: {
-			url: string;
-			files: Array<{ name: string; format: string; height: number; width: number }>;
-		};
-	};
-};
+			url: string
+			files: Array<{ name: string; format: string; height: number; width: number }>
+		}
+	}
+}
 
 export type SevenTvChannelResponse = {
 	user: {
-		id: string;
-	};
+		id: string
+	}
 	emote_set: {
-		id: string;
-		emotes: Array<SevenTvEmote>;
-	};
-};
+		id: string
+		emotes: Array<SevenTvEmote>
+	}
+}
 
 export type SevenTvGlobalResponse = {
-	emotes: Array<SevenTvEmote>;
-};
+	emotes: Array<SevenTvEmote>
+}
 
 export type BttvEmote = {
-	code: string;
-	imageType: string;
-	id: string;
-	animated: boolean;
-	height?: number;
-	width?: number;
-	modifier?: boolean;
-};
+	code: string
+	imageType: string
+	id: string
+	animated: boolean
+	height?: number
+	width?: number
+	modifier?: boolean
+}
 
 export type BttvChannelResponse = {
-	channelEmotes: Array<BttvEmote>;
-	sharedEmotes: Array<BttvEmote>;
-};
+	channelEmotes: Array<BttvEmote>
+	sharedEmotes: Array<BttvEmote>
+}
 
-export type BttvGlobalResponse = Array<BttvEmote>;
+export type BttvGlobalResponse = Array<BttvEmote>
 
 export type FfzEmote = {
-	name: string;
-	urls: Record<string, string>;
-	height: number;
-	width: number;
-	modifier: boolean;
-	modifier_flags?: number;
-};
+	name: string
+	urls: Record<string, string>
+	height: number
+	width: number
+	modifier: boolean
+	modifier_flags?: number
+}
 
 export type FfzChannelResponse = {
 	sets: {
 		[x: string]: {
-			emoticons: FfzEmote[];
-		};
-	};
-};
+			emoticons: FfzEmote[]
+		}
+	}
+}
 
 export type FfzGlobalResponse = {
 	sets: {
 		[x: string]: {
-			emoticons: FfzEmote[];
-		};
-	};
-};
+			emoticons: FfzEmote[]
+		}
+	}
+}
 // emotes end
 
 // brb start
-export type BrbSetSettingsFn = (settings: BrbOverlaySettings) => void;
-export type BrbOnStartFn = (minutes: number, text: string) => void;
-export type BrbOnStopFn = () => void;
+export type BrbSetSettingsFn = (settings: BrbOverlaySettings) => void
+export type BrbOnStartFn = (minutes: number, text: string) => void
+export type BrbOnStopFn = () => void
 // brb end
 
-// kappagen start
-export type KappagenSettings = KappagenOverlaySettings & { channelName: string; channelId: string };
 export type KappagenTriggerRequestEmote = {
-	id: string,
+	id: string
 	positions: string[]
-};
+}
 
 // kappagen end
 

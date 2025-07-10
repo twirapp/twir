@@ -134,7 +134,7 @@
         "@twir/frontend-now-playing": "workspace:*",
         "@twir/grpc": "workspace:*",
         "@twirapp/dudes-vue": "0.1.0",
-        "@twirapp/kappagen": "1.0.1",
+        "@twirapp/kappagen": "1.1.0",
         "@urql/vue": "1.1.3",
         "@vueuse/core": "catalog:",
         "@zero-dependency/utils": "1.7.7",
@@ -1233,7 +1233,7 @@
 
     "@twirapp/dudes-vue": ["@twirapp/dudes-vue@0.1.0", "", { "dependencies": { "@twirapp/dudes": "1.2.0", "vue": "3.4.21" } }, "sha512-3npuUT48Vik2sqGCfzCDeCA2ODfNUVIt+cWucYG2MR5UMvTdzv1YE1cbelCmQDWCwDbU4HcBRmxwUFvrR3myHw=="],
 
-    "@twirapp/kappagen": ["@twirapp/kappagen@1.0.1", "", { "peerDependencies": { "vue": ">=3.0.0" } }, "sha512-7rvWvbhpN3ZzER7lAT5a4YgwlaeDpfDteZ7PVIH1VnOh8g4E04pTEqHyf2xICdHQvq2Go8NGUgBerhsq9XdnBA=="],
+    "@twirapp/kappagen": ["@twirapp/kappagen@1.1.0", "", { "peerDependencies": { "vue": ">=3.0.0" } }, "sha512-0ZM3r2jlPu9v4YT0RI7t2fqDDsIR1lx2r9upEM557BQGCiPvFfR1H2lx+h8JN4+lzNucBwa0H74B7vrN/zQ/Sw=="],
 
     "@twirapp/vite-plugin-svg-spritemap": ["@twirapp/vite-plugin-svg-spritemap@0.0.0", "", { "dependencies": { "@xmldom/xmldom": "^0.8.10", "fast-glob": "^3.3.2", "hash-sum": "^2.0.0", "mini-svg-data-uri": "^1.4.4", "svgo": "^3.2.0" }, "peerDependencies": { "vite": ">=5.0.0", "vue": ">=3.0.0" }, "optionalPeers": ["vue"] }, "sha512-6ADWLixNRVeBPMrpFJKsIxXArDPlZDBW07YU5l9wNUfnalORQIVO3xva5JB33sVNbVyzHIkq3qUAOB0Pz958Qg=="],
 

@@ -1,17 +1,21 @@
+import { createGlobalState } from '@vueuse/core'
 import { useSubscription } from '@urql/vue'
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 
-import type { Buidler } from './use-kappagen-builder.js'
+import { type Buidler, useKappagenEmotesBuilder } from './use-kappagen-builder.js'
 import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js'
 import { graphql } from '@/gql'
+import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.ts'
 
 type Options = Omit<KappagenMethods, 'clear'> & {
 	emotesBuilder: Buidler
 }
 
-export function useKappagenOverlaySocket(options: Options) {
+export const useKappagenOverlaySocket = createGlobalState(() => {
+	const apiKey = ref<string>('')
+
 	const {
 		data: eventsData,
 		executeSubscription: connectEvents,
@@ -28,13 +32,18 @@ export function useKappagenOverlaySocket(options: Options) {
 				}
 			}
 		`),
-		variables: {},
+		get variables() {
+			return {
+				apiKey: apiKey.value,
+			}
+		},
 		pause: true,
 	})
 	const {
 		data: settings,
 		executeSubscription: connectSettings,
 		pause: pauseSettings,
+		resume: resumeTrigger,
 	} = useSubscription({
 		query: graphql(`
 			subscription KappagenSettings {
@@ -102,9 +111,15 @@ export function useKappagenOverlaySocket(options: Options) {
 				}
 			}
 		`),
+		get variables() {
+			return {
+				apiKey: apiKey.value,
+			}
+		},
 	})
 
 	const { makeMessageChunks } = useMessageHelpers()
+	const emotesBuilder = useKappagenEmotesBuilder()
 
 	function randomAnimation(): KappagenAnimations | undefined {
 		if (!settings.value?.overlaysKappagen) return
@@ -141,7 +156,7 @@ export function useKappagenOverlaySocket(options: Options) {
 			return
 		}
 
-		const generatedEmotes = options.emotesBuilder.buildKappagenEmotes([])
+		const generatedEmotes = emotesBuilder.buildKappagenEmotes([])
 
 		const animation = randomAnimation()
 		if (!animation) return
@@ -166,7 +181,7 @@ export function useKappagenOverlaySocket(options: Options) {
 			emotesList,
 		})
 
-		const emotesForKappagen = options.emotesBuilder.buildKappagenEmotes(chunks)
+		const emotesForKappagen = emotesBuilder.buildKappagenEmotes(chunks)
 		const animation = randomAnimation()
 		if (!animation) return
 		options.playAnimation(emotesForKappagen, animation)
@@ -177,13 +192,15 @@ export function useKappagenOverlaySocket(options: Options) {
 		pauseSettings()
 	}
 
-	function connect() {
-		connectEvents()
-		connectSettings()
+	async function connect(key: string) {
+		apiKey.value = key
+		await connectEvents()
+		await connectSettings()
 	}
 
 	return {
 		connect,
 		destroy,
+		settings,
 	}
-}
+})

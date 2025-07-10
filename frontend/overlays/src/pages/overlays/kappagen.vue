@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import KappagenOverlay from '@twirapp/kappagen'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { Emote, KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
@@ -11,12 +11,32 @@ import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-setting
 import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.js'
 import { type ChatMessage, type ChatSettings, useChatTmi } from '@/composables/tmi/use-chat-tmi.js'
 
+const {
+	connect: connectSocket,
+	settings: socketSettings,
+	destroy: destroySocket,
+} = useKappagenOverlaySocket()
+const iframe = useKappagenIframe({
+	playAnimation,
+	showEmotes,
+	clear: () => {
+		kappagen.value?.clear()
+	},
+})
+
 const kappagen = ref<KappagenMethods>()
 const route = useRoute()
-const { kappagenSettings, overlaySettings } = useKappagenSettings()
+const { settings, setSettings } = useKappagenSettings()
+
+watch(socketSettings, (v) => {
+	if (!v || window.frameElement) return
+
+	setSettings(v)
+})
 
 function playAnimation(emotes: Emote[], animation: KappagenAnimations) {
 	if (!kappagen.value) return Promise.resolve()
+	console.log(emotes, animation)
 	return kappagen.value.playAnimation(emotes, animation)
 }
 
@@ -31,14 +51,6 @@ const socket = useKappagenOverlaySocket({
 	playAnimation,
 	showEmotes,
 	emotesBuilder,
-})
-
-const iframe = useKappagenIframe({
-	playAnimation,
-	showEmotes,
-	clear: () => {
-		kappagen.value?.clear()
-	},
 })
 
 function onMessage(msg: ChatMessage): void {
@@ -56,35 +68,35 @@ function onMessage(msg: ChatMessage): void {
 
 const chatSettings = computed<ChatSettings>(() => {
 	return {
-		channelId: overlaySettings.value?.channelId ?? '',
-		channelName: overlaySettings.value?.channelName ?? '',
+		channelId: settings.value?.channelId ?? '', // todo: take from config
+		channelName: settings.value?.channelName ?? '', // todo: take from config
 		emotes: {
-			ffz: overlaySettings.value?.emotes?.ffzEnabled,
-			bttv: overlaySettings.value?.emotes?.bttvEnabled,
-			sevenTv: overlaySettings.value?.emotes?.sevenTvEnabled,
+			ffz: true, // todo: take from config
+			bttv: true, // todo: take from config
+			sevenTv: true, // todo: take from config
 		},
 		onMessage,
 	}
 })
 
-const { destroy } = useChatTmi(chatSettings)
+const { destroy: destroyChat } = useChatTmi(chatSettings)
 
 onMounted(() => {
 	if (window.frameElement) {
 		iframe.create()
 	} else {
 		const apiKey = route.params.apiKey as string
-		socket.connect(apiKey)
+		connectSocket(apiKey)
 	}
 })
 
 onUnmounted(() => {
 	iframe.destroy()
-	socket.destroy()
-	destroy()
+	destroySocket()
+	destroyChat()
 })
 </script>
 
 <template>
-	<KappagenOverlay ref="kappagen" :config="kappagenSettings" :is-rave="overlaySettings?.enableRave" />
+	<KappagenOverlay ref="kappagen" :config="settings" :is-rave="settings?.enableRave" />
 </template>

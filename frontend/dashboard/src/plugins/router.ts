@@ -155,7 +155,7 @@ export function newRouter() {
 				{
 					name: 'KappagenOverlay',
 					path: '/dashboard/overlays/kappagen',
-					component: () => import('@/features/overlays/kappagen/kappagen-form.vue'),
+					component: () => import('@/features/overlays/kappagen/kappagen.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ManageOverlays,

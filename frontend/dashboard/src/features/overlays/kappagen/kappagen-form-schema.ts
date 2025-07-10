@@ -57,3 +57,5 @@ export const kappagenFormSchema = toTypedSchema(
 			.default([]),
 	})
 )
+
+export type KappagenFormSchema = z.infer<typeof kappagenFormSchema>
