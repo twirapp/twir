@@ -76,12 +76,12 @@ type KappagenOverlayAnimationSettings struct {
 }
 
 type KappagenOverlayAnimationsPrefsSettings struct {
-	Size    float64
-	Center  bool
-	Speed   int
-	Faces   bool
+	Size    *float64
+	Center  *bool
+	Speed   *int
+	Faces   *bool
 	Message []string
-	Time    int
+	Time    *int
 }
 
 type KappagenOverlayAnimationsSettings struct {

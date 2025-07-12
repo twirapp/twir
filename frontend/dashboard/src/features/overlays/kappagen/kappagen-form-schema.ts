@@ -18,15 +18,17 @@ export const kappagenFormSchema = toTypedSchema(
 			.array(
 				z.object({
 					style: z.string().min(1, 'Animation style is required'),
-					prefs: z.object({
-						size: z.number().min(0.1).max(10).default(1),
-						center: z.boolean().default(false),
-						speed: z.number().min(1).max(100).default(50),
-						faces: z.boolean().default(false),
-						message: z.array(z.string()).default([]),
-						time: z.number().min(100).max(30000).default(5000),
-					}),
-					count: z.number().min(1).max(100).default(1),
+					prefs: z
+						.object({
+							size: z.number().min(0.1).max(10).default(1),
+							center: z.boolean().default(false),
+							speed: z.number().min(1).max(100).default(50),
+							faces: z.boolean().default(false),
+							message: z.array(z.string()).default([]),
+							time: z.number().min(100).max(30000).default(5000),
+						})
+						.nullable(),
+					count: z.number().min(1).max(100).nullable(),
 					enabled: z.boolean().default(true),
 				})
 			)

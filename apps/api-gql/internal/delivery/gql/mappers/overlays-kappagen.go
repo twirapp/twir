@@ -14,15 +14,15 @@ func MapKappagenEntityToGQL(e entity.KappagenOverlay) gqlmodel.KappagenOverlay {
 		len(e.Settings.Animations),
 	)
 	for _, a := range e.Settings.Animations {
-		var prefs *gqlmodel.KappagenOverlayAnimationsPrefsSettings
+		var prefs *gqlmodel.KappagenOverlayAnimationsPrefsSettings = nil
 		if a.Prefs != nil {
 			switch a.Style {
 			case entity.KappagenOverlayAnimationStyleTheCube:
 				prefs = &gqlmodel.KappagenOverlayAnimationsPrefsSettings{
-					Size:   &a.Prefs.Size,
-					Center: &a.Prefs.Center,
-					Speed:  &a.Prefs.Speed,
-					Faces:  &a.Prefs.Faces,
+					Size:   a.Prefs.Size,
+					Center: a.Prefs.Center,
+					Speed:  a.Prefs.Speed,
+					Faces:  a.Prefs.Faces,
 				}
 			case entity.KappagenOverlayAnimationStyleText:
 				prefs = &gqlmodel.KappagenOverlayAnimationsPrefsSettings{

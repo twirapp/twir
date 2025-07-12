@@ -70,7 +70,7 @@ onMounted(async () => {
 			},
 			animations: kappagen.value.animations.map((anim) => ({
 				style: anim.style,
-				prefs: {
+				prefs: anim.prefs && {
 					size: anim.prefs.size,
 					center: anim.prefs.center,
 					speed: anim.prefs.speed,
@@ -204,7 +204,7 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 				class="flex flex-col-reverse lg:flex-row flex-wrap gap-4"
 			>
 				<KappagenForm class="w-full lg:w-[45%]" />
-				<KappagenPreview class="w-full lg:w-[45%]" />
+				<KappagenPreview class="lg:sticky lg:top-0 w-full lg:w-[45%]" />
 			</form>
 		</template>
 	</PageLayout>

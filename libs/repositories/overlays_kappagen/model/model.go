@@ -61,17 +61,17 @@ type KappagenOverlayAnimationSettings struct {
 }
 
 type KappagenOverlayAnimationsPrefsSettings struct {
-	Size    float64  `json:"size,omitempty"`
-	Center  bool     `json:"center,omitempty"`
-	Speed   int      `json:"speed,omitempty"`
-	Faces   bool     `json:"faces,omitempty"`
+	Size    *float64 `json:"size,omitempty"`
+	Center  *bool    `json:"center,omitempty"`
+	Speed   *int     `json:"speed,omitempty"`
+	Faces   *bool    `json:"faces,omitempty"`
 	Message []string `json:"message,omitempty"`
-	Time    int      `json:"time,omitempty"`
+	Time    *int     `json:"time,omitempty"`
 }
 
 type KappagenOverlayAnimationsSettings struct {
 	Style   string                                  `json:"style,omitempty"`
-	Prefs   *KappagenOverlayAnimationsPrefsSettings `json:"prefs"`
+	Prefs   *KappagenOverlayAnimationsPrefsSettings `json:"prefs,omitempty"`
 	Count   *int                                    `json:"count,omitempty"`
 	Enabled bool                                    `json:"enabled,omitempty"`
 }

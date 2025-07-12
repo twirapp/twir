@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -119,7 +120,7 @@ func (s *Service) Update(
 func mapModelToEntity(m model.KappagenOverlay) entity.KappagenOverlay {
 	animations := make([]entity.KappagenOverlayAnimationsSettings, 0, len(m.Settings.Animations))
 	for _, a := range m.Settings.Animations {
-		var prefs *entity.KappagenOverlayAnimationsPrefsSettings
+		var prefs *entity.KappagenOverlayAnimationsPrefsSettings = nil
 		if a.Prefs != nil {
 			prefs = &entity.KappagenOverlayAnimationsPrefsSettings{
 				Size:    a.Prefs.Size,
@@ -259,10 +260,10 @@ var defaultAnimations = []model.KappagenOverlayAnimationsSettings{
 	{
 		Style: "TheCube",
 		Prefs: &model.KappagenOverlayAnimationsPrefsSettings{
-			Size:    0.2,
-			Center:  false,
-			Faces:   false,
-			Speed:   6,
+			Size:    lo.ToPtr(0.2),
+			Center:  lo.ToPtr(false),
+			Faces:   lo.ToPtr(false),
+			Speed:   lo.ToPtr(6),
 			Message: []string{},
 		},
 		Enabled: true,
@@ -271,7 +272,7 @@ var defaultAnimations = []model.KappagenOverlayAnimationsSettings{
 		Style: "Text",
 		Prefs: &model.KappagenOverlayAnimationsPrefsSettings{
 			Message: []string{"Twir"},
-			Time:    3,
+			Time:    lo.ToPtr(3),
 		},
 		Enabled: true,
 	},
