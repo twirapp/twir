@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { type KappagenFormSchema } from '@/features/overlays/kappagen/kappagen-form-schema.ts'
 import { Button } from '@/components/ui/button'
 
-import KappagenOverlay from '@twirapp/kappagen'
+// import KappagenOverlay from '@twirapp/kappagen'
 import type { KappagenMethods } from '@twirapp/kappagen/types'
 
 import { useProfile } from '@/api'

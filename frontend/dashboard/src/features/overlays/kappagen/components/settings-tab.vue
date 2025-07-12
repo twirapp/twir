@@ -22,35 +22,37 @@ const {
 				<CardDescription>Configure basic Kappagen overlay behavior</CardDescription>
 			</CardHeader>
 			<CardContent class="space-y-4">
-				<FormField name="enableSpawn" v-slot="{ value, handleChange }">
-					<FormItem
-						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
-					>
-						<div class="space-y-0.5">
-							<FormLabel>Enable Spawn</FormLabel>
+				<div class="flex flex-col md:flex-row gap-4">
+					<FormField name="enableSpawn" v-slot="{ value, handleChange }">
+						<FormItem class="flex flex-col rounded-lg border p-3 shadow-sm">
+							<div class="flex flex-row w-full items-center justify-between">
+								<FormLabel>Enable Spawn</FormLabel>
+								<div>
+									<Switch :checked="value" @update:checked="handleChange" />
+								</div>
+							</div>
 							<div class="text-[0.8rem] text-muted-foreground">
 								Allow emotes to spawn on the overlay
 							</div>
-						</div>
-						<Switch :checked="value" @update:checked="handleChange" />
-						<FormMessage />
-					</FormItem>
-				</FormField>
+							<FormMessage />
+						</FormItem>
+					</FormField>
 
-				<FormField name="enableRave" v-slot="{ value, handleChange }">
-					<FormItem
-						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
-					>
-						<div class="space-y-0.5">
-							<FormLabel>Enable Rave Mode</FormLabel>
+					<FormField name="enableRave" v-slot="{ value, handleChange }">
+						<FormItem class="flex flex-col rounded-lg border p-3 shadow-sm">
+							<div class="flex flex-row w-full items-center justify-between">
+								<FormLabel>Enable Rave Mode</FormLabel>
+								<div>
+									<Switch :checked="value" @update:checked="handleChange" />
+								</div>
+							</div>
 							<div class="text-[0.8rem] text-muted-foreground">
 								Enable special rave animations and effects
 							</div>
-						</div>
-						<Switch :checked="value" @update:checked="handleChange" />
-						<FormMessage />
-					</FormItem>
-				</FormField>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+				</div>
 			</CardContent>
 		</Card>
 
