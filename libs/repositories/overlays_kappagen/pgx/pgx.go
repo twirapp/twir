@@ -3,6 +3,7 @@ package pgx
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -64,11 +65,16 @@ LIMIT 1;
 		if errors.Is(err, pgx.ErrNoRows) {
 			return kappagenmodel.KappagenOverlay{}, overlays_kappagen.ErrNotFound
 		}
-		return kappagenmodel.KappagenOverlay{}, err
+		return kappagenmodel.KappagenOverlay{}, fmt.Errorf(
+			"kappagen overlay get by channel ID: %w",
+			err,
+		)
 	}
 
-	if err := json.Unmarshal(kappagenOverlaySettings, &overlay.Settings); err != nil {
-		return kappagenmodel.KappagenOverlay{}, err
+	if len(kappagenOverlaySettings) > 0 {
+		if err := json.Unmarshal(kappagenOverlaySettings, &overlay.Settings); err != nil {
+			return kappagenmodel.KappagenOverlay{}, err
+		}
 	}
 
 	return overlay, nil
@@ -91,7 +97,7 @@ VALUES ($1, $2);
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
 	_, err = conn.Exec(ctx, query, input.ChannelID, string(settingsBytes))
 	if err != nil {
-		return kappagenmodel.KappagenOverlay{}, err
+		return kappagenmodel.KappagenOverlay{}, fmt.Errorf("kappagen overlay create: %w", err)
 	}
 
 	return p.GetByChannelID(ctx, input.ChannelID)
@@ -104,23 +110,18 @@ func (p *Pgx) Update(
 ) (kappagenmodel.KappagenOverlay, error) {
 	query := `
 UPDATE channels_overlays_kappagen
-SET data = $1
+SET data = $1, updated_at = now()
 WHERE channel_id = $2
 RETURNING channel_id
 	`
 
-	settingsJson, err := json.Marshal(input.Settings)
-	if err != nil {
-		return kappagenmodel.KappagenOverlay{}, err
-	}
-
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	row := conn.QueryRow(ctx, query, string(settingsJson), channelID)
+	row := conn.QueryRow(ctx, query, input.Settings, channelID)
 	var channelId string
 
-	err = row.Scan(&channelId)
+	err := row.Scan(&channelId)
 	if err != nil {
-		return kappagenmodel.KappagenOverlay{}, err
+		return kappagenmodel.KappagenOverlay{}, fmt.Errorf("kappagen overlay update: %w", err)
 	}
 
 	return p.GetByChannelID(ctx, channelId)

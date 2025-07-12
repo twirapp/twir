@@ -7,13 +7,11 @@ import { Switch } from '@/components/ui/switch'
 import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql'
 import { PlayIcon, SettingsIcon } from 'lucide-vue-next'
 
-// Custom animations
 const { fields: animations } = useFieldArray<KappagenOverlayAnimationsSettings>('animations')
 </script>
 
 <template>
 	<div class="space-y-6">
-		<!-- Basic Animation Settings -->
 		<Card>
 			<CardHeader>
 				<CardTitle>Animations</CardTitle>
@@ -35,6 +33,7 @@ const { fields: animations } = useFieldArray<KappagenOverlayAnimationsSettings>(
 						<div class="flex gap-2 items-center">
 							<button
 								class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
+								v-if="animation.value.prefs"
 							>
 								<SettingsIcon class="size-4" />
 							</button>

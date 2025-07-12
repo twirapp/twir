@@ -20,6 +20,20 @@ enum KappagenEmojiStyle {
 	NOTO
 }
 
+enum KappagenOverlayAnimationStyle {
+	THE_CUBE
+	TEXT
+	CONFETTI
+	SPIRAL
+	STAMPEDE
+	FIREWORKS
+	FOUNTAIN
+	BURST
+	CONGA
+	PYRAMID
+	SMALL_PYRAMID
+}
+
 type KappagenOverlay {
 	id: UUID!
 	enableSpawn: Boolean!
@@ -52,18 +66,18 @@ type KappagenOverlayAnimationSettings {
 }
 
 type KappagenOverlayAnimationsPrefsSettings {
-	size: Float!
-	center: Boolean!
-	speed: Int!
-	faces: Boolean!
-	message: [String!]!
-	time: Int!
+	size: Float
+	center: Boolean
+	speed: Int
+	faces: Boolean
+	message: [String!]
+	time: Int
 }
 
 type KappagenOverlayAnimationsSettings {
-	style: String!
-	prefs: KappagenOverlayAnimationsPrefsSettings!
-	count: Int!
+	style: KappagenOverlayAnimationStyle!
+	prefs: KappagenOverlayAnimationsPrefsSettings
+	count: Int
 	enabled: Boolean!
 }
 
@@ -99,18 +113,18 @@ input KappagenOverlayAnimationSettingsInput {
 }
 
 input KappagenOverlayAnimationsPrefsSettingsInput {
-	size: Float!
-	center: Boolean!
-	speed: Int!
-	faces: Boolean!
-	message: [String!]!
-	time: Int!
+	size: Float
+	center: Boolean
+	speed: Int
+	faces: Boolean
+	message: [String!]
+	time: Int
 }
 
 input KappagenOverlayAnimationsSettingsInput {
-	style: String!
+	style: KappagenOverlayAnimationStyle!
 	prefs: KappagenOverlayAnimationsPrefsSettingsInput!
-	count: Int!
+	count: Int
 	enabled: Boolean!
 }
 

@@ -16,6 +16,22 @@ const (
 	KappagenEmojiStyleBlobmoji
 )
 
+type KappagenOverlayAnimationStyle string
+
+const (
+	KappagenOverlayAnimationStyleTheCube      KappagenOverlayAnimationStyle = "TheCube"
+	KappagenOverlayAnimationStyleText         KappagenOverlayAnimationStyle = "Text"
+	KappagenOverlayAnimationStyleConfetti     KappagenOverlayAnimationStyle = "Confetti"
+	KappagenOverlayAnimationStyleSpiral       KappagenOverlayAnimationStyle = "Spiral"
+	KappagenOverlayAnimationStyleStampede     KappagenOverlayAnimationStyle = "Stampede"
+	KappagenOverlayAnimationStyleFireworks    KappagenOverlayAnimationStyle = "Fireworks"
+	KappagenOverlayAnimationStyleFountain     KappagenOverlayAnimationStyle = "Fountain"
+	KappagenOverlayAnimationStyleBurst        KappagenOverlayAnimationStyle = "Burst"
+	KappagenOverlayAnimationStyleConga        KappagenOverlayAnimationStyle = "Conga"
+	KappagenOverlayAnimationStyleSmallPyramid KappagenOverlayAnimationStyle = "SmallPyramid"
+	KappagenOverlayAnimationStylePyramid      KappagenOverlayAnimationStyle = "Pyramid"
+)
+
 type KappagenOverlay struct {
 	ID        uuid.UUID
 	ChannelID string
@@ -69,9 +85,9 @@ type KappagenOverlayAnimationsPrefsSettings struct {
 }
 
 type KappagenOverlayAnimationsSettings struct {
-	Style   string
-	Prefs   KappagenOverlayAnimationsPrefsSettings
-	Count   int
+	Style   KappagenOverlayAnimationStyle
+	Prefs   *KappagenOverlayAnimationsPrefsSettings
+	Count   *int
 	Enabled bool
 }
 

@@ -25,18 +25,44 @@ func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gql
 
 	animations := make([]entity.KappagenOverlayAnimationsSettings, 0, len(input.Animations))
 	for _, a := range input.Animations {
+		animationStyle, err := mappers.MapGqlKappagenAnimationStyleToEntity(a.Style)
+		if err != nil {
+			return nil, err
+		}
+
+		prefs := &entity.KappagenOverlayAnimationsPrefsSettings{}
+		if a.Prefs != nil {
+			if a.Prefs.Size.IsSet() {
+				prefs.Size = *a.Prefs.Size.Value()
+			}
+
+			if a.Prefs.Center.IsSet() {
+				prefs.Center = *a.Prefs.Center.Value()
+			}
+
+			if a.Prefs.Speed.IsSet() {
+				prefs.Speed = *a.Prefs.Speed.Value()
+			}
+
+			if a.Prefs.Faces.IsSet() {
+				prefs.Faces = *a.Prefs.Faces.Value()
+			}
+
+			if a.Prefs.Message.IsSet() {
+				prefs.Message = append([]string{}, a.Prefs.Message.Value()...)
+			}
+		}
+
+		var count *int
+		if a.Count.IsSet() {
+			count = a.Count.Value()
+		}
+
 		animations = append(
 			animations, entity.KappagenOverlayAnimationsSettings{
-				Style: a.Style,
-				Prefs: entity.KappagenOverlayAnimationsPrefsSettings{
-					Size:    a.Prefs.Size,
-					Center:  a.Prefs.Center,
-					Speed:   a.Prefs.Speed,
-					Faces:   a.Prefs.Faces,
-					Message: a.Prefs.Message,
-					Time:    a.Prefs.Time,
-				},
-				Count:   a.Count,
+				Style:   animationStyle,
+				Prefs:   prefs,
+				Count:   count,
 				Enabled: a.Enabled,
 			},
 		)

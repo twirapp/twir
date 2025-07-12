@@ -18,11 +18,11 @@ const (
 )
 
 type KappagenOverlay struct {
-	ID        uuid.UUID               `json:"id,omitempty"`
-	ChannelID string                  `json:"channel_id,omitempty"`
-	CreatedAt time.Time               `json:"created_at"`
-	UpdatedAt time.Time               `json:"updated_at"`
-	Settings  KappagenOverlaySettings `json:"settings"`
+	ID        uuid.UUID
+	ChannelID string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Settings  *KappagenOverlaySettings
 }
 
 type KappagenOverlaySettings struct {
@@ -70,10 +70,10 @@ type KappagenOverlayAnimationsPrefsSettings struct {
 }
 
 type KappagenOverlayAnimationsSettings struct {
-	Style   string                                 `json:"style,omitempty"`
-	Prefs   KappagenOverlayAnimationsPrefsSettings `json:"prefs"`
-	Count   int                                    `json:"count,omitempty"`
-	Enabled bool                                   `json:"enabled,omitempty"`
+	Style   string                                  `json:"style,omitempty"`
+	Prefs   *KappagenOverlayAnimationsPrefsSettings `json:"prefs"`
+	Count   *int                                    `json:"count,omitempty"`
+	Enabled bool                                    `json:"enabled,omitempty"`
 }
 
 type KappagenOverlayEvent struct {

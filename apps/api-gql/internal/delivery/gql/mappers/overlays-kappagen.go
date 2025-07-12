@@ -1,35 +1,49 @@
 package mappers
 
 import (
+	"fmt"
+
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-func MapKappagenEntityToGQL(entity entity.KappagenOverlay) gqlmodel.KappagenOverlay {
+func MapKappagenEntityToGQL(e entity.KappagenOverlay) gqlmodel.KappagenOverlay {
 	animations := make(
 		[]gqlmodel.KappagenOverlayAnimationsSettings,
 		0,
-		len(entity.Settings.Animations),
+		len(e.Settings.Animations),
 	)
-	for _, a := range entity.Settings.Animations {
+	for _, a := range e.Settings.Animations {
+		var prefs *gqlmodel.KappagenOverlayAnimationsPrefsSettings
+		if a.Prefs != nil {
+			switch a.Style {
+			case entity.KappagenOverlayAnimationStyleTheCube:
+				prefs = &gqlmodel.KappagenOverlayAnimationsPrefsSettings{
+					Size:   &a.Prefs.Size,
+					Center: &a.Prefs.Center,
+					Speed:  &a.Prefs.Speed,
+					Faces:  &a.Prefs.Faces,
+				}
+			case entity.KappagenOverlayAnimationStyleText:
+				prefs = &gqlmodel.KappagenOverlayAnimationsPrefsSettings{
+					Message: a.Prefs.Message,
+				}
+			}
+		}
+
+		animationStyle := mapKappagenAnimationStyleToGql[a.Style]
+
 		animations = append(
 			animations, gqlmodel.KappagenOverlayAnimationsSettings{
-				Style: a.Style,
-				Prefs: &gqlmodel.KappagenOverlayAnimationsPrefsSettings{
-					Size:    a.Prefs.Size,
-					Center:  a.Prefs.Center,
-					Speed:   a.Prefs.Speed,
-					Faces:   a.Prefs.Faces,
-					Message: a.Prefs.Message,
-					Time:    a.Prefs.Time,
-				},
+				Style:   animationStyle,
+				Prefs:   prefs,
 				Count:   a.Count,
 				Enabled: a.Enabled,
 			},
 		)
 	}
-	events := make([]gqlmodel.KappagenOverlayEvent, 0, len(entity.Settings.Events))
-	for _, e := range entity.Settings.Events {
+	events := make([]gqlmodel.KappagenOverlayEvent, 0, len(e.Settings.Events))
+	for _, e := range e.Settings.Events {
 		events = append(
 			events, gqlmodel.KappagenOverlayEvent{
 				Event:              gqlmodel.EventType(e.Event),
@@ -40,35 +54,35 @@ func MapKappagenEntityToGQL(entity entity.KappagenOverlay) gqlmodel.KappagenOver
 	}
 
 	return gqlmodel.KappagenOverlay{
-		ID:             entity.ID,
-		EnableSpawn:    entity.Settings.EnableSpawn,
-		ExcludedEmotes: entity.Settings.ExcludedEmotes,
-		EnableRave:     entity.Settings.EnableRave,
+		ID:             e.ID,
+		EnableSpawn:    e.Settings.EnableSpawn,
+		ExcludedEmotes: e.Settings.ExcludedEmotes,
+		EnableRave:     e.Settings.EnableRave,
 		Animation: &gqlmodel.KappagenOverlayAnimationSettings{
-			FadeIn:  entity.Settings.Animation.FadeIn,
-			FadeOut: entity.Settings.Animation.FadeOut,
-			ZoomIn:  entity.Settings.Animation.ZoomIn,
-			ZoomOut: entity.Settings.Animation.ZoomOut,
+			FadeIn:  e.Settings.Animation.FadeIn,
+			FadeOut: e.Settings.Animation.FadeOut,
+			ZoomIn:  e.Settings.Animation.ZoomIn,
+			ZoomOut: e.Settings.Animation.ZoomOut,
 		},
 		Animations: animations,
 		Emotes: &gqlmodel.KappagenEmoteSettings{
-			Time:           entity.Settings.Emotes.Time,
-			Max:            entity.Settings.Emotes.Max,
-			Queue:          entity.Settings.Emotes.Queue,
-			FfzEnabled:     entity.Settings.Emotes.FfzEnabled,
-			BttvEnabled:    entity.Settings.Emotes.BttvEnabled,
-			SevenTvEnabled: entity.Settings.Emotes.SevenTvEnabled,
-			EmojiStyle:     mapKappagenEmojiStyleToGql[entity.Settings.Emotes.EmojiStyle],
+			Time:           e.Settings.Emotes.Time,
+			Max:            e.Settings.Emotes.Max,
+			Queue:          e.Settings.Emotes.Queue,
+			FfzEnabled:     e.Settings.Emotes.FfzEnabled,
+			BttvEnabled:    e.Settings.Emotes.BttvEnabled,
+			SevenTvEnabled: e.Settings.Emotes.SevenTvEnabled,
+			EmojiStyle:     mapKappagenEmojiStyleToGql[e.Settings.Emotes.EmojiStyle],
 		},
 		Size: &gqlmodel.KappagenSizeSettings{
-			RationNormal: entity.Settings.Size.RatioNormal,
-			RationSmall:  entity.Settings.Size.RatioSmall,
-			Min:          entity.Settings.Size.Min,
-			Max:          entity.Settings.Size.Max,
+			RationNormal: e.Settings.Size.RatioNormal,
+			RationSmall:  e.Settings.Size.RatioSmall,
+			Min:          e.Settings.Size.Min,
+			Max:          e.Settings.Size.Max,
 		},
 		Events:    events,
-		CreatedAt: entity.CreatedAt,
-		UpdatedAt: entity.UpdatedAt,
+		CreatedAt: e.CreatedAt,
+		UpdatedAt: e.UpdatedAt,
 	}
 }
 
@@ -80,6 +94,20 @@ var mapKappagenEmojiStyleToGql = map[entity.KappagenEmojiStyle]gqlmodel.Kappagen
 	entity.KappagenEmojiStyleBlobmoji: gqlmodel.KappagenEmojiStyleBlobmoji,
 }
 
+var mapKappagenAnimationStyleToGql = map[entity.KappagenOverlayAnimationStyle]gqlmodel.KappagenOverlayAnimationStyle{
+	entity.KappagenOverlayAnimationStyleConfetti:     gqlmodel.KappagenOverlayAnimationStyleConfetti,
+	entity.KappagenOverlayAnimationStyleSpiral:       gqlmodel.KappagenOverlayAnimationStyleSpiral,
+	entity.KappagenOverlayAnimationStyleStampede:     gqlmodel.KappagenOverlayAnimationStyleStampede,
+	entity.KappagenOverlayAnimationStyleFireworks:    gqlmodel.KappagenOverlayAnimationStyleFireworks,
+	entity.KappagenOverlayAnimationStyleFountain:     gqlmodel.KappagenOverlayAnimationStyleFountain,
+	entity.KappagenOverlayAnimationStyleBurst:        gqlmodel.KappagenOverlayAnimationStyleBurst,
+	entity.KappagenOverlayAnimationStyleTheCube:      gqlmodel.KappagenOverlayAnimationStyleTheCube,
+	entity.KappagenOverlayAnimationStyleText:         gqlmodel.KappagenOverlayAnimationStyleText,
+	entity.KappagenOverlayAnimationStyleConga:        gqlmodel.KappagenOverlayAnimationStyleConga,
+	entity.KappagenOverlayAnimationStyleSmallPyramid: gqlmodel.KappagenOverlayAnimationStyleSmallPyramid,
+	entity.KappagenOverlayAnimationStylePyramid:      gqlmodel.KappagenOverlayAnimationStylePyramid,
+}
+
 func MapGqlKappagenEmoteStyleToEntity(style gqlmodel.KappagenEmojiStyle) entity.KappagenEmojiStyle {
 	for k, v := range mapKappagenEmojiStyleToGql {
 		if v == style {
@@ -88,4 +116,20 @@ func MapGqlKappagenEmoteStyleToEntity(style gqlmodel.KappagenEmojiStyle) entity.
 	}
 
 	return entity.KappagenEmojiStyleNone
+}
+
+func MapGqlKappagenAnimationStyleToEntity(style gqlmodel.KappagenOverlayAnimationStyle) (
+	entity.KappagenOverlayAnimationStyle,
+	error,
+) {
+	for k, v := range mapKappagenAnimationStyleToGql {
+		if v == style {
+			return k, nil
+		}
+	}
+
+	return entity.KappagenOverlayAnimationStyleConfetti, fmt.Errorf(
+		"unknown kappagen animation style: %s",
+		style,
+	)
 }

@@ -4,54 +4,59 @@ import { createGlobalState } from '@vueuse/core'
 
 import { graphql } from '@/gql'
 
+graphql(`
+	fragment KappagenOverlaySettings on KappagenOverlay {
+		id
+		enableSpawn
+		excludedEmotes
+		enableRave
+		animation {
+			fadeIn
+			fadeOut
+			zoomIn
+			zoomOut
+		}
+		animations {
+			style
+			prefs {
+				center
+				faces
+				size
+				speed
+				message
+			}
+			count
+			enabled
+		}
+		emotes {
+			time
+			max
+			queue
+			ffzEnabled
+			bttvEnabled
+			sevenTvEnabled
+			emojiStyle
+		}
+		size {
+			rationNormal
+			rationSmall
+			min
+			max
+		}
+		events {
+			event
+			disabledAnimations
+			enabled
+		}
+		createdAt
+		updatedAt
+	}
+`)
+
 const KappagenOverlayQuery = graphql(`
 	query KappagenOverlayQuery {
 		overlaysKappagen {
-			id
-			enableSpawn
-			excludedEmotes
-			enableRave
-			animation {
-				fadeIn
-				fadeOut
-				zoomIn
-				zoomOut
-			}
-			animations {
-				style
-				prefs {
-					size
-					center
-					speed
-					faces
-					message
-					time
-				}
-				count
-				enabled
-			}
-			emotes {
-				time
-				max
-				queue
-				ffzEnabled
-				bttvEnabled
-				sevenTvEnabled
-				emojiStyle
-			}
-			size {
-				rationNormal
-				rationSmall
-				min
-				max
-			}
-			events {
-				event
-				disabledAnimations
-				enabled
-			}
-			createdAt
-			updatedAt
+			...KappagenOverlaySettings
 		}
 		overlaysKappagenAvailableAnimations
 	}
@@ -112,51 +117,7 @@ const KappagenOverlayUpdateMutation = graphql(`
 const KappagenOverlaySubscription = graphql(`
 	subscription KappagenOverlaySubscription {
 		overlaysKappagen {
-			id
-			enableSpawn
-			excludedEmotes
-			enableRave
-			animation {
-				fadeIn
-				fadeOut
-				zoomIn
-				zoomOut
-			}
-			animations {
-				style
-				prefs {
-					size
-					center
-					speed
-					faces
-					message
-					time
-				}
-				count
-				enabled
-			}
-			emotes {
-				time
-				max
-				queue
-				ffzEnabled
-				bttvEnabled
-				sevenTvEnabled
-				emojiStyle
-			}
-			size {
-				rationNormal
-				rationSmall
-				min
-				max
-			}
-			events {
-				event
-				disabledAnimations
-				enabled
-			}
-			createdAt
-			updatedAt
+			...KappagenOverlaySettings
 		}
 	}
 `)

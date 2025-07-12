@@ -119,18 +119,21 @@ func (s *Service) Update(
 func mapModelToEntity(m model.KappagenOverlay) entity.KappagenOverlay {
 	animations := make([]entity.KappagenOverlayAnimationsSettings, 0, len(m.Settings.Animations))
 	for _, a := range m.Settings.Animations {
-		prefs := entity.KappagenOverlayAnimationsPrefsSettings{
-			Size:    a.Prefs.Size,
-			Center:  a.Prefs.Center,
-			Speed:   a.Prefs.Speed,
-			Faces:   a.Prefs.Faces,
-			Message: a.Prefs.Message,
-			Time:    a.Prefs.Time,
+		var prefs *entity.KappagenOverlayAnimationsPrefsSettings
+		if a.Prefs != nil {
+			prefs = &entity.KappagenOverlayAnimationsPrefsSettings{
+				Size:    a.Prefs.Size,
+				Center:  a.Prefs.Center,
+				Speed:   a.Prefs.Speed,
+				Faces:   a.Prefs.Faces,
+				Message: a.Prefs.Message,
+				Time:    a.Prefs.Time,
+			}
 		}
 
 		animations = append(
 			animations, entity.KappagenOverlayAnimationsSettings{
-				Style:   a.Style,
+				Style:   entity.KappagenOverlayAnimationStyle(a.Style),
 				Prefs:   prefs,
 				Count:   a.Count,
 				Enabled: a.Enabled,
@@ -183,18 +186,22 @@ func mapModelToEntity(m model.KappagenOverlay) entity.KappagenOverlay {
 func mapSettingsEntityToModel(e entity.KappagenOverlaySettings) model.KappagenOverlaySettings {
 	animations := make([]model.KappagenOverlayAnimationsSettings, 0, len(e.Animations))
 	for _, a := range e.Animations {
-		prefs := model.KappagenOverlayAnimationsPrefsSettings{
-			Size:    a.Prefs.Size,
-			Center:  a.Prefs.Center,
-			Speed:   a.Prefs.Speed,
-			Faces:   a.Prefs.Faces,
-			Message: a.Prefs.Message,
-			Time:    a.Prefs.Time,
+		var prefs *model.KappagenOverlayAnimationsPrefsSettings
+		if a.Prefs != nil {
+			prefs = &model.KappagenOverlayAnimationsPrefsSettings{
+				Size:    a.Prefs.Size,
+				Center:  a.Prefs.Center,
+				Speed:   a.Prefs.Speed,
+				Faces:   a.Prefs.Faces,
+				Message: a.Prefs.Message,
+				Time:    a.Prefs.Time,
+			}
 		}
 
 		animations = append(
-			animations, model.KappagenOverlayAnimationsSettings{
-				Style:   a.Style,
+			animations,
+			model.KappagenOverlayAnimationsSettings{
+				Style:   string(a.Style),
 				Prefs:   prefs,
 				Count:   a.Count,
 				Enabled: a.Enabled,
@@ -243,10 +250,15 @@ func mapSettingsEntityToModel(e entity.KappagenOverlaySettings) model.KappagenOv
 	}
 }
 
+var (
+	oneHundredFifty = 150
+	fifty           = 50
+)
+
 var defaultAnimations = []model.KappagenOverlayAnimationsSettings{
 	{
 		Style: "TheCube",
-		Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+		Prefs: &model.KappagenOverlayAnimationsPrefsSettings{
 			Size:    0.2,
 			Center:  false,
 			Faces:   false,
@@ -257,7 +269,7 @@ var defaultAnimations = []model.KappagenOverlayAnimationsSettings{
 	},
 	{
 		Style: "Text",
-		Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+		Prefs: &model.KappagenOverlayAnimationsPrefsSettings{
 			Message: []string{"Twir"},
 			Time:    3,
 		},
@@ -265,27 +277,27 @@ var defaultAnimations = []model.KappagenOverlayAnimationsSettings{
 	},
 	{
 		Style:   "Confetti",
-		Count:   150,
+		Count:   &oneHundredFifty,
 		Enabled: true,
 	},
 	{
 		Style:   "Spiral",
-		Count:   150,
+		Count:   &oneHundredFifty,
 		Enabled: true,
 	},
 	{
 		Style:   "Stampede",
-		Count:   150,
+		Count:   &oneHundredFifty,
 		Enabled: true,
 	},
 	{
 		Style:   "Burst",
-		Count:   50,
+		Count:   &fifty,
 		Enabled: true,
 	},
 	{
 		Style:   "Fountain",
-		Count:   50,
+		Count:   &fifty,
 		Enabled: true,
 	},
 	{
@@ -298,12 +310,12 @@ var defaultAnimations = []model.KappagenOverlayAnimationsSettings{
 	},
 	{
 		Style:   "Fireworks",
-		Count:   150,
+		Count:   &oneHundredFifty,
 		Enabled: true,
 	},
 	{
 		Style: "Conga",
-		Prefs: model.KappagenOverlayAnimationsPrefsSettings{
+		Prefs: &model.KappagenOverlayAnimationsPrefsSettings{
 			Message: []string{},
 		},
 		Enabled: true,

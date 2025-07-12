@@ -18,9 +18,9 @@ func upKappagenSeparateTable(ctx context.Context, tx *sql.Tx) error {
 CREATE TABLE channels_overlays_kappagen (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	channel_id TEXT NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-	created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-	data jsonb NOT NULL
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+	updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+	data jsonb
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS channels_overlays_kappagen_channel_id_unique ON channels_overlays_kappagen (channel_id);
@@ -198,10 +198,10 @@ SELECT id, settings, "channelId" FROM channels_modules_settings WHERE type = 'ka
 	}
 
 	type KappagenOverlayAnimationsSettings struct {
-		Style   string                                 `json:"style,omitempty"`
-		Prefs   KappagenOverlayAnimationsPrefsSettings `json:"prefs"`
-		Count   int                                    `json:"count,omitempty"`
-		Enabled bool                                   `json:"enabled,omitempty"`
+		Style   string                                  `json:"style,omitempty"`
+		Prefs   *KappagenOverlayAnimationsPrefsSettings `json:"prefs"`
+		Count   *int                                    `json:"count,omitempty"`
+		Enabled bool                                    `json:"enabled,omitempty"`
 	}
 
 	type KappagenOverlayEvent struct {
@@ -261,7 +261,7 @@ SELECT id, settings, "channelId" FROM channels_modules_settings WHERE type = 'ka
 				speed     int64
 				faces     bool
 				prefsTime int64
-				count     int64
+				count     *int64
 				messages  []string
 			)
 			if animation.Prefs != nil {
@@ -281,25 +281,32 @@ SELECT id, settings, "channelId" FROM channels_modules_settings WHERE type = 'ka
 					prefsTime = *animation.Prefs.Time
 				}
 				if animation.Count != nil {
-					count = *animation.Count
+					count = animation.Count
 				}
 				messages = animation.Prefs.Message
 			}
 
-			newSettings.Animations = append(
-				newSettings.Animations, KappagenOverlayAnimationsSettings{
-					Style: animation.Style,
-					Prefs: KappagenOverlayAnimationsPrefsSettings{
-						Size:    size,
-						Center:  center,
-						Speed:   int(speed),
-						Faces:   faces,
-						Message: messages,
-						Time:    int(prefsTime),
-					},
-					Count:   int(count),
-					Enabled: animation.Enabled,
+			s := KappagenOverlayAnimationsSettings{
+				Style: animation.Style,
+				Prefs: &KappagenOverlayAnimationsPrefsSettings{
+					Size:    size,
+					Center:  center,
+					Speed:   int(speed),
+					Faces:   faces,
+					Message: messages,
+					Time:    int(prefsTime),
 				},
+				Count:   nil,
+				Enabled: animation.Enabled,
+			}
+
+			if count != nil {
+				countInt := int(*count)
+				s.Count = &countInt
+			}
+
+			newSettings.Animations = append(
+				newSettings.Animations, s,
 			)
 		}
 		for _, event := range oldSettings.Events {
