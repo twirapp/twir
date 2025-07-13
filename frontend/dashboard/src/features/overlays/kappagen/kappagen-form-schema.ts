@@ -27,8 +27,9 @@ export const kappagenFormSchema = toTypedSchema(
 							message: z.array(z.string()).default([]),
 							time: z.number().min(100).max(30000).default(5000),
 						})
-						.nullable(),
-					count: z.number().min(1).max(100).nullable(),
+						.nullable()
+						.default(null),
+					count: z.number().min(1).max(1000).nullable(),
 					enabled: z.boolean().default(true),
 				})
 			)

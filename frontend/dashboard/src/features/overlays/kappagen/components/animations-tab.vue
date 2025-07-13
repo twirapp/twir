@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useFieldArray } from 'vee-validate'
+import { FieldArray, useFieldArray } from 'vee-validate'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Switch } from '@/components/ui/switch'
 import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql'
-import { PlayIcon, SettingsIcon } from 'lucide-vue-next'
+import { PlayIcon, PlusIcon, SettingsIcon, XIcon } from 'lucide-vue-next'
 import {
 	FormControl,
 	FormDescription,
@@ -15,15 +15,17 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 
-const { fields: animations, update } =
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+
+const { fields: animations, update: updateAnimations } =
 	useFieldArray<KappagenOverlayAnimationsSettings>('animations')
 
 function switchEnabled(index: number, value: boolean) {
 	const animation = animations.value[index]
 	if (animation) {
-		update(index, { ...animation.value, enabled: value })
+		updateAnimations(index, { ...animation.value, enabled: value })
 	}
 }
 </script>
@@ -35,11 +37,11 @@ function switchEnabled(index: number, value: boolean) {
 				<CardTitle>Animations</CardTitle>
 			</CardHeader>
 			<CardContent class="space-y-4">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+				<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">
 					<div
 						v-for="(animation, index) of animations"
 						:key="animation.key"
-						class="flex flex-row items-center justify-between bg-background/60 p-2 rounded-md"
+						class="flex flex-col xl:flex-row gap-2 flex-wrap items-center justify-between bg-background/60 p-2 rounded-md"
 					>
 						<div class="flex gap-2 items-center">
 							<button class="p-2 rounded-md bg-indigo-400/70">
@@ -60,7 +62,28 @@ function switchEnabled(index: number, value: boolean) {
 								<PopoverContent class="w-80 bg-zinc-800/60 backdrop-blur-md">
 									<div class="flex flex-col gap-2">
 										<FormField
-											v-if="animation.value.prefs?.size !== null"
+											v-if="typeof animation.value.count === 'number'"
+											v-slot="{ componentField }"
+											:name="`animations.${index}.count`"
+										>
+											<FormItem>
+												<FormLabel>Emotes count</FormLabel>
+												<FormControl>
+													<Input
+														v-bind="componentField"
+														type="number"
+														class="input"
+														:min="1"
+														:max="100"
+													/>
+												</FormControl>
+												<FormDescription> Set count of emotes in animation. </FormDescription>
+												<FormMessage />
+											</FormItem>
+										</FormField>
+
+										<FormField
+											v-if="typeof animation.value.prefs?.size === 'number'"
 											v-slot="{ componentField }"
 											:name="`animations.${index}.prefs.size`"
 										>
@@ -81,7 +104,7 @@ function switchEnabled(index: number, value: boolean) {
 										</FormField>
 
 										<FormField
-											v-if="animation.value.prefs?.speed !== null"
+											v-if="typeof animation.value.prefs?.speed === 'number'"
 											v-slot="{ componentField }"
 											:name="`animations.${index}.prefs.speed`"
 										>
@@ -102,7 +125,7 @@ function switchEnabled(index: number, value: boolean) {
 										</FormField>
 
 										<FormField
-											v-if="animation.value.prefs?.center !== null"
+											v-if="typeof animation.value.prefs?.center === 'boolean'"
 											v-slot="{ field }"
 											:name="`animations.${index}.prefs.center`"
 										>
@@ -120,7 +143,7 @@ function switchEnabled(index: number, value: boolean) {
 										</FormField>
 
 										<FormField
-											v-if="animation.value.prefs?.faces !== null"
+											v-if="typeof animation.value.prefs?.faces === 'boolean'"
 											v-slot="{ field }"
 											:name="`animations.${index}.prefs.faces`"
 										>
@@ -136,9 +159,52 @@ function switchEnabled(index: number, value: boolean) {
 												</FormControl>
 											</FormItem>
 										</FormField>
-									</div>
 
-									{{ animation.value }}
+										<template
+											v-if="
+												animation.value.prefs?.message &&
+												Array.isArray(animation.value.prefs?.message)
+											"
+										>
+											<FieldArray
+												:name="`animations[${index}].prefs.message`"
+												v-slot="{ fields, push, remove }"
+											>
+												<div class="flex items-cente justify-between">
+													<h3>Messages</h3>
+													<button
+														class="p-1 border-border border rounded-md bg-green-600/50 hover:bg-green-600/30 transition-colors"
+														@click="push('Twir')"
+													>
+														<PlusIcon class="size-4" />
+													</button>
+												</div>
+												<ScrollArea class="h-[300px] max-h-[300px] pr-4">
+													<div
+														v-for="(message, messageIndex) of fields"
+														:key="`responses-text-${message.key}`"
+													>
+														<FormField
+															v-slot="{ componentField }"
+															:name="`animations[${index}].prefs.message[${messageIndex}]`"
+														>
+															<FormItem class="flex items-center gap-2 space-y-0">
+																<FormControl>
+																	<Input v-bind="componentField" />
+																</FormControl>
+																<button
+																	class="p-1 border-border border rounded-md bg-red-600/50 hover:bg-red-600/30 transition-colors"
+																	@click="remove(messageIndex)"
+																>
+																	<XIcon />
+																</button>
+															</FormItem>
+														</FormField>
+													</div>
+												</ScrollArea>
+											</FieldArray>
+										</template>
+									</div>
 								</PopoverContent>
 							</Popover>
 							<Switch

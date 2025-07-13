@@ -57,52 +57,54 @@ const isFormDirty = computed(() => kappagenForm.meta.dirty)
 
 onMounted(async () => {
 	await refetch()
-	if (kappagen.value) {
-		kappagenForm.setValues({
-			enableSpawn: kappagen.value.enableSpawn,
-			excludedEmotes: kappagen.value.excludedEmotes,
-			enableRave: kappagen.value.enableRave,
-			animation: {
-				fadeIn: kappagen.value.animation.fadeIn,
-				fadeOut: kappagen.value.animation.fadeOut,
-				zoomIn: kappagen.value.animation.zoomIn,
-				zoomOut: kappagen.value.animation.zoomOut,
-			},
-			animations: kappagen.value.animations.map((anim) => ({
-				style: anim.style,
-				prefs: anim.prefs && {
-					size: anim.prefs.size,
-					center: anim.prefs.center,
-					speed: anim.prefs.speed,
-					faces: anim.prefs.faces,
-					message: anim.prefs.message,
-					time: anim.prefs.time,
-				},
-				count: anim.count,
-				enabled: anim.enabled,
-			})),
-			emotes: {
-				time: kappagen.value.emotes.time,
-				max: kappagen.value.emotes.max,
-				queue: kappagen.value.emotes.queue,
-				ffzEnabled: kappagen.value.emotes.ffzEnabled,
-				bttvEnabled: kappagen.value.emotes.bttvEnabled,
-				sevenTvEnabled: kappagen.value.emotes.sevenTvEnabled,
-				emojiStyle: kappagen.value.emotes.emojiStyle,
-			},
-			size: {
-				rationNormal: kappagen.value.size.rationNormal,
-				rationSmall: kappagen.value.size.rationSmall,
-				min: kappagen.value.size.min,
-				max: kappagen.value.size.max,
-			},
-			events: kappagen.value.events.map((event) => ({
-				event: event.event,
-				disabledAnimations: event.disabledAnimations,
-				enabled: event.enabled,
-			})),
-		})
-	}
+	if (!kappagen.value) return
+
+	kappagenForm.setValues({
+		enableSpawn: kappagen.value.enableSpawn,
+		excludedEmotes: kappagen.value.excludedEmotes,
+		enableRave: kappagen.value.enableRave,
+		animation: {
+			fadeIn: kappagen.value.animation.fadeIn,
+			fadeOut: kappagen.value.animation.fadeOut,
+			zoomIn: kappagen.value.animation.zoomIn,
+			zoomOut: kappagen.value.animation.zoomOut,
+		},
+		animations: kappagen.value.animations.map((anim) => ({
+			style: anim.style,
+			prefs: anim.prefs
+				? {
+						size: anim.prefs.size,
+						center: anim.prefs.center,
+						speed: anim.prefs.speed,
+						faces: anim.prefs.faces,
+						message: anim.prefs.message,
+						time: anim.prefs.time,
+					}
+				: null,
+			count: anim.count,
+			enabled: anim.enabled,
+		})),
+		emotes: {
+			time: kappagen.value.emotes.time,
+			max: kappagen.value.emotes.max,
+			queue: kappagen.value.emotes.queue,
+			ffzEnabled: kappagen.value.emotes.ffzEnabled,
+			bttvEnabled: kappagen.value.emotes.bttvEnabled,
+			sevenTvEnabled: kappagen.value.emotes.sevenTvEnabled,
+			emojiStyle: kappagen.value.emotes.emojiStyle,
+		},
+		size: {
+			rationNormal: kappagen.value.size.rationNormal,
+			rationSmall: kappagen.value.size.rationSmall,
+			min: kappagen.value.size.min,
+			max: kappagen.value.size.max,
+		},
+		events: kappagen.value.events.map((event) => ({
+			event: event.event,
+			disabledAnimations: event.disabledAnimations,
+			enabled: event.enabled,
+		})),
+	})
 })
 
 const onSubmit = kappagenForm.handleSubmit(async (values) => {
@@ -120,14 +122,16 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 				},
 				animations: values.animations.map((anim) => ({
 					style: anim.style,
-					prefs: {
-						size: anim.prefs.size,
-						center: anim.prefs.center,
-						speed: anim.prefs.speed,
-						faces: anim.prefs.faces,
-						message: anim.prefs.message,
-						time: anim.prefs.time,
-					},
+					prefs: anim.prefs
+						? {
+								size: anim.prefs.size,
+								center: anim.prefs.center,
+								speed: anim.prefs.speed,
+								faces: anim.prefs.faces,
+								message: anim.prefs.message,
+								time: anim.prefs.time,
+							}
+						: null,
 					count: anim.count,
 					enabled: anim.enabled,
 				})),

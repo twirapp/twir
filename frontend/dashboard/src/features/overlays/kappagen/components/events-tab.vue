@@ -66,12 +66,12 @@ const selectedEventIndex = computed(() => {
 				<div class="flex flex-col gap-2">
 					<Popover>
 						<PopoverTrigger as-child>
-							<Button variant="outline" role="combobox" class="w-[400px] justify-between">
+							<Button variant="outline" role="combobox" class="w-full justify-between">
 								{{ flatEvents[selectedEvent]?.name ?? selectedEvent }}
 								<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent v-model="selectedEvent" class="w-[400px] p-0">
+						<PopoverContent v-model="selectedEvent" class="w-full p-0">
 							<Command>
 								<CommandInput placeholder="Search event..." />
 								<CommandEmpty>Nothing found.</CommandEmpty>
@@ -99,7 +99,7 @@ const selectedEventIndex = computed(() => {
 				<div class="flex gap-2 flex-col" v-if="selectedEventIndex >= 0">
 					<h3>Animations</h3>
 
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+					<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">
 						<div
 							class="flex items-center gap-2 rounded-md bg-background/60 p-2"
 							v-for="animation of animations"

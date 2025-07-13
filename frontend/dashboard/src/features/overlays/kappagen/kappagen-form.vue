@@ -7,7 +7,7 @@ import AnimationsTab from '@/features/overlays/kappagen/components/animations-ta
 <template>
 	<div class="flex flex-col gap-4">
 		<SettingsTab />
-		<EventsTab />
 		<AnimationsTab />
+		<EventsTab />
 	</div>
 </template>
