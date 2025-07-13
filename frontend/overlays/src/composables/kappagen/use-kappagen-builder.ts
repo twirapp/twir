@@ -1,15 +1,12 @@
-import { computed } from 'vue'
 import { createGlobalState } from '@vueuse/core'
+import { computed } from 'vue'
 
 import type { MessageChunk } from '@twir/frontend-chat'
 import type { Emote } from '@twirapp/kappagen/types'
 
-import { KappagenEmojiStyle } from '@/gql/graphql.ts'
-
-import { useEmotes } from '@/composables/tmi/use-emotes.js'
-import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.ts'
-import type { MaybeRef } from '@vueuse/core'
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.ts'
+import { useEmotes } from '@/composables/tmi/use-emotes.js'
+import { KappagenEmojiStyle } from '@/gql/graphql.ts'
 
 function getEmojiStyleName(style: KappagenEmojiStyle) {
 	switch (style) {
@@ -31,7 +28,7 @@ export interface Buidler {
 
 export const useKappagenEmotesBuilder = createGlobalState(() => {
 	const { emotes } = useEmotes()
-	const { overlaySettings } = useKappagenSettings()
+	const { settings: overlaySettings } = useKappagenSettings()
 
 	const kappagenEmotes = computed(() => {
 		if (!emotes.value) return []

@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 import Card from './card.vue'
 
-import { useProfile, useTwitchGetUsers } from '@/api/index.js'
+import { useProfile } from '@/api/index.js'
 
 const { data: profile } = useProfile()
 

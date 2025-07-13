@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useSubscription } from '@urql/vue'
-import { computed } from 'vue'
 import { createGlobalState } from '@vueuse/core'
+import { computed } from 'vue'
 
-import { graphql } from '@/gql'
+import type { KappagenOverlaySettingsFragment } from '@/gql/graphql.ts'
+
 import { useProfile } from '@/api'
+import { graphql } from '@/gql'
 
 graphql(`
 	fragment KappagenOverlaySettings on KappagenOverlay {
@@ -135,12 +137,12 @@ export const useKappagenApi = createGlobalState(() => {
 	})
 
 	const { executeMutation: updateKappagen, fetching: isUpdating } = useMutation(
-		KappagenOverlayUpdateMutation
+		KappagenOverlayUpdateMutation,
 	)
 
 	const selectedDashboard = computed(() => {
 		return profile.value?.availableDashboards.find(
-			(d) => d.id === profile.value.selectedDashboardId
+			(d) => d.id === profile.value?.selectedDashboardId,
 		)
 	})
 
@@ -151,7 +153,7 @@ export const useKappagenApi = createGlobalState(() => {
 				apiKey: profile.value!.apiKey,
 			}
 		},
-		pause: selectedDashboard,
+		pause: !!selectedDashboard.value,
 	})
 
 	const kappagen = computed(() => {
@@ -159,10 +161,12 @@ export const useKappagenApi = createGlobalState(() => {
 	})
 
 	const availableAnimations = computed<string[]>(() => {
+		const data = subscriptionData.value?.overlaysKappagen as KappagenOverlaySettingsFragment | undefined
+
 		return (
-			subscriptionData.value?.overlaysKappagenAvailableAnimations ||
-			kappagenData.value?.overlaysKappagenAvailableAnimations ||
-			[]
+			data?.animations?.map((a) => a.style)
+			|| kappagenData.value?.overlaysKappagenAvailableAnimations
+			|| []
 		)
 	})
 

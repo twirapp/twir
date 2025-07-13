@@ -19,7 +19,7 @@ const { data: events } = eventApi.useQueryEvents()
 
 <template>
 	<div class="flex gap-2">
-		<Button type="button" :disabled="events?.events.length >= 50" @click="createEvent">
+		<Button type="button" :disabled="(events?.events?.length ?? 0) >= 50" @click="createEvent">
 			<PlusIcon class="size-4 mr-2" />
 			{{ t('sharedTexts.create') }}
 		</Button>

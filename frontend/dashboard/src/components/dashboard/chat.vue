@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 
 import Card from './card.vue'
 
-import { useProfile, useTwitchGetUsers } from '@/api/index.js'
+import { useProfile } from '@/api/index.js'
 import { useTheme } from '@/composables/use-theme.js'
 
 const { data: profile } = useProfile()
@@ -37,7 +37,7 @@ const chatUrl = computed(() => {
 </script>
 
 <template>
-	<Card :content-style="{ 'margin-bottom': '10px', padding: '0px' }">
+	<Card :content-style="{ 'margin-bottom': '10px', 'padding': '0px' }">
 		<template #header-extra>
 			<NTooltip trigger="hover" placement="bottom">
 				<template #trigger>

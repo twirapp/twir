@@ -40,7 +40,7 @@ export const profileQuery = createRequest(
 			}
 		}
 	`),
-	{}
+	{},
 )
 
 export const userInvalidateQueryKey = 'UserInvalidateQueryKey'
@@ -75,7 +75,6 @@ export const useProfile = createGlobalState(() => {
 			isBotModerator: user.isBotModerator,
 			botId: user.botId,
 			selectedDashboardId: user.selectedDashboardId,
-			selectedDashboardTwitchUser: user.selectedDashboardTwitchUser,
 			hideOnLandingPage: user.hideOnLandingPage,
 			availableDashboards: user.availableDashboards,
 		}
@@ -90,7 +89,7 @@ export function useLogout() {
 			mutation userLogout {
 				logout
 			}
-		`)
+		`),
 	)
 
 	async function execute() {
@@ -131,7 +130,7 @@ export const useUserSettings = createGlobalState(() => {
 					authenticatedUserUpdatePublicPage(opts: $opts)
 				}
 			`),
-			[userPublicSettingsInvalidateKey]
+			[userPublicSettingsInvalidateKey],
 		)
 
 	const useApiKeyGenerateMutation = () =>
@@ -141,7 +140,7 @@ export const useUserSettings = createGlobalState(() => {
 					authenticatedUserRegenerateApiKey
 				}
 			`),
-			[userInvalidateQueryKey]
+			[userInvalidateQueryKey],
 		)
 
 	const useUserUpdateMutation = () =>
@@ -151,7 +150,7 @@ export const useUserSettings = createGlobalState(() => {
 					authenticatedUserUpdateSettings(opts: $opts)
 				}
 			`),
-			[userInvalidateQueryKey, userPublicSettingsInvalidateKey]
+			[userInvalidateQueryKey, userPublicSettingsInvalidateKey],
 		)
 
 	return {
@@ -170,7 +169,7 @@ export const useDashboard = createGlobalState(() => {
 			mutation SetDashboard($dashboardId: String!) {
 				authenticatedUserSelectDashboard(dashboardId: $dashboardId)
 			}
-		`)
+		`),
 	)
 
 	const queryClient = useQueryClient()
@@ -187,7 +186,7 @@ export const useDashboard = createGlobalState(() => {
 	}
 })
 
-type Flag = { perm: ChannelRolePermissionEnum; description: string } | 'delimiter'
+type Flag = { perm: ChannelRolePermissionEnum, description: string } | 'delimiter'
 
 export const PERMISSIONS_FLAGS: Flag[] = [
 	{ perm: ChannelRolePermissionEnum.CanAccessDashboard, description: 'All permissions' },

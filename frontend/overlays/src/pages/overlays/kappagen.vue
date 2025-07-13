@@ -12,12 +12,14 @@ import { type ChatMessage, type ChatSettings, useChatTmi } from '@/composables/t
 
 const kappagen = ref<KappagenMethods>()
 const route = useRoute()
+const emotesBuilder = useKappagenEmotesBuilder()
 const { settings, setSettings } = useKappagenSettings()
+
 const socket = useKappagenOverlaySocket({
 	playAnimation,
 	showEmotes,
 	clear: () => kappagen.value?.clear(),
-})
+}, emotesBuilder)
 
 watch(socket.settings, (v) => {
 	if (!v) return
@@ -49,6 +51,8 @@ watch(socket.settings, (v) => {
 		max: v.overlaysKappagen?.emotes.max ?? 100,
 		queue: v.overlaysKappagen?.emotes.queue ?? 100,
 		time: v.overlaysKappagen?.emotes.time ?? 5000,
+		emojiStyle: v.overlaysKappagen.emotes?.emojiStyle,
+		excludedEmotes: v.overlaysKappagen?.excludedEmotes ?? [],
 	})
 })
 
@@ -61,8 +65,6 @@ function showEmotes(emotes: Emote[]) {
 	if (!kappagen.value) return
 	kappagen.value.showEmotes(emotes)
 }
-
-const emotesBuilder = useKappagenEmotesBuilder()
 
 function onMessage(msg: ChatMessage): void {
 	if (msg.type === 'system' || !socket.settings.value?.overlaysKappagen.enableSpawn) return

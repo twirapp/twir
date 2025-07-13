@@ -1,11 +1,13 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
-import { computed, h, readonly, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import EventsTableActions from '../ui/events-table-actions.vue'
 
-import { type Event, EventType, useEventsApi } from '@/api/events'
+import type { Event , EventType } from '@/api/events'
+
+import { useEventsApi } from '@/api/events'
 import { flatEvents, getEventName } from '@/features/events/constants/helpers'
 import EventsTableOperations from '@/features/events/ui/events-table-operations.vue'
 

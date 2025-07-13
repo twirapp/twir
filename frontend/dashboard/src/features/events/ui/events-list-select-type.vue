@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { CheckIcon, ListFilterPlusIcon } from 'lucide-vue-next'
+import { ref } from 'vue'
 
-import { useEventsTable } from '@/features/events/composables/use-events-table.ts'
+import type { EventType } from '@/gql/graphql.ts'
+
 import { Button } from '@/components/ui/button'
 import {
 	Command,
-	CommandEmpty,
 	CommandGroup,
 	CommandInput,
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useEventsTable } from '@/features/events/composables/use-events-table.ts'
 import { EventsOptions } from '@/features/events/constants/events.ts'
-import { EventType } from '@/gql/graphql.ts'
 
 const table = useEventsTable()
 
@@ -21,7 +22,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 	isGroup: boolean
 	name: string
 	value?: EventType
-	childrens: Array<{ name: string; value: EventType }>
+	childrens: Array<{ name: string, value: EventType }>
 }>((value) => {
 	if (value.childrens) {
 		return {
@@ -49,6 +50,8 @@ function handleSelect(type: EventType) {
 		table.selectedTypes.value = table.selectedTypes.value.filter((t) => t !== type)
 	}
 }
+
+const open = ref(false)
 </script>
 
 <template>
@@ -73,7 +76,7 @@ function handleSelect(type: EventType) {
 					<template v-for="selectOption in typeSelectOptions">
 						<CommandGroup
 							v-if="selectOption.isGroup"
-							:key="selectOption.name"
+							:key="`${selectOption.name}.group`"
 							:heading="selectOption.name"
 						>
 							<CommandItem
@@ -91,14 +94,13 @@ function handleSelect(type: EventType) {
 						</CommandGroup>
 						<CommandItem
 							v-else
-							v-if="selectOption.value"
 							:key="selectOption.name"
-							:value="selectOption.value"
-							@select="handleSelect(selectOption.value)"
+							:value="selectOption.value!"
+							@select="handleSelect(selectOption.value!)"
 						>
 							{{ selectOption.name }}
 							<CheckIcon
-								v-if="table.selectedTypes.value.includes(selectOption.value)"
+								v-if="table.selectedTypes.value.includes(selectOption.value!)"
 								class="ml-auto text-xs text-muted-foreground size-4"
 							/>
 						</CommandItem>

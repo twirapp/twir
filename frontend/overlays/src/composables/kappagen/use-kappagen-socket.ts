@@ -1,14 +1,13 @@
 import { useSubscription } from '@urql/vue'
 import { type MaybeRef, computed, ref, unref, watch } from 'vue'
 
-import { useKappagenEmotesBuilder } from './use-kappagen-builder.js'
-
+import type { Buidler } from './use-kappagen-builder.js'
 import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js'
 import { graphql } from '@/gql'
 
-export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>) {
+export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>, emotesBuilder: Buidler) {
 	const apiKey = ref<string>('')
 
 	const paused = computed(() => !apiKey.value)
@@ -124,7 +123,6 @@ export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>) {
 	})
 
 	const { makeMessageChunks } = useMessageHelpers()
-	const emotesBuilder = useKappagenEmotesBuilder()
 
 	function randomAnimation(): KappagenAnimations | undefined {
 		if (!settings.value?.overlaysKappagen) return
