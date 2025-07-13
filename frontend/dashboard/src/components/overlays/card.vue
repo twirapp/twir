@@ -7,7 +7,7 @@ import { useCopyOverlayLink } from './copyOverlayLink.js'
 
 import type { FunctionalComponent } from 'vue'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/index.js'
+import { useUserAccessFlagChecker } from '@/api/index.js'
 import Card from '@/components/card/card.vue'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
@@ -37,8 +37,6 @@ defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { data: profile } = useProfile()
-
 const { copyOverlayLink } = useCopyOverlayLink(props.overlayPath)
 
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)

@@ -7,7 +7,7 @@ export function useAlertsInformation() {
 	const selectedDashboardTwitchUser = computed(() => {
 		return profile.value?.availableDashboards.find(
 			(d) => d.id === profile.value?.selectedDashboardId
-		)?.twitchProfile
+		)
 	})
 
 	const overlayLink = computed(() => {

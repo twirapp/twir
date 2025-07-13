@@ -6,7 +6,7 @@ import { computed, onMounted, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
-import { useObsOverlayManager, useProfile } from '@/api/index.js'
+import { useObsOverlayManager } from '@/api/index.js'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -62,7 +62,6 @@ const onSubmit = obsForm.handleSubmit(async (values) => {
 })
 
 const { copyOverlayLink } = useCopyOverlayLink('obs')
-const { data: profile } = useProfile()
 
 const currentStep = computed(() => {
 	if (!settings.value) return 1
