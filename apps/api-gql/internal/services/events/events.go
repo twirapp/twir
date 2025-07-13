@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 
+	deprecatedmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/events"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.uber.org/fx"
@@ -17,18 +19,21 @@ type Opts struct {
 
 	EventsRepository events.Repository
 	Logger           logger.Logger
+	Cacher           *generic_cacher.GenericCacher[[]deprecatedmodel.Event]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		eventsRepository: opts.EventsRepository,
 		logger:           opts.Logger,
+		cacher:           opts.Cacher,
 	}
 }
 
 type Service struct {
 	eventsRepository events.Repository
 	logger           logger.Logger
+	cacher           *generic_cacher.GenericCacher[[]deprecatedmodel.Event]
 }
 
 func (s *Service) mapToEntity(m model.Event) entity.Event {
@@ -158,6 +163,10 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, 
 		return entity.EventNil, fmt.Errorf("failed to create event: %w", err)
 	}
 
+	if err := s.cacher.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.EventNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return s.mapToEntity(event), nil
 }
 
@@ -217,13 +226,21 @@ func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 		return entity.EventNil, fmt.Errorf("failed to update event: %w", err)
 	}
 
+	if err := s.cacher.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.EventNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return s.mapToEntity(event), nil
 }
 
-func (s *Service) Delete(ctx context.Context, id string) error {
+func (s *Service) Delete(ctx context.Context, id, channelID string) error {
 	err := s.eventsRepository.Delete(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete event: %w", err)
+	}
+
+	if err := s.cacher.Invalidate(ctx, channelID); err != nil {
+		return fmt.Errorf("failed to invalidate cache: %w", err)
 	}
 
 	return nil
@@ -242,6 +259,7 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
+	ChannelID   string
 	Type        *entity.EventType
 	RewardID    *string
 	CommandID   *string

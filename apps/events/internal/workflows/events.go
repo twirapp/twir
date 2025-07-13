@@ -75,6 +75,8 @@ func (c *EventWorkflow) Execute(
 		return err
 	}
 
+	fmt.Println(channelEvents)
+
 	var eventTypeExists bool
 	for _, entity := range channelEvents {
 		if entity.Type == eventType {

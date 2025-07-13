@@ -10,10 +10,10 @@ import OperationsTab from './components/operations-tab.vue'
 import { EventType, useEventsApi } from '@/api/events'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast/use-toast'
+import EventVariables from '@/features/events/components/event-variables.vue'
 import { eventFormSchema } from '@/features/events/event-form-schema.ts'
 import { EventOperationType } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
-import EventVariables from '@/features/events/components/event-variables.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -98,11 +98,17 @@ const updateEventMutation = eventsApi.useMutationUpdateEvent()
 const onSubmit = eventForm.handleSubmit(async (input) => {
 	try {
 		if (isNewEvent.value) {
-			const { error } = await createEventMutation.executeMutation({
+			const { error, data } = await createEventMutation.executeMutation({
 				input,
 			})
 			if (error) {
 				throw error
+			}
+
+			if (data?.eventCreate?.id) {
+				router.push(`/dashboard/events/${data.eventCreate.id}`)
+			} else {
+				throw new Error('Create faied, no ID returned')
 			}
 		} else {
 			const { error } = await updateEventMutation.executeMutation({

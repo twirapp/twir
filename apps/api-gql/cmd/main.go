@@ -73,6 +73,7 @@ import (
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	eventscache "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
 	channelsmoderationsettingsccahe "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
@@ -408,6 +409,7 @@ func main() {
 			chattranslationssettignscache.New,
 			channelsongrequestssettingscache.New,
 			channelsintegrationssettingsseventvcache.New,
+			eventscache.New,
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,
 				fx.As(new(wsrouter.WsRouter)),

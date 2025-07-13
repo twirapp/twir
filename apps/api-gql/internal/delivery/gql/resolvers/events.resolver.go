@@ -73,6 +73,11 @@ func (r *mutationResolver) EventCreate(ctx context.Context, input gqlmodel.Event
 
 // EventUpdate is the resolver for the eventUpdate field.
 func (r *mutationResolver) EventUpdate(ctx context.Context, id string, input gqlmodel.EventUpdateInput) (*gqlmodel.Event, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	var operations *[]events.OperationInput
 
 	ops := make([]events.OperationInput, 0, len(input.Operations.Value()))
@@ -120,6 +125,7 @@ func (r *mutationResolver) EventUpdate(ctx context.Context, id string, input gql
 			Enabled:     input.Enabled.Value(),
 			OnlineOnly:  input.OnlineOnly.Value(),
 			Operations:  operations,
+			ChannelID:   dashboardID,
 		},
 	)
 	if err != nil {
@@ -132,7 +138,12 @@ func (r *mutationResolver) EventUpdate(ctx context.Context, id string, input gql
 
 // EventDelete is the resolver for the eventDelete field.
 func (r *mutationResolver) EventDelete(ctx context.Context, id string) (bool, error) {
-	err := r.deps.EventsService.Delete(ctx, id)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.deps.EventsService.Delete(ctx, id, dashboardID)
 	if err != nil {
 		return false, err
 	}
