@@ -1,113 +1,76 @@
 <script setup lang="ts">
-import { computed, ref, toRaw, watch } from 'vue'
+import KappagenOverlay from '@twirapp/kappagen'
 import { useFormValues } from 'vee-validate'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { type KappagenFormSchema } from '@/features/overlays/kappagen/kappagen-form-schema.ts'
+import type { KappagenFormSchema } from '@/features/overlays/kappagen/kappagen-form-schema.ts'
+import type { Emote, KappagenMethods } from '@twirapp/kappagen/types'
+
 import { Button } from '@/components/ui/button'
-
-// import KappagenOverlay from '@twirapp/kappagen'
-import type { KappagenMethods } from '@twirapp/kappagen/types'
-
-import { useProfile } from '@/api'
-
-const twirEmote: Emote = {
-	url: 'https://cdn.7tv.app/emote/6548b7074789656a7be787e1/4x.webp',
-	zwe: [
-		{
-			url: 'https://cdn.7tv.app/emote/6128ed55a50c52b1429e09dc/4x.webp',
-		},
-	],
-}
+import {
+	twirEmote,
+	useKappagenInstance,
+} from '@/features/overlays/kappagen/composables/use-kappagen-instance.ts'
 
 const { t } = useI18n()
-const { data: profile } = useProfile()
-const kappagen = ref<KappagenMethods>()
-const kappagenIframeRef = ref<HTMLIFrameElement | null>(null)
-const kappagenIframeUrl = computed(() => {
-	if (!profile.value) return null
 
-	return `${window.location.origin}/overlays/${profile.value.apiKey}/kappagen`
-})
+const kappagen = useKappagenInstance()
+
+// const kappagen = ref<KappagenMethods>()
 const { value: formSettings } = useFormValues<KappagenFormSchema>()
 
-watch(formSettings, (v) => {
-	if (!v) return
-
-	return sendIframeMessage('settings', {
-		...toRaw(formSettings.value),
-		channelName: profile.value?.login,
-		channelId: profile.value?.id,
-	})
-})
-
-function sendIframeMessage(key: string, data?: any) {
-	if (!kappagenIframeRef.value) return
-	const win = kappagenIframeRef.value
-
-	win.contentWindow?.postMessage(
-		JSON.stringify({
-			key,
-			data: toRaw(data),
-		})
-	)
-}
-
-function playAnimation(animation: KappagenAnimations) {
-	if (!kappagen.value) return Promise.resolve()
-
-	// const randomAnimation = formSettings.animations.filter((a) => a.enabled)[
-	// 	Math.floor(Math.random() * formSettings.animations.length)
-	// ]
-
-	const randomAnimation = formSettings.animations.find((a) => a.style === 'TheCube')
-
-	console.log(randomAnimation)
-
-	return kappagen.value.playAnimation([twirEmote], randomAnimation)
-}
-
-function showEmotes(emotes: Emote[]) {
-	if (!kappagen.value) return
-	kappagen.value.showEmotes(emotes)
-}
-
-function clear() {
-	if (!kappagen.value) return
-	kappagen.value.clear()
-}
+// function playAnimation(animation: KappagenAnimations) {
+// 	if (!kappagen.value) return Promise.resolve()
+//
+// 	// const randomAnimation = formSettings.animations.filter((a) => a.enabled)[
+// 	// 	Math.floor(Math.random() * formSettings.animations.length)
+// 	// ]
+//
+// 	console.log(formSettings.animations)
+//
+// 	const randomAnimation = formSettings.animations.find((a) => a.style === 'THE_CUBE')
+//
+// 	console.log(randomAnimation)
+//
+// 	return kappagen.value.playAnimation([twirEmote], {
+// 		...randomAnimation,
+// 		style: 'TheCube',
+// 	})
+// }
+//
+// function showEmotes(emotes: Emote[]) {
+// 	console.log(kappagen.value.showEmotes, emotes)
+// 	if (!kappagen.value) return
+// 	kappagen.value.showEmotes(emotes)
+// }
+//
+// function clear() {
+// 	if (!kappagen.value) return
+// 	kappagen.value.clear()
+// }
 </script>
 
 <template>
-	<div class="flex flex-col gap-6">
-		<div class="flex flex-wrap justify-between">
-			<span class="text-2xl font-bold">Preview</span>
-			<div class="flex flex-wrap gap-2 justify-end">
-				<Button variant="secondary" @click="sendIframeMessage('kappa', 'EZ')" type="button">
-					{{ t('overlays.kappagen.testKappagen') }}
-				</Button>
-				<Button variant="default" type="button" @click="sendIframeMessage('spawn', ['EZ'])">
-					{{ t('overlays.kappagen.testSpawn') }}
-				</Button>
-				<Button
-					variant="destructive"
-					@click="sendIframeMessage('clear')"
-					type="button"
-					class="z-[999999]"
-				>
-					{{ t('overlays.kappagen.clear') }}
-				</Button>
-			</div>
+	<div class="h-full">
+		<div class="absolute top-4 right-4 flex gap-2 z-50">
+			<button
+				@click="kappagen.showEmotes([twirEmote])"
+				class="px-4 py-2 rounded-md border-stone-700/50 border bg-indigo-600 shadow-lg"
+			>
+				Spawn emote
+			</button>
+			<button
+				@click="kappagen.clear"
+				class="px-4 py-2 rounded-md border-stone-700/50 border bg-stone-700/40 shadow-lg"
+			>
+				Clear overlay
+			</button>
 		</div>
-		<div class="border rounded-md bg-sidebar/80 max-h-[50%] transform aspect-[16/9]">
-			<iframe
-				v-if="kappagenIframeUrl"
-				ref="kappagenIframeRef"
-				:src="kappagenIframeUrl"
-				class="w-full h-full"
-			/>
-
-			<!--			<KappagenOverlay ref="kappagen" :config="formSettings" is-rave />-->
-		</div>
+		<KappagenOverlay
+			:ref="kappagen.setKappagenInstance"
+			:config="formSettings"
+			:is-rave="formSettings.enableRave"
+		/>
 	</div>
 </template>

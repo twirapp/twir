@@ -54,5 +54,8 @@
       "@vueuse/core": "13.3.0",
       "@vueuse/router": "13.3.0"
     }
+  },
+  "dependencies": {
+    "@twirapp/kappagen": "1.2.1"
   }
 }

@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/toast/use-toast'
 import { KappagenEmojiStyle } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
 import KappagenPreview from '@/features/overlays/kappagen/kappagen-preview.vue'
+import { useThemeVars } from 'naive-ui'
 
 const { t } = useI18n()
 const { toast } = useToast()
@@ -171,10 +172,12 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 		})
 	}
 })
+
+const themeVars = useThemeVars()
 </script>
 
 <template>
-	<PageLayout>
+	<PageLayout clean-body>
 		<template #title> Kappagen overlay </template>
 
 		<template #title-footer>
@@ -201,15 +204,16 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 			<div v-if="isLoading" class="flex items-center justify-center h-64">
 				<div class="text-muted-foreground">Loading Kappagen settings...</div>
 			</div>
-
-			<form
-				v-else
-				@submit.prevent="onSubmit"
-				class="flex flex-col-reverse lg:flex-row flex-wrap gap-4"
-			>
-				<KappagenForm class="w-full lg:w-[45%]" />
-				<KappagenPreview class="lg:sticky lg:top-0 w-full lg:w-[45%]" />
-			</form>
+			<div v-else class="p-8">
+				<form
+					@submit.prevent="onSubmit"
+					class="relative w-full rounded-lg h-[80dvh] border-2 border-border bg-background/60 shadow-lg"
+					:style="{ backgroundColor: themeVars.cardColor }"
+				>
+					<KappagenForm class="absolute top-2 left-4" />
+					<KappagenPreview class="w-full" />
+				</form>
+			</div>
 		</template>
 	</PageLayout>
 </template>

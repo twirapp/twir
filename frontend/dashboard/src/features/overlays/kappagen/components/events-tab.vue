@@ -22,7 +22,8 @@ import {
 	CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Check, ChevronsUpDown } from 'lucide-vue-next'
+import { Check, ChevronsUpDown, SettingsIcon } from 'lucide-vue-next'
+import { Switch } from '@/components/ui/switch'
 const { fields: events, update: updateEvent } = useFieldArray<KappagenOverlayEvent>('events')
 
 const { fields: animations } = useFieldArray<KappagenOverlayAnimationsSettings>('animations')
@@ -63,37 +64,28 @@ const selectedEventIndex = computed(() => {
 				</CardDescription>
 			</CardHeader>
 			<CardContent class="space-y-4 w-full">
-				<div class="flex flex-col gap-2">
-					<Popover>
-						<PopoverTrigger as-child>
-							<Button variant="outline" role="combobox" class="w-full justify-between">
-								{{ flatEvents[selectedEvent]?.name ?? selectedEvent }}
-								<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent v-model="selectedEvent" class="w-full p-0">
-							<Command>
-								<CommandInput placeholder="Search event..." />
-								<CommandEmpty>Nothing found.</CommandEmpty>
-								<CommandList>
-									<CommandGroup>
-										<CommandItem
-											v-for="event in events"
-											:key="event.key"
-											:value="event.value.event"
-											@select="selectedEvent = event.value.event"
-										>
-											{{ flatEvents[event.value.event]?.name ?? event.value.event }}
-											<Check
-												class="ml-auto h-4 w-4"
-												:class="[selectedEvent === event.value.event ? 'opacity-100' : 'opacity-0']"
-											/>
-										</CommandItem>
-									</CommandGroup>
-								</CommandList>
-							</Command>
-						</PopoverContent>
-					</Popover>
+				<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">
+					<div
+						v-for="event in events"
+						:key="event.key"
+						class="flex flex-col gap-2 flex-wrap items-start bg-background/60 p-2 rounded-md"
+					>
+						<span>{{ flatEvents[event.value.event]?.name ?? event.value.event }}</span>
+
+						<div class="flex items-center w-full justify-between gap-2">
+							<span v-if="event.value.enabled" class="text-sm text-muted-foreground"
+								>5 animations</span
+							>
+							<div class="flex items-center gap-2">
+								<button
+									class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
+								>
+									<SettingsIcon class="size-4" />
+								</button>
+								<Switch />
+							</div>
+						</div>
+					</div>
 				</div>
 
 				<div class="flex gap-2 flex-col" v-if="selectedEventIndex >= 0">

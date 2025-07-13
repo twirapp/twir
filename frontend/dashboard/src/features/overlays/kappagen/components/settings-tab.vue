@@ -32,7 +32,7 @@ const {
 								</div>
 							</div>
 							<div class="text-[0.8rem] text-muted-foreground">
-								Allow emotes to spawn on the overlay
+								Spawn emote on each chat message
 							</div>
 							<FormMessage />
 						</FormItem>
