@@ -14,7 +14,7 @@ func New(
 	db *gorm.DB,
 	redis *redis.Client,
 ) *generic_cacher.GenericCacher[[]model.Event] {
-	return generic_cacher.New[[]model.Event](
+	return generic_cacher.New(
 		generic_cacher.Opts[[]model.Event]{
 			Redis:     redis,
 			KeyPrefix: "cache:twir:channels_events_with_operations:channel:",

@@ -9,7 +9,6 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
@@ -46,7 +45,6 @@ type GrpcImpl struct {
 	obsServer              *obs.OBS
 	alertsServer           *alerts.Alerts
 	overlaysRegistryServer *overlays.Registry
-	kappagenServer         *kappagen.Kappagen
 	beRightBackServer      *be_right_back.BeRightBack
 	dudesServer            *dudes.Dudes
 	alertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
@@ -65,7 +63,6 @@ type GrpcOpts struct {
 	OBSServer              *obs.OBS
 	AlertsServer           *alerts.Alerts
 	OverlaysRegistryServer *overlays.Registry
-	KappagenServer         *kappagen.Kappagen
 	BeRightBackServer      *be_right_back.BeRightBack
 	DudesServer            *dudes.Dudes
 	AlertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
@@ -81,7 +78,6 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		obsServer:              opts.OBSServer,
 		alertsServer:           opts.AlertsServer,
 		overlaysRegistryServer: opts.OverlaysRegistryServer,
-		kappagenServer:         opts.KappagenServer,
 		beRightBackServer:      opts.BeRightBackServer,
 		dudesServer:            opts.DudesServer,
 		alertsCache:            opts.AlertsCache,
@@ -127,8 +123,6 @@ func (c *GrpcImpl) RefreshOverlaySettings(
 			"refreshOverlays",
 			nil,
 		)
-	case websockets.RefreshOverlaySettingsName_KAPPAGEN:
-		err = c.kappagenServer.SendSettings(req.GetChannelId())
 	case websockets.RefreshOverlaySettingsName_BRB:
 		err = c.beRightBackServer.SendSettings(req.GetChannelId())
 	default:

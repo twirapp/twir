@@ -252,16 +252,19 @@ type PredictionEndMessage struct {
 }
 
 type StreamFirstUserJoinMessage struct {
-	BaseInfo BaseInfo `json:"base_info"`
-	UserName string   `json:"user_name"`
+	BaseInfo  BaseInfo `json:"base_info"`
+	UserID    string   `json:"user_id"`
+	UserLogin string   `json:"user_login"`
 }
 
 type ChannelBanMessage struct {
 	BaseInfo             BaseInfo `json:"base_info"`
+	UserID               string   `json:"user_id"`
 	UserName             string   `json:"user_name"`
 	UserLogin            string   `json:"user_login"`
 	BroadcasterUserName  string   `json:"broadcaster_user_name"`
 	BroadcasterUserLogin string   `json:"broadcaster_user_login"`
+	ModeratorUserID      string   `json:"moderator_id"`
 	ModeratorUserName    string   `json:"moderator_user_name"`
 	ModeratorUserLogin   string   `json:"moderator_user_login"`
 	Reason               string   `json:"reason"`
@@ -280,10 +283,12 @@ type ChannelUnbanRequestCreateMessage struct {
 
 type ChannelUnbanRequestResolveMessage struct {
 	BaseInfo             BaseInfo `json:"base_info"`
+	UserID               string   `json:"user_id"`
 	UserName             string   `json:"user_name"`
 	UserLogin            string   `json:"user_login"`
 	BroadcasterUserName  string   `json:"broadcaster_user_name"`
 	BroadcasterUserLogin string   `json:"broadcaster_user_login"`
+	ModeratorUserID      string   `json:"moderator_id"`
 	ModeratorUserName    string   `json:"moderator_user_name"`
 	ModeratorUserLogin   string   `json:"moderator_user_login"`
 	Declined             bool     `json:"declined"`

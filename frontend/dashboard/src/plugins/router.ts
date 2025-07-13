@@ -155,7 +155,7 @@ export function newRouter() {
 				{
 					name: 'KappagenOverlay',
 					path: '/dashboard/overlays/kappagen',
-					component: () => import('../pages/overlays/kappagen/Kappagen.vue'),
+					component: () => import('@/features/overlays/kappagen/kappagen.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
@@ -196,9 +196,14 @@ export function newRouter() {
 					},
 				},
 				{
-					path: '/dashboard/events/custom',
-					component: () => import('../pages/Events.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewEvents },
+					path: '/dashboard/events',
+					component: () => import('../features/events/events-list.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewEvents, noPadding: true },
+				},
+				{
+					path: '/dashboard/events/:id',
+					component: () => import('../features/events/event-form.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ManageEvents, noPadding: true },
 				},
 				{
 					path: '/dashboard/alerts',

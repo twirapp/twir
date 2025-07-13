@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { type ChatUserstate, Client } from 'tmi.js'
 import { type Ref, unref, watch } from 'vue'
 

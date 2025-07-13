@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/dev/golang"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/helpers"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/nodejs"
+	"github.com/twirapp/twir/cli/internal/cmds/kill"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/twirapp/twir/cli/internal/cmds/proxy"
 	"github.com/urfave/cli/v2"
@@ -66,6 +67,8 @@ func CreateDevCommand() *cli.Command {
 			return nil
 		},
 		Action: func(c *cli.Context) error {
+			kill.Cmd.Run(c)
+
 			proxyStartedChan, err := proxy.StartProxy(false)
 			if err != nil {
 				pterm.Fatal.Println(err)

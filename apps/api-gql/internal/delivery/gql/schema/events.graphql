@@ -1,0 +1,168 @@
+extend type Query {
+	events: [Event!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_EVENTS)
+	eventById(id: String!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_EVENTS)
+}
+
+extend type Mutation {
+	eventCreate(input: EventCreateInput!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventUpdate(id: String!, input: EventUpdateInput!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventDelete(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventEnableOrDisable(id: String!, enabled: Boolean!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+}
+
+enum EventOperationType {
+  SEND_MESSAGE
+  MESSAGE_DELETE
+  TRIGGER_ALERT
+  TIMEOUT
+  TIMEOUT_RANDOM
+  BAN
+  UNBAN
+  BAN_RANDOM
+  VIP
+  UNVIP
+  UNVIP_RANDOM
+  UNVIP_RANDOM_IF_NO_SLOTS
+  MOD
+  UNMOD
+  UNMOD_RANDOM
+  RAID_CHANNEL
+  CHANGE_VARIABLE
+  INCREMENT_VARIABLE
+  DECREMENT_VARIABLE
+  TTS_SAY
+  TTS_SKIP
+  TTS_ENABLE
+  TTS_DISABLE
+  TTS_SWITCH_AUTOREAD
+  TTS_ENABLE_AUTOREAD
+  TTS_DISABLE_AUTOREAD
+  ALLOW_COMMAND_TO_USER
+  REMOVE_ALLOW_COMMAND_TO_USER
+  DENY_COMMAND_TO_USER
+  REMOVE_DENY_COMMAND_TO_USER
+  CHANGE_TITLE
+  CHANGE_CATEGORY
+  ENABLE_SUBMODE
+  DISABLE_SUBMODE
+  ENABLE_EMOTE_ONLY
+  DISABLE_EMOTE_ONLY
+  CREATE_GREETING
+  OBS_CHANGE_SCENE
+  OBS_TOGGLE_SOURCE
+  OBS_TOGGLE_AUDIO
+  OBS_SET_AUDIO_VOLUME
+  OBS_DECREASE_AUDIO_VOLUME
+  OBS_INCREASE_AUDIO_VOLUME
+  OBS_ENABLE_AUDIO
+  OBS_DISABLE_AUDIO
+  OBS_START_STREAM
+  OBS_STOP_STREAM
+  SEVENTV_ADD_EMOTE
+  SEVENTV_REMOVE_EMOTE
+  SHOUTOUT_CHANNEL
+}
+
+enum EventType {
+	FOLLOW
+	SUBSCRIBE
+	RESUBSCRIBE
+	SUB_GIFT
+	REDEMPTION_CREATED
+	COMMAND_USED
+	FIRST_USER_MESSAGE
+	RAIDED
+	TITLE_OR_CATEGORY_CHANGED
+	STREAM_ONLINE
+	STREAM_OFFLINE
+	ON_CHAT_CLEAR
+	DONATE
+	KEYWORD_MATCHED
+	GREETING_SENDED
+	POLL_BEGIN
+	POLL_PROGRESS
+	POLL_END
+	PREDICTION_BEGIN
+	PREDICTION_PROGRESS
+	PREDICTION_END
+	PREDICTION_LOCK
+	CHANNEL_BAN
+	CHANNEL_UNBAN_REQUEST_CREATE
+	CHANNEL_UNBAN_REQUEST_RESOLVE
+	CHANNEL_MESSAGE_DELETE
+}
+
+type Event {
+	id: String!
+	channelId: String!
+	type: EventType!
+	rewardId: String
+	commandId: String
+	keywordId: String
+	description: String!
+	enabled: Boolean!
+	onlineOnly: Boolean!
+	operations: [EventOperation!]!
+}
+
+type EventOperation {
+	id: String!
+	type: EventOperationType!
+	input: String
+	delay: Int!
+	repeat: Int!
+	useAnnounce: Boolean!
+	timeoutTime: Int!
+	timeoutMessage: String
+	target: String
+	enabled: Boolean!
+	filters: [EventOperationFilter!]!
+}
+
+type EventOperationFilter {
+	id: String!
+	type: String!
+	left: String!
+	right: String!
+}
+
+input EventCreateInput {
+	type: EventType! @validate(constraint: "required")
+	rewardId: String @validate(constraint: "uuid4,omitempty")
+	commandId: String @validate(constraint: "uuid4,omitempty")
+	keywordId: String @validate(constraint: "uuid4,omitempty")
+	description: String! @validate(constraint: "required,max=20")
+	enabled: Boolean!
+	onlineOnly: Boolean!
+	operations: [EventOperationInput!]!
+}
+
+input EventUpdateInput {
+	type: EventType
+	rewardId: String @validate(constraint: "uuid4,omitempty")
+	commandId: String @validate(constraint: "uuid4,omitempty")
+	keywordId: String @validate(constraint: "uuid4,omitempty")
+	description: String @validate(constraint: "max=20,omitempty")
+	enabled: Boolean
+	onlineOnly: Boolean
+	operations: [EventOperationInput!]
+}
+
+input EventOperationInput {
+	type: EventOperationType! @validate(constraint: "required")
+	input: String @validate(constraint: "max=1000,omitempty")
+	delay: Int! @validate(constraint: "min=0")
+	repeat: Int! @validate(constraint: "min=0")
+	useAnnounce: Boolean!
+	timeoutTime: Int! @validate(constraint: "min=0")
+	timeoutMessage: String @validate(constraint: "max=500,omitempty")
+	target: String @validate(constraint: "max=1000,omitempty")
+	enabled: Boolean!
+	filters: [EventOperationFilterInput!]!
+}
+
+input EventOperationFilterInput {
+	type: String! @validate(constraint: "required")
+	left: String! @validate(constraint: "required")
+	right: String! @validate(constraint: "required")
+}

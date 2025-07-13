@@ -20,11 +20,6 @@ export const authedUserQuery = createRequest(graphql(`
 				profileImageUrl
 			}
 			selectedDashboardId
-			selectedDashboardTwitchUser {
-				login
-				displayName
-				profileImageUrl
-			}
 			availableDashboards {
 				id
 				flags
@@ -33,6 +28,7 @@ export const authedUserQuery = createRequest(graphql(`
 					displayName
 					profileImageUrl
 				}
+				apiKey
 			}
 		}
 	}

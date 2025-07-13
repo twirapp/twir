@@ -16,6 +16,7 @@ import (
 	channelsfilesroute "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/channels/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
+	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
@@ -43,6 +44,7 @@ import (
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -60,6 +62,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/toxic_messages"
+	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -70,6 +73,7 @@ import (
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	eventscache "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
 	channelsmoderationsettingsccahe "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
@@ -107,12 +111,12 @@ import (
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
+	overlaysdudesrepository "github.com/twirapp/twir/libs/repositories/overlays_dudes"
+	overlaysdudesrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_dudes/pgx"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
-	overlaysdudesrepository "github.com/twirapp/twir/libs/repositories/overlays_dudes"
-	overlaysdudesrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_dudes/pgx"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	shortenedurlsrepositorypostgres "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
@@ -166,6 +170,9 @@ import (
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
 
+	eventsrepository "github.com/twirapp/twir/libs/repositories/events"
+	eventsrepositorypgx "github.com/twirapp/twir/libs/repositories/events/pgx"
+
 	"go.uber.org/fx"
 )
 
@@ -176,6 +183,7 @@ func main() {
 				AppName: "api-gql",
 			},
 		),
+		di.OverlaysKappagenModule,
 		// repositories
 		fx.Provide(
 			fx.Annotate(
@@ -299,6 +307,10 @@ func main() {
 				fx.As(new(overlaysdudesrepository.Repository)),
 			),
 			fx.Annotate(
+				eventsrepositorypgx.NewFx,
+				fx.As(new(eventsrepository.Repository)),
+			),
+			fx.Annotate(
 				pastebinsrepositorypgx.NewFx,
 				fx.As(new(pastebinsrepository.Repository)),
 			),
@@ -366,6 +378,11 @@ func main() {
 			overlays_dudes.New,
 			channels_moderation_settings.New,
 			pastebinsservice.New,
+			events.New,
+			twir_events.New,
+		),
+		// grpc clients
+		fx.Provide(
 			toxic_messages.New,
 			channels_files.New,
 			channels_redemptions_history.New,
@@ -392,6 +409,7 @@ func main() {
 			chattranslationssettignscache.New,
 			channelsongrequestssettingscache.New,
 			channelsintegrationssettingsseventvcache.New,
+			eventscache.New,
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,
 				fx.As(new(wsrouter.WsRouter)),

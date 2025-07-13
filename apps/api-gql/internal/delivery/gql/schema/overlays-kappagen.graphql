@@ -1,0 +1,166 @@
+extend type Query {
+	overlaysKappagen: KappagenOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	overlaysKappagenAvailableAnimations: [String!]!
+}
+
+extend type Mutation {
+	overlaysKappagenUpdate(input: KappagenUpdateInput!): KappagenOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	overlaysKappagen(apiKey: String!): KappagenOverlay! @isAuthenticated
+	overlaysKappagenTrigger(apiKey: String!): KappagenTriggerPayload! @isAuthenticated
+}
+
+enum KappagenEmojiStyle {
+	NONE
+	OPENMOJI
+	TWEMOJI
+	BLOBMOJI
+	NOTO
+}
+
+enum KappagenOverlayAnimationStyle {
+	THE_CUBE
+	TEXT
+	CONFETTI
+	SPIRAL
+	STAMPEDE
+	FIREWORKS
+	FOUNTAIN
+	BURST
+	CONGA
+	PYRAMID
+	SMALL_PYRAMID
+}
+
+type KappagenOverlay {
+	id: UUID!
+	enableSpawn: Boolean!
+	excludedEmotes: [String!]!
+	enableRave: Boolean!
+	animation: KappagenOverlayAnimationSettings!
+	animations: [KappagenOverlayAnimationsSettings!]!
+	emotes: KappagenEmoteSettings!
+	size: KappagenSizeSettings!
+	events: [KappagenOverlayEvent!]!
+	createdAt: Time!
+	updatedAt: Time!
+	channelID: String!
+	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
+}
+
+type KappagenEmoteSettings {
+	time: Int!
+	max: Int!
+	queue: Int!
+	ffzEnabled: Boolean!
+	bttvEnabled: Boolean!
+	sevenTvEnabled: Boolean!
+	emojiStyle: KappagenEmojiStyle!
+}
+
+type KappagenOverlayAnimationSettings {
+	fadeIn: Boolean!
+	fadeOut: Boolean!
+	zoomIn: Boolean!
+	zoomOut: Boolean!
+}
+
+type KappagenOverlayAnimationsPrefsSettings {
+	size: Float
+	center: Boolean
+	speed: Int
+	faces: Boolean
+	message: [String!]
+	time: Int
+}
+
+type KappagenOverlayAnimationsSettings {
+	style: KappagenOverlayAnimationStyle!
+	prefs: KappagenOverlayAnimationsPrefsSettings
+	count: Int
+	enabled: Boolean!
+}
+
+type KappagenOverlayEvent {
+	event: EventType!
+	disabledAnimations: [String!]!
+	enabled: Boolean!
+}
+
+type KappagenSizeSettings {
+	rationNormal: Float!
+	rationSmall: Float!
+	min: Int!
+	max: Int!
+}
+
+input KappagenUpdateInput {
+	enableSpawn: Boolean!
+	excludedEmotes: [String!]!
+	enableRave: Boolean!
+	animation: KappagenOverlayAnimationSettingsInput!
+	animations: [KappagenOverlayAnimationsSettingsInput!]!
+	emotes: KappagenEmoteSettingsInput!
+	size: KappagenSizeSettingsInput!
+	events: [KappagenOverlayEventInput!]!
+}
+
+input KappagenOverlayAnimationSettingsInput {
+	fadeIn: Boolean!
+	fadeOut: Boolean!
+	zoomIn: Boolean!
+	zoomOut: Boolean!
+}
+
+input KappagenOverlayAnimationsPrefsSettingsInput {
+	size: Float
+	center: Boolean
+	speed: Int
+	faces: Boolean
+	message: [String!]
+	time: Int
+}
+
+input KappagenOverlayAnimationsSettingsInput {
+	style: KappagenOverlayAnimationStyle!
+	prefs: KappagenOverlayAnimationsPrefsSettingsInput
+	count: Int
+	enabled: Boolean!
+}
+
+input KappagenOverlayEventInput {
+	event: String!
+	disabledAnimations: [String!]!
+	enabled: Boolean!
+}
+
+input KappagenEmoteSettingsInput {
+	time: Int!
+	max: Int!
+	queue: Int!
+	ffzEnabled: Boolean!
+	bttvEnabled: Boolean!
+	sevenTvEnabled: Boolean!
+	emojiStyle: KappagenEmojiStyle!
+}
+
+input KappagenSizeSettingsInput {
+	rationNormal: Float!
+	rationSmall: Float!
+	min: Int!
+	max: Int!
+}
+
+type KappagenTriggerPayload {
+	text: String!
+	emotes: [KappagenTriggerRequestEmote!]!
+	channelID: String!
+	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
+}
+
+type KappagenTriggerRequestEmote {
+	id: String!
+	positions: [String!]!
+}

@@ -26,11 +26,6 @@ func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlm
 	return data_loader.GetHelixUserById(ctx, obj.ID)
 }
 
-// SelectedDashboardTwitchUser is the resolver for the selectedDashboardTwitchUser field.
-func (r *authenticatedUserResolver) SelectedDashboardTwitchUser(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.SelectedDashboardID)
-}
-
 // AvailableDashboards is the resolver for the availableDashboards field.
 func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj *gqlmodel.AuthenticatedUser) ([]gqlmodel.Dashboard, error) {
 	return r.getAvailableDashboards(ctx, obj)

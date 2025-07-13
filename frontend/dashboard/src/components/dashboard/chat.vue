@@ -5,20 +5,22 @@ import { computed, ref } from 'vue'
 
 import Card from './card.vue'
 
-import { useProfile, useTwitchGetUsers } from '@/api/index.js'
+import { useProfile } from '@/api/index.js'
 import { useTheme } from '@/composables/use-theme.js'
 
 const { data: profile } = useProfile()
 const { theme: chatTheme, toggleTheme } = useTheme()
 
 const openFrankerFaceZ = ref(false)
-const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '')
-const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId })
+const selectedDashboardTwitchUser = computed(() => {
+	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
+		?.twitchProfile
+})
 
 const chatUrl = computed(() => {
-	if (!selectedDashboardTwitchUser.data.value?.users.length) return
+	if (!selectedDashboardTwitchUser.value) return
 
-	const user = selectedDashboardTwitchUser.data.value.users.at(0)!
+	const user = selectedDashboardTwitchUser.value
 
 	let url = `https://www.twitch.tv/embed/${user.login}/chat?parent=${window.location.host}`
 
@@ -53,12 +55,6 @@ const chatUrl = computed(() => {
 			</NButton>
 		</template>
 
-		<iframe
-			v-if="chatUrl"
-			:src="chatUrl"
-			frameborder="0"
-			class="w-full h-full"
-		>
-		</iframe>
+		<iframe v-if="chatUrl" :src="chatUrl" frameborder="0" class="w-full h-full"> </iframe>
 	</Card>
 </template>

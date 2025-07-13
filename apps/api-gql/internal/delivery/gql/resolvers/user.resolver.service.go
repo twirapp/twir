@@ -15,7 +15,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	dashboardsEntities := make(map[string]gqlmodel.Dashboard)
 	if obj.IsBotAdmin {
 		var channels []model.Channels
-		if err := r.deps.Gorm.WithContext(ctx).Find(&channels).Error; err != nil {
+		if err := r.deps.Gorm.WithContext(ctx).Preload("User").Find(&channels).Error; err != nil {
 			return nil, err
 		}
 
@@ -25,6 +25,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 				Flags: []gqlmodel.ChannelRolePermissionEnum{
 					gqlmodel.ChannelRolePermissionEnumCanAccessDashboard,
 				},
+				APIKey: channel.User.ApiKey,
 			}
 		}
 	} else {
@@ -42,6 +43,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			).
 			Preload("Role").
 			Preload("Role.Channel").
+			Preload("Role.Channel.User").
 			Find(&roles).
 			Error; err != nil {
 			return nil, err
@@ -58,8 +60,9 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			}
 
 			dashboardsEntities[role.Role.Channel.ID] = gqlmodel.Dashboard{
-				ID:    role.Role.Channel.ID,
-				Flags: append(dashboardsEntities[role.Role.Channel.ID].Flags, flags...),
+				ID:     role.Role.Channel.ID,
+				Flags:  append(dashboardsEntities[role.Role.Channel.ID].Flags, flags...),
+				APIKey: role.Role.Channel.User.ApiKey,
 			}
 		}
 	}
@@ -114,8 +117,9 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 
 		if role.ID != "" && len(flags) > 0 {
 			dashboardsEntities[role.ChannelID] = gqlmodel.Dashboard{
-				ID:    role.ChannelID,
-				Flags: append(dashboardsEntities[role.ChannelID].Flags, flags...),
+				ID:     role.ChannelID,
+				Flags:  append(dashboardsEntities[role.ChannelID].Flags, flags...),
+				APIKey: role.Channel.User.ApiKey,
 			}
 		}
 	}

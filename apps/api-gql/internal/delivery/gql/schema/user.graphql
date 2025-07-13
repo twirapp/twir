@@ -24,7 +24,6 @@ type AuthenticatedUser implements TwirUser {
 	botId: ID
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	selectedDashboardId: String!
-	selectedDashboardTwitchUser: TwirUserTwitchInfo! @goField(forceResolver: true)
 	availableDashboards: [Dashboard!]! @goField(forceResolver: true)
 }
 
@@ -32,6 +31,7 @@ type Dashboard {
 	id: String!
 	flags: [ChannelRolePermissionEnum!]!
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	apiKey: String!
 }
 
 input UserUpdateSettingsInput {

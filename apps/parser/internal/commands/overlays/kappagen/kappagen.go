@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/bus-core/api"
 )
 
 var Kappagen = &types.DefaultCommand{
@@ -25,9 +25,9 @@ var Kappagen = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		var emotes []*websockets.TriggerKappagenRequest_Emote
+		var emotes []api.TriggerKappagenEmote
 		for _, e := range parseCtx.Emotes {
-			emote := &websockets.TriggerKappagenRequest_Emote{
+			emote := api.TriggerKappagenEmote{
 				Id:        e.ID,
 				Positions: []string{},
 			}
@@ -41,8 +41,9 @@ var Kappagen = &types.DefaultCommand{
 
 		param := "!" + parseCtx.RawText
 
-		_, err := parseCtx.Services.GrpcClients.WebSockets.TriggerKappagen(
-			ctx, &websockets.TriggerKappagenRequest{
+		err := parseCtx.Services.Bus.Api.TriggerKappagen.Publish(
+			ctx,
+			api.TriggerKappagenMessage{
 				ChannelId: parseCtx.Channel.ID,
 				Text:      param,
 				Emotes:    emotes,

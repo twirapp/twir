@@ -32,9 +32,11 @@ import (
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
@@ -48,6 +50,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/toxic_messages"
+	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -127,6 +130,9 @@ type Deps struct {
 	ChannelsFilesService                  *channels_files.Service
 	ChannelsRedemptionsHistoryService     *channels_redemptions_history.Service
 	OverlaysDudesService                  *overlays_dudes.Service
+	EventsService                         *events.Service
+	KappagenService                       *kappagen.Service
+	TwirEventsService                     *twir_events.Service
 }
 
 type Resolver struct {
