@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
+import { X } from 'lucide-vue-next'
+import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'radix-vue'
+import { useFieldArray } from 'vee-validate'
 
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Plus, X } from 'lucide-vue-next'
-import { useFieldArray } from 'vee-validate'
-import CommandButton from '@/features/commands/ui/command-button.vue'
-import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'radix-vue'
-import { Checkbox } from '@/components/ui/checkbox'
-import { KappagenEmojiStyle } from '@/gql/graphql.ts'
 import {
 	Select,
 	SelectContent,
@@ -18,10 +15,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import CommandButton from '@/features/commands/ui/command-button.vue'
+import { KappagenEmojiStyle } from '@/gql/graphql.ts'
 
 const {
 	fields: excludedEmotes,
-	push: addExcludedEmote,
 	remove: removeExcludedEmote,
 } = useFieldArray('excludedEmotes')
 
@@ -42,7 +41,7 @@ const emotesCheckboxes = [
 
 const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value]) => {
 	return {
-		value: value,
+		value,
 		label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
 	}
 })
@@ -57,11 +56,13 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 				<CommandButton name="kappagen" title="" />
 			</div>
 
-			<FormField name="enableSpawn" v-slot="{ value, handleChange }">
+			<FormField v-slot="{ value, handleChange }" name="enableSpawn">
 				<FormItem class="flex flex-row items-center justify-between">
 					<div class="flex flex-col w-full">
 						<FormLabel>Enable Spawn</FormLabel>
-						<div class="text-[0.8rem] text-muted-foreground">Spawn emote on each chat message</div>
+						<div class="text-[0.8rem] text-muted-foreground">
+							Spawn emote on each chat message
+						</div>
 					</div>
 
 					<Switch :checked="value" @update:checked="handleChange" />
@@ -69,7 +70,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 				</FormItem>
 			</FormField>
 
-			<FormField name="enableRave" v-slot="{ value, handleChange }">
+			<FormField v-slot="{ value, handleChange }" name="enableRave">
 				<FormItem class="flex flex-row items-center justify-between">
 					<div class="flex flex-col w-full">
 						<FormLabel>Enable Rave Mode</FormLabel>
@@ -82,18 +83,20 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 				</FormItem>
 			</FormField>
 
-			<FormField name="size.rationSmall" v-slot="{ value, handleChange, field }">
+			<FormField v-slot="{ value, handleChange }" name="size.rationSmall">
 				<FormItem class="flex flex-col">
 					<FormLabel>Small Emote Ratio</FormLabel>
 					<div class="flex flex-row items-center gap-2">
-						<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">{{ value }}</div>
+						<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">
+							{{ value }}
+						</div>
 						<SliderRoot
 							:model-value="[value]"
-							@update:model-value="([v]) => handleChange(v)"
 							class="relative flex items-center select-none touch-none w-full h-5"
 							:min="0.02"
 							:max="0.07"
 							:step="0.01"
+							@update:model-value="(v) => handleChange(v?.[0] ?? 0.02)"
 						>
 							<SliderTrack class="bg-gray-500 relative grow rounded-full h-[3px]">
 								<SliderRange class="absolute bg-indigo-400 rounded-full h-full" />
@@ -105,18 +108,20 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 				</FormItem>
 			</FormField>
 
-			<FormField name="size.rationNormal" v-slot="{ value, handleChange }">
+			<FormField v-slot="{ value, handleChange }" name="size.rationNormal">
 				<FormItem class="flex flex-col">
 					<FormLabel>Normal emote ratio</FormLabel>
 					<div class="flex flex-row items-center gap-2">
-						<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">{{ value }}</div>
+						<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">
+							{{ value }}
+						</div>
 						<SliderRoot
 							:model-value="[value]"
-							@update:model-value="([v]) => handleChange(v)"
 							class="relative flex items-center select-none touch-none w-full h-5"
 							:min="0.05"
 							:max="0.15"
 							:step="0.01"
+							@update:model-value="(v) => handleChange(v?.[0] ?? 0.05)"
 						>
 							<SliderTrack class="bg-gray-500 relative grow rounded-full h-[3px]">
 								<SliderRange class="absolute bg-indigo-400 rounded-full h-full" />
@@ -133,15 +138,17 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 				<div class="grid grid-cols-2 gap-2">
 					<FormField
 						v-for="service of emotesCheckboxes"
-						:name="`emotes.${service.key}Enabled`"
 						v-slot="{ value, handleChange }"
 						:key="service.key"
+						:name="`emotes.${service.key}Enabled`"
 					>
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">{{ service.label }}</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0">
+								{{ service.label }}
+							</FormLabel>
 						</FormItem>
 					</FormField>
 				</div>
@@ -178,14 +185,16 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 					<FormItem class="flex flex-col">
 						<FormLabel>Max emote time</FormLabel>
 						<div class="flex flex-row items-center gap-2">
-							<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">{{ value }}s</div>
+							<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">
+								{{ value }}s
+							</div>
 							<SliderRoot
 								:model-value="[value]"
-								@update:model-value="([v]) => handleChange(v)"
 								class="relative flex items-center select-none touch-none w-full h-5"
 								:min="1"
 								:max="15"
 								:step="1"
+								@update:model-value="(v) => handleChange(v?.[0] ?? 1)"
 							>
 								<SliderTrack class="bg-gray-500 relative grow rounded-full h-[3px]">
 									<SliderRange class="absolute bg-indigo-400 rounded-full h-full" />
@@ -203,14 +212,16 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 					<FormItem class="flex flex-col">
 						<FormLabel>Max emotes count</FormLabel>
 						<div class="flex flex-row items-center gap-2">
-							<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">{{ value }}</div>
+							<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">
+								{{ value }}
+							</div>
 							<SliderRoot
 								:model-value="[value]"
-								@update:model-value="([v]) => handleChange(v)"
 								class="relative flex items-center select-none touch-none w-full h-5"
 								:min="1"
 								:max="500"
 								:step="1"
+								@update:model-value="(v) => handleChange(v?.[0] ?? 1)"
 							>
 								<SliderTrack class="bg-gray-500 relative grow rounded-full h-[3px]">
 									<SliderRange class="absolute bg-indigo-400 rounded-full h-full" />
@@ -229,7 +240,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 					:key="field.key"
 					class="flex items-center gap-2"
 				>
-					<FormField :name="`excludedEmotes[${index}]`" v-slot="{ componentField }">
+					<FormField v-slot="{ componentField }" :name="`excludedEmotes[${index}]`">
 						<FormItem class="flex-1">
 							<Input v-bind="componentField" placeholder="Enter emote name" />
 						</FormItem>
@@ -244,21 +255,25 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 				<span>Appearing emotes animations</span>
 
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
-					<FormField name="animation.fadeIn" v-slot="{ value, handleChange }">
+					<FormField v-slot="{ value, handleChange }" name="animation.fadeIn">
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">Fade</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0">
+								Fade
+							</FormLabel>
 						</FormItem>
 					</FormField>
 
-					<FormField name="animation.zoomIn" v-slot="{ value, handleChange }">
+					<FormField v-slot="{ value, handleChange }" name="animation.zoomIn">
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">Zoom</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0">
+								Zoom
+							</FormLabel>
 						</FormItem>
 					</FormField>
 				</div>
@@ -268,21 +283,25 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 				<span>Disappearing emotes animations</span>
 
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
-					<FormField name="animation.fadeOut" v-slot="{ value, handleChange }">
+					<FormField v-slot="{ value, handleChange }" name="animation.fadeOut">
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">Fade</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0">
+								Fade
+							</FormLabel>
 						</FormItem>
 					</FormField>
 
-					<FormField name="animation.zoomOut" v-slot="{ value, handleChange }">
+					<FormField v-slot="{ value, handleChange }" name="animation.zoomOut">
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">Zoom</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0">
+								Zoom
+							</FormLabel>
 						</FormItem>
 					</FormField>
 				</div>

@@ -83,6 +83,7 @@ func MapKappagenEntityToGQL(e entity.KappagenOverlay) gqlmodel.KappagenOverlay {
 		Events:    events,
 		CreatedAt: e.CreatedAt,
 		UpdatedAt: e.UpdatedAt,
+		ChannelID: e.ChannelID,
 	}
 }
 

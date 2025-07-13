@@ -6,23 +6,25 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/goccy/go-json"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 )
 
 // TwirEvents is the resolver for the twirEvents field.
-func (r *subscriptionResolver) TwirEvents(ctx context.Context) (<-chan gqlmodel.EventMessage, error) {
-	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
-	if err != nil {
-		return nil, err
+func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<-chan gqlmodel.EventMessage, error) {
+	user := model.Users{}
+	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	chann := make(chan gqlmodel.EventMessage, 1)
 
-	wsSubscription, err := r.deps.WsRouter.Subscribe([]string{twir_events.CreateSubscribeKey(dashboardID)})
+	wsSubscription, err := r.deps.WsRouter.Subscribe([]string{twir_events.CreateSubscribeKey(user.ID)})
 	if err != nil {
 		return nil, err
 	}

@@ -1,20 +1,18 @@
 <script setup lang="ts">
+import { SettingsIcon } from 'lucide-vue-next'
 import { useFieldArray } from 'vee-validate'
-import { computed, ref } from 'vue'
 
-import { Button } from '@/components/ui/button'
-import {
+import type {
 	KappagenOverlayAnimationStyle,
 	KappagenOverlayAnimationsSettings,
 	KappagenOverlayEvent,
 } from '@/gql/graphql'
 
-import { flatEvents } from '@/features/events/constants/helpers.ts'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { SettingsIcon } from 'lucide-vue-next'
-import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Switch } from '@/components/ui/switch'
+import { flatEvents } from '@/features/events/constants/helpers.ts'
 
 const { fields: events, update: updateEvent } = useFieldArray<KappagenOverlayEvent>('events')
 
@@ -22,7 +20,7 @@ const { fields: animations } = useFieldArray<KappagenOverlayAnimationsSettings>(
 
 function handleDisabledAnimationCheckboxChange(
 	eventIndex: number,
-	animationStyle: KappagenOverlayAnimationStyle
+	animationStyle: KappagenOverlayAnimationStyle,
 ) {
 	const ignored = events.value[eventIndex].value.disabledAnimations.includes(animationStyle)
 
@@ -30,7 +28,7 @@ function handleDisabledAnimationCheckboxChange(
 		updateEvent(eventIndex, {
 			...events.value[eventIndex].value,
 			disabledAnimations: events.value[eventIndex].value.disabledAnimations.filter(
-				(anim) => anim !== animationStyle
+				(anim) => anim !== animationStyle,
 			),
 		})
 	} else {
@@ -72,8 +70,8 @@ function handleEventEnabledChange(index: number, value: boolean) {
 							<div class="grid grid-cols-2 gap-2">
 								<div v-for="animation of animations" :key="animation.value.style">
 									<div
-										class="flex items-center gap-2 rounded-md bg-background/60 p-2"
 										:key="animation.key"
+										class="flex items-center gap-2 rounded-md bg-background/60 p-2"
 									>
 										<Checkbox
 											:id="`animation-${animation.value.style}`"

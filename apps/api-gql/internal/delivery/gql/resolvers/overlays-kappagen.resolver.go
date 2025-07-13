@@ -10,12 +10,24 @@ import (
 
 	"github.com/goccy/go-json"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/libs/bus-core/api"
 )
+
+// Channel is the resolver for the channel field.
+func (r *kappagenOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.KappagenOverlay) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return dataloader.GetHelixUserById(ctx, obj.ChannelID)
+}
+
+// Channel is the resolver for the channel field.
+func (r *kappagenTriggerPayloadResolver) Channel(ctx context.Context, obj *gqlmodel.KappagenTriggerPayload) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return dataloader.GetHelixUserById(ctx, obj.ChannelID)
+}
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
 func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gqlmodel.KappagenUpdateInput) (*gqlmodel.KappagenOverlay, error) {
@@ -137,6 +149,7 @@ func (r *queryResolver) OverlaysKappagen(ctx context.Context) (*gqlmodel.Kappage
 	}
 
 	converted := mappers.MapKappagenEntityToGQL(overlay)
+
 	return &converted, nil
 }
 
@@ -234,8 +247,9 @@ func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiK
 				}
 
 				chann <- &gqlmodel.KappagenTriggerPayload{
-					Text:   msg.Text,
-					Emotes: emotes,
+					Text:      msg.Text,
+					Emotes:    emotes,
+					ChannelID: msg.ChannelId,
 				}
 			}
 		}
@@ -243,3 +257,16 @@ func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiK
 
 	return chann, nil
 }
+
+// KappagenOverlay returns graph.KappagenOverlayResolver implementation.
+func (r *Resolver) KappagenOverlay() graph.KappagenOverlayResolver {
+	return &kappagenOverlayResolver{r}
+}
+
+// KappagenTriggerPayload returns graph.KappagenTriggerPayloadResolver implementation.
+func (r *Resolver) KappagenTriggerPayload() graph.KappagenTriggerPayloadResolver {
+	return &kappagenTriggerPayloadResolver{r}
+}
+
+type kappagenOverlayResolver struct{ *Resolver }
+type kappagenTriggerPayloadResolver struct{ *Resolver }

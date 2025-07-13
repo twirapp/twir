@@ -1,14 +1,17 @@
 import { useSubscription } from '@urql/vue'
-import { ref, watch } from 'vue'
+import { type MaybeRef, computed, ref, unref, watch } from 'vue'
 
 import { useKappagenEmotesBuilder } from './use-kappagen-builder.js'
+
 import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js'
 import { graphql } from '@/gql'
 
-export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) => {
+export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>) {
 	const apiKey = ref<string>('')
+
+	const paused = computed(() => !apiKey.value)
 
 	const {
 		data: eventsData,
@@ -16,8 +19,8 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 		pause: pauseEvents,
 	} = useSubscription({
 		query: graphql(`
-			subscription TwirEvents {
-				twirEvents {
+			subscription TwirEvents($apiKey: String!) {
+				twirEvents(apiKey: $apiKey) {
 					baseInfo {
 						channelId
 						channelName
@@ -31,13 +34,12 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 				apiKey: apiKey.value,
 			}
 		},
-		pause: true,
+		pause: paused,
 	})
 	const {
 		data: settings,
 		executeSubscription: connectSettings,
 		pause: pauseSettings,
-		resume: resumeTrigger,
 	} = useSubscription({
 		query: graphql(`
 			subscription KappagenSettings($apiKey: String!) {
@@ -87,6 +89,10 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 					}
 					createdAt
 					updatedAt
+					channel {
+						id
+						login
+					}
 				}
 			}
 		`),
@@ -95,7 +101,7 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 				apiKey: apiKey.value,
 			}
 		},
-		pause: true,
+		pause: paused,
 	})
 	const { data: triggerKappagenData } = useSubscription({
 		query: graphql(`
@@ -114,6 +120,7 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 				apiKey: apiKey.value,
 			}
 		},
+		pause: paused,
 	})
 
 	const { makeMessageChunks } = useMessageHelpers()
@@ -123,7 +130,7 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 		if (!settings.value?.overlaysKappagen) return
 
 		const enabledAnimations = settings.value?.overlaysKappagen.animations.filter(
-			(animation) => animation.enabled
+			(animation) => animation.enabled,
 		)
 
 		const index = Math.floor(Math.random() * enabledAnimations.length)
@@ -136,28 +143,28 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 			.join('')
 
 		return {
-			style: normalizedStyleName,
+			style: normalizedStyleName as KappagenAnimations['style'],
 			prefs: randomed.prefs
 				? {
-						message: randomed.prefs.message,
-						time: randomed.prefs.time,
-						size: randomed.prefs.size,
-						speed: randomed.prefs.speed,
-						faces: randomed.prefs.faces,
-						center: randomed.prefs.center,
-						avoidMiddle: false,
-					}
-				: null,
-			count: randomed.count,
-		}
+					message: randomed.prefs.message ?? [],
+					time: randomed.prefs.time ?? 5,
+					size: randomed.prefs.size ?? 1,
+					speed: randomed.prefs.speed ?? 1,
+					faces: randomed.prefs.faces ?? false,
+					center: randomed.prefs.center ?? false,
+					avoidMiddle: false,
+				}
+				: undefined,
+			count: randomed.count ?? 150,
+		} as KappagenAnimations
 	}
 
 	watch(eventsData, (event) => {
-		if (!event.twirEvents.baseInfo || !settings.value?.overlaysKappagen) return
+		if (!event?.twirEvents.baseInfo || !settings.value?.overlaysKappagen) return
 
 		if (
 			!settings.value.overlaysKappagen.events.some(
-				(e) => e.event.type === event.twirEvents.baseInfo.type
+				(e) => e.event === event.twirEvents.baseInfo.type,
 			)
 		) {
 			return
@@ -168,7 +175,7 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 		const animation = randomAnimation()
 		if (!animation) return
 
-		options.playAnimation(generatedEmotes, animation)
+		unref(instance).playAnimation(generatedEmotes, animation)
 	})
 
 	watch(triggerKappagenData, (v) => {
@@ -191,7 +198,7 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 		const emotesForKappagen = emotesBuilder.buildKappagenEmotes(chunks)
 		const animation = randomAnimation()
 		if (!animation) return
-		options.playAnimation(emotesForKappagen, animation)
+		unref(instance).playAnimation(emotesForKappagen, animation)
 	})
 
 	function destroy() {
@@ -201,8 +208,8 @@ export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) =>
 
 	async function connect(key: string) {
 		apiKey.value = key
-		await connectEvents()
-		await connectSettings()
+		connectEvents()
+		connectSettings()
 	}
 
 	return {

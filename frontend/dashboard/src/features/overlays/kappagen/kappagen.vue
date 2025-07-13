@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { useForm } from 'vee-validate'
-import { computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { CopyIcon } from 'lucide-vue-next'
+import { useThemeVars } from 'naive-ui'
+import { useForm } from 'vee-validate'
+import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import KappagenForm from './kappagen-form.vue'
-import { useKappagenApi } from '@/api/overlays/kappagen'
 import { kappagenFormSchema } from './kappagen-form-schema'
+import KappagenForm from './kappagen-form.vue'
 
+import type { KappagenOverlaySettingsFragment } from '@/gql/graphql'
+
+import { useKappagenApi } from '@/api/overlays/kappagen'
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast/use-toast'
+import KappagenPreview from '@/features/overlays/kappagen/kappagen-preview.vue'
 import { KappagenEmojiStyle } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
-import KappagenPreview from '@/features/overlays/kappagen/kappagen-preview.vue'
-import { useThemeVars } from 'naive-ui'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
 
 const { t } = useI18n()
 const { toast } = useToast()
@@ -58,47 +60,49 @@ onMounted(async () => {
 	await refetch()
 	if (!kappagen.value) return
 
+	const value = kappagen.value as KappagenOverlaySettingsFragment
+
 	kappagenForm.setValues({
-		enableSpawn: kappagen.value.enableSpawn,
-		excludedEmotes: kappagen.value.excludedEmotes,
-		enableRave: kappagen.value.enableRave,
+		enableSpawn: value.enableSpawn,
+		excludedEmotes: value.excludedEmotes,
+		enableRave: value.enableRave,
 		animation: {
-			fadeIn: kappagen.value.animation.fadeIn,
-			fadeOut: kappagen.value.animation.fadeOut,
-			zoomIn: kappagen.value.animation.zoomIn,
-			zoomOut: kappagen.value.animation.zoomOut,
+			fadeIn: value.animation.fadeIn,
+			fadeOut: value.animation.fadeOut,
+			zoomIn: value.animation.zoomIn,
+			zoomOut: value.animation.zoomOut,
 		},
-		animations: kappagen.value.animations.map((anim) => ({
+		animations: value.animations.map((anim) => ({
 			style: anim.style,
 			prefs: anim.prefs
 				? {
-						size: anim.prefs.size,
-						center: anim.prefs.center,
-						speed: anim.prefs.speed,
-						faces: anim.prefs.faces,
-						message: anim.prefs.message,
-						time: anim.prefs.time,
-					}
+					size: anim.prefs.size,
+					center: anim.prefs.center,
+					speed: anim.prefs.speed,
+					faces: anim.prefs.faces,
+					message: anim.prefs.message,
+					// time: anim.prefs.time,
+				}
 				: null,
-			count: anim.count,
+			count: anim.count ?? null,
 			enabled: anim.enabled,
 		})),
 		emotes: {
-			time: kappagen.value.emotes.time,
-			max: kappagen.value.emotes.max,
-			queue: kappagen.value.emotes.queue,
-			ffzEnabled: kappagen.value.emotes.ffzEnabled,
-			bttvEnabled: kappagen.value.emotes.bttvEnabled,
-			sevenTvEnabled: kappagen.value.emotes.sevenTvEnabled,
-			emojiStyle: kappagen.value.emotes.emojiStyle,
+			time: value.emotes.time,
+			max: value.emotes.max,
+			queue: value.emotes.queue,
+			ffzEnabled: value.emotes.ffzEnabled,
+			bttvEnabled: value.emotes.bttvEnabled,
+			sevenTvEnabled: value.emotes.sevenTvEnabled,
+			emojiStyle: value.emotes.emojiStyle,
 		},
 		size: {
-			rationNormal: kappagen.value.size.rationNormal,
-			rationSmall: kappagen.value.size.rationSmall,
-			min: kappagen.value.size.min,
-			max: kappagen.value.size.max,
+			rationNormal: value.size.rationNormal,
+			rationSmall: value.size.rationSmall,
+			min: value.size.min,
+			max: value.size.max,
 		},
-		events: kappagen.value.events.map((event) => ({
+		events: value.events.map((event) => ({
 			event: event.event,
 			disabledAnimations: event.disabledAnimations,
 			enabled: event.enabled,
@@ -123,13 +127,13 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 					style: anim.style,
 					prefs: anim.prefs
 						? {
-								size: anim.prefs.size,
-								center: anim.prefs.center,
-								speed: anim.prefs.speed,
-								faces: anim.prefs.faces,
-								message: anim.prefs.message,
-								time: anim.prefs.time,
-							}
+							size: anim.prefs.size,
+							center: anim.prefs.center,
+							speed: anim.prefs.speed,
+							faces: anim.prefs.faces,
+							message: anim.prefs.message,
+							time: anim.prefs.time,
+						}
 						: null,
 					count: anim.count,
 					enabled: anim.enabled,
@@ -182,10 +186,14 @@ const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 
 <template>
 	<PageLayout clean-body>
-		<template #title> Kappagen overlay </template>
+		<template #title>
+			Kappagen overlay
+		</template>
 
 		<template #title-footer>
-			<p class="text-sm text-muted-foreground">Flying emotes on your screen!</p>
+			<p class="text-sm text-muted-foreground">
+				Flying emotes on your screen!
+			</p>
 		</template>
 
 		<template #action>
@@ -193,7 +201,7 @@ const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 				<Button :loading="isUpdating" @click="onSubmit">
 					{{ isUpdating ? 'Saving...' : 'Save Changes' }}
 				</Button>
-				<Button @click="copyOverlayLink()" variant="outline" class="flex items-center gap-2">
+				<Button variant="outline" class="flex items-center gap-2" @click="copyOverlayLink()">
 					<CopyIcon class="size-4" />
 					Copy overlay link
 				</Button>
@@ -202,13 +210,15 @@ const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 
 		<template #content>
 			<div v-if="isLoading" class="flex items-center justify-center h-64">
-				<div class="text-muted-foreground">Loading Kappagen settings...</div>
+				<div class="text-muted-foreground">
+					Loading Kappagen settings...
+				</div>
 			</div>
 			<div v-else class="p-8">
 				<form
-					@submit.prevent="onSubmit"
 					class="relative w-full rounded-lg h-[80dvh] border-2 border-border bg-background/60 shadow-lg"
 					:style="{ backgroundColor: themeVars.cardColor }"
+					@submit.prevent="onSubmit"
 				>
 					<KappagenForm class="absolute top-2 left-4 h-full" />
 					<KappagenPreview class="w-full" />

@@ -1,9 +1,8 @@
 import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
-import type { Emote, KappagenMethods } from '@twirapp/kappagen/types'
-import { useFormValues } from 'vee-validate'
-import type { KappagenFormSchema } from '@/features/overlays/kappagen/kappagen-form-schema.ts'
+import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql.ts'
+import type { Emote, KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
 export const twirEmote: Emote = {
 	url: 'https://cdn.7tv.app/emote/6548b7074789656a7be787e1/4x.webp',
@@ -15,11 +14,9 @@ export const twirEmote: Emote = {
 }
 
 export const useKappagenInstance = createGlobalState(() => {
-	const { value: formSettings } = useFormValues<KappagenFormSchema>()
+	const kappagen = ref<KappagenMethods | null>(null)
 
-	const kappagen = ref<KappagenMethods>()
-
-	function setKappagenInstance(instance: KappagenMethods) {
+	function setKappagenInstance(instance: KappagenMethods | null) {
 		kappagen.value = instance
 	}
 
@@ -33,7 +30,7 @@ export const useKappagenInstance = createGlobalState(() => {
 		kappagen.value.clear()
 	}
 
-	function playAnimation(animation: KappagenAnimations) {
+	function playAnimation(animation: KappagenOverlayAnimationsSettings) {
 		if (!kappagen.value) return Promise.resolve()
 
 		const splittedAnimationStyle = animation.style.toLowerCase().split('_')
@@ -42,10 +39,12 @@ export const useKappagenInstance = createGlobalState(() => {
 			.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
 			.join('')
 
-		return kappagen.value.playAnimation([twirEmote], {
+		const normalizedAnimation = {
 			...animation,
 			style: normalizedStyleName,
-		})
+		}
+
+		return kappagen.value.playAnimation([twirEmote], normalizedAnimation as KappagenAnimations)
 	}
 
 	return {

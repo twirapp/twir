@@ -46,6 +46,8 @@ type KappagenOverlay {
 	events: [KappagenOverlayEvent!]!
 	createdAt: Time!
 	updatedAt: Time!
+	channelID: String!
+	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
 }
 
 type KappagenEmoteSettings {
@@ -154,6 +156,8 @@ input KappagenSizeSettingsInput {
 type KappagenTriggerPayload {
 	text: String!
 	emotes: [KappagenTriggerRequestEmote!]!
+	channelID: String!
+	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
 }
 
 type KappagenTriggerRequestEmote {

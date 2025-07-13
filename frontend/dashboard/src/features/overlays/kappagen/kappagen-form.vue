@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ChevronDown } from 'lucide-vue-next'
 import {
 	AccordionContent,
 	AccordionHeader,
@@ -6,11 +7,10 @@ import {
 	AccordionRoot,
 	AccordionTrigger,
 } from 'radix-vue'
-import { ChevronDown } from 'lucide-vue-next'
 
+import AnimationsTab from '@/features/overlays/kappagen/components/animations-tab.vue'
 import EventsTab from '@/features/overlays/kappagen/components/events-tab.vue'
 import SettingsTab from '@/features/overlays/kappagen/components/settings-tab.vue'
-import AnimationsTab from '@/features/overlays/kappagen/components/animations-tab.vue'
 
 const content = [
 	{

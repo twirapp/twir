@@ -1,7 +1,7 @@
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 
-import { KappagenEmojiStyle } from '@/gql/graphql'
+import { KappagenEmojiStyle, KappagenOverlayAnimationStyle } from '@/gql/graphql'
 
 const schema = z.object({
 	enableSpawn: z.boolean().default(true),
@@ -16,7 +16,7 @@ const schema = z.object({
 	animations: z
 		.array(
 			z.object({
-				style: z.string().min(1, 'Animation style is required'),
+				style: z.nativeEnum(KappagenOverlayAnimationStyle),
 				prefs: z
 					.object({
 						size: z.number().min(0.1).max(10).default(1).nullable(),
@@ -30,7 +30,7 @@ const schema = z.object({
 					.default(null),
 				count: z.number().min(1).max(1000).nullable(),
 				enabled: z.boolean().default(true),
-			})
+			}),
 		)
 		.default([]),
 	emotes: z.object({
@@ -54,7 +54,7 @@ const schema = z.object({
 				event: z.string().min(1, 'Event type is required'),
 				disabledAnimations: z.array(z.string()).default([]),
 				enabled: z.boolean().default(true),
-			})
+			}),
 		)
 		.default([]),
 })

@@ -1,12 +1,9 @@
 <script setup lang="ts">
+import { PlayIcon, PlusIcon, SettingsIcon, XIcon } from 'lucide-vue-next'
 import { FieldArray, useFieldArray } from 'vee-validate'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Switch } from '@/components/ui/switch'
 import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql'
-import { PlayIcon, PlusIcon, SettingsIcon, XIcon } from 'lucide-vue-next'
+
 import {
 	FormControl,
 	FormDescription,
@@ -15,13 +12,14 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
-
 import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Switch } from '@/components/ui/switch'
 import { useKappagenInstance } from '@/features/overlays/kappagen/composables/use-kappagen-instance.ts'
 
-const { fields: animations, update: updateAnimations } =
-	useFieldArray<KappagenOverlayAnimationsSettings>('animations')
+const { fields: animations, update: updateAnimations }
+	= useFieldArray<KappagenOverlayAnimationsSettings>('animations')
 
 function switchEnabled(index: number, value: boolean) {
 	const animation = animations.value[index]
@@ -42,8 +40,8 @@ const kappagen = useKappagenInstance()
 		>
 			<div class="flex gap-2 items-center">
 				<button
-					@click="kappagen.playAnimation(animation.value)"
 					class="p-2 rounded-md bg-indigo-400/70"
+					@click="kappagen.playAnimation(animation.value)"
 				>
 					<PlayIcon class="size-4" />
 				</button>
@@ -130,7 +128,9 @@ const kappagen = useKappagenInstance()
 								:name="`animations.${index}.prefs.center`"
 							>
 								<FormItem class="flex flex-row items-center justify-between">
-									<FormLabel class="text-base"> Center Animation </FormLabel>
+									<FormLabel class="text-base">
+										Center Animation
+									</FormLabel>
 
 									<FormControl>
 										<Switch
@@ -148,7 +148,9 @@ const kappagen = useKappagenInstance()
 								:name="`animations.${index}.prefs.faces`"
 							>
 								<FormItem class="flex flex-row items-center justify-between">
-									<FormLabel class="text-base"> Use Faces </FormLabel>
+									<FormLabel class="text-base">
+										Use Faces
+									</FormLabel>
 
 									<FormControl>
 										<Switch
@@ -166,8 +168,8 @@ const kappagen = useKappagenInstance()
 								"
 							>
 								<FieldArray
-									:name="`animations[${index}].prefs.message`"
 									v-slot="{ fields, push, remove }"
+									:name="`animations[${index}].prefs.message`"
 								>
 									<div class="flex items-cente justify-between">
 										<h3>Messages</h3>
