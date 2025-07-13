@@ -24,11 +24,17 @@ const {
 } = useGiveaways()
 
 const { data: profile } = useProfile()
-const chatUrl = computed(() => {
-	if (!profile?.value?.selectedDashboardTwitchUser) return
 
-	const user = profile.value.selectedDashboardTwitchUser
-	return `https://www.twitch.tv/embed/${user.login}/chat?parent=${window.location.host}&darkpopout`
+const selectedDashboardTwitchUser = computed(() => {
+	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
+		?.twitchProfile
+})
+
+const chatUrl = computed(() => {
+	console.log(selectedDashboardTwitchUser.value)
+	if (!selectedDashboardTwitchUser.value) return
+
+	return `https://www.twitch.tv/embed/${selectedDashboardTwitchUser.value.login}/chat?parent=${window.location.host}&darkpopout`
 })
 
 // Tab state
@@ -64,7 +70,9 @@ async function handleChooseWinners() {
 	<div class="flex flex-row flex-wrap-reverse gap-4 h-[98dvh] p-4">
 		<Card class="flex-1 h-full min-h-0">
 			<Tabs v-model="activeTab" class="h-full flex flex-col">
-				<CardHeader class="flex-row items-center p-2 justify-between border-b border-border border-solid">
+				<CardHeader
+					class="flex-row items-center p-2 justify-between border-b border-border border-solid"
+				>
 					<CardTitle class="flex items-center">
 						<span>
 							{{ currentGiveaway?.keyword }}
@@ -132,7 +140,9 @@ async function handleChooseWinners() {
 					<TabsContent value="winners" class="mt-0 h-full border-none">
 						<div class="flex flex-col h-full">
 							<div class="p-2 border-b flex justify-between flex-wrap gap-2 items-center">
-								<span class="text-sm font-medium">{{ t('giveaways.currentGiveaway.totalWinners', { count: winners.length }) }}</span>
+								<span class="text-sm font-medium">{{
+									t('giveaways.currentGiveaway.totalWinners', { count: winners.length })
+								}}</span>
 								<Button
 									size="sm"
 									variant="secondary"
@@ -152,12 +162,7 @@ async function handleChooseWinners() {
 		</Card>
 		<Card class="flex-1 h-full">
 			<CardContent class="p-0 h-full">
-				<iframe
-					v-if="chatUrl"
-					:src="chatUrl"
-					frameborder="0"
-					class="w-full h-full"
-				/>
+				<iframe v-if="chatUrl" :src="chatUrl" frameborder="0" class="w-full h-full" />
 			</CardContent>
 		</Card>
 	</div>

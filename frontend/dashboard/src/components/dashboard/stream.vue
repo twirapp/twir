@@ -7,13 +7,15 @@ import { useProfile, useTwitchGetUsers } from '@/api/index.js'
 
 const { data: profile } = useProfile()
 
-const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '')
-const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId })
+const selectedDashboardTwitchUser = computed(() => {
+	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
+		?.twitchProfile
+})
 
 const streamUrl = computed(() => {
-	if (!selectedDashboardTwitchUser.data.value?.users.length) return
+	if (!selectedDashboardTwitchUser.value) return
 
-	const user = selectedDashboardTwitchUser.data.value.users.at(0)!
+	const user = selectedDashboardTwitchUser.value
 	const url = `https://player.twitch.tv/?channel=${user.login}&parent=${window.location.host}&autoplay=false`
 
 	return url

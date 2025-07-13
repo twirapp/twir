@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { createGlobalState } from '@vueuse/core'
 
 import { graphql } from '@/gql'
+import { useProfile } from '@/api'
 
 graphql(`
 	fragment KappagenOverlaySettings on KappagenOverlay {
@@ -115,14 +116,16 @@ const KappagenOverlayUpdateMutation = graphql(`
 `)
 
 const KappagenOverlaySubscription = graphql(`
-	subscription KappagenOverlaySubscription {
-		overlaysKappagen {
+	subscription KappagenOverlaySubscription($apiKey: String!) {
+		overlaysKappagen(apiKey: $apiKey) {
 			...KappagenOverlaySettings
 		}
 	}
 `)
 
 export const useKappagenApi = createGlobalState(() => {
+	const { data: profile } = useProfile()
+
 	const {
 		data: kappagenData,
 		fetching: isLoading,
@@ -135,8 +138,20 @@ export const useKappagenApi = createGlobalState(() => {
 		KappagenOverlayUpdateMutation
 	)
 
+	const selectedDashboard = computed(() => {
+		return profile.value?.availableDashboards.find(
+			(d) => d.id === profile.value.selectedDashboardId
+		)
+	})
+
 	const { data: subscriptionData } = useSubscription({
 		query: KappagenOverlaySubscription,
+		get variables() {
+			return {
+				apiKey: profile.value!.apiKey,
+			}
+		},
+		pause: selectedDashboard,
 	})
 
 	const kappagen = computed(() => {

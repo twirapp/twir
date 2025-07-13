@@ -8,46 +8,49 @@ import { graphql } from '@/gql'
 import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 import { urqlClient, useUrqlClient } from '@/plugins/urql.js'
 
-export const profileQuery = createRequest(graphql(`
-	query AuthenticatedUser {
-		authenticatedUser {
-			id
-			isBotAdmin
-			isBanned
-			isEnabled
-			isBotModerator
-			hideOnLandingPage
-			botId
-			apiKey
-			twitchProfile {
-				description
-				displayName
-				login
-				profileImageUrl
-			}
-			selectedDashboardId
-			selectedDashboardTwitchUser {
-				login
-				displayName
-				profileImageUrl
-			}
-			availableDashboards {
+export const profileQuery = createRequest(
+	graphql(`
+		query AuthenticatedUser {
+			authenticatedUser {
 				id
-				flags
+				isBotAdmin
+				isBanned
+				isEnabled
+				isBotModerator
+				hideOnLandingPage
+				botId
+				apiKey
 				twitchProfile {
-					login
+					description
 					displayName
+					login
 					profileImageUrl
+				}
+				selectedDashboardId
+				availableDashboards {
+					id
+					flags
+					twitchProfile {
+						login
+						displayName
+						profileImageUrl
+					}
+					apiKey
 				}
 			}
 		}
-	}
-`), {})
+	`),
+	{}
+)
 
 export const userInvalidateQueryKey = 'UserInvalidateQueryKey'
 
 export const useProfile = createGlobalState(() => {
-	const { data: response, executeQuery, fetching } = useQuery({
+	const {
+		data: response,
+		executeQuery,
+		fetching,
+	} = useQuery({
 		query: profileQuery.query,
 		variables: {},
 		context: {
@@ -82,11 +85,13 @@ export const useProfile = createGlobalState(() => {
 })
 
 export function useLogout() {
-	const { executeMutation } = useMutation(graphql(`
-		mutation userLogout {
-			logout
-		}
-	`))
+	const { executeMutation } = useMutation(
+		graphql(`
+			mutation userLogout {
+				logout
+			}
+		`)
+	)
 
 	async function execute() {
 		const result = await executeMutation({})
@@ -100,41 +105,54 @@ export function useLogout() {
 export const useUserSettings = createGlobalState(() => {
 	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey'
 
-	const usePublicQuery = () => useQuery({
-		query: graphql(`
-			query userPublicSettings {
-				userPublicSettings {
-					description
-					socialLinks {
-						href
-						title
+	const usePublicQuery = () =>
+		useQuery({
+			query: graphql(`
+				query userPublicSettings {
+					userPublicSettings {
+						description
+						socialLinks {
+							href
+							title
+						}
 					}
 				}
-			}
-		`),
-		variables: {},
-		context: {
-			additionalTypenames: [userPublicSettingsInvalidateKey],
-		},
-	})
+			`),
+			variables: {},
+			context: {
+				additionalTypenames: [userPublicSettingsInvalidateKey],
+			},
+		})
 
-	const usePublicMutation = () => useMutation(graphql(`
-		mutation userPublicSettingsUpdate($opts: UserUpdatePublicSettingsInput!) {
-			authenticatedUserUpdatePublicPage(opts: $opts)
-		}
-	`), [userPublicSettingsInvalidateKey])
+	const usePublicMutation = () =>
+		useMutation(
+			graphql(`
+				mutation userPublicSettingsUpdate($opts: UserUpdatePublicSettingsInput!) {
+					authenticatedUserUpdatePublicPage(opts: $opts)
+				}
+			`),
+			[userPublicSettingsInvalidateKey]
+		)
 
-	const useApiKeyGenerateMutation = () => useMutation(graphql(`
-		mutation userRegenerateApiKey {
-			authenticatedUserRegenerateApiKey
-		}
-	`), [userInvalidateQueryKey])
+	const useApiKeyGenerateMutation = () =>
+		useMutation(
+			graphql(`
+				mutation userRegenerateApiKey {
+					authenticatedUserRegenerateApiKey
+				}
+			`),
+			[userInvalidateQueryKey]
+		)
 
-	const useUserUpdateMutation = () => useMutation(graphql(`
-		mutation userUpdateSettings($opts: UserUpdateSettingsInput!) {
-			authenticatedUserUpdateSettings(opts: $opts)
-		}
-	`), [userInvalidateQueryKey, userPublicSettingsInvalidateKey])
+	const useUserUpdateMutation = () =>
+		useMutation(
+			graphql(`
+				mutation userUpdateSettings($opts: UserUpdateSettingsInput!) {
+					authenticatedUserUpdateSettings(opts: $opts)
+				}
+			`),
+			[userInvalidateQueryKey, userPublicSettingsInvalidateKey]
+		)
 
 	return {
 		usePublicQuery,
@@ -147,11 +165,13 @@ export const useUserSettings = createGlobalState(() => {
 export const useDashboard = createGlobalState(() => {
 	const urqlClient = useUrqlClient()
 
-	const mutationSetDashboard = useMutation(graphql(`
-		mutation SetDashboard($dashboardId: String!) {
-			authenticatedUserSelectDashboard(dashboardId: $dashboardId)
-		}
-	`))
+	const mutationSetDashboard = useMutation(
+		graphql(`
+			mutation SetDashboard($dashboardId: String!) {
+				authenticatedUserSelectDashboard(dashboardId: $dashboardId)
+			}
+		`)
+	)
 
 	const queryClient = useQueryClient()
 
@@ -167,13 +187,16 @@ export const useDashboard = createGlobalState(() => {
 	}
 })
 
-type Flag = { perm: ChannelRolePermissionEnum, description: string } | 'delimiter'
+type Flag = { perm: ChannelRolePermissionEnum; description: string } | 'delimiter'
 
 export const PERMISSIONS_FLAGS: Flag[] = [
 	{ perm: ChannelRolePermissionEnum.CanAccessDashboard, description: 'All permissions' },
 	'delimiter',
 	{ perm: ChannelRolePermissionEnum.UpdateChannelTitle, description: 'Can update channel title' },
-	{ perm: ChannelRolePermissionEnum.UpdateChannelCategory, description: 'Can update channel category' },
+	{
+		perm: ChannelRolePermissionEnum.UpdateChannelCategory,
+		description: 'Can update channel category',
+	},
 	'delimiter',
 	{ perm: ChannelRolePermissionEnum.ViewCommands, description: 'Can view commands' },
 	{ perm: ChannelRolePermissionEnum.ManageCommands, description: 'Can manage commands' },
@@ -191,7 +214,10 @@ export const PERMISSIONS_FLAGS: Flag[] = [
 	{ perm: ChannelRolePermissionEnum.ManageSongRequests, description: 'Can manage song requests' },
 	'delimiter',
 	{ perm: ChannelRolePermissionEnum.ViewModeration, description: 'Can view moderation settings' },
-	{ perm: ChannelRolePermissionEnum.ManageModeration, description: 'Can manage moderation settings' },
+	{
+		perm: ChannelRolePermissionEnum.ManageModeration,
+		description: 'Can manage moderation settings',
+	},
 	'delimiter',
 	{ perm: ChannelRolePermissionEnum.ViewVariables, description: 'Can view variables' },
 	{ perm: ChannelRolePermissionEnum.ManageVariables, description: 'Can manage variables' },
@@ -239,7 +265,7 @@ export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {
 
 		if (profile.value.isBotAdmin) return true
 
-		const dashboard = profile.value?.availableDashboards.find(dashboard => {
+		const dashboard = profile.value?.availableDashboards.find((dashboard) => {
 			return dashboard.id === profile.value?.selectedDashboardId
 		})
 		if (!dashboard) return false
@@ -256,7 +282,7 @@ export async function userAccessFlagChecker(flag: ChannelRolePermissionEnum) {
 	if (!profile || !profile?.authenticatedUser.selectedDashboardId) return false
 	if (profile.authenticatedUser.selectedDashboardId === profile.authenticatedUser.id) return true
 
-	const dashboard = profile.authenticatedUser.availableDashboards.find(dashboard => {
+	const dashboard = profile.authenticatedUser.availableDashboards.find((dashboard) => {
 		return dashboard.id === profile.authenticatedUser.selectedDashboardId
 	})
 	if (!dashboard) return false

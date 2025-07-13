@@ -1,19 +1,13 @@
-import { createGlobalState } from '@vueuse/core'
 import { useSubscription } from '@urql/vue'
 import { ref, watch } from 'vue'
 
-import { type Buidler, useKappagenEmotesBuilder } from './use-kappagen-builder.js'
+import { useKappagenEmotesBuilder } from './use-kappagen-builder.js'
 import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js'
 import { graphql } from '@/gql'
-import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.ts'
 
-type Options = Omit<KappagenMethods, 'clear'> & {
-	emotesBuilder: Buidler
-}
-
-export const useKappagenOverlaySocket = createGlobalState(() => {
+export const useKappagenOverlaySocket = (instance: MaybeRef<KappagenMethods>) => {
 	const apiKey = ref<string>('')
 
 	const {
@@ -46,8 +40,8 @@ export const useKappagenOverlaySocket = createGlobalState(() => {
 		resume: resumeTrigger,
 	} = useSubscription({
 		query: graphql(`
-			subscription KappagenSettings {
-				overlaysKappagen {
+			subscription KappagenSettings($apiKey: String!) {
+				overlaysKappagen(apiKey: $apiKey) {
 					id
 					enableSpawn
 					excludedEmotes
@@ -96,13 +90,17 @@ export const useKappagenOverlaySocket = createGlobalState(() => {
 				}
 			}
 		`),
-		variables: {},
+		get variables() {
+			return {
+				apiKey: apiKey.value,
+			}
+		},
 		pause: true,
 	})
 	const { data: triggerKappagenData } = useSubscription({
 		query: graphql(`
-			subscription KappagenTrigger {
-				overlaysKappagenTrigger {
+			subscription KappagenTrigger($apiKey: String!) {
+				overlaysKappagenTrigger(apiKey: $apiKey) {
 					text
 					emotes {
 						id
@@ -123,6 +121,7 @@ export const useKappagenOverlaySocket = createGlobalState(() => {
 
 	function randomAnimation(): KappagenAnimations | undefined {
 		if (!settings.value?.overlaysKappagen) return
+
 		const enabledAnimations = settings.value?.overlaysKappagen.animations.filter(
 			(animation) => animation.enabled
 		)
@@ -130,17 +129,25 @@ export const useKappagenOverlaySocket = createGlobalState(() => {
 		const index = Math.floor(Math.random() * enabledAnimations.length)
 		const randomed = enabledAnimations[index]
 
+		const splittedAnimationStyle = randomed.style.toLowerCase().split('_')
+
+		const normalizedStyleName = splittedAnimationStyle
+			.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+			.join('')
+
 		return {
-			style: randomed.style as KappagenAnimations['style'],
-			prefs: {
-				message: randomed.prefs.message,
-				time: randomed.prefs.time,
-				size: randomed.prefs.size,
-				speed: randomed.prefs.speed,
-				faces: randomed.prefs.faces,
-				center: randomed.prefs.center,
-				avoidMiddle: false,
-			},
+			style: normalizedStyleName,
+			prefs: randomed.prefs
+				? {
+						message: randomed.prefs.message,
+						time: randomed.prefs.time,
+						size: randomed.prefs.size,
+						speed: randomed.prefs.speed,
+						faces: randomed.prefs.faces,
+						center: randomed.prefs.center,
+						avoidMiddle: false,
+					}
+				: null,
 			count: randomed.count,
 		}
 	}
@@ -203,4 +210,4 @@ export const useKappagenOverlaySocket = createGlobalState(() => {
 		destroy,
 		settings,
 	}
-})
+}

@@ -17,38 +17,7 @@ const { t } = useI18n()
 
 const kappagen = useKappagenInstance()
 
-// const kappagen = ref<KappagenMethods>()
 const { value: formSettings } = useFormValues<KappagenFormSchema>()
-
-// function playAnimation(animation: KappagenAnimations) {
-// 	if (!kappagen.value) return Promise.resolve()
-//
-// 	// const randomAnimation = formSettings.animations.filter((a) => a.enabled)[
-// 	// 	Math.floor(Math.random() * formSettings.animations.length)
-// 	// ]
-//
-// 	console.log(formSettings.animations)
-//
-// 	const randomAnimation = formSettings.animations.find((a) => a.style === 'THE_CUBE')
-//
-// 	console.log(randomAnimation)
-//
-// 	return kappagen.value.playAnimation([twirEmote], {
-// 		...randomAnimation,
-// 		style: 'TheCube',
-// 	})
-// }
-//
-// function showEmotes(emotes: Emote[]) {
-// 	console.log(kappagen.value.showEmotes, emotes)
-// 	if (!kappagen.value) return
-// 	kappagen.value.showEmotes(emotes)
-// }
-//
-// function clear() {
-// 	if (!kappagen.value) return
-// 	kappagen.value.clear()
-// }
 </script>
 
 <template>
@@ -57,12 +26,14 @@ const { value: formSettings } = useFormValues<KappagenFormSchema>()
 			<button
 				@click="kappagen.showEmotes([twirEmote])"
 				class="px-4 py-2 rounded-md border-stone-700/50 border bg-indigo-600 shadow-lg"
+				type="button"
 			>
 				Spawn emote
 			</button>
 			<button
 				@click="kappagen.clear"
 				class="px-4 py-2 rounded-md border-stone-700/50 border bg-stone-700/40 shadow-lg"
+				type="button"
 			>
 				Clear overlay
 			</button>

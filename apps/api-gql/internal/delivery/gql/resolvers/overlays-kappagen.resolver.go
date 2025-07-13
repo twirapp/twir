@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -17,10 +18,7 @@ import (
 )
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
-func (r *mutationResolver) OverlaysKappagenUpdate(
-	ctx context.Context,
-	input gqlmodel.KappagenUpdateInput,
-) (*gqlmodel.KappagenOverlay, error) {
+func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gqlmodel.KappagenUpdateInput) (*gqlmodel.KappagenOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -149,22 +147,20 @@ func (r *queryResolver) OverlaysKappagenAvailableAnimations(ctx context.Context)
 }
 
 // OverlaysKappagen is the resolver for the overlaysKappagen field.
-func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (
-	<-chan *gqlmodel.KappagenOverlay,
-	error,
-) {
-	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
-	if err != nil {
-		return nil, err
+func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context, apiKey string) (<-chan *gqlmodel.KappagenOverlay, error) {
+	user := model.Users{}
+	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
-	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateSettingsSubscriptionKey(dashboardID)})
+
+	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateSettingsSubscriptionKey(user.ID)})
 	if err != nil {
 		return nil, err
 	}
 
 	chann := make(chan *gqlmodel.KappagenOverlay, 1)
 
-	settings, err := r.deps.KappagenService.GetOrCreate(ctx, dashboardID)
+	settings, err := r.deps.KappagenService.GetOrCreate(ctx, user.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get kappagen overlay: %w", err)
 	}
@@ -199,15 +195,12 @@ func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (
 }
 
 // OverlaysKappagenTrigger is the resolver for the overlaysKappagenTrigger field.
-func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context) (
-	<-chan *gqlmodel.KappagenTriggerPayload,
-	error,
-) {
-	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
-	if err != nil {
-		return nil, err
+func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiKey string) (<-chan *gqlmodel.KappagenTriggerPayload, error) {
+	user := model.Users{}
+	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
-	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateTriggerSubscriptionKey(dashboardID)})
+	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateTriggerSubscriptionKey(user.ID)})
 	if err != nil {
 		return nil, err
 	}

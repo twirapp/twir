@@ -8,8 +8,8 @@ extend type Mutation {
 }
 
 extend type Subscription {
-	overlaysKappagen: KappagenOverlay! @isAuthenticated
-	overlaysKappagenTrigger: KappagenTriggerPayload! @isAuthenticated
+	overlaysKappagen(apiKey: String!): KappagenOverlay! @isAuthenticated
+	overlaysKappagenTrigger(apiKey: String!): KappagenTriggerPayload! @isAuthenticated
 }
 
 enum KappagenEmojiStyle {
