@@ -34,7 +34,7 @@ const kappagen = useKappagenInstance()
 </script>
 
 <template>
-	<div class="grid grid-cols-1 gap-2">
+	<div class="grid grid-cols-1 gap-2 max-h-[40dvh] overflow-y-auto">
 		<div
 			v-for="(animation, index) of animations"
 			:key="animation.key"

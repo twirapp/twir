@@ -54,7 +54,8 @@ const content = [
 					</AccordionTrigger>
 				</AccordionHeader>
 				<AccordionContent
-					class="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden text-[15px]"
+					class="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up data-[state=open]:block data-[state=closed]:hidden overflow-hidden text-[15px]"
+					force-mount
 				>
 					<component :is="item.component" />
 				</AccordionContent>

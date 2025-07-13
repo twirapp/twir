@@ -54,61 +54,43 @@ const selectedEventIndex = computed(() => {
 </script>
 
 <template>
-	<div class="space-y-6">
-		<Card>
-			<CardHeader>
-				<CardTitle>Event Configuration</CardTitle>
-				<CardDescription>
-					Configure which events trigger Kappagen animations and which animations to disable for
-					specific events
-				</CardDescription>
-			</CardHeader>
-			<CardContent class="space-y-4 w-full">
-				<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">
-					<div
-						v-for="event in events"
-						:key="event.key"
-						class="flex flex-col gap-2 flex-wrap items-start bg-background/60 p-2 rounded-md"
+	<div class="h-[40dvh]">
+		<div class="grid grid-cols-1 gap-2 max-h-[40dvh] overflow-y-auto">
+			<div
+				v-for="event in events"
+				:key="event.key"
+				class="flex gap-2 justify-between items-center bg-stone-700/40 p-2 rounded-md"
+			>
+				<span>{{ flatEvents[event.value.event]?.name ?? event.value.event }}</span>
+
+				<div class="flex items-center gap-2">
+					<button
+						class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
 					>
-						<span>{{ flatEvents[event.value.event]?.name ?? event.value.event }}</span>
-
-						<div class="flex items-center w-full justify-between gap-2">
-							<span v-if="event.value.enabled" class="text-sm text-muted-foreground"
-								>5 animations</span
-							>
-							<div class="flex items-center gap-2">
-								<button
-									class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
-								>
-									<SettingsIcon class="size-4" />
-								</button>
-								<Switch />
-							</div>
-						</div>
-					</div>
+						<SettingsIcon class="size-4" />
+					</button>
+					<Switch />
 				</div>
-
-				<div class="flex gap-2 flex-col" v-if="selectedEventIndex >= 0">
-					<h3>Animations</h3>
-
-					<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">
-						<div
-							class="flex items-center gap-2 rounded-md bg-background/60 p-2"
-							v-for="animation of animations"
-						>
-							<Checkbox
-								:checked="
-									!events
-										.at(selectedEventIndex)
-										.value.disabledAnimations.includes(animation.value.style)
-								"
-								@update:checked="(v) => handleCheckboxChange(animation, v)"
-							/>
-							{{ animation.value.style }}
-						</div>
-					</div>
-				</div>
-			</CardContent>
-		</Card>
+			</div>
+		</div>
 	</div>
+
+	<!--	<div class="flex gap-2 flex-col" v-if="selectedEventIndex >= 0">-->
+	<!--		<h3>Animations</h3>-->
+
+	<!--		<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">-->
+	<!--			<div-->
+	<!--				class="flex items-center gap-2 rounded-md bg-background/60 p-2"-->
+	<!--				v-for="animation of animations"-->
+	<!--			>-->
+	<!--				<Checkbox-->
+	<!--					:checked="-->
+	<!--						!events.at(selectedEventIndex).value.disabledAnimations.includes(animation.value.style)-->
+	<!--					"-->
+	<!--					@update:checked="(v) => handleCheckboxChange(animation, v)"-->
+	<!--				/>-->
+	<!--				{{ animation.value.style }}-->
+	<!--			</div>-->
+	<!--		</div>-->
+	<!--	</div>-->
 </template>

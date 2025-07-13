@@ -210,7 +210,7 @@ const themeVars = useThemeVars()
 					class="relative w-full rounded-lg h-[80dvh] border-2 border-border bg-background/60 shadow-lg"
 					:style="{ backgroundColor: themeVars.cardColor }"
 				>
-					<KappagenForm class="absolute top-2 left-4" />
+					<KappagenForm class="absolute top-2 left-4 h-full" />
 					<KappagenPreview class="w-full" />
 				</form>
 			</div>

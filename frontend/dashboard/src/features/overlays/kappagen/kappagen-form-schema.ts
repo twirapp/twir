@@ -30,7 +30,7 @@ const schema = z.object({
 					.default(null),
 				count: z.number().min(1).max(1000).nullable(),
 				enabled: z.boolean().default(true),
-			}),
+			})
 		)
 		.default([]),
 	emotes: z.object({
@@ -43,8 +43,8 @@ const schema = z.object({
 		emojiStyle: z.nativeEnum(KappagenEmojiStyle).default(KappagenEmojiStyle.Twemoji),
 	}),
 	size: z.object({
-		rationNormal: z.number().min(0.1).max(5).default(1),
-		rationSmall: z.number().min(0.1).max(5).default(0.5),
+		rationNormal: z.number().min(0.02).max(0.07).default(2),
+		rationSmall: z.number().min(0.05).max(0.15).default(0.5),
 		min: z.number().min(10).max(200).default(20),
 		max: z.number().min(50).max(500).default(150),
 	}),
@@ -54,7 +54,7 @@ const schema = z.object({
 				event: z.string().min(1, 'Event type is required'),
 				disabledAnimations: z.array(z.string()).default([]),
 				enabled: z.boolean().default(true),
-			}),
+			})
 		)
 		.default([]),
 })
