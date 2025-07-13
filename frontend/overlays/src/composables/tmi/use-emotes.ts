@@ -31,7 +31,7 @@ function isZeroWidthEmote(flags: number): boolean {
 function bttvEmoteUrls(id: string, isAnimated: boolean): string[] {
 	const emoteExt = isAnimated ? 'gif' : 'webp'
 	return Array.from({ length: 3 }).map(
-		(_, index) => `https://cdn.betterttv.net/emote/${id}/${index + 1}x.${emoteExt}`,
+		(_, index) => `https://cdn.betterttv.net/emote/${id}/${index + 1}x.${emoteExt}`
 	)
 }
 
@@ -41,9 +41,9 @@ export const useEmotes = createGlobalState(() => {
 	function setSevenTvEmotes(data: SevenTvChannelResponse | SevenTvGlobalResponse): void {
 		let emotesForParse: Array<SevenTvEmote>
 		if ('emote_set' in data) {
-			emotesForParse = data.emote_set.emotes
+			emotesForParse = data?.emote_set?.emotes ?? []
 		} else {
-			emotesForParse = data.emotes
+			emotesForParse = data?.emotes ?? []
 		}
 
 		for (const emote of emotesForParse) {
@@ -55,9 +55,9 @@ export const useEmotes = createGlobalState(() => {
 		let emotesForParse: Array<BttvEmote>
 
 		if ('channelEmotes' in data) {
-			emotesForParse = [...data.channelEmotes, ...data.sharedEmotes]
+			emotesForParse = [...(data.channelEmotes ?? []), ...(data.sharedEmotes ?? [])]
 		} else {
-			emotesForParse = data
+			emotesForParse = data ?? {}
 		}
 
 		for (const emote of emotesForParse) {
@@ -74,7 +74,7 @@ export const useEmotes = createGlobalState(() => {
 	}
 
 	function setFrankerFaceZEmotes(data: FfzChannelResponse | FfzGlobalResponse): void {
-		const sets = Object.values(data.sets)
+		const sets = Object.values(data.sets ?? {})
 		for (const set of sets) {
 			for (const emote of set.emoticons) {
 				emotes.value[emote.name] = {
@@ -102,7 +102,10 @@ export const useEmotes = createGlobalState(() => {
 		const isAnimated = emote.data.animated
 
 		emotes.value[emote.name] = {
-			urls: files.map((file) => `https:${emote.data.host.url}/${isAnimated ? file.name.replace('.webp', '.gif') : file.name}`),
+			urls: files.map(
+				(file) =>
+					`https:${emote.data.host.url}/${isAnimated ? file.name.replace('.webp', '.gif') : file.name}`
+			),
 			isZeroWidth: isZeroWidthEmote(emote.flags),
 			name: emote.name,
 			service: '7tv',
