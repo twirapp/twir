@@ -20,13 +20,18 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		}
 
 		for _, channel := range channels {
-			dashboardsEntities[channel.ID] = gqlmodel.Dashboard{
+			dashboard := gqlmodel.Dashboard{
 				ID: channel.ID,
 				Flags: []gqlmodel.ChannelRolePermissionEnum{
 					gqlmodel.ChannelRolePermissionEnumCanAccessDashboard,
 				},
-				APIKey: channel.User.ApiKey,
 			}
+
+			if channel.User != nil {
+				dashboard.APIKey = channel.User.ApiKey
+			}
+
+			dashboardsEntities[channel.ID] = dashboard
 		}
 	} else {
 		dashboardsEntities[obj.ID] = gqlmodel.Dashboard{
@@ -59,11 +64,17 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 				flags = append(flags, gqlmodel.ChannelRolePermissionEnum(flag))
 			}
 
-			dashboardsEntities[role.Role.Channel.ID] = gqlmodel.Dashboard{
+			dashboard := gqlmodel.Dashboard{
 				ID:     role.Role.Channel.ID,
 				Flags:  append(dashboardsEntities[role.Role.Channel.ID].Flags, flags...),
 				APIKey: role.Role.Channel.User.ApiKey,
 			}
+
+			if role.Role.Channel.User != nil {
+				dashboard.APIKey = role.Role.Channel.User.ApiKey
+			}
+
+			dashboardsEntities[role.Role.Channel.ID] = dashboard
 		}
 	}
 
@@ -116,11 +127,17 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		}
 
 		if role.ID != "" && len(flags) > 0 {
-			dashboardsEntities[role.ChannelID] = gqlmodel.Dashboard{
+			dashboard := gqlmodel.Dashboard{
 				ID:     role.ChannelID,
 				Flags:  append(dashboardsEntities[role.ChannelID].Flags, flags...),
 				APIKey: role.Channel.User.ApiKey,
 			}
+
+			if role.Channel != nil && role.Channel.User != nil {
+				dashboard.APIKey = role.Channel.User.ApiKey
+			}
+
+			dashboardsEntities[role.ChannelID] = dashboard
 		}
 	}
 
