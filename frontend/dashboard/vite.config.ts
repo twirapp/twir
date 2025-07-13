@@ -36,16 +36,15 @@ export default defineConfig(({ mode }) => {
 			webUpdateNotice({
 				notificationProps: {
 					title: 'New version',
-					description: 'An update available, please refresh the page to get latest features and bug fixes!',
+					description:
+						'An update available, please refresh the page to get latest features and bug fixes!',
 					buttonText: 'refresh',
 					dismissButtonText: 'cancel',
 				},
 				checkInterval: 1 * 60 * 1000,
 			}),
 			VueI18nPlugin({
-				include: [
-					path.resolve(__dirname, './src/locales/**'),
-				],
+				include: [path.resolve(__dirname, './src/locales/**')],
 				strictMessage: false,
 				escapeHtml: false,
 				runtimeOnly: true,
@@ -54,7 +53,7 @@ export default defineConfig(({ mode }) => {
 		base: '/dashboard',
 		resolve: {
 			alias: {
-				'vue': 'vue/dist/vue.esm-bundler.js',
+				vue: 'vue/dist/vue.esm-bundler.js',
 				'@': fileURLToPath(new URL('./src', import.meta.url)),
 			},
 		},
@@ -66,5 +65,9 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		clearScreen: false,
+
+		build: {
+			sourcemap: true,
+		},
 	}
 })

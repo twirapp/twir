@@ -30,4 +30,8 @@ export default defineConfig({
 		port: 3008,
 	},
 	clearScreen: false,
+
+	build: {
+		sourcemap: true,
+	},
 })
