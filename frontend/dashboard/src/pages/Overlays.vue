@@ -11,7 +11,7 @@ import {
 	NTag,
 	useNotification,
 } from 'naive-ui'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -33,11 +33,14 @@ import { copyToClipBoard } from '@/helpers/index.js'
 const { t } = useI18n()
 const userCanManageOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 const { data: profile } = useProfile()
+const selectedDashboardTwitchUser = computed(() => {
+	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
+})
 
 const message = useNotification()
 async function copyUrl(id: string) {
 	await copyToClipBoard(
-		`${window.location.origin}/overlays/${profile.value?.apiKey}/registry/overlays/${id}`
+		`${window.location.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/registry/overlays/${id}`
 	)
 	message.success({
 		title: t('overlays.copied'),

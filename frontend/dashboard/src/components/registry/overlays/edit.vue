@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IconCopy , IconDeviceFloppy } from '@tabler/icons-vue'
+import { IconCopy, IconDeviceFloppy } from '@tabler/icons-vue'
 import { type Overlay, OverlayLayerType } from '@twir/api/messages/overlays/overlays'
 import { NButton, NDivider, NFormItem, NInput, NInputNumber, NModal, useMessage } from 'naive-ui'
 import { computed, ref, toRaw, watch } from 'vue'
@@ -12,10 +12,7 @@ import HtmlLayerForm from './layers/htmlForm.vue'
 
 import type { OnDrag, OnResize } from 'vue3-moveable'
 
-import {
-	useOverlaysRegistry,
-	useProfile,
-} from '@/api/index.js'
+import { useOverlaysRegistry, useProfile } from '@/api/index.js'
 import NewSelector from '@/components/registry/overlays/newSelector.vue'
 import { copyToClipBoard } from '@/helpers'
 
@@ -39,10 +36,14 @@ const { data: overlay, refetch } = overlaysManager.getOne!({
 	isQueryDisabled: true,
 })
 
-watch(overlayId, (v) => {
-	if (!v) return
-	refetch()
-}, { immediate: true })
+watch(
+	overlayId,
+	(v) => {
+		if (!v) return
+		refetch()
+	},
+	{ immediate: true }
+)
 
 type OverlayForm = Omit<Overlay, 'updatedAt' | 'channelId' | 'createdAt'>
 
@@ -137,9 +138,15 @@ function removeLayer(index: number) {
 
 const isOverlayNewModalOpened = ref(false)
 
-const userProfile = useProfile()
+const { data: profile } = useProfile()
+const selectedDashboardTwitchUser = computed(() => {
+	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
+})
+
 async function copyUrl(id: string) {
-	await copyToClipBoard(`${window.location.origin}/overlays/${userProfile.data.value?.apiKey}/registry/overlays/${id}`)
+	await copyToClipBoard(
+		`${window.location.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/registry/overlays/${id}`
+	)
 }
 
 const innerWidth = computed(() => window.innerWidth)
@@ -178,66 +185,67 @@ const innerWidth = computed(() => window.innerWidth)
 						:rotatable="false"
 						:snappable="true"
 						:bounds="{ left: 0, top: 0, right: 0, bottom: 0, position: 'css' }"
-						:persistData="({
+						:persistData="{
 							height: layer.height,
 							width: layer.width,
 							left: layer.posX,
 							top: layer.posY,
-						})"
+						}"
 						:origin="false"
-						:renderDirections="currentlyFocused === index ? ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'] : []"
+						:renderDirections="
+							currentlyFocused === index ? ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'] : []
+						"
 						@drag="(opts) => onDrag({ ...opts, index })"
 						@resize="(opts) => onResize({ ...opts, index })"
 						@click="focus(index)"
 					>
-					</moveable>
+					</Moveable>
 				</div>
 			</div>
 		</div>
 		<div class="flex flex-col gap-1">
 			<NButton
-				:disabled="!formValue.name || !formValue.layers.length" block secondary
-				type="success" @click="save"
+				:disabled="!formValue.name || !formValue.layers.length"
+				block
+				secondary
+				type="success"
+				@click="save"
 			>
 				<IconDeviceFloppy />
 				{{ t('sharedButtons.save') }}
 			</NButton>
-			<NButton
-				block secondary type="info" :disabled="!formValue.id"
-				@click="copyUrl(formValue.id)"
-			>
+			<NButton block secondary type="info" :disabled="!formValue.id" @click="copyUrl(formValue.id)">
 				<IconCopy />
 				{{ t('overlays.copyOverlayLink') }}
 			</NButton>
 
 			<NFormItem :label="t('overlaysRegistry.name')">
 				<NInput
-					v-model:value="formValue.name" :placeholder="t('overlaysRegistry.name')"
+					v-model:value="formValue.name"
+					:placeholder="t('overlaysRegistry.name')"
 					:maxlength="30"
 				/>
 			</NFormItem>
 
 			<NFormItem :label="t('overlaysRegistry.customWidth')">
 				<NInputNumber
-					v-model:value="formValue.width" :min="50"
+					v-model:value="formValue.width"
+					:min="50"
 					:placeholder="t('overlaysRegistry.customWidth')"
 				/>
 			</NFormItem>
 
 			<NFormItem :label="t('overlaysRegistry.customHeight')">
 				<NInputNumber
-					v-model:value="formValue.height" :min="50"
+					v-model:value="formValue.height"
+					:min="50"
 					:placeholder="t('overlaysRegistry.customHeight')"
 				/>
 			</NFormItem>
 
 			<NDivider />
 
-			<NButton
-				secondary
-				type="success"
-				@click="isOverlayNewModalOpened = true"
-			>
+			<NButton secondary type="success" @click="isOverlayNewModalOpened = true">
 				{{ t('overlaysRegistry.createNewLayer') }}
 			</NButton>
 
@@ -249,7 +257,9 @@ const innerWidth = computed(() => window.innerWidth)
 						v-model:html="formValue.layers[index].settings!.htmlOverlayHtml"
 						v-model:css="formValue.layers[index].settings!.htmlOverlayCss"
 						v-model:js="formValue.layers[index].settings!.htmlOverlayJs"
-						v-model:pollInterval="formValue.layers[index].settings!.htmlOverlayHtmlDataPollSecondsInterval"
+						v-model:pollInterval="
+							formValue.layers[index].settings!.htmlOverlayHtmlDataPollSecondsInterval
+						"
 						v-model:periodicallyRefetchData="formValue.layers[index].periodicallyRefetchData"
 						:isFocused="currentlyFocused === index"
 						:layerIndex="index"
@@ -263,14 +273,18 @@ const innerWidth = computed(() => window.innerWidth)
 	</div>
 
 	<NModal
-		v-model:show="isOverlayNewModalOpened" class="w-[50vw]" preset="card"
+		v-model:show="isOverlayNewModalOpened"
+		class="w-[50vw]"
+		preset="card"
 		:title="t('sharedButtons.create')"
 	>
 		<NewSelector
-			@select="v => {
-				formValue.layers.push(v)
-				isOverlayNewModalOpened = false
-			}"
+			@select="
+				(v) => {
+					formValue.layers.push(v)
+					isOverlayNewModalOpened = false
+				}
+			"
 		/>
 	</NModal>
 </template>
@@ -280,8 +294,16 @@ const innerWidth = computed(() => window.innerWidth)
 	background-color: rgb(18, 18, 18);
 	transform-origin: 0px 0px;
 
-	background-image: linear-gradient(45deg, rgb(34, 34, 34) 25%, transparent 25%), linear-gradient(135deg, rgb(34, 34, 34) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgb(34, 34, 34) 75%), linear-gradient(135deg, transparent 75%, rgb(34, 34, 34) 75%);
+	background-image:
+		linear-gradient(45deg, rgb(34, 34, 34) 25%, transparent 25%),
+		linear-gradient(135deg, rgb(34, 34, 34) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, rgb(34, 34, 34) 75%),
+		linear-gradient(135deg, transparent 75%, rgb(34, 34, 34) 75%);
 	background-size: 20px 20px;
-	background-position: 0px 0px, 10px 0px, 10px -10px, 0px 10px;
+	background-position:
+		0px 0px,
+		10px 0px,
+		10px -10px,
+		0px 10px;
 }
 </style>
