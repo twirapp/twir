@@ -65,9 +65,8 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			}
 
 			dashboard := gqlmodel.Dashboard{
-				ID:     role.Role.Channel.ID,
-				Flags:  append(dashboardsEntities[role.Role.Channel.ID].Flags, flags...),
-				APIKey: role.Role.Channel.User.ApiKey,
+				ID:    role.Role.Channel.ID,
+				Flags: append(dashboardsEntities[role.Role.Channel.ID].Flags, flags...),
 			}
 
 			if role.Role.Channel.User != nil {
@@ -128,9 +127,8 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 
 		if role.ID != "" && len(flags) > 0 {
 			dashboard := gqlmodel.Dashboard{
-				ID:     role.ChannelID,
-				Flags:  append(dashboardsEntities[role.ChannelID].Flags, flags...),
-				APIKey: role.Channel.User.ApiKey,
+				ID:    role.ChannelID,
+				Flags: append(dashboardsEntities[role.ChannelID].Flags, flags...),
 			}
 
 			if role.Channel != nil && role.Channel.User != nil {
