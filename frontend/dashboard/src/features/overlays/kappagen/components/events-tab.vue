@@ -3,94 +3,99 @@ import { useFieldArray } from 'vee-validate'
 import { computed, ref } from 'vue'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-	EventType,
-	KappagenOverlayAnimationSettings,
+	KappagenOverlayAnimationStyle,
 	KappagenOverlayAnimationsSettings,
 	KappagenOverlayEvent,
 } from '@/gql/graphql'
 
 import { flatEvents } from '@/features/events/constants/helpers.ts'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Check, ChevronsUpDown, SettingsIcon } from 'lucide-vue-next'
+import { SettingsIcon } from 'lucide-vue-next'
 import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+
 const { fields: events, update: updateEvent } = useFieldArray<KappagenOverlayEvent>('events')
 
 const { fields: animations } = useFieldArray<KappagenOverlayAnimationsSettings>('animations')
 
-function handleCheckboxChange(animation: KappagenOverlayAnimationSettings, value: boolean) {
-	if (value) {
-		updateEvent(selectedEventIndex.value, {
-			...events.value[selectedEventIndex.value].value,
-			disabledAnimations: events.value[selectedEventIndex.value].value.disabledAnimations.filter(
-				(anim) => anim !== animation.value.style
+function handleDisabledAnimationCheckboxChange(
+	eventIndex: number,
+	animationStyle: KappagenOverlayAnimationStyle
+) {
+	const ignored = events.value[eventIndex].value.disabledAnimations.includes(animationStyle)
+
+	if (ignored) {
+		updateEvent(eventIndex, {
+			...events.value[eventIndex].value,
+			disabledAnimations: events.value[eventIndex].value.disabledAnimations.filter(
+				(anim) => anim !== animationStyle
 			),
 		})
 	} else {
-		updateEvent(selectedEventIndex.value, {
-			...events.value[selectedEventIndex.value].value,
-			disabledAnimations: [
-				...events.value[selectedEventIndex.value].value.disabledAnimations,
-				animation.value.style,
-			],
+		updateEvent(eventIndex, {
+			...events.value[eventIndex].value,
+			disabledAnimations: [...events.value[eventIndex].value.disabledAnimations, animationStyle],
 		})
 	}
 }
 
-const selectedEvent = ref<string>(EventType.Follow)
-const selectedEventIndex = computed(() => {
-	return events.value.findIndex((event) => event.value.event === selectedEvent.value)
-})
+function handleEventEnabledChange(index: number, value: boolean) {
+	const event = events.value[index]
+	if (event) {
+		updateEvent(index, { ...event.value, enabled: value })
+	}
+}
 </script>
 
 <template>
 	<div class="h-[40dvh]">
 		<div class="grid grid-cols-1 gap-2 max-h-[40dvh] overflow-y-auto">
 			<div
-				v-for="event in events"
+				v-for="(event, eventIndex) in events"
 				:key="event.key"
 				class="flex gap-2 justify-between items-center bg-stone-700/40 p-2 rounded-md"
 			>
 				<span>{{ flatEvents[event.value.event]?.name ?? event.value.event }}</span>
 
 				<div class="flex items-center gap-2">
-					<button
-						class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
-					>
-						<SettingsIcon class="size-4" />
-					</button>
-					<Switch />
+					<Popover>
+						<PopoverTrigger as-child>
+							<button
+								class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
+							>
+								<SettingsIcon class="size-4" />
+							</button>
+						</PopoverTrigger>
+						<PopoverContent class="w-96 bg-zinc-800/60 backdrop-blur-md">
+							<div class="grid grid-cols-2 gap-2">
+								<div v-for="animation of animations" :key="animation.value.style">
+									<div
+										class="flex items-center gap-2 rounded-md bg-background/60 p-2"
+										:key="animation.key"
+									>
+										<Checkbox
+											:id="`animation-${animation.value.style}`"
+											:checked="!event.value.disabledAnimations.includes(animation.value.style)"
+											@update:checked="
+												handleDisabledAnimationCheckboxChange(eventIndex, animation.value.style)
+											"
+										/>
+										<Label :for="`animation-${animation.value.style}`" class="cursor-pointer">
+											{{ animation.value.style }}
+										</Label>
+									</div>
+								</div>
+							</div>
+						</PopoverContent>
+					</Popover>
+					<Switch
+						:checked="event.value.enabled"
+						@update:checked="(v) => handleEventEnabledChange(eventIndex, v)"
+					/>
 				</div>
 			</div>
 		</div>
 	</div>
-
-	<!--	<div class="flex gap-2 flex-col" v-if="selectedEventIndex >= 0">-->
-	<!--		<h3>Animations</h3>-->
-
-	<!--		<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">-->
-	<!--			<div-->
-	<!--				class="flex items-center gap-2 rounded-md bg-background/60 p-2"-->
-	<!--				v-for="animation of animations"-->
-	<!--			>-->
-	<!--				<Checkbox-->
-	<!--					:checked="-->
-	<!--						!events.at(selectedEventIndex).value.disabledAnimations.includes(animation.value.style)-->
-	<!--					"-->
-	<!--					@update:checked="(v) => handleCheckboxChange(animation, v)"-->
-	<!--				/>-->
-	<!--				{{ animation.value.style }}-->
-	<!--			</div>-->
-	<!--		</div>-->
-	<!--	</div>-->
 </template>

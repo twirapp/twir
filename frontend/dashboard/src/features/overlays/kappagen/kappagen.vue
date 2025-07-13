@@ -14,6 +14,7 @@ import { KappagenEmojiStyle } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
 import KappagenPreview from '@/features/overlays/kappagen/kappagen-preview.vue'
 import { useThemeVars } from 'naive-ui'
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
 
 const { t } = useI18n()
 const { toast } = useToast()
@@ -52,9 +53,6 @@ const kappagenForm = useForm({
 	},
 	keepValuesOnUnmount: true,
 })
-
-const isFormValid = computed(() => kappagenForm.meta.valid)
-const isFormDirty = computed(() => kappagenForm.meta.dirty)
 
 onMounted(async () => {
 	await refetch()
@@ -110,7 +108,7 @@ onMounted(async () => {
 
 const onSubmit = kappagenForm.handleSubmit(async (values) => {
 	try {
-		await updateKappagen({
+		const { error } = await updateKappagen({
 			input: {
 				enableSpawn: values.enableSpawn,
 				excludedEmotes: values.excludedEmotes,
@@ -159,14 +157,18 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 			},
 		})
 
+		if (error) {
+			throw new Error(error.message)
+		}
+
 		toast({
-			title: t('sharedTexts.success'),
+			title: t('sharedTexts.saved'),
 			description: 'Kappagen settings updated successfully',
+			duration: 2500,
 		})
 	} catch (error) {
 		console.error('Failed to update Kappagen settings:', error)
 		toast({
-			title: t('sharedTexts.error'),
 			description: 'Failed to update Kappagen settings',
 			variant: 'destructive',
 		})
@@ -174,6 +176,8 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 })
 
 const themeVars = useThemeVars()
+
+const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 </script>
 
 <template>
@@ -181,23 +185,19 @@ const themeVars = useThemeVars()
 		<template #title> Kappagen overlay </template>
 
 		<template #title-footer>
-			<p class="text-sm text-muted-foreground">
-				Configure your Kappagen overlay settings, animations, and events
-			</p>
-			<Button variant="outline" class="flex items-center gap-2">
-				<CopyIcon class="size-4" />
-				Copy overlay link
-			</Button>
+			<p class="text-sm text-muted-foreground">Flying emotes on your screen!</p>
 		</template>
 
 		<template #action>
-			<Button
-				:disabled="!isFormValid || !isFormDirty || isUpdating"
-				:loading="isUpdating"
-				@click="onSubmit"
-			>
-				{{ isUpdating ? 'Saving...' : 'Save Changes' }}
-			</Button>
+			<div class="flex flex-col gap-2">
+				<Button :loading="isUpdating" @click="onSubmit">
+					{{ isUpdating ? 'Saving...' : 'Save Changes' }}
+				</Button>
+				<Button @click="copyOverlayLink()" variant="outline" class="flex items-center gap-2">
+					<CopyIcon class="size-4" />
+					Copy overlay link
+				</Button>
+			</div>
 		</template>
 
 		<template #content>

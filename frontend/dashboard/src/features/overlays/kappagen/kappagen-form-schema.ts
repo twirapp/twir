@@ -19,12 +19,12 @@ const schema = z.object({
 				style: z.string().min(1, 'Animation style is required'),
 				prefs: z
 					.object({
-						size: z.number().min(0.1).max(10).default(1),
-						center: z.boolean().default(false),
-						speed: z.number().min(1).max(100).default(50),
-						faces: z.boolean().default(false),
-						message: z.array(z.string()).default([]),
-						time: z.number().min(100).max(30000).default(5000),
+						size: z.number().min(0.1).max(10).default(1).nullable(),
+						center: z.boolean().default(false).nullable(),
+						speed: z.number().min(1).max(100).default(50).nullable(),
+						faces: z.boolean().default(false).nullable(),
+						message: z.array(z.string()).default([]).nullable(),
+						time: z.number().min(100).max(30000).default(5000).nullable(),
 					})
 					.nullable()
 					.default(null),
@@ -34,7 +34,7 @@ const schema = z.object({
 		)
 		.default([]),
 	emotes: z.object({
-		time: z.number().min(1000).max(60000).default(5000),
+		time: z.number().min(1).max(15).default(1),
 		max: z.number().min(1).max(500).default(100),
 		queue: z.number().min(1).max(1000).default(100),
 		ffzEnabled: z.boolean().default(true),
@@ -43,10 +43,10 @@ const schema = z.object({
 		emojiStyle: z.nativeEnum(KappagenEmojiStyle).default(KappagenEmojiStyle.Twemoji),
 	}),
 	size: z.object({
-		rationNormal: z.number().min(0.02).max(0.07).default(2),
-		rationSmall: z.number().min(0.05).max(0.15).default(0.5),
-		min: z.number().min(10).max(200).default(20),
-		max: z.number().min(50).max(500).default(150),
+		rationNormal: z.number().min(0.05).max(0.15).default(0.05),
+		rationSmall: z.number().min(0.02).max(0.07).default(0.02),
+		min: z.number().default(20),
+		max: z.number().default(150),
 	}),
 	events: z
 		.array(

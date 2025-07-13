@@ -17,7 +17,10 @@ import (
 )
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
-func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gqlmodel.KappagenUpdateInput) (*gqlmodel.KappagenOverlay, error) {
+func (r *mutationResolver) OverlaysKappagenUpdate(
+	ctx context.Context,
+	input gqlmodel.KappagenUpdateInput,
+) (*gqlmodel.KappagenOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -31,25 +34,25 @@ func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gql
 		}
 
 		prefs := &entity.KappagenOverlayAnimationsPrefsSettings{}
-		if a.Prefs != nil {
-			if a.Prefs.Size.IsSet() {
-				prefs.Size = a.Prefs.Size.Value()
+		if a.Prefs.IsSet() && a.Prefs.Value() != nil {
+			if a.Prefs.Value().Size.IsSet() {
+				prefs.Size = a.Prefs.Value().Size.Value()
 			}
 
-			if a.Prefs.Center.IsSet() {
-				prefs.Center = a.Prefs.Center.Value()
+			if a.Prefs.Value().Center.IsSet() {
+				prefs.Center = a.Prefs.Value().Center.Value()
 			}
 
-			if a.Prefs.Speed.IsSet() {
-				prefs.Speed = a.Prefs.Speed.Value()
+			if a.Prefs.Value().Speed.IsSet() {
+				prefs.Speed = a.Prefs.Value().Speed.Value()
 			}
 
-			if a.Prefs.Faces.IsSet() {
-				prefs.Faces = a.Prefs.Faces.Value()
+			if a.Prefs.Value().Faces.IsSet() {
+				prefs.Faces = a.Prefs.Value().Faces.Value()
 			}
 
-			if a.Prefs.Message.IsSet() {
-				prefs.Message = append([]string{}, a.Prefs.Message.Value()...)
+			if a.Prefs.Value().Message.IsSet() {
+				prefs.Message = append([]string{}, a.Prefs.Value().Message.Value()...)
 			}
 		}
 
@@ -146,7 +149,10 @@ func (r *queryResolver) OverlaysKappagenAvailableAnimations(ctx context.Context)
 }
 
 // OverlaysKappagen is the resolver for the overlaysKappagen field.
-func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (<-chan *gqlmodel.KappagenOverlay, error) {
+func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (
+	<-chan *gqlmodel.KappagenOverlay,
+	error,
+) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -193,7 +199,10 @@ func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context) (<-chan *gq
 }
 
 // OverlaysKappagenTrigger is the resolver for the overlaysKappagenTrigger field.
-func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context) (<-chan *gqlmodel.KappagenTriggerPayload, error) {
+func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context) (
+	<-chan *gqlmodel.KappagenTriggerPayload,
+	error,
+) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err

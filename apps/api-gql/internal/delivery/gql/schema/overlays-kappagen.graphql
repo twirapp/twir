@@ -123,7 +123,7 @@ input KappagenOverlayAnimationsPrefsSettingsInput {
 
 input KappagenOverlayAnimationsSettingsInput {
 	style: KappagenOverlayAnimationStyle!
-	prefs: KappagenOverlayAnimationsPrefsSettingsInput!
+	prefs: KappagenOverlayAnimationsPrefsSettingsInput
 	count: Int
 	enabled: Boolean!
 }

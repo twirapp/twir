@@ -115,11 +115,16 @@ WHERE channel_id = $2
 RETURNING channel_id
 	`
 
+	settingsBytes, err := json.Marshal(input.Settings)
+	if err != nil {
+		return kappagenmodel.KappagenOverlay{}, err
+	}
+
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	row := conn.QueryRow(ctx, query, input.Settings, channelID)
+	row := conn.QueryRow(ctx, query, string(settingsBytes), channelID)
 	var channelId string
 
-	err := row.Scan(&channelId)
+	err = row.Scan(&channelId)
 	if err != nil {
 		return kappagenmodel.KappagenOverlay{}, fmt.Errorf("kappagen overlay update: %w", err)
 	}

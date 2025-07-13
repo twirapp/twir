@@ -446,8 +446,8 @@ func createDefaultOverlayInput(channelID string) overlays_kappagen.CreateInput {
 			Animations: defaultAnimations,
 			Emotes: model.KappagenOverlayEmotesSettings{
 				Time:           5,
-				Max:            0,
-				Queue:          0,
+				Max:            100,
+				Queue:          100,
 				FfzEnabled:     true,
 				BttvEnabled:    true,
 				SevenTvEnabled: true,

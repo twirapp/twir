@@ -24,7 +24,6 @@ export const useKappagenInstance = createGlobalState(() => {
 	}
 
 	function showEmotes(emotes: Emote[]) {
-		console.log(kappagen.value.showEmotes, emotes)
 		if (!kappagen.value) return
 		kappagen.value.showEmotes(emotes)
 	}
