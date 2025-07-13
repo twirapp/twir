@@ -162,7 +162,7 @@ export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>, em
 
 		if (
 			!settings.value.overlaysKappagen.events.some(
-				(e) => e.event === event.twirEvents.baseInfo.type,
+				(e) => e.event === event.twirEvents.baseInfo.type && e.enabled,
 			)
 		) {
 			return
