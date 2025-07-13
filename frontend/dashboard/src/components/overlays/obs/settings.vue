@@ -80,7 +80,11 @@ const currentStep = computed(() => {
 		</AlertDescription>
 	</Alert>
 
-	<Stepper orientation="vertical" class="flex w-full flex-col justify-start gap-10" :model-value="currentStep">
+	<Stepper
+		orientation="vertical"
+		class="flex w-full flex-col justify-start gap-10"
+		:model-value="currentStep"
+	>
 		<StepperItem :step="1" class="relative flex w-full items-start gap-6">
 			<StepperSeparator
 				class="absolute left-[18px] top-[38px] block h-[105%] w-0.5 shrink-0 rounded-full bg-muted group-data-[state=completed]:bg-primary"
@@ -131,7 +135,8 @@ const currentStep = computed(() => {
 							</FormControl>
 							<FormMessage />
 							<FormDescription>
-								Ensure the password matches, as many users misconfigure it and encounter issues when clicking 'generate password' after copying it.
+								Ensure the password matches, as many users misconfigure it and encounter issues when
+								clicking 'generate password' after copying it.
 							</FormDescription>
 						</FormItem>
 					</FormField>
@@ -164,11 +169,7 @@ const currentStep = computed(() => {
 
 				<div class="flex flex-col gap-2">
 					<span>Add overlay on you scene or scenes, if you need functinality on all scenes.</span>
-					<Button
-						:disabled="profile?.id !== profile?.selectedDashboardId"
-						variant="secondary"
-						@click="copyOverlayLink()"
-					>
+					<Button variant="secondary" @click="copyOverlayLink()">
 						{{ t('overlays.copyOverlayLink') }}
 					</Button>
 				</div>

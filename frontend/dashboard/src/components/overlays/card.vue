@@ -12,22 +12,25 @@ import Card from '@/components/card/card.vue'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
-const props = withDefaults(defineProps<{
-	description: string
-	title: string
-	overlayPath?: string
-	icon: FunctionalComponent
-	iconStroke?: number
-	showSettings?: boolean
-	copyDisabled?: boolean
-	showCopy?: boolean
-}>(), {
-	showSettings: true,
-	copyDisabled: false,
-	showCopy: true,
-	iconStroke: 1,
-	overlayPath: '',
-})
+const props = withDefaults(
+	defineProps<{
+		description: string
+		title: string
+		overlayPath?: string
+		icon: FunctionalComponent
+		iconStroke?: number
+		showSettings?: boolean
+		copyDisabled?: boolean
+		showCopy?: boolean
+	}>(),
+	{
+		showSettings: true,
+		copyDisabled: false,
+		showCopy: true,
+		iconStroke: 1,
+		overlayPath: '',
+	}
+)
 
 defineEmits<{
 	openSettings: []
@@ -49,7 +52,8 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 
 		<template #footer>
 			<Button
-				v-if="showSettings" :disabled="!userCanEditOverlays"
+				v-if="showSettings"
+				:disabled="!userCanEditOverlays"
 				variant="outline"
 				class="flex items-center gap-2"
 				@click="$emit('openSettings')"
@@ -57,10 +61,10 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 				<SettingsIcon class="size-4" />
 				<span>{{ t('sharedButtons.settings') }}</span>
 			</Button>
-			<NTooltip v-if="showCopy" :disabled="profile?.id !== profile?.selectedDashboardId">
+			<NTooltip v-if="showCopy">
 				<template #trigger>
 					<Button
-						:disabled="copyDisabled || profile?.id !== profile?.selectedDashboardId"
+						:disabled="copyDisabled"
 						class="flex items-center gap-2"
 						@click="copyOverlayLink()"
 					>
@@ -68,8 +72,7 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 						<span>{{ t('overlays.copyOverlayLink') }}</span>
 					</Button>
 				</template>
-				<span v-if="profile?.id !== profile?.selectedDashboardId">{{ t('overlays.noAccess') }}</span>
-				<span v-else>{{ t('overlays.uncongirured') }}</span>
+				<span>{{ t('overlays.uncongirured') }}</span>
 			</NTooltip>
 		</template>
 	</Card>

@@ -4,8 +4,14 @@ import { useProfile } from '@/api'
 
 export function useAlertsInformation() {
 	const { data: profile } = useProfile()
+	const selectedDashboardTwitchUser = computed(() => {
+		return profile.value?.availableDashboards.find(
+			(d) => d.id === profile.value?.selectedDashboardId
+		)?.twitchProfile
+	})
+
 	const overlayLink = computed(() => {
-		return `${window.location.origin}/overlays/${profile.value?.apiKey}/alerts`
+		return `${window.location.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/alerts`
 	})
 
 	const isShowOverlayLink = ref(false)

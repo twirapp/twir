@@ -36,7 +36,9 @@ const { data: profile } = useProfile()
 
 const message = useNotification()
 async function copyUrl(id: string) {
-	await copyToClipBoard(`${window.location.origin}/overlays/${profile.value?.apiKey}/registry/overlays/${id}`)
+	await copyToClipBoard(
+		`${window.location.origin}/overlays/${profile.value?.apiKey}/registry/overlays/${id}`
+	)
 	message.success({
 		title: t('overlays.copied'),
 		duration: 2500,
@@ -88,10 +90,7 @@ function editCustomOverlay(id?: string) {
 			</NGridItem>
 
 			<NGridItem v-for="overlay of customOverlays?.overlays" :key="overlay.id" :span="1">
-				<Card
-					:title="overlay.name"
-					style="height: 100%;"
-				>
+				<Card :title="overlay.name" style="height: 100%">
 					<template #content>
 						<div v-if="overlay.layers.length" class="flex gap-1 flex-wrap">
 							<NTag v-for="layer of overlay.layers" :key="layer.id" type="success">
@@ -119,7 +118,7 @@ function editCustomOverlay(id?: string) {
 								secondary
 								type="info"
 								size="large"
-								:disabled="!userCanManageOverlays || profile?.selectedDashboardId !== profile?.id"
+								:disabled="!userCanManageOverlays"
 								@click="copyUrl(overlay.id)"
 							>
 								<span>{{ t('overlays.copyOverlayLink') }}</span>
