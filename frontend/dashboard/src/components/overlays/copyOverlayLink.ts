@@ -9,11 +9,30 @@ export function useCopyOverlayLink(overlayPath: string) {
 	const { t } = useI18n()
 	const { toast } = useToast()
 
+	const selectedDashboardUser = computed(() => {
+		return profile.value?.availableDashboards.find(
+			(dashboard) => dashboard.id === profile.value?.selectedDashboardId
+		)
+	})
+
 	const overlayLink = computed(() => {
-		return `${window.location.origin}/overlays/${profile.value?.apiKey}/${overlayPath}`
+		if (!selectedDashboardUser.value?.apiKey) {
+			return ''
+		}
+
+		return `${window.location.origin}/overlays/${selectedDashboardUser.value?.apiKey}/${overlayPath}`
 	})
 
 	const copyOverlayLink = (query?: Record<string, string>) => {
+		if (!overlayLink.value) {
+			toast({
+				title: 'Something went wrong at copying the overlay link',
+				duration: 2500,
+				variant: 'destructive',
+			})
+			return
+		}
+
 		const url = new URL(overlayLink.value)
 		if (query) {
 			for (const [key, value] of Object.entries(query)) {
