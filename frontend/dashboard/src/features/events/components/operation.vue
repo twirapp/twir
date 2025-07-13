@@ -17,28 +17,51 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import VariableInput from '@/components/variable-input.vue'
 import OperationActionSelector from '@/features/events/components/operation-action-selector.vue'
 import OperationInputAlert from '@/features/events/components/operation-input-alert.vue'
-import OperationInputObsSelector
-	from '@/features/events/components/operation-input-obs-selector.vue'
+import OperationInputObsSelector from '@/features/events/components/operation-input-obs-selector.vue'
 import { flatOperations } from '@/features/events/constants/helpers'
 import { EventOperationType } from '@/gql/graphql'
+import { useVariablesApi } from '@/api/variables.ts'
+import { useCommandsApi } from '@/api/commands/commands.ts'
 
-const props = withDefaults(defineProps<{
-	operationIndex: number
-}>(), {
-	operationIndex: 0,
-})
+const props = withDefaults(
+	defineProps<{
+		operationIndex: number
+	}>(),
+	{
+		operationIndex: 0,
+	}
+)
+
+const { customVariables } = useVariablesApi()
+const commandsApi = useCommandsApi()
+const { data: commands } = commandsApi.useQueryCommands()
 
 const currentOperationPath = computed(() => `operations.${props.operationIndex}`)
-const { value: currentOperation } = useField<Omit<EventOperation, 'id'> | undefined>(currentOperationPath)
+const { value: currentOperation } = useField<Omit<EventOperation, 'id'> | undefined>(
+	currentOperationPath
+)
 
 const currentOperationFiltersPath = computed(() => `${currentOperationPath.value}.filters`)
-const { fields: filters, insert: insertFilter, remove: removeFilter, replace: updateFilters } = useFieldArray<EventFilter | undefined>(currentOperationFiltersPath)
+const {
+	fields: filters,
+	insert: insertFilter,
+	remove: removeFilter,
+	replace: updateFilters,
+} = useFieldArray<EventFilter | undefined>(currentOperationFiltersPath)
 
 const { t } = useI18n()
 
@@ -63,19 +86,17 @@ function onRemoveFilter(filterIndex: number) {
 <template>
 	<div class="min-h-[50dvh]">
 		<div v-if="currentOperation" class="space-y-4">
-			<OperationActionSelector
-				:current-operation-index="operationIndex"
-			/>
+			<OperationActionSelector :current-operation-index="operationIndex" />
 
 			<div v-if="flatOperations[currentOperation?.type]?.haveInput">
-				<FormField
-					v-slot="{ componentField }"
-					:name="`operations.${operationIndex}.input`"
-				>
+				<FormField v-slot="{ componentField }" :name="`operations[${operationIndex}].input`">
 					<FormItem>
 						<FormLabel>
 							{{
-								t(flatOperations[currentOperation?.type].inputKeyTranslatePath ?? 'events.operations.inputs.default')
+								t(
+									flatOperations[currentOperation?.type].inputKeyTranslatePath ??
+										'events.operations.inputs.default'
+								)
 							}}
 						</FormLabel>
 						<FormControl>
@@ -87,27 +108,17 @@ function onRemoveFilter(filterIndex: number) {
 			</div>
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<FormField
-					v-slot="{ componentField }"
-					:name="`operations.${operationIndex}.delay`"
-				>
+				<FormField v-slot="{ componentField }" :name="`operations.${operationIndex}.delay`">
 					<FormItem>
 						<FormLabel>{{ t('events.delay') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								type="number"
-								min="0"
-							/>
+							<Input v-bind="componentField" type="number" min="0" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField
-					v-slot="{ componentField }"
-					:name="`operations.${operationIndex}.repeat`"
-				>
+				<FormField v-slot="{ componentField }" :name="`operations.${operationIndex}.repeat`">
 					<FormItem>
 						<FormLabel>{{ t('events.repeat') }}</FormLabel>
 						<FormControl>
@@ -128,15 +139,14 @@ function onRemoveFilter(filterIndex: number) {
 					v-slot="{ value, handleChange }"
 					:name="`operations.${operationIndex}.useAnnounce`"
 				>
-					<FormItem class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+					<FormItem
+						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
+					>
 						<div class="space-y-0.5">
 							<FormLabel>Use announce</FormLabel>
 						</div>
 						<FormControl>
-							<Switch
-								:checked="value"
-								@update:checked="handleChange"
-							/>
+							<Switch :checked="value" @update:checked="handleChange" />
 						</FormControl>
 					</FormItem>
 				</FormField>
@@ -147,29 +157,26 @@ function onRemoveFilter(filterIndex: number) {
 			</div>
 
 			<div
-				v-if="[
-					EventOperationType.ObsChangeScene,
-					EventOperationType.ObsDecreaseAudioVolume,
-					EventOperationType.ObsDisableAudio,
-					EventOperationType.ObsEnableAudio,
-					EventOperationType.ObsIncreaseAudioVolume,
-					EventOperationType.ObsSetAudioVolume,
-					EventOperationType.ObsStartStream,
-					EventOperationType.ObsStopStream,
-					EventOperationType.ObsToggleAudio,
-					EventOperationType.ObsToggleSource,
-				].includes(currentOperation.type)"
+				v-if="
+					[
+						EventOperationType.ObsChangeScene,
+						EventOperationType.ObsDecreaseAudioVolume,
+						EventOperationType.ObsDisableAudio,
+						EventOperationType.ObsEnableAudio,
+						EventOperationType.ObsIncreaseAudioVolume,
+						EventOperationType.ObsSetAudioVolume,
+						EventOperationType.ObsStartStream,
+						EventOperationType.ObsStopStream,
+						EventOperationType.ObsToggleAudio,
+						EventOperationType.ObsToggleSource,
+					].includes(currentOperation.type)
+				"
 			>
-				<OperationInputObsSelector
-					:operation-index="operationIndex"
-				/>
+				<OperationInputObsSelector :operation-index="operationIndex" />
 			</div>
 
 			<div v-if="flatOperations[currentOperation?.type]?.additionalValues?.includes('timeoutTime')">
-				<FormField
-					v-slot="{ componentField }"
-					:name="`operations.${operationIndex}.timeoutTime`"
-				>
+				<FormField v-slot="{ componentField }" :name="`operations.${operationIndex}.timeoutTime`">
 					<FormItem>
 						<FormLabel>{{ t('events.operations.banTime') }}</FormLabel>
 						<FormControl>
@@ -185,7 +192,9 @@ function onRemoveFilter(filterIndex: number) {
 				</FormField>
 			</div>
 
-			<div v-if="flatOperations[currentOperation?.type]?.additionalValues?.includes('timeoutMessage')">
+			<div
+				v-if="flatOperations[currentOperation?.type]?.additionalValues?.includes('timeoutMessage')"
+			>
 				<FormField
 					v-slot="{ componentField }"
 					:name="`operations.${operationIndex}.timeoutMessage`"
@@ -202,16 +211,75 @@ function onRemoveFilter(filterIndex: number) {
 
 			<div v-if="flatOperations[currentOperation?.type]?.additionalValues?.includes('target')">
 				<FormField
+					v-if="
+						[
+							EventOperationType.ChangeVariable,
+							EventOperationType.DecrementVariable,
+							EventOperationType.IncrementVariable,
+						].includes(currentOperation.type)
+					"
 					v-slot="{ componentField }"
 					:name="`operations.${operationIndex}.target`"
 				>
 					<FormItem>
+						<FormLabel>Variable</FormLabel>
+
+						<Select v-bind="componentField">
+							<FormControl>
+								<SelectTrigger>
+									<SelectValue placeholder="Select a variable" />
+								</SelectTrigger>
+							</FormControl>
+							<SelectContent>
+								<SelectGroup>
+									<SelectItem v-for="variable of customVariables" :value="variable.id">
+										{{ variable.name }}
+									</SelectItem>
+								</SelectGroup>
+							</SelectContent>
+						</Select>
+						<FormMessage />
+					</FormItem>
+				</FormField>
+
+				<FormField
+					v-else-if="
+						[
+							EventOperationType.AllowCommandToUser,
+							EventOperationType.RemoveAllowCommandToUser,
+							EventOperationType.DenyCommandToUser,
+							EventOperationType.RemoveDenyCommandToUser,
+						].includes(currentOperation.type)
+					"
+					v-slot="{ componentField }"
+					:name="`operations.${operationIndex}.target`"
+				>
+					<FormItem>
+						<FormLabel>Variable</FormLabel>
+
+						<Select v-bind="componentField">
+							<FormControl>
+								<SelectTrigger>
+									<SelectValue placeholder="Select a command" />
+								</SelectTrigger>
+							</FormControl>
+							<SelectContent>
+								<SelectGroup>
+									<SelectItem v-for="command of commands?.commands" :value="command.id">
+										{{ command.name }}
+									</SelectItem>
+								</SelectGroup>
+							</SelectContent>
+						</Select>
+						<FormMessage />
+					</FormItem>
+				</FormField>
+
+				<FormField v-else v-slot="{ componentField }" :name="`operations.${operationIndex}.target`">
+					<FormItem>
 						<FormLabel>{{ t('events.target') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								:placeholder="t('events.targetPlaceholder')"
-							/>
+							<Input v-bind="componentField" :placeholder="t('events.targetPlaceholder')" />
 						</FormControl>
 						<FormDescription>{{ t('events.targetDescription') }}</FormDescription>
 						<FormMessage />
@@ -219,19 +287,15 @@ function onRemoveFilter(filterIndex: number) {
 				</FormField>
 			</div>
 
-			<FormField
-				v-slot="{ value, handleChange }"
-				:name="`operations.${operationIndex}.enabled`"
-			>
-				<FormItem class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+			<FormField v-slot="{ value, handleChange }" :name="`operations.${operationIndex}.enabled`">
+				<FormItem
+					class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
+				>
 					<div class="space-y-0.5">
 						<FormLabel>{{ t('sharedTexts.enabled') }}?</FormLabel>
 					</div>
 					<FormControl>
-						<Switch
-							:checked="value"
-							@update:checked="handleChange"
-						/>
+						<Switch :checked="value" @update:checked="handleChange" />
 					</FormControl>
 				</FormItem>
 			</FormField>
@@ -249,7 +313,10 @@ function onRemoveFilter(filterIndex: number) {
 					</Button>
 				</div>
 
-				<div v-if="currentOperation.filters?.length === 0" class="text-center p-4 border rounded-md">
+				<div
+					v-if="currentOperation.filters?.length === 0"
+					class="text-center p-4 border rounded-md"
+				>
 					<p class="text-muted-foreground">
 						{{ t('events.operations.filters.description') }}
 					</p>
