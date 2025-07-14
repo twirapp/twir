@@ -18,8 +18,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { useKappagenInstance } from '@/features/overlays/kappagen/composables/use-kappagen-instance.ts'
 
-const { fields: animations, update: updateAnimations }
-	= useFieldArray<KappagenOverlayAnimationsSettings>('animations')
+const { fields: animations, update: updateAnimations } =
+	useFieldArray<KappagenOverlayAnimationsSettings>('animations')
 
 function switchEnabled(index: number, value: boolean) {
 	const animation = animations.value[index]
@@ -42,6 +42,7 @@ const kappagen = useKappagenInstance()
 				<button
 					class="p-2 rounded-md bg-indigo-400/70"
 					@click="kappagen.playAnimation(animation.value)"
+					type="button"
 				>
 					<PlayIcon class="size-4" />
 				</button>
@@ -53,6 +54,7 @@ const kappagen = useKappagenInstance()
 					<PopoverTrigger as-child>
 						<button
 							class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
+							type="button"
 						>
 							<SettingsIcon class="size-4" />
 						</button>
@@ -128,9 +130,7 @@ const kappagen = useKappagenInstance()
 								:name="`animations.${index}.prefs.center`"
 							>
 								<FormItem class="flex flex-row items-center justify-between">
-									<FormLabel class="text-base">
-										Center Animation
-									</FormLabel>
+									<FormLabel class="text-base"> Center Animation </FormLabel>
 
 									<FormControl>
 										<Switch
@@ -148,9 +148,7 @@ const kappagen = useKappagenInstance()
 								:name="`animations.${index}.prefs.faces`"
 							>
 								<FormItem class="flex flex-row items-center justify-between">
-									<FormLabel class="text-base">
-										Use Faces
-									</FormLabel>
+									<FormLabel class="text-base"> Use Faces </FormLabel>
 
 									<FormControl>
 										<Switch
@@ -176,6 +174,7 @@ const kappagen = useKappagenInstance()
 										<button
 											class="p-1 border-border border rounded-md bg-green-600/50 hover:bg-green-600/30 transition-colors"
 											@click="push('Twir')"
+											type="button"
 										>
 											<PlusIcon class="size-4" />
 										</button>
@@ -196,6 +195,7 @@ const kappagen = useKappagenInstance()
 													<button
 														class="p-1 border-border border rounded-md bg-red-600/50 hover:bg-red-600/30 transition-colors"
 														@click="remove(messageIndex)"
+														type="button"
 													>
 														<XIcon />
 													</button>

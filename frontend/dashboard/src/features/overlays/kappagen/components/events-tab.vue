@@ -20,7 +20,7 @@ const { fields: animations } = useFieldArray<KappagenOverlayAnimationsSettings>(
 
 function handleDisabledAnimationCheckboxChange(
 	eventIndex: number,
-	animationStyle: KappagenOverlayAnimationStyle,
+	animationStyle: KappagenOverlayAnimationStyle
 ) {
 	const ignored = events.value[eventIndex].value.disabledAnimations.includes(animationStyle)
 
@@ -28,7 +28,7 @@ function handleDisabledAnimationCheckboxChange(
 		updateEvent(eventIndex, {
 			...events.value[eventIndex].value,
 			disabledAnimations: events.value[eventIndex].value.disabledAnimations.filter(
-				(anim) => anim !== animationStyle,
+				(anim) => anim !== animationStyle
 			),
 		})
 	} else {
@@ -62,6 +62,7 @@ function handleEventEnabledChange(index: number, value: boolean) {
 						<PopoverTrigger as-child>
 							<button
 								class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
+								type="button"
 							>
 								<SettingsIcon class="size-4" />
 							</button>
