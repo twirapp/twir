@@ -7,7 +7,10 @@ import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/type
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js'
 import { graphql } from '@/gql'
 
-export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>, emotesBuilder: Buidler) {
+export function useKappagenOverlaySocket(
+	instance: MaybeRef<KappagenMethods>,
+	emotesBuilder: Buidler
+) {
 	const apiKey = ref<string>('')
 
 	const paused = computed(() => !apiKey.value)
@@ -128,7 +131,7 @@ export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>, em
 		if (!settings.value?.overlaysKappagen) return
 
 		const enabledAnimations = settings.value?.overlaysKappagen.animations.filter(
-			(animation) => animation.enabled,
+			(animation) => animation.enabled
 		)
 
 		const index = Math.floor(Math.random() * enabledAnimations.length)
@@ -144,14 +147,14 @@ export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>, em
 			style: normalizedStyleName as KappagenAnimations['style'],
 			prefs: randomed.prefs
 				? {
-					message: randomed.prefs.message ?? [],
-					time: randomed.prefs.time ?? 5,
-					size: randomed.prefs.size ?? 1,
-					speed: randomed.prefs.speed ?? 1,
-					faces: randomed.prefs.faces ?? false,
-					center: randomed.prefs.center ?? false,
-					avoidMiddle: false,
-				}
+						message: randomed.prefs.message ?? [],
+						time: randomed.prefs.time ?? 5,
+						size: randomed.prefs.size ?? 1,
+						speed: randomed.prefs.speed ?? 1,
+						faces: randomed.prefs.faces ?? false,
+						center: randomed.prefs.center ?? false,
+						avoidMiddle: false,
+					}
 				: undefined,
 			count: randomed.count ?? 150,
 		} as KappagenAnimations
@@ -162,7 +165,7 @@ export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>, em
 
 		if (
 			!settings.value.overlaysKappagen.events.some(
-				(e) => e.event === event.twirEvents.baseInfo.type && e.enabled,
+				(e) => e.event === event.twirEvents.baseInfo.type && e.enabled
 			)
 		) {
 			return
@@ -172,6 +175,8 @@ export function useKappagenOverlaySocket(instance: MaybeRef<KappagenMethods>, em
 
 		const animation = randomAnimation()
 		if (!animation) return
+
+		console.log(animation)
 
 		unref(instance).playAnimation(generatedEmotes, animation)
 	})

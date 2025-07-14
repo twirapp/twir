@@ -15,11 +15,14 @@ const route = useRoute()
 const emotesBuilder = useKappagenEmotesBuilder()
 const { settings, setSettings } = useKappagenSettings()
 
-const socket = useKappagenOverlaySocket({
-	playAnimation,
-	showEmotes,
-	clear: () => kappagen.value?.clear(),
-}, emotesBuilder)
+const socket = useKappagenOverlaySocket(
+	{
+		playAnimation,
+		showEmotes,
+		clear: () => kappagen.value?.clear(),
+	},
+	emotesBuilder
+)
 
 watch(socket.settings, (v) => {
 	if (!v) return
@@ -111,5 +114,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-	<KappagenOverlay ref="kappagen" :config="settings" :is-rave="socket.settings.value?.overlaysKappagen.enableRave" />
+	<div style="width: 100%; height: 100%">
+		<KappagenOverlay
+			ref="kappagen"
+			:config="settings"
+			:is-rave="socket.settings.value?.overlaysKappagen.enableRave"
+		/>
+	</div>
 </template>
