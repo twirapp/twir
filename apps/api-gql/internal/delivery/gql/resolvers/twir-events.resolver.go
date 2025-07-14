@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/goccy/go-json"
 	model "github.com/satont/twir/libs/gomodels"
@@ -16,7 +17,10 @@ import (
 )
 
 // TwirEvents is the resolver for the twirEvents field.
-func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<-chan gqlmodel.EventMessage, error) {
+func (r *subscriptionResolver) TwirEvents(
+	ctx context.Context,
+	apiKey string,
+) (<-chan gqlmodel.EventMessage, error) {
 	user := model.Users{}
 	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -42,12 +46,14 @@ func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<
 			case data := <-wsSubscription.GetChannel():
 				var msg twir_events.Message
 				if err := json.Unmarshal(data, &msg); err != nil {
-					panic(err)
+					r.deps.Logger.Error("failed to unmarshal twir event message", slog.Any("err", err))
+					continue
 				}
 
 				mappedEvent, err := mappers.MapEventToGqlType(msg.EventName, msg.Data)
 				if err != nil {
-					panic(err)
+					r.deps.Logger.Error("failed to map event to gql type", slog.Any("err", err))
+					continue
 				}
 
 				chann <- mappedEvent
