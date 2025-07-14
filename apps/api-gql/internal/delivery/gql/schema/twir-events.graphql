@@ -1,5 +1,5 @@
 extend type Subscription {
-	twirEvents(apiKey: String!): EventMessage! @isAuthenticated
+	twirEvents(apiKey: String!): EventMessage!
 }
 
 interface EventMessage {
