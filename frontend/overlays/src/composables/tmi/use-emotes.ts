@@ -52,7 +52,7 @@ export const useEmotes = createGlobalState(() => {
 	}
 
 	function setBttvEmotes(data: BttvChannelResponse | BttvGlobalResponse): void {
-		let emotesForParse: Array<BttvEmote>
+		let emotesForParse: Array<BttvEmote> = []
 
 		if ('channelEmotes' in data) {
 			emotesForParse = [...(data.channelEmotes ?? []), ...(data.sharedEmotes ?? [])]
