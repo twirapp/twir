@@ -162,8 +162,13 @@ func mapModelToEntity(m model.KappagenOverlay) entity.KappagenOverlay {
 			EnableSpawn:    m.Settings.EnableSpawn,
 			ExcludedEmotes: m.Settings.ExcludedEmotes,
 			EnableRave:     m.Settings.EnableRave,
-			Animation:      entity.KappagenOverlayAnimationSettings{},
-			Animations:     animations,
+			Animation: entity.KappagenOverlayAnimationSettings{
+				FadeIn:  m.Settings.Animation.FadeIn,
+				FadeOut: m.Settings.Animation.FadeOut,
+				ZoomIn:  m.Settings.Animation.ZoomIn,
+				ZoomOut: m.Settings.Animation.ZoomOut,
+			},
+			Animations: animations,
 			Emotes: entity.KappagenOverlayEmotesSettings{
 				Time:           m.Settings.Emotes.Time,
 				Max:            m.Settings.Emotes.Max,
