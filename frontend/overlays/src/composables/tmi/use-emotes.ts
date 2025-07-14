@@ -56,7 +56,7 @@ export const useEmotes = createGlobalState(() => {
 
 		if ('channelEmotes' in data) {
 			emotesForParse = [...(data.channelEmotes ?? []), ...(data.sharedEmotes ?? [])]
-		} else {
+		} else if (Array.isArray(data)) {
 			emotesForParse = data ?? []
 		}
 
