@@ -35,8 +35,9 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		}
 	} else {
 		dashboardsEntities[obj.ID] = gqlmodel.Dashboard{
-			ID:    obj.ID,
-			Flags: []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
+			ID:     obj.ID,
+			Flags:  []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
+			APIKey: obj.APIKey,
 		}
 
 		var roles []model.ChannelRoleUser
