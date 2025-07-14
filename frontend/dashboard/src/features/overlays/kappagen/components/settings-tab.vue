@@ -19,10 +19,7 @@ import { Switch } from '@/components/ui/switch'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 import { KappagenEmojiStyle } from '@/gql/graphql.ts'
 
-const {
-	fields: excludedEmotes,
-	remove: removeExcludedEmote,
-} = useFieldArray('excludedEmotes')
+const { fields: excludedEmotes, remove: removeExcludedEmote } = useFieldArray('excludedEmotes')
 
 const emotesCheckboxes = [
 	{
@@ -45,6 +42,14 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 		label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
 	}
 })
+
+function getEmojiPreview(style: KappagenEmojiStyle) {
+	if (style === KappagenEmojiStyle.Blobmoji) {
+		return `https://cdn2.frankerfacez.com/static/emoji/images/blob/1f63a.png`
+	}
+
+	return `https://cdn2.frankerfacez.com/static/emoji/images/${style.toLowerCase()}/1f63a.png`
+}
 </script>
 
 <template>
@@ -60,9 +65,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 				<FormItem class="flex flex-row items-center justify-between">
 					<div class="flex flex-col w-full">
 						<FormLabel>Enable Spawn</FormLabel>
-						<div class="text-[0.8rem] text-muted-foreground">
-							Spawn emote on each chat message
-						</div>
+						<div class="text-[0.8rem] text-muted-foreground">Spawn emote on each chat message</div>
 					</div>
 
 					<Switch :checked="value" @update:checked="handleChange" />
@@ -88,7 +91,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 					<FormLabel>Small Emote Ratio</FormLabel>
 					<div class="flex flex-row items-center gap-2">
 						<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">
-							{{ value }}
+							{{ Math.round((value - 0.02) / 0.01) + 1 }}
 						</div>
 						<SliderRoot
 							:model-value="[value]"
@@ -113,7 +116,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 					<FormLabel>Normal emote ratio</FormLabel>
 					<div class="flex flex-row items-center gap-2">
 						<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">
-							{{ value }}
+							{{ Math.round((value - 0.05) / 0.01) + 1 }}
 						</div>
 						<SliderRoot
 							:model-value="[value]"
@@ -171,7 +174,16 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 									:key="item.value"
 									:value="item.value"
 								>
-									{{ item.label }}
+									<div class="flex flex-row gap-2 items-center">
+										<img
+											v-if="item.value !== KappagenEmojiStyle.None"
+											class="size-4"
+											:src="getEmojiPreview(item.value)"
+										/>
+										<span>
+											{{ item.label }}
+										</span>
+									</div>
 								</SelectItem>
 							</SelectGroup>
 						</SelectContent>
@@ -185,9 +197,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 					<FormItem class="flex flex-col">
 						<FormLabel>Max emote time</FormLabel>
 						<div class="flex flex-row items-center gap-2">
-							<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">
-								{{ value }}s
-							</div>
+							<div class="bg-stone-700/40 p-1 w-[80px] rounded-md text-center">{{ value }}s</div>
 							<SliderRoot
 								:model-value="[value]"
 								class="relative flex items-center select-none touch-none w-full h-5"
@@ -260,9 +270,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">
-								Fade
-							</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0"> Fade </FormLabel>
 						</FormItem>
 					</FormField>
 
@@ -271,9 +279,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">
-								Zoom
-							</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0"> Zoom </FormLabel>
 						</FormItem>
 					</FormField>
 				</div>
@@ -288,9 +294,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">
-								Fade
-							</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0"> Fade </FormLabel>
 						</FormItem>
 					</FormField>
 
@@ -299,9 +303,7 @@ const availableEmojiStyles = Object.entries(KappagenEmojiStyle).map(([key, value
 							<FormControl class="flex items-center !m-0">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">
-								Zoom
-							</FormLabel>
+							<FormLabel class="select-none cursor-pointer !m-0"> Zoom </FormLabel>
 						</FormItem>
 					</FormField>
 				</div>
