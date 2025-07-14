@@ -60,7 +60,7 @@ export const useEmotes = createGlobalState(() => {
 			emotesForParse = data ?? []
 		}
 
-		for (const emote of emotesForParse) {
+		for (const emote of emotesForParse ?? []) {
 			emotes.value[emote.code] = {
 				urls: bttvEmoteUrls(emote.id, emote.animated),
 				name: emote.code,
