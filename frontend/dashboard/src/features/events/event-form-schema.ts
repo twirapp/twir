@@ -127,6 +127,18 @@ export const eventFormSchema = toTypedSchema(
 						success = false
 					}
 				}
+
+				if (operation.type === EventOperationType.TriggerAlert) {
+					if (!operation.input) {
+						ctx.addIssue({
+							code: 'custom',
+							message: 'Target is required for alert operations',
+							path: [`operations[${index}].target`],
+						})
+
+						success = false
+					}
+				}
 			}
 
 			return success
