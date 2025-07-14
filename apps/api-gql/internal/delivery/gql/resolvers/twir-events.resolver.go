@@ -46,13 +46,21 @@ func (r *subscriptionResolver) TwirEvents(
 			case data := <-wsSubscription.GetChannel():
 				var msg twir_events.Message
 				if err := json.Unmarshal(data, &msg); err != nil {
-					r.deps.Logger.Error("failed to unmarshal twir event message", slog.Any("err", err))
+					r.deps.Logger.Error(
+						"failed to unmarshal twir event message",
+						slog.Any("err", err),
+						slog.String("data", string(data)),
+					)
 					continue
 				}
 
 				mappedEvent, err := mappers.MapEventToGqlType(msg.EventName, msg.Data)
 				if err != nil {
-					r.deps.Logger.Error("failed to map event to gql type", slog.Any("err", err))
+					r.deps.Logger.Error(
+						"failed to map event to gql type",
+						slog.Any("err", err),
+						slog.String("eventName", msg.EventName),
+					)
 					continue
 				}
 
