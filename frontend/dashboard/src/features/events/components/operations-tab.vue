@@ -10,14 +10,10 @@ import OperationDetails from './operation.vue'
 import type { EventOperation } from '@/api/events'
 
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { flatOperations } from '@/features/events/constants/helpers'
 import { EventOperationType } from '@/gql/graphql'
+import { getOperationColor } from '@/features/events/composables/use-operation-color.ts'
 
 const { t } = useI18n()
 
@@ -89,42 +85,40 @@ useDraggable(draggableRef, operations.fields, {
 							<PlusIcon class="size-4" />
 							Create new
 						</template>
-						<template v-else>
-							Maximum limit reached
-						</template>
+						<template v-else> Maximum limit reached </template>
 					</Button>
-					<div
-						ref="draggableRef"
-						class="w-full flex flex-col gap-2"
-					>
+					<div ref="draggableRef" class="w-full flex flex-col gap-2">
 						<template v-if="operations.fields.value.length">
 							<div
 								v-for="(operation, operationIndex) in operations.fields.value"
 								:key="operationIndex"
 								class="w-full rounded-lg border py-1 px-2 cursor-pointer items-center flex flex-row justify-between select-none"
-								:class="{
-									'outline outline-1 outline-zinc-700': operationIndex === selectedOperation,
-									'border-b': flatOperations[operation.value?.type]?.color,
-									'border-b-red-900': flatOperations[operation.value?.type]?.color === 'error',
-									'border-b-green-900': flatOperations[operation.value?.type]?.color === 'success',
-									'border-b-blue-900': flatOperations[operation.value?.type]?.color === 'info',
-									'border-b-yellow-900': flatOperations[operation.value?.type]?.color === 'warning',
-								}"
 								@click="selectOperation(operationIndex)"
 							>
-								<GripVerticalIcon class="min-size-4 cursor-grab drag-handle" />
-								<span v-if="operation.value" class="truncate">
-									{{ flatOperations[operation.value?.type]?.name ?? 'Unknown Operation' }}
-								</span>
-								<Button
-									type="button"
-									class="flex items-center"
-									size="sm"
-									variant="ghost"
-									@click.stop="() => removeOperation(operationIndex)"
-								>
-									<TrashIcon class="size-4" />
-								</Button>
+								<div class="flex gap-2 items-center">
+									<GripVerticalIcon class="min-size-4 cursor-grab drag-handle" />
+									<div
+										class="rounded-full size-3"
+										:class="[getOperationColor(operation.value?.type)]"
+									></div>
+									<span v-if="operation.value" class="truncate">
+										{{
+											flatOperations[operation.value?.type]?.name?.slice(0, 30) ??
+											'Unknown Operation'
+										}}
+									</span>
+								</div>
+								<div class="flex gap-2 items-center">
+									<Button
+										type="button"
+										class="flex items-center"
+										size="sm"
+										variant="ghost"
+										@click.stop="() => removeOperation(operationIndex)"
+									>
+										<TrashIcon class="size-4" />
+									</Button>
+								</div>
 							</div>
 						</template>
 					</div>

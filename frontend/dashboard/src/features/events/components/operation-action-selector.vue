@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { EventOperation } from '@/api/events.ts'
+import { getOperationColor } from '../composables/use-operation-color.ts'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -34,7 +35,7 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 	isGroup: boolean
 	name: string
 	value?: EventOperationType
-	childrens: Array<{ name: string, value: EventOperationType }>
+	childrens: Array<{ name: string; value: EventOperationType }>
 }>(([key, value]) => {
 	if (value.childrens) {
 		return {
@@ -42,7 +43,7 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 			name: value.name,
 			childrens: Object.entries(value.childrens!).map(([childKey, childValue]) => ({
 				name: childValue.name,
-				value: Object.values(EventOperationType).find(v => v === childKey)!,
+				value: Object.values(EventOperationType).find((v) => v === childKey)!,
 			})),
 		}
 	}
@@ -50,16 +51,14 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 	return {
 		isGroup: false,
 		name: value.name,
-		value: Object.values(EventOperationType).find(v => v === key)!,
+		value: Object.values(EventOperationType).find((v) => v === key)!,
 		childrens: [],
 	}
 })
 </script>
 
 <template>
-	<FormField
-		:name="`operations.${currentOperationIndex}.type`"
-	>
+	<FormField :name="`operations.${currentOperationIndex}.type`">
 		<FormItem class="flex flex-col">
 			<FormLabel>{{ t('events.operations.name') }}</FormLabel>
 			<FormControl>
@@ -70,9 +69,24 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 								type="button"
 								variant="outline"
 								role="combobox"
-								:class="cn('w-[300px] max-w-[300px] justify-between truncate', !currentOperation?.type && 'text-muted-foreground')"
+								:class="
+									cn(
+										'w-[300px] max-w-[300px] justify-between truncate',
+										!currentOperation?.type && 'text-muted-foreground'
+									)
+								"
 							>
-								{{ flatOperations[currentOperation?.type] ? flatOperations[currentOperation?.type].name : 'Select...' }}
+								<div class="flex items-center gap-2">
+									<div
+										class="rounded-full size-3"
+										:class="[getOperationColor(currentOperation?.type)]"
+									></div>
+									{{
+										flatOperations[currentOperation?.type]
+											? flatOperations[currentOperation?.type].name
+											: 'Select...'
+									}}
+								</div>
 								<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 							</Button>
 						</FormControl>
@@ -92,14 +106,26 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 											v-for="operation of selectOption.childrens"
 											:key="operation.name"
 											:value="operation.value"
-											@select="() => {
-												if (!currentOperation) return;
-												currentOperation.type = operation.value;
-											}"
+											@select="
+												() => {
+													if (!currentOperation) return
+													currentOperation.type = operation.value
+												}
+											"
+											class="flex items-center gap-2"
 										>
+											<div
+												class="rounded-full size-3"
+												:class="[getOperationColor(operation.value)]"
+											></div>
 											{{ operation.name }}
 											<CheckIcon
-												:class="cn('ml-auto h-4 w-4', currentOperation?.type === operation.value ? 'opacity-100' : 'opacity-0')"
+												:class="
+													cn(
+														'ml-auto h-4 w-4',
+														currentOperation?.type === operation.value ? 'opacity-100' : 'opacity-0'
+													)
+												"
 											/>
 										</CommandItem>
 									</CommandGroup>
@@ -108,17 +134,32 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 										v-else
 										:key="selectOption.name!"
 										:value="selectOption.value!"
-										@select="() => {
-											if (!currentOperation) return;
-											currentOperation.type = selectOption.value!;
-										}"
+										@select="
+											() => {
+												if (!currentOperation) return
+												currentOperation.type = selectOption.value!
+											}
+										"
+										class="flex items-center gap-2"
 									>
+										<div
+											class="rounded-full size-3"
+											:class="[getOperationColor(selectOption.value)]"
+										></div>
 										{{ selectOption.name }}
-										<CheckIcon :class="cn('ml-auto h-4 w-4', currentOperation?.type === selectOption.value ? 'opacity-100' : 'opacity-0')" />
+										<CheckIcon
+											:class="
+												cn(
+													'ml-auto h-4 w-4',
+													currentOperation?.type === selectOption.value
+														? 'opacity-100'
+														: 'opacity-0'
+												)
+											"
+										/>
 									</CommandItem>
 								</template>
-								<CommandGroup>
-								</CommandGroup>
+								<CommandGroup> </CommandGroup>
 							</CommandList>
 						</Command>
 					</PopoverContent>
