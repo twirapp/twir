@@ -330,107 +330,107 @@ var defaultAnimations = []model.KappagenOverlayAnimationsSettings{
 var defaultEvents = []model.KappagenOverlayEvent{
 	{
 		Event:   eventmodel.EventTypeFollow,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeSubscribe,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeResubscribe,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeSubGift,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeRedemptionCreated,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeFirstUserMessage,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeRaided,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeTitleOrCategoryChanged,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeStreamOnline,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeStreamOffline,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeOnChatClear,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeDonate,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeKeywordMatched,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeGreetingSended,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypePollBegin,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypePollProgress,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypePollEnd,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypePredictionBegin,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypePredictionProgress,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypePredictionEnd,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypePredictionLock,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeChannelBan,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeChannelUnbanRequestCreate,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeChannelUnbanRequestResolve,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeChannelMessageDelete,
-		Enabled: true,
+		Enabled: false,
 	},
 	{
 		Event:   eventmodel.EventTypeCommandUsed,
-		Enabled: true,
+		Enabled: false,
 	},
 }
 
