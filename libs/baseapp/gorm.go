@@ -61,8 +61,9 @@ func newGorm(
 	}
 	d, _ := db.DB()
 	d.SetMaxIdleConns(1)
-	d.SetMaxOpenConns(10)
-	d.SetConnMaxLifetime(time.Hour)
+	d.SetMaxOpenConns(100)
+	d.SetConnMaxLifetime(5 * time.Minute)
+	d.SetConnMaxIdleTime(1 * time.Minute)
 
 	if err := db.Use(otelgorm.NewPlugin()); err != nil {
 		return nil, err

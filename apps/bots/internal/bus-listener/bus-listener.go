@@ -54,7 +54,7 @@ func New(opts Opts) (*BusListener, error) {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(_ context.Context) error {
-				listener.bus.Bots.SendMessage.SubscribeGroup(
+				err := listener.bus.Bots.SendMessage.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data bots.SendMessageRequest) (struct{}, error) {
 						err := opts.WorkersPool.SubmitErr(
@@ -66,7 +66,11 @@ func New(opts Opts) (*BusListener, error) {
 						return struct{}{}, err
 					},
 				)
-				listener.bus.Bots.DeleteMessage.SubscribeGroup(
+				if err != nil {
+					return err
+				}
+
+				err = listener.bus.Bots.DeleteMessage.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data bots.DeleteMessageRequest) (struct{}, error) {
 						err := opts.WorkersPool.SubmitErr(
@@ -78,11 +82,19 @@ func New(opts Opts) (*BusListener, error) {
 						return struct{}{}, err
 					},
 				)
-				listener.bus.ChatMessages.SubscribeGroup(
+				if err != nil {
+					return err
+				}
+
+				err = listener.bus.ChatMessages.SubscribeGroup(
 					"bots",
 					listener.handleChatMessage,
 				)
-				listener.bus.Bots.BanUser.SubscribeGroup(
+				if err != nil {
+					return err
+				}
+
+				err = listener.bus.Bots.BanUser.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data bots.BanRequest) (struct{}, error) {
 						err := opts.WorkersPool.SubmitErr(
@@ -94,7 +106,11 @@ func New(opts Opts) (*BusListener, error) {
 						return struct{}{}, err
 					},
 				)
-				listener.bus.Bots.BanUsers.SubscribeGroup(
+				if err != nil {
+					return err
+				}
+
+				err = listener.bus.Bots.BanUsers.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data []bots.BanRequest) (struct{}, error) {
 						err := opts.WorkersPool.SubmitErr(
@@ -106,7 +122,11 @@ func New(opts Opts) (*BusListener, error) {
 						return struct{}{}, err
 					},
 				)
-				listener.bus.Bots.ShoutOut.SubscribeGroup(
+				if err != nil {
+					return err
+				}
+
+				err = listener.bus.Bots.ShoutOut.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data bots.SentShoutOutRequest) (struct{}, error) {
 						err := opts.WorkersPool.SubmitErr(
@@ -118,6 +138,9 @@ func New(opts Opts) (*BusListener, error) {
 						return struct{}{}, err
 					},
 				)
+				if err != nil {
+					return err
+				}
 
 				return nil
 			},

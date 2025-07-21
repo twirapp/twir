@@ -103,11 +103,11 @@ func newPgxPool(cfg config.Config) (PgxResult, error) {
 	}
 
 	connConfig.ConnConfig.Tracer = otelpgx.NewTracer()
-	connConfig.MaxConnLifetime = time.Hour
-	connConfig.MaxConnIdleTime = 5 * time.Minute
+	connConfig.MaxConnLifetime = 5 * time.Minute
+	connConfig.MaxConnIdleTime = 2 * time.Minute
 	connConfig.MaxConns = 100
 	connConfig.MinConns = 1
-	connConfig.HealthCheckPeriod = time.Minute
+	connConfig.HealthCheckPeriod = 30 * time.Second
 	connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	pool, err := pgxpool.NewWithConfig(
