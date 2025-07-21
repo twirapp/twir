@@ -17,7 +17,7 @@ import { useI18n } from 'vue-i18n'
 import { defaultChatSettings } from './default-settings'
 import { useChatOverlayForm } from './form.js'
 
-import { useChatOverlayApi, useProfile, useUserAccessFlagChecker } from '@/api'
+import { useChatOverlayApi, useUserAccessFlagChecker } from '@/api'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
@@ -28,7 +28,6 @@ const discrete = useNaiveDiscrete()
 const { copyOverlayLink } = useCopyOverlayLink('chat')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
-const { data: profile } = useProfile()
 const { data: formValue, reset } = useChatOverlayForm()
 
 const styleSelectOptions = [
