@@ -55,32 +55,6 @@ services:
         constraints:
           - node.role == manager
 
-#  postgres-old:
-#    image: 'bitnami/postgresql:17'
-#    environment:
-#      POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
-#      POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
-#      POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
-#      POSTGRESQL_POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
-#      POSTGRESQL_MAX_CONNECTIONS: 1000
-#    secrets:
-#      - twir_postgres_user
-#      - twir_postgres_password
-#      - twir_postgres_db
-#    volumes:
-#      - twir-postgres-data:/bitnami/postgresql
-#    networks:
-#      - twir
-#    deploy:
-#      restart_policy:
-#        condition: any
-#        delay: 30s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
-#      placement:
-#        constraints:
-#          - node.labels.databases-1 == tru
-
   postgres:
     image: twirapp/postgres:latest
     command: postgres -c max_connections=1000 -c shared_buffers=2GB -c effective_cache_size=6GB -c maintenance_work_mem=512MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200 -c work_mem=32MB -c huge_pages=off -c min_wal_size=1GB -c max_wal_size=4GB -c shared_preload_libraries='pg_stat_statements,pgx_ulid'
@@ -145,6 +119,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       mode: replicated
       replicas: 5
       restart_policy:
@@ -296,6 +271,7 @@ services:
         - traefik.docker.network=traefik-public
       update_config:
         parallelism: 2
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -337,6 +313,7 @@ services:
         - traefik.docker.network=traefik-public
       update_config:
         parallelism: 2
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -371,6 +348,7 @@ services:
       mode: replicated
       update_config:
         parallelism: 2
+        order: start-first
       placement:
         constraints:
           - node.labels.databases != true
@@ -382,6 +360,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -404,6 +383,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       mode: replicated
       replicas: 6
       restart_policy:
@@ -422,6 +402,8 @@ services:
     networks:
       - twir
     deploy:
+      update_config:
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -444,6 +426,7 @@ services:
       replicas: 3
       update_config:
         parallelism: 1
+        order: start-first
       endpoint_mode: dnsrr
       restart_policy:
         condition: any
@@ -465,6 +448,8 @@ services:
     networks:
       - twir
     deploy:
+      update_config:
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -480,6 +465,7 @@ services:
       - traefik-public
     deploy:
       update_config:
+        order: start-first
         parallelism: 2
       restart_policy:
         condition: any
@@ -508,6 +494,8 @@ services:
       - traefik-public
       - cloudflared
     deploy:
+      update_config:
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -531,6 +519,8 @@ services:
       - twir
       - traefik-public
     deploy:
+      update_config:
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -555,6 +545,8 @@ services:
       - twir
       - traefik-public
     deploy:
+      update_config:
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -580,6 +572,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       mode: replicated
       replicas: 4
       restart_policy:
@@ -600,6 +593,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -620,6 +614,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -640,6 +635,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -658,6 +654,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -676,6 +673,8 @@ services:
     networks:
       - twir
     deploy:
+      update_config:
+        order: stop-first
       restart_policy:
         condition: any
         delay: 30s
@@ -694,6 +693,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       mode: replicated
       replicas: 4
       endpoint_mode: dnsrr
@@ -718,6 +718,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       mode: replicated
       replicas: 4
       endpoint_mode: dnsrr
@@ -739,6 +740,7 @@ services:
     deploy:
       update_config:
         parallelism: 2
+        order: start-first
       mode: replicated
       replicas: 4
       endpoint_mode: dnsrr
@@ -768,7 +770,8 @@ services:
         - traefik.http.services.music-recognizer.loadbalancer.server.port=3000
         - traefik.docker.network=traefik-public
       update_config:
-        parallelism: 1
+        parallelism: 2
+        order: start-first
       restart_policy:
         condition: any
         delay: 30s
@@ -796,6 +799,7 @@ services:
       mode: replicated
       update_config:
         parallelism: 2
+        order: start-first
       placement:
         constraints:
           - node.labels.databases != true
