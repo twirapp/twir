@@ -14,10 +14,7 @@ const { globalMappedBadges, channelMappedBadges } = useMappedBadges()
 	<div class="message">
 		<div class="profile">
 			<div v-if="settings.showBadges && msg.badges" class="badges">
-				<template
-					v-for="(badgeValue, badgeName) of msg.badges"
-					:key="badgeName + badgeValue"
-				>
+				<template v-for="(badgeValue, badgeName) of msg.badges" :key="badgeName + badgeValue">
 					<img
 						v-if="channelMappedBadges[badgeName]?.versions[badgeValue]"
 						:src="channelMappedBadges[badgeName]!.versions[badgeValue].image_url_4x"
@@ -25,7 +22,7 @@ const { globalMappedBadges, channelMappedBadges } = useMappedBadges()
 					/>
 
 					<img
-						v-if="globalMappedBadges[badgeName]?.versions[badgeValue]"
+						v-else-if="globalMappedBadges[badgeName]?.versions[badgeValue]"
 						:src="globalMappedBadges[badgeName]!.versions[badgeValue].image_url_4x"
 						class="badge"
 					/>
