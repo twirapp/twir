@@ -17,10 +17,7 @@ import (
 )
 
 // TwirEvents is the resolver for the twirEvents field.
-func (r *subscriptionResolver) TwirEvents(
-	ctx context.Context,
-	apiKey string,
-) (<-chan gqlmodel.EventMessage, error) {
+func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<-chan gqlmodel.EventMessage, error) {
 	user := model.Users{}
 	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)

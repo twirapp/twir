@@ -2,6 +2,7 @@ package app
 
 import (
 	bus_listener "github.com/satont/twir/apps/emotes-cacher/internal/bus-listener"
+	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -19,5 +20,6 @@ var App = fx.Module(
 		func(l logger.Logger) {
 			l.Info("Emotes Cacher started")
 		},
+		seventv.New,
 	),
 )

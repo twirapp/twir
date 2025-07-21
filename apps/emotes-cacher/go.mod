@@ -24,7 +24,9 @@ require (
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/coder/websocket v1.8.13 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/dolthub/maphash v0.1.0 // indirect
 	github.com/getsentry/sentry-go v0.29.1 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -35,6 +37,7 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
+	github.com/lxzan/gws v1.8.9 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/nats-io/nats.go v1.37.0 // indirect
