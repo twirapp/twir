@@ -1,5 +1,6 @@
 import { cacheExchange, fetchExchange, subscriptionExchange } from '@urql/vue'
 import { createClient as createWS } from 'graphql-ws'
+import { useRoute } from 'vue-router'
 
 import type { ClientOptions } from '@urql/vue'
 import type { SubscribePayload } from 'graphql-ws'
@@ -27,4 +28,17 @@ export const urqlClientOptions: ClientOptions = {
 			}),
 		}),
 	],
+	fetchOptions: () => {
+		const headers: Record<string, string> = {}
+		const route = useRoute()
+		const apiKey = route.params.apiKey
+		if (typeof apiKey === 'string') {
+			headers['api-key'] = apiKey
+		}
+
+		return {
+			headers,
+			credentials: 'include',
+		}
+	},
 }
