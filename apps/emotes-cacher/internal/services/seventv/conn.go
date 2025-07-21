@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/coder/websocket"
@@ -11,10 +12,14 @@ import (
 )
 
 type wsConnection struct {
-	websocket     *websocket.Conn
-	channels      []string
-	channelsLimit int
-	sessionId     string
+	websocket          *websocket.Conn
+	subscriptionsCount int
+	subscriptionsLimit int
+	sessionId          string
+	mu                 sync.RWMutex
+	ctx                context.Context
+	cancel             context.CancelFunc
+	onMessage          func([]byte)
 }
 
 func connDial(ctx context.Context) (*websocket.Conn, error) {
@@ -26,24 +31,43 @@ func connDial(ctx context.Context) (*websocket.Conn, error) {
 }
 
 func createConn(ctx context.Context, onMessage func([]byte)) (*wsConnection, error) {
-	wsConn := wsConnection{
-		websocket:     nil,
-		channels:      []string{},
-		channelsLimit: 0,
+	connCtx, cancel := context.WithCancel(ctx)
+
+	wsConn := &wsConnection{
+		websocket:          nil,
+		subscriptionsCount: 0,
+		subscriptionsLimit: 0,
+		ctx:                connCtx,
+		cancel:             cancel,
+		onMessage:          onMessage,
 	}
 
-	conn, err := connDial(ctx)
-	if err != nil {
+	if err := wsConn.connect(); err != nil {
+		cancel()
 		return nil, err
 	}
 
-	wsConn.websocket = conn
+	go wsConn.readLoop()
 
-	// wait for the hello message
+	return wsConn, nil
+}
+
+func (c *wsConnection) connect() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	conn, err := connDial(c.ctx)
+	if err != nil {
+		return err
+	}
+
+	c.websocket = conn
+
+	// Wait for the hello message (opcode 1)
 	for {
-		_, msg, err := conn.Read(ctx)
+		_, msg, err := conn.Read(c.ctx)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		if len(msg) == 0 {
@@ -52,65 +76,125 @@ func createConn(ctx context.Context, onMessage func([]byte)) (*wsConnection, err
 
 		var baseMsg messages.BaseMessage[messages.HelloMessage]
 		if err := json.Unmarshal(msg, &baseMsg); err != nil {
-			return nil, err
+			continue
 		}
 
-		if baseMsg.Operation == 1 {
-			wsConn.channelsLimit = int(baseMsg.Data.SubscriptionLimit)
-			wsConn.sessionId = baseMsg.Data.SessionID
+		if baseMsg.Operation == 1 { // Hello message
+			c.subscriptionsLimit = int(baseMsg.Data.SubscriptionLimit)
+			c.sessionId = baseMsg.Data.SessionID
 
-			fmt.Println("connected to 7TV websocket with session ID:", wsConn.sessionId)
-
+			fmt.Println("connected to 7TV websocket with session ID:", c.sessionId)
 			break
 		}
 	}
 
-	go func() {
-		time.Sleep(2 * time.Second)
-		wsConn.Close()
-	}()
+	return nil
+}
 
-	go func() {
-		for {
-			_, msg, err := conn.Read(ctx)
-			if err != nil {
-				if websocket.CloseStatus(err) != -1 {
-					time.Sleep(time.Second)
-					newConn, err := connDial(ctx)
-					if err != nil {
-						fmt.Println("failed to reconnect:", err)
-						return
-					}
+func (c *wsConnection) reconnect() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
-					wsConn.websocket = newConn
-					conn = newConn
+	if c.websocket != nil {
+		c.websocket.Close(websocket.StatusNormalClosure, "")
+		c.websocket = nil
+	}
 
-					if err := conn.Write(
-						ctx,
-						websocket.MessageText,
-						[]byte(`{"op": 34, "d": {"session_id": "`+wsConn.sessionId+`"}}`),
-					); err != nil {
-						fmt.Println("failed to resume session:", err)
-					}
+	time.Sleep(time.Second) // Brief delay before reconnecting
 
-					fmt.Println("reconnected to 7TV websocket with session ID:", wsConn.sessionId)
-				}
-				continue
-			}
-			if len(msg) == 0 {
-				continue
-			}
+	conn, err := connDial(c.ctx)
+	if err != nil {
+		return err
+	}
 
-			fmt.Println("received message:", string(msg))
+	c.websocket = conn
 
-			onMessage(msg)
+	// Send resume message (opcode 34) if we have a session ID
+	if c.sessionId != "" {
+		resumeMsg := map[string]interface{}{
+			"op": 34,
+			"d": map[string]string{
+				"session_id": c.sessionId,
+			},
 		}
-	}()
 
-	return &wsConn, nil
+		msgBytes, err := json.Marshal(resumeMsg)
+		if err != nil {
+			return err
+		}
+
+		if err := conn.Write(c.ctx, websocket.MessageText, msgBytes); err != nil {
+			return err
+		}
+
+		fmt.Println("sent resume message for session:", c.sessionId)
+	}
+
+	return nil
+}
+
+func (c *wsConnection) readLoop() {
+	for {
+		select {
+		case <-c.ctx.Done():
+			return
+		default:
+		}
+
+		c.mu.RLock()
+		conn := c.websocket
+		c.mu.RUnlock()
+
+		if conn == nil {
+			time.Sleep(time.Second)
+			continue
+		}
+
+		_, msg, err := conn.Read(c.ctx)
+		if err != nil {
+			if websocket.CloseStatus(err) != -1 {
+				fmt.Println("websocket connection closed, attempting to reconnect:", err)
+				if reconnectErr := c.reconnect(); reconnectErr != nil {
+					fmt.Println("failed to reconnect:", reconnectErr)
+					time.Sleep(5 * time.Second) // Wait before retry
+				}
+			}
+			continue
+		}
+
+		if len(msg) == 0 {
+			continue
+		}
+
+		// Parse base message to check opcode
+		var baseMsg messages.BaseMessage[json.RawMessage]
+		if err := json.Unmarshal(msg, &baseMsg); err != nil {
+			fmt.Println("failed to parse message:", err)
+			continue
+		}
+
+		switch baseMsg.Operation {
+		case 1: // Hello - already handled in connect()
+			continue
+		case 2: // Heartbeat ACK
+			fmt.Println("received heartbeat ack")
+			continue
+		case 0:
+			if c.onMessage != nil {
+				c.onMessage(msg)
+			}
+		default:
+			fmt.Println("received unknown message type:", baseMsg.Operation, string(msg))
+		}
+	}
 }
 
 func (c *wsConnection) Close() error {
+	c.cancel()
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if c.websocket == nil {
 		return nil
 	}
@@ -121,19 +205,28 @@ func (c *wsConnection) Close() error {
 	return err
 }
 
-func (c *wsConnection) addChannel(ctx context.Context, channelId string) {
-	if c.websocket == nil {
-		return
+func (c *wsConnection) subscribe(ctx context.Context, msg map[string]any) error {
+	c.mu.RLock()
+	conn := c.websocket
+	c.mu.RUnlock()
+
+	if conn == nil {
+		return fmt.Errorf("websocket connection is nil")
 	}
 
-	// wsjson.Write(
-	// 	ctx,
-	// 	c.websocket,
-	// 	map[string]any{
-	// 		"op":   "subscribe",
-	// 		"data": map[string]any{"channels": []string{channelId}},
-	// 	},
-	// )
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
 
-	c.channels = append(c.channels, channelId)
+	if err := conn.Write(ctx, websocket.MessageText, msgBytes); err != nil {
+		return fmt.Errorf("failed to send subscribe message: %w", err)
+	}
+
+	c.mu.Lock()
+	c.subscriptionsCount++
+	c.mu.Unlock()
+
+	fmt.Println("subscribed with message:", string(msgBytes))
+	return nil
 }
