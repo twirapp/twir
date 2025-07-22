@@ -193,15 +193,15 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		},
 
 		EmotesCacher: &emotesCacherBus{
-			CacheGlobalEmotes: NewNatsQueue[struct{}, struct{}](
+			GetChannelEmotes: NewNatsQueue[emotes_cacher.GetChannelEmotesRequest, emotes_cacher.Response](
 				nc,
-				emotes_cacher.EMOTES_CACHER_GLOBAL_EMOTES_SUBJECT,
+				emotes_cacher.EmotesCacherGetChannelEmotesSubject,
 				1*time.Minute,
 				GobEncoder,
 			),
-			CacheChannelEmotes: NewNatsQueue[emotes_cacher.EmotesCacheRequest, struct{}](
+			GetGlobalEmotes: NewNatsQueue[emotes_cacher.GetGlobalEmotesRequest, emotes_cacher.Response](
 				nc,
-				emotes_cacher.EMOTES_CACHER_CHANNEL_EMOTES_SUBJECT,
+				emotes_cacher.EmotesCacherGetGlobalEmotesSubject,
 				1*time.Minute,
 				GobEncoder,
 			),

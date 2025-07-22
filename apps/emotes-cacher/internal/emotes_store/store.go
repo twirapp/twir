@@ -8,8 +8,8 @@ import (
 	"unsafe"
 
 	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
-	"github.com/satont/twir/apps/emotes-cacher/internal/services"
 	"github.com/satont/twir/libs/logger"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -26,11 +26,11 @@ const GlobalChannelID = "global"
 
 func New(opts Opts) *EmotesStore {
 	s := &EmotesStore{
-		channels: map[ChannelID]map[services.ServiceName]Service{
+		channels: map[ChannelID]map[emotes_cacher.ServiceName]Service{
 			GlobalChannelID: {
-				services.ServiceBttv:    Service{},
-				services.ServiceSevenTV: Service{},
-				services.ServiceFFZ:     Service{},
+				emotes_cacher.ServiceNameBTTV:    Service{},
+				emotes_cacher.ServiceNameSevenTV: Service{},
+				emotes_cacher.ServiceNameFFZ:     Service{},
 			},
 		},
 		logger: opts.Logger,
@@ -45,6 +45,10 @@ func New(opts Opts) *EmotesStore {
 					s.fillChannels()
 				}()
 
+				go func() {
+					s.fillGlobal()
+				}()
+
 				return nil
 			},
 		},
@@ -54,7 +58,7 @@ func New(opts Opts) *EmotesStore {
 }
 
 type EmotesStore struct {
-	channels map[ChannelID]map[services.ServiceName]Service
+	channels map[ChannelID]map[emotes_cacher.ServiceName]Service
 	mu       sync.RWMutex
 
 	logger logger.Logger
@@ -67,7 +71,7 @@ type Service map[emote.ID]emote.Emote
 
 func (c *EmotesStore) AddEmotes(
 	channelID ChannelID,
-	service services.ServiceName,
+	service emotes_cacher.ServiceName,
 	emotes ...emote.Emote,
 ) {
 	c.mu.Lock()
@@ -77,7 +81,7 @@ func (c *EmotesStore) AddEmotes(
 	}()
 
 	if _, ok := c.channels[channelID]; !ok {
-		c.channels[channelID] = make(map[services.ServiceName]Service)
+		c.channels[channelID] = make(map[emotes_cacher.ServiceName]Service)
 	}
 
 	if _, ok := c.channels[channelID][service]; !ok {
@@ -89,7 +93,7 @@ func (c *EmotesStore) AddEmotes(
 	}
 }
 
-func (c *EmotesStore) GetChannelEmotesServices(channelID ChannelID) map[services.ServiceName]Service {
+func (c *EmotesStore) GetChannelEmotesServices(channelID ChannelID) map[emotes_cacher.ServiceName]Service {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -102,7 +106,7 @@ func (c *EmotesStore) GetChannelEmotesServices(channelID ChannelID) map[services
 
 func (c *EmotesStore) GetEmotesByService(
 	channelID ChannelID,
-	service services.ServiceName,
+	service emotes_cacher.ServiceName,
 ) []emote.Emote {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -126,7 +130,7 @@ func (c *EmotesStore) GetEmotesByService(
 
 func (c *EmotesStore) RemoveEmoteById(
 	channelID ChannelID,
-	service services.ServiceName,
+	service emotes_cacher.ServiceName,
 	emoteId emote.ID,
 ) {
 	c.mu.Lock()
@@ -148,7 +152,7 @@ func (c *EmotesStore) RemoveEmoteById(
 
 func (c *EmotesStore) Update(
 	channelID ChannelID,
-	service services.ServiceName,
+	service emotes_cacher.ServiceName,
 	emoteId emote.ID,
 	newEmote emote.Emote,
 ) {

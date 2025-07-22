@@ -10,13 +10,13 @@ import (
 	"github.com/avast/retry-go/v4"
 	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
 	"github.com/satont/twir/apps/emotes-cacher/internal/emotes_store"
-	"github.com/satont/twir/apps/emotes-cacher/internal/services"
 	dispatchtypes "github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
 	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/messages"
 	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/operations"
 	"github.com/satont/twir/apps/emotes-cacher/internal/socket_client"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 	"go.uber.org/fx"
@@ -327,7 +327,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 
 		c.emotesStore.AddEmotes(
 			emotes_store.ChannelID(channelID),
-			services.ServiceSevenTV,
+			emotes_cacher.ServiceNameSevenTV,
 			emote.Emote{
 				ID:   emote.ID(emoteData.Id),
 				Name: emoteData.Name,
@@ -363,7 +363,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 
 		c.emotesStore.Update(
 			emotes_store.ChannelID(channelID),
-			services.ServiceSevenTV,
+			emotes_cacher.ServiceNameSevenTV,
 			emote.ID(emoteData.Id),
 			emote.Emote{
 				ID:   emote.ID(emoteData.Id),
@@ -400,7 +400,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 
 		c.emotesStore.RemoveEmoteById(
 			emotes_store.ChannelID(channelID),
-			services.ServiceSevenTV,
+			emotes_cacher.ServiceNameSevenTV,
 			emote.ID(emoteData.Id),
 		)
 	}

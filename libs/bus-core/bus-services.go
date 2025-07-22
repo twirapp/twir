@@ -51,8 +51,8 @@ type botsBus struct {
 }
 
 type emotesCacherBus struct {
-	CacheGlobalEmotes  Queue[struct{}, struct{}]
-	CacheChannelEmotes Queue[emotes_cacher.EmotesCacheRequest, struct{}]
+	GetGlobalEmotes  Queue[emotes_cacher.GetGlobalEmotesRequest, emotes_cacher.Response]
+	GetChannelEmotes Queue[emotes_cacher.GetChannelEmotesRequest, emotes_cacher.Response]
 }
 
 type timersBus struct {

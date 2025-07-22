@@ -6,9 +6,10 @@ import (
 	"sync"
 
 	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
-	"github.com/satont/twir/apps/emotes-cacher/internal/services"
 	bttvfetcher "github.com/satont/twir/apps/emotes-cacher/internal/services/bttv/fetcher"
+	"github.com/satont/twir/apps/emotes-cacher/internal/services/ffz/fetcher"
 	seventvfetcher "github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/fetcher"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
@@ -56,7 +57,7 @@ func (c *EmotesStore) fillChannels() {
 					}
 					c.AddEmotes(
 						ChannelID(channelID),
-						services.ServiceSevenTV,
+						emotes_cacher.ServiceNameSevenTV,
 						result...,
 					)
 				} else {
@@ -75,11 +76,26 @@ func (c *EmotesStore) fillChannels() {
 					}
 					c.AddEmotes(
 						ChannelID(channelID),
-						services.ServiceBttv,
+						emotes_cacher.ServiceNameBTTV,
 						result...,
 					)
 				} else {
 					c.logger.Error("failed to fetch bttv emotes", slog.String("channel_id", channelID))
+				}
+
+				ffzEmotes, err := fetcher.GetChannelFfzEmotes(ctx, channelID)
+				if err == nil {
+					result := make([]emote.Emote, 0)
+					for _, e := range ffzEmotes {
+						result = append(result, e)
+					}
+					c.AddEmotes(
+						ChannelID(channelID),
+						emotes_cacher.ServiceNameFFZ,
+						result...,
+					)
+				} else {
+					c.logger.Error("failed to fetch ffz emotes", slog.String("channel_id", channelID))
 				}
 			}()
 		}
@@ -88,4 +104,44 @@ func (c *EmotesStore) fillChannels() {
 
 		page++
 	}
+}
+
+func (c *EmotesStore) fillGlobal() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	wg := sync.WaitGroup{}
+
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+		em, err := seventvfetcher.GetGlobalSevenTvEmotes(ctx)
+		if err != nil || em == nil || len(em) == 0 {
+			return
+		}
+
+		c.AddEmotes(GlobalChannelID, emotes_cacher.ServiceNameSevenTV, em...)
+	}()
+
+	go func() {
+		defer wg.Done()
+		em, err := bttvfetcher.GetGlobalBttvEmotes(ctx)
+		if err != nil || em == nil || len(em) == 0 {
+			return
+		}
+
+		c.AddEmotes(GlobalChannelID, emotes_cacher.ServiceNameBTTV, em...)
+	}()
+
+	go func() {
+		defer wg.Done()
+		em, err := fetcher.GetGlobalFfzEmotes(ctx)
+		if err != nil || em == nil || len(em) == 0 {
+			return
+		}
+
+		c.AddEmotes(GlobalChannelID, emotes_cacher.ServiceNameFFZ, em...)
+	}()
+
+	wg.Wait()
 }

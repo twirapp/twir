@@ -59,7 +59,7 @@ func GetChannelBttvEmotes(ctx context.Context, channelID string) ([]emote.Emote,
 	return result, nil
 }
 
-func GetGlobalBttvEmotes(ctx context.Context) ([]string, error) {
+func GetGlobalBttvEmotes(ctx context.Context) ([]emote.Emote, error) {
 	var emotes []BttvEmote
 
 	_, err := req.
@@ -70,9 +70,16 @@ func GetGlobalBttvEmotes(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	return lo.Map(
-		emotes, func(item BttvEmote, _ int) string {
-			return item.Code
-		},
-	), nil
+	result := make([]emote.Emote, 0, len(emotes))
+	for _, e := range emotes {
+		result = append(
+			result,
+			emote.Emote{
+				ID:   emote.ID(e.ID),
+				Name: e.Code,
+			},
+		)
+	}
+
+	return result, nil
 }

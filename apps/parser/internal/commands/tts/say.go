@@ -11,6 +11,8 @@ import (
 	"github.com/guregu/null"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	model "github.com/satont/twir/libs/gomodels"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -128,21 +130,59 @@ var SayCommand = &types.DefaultCommand{
 				resultedText = strings.Replace(resultedText, emote.Name, "", -1)
 			}
 
+			var (
+				wg            errgroup.Group
+				globalEmotes  []emotes_cacher.Emote
+				channelEmotes []emotes_cacher.Emote
+			)
+
+			wg.Go(
+				func() error {
+					e, err := parseCtx.Services.Bus.EmotesCacher.GetGlobalEmotes.Request(
+						ctx,
+						emotes_cacher.GetGlobalEmotesRequest{},
+					)
+					if err != nil {
+						return err
+					}
+
+					globalEmotes = e.Data.Emotes
+
+					return nil
+				},
+			)
+
+			wg.Go(
+				func() error {
+					e, err := parseCtx.Services.Bus.EmotesCacher.GetChannelEmotes.Request(
+						ctx,
+						emotes_cacher.GetChannelEmotesRequest{
+							ChannelID: parseCtx.Channel.ID,
+						},
+					)
+					if err != nil {
+						return err
+					}
+
+					channelEmotes = e.Data.Emotes
+
+					return nil
+				},
+			)
+
 			for _, part := range splittedResult {
-				if exists, _ := parseCtx.Services.Redis.Exists(
-					ctx,
-					fmt.Sprintf("emotes:channel:%s:%s", parseCtx.Channel.ID, part),
-				).Result(); exists == 1 {
-					resultedText = strings.Replace(resultedText, part, "", -1)
-					continue
+				for _, emote := range globalEmotes {
+					if strings.EqualFold(part, emote.Name) {
+						resultedText = strings.Replace(resultedText, part, "", -1)
+						continue
+					}
 				}
 
-				if exists, _ := parseCtx.Services.Redis.Exists(
-					ctx,
-					fmt.Sprintf("emotes:global:%s", part),
-				).Result(); exists == 1 {
-					resultedText = strings.Replace(resultedText, part, "", -1)
-					continue
+				for _, emote := range channelEmotes {
+					if strings.EqualFold(part, emote.Name) {
+						resultedText = strings.Replace(resultedText, part, "", -1)
+						continue
+					}
 				}
 			}
 		}
@@ -152,7 +192,8 @@ var SayCommand = &types.DefaultCommand{
 		}
 
 		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(
-			ctx, &websockets.TTSMessage{
+			ctx,
+			&websockets.TTSMessage{
 				ChannelId: parseCtx.Channel.ID,
 				Text:      resultedText,
 				Voice:     voice,
