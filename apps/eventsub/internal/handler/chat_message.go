@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"strings"
 	"time"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -269,6 +269,51 @@ func (c *Handler) chatMessageCountEmotes(
 	splittedMsg := strings.Fields(msg.Message.Text)
 	emotes := make(map[string]int, len(splittedMsg))
 
+	var (
+		wg            errgroup.Group
+		globalEmotes  []emotes_cacher.Emote
+		channelEmotes []emotes_cacher.Emote
+	)
+
+	wg.Go(
+		func() error {
+			e, err := c.twirBus.EmotesCacher.GetGlobalEmotes.Request(
+				ctx,
+				emotes_cacher.GetGlobalEmotesRequest{},
+			)
+			if err != nil {
+				return err
+			}
+
+			globalEmotes = e.Data.Emotes
+
+			return nil
+		},
+	)
+
+	wg.Go(
+		func() error {
+			e, err := c.twirBus.EmotesCacher.GetChannelEmotes.Request(
+				ctx,
+				emotes_cacher.GetChannelEmotesRequest{
+					ChannelID: msg.BroadcasterUserId,
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			channelEmotes = e.Data.Emotes
+
+			return nil
+		},
+	)
+
+	if err := wg.Wait(); err != nil {
+		c.logger.Error("failed to fetch global emotes", slog.Any("err", err))
+		return nil, err
+	}
+
 	for _, f := range msg.Message.Fragments {
 		if f.Type != twitch.FragmentType_EMOTE || f.Text == "" || f.Text == " " {
 			continue
@@ -300,20 +345,18 @@ func (c *Handler) chatMessageCountEmotes(
 			continue
 		}
 
-		if exists, _ := c.redisClient.Exists(
-			ctx,
-			fmt.Sprintf("emotes:channel:%s:%s", msg.BroadcasterUserId, part),
-		).Result(); exists == 1 {
-			emotes[part] += 1
-			continue
+		for _, globalEmote := range globalEmotes {
+			if globalEmote.Name == part {
+				emotes[part] += 1
+				continue
+			}
 		}
 
-		if exists, _ := c.redisClient.Exists(
-			ctx,
-			fmt.Sprintf("emotes:global:%s", part),
-		).Result(); exists == 1 {
-			emotes[part] += 1
-			continue
+		for _, channelEmote := range channelEmotes {
+			if channelEmote.Name == part {
+				emotes[part] += 1
+				continue
+			}
 		}
 	}
 

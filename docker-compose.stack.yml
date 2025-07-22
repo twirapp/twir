@@ -600,7 +600,7 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 4
+      replicas: 1
       placement:
         constraints:
           - node.labels.databases != true

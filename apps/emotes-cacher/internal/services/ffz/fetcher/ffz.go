@@ -1,13 +1,15 @@
-package emotes
+package fetcher
 
 import (
 	"context"
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
 )
 
 type FfzEmote struct {
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -19,7 +21,7 @@ type FfzResponse struct {
 	Sets map[string]Set `json:"sets"`
 }
 
-func GetChannelFfzEmotes(ctx context.Context, channelID string) ([]string, error) {
+func GetChannelFfzEmotes(ctx context.Context, channelID string) ([]emote.Emote, error) {
 	reqData := FfzResponse{}
 
 	_, err := req.R().
@@ -30,11 +32,14 @@ func GetChannelFfzEmotes(ctx context.Context, channelID string) ([]string, error
 		return nil, err
 	}
 
-	var emotes []string
+	var emotes []emote.Emote
 	for _, set := range reqData.Sets {
 		mapped := lo.Map(
-			set.Emoticons, func(e FfzEmote, _ int) string {
-				return e.Name
+			set.Emoticons, func(e FfzEmote, _ int) emote.Emote {
+				return emote.Emote{
+					ID:   emote.ID(e.ID),
+					Name: e.Name,
+				}
 			},
 		)
 
@@ -44,7 +49,7 @@ func GetChannelFfzEmotes(ctx context.Context, channelID string) ([]string, error
 	return emotes, nil
 }
 
-func GetGlobalFfzEmotes(ctx context.Context) ([]string, error) {
+func GetGlobalFfzEmotes(ctx context.Context) ([]emote.Emote, error) {
 	reqData := FfzResponse{}
 
 	_, err := req.R().
@@ -55,11 +60,14 @@ func GetGlobalFfzEmotes(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	var emotes []string
+	var emotes []emote.Emote
 	for _, set := range reqData.Sets {
 		mapped := lo.Map(
-			set.Emoticons, func(e FfzEmote, _ int) string {
-				return e.Name
+			set.Emoticons, func(e FfzEmote, _ int) emote.Emote {
+				return emote.Emote{
+					ID:   emote.ID(e.ID),
+					Name: e.Name,
+				}
 			},
 		)
 

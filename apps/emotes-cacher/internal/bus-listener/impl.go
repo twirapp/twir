@@ -2,13 +2,9 @@ package bus_listener
 
 import (
 	"context"
-	"fmt"
-	"log/slog"
-	"sync"
-	"time"
+	"slices"
 
-	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/emotes-cacher/internal/emotes"
+	"github.com/satont/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -16,42 +12,54 @@ import (
 )
 
 type BusListener struct {
-	redis  *redis.Client
 	logger logger.Logger
 	bus    *buscore.Bus
+	store  *emotes_store.EmotesStore
 }
 
 type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Redis  *redis.Client
 	Logger logger.Logger
 	Bus    *buscore.Bus
+	Store  *emotes_store.EmotesStore
 }
 
-func New(opts Opts) {
+func New(opts Opts) error {
 	impl := &BusListener{
-		redis:  opts.Redis,
 		logger: opts.Logger,
 		bus:    opts.Bus,
+		store:  opts.Store,
 	}
 
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				if err := impl.bus.EmotesCacher.CacheGlobalEmotes.SubscribeGroup(
-					"emotes-cacher",
-					impl.cacheGlobalEmotes,
+				if err := impl.bus.EmotesCacher.GetChannelEmotes.SubscribeGroup(
+					emotes_cacher.EmotesCacherGetChannelEmotesSubject,
+					impl.GetChannelEmotes,
 				); err != nil {
 					return err
 				}
-				if err := impl.bus.EmotesCacher.CacheChannelEmotes.SubscribeGroup(
-					"emotes-cacher",
-					impl.cacheChannelEmotes,
+
+				if err := impl.bus.EmotesCacher.GetGlobalEmotes.SubscribeGroup(
+					emotes_cacher.EmotesCacherGetGlobalEmotesSubject,
+					func(
+						ctx context.Context,
+						data emotes_cacher.GetGlobalEmotesRequest,
+					) (emotes_cacher.Response, error) {
+						return impl.GetChannelEmotes(
+							ctx,
+							emotes_cacher.GetChannelEmotesRequest{
+								ChannelID: emotes_store.GlobalChannelID,
+							},
+						)
+					},
 				); err != nil {
 					return err
 				}
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
@@ -59,134 +67,33 @@ func New(opts Opts) {
 			},
 		},
 	)
+
+	return nil
 }
 
-func (c *BusListener) cacheChannelEmotes(
-	ctx context.Context,
-	req emotes_cacher.EmotesCacheRequest,
-) (struct{}, error) {
-	if req.ChannelID == "" {
-		return struct{}{}, nil
-	}
+func (c *BusListener) GetChannelEmotes(
+	_ context.Context,
+	request emotes_cacher.GetChannelEmotesRequest,
+) (emotes_cacher.Response, error) {
+	var result []emotes_cacher.Emote
 
-	wg := sync.WaitGroup{}
-	mu := sync.Mutex{}
-
-	resultEmotes := make([]string, 0, 300)
-
-	reqFuncs := []func(ctx context.Context, c string) ([]string, error){
-		emotes.GetChannelSevenTvEmotes,
-		emotes.GetChannelBttvEmotes,
-		emotes.GetChannelFfzEmotes,
-	}
-
-	for _, f := range reqFuncs {
-		wg.Add(1)
-		f := f
-		go func() {
-			defer wg.Done()
-			res, err := f(ctx, req.ChannelID)
-			if err != nil {
-				c.logger.Error("cannot get emotes", slog.Any("err", err))
-				return
-			}
-
-			mu.Lock()
-			resultEmotes = append(resultEmotes, res...)
-			mu.Unlock()
-		}()
-	}
-
-	wg.Wait()
-
-	// TODO: lock and unlock redis here, so we handle each channel in queue
-	c.redis.Pipelined(
-		ctx,
-		func(pipe redis.Pipeliner) error {
-			for _, emote := range resultEmotes {
-				if emote == "" {
-					continue
-				}
-
-				pipe.Set(
-					ctx,
-					fmt.Sprintf("emotes:channel:%s:%s", req.ChannelID, emote),
-					emote,
-					10*time.Minute,
-				)
-			}
-
-			return nil
-		},
-	)
-
-	return struct{}{}, nil
-}
-
-func (c *BusListener) cacheGlobalEmotes(ctx context.Context, _ struct{}) (struct{}, error) {
-	wg := sync.WaitGroup{}
-	mu := sync.Mutex{}
-
-	resultEmotes := make([]string, 300)
-
-	wg.Add(3)
-
-	go func() {
-		defer wg.Done()
-		em, err := emotes.GetGlobalSevenTvEmotes(ctx)
-		if err != nil || em == nil || len(em) == 0 {
-			return
+	for serviceName, emotes := range c.store.GetChannelEmotesServices(emotes_store.ChannelID(request.ChannelID)) {
+		if len(request.ServiceIn) > 0 && !slices.Contains(request.ServiceIn, serviceName) {
+			continue
 		}
 
-		mu.Lock()
-		defer mu.Unlock()
-		resultEmotes = append(resultEmotes, em...)
-	}()
-
-	go func() {
-		defer wg.Done()
-		em, err := emotes.GetGlobalFfzEmotes(ctx)
-		if err != nil || em == nil || len(em) == 0 {
-			return
+		for _, emote := range emotes {
+			result = append(
+				result, emotes_cacher.Emote{
+					ID:      string(emote.ID),
+					Name:    emote.Name,
+					Service: serviceName,
+				},
+			)
 		}
+	}
 
-		mu.Lock()
-		defer mu.Unlock()
-		resultEmotes = append(resultEmotes, em...)
-	}()
-
-	go func() {
-		defer wg.Done()
-		em, err := emotes.GetGlobalBttvEmotes(ctx)
-		if err != nil || em == nil || len(em) == 0 {
-			return
-		}
-
-		mu.Lock()
-		defer mu.Unlock()
-		resultEmotes = append(resultEmotes, em...)
-	}()
-
-	wg.Wait()
-
-	c.redis.Pipelined(
-		ctx, func(pipe redis.Pipeliner) error {
-			for _, emote := range resultEmotes {
-				if emote == "" {
-					continue
-				}
-
-				pipe.Set(
-					context.Background(),
-					fmt.Sprintf("emotes:global:%s", emote),
-					emote,
-					10*time.Minute,
-				)
-			}
-
-			return nil
-		},
-	)
-
-	return struct{}{}, nil
+	return emotes_cacher.Response{
+		Emotes: result,
+	}, nil
 }

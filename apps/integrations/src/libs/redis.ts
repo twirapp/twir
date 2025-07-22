@@ -1,6 +1,4 @@
 import { config } from '@twir/config'
-import { createClient } from 'redis'
+import { RedisClient } from 'bun'
 
-export const client = await createClient({
-	url: config.REDIS_URL,
-}).connect()
+export const client = new RedisClient(config.REDIS_URL)

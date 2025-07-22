@@ -89,6 +89,8 @@ func (c *TwirGoApp) getAppPath() string {
 }
 
 func (c *TwirGoApp) Build() error {
+	pterm.Info.Println(fmt.Sprintf("Building %s with debug = %v", c.Name, c.debugEnabled))
+
 	args := []string{"build", "-o", c.getAppPath()}
 	if c.debugEnabled {
 		args = append(args, `-gcflags=all=-N -l`)

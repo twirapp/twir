@@ -2,6 +2,7 @@ package dev
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -15,7 +16,6 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/dev/golang"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/helpers"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/nodejs"
-	"github.com/twirapp/twir/cli/internal/cmds/kill"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/twirapp/twir/cli/internal/cmds/proxy"
 	"github.com/urfave/cli/v2"
@@ -38,12 +38,10 @@ func CreateDevCommand() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "skip-deps",
-				Value: false,
 				Usage: "skip dependencies installation",
 			},
 			&cli.BoolFlag{
 				Name:  "debug",
-				Value: false,
 				Usage: "run backend in debug mode",
 			},
 		},
@@ -67,8 +65,6 @@ func CreateDevCommand() *cli.Command {
 			return nil
 		},
 		Action: func(c *cli.Context) error {
-			kill.Cmd.Run(c)
-
 			proxyStartedChan, err := proxy.StartProxy(false)
 			if err != nil {
 				pterm.Fatal.Println(err)
@@ -79,6 +75,9 @@ func CreateDevCommand() *cli.Command {
 
 			skipDeps := c.Bool("skip-deps")
 			isDebugEnabled := c.Bool("debug")
+
+			fmt.Println("isDebugEnabled:", isDebugEnabled)
+			fmt.Println(c.Args())
 
 			if !skipDeps {
 				if err := dependencies.Cmd.Run(c); err != nil {

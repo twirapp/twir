@@ -4,12 +4,12 @@ go 1.24.1
 
 replace (
 	github.com/satont/twir/libs/config => ../libs/config
-	github.com/twirapp/twir/libs/grpc => ../libs/grpc
 	github.com/satont/twir/libs/migrations => ../libs/migrations
+	github.com/twirapp/twir/libs/grpc => ../libs/grpc
 )
 
 require (
-	github.com/99designs/gqlgen v0.17.57
+	github.com/99designs/gqlgen v0.17.45
 	github.com/ClickHouse/clickhouse-go/v2 v2.37.2
 	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/goccy/go-json v0.10.3
@@ -21,7 +21,7 @@ require (
 	github.com/satont/twir/libs/config v0.0.0-20240201110132-12475b437e7a
 	github.com/satont/twir/libs/migrations v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/grpc v0.0.0-00010101000000-000000000000
-	github.com/urfave/cli/v2 v2.27.5
+	github.com/urfave/cli/v2 v2.27.1
 	golang.org/x/sync v0.15.0
 )
 
