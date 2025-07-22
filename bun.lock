@@ -28,7 +28,6 @@
         "centrifuge": "2.8.5",
         "nats": "2.22.0",
         "rate-limiter-algorithms": "2.1.0",
-        "redis": "4.6.13",
         "socket.io-client": "2.3.1",
         "ws": "8.16.0",
         "xmlhttprequest": "1.8.0",

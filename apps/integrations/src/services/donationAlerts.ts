@@ -11,7 +11,11 @@ import type { Subscription } from 'centrifuge'
 export const globalRequestLimiter = new RateLimiter({
 	store: new RedisStore({
 		prefix: 'integrations:rla:',
-		rawCall: (...args) => client.sendCommand(args),
+		rawCall: async (...args) => {
+			if (!args.at(0)) return
+
+			return await client.send(args.at(0)!, args.slice(1))
+		},
 	}),
 	algorithm: 'sliding-window-counter',
 	limit: 50,
@@ -26,7 +30,7 @@ export class DonationAlerts {
 		private readonly accessToken: string,
 		private readonly donationAlertsUserId: string,
 		private readonly socketConnectionToken: string,
-		private readonly twitchUserId: string,
+		private readonly twitchUserId: string
 	) {}
 
 	async init() {
@@ -40,12 +44,15 @@ export class DonationAlerts {
 						continue
 					}
 
-					const request = await fetch('https://www.donationalerts.com/api/v1/centrifuge/subscribe', {
-						method: 'POST',
-						body: JSON.stringify(ctx.data),
-						headers: { Authorization: `Bearer ${this.accessToken}` },
-						verbose: true,
-					})
+					const request = await fetch(
+						'https://www.donationalerts.com/api/v1/centrifuge/subscribe',
+						{
+							method: 'POST',
+							body: JSON.stringify(ctx.data),
+							headers: { Authorization: `Bearer ${this.accessToken}` },
+							verbose: true,
+						}
+					)
 
 					const response = await request.json()
 					if (!request.ok) {
@@ -77,7 +84,9 @@ export class DonationAlerts {
 	}
 
 	async #donateCallback(data: DonationAlertsMessage) {
-		console.info(`[DONATIONALERTS #${this.twitchUserId}]  Donation from ${data.username}: ${data.amount} ${data.currency}`)
+		console.info(
+			`[DONATIONALERTS #${this.twitchUserId}]  Donation from ${data.username}: ${data.amount} ${data.currency}`
+		)
 		await onDonation({
 			twitchUserId: this.twitchUserId,
 			amount: data.amount,
