@@ -85,23 +85,3 @@ type DispatchEmoteValue struct {
 	} `json:"data"`
 	OriginId interface{} `json:"origin_id"`
 }
-
-// emotes:Channel:123:xdd
-// {
-// 	7tv: { id: 123, name: "xdd", "imageUrl": ""},
-// 	bttv: { id: 321, name: "xdd", "imageUrl": ""}
-// 	ffz: null
-// }
-//
-// emotes
-// {
-// 	id: "123123",
-// 	service: 7tv | ffz | bttv
-// 	name: "xdd",
-// }
-//
-// channels_services_emotes {
-// 	emote_id: emotes.id,
-// 	channel_id,
-// 	alias: "xdd",
-// }

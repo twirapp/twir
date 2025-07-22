@@ -1,13 +1,15 @@
-package emotes
+package fetcher
 
 import (
 	"context"
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
 )
 
 type BttvEmote struct {
+	ID   string `json:"id"`
 	Code string `json:"code"`
 }
 
@@ -16,7 +18,7 @@ type BttvResponse struct {
 	SharedEmotes  []BttvEmote `json:"sharedEmotes"`
 }
 
-func GetChannelBttvEmotes(ctx context.Context, channelID string) ([]string, error) {
+func GetChannelBttvEmotes(ctx context.Context, channelID string) ([]emote.Emote, error) {
 	reqData := BttvResponse{}
 
 	_, err := req.
@@ -43,7 +45,18 @@ func GetChannelBttvEmotes(ctx context.Context, channelID string) ([]string, erro
 	emotes = append(emotes, mappedChannelEmotes...)
 	emotes = append(emotes, mappedSharedEmotes...)
 
-	return emotes, nil
+	result := make([]emote.Emote, 0, len(emotes))
+	for _, e := range emotes {
+		result = append(
+			result,
+			emote.Emote{
+				ID:   emote.ID(e),
+				Name: e,
+			},
+		)
+	}
+
+	return result, nil
 }
 
 func GetGlobalBttvEmotes(ctx context.Context) ([]string, error) {

@@ -2,6 +2,7 @@ package app
 
 import (
 	bus_listener "github.com/satont/twir/apps/emotes-cacher/internal/bus-listener"
+	"github.com/satont/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -14,6 +15,9 @@ const service = "emotes-cacher"
 var App = fx.Module(
 	service,
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
+	fx.Provide(
+		emotes_store.New,
+	),
 	fx.Invoke(
 		uptrace.NewFx("emotes-cacher"),
 		bus_listener.New,
