@@ -44,7 +44,7 @@ func (c *EmotesStore) fillChannels() {
 			go func() {
 				defer wg.Done()
 
-				c.logger.Info("fetching emotes for channel", slog.String("channel_id", channelID))
+				c.logger.Debug("fetching emotes for channel", slog.String("channel_id", channelID))
 				sevenTvEmotes, err := seventvfetcher.GetChannelSevenTvEmotes(ctx, channelID)
 				if err == nil {
 					result := make([]emote.Emote, 0)

@@ -99,6 +99,15 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun cli build app ${{ env.app }}
 
+      - name: Save Golang cache
+        if: always() && (steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true')
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ steps.golang-with-cache.outputs.build-cache-path }}
+            ${{ steps.golang-with-cache.outputs.module-cache-path }}
+          key: ${{ steps.golang-with-cache.outputs.cache-key }}
+
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3

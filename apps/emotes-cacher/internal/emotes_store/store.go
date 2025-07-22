@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"reflect"
 	"sync"
 	"unsafe"
 
@@ -178,7 +179,7 @@ func (c *EmotesStore) Update(
 }
 
 func (c *EmotesStore) logCount() {
-	mapSize := unsafe.Sizeof(c.channels)
+	mapSize := c.SizeInBytes()
 
 	c.logger.Info(
 		"EmotesStore count changed",
@@ -208,4 +209,60 @@ func (c *EmotesStore) GetEmotesCount() int {
 	}
 
 	return count
+}
+
+func (c *EmotesStore) SizeInBytes() int {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	var totalBytes int
+
+	// Level 1: Iterate over channels map
+	for channelID, servicesMap := range c.channels {
+		// Add size of the ChannelID string key
+		totalBytes += len(channelID)
+
+		// Level 2: Iterate over services map
+		for serviceName, service := range servicesMap {
+			// Add size of the ServiceName string key
+			totalBytes += len(string(serviceName)) // Assuming ServiceName is a string-based type
+
+			// Level 3: Iterate over the innermost Service map
+			for emoteID, emote := range service {
+				// Add size of the emote.ID string key
+				totalBytes += len(emoteID)
+				// Add size of the emote.Emote struct value
+				totalBytes += sizeOfEmote(emote)
+			}
+		}
+	}
+
+	return totalBytes
+}
+
+// sizeOfEmote calculates the "deep" size of an emote.Emote struct.
+// This is a helper function that needs to be adapted to the actual
+// fields of your emote.Emote struct.
+func sizeOfEmote(e emote.Emote) int {
+	// Start with the "shallow" size of the struct itself.
+	size := int(unsafe.Sizeof(e))
+
+	// Use reflection to inspect the struct fields and add the size
+	// of any dynamically-sized data (like strings, slices, or pointers).
+	val := reflect.ValueOf(e)
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		switch field.Kind() {
+		// If a field is a string, add the length of its content.
+		case reflect.String:
+			size += field.Len()
+
+		// If a field is a slice, you'd add size of underlying array.
+		// For example: size += field.Cap() * int(field.Type().Elem().Size())
+		case reflect.Slice:
+			// This is a simplified example. A full implementation would be more complex.
+			size += field.Cap() * int(field.Type().Elem().Size())
+		}
+	}
+	return size
 }
