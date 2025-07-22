@@ -7,7 +7,7 @@ import (
 
 	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
 	bttvfetcher "github.com/satont/twir/apps/emotes-cacher/internal/services/bttv/fetcher"
-	"github.com/satont/twir/apps/emotes-cacher/internal/services/ffz/fetcher"
+	ffzfetcher "github.com/satont/twir/apps/emotes-cacher/internal/services/ffz/fetcher"
 	seventvfetcher "github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/fetcher"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
@@ -83,7 +83,7 @@ func (c *EmotesStore) fillChannels() {
 					c.logger.Error("failed to fetch bttv emotes", slog.String("channel_id", channelID))
 				}
 
-				ffzEmotes, err := fetcher.GetChannelFfzEmotes(ctx, channelID)
+				ffzEmotes, err := ffzfetcher.GetChannelFfzEmotes(ctx, channelID)
 				if err == nil {
 					result := make([]emote.Emote, 0)
 					for _, e := range ffzEmotes {
@@ -135,7 +135,7 @@ func (c *EmotesStore) fillGlobal() {
 
 	go func() {
 		defer wg.Done()
-		em, err := fetcher.GetGlobalFfzEmotes(ctx)
+		em, err := ffzfetcher.GetGlobalFfzEmotes(ctx)
 		if err != nil || em == nil || len(em) == 0 {
 			return
 		}

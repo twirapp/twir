@@ -89,6 +89,10 @@ func (c *WsConnection) connect() error {
 
 	c.websocket = conn
 
+	if c.onConnect != nil {
+		c.onConnect(c.ctx, c)
+	}
+
 	return nil
 }
 
@@ -124,23 +128,17 @@ func (c *WsConnection) readLoop() {
 		default:
 		}
 
-		c.mu.RLock()
-		conn := c.websocket
-		c.mu.RUnlock()
-
-		if conn == nil {
+		if c.websocket == nil {
 			time.Sleep(time.Second)
 			continue
 		}
 
-		_, msg, err := conn.Read(c.ctx)
+		_, msg, err := c.websocket.Read(c.ctx)
 		if err != nil {
-			if websocket.CloseStatus(err) != -1 {
-				fmt.Println("websocket connection closed, attempting to reconnect:", err)
-				if reconnectErr := c.reconnect(); reconnectErr != nil {
-					fmt.Println("failed to reconnect:", reconnectErr)
-					time.Sleep(5 * time.Second) // Wait before retry
-				}
+			fmt.Println("websocket connection closed, attempting to reconnect:", err)
+			if reconnectErr := c.reconnect(); reconnectErr != nil {
+				fmt.Println("failed to reconnect:", reconnectErr)
+				time.Sleep(5 * time.Second) // Wait before retry
 			}
 			continue
 		}

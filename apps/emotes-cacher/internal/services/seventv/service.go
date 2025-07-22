@@ -185,7 +185,8 @@ func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error 
 		}
 		if instance == nil {
 			newConn, err := socket_client.New(
-				ctx, socket_client.Opts{
+				ctx,
+				socket_client.Opts{
 					OnMessage:          c.onMessage,
 					OnReconnect:        nil,
 					OnConnect:          nil,
