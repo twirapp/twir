@@ -14,10 +14,6 @@ import (
 )
 
 func (c *EmotesStore) fillChannels() {
-	if len(c.channels) > 0 {
-		return
-	}
-
 	var (
 		page int64 = 0
 		size int64 = 1000
