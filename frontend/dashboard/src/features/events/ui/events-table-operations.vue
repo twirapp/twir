@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { flatOperations } from '@twir/dashboard/src/features/events/constants/helpers.ts'
+import { flatOperations } from '@/features/events/constants/helpers.ts'
 
 import type { EventOperation } from '@/api/events.ts'
 import { getOperationColor } from '@/features/events/composables/use-operation-color.ts'
