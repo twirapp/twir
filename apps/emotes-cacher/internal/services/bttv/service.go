@@ -121,7 +121,6 @@ func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error 
 			fmt.Printf("Failed to subscribe: %v %v\n", err, msg)
 			continue
 		}
-		c.logger.Info("Subscribed to BTTV channel", slog.String("channel_id", channelID))
 
 		c.registeredChannels[channelID] = struct{}{}
 	}

@@ -121,7 +121,6 @@ func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error 
 						)
 					}
 					if profile == nil || profile.Users.UserByConnection == nil || profile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
-						fmt.Println("No active emote set found for channel:", channel)
 						return nil
 					}
 
