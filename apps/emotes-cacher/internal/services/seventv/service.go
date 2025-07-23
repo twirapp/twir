@@ -187,6 +187,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
 			slog.String("channel_id", channelID),
+			slog.String("emote_set", data.Body.Id),
 		)
 
 		c.emotesStore.AddEmotes(
@@ -223,6 +224,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
 			slog.String("channel_id", channelID),
+			slog.String("emote_set", data.Body.Id),
 		)
 
 		c.emotesStore.Update(
@@ -260,6 +262,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
 			slog.String("channel_id", channelID),
+			slog.String("emote_set", data.Body.Id),
 		)
 
 		c.emotesStore.RemoveEmoteById(
