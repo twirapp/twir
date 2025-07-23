@@ -16,8 +16,8 @@ type UsersStats struct {
 	IsSubscriber      bool      `gorm:"column:is_subscriber;type:BOOL;default:false;"    json:"isSubscriber" db:"is_subscriber"`
 	Reputation        int64     `gorm:"column:reputation;type:INT8;default:0;"              json:"reputation" db:"reputation"`
 	Emotes            int       `gorm:"column:emotes;type:INT4;default:0;"              json:"emotes" db:"emotes"`
-	CreatedAt         time.Time `gorm:"column:created_at;type:TIMESTAMPTZ;default:now()" json:"createdAt"`
-	UpdatedAt         time.Time `gorm:"column:updated_at;type:TIMESTAMPTZ;default:now()" json:"updatedAt"`
+	CreatedAt         time.Time `gorm:"column:created_at;type:TIMESTAMPTZ;default:now()" json:"createdAt" db:"created_at"`
+	UpdatedAt         time.Time `gorm:"column:updated_at;type:TIMESTAMPTZ;default:now()" json:"updatedAt" db:"updated_at"`
 }
 
 func (u *UsersStats) TableName() string {
