@@ -66,6 +66,7 @@ func New(ctx context.Context, opts Opts) (*WsConnection, error) {
 		onReconnect:        opts.OnReconnect,
 		onConnect:          opts.OnConnect,
 		socketUrl:          opts.Url,
+		mu:                 sync.RWMutex{},
 	}
 
 	if err := wsConn.connect(); err != nil {
@@ -105,8 +106,6 @@ func (c *WsConnection) reconnect() error {
 		c.websocket = nil
 	}
 
-	time.Sleep(time.Second)
-
 	conn, err := connDial(c.ctx, c.socketUrl)
 	if err != nil {
 		return err
@@ -137,8 +136,7 @@ func (c *WsConnection) readLoop() {
 		if err != nil {
 			fmt.Println("websocket connection closed, attempting to reconnect:", err)
 			if reconnectErr := c.reconnect(); reconnectErr != nil {
-				fmt.Println("failed to reconnect:", reconnectErr)
-				time.Sleep(5 * time.Second) // Wait before retry
+				time.Sleep(5 * time.Second)
 			}
 			continue
 		}
@@ -163,7 +161,7 @@ func (c *WsConnection) Close() error {
 		return nil
 	}
 
-	err := c.websocket.Close(websocket.StatusNormalClosure, "")
+	err := c.websocket.Close(websocket.StatusNormalClosure, "manual closing")
 	c.websocket = nil
 
 	return err
@@ -176,7 +174,7 @@ func (c *WsConnection) Subscribe(ctx context.Context, msg map[string]any) error 
 		return fmt.Errorf("websocket connection is nil")
 	}
 
-	if c.SubscriptionsLimit > 0 && c.SubscriptionsCount >= c.SubscriptionsLimit {
+	if c.SubscriptionsLimit > 0 && c.SubscriptionsCount == c.SubscriptionsLimit {
 		return ErrToManySubscriptions
 	}
 
@@ -210,6 +208,5 @@ func (c *WsConnection) SendMessage(ctx context.Context, msg map[string]any) erro
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
-	fmt.Println("sent message:", string(msgBytes))
 	return nil
 }

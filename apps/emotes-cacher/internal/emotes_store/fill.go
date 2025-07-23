@@ -57,7 +57,7 @@ func (c *EmotesStore) fillChannels() {
 						result...,
 					)
 				} else {
-					c.logger.Error(
+					c.logger.Debug(
 						"failed to fetch 7tv emotes",
 						slog.String("channel_id", channelID),
 						slog.Any("error", err),
@@ -76,7 +76,7 @@ func (c *EmotesStore) fillChannels() {
 						result...,
 					)
 				} else {
-					c.logger.Error("failed to fetch bttv emotes", slog.String("channel_id", channelID))
+					c.logger.Debug("failed to fetch bttv emotes", slog.String("channel_id", channelID))
 				}
 
 				ffzEmotes, err := ffzfetcher.GetChannelFfzEmotes(ctx, channelID)
@@ -91,7 +91,7 @@ func (c *EmotesStore) fillChannels() {
 						result...,
 					)
 				} else {
-					c.logger.Error("failed to fetch ffz emotes", slog.String("channel_id", channelID))
+					c.logger.Debug("failed to fetch ffz emotes", slog.String("channel_id", channelID))
 				}
 			}()
 		}

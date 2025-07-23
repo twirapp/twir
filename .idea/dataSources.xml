@@ -32,11 +32,11 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="PROD POSTGRES" group="Prod" uuid="9bbe7cb2-e7cd-4c55-aef4-dad9bfb78332">
-      <driver-ref>postgresql</driver-ref>
+    <data-source source="LOCAL" name="PROD CLICKHOUSE" group="Prod" uuid="a6069310-0daf-4a02-8e3a-ec1860b057de">
+      <driver-ref>clickhouse</driver-ref>
       <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://postgres:5432/twir</jdbc-url>
+      <jdbc-driver>com.clickhouse.jdbc.ClickHouseDriver</jdbc-driver>
+      <jdbc-url>jdbc:clickhouse://clickhouse:8123/twir</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
@@ -44,11 +44,11 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="PROD CLICKHOUSE" group="Prod" uuid="a6069310-0daf-4a02-8e3a-ec1860b057de">
-      <driver-ref>clickhouse</driver-ref>
+    <data-source source="LOCAL" name="POSTGRES PROD" group="Prod" uuid="a6598361-ce14-4c28-8a20-e671e4d0cdc0">
+      <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
-      <jdbc-driver>com.clickhouse.jdbc.ClickHouseDriver</jdbc-driver>
-      <jdbc-url>jdbc:clickhouse://clickhouse:8123/twir</jdbc-url>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://postgres:5432/twir</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

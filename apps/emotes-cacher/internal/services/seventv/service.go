@@ -3,14 +3,10 @@ package seventv
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log/slog"
-	"sync"
 
-	"github.com/avast/retry-go/v4"
 	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
 	"github.com/satont/twir/apps/emotes-cacher/internal/emotes_store"
-	dispatchtypes "github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
 	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/messages"
 	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/operations"
 	"github.com/satont/twir/apps/emotes-cacher/internal/socket_client"
@@ -40,7 +36,7 @@ func New(opts Opts) error {
 		sevenTvApiClient:                 seventv.NewClient(opts.Config.SevenTvToken),
 		logger:                           opts.Logger,
 		emotesStore:                      opts.EmotesStore,
-		registeredChannelsWithEmoteSetId: make(map[string]string),
+		registeredChannelsWithEmoteSetId: make(channelsWithEmotesSetsIds),
 	}
 
 	opts.LC.Append(
@@ -65,6 +61,7 @@ type ConnData struct {
 type socketInstance struct {
 	SessionID string
 	Instance  *socket_client.WsConnection
+	ShardID   uint8
 }
 
 type Service struct {
@@ -72,7 +69,7 @@ type Service struct {
 
 	gorm                             *gorm.DB
 	sevenTvApiClient                 seventv.Client
-	registeredChannelsWithEmoteSetId map[string]string
+	registeredChannelsWithEmoteSetId channelsWithEmotesSetsIds
 	logger                           logger.Logger
 	emotesStore                      *emotes_store.EmotesStore
 }
@@ -89,137 +86,6 @@ func (c *Service) start(ctx context.Context) error {
 	}
 
 	return c.AddChannels(ctx, channels...)
-}
-
-func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error {
-	if len(channelsIDs) == 0 {
-		return nil
-	}
-
-	channelsWithEmoteSets := map[string]string{}
-
-	var wg sync.WaitGroup
-	var my sync.Mutex
-
-	for _, channel := range channelsIDs {
-		if _, ok := c.registeredChannelsWithEmoteSetId[channel]; ok {
-			continue
-		}
-
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-			retry.Do(
-				func() error {
-					profile, err := c.sevenTvApiClient.GetProfileByTwitchId(ctx, channel)
-					if err != nil {
-						return fmt.Errorf(
-							"failed to fetch profile for channel %s: %w",
-							channel,
-							err,
-						)
-					}
-					if profile == nil || profile.Users.UserByConnection == nil || profile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
-						return nil
-					}
-
-					my.Lock()
-					channelsWithEmoteSets[channel] = profile.Users.UserByConnection.Style.ActiveEmoteSet.Id
-					my.Unlock()
-
-					return nil
-				},
-				retry.RetryIf(
-					func(err error) bool {
-						return err != nil
-					},
-				),
-				retry.Attempts(10),
-			)
-		}()
-	}
-
-	wg.Wait()
-
-	subMessages := make([]map[string]interface{}, 0, len(channelsIDs))
-	for _, channelId := range channelsIDs {
-		subMessages = append(
-			subMessages, map[string]interface{}{
-				"op": operations.OutgoingOpSubscribe,
-				"d": map[string]any{
-					"type": "emote_set.*",
-					"condition": map[string]string{
-						"ctx":      "channel",
-						"id":       channelId,
-						"platform": "TWITCH",
-					},
-				},
-			},
-		)
-
-		if emoteSetId, ok := channelsWithEmoteSets[channelId]; ok {
-			c.registeredChannelsWithEmoteSetId[channelId] = emoteSetId
-
-			subMessages = append(
-				subMessages, map[string]interface{}{
-					"op": operations.OutgoingOpSubscribe,
-					"d": map[string]any{
-						"type": dispatchtypes.UpdateEmoteSet,
-						"condition": map[string]string{
-							"object_id": emoteSetId,
-						},
-					},
-				},
-			)
-		}
-	}
-
-	for _, msg := range subMessages {
-		var instance *socketInstance
-		for _, ws := range c.sockets {
-			if ws.Instance.SubscriptionsCount < ws.Instance.SubscriptionsLimit {
-				instance = ws
-			}
-		}
-		if instance == nil {
-			newConn, err := socket_client.New(
-				ctx,
-				socket_client.Opts{
-					OnMessage:          c.onMessage,
-					OnReconnect:        nil,
-					OnConnect:          nil,
-					Url:                "wss://events.7tv.io/v3",
-					SubscriptionsLimit: 0,
-				},
-			)
-			if err != nil {
-				return err
-			}
-			instance = &socketInstance{
-				Instance: newConn,
-			}
-
-			c.sockets = append(
-				c.sockets,
-				instance,
-			)
-		}
-
-		for {
-			if instance.SessionID == "" {
-				continue
-			}
-			if err := instance.Instance.Subscribe(ctx, msg); err != nil {
-				fmt.Printf("Failed to subscribe: %v %v\n", err, msg)
-				continue
-			}
-
-			break
-		}
-	}
-
-	return nil
 }
 
 func (c *Service) stop() error {
@@ -251,7 +117,8 @@ func (c *Service) onMessage(
 			c.logger.Error("Failed to unmarshal hello message", slog.Any("error", err))
 			return
 		}
-		client.SubscriptionsLimit = int(helloMsg.Data.SubscriptionLimit)
+		// TODO: lmao it is sending 500, but actually it is ~300
+		// client.SubscriptionsLimit = int(helloMsg.Data.SubscriptionLimit)
 		for _, socket := range c.sockets {
 			if socket.Instance == client {
 				socket.SessionID = helloMsg.Data.SessionID
@@ -267,10 +134,6 @@ func (c *Service) onMessage(
 		}
 
 		if baseWithType.Data.Type != "emote_set.update" {
-			c.logger.Warn(
-				"Received non-emote-set update dispatch",
-				slog.String("type", baseWithType.Data.Type),
-			)
 			return
 		}
 
@@ -314,6 +177,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 		}
 
 		if channelID == "" {
+
 		}
 
 		emoteData := emotes.Value.Data
@@ -322,7 +186,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			"Received new emote",
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
-			slog.String("channel_id", data.Body.Actor.Id),
+			slog.String("channel_id", channelID),
 		)
 
 		c.emotesStore.AddEmotes(
@@ -358,7 +222,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			"Received updated emote",
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
-			slog.String("channel_id", data.Body.Actor.Id),
+			slog.String("channel_id", channelID),
 		)
 
 		c.emotesStore.Update(
@@ -395,7 +259,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			"Received deleted emote",
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
-			slog.String("channel_id", data.Body.Actor.Id),
+			slog.String("channel_id", channelID),
 		)
 
 		c.emotesStore.RemoveEmoteById(

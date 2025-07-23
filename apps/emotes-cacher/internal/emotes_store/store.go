@@ -137,7 +137,6 @@ func (c *EmotesStore) RemoveEmoteById(
 	c.mu.Lock()
 	defer func() {
 		c.mu.Unlock()
-		c.logCount()
 	}()
 
 	if _, ok := c.channels[channelID]; !ok {
