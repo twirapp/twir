@@ -199,8 +199,8 @@
           "text": "Команда будет работать только во время трансляции."
         },
         "offlineOnly": {
-          "label": "Only When Offline",
-          "text": "This command will work only when the stream is offline."
+          "label": "Только когда оффлайн",
+          "text": "Эта команда будет работать только тогда, когда стрим оффлайн."
         },
         "other": {
           "divider": "Другое",
