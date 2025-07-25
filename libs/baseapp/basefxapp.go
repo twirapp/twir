@@ -13,14 +13,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/logger/audit"
 	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
-	twirsentry "github.com/twirapp/twir/libs/sentry"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
+	twirsentry "github.com/twirapp/twir/libs/sentry"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -108,6 +108,7 @@ func newPgxPool(cfg config.Config) (PgxResult, error) {
 	connConfig.MaxConns = 100
 	connConfig.MinConns = 1
 	connConfig.HealthCheckPeriod = 30 * time.Second
+	connConfig.ConnConfig.Config.ConnectTimeout = 5*time.Second
 	connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	pool, err := pgxpool.NewWithConfig(
