@@ -11,7 +11,6 @@ require (
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/lib/pq v1.10.9
 	github.com/oklog/ulid/v2 v2.1.1
-	github.com/twirapp/twir/libs/baseapp v0.0.0-20250723210134-6e95e974f9e4
 )
 
 require (

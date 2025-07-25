@@ -17,12 +17,6 @@ require (
 )
 
 require (
-
-
-
-)
-
-require (
 	buf.build/go/app v0.1.0 // indirect
 	buf.build/go/interrupt v1.1.0 // indirect
 	buf.build/go/protovalidate v0.14.0 // indirect

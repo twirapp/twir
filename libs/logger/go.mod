@@ -2,7 +2,7 @@ module github.com/twirapp/twir/libs/logger
 
 go 1.24.1
 
-
+retract v0.0.0-00010101000000-000000000000
 
 require (
 	github.com/getsentry/sentry-go v0.34.1
@@ -14,9 +14,6 @@ require (
 	github.com/samber/slog-multi v1.4.1
 	github.com/samber/slog-sentry/v2 v2.9.3
 	github.com/samber/slog-zerolog/v2 v2.7.3
-
-
-
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
 )
