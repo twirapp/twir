@@ -13,13 +13,20 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/entity"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
 	entities, err := c.keywordsService.GetManyByChannelID(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		return err

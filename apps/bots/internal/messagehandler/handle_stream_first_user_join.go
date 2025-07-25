@@ -5,11 +5,19 @@ import (
 	"fmt"
 	"time"
 
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg handleMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
+
 	if msg.EnrichedData.ChannelStream == nil {
 		return nil
 	}

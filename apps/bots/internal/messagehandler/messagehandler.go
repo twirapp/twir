@@ -11,19 +11,19 @@ import (
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/redis/go-redis/v9"
+	batchprocessor "github.com/twirapp/batch-processor"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
-	cfg "github.com/twirapp/twir/libs/config"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
-	batchprocessor "github.com/twirapp/batch-processor"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	cfg "github.com/twirapp/twir/libs/config"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
@@ -33,6 +33,9 @@ import (
 	giveawaysmodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -76,7 +79,7 @@ type MessageHandler struct {
 	twitchActions                    *twitchactions.TwitchActions
 	moderationHelpers                *moderationhelpers.ModerationHelpers
 	twirBus                          *buscore.Bus
-	votebanMutex                     *redsync.Mutex
+	votebanLock                      *redsync.Redsync
 	greetingsCache                   *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 	chatWallCacher                   *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
 	chatWallRepository               chatwallrepository.Repository
@@ -106,7 +109,7 @@ func New(opts Opts) *MessageHandler {
 		moderationHelpers:                opts.ModerationHelpers,
 		config:                           opts.Config,
 		twirBus:                          opts.Bus,
-		votebanMutex:                     votebanLock.NewMutex("bots:voteban_handle_message"),
+		votebanLock:                      votebanLock,
 		keywordsService:                  opts.KeywordsService,
 		greetingsRepository:              opts.GreetingsRepository,
 		chatMessagesRepository:           opts.ChatMessagesRepository,
@@ -210,6 +213,16 @@ var handlersForExecute = []func(
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(
+  	attribute.String("function.name", utils.GetFuncName()),
+   	attribute.String("channel.id", req.BroadcasterUserId),
+    attribute.String("channel.login", req.BroadcasterUserLogin),
+    attribute.String("user.id", req.ChatterUserId),
+    attribute.String("user.login", req.ChatterUserLogin),
+  )
+
 	msg := handleMessage{
 		TwitchChatMessage: req,
 	}

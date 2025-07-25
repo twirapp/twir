@@ -5,12 +5,19 @@ import (
 	"time"
 
 	"github.com/twirapp/twir/libs/redis_keys"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (c *MessageHandler) handleIncrementStreamMessages(
 	ctx context.Context,
 	msg handleMessage,
 ) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
 	if msg.EnrichedData.ChannelStream == nil {
 		return nil
 	}

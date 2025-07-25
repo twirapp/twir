@@ -5,6 +5,9 @@ import (
 	"log/slog"
 
 	channelsemotesusages "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []handleMessage) {
@@ -31,7 +34,11 @@ func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []h
 	}
 }
 
-func (c *MessageHandler) handleEmotesUsages(_ context.Context, msg handleMessage) error {
+func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
 	c.messagesEmotesBatcher.Add(msg)
 	return nil
 }

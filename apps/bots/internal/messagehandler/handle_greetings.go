@@ -7,15 +7,22 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
 	if msg.EnrichedData.ChannelStream == nil {
 		return nil
 	}

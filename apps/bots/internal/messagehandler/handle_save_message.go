@@ -5,9 +5,16 @@ import (
 	"log/slog"
 
 	chatmessages "github.com/twirapp/twir/libs/repositories/chat_messages"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (c *MessageHandler) handleSaveMessageBatched(ctx context.Context, data []handleMessage) {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
 	createMessageInputs := make([]chatmessages.CreateInput, len(data))
 
 	for index, msg := range data {

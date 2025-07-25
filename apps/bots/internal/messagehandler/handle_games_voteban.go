@@ -10,12 +10,20 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"gorm.io/gorm"
 )
 
 func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessage) error {
-	c.votebanMutex.Lock()
-	defer c.votebanMutex.Unlock()
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
+	mu := c.votebanLock.NewMutex("bots:voteban_handle_message:"+msg.BroadcasterUserId)
+	mu.Lock()
+	defer mu.Unlock()
 
 	redisKey := fmt.Sprintf("channels:%s:games:voteban", msg.BroadcasterUserId)
 

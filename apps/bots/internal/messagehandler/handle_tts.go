@@ -6,10 +6,17 @@ import (
 	"strings"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"gorm.io/gorm"
 )
 
 func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
 	if strings.HasPrefix(msg.Message.Text, msg.EnrichedData.ChannelCommandPrefix) {
 		return nil
 	}

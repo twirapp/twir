@@ -16,6 +16,9 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type moderationHandleResult struct {
@@ -43,6 +46,10 @@ var moderationFunctionsMapping = map[channelsmoderationsettingsmodel.ModerationS
 var excludedModerationBadges = []string{"BROADCASTER", "MODERATOR"}
 
 func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
 	badges := createUserBadges(msg.Badges)
 
 	for _, b := range badges {

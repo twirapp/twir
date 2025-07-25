@@ -14,9 +14,17 @@ import (
 	"github.com/twirapp/twir/libs/redis_keys"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (c *MessageHandler) handleChatWall(ctx context.Context, msg handleMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
+
 	if msg.Message == nil ||
 		msg.ChatterUserId == msg.EnrichedData.DbChannel.ID ||
 		msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {

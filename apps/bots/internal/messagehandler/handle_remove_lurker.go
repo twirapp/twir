@@ -6,6 +6,9 @@ import (
 	"time"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var removeLurkerRedisCacheKey = "cache:bots:remove_lurkers:"
@@ -50,7 +53,11 @@ func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []h
 	}
 }
 
-func (c *MessageHandler) handleRemoveLurker(_ context.Context, msg handleMessage) error {
+func (c *MessageHandler) handleRemoveLurker(ctx context.Context, msg handleMessage) error {
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
 	c.messagesLurkersBatcher.Add(msg)
 	return nil
 }

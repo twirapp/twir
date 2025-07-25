@@ -6,13 +6,19 @@ import (
 
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways/model"
+	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage) error {
-	// TODO: uncomment in prod
-	// if msg.DbStream == nil {
-	// 	return nil
-	// }
+	span := trace.SpanFromContext(ctx)
+  defer span.End()
+  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+
+	if msg.EnrichedData.ChannelStream == nil {
+		return nil
+	}
 
 	giveaways, err := c.giveawaysCacher.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
