@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
@@ -11,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/ravilushqa/otelgqlgen"
-	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	config "github.com/twirapp/twir/libs/config"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 )
@@ -74,7 +75,9 @@ func New(opts Opts) *Gql {
 		},
 	)
 
-	srv.Use(otelgqlgen.Middleware())
+	srv.Use(otelgqlgen.Middleware(otelgqlgen.WithCreateSpanFromFields(func(ctx *graphql.FieldContext) bool {
+		return ctx.IsMethod || ctx.IsResolver
+	})))
 
 	if opts.Config.AppEnv != "production" {
 		srv.Use(extension.Introspection{})
