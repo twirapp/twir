@@ -7,7 +7,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"gorm.io/gorm"
 )

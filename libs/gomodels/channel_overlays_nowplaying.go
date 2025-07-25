@@ -3,7 +3,7 @@ package model
 import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/satont/twir/libs/types/types/api/overlays"
+	"github.com/twirapp/twir/libs/types/types/api/overlays"
 )
 
 type ChannelOverlayNowPlaying struct {

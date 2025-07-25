@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/satont/twir/apps/bots/internal/twitchactions"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 )
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

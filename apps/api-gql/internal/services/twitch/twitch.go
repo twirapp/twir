@@ -1,7 +1,7 @@
 package twitch
 
 import (
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	"go.uber.org/fx"

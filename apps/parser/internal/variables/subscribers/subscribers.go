@@ -6,8 +6,8 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/zap"
 )
 

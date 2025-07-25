@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/streamelements"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"

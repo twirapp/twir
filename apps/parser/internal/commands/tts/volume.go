@@ -7,9 +7,9 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
-	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
-	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
+	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 const (

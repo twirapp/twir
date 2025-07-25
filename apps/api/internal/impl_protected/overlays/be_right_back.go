@@ -7,7 +7,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twitchtv/twirp"

@@ -1,7 +1,7 @@
 package messages
 
 import (
-	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/operations"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/operations"
 )
 
 type BaseMessageWithoutData struct {

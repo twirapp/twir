@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/guregu/null"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	lfm "github.com/shkh/lastfm-go/lastfm"
 	"github.com/twirapp/twir/libs/api/messages/integrations_lastfm"
 	"google.golang.org/protobuf/types/known/emptypb"

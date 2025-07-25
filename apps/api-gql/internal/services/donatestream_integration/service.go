@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/redis/go-redis/v9"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

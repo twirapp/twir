@@ -2,8 +2,8 @@ package events
 
 import (
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/events/internal/hydrator"
-	config "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/events/internal/hydrator"
+	config "github.com/twirapp/twir/libs/config"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/greetings"

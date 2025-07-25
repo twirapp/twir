@@ -3,7 +3,7 @@ package interceptors
 import (
 	"context"
 
-	"github.com/satont/twir/apps/api/internal/helpers"
+	"github.com/twirapp/twir/apps/api/internal/helpers"
 	"github.com/twitchtv/twirp"
 )
 

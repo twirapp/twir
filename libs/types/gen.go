@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/satont/twir/libs/types/types/api"
-	apioverlays "github.com/satont/twir/libs/types/types/api/overlays"
-	"github.com/satont/twir/libs/types/types/events"
-	"github.com/satont/twir/libs/types/types/overlays"
+	"github.com/twirapp/twir/libs/types/types/api"
+	apioverlays "github.com/twirapp/twir/libs/types/types/api/overlays"
+	"github.com/twirapp/twir/libs/types/types/events"
+	"github.com/twirapp/twir/libs/types/types/overlays"
 	"github.com/tkrajina/typescriptify-golang-structs/typescriptify"
 )
 

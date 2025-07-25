@@ -8,8 +8,8 @@ import (
 	"github.com/avast/retry-go/v4"
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/state"
-	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/discord/internal/sended_messages_store"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *MessagesUpdater) processOnline(

@@ -1,11 +1,11 @@
 package app
 
 import (
-	bus_listener "github.com/satont/twir/apps/eventsub/internal/bus-listener"
-	"github.com/satont/twir/apps/eventsub/internal/handler"
-	"github.com/satont/twir/apps/eventsub/internal/manager"
-	"github.com/satont/twir/apps/eventsub/internal/tunnel"
-	cfg "github.com/satont/twir/libs/config"
+	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
+	"github.com/twirapp/twir/apps/eventsub/internal/handler"
+	"github.com/twirapp/twir/apps/eventsub/internal/manager"
+	"github.com/twirapp/twir/apps/eventsub/internal/tunnel"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"

@@ -8,7 +8,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 func (p *RedisTaskProcessor) ProcessDistributeMod(

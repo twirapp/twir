@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages/model"
 )

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/apps/events/internal/shared"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/events/internal/shared"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"go.temporal.io/sdk/activity"
 )
 

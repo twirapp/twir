@@ -9,7 +9,7 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/oklog/ulid/v2"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/nicklaw5/helix/v2"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/twitch"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
 

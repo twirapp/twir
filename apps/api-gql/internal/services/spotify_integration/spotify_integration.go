@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/imroc/req/v3"
-	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"

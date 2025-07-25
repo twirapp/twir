@@ -7,8 +7,8 @@ import (
 
 	"github.com/oklog/ulid/v2"
 	"github.com/samber/lo"
-	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	repo "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"

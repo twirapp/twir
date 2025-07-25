@@ -10,8 +10,8 @@ import (
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 type faceitMatchesResponse []*types.FaceitMatch

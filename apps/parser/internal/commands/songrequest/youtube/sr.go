@@ -9,17 +9,17 @@ import (
 	"strings"
 	"time"
 
-	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/internal/types/services"
+	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
 
 	"github.com/guregu/null"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/valyala/fasttemplate"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 
 	"github.com/nicklaw5/helix/v2"
 

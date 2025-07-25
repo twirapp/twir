@@ -9,13 +9,13 @@ import (
 	"unicode/utf8"
 
 	"github.com/guregu/null"
-	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
-	model "github.com/satont/twir/libs/gomodels"
+	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	model "github.com/twirapp/twir/libs/gomodels"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 

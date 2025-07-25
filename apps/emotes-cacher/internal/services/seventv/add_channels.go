@@ -7,9 +7,9 @@ import (
 	"sync"
 
 	"github.com/avast/retry-go/v4"
-	dispatchtypes "github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
-	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/operations"
-	"github.com/satont/twir/apps/emotes-cacher/internal/socket_client"
+	dispatchtypes "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/operations"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/socket_client"
 )
 
 func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error {

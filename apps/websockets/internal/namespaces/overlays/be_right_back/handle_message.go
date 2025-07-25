@@ -5,7 +5,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/olahol/melody"
-	"github.com/satont/twir/apps/websockets/types"
+	"github.com/twirapp/twir/apps/websockets/types"
 )
 
 func (c *BeRightBack) handleMessage(session *melody.Session, msg []byte) {

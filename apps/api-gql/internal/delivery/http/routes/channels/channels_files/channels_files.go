@@ -7,7 +7,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"go.uber.org/fx"
 )

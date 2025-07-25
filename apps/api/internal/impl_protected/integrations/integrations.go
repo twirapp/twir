@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/guregu/null"
-	"github.com/satont/twir/apps/api/internal/impl_deps"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/api/internal/impl_deps"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 )
 

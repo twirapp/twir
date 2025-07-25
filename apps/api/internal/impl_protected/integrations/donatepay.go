@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/guregu/null"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_donatepay"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"google.golang.org/protobuf/types/known/emptypb"

@@ -13,7 +13,7 @@
       </ENTRIES>
     </EXTENSION>
     <kind value="FILE" />
-    <package value="github.com/satont/twir/apps/parser" />
+    <package value="github.com/twirapp/twir/apps/parser" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/apps/parser/cmd/main.go" />
     <method v="2" />

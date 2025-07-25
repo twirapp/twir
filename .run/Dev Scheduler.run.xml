@@ -13,7 +13,7 @@
       </ENTRIES>
     </EXTENSION>
     <kind value="FILE" />
-    <package value="github.com/satont/twir/apps/scheduler" />
+    <package value="github.com/twirapp/twir/apps/scheduler" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/apps/scheduler/cmd/main.go" />
     <method v="2" />

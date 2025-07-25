@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/types/types/api/modules"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"github.com/twirapp/twir/libs/api/messages/modules_tts"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

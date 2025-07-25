@@ -10,7 +10,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
-	twlib "github.com/satont/twir/libs/twitch"
+	twlib "github.com/twirapp/twir/libs/twitch"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )

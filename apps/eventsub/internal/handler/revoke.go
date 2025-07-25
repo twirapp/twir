@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"log/slog"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"github.com/twirapp/twitch-eventsub-framework/esb"
 )

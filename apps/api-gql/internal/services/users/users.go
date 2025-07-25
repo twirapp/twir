@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
-	config "github.com/satont/twir/libs/config"
-	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
+	config "github.com/twirapp/twir/libs/config"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"

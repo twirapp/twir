@@ -6,7 +6,7 @@ import (
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"

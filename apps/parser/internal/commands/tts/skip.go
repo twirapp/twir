@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/guregu/null"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 
-	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 

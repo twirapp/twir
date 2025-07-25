@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/olahol/melody"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

@@ -4,8 +4,8 @@ import (
 	"context"
 	"slices"
 
-	"github.com/satont/twir/apps/emotes-cacher/internal/emotes_store"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
+	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"go.uber.org/fx"

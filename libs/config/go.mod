@@ -1,4 +1,4 @@
-module github.com/satont/twir/libs/config
+module github.com/twirapp/twir/libs/config
 
 go 1.24.1
 

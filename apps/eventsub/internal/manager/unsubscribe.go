@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) error {

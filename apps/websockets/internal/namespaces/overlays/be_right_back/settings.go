@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
-	"github.com/satont/twir/apps/websockets/internal/protoutils"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/websockets/internal/protoutils"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/overlays_be_right_back"
 )
 

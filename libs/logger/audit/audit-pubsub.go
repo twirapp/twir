@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	slogcommon "github.com/samber/slog-common"
-	"github.com/satont/twir/libs/logger/levels"
-	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
+	"github.com/twirapp/twir/libs/logger/levels"
+	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	buscoreauditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 )
 

@@ -1,12 +1,12 @@
 package twirp_handlers
 
 import (
-	"github.com/satont/twir/apps/api/internal/hooks"
+	"github.com/twirapp/twir/apps/api/internal/hooks"
 
-	"github.com/satont/twir/apps/api/internal/handlers"
+	"github.com/twirapp/twir/apps/api/internal/handlers"
 
 	"github.com/bakins/twirpotel"
-	"github.com/satont/twir/apps/api/internal/wrappers"
+	"github.com/twirapp/twir/apps/api/internal/wrappers"
 	"github.com/twirapp/twir/libs/api"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"

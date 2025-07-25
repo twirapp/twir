@@ -7,8 +7,8 @@ import (
 	"slices"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/events/internal/shared"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/events/internal/shared"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	"go.temporal.io/sdk/activity"
 	"gorm.io/gorm"

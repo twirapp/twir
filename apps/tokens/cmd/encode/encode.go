@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/satont/twir/libs/crypto"
+	"github.com/twirapp/twir/libs/crypto"
 )
 
 func main() {

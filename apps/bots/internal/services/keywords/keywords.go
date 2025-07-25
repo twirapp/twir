@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/satont/twir/apps/bots/internal/entity"
+	"github.com/twirapp/twir/apps/bots/internal/entity"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"

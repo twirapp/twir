@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 var ErrIntegrationNotFound = fmt.Errorf("integration not found")

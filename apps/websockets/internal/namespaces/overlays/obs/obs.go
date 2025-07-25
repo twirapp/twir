@@ -11,9 +11,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
-	"github.com/satont/twir/apps/websockets/types"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/websockets/internal/namespaces/helpers"
+	"github.com/twirapp/twir/apps/websockets/types"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

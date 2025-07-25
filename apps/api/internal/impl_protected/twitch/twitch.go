@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/apps/api/internal/helpers"
-	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/apps/api/internal/helpers"
+	"github.com/twirapp/twir/apps/api/internal/impl_deps"
+	"github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/api/messages/twitch_protected"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

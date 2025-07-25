@@ -5,12 +5,12 @@ package dota
 // 	"fmt"
 // 	"github.com/go-redis/redis/v9"
 // 	"github.com/samber/do"
-// 	"github.com/satont/twir/apps/parser/internal/di"
+// 	"github.com/twirapp/twir/apps/parser/internal/di"
 // 	"go.uber.org/zap"
 // 	"strings"
 // 	"time"
 
-// 	model "github.com/satont/twir/libs/gomodels"
+// 	model "github.com/twirapp/twir/libs/gomodels"
 
 // 	req "github.com/imroc/req/v3"
 // 	"github.com/samber/lo"

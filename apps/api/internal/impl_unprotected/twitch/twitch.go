@@ -11,9 +11,9 @@ import (
 	json "github.com/bytedance/sonic"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/api/internal/impl_deps"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/apps/api/internal/impl_deps"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/twitch"
 	generatedTwitch "github.com/twirapp/twir/libs/api/messages/twitch"
 )
 

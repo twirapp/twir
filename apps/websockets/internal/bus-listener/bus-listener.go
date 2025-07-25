@@ -3,7 +3,7 @@ package bus_listener
 import (
 	"context"
 
-	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
+	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 	"go.uber.org/fx"

@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
-	config "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
+	config "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"

@@ -1,12 +1,9 @@
-module github.com/satont/twir/libs/sentry
+module github.com/twirapp/twir/libs/sentry
 
 go 1.24.1
 
-replace github.com/satont/twir/libs/config => ../config
-
 require (
-	github.com/getsentry/sentry-go v0.29.1
-	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
+	github.com/getsentry/sentry-go v0.34.1
 )
 
 require (
@@ -14,6 +11,6 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
+	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/text v0.27.0 // indirect
 )

@@ -3,7 +3,7 @@ package interceptors
 import (
 	"context"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twitchtv/twirp"
 )
 

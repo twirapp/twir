@@ -7,8 +7,8 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 

@@ -8,9 +8,9 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
-	"github.com/satont/twir/apps/api/internal/helpers"
-	"github.com/satont/twir/apps/api/internal/impl_deps"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/api/internal/helpers"
+	"github.com/twirapp/twir/apps/api/internal/impl_deps"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/overlays"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"

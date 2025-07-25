@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 
 	twirclickhouse "github.com/twirapp/twir/libs/baseapp/clickhouse"
 )

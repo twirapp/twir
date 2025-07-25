@@ -10,7 +10,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/bots/internal/twitchactions"
+	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/redis_keys"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"

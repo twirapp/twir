@@ -2,7 +2,7 @@ package hooks
 
 import (
 	"context"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twitchtv/twirp"
 	"log/slog"
 )

@@ -3,7 +3,7 @@ package stream_handlers
 import (
 	"context"
 
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/greetings"

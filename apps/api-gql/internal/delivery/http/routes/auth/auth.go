@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	sessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	buscore "github.com/twirapp/twir/libs/bus-core"

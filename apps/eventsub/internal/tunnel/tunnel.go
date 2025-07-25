@@ -10,11 +10,10 @@ import (
 
 	"github.com/avast/retry-go/v4"
 	"github.com/samber/lo"
-	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
-	"golang.ngrok.com/ngrok"
-	ngconfig "golang.ngrok.com/ngrok/config"
+	"golang.ngrok.com/ngrok/v2"
 )
 
 type AppTunnel struct {
@@ -34,12 +33,13 @@ func New(cfg config.Config, lc fx.Lifecycle, log logger.Logger) (*AppTunnel, err
 		}
 
 		lis, err := retry.DoWithData(
-			func() (ngrok.Tunnel, error) {
-				return ngrok.Listen(
-					context.Background(),
-					ngconfig.HTTPEndpoint(),
-					ngrok.WithAuthtoken(cfg.NgrokAuthToken),
-				)
+			func() (ngrok.EndpointListener, error) {
+				agent, err := ngrok.NewAgent(ngrok.WithAuthtoken(cfg.NgrokAuthToken))
+				if err != nil {
+						return nil, err
+				}
+
+				return agent.Listen(context.Background())
 			},
 			retry.Attempts(5),
 			retry.Delay(1*time.Second),

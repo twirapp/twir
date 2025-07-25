@@ -10,8 +10,8 @@ import (
 	"sync"
 
 	"github.com/samber/lo"
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	"go.uber.org/fx"

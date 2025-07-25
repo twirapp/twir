@@ -6,8 +6,8 @@ import (
 
 	"github.com/araddon/dateparse"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/pkg/helpers"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/pkg/helpers"
 )
 
 var CountDown = &types.Variable{

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"

@@ -12,9 +12,9 @@ import (
 
 	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
-	"github.com/satont/twir/apps/bots/internal/twitchactions"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
+	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	model "github.com/twirapp/twir/libs/gomodels"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 )
 

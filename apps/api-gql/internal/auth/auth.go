@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

@@ -1,3 +1,3 @@
-module github.com/satont/twir/libs/utils
+module github.com/twirapp/twir/libs/utils
 
 go 1.24.1

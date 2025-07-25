@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/internal/variables/user"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/variables/user"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 var UserAge = &types.DefaultCommand{

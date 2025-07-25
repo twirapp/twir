@@ -9,10 +9,10 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/pkg/helpers"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/pkg/helpers"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 type firstFollower struct {

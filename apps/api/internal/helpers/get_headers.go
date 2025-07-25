@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/satont/twir/apps/api/internal/wrappers"
+	"github.com/twirapp/twir/apps/api/internal/wrappers"
 )
 
 func GetHeadersFromCtx(ctx context.Context) (http.Header, error) {

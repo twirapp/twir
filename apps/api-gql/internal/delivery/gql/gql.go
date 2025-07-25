@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/ravilushqa/otelgqlgen"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"

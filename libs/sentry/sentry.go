@@ -2,7 +2,7 @@ package twirsentry
 
 import (
 	"github.com/getsentry/sentry-go"
-	cfg "github.com/satont/twir/libs/config"
+	cfg "github.com/twirapp/twir/libs/config"
 )
 
 func New(dsn string) (*sentry.Client, error) {

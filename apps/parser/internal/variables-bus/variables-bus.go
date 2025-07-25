@@ -6,7 +6,7 @@ import (
 	"slices"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/variables"
+	"github.com/twirapp/twir/apps/parser/internal/variables"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 )

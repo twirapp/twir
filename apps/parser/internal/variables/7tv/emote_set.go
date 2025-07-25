@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 )
 
 var EmoteSetName = &types.Variable{

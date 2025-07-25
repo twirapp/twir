@@ -9,8 +9,8 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
-	mod_task_queue "github.com/satont/twir/apps/bots/internal/mod-task-queue"
-	"github.com/satont/twir/libs/twitch"
+	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 type BanOpts struct {

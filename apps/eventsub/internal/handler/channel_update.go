@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"

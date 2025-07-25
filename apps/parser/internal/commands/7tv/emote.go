@@ -7,10 +7,10 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/pkg/helpers"
-	model "github.com/satont/twir/libs/gomodels"
+	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/pkg/helpers"
+	model "github.com/twirapp/twir/libs/gomodels"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )

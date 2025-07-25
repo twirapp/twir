@@ -6,9 +6,9 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/satont/twir/apps/parser/internal/types"
-	currentsong "github.com/satont/twir/apps/parser/internal/variables/song"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	currentsong "github.com/twirapp/twir/apps/parser/internal/variables/song"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 var History = &types.DefaultCommand{

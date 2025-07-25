@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 )
 

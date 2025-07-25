@@ -16,8 +16,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/api/internal/helpers"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/api/internal/helpers"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_nightbot"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

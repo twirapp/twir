@@ -3,7 +3,7 @@ package twirbus
 import (
 	"context"
 
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/chat-translator/internal/services/handle_message"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"

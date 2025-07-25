@@ -6,9 +6,9 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/olahol/melody"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/websockets/types"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/types/types/overlays"
+	"github.com/twirapp/twir/apps/websockets/types"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/types/types/overlays"
 )
 
 func (c *Dudes) handleMessage(session *melody.Session, msg []byte) {

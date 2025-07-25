@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"go.uber.org/fx"
 )

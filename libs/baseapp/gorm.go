@@ -8,7 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"

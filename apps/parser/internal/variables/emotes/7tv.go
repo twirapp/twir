@@ -6,7 +6,7 @@ import (
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 )
 
 type sevenTVEmote struct {

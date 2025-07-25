@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/model"
 

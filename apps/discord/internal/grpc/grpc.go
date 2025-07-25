@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	arikawa_state "github.com/diamondburned/arikawa/v3/state"
-	"github.com/satont/twir/apps/discord/internal/discord_go"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/discord/internal/discord_go"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"

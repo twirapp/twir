@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"

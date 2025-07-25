@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	dbmodel "github.com/satont/twir/libs/gomodels"
+	dbmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"go.uber.org/fx"
 	"gorm.io/gorm"

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/nicklaw5/helix/v2"
-	cfg "github.com/satont/twir/libs/config"
+	cfg "github.com/twirapp/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 )

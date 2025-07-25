@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 var removeLurkerRedisCacheKey = "cache:bots:remove_lurkers:"

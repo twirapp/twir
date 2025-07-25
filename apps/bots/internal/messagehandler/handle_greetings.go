@@ -6,8 +6,8 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/bots/internal/twitchactions"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"

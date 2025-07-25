@@ -10,9 +10,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"gorm.io/gorm"
 )
