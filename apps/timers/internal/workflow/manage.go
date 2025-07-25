@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/satont/twir/apps/timers/internal/shared"
+	"github.com/twirapp/twir/apps/timers/internal/shared"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/temporal"
 )

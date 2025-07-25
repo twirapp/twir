@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	deprecatedmodel "github.com/satont/twir/libs/gomodels"
+	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"

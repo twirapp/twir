@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/imroc/req/v3"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

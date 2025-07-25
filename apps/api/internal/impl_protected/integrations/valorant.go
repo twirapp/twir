@@ -9,8 +9,8 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/satont/twir/apps/api/internal/helpers"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/api/internal/helpers"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_valorant"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

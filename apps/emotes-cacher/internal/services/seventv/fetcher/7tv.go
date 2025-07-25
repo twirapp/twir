@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/imroc/req/v3"
-	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
 )
 
 type SevenTvEmote struct {

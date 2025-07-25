@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	commandsservice "github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"

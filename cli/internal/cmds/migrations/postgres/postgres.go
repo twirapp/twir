@@ -9,9 +9,9 @@ import (
 	"github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	"github.com/pterm/pterm"
-	cfg "github.com/satont/twir/libs/config"
-	_ "github.com/satont/twir/libs/migrations/postgres"
-	"github.com/satont/twir/libs/migrations/seeds"
+	cfg "github.com/twirapp/twir/libs/config"
+	_ "github.com/twirapp/twir/libs/migrations/postgres"
+	"github.com/twirapp/twir/libs/migrations/seeds"
 )
 
 func Migrate(ctx context.Context, config *cfg.Config, migrationsPath string) error {

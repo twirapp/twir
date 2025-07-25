@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/bots
+module github.com/twirapp/twir/apps/bots
 
 go 1.24.1
 

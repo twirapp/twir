@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/satont/twir/apps/parser/pkg/executron"
+	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"

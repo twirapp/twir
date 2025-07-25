@@ -8,7 +8,7 @@ package seventv
 // 	"time"
 //
 // 	"github.com/coder/websocket"
-// 	"github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/messages"
+// 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/messages"
 // )
 //
 // type wsConnectionOnMessage = func(ctx context.Context, msg []byte)

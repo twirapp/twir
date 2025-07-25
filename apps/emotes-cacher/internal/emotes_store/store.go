@@ -8,8 +8,8 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
+	"github.com/twirapp/twir/libs/logger"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"go.uber.org/fx"
 	"gorm.io/gorm"

@@ -7,10 +7,10 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
-	chatwallservice "github.com/satont/twir/apps/parser/internal/services/chat_wall"
-	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
+	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	chatwallservice "github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	model "github.com/twirapp/twir/libs/gomodels"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 )
 

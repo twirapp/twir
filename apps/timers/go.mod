@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/timers
+module github.com/twirapp/twir/apps/timers
 
 go 1.24.1
 

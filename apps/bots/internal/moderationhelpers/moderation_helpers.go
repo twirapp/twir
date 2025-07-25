@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/satont/twir/apps/bots/pkg/tlds"
+	"github.com/twirapp/twir/apps/bots/pkg/tlds"
 	"go.uber.org/fx"
 )
 

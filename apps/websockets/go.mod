@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/websockets
+module github.com/twirapp/twir/apps/websockets
 
 go 1.24.1
 

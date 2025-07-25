@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/satont/twir/apps/scheduler/app"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/scheduler/app"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 

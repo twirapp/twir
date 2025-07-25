@@ -13,9 +13,9 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	config "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/types/types/api/modules"
+	config "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"github.com/tidwall/gjson"
 	"gorm.io/gorm"
 )

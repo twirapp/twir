@@ -6,8 +6,8 @@ import (
 	"log/slog"
 
 	"github.com/redis/go-redis/v9"
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/api/messages/events"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	busevents "github.com/twirapp/twir/libs/bus-core/events"

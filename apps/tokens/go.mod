@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/tokens
+module github.com/twirapp/twir/apps/tokens
 
 go 1.24.1
 

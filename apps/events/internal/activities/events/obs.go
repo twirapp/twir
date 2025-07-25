@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/satont/twir/apps/events/internal/shared"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/events/internal/shared"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.temporal.io/sdk/activity"
 )

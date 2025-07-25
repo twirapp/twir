@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/alitto/pond/v2"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
 )

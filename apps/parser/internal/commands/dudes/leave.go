@@ -5,8 +5,8 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 )
 

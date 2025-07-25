@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/discord
+module github.com/twirapp/twir/apps/discord
 
 go 1.24.1
 

@@ -12,7 +12,7 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/giveaways/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbusmodel "github.com/twirapp/twir/libs/bus-core/giveaways"

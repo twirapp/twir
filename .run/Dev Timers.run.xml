@@ -13,7 +13,7 @@
       </ENTRIES>
     </EXTENSION>
     <kind value="FILE" />
-    <package value="github.com/satont/twir/apps/timers" />
+    <package value="github.com/twirapp/twir/apps/timers" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/apps/timers/cmd/main.go" />
     <method v="2" />

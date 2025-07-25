@@ -7,7 +7,7 @@ import (
 	"regexp"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 )

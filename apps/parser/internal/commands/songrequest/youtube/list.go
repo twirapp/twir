@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/guregu/null"
-	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 var SrListCommand = &types.DefaultCommand{

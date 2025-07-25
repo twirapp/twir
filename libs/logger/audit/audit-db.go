@@ -6,7 +6,7 @@ import (
 
 	"github.com/goccy/go-json"
 	slogcommon "github.com/samber/slog-common"
-	"github.com/satont/twir/libs/logger/levels"
+	"github.com/twirapp/twir/libs/logger/levels"
 	"github.com/twirapp/twir/libs/repositories/audit_logs"
 	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
 )

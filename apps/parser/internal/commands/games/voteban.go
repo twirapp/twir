@@ -10,9 +10,9 @@ import (
 	"github.com/go-redsync/redsync/v4"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
-	"github.com/satont/twir/apps/parser/internal/types"
-	model "github.com/satont/twir/libs/gomodels"
+	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

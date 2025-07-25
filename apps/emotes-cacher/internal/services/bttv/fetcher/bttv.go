@@ -5,7 +5,7 @@ import (
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
 )
 
 type BttvEmote struct {

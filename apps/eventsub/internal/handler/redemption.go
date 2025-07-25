@@ -19,7 +19,7 @@ import (
 	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 
 	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 

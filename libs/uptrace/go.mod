@@ -3,7 +3,6 @@ module github.com/twirapp/twir/libs/uptrace
 go 1.24.1
 
 require (
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
 	github.com/uptrace/uptrace-go v1.37.0
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0
@@ -16,8 +15,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.62.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp v0.13.0 // indirect

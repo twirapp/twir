@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/satont/twir/apps/scheduler/internal/services"
-	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/scheduler/internal/services"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

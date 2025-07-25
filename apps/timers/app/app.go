@@ -1,13 +1,13 @@
 package app
 
 import (
-	"github.com/satont/twir/apps/timers/internal/activity"
-	bus_listener "github.com/satont/twir/apps/timers/internal/bus-listener"
-	"github.com/satont/twir/apps/timers/internal/repositories/channels"
-	"github.com/satont/twir/apps/timers/internal/repositories/streams"
-	"github.com/satont/twir/apps/timers/internal/worker"
-	"github.com/satont/twir/apps/timers/internal/workflow"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/timers/internal/activity"
+	bus_listener "github.com/twirapp/twir/apps/timers/internal/bus-listener"
+	"github.com/twirapp/twir/apps/timers/internal/repositories/channels"
+	"github.com/twirapp/twir/apps/timers/internal/repositories/streams"
+	"github.com/twirapp/twir/apps/timers/internal/worker"
+	"github.com/twirapp/twir/apps/timers/internal/workflow"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"

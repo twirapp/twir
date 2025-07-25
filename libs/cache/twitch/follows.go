@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/twitch"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )

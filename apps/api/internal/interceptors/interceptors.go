@@ -3,7 +3,7 @@ package interceptors
 import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"gorm.io/gorm"
 )
 

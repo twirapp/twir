@@ -3,11 +3,11 @@ package commands_bus
 import (
 	"context"
 
-	"github.com/satont/twir/apps/parser/internal/cacher"
-	"github.com/satont/twir/apps/parser/internal/commands"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/internal/types/services"
-	"github.com/satont/twir/apps/parser/internal/variables"
+	"github.com/twirapp/twir/apps/parser/internal/cacher"
+	"github.com/twirapp/twir/apps/parser/internal/commands"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types/services"
+	"github.com/twirapp/twir/apps/parser/internal/variables"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/parser"

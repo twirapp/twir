@@ -3,7 +3,7 @@ package tts
 import (
 	"context"
 
-	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"go.uber.org/fx"
 )

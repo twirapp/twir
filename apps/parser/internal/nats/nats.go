@@ -2,7 +2,7 @@ package nats
 
 import (
 	"github.com/nats-io/nats.go"
-	cfg "github.com/satont/twir/libs/config"
+	cfg "github.com/twirapp/twir/libs/config"
 )
 
 type Opts struct {

@@ -8,9 +8,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/timers/internal/repositories/channels"
-	"github.com/satont/twir/apps/timers/internal/repositories/streams"
-	config "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/timers/internal/repositories/channels"
+	"github.com/twirapp/twir/apps/timers/internal/repositories/streams"
+	config "github.com/twirapp/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"

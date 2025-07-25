@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/parser
+module github.com/twirapp/twir/apps/parser
 
 go 1.24.1
 

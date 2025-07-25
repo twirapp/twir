@@ -1,4 +1,4 @@
-module github.com/satont/twir/libs/gomodels
+module github.com/twirapp/twir/libs/gomodels
 
 go 1.24.1
 
@@ -10,8 +10,6 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	gorm.io/gorm v1.30.1
 )
-
-require github.com/satont/twir/libs/types v0.0.0-20250723210134-6e95e974f9e4
 
 require (
 	github.com/jinzhu/inflection v1.0.0 // indirect

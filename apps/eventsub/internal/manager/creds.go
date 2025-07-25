@@ -3,7 +3,7 @@ package manager
 import (
 	"context"
 
-	cfg "github.com/satont/twir/libs/config"
+	cfg "github.com/twirapp/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 )

@@ -7,11 +7,11 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
-	"github.com/satont/twir/apps/parser/internal/types"
+	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 	"gorm.io/gorm"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 var DelCommand = &types.DefaultCommand{

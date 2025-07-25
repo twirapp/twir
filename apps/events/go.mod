@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/events
+module github.com/twirapp/twir/apps/events
 
 go 1.24.1
 

@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	"go.uber.org/fx"
@@ -17,8 +17,8 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 type StreamOpts struct {

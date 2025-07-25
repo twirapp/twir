@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/redis_keys"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"

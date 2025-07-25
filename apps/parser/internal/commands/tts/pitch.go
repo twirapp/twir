@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/guregu/null"
-	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
-	model "github.com/satont/twir/libs/gomodels"
+	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	model "github.com/twirapp/twir/libs/gomodels"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 	"go.uber.org/zap"
 )
 

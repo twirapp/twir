@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	deprecatedmodel "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger"
+	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/events"

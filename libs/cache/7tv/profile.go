@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"

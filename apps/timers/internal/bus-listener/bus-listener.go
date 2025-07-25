@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/timers/internal/workflow"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/timers/internal/workflow"
+	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/redis_keys"

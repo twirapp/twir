@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

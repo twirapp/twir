@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/api
+module github.com/twirapp/twir/apps/api
 
 go 1.24.1
 

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/olahol/melody"
-	"github.com/satont/twir/apps/websockets/types"
+	"github.com/twirapp/twir/apps/websockets/types"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

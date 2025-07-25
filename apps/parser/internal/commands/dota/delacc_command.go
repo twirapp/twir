@@ -4,16 +4,16 @@ package dota
 // 	"github.com/guregu/null"
 // 	"github.com/lib/pq"
 // 	"github.com/samber/do"
-// 	"github.com/satont/twir/apps/parser/internal/di"
+// 	"github.com/twirapp/twir/apps/parser/internal/di"
 // 	"go.uber.org/zap"
 // 	"gorm.io/gorm"
 // 	"strconv"
 
-// 	"github.com/satont/twir/apps/parser/internal/types"
+// 	"github.com/twirapp/twir/apps/parser/internal/types"
 
-// 	model "github.com/satont/twir/libs/gomodels"
+// 	model "github.com/twirapp/twir/libs/gomodels"
 
-// 	variables_cache "github.com/satont/twir/apps/parser/internal/variablescache"
+// 	variables_cache "github.com/twirapp/twir/apps/parser/internal/variablescache"
 
 // 	steamid "github.com/leighmacdonald/steamid/v2/steamid"
 // 	"github.com/samber/lo"

@@ -3,12 +3,12 @@ package workflow
 import (
 	"time"
 
-	"github.com/satont/twir/apps/timers/internal/activity"
-	"github.com/satont/twir/apps/timers/internal/repositories/channels"
-	"github.com/satont/twir/apps/timers/internal/repositories/streams"
-	"github.com/satont/twir/apps/timers/internal/shared"
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/timers/internal/activity"
+	"github.com/twirapp/twir/apps/timers/internal/repositories/channels"
+	"github.com/twirapp/twir/apps/timers/internal/repositories/streams"
+	"github.com/twirapp/twir/apps/timers/internal/shared"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
 	"go.temporal.io/sdk/client"

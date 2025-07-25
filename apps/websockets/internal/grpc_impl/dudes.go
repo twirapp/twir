@@ -3,7 +3,7 @@ package grpc_impl
 import (
 	"context"
 
-	"github.com/satont/twir/apps/websockets/internal/protoutils"
+	"github.com/twirapp/twir/apps/websockets/internal/protoutils"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

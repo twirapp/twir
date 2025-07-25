@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/satont/twir/apps/emotes-cacher/internal/emote"
-	bttvfetcher "github.com/satont/twir/apps/emotes-cacher/internal/services/bttv/fetcher"
-	ffzfetcher "github.com/satont/twir/apps/emotes-cacher/internal/services/ffz/fetcher"
-	seventvfetcher "github.com/satont/twir/apps/emotes-cacher/internal/services/seventv/fetcher"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
+	bttvfetcher "github.com/twirapp/twir/apps/emotes-cacher/internal/services/bttv/fetcher"
+	ffzfetcher "github.com/twirapp/twir/apps/emotes-cacher/internal/services/ffz/fetcher"
+	seventvfetcher "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/fetcher"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 )

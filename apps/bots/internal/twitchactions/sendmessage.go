@@ -11,7 +11,7 @@ import (
 	"github.com/aidenwallis/go-ratelimiting/redis"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
 )

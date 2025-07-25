@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/pterm/pterm"
-	cfg "github.com/satont/twir/libs/config"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations/clickhouse"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations/postgres"
 	"github.com/urfave/cli/v2"

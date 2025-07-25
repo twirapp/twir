@@ -8,7 +8,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_faceit"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

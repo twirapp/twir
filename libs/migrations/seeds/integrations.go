@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log/slog"
 
-	cfg "github.com/satont/twir/libs/config"
+	cfg "github.com/twirapp/twir/libs/config"
 )
 
 func CreateIntegrations(db *sql.DB, config *cfg.Config) error {

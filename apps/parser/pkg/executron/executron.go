@@ -8,7 +8,7 @@ import (
 	"github.com/go-redis/redis_rate/v10"
 	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 )
 
 type request struct {

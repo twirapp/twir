@@ -8,7 +8,7 @@ import (
 	"github.com/avast/retry-go/v4"
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/state"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *MessagesUpdater) updateDiscordMessages(

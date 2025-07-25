@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/apps/parser/pkg/executron"
-	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/parser/pkg/executron"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"

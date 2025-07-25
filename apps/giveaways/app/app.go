@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	bus_listener "github.com/twirapp/twir/apps/giveaways/internal/bus-listener"
 	"github.com/twirapp/twir/apps/giveaways/internal/services"
 	"github.com/twirapp/twir/libs/baseapp"

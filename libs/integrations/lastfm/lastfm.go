@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	api "github.com/shkh/lastfm-go/lastfm"
 	"gorm.io/gorm"
 )

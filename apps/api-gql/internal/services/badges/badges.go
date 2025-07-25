@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/repositories/badges"
 	"github.com/twirapp/twir/libs/repositories/badges/model"

@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/emotes-cacher
+module github.com/twirapp/twir/apps/emotes-cacher
 
 go 1.24.1
 

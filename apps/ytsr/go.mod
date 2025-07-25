@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/ytsr
+module github.com/twirapp/twir/apps/ytsr
 
 go 1.24.1
 

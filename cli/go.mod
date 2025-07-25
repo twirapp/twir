@@ -17,9 +17,9 @@ require (
 )
 
 require (
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/migrations v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/grpc v0.0.0-20250723210134-6e95e974f9e4
+
+
+
 )
 
 require (
@@ -31,7 +31,7 @@ require (
 	github.com/KimMachineGun/automemlimit v0.7.1 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
-	github.com/satont/twir/libs/crypto v0.0.0-20231203205548-e635accc6b72 // indirect
+
 	gotest.tools/v3 v3.5.2 // indirect
 )
 

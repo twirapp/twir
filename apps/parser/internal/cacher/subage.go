@@ -3,7 +3,7 @@ package cacher
 import (
 	"context"
 
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 func (c *cacher) GetSubAgeInfo(ctx context.Context, channelName, userName string) (

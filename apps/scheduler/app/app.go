@@ -1,10 +1,10 @@
 package app
 
 import (
-	bus_listener "github.com/satont/twir/apps/scheduler/internal/bus-listener"
-	"github.com/satont/twir/apps/scheduler/internal/services"
-	"github.com/satont/twir/apps/scheduler/internal/timers"
-	"github.com/satont/twir/libs/logger"
+	bus_listener "github.com/twirapp/twir/apps/scheduler/internal/bus-listener"
+	"github.com/twirapp/twir/apps/scheduler/internal/services"
+	"github.com/twirapp/twir/apps/scheduler/internal/timers"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"

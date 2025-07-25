@@ -6,7 +6,7 @@ import (
 
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *Discord) handleGuildDelete(e *gateway.GuildDeleteEvent) {

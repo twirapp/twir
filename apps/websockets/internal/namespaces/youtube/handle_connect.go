@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/olahol/melody"
-	"github.com/satont/twir/apps/websockets/types"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/websockets/types"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *YouTube) handleConnect(session *melody.Session) {

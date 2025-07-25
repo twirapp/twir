@@ -5,10 +5,10 @@ import (
 	"sync"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/internal/types/services"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/types/services"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/twitch"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
 

@@ -53,10 +53,8 @@ require (
 )
 
 require (
-	github.com/satont/twir/libs/gomodels v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4
-)
 
-require github.com/satont/twir/libs/types v0.0.0-20250723210134-6e95e974f9e4 // indirect
+
+)
 
 tool github.com/Khan/genqlient

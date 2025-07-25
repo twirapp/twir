@@ -1,19 +1,13 @@
-module github.com/satont/twir/libs/migrations
+module github.com/twirapp/twir/libs/migrations
 
 go 1.24.1
-
-replace github.cim/satont/twir/libs/config => ./../config
-
-replace github.cim/satont/twir/libs/crypto => ./../crypto
-
-replace github.com/twirapp/twir/libs/grpc => ./../grpc
 
 require (
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/pressly/goose/v3 v3.24.3
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/crypto v0.0.0-20250723210134-6e95e974f9e4
+
+
 
 )
 

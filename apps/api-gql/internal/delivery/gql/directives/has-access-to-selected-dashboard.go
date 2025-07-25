@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

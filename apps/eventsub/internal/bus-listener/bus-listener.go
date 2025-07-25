@@ -3,9 +3,9 @@ package bus_listener
 import (
 	"context"
 
-	"github.com/satont/twir/apps/eventsub/internal/manager"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/eventsub/internal/manager"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"go.uber.org/fx"

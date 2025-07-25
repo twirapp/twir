@@ -7,7 +7,7 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_donationalerts"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"

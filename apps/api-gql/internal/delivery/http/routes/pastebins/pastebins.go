@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"go.uber.org/fx"

@@ -1,10 +1,10 @@
 package twirp_handlers
 
 import (
-	"github.com/satont/twir/apps/api/internal/impl_protected"
-	"github.com/satont/twir/apps/api/internal/impl_unprotected"
-	"github.com/satont/twir/apps/api/internal/interceptors"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/api/internal/impl_protected"
+	"github.com/twirapp/twir/apps/api/internal/impl_unprotected"
+	"github.com/twirapp/twir/apps/api/internal/interceptors"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 

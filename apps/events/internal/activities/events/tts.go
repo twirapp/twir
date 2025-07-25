@@ -7,9 +7,9 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/events/internal/shared"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/apps/events/internal/shared"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.temporal.io/sdk/activity"
 )

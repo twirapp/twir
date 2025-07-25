@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/pkg/helpers"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/pkg/helpers"
 	"github.com/twirapp/twir/libs/repositories/channels_info_history/model"
 
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"

@@ -6,7 +6,7 @@ import (
 
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *PubSubHandlers) streamsOffline(

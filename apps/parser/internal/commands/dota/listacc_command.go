@@ -3,11 +3,11 @@ package dota
 // import (
 // 	"github.com/guregu/null"
 // 	"github.com/lib/pq"
-// 	model "github.com/satont/twir/libs/gomodels"
+// 	model "github.com/twirapp/twir/libs/gomodels"
 // 	"strings"
 
-// 	"github.com/satont/twir/apps/parser/internal/types"
-// 	variables_cache "github.com/satont/twir/apps/parser/internal/variablescache"
+// 	"github.com/twirapp/twir/apps/parser/internal/types"
+// 	variables_cache "github.com/twirapp/twir/apps/parser/internal/variablescache"
 // )
 
 // var ListAccCommand = &types.DefaultCommand{

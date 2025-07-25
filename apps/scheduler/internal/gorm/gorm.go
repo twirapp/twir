@@ -3,7 +3,7 @@ package gorm
 import (
 	"time"
 
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

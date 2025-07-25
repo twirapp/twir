@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/scheduler
+module github.com/twirapp/twir/apps/scheduler
 
 go 1.24.1
 

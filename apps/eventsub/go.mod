@@ -1,4 +1,4 @@
-module github.com/satont/twir/apps/eventsub
+module github.com/twirapp/twir/apps/eventsub
 
 go 1.24.1
 

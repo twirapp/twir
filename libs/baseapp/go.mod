@@ -10,13 +10,13 @@ require (
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/redis/go-redis/extra/redisotel/v9 v9.11.0
 	github.com/redis/go-redis/v9 v9.11.0
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/logger v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/pubsub v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/sentry v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/bus-core v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/uptrace v0.0.0-20250723210134-6e95e974f9e4
+
+
+
+
+
+
+
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0

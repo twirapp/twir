@@ -10,7 +10,7 @@ import (
 	"github.com/goccy/go-json"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/repositories/pastebins"
 	pastebinsmodel "github.com/twirapp/twir/libs/repositories/pastebins/model"

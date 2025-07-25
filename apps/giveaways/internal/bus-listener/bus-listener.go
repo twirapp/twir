@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/giveaways/internal/services"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"

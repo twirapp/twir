@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	"github.com/pterm/pterm"
-	cfg "github.com/satont/twir/libs/config"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/frontend"

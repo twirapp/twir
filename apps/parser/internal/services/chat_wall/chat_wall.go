@@ -9,8 +9,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	config "github.com/satont/twir/libs/config"
-	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
+	config "github.com/twirapp/twir/libs/config"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"

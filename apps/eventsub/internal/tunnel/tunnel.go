@@ -10,8 +10,8 @@ import (
 
 	"github.com/avast/retry-go/v4"
 	"github.com/samber/lo"
-	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"golang.ngrok.com/ngrok/v2"
 )

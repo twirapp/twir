@@ -2,9 +2,9 @@ package twirp_handlers
 
 import (
 	"github.com/bakins/twirpotel"
-	"github.com/satont/twir/apps/api/internal/handlers"
-	"github.com/satont/twir/apps/api/internal/hooks"
-	"github.com/satont/twir/apps/api/internal/wrappers"
+	"github.com/twirapp/twir/apps/api/internal/handlers"
+	"github.com/twirapp/twir/apps/api/internal/hooks"
+	"github.com/twirapp/twir/apps/api/internal/wrappers"
 	"github.com/twirapp/twir/libs/api"
 	"github.com/twitchtv/twirp"
 )

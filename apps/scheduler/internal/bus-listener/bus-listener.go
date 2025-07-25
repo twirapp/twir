@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/satont/twir/apps/scheduler/internal/services"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/scheduler/internal/services"
+	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"go.uber.org/fx"

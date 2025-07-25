@@ -1,4 +1,4 @@
-module github.com/satont/twir/libs/logger
+module github.com/twirapp/twir/libs/logger
 
 go 1.24.1
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (s *Auth) GetAuthenticatedUser(ctx context.Context) (*model.Users, error) {

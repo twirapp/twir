@@ -16,8 +16,8 @@ import (
 	slogmulti "github.com/samber/slog-multi"
 	slogsentry "github.com/samber/slog-sentry/v2"
 	slogzerolog "github.com/samber/slog-zerolog/v2"
-	"github.com/satont/twir/libs/logger/audit"
-	"github.com/satont/twir/libs/logger/levels"
+	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/logger/levels"
 	"go.uber.org/fx"
 )
 

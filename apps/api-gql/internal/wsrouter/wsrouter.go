@@ -1,7 +1,7 @@
 package wsrouter
 
 import (
-	config "github.com/satont/twir/libs/config"
+	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
 )
 

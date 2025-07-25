@@ -2,9 +2,9 @@ package http_webhooks
 
 import (
 	"github.com/redis/go-redis/v9"
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/pubsub"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/pubsub"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twitchtv/twirp"
 )
 

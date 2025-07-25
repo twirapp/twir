@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/satont/twir/libs/types/types/events"
+	"github.com/twirapp/twir/libs/types/types/events"
 )
 
 type EventOperationFilter struct {

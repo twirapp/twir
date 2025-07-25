@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/satont/twir/apps/api/internal/handlers"
+	"github.com/twirapp/twir/apps/api/internal/handlers"
 )
 
 type Proxy struct {

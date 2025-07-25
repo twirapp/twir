@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/bots/internal/twitchactions"
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

@@ -7,9 +7,9 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/twitch"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/twitch"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"go.uber.org/fx"

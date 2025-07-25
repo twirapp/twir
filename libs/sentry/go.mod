@@ -1,13 +1,9 @@
-module github.com/satont/twir/libs/sentry
+module github.com/twirapp/twir/libs/sentry
 
 go 1.24.1
 
-replace github.com/satont/twir/libs/config => ../config
-
 require (
 	github.com/getsentry/sentry-go v0.34.1
-	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
-
 )
 
 require (

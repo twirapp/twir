@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *ChatAlerts) takeCountedSample(

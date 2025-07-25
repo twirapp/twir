@@ -7,9 +7,9 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/redis/go-redis/v9"
-	config "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger"
+	config "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"go.uber.org/fx"

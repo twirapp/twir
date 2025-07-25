@@ -1,4 +1,4 @@
-module github.com/satont/twir/libs/twitch
+module github.com/twirapp/twir/libs/twitch
 
 go 1.24.1
 
@@ -45,8 +45,6 @@ require (
 )
 
 require (
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/bus-core v0.0.0-20250723210134-6e95e974f9e4
-)
 
-require github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4 // indirect
+
+)

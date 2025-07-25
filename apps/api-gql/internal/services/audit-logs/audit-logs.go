@@ -3,7 +3,7 @@ package audit_logs
 import (
 	"context"
 
-	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
+	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	"github.com/twirapp/twir/libs/repositories/audit_logs/model"

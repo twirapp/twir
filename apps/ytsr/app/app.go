@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/satont/twir/apps/ytsr/internal/bus_listener"
-	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/ytsr/internal/bus_listener"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"

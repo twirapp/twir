@@ -13,7 +13,7 @@
       </ENTRIES>
     </EXTENSION>
     <kind value="FILE" />
-    <package value="github.com/satont/twir/apps/eventsub" />
+    <package value="github.com/twirapp/twir/apps/eventsub" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/apps/eventsub/cmd/main.go" />
     <method v="2" />
