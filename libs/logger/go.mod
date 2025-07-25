@@ -2,13 +2,7 @@ module github.com/satont/twir/libs/logger
 
 go 1.24.1
 
-replace (
-	github.com/satont/twir/libs/config => ../config
-	github.com/satont/twir/libs/gomodels => ../gomodels
-	github.com/satont/twir/libs/pubsub => ../pubsub
-	github.com/twirapp/twir/libs/bus-core => ../bus-core
-	github.com/twirapp/twir/libs/repositories => ../repositories
-)
+
 
 require (
 	github.com/getsentry/sentry-go v0.34.1
@@ -20,9 +14,9 @@ require (
 	github.com/samber/slog-multi v1.4.1
 	github.com/samber/slog-sentry/v2 v2.9.3
 	github.com/samber/slog-zerolog/v2 v2.7.3
-	github.com/satont/twir/libs/pubsub v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/bus-core v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4
+
+
+
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
 )
@@ -40,7 +34,7 @@ require (
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/samber/lo v1.51.0 // indirect
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4 // indirect
+
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect

@@ -2,21 +2,7 @@ module github.com/satont/twir/apps/discord
 
 go 1.24.1
 
-replace (
-	github.com/satont/twir/libs/config => ../../libs/config
-	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-	github.com/satont/twir/libs/logger => ../../libs/logger
-	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
-	github.com/satont/twir/libs/sentry => ../../libs/sentry
-	github.com/satont/twir/libs/twitch => ../../libs/twitch
-	github.com/twirapp/twir/libs/baseapp => ../../libs/baseapp
-	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
-	github.com/twirapp/twir/libs/cache => ../../libs/cache
-	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
-	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
-	github.com/twirapp/twir/libs/repositories => ../../libs/repositories
-	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
-)
+
 
 require (
 	github.com/avast/retry-go/v4 v4.6.1
@@ -24,13 +10,13 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.31.1
 	github.com/samber/lo v1.51.0
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/gomodels v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/logger v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/twitch v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/baseapp v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/bus-core v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/grpc v0.0.0-20250723210134-6e95e974f9e4
+
+
+
+
+
+
+
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.62.0
 	go.uber.org/fx v1.24.0
 	golang.org/x/sync v0.16.0
@@ -99,14 +85,14 @@ require (
 	github.com/samber/slog-multi v1.4.1 // indirect
 	github.com/samber/slog-sentry/v2 v2.9.3 // indirect
 	github.com/samber/slog-zerolog/v2 v2.7.3 // indirect
-	github.com/satont/twir/libs/pubsub v0.0.0-20250723210134-6e95e974f9e4 // indirect
-	github.com/satont/twir/libs/sentry v0.0.0-20250723210134-6e95e974f9e4 // indirect
-	github.com/satont/twir/libs/types v0.0.0-20250723210134-6e95e974f9e4 // indirect
+
+
+
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4 // indirect
-	github.com/twirapp/twir/libs/uptrace v0.0.0-20250723210134-6e95e974f9e4 // indirect
+
+
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
 	github.com/uptrace/uptrace-go v1.37.0 // indirect

@@ -2,18 +2,10 @@ module github.com/satont/twir/libs/twitch
 
 go 1.24.1
 
-replace (
-	github.com/satont/twir/libs/config => ../../libs/config
-	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
-)
-
 require (
 	github.com/imroc/req/v3 v3.54.0
 	github.com/nicklaw5/helix/v2 v2.31.1
 	github.com/samber/lo v1.51.0
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/bus-core v0.0.0-20250723210134-6e95e974f9e4
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0
@@ -21,7 +13,6 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -40,7 +31,6 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.54.0 // indirect
 	github.com/refraction-networking/utls v1.8.0 // indirect
-	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.uber.org/mock v0.5.2 // indirect
@@ -53,3 +43,10 @@ require (
 	golang.org/x/tools v0.35.0 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
+
+require (
+	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20250723210134-6e95e974f9e4
+)
+
+require github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4 // indirect

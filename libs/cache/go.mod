@@ -2,27 +2,12 @@ module github.com/twirapp/twir/libs/cache
 
 go 1.24.1
 
-replace (
-	github.com/satont/twir/libs/config => ../config
-	github.com/satont/twir/libs/gomodels => ../gomodels
-	github.com/satont/twir/libs/twitch => ../twitch
-	github.com/twirapp/twir/libs/grpc => ../grpc
-	github.com/twirapp/twir/libs/integrations => ../integrations
-)
-
 require (
 	github.com/go-redsync/redsync/v4 v4.13.0
 	github.com/goccy/go-json v0.10.5
 	github.com/nicklaw5/helix/v2 v2.31.1
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/samber/lo v1.51.0
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/gomodels v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/twitch v0.0.0-20250723210134-6e95e974f9e4
-	github.com/satont/twir/libs/types v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/bus-core v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/integrations v0.0.0-20250723210134-6e95e974f9e4
-	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0
 	golang.org/x/sync v0.16.0
@@ -30,10 +15,19 @@ require (
 )
 
 require (
+	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
+	github.com/satont/twir/libs/gomodels v0.0.0-20250723210134-6e95e974f9e4
+	github.com/satont/twir/libs/twitch v0.0.0-20250723210134-6e95e974f9e4
+	github.com/satont/twir/libs/types v0.0.0-20250723210134-6e95e974f9e4
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20250723210134-6e95e974f9e4
+	github.com/twirapp/twir/libs/integrations v0.0.0-20250723210134-6e95e974f9e4
+	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4
+)
+
+require (
 	github.com/Khan/genqlient v0.8.1 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect

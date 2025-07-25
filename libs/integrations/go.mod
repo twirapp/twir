@@ -6,9 +6,7 @@ require (
 	github.com/Khan/genqlient v0.8.1
 	github.com/imroc/req/v3 v3.54.0
 	github.com/samber/lo v1.51.0
-	github.com/satont/twir/libs/gomodels v0.0.0-20250723210134-6e95e974f9e4
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
-	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4
 	github.com/vektah/gqlparser/v2 v2.5.30
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0
 	go.opentelemetry.io/otel v1.37.0
@@ -22,7 +20,6 @@ require (
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -40,7 +37,6 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.54.0 // indirect
 	github.com/refraction-networking/utls v1.8.0 // indirect
-	github.com/satont/twir/libs/types v0.0.0-20250723210134-6e95e974f9e4 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
@@ -55,5 +51,12 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
+
+require (
+	github.com/satont/twir/libs/gomodels v0.0.0-20250723210134-6e95e974f9e4
+	github.com/twirapp/twir/libs/repositories v0.0.0-20250723210134-6e95e974f9e4
+)
+
+require github.com/satont/twir/libs/types v0.0.0-20250723210134-6e95e974f9e4 // indirect
 
 tool github.com/Khan/genqlient

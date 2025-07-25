@@ -6,7 +6,8 @@ replace github.com/satont/twir/libs/config => ../config
 
 require (
 	github.com/getsentry/sentry-go v0.34.1
-	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
+	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
+
 )
 
 require (

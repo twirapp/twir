@@ -13,7 +13,8 @@ require (
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/lib/pq v1.10.9
 	github.com/oklog/ulid/v2 v2.1.1
-	github.com/twirapp/twir/libs/baseapp v0.0.0-20250723210134-6e95e974f9e4
+	github.com/twirapp/twir/libs/baseapp v0.0.0-00010101000000-000000000000
+
 )
 
 require (
@@ -35,7 +36,6 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect

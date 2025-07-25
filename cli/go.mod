@@ -1,4 +1,4 @@
-module /cli
+module github.com/twirapp/twir/cli
 
 go 1.24.1
 
@@ -12,10 +12,14 @@ require (
 	github.com/pterm/pterm v0.12.81
 	github.com/rjeczalik/notify v0.9.3
 	github.com/samber/lo v1.51.0
-	/libs/migrations v0.0.0-20250723210134-6e95e974f9e4
-	/libs/grpc v0.0.0-20250723210134-6e95e974f9e4
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/sync v0.16.0
+)
+
+require (
+	github.com/satont/twir/libs/config v0.0.0-20250723210134-6e95e974f9e4
+	github.com/satont/twir/libs/migrations v0.0.0-20250723210134-6e95e974f9e4
+	github.com/twirapp/twir/libs/grpc v0.0.0-20250723210134-6e95e974f9e4
 )
 
 require (
@@ -27,6 +31,7 @@ require (
 	github.com/KimMachineGun/automemlimit v0.7.1 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
+	github.com/satont/twir/libs/crypto v0.0.0-20231203205548-e635accc6b72 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
 
@@ -70,7 +75,6 @@ require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/chavacava/garif v0.1.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/containerd/console v1.0.5 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
@@ -155,7 +159,6 @@ require (
 	github.com/moby/term v0.5.2 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
@@ -173,7 +176,6 @@ require (
 	github.com/rs/cors v1.11.1 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	/libs/crypto v0.0.0-20250723210134-6e95e974f9e4 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/segmentio/encoding v0.5.2 // indirect
 	github.com/sethvargo/go-retry v0.3.0 // indirect

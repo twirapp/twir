@@ -2,17 +2,6 @@ module github.com/twirapp/twir/libs/baseapp
 
 go 1.24.1
 
-replace (
-	github.com/satont/twir/libs/config => ../config
-	github.com/satont/twir/libs/gomodels => ../gomodels
-	github.com/satont/twir/libs/logger => ../logger
-	github.com/satont/twir/libs/pubsub => ../pubsub
-	github.com/satont/twir/libs/sentry => ../sentry
-	github.com/twirapp/twir/libs/bus-core => ../bus-core
-	github.com/twirapp/twir/libs/repositories => ../repositories
-	github.com/twirapp/twir/libs/uptrace => ../uptrace
-)
-
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.39.0
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.0
@@ -40,7 +29,6 @@ require (
 	github.com/ClickHouse/ch-go v0.67.0 // indirect
 	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
-	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
