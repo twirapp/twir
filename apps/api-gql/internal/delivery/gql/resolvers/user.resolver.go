@@ -13,11 +13,11 @@ import (
 	"github.com/guregu/null"
 	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

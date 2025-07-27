@@ -3,8 +3,8 @@ package types
 import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	model "github.com/twirapp/twir/libs/gomodels"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
@@ -14,6 +14,7 @@ type ParseContextSender struct {
 	DisplayName string
 	Color       string
 	Badges      []string
+	Roles       []model.ChannelRole
 }
 
 type ParseContextChannel struct {

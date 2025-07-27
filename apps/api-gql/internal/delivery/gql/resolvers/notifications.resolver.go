@@ -12,10 +12,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	model "github.com/twirapp/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.

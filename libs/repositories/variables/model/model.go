@@ -8,9 +8,10 @@ import (
 type CustomVarType string
 
 const (
-	CustomVarScript = "SCRIPT"
-	CustomVarText   = "TEXT"
-	CustomVarNumber = "NUMBER"
+	CustomVarScript        CustomVarType = "SCRIPT"
+	CustomVarText          CustomVarType = "TEXT"
+	CustomVarNumber        CustomVarType = "NUMBER"
+	CustomVarChatChangable CustomVarType = "CHAT_CHANGABLE"
 )
 
 type ScriptLanguage string

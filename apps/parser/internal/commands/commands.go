@@ -46,10 +46,10 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/apps/parser/internal/variables"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	"go.uber.org/zap"
@@ -237,6 +237,7 @@ func (c *Commands) ParseCommandResponses(
 	ctx context.Context,
 	command *FindByMessageResult,
 	requestData twitch.TwitchChatMessage,
+	userRoles []model.ChannelRole,
 ) *busparser.CommandParseResponse {
 	commandsPrefix := requestData.EnrichedData.ChannelCommandPrefix
 
@@ -295,6 +296,7 @@ func (c *Commands) ParseCommandResponses(
 		DisplayName: requestData.ChatterUserName,
 		Badges:      badges,
 		Color:       requestData.Color,
+		Roles:       userRoles,
 	}
 
 	mentions := make(
@@ -666,6 +668,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		ctx,
 		cmd,
 		data,
+		userRoles,
 	)
 
 	responsesWithRepeats := make([]string, 0, len(result.Responses))

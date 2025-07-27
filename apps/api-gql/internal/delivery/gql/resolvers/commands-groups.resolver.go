@@ -11,11 +11,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/utils"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
 // CommandsGroupsCreate is the resolver for the commandsGroupsCreate field

@@ -3,13 +3,16 @@ package custom_var
 import (
 	"context"
 	"errors"
+	"fmt"
+	"slices"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 var CustomVar = &types.Variable{
@@ -39,6 +42,28 @@ var CustomVar = &types.Variable{
 
 		if v.ID == "" || (v.Response == "" && v.EvalValue == "") {
 			return result, nil
+		}
+
+		if parseCtx.Text != nil &&
+			len(*parseCtx.Text) > 0 &&
+			v.Type != model.CustomVarScript &&
+			slices.ContainsFunc(parseCtx.Sender.Roles, func(item model.ChannelRole) bool {
+				return item.Type == model.ChannelRoleTypeBroadcaster || item.Type == model.ChannelRoleTypeModerator
+			}) {
+			if v.Type == model.CustomVarNumber {
+				parsed, err := strconv.Atoi(*parseCtx.Text)
+				if err != nil {
+					return nil, fmt.Errorf("wrong number: %w", err)
+				}
+
+				v.Response = fmt.Sprint(parsed)
+			} else {
+				v.Response = *parseCtx.Text
+			}
+
+			if err := parseCtx.Services.Gorm.Save(&v).Error; err != nil {
+				return nil, fmt.Errorf("cannot update custom variables")
+			}
 		}
 
 		if v.Type == model.CustomVarScript {

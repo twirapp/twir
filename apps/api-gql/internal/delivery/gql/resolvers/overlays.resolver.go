@@ -9,11 +9,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	model "github.com/twirapp/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 // ChatOverlayUpdate is the resolver for the chatOverlayUpdate field.

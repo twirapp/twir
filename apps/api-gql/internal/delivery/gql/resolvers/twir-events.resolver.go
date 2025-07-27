@@ -10,10 +10,10 @@ import (
 	"log/slog"
 
 	"github.com/goccy/go-json"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 // TwirEvents is the resolver for the twirEvents field.

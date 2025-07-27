@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
@@ -17,6 +16,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 // Channel is the resolver for the channel field.

@@ -16,12 +16,12 @@ import (
 	"github.com/raitonoberu/ytsearch"
 	"github.com/samber/lo"
 	loParallel "github.com/samber/lo/parallel"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger/audit"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger/audit"
 	"gorm.io/gorm"
 )
 
