@@ -29,7 +29,8 @@ var SetCommand = &types.DefaultCommand{
 	},
 	Args: []command_arguments.Arg{
 		command_arguments.VariadicString{
-			Name: titleArgName,
+			Name:     titleArgName,
+			Optional: true,
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
