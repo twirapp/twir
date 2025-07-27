@@ -17,6 +17,11 @@ func (c *Parser) Get(name string) Arg {
 	return c.store[name]
 }
 
+func (c *Parser) IsExists(name string) bool {
+	_, exists := c.store[name]
+	return exists
+}
+
 var ErrInvalidCommand = errors.New("[bug] command is invalid")
 var ErrInvalidArg = errors.New("arg is invalid")
 

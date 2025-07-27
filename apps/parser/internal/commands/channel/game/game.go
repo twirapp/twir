@@ -30,8 +30,9 @@ var SetCommand = &types.DefaultCommand{
 	},
 	Args: []command_arguments.Arg{
 		command_arguments.VariadicString{
-			Name: gameArgName,
-			Hint: "category name or created category aliase",
+			Name:     gameArgName,
+			Hint:     "category name or created category aliase",
+			Optional: true,
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -40,19 +41,6 @@ var SetCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
-		}
-
-		categoryArg := parseCtx.ArgsParser.Get(gameArgName).String()
-
-		categoryAliases, err := parseCtx.Services.CategoriesAliasesRepo.GetManyByChannelID(
-			ctx,
-			parseCtx.Channel.ID,
-		)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot get category aliases",
-				Err:     err,
-			}
 		}
 
 		twitchClient, err := twitch.NewUserClientWithContext(
@@ -64,6 +52,42 @@ var SetCommand = &types.DefaultCommand{
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot create broadcaster twitch client",
+				Err:     err,
+			}
+		}
+
+		if !parseCtx.ArgsParser.IsExists(gameArgName) {
+			channelInfo, err := twitchClient.GetChannelInformation(
+				&helix.GetChannelInformationParams{
+					BroadcasterIDs: []string{parseCtx.Channel.ID},
+				},
+			)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot get channel information",
+					Err:     err,
+				}
+			}
+			if len(channelInfo.Data.Channels) == 0 {
+				return nil, &types.CommandHandlerError{
+					Message: "channel not found",
+					Err:     fmt.Errorf("channel not found"),
+				}
+			}
+
+			result.Result = append(result.Result, channelInfo.Data.Channels[0].GameName)
+			return result, nil
+		}
+
+		categoryArg := parseCtx.ArgsParser.Get(gameArgName).String()
+
+		categoryAliases, err := parseCtx.Services.CategoriesAliasesRepo.GetManyByChannelID(
+			ctx,
+			parseCtx.Channel.ID,
+		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get category aliases",
 				Err:     err,
 			}
 		}

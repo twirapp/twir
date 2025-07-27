@@ -50,6 +50,29 @@ var SetCommand = &types.DefaultCommand{
 			return nil, fmt.Errorf("cannot create broadcaster twitch api client: %w", err)
 		}
 
+		if !parseCtx.ArgsParser.IsExists(titleArgName) {
+			channelInfo, err := twitchClient.GetChannelInformation(
+				&helix.GetChannelInformationParams{
+					BroadcasterIDs: []string{parseCtx.Channel.ID},
+				},
+			)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot get channel information",
+					Err:     err,
+				}
+			}
+			if len(channelInfo.Data.Channels) == 0 {
+				return nil, &types.CommandHandlerError{
+					Message: "channel not found",
+					Err:     fmt.Errorf("channel not found"),
+				}
+			}
+
+			result.Result = append(result.Result, channelInfo.Data.Channels[0].Title)
+			return result, nil
+		}
+
 		title := parseCtx.ArgsParser.Get(titleArgName).String()
 
 		req, err := twitchClient.EditChannelInformation(
