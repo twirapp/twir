@@ -622,8 +622,8 @@
         }
       },
       "preview": {
-        "start": "Iniciar vista previa de superposición                                              ",
-        "stop": "Detener vista previa de superposición                        "
+        "start": "Iniciar vista previa de superposición",
+        "stop": "Detener vista previa de superposición"
       }
     }
   },
@@ -645,20 +645,20 @@
     "settings": {
       "onlineOnly": "¿Permitir solicitudes de canciones durante la transmisión?",
       "announcePlay": "¿Anunciar la canción actual en el chat?",
-      "playerNoCookieMode": "Modo de incógnito para el jugador.",
+      "playerNoCookieMode": "Modo de incógnito para el jugador",
       "playerNoCookieModeDescription": "Habilitar esta opción le permitirá escuchar canciones sin cookies ni historial de visualización. Necesita actualizar la página después de habilitar.",
       "neededPercentageForskip": "Porcentaje de omisión de usuario",
       "channelReward": "Activación de solicitud de recompensa de puntos de canal",
       "deniedChannels": "Lista de canales de YouTube prohibidos (de solicitar canciones)",
       "deniedWords": "Lista de palabras prohibidas (afecta tanto a títulos como a nombres de canales de YouTube)",
       "deniedUsers": "Usuarios prohibidos",
-      "deniedSongs": "Lista de canciones prohibidas.",
+      "deniedSongs": "Lista de canciones prohibidas",
       "takeSongFromDonationMessage": "¿Intenta obtener enlaces de canciones de mensajes de donación?",
       "confirmClearQueue": "¿Está Usted seguro de que desea borrar la cola?",
       "users": {
-        "maxRequests": "Cantidad máxima de solicitudes por usuario.",
+        "maxRequests": "Cantidad máxima de solicitudes por usuario",
         "minimalWatchTime": "Tiempo mínimo de visualización (en minutos)",
-        "minimalMessages": "Cantidad mínima de mensajes.",
+        "minimalMessages": "Cantidad mínima de mensajes",
         "minimalFollowTime": "Tiempo de seguimiento mínimo (en minutos)"
       },
       "songs": {
@@ -692,120 +692,120 @@
       "timelineDescription": "Cada respuesta se enviará una vez que se cumplan ambas condiciones de intervalo.",
       "validations": {
         "nameLong": "¡El nombre del temporizador es demasiado largo!",
-        "nameRequired": "Timer Name is required!",
-        "responseRequired": "Response Text is required!",
-        "responseLong": "Response is too long!"
+        "nameRequired": "¡Se requiere el nombre del temporizador!",
+        "responseRequired": "¡Se requiere texto de respuesta!",
+        "responseLong": "¡La respuesta es demasiado larga!"
       }
     },
-    "limitExceeded": "Timer Limit exceeded!",
-    "newTimer": "New timer"
+    "limitExceeded": "¡Límite de temporizador superado!",
+    "newTimer": "Nuevo temporizador"
   },
   "roles": {
     "modal": {
-      "accessToUsers": "Permitted Users",
-      "accessByStats": "Permitted Users (by stats)",
-      "requiredWatchTime": "Required Watch Time",
-      "requiredMessages": "Required Messages Amount",
-      "requiredChannelPoints": "Required Channel Points Spent",
-      "permissions": "Permissions"
+      "accessToUsers": "Usuarios permitidos",
+      "accessByStats": "Usuarios permitidos (por estadísticas)",
+      "requiredWatchTime": "Tiempo de observación requerido",
+      "requiredMessages": "Cantidad de mensajes requerida",
+      "requiredChannelPoints": "Puntos de canal requeridos gastados",
+      "permissions": "Permisos"
     },
     "validations": {
-      "nameRequired": "Name is required!"
+      "nameRequired": "¡Se requiere nombre!"
     }
   },
   "keywords": {
-    "title": "Keywords",
+    "title": "Palabras clave",
     "info": {
-      "text": "Keywords helps you to trigger chat message on certain words matching."
+      "text": "Palabras clave le ayudan a activar el mensaje de chat en ciertas palabras coincidentes."
     },
-    "create": "Create keyword",
-    "triggerText": "Trigger Text",
-    "usages": "Usage Count",
-    "isRegular": "Is a Regular Expression?",
-    "regularDescription": "Regular Expression should be written in golang format! See {0} here.",
-    "regularDescriptionCheatSheet": "cheat sheet",
-    "settings": "Settings",
+    "create": "Crear palabra clave",
+    "triggerText": "Texto de activación",
+    "usages": "Recuento de uso",
+    "isRegular": "¿Es una expresión regular?",
+    "regularDescription": "¡La expresión regular debe escribirse en formato golang! Consulte {0} aquí.",
+    "regularDescriptionCheatSheet": "Hoja de referencia",
+    "settings": "Ajustes",
     "cooldown": "Cooldown (in seconds)",
     "validations": {
-      "triggerRequired": "Trigger Text is required!",
-      "triggerLong": "Trigger Text is too long!",
-      "responseLong": "Response Text is too long!"
+      "triggerRequired": "¡Se requiere texto de activación!",
+      "triggerLong": "¡El nombre del temporizador es demasiado largo!",
+      "responseLong": "¡El texto de respuesta es demasiado largo!"
     }
   },
   "variables": {
     "title": "Variables",
-    "type": "Type",
-    "info": "Variables is a type of a context that can be used in bot responses, commands and other parts of the bot. You can specify a constant value or put a script to get some values that is usually cannot be easily accessed by the bot. Script Variables are recommended for advanced users.",
+    "type": "Tipo",
+    "info": "Las variables son un tipo de contexto que se puede usar en respuestas de bots, comandos y otras partes del bot. Puede especificar un valor constante o poner un script para obtener algunos valores que por lo general no se puede acceder fácilmente por el bot. Las variables de script se recomiendan para usuarios avanzados.",
     "validations": {
-      "nameRequired": "Variable Name is required!",
-      "nameLong": "Variable Name is too long"
+      "nameRequired": "¡Se requiere el nombre de variable!",
+      "nameLong": "El nombre de variable es demasiado largo."
     }
   },
   "greetings": {
-    "title": "Greetings",
-    "create": "Create greeting",
-    "edit": "Edit greeting",
+    "title": "Saludos",
+    "create": "Crear saludo",
+    "edit": "Editar saludo",
     "info": {
-      "title": "Greetings Information",
-      "text": "Greetings are a type of messages that bot uses to welcome known stream viewers when they send their first message in chat on each stream. If you wish to greet every user in chat, then you can look at the events category instead of Greetings."
+      "title": "Información de Saludos",
+      "text": "Los saludos son un tipo de mensajes que el bot utiliza para dar la bienvenida a los espectadores conocidos de transmisión cuando envían su primer mensaje en el chat en cada transmisión. Si desea saludar a todos los usuarios en el chat, puede mirar la categoría de eventos en lugar de Saludos."
     },
     "validations": {
-      "userName": "Username is required!",
-      "textRequired": "Response Text is required!"
+      "userName": "¡El nombre de usuario es obligatorio!",
+      "textRequired": "¡Se requiere texto de respuesta!"
     }
   },
   "alerts": {
-    "title": "Alerts",
-    "info": "Alerts Information",
-    "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
-    "copyOverlayLink": "Copy overlay link",
-    "name": "Name",
-    "rewards": "Rewards",
-    "commands": "Commands",
+    "title": "Alertas",
+    "info": "Información de Alertas",
+    "overlayLabel": "Las alertas son una parte gráfica de la implementación del comando o evento. Puede Usted configurar una alerta con audio, imagen y texto especificados, y luego asignarla a un comando, evento, palabra clave o saludo específico. Además, no se olvide de insertar la URL superpuesta como fuente del navegador en su escena de software de transmisión. (como OBS, XSplit, etc.)",
+    "copyOverlayLink": "Copiar vínculo de superposición",
+    "name": "Nombre",
+    "rewards": "Recompensas",
+    "commands": "Comandos",
     "validations": {
-      "name": "Name cannot be empty or longer than 30 symbols!"
+      "name": "¡El nombre no puede estar vacío ni tener más de 30 símbolos!"
     },
     "trigger": {
-      "commands": "Command Trigger",
-      "rewards": "Channel Points Reward Trigger",
-      "keywords": "Keyword Trigger",
-      "greetings": "Greeting Trigger"
+      "commands": "Activador de comando",
+      "rewards": "Activador del canal de puntos de recompensa ",
+      "keywords": "Activador de palabra clave",
+      "greetings": "Activador de saludo"
     },
     "select": {
-      "audio": "Confugure an audio",
-      "image": "Configure an image",
-      "text": "Configure text"
+      "audio": "Configure un audio",
+      "image": "Configurar una imagen",
+      "text": "Configure texto"
     },
-    "audioVolume": "Audio volume",
-    "createAlert": "Create alert",
-    "editAlert": "Edit alert",
-    "tableEmpty": "No alerts found"
+    "audioVolume": "Volumen de audio",
+    "createAlert": "Crear alerta",
+    "editAlert": "Editar alerta",
+    "tableEmpty": "No se han encontrado alertas"
   },
   "games": {
-    "command": "Command",
+    "command": "Comando",
     "8ball": {
-      "description": "A simple chat game that allows chatters to ask the magic 8ball something and it will answer to the chatter.",
-      "answers": "Answers"
+      "description": "Un juego de chat simple que permite a los chatters preguntar a la 8ball mágico algo y responderá al chat.",
+      "answers": "Respuestas"
     },
     "russianRoulette": {
-      "description": "A simple chat game that allows chatters to test luck in a classic russian funny* roulette game.",
-      "canBeUsedByModerator": "Timeout Moderators? *Moderator privileges will be granted again after the timeout.",
-      "timeoutSeconds": "Timeout Time (in seconds, set it to 0 to disable a timeout)",
-      "decisionSeconds": "Result Delay (in seconds)",
-      "initMessage": "Trigger Pull Announcement (Game Start Message)",
-      "surviveMessage": "User Survived Message",
-      "deathMessage": "User Lost Message",
-      "chargedBullets": "Charged Bullets Amount: {tumberSize}",
-      "tumberSize": "Revolver Сylinder's Size"
+      "description": "Un juego de chat sencillo que permite a los chatters probar suerte en un juego de ruleta clásico russiano*.",
+      "canBeUsedByModerator": "¿Moderadores de tiempo de espera? * Los privilegios de moderador se otorgarán nuevamente después del tiempo de espera.",
+      "timeoutSeconds": "Tiempo de espera (en segundos, configúrelo en 0 para deshabilitar un tiempo de espera)",
+      "decisionSeconds": "Retraso del resultado (en segundos)",
+      "initMessage": "Anuncio de activación (mensaje de inicio del juego)",
+      "surviveMessage": "Mensaje de usuario sobrevivido",
+      "deathMessage": "Mensaje perdido de usuario",
+      "chargedBullets": "Cantidad de balas cargadas: {tumberSize}",
+      "tumberSize": "El tamaño del cilindro del revólver"
     },
     "duel": {
-      "title": "Duels",
-      "description": "A simple chat game between two users allowing to test their dodge skills!",
+      "title": "Duelos",
+      "description": "Un simple juego de chat entre dos usuarios que permite poner a prueba sus habilidades de esquivar!",
       "commands": {
-        "title": "Duel Commands",
-        "duel": "Ask for a Duel",
-        "accept": "Accept a Duel",
-        "stats": "Statistics"
+        "title": "Comandos de Duelo",
+        "duel": "Pide un duelo",
+        "accept": "Aceptar un Duelo",
+        "stats": "Estadísticas"
       },
       "cooldown": {
         "title": "Duel Cooldown",
@@ -813,423 +813,423 @@
         "global": "Global"
       },
       "messages": {
-        "title": "Messages",
+        "title": "Mensajes",
         "start": {
-          "title": "Initial Message",
-          "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+          "title": "Mensaje inicial",
+          "description": "Envía este mensaje cuando se ha iniciado el duelo. Variables disponibles: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
-          "title": "Result Message",
-          "description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
+          "title": "Mensaje de resultado",
+          "description": "Envía este mensaje cuando el duelo ocurrió. Variables disponibles: {'{perdedor}, {ganador}'}"
         },
         "bothDie": {
-          "title": "«No One Survived» Message",
-          "description": "Sends this message when duel happened and both duelists are dead. Available variables: {'{target}, {initiator}'}"
+          "title": "Mensaje «Nadie sobrevivió»",
+          "description": "Envía este mensaje cuando el duelo ocurrió y ambos duelistas están muertos. Variables disponibles: {'{destino}, {iniciador}'}"
         }
       },
       "settings": {
-        "title": "Settings",
-        "secondsToAccept": "Seconds to accept duel",
-        "timeoutTime": "Timeout time for loser",
-        "pointsPerWin": "Reputation for win",
-        "pointsPerLose": "Reputation for lose",
-        "bothDiePercent": "Percent of chance both users die"
+        "title": "Ajustes",
+        "secondsToAccept": "Segundos para aceptar el duelo",
+        "timeoutTime": "Tiempo de espera para el perdedor",
+        "pointsPerWin": "Reputación para ganar",
+        "pointsPerLose": "Reputación para perder",
+        "bothDiePercent": "Porcentaje de probabilidad de que ambos usuarios mueran"
       }
     },
     "seppuku": {
-      "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-      "message": "Message",
-      "timeoutModerators": "Enable seppuku for moderators",
-      "messageModerators": "Message when moderator used seppuku",
-      "timeoutSeconds": "Timeout seconds"
+      "description": "Seppuku, es una forma de suicidio ritual japonés por destripamiento.",
+      "message": "Mensaje",
+      "timeoutModerators": "Habilitar seppuku para moderadores.",
+      "messageModerators": "Mensaje cuando el moderador usó seppuku",
+      "timeoutSeconds": "Segundos de tiempo de espera"
     },
     "voteban": {
-      "description": "Commence jury trial of the guilty chatterer!",
-      "banMessage": "Message on ban",
-      "banMessageModerators": "Message for ban moderator",
-      "surviveMessage": "Survive message",
-      "surviveMessageModerators": "Survive message for moderators",
-      "initialMessage": "Init message",
-      "neededVotes": "Needed votes",
-      "banDuration": "Duration of ban",
-      "voteMode": "Mode of vote",
-      "voteDuration": "Duration of vote in seconds",
-      "wordsNegative": "Words for vote to \"no\" option",
-      "wordsPositive": "Words for vote to \"yes\" option",
-      "timeoutModerators": "Enable voteban on moderators"
+      "description": "¡Comienza el juicio del culpable!",
+      "banMessage": "Mensaje sobre la prohibición",
+      "banMessageModerators": "Mensaje para el bloqueo de moderador ",
+      "surviveMessage": "Mensaje de supervivencia",
+      "surviveMessageModerators": "Mensaje de sobrevivir para los moderadores",
+      "initialMessage": "Mensaje inicial",
+      "neededVotes": "Votos necesarios",
+      "banDuration": "Duración del bloqueo",
+      "voteMode": "Modo de votación",
+      "voteDuration": "Duración de la votación en segundos",
+      "wordsNegative": "Palabras para votar a la opción\\« no\\»",
+      "wordsPositive": "Palabras para votar a la opción\\« sí\\»",
+      "timeoutModerators": "Habilitar voteban en moderadores"
     }
   },
   "modules": {
     "chatTranslations": {
-      "title": "Chat translations",
-      "description": "Translate chat in real time",
+      "title": "Traducciones de chat",
+      "description": "Traducir chat en tiempo ",
       "settings": {
-        "title": "Chat Translation Settings",
+        "title": "Configuración de traducción de chat",
         "enabled": {
-          "label": "Enabled",
-          "description": "Enable chat translation for your channel"
+          "label": "Habilitado",
+          "description": "Habilitar la traducción de chat para su canal"
         },
         "targetLanguage": {
-          "label": "Target Language",
-          "description": "Messages will be translated to this language",
-          "placeholder": "Select a language"
+          "label": "Idioma de destino",
+          "description": "Los mensajes se traducirán a este idioma",
+          "placeholder": "Seleccione un idioma"
         },
         "excludedLanguages": {
-          "label": "Excluded Languages",
-          "description": "Messages in these languages will not be translated",
-          "placeholder": "Select languages to exclude"
+          "label": "Idiomas excluidos",
+          "description": "Los mensajes en estos idiomas no se traducirán",
+          "placeholder": "Seleccione idiomas para excluir"
         },
         "useItalic": {
-          "label": "Use Italic",
-          "description": "Display translated messages in italic"
+          "label": "Usar Italic",
+          "description": "Mostrar los mensajes traducidos en Italic"
         },
         "excludedUsers": {
-          "title": "Excluded Users",
-          "description": "Messages from these users will not be translated"
+          "title": "Usuarios excluidos",
+          "description": "Los mensajes de estos usuarios no se traducirán"
         },
         "buttons": {
-          "update": "Update Settings",
-          "create": "Create Settings"
+          "update": "Actualice la configuración ",
+          "create": "Crear configuración"
         }
       }
     }
   },
   "community": {
-    "title": "Community",
+    "title": "Comunidad",
     "users": {
-      "title": "Users",
-      "searchPlaceholder": "Search users...",
+      "title": "Usuarios",
+      "searchPlaceholder": "Buscar usuarios...",
       "table": {
-        "user": "User",
-        "watchedTime": "Watched Time",
-        "messages": "Messages",
-        "usedEmotes": "Used Emotes",
-        "usedChannelPoints": "Channel Points Spent",
-        "empty": "No users"
+        "user": "Usuario",
+        "watchedTime": "Tiempo de observación",
+        "messages": "Mensajes",
+        "usedEmotes": "Emotes usados",
+        "usedChannelPoints": "Puntos de canal gastados",
+        "empty": "No hay usuarios"
       },
-      "total": "Total users: {total}",
+      "total": "Total de usuarios: {total}",
       "reset": {
-        "label": "Reset stats",
-        "resetQuestion": "Are you sure you want to reset {title}?"
+        "label": "Reiniciar estadísticas",
+        "resetQuestion": "¿Está Usted  seguro de que desea restablecer {title}?"
       }
     },
     "emotesStatistic": {
-      "title": "Emotes Statistics",
-      "searchPlaceholder": "Search emotes...",
+      "title": "Estadísticas de Emotes",
+      "searchPlaceholder": "Buscar emotes...",
       "table": {
         "emote": "Emote",
-        "usages": "Total usages",
-        "users": "Users",
-        "empty": "No emotes",
-        "chart": "Usages chart",
-        "lastDay": "Day",
-        "lastWeek": "Week",
-        "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
-        "lastYear": "Year"
+        "usages": "Usos totales",
+        "users": "Usuarios",
+        "empty": "Sin emotes",
+        "chart": "Gráfico de usos",
+        "lastDay": "Día",
+        "lastWeek": "Semana",
+        "lastMonth": "Mes",
+        "lastThreeMonth": "3 meses",
+        "lastYear": "Año"
       },
       "total": "Total emotes: {total}",
       "details": {
-        "stats": "Stats",
-        "users": "Users",
+        "stats": "Estadísticas",
+        "users": "Usuarios",
         "usersTabs": {
-          "top": "Top",
-          "history": "History"
+          "top": "Arriba",
+          "history": "Historial"
         }
       }
     }
   },
   "filePicker": {
-    "innerText": "Select or drop {type} here.",
-    "usedSpace": "Used {used} / {max} MB",
-    "emptyText": "No {type} uploaded."
+    "innerText": "Seleccione o lance {type} aquí.",
+    "usedSpace": "Utilizado {utilizado } / {máx} MB",
+    "emptyText": "No se ha cargado {type}."
   },
   "overlaysRegistry": {
-    "description": "This category allows you to create custom configurable overlays for OBS. Currently only HTML Overlays are supported, but other overlay variants will be added later. Thank you for the patience. <3",
+    "description": "Esta categoría le permite crear superposiciones configurables personalizadas para OBS. Actualmente sólo se admiten superposiciones HTML, pero más adelante se añadirán otras variantes de superposición. Gracias por la paciencia. <3",
     "noLayersCreated": {
-      "title": "Not Configured",
-      "description": "Currently layers of overlays not created"
+      "title": "No configurado",
+      "description": "Capas de superposiciones actualmente no creadas"
     },
-    "customWidth": "Width",
-    "customHeight": "Height",
-    "name": "Overlay Name",
-    "createNewLayer": "Create New Layer",
+    "customWidth": "Ancho",
+    "customHeight": "Altura",
+    "name": "Nombre de superposición",
+    "createNewLayer": "Crear nueva capa",
     "validations": {
-      "name": "Overlay Name cannot be empty and longer than 30 symbols!",
-      "layers": "Layers cannot be empty! This overlay cannot contain more than 15 layers."
+      "name": "¡El nombre de superposición no puede estar vacío y tener más de 30 símbolos!",
+      "layers": "¡Las capas no pueden estar vacías! Esta superposición no puede contener más de 15 capas."
     },
     "html": {
-      "description": "Allows you to use custom HTML, CSS and bot variables.",
-      "updateInterval": "HTML Variables Update Interval",
+      "description": "Permite utilizar variables HTML, CSS y bot personalizadas.",
+      "updateInterval": "Permite utilizar variables HTML, CSS y bot personalizadas.",
       "variablesAlert": {
-        "title": "You can use bot variables in HTML, click on the list below to show available options.",
-        "selectToCopy": "Select a required variable. It will be automatically copied to the clipboard."
+        "title": "Puede utilizar variables bot en HTML, haga clic en la lista de abajo para mostrar las opciones disponibles.",
+        "selectToCopy": "Seleccione una variable necesaria. Se copiará automáticamente en el portapapeles."
       },
-      "periodicallyRefetchData": "Periodically parse and update HTML data from server?"
+      "periodicallyRefetchData": "¿Analizar y actualizar periódicamente los datos HTML del servidor?"
     }
   },
   "chatAlerts": {
-    "randomedMessage": "If there are several variants of the chat alerts, then they will be picked randomly.<br>",
-    "randomMessageWithCount": "If there will be several variants with the same counter number, then they will be picked randomly.<br>",
-    "replacedInfo": "Available Variables: {vars}. They will be replaced with the actual information in the alert.<br>",
+    "randomedMessage": "Si hay varias variantes de las alertas de chat, se seleccionarán al azar",
+    "randomMessageWithCount": "Si hay varias variantes con el mismo número de contador, entonces se elegirán al azar.",
+    "replacedInfo": "Variables disponibles: {vars}. Se reemplazarán con la información real en la alerta.",
     "cooldown": "Message Cooldown (in seconds)",
     "ban": {
-      "alertInfo": "Set time to 0 to print a message when the user is permanently banned.<br>",
-      "countLabel": "Time (in minutes)",
-      "ignoreTimeoutFrom": "Ignore timeouts from"
+      "alertInfo": "Establezca el tiempo en 0 para imprimir un mensaje cuando el usuario esté permanentemente prohibido (bloqueado)",
+      "countLabel": "Tiempo (en minutos)",
+      "ignoreTimeoutFrom": "Ignorar los tiempos de espera de..."
     },
     "labels": {
-      "followers": "Followers",
-      "raids": "Raids",
-      "donations": "Donations",
-      "subscriptions": "Subscriptions",
-      "rewards": "Rewards",
-      "firstUserMessage": "First User Message",
-      "streamOnline": "Stream Online",
-      "streamOffline": "Stream Offline",
-      "chatCleared": "Chat Clear",
-      "userBanned": "User Ban",
-      "channelUnbanRequestCreate": "Unban Request Create",
-      "channelUnbanRequestResolve": "Unban Request Resolve",
-      "messageDelete": "Message Deleted"
+      "followers": "Seguidores",
+      "raids": "Incursiones",
+      "donations": "Donaciones",
+      "subscriptions": "Suscripciones",
+      "rewards": "Recompensas",
+      "firstUserMessage": "Primer mensaje de usuario",
+      "streamOnline": "Stream en línea",
+      "streamOffline": "Stream desconectado",
+      "chatCleared": "Borrar chat",
+      "userBanned": "Bloqueo de usuario",
+      "channelUnbanRequestCreate": "Crear solicitud de desbloqueo",
+      "channelUnbanRequestResolve": "Resolver solicitud de desbloqueo",
+      "messageDelete": "Mensaje eliminado"
     }
   },
   "moderation": {
-    "name": "Name of rule, just for your convenience to see name in list",
-    "createNewRule": "Create a New Moderation Rule",
-    "banTime": "Timeout Time",
-    "banDescription": "Set to 0 for ban permamently.",
-    "banMessage": "Timeout Message",
-    "warningMessage": "Warning Message",
-    "warningMaxCount": "Warning Maximum Count",
-    "excludedRoles": "Select roles which won't be impacted by this filter:",
+    "name": "Nombre de la regla, solo para su comodidad para ver el nombre en la lista",
+    "createNewRule": "Crear una nueva regla de moderación",
+    "banTime": "Tiempo de espera",
+    "banDescription": "Establecer en 0 para el bloqueo permanente",
+    "banMessage": "Mensaje de tiempo de espera",
+    "warningMessage": "Mensaje de advertencia",
+    "warningMaxCount": "Número máximo de advertencias",
+    "excludedRoles": "Seleccione los roles que no se verán afectados por este filtro:",
     "types": {
       "links": {
-        "name": "Links",
-        "description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being sent into chat."
+        "name": "Enlaces",
+        "description": "Escanea el chat de Twitch en busca de enlaces web o URL y los elimina rápidamente para evitar que se envíe spam o contenido inseguro al chat."
       },
       "deny_list": {
-        "name": "Disallowed Words List",
-        "description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
-        "empty": "List of disallowed words is empty! You can add one there.",
-        "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
-        "regexpCheatSheet": "cheat sheet",
+        "name": "Lista de palabras no permitidas",
+        "description": "Ayuda a mantener el chat limpio al filtrar las palabras o frases especificadas en una lista predefinida, evitando que se muestren.",
+        "empty": "¡La lista de palabras no permitidas está vacía! Puedes añadir uno allí.",
+        "regexp": "Si es Usted un usuario avanzado, la Lista de palabras no permitidas también admite expresiones regulares. ¡La expresión regular debe escribirse en formato golang! Consulte {0} aquí.",
+        "regexpCheatSheet": "Hoja de trucos",
         "wordBoundary": {
-          "label": "Word boundary",
-          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+          "label": "Límite de palabra",
+          "description": "Un límite de palabra en el filtrado marca el comienzo o el final de una palabra, asegurando que los filtros coincidan con palabras completas (por ejemplo ,\\« cat\\») pero no con partes de palabras (por ejemplo ,\\« categoría\\»)."
         },
         "caseSensitive": {
-          "label": "Case sensitive",
-          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+          "label": "Distingue entre mayúsculas y minúsculas",
+          "description": "La distinción entre mayúsculas y minúsculas en el filtrado significa que el filtro solo coincidirá con palabras con las mismas mayúsculas que el filtro (por ejemplo ,\\« Cat\\» no coincidirá con\\« cat\\»)."
         }
       },
       "symbols": {
-        "name": "Symbols",
-        "description": "Identifies and restricts excessive use of symbols, preventing clutter, chaos and maintaining readability in the chat.",
-        "triggerLength": "Minimal Message Length",
-        "maxPercentage": "Maximum Symbols Percentage"
+        "name": "Símbolos",
+        "description": "Identifica y restringe el uso excesivo de símbolos, evitando el desorden, el caos y manteniendo la legibilidad en el chat.",
+        "triggerLength": "Longitud mínima del mensaje",
+        "maxPercentage": "Porcentaje máximo de símbolos"
       },
       "long_message": {
-        "name": "Message Length",
-        "description": "Identifies and restricts long messages by limiting the length of messages sent into chat.",
-        "triggerLength": "Maximum Message Length"
+        "name": "Longitud del mensaje",
+        "description": "Identifica y restringe los mensajes largos  limitando la longitud de los mensajes enviados al chat.",
+        "triggerLength": "Longitud máxima del mensaje"
       },
       "caps": {
-        "name": "Caps",
-        "description": "Identifies and restricts excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
-        "maxPercentage": "Maximum Capital Letters Percentage",
-        "triggerLength": "Minimal Message Length"
+        "name": "Mayúsculas",
+        "description": "Identifica y restringe el uso excesivo de mayúsculas, promoviendo una conversación más equilibrada y respetuosa en el chat.",
+        "maxPercentage": "Porcentaje máximo de letras mayúsculas",
+        "triggerLength": "Longitud mínima del mensaje"
       },
       "emotes": {
         "name": "Emotes",
-        "description": "Detects the frequency and amount of emoticons used in messages, avoiding overuse and spam of them.",
-        "triggerLength": "Maximum Emote Usage Limit"
+        "description": "Detecta la frecuencia y cantidad de emoticonos utilizados en los mensajes, evitando el uso excesivo y spam de los mismos.",
+        "triggerLength": "Límite máximo de uso de emote"
       },
       "language": {
-        "name": "Language",
-        "description": "Scans and filters out inappropriate languages.",
-        "allowedLanguages": "Allowed Languages List",
-        "disallowedLanguages": "Disallowed Languages List"
+        "name": "Idioma",
+        "description": "Escanea y filtra los idiomas inapropiados.",
+        "allowedLanguages": "Lista de idiomas permitidos",
+        "disallowedLanguages": "Lista de idiomas no permitidos"
       },
       "one_man_spam": {
-        "name": "One Man Spam",
-        "description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
-        "triggerLength": "Minimal message length to trigger storing and filtering",
-        "minimumStoredMessages": "Number of stored messages to begin filter",
+        "name": "Spam de un solo hombre",
+        "description": "Detecta y restringe a los usuarios que están enviando spam al chat con muchos mensajes en un corto período de tiempo.",
+        "triggerLength": "Longitud mínima del mensaje para activar el almacenamiento y el filtrado",
+        "minimumStoredMessages": "Número de mensajes almacenados para comenzar el filtro",
         "messageMemorySeconds": "How long to store user message in seconds",
-        "maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
+        "maxPercentage": "¿Cuánto tiempo almacenar el mensaje del usuario en segundos?"
       }
     }
   },
   "feedback": {
-    "button": "Send feedback",
-    "notification": "Your feedback sended",
-    "rateLimited": "You are sending messages to quickly, try again in {time}",
-    "messageLabel": "Message",
+    "button": "Enviar comentarios",
+    "notification": "Sus comentarios enviados",
+    "rateLimited": "Está enviando mensajes rápidamente, inténtelo de nuevo en {time}",
+    "messageLabel": "Mensaje",
     "validation": {
-      "emptyMessage": "Message cannot be empty"
+      "emptyMessage": "El mensaje no puede estar vacío"
     }
   },
   "userSettings": {
-    "title": "User settings",
+    "title": "Configuración de usuario",
     "account": {
-      "title": "Account",
-      "showMeOnLanding": "Show yourself on the Landing Page?",
+      "title": "Cuenta",
+      "showMeOnLanding": "¿Mostrarte en la Landing Page?",
       "regenerateApiKey": {
-        "button": "Regenerate Private API key",
-        "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+        "button": "Regenerar clave de API privada",
+        "info": "Esta clave se utiliza para todos los vínculos (enlaces) superpuestos. Cuando lo regenere, debe verificar todas las superposiciones en su software de transmisión y reemplazar las URL con los nuevos enlaces."
       }
     },
     "public": {
-      "title": "Public page",
-      "description": "Description of channel",
-      "socialLinks": "Social links",
-      "errorCreateLink": "\"{title}\" contains not a valid link {href}",
-      "errorInvalidLength": "Invalid length",
-      "errorInvalidLink": "Invalid link",
-      "errorEmpty": "Cannot be empty",
-      "errorTooLong": "Too long",
-      "linkTitle": "Title",
-      "linkLabel": "Link"
+      "title": "Página pública",
+      "description": "Descripción del canal",
+      "socialLinks": "Enlaces sociales",
+      "errorCreateLink": "\"{title}\" no contiene un vínculo válido {href}",
+      "errorInvalidLength": "Longitud no válida",
+      "errorInvalidLink": "Enlace no válido",
+      "errorEmpty": "No puede estar vacío",
+      "errorTooLong": "Demasiado largo",
+      "linkTitle": "Título",
+      "linkLabel": "Enlace"
     }
   },
   "adminPanel": {
-    "title": "Admin Panel",
+    "title": "Panel de administración",
     "notifications": {
-      "title": "Notifications",
-      "formTitle": "Send or edit notification",
-      "emptyNotifications": "No notifications",
-      "userLabel": "User",
-      "userPlaceholder": "Select a user",
-      "messageLabel": "Message",
-      "messagePreview": "Preview",
-      "createdAt": "Created At",
-      "globals": "Globals",
-      "users": "Users",
-      "confirmResetForm": "Are you sure you want to reset the form?"
+      "title": "Notificaciones",
+      "formTitle": "Enviar o editar notificación",
+      "emptyNotifications": "No hay notificaciones",
+      "userLabel": "Usuario",
+      "userPlaceholder": "Seleccione un usuario",
+      "messageLabel": "Mensaje",
+      "messagePreview": "Vista anticipada",
+      "createdAt": "Creado en",
+      "globals": "Globales",
+      "users": "Usuarios",
+      "confirmResetForm": "¿Está Usted seguro de que desea restablecer el formulario?"
     },
     "manageUsers": {
-      "title": "Users",
-      "user": "User",
-      "userId": "User ID",
-      "followers": "Followers",
-      "noUsers": "No users",
-      "filters": "Filters",
-      "clearFilters": "Clear filters",
-      "countSelected": "{count} selected",
-      "isAdmin": "Admin",
-      "isBanned": "Banned",
-      "isBotEnabled": "Bot enabled",
-      "statusGroup": "Status",
-      "badgesGroup": "Badges",
-      "giveBan": "Ban user",
-      "unBan": "Unban user",
-      "giveMod": "Give admin",
-      "unMod": "Remove admin",
-      "dropSession": "Drop session"
+      "title": "Usuarios",
+      "user": "Usuario",
+      "userId": "ID de Usuario",
+      "followers": "Seguidores",
+      "noUsers": "No hay usuarios",
+      "filters": "Filtros",
+      "clearFilters": "Borrar filtros",
+      "countSelected": "{count} seleccionado",
+      "isAdmin": "Administrador",
+      "isBanned": "Prohibido",
+      "isBotEnabled": "Bot habilitado",
+      "statusGroup": "Estado",
+      "badgesGroup": "Insignias",
+      "giveBan": "Prohibir usuario",
+      "unBan": "Desbloquear usuario",
+      "giveMod": "Dar administrador",
+      "unMod": "Eliminar administrador",
+      "dropSession": "Eliminar sesión"
     },
     "manageBadges": {
-      "title": "Badges",
-      "formTitle": "Create or edit badge",
-      "name": "Name",
-      "users": "Users",
-      "slot": "Slot",
-      "image": "Image",
-      "preview": "Preview",
-      "usesCount": "Uses {count}",
-      "badgeSlot": "Slot {slot}"
+      "title": "Insignias",
+      "formTitle": "Crear o editar insignia",
+      "name": "Nombre",
+      "users": "Usuarios",
+      "slot": "Ranura",
+      "image": "Imagen",
+      "preview": "Vista anticipada",
+      "usesCount": "Utiliza {count}",
+      "badgeSlot": "Ranura {slot}"
     },
     "adminActions": {
-      "title": "Actions",
+      "title": "Acciones",
       "eventsub": {
-        "title": "Subscribe to EventSub",
-        "condition": "Condition",
-        "type": "Type",
-        "typeError": "Please select a type",
-        "version": "Version",
-        "user": "User",
-        "channel": "Channel",
-        "channelWithBotId": "Channel with bot ID",
-        "channelWithModeratorId": "Channel with moderator ID"
+        "title": "Suscribirse a EventSub",
+        "condition": "Condición",
+        "type": "Tipo",
+        "typeError": "Por favor, seleccione un tipo",
+        "version": "Versión",
+        "user": "Usuario",
+        "channel": "Canal",
+        "channelWithBotId": "Canal con ID de bot",
+        "channelWithModeratorId": "Canal con ID de moderador"
       },
       "dangerZone": {
-        "title": "Danger Zone",
-        "revoke": "Revoke",
-        "revokeSessions": "Revoke sessions",
-        "revokeAllSessionsDescription": "All user sessions will be revoked",
-        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+        "title": "Zona de Peligro",
+        "revoke": "Revocar",
+        "revokeSessions": "Revocar sesiones",
+        "revokeAllSessionsDescription": "Se revocarán todas las sesiones de usuario",
+        "revokeAllSessionsConfirm": "¿Está Usted seguro de que desea revocar todas las sesiones?"
       }
     },
     "auditLogs": {
-      "title": "Audit logs"
+      "title": "Registros de auditoría"
     }
   },
   "expiringVips": {
-    "title": "Scheduled VIPs",
+    "title": "VIP programados",
     "description": {
-      "line1": "With this feature you can create VIPs for your channel, which will be removed after selected time.",
-      "line2": "You can use commands from built-in {module} module for that."
+      "line1": "Con esta función puede crear VIPs para su canal, que se eliminarán después del tiempo seleccionado.",
+      "line2": "Puede utilizar comandos del módulo {module} integrado para ello."
     },
-    "comingSoon": "Soon, but already available through commands",
+    "comingSoon": "Pronto, pero ya disponible a través de comandos",
     "commands": {
-      "add": "Add VIP",
-      "remove": "Remove VIP",
-      "list": "List VIPs",
-      "setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
+      "add": "Añadir VIP",
+      "remove": "Eliminar VIP",
+      "list": "Lista de VIPs",
+      "setExpire": "Extender el tiempo de caducidad para el VIP temporizado existente o agregar la caducidad para algún usuario VIP"
     },
     "alert": {
-      "title": "Heads up!",
-      "description": "It's a list of expiring VIPs, not list of all channel VIPs."
+      "title": "¡Atención!",
+      "description": "Es una lista de VIPs que expiran, no una lista de todos los VIPs del canal."
     }
   },
   "moderationRules": {
     "description": {
-      "line1": "Create rules to moderate your chat.",
-      "line2": "Be careful."
+      "line1": "Crea reglas para moderar tu chat.",
+      "line2": "Ten cuidado."
     }
   },
   "chatWall": {
     "description": {
-      "line1": "Mass ban/delete/timeout messages that contains specific phrase.",
-      "line2": "Improper usage may result in a permanent ban you in TwirApp service. "
+      "line1": "Mensajes de baneo/eliminación/tiempo de espera en masa que contienen una frase específica.",
+      "line2": "El uso incorrecto puede resultar en una prohibición permanente en el servicio TwirApp."
     },
     "settings": {
-      "title": "Setup",
-      "muteSubscribers": "Mute subscribers",
-      "muteVips": "Mute VIPs"
+      "title": "Configurar",
+      "muteSubscribers": "Silenciar suscriptores",
+      "muteVips": "Silenciar VIPs"
     },
     "commands": {
-      "title": "Commands",
-      "delete": "Chat wall delete",
-      "ban": "Chat wall ban",
-      "timeout": "Chat wall timeout",
-      "stop": "Chat wall stop"
+      "title": "Comandos",
+      "delete": "Borrar muro de chat",
+      "ban": "Bloqueo de muro de chat",
+      "timeout": "Tiempo de espera del muro de chat",
+      "stop": "Parada del chat"
     },
     "table": {
-      "phrase": "Phrase",
-      "createdAt": "Created at",
-      "inProcess": "In process",
-      "action": "Action",
-      "yes": "Yes",
+      "phrase": "Frase",
+      "createdAt": "Creado en",
+      "inProcess": "En proceso",
+      "action": "Acción",
+      "yes": "Si",
       "no": "No",
-      "affectedMessages": "Affected messages",
+      "affectedMessages": "Mensajes afectados",
       "logs": {
-        "title": "Affected messages",
-        "user": "User",
-        "message": "Message"
+        "title": "Mensajes afectados",
+        "user": "Usuario",
+        "message": "Mensaje"
       },
-      "timeout": "sec"
+      "timeout": "segundo"
     }
   },
   "giveaways": {
-    "title": "Giveaways",
-    "createNew": "Create New Giveaway",
-    "keyword": "Keyword",
-    "createdAt": "Created At",
-    "startedAt": "Started At",
-    "stoppedAt": "Stopped At",
-    "winners": "Winners",
-    "view": "View",
+    "title": "Sorteos",
+    "createNew": "Crear nuevo Sorteo",
+    "keyword": "Palabra clave",
+    "createdAt": "Creado en",
+    "startedAt": "Iniciado en",
+    "stoppedAt": "Detenido en",
+    "winners": "Ganadores",
+    "view": "Ver",
     "start": "Start",
     "stop": "Stop",
     "chooseWinner": "Choose winner",
