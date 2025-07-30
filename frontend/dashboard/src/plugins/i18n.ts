@@ -5,10 +5,7 @@ import { createI18n } from 'vue-i18n'
 import type en from '@/locales/en.json'
 import type { Composer, I18n, I18nMode, Locale, VueI18n } from 'vue-i18n'
 
-function isComposer(
-	instance: VueI18n | Composer,
-	mode: I18nMode,
-): instance is Composer {
+function isComposer(instance: VueI18n | Composer, mode: I18nMode): instance is Composer {
 	return mode === 'composition' && isRef(instance.locale)
 }
 
@@ -32,9 +29,7 @@ const getResourceMessages = (r: any) => r.default || r
 
 export async function loadLocaleMessages(i18n: I18n, locale: Locale) {
 	// load locale messages
-	const messages = await import(`../locales/${locale}.json`).then(
-		getResourceMessages,
-	)
+	const messages = await import(`../locales/${locale}.json`).then(getResourceMessages)
 
 	// set locale and locale message
 	i18n.global.setLocaleMessage(locale, messages)
@@ -72,6 +67,14 @@ export const AVAILABLE_LOCALES = [
 		code: 'sk',
 		name: 'Slovenčina',
 	},
+	{
+		code: 'es',
+		name: 'Español',
+	},
+	{
+		code: 'pt',
+		name: 'Português',
+	},
 ]
 
 function setupI18n(): I18n {
@@ -96,6 +99,5 @@ export const i18n = setupI18n()
 type Lang = typeof en
 
 declare module 'vue-i18n' {
-	export interface DefineLocaleMessage extends Lang {
-	}
+	export interface DefineLocaleMessage extends Lang {}
 }
