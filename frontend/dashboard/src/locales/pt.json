@@ -60,7 +60,8 @@
     "settings": "Configurações",
     "create": "Criar",
     "edit": "Editar",
-    "noData": "No data"
+    "noData": "Sem Informação",
+    "loading": "Carregando..."
   },
   "sidebar": {
     "dashboard": "Painel de Controle",
@@ -92,7 +93,8 @@
     "lang": "Idioma",
     "darkTheme": "Tema Escuro",
     "lightTheme": "Tema Claro",
-    "notifications": "Notificações"
+    "notifications": "Notificações",
+    "giveaways": "Sorteios"
   },
   "deleteConfirmation": {
     "text": "Tem certeza em deletar esta coisa?",
@@ -132,7 +134,7 @@
         }
       },
       "aliases": {
-        "label": "Additional names"
+        "label": "Nomes adicionais"
       },
       "gameCategories": {
         "label": "Ativar comando apenas em certas categorias (deixe em branco para desativar)"
@@ -140,7 +142,7 @@
       "expiration": {
         "label": "Expiração",
         "actionsLabel": "Ação ao expirar",
-        "defaultWarning": "Expiration cannot be set for default command",
+        "defaultWarning": "Comando padrão não pode expirar",
         "actions": {
           "delete": "Comando será excluído",
           "disable": "Comando será desativado"
@@ -164,8 +166,8 @@
         "placeholder": "Selecione funções para conceder permissões para usar comandos",
         "deniedUsers": "Usuários, que não podem usar esse comando.",
         "allowedUsers": "Usuários, que podem ignorar as restrições de funções para esse comando.",
-        "exceptions": "Exceptions",
-        "blocked": "Blocked users"
+        "exceptions": "Exceções",
+        "blocked": "Usuários bloqueados"
       },
       "restrictions": {
         "name": "Restrições por estatísticas",
@@ -195,6 +197,10 @@
         "onlineOnly": {
           "label": "Somente quando Online",
           "text": "Este comando só funcionará quando a stream estiver online."
+        },
+        "offlineOnly": {
+          "label": "Somente quando desligado",
+          "text": "Este comando funcionará apenas quando a transmissão estiver ligada."
         },
         "other": {
           "divider": "Outro",
@@ -237,7 +243,7 @@
     },
     "widgets": {
       "chat": {
-        "title": "Conversa"
+        "title": "Bate-papo"
       },
       "stream": {
         "title": "Transmissão"
@@ -268,7 +274,7 @@
           "channel-command": "Comando",
           "channel-command-group": "Grupo de Comando",
           "channel-variable": "Variável",
-          "channel-games-eight-ball": "8ball",
+          "channel-games-eight-ball": "Bola 8",
           "channel-games-duel": "Duelo",
           "channel-games-russian-roulette": "Roleta Russa",
           "channel-games-seppuku": "Seppuku",
@@ -278,25 +284,25 @@
           "channel-moderation-setting": "Configurações da moderação",
           "channel-overlay-chat": "Sobreposição do chat",
           "channel-overlay-dudes": "Dudes Overlay",
-          "channel-overlay-now-playing": "Now Playing Overlay",
+          "channel-overlay-now-playing": "Sobreposição de Reproduzindo Agora",
           "channel-roles": "Funções",
           "channel-timers": "Temporizadora",
           "channel-song-requests": "Solicitações de músicas",
           "channel-integrations": "Integração",
           "channel-alerts": "Alerta",
-          "channel-chat-alerts": "Chat alerts"
+          "channel-chat-alerts": "Alertas de bate-papo"
         }
       }
     }
   },
   "integrations": {
-    "notLoggedIn": "You have not logged in!",
-    "songServicesInfo": "Providing access to this service allows Twir to automatically get and print your currently playing song into chat when {0} command is being used.",
-    "donateServicesInfo": "Providing access to this service allows Twir to listen to incoming donations, and will setup interactions for you in {0}, {1} categories.",
+    "notLoggedIn": "Você ainda não logou!",
+    "songServicesInfo": "Fornecer acesso a este serviço permite que o Twir obtenha e envie automaticamente sua música atual no bate-papo quando o comando {0} estiver sendo usado.",
+    "donateServicesInfo": "Fornecer acesso a este serviço permite que o Twir ouça as doações recebidas e irá configurar interações para você nas categorias {0}, {1}.",
     "discord": {
-      "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
-      "guildPluralization": "No servers | 1 server | {count} servers",
-      "connectedGuilds": "{guilds} connected",
+      "description": "Fornecer acesso ao Discord permite que o Twir configure pings automáticos e alertas sobre o estado da transmissão em seus servidores do Discord.",
+      "guildPluralization": "Sem servidores | 1 servidor | {count} servidores",
+      "connectedGuilds": "{guilds} conectadas",
       "alerts": {
         "label": "Alertas",
         "showTitle": "Mostrar título da transmissão?",
@@ -306,49 +312,49 @@
         "showProfileImage": "Mostrar avatar do perfil do Twitch?",
         "channelsSelect": "Onde serão publicados os alertas?",
         "streamOnlineLabel": "Mensagem de alerta de fluxo",
-        "streamOnlinePlaceholder": "This message Twir will send when the stream starts.",
-        "streamOfflineLabel": "Stream Ended Message",
-        "streamOfflinePlaceholder": "This message Twir will send when the stream goes offline.",
-        "updateAlert": "Twir will update embed message periodically to make sure it is synced with your stream state. (viewers, title, category, etc.)",
-        "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
-        "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
+        "streamOnlinePlaceholder": "Esta mensagem é enviada por Twir quando a transmissão é iniciada.",
+        "streamOfflineLabel": "Mensagem de Término de Transmissão",
+        "streamOfflinePlaceholder": "Esta mensagem é enviada por Twir quando a transmissão é desligada.",
+        "updateAlert": "O Twir atualizará a mensagem incorporada periodicamente para garantir que ela seja sincronizada com o estado da sua transmissão. (espectadores, título, categoria, etc.)",
+        "shouldDeleteMessageOnOffline": "Excluir mensagem de alerta em vez de editá-la quando a transmissão estiver desligada?",
+        "additionalUsersIdsForLiveCheck": "Lista adicional de usuários da Twitch que receberão notificações de transmissão."
       },
-      "connectGuild": "+ Connect Server",
-      "disconnectGuild": "Disconnect Server",
-      "noGuilds": "No Servers Connected",
-      "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
+      "connectGuild": "+ Conectar Servidor",
+      "disconnectGuild": "Desconectar Servidor",
+      "noGuilds": "Sem Servidores Conectados",
+      "cannotSendMessage": "O Bot não tem permissão para enviar mensagens nesse canal. Confira as permissões do canal para resolver isso."
     },
     "faceit": {
-      "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
+      "info": "Fornecer acesso a este serviço permite que o Twir monitore suas partidas do Faceit e configure variáveis ​​de comando como {0}, {1} e muito mais."
     },
     "nightbot": {
-      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
+      "info": "Fornecer acesso a este serviço permite que o Twir importe comandos e temporizadores do Nightbot."
     },
     "valorant": {
-      "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
+      "info": "Fornecer acesso a este serviço permite que o Twir monitore suas partidas do Valorant e configure variáveis ​​de comando como {0}, {1} e muito mais. "
     },
     "sevenTv": {
-      "description": "We can manage 7tv channel emotes, when this integration is enabled.",
-      "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
+      "description": "Podemos gerenciar os emotes do canal do 7tv, quando essa integração é ativada.",
+      "alert": "Você também pode fazer fluxo avançado através do sistema {0} para gerenciar os emotes do 7tv.",
       "connected": "Conectado",
       "notConnected": "Não conectado",
-      "notRegistered": "You are not registered at {0}",
-      "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
-      "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
+      "notRegistered": "Você não tem cadastro no {0}",
+      "errorSameReward": "Você não pode usar a mesma recompensa para adicionar e remover emotes!",
+      "deleteOnlyAddedByApp": "Remover apenas os emotes adicionados por Twir",
       "connectSteps": {
-        "step1": "Open your {0} profile",
-        "step2": "Click on \"Add editors\" button",
-        "step3": "Add {0} as an editor"
+        "step1": "Abra o seu perfil {0}",
+        "step2": "Clique no botão \"Adicionar editores\"",
+        "step3": "Adicionar {0} como um editor"
       },
-      "rewardForAddEmote": "Reward for adding emote",
-      "rewardForRemoveEmote": "Reward for removing emote",
+      "rewardForAddEmote": "Recompensa por adicionar um emote",
+      "rewardForRemoveEmote": "Recompensa por remover um emote",
       "rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
     }
   },
   "events": {
-    "delay": "Delay (in seconds)",
+    "delay": "Atraso (em segundos)",
     "repeat": "Contagem de testes",
-    "onlineOnly": "Online-Only Execution",
+    "onlineOnly": "Executar somente quando a transmissão estiver ligada",
     "type": "Tipo",
     "description": "Descrição",
     "targetCommand": "Comando de Destino",
@@ -361,17 +367,17 @@
       "inputs": {
         "message": "Message To Send (supports variables)",
         "default": "Action Text (supports variables)",
-        "vipSlots": "VIP Slots Amount",
+        "vipSlots": "Quantidade de Espaços VIP",
         "username": "Username (supports variables)",
         "variableValue": "New Variable Value (supports variables)",
         "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
       },
-      "banMessage": "Ban Message",
-      "banTime": "Ban Time",
+      "banMessage": "Mensagem de Banimento",
+      "banTime": "Tempo de banimento",
       "obs": {
-        "warningTitle": "You need to configure OBS first before proceeding further!",
-        "warningText": "Seems like you have not connected Twir with OBS. You can do it on the “Overlays” page.",
-        "scene": "OBS Scene",
+        "warningTitle": "Você precisa configurar o OBS antes de prosseguir mais!",
+        "warningText": "Parece que você não conectou o Twir ao OBS. Você pode fazer isso na página \"Sobreposições\".",
+        "scene": "Cena do OBS",
         "source": "OBS Source",
         "audioSource": "OBS Audio Source"
       },
@@ -989,6 +995,7 @@
     }
   },
   "moderation": {
+    "name": "Name of rule, just for your convenience to see name in list",
     "createNewRule": "Create a New Moderation Rule",
     "banTime": "Timeout Time",
     "banDescription": "Set to 0 for ban permamently.",
@@ -1006,7 +1013,15 @@
         "description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
         "empty": "List of disallowed words is empty! You can add one there.",
         "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
-        "regexpCheatSheet": "cheat sheet"
+        "regexpCheatSheet": "cheat sheet",
+        "wordBoundary": {
+          "label": "Word boundary",
+          "description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+        },
+        "caseSensitive": {
+          "label": "Case sensitive",
+          "description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+        }
       },
       "symbols": {
         "name": "Symbols",
@@ -1035,6 +1050,14 @@
         "description": "Scans and filters out inappropriate languages.",
         "allowedLanguages": "Allowed Languages List",
         "disallowedLanguages": "Disallowed Languages List"
+      },
+      "one_man_spam": {
+        "name": "One Man Spam",
+        "description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
+        "triggerLength": "Minimal message length to trigger storing and filtering",
+        "minimumStoredMessages": "Number of stored messages to begin filter",
+        "messageMemorySeconds": "How long to store user message in seconds",
+        "maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
       }
     }
   },
@@ -1139,6 +1162,109 @@
     },
     "auditLogs": {
       "title": "Audit logs"
+    }
+  },
+  "expiringVips": {
+    "title": "Scheduled VIPs",
+    "description": {
+      "line1": "With this feature you can create VIPs for your channel, which will be removed after selected time.",
+      "line2": "You can use commands from built-in {module} module for that."
+    },
+    "comingSoon": "Soon, but already available through commands",
+    "commands": {
+      "add": "Add VIP",
+      "remove": "Remove VIP",
+      "list": "List VIPs",
+      "setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
+    },
+    "alert": {
+      "title": "Heads up!",
+      "description": "It's a list of expiring VIPs, not list of all channel VIPs."
+    }
+  },
+  "moderationRules": {
+    "description": {
+      "line1": "Create rules to moderate your chat.",
+      "line2": "Be careful."
+    }
+  },
+  "chatWall": {
+    "description": {
+      "line1": "Mass ban/delete/timeout messages that contains specific phrase.",
+      "line2": "Improper usage may result in a permanent ban you in TwirApp service. "
+    },
+    "settings": {
+      "title": "Setup",
+      "muteSubscribers": "Mute subscribers",
+      "muteVips": "Mute VIPs"
+    },
+    "commands": {
+      "title": "Commands",
+      "delete": "Chat wall delete",
+      "ban": "Chat wall ban",
+      "timeout": "Chat wall timeout",
+      "stop": "Chat wall stop"
+    },
+    "table": {
+      "phrase": "Phrase",
+      "createdAt": "Created at",
+      "inProcess": "In process",
+      "action": "Action",
+      "yes": "Yes",
+      "no": "No",
+      "affectedMessages": "Affected messages",
+      "logs": {
+        "title": "Affected messages",
+        "user": "User",
+        "message": "Message"
+      },
+      "timeout": "sec"
+    }
+  },
+  "giveaways": {
+    "title": "Giveaways",
+    "createNew": "Create New Giveaway",
+    "keyword": "Keyword",
+    "createdAt": "Created At",
+    "startedAt": "Started At",
+    "stoppedAt": "Stopped At",
+    "winners": "Winners",
+    "view": "View",
+    "start": "Start",
+    "stop": "Stop",
+    "chooseWinner": "Choose winner",
+    "pages": {
+      "list": {
+        "title": "Active Giveaways"
+      },
+      "history": {
+        "title": "Giveaway History"
+      }
+    },
+    "createDialog": {
+      "title": "Create New Giveaway",
+      "description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
+      "keywordLabel": "Keyword",
+      "keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
+      "cancel": "Cancel",
+      "create": "Create"
+    },
+    "notifications": {
+      "created": "Giveaway created",
+      "createdDescription": "Giveaway with keyword \"{keyword}\" has been created",
+      "error": "Error creating giveaway",
+      "winnersChosen": "Winners chosen",
+      "winnersChosenDescription": "{count} winners have been chosen",
+      "errorChoosingWinners": "Error choosing winners"
+    },
+    "currentGiveaway": {
+      "totalParticipants": "Total participants: {count}",
+      "totalWinners": "Total winners: {count}",
+      "selectWinner": "Select a winner to view their chat logs and profile",
+      "tabs": {
+        "participants": "Participants",
+        "winners": "Winners"
+      }
     }
   }
 }

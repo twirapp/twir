@@ -36,14 +36,14 @@
       "text": "Bot odošle odpovede na príkazy ako odpoveď"
     },
     "response": "Odpoveď",
-    "user": "Užívateľ",
-    "userName": "Užívateľské meno",
+    "user": "Používateľ",
+    "userName": "Používateľské meno",
     "dangerZone": "Nebezpečná zóna",
     "deleted": "Odstránené",
     "updated": "Aktualizované",
     "disabled": "Vypnuté",
-    "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
-    "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
+    "setDefaultSettings": "Naozaj chcete obnoviť predvolené nastavenia?",
+    "placeCursorMessage": "Umiestni kurzor za znak „$“ pre úpravu premennej",
     "pagination": "{page} strana(y) / {total} položka(y)",
     "paginationPerPage": "Na stranu",
     "searchPlaceholder": "Hľadať...",
@@ -60,7 +60,8 @@
     "settings": "Nastavenia",
     "create": "Vytvoriť",
     "edit": "Upraviť",
-    "noData": "Žiadne údaje"
+    "noData": "Žiadne údaje",
+    "loading": "Načitávanie..."
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -92,20 +93,21 @@
     "lang": "Jazyk",
     "darkTheme": "Tmavá téma",
     "lightTheme": "Svetlá téma",
-    "notifications": "Notifikácie"
+    "notifications": "Notifikácie",
+    "giveaways": "Giveawaye"
   },
   "deleteConfirmation": {
-    "text": "Ste si istí, že to chcete odstrániť?",
+    "text": "Naozaj to chceš odstrániť?",
     "cancel": "Zrušiť",
     "confirm": "Potvrdiť"
   },
   "haveNoAccess": {
     "title": "Žiadny prístup",
-    "description": "Nemáte na to oprávnenie, požiadajte vysielateľa, aby vám ho poskytol."
+    "description": "Nemáš na to oprávnenie, požiadaj vysielateľa, aby ti ho poskytol."
   },
   "pageNotFound": {
     "title": "404 Nenájdená",
-    "description": "Viete, život je vždy smiešny."
+    "description": "Vieš, život je proste vždy na hlavu."
   },
   "commands": {
     "name": "Príkaz | Príkazy",
@@ -151,9 +153,9 @@
       },
       "responses": {
         "add": "Pridať odpoveď",
-        "description": "Toto je vaša odpoveď na príkaz. Môžete použiť príkazové premenné ako {0}.",
+        "description": "Toto je odpoveď na príkaz môžeš použiť premenné ako {0}.",
         "validations": {
-          "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžete vynechať.",
+          "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžeš vynechať.",
           "len": "Odpoveď by mala mať menej ako 500 znakov."
         },
         "defaultWarning": "Odpovede predvolených príkazov nie je možné upravovať."
@@ -161,8 +163,8 @@
       "permissions": {
         "divider": "Oprávnenia",
         "name": "Roly",
-        "placeholder": "Výber rolí na udelenie oprávnení na používanie príkazov",
-        "deniedUsers": "Používatelia, ktorí tento príkaz nemôžu použiť.",
+        "placeholder": "Vyber roly, ktorým sa má udeliť povolenie na používanie príkazov",
+        "deniedUsers": "Používatelia, ktorí nemôžu použiť tento príkaz.",
         "allowedUsers": "Používatelia, ktorí môžu obísť obmedzenie rolí pre tento príkaz.",
         "exceptions": "Výnimky",
         "blocked": "Blokovaní užívatelia"
@@ -174,10 +176,10 @@
         "channelsPoints": "Požadované vernostné body kanálov na použitie tohto príkazu."
       },
       "cooldown": {
-        "label": "Vychladnutie",
+        "label": "Cooldown",
         "value": "Cooldown v sekundách",
         "type": {
-          "name": "Vychladnutie za",
+          "name": "Cooldown pre",
           "global": "Globálne",
           "user": "Individuálne (na používateľa)"
         }
@@ -186,15 +188,19 @@
         "divider": "Nastavenia",
         "visible": {
           "label": "Viditeľnosť",
-          "text": "Viditeľnosť príkazov na stránke verejného zoznamu príkazov."
+          "text": "Viditeľnosť príkazu na stránke verejného zoznamu príkazov."
         },
         "keepOrder": {
           "label": "Zachovať poradie",
           "text": "Bot zachová toto poradie odpovedí pri ich odosielaní do chatu."
         },
         "onlineOnly": {
-          "label": "Len ak online",
+          "label": "Iba keď je online",
           "text": "Tento príkaz bude fungovať len vtedy, keď je stream online."
+        },
+        "offlineOnly": {
+          "label": "Iba ak offline",
+          "text": "Tento príkaz bude fungovať iba vtedy, keď je stream offline."
         },
         "other": {
           "divider": "Iné",
@@ -202,28 +208,28 @@
         }
       },
       "alert": {
-        "label": "Vyberte upozornenie, ktoré sa spustí pri použití príkazu."
+        "label": "Vyber upozornenie, ktoré sa spustí pri použití príkazu."
       }
     }
   },
   "dashboard": {
     "header": {
-      "managingUser": "Spravujúci užívateľ",
+      "managingUser": "Spravujúci používateľ",
       "channelsAccess": "Kanály, ku ktorým máš prístup"
     },
     "botManage": {
       "title": "Stav bota",
       "success": "Povolené a so statusom moderátora",
       "notEnabledTitle": "Bot nie je povolený na kanáli",
-      "notModerator": "Zistili sme, že bot nie je moderátorom na tomto kanáli. Prosím, použite {0}, inak bot nebude posielať správy v chate a väčšina funkcií nebude fungovať",
+      "notModerator": "Zistili sme, že bot nie je moderátorom na tomto kanáli. Prosím, použi {0}, inak bot nebude môcť posielať správy do chatu a väčšina funkcií nebude fungovať",
       "leave": "Zakázať",
       "join": "Povoliť"
     },
     "statsWidgets": {
       "streamInfo": {
         "noTitle": "Nemôžem získať názov streamu!",
-        "noCategory": "Nemožno získať kategóriu!",
-        "modalTitle": "Upravte informácie o streame",
+        "noCategory": "Nemôžem získať kategóriu!",
+        "modalTitle": "Upraviť informácie o streame",
         "title": "Názov streamu",
         "category": "Kategória"
       },
@@ -301,22 +307,22 @@
         "label": "Upozornenia",
         "showTitle": "Zobraziť názov streamu?",
         "showCategory": "Zobraziť kategóriu streamu?",
-        "showViewers": "Zobraziť počítadlo divákov?",
+        "showViewers": "Zobraziť počet divákov?",
         "showPreview": "Zobraziť náhľad streamu?",
         "showProfileImage": "Zobraziť avatar profilu Twitch?",
         "channelsSelect": "Kde sa budú zverejňovať upozornenia?",
-        "streamOnlineLabel": "Správa o upozornení na stream",
-        "streamOnlinePlaceholder": "Túto správu odošle Twir pri spustení streamu.",
+        "streamOnlineLabel": "Správa upozornenia na stream",
+        "streamOnlinePlaceholder": "Twir pošle túto správu, keď stream začne.",
         "streamOfflineLabel": "Správa o ukončení streamu",
         "streamOfflinePlaceholder": "Túto správu odošle Twir, keď stream skončí.",
-        "updateAlert": "Twir bude pravidelne aktualizovať vloženú správu, aby sa uistil, že je synchronizovaná so stavom vášho streamu. (diváci, názov, kategória atď.)",
-        "shouldDeleteMessageOnOffline": "Odstránenie upozorňujúcej správy namiesto jej úpravy, keď je stream vypnutý?",
-        "additionalUsersIdsForLiveCheck": "Ďalší zoznam používateľov služby Twitch, ktorých môžete sledovať na odosielanie upozornení na stream."
+        "updateAlert": "Twir bude pravidelne aktualizovať vloženú správu, aby sa zabezpečilo, že je synchronizovaná so stavom tvojho streamu (diváci, názov, kategória, atď.)",
+        "shouldDeleteMessageOnOffline": "Vymazať upozornenie namiesto jeho úpravy, keď stream prejde do offline režimu?",
+        "additionalUsersIdsForLiveCheck": "Ďalší používatelia na kontrolu online stavu pre upozornenia."
       },
       "connectGuild": "+ Pripojiť server",
       "disconnectGuild": "Odpojiť server",
       "noGuilds": "Žiadne pripojené servery",
-      "cannotSendMessage": "Bot nemá možnosť odosielať správy v tomto kanáli. Pozrite sa na oprávnenia kanála, aby ste to vyriešili."
+      "cannotSendMessage": "Bot nemá možnosť posielať správy v tomto kanáli. Skontroluj oprávnenia kanála, aby si to opravil."
     },
     "faceit": {
       "info": "Poskytnutie prístupu k tejto službe umožní Twiru sledovať vaše zápasy Faceit a nastaví príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších."
@@ -328,13 +334,13 @@
       "info": "Poskytnutie prístupu k tejto službe umožňuje Twiru sledovať vaše zápasy Valorant a nastaviť príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších. "
     },
     "sevenTv": {
-      "description": "Môžeme spravovať emotikony 7TV, keď je táto integrácia povolená.",
-      "alert": "Prostredníctvom systému {0} môžete tiež vytvoriť advanced flow na ovládanie emotikonov 7TV.",
+      "description": "Po aktivovaní tejto integrácie môžeme spravovať 7TV emoty na tvojom kanáli.",
+      "alert": "Môžeš tiež využiť pokročilý flow cez systém {0} na správu 7TV emotov.",
       "connected": "Pripojené",
       "notConnected": "Nepripojené",
       "notRegistered": "Nie ste registrovaný na {0}",
-      "errorSameReward": "Nemôžete použiť rovnakú odmenu za pridanie a odstránenie emotov!",
-      "deleteOnlyAddedByApp": "Vymazať emotikony pridané Twirom",
+      "errorSameReward": "Nemôžeš použiť tú istú odmenu na pridávanie aj odstraňovanie emotov!",
+      "deleteOnlyAddedByApp": "Odstrániť len emoty pridané cez Twir",
       "connectSteps": {
         "step1": "Otvorte svoj profil {0}",
         "step2": "Kliknite na tlačidlo \"Pridať editorov\"",
@@ -342,7 +348,7 @@
       },
       "rewardForAddEmote": "Odmena za pridanie emotu",
       "rewardForRemoveEmote": "Odmena za odstránenie emotu",
-      "rewardSelectorDescription": "Mali by ste vytvárať odmeny so vstupom. Užívatelia musia pri aktivácii odmeny použiť odkaz 7tv."
+      "rewardSelectorDescription": "Vytvor odmenu s vstupom. Používatelia musia použiť 7TV odkaz na emote, keď aktivujú odmenu."
     }
   },
   "events": {
@@ -354,13 +360,13 @@
     "targetCommand": "Cieľový príkaz",
     "targetVariable": "Cieľová premenná",
     "targetTwitchReward": "Vyberte odmenu za kanál",
-    "targetKeyword": "Cielené kľúčové slovo",
+    "targetKeyword": "Cieľové kľúčové slovo",
     "operations": {
       "divider": "Akcie",
       "name": "Činnosť",
       "inputs": {
         "message": "Správa na odoslanie (podporuje premenné)",
-        "default": "Text činnosti (podporuje premenné)",
+        "default": "Text akcie (podporuje premenné)",
         "vipSlots": "Množstvo VIP slotov",
         "username": "Používateľské meno (podporuje premenné)",
         "variableValue": "Nová hodnota premennej (podporuje premenné)",
@@ -802,7 +808,7 @@
         "stats": "Štatistiky"
       },
       "cooldown": {
-        "title": "Vychladnutie duelu",
+        "title": "Cooldown duelu",
         "user": "Individuálne",
         "global": "Global"
       },
@@ -855,7 +861,7 @@
   },
   "modules": {
     "chatTranslations": {
-      "title": "Preklady četu",
+      "title": "Preklady chatu",
       "description": "Preklad chatu v reálnom čase",
       "settings": {
         "title": "Nastavenia prekladu chatu",
@@ -871,7 +877,7 @@
         "excludedLanguages": {
           "label": "Vylúčené jazyky",
           "description": "Správy v týchto jazykoch nebudú preložené",
-          "placeholder": "Vyberte jazyky, ktoré chcete vylúčiť"
+          "placeholder": "Vyber jazyky, ktoré chceš vylúčiť"
         },
         "useItalic": {
           "label": "Použiť kurzívu",
@@ -903,7 +909,7 @@
       },
       "total": "Celkový počet používateľov: {total}",
       "reset": {
-        "label": "Reset stats",
+        "label": "Vynulovať štatistiky",
         "resetQuestion": "Ste si istí, že chcete obnoviť {title}?"
       }
     },
@@ -966,7 +972,7 @@
     "randomedMessage": "Ak existuje niekoľko variantov upozornení v chate, vyberú sa náhodne.",
     "randomMessageWithCount": "Ak existuje niekoľko variantov s rovnakým číslom počítadla, vyberú sa náhodne.",
     "replacedInfo": "Dostupné premenné: {vars}. Budú nahradené aktuálnymi informáciami v upozornení.",
-    "cooldown": "Vychladnutie správy (v sekundách)",
+    "cooldown": "Cooldown správy (v sekundách)",
     "ban": {
       "alertInfo": "Nastavte čas na 0, aby sa odoslala správa, keď je používateľ trvalo zablokovaný.",
       "countLabel": "Čas (minútach)",
@@ -989,6 +995,7 @@
     }
   },
   "moderation": {
+    "name": "Názov pravidla, len pre tvoju orientáciu v zozname",
     "createNewRule": "Vytvorenie nového pravidla moderácie",
     "banTime": "Dĺžka timeoutu",
     "banDescription": "Nastavte na 0 pre trvalý ban.",
@@ -1006,7 +1013,15 @@
         "description": "Pomáha udržiavať čistý chat filtrovaním slov alebo fráz uvedených v preddefinovanom zozname, čím zabraňuje ich zobrazovaniu.",
         "empty": "Zoznam nepovolených slov je prázdny! Môžete ho vytvoriť tu.",
         "regexp": "Ak ste pokročilý používateľ, zoznam zakázaných slov podporuje aj regulárne výrazy. Regulárny výraz by mal byť zapísaný vo formáte golang! Pozri {0} tu.",
-        "regexpCheatSheet": "Ťahák"
+        "regexpCheatSheet": "Ťahák",
+        "wordBoundary": {
+          "label": "Hranica slova\n",
+          "description": "Hranica slova pri filtrovaní označuje začiatok alebo koniec slova, čím zabezpečuje, že filtre zodpovedajú celým slovám (napr. „cat“), ale nie častiam slov (napr. „category“)."
+        },
+        "caseSensitive": {
+          "label": "Citlivosť na veľkosť písmen\n\n",
+          "description": "Rozlišovanie veľkosti písmen pri filtrovaní znamená, že filter nájde len slová s presne rovnakým použitím veľkých a malých písmen ako má filter (napríklad „Cat“ sa nezhoduje s „cat“)."
+        }
       },
       "symbols": {
         "name": "Symboly",
@@ -1035,6 +1050,14 @@
         "description": "Skontroluje a odfiltruje nevhodné jazyky.",
         "allowedLanguages": "Zoznam povolených jazykov",
         "disallowedLanguages": "Zoznam nepovolených jazykov"
+      },
+      "one_man_spam": {
+        "name": "One Man Spam",
+        "description": "Detekuje a obmedzuje používateľov, ktorí spamujú chat odosielaním veľkého množstva správ v krátkom čase.",
+        "triggerLength": "Minimálna dĺžka správy na spustenie ukladania a filtrovania",
+        "minimumStoredMessages": "Počet uložených správ na spustenie filtrovania",
+        "messageMemorySeconds": "Ako dlho uchovávať správu používateľa (v sekundách)",
+        "maxPercentage": "Maximálne percento podobnosti textu. Na výpočet sa používa Levenshteinova vzdialenosť."
       }
     }
   },
@@ -1139,6 +1162,109 @@
     },
     "auditLogs": {
       "title": "Denník záznamov"
+    }
+  },
+  "expiringVips": {
+    "title": "Naplánované VIP",
+    "description": {
+      "line1": "Pomocou tejto funkcie môžete pre svoj kanál vytvoriť VIP, ktoré budú po uplynutí zvoleného času odstránené.",
+      "line2": "Môžete na to použiť príkazy z vstavaného modulu {module}."
+    },
+    "comingSoon": "Dostupné čoskoro, ale už teraz je k dispozícii prostredníctvom príkazov",
+    "commands": {
+      "add": "Pridať VIP",
+      "remove": "Odstrániť VIP",
+      "list": "Zoznam VIP",
+      "setExpire": "Predĺženie doby platnosti pre existujúce časovo obmedzené VIP alebo pridanie doby platnosti pre používateľov VIP, ktorí ju nemajú"
+    },
+    "alert": {
+      "title": "Upozornenie!",
+      "description": "Je to zoznam VIP členov, ktorým čoskoro vyprší platnosť, nie zoznam všetkých VIP členov kanála."
+    }
+  },
+  "moderationRules": {
+    "description": {
+      "line1": "Vytvor pravidlá na moderovanie tvojho chatu.",
+      "line2": "Buď opatrný."
+    }
+  },
+  "chatWall": {
+    "description": {
+      "line1": "Hromadne zablokuj/odstráň/časovo obmedz správy, ktoré obsahujú konkrétnu frázu.",
+      "line2": "Nesprávne používanie môže viesť k trvalému banu v službe TwirApp. "
+    },
+    "settings": {
+      "title": "Nastavenie",
+      "muteSubscribers": "Stíšiť predplatiteľov",
+      "muteVips": "Stíšiť VIP"
+    },
+    "commands": {
+      "title": "Príkazy",
+      "delete": "Mazacia chatová stena",
+      "ban": "Banovacia chatová stena",
+      "timeout": "Timeout chatová stena",
+      "stop": "Stop chatová stena"
+    },
+    "table": {
+      "phrase": "Fráza",
+      "createdAt": "Vytvorené",
+      "inProcess": "V procese",
+      "action": "Akcia",
+      "yes": "Áno",
+      "no": "Nie",
+      "affectedMessages": "Postihnuté správy",
+      "logs": {
+        "title": "Postihnuté správy",
+        "user": "Užívateľ",
+        "message": "Správa"
+      },
+      "timeout": "sek."
+    }
+  },
+  "giveaways": {
+    "title": "Giveawaye",
+    "createNew": "Vytvoriť nový giveaway",
+    "keyword": "Kľúčové slovo",
+    "createdAt": "Vytvorené o",
+    "startedAt": "Začiatok",
+    "stoppedAt": "Koniec",
+    "winners": "Výhercovia",
+    "view": "Zobraziť",
+    "start": "Spustiť",
+    "stop": "Zastaviť",
+    "chooseWinner": "Vybrať víťaza",
+    "pages": {
+      "list": {
+        "title": "Prebiehajuce giveawaye"
+      },
+      "history": {
+        "title": "História giveawayov"
+      }
+    },
+    "createDialog": {
+      "title": "Vytvoriť nový giveaway",
+      "description": "Zadaj kľúčové slovo pre tvoj giveaway. Používatelia budú používať toto kľúčové slovo na účasť.",
+      "keywordLabel": "Kľúčové slovo",
+      "keywordPlaceholder": "Zadaj kľúčové slovo (napr. „!giveaway\" alebo „raffle\")",
+      "cancel": "Zrušiť",
+      "create": "Vytvoriť"
+    },
+    "notifications": {
+      "created": "Giveaway vytvorený",
+      "createdDescription": "Giveaway s kľúčovým slovom '{keyword}' bol vytvorený",
+      "error": "Chyba pri vytváraní giveaway",
+      "winnersChosen": "Víťazi vybraní",
+      "winnersChosenDescription": "{count} víťazov bolo vybraných",
+      "errorChoosingWinners": "Chyba pri výbere víťazov"
+    },
+    "currentGiveaway": {
+      "totalParticipants": "Celkový počet účastníkov: {count}",
+      "totalWinners": "Celkový počet víťazov: {count}",
+      "selectWinner": "Vyber víťaza na zobrazenie jeho záznamov z chatu a profilu",
+      "tabs": {
+        "participants": "Účastníci",
+        "winners": "Výhercovia"
+      }
     }
   }
 }

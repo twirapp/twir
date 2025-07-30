@@ -60,7 +60,8 @@
     "settings": "Einstellungen",
     "create": "Erstelle",
     "edit": "Bearbeite",
-    "noData": "Keine Daten verfügbar"
+    "noData": "Keine Daten verfügbar",
+    "loading": "Wird geladen..."
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -92,7 +93,8 @@
     "lang": "Sprache",
     "darkTheme": "Dunkles Design",
     "lightTheme": "Helles Design",
-    "notifications": "Benachrichtigungen"
+    "notifications": "Benachrichtigungen",
+    "giveaways": "Gewinnspiele"
   },
   "deleteConfirmation": {
     "text": "Bist du sicher, dass du das löschen möchtest?",
@@ -195,6 +197,10 @@
         "onlineOnly": {
           "label": "Nur wenn Online",
           "text": "Dieser Befehl funktioniert nur, wenn der Stream online ist."
+        },
+        "offlineOnly": {
+          "label": "Nur wenn offline",
+          "text": "Dieser Befehl funktioniert nur, wenn der Stream offline ist."
         },
         "other": {
           "divider": "Sonstiges",
@@ -855,35 +861,35 @@
   },
   "modules": {
     "chatTranslations": {
-      "title": "Chat translations",
-      "description": "Translate chat in real time",
+      "title": "Chat-Übersetzungen",
+      "description": "Chat in Echtzeit übertragen",
       "settings": {
-        "title": "Chat Translation Settings",
+        "title": "Chatübersetzungs-Einstellungen",
         "enabled": {
-          "label": "Enabled",
-          "description": "Enable chat translation for your channel"
+          "label": "Aktiviert",
+          "description": "Chat-Übersetzung für deinen Kanal aktivieren"
         },
         "targetLanguage": {
-          "label": "Target Language",
-          "description": "Messages will be translated to this language",
-          "placeholder": "Select a language"
+          "label": "Zielsprache",
+          "description": "Nachrichten werden in diese Sprache übersetzt",
+          "placeholder": "Wähle eine Sprache aus"
         },
         "excludedLanguages": {
-          "label": "Excluded Languages",
-          "description": "Messages in these languages will not be translated",
-          "placeholder": "Select languages to exclude"
+          "label": "Ausgeschlossene Sprachen",
+          "description": "Nachrichten in diesen Sprachen werden nicht übersetzt",
+          "placeholder": "Wähle Sprachen aus, die ausgeschlossen werden sollen"
         },
         "useItalic": {
-          "label": "Use Italic",
-          "description": "Display translated messages in italic"
+          "label": "Verwende Kursives Schreiben",
+          "description": "Zeige übersetzte Nachrichten in kursiver Schreibweise an"
         },
         "excludedUsers": {
-          "title": "Excluded Users",
-          "description": "Messages from these users will not be translated"
+          "title": "Ausgeschlossene Benutzer",
+          "description": "Nachrichten von diesen Benutzern werden nicht übersetzt"
         },
         "buttons": {
-          "update": "Update Settings",
-          "create": "Create Settings"
+          "update": "Einstellungen aktualisieren",
+          "create": "Erstelle Einstellungen"
         }
       }
     }
@@ -903,7 +909,7 @@
       },
       "total": "Gesamte Benutzer: {total}",
       "reset": {
-        "label": "Reset stats",
+        "label": "Statistiken zurücksetzen",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     },
@@ -989,6 +995,7 @@
     }
   },
   "moderation": {
+    "name": "Name der Regel, nur damit du den Namen bequem in der Liste sehen kannst",
     "createNewRule": "Erstelle eine neue Moderations-Regel",
     "banTime": "Timeout Zeit",
     "banDescription": "Auf 0 gesetzt für permanenten Bann.",
@@ -1006,7 +1013,15 @@
         "description": "Hilft beim Erhalt eines sauberen Chats, indem man Wörter oder Phrasen aus einer vordefinierten Liste herausfiltert und verhindert, dass sie angezeigt werden.",
         "empty": "Liste der nicht erlaubten Wörter ist leer! Du kannst dort welche hinzufügen.",
         "regexp": "Wenn du ein fortgeschrittener Benutzer bist, unterstützt die Liste nicht erlaubter Wörter auch reguläre Ausdrücke. Reguläre Ausdrücke sollten im golang-Format geschrieben werden! Siehe {0} hier.",
-        "regexpCheatSheet": "Spickzettel"
+        "regexpCheatSheet": "Spickzettel",
+        "wordBoundary": {
+          "label": "Wortgrenze",
+          "description": "Eine Wortgrenze in der Filterung markiert den Anfang oder das Ende eines Wortes und stellt sicher, dass Filter mit ganzen Wörtern übereinstimmen. ., \"Katze\") aber nicht Teile von Wörtern (z. B. \"Kategorie\")."
+        },
+        "caseSensitive": {
+          "label": "Sensibilität des Falls",
+          "description": "Sensibilität des Falls in der Filterung bedeutet, dass der Filter nur Wörter mit der exakten gleichen Großschreibung wie der Filter (z.B. \"Katze\" stimmt nicht mit \"Katze\" überein)."
+        }
       },
       "symbols": {
         "name": "Symbole",
@@ -1035,6 +1050,14 @@
         "description": "Scannt und filtert unangemessene Sprachen heraus.",
         "allowedLanguages": "Liste der erlaubten Sprachen",
         "disallowedLanguages": "Liste der nicht erlaubten Sprachen"
+      },
+      "one_man_spam": {
+        "name": "Eine Person Spam",
+        "description": "Erkennt und beschränkt Benutzer, die im Chat in kurzer Zeit viele Nachrichten spammen.",
+        "triggerLength": "Minimale Nachrichtenlänge zum Speichern und Filtern",
+        "minimumStoredMessages": "Anzahl der gespeicherten Nachrichten, um den Filter zu starten",
+        "messageMemorySeconds": "Wie lange die Benutzernachricht in Sekunden gespeichert wird",
+        "maxPercentage": "Maximale Textähnlichkeit prozentual. Levenshtein Abstand wird zur Berechnung verwendet."
       }
     }
   },
@@ -1139,6 +1162,109 @@
     },
     "auditLogs": {
       "title": "Audit-Logs"
+    }
+  },
+  "expiringVips": {
+    "title": "Geplante VIPs",
+    "description": {
+      "line1": "Mit dieser Funktion kannst du VIP Slots für deinen Kanal vergeben, die nach der gewählten Zeit entfernt werden.",
+      "line2": "Dafür kannst du Befehle aus dem eingebauten {module} Modul verwenden."
+    },
+    "comingSoon": "Bald, aber bereits über Befehle verfügbar",
+    "commands": {
+      "add": "VIP hinzufügen",
+      "remove": "VIP entfernen",
+      "list": "VIPs anzeigen",
+      "setExpire": "Verlängere die Ablaufzeit für bestehende VIPs oder füge eine Ablaufzeit für einen VIP-Benutzer hinzu"
+    },
+    "alert": {
+      "title": "Achtung!",
+      "description": "Es ist eine Liste von auslaufenden VIPs, keine Übersicht aller VIPs."
+    }
+  },
+  "moderationRules": {
+    "description": {
+      "line1": "Erstelle Regeln, um deinen Chat zu moderieren.",
+      "line2": "Sei vorsichtig."
+    }
+  },
+  "chatWall": {
+    "description": {
+      "line1": "Nachrichten die bestimmte Phrasen enthalten Massenbannen/Löschen/Timeouten.",
+      "line2": "Unpassende Nutzung kann zu einem permanenten Verbot im TwirApp-Dienst führen."
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "muteSubscribers": "Abonnenten stummschalten",
+      "muteVips": "VIPs stummschalten"
+    },
+    "commands": {
+      "title": "Befehle",
+      "delete": "Chat-Wand löschen",
+      "ban": "Chat-Wand Bann",
+      "timeout": "Chat-Wand Timeout",
+      "stop": "Chat-Wand Stopp"
+    },
+    "table": {
+      "phrase": "Phrase",
+      "createdAt": "Erstellt am",
+      "inProcess": "In Bearbeitung",
+      "action": "Aktion",
+      "yes": "Ja",
+      "no": "Nein",
+      "affectedMessages": "Betroffene Nachrichten",
+      "logs": {
+        "title": "Betroffene Nachrichten",
+        "user": "Benutzer",
+        "message": "Nachricht"
+      },
+      "timeout": "Sek"
+    }
+  },
+  "giveaways": {
+    "title": "Gewinnspiele",
+    "createNew": "Neues Gewinnspiel erstellen",
+    "keyword": "Schlüsselwort",
+    "createdAt": "Erstellt am",
+    "startedAt": "Gestartet um",
+    "stoppedAt": "Gestoppt bei",
+    "winners": "Gewinner",
+    "view": "Anzeigen",
+    "start": "Start",
+    "stop": "Stopp",
+    "chooseWinner": "Gewinner auswählen",
+    "pages": {
+      "list": {
+        "title": "Aktive Gewinnspiele"
+      },
+      "history": {
+        "title": "Gewinnspiel Verlauf"
+      }
+    },
+    "createDialog": {
+      "title": "Neues Gewinnspiel erstellen",
+      "description": "Gebe ein Schlüsselwort für ein Giveaway ein. Benutzer verwenden dieses Schlüsselwort um daran teilzunehmen.",
+      "keywordLabel": "Schlüsselwort",
+      "keywordPlaceholder": "Schlüsselwort eingeben (z.B. '!giveaway' oder 'Tombola')",
+      "cancel": "Abbrechen",
+      "create": "Erstelle"
+    },
+    "notifications": {
+      "created": "Gewinnspiel erstellt",
+      "createdDescription": "Gewinnspiel mit dem Schlüsselwort \"{keyword}\" wurde erstellt",
+      "error": "Fehler beim Erstellen des Gewinnspiels",
+      "winnersChosen": "Gewählte Gewinner",
+      "winnersChosenDescription": "{count} Gewinner wurden ausgewählt",
+      "errorChoosingWinners": "Fehler beim Auswählen der Gewinner"
+    },
+    "currentGiveaway": {
+      "totalParticipants": "Gesamte Teilnehmer: {count}",
+      "totalWinners": "Gesamtsieger: {count}",
+      "selectWinner": "Wähle einen Gewinner aus, um seine Chat-Nachrichten und sein Profil anzusehen",
+      "tabs": {
+        "participants": "Teilnehmer",
+        "winners": "Gewinner"
+      }
     }
   }
 }

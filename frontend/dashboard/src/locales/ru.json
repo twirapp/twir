@@ -48,8 +48,8 @@
     "paginationPerPage": "Постранично",
     "searchPlaceholder": "Поиск",
     "messages": "Сообщения",
-    "asc": "",
-    "desc": "Описание",
+    "asc": "По возрастанию",
+    "desc": "По убыванию",
     "hide": "Скрыть",
     "view": "Смотреть",
     "toggleColumns": "Переключить столбцы",
@@ -197,6 +197,10 @@
         "onlineOnly": {
           "label": "Только во время трансляции",
           "text": "Команда будет работать только во время трансляции."
+        },
+        "offlineOnly": {
+          "label": "Только когда оффлайн",
+          "text": "Эта команда будет работать только тогда, когда стрим оффлайн."
         },
         "other": {
           "divider": "Другое",
@@ -890,41 +894,6 @@
       }
     }
   },
-  "modules": {
-    "chatTranslations": {
-      "title": "Перевод чата",
-      "description": "Переводите сообщения чата в реальном времени",
-      "settings": {
-        "title": "Настройки перевода чата",
-        "enabled": {
-          "label": "Включено",
-          "description": "Включить перевод чата для вашего канала"
-        },
-        "targetLanguage": {
-          "label": "Целевой язык",
-          "description": "Сообщения будут переведены на этот язык",
-          "placeholder": "Выберите язык"
-        },
-        "excludedLanguages": {
-          "label": "Исключенные языки",
-          "description": "Сообщения на этих языках не будут переводиться",
-          "placeholder": "Выберите языки для исключения"
-        },
-        "useItalic": {
-          "label": "Использовать курсив",
-          "description": "Отображать переведенные сообщения курсивом"
-        },
-        "excludedUsers": {
-          "title": "Исключенные пользователи",
-          "description": "Сообщения от этих пользователей не будут переводиться"
-        },
-        "buttons": {
-          "update": "Обновить настройки",
-          "create": "Создать настройки"
-        }
-      }
-    }
-  },
   "community": {
     "title": "Сообщество",
     "users": {
@@ -1026,6 +995,7 @@
     }
   },
   "moderation": {
+    "name": "Название правила, для удобства, чтобы видеть название в списке",
     "createNewRule": "Создать новое правило модерации",
     "banTime": "Время отстранения",
     "banDescription": "Установите значение 0 для перманентного бана.",
@@ -1080,6 +1050,14 @@
         "description": "Сканирует и отфильтровывает неподходящие языки.",
         "allowedLanguages": "Разрешенные языки",
         "disallowedLanguages": "Запрещенные языки"
+      },
+      "one_man_spam": {
+        "name": "One Man Spam",
+        "description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
+        "triggerLength": "Minimal message length to trigger storing and filtering",
+        "minimumStoredMessages": "Number of stored messages to begin filter",
+        "messageMemorySeconds": "How long to store user message in seconds",
+        "maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
       }
     }
   },
@@ -1204,7 +1182,17 @@
       "description": "Это список VIP с истекающим сроком действия, а не список всех VIP канала."
     }
   },
+  "moderationRules": {
+    "description": {
+      "line1": "Создавайте правила модерации для вашего чата.",
+      "line2": "Будьте осторожны."
+    }
+  },
   "chatWall": {
+    "description": {
+      "line1": "Массовый бан/удаление/таймаут сообщений, содержащие определённую фразу.",
+      "line2": "Неправомерное использование может привести к перманентному бану в сервисе TwirApp. "
+    },
     "settings": {
       "title": "Настройка",
       "muteSubscribers": "Отключить подписчиков",
