@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
@@ -68,6 +67,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
@@ -172,6 +172,9 @@ import (
 
 	eventsrepository "github.com/twirapp/twir/libs/repositories/events"
 	eventsrepositorypgx "github.com/twirapp/twir/libs/repositories/events/pgx"
+
+	donatepayrepository "github.com/twirapp/twir/libs/repositories/donatepay_integration"
+	donatepayrepositorypostgres "github.com/twirapp/twir/libs/repositories/donatepay_integration/datasource/postgres"
 
 	"go.uber.org/fx"
 )
@@ -333,6 +336,10 @@ func main() {
 			fx.Annotate(
 				channelsredemptionshistoryclickhouse.NewFx,
 				fx.As(new(channelsredemptionshistory.Repository)),
+			),
+			fx.Annotate(
+				donatepayrepositorypostgres.NewFx,
+				fx.As(new(donatepayrepository.Repository)),
 			),
 		),
 		// services
