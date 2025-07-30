@@ -4,20 +4,19 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
-	"github.com/twirapp/twir/apps/api/internal/impl_protected/events"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/integrations"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/modules"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/overlays"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/twitch"
-	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
-	apimodules "github.com/twirapp/twir/libs/types/types/api/modules"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	config "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	apimodules "github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -25,7 +24,6 @@ import (
 type Protected struct {
 	*integrations.Integrations
 	*modules.Modules
-	*events.Events
 	*twitch.Twitch
 	*overlays.Overlays
 }
@@ -68,7 +66,6 @@ func New(opts Opts) *Protected {
 	return &Protected{
 		Integrations: &integrations.Integrations{Deps: d},
 		Modules:      &modules.Modules{Deps: d},
-		Events:       &events.Events{Deps: d},
 		Twitch:       &twitch.Twitch{Deps: d},
 		Overlays:     &overlays.Overlays{Deps: d},
 	}

@@ -7,10 +7,10 @@ import type { unprotectedApiClient } from './twirp.js'
 import type { RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc'
 import type { MaybeRefOrGetter } from 'vue'
 
-type CallFunc<
-	Req extends Record<any, any>,
-	Res extends Record<any, any>,
-> = (input: Req, options?: RpcOptions) => UnaryCall<Req, Res>
+type CallFunc<Req extends Record<any, any>, Res extends Record<any, any>> = (
+	input: Req,
+	options?: RpcOptions
+) => UnaryCall<Req, Res>
 
 export function createCrudManager<
 	GetAll extends CallFunc<any, any>,
@@ -53,16 +53,19 @@ export function createCrudManager<
 			})
 		},
 		getOne: opts.getOne
-			? (req: Parameters<typeof opts.getOne>[0] & {
-				isQueryDisabled?: boolean
-			}) => useQuery<Awaited<ReturnType<typeof opts.getOne>['response']>>({
-				queryKey: [opts.queryKey],
-				queryFn: async () => {
-					const call = await opts.getOne!(req)
-					return call.response
-				},
-				enabled: !req.isQueryDisabled,
-			})
+			? (
+					req: Parameters<typeof opts.getOne>[0] & {
+						isQueryDisabled?: boolean
+					}
+				) =>
+					useQuery<Awaited<ReturnType<typeof opts.getOne>['response']>>({
+						queryKey: [opts.queryKey],
+						queryFn: async () => {
+							const call = await opts.getOne!(req)
+							return call.response
+						},
+						enabled: !req.isQueryDisabled,
+					})
 			: null,
 		deleteOne: useMutation({
 			mutationFn: async (req: Parameters<typeof opts.deleteOne>[0]) => {
@@ -77,21 +80,29 @@ export function createCrudManager<
 			},
 		}),
 		patch: opts.patch
-			? useMutation<Awaited<ReturnType<typeof opts.patch>['response']>, any, Parameters<typeof opts.patch>[0]>({
-				mutationFn: async (req: Parameters<typeof opts.patch>[0]) => {
-					const r = await opts.patch!(req)
-					return r.response
-				},
-				onSuccess: () => {
-					queryClient.refetchQueries([opts.queryKey])
+			? useMutation<
+					Awaited<ReturnType<typeof opts.patch>['response']>,
+					any,
+					Parameters<typeof opts.patch>[0]
+				>({
+					mutationFn: async (req: Parameters<typeof opts.patch>[0]) => {
+						const r = await opts.patch!(req)
+						return r.response
+					},
+					onSuccess: () => {
+						queryClient.refetchQueries([opts.queryKey])
 
-					for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
-						queryClient.refetchQueries([queryKey])
-					}
-				},
-			})
+						for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
+							queryClient.refetchQueries([queryKey])
+						}
+					},
+				})
 			: null,
-		create: useMutation<Awaited<ReturnType<typeof opts.create>['response']>, any, Parameters<typeof opts.create>[0]>({
+		create: useMutation<
+			Awaited<ReturnType<typeof opts.create>['response']>,
+			any,
+			Parameters<typeof opts.create>[0]
+		>({
 			mutationFn: async (req: Parameters<typeof opts.create>[0]) => {
 				const r = await opts.create(req)
 				return r.response
@@ -104,7 +115,11 @@ export function createCrudManager<
 				}
 			},
 		}),
-		update: useMutation<Awaited<ReturnType<typeof opts.update>['response']>, any, Parameters<typeof opts.update>[0]>({
+		update: useMutation<
+			Awaited<ReturnType<typeof opts.update>['response']>,
+			any,
+			Parameters<typeof opts.update>[0]
+		>({
 			mutationFn: async (req: Parameters<typeof opts.update>[0]) => {
 				const r = await opts.update(req)
 				return r.response
@@ -118,19 +133,6 @@ export function createCrudManager<
 			},
 		}),
 	}
-}
-
-export function useEventsManager() {
-	return createCrudManager({
-		client: protectedApiClient,
-		queryKey: 'events',
-		getAll: protectedApiClient?.eventsGetAll,
-		update: protectedApiClient?.eventsUpdate,
-		create: protectedApiClient?.eventsCreate,
-		patch: protectedApiClient?.eventsEnableOrDisable,
-		deleteOne: protectedApiClient?.eventsDelete,
-		getOne: protectedApiClient?.eventsGetById,
-	})
 }
 
 export function useOverlaysRegistry() {
