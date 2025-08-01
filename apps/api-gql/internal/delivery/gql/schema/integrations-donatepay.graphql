@@ -1,9 +1,15 @@
 extend type Query {
-	donatePayIntegration: DonatePayIntegration @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	donatePayIntegration: DonatePayIntegration
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 }
 
 extend type Mutation {
-	donatePayIntegration: DonatePayIntegration! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	donatePayIntegration(apiKey: String!, enabled: Boolean!): DonatePayIntegration!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
 }
 
 type DonatePayIntegration {

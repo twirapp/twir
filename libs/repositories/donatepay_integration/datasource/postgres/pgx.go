@@ -28,8 +28,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ donatepayintegration.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  donatepayintegration.Repository = (*Pgx)(nil)
+	sq                                 = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -41,7 +43,7 @@ func (c *Pgx) GetByChannelID(ctx context.Context, channelID string) (
 	error,
 ) {
 	query := `
-SELECT id, channel_id, api_key from channels_integrations_donatepay
+SELECT id, channel_id, api_key, enabled from channels_integrations_donatepay
 WHERE channel_id = $1
 LIMIT 1;
 `
@@ -62,7 +64,7 @@ LIMIT 1;
 	return data, nil
 }
 
-func (c *Pgx) CreateOrUpdate(ctx context.Context, channelID, apiKey string) (
+func (c *Pgx) CreateOrUpdate(ctx context.Context, channelID, apiKey string, enabled bool) (
 	model.DonatePayIntegration,
 	error,
 ) {
@@ -70,11 +72,11 @@ func (c *Pgx) CreateOrUpdate(ctx context.Context, channelID, apiKey string) (
 INSERT INTO channels_integrations_donatepay (channel_id, api_key)
 VALUES ($1, $2)
 ON CONFLICT (channel_id) DO UPDATE
-SET api_key = $2
-RETURNING id, channel_id, api_key;
+SET api_key = $2, enabled = $3
+RETURNING id, channel_id, api_key, enabled;
 `
 
-	rows, err := c.pool.Query(ctx, query, channelID, apiKey)
+	rows, err := c.pool.Query(ctx, query, channelID, apiKey, enabled)
 	if err != nil {
 		return model.DonatePayIntegration{}, err
 	}

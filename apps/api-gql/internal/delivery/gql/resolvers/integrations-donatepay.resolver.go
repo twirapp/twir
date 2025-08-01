@@ -12,18 +12,24 @@ import (
 )
 
 // DonatePayIntegration is the resolver for the donatePayIntegration field.
-func (r *mutationResolver) DonatePayIntegration(ctx context.Context) (
-	*gqlmodel.DonatePayIntegration,
-	error,
-) {
+func (r *mutationResolver) DonatePayIntegration(
+	ctx context.Context,
+	apiKey string,
+	enabled bool,
+) (*gqlmodel.DonatePayIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	err = r.deps.DonatePayService.CreateOrUpdate(ctx, dashboardID, apiKey, enabled)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update DonatePay integration: %w", err)
+	}
+
 	data, err := r.deps.DonatePayService.GetByChannelID(ctx, dashboardID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get DonatePay integration: %w", err)
+		return nil, fmt.Errorf("cannot get donatepay integration: %w", err)
 	}
 
 	return &gqlmodel.DonatePayIntegration{

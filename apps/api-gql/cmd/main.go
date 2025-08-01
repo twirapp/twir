@@ -42,6 +42,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
@@ -387,6 +388,7 @@ func main() {
 			pastebinsservice.New,
 			events.New,
 			twir_events.New,
+			donatepay_integration.New,
 		),
 		// grpc clients
 		fx.Provide(

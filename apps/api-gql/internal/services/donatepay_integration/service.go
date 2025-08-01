@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/integrations"
 	donatepayintegration "github.com/twirapp/twir/libs/repositories/donatepay_integration"
 	"github.com/twirapp/twir/libs/repositories/donatepay_integration/model"
 	"go.uber.org/fx"
@@ -14,17 +16,20 @@ import (
 type Opts struct {
 	fx.In
 
-	Repo donatepayintegration.Repository
+	Repo    donatepayintegration.Repository
+	TwirBus *buscore.Bus
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repo: opts.Repo,
+		repo:    opts.Repo,
+		twirBus: opts.TwirBus,
 	}
 }
 
 type Service struct {
-	repo donatepayintegration.Repository
+	repo    donatepayintegration.Repository
+	twirBus *buscore.Bus
 }
 
 var ErrNotFound = errors.New("donatepay integration not found")
@@ -34,6 +39,7 @@ func (c *Service) mapModelToEntity(m model.DonatePayIntegration) entity.DonatePa
 		ID:        m.ID,
 		ChannelID: m.ChannelID,
 		ApiKey:    m.ApiKey,
+		Enabled:   m.Enabled,
 	}
 }
 
@@ -53,8 +59,42 @@ func (c *Service) GetByChannelID(
 	return c.mapModelToEntity(data), nil
 }
 
-func (c *Service) CreateOrUpdate(ctx context.Context, channelID, apiKey string) error {
-	_, err := c.repo.CreateOrUpdate(ctx, channelID, apiKey)
+func (c *Service) CreateOrUpdate(
+	ctx context.Context,
+	channelID, apiKey string,
+	enabled bool,
+) error {
+	data, err := c.GetByChannelID(ctx, channelID)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.repo.CreateOrUpdate(ctx, channelID, apiKey, enabled)
+	if err != nil {
+		return err
+	}
+
+	if enabled {
+		err = c.twirBus.Integrations.Add.Publish(
+			ctx,
+			integrations.Request{
+				ID: data.ID.String(),
+			},
+		)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = c.twirBus.Integrations.Remove.Publish(
+			ctx,
+			integrations.Request{
+				ID: data.ID.String(),
+			},
+		)
+		if err != nil {
+			return err
+		}
+	}
 
 	return fmt.Errorf("cannot create donatepay integration: %w", err)
 }

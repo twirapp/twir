@@ -1,6 +1,6 @@
 import process from 'node:process'
 
-import { Service, getIntegrations } from './libs/db'
+import { Service, getDonationPayIntegrations, getIntegrations } from './libs/db'
 import {
 	addIntegration as addDonatePayIntegration,
 	removeIntegration as removeDonatePayIntegration,
@@ -29,10 +29,10 @@ for (const integration of integrations) {
 	if (integration.integration.service === Service.STREAMLABS) {
 		addStreamlabsIntegration(integration)
 	}
+}
 
-	if (integration.integration.service === Service.DONATEPAY) {
-		addDonatePayIntegration(integration)
-	}
+for (const donatePayIntegration of await getDonationPayIntegrations()) {
+	addDonatePayIntegration(donatePayIntegration)
 }
 
 twirBus.Integrations.Add.subscribe(async (data) => {
