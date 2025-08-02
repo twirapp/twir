@@ -6,15 +6,15 @@ import (
 	"log/slog"
 
 	"github.com/redis/go-redis/v9"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/api/messages/events"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	busevents "github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -56,7 +56,7 @@ func New(opts Opts) (*ChatAlerts, error) {
 func (c *ChatAlerts) ProcessEvent(
 	ctx context.Context,
 	channelId string,
-	eventType events.TwirEventType,
+	eventType model.EventType,
 	data any,
 ) {
 	entity, err := c.chatAlertsCache.Get(ctx, channelId)
@@ -88,79 +88,79 @@ func (c *ChatAlerts) ProcessEvent(
 	var processErr error
 
 	switch eventType {
-	case events.TwirEventType_FOLLOW:
+	case model.EventTypeFollow:
 		casted, ok := data.(busevents.FollowMessage)
 		if ok {
 			cooldown = parsedSettings.Followers.Cooldown
 			processErr = c.follow(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_USER_BANNED:
+	case model.EventTypeChannelBan:
 		casted, ok := data.(busevents.ChannelBanMessage)
 		if ok {
 			cooldown = parsedSettings.Ban.Cooldown
 			processErr = c.ban(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_CHAT_CLEAR:
+	case model.EventTypeOnChatClear:
 		casted, ok := data.(busevents.ChatClearMessage)
 		if ok {
 			cooldown = parsedSettings.ChatCleared.Cooldown
 			processErr = c.chatCleared(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_DONATE:
+	case model.EventTypeDonate:
 		casted, ok := data.(busevents.DonateMessage)
 		if ok {
 			cooldown = parsedSettings.Donations.Cooldown
 			processErr = c.donation(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_RAIDED:
+	case model.EventTypeRaided:
 		casted, ok := data.(busevents.RaidedMessage)
 		if ok {
 			cooldown = parsedSettings.Raids.Cooldown
 			processErr = c.raid(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_REDEMPTION_CREATED:
+	case model.EventTypeRedemptionCreated:
 		casted, ok := data.(busevents.RedemptionCreatedMessage)
 		if ok {
 			cooldown = parsedSettings.Redemptions.Cooldown
 			processErr = c.redemption(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_STREAM_OFFLINE:
+	case model.EventTypeStreamOffline:
 		casted, ok := data.(twitch.StreamOfflineMessage)
 		if ok {
 			cooldown = parsedSettings.StreamOffline.Cooldown
 			processErr = c.streamOffline(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_STREAM_ONLINE:
+	case model.EventTypeStreamOnline:
 		casted, ok := data.(twitch.StreamOnlineMessage)
 		if ok {
 			cooldown = parsedSettings.StreamOnline.Cooldown
 			processErr = c.streamOnline(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_SUBSCRIBE:
+	case model.EventTypeSubscribe:
 		casted, ok := data.(SubscribeMessage)
 		if ok {
 			cooldown = parsedSettings.Subscribers.Cooldown
 			processErr = c.subscribe(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_FIRST_USER_MESSAGE:
+	case model.EventTypeFirstUserMessage:
 		casted, ok := data.(busevents.FirstUserMessageMessage)
 		if ok {
 			cooldown = parsedSettings.FirstUserMessage.Cooldown
 			processErr = c.firstUserMessage(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_CHANNEL_UNBAN_REQUEST_CREATED:
+	case model.EventTypeChannelUnbanRequestCreate:
 		casted, ok := data.(busevents.ChannelUnbanRequestCreateMessage)
 		if ok {
 			cooldown = parsedSettings.Ban.Cooldown
 			processErr = c.unbanRequestCreate(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_CHANNEL_UNBAN_REQUEST_RESOLVED:
+	case model.EventTypeChannelUnbanRequestResolve:
 		casted, ok := data.(busevents.ChannelUnbanRequestResolveMessage)
 		if ok {
 			cooldown = parsedSettings.Ban.Cooldown
 			processErr = c.unbanRequestResolved(ctx, parsedSettings, casted)
 		}
-	case events.TwirEventType_CHANNEL_MESSAGE_DELETE:
+	case model.EventTypeChannelMessageDelete:
 		casted, ok := data.(busevents.ChannelMessageDeleteMessage)
 		if ok {
 			cooldown = parsedSettings.MessageDelete.Cooldown

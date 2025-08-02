@@ -11,11 +11,11 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	channelseventsmodel "github.com/twirapp/twir/libs/repositories/events/model"
 	apimodules "github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -43,7 +43,7 @@ type Opts struct {
 	Bus                               *buscore.Bus
 	TTSSettingsCacher                 *generic_cacher.GenericCacher[apimodules.TTSSettings]
 	Config                            config.Config
-	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
+	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]channelseventsmodel.Event]
 }
 
 func New(opts Opts) *Protected {

@@ -10,7 +10,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
 )
@@ -22,6 +22,10 @@ func (c *Activity) VipOrUnvip(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return fmt.Errorf("input is required for vip/unvip operation")
+	}
+
 	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
 	if dbChannelErr != nil {
 		return dbChannelErr
@@ -29,7 +33,7 @@ func (c *Activity) VipOrUnvip(
 
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydrateErr != nil {
@@ -114,7 +118,7 @@ func (c *Activity) VipOrUnvip(
 		}
 	}
 
-	if operation.Type == model.OperationVip {
+	if operation.Type == model.EventOperationTypeVip {
 		if isVip {
 			return nil
 		}
@@ -159,8 +163,8 @@ func (c *Activity) UnvipRandom(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	slots := operation.Input.String
-	if operation.Type == model.OperationUnvipRandomIfNoSlots && slots == "" {
+	slots := operation.Input
+	if operation.Type == model.EventOperationTypeUnvipRandomIfNoSlots && (slots == nil || *slots == "") {
 		return errors.New("input is empty")
 	}
 
@@ -175,8 +179,8 @@ func (c *Activity) UnvipRandom(
 	}
 
 	// if there is still slots available, we should skip unvip
-	if operation.Type == model.OperationUnvipRandomIfNoSlots {
-		slotsInt, err := strconv.Atoi(slots)
+	if operation.Type == model.EventOperationTypeUnvipRandomIfNoSlots {
+		slotsInt, err := strconv.Atoi(*slots)
 		if err != nil {
 			return err
 		}

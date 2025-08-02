@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -17,7 +17,11 @@ func (c *Activity) SendMessage(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Input.String, data)
+	if operation.Input == nil || *operation.Input == "" {
+		return fmt.Errorf("input is required for send message operation")
+	}
+
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Input, data)
 	if err != nil {
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}

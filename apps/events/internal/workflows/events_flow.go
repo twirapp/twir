@@ -9,8 +9,9 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/types/types/events"
+	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
@@ -46,12 +47,21 @@ func (c *EventWorkflow) Flow(
 		return err
 	}
 
-	var stream model.ChannelsStreams
+	var stream deprecatedmodel.ChannelsStreams
 	err = c.db.
 		Where(`"userId" = ?`, data.ChannelID).
 		Find(&stream).Error
 	if err != nil {
 		return err
+	}
+
+	channel, err := c.channelsCache.Get(eventsCtx, data.ChannelID)
+	if err != nil {
+		return err
+	}
+
+	if channel == channelmodel.Nil {
+		return errors.New("channel not found")
 	}
 
 	var operations []model.EventOperation
@@ -73,28 +83,28 @@ func (c *EventWorkflow) Flow(
 			continue
 		}
 
-		if entity.Channel != nil && (!entity.Channel.IsEnabled || entity.Channel.User.IsBanned) {
+		if !channel.IsEnabled || channel.IsTwitchBanned {
 			continue
 		}
 
 		if entity.Type == model.EventTypeCommandUsed &&
 			data.CommandID != "" &&
-			entity.CommandID.Valid &&
-			data.CommandID != entity.CommandID.String {
+			entity.CommandID != nil &&
+			data.CommandID != *entity.CommandID {
 			continue
 		}
 
 		if entity.Type == model.EventTypeRedemptionCreated &&
 			data.RewardID != "" &&
-			entity.RewardID.Valid &&
-			data.RewardID != entity.RewardID.String {
+			entity.RewardID != nil &&
+			data.RewardID != *entity.RewardID {
 			continue
 		}
 
 		if entity.Type == model.EventTypeKeywordMatched &&
 			data.KeywordID != "" &&
-			entity.KeywordID.Valid &&
-			data.KeywordID != entity.KeywordID.String {
+			entity.KeywordID != nil &&
+			data.KeywordID != *entity.KeywordID {
 			continue
 		}
 
@@ -144,231 +154,231 @@ func (c *EventWorkflow) Flow(
 			}
 			var operationErr error
 			switch operation.Type {
-			case model.OperationSendMessage:
+			case model.EventOperationTypeSendMessage:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.SendMessage,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationBan, model.OperationTimeout:
+			case model.EventOperationTypeBan, model.EventOperationTypeTimeout:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.Ban,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationBanRandom, model.OperationTimeoutRandom:
+			case model.EventOperationTypeBanRandom, model.EventOperationTypeTimeoutRandom:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.BanRandom,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationUnban:
+			case model.EventOperationTypeUnban:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.Unban,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationChangeTitle:
+			case model.EventOperationTypeChangeTitle:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ChangeTitle,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationChangeCategory:
+			case model.EventOperationTypeChangeCategory:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ChangeCategory,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationAllowCommandToUser, model.OperationRemoveAllowCommandToUser:
+			case model.EventOperationTypeAllowCommandToUser, model.EventOperationTypeRemoveAllowCommandToUser:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.CommandAllowOrRemoveUserPermission,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationDenyCommandToUser, model.OperationRemoveDenyCommandToUser:
+			case model.EventOperationTypeDenyCommandToUser, model.EventOperationTypeRemoveDenyCommandToUser:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.CommandDenyOrRemoveUserPermission,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationCreateGreeting:
+			case model.EventOperationTypeCreateGreeting:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.CreateGreeting,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationEnableEmoteOnly, model.OperationDisableEmoteOnly:
+			case model.EventOperationTypeDisableEmoteOnly, model.EventOperationTypeEnableEmoteOnly:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.SwitchEmoteOnly,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationMod, model.OperationUnmod:
+			case model.EventOperationTypeMod, model.EventOperationTypeUnmod:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ModOrUnmod,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationUnmodRandom:
+			case model.EventOperationTypeUnmodRandom:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.UnmodRandom,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationObsSetScene:
+			case model.EventOperationTypeObsChangeScene:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ObsSetScene,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationObsToggleSource:
+			case model.EventOperationTypeObsToggleSource:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ObsToggleSource,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationObsToggleAudio:
+			case model.EventOperationTypeObsToggleAudio:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ObsToggleAudio,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationObsIncreaseVolume, model.OperationObsDecreaseVolume:
+			case model.EventOperationTypeObsIncreaseAudioVolume, model.EventOperationTypeObsDecreaseAudioVolume:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ObsAudioChangeVolume,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationObsSetVolume:
+			case model.EventOperationTypeObsSetAudioVolume:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ObsAudioSetVolume,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationObsEnableAudio, model.OperationObsDisableAudio:
+			case model.EventOperationTypeObsEnableAudio, model.EventOperationTypeObsDisableAudio:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ObsEnableOrDisableAudio,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationObsStartStream, model.OperationObsStopStream:
+			case model.EventOperationTypeObsStartStream, model.EventOperationTypeObsStopStream:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ObsStartOrStopStream,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationEnableSubMode, model.OperationDisableSubMode:
+			case model.EventOperationTypeDisableSubmode, model.EventOperationTypeEnableSubmode:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.SwitchSubMode,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationTTSSay:
+			case model.EventOperationTypeTtsSay:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.TtsSay,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationTTSEnable, model.OperationTTSDisable:
+			case model.EventOperationTypeTtsEnable, model.EventOperationTypeTtsDisable:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.TtsChangeState,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationTTSSwitchAutoRead, model.OperationTTSEnableAutoRead, model.OperationTTSDisableAutoRead:
+			case model.EventOperationTypeTtsDisableAutoread, model.EventOperationTypeTtsEnableAutoread, model.EventOperationTypeTtsSwitchAutoread:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.TtsChangeAutoReadState,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationTTSSkip:
+			case model.EventOperationTypeTtsSkip:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.TtsSkip,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationChangeVariable:
+			case model.EventOperationTypeChangeVariable:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ChangeVariableValue,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationIncrementVariable, model.OperationDecrementVariable:
+			case model.EventOperationTypeIncrementVariable, model.EventOperationTypeDecrementVariable:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.IncrementORDecrementVariable,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationVip, model.OperationUnvip:
+			case model.EventOperationTypeVip, model.EventOperationTypeUnvip:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.VipOrUnvip,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationUnvipRandom, model.OperationUnvipRandomIfNoSlots:
+			case model.EventOperationTypeUnvipRandom, model.EventOperationTypeUnvipRandomIfNoSlots:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.UnvipRandom,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationSevenTvAddEmote, model.OperationSevenTvRemoveEmote:
+			case model.EventOperationTypeSeventvAddEmote, model.EventOperationTypeSeventvRemoveEmote:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.SevenTvEmoteManage,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationRaidChannel:
+			case model.EventOperationTypeRaidChannel:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.RaidChannel,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationTriggerAlert:
+			case model.EventOperationTypeTriggerAlert:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.TriggerAlert,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationShoutoutChannel:
+			case model.EventOperationTypeShoutoutChannel:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.ShoutoutChannel,
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationMessageDelete:
+			case model.EventOperationTypeMessageDelete:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.MessageDelete,
@@ -388,7 +398,7 @@ func (c *EventWorkflow) Flow(
 
 func (c *EventWorkflow) filtersOk(
 	channelId string,
-	filters []*model.EventOperationFilter,
+	filters []model.EventOperationFilter,
 	data shared.EventData,
 ) bool {
 	for _, filter := range filters {
@@ -398,73 +408,73 @@ func (c *EventWorkflow) filtersOk(
 		numericRight, _ := strconv.Atoi(hydratedRight)
 		numericLeft, _ := strconv.Atoi(hydratedLeft)
 
-		if filter.Type == events.EventOperationFilterTypeEquals {
+		if filter.Type == model.EventOperationFilterTypeEquals {
 			if hydratedLeft != hydratedRight {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeNotEquals {
+		if filter.Type == model.EventOperationFilterTypeNotEquals {
 			if hydratedLeft == hydratedRight {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeContains {
+		if filter.Type == model.EventOperationFilterTypeContains {
 			if !strings.Contains(hydratedLeft, hydratedRight) {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeStartsWith {
+		if filter.Type == model.EventOperationFilterTypeStartsWith {
 			if !strings.HasPrefix(hydratedLeft, hydratedRight) {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeEndsWith {
+		if filter.Type == model.EventOperationFilterTypeEndsWith {
 			if !strings.HasSuffix(hydratedLeft, hydratedRight) {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeNotContains {
+		if filter.Type == model.EventOperationFilterTypeNotContains {
 			if strings.Contains(hydratedLeft, hydratedRight) {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeGreaterThan {
+		if filter.Type == model.EventOperationFilterTypeGreaterThan {
 			if numericLeft <= numericRight {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeLessThan {
+		if filter.Type == model.EventOperationFilterTypeLessThan {
 			if numericLeft >= numericRight {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeGreaterThanOrEquals {
+		if filter.Type == model.EventOperationFilterTypeGreaterThanOrEquals {
 			if numericLeft < numericRight {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeLessThanOrEquals {
+		if filter.Type == model.EventOperationFilterTypeLessThanOrEquals {
 			if numericLeft > numericRight {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeIsEmpty {
+		if filter.Type == model.EventOperationFilterTypeIsEmpty {
 			if hydratedLeft != "" {
 				return false
 			}
 		}
 
-		if filter.Type == events.EventOperationFilterTypeIsNotEmpty {
+		if filter.Type == model.EventOperationFilterTypeIsNotEmpty {
 			if hydratedLeft == "" {
 				return false
 			}

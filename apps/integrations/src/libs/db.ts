@@ -20,12 +20,13 @@ try {
 export const Service = Object.freeze({
 	DONATIONALERTS: 'DONATIONALERTS',
 	STREAMLABS: 'STREAMLABS',
-	DONATEPAY: 'DONATEPAY',
 })
 
 export async function getIntegrations(integrationId: string): Promise<Integration | null>
 export async function getIntegrations(): Promise<Integration[]>
-export async function getIntegrations(integrationId?: string): Promise<Integration | Integration[] | null> {
+export async function getIntegrations(
+	integrationId?: string
+): Promise<Integration | Integration[] | null> {
 	const result = await sql`
 	SELECT channel_integration.id,
 	       channel_integration.enabled,
@@ -42,14 +43,14 @@ export async function getIntegrations(integrationId?: string): Promise<Integrati
 	FROM channels_integrations channel_integration
 	LEFT JOIN integrations integration ON integration.id = channel_integration."integrationId"
 	LEFT JOIN channels channel ON channel.id = channel_integration."channelId"
-	WHERE channel_integration.enabled = true AND integration.service IN ('DONATIONALERTS', 'STREAMLABS', 'DONATEPAY')
+	WHERE channel_integration.enabled = true AND integration.service IN ('DONATIONALERTS', 'STREAMLABS')
 		${
-	integrationId
-		? sql`
+			integrationId
+				? sql`
 	AND channel_integration.id = ${integrationId} GROUP BY channel_integration.id, integration.id, channel.id
 `
-		: sql`GROUP BY channel_integration.id, integration.id, channel.id`
-}
+				: sql`GROUP BY channel_integration.id, integration.id, channel.id`
+		}
 
 `
 
@@ -60,16 +61,20 @@ export async function getIntegrations(integrationId?: string): Promise<Integrati
 	return result || []
 }
 
-export async function updateIntegration(id: string, data: {
-	enabled?: boolean
-	accessToken?: string
-	refreshToken?: string
-}) {
+export async function updateIntegration(
+	id: string,
+	data: {
+		enabled?: boolean
+		accessToken?: string
+		refreshToken?: string
+	}
+) {
+	console.log(`Updating integration ${id}: ${JSON.stringify(data)}`)
 	if (Object.keys(data).length === 0) {
 		return
 	}
 
-	await sql.begin(async tx => {
+	await sql.begin(async (tx) => {
 		if (data.enabled !== undefined) {
 			await tx`UPDATE channels_integrations SET "enabled" = ${data.enabled} WHERE id = ${id}`
 		}
@@ -132,4 +137,44 @@ export interface Integration {
 		botId: string
 		isBotMod: boolean
 	}
+}
+
+export async function getDonationPayIntegrations(opts: {
+	id: string
+}): Promise<DonatePayIntegration | null>
+export async function getDonationPayIntegrations(opts: {
+	channelId: string
+}): Promise<DonatePayIntegration | null>
+export async function getDonationPayIntegrations(): Promise<DonatePayIntegration[]>
+export async function getDonationPayIntegrations(opts?: {
+	channelId?: string
+	id?: string
+}): Promise<DonatePayIntegration[] | DonatePayIntegration | null> {
+	let where
+	if (opts?.id) {
+		where = sql`WHERE id = ${opts.id}`
+	} else if (opts?.channelId) {
+		where = sql`WHERE "channel_id" = ${opts.channelId}`
+	} else {
+		where = sql``
+	}
+
+	const result = await sql`
+	SELECT id, enabled, api_key, channel_id
+	FROM channels_integrations_donatepay
+	${where}
+	`
+
+	if (opts?.id || opts?.channelId) {
+		return result[0] ?? null
+	}
+
+	return result || []
+}
+
+export interface DonatePayIntegration {
+	id: string
+	enabled: boolean
+	api_key: string
+	channel_id: string
 }

@@ -5,14 +5,14 @@ import (
 	"errors"
 
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) CreateGreeting(
 	ctx context.Context,
-	operation model.EventOperation,
+	_ model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)

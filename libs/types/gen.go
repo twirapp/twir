@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/tkrajina/typescriptify-golang-structs/typescriptify"
 	"github.com/twirapp/twir/libs/types/types/api"
 	apioverlays "github.com/twirapp/twir/libs/types/types/api/overlays"
-	"github.com/twirapp/twir/libs/types/types/events"
 	"github.com/twirapp/twir/libs/types/types/overlays"
-	"github.com/tkrajina/typescriptify-golang-structs/typescriptify"
 )
 
 func main() {
@@ -38,16 +37,6 @@ func main() {
 	overlaysConverter.CreateConstructor = false
 	overlaysConverter.CreateFromMethod = false
 	err = overlaysConverter.ConvertToFile("src/overlays.ts")
-	if err != nil {
-		panic(err)
-	}
-
-	eventsConverter := typescriptify.New().
-		AddEnum(events.AllEventOperationFilterType)
-	eventsConverter.CreateInterface = true
-	eventsConverter.CreateConstructor = false
-	eventsConverter.CreateFromMethod = false
-	err = eventsConverter.ConvertToFile("src/events.ts")
 	if err != nil {
 		panic(err)
 	}

@@ -8,8 +8,9 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/seventv"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 	"gorm.io/gorm"
 )
@@ -21,9 +22,13 @@ func (c *Activity) SevenTvEmoteManage(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return fmt.Errorf("input is required for SevenTV emote manage operation")
+	}
+
 	hydratedString, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydrateErr != nil {
@@ -49,7 +54,7 @@ func (c *Activity) SevenTvEmoteManage(
 		return err
 	}
 
-	settings := &model.ChannelsIntegrationsSettingsSeventv{}
+	settings := &deprecatedgormmodel.ChannelsIntegrationsSettingsSeventv{}
 	err = c.db.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, data.ChannelID).
@@ -62,7 +67,7 @@ func (c *Activity) SevenTvEmoteManage(
 		return err
 	}
 
-	if operation.Type == model.OperationSevenTvAddEmote {
+	if operation.Type == model.EventOperationTypeSeventvAddEmote {
 		err = client.AddEmote(
 			ctx,
 			broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet.Id,

@@ -8,17 +8,27 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/song_request"
 	"github.com/twirapp/twir/apps/events/internal/workers"
 	"github.com/twirapp/twir/apps/events/internal/workflows"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/cache/channel"
 	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
+
+	channelseventsrepository "github.com/twirapp/twir/libs/repositories/events"
+	channelseventsrepositorypostgres "github.com/twirapp/twir/libs/repositories/events/pgx"
+
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels/pgx"
+
+	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
+	variablesrepositorypostgres "github.com/twirapp/twir/libs/repositories/variables/pgx"
 )
 
 var App = fx.Module(
@@ -29,6 +39,19 @@ var App = fx.Module(
 			greetingsrepositorypgx.NewFx,
 			fx.As(new(greetingsrepository.Repository)),
 		),
+		fx.Annotate(
+			channelsrepositorypostgres.NewFx,
+			fx.As(new(channelsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelseventsrepositorypostgres.NewFx,
+			fx.As(new(channelseventsrepository.Repository)),
+		),
+		fx.Annotate(
+			variablesrepositorypostgres.NewFx,
+			fx.As(new(variablesrepository.Repository)),
+		),
+		channel.New,
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},

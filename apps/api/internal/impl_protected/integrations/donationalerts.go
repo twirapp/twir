@@ -7,8 +7,9 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_donationalerts"
+	"github.com/twirapp/twir/libs/bus-core/integrations"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -132,7 +133,7 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 		return nil, err
 	}
 
-	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled); err != nil {
+	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled, integrations.DonationAlerts); err != nil {
 		return nil, err
 	}
 
@@ -159,7 +160,7 @@ func (c *Integrations) IntegrationsDonationAlertsLogout(ctx context.Context, _ *
 		return nil, err
 	}
 
-	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled); err != nil {
+	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled, integrations.DonationAlerts); err != nil {
 		return nil, err
 	}
 

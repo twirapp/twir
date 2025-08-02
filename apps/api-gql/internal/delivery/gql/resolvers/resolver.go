@@ -6,9 +6,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/minio/minio-go/v7"
 	"github.com/redis/go-redis/v9"
-	config "github.com/twirapp/twir/libs/config"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
@@ -31,6 +28,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
@@ -60,6 +58,9 @@ import (
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
+	config "github.com/twirapp/twir/libs/config"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -133,6 +134,7 @@ type Deps struct {
 	EventsService                         *events.Service
 	KappagenService                       *kappagen.Service
 	TwirEventsService                     *twir_events.Service
+	DonatePayService                      *donatepay_integration.Service
 }
 
 type Resolver struct {

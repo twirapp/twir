@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -18,9 +18,13 @@ func (c *Activity) ObsSetScene(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return errors.New("input is required for operation ObsSetScene")
+	}
+
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydratedErr != nil {
@@ -51,9 +55,13 @@ func (c *Activity) ObsToggleSource(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Target == nil || *operation.Target == "" {
+		return errors.New("target is required for operation ObsToggleSource")
+	}
+
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Target.String,
+		*operation.Target,
 		data,
 	)
 	if hydratedErr != nil {
@@ -82,9 +90,13 @@ func (c *Activity) ObsToggleAudio(
 	operation model.EventOperation,
 	data shared.EventData,
 ) error {
+	if operation.Target == nil || *operation.Target == "" {
+		return errors.New("target is required for operation ObsToggleAudio")
+	}
+
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Target.String,
+		*operation.Target,
 		data,
 	)
 	if hydratedErr != nil {
@@ -114,11 +126,15 @@ func (c *Activity) ObsAudioChangeVolume(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Target.String, data)
+	if operation.Target == nil || *operation.Target == "" {
+		return errors.New("target is required for operation ObsAudioChangeVolume")
+	}
+
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Target, data)
 	if err != nil {
 		return err
 	}
-	if msg == "" || operation.Target.String == "" {
+	if msg == "" {
 		return nil
 	}
 
@@ -131,12 +147,12 @@ func (c *Activity) ObsAudioChangeVolume(
 		return errors.New("step must be between 0 and 20")
 	}
 
-	if operation.Type == model.OperationObsIncreaseVolume {
+	if operation.Type == model.EventOperationTypeObsIncreaseAudioVolume {
 		_, err = c.websocketsGrpc.ObsAudioIncreaseVolume(
 			ctx,
 			&websockets.ObsAudioIncreaseVolumeMessage{
 				ChannelId:       data.ChannelID,
-				AudioSourceName: operation.Target.String,
+				AudioSourceName: *operation.Target,
 				Step:            uint32(parsedStep),
 			},
 		)
@@ -147,7 +163,7 @@ func (c *Activity) ObsAudioChangeVolume(
 		_, err = c.websocketsGrpc.ObsAudioDecreaseVolume(
 			context.Background(), &websockets.ObsAudioDecreaseVolumeMessage{
 				ChannelId:       data.ChannelID,
-				AudioSourceName: operation.Target.String,
+				AudioSourceName: *operation.Target,
 				Step:            uint32(parsedStep),
 			},
 		)
@@ -166,11 +182,15 @@ func (c *Activity) ObsAudioSetVolume(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Target.String, data)
+	if operation.Target == nil || *operation.Target == "" {
+		return errors.New("target is required for operation ObsAudioSetVolume")
+	}
+
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Target, data)
 	if err != nil {
 		return err
 	}
-	if msg == "" || operation.Target.String == "" {
+	if msg == "" {
 		return nil
 	}
 
@@ -187,7 +207,7 @@ func (c *Activity) ObsAudioSetVolume(
 		ctx,
 		&websockets.ObsAudioSetVolumeMessage{
 			ChannelId:       data.ChannelID,
-			AudioSourceName: operation.Target.String,
+			AudioSourceName: *operation.Target,
 			Volume:          uint32(parsedVolume),
 		},
 	)
@@ -205,16 +225,16 @@ func (c *Activity) ObsEnableOrDisableAudio(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	if operation.Target.String == "" {
-		return nil
+	if operation.Target == nil || *operation.Target == "" {
+		return errors.New("target is required for operation ObsEnableOrDisableAudio")
 	}
 
-	if operation.Type == model.OperationObsDisableAudio {
+	if operation.Type == model.EventOperationTypeObsDisableAudio {
 		_, err := c.websocketsGrpc.ObsAudioDisable(
 			ctx,
 			&websockets.ObsAudioDisableOrEnableMessage{
 				ChannelId:       data.ChannelID,
-				AudioSourceName: operation.Target.String,
+				AudioSourceName: *operation.Target,
 			},
 		)
 		if err != nil {
@@ -222,12 +242,12 @@ func (c *Activity) ObsEnableOrDisableAudio(
 		}
 	}
 
-	if operation.Type == model.OperationObsEnableAudio {
+	if operation.Type == model.EventOperationTypeObsEnableAudio {
 		_, err := c.websocketsGrpc.ObsAudioEnable(
 			ctx,
 			&websockets.ObsAudioDisableOrEnableMessage{
 				ChannelId:       data.ChannelID,
-				AudioSourceName: operation.Target.String,
+				AudioSourceName: *operation.Target,
 			},
 		)
 		if err != nil {
@@ -245,7 +265,7 @@ func (c *Activity) ObsStartOrStopStream(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	if operation.Type == model.OperationObsStartStream {
+	if operation.Type == model.EventOperationTypeObsStartStream {
 		_, err := c.websocketsGrpc.ObsStartStream(
 			ctx,
 			&websockets.ObsStopOrStartStream{
@@ -257,7 +277,7 @@ func (c *Activity) ObsStartOrStopStream(
 		}
 	}
 
-	if operation.Type == model.OperationObsStopStream {
+	if operation.Type == model.EventOperationTypeObsStopStream {
 		_, err := c.websocketsGrpc.ObsStopStream(
 			ctx,
 			&websockets.ObsStopOrStartStream{

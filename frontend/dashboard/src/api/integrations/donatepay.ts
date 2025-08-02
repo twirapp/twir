@@ -1,27 +1,43 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { useQuery } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
 
-import { protectedApiClient } from '@/api/twirp.js';
+import { useMutation } from '@/composables/use-mutation.ts'
+import { graphql } from '@/gql'
 
-export const useDonatepayIntegration = () => {
-	const queryClient = useQueryClient();
-	const queryKey = ['donatepay'];
+export const useDonatepayIntegration = createGlobalState(() => {
+	const cacheKey = ['donatepay']
+
+	const data = () =>
+		useQuery({
+			query: graphql(`
+				query DonatepayIntegration {
+					donatePayIntegration {
+						apiKey
+						enabled
+					}
+				}
+			`),
+			variables: {},
+			context: {
+				additionalTypenames: cacheKey,
+			},
+		})
+
+	const update = () =>
+		useMutation(
+			graphql(`
+				mutation UpdateDonatepayIntegration($apiKey: String!, $enabled: Boolean!) {
+					donatePayIntegration(apiKey: $apiKey, enabled: $enabled) {
+						apiKey
+						enabled
+					}
+				}
+			`),
+			cacheKey
+		)
 
 	return {
-		useGetData: () => useQuery({
-			queryKey,
-			queryFn: async () => {
-				const call = await protectedApiClient.integrationsDonatepayGet({});
-				return call.response;
-			},
-		}),
-		usePost: () => useMutation({
-			mutationKey: ['donatepay/post'],
-			mutationFn: async (apiKey: string) => {
-				await protectedApiClient.integrationsDonatepayPut({ apiKey });
-			},
-			onSuccess: async () => {
-				await queryClient.invalidateQueries(queryKey);
-			},
-		}),
-	};
-};
+		useQuery: data,
+		useUpdate: update,
+	}
+})

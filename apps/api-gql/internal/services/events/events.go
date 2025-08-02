@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/events"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.uber.org/fx"
@@ -19,7 +18,7 @@ type Opts struct {
 
 	EventsRepository events.Repository
 	Logger           logger.Logger
-	Cacher           *generic_cacher.GenericCacher[[]deprecatedmodel.Event]
+	Cacher           *generic_cacher.GenericCacher[[]model.Event]
 }
 
 func New(opts Opts) *Service {
@@ -33,7 +32,7 @@ func New(opts Opts) *Service {
 type Service struct {
 	eventsRepository events.Repository
 	logger           logger.Logger
-	cacher           *generic_cacher.GenericCacher[[]deprecatedmodel.Event]
+	cacher           *generic_cacher.GenericCacher[[]model.Event]
 }
 
 func (s *Service) mapToEntity(m model.Event) entity.Event {
@@ -44,7 +43,7 @@ func (s *Service) mapToEntity(m model.Event) entity.Event {
 			filters = append(
 				filters, entity.EventOperationFilter{
 					ID:    f.ID,
-					Type:  f.Type,
+					Type:  f.Type.String(),
 					Left:  f.Left,
 					Right: f.Right,
 				},

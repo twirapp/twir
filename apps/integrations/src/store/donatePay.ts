@@ -1,26 +1,22 @@
 import { DonatePay } from '../services/donatepay.ts'
 
-import type { Integration } from '../libs/db.ts'
+import type { DonatePayIntegration } from '../libs/db.ts'
 
 export const donatePayStore = new Map<string, DonatePay>()
 
-export async function addIntegration(integration: Integration) {
-	if (
-		!integration.integration
-		|| !integration.apiKey
-		|| !integration.enabled
-	) {
+export async function addIntegration(integration: DonatePayIntegration) {
+	if (!integration.api_key || !integration.enabled) {
 		return
 	}
 
-	if (donatePayStore.get(integration.channelId)) {
-		await removeIntegration(integration.channelId)
+	if (donatePayStore.get(integration.channel_id)) {
+		await removeIntegration(integration.channel_id)
 	}
 
-	const instance = new DonatePay(integration.channelId, integration.apiKey)
+	const instance = new DonatePay(integration.channel_id, integration.api_key)
 	await instance.connect()
 
-	donatePayStore.set(integration.channelId, instance)
+	donatePayStore.set(integration.channel_id, instance)
 
 	return instance
 }
