@@ -15,16 +15,18 @@ import (
 	"github.com/twirapp/twir/apps/api/internal/proxy"
 	"github.com/twirapp/twir/apps/api/internal/sessions"
 	"github.com/twirapp/twir/apps/api/internal/twirp_handlers"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	channelseventsrepository "github.com/twirapp/twir/libs/repositories/events"
+	channelseventsrepositorypostgres "github.com/twirapp/twir/libs/repositories/events/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -35,6 +37,10 @@ var App = fx.Options(
 		fx.Annotate(
 			channelsintegrationsspotifypgx.NewFx,
 			fx.As(new(channelsintegrationsspotify.Repository)),
+		),
+		fx.Annotate(
+			channelseventsrepositorypostgres.NewFx,
+			fx.As(new(channelseventsrepository.Repository)),
 		),
 	),
 	fx.Provide(

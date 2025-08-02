@@ -14,4 +14,5 @@ extend type Mutation {
 
 type DonatePayIntegration {
 	apiKey: String!
+	enabled: Boolean!
 }

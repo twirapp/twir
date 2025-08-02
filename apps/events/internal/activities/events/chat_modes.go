@@ -7,7 +7,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -34,7 +34,7 @@ func (c *Activity) SwitchEmoteOnly(
 			ModeratorID:   dbEntity.BotID,
 			EmoteMode: lo.ToPtr(
 				lo.
-					If(operation.Type == model.OperationEnableEmoteOnly, true).
+					If(operation.Type == model.EventOperationTypeEnableEmoteOnly, true).
 					Else(false),
 			),
 		},
@@ -72,7 +72,7 @@ func (c *Activity) SwitchSubMode(
 			ModeratorID:   dbEntity.BotID,
 			SubscriberMode: lo.ToPtr(
 				lo.
-					If(operation.Type == model.OperationEnableSubMode, true).
+					If(operation.Type == model.EventOperationTypeEnableSubmode, true).
 					Else(false),
 			),
 		},

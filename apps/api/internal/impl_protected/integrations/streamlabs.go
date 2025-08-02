@@ -8,8 +8,9 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_streamlabs"
+	"github.com/twirapp/twir/libs/bus-core/integrations"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -136,7 +137,7 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 		return nil, err
 	}
 
-	if err = c.sendBusEvent(ctx, channelIntegration.ID, channelIntegration.Enabled); err != nil {
+	if err = c.sendBusEvent(ctx, channelIntegration.ID, channelIntegration.Enabled, integrations.StreamLabs); err != nil {
 		return nil, err
 	}
 
@@ -164,7 +165,7 @@ func (c *Integrations) IntegrationsStreamlabsLogout(
 		return nil, err
 	}
 
-	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled); err != nil {
+	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled, integrations.StreamLabs); err != nil {
 		return nil, err
 	}
 

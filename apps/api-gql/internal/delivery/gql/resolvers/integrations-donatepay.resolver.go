@@ -12,11 +12,7 @@ import (
 )
 
 // DonatePayIntegration is the resolver for the donatePayIntegration field.
-func (r *mutationResolver) DonatePayIntegration(
-	ctx context.Context,
-	apiKey string,
-	enabled bool,
-) (*gqlmodel.DonatePayIntegration, error) {
+func (r *mutationResolver) DonatePayIntegration(ctx context.Context, apiKey string, enabled bool) (*gqlmodel.DonatePayIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -33,15 +29,13 @@ func (r *mutationResolver) DonatePayIntegration(
 	}
 
 	return &gqlmodel.DonatePayIntegration{
-		APIKey: data.ApiKey,
+		APIKey:  data.ApiKey,
+		Enabled: data.Enabled,
 	}, nil
 }
 
 // DonatePayIntegration is the resolver for the donatePayIntegration field.
-func (r *queryResolver) DonatePayIntegration(ctx context.Context) (
-	*gqlmodel.DonatePayIntegration,
-	error,
-) {
+func (r *queryResolver) DonatePayIntegration(ctx context.Context) (*gqlmodel.DonatePayIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -53,6 +47,7 @@ func (r *queryResolver) DonatePayIntegration(ctx context.Context) (
 	}
 
 	return &gqlmodel.DonatePayIntegration{
-		APIKey: data.ApiKey,
+		APIKey:  data.ApiKey,
+		Enabled: data.Enabled,
 	}, nil
 }

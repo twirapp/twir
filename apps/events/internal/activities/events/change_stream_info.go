@@ -7,7 +7,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.temporal.io/sdk/activity"
 )
@@ -19,9 +19,13 @@ func (c *Activity) ChangeCategory(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return errors.New("input for ChangeCategory operation cannot be empty")
+	}
+
 	hydratedCategory, err := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 
@@ -63,9 +67,13 @@ func (c *Activity) ChangeTitle(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return errors.New("input for ChangeTitle operation cannot be empty")
+	}
+
 	hydratedTitle, err := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 

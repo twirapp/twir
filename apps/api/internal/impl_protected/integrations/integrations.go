@@ -5,8 +5,8 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 type Integrations struct {
@@ -72,9 +72,10 @@ func (c *Integrations) getChannelIntegrationByService(
 	return channelIntegration, nil
 }
 
-func (c *Integrations) sendBusEvent(ctx context.Context, integrationId string, isAdd bool) error {
+func (c *Integrations) sendBusEvent(ctx context.Context, integrationId string, isAdd bool, service integrations.Service) error {
 	req := integrations.Request{
-		ID: integrationId,
+		ID:      integrationId,
+		Service: service,
 	}
 
 	if isAdd {

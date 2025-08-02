@@ -6,17 +6,17 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
 )
 
-func computeBanReason(reason null.String) string {
-	if reason.Valid && reason.String != "" {
-		return reason.String
+func computeBanReason(reason *string) string {
+	if reason != nil && *reason != "" {
+		return *reason
 	}
 
 	return "banned from twirapp"
@@ -29,9 +29,13 @@ func (c *Activity) Ban(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return errors.New("input is required for ban operation")
+	}
+
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydrateErr != nil || len(hydratedName) == 0 {
@@ -124,9 +128,13 @@ func (c *Activity) Unban(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return errors.New("input is required for unban operation")
+	}
+
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydrateErr != nil || len(hydratedName) == 0 {
@@ -204,7 +212,7 @@ func (c *Activity) BanRandom(
 	}
 	excludedForBanUsers = append(excludedForBanUsers, dbChannel.ID, dbChannel.BotID)
 
-	randomOnlineUser := &model.UsersOnline{}
+	randomOnlineUser := &deprecatedgormmodel.UsersOnline{}
 	err = c.db.
 		Where(`"userId" not in ?`, excludedForBanUsers).
 		Order("random()").
@@ -219,7 +227,7 @@ func (c *Activity) BanRandom(
 	}
 
 	timeoutTime := operation.TimeoutTime
-	if operation.Type == model.OperationBanRandom {
+	if operation.Type == model.EventOperationTypeBanRandom {
 		timeoutTime = 0
 	} else if timeoutTime == 0 {
 		timeoutTime = 600

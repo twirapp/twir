@@ -1,16 +1,15 @@
+import { sleep } from 'bun'
 import Centrifuge from 'centrifuge'
+import { RateLimiter, RedisStore } from 'rate-limiter-algorithms'
 import ws from 'ws'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-expect-error
 import { XMLHttpRequest } from 'xmlhttprequest'
 
+import { client } from '../libs/redis.ts'
 import { onDonation } from '../utils/onDonation.js'
 
 import type { Subscription } from 'centrifuge'
-import { RateLimiter, RedisStore } from 'rate-limiter-algorithms'
-import { client } from '../libs/redis.ts'
-import { globalRequestLimiter } from './donationAlerts.ts'
-import { sleep } from 'bun'
 
 // eslint-disable-next-line no-restricted-globals
 global.XMLHttpRequest = XMLHttpRequest
@@ -71,9 +70,9 @@ export class DonatePay {
 
 		this.#centrifuge.setToken(userData.token)
 
-		this.#subscription = this.#centrifuge.subscribe(`$public:${userData.id}`, (data) =>
-			this.#eventCallback(data)
-		)
+		this.#subscription = this.#centrifuge.subscribe(`$public:${userData.id}`, (data) => {
+			return this.#eventCallback(data)
+		})
 
 		const logDisconnect = (args: any[]) =>
 			console.info(`DonatePay(${this.twitchUserId}): disconnected`, args)
@@ -154,6 +153,8 @@ export class DonatePay {
 				this.baseDomain = 'donatepay.eu'
 				return this.connect()
 			}
+
+			throw new Error(`cannot get userId ${this.baseDomain} for ${this.twitchUserId}`)
 		}
 
 		while (true) {

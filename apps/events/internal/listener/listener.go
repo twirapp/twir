@@ -11,15 +11,14 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/apps/events/internal/song_request"
 	"github.com/twirapp/twir/apps/events/internal/workflows"
-	cfg "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/utils"
-	api_events "github.com/twirapp/twir/libs/api/messages/events"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/events/model"
+	"github.com/twirapp/twir/libs/utils"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -308,7 +307,7 @@ func (c *EventsGrpcImplementation) Follow(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_FOLLOW,
+				model.EventTypeFollow,
 				msg,
 			)
 		},
@@ -348,7 +347,7 @@ func (c *EventsGrpcImplementation) Subscribe(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_SUBSCRIBE,
+				model.EventTypeSubscribe,
 				chat_alerts.SubscribeMessage{
 					UserName:  msg.UserName,
 					Months:    0,
@@ -395,7 +394,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_RESUBSCRIBE,
+				model.EventTypeResubscribe,
 				msg,
 			)
 		},
@@ -439,7 +438,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_REDEMPTION_CREATED,
+				model.EventTypeRedemptionCreated,
 				msg,
 			)
 		},
@@ -512,7 +511,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_FIRST_USER_MESSAGE,
+				model.EventTypeFirstUserMessage,
 				msg,
 			)
 		},
@@ -553,7 +552,7 @@ func (c *EventsGrpcImplementation) Raided(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_RAIDED,
+				model.EventTypeRaided,
 				msg,
 			)
 		},
@@ -622,7 +621,7 @@ func (c *EventsGrpcImplementation) StreamOnline(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.ChannelID,
-				api_events.TwirEventType_STREAM_ONLINE,
+				model.EventTypeStreamOnline,
 				msg,
 			)
 		},
@@ -659,7 +658,7 @@ func (c *EventsGrpcImplementation) StreamOffline(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.ChannelID,
-				api_events.TwirEventType_STREAM_OFFLINE,
+				model.EventTypeStreamOffline,
 				msg,
 			)
 		},
@@ -726,7 +725,7 @@ func (c *EventsGrpcImplementation) ChatClear(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_CHAT_CLEAR,
+				model.EventTypeOnChatClear,
 				msg,
 			)
 		},
@@ -767,7 +766,7 @@ func (c *EventsGrpcImplementation) Donate(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_DONATE,
+				model.EventTypeDonate,
 				msg,
 			)
 		},
@@ -1167,7 +1166,7 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
-				model.EventStreamFirstUserJoin,
+				model.EventTypeFirstUserMessage,
 				shared.EventData{
 					ChannelID: msg.BaseInfo.ChannelID,
 					UserName:  msg.UserLogin,
@@ -1194,7 +1193,7 @@ func (c *EventsGrpcImplementation) ChannelBan(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
-				model.EventChannelBan,
+				model.EventTypeChannelBan,
 				shared.EventData{
 					ChannelID:            msg.BaseInfo.ChannelID,
 					UserDisplayName:      msg.UserName,
@@ -1215,7 +1214,7 @@ func (c *EventsGrpcImplementation) ChannelBan(
 			c.chatAlerts.ProcessEvent(
 				ctx,
 				msg.BaseInfo.ChannelID,
-				api_events.TwirEventType_USER_BANNED,
+				model.EventTypeChannelBan,
 				msg,
 			)
 		},
@@ -1233,13 +1232,13 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestCreate(
 	c.chatAlerts.ProcessEvent(
 		ctx,
 		msg.BaseInfo.ChannelID,
-		api_events.TwirEventType_CHANNEL_UNBAN_REQUEST_CREATED,
+		model.EventTypeRedemptionCreated,
 		msg,
 	)
 
 	err := c.eventsWorkflow.Execute(
 		ctx,
-		model.EventChannelUnbanRequestCreate,
+		model.EventTypeRedemptionCreated,
 		shared.EventData{
 			ChannelID:       msg.BaseInfo.ChannelID,
 			UserName:        msg.UserLogin,
@@ -1260,7 +1259,7 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestResolve(
 ) (struct{}, error) {
 	err := c.eventsWorkflow.Execute(
 		ctx,
-		model.EventChannelUnbanRequestResolve,
+		model.EventTypeChannelUnbanRequestResolve,
 		shared.EventData{
 			ChannelID:                          msg.BaseInfo.ChannelID,
 			UserName:                           msg.UserLogin,
@@ -1285,13 +1284,13 @@ func (c *EventsGrpcImplementation) ChannelMessageDelete(
 	c.chatAlerts.ProcessEvent(
 		ctx,
 		msg.BaseInfo.ChannelID,
-		api_events.TwirEventType_CHANNEL_MESSAGE_DELETE,
+		model.EventTypeChannelMessageDelete,
 		msg,
 	)
 
 	err := c.eventsWorkflow.Execute(
 		ctx,
-		model.EventChannelMessageDelete,
+		model.EventTypeChannelMessageDelete,
 		shared.EventData{
 			ChannelID:       msg.BaseInfo.ChannelID,
 			UserName:        msg.UserLogin,

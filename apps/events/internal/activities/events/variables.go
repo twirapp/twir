@@ -6,10 +6,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
+
+	variablesmodel "github.com/twirapp/twir/libs/repositories/variables/model"
 )
 
 func (c *Activity) ChangeVariableValue(
@@ -19,12 +22,13 @@ func (c *Activity) ChangeVariableValue(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	if operation.Target.String == "" {
-		return fmt.Errorf("target is empty")
+	if operation.Target == nil || *operation.Target == "" {
+		return fmt.Errorf("target is required for change variable value operation")
 	}
+
 	hydratedInput, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydrateErr != nil {
@@ -33,17 +37,17 @@ func (c *Activity) ChangeVariableValue(
 
 	hydratedInput = strings.TrimSpace(hydratedInput)
 
-	variable := &model.ChannelsCustomvars{}
-	err := c.db.WithContext(ctx).Where(
-		`"channelId" = ? AND "id" = ?`,
-		data.ChannelID,
-		operation.Target.String,
-	).First(variable).Error
+	parsedUuid, err := uuid.Parse(*operation.Target)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot parse target as uuid %w", err)
 	}
 
-	if variable.Type == model.CustomVarNumber {
+	variable, err := c.variablesRepository.GetByID(ctx, parsedUuid)
+	if err != nil {
+		return fmt.Errorf("cannot get variable by ID %w", err)
+	}
+
+	if variable.Type == variablesmodel.CustomVarNumber {
 		newVarValue, atoiErr := strconv.Atoi(hydratedInput)
 		if atoiErr != nil {
 			return fmt.Errorf("cannot convert string to int %w", atoiErr)
@@ -67,12 +71,13 @@ func (c *Activity) IncrementORDecrementVariable(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	if operation.Target.String == "" {
-		return fmt.Errorf("target is empty")
+	if operation.Target == nil || operation.Input == nil {
+		return fmt.Errorf("target and input are required for increment or decrement variable operation")
 	}
+
 	hydratedInput, err := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if err != nil {
@@ -81,19 +86,14 @@ func (c *Activity) IncrementORDecrementVariable(
 
 	hydratedInput = strings.TrimSpace(hydratedInput)
 
-	variable := &model.ChannelsCustomvars{}
-	err = c.db.
-		WithContext(ctx).
-		Where(
-			`"channelId" = ? AND "id" = ? AND "type" = ?`,
-			data.ChannelID,
-			operation.Target.String,
-			model.CustomVarNumber,
-		).
-		First(variable).
-		Error
+	parsedUuid, err := uuid.Parse(*operation.Target)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot parse target as uuid %w", err)
+	}
+
+	variable, err := c.variablesRepository.GetByID(ctx, parsedUuid)
+	if err != nil {
+		return fmt.Errorf("cannot get variable by ID %w", err)
 	}
 
 	currentVariableNumber, err := strconv.Atoi(variable.Response)
@@ -110,7 +110,7 @@ func (c *Activity) IncrementORDecrementVariable(
 		"%v",
 		lo.
 			If(
-				operation.Type == model.OperationIncrementVariable,
+				operation.Type == model.EventOperationTypeIncrementVariable,
 				currentVariableNumber+newVariableNumber,
 			).
 			Else(currentVariableNumber-newVariableNumber),

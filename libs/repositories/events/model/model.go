@@ -17,7 +17,7 @@ type Event struct {
 
 type EventOperation struct {
 	ID             string                 `json:"id"`
-	Type           string                 `json:"type"`
+	Type           EventOperationType     `json:"type"`
 	Input          *string                `json:"input"`
 	Delay          int                    `json:"delay"`
 	Repeat         int                    `json:"repeat"`
@@ -30,10 +30,10 @@ type EventOperation struct {
 }
 
 type EventOperationFilter struct {
-	ID    string `json:"id"`
-	Type  string `json:"type"`
-	Left  string `json:"left"`
-	Right string `json:"right"`
+	ID    string                   `json:"id"`
+	Type  EventOperationFilterType `json:"type"`
+	Left  string                   `json:"left"`
+	Right string                   `json:"right"`
 }
 
 type EventType string
@@ -226,4 +226,40 @@ func (e EventOperationType) IsValid() bool {
 
 func (e EventOperationType) String() string {
 	return string(e)
+}
+
+type EventOperationFilterType string
+
+const (
+	EventOperationFilterTypeEquals              EventOperationFilterType = "EQUALS"
+	EventOperationFilterTypeNotEquals           EventOperationFilterType = "NOT_EQUALS"
+	EventOperationFilterTypeContains            EventOperationFilterType = "CONTAINS"
+	EventOperationFilterTypeNotContains         EventOperationFilterType = "NOT_CONTAINS"
+	EventOperationFilterTypeStartsWith          EventOperationFilterType = "STARTS_WITH"
+	EventOperationFilterTypeEndsWith            EventOperationFilterType = "ENDS_WITH"
+	EventOperationFilterTypeGreaterThan         EventOperationFilterType = "GREATER_THAN"
+	EventOperationFilterTypeLessThan            EventOperationFilterType = "LESS_THAN"
+	EventOperationFilterTypeGreaterThanOrEquals EventOperationFilterType = "GREATER_THAN_OR_EQUALS"
+	EventOperationFilterTypeLessThanOrEquals    EventOperationFilterType = "LESS_THAN_OR_EQUALS"
+	EventOperationFilterTypeIsEmpty             EventOperationFilterType = "IS_EMPTY"
+	EventOperationFilterTypeIsNotEmpty          EventOperationFilterType = "IS_NOT_EMPTY"
+)
+
+func (f EventOperationFilterType) String() string {
+	return string(f)
+}
+
+var AllEventOperationFilterType = []EventOperationFilterType{
+	EventOperationFilterTypeEquals,
+	EventOperationFilterTypeNotEquals,
+	EventOperationFilterTypeContains,
+	EventOperationFilterTypeNotContains,
+	EventOperationFilterTypeStartsWith,
+	EventOperationFilterTypeEndsWith,
+	EventOperationFilterTypeGreaterThan,
+	EventOperationFilterTypeLessThan,
+	EventOperationFilterTypeGreaterThanOrEquals,
+	EventOperationFilterTypeLessThanOrEquals,
+	EventOperationFilterTypeIsEmpty,
+	EventOperationFilterTypeIsNotEmpty,
 }

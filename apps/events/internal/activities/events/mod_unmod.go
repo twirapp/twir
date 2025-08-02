@@ -9,7 +9,8 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
 )
@@ -21,9 +22,13 @@ func (c *Activity) ModOrUnmod(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return fmt.Errorf("input is required for operation %s", operation.Type)
+	}
+
 	hydratedName, hydrationErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydrationErr != nil || len(hydratedName) == 0 {
@@ -63,7 +68,7 @@ func (c *Activity) ModOrUnmod(
 		},
 	)
 
-	var dbChannel model.Channels
+	var dbChannel deprecatedgormmodel.Channels
 
 	errWg.Go(
 		func() error {
@@ -92,7 +97,7 @@ func (c *Activity) ModOrUnmod(
 		}
 	}
 
-	if operation.Type == model.OperationMod {
+	if operation.Type == model.EventOperationTypeMod {
 		if isAlreadyMod {
 			return nil
 		}
@@ -133,7 +138,7 @@ func (c *Activity) ModOrUnmod(
 
 func (c *Activity) UnmodRandom(
 	ctx context.Context,
-	operation model.EventOperation,
+	_ model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)

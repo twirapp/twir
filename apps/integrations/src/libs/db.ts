@@ -69,6 +69,7 @@ export async function updateIntegration(
 		refreshToken?: string
 	}
 ) {
+	console.log(`Updating integration ${id}: ${JSON.stringify(data)}`)
 	if (Object.keys(data).length === 0) {
 		return
 	}
@@ -153,7 +154,7 @@ export async function getDonationPayIntegrations(opts?: {
 	if (opts?.id) {
 		where = sql`WHERE id = ${opts.id}`
 	} else if (opts?.channelId) {
-		where = sql`WHERE "channelId" = ${opts.channelId}`
+		where = sql`WHERE "channel_id" = ${opts.channelId}`
 	} else {
 		where = sql``
 	}

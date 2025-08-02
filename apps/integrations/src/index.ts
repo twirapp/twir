@@ -1,6 +1,9 @@
 import process from 'node:process'
 
+import { IntegrationService } from '@twir/bus-core'
+
 import { Service, getDonationPayIntegrations, getIntegrations } from './libs/db'
+import { twirBus } from './libs/twirbus.ts'
 import {
 	addIntegration as addDonatePayIntegration,
 	removeIntegration as removeDonatePayIntegration,
@@ -17,7 +20,6 @@ import {
 import type { Integration } from './libs/db'
 
 import './pubsub'
-import { twirBus } from './libs/twirbus.ts'
 
 const integrations = await getIntegrations()
 
@@ -32,11 +34,21 @@ for (const integration of integrations) {
 }
 
 for (const donatePayIntegration of await getDonationPayIntegrations()) {
-	addDonatePayIntegration(donatePayIntegration)
+	await addDonatePayIntegration(donatePayIntegration)
 }
 
 twirBus.Integrations.Add.subscribe(async (data) => {
-	console.info(`Adding ${data.id} connection`)
+	console.info(`Adding ${data.id} (${data.service}) connection`)
+
+	if (data.service === IntegrationService.DONATEPAY) {
+		const integration = await getDonationPayIntegrations({ id: data.id })
+		if (!integration) {
+			console.error(`Integration with id ${data.id} not found for DonatePay`)
+			return null
+		}
+		await addDonatePayIntegration(integration)
+	}
+
 	const integration = await getIntegrations(data.id)
 
 	if (!integration) {
@@ -49,17 +61,24 @@ twirBus.Integrations.Add.subscribe(async (data) => {
 	if (integration.integration.service === Service.STREAMLABS) {
 		await addStreamlabsIntegration(integration)
 	}
-	if (integration.integration.service === Service.DONATEPAY) {
-		await addDonatePayIntegration(integration)
-	}
 
 	return null
 })
 
 twirBus.Integrations.Remove.subscribe(async (data) => {
-	console.info(`Destroying ${data.id} connection`)
-	const integration = await getIntegrations(data.id)
+	console.info(`Destroying ${data.id} (${data.service}) connection`)
 
+	if (data.service === IntegrationService.DONATEPAY) {
+		const integration = await getDonationPayIntegrations({ id: data.id })
+		if (!integration) {
+			console.error(`Integration with id ${data.id} not found for DonatePay`)
+			return null
+		}
+		await removeDonatePayIntegration(integration.channel_id)
+		return null
+	}
+
+	const integration = await getIntegrations(data.id)
 	if (!integration) {
 		return null
 	}
@@ -75,10 +94,6 @@ export async function removeIntegration(integration: Integration) {
 
 	if (integration.integration.service === Service.DONATIONALERTS) {
 		await removeDonationAlertsIntegration(integration.channelId)
-	}
-
-	if (integration.integration.service === Service.DONATEPAY) {
-		await removeDonatePayIntegration(integration.channelId)
 	}
 }
 

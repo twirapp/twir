@@ -7,7 +7,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -18,9 +18,13 @@ func (c *Activity) RaidChannel(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return fmt.Errorf("input is required for operation %s", operation.Type)
+	}
+
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydratedErr != nil {

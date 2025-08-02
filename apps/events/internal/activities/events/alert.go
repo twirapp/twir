@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -21,7 +21,7 @@ func (c *Activity) TriggerAlert(
 		return errors.New("channel id is required")
 	}
 
-	if !operation.Target.Valid {
+	if operation.Target == nil || *operation.Target == "" {
 		return errors.New("target is required")
 	}
 
@@ -29,7 +29,7 @@ func (c *Activity) TriggerAlert(
 		ctx,
 		&websockets.TriggerAlertRequest{
 			ChannelId: data.ChannelID,
-			AlertId:   operation.Target.String,
+			AlertId:   *operation.Target,
 		},
 	)
 

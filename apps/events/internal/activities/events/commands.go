@@ -6,7 +6,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -17,9 +18,13 @@ func (c *Activity) CommandAllowOrRemoveUserPermission(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return fmt.Errorf("input is required for operation %s", operation.Type)
+	}
+
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydrateErr != nil || len(hydratedName) == 0 {
@@ -36,13 +41,13 @@ func (c *Activity) CommandAllowOrRemoveUserPermission(
 		return fmt.Errorf("cannot get user %w", userErr)
 	}
 
-	command := &model.ChannelsCommands{}
-	commandErr := c.db.Where("id = ?", operation.Target.String).First(command).Error
+	command := &deprecatedgormmodel.ChannelsCommands{}
+	commandErr := c.db.Where("id = ?", *operation.Target).First(command).Error
 	if commandErr != nil {
 		return fmt.Errorf("command not found")
 	}
 
-	if operation.Type == model.OperationAllowCommandToUser {
+	if operation.Type == model.EventOperationTypeAllowCommandToUser {
 		for _, allowedUserId := range command.AllowedUsersIDS {
 			if allowedUserId == user.ID {
 				return nil
@@ -69,9 +74,13 @@ func (c *Activity) CommandDenyOrRemoveUserPermission(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
+	if operation.Input == nil || *operation.Input == "" {
+		return fmt.Errorf("input is required for operation %s", operation.Type)
+	}
+
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		*operation.Input,
 		data,
 	)
 	if hydrateErr != nil || len(hydratedName) == 0 {
@@ -88,13 +97,13 @@ func (c *Activity) CommandDenyOrRemoveUserPermission(
 		return userErr
 	}
 
-	command := &model.ChannelsCommands{}
-	commandErr := c.db.Where("id = ?", operation.Target.String).First(command).Error
+	command := &deprecatedgormmodel.ChannelsCommands{}
+	commandErr := c.db.Where("id = ?", *operation.Target).First(command).Error
 	if commandErr != nil {
 		return fmt.Errorf("command not found: %w", commandErr)
 	}
 
-	if operation.Type == model.OperationDenyCommandToUser {
+	if operation.Type == model.EventOperationTypeDenyCommandToUser {
 		for _, deniedUserId := range command.DeniedUsersIDS {
 			if deniedUserId == user.ID {
 				return nil

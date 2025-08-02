@@ -3,10 +3,11 @@ package events
 import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/events/internal/hydrator"
-	config "github.com/twirapp/twir/libs/config"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/greetings"
+	"github.com/twirapp/twir/libs/repositories/variables"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -21,6 +22,7 @@ type Opts struct {
 	Hydrator            *hydrator.Hydrator
 	Bus                 *bus_core.Bus
 	GreetingsRepository greetings.Repository
+	VariablesRepository variables.Repository
 }
 
 func New(opts Opts) *Activity {
@@ -32,6 +34,7 @@ func New(opts Opts) *Activity {
 		bus:                 opts.Bus,
 		hydrator:            opts.Hydrator,
 		greetingsRepository: opts.GreetingsRepository,
+		variablesRepository: opts.VariablesRepository,
 	}
 }
 
@@ -43,4 +46,5 @@ type Activity struct {
 	hydrator            *hydrator.Hydrator
 	bus                 *bus_core.Bus
 	greetingsRepository greetings.Repository
+	variablesRepository variables.Repository
 }

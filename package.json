@@ -6,7 +6,7 @@
     "@prettier/plugin-oxc": "0.0.4",
     "@types/bun": "catalog:",
     "@types/node": "20.12.7",
-    "@vue/language-server": "3.0.1",
+    "@vue/language-server": "3.0.5",
     "eslint-plugin-oxlint": "1.5.0",
     "oxlint": "1.5.0",
     "prettier": "3.6.2",
@@ -54,8 +54,5 @@
       "@vueuse/core": "13.3.0",
       "@vueuse/router": "13.3.0"
     }
-  },
-  "dependencies": {
-    "@twirapp/kappagen": "1.2.1"
   }
 }

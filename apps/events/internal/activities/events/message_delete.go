@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) MessageDelete(
 	ctx context.Context,
-	operation model.EventOperation,
+	_ model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)

@@ -69,8 +69,8 @@ func (c *Pgx) CreateOrUpdate(ctx context.Context, channelID, apiKey string, enab
 	error,
 ) {
 	query := `
-INSERT INTO channels_integrations_donatepay (channel_id, api_key)
-VALUES ($1, $2)
+INSERT INTO channels_integrations_donatepay (channel_id, api_key, enabled)
+VALUES ($1, $2, $3)
 ON CONFLICT (channel_id) DO UPDATE
 SET api_key = $2, enabled = $3
 RETURNING id, channel_id, api_key, enabled;

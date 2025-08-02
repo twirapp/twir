@@ -10,10 +10,11 @@ import (
 	eventsActivity "github.com/twirapp/twir/apps/events/internal/activities/events"
 	"github.com/twirapp/twir/apps/events/internal/hydrator"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
@@ -31,6 +32,7 @@ type EventsWorkflowOpts struct {
 	Hydrator                          *hydrator.Hydrator
 	Logger                            logger.Logger
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
+	ChannelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
 }
 
 func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
@@ -52,6 +54,7 @@ func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 		redis:                             opts.Redis,
 		hydrator:                          opts.Hydrator,
 		channelsEventsWithOperationsCache: opts.ChannelsEventsWithOperationsCache,
+		channelsCache:                     opts.ChannelsCache,
 	}, nil
 }
 
@@ -63,6 +66,7 @@ type EventWorkflow struct {
 	redis                             *redis.Client
 	hydrator                          *hydrator.Hydrator
 	channelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
+	channelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
 }
 
 func (c *EventWorkflow) Execute(

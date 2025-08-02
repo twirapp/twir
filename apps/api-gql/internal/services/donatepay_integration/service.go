@@ -78,7 +78,8 @@ func (c *Service) CreateOrUpdate(
 		err = c.twirBus.Integrations.Add.Publish(
 			ctx,
 			integrations.Request{
-				ID: data.ID.String(),
+				ID:      data.ID.String(),
+				Service: integrations.DonatePay,
 			},
 		)
 		if err != nil {
@@ -88,7 +89,8 @@ func (c *Service) CreateOrUpdate(
 		err = c.twirBus.Integrations.Remove.Publish(
 			ctx,
 			integrations.Request{
-				ID: data.ID.String(),
+				ID:      data.ID.String(),
+				Service: integrations.DonatePay,
 			},
 		)
 		if err != nil {
@@ -96,5 +98,5 @@ func (c *Service) CreateOrUpdate(
 		}
 	}
 
-	return fmt.Errorf("cannot create donatepay integration: %w", err)
+	return nil
 }

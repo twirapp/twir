@@ -8,9 +8,10 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/types/types/api/modules"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/events/model"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -20,11 +21,11 @@ func (c *Activity) getTtsSettings(
 	userId string,
 ) (
 	*modules.TTSSettings,
-	*model.ChannelModulesSettings,
+	*deprecatedgormmodel.ChannelModulesSettings,
 ) {
 	activity.RecordHeartbeat(ctx, nil)
 
-	settings := &model.ChannelModulesSettings{}
+	settings := &deprecatedgormmodel.ChannelModulesSettings{}
 	query := c.db.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, channelId).
@@ -57,11 +58,11 @@ func (c *Activity) TtsSay(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	if operation.Input.String == "" {
-		return nil
+	if operation.Input == nil || *operation.Input == "" {
+		return fmt.Errorf("input is required for TTS operation")
 	}
 
-	msg, hydrateErr := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Input.String, data)
+	msg, hydrateErr := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Input, data)
 	if hydrateErr != nil {
 		return fmt.Errorf("cannot hydrate string %s", hydrateErr)
 	}
@@ -139,7 +140,7 @@ func (c *Activity) TtsChangeState(
 		return nil
 	}
 
-	if operation.Type == model.OperationTTSEnable {
+	if operation.Type == model.EventOperationTypeTtsEnable {
 		currentSettings.Enabled = lo.ToPtr(true)
 	} else {
 		currentSettings.Enabled = lo.ToPtr(false)
@@ -171,11 +172,11 @@ func (c *Activity) TtsChangeAutoReadState(
 	}
 
 	var newState bool
-	if operation.Type == model.OperationTTSEnableAutoRead {
+	if operation.Type == model.EventOperationTypeTtsEnableAutoread {
 		newState = true
-	} else if operation.Type == model.OperationTTSDisableAutoRead {
+	} else if operation.Type == model.EventOperationTypeTtsDisableAutoread {
 		newState = false
-	} else if operation.Type == model.OperationTTSSwitchAutoRead {
+	} else if operation.Type == model.EventOperationTypeTtsSwitchAutoread {
 		newState = !currentSettings.ReadChatMessages
 	}
 
