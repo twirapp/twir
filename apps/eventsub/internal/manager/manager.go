@@ -11,7 +11,6 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	goredislib "github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
-	"github.com/twirapp/twir/apps/eventsub/internal/tunnel"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -26,7 +25,6 @@ type Manager struct {
 	config             cfg.Config
 	logger             logger.Logger
 	gorm               *gorm.DB
-	tunnel             *tunnel.AppTunnel
 	twirBus            *buscore.Bus
 	conduitsRepository twitchconduits.Repository
 	redSync            *redsync.Redsync
@@ -44,7 +42,6 @@ type Opts struct {
 	Config             cfg.Config
 	Logger             logger.Logger
 	Gorm               *gorm.DB
-	Tunnel             *tunnel.AppTunnel
 	TwirBus            *buscore.Bus
 	ConduitsRepository twitchconduits.Repository
 	Redis              *goredislib.Client
@@ -56,7 +53,6 @@ func NewManager(opts Opts) (*Manager, error) {
 		config:             opts.Config,
 		logger:             opts.Logger,
 		gorm:               opts.Gorm,
-		tunnel:             opts.Tunnel,
 		twirBus:            opts.TwirBus,
 		conduitsRepository: opts.ConduitsRepository,
 		redSync:            redsync.New(goredis.NewPool(opts.Redis)),
@@ -120,7 +116,6 @@ func (c *Manager) SubscribeToNeededEvents(
 					slog.Any("err", err),
 					slog.Any("topic", topic.Topic),
 					slog.String("version", topic.Version),
-					slog.String("callback", c.tunnel.GetAddr()),
 				)
 			}
 

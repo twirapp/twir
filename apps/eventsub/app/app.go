@@ -4,7 +4,6 @@ import (
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
-	"github.com/twirapp/twir/apps/eventsub/internal/tunnel"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
@@ -88,7 +87,6 @@ var App = fx.Options(
 		commandscache.New,
 		channelsongrequestssettingscache.New,
 		channelsintegrationssettingsseventvcache.New,
-		tunnel.New,
 		manager.NewManager,
 		handler.New,
 	),
