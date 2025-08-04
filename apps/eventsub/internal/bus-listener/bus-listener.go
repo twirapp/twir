@@ -154,7 +154,9 @@ func (c *BusListener) reinitChannels(
 	ctx context.Context,
 	_ struct{},
 ) (struct{}, error) {
-	twitchClient, err := twitch.NewAppClient(c.config, c.bus)
+	ctx = context.WithoutCancel(ctx)
+
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.bus)
 	if err != nil {
 		c.logger.Error("error creating Twitch app client", err)
 		return struct{}{}, err
