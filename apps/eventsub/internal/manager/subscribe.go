@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,7 +15,18 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 )
 
-var errRateLimit = errors.New("rate limit exceeded")
+type ErrRateLimit struct {
+	Err        error
+	RetryAfter time.Duration
+}
+
+func (e *ErrRateLimit) Error() string {
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+
+	return "rate limit exceeded"
+}
 
 func (c *Manager) SubscribeWithLimits(
 	ctx context.Context,
@@ -117,7 +130,24 @@ func (c *Manager) SubscribeWithLimits(
 					resp.String(),
 					"maximum subscriptions with type and condition exceeded",
 				) {
-					return errRateLimit
+					resetTimeStr := resp.Header.Get("ratelimit-reset")
+					if resetTimeStr == "" {
+						return fmt.Errorf("ratelimit-reset header not found")
+					}
+					resetTimeUnix, err := strconv.ParseInt(resetTimeStr, 10, 64)
+					if err != nil {
+						return fmt.Errorf("failed to parse ratelimit-reset: %v", err)
+					}
+					resetTime := time.Unix(resetTimeUnix, 0)
+					retryAfter := time.Until(resetTime)
+					if retryAfter <= 0 {
+						retryAfter = time.Second
+					}
+
+					return &ErrRateLimit{
+						Err:        fmt.Errorf("rate limit exceeded"),
+						RetryAfter: retryAfter,
+					}
 				}
 
 				return errors.New(resp.String())
@@ -126,12 +156,21 @@ func (c *Manager) SubscribeWithLimits(
 			return nil
 		},
 		retry.Attempts(0),
-		retry.DelayType(retry.BackOffDelay),
-		retry.Delay(500*time.Millisecond),
-		retry.MaxDelay(10*time.Second),
+		retry.DelayType(
+			func(n uint, err error, config *retry.Config) time.Duration {
+				var rateLimitErr *ErrRateLimit
+				if errors.As(err, &rateLimitErr) {
+					return rateLimitErr.RetryAfter
+				}
+
+				return retry.BackOffDelay(n, err, config)
+			},
+		),
 		retry.RetryIf(
 			func(err error) bool {
-				if errors.Is(err, errRateLimit) {
+				var rateLimitErr *ErrRateLimit
+				if errors.As(err, &rateLimitErr) {
+					// If the error is a rate limit error, we should retry
 					return true
 				}
 
