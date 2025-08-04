@@ -4,12 +4,12 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/events"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []events.PredictionOutcome {
+func convertOutCome(outcomes []eventsub.ChannelPredictionEventOutcome) []events.PredictionOutcome {
 	out := make([]events.PredictionOutcome, 0, len(outcomes))
 
 	for _, outcome := range outcomes {
@@ -25,7 +25,7 @@ func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []events.Pre
 				topPredictors, events.PredictionTopPredictor{
 					UserName:        predictor.UserLogin,
 					UserDisplayName: predictor.UserName,
-					UserID:          predictor.UserID,
+					UserID:          predictor.UserId,
 					PointsUsed:      uint64(predictor.ChannelPointsUsed),
 					PointsWin: lo.
 						If(predictor.ChannelPointsWon > 0, &won).
@@ -36,7 +36,7 @@ func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []events.Pre
 
 		out = append(
 			out, events.PredictionOutcome{
-				ID:            outcome.ID,
+				ID:            outcome.Id,
 				Title:         outcome.Title,
 				Color:         outcome.Color,
 				Users:         uint64(outcome.Users),
@@ -48,14 +48,14 @@ func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []events.Pre
 	return out
 }
 
-func (c *Handler) handleChannelPredictionBegin(
+func (c *Handler) HandleChannelPredictionBegin(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPredictionBegin,
+	event eventsub.ChannelPredictionBeginEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Prediction begin",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 		slog.String("title", event.Title),
 	)
@@ -66,7 +66,7 @@ func (c *Handler) handleChannelPredictionBegin(
 		ctx,
 		events.PredictionBeginMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
 			UserName:        event.BroadcasterUserLogin,
@@ -83,14 +83,14 @@ func (c *Handler) handleChannelPredictionBegin(
 	}
 }
 
-func (c *Handler) handleChannelPredictionProgress(
+func (c *Handler) HandleChannelPredictionProgress(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPredictionProgress,
+	event eventsub.ChannelPredictionProgressEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Prediction progress",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 		slog.String("title", event.Title),
 	)
@@ -101,7 +101,7 @@ func (c *Handler) handleChannelPredictionProgress(
 		ctx,
 		events.PredictionProgressMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
 			UserName:        event.BroadcasterUserLogin,
@@ -118,14 +118,14 @@ func (c *Handler) handleChannelPredictionProgress(
 	}
 }
 
-func (c *Handler) handleChannelPredictionLock(
+func (c *Handler) HandleChannelPredictionLock(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPredictionLock,
+	event eventsub.ChannelPredictionLockEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Prediction lock",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 		slog.String("title", event.Title),
 	)
@@ -136,7 +136,7 @@ func (c *Handler) handleChannelPredictionLock(
 		ctx,
 		events.PredictionLockMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
 			UserName:        event.BroadcasterUserLogin,
@@ -153,17 +153,17 @@ func (c *Handler) handleChannelPredictionLock(
 	}
 }
 
-func (c *Handler) handleChannelPredictionEnd(
+func (c *Handler) HandleChannelPredictionEnd(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPredictionEnd,
+	event eventsub.ChannelPredictionEndEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Prediction end",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 		slog.String("title", event.Title),
-		slog.String("status", event.Status),
+		slog.String("status", string(event.Status)),
 	)
 
 	if event.Status != "resolved" {
@@ -176,7 +176,7 @@ func (c *Handler) handleChannelPredictionEnd(
 		ctx,
 		events.PredictionEndMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
 			UserName:        event.BroadcasterUserLogin,
@@ -185,7 +185,7 @@ func (c *Handler) handleChannelPredictionEnd(
 				Title:    event.Title,
 				Outcomes: outComes,
 			},
-			WinningOutcomeID: event.WinningOutcomeID,
+			WinningOutcomeID: event.WinningOutcomeId,
 		},
 	)
 

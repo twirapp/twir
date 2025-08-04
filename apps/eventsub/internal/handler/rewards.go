@@ -4,58 +4,58 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) flushChannelPointsRewardsCache(ctx context.Context, channelID string) error {
 	return c.redisClient.Del(ctx, twitch.BuildRewardsCacheKeyForId(channelID)).Err()
 }
 
-func (c *Handler) handleChannelPointsRewardAdd(
+func (c *Handler) HandleChannelPointsRewardAdd(
 	ctx context.Context,
-	_ *esb.ResponseHeaders,
-	event *esb.EventChannelPointsRewardAdd,
+	event eventsub.ChannelPointsCustomRewardAddEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Channel points reward added",
 		slog.String("reward", event.Title),
-		slog.String("channel_id", event.BroadcasterUserID),
+		slog.String("channel_id", event.BroadcasterUserId),
 	)
 
-	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserID); err != nil {
+	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserId); err != nil {
 		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
 	}
 }
 
-func (c *Handler) handleChannelPointsRewardUpdate(
+func (c *Handler) HandleChannelPointsRewardUpdate(
 	ctx context.Context,
-	_ *esb.ResponseHeaders,
-	event *esb.EventChannelPointsRewardUpdate,
+	event eventsub.ChannelPointsCustomRewardUpdateEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Channel points reward updated",
 		slog.String("reward", event.Title),
-		slog.String("channel_id", event.BroadcasterUserID),
+		slog.String("channel_id", event.BroadcasterUserId),
 	)
 
-	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserID); err != nil {
+	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserId); err != nil {
 		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
 	}
 }
 
-func (c *Handler) handleChannelPointsRewardRemove(
+func (c *Handler) HandleChannelPointsRewardRemove(
 	ctx context.Context,
-	_ *esb.ResponseHeaders,
-	event *esb.EventChannelPointsRewardRemove,
+	event eventsub.ChannelPointsCustomRewardRemoveEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Channel points reward removed",
 		slog.String("reward", event.Title),
-		slog.String("channel_id", event.BroadcasterUserID),
+		slog.String("channel_id", event.BroadcasterUserId),
 	)
 
-	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserID); err != nil {
+	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserId); err != nil {
 		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
 	}
 }

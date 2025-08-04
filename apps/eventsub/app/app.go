@@ -5,7 +5,6 @@ import (
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	"github.com/twirapp/twir/apps/eventsub/internal/tunnel"
-	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
@@ -13,6 +12,7 @@ import (
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
@@ -35,6 +35,9 @@ import (
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
+
+	twitchconduitsrepository "github.com/twirapp/twir/libs/repositories/twitch_conduits"
+	twitchconduitsrepositorypostgres "github.com/twirapp/twir/libs/repositories/twitch_conduits/datasource/postgres"
 )
 
 var App = fx.Options(
@@ -75,6 +78,10 @@ var App = fx.Options(
 			channelsredemptionshistoryclickhouse.NewFx,
 			fx.As(new(channelsredemptionshistory.Repository)),
 		),
+		fx.Annotate(
+			twitchconduitsrepositorypostgres.NewFx,
+			fx.As(new(twitchconduitsrepository.Repository)),
+		),
 		channelcache.New,
 		channelscommandsprefixcache.New,
 		channelalertscache.New,
@@ -82,7 +89,6 @@ var App = fx.Options(
 		channelsongrequestssettingscache.New,
 		channelsintegrationssettingsseventvcache.New,
 		tunnel.New,
-		manager.NewCreds,
 		manager.NewManager,
 		handler.New,
 	),
@@ -90,5 +96,6 @@ var App = fx.Options(
 		uptrace.NewFx("eventsub"),
 		handler.New,
 		bus_listener.New,
+		// t.New,
 	),
 )

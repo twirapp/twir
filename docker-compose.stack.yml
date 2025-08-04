@@ -421,6 +421,8 @@ services:
       - twir
       - traefik-public
       - cloudflared
+    environment:
+      REPLICA: {{.Task.Slot}}
     deploy:
       mode: replicated
       replicas: 3
@@ -432,11 +434,6 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
-        - traefik.http.services.twir-eventsub.loadbalancer.server.port=3003
-        - traefik.docker.network=traefik-public
       placement:
         constraints:
           - node.labels.databases != true

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -20,7 +21,6 @@ import (
 
 	"github.com/google/uuid"
 	model "github.com/twirapp/twir/libs/gomodels"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 type userForIncrementUsedEmotes struct {
@@ -31,7 +31,7 @@ type userForIncrementUsedEmotes struct {
 
 func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 	ctx context.Context,
-	data []eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+	data []eventsub.ChannelPointsCustomRewardRedemptionAddEvent,
 ) {
 	itemsForHistoryCreate := make([]channelredemptionshistory.CreateInput, len(data))
 	itemsForEventsCreate := make([]channelseventslist.CreateInput, len(data))
@@ -44,23 +44,23 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			"channel points reward redemption add",
 			slog.String("reward", event.Reward.Title),
 			slog.String("userName", event.UserLogin),
-			slog.String("userId", event.UserID),
+			slog.String("userId", event.UserId),
 			slog.String("channelName", event.BroadcasterUserLogin),
-			slog.String("channelId", event.BroadcasterUserID),
+			slog.String("channelId", event.BroadcasterUserId),
 		)
 
 		itemsForHistoryCreate[i] = channelredemptionshistory.CreateInput{
-			ChannelID:    event.BroadcasterUserID,
-			UserID:       event.UserID,
-			RewardID:     uuid.MustParse(event.Reward.ID),
+			ChannelID:    event.BroadcasterUserId,
+			UserID:       event.UserId,
+			RewardID:     uuid.MustParse(event.Reward.Id),
 			RewardTitle:  event.Reward.Title,
 			RewardPrompt: &event.UserInput,
 			RewardCost:   event.Reward.Cost,
 		}
 
 		itemsForEventsCreate[i] = channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserID,
-			UserID:    &event.UserID,
+			ChannelID: event.BroadcasterUserId,
+			UserID:    &event.UserId,
 			Type:      channelseventslistmodel.ChannelEventListItemTypeRedemptionCreated,
 			Data: &channelseventslistmodel.ChannelsEventsListItemData{
 				RedemptionInput:           event.UserInput,
@@ -74,12 +74,12 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 		err := c.twirBus.Events.RedemptionCreated.Publish(
 			ctx,
 			events.RedemptionCreatedMessage{
-				ID: event.Reward.ID,
+				ID: event.Reward.Id,
 				BaseInfo: events.BaseInfo{
-					ChannelID:   event.BroadcasterUserID,
+					ChannelID:   event.BroadcasterUserId,
 					ChannelName: event.BroadcasterUserLogin,
 				},
-				UserID:          event.UserID,
+				UserID:          event.UserId,
 				UserName:        event.UserLogin,
 				UserDisplayName: event.UserName,
 				RewardName:      event.Reward.Title,
@@ -91,12 +91,12 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			c.logger.Error(err.Error(), slog.Any("err", err))
 		}
 
-		if _, ok := usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID]; ok {
-			usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID].cost += event.Reward.Cost
+		if _, ok := usersForIncrementUsedEmotes[event.BroadcasterUserId+event.UserId]; ok {
+			usersForIncrementUsedEmotes[event.BroadcasterUserId+event.UserId].cost += event.Reward.Cost
 		} else {
-			usersForIncrementUsedEmotes[event.BroadcasterUserID+event.UserID] = &userForIncrementUsedEmotes{
-				userId:    event.UserID,
-				channelId: event.BroadcasterUserID,
+			usersForIncrementUsedEmotes[event.BroadcasterUserId+event.UserId] = &userForIncrementUsedEmotes{
+				userId:    event.UserId,
+				channelId: event.BroadcasterUserId,
 				cost:      event.Reward.Cost,
 			}
 		}
@@ -128,18 +128,18 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			if redemptionAddErr := c.twirBus.RedemptionAdd.Publish(
 				ctx,
 				twitch.ActivatedRedemption{
-					ID:                   event.ID,
-					BroadcasterUserID:    event.BroadcasterUserID,
+					ID:                   event.Id,
+					BroadcasterUserID:    event.BroadcasterUserId,
 					BroadcasterUserLogin: event.BroadcasterUserLogin,
 					BroadcasterUserName:  event.BroadcasterUserName,
-					UserID:               event.UserID,
+					UserID:               event.UserId,
 					UserLogin:            event.UserLogin,
 					UserName:             event.UserName,
 					UserInput:            event.UserInput,
-					Status:               event.Status,
+					Status:               string(event.Status),
 					RedeemedAt:           time.Now(),
 					Reward: twitch.ActivatedRedemptionReward{
-						ID:     event.Reward.ID,
+						ID:     event.Reward.Id,
 						Title:  event.Reward.Title,
 						Prompt: event.Reward.Prompt,
 						Cost:   event.Reward.Cost,
@@ -180,25 +180,25 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 	}()
 }
 
-func (c *Handler) handleChannelPointsRewardRedemptionAdd(
+func (c *Handler) HandleChannelPointsRewardRedemptionAdd(
 	ctx context.Context,
-	h *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+	event eventsub.ChannelPointsCustomRewardRedemptionAddEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
-	c.redemptionsBatcher.Add(*event)
+	c.redemptionsBatcher.Add(event)
 }
 
-func (c *Handler) handleChannelPointsRewardRedemptionUpdate(
+func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 	ctx context.Context,
-	h *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPointsRewardRedemptionUpdate,
+	event eventsub.ChannelPointsCustomRewardRedemptionUpdateEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
-	if event.Status != "CANCELED" {
+	if event.Status != eventsub.CustomRewardRedemptionStatusCanceled {
 		return
 	}
 
 	userStats := &model.UsersStats{}
-	err := c.gorm.WithContext(ctx).Where(`"userId" = ?`, event.UserID).Find(userStats).Error
+	err := c.gorm.WithContext(ctx).Where(`"userId" = ?`, event.UserId).Find(userStats).Error
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
@@ -279,7 +279,7 @@ func (c *Handler) countUserChannelPoints(
 
 func (c *Handler) handleYoutubeSongRequests(
 	ctx context.Context,
-	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+	event *eventsub.ChannelPointsCustomRewardRedemptionAddEvent,
 ) error {
 	if event.UserInput == "" {
 		return nil
@@ -287,17 +287,17 @@ func (c *Handler) handleYoutubeSongRequests(
 
 	entity, err := c.channelSongRequestsSettingsCache.Get(
 		ctx,
-		event.BroadcasterUserID,
+		event.BroadcasterUserId,
 	)
 	if err != nil {
 		return err
 	}
-	if entity.ID == "" || !entity.Enabled || event.Reward.ID != entity.ChannelPointsRewardID.String {
+	if entity.ID == "" || !entity.Enabled || event.Reward.Id != entity.ChannelPointsRewardID.String {
 		return nil
 	}
 
 	var foundCommand *model.ChannelsCommands
-	commands, err := c.commandsCache.Get(ctx, event.BroadcasterUserID)
+	commands, err := c.commandsCache.Get(ctx, event.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
@@ -316,13 +316,13 @@ func (c *Handler) handleYoutubeSongRequests(
 	res, err := c.twirBus.Parser.GetCommandResponse.Request(
 		ctx,
 		twitch.TwitchChatMessage{
-			BroadcasterUserId:    event.BroadcasterUserID,
+			BroadcasterUserId:    event.BroadcasterUserId,
 			BroadcasterUserName:  event.BroadcasterUserName,
 			BroadcasterUserLogin: event.BroadcasterUserLogin,
-			ChatterUserId:        event.UserID,
+			ChatterUserId:        event.UserId,
 			ChatterUserName:      event.UserName,
 			ChatterUserLogin:     event.UserLogin,
-			MessageId:            event.ID,
+			MessageId:            event.Id,
 			Message: &twitch.ChatMessageMessage{
 				Text: fmt.Sprintf("!%s %s", foundCommand.Name, event.UserInput),
 			},
@@ -340,7 +340,7 @@ func (c *Handler) handleYoutubeSongRequests(
 		c.twirBus.Bots.SendMessage.Publish(
 			ctx,
 			bots.SendMessageRequest{
-				ChannelId:      event.BroadcasterUserID,
+				ChannelId:      event.BroadcasterUserId,
 				ChannelName:    &event.BroadcasterUserLogin,
 				Message:        fmt.Sprintf("@%s %s", event.UserLogin, response),
 				SkipRateLimits: true,
@@ -353,16 +353,16 @@ func (c *Handler) handleYoutubeSongRequests(
 
 func (c *Handler) handleAlerts(
 	ctx context.Context,
-	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+	event *eventsub.ChannelPointsCustomRewardRedemptionAddEvent,
 ) error {
-	alerts, err := c.alertsCache.Get(ctx, event.BroadcasterUserID)
+	alerts, err := c.alertsCache.Get(ctx, event.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
 
 	var foundAlertId uuid.UUID
 	for _, alert := range alerts {
-		if slices.Contains(alert.RewardIDS, event.Reward.ID) {
+		if slices.Contains(alert.RewardIDS, event.Reward.Id) {
 			foundAlertId = alert.ID
 			break
 		}
@@ -374,7 +374,7 @@ func (c *Handler) handleAlerts(
 	_, err = c.websocketsGrpc.TriggerAlert(
 		ctx,
 		&websockets.TriggerAlertRequest{
-			ChannelId: event.BroadcasterUserID,
+			ChannelId: event.BroadcasterUserId,
 			AlertId:   foundAlertId.String(),
 		},
 	)

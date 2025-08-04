@@ -7,25 +7,25 @@ import (
 	"math"
 	"time"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
-	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleBan(
+func (c *Handler) HandleBan(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelBan,
+	event eventsub.ChannelBanEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"channel ban",
 		slog.String("channelId", event.BroadcasterUserID),
 		slog.String("channelName", event.BroadcasterUserLogin),
-		slog.String("userId", event.UserID),
+		slog.String("userId", event.UserId),
 		slog.String("userName", event.UserLogin),
 		slog.String("moderatorName", event.ModeratorUserName),
 		slog.String("moderatorId", event.ModeratorUserID),
@@ -42,7 +42,7 @@ func (c *Handler) handleBan(
 			return
 		}
 
-		if channel.BotID == event.UserID {
+		if channel.BotID == event.UserId {
 			channel.IsEnabled = false
 			if err := c.gorm.WithContext(ctx).Save(&channel).Error; err != nil {
 				c.logger.Error("failed to disable channel", slog.Any("err", err))
@@ -52,8 +52,7 @@ func (c *Handler) handleBan(
 		}
 	}()
 
-	t, _ := time.Parse(time.RFC3339, event.EndsAt)
-	banEndsIn := t.Sub(time.Now().UTC())
+	banEndsIn := event.EndsAt.Sub(time.Now().UTC())
 	endsAt := lo.If(event.IsPermanent, "permanent").Else(
 		fmt.Sprintf(
 			"%v",
@@ -84,7 +83,7 @@ func (c *Handler) handleBan(
 		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    &event.UserID,
+			UserID:    &event.UserId,
 			Type:      model.ChannelEventListItemTypeChannelBan,
 			Data: &model.ChannelsEventsListItemData{
 				BanReason:            event.Reason,
@@ -103,7 +102,7 @@ func (c *Handler) handleBan(
 		ctx,
 		&websockets.DudesUserPunishedRequest{
 			ChannelId:       event.BroadcasterUserID,
-			UserId:          event.UserID,
+			UserId:          event.UserId,
 			UserDisplayName: event.UserName,
 			UserName:        event.UserLogin,
 		},

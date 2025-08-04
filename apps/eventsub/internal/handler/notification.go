@@ -23,7 +23,7 @@ var conditionKeys = []string{
 
 var knownTopicsEntitiesCache = map[string]model.EventsubTopic{}
 
-func (c *Handler) onNotification(
+func (c *Handler) OnNotification(
 	ctx context.Context,
 	_ *eventsub_bindings.ResponseHeaders,
 	notification *eventsub_bindings.EventNotification,

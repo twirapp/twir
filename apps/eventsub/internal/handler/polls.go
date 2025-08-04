@@ -4,19 +4,19 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.uber.org/zap"
 )
 
-func convertChoices(choices []eventsub_bindings.PollChoice) []events.PollChoice {
+func convertChoices(choices []eventsub.ChannelPollEventChoice) []events.PollChoice {
 	converted := make([]events.PollChoice, 0, len(choices))
 
 	for _, choice := range choices {
 		converted = append(
 			converted,
 			events.PollChoice{
-				ID:                  choice.ID,
+				ID:                  choice.Id,
 				Title:               choice.Title,
 				BitsVotes:           uint64(choice.BitsVotes),
 				ChannelsPointsVotes: uint64(choice.ChannelPointsVotes),
@@ -28,14 +28,14 @@ func convertChoices(choices []eventsub_bindings.PollChoice) []events.PollChoice 
 	return converted
 }
 
-func (c *Handler) handleChannelPollBegin(
+func (c *Handler) HandleChannelPollBegin(
 	ctx context.Context,
-	h *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPollBegin,
+	event eventsub.ChannelPollBeginEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Poll begin",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 		slog.String("pollTitle", event.Title),
 	)
@@ -44,7 +44,7 @@ func (c *Handler) handleChannelPollBegin(
 
 	msg := events.PollBeginMessage{
 		BaseInfo: events.BaseInfo{
-			ChannelID:   event.BroadcasterUserID,
+			ChannelID:   event.BroadcasterUserId,
 			ChannelName: event.BroadcasterUserLogin,
 		},
 		UserName:        event.BroadcasterUserLogin,
@@ -69,14 +69,14 @@ func (c *Handler) handleChannelPollBegin(
 	}
 }
 
-func (c *Handler) handleChannelPollProgress(
+func (c *Handler) HandleChannelPollProgress(
 	ctx context.Context,
-	h *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPollProgress,
+	event eventsub.ChannelPollProgressEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Poll Progress",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 		slog.String("pollTitle", event.Title),
 	)
@@ -85,7 +85,7 @@ func (c *Handler) handleChannelPollProgress(
 
 	msg := events.PollProgressMessage{
 		BaseInfo: events.BaseInfo{
-			ChannelID:   event.BroadcasterUserID,
+			ChannelID:   event.BroadcasterUserId,
 			ChannelName: event.BroadcasterUserLogin,
 		},
 		UserName:        event.BroadcasterUserLogin,
@@ -110,14 +110,14 @@ func (c *Handler) handleChannelPollProgress(
 	}
 }
 
-func (c *Handler) handleChannelPollEnd(
+func (c *Handler) HandleChannelPollEnd(
 	ctx context.Context,
-	h *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelPollEnd,
+	event eventsub.ChannelPollEndEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"Poll end",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 		slog.String("pollTitle", event.Title),
 	)
@@ -126,7 +126,7 @@ func (c *Handler) handleChannelPollEnd(
 
 	msg := events.PollEndMessage{
 		BaseInfo: events.BaseInfo{
-			ChannelID:   event.BroadcasterUserID,
+			ChannelID:   event.BroadcasterUserId,
 			ChannelName: event.BroadcasterUserLogin,
 		},
 		UserName:        event.BroadcasterUserLogin,

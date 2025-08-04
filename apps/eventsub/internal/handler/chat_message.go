@@ -9,6 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/goccy/go-json"
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/redis/go-redis/v9"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -17,7 +18,6 @@ import (
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/otel/attribute"
 	"golang.org/x/sync/errgroup"
 )
@@ -37,15 +37,15 @@ func convertFragmentTypeToEnumValue(t string) twitch.FragmentType {
 	}
 }
 
-func (c *Handler) handleChannelChatMessage(
+func (c *Handler) HandleChannelChatMessage(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelChatMessage,
+	event eventsub.ChannelChatMessageEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
-	_, span := c.tracer.Start(ctx, "handleChannelChatMessage")
+	_, span := c.tracer.Start(ctx, "HandleChannelChatMessage")
 	span.SetAttributes(
-		attribute.String("message_id", event.MessageID),
-		attribute.String("channel_id", event.BroadcasterUserID),
+		attribute.String("message_id", event.MessageId),
+		attribute.String("channel_id", event.BroadcasterUserId),
 	)
 	defer span.End()
 
@@ -66,17 +66,22 @@ func (c *Handler) handleChannelChatMessage(
 		}
 
 		if fragment.Emote != nil {
+			formats := make([]string, 0, len(fragment.Emote.Format))
+			for _, f := range fragment.Emote.Format {
+				formats = append(formats, string(f))
+			}
+
 			emote = &twitch.ChatMessageMessageFragmentEmote{
-				Id:         fragment.Emote.ID,
-				EmoteSetId: fragment.Emote.EmoteSetID,
-				OwnerId:    fragment.Emote.OwnerID,
-				Format:     fragment.Emote.Format,
+				Id:         fragment.Emote.Id,
+				EmoteSetId: fragment.Emote.EmoteSetId,
+				OwnerId:    fragment.Emote.OwnerId,
+				Format:     formats,
 			}
 		}
 
 		if fragment.Mention != nil {
 			mention = &twitch.ChatMessageMessageFragmentMention{
-				UserId:    fragment.Mention.UserID,
+				UserId:    fragment.Mention.UserId,
 				UserName:  fragment.Mention.UserName,
 				UserLogin: fragment.Mention.UserLogin,
 			}
@@ -90,7 +95,7 @@ func (c *Handler) handleChannelChatMessage(
 		fragments = append(
 			fragments,
 			twitch.ChatMessageMessageFragment{
-				Type:      convertFragmentTypeToEnumValue(fragment.Type),
+				Type:      convertFragmentTypeToEnumValue(string(fragment.Type)),
 				Text:      fragment.Text,
 				Cheermote: cheerMote,
 				Emote:     emote,
@@ -107,8 +112,8 @@ func (c *Handler) handleChannelChatMessage(
 		badges = append(
 			badges,
 			twitch.ChatMessageBadge{
-				Id:    badge.ID,
-				SetId: badge.SetID,
+				Id:    badge.Id,
+				SetId: badge.SetId,
 				Info:  badge.Info,
 			},
 		)
@@ -122,37 +127,37 @@ func (c *Handler) handleChannelChatMessage(
 	var reply *twitch.ChatMessageReply
 	if event.Reply != nil {
 		reply = &twitch.ChatMessageReply{
-			ParentMessageId:   event.Reply.ParentMessageID,
+			ParentMessageId:   event.Reply.ParentMessageId,
 			ParentMessageBody: event.Reply.ParentMessageBody,
-			ParentUserId:      event.Reply.ParentUserID,
+			ParentUserId:      event.Reply.ParentUserId,
 			ParentUserName:    event.Reply.ParentUserName,
 			ParentUserLogin:   event.Reply.ParentUserLogin,
-			ThreadMessageId:   event.Reply.ThreadMessageID,
-			ThreadUserId:      event.Reply.ThreadUserID,
+			ThreadMessageId:   event.Reply.ThreadMessageId,
+			ThreadUserId:      event.Reply.ThreadUserId,
 			ThreadUserName:    event.Reply.ThreadUserName,
 			ThreadUserLogin:   event.Reply.ThreadUserLogin,
 		}
 	}
 
 	data := twitch.TwitchChatMessage{
-		ID:                   event.MessageID,
-		BroadcasterUserId:    event.BroadcasterUserID,
+		ID:                   event.MessageId,
+		BroadcasterUserId:    event.BroadcasterUserId,
 		BroadcasterUserName:  event.BroadcasterUserName,
 		BroadcasterUserLogin: event.BroadcasterUserLogin,
-		ChatterUserId:        event.ChatterUserID,
+		ChatterUserId:        event.ChatterUserId,
 		ChatterUserName:      event.ChatterUserName,
 		ChatterUserLogin:     event.ChatterUserLogin,
-		MessageId:            event.MessageID,
+		MessageId:            event.MessageId,
 		Message: &twitch.ChatMessageMessage{
 			Text:      event.Message.Text,
 			Fragments: fragments,
 		},
 		Color:                       event.Color,
 		Badges:                      badges,
-		MessageType:                 event.MessageType,
+		MessageType:                 string(event.Type),
 		Cheer:                       cheer,
 		Reply:                       reply,
-		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
+		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardId,
 	}
 
 	var errwg errgroup.Group
@@ -226,16 +231,16 @@ func (c *Handler) handleChannelChatMessage(
 	}
 }
 
-func (c *Handler) handleChannelChatMessageDelete(
+func (c *Handler) HandleChannelChatMessageDelete(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelChatMessageDelete,
+	event eventsub.ChannelChatMessageDeleteEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"message delete",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserName),
-		slog.String("userId", event.TargetUserID),
+		slog.String("userId", event.TargetUserId),
 		slog.String("userName", event.TargetUserLogin),
 	)
 
@@ -243,15 +248,15 @@ func (c *Handler) handleChannelChatMessageDelete(
 		ctx,
 		events.ChannelMessageDeleteMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
-			UserId:               event.TargetUserID,
+			UserId:               event.TargetUserId,
 			UserName:             event.TargetUserLogin,
 			UserLogin:            event.TargetUserName,
 			BroadcasterUserName:  event.BroadcasterUserName,
 			BroadcasterUserLogin: event.BroadcasterUserLogin,
-			MessageId:            event.MessageID,
+			MessageId:            event.MessageId,
 		},
 	); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))

@@ -4,17 +4,17 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/twirapp/twitch-eventsub-framework/esb"
+	"github.com/kvizyx/twitchy/eventsub"
 )
 
-func (c *Handler) handleUserUpdate(
+func (c *Handler) HandleUserUpdate(
 	ctx context.Context,
-	_ *esb.ResponseHeaders,
-	event *esb.EventUserUpdate,
+	event eventsub.UserUpdateEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"user updated",
-		slog.String("userId", event.UserID),
+		slog.String("userId", event.UserId),
 		slog.String("userLogin", event.UserLogin),
 	)
 }

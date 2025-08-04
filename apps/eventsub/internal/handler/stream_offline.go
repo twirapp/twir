@@ -4,26 +4,26 @@ import (
 	"context"
 	"log/slog"
 
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/redis_keys"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleStreamOffline(
+func (c *Handler) HandleStreamOffline(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventStreamOffline,
+	event eventsub.StreamOfflineEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"stream offline",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
 	if err := c.redisClient.Del(
 		ctx,
-		redis_keys.StreamByChannelID(event.BroadcasterUserID),
+		redis_keys.StreamByChannelID(event.BroadcasterUserId),
 	).Err(); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
@@ -31,7 +31,7 @@ func (c *Handler) handleStreamOffline(
 	dbStream := model.ChannelsStreams{}
 	if err := c.gorm.WithContext(ctx).Where(
 		`"userId" = ?`,
-		event.BroadcasterUserID,
+		event.BroadcasterUserId,
 	).First(&dbStream).Error; err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
@@ -40,14 +40,14 @@ func (c *Handler) handleStreamOffline(
 	c.twirBus.Channel.StreamOffline.Publish(
 		ctx,
 		twitch.StreamOfflineMessage{
-			ChannelID: event.BroadcasterUserID,
+			ChannelID: event.BroadcasterUserId,
 			StartedAt: dbStream.StartedAt,
 		},
 	)
 
 	err := c.gorm.WithContext(ctx).Where(
 		`"userId" = ?`,
-		event.BroadcasterUserID,
+		event.BroadcasterUserId,
 	).Delete(&model.ChannelsStreams{}).Error
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))

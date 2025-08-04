@@ -5,24 +5,23 @@ import (
 	"database/sql"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	model "github.com/twirapp/twir/libs/gomodels"
-	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
-	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleUserAuthorizationRevoke(
+func (c *Handler) HandleUserAuthorizationRevoke(
 	ctx context.Context,
-	h *esb.ResponseHeaders,
-	event *esb.EventUserAuthorizationRevoke,
+	event eventsub.UserAuthorizationRevokeEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
-		"handleUserAuthorizationRevoke",
-		slog.String("user_id", event.UserID),
+		"HandleUserAuthorizationRevoke",
+		slog.String("user_id", event.UserId),
 		slog.String("user_login", event.UserLogin),
 	)
 
 	if err := c.gorm.WithContext(ctx).Model(&model.Channels{}).
-		Where("id = ?", event.UserID).
+		Where("id = ?", event.UserId).
 		Update(`"isBotMod"`, false).
 		Update(`"isEnabled"`, false).Error; err != nil {
 		c.logger.Error("failed to update channel", slog.Any("err", err))
@@ -31,7 +30,7 @@ func (c *Handler) handleUserAuthorizationRevoke(
 	user := &model.Users{}
 	if err := c.gorm.
 		WithContext(ctx).
-		Where("id = ?", event.UserID).
+		Where("id = ?", event.UserId).
 		First(user).Error; err != nil {
 		c.logger.Error("failed to get user", slog.Any("err", err))
 	}
@@ -54,26 +53,5 @@ func (c *Handler) handleUserAuthorizationRevoke(
 		if err := c.gorm.WithContext(ctx).Save(&user).Error; err != nil {
 			c.logger.Error("failed to update user", slog.Any("err", err))
 		}
-	}
-}
-
-func (c *Handler) handleSubRevocate(
-	ctx context.Context,
-	_ *esb.ResponseHeaders,
-	revocation *esb.RevocationNotification,
-) {
-	c.logger.Info("handleSubRevocate", slog.Any("revocation", revocation))
-
-	if revocation.Subscription.Status == "notification_failures_exceeded" {
-		c.manager.SubscribeWithLimits(
-			ctx,
-			&eventsub_framework.SubRequest{
-				Type:      revocation.Subscription.Type,
-				Condition: revocation.Subscription.Condition,
-				Callback:  revocation.Subscription.Transport.Callback,
-				Secret:    c.config.TwitchClientSecret,
-				Version:   revocation.Subscription.Version,
-			},
-		)
 	}
 }

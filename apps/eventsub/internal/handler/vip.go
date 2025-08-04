@@ -4,16 +4,16 @@ import (
 	"context"
 	"log/slog"
 
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	model "github.com/twirapp/twir/libs/gomodels"
 	scheduledmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleChannelVipAdd(
+func (c *Handler) HandleChannelVipAdd(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.ChannelVipAdd,
+	event eventsub.ChannelVipAddEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"channel vip add",
@@ -41,10 +41,10 @@ func (c *Handler) handleChannelVipAdd(
 	}
 }
 
-func (c *Handler) handleChannelVipRemove(
+func (c *Handler) HandleChannelVipRemove(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.ChannelVipRemove,
+	event eventsub.ChannelVipRemoveEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"channel vip remove",

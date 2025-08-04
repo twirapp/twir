@@ -4,16 +4,16 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleChannelChatNotification(
+func (c *Handler) HandleChannelChatNotification(
 	ctx context.Context,
-	h *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelChatNotification,
+	event eventsub.ChannelChatNotificationEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	switch event.NoticeType {
 	case "sub_gift":
@@ -25,27 +25,27 @@ func (c *Handler) handleChannelChatNotification(
 
 func (c *Handler) _notificationSubGift(
 	ctx context.Context,
-	event *eventsub_bindings.EventChannelChatNotification,
+	event eventsub.ChannelChatNotificationEvent,
 ) {
 	if event.SubGift == nil {
 		return
 	}
 
-	tier := getSubPlan(event.SubGift.SubTier)
+	tier := getSubPlan(string(event.SubGift.SubTier))
 
 	c.logger.Info(
 		"subgift",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 		slog.String("targetUserName", event.SubGift.RecipientUserName),
-		slog.String("targetUserId", event.SubGift.RecipientUserID),
-		slog.String("level", event.SubGift.SubTier),
+		slog.String("targetUserId", event.SubGift.RecipientUserId),
+		slog.String("level", string(event.SubGift.SubTier)),
 	)
 
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserID,
+			ChannelID: event.BroadcasterUserId,
 			Type:      model.ChannelEventListItemTypeSubGift,
 			Data: &model.ChannelsEventsListItemData{
 				SubGiftUserName:              event.ChatterUserLogin,
@@ -62,10 +62,10 @@ func (c *Handler) _notificationSubGift(
 		ctx,
 		events.SubGiftMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
-			SenderUserID:      event.ChatterUserID,
+			SenderUserID:      event.ChatterUserId,
 			SenderUserName:    event.ChatterUserLogin,
 			SenderDisplayName: event.ChatterUserName,
 			TargetUserName:    event.SubGift.RecipientUserName,
@@ -77,8 +77,6 @@ func (c *Handler) _notificationSubGift(
 
 func (c *Handler) _notificationCommunitySubGift(
 	ctx context.Context,
-	event *eventsub_bindings.
-		EventChannelChatNotification,
+	event eventsub.ChannelChatNotificationEvent,
 ) {
-
 }

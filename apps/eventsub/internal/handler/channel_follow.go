@@ -6,19 +6,18 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
-
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleChannelFollow(
+func (c *Handler) HandleChannelFollow(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelFollow,
+	event eventsub.ChannelFollowEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
-	redisKey := fmt.Sprintf("follows-cache:%s:%s", event.BroadcasterUserID, event.UserID)
+	redisKey := fmt.Sprintf("follows-cache:%s:%s", event.BroadcasterUserId, event.UserId)
 	key, _ := c.redisClient.Get(ctx, redisKey).Result()
 
 	if key != "" {
@@ -29,17 +28,17 @@ func (c *Handler) handleChannelFollow(
 
 	c.logger.Info(
 		"channel follow",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
-		slog.String("userId", event.UserID),
+		slog.String("userId", event.UserId),
 		slog.String("userName", event.UserLogin),
 	)
 
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserID,
-			UserID:    &event.UserID,
+			ChannelID: event.BroadcasterUserId,
+			UserID:    &event.UserId,
 			Type:      model.ChannelEventListItemTypeFollow,
 			Data: &model.ChannelsEventsListItemData{
 				FollowUserName:        event.UserLogin,
@@ -54,12 +53,12 @@ func (c *Handler) handleChannelFollow(
 		ctx,
 		events.FollowMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
-			UserID:          event.UserID,
+			UserID:          event.UserId,
 		},
 	)
 }

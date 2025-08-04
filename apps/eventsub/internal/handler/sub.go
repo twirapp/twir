@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"strconv"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func getSubPlan(plan string) string {
@@ -24,24 +24,25 @@ func getSubPlan(plan string) string {
 	return strconv.Itoa(parsedPlan / 1000)
 }
 
-func (c *Handler) handleChannelSubscribe(
+func (c *Handler) HandleChannelSubscribe(
 	ctx context.Context,
-	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelSubscribe,
+	event eventsub.ChannelSubscribeEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
-	level := getSubPlan(event.Tier)
+	level := getSubPlan(string(event.Tier))
 
 	c.logger.Info(
 		"channel subscribe",
-		slog.String("channel_id", event.BroadcasterUserID),
-		slog.String("user_id", event.UserID),
+		slog.String("channel_id", event.BroadcasterUserId),
+		slog.String("user_id", event.UserId),
 		slog.String("level", level),
 	)
 
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserID,
-			UserID:    &event.UserID,
+			ChannelID: event.BroadcasterUserId,
+			UserID:    &event.UserId,
 			Type:      model.ChannelEventListItemTypeSubscribe,
 			Data: &model.ChannelsEventsListItemData{
 				SubUserName:        event.UserLogin,
@@ -57,10 +58,10 @@ func (c *Handler) handleChannelSubscribe(
 		ctx,
 		events.SubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
-			UserID:          event.UserID,
+			UserID:          event.UserId,
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
 			Level:           level,
@@ -71,16 +72,16 @@ func (c *Handler) handleChannelSubscribe(
 }
 
 // resub
-func (c *Handler) handleChannelSubscriptionMessage(
+func (c *Handler) HandleChannelSubscriptionMessage(
 	ctx context.Context,
-	h *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelSubscriptionMessage,
+	event eventsub.ChannelSubscriptionMessageEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
-	level := getSubPlan(event.Tier)
+	level := getSubPlan(string(event.Tier))
 	c.logger.Info(
 		"channel resubscribe",
-		slog.String("channel_id", event.BroadcasterUserID),
-		slog.String("user_id", event.UserID),
+		slog.String("channel_id", event.BroadcasterUserId),
+		slog.String("user_id", event.UserId),
 		slog.String("level", level),
 		slog.Int("months", event.CumulativeTotal),
 	)
@@ -88,8 +89,8 @@ func (c *Handler) handleChannelSubscriptionMessage(
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserID,
-			UserID:    &event.UserID,
+			ChannelID: event.BroadcasterUserId,
+			UserID:    &event.UserId,
 			Type:      model.ChannelEventListItemTypeReSubscribe,
 			Data: &model.ChannelsEventsListItemData{
 				ReSubUserName:        event.UserLogin,
@@ -107,10 +108,10 @@ func (c *Handler) handleChannelSubscriptionMessage(
 		ctx,
 		events.ReSubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
-			UserID:          event.UserID,
+			UserID:          event.UserId,
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
 			Months:          int64(event.CumulativeTotal),

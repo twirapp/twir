@@ -2,21 +2,10 @@ module github.com/twirapp/twir/apps/tokens
 
 go 1.24.1
 
-
-
 require (
 	github.com/go-redsync/redsync/v4 v4.13.0
 	github.com/nicklaw5/helix/v2 v2.31.1
 	github.com/redis/go-redis/v9 v9.11.0
-
-
-
-
-
-
-
-
-
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.62.0
 	go.uber.org/fx v1.24.0
 	google.golang.org/grpc v1.74.2
@@ -76,9 +65,6 @@ require (
 	github.com/samber/slog-multi v1.4.1 // indirect
 	github.com/samber/slog-sentry/v2 v2.9.3 // indirect
 	github.com/samber/slog-zerolog/v2 v2.7.3 // indirect
-
-
-
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
@@ -113,3 +99,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
+
+require github.com/kvizyx/twitchy v0.0.0-20250802065058-bb5db67c4363 // indirect

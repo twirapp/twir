@@ -4,32 +4,32 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
-	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleChannelUnbanRequestCreate(
+func (c *Handler) HandleChannelUnbanRequestCreate(
 	ctx context.Context,
-	_ *esb.ResponseHeaders,
-	event *esb.ChannelUnbanRequestCreate,
+	event eventsub.ChannelUnbanRequestCreateEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"channel unban request create",
 		slog.Group(
 			"channel",
-			slog.String("id", event.BroadcasterUserID),
+			slog.String("id", event.BroadcasterUserId),
 			slog.String("login", event.BroadcasterUserLogin),
 		),
-		slog.Group("user", slog.String("id", event.UserID), slog.String("login", event.UserLogin)),
+		slog.Group("user", slog.String("id", event.UserId), slog.String("login", event.UserLogin)),
 	)
 
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserID,
-			UserID:    &event.UserID,
+			ChannelID: event.BroadcasterUserId,
+			UserID:    &event.UserId,
 			Type:      model.ChannelEventListItemTypeChannelUnbanRequestCreate,
 			Data: &model.ChannelsEventsListItemData{
 				UserLogin:       event.UserLogin,
@@ -45,7 +45,7 @@ func (c *Handler) handleChannelUnbanRequestCreate(
 		ctx,
 		events.ChannelUnbanRequestCreateMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
 			UserName:             event.UserName,
@@ -57,22 +57,22 @@ func (c *Handler) handleChannelUnbanRequestCreate(
 	)
 }
 
-func (c *Handler) handleChannelUnbanRequestResolve(
+func (c *Handler) HandleChannelUnbanRequestResolve(
 	ctx context.Context,
-	r *esb.ResponseHeaders,
-	event *esb.ChannelUnbanRequestResolve,
+	event eventsub.ChannelUnbanRequestResolveEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"channel unban request resolve",
 		slog.Group(
 			"channel",
-			slog.String("id", event.BroadcasterUserID),
+			slog.String("id", event.BroadcasterUserId),
 			slog.String("login", event.BroadcasterUserLogin),
 		),
-		slog.Group("user", slog.String("id", event.UserID), slog.String("login", event.UserLogin)),
+		slog.Group("user", slog.String("id", event.UserId), slog.String("login", event.UserLogin)),
 		slog.Group(
 			"moderator",
-			slog.String("id", event.ModeratorUserID),
+			slog.String("id", event.ModeratorUserId),
 			slog.String("login", event.ModeratorUserLogin),
 		),
 		slog.String("status", string(event.Status)),
@@ -81,8 +81,8 @@ func (c *Handler) handleChannelUnbanRequestResolve(
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserID,
-			UserID:    &event.UserID,
+			ChannelID: event.BroadcasterUserId,
+			UserID:    &event.UserId,
 			Type:      model.ChannelEventListItemTypeChannelUnbanRequestResolve,
 			Data: &model.ChannelsEventsListItemData{
 				UserLogin:            event.UserLogin,
@@ -100,7 +100,7 @@ func (c *Handler) handleChannelUnbanRequestResolve(
 		ctx,
 		events.ChannelUnbanRequestResolveMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
 			UserName:             event.UserName,
@@ -109,7 +109,7 @@ func (c *Handler) handleChannelUnbanRequestResolve(
 			BroadcasterUserLogin: event.BroadcasterUserLogin,
 			ModeratorUserName:    event.ModeratorUserName,
 			ModeratorUserLogin:   event.ModeratorUserLogin,
-			Declined:             event.Status != esb.ChannelUnbanRequestResolveStatusApproved,
+			Declined:             event.Status != eventsub.ChannelUnbanRequestResolveEventStatusApproved,
 			Reason:               event.ResolutionText,
 		},
 	)

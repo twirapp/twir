@@ -4,20 +4,21 @@ import (
 	"context"
 	"log/slog"
 
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleChannelUpdate(
+func (c *Handler) HandleChannelUpdate(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelUpdate,
+	event eventsub.ChannelUpdateEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	if err := c.redisClient.Del(
 		ctx,
-		redis_keys.StreamByChannelID(event.BroadcasterUserID),
+		redis_keys.StreamByChannelID(event.BroadcasterUserId),
 	).Err(); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
@@ -26,14 +27,14 @@ func (c *Handler) handleChannelUpdate(
 		"channel update",
 		slog.String("title", event.Title),
 		slog.String("category", event.CategoryName),
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
 	c.twirBus.Events.TitleOrCategoryChanged.Publish(
 		ctx,
 		events.TitleOrCategoryChangedMessage{
-			BaseInfo:    events.BaseInfo{ChannelID: event.BroadcasterUserID},
+			BaseInfo:    events.BaseInfo{ChannelID: event.BroadcasterUserId},
 			NewTitle:    event.Title,
 			NewCategory: event.CategoryName,
 		},
@@ -42,7 +43,7 @@ func (c *Handler) handleChannelUpdate(
 	if err := c.channelsInfoHistoryRepo.Create(
 		ctx,
 		channelsinfohistory.CreateInput{
-			ChannelID: event.BroadcasterUserID,
+			ChannelID: event.BroadcasterUserId,
 			Title:     event.Title,
 			Category:  event.CategoryName,
 		},
@@ -53,12 +54,12 @@ func (c *Handler) handleChannelUpdate(
 	err := c.gorm.
 		WithContext(ctx).
 		Model(&model.ChannelsStreams{}).
-		Where(`"userId" = ?`, event.BroadcasterUserID).
+		Where(`"userId" = ?`, event.BroadcasterUserId).
 		Updates(
 			map[string]any{
 				"title":      event.Title,
 				`"gameName"`: event.CategoryName,
-				`"gameId"`:   event.CategoryID,
+				`"gameId"`:   event.CategoryId,
 			},
 		).Error
 	if err != nil {

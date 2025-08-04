@@ -2,25 +2,128 @@ package manager
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
 
 	"github.com/avast/retry-go/v4"
-	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
-	"github.com/twirapp/twitch-eventsub-framework/esb"
+	"github.com/imroc/req/v3"
+	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/tokens"
 )
+
+var errRateLimit = errors.New("rate limit exceeded")
 
 func (c *Manager) SubscribeWithLimits(
 	ctx context.Context,
-	srq *eventsub_framework.SubRequest,
-) (
-	*esb.RequestStatus,
-	error,
-) {
-	data, err := retry.DoWithData(
-		func() (*esb.RequestStatus, error) {
-			return c.Subscribe(ctx, srq)
+	eventType eventsub.EventType,
+	eventTransport eventsub.Transport,
+	eventVersion string,
+	channelId,
+	botId string,
+) error {
+	condition, err := c.getConditionForTopic(eventType, channelId, botId)
+	if err != nil {
+		return err
+	}
+
+	conditionBytes, err := json.Marshal(&condition)
+	if err != nil {
+		return err
+	}
+
+	transportBytes, err := json.Marshal(&eventTransport)
+	if err != nil {
+		return err
+	}
+
+	conditionMap := map[string]any{}
+	if err := json.Unmarshal(conditionBytes, &conditionMap); err != nil {
+		return err
+	}
+
+	transportMap := map[string]any{}
+	if err := json.Unmarshal(transportBytes, &transportMap); err != nil {
+		return err
+	}
+
+	requestData := map[string]any{
+		"type":      eventType.String(),
+		"version":   eventVersion,
+		"condition": conditionMap,
+		"transport": transportMap,
+	}
+
+	requestBytes, err := json.Marshal(&requestData)
+	if err != nil {
+		return err
+	}
+
+	reqBuilder := req.R().
+		SetContext(ctx).
+		SetHeader(
+			"Client-id",
+			c.config.TwitchClientId,
+		)
+
+	switch eventTransport.(type) {
+	case eventsub.ConduitTransport:
+		appToken, err := c.twirBus.Tokens.RequestAppToken.Request(
+			ctx,
+			struct{}{},
+		)
+		if err != nil {
+			return err
+		}
+
+		reqBuilder = reqBuilder.
+			SetBearerAuthToken(appToken.Data.AccessToken)
+	case eventsub.WebsocketTransport:
+		botToken, err := c.twirBus.Tokens.RequestBotToken.Request(
+			ctx,
+			tokens.GetBotTokenRequest{
+				BotId: botId,
+			},
+		)
+		if err != nil {
+			return err
+		}
+
+		reqBuilder = reqBuilder.
+			SetBearerAuthToken(botToken.Data.AccessToken)
+	case eventsub.WebhookTransport:
+		appToken, err := c.twirBus.Tokens.RequestAppToken.Request(
+			ctx,
+			struct{}{},
+		)
+		if err != nil {
+			return err
+		}
+
+		reqBuilder = reqBuilder.
+			SetBearerAuthToken(appToken.Data.AccessToken)
+	}
+
+	err = retry.Do(
+		func() error {
+			resp, err := reqBuilder.SetBodyJsonBytes(requestBytes).Post("https://api.twitch.tv/helix/eventsub/subscriptions")
+			if err != nil {
+				return err
+			}
+
+			if resp.IsErrorState() {
+				if resp.StatusCode == 429 && !strings.Contains(
+					resp.String(),
+					"maximum subscriptions with type and condition exceeded",
+				) {
+					return errRateLimit
+				}
+
+				return errors.New(resp.String())
+			}
+
+			return nil
 		},
 		retry.Attempts(0),
 		retry.DelayType(retry.BackOffDelay),
@@ -28,8 +131,7 @@ func (c *Manager) SubscribeWithLimits(
 		retry.MaxDelay(10*time.Second),
 		retry.RetryIf(
 			func(err error) bool {
-				var e *eventsub_framework.TwitchError
-				if errors.As(err, &e) && e.Status == 429 {
+				if errors.Is(err, errRateLimit) {
 					return true
 				}
 
@@ -46,5 +148,172 @@ func (c *Manager) SubscribeWithLimits(
 		),
 	)
 
-	return data, err
+	return err
+}
+
+func (c *Manager) getConditionForTopic(
+	eventType eventsub.EventType,
+	channelId, botId string,
+) (eventsub.Condition, error) {
+	switch eventType {
+	case eventsub.EventTypeAutomodMessageHold:
+		return eventsub.AutomodMessageHoldCondition{
+			BroadcasterUserId: channelId,
+			ModeratorUserId:   botId,
+		}, nil
+	case eventsub.EventTypeUserAuthorizationRevoke:
+		return eventsub.UserAuthorizationRevokeCondition{
+			ClientId: c.config.TwitchClientId,
+		}, nil
+	case eventsub.EventTypeChannelFollow:
+		return eventsub.ChannelFollowCondition{
+			BroadcasterUserId: channelId,
+			ModeratorUserId:   botId,
+		}, nil
+	case eventsub.EventTypeChannelBan:
+		return eventsub.ChannelBanCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelChatClear:
+		return eventsub.ChannelChatClearCondition{
+			BroadcasterUserId: channelId,
+			UserId:            botId,
+		}, nil
+	case eventsub.EventTypeChannelChatClearUserMessages:
+		return eventsub.ChannelChatClearUserMessagesCondition{
+			BroadcasterUserId: channelId,
+			UserId:            botId,
+		}, nil
+	case eventsub.EventTypeChannelChatMessage:
+		return eventsub.ChannelChatMessageCondition{
+			BroadcasterUserId: channelId,
+			UserId:            botId,
+		}, nil
+	case eventsub.EventTypeChannelChatNotification:
+		return eventsub.ChannelChatNotificationCondition{
+			BroadcasterUserId: channelId,
+			UserId:            botId,
+		}, nil
+	case eventsub.EventTypeChannelModeratorAdd:
+		return eventsub.ChannelModeratorAddCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelModeratorRemove:
+		return eventsub.ChannelModeratorRemoveCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPollBegin:
+		return eventsub.ChannelPollBeginCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPollProgress:
+		return eventsub.ChannelPollProgressCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPollEnd:
+		return eventsub.ChannelPollEndCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPredictionBegin:
+		return eventsub.ChannelPredictionBeginCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPredictionProgress:
+		return eventsub.ChannelPredictionProgressCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPredictionLock:
+		return eventsub.ChannelPredictionLockCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPredictionEnd:
+		return eventsub.ChannelPredictionEndCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelRaid:
+		return eventsub.ChannelRaidCondition{
+			ToBroadcasterUserId: botId,
+		}, nil
+	case eventsub.EventTypeChannelPointsCustomRewardRedemptionAdd:
+		return eventsub.ChannelPointsCustomRewardRedemptionAddCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPointsCustomRewardRedemptionUpdate:
+		return eventsub.ChannelPointsCustomRewardRedemptionUpdateCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPointsAutomaticRewardRedemptionAdd:
+		return eventsub.ChannelPointsAutomaticRewardRedemptionAddCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPointsRewardAdd:
+		return eventsub.ChannelPointsCustomRewardAddCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPointsRewardUpdate:
+		return eventsub.ChannelPointsCustomRewardUpdateCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelPointsRewardRemove:
+		return eventsub.ChannelPointsCustomRewardRemoveCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeStreamOffline:
+		return eventsub.StreamOfflineCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeStreamOnline:
+		return eventsub.StreamOnlineCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelSubscribe:
+		return eventsub.ChannelSubscribeCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelSubscriptionEnd:
+		return eventsub.ChannelSubscriptionEndCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelSubscriptionMessage:
+		return eventsub.ChannelSubscriptionMessageCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelSubscriptionGift:
+		return eventsub.ChannelSubscriptionGiftCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelUnbanRequestCreate:
+		return eventsub.ChannelUnbanRequestCreateCondition{
+			BroadcasterUserId: channelId,
+			ModeratorUserId:   botId,
+		}, nil
+	case eventsub.EventTypeChannelUnbanRequestResolve:
+		return eventsub.ChannelUnbanRequestResolveCondition{
+			BroadcasterUserId: channelId,
+			ModeratorUserId:   botId,
+		}, nil
+	case eventsub.EventTypeUserUpdate:
+		return eventsub.UserUpdateCondition{
+			UserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelVipAdd:
+		return eventsub.ChannelVIPAddCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelVipRemove:
+		return eventsub.ChannelVIPRemoveCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelMessageDelete:
+		return eventsub.ChannelChatMessageDeleteCondition{
+			BroadcasterUserId: channelId,
+			UserId:            botId,
+		}, nil
+	case eventsub.EventTypeChannelUpdate:
+		return eventsub.ChannelUpdateCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	default:
+		return nil, errors.New("unsupported event type for topic")
+	}
 }

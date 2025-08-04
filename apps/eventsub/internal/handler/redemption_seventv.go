@@ -5,15 +5,15 @@ import (
 	"slices"
 
 	"github.com/google/uuid"
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/integrations/seventv"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.uber.org/zap"
 )
 
 func (c *Handler) handleRewardsSevenTvEmote(
 	ctx context.Context,
-	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+	event *eventsub.ChannelPointsCustomRewardRedemptionAddEvent,
 ) error {
 	if c.config.SevenTvToken == "" || event.UserInput == "" {
 		return nil
@@ -21,7 +21,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 
 	settings, err := c.channelsIntegrationsSettingsSeventv.Get(
 		ctx,
-		event.BroadcasterUserID,
+		event.BroadcasterUserId,
 	)
 	if err != nil {
 		return err
@@ -30,14 +30,14 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		return nil
 	}
 
-	if event.Reward.ID != settings.RewardIdForRemoveEmote.String &&
-		event.Reward.ID != settings.RewardIdForAddEmote.String {
+	if event.Reward.Id != settings.RewardIdForRemoveEmote.String &&
+		event.Reward.Id != settings.RewardIdForAddEmote.String {
 		return nil
 	}
 
 	client := seventv.NewClient(c.config.SevenTvToken)
 
-	broadcasterProfile, err := client.GetProfileByTwitchId(ctx, event.BroadcasterUserID)
+	broadcasterProfile, err := client.GetProfileByTwitchId(ctx, event.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 
 	emoteId := emote.Id
 
-	if event.Reward.ID == settings.RewardIdForRemoveEmote.String {
+	if event.Reward.Id == settings.RewardIdForRemoveEmote.String {
 		if settings.DeleteEmotesOnlyAddedByApp && !slices.Contains(settings.AddedEmotes, emoteId) {
 			return nil
 		}
@@ -80,7 +80,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		return err
 	}
 
-	if event.Reward.ID == settings.RewardIdForAddEmote.String {
+	if event.Reward.Id == settings.RewardIdForAddEmote.String {
 		err = client.AddEmote(
 			ctx,
 			broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet.Id,

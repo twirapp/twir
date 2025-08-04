@@ -4,66 +4,68 @@ import (
 	"context"
 	"log/slog"
 
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
-	"github.com/twirapp/twitch-eventsub-framework/esb"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
-func (c *Handler) handleChannelModeratorAdd(
+func (c *Handler) HandleChannelModeratorAdd(
 	ctx context.Context,
-	_ *esb.ResponseHeaders, event *esb.EventChannelModeratorAdd,
+	event eventsub.ChannelModeratorAddEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"channel moderator add",
-		slog.String("channelId", event.BroadcasterUserID),
-		slog.String("userId", event.UserID),
+		slog.String("channelId", event.BroadcasterUserId),
+		slog.String("userId", event.UserId),
 		slog.String("userName", event.UserLogin),
 	)
-	c.updateBotStatus(ctx, event.BroadcasterUserID, event.UserID, true)
+	c.updateBotStatus(ctx, event.BroadcasterUserId, event.UserId, true)
 
 	c.twirBus.Events.ModeratorAdded.Publish(
 		ctx,
 		events.ModeratorAddedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
-			UserID:   event.UserID,
+			UserID:   event.UserId,
 			UserName: event.UserLogin,
 		},
 	)
 
-	if err := c.updateUserModStatus(ctx, event.BroadcasterUserID, event.UserID, true); err != nil {
+	if err := c.updateUserModStatus(ctx, event.BroadcasterUserId, event.UserId, true); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
 	}
 }
 
-func (c *Handler) handleChannelModeratorRemove(
+func (c *Handler) HandleChannelModeratorRemove(
 	ctx context.Context,
-	_ *esb.ResponseHeaders, event *esb.EventChannelModeratorRemove,
+	event eventsub.ChannelModeratorRemoveEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"channel moderator remove",
-		slog.String("channelId", event.BroadcasterUserID),
-		slog.String("userId", event.UserID),
+		slog.String("channelId", event.BroadcasterUserId),
+		slog.String("userId", event.UserId),
 		slog.String("userName", event.UserLogin),
 	)
-	c.updateBotStatus(ctx, event.BroadcasterUserID, event.UserID, false)
+	c.updateBotStatus(ctx, event.BroadcasterUserId, event.UserId, false)
 
 	c.twirBus.Events.ModeratorRemoved.Publish(
 		ctx,
 		events.ModeratorRemovedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
+				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
 			},
-			UserID:   event.UserID,
+			UserID:   event.UserId,
 			UserName: event.UserLogin,
 		},
 	)
 
-	if err := c.updateUserModStatus(ctx, event.BroadcasterUserID, event.UserID, false); err != nil {
+	if err := c.updateUserModStatus(ctx, event.BroadcasterUserId, event.UserId, false); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
 	}

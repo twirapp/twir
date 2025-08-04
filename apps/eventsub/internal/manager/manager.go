@@ -6,74 +6,73 @@ import (
 	"log/slog"
 	"sync"
 
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	"github.com/kvizyx/twitchy/eventsub"
+	goredislib "github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	"github.com/twirapp/twir/apps/eventsub/internal/tunnel"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
-	buscore "github.com/twirapp/twir/libs/bus-core"
-	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
+	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Manager struct {
-	*eventsub_framework.SubClient
+	config             cfg.Config
+	logger             logger.Logger
+	gorm               *gorm.DB
+	tunnel             *tunnel.AppTunnel
+	twirBus            *buscore.Bus
+	conduitsRepository twitchconduits.Repository
+	redSync            *redsync.Redsync
+	eventsub           eventsub.EventSub
+	handler            *handler.Handler
 
-	config  cfg.Config
-	logger  logger.Logger
-	gorm    *gorm.DB
-	tunnel  *tunnel.AppTunnel
-	twirBus *buscore.Bus
+	wsCurrentSessionId *string
+	currentConduit     *conduitsResponseConduit
 }
 
 type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Config  cfg.Config
-	Logger  logger.Logger
-	Creds   *Creds
-	Gorm    *gorm.DB
-	Tunnel  *tunnel.AppTunnel
-	TwirBus *buscore.Bus
+	Config             cfg.Config
+	Logger             logger.Logger
+	Gorm               *gorm.DB
+	Tunnel             *tunnel.AppTunnel
+	TwirBus            *buscore.Bus
+	ConduitsRepository twitchconduits.Repository
+	Redis              *goredislib.Client
+	Handler            *handler.Handler
 }
 
 func NewManager(opts Opts) (*Manager, error) {
-	client := eventsub_framework.NewSubClient(opts.Creds)
-
 	manager := &Manager{
-		SubClient: client,
-		config:    opts.Config,
-		logger:    opts.Logger,
-		gorm:      opts.Gorm,
-		tunnel:    opts.Tunnel,
-		twirBus:   opts.TwirBus,
+		config:             opts.Config,
+		logger:             opts.Logger,
+		gorm:               opts.Gorm,
+		tunnel:             opts.Tunnel,
+		twirBus:            opts.TwirBus,
+		conduitsRepository: opts.ConduitsRepository,
+		redSync:            redsync.New(goredis.NewPool(opts.Redis)),
+		eventsub:           eventsub.New(),
+		handler:            opts.Handler,
+		wsCurrentSessionId: nil,
+		currentConduit:     nil,
 	}
 
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				go func() {
-					if opts.Config.AppEnv != "production" {
-						if err := manager.InitChannels(); err != nil {
-							panic(err)
-						}
-					}
-
-					manager.SubscribeWithLimits(
-						context.Background(),
-						&eventsub_framework.SubRequest{
-							Type: "user.authorization.revoke",
-							Condition: map[string]string{
-								"client_id": manager.config.TwitchClientId,
-							},
-							Callback: manager.tunnel.GetAddr(),
-							Secret:   manager.config.TwitchClientSecret,
-							Version:  "1",
-						},
-					)
-				}()
+				if err := manager.createConduit(); err != nil {
+					return err
+				}
+				go manager.startWebSocket()
 
 				return nil
 			},
@@ -83,24 +82,16 @@ func NewManager(opts Opts) (*Manager, error) {
 	return manager, nil
 }
 
-func (c *Manager) InitChannels() error {
-	if err := c.
-		gorm.
-		Session(&gorm.Session{AllowGlobalUpdate: true}).
-		Delete(&model.EventsubSubscription{}).
-		Error; err != nil {
-		return err
-	}
-
-	return c.populateChannels()
-}
-
 func (c *Manager) SubscribeToNeededEvents(
 	ctx context.Context,
 	topics []model.EventsubTopic,
 	broadcasterId,
 	botId string,
 ) error {
+	if c.currentConduit == nil {
+		return errors.New("current conduit is not set")
+	}
+
 	var wg sync.WaitGroup
 	newSubsCount := atomic.NewInt64(0)
 
@@ -118,39 +109,27 @@ func (c *Manager) SubscribeToNeededEvents(
 		topic := topic
 		go func() {
 			defer wg.Done()
-			condition := GetTypeCondition(topic.ConditionType, topic.Topic, broadcasterId, botId)
-			if condition == nil {
-				c.logger.Error(
-					"failed to get condition",
-					slog.String("topic", topic.Topic),
-					slog.String("channel_id", broadcasterId),
-					slog.String("condition_type", string(topic.ConditionType)),
-				)
-				return
-			}
 
-			_, err := c.SubscribeWithLimits(
+			err := c.SubscribeWithLimits(
 				ctx,
-				&eventsub_framework.SubRequest{
-					Type:      topic.Topic,
-					Condition: condition,
-					Callback:  c.tunnel.GetAddr(),
-					Secret:    c.config.TwitchClientSecret,
-					Version:   topic.Version,
+				eventsub.EventType(topic.Topic),
+				eventsub.ConduitTransport{
+					Method:    "conduit",
+					ConduitId: c.currentConduit.Id,
 				},
+				topic.Version,
+				broadcasterId,
+				botId,
 			)
 
-			var casterErr *eventsub_framework.TwitchError
-			if err != nil && !errors.As(err, &casterErr) {
+			if err != nil {
 				c.logger.Error(
 					"failed to subscribe to event",
 					slog.Any("err", err),
 					slog.Any("topic", topic.Topic),
-					slog.Any("condition", condition),
 					slog.String("version", topic.Version),
 					slog.String("callback", c.tunnel.GetAddr()),
 				)
-				return
 			}
 
 			newSubsCount.Inc()
@@ -173,7 +152,6 @@ func (c *Manager) SubscribeToNeededEvents(
 
 func (c *Manager) SubscribeToEvent(
 	ctx context.Context,
-	conditionType,
 	topic,
 	version,
 	channelId string,
@@ -189,26 +167,16 @@ func (c *Manager) SubscribeToEvent(
 		return err
 	}
 
-	convertedCondition := model.FindEventsubCondition(conditionType)
-	if conditionType == "" {
-		return errors.New("condition type not found")
-	}
-
-	condition := GetTypeCondition(convertedCondition, topic, channel.ID, channel.BotID)
-
-	if condition == nil {
-		return errors.New("condition not found")
-	}
-
-	_, err = c.SubscribeWithLimits(
+	err = c.SubscribeWithLimits(
 		ctx,
-		&eventsub_framework.SubRequest{
-			Type:      topic,
-			Condition: condition,
-			Callback:  c.tunnel.GetAddr(),
-			Secret:    c.config.TwitchClientSecret,
-			Version:   version,
+		eventsub.EventType(topic),
+		eventsub.ConduitTransport{
+			Method:    "conduit",
+			ConduitId: c.currentConduit.Id,
 		},
+		version,
+		channel.ID,
+		channel.BotID,
 	)
 
 	return err

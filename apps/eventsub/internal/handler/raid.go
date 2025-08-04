@@ -5,22 +5,22 @@ import (
 	"log/slog"
 	"strconv"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
-func (c *Handler) handleChannelRaid(
+func (c *Handler) HandleChannelRaid(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventChannelRaid,
+	event eventsub.ChannelRaidEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	c.logger.Info(
 		"channel raid",
-		slog.String("channelId", event.ToBroadcasterUserID),
+		slog.String("channelId", event.ToBroadcasterUserId),
 		slog.String("channelName", event.ToBroadcasterUserName),
-		slog.String("userId", event.FromBroadcasterUserID),
+		slog.String("userId", event.FromBroadcasterUserId),
 		slog.String("userName", event.FromBroadcasterUserLogin),
 		slog.Int("viewers", event.Viewers),
 	)
@@ -28,8 +28,8 @@ func (c *Handler) handleChannelRaid(
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.ToBroadcasterUserID,
-			UserID:    &event.FromBroadcasterUserID,
+			ChannelID: event.ToBroadcasterUserId,
+			UserID:    &event.FromBroadcasterUserId,
 			Type:      model.ChannelEventListItemTypeRaided,
 			Data: &model.ChannelsEventsListItemData{
 				RaidedViewersCount:    strconv.Itoa(event.Viewers),
@@ -45,10 +45,10 @@ func (c *Handler) handleChannelRaid(
 		ctx,
 		events.RaidedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelName: event.ToBroadcasterUserID,
-				ChannelID:   event.ToBroadcasterUserID,
+				ChannelName: event.ToBroadcasterUserId,
+				ChannelID:   event.ToBroadcasterUserId,
 			},
-			UserID:          event.FromBroadcasterUserID,
+			UserID:          event.FromBroadcasterUserId,
 			UserName:        event.FromBroadcasterUserLogin,
 			UserDisplayName: event.FromBroadcasterUserName,
 			Viewers:         int64(event.Viewers),

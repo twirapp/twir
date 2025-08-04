@@ -4,31 +4,31 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/redis_keys"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
+	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/zap"
 )
 
-func (c *Handler) handleStreamOnline(
+func (c *Handler) HandleStreamOnline(
 	ctx context.Context,
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventStreamOnline,
+	event eventsub.StreamOnlineEvent,
+	meta eventsub.WebsocketNotificationMetadata,
 ) {
 	if err := c.redisClient.Del(
 		ctx,
-		redis_keys.StreamByChannelID(event.BroadcasterUserID),
+		redis_keys.StreamByChannelID(event.BroadcasterUserId),
 	).Err(); err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
 	c.logger.Info(
 		"stream online",
-		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
@@ -40,7 +40,7 @@ func (c *Handler) handleStreamOnline(
 
 	streamsReq, err := twitchClient.GetStreams(
 		&helix.StreamsParams{
-			UserIDs: []string{event.BroadcasterUserID},
+			UserIDs: []string{event.BroadcasterUserId},
 		},
 	)
 
@@ -62,7 +62,7 @@ func (c *Handler) handleStreamOnline(
 
 	err = c.gorm.WithContext(ctx).Where(
 		`"userId" = ?`,
-		event.BroadcasterUserID,
+		event.BroadcasterUserId,
 	).Delete(&model.ChannelsStreams{}).Error
 	if err == nil {
 		tags := pq.StringArray{}
@@ -76,8 +76,8 @@ func (c *Handler) handleStreamOnline(
 
 		err = c.gorm.WithContext(ctx).Create(
 			&model.ChannelsStreams{
-				ID:           event.ID,
-				UserId:       event.BroadcasterUserID,
+				ID:           event.Id,
+				UserId:       event.BroadcasterUserId,
 				UserLogin:    event.BroadcasterUserLogin,
 				UserName:     event.BroadcasterUserName,
 				GameId:       stream.GameID,
@@ -102,8 +102,8 @@ func (c *Handler) handleStreamOnline(
 	c.twirBus.Channel.StreamOnline.Publish(
 		ctx,
 		bustwitch.StreamOnlineMessage{
-			ChannelID:    event.BroadcasterUserID,
-			StreamID:     event.ID,
+			ChannelID:    event.BroadcasterUserId,
+			StreamID:     event.Id,
 			CategoryName: stream.GameName,
 			CategoryID:   stream.GameID,
 			Title:        stream.Title,
