@@ -52,7 +52,10 @@ func (c *Handler) HandleBan(
 		}
 	}()
 
-	banEndsIn := event.EndsAt.Sub(time.Now().UTC())
+	var banEndsIn time.Duration
+	if event.EndsAt != nil {
+		banEndsIn = event.EndsAt.Sub(time.Now().UTC())
+	}
 	endsAt := lo.If(event.IsPermanent, "permanent").Else(
 		fmt.Sprintf(
 			"%v",
