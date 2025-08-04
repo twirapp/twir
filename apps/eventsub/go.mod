@@ -2,10 +2,6 @@ module github.com/twirapp/twir/apps/eventsub
 
 go 1.24.1
 
-replace (
-	github.com/kvizyx/twitchy => ../../../twir-infra/twitchy
-)
-
 require (
 	github.com/avast/retry-go/v4 v4.6.1
 	github.com/goccy/go-json v0.10.5
@@ -128,4 +124,4 @@ require (
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
 
-require github.com/kvizyx/twitchy v0.0.0-20250802065058-bb5db67c4363 // indirect
+require github.com/kvizyx/twitchy v0.0.1 // indirect
