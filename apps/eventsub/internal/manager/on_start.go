@@ -186,19 +186,20 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 		return fmt.Errorf("websocket session id is not set, cannot update conduit shard")
 	}
 
+	var shardId int
 	currentReplicaId := os.Getenv("REPLICA")
-	if currentReplicaId == "" {
-		currentReplicaId = "0"
+	if currentReplicaId != "" {
+		parsed, err := strconv.Atoi(currentReplicaId)
+		if err != nil {
+			return fmt.Errorf("failed to parse REPLICA env var: %w", err)
+		}
+
+		shardId = parsed - 1 // REPLICA is 1-based, but shardId is 0-based
 	}
 
 	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, struct{}{})
 	if err != nil {
 		return err
-	}
-
-	shardId, err := strconv.Atoi(currentReplicaId)
-	if err != nil {
-		return fmt.Errorf("failed to parse current replica id: %w", err)
 	}
 
 	updateReq := map[string]any{
