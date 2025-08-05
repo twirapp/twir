@@ -73,7 +73,7 @@ func (c *Manager) SubscribeWithLimits(
 		return err
 	}
 
-	reqBuilder := req.C().EnableDumpAll().R().
+	reqBuilder := req.R().
 		SetContext(ctx).
 		SetHeader(
 			"Client-id",
