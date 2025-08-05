@@ -422,7 +422,7 @@ services:
       - traefik-public
       - cloudflared
     environment:
-      REPLICA: {{.Task.Slot}}
+      REPLICA: '{{.Task.Slot}}'
     deploy:
       mode: replicated
       replicas: 3
