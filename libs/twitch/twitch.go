@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"github.com/nicklaw5/helix/v2"
-	cfg "github.com/twirapp/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
+	cfg "github.com/twirapp/twir/libs/config"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type userIDCtxKey struct{}
@@ -44,6 +46,15 @@ func NewAppClientWithContext(
 ) (
 	*helix.Client, error,
 ) {
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("twitch.client.type", "app"),
+		attribute.String("twitch.client.client_id", config.TwitchClientId),
+		attribute.String("twitch.client.redirect_uri", config.GetTwitchCallbackUrl()),
+	)
+
 	appToken, err := twirBus.Tokens.RequestAppToken.Request(
 		ctx,
 		struct{}{},
@@ -83,6 +94,13 @@ func NewUserClientWithContext(
 	twirBus *buscore.Bus,
 ) (*helix.Client, error) {
 	ctx = context.WithValue(ctx, userIDCtxKey{}, userID)
+	span := trace.SpanFromContext(ctx)
+	span.SetAttributes(
+		attribute.String("twitch.client.type", "user"),
+		attribute.String("twitch.client.user_id", userID),
+		attribute.String("twitch.client.client_id", config.TwitchClientId),
+		attribute.String("twitch.client.redirect_uri", config.GetTwitchCallbackUrl()),
+	)
 
 	userToken, err := twirBus.Tokens.RequestUserToken.Request(
 		ctx,
@@ -121,6 +139,13 @@ func NewBotClientWithContext(
 	ctx context.Context, botID string, config cfg.Config, twirBus *buscore.Bus,
 ) (*helix.Client, error) {
 	ctx = context.WithValue(ctx, userIDCtxKey{}, botID)
+	span := trace.SpanFromContext(ctx)
+	span.SetAttributes(
+		attribute.String("twitch.client.type", "bot"),
+		attribute.String("twitch.client.bot_id", botID),
+		attribute.String("twitch.client.client_id", config.TwitchClientId),
+		attribute.String("twitch.client.redirect_uri", config.GetTwitchCallbackUrl()),
+	)
 
 	botToken, err := twirBus.Tokens.RequestBotToken.Request(
 		ctx,
