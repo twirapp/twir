@@ -228,5 +228,13 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 		return fmt.Errorf("cannot update conduit shard: %s", resp.String())
 	}
 
+	c.logger.Info(
+		"Updated conduit shard",
+		slog.String("conduit_id", c.currentConduit.Id),
+		slog.Int("shard_id", shardId),
+		slog.String("session_id", *c.wsCurrentSessionId),
+		slog.String("current_replica_id", currentReplicaId),
+	)
+
 	return nil
 }

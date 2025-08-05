@@ -26,11 +26,6 @@ func (c *Manager) startWebSocket() {
 
 			if err := c.twitchUpdateConduitShard(context.Background()); err != nil {
 				c.logger.Error("failed to update conduit shard", slog.Any("err", err))
-			} else {
-				c.logger.Info(
-					"conduit shard updated",
-					slog.String("conduit_id", c.currentConduit.Id),
-				)
 			}
 		},
 	)
