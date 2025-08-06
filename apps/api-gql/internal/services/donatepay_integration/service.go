@@ -64,12 +64,7 @@ func (c *Service) CreateOrUpdate(
 	channelID, apiKey string,
 	enabled bool,
 ) error {
-	data, err := c.GetByChannelID(ctx, channelID)
-	if err != nil {
-		return err
-	}
-
-	_, err = c.repo.CreateOrUpdate(ctx, channelID, apiKey, enabled)
+	data, err := c.repo.CreateOrUpdate(ctx, channelID, apiKey, enabled)
 	if err != nil {
 		return err
 	}
