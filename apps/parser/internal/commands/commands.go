@@ -40,6 +40,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/commands/spam"
 	"github.com/twirapp/twir/apps/parser/internal/commands/stats"
 	"github.com/twirapp/twir/apps/parser/internal/commands/subage"
+	"github.com/twirapp/twir/apps/parser/internal/commands/tracer"
 	"github.com/twirapp/twir/apps/parser/internal/commands/tts"
 	"github.com/twirapp/twir/apps/parser/internal/commands/utility"
 	"github.com/twirapp/twir/apps/parser/internal/commands/vips"
@@ -239,6 +240,10 @@ func (c *Commands) ParseCommandResponses(
 	requestData twitch.TwitchChatMessage,
 	userRoles []model.ChannelRole,
 ) *busparser.CommandParseResponse {
+	newCtx, span := tracer.CommandsTracer.Start(ctx, "ParseCommandResponses")
+	defer span.End()
+	ctx = newCtx
+
 	commandsPrefix := requestData.EnrichedData.ChannelCommandPrefix
 
 	result := &busparser.CommandParseResponse{

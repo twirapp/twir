@@ -2,6 +2,7 @@ package variables
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"slices"
 	"strings"
@@ -28,6 +29,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/variables/subscribers"
 	"github.com/twirapp/twir/apps/parser/internal/variables/to_user"
 	"github.com/twirapp/twir/apps/parser/internal/variables/top"
+	"github.com/twirapp/twir/apps/parser/internal/variables/tracer"
 	"github.com/twirapp/twir/apps/parser/internal/variables/user"
 	"github.com/twirapp/twir/apps/parser/internal/variables/valorant"
 	"github.com/twirapp/twir/apps/parser/internal/variables/weather"
@@ -167,6 +169,10 @@ func (c *Variables) ParseVariablesInText(
 	parseCtx *types.ParseContext,
 	input string,
 ) string {
+	newCtx, span := tracer.VariablesTracer.Start(ctx, "ParseVariablesInText")
+	defer span.End()
+	ctx = newCtx
+
 	wg := &sync.WaitGroup{}
 	mu := &sync.Mutex{}
 
@@ -217,10 +223,17 @@ func (c *Variables) ParseVariablesInText(
 		str := s
 
 		wg.Add(1)
+
+		variableCtx, variableSpan := tracer.VariablesTracer.Start(
+			ctx,
+			fmt.Sprintf("VariableHandler.%s", all),
+		)
+		defer variableSpan.End()
+
 		go func() {
 			defer wg.Done()
 			res, err := variable.Handler(
-				ctx,
+				variableCtx,
 				variablesParseCtx,
 				&types.VariableData{
 					Key:    all,
