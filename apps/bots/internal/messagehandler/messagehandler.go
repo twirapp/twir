@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"reflect"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/go-redsync/redsync/v4"
@@ -34,6 +35,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	"github.com/twirapp/twir/libs/utils"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -96,6 +98,8 @@ type MessageHandler struct {
 	messagesLurkersBatcher *batchprocessor.BatchProcessor[handleMessage]
 	messagesEmotesBatcher  *batchprocessor.BatchProcessor[handleMessage]
 }
+
+var messageHandlerTracer = otel.Tracer("message-handler")
 
 func New(opts Opts) *MessageHandler {
 	votebanLock := redsync.New(goredis.NewPool(opts.Redis))
@@ -213,15 +217,17 @@ var handlersForExecute = []func(
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {
-	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(
-  	attribute.String("function.name", utils.GetFuncName()),
-   	attribute.String("channel.id", req.BroadcasterUserId),
-    attribute.String("channel.login", req.BroadcasterUserLogin),
-    attribute.String("user.id", req.ChatterUserId),
-    attribute.String("user.login", req.ChatterUserLogin),
-  )
+	newCtx, span := messageHandlerTracer.Start(ctx, "handle")
+	ctx = newCtx
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("function.name", utils.GetFuncName()),
+		attribute.String("channel.id", req.BroadcasterUserId),
+		attribute.String("channel.login", req.BroadcasterUserLogin),
+		attribute.String("user.id", req.ChatterUserId),
+		attribute.String("user.login", req.ChatterUserLogin),
+	)
 
 	msg := handleMessage{
 		TwitchChatMessage: req,
@@ -244,14 +250,26 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	// tasks will be stopped if context is canceled
 	handleTask := c.workersPool.NewGroupContext(ctx)
 
-	for _, f := range handlersForExecute {
+	for _, handlerFunc := range handlersForExecute {
+		funcName := runtime.FuncForPC(reflect.ValueOf(handlerFunc).Pointer()).Name()
+		splitName := strings.Split(funcName, ".")
+		shortFuncName := splitName[len(splitName)-1]
+
 		handleTask.SubmitErr(
 			func() error {
-				handlerError := f(c, ctx, msg)
+				handlerCtx, handlerSpan := messageHandlerTracer.Start(
+					ctx, shortFuncName, trace.WithAttributes(
+						attribute.String("handler.name", funcName),
+					),
+				)
+				defer handlerSpan.End()
+
+				handlerError := handlerFunc(c, handlerCtx, msg)
 				if handlerError != nil {
+					handlerSpan.RecordError(handlerError)
 					return fmt.Errorf(
 						"error executing %s handler: %w",
-						runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name(),
+						shortFuncName,
 						handlerError,
 					)
 				}

@@ -11,6 +11,11 @@ import (
 )
 
 func (c *MessageHandler) ensureUser(ctx context.Context, msg handleMessage) (*model.Users, error) {
+	handlerCtx, handlerSpan := messageHandlerTracer.Start(ctx, "ensureUser")
+	defer handlerSpan.End()
+
+	ctx = handlerCtx
+
 	var user *model.Users
 	if err := c.gorm.WithContext(ctx).
 		Where(
