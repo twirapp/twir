@@ -34,11 +34,43 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
+func (c *Pgx) Create(ctx context.Context, input users.CreateInput) (model.User, error) {
+	query := `
+INSERT INTO users (id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at;
+`
+
+	rows, err := c.pool.Query(
+		ctx, query,
+		input.ID,
+		input.TokenID,
+		input.IsBotAdmin,
+		input.ApiKey,
+		input.IsBanned,
+		input.HideOnLandingPage,
+	)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	user, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.User])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, model.ErrNotFound
+		}
+		return model.Nil, err
+	}
+
+	return user, nil
+}
+
 func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.User, error) {
 	query := `
-SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page
+SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
 FROM users
 WHERE "apiKey" = $1
+LIMIT 1;
 `
 	rows, err := c.pool.Query(ctx, query, apiKey)
 	if err != nil {
@@ -47,6 +79,9 @@ WHERE "apiKey" = $1
 
 	user, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.User])
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, model.ErrNotFound
+		}
 		return model.Nil, err
 	}
 
@@ -55,7 +90,7 @@ WHERE "apiKey" = $1
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.User, error) {
 	query := `
-SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page
+SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
 FROM users
 WHERE id = $1
 `
@@ -67,6 +102,9 @@ WHERE id = $1
 
 	user, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.User])
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, model.ErrNotFound
+		}
 		return model.Nil, err
 	}
 
@@ -81,6 +119,7 @@ func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]mod
 		"apiKey",
 		"is_banned",
 		"hide_on_landing_page",
+		"created_at",
 	).From("users")
 
 	var page int

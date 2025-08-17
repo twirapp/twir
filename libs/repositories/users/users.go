@@ -12,6 +12,7 @@ type Repository interface {
 	Update(ctx context.Context, id string, input UpdateInput) (model.User, error)
 	GetRandomOnlineUser(ctx context.Context, input GetRandomOnlineUserInput) (model.OnlineUser, error)
 	GetByApiKey(ctx context.Context, apiKey string) (model.User, error)
+	Create(ctx context.Context, input CreateInput) (model.User, error)
 }
 
 type GetManyInput struct {
@@ -32,4 +33,13 @@ type UpdateInput struct {
 
 type GetRandomOnlineUserInput struct {
 	ChannelID string
+}
+
+type CreateInput struct {
+	ID                string
+	ApiKey            *string
+	IsBotAdmin        bool
+	IsBanned          bool
+	HideOnLandingPage bool
+	TokenID           *string
 }

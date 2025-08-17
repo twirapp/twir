@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 )
@@ -12,6 +14,7 @@ type User struct {
 	ApiKey            string
 	IsBanned          bool
 	HideOnLandingPage bool
+	CreatedAt         time.Time
 }
 
 var Nil = User{}

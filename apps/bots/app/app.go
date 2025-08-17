@@ -16,8 +16,6 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	"github.com/twirapp/twir/apps/bots/pkg/tlds"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
@@ -27,8 +25,10 @@ import (
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -51,6 +51,10 @@ import (
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
+	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
 
 	"go.uber.org/fx"
 )
@@ -103,6 +107,14 @@ var App = fx.Module(
 		fx.Annotate(
 			channelsemotesusagesrepositoryclickhouse.NewFx,
 			fx.As(new(channelsemotesusagesrepository.Repository)),
+		),
+		fx.Annotate(
+			usersrepositorypgx.NewFx,
+			fx.As(new(usersrepository.Repository)),
+		),
+		fx.Annotate(
+			usersstatsrepositorypostgres.NewFx,
+			fx.As(new(usersstatsrepository.Repository)),
 		),
 	),
 	fx.Provide(

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/redis/go-redis/v9"
@@ -34,6 +35,8 @@ import (
 	giveawaysmodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
+	"github.com/twirapp/twir/libs/repositories/users"
+	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -51,6 +54,8 @@ type Opts struct {
 	GreetingsRepository              greetings.Repository
 	ChatMessagesRepository           chat_messages.Repository
 	ChannelsEmotesUsagesRepository   channels_emotes_usages.Repository
+	UsersstatsRepository             usersstats.Repository
+	UsersRepository                  users.Repository
 	Gorm                             *gorm.DB
 	Redis                            *redis.Client
 	TwitchActions                    *twitchactions.TwitchActions
@@ -67,6 +72,8 @@ type Opts struct {
 	GiveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 
+	TrmManager trm.Manager
+
 	WorkersPool *workers.Pool
 }
 
@@ -76,6 +83,8 @@ type MessageHandler struct {
 	greetingsRepository              greetings.Repository
 	chatMessagesRepository           chat_messages.Repository
 	channelsEmotesUsagesRepository   channels_emotes_usages.Repository
+	usersstatsRepository             usersstats.Repository
+	usersRepository                  users.Repository
 	gorm                             *gorm.DB
 	redis                            *redis.Client
 	twitchActions                    *twitchactions.TwitchActions
@@ -93,6 +102,7 @@ type MessageHandler struct {
 	ttsService      *tts.Service
 	config          cfg.Config
 	workersPool     *workers.Pool
+	trmManager      trm.Manager
 
 	messagesSaveBatcher    *batchprocessor.BatchProcessor[handleMessage]
 	messagesLurkersBatcher *batchprocessor.BatchProcessor[handleMessage]
@@ -118,6 +128,7 @@ func New(opts Opts) *MessageHandler {
 		greetingsRepository:              opts.GreetingsRepository,
 		chatMessagesRepository:           opts.ChatMessagesRepository,
 		channelsEmotesUsagesRepository:   opts.ChannelsEmotesUsagesRepository,
+		usersstatsRepository:             opts.UsersstatsRepository,
 		greetingsCache:                   opts.GreetingsCache,
 		ttsService:                       opts.TTSService,
 		chatWallCacher:                   opts.ChatWallCacher,
@@ -125,6 +136,8 @@ func New(opts Opts) *MessageHandler {
 		chatWallSettingsCacher:           opts.ChatWallSettingsCacher,
 		giveawaysCacher:                  opts.GiveawaysCacher,
 		channelsModerationSettingsCacher: opts.ChannelsModerationSettingsCacher,
+		trmManager:                       opts.TrmManager,
+		usersRepository:                  opts.UsersRepository,
 
 		workersPool: opts.WorkersPool,
 	}
