@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n'
 
 import StreamInfoEditor from '../stream-info-editor.vue'
 
+import CircleSvg from '@/assets/images/circle.svg?use'
 import { useRealtimeDashboardStats } from '@/api'
 import { useBotJoinPart, useBotStatus } from '@/api/dashboard'
 import { Button } from '@/components/ui/button'
@@ -43,8 +44,8 @@ const uptime = computed(() => {
 	if (duration.days !== undefined && duration.days !== 0) mappedDuration.unshift(duration.days)
 
 	return mappedDuration
-		.map(v => padTo2Digits(v!))
-		.filter(v => typeof v !== 'undefined')
+		.map((v) => padTo2Digits(v!))
+		.filter((v) => typeof v !== 'undefined')
 		.join(':')
 })
 
@@ -59,11 +60,12 @@ const discrete = useNaiveDiscrete()
 function openInfoEditor() {
 	discrete.dialog.create({
 		showIcon: false,
-		content: () => h(StreamInfoEditor, {
-			title: stats.value?.title,
-			categoryId: stats.value?.categoryId,
-			categoryName: stats.value?.categoryName,
-		}),
+		content: () =>
+			h(StreamInfoEditor, {
+				title: stats.value?.title,
+				categoryId: stats.value?.categoryId,
+				categoryName: stats.value?.categoryName,
+			}),
 	})
 }
 
@@ -83,7 +85,9 @@ async function changeChatState() {
 </script>
 
 <template>
-	<div class="flex flex-wrap justify-between bg-card w-full h-auto px-2 gap-2 border-b border-b-border min-h-12">
+	<div
+		class="flex flex-wrap justify-between bg-card w-full h-auto px-2 gap-2 border-b border-b-border min-h-12"
+	>
 		<div class="flex flex-wrap gap-4 py-2">
 			<div class="flex items-center cursor-pointer" @click="openInfoEditor">
 				<div class="flex flex-col pr-2.5">
@@ -163,14 +167,27 @@ async function changeChatState() {
 		</div>
 
 		<div class="flex justify-end flex-end items-center">
-			<Button v-if="!botStatus?.enabled" size="sm" :disabled="waitingBotStatusData" @click="changeChatState">
-				Join channel
+			<Button
+				v-if="!botStatus?.enabled"
+				size="sm"
+				:disabled="waitingBotStatusData"
+				@click="changeChatState"
+				class="flex items-center gap-0.5"
+				variant="secondary"
+			>
+				<CircleSvg class="circle text-red-400" />
+				{{ botStatus?.botName ?? 'Bot' }} disabled, click to join channel
 			</Button>
 			<DropdownMenu v-else>
 				<DropdownMenuTrigger as-child>
-					<Button variant="secondary" size="sm" :disabled="waitingBotStatusData">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-0.5 text-green-400 ping"><circle cx="12" cy="12" r="5" fill="currentColor"></circle><circle cx="12" cy="12" r="6" fill="currentColor" style="animation: 1s cubic-bezier(0, 0, 0.2, 1) 0s infinite normal none running ping; transform-origin: center center;"></circle></svg>
-						{{ botStatus.botName }} online
+					<Button
+						variant="secondary"
+						size="sm"
+						:disabled="waitingBotStatusData"
+						class="flex items-center gap-0.5"
+					>
+						<CircleSvg class="circle text-green-400" />
+						{{ botStatus?.botName ?? 'Bot' }} online
 						<ChevronDownIcon class="ml-2 size-4" />
 					</Button>
 				</DropdownMenuTrigger>
@@ -184,7 +201,7 @@ async function changeChatState() {
 	</div>
 </template>
 
-<style scoped>
+<style>
 .stats-item {
 	@apply flex flex-col justify-between min-w-8 rounded-md;
 }
@@ -197,5 +214,15 @@ async function changeChatState() {
 	@apply text-base tabular-nums;
 }
 
-@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+.circle {
+	@apply size-6;
+}
+
+@keyframes ping {
+	75%,
+	100% {
+		transform: scale(2);
+		opacity: 0;
+	}
+}
 </style>
