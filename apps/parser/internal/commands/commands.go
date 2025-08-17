@@ -297,12 +297,13 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	parseCtxSender := &types.ParseContextSender{
-		ID:          requestData.ChatterUserId,
-		Name:        requestData.ChatterUserLogin,
-		DisplayName: requestData.ChatterUserName,
-		Badges:      badges,
-		Color:       requestData.Color,
-		Roles:       userRoles,
+		ID:               requestData.ChatterUserId,
+		Name:             requestData.ChatterUserLogin,
+		DisplayName:      requestData.ChatterUserName,
+		Badges:           badges,
+		Color:            requestData.Color,
+		Roles:            userRoles,
+		UserChannelStats: userChannelStats,
 	}
 
 	mentions := make(
