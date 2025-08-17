@@ -29,7 +29,7 @@ var SongsRequested = &types.Variable{
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Model(&model.RequestedSong{}).
-			Where(`"channelId" = ? AND "orderedById" = ?"`, parseCtx.Channel.ID, targetUserId).
+			Where(`"channelId" = ? AND "orderedById" = ?`, parseCtx.Channel.ID, targetUserId).
 			Count(&count).
 			Error
 
