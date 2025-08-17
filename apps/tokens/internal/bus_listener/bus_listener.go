@@ -9,14 +9,15 @@ import (
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/nicklaw5/helix/v2"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/crypto"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/crypto"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+
+	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 )
 
 var appTokenScopes []string
@@ -31,22 +32,23 @@ type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Config  cfg.Config
-	Gorm    *gorm.DB
-	Redsync *redsync.Redsync
-	Logger  logger.Logger
-	TwirBus *buscore.Bus
+	Config           cfg.Config
+	Gorm             *gorm.DB
+	Redsync          *redsync.Redsync
+	Logger           logger.Logger
+	TwirBus          *buscore.Bus
+	TokensRepository tokensrepository.Repository
 }
 
 type tokensImpl struct {
 	globalClient   *helix.Client
 	appAccessToken *appToken
 
-	db      *gorm.DB
-	config  cfg.Config
-	log     logger.Logger
-	redSync *redsync.Redsync
-	twirBus *buscore.Bus
+	config           cfg.Config
+	log              logger.Logger
+	redSync          *redsync.Redsync
+	twirBus          *buscore.Bus
+	tokensRepository tokensrepository.Repository
 }
 
 func rateLimitFunc(lastResponse *helix.Response) error {
@@ -94,11 +96,11 @@ func NewTokens(opts Opts) error {
 			ExpiresIn:      appAccessToken.Data.ExpiresIn,
 		},
 
-		db:      opts.Gorm,
-		config:  opts.Config,
-		log:     opts.Logger,
-		redSync: opts.Redsync,
-		twirBus: opts.TwirBus,
+		config:           opts.Config,
+		log:              opts.Logger,
+		redSync:          opts.Redsync,
+		twirBus:          opts.TwirBus,
+		tokensRepository: opts.TokensRepository,
 	}
 
 	opts.Lc.Append(
@@ -173,21 +175,15 @@ func (c *tokensImpl) RequestUserToken(
 	mu.Lock()
 	defer mu.Unlock()
 
-	user := model.Users{}
-	err := c.db.WithContext(ctx).Where("id = ?", data.UserId).Preload("Token").Find(&user).Error
+	token, err := c.tokensRepository.GetByUserID(ctx, data.UserId)
 	if err != nil {
-		return tokens.TokenResponse{}, err
-	}
-
-	if user.ID == "" || user.Token == nil || user.Token.ID == "" {
 		return tokens.TokenResponse{}, fmt.Errorf(
-			"cannot find user token in db, userId: %s, token: %v",
-			user.ID,
-			user.Token,
+			"cannot get user token from repository: %w",
+			err,
 		)
 	}
 
-	decryptedRefreshToken, err := crypto.Decrypt(user.Token.RefreshToken, c.config.TokensCipherKey)
+	decryptedRefreshToken, err := crypto.Decrypt(token.RefreshToken, c.config.TokensCipherKey)
 	if err != nil {
 		return tokens.TokenResponse{}, err
 	}
@@ -196,7 +192,7 @@ func (c *tokensImpl) RequestUserToken(
 		return tokens.TokenResponse{}, errors.New("refresh token is empty")
 	}
 
-	if isTokenExpired(int(user.Token.ExpiresIn), user.Token.ObtainmentTimestamp) {
+	if isTokenExpired(token.ExpiresIn, token.ObtainmentTimestamp) {
 		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 		if err != nil {
 			return tokens.TokenResponse{}, err
@@ -216,38 +212,49 @@ func (c *tokensImpl) RequestUserToken(
 		if err != nil {
 			return tokens.TokenResponse{}, err
 		}
-		user.Token.RefreshToken = newRefreshToken
 
 		newAccessToken, err := crypto.Encrypt(newToken.Data.AccessToken, c.config.TokensCipherKey)
 		if err != nil {
 			return tokens.TokenResponse{}, err
 		}
-		user.Token.AccessToken = newAccessToken
 
-		user.Token.ExpiresIn = int32(newToken.Data.ExpiresIn)
-		user.Token.Scopes = newToken.Data.Scopes
-		user.Token.ObtainmentTimestamp = time.Now().UTC()
-		if err := c.db.WithContext(ctx).Save(&user.Token).Error; err != nil {
-			return tokens.TokenResponse{}, err
+		timeStamp := time.Now().UTC()
+
+		dbToken, err := c.tokensRepository.UpdateTokenByID(
+			ctx, token.ID, tokensrepository.UpdateTokenInput{
+				AccessToken:         &newAccessToken,
+				RefreshToken:        &newRefreshToken,
+				ExpiresIn:           &newToken.Data.ExpiresIn,
+				ObtainmentTimestamp: &timeStamp,
+				Scopes:              newToken.Data.Scopes,
+			},
+		)
+		if err != nil {
+			return tokens.TokenResponse{}, fmt.Errorf(
+				"cannot update user token in repository: %w",
+				err,
+			)
 		}
+
+		token = dbToken
 
 		c.log.Info(
 			"user token refreshed",
-			slog.String("user_id", user.ID),
-			slog.Int("expires_in", int(user.Token.ExpiresIn)),
+			slog.String("user_id", data.UserId),
+			slog.Int("expires_in", token.ExpiresIn),
 			slog.String("access_token", newAccessToken),
 			slog.String("refresh_token", newRefreshToken),
 		)
 	}
 
-	decryptedAccessToken, err := crypto.Decrypt(user.Token.AccessToken, c.config.TokensCipherKey)
+	decryptedAccessToken, err := crypto.Decrypt(token.AccessToken, c.config.TokensCipherKey)
 	if err != nil {
 		return tokens.TokenResponse{}, err
 	}
 
 	return tokens.TokenResponse{
 		AccessToken: decryptedAccessToken,
-		Scopes:      user.Token.Scopes,
+		Scopes:      token.Scopes,
 	}, nil
 }
 
@@ -259,22 +266,20 @@ func (c *tokensImpl) RequestBotToken(
 	mu.Lock()
 	defer mu.Unlock()
 
-	bot := model.Bots{}
-	err := c.db.WithContext(ctx).Where("id = ?", data.BotId).Preload("Token").Find(&bot).Error
+	token, err := c.tokensRepository.GetByBotID(ctx, data.BotId)
+	if err != nil {
+		return tokens.TokenResponse{}, fmt.Errorf(
+			"cannot get bot token from repository: %w",
+			err,
+		)
+	}
+
+	decryptedRefreshToken, err := crypto.Decrypt(token.RefreshToken, c.config.TokensCipherKey)
 	if err != nil {
 		return tokens.TokenResponse{}, err
 	}
 
-	if bot.ID == "" || bot.Token == nil || bot.Token.ID == "" {
-		return tokens.TokenResponse{}, errors.New("cannot find bot token in db")
-	}
-
-	decryptedRefreshToken, err := crypto.Decrypt(bot.Token.RefreshToken, c.config.TokensCipherKey)
-	if err != nil {
-		return tokens.TokenResponse{}, err
-	}
-
-	if isTokenExpired(int(bot.Token.ExpiresIn), bot.Token.ObtainmentTimestamp) {
+	if isTokenExpired(token.ExpiresIn, token.ObtainmentTimestamp) {
 		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 		if err != nil {
 			return tokens.TokenResponse{}, err
@@ -288,31 +293,44 @@ func (c *tokensImpl) RequestBotToken(
 		if err != nil {
 			return tokens.TokenResponse{}, err
 		}
-		bot.Token.RefreshToken = newRefreshToken
+		token.RefreshToken = newRefreshToken
 
 		newAccessToken, err := crypto.Encrypt(newToken.Data.AccessToken, c.config.TokensCipherKey)
 		if err != nil {
 			return tokens.TokenResponse{}, err
 		}
-		bot.Token.AccessToken = newAccessToken
 
-		bot.Token.ExpiresIn = int32(newToken.Data.ExpiresIn)
-		bot.Token.Scopes = newToken.Data.Scopes
-		bot.Token.ObtainmentTimestamp = time.Now().UTC()
-		if err := c.db.WithContext(ctx).Save(&bot.Token).Error; err != nil {
-			return tokens.TokenResponse{}, err
+		timeStamp := time.Now().UTC()
+
+		newDbToken, err := c.tokensRepository.UpdateTokenByID(
+			ctx, token.ID, tokensrepository.UpdateTokenInput{
+				AccessToken:         &newAccessToken,
+				RefreshToken:        &newRefreshToken,
+				ExpiresIn:           &newToken.Data.ExpiresIn,
+				ObtainmentTimestamp: &timeStamp,
+				Scopes:              newToken.Data.Scopes,
+			},
+		)
+		if err != nil {
+			return tokens.TokenResponse{}, fmt.Errorf(
+				"cannot update bot token in repository: %w",
+				err,
+			)
 		}
-		c.log.Info("bot token refreshed", slog.String("bot_id", bot.ID))
+
+		token = newDbToken
+
+		c.log.Info("bot token refreshed", slog.String("bot_id", data.BotId))
 	}
 
-	decryptedAccessToken, err := crypto.Decrypt(bot.Token.AccessToken, c.config.TokensCipherKey)
+	decryptedAccessToken, err := crypto.Decrypt(token.AccessToken, c.config.TokensCipherKey)
 	if err != nil {
 		return tokens.TokenResponse{}, err
 	}
 
 	return tokens.TokenResponse{
 		AccessToken: decryptedAccessToken,
-		Scopes:      bot.Token.Scopes,
-		ExpiresIn:   bot.Token.ExpiresIn,
+		Scopes:      token.Scopes,
+		ExpiresIn:   int32(token.ExpiresIn),
 	}, nil
 }

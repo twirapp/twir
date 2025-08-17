@@ -68,6 +68,7 @@ func CreateBaseApp(opts Opts) fx.Option {
 			),
 		),
 		fx.Invoke(uptrace.NewFx(opts.AppName)),
+		fx.NopLogger,
 	)
 }
 
@@ -108,7 +109,7 @@ func newPgxPool(cfg config.Config) (PgxResult, error) {
 	connConfig.MaxConns = 100
 	connConfig.MinConns = 1
 	connConfig.HealthCheckPeriod = 30 * time.Second
-	connConfig.ConnConfig.Config.ConnectTimeout = 5*time.Second
+	connConfig.ConnConfig.Config.ConnectTimeout = 5 * time.Second
 	connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	pool, err := pgxpool.NewWithConfig(

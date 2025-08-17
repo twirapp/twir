@@ -5,11 +5,11 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	"github.com/twirapp/twir/libs/logger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/fx"
 )
@@ -28,6 +28,8 @@ type Server struct {
 }
 
 func New(opts Opts) *Server {
+	gin.SetMode(gin.ReleaseMode)
+
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(

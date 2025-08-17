@@ -177,6 +177,9 @@ import (
 	donatepayrepository "github.com/twirapp/twir/libs/repositories/donatepay_integration"
 	donatepayrepositorypostgres "github.com/twirapp/twir/libs/repositories/donatepay_integration/datasource/postgres"
 
+	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
+	tokensrepositorypgx "github.com/twirapp/twir/libs/repositories/tokens/datasources/postgres"
+
 	"go.uber.org/fx"
 )
 
@@ -341,6 +344,10 @@ func main() {
 			fx.Annotate(
 				donatepayrepositorypostgres.NewFx,
 				fx.As(new(donatepayrepository.Repository)),
+			),
+			fx.Annotate(
+				tokensrepositorypgx.NewFx,
+				fx.As(new(tokensrepository.Repository)),
 			),
 		),
 		// services

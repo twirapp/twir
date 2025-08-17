@@ -4,18 +4,21 @@ import (
 	"context"
 	"database/sql"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/crypto"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
+	"github.com/twirapp/twir/libs/crypto"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/twitch"
+
+	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 )
 
 type authBody struct {
@@ -69,7 +72,7 @@ func (a *Auth) handleAuthPostCode(
 	twitchUser := users.Data.Users[0]
 
 	dbUser := &model.Users{}
-	err = a.gorm.WithContext(ctx).Where("id = ?", twitchUser.ID).Preload("Token").Find(dbUser).Error
+	err = a.gorm.WithContext(ctx).Where("id = ?", twitchUser.ID).Find(dbUser).Error
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Cannot find user", err)
 	}
@@ -119,29 +122,45 @@ func (a *Auth) handleAuthPostCode(
 		dbUser = newUser
 	}
 
-	tokenData := model.Tokens{
-		ID:                  uuid.New().String(),
-		AccessToken:         accessToken,
-		RefreshToken:        refreshToken,
-		ExpiresIn:           int32(tokens.Data.ExpiresIn),
-		ObtainmentTimestamp: time.Now().UTC(),
-		Scopes:              tokens.Data.Scopes,
-	}
-	if dbUser.TokenID.Valid {
-		tokenData.ID = dbUser.TokenID.String
+	currentToken, err := a.tokensRepository.GetByUserID(ctx, dbUser.ID)
+	if err != nil && !errors.Is(err, tokensrepository.ErrNotFound) {
+		return nil, huma.Error500InternalServerError("Cannot get user token", err)
 	}
 
-	if err := a.gorm.WithContext(ctx).Save(tokenData).Error; err != nil {
-		return nil, huma.Error500InternalServerError("Cannot update user token", err)
-	}
+	tokenExpires := tokens.Data.ExpiresIn
+	tokenCreatedAt := time.Now().UTC()
+	if currentToken != nil {
+		_, err := a.tokensRepository.UpdateTokenByID(
+			ctx, currentToken.ID, tokensrepository.UpdateTokenInput{
+				AccessToken:         &accessToken,
+				RefreshToken:        &refreshToken,
+				ExpiresIn:           &tokenExpires,
+				ObtainmentTimestamp: &tokenCreatedAt,
+				Scopes:              tokens.Data.Scopes,
+			},
+		)
+		if err != nil {
+			return nil, huma.Error500InternalServerError("Cannot update user token", err)
+		}
+	} else {
+		newToken, err := a.tokensRepository.CreateUserToken(
+			ctx, tokensrepository.CreateInput{
+				UserID:              dbUser.ID,
+				AccessToken:         accessToken,
+				RefreshToken:        refreshToken,
+				ExpiresIn:           tokens.Data.ExpiresIn,
+				ObtainmentTimestamp: tokenCreatedAt,
+				Scopes:              tokens.Data.Scopes,
+			},
+		)
+		if err != nil {
+			return nil, huma.Error500InternalServerError("Cannot create user token", err)
+		}
 
-	if err := a.gorm.WithContext(ctx).Debug().Save(&tokenData).Error; err != nil {
-		return nil, huma.Error500InternalServerError("Cannot update user token", err)
-	}
-
-	dbUser.TokenID = sql.NullString{
-		String: tokenData.ID,
-		Valid:  true,
+		dbUser.TokenID = sql.NullString{
+			String: newToken.ID.String(),
+			Valid:  true,
+		}
 	}
 
 	if dbUser.Channel == nil || dbUser.Channel.ID == "" {
@@ -151,7 +170,7 @@ func (a *Auth) handleAuthPostCode(
 		}
 	}
 
-	if err := a.gorm.WithContext(ctx).Debug().Save(dbUser).Error; err != nil {
+	if err := a.gorm.WithContext(ctx).Save(dbUser).Error; err != nil {
 		return nil, huma.Error500InternalServerError("Cannot update user", err)
 	}
 
