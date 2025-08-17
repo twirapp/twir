@@ -24,12 +24,16 @@ var UsedChannelPoints = &types.Variable{
 				},
 			).
 			Else(parseCtx.Sender.ID)
-		dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
 
-		if dbUser != nil {
-			result.Result = strconv.Itoa(int(dbUser.UsedChannelPoints))
+		if targetUserId == parseCtx.Sender.ID {
+			result.Result = strconv.Itoa(int(parseCtx.Sender.UserChannelStats.UsedChannelPoints))
 		} else {
-			result.Result = "0"
+			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
+			if dbUser != nil {
+				result.Result = strconv.Itoa(int(dbUser.UsedChannelPoints))
+			} else {
+				result.Result = "0"
+			}
 		}
 
 		return &result, nil

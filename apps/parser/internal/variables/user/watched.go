@@ -25,12 +25,18 @@ var Watched = &types.Variable{
 				},
 			).
 			Else(parseCtx.Sender.ID)
-		dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
 
 		var watched int64 = 0
 
-		if dbUser != nil {
-			watched = dbUser.Watched
+		if targetUserId == parseCtx.Sender.ID {
+			watched = parseCtx.Sender.UserChannelStats.Watched
+		} else {
+			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
+			if dbUser != nil {
+				watched = dbUser.Watched
+			} else {
+				watched = 0
+			}
 		}
 
 		watchedD := time.Duration(watched) * time.Millisecond

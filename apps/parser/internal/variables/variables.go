@@ -228,10 +228,11 @@ func (c *Variables) ParseVariablesInText(
 			ctx,
 			fmt.Sprintf("VariableHandler.%s", all),
 		)
-		defer variableSpan.End()
 
 		go func() {
 			defer wg.Done()
+			defer variableSpan.End()
+
 			res, err := variable.Handler(
 				variableCtx,
 				variablesParseCtx,

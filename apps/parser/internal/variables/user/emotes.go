@@ -25,11 +25,15 @@ var Emotes = &types.Variable{
 			).
 			Else(parseCtx.Sender.ID)
 
-		dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
-		if dbUser != nil {
-			result.Result = strconv.Itoa(dbUser.Emotes)
+		if targetUserId == parseCtx.Sender.ID {
+			result.Result = strconv.Itoa(parseCtx.Sender.UserChannelStats.Emotes)
 		} else {
-			result.Result = "0"
+			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
+			if dbUser != nil {
+				result.Result = strconv.Itoa(dbUser.Emotes)
+			} else {
+				result.Result = "0"
+			}
 		}
 
 		return result, nil

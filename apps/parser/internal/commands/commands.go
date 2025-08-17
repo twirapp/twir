@@ -239,6 +239,7 @@ func (c *Commands) ParseCommandResponses(
 	command *FindByMessageResult,
 	requestData twitch.TwitchChatMessage,
 	userRoles []model.ChannelRole,
+	userChannelStats *model.UsersStats,
 ) *busparser.CommandParseResponse {
 	newCtx, span := tracer.CommandsTracer.Start(ctx, "ParseCommandResponses")
 	defer span.End()
@@ -674,6 +675,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		cmd,
 		data,
 		userRoles,
+		dbUser.Stats,
 	)
 
 	responsesWithRepeats := make([]string, 0, len(result.Responses))

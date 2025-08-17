@@ -23,11 +23,15 @@ var Reputation = &types.Variable{
 				},
 			).
 			Else(parseCtx.Sender.ID)
-		dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
-		if dbUser != nil {
-			result.Result = strconv.FormatInt(dbUser.Reputation, 10)
+		if targetUserId == parseCtx.Sender.ID {
+			result.Result = strconv.Itoa(int(parseCtx.Sender.UserChannelStats.Reputation))
 		} else {
-			result.Result = "0"
+			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
+			if dbUser != nil {
+				result.Result = strconv.Itoa(int(dbUser.Reputation))
+			} else {
+				result.Result = "0"
+			}
 		}
 
 		return &result, nil

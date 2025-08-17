@@ -9,12 +9,13 @@ import (
 )
 
 type ParseContextSender struct {
-	ID          string
-	Name        string
-	DisplayName string
-	Color       string
-	Badges      []string
-	Roles       []model.ChannelRole
+	ID               string
+	Name             string
+	DisplayName      string
+	Color            string
+	Badges           []string
+	Roles            []model.ChannelRole
+	UserChannelStats *model.UsersStats
 }
 
 type ParseContextChannel struct {

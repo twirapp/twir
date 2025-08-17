@@ -24,11 +24,16 @@ var Messages = &types.Variable{
 				},
 			).
 			Else(parseCtx.Sender.ID)
-		dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
-		if dbUser != nil {
-			result.Result = strconv.Itoa(int(dbUser.Messages))
+
+		if targetUserId == parseCtx.Sender.ID {
+			result.Result = strconv.Itoa(int(parseCtx.Sender.UserChannelStats.Messages))
 		} else {
-			result.Result = "0"
+			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
+			if dbUser != nil {
+				result.Result = strconv.Itoa(int(dbUser.Messages))
+			} else {
+				result.Result = "0"
+			}
 		}
 
 		return &result, nil
