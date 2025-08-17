@@ -135,10 +135,10 @@ func (c *MessageHandler) ensureUser(
 		} else {
 			userStats = fetchedStats
 
-			// if msg.EnrichedData.ChannelStream != nil {
-			userStats.Messages += 1
-			userStats.Emotes += usedEmotesInMessage
-			// }
+			if msg.EnrichedData.ChannelStream != nil {
+				userStats.Messages += 1
+				userStats.Emotes += usedEmotesInMessage
+			}
 
 			if _, err := c.usersstatsRepository.Update(
 				ctx,
