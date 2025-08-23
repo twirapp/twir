@@ -110,7 +110,7 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ matrix.folders.path | replace('/', '_') }}-${{ env.hash }}
+          key: ${{ runner.os }}-go-${{ matrix.folders.path }}-${{ env.hash }}
           restore-keys: |
             ${{ runner.os }}-go-${{ matrix.folders.path }}-
 
