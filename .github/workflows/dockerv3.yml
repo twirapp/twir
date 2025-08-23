@@ -74,11 +74,11 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun install --frozen-lockfile
 
-      - name: Setup Golang dependencies
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        uses: magnetikonline/action-golang-cache@v5
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          go-version-file: go.work
+          go-version-file: './go.work'
+          cache-dependency-path: '**/go.sum'
 
       - name: Install binaries dependencies
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
@@ -94,15 +94,6 @@ jobs:
       - name: Build application
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun cli build app ${{ env.app }}
-
-      - name: Save Golang cache
-        if: always() && (steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true')
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ${{ steps.golang-with-cache.outputs.build-cache-path }}
-            ${{ steps.golang-with-cache.outputs.module-cache-path }}
-          key: ${{ steps.golang-with-cache.outputs.cache-key }}
 
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
