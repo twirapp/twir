@@ -2,14 +2,12 @@ package dev
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
 
 	"github.com/pterm/pterm"
-	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/frontend"
@@ -18,6 +16,7 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/dev/nodejs"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/twirapp/twir/cli/internal/cmds/proxy"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/urfave/cli/v2"
 )
 
@@ -75,9 +74,6 @@ func CreateDevCommand() *cli.Command {
 
 			skipDeps := c.Bool("skip-deps")
 			isDebugEnabled := c.Bool("debug")
-
-			fmt.Println("isDebugEnabled:", isDebugEnabled)
-			fmt.Println(c.Args())
 
 			if !skipDeps {
 				if err := dependencies.Cmd.Run(c); err != nil {

@@ -1,7 +1,0 @@
-*.go
-dist
-*.ts
-*.js
-!build.ts
-!codegen-api.ts
-!openapi.ts

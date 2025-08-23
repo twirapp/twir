@@ -1,4 +1,4 @@
-import { DudesSprite } from '@twir/types/overlays'
+import { DudesSprite } from '@twir/types'
 import { DudesLayers } from '@twirapp/dudes-vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
@@ -35,9 +35,15 @@ export const useDudes = createGlobalState(() => {
 		}
 	}
 
-	async function createDude(
-		{ userId, userName, color }: { userId: string, userName?: string, color?: string },
-	) {
+	async function createDude({
+		userId,
+		userName,
+		color,
+	}: {
+		userId: string
+		userName?: string
+		color?: string
+	}) {
 		if (!dudes.value?.dudes || !dudesSettings.value) return
 
 		const actualDude = dudes.value.dudes.getDude(userId)
@@ -46,9 +52,10 @@ export const useDudes = createGlobalState(() => {
 		}
 
 		if (
-			dudesSettings.value.overlay.maxOnScreen !== 0
-			&& dudes.value.dudes.dudes.size === dudesSettings.value.overlay.maxOnScreen
-		) return
+			dudesSettings.value.overlay.maxOnScreen !== 0 &&
+			dudes.value.dudes.dudes.size === dudesSettings.value.overlay.maxOnScreen
+		)
+			return
 
 		const userSettings = requestDudeUserSettings(userId)
 		if (!userSettings) {
@@ -60,11 +67,11 @@ export const useDudes = createGlobalState(() => {
 			return
 		}
 
-		const dudeColor = userSettings.dudeColor
-		  ?? color
-		  ?? dudesSettings.value.dudes.dude.bodyColor
+		const dudeColor = userSettings.dudeColor ?? color ?? dudesSettings.value.dudes.dude.bodyColor
 
-		const dudeSprite = getSprite(userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite)
+		const dudeSprite = getSprite(
+			userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite
+		)
 		const dude = await dudes.value.dudes.createDude({
 			id: userSettings.userId,
 			name: userSettings.userDisplayName!,
@@ -102,10 +109,7 @@ export const useDudes = createGlobalState(() => {
 	}
 
 	function showMessageDude(dude: Dude, messageChunks: MessageChunk[]): void {
-		if (
-			dudesSettings.value?.ignore.ignoreCommands
-			&& messageChunks?.at(0)?.value.startsWith('!')
-		) {
+		if (dudesSettings.value?.ignore.ignoreCommands && messageChunks?.at(0)?.value.startsWith('!')) {
 			return
 		}
 
@@ -116,9 +120,7 @@ export const useDudes = createGlobalState(() => {
 
 		dude.addMessage(message)
 
-		const emotes = messageChunks
-			.filter((chunk) => chunk.type !== 'text')
-			.map(getProxiedEmoteUrl)
+		const emotes = messageChunks.filter((chunk) => chunk.type !== 'text').map(getProxiedEmoteUrl)
 
 		if (emotes.length) {
 			dude.addEmotes([...new Set(emotes)])
@@ -140,11 +142,14 @@ export const useDudes = createGlobalState(() => {
 		document.dispatchEvent(new CustomEvent<string>('get-user-settings', { detail: userId }))
 	}
 
-	watch(() => dudes.value, async (dudes) => {
-		if (!dudes) return
-		await dudes.initDudes()
-		isDudeReady.value = true
-	})
+	watch(
+		() => dudes.value,
+		async (dudes) => {
+			if (!dudes) return
+			await dudes.initDudes()
+			isDudeReady.value = true
+		}
+	)
 
 	return {
 		dudes,

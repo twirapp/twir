@@ -86,15 +86,23 @@ var AppBuildCmd = &cli.Command{
 		}
 
 		if golangApp != nil {
+			startTime := time.Now()
 			if err := golangApp.Build(); err != nil {
 				return err
 			}
 
-			pterm.Success.Printfln("Builded %s", golangApp.Name)
+			pterm.Success.Printfln("Builded %s in %v", golangApp.Name, time.Since(startTime))
 			return nil
 		}
 
-		return build(fmt.Sprintf(`bun --filter=@twir/%s run build`, argument), false)
+		startTime := time.Now()
+		if err := build(fmt.Sprintf(`bun --filter=@twir/%s run build`, argument), false); err != nil {
+			return err
+		}
+
+		pterm.Success.Printfln("Builded %s in %v", argument, time.Since(startTime))
+
+		return nil
 	},
 }
 

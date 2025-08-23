@@ -84,10 +84,6 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun cli deps -skip-node -skip-go
 
-      - name: Build libraries
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        run: bun cli build libs
-
       - name: Build gql
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: |

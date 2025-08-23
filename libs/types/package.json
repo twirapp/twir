@@ -3,11 +3,9 @@
   "type": "module",
   "scripts": {
 		"prebuild": "rimraf dist",
-    "build": "go run gen.go; tsc"
+    "build": "go run gen.go;"
   },
-	"exports": {
-		"./*": {
-			"import": "./src/*.ts"
-		}
-	}
+  "module": "./src/index.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts"
 }

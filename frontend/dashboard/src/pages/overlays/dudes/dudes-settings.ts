@@ -1,12 +1,12 @@
-import { DudesSprite } from '@twir/types/overlays';
+import { DudesSprite } from '@twir/types'
 
-import type { DudesOverlaySettings } from '@/gql/graphql';
+import type { DudesOverlaySettings } from '@/gql/graphql'
 
-export type DudesSettingsWithOptionalId = Omit<DudesOverlaySettings, 'id'> & { id?: string };
+export type DudesSettingsWithOptionalId = Omit<DudesOverlaySettings, 'id'> & { id?: string }
 
 interface User {
-	id: string;
-	displayName: string;
+	id: string
+	displayName: string
 }
 
 const twitchBots: User[] = [
@@ -42,14 +42,14 @@ const twitchBots: User[] = [
 		id: '237719657',
 		displayName: 'Fossabot',
 	},
-];
+]
 
 export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	id: '',
 	ignoreSettings: {
 		ignoreCommands: true,
 		ignoreUsers: true,
-		users: twitchBots.map(bot => bot.id),
+		users: twitchBots.map((bot) => bot.id),
 	},
 	dudeSettings: {
 		maxOnScreen: 0,
@@ -60,7 +60,7 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 		cosmeticsColor: '#FFFFFF',
 		maxLifeTime: 1000 * 60 * 30, // 30 minutes
 		growTime: 1000 * 60 * 5, // 5 minutes
-    growMaxScale: 10,
+		growMaxScale: 10,
 		gravity: 400,
 		scale: 4,
 		soundsEnabled: true,
@@ -98,4 +98,4 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	spitterEmoteSettings: {
 		enabled: true,
 	},
-};
+}

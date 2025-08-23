@@ -3,7 +3,7 @@ import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
 import type { ChannelData } from '@/types.js'
-import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays'
+import type { DudesSprite, DudesUserSettings } from '@twir/types'
 import type { DudesTypes } from '@twirapp/dudes-vue/types'
 import type { DudesIgnoreSettings } from '@/gql/graphql'
 

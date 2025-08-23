@@ -6,7 +6,7 @@ import { useDudesSettings } from './use-dudes-settings'
 import { useDudes } from './use-dudes.js'
 
 import type { TwirWebSocketEvent } from '@/api.js'
-import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays'
+import type { DudesSprite, DudesUserSettings } from '@twir/types'
 
 import { generateSocketUrlWithParams } from '@/helpers.js'
 import { useSubscription } from '@urql/vue'

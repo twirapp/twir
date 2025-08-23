@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FontSelector } from '@twir/fontsource'
-import { DudesSprite } from '@twir/types/overlays'
+import { DudesSprite } from '@twir/types'
 import { addZero, capitalize, colorBrightness, hexToRgb } from '@zero-dependency/utils'
 import { intervalToDuration } from 'date-fns'
 import {
