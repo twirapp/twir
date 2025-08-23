@@ -16,32 +16,50 @@ jobs:
     strategy:
       matrix:
         folders:
-          - apps/api
-          - apps/api-gql
-          - apps/bots
-          - apps/discord
-          - apps/emotes-cacher
-          - apps/events
-          - apps/eventsub
-          - apps/integrations
-          - apps/parser
-          - apps/scheduler
-          - apps/timers
-          - apps/tokens
-          - apps/websockets
-          - apps/ytsr
-          - apps/chat-translator
-          - apps/giveaways
-          - frontend/dashboard
-          - frontend/overlays
+          - path: apps/api
+            runtime: go
+          - path: apps/api-gql
+            runtime: go
+          - path: apps/bots
+            runtime: go
+          - path: apps/discord
+            runtime: go
+          - path: apps/emotes-cacher
+            runtime: go
+          - path: apps/events
+            runtime: go
+          - path: apps/eventsub
+            runtime: go
+          - path: apps/integrations
+            runtime: js
+          - path: apps/parser
+            runtime: go
+          - path: apps/scheduler
+            runtime: go
+          - path: apps/timers
+            runtime: go
+          - path: apps/tokens
+            runtime: go
+          - path: apps/websockets
+            runtime: go
+          - path: apps/ytsr
+            runtime: go
+          - path: apps/chat-translator
+            runtime: go
+          - path: apps/giveaways
+            runtime: go
+          - path: frontend/dashboard
+            runtime: js
+          - path: frontend/overlays
+            runtime: js
     steps:
       - uses: actions/checkout@v4
 
       - name: Sets the folder and application names for the build
         id: set-folder
         run: |
-          echo "folder=$(dirname ${{ matrix.folders }})" >> $GITHUB_ENV
-          echo "app=$(basename ${{ matrix.folders }})" >> $GITHUB_ENV
+          echo "folder=$(dirname ${{ matrix.folders.path }})" >> $GITHUB_ENV
+          echo "app=$(basename ${{ matrix.folders.path }})" >> $GITHUB_ENV
 
       - name: Get changed files
         id: changed-files
@@ -57,17 +75,21 @@ jobs:
             .bunfig.toml
             bun.lock
 
+      - name: Determine if build should run
+        id: should-build
+        run: echo "run-build=${{ steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true' }}" >> $GITHUB_ENV
+
       - uses: oven-sh/setup-bun@v2
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: ${{ matrix.folders.runtime == 'js' && env.run-build == 'true' }}
         with:
           bun-version-file: ".bun-version"
 
       - name: Install JavaScript dependencies
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: ${{ matrix.folders.runtime == 'js' && env.run-build == 'true' }}
         run: bun install --frozen-lockfile
 
       - name: Set up Go
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: env.run-build == 'true'
         uses: actions/setup-go@v5
         with:
           go-version-file: './go.work'
@@ -76,25 +98,25 @@ jobs:
             **/go.sum
 
       - name: Install binaries dependencies
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: env.run-build == 'true'
         run: bun cli deps -skip-node -skip-go
 
       - name: Build gql
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: env.run-build == 'true'
         run: |
           if [ "${{ env.app }}" = "api-gql" ]; then
               bun cli build gql
           fi
 
       - name: Build application
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: env.run-build == 'true'
         run: bun cli build app ${{ env.app }}
 
       - name: Set up Docker Buildx
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: env.run-build == 'true'
         uses: docker/setup-buildx-action@v3
       - name: Login to Twir registry
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: env.run-build == 'true'
         uses: docker/login-action@v3
         with:
           registry: registry.twir.app
@@ -102,7 +124,7 @@ jobs:
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
 
       - name: Build docker image
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: env.run-build == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
