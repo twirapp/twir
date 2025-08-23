@@ -148,8 +148,8 @@ jobs:
           push: true
           tags: |
             registry.twir.app/twirapp/${{ env.app }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=registry.twir.app/twirapp/${{ env.app }}:latest
+          cache-to: type=inline
 
   migrations:
     runs-on: ubuntu-latest
