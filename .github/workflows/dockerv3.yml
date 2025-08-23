@@ -70,9 +70,9 @@ jobs:
 #          restore-keys: |
 #            ${{ runner.os }}-node_modules-
 
-      - name: Install JavaScript dependencies
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        run: bun install --frozen-lockfile
+#      - name: Install JavaScript dependencies
+#        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+#        run: bun install --frozen-lockfile
 
       - name: Set up Go
         uses: actions/setup-go@v5
