@@ -62,15 +62,6 @@ jobs:
         with:
           bun-version-file: ".bun-version"
 
-#      - name: Cache node_modules
-#        id: cache-node_modules
-#        uses: actions/cache@v4
-#        with:
-#          path: node_modules
-#          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/bun.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-node_modules-
-
       - name: Install JavaScript dependencies
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun install --frozen-lockfile
@@ -84,17 +75,6 @@ jobs:
             go.work.sum
             **/go.sum
 
-      - name: Download dependencies for CLI
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        run: go mod download
-        working-directory: ./cli
-
-      - name: Download dependencies for app
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        run: go mod download
-        working-directory: ./${{ env.folder }}/${{ env.app }}
-        continue-on-error: true
-
       - name: Install binaries dependencies
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun cli deps -skip-node -skip-go
@@ -106,14 +86,9 @@ jobs:
               bun cli build gql
           fi
 
-      - name: Test build without own cli
-        run: go build -ldflags="-s -w"  ./${{ env.folder }}/${{ env.app }}/cmd/main.go
-        continue-on-error: true
-
       - name: Build application
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun cli build app ${{ env.app }}
-
 
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
