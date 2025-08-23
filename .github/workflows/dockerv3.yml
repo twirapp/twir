@@ -80,7 +80,7 @@ jobs:
         run: echo "run-build=${{ steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true' }}" >> $GITHUB_ENV
 
       - uses: oven-sh/setup-bun@v2
-        if: ${{ matrix.folders.runtime == 'js' && env.run-build == 'true' }}
+        if: ${{ env.run-build == 'true' }}
         with:
           bun-version-file: ".bun-version"
 
