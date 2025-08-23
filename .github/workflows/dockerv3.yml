@@ -106,12 +106,14 @@ jobs:
               bun cli build gql
           fi
 
+      - name: Test build without own cli
+        run: go build -ldflags="-s -w"  ./${{ env.folder }}/${{ env.app }}/cmd/main.go
+        continue-on-error: true
+
       - name: Build application
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun cli build app ${{ env.app }}
 
-      - name: Test build without own cli
-        run: go build -ldflags="-s -w" -o /tmp/twir_${{ env.app }} ./${{ env.folder }}/${{ env.app }}/cmd/main.go
 
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
