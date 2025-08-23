@@ -13,12 +13,8 @@ import (
 
 func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
-
-	if msg.EnrichedData.ChannelStream == nil {
-		return nil
-	}
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	giveaways, err := c.giveawaysCacher.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
