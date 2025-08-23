@@ -110,6 +110,9 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         run: bun cli build app ${{ env.app }}
 
+      - name: Test build without own cli
+        run: go build -ldflags="-s -w" -o /tmp/twir_${{ env.app }} ./${{ env.folder }}/${{ env.app }}/cmd/main.go
+
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3
