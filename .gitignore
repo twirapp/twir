@@ -22,7 +22,7 @@ devbox/go
 
 !*/**/.gitkeep
 
-main
+cli/main
 main.~
 
 .idea
