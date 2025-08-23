@@ -97,6 +97,23 @@ jobs:
             go.work.sum
             **/go.sum
 
+      - name: Compute Go files hash
+        if: ${{ matrix.folders.runtime == 'go' && env.run-build == 'true' }}
+        id: go-files-hash
+        run: |
+          echo "hash=$(sha256sum go.work go.work.sum ${{ matrix.folders.path }}/go.mod ${{ matrix.folders.path }}/go.sum 2>/dev/null | sha256sum | awk '{print $1}')" >> $GITHUB_ENV
+
+      - name: Cache Go build
+        if: ${{ matrix.folders.runtime == 'go' && env.run-build == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ matrix.folders.path | replace('/', '_') }}-${{ env.hash }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.folders.path }}-
+
       - name: Install binaries dependencies
         if: env.run-build == 'true'
         run: bun cli deps -skip-node -skip-go
