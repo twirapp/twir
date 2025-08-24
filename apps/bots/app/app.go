@@ -153,7 +153,7 @@ var App = fx.Module(
 		stream_handlers.New,
 		bus_listener.New,
 		func(l logger.Logger) {
-			l.Info("Bots started")
+			l.Info("🚀 Bots started")
 		},
 		mod_task_queue.NewRedisTaskProcessor,
 	),
