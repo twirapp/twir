@@ -5,19 +5,6 @@ import gqlcodegen from './modules/gql-codegen'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-console.log({
-	files: [
-		path.join(
-			path.dirname(require.resolve('@twir/frontend-faceit-stats')),
-			'**/*.{js,vue,ts}',
-		),
-		path.join(
-			path.dirname(require.resolve('@twir/frontend-valorant-stats')),
-			'**/*.{js,vue,ts}',
-		),
-	],
-})
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	compatibilityDate: '2024-04-03',
@@ -89,10 +76,6 @@ export default defineNuxtConfig({
 		config: {
 			content: {
 				files: [
-					path.join(
-						path.dirname(require.resolve('@twir/frontend-faceit-stats')),
-						'**/*.{js,vue,ts}',
-					),
 					path.join(
 						path.dirname(require.resolve('@twir/frontend-valorant-stats')),
 						'**/*.{js,vue,ts}',
