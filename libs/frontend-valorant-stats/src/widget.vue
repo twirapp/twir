@@ -53,6 +53,7 @@ const apiClient = computed(() => {
 
 	const apiClient = new Api(
 		new HttpClient({
+			baseUrl: `${window.location.origin}/api`,
 			baseApiParams: {
 				headers,
 			},
