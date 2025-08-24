@@ -143,23 +143,23 @@ const wins = computed(() => {
 })
 
 const matchesWinrate = computed(() => {
-	if (!stats.value?.matches || stats.value.matches.length === 0) return 0
+	if (!matches.value || matches.value.length === 0) return 0
 
-	return Math.round((wins.value / stats.value.matches.length) * 100)
+	return Math.round((wins.value / matches.value.length) * 100)
 })
 
 const avgKills = computed(() => {
-	if (!stats.value?.matches || stats.value.matches.length === 0) return 0
+	if (!matches.value || matches.value.length === 0) return 0
 
-	const totalKills = stats.value.matches.reduce((sum, match) => sum + match.stats.kills, 0)
-	return (totalKills / stats.value.matches.length).toFixed(1)
+	const totalKills = matches.value.reduce((sum, match) => sum + match.stats.kills, 0)
+	return (totalKills / matches.value.length).toFixed(1)
 })
 
 const headShots = computed(() => {
-	if (!stats.value?.matches || stats.value.matches.length === 0) return 0
+	if (!matches.value || matches.value.length === 0) return 0
 
-	const totalHeadshots = stats.value.matches.reduce((sum, match) => sum + match.stats.shots.head, 0)
-	const totalShots = stats.value.matches.reduce(
+	const totalHeadshots = matches.value.reduce((sum, match) => sum + match.stats.shots.head, 0)
+	const totalShots = matches.value.reduce(
 		(sum, match) => sum + match.stats.shots.head + match.stats.shots.body + match.stats.shots.leg,
 		0,
 	)
@@ -168,19 +168,19 @@ const headShots = computed(() => {
 })
 
 const avgKD = computed(() => {
-	if (!stats.value?.matches || stats.value.matches.length === 0) return 0
+	if (!matches.value || matches.value.length === 0) return 0
 
-	const totalKills = stats.value.matches.reduce((sum, match) => sum + match.stats.kills, 0)
-	const totalDeaths = stats.value.matches.reduce((sum, match) => sum + match.stats.deaths, 0)
+	const totalKills = matches.value.reduce((sum, match) => sum + match.stats.kills, 0)
+	const totalDeaths = matches.value.reduce((sum, match) => sum + match.stats.deaths, 0)
 	if (totalDeaths === 0) return totalKills.toFixed(2)
 	return (totalKills / totalDeaths).toFixed(2)
 })
 
 const avgKR = computed(() => {
-	if (!stats.value?.matches || stats.value.matches.length === 0) return 0
+	if (!matches.value || matches.value.length === 0) return 0
 
-	const totalKills = stats.value.matches.reduce((sum, match) => sum + match.stats.kills, 0)
-	const totalRounds = stats.value.matches.reduce(
+	const totalKills = matches.value.reduce((sum, match) => sum + match.stats.kills, 0)
+	const totalRounds = matches.value.reduce(
 		(sum, match) => sum + (match.teams.red + match.teams.blue),
 		0,
 	)
