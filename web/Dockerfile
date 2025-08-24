@@ -15,6 +15,7 @@ COPY package.json bun.lock bunfig.toml .npmrc tsconfig.base.json ./
 COPY libs/brand ./libs/brand
 COPY libs/config ./libs/config
 COPY libs/api ./libs/api
+COPY libs/frontend-valorant-stats ./libs/frontend-valorant-stats
 COPY web ./web
 COPY apps/api-gql/internal/delivery/gql/schema ./apps/api-gql/internal/delivery/gql/schema
 
