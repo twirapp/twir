@@ -83,6 +83,17 @@
 		--border:240 3.7% 15.9%;
 		--input:240 3.7% 15.9%;
 		--ring:240 4.9% 83.9%;
+
+		--switch: oklch(0% 0 0 / 1);
+    --switch-foreground: oklch(95% 0 0 / 0.3);
+
+    --switch-checked: oklch(95% 0 0 / 1);
+    --switch-checked-foreground: oklch(0% 0 0);
+
+		--color-switch: var(--switch);
+		--color-switch-foreground: var(--switch-foreground);
+		--color-switch-checked: var(--switch-checked);
+		--color-switch-checked-foreground: var(--switch-checked-foreground);
 	}
 
 	::-webkit-scrollbar {

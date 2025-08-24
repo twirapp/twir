@@ -13,8 +13,10 @@ import (
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	channelsfilesroute "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/channels/channels_files"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/integrations/valorant"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/stream"
 	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
@@ -66,6 +68,7 @@ import (
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	valorantintegrationservice "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
@@ -84,6 +87,8 @@ import (
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
+	cfg "github.com/twirapp/twir/libs/config"
+	valorantintegration "github.com/twirapp/twir/libs/integrations/valorant"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
@@ -96,6 +101,8 @@ import (
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	channelsintegrationsvalorant "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant"
+	channelsintegrationsvalorantpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant/datasources/postgres"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -120,6 +127,8 @@ import (
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	shortenedurlsrepositorypostgres "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -349,9 +358,20 @@ func main() {
 				tokensrepositorypgx.NewFx,
 				fx.As(new(tokensrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsintegrationsvalorantpostgres.NewFx,
+				fx.As(new(channelsintegrationsvalorant.Repository)),
+			),
+			fx.Annotate(
+				streamsrepositorypostgres.NewFx,
+				fx.As(new(streamsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
+			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
+				return valorantintegration.NewHenrikApiClient(c.ValorantHenrikApiKey)
+			},
 			executron.New,
 			dashboard_widget_events.New,
 			variables.New,
@@ -396,6 +416,7 @@ func main() {
 			events.New,
 			twir_events.New,
 			donatepay_integration.New,
+			valorantintegrationservice.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -444,6 +465,8 @@ func main() {
 			shortlinks.New,
 			pastebins.New,
 			channelsfilesroute.New,
+			valorant.New,
+			stream.New,
 		),
 	).Run()
 }

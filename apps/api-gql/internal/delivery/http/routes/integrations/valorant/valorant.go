@@ -1,0 +1,130 @@
+package valorant
+
+import (
+	"context"
+	"net/http"
+	"time"
+
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/goccy/go-json"
+	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
+	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/integrations/valorant"
+	"go.uber.org/fx"
+	"golang.org/x/sync/errgroup"
+)
+
+type Opts struct {
+	fx.In
+
+	Api      huma.API
+	Config   config.Config
+	Sessions *auth.Auth
+	Service  *valorantintegration.Service
+	Redis    *redis.Client
+}
+
+func New(opts Opts) {
+	huma.Register(
+		opts.Api,
+		huma.Operation{
+			OperationID: "integrations-valorant-stats",
+			Summary:     "Get valorant stats data",
+			Description: "Requires api-key header.",
+			Method:      http.MethodGet,
+			Tags:        []string{"Valorant"},
+			Path:        "/v1/integrations/valorant/stats",
+			Security: []map[string][]string{
+				{"api-key": {}},
+			},
+		},
+		func(
+			ctx context.Context,
+			input *struct{},
+		) (*httpdelivery.BaseOutputJson[integrationsValorantStatsOutput], error) {
+			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			if user == nil || err != nil {
+				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
+			}
+
+			var output *integrationsValorantStatsOutput
+			if cachedBytes, _ := opts.Redis.Get(
+				ctx,
+				"valorant_stats_"+user.ID,
+			).Bytes(); cachedBytes != nil {
+				if err := json.Unmarshal(cachedBytes, &output); err != nil {
+					return nil, huma.NewError(
+						http.StatusInternalServerError,
+						"Failed to get cached valorant stats",
+						err,
+					)
+				}
+
+				return httpdelivery.CreateBaseOutputJson(*output), nil
+			}
+
+			wg, wgCtx := errgroup.WithContext(ctx)
+			var (
+				matches []valorant.StoredMatchesResponseMatch
+				mmr     *valorant.MmrResponseData
+			)
+
+			wg.Go(
+				func() error {
+					m, err := opts.Service.GetChannelStoredMatchesByChannelID(ctx, user.ID)
+					if err != nil {
+						return err
+					}
+					matches = m.Data
+					return nil
+				},
+			)
+
+			wg.Go(
+				func() error {
+					m, err := opts.Service.GetChannelMmr(wgCtx, user.ID)
+					if err != nil {
+						return err
+					}
+					mmr = m.Data
+					return nil
+				},
+			)
+
+			if err := wg.Wait(); err != nil {
+				return nil, err
+			}
+
+			output = &integrationsValorantStatsOutput{
+				Matches: matches,
+				MMR:     mmr,
+			}
+
+			bytes, err := json.Marshal(output)
+			if err == nil {
+				if err := opts.Redis.Set(
+					ctx,
+					"valorant_stats_"+user.ID,
+					bytes,
+					10*time.Second,
+				).Err(); err != nil {
+					return nil, huma.NewError(
+						http.StatusInternalServerError,
+						"Failed to cache valorant stats",
+						err,
+					)
+				}
+			}
+
+			return httpdelivery.CreateBaseOutputJson(*output), nil
+		},
+	)
+}
+
+type integrationsValorantStatsOutput struct {
+	Matches []valorant.StoredMatchesResponseMatch `json:"matches"`
+	MMR     *valorant.MmrResponseData             `json:"mmr"`
+}

@@ -24,3 +24,7 @@ type Stream struct {
 }
 
 var Nil = Stream{}
+
+func (c Stream) IsNil() bool {
+	return c.ID == ""
+}

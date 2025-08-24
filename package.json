@@ -1,58 +1,61 @@
 {
-  "name": "twir",
-  "author": "Satont <satontworldwide@gmail.com>",
-  "devDependencies": {
-    "@antfu/eslint-config": "2.14.0",
-    "@prettier/plugin-oxc": "0.0.4",
-    "@types/bun": "catalog:",
-    "@types/node": "20.12.7",
-    "@vue/language-server": "3.0.5",
-    "eslint-plugin-oxlint": "1.5.0",
-    "oxlint": "1.5.0",
-    "prettier": "3.6.2",
-    "rimraf": "5.0.5",
-    "typescript": "catalog:"
-  },
-  "engines": {
-    "bun": ">=1.2.20"
-  },
-  "private": true,
-  "scripts": {
-    "dev": "bun run cli dev",
-    "build": "bun run cli build",
-    "cli": "go run ./cli/main.go",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
-  },
-  "trustedDependencies": [
-    "@parcel/watcher",
-    "@twir/web",
-    "core-js",
-    "esbuild",
-    "protobufjs",
-    "sharp",
-    "vue-demi"
-  ],
-  "type": "module",
-  "workspaces": {
-    "packages": [
-      "libs/*",
-      "apps/*",
-      "frontend/*",
-      "web"
-    ],
-    "catalog": {
-      "vue": "3.5.13",
-      "vue-router": "4.3.0",
-      "vue-tsc": "3.0.1",
-      "vite": "5.4.6",
-      "typescript": "5.8.2",
-      "graphql": "16.10.0",
-      "graphql-ws": "6.0.4",
-      "@types/bun": "1.2.15",
-      "@vueuse/components": "13.3.0",
-      "@vueuse/core": "13.3.0",
-      "@vueuse/router": "13.3.0"
-    }
-  }
+	"name": "twir",
+	"author": "Satont <satontworldwide@gmail.com>",
+	"devDependencies": {
+		"@antfu/eslint-config": "2.14.0",
+		"@prettier/plugin-oxc": "0.0.4",
+		"@types/bun": "catalog:",
+		"@types/node": "20.12.7",
+		"@vue/language-server": "3.0.5",
+		"eslint-plugin-oxlint": "1.5.0",
+		"oxlint": "1.5.0",
+		"prettier": "3.6.2",
+		"rimraf": "5.0.5",
+		"typescript": "catalog:"
+	},
+	"engines": {
+		"bun": ">=1.2.20"
+	},
+	"private": true,
+	"scripts": {
+		"dev": "bun run cli dev",
+		"build": "bun run cli build",
+		"cli": "go run ./cli/main.go",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix"
+	},
+	"trustedDependencies": [
+		"@parcel/watcher",
+		"@twir/web",
+		"core-js",
+		"esbuild",
+		"protobufjs",
+		"sharp",
+		"vue-demi"
+	],
+	"type": "module",
+	"workspaces": {
+		"packages": [
+			"libs/*",
+			"apps/*",
+			"frontend/*",
+			"web"
+		],
+		"catalog": {
+			"vue": "3.5.19",
+			"vue-router": "4.3.0",
+			"vue-tsc": "3.0.6",
+			"vite": "5.4.6",
+			"typescript": "5.9.2",
+			"graphql": "16.10.0",
+			"graphql-ws": "6.0.4",
+			"@types/bun": "1.2.20",
+			"@vueuse/components": "13.3.0",
+			"@vueuse/core": "13.3.0",
+			"@vueuse/router": "13.3.0",
+      "@graphql-codegen/cli": "5.0.5",
+      "@graphql-codegen/client-preset": "4.6.4",
+      "@graphql-typed-document-node/core": "3.2.0"
+		}
+	}
 }

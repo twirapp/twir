@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import containerQueries from '@tailwindcss/container-queries'
 import animate from 'tailwindcss-animate'
 
@@ -11,6 +13,14 @@ export default {
 		'./components/**/*.{ts,tsx,vue}',
 		'./app/**/*.{ts,tsx,vue}',
 		'./src/**/*.{ts,tsx,vue}',
+		path.join(
+			path.dirname(require.resolve('@twir/frontend-faceit-stats')),
+			'**/*.{js,vue,ts}',
+		),
+		path.join(
+			path.dirname(require.resolve('@twir/frontend-valorant-stats')),
+			'**/*.{js,vue,ts}',
+		),
 	],
 
 	theme: {

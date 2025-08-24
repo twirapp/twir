@@ -32,9 +32,9 @@
     "vue-router": "catalog:"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "5.0.2",
-    "@graphql-codegen/client-preset": "4.2.5",
-    "@graphql-typed-document-node/core": "3.2.0",
+    "@graphql-codegen/cli": "catalog:",
+    "@graphql-codegen/client-preset": "catalog:",
+    "@graphql-typed-document-node/core": "catalog:",
     "@twir/types": "workspace:*",
     "@types/tmi.js": "1.8.6",
     "@vitejs/plugin-vue": "5.0.4",

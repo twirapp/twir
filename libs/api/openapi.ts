@@ -42,6 +42,24 @@ export interface BaseOutputBodyJsonAuthResponseDto {
   data: AuthResponseDto;
 }
 
+export interface BaseOutputBodyJsonIntegrationsValorantStatsOutput {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: IntegrationsValorantStatsOutput;
+}
+
+export interface BaseOutputBodyJsonStream {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: Stream;
+}
+
 export interface CommandDto {
   description: string | null;
   group: string | null;
@@ -67,6 +85,12 @@ export interface CreateLinkInputDto {
    * @pattern ^https?://.*
    */
   url: string;
+}
+
+export interface EndTierStruct {
+  /** @format int64 */
+  id: number;
+  name: string;
 }
 
 export interface ErrorDetail {
@@ -119,6 +143,30 @@ export interface GetManyOutputDto {
   total: number;
 }
 
+export interface IntegrationsValorantStatsOutput {
+  matches: StoredMatchesResponseMatch[];
+  mmr: MmrResponseData;
+}
+
+export interface Item {
+  act_wins: Item[];
+  end_tier: EndTierStruct;
+  /** @format int64 */
+  games: number;
+  leaderboard_placement: LeaderboardPlacementStruct;
+  ranking_schema: string;
+  season: SeasonStruct;
+  /** @format int64 */
+  wins: number;
+}
+
+export interface LeaderboardPlacementStruct {
+  /** @format int64 */
+  rank: number;
+  /** @format date-time */
+  updated_at: string;
+}
+
 export interface LinkOutputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -130,6 +178,43 @@ export interface LinkOutputDto {
   url: string;
   /** @format int64 */
   views: number;
+}
+
+export interface MapStruct {
+  id: string;
+  name: string;
+}
+
+export interface MmrResponseData {
+  account: MmrResponseDataAccountStruct;
+  current: MmrResponseDataCurrentStruct;
+  peak: MmrResponseDataPeakStruct;
+  seasonal: Item[];
+}
+
+export interface MmrResponseDataAccountStruct {
+  name: string;
+  puuid: string;
+  tag: string;
+}
+
+export interface MmrResponseDataCurrentStruct {
+  /** @format int64 */
+  elo: number;
+  /** @format int64 */
+  games_needed_for_rating: number;
+  /** @format int64 */
+  last_change: number;
+  leaderboard_placement: LeaderboardPlacementStruct;
+  /** @format int64 */
+  rr: number;
+  tier: TierStruct;
+}
+
+export interface MmrResponseDataPeakStruct {
+  ranking_schema: string;
+  season: SeasonStruct;
+  tier: TierStruct;
 }
 
 export interface PasteBinCreateDto {
@@ -160,6 +245,104 @@ export interface PasteBinOutputDto {
   expire_at: string | null;
   id: string;
   owner_user_id: string | null;
+}
+
+export interface SeasonStruct {
+  id: string;
+  short: string;
+}
+
+export interface StoredMatchesResponseMatch {
+  meta: StoredMatchesResponseMatchMetaStruct;
+  stats: StoredMatchesResponseMatchStats;
+  teams: StoredMatchesResponseMatchTeamsStruct;
+}
+
+export interface StoredMatchesResponseMatchMetaStruct {
+  cluster: string;
+  id: string;
+  map: MapStruct;
+  mode: string;
+  region: string;
+  season: SeasonStruct;
+  /** @format date-time */
+  started_at: string;
+  version: string;
+}
+
+export interface StoredMatchesResponseMatchStats {
+  /** @format int64 */
+  assists: number;
+  character: StoredMatchesResponseMatchStatsCharacterStruct;
+  damage: StoredMatchesResponseMatchStatsDamageStruct;
+  /** @format int64 */
+  deaths: number;
+  /** @format int64 */
+  kills: number;
+  /** @format int64 */
+  level: number;
+  puuid: string;
+  /** @format int64 */
+  score: number;
+  shots: StoredMatchesResponseMatchStatsShotsStruct;
+  team: string;
+  /** @format int64 */
+  tier: number;
+}
+
+export interface StoredMatchesResponseMatchStatsCharacterStruct {
+  id: string;
+  name: string;
+}
+
+export interface StoredMatchesResponseMatchStatsDamageStruct {
+  /** @format int64 */
+  dealt: number;
+  /** @format int64 */
+  received: number;
+}
+
+export interface StoredMatchesResponseMatchStatsShotsStruct {
+  /** @format int64 */
+  body: number;
+  /** @format int64 */
+  head: number;
+  /** @format int64 */
+  leg: number;
+}
+
+export interface StoredMatchesResponseMatchTeamsStruct {
+  /** @format int64 */
+  blue: number;
+  /** @format int64 */
+  red: number;
+}
+
+export interface Stream {
+  CommunityIds: string[];
+  GameId: string;
+  GameName: string;
+  ID: string;
+  IsMature: boolean;
+  Language: string;
+  /** @format date-time */
+  StartedAt: string;
+  TagIds: string[];
+  Tags: string[];
+  ThumbnailUrl: string;
+  Title: string;
+  Type: string;
+  UserId: string;
+  UserLogin: string;
+  UserName: string;
+  /** @format int64 */
+  ViewerCount: number;
+}
+
+export interface TierStruct {
+  /** @format int64 */
+  id: number;
+  name: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -407,6 +590,26 @@ export class Api<SecurityDataType extends unknown> {
   };
   v1 = {
     /**
+     * @description Get current stream
+     *
+     * @tags Streams
+     * @name ChannelsStreamsCurrent
+     * @summary Get current stream
+     * @request GET:/v1/channels/streams/current
+     * @secure
+     * @response `200` `BaseOutputBodyJsonStream` OK
+     * @response `404` `void` No current stream
+     */
+    channelsStreamsCurrent: (params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonStream, void>({
+        path: `/v1/channels/streams/current`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Get file content by id
      *
      * @tags Files
@@ -420,6 +623,26 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<File, any>({
         path: `/v1/channels/${channelId}/files/content/${fileId}`,
         method: "GET",
+        ...params,
+      }),
+
+    /**
+     * @description Requires api-key header.
+     *
+     * @tags Valorant
+     * @name IntegrationsValorantStats
+     * @summary Get valorant stats data
+     * @request GET:/v1/integrations/valorant/stats
+     * @secure
+     * @response `200` `BaseOutputBodyJsonIntegrationsValorantStatsOutput` OK
+     * @response `default` `ErrorModel` Error
+     */
+    integrationsValorantStats: (params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonIntegrationsValorantStatsOutput, any>({
+        path: `/v1/integrations/valorant/stats`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 

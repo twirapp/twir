@@ -75,7 +75,7 @@ export function useTtsOverlayManager() {
 
 				const source = audioContext.createBufferSource()
 
-				source.buffer = await audioContext.decodeAudioData(req.response.file.buffer)
+				source.buffer = await audioContext.decodeAudioData(req.response.file.buffer as ArrayBuffer)
 
 				gainNode.gain.value = opts.volume / 100
 				source.connect(gainNode)

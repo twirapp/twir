@@ -1,23 +1,13 @@
 <script setup lang="ts">
 import { IconSettings, IconTrash } from '@tabler/icons-vue'
 import { SquarePen } from 'lucide-vue-next'
-import {
-	NAlert,
-	NButton,
-	NCard,
-	NGrid,
-	NGridItem,
-	NPopconfirm,
-	NTag,
-	useNotification,
-} from 'naive-ui'
+import { NAlert, NButton, NCard, NPopconfirm, NTag, useNotification } from 'naive-ui'
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { useOverlaysRegistry, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
 import Card from '@/components/card/card.vue'
-import { responsiveCols } from '@/components/consants.js'
 import Brb from '@/components/overlays/brb.vue'
 import Chat from '@/components/overlays/chat.vue'
 import Dudes from '@/components/overlays/dudes.vue'
@@ -27,6 +17,7 @@ import OBS from '@/components/overlays/obs.vue'
 import TTS from '@/components/overlays/tts.vue'
 import { convertOverlayLayerTypeToText } from '@/components/registry/overlays/helpers.js'
 import FaceitStats from '@/features/overlays/faceit-stats/ui/card.vue'
+import ValorantStats from '@/features/overlays/valorant-stats/ui/card.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 import { copyToClipBoard } from '@/helpers/index.js'
 
@@ -66,33 +57,36 @@ function editCustomOverlay(id?: string) {
 
 <template>
 	<div class="flex items-center justify-center max-w-[60vw] mx-auto my-0">
-		<NGrid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
-			<NGridItem :span="1">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+			<div>
 				<FaceitStats />
-			</NGridItem>
-			<NGridItem :span="1">
+			</div>
+			<div>
+				<ValorantStats />
+			</div>
+			<div>
 				<NowPlaying />
-			</NGridItem>
-			<NGridItem :span="1">
+			</div>
+			<div>
 				<TTS />
-			</NGridItem>
-			<NGridItem :span="1">
+			</div>
+			<div>
 				<OBS />
-			</NGridItem>
-			<NGridItem :span="1">
+			</div>
+			<div>
 				<Chat />
-			</NGridItem>
-			<NGridItem :span="1">
+			</div>
+			<div>
 				<Kappagen />
-			</NGridItem>
-			<NGridItem :span="1">
+			</div>
+			<div>
 				<Dudes />
-			</NGridItem>
-			<NGridItem :span="1">
+			</div>
+			<div>
 				<Brb />
-			</NGridItem>
+			</div>
 
-			<NGridItem v-for="overlay of customOverlays?.overlays" :key="overlay.id" :span="1">
+			<div v-for="overlay of customOverlays?.overlays" :key="overlay.id" :span="1">
 				<Card :title="overlay.name" style="height: 100%">
 					<template #content>
 						<div v-if="overlay.layers.length" class="flex gap-1 flex-wrap">
@@ -144,9 +138,9 @@ function editCustomOverlay(id?: string) {
 						</div>
 					</template>
 				</Card>
-			</NGridItem>
+			</div>
 
-			<NGridItem :span="1">
+			<div>
 				<NCard
 					class="h-full"
 					:style="{ cursor: userCanManageOverlays ? 'pointer' : 'not-allowed' }"
@@ -157,7 +151,7 @@ function editCustomOverlay(id?: string) {
 						<SquarePen class="size-16" />
 					</div>
 				</NCard>
-			</NGridItem>
-		</NGrid>
+			</div>
+		</div>
 	</div>
 </template>

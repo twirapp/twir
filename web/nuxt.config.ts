@@ -72,6 +72,23 @@ export default defineNuxtConfig({
 		componentDir: './app/components/ui',
 	},
 
+	tailwindcss: {
+		config: {
+			content: {
+				files: [
+					path.join(
+						path.dirname(require.resolve('@twir/frontend-faceit-stats')),
+						'**/*.{js,vue,ts}'
+					),
+					path.join(
+						path.dirname(require.resolve('@twir/frontend-valorant-stats')),
+						'**/*.{js,vue,ts}'
+					),
+				],
+			},
+		},
+	},
+
 	imports: {
 		imports: [
 			{
@@ -90,10 +107,11 @@ export default defineNuxtConfig({
 		endpoint: `/api/query`,
 		client: path.join(process.cwd(), 'urql.ts'),
 		ssr: {
-			endpoint: process.env.NODE_ENV !== 'production'
-				// ? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
-				? 'http://localhost:3009/query'
-				: 'http://api-gql:3009/query',
+			endpoint:
+				process.env.NODE_ENV !== 'production'
+					? // ? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
+						'http://localhost:3009/query'
+					: 'http://api-gql:3009/query',
 		},
 	},
 

@@ -121,6 +121,7 @@ const links = computed(() => {
 			icon: Blend,
 			disabled: !canViewOverlays.value,
 			path: '/dashboard/overlays',
+			isNew: true,
 		},
 		{
 			name: t('sidebar.songRequests'),

@@ -180,9 +180,17 @@ export function newRouter() {
 					},
 				},
 				{
-					name: 'FaceitStatuOverlay',
+					name: 'FaceitStatsOverlay',
 					path: '/dashboard/overlays/faceit-stats',
 					component: () => import('../features/overlays/faceit-stats/builder.vue'),
+					meta: {
+						noPadding: true,
+					},
+				},
+				{
+					name: 'ValorantStatsOverlay',
+					path: '/dashboard/overlays/valorant-stats',
+					component: () => import('../features/overlays/valorant-stats/builder.vue'),
 					meta: {
 						noPadding: true,
 					},
