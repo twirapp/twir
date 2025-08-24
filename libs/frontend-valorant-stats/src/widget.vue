@@ -15,7 +15,7 @@ import {
 	TrendingDown,
 	TrendingUp,
 } from 'lucide-vue-next'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 
 import type { Settings } from './types'
 
@@ -45,25 +45,29 @@ const props = withDefaults(
 	},
 )
 
-const headers: HeadersInit = {}
-if (props.apiKey) {
-	headers['api-key'] = props.apiKey
-}
+const apiClient = computed(() => {
+	const headers: HeadersInit = {}
+	if (props.apiKey) {
+		headers['api-key'] = props.apiKey
+	}
 
-const apiClient = new Api(
-	new HttpClient({
-		baseApiParams: {
-			headers,
-		},
-	}),
-)
+	const apiClient = new Api(
+		new HttpClient({
+			baseApiParams: {
+				headers,
+			},
+		}),
+	)
+
+	return apiClient
+})
 
 const stats = ref<IntegrationsValorantStatsOutput | undefined>()
 const streamData = ref<Stream | undefined>()
 
 async function fetchStats() {
 	try {
-		const response = await apiClient.v1.integrationsValorantStats()
+		const response = await apiClient.value.v1.integrationsValorantStats()
 
 		if (!response.ok) {
 			console.error('Error response from API:', response.error)
@@ -77,7 +81,7 @@ async function fetchStats() {
 
 async function fetchStream() {
 	try {
-		const response = await apiClient.v1.channelsStreamsCurrent()
+		const response = await apiClient.value.v1.channelsStreamsCurrent()
 		if (!response.ok) {
 			console.error('Error response from API:', response.error)
 			return
@@ -89,7 +93,8 @@ async function fetchStream() {
 	}
 }
 
-onMounted(() => {
+onMounted(async () => {
+	await nextTick()
 	fetchStats()
 	fetchStream()
 })
