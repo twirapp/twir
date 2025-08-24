@@ -6,6 +6,7 @@ COPY package.json bun.lock bunfig.toml .npmrc tsconfig.base.json ./
 COPY libs/brand/package.json ./libs/brand/package.json
 COPY libs/config/package.json ./libs/config/package.json
 COPY libs/api/package.json ./libs/api/package.json
+COPY libs/frontend-valorant-stats ./libs/frontend-valorant-stats
 COPY web/package.json ./web/package.json
 RUN bun install --no-save
 
