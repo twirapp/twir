@@ -48,7 +48,12 @@ func New(opts Opts) {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
 
-			stream, err := opts.StreamsRepository.GetByChannelID(ctx, user.ID)
+			selectedDashboardID, err := opts.Sessions.GetSelectedDashboard(ctx)
+			if err != nil {
+				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
+			}
+
+			stream, err := opts.StreamsRepository.GetByChannelID(ctx, selectedDashboardID)
 			if err != nil {
 				return nil, huma.NewError(http.StatusInternalServerError, "Cannot get stream", err)
 			}
