@@ -115,7 +115,7 @@ watchDebounced(
 useIntervalFn(async () => {
 	await fetchStream()
 	await fetchStats()
-}, 10 * 1000)
+}, 1 * 1000)
 
 const matches = computed(() => {
 	if (!stats.value?.matches) return []
