@@ -82,7 +82,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         if: ${{ env.run-build == 'true' }}
         with:
-          bun-version-file: ".bun-version"
+          bun-version-file: .bun-version
 
       - name: Install JavaScript dependencies
         if: ${{ matrix.folders.runtime == 'js' && env.run-build == 'true' }}
@@ -92,7 +92,7 @@ jobs:
         if: env.run-build == 'true'
         uses: actions/setup-go@v5
         with:
-          go-version-file: './go.work'
+          go-version-file: ./go.work
           cache-dependency-path: |
             go.work.sum
             **/go.sum
@@ -182,8 +182,8 @@ jobs:
           push: true
           tags: |
             registry.twir.app/twirapp/migrations:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=registry.twir.app/twirapp/migrations:latest
+          cache-to: type=inline
 
   web:
     runs-on: ubuntu-latest
@@ -220,6 +220,5 @@ jobs:
           push: true
           tags: |
             registry.twir.app/twirapp/web:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
+          cache-from: type=registry,ref=registry.twir.app/twirapp/web:latest
+          cache-to: type=inline
