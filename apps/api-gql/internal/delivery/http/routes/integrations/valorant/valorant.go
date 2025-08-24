@@ -50,10 +50,15 @@ func New(opts Opts) {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
 
+			selectedDashboardId, err := opts.Sessions.GetSelectedDashboard(ctx)
+			if err != nil {
+				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
+			}
+
 			var output *integrationsValorantStatsOutput
 			if cachedBytes, _ := opts.Redis.Get(
 				ctx,
-				"valorant_stats_"+user.ID,
+				"valorant_stats_"+selectedDashboardId,
 			).Bytes(); cachedBytes != nil {
 				if err := json.Unmarshal(cachedBytes, &output); err != nil {
 					return nil, huma.NewError(
@@ -74,7 +79,7 @@ func New(opts Opts) {
 
 			wg.Go(
 				func() error {
-					m, err := opts.Service.GetChannelStoredMatchesByChannelID(ctx, user.ID)
+					m, err := opts.Service.GetChannelStoredMatchesByChannelID(ctx, selectedDashboardId)
 					if err != nil {
 						return err
 					}
@@ -85,7 +90,7 @@ func New(opts Opts) {
 
 			wg.Go(
 				func() error {
-					m, err := opts.Service.GetChannelMmr(wgCtx, user.ID)
+					m, err := opts.Service.GetChannelMmr(wgCtx, selectedDashboardId)
 					if err != nil {
 						return err
 					}
@@ -107,7 +112,7 @@ func New(opts Opts) {
 			if err == nil {
 				if err := opts.Redis.Set(
 					ctx,
-					"valorant_stats_"+user.ID,
+					"valorant_stats_"+selectedDashboardId,
 					bytes,
 					10*time.Second,
 				).Err(); err != nil {
