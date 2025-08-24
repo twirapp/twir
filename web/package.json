@@ -23,6 +23,7 @@
 		"@tanstack/vue-table": "8.21.2",
 		"@twir/api": "workspace:*",
 		"@twir/brand": "workspace:*",
+    "@twir/frontend-valorant-stats": "workspace:*",
 		"@urql/core": "5.1.1",
 		"@urql/vue": "1.4.3",
 		"class-variance-authority": "0.7.1",

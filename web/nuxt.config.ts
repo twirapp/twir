@@ -5,6 +5,19 @@ import gqlcodegen from './modules/gql-codegen'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
+console.log({
+	files: [
+		path.join(
+			path.dirname(require.resolve('@twir/frontend-faceit-stats')),
+			'**/*.{js,vue,ts}',
+		),
+		path.join(
+			path.dirname(require.resolve('@twir/frontend-valorant-stats')),
+			'**/*.{js,vue,ts}',
+		),
+	],
+})
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	compatibilityDate: '2024-04-03',
@@ -78,11 +91,11 @@ export default defineNuxtConfig({
 				files: [
 					path.join(
 						path.dirname(require.resolve('@twir/frontend-faceit-stats')),
-						'**/*.{js,vue,ts}'
+						'**/*.{js,vue,ts}',
 					),
 					path.join(
 						path.dirname(require.resolve('@twir/frontend-valorant-stats')),
-						'**/*.{js,vue,ts}'
+						'**/*.{js,vue,ts}',
 					),
 				],
 			},
@@ -110,7 +123,7 @@ export default defineNuxtConfig({
 			endpoint:
 				process.env.NODE_ENV !== 'production'
 					? // ? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
-						'http://localhost:3009/query'
+					'http://localhost:3009/query'
 					: 'http://api-gql:3009/query',
 		},
 	},
