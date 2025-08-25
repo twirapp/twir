@@ -26,7 +26,7 @@ function updateValue() {
 		:id="id"
 		type="button"
 		:aria-checked="modelValue"
-		class="inline-flex h-8 cursor-pointer min-w-24 items-center justify-between rounded-md border border-white/10 p-1 font-mono text-sm transition-all duration-200 hover:border-white/15 hover:bg-white/5"
+		class="inline-flex h-9 cursor-pointer min-w-24 items-center justify-between rounded-md border border-white/10 p-1 text-xs transition-all duration-200 hover:border-white/15 hover:bg-white/5"
 		:disabled="disabled"
 		:style="{ opacity: disabled ? '0.5' : '1' }"
 		@click="updateValue"
