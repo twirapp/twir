@@ -3,12 +3,14 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/redis/go-redis/v9"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -217,7 +219,7 @@ func (c *Handler) HandleChannelChatMessage(
 	}
 
 	if err := c.twirBus.ChatMessages.Publish(ctx, data); err != nil {
-		c.logger.Error("cannot handle message", slog.Any("err", err))
+		c.logger.Error("cannot publish message for handle", slog.Any("err", err))
 	}
 
 	isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
@@ -226,7 +228,7 @@ func (c *Handler) HandleChannelChatMessage(
 		return
 	} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
 		if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
-			c.logger.Error("cannot process command", slog.Any("err", err))
+			c.logger.Error("cannot publish process command", slog.Any("err", err))
 		}
 	}
 }
@@ -380,6 +382,24 @@ func (c *Handler) chatMessageGetChannelCommandPrefix(ctx context.Context, channe
 
 	if fetchedCommandsPrefix != channelscommandsprefixmodel.Nil {
 		commandsPrefix = fetchedCommandsPrefix.Prefix
+	} else {
+		prefixCtx := context.WithoutCancel(ctx)
+
+		go func() {
+			if err := c.prefixCache.SetValue(
+				prefixCtx,
+				channelId,
+				channelscommandsprefixmodel.ChannelsCommandsPrefix{
+					ID:        uuid.New(),
+					ChannelID: channelId,
+					Prefix:    commandsPrefix,
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			); err != nil {
+				c.logger.Error("cannot set default command prefix", slog.Any("err", err))
+			}
+		}()
 	}
 
 	return commandsPrefix, nil
@@ -392,7 +412,7 @@ func (c *Handler) chatMessageGetChannelStream(
 	cacheKey := redis_keys.StreamByChannelID(channelId)
 	cachedBytes, err := c.redisClient.Get(ctx, cacheKey).Bytes()
 	if err != nil && !errors.Is(err, redis.Nil) {
-		return nil, err
+		return nil, fmt.Errorf("failed to get stream cache: %w", err)
 	}
 
 	if len(cachedBytes) > 0 {
@@ -406,7 +426,7 @@ func (c *Handler) chatMessageGetChannelStream(
 
 	stream, err := c.streamsrepository.GetByChannelID(ctx, channelId)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get stream by channel id: %w", err)
 	}
 
 	if stream.ID == "" {
@@ -415,11 +435,11 @@ func (c *Handler) chatMessageGetChannelStream(
 
 	streamBytes, err := json.Marshal(stream)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to marshal stream: %w", err)
 	}
 
-	if err := c.redisClient.Set(ctx, cacheKey, streamBytes, 30*time.Second); err != nil {
-
+	if err := c.redisClient.Set(ctx, cacheKey, streamBytes, 30*time.Second).Err(); err != nil {
+		return nil, fmt.Errorf("failed to set stream cache: %w", err)
 	}
 
 	return &stream, nil
