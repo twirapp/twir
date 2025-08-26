@@ -1,10 +1,13 @@
 package app
 
 import (
+	"fmt"
+
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/cache"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
@@ -19,6 +22,7 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
@@ -82,7 +86,16 @@ var App = fx.Options(
 			fx.As(new(twitchconduitsrepository.Repository)),
 		),
 		channelcache.New,
-		channelscommandsprefixcache.New,
+		func(
+			repo channelscommandsprefixrepository.Repository,
+		) (cache.Cache[model.ChannelsCommandsPrefix], error) {
+			c, err := channelscommandsprefixcache.NewInMemory(repo)
+			if err != nil {
+				return nil, fmt.Errorf("new in memory cache: %s", err)
+			}
+
+			return c, nil
+		},
 		channelalertscache.New,
 		commandscache.New,
 		channelsongrequestssettingscache.New,

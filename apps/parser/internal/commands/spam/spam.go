@@ -2,6 +2,7 @@ package spam
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/guregu/null"
@@ -9,8 +10,8 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/libs/cache"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 )
 
 const (
@@ -45,12 +46,15 @@ var Command = &types.DefaultCommand{
 		count := parseCtx.ArgsParser.Get(spamCountArgName).Int()
 		text := parseCtx.ArgsParser.Get(spamMessageArgName).String()
 
-		var commandsPrefix string
-		commandPrefixEntity, _ := parseCtx.Services.CommandsPrefixCache.Get(ctx, parseCtx.Channel.ID)
-		if commandPrefixEntity != channelscommandsprefixmodel.Nil {
-			commandsPrefix = commandPrefixEntity.Prefix
+		commandsPrefix := "!"
+
+		commandPrefixEntity, err := parseCtx.Services.CommandsPrefixCache.Get(ctx, parseCtx.Channel.ID)
+		if err != nil {
+			if !errors.Is(err, cache.ErrNotFound) {
+				return nil, err
+			}
 		} else {
-			commandsPrefix = "!"
+			commandsPrefix = commandPrefixEntity.Prefix
 		}
 
 		// if not command

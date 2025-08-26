@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
+	buslistener "github.com/twirapp/twir/apps/api-gql/internal/bus-listener"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
@@ -73,6 +76,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/cache"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
@@ -97,6 +101,7 @@ import (
 	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
+	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
@@ -372,6 +377,16 @@ func main() {
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
 				return valorantintegration.NewHenrikApiClient(c.ValorantHenrikApiKey)
 			},
+			func(
+				repo channelscommandsprefixrepository.Repository,
+			) (cache.Cache[model.ChannelsCommandsPrefix], error) {
+				c, err := channelscommandsprefixcache.NewInMemory(repo)
+				if err != nil {
+					return nil, fmt.Errorf("new in memory cache: %s", err)
+				}
+
+				return c, nil
+			},
 			executron.New,
 			dashboard_widget_events.New,
 			variables.New,
@@ -435,7 +450,6 @@ func main() {
 			minio.New,
 			twitchcache.New,
 			channelcache.New,
-			channelscommandsprefixcache.New,
 			greetingscache.New,
 			commandscache.New,
 			keywordscacher.New,
@@ -461,6 +475,7 @@ func main() {
 			gql.New,
 			publicroutes.New,
 			http_webhooks.New,
+			buslistener.New,
 			authroutes.New,
 			shortlinks.New,
 			pastebins.New,

@@ -3,15 +3,18 @@ package prefix
 import (
 	"context"
 	"errors"
+	"fmt"
 	"unicode/utf8"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	botssettings "github.com/twirapp/twir/libs/bus-core/bots-settings"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	"go.uber.org/zap"
 )
 
 const setPrefixArgName = "prefix"
@@ -60,8 +63,10 @@ var SetPrefix = &types.DefaultCommand{
 			}
 		}
 
+		var newPrefix channelscommandsprefixmodel.ChannelsCommandsPrefix
+
 		if currentPrefix == channelscommandsprefixmodel.Nil {
-			_, err = parseCtx.Services.CommandsPrefixRepository.Create(
+			newPrefix, err = parseCtx.Services.CommandsPrefixRepository.Create(
 				ctx,
 				channelscommandsprefixrepository.CreateInput{
 					ChannelID: parseCtx.Channel.ID,
@@ -75,7 +80,7 @@ var SetPrefix = &types.DefaultCommand{
 				}
 			}
 		} else {
-			_, err = parseCtx.Services.CommandsPrefixRepository.Update(
+			newPrefix, err = parseCtx.Services.CommandsPrefixRepository.Update(
 				ctx,
 				currentPrefix.ID,
 				channelscommandsprefixrepository.UpdateInput{
@@ -90,8 +95,28 @@ var SetPrefix = &types.DefaultCommand{
 			}
 		}
 
-		parseCtx.Services.CommandsPrefixCache.Invalidate(ctx, parseCtx.Channel.ID)
+		go func() {
+			if err = parseCtx.Services.Bus.BotsSettings.UpdatePrefix.Publish(
+				ctx, botssettings.UpdatePrefixRequest{
+					ID:        newPrefix.ID,
+					ChannelID: newPrefix.ChannelID,
+					Prefix:    newPrefix.Prefix,
+					CreatedAt: newPrefix.CreatedAt,
+					UpdatedAt: newPrefix.UpdatedAt,
+				},
+			); err != nil {
+				parseCtx.Services.Logger.Error(
+					"failed to publish channel command prefix update",
+					zap.String("channel_id", newPrefix.ChannelID),
+					zap.Any("error", err),
+				)
+			}
+		}()
 
-		return &types.CommandsHandlerResult{Result: []string{"Prefix updated"}}, nil
+		return &types.CommandsHandlerResult{
+			Result: []string{
+				fmt.Sprintf("Prefix successfully updated to \"%s\"", prefixArg.String()),
+			},
+		}, nil
 	},
 }

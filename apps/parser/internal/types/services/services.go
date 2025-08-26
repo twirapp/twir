@@ -8,12 +8,12 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/parser/internal/services/shortenedurls"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
-	cfg "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/types/types/api/modules"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/cache"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	cfg "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
@@ -28,6 +28,7 @@ import (
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -46,7 +47,7 @@ type Services struct {
 	Bus                        *buscore.Bus
 	TrmManager                 trm.Manager
 	CommandsCache              *generic_cacher.GenericCacher[[]model.ChannelsCommands]
-	CommandsPrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	CommandsPrefixCache        cache.Cache[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	SevenTvCache               *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser]
 	ChatWallCache              *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
 	ChatWallService            *chat_wall.Service

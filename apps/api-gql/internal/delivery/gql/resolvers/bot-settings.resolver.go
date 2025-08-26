@@ -9,12 +9,14 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 )
 
 // CommandsPrefixUpdate is the resolver for the commandsPrefixUpdate field.
-func (r *mutationResolver) CommandsPrefixUpdate(ctx context.Context, input gqlmodel.CommandsPrefixUpdateInput) (bool, error) {
+func (r *mutationResolver) CommandsPrefixUpdate(
+	ctx context.Context,
+	input gqlmodel.CommandsPrefixUpdateInput,
+) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -41,7 +43,7 @@ func (r *mutationResolver) CommandsPrefixReset(ctx context.Context) (bool, error
 		return false, err
 	}
 
-	if err = r.deps.ChannelsCommandsPrefix.Delete(ctx, dashboardID); err != nil {
+	if err = r.deps.ChannelsCommandsPrefix.Reset(ctx, dashboardID); err != nil {
 		return false, fmt.Errorf("cannot reset prefix: %w", err)
 	}
 
@@ -55,13 +57,9 @@ func (r *queryResolver) ChannelsCommandsPrefix(ctx context.Context) (string, err
 		return "", err
 	}
 
-	prefix, err := r.deps.ChannelsCommandsPrefix.GetByChannelID(ctx, dashboardID)
+	prefix, err := r.deps.ChannelsCommandsPrefix.GetOrCreateByChannelID(ctx, dashboardID)
 	if err != nil {
 		return "", fmt.Errorf("cannot get prefix: %w", err)
-	}
-
-	if prefix == entity.ChannelsCommandsPrefixNil {
-		return channels_commands_prefix.DefaultPrefix, nil
 	}
 
 	return prefix.Prefix, nil

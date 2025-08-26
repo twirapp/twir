@@ -6,23 +6,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
 )
 
 type LoadFn[T any] func(ctx context.Context, key string) (T, error)
 
 type GenericCacher[T any] struct {
-	db    *gorm.DB
 	redis *redis.Client
 
 	keyPrefix string
 	loadFn    LoadFn[T]
 	ttl       time.Duration
-	mu        *redsync.Mutex
 }
 
 type Opts[T any] struct {
@@ -34,16 +29,11 @@ type Opts[T any] struct {
 }
 
 func New[T any](opts Opts[T]) *GenericCacher[T] {
-	pool := goredis.NewPool(opts.Redis)
-	rs := redsync.New(pool)
-	mutex := rs.NewMutex(opts.KeyPrefix + "-mutex")
-
 	return &GenericCacher[T]{
 		redis:     opts.Redis,
 		keyPrefix: opts.KeyPrefix,
 		loadFn:    opts.LoadFn,
 		ttl:       opts.Ttl,
-		mu:        mutex,
 	}
 }
 

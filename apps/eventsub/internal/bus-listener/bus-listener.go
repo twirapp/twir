@@ -9,11 +9,14 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/bots-settings"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/cache"
 	config "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
@@ -26,6 +29,7 @@ type BusListener struct {
 	bus            *buscore.Bus
 	logger         logger.Logger
 	channelsRepo   channels.Repository
+	prefixCache    cache.Cache[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	config         config.Config
 }
 
@@ -38,6 +42,7 @@ type Opts struct {
 	Bus          *buscore.Bus
 	Logger       logger.Logger
 	ChannelsRepo channels.Repository
+	PrefixCache  cache.Cache[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	Config       config.Config
 }
 
@@ -48,6 +53,7 @@ func New(opts Opts) (*BusListener, error) {
 		bus:            opts.Bus,
 		logger:         opts.Logger,
 		channelsRepo:   opts.ChannelsRepo,
+		prefixCache:    opts.PrefixCache,
 		config:         opts.Config,
 	}
 
@@ -82,18 +88,44 @@ func New(opts Opts) (*BusListener, error) {
 					return err
 				}
 
+				if err := impl.bus.BotsSettings.UpdatePrefix.Subscribe(
+					impl.updateChannelCommandPrefix,
+				); err != nil {
+					return err
+				}
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
 				impl.bus.EventSub.SubscribeToAllEvents.Unsubscribe()
 				impl.bus.EventSub.Subscribe.Unsubscribe()
 				impl.bus.EventSub.InitChannels.Unsubscribe()
+				impl.bus.BotsSettings.UpdatePrefix.Unsubscribe()
 				return nil
 			},
 		},
 	)
 
 	return impl, nil
+}
+
+func (c *BusListener) updateChannelCommandPrefix(
+	ctx context.Context,
+	data botssettings.UpdatePrefixRequest,
+) (struct{}, error) {
+	prefix := channelscommandsprefixmodel.ChannelsCommandsPrefix{
+		ID:        data.ID,
+		ChannelID: data.ChannelID,
+		Prefix:    data.Prefix,
+		CreatedAt: data.CreatedAt,
+		UpdatedAt: data.UpdatedAt,
+	}
+
+	if err := c.prefixCache.Set(ctx, data.ChannelID, prefix); err != nil {
+		return struct{}{}, fmt.Errorf("set channel command prefix cache: %s", err)
+	}
+
+	return struct{}{}, nil
 }
 
 func (c *BusListener) subscribeToAllEvents(

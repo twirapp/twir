@@ -4,10 +4,10 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	auditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
+	botssettings "github.com/twirapp/twir/libs/bus-core/bots-settings"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
+	cfg "github.com/twirapp/twir/libs/config"
 )
 
 type Bus struct {
@@ -28,6 +29,7 @@ type Bus struct {
 	Websocket     *websocketBus
 	Channel       *channelBus
 	Bots          *botsBus
+	BotsSettings  *botsSettingsBus
 	EmotesCacher  *emotesCacherBus
 	Timers        *timersBus
 	EventSub      *eventSubBus
@@ -149,6 +151,15 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			UnVip: NewNatsQueue[botsservice.UnVipRequest, struct{}](
 				nc,
 				botsservice.UnVipSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+		},
+
+		BotsSettings: &botsSettingsBus{
+			UpdatePrefix: NewNatsQueue[botssettings.UpdatePrefixRequest, struct{}](
+				nc,
+				botssettings.UpdatePrefixSubject,
 				1*time.Minute,
 				GobEncoder,
 			),
