@@ -27,8 +27,8 @@ const props = withDefaults(
 	{
 		settings: () => ({
 			backgroundColor: '#07090e',
-			textColor: '#f2f2f2',
-			primaryTextColor: '#B9B4B4',
+			textColor: '#FFFFFF',
+			primaryTextColor: '#FFFFFF',
 			winColor: '#00FFE3',
 			loseColor: '#FF7986',
 
@@ -229,7 +229,7 @@ const rankSrc = computed(() => {
 				<div class="inline-flex items-center justify-center gap-2">
 					<div class="relative">
 						<div class="relative flex">
-							<img :src="rankSrc" class="z-2" alt="" height="40" width="40" fetchpriority="high" />
+							<img :src="rankSrc" class="z-10" alt="" height="40" width="40" fetchpriority="high" />
 							<img
 								v-if="!settings.disabledGlowEffect"
 								class="absolute top-1/2 left-1/2 size-10 max-w-[unset] -translate-x-1/2 -translate-y-1/2 transform blur-[10px]"
@@ -239,7 +239,7 @@ const rankSrc = computed(() => {
 							/>
 						</div>
 						<span
-							class="absolute top-0 right-0 z-2 flex size-4 flex-col items-center justify-center rounded-full bg-white text-sm leading-none font-medium text-black"
+							class="absolute top-0 right-0 z-10 flex size-4 flex-col items-center justify-center rounded-full bg-white text-sm leading-none font-medium text-black"
 						>
 							{{ stats.mmr.current.tier.name.split(' ').at(-1) }}
 						</span>
