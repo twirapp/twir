@@ -24,7 +24,8 @@ interface Feature {
 export const featuresData: Feature[] = [
 	{
 		title: 'Music Recognition',
-		description: 'Shazam for your twitch stream! Free, without the need to connect any music services.',
+		description:
+			'Shazam for your twitch stream! Free, without the need to connect any music services.',
 		icon: MusicRecognizeSvg,
 	},
 	{
@@ -34,7 +35,8 @@ export const featuresData: Feature[] = [
 	},
 	{
 		title: 'Giveaways',
-		description: 'Create giveaways, manage participants, choose winners, and archive giveaways for future reference',
+		description:
+			'Create giveaways, manage participants, choose winners, and archive giveaways for future reference',
 		icon: h(Icon, { name: 'lucide:gift' }),
 	},
 	{
@@ -90,7 +92,8 @@ export const featuresData: Feature[] = [
 	},
 	{
 		title: 'Overlays',
-		description: 'An assortment of pre-designed overlays, including now playing, chat, emote wall, pixel dudes, and AFK displays',
+		description:
+			'An assortment of pre-designed overlays, including Faceit Stats, Valorant Stats, Now Playing, Chat, Emote Wall, Pixel Dudes, and AFK displays',
 		icon: OverlaysSvg,
 	},
 	// {
@@ -100,12 +103,14 @@ export const featuresData: Feature[] = [
 	// },
 	{
 		title: 'Alerts',
-		description: 'Want to sound alerts on rewards? We got you covered! Create custom alerts for your channel points, commands, keywords triggers',
+		description:
+			'Want to sound alerts on rewards? We got you covered! Create custom alerts for your channel points, commands, keywords triggers',
 		icon: AlertsSvg,
 	},
 	{
 		title: 'Games',
-		description: 'Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment',
+		description:
+			'Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment',
 		icon: GamesSvg,
 	},
 ]
