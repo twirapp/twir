@@ -13,10 +13,7 @@ import (
 )
 
 // CommandsPrefixUpdate is the resolver for the commandsPrefixUpdate field.
-func (r *mutationResolver) CommandsPrefixUpdate(
-	ctx context.Context,
-	input gqlmodel.CommandsPrefixUpdateInput,
-) (bool, error) {
+func (r *mutationResolver) CommandsPrefixUpdate(ctx context.Context, input gqlmodel.CommandsPrefixUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -57,7 +54,7 @@ func (r *queryResolver) ChannelsCommandsPrefix(ctx context.Context) (string, err
 		return "", err
 	}
 
-	prefix, err := r.deps.ChannelsCommandsPrefix.GetOrCreateByChannelID(ctx, dashboardID)
+	prefix, err := r.deps.ChannelsCommandsPrefix.GetByChannelID(ctx, dashboardID)
 	if err != nil {
 		return "", fmt.Errorf("cannot get prefix: %w", err)
 	}

@@ -20,15 +20,24 @@ func NewInMemory(
 			MaxSize:     5000,
 			MinCapacity: 1000,
 		},
-		10*time.Minute,
-		func(ctx context.Context, key cache.Key) (model.ChannelsCommandsPrefix, error) {
-			prefix, err := repo.GetByChannelID(ctx, key)
+		15*time.Minute,
+		func(ctx context.Context, channelId cache.Key) (model.ChannelsCommandsPrefix, error) {
+			prefix, err := repo.GetByChannelID(ctx, channelId)
 			if err != nil {
-				if errors.Is(err, channels_commands_prefix.ErrNotFound) {
-					return model.ChannelsCommandsPrefix{}, cache.ErrNotFound
+				if !errors.Is(err, channels_commands_prefix.ErrNotFound) {
+					return model.ChannelsCommandsPrefix{}, err
 				}
 
-				return model.ChannelsCommandsPrefix{}, err
+				// Create channel command prefix if it's not exists yet.
+				prefix, err = repo.Create(
+					ctx, channels_commands_prefix.CreateInput{
+						ChannelID: channelId,
+						Prefix:    "!",
+					},
+				)
+				if err != nil && !errors.Is(err, channels_commands_prefix.ErrAlreadyExists) {
+					return model.ChannelsCommandsPrefix{}, err
+				}
 			}
 
 			return prefix, nil

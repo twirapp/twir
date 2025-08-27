@@ -44,24 +44,13 @@ type Service struct {
 
 const DefaultPrefix = "!"
 
-func (c *Service) GetOrCreateByChannelID(
+func (c *Service) GetByChannelID(
 	ctx context.Context,
 	channelID string,
 ) (entity.ChannelsCommandsPrefix, error) {
 	channelsCommandsPrefix, err := c.channelsCommandsPrefixCache.Get(ctx, channelID)
 	if err != nil {
-		if !errors.Is(err, cache.ErrNotFound) {
-			return entity.ChannelsCommandsPrefixNil, err
-		}
-
-		var prefix entity.ChannelsCommandsPrefix
-
-		prefix, err = c.create(ctx, channelID, DefaultPrefix)
-		if err != nil {
-			return entity.ChannelsCommandsPrefixNil, fmt.Errorf("create default prefix: %w", err)
-		}
-
-		return prefix, err
+		return entity.ChannelsCommandsPrefixNil, err
 	}
 
 	return c.modelToEntity(channelsCommandsPrefix), nil

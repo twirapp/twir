@@ -2,7 +2,6 @@ package prefix
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"unicode/utf8"
 
@@ -52,11 +51,11 @@ var SetPrefix = &types.DefaultCommand{
 			}
 		}
 
-		currentPrefix, err := parseCtx.Services.CommandsPrefixRepository.GetByChannelID(
+		currentPrefix, err := parseCtx.Services.CommandsPrefixCache.Get(
 			ctx,
 			parseCtx.Channel.ID,
 		)
-		if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get current prefix",
 				Err:     err,
@@ -65,33 +64,17 @@ var SetPrefix = &types.DefaultCommand{
 
 		var newPrefix channelscommandsprefixmodel.ChannelsCommandsPrefix
 
-		if currentPrefix == channelscommandsprefixmodel.Nil {
-			newPrefix, err = parseCtx.Services.CommandsPrefixRepository.Create(
-				ctx,
-				channelscommandsprefixrepository.CreateInput{
-					ChannelID: parseCtx.Channel.ID,
-					Prefix:    prefixArg.String(),
-				},
-			)
-			if err != nil {
-				return nil, &types.CommandHandlerError{
-					Message: "cannot create prefix",
-					Err:     err,
-				}
-			}
-		} else {
-			newPrefix, err = parseCtx.Services.CommandsPrefixRepository.Update(
-				ctx,
-				currentPrefix.ID,
-				channelscommandsprefixrepository.UpdateInput{
-					Prefix: prefixArg.String(),
-				},
-			)
-			if err != nil {
-				return nil, &types.CommandHandlerError{
-					Message: "cannot update prefix",
-					Err:     err,
-				}
+		newPrefix, err = parseCtx.Services.CommandsPrefixRepository.Update(
+			ctx,
+			currentPrefix.ID,
+			channelscommandsprefixrepository.UpdateInput{
+				Prefix: prefixArg.String(),
+			},
+		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot update prefix",
+				Err:     err,
 			}
 		}
 
