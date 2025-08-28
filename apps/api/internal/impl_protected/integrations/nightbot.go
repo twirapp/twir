@@ -17,8 +17,8 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api/internal/helpers"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_nightbot"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -197,7 +197,7 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 	failedCount := 0
 	failedCommandsNames := []string{}
 	for _, command := range commandsData.Commands {
-		if command.Alias != nil {
+		if command.Alias != nil && *command.Alias != "" {
 			continue
 		}
 
@@ -310,9 +310,10 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 
 		newCommand.Responses = append(
 			newCommand.Responses, &model.ChannelsCommandsResponses{
-				ID:    uuid.NewString(),
-				Text:  null.StringFrom(commandResponse),
-				Order: 0,
+				ID:                uuid.NewString(),
+				Text:              null.StringFrom(commandResponse),
+				Order:             0,
+				TwitchCategoryIDs: pq.StringArray{},
 			},
 		)
 
