@@ -35,7 +35,7 @@ var Variable = &types.Variable{
 
 		var hasAccess bool
 		for _, r := range parseCtx.Sender.Roles {
-			if r.Type == deprecatedgormmodel.ChannelRoleTypeBroadcaster || r.Type == deprecatedgormmodel.ChannelRoleTypeModerator {
+			if r.Type == deprecatedgormmodel.ChannelRoleTypeBroadcaster || r.Type == deprecatedgormmodel.ChannelRoleTypeModerator || parseCtx.Sender.DbUser.IsBotAdmin {
 				hasAccess = true
 				break
 			}
