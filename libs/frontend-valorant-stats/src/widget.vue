@@ -40,9 +40,8 @@ const props = withDefaults(
 			disabledWinLose: false,
 			disabledProgress: false,
 			disabledGlowEffect: false,
-			overlayFont: 'Inter',
 		}),
-	},
+	}
 )
 
 const apiClient = computed(() => {
@@ -57,7 +56,7 @@ const apiClient = computed(() => {
 			baseApiParams: {
 				headers,
 			},
-		}),
+		})
 	)
 
 	return apiClient
@@ -109,7 +108,7 @@ watchDebounced(
 	{
 		debounce: 500,
 		immediate: true,
-	},
+	}
 )
 
 useIntervalFn(async () => {
@@ -136,8 +135,8 @@ const wins = computed(() => {
 		const team = match.stats.team.toLowerCase()
 
 		return (
-			(team === 'red' && match.teams.red > match.teams.blue)
-			|| (team === 'blue' && match.teams.blue > match.teams.red)
+			(team === 'red' && match.teams.red > match.teams.blue) ||
+			(team === 'blue' && match.teams.blue > match.teams.red)
 		)
 	}).length
 })
@@ -161,7 +160,7 @@ const headShots = computed(() => {
 	const totalHeadshots = matches.value.reduce((sum, match) => sum + match.stats.shots.head, 0)
 	const totalShots = matches.value.reduce(
 		(sum, match) => sum + match.stats.shots.head + match.stats.shots.body + match.stats.shots.leg,
-		0,
+		0
 	)
 
 	return ((totalHeadshots / totalShots) * 100).toFixed(0)
@@ -182,7 +181,7 @@ const avgKR = computed(() => {
 	const totalKills = matches.value.reduce((sum, match) => sum + match.stats.kills, 0)
 	const totalRounds = matches.value.reduce(
 		(sum, match) => sum + (match.teams.red + match.teams.blue),
-		0,
+		0
 	)
 	if (totalRounds === 0) return totalKills.toFixed(2)
 	return (totalKills / totalRounds).toFixed(2)
@@ -218,7 +217,6 @@ const rankSrc = computed(() => {
 					backgroundColor: settings.disabledBackground
 						? 'transparent'
 						: `${settings.backgroundColor}99`,
-					fontFamily: settings.overlayFont,
 				}"
 				:class="{
 					'overflow-hidden border-[2px] border-white/10': !settings.disabledBackground,
@@ -309,7 +307,6 @@ const rankSrc = computed(() => {
 					backgroundColor: settings.disabledBackground
 						? 'transparent'
 						: `${settings.backgroundColor}99`,
-					fontFamily: settings.overlayFont,
 				}"
 				:class="{
 					'overflow-hidden border-[2px] border-white/10': !settings.disabledBackground,
@@ -348,6 +345,8 @@ const rankSrc = computed(() => {
 	--primary-text-color: v-bind(settings.primaryTextColor);
 	--win-color: v-bind(settings.winColor);
 	--lose-color: v-bind(settings.loseColor);
+
+	font-family: Inter, sans-serif;
 }
 
 .items {
