@@ -20,9 +20,9 @@ const { data, isLoading } = valorantManager.useData()
 const { data: authLink } = valorantManager.useAuthLink()
 
 async function login() {
-	if (authLink.value) return
+	if (!authLink.value) return
 
-	window.open(authLink.value, 'Twir connect integration', 'width=800,height=600')
+	window.open(authLink.value.link, 'Twir connect integration', 'width=800,height=600')
 }
 
 const isConnected = computed(() => {
@@ -32,27 +32,30 @@ const isConnected = computed(() => {
 
 <template>
 	<PageLayout cleanBody>
-		<template #title>
-			Valorant Stats Builder
-		</template>
+		<template #title> Valorant Stats Builder </template>
 
 		<template #content>
-			<div v-if="isLoading" class="flex items-center justify-center p-20 text-2xl bg-yellow-900/30 m-40 rounded-xl">
+			<div
+				v-if="isLoading"
+				class="flex items-center justify-center p-20 text-2xl bg-yellow-900/30 m-40 rounded-xl"
+			>
 				Loading...
 			</div>
 			<div class="relative">
-				<div v-if="!isConnected" class="flex flex-col gap-4 items-center justify-center p-4 text bg-black/70 rounded-xl absolute inset-0 z-50">
+				<div
+					v-if="!isConnected"
+					class="flex flex-col gap-4 items-center justify-center p-4 text bg-black/70 rounded-xl absolute inset-0 z-50"
+				>
 					<BanIcon class="size-10" />
-					<span class="text-2xl">
-						Connect valorant integration to use this overlay
-					</span>
+					<span class="text-2xl"> Connect valorant integration to use this overlay </span>
 
-					<Button class="mx-2" @click="login">
-						Connect
-					</Button>
+					<Button class="mx-2" @click="login"> Connect </Button>
 				</div>
 
-				<div class="flex flex-col-reverse lg:flex-row" :class="{ 'blur-sm pointer-events-none': !isConnected }">
+				<div
+					class="flex flex-col-reverse lg:flex-row"
+					:class="{ 'blur-sm pointer-events-none': !isConnected }"
+				>
 					<div class="overflow-auto bg-card lg:max-w-[400px] w-full flex flex-col p-4 shadow-md">
 						<div class="flex flex-col gap-2">
 							<span class="text-xs mb-2">Colors</span>
@@ -88,32 +91,56 @@ const isConnected = computed(() => {
 
 							<div class="flex flex-col gap-2">
 								<Label for="disabledBackground">Background</Label>
-								<SwitchToggle id="disabledBackground" :modelValue="!settings.disabledBackground" @update:model-value="v => settings.disabledBackground = !v" />
+								<SwitchToggle
+									id="disabledBackground"
+									:modelValue="!settings.disabledBackground"
+									@update:model-value="(v) => (settings.disabledBackground = !v)"
+								/>
 							</div>
 
 							<div class="flex flex-col gap-2">
 								<Label for="disabledBorder">Border</Label>
-								<SwitchToggle id="disabledBorder" :modelValue="!settings.disabledBorder" @update:model-value="v => settings.disabledBorder = !v" />
+								<SwitchToggle
+									id="disabledBorder"
+									:modelValue="!settings.disabledBorder"
+									@update:model-value="(v) => (settings.disabledBorder = !v)"
+								/>
 							</div>
 
 							<div class="flex flex-col gap-2">
 								<Label for="disabledGlowEffect">Glow effect</Label>
-								<SwitchToggle id="disabledGlowEffect" :modelValue="!settings.disabledGlowEffect" @update:model-value="v => settings.disabledGlowEffect = !v" />
+								<SwitchToggle
+									id="disabledGlowEffect"
+									:modelValue="!settings.disabledGlowEffect"
+									@update:model-value="(v) => (settings.disabledGlowEffect = !v)"
+								/>
 							</div>
 
 							<div class="flex flex-col gap-2">
 								<Label for="disabledLeaderboardPlace">Leaderboard place</Label>
-								<SwitchToggle id="disabledLeaderboardPlace" :modelValue="!settings.disabledLeaderboardPlace" @update:model-value="v => settings.disabledLeaderboardPlace = !v" />
+								<SwitchToggle
+									id="disabledLeaderboardPlace"
+									:modelValue="!settings.disabledLeaderboardPlace"
+									@update:model-value="(v) => (settings.disabledLeaderboardPlace = !v)"
+								/>
 							</div>
 
 							<div class="flex flex-col gap-2">
 								<Label for="disabledWinLose">Win / Lose</Label>
-								<SwitchToggle id="disabledWinLose" :modelValue="!settings.disabledWinLose" @update:model-value="v => settings.disabledWinLose = !v" />
+								<SwitchToggle
+									id="disabledWinLose"
+									:modelValue="!settings.disabledWinLose"
+									@update:model-value="(v) => (settings.disabledWinLose = !v)"
+								/>
 							</div>
 
 							<div class="flex flex-col gap-2">
 								<Label for="disabledProgress">Progress</Label>
-								<SwitchToggle id="disabledProgress" :modelValue="!settings.disabledProgress" @update:model-value="v => settings.disabledProgress = !v" />
+								<SwitchToggle
+									id="disabledProgress"
+									:modelValue="!settings.disabledProgress"
+									@update:model-value="(v) => (settings.disabledProgress = !v)"
+								/>
 							</div>
 
 							<div class="flex flex-col gap-2">
@@ -121,14 +148,12 @@ const isConnected = computed(() => {
 								<SwitchToggle
 									id="lastTwentyMatches"
 									:modelValue="!settings.disabledTwentyLastMatches"
-									@update:model-value="v => settings.disabledTwentyLastMatches = !v"
+									@update:model-value="(v) => (settings.disabledTwentyLastMatches = !v)"
 								/>
 							</div>
 						</div>
 
-						<Button class="mt-4" @click="copyOverlayLink">
-							Generate obs link
-						</Button>
+						<Button class="mt-4" @click="copyOverlayLink"> Generate obs link </Button>
 					</div>
 
 					<div class="flex min-h-[200px] w-full h-full items-center justify-center">
