@@ -16,6 +16,7 @@ type ParseContextSender struct {
 	Badges           []string
 	Roles            []model.ChannelRole
 	UserChannelStats *model.UsersStats
+	DbUser           *model.Users
 }
 
 type ParseContextChannel struct {

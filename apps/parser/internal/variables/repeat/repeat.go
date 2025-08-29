@@ -9,6 +9,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 )
 
 var Variable = &types.Variable{
@@ -30,6 +31,18 @@ var Variable = &types.Variable{
 
 		if repeatCount > 20 {
 			repeatCount = 20
+		}
+
+		var hasAccess bool
+		for _, r := range parseCtx.Sender.Roles {
+			if r.Type == deprecatedgormmodel.ChannelRoleTypeBroadcaster || r.Type == deprecatedgormmodel.ChannelRoleTypeModerator || parseCtx.Sender.DbUser.IsBotAdmin {
+				hasAccess = true
+				break
+			}
+		}
+
+		if !hasAccess {
+			repeatCount = 1
 		}
 
 		result := &types.VariableHandlerResult{
