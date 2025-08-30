@@ -54,7 +54,7 @@ func (c *ChatAlerts) follow(
 		followersCount = count
 	}
 
-	text = strings.ReplaceAll(sample.Text, "{streamFollowers}", fmt.Sprint(followersCount))
+	text = strings.ReplaceAll(text, "{streamFollowers}", fmt.Sprint(followersCount))
 
 	if text == "" {
 		return nil
