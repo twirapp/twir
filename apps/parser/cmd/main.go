@@ -60,6 +60,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/commands"
+	"github.com/twirapp/twir/apps/parser/internal/services/tts"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/apps/parser/internal/variables"
 	"go.uber.org/zap"
@@ -254,6 +255,7 @@ func main() {
 		CommandsPrefixRepository: commandsPrefixRepo,
 		TTSCache:                 ttsSettingsCacher,
 		TTSRepository:            ttsRepository,
+		TTSService:               tts.New(ttsRepository, config),
 		SpotifyRepo:              spotifyRepo,
 		UsersRepo:                usersRepo,
 		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,

@@ -37,11 +37,10 @@ var PitchCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModel, err := getSettings(
+
+		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
-			"",
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -55,9 +54,8 @@ var PitchCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		userSettings, currentUserModel, err := getSettings(
+		userSettings, _, err := parseCtx.Services.TTSService.GetUserSettings(
 			ctx,
-			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
 			parseCtx.Sender.ID,
 		)
@@ -89,8 +87,13 @@ var PitchCommand = &types.DefaultCommand{
 		pitch := pitchArg.Int()
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
+			// Update channel settings
 			channelSettings.Pitch = pitch
-			err := updateSettings(ctx, parseCtx.Services.TTSRepository, channelModel, channelSettings)
+			err := parseCtx.Services.TTSService.UpdateChannelSettings(
+				ctx,
+				parseCtx.Channel.ID,
+				channelSettings,
+			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: "error while updating settings",
@@ -98,15 +101,15 @@ var PitchCommand = &types.DefaultCommand{
 				}
 			}
 		} else {
+			// Update user settings
 			if userSettings == nil {
-				_, _, err := createUserSettings(
+				_, err := parseCtx.Services.TTSService.CreateUserSettings(
 					ctx,
-					parseCtx.Services.TTSRepository,
+					parseCtx.Channel.ID,
+					parseCtx.Sender.ID,
 					50,
 					pitch,
 					channelSettings.Voice,
-					parseCtx.Channel.ID,
-					parseCtx.Sender.ID,
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
@@ -116,7 +119,12 @@ var PitchCommand = &types.DefaultCommand{
 				}
 			} else {
 				userSettings.Pitch = pitch
-				err := updateSettings(ctx, parseCtx.Services.TTSRepository, currentUserModel, userSettings)
+				err := parseCtx.Services.TTSService.UpdateUserSettings(
+					ctx,
+					parseCtx.Channel.ID,
+					parseCtx.Sender.ID,
+					userSettings,
+				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
 						Message: "error while updating settings",

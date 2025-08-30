@@ -38,17 +38,18 @@ var VolumeCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelEntity, err := getSettings(
+
+		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
-			"",
 		)
 		if err != nil {
-			result.Result = []string{"Cannot get TTS settings"}
-			return result, nil
+			return nil, &types.CommandHandlerError{
+				Message: "error while getting channel settings",
+				Err:     err,
+			}
 		}
-		
+
 		if channelSettings == nil {
 			result.Result = []string{"TTS is not configured for this channel"}
 			return result, nil
@@ -63,13 +64,22 @@ var VolumeCommand = &types.DefaultCommand{
 		volume := volumeArg.Int()
 		channelSettings.Volume = volume
 
-		err = updateSettings(ctx, parseCtx.Services.TTSRepository, channelEntity, channelSettings)
+		err = parseCtx.Services.TTSService.UpdateChannelSettings(
+			ctx,
+			parseCtx.Channel.ID,
+			channelSettings,
+		)
 		if err != nil {
-			result.Result = []string{"Cannot update TTS settings"}
-			return result, nil
+			return nil, &types.CommandHandlerError{
+				Message: "error while updating settings",
+				Err:     err,
+			}
 		}
 
 		result.Result = []string{fmt.Sprintf("TTS volume changed to %v", volume)}
+
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		return result, nil
 	},
 }

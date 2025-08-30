@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/guregu/null"
+	"github.com/twirapp/twir/apps/parser/internal/services/tts"
 	model "github.com/twirapp/twir/libs/gomodels"
 
 	"github.com/samber/lo"
@@ -26,40 +27,21 @@ var VoicesCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		channelSettings, _, err := getSettings(
-			ctx,
-			parseCtx.Services.TTSRepository,
-			parseCtx.Channel.ID,
-			"",
-		)
+		voices, err := parseCtx.Services.TTSService.GetFilteredVoices(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting channel settings",
+				Message: "error while getting voices",
 				Err:     err,
 			}
 		}
 
-		if channelSettings == nil {
-			result.Result = []string{"TTS is not configured for this channel"}
-			return result, nil
-		}
-
-		voices := getVoices(ctx, parseCtx.Services.Config)
 		if len(voices) == 0 {
 			result.Result = []string{"No voices available"}
 			return result, nil
 		}
 
-		if channelSettings != nil && len(channelSettings.DisallowedVoices) > 0 {
-			voices = lo.Filter(
-				voices, func(item Voice, _ int) bool {
-					return !lo.Contains(channelSettings.DisallowedVoices, item.Name)
-				},
-			)
-		}
-
 		mapped := lo.Map(
-			voices, func(item Voice, _ int) string {
+			voices, func(item tts.Voice, _ int) string {
 				return fmt.Sprintf("%s (%s)", item.Name, item.Country)
 			},
 		)

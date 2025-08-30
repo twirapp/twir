@@ -10,6 +10,7 @@ import (
 
 	"github.com/guregu/null"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	"github.com/twirapp/twir/apps/parser/internal/services/tts"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"golang.org/x/sync/errgroup"
@@ -48,11 +49,9 @@ var SayCommand = &types.DefaultCommand{
 		resultedText := parseCtx.ArgsParser.Get(ttsSayArgName).String()
 		splittedResult := strings.Fields(resultedText)
 
-		channelSettings, _, err := getSettings(
+		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
-			"",
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -65,9 +64,8 @@ var SayCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		userSettings, _, err := getSettings(
+		userSettings, _, err := parseCtx.Services.TTSService.GetUserSettings(
 			ctx,
-			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
 			parseCtx.Sender.ID,
 		)
@@ -86,10 +84,10 @@ var SayCommand = &types.DefaultCommand{
 			Else(channelSettings.Voice)
 
 		if channelSettings.AllowUsersChooseVoiceInMainCommand {
-			voices := getVoices(ctx, parseCtx.Services.Config)
+			voices := parseCtx.Services.TTSService.GetAvailableVoices(ctx)
 			splittedChatArgs := strings.Split(resultedText, " ")
 			targetVoice, targetVoiceFound := lo.Find(
-				voices, func(item Voice) bool {
+				voices, func(item tts.Voice) bool {
 					return strings.ToLower(item.Name) == strings.ToLower(splittedChatArgs[0])
 				},
 			)
@@ -136,7 +134,7 @@ var SayCommand = &types.DefaultCommand{
 
 		if channelSettings.DoNotReadLinks {
 			for _, part := range strings.Fields(resultedText) {
-				isUrl := isValidUrl(part)
+				isUrl := parseCtx.Services.TTSService.IsValidURL(part)
 				if isUrl {
 					resultedText = strings.ReplaceAll(resultedText, part, "")
 				}

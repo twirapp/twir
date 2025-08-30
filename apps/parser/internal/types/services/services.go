@@ -7,6 +7,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/parser/internal/services/shortenedurls"
+	ttsservice "github.com/twirapp/twir/apps/parser/internal/services/tts"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -56,6 +57,7 @@ type Services struct {
 	CommandsPrefixRepository   channelscommandsprefixrepository.Repository
 	TTSCache                   *generic_cacher.GenericCacher[modules.TTSSettings]
 	TTSRepository              channelsmodules_settingstts.Repository
+	TTSService                 *ttsservice.Service
 	SpotifyRepo                channelsintegrationsspotify.Repository
 	UsersRepo                  users.Repository
 	CategoriesAliasesRepo      channelscategoriesaliases.Repository

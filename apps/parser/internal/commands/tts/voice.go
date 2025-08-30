@@ -3,7 +3,6 @@ package tts
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/guregu/null"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
@@ -36,11 +35,10 @@ var VoiceCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModel, err := getSettings(
+
+		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
-			"",
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -54,9 +52,8 @@ var VoiceCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		userSettings, currentUserModel, err := getSettings(
+		userSettings, _, err := parseCtx.Services.TTSService.GetUserSettings(
 			ctx,
-			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
 			parseCtx.Sender.ID,
 		)
@@ -85,42 +82,22 @@ var VoiceCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		voices := getVoices(ctx, parseCtx.Services.Config)
-		if len(voices) == 0 {
-			result.Result = append(result.Result, "No voices found")
-			return result, nil
-		}
-
 		text := textArg.String()
 
-		wantedVoice, ok := lo.Find(
-			voices, func(item Voice) bool {
-				return item.Name == strings.ToLower(text)
-			},
-		)
-
-		if !ok {
-			result.Result = append(result.Result, fmt.Sprintf("Voice %s not found", text))
-			return result, nil
-		}
-
-		_, isDisallowed := lo.Find(
-			channelSettings.DisallowedVoices, func(item string) bool {
-				return item == wantedVoice.Name
-			},
-		)
-
-		if isDisallowed {
-			result.Result = append(
-				result.Result,
-				fmt.Sprintf("Voice %s is disallowed for usage", wantedVoice.Name),
-			)
+		wantedVoice, err := parseCtx.Services.TTSService.ValidateVoice(ctx, parseCtx.Channel.ID, text)
+		if err != nil {
+			result.Result = append(result.Result, err.Error())
 			return result, nil
 		}
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
+			// Update channel settings
 			channelSettings.Voice = wantedVoice.Name
-			err := updateSettings(ctx, parseCtx.Services.TTSRepository, channelModel, channelSettings)
+			err := parseCtx.Services.TTSService.UpdateChannelSettings(
+				ctx,
+				parseCtx.Channel.ID,
+				channelSettings,
+			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: "error while updating settings",
@@ -128,15 +105,15 @@ var VoiceCommand = &types.DefaultCommand{
 				}
 			}
 		} else {
+			// Update user settings
 			if userSettings == nil {
-				_, _, err := createUserSettings(
+				_, err := parseCtx.Services.TTSService.CreateUserSettings(
 					ctx,
-					parseCtx.Services.TTSRepository,
+					parseCtx.Channel.ID,
+					parseCtx.Sender.ID,
 					50,
 					50,
 					wantedVoice.Name,
-					parseCtx.Channel.ID,
-					parseCtx.Sender.ID,
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
@@ -146,7 +123,12 @@ var VoiceCommand = &types.DefaultCommand{
 				}
 			} else {
 				userSettings.Voice = wantedVoice.Name
-				err := updateSettings(ctx, parseCtx.Services.TTSRepository, currentUserModel, userSettings)
+				err := parseCtx.Services.TTSService.UpdateUserSettings(
+					ctx,
+					parseCtx.Channel.ID,
+					parseCtx.Sender.ID,
+					userSettings,
+				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
 						Message: "error while updating user settings",
