@@ -9,7 +9,9 @@ import (
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 )
@@ -57,7 +59,7 @@ WHERE channel_id = $1
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Nil, channels_commands_prefix.ErrNotFound
 		}
-		
+
 		return model.Nil, fmt.Errorf(
 			"failed to collect channels_commands_prefix by channel_id: %w",
 			err,
@@ -80,6 +82,14 @@ RETURNING id, channel_id, prefix, created_at, updated_at
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, input.ChannelID, input.Prefix)
 	if err != nil {
+		var pgErr *pgconn.PgError
+
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == repositories.PgUniqueViolation {
+				return model.Nil, channels_commands_prefix.ErrAlreadyExists
+			}
+		}
+
 		return model.Nil, fmt.Errorf("failed to create channels_commands_prefix: %w", err)
 	}
 

@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 )
 
@@ -41,7 +40,7 @@ func (r *mutationResolver) CommandsPrefixReset(ctx context.Context) (bool, error
 		return false, err
 	}
 
-	if err = r.deps.ChannelsCommandsPrefix.Delete(ctx, dashboardID); err != nil {
+	if err = r.deps.ChannelsCommandsPrefix.Reset(ctx, dashboardID); err != nil {
 		return false, fmt.Errorf("cannot reset prefix: %w", err)
 	}
 
@@ -58,10 +57,6 @@ func (r *queryResolver) ChannelsCommandsPrefix(ctx context.Context) (string, err
 	prefix, err := r.deps.ChannelsCommandsPrefix.GetByChannelID(ctx, dashboardID)
 	if err != nil {
 		return "", fmt.Errorf("cannot get prefix: %w", err)
-	}
-
-	if prefix == entity.ChannelsCommandsPrefixNil {
-		return channels_commands_prefix.DefaultPrefix, nil
 	}
 
 	return prefix.Prefix, nil

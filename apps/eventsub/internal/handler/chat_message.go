@@ -16,8 +16,8 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/cache"
 	"github.com/twirapp/twir/libs/redis_keys"
-	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"go.opentelemetry.io/otel/attribute"
@@ -162,9 +162,9 @@ func (c *Handler) HandleChannelChatMessage(
 		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardId,
 	}
 
-	var errwg errgroup.Group
+	var eg errgroup.Group
 
-	errwg.Go(
+	eg.Go(
 		func() error {
 			emotes, emotesErr := c.chatMessageCountEmotes(ctx, data)
 			if emotesErr != nil {
@@ -176,7 +176,7 @@ func (c *Handler) HandleChannelChatMessage(
 		},
 	)
 
-	errwg.Go(
+	eg.Go(
 		func() error {
 			commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, data.BroadcasterUserId)
 			if err != nil {
@@ -188,7 +188,7 @@ func (c *Handler) HandleChannelChatMessage(
 		},
 	)
 
-	errwg.Go(
+	eg.Go(
 		func() error {
 			channel, err := c.channelsCache.Get(ctx, data.BroadcasterUserId)
 			if err != nil {
@@ -200,7 +200,7 @@ func (c *Handler) HandleChannelChatMessage(
 		},
 	)
 
-	errwg.Go(
+	eg.Go(
 		func() error {
 			stream, err := c.chatMessageGetChannelStream(ctx, data.BroadcasterUserId)
 			if err != nil {
@@ -213,7 +213,7 @@ func (c *Handler) HandleChannelChatMessage(
 		},
 	)
 
-	if err := errwg.Wait(); err != nil {
+	if err := eg.Wait(); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 		return
 	}
@@ -370,39 +370,37 @@ func (c *Handler) chatMessageCountEmotes(
 	return emotes, nil
 }
 
-func (c *Handler) chatMessageGetChannelCommandPrefix(ctx context.Context, channelId string) (
-	string,
-	error,
-) {
-	commandsPrefix := "!"
-	fetchedCommandsPrefix, err := c.prefixCache.Get(ctx, channelId)
-	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
-		return "", err
-	}
+func (c *Handler) chatMessageGetChannelCommandPrefix(
+	ctx context.Context,
+	channelId string,
+) (string, error) {
+	const defaultCommandsPrefix = "!"
 
-	if fetchedCommandsPrefix != channelscommandsprefixmodel.Nil {
-		commandsPrefix = fetchedCommandsPrefix.Prefix
-	} else {
-		prefixCtx := context.WithoutCancel(ctx)
+	fetchedCommandsPrefix, err := c.prefixCache.Get(ctx, channelId)
+	if err != nil {
+		if !errors.Is(err, cache.ErrNotFound) {
+			return "", err
+		}
 
 		go func() {
-			if err := c.prefixCache.SetValue(
-				prefixCtx,
-				channelId,
-				channelscommandsprefixmodel.ChannelsCommandsPrefix{
+			err := c.prefixCache.Set(
+				ctx, channelId, channelscommandsprefixmodel.ChannelsCommandsPrefix{
 					ID:        uuid.New(),
 					ChannelID: channelId,
-					Prefix:    commandsPrefix,
+					Prefix:    defaultCommandsPrefix,
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-			); err != nil {
-				c.logger.Error("cannot set default command prefix", slog.Any("err", err))
+			)
+			if err != nil {
+				c.logger.Error("failed to set default command prefix in cache", slog.Any("error", err))
 			}
 		}()
+
+		return defaultCommandsPrefix, nil
 	}
 
-	return commandsPrefix, nil
+	return fetchedCommandsPrefix.Prefix, nil
 }
 
 func (c *Handler) chatMessageGetChannelStream(
