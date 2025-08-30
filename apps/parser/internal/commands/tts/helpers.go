@@ -9,48 +9,55 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/uuid"
-	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"github.com/tidwall/gjson"
-	"gorm.io/gorm"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
+	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/model"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 )
 
 func getSettings(
 	ctx context.Context,
-	db *gorm.DB,
+	repo channels_modules_settings_tts.Repository,
 	channelId, userId string,
-) (*modules.TTSSettings, *model.ChannelModulesSettings) {
-	settings := &model.ChannelModulesSettings{}
-	query := db.
-		WithContext(ctx).
-		Where(`"channelId" = ?`, channelId).
-		Where(`"type" = ?`, "tts")
+) (*modules.TTSSettings, *model.ChannelModulesSettingsTTS, error) {
+	var settings model.ChannelModulesSettingsTTS
+	var err error
 
-	if userId == channelId {
-		query = query.Where(`"userId" IS NULL`)
-	} else if userId != "" {
-		query = query.Where(`"userId" = ?`, userId)
+	if userId == channelId || userId == "" {
+		// Get channel-level settings
+		settings, err = repo.GetByChannelID(ctx, channelId)
 	} else {
-		query = query.Where(`"userId" IS NULL`)
+		// Get user-specific settings
+		settings, err = repo.GetByChannelIDAndUserID(ctx, channelId, userId)
 	}
 
-	err := query.First(&settings).Error
 	if err != nil {
-		return nil, nil
+		if errors.Is(err, channels_modules_settings_tts.ErrNotFound) {
+			return nil, nil, nil
+		}
+		return nil, nil, err
 	}
 
-	data := modules.TTSSettings{}
-	err = json.Unmarshal(settings.Settings, &data)
-	if err != nil {
-		return nil, nil
+	ttsSettings := &modules.TTSSettings{
+		Enabled:                            settings.Enabled,
+		Rate:                               settings.Rate,
+		Volume:                             settings.Volume,
+		Pitch:                              settings.Pitch,
+		Voice:                              settings.Voice,
+		AllowUsersChooseVoiceInMainCommand: settings.AllowUsersChooseVoiceInMainCommand,
+		MaxSymbols:                         settings.MaxSymbols,
+		DisallowedVoices:                   settings.DisallowedVoices,
+		DoNotReadEmoji:                     settings.DoNotReadEmoji,
+		DoNotReadTwitchEmotes:              settings.DoNotReadTwitchEmotes,
+		DoNotReadLinks:                     settings.DoNotReadLinks,
+		ReadChatMessages:                   settings.ReadChatMessages,
+		ReadChatMessagesNicknames:          settings.ReadChatMessagesNicknames,
 	}
 
-	return &data, settings
+	return ttsSettings, &settings, nil
 }
 
 type Voice struct {
@@ -93,40 +100,49 @@ func getVoices(ctx context.Context, cfg *config.Config) []Voice {
 
 func updateSettings(
 	ctx context.Context,
-	db *gorm.DB,
-	entity *model.ChannelModulesSettings,
+	repo channels_modules_settings_tts.Repository,
+	entity *model.ChannelModulesSettingsTTS,
 	settings *modules.TTSSettings,
 ) error {
-	bytes, err := json.Marshal(settings)
-	if err != nil {
-		return err
+	input := channels_modules_settings_tts.CreateOrUpdateInput{
+		ChannelID:                          entity.ChannelID,
+		UserID:                             entity.UserID,
+		Enabled:                            settings.Enabled,
+		Rate:                               settings.Rate,
+		Volume:                             settings.Volume,
+		Pitch:                              settings.Pitch,
+		Voice:                              settings.Voice,
+		AllowUsersChooseVoiceInMainCommand: settings.AllowUsersChooseVoiceInMainCommand,
+		MaxSymbols:                         settings.MaxSymbols,
+		DisallowedVoices:                   settings.DisallowedVoices,
+		DoNotReadEmoji:                     settings.DoNotReadEmoji,
+		DoNotReadTwitchEmotes:              settings.DoNotReadTwitchEmotes,
+		DoNotReadLinks:                     settings.DoNotReadLinks,
+		ReadChatMessages:                   settings.ReadChatMessages,
+		ReadChatMessagesNicknames:          settings.ReadChatMessagesNicknames,
 	}
 
-	return db.
-		Model(entity).
-		WithContext(ctx).
-		Updates(map[string]interface{}{"settings": bytes}).
-		Error
+	if entity.UserID != nil {
+		// Update user-specific settings
+		_, err := repo.UpdateForUser(ctx, entity.ChannelID, *entity.UserID, input)
+		return err
+	} else {
+		// Update channel-level settings
+		_, err := repo.UpdateForChannel(ctx, entity.ChannelID, input)
+		return err
+	}
 }
 
 func createUserSettings(
 	ctx context.Context,
-	db *gorm.DB,
+	repo channels_modules_settings_tts.Repository,
 	rate, pitch int,
 	voice, channelId, userId string,
 ) (
-	*model.ChannelModulesSettings,
+	*model.ChannelModulesSettingsTTS,
 	*modules.TTSSettings,
 	error,
 ) {
-	userModel := &model.ChannelModulesSettings{
-		ID:        uuid.New().String(),
-		Type:      "tts",
-		Settings:  nil,
-		ChannelId: channelId,
-		UserId:    null.StringFrom(userId),
-	}
-
 	userSettings := &modules.TTSSettings{
 		Enabled: lo.ToPtr(true),
 		Rate:    rate,
@@ -135,30 +151,49 @@ func createUserSettings(
 		Voice:   voice,
 	}
 
-	bytes, err := json.Marshal(userSettings)
+	input := channels_modules_settings_tts.CreateOrUpdateInput{
+		ChannelID:                          channelId,
+		UserID:                             &userId,
+		Enabled:                            userSettings.Enabled,
+		Rate:                               userSettings.Rate,
+		Volume:                             userSettings.Volume,
+		Pitch:                              userSettings.Pitch,
+		Voice:                              userSettings.Voice,
+		AllowUsersChooseVoiceInMainCommand: userSettings.AllowUsersChooseVoiceInMainCommand,
+		MaxSymbols:                         userSettings.MaxSymbols,
+		DisallowedVoices:                   userSettings.DisallowedVoices,
+		DoNotReadEmoji:                     userSettings.DoNotReadEmoji,
+		DoNotReadTwitchEmotes:              userSettings.DoNotReadTwitchEmotes,
+		DoNotReadLinks:                     userSettings.DoNotReadLinks,
+		ReadChatMessages:                   userSettings.ReadChatMessages,
+		ReadChatMessagesNicknames:          userSettings.ReadChatMessagesNicknames,
+	}
+
+	userModel, err := repo.CreateForUser(ctx, input)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	userModel.Settings = bytes
-
-	err = db.WithContext(ctx).Create(userModel).Error
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return userModel, userSettings, nil
+	return &userModel, userSettings, nil
 }
 
-func switchEnableState(ctx context.Context, db *gorm.DB, channelId string, newState bool) error {
-	channelSettings, channelModele := getSettings(ctx, db, channelId, "")
+func switchEnableState(
+	ctx context.Context,
+	repo channels_modules_settings_tts.Repository,
+	channelId string,
+	newState bool,
+) error {
+	channelSettings, channelModel, err := getSettings(ctx, repo, channelId, "")
+	if err != nil {
+		return err
+	}
 
 	if channelSettings == nil {
 		return errors.New("tts not configured")
 	}
 
 	channelSettings.Enabled = &newState
-	err := updateSettings(ctx, db, channelModele, channelSettings)
+	err = updateSettings(ctx, repo, channelModel, channelSettings)
 	if err != nil {
 		return err
 	}

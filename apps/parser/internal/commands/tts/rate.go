@@ -37,23 +37,36 @@ var RateCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModele := getSettings(
+		channelSettings, channelModel, err := getSettings(
 			ctx,
-			parseCtx.Services.Gorm,
+			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
 			"",
 		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "error while getting channel settings",
+				Err:     err,
+			}
+		}
 
 		if channelSettings == nil {
+			result.Result = []string{"TTS is not configured for this channel"}
 			return result, nil
 		}
 
-		userSettings, currentUserModel := getSettings(
+		userSettings, currentUserModel, err := getSettings(
 			ctx,
-			parseCtx.Services.Gorm,
+			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
 			parseCtx.Sender.ID,
 		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "error while getting user settings",
+				Err:     err,
+			}
+		}
 
 		rateArg := parseCtx.ArgsParser.Get(ttsRateArgName)
 
@@ -77,7 +90,7 @@ var RateCommand = &types.DefaultCommand{
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
 			channelSettings.Rate = rate
-			err := updateSettings(ctx, parseCtx.Services.Gorm, channelModele, channelSettings)
+			err := updateSettings(ctx, parseCtx.Services.TTSRepository, channelModel, channelSettings)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: "error while updating settings",
@@ -88,7 +101,7 @@ var RateCommand = &types.DefaultCommand{
 			if userSettings == nil {
 				_, _, err := createUserSettings(
 					ctx,
-					parseCtx.Services.Gorm,
+					parseCtx.Services.TTSRepository,
 					rate,
 					50,
 					channelSettings.Voice,
@@ -103,7 +116,7 @@ var RateCommand = &types.DefaultCommand{
 				}
 			} else {
 				userSettings.Rate = rate
-				err := updateSettings(ctx, parseCtx.Services.Gorm, currentUserModel, userSettings)
+				err := updateSettings(ctx, parseCtx.Services.TTSRepository, currentUserModel, userSettings)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
 						Message: "error while updating settings",

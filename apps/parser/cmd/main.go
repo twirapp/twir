@@ -27,7 +27,6 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/services/shortenedurls"
 	variables_bus "github.com/twirapp/twir/apps/parser/internal/variables-bus"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
-	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
@@ -35,6 +34,7 @@ import (
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
@@ -42,6 +42,7 @@ import (
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	channelsmodules_settingsttspgx "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/postgres"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
@@ -200,6 +201,7 @@ func main() {
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
 	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
+	ttsRepository := channelsmodules_settingsttspgx.NewFx(pgxconn)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
 	usersRepo := usersrepositorypgx.New(usersrepositorypgx.Opts{PgxPool: pgxconn})
 	channelsCategoriesAliasesRepo := channelscategoriesaliasespgx.New(channelscategoriesaliasespgx.Opts{PgxPool: pgxconn})
@@ -251,6 +253,7 @@ func main() {
 		CommandsPrefixCache:      commandsPrefixRepoCache,
 		CommandsPrefixRepository: commandsPrefixRepo,
 		TTSCache:                 ttsSettingsCacher,
+		TTSRepository:            ttsRepository,
 		SpotifyRepo:              spotifyRepo,
 		UsersRepo:                usersRepo,
 		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,

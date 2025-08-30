@@ -38,42 +38,38 @@ var VolumeCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelEntity := getSettings(
+		channelSettings, channelEntity, err := getSettings(
 			ctx,
-			parseCtx.Services.Gorm,
+			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
 			"",
 		)
-
+		if err != nil {
+			result.Result = []string{"Cannot get TTS settings"}
+			return result, nil
+		}
+		
 		if channelSettings == nil {
+			result.Result = []string{"TTS is not configured for this channel"}
 			return result, nil
 		}
 
 		volumeArg := parseCtx.ArgsParser.Get(ttsVolumeArgName)
-
 		if volumeArg == nil {
-			result.Result = append(
-				result.Result,
-				fmt.Sprintf("Global volume: %v", channelSettings.Volume),
-			)
+			result.Result = []string{fmt.Sprintf("Current volume: %v", channelSettings.Volume)}
 			return result, nil
 		}
 
 		volume := volumeArg.Int()
-
 		channelSettings.Volume = volume
-		err := updateSettings(ctx, parseCtx.Services.Gorm, channelEntity, channelSettings)
+
+		err = updateSettings(ctx, parseCtx.Services.TTSRepository, channelEntity, channelSettings)
 		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "error while updating settings",
-				Err:     err,
-			}
+			result.Result = []string{"Cannot update TTS settings"}
+			return result, nil
 		}
 
-		result.Result = append(result.Result, fmt.Sprintf("Volume changed to %v", volume))
-
-		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
-
+		result.Result = []string{fmt.Sprintf("TTS volume changed to %v", volume)}
 		return result, nil
 	},
 }

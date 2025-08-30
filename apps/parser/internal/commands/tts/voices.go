@@ -26,13 +26,27 @@ var VoicesCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
+		channelSettings, _, err := getSettings(
+			ctx,
+			parseCtx.Services.TTSRepository,
+			parseCtx.Channel.ID,
+			"",
+		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "error while getting channel settings",
+				Err:     err,
+			}
+		}
+
 		if channelSettings == nil {
+			result.Result = []string{"TTS is not configured for this channel"}
 			return result, nil
 		}
 
 		voices := getVoices(ctx, parseCtx.Services.Config)
 		if len(voices) == 0 {
+			result.Result = []string{"No voices available"}
 			return result, nil
 		}
 

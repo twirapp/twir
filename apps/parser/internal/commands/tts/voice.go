@@ -36,23 +36,36 @@ var VoiceCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModel := getSettings(
+		channelSettings, channelModel, err := getSettings(
 			ctx,
-			parseCtx.Services.Gorm,
+			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
 			"",
 		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "error while getting channel settings",
+				Err:     err,
+			}
+		}
 
 		if channelSettings == nil {
+			result.Result = []string{"TTS is not configured for this channel"}
 			return result, nil
 		}
 
-		userSettings, currentUserModel := getSettings(
+		userSettings, currentUserModel, err := getSettings(
 			ctx,
-			parseCtx.Services.Gorm,
+			parseCtx.Services.TTSRepository,
 			parseCtx.Channel.ID,
 			parseCtx.Sender.ID,
 		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "error while getting user settings",
+				Err:     err,
+			}
+		}
 
 		textArg := parseCtx.ArgsParser.Get(ttsVoiceArgName)
 
@@ -107,7 +120,7 @@ var VoiceCommand = &types.DefaultCommand{
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
 			channelSettings.Voice = wantedVoice.Name
-			err := updateSettings(ctx, parseCtx.Services.Gorm, channelModel, channelSettings)
+			err := updateSettings(ctx, parseCtx.Services.TTSRepository, channelModel, channelSettings)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: "error while updating settings",
@@ -118,7 +131,7 @@ var VoiceCommand = &types.DefaultCommand{
 			if userSettings == nil {
 				_, _, err := createUserSettings(
 					ctx,
-					parseCtx.Services.Gorm,
+					parseCtx.Services.TTSRepository,
 					50,
 					50,
 					wantedVoice.Name,
@@ -132,9 +145,8 @@ var VoiceCommand = &types.DefaultCommand{
 					}
 				}
 			} else {
-
 				userSettings.Voice = wantedVoice.Name
-				err := updateSettings(ctx, parseCtx.Services.Gorm, currentUserModel, userSettings)
+				err := updateSettings(ctx, parseCtx.Services.TTSRepository, currentUserModel, userSettings)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
 						Message: "error while updating user settings",

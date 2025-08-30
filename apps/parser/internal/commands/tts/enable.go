@@ -25,7 +25,7 @@ var EnableCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		err := switchEnableState(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, true)
+		err := switchEnableState(ctx, parseCtx.Services.TTSRepository, parseCtx.Channel.ID, true)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "failed to enable tts",
