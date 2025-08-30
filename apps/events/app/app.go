@@ -68,7 +68,7 @@ var App = fx.Module(
 		workers.NewEventsWorker,
 		listener.New,
 		func(l logger.Logger) {
-			l.Info("Events service started")
+			l.Info("🤖 Events service started")
 		},
 	),
 )
