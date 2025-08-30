@@ -40,6 +40,7 @@ import (
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
+	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	channelsmodules_settingsttspgx "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/postgres"
@@ -214,6 +215,7 @@ func main() {
 	channelsEmotesUsage := channelsemotesusagesrepositoryclickhouse.New(channelsemotesusagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 	channelsCommandsUsagesRepo := channelscommandsusagesclickhouse.New(channelscommandsusagesclickhouse.Opts{Client: clickhouseClient})
 	chatMessagesRepo := chatmessagesrepositoryclickhouse.New(chatmessagesrepositoryclickhouse.Opts{Client: clickhouseClient})
+	channelsEventListRepo := channelseventslistpostgres.New(channelseventslistpostgres.Opts{PgxPool: pgxconn})
 
 	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
@@ -262,6 +264,7 @@ func main() {
 		ScheduledVipsRepo:        scheduledVipsRepo,
 		CacheTwitchClient:        cachedTwitchClient,
 		ChannelsInfoHistoryRepo:  channelsInfoHistoryRepo,
+		ChannelEventListsRepo:    channelsEventListRepo,
 		ShortUrlServices: shortenedurls.New(
 			shortenedurls.Opts{
 				Repository: shortenedUrlsRepo,
