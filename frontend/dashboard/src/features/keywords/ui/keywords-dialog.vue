@@ -210,7 +210,7 @@ const save = keywordsForm.handleSubmit(async (values) => {
 					<Label class="flex gap-2">
 						Roles
 					</Label>
-					<FormRolesSelector field-name="rolesIds" />
+					<FormRolesSelector class="xl:w-full xl:max-w-full" field-name="rolesIds" />
 				</div>
 
 				<FormField v-slot="{ componentField }" name="cooldown">
