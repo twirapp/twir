@@ -19,7 +19,8 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 				title: t('chatAlerts.labels.followers'),
 				minCooldown: 0,
 				maxMessages: 20,
-				defaultMessageText: 'Yay, there is new follower, say hello to {user}!',
+				defaultMessageText:
+					'Yay, there is new follower, say hello to {user}! Total followers for current stream: {streamFollowers}',
 				alertMessage: `
 			${t('chatAlerts.randomedMessage')}
 			${t('chatAlerts.replacedInfo', { vars: '{user} {streamFollowers}' })}
