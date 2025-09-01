@@ -6,10 +6,8 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 )
 
@@ -24,17 +22,11 @@ func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error
 
 // EventsubSubscribe is the resolver for the eventsubSubscribe field.
 func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.EventsubSubscribeInput) (bool, error) {
-	condition := mappers.ConditionTypeGqlToEntity(opts.Condition)
-	if condition == "" {
-		return false, fmt.Errorf("unknown condition type")
-	}
-
 	err := r.deps.AdminActionsService.EventSubSubscribe(
 		ctx,
 		admin_actions.EventSubSubscribeInput{
-			Type:      opts.Type,
-			Version:   opts.Version,
-			Condition: condition,
+			Type:    opts.Type,
+			Version: opts.Version,
 		},
 	)
 	if err != nil {
