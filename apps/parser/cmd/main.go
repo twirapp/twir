@@ -21,6 +21,7 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	botsettingsbus "github.com/twirapp/twir/apps/parser/internal/bot-settings-bus"
 	commands_bus "github.com/twirapp/twir/apps/parser/internal/commands-bus"
 	"github.com/twirapp/twir/apps/parser/internal/nats"
 	chatwallservice "github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
@@ -201,7 +202,12 @@ func main() {
 	}
 
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
-	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
+
+	commandsPrefixRepoCache, err := channelscommandsprefixcache.NewInMemory(commandsPrefixRepo)
+	if err != nil {
+		panic(err)
+	}
+
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
 	ttsRepository := channelsmodules_settingsttspgx.NewFx(pgxconn)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
@@ -296,6 +302,12 @@ func main() {
 	variablesBus := variables_bus.New(bus, variablesService)
 	variablesBus.Subscribe()
 	defer variablesBus.Unsubscribe()
+
+	botSettingsBus := botsettingsbus.New(bus, s)
+	if err = botSettingsBus.Subscribe(); err != nil {
+		panic(err)
+	}
+	defer botSettingsBus.Unsubscribe()
 
 	logger.Info("Parser microservice started")
 

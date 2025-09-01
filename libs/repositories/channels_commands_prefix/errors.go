@@ -1,7 +1,10 @@
 package channels_commands_prefix
 
 import (
-	"fmt"
+	"errors"
 )
 
-var ErrNotFound = fmt.Errorf("prefix not found")
+var (
+	ErrNotFound      = errors.New("prefix not found")
+	ErrAlreadyExists = errors.New("prefix already exists")
+)

@@ -4,6 +4,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/api"
 	auditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/bus-core/bots-settings"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -48,6 +49,10 @@ type botsBus struct {
 	ShoutOut      Queue[botsservice.SentShoutOutRequest, struct{}]
 	Vip           Queue[botsservice.VipRequest, struct{}]
 	UnVip         Queue[botsservice.UnVipRequest, struct{}]
+}
+
+type botsSettingsBus struct {
+	UpdatePrefix Queue[botssettings.UpdatePrefixRequest, struct{}]
 }
 
 type emotesCacherBus struct {

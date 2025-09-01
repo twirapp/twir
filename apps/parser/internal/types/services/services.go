@@ -10,6 +10,7 @@ import (
 	ttsservice "github.com/twirapp/twir/apps/parser/internal/services/tts"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/cache"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -49,7 +50,7 @@ type Services struct {
 	Bus                        *buscore.Bus
 	TrmManager                 trm.Manager
 	CommandsCache              *generic_cacher.GenericCacher[[]model.ChannelsCommands]
-	CommandsPrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	CommandsPrefixCache        cache.Cache[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	SevenTvCache               *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser]
 	ChatWallCache              *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
 	ChatWallService            *chat_wall.Service

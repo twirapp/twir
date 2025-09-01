@@ -8,6 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	batchprocessor "github.com/twirapp/batch-processor"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/cache"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
@@ -43,7 +44,7 @@ type Handler struct {
 	redisClient *redis.Client
 
 	twirBus                             *bus_core.Bus
-	prefixCache                         *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	prefixCache                         cache.Cache[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	alertsCache                         *generic_cacher.GenericCacher[[]alertmodel.Alert]
 	commandsCache                       *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
 	channelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
@@ -75,7 +76,7 @@ type Opts struct {
 	Redis  *redis.Client
 
 	Bus                *bus_core.Bus
-	PrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	PrefixCache        cache.Cache[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	ChannelAlertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert]
 
 	Config cfg.Config

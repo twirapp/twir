@@ -112,7 +112,7 @@ require (
 	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/mod v0.26.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/term v0.33.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/tools v0.35.0 // indirect
@@ -124,4 +124,7 @@ require (
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
 
-require github.com/kvizyx/twitchy v0.0.1 // indirect
+require (
+	github.com/kvizyx/twitchy v0.0.1 // indirect
+	github.com/maypok86/otter/v2 v2.2.1 // indirect
+)
