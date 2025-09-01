@@ -408,6 +408,7 @@ func (c *Commands) ParseCommandResponses(
 						fmt.Sprintf("[Twir error]: %s", commandErr.Message),
 					},
 				}
+				fmt.Println(commandErr.Err)
 			} else {
 				results = &types.CommandsHandlerResult{
 					Result: []string{"[Twir error]: unknown error happened. Please contact developers."},

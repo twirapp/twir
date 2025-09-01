@@ -26,7 +26,6 @@ export const useValorantStats = createGlobalState(() => {
 		disabledProgress: false,
 		disabledGlowEffect: false,
 		disabledTwentyLastMatches: false,
-		overlayFont: 'Inter',
 	})
 
 	function setSettings(data: Required<Settings>) {
@@ -34,9 +33,13 @@ export const useValorantStats = createGlobalState(() => {
 	}
 
 	function copyOverlayLink() {
-		const dashboard = profile.value?.availableDashboards.find(d => d.id === profile.value?.selectedDashboardId)
+		const dashboard = profile.value?.availableDashboards.find(
+			(d) => d.id === profile.value?.selectedDashboardId
+		)
 
-		const url = new URL(`${window.location.origin}/o/${dashboard?.apiKey ?? profile.value?.apiKey}/valorant-stats`)
+		const url = new URL(
+			`${window.location.origin}/o/${dashboard?.apiKey ?? profile.value?.apiKey}/valorant-stats`
+		)
 
 		for (const [key, value] of Object.entries(settings.value)) {
 			url.searchParams.set(key, value as string)

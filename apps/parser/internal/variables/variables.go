@@ -94,6 +94,7 @@ func New(opts *Opts) *Variables {
 			stream.Uptime,
 			stream.Viewers,
 			stream.CategoryTime,
+			stream.Followers,
 			// stream.CategoriesTime,
 			top.Watched,
 			top.Messages,

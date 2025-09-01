@@ -14,42 +14,46 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type ChatAlerts struct {
-	db              *gorm.DB
-	redis           *redis.Client
-	logger          logger.Logger
-	cfg             cfg.Config
-	websocketsGrpc  websockets.WebsocketClient
-	bus             *buscore.Bus
-	chatAlertsCache *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
+	db                    *gorm.DB
+	redis                 *redis.Client
+	logger                logger.Logger
+	cfg                   cfg.Config
+	websocketsGrpc        websockets.WebsocketClient
+	bus                   *buscore.Bus
+	chatAlertsCache       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
+	channelEventListsRepo channelseventslist.Repository
 }
 
 type Opts struct {
 	fx.In
 
-	DB              *gorm.DB
-	Redis           *redis.Client
-	Logger          logger.Logger
-	Cfg             cfg.Config
-	WebsocketsGrpc  websockets.WebsocketClient
-	Bus             *buscore.Bus
-	ChatAlertsCache *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
+	DB                    *gorm.DB
+	Redis                 *redis.Client
+	Logger                logger.Logger
+	Cfg                   cfg.Config
+	WebsocketsGrpc        websockets.WebsocketClient
+	Bus                   *buscore.Bus
+	ChatAlertsCache       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
+	ChannelEventListsRepo channelseventslist.Repository
 }
 
 func New(opts Opts) (*ChatAlerts, error) {
 	return &ChatAlerts{
-		db:              opts.DB,
-		redis:           opts.Redis,
-		logger:          opts.Logger,
-		cfg:             opts.Cfg,
-		bus:             opts.Bus,
-		websocketsGrpc:  opts.WebsocketsGrpc,
-		chatAlertsCache: opts.ChatAlertsCache,
+		db:                    opts.DB,
+		redis:                 opts.Redis,
+		logger:                opts.Logger,
+		cfg:                   opts.Cfg,
+		bus:                   opts.Bus,
+		websocketsGrpc:        opts.WebsocketsGrpc,
+		chatAlertsCache:       opts.ChatAlertsCache,
+		channelEventListsRepo: opts.ChannelEventListsRepo,
 	}, nil
 }
 
