@@ -62,105 +62,106 @@ export type GiveawaySubscriptionParticipant = ChannelGiveawaySubscriptionPartici
 
 export const useGiveawaysApi = createGlobalState(() => {
 	// Queries
-	const useGiveawaysList = () => useQuery({
-		query: graphql(`
-			query GiveawaysList {
-				giveaways {
-					...Giveaway
+	const useGiveawaysList = () =>
+		useQuery({
+			query: graphql(`
+				query GiveawaysList {
+					giveaways {
+						...Giveaway
+					}
 				}
-			}
-		`),
-	})
+			`),
+		})
 
 	const useGiveaway = (giveawayId: MaybeRef<string | null>) => {
-		const id = unref(giveawayId)
-
 		return useQuery({
 			query: graphql(`
 				query GiveawayById($giveawayId: String!) {
 					giveaway(giveawayId: $giveawayId) {
 						...Giveaway
+						participants {
+							...GiveawayParticipant
+						}
 					}
 				}
 			`),
 			get variables() {
-				return { giveawayId: id! }
+				return { giveawayId: unref(giveawayId)! }
 			},
-			pause: !id,
-		})
-	}
-
-	const useGiveawayParticipants = (giveawayId: MaybeRef<string | null>) => {
-		const id = unref(giveawayId)
-
-		return useQuery({
-			query: graphql(`
-				query GetGiveawayParticipants($giveawayId: String!) {
-					giveawayParticipants(giveawayId: $giveawayId) {
-						...GiveawayParticipant
-					}
-				}
-			`),
-			get variables() {
-				return { giveawayId: id! }
-			},
-			pause: !id,
+			pause: true,
+			requestPolicy: 'cache-and-network',
 		})
 	}
 
 	// Mutations
-	const useMutationCreateGiveaway = () => useMutation(graphql(`
-		mutation CreateGiveaway($opts: GiveawaysCreateInput!) {
-			giveawaysCreate(opts: $opts) {
-				...Giveaway
-			}
-		}
-	`))
+	const useMutationCreateGiveaway = () =>
+		useMutation(
+			graphql(`
+				mutation CreateGiveaway($opts: GiveawaysCreateInput!) {
+					giveawaysCreate(opts: $opts) {
+						...Giveaway
+					}
+				}
+			`)
+		)
 
-	const useMutationUpdateGiveaway = () => useMutation(graphql(`
-		mutation UpdateGiveaway($id: String!, $opts: GiveawaysUpdateInput!) {
-			giveawaysUpdate(id: $id, opts: $opts) {
-				...Giveaway
-			}
-		}
-	`))
+	const useMutationUpdateGiveaway = () =>
+		useMutation(
+			graphql(`
+				mutation UpdateGiveaway($id: String!, $opts: GiveawaysUpdateInput!) {
+					giveawaysUpdate(id: $id, opts: $opts) {
+						...Giveaway
+					}
+				}
+			`)
+		)
 
-	const useMutationRemoveGiveaway = () => useMutation(graphql(`
-		mutation RemoveGiveaway($id: String!) {
-			giveawaysRemove(id: $id) {
-				...Giveaway
-			}
-		}
-	`))
+	const useMutationRemoveGiveaway = () =>
+		useMutation(
+			graphql(`
+				mutation RemoveGiveaway($id: String!) {
+					giveawaysRemove(id: $id) {
+						...Giveaway
+					}
+				}
+			`)
+		)
 
-	const useMutationStartGiveaway = () => useMutation(graphql(`
-		mutation StartGiveaway($id: String!) {
-			giveawaysStart(id: $id) {
-				...Giveaway
-			}
-		}
-	`))
+	const useMutationStartGiveaway = () =>
+		useMutation(
+			graphql(`
+				mutation StartGiveaway($id: String!) {
+					giveawaysStart(id: $id) {
+						...Giveaway
+					}
+				}
+			`)
+		)
 
-	const useMutationStopGiveaway = () => useMutation(graphql(`
-		mutation StopGiveaway($id: String!) {
-			giveawaysStop(id: $id) {
-				...Giveaway
-			}
-		}
-	`))
+	const useMutationStopGiveaway = () =>
+		useMutation(
+			graphql(`
+				mutation StopGiveaway($id: String!) {
+					giveawaysStop(id: $id) {
+						...Giveaway
+					}
+				}
+			`)
+		)
 
-	const useMutationChooseWinners = () => useMutation(graphql(`
-		mutation ChooseWinners($id: String!) {
-			giveawaysChooseWinners(id: $id) {
-				...GiveawayWinner
-			}
-		}
-	`))
+	const useMutationChooseWinners = () =>
+		useMutation(
+			graphql(`
+				mutation ChooseWinners($id: String!) {
+					giveawaysChooseWinners(id: $id) {
+						...GiveawayWinner
+					}
+				}
+			`)
+		)
 
 	// Subscriptions
 	const useSubscriptionGiveawayParticipants = (giveawayId: MaybeRef<string | null>) => {
-		const id = unref(giveawayId)
-
 		return useSubscription({
 			query: graphql(`
 				subscription SubscribeToGiveawayParticipants($giveawayId: String!) {
@@ -170,9 +171,9 @@ export const useGiveawaysApi = createGlobalState(() => {
 				}
 			`),
 			get variables() {
-				return { giveawayId: id! }
+				return { giveawayId: unref(giveawayId)! }
 			},
-			pause: !id,
+			pause: true,
 		})
 	}
 
@@ -180,7 +181,6 @@ export const useGiveawaysApi = createGlobalState(() => {
 		// Queries
 		useGiveawaysList,
 		useGiveaway,
-		useGiveawayParticipants,
 
 		// Mutations
 		useMutationCreateGiveaway,

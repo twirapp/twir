@@ -10,12 +10,12 @@ const giveawayId = route.params.id as string
 const { loadParticipants } = useGiveaways()
 
 onMounted(() => {
-  if (giveawayId) {
-    loadParticipants(giveawayId)
-  }
+	if (giveawayId) {
+		loadParticipants(giveawayId)
+	}
 })
 </script>
 
 <template>
-  <GiveawaysCurrentGiveaway />
+	<GiveawaysCurrentGiveaway />
 </template>

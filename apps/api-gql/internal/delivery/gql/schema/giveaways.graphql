@@ -1,8 +1,6 @@
 extend type Query {
 	giveaways: [ChannelGiveaway!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
 	giveaway(giveawayId: String!): ChannelGiveaway!  @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
-
-	giveawayParticipants(giveawayId: String!): [ChannelGiveawayParticipants!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
 }
 
 extend type Mutation {
@@ -39,6 +37,7 @@ type ChannelGiveaway {
 	createdByUserId: String!
 
 	winners: [ChannelGiveawayWinner!]! @goField(forceResolver: true)
+	participants: [ChannelGiveawayParticipants!]! @goField(forceResolver: true)
 }
 
 type ChannelGiveawayWinner {
