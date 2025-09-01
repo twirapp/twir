@@ -271,7 +271,7 @@ func (c *Manager) getConditionForTopic(
 		}, nil
 	case eventsub.EventTypeChannelRaid:
 		return eventsub.ChannelRaidCondition{
-			ToBroadcasterUserId: botId,
+			ToBroadcasterUserId: channelId,
 		}, nil
 	case eventsub.EventTypeChannelPointsCustomRewardRedemptionAdd:
 		return eventsub.ChannelPointsCustomRewardRedemptionAddCondition{
