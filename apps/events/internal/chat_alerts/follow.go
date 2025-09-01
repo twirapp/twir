@@ -37,7 +37,7 @@ func (c *ChatAlerts) follow(
 	text := strings.ReplaceAll(sample.Text, "{user}", req.UserName)
 
 	var followersCount int64
-	if stream != nil {
+	if stream != nil && stream.ID != "" {
 		t := model.ChannelEventListItemTypeFollow
 		count, err := c.channelEventListsRepo.CountBy(
 			ctx,
