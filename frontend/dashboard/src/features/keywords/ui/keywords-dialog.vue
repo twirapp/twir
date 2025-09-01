@@ -186,7 +186,9 @@ const save = keywordsForm.handleSubmit(async (values) => {
 							{{ t('sharedTexts.response') }}
 						</FormLabel>
 						<FormControl>
-							<VariableInput :model-value="componentField.modelValue" input-type="textarea" @update:model-value="componentField['onUpdate:modelValue']" />
+							<div class="relative">
+								<VariableInput :model-value="componentField.modelValue" input-type="textarea" @update:model-value="componentField['onUpdate:modelValue']" />
+							</div>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
