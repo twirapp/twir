@@ -35,7 +35,7 @@ type Pgx struct {
 
 func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Keyword, error) {
 	query := `
-SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages
+SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids
 FROM channels_keywords
 WHERE "channelId" = $1
 `
@@ -72,7 +72,7 @@ WHERE "channelId" = $1
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Keyword, error) {
 	query := `
-SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages
+SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids
 FROM channels_keywords
 WHERE id = $1
 LIMIT 1;
@@ -94,10 +94,15 @@ LIMIT 1;
 
 func (c *Pgx) Create(ctx context.Context, input keywords.CreateInput) (model.Keyword, error) {
 	query := `
-INSERT INTO channels_keywords ("channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages
+INSERT INTO channels_keywords ("channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids
 `
+
+	rolesIds := make([]string, len(input.RolesIDs))
+	for i, id := range input.RolesIDs {
+		rolesIds[i] = id.String()
+	}
 
 	rows, err := c.pool.Query(
 		ctx,
@@ -111,6 +116,7 @@ RETURNING id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt"
 		input.IsReply,
 		input.IsRegular,
 		input.Usages,
+		rolesIds,
 	)
 	if err != nil {
 		return model.Nil, err
@@ -143,6 +149,15 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input keywords.UpdateInp
 			"usages":             input.Usages,
 		},
 	)
+
+	if input.RolesIDs != nil {
+		rolesIds := make([]string, len(*input.RolesIDs))
+		for i, id := range *input.RolesIDs {
+			rolesIds[i] = id.String()
+		}
+
+		updateBuilder = updateBuilder.Set("roles_ids", rolesIds)
+	}
 
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})
 

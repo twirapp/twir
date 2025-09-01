@@ -9,7 +9,7 @@ import (
 	"log/slog"
 
 	"github.com/goccy/go-json"
-	"github.com/oklog/ulid/v2"
+	ulid "github.com/oklog/ulid/v2"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -21,10 +21,7 @@ import (
 )
 
 // Winners is the resolver for the winners field.
-func (r *channelGiveawayResolver) Winners(
-	ctx context.Context,
-	obj *gqlmodel.ChannelGiveaway,
-) ([]gqlmodel.ChannelGiveawayWinner, error) {
+func (r *channelGiveawayResolver) Winners(ctx context.Context, obj *gqlmodel.ChannelGiveaway) ([]gqlmodel.ChannelGiveawayWinner, error) {
 	parsedUlid, err := ulid.Parse(obj.ID)
 	if err != nil {
 		return nil, err
@@ -55,10 +52,7 @@ func (r *channelGiveawayResolver) Winners(
 }
 
 // Participants is the resolver for the participants field.
-func (r *channelGiveawayResolver) Participants(
-	ctx context.Context,
-	obj *gqlmodel.ChannelGiveaway,
-) ([]gqlmodel.ChannelGiveawayParticipants, error) {
+func (r *channelGiveawayResolver) Participants(ctx context.Context, obj *gqlmodel.ChannelGiveaway) ([]gqlmodel.ChannelGiveawayParticipants, error) {
 	parsedID, err := ulid.Parse(obj.ID)
 	if err != nil {
 		return nil, err
@@ -85,18 +79,12 @@ func (r *channelGiveawayResolver) Participants(
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *channelGiveawayWinnerResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.ChannelGiveawayWinner,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *channelGiveawayWinnerResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChannelGiveawayWinner) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // GiveawaysCreate is the resolver for the giveawaysCreate field.
-func (r *mutationResolver) GiveawaysCreate(
-	ctx context.Context,
-	opts gqlmodel.GiveawaysCreateInput,
-) (*gqlmodel.ChannelGiveaway, error) {
+func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.GiveawaysCreateInput) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -123,11 +111,7 @@ func (r *mutationResolver) GiveawaysCreate(
 }
 
 // GiveawaysUpdate is the resolver for the giveawaysUpdate field.
-func (r *mutationResolver) GiveawaysUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.GiveawaysUpdateInput,
-) (*gqlmodel.ChannelGiveaway, error) {
+func (r *mutationResolver) GiveawaysUpdate(ctx context.Context, id string, opts gqlmodel.GiveawaysUpdateInput) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -154,10 +138,7 @@ func (r *mutationResolver) GiveawaysUpdate(
 }
 
 // GiveawaysRemove is the resolver for the giveawaysRemove field.
-func (r *mutationResolver) GiveawaysRemove(
-	ctx context.Context,
-	id string,
-) (*gqlmodel.ChannelGiveaway, error) {
+func (r *mutationResolver) GiveawaysRemove(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -172,10 +153,7 @@ func (r *mutationResolver) GiveawaysRemove(
 }
 
 // GiveawaysStart is the resolver for the giveawaysStart field.
-func (r *mutationResolver) GiveawaysStart(
-	ctx context.Context,
-	id string,
-) (*gqlmodel.ChannelGiveaway, error) {
+func (r *mutationResolver) GiveawaysStart(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -196,10 +174,7 @@ func (r *mutationResolver) GiveawaysStart(
 }
 
 // GiveawaysStop is the resolver for the giveawaysStop field.
-func (r *mutationResolver) GiveawaysStop(ctx context.Context, id string) (
-	*gqlmodel.ChannelGiveaway,
-	error,
-) {
+func (r *mutationResolver) GiveawaysStop(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -220,10 +195,7 @@ func (r *mutationResolver) GiveawaysStop(ctx context.Context, id string) (
 }
 
 // GiveawaysChooseWinners is the resolver for the giveawaysChooseWinners field.
-func (r *mutationResolver) GiveawaysChooseWinners(
-	ctx context.Context,
-	id string,
-) ([]gqlmodel.ChannelGiveawayWinner, error) {
+func (r *mutationResolver) GiveawaysChooseWinners(ctx context.Context, id string) ([]gqlmodel.ChannelGiveawayWinner, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -272,10 +244,7 @@ func (r *queryResolver) Giveaways(ctx context.Context) ([]gqlmodel.ChannelGiveaw
 }
 
 // Giveaway is the resolver for the giveaway field.
-func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (
-	*gqlmodel.ChannelGiveaway,
-	error,
-) {
+func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -296,10 +265,7 @@ func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (
 }
 
 // GiveawaysParticipants is the resolver for the giveawaysParticipants field.
-func (r *subscriptionResolver) GiveawaysParticipants(
-	ctx context.Context,
-	giveawayID string,
-) (<-chan *gqlmodel.ChannelGiveawaySubscriptionParticipant, error) {
+func (r *subscriptionResolver) GiveawaysParticipants(ctx context.Context, giveawayID string) (<-chan *gqlmodel.ChannelGiveawaySubscriptionParticipant, error) {
 	channel := make(chan *gqlmodel.ChannelGiveawaySubscriptionParticipant, 1)
 
 	go func() {

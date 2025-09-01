@@ -15,5 +15,6 @@ func KeywordsFrom(k entity.Keyword) gqlmodel.Keyword {
 		IsReply:             k.IsReply,
 		IsRegularExpression: k.IsRegular,
 		UsageCount:          k.Usages,
+		RolesIds:            k.RolesIDs,
 	}
 }

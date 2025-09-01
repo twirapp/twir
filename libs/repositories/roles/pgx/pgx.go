@@ -37,6 +37,74 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) GetUserAccessibleRoles(ctx context.Context, channelID, userID string) (
+	[]model.Role,
+	error,
+) {
+	query := `
+SELECT
+    cr.id AS role_id,
+    cr."channelId" AS channel_id,
+    cr.name AS role_name,
+    cr.type AS role_type,
+    cr.permissions,
+    cr.required_watch_time,
+    cr.required_messages,
+    cr.required_used_channel_points
+FROM public.channels_roles AS cr
+         LEFT JOIN public.channels_roles_users AS cru
+                   ON cr.id = cru."roleId" AND cru."userId" = @user_id
+         LEFT JOIN public.users_stats AS us
+                   ON cr."channelId" = us."channelId" AND us."userId" = @user_id
+WHERE
+    cr."channelId" = @channel_id
+		AND (
+			cru."userId" IS NOT NULL OR (
+				(cr.required_messages > 0 AND us.messages >= cr.required_messages) OR
+				(cr.required_watch_time > 0 AND us.watched >= cr.required_watch_time) OR
+				(cr.required_used_channel_points > 0 AND us."usedChannelPoints" >= cr.required_used_channel_points)
+			)
+		)
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(
+		ctx, query, pgx.NamedArgs{
+			"channel_id": channelID,
+			"user_id":    userID,
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("GetUserAccessibleRoles: failed to execute select query: %w", err)
+	}
+
+	defer rows.Close()
+	var result []model.Role
+
+	for rows.Next() {
+		role := model.Role{}
+		err := rows.Scan(
+			&role.ID,
+			&role.ChannelID,
+			&role.Name,
+			&role.Type,
+			&role.Permissions,
+			&role.RequiredWatchTime,
+			&role.RequiredMessages,
+			&role.RequiredUsedChannelPoints,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("GetUserAccessibleRoles: failed to scan row: %w", err)
+		}
+		result = append(result, role)
+	}
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("GetUserAccessibleRoles: rows error: %w", rows.Err())
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Role, error) {
 	query := `
 SELECT id, "channelId", name, type, permissions, required_messages, required_used_channel_points, required_watch_time

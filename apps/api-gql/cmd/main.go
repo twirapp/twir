@@ -86,9 +86,11 @@ import (
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
+	rolescache "github.com/twirapp/twir/libs/cache/roles"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	valorantintegration "github.com/twirapp/twir/libs/integrations/valorant"
+	"github.com/twirapp/twir/libs/logger"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
@@ -447,6 +449,7 @@ func main() {
 			channelsongrequestssettingscache.New,
 			channelsintegrationssettingsseventvcache.New,
 			eventscache.New,
+			rolescache.New,
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,
 				fx.As(new(wsrouter.WsRouter)),
@@ -467,6 +470,9 @@ func main() {
 			channelsfilesroute.New,
 			valorant.New,
 			stream.New,
+			func(l logger.Logger) {
+				l.Info("🚀 API-GQL is running")
+			},
 		),
 	).Run()
 }

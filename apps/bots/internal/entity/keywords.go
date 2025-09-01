@@ -17,4 +17,5 @@ type Keyword struct {
 	IsReply          bool
 	IsRegular        bool
 	Usages           int
+	RolesIDs         []uuid.UUID
 }

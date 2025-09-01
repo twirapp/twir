@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
+	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/lib/pq"
@@ -17,6 +19,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	rolesmodel "github.com/twirapp/twir/libs/repositories/roles/model"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -24,8 +27,8 @@ import (
 
 func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	entities, err := c.keywordsService.GetManyByChannelID(ctx, msg.BroadcasterUserId)
 	if err != nil {
@@ -86,21 +89,92 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 		matchedKeywords = append(matchedKeywords, k)
 	}
 
-	for _, k := range matchedKeywords {
-		response := c.keywordsParseResponse(ctx, msg, k)
+	var wg sync.WaitGroup
 
-		c.keywordsTriggerEvent(ctx, msg, k, response)
-		c.twitchActions.SendMessage(
-			ctx, twitchactions.SendMessageOpts{
-				BroadcasterID:        msg.BroadcasterUserId,
-				SenderID:             msg.EnrichedData.DbChannel.BotID,
-				Message:              response,
-				ReplyParentMessageID: lo.If(k.IsReply, msg.MessageId).Else(""),
-			},
-		)
-		c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID.String()])
-		c.keywordsTriggerAlert(ctx, k)
+	for _, k := range matchedKeywords {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			if len(k.RolesIDs) > 0 {
+				channelRoles, err := c.keywordsService.GetChannelRoles(ctx, msg.BroadcasterUserId)
+				if err != nil {
+					c.logger.Error(
+						"cannot get channel roles",
+						slog.Any("err", err),
+						slog.String("channelId", msg.BroadcasterUserId),
+					)
+					return
+				}
+
+				userBadges := createUserBadges(msg.Badges)
+				hasRole := slices.Contains(userBadges, "BROADCASTER")
+
+				if msg.DbUser.IsBotAdmin {
+					hasRole = true
+				}
+
+				for _, badge := range userBadges {
+					for _, r := range channelRoles {
+						if r.Type != rolesmodel.ChannelRoleTypeCustom && badge == r.Type.String() {
+							hasRole = true
+							break
+						}
+					}
+				}
+
+				if !hasRole {
+					userRoles, err := c.keywordsService.GetUserAccessibleRoles(
+						ctx,
+						msg.BroadcasterUserId,
+						msg.ChatterUserId,
+					)
+					if err != nil {
+						c.logger.Error(
+							"cannot get user roles",
+							slog.Any("err", err),
+							slog.String("channelId", msg.BroadcasterUserId),
+							slog.String("userId", msg.ChatterUserId),
+						)
+						return
+					}
+
+					fmt.Println(userRoles)
+
+					for _, r := range userRoles {
+						for _, id := range k.RolesIDs {
+							fmt.Println(r.ID.String(), id.String())
+							if id.String() == r.ID.String() {
+								hasRole = true
+								break
+							}
+						}
+					}
+				}
+
+				if !hasRole {
+					return
+				}
+			}
+
+			response := c.keywordsParseResponse(ctx, msg, k)
+
+			c.keywordsTriggerEvent(ctx, msg, k, response)
+			c.twitchActions.SendMessage(
+				ctx, twitchactions.SendMessageOpts{
+					BroadcasterID:        msg.BroadcasterUserId,
+					SenderID:             msg.EnrichedData.DbChannel.BotID,
+					Message:              response,
+					ReplyParentMessageID: lo.If(k.IsReply, msg.MessageId).Else(""),
+				},
+			)
+			c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID.String()])
+			c.keywordsTriggerAlert(ctx, k)
+		}()
 	}
+
+	wg.Wait()
 
 	return nil
 }
