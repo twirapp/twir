@@ -3,6 +3,7 @@ package mappers
 import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
 
@@ -12,10 +13,11 @@ func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
 		responses = append(
 			responses,
 			gqlmodel.TimerResponse{
-				ID:         r.ID,
-				Text:       r.Text,
-				IsAnnounce: r.IsAnnounce,
-				Count:      r.Count,
+				ID:            r.ID,
+				Text:          r.Text,
+				IsAnnounce:    r.IsAnnounce,
+				Count:         r.Count,
+				AnnounceColor: AnnounceColorToGql(r.AnnounceColor),
 			},
 		)
 	}
@@ -40,4 +42,25 @@ func StreamElementsTimerToGql(m streamelements.Timer) gqlmodel.StreamElementsTim
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
 	}
+}
+
+var announceEntityToGql = map[bots.AnnounceColor]gqlmodel.TwitchAnnounceColor{
+	bots.AnnounceColorPrimary: gqlmodel.TwitchAnnounceColorPrimary,
+	bots.AnnounceColorBlue:    gqlmodel.TwitchAnnounceColorBlue,
+	bots.AnnounceColorGreen:   gqlmodel.TwitchAnnounceColorGreen,
+	bots.AnnounceColorOrange:  gqlmodel.TwitchAnnounceColorOrange,
+	bots.AnnounceColorPurple:  gqlmodel.TwitchAnnounceColorPurple,
+}
+
+func AnnounceColorToGql(color bots.AnnounceColor) gqlmodel.TwitchAnnounceColor {
+	return announceEntityToGql[color]
+}
+
+func AnnounceColorToEntity(color gqlmodel.TwitchAnnounceColor) bots.AnnounceColor {
+	for k, v := range announceEntityToGql {
+		if v == color {
+			return k
+		}
+	}
+	return bots.AnnounceColorPrimary
 }

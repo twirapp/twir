@@ -10,10 +10,10 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/timers/internal/repositories/channels"
 	"github.com/twirapp/twir/apps/timers/internal/repositories/streams"
-	config "github.com/twirapp/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/redis_keys"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
@@ -125,7 +125,7 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 		return currentResponse, nil
 	}
 
-	err = c.sendMessage(ctx, stream, channel.ID, response.Text, response.IsAnnounce, response.Count)
+	err = c.sendMessage(ctx, stream, channel.ID, response.Text, response.IsAnnounce, response.AnnounceColor, response.Count)
 	if err != nil {
 		return currentResponse, err
 	}
@@ -157,6 +157,7 @@ func (c *Activity) sendMessage(
 	stream streams.Stream,
 	channelId, text string,
 	isAnnounce bool,
+	announceColor timersmodel.AnnounceColor,
 	count int,
 ) error {
 	parseReq, err := c.bus.Parser.ParseVariablesInText.Request(
@@ -180,6 +181,7 @@ func (c *Activity) sendMessage(
 				Message:        parseReq.Data.Text,
 				IsAnnounce:     isAnnounce,
 				SkipRateLimits: true,
+				AnnounceColor:  bots.AnnounceColor(announceColor),
 			},
 		)
 		if err != nil {

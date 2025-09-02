@@ -16,15 +16,16 @@ var (
 )
 
 type ChannelsTimers struct {
-	ID                       string                    `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"      json:"id"`
-	ChannelID                string                    `gorm:"column:channelId;type:TEXT;"                          json:"-"`
-	Name                     string                    `gorm:"column:name;type:VARCHAR;size:255;"                   json:"name"`
-	Enabled                  bool                      `gorm:"column:enabled;type:BOOL;"                            json:"enabled"`
-	TimeInterval             int32                     `gorm:"column:timeInterval;type:INT4;default:0;"             json:"timeInterval"`
-	MessageInterval          int32                     `gorm:"column:messageInterval;type:INT4;default:0;"          json:"messageInterval"`
-	LastTriggerMessageNumber int32                     `gorm:"column:lastTriggerMessageNumber;type:INT4;default:0;" json:"-"`
+	ID                       string                     `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"      json:"id"`
+	ChannelID                string                     `gorm:"column:channelId;type:TEXT;"                          json:"-"`
+	Name                     string                     `gorm:"column:name;type:VARCHAR;size:255;"                   json:"name"`
+	Enabled                  bool                       `gorm:"column:enabled;type:BOOL;"                            json:"enabled"`
+	TimeInterval             int32                      `gorm:"column:timeInterval;type:INT4;default:0;"             json:"timeInterval"`
+	MessageInterval          int32                      `gorm:"column:messageInterval;type:INT4;default:0;"          json:"messageInterval"`
+	LastTriggerMessageNumber int32                      `gorm:"column:lastTriggerMessageNumber;type:INT4;default:0;" json:"-"`
 	Responses                []*ChannelsTimersResponses `gorm:"foreignKey:TimerID"                                   json:"responses"`
-	Channel                  *Channels                 `gorm:"foreignKey:ChannelID" json:"channel"`
+	Channel                  *Channels                  `gorm:"foreignKey:ChannelID" json:"channel"`
+	AnnounceColor            int                        `gorm:"column:announce_color;type:INT4;default:0;"           json:"announceColor"`
 }
 
 func (c *ChannelsTimers) TableName() string {

@@ -11,9 +11,10 @@ import (
 	"github.com/aidenwallis/go-ratelimiting/redis"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 type SendMessageOpts struct {
@@ -24,6 +25,7 @@ type SendMessageOpts struct {
 	IsAnnounce           bool
 	SkipToxicityCheck    bool
 	SkipRateLimits       bool
+	AnnounceColor        bots.AnnounceColor
 }
 
 const shoutOutPrefix = "/shoutout"
@@ -205,6 +207,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 					BroadcasterID: opts.BroadcasterID,
 					ModeratorID:   opts.SenderID,
 					Message:       validateResponseSlashes(message),
+					Color:         opts.AnnounceColor.String(),
 				},
 			)
 			msgErr = err

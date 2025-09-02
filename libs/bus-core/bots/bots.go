@@ -18,6 +18,7 @@ type SendMessageRequest struct {
 	IsAnnounce        bool
 	SkipRateLimits    bool
 	SkipToxicityCheck bool
+	AnnounceColor
 }
 
 type DeleteMessageRequest struct {
@@ -50,3 +51,17 @@ type UnVipRequest struct {
 	ChannelID string
 	TargetID  string
 }
+
+type AnnounceColor int
+
+func (c AnnounceColor) String() string {
+	return [...]string{"primary", "blue", "green", "orange", "purple"}[c]
+}
+
+const (
+	AnnounceColorPrimary AnnounceColor = iota
+	AnnounceColorBlue
+	AnnounceColorGreen
+	AnnounceColorOrange
+	AnnounceColorPurple
+)
