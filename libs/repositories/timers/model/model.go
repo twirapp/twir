@@ -31,7 +31,7 @@ var Nil = Timer{}
 type AnnounceColor int
 
 func (c AnnounceColor) String() string {
-	return [...]string{"primary", "blue", "green", "orange", "purple"}[c]
+	return [...]string{"random", "primary", "blue", "green", "orange", "purple"}[c]
 }
 
 func (c AnnounceColor) Scan(value interface{}) error {
@@ -57,7 +57,8 @@ func (c *AnnounceColor) Value() (driver.Value, error) {
 }
 
 const (
-	AnnounceColorPrimary AnnounceColor = iota
+	AnnounceColorRandom                = -1
+	AnnounceColorPrimary AnnounceColor = iota - 1
 	AnnounceColorBlue
 	AnnounceColorGreen
 	AnnounceColorOrange

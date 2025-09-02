@@ -1,5 +1,9 @@
 package bots
 
+import (
+	"math/rand/v2"
+)
+
 const (
 	SendMessageSubject   = "bots.send_message"
 	DeleteMessageSubject = "bots.delete_message"
@@ -55,11 +59,24 @@ type UnVipRequest struct {
 type AnnounceColor int
 
 func (c AnnounceColor) String() string {
-	return [...]string{"primary", "blue", "green", "orange", "purple"}[c]
+	return allAnnounceColors[c]
+}
+
+var allAnnounceColors = map[AnnounceColor]string{
+	AnnounceColorPrimary: "primary",
+	AnnounceColorBlue:    "blue",
+	AnnounceColorGreen:   "green",
+	AnnounceColorOrange:  "orange",
+	AnnounceColorPurple:  "purple",
+}
+
+func RandomAnnounceColor() AnnounceColor {
+	return AnnounceColor(rand.IntN(len(allAnnounceColors) - 1))
 }
 
 const (
-	AnnounceColorPrimary AnnounceColor = iota
+	AnnounceColorRandom                = -1
+	AnnounceColorPrimary AnnounceColor = iota - 1
 	AnnounceColorBlue
 	AnnounceColorGreen
 	AnnounceColorOrange

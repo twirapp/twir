@@ -202,12 +202,19 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				errorMessage = resp.ErrorMessage
 			}
 		} else {
+			var color bots.AnnounceColor
+			if opts.AnnounceColor == bots.AnnounceColorRandom {
+				color = bots.RandomAnnounceColor()
+			} else {
+				color = opts.AnnounceColor
+			}
+
 			resp, err := twitchClient.SendChatAnnouncement(
 				&helix.SendChatAnnouncementParams{
 					BroadcasterID: opts.BroadcasterID,
 					ModeratorID:   opts.SenderID,
 					Message:       validateResponseSlashes(message),
-					Color:         opts.AnnounceColor.String(),
+					Color:         color.String(),
 				},
 			)
 			msgErr = err

@@ -45,6 +45,7 @@ func StreamElementsTimerToGql(m streamelements.Timer) gqlmodel.StreamElementsTim
 }
 
 var announceEntityToGql = map[bots.AnnounceColor]gqlmodel.TwitchAnnounceColor{
+	bots.AnnounceColorRandom:  gqlmodel.TwitchAnnounceColorRandom,
 	bots.AnnounceColorPrimary: gqlmodel.TwitchAnnounceColorPrimary,
 	bots.AnnounceColorBlue:    gqlmodel.TwitchAnnounceColorBlue,
 	bots.AnnounceColorGreen:   gqlmodel.TwitchAnnounceColorGreen,

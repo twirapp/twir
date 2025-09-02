@@ -92,6 +92,7 @@ type TwitchCategory {
 }
 
 enum TwitchAnnounceColor {
+	RANDOM
 	PRIMARY
 	BLUE
 	GREEN
