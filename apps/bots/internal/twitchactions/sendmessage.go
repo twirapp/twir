@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -30,14 +31,23 @@ type SendMessageOpts struct {
 
 const shoutOutPrefix = "/shoutout"
 
+var allowedSlashCommands = []string{
+	"/me",
+	"/announce",
+	"/announceblue",
+	"/announcegreen",
+	"/announceorange",
+	"/announcepurple",
+	"/shoutout",
+}
+
 func validateResponseSlashes(response string) string {
-	if strings.HasPrefix(response, "/me") || strings.HasPrefix(
-		response,
-		"/announce",
-	) || strings.HasPrefix(response, shoutOutPrefix) {
+	if slices.ContainsFunc(allowedSlashCommands, func(s string) bool {
+		return strings.HasPrefix(response, s)
+	}) {
 		return response
 	} else if strings.HasPrefix(response, "/") {
-		return "Slash commands except /me, /announce and /shoutout is disallowed. This response wont be ever sended."
+		return fmt.Sprintf("Slash commands except %s is disallowed. This response wont be ever sended.", strings.Join(allowedSlashCommands, ", "))
 	} else if strings.HasPrefix(response, ".") {
 		return `Message cannot start with "." symbol.`
 	} else {
@@ -80,6 +90,21 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		slog.String("sender_id", opts.SenderID),
 		slog.Bool("is_announce", opts.IsAnnounce),
 	)
+
+	if strings.HasPrefix(opts.Message, "/announce") && !opts.IsAnnounce {
+		opts.IsAnnounce = true
+
+		switch {
+		case strings.HasPrefix(opts.Message, "/announceblue"):
+			opts.AnnounceColor = bots.AnnounceColorBlue
+		case strings.HasPrefix(opts.Message, "/announcegreen"):
+			opts.AnnounceColor = bots.AnnounceColorGreen
+		case strings.HasPrefix(opts.Message, "/announceorange"):
+			opts.AnnounceColor = bots.AnnounceColorOrange
+		case strings.HasPrefix(opts.Message, "/announcepurple"):
+			opts.AnnounceColor = bots.AnnounceColorPurple
+		}
+	}
 
 	var twitchClient *helix.Client
 	var twitchClientErr error
