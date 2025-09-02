@@ -12,16 +12,12 @@ import { useKeywordsApi } from '@/api/keywords'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/toast'
 import VariableInput from '@/components/variable-input.vue'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
@@ -51,7 +47,7 @@ const keywordsForm = useForm({
 			usageCount: z.number().min(0).optional(),
 			rolesIds: z.array(z.string()).optional(),
 			enabled: z.boolean().optional().default(true),
-		}),
+		})
 	),
 	initialValues: {
 		text: '',
@@ -89,7 +85,7 @@ watch(
 
 		keywordsForm.setValues(structuredClone(toRaw(k)))
 	},
-	{ immediate: true },
+	{ immediate: true }
 )
 
 const keywordsApi = useKeywordsApi()
@@ -147,19 +143,19 @@ const save = keywordsForm.handleSubmit(async (values) => {
 							{{ t('keywords.triggerText') }}
 						</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" />
+							<Textarea v-bind="componentField" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="isRegularExpressionsRegular">
+				<FormField v-slot="{ field }" name="isRegularExpression">
 					<FormItem>
 						<FormLabel class="flex gap-2">
 							{{ t('keywords.isRegular') }}
 						</FormLabel>
 						<FormControl>
-							<Switch :checked="componentField.modelValue" :update:checked="componentField['onUpdate:modelValue']" />
+							<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -187,29 +183,31 @@ const save = keywordsForm.handleSubmit(async (values) => {
 						</FormLabel>
 						<FormControl>
 							<div class="relative">
-								<VariableInput :model-value="componentField.modelValue" input-type="textarea" @update:model-value="componentField['onUpdate:modelValue']" />
+								<VariableInput
+									:model-value="componentField.modelValue"
+									input-type="textarea"
+									@update:model-value="componentField['onUpdate:modelValue']"
+								/>
 							</div>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="isReply">
+				<FormField v-slot="{ field }" name="isReply">
 					<FormItem>
 						<FormLabel class="flex gap-2">
 							{{ t('sharedTexts.reply.label') }}
 						</FormLabel>
 						<FormControl>
-							<Switch :checked="componentField.modelValue" @update:checked="componentField['onUpdate:modelValue']" />
+							<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
 				<div class="flex flex-col gap-2">
-					<Label class="flex gap-2">
-						Roles
-					</Label>
+					<Label class="flex gap-2"> Roles </Label>
 					<FormRolesSelector class="xl:w-full xl:max-w-full" field-name="rolesIds" />
 				</div>
 
