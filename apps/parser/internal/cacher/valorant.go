@@ -77,7 +77,7 @@ func (c *cacher) GetValorantMMR(ctx context.Context) *types.ValorantMMR {
 	}
 
 	apiUrl := fmt.Sprintf(
-		"/valorant/v3/by-puuid/mmr/%s/pc/%s",
+		"https://api.henrikdev.xyz/valorant/v3/by-puuid/mmr/%s/pc/%s",
 		*integration.Data.ValorantActiveRegion,
 		*integration.Data.ValorantPuuid,
 	)
