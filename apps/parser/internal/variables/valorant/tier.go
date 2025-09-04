@@ -8,26 +8,6 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 )
 
-var Tier = &types.Variable{
-	Name:                "valorant.profile.tier",
-	Description:         lo.ToPtr(`Tier in number, i.e "26"`),
-	CanBeUsedInRegistry: true,
-	Handler: func(
-		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
-	) (*types.VariableHandlerResult, error) {
-		result := types.VariableHandlerResult{}
-
-		profile := parseCtx.Cacher.GetValorantProfile(ctx)
-		if profile == nil {
-			return nil, nil
-		}
-
-		result.Result = strconv.Itoa(profile.Data.CurrentData.Currenttier)
-
-		return &result, nil
-	},
-}
-
 var TierText = &types.Variable{
 	Name:        "valorant.profile.tier.text",
 	Description: lo.ToPtr(`Tier in text, i.e "Immortal 3"`),
@@ -36,12 +16,12 @@ var TierText = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		profile := parseCtx.Cacher.GetValorantProfile(ctx)
+		profile := parseCtx.Cacher.GetValorantMMR(ctx)
 		if profile == nil {
 			return nil, nil
 		}
 
-		result.Result = profile.Data.CurrentData.Currenttierpatched
+		result.Result = profile.Data.Current.Tier.Name
 
 		return &result, nil
 	},
@@ -55,12 +35,12 @@ var RankInTier = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		profile := parseCtx.Cacher.GetValorantProfile(ctx)
+		profile := parseCtx.Cacher.GetValorantMMR(ctx)
 		if profile == nil {
 			return nil, nil
 		}
 
-		result.Result = strconv.Itoa(profile.Data.CurrentData.RankingInTier)
+		result.Result = strconv.Itoa(profile.Data.Current.LeaderboardPlacement.Rank)
 
 		return &result, nil
 	},

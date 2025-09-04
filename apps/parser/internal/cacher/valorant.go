@@ -56,7 +56,7 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []types.ValorantMatch {
 }
 
 // GetValorantProfile implements types.VariablesCacher
-func (c *cacher) GetValorantProfile(ctx context.Context) *types.ValorantProfile {
+func (c *cacher) GetValorantMMR(ctx context.Context) *types.ValorantMMR {
 	c.locks.valorantProfile.Lock()
 	defer c.locks.valorantProfile.Unlock()
 
@@ -77,12 +77,12 @@ func (c *cacher) GetValorantProfile(ctx context.Context) *types.ValorantProfile 
 	}
 
 	apiUrl := fmt.Sprintf(
-		"https://api.henrikdev.xyz/valorant/v2/by-puuid/mmr/%s/%s",
+		"/valorant/v3/by-puuid/mmr/%s/pc/%s",
 		*integration.Data.ValorantActiveRegion,
 		*integration.Data.ValorantPuuid,
 	)
 
-	c.cache.valorantProfile = &types.ValorantProfile{}
+	c.cache.valorantProfile = &types.ValorantMMR{}
 
 	r := req.R().
 		SetContext(ctx).

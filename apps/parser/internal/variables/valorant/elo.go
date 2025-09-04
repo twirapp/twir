@@ -17,12 +17,50 @@ var Elo = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		profile := parseCtx.Cacher.GetValorantProfile(ctx)
+		profile := parseCtx.Cacher.GetValorantMMR(ctx)
 		if profile == nil {
 			return nil, nil
 		}
 
-		result.Result = strconv.Itoa(profile.Data.CurrentData.Elo)
+		result.Result = strconv.Itoa(profile.Data.Current.Elo)
+
+		return &result, nil
+	},
+}
+
+var EloLastChange = &types.Variable{
+	Name:        "valorant.profile.elo.last_change",
+	Description: lo.ToPtr(`Last game elo change`),
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
+		result := types.VariableHandlerResult{}
+
+		profile := parseCtx.Cacher.GetValorantMMR(ctx)
+		if profile == nil {
+			return nil, nil
+		}
+
+		result.Result = strconv.Itoa(profile.Data.Current.LastChange)
+
+		return &result, nil
+	},
+}
+
+var RR = &types.Variable{
+	Name:        "valorant.profile.rr",
+	Description: lo.ToPtr(`Valorant Rank Rating (RR), i.e "42"`),
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
+		result := types.VariableHandlerResult{}
+
+		profile := parseCtx.Cacher.GetValorantMMR(ctx)
+		if profile == nil {
+			return nil, nil
+		}
+
+		result.Result = strconv.Itoa(profile.Data.Current.Rr)
 
 		return &result, nil
 	},

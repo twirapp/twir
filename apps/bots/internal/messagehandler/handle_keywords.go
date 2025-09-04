@@ -140,8 +140,6 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 						return
 					}
 
-					fmt.Println(userRoles)
-
 					for _, r := range userRoles {
 						for _, id := range k.RolesIDs {
 							fmt.Println(r.ID.String(), id.String())
