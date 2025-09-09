@@ -1052,12 +1052,12 @@
         "disallowedLanguages": "Запрещенные языки"
       },
       "one_man_spam": {
-        "name": "One Man Spam",
-        "description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
-        "triggerLength": "Minimal message length to trigger storing and filtering",
-        "minimumStoredMessages": "Number of stored messages to begin filter",
-        "messageMemorySeconds": "How long to store user message in seconds",
-        "maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
+        "name": "Спам от одного человека",
+        "description": "Выявлять и ограничивать пользователей, которые спамят в чате большим количеством сообщений за короткий промежуток времени.",
+        "triggerLength": "Минимальная длина сообщения для триггера хранения и фильтрации",
+        "minimumStoredMessages": "Количество сохраненных сообщений для начала фильтрации",
+        "messageMemorySeconds": "Как долго хранить сообщения пользователя в секундах",
+        "maxPercentage": "Максимальный процент схожести текста. Расстояние Левенштейна, используемое для вычисления."
       }
     }
   },
