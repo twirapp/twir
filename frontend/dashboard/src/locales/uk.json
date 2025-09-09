@@ -716,7 +716,7 @@
   "keywords": {
     "title": "Ключові слова",
     "info": {
-      "text": "Ключові слова допоможуть вам запускати повідомлення в чаті на певних словах співпадіння."
+      "text": "Keywords help you to trigger chat message on certain words matching."
     },
     "create": "Створити ключове слово",
     "triggerText": "Текст тригеру",
@@ -772,7 +772,7 @@
       "greetings": "Привітання для тригера"
     },
     "select": {
-      "audio": "Налаштувати аудіо",
+      "audio": "Configure an audio",
       "image": "Налаштувати зображення",
       "text": "Налаштувати текст"
     },
@@ -837,25 +837,25 @@
       }
     },
     "seppuku": {
-      "description": "Сеппуку – це форма японського ритуального самогубства шляхом невдоволення.",
+      "description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
       "message": "Повідомлення",
       "timeoutModerators": "Увімкнути Сеппуку для модераторів",
       "messageModerators": "Повідомлення, якщо модератор використав Сеппуку",
-      "timeoutSeconds": "Тайм-аут в секундах"
+      "timeoutSeconds": "Timeout duration (seconds)"
     },
     "voteban": {
       "description": "Перейти до суду над винним учасником чату!",
       "banMessage": "Повідомлення у випадку блокування",
-      "banMessageModerators": "Повідомлення для блокування модератора",
+      "banMessageModerators": "Message for banned moderators",
       "surviveMessage": "Повідомлення у випадку виживання",
       "surviveMessageModerators": "Повідомлення у випадку виживання для модераторів",
-      "initialMessage": "Початкове повідомлення",
+      "initialMessage": "Initial message",
       "neededVotes": "Потрібно голосів",
-      "banDuration": "Тривалість блокування",
-      "voteMode": "Спосіб голосування",
-      "voteDuration": "Тривалість голосування в секундах",
-      "wordsNegative": "Слова за голосування в опції \"ні\"",
-      "wordsPositive": "Слова за голосування в опції \"так\"",
+      "banDuration": "Ban duration (seconds)",
+      "voteMode": "Voting mode",
+      "voteDuration": "Voting duration (seconds)",
+      "wordsNegative": "Words to vote for \"no\" option",
+      "wordsPositive": "Words to vote for \"yes\" option",
       "timeoutModerators": "Можливість заблокувати модератора"
     }
   },
@@ -918,14 +918,14 @@
       "searchPlaceholder": "Пошук емоцій...",
       "table": {
         "emote": "Емоція",
-        "usages": "Загальне використання",
+        "usages": "Total usage",
         "users": "Користувачі",
         "empty": "Статистика емоцій відсутня",
-        "chart": "Графік використання",
+        "chart": "Usage chart",
         "lastDay": "День",
         "lastWeek": "Тиждень",
         "lastMonth": "Місяць",
-        "lastThreeMonth": "3 місяці",
+        "lastThreeMonth": "3 Months",
         "lastYear": "Рік"
       },
       "total": "Всього емоцій: {total}",
@@ -1167,7 +1167,7 @@
   "expiringVips": {
     "title": "Заплановані VIP",
     "description": {
-      "line1": "За допомогою цієї функції ви можете створювати VIP для вашого каналу, які будуть видалені після обраного часу.",
+      "line1": "With this feature, you can create VIPs for your channel, which will be removed after a selected time.",
       "line2": "Ви можете використовувати команди з вбудованого {module} модуля для цього."
     },
     "comingSoon": "Скоро але вже доступно через команди",
@@ -1175,7 +1175,7 @@
       "add": "Додати VIP",
       "remove": "Видалити VIP",
       "list": "Список VIP",
-      "setExpire": "Продовжити час завершення існуючого VIP, або додати термін дії для деяких VIP користувачів"
+      "setExpire": "Extend the expiration time for existing timed VIPs, or add an expiration for VIP users who don't have one"
     },
     "alert": {
       "title": "Увага!",
@@ -1190,8 +1190,8 @@
   },
   "chatWall": {
     "description": {
-      "line1": "Масові бани/видалення/тайм-аути повідомлень, які містять конкретну фразу.",
-      "line2": "Неправильне використання може призвести до постійного блокування в сервісі TwirApp. "
+      "line1": "Mass ban/delete/timeout messages that contain a specific phrase.",
+      "line2": "Improper usage may result in a permanent ban from the TwirApp service. "
     },
     "settings": {
       "title": "Налаштування",
