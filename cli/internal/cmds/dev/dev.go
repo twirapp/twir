@@ -1,10 +1,8 @@
 package dev
 
 import (
-	"errors"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 
 	"github.com/pterm/pterm"
@@ -16,7 +14,6 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/dev/nodejs"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/twirapp/twir/cli/internal/cmds/proxy"
-	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/urfave/cli/v2"
 )
 
@@ -43,25 +40,6 @@ func CreateDevCommand() *cli.Command {
 				Name:  "debug",
 				Usage: "run backend in debug mode",
 			},
-		},
-		Before: func(context *cli.Context) error {
-			wd, err := os.Getwd()
-			if err != nil {
-				return err
-			}
-
-			config, err := cfg.NewWithEnvPath(filepath.Join(wd, ".env"))
-			if err != nil {
-				return err
-			}
-
-			if config.NgrokAuthToken == "" {
-				return errors.New(
-					"NGROK_AUTH_TOKEN is required in .env. Please set it to enable ngrok",
-				)
-			}
-
-			return nil
 		},
 		Action: func(c *cli.Context) error {
 			proxyStartedChan, err := proxy.StartProxy(false)
