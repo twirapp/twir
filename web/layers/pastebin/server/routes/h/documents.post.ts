@@ -27,5 +27,12 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return sendRedirect(event, `${url.origin}/h/${req.data.id}`)
+	setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8')
+	return {
+		// key is for hastebin compatibility format
+		key: req.data.id,
+		id: req.data.id,
+		url: `${url.origin}/h/${req.data.id}`,
+		raw_url: `${url.origin}/h/${req.data.id}/raw`,
+	}
 })
