@@ -2,26 +2,23 @@
 const api = useOapi()
 
 const userStore = useAuth()
-await callOnce(UserStoreKey, () => userStore.getUserData())
+await callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())
 
-const { data: pastes, error } = await useAsyncData(
-	'userPastesProfile',
-	async () => {
-		if (!userStore.user) {
-			return
-		}
+const { data: pastes, error } = await useAsyncData('userPastesProfile', async () => {
+	if (!userStore.userWithoutDashboards) {
+		return
+	}
 
-		const req = await api.v1.pastebinGetUserList({
-			page: 1,
-			perPage: 20,
-		})
-		if (req.error) {
-			throw req.error
-		}
+	const req = await api.v1.pastebinGetUserList({
+		page: 1,
+		perPage: 20,
+	})
+	if (req.error) {
+		throw req.error
+	}
 
-		return req.data
-	},
-)
+	return req.data
+})
 
 const requestUrl = useRequestURL()
 
@@ -33,14 +30,12 @@ async function deletePaste(id: string) {
 
 <template>
 	<div class="bg-[#1E1E1E] h-full min-h-screen">
-		<div v-if="!userStore.user">
+		<div v-if="!userStore.userWithoutDashboards">
 			<div class="container flex flex-col gap-2 pt-4 items-center justify-center h-full">
-				<h1 class="text-2xl">
-					You need to be logged in to view your pastes
-				</h1>
+				<h1 class="text-2xl">You need to be logged in to view your pastes</h1>
 
 				<button
-					v-if="!userStore.user"
+					v-if="!userStore.userWithoutDashboards"
 					class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
 					@click="() => userStore.login()"
 				>
@@ -57,15 +52,9 @@ async function deletePaste(id: string) {
 							<UiTableHead class="w-[5%]">
 								<!-- id -->
 							</UiTableHead>
-							<UiTableHead class="w-[20%]">
-								Created at
-							</UiTableHead>
-							<UiTableHead class="w-[20%]">
-								Expire at
-							</UiTableHead>
-							<UiTableHead class="w-[50%]">
-								Content
-							</UiTableHead>
+							<UiTableHead class="w-[20%]"> Created at </UiTableHead>
+							<UiTableHead class="w-[20%]"> Expire at </UiTableHead>
+							<UiTableHead class="w-[50%]"> Content </UiTableHead>
 							<UiTableHead class="w-[5%]">
 								<!-- actions -->
 							</UiTableHead>
@@ -89,7 +78,12 @@ async function deletePaste(id: string) {
 									{{ paste.content.slice(0, 200) }} {{ paste.content.length > 200 ? '...' : '' }}
 								</UiTableCell>
 								<UiTableCell>
-									<UiButton variant="destructive" size="sm" class="flex items-center gap-2" @click="deletePaste(paste.id)">
+									<UiButton
+										variant="destructive"
+										size="sm"
+										class="flex items-center gap-2"
+										@click="deletePaste(paste.id)"
+									>
 										<Icon name="lucide:trash" class="size-4" />
 									</UiButton>
 								</UiTableCell>
@@ -101,9 +95,7 @@ async function deletePaste(id: string) {
 							</UiTableRow>
 						</template>
 						<UiTableRow v-else>
-							<UiTableCell :colspan="4" class="text-center">
-								No pastes found
-							</UiTableCell>
+							<UiTableCell :colspan="4" class="text-center"> No pastes found </UiTableCell>
 						</UiTableRow>
 					</UiTableBody>
 				</UiTable>
