@@ -716,7 +716,7 @@
   "keywords": {
     "title": "Palabras clave",
     "info": {
-      "text": "Keywords help you to trigger chat message on certain words matching."
+      "text": "Palabras clave le ayudan a activar el mensaje de chat en ciertas palabras coincidentes."
     },
     "create": "Crear palabra clave",
     "triggerText": "Texto de activación",
@@ -772,7 +772,7 @@
       "greetings": "Activador de saludo"
     },
     "select": {
-      "audio": "Configure an audio",
+      "audio": "Configure un audio",
       "image": "Configurar una imagen",
       "text": "Configure texto"
     },
@@ -837,25 +837,25 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
+      "description": "Seppuku, es una forma de suicidio ritual japonés por destripamiento.",
       "message": "Mensaje",
       "timeoutModerators": "Habilitar seppuku para moderadores",
       "messageModerators": "Mensaje cuando el moderador usó seppuku",
-      "timeoutSeconds": "Timeout duration (seconds)"
+      "timeoutSeconds": "Duración del tiempo de espera (segundos)"
     },
     "voteban": {
       "description": "¡Comienza el juicio del culpable!",
       "banMessage": "Mensaje sobre la prohibición",
-      "banMessageModerators": "Message for banned moderators",
+      "banMessageModerators": "Mensaje para el bloqueo de moderador",
       "surviveMessage": "Mensaje de supervivencia",
       "surviveMessageModerators": "Mensaje de sobrevivir para los moderadores",
-      "initialMessage": "Initial message",
+      "initialMessage": "Mensaje inicial",
       "neededVotes": "Votos necesarios",
-      "banDuration": "Ban duration (seconds)",
-      "voteMode": "Voting mode",
-      "voteDuration": "Voting duration (seconds)",
-      "wordsNegative": "Words to vote for \"no\" option",
-      "wordsPositive": "Words to vote for \"yes\" option",
+      "banDuration": "Duración del ban (segundos)",
+      "voteMode": "Modo de votación",
+      "voteDuration": "Duración de la votación (segundos)",
+      "wordsNegative": "Palabras para votar a la opción \"no\"",
+      "wordsPositive": "Palabras para votar a la opción \"sí\"",
       "timeoutModerators": "Habilitar voteban en moderadores"
     }
   },
@@ -918,14 +918,14 @@
       "searchPlaceholder": "Buscar emotes...",
       "table": {
         "emote": "Emote",
-        "usages": "Total usage",
+        "usages": "Usos totales",
         "users": "Usuarios",
         "empty": "Sin emotes",
-        "chart": "Usage chart",
+        "chart": "Gráfico de usos",
         "lastDay": "Día",
         "lastWeek": "Semana",
         "lastMonth": "Mes",
-        "lastThreeMonth": "3 Months",
+        "lastThreeMonth": "3 Meses",
         "lastYear": "Año"
       },
       "total": "Total emotes: {total}",
@@ -1167,7 +1167,7 @@
   "expiringVips": {
     "title": "VIP programados",
     "description": {
-      "line1": "With this feature, you can create VIPs for your channel, which will be removed after a selected time.",
+      "line1": "Con esta función puede crear VIPs para su canal, que se eliminarán después del tiempo seleccionado.",
       "line2": "Puede utilizar comandos del módulo {module} integrado para ello."
     },
     "comingSoon": "Pronto, pero ya disponible a través de comandos",
@@ -1175,7 +1175,7 @@
       "add": "Añadir VIP",
       "remove": "Eliminar VIP",
       "list": "Lista de VIPs",
-      "setExpire": "Extend the expiration time for existing timed VIPs, or add an expiration for VIP users who don't have one"
+      "setExpire": "Extiende el tiempo de caducidad de los VIPs temporizados existentes, o añade un vencimiento para los usuarios VIP que no tienen uno"
     },
     "alert": {
       "title": "¡Atención!",
@@ -1190,8 +1190,8 @@
   },
   "chatWall": {
     "description": {
-      "line1": "Mass ban/delete/timeout messages that contain a specific phrase.",
-      "line2": "Improper usage may result in a permanent ban from the TwirApp service. "
+      "line1": "Mensajes de baneo/eliminación/tiempo de espera en masa que contienen una frase específica.",
+      "line2": "El uso incorrecto puede resultar en una prohibición permanente en el servicio TwirApp. "
     },
     "settings": {
       "title": "Configurar",
