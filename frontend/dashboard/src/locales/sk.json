@@ -716,7 +716,7 @@
   "keywords": {
     "title": "Kľúčové slová",
     "info": {
-      "text": "Kľúčové slová vám pomôžu spustiť správu chatu na základe určitých zhodných slov."
+      "text": "Keywords help you to trigger chat message on certain words matching."
     },
     "create": "Vytvoriť kľúčové slovo",
     "triggerText": "Spúšťací text",
@@ -772,7 +772,7 @@
       "greetings": "Spúšťač pozdravu"
     },
     "select": {
-      "audio": "Konfigurácia zvuku",
+      "audio": "Configure an audio",
       "image": "Vybrať obrázok",
       "text": "Konfigurovať text"
     },
@@ -837,25 +837,25 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku je forma japonskej rituálnej samovraždy vykuchaním.",
+      "description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
       "message": "Správa",
       "timeoutModerators": "Povoliť seppuku pre moderátorov",
       "messageModerators": "Správa, keď moderátor použil seppuku",
-      "timeoutSeconds": "Timeout v sekundách"
+      "timeoutSeconds": "Timeout duration (seconds)"
     },
     "voteban": {
       "description": "Začnite súdny proces s porotou s vinným četujúcim!",
       "banMessage": "Správa pri bane",
-      "banMessageModerators": "Správa pri bane moderátora",
+      "banMessageModerators": "Message for banned moderators",
       "surviveMessage": "Správa o prežití",
       "surviveMessageModerators": "Správa o prežití pre moderátora",
-      "initialMessage": "Úvodná správa",
+      "initialMessage": "Initial message",
       "neededVotes": "Potrebné hlasy",
-      "banDuration": "Dĺžka banu",
-      "voteMode": "Spôsob hlasovania",
-      "voteDuration": "Dĺžka hlasovania v sekundách",
-      "wordsNegative": "Slová pre hlasovanie pre možnosť \"nie\"",
-      "wordsPositive": "Slová pre hlasovanie pre možnosť \"áno\"",
+      "banDuration": "Ban duration (seconds)",
+      "voteMode": "Voting mode",
+      "voteDuration": "Voting duration (seconds)",
+      "wordsNegative": "Words to vote for \"no\" option",
+      "wordsPositive": "Words to vote for \"yes\" option",
       "timeoutModerators": "Aktivovať voteban proti moderátorom"
     }
   },
@@ -918,14 +918,14 @@
       "searchPlaceholder": "Vyhľadať emoty...",
       "table": {
         "emote": "Emot",
-        "usages": "Celkový počet použití",
+        "usages": "Total usage",
         "users": "Užívatelia",
         "empty": "Bez emoji",
-        "chart": "Graf využitia",
+        "chart": "Usage chart",
         "lastDay": "Deň",
         "lastWeek": "Týždeň",
         "lastMonth": "Mesiac",
-        "lastThreeMonth": "3 mesiace",
+        "lastThreeMonth": "3 Months",
         "lastYear": "Rok"
       },
       "total": "Celkový počet emotov: {total}",
@@ -1167,7 +1167,7 @@
   "expiringVips": {
     "title": "Naplánované VIP",
     "description": {
-      "line1": "Pomocou tejto funkcie môžete pre svoj kanál vytvoriť VIP, ktoré budú po uplynutí zvoleného času odstránené.",
+      "line1": "With this feature, you can create VIPs for your channel, which will be removed after a selected time.",
       "line2": "Môžete na to použiť príkazy z vstavaného modulu {module}."
     },
     "comingSoon": "Dostupné čoskoro, ale už teraz je k dispozícii prostredníctvom príkazov",
@@ -1175,7 +1175,7 @@
       "add": "Pridať VIP",
       "remove": "Odstrániť VIP",
       "list": "Zoznam VIP",
-      "setExpire": "Predĺženie doby platnosti pre existujúce časovo obmedzené VIP alebo pridanie doby platnosti pre používateľov VIP, ktorí ju nemajú"
+      "setExpire": "Extend the expiration time for existing timed VIPs, or add an expiration for VIP users who don't have one"
     },
     "alert": {
       "title": "Upozornenie!",
@@ -1190,8 +1190,8 @@
   },
   "chatWall": {
     "description": {
-      "line1": "Hromadne zablokuj/odstráň/časovo obmedz správy, ktoré obsahujú konkrétnu frázu.",
-      "line2": "Nesprávne používanie môže viesť k trvalému banu v službe TwirApp. "
+      "line1": "Mass ban/delete/timeout messages that contain a specific phrase.",
+      "line2": "Improper usage may result in a permanent ban from the TwirApp service. "
     },
     "settings": {
       "title": "Nastavenie",
