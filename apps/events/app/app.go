@@ -18,6 +18,8 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
+	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
+	channelsmodules_settingsttspgx "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/postgres"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -56,6 +58,10 @@ var App = fx.Module(
 		fx.Annotate(
 			channelseventslistpostgres.NewFx,
 			fx.As(new(channelseventslist.Repository)),
+		),
+		fx.Annotate(
+			channelsmodules_settingsttspgx.NewFx,
+			fx.As(new(channels_modules_settings_tts.Repository)),
 		),
 		channel.New,
 		func(config cfg.Config) websockets.WebsocketClient {
