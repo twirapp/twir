@@ -38,6 +38,8 @@ type Config struct {
 	DiscordBotToken     string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
 	DiscordFeedbackUrl  string `required:"false" envconfig:"DISCORD_FEEDBACK_URL"`
 
+	TelegramBotToken string `required:"false" envconfig:"TELEGRAM_BOT_TOKEN" required:"false"`
+
 	OpenWeatherMapApiKey string `required:"false" envconfig:"OPENWEATHERMAP_API_KEY"`
 
 	TemporalHost string `required:"false" default:"localhost:7233" envconfig:"TEMPORAL_HOST"`

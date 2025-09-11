@@ -1,4 +1,6 @@
-go 1.24.1
+go 1.24.6
+
+toolchain go1.24.7
 
 use (
 	./apps/api
@@ -12,6 +14,7 @@ use (
 	./apps/giveaways
 	./apps/parser
 	./apps/scheduler
+	./apps/telegram
 	./apps/timers
 	./apps/tokens
 	./apps/websockets
