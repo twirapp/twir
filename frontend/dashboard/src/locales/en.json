@@ -628,6 +628,8 @@
 		},
 		"faceit": {
 			"title": "Faceit Stats Builder",
+			"description": "Set up an overlay to display your Faceit statistics. Customize it according to your preferences.",
+			"secondTitle": "Faceit Stats",
 			"settings": {
 				"general": {
 					"title": "General",
@@ -647,7 +649,39 @@
 					"last20MatchesStats": "Last 20 matches stats"
 				},
 				"generateObsLink": "Generate obs link"
-			}
+			},
+			"buildWidget": "Build Widget"
+		},
+		"valorant": {
+			"title": "Valorant Stats Builder",
+			"secondTitle": "Valorant Stats",
+			"description": "Configure the overlay with your Valorant stats. Change its design according to your personal requirements.",
+			"valorantIntegration": {
+				"connect": "Connect valorant integration to use this overlay",
+				"button": "Connect"
+			},
+			"settings": {
+				"colors": {
+					"title": "Colors",
+					"background": "Background color",
+					"text": "Text color",
+					"primaryText": "Primary Text Color",
+					"win": "Win Color",
+					"lose": "Lose Color"
+				},
+				"general": {
+					"title": "General",
+					"background": "Background",
+					"border": "Border",
+					"glow": "Glow effect",
+					"leaderboard": "Leaderboard place",
+					"winLose": "Win / Lose",
+					"progress": "Progress",
+					"last20MatchesStats": "Show last 20 matches stats"
+				},
+				"generateObsLink": "Generate obs link"
+			},
+			"buildWidget": "Build Widget"
 		}
 	},
 	"songRequests": {

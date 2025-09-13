@@ -628,6 +628,8 @@
 		},
 		"faceit": {
 			"title": "Конструктор статистики Faceit",
+			"description": "Настрой оверлей для отображения своей статистики Faceit. Кастомизируй его в зависимости от своих предпочтений",
+			"secondTitle": "Статистика Faceit",
 			"settings": {
 				"general": {
 					"title": "Основные",
@@ -647,7 +649,39 @@
 					"last20MatchesStats": "Статистика последних 20 матчей"
 				},
 				"generateObsLink": "Генерировать ссылку для OBS"
-			}
+			},
+			"buildWidget": "Создать виджет"
+		},
+		"valorant": {
+			"title": "Конструктор статистики Valorant",
+			"description": "Сконфигурируй оверлей с твоей статистикой Valorant. Измени его дизайн в соответствии с личными требованиями.",
+			"secondTitle": "Статистика Valorant",
+			"valorantIntegration": {
+				"connect": "Подключите интеграцию с Valorant, чтобы использовать этот оверлей",
+				"button": "Подключить"
+			},
+			"settings": {
+				"colors": {
+					"title": "Цвета",
+					"background": "Цвет фона",
+					"text": "Цвет текста",
+					"primaryText": "Основной цвет текста",
+					"win": "Цвет победы",
+					"lose": "Цвет поражения"
+				},
+				"general": {
+					"title": "Общие настройки",
+					"background": "Фон",
+					"border": "Граница",
+					"glow": "Эффект свечения",
+					"leaderboard": "Место в рейтинге",
+					"winLose": "Победа / Поражение",
+					"progress": "Прогресс",
+					"last20MatchesStats": "Показывать статистику последних 20 матчей"
+				},
+				"generateObsLink": "Генерировать ссылку для OBS"
+			},
+			"buildWidget": "Создать виджет"
 		}
 	},
 	"songRequests": {
