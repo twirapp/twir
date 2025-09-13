@@ -12,7 +12,7 @@ const { t } = useI18n()
 <template>
 	<Card class="w-full h-full flex flex-col">
 		<CardHeader>
-			<CardTitle class="flex gap-3 items-center">
+			<CardTitle class="flex text-xl gap-3 items-center">
 				<FaceitIcon class="size-12" />
 				{{ t('overlays.faceit.secondTitle') }}
 			</CardTitle>
