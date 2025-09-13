@@ -1,10 +1,16 @@
 <script lang="ts" setup>
-import tinycolor from 'tinycolor2'
-import { onMounted, reactive, ref, watch } from 'vue'
-
-import { Input } from '@/components/ui/input'
-import InputWithIcon from '@/components/ui/InputWithIcon.vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
+import tinycolor from 'tinycolor2'
+import { type HTMLAttributes, onMounted, reactive, ref, watch } from 'vue'
+import {
+	ColorPickerAlpha,
+	ColorPickerEyeDropper,
+	ColorPickerHue,
+	ColorPickerInputs,
+	ColorPickerPresets,
+	ColorPickerSaturation,
+} from '.'
 
 interface RGB {
 	r: number
@@ -12,79 +18,104 @@ interface RGB {
 	b: number
 }
 
-const props = defineProps({
-	modelValue: {
-		type: String,
-		default: '#ffffff',
-		required: false,
-	},
+interface RGBA {
+	r: number
+	g: number
+	b: number
+	a: number
+}
+
+interface Props {
+	modelValue?: string
+	class?: HTMLAttributes['class']
+	showPresets?: boolean
+	showPipette?: boolean
+	showCopy?: boolean
+	outputFormat?: 'hex' | 'rgb' | 'hsl' | 'auto'
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	modelValue: 'rgba(255, 255, 255, 1)',
+	showPresets: true,
+	showPipette: true,
+	showCopy: true,
+	outputFormat: 'auto',
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits<{
+	'update:modelValue': [value: string]
+}>()
 
 const hue = ref<number>(0)
 const saturation = ref<number>(1)
 const brightness = ref<number>(1)
+const alpha = ref<number>(100)
 const rgb = reactive<RGB>({ r: 255, g: 255, b: 255 })
-const hex = ref<string>(props.modelValue)
+const rgba = reactive<RGBA>({ r: 255, g: 255, b: 255, a: 1 })
+const hex = ref<string>('#ffffff')
 
-const presetColors: string[] = [
-	'#f2f2f2',
-	'#e8c6d2',
-	'#f2c1d1',
-	'#f1b79b',
-	'#ff9e6d',
-	'#ff7986',
-	'#f25c54',
-	'#ff9f00',
-	'#f4a300',
-	'#09bc8a',
-	'#43b2a1',
-	'#4c8c8b',
-	'#00ffe3',
-	'#004f8c',
-	'#a78ec1',
-	'#b4a0d0',
-	'#bb2649',
-	'#07090e',
-]
-
-const saturationRef = ref<HTMLDivElement | null>(null)
-const hueRef = ref<HTMLDivElement | null>(null)
+const selectedColorModel = ref<'hex' | 'rgb' | 'hsl'>('hex')
 
 function updateColor(): void {
 	const color = tinycolor({ h: hue.value, s: saturation.value, v: brightness.value })
 	const { r, g, b } = color.toRgb()
+
 	rgb.r = r
 	rgb.g = g
 	rgb.b = b
+	rgba.r = r
+	rgba.g = g
+	rgba.b = b
+	rgba.a = alpha.value / 100
 	hex.value = color.toHexString()
-	emit('update:modelValue', hex.value)
+
+	const outputColor = getOutputColor(color)
+	emit('update:modelValue', outputColor)
 }
 
-watch(
-	() => props.modelValue,
-	(newValue) => {
-		const color = tinycolor(newValue)
-		if (color.isValid()) {
-			const hsv = color.toHsv()
-			hue.value = hsv.h
-			saturation.value = hsv.s
-			brightness.value = hsv.v
-			updateColor()
+function getOutputColor(color: tinycolor.Instance): string {
+	const colorWithAlpha = color.setAlpha(alpha.value / 100)
+
+	if (props.outputFormat !== 'auto') {
+		switch (props.outputFormat) {
+			case 'hex':
+				return alpha.value < 100 ? colorWithAlpha.toHex8String() : colorWithAlpha.toHexString()
+			case 'rgb':
+				return colorWithAlpha.toRgbString()
+			case 'hsl':
+				return colorWithAlpha.toHslString()
 		}
-	},
-	{ immediate: true },
-)
+	}
+
+	switch (selectedColorModel.value) {
+		case 'hex':
+			return alpha.value < 100 ? colorWithAlpha.toHex8String() : colorWithAlpha.toHexString()
+		case 'rgb':
+			return colorWithAlpha.toRgbString()
+		case 'hsl':
+			return colorWithAlpha.toHslString()
+		default:
+			return colorWithAlpha.toRgbString()
+	}
+}
+
+function updateFromHSV(h: number, s: number, v: number): void {
+	hue.value = h
+	saturation.value = s
+	brightness.value = v
+	updateColor()
+}
+
+function updateAlpha(newAlpha: number): void {
+	alpha.value = newAlpha
+	updateColor()
+}
 
 function updateColorFromHex(): void {
 	const color = tinycolor(hex.value)
 	if (color.isValid()) {
 		const hsv = color.toHsv()
-		hue.value = hsv.h
-		saturation.value = hsv.s
-		brightness.value = hsv.v
-		updateColor()
+		updateFromHSV(hsv.h, hsv.s, hsv.v)
 	}
 }
 
@@ -92,231 +123,126 @@ function updateColorFromRGB(): void {
 	const color = tinycolor({ r: rgb.r, g: rgb.g, b: rgb.b })
 	if (color.isValid()) {
 		const hsv = color.toHsv()
-		hue.value = hsv.h
-		saturation.value = hsv.s
-		brightness.value = hsv.v
-		updateColor()
+		updateFromHSV(hsv.h, hsv.s, hsv.v)
 	}
 }
 
 function setPresetColor(color: string): void {
 	const selectedColor = tinycolor(color)
 	const hsv = selectedColor.toHsv()
-	hue.value = hsv.h
-	saturation.value = hsv.s
-	brightness.value = hsv.v
+	alpha.value = Math.round(selectedColor.getAlpha() * 100)
+	updateFromHSV(hsv.h, hsv.s, hsv.v)
+}
+
+function handleColorPick(pickedColor: string): void {
+	const color = tinycolor(pickedColor)
+	if (color.isValid()) {
+		const hsv = color.toHsv()
+		const rgbValues = color.toRgb()
+		hue.value = hsv.h || 0
+		saturation.value = hsv.s
+		brightness.value = hsv.v
+		alpha.value = Math.round((rgbValues.a || 1) * 100)
+		updateColor()
+	}
+}
+
+function handleColorModelChange(newModel: 'hex' | 'rgb' | 'hsl'): void {
+	selectedColorModel.value = newModel
 	updateColor()
 }
 
-function startSaturationDrag(): void {
-	const onMouseMove = (e: MouseEvent) => {
-		if (!saturationRef.value) return
-		const rect = saturationRef.value.getBoundingClientRect()
-		const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width)
-		const y = Math.min(Math.max(0, e.clientY - rect.top), rect.height)
-		saturation.value = x / rect.width
-		brightness.value = 1 - y / rect.height
-		updateColor()
-	}
-
-	const onMouseUp = () => {
-		window.removeEventListener('mousemove', onMouseMove)
-		window.removeEventListener('mouseup', onMouseUp)
-	}
-
-	window.addEventListener('mousemove', onMouseMove)
-	window.addEventListener('mouseup', onMouseUp)
-}
-
-function startHueDrag(): void {
-	const onMouseMove = (e: MouseEvent) => {
-		if (!hueRef.value) return
-		const rect = hueRef.value.getBoundingClientRect()
-		const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width)
-		hue.value = (x / rect.width) * 360
-		updateColor()
-	}
-
-	const onMouseUp = () => {
-		window.removeEventListener('mousemove', onMouseMove)
-		window.removeEventListener('mouseup', onMouseUp)
-	}
-
-	window.addEventListener('mousemove', onMouseMove)
-	window.addEventListener('mouseup', onMouseUp)
-}
+watch(
+	() => props.modelValue,
+	(newValue) => {
+		if (!newValue) return
+		const color = tinycolor(newValue)
+		if (color.isValid()) {
+			const hsv = color.toHsv()
+			const rgbValues = color.toRgb()
+			rgb.r = rgbValues.r
+			rgb.g = rgbValues.g
+			rgb.b = rgbValues.b
+			rgba.r = rgbValues.r
+			rgba.g = rgbValues.g
+			rgba.b = rgbValues.b
+			rgba.a = rgbValues.a || 1
+			hue.value = hsv.h || 0
+			saturation.value = hsv.s
+			brightness.value = hsv.v
+			alpha.value = Math.round((rgbValues.a || 1) * 100)
+			hex.value = color.toHexString()
+		}
+	},
+	{ immediate: true }
+)
 
 onMounted(() => {
-	const color = tinycolor(hex.value)
-	if (color.isValid()) {
-		const hsv = color.toHsv()
-		hue.value = hsv.h
-		saturation.value = hsv.s
-		brightness.value = hsv.v
-		updateColor()
+	if (props.modelValue) {
+		const color = tinycolor(props.modelValue)
+		if (color.isValid()) {
+			const hsv = color.toHsv()
+			const rgbValues = color.toRgb()
+			hue.value = hsv.h || 0
+			saturation.value = hsv.s
+			brightness.value = hsv.v
+			alpha.value = Math.round((rgbValues.a || 1) * 100)
+			updateColor()
+		}
 	}
 })
 </script>
 
 <template>
 	<Popover>
-		<InputWithIcon v-model="hex" class="relative uppercase" @blur="updateColorFromHex">
-			<PopoverTrigger
-				:style="{
-					backgroundColor: hex,
-				}"
-				class="z-10 size-5 cursor-pointer rounded-sm"
-			/>
-		</InputWithIcon>
-		<PopoverContent align="start">
-			<div class="color-picker grid gap-3">
-				<div
-					ref="saturationRef"
-					:style="{ backgroundColor: `hsl(${hue}, 100%, 50%)` }"
-					class="saturation"
-					@mousedown="startSaturationDrag"
-				>
-					<div
-						:style="{
-							left: `${saturation * 100}%`,
-							top: `${(1 - brightness) * 100}%`,
-							backgroundColor: hex,
-						}"
-						class="saturation-pointer"
-					></div>
-					<div class="saturation-white"></div>
-					<div class="saturation-black"></div>
-				</div>
-				<div class="relative">
-					<div ref="hueRef" class="hue relative z-10" @mousedown="startHueDrag">
-						<div :style="{ left: `calc(${(hue / 360) * 100}% - 7px)` }" class="hue-pointer"></div>
+		<PopoverTrigger
+			:style="{ backgroundColor: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` }"
+			:class="cn('size-5 cursor-pointer rounded-sm border ', props.class)"
+		/>
+		<PopoverContent align="start" class="w-80 overflow-hidden">
+			<div class="grid gap-3">
+				<ColorPickerSaturation
+					:hex="hex"
+					:saturation="saturation"
+					:brightness="brightness"
+					:hue="hue"
+					@update="updateFromHSV"
+				/>
+				<div class="inline-flex items-center gap-3">
+					<div class="flex-1 grid w-full gap-1">
+						<ColorPickerHue
+							:hue="hue"
+							@update:hue="(h) => updateFromHSV(h, saturation, brightness)"
+						/>
+						<ColorPickerAlpha :alpha="alpha" :hex="hex" @update:alpha="updateAlpha" />
 					</div>
-					<div class="hue absolute top-0 blur-[16px]"></div>
-				</div>
-				<div class="inputs">
-					<Input
-						id="hex"
-						v-model="hex"
-						class="h-8 bg-transparent text-xs font-medium uppercase transition-colors hover:bg-white/5"
-						@focusout="updateColorFromHex"
-					/>
-					<Input
-						id="r"
-						v-model.number="rgb.r"
-						class="h-8 bg-transparent text-xs font-medium transition-colors hover:bg-white/5"
-						@focusout="updateColorFromRGB"
-					/>
-					<Input
-						id="g"
-						v-model.number="rgb.g"
-						class="h-8 bg-transparent text-xs font-medium transition-colors hover:bg-white/5"
-						@focusout="updateColorFromRGB"
-					/>
-					<Input
-						id="b"
-						v-model.number="rgb.b"
-						class="h-8 bg-transparent text-xs font-medium transition-colors hover:bg-white/5"
-						@focusout="updateColorFromRGB"
+					<ColorPickerEyeDropper
+						v-if="props.showPipette"
+						class="w-8 h-8 bg-transparent"
+						@pick-color="handleColorPick"
 					/>
 				</div>
-
-				<div class="presets">
-					<div
-						v-for="color in presetColors"
-						:key="color"
-						:style="{ backgroundColor: color }"
-						class="preset-color"
-						:class="[hex === color ? 'active' : '']"
-						@click="setPresetColor(color)"
-					></div>
-				</div>
+				<ColorPickerInputs
+					:hex="hex"
+					:rgb="rgb"
+					:alpha="alpha"
+					:show-copy="props.showCopy"
+					@update:hex="
+						(newHex) => {
+							hex = newHex
+							updateColorFromHex()
+						}
+					"
+					@update:rgb="updateColorFromRGB"
+					@update:alpha="updateAlpha"
+					@update:color-model="handleColorModelChange"
+				/>
+				<ColorPickerPresets
+					v-if="props.showPresets"
+					:selectedColor="hex"
+					@select="setPresetColor"
+				/>
 			</div>
 		</PopoverContent>
 	</Popover>
 </template>
-
-<style lang="scss" scoped>
-.color-picker {
-  .saturation,
-  .saturation-white,
-  .saturation-black {
-    position: relative;
-    width: 100%;
-    height: 150px;
-    background: red;
-    cursor: crosshair;
-    border-radius: calc(var(--radius) - 4px);
-
-    .saturation-white {
-      position: absolute;
-      background: linear-gradient(90deg, #fff, hsla(0, 0%, 100%, 0));
-    }
-
-    .saturation-black {
-      position: absolute;
-      background: linear-gradient(0deg, #000, transparent);
-    }
-
-    .saturation-pointer {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      border: 2px solid #fff;
-      z-index: 999;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-    }
-  }
-
-  .hue {
-    width: 100%;
-    height: 10px;
-    background: linear-gradient(to right, red, yellow, lime, aqua, blue, magenta, red);
-    cursor: pointer;
-    border-radius: 999px;
-
-    .hue-pointer {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      background-color: transparent;
-      border-radius: 999px;
-      border: 3px solid #fff;
-      cursor: pointer;
-      z-index: 999;
-      transform: translateY(-50%);
-      top: 50%;
-    }
-  }
-
-  .presets {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 7px;
-
-    .preset-color {
-      width: 22px;
-      height: 22px;
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-      transition: 0.2s box-shadow;
-      border-radius: calc(var(--radius) - 4px);
-      cursor: pointer;
-
-      &.active,
-      &:hover {
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 1);
-      }
-    }
-  }
-
-  .inputs {
-    display: grid;
-    gap: 4px;
-    align-items: center;
-    align-content: center;
-    grid-template-columns: 2fr repeat(3, 1fr);
-    grid-template-rows: 1fr;
-  }
-}
-</style>
