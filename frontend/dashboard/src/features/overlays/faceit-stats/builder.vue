@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { FaceitStatsWidget } from '@twir/frontend-faceit-stats'
 import { Label } from 'radix-vue'
+import { ColorPicker } from '@/components/ui/color-picker'
+import InputWithIcon from '@/components/ui/InputWithIcon.vue'
+import { SwitchToggle } from '@/components/ui/switch'
 
 import { useI18n } from 'vue-i18n'
 import { useFaceitStats } from './composables/use-faceit-stats'
-import DisplaySwitcher from './ui/display-switcher.vue'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,13 +34,18 @@ const { t } = useI18n()
 							<Label for="nickname">
 								{{ t('overlays.faceit.settings.general.faceitNickname') }}
 							</Label>
-							<Input id="nickname" v-model:modelValue="settings.nickname" placeholder="s1mple" />
+							<Input
+								id="nickname"
+								v-model:modelValue="settings.nickname"
+								placeholder="s1mple"
+								class="bg-transparent"
+							/>
 						</div>
 
-						<div class="flex flex-col gap-2">
+						<!-- <div class="flex flex-col gap-2">
 							<Label for="game">{{ t('overlays.faceit.settings.general.game') }}</Label>
 							<Input id="game" v-model:modelValue="settings.game" placeholder="cs2" disabled />
-						</div>
+						</div> -->
 
 						<Separator class="my-2" />
 
@@ -48,21 +55,30 @@ const { t } = useI18n()
 							<Label for="backgroundColor">
 								{{ t('overlays.faceit.settings.appearance.background') }}
 							</Label>
-							<Input id="backgroundColor" v-model:modelValue="settings.bgColor" type="color" />
+							<InputWithIcon id="backgroundColor" v-model="settings.bgColor">
+								<ColorPicker id="backgroundColor" v-model="settings.bgColor" />
+							</InputWithIcon>
 						</div>
 
 						<div class="flex flex-col gap-2">
 							<Label for="textColor">
 								{{ t('overlays.faceit.settings.appearance.textColor') }}
 							</Label>
-							<Input id="textColor" v-model:modelValue="settings.textColor" type="color" />
+							<InputWithIcon id="textColor" v-model="settings.textColor">
+								<ColorPicker id="textColor" v-model="settings.textColor" />
+							</InputWithIcon>
 						</div>
 
 						<div class="flex flex-col gap-2">
 							<Label for="borderRadius">
 								{{ t('overlays.faceit.settings.appearance.borderRadius') }}
 							</Label>
-							<Input id="borderRadius" v-model:modelValue="settings.borderRadius" type="number" />
+							<Input
+								id="borderRadius"
+								v-model:modelValue="settings.borderRadius"
+								type="number"
+								class="bg-transparent"
+							/>
 						</div>
 
 						<Separator class="my-2" />
@@ -73,17 +89,14 @@ const { t } = useI18n()
 							<Label for="showAvarageKdr">
 								{{ t('overlays.faceit.settings.display.showAvarageKdr') }}
 							</Label>
-							<DisplaySwitcher
-								id="showAvarageKdr"
-								v-model:modelValue="settings.displayAvarageKdr"
-							/>
+							<SwitchToggle id="showAvarageKdr" v-model:modelValue="settings.displayAvarageKdr" />
 						</div>
 
 						<div class="flex flex-col gap-2">
 							<Label for="showWorldRanking">
 								{{ t('overlays.faceit.settings.display.worldRanking') }}
 							</Label>
-							<DisplaySwitcher
+							<SwitchToggle
 								id="showWorldRanking"
 								v-model:modelValue="settings.displayWorldRanking"
 							/>
@@ -93,7 +106,7 @@ const { t } = useI18n()
 							<Label for="last20MatchesStats">
 								{{ t('overlays.faceit.settings.display.last20MatchesStats') }}
 							</Label>
-							<DisplaySwitcher
+							<SwitchToggle
 								id="lastTwentyatches"
 								v-model:modelValue="settings.displayLastTwentyMatches"
 							/>
