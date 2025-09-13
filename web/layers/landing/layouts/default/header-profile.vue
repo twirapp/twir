@@ -5,9 +5,7 @@ import { UserStoreKey } from '~/stores/user'
 
 const userStore = useAuth()
 
-await Promise.all([
-	callOnce(UserStoreKey, () => userStore.getUserData()),
-])
+await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())])
 
 const dropdownProps = computed((): DropdownMenuContentProps & { class?: string } => {
 	return {
@@ -21,7 +19,7 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 
 <template>
 	<button
-		v-if="!userStore.user"
+		v-if="!userStore.userWithoutDashboards"
 		class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
 		@click="() => userStore.login()"
 	>
@@ -29,16 +27,19 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 		<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
 	</button>
 
-	<UiDropdownMenu v-else-if="userStore.user">
-		<UiDropdownMenuTrigger class="inline-flex items-center gap-3 text-white/75 hover:text-white transition-colors" as="button">
+	<UiDropdownMenu v-else-if="userStore.userWithoutDashboards">
+		<UiDropdownMenuTrigger
+			class="inline-flex items-center gap-3 text-white/75 hover:text-white transition-colors"
+			as="button"
+		>
 			<div class="flex items-center gap-3 min-w-0">
 				<img
-					:src="userStore.user.twitchProfile.profileImageUrl"
-					:alt="userStore.user.twitchProfile.displayName"
+					:src="userStore.userWithoutDashboards.twitchProfile.profileImageUrl"
+					:alt="userStore.userWithoutDashboards.twitchProfile.displayName"
 					class="w-8 h-8 rounded-full flex-shrink-0"
 				/>
 				<span class="max-[600px]:hidden truncate">
-					{{ userStore.user.twitchProfile.login }}
+					{{ userStore.userWithoutDashboards.twitchProfile.login }}
 				</span>
 				<Icon name="lucide:chevron-down" class="w-4 h-4 flex-shrink-0" />
 			</div>
@@ -54,7 +55,11 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 
 			<UiDropdownMenuSeparator />
 
-			<UiDropdownMenuItem as="button" class="flex w-full items-center text-destructive" @click="userStore.logout">
+			<UiDropdownMenuItem
+				as="button"
+				class="flex w-full items-center text-destructive"
+				@click="userStore.logout"
+			>
 				<Icon name="lucide:log-out" class="mr-2 h-4 w-4" />
 				Logout
 			</UiDropdownMenuItem>

@@ -17,6 +17,7 @@ type Keyword {
 	isReply: Boolean!
 	isRegularExpression: Boolean!
 	usageCount: Int!
+	rolesIds: [UUID!]!
 }
 
 input KeywordCreateInput {
@@ -27,6 +28,7 @@ input KeywordCreateInput {
 	usageCount: Int @validate(constraint: "max=999999999999999")
 	isRegularExpression: Boolean
 	isReply: Boolean
+	rolesIds: [UUID!]
 }
 
 input KeywordUpdateInput {
@@ -37,4 +39,5 @@ input KeywordUpdateInput {
 	usageCount: Int @validate(constraint: "max=999999999999999")
 	isRegularExpression: Boolean
 	isReply: Boolean
+	rolesIds: [UUID!]
 }

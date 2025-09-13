@@ -6,6 +6,7 @@ import (
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"go.uber.org/fx"
@@ -23,6 +24,7 @@ type Opts struct {
 	Bus                 *bus_core.Bus
 	GreetingsRepository greetings.Repository
 	VariablesRepository variables.Repository
+	TTSRepository       channels_modules_settings_tts.Repository
 }
 
 func New(opts Opts) *Activity {
@@ -35,6 +37,7 @@ func New(opts Opts) *Activity {
 		hydrator:            opts.Hydrator,
 		greetingsRepository: opts.GreetingsRepository,
 		variablesRepository: opts.VariablesRepository,
+		ttsRepository:       opts.TTSRepository,
 	}
 }
 
@@ -47,4 +50,5 @@ type Activity struct {
 	bus                 *bus_core.Bus
 	greetingsRepository greetings.Repository
 	variablesRepository variables.Repository
+	ttsRepository       channels_modules_settings_tts.Repository
 }

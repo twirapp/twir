@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/repositories/keywords"
 )
 
@@ -25,6 +26,7 @@ type CreateInput struct {
 	IsReply          bool
 	IsRegular        bool
 	Usages           int
+	RolesIDs         []uuid.UUID
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword, error) {
@@ -48,6 +50,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword
 			IsReply:          input.IsReply,
 			IsRegular:        input.IsRegular,
 			Usages:           input.Usages,
+			RolesIDs:         input.RolesIDs,
 		},
 	)
 	if err != nil {

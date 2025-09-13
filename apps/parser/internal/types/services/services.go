@@ -7,13 +7,13 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/parser/internal/services/shortenedurls"
+	ttsservice "github.com/twirapp/twir/apps/parser/internal/services/tts"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
-	cfg "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/types/types/api/modules"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	cfg "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
@@ -21,13 +21,16 @@ import (
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	channelsmodules_settingstts "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -54,6 +57,8 @@ type Services struct {
 	CommandsLock               *redsync.Mutex
 	CommandsPrefixRepository   channelscommandsprefixrepository.Repository
 	TTSCache                   *generic_cacher.GenericCacher[modules.TTSSettings]
+	TTSRepository              channelsmodules_settingstts.Repository
+	TTSService                 *ttsservice.Service
 	SpotifyRepo                channelsintegrationsspotify.Repository
 	UsersRepo                  users.Repository
 	CategoriesAliasesRepo      channelscategoriesaliases.Repository
@@ -64,6 +69,7 @@ type Services struct {
 	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
 	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
 	ChatMessagesRepo           chatmessagesrepository.Repository
+	ChannelEventListsRepo      channelseventslist.Repository
 	ShortUrlServices           *shortenedurls.Service
 	Executron                  executron.Executron
 }

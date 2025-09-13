@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -11,9 +12,10 @@ import (
 	"github.com/aidenwallis/go-ratelimiting/redis"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 type SendMessageOpts struct {
@@ -24,18 +26,28 @@ type SendMessageOpts struct {
 	IsAnnounce           bool
 	SkipToxicityCheck    bool
 	SkipRateLimits       bool
+	AnnounceColor        bots.AnnounceColor
 }
 
 const shoutOutPrefix = "/shoutout"
 
+var allowedSlashCommands = []string{
+	"/me",
+	"/announce",
+	"/announceblue",
+	"/announcegreen",
+	"/announceorange",
+	"/announcepurple",
+	"/shoutout",
+}
+
 func validateResponseSlashes(response string) string {
-	if strings.HasPrefix(response, "/me") || strings.HasPrefix(
-		response,
-		"/announce",
-	) || strings.HasPrefix(response, shoutOutPrefix) {
+	if slices.ContainsFunc(allowedSlashCommands, func(s string) bool {
+		return strings.HasPrefix(response, s)
+	}) {
 		return response
 	} else if strings.HasPrefix(response, "/") {
-		return "Slash commands except /me, /announce and /shoutout is disallowed. This response wont be ever sended."
+		return fmt.Sprintf("Slash commands except %s is disallowed. This response wont be ever sended.", strings.Join(allowedSlashCommands, ", "))
 	} else if strings.HasPrefix(response, ".") {
 		return `Message cannot start with "." symbol.`
 	} else {
@@ -78,6 +90,21 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		slog.String("sender_id", opts.SenderID),
 		slog.Bool("is_announce", opts.IsAnnounce),
 	)
+
+	if strings.HasPrefix(opts.Message, "/announce") && !opts.IsAnnounce {
+		opts.IsAnnounce = true
+
+		switch {
+		case strings.HasPrefix(opts.Message, "/announceblue"):
+			opts.AnnounceColor = bots.AnnounceColorBlue
+		case strings.HasPrefix(opts.Message, "/announcegreen"):
+			opts.AnnounceColor = bots.AnnounceColorGreen
+		case strings.HasPrefix(opts.Message, "/announceorange"):
+			opts.AnnounceColor = bots.AnnounceColorOrange
+		case strings.HasPrefix(opts.Message, "/announcepurple"):
+			opts.AnnounceColor = bots.AnnounceColorPurple
+		}
+	}
 
 	var twitchClient *helix.Client
 	var twitchClientErr error
@@ -200,11 +227,19 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				errorMessage = resp.ErrorMessage
 			}
 		} else {
+			var color bots.AnnounceColor
+			if opts.AnnounceColor == bots.AnnounceColorRandom {
+				color = bots.RandomAnnounceColor()
+			} else {
+				color = opts.AnnounceColor
+			}
+
 			resp, err := twitchClient.SendChatAnnouncement(
 				&helix.SendChatAnnouncementParams{
 					BroadcasterID: opts.BroadcasterID,
 					ModeratorID:   opts.SenderID,
 					Message:       validateResponseSlashes(message),
+					Color:         color.String(),
 				},
 			)
 			msgErr = err

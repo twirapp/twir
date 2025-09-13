@@ -7,11 +7,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/repositories/roles"
 	"github.com/twirapp/twir/libs/repositories/roles/model"
 	"github.com/twirapp/twir/libs/repositories/roles_users"
@@ -24,6 +25,7 @@ type Opts struct {
 	RolesRepository      roles.Repository
 	RolesUsersRepository roles_users.Repository
 	Logger               logger.Logger
+	RolesCache           *generic_cacher.GenericCacher[[]model.Role]
 }
 
 func New(opts Opts) *Service {
@@ -31,6 +33,7 @@ func New(opts Opts) *Service {
 		rolesRepository:      opts.RolesRepository,
 		rolesUsersRepository: opts.RolesUsersRepository,
 		logger:               opts.Logger,
+		rolesCache:           opts.RolesCache,
 	}
 }
 
@@ -38,6 +41,7 @@ type Service struct {
 	rolesRepository      roles.Repository
 	rolesUsersRepository roles_users.Repository
 	logger               logger.Logger
+	rolesCache           *generic_cacher.GenericCacher[[]model.Role]
 }
 
 var maxRoles = 20
@@ -144,6 +148,10 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 		},
 	)
 
+	if err := c.rolesCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.ChannelRoleNil, fmt.Errorf("failed to invalidate roles cache: %w", err)
+	}
+
 	return c.modelToEntity(dbRole), nil
 }
 
@@ -156,6 +164,7 @@ type UpdateInput struct {
 	RequiredWatchTime         *int64
 	RequiredMessages          *int32
 	RequiredUsedChannelPoints *int64
+	RolesIDs                  []uuid.UUID
 }
 
 func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
@@ -197,6 +206,10 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		},
 	)
 
+	if err := c.rolesCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.ChannelRoleNil, fmt.Errorf("failed to invalidate roles cache: %w", err)
+	}
+
 	return c.modelToEntity(newRole), nil
 }
 
@@ -235,6 +248,10 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 			ObjectID:      lo.ToPtr(dbRole.ID.String()),
 		},
 	)
+
+	if err := c.rolesCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return fmt.Errorf("failed to invalidate roles cache: %w", err)
+	}
 
 	return nil
 }

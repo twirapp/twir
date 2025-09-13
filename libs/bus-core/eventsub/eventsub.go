@@ -12,8 +12,7 @@ type EventsubSubscribeToAllEventsRequest struct {
 }
 
 type EventsubSubscribeRequest struct {
-	ChannelID     string
-	Topic         string
-	ConditionType string
-	Version       string
+	ChannelID string
+	Topic     string
+	Version   string
 }

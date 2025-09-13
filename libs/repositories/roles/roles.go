@@ -14,6 +14,8 @@ type Repository interface {
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.Role, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (model.Role, error)
+
+	GetUserAccessibleRoles(ctx context.Context, channelID, userID string) ([]model.Role, error)
 }
 
 type CreateInput struct {

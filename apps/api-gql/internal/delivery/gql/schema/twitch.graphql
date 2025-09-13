@@ -90,3 +90,12 @@ type TwitchCategory {
 	name: String!
 	boxArtUrl: String!
 }
+
+enum TwitchAnnounceColor {
+	RANDOM
+	PRIMARY
+	BLUE
+	GREEN
+	ORANGE
+	PURPLE
+}

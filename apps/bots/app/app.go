@@ -24,6 +24,7 @@ import (
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
+	rolescache "github.com/twirapp/twir/libs/cache/roles"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
@@ -47,6 +48,8 @@ import (
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
+	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
+	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	sentmessagesrepository "github.com/twirapp/twir/libs/repositories/sentmessages"
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
@@ -116,6 +119,10 @@ var App = fx.Module(
 			usersstatsrepositorypostgres.NewFx,
 			fx.As(new(usersstatsrepository.Repository)),
 		),
+		fx.Annotate(
+			rolesrepositorypgx.NewFx,
+			fx.As(new(rolesrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -130,6 +137,7 @@ var App = fx.Module(
 			mod_task_queue.NewRedisModTaskDistributor,
 			fx.As(new(mod_task_queue.TaskDistributor)),
 		),
+		rolescache.New,
 		toxicity_check.New,
 		channelscommandsprefixcache.New,
 		ttscache.NewTTSSettings,

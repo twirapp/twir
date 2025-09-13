@@ -16,13 +16,17 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
+	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
+	channelsmodules_settingsttspgx "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/postgres"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
-	channelseventsrepository "github.com/twirapp/twir/libs/repositories/events"
-	channelseventsrepositorypostgres "github.com/twirapp/twir/libs/repositories/events/pgx"
+	eventsrepository "github.com/twirapp/twir/libs/repositories/events"
+	eventsrepositorypostgres "github.com/twirapp/twir/libs/repositories/events/pgx"
 
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels/pgx"
@@ -44,12 +48,20 @@ var App = fx.Module(
 			fx.As(new(channelsrepository.Repository)),
 		),
 		fx.Annotate(
-			channelseventsrepositorypostgres.NewFx,
-			fx.As(new(channelseventsrepository.Repository)),
+			eventsrepositorypostgres.NewFx,
+			fx.As(new(eventsrepository.Repository)),
 		),
 		fx.Annotate(
 			variablesrepositorypostgres.NewFx,
 			fx.As(new(variablesrepository.Repository)),
+		),
+		fx.Annotate(
+			channelseventslistpostgres.NewFx,
+			fx.As(new(channelseventslist.Repository)),
+		),
+		fx.Annotate(
+			channelsmodules_settingsttspgx.NewFx,
+			fx.As(new(channels_modules_settings_tts.Repository)),
 		),
 		channel.New,
 		func(config cfg.Config) websockets.WebsocketClient {
@@ -68,7 +80,7 @@ var App = fx.Module(
 		workers.NewEventsWorker,
 		listener.New,
 		func(l logger.Logger) {
-			l.Info("Events service started")
+			l.Info("🤖 Events service started")
 		},
 	),
 )

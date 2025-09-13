@@ -30,9 +30,10 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 		responses = append(
 			responses,
 			timers.CreateResponse{
-				Text:       response.Text,
-				IsAnnounce: response.IsAnnounce,
-				Count:      response.Count,
+				Text:          response.Text,
+				IsAnnounce:    response.IsAnnounce,
+				Count:         response.Count,
+				AnnounceColor: mappers.AnnounceColorToEntity(response.AnnounceColor),
 			},
 		)
 	}
@@ -74,8 +75,10 @@ func (r *mutationResolver) TimersCreateMany(ctx context.Context, opts []gqlmodel
 			responses = append(
 				responses,
 				timers.CreateResponse{
-					Text:       response.Text,
-					IsAnnounce: response.IsAnnounce,
+					Text:          response.Text,
+					IsAnnounce:    response.IsAnnounce,
+					Count:         response.Count,
+					AnnounceColor: mappers.AnnounceColorToEntity(response.AnnounceColor),
 				},
 			)
 		}
@@ -114,9 +117,10 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 		responses = append(
 			responses,
 			timers.CreateResponse{
-				Text:       response.Text,
-				IsAnnounce: response.IsAnnounce,
-				Count:      response.Count,
+				Text:          response.Text,
+				IsAnnounce:    response.IsAnnounce,
+				Count:         response.Count,
+				AnnounceColor: mappers.AnnounceColorToEntity(response.AnnounceColor),
 			},
 		)
 	}

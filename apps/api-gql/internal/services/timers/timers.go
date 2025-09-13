@@ -4,9 +4,10 @@ import (
 	"errors"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/logger"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
 	"go.uber.org/fx"
@@ -51,10 +52,11 @@ func (c *Service) dbToModel(m timersmodel.Timer) entity.Timer {
 		responses = append(
 			responses,
 			entity.Response{
-				ID:         r.ID,
-				Text:       r.Text,
-				IsAnnounce: r.IsAnnounce,
-				Count:      r.Count,
+				ID:            r.ID,
+				Text:          r.Text,
+				IsAnnounce:    r.IsAnnounce,
+				Count:         r.Count,
+				AnnounceColor: bots.AnnounceColor(r.AnnounceColor),
 			},
 		)
 	}

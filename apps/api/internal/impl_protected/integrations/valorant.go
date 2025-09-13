@@ -10,8 +10,8 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/api/internal/helpers"
-	"github.com/twirapp/twir/libs/api/messages/integrations_valorant"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/api/messages/integrations_valorant"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -178,6 +178,28 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		)
 	}
 
+	henrikResponse := ValorantHenrikResponse{}
+	henrikReq, err := req.
+		SetSuccessResult(&henrikResponse).
+		SetHeader("Authorization", c.Config.ValorantHenrikApiKey).
+		Get(
+			fmt.Sprintf(
+				"https://api.henrikdev.xyz/valorant/v1/account/%s/%s",
+				accountResponse.UserName,
+				accountResponse.TagLine,
+			),
+		)
+	if err != nil {
+		return nil, err
+	}
+	if !henrikReq.IsSuccessState() {
+		return nil, fmt.Errorf(
+			"cannot get valorant shard info: %d %s",
+			henrikReq.StatusCode,
+			henrikReq.String(),
+		)
+	}
+
 	userName := fmt.Sprintf(
 		"%s#%s",
 		accountResponse.UserName,
@@ -188,7 +210,7 @@ func (c *Integrations) IntegrationsValorantPostCode(
 	integration.RefreshToken = null.StringFrom(tokenResponse.RefreshToken)
 	integration.Data.ValorantActiveRegion = &shardResponse.ActiveShard
 	integration.Data.UserName = &userName
-	integration.Data.ValorantPuuid = &accountResponse.Puuid
+	integration.Data.ValorantPuuid = &henrikResponse.Data.Puuid
 	integration.Enabled = true
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {

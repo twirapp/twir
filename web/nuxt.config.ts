@@ -40,6 +40,9 @@ export default defineNuxtConfig({
 
 	icon: {
 		localApiEndpoint: '/_nuxt_icon',
+		clientBundle: {
+			includeCustomCollections: true,
+		},
 	},
 
 	devServer: {
@@ -78,7 +81,7 @@ export default defineNuxtConfig({
 				files: [
 					path.join(
 						path.dirname(require.resolve('@twir/frontend-valorant-stats')),
-						'**/*.{js,vue,ts}',
+						'**/*.{js,vue,ts}'
 					),
 				],
 			},
@@ -106,7 +109,7 @@ export default defineNuxtConfig({
 			endpoint:
 				process.env.NODE_ENV !== 'production'
 					? // ? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
-					'http://localhost:3009/query'
+						'http://localhost:3009/query'
 					: 'http://api-gql:3009/query',
 		},
 	},

@@ -1,10 +1,11 @@
 import { createGlobalState } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { type TypeOf, array, boolean, number, object, string } from 'zod'
+import { type TypeOf, array, boolean, nativeEnum, number, object, string } from 'zod'
 
 import { useTimersApi } from '@/api/timers'
 import { useToast } from '@/components/ui/toast'
+import { TwitchAnnounceColor } from '@/gql/graphql.ts'
 
 export const formSchema = object({
 	id: string().optional(),
@@ -16,6 +17,7 @@ export const formSchema = object({
 			text: string().min(1).max(1000),
 			isAnnounce: boolean(),
 			count: number().int().min(1).max(20).default(1),
+			announceColor: nativeEnum(TwitchAnnounceColor).default(TwitchAnnounceColor.Primary),
 		}),
 	).min(1),
 	enabled: boolean().default(true),

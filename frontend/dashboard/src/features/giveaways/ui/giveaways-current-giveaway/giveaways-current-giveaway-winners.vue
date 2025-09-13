@@ -7,8 +7,7 @@ import type { ChatMessage } from '@/api/chat-messages.ts'
 
 import { useChatMessagesApi } from '@/api/chat-messages.ts'
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
-import GiveawaysCurrentGiveawayWinnersProfile
-	from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners-profile.vue'
+import GiveawaysCurrentGiveawayWinnersProfile from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners-profile.vue'
 
 const { t } = useI18n()
 
@@ -20,9 +19,12 @@ const chatMessages = ref<ChatMessage[]>([])
 const isLoadingMessages = ref(false)
 const selectedWinnerUserId = ref('')
 
-const { executeQuery: refetchMessages } = chatMessagesApi.useQuery({
-	perPage: 1000,
-}, { manual: true })
+const { executeQuery: refetchMessages } = chatMessagesApi.useQuery(
+	{
+		perPage: 1000,
+	},
+	{ manual: true }
+)
 
 onMounted(async () => {
 	const { data: messages } = await refetchMessages()
@@ -38,7 +40,7 @@ watch(chatMessagesSubscriptionData, (data) => {
 })
 
 const filteredMessages = computed(() => {
-	return chatMessages.value.filter(msg => msg.userID === selectedWinnerUserId.value)
+	return chatMessages.value.filter((msg) => msg.userID === selectedWinnerUserId.value)
 })
 
 function handleSelectWinner(winnerId: string) {
@@ -49,7 +51,10 @@ function handleSelectWinner(winnerId: string) {
 <template>
 	<div class="flex flex-col h-full min-h-0">
 		<!-- No winners message -->
-		<div v-if="winners.length === 0" class="flex-1 flex items-center justify-center flex-col gap-4 p-4 text-muted-foreground">
+		<div
+			v-if="winners.length === 0"
+			class="flex-1 flex items-center justify-center flex-col gap-4 p-4 text-muted-foreground"
+		>
 			<div class="text-center">
 				<p>{{ t('sharedTexts.noData') }}</p>
 				<p class="text-sm">
@@ -99,7 +104,10 @@ function handleSelectWinner(winnerId: string) {
 						{{ t('sharedTexts.loading') || 'Loading messages...' }}
 					</div>
 
-					<div v-else-if="filteredMessages.length === 0" class="p-4 text-center text-muted-foreground">
+					<div
+						v-else-if="filteredMessages.length === 0"
+						class="p-4 text-center text-muted-foreground"
+					>
 						{{ t('sharedTexts.noData') }}
 					</div>
 
@@ -109,7 +117,9 @@ function handleSelectWinner(winnerId: string) {
 							:key="message.id"
 							class="py-1 px-2 flex items-start gap-2 hover:bg-muted rounded-sm"
 						>
-							<span class="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{{ new Date(message.createdAt).toLocaleString() }}</span>
+							<span class="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{{
+								new Date(message.createdAt).toLocaleString()
+							}}</span>
 							<span class="text-sm break-words">{{ message.text }}</span>
 						</div>
 					</div>
@@ -117,7 +127,10 @@ function handleSelectWinner(winnerId: string) {
 			</div>
 
 			<div v-else class="flex-1 flex items-center justify-center text-muted-foreground">
-				{{ t('giveaways.currentGiveaway.selectWinner') || 'Select a winner to view their chat logs and profile' }}
+				{{
+					t('giveaways.currentGiveaway.selectWinner') ||
+					'Select a winner to view their chat logs and profile'
+				}}
 			</div>
 		</template>
 	</div>

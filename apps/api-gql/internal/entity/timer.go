@@ -2,6 +2,7 @@ package entity
 
 import (
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 )
 
 type Timer struct {
@@ -16,10 +17,11 @@ type Timer struct {
 }
 
 type Response struct {
-	ID         uuid.UUID
-	Text       string
-	IsAnnounce bool
-	Count      int
+	ID            uuid.UUID
+	Text          string
+	IsAnnounce    bool
+	Count         int
+	AnnounceColor bots.AnnounceColor
 }
 
 var TimerNil = Timer{}

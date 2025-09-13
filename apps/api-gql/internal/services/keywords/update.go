@@ -6,10 +6,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/logger/audit"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 )
 
@@ -26,6 +26,7 @@ type UpdateInput struct {
 	IsReply          *bool
 	IsRegular        *bool
 	Usages           *int
+	RolesIDs         []uuid.UUID
 }
 
 func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword, error) {
@@ -50,6 +51,7 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword
 			IsReply:          input.IsReply,
 			IsRegular:        input.IsRegular,
 			Usages:           input.Usages,
+			RolesIDs:         &input.RolesIDs,
 		},
 	)
 	if err != nil {

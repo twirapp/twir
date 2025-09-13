@@ -42,7 +42,7 @@ type Pgx struct {
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Timer, error) {
 	query := `
 SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
-			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count
+			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
 WHERE
@@ -63,6 +63,7 @@ ORDER BY t.id;
 			responseText                sql.Null[string]
 			responseIsAnnounce          sql.Null[bool]
 			responseCount               sql.Null[int]
+			responseAnnounceColor       sql.Null[int]
 		)
 
 		if err := rows.Scan(
@@ -78,6 +79,7 @@ ORDER BY t.id;
 			&responseIsAnnounce,
 			&responseTimerID,
 			&responseCount,
+			&responseAnnounceColor,
 		); err != nil {
 			return model.Nil, err
 		}
@@ -85,11 +87,12 @@ ORDER BY t.id;
 		if responseID.Valid {
 			timer.Responses = append(
 				timer.Responses, model.Response{
-					ID:         responseID.V,
-					Text:       responseText.V,
-					IsAnnounce: responseIsAnnounce.V,
-					TimerID:    responseTimerID.V,
-					Count:      responseCount.V,
+					ID:            responseID.V,
+					Text:          responseText.V,
+					IsAnnounce:    responseIsAnnounce.V,
+					TimerID:       responseTimerID.V,
+					Count:         responseCount.V,
+					AnnounceColor: model.AnnounceColor(responseAnnounceColor.V),
 				},
 			)
 		}
@@ -117,9 +120,9 @@ VALUES ($1, $2, $3, $4, $5)
 RETURNING "id", "channelId", "name", "enabled", "timeInterval", "messageInterval"
 `
 	createResponseQuery := `
-INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING "id", "text", "isAnnounce", "timerId", count
+INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count, "announce_color")
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 `
 	tx, err := c.pool.Begin(ctx)
 	if err != nil {
@@ -146,7 +149,7 @@ RETURNING "id", "text", "isAnnounce", "timerId", count
 		&newTimer.TimeInterval,
 		&newTimer.MessageInterval,
 	); err != nil {
-		return model.Nil, err
+		return model.Nil, fmt.Errorf("cannot create timer: %w", err)
 	}
 
 	for _, r := range data.Responses {
@@ -160,14 +163,16 @@ RETURNING "id", "text", "isAnnounce", "timerId", count
 			r.IsAnnounce,
 			newTimer.ID,
 			r.Count,
+			int(r.AnnounceColor),
 		).Scan(
 			&newResponse.ID,
 			&newResponse.Text,
 			&newResponse.IsAnnounce,
 			&newResponse.TimerID,
 			&newResponse.Count,
+			&newResponse.AnnounceColor,
 		); err != nil {
-			return model.Nil, err
+			return model.Nil, fmt.Errorf("cannot create response for timer: %w", err)
 		}
 		newTimer.Responses = append(newTimer.Responses, newResponse)
 	}
@@ -182,7 +187,7 @@ RETURNING "id", "text", "isAnnounce", "timerId", count
 func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Timer, error) {
 	query := `
 SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
-			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count
+			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
 WHERE t."channelId" = $1
@@ -203,6 +208,7 @@ ORDER BY t."id";
 			responseText                sql.Null[string]
 			responseIsAnnounce          sql.Null[bool]
 			responseCount               sql.Null[int]
+			responseAnnounceColor       sql.Null[int]
 		)
 
 		if err := rows.Scan(
@@ -218,6 +224,7 @@ ORDER BY t."id";
 			&responseIsAnnounce,
 			&responseTimerID,
 			&responseCount,
+			&responseAnnounceColor,
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan row: %v, %w", timer.ID, err)
 		}
@@ -228,11 +235,12 @@ ORDER BY t."id";
 		if responseID.Valid {
 			timersMap[timer.ID].Responses = append(
 				timersMap[timer.ID].Responses, model.Response{
-					ID:         responseID.V,
-					Text:       responseText.V,
-					IsAnnounce: responseIsAnnounce.V,
-					TimerID:    responseTimerID.V,
-					Count:      responseCount.V,
+					ID:            responseID.V,
+					Text:          responseText.V,
+					IsAnnounce:    responseIsAnnounce.V,
+					TimerID:       responseTimerID.V,
+					Count:         responseCount.V,
+					AnnounceColor: model.AnnounceColor(responseAnnounceColor.V),
 				},
 			)
 		}
@@ -303,12 +311,13 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 		for _, r := range data.Responses {
 			_, err := tx.Exec(
 				ctx,
-				`INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count) VALUES ($1, $2, $3, $4, $5)`,
+				`INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count, "announce_color") VALUES ($1, $2, $3, $4, $5, $6)`,
 				uuid.New(),
 				r.Text,
 				r.IsAnnounce,
 				id,
 				r.Count,
+				int(r.AnnounceColor),
 			)
 			if err != nil {
 				return model.Nil, err

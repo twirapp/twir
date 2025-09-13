@@ -1,117 +1,130 @@
-<script setup lang='ts'>
+<script setup lang="ts">
+import { toTypedSchema } from '@vee-validate/zod'
 import { InfoIcon } from 'lucide-vue-next'
-import {
-	type FormInst,
-	type FormItemRule,
-	type FormRules,
-	NA,
-	NForm,
-	NFormItem,
-	NSpace,
-} from 'naive-ui'
+import { useForm } from 'vee-validate'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import * as z from 'zod'
 
 import type { KeywordResponse } from '@/api/keywords'
-import type { MakeOptional } from '@/gql/graphql'
 
 import { useKeywordsApi } from '@/api/keywords'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/toast'
 import VariableInput from '@/components/variable-input.vue'
+import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
 
 const props = defineProps<{
-	keyword?: MakeOptional<KeywordResponse, 'id'> | null
+	keyword?: Omit<KeywordResponse, 'id'> & { id?: string }
 }>()
 
 const emits = defineEmits<{
 	close: []
 }>()
 
+const { t } = useI18n()
+const { toast } = useToast()
+
 const open = ref(false)
-const formRef = ref<FormInst | null>(null)
 
-const defaultFormValue: MakeOptional<KeywordResponse, 'id'> = {
-	text: '',
-	usageCount: 0,
-	cooldown: 0,
-	enabled: true,
-	isRegularExpression: false,
-	isReply: true,
-	response: null,
-}
+const keywordsForm = useForm({
+	validationSchema: toTypedSchema(
+		z.object({
+			id: z.string().optional(),
+			text: z.string().min(1),
+			response: z.string().optional().nullable(),
+			isRegularExpression: z.boolean(),
+			isReply: z.boolean(),
+			cooldown: z.number().min(0).optional(),
+			usageCount: z.number().min(0).optional(),
+			rolesIds: z.array(z.string()).optional(),
+			enabled: z.boolean().optional().default(true),
+		})
+	),
+	initialValues: {
+		text: '',
+		usageCount: 0,
+		cooldown: 0,
+		enabled: true,
+		isRegularExpression: false,
+		isReply: true,
+		response: null,
+		rolesIds: [],
+	},
+	keepValuesOnUnmount: true,
+})
 
-const formValue = ref<MakeOptional<KeywordResponse, 'id'>>(structuredClone(defaultFormValue))
 function resetFormValue() {
-	formValue.value = structuredClone(defaultFormValue)
+	keywordsForm.resetForm({
+		values: {
+			text: '',
+			usageCount: 0,
+			cooldown: 0,
+			enabled: true,
+			isRegularExpression: false,
+			isReply: true,
+			response: null,
+			rolesIds: [],
+		},
+	})
 }
 
-watch(() => props.keyword, (keyword) => {
-	if (!keyword) return
-	formValue.value = structuredClone(toRaw(keyword))
-}, { immediate: true })
+watch(
+	() => props.keyword,
+	(k) => {
+		console.log(k)
+		if (!k) return
+
+		keywordsForm.setValues(structuredClone(toRaw(k)))
+	},
+	{ immediate: true }
+)
 
 const keywordsApi = useKeywordsApi()
 const updateMutation = keywordsApi.useMutationUpdateKeyword()
 const createMutation = keywordsApi.useMutationCreateKeyword()
 
-async function save() {
-	if (!formRef.value || !formValue.value) return
-	await formRef.value.validate()
-
-	const data = formValue.value
-	delete data.id
-
+const save = keywordsForm.handleSubmit(async (values) => {
 	try {
 		if (props.keyword?.id) {
+			delete values.id
+
 			await updateMutation.executeMutation({
 				id: props.keyword.id,
-				opts: data,
+				opts: values,
 			})
 		} else {
-			await createMutation.executeMutation({ opts: data })
+			await createMutation.executeMutation({ opts: values })
 		}
 		emits('close')
 		open.value = false
 		resetFormValue()
 	} catch (e) {
+		toast({
+			title: 'Error occured while saving keyword',
+			variant: 'default',
+		})
 		console.error(e)
 	}
-}
-
-const { t } = useI18n()
-
-const rules: FormRules = {
-	text: {
-		trigger: ['input', 'blur'],
-		validator: (_: FormItemRule, value: string) => {
-			if (!value || !value.length) {
-				return new Error(t('keywords.validations.triggerRequired'))
-			}
-
-			return true
-		},
-	},
-}
+})
 </script>
 
 <template>
 	<Dialog
 		v-model:open="open"
-		@update:open="(state) => {
-			if (!state && !keyword) resetFormValue()
-		}"
+		@update:open="
+			(state) => {
+				if (!state && !keyword) resetFormValue()
+			}
+		"
 	>
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
@@ -122,66 +135,109 @@ const rules: FormRules = {
 					{{ keyword ? t('keywords.edit') : t('keywords.create') }}
 				</DialogTitle>
 			</DialogHeader>
-			<NForm ref="formRef" :model="formValue" :rules="rules">
-				<div class="grid gap-4 py-4">
-					<NSpace vertical class="w-full">
-						<NFormItem :label="t('keywords.triggerText')" path="text" show-require-mark>
-							<Textarea v-model="formValue.text" />
-						</NFormItem>
 
-						<div class="flex flex-col gap-2 pb-4">
-							<div class="flex justify-between">
-								<span>{{ t('keywords.isRegular') }}</span>
-								<Switch
-									:checked="formValue.isRegularExpression"
-									@update:checked="(v) => formValue.isRegularExpression = v"
+			<form class="flex flex-col gap-4" @submit="save">
+				<FormField v-slot="{ componentField }" name="text">
+					<FormItem>
+						<FormLabel class="flex gap-2">
+							{{ t('keywords.triggerText') }}
+						</FormLabel>
+						<FormControl>
+							<Textarea v-bind="componentField" />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
+
+				<FormField v-slot="{ field }" name="isRegularExpression">
+					<FormItem>
+						<FormLabel class="flex gap-2">
+							{{ t('keywords.isRegular') }}
+						</FormLabel>
+						<FormControl>
+							<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
+				<Alert>
+					<InfoIcon class="h-4 w-4" />
+
+					<AlertDescription>
+						<i18n-t keypath="keywords.regularDescription">
+							<a
+								href="https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet"
+								target="_blank"
+								class="underline"
+							>
+								{{ t('keywords.regularDescriptionCheatSheet') }}
+							</a>
+						</i18n-t>
+					</AlertDescription>
+				</Alert>
+
+				<FormField v-slot="{ componentField }" name="response">
+					<FormItem>
+						<FormLabel class="flex gap-2">
+							{{ t('sharedTexts.response') }}
+						</FormLabel>
+						<FormControl>
+							<div class="relative">
+								<VariableInput
+									:model-value="componentField.modelValue"
+									input-type="textarea"
+									@update:model-value="componentField['onUpdate:modelValue']"
 								/>
 							</div>
-							<Alert>
-								<InfoIcon class="h-4 w-4" />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-								<AlertDescription>
-									<i18n-t
-										keypath="keywords.regularDescription"
-									>
-										<NA
-											href="https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet"
-											target="_blank"
-										>
-											{{ t('keywords.regularDescriptionCheatSheet') }}
-										</NA>
-									</i18n-t>
-								</AlertDescription>
-							</Alert>
-						</div>
+				<FormField v-slot="{ field }" name="isReply">
+					<FormItem>
+						<FormLabel class="flex gap-2">
+							{{ t('sharedTexts.reply.label') }}
+						</FormLabel>
+						<FormControl>
+							<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-						<NFormItem :label="t('sharedTexts.response')" path="response">
-							<VariableInput v-model="formValue.response" input-type="textarea" />
-						</NFormItem>
-
-						<div class="flex justify-between pb-4">
-							<span>{{ t('sharedTexts.reply.text') }}</span>
-							<Switch
-								:checked="formValue.isReply"
-								@update:checked="(v) => formValue.isReply = v"
-							/>
-						</div>
-
-						<NFormItem :label="t('keywords.cooldown')">
-							<Input v-model="formValue.cooldown" type="number" />
-						</NFormItem>
-
-						<NFormItem :label="t('keywords.usages')">
-							<Input v-model="formValue.usageCount" type="number" />
-						</NFormItem>
-					</NSpace>
+				<div class="flex flex-col gap-2">
+					<Label class="flex gap-2"> Roles </Label>
+					<FormRolesSelector class="xl:w-full xl:max-w-full" field-name="rolesIds" />
 				</div>
-				<DialogFooter>
-					<Button type="submit" @click="save">
-						{{ t('sharedButtons.save') }}
-					</Button>
-				</DialogFooter>
-			</NForm>
+
+				<FormField v-slot="{ componentField }" name="cooldown">
+					<FormItem>
+						<FormLabel class="flex gap-2">
+							{{ t('keywords.cooldown') }}
+						</FormLabel>
+						<FormControl>
+							<Input v-bind="componentField" type="number" />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
+
+				<FormField v-slot="{ componentField }" name="usageCount">
+					<FormItem>
+						<FormLabel class="flex gap-2">
+							{{ t('keywords.usages') }}
+						</FormLabel>
+						<FormControl>
+							<Input v-bind="componentField" type="number" />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
+				<Button type="submit">
+					{{ t('sharedButtons.save') }}
+				</Button>
+			</form>
 		</DialogOrSheet>
 	</Dialog>
 </template>

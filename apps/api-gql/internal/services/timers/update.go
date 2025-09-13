@@ -5,12 +5,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/logger/audit"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
+	"github.com/twirapp/twir/libs/repositories/timers/model"
 )
 
 type UpdateInput struct {
@@ -45,9 +46,10 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Timer, e
 		responses = append(
 			responses,
 			timersrepository.CreateResponse{
-				Text:       response.Text,
-				IsAnnounce: response.IsAnnounce,
-				Count:      count,
+				Text:          response.Text,
+				IsAnnounce:    response.IsAnnounce,
+				Count:         count,
+				AnnounceColor: model.AnnounceColor(response.AnnounceColor),
 			},
 		)
 	}
