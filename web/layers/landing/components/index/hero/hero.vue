@@ -8,9 +8,7 @@ import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
 
 const userStore = useAuth()
 
-await Promise.all([
-	callOnce(UserStoreKey, () => userStore.getUserData()),
-])
+await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())])
 </script>
 
 <template>
@@ -26,7 +24,10 @@ await Promise.all([
 						target="_blank"
 					>
 						🚀 View latest updates
-						<SvgoArrowRight :fontControlled="false" class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0" />
+						<SvgoArrowRight
+							:fontControlled="false"
+							class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0"
+						/>
 					</a>
 					<h1
 						class="pt-4 lg:text-[64px] text-[min(48px,11vw)] font-bold text-white tracking-tight leading-[1.2] max-w-2xl"
@@ -34,16 +35,16 @@ await Promise.all([
 						Engage your audience like never before
 					</h1>
 
-					<p class="pt-6 max-w-xl text-[#ADB0B8] lg:text-[20px] text-[min(18px,5vw)] leading-normal">
+					<p
+						class="pt-6 max-w-xl text-[#ADB0B8] lg:text-[20px] text-[min(18px,5vw)] leading-normal"
+					>
 						Our Twitch bot is the ultimate all-in-one solution for streamers looking to take their
 						channel to the next level.
 					</p>
 
 					<div class="pt-[48px] w-full inline-flex flex-col lg:flex-row gap-3">
-						<UiButton href="#" variant="secondary">
-							Learn more
-						</UiButton>
-						<UiButton v-if="userStore.user" href="/dashboard" variant="primary">
+						<UiButton href="#" variant="secondary"> Learn more </UiButton>
+						<UiButton v-if="userStore.userWithoutDashboards" href="/dashboard" variant="primary">
 							Dashboard
 						</UiButton>
 						<UiButton v-else as="button" variant="primary" @click="userStore.login()">

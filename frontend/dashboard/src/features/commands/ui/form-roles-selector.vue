@@ -59,7 +59,7 @@ const roles = computed(() => {
 							@update:checked="handleChange"
 						/>
 					</FormControl>
-					<span>{{ role.name }}</span>
+					<span>{{ role.name.at(0) + role.name.slice(1).toLowerCase() }}</span>
 				</FormLabel>
 			</FormItem>
 		</FormField>

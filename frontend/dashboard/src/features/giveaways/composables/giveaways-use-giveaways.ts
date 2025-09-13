@@ -1,5 +1,5 @@
 import { createGlobalState } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -10,9 +10,7 @@ import type {
 	GiveawayWinner,
 } from '@/api/giveaways.js'
 
-import {
-	useGiveawaysApi,
-} from '@/api/giveaways.js'
+import { useGiveawaysApi } from '@/api/giveaways.js'
 import { useToast } from '@/components/ui/toast'
 
 export const useGiveaways = createGlobalState(() => {
@@ -29,20 +27,20 @@ export const useGiveaways = createGlobalState(() => {
 
 	// Computed values
 	const giveawaysList = computed<Giveaway[]>(() => {
-		return giveaways.value?.giveaways as Giveaway[] ?? []
+		return (giveaways.value?.giveaways as Giveaway[]) ?? []
 	})
 
 	const activeGiveaways = computed<Giveaway[]>(() => {
-		return giveawaysList.value.filter(g => !g.stoppedAt)
+		return giveawaysList.value.filter((g) => !g.stoppedAt)
 	})
 
 	const archivedGiveaways = computed<Giveaway[]>(() => {
-		return giveawaysList.value.filter(g => g.stoppedAt)
+		return giveawaysList.value.filter((g) => g.stoppedAt)
 	})
 
 	const currentGiveaway = computed(() => {
 		if (!currentGiveawayId.value) return null
-		return giveawaysList.value.find(g => g.id === currentGiveawayId.value) as Giveaway
+		return giveawaysList.value.find((g) => g.id === currentGiveawayId.value) as Giveaway
 	})
 
 	// Mutations
@@ -121,10 +119,12 @@ export const useGiveaways = createGlobalState(() => {
 			if (result.error) {
 				throw new Error(result.error.message)
 			}
-			winners.value.push(...result.data?.giveawaysChooseWinners as GiveawayWinner[] || [])
+			winners.value.push(...((result.data?.giveawaysChooseWinners as GiveawayWinner[]) || []))
 			toast({
 				title: t('giveaways.notifications.winnersChosen'),
-				description: t('giveaways.notifications.winnersChosenDescription', { count: winners.value.length }),
+				description: t('giveaways.notifications.winnersChosenDescription', {
+					count: winners.value.length,
+				}),
 			})
 			return winners.value
 		} catch (error) {
@@ -143,27 +143,28 @@ export const useGiveaways = createGlobalState(() => {
 	}
 
 	// Use the API with reactive giveaway ID directly
-	const { data: giveawayData } = giveawaysApi.useGiveaway(currentGiveawayId)
-	const { data: participantsData } = giveawaysApi.useGiveawayParticipants(currentGiveawayId)
-	const { data: participantsSubscriptionData } = giveawaysApi.useSubscriptionGiveawayParticipants(currentGiveawayId)
+	const { data: giveawayData, executeQuery: fetchCurrentGiveaway } =
+		giveawaysApi.useGiveaway(currentGiveawayId)
+	const {
+		data: participantsSubscriptionData,
+		executeSubscription: subscribeToParticipants,
+		pause: closeSubscription,
+	} = giveawaysApi.useSubscriptionGiveawayParticipants(currentGiveawayId)
 
 	// Watch for giveaway data changes
-	watch(giveawayData, (giveawayData) => {
-		if (!giveawayData?.giveaway) return
-		const g = giveawayData.giveaway as unknown as Giveaway
-		if (g?.winners && g.winners.length > 0) {
-			winners.value = g.winners as GiveawayWinner[]
-		}
-	}, { immediate: true })
+	watch(
+		giveawayData,
+		(giveawayData) => {
+			if (!giveawayData?.giveaway) return
+			const g = giveawayData.giveaway as unknown as Giveaway
+			if (g?.winners && g.winners.length > 0) {
+				winners.value = g.winners as GiveawayWinner[]
+			}
 
-	// Watch for participants data changes
-	watch(participantsData, (participantsData) => {
-		const newParticipants = participantsData?.giveawayParticipants
-
-		if (newParticipants) {
-			participants.value = newParticipants as GiveawayParticipant[]
-		}
-	}, { immediate: true })
+			participants.value = giveawayData.giveaway.participants as GiveawayParticipant[]
+		},
+		{ immediate: true }
+	)
 
 	// Watch for new participants from subscription
 	watch(participantsSubscriptionData, (data) => {
@@ -171,7 +172,9 @@ export const useGiveaways = createGlobalState(() => {
 		const newParticipant = data.giveawaysParticipants
 		const participant = newParticipant as unknown as GiveawaySubscriptionParticipant
 
-		const exists = participants.value.some(p => p.userId === participant.userId)
+		if (participant.giveawayId !== currentGiveawayId.value) return
+
+		const exists = participants.value.some((p) => p.userId === participant.userId)
 		if (!exists) {
 			// Add new participant
 			participants.value.push({
@@ -185,14 +188,21 @@ export const useGiveaways = createGlobalState(() => {
 	})
 
 	// Function to set the current giveaway ID
-	function loadParticipants(giveawayId: string) {
+	async function loadParticipants(giveawayId: string) {
 		if (!giveawayId) return
 		currentGiveawayId.value = giveawayId
+		await nextTick()
+		await fetchCurrentGiveaway({ requestPolicy: 'cache-and-network' })
+		subscribeToParticipants()
 	}
+
+	onUnmounted(() => {
+		closeSubscription()
+	})
 
 	const participantsWithFixedWinners = computed(() => {
 		return participants.value.map((p) => {
-			const isWinner = winners.value.some(w => w.userId === p.userId)
+			const isWinner = winners.value.some((w) => w.userId === p.userId)
 			return {
 				...p,
 				isWinner,

@@ -11,7 +11,7 @@ const emit = defineEmits<{
 const router = useRouter()
 
 const userStore = useAuth()
-await callOnce(UserStoreKey, () => userStore.getUserData())
+await callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())
 
 const pasteStore = usePasteStore()
 const { currentPaste, editableContent } = storeToRefs(pasteStore)
@@ -57,13 +57,15 @@ const buttons = computed(() => {
 			icon: 'lucide:text',
 			disabled: !currentPaste.value,
 			tooltip: 'Text',
-			href: currentPaste.value?.id ? `${requestUrl.origin}/h/${currentPaste.value?.id}/raw` : undefined,
+			href: currentPaste.value?.id
+				? `${requestUrl.origin}/h/${currentPaste.value?.id}/raw`
+				: undefined,
 		},
 		{
 			name: 'Profile',
 			icon: 'lucide:user',
 			tooltip: 'Profile',
-			disabled: !userStore.user,
+			disabled: !userStore.userWithoutDashboards,
 			href: `${requestUrl.origin}/h/profile`,
 			onClick: () => router.push('/h/profile'),
 		},
@@ -78,7 +80,9 @@ const buttons = computed(() => {
 </script>
 
 <template>
-	<div class="flex flex-row gap-2 items-center fixed top-2 right-4 h-14 p-2 bg-gray-500/50 rounded-md">
+	<div
+		class="flex flex-row gap-2 items-center fixed top-2 right-4 h-14 p-2 bg-gray-500/50 rounded-md"
+	>
 		<UiButton
 			v-for="button of buttons"
 			:key="button.name"
@@ -98,14 +102,14 @@ const buttons = computed(() => {
 
 <style scoped>
 .icon {
-  @apply size-6 cursor-pointer text-gray-300;
+	@apply size-6 cursor-pointer text-gray-300;
 }
 
 .icon:disabled {
-  @apply opacity-50;
+	@apply opacity-50;
 }
 
 .icon:hover {
-  @apply text-gray-100;
+	@apply text-gray-100;
 }
 </style>

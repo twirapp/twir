@@ -51,6 +51,33 @@ func (r *channelGiveawayResolver) Winners(ctx context.Context, obj *gqlmodel.Cha
 	return mappedWinners, nil
 }
 
+// Participants is the resolver for the participants field.
+func (r *channelGiveawayResolver) Participants(ctx context.Context, obj *gqlmodel.ChannelGiveaway) ([]gqlmodel.ChannelGiveawayParticipants, error) {
+	parsedID, err := ulid.Parse(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	dbParticipants, err := r.deps.GiveawaysService.GetParticipantsForGiveaway(
+		ctx,
+		parsedID,
+		giveaways.GetParticipantsInput{},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	mappedParticipants := make([]gqlmodel.ChannelGiveawayParticipants, 0, len(dbParticipants))
+	for _, participant := range dbParticipants {
+		mappedParticipants = append(
+			mappedParticipants,
+			mappers.GiveawayParticipantEntityTo(participant),
+		)
+	}
+
+	return mappedParticipants, nil
+}
+
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *channelGiveawayWinnerResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChannelGiveawayWinner) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
@@ -235,33 +262,6 @@ func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (*gqlmo
 
 	converted := mappers.GiveawayEntityTo(dbGiveaway)
 	return &converted, nil
-}
-
-// GiveawayParticipants is the resolver for the giveawayParticipants field.
-func (r *queryResolver) GiveawayParticipants(ctx context.Context, giveawayID string) ([]gqlmodel.ChannelGiveawayParticipants, error) {
-	parsedID, err := ulid.Parse(giveawayID)
-	if err != nil {
-		return nil, err
-	}
-
-	dbParticipants, err := r.deps.GiveawaysService.GetParticipantsForGiveaway(
-		ctx,
-		parsedID,
-		giveaways.GetParticipantsInput{},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	mappedParticipants := make([]gqlmodel.ChannelGiveawayParticipants, 0, len(dbParticipants))
-	for _, participant := range dbParticipants {
-		mappedParticipants = append(
-			mappedParticipants,
-			mappers.GiveawayParticipantEntityTo(participant),
-		)
-	}
-
-	return mappedParticipants, nil
 }
 
 // GiveawaysParticipants is the resolver for the giveawaysParticipants field.

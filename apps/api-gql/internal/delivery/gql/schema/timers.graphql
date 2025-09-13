@@ -22,6 +22,7 @@ type TimerResponse {
 	id: UUID!
 	text: String!
 	isAnnounce: Boolean!
+	announceColor: TwitchAnnounceColor!
 	count: Int!
 }
 
@@ -36,6 +37,7 @@ input TimerCreateInput {
 input TimerResponseCreateInput {
 	text: String! @validate(constraint: "max=500")
 	isAnnounce: Boolean!
+	announceColor: TwitchAnnounceColor!
 	count: Int! = 1 @validate(constraint: "min=1,max=20")
 }
 
@@ -51,4 +53,5 @@ input TimerResponseUpdateInput {
 	text: String! @validate(constraint: "max=500")
 	isAnnounce: Boolean!
 	count: Int! = 1 @validate(constraint: "min=1,max=20")
+	announceColor: TwitchAnnounceColor!
 }

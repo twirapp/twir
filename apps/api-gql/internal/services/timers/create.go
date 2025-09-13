@@ -6,12 +6,14 @@ import (
 	"log/slog"
 
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/logger/audit"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
+	"github.com/twirapp/twir/libs/repositories/timers/model"
 )
 
 type CreateInput struct {
@@ -26,9 +28,10 @@ type CreateInput struct {
 }
 
 type CreateResponse struct {
-	Text       string
-	IsAnnounce bool
-	Count      int
+	Text          string
+	IsAnnounce    bool
+	Count         int
+	AnnounceColor bots.AnnounceColor
 }
 
 func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, error) {
@@ -51,9 +54,10 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 		responses = append(
 			responses,
 			timersrepository.CreateResponse{
-				Text:       response.Text,
-				IsAnnounce: response.IsAnnounce,
-				Count:      count,
+				Text:          response.Text,
+				IsAnnounce:    response.IsAnnounce,
+				Count:         count,
+				AnnounceColor: model.AnnounceColor(response.AnnounceColor),
 			},
 		)
 	}

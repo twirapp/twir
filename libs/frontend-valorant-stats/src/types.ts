@@ -13,5 +13,4 @@ export interface Settings {
 	disabledWinLose?: boolean
 	disabledProgress?: boolean
 	disabledTwentyLastMatches?: boolean
-	overlayFont?: string
 }

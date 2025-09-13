@@ -20,9 +20,11 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import VariableInput from '@/components/variable-input.vue'
 import { formSchema, useTimersEdit } from '@/features/timers/composables/use-timers-edit.js'
+import { TwitchAnnounceColor } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()
@@ -173,6 +175,28 @@ const responsesHasError = computed(() => {
 																Send as announcement
 															</Label>
 															<Checkbox :id="`responses[${index}].isAnnounce`" v-model:checked="(field.value as any).isAnnounce" />
+														</div>
+
+														<div class="flex flex-col gap-2">
+															<Label :for="`responses[${index}].announceColor`">
+																Announcement color
+															</Label>
+															<Select
+																:id="`responses[${index}].announceColor`"
+																v-model:modelValue="(field.value as any).announceColor"
+																:default-value="TwitchAnnounceColor.Primary"
+															>
+																<SelectTrigger :disabled="!(field.value as any).isAnnounce">
+																	<SelectValue placeholder="Select a color" />
+																</SelectTrigger>
+																<SelectContent>
+																	<SelectGroup>
+																		<SelectItem v-for="color of TwitchAnnounceColor" :key="color" :value="color">
+																			{{ color.at(0)!.toUpperCase() + color.slice(1).toLowerCase() }}
+																		</SelectItem>
+																	</SelectGroup>
+																</SelectContent>
+															</Select>
 														</div>
 													</div>
 

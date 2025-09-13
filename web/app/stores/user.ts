@@ -2,59 +2,57 @@ import { createRequest } from '@urql/vue'
 
 import { graphql } from '~/gql/gql.js'
 
-export const authedUserQuery = createRequest(graphql(`
-	query AuthenticatedUser {
-		authenticatedUser {
-			id
-			isBotAdmin
-			isBanned
-			isEnabled
-			isBotModerator
-			hideOnLandingPage
-			botId
-			apiKey
-			twitchProfile {
-				description
-				displayName
-				login
-				profileImageUrl
-			}
-			selectedDashboardId
-			availableDashboards {
+export const userProfileWithoutDashboards = createRequest(
+	graphql(`
+		query AuthenticatedUser {
+			authenticatedUser {
 				id
-				flags
+				isBotAdmin
+				isBanned
+				isEnabled
+				isBotModerator
+				hideOnLandingPage
+				botId
+				apiKey
 				twitchProfile {
-					login
+					description
 					displayName
+					login
 					profileImageUrl
 				}
-				apiKey
 			}
 		}
-	}
-`), {})
+	`),
+	{}
+)
 
 export const UserStoreKey = 'auth-store-user'
 
 export const useAuth = defineStore('auth-store', () => {
 	const router = useRouter()
 
-	const { data, executeQuery: fetchUser, fetching } = useQuery({
-		query: authedUserQuery.query,
+	const {
+		data,
+		executeQuery: fetchUser,
+		fetching,
+	} = useQuery({
+		query: userProfileWithoutDashboards.query,
 		context: {
-			key: authedUserQuery.key,
+			key: userProfileWithoutDashboards.key,
 			additionalTypenames: [UserStoreKey],
 		},
 		variables: {},
 	})
 
-	const user = computed(() => data.value?.authenticatedUser)
+	const userWithoutDashboards = computed(() => data.value?.authenticatedUser)
 
-	const { executeMutation: executeLogout } = useMutation(graphql(`
-		mutation userLogout {
-			logout
-		}
-	`))
+	const { executeMutation: executeLogout } = useMutation(
+		graphql(`
+			mutation userLogout {
+				logout
+			}
+		`)
+	)
 
 	async function logout(withRedirect = false) {
 		await executeLogout({}, { additionalTypenames: [UserStoreKey] })
@@ -88,7 +86,7 @@ export const useAuth = defineStore('auth-store', () => {
 		pause: true,
 	})
 
-	async function getUserData() {
+	async function getUserDataWithoutDashboards() {
 		const { data } = await fetchUser()
 		return data.value?.authenticatedUser
 	}
@@ -101,10 +99,10 @@ export const useAuth = defineStore('auth-store', () => {
 	}
 
 	return {
-		user,
+		userWithoutDashboards,
 		isLoading: fetching,
 
-		getUserData,
+		getUserDataWithoutDashboards,
 		logout,
 		login,
 	}

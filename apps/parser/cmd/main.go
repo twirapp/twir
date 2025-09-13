@@ -27,7 +27,6 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/services/shortenedurls"
 	variables_bus "github.com/twirapp/twir/apps/parser/internal/variables-bus"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
-	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
@@ -35,13 +34,16 @@ import (
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
+	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	channelsmodules_settingsttspgx "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/postgres"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
@@ -59,6 +61,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/commands"
+	"github.com/twirapp/twir/apps/parser/internal/services/tts"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/apps/parser/internal/variables"
 	"go.uber.org/zap"
@@ -200,6 +203,7 @@ func main() {
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
 	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
+	ttsRepository := channelsmodules_settingsttspgx.NewFx(pgxconn)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
 	usersRepo := usersrepositorypgx.New(usersrepositorypgx.Opts{PgxPool: pgxconn})
 	channelsCategoriesAliasesRepo := channelscategoriesaliasespgx.New(channelscategoriesaliasespgx.Opts{PgxPool: pgxconn})
@@ -211,6 +215,7 @@ func main() {
 	channelsEmotesUsage := channelsemotesusagesrepositoryclickhouse.New(channelsemotesusagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 	channelsCommandsUsagesRepo := channelscommandsusagesclickhouse.New(channelscommandsusagesclickhouse.Opts{Client: clickhouseClient})
 	chatMessagesRepo := chatmessagesrepositoryclickhouse.New(chatmessagesrepositoryclickhouse.Opts{Client: clickhouseClient})
+	channelsEventListRepo := channelseventslistpostgres.New(channelseventslistpostgres.Opts{PgxPool: pgxconn})
 
 	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
@@ -251,12 +256,15 @@ func main() {
 		CommandsPrefixCache:      commandsPrefixRepoCache,
 		CommandsPrefixRepository: commandsPrefixRepo,
 		TTSCache:                 ttsSettingsCacher,
+		TTSRepository:            ttsRepository,
+		TTSService:               tts.New(ttsRepository, config),
 		SpotifyRepo:              spotifyRepo,
 		UsersRepo:                usersRepo,
 		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,
 		ScheduledVipsRepo:        scheduledVipsRepo,
 		CacheTwitchClient:        cachedTwitchClient,
 		ChannelsInfoHistoryRepo:  channelsInfoHistoryRepo,
+		ChannelEventListsRepo:    channelsEventListRepo,
 		ShortUrlServices: shortenedurls.New(
 			shortenedurls.Opts{
 				Repository: shortenedUrlsRepo,

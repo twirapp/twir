@@ -5,8 +5,8 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 type DataCacher interface {
@@ -24,7 +24,7 @@ type DataCacher interface {
 	GetTwitchUserById(ctx context.Context, userId string) (*helix.User, error)
 	GetTwitchUserByName(ctx context.Context, userId string) (*helix.User, error)
 	GetValorantMatches(ctx context.Context) []ValorantMatch
-	GetValorantProfile(ctx context.Context) *ValorantProfile
+	GetValorantMMR(ctx context.Context) *ValorantMMR
 
 	GetCurrentSong(ctx context.Context) *CurrentSong
 

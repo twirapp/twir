@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
+	ttsmodel "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
-	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -19,36 +18,24 @@ func (c *Activity) getTtsSettings(
 	ctx context.Context,
 	channelId,
 	userId string,
-) (
-	*modules.TTSSettings,
-	*deprecatedgormmodel.ChannelModulesSettings,
-) {
+) (*ttsmodel.ChannelModulesSettingsTTS, error) {
 	activity.RecordHeartbeat(ctx, nil)
 
-	settings := &deprecatedgormmodel.ChannelModulesSettings{}
-	query := c.db.
-		WithContext(ctx).
-		Where(`"channelId" = ?`, channelId).
-		Where(`"type" = ?`, "tts")
-
 	if userId != "" {
-		query = query.Where(`"userId" = ?`, userId)
-	} else {
-		query = query.Where(`"userId" IS NULL`)
+		data, err := c.ttsRepository.GetByChannelIDAndUserID(ctx, channelId, userId)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get tts settings by channel id and user id %s", err)
+		}
+
+		return &data, nil
 	}
 
-	err := query.First(&settings).Error
+	data, err := c.ttsRepository.GetByChannelID(ctx, channelId)
 	if err != nil {
-		return nil, nil
+		return nil, fmt.Errorf("cannot get tts settings by channel id %s", err)
 	}
 
-	data := modules.TTSSettings{}
-	err = json.Unmarshal(settings.Settings, &data)
-	if err != nil {
-		return nil, nil
-	}
-
-	return &data, settings
+	return &data, nil
 }
 
 func (c *Activity) TtsSay(
@@ -67,7 +54,10 @@ func (c *Activity) TtsSay(
 		return fmt.Errorf("cannot hydrate string %s", hydrateErr)
 	}
 
-	channelSettings, _ := c.getTtsSettings(ctx, data.ChannelID, "")
+	channelSettings, err := c.getTtsSettings(ctx, data.ChannelID, "")
+	if err != nil {
+		return fmt.Errorf("cannot get tts settings %s", err)
+	}
 
 	if channelSettings == nil || !*channelSettings.Enabled {
 		return nil
@@ -91,7 +81,7 @@ func (c *Activity) TtsSay(
 		},
 	).Else(channelSettings.Pitch)
 
-	_, err := c.websocketsGrpc.TextToSpeechSay(
+	_, err = c.websocketsGrpc.TextToSpeechSay(
 		ctx,
 		&websockets.TTSMessage{
 			ChannelId: data.ChannelID,
@@ -111,13 +101,14 @@ func (c *Activity) TtsSay(
 
 func (c *Activity) TtsSkip(
 	ctx context.Context,
-	operation model.EventOperation,
+	_ model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
 	_, err := c.websocketsGrpc.TextToSpeechSkip(
-		ctx, &websockets.TTSSkipMessage{
+		ctx,
+		&websockets.TTSSkipMessage{
 			ChannelId: data.ChannelID,
 		},
 	)
@@ -135,25 +126,45 @@ func (c *Activity) TtsChangeState(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	currentSettings, dbModel := c.getTtsSettings(ctx, data.ChannelID, "")
+	currentSettings, err := c.getTtsSettings(ctx, data.ChannelID, "")
+	if err != nil {
+		return fmt.Errorf("cannot get tts settings %s", err)
+	}
+
 	if currentSettings == nil {
 		return nil
 	}
 
+	var newState bool
 	if operation.Type == model.EventOperationTypeTtsEnable {
-		currentSettings.Enabled = lo.ToPtr(true)
+		newState = true
 	} else {
-		currentSettings.Enabled = lo.ToPtr(false)
+		newState = false
 	}
 
-	bytes, err := json.Marshal(currentSettings)
+	_, err = c.ttsRepository.UpdateForChannel(
+		ctx,
+		data.ChannelID,
+		channels_modules_settings_tts.CreateOrUpdateInput{
+			ChannelID:                          data.ChannelID,
+			UserID:                             nil,
+			Enabled:                            &newState,
+			Rate:                               currentSettings.Rate,
+			Volume:                             currentSettings.Volume,
+			Pitch:                              currentSettings.Pitch,
+			Voice:                              currentSettings.Voice,
+			AllowUsersChooseVoiceInMainCommand: currentSettings.AllowUsersChooseVoiceInMainCommand,
+			MaxSymbols:                         currentSettings.MaxSymbols,
+			DisallowedVoices:                   currentSettings.DisallowedVoices,
+			DoNotReadEmoji:                     currentSettings.DoNotReadEmoji,
+			DoNotReadTwitchEmotes:              currentSettings.DoNotReadTwitchEmotes,
+			DoNotReadLinks:                     currentSettings.DoNotReadLinks,
+			ReadChatMessages:                   currentSettings.ReadChatMessages,
+			ReadChatMessagesNicknames:          currentSettings.ReadChatMessagesNicknames,
+		},
+	)
 	if err != nil {
-		return err
-	}
-
-	err = c.db.Model(&dbModel).Updates(map[string]interface{}{"settings": bytes}).Error
-	if err != nil {
-		return err
+		return fmt.Errorf("cannot update tts settings %s", err)
 	}
 
 	return nil
@@ -166,7 +177,10 @@ func (c *Activity) TtsChangeAutoReadState(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	currentSettings, dbModel := c.getTtsSettings(ctx, data.ChannelID, "")
+	currentSettings, err := c.getTtsSettings(ctx, data.ChannelID, "")
+	if err != nil {
+		return fmt.Errorf("cannot get tts settings %s", err)
+	}
 	if currentSettings == nil {
 		return nil
 	}
@@ -180,16 +194,29 @@ func (c *Activity) TtsChangeAutoReadState(
 		newState = !currentSettings.ReadChatMessages
 	}
 
-	currentSettings.ReadChatMessages = newState
-
-	bytes, err := json.Marshal(currentSettings)
+	_, err = c.ttsRepository.UpdateForChannel(
+		ctx,
+		data.ChannelID,
+		channels_modules_settings_tts.CreateOrUpdateInput{
+			ChannelID:                          data.ChannelID,
+			UserID:                             nil,
+			Enabled:                            currentSettings.Enabled,
+			Rate:                               currentSettings.Rate,
+			Volume:                             currentSettings.Volume,
+			Pitch:                              currentSettings.Pitch,
+			Voice:                              currentSettings.Voice,
+			AllowUsersChooseVoiceInMainCommand: currentSettings.AllowUsersChooseVoiceInMainCommand,
+			MaxSymbols:                         currentSettings.MaxSymbols,
+			DisallowedVoices:                   currentSettings.DisallowedVoices,
+			DoNotReadEmoji:                     currentSettings.DoNotReadEmoji,
+			DoNotReadTwitchEmotes:              currentSettings.DoNotReadTwitchEmotes,
+			DoNotReadLinks:                     currentSettings.DoNotReadLinks,
+			ReadChatMessages:                   newState,
+			ReadChatMessagesNicknames:          currentSettings.ReadChatMessagesNicknames,
+		},
+	)
 	if err != nil {
-		return err
-	}
-
-	err = c.db.Model(&dbModel).Updates(map[string]interface{}{"settings": bytes}).Error
-	if err != nil {
-		return err
+		return fmt.Errorf("cannot update tts settings %s", err)
 	}
 
 	return nil

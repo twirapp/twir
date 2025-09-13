@@ -24,9 +24,9 @@ const { data, isLoading } = valorantManager.useData()
 const { data: authLink } = valorantManager.useAuthLink()
 
 async function login() {
-	if (authLink.value) return
+	if (!authLink.value) return
 
-	window.open(authLink.value, 'Twir connect integration', 'width=800,height=600')
+	window.open(authLink.value.link, 'Twir connect integration', 'width=800,height=600')
 }
 
 const isConnected = computed(() => {
@@ -36,7 +36,7 @@ const isConnected = computed(() => {
 
 <template>
 	<PageLayout cleanBody>
-		<template #title>{{ t('overlays.valorant.title') }}</template>
+		<template #title> {{ t('overlays.valorant.title') }} </template>
 
 		<template #content>
 			<div

@@ -6,10 +6,10 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/timers"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -58,7 +58,6 @@ func (c *Service) DropAllAuthSessions(ctx context.Context) error {
 			return nil
 		},
 	)
-
 	if err != nil {
 		return fmt.Errorf("scan err: %w", err)
 	}
@@ -67,9 +66,8 @@ func (c *Service) DropAllAuthSessions(ctx context.Context) error {
 }
 
 type EventSubSubscribeInput struct {
-	Type      string                      `json:"type"`
-	Version   string                      `json:"version"`
-	Condition model.EventsubConditionType `json:"condition"`
+	Type    string `json:"type"`
+	Version string `json:"version"`
 }
 
 func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribeInput) error {
@@ -79,7 +77,6 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 			Enabled: lo.ToPtr(true),
 		},
 	)
-
 	if err != nil {
 		return fmt.Errorf("failed to get channels: %w", err)
 	}
@@ -89,10 +86,9 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 			c.twirbus.EventSub.Subscribe.Publish(
 				ctx,
 				eventsub.EventsubSubscribeRequest{
-					ChannelID:     channel.ID,
-					Topic:         input.Type,
-					ConditionType: string(input.Condition),
-					Version:       input.Version,
+					ChannelID: channel.ID,
+					Topic:     input.Type,
+					Version:   input.Version,
 				},
 			)
 		}()

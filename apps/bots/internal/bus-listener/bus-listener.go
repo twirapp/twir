@@ -9,12 +9,12 @@ import (
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
-	cfg "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	cfg "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -238,6 +238,7 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 			IsAnnounce:           req.IsAnnounce,
 			SkipToxicityCheck:    req.SkipToxicityCheck,
 			SkipRateLimits:       req.SkipRateLimits,
+			AnnounceColor:        req.AnnounceColor,
 		},
 	)
 	if err != nil {

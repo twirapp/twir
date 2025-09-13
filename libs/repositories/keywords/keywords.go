@@ -27,6 +27,7 @@ type CreateInput struct {
 	IsReply          bool
 	IsRegular        bool
 	Usages           int
+	RolesIDs         []uuid.UUID
 }
 
 type UpdateInput struct {
@@ -38,4 +39,5 @@ type UpdateInput struct {
 	IsReply          *bool
 	IsRegular        *bool
 	Usages           *int
+	RolesIDs         *[]uuid.UUID
 }

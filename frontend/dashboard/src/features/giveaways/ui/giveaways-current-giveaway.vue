@@ -31,7 +31,6 @@ const selectedDashboardTwitchUser = computed(() => {
 })
 
 const chatUrl = computed(() => {
-	console.log(selectedDashboardTwitchUser.value)
 	if (!selectedDashboardTwitchUser.value) return
 
 	return `https://www.twitch.tv/embed/${selectedDashboardTwitchUser.value.login}/chat?parent=${window.location.host}&darkpopout`

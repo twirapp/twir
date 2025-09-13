@@ -37,23 +37,34 @@ var RateCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModele := getSettings(
+
+		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Services.Gorm,
 			parseCtx.Channel.ID,
-			"",
 		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "error while getting channel settings",
+				Err:     err,
+			}
+		}
 
 		if channelSettings == nil {
+			result.Result = []string{"TTS is not configured for this channel"}
 			return result, nil
 		}
 
-		userSettings, currentUserModel := getSettings(
+		userSettings, _, err := parseCtx.Services.TTSService.GetUserSettings(
 			ctx,
-			parseCtx.Services.Gorm,
 			parseCtx.Channel.ID,
 			parseCtx.Sender.ID,
 		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "error while getting user settings",
+				Err:     err,
+			}
+		}
 
 		rateArg := parseCtx.ArgsParser.Get(ttsRateArgName)
 
@@ -76,8 +87,13 @@ var RateCommand = &types.DefaultCommand{
 		rate := rateArg.Int()
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
+			// Update channel settings
 			channelSettings.Rate = rate
-			err := updateSettings(ctx, parseCtx.Services.Gorm, channelModele, channelSettings)
+			err := parseCtx.Services.TTSService.UpdateChannelSettings(
+				ctx,
+				parseCtx.Channel.ID,
+				channelSettings,
+			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: "error while updating settings",
@@ -85,15 +101,15 @@ var RateCommand = &types.DefaultCommand{
 				}
 			}
 		} else {
+			// Update user settings
 			if userSettings == nil {
-				_, _, err := createUserSettings(
+				_, err := parseCtx.Services.TTSService.CreateUserSettings(
 					ctx,
-					parseCtx.Services.Gorm,
+					parseCtx.Channel.ID,
+					parseCtx.Sender.ID,
 					rate,
 					50,
 					channelSettings.Voice,
-					parseCtx.Channel.ID,
-					parseCtx.Sender.ID,
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
@@ -103,7 +119,12 @@ var RateCommand = &types.DefaultCommand{
 				}
 			} else {
 				userSettings.Rate = rate
-				err := updateSettings(ctx, parseCtx.Services.Gorm, currentUserModel, userSettings)
+				err := parseCtx.Services.TTSService.UpdateUserSettings(
+					ctx,
+					parseCtx.Channel.ID,
+					parseCtx.Sender.ID,
+					userSettings,
+				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
 						Message: "error while updating settings",

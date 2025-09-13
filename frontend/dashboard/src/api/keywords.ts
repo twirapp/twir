@@ -29,6 +29,7 @@ export const useKeywordsApi = createGlobalState(() => {
 					isReply
 					isRegularExpression
 					usageCount
+					rolesIds
 				}
 			}
 		`),

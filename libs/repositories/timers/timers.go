@@ -26,9 +26,10 @@ type CreateInput struct {
 }
 
 type CreateResponse struct {
-	Text       string
-	IsAnnounce bool
-	Count      int
+	Text          string
+	IsAnnounce    bool
+	Count         int
+	AnnounceColor model.AnnounceColor
 }
 
 type UpdateInput struct {

@@ -1,5 +1,9 @@
 package bots
 
+import (
+	"math/rand/v2"
+)
+
 const (
 	SendMessageSubject   = "bots.send_message"
 	DeleteMessageSubject = "bots.delete_message"
@@ -18,6 +22,7 @@ type SendMessageRequest struct {
 	IsAnnounce        bool
 	SkipRateLimits    bool
 	SkipToxicityCheck bool
+	AnnounceColor
 }
 
 type DeleteMessageRequest struct {
@@ -50,3 +55,30 @@ type UnVipRequest struct {
 	ChannelID string
 	TargetID  string
 }
+
+type AnnounceColor int
+
+func (c AnnounceColor) String() string {
+	return allAnnounceColors[c]
+}
+
+var allAnnounceColors = map[AnnounceColor]string{
+	AnnounceColorPrimary: "primary",
+	AnnounceColorBlue:    "blue",
+	AnnounceColorGreen:   "green",
+	AnnounceColorOrange:  "orange",
+	AnnounceColorPurple:  "purple",
+}
+
+func RandomAnnounceColor() AnnounceColor {
+	return AnnounceColor(rand.IntN(len(allAnnounceColors) - 1))
+}
+
+const (
+	AnnounceColorRandom                = -1
+	AnnounceColorPrimary AnnounceColor = iota - 1
+	AnnounceColorBlue
+	AnnounceColorGreen
+	AnnounceColorOrange
+	AnnounceColorPurple
+)

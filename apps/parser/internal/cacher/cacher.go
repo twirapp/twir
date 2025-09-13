@@ -8,8 +8,8 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 type locks struct {
@@ -40,7 +40,7 @@ type cache struct {
 
 	faceitData *types.FaceitResult
 
-	valorantProfile *types.ValorantProfile
+	valorantProfile *types.ValorantMMR
 
 	currentSong *types.CurrentSong
 
