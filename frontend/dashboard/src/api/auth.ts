@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/vue-query'
 import { createRequest, useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql'
@@ -80,6 +80,14 @@ export const useProfile = createGlobalState(() => {
 		}
 	})
 
+	watch(computedUser, (newUser) => {
+		if (!newUser) {
+			return
+		}
+
+		window.rybbit?.identify(newUser.id);
+	})
+
 	return { data: computedUser, executeQuery, isLoading: fetching }
 })
 
@@ -95,6 +103,8 @@ export function useLogout() {
 	async function execute() {
 		const result = await executeMutation({})
 		if (result.error) throw new Error(result.error.toString())
+
+		window.rybbit.clearUserId();
 		window.location.replace('/')
 	}
 

@@ -63,6 +63,21 @@ export default defineNuxtConfig({
 		preset: 'bun',
 	},
 
+	app: {
+		head: {
+			script: [
+				{
+					src: 'https://rybbit.a.twir.app/api/script.js',
+					async: true,
+					defer: true,
+					'data-site-id': '1',
+					'data-session-replay': 'true',
+					'data-mask-patterns': '["/overlays/**"]',
+				},
+			],
+		},
+	},
+
 	shadcn: {
 		/**
 		 * Prefix for all the imported component
