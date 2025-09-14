@@ -16,17 +16,8 @@ useHead({
 		{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
 		{ name: 'description', content: description },
 	],
-	script: [
-		!import.meta.dev
-			? {
-					src: 'https://umami.twir.app/script.js',
-					async: true,
-					'data-website-id': '77f327a4-1744-4fb5-9fea-97ffbbc76806',
-				}
-			: {},
-	],
 	link: [
-		{ rel: 'dns-prefetch', href: 'https://umami.twir.app' },
+		{ rel: 'dns-prefetch', href: 'https://rybbit.a.twir.app' },
 		{ rel: 'dns-prefetch', href: 'https://static-cdn.jtvnw.net' },
 		{ rel: 'dns-prefetch', href: 'https://avatars.githubusercontent.com' },
 	],
