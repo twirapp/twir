@@ -72,7 +72,7 @@ export default defineNuxtConfig({
 					defer: true,
 					'data-site-id': '1',
 					'data-session-replay': 'true',
-					'data-mask-patterns': '["/overlays/*"]',
+					'data-mask-patterns': '["/overlays/**"]',
 				},
 			],
 		},
