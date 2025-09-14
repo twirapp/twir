@@ -44,7 +44,16 @@ export const useAuth = defineStore('auth-store', () => {
 		variables: {},
 	})
 
+	
 	const userWithoutDashboards = computed(() => data.value?.authenticatedUser)
+
+	watch(userWithoutDashboards, (newUser) => {
+		if (!newUser || !window.rybbit || !import.meta.client) {
+			return
+		}
+
+		window.rybbit.identify(newUser.id);
+	})
 
 	const { executeMutation: executeLogout } = useMutation(
 		graphql(`
