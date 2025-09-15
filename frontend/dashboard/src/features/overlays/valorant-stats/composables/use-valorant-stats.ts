@@ -20,7 +20,6 @@ export const useValorantStats = createGlobalState(() => {
 		disabledPeakRR: false,
 		disabledLeaderboardPlace: false,
 		disabledPeakRankIcon: false,
-		disabledBackground: false,
 		disabledBorder: false,
 		disabledWinLose: false,
 		disabledProgress: false,

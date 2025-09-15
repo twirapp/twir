@@ -9,9 +9,13 @@ import { useValorantStats } from './composables/use-valorant-stats'
 import { useValorantIntegration } from '@/api'
 import { Button } from '@/components/ui/button'
 import { ColorPicker } from '@/components/ui/color-picker'
+import InputWithIcon from '@/components/ui/InputWithIcon.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { SwitchToggle } from '@/components/ui/switch'
 import PageLayout from '@/layout/page-layout.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const { settings, copyOverlayLink } = useValorantStats()
 
@@ -32,7 +36,7 @@ const isConnected = computed(() => {
 
 <template>
 	<PageLayout cleanBody>
-		<template #title> Valorant Stats Builder </template>
+		<template #title> {{ t('overlays.valorant.title') }} </template>
 
 		<template #content>
 			<div
@@ -47,9 +51,11 @@ const isConnected = computed(() => {
 					class="flex flex-col gap-4 items-center justify-center p-4 text bg-black/70 rounded-xl absolute inset-0 z-50"
 				>
 					<BanIcon class="size-10" />
-					<span class="text-2xl"> Connect valorant integration to use this overlay </span>
+					<span class="text-2xl"> {{ t('overlays.valorant.valorantIntegration.connect') }} </span>
 
-					<Button class="mx-2" @click="login"> Connect </Button>
+					<Button class="mx-2" @click="login">
+						{{ t('overlays.valorant.valorantIntegration.button') }}
+					</Button>
 				</div>
 
 				<div
@@ -58,48 +64,58 @@ const isConnected = computed(() => {
 				>
 					<div class="overflow-auto bg-card lg:max-w-[400px] w-full flex flex-col p-4 shadow-md">
 						<div class="flex flex-col gap-2">
-							<span class="text-xs mb-2">Colors</span>
+							<span class="text-xs mb-2">{{ t('overlays.valorant.settings.colors.title') }}</span>
 
 							<div class="flex flex-col gap-2">
-								<Label for="backgroundColor">Background color</Label>
-								<ColorPicker v-model:modelValue="settings.backgroundColor" />
+								<Label for="backgroundColor">
+									{{ t('overlays.valorant.settings.colors.background') }}
+								</Label>
+								<InputWithIcon id="backgroundColor" v-model="settings.backgroundColor">
+									<ColorPicker id="backgroundColor" v-model:modelValue="settings.backgroundColor" />
+								</InputWithIcon>
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="textColor">Text color</Label>
-								<ColorPicker v-model:modelValue="settings.textColor" />
+								<Label for="textColor">{{ t('overlays.valorant.settings.colors.text') }}</Label>
+								<InputWithIcon id="textColor" v-model="settings.textColor">
+									<ColorPicker id="textColor" v-model:modelValue="settings.textColor" />
+								</InputWithIcon>
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="primaryTextColor">Primary text color</Label>
-								<ColorPicker v-model:modelValue="settings.primaryTextColor" />
+								<Label for="primaryTextColor">
+									{{ t('overlays.valorant.settings.colors.primaryText') }}
+								</Label>
+								<InputWithIcon id="primaryTextColor" v-model="settings.primaryTextColor">
+									<ColorPicker
+										id="primaryTextColor"
+										v-model:modelValue="settings.primaryTextColor"
+									/>
+								</InputWithIcon>
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="winColor">Win color</Label>
-								<ColorPicker v-model:modelValue="settings.winColor" />
+								<Label for="winColor">{{ t('overlays.valorant.settings.colors.win') }}</Label>
+								<InputWithIcon id="winColor" v-model="settings.winColor">
+									<ColorPicker id="winColor" v-model:modelValue="settings.winColor" />
+								</InputWithIcon>
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="loseColor">Lose color</Label>
-								<ColorPicker v-model:modelValue="settings.loseColor" />
+								<Label for="loseColor">{{ t('overlays.valorant.settings.colors.lose') }}</Label>
+								<InputWithIcon id="loseColor" v-model="settings.loseColor">
+									<ColorPicker id="loseColor" v-model:modelValue="settings.loseColor" />
+								</InputWithIcon>
 							</div>
 
 							<Separator class="my-2" />
 
-							<span class="text-xs mb-2">General</span>
+							<span class="text-xs mb-2">{{ t('overlays.valorant.settings.general.title') }}</span>
 
 							<div class="flex flex-col gap-2">
-								<Label for="disabledBackground">Background</Label>
-								<SwitchToggle
-									id="disabledBackground"
-									:modelValue="!settings.disabledBackground"
-									@update:model-value="(v) => (settings.disabledBackground = !v)"
-								/>
-							</div>
-
-							<div class="flex flex-col gap-2">
-								<Label for="disabledBorder">Border</Label>
+								<Label for="disabledBorder">
+									{{ t('overlays.valorant.settings.general.border') }}
+								</Label>
 								<SwitchToggle
 									id="disabledBorder"
 									:modelValue="!settings.disabledBorder"
@@ -108,7 +124,9 @@ const isConnected = computed(() => {
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="disabledGlowEffect">Glow effect</Label>
+								<Label for="disabledGlowEffect">
+									{{ t('overlays.valorant.settings.general.glow') }}
+								</Label>
 								<SwitchToggle
 									id="disabledGlowEffect"
 									:modelValue="!settings.disabledGlowEffect"
@@ -117,7 +135,9 @@ const isConnected = computed(() => {
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="disabledLeaderboardPlace">Leaderboard place</Label>
+								<Label for="disabledLeaderboardPlace">
+									{{ t('overlays.valorant.settings.general.leaderboard') }}
+								</Label>
 								<SwitchToggle
 									id="disabledLeaderboardPlace"
 									:modelValue="!settings.disabledLeaderboardPlace"
@@ -126,7 +146,9 @@ const isConnected = computed(() => {
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="disabledWinLose">Win / Lose</Label>
+								<Label for="disabledWinLose">
+									{{ t('overlays.valorant.settings.general.winLose') }}
+								</Label>
 								<SwitchToggle
 									id="disabledWinLose"
 									:modelValue="!settings.disabledWinLose"
@@ -135,7 +157,9 @@ const isConnected = computed(() => {
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="disabledProgress">Progress</Label>
+								<Label for="disabledProgress">
+									{{ t('overlays.valorant.settings.general.progress') }}
+								</Label>
 								<SwitchToggle
 									id="disabledProgress"
 									:modelValue="!settings.disabledProgress"
@@ -144,7 +168,9 @@ const isConnected = computed(() => {
 							</div>
 
 							<div class="flex flex-col gap-2">
-								<Label for="lastTwentyMatches">Show last 20 matches stats</Label>
+								<Label for="lastTwentyMatches">
+									{{ t('overlays.valorant.settings.general.last20MatchesStats') }}
+								</Label>
 								<SwitchToggle
 									id="lastTwentyMatches"
 									:modelValue="!settings.disabledTwentyLastMatches"
@@ -153,7 +179,9 @@ const isConnected = computed(() => {
 							</div>
 						</div>
 
-						<Button class="mt-4" @click="copyOverlayLink"> Generate obs link </Button>
+						<Button class="mt-4" @click="copyOverlayLink">
+							{{ t('overlays.generateObsLink') }}
+						</Button>
 					</div>
 
 					<div class="flex min-h-[200px] w-full h-full items-center justify-center">

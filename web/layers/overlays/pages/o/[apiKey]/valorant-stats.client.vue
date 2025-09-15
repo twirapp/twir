@@ -16,7 +16,6 @@ const settings = computed<Settings>(() => {
 		disabledPeakRR: query.disabledPeakRR === 'true',
 		disabledLeaderboardPlace: query.disabledLeaderboardPlace === 'true',
 		disabledPeakRankIcon: query.disabledPeakRankIcon === 'true',
-		disabledBackground: query.disabledBackground === 'true',
 		disabledBorder: query.disabledBorder === 'true',
 		disabledGlowEffect: query.disabledGlowEffect === 'true',
 		disabledWinLose: query.disabledWinLose === 'true',

@@ -48,9 +48,6 @@ function toggleInputType() {
 		<span class="absolute inset-y-0 start-0 flex items-center justify-center pl-3">
 			<slot />
 		</span>
-		<span class="absolute inset-y-0 start-0 flex items-center justify-center pl-3 blur-md">
-			<slot />
-		</span>
 		<Input
 			:id="props.id"
 			v-model="modelValue"
@@ -60,7 +57,7 @@ function toggleInputType() {
 			:class="
 				cn(
 					'border-transparent bg-transparent pl-10 font-medium transition-colors hover:bg-white/5 focus-visible:bg-white/5',
-					props.class,
+					props.class
 				)
 			"
 		/>

@@ -7,7 +7,6 @@ export interface Settings {
 	disabledPeakRR?: boolean
 	disabledLeaderboardPlace?: boolean
 	disabledPeakRankIcon?: boolean
-	disabledBackground?: boolean
 	disabledBorder?: boolean
 	disabledGlowEffect?: boolean
 	disabledWinLose?: boolean
