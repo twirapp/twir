@@ -180,7 +180,7 @@ const isConnected = computed(() => {
 						</div>
 
 						<Button class="mt-4" @click="copyOverlayLink">
-							{{ t('overlays.valorant.settings.generateObsLink') }}
+							{{ t('overlays.generateObsLink') }}
 						</Button>
 					</div>
 

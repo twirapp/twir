@@ -42,7 +42,7 @@ const { t } = useI18n()
 							/>
 						</div>
 
-						 <div class="flex flex-col gap-2">
+						<div class="flex flex-col gap-2">
 							<Label for="game">{{ t('overlays.faceit.settings.general.game') }}</Label>
 							<Input id="game" v-model:modelValue="settings.game" placeholder="cs2" disabled />
 						</div>
@@ -114,7 +114,7 @@ const { t } = useI18n()
 					</div>
 
 					<Button class="mt-4" @click="copyOverlayLink">
-						{{ t('overlays.faceit.settings.generateObsLink') }}
+						{{ t('overlays.generateObsLink') }}
 					</Button>
 				</div>
 

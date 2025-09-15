@@ -32,7 +32,7 @@ const { t } = useI18n()
 					@click="navigate"
 				>
 					<SettingsIcon class="size-4" />
-					{{ t('overlays.faceit.buildWidget') }}
+					{{ t('overlays.buildWidget') }}
 				</Button>
 			</RouterLink>
 		</CardFooter>
