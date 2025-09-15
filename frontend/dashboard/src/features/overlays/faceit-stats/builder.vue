@@ -42,10 +42,10 @@ const { t } = useI18n()
 							/>
 						</div>
 
-						<!-- <div class="flex flex-col gap-2">
+						 <div class="flex flex-col gap-2">
 							<Label for="game">{{ t('overlays.faceit.settings.general.game') }}</Label>
 							<Input id="game" v-model:modelValue="settings.game" placeholder="cs2" disabled />
-						</div> -->
+						</div>
 
 						<Separator class="my-2" />
 
