@@ -89,18 +89,11 @@ func (c *TwirGoApp) getAppPath() string {
 }
 
 func (c *TwirGoApp) Build() error {
-	goCacheCmd := exec.Command("go", "env", "GOCACHE")
-	goCacheOut, err := goCacheCmd.Output()
-	if err != nil {
-		return err
-	}
-
 	pterm.Info.Println(
 		fmt.Sprintf(
-			"Building %s with debug = %v, goCacheFolder = %s",
+			"Building %s with debug = %v",
 			c.Name,
 			c.debugEnabled,
-			string(goCacheOut),
 		),
 	)
 

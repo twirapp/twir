@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/cli/internal/shell"
 )
 
@@ -48,12 +47,12 @@ type packageJson struct {
 }
 
 func checkBunVersion() error {
-	data, err := exec.Command("bun", "--version").Output()
+	currentVersionData, err := exec.Command("bun", "--version").Output()
 	if err != nil {
 		return err
 	}
 
-	installedVersion := string(data)
+	installedVersion := string(currentVersionData)
 	installedVersion = strings.Replace(installedVersion, "\n", "", -1)
 	installedVersion = strings.Replace(installedVersion, "\r", "", -1)
 
@@ -67,28 +66,21 @@ func checkBunVersion() error {
 		return err
 	}
 
-	rootPackageJsonPath := filepath.Join(wd, "package.json")
-	packageJsonBytes, err := os.ReadFile(rootPackageJsonPath)
+	bunVersionFileContent, err := os.ReadFile(filepath.Join(wd, ".bun-version"))
 	if err != nil {
-		return fmt.Errorf("failed to read package.json: %w", err)
+		return fmt.Errorf("failed to read .bun-version file: %w", err)
 	}
 
-	var packageJsonData packageJson
-	err = json.Unmarshal(packageJsonBytes, &packageJsonData)
-	if err != nil {
-		return fmt.Errorf("failed to parse package.json: %w", err)
-	}
-
-	contraint, err := semver.NewConstraint(packageJsonData.Engines.Bun)
+	constraint, err := semver.NewConstraint(fmt.Sprintf(">=%s", string(bunVersionFileContent)))
 	if err != nil {
 		return fmt.Errorf("failed to parse bin constraint: %w", err)
 	}
 
-	if !contraint.Check(parsedInstalledVersion) {
+	if !constraint.Check(parsedInstalledVersion) {
 		return fmt.Errorf(
 			"installed bun version %s does not satisfy constraint %s",
 			installedVersion,
-			contraint,
+			constraint,
 		)
 	}
 

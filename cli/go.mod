@@ -16,6 +16,8 @@ require (
 	golang.org/x/sync v0.16.0
 )
 
+require github.com/coreos/go-semver v0.3.1 // indirect
+
 require (
 	buf.build/go/app v0.1.0 // indirect
 	buf.build/go/interrupt v1.1.0 // indirect
@@ -25,7 +27,6 @@ require (
 	github.com/KimMachineGun/automemlimit v0.7.1 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
-
 	gotest.tools/v3 v3.5.2 // indirect
 )
 

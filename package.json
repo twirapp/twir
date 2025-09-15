@@ -13,9 +13,6 @@
 		"rimraf": "5.0.5",
 		"typescript": "catalog:"
 	},
-	"engines": {
-		"bun": ">=1.2.21"
-	},
 	"private": true,
 	"scripts": {
 		"dev": "bun run cli dev",
