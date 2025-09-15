@@ -112,17 +112,6 @@ const isConnected = computed(() => {
 
 							<span class="text-xs mb-2">{{ t('overlays.valorant.settings.general.title') }}</span>
 
-							<!-- <div class="flex flex-col gap-2">
-								<Label for="disabledBackground">
-									{{ t('overlays.valorant.settings.general.background') }}
-								</Label>
-								<SwitchToggle
-									id="disabledBackground"
-									:modelValue="!settings.disabledBackground"
-									@update:model-value="(v) => (settings.disabledBackground = !v)"
-								/>
-							</div>
-
 							<div class="flex flex-col gap-2">
 								<Label for="disabledBorder">
 									{{ t('overlays.valorant.settings.general.border') }}
@@ -132,7 +121,7 @@ const isConnected = computed(() => {
 									:modelValue="!settings.disabledBorder"
 									@update:model-value="(v) => (settings.disabledBorder = !v)"
 								/>
-							</div> -->
+							</div>
 
 							<div class="flex flex-col gap-2">
 								<Label for="disabledGlowEffect">

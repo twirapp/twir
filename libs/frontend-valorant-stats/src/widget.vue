@@ -32,11 +32,10 @@ const props = withDefaults(
 			winColor: '#00FFE3',
 			loseColor: '#FF7986',
 
+			disabledBorder: false,
 			disabledPeakRR: false,
 			disabledLeaderboardPlace: false,
 			disabledPeakRankIcon: false,
-			disabledBackground: false,
-			disabledBorder: false,
 			disabledWinLose: false,
 			disabledProgress: false,
 			disabledGlowEffect: false,
@@ -203,7 +202,7 @@ const rankSrc = computed(() => {
 		<div
 			v-if="!stats"
 			class="bg-black/90 min-h-54 rounded-md p-2"
-			:style="{ backgroundColor: `${settings.backgroundColor}99` }"
+			:style="{ backgroundColor: settings.backgroundColor }"
 		>
 			<LoaderCircle
 				class="size-20 text-white animate-spin text-center mx-auto"
@@ -212,16 +211,12 @@ const rankSrc = computed(() => {
 		</div>
 		<div v-else class="flex flex-col gap-1">
 			<div
-				class="minimal-style flex min-h-[50px] w-full min-[310px]:flex-row flex-col items-center justify-between gap-3 rounded-lg bg-black/90 px-3 py-1"
+				class="minimal-style flex min-h-[50px] w-full min-[310px]:flex-row flex-col items-center justify-between gap-3 rounded-lg bg-black/90 px-3 py-1 overflow-hidden border-[2px] border-white/10 h-fit"
 				:style="{
-					backgroundColor: settings.disabledBackground
-						? 'transparent'
-						: `${settings.backgroundColor}99`,
+					backgroundColor: settings.backgroundColor,
 				}"
 				:class="{
-					'overflow-hidden border-[2px] border-white/10': !settings.disabledBackground,
 					'border-none': settings.disabledBorder,
-					'h-fit': settings.disabledBackground,
 				}"
 			>
 				<div class="inline-flex items-center justify-center gap-2">
@@ -302,16 +297,12 @@ const rankSrc = computed(() => {
 
 			<div
 				v-if="!settings.disabledTwentyLastMatches"
-				class="minimal-style flex min-h-[50px] w-full flex-col items-center justify-between rounded-lg bg-black/90 px-3 py-1 text-[var(--primary-text-color)] uppercase"
+				class="minimal-style flex min-h-[50px] w-full flex-col items-center justify-between rounded-lg bg-black/90 px-3 py-1 text-[var(--primary-text-color)] uppercase overflow-hidden border-[2px] border-white/10 h-fit"
 				:style="{
-					backgroundColor: settings.disabledBackground
-						? 'transparent'
-						: `${settings.backgroundColor}99`,
+					backgroundColor: settings.backgroundColor,
 				}"
 				:class="{
-					'overflow-hidden border-[2px] border-white/10': !settings.disabledBackground,
 					'border-none': settings.disabledBorder,
-					'h-fit': settings.disabledBackground,
 				}"
 			>
 				<h1 class="text-[11px] text-bold text-center mx-auto" style="color: rgb(255, 255, 255)">
