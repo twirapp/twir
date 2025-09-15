@@ -446,6 +446,8 @@
 		"uncongirured": "You should configure overlay first!",
 		"noAccess": "You do not have access to this overlay!",
 		"copied": "Successfully copied overlay link URL! You need to set this as browser source in OBS.",
+		"buildWidget": "Build Widget",
+		"generateObsLink": "Generate obs link",
 		"nowPlaying": {
 			"description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
 		},
@@ -647,10 +649,8 @@
 					"showAvarageKdr": "Show avarage kdr",
 					"worldRanking": "World ranking",
 					"last20MatchesStats": "Last 20 matches stats"
-				},
-				"generateObsLink": "Generate obs link"
-			},
-			"buildWidget": "Build Widget"
+				}
+			}
 		},
 		"valorant": {
 			"title": "Valorant Stats Builder",
@@ -678,10 +678,8 @@
 					"winLose": "Win / Lose",
 					"progress": "Progress",
 					"last20MatchesStats": "Show last 20 matches stats"
-				},
-				"generateObsLink": "Generate obs link"
-			},
-			"buildWidget": "Build Widget"
+				}
+			}
 		}
 	},
 	"songRequests": {
@@ -773,7 +771,7 @@
 	"keywords": {
 		"title": "Keywords",
 		"info": {
-			"text": "Keywords helps you to trigger chat message on certain words matching."
+			"text": "Keywords help you to trigger chat message on certain words matching."
 		},
 		"create": "Create keyword",
 		"triggerText": "Trigger Text",
@@ -829,7 +827,7 @@
 			"greetings": "Greeting Trigger"
 		},
 		"select": {
-			"audio": "Confugure an audio",
+			"audio": "Configure an audio",
 			"image": "Configure an image",
 			"text": "Configure text"
 		},
@@ -894,25 +892,25 @@
 			}
 		},
 		"seppuku": {
-			"description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
+			"description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
 			"message": "Message",
 			"timeoutModerators": "Enable seppuku for moderators",
 			"messageModerators": "Message when moderator used seppuku",
-			"timeoutSeconds": "Timeout seconds"
+			"timeoutSeconds": "Timeout duration (seconds)"
 		},
 		"voteban": {
 			"description": "Commence jury trial of the guilty chatterer!",
 			"banMessage": "Message on ban",
-			"banMessageModerators": "Message for ban moderator",
+			"banMessageModerators": "Message for banned moderators",
 			"surviveMessage": "Survive message",
 			"surviveMessageModerators": "Survive message for moderators",
-			"initialMessage": "Init message",
+			"initialMessage": "Initial message",
 			"neededVotes": "Needed votes",
-			"banDuration": "Duration of ban",
-			"voteMode": "Mode of vote",
-			"voteDuration": "Duration of vote in seconds",
-			"wordsNegative": "Words for vote to \"no\" option",
-			"wordsPositive": "Words for vote to \"yes\" option",
+			"banDuration": "Ban duration (seconds)",
+			"voteMode": "Voting mode",
+			"voteDuration": "Voting duration (seconds)",
+			"wordsNegative": "Words to vote for \"no\" option",
+			"wordsPositive": "Words to vote for \"yes\" option",
 			"timeoutModerators": "Enable voteban on moderators"
 		}
 	},
@@ -975,14 +973,14 @@
 			"searchPlaceholder": "Search emotes...",
 			"table": {
 				"emote": "Emote",
-				"usages": "Total usages",
+				"usages": "Total usage",
 				"users": "Users",
 				"empty": "No emotes",
-				"chart": "Usages chart",
+				"chart": "Usage chart",
 				"lastDay": "Day",
 				"lastWeek": "Week",
 				"lastMonth": "Month",
-				"lastThreeMonth": "3 months",
+				"lastThreeMonth": "3 Months",
 				"lastYear": "Year"
 			},
 			"total": "Total emotes: {total}",
@@ -1224,7 +1222,7 @@
 	"expiringVips": {
 		"title": "Scheduled VIPs",
 		"description": {
-			"line1": "With this feature you can create VIPs for your channel, which will be removed after selected time.",
+			"line1": "With this feature, you can create VIPs for your channel, which will be removed after a selected time.",
 			"line2": "You can use commands from built-in {module} module for that."
 		},
 		"comingSoon": "Soon, but already available through commands",
@@ -1232,7 +1230,7 @@
 			"add": "Add VIP",
 			"remove": "Remove VIP",
 			"list": "List VIPs",
-			"setExpire": "Extend expiring time for existing timed VIP, or add expiration for some VIP user"
+			"setExpire": "Extend the expiration time for existing timed VIPs, or add an expiration for VIP users who don't have one"
 		},
 		"alert": {
 			"title": "Heads up!",
@@ -1247,8 +1245,8 @@
 	},
 	"chatWall": {
 		"description": {
-			"line1": "Mass ban/delete/timeout messages that contains specific phrase.",
-			"line2": "Improper usage may result in a permanent ban you in TwirApp service. "
+			"line1": "Mass ban/delete/timeout messages that contain a specific phrase.",
+			"line2": "Improper usage may result in a permanent ban from the TwirApp service. "
 		},
 		"settings": {
 			"title": "Setup",
