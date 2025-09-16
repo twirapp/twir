@@ -837,7 +837,7 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku je forma japonského rituálneho samovraždy rozrezaním brucha.",
+      "description": "Seppuku je forma japonskej rituálnej samovraždy rozrezaním brucha.",
       "message": "Správa",
       "timeoutModerators": "Povoliť seppuku pre moderátorov",
       "messageModerators": "Správa, keď moderátor použil seppuku",
@@ -846,16 +846,16 @@
     "voteban": {
       "description": "Začnite súdny proces s porotou s vinným četujúcim!",
       "banMessage": "Správa pri bane",
-      "banMessageModerators": "Message for banned moderators",
+      "banMessageModerators": "Správa pri bane moderátora",
       "surviveMessage": "Správa o prežití",
       "surviveMessageModerators": "Správa o prežití pre moderátora",
       "initialMessage": "Úvodná správa",
       "neededVotes": "Potrebné hlasy",
-      "banDuration": "Ban duration (seconds)",
+      "banDuration": "Dĺžka banu (v sekundách)",
       "voteMode": "Režim hlasovania",
-      "voteDuration": "Voting duration (seconds)",
-      "wordsNegative": "Words to vote for \"no\" option",
-      "wordsPositive": "Words to vote for \"yes\" option",
+      "voteDuration": "Dĺžka hlasovanie (v sekundách)",
+      "wordsNegative": "Slová pre hlasovanie pre možnosť \"nie\"",
+      "wordsPositive": "Slová pre hlasovanie pre možnosť \"áno\"",
       "timeoutModerators": "Aktivovať voteban proti moderátorom"
     }
   },
@@ -918,7 +918,7 @@
       "searchPlaceholder": "Vyhľadať emoty...",
       "table": {
         "emote": "Emot",
-        "usages": "Celkové využitie",
+        "usages": "Celkový počet použití",
         "users": "Užívatelia",
         "empty": "Bez emoji",
         "chart": "Graf využitia",
@@ -1191,7 +1191,7 @@
   "chatWall": {
     "description": {
       "line1": "Hromadné zabanovanie/odstránenie/timeout správ, ktoré obsahujú konkrétnu frázu.",
-      "line2": "Nesprávne používanie môže viesť k trvalému zákazu služby TwirApp "
+      "line2": "Nesprávne používanie môže viesť k trvalému banu v službe TwirApp. "
     },
     "settings": {
       "title": "Nastavenie",
