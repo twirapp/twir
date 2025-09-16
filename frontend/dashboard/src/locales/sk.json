@@ -716,7 +716,7 @@
   "keywords": {
     "title": "Kľúčové slová",
     "info": {
-      "text": "Keywords help you to trigger chat message on certain words matching."
+      "text": "Kľúčové slová ti pomôžu spustiť správu v chate pri zhode s určitými slovami."
     },
     "create": "Vytvoriť kľúčové slovo",
     "triggerText": "Spúšťací text",
@@ -772,7 +772,7 @@
       "greetings": "Spúšťač pozdravu"
     },
     "select": {
-      "audio": "Configure an audio",
+      "audio": "Konfigurácia zvuku",
       "image": "Vybrať obrázok",
       "text": "Konfigurovať text"
     },
@@ -837,11 +837,11 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
+      "description": "Seppuku je forma japonského rituálneho samovraždy rozrezaním brucha.",
       "message": "Správa",
       "timeoutModerators": "Povoliť seppuku pre moderátorov",
       "messageModerators": "Správa, keď moderátor použil seppuku",
-      "timeoutSeconds": "Timeout duration (seconds)"
+      "timeoutSeconds": "Trvanie timeoutu (v sekundách)"
     },
     "voteban": {
       "description": "Začnite súdny proces s porotou s vinným četujúcim!",
@@ -849,10 +849,10 @@
       "banMessageModerators": "Message for banned moderators",
       "surviveMessage": "Správa o prežití",
       "surviveMessageModerators": "Správa o prežití pre moderátora",
-      "initialMessage": "Initial message",
+      "initialMessage": "Úvodná správa",
       "neededVotes": "Potrebné hlasy",
       "banDuration": "Ban duration (seconds)",
-      "voteMode": "Voting mode",
+      "voteMode": "Režim hlasovania",
       "voteDuration": "Voting duration (seconds)",
       "wordsNegative": "Words to vote for \"no\" option",
       "wordsPositive": "Words to vote for \"yes\" option",
@@ -918,14 +918,14 @@
       "searchPlaceholder": "Vyhľadať emoty...",
       "table": {
         "emote": "Emot",
-        "usages": "Total usage",
+        "usages": "Celkové využitie",
         "users": "Užívatelia",
         "empty": "Bez emoji",
-        "chart": "Usage chart",
+        "chart": "Graf využitia",
         "lastDay": "Deň",
         "lastWeek": "Týždeň",
         "lastMonth": "Mesiac",
-        "lastThreeMonth": "3 Months",
+        "lastThreeMonth": "3 Mesiace",
         "lastYear": "Rok"
       },
       "total": "Celkový počet emotov: {total}",
@@ -1167,7 +1167,7 @@
   "expiringVips": {
     "title": "Naplánované VIP",
     "description": {
-      "line1": "With this feature, you can create VIPs for your channel, which will be removed after a selected time.",
+      "line1": "S touto funkciou môžeš vo svojom kanáli vytvárať VIP používateľov, ktorí budú po zvolenom čase odstránení.",
       "line2": "Môžete na to použiť príkazy z vstavaného modulu {module}."
     },
     "comingSoon": "Dostupné čoskoro, ale už teraz je k dispozícii prostredníctvom príkazov",
@@ -1175,7 +1175,7 @@
       "add": "Pridať VIP",
       "remove": "Odstrániť VIP",
       "list": "Zoznam VIP",
-      "setExpire": "Extend the expiration time for existing timed VIPs, or add an expiration for VIP users who don't have one"
+      "setExpire": "Predĺž čas vypršania existujúcim časovo obmedzeným VIP používateľom alebo pridaj čas vypršania VIP používateľom, ktorí ho ešte nemajú"
     },
     "alert": {
       "title": "Upozornenie!",
@@ -1190,8 +1190,8 @@
   },
   "chatWall": {
     "description": {
-      "line1": "Mass ban/delete/timeout messages that contain a specific phrase.",
-      "line2": "Improper usage may result in a permanent ban from the TwirApp service. "
+      "line1": "Hromadné zabanovanie/odstránenie/timeout správ, ktoré obsahujú konkrétnu frázu.",
+      "line2": "Nesprávne používanie môže viesť k trvalému zákazu služby TwirApp "
     },
     "settings": {
       "title": "Nastavenie",
