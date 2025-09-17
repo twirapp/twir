@@ -434,10 +434,10 @@
         "totalPoints": "Total de Pontos do Canal Apostados no Resultado Vencedor",
         "topUsers": "Top 10 Usuários do Resultado Vencedor"
       },
-      "moderatorName": "Event Triggerer Moderator Username",
-      "moderatorDisplayName": "Event Triggerer Moderator Display Name",
-      "banReason": "Ban Reason",
-      "banEndsInMinutes": "Timeout (in minutes, or set to \"permanent\" to ban permamently)",
+      "moderatorName": "Nome de Usuário do Moderador que Acionou o Evento",
+      "moderatorDisplayName": "Nome de Exibição do Moderador que Acionou o Evento",
+      "banReason": "Motivo do Banimento",
+      "banEndsInMinutes": "Suspensão (em minutos, ou defina como \"permanente\" para banir permanentemente)",
       "message": "Message"
     }
   },
