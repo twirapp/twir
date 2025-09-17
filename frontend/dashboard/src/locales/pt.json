@@ -430,9 +430,9 @@
       "predictionTotalChannelPoints": "Total de Pontos de Canal Apostados",
       "predictionWinner": {
         "title": "Alternativa Vencedora do Palpite",
-        "totalUsers": "Total Winner Outcome Users",
-        "totalPoints": "Total Channel Points Placed on Winner Outcome",
-        "topUsers": "Top 10 Users of Winner Outcome"
+        "totalUsers": "Total de Usuário no Resultado Vencedor",
+        "totalPoints": "Total de Pontos do Canal Apostados no Resultado Vencedor",
+        "topUsers": "Top 10 Usuários do Resultado Vencedor"
       },
       "moderatorName": "Event Triggerer Moderator Username",
       "moderatorDisplayName": "Event Triggerer Moderator Display Name",
