@@ -398,7 +398,7 @@
       "targetDisplayUserName": "Nome de Exibição de Destino do Evento",
       "subLevel": "Níveis de assinatura (como “1”/“2”/“3”/“primo”)",
       "resubMonths": "Comprimento da assinatura",
-      "resubStreak": "Contagem total de meses assinantes",
+      "resubStreak": "Contagem Total de Meses de Inscrição",
       "resubMessage": "Mensagem de Reinscrição do Usuário",
       "rewardName": "Nome da Recompensa de Pontos do Canal",
       "rewardCost": "Preço da Recompensa de Pontos do Canal",
@@ -426,10 +426,10 @@
       "pollWinnerChannelsPointsVotes": "Número de Votos com Pontos de Canal do Vencedor",
       "pollWinnerTotalVotes": "Total de Votos do Vencedor na Enquete",
       "predictionTitle": "Título do Palpite",
-      "predictionOptionsNames": "Alternativas do Palpite (separadas pelo símbolo ·)",
+      "predictionOptionsNames": "Resultados do Palpite (separados pelo símbolo ·)",
       "predictionTotalChannelPoints": "Total de Pontos de Canal Apostados",
       "predictionWinner": {
-        "title": "Alternativa Vencedora do Palpite",
+        "title": "Resultado Vencedor do Palpite",
         "totalUsers": "Total de Usuário no Resultado Vencedor",
         "totalPoints": "Total de Pontos do Canal Apostados no Resultado Vencedor",
         "topUsers": "Top 10 Usuários do Resultado Vencedor"
@@ -438,16 +438,16 @@
       "moderatorDisplayName": "Nome de Exibição do Moderador que Acionou o Evento",
       "banReason": "Motivo do Banimento",
       "banEndsInMinutes": "Suspensão (em minutos, ou defina como \"permanente\" para banir permanentemente)",
-      "message": "Message"
+      "message": "Mensagem"
     }
   },
   "overlays": {
-    "copyOverlayLink": "Copy Overlay Link",
-    "uncongirured": "You should configure overlay first!",
-    "noAccess": "You do not have access to this overlay!",
-    "copied": "Successfully copied overlay link URL! You need to set this as browser source in OBS.",
+    "copyOverlayLink": "Copiar Link da Sobreposição",
+    "uncongirured": "Você deve configurar a sobreposição primeiro!",
+    "noAccess": "Você não tem acesso a essa sobreposição!",
+    "copied": "URL da sobreposição foi copiada com sucesso! Você precisa configurar uma fonte de navegador no OBS com esse link.",
     "nowPlaying": {
-      "description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
+      "description": "Sobreposição contém informação de música em reprodução. Essa sobreposição funcionará apenas se você tiver conectado a sua integração do serviço de músicas, como Spotify ou lastfm."
     },
     "tts": {
       "description": "This overlay allows you to play chat messages as audio through OBS with the set of preconfigured voices. You can control this overlay using commands or events.",
