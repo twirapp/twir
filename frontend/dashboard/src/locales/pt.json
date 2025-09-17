@@ -348,7 +348,7 @@
       },
       "rewardForAddEmote": "Recompensa por adicionar um emote",
       "rewardForRemoveEmote": "Recompensa por remover um emote",
-      "rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
+      "rewardSelectorDescription": "Você deve criar uma recompensa com entrada. Os usuários devem usar um link 7tv para enviar um emote ao ativar a recompensa."
     }
   },
   "events": {
@@ -358,19 +358,19 @@
     "type": "Tipo",
     "description": "Descrição",
     "targetCommand": "Comando de Destino",
-    "targetVariable": "Target Variable",
-    "targetTwitchReward": "Target Twitch Reward",
-    "targetKeyword": "Target Keyword",
+    "targetVariable": "Variável de Destino",
+    "targetTwitchReward": "Recompensa de Destino da Twitch",
+    "targetKeyword": "Palavra-chave de Destino",
     "operations": {
       "divider": "Ações",
-      "name": "Action",
+      "name": "Ação",
       "inputs": {
-        "message": "Message To Send (supports variables)",
-        "default": "Action Text (supports variables)",
+        "message": "Mensagem a Enviar (suporta variáveis)",
+        "default": "Texto de Ação (suporta variáveis)",
         "vipSlots": "Quantidade de Espaços VIP",
-        "username": "Username (supports variables)",
-        "variableValue": "New Variable Value (supports variables)",
-        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+        "username": "Nome de Usuário (suporta variáveis)",
+        "variableValue": "Novo Valor de Variável (suporta variáveis)",
+        "variableIncrementDecrement": "Valor de Acréscimo/Redução (suporta variáveis)"
       },
       "banMessage": "Mensagem de Banimento",
       "banTime": "Tempo de banimento",
@@ -378,8 +378,8 @@
         "warningTitle": "Você precisa configurar o OBS antes de prosseguir mais!",
         "warningText": "Parece que você não conectou o Twir ao OBS. Você pode fazer isso na página \"Sobreposições\".",
         "scene": "Cena do OBS",
-        "source": "OBS Source",
-        "audioSource": "OBS Audio Source"
+        "source": "Fonte do OBS",
+        "audioSource": "Fonte de Áudio do OBS"
       },
       "values": "Valores",
       "triggerAlert": "Trigger Alert",
