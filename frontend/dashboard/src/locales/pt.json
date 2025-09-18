@@ -10,24 +10,24 @@
     "login": "Entrar",
     "logout": "Sair",
     "edit": "Editar",
-    "select": "Selecione",
+    "select": "Selecionar",
     "cancel": "Cancelar",
     "confirm": "Confirmar",
-    "saveSettings": "Salvar configurações",
-    "setDefaultSettings": "Definir configurações padrão",
-    "goToDashboard": "Vá para o painel",
+    "saveSettings": "Salvar Configurações",
+    "setDefaultSettings": "Definir Configurações Padrão",
+    "goToDashboard": "Ir para o Painel de Controle",
     "add": "Adicionar",
     "send": "Enviar",
     "next": "Próximo",
     "previous": "Anterior",
-    "reset": "Reiniciar",
-    "popout": "‘Pop’ out. Em nova janela"
+    "reset": "Redefinir",
+    "popout": "Abrir em uma nova janela"
   },
   "sharedTexts": {
     "saved": "Salvo",
     "errorOnSave": "Erro ao salvar {error}",
     "enabled": "Habilitado",
-    "status": "Estatuto",
+    "status": "Estado",
     "name": "Nome",
     "actions": "Ações",
     "responses": "Respostas",
@@ -41,10 +41,10 @@
     "dangerZone": "Zona de Perigo",
     "deleted": "Excluído",
     "updated": "Atualizado",
-    "disabled": "Desativado",
-    "setDefaultSettings": "Tem certeza de que deseja restaurar as configurações padrão?",
+    "disabled": "Desabilitado",
+    "setDefaultSettings": "Você tem certeza de que quer definir as configurações padrão?",
     "placeCursorMessage": "Coloque o cursor depois de \"$\" para alterar a variável",
-    "pagination": "{page} página(s) / {total} item(s)",
+    "pagination": "{page} página(s) / {total} item(ns)",
     "paginationPerPage": "Por página",
     "searchPlaceholder": "Pesquisar...",
     "messages": "Mensagens",
@@ -54,8 +54,8 @@
     "view": "Mostrar",
     "toggleColumns": "Alternar colunas",
     "copied": "Copiado",
-    "userSelected": "{count} Usuários selecionados",
-    "userSelectPlaceholder": "Selecionar usuário/Selecionar Usuários",
+    "userSelected": "{count} usuários selecionados",
+    "userSelectPlaceholder": "Selecionar usuário|Selecionar usuários",
     "userNotFound": "Nenhum usuário encontrado",
     "settings": "Configurações",
     "create": "Criar",
@@ -72,10 +72,10 @@
     },
     "integrations": "Integrações",
     "events": "Eventos",
-    "chatAlerts": "Alertas de Bate-papo",
+    "chatAlerts": "Alertas do Chat",
     "overlays": "Sobreposições",
-    "overlaysRegistry": "Cadastro de Sobreposições",
-    "songRequests": "Pedidos de Músicas",
+    "overlaysRegistry": "Registro de Sobreposições",
+    "songRequests": "Pedidos de Música",
     "timers": "Temporizadores",
     "roles": "Permissões",
     "keywords": "Palavras-chave",
@@ -89,7 +89,7 @@
     "import": "Importar",
     "community": "Comunidade",
     "logout": "Sair",
-    "loggedAs": "Logado como",
+    "loggedAs": "Conectado como",
     "lang": "Idioma",
     "darkTheme": "Tema Escuro",
     "lightTheme": "Tema Claro",
@@ -97,7 +97,7 @@
     "giveaways": "Sorteios"
   },
   "deleteConfirmation": {
-    "text": "Tem certeza em deletar esta coisa?",
+    "text": "Você tem certeza que quer excluir isso?",
     "cancel": "Cancelar",
     "confirm": "Confirmar"
   },
@@ -137,7 +137,7 @@
         "label": "Nomes adicionais"
       },
       "gameCategories": {
-        "label": "Ativar comando apenas em certas categorias (deixe em branco para desativar)"
+        "label": "Habilitar comando apenas em certas categorias (deixe em branco para desabilitar)"
       },
       "expiration": {
         "label": "Expiração",
@@ -145,7 +145,7 @@
         "defaultWarning": "Comando padrão não pode expirar",
         "actions": {
           "delete": "Comando será excluído",
-          "disable": "Comando será desativado"
+          "disable": "Comando será desabilitado"
         }
       },
       "description": {
@@ -153,9 +153,9 @@
       },
       "responses": {
         "add": "Adicionar Resposta",
-        "description": "Esta é sua resposta do comando. Você pode usar variáveis de comando como {0}.",
+        "description": "Essa é a resposta ao seu comando. Você pode usar variáveis de comando, como {0}.",
         "validations": {
-          "empty": "A resposta não deve estar vazia. Comandos podem ser criados sem uma resposta, então você pode pular este campo.",
+          "empty": "A resposta não deve ficar em branco. Comandos podem ser criados sem uma resposta, então você pode ignorar esse campo.",
           "len": "A resposta deve conter menos de 500 caracteres."
         },
         "defaultWarning": "As respostas não podem ser editadas para comandos padrão."
