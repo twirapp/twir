@@ -10,9 +10,10 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	"github.com/twirapp/twir/libs/twitch"
 	"github.com/xhit/go-str2duration/v2"
 )
 
@@ -50,8 +51,11 @@ var Add = &types.DefaultCommand{
 			duration, err := str2duration.ParseDuration(unvipArg.String())
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "invalid duration",
-					Err:     err,
+					Message: parseCtx.Services.I18n.T(
+						"en",
+						locales.Translations.Commands.Vips.Invalid_duration,
+					),
+					Err: err,
 				}
 			}
 

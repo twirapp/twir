@@ -1,0 +1,8 @@
+github.com/goccy/go-json v0.10.5 h1:Fq85nIqj+gXn/S5ahsiTlK3TmC85qgirsdTP/+DeaC4=
+github.com/goccy/go-json v0.10.5/go.mod h1:oq7eo15ShAhp70Anwd5lgX2pLfOS3QCiwU/PULtXL6M=
+github.com/kaptinlin/go-i18n v0.1.7 h1:CYt6NGHFrje1dMufhxKGooCmKFJKDfhWVznYSODPjo8=
+github.com/kaptinlin/go-i18n v0.1.7/go.mod h1:Lq3ZGBq/JKUuxbH4bL0aQYeBM3Fk6JRuo637EfvxO6U=
+github.com/kaptinlin/messageformat-go v0.4.0 h1:L5wPgwQZkV1Rvs19htUT2RGx8N1GCq3uQG5nB6VHRcM=
+github.com/kaptinlin/messageformat-go v0.4.0/go.mod h1:LrLCV49C5ms/BZlOpFPihou+cPvhOQSvVJHj2wOe6w8=
+golang.org/x/text v0.29.0 h1:1neNs90w9YzJ9BocxfsQNHKuAT4pkghyXc4nhZ6sJvk=
+golang.org/x/text v0.29.0/go.mod h1:7MhJOA9CD2qZyOKYazxdYMF85OwPdEr9jTtBpO7ydH4=

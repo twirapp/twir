@@ -26,6 +26,7 @@ require (
 	codeberg.org/chavacava/garif v0.2.0 // indirect
 	github.com/KimMachineGun/automemlimit v0.7.1 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/goccy/go-yaml v1.18.0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
