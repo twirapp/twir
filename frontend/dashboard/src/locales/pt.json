@@ -353,8 +353,8 @@
   },
   "events": {
     "delay": "Atraso (em segundos)",
-    "repeat": "Contagem de testes",
-    "onlineOnly": "Executar somente quando a transmissão estiver ligada",
+    "repeat": "Contagem de Repetições",
+    "onlineOnly": "Executar Apenas Online",
     "type": "Tipo",
     "description": "Descrição",
     "targetCommand": "Comando de Destino",
@@ -373,9 +373,9 @@
         "variableIncrementDecrement": "Valor de Acréscimo/Redução (suporta variáveis)"
       },
       "banMessage": "Mensagem de Banimento",
-      "banTime": "Tempo de banimento",
+      "banTime": "Tempo de Banimento",
       "obs": {
-        "warningTitle": "Você precisa configurar o OBS antes de prosseguir mais!",
+        "warningTitle": "Você precisa configurar o OBS primeiro antes de avançar!",
         "warningText": "Parece que você não conectou o Twir ao OBS. Você pode fazer isso na página \"Sobreposições\".",
         "scene": "Cena do OBS",
         "source": "Fonte do OBS",
@@ -396,8 +396,8 @@
       "userDisplayName": "Nome de Exibição que Acionou o Evento",
       "targetUserName": "Nome de Usuário de Destino do Evento",
       "targetDisplayUserName": "Nome de Exibição de Destino do Evento",
-      "subLevel": "Níveis de assinatura (como “1”/“2”/“3”/“primo”)",
-      "resubMonths": "Comprimento da assinatura",
+      "subLevel": "Níveis de Inscrição (como “1”/“2”/“3”/“prime”)",
+      "resubMonths": "Sequência de Meses de Inscrição",
       "resubStreak": "Contagem Total de Meses de Inscrição",
       "resubMessage": "Mensagem de Reinscrição do Usuário",
       "rewardName": "Nome da Recompensa de Pontos do Canal",
