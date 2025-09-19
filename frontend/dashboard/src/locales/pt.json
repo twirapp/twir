@@ -450,7 +450,7 @@
       "description": "Sobreposição contém informação de música em reprodução. Essa sobreposição funcionará apenas se você tiver conectado a sua integração do serviço de músicas, como Spotify ou lastfm."
     },
     "tts": {
-      "description": "This overlay allows you to play chat messages as audio through OBS with the set of preconfigured voices. You can control this overlay using commands or events.",
+      "description": "Essa sobreposição permite que você reproduza mensagens do chat como áudio através do OBS com o conjunto de vozes pré-configuradas. Você pode controlar essa sobreposição usando comandos ou eventos.",
       "eventsHint": "Hint: You can use events system to trigger TTS on specific event.",
       "allowUsersChooseVoice": "Allow chatters to use different voices?",
       "doNotReadEmoji": "Do Not Read Emojis",
