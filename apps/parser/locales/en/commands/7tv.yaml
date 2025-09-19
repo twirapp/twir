@@ -1,0 +1,17 @@
+description: Manage 7TV emotes
+add:
+  description: Add 7TV emote
+  errors:
+    cannot_add_emote: Cannot add 7TV emote
+    emote_not_found: 7TV emote not found
+    emote_already_exists: Emote already exists
+  success:
+    emote_added: "✅ Added 7TV emote: {emote}"
+remove:
+  description: Remove 7TV emote
+  errors:
+    cannot_remove_emote: Cannot remove 7TV emote
+    emote_not_found: 7TV emote not found
+  success:
+    emote_removed: "✅ Removed 7TV emote: {emote}"
+

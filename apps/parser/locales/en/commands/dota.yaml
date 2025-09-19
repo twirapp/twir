@@ -1,0 +1,15 @@
+description: Dota 2 statistics and information
+stats:
+  description: Get Dota 2 player statistics
+  errors:
+    cannot_get_stats: Cannot get Dota 2 statistics
+    player_not_found: Dota 2 player not found
+  success:
+    stats_display: "Dota 2 stats for {player}: {stats}"
+matches:
+  description: Get recent Dota 2 matches
+  errors:
+    cannot_get_matches: Cannot get recent matches
+  success:
+    matches_display: "Recent Dota 2 matches: {matches}"
+

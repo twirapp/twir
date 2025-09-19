@@ -2,7 +2,6 @@ package i18n
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/printer"
@@ -26,7 +25,36 @@ func snakeToCamel(s string) string {
 	s = strings.ReplaceAll(s, "_", " ")
 	s = strings.ReplaceAll(s, "-", " ")
 	s = strings.Title(s)
-	return strings.ReplaceAll(s, " ", "")
+	result := strings.ReplaceAll(s, " ", "")
+
+	// Handle cases where the result starts with a number (invalid Go identifier)
+	if len(result) > 0 && result[0] >= '0' && result[0] <= '9' {
+		// Convert numbers to words for the first character
+		switch result[0] {
+		case '0':
+			result = "Zero" + result[1:]
+		case '1':
+			result = "One" + result[1:]
+		case '2':
+			result = "Two" + result[1:]
+		case '3':
+			result = "Three" + result[1:]
+		case '4':
+			result = "Four" + result[1:]
+		case '5':
+			result = "Five" + result[1:]
+		case '6':
+			result = "Six" + result[1:]
+		case '7':
+			result = "Seven" + result[1:]
+		case '8':
+			result = "Eight" + result[1:]
+		case '9':
+			result = "Nine" + result[1:]
+		}
+	}
+
+	return result
 }
 
 func GenerateKeysFileContent(opts GenerateKeysOptions) (string, error) {
@@ -40,14 +68,10 @@ func GenerateKeysFileContent(opts GenerateKeysOptions) (string, error) {
 		return "", fmt.Errorf("base locale is required")
 	}
 
-	data, err := json.Marshal(opts.Locales)
+	// Load raw nested structure for key generation
+	rawStore, err := LoadRawStore("./apps/parser/locales")
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal locales: %v", err)
-	}
-
-	var localesData map[string]interface{}
-	if err := json.Unmarshal(data, &localesData); err != nil {
-		return "", fmt.Errorf("failed to unmarshal locales: %v", err)
+		return "", fmt.Errorf("failed to load raw store: %v", err)
 	}
 
 	fset := token.NewFileSet()
@@ -67,15 +91,25 @@ func GenerateKeysFileContent(opts GenerateKeysOptions) (string, error) {
 	}
 
 	structName := "Keys"
-	baseLocaleData, ok := localesData[opts.BaseLocale]
+	baseLocaleData, ok := rawStore[opts.BaseLocale]
 	if !ok {
-		return "", fmt.Errorf("base locale %s not found in locales data", opts.BaseLocale)
+		return "", fmt.Errorf("base locale %s not found in raw store", opts.BaseLocale)
 	}
 
-	if transMap, ok := baseLocaleData.(map[string]interface{}); ok {
-		structDecls := generateStructDecls(transMap, structName, "")
-		file.Decls = append(file.Decls, structDecls...)
+	// Convert raw store to the format expected by generateStructDecls
+	nestedData := make(map[string]interface{})
+	for categoryKey, categoryData := range baseLocaleData {
+		for fileKey, fileData := range categoryData {
+			// Create nested structure: categoryKey.fileKey.data
+			if nestedData[categoryKey] == nil {
+				nestedData[categoryKey] = make(map[string]interface{})
+			}
+			nestedData[categoryKey].(map[string]interface{})[fileKey] = fileData
+		}
 	}
+
+	structDecls := generateStructDecls(nestedData, structName, "")
+	file.Decls = append(file.Decls, structDecls...)
 
 	file.Decls = append(
 		file.Decls,
@@ -126,6 +160,7 @@ func generateStructDecls(data map[string]interface{}, structName, path string) [
 	var decls []ast.Decl
 	var fields []*ast.Field
 
+	// Process each key-value pair in the data
 	for key, value := range data {
 		fieldName := snakeToCamel(key)
 		var fieldType ast.Expr
@@ -136,10 +171,12 @@ func generateStructDecls(data map[string]interface{}, structName, path string) [
 
 		switch v := value.(type) {
 		case map[string]interface{}:
+			// This is a nested object, create a nested struct
 			nestedStructName := structName + fieldName
 			decls = append(decls, generateStructDecls(v, nestedStructName, newPath)...)
 			fieldType = &ast.Ident{Name: nestedStructName}
 		case string:
+			// This is a leaf node (translation string), create a translation key struct
 			nestedStructName := structName + fieldName
 			decls = append(decls, generateStringFieldStruct(nestedStructName, newPath, v)...)
 			fieldType = &ast.Ident{Name: nestedStructName}
@@ -168,8 +205,6 @@ func generateStructDecls(data map[string]interface{}, structName, path string) [
 	}
 	decls = append(decls, structDecl)
 
-	// The root struct and other container structs are plain and do not implement the interface.
-	// Only the leaf-node structs generated in `generateStringFieldStruct` will have methods.
 	return decls
 }
 

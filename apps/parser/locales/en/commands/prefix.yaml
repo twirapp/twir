@@ -1,0 +1,16 @@
+description: Set command prefix for the channel
+set:
+  description: Set command prefix
+  errors:
+    cannot_set_prefix: Cannot set command prefix
+    prefix_too_long: Prefix is too long
+    invalid_prefix: Invalid prefix format
+  success:
+    prefix_set: "✅ Command prefix set to: {prefix}"
+remove:
+  description: Remove custom prefix (use default)
+  errors:
+    cannot_remove_prefix: Cannot remove command prefix
+  success:
+    prefix_removed: "✅ Command prefix reset to default"
+
