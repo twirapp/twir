@@ -1,2 +1,0 @@
-description: Check how long a user has been following a Twitch channel.
-response: User {user} followed channel for {duration}

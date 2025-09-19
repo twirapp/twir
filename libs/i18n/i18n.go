@@ -3,7 +3,6 @@ package i18n
 import (
 	"context"
 	"fmt"
-	"maps"
 	"strings"
 
 	kaptinlini18n "github.com/kaptinlin/go-i18n"
@@ -68,7 +67,7 @@ type I18n struct {
 	bundle        *kaptinlini18n.I18n
 }
 
-type Vars map[string]interface{}
+type Vars map[string]any
 
 type LocaleCtxKey struct{}
 
@@ -118,7 +117,9 @@ func Get[T any](
 	keyPath := strings.Join(key.GetPathSlice(), "_")
 	localizer := instance.bundle.NewLocalizer(o.locale)
 	convertedVars := make(kaptinlini18n.Vars)
-	maps.Copy(key.GetVars(), convertedVars)
+	for key, value := range key.GetVars() {
+		convertedVars[key] = fmt.Sprint(value)
+	}
 
 	return localizer.Get(keyPath, convertedVars)
 }

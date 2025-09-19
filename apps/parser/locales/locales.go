@@ -25,8 +25,8 @@ func (k KeysCommandsFollowageDescription) SetVars(vars KeysCommandsFollowageDesc
 }
 
 type KeysCommandsFollowageResponseVars struct {
-	User		any
-	Duration	any
+	User     any
+	Duration any
 }
 type KeysCommandsFollowageResponse struct {
 	Vars twiri18n.Vars
@@ -49,8 +49,8 @@ func (k KeysCommandsFollowageResponse) SetVars(vars KeysCommandsFollowageRespons
 }
 
 type KeysCommandsFollowage struct {
-	Description	KeysCommandsFollowageDescription
-	Response	KeysCommandsFollowageResponse
+	Description KeysCommandsFollowageDescription
+	Response    KeysCommandsFollowageResponse
 }
 type KeysCommandsVipsAddedVars struct {
 	UserName any
@@ -76,8 +76,8 @@ func (k KeysCommandsVipsAdded) SetVars(vars KeysCommandsVipsAddedVars) twiri18n.
 }
 
 type KeysCommandsVipsAddedWithRemoveTimeVars struct {
-	UserName	any
-	EndTime		any
+	UserName any
+	EndTime  any
 }
 type KeysCommandsVipsAddedWithRemoveTime struct {
 	Vars twiri18n.Vars
@@ -188,8 +188,8 @@ func (k KeysCommandsVipsNoScheduledVips) SetVars(vars KeysCommandsVipsNoSchedule
 }
 
 type KeysCommandsVipsUpdatedVars struct {
-	UserName	any
-	EndTime		any
+	UserName any
+	EndTime  any
 }
 type KeysCommandsVipsUpdated struct {
 	Vars twiri18n.Vars
@@ -279,20 +279,20 @@ func (k KeysCommandsVipsRemoved) SetVars(vars KeysCommandsVipsRemovedVars) twiri
 }
 
 type KeysCommandsVips struct {
-	Added				KeysCommandsVipsAdded
-	AddedWithRemoveTime		KeysCommandsVipsAddedWithRemoveTime
-	AlreadyHaveRole			KeysCommandsVipsAlreadyHaveRole
-	CannotCreateScheduledInDb	KeysCommandsVipsCannotCreateScheduledInDb
-	InvalidDuration			KeysCommandsVipsInvalidDuration
-	NoScheduledVips			KeysCommandsVipsNoScheduledVips
-	Updated				KeysCommandsVipsUpdated
-	CannotGetListFromDb		KeysCommandsVipsCannotGetListFromDb
-	CannotUpdate			KeysCommandsVipsCannotUpdate
-	Removed				KeysCommandsVipsRemoved
+	Added                     KeysCommandsVipsAdded
+	AddedWithRemoveTime       KeysCommandsVipsAddedWithRemoveTime
+	AlreadyHaveRole           KeysCommandsVipsAlreadyHaveRole
+	CannotCreateScheduledInDb KeysCommandsVipsCannotCreateScheduledInDb
+	InvalidDuration           KeysCommandsVipsInvalidDuration
+	NoScheduledVips           KeysCommandsVipsNoScheduledVips
+	Updated                   KeysCommandsVipsUpdated
+	CannotGetListFromDb       KeysCommandsVipsCannotGetListFromDb
+	CannotUpdate              KeysCommandsVipsCannotUpdate
+	Removed                   KeysCommandsVipsRemoved
 }
 type KeysCommands struct {
-	Followage	KeysCommandsFollowage
-	Vips		KeysCommandsVips
+	Followage KeysCommandsFollowage
+	Vips      KeysCommandsVips
 }
 type KeysErrorsGenericBroadcasterClientVars struct {
 }
@@ -405,19 +405,58 @@ func (k KeysErrorsGenericShouldMentionWithAt) SetVars(vars KeysErrorsGenericShou
 }
 
 type KeysErrorsGeneric struct {
-	BroadcasterClient	KeysErrorsGenericBroadcasterClient
-	CannotFindUserDb	KeysErrorsGenericCannotFindUserDb
-	CannotFindUserTwitch	KeysErrorsGenericCannotFindUserTwitch
-	CannotFindUsersTwitch	KeysErrorsGenericCannotFindUsersTwitch
-	ShouldMentionWithAt	KeysErrorsGenericShouldMentionWithAt
+	BroadcasterClient     KeysErrorsGenericBroadcasterClient
+	CannotFindUserDb      KeysErrorsGenericCannotFindUserDb
+	CannotFindUserTwitch  KeysErrorsGenericCannotFindUserTwitch
+	CannotFindUsersTwitch KeysErrorsGenericCannotFindUsersTwitch
+	ShouldMentionWithAt   KeysErrorsGenericShouldMentionWithAt
 }
 type KeysErrors struct {
 	Generic KeysErrorsGeneric
 }
 type Keys struct {
-	Commands	KeysCommands
-	Errors		KeysErrors
+	Commands KeysCommands
+	Errors   KeysErrors
 }
 
 var Translations = Keys{}
-var Store twiri18n.LocalesStore = twiri18n.LocalesStore{"en": map[string]map[string]map[string]string{"commands": map[string]map[string]string{"followage": map[string]string{"response": `User {user} followed channel for {duration}`, "description": `Check how long a user has been following a Twitch channel.`}, "vips": map[string]string{"added": `✅ added vip to {userName}`, "no_scheduled_vips": `There are no scheduled vips.`, "removed": `✅ removed vip from {userName}`, "cannot_update": `Cannot update scheduled vip.`, "invalid_duration": `Invalid duration format. Please use formats like "1h", "30m", or "2d".`, "already_have_role": `User already vip or moderator!`, "cannot_get_list_from_db": `Cannot get vip list from database.`, "updated": `✅ updated vip for user {userName} new expriation time {endTime}`, "cannot_create_scheduled_in_db": `Cannot create scheduled vip in database.`, "added_with_remove_time": `✅ added vip to {userName}, will be removed at {endTime}`}}, "errors": map[string]map[string]string{"generic": map[string]string{"broadcaster_client": `Cannot create broadcaster twitch client`, "should_mention_with_at": `you should tag user with @`, "cannot_find_user_db": `Cannot find user in database`, "cannot_find_user_twitch": `Cannot find user on twitch`, "cannot_find_users_twitch": `Cannot find users on twitch`}}}, "ru": map[string]map[string]map[string]string{"commands": map[string]map[string]string{"followage": map[string]string{"response": `Пользователь {user} подписан на канал {duration}`, "description": `Показывает, как долго пользователь подписан на канал.`}, "vips": map[string]string{"invalid_duration": `Неверный формат длительности. Пожалуйста, используйте форматы, такие как "1ч", "30м" или "2д".`}}}}
+var Store twiri18n.LocalesStore = twiri18n.LocalesStore{
+	"en": map[string]map[string]map[string]string{
+		"commands": map[string]map[string]string{
+			"followage": map[string]string{
+				"response":    `User {user} followed channel for {duration}`,
+				"description": `Check how long a user has been following a Twitch channel.`,
+			},
+			"vips": map[string]string{
+				"added":                         `✅ added vip to {userName}`,
+				"no_scheduled_vips":             `There are no scheduled vips.`,
+				"removed":                       `✅ removed vip from {userName}`,
+				"cannot_update":                 `Cannot update scheduled vip.`,
+				"invalid_duration":              `Invalid duration format. Please use formats like "1h", "30m", or "2d".`,
+				"already_have_role":             `User already vip or moderator!`,
+				"cannot_get_list_from_db":       `Cannot get vip list from database.`,
+				"updated":                       `✅ updated vip for user {userName} new expriation time {endTime}`,
+				"cannot_create_scheduled_in_db": `Cannot create scheduled vip in database.`,
+				"added_with_remove_time":        `✅ added vip to {userName}, will be removed at {endTime}`,
+			},
+		},
+		"errors": map[string]map[string]string{
+			"generic": map[string]string{
+				"broadcaster_client":       `Cannot create broadcaster twitch client`,
+				"should_mention_with_at":   `you should tag user with @`,
+				"cannot_find_user_db":      `Cannot find user in database`,
+				"cannot_find_user_twitch":  `Cannot find user on twitch`,
+				"cannot_find_users_twitch": `Cannot find users on twitch`,
+			},
+		},
+	},
+	"ru": map[string]map[string]map[string]string{
+		"commands": map[string]map[string]string{
+			"followage": map[string]string{
+				"response":    `Пользователь {user} подписан на канал {duration}`,
+				"description": `Показывает, как долго пользователь подписан на канал.`,
+			},
+			"vips": map[string]string{"invalid_duration": `Неверный формат длительности. Пожалуйста, используйте форматы, такие как "1ч", "30м" или "2д".`},
+		},
+	},
+}
