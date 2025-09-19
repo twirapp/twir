@@ -2,7 +2,6 @@ package vips
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/guregu/null"
@@ -10,10 +9,12 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/i18n"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	scheduledvipmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
+	"github.com/twirapp/twir/libs/twitch"
 	"github.com/xhit/go-str2duration/v2"
 )
 
@@ -46,7 +47,7 @@ var SetExpire = &types.DefaultCommand{
 	) {
 		if len(parseCtx.Mentions) == 0 {
 			return nil, &types.CommandHandlerError{
-				Message: "you should tag user with @",
+				Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Errors.Generic.ShouldMentionWithAt),
 			}
 		}
 
@@ -57,7 +58,7 @@ var SetExpire = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
+				Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Errors.Generic.BroadcasterClient),
 				Err:     err,
 			}
 		}
@@ -66,7 +67,7 @@ var SetExpire = &types.DefaultCommand{
 		duration, err := str2duration.ParseDuration(unvipArg)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "invalid duration",
+				Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Commands.Vips.InvalidDuration),
 				Err:     err,
 			}
 		}
@@ -82,7 +83,7 @@ var SetExpire = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get scheduled vip",
+				Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Commands.Vips.CannotGetListFromDb),
 				Err:     err,
 			}
 		}
@@ -96,7 +97,7 @@ var SetExpire = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot create scheduled vip",
+					Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Commands.Vips.CannotCreateScheduledInDb),
 					Err:     err,
 				}
 			}
@@ -110,7 +111,7 @@ var SetExpire = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot update scheduled vip",
+					Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Commands.Vips.CannotUpdate),
 					Err:     err,
 				}
 			}
@@ -126,10 +127,13 @@ var SetExpire = &types.DefaultCommand{
 
 		result := &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(
-					"✅ updated vip for user %s new expriation time %s",
-					user.UserName,
-					newUnvipAt.Format("2006-01-02 15:04:05"),
+				i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Commands.Vips.Updated.SetVars(locales.KeysCommandsVipsUpdatedVars{
+						UserName: user.UserName,
+						EndTime:  newUnvipAt.Format("2006-01-02 15:04:05"),
+					}),
 				),
 			},
 		}

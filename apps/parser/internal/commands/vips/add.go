@@ -2,7 +2,6 @@ package vips
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/guregu/null"
@@ -12,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/twitch"
 	"github.com/xhit/go-str2duration/v2"
@@ -51,9 +51,10 @@ var Add = &types.DefaultCommand{
 			duration, err := str2duration.ParseDuration(unvipArg.String())
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: parseCtx.Services.I18n.T(
-						"en",
-						locales.Translations.Commands.Vips.Invalid_duration,
+					Message: i18n.GetCtx(
+						ctx,
+						parseCtx.Services.I18n,
+						locales.Translations.Commands.Vips.InvalidDuration,
 					),
 					Err: err,
 				}
@@ -70,14 +71,22 @@ var Add = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Errors.Generic.BroadcasterClient,
+				),
+				Err: err,
 			}
 		}
 
 		if len(parseCtx.Mentions) == 0 {
 			return nil, &types.CommandHandlerError{
-				Message: "you should tag user with @",
+				Message: i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Errors.Generic.ShouldMentionWithAt,
+				),
 			}
 		}
 
@@ -90,14 +99,22 @@ var Add = &types.DefaultCommand{
 			Preload("Stats", `"channelId" = ? AND "userId" = ?`, parseCtx.Channel.ID, user.UserId).
 			First(&dbUser).Error; err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot find user in database",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Errors.Generic.CannotFindUserDb,
+				),
+				Err: err,
 			}
 		}
 
 		if dbUser.Stats != nil && (dbUser.Stats.IsMod || dbUser.Stats.IsVip) {
 			return nil, &types.CommandHandlerError{
-				Message: "user already vip or moderator",
+				Message: i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Commands.Vips.AlreadyHaveRole,
+				),
 			}
 		}
 
@@ -112,13 +129,13 @@ var Add = &types.DefaultCommand{
 				)
 				if err != nil {
 					return &types.CommandHandlerError{
-						Message: fmt.Sprintf("cannot add vip: %s", err),
+						Message: err.Error(),
 						Err:     err,
 					}
 				}
 				if vipResp.ErrorMessage != "" {
 					return &types.CommandHandlerError{
-						Message: fmt.Sprintf("cannot add vip: %s", vipResp.ErrorMessage),
+						Message: vipResp.ErrorMessage,
 					}
 				}
 
@@ -136,8 +153,12 @@ var Add = &types.DefaultCommand{
 				)
 				if err != nil {
 					return &types.CommandHandlerError{
-						Message: "cannot create scheduled vip in database",
-						Err:     err,
+						Message: i18n.GetCtx(
+							ctx,
+							parseCtx.Services.I18n,
+							locales.Translations.Commands.Vips.CannotCreateScheduledInDb,
+						),
+						Err: err,
 					}
 				}
 
@@ -158,14 +179,26 @@ var Add = &types.DefaultCommand{
 		if unvipAt != nil {
 			result.Result = append(
 				result.Result,
-				fmt.Sprintf(
-					"✅ added vip to %s, will be removed at %s",
-					user.UserName,
-					unvipAt.Format("2006-01-02 15:04:05"),
+				i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Commands.Vips.AddedWithRemoveTime.SetVars(locales.KeysCommandsVipsAddedWithRemoveTimeVars{
+						UserName: user.UserName,
+						EndTime:  unvipAt.Format("2006-01-02 15:04:05"),
+					}),
 				),
 			)
 		} else {
-			result.Result = append(result.Result, fmt.Sprintf("✅ added vip to %s", user.UserName))
+			result.Result = append(
+				result.Result,
+				i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Commands.Vips.Added.SetVars(locales.KeysCommandsVipsAddedVars{
+						UserName: user.UserName,
+					}),
+				),
+			)
 		}
 
 		return result, nil

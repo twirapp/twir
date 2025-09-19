@@ -1,14 +1,13 @@
 package i18n
 
 import (
+	"context"
 	"fmt"
+	"maps"
 	"strings"
 
 	kaptinlini18n "github.com/kaptinlin/go-i18n"
 )
-
-// LocalesStore example: {"en": {"commands": {"followage": {"title": "qwe"}}}}
-type LocalesStore map[string]map[string]map[string]map[string]string
 
 type Opts struct {
 	Store         LocalesStore
@@ -71,15 +70,55 @@ type I18n struct {
 
 type Vars map[string]interface{}
 
-func (i *I18n) T(locale string, key TranslationKey, vars ...Vars) string {
-	localizer := i.bundle.NewLocalizer(locale)
+type LocaleCtxKey struct{}
 
-	convertedVars := make(kaptinlini18n.Vars)
-	for _, v := range vars {
-		for key, value := range v {
-			convertedVars[key] = value
-		}
+type translateOptions struct {
+	locale string
+}
+
+type TranslateOption = func(*translateOptions)
+
+func WithLocale(locale string) TranslateOption {
+	return func(options *translateOptions) {
+		options.locale = locale
+	}
+}
+
+func SetContextLocale(ctx context.Context, locale string) context.Context {
+	return context.WithValue(ctx, LocaleCtxKey{}, locale)
+}
+
+func GetCtx[T any](
+	ctx context.Context,
+	instance *I18n,
+	key TranslationKey[T],
+	opts ...TranslateOption,
+) string {
+	locale, ok := ctx.Value(LocaleCtxKey{}).(string)
+	if ok && locale != "" {
+		opts = append(opts, WithLocale(locale))
 	}
 
-	return localizer.Get(strings.Join(key.GetPathSlice(), "_"), convertedVars)
+	return Get(instance, key, opts...)
+}
+
+func Get[T any](
+	instance *I18n,
+	key TranslationKey[T],
+	opts ...TranslateOption,
+) string {
+	o := translateOptions{
+		locale: instance.defaultLocale,
+	}
+
+	for _, option := range opts {
+		option(&o)
+	}
+
+	keyPath := strings.Join(key.GetPathSlice(), "_")
+	localizer := instance.bundle.NewLocalizer(o.locale)
+	convertedVars := make(kaptinlini18n.Vars)
+	maps.Copy(key.GetVars(), convertedVars)
+
+	return localizer.Get(keyPath, convertedVars)
 }

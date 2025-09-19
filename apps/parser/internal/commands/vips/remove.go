@@ -2,14 +2,15 @@ package vips
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -43,14 +44,21 @@ var Remove = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n, locales.Translations.Errors.Generic.BroadcasterClient,
+				),
+				Err: err,
 			}
 		}
 
 		if len(parseCtx.Mentions) == 0 {
 			return nil, &types.CommandHandlerError{
-				Message: "you should tag user with @",
+				Message: i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Errors.Generic.ShouldMentionWithAt,
+				),
 			}
 		}
 
@@ -64,19 +72,25 @@ var Remove = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("cannot remove vip: %s", err),
+				Message: err.Error(),
 				Err:     err,
 			}
 		}
 		if vipResp.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("cannot remove vip: %s", vipResp.ErrorMessage),
+				Message: vipResp.ErrorMessage,
 			}
 		}
 
 		result := &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf("✅ removed vip from user %s", user.UserLogin),
+				i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Commands.Vips.Removed.SetVars(locales.KeysCommandsVipsRemovedVars{
+						UserName: user.UserName,
+					}),
+				),
 			},
 		}
 

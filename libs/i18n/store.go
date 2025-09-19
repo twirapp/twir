@@ -6,8 +6,10 @@ import (
 	"path/filepath"
 
 	"github.com/goccy/go-yaml"
-	"github.com/pterm/pterm"
 )
+
+// LocalesStore example: {"en": {"commands": {"followage": {"title": "qwe"}}}}
+type LocalesStore map[string]map[string]map[string]map[string]string
 
 func NewStore(dir string) (LocalesStore, error) {
 	store := LocalesStore{}
@@ -69,14 +71,6 @@ func NewStore(dir string) (LocalesStore, error) {
 
 				key := file.Name()[0 : len(file.Name())-len(filepath.Ext(file.Name()))]
 				store[locale][subDirName][key] = translations
-
-				pterm.Success.Printfln(
-					"Loaded %d translations for %s/%s/%s",
-					len(translations),
-					locale,
-					subDirName,
-					key,
-				)
 			}
 		}
 	}
