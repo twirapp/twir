@@ -457,40 +457,40 @@
       "doNotReadTwitchEmotes": "Não Ler Emotes da Twitch (incluindo 7TV, FFZ, BTTV",
       "doNotReadLinks": "Não Ler Links",
       "readChatMessages": "Ler Todas as Mensagens do Chat",
-      "readChatMessagesNicknames": "Read Usernames",
-      "voice": "Default Voice",
-      "disallowedVoices": "Disallowed Voices List",
+      "readChatMessagesNicknames": "Ler Nomes de Usuário",
+      "voice": "Voz Padrão",
+      "disallowedVoices": "Lista de Vozes Proibidas",
       "volume": "Volume",
-      "pitch": "Pitch",
-      "rate": "Rate",
+      "pitch": "Tom",
+      "rate": "Velocidade",
       "users": {
-        "selectAll": "Select All",
-        "undoSelection": "Undo Selection",
-        "empty": "No one have created their own customizations yet..."
+        "selectAll": "Selecionar Tudo",
+        "undoSelection": "Desfazer Seleção",
+        "empty": "Ninguém criou suas próprias personalizações ainda..."
       },
       "tabs": {
-        "general": "General",
-        "usersSettings": "Individual Settings"
+        "general": "Geral",
+        "usersSettings": "Configurações Individuais"
       },
-      "previewText": "Preview voice with text, pitch and rate:"
+      "previewText": "Pré-visualizar voz com texto, tom e velocidade:"
     },
     "obs": {
-      "description": "This overlay allows you to connect Twir with your OBS. It gives an ability to manage your sources, scenes, audio sources and events.",
-      "address": "Address of OBS WebSocket server",
-      "port": "Port of OBS WebSocket server",
-      "connected": "Connected!",
-      "notConnected": "Not Connected!",
-      "checkConnection": "Check Connection"
+      "description": "Essa sobreposição permite que você conecte a Twir ao seu OBS. Ela oferece a possibilidade de gerenciar suas fontes, cenas, fontes de áudio e eventos.",
+      "address": "Endereço do servidor WebSocket do OBS",
+      "port": "Porta do servidor WebSocket do OBS",
+      "connected": "Conectado!",
+      "notConnected": "Não Conectado!",
+      "checkConnection": "Verificar Conexão"
     },
     "alerts": {
-      "description": "This overlay allows you to play configured alerts from the “Alerts” section."
+      "description": "Essa sobreposição permite que você reproduza alertas configurados na seção “Alertas”."
     },
     "chat": {
-      "presets": "Presets",
-      "selectSubsetPlaceholder": "Select preferable subsets",
-      "hideTimeout": "Message Hide Timeout",
-      "showDelay": "Message Show Delay",
-      "showBadges": "Show Badges",
+      "presets": "Predefinições",
+      "selectSubsetPlaceholder": "Selecione subconjuntos preferenciais",
+      "hideTimeout": "Tempo de Ocultação da Mensagem",
+      "showDelay": "Atraso na Exibição da Mensagem",
+      "showBadges": "Mostrar Distintivos",
       "showAnnounceBadge": "Show Announcement Border",
       "paddingContainer": "Inside Container Padding",
       "resetToDefault": "Reset to Default",
