@@ -171,15 +171,15 @@
       },
       "restrictions": {
         "name": "Restrições por estatísticas",
-        "watchTime": "Tempo de relógio necessário para usar esse comando.",
+        "watchTime": "Tempo de visualização necessário para usar esse comando.",
         "messages": "Contagem de mensagens necessárias para usar esse comando.",
-        "channelsPoints": "Gasto de Pontos de Canais necessário para usar esse comando."
+        "channelsPoints": "Pontos dos Canais gastos necessários para usar esse comando."
       },
       "cooldown": {
-        "label": "Tempo de Recarga",
-        "value": "Tempo de Recarga em segundos",
+        "label": "Tempo de Espera",
+        "value": "Tempo de Espera em segundos",
         "type": {
-          "name": "Tempo de Recarga por",
+          "name": "Tempo de Espera por",
           "global": "Global",
           "user": "Individual (por usuário)"
         }
@@ -192,10 +192,10 @@
         },
         "keepOrder": {
           "label": "Manter a Ordem",
-          "text": "O Bot irá manter esta ordem de respostas quando enviá-las ao bate-papo."
+          "text": "O bot manterá essa ordem de respostas ao enviá-las para o chat."
         },
         "onlineOnly": {
-          "label": "Somente quando Online",
+          "label": "Apenas Quando Online",
           "text": "Este comando só funcionará quando a stream estiver online."
         },
         "offlineOnly": {
