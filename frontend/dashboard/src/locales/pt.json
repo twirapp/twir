@@ -310,13 +310,13 @@
         "showViewers": "Mostrar Contador de Espectadores?",
         "showPreview": "Mostrar Visualização da Transmissão?",
         "showProfileImage": "Mostrar Avatar do Perfil da Twitch?",
-        "channelsSelect": "Onde serão publicados os alertas?",
-        "streamOnlineLabel": "Mensagem de alerta de fluxo",
-        "streamOnlinePlaceholder": "Esta mensagem é enviada por Twir quando a transmissão é iniciada.",
-        "streamOfflineLabel": "Mensagem de Término de Transmissão",
-        "streamOfflinePlaceholder": "Esta mensagem é enviada por Twir quando a transmissão é desligada.",
-        "updateAlert": "O Twir atualizará a mensagem incorporada periodicamente para garantir que ela seja sincronizada com o estado da sua transmissão. (espectadores, título, categoria, etc.)",
-        "shouldDeleteMessageOnOffline": "Excluir mensagem de alerta em vez de editá-la quando a transmissão estiver desligada?",
+        "channelsSelect": "Onde os alertas serão publicados?",
+        "streamOnlineLabel": "Mensagem de Início da Transmissão",
+        "streamOnlinePlaceholder": "Twir enviará essa mensagem quando a transmissão começar.",
+        "streamOfflineLabel": "Mensagem de Término da Transmissão",
+        "streamOfflinePlaceholder": "Twir enviará essa mensagem quando a transmissão terminar.",
+        "updateAlert": "A Twir atualizará a mensagem incorporada periodicamente para garantir que ela esteja sincronizada com o estado da sua transmissão (expectadores, título, categoria, etc.)",
+        "shouldDeleteMessageOnOffline": "Excluir a mensagem de alerta invés de editá-la quando a transmissão terminar?",
         "additionalUsersIdsForLiveCheck": "Lista adicional de usuários da Twitch que receberão notificações de transmissão."
       },
       "connectGuild": "+ Conectar Servidor",
@@ -328,26 +328,26 @@
       "info": "Fornecer acesso a este serviço permite que o Twir monitore suas partidas do Faceit e configure variáveis ​​de comando como {0}, {1} e muito mais."
     },
     "nightbot": {
-      "info": "Fornecer acesso a este serviço permite que o Twir importe comandos e temporizadores do Nightbot."
+      "info": "Fornecer o acesso a esse serviço permite que a Twir importe comandos e temporizadores do Nightbot."
     },
     "valorant": {
       "info": "Fornecer acesso a este serviço permite que o Twir monitore suas partidas do Valorant e configure variáveis ​​de comando como {0}, {1} e muito mais. "
     },
     "sevenTv": {
-      "description": "Podemos gerenciar os emotes do canal do 7tv, quando essa integração é ativada.",
-      "alert": "Você também pode fazer fluxo avançado através do sistema {0} para gerenciar os emotes do 7tv.",
+      "description": "Podemos gerenciar emotes do canal 7tv quando essa integração estiver habilitada.",
+      "alert": "Você também pode fazer um fluxo avançado via sistema {0} para gerenciar os emotes do 7tv.",
       "connected": "Conectado",
       "notConnected": "Não conectado",
-      "notRegistered": "Você não tem cadastro no {0}",
+      "notRegistered": "Você não está registrado em {0}",
       "errorSameReward": "Você não pode usar a mesma recompensa para adicionar e remover emotes!",
-      "deleteOnlyAddedByApp": "Remover apenas os emotes adicionados por Twir",
+      "deleteOnlyAddedByApp": "Remover apenas os emotes adicionados pela Twir",
       "connectSteps": {
         "step1": "Abra o seu perfil {0}",
         "step2": "Clique no botão \"Adicionar editores\"",
         "step3": "Adicionar {0} como um editor"
       },
-      "rewardForAddEmote": "Recompensa por adicionar um emote",
-      "rewardForRemoveEmote": "Recompensa por remover um emote",
+      "rewardForAddEmote": "Recompensa por adicionar emote",
+      "rewardForRemoveEmote": "Recompensa por remover emote",
       "rewardSelectorDescription": "Você deve criar uma recompensa com entrada. Os usuários devem usar um link 7tv para enviar um emote ao ativar a recompensa."
     }
   },
