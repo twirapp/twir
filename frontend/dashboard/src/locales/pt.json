@@ -600,13 +600,13 @@
           "label": "Configurações",
           "startCommand": {
             "description": "Comando de Início da Sobreposição",
-            "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
+            "example": "<b>!brb 1 Café</b> – inicia um temporizador de 1 minuto com o rótulo \"Café\".<br><b>!brb 1</b> – inicia um temporizador de 1 minuto com o texto padrão especificado nas seções Configurações e Configurações Pós-Temporizador."
           },
           "stopCommand": {
-            "description": "Overlay Stop Command",
+            "description": "Comando de Parada da Sobreposição",
             "example": "!brbstop"
           },
-          "text": "Overlay Text",
+          "text": "Texto da Sobreposição",
           "background": "Overlay Background",
           "backgroundOpacity": "Overlay Background Opacity",
           "font": {
