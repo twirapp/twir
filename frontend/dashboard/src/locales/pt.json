@@ -580,26 +580,26 @@
         "size": "Tamanho",
         "sizeSmall": "Tamanho para Variação de Emote Pequeno",
         "time": "Duração do Emote",
-        "maxEmotes": "Emotes Amount",
-        "animationsOnAppear": "Appearing Emote Animation",
-        "animationsOnDisappear": "Disappearing Emote Animation",
-        "excludedEmotes": "Excluded Emotes",
-        "rave": "Show Rave (Rainbow) Emotes",
+        "maxEmotes": "Quantidade de Emotes",
+        "animationsOnAppear": "Animação de Surgimento de Emote",
+        "animationsOnDisappear": "Animação de Desaparecimento de Emote",
+        "excludedEmotes": "Emotes Excluídos",
+        "rave": "Mostrar Emotes de Festa (Arco-Íris)",
         "emotes": {
-          "bttvEnabled": "Enable BetterTTV Emotes?",
-          "ffzEnabled": "Enable FrankerFaceZ Emotes?",
-          "seventvEnabled": "Enable 7TV Emotes?",
-          "emojiStyle": "Emoji Style"
+          "bttvEnabled": "Habilitar Emotes BetterTTV?",
+          "ffzEnabled": "Habilitar Emotes FrankerFaceZ?",
+          "seventvEnabled": "Habilitar Emotes 7TV?",
+          "emojiStyle": "Estilo de Emoji"
         }
       }
     },
     "brb": {
-      "description": "This overlay allows you to show a countdown on screen for specific events or while you're AFK.",
+      "description": "Essa sobreposição permite mostrar uma contagem regressiva na tela para eventos específicos ou enquanto você está AFK.",
       "settings": {
         "main": {
-          "label": "Settings",
+          "label": "Configurações",
           "startCommand": {
-            "description": "Overlay Start Command",
+            "description": "Comando de Início da Sobreposição",
             "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
           },
           "stopCommand": {
