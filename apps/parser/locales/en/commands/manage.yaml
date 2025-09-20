@@ -1,0 +1,23 @@
+description: Manage user permissions
+add:
+  description: Add permission to user
+  errors:
+    cannot_add_permission: Cannot add permission to user
+    user_not_found: User not found
+    permission_already_exists: User already has this permission
+  success:
+    permission_added: "✅ Added permission {permission} to {user}"
+remove:
+  description: Remove permission from user
+  errors:
+    cannot_remove_permission: Cannot remove permission from user
+    permission_not_found: User does not have this permission
+  success:
+    permission_removed: "✅ Removed permission {permission} from {user}"
+list:
+  description: List user permissions
+  errors:
+    cannot_list_permissions: Cannot list user permissions
+  success:
+    permissions_list: "Permissions for {user}: {permissions}"
+

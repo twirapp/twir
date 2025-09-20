@@ -1,0 +1,6 @@
+description: Get first followers of the channel
+errors:
+  cannot_get_followers: Cannot get first followers
+success:
+  first_followers: "First followers: {followers}"
+

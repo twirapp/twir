@@ -1,0 +1,10 @@
+description: Displays sub age of user or mentioned user.
+errors:
+  not_subscriber_or_hidden: not a subscriber or info hidden
+responses:
+  not_subscriber: "{user} is not a subscriber."
+  not_subscriber_but_was: "{user} is not a subscriber, but used to be for {months} months."
+  subscription_info: "{user} has a {tier} subscription to {channel} for a total {months} months"
+  streak_info: ", currently on a {months} months streak"
+  time_remaining: ", {duration} remaining"
+

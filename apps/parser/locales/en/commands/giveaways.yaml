@@ -1,0 +1,31 @@
+open:
+  description: Open giveaway
+  success:
+    giveaway_opened: "✅ Giveaway opened"
+  errors:
+    cannot_open_giveaway: Cannot open giveaway
+pause:
+  description: Pause giveaway
+  success:
+    giveaway_paused: "✅ Giveaway paused"
+  errors:
+    cannot_pause_giveaway: Cannot pause giveaway
+reset:
+  description: Reset giveaway
+  success:
+    giveaway_reset: "✅ Giveaway reset"
+  errors:
+    cannot_reset_giveaway: Cannot reset giveaway
+finish:
+  description: Finish giveaway
+  success:
+    giveaway_finished: "✅ Giveaway finished"
+  errors:
+    cannot_finish_giveaway: Cannot finish giveaway
+delete:
+  description: Delete giveaway
+  success:
+    giveaway_deleted: "✅ Giveaway deleted"
+  errors:
+    cannot_delete_giveaway: Cannot delete giveaway
+

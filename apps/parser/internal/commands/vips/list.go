@@ -11,8 +11,10 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	scheduledvipmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
 )
 
@@ -39,8 +41,12 @@ var List = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get scheduled vips",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Commands.Vips.CannotGetListFromDb,
+				),
+				Err: err,
 			}
 		}
 
@@ -48,7 +54,13 @@ var List = &types.DefaultCommand{
 			Result: []string{},
 		}
 		if len(scheduledVips) == 0 {
-			result.Result = []string{"No scheduled vips"}
+			result.Result = []string{
+				i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Commands.Vips.NoScheduledVips,
+				),
+			}
 			return result, nil
 		}
 
@@ -60,8 +72,12 @@ var List = &types.DefaultCommand{
 		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, usersIds)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get twitch users",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					parseCtx.Services.I18n,
+					locales.Translations.Errors.Generic.CannotFindUsersTwitch,
+				),
+				Err: err,
 			}
 		}
 

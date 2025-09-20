@@ -1,0 +1,17 @@
+description: Text-to-speech commands
+say:
+  description: Use text-to-speech to say message
+  errors:
+    cannot_use_tts: Cannot use text-to-speech
+    message_too_long: Message is too long for TTS
+    tts_disabled: Text-to-speech is disabled
+  success:
+    tts_queued: "✅ TTS message queued"
+skip:
+  description: Skip current TTS message
+  errors:
+    cannot_skip_tts: Cannot skip TTS message
+    no_tts_playing: No TTS message playing
+  success:
+    tts_skipped: "✅ TTS message skipped"
+

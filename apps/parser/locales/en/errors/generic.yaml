@@ -1,0 +1,5 @@
+broadcaster_client: Cannot create broadcaster twitch client
+should_mention_with_at: you should tag user with @
+cannot_find_user_db: Cannot find user in database
+cannot_find_user_twitch: Cannot find user on twitch
+cannot_find_users_twitch: Cannot find users on twitch

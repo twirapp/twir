@@ -1,0 +1,15 @@
+description: Permit user to post links
+add:
+  description: Give user permission to post links
+  errors:
+    cannot_add_permit: Cannot add permit for user
+    user_not_found: User not found
+  success:
+    permit_added: "✅ {user} can now post links"
+remove:
+  description: Remove user's link posting permission
+  errors:
+    cannot_remove_permit: Cannot remove permit for user
+  success:
+    permit_removed: "✅ Removed link permit from {user}"
+

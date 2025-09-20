@@ -26,6 +26,7 @@ import (
 	chatwallservice "github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/parser/internal/services/shortenedurls"
 	variables_bus "github.com/twirapp/twir/apps/parser/internal/variables-bus"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -36,6 +37,7 @@ import (
 	"github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
+	"github.com/twirapp/twir/libs/i18n"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
@@ -79,6 +81,16 @@ func main() {
 	if config.AppEnv != "development" {
 		http.Handle("/metrics", promhttp.Handler())
 		go http.ListenAndServe("0.0.0.0:3000", nil)
+	}
+
+	translationService, err := i18n.New(
+		i18n.Opts{
+			Store:         locales.Store,
+			DefaultLocale: "en",
+		},
+	)
+	if err != nil {
+		panic(err)
 	}
 
 	if config.SentryDsn != "" {
@@ -275,6 +287,7 @@ func main() {
 		ChannelsCommandsUsagesRepo: channelsCommandsUsagesRepo,
 		ChatMessagesRepo:           chatMessagesRepo,
 		Executron:                  executron.New(*config, redisClient),
+		I18n:                       translationService,
 	}
 
 	variablesService := variables.New(

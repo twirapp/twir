@@ -1,0 +1,7 @@
+description: Remove all messages from chat
+errors:
+  cannot_create_broadcaster_client: cannot create broadcaster twitch client
+  cannot_clear_chat: cannot clear chat
+success:
+  chat_cleared: "✅ Chat cleared"
+

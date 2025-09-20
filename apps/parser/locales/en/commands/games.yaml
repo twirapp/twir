@@ -1,0 +1,15 @@
+description: Game statistics and information
+current:
+  description: Get current game information
+  errors:
+    cannot_get_game: Cannot get current game information
+    no_game_set: No game currently set
+  success:
+    game_display: "Current game: {game}"
+stats:
+  description: Get game statistics
+  errors:
+    cannot_get_stats: Cannot get game statistics
+  success:
+    stats_display: "Game stats: {stats}"
+

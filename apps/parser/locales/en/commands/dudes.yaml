@@ -1,0 +1,22 @@
+description: Dudes game related commands
+play:
+  description: Play dudes game
+  errors:
+    cannot_start_game: Cannot start dudes game
+    game_already_running: Dudes game is already running
+  success:
+    game_started: "✅ Dudes game started"
+stop:
+  description: Stop dudes game
+  errors:
+    cannot_stop_game: Cannot stop dudes game
+    no_game_running: No dudes game is currently running
+  success:
+    game_stopped: "✅ Dudes game stopped"
+stats:
+  description: Show dudes game statistics
+  errors:
+    cannot_get_stats: Cannot get dudes game statistics
+  success:
+    stats_display: "Dudes game stats: {stats}"
+

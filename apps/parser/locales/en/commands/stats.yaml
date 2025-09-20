@@ -1,0 +1,22 @@
+description: Channel statistics commands
+followage:
+  description: Check how long user has been following
+  errors:
+    cannot_get_followage: Cannot get follow information
+    user_not_following: User is not following this channel
+  success:
+    followage_display: "{user} has been following for {duration}"
+uptime:
+  description: Check stream uptime
+  errors:
+    cannot_get_uptime: Cannot get stream uptime
+    stream_offline: Stream is currently offline
+  success:
+    uptime_display: "Stream has been live for {duration}"
+viewers:
+  description: Get current viewer count
+  errors:
+    cannot_get_viewers: Cannot get viewer count
+  success:
+    viewers_display: "Current viewers: {count}"
+
