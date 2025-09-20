@@ -5,6 +5,8 @@ const siteName = `Twir${import.meta.dev ? ' dev' : ''}`
 const keywords =
 	'twitch, bot, chat, moderation, moderation bot, twitch bot, twitch chat, twitch moderation, twitch moderation bot'
 
+const metaImg = '/meta.webp'
+
 useColorMode()
 useHead({
 	title: siteName,
@@ -32,6 +34,11 @@ useSeoMeta({
 	ogSiteName: siteName,
 	ogTitle: siteName,
 	ogType: 'website',
+	ogImage: metaImg,
+	twitterCard: 'summary_large_image',
+	twitterTitle: siteName,
+	twitterDescription: description,
+	twitterImage: metaImg,
 	keywords,
 })
 </script>
