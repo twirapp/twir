@@ -716,7 +716,7 @@
   "keywords": {
     "title": "Kľúčové slová",
     "info": {
-      "text": "Kľúčové slová vám pomôžu spustiť správu chatu na základe určitých zhodných slov."
+      "text": "Kľúčové slová ti pomôžu spustiť správu v chate pri zhode s určitými slovami."
     },
     "create": "Vytvoriť kľúčové slovo",
     "triggerText": "Spúšťací text",
@@ -837,11 +837,11 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku je forma japonskej rituálnej samovraždy vykuchaním.",
+      "description": "Seppuku je forma japonskej rituálnej samovraždy rozrezaním brucha.",
       "message": "Správa",
       "timeoutModerators": "Povoliť seppuku pre moderátorov",
       "messageModerators": "Správa, keď moderátor použil seppuku",
-      "timeoutSeconds": "Timeout v sekundách"
+      "timeoutSeconds": "Trvanie timeoutu (v sekundách)"
     },
     "voteban": {
       "description": "Začnite súdny proces s porotou s vinným četujúcim!",
@@ -851,9 +851,9 @@
       "surviveMessageModerators": "Správa o prežití pre moderátora",
       "initialMessage": "Úvodná správa",
       "neededVotes": "Potrebné hlasy",
-      "banDuration": "Dĺžka banu",
-      "voteMode": "Spôsob hlasovania",
-      "voteDuration": "Dĺžka hlasovania v sekundách",
+      "banDuration": "Dĺžka banu (v sekundách)",
+      "voteMode": "Režim hlasovania",
+      "voteDuration": "Dĺžka hlasovanie (v sekundách)",
       "wordsNegative": "Slová pre hlasovanie pre možnosť \"nie\"",
       "wordsPositive": "Slová pre hlasovanie pre možnosť \"áno\"",
       "timeoutModerators": "Aktivovať voteban proti moderátorom"
@@ -925,7 +925,7 @@
         "lastDay": "Deň",
         "lastWeek": "Týždeň",
         "lastMonth": "Mesiac",
-        "lastThreeMonth": "3 mesiace",
+        "lastThreeMonth": "3 Mesiace",
         "lastYear": "Rok"
       },
       "total": "Celkový počet emotov: {total}",
@@ -1167,7 +1167,7 @@
   "expiringVips": {
     "title": "Naplánované VIP",
     "description": {
-      "line1": "Pomocou tejto funkcie môžete pre svoj kanál vytvoriť VIP, ktoré budú po uplynutí zvoleného času odstránené.",
+      "line1": "S touto funkciou môžeš vo svojom kanáli vytvárať VIP používateľov, ktorí budú po zvolenom čase odstránení.",
       "line2": "Môžete na to použiť príkazy z vstavaného modulu {module}."
     },
     "comingSoon": "Dostupné čoskoro, ale už teraz je k dispozícii prostredníctvom príkazov",
@@ -1175,7 +1175,7 @@
       "add": "Pridať VIP",
       "remove": "Odstrániť VIP",
       "list": "Zoznam VIP",
-      "setExpire": "Predĺženie doby platnosti pre existujúce časovo obmedzené VIP alebo pridanie doby platnosti pre používateľov VIP, ktorí ju nemajú"
+      "setExpire": "Predĺž čas vypršania existujúcim časovo obmedzeným VIP používateľom alebo pridaj čas vypršania VIP používateľom, ktorí ho ešte nemajú"
     },
     "alert": {
       "title": "Upozornenie!",
@@ -1190,7 +1190,7 @@
   },
   "chatWall": {
     "description": {
-      "line1": "Hromadne zablokuj/odstráň/časovo obmedz správy, ktoré obsahujú konkrétnu frázu.",
+      "line1": "Hromadné zabanovanie/odstránenie/timeout správ, ktoré obsahujú konkrétnu frázu.",
       "line2": "Nesprávne používanie môže viesť k trvalému banu v službe TwirApp. "
     },
     "settings": {

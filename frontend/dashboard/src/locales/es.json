@@ -1,5 +1,5 @@
 {
-  "languageName": "Español",
+  "languageName": "Inglés",
   "sharedButtons": {
     "create": "Crear",
     "save": "Guardar",
@@ -841,7 +841,7 @@
       "message": "Mensaje",
       "timeoutModerators": "Habilitar seppuku para moderadores",
       "messageModerators": "Mensaje cuando el moderador usó seppuku",
-      "timeoutSeconds": "Segundos de tiempo de espera"
+      "timeoutSeconds": "Duración del tiempo de espera (segundos)"
     },
     "voteban": {
       "description": "¡Comienza el juicio del culpable!",
@@ -851,11 +851,11 @@
       "surviveMessageModerators": "Mensaje de sobrevivir para los moderadores",
       "initialMessage": "Mensaje inicial",
       "neededVotes": "Votos necesarios",
-      "banDuration": "Duración del bloqueo",
+      "banDuration": "Duración del ban (segundos)",
       "voteMode": "Modo de votación",
-      "voteDuration": "Duración de la votación en segundos",
-      "wordsNegative": "Palabras para votar a la opción\\« no\\»",
-      "wordsPositive": "Palabras para votar a la opción\\« sí\\»",
+      "voteDuration": "Duración de la votación (segundos)",
+      "wordsNegative": "Palabras para votar a la opción \"no\"",
+      "wordsPositive": "Palabras para votar a la opción \"sí\"",
       "timeoutModerators": "Habilitar voteban en moderadores"
     }
   },
@@ -925,7 +925,7 @@
         "lastDay": "Día",
         "lastWeek": "Semana",
         "lastMonth": "Mes",
-        "lastThreeMonth": "3 meses",
+        "lastThreeMonth": "3 Meses",
         "lastYear": "Año"
       },
       "total": "Total emotes: {total}",
@@ -1175,7 +1175,7 @@
       "add": "Añadir VIP",
       "remove": "Eliminar VIP",
       "list": "Lista de VIPs",
-      "setExpire": "Extender el tiempo de caducidad para el VIP temporizado existente o agregar la caducidad para algún usuario VIP"
+      "setExpire": "Extiende el tiempo de caducidad de los VIPs temporizados existentes, o añade un vencimiento para los usuarios VIP que no tienen uno"
     },
     "alert": {
       "title": "¡Atención!",
@@ -1191,7 +1191,7 @@
   "chatWall": {
     "description": {
       "line1": "Mensajes de baneo/eliminación/tiempo de espera en masa que contienen una frase específica.",
-      "line2": "El uso incorrecto puede resultar en una prohibición permanente en el servicio TwirApp."
+      "line2": "El uso incorrecto puede resultar en una prohibición permanente en el servicio TwirApp. "
     },
     "settings": {
       "title": "Configurar",
