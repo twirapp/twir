@@ -1,8 +1,5 @@
-description: Create a stream marker
 errors:
-  cannot_find_channel: cannot find channel in db, please contact support
-  cannot_create_broadcaster_client: cannot create broadcaster twitch client
-  cannot_create_marker: cannot create marker
+  cannot_create_marker: Cannot create marker. {reason}
 success:
-  marker_created: "✅ Stream marker created"
+  marker_created: Marker created.
 

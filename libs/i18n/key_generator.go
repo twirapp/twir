@@ -100,11 +100,11 @@ func GenerateKeysFileContent(opts GenerateKeysOptions) (string, error) {
 	nestedData := make(map[string]interface{})
 	for categoryKey, categoryData := range baseLocaleData {
 		for fileKey, fileData := range categoryData {
-			// Create nested structure: categoryKey.fileKey.data
 			if nestedData[categoryKey] == nil {
 				nestedData[categoryKey] = make(map[string]interface{})
 			}
-			nestedData[categoryKey].(map[string]interface{})[fileKey] = fileData
+			processed := toStringMap(fileData)
+			nestedData[categoryKey].(map[string]interface{})[fileKey] = processed
 		}
 	}
 
@@ -541,4 +541,27 @@ func buildLeafMapLiteral(data map[string]string) []ast.Expr {
 		)
 	}
 	return elements
+}
+
+func toStringMap(v interface{}) interface{} {
+	switch val := v.(type) {
+	case map[string]interface{}:
+		for k, inner := range val {
+			val[k] = toStringMap(inner)
+		}
+		return val
+	case map[interface{}]interface{}:
+		m := make(map[string]interface{}, len(val))
+		for k, inner := range val {
+			m[fmt.Sprintf("%v", k)] = toStringMap(inner)
+		}
+		return m
+	case []interface{}:
+		for i, inner := range val {
+			val[i] = toStringMap(inner)
+		}
+		return val
+	default:
+		return v
+	}
 }

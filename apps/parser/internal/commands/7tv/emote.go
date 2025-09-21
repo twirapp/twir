@@ -9,8 +9,10 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/apps/parser/pkg/helpers"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
@@ -43,14 +45,17 @@ var EmoteFind = &types.DefaultCommand{
 		profile, err := client.GetProfileByTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv profile: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysCommandsSeventvErrorsProfileNotFoundVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 
 		if profile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Emote set is not set"),
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Errors.NoActiveSet),
 			}
 		}
 
@@ -72,7 +77,12 @@ var EmoteFind = &types.DefaultCommand{
 		if foundEmote == nil {
 			return &types.CommandsHandlerResult{
 				Result: []string{
-					fmt.Sprintf(`Emote "%s" not found`, arg),
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.EmoteNotFound.SetVars(
+							locales.KeysCommandsSeventvErrorsEmoteNotFoundVars{Name: arg},
+						),
+					),
 				},
 			}, nil
 		}
@@ -80,16 +90,21 @@ var EmoteFind = &types.DefaultCommand{
 		adderProfile, err := client.GetProfileById(ctx, *foundEmote.AddedById)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv profile of adder: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysCommandsSeventvErrorsProfileNotFoundVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 
 		if adderProfile == nil {
-			parseCtx.Services.Logger.Sugar().Error("Failed to get adder 7tv profile")
 			return nil, &types.CommandHandlerError{
-				Message: "Failed to get adder 7tv profile",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysCommandsSeventvErrorsProfileNotFoundVars{Reason: ""}),
+				),
+				Err: err,
 			}
 		}
 
@@ -112,13 +127,16 @@ var EmoteFind = &types.DefaultCommand{
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(
-					"%s: %s · Added by @%s %v ago · Author %s",
-					foundEmote.Emote.DefaultName,
-					emoteLink,
-					adderProfile.Users.User.MainConnection.PlatformDisplayName,
-					addedAgo,
-					author,
+				i18n.GetCtx(
+					ctx, locales.Translations.Commands.Seventv.EmoteInfo.Response.SetVars(
+						locales.KeysCommandsSeventvEmoteInfoResponseVars{
+							Name:            foundEmote.Emote.DefaultName,
+							Link:            emoteLink,
+							AddedByUserName: adderProfile.Users.User.MainConnection.PlatformDisplayName,
+							AddedByTime:     addedAgo,
+							EmoteAuthor:     author,
+						},
+					),
 				),
 			},
 		}, nil

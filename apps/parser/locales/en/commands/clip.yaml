@@ -1,10 +1,6 @@
-description: Create clip
-errors:
-  cannot_find_channel: cannot find channel in db, please contact support
-  cannot_create_broadcaster_client: cannot create broadcaster twitch client
-  cannot_create_clip: cannot create clip
-  cannot_get_clip: cannot get clip
-  empty_clip_url: empty clip edit url
-success:
-  clip_created: "✅ Clip created: {url}"
 
+  cannot_create_clip: "Cannot create clip."
+  empty_clip_url: "Clip URL is empty, please try again."
+  cannot_get_clip: "Cannot get created clip."
+
+  clip_created: "Clip created: {url}"

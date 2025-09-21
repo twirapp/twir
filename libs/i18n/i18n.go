@@ -13,6 +13,9 @@ type Opts struct {
 	DefaultLocale string
 }
 
+// this is global because it is just much easier to use with GetCtx generic function
+var globali18nInstance *I18n
+
 func New(opts Opts) (*I18n, error) {
 	i := &I18n{
 		store: opts.Store,
@@ -47,7 +50,9 @@ func New(opts Opts) (*I18n, error) {
 		for subMapKey, subMap := range translations {
 			for subSubMapKey, subSubMap := range subMap {
 				for key, value := range subSubMap {
-					flatTranslations[fmt.Sprintf("%s_%s_%s", subMapKey, subSubMapKey, key)] = value
+					// replace dots from flattened nested keys with underscores to match path generation
+					normalizedKey := strings.ReplaceAll(key, ".", "_")
+					flatTranslations[fmt.Sprintf("%s_%s_%s", subMapKey, subSubMapKey, normalizedKey)] = value
 				}
 			}
 		}
@@ -57,6 +62,8 @@ func New(opts Opts) (*I18n, error) {
 	if err := bundle.LoadMessages(preparedBundle); err != nil {
 		return nil, fmt.Errorf("failed to load messages: %v", err)
 	}
+
+	globali18nInstance = i
 
 	return i, nil
 }
@@ -89,7 +96,6 @@ func SetContextLocale(ctx context.Context, locale string) context.Context {
 
 func GetCtx[T any](
 	ctx context.Context,
-	instance *I18n,
 	key TranslationKey[T],
 	opts ...TranslateOption,
 ) string {
@@ -98,16 +104,19 @@ func GetCtx[T any](
 		opts = append(opts, WithLocale(locale))
 	}
 
-	return Get(instance, key, opts...)
+	return Get(key, opts...)
 }
 
 func Get[T any](
-	instance *I18n,
 	key TranslationKey[T],
 	opts ...TranslateOption,
 ) string {
+	if globali18nInstance == nil {
+		panic("i18n instance is not initialized")
+	}
+
 	o := translateOptions{
-		locale: instance.defaultLocale,
+		locale: globali18nInstance.defaultLocale,
 	}
 
 	for _, option := range opts {
@@ -115,7 +124,7 @@ func Get[T any](
 	}
 
 	keyPath := strings.Join(key.GetPathSlice(), "_")
-	localizer := instance.bundle.NewLocalizer(o.locale)
+	localizer := globali18nInstance.bundle.NewLocalizer(o.locale)
 	convertedVars := make(kaptinlini18n.Vars)
 	for key, value := range key.GetVars() {
 		convertedVars[key] = fmt.Sprint(value)

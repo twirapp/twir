@@ -53,7 +53,6 @@ var Add = &types.DefaultCommand{
 				return nil, &types.CommandHandlerError{
 					Message: i18n.GetCtx(
 						ctx,
-						parseCtx.Services.I18n,
 						locales.Translations.Commands.Vips.InvalidDuration,
 					),
 					Err: err,
@@ -73,7 +72,6 @@ var Add = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Errors.Generic.BroadcasterClient,
 				),
 				Err: err,
@@ -84,7 +82,6 @@ var Add = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Errors.Generic.ShouldMentionWithAt,
 				),
 			}
@@ -101,7 +98,6 @@ var Add = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Errors.Generic.CannotFindUserDb,
 				),
 				Err: err,
@@ -112,7 +108,6 @@ var Add = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Commands.Vips.AlreadyHaveRole,
 				),
 			}
@@ -155,7 +150,6 @@ var Add = &types.DefaultCommand{
 					return &types.CommandHandlerError{
 						Message: i18n.GetCtx(
 							ctx,
-							parseCtx.Services.I18n,
 							locales.Translations.Commands.Vips.CannotCreateScheduledInDb,
 						),
 						Err: err,
@@ -181,11 +175,12 @@ var Add = &types.DefaultCommand{
 				result.Result,
 				i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
-					locales.Translations.Commands.Vips.AddedWithRemoveTime.SetVars(locales.KeysCommandsVipsAddedWithRemoveTimeVars{
-						UserName: user.UserName,
-						EndTime:  unvipAt.Format("2006-01-02 15:04:05"),
-					}),
+					locales.Translations.Commands.Vips.AddedWithRemoveTime.SetVars(
+						locales.KeysCommandsVipsAddedWithRemoveTimeVars{
+							UserName: user.UserName,
+							EndTime:  unvipAt.Format("2006-01-02 15:04:05"),
+						},
+					),
 				),
 			)
 		} else {
@@ -193,10 +188,11 @@ var Add = &types.DefaultCommand{
 				result.Result,
 				i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
-					locales.Translations.Commands.Vips.Added.SetVars(locales.KeysCommandsVipsAddedVars{
-						UserName: user.UserName,
-					}),
+					locales.Translations.Commands.Vips.Added.SetVars(
+						locales.KeysCommandsVipsAddedVars{
+							UserName: user.UserName,
+						},
+					),
 				),
 			)
 		}

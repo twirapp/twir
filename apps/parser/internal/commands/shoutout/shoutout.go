@@ -3,11 +3,12 @@ package shoutout
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -29,6 +30,7 @@ var ShoutOut = &types.DefaultCommand{
 		Description: null.StringFrom("Shoutout some streamer"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MODERATION",
+		IsReply:     true,
 	},
 	Args: []command_arguments.Arg{
 		command_arguments.String{
@@ -48,7 +50,13 @@ var ShoutOut = &types.DefaultCommand{
 			},
 		)
 		if err != nil {
-			result.Result = append(result.Result, "internal error")
+			result.Result = append(
+				result.Result,
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotFindChannelDb,
+				),
+			)
 			return result, nil
 		}
 
@@ -60,7 +68,10 @@ var ShoutOut = &types.DefaultCommand{
 		if !ok {
 			result.Result = append(
 				result.Result,
-				"we have no permissions for shoutout. Streamer must re-authorize to bot dashboard.",
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Shoutout.Errors.BotHaveNoPermissions,
+				),
 			)
 			return result, nil
 		}
@@ -73,13 +84,21 @@ var ShoutOut = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.BroadcasterClient,
+				),
+				Err: err,
 			}
 		}
 
 		if len(parseCtx.Mentions) == 0 {
-			result.Result = []string{"user not found."}
+			result.Result = []string{
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.ShouldMentionWithAt,
+				),
+			}
 			return result, nil
 		}
 
@@ -100,14 +119,20 @@ var ShoutOut = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get stream",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotGetStream.SetVars(locales.KeysErrorsGenericCannotGetStreamVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 		if streamsReq.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get stream",
-				Err:     errors.New(streamsReq.ErrorMessage),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotGetStream.SetVars(locales.KeysErrorsGenericCannotGetStreamVars{Reason: streamsReq.ErrorMessage}),
+				),
+				Err: errors.New(streamsReq.ErrorMessage),
 			}
 		}
 
@@ -116,12 +141,16 @@ var ShoutOut = &types.DefaultCommand{
 
 			result.Result = append(
 				result.Result,
-				fmt.Sprintf(
-					"Check out amazing %s, streaming %s - %s for %v viewers",
-					stream.UserName,
-					stream.GameName,
-					stream.Title,
-					stream.ViewerCount,
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Shoutout.ResponseOnline.SetVars(
+						locales.KeysCommandsShoutoutResponseOnlineVars{
+							UserName:     stream.UserName,
+							CategoryName: stream.GameName,
+							Title:        stream.Title,
+							Viewers:      stream.ViewerCount,
+						},
+					),
 				),
 			)
 			return result, nil
@@ -133,29 +162,45 @@ var ShoutOut = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get channel",
-					Err:     err,
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Errors.Generic.CannotFindChannelTwitch.SetVars(locales.KeysErrorsGenericCannotFindChannelTwitchVars{Reason: err.Error()}),
+					),
+					Err: err,
 				}
 			}
 			if channelReq.ErrorMessage != "" {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get channel",
-					Err:     errors.New(channelReq.ErrorMessage),
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Errors.Generic.CannotFindChannelTwitch.SetVars(locales.KeysErrorsGenericCannotFindChannelTwitchVars{Reason: channelReq.ErrorMessage}),
+					),
+					Err: errors.New(channelReq.ErrorMessage),
 				}
 			}
 
 			if len(channelReq.Data.Channels) == 0 {
-				result.Result = append(result.Result, "cannot find user with this name.")
+				result.Result = append(
+					result.Result,
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Errors.Generic.CannotFindChannelTwitch.SetVars(locales.KeysErrorsGenericCannotFindChannelTwitchVars{Reason: ""}),
+					),
+				)
 				return result, nil
 			}
 			channel := channelReq.Data.Channels[0]
 			result.Result = append(
 				result.Result,
-				fmt.Sprintf(
-					"Check out amazing %s, was streaming %s - %s",
-					channel.BroadcasterName,
-					channel.GameName,
-					channel.Title,
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Shoutout.ResponseOffline.SetVars(
+						locales.KeysCommandsShoutoutResponseOfflineVars{
+							UserName:     channel.BroadcasterName,
+							CategoryName: channel.GameName,
+							Title:        channel.Title,
+						},
+					),
 				),
 			)
 			return result, nil

@@ -1,6 +1,4 @@
-description: Create short url
 errors:
-  cannot_create_short_url: "cannot create short url: {error}"
+  cannot_create_short_url: "Cannot create short url. {error}"
 success:
-  short_url_created: "✅ {url}"
-
+  short_url_created: "Short url: {url}"

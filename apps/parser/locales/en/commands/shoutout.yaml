@@ -1,15 +1,5 @@
-description: Promote a user or content
-user:
-  description: Shoutout a user
-  errors:
-    cannot_shoutout_user: Cannot shoutout user
-    user_not_found: User not found
-  success:
-    user_promoted: "✅ Check out {user}! They were last seen playing {game}: {url}"
-content:
-  description: Promote content
-  errors:
-    cannot_promote_content: Cannot promote content
-  success:
-    content_promoted: "✅ Content promoted: {content}"
+errors:
+  bot_have_no_permissions: "we have no permissions for shoutout. Streamer must re-authorize to bot dashboard."
 
+response_online: "Join {userName} shining in 🎮 {categoryName} 📜 {title} with 👁️ {viewers} viewers!"
+response_offline: "Explore {userName}’s world, last featured in 🎮 {categoryName} 📜 {title}!"

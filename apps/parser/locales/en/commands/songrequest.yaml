@@ -1,25 +1,9 @@
-description: Song request management commands
-add:
-  description: Add song to request queue
-  errors:
-    cannot_add_song: Cannot add song to queue
-    song_not_found: Song not found
-    queue_full: Song request queue is full
-    song_already_in_queue: Song already in queue
-  success:
-    song_added: "✅ Added {song} by {artist} to queue"
-remove:
-  description: Remove song from request queue
-  errors:
-    cannot_remove_song: Cannot remove song from queue
-    song_not_in_queue: Song not in queue
-  success:
-    song_removed: "✅ Removed {song} from queue"
-queue:
-  description: Show current song request queue
-  errors:
-    cannot_get_queue: Cannot get song request queue
-  success:
-    queue_display: "Song queue: {songs}"
-    empty_queue: "Song request queue is empty"
+errors:
+  get_settings: Cannot get song requests settings.
+  search_song: Cannot search song.
+  get_latest_song: Cannot get latest song.
+  get_current_queue_count: Cannot get current queue count.
+  get_songs_from_queue: Cannot get songs from queue.
+  update_song: Cannot update song.
+  remove_song_from_queue: Cannot remove song from queue.
 

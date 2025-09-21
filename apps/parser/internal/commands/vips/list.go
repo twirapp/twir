@@ -43,7 +43,6 @@ var List = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Commands.Vips.CannotGetListFromDb,
 				),
 				Err: err,
@@ -57,7 +56,6 @@ var List = &types.DefaultCommand{
 			result.Result = []string{
 				i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Commands.Vips.NoScheduledVips,
 				),
 			}
@@ -74,7 +72,6 @@ var List = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Errors.Generic.CannotFindUsersTwitch,
 				),
 				Err: err,

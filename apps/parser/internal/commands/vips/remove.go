@@ -46,7 +46,6 @@ var Remove = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Errors.Generic.BroadcasterClient,
 				),
 				Err: err,
@@ -57,7 +56,6 @@ var Remove = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Errors.Generic.ShouldMentionWithAt,
 				),
 			}
@@ -87,7 +85,6 @@ var Remove = &types.DefaultCommand{
 			Result: []string{
 				i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
 					locales.Translations.Commands.Vips.Removed.SetVars(
 						locales.KeysCommandsVipsRemovedVars{
 							UserName: user.UserName,

@@ -47,7 +47,7 @@ var SetExpire = &types.DefaultCommand{
 	) {
 		if len(parseCtx.Mentions) == 0 {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Errors.Generic.ShouldMentionWithAt),
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.ShouldMentionWithAt),
 			}
 		}
 
@@ -58,7 +58,7 @@ var SetExpire = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Errors.Generic.BroadcasterClient),
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.BroadcasterClient),
 				Err:     err,
 			}
 		}
@@ -67,7 +67,7 @@ var SetExpire = &types.DefaultCommand{
 		duration, err := str2duration.ParseDuration(unvipArg)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Commands.Vips.InvalidDuration),
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.InvalidDuration),
 				Err:     err,
 			}
 		}
@@ -83,7 +83,7 @@ var SetExpire = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Commands.Vips.CannotGetListFromDb),
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.CannotGetListFromDb),
 				Err:     err,
 			}
 		}
@@ -97,7 +97,7 @@ var SetExpire = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Commands.Vips.CannotCreateScheduledInDb),
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.CannotCreateScheduledInDb),
 					Err:     err,
 				}
 			}
@@ -111,7 +111,7 @@ var SetExpire = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, parseCtx.Services.I18n, locales.Translations.Commands.Vips.CannotUpdate),
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.CannotUpdate),
 					Err:     err,
 				}
 			}
@@ -129,11 +129,12 @@ var SetExpire = &types.DefaultCommand{
 			Result: []string{
 				i18n.GetCtx(
 					ctx,
-					parseCtx.Services.I18n,
-					locales.Translations.Commands.Vips.Updated.SetVars(locales.KeysCommandsVipsUpdatedVars{
-						UserName: user.UserName,
-						EndTime:  newUnvipAt.Format("2006-01-02 15:04:05"),
-					}),
+					locales.Translations.Commands.Vips.Updated.SetVars(
+						locales.KeysCommandsVipsUpdatedVars{
+							UserName: user.UserName,
+							EndTime:  newUnvipAt.Format("2006-01-02 15:04:05"),
+						},
+					),
 				),
 			},
 		}

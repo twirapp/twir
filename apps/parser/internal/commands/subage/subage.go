@@ -3,15 +3,14 @@ package subage
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/apps/parser/pkg/helpers"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -38,50 +37,79 @@ var SubAge = &types.DefaultCommand{
 			if errors.Is(err, twitch.ErrSubAgeEmpty) {
 				return &types.CommandsHandlerResult{
 					Result: []string{
-						"not a subscriber or info hidden",
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Subage.Errors.NotSubscriberOrHidden,
+						),
 					},
 				}, nil
 			}
 			return nil, err
 		}
 
-		var result strings.Builder
-
-		result.WriteString(userNameForCheck)
+		var resultMessage string
 
 		if subAgeInfo.Cumulative == nil && subAgeInfo.Streak == nil {
-			result.WriteString(" is not a subscriber.")
+			// User is not a subscriber
+			resultMessage = i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Subage.Responses.NotSubscriber.SetVars(
+					locales.KeysCommandsSubageResponsesNotSubscriberVars{
+						User: userNameForCheck,
+					},
+				),
+			)
 		} else if subAgeInfo.Type == nil && subAgeInfo.Cumulative != nil && subAgeInfo.Cumulative.Months != nil {
-			result.WriteString(" is not a subscriber, but used to be for ")
-			result.WriteString(fmt.Sprint(*subAgeInfo.Cumulative.Months))
-			result.WriteString(" months.")
+			// User is not a subscriber but used to be
+			resultMessage = i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Subage.Responses.NotSubscriberButWas.SetVars(
+					locales.KeysCommandsSubageResponsesNotSubscriberButWasVars{
+						User:   userNameForCheck,
+						Months: *subAgeInfo.Cumulative.Months,
+					},
+				),
+			)
 		} else {
-			result.WriteString(" has a ")
+			// User has an active subscription
+			var tier string
 			if subAgeInfo.Type != nil {
-				result.WriteString(subAgeInfo.Type.String())
-				result.WriteString(" ")
+				tier = subAgeInfo.Type.String()
 			}
-			result.WriteString("subscription to ")
-			result.WriteString(parseCtx.Channel.Name)
-			result.WriteString(" for a total ")
+
+			var months int
 			if subAgeInfo.Cumulative != nil && subAgeInfo.Cumulative.Months != nil {
-				result.WriteString(strconv.Itoa(*subAgeInfo.Cumulative.Months))
-				result.WriteString(" months")
+				months = *subAgeInfo.Cumulative.Months
 			}
 
-			// if subAgeInfo.Cumulative != nil && subAgeInfo.Cumulative.ElapsedDays != nil {
-			// 	result.WriteString(strconv.Itoa(*subAgeInfo.Cumulative.ElapsedDays))
-			// 	result.WriteString(" days")
-			// }
+			resultMessage = i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Subage.Responses.SubscriptionInfo.SetVars(
+					locales.KeysCommandsSubageResponsesSubscriptionInfoVars{
+						User:    userNameForCheck,
+						Tier:    tier,
+						Channel: parseCtx.Channel.Name,
+						Months:  months,
+					},
+				),
+			)
 
+			// Add streak information if different from cumulative
 			if subAgeInfo.Streak != nil &&
 				subAgeInfo.Streak.Months != nil &&
 				*subAgeInfo.Streak.Months != *subAgeInfo.Cumulative.Months {
-				result.WriteString(" , currently on a ")
-				result.WriteString(strconv.Itoa(*subAgeInfo.Streak.Months))
-				result.WriteString(" months streak")
+				streakMessage := i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Subage.Responses.StreakInfo.SetVars(
+						locales.KeysCommandsSubageResponsesStreakInfoVars{
+							Months: *subAgeInfo.Streak.Months,
+						},
+					),
+				)
+				resultMessage += streakMessage
 			}
 
+			// Add time remaining if subscription has an end date
 			if subAgeInfo.EndsAt != nil {
 				duration := helpers.Duration(
 					*subAgeInfo.EndsAt, &helpers.DurationOpts{
@@ -92,16 +120,20 @@ var SubAge = &types.DefaultCommand{
 					},
 				)
 
-				result.WriteString(", ")
-				result.WriteString(fmt.Sprint(duration))
-				result.WriteString(" remaining")
+				timeRemainingMessage := i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Subage.Responses.TimeRemaining.SetVars(
+						locales.KeysCommandsSubageResponsesTimeRemainingVars{
+							Duration: duration,
+						},
+					),
+				)
+				resultMessage += timeRemainingMessage
 			}
 		}
 
-		//  L󠀀in󠀀ar󠀀yx󠀀 h󠀀as a tier 3 permanent subscription to L󠀀in󠀀ar󠀀yx for a total 23 months, currently on a 23 month streak.
-
 		return &types.CommandsHandlerResult{
-			Result: []string{result.String()},
+			Result: []string{resultMessage},
 		}, nil
 	},
 }
