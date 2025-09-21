@@ -9,7 +9,7 @@ COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
-FROM mirror.gcr.io/golang:1.24.1-alpine as builder
+FROM mirror.gcr.io/golang:1.24.7-alpine as builder
 WORKDIR /app
 COPY . .
 RUN cd cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/twir_application ./main.go
