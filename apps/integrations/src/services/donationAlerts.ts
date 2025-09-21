@@ -18,7 +18,7 @@ export const globalRequestLimiter = new RateLimiter({
 		},
 	}),
 	algorithm: 'sliding-window-counter',
-	limit: 50,
+	limit: 10,
 	windowMs: 1 * 60 * 1000,
 })
 
