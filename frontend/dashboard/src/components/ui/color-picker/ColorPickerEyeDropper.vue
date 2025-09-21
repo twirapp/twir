@@ -13,14 +13,14 @@ const emit = defineEmits<{
 	'pick-color': [color: string]
 }>()
 
-const { isSupported, open, sRGBHex } = useEyeDropper()
+const { isSupported, open } = useEyeDropper()
 
 async function handleEyeDropperClick() {
 	try {
 		const result = await open()
 		if (result && result.sRGBHex) {
 			const color = tinycolor(result.sRGBHex)
-			emit('pick-color', result.sRGBHex)
+			emit('pick-color', color.toHex())
 		}
 	} catch (error) {
 		console.error('EyeDropper error:', error)
