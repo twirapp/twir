@@ -1,5 +1,5 @@
 errors:
   bot_have_no_permissions: "we have no permissions for shoutout. Streamer must re-authorize to bot dashboard."
 
-response_online: "Join {userName} shining in 🎮 {categoryName} 📜 {title} with 👁️ {viewers} viewers!"
-response_offline: "Explore {userName}’s world, last featured in 🎮 {categoryName} 📜 {title}!"
+response_online: "Join https://twitch.tv/{userName} shining in 🎮 {categoryName} 📜 {title} with 👁️ {viewers} viewers!"
+response_offline: "Explore https://twitch.tv/{userName}’s world, last featured in 🎮 {categoryName} 📜 {title}!"
