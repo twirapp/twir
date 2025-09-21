@@ -43,6 +43,7 @@ var Cmd = &cli.Command{
 				Locales:    store,
 				Package:    "locales",
 				BaseLocale: "en",
+				LocalesDir: localesDir,
 			},
 		)
 		if err != nil {
