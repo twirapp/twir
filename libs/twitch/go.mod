@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/twitch
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/imroc/req/v3 v3.54.0

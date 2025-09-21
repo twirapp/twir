@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/logger
 
-go 1.24.1
+go 1.24.7
 
 retract v0.0.0-00010101000000-000000000000
 

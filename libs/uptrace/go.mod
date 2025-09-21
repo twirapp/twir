@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/uptrace
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/uptrace/uptrace-go v1.37.0

@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/integrations
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/Khan/genqlient v0.8.1

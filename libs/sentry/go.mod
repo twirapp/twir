@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/sentry
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/getsentry/sentry-go v0.34.1

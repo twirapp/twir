@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/migrations
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/google/uuid v1.6.0

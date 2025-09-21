@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/baseapp
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.39.0

@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/websockets
 
-go 1.24.1
+go 1.24.7
 
 
 
