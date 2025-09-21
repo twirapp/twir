@@ -3,14 +3,15 @@ package clip
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -36,8 +37,11 @@ var MakeClip = &types.DefaultCommand{
 			parseCtx.Channel.ID,
 		).First(channel).Error; err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot find channel in db, please contact support",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotFindChannelDb,
+				),
+				Err: err,
 			}
 		}
 
@@ -49,8 +53,11 @@ var MakeClip = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.BroadcasterClient,
+				),
+				Err: err,
 			}
 		}
 
@@ -61,21 +68,30 @@ var MakeClip = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create clip",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Clip.CannotCreateClip,
+				),
+				Err: err,
 			}
 		}
 		if resp.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("cannot create clip: %s", resp.ErrorMessage),
-				Err:     errors.New(resp.ErrorMessage),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Clip.CannotCreateClip,
+				),
+				Err: errors.New(resp.ErrorMessage),
 			}
 		}
 
 		if len(resp.Data.ClipEditURLs) == 0 {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create clip",
-				Err:     errors.New("empty clip edit url"),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Clip.EmptyClipUrl,
+				),
+				Err: errors.New("empty clip edit url"),
 			}
 		}
 
@@ -91,8 +107,11 @@ var MakeClip = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get clip",
-					Err:     err,
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Clip.CannotGetClip,
+					),
+					Err: err,
 				}
 			}
 
@@ -104,6 +123,17 @@ var MakeClip = &types.DefaultCommand{
 			time.Sleep(1 * time.Second)
 		}
 
-		return &types.CommandsHandlerResult{Result: []string{url}}, nil
+		return &types.CommandsHandlerResult{
+			Result: []string{
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Clip.ClipCreated.SetVars(
+						locales.KeysCommandsClipClipCreatedVars{
+							Url: url,
+						},
+					),
+				),
+			},
+		}, nil
 	},
 }

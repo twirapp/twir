@@ -2,13 +2,14 @@ package shorturl
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 const (
@@ -44,13 +45,27 @@ var Command = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("cannot create short url: %s", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Shorturl.Errors.CannotCreateShortUrl.SetVars(
+						locales.KeysCommandsShorturlErrorsCannotCreateShortUrlVars{
+							Error: err.Error(),
+						},
+					),
+				),
+				Err: err,
 			}
 		}
 
 		result.Result = []string{
-			fmt.Sprintf("✅ %s", link.Short),
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Shorturl.Success.ShortUrlCreated.SetVars(
+					locales.KeysCommandsShorturlSuccessShortUrlCreatedVars{
+						Url: link.Short,
+					},
+				),
+			),
 		}
 		return result, nil
 	},

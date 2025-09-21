@@ -15,6 +15,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/i18n"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -72,4 +73,5 @@ type Services struct {
 	ChannelEventListsRepo      channelseventslist.Repository
 	ShortUrlServices           *shortenedurls.Service
 	Executron                  executron.Executron
+	I18n                       *i18n.I18n
 }

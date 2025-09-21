@@ -9,7 +9,9 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 )
@@ -39,13 +41,19 @@ var SetPrefix = &types.DefaultCommand{
 		prefixArg := parseCtx.ArgsParser.Get(setPrefixArgName)
 		if prefixArg == nil {
 			return nil, &types.CommandHandlerError{
-				Message: "prefix is required",
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Prefix.Errors.Required,
+				),
 			}
 		}
 
 		if utf8.RuneCountInString(prefixArg.String()) > 10 {
 			return nil, &types.CommandHandlerError{
-				Message: "prefix cannot be longer than 10 characters",
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Prefix.Errors.TooLong,
+				),
 			}
 		}
 
@@ -55,8 +63,11 @@ var SetPrefix = &types.DefaultCommand{
 		)
 		if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get current prefix",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Prefix.Errors.CannotGetCurrent,
+				),
+				Err: err,
 			}
 		}
 
@@ -70,8 +81,11 @@ var SetPrefix = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot create prefix",
-					Err:     err,
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Prefix.Errors.CannotCreate,
+					),
+					Err: err,
 				}
 			}
 		} else {
@@ -84,14 +98,24 @@ var SetPrefix = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot update prefix",
-					Err:     err,
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Prefix.Errors.CannotUpdate,
+					),
+					Err: err,
 				}
 			}
 		}
 
 		parseCtx.Services.CommandsPrefixCache.Invalidate(ctx, parseCtx.Channel.ID)
 
-		return &types.CommandsHandlerResult{Result: []string{"Prefix updated"}}, nil
+		return &types.CommandsHandlerResult{
+			Result: []string{
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Prefix.Success.Updated,
+				),
+			},
+		}, nil
 	},
 }
