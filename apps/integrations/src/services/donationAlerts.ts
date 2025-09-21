@@ -17,9 +17,9 @@ export const globalRequestLimiter = new RateLimiter({
 			return await client.send(args.at(0)!, args.slice(1))
 		},
 	}),
-	algorithm: 'sliding-window-counter',
-	limit: 10,
-	windowMs: 1 * 60 * 1000,
+	algorithm: 'fixed-window-counter',
+	limit: 1,
+	windowMs: 1100,
 })
 
 export class DonationAlerts {
