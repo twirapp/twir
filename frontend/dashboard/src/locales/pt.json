@@ -815,8 +815,8 @@
 		"overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
 		"copyOverlayLink": "Copy overlay link",
 		"name": "Nome",
-		"rewards": "Rewards",
-		"commands": "Commands",
+		"rewards": "Recompensas",
+		"commands": "Comandos",
 		"validations": {
 			"name": "Name cannot be empty or longer than 30 symbols!"
 		},
