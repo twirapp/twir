@@ -446,7 +446,7 @@
 		"uncongirured": "Você deve configurar a sobreposição primeiro!",
 		"noAccess": "Você não tem acesso a essa sobreposição!",
 		"copied": "URL da sobreposição foi copiada com sucesso! Você precisa configurar uma fonte de navegador no OBS com esse link.",
-		"buildWidget": "Build Widget",
+		"buildWidget": "Gerar Widget",
 		"generateObsLink": "Gerar link do obs",
 		"nowPlaying": {
 			"description": "Sobreposição contém informação de música em reprodução. Essa sobreposição funcionará apenas se você tiver conectado a sua integração do serviço de músicas, como Spotify ou lastfm."
@@ -629,13 +629,13 @@
 			}
 		},
 		"faceit": {
-			"title": "Faceit Stats Builder",
+			"title": "Construtor de Estatísticas do Faceit",
 			"description": "Set up an overlay to display your Faceit statistics. Customize it according to your preferences.",
 			"secondTitle": "Faceit Stats",
 			"settings": {
 				"general": {
 					"title": "Geral",
-					"faceitNickname": "Faceit nickname",
+					"faceitNickname": "Apelido no Faceit",
 					"game": "Jogo"
 				},
 				"appearance": {
@@ -653,11 +653,11 @@
 			}
 		},
 		"valorant": {
-			"title": "Valorant Stats Builder",
+			"title": "Construtor de Estatísticas do Valorant",
 			"secondTitle": "Valorant Stats",
 			"description": "Configure the overlay with your Valorant stats. Change its design according to your personal requirements.",
 			"valorantIntegration": {
-				"connect": "Connect valorant integration to use this overlay",
+				"connect": "Conecte a integração com o Valorant para usar essa sobreposição",
 				"button": "Connect"
 			},
 			"settings": {
@@ -673,9 +673,9 @@
 					"title": "Geral",
 					"background": "Background",
 					"border": "Border",
-					"glow": "Glow effect",
-					"leaderboard": "Leaderboard place",
-					"winLose": "Win / Lose",
+					"glow": "Efeito de brilho",
+					"leaderboard": "Posição no ranking",
+					"winLose": "Vitórias / Derrotas",
 					"progress": "Progress",
 					"last20MatchesStats": "Show last 20 matches stats"
 				}
@@ -683,7 +683,7 @@
 		}
 	},
 	"songRequests": {
-		"waiting": "Awaiting a Song Request...",
+		"waiting": "Aguardando um pedido de música...",
 		"player": {
 			"title": "Música Atual",
 			"noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
@@ -692,15 +692,15 @@
 			"title": "Fila",
 			"columns": {
 				"title": "Título",
-				"author": "Author",
+				"author": "Autor",
 				"added": "Adicionada por",
 				"duration": "Duração"
 			}
 		},
 		"settings": {
 			"onlineOnly": "Allow Song Requests when streaming?",
-			"announcePlay": "Announce Current Song into Chat?",
-			"playerNoCookieMode": "Incognito mode for player",
+			"announcePlay": "Anunciar música atual no chat?",
+			"playerNoCookieMode": "Modo anônimo do player",
 			"playerNoCookieModeDescription": "Enabling this option will allow you to listen to songs without cookies and viewing history. Need refresh page after enabling.",
 			"neededPercentageForskip": "User Skip Percentage",
 			"channelReward": "Channel Points Reward Request Trigger",
@@ -709,9 +709,9 @@
 			"deniedUsers": "Usuários Banidos",
 			"deniedSongs": "Lista de Músicas Banidas",
 			"takeSongFromDonationMessage": "Attempt to get song links from donation messages?",
-			"confirmClearQueue": "Are you sure you want to clear the queue?",
+			"confirmClearQueue": "Tem certeza que deseja limpar a fila?",
 			"users": {
-				"maxRequests": "Maximum Request Per-User Amount",
+				"maxRequests": "Máximo de pedidos por usuário",
 				"minimalWatchTime": "Minimal Watch Time (in minutes)",
 				"minimalMessages": "Minimal Message Amount",
 				"minimalFollowTime": "Minimal Follow Time (in minutes)"
@@ -839,19 +839,19 @@
 	"games": {
 		"command": "Command",
 		"8ball": {
-			"description": "A simple chat game that allows chatters to ask the magic 8ball something and it will answer to the chatter.",
-			"answers": "Answers"
+			"description": "Um jogo simples em que o espectador pode fazer uma pergunta para a bola 8 mágica e receber uma resposta.",
+			"answers": "Respostas"
 		},
 		"russianRoulette": {
 			"description": "A simple chat game that allows chatters to test luck in a classic russian funny* roulette game.",
 			"canBeUsedByModerator": "Timeout Moderators? *Moderator privileges will be granted again after the timeout.",
-			"timeoutSeconds": "Timeout Time (in seconds, set it to 0 to disable a timeout)",
-			"decisionSeconds": "Result Delay (in seconds)",
-			"initMessage": "Trigger Pull Announcement (Game Start Message)",
-			"surviveMessage": "User Survived Message",
-			"deathMessage": "User Lost Message",
-			"chargedBullets": "Charged Bullets Amount: {tumberSize}",
-			"tumberSize": "Revolver Сylinder's Size"
+			"timeoutSeconds": "Tempo de punição (segundos, use 0 para desativar)",
+			"decisionSeconds": "Atraso do resultado (segundos)",
+			"initMessage": "Mensagem de início do jogo",
+			"surviveMessage": "Mensagem de sobrevivência",
+			"deathMessage": "Mensagem de derrota",
+			"chargedBullets": "Número de balas carregadas: {tumberSize}",
+			"tumberSize": "Tamanho do tambor do revólver"
 		},
 		"duel": {
 			"title": "Duels",
@@ -883,20 +883,20 @@
 				}
 			},
 			"settings": {
-				"title": "Settings",
-				"secondsToAccept": "Seconds to accept duel",
+				"title": "Configurações",
+				"secondsToAccept": "Tempo para aceitar o duelo (segundos)",
 				"timeoutTime": "Timeout time for loser",
-				"pointsPerWin": "Reputation for win",
-				"pointsPerLose": "Reputation for lose",
+				"pointsPerWin": "Reputação por vitória",
+				"pointsPerLose": "Reputação por derrota",
 				"bothDiePercent": "Percent of chance both users die"
 			}
 		},
 		"seppuku": {
 			"description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
-			"message": "Message",
+			"message": "Mensagem",
 			"timeoutModerators": "Enable seppuku for moderators",
-			"messageModerators": "Message when moderator used seppuku",
-			"timeoutSeconds": "Timeout duration (seconds)"
+			"messageModerators": "Mensagem quando o moderador usou o seppuku",
+			"timeoutSeconds": "Duração da punição (segundos)"
 		},
 		"voteban": {
 			"description": "Commence jury trial of the guilty chatterer!",
@@ -905,12 +905,12 @@
 			"surviveMessage": "Survive message",
 			"surviveMessageModerators": "Survive message for moderators",
 			"initialMessage": "Initial message",
-			"neededVotes": "Needed votes",
-			"banDuration": "Ban duration (seconds)",
-			"voteMode": "Voting mode",
-			"voteDuration": "Voting duration (seconds)",
-			"wordsNegative": "Words to vote for \"no\" option",
-			"wordsPositive": "Words to vote for \"yes\" option",
+			"neededVotes": "Votos necessários",
+			"banDuration": "Duração do banimento (segundos)",
+			"voteMode": "Modo de votação",
+			"voteDuration": "Duração da votação (segundos)",
+			"wordsNegative": "Palavras para votar em “não”",
+			"wordsPositive": "Palavras para votar em “sim”",
 			"timeoutModerators": "Enable voteban on moderators"
 		}
 	},
@@ -950,12 +950,12 @@
 		}
 	},
 	"community": {
-		"title": "Community",
+		"title": "Comunidade",
 		"users": {
-			"title": "Users",
-			"searchPlaceholder": "Search users...",
+			"title": "Usuários",
+			"searchPlaceholder": "Pesquisar usuários...",
 			"table": {
-				"user": "User",
+				"user": "Usuário",
 				"watchedTime": "Watched Time",
 				"messages": "Messages",
 				"usedEmotes": "Used Emotes",
@@ -970,11 +970,11 @@
 		},
 		"emotesStatistic": {
 			"title": "Emotes Statistics",
-			"searchPlaceholder": "Search emotes...",
+			"searchPlaceholder": "Pesquisar emotes...",
 			"table": {
 				"emote": "Emote",
 				"usages": "Total usage",
-				"users": "Users",
+				"users": "Usuários",
 				"empty": "No emotes",
 				"chart": "Usage chart",
 				"lastDay": "Day",
@@ -985,8 +985,8 @@
 			},
 			"total": "Total emotes: {total}",
 			"details": {
-				"stats": "Stats",
-				"users": "Users",
+				"stats": "Estatísticas",
+				"users": "Usuários",
 				"usersTabs": {
 					"top": "Top",
 					"history": "History"
@@ -1034,16 +1034,16 @@
 			"ignoreTimeoutFrom": "Ignore timeouts from"
 		},
 		"labels": {
-			"followers": "Followers",
+			"followers": "Seguidores",
 			"raids": "Raids",
-			"donations": "Donations",
-			"subscriptions": "Subscriptions",
-			"rewards": "Rewards",
+			"donations": "Doações",
+			"subscriptions": "Inscrições",
+			"rewards": "Recompensas",
 			"firstUserMessage": "First User Message",
-			"streamOnline": "Stream Online",
-			"streamOffline": "Stream Offline",
-			"chatCleared": "Chat Clear",
-			"userBanned": "User Ban",
+			"streamOnline": "Transmissão Online",
+			"streamOffline": "Transmissão Offline",
+			"chatCleared": "Chat Limpo",
+			"userBanned": "Usuário Banido",
 			"channelUnbanRequestCreate": "Unban Request Create",
 			"channelUnbanRequestResolve": "Unban Request Resolve",
 			"messageDelete": "Message Deleted"
@@ -1064,7 +1064,7 @@
 				"description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being sent into chat."
 			},
 			"deny_list": {
-				"name": "Disallowed Words List",
+				"name": "Lista de palavras proibidas",
 				"description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
 				"empty": "List of disallowed words is empty! You can add one there.",
 				"regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
@@ -1074,7 +1074,7 @@
 					"description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
 				},
 				"caseSensitive": {
-					"label": "Case sensitive",
+					"label": "Diferenciar maiúsculas/minúsculas",
 					"description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
 				}
 			},
@@ -1082,7 +1082,7 @@
 				"name": "Symbols",
 				"description": "Identifies and restricts excessive use of symbols, preventing clutter, chaos and maintaining readability in the chat.",
 				"triggerLength": "Minimal Message Length",
-				"maxPercentage": "Maximum Symbols Percentage"
+				"maxPercentage": "Porcentagem máxima de símbolos"
 			},
 			"long_message": {
 				"name": "Message Length",
@@ -1092,19 +1092,19 @@
 			"caps": {
 				"name": "Caps",
 				"description": "Identifies and restricts excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
-				"maxPercentage": "Maximum Capital Letters Percentage",
+				"maxPercentage": "Porcentagem máxima de letras maiúsculas",
 				"triggerLength": "Minimal Message Length"
 			},
 			"emotes": {
 				"name": "Emotes",
 				"description": "Detects the frequency and amount of emoticons used in messages, avoiding overuse and spam of them.",
-				"triggerLength": "Maximum Emote Usage Limit"
+				"triggerLength": "Limite máximo de uso de emotes"
 			},
 			"language": {
 				"name": "Language",
 				"description": "Scans and filters out inappropriate languages.",
-				"allowedLanguages": "Allowed Languages List",
-				"disallowedLanguages": "Disallowed Languages List"
+				"allowedLanguages": "Lista de idiomas permitidos",
+				"disallowedLanguages": "Lista de idiomas proibidos"
 			},
 			"one_man_spam": {
 				"name": "One Man Spam",
@@ -1120,7 +1120,7 @@
 		"button": "Send feedback",
 		"notification": "Your feedback sended",
 		"rateLimited": "You are sending messages to quickly, try again in {time}",
-		"messageLabel": "Message",
+		"messageLabel": "Mensagem",
 		"validation": {
 			"emptyMessage": "Message cannot be empty"
 		}
@@ -1128,7 +1128,7 @@
 	"userSettings": {
 		"title": "User settings",
 		"account": {
-			"title": "Account",
+			"title": "Conta",
 			"showMeOnLanding": "Show yourself on the Landing Page?",
 			"regenerateApiKey": {
 				"button": "Regenerate Private API key",
@@ -1136,38 +1136,38 @@
 			}
 		},
 		"public": {
-			"title": "Public page",
+			"title": "Página Pública",
 			"description": "Description of channel",
 			"socialLinks": "Social links",
 			"errorCreateLink": "\"{title}\" contains not a valid link {href}",
 			"errorInvalidLength": "Invalid length",
-			"errorInvalidLink": "Invalid link",
+			"errorInvalidLink": "Link inválido",
 			"errorEmpty": "Cannot be empty",
-			"errorTooLong": "Too long",
+			"errorTooLong": "Muito longo",
 			"linkTitle": "Title",
 			"linkLabel": "Link"
 		}
 	},
 	"adminPanel": {
-		"title": "Admin Panel",
+		"title": "Painel Administrativo",
 		"notifications": {
-			"title": "Notifications",
+			"title": "Notificações",
 			"formTitle": "Send or edit notification",
 			"emptyNotifications": "No notifications",
-			"userLabel": "User",
+			"userLabel": "Usuário",
 			"userPlaceholder": "Select a user",
-			"messageLabel": "Message",
+			"messageLabel": "Mensagem",
 			"messagePreview": "Preview",
-			"createdAt": "Created At",
+			"createdAt": "Criado em",
 			"globals": "Globals",
-			"users": "Users",
+			"users": "Usuários",
 			"confirmResetForm": "Are you sure you want to reset the form?"
 		},
 		"manageUsers": {
-			"title": "Users",
-			"user": "User",
+			"title": "Usuários",
+			"user": "Usuário",
 			"userId": "User ID",
-			"followers": "Followers",
+			"followers": "Seguidores",
 			"noUsers": "No users",
 			"filters": "Filters",
 			"clearFilters": "Clear filters",
@@ -1187,7 +1187,7 @@
 			"title": "Badges",
 			"formTitle": "Create or edit badge",
 			"name": "Name",
-			"users": "Users",
+			"users": "Usuários",
 			"slot": "Slot",
 			"image": "Image",
 			"preview": "Preview",
@@ -1195,14 +1195,14 @@
 			"badgeSlot": "Slot {slot}"
 		},
 		"adminActions": {
-			"title": "Actions",
+			"title": "Ações",
 			"eventsub": {
 				"title": "Subscribe to EventSub",
 				"condition": "Condition",
 				"type": "Type",
 				"typeError": "Please select a type",
 				"version": "Version",
-				"user": "User",
+				"user": "Usuário",
 				"channel": "Channel",
 				"channelWithBotId": "Channel with bot ID",
 				"channelWithModeratorId": "Channel with moderator ID"
@@ -1216,7 +1216,7 @@
 			}
 		},
 		"auditLogs": {
-			"title": "Audit logs"
+			"title": "Registros de Auditoria"
 		}
 	},
 	"expiringVips": {
@@ -1265,29 +1265,29 @@
 			"createdAt": "Created at",
 			"inProcess": "In process",
 			"action": "Action",
-			"yes": "Yes",
-			"no": "No",
+			"yes": "Sim",
+			"no": "Não",
 			"affectedMessages": "Affected messages",
 			"logs": {
 				"title": "Affected messages",
-				"user": "User",
-				"message": "Message"
+				"user": "Usuário",
+				"message": "Mensagem"
 			},
 			"timeout": "sec"
 		}
 	},
 	"giveaways": {
-		"title": "Giveaways",
-		"createNew": "Create New Giveaway",
-		"keyword": "Keyword",
-		"createdAt": "Created At",
-		"startedAt": "Started At",
-		"stoppedAt": "Stopped At",
-		"winners": "Winners",
-		"view": "View",
-		"start": "Start",
-		"stop": "Stop",
-		"chooseWinner": "Choose winner",
+		"title": "Sorteios",
+		"createNew": "Criar Novo Sorteio",
+		"keyword": "Palavra-chave",
+		"createdAt": "Criado em",
+		"startedAt": "Iniciado em",
+		"stoppedAt": "Parado em",
+		"winners": "Vencedores",
+		"view": "Visualizar",
+		"start": "Iniciar",
+		"stop": "Parar",
+		"chooseWinner": "Escolher vencedor",
 		"pages": {
 			"list": {
 				"title": "Active Giveaways"
@@ -1297,12 +1297,12 @@
 			}
 		},
 		"createDialog": {
-			"title": "Create New Giveaway",
+			"title": "Criar Novo Sorteio",
 			"description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
-			"keywordLabel": "Keyword",
+			"keywordLabel": "Palavra-chave",
 			"keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
-			"cancel": "Cancel",
-			"create": "Create"
+			"cancel": "Cancelar",
+			"create": "Criar"
 		},
 		"notifications": {
 			"created": "Giveaway created",
@@ -1318,7 +1318,7 @@
 			"selectWinner": "Select a winner to view their chat logs and profile",
 			"tabs": {
 				"participants": "Participants",
-				"winners": "Winners"
+				"winners": "Vencedores"
 			}
 		}
 	}
