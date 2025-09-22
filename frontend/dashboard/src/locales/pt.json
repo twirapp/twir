@@ -447,7 +447,7 @@
 		"noAccess": "Você não tem acesso a essa sobreposição!",
 		"copied": "URL da sobreposição foi copiada com sucesso! Você precisa configurar uma fonte de navegador no OBS com esse link.",
 		"buildWidget": "Build Widget",
-		"generateObsLink": "Generate obs link",
+		"generateObsLink": "Gerar link do obs",
 		"nowPlaying": {
 			"description": "Sobreposição contém informação de música em reprodução. Essa sobreposição funcionará apenas se você tiver conectado a sua integração do serviço de músicas, como Spotify ou lastfm."
 		},
@@ -609,11 +609,11 @@
 						"example": "!brbstop"
 					},
 					"text": "Texto da Sobreposição",
-					"background": "Overlay Background",
-					"backgroundOpacity": "Overlay Background Opacity",
+					"background": "Fundo da Sobreposição",
+					"backgroundOpacity": "Opacidade do Fundo da Sobreposição",
 					"font": {
-						"color": "Font Color",
-						"family": "Font Family",
+						"color": "Cor da Fonte",
+						"family": "Família de Fontes",
 						"size": "Tamanho da Fonte"
 					}
 				},
@@ -634,7 +634,7 @@
 			"secondTitle": "Faceit Stats",
 			"settings": {
 				"general": {
-					"title": "General",
+					"title": "Geral",
 					"faceitNickname": "Faceit nickname",
 					"game": "Jogo"
 				},
@@ -685,7 +685,7 @@
 	"songRequests": {
 		"waiting": "Awaiting a Song Request...",
 		"player": {
-			"title": "Current Song",
+			"title": "Música Atual",
 			"noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
 		},
 		"table": {
@@ -693,8 +693,8 @@
 			"columns": {
 				"title": "Título",
 				"author": "Author",
-				"added": "Added by",
-				"duration": "Duration"
+				"added": "Adicionada por",
+				"duration": "Duração"
 			}
 		},
 		"settings": {
@@ -814,7 +814,7 @@
 		"info": "Alerts Information",
 		"overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
 		"copyOverlayLink": "Copy overlay link",
-		"name": "Name",
+		"name": "Nome",
 		"rewards": "Rewards",
 		"commands": "Commands",
 		"validations": {
