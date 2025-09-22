@@ -614,7 +614,7 @@
 					"font": {
 						"color": "Font Color",
 						"family": "Font Family",
-						"size": "Font Size"
+						"size": "Tamanho da Fonte"
 					}
 				},
 				"late": {
@@ -636,16 +636,16 @@
 				"general": {
 					"title": "General",
 					"faceitNickname": "Faceit nickname",
-					"game": "Game"
+					"game": "Jogo"
 				},
 				"appearance": {
-					"title": "Appearance",
+					"title": "Aparência",
 					"background": "Background Color",
-					"textColor": "Text color",
+					"textColor": "Cor do texto",
 					"borderRadius": "Border Radius"
 				},
 				"display": {
-					"title": "Display",
+					"title": "Exibição",
 					"showAvarageKdr": "Show avarage kdr",
 					"worldRanking": "World ranking",
 					"last20MatchesStats": "Last 20 matches stats"
@@ -670,7 +670,7 @@
 					"lose": "Lose Color"
 				},
 				"general": {
-					"title": "General",
+					"title": "Geral",
 					"background": "Background",
 					"border": "Border",
 					"glow": "Glow effect",
@@ -689,9 +689,9 @@
 			"noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
 		},
 		"table": {
-			"title": "Queue",
+			"title": "Fila",
 			"columns": {
-				"title": "Title",
+				"title": "Título",
 				"author": "Author",
 				"added": "Added by",
 				"duration": "Duration"
@@ -706,8 +706,8 @@
 			"channelReward": "Channel Points Reward Request Trigger",
 			"deniedChannels": "Banned YouTube Channels List (from requesting songs)",
 			"deniedWords": "Banned Word List (affects both titles and YouTube channel names)",
-			"deniedUsers": "Banned Users",
-			"deniedSongs": "Banned Songs List",
+			"deniedUsers": "Usuários Banidos",
+			"deniedSongs": "Lista de Músicas Banidas",
 			"takeSongFromDonationMessage": "Attempt to get song links from donation messages?",
 			"confirmClearQueue": "Are you sure you want to clear the queue?",
 			"users": {
@@ -724,14 +724,14 @@
 			}
 		},
 		"tabs": {
-			"general": "General",
-			"users": "Users",
-			"songs": "Songs",
-			"translations": "Translations"
+			"general": "Geral",
+			"users": "Usuários",
+			"songs": "Músicas",
+			"translations": "Traduções"
 		},
 		"ban": {
-			"user": "Ban user",
-			"song": "Ban song",
+			"user": "Banir usuário",
+			"song": "Banir música",
 			"userConfirm": "Are you sure you want to ban this user?",
 			"songConfirm": "Are you sure you want to ban this song?"
 		}
@@ -752,12 +752,12 @@
 				"responseLong": "Response is too long!"
 			}
 		},
-		"limitExceeded": "Timer Limit exceeded!",
-		"newTimer": "New timer"
+		"limitExceeded": "Limite de Temporizador excedido!",
+		"newTimer": "Novo temporizador"
 	},
 	"roles": {
 		"modal": {
-			"accessToUsers": "Permitted Users",
+			"accessToUsers": "Usuários Permitidos",
 			"accessByStats": "Permitted Users (by stats)",
 			"requiredWatchTime": "Required Watch Time",
 			"requiredMessages": "Required Messages Amount",
@@ -769,7 +769,7 @@
 		}
 	},
 	"keywords": {
-		"title": "Keywords",
+		"title": "Palavras-chave",
 		"info": {
 			"text": "Keywords help you to trigger chat message on certain words matching."
 		},
@@ -779,8 +779,8 @@
 		"isRegular": "Is a Regular Expression?",
 		"regularDescription": "Regular Expression should be written in golang format! See {0} here.",
 		"regularDescriptionCheatSheet": "cheat sheet",
-		"settings": "Settings",
-		"cooldown": "Cooldown (in seconds)",
+		"settings": "Configurações",
+		"cooldown": "Tempo de Espera (em segundos)",
 		"validations": {
 			"triggerRequired": "Trigger Text is required!",
 			"triggerLong": "Trigger Text is too long!",
@@ -789,7 +789,7 @@
 	},
 	"variables": {
 		"title": "Variables",
-		"type": "Type",
+		"type": "Tipo",
 		"info": "Variables is a type of a context that can be used in bot responses, commands and other parts of the bot. You can specify a constant value or put a script to get some values that is usually cannot be easily accessed by the bot. Script Variables are recommended for advanced users.",
 		"validations": {
 			"nameRequired": "Variable Name is required!",
