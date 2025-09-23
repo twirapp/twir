@@ -317,7 +317,7 @@
 				"streamOfflinePlaceholder": "Twir enviará essa mensagem quando a transmissão terminar.",
 				"updateAlert": "A Twir atualizará a mensagem incorporada periodicamente para garantir que ela esteja sincronizada com o estado da sua transmissão (expectadores, título, categoria, etc.)",
 				"shouldDeleteMessageOnOffline": "Excluir a mensagem de alerta invés de editá-la quando a transmissão terminar?",
-				"additionalUsersIdsForLiveCheck": "Lista adicional de usuários da Twitch que receberão notificações de transmissão."
+				"additionalUsersIdsForLiveCheck": "Lista adicional de usuários da Twitch para seguir e enviar alertas de transmissão."
 			},
 			"connectGuild": "+ Conectar Servidor",
 			"disconnectGuild": "Desconectar Servidor",
@@ -545,11 +545,11 @@
 			"nameBoxFontStyle": "Estilo da fonte",
 			"nameBoxFontVariant": "Variante da fonte",
 			"nameBoxStroke": "Cor do traçado",
-			"nameStrokeThickness": "Espessura do traço",
+			"nameStrokeThickness": "Espessura do traçado",
 			"nameBoxLineJoin": "Junção de linha do traçado",
 			"nameBoxDropShadow": "Sombra projetada",
 			"nameBoxDropShadowColor": "Cor da sombra",
-			"nameBoxDropShadowAlpha": "Sombra alfa",
+			"nameBoxDropShadowAlpha": "Alpha da sombra",
 			"nameBoxDropShadowBlur": "Desfoque da sombra",
 			"nameBoxDropShadowDistance": "Distância da sombra",
 			"nameBoxDropShadowAngle": "Ângulo da sombra",
@@ -718,7 +718,7 @@
 			},
 			"songs": {
 				"maxRequests": "Limite Máximo de Música na Fila",
-				"minLength": "Minimal Song Length (in minutes)",
+				"minLength": "Duração Mínima da Música (em minutos)",
 				"maxLength": "Duração Máxima da Música (em minutos)",
 				"minViews": "Quantidade Mínima de Visualizações"
 			}
