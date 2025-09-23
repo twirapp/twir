@@ -60,7 +60,7 @@
 		"settings": "Configurações",
 		"create": "Criar",
 		"edit": "Editar",
-		"noData": "Sem Informação",
+		"noData": "Sem dados",
 		"loading": "Carregando..."
 	},
 	"sidebar": {
@@ -121,7 +121,7 @@
 		},
 		"table": {
 			"responses": {
-				"empty": "As respostas estão vazias!"
+				"empty": "As respostas estão em branco!"
 			}
 		},
 		"modal": {
@@ -173,7 +173,7 @@
 				"name": "Restrições por estatísticas",
 				"watchTime": "Tempo de visualização necessário para usar esse comando.",
 				"messages": "Contagem de mensagens necessárias para usar esse comando.",
-				"channelsPoints": "Pontos dos Canais gastos necessários para usar esse comando."
+				"channelsPoints": "Pontos do Canal gastos necessários para usar esse comando."
 			},
 			"cooldown": {
 				"label": "Tempo de Espera",
