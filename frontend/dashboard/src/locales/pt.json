@@ -423,11 +423,11 @@
 			"pollTotalVotes": "Total de Votos na Enquete",
 			"pollWinnerTitle": "Nome do Vencedor da Enquete",
 			"pollWinnerBitsVotes": "Número de Votos com Bits do Vencedor",
-			"pollWinnerChannelsPointsVotes": "Número de Votos com Pontos de Canal do Vencedor",
+			"pollWinnerChannelsPointsVotes": "Número de Votos com Pontos do Canal do Vencedor",
 			"pollWinnerTotalVotes": "Total de Votos do Vencedor na Enquete",
 			"predictionTitle": "Título do Palpite",
 			"predictionOptionsNames": "Resultados do Palpite (separados pelo símbolo ·)",
-			"predictionTotalChannelPoints": "Total de Pontos de Canal Apostados",
+			"predictionTotalChannelPoints": "Total de Pontos do Canal Apostados",
 			"predictionWinner": {
 				"title": "Resultado Vencedor do Palpite",
 				"totalUsers": "Total de Usuário no Resultado Vencedor",
@@ -446,7 +446,7 @@
 		"uncongirured": "Você deve configurar a sobreposição primeiro!",
 		"noAccess": "Você não tem acesso a essa sobreposição!",
 		"copied": "URL da sobreposição foi copiada com sucesso! Você precisa configurar uma fonte de navegador no OBS com esse link.",
-		"buildWidget": "Gerar Widget",
+		"buildWidget": "Criar Widget",
 		"generateObsLink": "Gerar link do obs",
 		"nowPlaying": {
 			"description": "Sobreposição contém informação de música em reprodução. Essa sobreposição funcionará apenas se você tiver conectado a sua integração do serviço de músicas, como Spotify ou lastfm."
@@ -606,7 +606,7 @@
 					},
 					"stopCommand": {
 						"description": "Comando de Parada da Sobreposição",
-						"example": "!brbstop"
+						"example": "!brbparar"
 					},
 					"text": "Texto da Sobreposição",
 					"background": "Fundo da Sobreposição",
@@ -618,20 +618,20 @@
 					}
 				},
 				"late": {
-					"label": "Post-Timer Settings",
-					"text": "Overlay Post-Timer Text",
-					"displayBrb": "Display Countdown Information"
+					"label": "Configurações do Pós-Temporizador",
+					"text": "Texto de Sobreposição do Pós-Temporizador",
+					"displayBrb": "Exibir Informações da Contagem Regressiva"
 				}
 			},
 			"preview": {
-				"start": "Start Overlay Preview",
-				"stop": "Stop Overlay Preview"
+				"start": "Iniciar Visualização da Sobreposição",
+				"stop": "Parar Visualização da Sobreposição"
 			}
 		},
 		"faceit": {
-			"title": "Construtor de Estatísticas do Faceit",
-			"description": "Set up an overlay to display your Faceit statistics. Customize it according to your preferences.",
-			"secondTitle": "Faceit Stats",
+			"title": "Criador de Estatísticas do Faceit",
+			"description": "Configure uma sobreposição para exibir suas estatísticas do Faceit. Personalize-a de acordo com suas preferências.",
+			"secondTitle": "Estatísticas do Faceit",
 			"settings": {
 				"general": {
 					"title": "Geral",
@@ -640,53 +640,53 @@
 				},
 				"appearance": {
 					"title": "Aparência",
-					"background": "Background Color",
+					"background": "Cor de Fundo",
 					"textColor": "Cor do texto",
-					"borderRadius": "Border Radius"
+					"borderRadius": "Raio da Borda"
 				},
 				"display": {
 					"title": "Exibição",
-					"showAvarageKdr": "Show avarage kdr",
-					"worldRanking": "World ranking",
-					"last20MatchesStats": "Last 20 matches stats"
+					"showAvarageKdr": "Mostrar kdr médio",
+					"worldRanking": "Classificação mundial",
+					"last20MatchesStats": "Estatísticas dos últimos 20 jogos"
 				}
 			}
 		},
 		"valorant": {
-			"title": "Construtor de Estatísticas do Valorant",
-			"secondTitle": "Valorant Stats",
-			"description": "Configure the overlay with your Valorant stats. Change its design according to your personal requirements.",
+			"title": "Criador de Estatísticas do Valorant",
+			"secondTitle": "Estatísticas do Valorant",
+			"description": "Configure a sobreposição com suas estatísticas do Valorant. Altere o design de acordo com suas preferências pessoais.",
 			"valorantIntegration": {
 				"connect": "Conecte a integração com o Valorant para usar essa sobreposição",
-				"button": "Connect"
+				"button": "Conectar"
 			},
 			"settings": {
 				"colors": {
-					"title": "Colors",
-					"background": "Background color",
-					"text": "Text color",
-					"primaryText": "Primary Text Color",
-					"win": "Win Color",
-					"lose": "Lose Color"
+					"title": "Cores",
+					"background": "Cor de fundo",
+					"text": "Cor do texto",
+					"primaryText": "Cor Primária do Texto",
+					"win": "Cor da Vitória",
+					"lose": "Cor da Derrota"
 				},
 				"general": {
 					"title": "Geral",
-					"background": "Background",
-					"border": "Border",
+					"background": "Plano de Fundo",
+					"border": "Borda",
 					"glow": "Efeito de brilho",
-					"leaderboard": "Posição no ranking",
+					"leaderboard": "Posição na tabela de classificação",
 					"winLose": "Vitórias / Derrotas",
-					"progress": "Progress",
-					"last20MatchesStats": "Show last 20 matches stats"
+					"progress": "Progresso",
+					"last20MatchesStats": "Mostrar estatísticas dos últimos 20 jogos"
 				}
 			}
 		}
 	},
 	"songRequests": {
-		"waiting": "Aguardando um pedido de música...",
+		"waiting": "Aguardando um Pedido de Música...",
 		"player": {
 			"title": "Música Atual",
-			"noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
+			"noAccess": "Parece que você não consegue ouvir músicas nesse local... Vá ao seu painel de Pedidos de Música para acessar o reprodutor."
 		},
 		"table": {
 			"title": "Fila",
@@ -698,29 +698,29 @@
 			}
 		},
 		"settings": {
-			"onlineOnly": "Allow Song Requests when streaming?",
-			"announcePlay": "Anunciar música atual no chat?",
-			"playerNoCookieMode": "Modo anônimo do player",
-			"playerNoCookieModeDescription": "Enabling this option will allow you to listen to songs without cookies and viewing history. Need refresh page after enabling.",
-			"neededPercentageForskip": "User Skip Percentage",
-			"channelReward": "Channel Points Reward Request Trigger",
-			"deniedChannels": "Banned YouTube Channels List (from requesting songs)",
-			"deniedWords": "Banned Word List (affects both titles and YouTube channel names)",
+			"onlineOnly": "Permitir Pedidos de Música ao fazer transmissão?",
+			"announcePlay": "Anunciar Música Atual no Chat?",
+			"playerNoCookieMode": "Modo incógnito para o reprodutor",
+			"playerNoCookieModeDescription": "Habilitar essa opção permitirá que você ouça músicas sem cookies e sem o histórico de visualizações. É necessário atualizar a página após habilitar.",
+			"neededPercentageForskip": "Percentual de Pulos de Usuário",
+			"channelReward": "Recompensa de Pontos do Canal para Pedidos de Música",
+			"deniedChannels": "Lista de Canais Banidos do YouTube (de pedir músicas)",
+			"deniedWords": "Lista de Palavras Banidas (afeta títulos e nomes de canais no YouTube)",
 			"deniedUsers": "Usuários Banidos",
 			"deniedSongs": "Lista de Músicas Banidas",
-			"takeSongFromDonationMessage": "Attempt to get song links from donation messages?",
-			"confirmClearQueue": "Tem certeza que deseja limpar a fila?",
+			"takeSongFromDonationMessage": "Tentar obter links de músicas das mensagens de doação?",
+			"confirmClearQueue": "Você tem certeza que quer limpar a fila?",
 			"users": {
-				"maxRequests": "Máximo de pedidos por usuário",
-				"minimalWatchTime": "Minimal Watch Time (in minutes)",
-				"minimalMessages": "Minimal Message Amount",
-				"minimalFollowTime": "Minimal Follow Time (in minutes)"
+				"maxRequests": "Quantidade Máxima de Pedidos Por Usuário",
+				"minimalWatchTime": "Tempo de Visualização Mínimo (em minutos)",
+				"minimalMessages": "Quantidade Mínima de Mensagens",
+				"minimalFollowTime": "Tempo de Seguidor Mínimo (em minutos)"
 			},
 			"songs": {
-				"maxRequests": "Maximum Song Queue Limit",
+				"maxRequests": "Limite Máximo de Música na Fila",
 				"minLength": "Minimal Song Length (in minutes)",
-				"maxLength": "Maximum Song Length (in minutes)",
-				"minViews": "Minimal Views Amount"
+				"maxLength": "Duração Máxima da Música (em minutos)",
+				"minViews": "Quantidade Mínima de Visualizações"
 			}
 		},
 		"tabs": {
@@ -732,14 +732,14 @@
 		"ban": {
 			"user": "Banir usuário",
 			"song": "Banir música",
-			"userConfirm": "Are you sure you want to ban this user?",
-			"songConfirm": "Are you sure you want to ban this song?"
+			"userConfirm": "Você tem certeza que quer banir esse usuário?",
+			"songConfirm": "Você tem certeza que quer banir essa música?"
 		}
 	},
 	"timers": {
 		"table": {
 			"columns": {
-				"intervalInMinutes": "Interval in minutes",
+				"intervalInMinutes": "Intervalo em minutos",
 				"intervalInMessages": "Chat lines interval"
 			}
 		},
