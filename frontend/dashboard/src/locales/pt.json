@@ -749,7 +749,7 @@
 				"nameLong": "O Nome do Temporizador é muito longo!",
 				"nameRequired": "O Nome do Temporizador é obrigatório!",
 				"responseRequired": "O Texto de Resposta é obrigatório!",
-				"responseLong": "Response is too long!"
+				"responseLong": "A Resposta é muito longa!"
 			}
 		},
 		"limitExceeded": "Limite de Temporizador excedido!",
@@ -774,7 +774,7 @@
 			"text": "Palavras-chave ajudam você a acionar mensagens de chat quando certas palavras correspondem."
 		},
 		"create": "Criar palavra-chave",
-		"triggerText": "Texto de Gatinho",
+		"triggerText": "Texto de Gatilho",
 		"usages": "Contagem de Uso",
 		"isRegular": "É uma Expressão Regular?",
 		"regularDescription": "A Expressão Regular deve ser escrita no formato golang! Veja um {0} aqui.",
@@ -799,7 +799,7 @@
 	"greetings": {
 		"title": "Saudações",
 		"create": "Criar saudação",
-		"edit": "Edit greeting",
+		"edit": "Editar saudação",
 		"info": {
 			"title": "Informação da Saudação",
 			"text": "Saudações são um tipo de mensagem que o bot usa para dar boas-vindas aos espectadores conhecidos quando eles enviam sua primeira mensagem no chat em cada transmissão. Se você deseja cumprimentar todos os usuários no chat, então pode conferir a categoria de eventos em vez de Saudações."
@@ -818,38 +818,38 @@
 		"rewards": "Recompensas",
 		"commands": "Comandos",
 		"validations": {
-			"name": "Name cannot be empty or longer than 30 symbols!"
+			"name": "O Nome não pode estar em branco ou ter mais de 30 símbolos!"
 		},
 		"trigger": {
-			"commands": "Command Trigger",
-			"rewards": "Channel Points Reward Trigger",
-			"keywords": "Keyword Trigger",
-			"greetings": "Greeting Trigger"
+			"commands": "Gatilho do Comando",
+			"rewards": "Gatilho de Recompensa por Pontos do Canal",
+			"keywords": "Gatilho de Palavra-chave",
+			"greetings": "Gatilho de Saudação"
 		},
 		"select": {
-			"audio": "Configure an audio",
-			"image": "Configure an image",
-			"text": "Configure text"
+			"audio": "Configurar um áudio",
+			"image": "Configurar uma imagem",
+			"text": "Configurar texto"
 		},
-		"audioVolume": "Audio volume",
-		"createAlert": "Create alert",
-		"editAlert": "Edit alert",
-		"tableEmpty": "No alerts found"
+		"audioVolume": "Volume do áudio",
+		"createAlert": "Criar alerta",
+		"editAlert": "Editar alerta",
+		"tableEmpty": "Nenhum alerta encontrado"
 	},
 	"games": {
-		"command": "Command",
+		"command": "Comando",
 		"8ball": {
 			"description": "Um jogo simples em que o espectador pode fazer uma pergunta para a bola 8 mágica e receber uma resposta.",
 			"answers": "Respostas"
 		},
 		"russianRoulette": {
-			"description": "A simple chat game that allows chatters to test luck in a classic russian funny* roulette game.",
-			"canBeUsedByModerator": "Timeout Moderators? *Moderator privileges will be granted again after the timeout.",
-			"timeoutSeconds": "Tempo de punição (segundos, use 0 para desativar)",
-			"decisionSeconds": "Atraso do resultado (segundos)",
-			"initMessage": "Mensagem de início do jogo",
-			"surviveMessage": "Mensagem de sobrevivência",
-			"deathMessage": "Mensagem de derrota",
+			"description": "Um jogo de chat simples que permite aos espectadores testar a sorte em um clássico jogo de roleta russa engraçado*.",
+			"canBeUsedByModerator": "Suspender Moderadores? *Os privilégios de moderador serão concedidos novamente após o tempo de espera.",
+			"timeoutSeconds": "Tempo de Suspensão (em segundos, defina 0 para desativar)",
+			"decisionSeconds": "Atraso do Resultado (em segundos)",
+			"initMessage": "Anúncio de Acionamento do Gatilho (Mensagem de Início do Jogo)",
+			"surviveMessage": "Mensagem de Sobrevivência do Usuário",
+			"deathMessage": "Mensagem de Derrota do Usuário",
 			"chargedBullets": "Número de balas carregadas: {tumberSize}",
 			"tumberSize": "Tamanho do tambor do revólver"
 		},
