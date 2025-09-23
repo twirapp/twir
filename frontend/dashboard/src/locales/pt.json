@@ -42,7 +42,7 @@
 		"deleted": "Excluído",
 		"updated": "Atualizado",
 		"disabled": "Desabilitado",
-		"setDefaultSettings": "Você tem certeza de que quer definir as configurações padrão?",
+		"setDefaultSettings": "Você tem certeza que quer definir as configurações padrão?",
 		"placeCursorMessage": "Coloque o cursor depois de \"$\" para alterar a variável",
 		"pagination": "{page} página(s) / {total} item(ns)",
 		"paginationPerPage": "Por página",
@@ -128,9 +128,9 @@
 			"name": {
 				"label": "Nome",
 				"validations": {
-					"empty": "Nome do Comando é obrigatório.",
-					"startsWith": "Nome do Comando não deve começar com '!'.",
-					"len": "Nome do Comando deve ter menos de 25 caracteres."
+					"empty": "O Nome do Comando é obrigatório.",
+					"startsWith": "O Nome do Comando não deve começar com '!'.",
+					"len": "O Nome do Comando deve ter menos de 25 caracteres."
 				}
 			},
 			"aliases": {
@@ -172,7 +172,7 @@
 			"restrictions": {
 				"name": "Restrições por estatísticas",
 				"watchTime": "Tempo de visualização necessário para usar esse comando.",
-				"messages": "Contagem de mensagens necessárias para usar esse comando.",
+				"messages": "Contagem de mensagens necessária para usar esse comando.",
 				"channelsPoints": "Pontos do Canal gastos necessários para usar esse comando."
 			},
 			"cooldown": {
