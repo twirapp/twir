@@ -850,36 +850,36 @@
 			"initMessage": "Anúncio de Acionamento do Gatilho (Mensagem de Início do Jogo)",
 			"surviveMessage": "Mensagem de Sobrevivência do Usuário",
 			"deathMessage": "Mensagem de Derrota do Usuário",
-			"chargedBullets": "Número de balas carregadas: {tumberSize}",
-			"tumberSize": "Tamanho do tambor do revólver"
+			"chargedBullets": "Quantidade de Balas Carregadas: {tumberSize}",
+			"tumberSize": "Tamanho do Tambor do Revólver"
 		},
 		"duel": {
-			"title": "Duels",
-			"description": "A simple chat game between two users allowing to test their dodge skills!",
+			"title": "Duelos",
+			"description": "Um jogo de chat simples entre dois usuários que permite testar suas habilidades de esquiva!",
 			"commands": {
-				"title": "Duel Commands",
-				"duel": "Ask for a Duel",
-				"accept": "Accept a Duel",
-				"stats": "Statistics"
+				"title": "Comandos do Duelo",
+				"duel": "Desafiar para um Duelo",
+				"accept": "Aceitar um Duelo",
+				"stats": "Estatísticas"
 			},
 			"cooldown": {
-				"title": "Duel Cooldown",
+				"title": "Tempo de Espera do Duelo",
 				"user": "Individual",
 				"global": "Global"
 			},
 			"messages": {
-				"title": "Messages",
+				"title": "Mensagens",
 				"start": {
-					"title": "Initial Message",
-					"description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+					"title": "Mensagem Inicial",
+					"description": "Envia essa mensagem quando o duelo for iniciado. Variáveis disponíveis: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
 				},
 				"result": {
-					"title": "Result Message",
-					"description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
+					"title": "Mensagem do Resultado",
+					"description": "Envia essa mensagem quando o duelo terminar. Variáveis disponíveis: {'{loser}, {winner}'}"
 				},
 				"bothDie": {
-					"title": "«No One Survived» Message",
-					"description": "Sends this message when duel happened and both duelists are dead. Available variables: {'{target}, {initiator}'}"
+					"title": "Mensagem de «Ninguém Sobreviveu»",
+					"description": "Envia essa mensagem quando o duelo terminar e ambos os duelistas estão mortos. Variáveis disponíveis: {'{target}, {initiator}'}"
 				}
 			},
 			"settings": {
