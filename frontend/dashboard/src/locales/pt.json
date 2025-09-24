@@ -884,8 +884,8 @@
 			},
 			"settings": {
 				"title": "Configurações",
-				"secondsToAccept": "Tempo para aceitar o duelo (segundos)",
-				"timeoutTime": "Timeout time for loser",
+				"secondsToAccept": "Segundos para aceitar o duelo",
+				"timeoutTime": "Tempo de suspensão para o perdedor",
 				"pointsPerWin": "Reputação por vitória",
 				"pointsPerLose": "Reputação por derrota",
 				"bothDiePercent": "Percent of chance both users die"
@@ -896,55 +896,55 @@
 			"message": "Mensagem",
 			"timeoutModerators": "Enable seppuku for moderators",
 			"messageModerators": "Mensagem quando o moderador usou o seppuku",
-			"timeoutSeconds": "Duração da punição (segundos)"
+			"timeoutSeconds": "Duração da suspensão (segundos)"
 		},
 		"voteban": {
-			"description": "Commence jury trial of the guilty chatterer!",
-			"banMessage": "Message on ban",
-			"banMessageModerators": "Message for banned moderators",
-			"surviveMessage": "Survive message",
-			"surviveMessageModerators": "Survive message for moderators",
-			"initialMessage": "Initial message",
+			"description": "Inicie o julgamento pelo júri do culpado!",
+			"banMessage": "Mensagem de banimento",
+			"banMessageModerators": "Mensagem para moderadores banidos",
+			"surviveMessage": "Mensagem de sobrevivência",
+			"surviveMessageModerators": "Mensagem de sobrevivência para moderadores",
+			"initialMessage": "Mensagem inicial",
 			"neededVotes": "Votos necessários",
 			"banDuration": "Duração do banimento (segundos)",
 			"voteMode": "Modo de votação",
 			"voteDuration": "Duração da votação (segundos)",
-			"wordsNegative": "Palavras para votar em “não”",
-			"wordsPositive": "Palavras para votar em “sim”",
-			"timeoutModerators": "Enable voteban on moderators"
+			"wordsNegative": "Palavras para votar em \"não\"",
+			"wordsPositive": "Palavras para votar em \"sim\"",
+			"timeoutModerators": "Habilitar Banimento por Voto de moderadores"
 		}
 	},
 	"modules": {
 		"chatTranslations": {
-			"title": "Chat translations",
-			"description": "Translate chat in real time",
+			"title": "Traduções do chat",
+			"description": "Traduz o chat em tempo real",
 			"settings": {
-				"title": "Chat Translation Settings",
+				"title": "Configurações da Tradução do Chat",
 				"enabled": {
-					"label": "Enabled",
-					"description": "Enable chat translation for your channel"
+					"label": "Habilitado",
+					"description": "Habilite a tradução do chat para o seu canal"
 				},
 				"targetLanguage": {
-					"label": "Target Language",
-					"description": "Messages will be translated to this language",
-					"placeholder": "Select a language"
+					"label": "Idioma de Destino",
+					"description": "As mensagens serão traduzidas para esse idioma",
+					"placeholder": "Selecione um idioma"
 				},
 				"excludedLanguages": {
-					"label": "Excluded Languages",
-					"description": "Messages in these languages will not be translated",
-					"placeholder": "Select languages to exclude"
+					"label": "Idiomas Excluídos",
+					"description": "Mensagens nesses idiomas não serão traduzidas",
+					"placeholder": "Selecione idiomas para excluir"
 				},
 				"useItalic": {
-					"label": "Use Italic",
-					"description": "Display translated messages in italic"
+					"label": "Usar Itálico",
+					"description": "Exibir mensagens traduzidas em itálico"
 				},
 				"excludedUsers": {
-					"title": "Excluded Users",
-					"description": "Messages from these users will not be translated"
+					"title": "Usuários Excluídos",
+					"description": "As mensagens desses usuários não serão traduzidas"
 				},
 				"buttons": {
-					"update": "Update Settings",
-					"create": "Create Settings"
+					"update": "Atualizar Configurações",
+					"create": "Criar Configurações"
 				}
 			}
 		}
@@ -956,66 +956,66 @@
 			"searchPlaceholder": "Pesquisar usuários...",
 			"table": {
 				"user": "Usuário",
-				"watchedTime": "Watched Time",
-				"messages": "Messages",
-				"usedEmotes": "Used Emotes",
-				"usedChannelPoints": "Channel Points Spent",
-				"empty": "No users"
+				"watchedTime": "Tempo Visualizado",
+				"messages": "Mensagens",
+				"usedEmotes": "Emotes Usados",
+				"usedChannelPoints": "Pontos do Canal Gastos",
+				"empty": "Nenhum usuário"
 			},
-			"total": "Total users: {total}",
+			"total": "Total de usuários: {total}",
 			"reset": {
-				"label": "Reset stats",
-				"resetQuestion": "Are you sure you want to reset {title}?"
+				"label": "Redefinir estatísticas",
+				"resetQuestion": "Você tem certeza que quer redefinir {title}?"
 			}
 		},
 		"emotesStatistic": {
-			"title": "Emotes Statistics",
+			"title": "Estatísticas de Emotes",
 			"searchPlaceholder": "Pesquisar emotes...",
 			"table": {
 				"emote": "Emote",
-				"usages": "Total usage",
+				"usages": "Uso total",
 				"users": "Usuários",
-				"empty": "No emotes",
-				"chart": "Usage chart",
-				"lastDay": "Day",
-				"lastWeek": "Week",
-				"lastMonth": "Month",
-				"lastThreeMonth": "3 Months",
-				"lastYear": "Year"
+				"empty": "Nenhum emote",
+				"chart": "Gráfico de uso",
+				"lastDay": "Dia",
+				"lastWeek": "Semana",
+				"lastMonth": "Mês",
+				"lastThreeMonth": "3 Meses",
+				"lastYear": "Ano"
 			},
-			"total": "Total emotes: {total}",
+			"total": "Total de emotes: {total}",
 			"details": {
 				"stats": "Estatísticas",
 				"users": "Usuários",
 				"usersTabs": {
-					"top": "Top",
-					"history": "History"
+					"top": "Principais",
+					"history": "Histórico"
 				}
 			}
 		}
 	},
 	"filePicker": {
-		"innerText": "Select or drop {type} here.",
-		"usedSpace": "Used {used} / {max} MB",
-		"emptyText": "No {type} uploaded."
+		"innerText": "Selecione ou arraste {type} aqui.",
+		"usedSpace": "Usado {used} / {max} MB",
+		"emptyText": "Nenhum {type} foi enviado."
 	},
 	"overlaysRegistry": {
-		"description": "This category allows you to create custom configurable overlays for OBS. Currently only HTML Overlays are supported, but other overlay variants will be added later. Thank you for the patience. <3",
+		"description": "Essa categoria permite que você crie sobreposições personalizadas e configuráveis para o OBS. Atualmente, apenas sobreposições em HTML são suportadas, mas outras variantes de sobreposições serão adicionadas posteriormente. Obrigado pela sua paciência. <3",
 		"noLayersCreated": {
-			"title": "Not Configured",
-			"description": "Currently layers of overlays not created"
+			"title": "Não Configurado",
+			"description": "Camadas de sobreposições ainda não foram criadas"
 		},
-		"customWidth": "Width",
-		"customHeight": "Height",
-		"name": "Overlay Name",
-		"createNewLayer": "Create New Layer",
+		"customWidth": "Largura",
+		"customHeight": "Altura",
+		"name": "Nome da Sobreposição",
+		"createNewLayer": "Criar Nova Camada",
 		"validations": {
-			"name": "Overlay Name cannot be empty and longer than 30 symbols!",
-			"layers": "Layers cannot be empty! This overlay cannot contain more than 15 layers."
+			"name": "O Nome da Camada não pode estar em branco e ter mais de 30 símbolos!",
+			"layers": "Camadas não podem estar em branco! Essa sobreposição não pode conter mais de 15 camadas."
 		},
 		"html": {
-			"description": "Allows you to use custom HTML, CSS and bot variables.",
-			"updateInterval": "HTML Variables Update Interval",
+			"description": "Permite que você utilize HTML, CSS personalizados e variáveis do bot.",
+			"updateInterval": "Intervalo de Atualização das Variáveis HTML",
 			"variablesAlert": {
 				"title": "You can use bot variables in HTML, click on the list below to show available options.",
 				"selectToCopy": "Select a required variable. It will be automatically copied to the clipboard."
