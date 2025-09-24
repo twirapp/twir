@@ -1017,91 +1017,91 @@
 			"description": "Permite que você utilize HTML, CSS personalizados e variáveis do bot.",
 			"updateInterval": "Intervalo de Atualização das Variáveis HTML",
 			"variablesAlert": {
-				"title": "You can use bot variables in HTML, click on the list below to show available options.",
-				"selectToCopy": "Select a required variable. It will be automatically copied to the clipboard."
+				"title": "Você pode usar variáveis do bot no HTML. Clique na lista abaixo para mostrar as opções disponíveis.",
+				"selectToCopy": "Selecione uma variável necessária. Ela será copiada automaticamente para a área de transferência."
 			},
-			"periodicallyRefetchData": "Periodically parse and update HTML data from server?"
+			"periodicallyRefetchData": "Realizar análise periódica e atualização dos dados HTML do servidor?"
 		}
 	},
 	"chatAlerts": {
-		"randomedMessage": "If there are several variants of the chat alerts, then they will be picked randomly.<br>",
-		"randomMessageWithCount": "If there will be several variants with the same counter number, then they will be picked randomly.<br>",
-		"replacedInfo": "Available Variables: {vars}. They will be replaced with the actual information in the alert.<br>",
-		"cooldown": "Message Cooldown (in seconds)",
+		"randomedMessage": "Se houver muitas variantes dos alertas do chat, elas serão selecionadas aleatoriamente.<br>",
+		"randomMessageWithCount": "Se houver muitas variantes com o mesmo número de contagem, elas serão selecionadas aleatoriamente.<br>",
+		"replacedInfo": "Variáveis Disponíveis: {vars}. Elas serão substituídas pelas informações reais no alerta.<br>",
+		"cooldown": "Tempo de Espera da Mensagem (em segundos)",
 		"ban": {
-			"alertInfo": "Set time to 0 to print a message when the user is permanently banned.<br>",
-			"countLabel": "Time (in minutes)",
-			"ignoreTimeoutFrom": "Ignore timeouts from"
+			"alertInfo": "Defina o tempo como 0 para exibir uma mensagem quando o usuário for banido permanentemente.<br>",
+			"countLabel": "Tempo (em minutos)",
+			"ignoreTimeoutFrom": "Ignorar suspensões de"
 		},
 		"labels": {
 			"followers": "Seguidores",
-			"raids": "Raids",
+			"raids": "Invasões",
 			"donations": "Doações",
 			"subscriptions": "Inscrições",
 			"rewards": "Recompensas",
-			"firstUserMessage": "First User Message",
-			"streamOnline": "Transmissão Online",
-			"streamOffline": "Transmissão Offline",
+			"firstUserMessage": "Primeira Mensagem do Usuário",
+			"streamOnline": "Transmissão Iniciada",
+			"streamOffline": "Transmissão Encerrada",
 			"chatCleared": "Chat Limpo",
 			"userBanned": "Usuário Banido",
-			"channelUnbanRequestCreate": "Unban Request Create",
-			"channelUnbanRequestResolve": "Unban Request Resolve",
-			"messageDelete": "Message Deleted"
+			"channelUnbanRequestCreate": "Solicitação de Desbanimento Criada",
+			"channelUnbanRequestResolve": "Solicitação de Desbanimento Resolvida",
+			"messageDelete": "Mensagem Excluída"
 		}
 	},
 	"moderation": {
-		"name": "Name of rule, just for your convenience to see name in list",
-		"createNewRule": "Create a New Moderation Rule",
-		"banTime": "Timeout Time",
-		"banDescription": "Set to 0 for ban permamently.",
-		"banMessage": "Timeout Message",
-		"warningMessage": "Warning Message",
-		"warningMaxCount": "Warning Maximum Count",
-		"excludedRoles": "Select roles which won't be impacted by this filter:",
+		"name": "Nome da regra, apenas para facilitar a visualização do nome na lista",
+		"createNewRule": "Criar uma Nova Regra de Moderação",
+		"banTime": "Tempo de Suspensão",
+		"banDescription": "Defina como 0 para banimento permanente.",
+		"banMessage": "Mensagem de Suspensão",
+		"warningMessage": "Mensagem de Aviso",
+		"warningMaxCount": "Contagem Máxima de Avisos",
+		"excludedRoles": "Selecione as funções que não serão afetadas por esse filtro:",
 		"types": {
 			"links": {
 				"name": "Links",
-				"description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being sent into chat."
+				"description": "Escaneia o chat da Twitch em busca de links ou URLs na web e os remove rapidamente para evitar spam ou conteúdo inseguro sendo enviado ao chat."
 			},
 			"deny_list": {
-				"name": "Lista de palavras proibidas",
-				"description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
+				"name": "Lista de Palavras Proibidas",
+				"description": "Ajuda a manter o chat limpo filtrando palavras ou frases específicas de uma lista predefinida, impedindo que sejam exibidas.",
 				"empty": "List of disallowed words is empty! You can add one there.",
-				"regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
-				"regexpCheatSheet": "cheat sheet",
+				"regexp": "Se você for um usuário avançado, a Lista de Palavras Proibidas também suporta expressões regulares. A expressão regular deve ser escrita no formato golang! Veja um {0} aqui.",
+				"regexpCheatSheet": "guia rápido",
 				"wordBoundary": {
-					"label": "Word boundary",
-					"description": "A word boundary in filtering marks the start or end of a word, ensuring filters match whole words (e.g., \"cat\") but not parts of words (e.g., \"category\")."
+					"label": "Limite de palavra",
+					"description": "Um limite de palavra em filtros marca o início ou o fim de uma palavra, garantindo que os filtros correspondam a palavras inteiras (por exemplo, \"foto\") e não a partes de palavras (por exemplo, \"fotografia\")."
 				},
 				"caseSensitive": {
 					"label": "Diferenciar maiúsculas/minúsculas",
-					"description": "Case sensitivity in filtering means that the filter will only match words with the exact same capitalization as the filter (e.g., \"Cat\" will not match \"cat\")."
+					"description": "Diferenciar maiúsculas/minúsculas em filtros significa que o filtro só corresponderá a palavras com a mesma capitalização exata do filtro (por exemplo, \"Gato\" não corresponderá a \"gato\")."
 				}
 			},
 			"symbols": {
-				"name": "Symbols",
-				"description": "Identifies and restricts excessive use of symbols, preventing clutter, chaos and maintaining readability in the chat.",
-				"triggerLength": "Minimal Message Length",
-				"maxPercentage": "Porcentagem máxima de símbolos"
+				"name": "Símbolos",
+				"description": "Identifica e restringe o uso excessivo de símbolos, prevenindo a desordem, o caos e mantendo a legibilidade no chat.",
+				"triggerLength": "Tamanho Mínimo da Mensagem",
+				"maxPercentage": "Porcentagem Máxima de Símbolos"
 			},
 			"long_message": {
-				"name": "Message Length",
-				"description": "Identifies and restricts long messages by limiting the length of messages sent into chat.",
-				"triggerLength": "Maximum Message Length"
+				"name": "Tamanho da Mensagem",
+				"description": "Identifica e restringe mensagens longas limitando o tamanho das mensagens enviadas no chat.",
+				"triggerLength": "Tamanho Máximo da Mensagem"
 			},
 			"caps": {
-				"name": "Caps",
-				"description": "Identifies and restricts excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
-				"maxPercentage": "Porcentagem máxima de letras maiúsculas",
-				"triggerLength": "Minimal Message Length"
+				"name": "Letras Maiúsculas",
+				"description": "Identifica e restringe o uso excessivo de letras maiúsculas, promovendo uma conversa mais equilibrada e respeitosa no chat.",
+				"maxPercentage": "Porcentagem Máxima de Letras Maiúsculas",
+				"triggerLength": "Tamanho Mínimo da Mensagem"
 			},
 			"emotes": {
 				"name": "Emotes",
-				"description": "Detects the frequency and amount of emoticons used in messages, avoiding overuse and spam of them.",
-				"triggerLength": "Limite máximo de uso de emotes"
+				"description": "Detecta a frequência e quantidade de emoticons usados nas mensagens, evitando seu uso excessivo e spam.",
+				"triggerLength": "Limite Máximo do Uso de Emotes"
 			},
 			"language": {
-				"name": "Language",
+				"name": "Idioma",
 				"description": "Scans and filters out inappropriate languages.",
 				"allowedLanguages": "Lista de idiomas permitidos",
 				"disallowedLanguages": "Lista de idiomas proibidos"
