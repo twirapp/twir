@@ -888,11 +888,11 @@
 				"timeoutTime": "Tempo de suspensão para o perdedor",
 				"pointsPerWin": "Reputação por vitória",
 				"pointsPerLose": "Reputação por derrota",
-				"bothDiePercent": "Percent of chance both users die"
+				"bothDiePercent": "Probabilidade de ambos os usuários morrerem"
 			}
 		},
 		"seppuku": {
-			"description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
+			"description": "Seppuku é uma forma de suicídio ritualístico japonês por dissecção abdominal.",
 			"message": "Mensagem",
 			"timeoutModerators": "Enable seppuku for moderators",
 			"messageModerators": "Mensagem quando o moderador usou o seppuku",
@@ -1273,7 +1273,7 @@
 				"user": "Usuário",
 				"message": "Mensagem"
 			},
-			"timeout": "sec"
+			"timeout": "seg"
 		}
 	},
 	"giveaways": {
@@ -1290,34 +1290,34 @@
 		"chooseWinner": "Escolher vencedor",
 		"pages": {
 			"list": {
-				"title": "Active Giveaways"
+				"title": "Sorteios Ativos"
 			},
 			"history": {
-				"title": "Giveaway History"
+				"title": "Histórico de Sorteios"
 			}
 		},
 		"createDialog": {
 			"title": "Criar Novo Sorteio",
-			"description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
+			"description": "Insira uma palavra-chave para seu sorteio. Os usuários usarão essa palavra-chave para participar.",
 			"keywordLabel": "Palavra-chave",
-			"keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
+			"keywordPlaceholder": "Insira a palavra-chave (por exemplo, '!sorteio' ou 'rifa')",
 			"cancel": "Cancelar",
 			"create": "Criar"
 		},
 		"notifications": {
-			"created": "Giveaway created",
-			"createdDescription": "Giveaway with keyword \"{keyword}\" has been created",
-			"error": "Error creating giveaway",
-			"winnersChosen": "Winners chosen",
-			"winnersChosenDescription": "{count} winners have been chosen",
-			"errorChoosingWinners": "Error choosing winners"
+			"created": "Sorteio criado",
+			"createdDescription": "Sorteio com a palavra-chave \"{keyword}\" foi criado",
+			"error": "Erro ao criar sorteio",
+			"winnersChosen": "Vencedores escolhidos",
+			"winnersChosenDescription": "{count} vencedores foram escolhidos",
+			"errorChoosingWinners": "Erro ao escolher vencedores"
 		},
 		"currentGiveaway": {
-			"totalParticipants": "Total participants: {count}",
-			"totalWinners": "Total winners: {count}",
-			"selectWinner": "Select a winner to view their chat logs and profile",
+			"totalParticipants": "Total de participantes: {count}",
+			"totalWinners": "Total de vencedores: {count}",
+			"selectWinner": "Selecione um vencedor para visualizar seus registros de chat e perfil",
 			"tabs": {
-				"participants": "Participants",
+				"participants": "Participantes",
 				"winners": "Vencedores"
 			}
 		}
