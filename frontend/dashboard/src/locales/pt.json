@@ -1102,174 +1102,174 @@
 			},
 			"language": {
 				"name": "Idioma",
-				"description": "Scans and filters out inappropriate languages.",
-				"allowedLanguages": "Lista de idiomas permitidos",
-				"disallowedLanguages": "Lista de idiomas proibidos"
+				"description": "Escaneia e filtra idiomas inadequados.",
+				"allowedLanguages": "Lista de Idiomas Permitidos",
+				"disallowedLanguages": "Lista de Idiomas Proibidos"
 			},
 			"one_man_spam": {
-				"name": "One Man Spam",
-				"description": "Detects and restricts users who are spamming the chat with a lot of messages in a short period of time.",
-				"triggerLength": "Minimal message length to trigger storing and filtering",
-				"minimumStoredMessages": "Number of stored messages to begin filter",
-				"messageMemorySeconds": "How long to store user message in seconds",
-				"maxPercentage": "Max text similarity percentage. Levenshtein distance used for calculation."
+				"name": "Spam de Um Homem",
+				"description": "Detecta e restringe usuários que estão enviando muitas mensagens no chat em um curto período de tempo.",
+				"triggerLength": "Tamanho mínimo da mensagem para acionar o armazenamento e filtragem",
+				"minimumStoredMessages": "Número de mensagens armazenadas para iniciar o filtro",
+				"messageMemorySeconds": "Duração do armazenamento da mensagem do usuário em segundos",
+				"maxPercentage": "Porcentagem máxima de similaridade de texto. A distância de Levenshtein é utilizada para cálculo."
 			}
 		}
 	},
 	"feedback": {
-		"button": "Send feedback",
-		"notification": "Your feedback sended",
-		"rateLimited": "You are sending messages to quickly, try again in {time}",
+		"button": "Enviar comentário",
+		"notification": "Seu comentário foi enviado",
+		"rateLimited": "Você está enviando mensagens muito rápido, tente novamente em {time}",
 		"messageLabel": "Mensagem",
 		"validation": {
-			"emptyMessage": "Message cannot be empty"
+			"emptyMessage": "A mensagem não pode estar em branco"
 		}
 	},
 	"userSettings": {
-		"title": "User settings",
+		"title": "Configurações do usuário",
 		"account": {
 			"title": "Conta",
-			"showMeOnLanding": "Show yourself on the Landing Page?",
+			"showMeOnLanding": "Mostrar-se na Página Inicial?",
 			"regenerateApiKey": {
-				"button": "Regenerate Private API key",
-				"info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+				"button": "Regenerar chave API Privada",
+				"info": "Essa chave é usada para todos os links de sobreposições. Quando você regenerar, precisará verificar todas as suas sobreposições no seu aplicativo de transmissão e substituir os URLs pelos novos links."
 			}
 		},
 		"public": {
-			"title": "Página Pública",
-			"description": "Description of channel",
-			"socialLinks": "Social links",
-			"errorCreateLink": "\"{title}\" contains not a valid link {href}",
-			"errorInvalidLength": "Invalid length",
+			"title": "Página pública",
+			"description": "Descrição do canal",
+			"socialLinks": "Links sociais",
+			"errorCreateLink": "\"{title}\" não contém um link válido {href}",
+			"errorInvalidLength": "Contagem de caracteres inválida",
 			"errorInvalidLink": "Link inválido",
-			"errorEmpty": "Cannot be empty",
+			"errorEmpty": "Não pode ficar em branco",
 			"errorTooLong": "Muito longo",
-			"linkTitle": "Title",
+			"linkTitle": "Título",
 			"linkLabel": "Link"
 		}
 	},
 	"adminPanel": {
-		"title": "Painel Administrativo",
+		"title": "Painel de Administração",
 		"notifications": {
 			"title": "Notificações",
-			"formTitle": "Send or edit notification",
-			"emptyNotifications": "No notifications",
+			"formTitle": "Enviar ou editar notificação",
+			"emptyNotifications": "Nenhuma notificação",
 			"userLabel": "Usuário",
-			"userPlaceholder": "Select a user",
+			"userPlaceholder": "Selecione um usuário",
 			"messageLabel": "Mensagem",
-			"messagePreview": "Preview",
+			"messagePreview": "Prévia",
 			"createdAt": "Criado em",
-			"globals": "Globals",
+			"globals": "Globais",
 			"users": "Usuários",
-			"confirmResetForm": "Are you sure you want to reset the form?"
+			"confirmResetForm": "Você tem certeza que quer redefinir o formulário?"
 		},
 		"manageUsers": {
 			"title": "Usuários",
 			"user": "Usuário",
-			"userId": "User ID",
+			"userId": "ID do Usuário",
 			"followers": "Seguidores",
-			"noUsers": "No users",
-			"filters": "Filters",
-			"clearFilters": "Clear filters",
-			"countSelected": "{count} selected",
-			"isAdmin": "Admin",
-			"isBanned": "Banned",
-			"isBotEnabled": "Bot enabled",
-			"statusGroup": "Status",
-			"badgesGroup": "Badges",
-			"giveBan": "Ban user",
-			"unBan": "Unban user",
-			"giveMod": "Give admin",
-			"unMod": "Remove admin",
-			"dropSession": "Drop session"
+			"noUsers": "Nenhum usuário",
+			"filters": "Filtros",
+			"clearFilters": "Limpar filtros",
+			"countSelected": "{count} selecionados",
+			"isAdmin": "Administrador",
+			"isBanned": "Banido",
+			"isBotEnabled": "Bot habilitado",
+			"statusGroup": "Estado",
+			"badgesGroup": "Distintivos",
+			"giveBan": "Banir usuário",
+			"unBan": "Desbanir usuário",
+			"giveMod": "Conceder administrador",
+			"unMod": "Remover administrador",
+			"dropSession": "Encerrar sessão"
 		},
 		"manageBadges": {
-			"title": "Badges",
-			"formTitle": "Create or edit badge",
-			"name": "Name",
+			"title": "Distintivos",
+			"formTitle": "Criar ou editar distintivo",
+			"name": "Nome",
 			"users": "Usuários",
-			"slot": "Slot",
-			"image": "Image",
-			"preview": "Preview",
-			"usesCount": "Uses {count}",
-			"badgeSlot": "Slot {slot}"
+			"slot": "Espaço",
+			"image": "Imagem",
+			"preview": "Prévia",
+			"usesCount": "Usa {count}",
+			"badgeSlot": "Espaço {slot}"
 		},
 		"adminActions": {
 			"title": "Ações",
 			"eventsub": {
-				"title": "Subscribe to EventSub",
-				"condition": "Condition",
-				"type": "Type",
-				"typeError": "Please select a type",
-				"version": "Version",
+				"title": "Inscrever-se no EventSub",
+				"condition": "Condição",
+				"type": "Tipo",
+				"typeError": "Por favor, selecione um tipo",
+				"version": "Versão",
 				"user": "Usuário",
-				"channel": "Channel",
-				"channelWithBotId": "Channel with bot ID",
-				"channelWithModeratorId": "Channel with moderator ID"
+				"channel": "Canal",
+				"channelWithBotId": "Canal com ID do bot",
+				"channelWithModeratorId": "Canal com ID do moderador"
 			},
 			"dangerZone": {
-				"title": "Danger Zone",
-				"revoke": "Revoke",
-				"revokeSessions": "Revoke sessions",
-				"revokeAllSessionsDescription": "All user sessions will be revoked",
-				"revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+				"title": "Zona de Perigo",
+				"revoke": "Revogar",
+				"revokeSessions": "Revogar sessões",
+				"revokeAllSessionsDescription": "Todas as sessões de usuário serão revogadas",
+				"revokeAllSessionsConfirm": "Você tem certeza que quer revogar todas as sessões?"
 			}
 		},
 		"auditLogs": {
-			"title": "Registros de Auditoria"
+			"title": "Registros de auditoria"
 		}
 	},
 	"expiringVips": {
-		"title": "Scheduled VIPs",
+		"title": "VIPs Agendados",
 		"description": {
-			"line1": "With this feature, you can create VIPs for your channel, which will be removed after a selected time.",
-			"line2": "You can use commands from built-in {module} module for that."
+			"line1": "Com esse recurso, você pode criar VIPs para o seu canal, que serão removidos após um tempo selecionado.",
+			"line2": "Você pode usar comandos do módulo {module} embutido para isso."
 		},
-		"comingSoon": "Soon, but already available through commands",
+		"comingSoon": "Em breve, mas já disponível por comandos",
 		"commands": {
-			"add": "Add VIP",
-			"remove": "Remove VIP",
-			"list": "List VIPs",
-			"setExpire": "Extend the expiration time for existing timed VIPs, or add an expiration for VIP users who don't have one"
+			"add": "Adicionar VIP",
+			"remove": "Remover VIP",
+			"list": "Listar VIPs",
+			"setExpire": "Estender o tempo de expiração para VIPs temporários existentes ou adicionar uma data de expiração para usuários VIP que não possuem uma"
 		},
 		"alert": {
-			"title": "Heads up!",
-			"description": "It's a list of expiring VIPs, not list of all channel VIPs."
+			"title": "Atenção!",
+			"description": "É uma lista de VIPs com prazo de expiração, não uma lista de todos os VIPs do canal."
 		}
 	},
 	"moderationRules": {
 		"description": {
-			"line1": "Create rules to moderate your chat.",
-			"line2": "Be careful."
+			"line1": "Crie regras para moderar seu chat.",
+			"line2": "Tenha cuidado."
 		}
 	},
 	"chatWall": {
 		"description": {
-			"line1": "Mass ban/delete/timeout messages that contain a specific phrase.",
-			"line2": "Improper usage may result in a permanent ban from the TwirApp service. "
+			"line1": "Banir/excluir/suspender mensagens em massa que contêm uma frase específica.",
+			"line2": "O uso inadequado pode resultar em um banimento permanente do serviço TwirApp. "
 		},
 		"settings": {
-			"title": "Setup",
-			"muteSubscribers": "Mute subscribers",
-			"muteVips": "Mute VIPs"
+			"title": "Configuração",
+			"muteSubscribers": "Silenciar inscritos",
+			"muteVips": "Silenciar VIPs"
 		},
 		"commands": {
-			"title": "Commands",
-			"delete": "Chat wall delete",
-			"ban": "Chat wall ban",
-			"timeout": "Chat wall timeout",
-			"stop": "Chat wall stop"
+			"title": "Comandos",
+			"delete": "Exclusão de parede do chat",
+			"ban": "Banimento de parede do chat",
+			"timeout": "Suspensão de parede do chat",
+			"stop": "Parada de parede do chat"
 		},
 		"table": {
-			"phrase": "Phrase",
-			"createdAt": "Created at",
-			"inProcess": "In process",
-			"action": "Action",
+			"phrase": "Frase",
+			"createdAt": "Criado em",
+			"inProcess": "Em andamento",
+			"action": "Ação",
 			"yes": "Sim",
 			"no": "Não",
-			"affectedMessages": "Affected messages",
+			"affectedMessages": "Mensagens afetadas",
 			"logs": {
-				"title": "Affected messages",
+				"title": "Mensagens afetadas",
 				"user": "Usuário",
 				"message": "Mensagem"
 			},
