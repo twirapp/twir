@@ -894,7 +894,7 @@
 		"seppuku": {
 			"description": "Seppuku é uma forma de suicídio ritualístico japonês por dissecção abdominal.",
 			"message": "Mensagem",
-			"timeoutModerators": "Enable seppuku for moderators",
+			"timeoutModerators": "Habilitar seppuku para moderadores",
 			"messageModerators": "Mensagem quando o moderador usou o seppuku",
 			"timeoutSeconds": "Duração da suspensão (segundos)"
 		},
