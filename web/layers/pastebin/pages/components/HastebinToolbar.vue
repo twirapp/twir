@@ -101,6 +101,8 @@ const buttons = computed(() => {
 </template>
 
 <style scoped>
+@reference '#tailwindcss';
+
 .icon {
 	@apply size-6 cursor-pointer text-gray-300;
 }

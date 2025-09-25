@@ -15,11 +15,12 @@ import Header from './default/header.vue'
 </template>
 
 <style>
+@reference '#tailwindcss';
 html {
 	scroll-behavior: smooth;
 }
 
 body {
-	@apply bg-[#09090B] overflow-x-hidden
+	@apply bg-[#09090B] overflow-x-hidden;
 }
 </style>

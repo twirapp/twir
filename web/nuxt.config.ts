@@ -1,8 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
 
-import gqlcodegen from './modules/gql-codegen'
-
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -23,7 +21,6 @@ export default defineNuxtConfig({
 	modules: [
 		'@pinia/nuxt',
 		'@bicou/nuxt-urql',
-		'@nuxtjs/tailwindcss',
 		'reka-ui/nuxt',
 		'@nuxtjs/color-mode',
 		'shadcn-nuxt',
@@ -33,9 +30,9 @@ export default defineNuxtConfig({
 		'nuxt-svgo',
 		'@vueuse/nuxt',
 		'@nuxtjs/seo',
-		gqlcodegen,
-		'@nuxtjs/fontaine',
+		// gqlcodegen,
 		'nuxt-shiki',
+		'@nuxtjs/tailwindcss',
 	],
 
 	icon: {
@@ -88,33 +85,6 @@ export default defineNuxtConfig({
 		 * @default "./components/ui"
 		 */
 		componentDir: './app/components/ui',
-	},
-
-	tailwindcss: {
-		config: {
-			content: {
-				files: [
-					path.join(
-						path.dirname(require.resolve('@twir/frontend-valorant-stats')),
-						'**/*.{js,vue,ts}'
-					),
-				],
-			},
-		},
-	},
-
-	imports: {
-		imports: [
-			{
-				from: 'tailwind-variants',
-				name: 'tv',
-			},
-			{
-				from: 'tailwind-variants',
-				name: 'VariantProps',
-				type: true,
-			},
-		],
 	},
 
 	urql: {

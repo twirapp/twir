@@ -12,7 +12,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 </script>
 
 <template>
-	<section class="px-5 md:px-9 overflow-hidden">
+	<section class="container mx-auto px-5 md:px-9 overflow-hidden">
 		<div
 			class="container py-20 lg:py-28 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-12 before:-rotate-[30deg] before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,_#181F4E_0%,_rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8"
 		>
