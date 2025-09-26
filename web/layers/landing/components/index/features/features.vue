@@ -2,15 +2,15 @@
 import { DISCORD_INVITE_URL } from '@twir/brand'
 
 import { featuresData } from './features-data.js'
-import { LandingStatsStoreKey, useLandingStatsStore } from '#layers/landing/stores/landing-stats'
+import { LandingStatsStoreKey } from '~/stores/landing-stats'
 
-const { stats, fetchLandingStats } = useLandingStatsStore()
-await callOnce(LandingStatsStoreKey, () => fetchLandingStats())
+const statsStore = useLandingStatsStore()
+await callOnce(LandingStatsStoreKey, () => statsStore.fetchLandingStats())
 
 function prepareDescription(d: string): string {
 	return d
-		.replaceAll('{landingStatsCreatedHastebins}', stats?.hasteBins ?? 0)
-		.replaceAll('{landingStatsCreatedShortUrls}', stats?.shortUrls ?? 0)
+		.replaceAll('{landingStatsCreatedHastebins}', (statsStore.stats?.hasteBins ?? 0).toString())
+		.replaceAll('{landingStatsCreatedShortUrls}', (statsStore.stats?.shortUrls ?? 0).toString())
 }
 </script>
 

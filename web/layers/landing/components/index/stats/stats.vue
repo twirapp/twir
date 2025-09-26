@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { LandingStatsStoreKey, useLandingStatsStore } from '#layers/landing/stores/landing-stats'
+import { LandingStatsStoreKey } from '~/stores/landing-stats'
 
 const formatter = Intl.NumberFormat('en-US', {
 	notation: 'compact',
 	maximumFractionDigits: 1,
 })
 
-const { stats: statsData, fetchLandingStats } = useLandingStatsStore()
-await callOnce(LandingStatsStoreKey, () => fetchLandingStats())
+const statsStore = useLandingStatsStore()
+await callOnce(LandingStatsStoreKey, () => statsStore.fetchLandingStats())
 
 function formatNumber(value?: number | bigint) {
 	return formatter.format(value ?? 0)
@@ -16,27 +16,27 @@ function formatNumber(value?: number | bigint) {
 const stats = [
 	{
 		key: 'Channels',
-		value: formatNumber(statsData?.channels),
+		value: formatNumber(statsStore.stats?.channels),
 	},
 	{
 		key: 'Created commands',
-		value: formatNumber(statsData?.createdCommands),
+		value: formatNumber(statsStore.stats?.createdCommands),
 	},
 	{
 		key: 'Viewers',
-		value: formatNumber(statsData?.viewers),
+		value: formatNumber(statsStore.stats?.viewers),
 	},
 	{
 		key: 'Messages',
-		value: formatNumber(statsData?.messages),
+		value: formatNumber(statsStore.stats?.messages),
 	},
 	{
 		key: 'Used emotes',
-		value: formatNumber(statsData?.usedEmotes),
+		value: formatNumber(statsStore.stats?.usedEmotes),
 	},
 	{
 		key: 'Used commands',
-		value: formatNumber(statsData?.usedCommands),
+		value: formatNumber(statsStore.stats?.usedCommands),
 	},
 ]
 </script>

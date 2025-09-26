@@ -17,6 +17,5 @@ export function useLandingStats() {
 			}
 		`),
 		variables: {},
-		pause: true,
 	})
 }
