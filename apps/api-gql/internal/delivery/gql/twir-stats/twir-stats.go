@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -58,15 +59,13 @@ func New(opts Opts) *TwirStats {
 	}
 
 	go s.cacheCounts()
-	// go s.cacheStreamers()
-	//
-	// ticker := time.NewTicker(5 * time.Minute)
-	// go func() {
-	// 	for range ticker.C {
-	// 		s.cacheCounts()
-	// 		s.cacheStreamers()
-	// 	}
-	// }()
+
+	ticker := time.NewTicker(5 * time.Minute)
+	go func() {
+		for range ticker.C {
+			s.cacheCounts()
+		}
+	}()
 
 	return s
 }
