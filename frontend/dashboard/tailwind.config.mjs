@@ -3,8 +3,6 @@ import path from 'node:path'
 import containerQueries from '@tailwindcss/container-queries'
 import animate from 'tailwindcss-animate'
 
-s
-
 /** @type {import('tailwindcss').Config} */
 export default {
 	darkMode: ['class'],

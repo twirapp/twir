@@ -15,6 +15,10 @@ type Repository interface {
 	Count(ctx context.Context, input CountInput) (int64, error)
 }
 
+type CountInput struct {
+	OwnerUserID string
+}
+
 type CreateInput struct {
 	ID          string
 	Content     string
@@ -31,8 +35,4 @@ type GetManyInput struct {
 type GetManyOutput struct {
 	Items []model.Pastebin
 	Total int
-}
-
-type CountInput struct {
-	OwnerUserID string
 }
