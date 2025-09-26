@@ -6,7 +6,7 @@ const formatter = Intl.NumberFormat('en-US', {
 	maximumFractionDigits: 1,
 })
 
-const { stats: statsData, fetchLandingStats } = await useLandingStatsStore()
+const { stats: statsData, fetchLandingStats } = useLandingStatsStore()
 await callOnce(LandingStatsStoreKey, () => fetchLandingStats())
 
 function formatNumber(value?: number | bigint) {

@@ -9,8 +9,8 @@ await callOnce(LandingStatsStoreKey, () => fetchLandingStats())
 
 function prepareDescription(d: string): string {
 	return d
-		.replaceAll('{landingStatsCreatedHastebins}', stats.hasteBins)
-		.replaceAll('{landingStatsCreatedShortUrls}', stats.shortUrls)
+		.replaceAll('{landingStatsCreatedHastebins}', stats?.hasteBins ?? 0)
+		.replaceAll('{landingStatsCreatedShortUrls}', stats?.shortUrls ?? 0)
 }
 </script>
 
