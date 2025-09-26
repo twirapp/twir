@@ -13,6 +13,7 @@ type Repository interface {
 	Update(ctx context.Context, id string, input UpdateInput) (model.ShortenedUrl, error)
 	GetList(ctx context.Context, input GetListInput) (GetListOutput, error)
 	Delete(ctx context.Context, id string) error
+	Count(ctx context.Context, input CountInput) (int64, error)
 }
 
 type CreateInput struct {
@@ -34,4 +35,8 @@ type GetListInput struct {
 type GetListOutput struct {
 	Items []model.ShortenedUrl
 	Total int
+}
+
+type CountInput struct {
+	UserID string
 }

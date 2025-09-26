@@ -36,6 +36,26 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) Count(ctx context.Context, input shortened_urls.CountInput) (int64, error) {
+	selectBuilder := sq.Select("COUNT(*)").From("shortened_urls")
+	if input.UserID != "" {
+		selectBuilder = selectBuilder.Where("created_by_user_id", input.UserID)
+	}
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	var count int64
+	err = c.pool.QueryRow(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (c *Pgx) Delete(ctx context.Context, id string) error {
 	query := `
 DELETE FROM shortened_urls

@@ -11,9 +11,12 @@ export function useLandingStats() {
 					usedCommands
 					usedEmotes
 					viewers
+					shortUrls
+					hasteBins
 				}
 			}
 		`),
 		variables: {},
+		pause: true,
 	})
 }

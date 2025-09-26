@@ -72,8 +72,6 @@ func StartProxy(block bool) (<-chan struct{}, error) {
 				return startChannel, fmt.Errorf("failed to set capability: %v", err)
 			}
 			pterm.Success.Println("Capability set successfully; no further sudo prompts needed unless Caddy binary changes")
-		} else {
-			pterm.Info.Println("Caddy already has permission to bind to port 443; no sudo required")
 		}
 	}
 
