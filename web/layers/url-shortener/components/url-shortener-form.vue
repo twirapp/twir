@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 
@@ -8,7 +7,10 @@ import { useUrlShortener } from '../composables/use-url-shortener'
 import type { LinkOutputDto } from '@twir/api/openapi'
 
 const schema = z.object({
-	url: z.string().url('Please enter a valid URL'),
+	url: z.url({
+		protocol: /^https?$/,
+		hostname: z.regexes.domain,
+	}),
 	customAlias: z
 		.string()
 		.min(3, 'Custom alias must be at least 3 characters')
@@ -19,8 +21,7 @@ const schema = z.object({
 })
 
 const shortenerForm = useForm({
-	// @ts-ignore
-	validationSchema: toTypedSchema(schema),
+	validationSchema: schema,
 })
 
 const api = useUrlShortener()
@@ -63,7 +64,7 @@ const onSubmit = shortenerForm.handleSubmit(async (values) => {
 								v-bind="componentField"
 							/>
 						</UiFormControl>
-						<UiFormDescription> URL you want to short. </UiFormDescription>
+						<UiFormDescription> URL you want to shorten. </UiFormDescription>
 						<UiFormMessage />
 					</UiFormItem>
 				</UiFormField>

@@ -26,7 +26,6 @@
 		"@twir/frontend-valorant-stats": "workspace:*",
 		"@urql/core": "5.1.1",
 		"@urql/vue": "1.4.3",
-		"@vee-validate/zod": "4.15.1",
 		"class-variance-authority": "0.7.1",
 		"clsx": "2.1.1",
 		"graphql": "catalog:",
@@ -42,7 +41,7 @@
 		"shadcn-nuxt": "2.1.0",
 		"tailwind-merge": "3.0.2",
 		"tailwind-variants": "1.0.0",
-		"vee-validate": "4.15.1",
+		"vee-validate": "5.0.0-beta.0",
 		"vue": "catalog:",
 		"vue-sonner": "2.0.8",
 		"zod": "4.1.11"
