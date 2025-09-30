@@ -24,7 +24,7 @@ func installNodeDeps() error {
 
 	err = shell.ExecCommand(
 		shell.ExecCommandOpts{
-			Command: "bun install --frozen-lockfile --linker=isolated",
+			Command: "bun install --frozen-lockfile",
 			Pwd:     wd,
 			Stderr:  os.Stderr,
 			Stdout:  os.Stdout,
