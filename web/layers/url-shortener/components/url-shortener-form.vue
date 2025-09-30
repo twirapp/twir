@@ -8,7 +8,7 @@ import { useUrlShortener } from '../composables/use-url-shortener'
 import type { LinkOutputDto } from '@twir/api/openapi'
 
 const schema = z.object({
-	url: z.url('Please enter a valid URL'),
+	url: z.string().url('Please enter a valid URL'),
 	customAlias: z
 		.string()
 		.min(3, 'Custom alias must be at least 3 characters')
