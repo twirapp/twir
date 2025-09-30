@@ -79,6 +79,12 @@ export interface CreateLinkInputDto {
    */
   $schema?: string;
   /**
+   * @minLength 3
+   * @maxLength 30
+   * @pattern ^[a-zA-Z0-9]+$
+   */
+  alias?: string;
+  /**
    * @format uri
    * @minLength 1
    * @maxLength 2000

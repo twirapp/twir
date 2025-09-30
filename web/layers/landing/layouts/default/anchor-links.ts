@@ -1,14 +1,22 @@
 export const anchorLinks = [
 	{
-		href: '#features',
+		href: '/#features',
 		label: 'Features',
 	},
 	{
-		href: '#integrations',
+		href: '/#integrations',
 		label: 'Integrations',
 	},
-	// {
-	// 	href: '#team',
-	// 	label: 'Team',
-	// },
+	{
+		href: '/url-shortener',
+		label: 'URL Shortener',
+	},
+	{
+		href: '/h',
+		label: 'Hastebin',
+	},
+	{
+		href: '/terms',
+		label: 'Terms of Service',
+	},
 ]

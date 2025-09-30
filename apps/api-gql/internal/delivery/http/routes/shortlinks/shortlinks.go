@@ -6,8 +6,9 @@ import (
 	"net/url"
 
 	"github.com/danielgtaylor/huma/v2"
-	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
 )
@@ -15,9 +16,10 @@ import (
 type Opts struct {
 	fx.In
 
-	Api     huma.API
-	Config  config.Config
-	Service *shortenedurls.Service
+	Api      huma.API
+	Config   config.Config
+	Service  *shortenedurls.Service
+	Sessions *auth.Auth
 }
 
 func New(opts Opts) {
@@ -54,9 +56,17 @@ func New(opts Opts) {
 				}, nil
 			}
 
+			var createdByUserID *string
+			user, _ := opts.Sessions.GetAuthenticatedUser(ctx)
+			if user != nil {
+				createdByUserID = &user.ID
+			}
+
 			link, err := opts.Service.Create(
 				ctx, shortenedurls.CreateInput{
-					URL: input.Body.Url,
+					URL:             input.Body.Url,
+					ShortID:         input.Body.Alias,
+					CreatedByUserID: createdByUserID,
 				},
 			)
 			if err != nil {
@@ -164,7 +174,8 @@ type createLinkInput struct {
 }
 
 type createLinkInputDto struct {
-	Url string `json:"url" required:"true" format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
+	Url   string `json:"url" required:"true" format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
+	Alias string `json:"alias" required:"false" minLength:"3" maxLength:"30" example:"stream" pattern:"^[a-zA-Z0-9]+$"`
 }
 
 type createLinkOutput struct {

@@ -6,7 +6,7 @@
 		"@prettier/plugin-oxc": "0.0.4",
 		"@types/bun": "catalog:",
 		"@types/node": "20.12.7",
-		"@vue/language-server": "3.0.5",
+		"@vue/language-server": "3.1.0",
 		"eslint-plugin-oxlint": "1.5.0",
 		"oxlint": "1.5.0",
 		"prettier": "3.6.2",
@@ -50,9 +50,9 @@
 			"@vueuse/components": "13.3.0",
 			"@vueuse/core": "13.3.0",
 			"@vueuse/router": "13.3.0",
-      "@graphql-codegen/cli": "5.0.5",
-      "@graphql-codegen/client-preset": "4.6.4",
-      "@graphql-typed-document-node/core": "3.2.0"
+			"@graphql-codegen/cli": "5.0.5",
+			"@graphql-codegen/client-preset": "4.6.4",
+			"@graphql-typed-document-node/core": "3.2.0"
 		}
 	}
 }
