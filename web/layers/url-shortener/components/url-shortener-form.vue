@@ -38,11 +38,13 @@ const onSubmit = shortenerForm.handleSubmit(async (values) => {
 	})
 
 	if (error) {
-		currentError.value = error.value.message
+		currentError.value = error
 		return
 	}
 
-	currentUrl.value = data
+	if (data) {
+		currentUrl.value = data
+	}
 })
 </script>
 
@@ -84,7 +86,7 @@ const onSubmit = shortenerForm.handleSubmit(async (values) => {
 		</UiCardContent>
 		<UiCardFooter>
 			<div
-				class="block p-4 border-border border-2 rounded-md bg-red-900 w-full underline"
+				class="block p-4 border-border border-2 rounded-md bg-red-900 w-full"
 				v-if="currentError"
 			>
 				{{ currentError }}

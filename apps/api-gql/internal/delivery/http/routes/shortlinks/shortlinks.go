@@ -37,23 +37,36 @@ func New(opts Opts) {
 		) (
 			*createLinkOutput, error,
 		) {
-			existedLink, err := opts.Service.GetByUrl(ctx, input.Body.Url)
-			if err != nil {
-				return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
+			if input.Body.Alias == "" {
+				existedLink, err := opts.Service.GetByUrl(ctx, input.Body.Url)
+				if err != nil {
+					return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
+				}
+
+				if existedLink != model.Nil {
+					baseUrl, _ := url.Parse(opts.Config.SiteBaseUrl)
+					baseUrl.Path = "/s/" + existedLink.ShortID
+
+					return &createLinkOutput{
+						Body: linkOutputDto{
+							Id:       existedLink.ShortID,
+							Url:      existedLink.URL,
+							ShortUrl: baseUrl.String(),
+							Views:    existedLink.Views,
+						},
+					}, nil
+				}
 			}
 
-			if existedLink != model.Nil {
-				baseUrl, _ := url.Parse(opts.Config.SiteBaseUrl)
-				baseUrl.Path = "/s/" + existedLink.ShortID
+			if input.Body.Alias != "" {
+				existedLink, err := opts.Service.GetByShortID(ctx, input.Body.Alias)
+				if err != nil {
+					return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
+				}
 
-				return &createLinkOutput{
-					Body: linkOutputDto{
-						Id:       existedLink.ShortID,
-						Url:      existedLink.URL,
-						ShortUrl: baseUrl.String(),
-						Views:    existedLink.Views,
-					},
-				}, nil
+				if existedLink != model.Nil {
+					return nil, huma.NewError(http.StatusConflict, "Alias already in use")
+				}
 			}
 
 			var createdByUserID *string
