@@ -8,7 +8,7 @@ COPY libs/config/package.json ./libs/config/package.json
 COPY libs/api/package.json ./libs/api/package.json
 COPY libs/frontend-valorant-stats/package.json ./libs/frontend-valorant-stats/package.json
 COPY web/package.json ./web/package.json
-RUN bun install --no-save
+RUN bun install --frozen-lockfile
 
 FROM base AS builder
 COPY --from=installer /app/node_modules node_modules
