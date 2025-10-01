@@ -8,8 +8,6 @@ import (
 
 	"github.com/avast/retry-go/v4"
 	dispatchtypes "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
-	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/operations"
-	"github.com/twirapp/twir/apps/emotes-cacher/internal/socket_client"
 )
 
 func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error {
@@ -28,7 +26,7 @@ func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error 
 	subMessages := c.createSubMessages(channelsWithEmoteSets)
 
 	for _, msg := range subMessages {
-		instance, err := c.getOrCreateSocketInstance(ctx)
+		instance, err := c.getOrCreateSocketInstance()
 		if err != nil {
 			return fmt.Errorf(
 				"failed to get or create socket instance: %w",
@@ -37,11 +35,7 @@ func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error 
 		}
 
 		for {
-			// wait until socket connected and gets hello message from 7tv
-			if instance.SessionID == "" {
-				continue
-			}
-			if err := instance.Instance.Subscribe(ctx, msg); err != nil {
+			if err := instance.Instance.subscribe(msg); err != nil {
 				c.logger.Error(
 					"failed to subscribe to 7TV websocket",
 					slog.Any("err", err),
@@ -56,24 +50,21 @@ func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error 
 	return nil
 }
 
-var emoteSetSubTypes = []string{"create", "update", "delete"}
+var emoteSetSubTypes = []string{"create", "delete"}
 
-func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []map[string]interface{} {
-	subMessages := make([]map[string]interface{}, 0, len(data))
+func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []connSubscription {
+	subMessages := make([]connSubscription, 0, len(data))
 
 	for channelId, emoteSetId := range data {
 		for _, emoteSetSubType := range emoteSetSubTypes {
 			subMessages = append(
 				subMessages,
-				map[string]interface{}{
-					"op": operations.OutgoingOpSubscribe,
-					"d": map[string]any{
-						"type": fmt.Sprintf("emote_set.%s", emoteSetSubType),
-						"condition": map[string]string{
-							"ctx":      "channel",
-							"id":       channelId,
-							"platform": "TWITCH",
-						},
+				connSubscription{
+					subType: fmt.Sprintf("emote_set.%s", emoteSetSubType),
+					conditions: map[string]string{
+						"readCtx":  "channel",
+						"id":       channelId,
+						"platform": "TWITCH",
 					},
 				},
 			)
@@ -81,13 +72,11 @@ func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []map[string
 
 		if emoteSetId != "" {
 			subMessages = append(
-				subMessages, map[string]interface{}{
-					"op": operations.OutgoingOpSubscribe,
-					"d": map[string]any{
-						"type": dispatchtypes.UpdateEmoteSet,
-						"condition": map[string]string{
-							"object_id": emoteSetId,
-						},
+				subMessages,
+				connSubscription{
+					subType: string(dispatchtypes.UpdateEmoteSet),
+					conditions: map[string]string{
+						"object_id": emoteSetId,
 					},
 				},
 			)
@@ -159,7 +148,7 @@ func (c *Service) getChannelsWithEmotesSets(
 
 var socketsMu sync.Mutex
 
-func (c *Service) getOrCreateSocketInstance(ctx context.Context) (*socketInstance, error) {
+func (c *Service) getOrCreateSocketInstance() (*socketInstance, error) {
 	socketsMu.Lock()
 	defer socketsMu.Unlock()
 
@@ -167,26 +156,17 @@ func (c *Service) getOrCreateSocketInstance(ctx context.Context) (*socketInstanc
 
 	// find free socket instance
 	for _, ws := range c.sockets {
-		if ws.Instance.SubscriptionsCount+1 < ws.Instance.SubscriptionsLimit {
+		if len(ws.Instance.subscriptions)+1 < ws.Instance.maxCapacity {
 			instance = ws
 			break
 		}
 	}
 
 	if instance == nil {
-		newConn, err := socket_client.New(
-			ctx,
-			socket_client.Opts{
-				OnMessage:          c.onMessage,
-				OnReconnect:        c.onReconnect,
-				OnConnect:          nil,
-				Url:                "wss://events.7tv.io/v3",
-				SubscriptionsLimit: 300,
-			},
+		newConn := newConn(
+			c.onMessage,
+			1,
 		)
-		if err != nil {
-			return nil, err
-		}
 		instance = &socketInstance{
 			Instance: newConn,
 			ShardID:  uint8(len(c.sockets)),

@@ -1,5 +1,9 @@
 package operations
 
+import (
+	"strings"
+)
+
 // Op 	Name 	Type 	Description
 // 0 	Dispatch 	⬇️ 	A standard event message, sent when a subscribed event is emitted
 // 1 	Hello 	⬇️ 	Received upon connecting, presents info about the session
@@ -47,3 +51,26 @@ const (
 	// OutgoingOpSignal ⬆️ Send a signal to the server
 	OutgoingOpSignal OutgoingOp = 37
 )
+
+func OpFromString(op string) (IncomingOp, bool) {
+	op = strings.ToLower(strings.TrimSpace(op))
+
+	switch op {
+	case "0", "dispatch":
+		return IncomingOpDispatch, true
+	case "1", "hello":
+		return IncomingOpHello, true
+	case "2", "heartbeat":
+		return IncomingOpHeartbeat, true
+	case "4", "reconnect":
+		return IncomingOpReconnect, true
+	case "5", "ack":
+		return IncomingOpAck, true
+	case "6", "error":
+		return IncomingOpError, true
+	case "7", "end of stream":
+		return IncomingOpEndOfStream, true
+	default:
+		return -1, false
+	}
+}
