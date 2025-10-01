@@ -140,7 +140,7 @@ func (c *conn) start() error {
 			)
 
 			if err := clientConn.Connect(); err != nil && !errors.Is(err, context.Canceled) {
-				log.Println("[7TV] Connection error:", err)
+				log.Printf("[7TV] Connection error: %v, url: %s\n", err, connUrl)
 			}
 
 			time.Sleep(500 * time.Millisecond)
