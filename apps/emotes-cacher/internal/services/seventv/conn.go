@@ -152,7 +152,6 @@ func (c *conn) start() error {
 
 func (c *conn) Stop() error {
 	c.stopCh <- struct{}{}
-	fmt.Println("calling stop")
 
 	return nil
 }
