@@ -34,11 +34,11 @@ var SetExpire = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: "user",
-			Hint: "@username",
+			Hint: i18n.Get(locales.Translations.Commands.Vips.Hints.User),
 		},
 		command_arguments.VariadicString{
 			Name: "unvip_in",
-			Hint: "time in, example: 1w5d1m5s",
+			Hint: i18n.Get(locales.Translations.Commands.Vips.Hints.UnvipIn),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -67,7 +67,7 @@ var SetExpire = &types.DefaultCommand{
 		duration, err := str2duration.ParseDuration(unvipArg)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.InvalidDuration),
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Errors.InvalidDuration),
 				Err:     err,
 			}
 		}
@@ -83,7 +83,7 @@ var SetExpire = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.CannotGetListFromDb),
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Errors.CannotGetListFromDb),
 				Err:     err,
 			}
 		}
@@ -97,7 +97,7 @@ var SetExpire = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.CannotCreateScheduledInDb),
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Errors.CannotCreateScheduledInDb),
 					Err:     err,
 				}
 			}
@@ -111,7 +111,7 @@ var SetExpire = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.CannotUpdate),
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Errors.CannotUpdate),
 					Err:     err,
 				}
 			}
@@ -129,8 +129,8 @@ var SetExpire = &types.DefaultCommand{
 			Result: []string{
 				i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Vips.Updated.SetVars(
-						locales.KeysCommandsVipsUpdatedVars{
+					locales.Translations.Commands.Vips.Errors.Updated.SetVars(
+						locales.KeysCommandsVipsErrorsUpdatedVars{
 							UserName: user.UserName,
 							EndTime:  newUnvipAt.Format("2006-01-02 15:04:05"),
 						},

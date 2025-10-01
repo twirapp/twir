@@ -8,7 +8,9 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var DuelStats = &types.DefaultCommand{
@@ -64,6 +66,11 @@ var DuelStats = &types.DefaultCommand{
 					losesCount,
 					winRate,
 				),
+				fmt.Sprintf(i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Games.Info.DuelStats.
+						SetVars(locales.KeysCommandsGamesInfoDuelStatsVars{Duels: duelsCount, Wins: winsCount, Loses: losesCount, Winrate: fmt.Sprintf("%.0f%%", winRate)}),
+				)),
 			},
 		}, nil
 	},

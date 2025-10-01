@@ -3,13 +3,14 @@ package predictions
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -34,7 +35,7 @@ var Cancel = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create twitch client",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotCreateTwitch),
 				Err:     err,
 			}
 		}
@@ -46,16 +47,18 @@ var Cancel = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get current prediction",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.CannotGetCurrent),
 				Err:     err,
 			}
 		}
 		if currentPredictionReq.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf(
-					"cannot get current prediction: %s",
-					currentPredictionReq.ErrorMessage,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Errors.CannotGetCurrentVar.
+						SetVars(locales.KeysCommandsPredictionsErrorsCannotGetCurrentVarVars{Reason: currentPredictionReq.ErrorMessage}),
 				),
+
 				Err: errors.New(currentPredictionReq.ErrorMessage),
 			}
 		}
@@ -70,7 +73,7 @@ var Cancel = &types.DefaultCommand{
 
 		if currentRunedPrediction == nil {
 			return nil, &types.CommandHandlerError{
-				Message: "no prediction runed",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Info.NoRuned),
 			}
 		}
 
@@ -83,16 +86,17 @@ var Cancel = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot cancel prediction",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.CannotCancel),
 				Err:     err,
 			}
 		}
 
 		if cancelResp.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf(
-					"cannot cancel prediction: %s",
-					cancelResp.ErrorMessage,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Errors.CannotCancelVar.
+						SetVars(locales.KeysCommandsPredictionsErrorsCannotCancelVarVars{Reason: cancelResp.ErrorMessage}),
 				),
 				Err: errors.New(cancelResp.ErrorMessage),
 			}
@@ -100,7 +104,7 @@ var Cancel = &types.DefaultCommand{
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				"✅ Prediction canceled",
+				i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Info.Cancel),
 			},
 		}, nil
 	},

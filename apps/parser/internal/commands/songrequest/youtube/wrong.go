@@ -2,15 +2,16 @@ package sr_youtube
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/guregu/null"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
 )
@@ -53,13 +54,13 @@ var WrongCommand = &types.DefaultCommand{
 			Error
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get songs from queue",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSongsFromQueue),
 				Err:     err,
 			}
 		}
 
 		if len(songs) == 0 {
-			result.Result = append(result.Result, `You haven't requested any song`)
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Info.NoRequestedSongs))
 			return result, nil
 		}
 
@@ -72,7 +73,11 @@ var WrongCommand = &types.DefaultCommand{
 		if number > len(songs)+1 {
 			result.Result = append(
 				result.Result,
-				fmt.Sprintf("there is only %v songs", len(songs)),
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Songrequest.Info.OnlyCountSongs.
+						SetVars(locales.KeysCommandsSongrequestInfoOnlyCountSongsVars{SongsCount: len(songs)}),
+				),
 			)
 			return result, nil
 		}
@@ -82,7 +87,7 @@ var WrongCommand = &types.DefaultCommand{
 		err = parseCtx.Services.Gorm.WithContext(ctx).Updates(&choosedSong).Error
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot update song",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.UpdateSong),
 				Err:     err,
 			}
 		}
@@ -96,14 +101,18 @@ var WrongCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot remove song from queue",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.RemoveSongFromQueue),
 				Err:     err,
 			}
 		}
 
 		result.Result = append(
 			result.Result,
-			fmt.Sprintf("Song %s deleted from queue", choosedSong.Title),
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Songrequest.Info.Delete.
+					SetVars(locales.KeysCommandsSongrequestInfoDeleteVars{SongTitle: choosedSong.Title}),
+			),
 		)
 
 		return result, nil

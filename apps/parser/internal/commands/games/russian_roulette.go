@@ -11,8 +11,10 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
@@ -44,7 +46,7 @@ var RussianRoulette = &types.DefaultCommand{
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get roulette settings from db",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.RouletteCannotGetWithSettings),
 				Err:     err,
 			}
 		}
@@ -87,7 +89,7 @@ var RussianRoulette = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot send initial message",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.RouletteCannotSendInitialMessage),
 				Err:     err,
 			}
 		}
@@ -118,7 +120,7 @@ var RussianRoulette = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot send death message",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.RouletteCannotSendDeathMessage),
 					Err:     err,
 				}
 			}
@@ -143,7 +145,7 @@ var RussianRoulette = &types.DefaultCommand{
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
-						Message: "cannot ban user",
+						Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotBanUser),
 						Err:     err,
 					}
 				}

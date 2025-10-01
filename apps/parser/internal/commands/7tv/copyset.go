@@ -2,13 +2,14 @@ package seventv
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
@@ -37,11 +38,11 @@ var CopySet = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: copySetChannelName,
-			Hint: "@channelName",
+			Hint: i18n.Get(locales.Translations.Commands.Seventv.Hints.CopySetChannelName),
 		},
 		command_arguments.VariadicString{
 			Name: copySetNameOfSet,
-			Hint: "name of set to copy",
+			Hint: i18n.Get(locales.Translations.Commands.Seventv.Hints.CopySetNameOfSet),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -52,15 +53,22 @@ var CopySet = &types.DefaultCommand{
 
 		if len(parseCtx.Mentions) != 1 {
 			return nil, &types.CommandHandlerError{
-				Message: "you should tag user with @",
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.ShouldMentionWithAt,
+				),
 			}
 		}
 
 		profile, err := client.GetProfileByTwitchId(ctx, parseCtx.Mentions[0].UserId)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv profile: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+						SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 
@@ -82,7 +90,11 @@ var CopySet = &types.DefaultCommand{
 
 		if targetSet == nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Set %s not found", setName),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.EmoteNotFound.
+						SetVars(locales.KeysCommandsSeventvErrorsEmoteNotFoundVars{EmoteName: setName}),
+				),
 			}
 		}
 

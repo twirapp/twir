@@ -9,9 +9,11 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"gorm.io/gorm"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var EditCommand = &types.DefaultCommand{
@@ -57,25 +59,25 @@ var EditCommand = &types.DefaultCommand{
 
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				result.Result = append(result.Result, "Command not found.")
+				result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandNotFound))
 				return result, nil
 			} else {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get command",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotGet),
 					Err:     err,
 				}
 			}
 		}
 
 		if cmd.Default {
-			result.Result = append(result.Result, "Cannot delete default command.")
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotDeleteDefault))
 			return result, nil
 		}
 
 		if cmd.Responses != nil && len(cmd.Responses) > 1 {
 			result.Result = append(
 				result.Result,
-				"Cannot update response because you have more than 1 response in command. Please use UI.",
+				i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotUpdateResponse),
 			)
 			return result, nil
 		}
@@ -88,14 +90,14 @@ var EditCommand = &types.DefaultCommand{
 
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot update command",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotUpdate),
 				Err:     err,
 			}
 		}
 
 		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
 
-		result.Result = append(result.Result, "✅ Command edited.")
+		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Edit.CommandEdited))
 		return result, nil
 	},
 }

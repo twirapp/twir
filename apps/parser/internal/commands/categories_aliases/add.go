@@ -2,34 +2,35 @@ package categories_aliases
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/i18n"
 	categoriesaliasesrepository "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 var Add = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
-		Name:        "game aliase add",
-		Description: null.StringFrom("Add aliase for category for shorten usage of set command"),
+		Name:        "game alias add",
+		Description: null.StringFrom("Add alias for category for shorten usage of set command"),
 		RolesIDS: pq.StringArray{
 			model.ChannelRoleTypeModerator.String(),
 		},
 		Module: "MODERATION",
 		Aliases: pq.StringArray{
-			"game aliase create",
+			"game alias create",
 		},
 		Visible: true,
 		IsReply: true,
 	},
 	Args: []command_arguments.Arg{
 		command_arguments.String{
-			Name: "aliase",
+			Name: "alias",
 		},
 		command_arguments.VariadicString{
 			Name: "category",
@@ -39,16 +40,19 @@ var Add = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		aliaseArg := parseCtx.ArgsParser.Get("aliase")
+		aliasArg := parseCtx.ArgsParser.Get("alias")
 		categoryArg := parseCtx.ArgsParser.Get("category")
 
-		if aliaseArg == nil || categoryArg == nil {
+		if aliasArg == nil || categoryArg == nil {
 			return nil, &types.CommandHandlerError{
-				Message: "aliase and category are required",
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.CategoryRequired,
+				),
 			}
 		}
 
-		aliase := aliaseArg.String()
+		alias := aliasArg.String()
 		category := categoryArg.String()
 
 		categories, err := parseCtx.Services.CategoriesAliasesRepo.GetManyByChannelID(
@@ -57,15 +61,22 @@ var Add = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get categories",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.CategoryFailedToGet,
+				),
+				Err: err,
 			}
 		}
 
 		for _, c := range categories {
-			if c.Alias == aliase {
+			if c.Alias == alias {
 				return nil, &types.CommandHandlerError{
-					Message: fmt.Sprintf("aliase %s already exists", aliase),
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.CategoriesAliases.Errors.AliasAlreadyExists.
+							SetVars(locales.KeysCommandsCategoriesAliasesErrorsAliasAlreadyExistsVars{AliasName: alias}),
+					),
 				}
 			}
 		}
@@ -73,14 +84,20 @@ var Add = &types.DefaultCommand{
 		foundTwitchCategory, err := twitch.SearchCategory(ctx, category)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get category",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.CategoryFailedToGet,
+				),
+				Err: err,
 			}
 		}
 
 		if foundTwitchCategory == nil {
 			return nil, &types.CommandHandlerError{
-				Message: "category not found",
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.CategoryNotFound,
+				),
 			}
 		}
 
@@ -88,23 +105,26 @@ var Add = &types.DefaultCommand{
 			ctx,
 			categoriesaliasesrepository.CreateInput{
 				ChannelID:  parseCtx.Channel.ID,
-				Alias:      aliase,
+				Alias:      alias,
 				CategoryID: foundTwitchCategory.ID,
 			},
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create category",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.CategoryFailedToCreate,
+				),
+				Err: err,
 			}
 		}
 
 		result := &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(
-					"Category aliase %s added with category %s",
-					aliase,
-					foundTwitchCategory.Name,
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Add.AliasAddToCategory.
+						SetVars(locales.KeysCommandsCategoriesAliasesAddAliasAddToCategoryVars{AliasName: alias, CategoryName: foundTwitchCategory.Name}),
 				),
 			},
 		}

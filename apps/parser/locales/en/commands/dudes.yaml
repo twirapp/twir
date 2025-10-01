@@ -1,0 +1,17 @@
+info:
+  color: "Your color is {dudeColor}"
+  sprite: "Your sprite is {dudeSprite}"
+  color_required: "Color is required"
+  sprite_required: "Sprite is required, available: {availableSprites}"
+  color_reset: "Color reset to default"
+  color_changed: "Color changed to {dudeColor}"
+  sprite_changed: "Sprite changed to {dudeSprite}"
+
+errors:
+  color_invalid: "Invalid color"
+  sprite_invalid: "Invalid sprite, available: {availableSprites}"
+  color_cannot_trigger: "Cannot trigger dudes color"
+  grow_cannot_trigger: "Cannot trigger dudes grow"
+  jump_cannot_trigger: "Cannot trigger dudes jump"
+  leave_cannot_trigger: "Cannot trigger dudes leave"
+  sprite_cannot_trigger: "Cannot trigger dudes sprite"

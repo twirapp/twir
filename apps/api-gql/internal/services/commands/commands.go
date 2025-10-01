@@ -9,11 +9,11 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	deprectatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/logger/audit"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 	"go.uber.org/fx"
@@ -65,19 +65,19 @@ func (c *Service) IsNameConflicting(
 		if strings.ToLower(command.Name) == name {
 			return true, nil
 		}
-		for _, aliase := range command.Aliases {
-			if strings.ToLower(aliase) == name {
+		for _, alias := range command.Aliases {
+			if strings.ToLower(alias) == name {
 				return true, nil
 			}
 		}
 
-		for _, aliase := range aliases {
-			if strings.ToLower(command.Name) == strings.ToLower(aliase) {
+		for _, alias := range aliases {
+			if strings.ToLower(command.Name) == strings.ToLower(alias) {
 				return true, nil
 			}
 
 			for _, cmdAliase := range command.Aliases {
-				if strings.ToLower(cmdAliase) == strings.ToLower(aliase) {
+				if strings.ToLower(cmdAliase) == strings.ToLower(alias) {
 					return true, nil
 				}
 			}

@@ -1,0 +1,28 @@
+errors:
+  #Alias
+  alias_cannot_get_existed_commands: "Cannot get existed commands"
+  alias_already_exist: "Command with {alias} name or alias already exists"
+  alias_cannot_update: "Cannot update command aliases"
+  alias_not_command: "That alias not in the command"
+  #Command
+  command_with_alias_already_exists: "Command with that name or alias already exists"
+  command_with_name_cannot_find: "Command with that name not found"
+  command_not_found: "Command not found"
+  command_cannot_get: "Cannot get command"
+  command_large_size: "Command name cannot be greatest then 20."
+  command_have_no_aliases: "Command have no aliases"
+  command_cannot_delete_default: "Cannot delete default command"
+  command_cannot_update_response: "Cannot update response because you have more than 1 response in command. Please use UI."
+  command_cannot_update: "Cannot update command"
+  command_cannot_save: "Cannot save command"
+
+add:
+  alias_add: "✅ Alias added"
+  command_add: "✅ Command added"
+
+edit:
+  command_edited: "✅ Command edited"
+
+remove:
+  alias_removed: "✅ Alias removed"
+  command_removed: "✅ Command removed"

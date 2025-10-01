@@ -6,8 +6,10 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Jump = &types.DefaultCommand{
@@ -40,7 +42,7 @@ var Jump = &types.DefaultCommand{
 
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
-			result.Result = append(result.Result, "[Twir error] cannot trigger dudes jump")
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Dudes.Errors.JumpCannotTrigger))
 		}
 
 		return result, nil

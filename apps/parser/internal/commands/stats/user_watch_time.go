@@ -2,14 +2,15 @@ package stats
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/variables/user"
+	"github.com/twirapp/twir/apps/parser/locales"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var UserWatchTime = &types.DefaultCommand{
@@ -29,7 +30,11 @@ var UserWatchTime = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{
-			Result: []string{fmt.Sprintf("You watching stream for $(%s)", user.Watched.Name)},
+			Result: []string{i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Stats.Info.WatchingStream.
+					SetVars(locales.KeysCommandsStatsInfoWatchingStreamVars{UserWatching: user.Watched.Name}),
+			)},
 		}
 
 		return result, nil

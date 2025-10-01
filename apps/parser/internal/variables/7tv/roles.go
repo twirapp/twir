@@ -2,11 +2,12 @@ package seventv
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Roles = &types.Variable{
@@ -20,7 +21,7 @@ var Roles = &types.Variable{
 
 		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
-			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysVariablesSeventvErrorsProfileNotFoundVars{Reason: err.Error()}))
 			return &result, nil
 		}
 
@@ -34,7 +35,7 @@ var Roles = &types.Variable{
 		}
 
 		if len(roles) == 0 {
-			result.Result = "No roles"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.NoRoles)
 		} else {
 			result.Result = strings.Join(roles, ", ")
 		}

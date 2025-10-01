@@ -9,7 +9,9 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
 )
@@ -64,7 +66,11 @@ var History = &types.DefaultCommand{
 			Error
 
 		if err != nil {
-			return result, fmt.Errorf("cannot get history of titles from database: %w", err)
+			return result, fmt.Errorf(i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Channel.Errors.HistoryTitleMessage.
+					SetVars(locales.KeysCommandsChannelErrorsHistoryTitleMessageVars{Reason: err.Error()}),
+			))
 		}
 
 		titles := lo.Map(

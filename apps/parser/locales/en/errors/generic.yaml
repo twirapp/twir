@@ -1,8 +1,42 @@
-broadcaster_client: Cannot create broadcaster twitch client
-should_mention_with_at: you should tag user with @
-cannot_find_user_db: Cannot find user in database
-cannot_find_user_twitch: Cannot find user on twitch
-cannot_find_users_twitch: Cannot find users on twitch
-cannot_find_channel_db: Cannot find channel in database
-cannot_find_channel_twitch: Cannot find channel on twitch. {reason}
-cannot_get_stream: Cannot get stream. {reason}
+#Generic
+something_went_wrong: "Something went wrong, please try again later"
+twir_error: "[Twir error]: Unknown error happened. Please contact developers."
+
+#Broadcaster
+broadcaster_client: "Cannot create broadcaster twitch client"
+
+#User
+cannot_find_user_db: "Cannot find user in database"
+cannot_find_user_twitch: "Cannot find user on twitch"
+cannot_find_users_twitch: "Cannot find users on twitch"
+cannot_create_twitch: "Cannot create twitch client"
+cannot_timeout_user: "Cannot timeout user"
+cannot_get_user: "Cannot get user: {reason}"
+cannot_ban_user: "Cannot ban user"
+user_not_found: "User not found"
+getting_user_settings: "Error while getting user settings"
+updating_settings: "Error while updating settings"
+create_settings: "Error while creating settings"
+
+#Channel
+cannot_find_channel_db: "Cannot find channel in database"
+cannot_find_channel_twitch: "Cannot find channel on twitch. {reason}"
+cannot_get_db_channel: "Cannot get database channel"
+getting_channel_settings: "Error while getting channel settings"
+
+#Mention
+should_mention_with_at: "You should tag user with @"
+
+#Stream
+cannot_get_stream: "Cannot get stream. {reason}"
+
+#Moderator
+cannot_get_moderators: "Cannot get moderators: {reason}"
+
+#Command
+cannot_get_accept_command_name: "Cannot get accept command name"
+cannot_create_command: "Cannot create command"
+cannot_get_command: "Cannot get command"
+
+#Message
+cannot_get_message: "Cannot get messages"

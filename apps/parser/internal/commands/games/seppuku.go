@@ -9,8 +9,10 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
 )
 
@@ -37,7 +39,7 @@ var Seppuku = &types.DefaultCommand{
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: "cannot find seppuku settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.SeppukuCannotFindSettings),
 				Err:     err,
 			}
 		}
@@ -87,7 +89,7 @@ var Seppuku = &types.DefaultCommand{
 			},
 		); err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot ban user",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotBanUser),
 				Err:     err,
 			}
 		}

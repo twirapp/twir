@@ -2,13 +2,14 @@ package seventv
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 )
 
@@ -44,14 +45,21 @@ var EmoteRename = &types.DefaultCommand{
 		sevenTvUser, err := client.GetProfileByTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv profile: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+						SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 		if sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSetId == nil {
 			return &types.CommandsHandlerResult{
 				Result: []string{
-					`❌ No active emote set`,
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.EmotesetNotActive,
+					),
 				},
 			}, nil
 		}
@@ -75,10 +83,10 @@ var EmoteRename = &types.DefaultCommand{
 		if foundEmoteId == "" {
 			return &types.CommandsHandlerResult{
 				Result: []string{
-					fmt.Sprintf(
-						`Emote "%s" not found in set %s`,
-						oldName,
-						sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSet.Name,
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.EmoteNotFoundInEmoteset.
+							SetVars(locales.KeysCommandsSeventvErrorsEmoteNotFoundInEmotesetVars{EmoteName: oldName, EmoteSet: sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSet.Name}),
 					),
 				},
 			}, nil
@@ -92,14 +100,20 @@ var EmoteRename = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to rename 7tv emote: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.EmoteFailedToFetch.
+						SetVars(locales.KeysCommandsSeventvErrorsEmoteFailedToFetchVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(`✅ Emote "%s" renamed to "%s"`, oldName, newName),
+				i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Rename.EmoteRename.
+					SetVars(locales.KeysCommandsSeventvRenameEmoteRenameVars{OldEmoteName: oldName, NewEmoteName: newName}),
+				),
 			},
 		}, nil
 	},

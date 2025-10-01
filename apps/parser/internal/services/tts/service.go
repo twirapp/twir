@@ -12,7 +12,9 @@ import (
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/tidwall/gjson"
+	"github.com/twirapp/twir/apps/parser/locales"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
 	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/model"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
@@ -208,7 +210,7 @@ func (s *Service) ToggleChannelEnabled(ctx context.Context, channelID string, en
 	}
 
 	if channelSettings == nil {
-		return errors.New("tts not configured")
+		return errors.New(i18n.GetCtx(ctx, locales.Translations.Services.Tts.Info.NotConfigured))
 	}
 
 	channelSettings.Enabled = &enabled
@@ -253,7 +255,7 @@ func (s *Service) GetAvailableVoices(ctx context.Context) []Voice {
 func (s *Service) ValidateVoice(ctx context.Context, channelID, voiceName string) (Voice, error) {
 	voices := s.GetAvailableVoices(ctx)
 	if len(voices) == 0 {
-		return Voice{}, errors.New("no voices available")
+		return Voice{}, errors.New(i18n.GetCtx(ctx, locales.Translations.Services.Tts.Info.NoVoices))
 	}
 
 	wantedVoice, ok := lo.Find(
@@ -262,7 +264,11 @@ func (s *Service) ValidateVoice(ctx context.Context, channelID, voiceName string
 		},
 	)
 	if !ok {
-		return Voice{}, fmt.Errorf("voice %s not found", voiceName)
+		return Voice{}, fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.Tts.Errors.NotFound.
+				SetVars(locales.KeysServicesTtsErrorsNotFoundVars{UserVoice: voiceName}),
+		))
 	}
 
 	channelSettings, _, err := s.GetChannelSettings(ctx, channelID)
@@ -278,7 +284,11 @@ func (s *Service) ValidateVoice(ctx context.Context, channelID, voiceName string
 		)
 
 		if isDisallowed {
-			return Voice{}, fmt.Errorf("voice %s is disallowed for usage", wantedVoice.Name)
+			return Voice{}, fmt.Errorf(i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.Tts.Errors.VoiceDisallowed.
+					SetVars(locales.KeysServicesTtsErrorsVoiceDisallowedVars{UserVoice: wantedVoice.Name}),
+			))
 		}
 	}
 
@@ -289,7 +299,7 @@ func (s *Service) ValidateVoice(ctx context.Context, channelID, voiceName string
 func (s *Service) GetFilteredVoices(ctx context.Context, channelID string) ([]Voice, error) {
 	voices := s.GetAvailableVoices(ctx)
 	if len(voices) == 0 {
-		return nil, errors.New("no voices available")
+		return nil, errors.New(i18n.GetCtx(ctx, locales.Translations.Services.Tts.Info.NoVoices))
 	}
 
 	channelSettings, _, err := s.GetChannelSettings(ctx, channelID)

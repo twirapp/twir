@@ -3,7 +3,6 @@ package predictions
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/guregu/null"
@@ -11,7 +10,9 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -34,15 +35,15 @@ var Start = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name: startPredictionDuration,
-			Hint: "120",
+			Hint: i18n.Get(locales.Translations.Commands.Predictions.Hints.StartPredictionDuration),
 		},
 		command_arguments.String{
 			Name: startPredictionArgTitle,
-			Hint: "Will we win this game?",
+			Hint: i18n.Get(locales.Translations.Commands.Predictions.Hints.StartPredictionArgTitle),
 		},
 		command_arguments.String{
 			Name: startPredictionArgVariants,
-			Hint: "Yes, win / No, lose",
+			Hint: i18n.Get(locales.Translations.Commands.Predictions.Hints.StartPredictionArgVariants),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -57,7 +58,7 @@ var Start = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create twitch client",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotCreateTwitch),
 				Err:     err,
 			}
 		}
@@ -86,15 +87,16 @@ var Start = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create prediction",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.CannotCreate),
 				Err:     err,
 			}
 		}
 		if createResp.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf(
-					"cannot create prediction: %s",
-					createResp.ErrorMessage,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Errors.CannotCreateVar.
+						SetVars(locales.KeysCommandsPredictionsErrorsCannotCreateVarVars{Reason: createResp.ErrorMessage}),
 				),
 				Err: errors.New(createResp.ErrorMessage),
 			}
@@ -102,7 +104,7 @@ var Start = &types.DefaultCommand{
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				"✅ Prediction started",
+				i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Info.Started),
 			},
 		}, nil
 	},

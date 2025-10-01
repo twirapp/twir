@@ -8,8 +8,10 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/guregu/null"
 	uuid "github.com/satori/go.uuid"
@@ -49,7 +51,7 @@ var AddCommand = &types.DefaultCommand{
 		text := parseCtx.ArgsParser.Get(commandTextArgName).String()
 
 		if len(name) > 20 {
-			result.Result = append(result.Result, "Command name cannot be greatest then 20.")
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandLargeSize))
 			return result, nil
 		}
 
@@ -61,19 +63,19 @@ var AddCommand = &types.DefaultCommand{
 			Find(&commands).Error
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get existed commands",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.AliasCannotGetExistedCommands),
 				Err:     err,
 			}
 		}
 
 		for _, c := range commands {
 			if c.Name == name {
-				result.Result = append(result.Result, alreadyExists)
+				result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandWithAliasAlreadyExists))
 				return result, nil
 			}
 
 			if lo.Contains(c.Aliases, name) {
-				result.Result = append(result.Result, alreadyExists)
+				result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandWithAliasAlreadyExists))
 				return result, nil
 			}
 		}
@@ -109,14 +111,14 @@ var AddCommand = &types.DefaultCommand{
 
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create command",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotCreateCommand),
 				Err:     err,
 			}
 		}
 
 		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
 
-		result.Result = []string{"✅ Command added."}
+		result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Add.CommandAdd)}
 		return result, nil
 	},
 }

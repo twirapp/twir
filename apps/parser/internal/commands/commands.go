@@ -47,11 +47,13 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/apps/parser/internal/variables"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/i18n"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	"go.uber.org/zap"
 )
@@ -411,7 +413,7 @@ func (c *Commands) ParseCommandResponses(
 				fmt.Println(commandErr.Err)
 			} else {
 				results = &types.CommandsHandlerResult{
-					Result: []string{"[Twir error]: unknown error happened. Please contact developers."},
+					Result: []string{i18n.GetCtx(ctx, locales.Translations.Errors.Generic.TwirError)},
 				}
 			}
 		}

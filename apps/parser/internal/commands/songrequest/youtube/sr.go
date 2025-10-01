@@ -12,11 +12,13 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/guregu/null"
-	"github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/twitch"
 	"github.com/valyala/fasttemplate"
 
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -67,7 +69,7 @@ var SrCommand = &types.DefaultCommand{
 				return result, nil
 			} else {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get song requests settings",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
 					Err:     err,
 				}
 			}
@@ -97,7 +99,7 @@ var SrCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot search song",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.SearchSong),
 				Err:     err,
 			}
 		}
@@ -114,7 +116,7 @@ var SrCommand = &types.DefaultCommand{
 			Find(&latestSong).Error
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get latest song",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetLatestSong),
 				Err:     err,
 			}
 		}
@@ -131,7 +133,7 @@ var SrCommand = &types.DefaultCommand{
 
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get current queue count",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetCurrentQueueCount),
 				Err:     err,
 			}
 		}
@@ -390,7 +392,7 @@ func validate(
 		services.Gorm.WithContext(ctx).Where("id = ?", userId).Preload("Stats").First(&user)
 		if user.ID == "" {
 			return errors.New(
-				"there is restrictions on user, but i cannot find you in db, sorry. :(",
+				i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Validate.Errors.RestrictionsOnUser),
 			)
 		}
 
@@ -431,10 +433,10 @@ func validate(
 			},
 		)
 		if err != nil {
-			return errors.New("Internal error when checking follow")
+			return errors.New(i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Validate.Errors.InternalError))
 		}
 		if followReq.Data.Total == 0 {
-			return errors.New("For request song you need to be a followed")
+			return errors.New(i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Validate.Errors.NeedFollow))
 		}
 
 		followDuration := time.Since(followReq.Data.Follows[0].FollowedAt)

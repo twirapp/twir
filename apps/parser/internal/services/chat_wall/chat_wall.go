@@ -9,11 +9,13 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	config "github.com/twirapp/twir/libs/config"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/locales"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	config "github.com/twirapp/twir/libs/config"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -75,12 +77,16 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 		},
 	)
 	if err != nil {
-		return model.ChatWall{}, fmt.Errorf("cannot get current chat walls: %s", err)
+		return model.ChatWall{}, fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.ChatWall.Errors.GetCurrentChatWalls.
+				SetVars(locales.KeysServicesChatWallErrorsGetCurrentChatWallsVars{Reason: err.Error()}),
+		))
 	}
 
 	for _, chatWall := range currentChatWalls {
 		if chatWall.Phrase == input.Phrase {
-			return model.ChatWall{}, fmt.Errorf("cannot create chat wall with phrase that already exists")
+			return model.ChatWall{}, fmt.Errorf(i18n.GetCtx(ctx, locales.Translations.Services.ChatWall.Errors.CreateChatWallWithPhrase))
 		}
 	}
 
@@ -96,7 +102,11 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 		},
 	)
 	if err != nil {
-		return model.ChatWall{}, fmt.Errorf("cannot create chat wall: %s", err)
+		return model.ChatWall{}, fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.ChatWall.Errors.CreateChatWall.
+				SetVars(locales.KeysServicesChatWallErrorsCreateChatWallVars{Reason: err.Error()}),
+		))
 	}
 
 	c.chatWallCache.Invalidate(ctx, input.ChannelID)
@@ -118,7 +128,11 @@ func (c *Service) HandlePastMessages(
 ) error {
 	chatWallSettings, err := c.repo.GetChannelSettings(ctx, input.ChannelID)
 	if err != nil && !errors.Is(err, chatwallrepository.ErrSettingsNotFound) {
-		return fmt.Errorf("cannot get chat wall settings: %s", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.ChatWall.Errors.GetChatWallSettings.
+				SetVars(locales.KeysServicesChatWallErrorsGetChatWallSettingsVars{Reason: err.Error()}),
+		))
 	}
 
 	timeGte := time.Now().Add(-10 * time.Minute)
@@ -166,7 +180,11 @@ func (c *Service) HandlePastMessages(
 			), input.ChannelID,
 		).
 		Find(&usersStats).Error; err != nil {
-		return fmt.Errorf("cannot get users stats: %s", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.ChatWall.Errors.GetUsersStats.
+				SetVars(locales.KeysServicesChatWallErrorsGetUsersStatsVars{Reason: err.Error()}),
+		))
 	}
 
 	messages = lo.Filter(
@@ -201,7 +219,11 @@ func (c *Service) HandlePastMessages(
 		fmt.Sprintf(redis_keys.NukeRedisPrefix, input.ChannelID),
 	).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
-		return fmt.Errorf("cannot get already handled messages: %s", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.ChatWall.Errors.GetAlreadyHandled.
+				SetVars(locales.KeysServicesChatWallErrorsGetAlreadyHandledVars{Reason: err.Error()}),
+		))
 	}
 
 	if input.Action == model.ChatWallActionDelete {
@@ -224,7 +246,11 @@ func (c *Service) HandlePastMessages(
 			},
 		)
 		if err != nil {
-			return fmt.Errorf("cannot publish delete messages: %s", err)
+			return fmt.Errorf(i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.PublishDeletedMessages.
+					SetVars(locales.KeysServicesChatWallErrorsPublishDeletedMessagesVars{Reason: err.Error()}),
+			))
 		}
 	} else if input.Action == model.ChatWallActionBan || input.Action == model.ChatWallActionTimeout {
 		request := make([]botsservice.BanRequest, 0, len(messages))
@@ -244,7 +270,7 @@ func (c *Service) HandlePastMessages(
 				botsservice.BanRequest{
 					ChannelID:      input.ChannelID,
 					UserID:         m.UserID,
-					Reason:         fmt.Sprintf("banned by twir for chat wall phrase: %s", input.Phrase),
+					Reason:         i18n.GetCtx(ctx, locales.Translations.Services.ChatWall.Info.BannedByTwir.SetVars(locales.KeysServicesChatWallInfoBannedByTwirVars{BanPhrase: input.Phrase})),
 					BanTime:        banTime,
 					IsModerator:    false,
 					AddModAfterBan: false,
@@ -254,7 +280,7 @@ func (c *Service) HandlePastMessages(
 
 		err = c.twirBus.Bots.BanUsers.Publish(ctx, request)
 		if err != nil {
-			return fmt.Errorf("cannot publish ban users: %s", err)
+			return fmt.Errorf(i18n.GetCtx(ctx, locales.Translations.Services.ChatWall.Errors.PublishBanUsers.SetVars(locales.KeysServicesChatWallErrorsPublishBanUsersVars{Reason: err.Error()})))
 		}
 	}
 
@@ -282,7 +308,11 @@ func (c *Service) HandlePastMessages(
 	}
 
 	if err := c.repo.CreateManyLogs(ctx, logs); err != nil {
-		return fmt.Errorf("cannot create chat wall logs in db: %s", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.ChatWall.Errors.CreateChatLogsInDb.
+				SetVars(locales.KeysServicesChatWallErrorsCreateChatLogsInDbVars{Reason: err.Error()}),
+		))
 	}
 
 	_, err = c.redis.Pipelined(
@@ -306,7 +336,11 @@ func (c *Service) HandlePastMessages(
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("cannot add handled messages to redis: %s", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.ChatWall.Errors.HandledMessagesToRedis.
+				SetVars(locales.KeysServicesChatWallErrorsHandledMessagesToRedisVars{Reason: err.Error()}),
+		))
 	}
 
 	return nil
@@ -317,7 +351,7 @@ type StopInput struct {
 	Phrase    string
 }
 
-var ErrChatWallNotFound = errors.New("chat wall not found")
+var ErrChatWallNotFound = errors.New(i18n.Get(locales.Translations.Services.ChatWall.Errors.ChatWallNotFound))
 
 func (c *Service) Stop(ctx context.Context, input StopInput) error {
 	enabled := true
@@ -330,7 +364,11 @@ func (c *Service) Stop(ctx context.Context, input StopInput) error {
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("cannot get chat walls: %s", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Services.ChatWall.Errors.GetChatWalls.
+				SetVars(locales.KeysServicesChatWallErrorsGetChatWallsVars{Reason: err.Error()}),
+		))
 	}
 
 	for _, wall := range walls {
@@ -343,7 +381,11 @@ func (c *Service) Stop(ctx context.Context, input StopInput) error {
 				},
 			)
 			if err != nil {
-				return fmt.Errorf("cannot update chat wall: %s", err)
+				return fmt.Errorf(i18n.GetCtx(
+					ctx,
+					locales.Translations.Services.ChatWall.Errors.UpdateChatWalls.
+						SetVars(locales.KeysServicesChatWallErrorsUpdateChatWallsVars{Reason: err.Error()}),
+				))
 			}
 
 			c.chatWallCache.Invalidate(ctx, input.ChannelID)
