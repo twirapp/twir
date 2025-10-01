@@ -113,7 +113,7 @@ func (c *Service) onMessage(
 			return
 		}
 
-		client.maxCapacity = int(helloMsg.Data.SubscriptionLimit)
+		// client.maxCapacity = int(helloMsg.Data.SubscriptionLimit)
 		for _, socket := range c.sockets {
 			if socket.Instance == client {
 				socket.SessionID = helloMsg.Data.SessionID

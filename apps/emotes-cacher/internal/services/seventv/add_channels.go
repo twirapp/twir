@@ -165,7 +165,7 @@ func (c *Service) getOrCreateSocketInstance() (*socketInstance, error) {
 	if instance == nil {
 		newConn := newConn(
 			c.onMessage,
-			500,
+			350,
 		)
 		instance = &socketInstance{
 			Instance: newConn,
