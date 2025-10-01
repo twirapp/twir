@@ -156,7 +156,7 @@ func (c *Service) getOrCreateSocketInstance() (*socketInstance, error) {
 
 	// find free socket instance
 	for _, ws := range c.sockets {
-		if len(ws.Instance.subscriptions)+1 < ws.Instance.maxCapacity {
+		if len(ws.Instance.subscriptions)+1 < ws.Instance.maxCapacity && len(ws.Instance.createConnUrl()) < 1500 {
 			instance = ws
 			break
 		}
