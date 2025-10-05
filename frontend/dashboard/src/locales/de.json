@@ -647,37 +647,37 @@
 				"display": {
 					"title": "Anzeigen",
 					"showAvarageKdr": "Durchschnittliche kdr anzeigen",
-					"worldRanking": "World ranking",
-					"last20MatchesStats": "Last 20 matches stats"
+					"worldRanking": "Weltrangliste",
+					"last20MatchesStats": "Statistiken der letzten 20 Spiele"
 				}
 			}
 		},
 		"valorant": {
-			"title": "Valorant Stats Builder",
-			"secondTitle": "Valorant Stats",
-			"description": "Configure the overlay with your Valorant stats. Change its design according to your personal requirements.",
+			"title": "Valorant Statistik Builder",
+			"secondTitle": "Valorant Statistiken",
+			"description": "Konfigurieren das Overlay mit deinen Valorant-Statistiken. Ändere das Design entsprechend deinen persönlichen Anforderungen.",
 			"valorantIntegration": {
-				"connect": "Connect valorant integration to use this overlay",
-				"button": "Connect"
+				"connect": "Verbinde die Valorant-Integration, um dieses Overlay zu verwenden",
+				"button": "Verbinden"
 			},
 			"settings": {
 				"colors": {
-					"title": "Colors",
-					"background": "Background color",
-					"text": "Text color",
-					"primaryText": "Primary Text Color",
-					"win": "Win Color",
-					"lose": "Lose Color"
+					"title": "Farben",
+					"background": "Hintergrundfarbe",
+					"text": "Textfarbe",
+					"primaryText": "Primäre Textfarbe",
+					"win": "Siegesfarbe",
+					"lose": "Verlierfarbe"
 				},
 				"general": {
-					"title": "General",
-					"background": "Background",
-					"border": "Border",
-					"glow": "Glow effect",
-					"leaderboard": "Leaderboard place",
-					"winLose": "Win / Lose",
-					"progress": "Progress",
-					"last20MatchesStats": "Show last 20 matches stats"
+					"title": "Allgemein",
+					"background": "Hintergrund",
+					"border": "Rand",
+					"glow": "Glow-Effekt",
+					"leaderboard": "Ranglistenplatz",
+					"winLose": "Sieg / Niederlage",
+					"progress": "Fortschritt",
+					"last20MatchesStats": "Statistiken der letzten 20 Spiele anzeigen"
 				}
 			}
 		}
@@ -771,7 +771,7 @@
 	"keywords": {
 		"title": "Schlagwörter",
 		"info": {
-			"text": "Keywords help you to trigger chat message on certain words matching."
+			"text": "Mithilfe von Schlüsselwörtern kannst du bei bestimmten passenden Wörtern eine Chat-Nachricht auslösen."
 		},
 		"create": "Schlüsselwort erstellen",
 		"triggerText": "Auslösetext",
@@ -827,7 +827,7 @@
 			"greetings": "Grußauslöser"
 		},
 		"select": {
-			"audio": "Configure an audio",
+			"audio": "Konfugiere eine Audio",
 			"image": "Konfiguriere ein Bild",
 			"text": "Konfiguriere einen Text"
 		},
@@ -892,25 +892,25 @@
 			}
 		},
 		"seppuku": {
-			"description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
+			"description": "Seppuku ist eine Form des japanischen ritualistischen Selbstmords durch Entkörperung.",
 			"message": "Nachricht",
 			"timeoutModerators": "Aktiviere seppuku für Moderatoren",
 			"messageModerators": "Nachricht wenn Moderator seppuku benutzt hat",
-			"timeoutSeconds": "Timeout duration (seconds)"
+			"timeoutSeconds": "Timeout-Dauer (Sekunden)"
 		},
 		"voteban": {
 			"description": "Beginne den Prozess der Jury gegen den Schuldigen Chatter!",
 			"banMessage": "Nachricht beim Bannen",
-			"banMessageModerators": "Message for banned moderators",
+			"banMessageModerators": "Nachricht für gebannte Moderatoren",
 			"surviveMessage": "Nachricht überleben",
 			"surviveMessageModerators": "Überlebende Nachricht für Moderatoren",
-			"initialMessage": "Initial message",
+			"initialMessage": "Erste Nachricht",
 			"neededVotes": "Benötigte Stimmen",
-			"banDuration": "Ban duration (seconds)",
-			"voteMode": "Voting mode",
-			"voteDuration": "Voting duration (seconds)",
-			"wordsNegative": "Words to vote for \"no\" option",
-			"wordsPositive": "Words to vote for \"yes\" option",
+			"banDuration": "Ban-Dauer (Sekunden)",
+			"voteMode": "Abstimmungsmodus",
+			"voteDuration": "Abstimmungsdauer (Sekunden)",
+			"wordsNegative": "Wörter für die Abstimmung mit der Option „Nein“",
+			"wordsPositive": "Wörter für die Abstimmung mit der Option „Ja“",
 			"timeoutModerators": "Aktiviere Voteban gegen Moderatoren"
 		}
 	},
@@ -973,14 +973,14 @@
 			"searchPlaceholder": "Suche Emotes...",
 			"table": {
 				"emote": "Emote",
-				"usages": "Total usage",
+				"usages": "Gesamtnutzung",
 				"users": "Benutzer",
 				"empty": "Keine Emotes",
-				"chart": "Usage chart",
+				"chart": "Nutzungs Chart",
 				"lastDay": "Tag",
 				"lastWeek": "Woche",
 				"lastMonth": "Monat",
-				"lastThreeMonth": "3 Months",
+				"lastThreeMonth": "3 Monate",
 				"lastYear": "Jahr"
 			},
 			"total": "Gesamte Emotes: {total}",
@@ -1222,7 +1222,7 @@
 	"expiringVips": {
 		"title": "Geplante VIPs",
 		"description": {
-			"line1": "With this feature, you can create VIPs for your channel, which will be removed after a selected time.",
+			"line1": "Mit dieser Funktion kannst du VIP Slots für deinen Kanal vergeben, die nach der gewählten Zeit entfernt werden.",
 			"line2": "Dafür kannst du Befehle aus dem eingebauten {module} Modul verwenden."
 		},
 		"comingSoon": "Bald, aber bereits über Befehle verfügbar",
@@ -1230,7 +1230,7 @@
 			"add": "VIP hinzufügen",
 			"remove": "VIP entfernen",
 			"list": "VIPs anzeigen",
-			"setExpire": "Extend the expiration time for existing timed VIPs, or add an expiration for VIP users who don't have one"
+			"setExpire": "Verlängere die Ablaufzeit für bestehende zeitgesteuerte VIPs oder füge ein Ablaufdatum für VIP-Benutzer hinzu, die keines haben"
 		},
 		"alert": {
 			"title": "Achtung!",
@@ -1245,8 +1245,8 @@
 	},
 	"chatWall": {
 		"description": {
-			"line1": "Mass ban/delete/timeout messages that contain a specific phrase.",
-			"line2": "Improper usage may result in a permanent ban from the TwirApp service. "
+			"line1": "Massen-/ban/Löschung/Timeout-Nachrichten, die eine bestimmte Phrase enthalten.",
+			"line2": "Unpassende Nutzung kann zu einem permanenten Verbot im TwirApp-Dienst führen."
 		},
 		"settings": {
 			"title": "Einstellungen",
