@@ -446,8 +446,8 @@
 		"uncongirured": "Du solltest zuerst das Overlay konfigurieren!",
 		"noAccess": "Sie haben keinen Zugriff auf dieses Overlay!",
 		"copied": "Overlay-Link-URL erfolgreich kopiert! Sie müssen diese als Browser-Quelle in OBS einstellen.",
-		"buildWidget": "Build Widget",
-		"generateObsLink": "Generate obs link",
+		"buildWidget": "Widget erstellen",
+		"generateObsLink": "Obs-Link generieren",
 		"nowPlaying": {
 			"description": "Overlay mit aktuellen Informationen zu abspielbaren Songs. Dieses Overlay funktioniert nur, wenn Sie Ihre Song-Service-Integration wie Spotify, Lastfm verbunden haben."
 		},
@@ -629,24 +629,24 @@
 			}
 		},
 		"faceit": {
-			"title": "Faceit Stats Builder",
-			"description": "Set up an overlay to display your Faceit statistics. Customize it according to your preferences.",
-			"secondTitle": "Faceit Stats",
+			"title": "Faceit Statistik Builder",
+			"description": "Richte ein Overlay ein, um deine Faceit Statistiken anzuzeigen. Passe es deinen Präferenzen an.",
+			"secondTitle": "Faceit Statistik",
 			"settings": {
 				"general": {
-					"title": "General",
+					"title": "Allgemein",
 					"faceitNickname": "Faceit nickname",
-					"game": "Game"
+					"game": "Spiel"
 				},
 				"appearance": {
-					"title": "Appearance",
-					"background": "Background Color",
-					"textColor": "Text color",
-					"borderRadius": "Border Radius"
+					"title": "Erscheinungsbild",
+					"background": "Hintergrundfarbe",
+					"textColor": "Textfarbe",
+					"borderRadius": "Rahmen Radius"
 				},
 				"display": {
-					"title": "Display",
-					"showAvarageKdr": "Show avarage kdr",
+					"title": "Anzeigen",
+					"showAvarageKdr": "Durchschnittliche kdr anzeigen",
 					"worldRanking": "World ranking",
 					"last20MatchesStats": "Last 20 matches stats"
 				}
