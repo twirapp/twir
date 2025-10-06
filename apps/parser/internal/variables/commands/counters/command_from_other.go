@@ -7,7 +7,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 )
 
@@ -21,7 +23,7 @@ var CommandFromOtherCounter = &types.Variable{
 		result := &types.VariableHandlerResult{}
 
 		if variableData.Params == nil {
-			result.Result = "Have not passed params to variable. "
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Commands.Info.NoPassedParams)
 			return result, nil
 		}
 
@@ -32,14 +34,18 @@ var CommandFromOtherCounter = &types.Variable{
 			First(&cmd).Error
 
 		if err != nil || cmd.ID == "" {
-			result.Result = fmt.Sprintf(`Command with name "%s" not found`, *variableData.Params)
+			result.Result = i18n.GetCtx(
+				ctx,
+				locales.Translations.Variables.Commands.Info.CommandWithNameNotFound.
+					SetVars(locales.KeysVariablesCommandsInfoCommandWithNameNotFoundVars{CommandName: *variableData.Params}),
+			)
 			return result, nil
 		}
 
 		commandUUID, err := uuid.Parse(cmd.ID)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
-			result.Result = "cannot get count"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Commands.Info.GetCount)
 			return result, nil
 		}
 
@@ -51,7 +57,7 @@ var CommandFromOtherCounter = &types.Variable{
 		)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
-			result.Result = "cannot get count"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Commands.Info.GetCount)
 			return result, nil
 		}
 

@@ -7,6 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 )
 
@@ -21,7 +23,7 @@ var CommandUserCounter = &types.Variable{
 
 		commandUUID, err := uuid.Parse(parseCtx.Command.ID)
 		if err != nil {
-			result.Result = "cannot get count"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Commands.Info.GetCount)
 			return result, nil
 		}
 
@@ -34,7 +36,7 @@ var CommandUserCounter = &types.Variable{
 		)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
-			result.Result = "cannot get count"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Commands.Info.GetCount)
 			return result, nil
 		}
 

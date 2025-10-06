@@ -11,7 +11,9 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"go.uber.org/zap"
@@ -57,14 +59,14 @@ var History = &types.Variable{
 		var spotifyService *spotify.Spotify
 		spotifyEntity, err := parseCtx.Services.SpotifyRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
 		if err != nil {
-			parseCtx.Services.Logger.Error("failed to get spotify entity", zap.Error(err))
+			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.GetSpotifyEntity), zap.Error(err))
 		} else if spotifyEntity.AccessToken != "" {
 			spotifyIntegration := model.Integrations{}
 			if err := parseCtx.Services.Gorm.
 				Where("service = ?", "SPOTIFY").
 				First(&spotifyIntegration).
 				Error; err != nil {
-				parseCtx.Services.Logger.Error("failed to get spotify integration", zap.Error(err))
+				parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.FailedGetSpotifyIntegration), zap.Error(err))
 			} else {
 				spotifyService = spotify.New(
 					spotifyIntegration,
@@ -75,7 +77,7 @@ var History = &types.Variable{
 		}
 
 		if lastfmService == nil && spotifyService == nil {
-			result.Result = "not integrations connected"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.NoIntegrations)
 			return result, nil
 		}
 
@@ -84,7 +86,11 @@ var History = &types.Variable{
 		if lastfmService != nil {
 			lfmTracks, err := lastfmService.GetRecentTracks(limit)
 			if err != nil {
-				result.Result = fmt.Sprintf("cannot fetch tracks from lastfm: %s", err)
+				result.Result = i18n.GetCtx(
+					ctx,
+					locales.Translations.Variables.Song.Errors.FetchTracksLastfm.
+						SetVars(locales.KeysVariablesSongErrorsFetchTracksLastfmVars{Reason: err.Error()}),
+				)
 				return result, nil
 			}
 
@@ -120,10 +126,14 @@ var History = &types.Variable{
 			)
 			if err != nil {
 				if errors.Is(err, spotify.ErrNoNeededScope) {
-					result.Result = "no needed scope, reconnect spotify in dashboard"
+					result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.NoNeededScope)
 					return result, nil
 				}
-				result.Result = fmt.Sprintf("cannot fetch tracks from spotify: %s", err)
+				result.Result = i18n.GetCtx(
+					ctx,
+					locales.Translations.Variables.Song.Errors.FetchTracksSpotify.
+						SetVars(locales.KeysVariablesSongErrorsFetchTracksSpotifyVars{Reason: err.Error()}),
+				)
 				return result, nil
 			}
 
@@ -135,7 +145,7 @@ var History = &types.Variable{
 
 				playedAt, err := time.Parse("2006-01-02T15:04:05Z", track.PlayedAt)
 				if err != nil {
-					parseCtx.Services.Logger.Error("cannot parse played at", zap.Error(err))
+					parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Song.Errors.ParsePlayedAt), zap.Error(err))
 					continue
 				}
 
@@ -162,11 +172,10 @@ var History = &types.Variable{
 		for i, track := range recentTracksSlice {
 			ago := time.Now().UTC().Sub(track.PlayedAt)
 
-			mappedTracks[i] = fmt.Sprintf(
-				"%s — %s (~%.0fm ago)",
-				track.Title,
-				track.Artist,
-				ago.Minutes(),
+			mappedTracks[i] = i18n.GetCtx(
+				ctx,
+				locales.Translations.Variables.Song.Info.History.
+					SetVars(locales.KeysVariablesSongInfoHistoryVars{TrackTitle: track.Title, TrackArtist: track.Artist, Minutes: fmt.Sprintf("%.0f%%", ago.Minutes())}),
 			)
 		}
 

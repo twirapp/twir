@@ -7,7 +7,9 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/zap"
 )
@@ -57,7 +59,7 @@ var Count = &types.Variable{
 			parseCtx.Services.Bus,
 		)
 		if err != nil {
-			parseCtx.Services.Logger.Error("cannot create twitch client", zap.Error(err))
+			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotCreateTwitch), zap.Error(err))
 			return result, nil
 		}
 
@@ -67,11 +69,11 @@ var Count = &types.Variable{
 			},
 		)
 		if err != nil {
-			parseCtx.Services.Logger.Error("cannot get followers", zap.Error(err))
+			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Followers.Errors.GetFollowers), zap.Error(err))
 			return result, nil
 		}
 		if followers.ErrorMessage != "" {
-			parseCtx.Services.Logger.Error("cannot get followers", zap.Error(err))
+			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Followers.Errors.GetFollowers), zap.Error(err))
 			result.Result = followers.ErrorMessage
 			return result, nil
 		}

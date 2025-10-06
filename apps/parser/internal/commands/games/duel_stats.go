@@ -59,18 +59,11 @@ var DuelStats = &types.DefaultCommand{
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(
-					"You have shoot %d times · %d W – %d L (%.0f%% WR)",
-					duelsCount,
-					winsCount,
-					losesCount,
-					winRate,
-				),
-				fmt.Sprintf(i18n.GetCtx(
+				i18n.GetCtx(
 					ctx,
 					locales.Translations.Commands.Games.Info.DuelStats.
 						SetVars(locales.KeysCommandsGamesInfoDuelStatsVars{Duels: duelsCount, Wins: winsCount, Loses: losesCount, Winrate: fmt.Sprintf("%.0f%%", winRate)}),
-				)),
+				),
 			},
 		}, nil
 	},

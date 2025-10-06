@@ -11,8 +11,10 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var CustomVar = &types.Variable{
@@ -53,7 +55,11 @@ var CustomVar = &types.Variable{
 			if v.Type == model.CustomVarNumber {
 				parsed, err := strconv.Atoi(*parseCtx.Text)
 				if err != nil {
-					return nil, fmt.Errorf("wrong number: %w", err)
+					return nil, fmt.Errorf(i18n.GetCtx(
+						ctx,
+						locales.Translations.Variables.CustomVar.Errors.WrongNumbers.
+							SetVars(locales.KeysVariablesCustomVarErrorsWrongNumbersVars{Reason: err.Error()}),
+					))
 				}
 
 				v.Response = fmt.Sprint(parsed)
@@ -62,7 +68,7 @@ var CustomVar = &types.Variable{
 			}
 
 			if err := parseCtx.Services.Gorm.Save(&v).Error; err != nil {
-				return nil, fmt.Errorf("cannot update custom variables")
+				return nil, fmt.Errorf(i18n.GetCtx(ctx, locales.Translations.Variables.CustomVar.Errors.UpdateCustomVar))
 			}
 		}
 
@@ -104,7 +110,7 @@ var CustomVar = &types.Variable{
 				parseCtx.Services.Logger.Sugar().Error(err)
 
 				return nil, errors.New(
-					"cannot evaluate variable. This is internal error, please report this bug",
+					i18n.GetCtx(ctx, locales.Translations.Variables.CustomVar.Errors.EvaluateVariable),
 				)
 			}
 

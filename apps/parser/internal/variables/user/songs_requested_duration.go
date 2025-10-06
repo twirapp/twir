@@ -7,6 +7,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 type songsRequestedDurationSumResult struct {
@@ -45,7 +47,7 @@ var SongsRequestedDuration = &types.Variable{
 		}
 
 		f := time.Duration(sum.Sum) * time.Millisecond
-		result.Result = fmt.Sprintf("%.1fh", f.Hours())
+		result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.User.Info.Hours.SetVars(locales.KeysVariablesUserInfoHoursVars{Hours: fmt.Sprintf("%.1f", f.Hours())}))
 
 		return result, nil
 	},

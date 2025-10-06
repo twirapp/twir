@@ -5,7 +5,9 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/apps/parser/pkg/helpers"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Uptime = &types.Variable{
@@ -18,7 +20,7 @@ var Uptime = &types.Variable{
 		result := types.VariableHandlerResult{}
 
 		if parseCtx.ChannelStream == nil {
-			result.Result = "offline"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Stream.Errors.Offline)
 			return &result, nil
 		}
 

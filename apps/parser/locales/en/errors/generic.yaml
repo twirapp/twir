@@ -18,6 +18,7 @@ user_not_found: User not found
 getting_user_settings: Error while getting user settings
 updating_settings: Error while updating settings
 create_settings: Error while creating settings
+not_a_follower: Not a follower
 
 # Channel
 cannot_find_channel_db: Cannot find channel in database
