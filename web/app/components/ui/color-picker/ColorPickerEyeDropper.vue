@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { Button } from '@/components/ui/button'
 import { useEyeDropper } from '@vueuse/core'
-import { BanIcon, PipetteIcon } from 'lucide-vue-next'
 import tinycolor from 'tinycolor2'
+
 import type { HTMLAttributes } from 'vue'
 
 const props = defineProps<{
@@ -29,27 +28,27 @@ async function handleEyeDropperClick() {
 </script>
 
 <template>
-	<Button
+	<UiButton
 		v-if="isSupported"
-		@click="handleEyeDropperClick"
 		type="button"
 		:class="props.class"
 		aria-label="Pick color from screen"
 		title="Pick color from screen"
 		variant="outline"
-		size="none"
+		size="custom"
+		@click="handleEyeDropperClick"
 	>
-		<PipetteIcon class="w-4 h-4" />
-	</Button>
+		<Icon name="lucide:pipette" class="size-4" />
+	</UiButton>
 
-	<Button
+	<UiButton
 		v-else
 		:disabled="true"
 		variant="outline"
-		size="none"
+		size="custom"
 		:class="props.class"
-		title="EyeDropper API не поддерживается в вашем браузере"
+		title="EyeDropper API don't supported in this browser"
 	>
-		<BanIcon class="w-4 h-4" />
-	</Button>
+		<Icon name="lucide:ban" class="size-4" />
+	</UiButton>
 </template>

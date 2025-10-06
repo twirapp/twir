@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import tinycolor from 'tinycolor2'
+import { computed, ref, watch } from 'vue'
+
 import {
 	Select,
 	SelectContent,
@@ -8,9 +9,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { CheckIcon, CopyIcon } from 'lucide-vue-next'
-import tinycolor from 'tinycolor2'
-import { computed, ref, watch } from 'vue'
 
 const props = defineProps<{
 	hex: string
@@ -84,7 +82,7 @@ watch(colorModel, (newModel) => {
 const updateHex = () => emit('update:hex', localHex.value)
 const updateRgb = () => emit('update:rgb')
 const updateAlpha = () => emit('update:alpha', localAlpha.value)
-const updateFromHsl = () => {
+function updateFromHsl() {
 	const color = tinycolor({
 		h: editableHsl.value.h,
 		s: editableHsl.value.s / 100,
@@ -130,28 +128,30 @@ const inputClass =
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent>
-				<SelectItem value="hex" class="text-xs">HEX</SelectItem>
-				<SelectItem value="rgb" class="text-xs">RGB</SelectItem>
-				<SelectItem value="hsl" class="text-xs">HSL</SelectItem>
+				<SelectItem value="hex" class="text-xs"> HEX </SelectItem>
+				<SelectItem value="rgb" class="text-xs"> RGB </SelectItem>
+				<SelectItem value="hsl" class="text-xs"> HSL </SelectItem>
 			</SelectContent>
 		</Select>
 
 		<!-- HEX -->
 		<div v-if="colorModel === 'hex'" class="inline-flex -space-x-px min-w-0">
-			<Input
+			<UiInput
 				v-model="localHex"
-				:class="[inputClass, 'uppercase rounded-r-none border-r-0 min-w-0']"
+				class="uppercase rounded-r-none border-r-0 min-w-0"
+				:class="[inputClass]"
 				placeholder="HEX"
 				@blur="updateHex"
 				@keydown.enter="updateHex"
 			/>
-			<Input
+			<UiInput
 				v-model.number="localAlpha"
 				type="number"
 				min="0"
 				max="100"
 				placeholder="A"
-				:class="[inputClass, 'rounded-l-none  min-w-0']"
+				class="rounded-l-none min-w-0"
+				:class="[inputClass]"
 				@blur="updateAlpha"
 				@keydown.enter="updateAlpha"
 			/>
@@ -159,102 +159,123 @@ const inputClass =
 
 		<!-- RGB -->
 		<div v-else-if="colorModel === 'rgb'" class="inline-flex -space-x-px min-w-0">
-			<Input
+			<UiInput
 				v-model.number="localRgb.r"
 				type="number"
 				min="0"
 				max="255"
 				placeholder="R"
-				:class="[inputClass, 'rounded-r-none border-r-0 min-w-0']"
+				class="rounded-r-none border-r-0 min-w-0"
+				:class="[inputClass]"
 				@blur="updateRgb"
 				@keydown.enter="updateRgb"
 			/>
-			<Input
+			<UiInput
 				v-model.number="localRgb.g"
 				type="number"
 				min="0"
 				max="255"
 				placeholder="G"
-				:class="[inputClass, 'rounded-none border-r-0 min-w-0']"
+				class="rounded-none border-r-0 min-w-0"
+				:class="[inputClass]"
 				@blur="updateRgb"
 				@keydown.enter="updateRgb"
 			/>
-			<Input
+			<UiInput
 				v-model.number="localRgb.b"
 				type="number"
 				min="0"
 				max="255"
 				placeholder="B"
-				:class="[inputClass, 'rounded-none border-r-0 min-w-0']"
+				class="rounded-none border-r-0 min-w-0"
+				:class="[inputClass]"
 				@blur="updateRgb"
 				@keydown.enter="updateRgb"
 			/>
-			<Input
+			<UiInput
 				v-model.number="localAlpha"
 				type="number"
 				min="0"
 				max="100"
 				placeholder="A"
-				:class="[inputClass, 'rounded-l-none min-w-0']"
+				class="rounded-l-none min-w-0"
+				:class="[inputClass]"
 				@blur="updateAlpha"
 				@keydown.enter="updateAlpha"
 			/>
 		</div>
 
 		<!-- HSL -->
-		<div v-else-if="colorModel === 'hsl'" class="inline-flex -space-x-px min-w-0">
-			<Input
+		<div v-else-if="colorModel === 'hsl'" class="flex flex-row -space-x-px min-w-0">
+			<UiInput
 				v-model.number="editableHsl.h"
 				type="number"
 				min="0"
 				max="360"
 				placeholder="H"
-				:class="[inputClass, 'border-r-0 rounded-r-none min-w-0']"
+				class="border-r-0 rounded-r-none min-w-0"
+				:class="[inputClass]"
 				@blur="updateFromHsl"
 				@keydown.enter="updateFromHsl"
 			/>
-			<Input
+			<UiInput
 				v-model.number="editableHsl.s"
 				type="number"
 				min="0"
 				max="100"
 				placeholder="S"
-				:class="[inputClass, 'rounded-l-none rounded-r-none border-r-0 min-w-0']"
+				class="rounded-l-none rounded-r-none border-r-0 min-w-0"
+				:class="[inputClass]"
 				@blur="updateFromHsl"
 				@keydown.enter="updateFromHsl"
 			/>
-			<Input
+			<UiInput
 				v-model.number="editableHsl.l"
 				type="number"
 				min="0"
 				max="100"
 				placeholder="L"
-				:class="[inputClass, 'rounded-l-none rounded-r-none border-r-0 min-w-0']"
+				class="rounded-l-none rounded-r-none border-r-0 min-w-0"
+				:class="[inputClass]"
 				@blur="updateFromHsl"
 				@keydown.enter="updateFromHsl"
 			/>
-			<Input
+			<UiInput
 				v-model.number="localAlpha"
 				type="number"
 				min="0"
 				max="100"
 				placeholder="A"
-				:class="[inputClass, 'rounded-l-none min-w-0']"
+				class="rounded-l-none min-w-0"
+				:class="[inputClass]"
 				@blur="updateAlpha"
 				@keydown.enter="updateAlpha"
 			/>
 		</div>
 
-		<Button
+		<UiButton
 			v-if="props.showCopy"
-			@click="copyColor"
 			variant="outline"
-			size="none"
-			class="w-8 h-8 bg-transparent"
-			:class="{ 'bg-green-50 border-green-200': isCopied }"
+			size="custom"
+			class="size-8 bg-transparent"
+			@click="copyColor"
 		>
-			<CheckIcon v-if="isCopied" class="h-3 w-3 text-green-600" />
-			<CopyIcon v-else class="h-3 w-3" />
-		</Button>
+			<Transition name="fade" mode="out-in">
+				<Icon v-if="isCopied" name="lucide:check" class="size-3" />
+				<Icon v-else name="lucide:copy" class="size-3" />
+			</Transition>
+		</UiButton>
 	</div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.1s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+</style>

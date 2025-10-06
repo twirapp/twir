@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import UrlShortenerForm from '~~/layers/url-shortener/components/url-shortener-form.vue'
-import Particles from '~/components/ui/bits/backgrounds/Particles/Particles.vue'
-
 definePageMeta({
 	layout: 'landing',
 })
@@ -9,22 +6,13 @@ definePageMeta({
 
 <template>
 	<div class="h-full w-full">
-		<div class="container flex items-center justify-center h-screen relative">
-			<UrlShortenerForm />
+		<div
+			class="absolute inset-0 bg-[linear-gradient(to_right,hsl(240,11%,9%)_1px,transparent_1px),linear-gradient(to_bottom,hsl(240,11%,9%)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:linear-gradient(to_bottom,transparent_15%,black_100%)]"
+		></div>
+		<div
+			class="container flex flex-col items-center justify-center min-h-[calc(100vh-73px)] relative"
+		>
+			<UrlShortenerSection />
 		</div>
-		<Particles
-			:particle-count="200"
-			:particle-spread="10"
-			:speed="0.05"
-			:particle-colors="['#ffffff']"
-			:move-particles-on-hover="false"
-			:particle-hover-factor="1"
-			:alpha-particles="true"
-			:particle-base-size="100"
-			:size-randomness="1"
-			:camera-distance="20"
-			:disable-rotation="true"
-			class="w-full h-full pointer-events-none"
-		/>
 	</div>
 </template>
