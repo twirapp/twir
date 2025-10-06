@@ -177,7 +177,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 	</div>
 
 	<!-- Recent URLs -->
-	<div class="flex flex-col w-full max-w-xl gap-3 mt-4">
+	<div class="flex flex-col w-full max-w-xl gap-3">
 		<UrlShortenerCard v-if="recentUrls.length === 0" />
 		<TransitionGroup name="list" tag="div" class="flex flex-col gap-3">
 			<div v-for="url in recentUrls" :key="url.id">
