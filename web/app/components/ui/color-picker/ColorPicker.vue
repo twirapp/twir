@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 import tinycolor from 'tinycolor2'
 import { type HTMLAttributes, onMounted, reactive, ref, watch } from 'vue'
+
 import {
 	ColorPickerAlpha,
 	ColorPickerEyeDropper,
@@ -11,6 +10,9 @@ import {
 	ColorPickerPresets,
 	ColorPickerSaturation,
 } from '.'
+
+import { cn } from '@/lib/utils'
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 
 interface RGB {
 	r: number
@@ -45,6 +47,16 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
 	'update:modelValue': [value: string]
 }>()
+
+const colorPickerState = ref<boolean>(false)
+
+function openColorPickerPopover() {
+	colorPickerState.value = true
+}
+
+function closeColorPickerPopover() {
+	colorPickerState.value = false
+}
 
 const hue = ref<number>(0)
 const saturation = ref<number>(1)
@@ -194,8 +206,13 @@ onMounted(() => {
 </script>
 
 <template>
-	<Popover>
+	<Popover
+		:modal="colorPickerState"
+		:open="colorPickerState"
+		@update:open="(v) => (colorPickerState = v)"
+	>
 		<PopoverTrigger
+			@click="colorPickerState = true"
 			:style="{ backgroundColor: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` }"
 			:class="cn('size-5 cursor-pointer rounded-sm border ', props.class)"
 		/>
