@@ -39,7 +39,7 @@
 		"nuxt-typed-router": "3.7.3",
 		"ogl": "1.0.11",
 		"pinia": "3.0.3",
-		"`  `": "6.37.8",
+		"postprocessing": "6.37.8",
 		"qrcode": "1.5.4",
 		"reka-ui": "2.5.1",
 		"shadcn-nuxt": "2.1.0",
