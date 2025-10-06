@@ -16,49 +16,49 @@ module.exports = {
 		},
 		extend: {
 			colors: {
-				'border': 'hsl(var(--border))',
-				'input': 'hsl(var(--input))',
-				'ring': 'hsl(var(--ring))',
-				'background': 'hsl(var(--background))',
+				border: 'hsl(var(--border))',
+				input: 'hsl(var(--input))',
+				ring: 'hsl(var(--ring))',
+				background: 'hsl(var(--background))',
 				'background-main': 'hsl(var(--background-main))',
-				'foreground': 'hsl(var(--foreground))',
-				'primary': {
+				foreground: 'hsl(var(--foreground))',
+				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))',
 				},
-				'secondary': {
+				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))',
 				},
-				'destructive': {
+				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))',
 				},
-				'muted': {
+				muted: {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))',
 				},
-				'accent': {
+				accent: {
 					DEFAULT: 'hsl(var(--accent))',
 					foreground: 'hsl(var(--accent-foreground))',
 				},
-				'popover': {
+				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))',
 				},
-				'card': {
+				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))',
 				},
-				'sidebar': {
-					'DEFAULT': 'hsl(var(--sidebar-background))',
-					'foreground': 'hsl(var(--sidebar-foreground))',
-					'primary': 'hsl(var(--sidebar-primary))',
+				sidebar: {
+					DEFAULT: 'hsl(var(--sidebar-background))',
+					foreground: 'hsl(var(--sidebar-foreground))',
+					primary: 'hsl(var(--sidebar-primary))',
 					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					'accent': 'hsl(var(--sidebar-accent))',
+					accent: 'hsl(var(--sidebar-accent))',
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					'border': 'hsl(var(--sidebar-border))',
-					'ring': 'hsl(var(--sidebar-ring))',
+					border: 'hsl(var(--sidebar-border))',
+					ring: 'hsl(var(--sidebar-ring))',
 				},
 			},
 			borderRadius: {
@@ -70,18 +70,18 @@ module.exports = {
 			keyframes: {
 				'accordion-down': {
 					from: { height: 0 },
-					to: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: 'var(--reka-accordion-content-height)' },
 				},
 				'accordion-up': {
-					from: { height: 'var(--radix-accordion-content-height)' },
+					from: { height: 'var(--reka-accordion-content-height)' },
 					to: { height: 0 },
 				},
 				'collapsible-down': {
 					from: { height: 0 },
-					to: { height: 'var(--radix-collapsible-content-height)' },
+					to: { height: 'var(--reka-collapsible-content-height)' },
 				},
 				'collapsible-up': {
-					from: { height: 'var(--radix-collapsible-content-height)' },
+					from: { height: 'var(--reka-collapsible-content-height)' },
 					to: { height: 0 },
 				},
 			},
