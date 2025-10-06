@@ -186,6 +186,17 @@ export interface LinkOutputDto {
   views: number;
 }
 
+export interface LinksProfileOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  items: LinkOutputDto[];
+  /** @format int64 */
+  total: number;
+}
+
 export interface MapStruct {
   id: string;
   name: string;
@@ -789,23 +800,31 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Short links
-     * @name ShortUrlGetInfo
-     * @summary Get short url data
+     * @name ShortUrlProfile
+     * @summary Get user's short links
      * @request GET:/v1/short-links
-     * @response `200` `LinkOutputDto` OK
+     * @response `200` `LinksProfileOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortUrlGetInfo: (
-      query: {
+    shortUrlProfile: (
+      query?: {
         /**
-         * @minLength 1
-         * @pattern ^[a-zA-Z0-9]+$
+         * @format int64
+         * @min 0
+         * @default 0
          */
-        shortId: string;
+        page?: number;
+        /**
+         * @format int64
+         * @min 1
+         * @max 100
+         * @default 20
+         */
+        perPage?: number;
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<LinkOutputDto, any>({
+      this.http.request<LinksProfileOutputDto, any>({
         path: `/v1/short-links`,
         method: "GET",
         query: query,
@@ -847,6 +866,35 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<ErrorModel, void>({
         path: `/v1/short-links/${shortId}`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortUrlGetInfo
+     * @summary Get short url data
+     * @request GET:/v1/short-links/{shortId}/info
+     * @response `200` `LinkOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortUrlGetInfo: (
+      shortId: string,
+      query: {
+        /**
+         * @minLength 1
+         * @pattern ^[a-zA-Z0-9]+$
+         */
+        shortId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<LinkOutputDto, any>({
+        path: `/v1/short-links/${shortId}/info`,
+        method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),

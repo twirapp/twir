@@ -105,7 +105,7 @@ func New(opts Opts) {
 		huma.Operation{
 			OperationID: "short-url-get-info",
 			Method:      http.MethodGet,
-			Path:        "/v1/short-links",
+			Path:        "/v1/short-links/{shortId}/info",
 			Tags:        []string{"Short links"},
 			Summary:     "Get short url data",
 		}, func(
@@ -133,6 +133,7 @@ func New(opts Opts) {
 					Id:       link.ShortID,
 					Url:      link.URL,
 					ShortUrl: baseUrl.String(),
+					Views:    link.Views,
 				},
 			}, nil
 		},
@@ -164,11 +165,13 @@ func New(opts Opts) {
 				return nil, huma.NewError(http.StatusNotFound, "Link not found")
 			}
 
+			newViews := link.Views + 1
+
 			if err := opts.Service.Update(
 				ctx,
 				link.ShortID,
 				shortenedurls.UpdateInput{
-					Views: &link.Views,
+					Views: &newViews,
 				},
 			); err != nil {
 				return nil, huma.NewError(http.StatusInternalServerError, "Cannot update link", err)
@@ -177,6 +180,69 @@ func New(opts Opts) {
 			return &linkRedirectOutput{
 				Status:   http.StatusPermanentRedirect,
 				Location: link.URL,
+			}, nil
+		},
+	)
+
+	huma.Register(
+		opts.Api,
+		huma.Operation{
+			OperationID: "short-url-profile",
+			Method:      http.MethodGet,
+			Path:        "/v1/short-links",
+			Tags:        []string{"Short links"},
+			Summary:     "Get user's short links",
+		}, func(
+			ctx context.Context,
+			input *struct {
+				Page    int `query:"page" minimum:"0" default:"0"`
+				PerPage int `query:"perPage" minimum:"1" maximum:"100" default:"20"`
+			},
+		) (
+			*struct {
+				Body linksProfileOutputDto
+			}, error,
+		) {
+			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			if err != nil || user == nil {
+				return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+			}
+
+			data, err := opts.Service.GetList(
+				ctx, shortenedurls.GetListInput{
+					Page:        input.Page,
+					PerPage:     input.PerPage,
+					OwnerUserID: &user.ID,
+				},
+			)
+			if err != nil {
+				return nil, huma.NewError(http.StatusNotFound, "Cannot get links", err)
+			}
+
+			baseUrl, _ := url.Parse(opts.Config.SiteBaseUrl)
+
+			links := make([]linkOutputDto, 0, len(data.List))
+			for _, link := range data.List {
+				baseUrl.Path = "/s/" + link.ID
+
+				links = append(
+					links,
+					linkOutputDto{
+						Id:       link.ID,
+						Url:      link.Link,
+						ShortUrl: baseUrl.String(),
+						Views:    link.Views,
+					},
+				)
+			}
+
+			return &struct {
+				Body linksProfileOutputDto
+			}{
+				Body: linksProfileOutputDto{
+					Total: data.Total,
+					Items: links,
+				},
 			}, nil
 		},
 	)
@@ -205,4 +271,9 @@ type linkOutputDto struct {
 type linkRedirectOutput struct {
 	Status   int
 	Location string `header:"Location"`
+}
+
+type linksProfileOutputDto struct {
+	Total int             `json:"total" example:"1"`
+	Items []linkOutputDto `json:"items"`
 }

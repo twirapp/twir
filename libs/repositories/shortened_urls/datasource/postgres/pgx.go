@@ -181,22 +181,22 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 		From("shortened_urls").
 		OrderBy("created_at DESC")
 
-	countQueryBUilder := sq.Select("COUNT(*)").From("shortened_urls")
+	countQueryBuilder := sq.Select("COUNT(*)").From("shortened_urls")
 
 	if input.UserID != nil {
-		queryBuilder = queryBuilder.Where("created_by_user_id", *input.UserID)
-		countQueryBUilder = countQueryBUilder.Where("created_by_user_id", *input.UserID)
+		queryBuilder = queryBuilder.Where("created_by_user_id = ?", *input.UserID)
+		countQueryBuilder = countQueryBuilder.Where("created_by_user_id = ?", *input.UserID)
 	}
 
-	countQuery, countArgs, err := countQueryBUilder.ToSql()
+	countQuery, countArgs, err := countQueryBuilder.ToSql()
 	if err != nil {
-		return shortened_urls.GetListOutput{}, fmt.Errorf("count query error: %w", err)
+		return shortened_urls.GetListOutput{}, fmt.Errorf("count query builder error: %w", err)
 	}
 
 	var count int64
 	err = c.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&count)
 	if err != nil {
-		return shortened_urls.GetListOutput{}, fmt.Errorf("count query error: %w", err)
+		return shortened_urls.GetListOutput{}, fmt.Errorf("count queryrow error: %w", err)
 	}
 
 	perPage := input.PerPage
@@ -204,7 +204,7 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 		perPage = 20
 	}
 
-	if input.Page > 0 && perPage > 0 {
+	if input.Page > 0 || perPage > 0 {
 		offset := input.Page * perPage
 		queryBuilder = queryBuilder.Limit(uint64(perPage)).Offset(uint64(offset))
 	}
