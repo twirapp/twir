@@ -3,7 +3,7 @@ import { WandSparklesIcon } from 'lucide-vue-next'
 </script>
 
 <template>
-	<div class="flex flex-col gap-6 items-center">
+	<div class="flex flex-col gap-6 items-center mb-3">
 		<div class="flex rounded-xl border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,10%)] p-5">
 			<WandSparklesIcon fill="rgba(255,255,255,0.3)" class="size-8" />
 		</div>
