@@ -105,7 +105,7 @@ var SetCommand = &types.DefaultCommand{
 		if err != nil || req.StatusCode != 204 {
 			result.Result = append(
 				result.Result,
-				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else(i18n.GetCtx(ctx, locales.Translations.Commands.Channel.Errors.Internal)),
+				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else(i18n.GetCtx(ctx, locales.Translations.Errors.Generic.Internal)),
 			)
 			return result, nil
 		}

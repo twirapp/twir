@@ -1,7 +1,7 @@
 info:
-  not_configured: "TTS not configured"
-  no_voices: "No voices available"
+  not_configured: TTS not configured
+  no_voices: No voices available
 
 errors:
-  not_found: "Voice {userVoice} not found"
-  voice_disallowed: "Voice {userVoice} is disallowed for usage"
+  not_found: 'Voice {userVoice} not found'
+  voice_disallowed: 'Voice {userVoice} is disallowed for usage'

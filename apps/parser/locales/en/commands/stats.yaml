@@ -1,10 +1,10 @@
 info:
-  #Me
-  watched: "{userWatched} watched"
-  messages: "{userMessages} messages"
-  emotes: "{userEmotes} used emotes"
-  points: "{userPoints} used points"
-  songs: "{userSongs} songs requestes"
-  
-  #Watchtime
-  watching_stream: "You watching stream for {userWatching}"
+  # Me
+  watched: '{userWatched} watched'
+  messages: '{userMessages} messages'
+  emotes: '{userEmotes} used emotes'
+  points: '{userPoints} used points'
+  songs: '{userSongs} songs requestes'
+
+  # Watchtime
+  watching_stream: 'You watching stream for {userWatching}'

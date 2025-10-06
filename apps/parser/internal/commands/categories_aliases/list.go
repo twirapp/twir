@@ -131,16 +131,9 @@ var List = &types.DefaultCommand{
 			resultedString.WriteString(alias.alias)
 
 			if alias.twitchCategory != nil {
-				resultedString.WriteString(i18n.GetCtx(
-					ctx,
-					locales.Translations.Commands.CategoriesAliases.Errors.SortCategoryName.
-						SetVars(locales.KeysCommandsCategoriesAliasesErrorsSortCategoryNameVars{CategoryName: alias.twitchCategory.Name}),
-				))
+				resultedString.WriteString(fmt.Sprintf(" (%s)", alias.twitchCategory.Name))
 			} else {
-				resultedString.WriteString(i18n.GetCtx(
-					ctx,
-					locales.Translations.Commands.CategoriesAliases.Errors.SortNotFound,
-				))
+				resultedString.WriteString(" (not found)")
 			}
 		}
 

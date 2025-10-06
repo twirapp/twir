@@ -59,7 +59,7 @@ var EmoteCopy = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Seventv.Errors.UserShouldTag,
+					locales.Translations.Errors.Generic.ShouldMentionWithAt,
 				),
 			}
 		}

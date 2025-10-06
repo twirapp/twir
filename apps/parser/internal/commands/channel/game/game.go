@@ -205,7 +205,7 @@ var SetCommand = &types.DefaultCommand{
 				lo.If(changeResponse.ErrorMessage != "", changeResponse.ErrorMessage).Else(
 					i18n.GetCtx(
 						ctx,
-						locales.Translations.Commands.Channel.Errors.Internal,
+						locales.Translations.Errors.Generic.Internal,
 					),
 				),
 			)
