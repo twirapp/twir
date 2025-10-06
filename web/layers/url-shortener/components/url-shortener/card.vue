@@ -35,7 +35,7 @@ const displayUrl = computed(() => removeProtocol(props.url.url))
 function copyUrl() {
 	clipboardApi.copy(props.url.short_url)
 
-	toast('Copied', {
+	toast.success('Copied', {
 		description: 'Shortened url copied to clipboard',
 		duration: 2500,
 	})
