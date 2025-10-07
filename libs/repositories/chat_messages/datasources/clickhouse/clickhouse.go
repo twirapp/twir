@@ -136,7 +136,7 @@ func (c *Clickhouse) GetMany(
 	}
 
 	if input.UserNameLike != nil && *input.UserNameLike != "" {
-		builder = builder.Where(squirrel.ILike{"user_name": fmt.Sprintf("%%%s%", *input.UserNameLike)})
+		builder = builder.Where(squirrel.ILike{"user_name": fmt.Sprintf("%%%s%%", *input.UserNameLike)})
 	}
 
 	if input.TextLike != nil && *input.TextLike != "" {
