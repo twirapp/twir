@@ -20,7 +20,7 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (r *mutationResolver) KeywordRemove(ctx context.Context, id uuid.UUID) (boo
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}

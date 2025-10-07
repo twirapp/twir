@@ -5,14 +5,17 @@ import * as z from 'zod'
 import { useUrlShortener } from '../../composables/use-url-shortener'
 
 import type { LinkOutputDto } from '@twir/api/openapi'
+import FormShortHistory from '#layers/url-shortener/components/url-shortener/form-short-history.vue'
 
 const twirShortenerUrl = useRequestURL()
 
 const schema = z.object({
-	url: z.url({
-		protocol: /^https?$/,
-		hostname: z.regexes.domain,
-	}),
+	url: z
+		.url({
+			protocol: /^https?$/,
+			hostname: z.regexes.domain,
+		})
+		.default(''),
 	customAlias: z
 		.string()
 		.min(3, 'Custom alias must be at least 3 characters')
@@ -27,42 +30,6 @@ const form = useForm({
 })
 
 const api = useUrlShortener()
-
-const STORAGE_KEY = 'shortener_history'
-const MAX_HISTORY = 3
-
-const recentUrls = ref<LinkOutputDto[]>([])
-
-onMounted(() => {
-	if (process.client) {
-		const stored = localStorage.getItem(STORAGE_KEY)
-		if (stored) {
-			try {
-				recentUrls.value = JSON.parse(stored)
-			} catch (e) {
-				console.error('Failed to parse localStorage:', e)
-				recentUrls.value = []
-			}
-		}
-	}
-})
-
-function saveToHistory(url: LinkOutputDto) {
-	recentUrls.value = [url, ...recentUrls.value]
-
-	recentUrls.value = recentUrls.value.filter(
-		(item, index, self) => index === self.findIndex((t) => t.id === item.id)
-	)
-
-	if (recentUrls.value.length > MAX_HISTORY) {
-		recentUrls.value = recentUrls.value.slice(0, MAX_HISTORY)
-	}
-
-	if (process.client) {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(recentUrls.value))
-	}
-}
-
 const currentUrl = ref<LinkOutputDto>()
 const currentError = ref<string>()
 
@@ -82,7 +49,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 	if (data) {
 		currentUrl.value = data
-		saveToHistory(data)
+		form.resetForm()
 	}
 })
 </script>
@@ -175,35 +142,5 @@ const onSubmit = form.handleSubmit(async (values) => {
 			</div>
 		</form>
 	</div>
-
-	<!-- Recent URLs -->
-	<div class="flex flex-col w-full max-w-xl gap-3">
-		<UrlShortenerCard v-if="recentUrls.length === 0" />
-		<TransitionGroup name="list" tag="div" class="flex flex-col gap-3">
-			<div v-for="url in recentUrls" :key="url.id">
-				<UrlShortenerCard :url="url" />
-			</div>
-		</TransitionGroup>
-	</div>
+	<FormShortHistory />
 </template>
-
-<style>
-.list-enter-active,
-.list-leave-active {
-	transition: all 0.3s ease;
-}
-
-.list-enter-from {
-	opacity: 0;
-	transform: translateY(-20px);
-}
-
-.list-leave-to {
-	opacity: 0;
-	transform: translateY(20px);
-}
-
-.list-move {
-	transition: transform 0.3s ease;
-}
-</style>

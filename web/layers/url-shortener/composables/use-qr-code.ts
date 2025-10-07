@@ -95,7 +95,38 @@ export function useQRCode() {
 		return canvas.toDataURL('image/png')
 	}
 
+	async function downloadQR(qr: string, fileName = 'twir-qrcode.png') {
+		if (!qr) return
+
+		try {
+			const base64String = qr.replace(/^data:image\/[a-z]+;base64,/, '')
+
+			const byteCharacters = atob(base64String)
+			const byteNumbers = Array.from<number>({ length: byteCharacters.length })
+			for (let i = 0; i < byteCharacters.length; i++) {
+				byteNumbers[i] = byteCharacters.charCodeAt(i)
+			}
+			const byteArray = new Uint8Array(byteNumbers)
+
+			const blob = new Blob([byteArray], { type: 'image/png' })
+
+			const url = window.URL.createObjectURL(blob)
+
+			const link = document.createElement('a')
+			link.href = url
+			link.download = fileName
+			document.body.appendChild(link)
+			link.click()
+
+			document.body.removeChild(link)
+			window.URL.revokeObjectURL(url)
+		} catch (error) {
+			console.error('Error downloading QR code:', error)
+		}
+	}
+
 	return {
 		generateQRCode,
+		downloadQR,
 	}
 }

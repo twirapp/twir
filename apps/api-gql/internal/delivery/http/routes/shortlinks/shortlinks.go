@@ -4,11 +4,14 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"slices"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
 )
@@ -20,6 +23,7 @@ type Opts struct {
 	Config   config.Config
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
+	Logger   logger.Logger
 }
 
 func New(opts Opts) {
@@ -70,7 +74,7 @@ func New(opts Opts) {
 			}
 
 			var createdByUserID *string
-			user, _ := opts.Sessions.GetAuthenticatedUser(ctx)
+			user, _ := opts.Sessions.GetAuthenticatedUserModel(ctx)
 			if user != nil {
 				createdByUserID = &user.ID
 			}
@@ -88,6 +92,10 @@ func New(opts Opts) {
 
 			baseUrl, _ := url.Parse(opts.Config.SiteBaseUrl)
 			baseUrl.Path = "/s/" + link.ShortID
+
+			if err := opts.Sessions.AddLatestShortenerUrlsId(ctx, link.ShortID); err != nil {
+				opts.Logger.Warn("Cannot save latest short links ids to session: " + err.Error())
+			}
 
 			return &createLinkOutput{
 				Body: linkOutputDto{
@@ -191,7 +199,7 @@ func New(opts Opts) {
 			Method:      http.MethodGet,
 			Path:        "/v1/short-links",
 			Tags:        []string{"Short links"},
-			Summary:     "Get user's short links",
+			Summary:     "Get user's short links from authenticated user and/or from browser session",
 		}, func(
 			ctx context.Context,
 			input *struct {
@@ -203,44 +211,99 @@ func New(opts Opts) {
 				Body linksProfileOutputDto
 			}, error,
 		) {
-			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
-			if err != nil || user == nil {
-				return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
-			}
-
-			data, err := opts.Service.GetList(
-				ctx, shortenedurls.GetListInput{
-					Page:        input.Page,
-					PerPage:     input.PerPage,
-					OwnerUserID: &user.ID,
-				},
+			var (
+				links []linkOutputDto
+				total int
 			)
-			if err != nil {
-				return nil, huma.NewError(http.StatusNotFound, "Cannot get links", err)
-			}
 
-			baseUrl, _ := url.Parse(opts.Config.SiteBaseUrl)
-
-			links := make([]linkOutputDto, 0, len(data.List))
-			for _, link := range data.List {
-				baseUrl.Path = "/s/" + link.ID
-
-				links = append(
-					links,
-					linkOutputDto{
-						Id:       link.ID,
-						Url:      link.Link,
-						ShortUrl: baseUrl.String(),
-						Views:    link.Views,
+			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
+			if user != nil && err == nil {
+				data, err := opts.Service.GetList(
+					ctx, shortenedurls.GetListInput{
+						Page:        input.Page,
+						PerPage:     input.PerPage,
+						OwnerUserID: &user.ID,
 					},
 				)
+				if err != nil {
+					return nil, huma.NewError(http.StatusNotFound, "Cannot get links", err)
+				}
+				total = data.Total
+
+				baseUrl, _ := url.Parse(opts.Config.SiteBaseUrl)
+
+				for _, link := range data.List {
+					baseUrl.Path = "/s/" + link.ID
+
+					links = append(
+						links,
+						linkOutputDto{
+							Id:        link.ID,
+							Url:       link.Link,
+							ShortUrl:  baseUrl.String(),
+							Views:     link.Views,
+							CreatedAt: link.CreatedAt,
+						},
+					)
+				}
+			}
+
+			if linksIds, err := opts.Sessions.GetLatestShortenerUrlsIds(ctx); err == nil {
+				data, err := opts.Service.GetManyByShortIDs(ctx, linksIds)
+				if err != nil {
+					return nil, huma.NewError(http.StatusNotFound, "Cannot get links", err)
+				}
+
+				for _, link := range data {
+					baseUrl, _ := url.Parse(opts.Config.SiteBaseUrl)
+					baseUrl.Path = "/s/" + link.ShortID
+
+					links = append(
+						links,
+						linkOutputDto{
+							Id:        link.ShortID,
+							Url:       link.URL,
+							ShortUrl:  baseUrl.String(),
+							Views:     link.Views,
+							CreatedAt: link.CreatedAt,
+						},
+					)
+				}
+			}
+
+			// Remove duplicates
+			seen := make(map[string]bool)
+			uniqueLinks := []linkOutputDto{}
+			for _, link := range links {
+				if !seen[link.Id] {
+					seen[link.Id] = true
+					uniqueLinks = append(uniqueLinks, link)
+				}
+			}
+
+			// perPage limit
+			if len(uniqueLinks) > input.PerPage {
+				uniqueLinks = uniqueLinks[:input.PerPage]
+			}
+
+			links = uniqueLinks
+
+			slices.SortFunc(
+				links,
+				func(a, b linkOutputDto) int {
+					return b.CreatedAt.Compare(a.CreatedAt)
+				},
+			)
+
+			if total == 0 {
+				total = len(links)
 			}
 
 			return &struct {
 				Body linksProfileOutputDto
 			}{
 				Body: linksProfileOutputDto{
-					Total: data.Total,
+					Total: total,
 					Items: links,
 				},
 			}, nil
@@ -262,10 +325,11 @@ type createLinkOutput struct {
 }
 
 type linkOutputDto struct {
-	Id       string `json:"id" example:"KKMEa"`
-	Url      string `json:"url" example:"https://example.com"`
-	ShortUrl string `json:"short_url" example:"https://twir.app/s/KKMEa"`
-	Views    int    `json:"views" example:"1"`
+	Id        string    `json:"id" example:"KKMEa"`
+	Url       string    `json:"url" example:"https://example.com"`
+	ShortUrl  string    `json:"short_url" example:"https://twir.app/s/KKMEa"`
+	Views     int       `json:"views" example:"1"`
+	CreatedAt time.Time `json:"created_at" format:"date-time" example:"2023-01-01T00:00:00Z"`
 }
 
 type linkRedirectOutput struct {

@@ -25,7 +25,7 @@ func (r *adminShortUrlResolver) UserProfile(ctx context.Context, obj *gqlmodel.A
 
 // AdminShortURLCreate is the resolver for the adminShortUrlCreate field.
 func (r *mutationResolver) AdminShortURLCreate(ctx context.Context, input gqlmodel.AdminShortURLCreateInput) (bool, error) {
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}

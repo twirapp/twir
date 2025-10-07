@@ -129,7 +129,7 @@ func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (
 
 // NotificationsByUser is the resolver for the notificationsByUser field.
 func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error) {
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.
 
 // NewNotification is the resolver for the newNotification field.
 func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gqlmodel.UserNotification, error) {
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}

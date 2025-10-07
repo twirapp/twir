@@ -6,11 +6,11 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/utils"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
 func (r *queryResolver) gamesGetEightBall(ctx context.Context) (*gqlmodel.EightBallGame, error) {
@@ -47,7 +47,7 @@ func (r *mutationResolver) gamesUpdateEightBall(
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (r *mutationResolver) gamesUpdateDuel(
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -301,7 +301,7 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -431,7 +431,7 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -524,7 +524,7 @@ func (r *mutationResolver) gamesUpdateVoteban(
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}

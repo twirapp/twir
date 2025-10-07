@@ -36,6 +36,31 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) GetManyByShortIDs(ctx context.Context, ids []string) ([]model.ShortenedUrl, error) {
+	query := `
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views
+FROM shortened_urls
+WHERE short_id = ANY($1)
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ShortenedUrl])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, shortened_urls.ErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return models, nil
+}
+
 func (c *Pgx) Count(ctx context.Context, input shortened_urls.CountInput) (int64, error) {
 	selectBuilder := sq.Select("COUNT(*)").From("shortened_urls")
 	if input.UserID != "" {

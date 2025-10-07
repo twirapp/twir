@@ -71,7 +71,7 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -187,7 +187,7 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bo
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -213,7 +213,7 @@ func (r *mutationResolver) CommandsCreateMultiple(ctx context.Context, commands 
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}

@@ -190,9 +190,17 @@ func (a *Auth) handleAuthPostCode(
 		return nil, huma.Error500InternalServerError("Cannot create default commands", err)
 	}
 
-	a.sessions.Put(ctx, "dbUser", &dbUser)
-	a.sessions.Put(ctx, "twitchUser", &twitchUser)
-	a.sessions.Put(ctx, "dashboardId", dbUser.ID)
+	if err := a.sessions.SetSessionAuthenticatedUser(ctx, *dbUser); err != nil {
+		return nil, huma.Error500InternalServerError("Cannot set session user", err)
+	}
+
+	if err := a.sessions.SetSessionSelectedDashboard(ctx, dbUser.ID); err != nil {
+		return nil, huma.Error500InternalServerError("Cannot set session selected dashboard", err)
+	}
+
+	if err := a.sessions.SetSessionTwitchUser(ctx, twitchUser); err != nil {
+		return nil, huma.Error500InternalServerError("Cannot set session twitch user", err)
+	}
 
 	if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
 		ctx,

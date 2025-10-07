@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
+import { TwirLogo } from '@twir/brand'
 
 import { useMetaExtractor } from '../../composables/use-meta-extractor'
 import { useQRCode } from '../../composables/use-qr-code'
@@ -9,14 +10,7 @@ import type { LinkOutputDto } from '@twir/api/openapi'
 import PixelBlast from '~/components/ui/bits/backgrounds/PixelBlast/pixel-blast.vue'
 import { ColorPicker } from '~/components/ui/color-picker'
 
-const props = withDefaults(defineProps<{ url?: LinkOutputDto }>(), {
-	url: () => ({
-		id: '1',
-		short_url: 'https://twir.app/s/twitch',
-		url: 'https://www.twitch.tv/twirdev',
-		views: 7832,
-	}),
-})
+const props = defineProps<{ url: LinkOutputDto }>()
 
 const clipboardApi = useClipboard()
 
@@ -42,20 +36,14 @@ function copyUrl() {
 }
 
 function formatViews(views: number) {
-	if (!views) return '0'
-
-	if (views >= 1000000) {
-		return (views / 1000000).toFixed(1).replace('.0', '') + 'М'
-	}
-
-	if (views >= 1000) {
-		return (views / 1000).toFixed(1).replace('.0', '') + 'К'
-	}
-
-	return views.toString()
+	const intl = new Intl.NumberFormat(import.meta.client ? navigator.language : 'en-US', {
+		notation: 'compact',
+		maximumFractionDigits: 1,
+	})
+	return intl.format(views)
 }
 
-const { generateQRCode, downloadQRCode } = useQRCode()
+const { generateQRCode, downloadQR } = useQRCode()
 const showQRModal = ref(false)
 const qrCodeUrl = ref<string>('')
 const qrSettings = reactive({
@@ -87,7 +75,7 @@ async function generateQR() {
 
 async function handleDownloadQR() {
 	if (!qrCodeUrl.value) return
-	await downloadQRCode(qrCodeUrl.value, `twir-qrcode.png`)
+	await downloadQR(qrCodeUrl.value, `twir-qrcode.png`)
 }
 
 watch([() => qrSettings.showLogo, () => qrSettings.color], async () => {

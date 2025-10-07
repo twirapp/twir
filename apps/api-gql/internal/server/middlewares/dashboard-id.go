@@ -14,7 +14,7 @@ import (
 func (m *Middlewares) DashboardID(c *gin.Context) {
 	span := trace.SpanFromContext(c.Request.Context())
 
-	user, userErr := m.sessions.GetAuthenticatedUser(c.Request.Context())
+	user, userErr := m.sessions.GetAuthenticatedUserModel(c.Request.Context())
 	if userErr == nil {
 		span.SetAttributes(
 			attribute.String("user.id", user.ID),

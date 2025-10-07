@@ -179,6 +179,8 @@ export interface LinkOutputDto {
    * @format uri
    */
   $schema?: string;
+  /** @format date-time */
+  created_at: string;
   id: string;
   short_url: string;
   url: string;
@@ -801,7 +803,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags Short links
      * @name ShortUrlProfile
-     * @summary Get user's short links
+     * @summary Get user's short links from authenticated user and/or from browser session
      * @request GET:/v1/short-links
      * @response `200` `LinksProfileOutputDto` OK
      * @response `default` `ErrorModel` Error

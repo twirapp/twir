@@ -10,13 +10,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	now_playing_fetcher "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/now-playing-fetcher"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/types/types/api/overlays"
 	"github.com/twirapp/twir/libs/utils"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	now_playing_fetcher "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/now-playing-fetcher"
 )
 
 func chatOverlayDbToGql(entity *model.ChatOverlaySettings) *gqlmodel.ChatOverlay {
@@ -94,7 +94,7 @@ func (r *mutationResolver) updateChatOverlay(
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -219,7 +219,7 @@ func (r *mutationResolver) chatOverlayCreate(
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -323,7 +323,7 @@ func (r *mutationResolver) chatOverlayDelete(ctx context.Context, id string) (bo
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -430,7 +430,7 @@ func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id strin
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -470,7 +470,7 @@ func (r *mutationResolver) createNowPlayingOverlay(
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -538,7 +538,7 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
