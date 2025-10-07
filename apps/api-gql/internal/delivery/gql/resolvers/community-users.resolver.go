@@ -27,7 +27,7 @@ func (r *communityUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel
 
 // CommunityResetStats is the resolver for the communityResetStats field.
 func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlmodel.CommunityUsersResetType) (bool, error) {
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}

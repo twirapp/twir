@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
+	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
 )
 
@@ -36,7 +36,7 @@ func New(opts Opts) {
 				{"api-key": {}},
 			},
 		}, func(ctx context.Context, input *getManyInput) (*getManyOutput, error) {
-			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
 			if user == nil || err != nil {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
@@ -134,7 +134,7 @@ func New(opts Opts) {
 				ExpireAt: input.Body.ExpireAt,
 			}
 
-			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
 			if err == nil && user != nil {
 				createInput.OwnerUserID = &user.ID
 			}
@@ -180,7 +180,7 @@ func New(opts Opts) {
 				return nil, huma.NewError(http.StatusNotFound, "Cannot get pastebin", err)
 			}
 
-			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
 			if user == nil || err != nil || paste.OwnerUserID == nil || *paste.OwnerUserID != user.ID {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}

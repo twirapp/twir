@@ -7,7 +7,7 @@ import (
 )
 
 func (c *Middlewares) IsAdmin(ctx huma.Context, next func(huma.Context)) {
-	user, err := c.auth.GetAuthenticatedUser(ctx.Context())
+	user, err := c.auth.GetAuthenticatedUserModel(ctx.Context())
 	if err != nil {
 		huma.WriteErr(
 			c.huma,

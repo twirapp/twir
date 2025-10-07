@@ -12,7 +12,7 @@ import (
 func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(huma.Context)) {
 	ctx := hc.Context()
 
-	user, err := c.auth.GetAuthenticatedUser(ctx)
+	user, err := c.auth.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		huma.WriteErr(
 			c.huma,

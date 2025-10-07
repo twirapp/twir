@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +17,7 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 	next graphql.Resolver,
 	permission *gqlmodel.ChannelRolePermissionEnum,
 ) (res interface{}, err error) {
-	user, err := c.sessions.GetAuthenticatedUser(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}

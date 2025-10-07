@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cn } from '~/lib/utils'
+import { type HTMLAttributes, computed } from 'vue'
 import {
   SelectContent,
   type SelectContentEmits,
@@ -7,9 +7,9 @@ import {
   SelectPortal,
   SelectViewport,
   useForwardPropsEmits,
-} from 'reka-ui'
-import { type HTMLAttributes, computed } from 'vue'
+} from 'radix-vue'
 import { SelectScrollDownButton, SelectScrollUpButton } from '.'
+import { cn } from '@/lib/utils'
 
 defineOptions({
   inheritAttrs: false,
@@ -44,7 +44,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       "
     >
       <SelectScrollUpButton />
-      <SelectViewport :class="cn('p-1', position === 'popper' && 'h-[--reka-select-trigger-height] w-full min-w-[--reka-select-trigger-width]')">
+      <SelectViewport :class="cn('p-1', position === 'popper' && 'h-[--radix-select-trigger-height] w-full min-w-[--radix-select-trigger-width]')">
         <slot />
       </SelectViewport>
       <SelectScrollDownButton />

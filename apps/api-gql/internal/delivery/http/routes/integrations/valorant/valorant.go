@@ -45,7 +45,7 @@ func New(opts Opts) {
 			ctx context.Context,
 			input *struct{},
 		) (*httpdelivery.BaseOutputJson[integrationsValorantStatsOutput], error) {
-			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
 			if user == nil || err != nil {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}

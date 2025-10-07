@@ -90,7 +90,7 @@ func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.Gi
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
