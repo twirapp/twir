@@ -1,6 +1,6 @@
 import type { ErrorModel, LinkOutputDto } from '@twir/api/openapi'
 
-export const useUrlShortener = defineStore('url-shortner', () => {
+export const useUrlShortener = defineStore('url-shortener', () => {
 	const api = useOapi()
 	const latestShortenedUrls = ref<LinkOutputDto[]>([])
 
@@ -53,3 +53,7 @@ export const useUrlShortener = defineStore('url-shortner', () => {
 		latestShortenedUrls,
 	}
 })
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(useUrlShortener, import.meta.hot))
+}

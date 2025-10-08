@@ -463,6 +463,7 @@ func main() {
 		),
 		// huma routes
 		shortlinks.FxModule,
+		pastebins.FxModule,
 		// huma routes end
 		fx.Invoke(
 			gql.New,
@@ -470,7 +471,6 @@ func main() {
 			http_webhooks.New,
 			httpbase.RegisterRoutes,
 			authroutes.New,
-			pastebins.New,
 			channelsfilesroute.New,
 			valorant.New,
 			stream.New,

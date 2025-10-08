@@ -32,7 +32,9 @@ func (s *Auth) AddLatestShortenerUrlsId(ctx context.Context, id string) error {
 	}
 
 	s.sessionManager.Put(ctx, latestShortenedUrlsIdsKey, latest)
-	s.sessionManager.Commit(ctx)
+	if _, _, err := s.sessionManager.Commit(ctx); err != nil {
+		return fmt.Errorf("cannot commit session: %w", err)
+	}
 
 	return nil
 }

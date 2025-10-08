@@ -61,8 +61,8 @@ async function deletePaste(id: string) {
 						</UiTableRow>
 					</UiTableHeader>
 					<UiTableBody>
-						<template v-if="pastes?.items?.length">
-							<UiTableRow v-for="paste in pastes?.items" :key="paste.id">
+						<template v-if="pastes?.data?.items?.length">
+							<UiTableRow v-for="paste in pastes?.data?.items" :key="paste.id">
 								<UiTableCell>
 									<a class="underline" target="_blank" :href="`${requestUrl.origin}/h/${paste.id}`">
 										{{ paste.id }}
