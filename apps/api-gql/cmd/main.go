@@ -8,6 +8,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
@@ -460,12 +461,15 @@ func main() {
 			middlewares.New,
 			server.New,
 		),
+		// huma routes
+		shortlinks.FxModule,
+		// huma routes end
 		fx.Invoke(
 			gql.New,
 			publicroutes.New,
 			http_webhooks.New,
+			httpbase.RegisterRoutes,
 			authroutes.New,
-			shortlinks.New,
 			pastebins.New,
 			channelsfilesroute.New,
 			valorant.New,

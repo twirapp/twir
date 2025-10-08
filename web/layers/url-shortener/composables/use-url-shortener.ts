@@ -11,7 +11,7 @@ export const useUrlShortener = defineStore('url-shortner', () => {
 				alias: opts.alias,
 			})
 
-			latestShortenedUrls.value = [response.data, ...latestShortenedUrls.value.slice(0, 2)]
+			latestShortenedUrls.value = [response.data.data, ...latestShortenedUrls.value.slice(0, 2)]
 
 			return {
 				data: response.data,
@@ -39,10 +39,10 @@ export const useUrlShortener = defineStore('url-shortner', () => {
 	async function refetchLatestShortenedUrls(opts = { page: 0, perPage: 3 }) {
 		const response = await api.v1.shortUrlProfile(opts)
 
-		latestShortenedUrls.value = response.data.items
+		latestShortenedUrls.value = response.data.data.items
 
 		return {
-			data: response.data,
+			data: response.data?.data,
 			error: response.error,
 		}
 	}

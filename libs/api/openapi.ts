@@ -51,6 +51,24 @@ export interface BaseOutputBodyJsonIntegrationsValorantStatsOutput {
   data: IntegrationsValorantStatsOutput;
 }
 
+export interface BaseOutputBodyJsonLinkOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: LinkOutputDto;
+}
+
+export interface BaseOutputBodyJsonLinksProfileOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: LinksProfileOutputDto;
+}
+
 export interface BaseOutputBodyJsonStream {
   /**
    * A URL to the JSON Schema for this object.
@@ -174,11 +192,6 @@ export interface LeaderboardPlacementStruct {
 }
 
 export interface LinkOutputDto {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
   /** @format date-time */
   created_at: string;
   id: string;
@@ -189,11 +202,6 @@ export interface LinkOutputDto {
 }
 
 export interface LinksProfileOutputDto {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
   items: LinkOutputDto[];
   /** @format int64 */
   total: number;
@@ -805,7 +813,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name ShortUrlProfile
      * @summary Get user's short links from authenticated user and/or from browser session
      * @request GET:/v1/short-links
-     * @response `200` `LinksProfileOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonLinksProfileOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
     shortUrlProfile: (
@@ -826,7 +834,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<LinksProfileOutputDto, any>({
+      this.http.request<BaseOutputBodyJsonLinksProfileOutputDto, any>({
         path: `/v1/short-links`,
         method: "GET",
         query: query,
@@ -841,11 +849,11 @@ export class Api<SecurityDataType extends unknown> {
      * @name ShortUrlCreate
      * @summary Create short url
      * @request POST:/v1/short-links
-     * @response `200` `LinkOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonLinkOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
     shortUrlCreate: (data: CreateLinkInputDto, params: RequestParams = {}) =>
-      this.http.request<LinkOutputDto, any>({
+      this.http.request<BaseOutputBodyJsonLinkOutputDto, any>({
         path: `/v1/short-links`,
         method: "POST",
         body: data,
@@ -879,7 +887,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name ShortUrlGetInfo
      * @summary Get short url data
      * @request GET:/v1/short-links/{shortId}/info
-     * @response `200` `LinkOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonLinkOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
     shortUrlGetInfo: (
@@ -893,7 +901,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<LinkOutputDto, any>({
+      this.http.request<BaseOutputBodyJsonLinkOutputDto, any>({
         path: `/v1/short-links/${shortId}/info`,
         method: "GET",
         query: query,

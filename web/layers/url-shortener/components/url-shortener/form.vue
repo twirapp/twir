@@ -47,8 +47,8 @@ const onSubmit = form.handleSubmit(async (values) => {
 		return
 	}
 
-	if (data) {
-		currentUrl.value = data
+	if (data?.data) {
+		currentUrl.value = data.data
 		form.resetForm()
 	}
 })
