@@ -69,6 +69,15 @@ export interface BaseOutputBodyJsonLinksProfileOutputDto {
   data: LinksProfileOutputDto;
 }
 
+export interface BaseOutputBodyJsonListCommandResponseDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: CommandResponseDto[];
+}
+
 export interface BaseOutputBodyJsonPasteBinOutputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -106,6 +115,58 @@ export interface CommandDto {
 
 export interface CommandDtoResponse {
   text: string;
+}
+
+export interface CommandGroupResponseDto {
+  color: string;
+  /** @format uuid */
+  id: string;
+  name: string;
+}
+
+export interface CommandResponseDto {
+  aliases: string[];
+  allowed_users_ids: string[];
+  /** @format int64 */
+  cooldown: number | null;
+  cooldown_roles_ids: string[];
+  cooldown_type: CommandResponseDtoCooldownTypeEnum;
+  default_name: string | null;
+  denied_users_ids: string[];
+  description: string | null;
+  enabled: boolean;
+  enabled_categories: string[];
+  expire: Expire;
+  group: CommandGroupResponseDto;
+  id: string;
+  is_default: boolean;
+  is_reply: boolean;
+  keep_responses_order: boolean;
+  module: string;
+  name: string;
+  offline_only: boolean;
+  online_only: boolean;
+  /** @format int64 */
+  required_messages: number;
+  /** @format int64 */
+  required_used_channel_points: number;
+  /** @format int64 */
+  required_watch_time: number;
+  responses: CommandResponsesResponseDto[];
+  /** @format uuid */
+  roles_ids: string[];
+  visible: boolean;
+}
+
+export interface CommandResponsesResponseDto {
+  /** @format uuid */
+  id: string;
+  offline_only: boolean;
+  online_only: boolean;
+  /** @format int64 */
+  order: number;
+  text: string;
+  twitch_category_id: string[];
 }
 
 export interface CreateLinkInputDto {
@@ -172,6 +233,12 @@ export interface ErrorModel {
    * @default "about:blank"
    */
   type?: string;
+}
+
+export interface Expire {
+  /** @format date-time */
+  expires_at: string;
+  expires_type: ExpireExpiresTypeEnum;
 }
 
 export interface IntegrationsValorantStatsOutput {
@@ -378,6 +445,16 @@ export interface TierStruct {
   /** @format int64 */
   id: number;
   name: string;
+}
+
+export enum CommandResponseDtoCooldownTypeEnum {
+  GLOBAL = "GLOBAL",
+  PER_USER = "PER_USER",
+}
+
+export enum ExpireExpiresTypeEnum {
+  DISABLE = "DISABLE",
+  DELETE = "DELETE",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -645,12 +722,38 @@ export class Api<SecurityDataType extends unknown> {
       }),
 
     /**
+     * No description
+     *
+     * @tags Commands
+     * @name CommandsGetListByChannelId
+     * @summary Get commands list by channel id
+     * @request GET:/v1/channels/{channel_id}/commands
+     * @response `200` `BaseOutputBodyJsonListCommandResponseDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    commandsGetListByChannelId: (
+      channelId: string,
+      query?: {
+        /** @example "CUSTOM" */
+        module?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonListCommandResponseDto, any>({
+        path: `/v1/channels/${channelId}/commands`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Get file content by id
      *
      * @tags Files
      * @name ChannelsFilesContentDetail
      * @summary Get file content
-     * @request GET:/v1/channels/{channelId}/files/content/{fileId}
+     * @request GET:/v1/channels/{channel_id}/files/content/{file_id}
      * @response `200` `File` File content
      * @response `default` `ErrorModel` Error
      */

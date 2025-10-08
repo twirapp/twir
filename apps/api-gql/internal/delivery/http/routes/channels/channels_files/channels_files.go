@@ -7,8 +7,8 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
-	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
+	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
 )
 
@@ -25,7 +25,7 @@ func New(opts Opts) {
 		opts.Api,
 		huma.Operation{
 			Method:      http.MethodGet,
-			Path:        "/v1/channels/{channelId}/files/content/{fileId}",
+			Path:        "/v1/channels/{channel_id}/files/content/{file_id}",
 			Tags:        []string{"Files"},
 			Summary:     "Get file content",
 			Description: "Get file content by id",
@@ -46,8 +46,8 @@ func New(opts Opts) {
 		},
 		func(
 			ctx context.Context, i *struct {
-				ChannelID string    `path:"channelId" maxLength:"36" minLength:"1" pattern:"^[0-9]+$" required:"true"`
-				FileID    uuid.UUID `path:"fileId" maxLength:"36" minLength:"1" format:"uuid" required:"true"`
+				ChannelID string    `path:"channel_id" maxLength:"36" minLength:"1" pattern:"^[0-9]+$" required:"true"`
+				FileID    uuid.UUID `path:"file_id" maxLength:"36" minLength:"1" format:"uuid" required:"true"`
 			},
 		) (*huma.StreamResponse, error) {
 			foundFile, err := opts.ChannelsFilesService.GetByID(ctx, i.FileID)

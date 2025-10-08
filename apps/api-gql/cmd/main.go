@@ -193,6 +193,8 @@ import (
 	tokensrepositorypgx "github.com/twirapp/twir/libs/repositories/tokens/datasources/postgres"
 
 	"go.uber.org/fx"
+
+	commandshttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/commands"
 )
 
 func main() {
@@ -464,6 +466,7 @@ func main() {
 		// huma routes
 		shortlinks.FxModule,
 		pastebins.FxModule,
+		commandshttp.FxModule,
 		// huma routes end
 		fx.Invoke(
 			gql.New,
