@@ -68,7 +68,6 @@ func CreateBaseApp(opts Opts) fx.Option {
 			),
 		),
 		fx.Invoke(uptrace.NewFx(opts.AppName)),
-		fx.NopLogger,
 	)
 }
 

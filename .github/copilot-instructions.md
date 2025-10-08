@@ -156,9 +156,9 @@ const onSubmit = handleSubmit(values => {
 
 *   **Primary Library:** **Always use `lucide-vue-next` for icons.** It is the project's standard.
 *   **Fallback:** Only if a specific icon is absolutely not available in Lucide should you consider using another library or a local SVG file. This should be a rare exception.
-*   **Usage:** Import icons by name from the library.
+*   **Usage:** Import icons by name from the library for frontend/dashboard. For web use <Icon /> nuxtjs component, and pass name of icon as `name:""` prop, for example `name="lucide:sun"`
 
-**Example:**
+**Example dashboard:**
 ```typescript
 import { User, Mail, CheckCircle2 } from 'lucide-vue-next';
 ```
@@ -168,6 +168,13 @@ import { User, Mail, CheckCircle2 } from 'lucide-vue-next';
     <User class="h-4 w-4 mr-2" />
     Profile
   </button>
+</template>
+```
+
+**Example web:**
+```vue
+<template>
+  <Icon name="lucide:user" class="h-4 w-4 mr-2" />
 </template>
 ```
 
@@ -189,3 +196,7 @@ import { User, Mail, CheckCircle2 } from 'lucide-vue-next';
 *   **Project Structure:** Observe the existing directory structure for handlers, models, services, and repositories. Create new files in the appropriate locations.
 *   **Error Handling:** Follow the project's established error handling patterns.
 *   **Dependencies:** Look at existing code to understand how dependencies (like a database connection or logger) are injected into handlers and services.
+* 	**Repositories** Look inside existed repositories, and always use pgx implementations, in folder {repository_name}/datasources/postgres/pgx.go, never use gorm or other ORMs.
+*  	**Mappers** For new services inside api-gql or some other app, if you're writing service write entity mapper too, so it should be mapped as model -> entity -> dto (gql/http depends on context)
+* 	**Gql** After udpating gql schemas you should run `bun cli build gql` for regenerate resolvers, and after regeneration refresh your data (re-read golang files)
+* 	**Errors** When writing errors, use `fmt.Errorf` with `%w` for wrapping, and create custom error types if needed for better error handling.

@@ -30,6 +30,7 @@ import (
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
@@ -135,6 +136,7 @@ type Deps struct {
 	KappagenService                       *kappagen.Service
 	TwirEventsService                     *twir_events.Service
 	DonatePayService                      *donatepay_integration.Service
+	DonationAlertsIntegrationService      *donationalerts_integration.Service
 }
 
 type Resolver struct {
