@@ -35,11 +35,11 @@ for (const integration of integrations) {
 }
 
 for (const donatePayIntegration of await getDonationPayIntegrations()) {
-	await addDonatePayIntegration(donatePayIntegration)
+	addDonatePayIntegration(donatePayIntegration)
 }
 
 for (const integration of await getDonationAlertsIntegrations()) {
-	await addDonationAlertsIntegration(integration)
+	addDonationAlertsIntegration(integration)
 }
 
 twirBus.Integrations.Add.subscribe(async (data) => {
