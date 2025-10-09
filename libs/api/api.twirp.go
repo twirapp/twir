@@ -18,7 +18,6 @@ import ctxsetters "github.com/twitchtv/twirp/ctxsetters"
 
 import google_protobuf "google.golang.org/protobuf/types/known/emptypb"
 import messages_integrations_discord "github.com/twirapp/twir/libs/api/messages/integrations_discord"
-import messages_integrations_donationalerts "github.com/twirapp/twir/libs/api/messages/integrations_donationalerts"
 import messages_integrations_faceit "github.com/twirapp/twir/libs/api/messages/integrations_faceit"
 import messages_integrations_lastfm "github.com/twirapp/twir/libs/api/messages/integrations_lastfm"
 import messages_integrations_nightbot "github.com/twirapp/twir/libs/api/messages/integrations_nightbot"
@@ -48,14 +47,6 @@ const _ = twirp.TwirpPackageMinVersion_8_1_0
 // ===================
 
 type Protected interface {
-	IntegrationsDonationAlertsGetAuthLink(context.Context, *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error)
-
-	IntegrationsDonationAlertsGetData(context.Context, *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error)
-
-	IntegrationsDonationAlertsPostCode(context.Context, *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error)
-
-	IntegrationsDonationAlertsLogout(context.Context, *google_protobuf.Empty) (*google_protobuf.Empty, error)
-
 	IntegrationsFaceitGetAuthLink(context.Context, *google_protobuf.Empty) (*messages_integrations_faceit.GetAuthLink, error)
 
 	IntegrationsFaceitGetData(context.Context, *google_protobuf.Empty) (*messages_integrations_faceit.GetDataResponse, error)
@@ -167,7 +158,7 @@ type Protected interface {
 
 type protectedProtobufClient struct {
 	client      HTTPClient
-	urls        [56]string
+	urls        [52]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -195,11 +186,7 @@ func NewProtectedProtobufClient(baseURL string, client HTTPClient, opts ...twirp
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "api", "Protected")
-	urls := [56]string{
-		serviceURL + "IntegrationsDonationAlertsGetAuthLink",
-		serviceURL + "IntegrationsDonationAlertsGetData",
-		serviceURL + "IntegrationsDonationAlertsPostCode",
-		serviceURL + "IntegrationsDonationAlertsLogout",
+	urls := [52]string{
 		serviceURL + "IntegrationsFaceitGetAuthLink",
 		serviceURL + "IntegrationsFaceitGetData",
 		serviceURL + "IntegrationsFaceitUpdate",
@@ -262,190 +249,6 @@ func NewProtectedProtobufClient(baseURL string, client HTTPClient, opts ...twirp
 	}
 }
 
-func (c *protectedProtobufClient) IntegrationsDonationAlertsGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsGetAuthLink")
-	caller := c.callIntegrationsDonationAlertsGetAuthLink
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDonationAlertsGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_donationalerts.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_donationalerts.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDonationAlertsGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error) {
-	out := new(messages_integrations_donationalerts.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsDonationAlertsGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsGetData")
-	caller := c.callIntegrationsDonationAlertsGetData
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDonationAlertsGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_donationalerts.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_donationalerts.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDonationAlertsGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error) {
-	out := new(messages_integrations_donationalerts.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsDonationAlertsPostCode(ctx context.Context, in *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsPostCode")
-	caller := c.callIntegrationsDonationAlertsPostCode
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_donationalerts.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_donationalerts.PostCodeRequest) when calling interceptor")
-					}
-					return c.callIntegrationsDonationAlertsPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDonationAlertsPostCode(ctx context.Context, in *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsDonationAlertsLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsLogout")
-	caller := c.callIntegrationsDonationAlertsLogout
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDonationAlertsLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDonationAlertsLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 func (c *protectedProtobufClient) IntegrationsFaceitGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_faceit.GetAuthLink, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api")
 	ctx = ctxsetters.WithServiceName(ctx, "Protected")
@@ -477,7 +280,7 @@ func (c *protectedProtobufClient) IntegrationsFaceitGetAuthLink(ctx context.Cont
 
 func (c *protectedProtobufClient) callIntegrationsFaceitGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_faceit.GetAuthLink, error) {
 	out := new(messages_integrations_faceit.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -523,7 +326,7 @@ func (c *protectedProtobufClient) IntegrationsFaceitGetData(ctx context.Context,
 
 func (c *protectedProtobufClient) callIntegrationsFaceitGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_faceit.GetDataResponse, error) {
 	out := new(messages_integrations_faceit.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[5], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -569,7 +372,7 @@ func (c *protectedProtobufClient) IntegrationsFaceitUpdate(ctx context.Context, 
 
 func (c *protectedProtobufClient) callIntegrationsFaceitUpdate(ctx context.Context, in *messages_integrations_faceit.UpdateDataRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[6], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -615,7 +418,7 @@ func (c *protectedProtobufClient) IntegrationsFaceitPostCode(ctx context.Context
 
 func (c *protectedProtobufClient) callIntegrationsFaceitPostCode(ctx context.Context, in *messages_integrations_faceit.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[7], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -661,7 +464,7 @@ func (c *protectedProtobufClient) IntegrationsFaceitLogout(ctx context.Context, 
 
 func (c *protectedProtobufClient) callIntegrationsFaceitLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -707,7 +510,7 @@ func (c *protectedProtobufClient) IntegrationsLastFMGetAuthLink(ctx context.Cont
 
 func (c *protectedProtobufClient) callIntegrationsLastFMGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_lastfm.GetAuthLink, error) {
 	out := new(messages_integrations_lastfm.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[5], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -753,7 +556,7 @@ func (c *protectedProtobufClient) IntegrationsLastFMGetData(ctx context.Context,
 
 func (c *protectedProtobufClient) callIntegrationsLastFMGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_lastfm.GetDataResponse, error) {
 	out := new(messages_integrations_lastfm.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[6], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -799,7 +602,7 @@ func (c *protectedProtobufClient) IntegrationsLastFMPostCode(ctx context.Context
 
 func (c *protectedProtobufClient) callIntegrationsLastFMPostCode(ctx context.Context, in *messages_integrations_lastfm.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[7], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -845,7 +648,7 @@ func (c *protectedProtobufClient) IntegrationsLastFMLogout(ctx context.Context, 
 
 func (c *protectedProtobufClient) callIntegrationsLastFMLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -891,7 +694,7 @@ func (c *protectedProtobufClient) IntegrationsStreamlabsGetAuthLink(ctx context.
 
 func (c *protectedProtobufClient) callIntegrationsStreamlabsGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_streamlabs.GetAuthLink, error) {
 	out := new(messages_integrations_streamlabs.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -937,7 +740,7 @@ func (c *protectedProtobufClient) IntegrationsStreamlabsGetData(ctx context.Cont
 
 func (c *protectedProtobufClient) callIntegrationsStreamlabsGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_streamlabs.GetDataResponse, error) {
 	out := new(messages_integrations_streamlabs.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -983,7 +786,7 @@ func (c *protectedProtobufClient) IntegrationsStreamlabsPostCode(ctx context.Con
 
 func (c *protectedProtobufClient) callIntegrationsStreamlabsPostCode(ctx context.Context, in *messages_integrations_streamlabs.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1029,7 +832,7 @@ func (c *protectedProtobufClient) IntegrationsStreamlabsLogout(ctx context.Conte
 
 func (c *protectedProtobufClient) callIntegrationsStreamlabsLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1075,7 +878,7 @@ func (c *protectedProtobufClient) IntegrationsNightbotGetAuthLink(ctx context.Co
 
 func (c *protectedProtobufClient) callIntegrationsNightbotGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_nightbot.GetAuthLink, error) {
 	out := new(messages_integrations_nightbot.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1121,7 +924,7 @@ func (c *protectedProtobufClient) IntegrationsNightbotGetData(ctx context.Contex
 
 func (c *protectedProtobufClient) callIntegrationsNightbotGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_nightbot.GetDataResponse, error) {
 	out := new(messages_integrations_nightbot.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1167,7 +970,7 @@ func (c *protectedProtobufClient) IntegrationsNightbotPostCode(ctx context.Conte
 
 func (c *protectedProtobufClient) callIntegrationsNightbotPostCode(ctx context.Context, in *messages_integrations_nightbot.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1213,7 +1016,7 @@ func (c *protectedProtobufClient) IntegrationsNightbotLogout(ctx context.Context
 
 func (c *protectedProtobufClient) callIntegrationsNightbotLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1259,7 +1062,7 @@ func (c *protectedProtobufClient) IntegrationsNightbotImportCommands(ctx context
 
 func (c *protectedProtobufClient) callIntegrationsNightbotImportCommands(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_nightbot.ImportCommandsResponse, error) {
 	out := new(messages_integrations_nightbot.ImportCommandsResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1305,7 +1108,7 @@ func (c *protectedProtobufClient) IntegrationsNightbotImportTimers(ctx context.C
 
 func (c *protectedProtobufClient) callIntegrationsNightbotImportTimers(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_nightbot.ImportTimersResponse, error) {
 	out := new(messages_integrations_nightbot.ImportTimersResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[22], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1351,7 +1154,7 @@ func (c *protectedProtobufClient) IntegrationsVKGetAuthLink(ctx context.Context,
 
 func (c *protectedProtobufClient) callIntegrationsVKGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
 	out := new(messages_integrations_vk.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[23], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1397,7 +1200,7 @@ func (c *protectedProtobufClient) IntegrationsVKGetData(ctx context.Context, in 
 
 func (c *protectedProtobufClient) callIntegrationsVKGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
 	out := new(messages_integrations_vk.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[24], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1443,7 +1246,7 @@ func (c *protectedProtobufClient) IntegrationsVKPostCode(ctx context.Context, in
 
 func (c *protectedProtobufClient) callIntegrationsVKPostCode(ctx context.Context, in *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[25], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1489,7 +1292,7 @@ func (c *protectedProtobufClient) IntegrationsVKLogout(ctx context.Context, in *
 
 func (c *protectedProtobufClient) callIntegrationsVKLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[26], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[22], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1535,7 +1338,7 @@ func (c *protectedProtobufClient) IntegrationsDiscordGetAuthLink(ctx context.Con
 
 func (c *protectedProtobufClient) callIntegrationsDiscordGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
 	out := new(messages_integrations_discord.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[27], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[23], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1581,7 +1384,7 @@ func (c *protectedProtobufClient) IntegrationsDiscordGetData(ctx context.Context
 
 func (c *protectedProtobufClient) callIntegrationsDiscordGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
 	out := new(messages_integrations_discord.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[28], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[24], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1627,7 +1430,7 @@ func (c *protectedProtobufClient) IntegrationsDiscordUpdate(ctx context.Context,
 
 func (c *protectedProtobufClient) callIntegrationsDiscordUpdate(ctx context.Context, in *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[29], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[25], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1673,7 +1476,7 @@ func (c *protectedProtobufClient) IntegrationDiscordConnectGuild(ctx context.Con
 
 func (c *protectedProtobufClient) callIntegrationDiscordConnectGuild(ctx context.Context, in *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[30], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[26], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1719,7 +1522,7 @@ func (c *protectedProtobufClient) IntegrationsDiscordDisconnectGuild(ctx context
 
 func (c *protectedProtobufClient) callIntegrationsDiscordDisconnectGuild(ctx context.Context, in *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[31], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[27], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1765,7 +1568,7 @@ func (c *protectedProtobufClient) IntegrationsDiscordGetGuildChannels(ctx contex
 
 func (c *protectedProtobufClient) callIntegrationsDiscordGetGuildChannels(ctx context.Context, in *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
 	out := new(messages_integrations_discord.GetGuildChannelsResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[32], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[28], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1811,7 +1614,7 @@ func (c *protectedProtobufClient) IntegrationsDiscordGetGuildInfo(ctx context.Co
 
 func (c *protectedProtobufClient) callIntegrationsDiscordGetGuildInfo(ctx context.Context, in *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
 	out := new(messages_integrations_discord.GetGuildInfoResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[33], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[29], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1857,7 +1660,7 @@ func (c *protectedProtobufClient) ModulesOBSWebsocketGet(ctx context.Context, in
 
 func (c *protectedProtobufClient) callModulesOBSWebsocketGet(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_obs_websocket.GetResponse, error) {
 	out := new(messages_modules_obs_websocket.GetResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[34], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[30], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1903,7 +1706,7 @@ func (c *protectedProtobufClient) ModulesOBSWebsocketUpdate(ctx context.Context,
 
 func (c *protectedProtobufClient) callModulesOBSWebsocketUpdate(ctx context.Context, in *messages_modules_obs_websocket.PostRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[35], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[31], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1949,7 +1752,7 @@ func (c *protectedProtobufClient) ModulesTTSGet(ctx context.Context, in *google_
 
 func (c *protectedProtobufClient) callModulesTTSGet(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_tts.GetResponse, error) {
 	out := new(messages_modules_tts.GetResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[36], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[32], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1995,7 +1798,7 @@ func (c *protectedProtobufClient) ModulesTTSUpdate(ctx context.Context, in *mess
 
 func (c *protectedProtobufClient) callModulesTTSUpdate(ctx context.Context, in *messages_modules_tts.PostRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[37], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[33], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2041,7 +1844,7 @@ func (c *protectedProtobufClient) ModulesTTSGetInfo(ctx context.Context, in *goo
 
 func (c *protectedProtobufClient) callModulesTTSGetInfo(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_tts.GetInfoResponse, error) {
 	out := new(messages_modules_tts.GetInfoResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[38], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[34], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2087,7 +1890,7 @@ func (c *protectedProtobufClient) ModulesTTSGetUsersSettings(ctx context.Context
 
 func (c *protectedProtobufClient) callModulesTTSGetUsersSettings(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_tts.GetUsersSettingsResponse, error) {
 	out := new(messages_modules_tts.GetUsersSettingsResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[39], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[35], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2133,7 +1936,7 @@ func (c *protectedProtobufClient) ModulesTTSUsersDelete(ctx context.Context, in 
 
 func (c *protectedProtobufClient) callModulesTTSUsersDelete(ctx context.Context, in *messages_modules_tts.UsersDeleteRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[40], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[36], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2179,7 +1982,7 @@ func (c *protectedProtobufClient) OverlayBeRightBackGet(ctx context.Context, in 
 
 func (c *protectedProtobufClient) callOverlayBeRightBackGet(ctx context.Context, in *google_protobuf.Empty) (*messages_overlays_be_right_back.Settings, error) {
 	out := new(messages_overlays_be_right_back.Settings)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[41], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[37], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2225,7 +2028,7 @@ func (c *protectedProtobufClient) OverlayBeRightBackUpdate(ctx context.Context, 
 
 func (c *protectedProtobufClient) callOverlayBeRightBackUpdate(ctx context.Context, in *messages_overlays_be_right_back.Settings) (*messages_overlays_be_right_back.Settings, error) {
 	out := new(messages_overlays_be_right_back.Settings)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[42], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[38], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2271,7 +2074,7 @@ func (c *protectedProtobufClient) TwitchSearchCategories(ctx context.Context, in
 
 func (c *protectedProtobufClient) callTwitchSearchCategories(ctx context.Context, in *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[43], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[39], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2317,7 +2120,7 @@ func (c *protectedProtobufClient) TwitchGetCategories(ctx context.Context, in *m
 
 func (c *protectedProtobufClient) callTwitchGetCategories(ctx context.Context, in *messages_twitch_protected.GetCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[44], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[40], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2363,7 +2166,7 @@ func (c *protectedProtobufClient) TwitchSetChannelInformation(ctx context.Contex
 
 func (c *protectedProtobufClient) callTwitchSetChannelInformation(ctx context.Context, in *messages_twitch_protected.SetChannelInformationRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[45], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[41], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2409,7 +2212,7 @@ func (c *protectedProtobufClient) OverlaysGetAll(ctx context.Context, in *google
 
 func (c *protectedProtobufClient) callOverlaysGetAll(ctx context.Context, in *google_protobuf.Empty) (*messages_overlays.GetAllResponse, error) {
 	out := new(messages_overlays.GetAllResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[46], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[42], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2455,7 +2258,7 @@ func (c *protectedProtobufClient) OverlaysGetOne(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysGetOne(ctx context.Context, in *messages_overlays.GetByIdRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[47], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[43], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2501,7 +2304,7 @@ func (c *protectedProtobufClient) OverlaysUpdate(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysUpdate(ctx context.Context, in *messages_overlays.UpdateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[48], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[44], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2547,7 +2350,7 @@ func (c *protectedProtobufClient) OverlaysDelete(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysDelete(ctx context.Context, in *messages_overlays.DeleteRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[49], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[45], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2593,7 +2396,7 @@ func (c *protectedProtobufClient) OverlaysCreate(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysCreate(ctx context.Context, in *messages_overlays.CreateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[50], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[46], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2639,7 +2442,7 @@ func (c *protectedProtobufClient) OverlaysParseHtml(ctx context.Context, in *mes
 
 func (c *protectedProtobufClient) callOverlaysParseHtml(ctx context.Context, in *messages_overlays.ParseHtmlOverlayRequest) (*messages_overlays.ParseHtmlOverlayResponse, error) {
 	out := new(messages_overlays.ParseHtmlOverlayResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[51], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[47], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2685,7 +2488,7 @@ func (c *protectedProtobufClient) IntegrationsValorantGetAuthLink(ctx context.Co
 
 func (c *protectedProtobufClient) callIntegrationsValorantGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
 	out := new(messages_integrations_valorant.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[52], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[48], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2731,7 +2534,7 @@ func (c *protectedProtobufClient) IntegrationsValorantGetData(ctx context.Contex
 
 func (c *protectedProtobufClient) callIntegrationsValorantGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
 	out := new(messages_integrations_valorant.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[53], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[49], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2777,7 +2580,7 @@ func (c *protectedProtobufClient) IntegrationsValorantPostCode(ctx context.Conte
 
 func (c *protectedProtobufClient) callIntegrationsValorantPostCode(ctx context.Context, in *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[54], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[50], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2823,7 +2626,7 @@ func (c *protectedProtobufClient) IntegrationsValorantLogout(ctx context.Context
 
 func (c *protectedProtobufClient) callIntegrationsValorantLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[55], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[51], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2844,7 +2647,7 @@ func (c *protectedProtobufClient) callIntegrationsValorantLogout(ctx context.Con
 
 type protectedJSONClient struct {
 	client      HTTPClient
-	urls        [56]string
+	urls        [52]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -2872,11 +2675,7 @@ func NewProtectedJSONClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "api", "Protected")
-	urls := [56]string{
-		serviceURL + "IntegrationsDonationAlertsGetAuthLink",
-		serviceURL + "IntegrationsDonationAlertsGetData",
-		serviceURL + "IntegrationsDonationAlertsPostCode",
-		serviceURL + "IntegrationsDonationAlertsLogout",
+	urls := [52]string{
 		serviceURL + "IntegrationsFaceitGetAuthLink",
 		serviceURL + "IntegrationsFaceitGetData",
 		serviceURL + "IntegrationsFaceitUpdate",
@@ -2939,190 +2738,6 @@ func NewProtectedJSONClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 	}
 }
 
-func (c *protectedJSONClient) IntegrationsDonationAlertsGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsGetAuthLink")
-	caller := c.callIntegrationsDonationAlertsGetAuthLink
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDonationAlertsGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_donationalerts.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_donationalerts.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDonationAlertsGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error) {
-	out := new(messages_integrations_donationalerts.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsDonationAlertsGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsGetData")
-	caller := c.callIntegrationsDonationAlertsGetData
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDonationAlertsGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_donationalerts.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_donationalerts.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDonationAlertsGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error) {
-	out := new(messages_integrations_donationalerts.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsDonationAlertsPostCode(ctx context.Context, in *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsPostCode")
-	caller := c.callIntegrationsDonationAlertsPostCode
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_donationalerts.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_donationalerts.PostCodeRequest) when calling interceptor")
-					}
-					return c.callIntegrationsDonationAlertsPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDonationAlertsPostCode(ctx context.Context, in *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsDonationAlertsLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsLogout")
-	caller := c.callIntegrationsDonationAlertsLogout
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDonationAlertsLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDonationAlertsLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 func (c *protectedJSONClient) IntegrationsFaceitGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_faceit.GetAuthLink, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api")
 	ctx = ctxsetters.WithServiceName(ctx, "Protected")
@@ -3154,7 +2769,7 @@ func (c *protectedJSONClient) IntegrationsFaceitGetAuthLink(ctx context.Context,
 
 func (c *protectedJSONClient) callIntegrationsFaceitGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_faceit.GetAuthLink, error) {
 	out := new(messages_integrations_faceit.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3200,7 +2815,7 @@ func (c *protectedJSONClient) IntegrationsFaceitGetData(ctx context.Context, in 
 
 func (c *protectedJSONClient) callIntegrationsFaceitGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_faceit.GetDataResponse, error) {
 	out := new(messages_integrations_faceit.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[5], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3246,7 +2861,7 @@ func (c *protectedJSONClient) IntegrationsFaceitUpdate(ctx context.Context, in *
 
 func (c *protectedJSONClient) callIntegrationsFaceitUpdate(ctx context.Context, in *messages_integrations_faceit.UpdateDataRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[6], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3292,7 +2907,7 @@ func (c *protectedJSONClient) IntegrationsFaceitPostCode(ctx context.Context, in
 
 func (c *protectedJSONClient) callIntegrationsFaceitPostCode(ctx context.Context, in *messages_integrations_faceit.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[7], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3338,7 +2953,7 @@ func (c *protectedJSONClient) IntegrationsFaceitLogout(ctx context.Context, in *
 
 func (c *protectedJSONClient) callIntegrationsFaceitLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3384,7 +2999,7 @@ func (c *protectedJSONClient) IntegrationsLastFMGetAuthLink(ctx context.Context,
 
 func (c *protectedJSONClient) callIntegrationsLastFMGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_lastfm.GetAuthLink, error) {
 	out := new(messages_integrations_lastfm.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[5], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3430,7 +3045,7 @@ func (c *protectedJSONClient) IntegrationsLastFMGetData(ctx context.Context, in 
 
 func (c *protectedJSONClient) callIntegrationsLastFMGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_lastfm.GetDataResponse, error) {
 	out := new(messages_integrations_lastfm.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[6], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3476,7 +3091,7 @@ func (c *protectedJSONClient) IntegrationsLastFMPostCode(ctx context.Context, in
 
 func (c *protectedJSONClient) callIntegrationsLastFMPostCode(ctx context.Context, in *messages_integrations_lastfm.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[7], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3522,7 +3137,7 @@ func (c *protectedJSONClient) IntegrationsLastFMLogout(ctx context.Context, in *
 
 func (c *protectedJSONClient) callIntegrationsLastFMLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3568,7 +3183,7 @@ func (c *protectedJSONClient) IntegrationsStreamlabsGetAuthLink(ctx context.Cont
 
 func (c *protectedJSONClient) callIntegrationsStreamlabsGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_streamlabs.GetAuthLink, error) {
 	out := new(messages_integrations_streamlabs.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3614,7 +3229,7 @@ func (c *protectedJSONClient) IntegrationsStreamlabsGetData(ctx context.Context,
 
 func (c *protectedJSONClient) callIntegrationsStreamlabsGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_streamlabs.GetDataResponse, error) {
 	out := new(messages_integrations_streamlabs.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3660,7 +3275,7 @@ func (c *protectedJSONClient) IntegrationsStreamlabsPostCode(ctx context.Context
 
 func (c *protectedJSONClient) callIntegrationsStreamlabsPostCode(ctx context.Context, in *messages_integrations_streamlabs.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3706,7 +3321,7 @@ func (c *protectedJSONClient) IntegrationsStreamlabsLogout(ctx context.Context, 
 
 func (c *protectedJSONClient) callIntegrationsStreamlabsLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3752,7 +3367,7 @@ func (c *protectedJSONClient) IntegrationsNightbotGetAuthLink(ctx context.Contex
 
 func (c *protectedJSONClient) callIntegrationsNightbotGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_nightbot.GetAuthLink, error) {
 	out := new(messages_integrations_nightbot.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3798,7 +3413,7 @@ func (c *protectedJSONClient) IntegrationsNightbotGetData(ctx context.Context, i
 
 func (c *protectedJSONClient) callIntegrationsNightbotGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_nightbot.GetDataResponse, error) {
 	out := new(messages_integrations_nightbot.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3844,7 +3459,7 @@ func (c *protectedJSONClient) IntegrationsNightbotPostCode(ctx context.Context, 
 
 func (c *protectedJSONClient) callIntegrationsNightbotPostCode(ctx context.Context, in *messages_integrations_nightbot.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3890,7 +3505,7 @@ func (c *protectedJSONClient) IntegrationsNightbotLogout(ctx context.Context, in
 
 func (c *protectedJSONClient) callIntegrationsNightbotLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3936,7 +3551,7 @@ func (c *protectedJSONClient) IntegrationsNightbotImportCommands(ctx context.Con
 
 func (c *protectedJSONClient) callIntegrationsNightbotImportCommands(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_nightbot.ImportCommandsResponse, error) {
 	out := new(messages_integrations_nightbot.ImportCommandsResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3982,7 +3597,7 @@ func (c *protectedJSONClient) IntegrationsNightbotImportTimers(ctx context.Conte
 
 func (c *protectedJSONClient) callIntegrationsNightbotImportTimers(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_nightbot.ImportTimersResponse, error) {
 	out := new(messages_integrations_nightbot.ImportTimersResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[22], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4028,7 +3643,7 @@ func (c *protectedJSONClient) IntegrationsVKGetAuthLink(ctx context.Context, in 
 
 func (c *protectedJSONClient) callIntegrationsVKGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
 	out := new(messages_integrations_vk.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[23], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4074,7 +3689,7 @@ func (c *protectedJSONClient) IntegrationsVKGetData(ctx context.Context, in *goo
 
 func (c *protectedJSONClient) callIntegrationsVKGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
 	out := new(messages_integrations_vk.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[24], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4120,7 +3735,7 @@ func (c *protectedJSONClient) IntegrationsVKPostCode(ctx context.Context, in *me
 
 func (c *protectedJSONClient) callIntegrationsVKPostCode(ctx context.Context, in *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[25], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4166,7 +3781,7 @@ func (c *protectedJSONClient) IntegrationsVKLogout(ctx context.Context, in *goog
 
 func (c *protectedJSONClient) callIntegrationsVKLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[26], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[22], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4212,7 +3827,7 @@ func (c *protectedJSONClient) IntegrationsDiscordGetAuthLink(ctx context.Context
 
 func (c *protectedJSONClient) callIntegrationsDiscordGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
 	out := new(messages_integrations_discord.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[27], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[23], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4258,7 +3873,7 @@ func (c *protectedJSONClient) IntegrationsDiscordGetData(ctx context.Context, in
 
 func (c *protectedJSONClient) callIntegrationsDiscordGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
 	out := new(messages_integrations_discord.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[28], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[24], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4304,7 +3919,7 @@ func (c *protectedJSONClient) IntegrationsDiscordUpdate(ctx context.Context, in 
 
 func (c *protectedJSONClient) callIntegrationsDiscordUpdate(ctx context.Context, in *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[29], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[25], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4350,7 +3965,7 @@ func (c *protectedJSONClient) IntegrationDiscordConnectGuild(ctx context.Context
 
 func (c *protectedJSONClient) callIntegrationDiscordConnectGuild(ctx context.Context, in *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[30], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[26], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4396,7 +4011,7 @@ func (c *protectedJSONClient) IntegrationsDiscordDisconnectGuild(ctx context.Con
 
 func (c *protectedJSONClient) callIntegrationsDiscordDisconnectGuild(ctx context.Context, in *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[31], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[27], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4442,7 +4057,7 @@ func (c *protectedJSONClient) IntegrationsDiscordGetGuildChannels(ctx context.Co
 
 func (c *protectedJSONClient) callIntegrationsDiscordGetGuildChannels(ctx context.Context, in *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
 	out := new(messages_integrations_discord.GetGuildChannelsResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[32], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[28], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4488,7 +4103,7 @@ func (c *protectedJSONClient) IntegrationsDiscordGetGuildInfo(ctx context.Contex
 
 func (c *protectedJSONClient) callIntegrationsDiscordGetGuildInfo(ctx context.Context, in *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
 	out := new(messages_integrations_discord.GetGuildInfoResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[33], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[29], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4534,7 +4149,7 @@ func (c *protectedJSONClient) ModulesOBSWebsocketGet(ctx context.Context, in *go
 
 func (c *protectedJSONClient) callModulesOBSWebsocketGet(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_obs_websocket.GetResponse, error) {
 	out := new(messages_modules_obs_websocket.GetResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[34], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[30], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4580,7 +4195,7 @@ func (c *protectedJSONClient) ModulesOBSWebsocketUpdate(ctx context.Context, in 
 
 func (c *protectedJSONClient) callModulesOBSWebsocketUpdate(ctx context.Context, in *messages_modules_obs_websocket.PostRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[35], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[31], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4626,7 +4241,7 @@ func (c *protectedJSONClient) ModulesTTSGet(ctx context.Context, in *google_prot
 
 func (c *protectedJSONClient) callModulesTTSGet(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_tts.GetResponse, error) {
 	out := new(messages_modules_tts.GetResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[36], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[32], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4672,7 +4287,7 @@ func (c *protectedJSONClient) ModulesTTSUpdate(ctx context.Context, in *messages
 
 func (c *protectedJSONClient) callModulesTTSUpdate(ctx context.Context, in *messages_modules_tts.PostRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[37], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[33], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4718,7 +4333,7 @@ func (c *protectedJSONClient) ModulesTTSGetInfo(ctx context.Context, in *google_
 
 func (c *protectedJSONClient) callModulesTTSGetInfo(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_tts.GetInfoResponse, error) {
 	out := new(messages_modules_tts.GetInfoResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[38], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[34], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4764,7 +4379,7 @@ func (c *protectedJSONClient) ModulesTTSGetUsersSettings(ctx context.Context, in
 
 func (c *protectedJSONClient) callModulesTTSGetUsersSettings(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_tts.GetUsersSettingsResponse, error) {
 	out := new(messages_modules_tts.GetUsersSettingsResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[39], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[35], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4810,7 +4425,7 @@ func (c *protectedJSONClient) ModulesTTSUsersDelete(ctx context.Context, in *mes
 
 func (c *protectedJSONClient) callModulesTTSUsersDelete(ctx context.Context, in *messages_modules_tts.UsersDeleteRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[40], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[36], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4856,7 +4471,7 @@ func (c *protectedJSONClient) OverlayBeRightBackGet(ctx context.Context, in *goo
 
 func (c *protectedJSONClient) callOverlayBeRightBackGet(ctx context.Context, in *google_protobuf.Empty) (*messages_overlays_be_right_back.Settings, error) {
 	out := new(messages_overlays_be_right_back.Settings)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[41], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[37], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4902,7 +4517,7 @@ func (c *protectedJSONClient) OverlayBeRightBackUpdate(ctx context.Context, in *
 
 func (c *protectedJSONClient) callOverlayBeRightBackUpdate(ctx context.Context, in *messages_overlays_be_right_back.Settings) (*messages_overlays_be_right_back.Settings, error) {
 	out := new(messages_overlays_be_right_back.Settings)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[42], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[38], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4948,7 +4563,7 @@ func (c *protectedJSONClient) TwitchSearchCategories(ctx context.Context, in *me
 
 func (c *protectedJSONClient) callTwitchSearchCategories(ctx context.Context, in *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[43], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[39], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -4994,7 +4609,7 @@ func (c *protectedJSONClient) TwitchGetCategories(ctx context.Context, in *messa
 
 func (c *protectedJSONClient) callTwitchGetCategories(ctx context.Context, in *messages_twitch_protected.GetCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[44], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[40], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5040,7 +4655,7 @@ func (c *protectedJSONClient) TwitchSetChannelInformation(ctx context.Context, i
 
 func (c *protectedJSONClient) callTwitchSetChannelInformation(ctx context.Context, in *messages_twitch_protected.SetChannelInformationRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[45], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[41], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5086,7 +4701,7 @@ func (c *protectedJSONClient) OverlaysGetAll(ctx context.Context, in *google_pro
 
 func (c *protectedJSONClient) callOverlaysGetAll(ctx context.Context, in *google_protobuf.Empty) (*messages_overlays.GetAllResponse, error) {
 	out := new(messages_overlays.GetAllResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[46], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[42], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5132,7 +4747,7 @@ func (c *protectedJSONClient) OverlaysGetOne(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysGetOne(ctx context.Context, in *messages_overlays.GetByIdRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[47], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[43], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5178,7 +4793,7 @@ func (c *protectedJSONClient) OverlaysUpdate(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysUpdate(ctx context.Context, in *messages_overlays.UpdateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[48], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[44], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5224,7 +4839,7 @@ func (c *protectedJSONClient) OverlaysDelete(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysDelete(ctx context.Context, in *messages_overlays.DeleteRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[49], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[45], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5270,7 +4885,7 @@ func (c *protectedJSONClient) OverlaysCreate(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysCreate(ctx context.Context, in *messages_overlays.CreateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[50], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[46], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5316,7 +4931,7 @@ func (c *protectedJSONClient) OverlaysParseHtml(ctx context.Context, in *message
 
 func (c *protectedJSONClient) callOverlaysParseHtml(ctx context.Context, in *messages_overlays.ParseHtmlOverlayRequest) (*messages_overlays.ParseHtmlOverlayResponse, error) {
 	out := new(messages_overlays.ParseHtmlOverlayResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[51], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[47], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5362,7 +4977,7 @@ func (c *protectedJSONClient) IntegrationsValorantGetAuthLink(ctx context.Contex
 
 func (c *protectedJSONClient) callIntegrationsValorantGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
 	out := new(messages_integrations_valorant.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[52], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[48], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5408,7 +5023,7 @@ func (c *protectedJSONClient) IntegrationsValorantGetData(ctx context.Context, i
 
 func (c *protectedJSONClient) callIntegrationsValorantGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
 	out := new(messages_integrations_valorant.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[53], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[49], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5454,7 +5069,7 @@ func (c *protectedJSONClient) IntegrationsValorantPostCode(ctx context.Context, 
 
 func (c *protectedJSONClient) callIntegrationsValorantPostCode(ctx context.Context, in *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[54], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[50], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5500,7 +5115,7 @@ func (c *protectedJSONClient) IntegrationsValorantLogout(ctx context.Context, in
 
 func (c *protectedJSONClient) callIntegrationsValorantLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[55], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[51], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -5612,18 +5227,6 @@ func (s *protectedServer) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 	}
 
 	switch method {
-	case "IntegrationsDonationAlertsGetAuthLink":
-		s.serveIntegrationsDonationAlertsGetAuthLink(ctx, resp, req)
-		return
-	case "IntegrationsDonationAlertsGetData":
-		s.serveIntegrationsDonationAlertsGetData(ctx, resp, req)
-		return
-	case "IntegrationsDonationAlertsPostCode":
-		s.serveIntegrationsDonationAlertsPostCode(ctx, resp, req)
-		return
-	case "IntegrationsDonationAlertsLogout":
-		s.serveIntegrationsDonationAlertsLogout(ctx, resp, req)
-		return
 	case "IntegrationsFaceitGetAuthLink":
 		s.serveIntegrationsFaceitGetAuthLink(ctx, resp, req)
 		return
@@ -5785,726 +5388,6 @@ func (s *protectedServer) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
 		return
 	}
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsGetAuthLink(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDonationAlertsGetAuthLinkJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDonationAlertsGetAuthLinkProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsGetAuthLinkJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsGetAuthLink")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDonationAlertsGetAuthLink
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDonationAlertsGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_donationalerts.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_donationalerts.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_donationalerts.GetAuthLink
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_donationalerts.GetAuthLink and nil error while calling IntegrationsDonationAlertsGetAuthLink. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsGetAuthLinkProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsGetAuthLink")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDonationAlertsGetAuthLink
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_donationalerts.GetAuthLink, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDonationAlertsGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_donationalerts.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_donationalerts.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_donationalerts.GetAuthLink
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_donationalerts.GetAuthLink and nil error while calling IntegrationsDonationAlertsGetAuthLink. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsGetData(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDonationAlertsGetDataJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDonationAlertsGetDataProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsGetDataJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsGetData")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDonationAlertsGetData
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDonationAlertsGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_donationalerts.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_donationalerts.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_donationalerts.GetDataResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_donationalerts.GetDataResponse and nil error while calling IntegrationsDonationAlertsGetData. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsGetDataProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsGetData")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDonationAlertsGetData
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_donationalerts.GetDataResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDonationAlertsGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_donationalerts.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_donationalerts.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_donationalerts.GetDataResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_donationalerts.GetDataResponse and nil error while calling IntegrationsDonationAlertsGetData. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsPostCode(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDonationAlertsPostCodeJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDonationAlertsPostCodeProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsPostCodeJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsPostCode")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(messages_integrations_donationalerts.PostCodeRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDonationAlertsPostCode
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_donationalerts.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_donationalerts.PostCodeRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDonationAlertsPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsDonationAlertsPostCode. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsPostCodeProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsPostCode")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(messages_integrations_donationalerts.PostCodeRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDonationAlertsPostCode
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_donationalerts.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_donationalerts.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_donationalerts.PostCodeRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDonationAlertsPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsDonationAlertsPostCode. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsLogout(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDonationAlertsLogoutJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDonationAlertsLogoutProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsLogoutJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsLogout")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDonationAlertsLogout
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDonationAlertsLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsDonationAlertsLogout. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDonationAlertsLogoutProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDonationAlertsLogout")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDonationAlertsLogout
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDonationAlertsLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsDonationAlertsLogout. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
 }
 
 func (s *protectedServer) serveIntegrationsFaceitGetAuthLink(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
@@ -17500,88 +16383,84 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 1325 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x58, 0x6f, 0x6f, 0xdc, 0x34,
-	0x18, 0x5f, 0x41, 0x42, 0x9a, 0x11, 0x13, 0x0b, 0x6b, 0xd5, 0x5d, 0x07, 0xb4, 0x45, 0x1b, 0x6c,
-	0xeb, 0xee, 0x58, 0xc7, 0x3a, 0x84, 0x10, 0xd2, 0x7a, 0xa5, 0x5d, 0x45, 0xbb, 0x96, 0xde, 0xb5,
-	0x48, 0x50, 0x74, 0x72, 0x12, 0x5f, 0x2e, 0x5c, 0x12, 0x87, 0xd8, 0xd7, 0xaa, 0x2f, 0x78, 0xc5,
-	0x5b, 0x3e, 0x00, 0x5f, 0x87, 0x57, 0x7c, 0x2d, 0x74, 0x89, 0xe3, 0xb3, 0x13, 0xdb, 0x71, 0xaf,
-	0xbc, 0xe9, 0xa5, 0xf6, 0xf3, 0xfc, 0x7e, 0x8f, 0xfd, 0x7b, 0xfc, 0xe7, 0x31, 0xb8, 0x0d, 0xd3,
-	0xb0, 0x9d, 0x66, 0x98, 0x62, 0xe7, 0x5d, 0x98, 0x86, 0xad, 0x95, 0x00, 0xe3, 0x20, 0x42, 0x9d,
-	0xbc, 0xc9, 0x9d, 0x0c, 0x3b, 0x28, 0x4e, 0xe9, 0x55, 0x61, 0xd1, 0x5a, 0x8e, 0x11, 0x21, 0x30,
-	0x40, 0xa4, 0x13, 0x23, 0x0a, 0xf3, 0x3f, 0xac, 0x67, 0x97, 0xf7, 0x84, 0x09, 0x45, 0x41, 0x06,
-	0x69, 0x88, 0x13, 0x32, 0xf0, 0x71, 0x92, 0x7f, 0xc1, 0x08, 0x65, 0xd4, 0xd8, 0xc7, 0x70, 0xb6,
-	0xd4, 0x38, 0x43, 0xe8, 0xa1, 0x90, 0xaa, 0xda, 0xcc, 0x7e, 0x11, 0x24, 0x74, 0x18, 0xab, 0xda,
-	0x98, 0xdf, 0x77, 0x6a, 0x3f, 0x42, 0x33, 0x04, 0xe3, 0x08, 0xba, 0xda, 0x76, 0xe6, 0xdf, 0x56,
-	0xfb, 0x5f, 0x8c, 0xab, 0xff, 0x33, 0xfb, 0x6f, 0x34, 0xf6, 0x30, 0xc2, 0x19, 0x4c, 0xa8, 0xba,
-	0x95, 0xf9, 0x7e, 0xad, 0x99, 0xe3, 0x90, 0x78, 0x38, 0xf3, 0x95, 0x8d, 0x66, 0xd6, 0x24, 0x0c,
-	0x46, 0xd4, 0xc5, 0x54, 0xdd, 0x5a, 0xf3, 0x8d, 0xb1, 0x3f, 0x89, 0x10, 0x19, 0x60, 0x97, 0x0c,
-	0x2e, 0x91, 0x4b, 0xb0, 0x37, 0x46, 0x54, 0xdd, 0xca, 0x7c, 0x1f, 0xd5, 0x7c, 0x29, 0x95, 0xbe,
-	0x99, 0xdd, 0xb7, 0xdc, 0x0e, 0x5f, 0xa0, 0x2c, 0x82, 0x57, 0x64, 0xe0, 0xa2, 0x41, 0x36, 0x0d,
-	0x64, 0xe0, 0x42, 0x6f, 0xac, 0x69, 0x66, 0xde, 0x5f, 0x72, 0x6f, 0x7a, 0x19, 0x52, 0x6f, 0x34,
-	0x98, 0x36, 0x23, 0x8f, 0x22, 0xbf, 0xd6, 0xc0, 0x3c, 0x56, 0x6b, 0x7c, 0xfc, 0x83, 0x59, 0x3c,
-	0xa8, 0x60, 0xb2, 0x1f, 0xd6, 0xbb, 0xc9, 0x7b, 0x09, 0x4e, 0x02, 0x32, 0x98, 0x24, 0x33, 0xca,
-	0x5a, 0x4b, 0xe1, 0xb3, 0xf9, 0xef, 0x06, 0xb8, 0x7d, 0x5c, 0xb6, 0x39, 0x14, 0x3c, 0xdc, 0x17,
-	0x26, 0x7d, 0x87, 0xad, 0x85, 0xd7, 0xf9, 0x5a, 0xd8, 0x43, 0xf4, 0xf5, 0x84, 0x8e, 0x0e, 0xc2,
-	0x64, 0xec, 0x2c, 0xb5, 0x8b, 0x05, 0xd9, 0x2e, 0x17, 0x64, 0xfb, 0xfb, 0xe9, 0x82, 0x6c, 0x3d,
-	0xe7, 0x99, 0xd7, 0x36, 0xad, 0x2a, 0x01, 0x6a, 0xfd, 0x96, 0x43, 0xc1, 0x9a, 0x91, 0x75, 0x07,
-	0x52, 0xa8, 0x65, 0x7c, 0x69, 0xcd, 0x38, 0x85, 0x39, 0x41, 0x24, 0xc5, 0x09, 0x41, 0xeb, 0xb7,
-	0x9c, 0x09, 0x58, 0xd7, 0xb3, 0x1e, 0x63, 0x42, 0xbb, 0xd8, 0x47, 0x8e, 0x25, 0x7c, 0x69, 0x7f,
-	0x82, 0x7e, 0x9f, 0x20, 0x42, 0x5b, 0x9a, 0x68, 0xd7, 0x6f, 0x39, 0x7d, 0xb0, 0xaa, 0xa7, 0x3d,
-	0xc0, 0x01, 0x9e, 0x50, 0xed, 0x58, 0xf5, 0xa8, 0x3e, 0xf8, 0x58, 0x44, 0xdd, 0xcd, 0x37, 0x21,
-	0x1b, 0xc1, 0x1e, 0x6b, 0xc6, 0xc7, 0xb6, 0x31, 0x59, 0x28, 0x1f, 0xdc, 0x57, 0xb2, 0x18, 0x05,
-	0x7a, 0xd6, 0xc8, 0x50, 0x11, 0x06, 0x81, 0xe5, 0x3a, 0xcb, 0x69, 0xea, 0x43, 0x8a, 0x9c, 0x8e,
-	0x19, 0xac, 0xb0, 0x2a, 0xf0, 0x9a, 0x84, 0x40, 0xa0, 0x55, 0xa7, 0xe1, 0xba, 0x37, 0x44, 0x6d,
-	0xaf, 0xf7, 0x81, 0x6a, 0x34, 0xff, 0x97, 0xce, 0x07, 0x90, 0xd0, 0xdd, 0xc3, 0x9b, 0xe8, 0xcc,
-	0x8e, 0x1d, 0xa3, 0xce, 0x9c, 0x65, 0x2e, 0x9d, 0x67, 0x0c, 0x35, 0x9d, 0x5b, 0x75, 0x96, 0x46,
-	0x01, 0x18, 0xdc, 0xdc, 0x02, 0x14, 0x34, 0x73, 0x0b, 0x10, 0xc9, 0x7b, 0x55, 0x8f, 0x9f, 0xbc,
-	0x36, 0x22, 0xe8, 0xc6, 0x24, 0x9c, 0xdf, 0xb2, 0x10, 0x91, 0x2c, 0xb7, 0xc4, 0x66, 0x14, 0xe3,
-	0xb9, 0x15, 0x53, 0x45, 0x90, 0x18, 0x7c, 0xa2, 0x66, 0xe3, 0xa2, 0x58, 0xc0, 0xda, 0x0b, 0x73,
-	0x0c, 0x1e, 0xa8, 0xe9, 0xe6, 0x16, 0x67, 0x04, 0x3e, 0x15, 0x11, 0xdf, 0xb2, 0x2b, 0x83, 0x8d,
-	0x34, 0x4f, 0x35, 0x23, 0xe3, 0xd7, 0x0e, 0x59, 0x98, 0x11, 0x58, 0xd1, 0x30, 0x19, 0x65, 0xe9,
-	0x58, 0xb0, 0x54, 0x44, 0x09, 0xe5, 0x59, 0x2a, 0x99, 0xb8, 0x24, 0x8d, 0x90, 0xf6, 0x82, 0xbc,
-	0x95, 0x17, 0x64, 0x49, 0x35, 0xb7, 0x1c, 0x17, 0xf2, 0x09, 0x5b, 0xe2, 0xed, 0xc7, 0x29, 0xce,
-	0x68, 0x17, 0xc7, 0x31, 0x4c, 0x7c, 0xa2, 0xc5, 0xdd, 0x6a, 0x1a, 0x98, 0x8c, 0x23, 0x4c, 0x59,
-	0x26, 0x1f, 0xb1, 0x32, 0x6f, 0x3f, 0x8c, 0x51, 0xa6, 0x67, 0xfd, 0xca, 0x8e, 0xb5, 0x40, 0x11,
-	0x38, 0xcf, 0xe5, 0x2d, 0xf3, 0xec, 0x07, 0x9b, 0xa4, 0x7b, 0xa8, 0x21, 0xbb, 0x18, 0x57, 0xd2,
-	0xed, 0x1c, 0x2c, 0xd6, 0xd0, 0x8d, 0x89, 0xf6, 0xd8, 0x88, 0x5c, 0x49, 0xb1, 0x5f, 0xc1, 0x92,
-	0x8c, 0xce, 0x93, 0xcb, 0x00, 0x63, 0x9f, 0x56, 0x6f, 0xc0, 0x3d, 0x19, 0x7e, 0xee, 0x84, 0x1a,
-	0xca, 0x1b, 0xd4, 0x4e, 0x51, 0x4d, 0xd8, 0xcc, 0xf4, 0x13, 0xdd, 0x35, 0x8e, 0x15, 0x24, 0xf2,
-	0x74, 0x0f, 0xe5, 0x85, 0x30, 0xe3, 0x31, 0xce, 0x79, 0xbb, 0x99, 0xa3, 0x32, 0xf1, 0x9e, 0x9c,
-	0x34, 0x8c, 0x87, 0x5d, 0x75, 0x36, 0x1a, 0xe0, 0x0a, 0xb3, 0xc3, 0xc2, 0xc6, 0x30, 0x69, 0xbf,
-	0x49, 0x93, 0xc6, 0x38, 0xba, 0x38, 0x49, 0x90, 0x47, 0xf7, 0x26, 0x61, 0xe4, 0x3b, 0x4d, 0x81,
-	0xdb, 0x4b, 0x5d, 0xbd, 0x53, 0x17, 0x00, 0xf9, 0x8f, 0xc0, 0xf7, 0xb2, 0x81, 0xaf, 0x62, 0xdf,
-	0x3c, 0xc4, 0xbf, 0x17, 0xc0, 0x67, 0x6a, 0xc1, 0x72, 0x80, 0xee, 0x08, 0x26, 0x09, 0x8a, 0x88,
-	0xb3, 0xd5, 0xac, 0x90, 0xe4, 0x50, 0x0e, 0xf8, 0xd5, 0xb5, 0xfd, 0xb8, 0xc4, 0x7f, 0x2d, 0xc8,
-	0x67, 0x52, 0x25, 0xb4, 0xfd, 0x64, 0x88, 0x9d, 0x4d, 0x4b, 0xf8, 0xa9, 0x71, 0x19, 0xd2, 0x8b,
-	0x6b, 0xf9, 0xf0, 0x70, 0x06, 0x60, 0xe9, 0xb0, 0xa8, 0x73, 0x8f, 0xb6, 0x7b, 0x3f, 0x95, 0x75,
-	0xf1, 0x1e, 0xa2, 0x36, 0x07, 0xa3, 0xba, 0xa6, 0xde, 0x43, 0x54, 0x20, 0x70, 0xc1, 0x7d, 0x05,
-	0x01, 0x4b, 0xe9, 0x46, 0xac, 0x69, 0xa6, 0xd9, 0xdc, 0xe8, 0x3e, 0x60, 0x1c, 0xfd, 0x7e, 0xcf,
-	0x14, 0xfb, 0x5a, 0x9d, 0x8f, 0x16, 0xb5, 0xa0, 0x10, 0xf1, 0x11, 0xf8, 0x70, 0x86, 0xc6, 0x02,
-	0xd5, 0x38, 0xda, 0x85, 0xd7, 0x07, 0x77, 0xa5, 0xf0, 0x72, 0x8d, 0x2d, 0x8e, 0x80, 0x4a, 0x88,
-	0x15, 0xe5, 0x86, 0xa0, 0x25, 0xa1, 0x9e, 0x12, 0x94, 0x91, 0x1e, 0xa2, 0x34, 0x4c, 0x02, 0x62,
-	0xb3, 0x27, 0x55, 0xe0, 0x25, 0x7f, 0x81, 0xe7, 0x17, 0xb0, 0x28, 0x4c, 0xc7, 0xd4, 0x68, 0x07,
-	0x45, 0x88, 0x22, 0xe7, 0x0b, 0x35, 0x94, 0x60, 0xd2, 0x3c, 0x35, 0xe7, 0x60, 0xf1, 0xa8, 0x78,
-	0xd1, 0xd8, 0x46, 0x27, 0xd3, 0x13, 0x75, 0x1b, 0x7a, 0x63, 0x93, 0x82, 0xc2, 0x01, 0xa4, 0x79,
-	0x6c, 0x29, 0x87, 0x90, 0x9f, 0xfb, 0xcb, 0x75, 0x74, 0xa6, 0xa8, 0x3d, 0xd0, 0xf5, 0x38, 0xff,
-	0x5c, 0x00, 0x4b, 0xfd, 0xfc, 0x11, 0xa6, 0x87, 0x60, 0xe6, 0x8d, 0xba, 0x90, 0xa2, 0x00, 0x67,
-	0x21, 0x22, 0xe2, 0xb2, 0xae, 0x3d, 0xf8, 0x54, 0x8d, 0x15, 0xcb, 0xda, 0xc2, 0x87, 0x8b, 0xf6,
-	0x07, 0xf8, 0xa8, 0x08, 0x62, 0x0f, 0x51, 0x21, 0x82, 0x8e, 0x01, 0x4d, 0xb2, 0xbc, 0x21, 0x7d,
-	0x0a, 0x56, 0xca, 0x39, 0xa0, 0x6c, 0x0f, 0x9c, 0x66, 0x6f, 0x16, 0xe7, 0x9b, 0x92, 0xf3, 0xca,
-	0x88, 0xaa, 0xf0, 0x68, 0x4e, 0xa4, 0x43, 0x70, 0x87, 0x49, 0x9d, 0x17, 0x5e, 0x51, 0x64, 0xb3,
-	0x07, 0xf0, 0xc7, 0xb4, 0xc2, 0x45, 0x18, 0xc0, 0x8f, 0x12, 0xdc, 0x51, 0x22, 0xed, 0x00, 0xa2,
-	0xdb, 0xf6, 0xd5, 0xbe, 0x5f, 0x46, 0xd7, 0x52, 0x98, 0x30, 0x94, 0xbc, 0xba, 0xe1, 0x90, 0x2c,
-	0x05, 0x57, 0x15, 0xf6, 0x45, 0x97, 0x1d, 0xe2, 0xc1, 0x0c, 0x91, 0x2d, 0x49, 0x15, 0xa2, 0xed,
-	0x52, 0x14, 0xe2, 0xeb, 0x66, 0x48, 0x17, 0x5f, 0xd1, 0x65, 0x17, 0x5f, 0x02, 0xee, 0x96, 0x88,
-	0xc7, 0x30, 0x23, 0xe8, 0x0d, 0x8d, 0x23, 0xe7, 0x89, 0xc2, 0x85, 0xf7, 0x32, 0xf3, 0x12, 0xfe,
-	0xa9, 0x95, 0x2d, 0x17, 0xad, 0x52, 0xed, 0x9d, 0xb1, 0x67, 0xe9, 0x9b, 0x54, 0x7b, 0xfc, 0x69,
-	0xdb, 0x58, 0xed, 0x09, 0x4c, 0x73, 0x55, 0x7b, 0x22, 0x8b, 0xb9, 0xda, 0x2b, 0x99, 0x1a, 0xab,
-	0x3d, 0x0e, 0x39, 0x77, 0xb5, 0x57, 0x52, 0xcd, 0x7b, 0x39, 0xdf, 0xfc, 0xe7, 0x1d, 0xf0, 0xfe,
-	0x69, 0x32, 0x7b, 0x4b, 0xf6, 0xc0, 0x1d, 0xbe, 0x27, 0xe5, 0x87, 0x84, 0xf3, 0xa8, 0xba, 0x0f,
-	0xb4, 0x65, 0x83, 0x32, 0xe6, 0xcf, 0x1b, 0xed, 0x84, 0x47, 0xdc, 0x7b, 0xd2, 0xee, 0x5b, 0xde,
-	0xf4, 0x36, 0x34, 0x10, 0xb2, 0x59, 0x49, 0xf8, 0xcc, 0xd2, 0x9a, 0xd3, 0x9e, 0x89, 0x37, 0x90,
-	0x1e, 0xbc, 0x12, 0xd7, 0x8e, 0x78, 0x38, 0xf6, 0x66, 0xc9, 0xbd, 0x66, 0xb0, 0x28, 0x71, 0xb7,
-	0xd7, 0x7f, 0x5e, 0x0d, 0x42, 0x3a, 0x9a, 0xb8, 0x6d, 0x0f, 0xc7, 0x1d, 0x7a, 0x19, 0x66, 0x30,
-	0x4d, 0xf3, 0xdf, 0x4e, 0x14, 0xba, 0xa4, 0x03, 0xd3, 0xd0, 0x7d, 0x2f, 0x9f, 0xf9, 0x17, 0xff,
-	0x05, 0x00, 0x00, 0xff, 0xff, 0x28, 0xfc, 0xba, 0xa4, 0x23, 0x1b, 0x00, 0x00,
+	// 1255 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x58, 0x5d, 0x6f, 0xdc, 0x44,
+	0x14, 0x6d, 0x40, 0x42, 0xea, 0x20, 0x2a, 0x6a, 0x9a, 0x28, 0xdd, 0x14, 0x48, 0x82, 0x28, 0xa4,
+	0x1f, 0xbb, 0x90, 0x42, 0x8a, 0x10, 0x42, 0x22, 0x1b, 0xba, 0x8d, 0xd8, 0x34, 0xa1, 0xbb, 0x09,
+	0x12, 0x04, 0xad, 0xc6, 0xf6, 0xac, 0xd7, 0xac, 0xed, 0x31, 0x9e, 0x71, 0xa2, 0x3c, 0xf0, 0xc4,
+	0x2b, 0xe2, 0x99, 0xbf, 0xc3, 0x3f, 0xab, 0x6c, 0xcf, 0xcc, 0xce, 0xd8, 0x63, 0x7b, 0xb2, 0x79,
+	0xe9, 0xa6, 0x33, 0xf7, 0x9e, 0x73, 0xe7, 0x9e, 0x3b, 0x1f, 0xd7, 0xe0, 0x36, 0x8c, 0xfd, 0x6e,
+	0x9c, 0x60, 0x8a, 0xad, 0xb7, 0x61, 0xec, 0x77, 0x36, 0x3c, 0x8c, 0xbd, 0x00, 0xf5, 0xf2, 0x21,
+	0x3b, 0x9d, 0xf6, 0x50, 0x18, 0xd3, 0xab, 0xc2, 0xa2, 0xb3, 0x1e, 0x22, 0x42, 0xa0, 0x87, 0x48,
+	0x2f, 0x44, 0x14, 0xe6, 0xff, 0xb0, 0x99, 0x3d, 0x31, 0xe3, 0x47, 0x14, 0x79, 0x09, 0xa4, 0x3e,
+	0x8e, 0xc8, 0x64, 0x0a, 0x1d, 0xe4, 0x53, 0xdd, 0x58, 0xb3, 0x5f, 0x00, 0x09, 0x9d, 0x86, 0xba,
+	0x31, 0xe6, 0xf7, 0xbd, 0xde, 0x8f, 0xd0, 0x04, 0xc1, 0x30, 0x80, 0x76, 0xed, 0x38, 0xf3, 0xef,
+	0xea, 0xfd, 0x2f, 0xe6, 0xe5, 0xff, 0x33, 0xfb, 0x6f, 0x6b, 0xec, 0x61, 0x80, 0x13, 0x18, 0x51,
+	0xfd, 0x28, 0xf3, 0xfd, 0x46, 0xef, 0xeb, 0xfa, 0xc4, 0xc1, 0x89, 0xab, 0x1d, 0x6c, 0x66, 0x8d,
+	0x7c, 0x6f, 0x46, 0x6d, 0x4c, 0xf5, 0xa3, 0x15, 0xdf, 0x10, 0xbb, 0x69, 0x80, 0xc8, 0x04, 0xdb,
+	0x64, 0x72, 0x89, 0x6c, 0x82, 0x9d, 0x39, 0xa2, 0xfa, 0x51, 0xe6, 0xfb, 0xb0, 0xe2, 0x4b, 0xa9,
+	0xf2, 0x37, 0xb3, 0xfb, 0x4e, 0xd8, 0xe1, 0x0b, 0x94, 0x04, 0xf0, 0x8a, 0x4c, 0x6c, 0x34, 0x49,
+	0xb2, 0x40, 0x26, 0x36, 0x74, 0xe6, 0x35, 0xc3, 0xcc, 0xfb, 0x0b, 0xe1, 0x4d, 0x2f, 0x7d, 0xea,
+	0xcc, 0x26, 0xd9, 0x30, 0x72, 0x28, 0x72, 0x2b, 0x03, 0xcc, 0x63, 0xb3, 0xc2, 0x27, 0xfe, 0x60,
+	0x16, 0x0f, 0x4a, 0x98, 0xec, 0x87, 0xcd, 0xee, 0x8a, 0x59, 0x82, 0x23, 0x8f, 0x4c, 0xd2, 0x68,
+	0x41, 0x59, 0x19, 0x29, 0x7c, 0x76, 0xff, 0xdd, 0x01, 0xb7, 0x4f, 0xf8, 0x98, 0xe5, 0x82, 0x0f,
+	0x0f, 0xa5, 0xa4, 0xbf, 0xc8, 0x6b, 0x79, 0x80, 0xe8, 0x0f, 0x29, 0x9d, 0x0d, 0xfd, 0x68, 0x6e,
+	0xad, 0x75, 0x8b, 0x0d, 0xd4, 0xe5, 0x1b, 0xa8, 0xfb, 0x63, 0xb6, 0x81, 0x3a, 0x3b, 0xa2, 0xe2,
+	0xba, 0xba, 0xdd, 0x20, 0x41, 0x6c, 0xdf, 0xb2, 0x5c, 0x70, 0x5f, 0xcb, 0x72, 0x00, 0x29, 0xac,
+	0x65, 0x78, 0xda, 0xca, 0x90, 0xb9, 0xbf, 0x46, 0x24, 0xc6, 0x11, 0x41, 0xdb, 0xb7, 0x2c, 0x04,
+	0xd6, 0xab, 0x2c, 0xa7, 0xb1, 0x0b, 0x29, 0xb2, 0x7a, 0xcd, 0x60, 0x85, 0x55, 0x81, 0xf7, 0x67,
+	0x8a, 0x08, 0xed, 0xd4, 0x44, 0x95, 0xd3, 0x74, 0xaa, 0x34, 0x27, 0x98, 0xd0, 0x3e, 0x76, 0x91,
+	0xd5, 0x12, 0x35, 0xb7, 0x6b, 0xa7, 0x19, 0xea, 0x56, 0x33, 0xc4, 0x1e, 0x4e, 0x69, 0x6d, 0xca,
+	0xea, 0xd1, 0x4a, 0x3a, 0x0f, 0x21, 0xa1, 0x2f, 0x8e, 0x6e, 0xa2, 0x33, 0x3b, 0xbd, 0x1a, 0x75,
+	0x16, 0x2c, 0x4b, 0xe9, 0xbc, 0x60, 0xa8, 0xe8, 0xdc, 0xa9, 0xb2, 0xb4, 0x0a, 0xc0, 0xe0, 0x96,
+	0x16, 0xa0, 0xa0, 0x59, 0x5a, 0x80, 0x00, 0x6c, 0xc9, 0x68, 0x23, 0x71, 0x80, 0x9b, 0x88, 0x50,
+	0xb7, 0x26, 0xe9, 0x1a, 0x50, 0x85, 0x08, 0x54, 0xb9, 0x15, 0xb6, 0x46, 0x31, 0xbe, 0x34, 0x62,
+	0x2a, 0x09, 0x12, 0x82, 0x8f, 0xf4, 0x6c, 0x42, 0x14, 0x03, 0x58, 0x73, 0x61, 0x4e, 0xc0, 0x03,
+	0x3d, 0xdd, 0xd2, 0xe2, 0xcc, 0xc0, 0xc7, 0x32, 0xe2, 0x2b, 0x76, 0xf3, 0x98, 0x48, 0xf3, 0xb8,
+	0x66, 0x65, 0xe2, 0xf6, 0x52, 0x85, 0x99, 0x81, 0x8d, 0x1a, 0xa6, 0x46, 0x59, 0x7a, 0x06, 0x2c,
+	0x25, 0x51, 0x7c, 0x35, 0x4b, 0x9c, 0x49, 0x48, 0xd2, 0x0a, 0x69, 0x2e, 0xc8, 0x2b, 0x75, 0x43,
+	0x72, 0xaa, 0xa5, 0xe5, 0xb8, 0x00, 0xdb, 0x3a, 0xbc, 0xc3, 0x30, 0xc6, 0x09, 0xed, 0xe3, 0x30,
+	0x84, 0x91, 0x4b, 0x6a, 0x71, 0xf7, 0xda, 0x16, 0xa6, 0xe2, 0x48, 0x29, 0x4b, 0xc0, 0x66, 0x3d,
+	0xef, 0xd8, 0x0f, 0x51, 0x52, 0xcf, 0xfa, 0x95, 0x19, 0x6b, 0x81, 0x22, 0x71, 0x9e, 0xab, 0x47,
+	0xe6, 0xd9, 0x4f, 0x26, 0x45, 0xf7, 0x69, 0x0d, 0xd9, 0xc5, 0xbc, 0x54, 0x6e, 0xe7, 0x60, 0xb5,
+	0x82, 0xde, 0x58, 0x68, 0x3b, 0x8d, 0xc8, 0xa5, 0x12, 0xfb, 0x1d, 0xac, 0xa9, 0xe8, 0xa2, 0xb8,
+	0x1a, 0x60, 0xcc, 0xcb, 0xea, 0x25, 0xb8, 0xa7, 0xc2, 0x2f, 0x5d, 0x50, 0x53, 0xf5, 0x80, 0x3a,
+	0x28, 0x1e, 0xa5, 0x26, 0x99, 0x7e, 0x54, 0xb3, 0x10, 0xfe, 0xae, 0x55, 0xd3, 0x3d, 0x55, 0x37,
+	0xc2, 0x82, 0xa7, 0x31, 0xe7, 0xdd, 0x76, 0x8e, 0x52, 0xe2, 0x1d, 0xb5, 0x68, 0x18, 0x0f, 0x7b,
+	0xea, 0x3c, 0x69, 0x81, 0x2b, 0xcc, 0x8e, 0x0a, 0x9b, 0x86, 0xa4, 0xfd, 0xa1, 0x24, 0x8d, 0x71,
+	0xf4, 0x71, 0x14, 0x21, 0x87, 0x0e, 0x52, 0x3f, 0x70, 0xad, 0xb6, 0xc0, 0xcd, 0xa5, 0x4e, 0xd5,
+	0x1d, 0xcf, 0xc8, 0xf2, 0x1f, 0x89, 0xef, 0xeb, 0x16, 0xbe, 0x92, 0x7d, 0xfb, 0x12, 0xff, 0x5b,
+	0x01, 0x9f, 0xe8, 0x05, 0xcb, 0x01, 0xfa, 0x33, 0x18, 0x45, 0x28, 0x20, 0xd6, 0x5e, 0xbb, 0x42,
+	0x8a, 0x03, 0x5f, 0xf0, 0xf3, 0x6b, 0xfb, 0x09, 0x89, 0xff, 0x59, 0x51, 0xef, 0xa4, 0x52, 0x68,
+	0x87, 0xd1, 0x14, 0x5b, 0xbb, 0x86, 0xf0, 0x99, 0x31, 0x0f, 0xe9, 0xd9, 0xb5, 0x7c, 0x44, 0x38,
+	0x13, 0xb0, 0x76, 0x54, 0xb4, 0x4b, 0xc7, 0xfb, 0xa3, 0x5f, 0x78, 0x7b, 0x35, 0x40, 0xd4, 0xe4,
+	0x62, 0xd4, 0xb7, 0x66, 0x03, 0x44, 0x25, 0x02, 0x1b, 0xdc, 0xd7, 0x10, 0xb0, 0x92, 0x6e, 0xc5,
+	0xca, 0x2a, 0xcd, 0xe4, 0x45, 0xf7, 0x1e, 0xe3, 0x18, 0x8f, 0x47, 0x4d, 0xb1, 0x6f, 0x55, 0xf9,
+	0xb2, 0x26, 0x51, 0x8d, 0xf8, 0x18, 0xbc, 0xbf, 0x40, 0x63, 0x81, 0xd6, 0x38, 0x9a, 0x85, 0x37,
+	0x06, 0x77, 0x95, 0xf0, 0x72, 0x8d, 0x0d, 0xae, 0x80, 0x52, 0x88, 0x25, 0xe5, 0xa6, 0xa0, 0xa3,
+	0xa0, 0x9e, 0x12, 0x94, 0x90, 0x11, 0xa2, 0xd4, 0x8f, 0x3c, 0x62, 0x72, 0x26, 0x95, 0xe0, 0x15,
+	0x7f, 0x89, 0xe7, 0x37, 0xb0, 0x2a, 0xa5, 0x23, 0x33, 0x3a, 0x40, 0x01, 0xa2, 0xc8, 0xfa, 0x5c,
+	0x0f, 0x25, 0x99, 0xb4, 0xa7, 0xe6, 0x1c, 0xac, 0x1e, 0x17, 0x8d, 0xf1, 0x3e, 0x7a, 0x9d, 0xdd,
+	0xa8, 0xfb, 0xd0, 0x99, 0x37, 0x29, 0x28, 0x5d, 0x40, 0x35, 0x3d, 0x3b, 0x5f, 0x42, 0x7e, 0xef,
+	0xaf, 0x57, 0xd1, 0x99, 0xa2, 0xe6, 0x40, 0xd7, 0xe3, 0xfc, 0x7b, 0x05, 0xac, 0x8d, 0xf3, 0x5e,
+	0x7e, 0x84, 0x60, 0xe2, 0xcc, 0xfa, 0x90, 0x22, 0x0f, 0x27, 0x3e, 0x22, 0xf2, 0xb6, 0xae, 0x7c,
+	0x37, 0x28, 0x1b, 0x6b, 0xb6, 0xb5, 0x81, 0x8f, 0x10, 0xed, 0x2f, 0xf0, 0x41, 0x11, 0xc4, 0x00,
+	0x51, 0x29, 0x82, 0x5e, 0x03, 0x9a, 0x62, 0x79, 0x43, 0xfa, 0x18, 0x6c, 0xf0, 0x1c, 0x50, 0x76,
+	0x06, 0x66, 0xd5, 0x9b, 0x84, 0xf9, 0xa1, 0x64, 0x3d, 0x6f, 0x44, 0xd5, 0x78, 0xb4, 0x17, 0xd2,
+	0x11, 0xb8, 0xc3, 0xa4, 0xce, 0x1b, 0xaf, 0x20, 0x30, 0x39, 0x03, 0xc4, 0x37, 0x99, 0xc2, 0x45,
+	0x5a, 0xc0, 0xcf, 0x0a, 0xdc, 0x71, 0xa4, 0x9c, 0x00, 0xb2, 0xdb, 0xfe, 0xd5, 0xa1, 0xcb, 0xa3,
+	0xeb, 0x68, 0x4c, 0x18, 0x4a, 0xde, 0xdd, 0x08, 0x48, 0x56, 0x82, 0x9b, 0x1a, 0xfb, 0x62, 0xca,
+	0x0c, 0x71, 0xb8, 0x40, 0x64, 0x5b, 0x52, 0x87, 0x68, 0xba, 0x15, 0xa5, 0xf8, 0xfa, 0x09, 0xaa,
+	0x8b, 0xaf, 0x98, 0x32, 0x8b, 0x2f, 0x02, 0x77, 0x39, 0xe2, 0x09, 0x4c, 0x08, 0x7a, 0x49, 0xc3,
+	0xc0, 0x7a, 0xa4, 0x71, 0x11, 0xb3, 0xcc, 0x9c, 0xc3, 0x3f, 0x36, 0xb2, 0x15, 0xa2, 0x95, 0xba,
+	0xbd, 0x33, 0xf6, 0x75, 0xf3, 0x26, 0xdd, 0x9e, 0xf8, 0x42, 0xda, 0xd8, 0xed, 0x49, 0x4c, 0x4b,
+	0x75, 0x7b, 0x32, 0x4b, 0x73, 0xb7, 0xc7, 0x99, 0x5a, 0xbb, 0x3d, 0x01, 0xb9, 0x74, 0xb7, 0xc7,
+	0xa9, 0x96, 0x7d, 0x9c, 0xef, 0xfe, 0xff, 0x16, 0x78, 0xf7, 0x34, 0x5a, 0x7c, 0x92, 0x74, 0xc0,
+	0x1d, 0x71, 0x26, 0xe5, 0x97, 0x84, 0xf5, 0xb0, 0x7c, 0x0e, 0x74, 0x55, 0x03, 0x1e, 0xf3, 0x67,
+	0xad, 0x76, 0x22, 0x5f, 0x29, 0xb8, 0xa7, 0x9c, 0xbe, 0xfc, 0xa5, 0xf7, 0xa4, 0x06, 0x42, 0x35,
+	0xe3, 0x84, 0x4f, 0x0d, 0xad, 0x05, 0xed, 0x99, 0xfc, 0x02, 0x19, 0xc1, 0x2b, 0x79, 0xef, 0xc8,
+	0x97, 0xe3, 0x68, 0x51, 0xdc, 0x5b, 0x0d, 0x16, 0x1c, 0x77, 0x7f, 0xfb, 0xd7, 0x4d, 0xcf, 0xa7,
+	0xb3, 0xd4, 0xee, 0x3a, 0x38, 0xec, 0xd1, 0x4b, 0x3f, 0x81, 0x71, 0x9c, 0xff, 0xf6, 0x02, 0xdf,
+	0x26, 0x3d, 0x18, 0xfb, 0xf6, 0x3b, 0x79, 0xe6, 0x9f, 0xbd, 0x09, 0x00, 0x00, 0xff, 0xff, 0x4a,
+	0x0e, 0xaf, 0x55, 0x22, 0x19, 0x00, 0x00,
 }

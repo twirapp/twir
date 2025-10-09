@@ -1,33 +1,29 @@
 import { sleep } from 'bun'
 
-import { updateIntegration } from '../libs/db.ts'
-import { DonationAlerts, globalRequestLimiter } from '../services/donationAlerts.ts'
-
-import type { Integration } from '../libs/db.ts'
+import {
+	DonationAlertsIntegration,
+	updateDonationAlertsIntegration,
+	updateIntegration,
+} from '../libs/db.ts'
+import { DonationAlerts, globalRequestLimiter, rateLimiterKey } from '../services/donationAlerts.ts'
+import { config } from '@twir/config'
 
 export const donationAlertsStore = new Map<string, DonationAlerts>()
 
-export async function addIntegration(integration: Integration) {
-	if (
-		!integration.accessToken ||
-		!integration.refreshToken ||
-		!integration.integration ||
-		!integration.integration.clientId ||
-		!integration.integration.clientSecret ||
-		!integration.enabled
-	) {
+export async function addIntegration(integration: DonationAlertsIntegration) {
+	if (!integration.access_token || !integration.refresh_token || !integration.enabled) {
 		return
 	}
 
-	if (donationAlertsStore.get(integration.channelId)) {
-		await removeIntegration(integration.channelId)
+	if (donationAlertsStore.get(integration.channel_id)) {
+		await removeIntegration(integration.channel_id)
 	}
 
 	let accessToken
 	let refreshToken
 
 	while (true) {
-		const { isAllowed } = await globalRequestLimiter.consume(integration.id)
+		const { isAllowed } = await globalRequestLimiter.consume(rateLimiterKey)
 		if (!isAllowed) {
 			await sleep(1000)
 			continue
@@ -41,11 +37,10 @@ export async function addIntegration(integration: Integration) {
 				},
 				body: new URLSearchParams({
 					grant_type: 'refresh_token',
-					refresh_token: integration.refreshToken,
-					client_id: integration.integration.clientId,
-					client_secret: integration.integration.clientSecret,
+					refresh_token: integration.refresh_token,
+					client_id: config.DONATIONALERTS_CLIENT_ID!,
+					client_secret: config.DONATIONALERTS_CLIENT_SECRET!,
 				}).toString(),
-				verbose: true,
 			})
 
 			if (!refresh.ok) {
@@ -69,16 +64,19 @@ export async function addIntegration(integration: Integration) {
 	}
 
 	if (!accessToken || !refreshToken) {
-		await updateIntegration(integration.id, { enabled: false })
 		return
 	}
 
-	await updateIntegration(integration.id, { accessToken, refreshToken })
+	await updateDonationAlertsIntegration({
+		channel_id: integration.channel_id,
+		access_token: accessToken,
+		refresh_token: refreshToken,
+	})
 
 	let profileData
 
 	while (true) {
-		const { isAllowed } = await globalRequestLimiter.consume(integration.id)
+		const { isAllowed } = await globalRequestLimiter.consume(rateLimiterKey)
 		if (!isAllowed) {
 			await sleep(1000)
 			continue
@@ -88,7 +86,6 @@ export async function addIntegration(integration: Integration) {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 			},
-			verbose: true,
 		})
 
 		if (!request.ok) {
@@ -114,11 +111,11 @@ export async function addIntegration(integration: Integration) {
 		accessToken,
 		id,
 		socket_connection_token,
-		integration.channelId
+		integration.channel_id
 	)
 	await instance.init()
 
-	donationAlertsStore.set(integration.channelId, instance)
+	donationAlertsStore.set(integration.channel_id, instance)
 
 	return instance
 }

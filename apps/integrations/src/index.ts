@@ -2,7 +2,12 @@ import process from 'node:process'
 
 import { IntegrationService } from '@twir/bus-core'
 
-import { Service, getDonationPayIntegrations, getIntegrations } from './libs/db'
+import {
+	Service,
+	getDonationAlertsIntegrations,
+	getDonationPayIntegrations,
+	getIntegrations,
+} from './libs/db'
 import { twirBus } from './libs/twirbus.ts'
 import {
 	addIntegration as addDonatePayIntegration,
@@ -24,10 +29,6 @@ import './pubsub'
 const integrations = await getIntegrations()
 
 for (const integration of integrations) {
-	if (integration.integration.service === Service.DONATIONALERTS) {
-		addDonationAlertsIntegration(integration)
-	}
-
 	if (integration.integration.service === Service.STREAMLABS) {
 		addStreamlabsIntegration(integration)
 	}
@@ -35,6 +36,10 @@ for (const integration of integrations) {
 
 for (const donatePayIntegration of await getDonationPayIntegrations()) {
 	await addDonatePayIntegration(donatePayIntegration)
+}
+
+for (const integration of await getDonationAlertsIntegrations()) {
+	await addDonationAlertsIntegration(integration)
 }
 
 twirBus.Integrations.Add.subscribe(async (data) => {
@@ -47,6 +52,17 @@ twirBus.Integrations.Add.subscribe(async (data) => {
 			return null
 		}
 		await addDonatePayIntegration(integration)
+		return
+	}
+
+	if (data.service === IntegrationService.DONATIONALERTS) {
+		const integration = await getDonationAlertsIntegrations({ id: Number(data.id) })
+		if (!integration) {
+			console.error(`Integration with id ${data.id} not found for DonateAlerts`)
+			return null
+		}
+		await addDonationAlertsIntegration(integration)
+		return
 	}
 
 	const integration = await getIntegrations(data.id)
@@ -55,9 +71,6 @@ twirBus.Integrations.Add.subscribe(async (data) => {
 		return null
 	}
 
-	if (integration.integration.service === Service.DONATIONALERTS) {
-		await addDonationAlertsIntegration(integration)
-	}
 	if (integration.integration.service === Service.STREAMLABS) {
 		await addStreamlabsIntegration(integration)
 	}
@@ -69,12 +82,12 @@ twirBus.Integrations.Remove.subscribe(async (data) => {
 	console.info(`Destroying ${data.id} (${data.service}) connection`)
 
 	if (data.service === IntegrationService.DONATEPAY) {
-		const integration = await getDonationPayIntegrations({ id: data.id })
-		if (!integration) {
-			console.error(`Integration with id ${data.id} not found for DonatePay`)
-			return null
-		}
-		await removeDonatePayIntegration(integration.channel_id)
+		await removeDonatePayIntegration(data.id) // channelId
+		return null
+	}
+
+	if (data.service === IntegrationService.DONATIONALERTS) {
+		await removeDonationAlertsIntegration(data.id) // channelId
 		return null
 	}
 
