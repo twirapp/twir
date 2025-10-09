@@ -3,7 +3,6 @@ package donationalerts_integration
 import (
 	"context"
 
-	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/libs/repositories/donationalerts_integration/model"
 )
 
@@ -15,24 +14,19 @@ type Repository interface {
 }
 
 type CreateOpts struct {
-	ChannelID     string
-	IntegrationID string
-	AccessToken   *string
-	RefreshToken  *string
-	ClientID      *string
-	ClientSecret  *string
-	APIKey        *string
-	Enabled       bool
-	Data          json.RawMessage // JSONB data
+	ChannelID    string
+	AccessToken  string
+	RefreshToken string
+	Enabled      bool
+	UserName     string
+	Avatar       string
 }
 
 type UpdateOpts struct {
 	ChannelID    string
 	AccessToken  *string
 	RefreshToken *string
-	ClientID     *string
-	ClientSecret *string
-	APIKey       *string
 	Enabled      *bool
-	Data         json.RawMessage // JSONB data
+	UserName     *string
+	Avatar       *string
 }

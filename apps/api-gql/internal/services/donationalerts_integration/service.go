@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/goccy/go-json"
 	"github.com/imroc/req/v3"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
@@ -45,27 +45,17 @@ type AuthLinkResponse struct {
 
 // mapModelToEntity converts repository model to service entity
 func (s *Service) mapModelToEntity(m model.DonationAlertsIntegration) entity.DonationAlertsIntegration {
-	var data *entity.ChannelsIntegrationsData
-
-	// Parse JSONB data if it exists
-	if m.Data != nil {
-		var parsedData entity.ChannelsIntegrationsData
-		if err := json.Unmarshal(m.Data, &parsedData); err == nil {
-			data = &parsedData
-		}
-	}
-
 	return entity.DonationAlertsIntegration{
-		ID:            m.ID,
-		Enabled:       m.Enabled,
-		ChannelID:     m.ChannelID,
-		IntegrationID: m.IntegrationID,
-		AccessToken:   m.AccessToken,
-		RefreshToken:  m.RefreshToken,
-		ClientID:      m.ClientID,
-		ClientSecret:  m.ClientSecret,
-		APIKey:        m.APIKey,
-		Data:          data,
+		ID:           m.ID,
+		PublicID:     m.PublicID,
+		Enabled:      m.Enabled,
+		ChannelID:    m.ChannelID,
+		AccessToken:  m.AccessToken,
+		RefreshToken: m.RefreshToken,
+		UserName:     m.UserName,
+		Avatar:       m.Avatar,
+		CreatedAt:    m.CreatedAt,
+		UpdatedAt:    m.UpdatedAt,
 	}
 }
 
@@ -97,7 +87,7 @@ func (s *Service) getCallbackUrl() (string, error) {
 		return "", fmt.Errorf("invalid site base URL: %w", err)
 	}
 
-	return u.JoinPath("integrations", "donationalerts", "callback").String(), nil
+	return u.JoinPath("dashboard", "integrations", "donationalerts").String(), nil
 }
 
 func (s *Service) GetAuthLink(ctx context.Context) (*AuthLinkResponse, error) {
@@ -132,32 +122,13 @@ func (s *Service) GetAuthLink(ctx context.Context) (*AuthLinkResponse, error) {
 }
 
 func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
-	_, err := s.donationAlertsRepository.GetByChannelID(ctx, channelID)
-	if err != nil {
-		if errors.Is(err, donationalerts_integration.ErrNotFound) {
-			data := entity.ChannelsIntegrationsData{
-				// Username and Avatar would be populated after successful OAuth
-			}
-			dataBytes, _ := json.Marshal(data)
-
-			err = s.donationAlertsRepository.Create(
-				ctx, donationalerts_integration.CreateOpts{
-					ChannelID: channelID,
-					Enabled:   true,
-					Data:      dataBytes,
-					// AccessToken and RefreshToken would be set after OAuth exchange
-				},
-			)
-			if err != nil {
-				return fmt.Errorf("failed to create donationalerts integration: %w", err)
-			}
-		}
-
-		return fmt.Errorf("failed to get donationalerts integration: %w", err)
-	}
-
 	if s.config.DonationAlertsClientId == "" || s.config.DonationAlertsSecret == "" {
 		return errors.New("donationalerts integration not properly configured")
+	}
+
+	foundIntegration, err := s.donationAlertsRepository.GetByChannelID(ctx, channelID)
+	if err != nil && !errors.Is(err, donationalerts_integration.ErrNotFound) {
+		return fmt.Errorf("failed to get donationalerts integration: %w", err)
 	}
 
 	redirectUrl, err := s.getCallbackUrl()
@@ -165,7 +136,7 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 		return fmt.Errorf("failed to get redirect URL: %w", err)
 	}
 
-	profile, err := s.getProfileData(
+	tokens, profile, err := s.getProfileData(
 		ctx,
 		s.config.DonationAlertsClientId,
 		s.config.DonationAlertsSecret,
@@ -176,25 +147,33 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 		return fmt.Errorf("failed to get donationalerts profile data: %w", err)
 	}
 
-	// Update existing integration
-	enabled := true
-	data := entity.ChannelsIntegrationsData{
-		// Username and Avatar would be populated after successful OAuth
-		UserName: &profile.Data.Name,
-		Avatar:   &profile.Data.Avatar,
-	}
-	dataBytes, _ := json.Marshal(data)
-
-	err = s.donationAlertsRepository.Update(
-		ctx, donationalerts_integration.UpdateOpts{
-			ChannelID: channelID,
-			Enabled:   &enabled,
-			Data:      dataBytes,
-			// AccessToken and RefreshToken would be updated after OAuth exchange
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to update donationalerts integration: %w", err)
+	if foundIntegration == model.Nil {
+		if err := s.donationAlertsRepository.Create(
+			ctx, donationalerts_integration.CreateOpts{
+				ChannelID:    channelID,
+				AccessToken:  tokens.AccessToken,
+				RefreshToken: tokens.RefreshToken,
+				Enabled:      true,
+				UserName:     profile.Data.Name,
+				Avatar:       profile.Data.Avatar,
+			},
+		); err != nil {
+			return fmt.Errorf("failed to create donationalerts integration: %w", err)
+		}
+	} else {
+		if err := s.donationAlertsRepository.Update(
+			ctx,
+			donationalerts_integration.UpdateOpts{
+				ChannelID:    channelID,
+				AccessToken:  &tokens.AccessToken,
+				RefreshToken: &tokens.RefreshToken,
+				Enabled:      lo.ToPtr(true),
+				UserName:     &profile.Data.Name,
+				Avatar:       &profile.Data.Avatar,
+			},
+		); err != nil {
+			return fmt.Errorf("failed to update donationalerts integration: %w", err)
+		}
 	}
 
 	newIntegration, err := s.donationAlertsRepository.GetByChannelID(ctx, channelID)
@@ -204,7 +183,7 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 
 	if err = s.twirBus.Integrations.Add.Publish(
 		ctx, integrations.Request{
-			ID:      newIntegration.ID.String(),
+			ID:      fmt.Sprint(newIntegration.ID),
 			Service: integrations.DonationAlerts,
 		},
 	); err != nil {
@@ -215,26 +194,19 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 }
 
 func (s *Service) Logout(ctx context.Context, channelID string) error {
-	// Disable the integration and clear tokens
-	enabled := false
-	emptyString := ""
-	data := entity.ChannelsIntegrationsData{
-		UserName: nil,
-		Avatar:   nil,
-	}
-	dataBytes, _ := json.Marshal(data)
-
-	err := s.donationAlertsRepository.Update(
-		ctx, donationalerts_integration.UpdateOpts{
-			ChannelID:    channelID,
-			Enabled:      &enabled,
-			AccessToken:  &emptyString,
-			RefreshToken: &emptyString,
-			Data:         dataBytes,
-		},
-	)
+	err := s.donationAlertsRepository.Delete(ctx, channelID)
 	if err != nil {
 		return fmt.Errorf("failed to disable donationalerts integration: %w", err)
+	}
+
+	if err := s.twirBus.Integrations.Remove.Publish(
+		ctx,
+		integrations.Request{
+			ID:      channelID,
+			Service: integrations.DonationAlerts,
+		},
+	); err != nil {
+		return fmt.Errorf("failed to publish remove integration event: %w", err)
 	}
 
 	return nil
@@ -259,6 +231,7 @@ func (s *Service) getProfileData(
 	ctx context.Context,
 	clientId, clientSecret, redirectURL, code string,
 ) (
+	*donationAlertsTokensResponse,
 	*donationAlertsProfileResponse,
 	error,
 ) {
@@ -278,10 +251,10 @@ func (s *Service) getProfileData(
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://www.donationalerts.com/oauth/token")
 	if err != nil {
-		return nil, fmt.Errorf("failed to exchange code for tokens: %w", err)
+		return nil, nil, fmt.Errorf("failed to exchange code for tokens: %w", err)
 	}
 	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("failed to exchange code for tokens: %s", resp.String())
+		return nil, nil, fmt.Errorf("failed to exchange code for tokens: %s", resp.String())
 	}
 
 	profile := donationAlertsProfileResponse{}
@@ -291,11 +264,11 @@ func (s *Service) getProfileData(
 		SetBearerAuthToken(data.AccessToken).
 		Get("https://www.donationalerts.com/api/v1/user/oauth")
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch donationalerts profile: %w", err)
+		return nil, nil, fmt.Errorf("failed to fetch donationalerts profile: %w", err)
 	}
 	if !profileResp.IsSuccessState() {
-		return nil, fmt.Errorf("failed to fetch donationalerts profile: %s", profileResp.String())
+		return nil, nil, fmt.Errorf("failed to fetch donationalerts profile: %s", profileResp.String())
 	}
 
-	return &profile, nil
+	return &data, &profile, nil
 }

@@ -38,12 +38,9 @@ func (c *Pgx) GetByChannelID(ctx context.Context, channelID string) (
 	error,
 ) {
 	query := `
-SELECT ci.id, ci.enabled, ci."channelId", ci."integrationId", ci."accessToken",
-       ci."refreshToken", ci."clientId", ci."clientSecret", ci."apiKey",
-       ci.data
-FROM channels_integrations ci
-JOIN integrations i ON ci."integrationId" = i.id
-WHERE ci."channelId" = $1 AND i.service = 'DONATIONALERTS'
+SELECT id, public_id, channel_id, access_token, refresh_token, username, avatar, created_at, updated_at, enabled
+FROM channels_integrations_donationalerts
+WHERE channel_id = $1
 LIMIT 1;
 `
 
@@ -71,44 +68,42 @@ func (c *Pgx) Update(
 	opts donationalertsintegration.UpdateOpts,
 ) error {
 	query := `
-UPDATE channels_integrations as ci
+UPDATE channels_integrations_donationalerts
 SET
-	"enabled" = COALESCE($2, ci.enabled),
-	"accessToken" = COALESCE($3, ci."accessToken"),
-	"refreshToken" = COALESCE($4, ci."refreshToken"),
-	"clientId" = COALESCE($5, ci."clientId"),
-	"clientSecret" = COALESCE($6, ci."clientSecret"),
-	"apiKey" = COALESCE($7, ci."apiKey"),
-	data = COALESCE($8, ci.data)
-FROM integrations i
-WHERE ci."channelId" = $1
-  AND ci."integrationId" = i.id
-  AND i.service = 'DONATIONALERTS';
+	"enabled" = COALESCE($2, enabled),
+	"access_token" = COALESCE($3, "access_token"),
+	"refresh_token" = COALESCE($4, "refresh_token"),
+	username = COALESCE($5, username),
+	avatar = COALESCE($6, avatar),
+	updated_at = NOW()
+WHERE channel_id = $1
 `
 
-	_, err := c.pool.Exec(
+	cmd, err := c.pool.Exec(
 		ctx,
 		query,
 		opts.ChannelID,
 		opts.Enabled,
 		opts.AccessToken,
 		opts.RefreshToken,
-		opts.ClientID,
-		opts.ClientSecret,
-		opts.APIKey,
-		opts.Data,
+		opts.UserName,
+		opts.Avatar,
 	)
+	if err != nil {
+		return err
+	}
+
+	if cmd.RowsAffected() == 0 {
+		return donationalertsintegration.ErrNotFound
+	}
 
 	return err
 }
 
 func (c *Pgx) Delete(ctx context.Context, channelID string) error {
 	query := `
-DELETE FROM channels_integrations
-USING integrations i
-WHERE channels_integrations."channelId" = $1
-  AND channels_integrations."integrationId" = i.id
-  AND i.service = 'DONATIONALERTS';
+DELETE FROM channels_integrations_donationalerts
+WHERE channel_id = $1
 `
 
 	_, err := c.pool.Exec(ctx, query, channelID)
@@ -120,11 +115,8 @@ func (c *Pgx) Create(
 	opts donationalertsintegration.CreateOpts,
 ) error {
 	query := `
-INSERT INTO channels_integrations ("channelId", "integrationId", enabled, "accessToken",
-                                  "refreshToken", "clientId", "clientSecret", "apiKey", data)
-SELECT $1, i.id, $2, $3, $4, $5, $6, $7, $8
-FROM integrations i
-WHERE i.service = 'DONATIONALERTS';
+INSERT INTO channels_integrations_donationalerts (channel_id, enabled, access_token, refresh_token, username, avatar)
+VALUES ($1, $2, $3, $4, $5, $6)
 `
 
 	_, err := c.pool.Exec(
@@ -134,10 +126,8 @@ WHERE i.service = 'DONATIONALERTS';
 		opts.Enabled,
 		opts.AccessToken,
 		opts.RefreshToken,
-		opts.ClientID,
-		opts.ClientSecret,
-		opts.APIKey,
-		opts.Data,
+		opts.UserName,
+		opts.Avatar,
 	)
 
 	return err

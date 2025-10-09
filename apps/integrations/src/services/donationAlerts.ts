@@ -22,6 +22,8 @@ export const globalRequestLimiter = new RateLimiter({
 	windowMs: 1100,
 })
 
+export const rateLimiterKey = 'donationalerts'
+
 export class DonationAlerts {
 	#socket: Centrifuge | null
 	#channel: Subscription | null
@@ -38,7 +40,7 @@ export class DonationAlerts {
 			websocket: WebSocket,
 			onPrivateSubscribe: async (ctx, cb) => {
 				while (true) {
-					const { isAllowed } = await globalRequestLimiter.consume(this.twitchUserId)
+					const { isAllowed } = await globalRequestLimiter.consume(rateLimiterKey)
 					if (!isAllowed) {
 						await sleep(1000)
 						continue
@@ -50,7 +52,6 @@ export class DonationAlerts {
 							method: 'POST',
 							body: JSON.stringify(ctx.data),
 							headers: { Authorization: `Bearer ${this.accessToken}` },
-							verbose: true,
 						}
 					)
 
