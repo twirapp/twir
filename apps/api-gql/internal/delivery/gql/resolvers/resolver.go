@@ -5,7 +5,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/minio/minio-go/v7"
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
@@ -86,7 +86,7 @@ type Deps struct {
 	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedgormmodel.ChannelSongRequestsSettings]
 	Minio                            *minio.Client
 	TwirBus                          *bus_core.Bus
-	Redis                            *redis.Client
+	KV                               kv.KV
 	TwirStats                        *twir_stats.TwirStats
 
 	DashboardWidgetEventsService          *dashboard_widget_events.Service

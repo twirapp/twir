@@ -12,7 +12,6 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	helix "github.com/nicklaw5/helix/v2"
-	redis "github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -62,29 +61,6 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		Model(&model.UsersStats{}).
 		Where(`"channelId" = ?`, dashboardId).
 		Update(field, 0).Error
-	if err != nil {
-		return false, err
-	}
-
-	iter := r.deps.Redis.Scan(
-		ctx,
-		0,
-		fmt.Sprintf("bots:cache:ensureuser:%s:*", dashboardId),
-		100,
-	).Iterator()
-
-	_, err = r.deps.Redis.Pipelined(
-		ctx,
-		func(pipeliner redis.Pipeliner) error {
-			for iter.Next(ctx) {
-				if err := pipeliner.Del(ctx, iter.Val()).Err(); err != nil {
-					return err
-				}
-			}
-
-			return iter.Err()
-		},
-	)
 	if err != nil {
 		return false, err
 	}

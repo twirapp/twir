@@ -5,28 +5,26 @@ import (
 	"errors"
 	"fmt"
 	"time"
-
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	
 	"github.com/goccy/go-json"
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	"gorm.io/gorm"
 )
 
 type LoadFn[T any] func(ctx context.Context, key string) (T, error)
 
 type GenericCacher[T any] struct {
-	db    *gorm.DB
-	redis *redis.Client
+	db *gorm.DB
+	kv kv.KV
 
 	keyPrefix string
 	loadFn    LoadFn[T]
 	ttl       time.Duration
-	mu        *redsync.Mutex
 }
 
 type Opts[T any] struct {
-	Redis *redis.Client
+	KV kv.KV
 
 	KeyPrefix string
 	LoadFn    LoadFn[T]
@@ -34,24 +32,19 @@ type Opts[T any] struct {
 }
 
 func New[T any](opts Opts[T]) *GenericCacher[T] {
-	pool := goredis.NewPool(opts.Redis)
-	rs := redsync.New(pool)
-	mutex := rs.NewMutex(opts.KeyPrefix + "-mutex")
-
 	return &GenericCacher[T]{
-		redis:     opts.Redis,
+		kv:        opts.KV,
 		keyPrefix: opts.KeyPrefix,
 		loadFn:    opts.LoadFn,
 		ttl:       opts.Ttl,
-		mu:        mutex,
 	}
 }
 
 func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 	var value T
 
-	cacheBytes, err := c.redis.Get(ctx, c.keyPrefix+key).Bytes()
-	if err != nil && !errors.Is(err, redis.Nil) {
+	cacheBytes, err := c.kv.Get(ctx, c.keyPrefix+key).Bytes()
+	if err != nil && !errors.Is(err, kv.ErrKeyNil) {
 		return value, fmt.Errorf("failed to get commands from cache: %w", err)
 	}
 
@@ -75,12 +68,12 @@ func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 		return value, fmt.Errorf("failed to marshal commands: %w", err)
 	}
 
-	if err := c.redis.Set(
+	if err := c.kv.Set(
 		ctx,
 		c.keyPrefix+key,
 		cacheBytes,
-		c.ttl,
-	).Err(); err != nil {
+		kvoptions.WithExpire(c.ttl),
+	); err != nil {
 		return value, fmt.Errorf("failed to set commands to cache: %w", err)
 	}
 
@@ -91,7 +84,7 @@ func (c *GenericCacher[T]) Invalidate(ctx context.Context, key string) error {
 	// c.mu.Lock()
 	// defer c.mu.Unlock()
 
-	err := c.redis.Del(ctx, c.keyPrefix+key).Err()
+	err := c.kv.Delete(ctx, c.keyPrefix+key)
 	if err != nil {
 		return fmt.Errorf("failed to delete commands from cache: %w", err)
 	}
@@ -108,12 +101,12 @@ func (c *GenericCacher[T]) SetValue(ctx context.Context, key string, newValue T)
 		return fmt.Errorf("failed to marshal commands: %w", err)
 	}
 
-	if err := c.redis.Set(
+	if err := c.kv.Set(
 		ctx,
 		c.keyPrefix+key,
 		cacheBytes,
-		c.ttl,
-	).Err(); err != nil {
+		kvoptions.WithExpire(c.ttl),
+	); err != nil {
 		return fmt.Errorf("failed to set commands to cache: %w", err)
 	}
 
@@ -140,12 +133,12 @@ func (c *GenericCacher[T]) SetValueFiltered(
 		return fmt.Errorf("failed to marshal commands: %w", err)
 	}
 
-	if err := c.redis.Set(
+	if err := c.kv.Set(
 		ctx,
 		c.keyPrefix+key,
 		cacheBytes,
-		c.ttl,
-	).Err(); err != nil {
+		kvoptions.WithExpire(c.ttl),
+	); err != nil {
 		return fmt.Errorf("failed to set commands to cache: %w", err)
 	}
 

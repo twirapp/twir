@@ -8,7 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -17,20 +18,20 @@ import (
 type Opts struct {
 	fx.In
 
-	Gorm  *gorm.DB
-	Redis *redis.Client
+	Gorm *gorm.DB
+	KV   kv.KV
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		gorm:  opts.Gorm,
-		redis: opts.Redis,
+		gorm: opts.Gorm,
+		kv:   opts.KV,
 	}
 }
 
 type Service struct {
-	gorm  *gorm.DB
-	redis *redis.Client
+	gorm *gorm.DB
+	kv   kv.KV
 }
 
 func (c *Service) GetIDByChannelID(ctx context.Context, channelID string) (*uuid.UUID, error) {
@@ -113,9 +114,13 @@ func (c *Service) PostCode(ctx context.Context, channelID string, secret string)
 		return err
 	}
 
-	if err := c.redis.
-		Set(ctx, donateStreamConfirmationKey+channelIntegration.ID, secret, 1*time.Hour).
-		Err(); err != nil {
+	if err := c.kv.
+		Set(
+			ctx,
+			donateStreamConfirmationKey+channelIntegration.ID,
+			secret,
+			kvoptions.WithExpire(1*time.Hour),
+		); err != nil {
 		return err
 	}
 

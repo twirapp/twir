@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"gorm.io/gorm"
@@ -15,11 +15,11 @@ import (
 
 func NewTTSSettings(
 	gorm *gorm.DB,
-	redis *redis.Client,
+	kv kv.KV,
 ) *generic_cacher.GenericCacher[modules.TTSSettings] {
 	return generic_cacher.New[modules.TTSSettings](
 		generic_cacher.Opts[modules.TTSSettings]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:tts-settings:channel:",
 			LoadFn: func(ctx context.Context, key string) (modules.TTSSettings, error) {
 				entity := &model.ChannelModulesSettings{}

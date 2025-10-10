@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/alerts"
 	"github.com/twirapp/twir/libs/repositories/alerts/model"
@@ -12,11 +12,11 @@ import (
 
 func New(
 	repository alerts.Repository,
-	redis *redis.Client,
+	kv kv.KV,
 ) *generic_cacher.GenericCacher[[]model.Alert] {
 	return generic_cacher.New[[]model.Alert](
 		generic_cacher.Opts[[]model.Alert]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:channels_alerts:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]model.Alert, error) {
 				return repository.GetManyByChannelID(ctx, key)

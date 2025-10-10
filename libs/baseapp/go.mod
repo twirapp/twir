@@ -9,14 +9,7 @@ require (
 	github.com/exaring/otelpgx v0.9.3
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/redis/go-redis/extra/redisotel/v9 v9.11.0
-	github.com/redis/go-redis/v9 v9.11.0
-
-
-
-
-
-
-
+	github.com/redis/go-redis/v9 v9.14.0
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0
@@ -68,6 +61,7 @@ require (
 	github.com/samber/slog-zerolog/v2 v2.7.3 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
+	github.com/twirapp/kv v0.0.4 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
 	github.com/uptrace/uptrace-go v1.37.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect

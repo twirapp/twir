@@ -4,20 +4,20 @@ import (
 	"context"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	config "github.com/twirapp/twir/libs/config"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 )
 
 func New(
-	redis *redis.Client,
+	kv kv.KV,
 	cfg config.Config,
 ) *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser] {
 	return generic_cacher.New[seventvintegrationapi.TwirSeventvUser](
 		generic_cacher.Opts[seventvintegrationapi.TwirSeventvUser]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:seventv:profilev2:",
 			LoadFn: func(ctx context.Context, key string) (
 				seventvintegrationapi.TwirSeventvUser,
