@@ -101,11 +101,11 @@ import FormMessage from '@/components/ui/form/FormMessage.vue';
 import Input from '@/components/ui/input/Input.vue'; // Example custom input
 import Switch from '@/components/ui/switch/Switch.vue'; // Example custom switch
 
-const formSchema = toTypedSchema(z.object({
+const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Must be a valid email.'),
   subscribe: z.boolean().default(false),
-}));
+});
 
 const { handleSubmit, defineField } = useForm({
   validationSchema: formSchema,
