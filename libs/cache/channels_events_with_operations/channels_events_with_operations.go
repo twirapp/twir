@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/events"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -12,11 +12,11 @@ import (
 
 func New(
 	repo events.Repository,
-	redis *redis.Client,
+	kv kv.KV,
 ) *generic_cacher.GenericCacher[[]model.Event] {
 	return generic_cacher.New(
 		generic_cacher.Opts[[]model.Event]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:channels_events_with_operations:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]model.Event, error) {
 				data, err := repo.GetManyByChannelID(ctx, key)

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/redis/go-redis/v9"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 
@@ -21,11 +21,11 @@ var ErrChatAlertNotFound = errors.New("not found")
 
 func New(
 	db *gorm.DB,
-	redis *redis.Client,
+	kv kv.KV,
 ) *generic_cacher.GenericCacher[ChatAlert] {
 	return generic_cacher.New[ChatAlert](
 		generic_cacher.Opts[ChatAlert]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:chat_alerts:channel:",
 			LoadFn: func(ctx context.Context, key string) (ChatAlert, error) {
 				entity := model.ChannelModulesSettings{}

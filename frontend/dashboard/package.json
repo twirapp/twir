@@ -35,6 +35,7 @@
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
     "@twir/frontend-faceit-stats": "workspace:*",
+    "@twir/frontend-valorant-stats": "workspace:*",
     "@twir/frontend-now-playing": "workspace:*",
     "@twir/types": "workspace:*",
     "@twirapp/kappagen": "1.2.1",

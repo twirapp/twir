@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
+	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
-	commandscache "github.com/twirapp/twir/libs/cache/commands"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -23,8 +23,8 @@ type ExpiredCommandsOpts struct {
 	Logger logger.Logger
 	Config config.Config
 
-	Gorm        *gorm.DB
-	RedisClient *redis.Client
+	Gorm *gorm.DB
+	KV   kv.KV
 }
 
 type expiredCommands struct {
@@ -47,7 +47,7 @@ func NewExpiredCommands(opts ExpiredCommandsOpts) *expiredCommands {
 		config:        opts.Config,
 		logger:        opts.Logger,
 		db:            opts.Gorm,
-		commandsCache: commandscache.New(opts.Gorm, opts.RedisClient),
+		commandsCache: commandscache.New(opts.Gorm, opts.KV),
 	}
 
 	opts.Lc.Append(

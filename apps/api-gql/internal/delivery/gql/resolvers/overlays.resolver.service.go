@@ -696,7 +696,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 		now_playing_fetcher.Opts{
 			Gorm:              r.deps.Gorm,
 			ChannelID:         user.ID,
-			Redis:             r.deps.Redis,
+			Kv:                r.deps.KV,
 			Logger:            r.deps.Logger,
 			SpotifyRepository: r.deps.SpotifyRepository,
 		},

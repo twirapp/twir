@@ -10,14 +10,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/kv"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"gorm.io/gorm"
 )
 
@@ -32,13 +32,13 @@ type Commands struct {
 func NewCommands(
 	db *gorm.DB,
 	l logger.Logger,
-	redisClient *redis.Client,
+	kvStorage kv.KV,
 	buscore *buscore.Bus,
 ) *Commands {
 	return &Commands{
 		db:            db,
 		logger:        l,
-		commandsCache: commandscache.New(db, redisClient),
+		commandsCache: commandscache.New(db, kvStorage),
 		BusCore:       buscore,
 	}
 }

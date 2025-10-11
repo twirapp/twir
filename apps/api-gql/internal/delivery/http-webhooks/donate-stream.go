@@ -35,12 +35,12 @@ func (c *Webhooks) donateStreamHandler(g *gin.Context) {
 	}
 
 	if body.Type == "confirm" {
-		value, err := c.redis.Get(
+		value, err := c.kv.Get(
 			g.Request.Context(),
 			"donate_stream_confirmation"+integration.ID,
-		).Result()
+		).String()
 		if err != nil {
-			c.logger.Error("cannot get confirmation from redis", slog.Any("err", err))
+			c.logger.Error("cannot get confirmation from kv", slog.Any("err", err))
 			g.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
 			return
 		}

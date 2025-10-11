@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/chat_wall"
 	"github.com/twirapp/twir/libs/repositories/chat_wall/model"
@@ -12,11 +12,11 @@ import (
 
 func NewEnabledOnly(
 	repo chat_wall.Repository,
-	redis *redis.Client,
+	kv kv.KV,
 ) *generic_cacher.GenericCacher[[]model.ChatWall] {
 	return generic_cacher.New[[]model.ChatWall](
 		generic_cacher.Opts[[]model.ChatWall]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:channels_chat_wall:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]model.ChatWall, error) {
 				enabled := true
@@ -36,11 +36,11 @@ func NewEnabledOnly(
 
 func NewSettings(
 	repo chat_wall.Repository,
-	redis *redis.Client,
+	kv kv.KV,
 ) *generic_cacher.GenericCacher[model.ChatWallSettings] {
 	return generic_cacher.New[model.ChatWallSettings](
 		generic_cacher.Opts[model.ChatWallSettings]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:channels_chat_wall_settings:channel:",
 			LoadFn: func(ctx context.Context, key string) (model.ChatWallSettings, error) {
 				return repo.GetChannelSettings(

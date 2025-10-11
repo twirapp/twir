@@ -4,19 +4,19 @@ import (
 	"context"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 
 func New(
 	db *gorm.DB,
-	redis *redis.Client,
+	kv kv.KV,
 ) *generic_cacher.GenericCacher[[]model.ChannelsCommands] {
 	return generic_cacher.New[[]model.ChannelsCommands](
 		generic_cacher.Opts[[]model.ChannelsCommands]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:commands:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]model.ChannelsCommands, error) {
 				var commands []model.ChannelsCommands
