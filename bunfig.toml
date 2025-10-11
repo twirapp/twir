@@ -1,4 +1,5 @@
 [install]
 exact = true
-peer = false
+peer = true
 optional = true
+linker = "hoisted"
