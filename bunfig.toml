@@ -1,4 +1,4 @@
 [install]
 exact = true
-peer = true
+peer = false
 optional = true
