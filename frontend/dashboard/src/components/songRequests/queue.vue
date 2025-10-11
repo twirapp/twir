@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { dragAndDrop } from '@formkit/drag-and-drop/vue'
-import {
-	IconBan,
-	IconGripVertical,
-	IconTrash,
-} from '@tabler/icons-vue'
-import {
-	NCard,
-	NPopconfirm,
-	NTime,
-} from 'naive-ui'
+import { IconBan, IconGripVertical, IconTrash } from '@tabler/icons-vue'
+import { NCard, NPopconfirm, NTime } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -29,14 +21,7 @@ import {
 } from '@/components/ui/table'
 import { convertMillisToTime } from '@/helpers/convertMillisToTime.js'
 
-const {
-	videos,
-	moveVideo,
-	banSong,
-	banUser,
-	deleteVideo,
-	deleteAllVideos,
-} = useYoutubeSocket()
+const { videos, moveVideo, banSong, banUser, deleteVideo, deleteAllVideos } = useYoutubeSocket()
 
 const { t } = useI18n()
 
@@ -83,18 +68,12 @@ const showConfirmClear = ref(false)
 			<TableHeader>
 				<TableRow>
 					<TableHead class="w-[1%]"></TableHead>
-					<TableHead class="w-[5%]">
-						#
-					</TableHead>
+					<TableHead class="w-[5%]"> # </TableHead>
 					<TableHead>Name</TableHead>
 					<TableHead>Author</TableHead>
 					<TableHead></TableHead>
-					<TableHead>
-						Duration
-					</TableHead>
-					<TableHead>
-						Actions
-					</TableHead>
+					<TableHead> Duration </TableHead>
+					<TableHead> Actions </TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody ref="parentRef">
@@ -141,13 +120,22 @@ const showConfirmClear = ref(false)
 						</div>
 					</TableCell>
 					<TableCell>
-						<NTime type="relative" :time="0" :to="Date.now() - new Date(video.createdAt).getTime()" />
+						<NTime
+							type="relative"
+							:time="0"
+							:to="Date.now() - new Date(video.createdAt).getTime()"
+						/>
 					</TableCell>
 					<TableCell>
 						{{ convertMillisToTime(video.duration * 1000) }}
 					</TableCell>
 					<TableCell>
-						<Button class="min-w-5" size="icon" variant="destructive" @click="deleteVideo(video.id)">
+						<Button
+							class="min-w-5"
+							size="icon"
+							variant="destructive"
+							@click="deleteVideo(video.id)"
+						>
 							<IconTrash class="size-5" />
 						</Button>
 					</TableCell>
