@@ -2,4 +2,3 @@
 exact = true
 peer = true
 optional = true
-linkWorkspacePackages = true
