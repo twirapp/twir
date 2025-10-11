@@ -31,9 +31,7 @@ const totalSongsLength = computed(() => {
 
 const parentRef = ref<HTMLElement>()
 dragAndDrop({
-	// @ts-expect-error
 	parent: parentRef,
-	// @ts-expect-error
 	values: videos,
 	dragHandle: '.drag-handle',
 	draggable(child) {
