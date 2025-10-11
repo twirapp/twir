@@ -7,7 +7,9 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/apps/parser/pkg/helpers"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var CountDown = &types.Variable{
@@ -27,13 +29,13 @@ var CountDown = &types.Variable{
 		result := &types.VariableHandlerResult{}
 
 		if variableData.Params == nil {
-			result.Result = "Have not passed params to variable. "
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Countdown.Errors.NotPassedParams)
 			return result, nil
 		}
 
 		parsedTime, err := dateparse.ParseAny(*variableData.Params)
 		if err != nil {
-			result.Result = "Cannot parse date"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Countdown.Errors.ParseDate)
 			return result, nil
 		}
 

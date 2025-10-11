@@ -47,7 +47,8 @@ var EmoteFind = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysCommandsSeventvErrorsProfileNotFoundVars{Reason: err.Error()}),
+					locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+						SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
 				),
 				Err: err,
 			}
@@ -55,7 +56,10 @@ var EmoteFind = &types.DefaultCommand{
 
 		if profile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Errors.NoActiveSet),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.EmotesetNotActive,
+				),
 			}
 		}
 
@@ -79,9 +83,8 @@ var EmoteFind = &types.DefaultCommand{
 				Result: []string{
 					i18n.GetCtx(
 						ctx,
-						locales.Translations.Commands.Seventv.Errors.EmoteNotFound.SetVars(
-							locales.KeysCommandsSeventvErrorsEmoteNotFoundVars{Name: arg},
-						),
+						locales.Translations.Commands.Seventv.Errors.EmoteNotFound.
+							SetVars(locales.KeysCommandsSeventvErrorsEmoteNotFoundVars{EmoteName: arg}),
 					),
 				},
 			}, nil
@@ -92,7 +95,8 @@ var EmoteFind = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysCommandsSeventvErrorsProfileNotFoundVars{Reason: err.Error()}),
+					locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+						SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
 				),
 				Err: err,
 			}
@@ -102,7 +106,8 @@ var EmoteFind = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysCommandsSeventvErrorsProfileNotFoundVars{Reason: ""}),
+					locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+						SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
 				),
 				Err: err,
 			}
@@ -128,15 +133,14 @@ var EmoteFind = &types.DefaultCommand{
 		return &types.CommandsHandlerResult{
 			Result: []string{
 				i18n.GetCtx(
-					ctx, locales.Translations.Commands.Seventv.EmoteInfo.Response.SetVars(
-						locales.KeysCommandsSeventvEmoteInfoResponseVars{
+					ctx, locales.Translations.Commands.Seventv.EmoteInfo.Response.
+						SetVars(locales.KeysCommandsSeventvEmoteInfoResponseVars{
 							Name:            foundEmote.Emote.DefaultName,
 							Link:            emoteLink,
 							AddedByUserName: adderProfile.Users.User.MainConnection.PlatformDisplayName,
 							AddedByTime:     addedAgo,
 							EmoteAuthor:     author,
-						},
-					),
+						}),
 				),
 			},
 		}, nil

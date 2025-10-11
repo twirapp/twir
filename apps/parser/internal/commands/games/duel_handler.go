@@ -11,9 +11,11 @@ import (
 	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
+	"github.com/twirapp/twir/libs/twitch"
 	"gorm.io/gorm"
 )
 
@@ -63,14 +65,17 @@ func (c *duelHandler) getTwitchTargetUser() (helix.User, error) {
 
 	userRequest, err := c.helixClient.GetUsers(&helix.UsersParams{Logins: []string{targetUserName}})
 	if err != nil {
-		return helix.User{}, fmt.Errorf("cannot get user: %w", err)
+		return helix.User{}, fmt.Errorf(i18n.Get(
+			locales.Translations.Errors.Generic.CannotGetUser.
+				SetVars(locales.KeysErrorsGenericCannotGetUserVars{Reason: err.Error()}),
+		))
 	}
 	if userRequest.ErrorMessage != "" {
 		return helix.User{}, errors.New(userRequest.ErrorMessage)
 	}
 
 	if len(userRequest.Data.Users) == 0 {
-		return helix.User{}, errors.New("user not found")
+		return helix.User{}, errors.New(i18n.Get(locales.Translations.Errors.Generic.UserNotFound))
 	}
 
 	return userRequest.Data.Users[0], nil
@@ -107,7 +112,11 @@ func (c *duelHandler) getUserCurrentDuel(ctx context.Context, userId string) (
 		return nil, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("cannot check user in duel: %w", err)
+		return nil, fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Games.Errors.DuelCannotCheckUser.
+				SetVars(locales.KeysCommandsGamesErrorsDuelCannotCheckUserVars{Reason: err.Error()}),
+		))
 	}
 
 	return &duel, nil
@@ -128,29 +137,37 @@ func (c *duelHandler) validateParticipants(
 	dbChannel model.Channels,
 ) error {
 	if targetUserId == c.parseCtx.Sender.ID {
-		return &targetValidateError{message: "you cannot duel with yourself"}
+		return &targetValidateError{message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelWithYourself)}
 	}
 	if targetUserId == c.parseCtx.Channel.ID {
-		return &targetValidateError{message: "you cannot duel with streamer"}
+		return &targetValidateError{message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelWithStreamer)}
 	}
 	if dbChannel.BotID == targetUserId {
-		return &targetValidateError{message: "you cannot duel with bot"}
+		return &targetValidateError{message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelWithBot)}
 	}
 
 	targetDuelUser, err := c.getUserCurrentDuel(ctx, targetUserId)
 	if err != nil {
-		return fmt.Errorf("cannot check user in duel: %w", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Games.Errors.DuelCannotCheckUser.
+				SetVars(locales.KeysCommandsGamesErrorsDuelCannotCheckUserVars{Reason: err.Error()}),
+		))
 	}
 	if targetDuelUser != nil {
-		return &targetValidateError{message: "target user already in duel"}
+		return &targetValidateError{message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Info.UserAlreadyInDuel)}
 	}
 
 	senderDuel, err := c.getUserCurrentDuel(ctx, senderUserId)
 	if err != nil {
-		return fmt.Errorf("cannot check user in duel: %w", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Games.Errors.DuelCannotCheckUser.
+				SetVars(locales.KeysCommandsGamesErrorsDuelCannotCheckUserVars{Reason: err.Error()}),
+		))
 	}
 	if senderDuel != nil {
-		return &targetValidateError{message: "you already in duel"}
+		return &targetValidateError{message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Info.SenderAlreadyInDuel)}
 	}
 
 	return nil
@@ -163,7 +180,10 @@ func (c *duelHandler) getChannelModerators() ([]helix.Moderator, error) {
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get moderators: %w", err)
+		return nil, fmt.Errorf(i18n.Get(
+			locales.Translations.Errors.Generic.CannotGetModerators.
+				SetVars(locales.KeysErrorsGenericCannotGetModeratorsVars{Reason: err.Error()}),
+		))
 	}
 	if moderatorsRequest.ErrorMessage != "" {
 		return nil, errors.New(moderatorsRequest.ErrorMessage)
@@ -205,7 +225,11 @@ func (c *duelHandler) saveDuelData(
 	}
 
 	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Create(&entity).Error; err != nil {
-		return fmt.Errorf("cannot save duel data: %w", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Games.Errors.DuelCannotSaveData.
+				SetVars(locales.KeysCommandsGamesErrorsDuelCannotSaveDataVars{Reason: err.Error()}),
+		))
 	}
 
 	return nil
@@ -241,7 +265,11 @@ func (c *duelHandler) saveResult(
 	data.FinishedAt = null.TimeFrom(time.Now())
 
 	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Save(&data).Error; err != nil {
-		return fmt.Errorf("cannot save duel result: %w", err)
+		return fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Games.Errors.DuelCannotSaveResult.
+				SetVars(locales.KeysCommandsGamesErrorsDuelCannotSaveResultVars{Reason: err.Error()}),
+		))
 	}
 
 	if settings.UserCooldown != 0 {
@@ -253,7 +281,11 @@ func (c *duelHandler) saveResult(
 		).Result()
 
 		if err != nil {
-			return fmt.Errorf("cannot set user cooldown: %w", err)
+			return fmt.Errorf(i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Games.Errors.DuelCannotSetUserCooldown.
+					SetVars(locales.KeysCommandsGamesErrorsDuelCannotSetUserCooldownVars{Reason: err.Error()}),
+			))
 		}
 	}
 
@@ -266,7 +298,11 @@ func (c *duelHandler) saveResult(
 		).Result()
 
 		if err != nil {
-			return fmt.Errorf("cannot set global cooldown: %w", err)
+			return fmt.Errorf(i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Games.Errors.DuelCannotSetGlobalCooldown.
+					SetVars(locales.KeysCommandsGamesErrorsDuelCannotSetGlobalCooldownVars{Reason: err.Error()}),
+			))
 		}
 	}
 
@@ -279,7 +315,11 @@ func (c *duelHandler) isCooldown(ctx context.Context, userID string) (bool, erro
 		"duels:cooldown:"+userID,
 	).Result()
 	if err != nil {
-		return false, fmt.Errorf("cannot check cooldown: %w", err)
+		return false, fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Games.Errors.DuelCannotCheckCooldown.
+				SetVars(locales.KeysCommandsGamesErrorsDuelCannotCheckCooldownVars{Reason: err.Error()}),
+		))
 	}
 
 	if isUserCooldown == 1 {
@@ -291,7 +331,11 @@ func (c *duelHandler) isCooldown(ctx context.Context, userID string) (bool, erro
 		"duels:cooldown:global",
 	).Result()
 	if err != nil {
-		return false, fmt.Errorf("cannot check cooldown: %w", err)
+		return false, fmt.Errorf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Games.Errors.DuelCannotCheckCooldown.
+				SetVars(locales.KeysCommandsGamesErrorsDuelCannotCheckCooldownVars{Reason: err.Error()}),
+		))
 	}
 
 	if isGlobalCooldown == 1 {

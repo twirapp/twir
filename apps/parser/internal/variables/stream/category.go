@@ -5,6 +5,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Category = &types.Variable{
@@ -23,7 +25,7 @@ var Category = &types.Variable{
 			if channelInfo != nil {
 				result.Result = channelInfo.GameName
 			} else {
-				result.Result = "error"
+				result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Stream.Errors.Error)
 			}
 		}
 

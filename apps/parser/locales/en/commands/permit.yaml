@@ -1,0 +1,4 @@
+errors:
+  cannot_create: Cannot create permit
+success:
+  added_permit: '✅ Added {countPermit} permits to {userName}'

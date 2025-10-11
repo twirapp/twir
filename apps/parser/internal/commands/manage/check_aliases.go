@@ -8,8 +8,10 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 const (
@@ -48,18 +50,18 @@ var CheckAliasesCommand = &types.DefaultCommand{
 			Error
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get command",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetCommand),
 				Err:     err,
 			}
 		}
 
 		if cmd.ID == "" {
-			result.Result = append(result.Result, "command with that name not found.")
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandWithNameCannotFind))
 			return result, nil
 		}
 
 		if len(cmd.Aliases) == 0 {
-			result.Result = append(result.Result, "command have no aliases")
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandHaveNoAliases))
 			return result, nil
 		}
 

@@ -43,7 +43,7 @@ var List = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Vips.CannotGetListFromDb,
+					locales.Translations.Commands.Vips.Errors.CannotGetListFromDb,
 				),
 				Err: err,
 			}
@@ -56,7 +56,7 @@ var List = &types.DefaultCommand{
 			result.Result = []string{
 				i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Vips.NoScheduledVips,
+					locales.Translations.Commands.Vips.Errors.NoScheduledVips,
 				),
 			}
 			return result, nil

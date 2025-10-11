@@ -33,11 +33,11 @@ var Add = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: "user",
-			Hint: "@username",
+			Hint: i18n.Get(locales.Translations.Commands.Vips.Hints.User),
 		},
 		command_arguments.VariadicString{
 			Name:     "unvip_in",
-			Hint:     "time in, example: 1w5d1m5s",
+			Hint:     i18n.Get(locales.Translations.Commands.Vips.Hints.UnvipIn),
 			Optional: true,
 		},
 	},
@@ -53,7 +53,7 @@ var Add = &types.DefaultCommand{
 				return nil, &types.CommandHandlerError{
 					Message: i18n.GetCtx(
 						ctx,
-						locales.Translations.Commands.Vips.InvalidDuration,
+						locales.Translations.Commands.Vips.Errors.InvalidDuration,
 					),
 					Err: err,
 				}
@@ -108,7 +108,7 @@ var Add = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Vips.AlreadyHaveRole,
+					locales.Translations.Commands.Vips.Errors.AlreadyHaveRole,
 				),
 			}
 		}
@@ -150,7 +150,7 @@ var Add = &types.DefaultCommand{
 					return &types.CommandHandlerError{
 						Message: i18n.GetCtx(
 							ctx,
-							locales.Translations.Commands.Vips.CannotCreateScheduledInDb,
+							locales.Translations.Commands.Vips.Errors.CannotCreateScheduledInDb,
 						),
 						Err: err,
 					}
@@ -175,8 +175,8 @@ var Add = &types.DefaultCommand{
 				result.Result,
 				i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Vips.AddedWithRemoveTime.SetVars(
-						locales.KeysCommandsVipsAddedWithRemoveTimeVars{
+					locales.Translations.Commands.Vips.Errors.AddedWithRemoveTime.SetVars(
+						locales.KeysCommandsVipsErrorsAddedWithRemoveTimeVars{
 							UserName: user.UserName,
 							EndTime:  unvipAt.Format("2006-01-02 15:04:05"),
 						},
@@ -188,8 +188,8 @@ var Add = &types.DefaultCommand{
 				result.Result,
 				i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Vips.Added.SetVars(
-						locales.KeysCommandsVipsAddedVars{
+					locales.Translations.Commands.Vips.Errors.Added.SetVars(
+						locales.KeysCommandsVipsErrorsAddedVars{
 							UserName: user.UserName,
 						},
 					),

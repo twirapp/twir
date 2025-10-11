@@ -2,14 +2,15 @@ package seventv
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	seventvvariables "github.com/twirapp/twir/apps/parser/internal/variables/7tv"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 const profileArg = "channelName"
@@ -30,7 +31,7 @@ var Profile = &types.DefaultCommand{
 		command_arguments.String{
 			Name:     profileArg,
 			Optional: true,
-			Hint:     "@channelName",
+			Hint:     i18n.Get(locales.Translations.Commands.Seventv.Hints.CopySetChannelName),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -45,24 +46,28 @@ var Profile = &types.DefaultCommand{
 		if _, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, userIdForCheck); err != nil {
 			return &types.CommandsHandlerResult{
 				Result: []string{
-					"7tv profile not found",
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.ProfileNotFound,
+					),
 				},
 			}, nil
 		}
 
 		result := &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(
-					"$(%s) · Paint: $(%s) ($(%s) unlocked) · Roles: $(%s) · Editor for $(%s) · Set: $(%s) ($(%s)/$(%s)) · Created: $(%s)",
-					seventvvariables.ProfileLink.Name,
-					seventvvariables.Paint.Name,
-					seventvvariables.UnlockedPaints.Name,
-					seventvvariables.Roles.Name,
-					seventvvariables.EditorForCount.Name,
-					seventvvariables.EmoteSetName.Name,
-					seventvvariables.EmoteSetCount.Name,
-					seventvvariables.EmoteSetCapacity.Name,
-					seventvvariables.ProfileCreatedAt.Name,
+				i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.ProfileInfo.Response.
+					SetVars(locales.KeysCommandsSeventvProfileInfoResponseVars{
+						ProfileName:      seventvvariables.ProfileLink.Name,
+						PaintName:        seventvvariables.Paint.Name,
+						UnlockedPaints:   seventvvariables.UnlockedPaints.Name,
+						Roles:            seventvvariables.Roles.Name,
+						EditorCount:      seventvvariables.EditorForCount.Name,
+						EmoteSetName:     seventvvariables.EmoteSetName.Name,
+						EmoteSetCount:    seventvvariables.EmoteSetCount.Name,
+						EmoteSetCapacity: seventvvariables.EmoteSetCapacity.Name,
+						ProfileCreatedAt: seventvvariables.ProfileCreatedAt.Name,
+					}),
 				),
 			},
 		}

@@ -10,9 +10,11 @@ import (
 	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +41,7 @@ var SkipCommand = &types.DefaultCommand{
 				return result, nil
 			} else {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get songrequests settings",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
 					Err:     err,
 				}
 			}
@@ -59,13 +61,13 @@ var SkipCommand = &types.DefaultCommand{
 
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get current song",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetCurrentSong),
 				Err:     err,
 			}
 		}
 
 		if currentSong.ID == "" {
-			result.Result = append(result.Result, "Current song not found")
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.NotFound))
 			return result, nil
 		}
 
@@ -78,7 +80,7 @@ var SkipCommand = &types.DefaultCommand{
 
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get online users count",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetUsersCount),
 				Err:     err,
 			}
 		}
@@ -87,7 +89,7 @@ var SkipCommand = &types.DefaultCommand{
 		votesCount, err := parseCtx.Services.Redis.SCard(ctx, redisKey).Result()
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get votes count",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetVotesCount),
 				Err:     err,
 			}
 		}
@@ -99,7 +101,7 @@ var SkipCommand = &types.DefaultCommand{
 		).Result()
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get current vote",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetCurrentVote),
 				Err:     err,
 			}
 		}
@@ -125,7 +127,7 @@ var SkipCommand = &types.DefaultCommand{
 
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot remove song from queue",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.RemoveSongFromQueue),
 					Err:     err,
 				}
 			}
@@ -134,7 +136,11 @@ var SkipCommand = &types.DefaultCommand{
 			parseCtx.Services.Gorm.WithContext(ctx).Updates(currentSong)
 			parseCtx.Services.Redis.Del(ctx, redisKey)
 
-			result.Result = append(result.Result, fmt.Sprintf("Song %s skipped", currentSong.Title))
+			result.Result = append(result.Result, i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Songrequest.Info.SongSkipped.
+					SetVars(locales.KeysCommandsSongrequestInfoSongSkippedVars{SongTitle: currentSong.Title})),
+			)
 			return result, nil
 		}
 

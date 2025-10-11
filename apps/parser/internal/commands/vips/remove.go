@@ -30,7 +30,7 @@ var Remove = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: "user",
-			Hint: "@username",
+			Hint: i18n.Get(locales.Translations.Commands.Vips.Hints.User),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -85,8 +85,8 @@ var Remove = &types.DefaultCommand{
 			Result: []string{
 				i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Vips.Removed.SetVars(
-						locales.KeysCommandsVipsRemovedVars{
+					locales.Translations.Commands.Vips.Errors.Removed.SetVars(
+						locales.KeysCommandsVipsErrorsRemovedVars{
 							UserName: user.UserName,
 						},
 					),

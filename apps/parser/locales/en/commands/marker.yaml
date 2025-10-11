@@ -1,5 +1,4 @@
 errors:
-  cannot_create_marker: Cannot create marker. {reason}
+  cannot_create_marker: 'Cannot create marker. {reason}'
 success:
-  marker_created: Marker created.
-
+  marker_created: Marker created

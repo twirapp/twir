@@ -6,6 +6,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Phrase = &types.Variable{
@@ -20,20 +22,20 @@ var Phrase = &types.Variable{
 		result := &types.VariableHandlerResult{}
 
 		if variableData.Params == nil {
-			result.Result = "Parameters are not specified"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Random.Errors.ParametersNotSpecified)
 			return result, nil
 		}
 
 		params := strings.Split(*variableData.Params, "|")
 		if params == nil {
-			result.Result = "Something is wrong with your params"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Random.Errors.WrongWithParams)
 			return result, nil
 		}
 
 		for i, str := range params {
 			params[i] = strings.TrimSpace(str)
 			if len(params[i]) == 0 {
-				result.Result = "Your phrases contains empty phrase, check you writed commas correctly."
+				result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Random.Errors.EmptyPhrase)
 				return result, nil
 			}
 		}

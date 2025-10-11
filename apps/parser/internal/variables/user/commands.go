@@ -6,6 +6,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 )
 
@@ -35,7 +37,7 @@ var Commands = &types.Variable{
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 
-			result.Result = "internal error"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Errors.Generic.Internal)
 			return result, nil
 		}
 

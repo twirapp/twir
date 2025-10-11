@@ -9,9 +9,11 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"gorm.io/gorm"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var DelCommand = &types.DefaultCommand{
@@ -53,18 +55,18 @@ var DelCommand = &types.DefaultCommand{
 
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				result.Result = append(result.Result, "Command not found.")
+				result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandNotFound))
 				return result, nil
 			} else {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get command",
+					Message: i18n.Get(locales.Translations.Commands.Manage.Errors.CommandCannotGet),
 					Err:     err,
 				}
 			}
 		}
 
 		if cmd.Default {
-			result.Result = append(result.Result, "Cannot delete default command.")
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotDeleteDefault))
 			return result, nil
 		}
 
@@ -75,7 +77,7 @@ var DelCommand = &types.DefaultCommand{
 
 		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
 
-		result.Result = append(result.Result, "✅ Command removed.")
+		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Remove.CommandRemoved))
 		return result, nil
 	},
 }

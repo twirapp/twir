@@ -7,7 +7,9 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Matches = &types.Variable{
@@ -67,13 +69,10 @@ var Matches = &types.Variable{
 
 			trend = append(
 				trend,
-				fmt.Sprintf(
-					"%s(%d/%d) — %s %s",
-					matchResultString,
-					team.RoundsWon,
-					team.RoundsLost,
-					char,
-					KDA,
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Variables.Valorant.Info.Matches.
+						SetVars(locales.KeysVariablesValorantInfoMatchesVars{MatchResult: matchResultString, RoundsWon: team.RoundsWon, RoundsLost: team.RoundsLost, Char: char, KDA: KDA}),
 				),
 			)
 		}

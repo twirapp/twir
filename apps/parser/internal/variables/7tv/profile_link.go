@@ -2,10 +2,11 @@ package seventv
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var ProfileLink = &types.Variable{
@@ -19,7 +20,7 @@ var ProfileLink = &types.Variable{
 
 		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
-			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysVariablesSeventvErrorsProfileNotFoundVars{Reason: err.Error()}))
 		} else {
 			result.Result = "https://7tv.app/users/" + profile.Id
 		}

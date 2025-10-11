@@ -11,9 +11,11 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/types/types/overlays"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
+	"github.com/twirapp/twir/libs/types/types/overlays"
 )
 
 const (
@@ -66,13 +68,21 @@ var Sprite = &types.DefaultCommand{
 
 		if spriteArg == nil {
 			if entity.UserID != "" && entity.DudeSprite != nil {
-				result.Result = []string{fmt.Sprintf("Your sprite it %s", *entity.DudeSprite)}
+				result.Result = []string{i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Dudes.Info.Sprite.
+						SetVars(locales.KeysCommandsDudesInfoSpriteVars{DudeSprite: *&entity.DudeColor}),
+				)}
 				return &result, nil
 			}
 
 			return nil, &types.CommandHandlerError{
 				Message: fmt.Sprintf(
-					"sprite is required, available: %v",
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Dudes.Info.SpriteRequired.
+							SetVars(locales.KeysCommandsDudesInfoSpriteRequiredVars{AvailableSprites: availableSpritesStr}),
+					),
 					strings.Join(availableSpritesStr, ", "),
 				),
 			}
@@ -88,7 +98,11 @@ var Sprite = &types.DefaultCommand{
 		if !sprite.IsValid() {
 			return nil, &types.CommandHandlerError{
 				Message: fmt.Sprintf(
-					"invalid sprite, available: %v",
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Dudes.Errors.SpriteInvalid.
+							SetVars(locales.KeysCommandsDudesErrorsSpriteInvalidVars{AvailableSprites: availableSpritesStr}),
+					),
 					strings.Join(availableSpritesStr, ", "),
 				),
 			}
@@ -110,12 +124,16 @@ var Sprite = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot trigger dudes sprite",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dudes.Errors.SpriteCannotTrigger),
 				Err:     err,
 			}
 		}
 
-		result.Result = []string{fmt.Sprintf("Sprite changed to %s", sprite.String())}
+		result.Result = []string{i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Dudes.Info.SpriteChanged.
+				SetVars(locales.KeysCommandsDudesInfoSpriteChangedVars{DudeSprite: sprite.String()}),
+		)}
 		return &result, nil
 	},
 }
