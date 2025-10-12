@@ -276,6 +276,10 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 3G
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 1
@@ -318,6 +322,10 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 3G
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 1
@@ -468,6 +476,10 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
       mode: replicated
       replicas: 4
       endpoint_mode: dnsrr
@@ -542,6 +554,10 @@ services:
       - twir
       - traefik-public
     deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 3G
       update_config:
         order: start-first
       restart_policy:
