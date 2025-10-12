@@ -4,20 +4,23 @@ import (
 	"context"
 	"time"
 
-	"github.com/twirapp/kv"
+	kvotter "github.com/twirapp/kv/stores/otter"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 
+const KeyPrefix = "cache:twir:commands:channel:"
+
 func New(
 	db *gorm.DB,
-	kv kv.KV,
+	bus *buscore.Bus,
 ) *generic_cacher.GenericCacher[[]model.ChannelsCommands] {
 	return generic_cacher.New[[]model.ChannelsCommands](
 		generic_cacher.Opts[[]model.ChannelsCommands]{
-			KV:        kv,
-			KeyPrefix: "cache:twir:commands:channel:",
+			KV:        kvotter.New(),
+			KeyPrefix: KeyPrefix,
 			LoadFn: func(ctx context.Context, key string) ([]model.ChannelsCommands, error) {
 				var commands []model.ChannelsCommands
 				err := db.
@@ -34,7 +37,8 @@ func New(
 
 				return commands, nil
 			},
-			Ttl: 24 * time.Hour,
+			Ttl:                24 * time.Hour,
+			InvalidateSignaler: generic_cacher.NewBusCoreInvalidator(bus),
 		},
 	)
 }

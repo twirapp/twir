@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	
+
 	"github.com/goccy/go-json"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
@@ -18,26 +18,44 @@ type GenericCacher[T any] struct {
 	db *gorm.DB
 	kv kv.KV
 
-	keyPrefix string
-	loadFn    LoadFn[T]
-	ttl       time.Duration
+	keyPrefix          string
+	loadFn             LoadFn[T]
+	ttl                time.Duration
+	invalidateSignaler InvalidateSignaler
 }
 
 type Opts[T any] struct {
 	KV kv.KV
 
-	KeyPrefix string
-	LoadFn    LoadFn[T]
-	Ttl       time.Duration
+	KeyPrefix          string
+	LoadFn             LoadFn[T]
+	Ttl                time.Duration
+	InvalidateSignaler InvalidateSignaler
 }
 
 func New[T any](opts Opts[T]) *GenericCacher[T] {
-	return &GenericCacher[T]{
+	cacher := &GenericCacher[T]{
 		kv:        opts.KV,
 		keyPrefix: opts.KeyPrefix,
 		loadFn:    opts.LoadFn,
 		ttl:       opts.Ttl,
 	}
+
+	if opts.InvalidateSignaler != nil {
+		cacher.invalidateSignaler = opts.InvalidateSignaler
+		receiver := opts.InvalidateSignaler.Receiver()
+
+		go func() {
+			for key := range receiver {
+				if err := opts.KV.Delete(context.TODO(), opts.KeyPrefix+key); err != nil {
+					fmt.Printf("failed to delete key %s from cache: %v \n", key, err)
+					continue
+				}
+			}
+		}()
+	}
+
+	return cacher
 }
 
 func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
@@ -81,12 +99,15 @@ func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 }
 
 func (c *GenericCacher[T]) Invalidate(ctx context.Context, key string) error {
-	// c.mu.Lock()
-	// defer c.mu.Unlock()
-
-	err := c.kv.Delete(ctx, c.keyPrefix+key)
-	if err != nil {
-		return fmt.Errorf("failed to delete commands from cache: %w", err)
+	if c.invalidateSignaler != nil {
+		if err := c.invalidateSignaler.Send(key); err != nil {
+			return fmt.Errorf("failed to send invalidate signal: %w", err)
+		}
+	} else {
+		err := c.kv.Delete(ctx, c.keyPrefix+key)
+		if err != nil {
+			return fmt.Errorf("failed to delete commands from cache: %w", err)
+		}
 	}
 
 	return nil

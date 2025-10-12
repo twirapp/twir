@@ -216,7 +216,7 @@ func main() {
 	kvStorageRedis := kvredis.New(redisClient)
 
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
-	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, kvStorageRedis)
+	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, bus)
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, kvStorageRedis)
 	ttsRepository := channelsmodules_settingsttspgx.NewFx(pgxconn)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
@@ -261,8 +261,11 @@ func main() {
 		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
 		},
-		Bus:                      bus,
-		CommandsCache:            commandscache.New(db, kvStorageRedis),
+		Bus: bus,
+		CommandsCache: commandscache.New(
+			db,
+			bus,
+		),
 		ChatWallRepo:             chatWallRepository,
 		ChatWallCache:            chatWallCache,
 		ChatWallService:          chatWallService,

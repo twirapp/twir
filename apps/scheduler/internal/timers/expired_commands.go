@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/twirapp/kv"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
@@ -23,8 +23,8 @@ type ExpiredCommandsOpts struct {
 	Logger logger.Logger
 	Config config.Config
 
-	Gorm *gorm.DB
-	KV   kv.KV
+	Gorm    *gorm.DB
+	TwirBus *buscore.Bus
 }
 
 type expiredCommands struct {
@@ -47,7 +47,7 @@ func NewExpiredCommands(opts ExpiredCommandsOpts) *expiredCommands {
 		config:        opts.Config,
 		logger:        opts.Logger,
 		db:            opts.Gorm,
-		commandsCache: commandscache.New(opts.Gorm, opts.KV),
+		commandsCache: commandscache.New(opts.Gorm, opts.TwirBus),
 	}
 
 	opts.Lc.Append(

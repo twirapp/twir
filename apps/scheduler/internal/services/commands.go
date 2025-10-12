@@ -11,7 +11,6 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
-	"github.com/twirapp/kv"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
@@ -32,13 +31,12 @@ type Commands struct {
 func NewCommands(
 	db *gorm.DB,
 	l logger.Logger,
-	kvStorage kv.KV,
 	buscore *buscore.Bus,
 ) *Commands {
 	return &Commands{
 		db:            db,
 		logger:        l,
-		commandsCache: commandscache.New(db, kvStorage),
+		commandsCache: commandscache.New(db, buscore),
 		BusCore:       buscore,
 	}
 }
