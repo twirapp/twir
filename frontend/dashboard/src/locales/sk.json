@@ -646,38 +646,38 @@
 				},
 				"display": {
 					"title": "Zobraziť",
-					"showAvarageKdr": "Show avarage kdr",
-					"worldRanking": "World ranking",
-					"last20MatchesStats": "Last 20 matches stats"
+					"showAvarageKdr": "Zobraziť priemerné KD ratio",
+					"worldRanking": "Svetové poradie",
+					"last20MatchesStats": "Štatistiky za posledných 20 zápasov"
 				}
 			}
 		},
 		"valorant": {
-			"title": "Valorant Stats Builder",
-			"secondTitle": "Valorant Stats",
-			"description": "Configure the overlay with your Valorant stats. Change its design according to your personal requirements.",
+			"title": "Tvorca štatistík pre Valorant",
+			"secondTitle": "Štatistiky Valorantu",
+			"description": "Nakonfiguruj overlay so svojimi štatistikami z Valorantu. Zmeň jeho dizajn podľa svojich osobných požiadaviek",
 			"valorantIntegration": {
-				"connect": "Connect valorant integration to use this overlay",
-				"button": "Connect"
+				"connect": "Pre použitie tohto overlay pripoj integráciu s Valorantom",
+				"button": "Pripojiť"
 			},
 			"settings": {
 				"colors": {
 					"title": "Farby",
 					"background": "Farba pozadia",
 					"text": "Farba textu",
-					"primaryText": "Primary Text Color",
-					"win": "Win Color",
-					"lose": "Lose Color"
+					"primaryText": "Hlavná farba textu",
+					"win": "Farba výhry\n",
+					"lose": "Farba prehry"
 				},
 				"general": {
-					"title": "General",
-					"background": "Background",
-					"border": "Border",
-					"glow": "Glow effect",
-					"leaderboard": "Leaderboard place",
-					"winLose": "Win / Lose",
-					"progress": "Progress",
-					"last20MatchesStats": "Show last 20 matches stats"
+					"title": "Všeobecné",
+					"background": "Pozadie",
+					"border": "Ohraničenie",
+					"glow": "Efekt žiarenia",
+					"leaderboard": "Pozícia v rebríčku",
+					"winLose": "Výhra / Prehra",
+					"progress": "Postup",
+					"last20MatchesStats": "Zobraziť štatistiky za posledných 20 zápasov"
 				}
 			}
 		}
