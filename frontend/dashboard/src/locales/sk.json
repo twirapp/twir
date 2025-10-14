@@ -446,8 +446,8 @@
 		"uncongirured": "Najprv by ste mali nakonfigurovať prekrytie!",
 		"noAccess": "K tomuto prekrytiu nemáte prístup!",
 		"copied": "Úspešne skopírovaná adresa URL prekryvného odkazu! Musíte ho nastaviť ako zdroj prehliadača v OBS.",
-		"buildWidget": "Build Widget",
-		"generateObsLink": "Generate obs link",
+		"buildWidget": "Vytvoriť Widget",
+		"generateObsLink": "Vygenerovať odkaz pre OBS",
 		"nowPlaying": {
 			"description": "Prekrytie s aktuálnymi informáciami o prehrávanej skladbe. Toto prekrytie bude fungovať len vtedy, ak máte pripojenú integráciu, ako je spotify, lastfm."
 		},
@@ -629,23 +629,23 @@
 			}
 		},
 		"faceit": {
-			"title": "Faceit Stats Builder",
-			"description": "Set up an overlay to display your Faceit statistics. Customize it according to your preferences.",
-			"secondTitle": "Faceit Stats",
+			"title": "Tvorca štatistík Faceit",
+			"description": "Nastav overlay, ktorý zobrazí tvoje Faceit štatistiky a prispôsob si ho podľa svojich preferencií.",
+			"secondTitle": "Faceit štatistiky",
 			"settings": {
 				"general": {
-					"title": "General",
-					"faceitNickname": "Faceit nickname",
-					"game": "Game"
+					"title": "Všeobecné",
+					"faceitNickname": "Faceit prezývka",
+					"game": "Hra"
 				},
 				"appearance": {
-					"title": "Appearance",
-					"background": "Background Color",
-					"textColor": "Text color",
-					"borderRadius": "Border Radius"
+					"title": "Vzhľad",
+					"background": "Farba pozadia",
+					"textColor": "Farba textu",
+					"borderRadius": "Zaoblenie rohov"
 				},
 				"display": {
-					"title": "Display",
+					"title": "Zobraziť",
 					"showAvarageKdr": "Show avarage kdr",
 					"worldRanking": "World ranking",
 					"last20MatchesStats": "Last 20 matches stats"
@@ -662,9 +662,9 @@
 			},
 			"settings": {
 				"colors": {
-					"title": "Colors",
-					"background": "Background color",
-					"text": "Text color",
+					"title": "Farby",
+					"background": "Farba pozadia",
+					"text": "Farba textu",
 					"primaryText": "Primary Text Color",
 					"win": "Win Color",
 					"lose": "Lose Color"
