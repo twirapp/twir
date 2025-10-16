@@ -97,7 +97,7 @@ services:
           - node.labels.databases == true
 
   pgbouncer:
-    image: bitnami/pgbouncer:1.23.1
+    image: bitnamilegacy/pgbouncer:1.23.1
     secrets:
       - twir_postgres_user
       - twir_postgres_password
@@ -163,7 +163,7 @@ services:
       - IPC_LOCK
 
   temporal-postgres:
-    image: 'bitnami/postgresql:17'
+    image: 'bitnamilegacy/postgresql:17'
     environment:
       POSTGRES_USER: temporal
       POSTGRES_PASSWORD: temporal
