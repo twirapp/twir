@@ -9,9 +9,11 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"go.uber.org/zap"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -56,7 +58,7 @@ var Command = &types.DefaultCommand{
 		}
 
 		if len(parseCtx.Mentions) == 0 {
-			result.Result = []string{"user not found."}
+			result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Errors.Generic.UserNotFound)}
 			return result, nil
 		}
 
@@ -82,13 +84,17 @@ var Command = &types.DefaultCommand{
 
 		if txErr != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create permit",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Permit.Errors.CannotCreate),
 				Err:     txErr,
 			}
 		}
 
 		result.Result = []string{
-			fmt.Sprintf("✅ added %v permits to %s", count, user.UserName),
+			fmt.Sprintf(i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Permit.Success.AddedPermit.
+					SetVars(locales.KeysCommandsPermitSuccessAddedPermitVars{CountPermit: count, UserName: user.UserName})),
+			),
 		}
 		return result, nil
 	},

@@ -1,8 +1,8 @@
 errors:
-  not_subscriber_or_hidden: "User is not a subscriber or their subscription info is hidden."
+  not_subscriber_or_hidden: User is not a subscriber or their subscription info is hidden
 responses:
-  not_subscriber: "{user} is not a subscriber."
-  not_subscriber_but_was: "{user} is not a subscriber but was subscribed for {months} months."
-  subscription_info: "{user} is a {tier} subscriber of {channel} for {months} months."
-  streak_info: "(streak: {months} months)"
-  time_remaining: "(time remaining: {duration})"
+  not_subscriber: '{user} is not a subscriber'
+  not_subscriber_but_was: '{user} is not a subscriber but was subscribed for {months} months'
+  subscription_info: '{user} is a {tier} subscriber of {channel} for {months} months'
+  streak_info: '(streak: {months} months)'
+  time_remaining: '(time remaining: {duration})'

@@ -7,7 +7,9 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/parser/internal/services/tts"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
@@ -30,13 +32,13 @@ var VoicesCommand = &types.DefaultCommand{
 		voices, err := parseCtx.Services.TTSService.GetFilteredVoices(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting voices",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.WhileGettingVoices),
 				Err:     err,
 			}
 		}
 
 		if len(voices) == 0 {
-			result.Result = []string{"No voices available"}
+			result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Info.NoVoices)}
 			return result, nil
 		}
 

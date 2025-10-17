@@ -7,6 +7,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var EmoteSetName = &types.Variable{
@@ -20,13 +22,11 @@ var EmoteSetName = &types.Variable{
 
 		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
-			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysVariablesSeventvErrorsProfileNotFoundVars{Reason: err.Error()}))
 			return &result, nil
 		}
 		if profile.Style.ActiveEmoteSet == nil {
-			result.Result = fmt.Sprintf(
-				"[Twir err] No active emote set",
-			)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.NoActiveSet)
 			return &result, nil
 		}
 
@@ -47,13 +47,11 @@ var EmoteSetLink = &types.Variable{
 
 		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
-			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysVariablesSeventvErrorsProfileNotFoundVars{Reason: err.Error()}))
 			return &result, nil
 		}
 		if profile.Style.ActiveEmoteSet == nil {
-			result.Result = fmt.Sprintf(
-				"[Twir err] No active emote set",
-			)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.NoActiveSet)
 			return &result, nil
 		}
 
@@ -74,13 +72,11 @@ var EmoteSetCount = &types.Variable{
 
 		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
-			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysVariablesSeventvErrorsProfileNotFoundVars{Reason: err.Error()}))
 			return &result, nil
 		}
 		if profile.Style.ActiveEmoteSet == nil {
-			result.Result = fmt.Sprintf(
-				"[Twir err] No active emote set",
-			)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.NoActiveSet)
 			return &result, nil
 		}
 
@@ -101,11 +97,11 @@ var EmoteSetCapacity = &types.Variable{
 
 		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
-			result.Result = fmt.Sprintf("[Twir err] Failed to get 7tv profile: %s", err)
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysVariablesSeventvErrorsProfileNotFoundVars{Reason: err.Error()}))
 			return &result, nil
 		}
 		if profile.Style.ActiveEmoteSet == nil {
-			result.Result = "[Twir err] No active emote set"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.NoActiveSet)
 			return &result, nil
 		}
 		if profile.Style.ActiveEmoteSet.Capacity == nil {

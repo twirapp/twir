@@ -3,14 +3,15 @@ package chat_wall
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	chatwallservice "github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 const stopPhraseArgName = "phrase"
@@ -48,12 +49,11 @@ var Stop = &types.DefaultCommand{
 		if err != nil {
 			if errors.Is(err, chatwallservice.ErrChatWallNotFound) {
 				return &types.CommandsHandlerResult{
-					Result: []string{
-						fmt.Sprintf(
-							`Chat wall "%s" not found or already stopped`,
-							phrase,
-						),
-					},
+					Result: []string{i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.ChatWall.Errors.ChatWallNotFound.
+							SetVars(locales.KeysCommandsChatWallErrorsChatWallNotFoundVars{ErrorPhrase: phrase}),
+					)},
 				}, nil
 			}
 
@@ -64,12 +64,10 @@ var Stop = &types.DefaultCommand{
 		}
 
 		result := &types.CommandsHandlerResult{
-			Result: []string{
-				fmt.Sprintf(
-					`✅ Chat wall "%s" stopped`,
-					phrase,
-				),
-			},
+			Result: []string{i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.ChatWall.Stop.ChatWalStop.
+					SetVars(locales.KeysCommandsChatWallStopChatWalStopVars{ChatWallPhrase: phrase}))},
 		}
 
 		return result, nil

@@ -2,7 +2,6 @@ package chat_wall
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/guregu/null"
@@ -10,7 +9,9 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	chatwallservice "github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 )
 
@@ -30,7 +31,7 @@ var Ban = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.VariadicString{
 			Name: banPhraseArgName,
-			Hint: "phrase to ban",
+			Hint: i18n.Get(locales.Translations.Commands.ChatWall.Hints.BanPhraseArgName),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -74,11 +75,11 @@ var Ban = &types.DefaultCommand{
 
 		result := &types.CommandsHandlerResult{
 			Result: []string{
-				fmt.Sprintf(
-					`✅ Chat wall started for 10 minutes, you can stop it with !chat wall stop "%s"`,
-					phrase,
-				),
-			},
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.ChatWall.Start.ChatWallStart.
+						SetVars(locales.KeysCommandsChatWallStartChatWallStartVars{ChatWallPhrase: phrase}),
+				)},
 		}
 
 		return result, nil

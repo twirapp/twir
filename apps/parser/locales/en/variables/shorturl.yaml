@@ -1,0 +1,3 @@
+errors:
+  url_required: URL is required
+  create_short_url: 'Cannot create short url: {reason}'

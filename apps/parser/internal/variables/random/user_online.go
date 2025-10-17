@@ -5,6 +5,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 )
 
@@ -26,7 +28,7 @@ var OnlineUser = &types.Variable{
 		)
 		if err != nil {
 			return result, &types.CommandHandlerError{
-				Message: "cannot get online user",
+				Message: i18n.GetCtx(ctx, locales.Translations.Variables.Random.Errors.GetOnlineUser),
 				Err:     err,
 			}
 		}

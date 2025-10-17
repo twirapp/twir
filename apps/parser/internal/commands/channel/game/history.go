@@ -8,7 +8,9 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
 )
@@ -65,8 +67,11 @@ var History = &types.DefaultCommand{
 		if err != nil {
 			result.Result = append(result.Result, "internal error")
 			return nil, &types.CommandHandlerError{
-				Message: "cannot find used games in database",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Channel.Errors.HistoryGameMessage,
+				),
+				Err: err,
 			}
 		}
 

@@ -3,14 +3,15 @@ package predictions
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -30,7 +31,7 @@ var Resolve = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name: predictionResolveOutcomeNum,
-			Hint: "variant number, for example: 1,2,3,4,5",
+			Hint: i18n.Get(locales.Translations.Commands.Predictions.Hints.PredictionResolveOutcomeNum),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -47,7 +48,7 @@ var Resolve = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create twitch client",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotCreateTwitch),
 				Err:     err,
 			}
 		}
@@ -59,15 +60,16 @@ var Resolve = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get current prediction",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.CannotGetCurrent),
 				Err:     err,
 			}
 		}
 		if currentPredictionReq.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf(
-					"cannot get current prediction: %s",
-					currentPredictionReq.ErrorMessage,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Errors.CannotGetCurrentVar.
+						SetVars(locales.KeysCommandsPredictionsErrorsCannotGetCurrentVarVars{Reason: currentPredictionReq.ErrorMessage}),
 				),
 				Err: errors.New(currentPredictionReq.ErrorMessage),
 			}
@@ -83,19 +85,19 @@ var Resolve = &types.DefaultCommand{
 
 		if currentRunedPrediction == nil {
 			return nil, &types.CommandHandlerError{
-				Message: "no prediction runed",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Info.NoRuned),
 			}
 		}
 
 		if len(currentRunedPrediction.Outcomes) < variant {
 			return nil, &types.CommandHandlerError{
-				Message: "no prediction variant",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.NoVariant),
 			}
 		}
 
 		if variant > len(currentRunedPrediction.Outcomes) {
 			return nil, &types.CommandHandlerError{
-				Message: "no prediction variant",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.NoVariant),
 			}
 		}
 
@@ -111,16 +113,17 @@ var Resolve = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot cancel prediction",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.CannotCancel),
 				Err:     err,
 			}
 		}
 
 		if cancelResp.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf(
-					"cannot cancel prediction: %s",
-					cancelResp.ErrorMessage,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Errors.CannotCancelVar.
+						SetVars(locales.KeysCommandsPredictionsErrorsCannotCancelVarVars{Reason: cancelResp.ErrorMessage}),
 				),
 				Err: errors.New(cancelResp.ErrorMessage),
 			}
@@ -128,7 +131,7 @@ var Resolve = &types.DefaultCommand{
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				"✅ Prediction resolved",
+				i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Info.Resolved),
 			},
 		}, nil
 	},

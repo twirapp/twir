@@ -6,7 +6,9 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Counter = &types.Variable{
@@ -20,7 +22,7 @@ var Counter = &types.Variable{
 		result := &types.VariableHandlerResult{}
 
 		if variableData.Params == nil {
-			result.Result = "id is not provided"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Keywords.Errors.IdNotProvided)
 			return result, nil
 		}
 
@@ -33,12 +35,12 @@ var Counter = &types.Variable{
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 
-			result.Result = "internal error"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Errors.Generic.Internal)
 			return result, nil
 		}
 
 		if keyword.ID == "" {
-			result.Result = "keyword not found"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Keywords.Errors.NotFound)
 			return result, nil
 		}
 

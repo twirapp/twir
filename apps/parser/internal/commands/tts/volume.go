@@ -2,14 +2,15 @@ package tts
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 const (
@@ -45,19 +46,23 @@ var VolumeCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting channel settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.GettingChannelSettings),
 				Err:     err,
 			}
 		}
 
 		if channelSettings == nil {
-			result.Result = []string{"TTS is not configured for this channel"}
+			result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.NotConfigured)}
 			return result, nil
 		}
 
 		volumeArg := parseCtx.ArgsParser.Get(ttsVolumeArgName)
 		if volumeArg == nil {
-			result.Result = []string{fmt.Sprintf("Current volume: %v", channelSettings.Volume)}
+			result.Result = []string{i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Tts.Info.CurrentVolume.
+					SetVars(locales.KeysCommandsTtsInfoCurrentVolumeVars{TtsVolume: channelSettings.Volume}),
+			)}
 			return result, nil
 		}
 
@@ -71,12 +76,12 @@ var VolumeCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while updating settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.UpdatingSettings),
 				Err:     err,
 			}
 		}
 
-		result.Result = []string{fmt.Sprintf("TTS volume changed to %v", volume)}
+		result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Info.ChangeVolume.SetVars(locales.KeysCommandsTtsInfoChangeVolumeVars{UserVolume: volume}))}
 
 		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
 

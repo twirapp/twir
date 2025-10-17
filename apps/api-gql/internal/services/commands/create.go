@@ -8,9 +8,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
+	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 )
@@ -78,14 +78,14 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 		return entity.CommandNil, err
 	}
 	if isNameConflict {
-		return entity.CommandNil, fmt.Errorf("command with this name or aliase already exists")
+		return entity.CommandNil, fmt.Errorf("command with this name or alias already exists")
 	}
 
 	aliases := make([]string, 0, len(input.Aliases))
-	for _, aliase := range input.Aliases {
-		aliase = strings.TrimSuffix(strings.ToLower(aliase), "!")
-		if aliase != "" {
-			aliases = append(aliases, aliase)
+	for _, alias := range input.Aliases {
+		alias = strings.TrimSuffix(strings.ToLower(alias), "!")
+		if alias != "" {
+			aliases = append(aliases, alias)
 		}
 	}
 

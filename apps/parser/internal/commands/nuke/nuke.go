@@ -14,8 +14,10 @@ import (
 	"github.com/redis/go-redis/v9"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/xhit/go-str2duration/v2"
 	"go.uber.org/zap"
@@ -41,7 +43,7 @@ var Command = &types.DefaultCommand{
 		command_arguments.String{
 			Name:     nukeTimeArgName,
 			Optional: false,
-			Hint:     "time, examples: 10m, 10, 1h5m",
+			Hint:     i18n.Get(locales.Translations.Commands.Nuke.Hints.NukeTimeArgName),
 		},
 		command_arguments.VariadicString{
 			Name: nukePhraseArgName,
@@ -54,7 +56,7 @@ var Command = &types.DefaultCommand{
 		duration, err := parseDuration(parseCtx.ArgsParser.Get(nukeTimeArgName).String())
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "invalid duration. Examples: !nuke 10m phrase, !nuke 10 phrase, !nuke 1h5m phrase",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.InvalidDuration),
 			}
 		}
 
@@ -74,7 +76,7 @@ var Command = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get messages",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetMessage),
 				Err:     err,
 			}
 		}
@@ -95,7 +97,7 @@ var Command = &types.DefaultCommand{
 			Where(`"userId" != ?`, parseCtx.Channel.ID).
 			Find(&usersStats).Error; err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get users stats",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetUsersStats),
 				Err:     err,
 			}
 		}
@@ -106,7 +108,7 @@ var Command = &types.DefaultCommand{
 		).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get handled messages",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetHandeledMessages),
 				Err:     err,
 			}
 		}
@@ -138,7 +140,7 @@ var Command = &types.DefaultCommand{
 				},
 			); err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot delete messages",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotDeleteMessages),
 					Err:     err,
 				}
 			}
@@ -204,11 +206,11 @@ func parseDuration(input string) (int, error) {
 
 	durationFromString, err := str2duration.ParseDuration(input)
 	if durationFromString.Hours() > 336 { // 2 weeks
-		return 0, fmt.Errorf("duration of timeout cannot be longer than 2 weeks")
+		return 0, fmt.Errorf(i18n.Get(locales.Translations.Commands.Nuke.Errors.TimeoutDuration))
 	}
 	if err == nil {
 		return int(durationFromString.Seconds()), nil
 	}
 
-	return 0, fmt.Errorf("cannot parse duration")
+	return 0, fmt.Errorf(i18n.Get(locales.Translations.Commands.Nuke.Errors.ParseDuration))
 }

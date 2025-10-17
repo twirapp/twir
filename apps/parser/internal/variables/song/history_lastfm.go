@@ -9,7 +9,9 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 )
 
@@ -42,7 +44,7 @@ var HistoryLastfm = &types.Variable{
 			},
 		)
 		if !ok {
-			result.Result = "lastfm integration not enabled"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.LastfmIntegration)
 			return result, nil
 		}
 
@@ -53,13 +55,21 @@ var HistoryLastfm = &types.Variable{
 			},
 		)
 		if err != nil {
-			result.Result = fmt.Sprintf("cannot create lastfm service: %s", err)
+			result.Result = i18n.GetCtx(
+				ctx,
+				locales.Translations.Variables.Song.Errors.CreateLastfmService.
+					SetVars(locales.KeysVariablesSongErrorsCreateLastfmServiceVars{Reason: err.Error()}),
+			)
 			return result, nil
 		}
 
 		tracks, err := lastfmService.GetRecentTracks(limit)
 		if err != nil {
-			result.Result = fmt.Sprintf("cannot fetch tracks from lastfm: %s", err)
+			result.Result = i18n.GetCtx(
+				ctx,
+				locales.Translations.Variables.Song.Errors.FetchTracksLastfm.
+					SetVars(locales.KeysVariablesSongErrorsFetchTracksLastfmVars{Reason: err.Error()}),
+			)
 			return result, nil
 		}
 
@@ -78,11 +88,10 @@ var HistoryLastfm = &types.Variable{
 
 			mappedTracks = append(
 				mappedTracks,
-				fmt.Sprintf(
-					"%s — %s (~%.0fm ago)",
-					track.Title,
-					track.Artist,
-					ago.Minutes(),
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Variables.Song.Info.History.
+						SetVars(locales.KeysVariablesSongInfoHistoryVars{TrackTitle: track.Title, TrackArtist: track.Artist, Minutes: fmt.Sprintf("%.0f%%", ago.Minutes())}),
 				),
 			)
 		}

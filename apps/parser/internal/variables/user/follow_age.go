@@ -6,7 +6,9 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/apps/parser/pkg/helpers"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var FollowAge = &types.Variable{
@@ -32,7 +34,7 @@ var FollowAge = &types.Variable{
 
 		var followedAt *time.Time
 		if user == nil {
-			result.Result = "Cannot find user on twitch."
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotFindUserTwitch)
 			return result, nil
 		} else if parseCtx.Channel.ID == user.ID {
 			followedAt = &user.CreatedAt.Time
@@ -44,7 +46,7 @@ var FollowAge = &types.Variable{
 		}
 
 		if followedAt == nil {
-			result.Result = "not a follower"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Errors.Generic.NotAFollower)
 		} else {
 			result.Result = helpers.Duration(
 				*followedAt,

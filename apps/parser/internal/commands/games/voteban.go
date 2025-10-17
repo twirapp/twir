@@ -12,7 +12,9 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
 )
 
@@ -44,7 +46,7 @@ var Voteban = &types.DefaultCommand{
 		)
 		if err := mu.Lock(); err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot lock voteban",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotLock),
 				Err:     err,
 			}
 		}
@@ -63,7 +65,7 @@ var Voteban = &types.DefaultCommand{
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: "cannot find voteban settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotFindSettings),
 				Err:     err,
 			}
 		}
@@ -89,14 +91,14 @@ var Voteban = &types.DefaultCommand{
 			voteInProgress, err := parseCtx.Services.Redis.Exists(ctx, redisKey).Result()
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot check if vote in progress",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotCheckProgress),
 					Err:     err,
 				}
 			}
 
 			if voteInProgress == 1 {
 				return &types.CommandsHandlerResult{
-					Result: []string{"Another voteban in progress"},
+					Result: []string{i18n.GetCtx(ctx, locales.Translations.Commands.Games.Info.VotebanInProgress)},
 				}, nil
 			}
 
@@ -106,7 +108,7 @@ var Voteban = &types.DefaultCommand{
 				Where(`"userId" = ? AND "channelId" = ?`, targetUser.UserId, parseCtx.Channel.ID).
 				First(&targetUserStatsEntity).Error; err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot find target user",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotFindUser),
 					Err:     err,
 				}
 			}
@@ -124,7 +126,7 @@ var Voteban = &types.DefaultCommand{
 				},
 			).Err(); err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot set vote",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotSetVote),
 					Err:     err,
 				}
 			}
@@ -137,7 +139,7 @@ var Voteban = &types.DefaultCommand{
 				parseCtx.Services.Redis.Del(ctx, redisKey)
 
 				return nil, &types.CommandHandlerError{
-					Message: "cannot set vote expiration",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotSetVoteExpiration),
 					Err:     err,
 				}
 			}

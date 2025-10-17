@@ -9,7 +9,9 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
 )
 
@@ -42,7 +44,7 @@ var DuelAccept = &types.DefaultCommand{
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get duel channel settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelCannotGetWithSettings),
 				Err:     err,
 			}
 		}
@@ -50,13 +52,13 @@ var DuelAccept = &types.DefaultCommand{
 		currentDuel, err := handler.getUserCurrentDuel(ctx, parseCtx.Sender.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get sender current duel",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelCannotGetSender),
 				Err:     err,
 			}
 		}
 		if currentDuel == nil {
 			return &types.CommandsHandlerResult{
-				Result: []string{"you are not participate in any duel"},
+				Result: []string{i18n.GetCtx(ctx, locales.Translations.Commands.Games.Info.UserNotParticipate)},
 			}, nil
 		}
 
@@ -69,7 +71,7 @@ var DuelAccept = &types.DefaultCommand{
 		_, err = handler.getDbChannel(ctx)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get db channel",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetDbChannel),
 				Err:     err,
 			}
 		}
@@ -77,7 +79,7 @@ var DuelAccept = &types.DefaultCommand{
 		_, err = handler.createHelixClient()
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.BroadcasterClient),
 				Err:     err,
 			}
 		}
@@ -145,7 +147,7 @@ var DuelAccept = &types.DefaultCommand{
 			err = handler.timeoutUser(ctx, settings, user.ID, user.IsMod)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot timeout user",
+					Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotTimeoutUser),
 					Err:     err,
 				}
 			}
@@ -154,8 +156,12 @@ var DuelAccept = &types.DefaultCommand{
 		err = handler.saveResult(ctx, *currentDuel, settings, loserId)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot save duel result",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Games.Errors.DuelCannotSaveResult.
+						SetVars(locales.KeysCommandsGamesErrorsDuelCannotSaveResultVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 

@@ -2,11 +2,12 @@ package tts
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
@@ -44,13 +45,13 @@ var PitchCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting channel settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.GettingChannelSettings),
 				Err:     err,
 			}
 		}
 
 		if channelSettings == nil {
-			result.Result = []string{"TTS is not configured for this channel"}
+			result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.NotConfigured)}
 			return result, nil
 		}
 
@@ -61,7 +62,7 @@ var PitchCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting user settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.GettingUserSettings),
 				Err:     err,
 			}
 		}
@@ -71,14 +72,14 @@ var PitchCommand = &types.DefaultCommand{
 		if pitchArg == nil {
 			result.Result = append(
 				result.Result,
-				fmt.Sprintf(
-					"Global pitch: %v | Your pitch: %v",
-					channelSettings.Pitch,
-					lo.IfF(
-						userSettings != nil, func() int {
-							return userSettings.Pitch
-						},
-					).Else(channelSettings.Pitch),
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Tts.Info.Pitch.
+						SetVars(locales.KeysCommandsTtsInfoPitchVars{GlobalPitch: channelSettings.Pitch, UserPitch: lo.IfF(
+							userSettings != nil, func() int {
+								return userSettings.Pitch
+							},
+						).Else(channelSettings.Pitch)}),
 				),
 			)
 			return result, nil
@@ -96,7 +97,7 @@ var PitchCommand = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "error while updating settings",
+					Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.UpdatingSettings),
 					Err:     err,
 				}
 			}
@@ -113,7 +114,7 @@ var PitchCommand = &types.DefaultCommand{
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
-						Message: "error while creating settings",
+						Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CreateSettings),
 						Err:     err,
 					}
 				}
@@ -127,14 +128,18 @@ var PitchCommand = &types.DefaultCommand{
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
-						Message: "error while updating settings",
+						Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.UpdatingSettings),
 						Err:     err,
 					}
 				}
 			}
 		}
 
-		result.Result = append(result.Result, fmt.Sprintf("Pitch changed to %v", pitch))
+		result.Result = append(result.Result, i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Tts.Info.ChangePitch.
+				SetVars(locales.KeysCommandsTtsInfoChangePitchVars{NewPitch: pitch}),
+		))
 
 		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
 
