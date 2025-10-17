@@ -102,6 +102,11 @@ func TwirEventRedemptionCreatedToGql(event events.RedemptionCreatedMessage) gqlm
 }
 
 func TwirEventCommandUsedToGql(event events.CommandUsedMessage) gqlmodel.EventCommandUsedMessage {
+	var defaultCommandName string
+	if event.DefaultCommandName != nil {
+		defaultCommandName = *event.DefaultCommandName
+	}
+
 	return gqlmodel.EventCommandUsedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
 			event.BaseInfo.ChannelID,
@@ -115,7 +120,7 @@ func TwirEventCommandUsedToGql(event events.CommandUsedMessage) gqlmodel.EventCo
 		CommandInput:       event.CommandInput,
 		UserID:             event.UserID,
 		IsDefault:          event.IsDefault,
-		DefaultCommandName: event.DefaultCommandName,
+		DefaultCommandName: defaultCommandName,
 		MessageID:          event.MessageID,
 	}
 }
