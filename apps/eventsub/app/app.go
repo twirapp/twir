@@ -16,6 +16,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -29,6 +30,8 @@ import (
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 
@@ -83,6 +86,10 @@ var App = fx.Options(
 			twitchconduitsrepositorypostgres.NewFx,
 			fx.As(new(twitchconduitsrepository.Repository)),
 		),
+		fx.Annotate(
+			commandswithgroupsandresponsespostgres.NewFx,
+			fx.As(new(commandswithgroupsandresponsesrepository.Repository)),
+		),
 		channelcache.New,
 		func(
 			repo channelscommandsprefixrepository.Repository,
@@ -101,6 +108,8 @@ var App = fx.Options(
 		uptrace.NewFx("eventsub"),
 		handler.New,
 		bus_listener.New,
-		// t.New,
+		func(l logger.Logger) {
+			l.Info("🚀 EventSub App started")
+		},
 	),
 )

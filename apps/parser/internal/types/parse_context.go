@@ -5,6 +5,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
@@ -43,7 +44,7 @@ type ParseContext struct {
 
 	Text *string
 
-	Command       *model.ChannelsCommands
+	Command       *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses
 	ChannelStream *streamsmodel.Stream
 
 	Services *services.Services

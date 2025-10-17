@@ -63,6 +63,7 @@ import (
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -82,7 +83,7 @@ type Deps struct {
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB
 	CachedTwitchClient               *twitchcahe.CachedTwitchClient
-	CachedCommandsClient             *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
+	CachedCommandsClient             *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedgormmodel.ChannelSongRequestsSettings]
 	Minio                            *minio.Client
 	TwirBus                          *bus_core.Bus

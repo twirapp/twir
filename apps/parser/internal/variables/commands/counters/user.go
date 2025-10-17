@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
@@ -19,16 +18,10 @@ var CommandUserCounter = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		commandUUID, err := uuid.Parse(parseCtx.Command.ID)
-		if err != nil {
-			result.Result = "cannot get count"
-			return result, nil
-		}
-
 		count, err := parseCtx.Services.ChannelsCommandsUsagesRepo.Count(
 			ctx, channelscommandsusages.CountInput{
 				ChannelID: &parseCtx.Channel.ID,
-				CommandID: &commandUUID,
+				CommandID: &parseCtx.Command.ID,
 				UserID:    &parseCtx.Sender.ID,
 			},
 		)

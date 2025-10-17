@@ -96,7 +96,7 @@ type CommandUsedMessage struct {
 	CommandInput       string   `json:"command_input"`
 	UserID             string   `json:"user_id"`
 	IsDefault          bool     `json:"is_default"`
-	DefaultCommandName string   `json:"default_command_name"`
+	DefaultCommandName *string  `json:"default_command_name"`
 	MessageID          string   `json:"message_id"`
 }
 

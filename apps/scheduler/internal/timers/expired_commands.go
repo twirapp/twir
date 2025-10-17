@@ -12,6 +12,8 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -23,15 +25,16 @@ type ExpiredCommandsOpts struct {
 	Logger logger.Logger
 	Config config.Config
 
-	Gorm    *gorm.DB
-	TwirBus *buscore.Bus
+	Gorm         *gorm.DB
+	TwirBus      *buscore.Bus
+	CommandsRepo commandswithgroupsandresponsesrepository.Repository
 }
 
 type expiredCommands struct {
 	config        config.Config
 	logger        logger.Logger
 	db            *gorm.DB
-	commandsCache *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	commandsCache *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
 func NewExpiredCommands(opts ExpiredCommandsOpts) *expiredCommands {
@@ -47,7 +50,7 @@ func NewExpiredCommands(opts ExpiredCommandsOpts) *expiredCommands {
 		config:        opts.Config,
 		logger:        opts.Logger,
 		db:            opts.Gorm,
-		commandsCache: commandscache.New(opts.Gorm, opts.TwirBus),
+		commandsCache: commandscache.New(opts.CommandsRepo, opts.TwirBus),
 	}
 
 	opts.Lc.Append(

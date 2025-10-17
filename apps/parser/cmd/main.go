@@ -48,6 +48,7 @@ import (
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	channelsmodules_settingsttspgx "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/postgres"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
+	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
@@ -263,7 +264,7 @@ func main() {
 		},
 		Bus: bus,
 		CommandsCache: commandscache.New(
-			db,
+			commandswithgroupsandresponsespostgres.New(commandswithgroupsandresponsespostgres.Opts{PgxPool: pgxconn}),
 			bus,
 		),
 		ChatWallRepo:             chatWallRepository,

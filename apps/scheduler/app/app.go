@@ -4,8 +4,10 @@ import (
 	bus_listener "github.com/twirapp/twir/apps/scheduler/internal/bus-listener"
 	"github.com/twirapp/twir/apps/scheduler/internal/services"
 	"github.com/twirapp/twir/apps/scheduler/internal/timers"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/logger"
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
@@ -24,6 +26,10 @@ var App = fx.Module(
 		fx.Annotate(
 			scheduledvipsrepositorypgx.NewFx,
 			fx.As(new(scheduledvipsrepository.Repository)),
+		),
+		fx.Annotate(
+			commandswithgroupsandresponsespostgres.NewFx,
+			fx.As(new(commandswithgroupsandresponsesrepository.Repository)),
 		),
 	),
 	fx.Invoke(

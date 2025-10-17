@@ -9,13 +9,13 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	deprectatedmodel "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
 )
 
@@ -26,7 +26,7 @@ type Opts struct {
 	CommandsRepository       commands.Repository
 	CommandsResponsesService *commands_responses.Service
 	Logger                   logger.Logger
-	CachedCommandsClient     *generic_cacher.GenericCacher[[]deprectatedmodel.ChannelsCommands]
+	CachedCommandsClient     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
 func New(opts Opts) *Service {
@@ -44,7 +44,7 @@ type Service struct {
 	commandsRepository       commands.Repository
 	commandsResponsesService *commands_responses.Service
 	logger                   logger.Logger
-	cachedCommandsClient     *generic_cacher.GenericCacher[[]deprectatedmodel.ChannelsCommands]
+	cachedCommandsClient     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
 var maxCommands = 50

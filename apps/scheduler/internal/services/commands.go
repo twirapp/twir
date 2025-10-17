@@ -17,6 +17,8 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +26,7 @@ type Commands struct {
 	db            *gorm.DB
 	lock          sync.Mutex
 	logger        logger.Logger
-	commandsCache *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	commandsCache *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	BusCore       *buscore.Bus
 }
 
@@ -32,11 +34,12 @@ func NewCommands(
 	db *gorm.DB,
 	l logger.Logger,
 	buscore *buscore.Bus,
+	commandsRepo commandswithgroupsandresponsesrepository.Repository,
 ) *Commands {
 	return &Commands{
 		db:            db,
 		logger:        l,
-		commandsCache: commandscache.New(db, buscore),
+		commandsCache: commandscache.New(commandsRepo, buscore),
 		BusCore:       buscore,
 	}
 }
