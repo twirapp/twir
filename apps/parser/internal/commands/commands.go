@@ -497,7 +497,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	cmd := c.FindChannelCommandInInput(data.Message.Text[len(commandsPrefix):], cmds)
-	if cmd.Cmd == nil {
+	if cmd.Cmd == nil || !cmd.Cmd.Enabled {
 		return nil, nil
 	}
 
