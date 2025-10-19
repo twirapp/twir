@@ -52,7 +52,7 @@ const showConfirm = ref(false)
 					Asc
 				</UiDropdownMenuItem>
 				<UiDropdownMenuItem @click="column.toggleSorting(true)">
-					<Icon name="lucide:arrow-up-down" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+					<Icon name="lucide:arrow-down" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					Desc
 				</UiDropdownMenuItem>
 				<DropdownMenuSeparator />
