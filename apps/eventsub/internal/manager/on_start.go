@@ -8,8 +8,8 @@ import (
 	"strconv"
 
 	"github.com/imroc/req/v3"
-	"github.com/kvizyx/twitchy/eventsub"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
+	"github.com/twirapp/twitchy/eventsub"
 )
 
 type conduitsResponse struct {

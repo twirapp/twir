@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"log/slog"
 
-	"github.com/kvizyx/twitchy/eventsub"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twitchy/eventsub"
 )
 
 func (c *Handler) HandleUserAuthorizationRevoke(

@@ -4,11 +4,11 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	"github.com/twirapp/twitchy/eventsub"
 )
 
 func (c *Handler) HandleChannelUpdate(

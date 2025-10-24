@@ -7,13 +7,13 @@ import (
 	"math"
 	"time"
 
-	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
+	"github.com/twirapp/twitchy/eventsub"
 )
 
 func (c *Handler) HandleBan(
@@ -108,6 +108,40 @@ func (c *Handler) HandleBan(
 			UserId:          event.UserId,
 			UserDisplayName: event.UserName,
 			UserName:        event.UserLogin,
+		},
+	)
+}
+
+func (c *Handler) HandleUnban(
+	ctx context.Context,
+	event eventsub.ChannelUnbanEvent,
+	meta eventsub.WebsocketNotificationMetadata,
+) {
+	c.logger.Info(
+		"channel unban",
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("userId", event.UserID),
+		slog.String("userName", event.UserLogin),
+		slog.String("moderatorName", event.ModeratorUserName),
+		slog.String("moderatorId", event.ModeratorUserID),
+	)
+
+	c.twirBus.Events.ChannelUnban.Publish(
+		ctx,
+		events.ChannelUnbanMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   event.BroadcasterUserID,
+				ChannelName: event.BroadcasterUserLogin,
+			},
+			UserID:               event.UserID,
+			UserName:             event.UserName,
+			UserLogin:            event.UserLogin,
+			BroadcasterUserName:  event.BroadcasterUserName,
+			BroadcasterUserLogin: event.BroadcasterUserLogin,
+			ModeratorUserID:      event.ModeratorUserID,
+			ModeratorUserName:    event.ModeratorUserName,
+			ModeratorUserLogin:   event.ModeratorUserLogin,
 		},
 	)
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twitchy/eventsub"
 )
 
 func (c *Handler) HandleUserUpdate(

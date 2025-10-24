@@ -11,8 +11,8 @@ import (
 
 	"github.com/avast/retry-go/v4"
 	"github.com/imroc/req/v3"
-	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
+	"github.com/twirapp/twitchy/eventsub"
 )
 
 type ErrRateLimit struct {
@@ -211,6 +211,10 @@ func (c *Manager) getConditionForTopic(
 		}, nil
 	case eventsub.EventTypeChannelBan:
 		return eventsub.ChannelBanCondition{
+			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelUnban:
+		return eventsub.ChannelUnbanCondition{
 			BroadcasterUserId: channelId,
 		}, nil
 	case eventsub.EventTypeChannelChatClear:

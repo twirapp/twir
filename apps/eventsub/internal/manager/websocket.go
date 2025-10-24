@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twitchy/eventsub"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -58,6 +58,7 @@ func (c *Manager) startWebSocket() {
 	ws.OnChannelPredictionLock(wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelPredictionLock))
 	ws.OnChannelPredictionEnd(wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelPredictionEnd))
 	ws.OnChannelBan(wrapWsEventsubHandlerWithCtx(c.handler.HandleBan))
+	ws.OnChannelUnban(wrapWsEventsubHandlerWithCtx(c.handler.HandleUnban))
 	ws.OnChannelSubscribe(wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelSubscribe))
 	ws.OnChannelSubscriptionMessage(
 		wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelSubscriptionMessage),

@@ -7,7 +7,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	bus_listener "github.com/twirapp/twir/apps/bots/internal/bus-listener"
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
-	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
@@ -61,6 +60,7 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
+	"github.com/twirapp/twir/libs/services/modflagservice"
 
 	"go.uber.org/fx"
 )
@@ -136,10 +136,6 @@ var App = fx.Module(
 		chatwallcacher.NewEnabledOnly,
 		chatwallcacher.NewSettings,
 		giveawayscache.New,
-		fx.Annotate(
-			mod_task_queue.NewRedisModTaskDistributor,
-			fx.As(new(mod_task_queue.TaskDistributor)),
-		),
 		rolescache.New,
 		toxicity_check.New,
 		func(
@@ -158,6 +154,7 @@ var App = fx.Module(
 		messagehandler.New,
 		keywords.New,
 		tts.New,
+		modflagservice.New,
 	),
 	fx.Invoke(
 		func(config cfg.Config) {
@@ -171,6 +168,5 @@ var App = fx.Module(
 		func(l logger.Logger) {
 			l.Info("🚀 Bots started")
 		},
-		mod_task_queue.NewRedisTaskProcessor,
 	),
 )

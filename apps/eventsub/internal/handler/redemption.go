@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -19,6 +18,7 @@ import (
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
+	"github.com/twirapp/twitchy/eventsub"
 
 	"github.com/google/uuid"
 	model "github.com/twirapp/twir/libs/gomodels"

@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	"github.com/twirapp/twitchy/eventsub"
 )
 
 func (c *Handler) flushChannelPointsRewardsCache(ctx context.Context, channelID string) error {

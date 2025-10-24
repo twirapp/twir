@@ -32,6 +32,7 @@ const (
 	VipRemovedSubject                 = "events.vip_removed"
 	ModeratorAddedSubject             = "events.moderator_added"
 	ModeratorRemovedSubject           = "events.moderator_removed"
+	ChannelUnbanSubject               = "events.channel_unban"
 )
 
 type BaseInfo struct {
@@ -270,6 +271,18 @@ type ChannelBanMessage struct {
 	Reason               string   `json:"reason"`
 	EndsAt               string   `json:"ends_at"`
 	IsPermanent          bool     `json:"is_permanent"`
+}
+
+type ChannelUnbanMessage struct {
+	BaseInfo             BaseInfo `json:"base_info"`
+	UserID               string   `json:"user_id"`
+	UserName             string   `json:"user_name"`
+	UserLogin            string   `json:"user_login"`
+	BroadcasterUserName  string   `json:"broadcaster_user_name"`
+	BroadcasterUserLogin string   `json:"broadcaster_user_login"`
+	ModeratorUserID      string   `json:"moderator_id"`
+	ModeratorUserName    string   `json:"moderator_user_name"`
+	ModeratorUserLogin   string   `json:"moderator_user_login"`
 }
 
 type ChannelUnbanRequestCreateMessage struct {

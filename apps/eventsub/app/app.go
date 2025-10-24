@@ -32,11 +32,10 @@ import (
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
-	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
-	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
-
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
