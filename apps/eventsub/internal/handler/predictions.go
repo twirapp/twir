@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/events"
-	"github.com/twirapp/twitchy/eventsub"
 )
 
 func convertOutCome(outcomes []eventsub.ChannelPredictionEventOutcome) []events.PredictionOutcome {

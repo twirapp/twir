@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
-	"github.com/twirapp/twitchy/eventsub"
 	"go.uber.org/zap"
 )
 

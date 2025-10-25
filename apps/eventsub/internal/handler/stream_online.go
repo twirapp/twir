@@ -4,13 +4,13 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/twitch"
-	"github.com/twirapp/twitchy/eventsub"
 	"go.uber.org/zap"
 )
 

@@ -4,10 +4,10 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/redis_keys"
-	"github.com/twirapp/twitchy/eventsub"
 )
 
 func (c *Handler) HandleStreamOffline(

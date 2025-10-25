@@ -5,9 +5,9 @@ import (
 	"slices"
 
 	"github.com/google/uuid"
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/integrations/seventv"
-	"github.com/twirapp/twitchy/eventsub"
 	"go.uber.org/zap"
 )
 

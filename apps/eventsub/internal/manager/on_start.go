@@ -8,8 +8,8 @@ import (
 	"strconv"
 
 	"github.com/imroc/req/v3"
+	"github.com/kvizyx/twitchy/eventsub"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
-	"github.com/twirapp/twitchy/eventsub"
 )
 
 type conduitsResponse struct {
@@ -235,6 +235,7 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 		slog.Int("shard_id", shardId),
 		slog.String("session_id", *c.wsCurrentSessionId),
 		slog.String("current_replica_id", currentReplicaId),
+		slog.String("response", resp.String()),
 	)
 
 	return nil

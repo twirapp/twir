@@ -11,8 +11,8 @@ import (
 
 	"github.com/avast/retry-go/v4"
 	"github.com/imroc/req/v3"
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
-	"github.com/twirapp/twitchy/eventsub"
 )
 
 type ErrRateLimit struct {
@@ -355,6 +355,11 @@ func (c *Manager) getConditionForTopic(
 	case eventsub.EventTypeChannelUpdate:
 		return eventsub.ChannelUpdateCondition{
 			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelModerate:
+		return eventsub.ChannelModerateV2Condition{
+			BroadcasterUserId: channelId,
+			ModeratorUserId:   botId,
 		}, nil
 	default:
 		return nil, errors.New("unsupported event type for topic")

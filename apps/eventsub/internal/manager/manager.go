@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	"github.com/kvizyx/twitchy/eventsub"
 	goredislib "github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -15,7 +16,6 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
-	"github.com/twirapp/twitchy/eventsub"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
 	"gorm.io/gorm"

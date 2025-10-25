@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twitchy/eventsub"
 )
 
 func (c *Handler) HandleChannelModeratorAdd(
