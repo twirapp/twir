@@ -5,6 +5,7 @@ import (
 	adapter "github.com/aidenwallis/go-ratelimiting/redis/adapters/go-redis"
 	goredis "github.com/redis/go-redis/v9"
 	"github.com/twirapp/kv"
+	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -32,6 +33,7 @@ type Opts struct {
 	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	TwirBus                 *buscore.Bus
 	KV                      kv.KV
+	ModTaskDistributor      mod_task_queue.TaskDistributor
 }
 
 func New(opts Opts) *TwitchActions {
@@ -47,6 +49,7 @@ func New(opts Opts) *TwitchActions {
 		toxicMessagesRepository: opts.ToxicMessagesRepository,
 		channelsCache:           opts.ChannelsCache,
 		kv:                      opts.KV,
+		modTaskDistributor:      opts.ModTaskDistributor,
 	}
 
 	return actions
@@ -64,4 +67,5 @@ type TwitchActions struct {
 	config                  cfg.Config
 	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	kv                      kv.KV
+	modTaskDistributor      mod_task_queue.TaskDistributor
 }
