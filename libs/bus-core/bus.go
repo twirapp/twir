@@ -154,6 +154,18 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				GobEncoder,
 			),
+			ModeratorAdd: NewNatsQueue[botsservice.ModeratorAddRequest, struct{}](
+				nc,
+				botsservice.ModeratorAddSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			ModeratorRemove: NewNatsQueue[botsservice.ModeratorRemoveRequest, struct{}](
+				nc,
+				botsservice.ModeratorRemoveSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
 		},
 
 		Websocket: &websocketBus{
@@ -452,6 +464,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			ModeratorRemoved: NewNatsQueue[events.ModeratorRemovedMessage, struct{}](
 				nc,
 				events.ModeratorRemovedSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			ChannelUnban: NewNatsQueue[events.ChannelUnbanMessage, struct{}](
+				nc,
+				events.ChannelUnbanSubject,
 				1*time.Minute,
 				GobEncoder,
 			),

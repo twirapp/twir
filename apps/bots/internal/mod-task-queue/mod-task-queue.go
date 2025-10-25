@@ -42,7 +42,7 @@ func NewRedisModTaskDistributor(
 	}
 
 	client := asynq.NewClient(redisOpt)
-
+	
 	distributor := &ModTaskDistributor{
 		client: client,
 		logger: logger,

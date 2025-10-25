@@ -3,6 +3,7 @@ package mod_task_queue
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/goccy/go-json"
@@ -30,14 +31,39 @@ func (p *RedisTaskProcessor) ProcessDistributeMod(
 		return err
 	}
 
-	req, err := twitchClient.AddChannelModerator(
+	checkModReq, err := twitchClient.GetModerators(
+		&helix.GetModeratorsParams{
+			BroadcasterID: payload.ChannelID,
+			UserIDs:       []string{payload.UserID},
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to check existing moderator: %w", err)
+	}
+	if checkModReq.ErrorMessage != "" {
+		return errors.New(checkModReq.ErrorMessage)
+	}
+
+	if len(checkModReq.Data.Moderators) > 0 {
+		p.logger.Warn(
+			"user is already a moderator",
+			slog.String("channelId", payload.ChannelID),
+			slog.String("userId", payload.UserID),
+		)
+		return nil
+	}
+
+	addModReq, err := twitchClient.AddChannelModerator(
 		&helix.AddChannelModeratorParams{
 			BroadcasterID: payload.ChannelID,
 			UserID:        payload.UserID,
 		},
 	)
-	if req.ErrorMessage != "" {
-		return errors.New(req.ErrorMessage)
+	if err != nil {
+		return fmt.Errorf("failed to add moderator: %w", err)
+	}
+	if addModReq.ErrorMessage != "" {
+		return errors.New(addModReq.ErrorMessage)
 	}
 
 	return err

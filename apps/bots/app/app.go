@@ -61,6 +61,7 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
+	"github.com/twirapp/twir/libs/services/modflagservice"
 
 	"go.uber.org/fx"
 )
@@ -158,8 +159,10 @@ var App = fx.Module(
 		messagehandler.New,
 		keywords.New,
 		tts.New,
+		modflagservice.New,
 	),
 	fx.Invoke(
+		mod_task_queue.NewRedisTaskProcessor,
 		func(config cfg.Config) {
 			if config.AppEnv != "development" {
 				http.Handle("/metrics", promhttp.Handler())
@@ -171,6 +174,5 @@ var App = fx.Module(
 		func(l logger.Logger) {
 			l.Info("🚀 Bots started")
 		},
-		mod_task_queue.NewRedisTaskProcessor,
 	),
 )

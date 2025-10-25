@@ -5,13 +5,15 @@ import (
 )
 
 const (
-	SendMessageSubject   = "bots.send_message"
-	DeleteMessageSubject = "bots.delete_message"
-	BanSubject           = "bots.ban"
-	BanMultipleSubject   = "bots.ban_multiple"
-	ShoutOutSubject      = "bots.shoutout"
-	VipSubject           = "bots.vip"
-	UnVipSubject         = "bots.unvip"
+	SendMessageSubject     = "bots.send_message"
+	DeleteMessageSubject   = "bots.delete_message"
+	BanSubject             = "bots.ban"
+	BanMultipleSubject     = "bots.ban_multiple"
+	ShoutOutSubject        = "bots.shoutout"
+	VipSubject             = "bots.vip"
+	UnVipSubject           = "bots.unvip"
+	ModeratorAddSubject    = "bots.moderator_add"
+	ModeratorRemoveSubject = "bots.moderator_remove"
 )
 
 type SendMessageRequest struct {
@@ -52,6 +54,16 @@ type VipRequest struct {
 }
 
 type UnVipRequest struct {
+	ChannelID string
+	TargetID  string
+}
+
+type ModeratorAddRequest struct {
+	ChannelID string
+	TargetID  string
+}
+
+type ModeratorRemoveRequest struct {
 	ChannelID string
 	TargetID  string
 }

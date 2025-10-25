@@ -9,7 +9,9 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
+	kvoptions "github.com/twirapp/kv/options"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
+	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -51,10 +53,23 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 			&mod_task_queue.TaskModUserPayload{
 				ChannelID: opts.BroadcasterID,
 				UserID:    opts.UserID,
-			}, asynq.ProcessIn(time.Duration(opts.Duration+2)*time.Second),
+			}, asynq.ProcessIn(time.Duration(opts.Duration+1)*time.Second),
 		)
 		if err != nil {
 			return fmt.Errorf("cannot distribute mod user: %w", err)
+		}
+
+		// we'll listen unban event via eventsub and track that key for faster processing of mod user
+		if err := c.kv.Set(
+			ctx,
+			redis_keys.CreateDistributedModTaskKey(opts.BroadcasterID, opts.UserID),
+			true,
+			kvoptions.WithExpire(time.Duration(opts.Duration+5)*time.Second),
+		); err != nil {
+			return fmt.Errorf(
+				"cannot prepare distributed mod task, so we better not to ban user: %w",
+				err,
+			)
 		}
 
 		removeModeratorResponse, err := broadcasterHelixClient.RemoveChannelModerator(

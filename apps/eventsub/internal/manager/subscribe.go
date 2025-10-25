@@ -213,6 +213,10 @@ func (c *Manager) getConditionForTopic(
 		return eventsub.ChannelBanCondition{
 			BroadcasterUserId: channelId,
 		}, nil
+	case eventsub.EventTypeChannelUnban:
+		return eventsub.ChannelUnbanCondition{
+			BroadcasterUserId: channelId,
+		}, nil
 	case eventsub.EventTypeChannelChatClear:
 		return eventsub.ChannelChatClearCondition{
 			BroadcasterUserId: channelId,
@@ -351,6 +355,11 @@ func (c *Manager) getConditionForTopic(
 	case eventsub.EventTypeChannelUpdate:
 		return eventsub.ChannelUpdateCondition{
 			BroadcasterUserId: channelId,
+		}, nil
+	case eventsub.EventTypeChannelModerate:
+		return eventsub.ChannelModerateV2Condition{
+			BroadcasterUserId: channelId,
+			ModeratorUserId:   botId,
 		}, nil
 	default:
 		return nil, errors.New("unsupported event type for topic")
