@@ -369,6 +369,11 @@ func (c *BusListener) handleUnban(
 	}
 
 	if modTaskExists {
+		defer c.kv.Delete(
+			ctx,
+			redis_keys.CreateDistributedModTaskKey(data.ModeratorUserID, data.UserID),
+		)
+
 		err := c.twitchActions.AddModerator(ctx, data.ModeratorUserID, data.UserID)
 		if err != nil {
 			return fmt.Errorf("cannot add moderator after unban: %w", err)
