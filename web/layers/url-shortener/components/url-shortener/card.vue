@@ -8,13 +8,13 @@ import { useQRCode } from '../../composables/use-qr-code'
 import type { LinkOutputDto } from '@twir/api/openapi'
 
 import PixelBlast from '~/components/ui/bits/backgrounds/PixelBlast/pixel-blast.vue'
-import { ColorPicker } from '~/components/ui/color-picker'
+import Dropdown from './dropdown.vue'
 
 const props = defineProps<{ url: LinkOutputDto }>()
 
 const clipboardApi = useClipboard()
 
-const { extractMetaFromUrl, error, loading } = useMetaExtractor()
+const { extractMetaFromUrl, loading } = useMetaExtractor()
 
 const hasLoaded = ref(false)
 const metaData = ref<any>(null)
@@ -110,18 +110,18 @@ watch(
 </script>
 
 <template>
-	<div class="flex w-full justify-center">
+	<div class="flex w-full justify-center overflow-hidden">
 		<div
 			class="flex justify-between items-center bg-[hsl(240,11%,9%)] border border-[hsl(240,11%,18%)] h-fit w-full max-w-xl rounded-2xl p-3 shadow-[0px_0px_30px_hsl(240,11%,6%)]"
 		>
-			<div class="flex justify-between items-center gap-3">
+			<div class="flex items-center min-w-0 gap-x-3">
 				<div
-					class="flex size-fit p-3 rounded-full font-semibold border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,20%)]"
+					class="flex-none size-fit p-3 rounded-full font-semibold border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,20%)]"
 				>
 					<Icon v-if="!hasLoaded || !metaData" name="lucide:link" class="size-4" />
 					<img v-else :src="metaData.favicon" class="size-4" />
 				</div>
-				<div class="flex flex-col gap-1">
+				<div class="overflow-hidden min-w-0">
 					<div class="flex items-center">
 						<a
 							:href="props.url.short_url"
@@ -132,7 +132,7 @@ watch(
 						</a>
 					</div>
 					<span class="flex gap-1">
-						<Icon name="lucide:corner-down-right" class="size-4 text-[hsl(240,11%,50%)]" />
+						<Icon name="lucide:corner-down-right" class="size-4 text-[hsl(240,11%,50%)] shrink-0" />
 						<a
 							:href="props.url.url"
 							target="_blank"
@@ -143,27 +143,35 @@ watch(
 					</span>
 				</div>
 			</div>
-			<div class="flex items-center gap-2">
-				<span
-					class="cursor-pointer flex gap-1.5 items-center text-sm size-fit p-2.5 rounded-lg font-semibold border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
+			<div class="flex items-center gap-1">
+				<div
+					class="cursor-pointer flex gap-1.5 items-center justify-center text-sm size-fit px-2.5 py-1.5 rounded-lg font-semibold border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
 				>
 					<Icon name="lucide:mouse-pointer-click" class="size-4" />
-					{{ formatViews(props.url.views) }} views
-				</span>
-				<UiButton
-					variant="outline"
-					class="size-fit p-3 rounded-lg font-semibold border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)]"
-					@click="copyUrl"
-				>
-					<Icon name="lucide:copy" class="size-4" />
-				</UiButton>
-				<UiButton
-					variant="outline"
-					class="size-fit p-3 rounded-lg font-semibold border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)]"
-					@click="openQRCode"
-				>
-					<Icon name="lucide:qr-code" class="size-4" />
-				</UiButton>
+					{{ formatViews(props.url.views) }} <span class="hidden sm:inline-block">views</span>
+				</div>
+				<Dropdown>
+					<template #content>
+						<UiDropdownMenuItem
+							class="rounded-lg px-3 focus:bg-[hsl(240,11%,20%)] cursor-pointer"
+							@click="copyUrl"
+						>
+							<div class="flex items-center gap-3">
+								<Icon name="lucide:copy" class="size-4" />
+								<span>Copy URL</span>
+							</div>
+						</UiDropdownMenuItem>
+						<UiDropdownMenuItem
+							class="rounded-lg px-3 focus:bg-[hsl(240,11%,20%)] cursor-pointer"
+							@click="openQRCode"
+						>
+							<div class="flex items-center gap-3">
+								<Icon name="lucide:qr-code" class="size-4" />
+								<span>QR Code</span>
+							</div>
+						</UiDropdownMenuItem>
+					</template>
+				</Dropdown>
 			</div>
 		</div>
 
@@ -216,7 +224,7 @@ watch(
 
 							<div class="flex flex-row items-center justify-between">
 								<label class="text-sm font-medium">QR Code Color</label>
-								<ColorPicker v-model="qrSettings.color" class="size-6" />
+								<UiColorPicker v-model="qrSettings.color" class="size-6" />
 							</div>
 						</div>
 					</div>

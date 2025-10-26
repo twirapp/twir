@@ -64,25 +64,25 @@ const onSubmit = form.handleSubmit(async (values) => {
 				<UiFormItem>
 					<UiFormControl>
 						<div
-							class="flex items-center rounded-xl p-1.5 border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,15%)] w-full"
+							class="flex flex-col items-start sm:flex-row sm:items-center rounded-xl p-2 border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,15%)] w-full focus-within:ring ring-[hsl(240,11%,30%)] focus-within:border-[hsl(240,11%,30%)] focus-within:ring-[hsl(240,11%,30%)] transition-all"
 						>
-							<label for="url" class="flex items-center w-full gap-2.5">
-								<Icon name="lucide:link" class="size-4 ml-2 mr-1 cursor-pointer" />
+							<label for="url" class="flex items-center w-full gap-2.5 overflow-hidden">
+								<Icon name="lucide:link" class="flex-none size-4 ml-2 mr-1 cursor-pointer" />
 								<input
 									id="url"
 									type="text"
 									v-bind="componentField"
-									class="flex-1 bg-transparent font-medium focus-visible:outline-none border-l border-[hsl(240,11%,40%)] pl-4 placeholder-[hsl(240,11%,40%)]"
+									class="flex-1 bg-transparent font-medium focus-visible:outline-none placeholder-[hsl(240,11%,40%)]"
 									placeholder="https://twitch.tv/twirdev"
 								/>
-								<UiButton
-									type="submit"
-									variant="outline"
-									class="h-fit px-3 rounded-lg font-semibold border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)]"
-								>
-									Shorten
-								</UiButton>
 							</label>
+							<UiButton
+								type="submit"
+								variant="outline"
+								class="h-fit w-full sm:w-auto mt-2 sm:mt-0 py-1 sm:py-1.5 sm:px-3 rounded-lg font-semibold border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,25%)] hover:bg-[hsl(240,11%,35%)]"
+							>
+								Shorten
+							</UiButton>
 						</div>
 					</UiFormControl>
 					<UiFormMessage class="px-2 pt-1 text-xs" />
