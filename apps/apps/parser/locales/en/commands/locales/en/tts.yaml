@@ -1,0 +1,19 @@
+errors:
+  while_disable: Error while disabling tts
+  while_enable: Error while enabling tts
+  not_configured: TTS is not configured for this channel
+  sending_to_tts: Error while sending message to tts service
+  while_getting_voices: Error while getting voices
+info:
+  disabled: TTS disabled
+  enabled: TTS enabled
+  pitch: 'Global pitch: {globalPitch} | Your pitch: {userPitch}'
+  change_pitch: 'Pitch changed to {newPitch}'
+  rate: 'Global rate: {globalRate} | Your rate: {userRate}'
+  change_rate: 'Rate changed to {newRate}'
+  voice: 'Global voice: {globalVoice} | Your voice: {userVoice}'
+  change_voice: Voice changed to {newVoice}
+  no_voices: No voices available
+  current_volume: 'Current volume: {ttsVolume}'
+  change_volume: 'TTS volume changed to {userVolume}'
+  voice_disallowed: 'Voice {voiceName} is disallowed for usage'
