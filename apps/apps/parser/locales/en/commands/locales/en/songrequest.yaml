@@ -1,0 +1,9 @@
+errors:
+  get_settings: Cannot get song requests settings.
+  search_song: Cannot search song.
+  get_latest_song: Cannot get latest song.
+  get_current_queue_count: Cannot get current queue count.
+  get_songs_from_queue: Cannot get songs from queue.
+  update_song: Cannot update song.
+  remove_song_from_queue: Cannot remove song from queue.
+

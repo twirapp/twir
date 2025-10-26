@@ -1,0 +1,6 @@
+errors:
+  no_active_set: "You don't have a 7TV set set."
+  profile_not_found: "Failed to get 7tv profile: {reason}"
+  emote_not_found: "Emote {name} not found."
+emote_info:
+  response: "{name}: {link} · Added by @{addedByUserName} {addedByTime} ago · Author {emoteAuthor}"
