@@ -5,20 +5,24 @@ import (
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	"github.com/twirapp/twir/libs/baseapp"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
@@ -26,12 +30,12 @@ import (
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
-
-	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
-	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
-
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
@@ -81,8 +85,17 @@ var App = fx.Options(
 			twitchconduitsrepositorypostgres.NewFx,
 			fx.As(new(twitchconduitsrepository.Repository)),
 		),
+		fx.Annotate(
+			commandswithgroupsandresponsespostgres.NewFx,
+			fx.As(new(commandswithgroupsandresponsesrepository.Repository)),
+		),
 		channelcache.New,
-		channelscommandsprefixcache.New,
+		func(
+			repo channelscommandsprefixrepository.Repository,
+			bus *buscore.Bus,
+		) *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix] {
+			return channelscommandsprefixcache.New(repo, bus)
+		},
 		channelalertscache.New,
 		commandscache.New,
 		channelsongrequestssettingscache.New,
@@ -94,6 +107,8 @@ var App = fx.Options(
 		uptrace.NewFx("eventsub"),
 		handler.New,
 		bus_listener.New,
-		// t.New,
+		func(l logger.Logger) {
+			l.Info("🚀 EventSub App started")
+		},
 	),
 )

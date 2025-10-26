@@ -21,6 +21,7 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	kvredis "github.com/twirapp/kv/stores/redis"
 	commands_bus "github.com/twirapp/twir/apps/parser/internal/commands-bus"
 	"github.com/twirapp/twir/apps/parser/internal/nats"
 	chatwallservice "github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
@@ -47,6 +48,7 @@ import (
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	channelsmodules_settingsttspgx "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/postgres"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
+	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
@@ -212,9 +214,11 @@ func main() {
 		panic(err)
 	}
 
+	kvStorageRedis := kvredis.New(redisClient)
+
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
-	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
-	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
+	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, bus)
+	ttsSettingsCacher := ttscache.NewTTSSettings(db, kvStorageRedis)
 	ttsRepository := channelsmodules_settingsttspgx.NewFx(pgxconn)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
 	usersRepo := usersrepositorypgx.New(usersrepositorypgx.Opts{PgxPool: pgxconn})
@@ -234,7 +238,7 @@ func main() {
 		panic(err)
 	}
 
-	chatWallCache := chatwallcache.NewEnabledOnly(chatWallRepository, redisClient)
+	chatWallCache := chatwallcache.NewEnabledOnly(chatWallRepository, kvStorageRedis)
 
 	chatWallService := chatwallservice.New(
 		chatwallservice.Opts{
@@ -258,12 +262,15 @@ func main() {
 		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
 		},
-		Bus:                      bus,
-		CommandsCache:            commandscache.New(db, redisClient),
+		Bus: bus,
+		CommandsCache: commandscache.New(
+			commandswithgroupsandresponsespostgres.New(commandswithgroupsandresponsespostgres.Opts{PgxPool: pgxconn}),
+			bus,
+		),
 		ChatWallRepo:             chatWallRepository,
 		ChatWallCache:            chatWallCache,
 		ChatWallService:          chatWallService,
-		SevenTvCache:             seventv.New(redisClient, *config),
+		SevenTvCache:             seventv.New(kvStorageRedis, *config),
 		RedSync:                  redSync,
 		CommandsPrefixCache:      commandsPrefixRepoCache,
 		CommandsPrefixRepository: commandsPrefixRepo,

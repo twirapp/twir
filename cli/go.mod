@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/cli
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/99designs/gqlgen v0.17.76

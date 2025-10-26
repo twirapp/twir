@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Toaster } from '@/components/ui/sonner'
+
 const description =
 	'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.'
 const siteName = `Twir${import.meta.dev ? ' dev' : ''}`
@@ -48,5 +50,7 @@ useSeoMeta({
 		<NuxtLayout>
 			<NuxtPage />
 		</NuxtLayout>
+
+		<Toaster />
 	</UiTooltipProvider>
 </template>

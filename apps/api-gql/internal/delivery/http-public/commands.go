@@ -6,8 +6,8 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )
 
 type publicCommandsOutput struct {
@@ -50,7 +50,8 @@ func (p *Public) HandleChannelCommandsGet(
 	}
 
 	commands = lo.Filter(
-		commands, func(item model.ChannelsCommands, index int) bool {
+		commands,
+		func(item commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses, index int) bool {
 			return item.Enabled && item.Visible
 		},
 	)
@@ -60,7 +61,7 @@ func (p *Public) HandleChannelCommandsGet(
 	for _, command := range commands {
 		mappedCmd := commandDto{
 			Name:        command.Name,
-			Description: command.Description.Ptr(),
+			Description: command.Description,
 			Module:      command.Module,
 			Group:       nil,
 			Responses:   make([]commandDtoResponse, 0, len(command.Responses)),
@@ -71,10 +72,15 @@ func (p *Public) HandleChannelCommandsGet(
 		}
 
 		for _, response := range command.Responses {
+			var text string
+			if response.Text != nil {
+				text = *response.Text
+			}
+
 			mappedCmd.Responses = append(
 				mappedCmd.Responses,
 				commandDtoResponse{
-					Text: response.Text.String,
+					Text: text,
 				},
 			)
 		}

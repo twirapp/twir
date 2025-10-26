@@ -17,10 +17,12 @@ export const globalRequestLimiter = new RateLimiter({
 			return await client.send(args.at(0)!, args.slice(1))
 		},
 	}),
-	algorithm: 'sliding-window-counter',
-	limit: 50,
-	windowMs: 1 * 60 * 1000,
+	algorithm: 'fixed-window-counter',
+	limit: 1,
+	windowMs: 1100,
 })
+
+export const rateLimiterKey = 'donationalerts'
 
 export class DonationAlerts {
 	#socket: Centrifuge | null
@@ -38,7 +40,7 @@ export class DonationAlerts {
 			websocket: WebSocket,
 			onPrivateSubscribe: async (ctx, cb) => {
 				while (true) {
-					const { isAllowed } = await globalRequestLimiter.consume(this.twitchUserId)
+					const { isAllowed } = await globalRequestLimiter.consume(rateLimiterKey)
 					if (!isAllowed) {
 						await sleep(1000)
 						continue
@@ -50,7 +52,6 @@ export class DonationAlerts {
 							method: 'POST',
 							body: JSON.stringify(ctx.data),
 							headers: { Authorization: `Bearer ${this.accessToken}` },
-							verbose: true,
 						}
 					)
 

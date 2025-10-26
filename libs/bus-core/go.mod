@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/bus-core
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/goccy/go-json v0.10.5

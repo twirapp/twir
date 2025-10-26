@@ -5,7 +5,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/minio/minio-go/v7"
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
@@ -30,6 +30,7 @@ import (
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
@@ -62,6 +63,7 @@ import (
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -81,11 +83,11 @@ type Deps struct {
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB
 	CachedTwitchClient               *twitchcahe.CachedTwitchClient
-	CachedCommandsClient             *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
+	CachedCommandsClient             *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedgormmodel.ChannelSongRequestsSettings]
 	Minio                            *minio.Client
 	TwirBus                          *bus_core.Bus
-	Redis                            *redis.Client
+	KV                               kv.KV
 	TwirStats                        *twir_stats.TwirStats
 
 	DashboardWidgetEventsService          *dashboard_widget_events.Service
@@ -135,6 +137,7 @@ type Deps struct {
 	KappagenService                       *kappagen.Service
 	TwirEventsService                     *twir_events.Service
 	DonatePayService                      *donatepay_integration.Service
+	DonationAlertsIntegrationService      *donationalerts_integration.Service
 }
 
 type Resolver struct {

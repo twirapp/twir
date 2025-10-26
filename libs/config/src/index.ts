@@ -3,7 +3,9 @@ import process from 'node:process'
 import { z } from 'zod'
 
 const envSchema = z.object({
-	DATABASE_URL: z.string().default('postgresql://tsuwari:tsuwari@localhost:54321/tsuwari?schema=public'),
+	DATABASE_URL: z
+		.string()
+		.default('postgresql://tsuwari:tsuwari@localhost:54321/tsuwari?schema=public'),
 	NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 	TWITCH_CLIENTID: z.string(),
 	TWITCH_CLIENTSECRET: z.string(),
@@ -25,7 +27,13 @@ const envSchema = z.object({
 	ODESLI_API_KEY: z.string().optional(),
 	DISCORD_FEEDBACK_URL: z.string(),
 	NATS_URL: z.string().default('127.0.0.1:4222'),
-	USE_WSS: z.enum(['true', 'false']).transform((value) => value === 'true').optional().default('false'),
+	USE_WSS: z
+		.enum(['true', 'false'])
+		.transform((value) => value === 'true')
+		.optional()
+		.default('false'),
+	DONATIONALERTS_CLIENT_ID: z.string().optional(),
+	DONATIONALERTS_CLIENT_SECRET: z.string().optional(),
 })
 
 export const config = envSchema.parse(process.env)

@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/eventsub
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/avast/retry-go/v4 v4.6.1
@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/nicklaw5/helix/v2 v2.31.1
-	github.com/redis/go-redis/v9 v9.11.0
+	github.com/redis/go-redis/v9 v9.13.0
 	github.com/samber/lo v1.51.0
 	github.com/twirapp/batch-processor v0.0.1
 	github.com/twirapp/twitch-eventsub-framework v1.3.9
@@ -62,6 +62,7 @@ require (
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
+	github.com/kvizyx/twitchy v0.1.3 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
@@ -87,6 +88,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
+	github.com/twirapp/twitchy v0.0.3 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
 	github.com/uptrace/uptrace-go v1.37.0 // indirect
@@ -123,5 +125,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
-
-require github.com/kvizyx/twitchy v0.0.1 // indirect

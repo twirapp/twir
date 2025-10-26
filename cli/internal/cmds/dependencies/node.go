@@ -24,7 +24,7 @@ func installNodeDeps() error {
 
 	err = shell.ExecCommand(
 		shell.ExecCommandOpts{
-			Command: "bun install --frozen-lockfile --linker=isolated",
+			Command: "bun install --frozen-lockfile",
 			Pwd:     wd,
 			Stderr:  os.Stderr,
 			Stdout:  os.Stdout,
@@ -36,14 +36,6 @@ func installNodeDeps() error {
 	}
 
 	return nil
-}
-
-type packageJson struct {
-	Engines struct {
-		Node string `json:"node"`
-		Pnpm string `json:"pnpm"`
-		Bun  string `json:"bun"`
-	} `json:"engines"`
 }
 
 func checkBunVersion() error {

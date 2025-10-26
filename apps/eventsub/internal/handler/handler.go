@@ -18,6 +18,7 @@ import (
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	"go.opentelemetry.io/otel/trace"
@@ -45,7 +46,7 @@ type Handler struct {
 	twirBus                             *bus_core.Bus
 	prefixCache                         *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	alertsCache                         *generic_cacher.GenericCacher[[]alertmodel.Alert]
-	commandsCache                       *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
+	commandsCache                       *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	channelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
 	channelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
 	config                              cfg.Config
@@ -66,7 +67,7 @@ type Opts struct {
 	StreamsRepository                   streams.Repository
 	RedemptionsHistoryRepository        channelsredemptionshistory.Repository
 	EventsListRepository                channelseventslist.Repository
-	CommandsCache                       *generic_cacher.GenericCacher[[]deprecatedmodel.ChannelsCommands]
+	CommandsCache                       *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	ChannelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
 	ChannelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
 

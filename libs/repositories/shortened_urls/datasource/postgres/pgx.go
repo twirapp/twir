@@ -36,6 +36,51 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) GetManyByShortIDs(ctx context.Context, ids []string) ([]model.ShortenedUrl, error) {
+	query := `
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views
+FROM shortened_urls
+WHERE short_id = ANY($1)
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ShortenedUrl])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, shortened_urls.ErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return models, nil
+}
+
+func (c *Pgx) Count(ctx context.Context, input shortened_urls.CountInput) (int64, error) {
+	selectBuilder := sq.Select("COUNT(*)").From("shortened_urls")
+	if input.UserID != "" {
+		selectBuilder = selectBuilder.Where("created_by_user_id", input.UserID)
+	}
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	var count int64
+	err = c.pool.QueryRow(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (c *Pgx) Delete(ctx context.Context, id string) error {
 	query := `
 DELETE FROM shortened_urls
@@ -161,22 +206,22 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 		From("shortened_urls").
 		OrderBy("created_at DESC")
 
-	countQueryBUilder := sq.Select("COUNT(*)").From("shortened_urls")
+	countQueryBuilder := sq.Select("COUNT(*)").From("shortened_urls")
 
 	if input.UserID != nil {
-		queryBuilder = queryBuilder.Where("created_by_user_id", *input.UserID)
-		countQueryBUilder = countQueryBUilder.Where("created_by_user_id", *input.UserID)
+		queryBuilder = queryBuilder.Where("created_by_user_id = ?", *input.UserID)
+		countQueryBuilder = countQueryBuilder.Where("created_by_user_id = ?", *input.UserID)
 	}
 
-	countQuery, countArgs, err := countQueryBUilder.ToSql()
+	countQuery, countArgs, err := countQueryBuilder.ToSql()
 	if err != nil {
-		return shortened_urls.GetListOutput{}, fmt.Errorf("count query error: %w", err)
+		return shortened_urls.GetListOutput{}, fmt.Errorf("count query builder error: %w", err)
 	}
 
 	var count int64
 	err = c.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&count)
 	if err != nil {
-		return shortened_urls.GetListOutput{}, fmt.Errorf("count query error: %w", err)
+		return shortened_urls.GetListOutput{}, fmt.Errorf("count queryrow error: %w", err)
 	}
 
 	perPage := input.PerPage
@@ -184,7 +229,7 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 		perPage = 20
 	}
 
-	if input.Page > 0 && perPage > 0 {
+	if input.Page > 0 || perPage > 0 {
 		offset := input.Page * perPage
 		queryBuilder = queryBuilder.Limit(uint64(perPage)).Offset(uint64(offset))
 	}

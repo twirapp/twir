@@ -21,9 +21,9 @@ const props = withDefaults(
 	defineProps<{
 		title: string
 		isLoading?: boolean
-		data: { userName?: string; avatar?: string } | undefined | null
+		data: { userName?: string | null; avatar?: string | null } | undefined | null
 		logout: () => any
-		authLink?: string
+		authLink?: string | null
 		icon: FunctionalComponent<any>
 		iconWidth?: string
 		iconColor?: string

@@ -36,7 +36,7 @@ export const EventsOptions: Record<string, TwirEvent> = {
 	[EventType.Follow]: {
 		name: 'Follow',
 		icon: HeartIcon,
-		variables: ['userName', 'userDisplayName'],
+		variables: ['userName', 'userDisplayName', 'channelFollowers', 'channelStreamFollowers'],
 		enumValue: EventType.Follow,
 	},
 
@@ -115,12 +115,7 @@ export const EventsOptions: Record<string, TwirEvent> = {
 			[EventType.TitleOrCategoryChanged]: {
 				name: 'Title or Category Changed',
 				icon: ReplaceAllIcon,
-				variables: [
-					'oldStreamTitle',
-					'newStreamTitle',
-					'oldStreamCategory',
-					'newStreamCategory',
-				],
+				variables: ['oldStreamTitle', 'newStreamTitle', 'oldStreamCategory', 'newStreamCategory'],
 				enumValue: EventType.TitleOrCategoryChanged,
 			},
 			[EventType.StreamOnline]: {
@@ -209,21 +204,13 @@ export const EventsOptions: Record<string, TwirEvent> = {
 			[EventType.PredictionProgress]: {
 				name: 'Prediction Progress',
 				icon: TrendingUpDown,
-				variables: [
-					'predictionTitle',
-					'predictionOptionsNames',
-					'predictionTotalChannelPoints',
-				],
+				variables: ['predictionTitle', 'predictionOptionsNames', 'predictionTotalChannelPoints'],
 				enumValue: EventType.PredictionProgress,
 			},
 			[EventType.PredictionLock]: {
 				name: 'Prediction Lock',
 				icon: TrendingUpDown,
-				variables: [
-					'predictionTitle',
-					'predictionOptionsNames',
-					'predictionTotalChannelPoints',
-				],
+				variables: ['predictionTitle', 'predictionOptionsNames', 'predictionTotalChannelPoints'],
 				enumValue: EventType.PredictionLock,
 			},
 			[EventType.PredictionEnd]: {
@@ -250,7 +237,14 @@ export const EventsOptions: Record<string, TwirEvent> = {
 			[EventType.ChannelBan]: {
 				name: 'User banned/timeouted',
 				icon: BanIcon,
-				variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'banReason', 'banEndsInMinutes'],
+				variables: [
+					'userName',
+					'userDisplayName',
+					'moderatorName',
+					'moderatorDisplayName',
+					'banReason',
+					'banEndsInMinutes',
+				],
 				enumValue: EventType.ChannelBan,
 			},
 			[EventType.ChannelUnbanRequestCreate]: {
@@ -262,7 +256,13 @@ export const EventsOptions: Record<string, TwirEvent> = {
 			[EventType.ChannelUnbanRequestResolve]: {
 				name: 'User Unban Request Accepted/Declined',
 				icon: BanIcon,
-				variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'message'],
+				variables: [
+					'userName',
+					'userDisplayName',
+					'moderatorName',
+					'moderatorDisplayName',
+					'message',
+				],
 				enumValue: EventType.ChannelUnbanRequestResolve,
 			},
 		},

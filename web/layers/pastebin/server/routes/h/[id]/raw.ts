@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 			statusMessage: req.error,
 		})
 	}
-	if (!req.data?.content) {
+	if (!req.data?.data?.content) {
 		throw createError({
 			statusCode: 500,
 			statusMessage: 'Internal error',
@@ -25,5 +25,5 @@ export default defineEventHandler(async (event) => {
 	}
 
 	setResponseHeader(event, 'Content-Type', 'text/plain; charset=utf-8')
-	return req.data.content
+	return req.data.data.content
 })

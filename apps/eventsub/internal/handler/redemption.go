@@ -18,6 +18,7 @@ import (
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 
 	"github.com/google/uuid"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -296,14 +297,14 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
-	var foundCommand *model.ChannelsCommands
+	var foundCommand *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses
 	commands, err := c.commandsCache.Get(ctx, event.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
 
 	for _, command := range commands {
-		if command.DefaultName.String == "sr" && command.Enabled {
+		if command.DefaultName != nil && *command.DefaultName == "sr" && command.Enabled {
 			foundCommand = &command
 			break
 		}

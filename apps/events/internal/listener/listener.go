@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/chat_alerts"
@@ -15,9 +16,13 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/utils"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -34,23 +39,25 @@ type Opts struct {
 
 	WebsocketsGrpc websockets.WebsocketClient
 
-	ChatAlerts     *chat_alerts.ChatAlerts
-	EventsWorkflow *workflows.EventWorkflow
-	SongRequest    *song_request.SongRequest
-	TwirBus        *buscore.Bus
+	ChatAlerts             *chat_alerts.ChatAlerts
+	EventsWorkflow         *workflows.EventWorkflow
+	SongRequest            *song_request.SongRequest
+	TwirBus                *buscore.Bus
+	ChannelsEventsListRepo channelseventslist.Repository
 }
 
 func New(opts Opts) error {
 	impl := &EventsGrpcImplementation{
-		db:             opts.Db,
-		redis:          opts.Redis,
-		logger:         opts.Logger,
-		cfg:            opts.Cfg,
-		websocketsGrpc: opts.WebsocketsGrpc,
-		chatAlerts:     opts.ChatAlerts,
-		eventsWorkflow: opts.EventsWorkflow,
-		songsRequest:   opts.SongRequest,
-		twirBus:        opts.TwirBus,
+		db:                     opts.Db,
+		redis:                  opts.Redis,
+		logger:                 opts.Logger,
+		cfg:                    opts.Cfg,
+		websocketsGrpc:         opts.WebsocketsGrpc,
+		chatAlerts:             opts.ChatAlerts,
+		eventsWorkflow:         opts.EventsWorkflow,
+		songsRequest:           opts.SongRequest,
+		twirBus:                opts.TwirBus,
+		channelsEventsListRepo: opts.ChannelsEventsListRepo,
 	}
 
 	opts.Lc.Append(
@@ -272,10 +279,11 @@ type EventsGrpcImplementation struct {
 
 	websocketsGrpc websockets.WebsocketClient
 
-	chatAlerts     *chat_alerts.ChatAlerts
-	eventsWorkflow *workflows.EventWorkflow
-	songsRequest   *song_request.SongRequest
-	twirBus        *buscore.Bus
+	chatAlerts             *chat_alerts.ChatAlerts
+	eventsWorkflow         *workflows.EventWorkflow
+	songsRequest           *song_request.SongRequest
+	twirBus                *buscore.Bus
+	channelsEventsListRepo channelseventslist.Repository
 }
 
 func (c *EventsGrpcImplementation) Follow(
@@ -286,14 +294,63 @@ func (c *EventsGrpcImplementation) Follow(
 
 	wg.Go(
 		func() {
-			err := c.eventsWorkflow.Execute(
+			var stream *deprecatedgormmodel.ChannelsStreams
+			if err := c.db.Where(`"userId" = ?`, msg.BaseInfo.ChannelID).
+				Find(&stream).Error; err != nil {
+				c.logger.Error("Error get stream", slog.Any("err", err))
+				return
+			}
+
+			var streamFollowersCount int64
+			if stream != nil && stream.ID != "" {
+				t := channelseventslistmodel.ChannelEventListItemTypeFollow
+				count, err := c.channelsEventsListRepo.CountBy(
+					ctx,
+					channelseventslist.CountByInput{
+						ChannelID:    &msg.BaseInfo.ChannelID,
+						CreatedAtGTE: &stream.StartedAt,
+						Type:         &t,
+					},
+				)
+				if err != nil {
+					c.logger.Error("Error get stream followers count", slog.Any("err", err))
+					return
+				}
+
+				streamFollowersCount = count
+			}
+
+			twitchClient, err := twitchlib.NewUserClientWithContext(
+				ctx,
+				msg.BaseInfo.ChannelID,
+				c.cfg,
+				c.twirBus,
+			)
+			if err != nil {
+				c.logger.Error("Error create twitch client", slog.Any("err", err))
+				return
+			}
+
+			followersReq, err := twitchClient.GetChannelFollows(
+				&helix.GetChannelFollowsParams{
+					BroadcasterID: msg.BaseInfo.ChannelID,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error get channel followers", slog.Any("err", err))
+				return
+			}
+
+			err = c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeFollow,
 				shared.EventData{
-					ChannelID:       msg.BaseInfo.ChannelID,
-					UserName:        msg.UserName,
-					UserDisplayName: msg.UserDisplayName,
-					UserID:          msg.UserID,
+					ChannelID:              msg.BaseInfo.ChannelID,
+					UserName:               msg.UserName,
+					UserDisplayName:        msg.UserDisplayName,
+					UserID:                 msg.UserID,
+					ChannelFollowers:       int64(followersReq.Data.Total),
+					ChannelStreamFollowers: streamFollowersCount,
 				},
 			)
 			if err != nil {

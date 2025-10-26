@@ -4,14 +4,17 @@ import (
 	"context"
 	"log/slog"
 	"sync"
+	"time"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	"github.com/twirapp/twir/libs/repositories/pastebins"
+	"github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -25,6 +28,8 @@ type Opts struct {
 	CachedTwitchClient         *twitchcache.CachedTwitchClient
 	ChannelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
 	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
+	ShortenedUrlsRepository    shortened_urls.Repository
+	PastebinsRepository        pastebins.Repository
 }
 
 type TwirStats struct {
@@ -36,6 +41,8 @@ type TwirStats struct {
 	cachedTwitchClient         *twitchcache.CachedTwitchClient
 	channelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
 	channelsCommandsUsagesRepo channelscommandsusages.Repository
+	shortenedUrlsRepository    shortened_urls.Repository
+	pastebinsRepository        pastebins.Repository
 }
 
 func New(opts Opts) *TwirStats {
@@ -47,18 +54,18 @@ func New(opts Opts) *TwirStats {
 		cachedTwitchClient:         opts.CachedTwitchClient,
 		channelsEmotesUsagesRepo:   opts.ChannelsEmotesUsagesRepo,
 		channelsCommandsUsagesRepo: opts.ChannelsCommandsUsagesRepo,
+		shortenedUrlsRepository:    opts.ShortenedUrlsRepository,
+		pastebinsRepository:        opts.PastebinsRepository,
 	}
 
 	go s.cacheCounts()
-	// go s.cacheStreamers()
-	//
-	// ticker := time.NewTicker(5 * time.Minute)
-	// go func() {
-	// 	for range ticker.C {
-	// 		s.cacheCounts()
-	// 		s.cacheStreamers()
-	// 	}
-	// }()
+
+	ticker := time.NewTicker(5 * time.Minute)
+	go func() {
+		for range ticker.C {
+			s.cacheCounts()
+		}
+	}()
 
 	return s
 }
@@ -69,7 +76,7 @@ func (c *TwirStats) GetCachedData() *gqlmodel.TwirStats {
 
 func (c *TwirStats) cacheCounts() {
 	var wg sync.WaitGroup
-	wg.Add(6)
+	wg.Add(8)
 
 	go func() {
 		defer wg.Done()
@@ -136,6 +143,30 @@ func (c *TwirStats) cacheCounts() {
 		}
 
 		c.cachedResponse.UsedCommands = int(count)
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		count, err := c.shortenedUrlsRepository.Count(context.TODO(), shortened_urls.CountInput{})
+		if err != nil {
+			c.logger.Error("cannot count shortened urls", slog.Any("err", err))
+			return
+		}
+
+		c.cachedResponse.ShortUrls = int(count)
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		count, err := c.pastebinsRepository.Count(context.TODO(), pastebins.CountInput{})
+		if err != nil {
+			c.logger.Error("cannot count pastebins", slog.Any("err", err))
+			return
+		}
+
+		c.cachedResponse.HasteBins = int(count)
 	}()
 
 	wg.Wait()

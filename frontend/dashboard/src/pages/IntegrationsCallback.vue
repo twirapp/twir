@@ -5,7 +5,6 @@ import { useRoute, useRouter } from 'vue-router'
 
 import {
 	useDiscordIntegration,
-	useDonationAlertsIntegration,
 	useFaceitIntegration,
 	useLastfmIntegration,
 	useNightbotIntegration,
@@ -38,10 +37,6 @@ const integrationsHooks: {
 	},
 	streamlabs: {
 		manager: useStreamlabsIntegration(),
-		closeWindow: true,
-	},
-	donationalerts: {
-		manager: useDonationAlertsIntegration(),
 		closeWindow: true,
 	},
 	faceit: {

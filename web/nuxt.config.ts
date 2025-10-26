@@ -39,6 +39,7 @@ export default defineNuxtConfig({
 	],
 
 	icon: {
+		mode: 'svg',
 		localApiEndpoint: '/_nuxt_icon',
 		clientBundle: {
 			includeCustomCollections: true,
@@ -71,7 +72,6 @@ export default defineNuxtConfig({
 					async: true,
 					defer: true,
 					'data-site-id': '1',
-					'data-session-replay': 'true',
 					'data-mask-patterns': '["/overlays/**"]',
 				},
 			],

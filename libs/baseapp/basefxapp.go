@@ -13,6 +13,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
+	kvredis "github.com/twirapp/kv/stores/redis"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
@@ -60,6 +62,9 @@ func CreateBaseApp(opts Opts) fx.Option {
 				fx.As(new(slog.Handler)),
 				fx.ResultTags(`group:"slog-handlers"`),
 			),
+			func(r *redis.Client) kv.KV {
+				return kvredis.New(r)
+			},
 			logger.NewFx(
 				logger.Opts{
 					Service: opts.AppName,
@@ -68,7 +73,6 @@ func CreateBaseApp(opts Opts) fx.Option {
 			),
 		),
 		fx.Invoke(uptrace.NewFx(opts.AppName)),
-		fx.NopLogger,
 	)
 }
 

@@ -12,6 +12,11 @@ type Repository interface {
 	GetByID(ctx context.Context, id string) (model.Pastebin, error)
 	Delete(ctx context.Context, id string) error
 	GetManyByOwner(ctx context.Context, input GetManyInput) (GetManyOutput, error)
+	Count(ctx context.Context, input CountInput) (int64, error)
+}
+
+type CountInput struct {
+	OwnerUserID string
 }
 
 type CreateInput struct {

@@ -25,12 +25,12 @@ export const featuresData: Feature[] = [
 	{
 		title: 'Music Recognition',
 		description:
-			'Shazam for your twitch stream! Free, without the need to connect any music services.',
+			'Shazam for your twitch stream! Free, without the need to connect any music services',
 		icon: MusicRecognizeSvg,
 	},
 	{
 		title: 'Vips',
-		description: 'Manage your vips through bot, schedule vips to be removed at a specific time.',
+		description: 'Manage your vips through bot, schedule vips to be removed at a specific time',
 		icon: h(Icon, { name: 'lucide:gem' }),
 	},
 	{
@@ -42,8 +42,13 @@ export const featuresData: Feature[] = [
 	{
 		title: 'Commands',
 		description:
-			'A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling.',
+			'A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling',
 		icon: CommandsSvg,
+	},
+	{
+		title: 'Custom variables',
+		description: 'Write custom variables with JavaScript or Python for expand bot functionality',
+		icon: h(Icon, { name: 'lucide:code' }),
 	},
 	{
 		title: 'Timers',
@@ -112,5 +117,17 @@ export const featuresData: Feature[] = [
 		description:
 			'Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment',
 		icon: GamesSvg,
+	},
+	{
+		title: 'Short urls',
+		description:
+			"Shrink and share links instantly with Twir's sleek URL shortener – over {landingStatsCreatedShortUrls} created and counting",
+		icon: h(Icon, { name: 'lucide:link' }),
+	},
+	{
+		title: 'HasteBins',
+		description:
+			'Create and share quick, secure text snippets with HasteBins – {landingStatsCreatedHastebins} created and growing',
+		icon: h(Icon, { name: 'lucide:file-scan' }),
 	},
 ]

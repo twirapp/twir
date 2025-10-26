@@ -31,6 +31,7 @@ func (c *Service) modelToEntity(m model.Command) entity.Command {
 		AllowedUsersIDS:           m.AllowedUsersIDS,
 		RolesIDS:                  m.RolesIDS,
 		OnlineOnly:                m.OnlineOnly,
+		OfflineOnly:               m.OfflineOnly,
 		CooldownRolesIDs:          m.CooldownRolesIDs,
 		EnabledCategories:         m.EnabledCategories,
 		RequiredWatchTime:         m.RequiredWatchTime,

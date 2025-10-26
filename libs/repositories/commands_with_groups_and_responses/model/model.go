@@ -7,9 +7,9 @@ import (
 )
 
 type CommandWithGroupAndResponses struct {
-	Command   commandmodel.Command
-	Group     *groupmodel.Group
-	Responses []responsemodel.Response
+	commandmodel.Command
+	Group     *groupmodel.Group        `db:"group" json:"group"`
+	Responses []responsemodel.Response `db:"responses" json:"responses"`
 }
 
 var Nil = CommandWithGroupAndResponses{}

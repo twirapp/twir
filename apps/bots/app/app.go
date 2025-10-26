@@ -17,10 +17,12 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	"github.com/twirapp/twir/apps/bots/pkg/tlds"
 	"github.com/twirapp/twir/libs/baseapp"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	channelsmoderationsettingscache "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
@@ -33,6 +35,7 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
@@ -58,7 +61,6 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
-
 	"go.uber.org/fx"
 )
 
@@ -139,7 +141,12 @@ var App = fx.Module(
 		),
 		rolescache.New,
 		toxicity_check.New,
-		channelscommandsprefixcache.New,
+		func(
+			repo channelscommandsprefixrepository.Repository,
+			bus *buscore.Bus,
+		) *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix] {
+			return channelscommandsprefixcache.New(repo, bus)
+		},
 		ttscache.NewTTSSettings,
 		keywordscache.New,
 		greetingscache.New,
@@ -152,6 +159,7 @@ var App = fx.Module(
 		tts.New,
 	),
 	fx.Invoke(
+		mod_task_queue.NewRedisTaskProcessor,
 		func(config cfg.Config) {
 			if config.AppEnv != "development" {
 				http.Handle("/metrics", promhttp.Handler())
@@ -163,6 +171,5 @@ var App = fx.Module(
 		func(l logger.Logger) {
 			l.Info("🚀 Bots started")
 		},
-		mod_task_queue.NewRedisTaskProcessor,
 	),
 )

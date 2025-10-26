@@ -9,11 +9,10 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/messages"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/operations"
-	"github.com/twirapp/twir/apps/emotes-cacher/internal/socket_client"
-	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/seventv"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -54,14 +53,10 @@ func New(opts Opts) error {
 	return nil
 }
 
-type ConnData struct {
-	SessionId string
-}
-
 type socketInstance struct {
-	SessionID string
-	Instance  *socket_client.WsConnection
+	Instance  *conn
 	ShardID   uint8
+	SessionID string
 }
 
 type Service struct {
@@ -90,7 +85,7 @@ func (c *Service) start(ctx context.Context) error {
 
 func (c *Service) stop() error {
 	for _, socket := range c.sockets {
-		if err := socket.Instance.Close(); err != nil {
+		if err := socket.Instance.Stop(); err != nil {
 			return err
 		}
 	}
@@ -101,7 +96,7 @@ func (c *Service) stop() error {
 
 func (c *Service) onMessage(
 	ctx context.Context,
-	client *socket_client.WsConnection,
+	client *conn,
 	msg []byte,
 ) {
 	var base messages.BaseMessageWithoutData
@@ -117,8 +112,8 @@ func (c *Service) onMessage(
 			c.logger.Error("Failed to unmarshal hello message", slog.Any("error", err))
 			return
 		}
-		// TODO: lmao it is sending 500, but actually it is ~300
-		// client.SubscriptionsLimit = int(helloMsg.Data.SubscriptionLimit)
+
+		// client.maxCapacity = int(helloMsg.Data.SubscriptionLimit)
 		for _, socket := range c.sockets {
 			if socket.Instance == client {
 				socket.SessionID = helloMsg.Data.SessionID
@@ -139,25 +134,6 @@ func (c *Service) onMessage(
 
 		if err := c.handleEmoteSetUpdate(ctx, baseWithType.Data); err != nil {
 			c.logger.Error("Failed to handle emote set update", slog.Any("error", err))
-		}
-	}
-}
-
-func (c *Service) onReconnect(ctx context.Context, client *socket_client.WsConnection) {
-	// Re-subscribe to all channels
-	for _, socket := range c.sockets {
-		if socket.Instance == client {
-			c.logger.Info("Reconnecting to 7TV websocket", slog.String("session_id", socket.SessionID))
-			resumeMsg := map[string]interface{}{
-				"op": 34,
-				"d": map[string]string{
-					"session_id": socket.SessionID,
-				},
-			}
-
-			if err := socket.Instance.SendMessage(ctx, resumeMsg); err != nil {
-				c.logger.Error("Failed to send resume message", slog.Any("error", err))
-			}
 		}
 	}
 }

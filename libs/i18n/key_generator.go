@@ -14,6 +14,7 @@ type GenerateKeysOptions struct {
 	Locales    LocalesStore
 	Package    string
 	BaseLocale string
+	LocalesDir string
 }
 
 // todo: generate supported locales list
@@ -67,9 +68,12 @@ func GenerateKeysFileContent(opts GenerateKeysOptions) (string, error) {
 	if opts.BaseLocale == "" {
 		return "", fmt.Errorf("base locale is required")
 	}
+	if opts.LocalesDir == "" {
+		return "", fmt.Errorf("locales directory is required")
+	}
 
 	// Load raw nested structure for key generation
-	rawStore, err := LoadRawStore("./apps/parser/locales")
+	rawStore, err := LoadRawStore(opts.LocalesDir)
 	if err != nil {
 		return "", fmt.Errorf("failed to load raw store: %v", err)
 	}

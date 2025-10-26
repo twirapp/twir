@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/cache
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/go-redsync/redsync/v4 v4.13.0

@@ -9,7 +9,9 @@ type TwirStats {
 	messages: Int!
 	usedEmotes: Int!
 	usedCommands: Int!
-#	streamers: [TwirStatsStreamer!]!
+	shortUrls: Int!
+	hasteBins: Int!
+	#	streamers: [TwirStatsStreamer!]!
 }
 
 #type TwirStatsStreamer {

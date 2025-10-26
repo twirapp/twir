@@ -6,52 +6,63 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/goccy/go-json"
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	"gorm.io/gorm"
 )
 
 type LoadFn[T any] func(ctx context.Context, key string) (T, error)
 
 type GenericCacher[T any] struct {
-	db    *gorm.DB
-	redis *redis.Client
+	db *gorm.DB
+	kv kv.KV
 
-	keyPrefix string
-	loadFn    LoadFn[T]
-	ttl       time.Duration
-	mu        *redsync.Mutex
+	keyPrefix          string
+	loadFn             LoadFn[T]
+	ttl                time.Duration
+	invalidateSignaler InvalidateSignaler
 }
 
 type Opts[T any] struct {
-	Redis *redis.Client
+	KV kv.KV
 
-	KeyPrefix string
-	LoadFn    LoadFn[T]
-	Ttl       time.Duration
+	KeyPrefix          string
+	LoadFn             LoadFn[T]
+	Ttl                time.Duration
+	InvalidateSignaler InvalidateSignaler
 }
 
 func New[T any](opts Opts[T]) *GenericCacher[T] {
-	pool := goredis.NewPool(opts.Redis)
-	rs := redsync.New(pool)
-	mutex := rs.NewMutex(opts.KeyPrefix + "-mutex")
-
-	return &GenericCacher[T]{
-		redis:     opts.Redis,
+	cacher := &GenericCacher[T]{
+		kv:        opts.KV,
 		keyPrefix: opts.KeyPrefix,
 		loadFn:    opts.LoadFn,
 		ttl:       opts.Ttl,
-		mu:        mutex,
 	}
+
+	if opts.InvalidateSignaler != nil {
+		cacher.invalidateSignaler = opts.InvalidateSignaler
+		receiver := opts.InvalidateSignaler.Receiver()
+
+		go func() {
+			for key := range receiver {
+				if err := opts.KV.Delete(context.TODO(), opts.KeyPrefix+key); err != nil {
+					fmt.Printf("failed to delete key %s from cache: %v \n", key, err)
+					continue
+				}
+			}
+		}()
+	}
+
+	return cacher
 }
 
 func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 	var value T
 
-	cacheBytes, err := c.redis.Get(ctx, c.keyPrefix+key).Bytes()
-	if err != nil && !errors.Is(err, redis.Nil) {
+	cacheBytes, err := c.kv.Get(ctx, c.keyPrefix+key).Bytes()
+	if err != nil && !errors.Is(err, kv.ErrKeyNil) {
 		return value, fmt.Errorf("failed to get commands from cache: %w", err)
 	}
 
@@ -75,12 +86,12 @@ func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 		return value, fmt.Errorf("failed to marshal commands: %w", err)
 	}
 
-	if err := c.redis.Set(
+	if err := c.kv.Set(
 		ctx,
 		c.keyPrefix+key,
 		cacheBytes,
-		c.ttl,
-	).Err(); err != nil {
+		kvoptions.WithExpire(c.ttl),
+	); err != nil {
 		return value, fmt.Errorf("failed to set commands to cache: %w", err)
 	}
 
@@ -88,12 +99,15 @@ func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 }
 
 func (c *GenericCacher[T]) Invalidate(ctx context.Context, key string) error {
-	// c.mu.Lock()
-	// defer c.mu.Unlock()
-
-	err := c.redis.Del(ctx, c.keyPrefix+key).Err()
-	if err != nil {
-		return fmt.Errorf("failed to delete commands from cache: %w", err)
+	if c.invalidateSignaler != nil {
+		if err := c.invalidateSignaler.Send(key); err != nil {
+			return fmt.Errorf("failed to send invalidate signal: %w", err)
+		}
+	} else {
+		err := c.kv.Delete(ctx, c.keyPrefix+key)
+		if err != nil {
+			return fmt.Errorf("failed to delete commands from cache: %w", err)
+		}
 	}
 
 	return nil
@@ -108,12 +122,12 @@ func (c *GenericCacher[T]) SetValue(ctx context.Context, key string, newValue T)
 		return fmt.Errorf("failed to marshal commands: %w", err)
 	}
 
-	if err := c.redis.Set(
+	if err := c.kv.Set(
 		ctx,
 		c.keyPrefix+key,
 		cacheBytes,
-		c.ttl,
-	).Err(); err != nil {
+		kvoptions.WithExpire(c.ttl),
+	); err != nil {
 		return fmt.Errorf("failed to set commands to cache: %w", err)
 	}
 
@@ -140,12 +154,12 @@ func (c *GenericCacher[T]) SetValueFiltered(
 		return fmt.Errorf("failed to marshal commands: %w", err)
 	}
 
-	if err := c.redis.Set(
+	if err := c.kv.Set(
 		ctx,
 		c.keyPrefix+key,
 		cacheBytes,
-		c.ttl,
-	).Err(); err != nil {
+		kvoptions.WithExpire(c.ttl),
+	); err != nil {
 		return fmt.Errorf("failed to set commands to cache: %w", err)
 	}
 

@@ -9,12 +9,12 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/oklog/ulid/v2"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways/model"
 	giveawaysmodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
@@ -447,7 +447,7 @@ func (c *Service) giveawayWinnerBusModelToEntity(
 }
 
 /*
-We need to update value of array of channels giveaways in Redis,
+We need to update value of array of channels giveaways in Kv,
 cus we search for keyword for every message and don't wanna use database calls in message handlers,
 so we are do probably some unnecessarily work here but provide better consistency.
 Also, limits for max giveaways per channel is low, so it will be fast, I suppose.

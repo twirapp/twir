@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/types
 
-go 1.24.1
+go 1.24.7
 
 require (
 	github.com/tkrajina/typescriptify-golang-structs v0.2.0

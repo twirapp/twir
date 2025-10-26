@@ -27,7 +27,7 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 		return nil, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}

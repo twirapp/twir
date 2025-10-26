@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )
 
 const (
@@ -67,7 +68,7 @@ var Command = &types.DefaultCommand{
 			return nil, err
 		}
 
-		var foundCmd *model.ChannelsCommands
+		var foundCmd *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses
 
 		for _, cmd := range cmds {
 			if cmd.Name == strings.TrimPrefix(text, commandsPrefix) {
@@ -89,11 +90,11 @@ var Command = &types.DefaultCommand{
 
 		for i := 0; i < count; i++ {
 			for _, r := range foundCmd.Responses {
-				if !r.Text.Valid {
+				if r.Text == nil || *r.Text == "" {
 					continue
 				}
 
-				result.Result = append(result.Result, r.Text.String)
+				result.Result = append(result.Result, *r.Text)
 			}
 		}
 

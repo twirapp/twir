@@ -4,37 +4,28 @@ import (
 	"context"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-	model "github.com/twirapp/twir/libs/gomodels"
+	kvotter "github.com/twirapp/kv/stores/otter"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"gorm.io/gorm"
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )
 
-func New(
-	db *gorm.DB,
-	redis *redis.Client,
-) *generic_cacher.GenericCacher[[]model.ChannelsCommands] {
-	return generic_cacher.New[[]model.ChannelsCommands](
-		generic_cacher.Opts[[]model.ChannelsCommands]{
-			Redis:     redis,
-			KeyPrefix: "cache:twir:commands:channel:",
-			LoadFn: func(ctx context.Context, key string) ([]model.ChannelsCommands, error) {
-				var commands []model.ChannelsCommands
-				err := db.
-					WithContext(ctx).
-					Model(&model.ChannelsCommands{}).
-					Where(`channels_commands."channelId" = ? AND channels_commands."enabled" = ?`, key, true).
-					Joins("Group").
-					Preload("Responses").
-					WithContext(ctx).
-					Find(&commands).Error
-				if err != nil {
-					return nil, err
-				}
+const KeyPrefix = "cache:twir:commands:channel:"
 
-				return commands, nil
+func New(
+	repo commandswithgroupsandresponsesrepository.Repository,
+	bus *buscore.Bus,
+) *generic_cacher.GenericCacher[[]model.CommandWithGroupAndResponses] {
+	return generic_cacher.New(
+		generic_cacher.Opts[[]model.CommandWithGroupAndResponses]{
+			KV:        kvotter.New(),
+			KeyPrefix: KeyPrefix,
+			LoadFn: func(ctx context.Context, key string) ([]model.CommandWithGroupAndResponses, error) {
+				return repo.GetManyByChannelID(ctx, key)
 			},
-			Ttl: 24 * time.Hour,
+			Ttl:                24 * time.Hour,
+			InvalidateSignaler: generic_cacher.NewBusCoreInvalidator(bus),
 		},
 	)
 }

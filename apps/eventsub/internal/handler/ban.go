@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/kvizyx/twitchy/eventsub"
-	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -16,20 +15,22 @@ import (
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 )
 
-func (c *Handler) HandleBan(
+func (c *Handler) handleModerateActionBan(
 	ctx context.Context,
-	event eventsub.ChannelBanEvent,
-	meta eventsub.WebsocketNotificationMetadata,
+	event eventsub.ChannelModerateEventV2,
 ) {
-	c.logger.Info(
-		"channel ban",
-		slog.String("channelId", event.BroadcasterUserID),
-		slog.String("channelName", event.BroadcasterUserLogin),
-		slog.String("userId", event.UserId),
-		slog.String("userName", event.UserLogin),
-		slog.String("moderatorName", event.ModeratorUserName),
-		slog.String("moderatorId", event.ModeratorUserID),
-	)
+	var userId, userLogin, userName, reason string
+	if event.Ban != nil {
+		userId = event.Ban.UserID
+		userLogin = event.Ban.UserLogin
+		userName = event.Ban.UserName
+		reason = event.Ban.Reason
+	} else if event.Timeout != nil {
+		userId = event.Timeout.UserID
+		userLogin = event.Timeout.UserLogin
+		userName = event.Timeout.UserName
+		reason = event.Timeout.Reason
+	}
 
 	go func() {
 		channel := deprecatedmodel.Channels{}
@@ -42,7 +43,7 @@ func (c *Handler) HandleBan(
 			return
 		}
 
-		if channel.BotID == event.UserId {
+		if channel.BotID == userId {
 			channel.IsEnabled = false
 			if err := c.gorm.WithContext(ctx).Save(&channel).Error; err != nil {
 				c.logger.Error("failed to disable channel", slog.Any("err", err))
@@ -52,16 +53,22 @@ func (c *Handler) HandleBan(
 		}
 	}()
 
-	var banEndsIn time.Duration
-	if event.EndsAt != nil {
-		banEndsIn = event.EndsAt.Sub(time.Now().UTC())
+	var endsAt string
+	if event.Ban != nil {
+		endsAt = "permanent"
+	} else if event.Timeout != nil {
+		banEndsIn := event.Timeout.ExpiresAt.Sub(time.Now().UTC())
+		var (
+			minutes = banEndsIn.Minutes()
+			unit    string
+		)
+		if minutes == 0 {
+			unit = fmt.Sprint(banEndsIn.Seconds())
+		} else {
+			unit = fmt.Sprint(math.Round(minutes))
+		}
+		endsAt = unit
 	}
-	endsAt := lo.If(event.IsPermanent, "permanent").Else(
-		fmt.Sprintf(
-			"%v",
-			math.Round(banEndsIn.Minutes()),
-		),
-	)
 
 	c.twirBus.Events.ChannelBan.Publish(
 		ctx,
@@ -70,15 +77,15 @@ func (c *Handler) HandleBan(
 				ChannelID:   event.BroadcasterUserID,
 				ChannelName: event.BroadcasterUserLogin,
 			},
-			UserName:             event.UserName,
-			UserLogin:            event.UserLogin,
+			UserName:             userName,
+			UserLogin:            userLogin,
 			BroadcasterUserName:  event.BroadcasterUserName,
 			BroadcasterUserLogin: event.BroadcasterUserName,
 			ModeratorUserName:    event.ModeratorUserName,
 			ModeratorUserLogin:   event.ModeratorUserLogin,
-			Reason:               event.Reason,
+			Reason:               reason,
 			EndsAt:               endsAt,
-			IsPermanent:          event.IsPermanent,
+			IsPermanent:          event.Ban != nil,
 		},
 	)
 
@@ -86,13 +93,13 @@ func (c *Handler) HandleBan(
 		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
-			UserID:    &event.UserId,
+			UserID:    &userId,
 			Type:      model.ChannelEventListItemTypeChannelBan,
 			Data: &model.ChannelsEventsListItemData{
-				BanReason:            event.Reason,
+				BanReason:            reason,
 				BanEndsInMinutes:     endsAt,
-				BannedUserLogin:      event.UserLogin,
-				BannedUserName:       event.UserName,
+				BannedUserLogin:      userLogin,
+				BannedUserName:       userName,
 				ModeratorDisplayName: event.ModeratorUserName,
 				ModeratorName:        event.ModeratorUserLogin,
 			},
@@ -105,9 +112,41 @@ func (c *Handler) HandleBan(
 		ctx,
 		&websockets.DudesUserPunishedRequest{
 			ChannelId:       event.BroadcasterUserID,
-			UserId:          event.UserId,
-			UserDisplayName: event.UserName,
-			UserName:        event.UserLogin,
+			UserId:          userId,
+			UserDisplayName: userName,
+			UserName:        userLogin,
 		},
+	)
+}
+
+func (c *Handler) handleModerateActionUnBan(
+	ctx context.Context,
+	event eventsub.ChannelModerateEventV2,
+) {
+	payload := events.ChannelUnbanMessage{
+		BaseInfo: events.BaseInfo{
+			ChannelID:   event.BroadcasterUserID,
+			ChannelName: event.BroadcasterUserLogin,
+		},
+		BroadcasterUserName:  event.BroadcasterUserName,
+		BroadcasterUserLogin: event.BroadcasterUserLogin,
+		ModeratorUserID:      event.ModeratorUserID,
+		ModeratorUserName:    event.ModeratorUserName,
+		ModeratorUserLogin:   event.ModeratorUserLogin,
+	}
+
+	if event.Unban != nil {
+		payload.UserID = event.Unban.UserID
+		payload.UserName = event.Unban.UserName
+		payload.UserLogin = event.Unban.UserLogin
+	} else if event.Untimeout != nil {
+		payload.UserID = event.Untimeout.UserID
+		payload.UserName = event.Untimeout.UserName
+		payload.UserLogin = event.Untimeout.UserLogin
+	}
+
+	c.twirBus.Events.ChannelUnban.Publish(
+		ctx,
+		payload,
 	)
 }

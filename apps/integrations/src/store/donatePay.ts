@@ -14,7 +14,11 @@ export async function addIntegration(integration: DonatePayIntegration) {
 	}
 
 	const instance = new DonatePay(integration.channel_id, integration.api_key)
-	await instance.connect()
+	try {
+		await instance.connect()
+	} catch (e) {
+		console.error(e)
+	}
 
 	donatePayStore.set(integration.channel_id, instance)
 

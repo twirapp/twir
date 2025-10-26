@@ -1,12 +1,12 @@
 package http_webhooks
 
 import (
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
+	"github.com/twirapp/twir/apps/api-gql/internal/server"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/pubsub"
-	"github.com/twirapp/twir/apps/api-gql/internal/server"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -15,7 +15,7 @@ type Opts struct {
 	fx.In
 
 	Server  *server.Server
-	Redis   *redis.Client
+	KV      kv.KV
 	Db      *gorm.DB
 	Logger  logger.Logger
 	Config  cfg.Config
@@ -23,7 +23,7 @@ type Opts struct {
 }
 
 type Webhooks struct {
-	redis   *redis.Client
+	kv      kv.KV
 	db      *gorm.DB
 	logger  logger.Logger
 	config  cfg.Config
@@ -38,7 +38,7 @@ func New(opts Opts) (*Webhooks, error) {
 	}
 
 	p := &Webhooks{
-		redis:   opts.Redis,
+		kv:      opts.KV,
 		db:      opts.Db,
 		logger:  opts.Logger,
 		config:  opts.Config,

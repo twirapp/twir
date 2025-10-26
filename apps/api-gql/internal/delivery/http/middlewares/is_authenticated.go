@@ -8,7 +8,7 @@ import (
 
 func (c *Middlewares) IsAuthenticated(ctx huma.Context, next func(huma.Context)) {
 	_, apiKeyErr := c.auth.GetAuthenticatedUserByApiKey(ctx.Context())
-	_, sessionErr := c.auth.GetAuthenticatedUser(ctx.Context())
+	_, sessionErr := c.auth.GetAuthenticatedUserModel(ctx.Context())
 
 	if apiKeyErr != nil && sessionErr != nil {
 		huma.WriteErr(

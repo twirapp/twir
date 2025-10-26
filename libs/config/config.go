@@ -57,6 +57,9 @@ type Config struct {
 	ExecutronAddr string `required:"false" default:"http://localhost:7003" envconfig:"EXECUTRON_ADDR"`
 
 	EventSubDisableSignatureVerification bool `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
+
+	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
+	DonationAlertsSecret   string `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
 }
 
 func (c *Config) GetTwitchCallbackUrl() string {

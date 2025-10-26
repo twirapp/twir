@@ -23,7 +23,7 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 					'Yay, there is new follower, say hello to {user}! Total followers for current stream: {streamFollowers}',
 				alertMessage: `
 			${t('chatAlerts.randomedMessage')}
-			${t('chatAlerts.replacedInfo', { vars: '{user} {streamFollowers}' })}
+			${t('chatAlerts.replacedInfo', { vars: '{user}, {followers}, {streamFollowers}' })}
 		`,
 			}),
 	},

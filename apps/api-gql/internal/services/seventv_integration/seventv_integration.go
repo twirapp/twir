@@ -6,13 +6,12 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	config "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/seventv"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/bots"
 	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
 	"go.uber.org/fx"
@@ -23,7 +22,6 @@ type Opts struct {
 
 	SeventvRepository seventvintegrationrepository.Repository
 	BotsRepository    bots.Repository
-	Redis             *redis.Client
 	Config            config.Config
 	Cacher            *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv]
 	Logger            logger.Logger
@@ -32,7 +30,6 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		seventvRepository: opts.SeventvRepository,
-		redis:             opts.Redis,
 		botsRepository:    opts.BotsRepository,
 		config:            opts.Config,
 		cacher:            opts.Cacher,
@@ -42,7 +39,6 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	seventvRepository seventvintegrationrepository.Repository
-	redis             *redis.Client
 	botsRepository    bots.Repository
 	config            config.Config
 	cacher            *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv]

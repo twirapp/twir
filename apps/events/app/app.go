@@ -63,6 +63,7 @@ var App = fx.Module(
 			channelsmodules_settingsttspgx.NewFx,
 			fx.As(new(channels_modules_settings_tts.Repository)),
 		),
+
 		channel.New,
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)

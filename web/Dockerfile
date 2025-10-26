@@ -1,26 +1,10 @@
 FROM mirror.gcr.io/oven/bun:1-alpine AS base
 WORKDIR /app
 
-FROM base AS installer
-COPY package.json bun.lock bunfig.toml .npmrc tsconfig.base.json ./
-COPY libs/brand/package.json ./libs/brand/package.json
-COPY libs/config/package.json ./libs/config/package.json
-COPY libs/api/package.json ./libs/api/package.json
-COPY libs/frontend-valorant-stats/package.json ./libs/frontend-valorant-stats/package.json
-COPY web/package.json ./web/package.json
-RUN bun install --no-save
-
 FROM base AS builder
-COPY --from=installer /app/node_modules node_modules
-COPY package.json bun.lock bunfig.toml .npmrc tsconfig.base.json ./
-COPY libs/brand ./libs/brand
-COPY libs/config ./libs/config
-COPY libs/api ./libs/api
-COPY libs/frontend-valorant-stats ./libs/frontend-valorant-stats
-COPY web ./web
-COPY apps/api-gql/internal/delivery/gql/schema ./apps/api-gql/internal/delivery/gql/schema
-
+COPY . .
 ENV NODE_ENV=production
+RUN bun install --frozen-lockfile
 RUN bun --filter=@twir/web run build
 
 FROM base AS prod-base

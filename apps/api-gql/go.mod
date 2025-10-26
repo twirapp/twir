@@ -1,8 +1,6 @@
 module github.com/twirapp/twir/apps/api-gql
 
-go 1.24.1
-
-
+go 1.24.7
 
 require (
 	github.com/99designs/gqlgen v0.17.76
@@ -31,21 +29,6 @@ require (
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/samber/lo v1.51.0
 	github.com/samber/slog-gin v1.15.1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	github.com/vektah/gqlparser/v2 v2.5.30
 	github.com/vikstrous/dataloadgen v0.0.9
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.62.0
@@ -132,14 +115,12 @@ require (
 	github.com/samber/slog-multi v1.4.1 // indirect
 	github.com/samber/slog-sentry/v2 v2.9.3 // indirect
 	github.com/samber/slog-zerolog/v2 v2.7.3 // indirect
-
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
-
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect

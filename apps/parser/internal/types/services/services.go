@@ -13,7 +13,6 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/i18n"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
@@ -29,6 +28,7 @@ import (
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
@@ -49,7 +49,7 @@ type Services struct {
 	GrpcClients                *Grpc
 	Bus                        *buscore.Bus
 	TrmManager                 trm.Manager
-	CommandsCache              *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	CommandsCache              *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	CommandsPrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	SevenTvCache               *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser]
 	ChatWallCache              *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]

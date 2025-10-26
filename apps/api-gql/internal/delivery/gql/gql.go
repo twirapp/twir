@@ -75,13 +75,19 @@ func New(opts Opts) *Gql {
 		},
 	)
 
-	srv.Use(otelgqlgen.Middleware(otelgqlgen.WithCreateSpanFromFields(func(ctx *graphql.FieldContext) bool {
-		return ctx.IsMethod || ctx.IsResolver
-	})))
+	srv.Use(
+		otelgqlgen.Middleware(
+			otelgqlgen.WithCreateSpanFromFields(
+				func(ctx *graphql.FieldContext) bool {
+					return ctx.IsMethod || ctx.IsResolver
+				},
+			),
+		),
+	)
 
-	if opts.Config.AppEnv != "production" {
-		srv.Use(extension.Introspection{})
-	}
+	// if opts.Config.AppEnv != "production" {
+	srv.Use(extension.Introspection{})
+	// }
 
 	playgroundHandler := playground.Handler("GraphQL", "/api/query")
 	opts.Server.Any(

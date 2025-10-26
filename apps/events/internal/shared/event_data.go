@@ -75,6 +75,10 @@ type EventData struct {
 
 	//
 	ChannelUnbanRequestResolveDeclined bool `json:"channelUnbanRequestResolveStatus,omitempty"`
+
+	//
+	ChannelFollowers       int64 `json:"channelFollowers,omitempty"`
+	ChannelStreamFollowers int64 `json:"channelStreamFollowers,omitempty"`
 }
 
 type EventDataPredictionOutCome struct {

@@ -35,6 +35,28 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) Count(ctx context.Context, input pastebins.CountInput) (int64, error) {
+	selectBuilder := sq.Select("COUNT(*)").From("pastebins")
+
+	if input.OwnerUserID != "" {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"owner_user_id": input.OwnerUserID})
+	}
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	var count int64
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	err = conn.QueryRow(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (c *Pgx) Create(ctx context.Context, input pastebins.CreateInput) (model.Pastebin, error) {
 	query := `
 INSERT INTO pastebins (id, content, "expire_at", "owner_user_id")

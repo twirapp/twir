@@ -5,11 +5,11 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
-	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	config "github.com/twirapp/twir/libs/config"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -20,7 +20,7 @@ type Opts struct {
 	Huma huma.API
 
 	Gorm                   *gorm.DB
-	CachedCommands         *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	CachedCommands         *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	BadgesWithUsersService *badges_with_users.Service
 	ChannelsService        *channels.Service
 	Config                 config.Config
@@ -28,7 +28,7 @@ type Opts struct {
 
 type Public struct {
 	gorm                   *gorm.DB
-	cachedCommands         *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	cachedCommands         *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	badgesWithUsersService *badges_with_users.Service
 	channelsService        *channels.Service
 	config                 config.Config

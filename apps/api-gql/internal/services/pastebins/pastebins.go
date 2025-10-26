@@ -10,8 +10,10 @@ import (
 	"github.com/goccy/go-json"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/pastebins"
 	pastebinsmodel "github.com/twirapp/twir/libs/repositories/pastebins/model"
 	"go.uber.org/fx"
@@ -21,21 +23,21 @@ type Opts struct {
 	fx.In
 
 	Repo   pastebins.Repository
-	Redis  *redis.Client
+	KV     kv.KV
 	Logger logger.Logger
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		repo:   opts.Repo,
-		redis:  opts.Redis,
+		kv:     opts.KV,
 		logger: opts.Logger,
 	}
 }
 
 type Service struct {
 	repo   pastebins.Repository
-	redis  *redis.Client
+	kv     kv.KV
 	logger logger.Logger
 }
 
@@ -51,7 +53,7 @@ func (c *Service) mapToEntity(m pastebinsmodel.Pastebin) entity.Pastebin {
 	}
 }
 
-func makeRedisCache(id string) string {
+func makeKvStoreKey(id string) string {
 	return "twir:cache:pastebins:" + id
 }
 
@@ -64,8 +66,8 @@ func (c *Service) deleteIfNeed(ctx context.Context, p entity.Pastebin) (bool, er
 }
 
 func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, error) {
-	cacheKey := makeRedisCache(id)
-	cachedBytes, err := c.redis.Get(ctx, cacheKey).Bytes()
+	cacheKey := makeKvStoreKey(id)
+	cachedBytes, err := c.kv.Get(ctx, cacheKey).Bytes()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return entity.PastebinNil, err
 	}
@@ -117,8 +119,8 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, erro
 			c.logger.Error("cannot convert pastebin entity to bytes", slog.Any("err", err))
 			return
 		}
-		if err := c.redis.Set(cacheCtx, cacheKey, bytes, cacheTime).Err(); err != nil {
-			c.logger.Error("cannot save pastebin entity to redis", slog.Any("err", err))
+		if err := c.kv.Set(cacheCtx, cacheKey, bytes, kvoptions.WithExpire(cacheTime)); err != nil {
+			c.logger.Error("cannot save pastebin entity to kv", slog.Any("err", err))
 			return
 		}
 	}()
@@ -206,7 +208,7 @@ func (c *Service) Delete(ctx context.Context, id string) error {
 		return err
 	}
 
-	if err := c.redis.Del(ctx, makeRedisCache(id)).Err(); err != nil && !errors.Is(err, redis.Nil) {
+	if err := c.kv.Delete(ctx, makeKvStoreKey(id)); err != nil && !errors.Is(err, redis.Nil) {
 		return err
 	}
 

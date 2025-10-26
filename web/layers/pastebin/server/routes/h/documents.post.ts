@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	if (!req.data?.id) {
+	if (!req.data?.data?.id) {
 		throw createError({
 			statusCode: 500,
 			statusMessage: 'No ID returned from api, contact administrator',
@@ -30,9 +30,9 @@ export default defineEventHandler(async (event) => {
 	setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8')
 	return {
 		// key is for hastebin compatibility format
-		key: req.data.id,
-		id: req.data.id,
-		url: `${url.origin}/h/${req.data.id}`,
-		raw_url: `${url.origin}/h/${req.data.id}/raw`,
+		key: req.data.data.id,
+		id: req.data.data.id,
+		url: `${url.origin}/h/${req.data.data.id}`,
+		raw_url: `${url.origin}/h/${req.data.data.id}/raw`,
 	}
 })
