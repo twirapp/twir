@@ -1,7 +1,42 @@
 errors:
-  no_active_set: "You don't have a 7TV set set."
-  profile_not_found: "Failed to get 7tv profile: {reason}"
-  emote_not_found: "Emote {name} not found."
+  # EmoteSet
+  emoteset_not_active: You don't have an active 7TV emote set
+  emoteset_not_found: Emote set {emoteName} not found
+  emoteset_broadcaster_not_active: ❌ No active emote set for broadcaster
+
+  # Profile
+  profile_failed_to_get: 'Failed to get 7tv profile: {reason}'
+  profile_not_found: 7tv profile not found
+
+  # Emote
+  emote_failed_to_add: 'Failed to add 7tv emote: {reason}'
+  emote_failed_to_remove: 'Failed to remove 7tv emote: {reason}'
+  emote_failed_to_fetch: 'Failed to fetch 7tv emote: {reason}'
+  emote_failed_to_rename: 'Failed to rename 7tv emote: {reason}'
+  emote_not_found: 'Emote {emoteName} not found.'
+  emote_not_found_in_emoteset: 'Emote {emoteName} not found in set {emoteSet}'
+  emote_not_found_in_channel: '❌ Emote {emoteSearch} not found in target channel'
+  emote_already_exist_in_channel: '❌ Emote {emoteName} already exists in this channel'
+
+add:
+  emote_add: ✅ Emote added
+
+remove:
+  emote_remove: '✅ Emote {emoteName} removed'
+
+rename:
+  emote_rename: ✅ Emote {oldEmoteName} renamed to {newEmoteName}"
 
 emote_info:
-  response: "{name}: {link} · Added by @{addedByUserName} {addedByTime} ago · Author {emoteAuthor}"
+  response: '{name}: {link} · Added by @{addedByUserName} {addedByTime} ago · Author {emoteAuthor}'
+
+profile_info:
+  response: '{profileName} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}'
+
+hints:
+  emoteForCopyArgName: Name of emote to copy
+  copySetChannelName: '@channelName'
+  copySetNameOfSet: Name of set to copy
+  emoteForAddArgLink: Link or name
+  emoteForAddArgAlias: Optional alias
+  emoteForCopyAlias: Alias for emote

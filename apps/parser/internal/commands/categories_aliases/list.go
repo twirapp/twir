@@ -10,13 +10,15 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
 var List = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
-		Name:        "game aliase list",
+		Name:        "game alias list",
 		Description: null.StringFrom("List created categories aliases"),
 		RolesIDS: pq.StringArray{
 			model.ChannelRoleTypeModerator.String(),
@@ -36,14 +38,20 @@ var List = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get categories",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.CategoryCannotToGet,
+				),
+				Err: err,
 			}
 		}
 
 		if len(categories) == 0 {
 			return &types.CommandsHandlerResult{
-				Result: []string{"No categories aliases created."},
+				Result: []string{i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.AliasEmpty,
+				)},
 			}, nil
 		}
 
@@ -54,8 +62,11 @@ var List = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create twitch client",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.TwitchClientCannotToCreate,
+				),
+				Err: err,
 			}
 		}
 
@@ -71,14 +82,20 @@ var List = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get games",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.GameCannotToGet,
+				),
+				Err: err,
 			}
 		}
 		if gamesRequest.ErrorMessage != "" {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get games",
-				Err:     fmt.Errorf(gamesRequest.ErrorMessage),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.CategoriesAliases.Errors.GameCannotToGet,
+				),
+				Err: fmt.Errorf(gamesRequest.ErrorMessage),
 			}
 		}
 
@@ -86,7 +103,7 @@ var List = &types.DefaultCommand{
 		for idx, category := range categories {
 			aliases = append(
 				aliases, createdAliase{
-					aliase: category.Alias,
+					alias: category.Alias,
 				},
 			)
 
@@ -100,21 +117,21 @@ var List = &types.DefaultCommand{
 
 		slices.SortFunc(
 			aliases, func(a, b createdAliase) int {
-				return strings.Compare(a.aliase, b.aliase)
+				return strings.Compare(a.alias, b.alias)
 			},
 		)
 
 		var resultedString strings.Builder
 
-		for _, aliase := range aliases {
+		for _, alias := range aliases {
 			if resultedString.Len() > 0 {
 				resultedString.WriteString(" · ")
 			}
 
-			resultedString.WriteString(aliase.aliase)
+			resultedString.WriteString(alias.alias)
 
-			if aliase.twitchCategory != nil {
-				resultedString.WriteString(fmt.Sprintf(" (%s)", aliase.twitchCategory.Name))
+			if alias.twitchCategory != nil {
+				resultedString.WriteString(fmt.Sprintf(" (%s)", alias.twitchCategory.Name))
 			} else {
 				resultedString.WriteString(" (not found)")
 			}
@@ -127,6 +144,6 @@ var List = &types.DefaultCommand{
 }
 
 type createdAliase struct {
-	aliase         string
+	alias          string
 	twitchCategory *helix.Game
 }

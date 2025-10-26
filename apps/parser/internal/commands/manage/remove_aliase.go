@@ -8,8 +8,10 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
 )
@@ -17,7 +19,7 @@ import (
 var RemoveAliaseCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "commands aliases remove",
-		Description: null.StringFrom("Remove aliase from command"),
+		Description: null.StringFrom("Remove alias from command"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MANAGE",
 		IsReply:     true,
@@ -45,12 +47,12 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 			"",
 		)
 		commandName = strings.ToLower(commandName)
-		aliase := strings.ReplaceAll(
+		alias := strings.ReplaceAll(
 			parseCtx.ArgsParser.Get(commandAliaseArgName).String(),
 			"!",
 			"",
 		)
-		aliase = strings.ToLower(aliase)
+		alias = strings.ToLower(alias)
 
 		cmd := model.ChannelsCommands{}
 		err := parseCtx.Services.Gorm.
@@ -59,16 +61,16 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 			First(&cmd).Error
 
 		if err != nil || cmd.ID == "" {
-			result.Result = append(result.Result, "Command not found.")
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandNotFound))
 			return result, nil
 		}
 
-		if !lo.Contains(cmd.Aliases, aliase) {
-			result.Result = append(result.Result, "That aliase not in the command")
+		if !lo.Contains(cmd.Aliases, alias) {
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.AliasNotCommand))
 			return result, nil
 		}
 
-		index := lo.IndexOf(cmd.Aliases, aliase)
+		index := lo.IndexOf(cmd.Aliases, alias)
 		cmd.Aliases = append(cmd.Aliases[:index], cmd.Aliases[index+1:]...)
 
 		err = parseCtx.Services.Gorm.
@@ -77,14 +79,14 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot save command",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotSave),
 				Err:     err,
 			}
 		}
 
 		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
 
-		result.Result = append(result.Result, "✅ Aliase removed.")
+		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Remove.AliasRemoved))
 		return result, nil
 	},
 }

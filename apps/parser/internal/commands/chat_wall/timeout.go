@@ -11,7 +11,9 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	chatwallservice "github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	"github.com/xhit/go-str2duration/v2"
 )
@@ -33,11 +35,11 @@ var Timeout = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: timeoutDurationArgName,
-			Hint: "time, examples: 10m, 10, 1h5m",
+			Hint: i18n.Get(locales.Translations.Commands.ChatWall.Hints.TimeoutDurationArgName),
 		},
 		command_arguments.VariadicString{
 			Name: timeoutPhraseArgName,
-			Hint: "phrase to ban",
+			Hint: i18n.Get(locales.Translations.Commands.ChatWall.Hints.TimeoutPhraseArgName),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -48,7 +50,7 @@ var Timeout = &types.DefaultCommand{
 		parsedDuration, err := parseDuration(parseCtx.ArgsParser.Get(timeoutDurationArgName).String())
 		if err != nil || parsedDuration <= 0 {
 			return nil, &types.CommandHandlerError{
-				Message: "invalid duration. Cannot be longer 2w Examples: 10m, 10, 1h5m",
+				Message: i18n.Get(locales.Translations.Commands.ChatWall.Errors.InvalidDuration),
 			}
 		}
 
@@ -89,12 +91,11 @@ var Timeout = &types.DefaultCommand{
 		}
 
 		result := &types.CommandsHandlerResult{
-			Result: []string{
-				fmt.Sprintf(
-					`✅ Chat wall started for 10 minutes, you can stop it with !chat wall stop "%s"`,
-					phrase,
-				),
-			},
+			Result: []string{i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.ChatWall.Start.ChatWallStart.
+					SetVars(locales.KeysCommandsChatWallStartChatWallStartVars{ChatWallPhrase: phrase}),
+			)},
 		}
 
 		return result, nil
@@ -109,11 +110,11 @@ func parseDuration(input string) (int, error) {
 
 	durationFromString, err := str2duration.ParseDuration(input)
 	if durationFromString.Hours() > 336 { // 2 weeks
-		return 0, fmt.Errorf("duration of timeout cannot be longer than 2 weeks")
+		return 0, fmt.Errorf(i18n.Get(locales.Translations.Commands.ChatWall.Errors.LongDurationTimeout))
 	}
 	if err == nil {
 		return int(durationFromString.Seconds()), nil
 	}
 
-	return 0, fmt.Errorf("cannot parse duration")
+	return 0, fmt.Errorf(i18n.Get(locales.Translations.Commands.ChatWall.Errors.DurationCannotParse))
 }

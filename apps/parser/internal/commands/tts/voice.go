@@ -2,11 +2,12 @@ package tts
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
@@ -42,13 +43,13 @@ var VoiceCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting channel settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.GettingChannelSettings),
 				Err:     err,
 			}
 		}
 
 		if channelSettings == nil {
-			result.Result = []string{"TTS is not configured for this channel"}
+			result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.NotConfigured)}
 			return result, nil
 		}
 
@@ -59,7 +60,7 @@ var VoiceCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting user settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.GettingUserSettings),
 				Err:     err,
 			}
 		}
@@ -69,14 +70,14 @@ var VoiceCommand = &types.DefaultCommand{
 		if textArg == nil {
 			result.Result = append(
 				result.Result,
-				fmt.Sprintf(
-					"Global voice: %s | Your voice: %s",
-					channelSettings.Voice,
-					lo.IfF(
-						userSettings != nil, func() string {
-							return userSettings.Voice
-						},
-					).Else("not setted"),
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Tts.Info.Voice.
+						SetVars(locales.KeysCommandsTtsInfoVoiceVars{GlobalVoice: channelSettings.Voice, UserVoice: lo.IfF(
+							userSettings != nil, func() string {
+								return userSettings.Voice
+							},
+						).Else("not setted")}),
 				),
 			)
 			return result, nil
@@ -100,7 +101,7 @@ var VoiceCommand = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "error while updating settings",
+					Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.UpdatingSettings),
 					Err:     err,
 				}
 			}
@@ -117,7 +118,7 @@ var VoiceCommand = &types.DefaultCommand{
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
-						Message: "error while creating user settings",
+						Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CreateSettings),
 						Err:     err,
 					}
 				}
@@ -131,14 +132,14 @@ var VoiceCommand = &types.DefaultCommand{
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
-						Message: "error while updating user settings",
+						Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.UpdatingSettings),
 						Err:     err,
 					}
 				}
 			}
 		}
 
-		result.Result = append(result.Result, fmt.Sprintf("Voice changed to %s", wantedVoice.Name))
+		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Info.ChangeVoice.SetVars(locales.KeysCommandsTtsInfoChangeVoiceVars{NewVoice: wantedVoice.Name})))
 
 		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
 

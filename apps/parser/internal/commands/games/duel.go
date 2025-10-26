@@ -10,7 +10,9 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
 )
 
@@ -42,7 +44,7 @@ var Duel = &types.DefaultCommand{
 		}
 
 		errorResult := types.CommandsHandlerResult{
-			Result: []string{"Something went wrong, please try again later"},
+			Result: []string{i18n.GetCtx(ctx, locales.Translations.Errors.Generic.SomethingWentWrong)},
 		}
 
 		settings, err := handler.getChannelSettings(ctx)
@@ -53,7 +55,7 @@ var Duel = &types.DefaultCommand{
 				}, nil
 			} else {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get duel channel settings",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelCannotGetWithSettings),
 					Err:     err,
 				}
 			}
@@ -74,8 +76,12 @@ var Duel = &types.DefaultCommand{
 		isCooldown, err := handler.isCooldown(ctx, parseCtx.Sender.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get cooldown",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Games.Errors.DuelCannotCheckCooldown.
+						SetVars(locales.KeysCommandsGamesErrorsDuelCannotCheckCooldownVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 
@@ -88,7 +94,7 @@ var Duel = &types.DefaultCommand{
 		dbChannel, err := handler.getDbChannel(ctx)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get db channel",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetDbChannel),
 				Err:     err,
 			}
 		}
@@ -96,7 +102,7 @@ var Duel = &types.DefaultCommand{
 		_, err = handler.createHelixClient()
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.BroadcasterClient),
 				Err:     err,
 			}
 		}
@@ -104,7 +110,7 @@ var Duel = &types.DefaultCommand{
 		targetUser, err := handler.getTwitchTargetUser()
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot find target user on twitch",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotFindUserTwitch),
 				Err:     err,
 			}
 		}
@@ -121,7 +127,7 @@ var Duel = &types.DefaultCommand{
 				return &errorResult, nil
 			} else {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot validate participants",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelCannotValidateParticipants),
 					Err:     err,
 				}
 			}
@@ -130,7 +136,7 @@ var Duel = &types.DefaultCommand{
 		moderators, err := handler.getChannelModerators()
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get channel moderators",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetModerators),
 				Err:     err,
 			}
 		}
@@ -140,20 +146,20 @@ var Duel = &types.DefaultCommand{
 			Where(`"channelId" = ? AND "defaultName" = ?`, dbChannel.ID, "duel accept").
 			Pluck("name", &acceptCommandName).Error; err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get accept command name",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetAcceptCommandName),
 				Err:     err,
 			}
 		}
 		if len(acceptCommandName) == 0 {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get accept command name",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetAcceptCommandName),
 				Err:     errors.New("accept command name not found"),
 			}
 		}
 
 		if err = handler.saveDuelData(ctx, targetUser, moderators, settings); err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot save duel data to cache",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelCannotSaveToCache),
 				Err:     err,
 			}
 		}

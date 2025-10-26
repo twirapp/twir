@@ -10,9 +10,11 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"gorm.io/gorm"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
 )
@@ -20,7 +22,7 @@ import (
 var AddAliaseCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "commands aliases add",
-		Description: null.StringFrom("Add aliase to command"),
+		Description: null.StringFrom("Add alias to command"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MANAGE",
 		IsReply:     true,
@@ -47,12 +49,12 @@ var AddAliaseCommand = &types.DefaultCommand{
 			"",
 		)
 		commandName = strings.ToLower(commandName)
-		aliase := strings.ReplaceAll(
+		alias := strings.ReplaceAll(
 			parseCtx.ArgsParser.Get(commandAliaseArgName).String(),
 			"!",
 			"",
 		)
-		aliase = strings.ToLower(aliase)
+		alias = strings.ToLower(alias)
 
 		var existedCommands []*model.ChannelsCommands
 		err := parseCtx.Services.Gorm.
@@ -63,19 +65,23 @@ var AddAliaseCommand = &types.DefaultCommand{
 			Error
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get existed commands",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.AliasCannotGetExistedCommands),
 				Err:     err,
 			}
 		}
 
-		existsError := fmt.Sprintf(`command with "%s" name or aliase already exists`, aliase)
+		existsError := fmt.Sprintf(i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Manage.Errors.AliasAlreadyExist.
+				SetVars(locales.KeysCommandsManageErrorsAliasAlreadyExistVars{Alias: alias}),
+		))
 		for _, c := range existedCommands {
-			if c.Name == aliase {
+			if c.Name == alias {
 				result.Result = append(result.Result, existsError)
 				return result, nil
 			}
 
-			if lo.Contains(c.Aliases, aliase) {
+			if lo.Contains(c.Aliases, alias) {
 				result.Result = append(result.Result, existsError)
 				return result, nil
 			}
@@ -89,17 +95,17 @@ var AddAliaseCommand = &types.DefaultCommand{
 			First(&cmd).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				result.Result = append(result.Result, "Command not found.")
+				result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandNotFound))
 				return result, nil
 			} else {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get command",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotGet),
 					Err:     err,
 				}
 			}
 		}
 
-		cmd.Aliases = append(cmd.Aliases, aliase)
+		cmd.Aliases = append(cmd.Aliases, alias)
 
 		err = parseCtx.Services.Gorm.
 			WithContext(ctx).
@@ -107,14 +113,14 @@ var AddAliaseCommand = &types.DefaultCommand{
 
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot update command aliases",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.AliasCannotUpdate),
 				Err:     err,
 			}
 		}
 
 		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
 
-		result.Result = append(result.Result, "✅ Aliase added.")
+		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Add.AliasAdd))
 		return result, nil
 	},
 }

@@ -9,14 +9,16 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
 )
 
 const (
-	gameArgName = "gameOrAliase"
+	gameArgName = "gameOrAlias"
 )
 
 var SetCommand = &types.DefaultCommand{
@@ -31,7 +33,7 @@ var SetCommand = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.VariadicString{
 			Name:     gameArgName,
-			Hint:     "category name or created category aliase",
+			Hint:     i18n.Get(locales.Translations.Commands.Channel.Hints.GameArgName),
 			Optional: true,
 		},
 	},
@@ -51,8 +53,11 @@ var SetCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot create broadcaster twitch client",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Channel.Errors.BroadcasterTwitchClientCannotCreate,
+				),
+				Err: err,
 			}
 		}
 
@@ -64,14 +69,20 @@ var SetCommand = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get channel information",
-					Err:     err,
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Channel.Errors.ChannelCannotGetInformation,
+					),
+					Err: err,
 				}
 			}
 			if len(channelInfo.Data.Channels) == 0 {
 				return nil, &types.CommandHandlerError{
-					Message: "channel not found",
-					Err:     fmt.Errorf("channel not found"),
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Channel.Errors.ChannelNotFound,
+					),
+					Err: fmt.Errorf(i18n.GetCtx(ctx, locales.Translations.Commands.Channel.Errors.ChannelNotFound)),
 				}
 			}
 
@@ -87,8 +98,11 @@ var SetCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot get category aliases",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Channel.Errors.AliasCannotGetCategory,
+				),
+				Err: err,
 			}
 		}
 
@@ -102,14 +116,21 @@ var SetCommand = &types.DefaultCommand{
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
-						Message: "cannot change category",
-						Err:     err,
+						Message: i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Channel.Errors.CategoryCannotChange,
+						),
+						Err: err,
 					}
 				}
 				if changeResponse.ErrorMessage != "" {
 					return nil, &types.CommandHandlerError{
-						Message: fmt.Sprintf("cannot change category: %s", changeResponse.ErrorMessage),
-						Err:     fmt.Errorf(changeResponse.ErrorMessage),
+						Message: i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Channel.Errors.CategoryCannotChangeError.
+								SetVars(locales.KeysCommandsChannelErrorsCategoryCannotChangeErrorVars{ErrorMessage: changeResponse.ErrorMessage}),
+						),
+						Err: fmt.Errorf(changeResponse.ErrorMessage),
 					}
 				}
 
@@ -120,27 +141,41 @@ var SetCommand = &types.DefaultCommand{
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
-						Message: "cannot get category",
+						Message: i18n.GetCtx(ctx, locales.Translations.Commands.Channel.Errors.CategoryCannotGet),
 						Err:     err,
 					}
 				}
 				if categoryRequest.ErrorMessage != "" {
 					return nil, &types.CommandHandlerError{
-						Message: fmt.Sprintf("cannot get category: %s", categoryRequest.ErrorMessage),
-						Err:     fmt.Errorf(categoryRequest.ErrorMessage),
+						Message: i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Channel.Errors.CategoryCannotGetError.
+								SetVars(locales.KeysCommandsChannelErrorsCategoryCannotGetErrorVars{ErrorMessage: categoryRequest.ErrorMessage}),
+						),
+						Err: fmt.Errorf(categoryRequest.ErrorMessage),
 					}
 				}
 
 				if len(categoryRequest.Data.Games) == 0 {
 					return nil, &types.CommandHandlerError{
-						Message: "category not found",
-						Err:     fmt.Errorf("category not found"),
+						Message: i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Channel.Errors.CategoryNotFound,
+						),
+						Err: fmt.Errorf(i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Channel.Errors.CategoryNotFound,
+						)),
 					}
 				}
 
 				result.Result = append(
 					result.Result,
-					fmt.Sprintf("✅ %s", categoryRequest.Data.Games[0].Name),
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Channel.Add.CategoryChange.
+							SetVars(locales.KeysCommandsChannelAddCategoryChangeVars{CategoryName: categoryRequest.Data.Games[0].Name}),
+					),
 				)
 				return result, nil
 			}
@@ -149,8 +184,11 @@ var SetCommand = &types.DefaultCommand{
 		category, err := parseCtx.Services.CacheTwitchClient.SearchCategory(ctx, categoryArg)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "game not found on twitch",
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Channel.Errors.GameNotFound,
+				),
+				Err: err,
 			}
 		}
 
@@ -165,7 +203,10 @@ var SetCommand = &types.DefaultCommand{
 			result.Result = append(
 				result.Result,
 				lo.If(changeResponse.ErrorMessage != "", changeResponse.ErrorMessage).Else(
-					"❌ internal error",
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Errors.Generic.Internal,
+					),
 				),
 			)
 			return result, nil

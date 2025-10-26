@@ -2,19 +2,20 @@ package seventv
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 )
 
 const (
-	emoteForAddArgLink   = "link"
-	emoteForAddArgAliase = "aliase"
+	emoteForAddArgLink  = "link"
+	emoteForAddArgAlias = "alias"
 )
 
 var EmoteAdd = &types.DefaultCommand{
@@ -32,12 +33,12 @@ var EmoteAdd = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: emoteForAddArgLink,
-			Hint: "link or name",
+			Hint: i18n.Get(locales.Translations.Commands.Seventv.Hints.EmoteForAddArgLink),
 		},
 		command_arguments.String{
-			Name:     emoteForAddArgAliase,
+			Name:     emoteForAddArgAlias,
 			Optional: true,
-			Hint:     "optional name",
+			Hint:     i18n.Get(locales.Translations.Commands.Seventv.Hints.EmoteForAddArgAlias),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -49,14 +50,21 @@ var EmoteAdd = &types.DefaultCommand{
 		sevenTvUser, err := client.GetProfileByTwitchId(ctx, parseCtx.Channel.ID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv profile: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+						SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 		if sevenTvUser.Users.UserByConnection.Style.ActiveEmoteSetId == nil {
 			return &types.CommandsHandlerResult{
 				Result: []string{
-					`❌ No active emote set`,
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.EmotesetNotActive,
+					),
 				},
 			}, nil
 		}
@@ -66,13 +74,16 @@ var EmoteAdd = &types.DefaultCommand{
 		emote, err := client.GetOneEmoteByNameOrLink(ctx, nameOrLinkArgument)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to get 7tv emote: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.EmotesetNotActive,
+				),
+				Err: err,
 			}
 		}
 
 		var emoteName string
-		aliaseArgument := parseCtx.ArgsParser.Get(emoteForAddArgAliase)
+		aliaseArgument := parseCtx.ArgsParser.Get(emoteForAddArgAlias)
 		if aliaseArgument != nil {
 			emoteName = aliaseArgument.String()
 		} else {
@@ -87,14 +98,18 @@ var EmoteAdd = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to add 7tv emote: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.EmoteFailedToAdd.
+						SetVars(locales.KeysCommandsSeventvErrorsEmoteFailedToAddVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				`✅ Emote added`,
+				i18n.Get(locales.Translations.Commands.Seventv.Add.EmoteAdd),
 			},
 		}, nil
 	},

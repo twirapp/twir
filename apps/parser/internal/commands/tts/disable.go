@@ -7,7 +7,9 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var DisableCommand = &types.DefaultCommand{
@@ -27,12 +29,12 @@ var DisableCommand = &types.DefaultCommand{
 		err := parseCtx.Services.TTSService.ToggleChannelEnabled(ctx, parseCtx.Channel.ID, false)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while disabling tts",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.WhileDisable),
 				Err:     err,
 			}
 		}
 
-		result.Result = append(result.Result, "TTS disabled")
+		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Info.Disabled))
 
 		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
 

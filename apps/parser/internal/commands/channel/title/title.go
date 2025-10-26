@@ -10,7 +10,9 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -48,7 +50,13 @@ var SetCommand = &types.DefaultCommand{
 			parseCtx.Services.Bus,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("cannot create broadcaster twitch api client: %w", err)
+			return nil, fmt.Errorf(
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Channel.Errors.BroadcasterTwitchApiClient.
+						SetVars(locales.KeysCommandsChannelErrorsBroadcasterTwitchApiClientVars{Reason: err.Error()}),
+				),
+			)
 		}
 
 		if !parseCtx.ArgsParser.IsExists(titleArgName) {
@@ -59,14 +67,25 @@ var SetCommand = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "cannot get channel information",
-					Err:     err,
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Channel.Errors.ChannelCannotGetInformation,
+					),
+					Err: err,
 				}
 			}
 			if len(channelInfo.Data.Channels) == 0 {
 				return nil, &types.CommandHandlerError{
-					Message: "channel not found",
-					Err:     fmt.Errorf("channel not found"),
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Channel.Errors.ChannelNotFound,
+					),
+					Err: fmt.Errorf(
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Channel.Errors.ChannelNotFound,
+						),
+					),
 				}
 			}
 
@@ -86,7 +105,7 @@ var SetCommand = &types.DefaultCommand{
 		if err != nil || req.StatusCode != 204 {
 			result.Result = append(
 				result.Result,
-				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else("❌ internal error"),
+				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else(i18n.GetCtx(ctx, locales.Translations.Errors.Generic.Internal)),
 			)
 			return result, nil
 		}

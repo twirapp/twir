@@ -7,7 +7,9 @@ import (
 	"regexp"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/twirapp/twir/apps/parser/locales"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/i18n"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 )
@@ -38,7 +40,7 @@ var urlRegexp = regexp.MustCompile(`^https?://.*`)
 
 func (c *Service) FindOrCreate(ctx context.Context, uri, actorId string) (*Link, error) {
 	if !urlRegexp.MatchString(uri) {
-		return nil, errors.New("invalid url")
+		return nil, errors.New(i18n.GetCtx(ctx, locales.Translations.Services.Shortenedurls.Errors.InvalidUrl))
 	}
 
 	link, err := c.repo.GetByUrl(ctx, uri)

@@ -2,10 +2,11 @@ package shorturl
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Variable = &types.Variable{
@@ -19,7 +20,7 @@ var Variable = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		if variableData.Params == nil {
 			return nil, &types.CommandHandlerError{
-				Message: "url is required",
+				Message: i18n.GetCtx(ctx, locales.Translations.Variables.Shorturl.Errors.UrlRequired),
 			}
 		}
 
@@ -30,8 +31,12 @@ var Variable = &types.Variable{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("cannot create short url: %s", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Variables.Shorturl.Errors.CreateShortUrl.
+						SetVars(locales.KeysVariablesShorturlErrorsCreateShortUrlVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 

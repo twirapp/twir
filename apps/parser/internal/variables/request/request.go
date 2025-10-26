@@ -6,6 +6,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var supportedContentType = "text/plain"
@@ -55,7 +57,7 @@ var Request = &types.Variable{
 		)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
-			result.Result = "Cannot execute request"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Request.Errors.ExecuteRequest)
 			return result, nil
 		}
 

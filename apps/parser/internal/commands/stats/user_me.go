@@ -2,16 +2,17 @@ package stats
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/variables/user"
+	"github.com/twirapp/twir/apps/parser/locales"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var UserMe = &types.DefaultCommand{
@@ -31,11 +32,31 @@ var UserMe = &types.DefaultCommand{
 	) {
 		var slice []string
 
-		slice = append(slice, fmt.Sprintf("$(%s) watched", user.Watched.Name))
-		slice = append(slice, fmt.Sprintf("$(%s) messages", user.Messages.Name))
-		slice = append(slice, fmt.Sprintf("$(%s) used emotes", user.Emotes.Name))
-		slice = append(slice, fmt.Sprintf("$(%s) used points", user.UsedChannelPoints.Name))
-		slice = append(slice, fmt.Sprintf("$(%s) songs requestes", user.SongsRequested.Name))
+		slice = append(slice, i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Stats.Info.Watched.
+				SetVars(locales.KeysCommandsStatsInfoWatchedVars{UserWatched: user.Watched.Name}),
+		))
+		slice = append(slice, i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Stats.Info.Messages.
+				SetVars(locales.KeysCommandsStatsInfoMessagesVars{UserMessages: user.Messages.Name}),
+		))
+		slice = append(slice, i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Stats.Info.Emotes.
+				SetVars(locales.KeysCommandsStatsInfoEmotesVars{UserEmotes: user.Messages.Name}),
+		))
+		slice = append(slice, i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Stats.Info.Points.
+				SetVars(locales.KeysCommandsStatsInfoPointsVars{UserPoints: user.UsedChannelPoints.Name}),
+		))
+		slice = append(slice, i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Stats.Info.Songs.
+				SetVars(locales.KeysCommandsStatsInfoSongsVars{UserSongs: user.SongsRequested.Name}),
+		))
 
 		result := &types.CommandsHandlerResult{
 			Result: []string{strings.Join(slice, " · ")},

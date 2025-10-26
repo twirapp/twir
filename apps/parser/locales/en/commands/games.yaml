@@ -1,0 +1,39 @@
+errors:
+  # 8ball
+  8ball_cannot_find: Cannot find 8ball settings
+  # Duel
+  duel_cannot_get_with_settings: Cannot get duel channel settings
+  duel_cannot_get_sender: Cannot get sender current duel
+  duel_cannot_save_result: 'Cannot save duel result: {reason}'
+  duel_cannot_save_data: 'Cannot save duel data: {reason}'
+  duel_cannot_check_user: 'Cannot check user in duel: {reason}'
+  duel_with_yourself: You cannot duel with yourself
+  duel_with_streamer: You cannot duel with streamer
+  duel_with_bot: You cannot duel with bot
+  duel_cannot_set_user_cooldown: 'Cannot set user cooldown: {reason}'
+  duel_cannot_set_global_cooldown: 'Cannot set global cooldown: {reason}'
+  duel_cannot_check_cooldown: 'Cannot check duel cooldown: {reason}'
+  duel_cannot_validate_participants: Cannot validate participants
+  duel_cannot_save_to_cache: Cannot save duel data to cache
+  # Roulette
+  roulette_cannot_get_with_settings: Cannot get roulette settings from database
+  roulette_cannot_send_initial_message: Cannot send initial message
+  roulette_cannot_send_death_message: Cannot send death message
+  # Seppuku
+  seppuku_cannot_find_settings: Cannot find seppuku settings
+  # Voteban
+  voteban_cannot_lock: Cannot lock voteban
+  voteban_cannot_find_settings: Cannot find voteban settings
+  voteban_cannot_check_progress: Cannot check if vote in progress
+  voteban_cannot_find_user: Cannot find target user
+  voteban_cannot_set_vote: Cannot set vote
+  voteban_cannot_set_vote_expiration: Cannot set vote expiration
+
+info:
+  # Duel
+  user_not_participate: You are not participate in any duel
+  user_already_in_duel: Target user already in duel
+  sender_already_in_duel: You already in duel
+  duel_stats: 'You have shoot {duels} times · {wins} W – {loses} L ({winrate} WR)'
+  # Voteban
+  voteban_in_progress: Another voteban in progress

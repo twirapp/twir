@@ -9,7 +9,9 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
 )
 
@@ -45,7 +47,7 @@ var EightBall = &types.DefaultCommand{
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: "cannot find 8ball settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.EightballCannotFind),
 				Err:     err,
 			}
 		}

@@ -65,19 +65,19 @@ func (c *Service) IsNameConflicting(
 		if strings.ToLower(command.Name) == name {
 			return true, nil
 		}
-		for _, aliase := range command.Aliases {
-			if strings.ToLower(aliase) == name {
+		for _, alias := range command.Aliases {
+			if strings.ToLower(alias) == name {
 				return true, nil
 			}
 		}
 
-		for _, aliase := range aliases {
-			if strings.ToLower(command.Name) == strings.ToLower(aliase) {
+		for _, alias := range aliases {
+			if strings.ToLower(command.Name) == strings.ToLower(alias) {
 				return true, nil
 			}
 
 			for _, cmdAliase := range command.Aliases {
-				if strings.ToLower(cmdAliase) == strings.ToLower(aliase) {
+				if strings.ToLower(cmdAliase) == strings.ToLower(alias) {
 					return true, nil
 				}
 			}

@@ -8,7 +8,9 @@ import (
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	seventvapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	"golang.org/x/sync/errgroup"
@@ -36,17 +38,17 @@ var EmoteCopy = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: emoteForCopyArgName,
-			Hint: "name of emote to copy",
+			Hint: i18n.Get(locales.Translations.Commands.Seventv.Hints.EmoteForCopyArgName),
 		},
 		command_arguments.String{
 			Name:     emoteForCopyChannel,
 			Optional: false,
-			Hint:     "@channel",
+			Hint:     i18n.Get(locales.Translations.Errors.Generic.ShouldMentionWithAt),
 		},
 		command_arguments.String{
 			Name:     emoteForCopyAlias,
 			Optional: true,
-			Hint:     "aliase for emote",
+			Hint:     i18n.Get(locales.Translations.Commands.Seventv.Hints.EmoteForCopyAlias),
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -55,7 +57,10 @@ var EmoteCopy = &types.DefaultCommand{
 	) {
 		if len(parseCtx.Mentions) == 0 {
 			return nil, &types.CommandHandlerError{
-				Message: "you should tag user with @",
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.ShouldMentionWithAt,
+				),
 			}
 		}
 
@@ -71,10 +76,17 @@ var EmoteCopy = &types.DefaultCommand{
 			func() error {
 				broadcasterSeventvProfile, err := client.GetProfileByTwitchId(ctx, parseCtx.Channel.ID)
 				if err != nil {
-					return fmt.Errorf("failed to get 7tv profile: %w", err)
+					return fmt.Errorf(i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+							SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+					))
 				}
 				if broadcasterSeventvProfile.Users.UserByConnection.Style.ActiveEmoteSetId == nil {
-					return fmt.Errorf(`❌ No active emote set`)
+					return fmt.Errorf(i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.EmotesetNotActive,
+					))
 				}
 
 				broadcasterProfile = broadcasterSeventvProfile
@@ -86,10 +98,18 @@ var EmoteCopy = &types.DefaultCommand{
 			func() error {
 				targetSeventvProfile, err := client.GetProfileByTwitchId(ctx, parseCtx.Mentions[0].UserId)
 				if err != nil {
-					return fmt.Errorf("failed to get 7tv profile: %w", err)
+					return fmt.Errorf(i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+							SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+					))
 				}
 				if targetSeventvProfile.Users.UserByConnection.Style.ActiveEmoteSetId == nil {
-					return fmt.Errorf(`❌ No active emote set`)
+					return fmt.Errorf(i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+							SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+					))
 				}
 
 				targetProfile = targetSeventvProfile
@@ -106,7 +126,10 @@ var EmoteCopy = &types.DefaultCommand{
 
 		if broadcasterProfile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
 			return nil, &types.CommandHandlerError{
-				Message: `❌ No active emote set for broadcaster`,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.EmotesetBroadcasterNotActive,
+				),
 			}
 		}
 
@@ -121,7 +144,11 @@ var EmoteCopy = &types.DefaultCommand{
 
 		if targetEmote == nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf(`❌ Emote "%s" not found in target channel`, emoteForSearch),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.EmoteNotFoundInChannel.
+						SetVars(locales.KeysCommandsSeventvErrorsEmoteNotFoundInChannelVars{EmoteSearch: emoteForSearch}),
+				),
 			}
 		}
 
@@ -136,7 +163,11 @@ var EmoteCopy = &types.DefaultCommand{
 				e.Emote.DefaultName == emoteForSearch ||
 				e.Alias == emoteName {
 				return nil, &types.CommandHandlerError{
-					Message: fmt.Sprintf(`❌ Emote "%s" already exists in this channel`, emoteName),
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Seventv.Errors.EmoteAlreadyExistInChannel.
+							SetVars(locales.KeysCommandsSeventvErrorsEmoteAlreadyExistInChannelVars{EmoteName: emoteName}),
+					),
 				}
 			}
 		}
@@ -149,14 +180,21 @@ var EmoteCopy = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf("Failed to add 7tv emote: %v", err),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Errors.EmoteFailedToAdd.
+						SetVars(locales.KeysCommandsSeventvErrorsEmoteFailedToAddVars{Reason: err.Error()}),
+				),
+				Err: err,
 			}
 		}
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
-				`✅ Emote added`,
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Seventv.Add.EmoteAdd,
+				),
 			},
 		}, nil
 	},

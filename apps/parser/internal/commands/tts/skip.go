@@ -5,8 +5,10 @@ import (
 
 	"github.com/guregu/null"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
@@ -31,7 +33,7 @@ var SkipCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while sending message to tts service",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.SendingToTts),
 				Err:     err,
 			}
 		}

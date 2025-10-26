@@ -2,7 +2,6 @@ package dudes
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -11,8 +10,10 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 const (
@@ -52,12 +53,16 @@ var Color = &types.DefaultCommand{
 
 		if text == "" {
 			if entity.UserID != "" && entity.DudeColor != nil {
-				result.Result = []string{fmt.Sprintf("Your color is %s", *entity.DudeColor)}
+				result.Result = []string{i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Dudes.Info.Color.
+						SetVars(locales.KeysCommandsDudesInfoColorVars{DudeColor: *entity.DudeColor}),
+				)}
 				return &result, nil
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: "color is required",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dudes.Info.ColorRequired),
 			}
 		}
 
@@ -68,7 +73,7 @@ var Color = &types.DefaultCommand{
 			parsedColor, err := csscolorparser.Parse(text)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: "invalid color",
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dudes.Errors.ColorInvalid),
 					Err:     err,
 				}
 			}
@@ -98,17 +103,21 @@ var Color = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot trigger dudes color",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dudes.Errors.ColorCannotTrigger),
 				Err:     err,
 			}
 		}
 
 		if color == nil {
-			result.Result = []string{"Color reset to default"}
+			result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Dudes.Info.ColorReset)}
 			return &result, nil
 		}
 
-		result.Result = []string{fmt.Sprintf("Color changed to %s", *color)}
+		result.Result = []string{i18n.GetCtx(
+			ctx,
+			locales.Translations.Commands.Dudes.Info.ColorChanged.
+				SetVars(locales.KeysCommandsDudesInfoColorChangedVars{DudeColor: *color}),
+		)}
 		return &result, nil
 	},
 }

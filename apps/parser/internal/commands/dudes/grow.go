@@ -6,8 +6,10 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Grow = &types.DefaultCommand{
@@ -35,7 +37,7 @@ var Grow = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "cannot trigger dudes grow",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dudes.Errors.GrowCannotTrigger),
 				Err:     err,
 			}
 		}

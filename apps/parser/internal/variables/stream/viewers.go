@@ -6,6 +6,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Viewers = &types.Variable{
@@ -20,7 +22,7 @@ var Viewers = &types.Variable{
 		if parseCtx.ChannelStream != nil {
 			result.Result = strconv.Itoa(parseCtx.ChannelStream.ViewerCount)
 		} else {
-			result.Result = "offline"
+			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Stream.Errors.Offline)
 		}
 
 		return &result, nil

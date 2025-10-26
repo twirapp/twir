@@ -2,7 +2,6 @@ package tts
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -11,8 +10,10 @@ import (
 	"github.com/guregu/null"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/services/tts"
+	"github.com/twirapp/twir/apps/parser/locales"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/samber/lo"
@@ -55,7 +56,7 @@ var SayCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting channel settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.GettingChannelSettings),
 				Err:     err,
 			}
 		}
@@ -71,7 +72,7 @@ var SayCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while getting user settings",
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.GettingUserSettings),
 				Err:     err,
 			}
 		}
@@ -104,7 +105,11 @@ var SayCommand = &types.DefaultCommand{
 				if isDisallowed {
 					result.Result = append(
 						result.Result,
-						fmt.Sprintf("Voice %s is disallowed for usage", voice),
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Tts.Info.VoiceDisallowed.
+								SetVars(locales.KeysCommandsTtsInfoVoiceDisallowedVars{VoiceName: voice}),
+						),
 					)
 					return result, nil
 				}
@@ -220,7 +225,7 @@ var SayCommand = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: "error while sending message to tts service",
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.SendingToTts),
 				Err:     err,
 			}
 		}
