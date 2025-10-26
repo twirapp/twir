@@ -1,6 +1,8 @@
+preserve_hierarchy: true
+
 files:
   - source: /frontend/dashboard/src/locales/en.json
     translation: /frontend/dashboard/src/locales/%two_letters_code%.json
   - source: /apps/*/locales/en/**/*.yaml
-    translation: /apps/*/locales/%two_letters_code%/**/*.yaml
+    translation: /apps/*/locales/%two_letters_code%/**/%original_file_name%.%file_extension%
     type: yaml
