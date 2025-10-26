@@ -79,7 +79,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 							<UiButton
 								type="submit"
 								variant="outline"
-								class="h-fit w-full sm:w-auto mt-2 sm:mt-0 px-3 rounded-lg font-semibold border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,25%)] hover:bg-[hsl(240,11%,35%)]"
+								class="h-fit w-full sm:w-auto mt-2 sm:mt-0 py-1 sm:py-1.5 sm:px-3 rounded-lg font-semibold border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,25%)] hover:bg-[hsl(240,11%,35%)]"
 							>
 								Shorten
 							</UiButton>
