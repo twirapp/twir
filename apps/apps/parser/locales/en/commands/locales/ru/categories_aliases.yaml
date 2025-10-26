@@ -1,0 +1,19 @@
+errors:
+  # Category
+  category_required: Alias and category are required
+  category_failed_to_get: Failed to get caterogies
+  category_cannot_to_get: Cannot get categories
+  category_not_found: Category not found
+  category_failed_to_create: Failed to create category
+  category_cannot_delete: Cannot delete category
+  # Alias
+  alias_already_exists: 'Alias {aliasName} already exists'
+  alias_empty: No categories aliases created
+  alias_not_found: Category alias not found
+  alias_removed: 'Category alias {aliasName} removed'
+  # TwitchClient
+  twitch_client_cannot_to_create: Cannot create twitch client
+  # Game
+  game_cannot_to_get: Cannot get games
+add:
+  alias_add_to_category: 'Category alias {aliasName} added with category {categoryName}'
