@@ -8,17 +8,13 @@ import { useQRCode } from '../../composables/use-qr-code'
 import type { LinkOutputDto } from '@twir/api/openapi'
 
 import PixelBlast from '~/components/ui/bits/backgrounds/PixelBlast/pixel-blast.vue'
-import { ColorPicker } from '~/components/ui/color-picker'
-
 import Dropdown from './dropdown.vue'
-
-import { DropdownMenuGroup, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 
 const props = defineProps<{ url: LinkOutputDto }>()
 
 const clipboardApi = useClipboard()
 
-const { extractMetaFromUrl, error, loading } = useMetaExtractor()
+const { extractMetaFromUrl, loading } = useMetaExtractor()
 
 const hasLoaded = ref(false)
 const metaData = ref<any>(null)
@@ -156,7 +152,7 @@ watch(
 				</div>
 				<Dropdown>
 					<template #content>
-						<DropdownMenuItem
+						<UiDropdownMenuItem
 							class="rounded-lg px-3 focus:bg-[hsl(240,11%,20%)] cursor-pointer"
 							@click="copyUrl"
 						>
@@ -164,8 +160,8 @@ watch(
 								<Icon name="lucide:copy" class="size-4" />
 								<span>Copy URL</span>
 							</div>
-						</DropdownMenuItem>
-						<DropdownMenuItem
+						</UiDropdownMenuItem>
+						<UiDropdownMenuItem
 							class="rounded-lg px-3 focus:bg-[hsl(240,11%,20%)] cursor-pointer"
 							@click="openQRCode"
 						>
@@ -173,7 +169,7 @@ watch(
 								<Icon name="lucide:qr-code" class="size-4" />
 								<span>QR Code</span>
 							</div>
-						</DropdownMenuItem>
+						</UiDropdownMenuItem>
 					</template>
 				</Dropdown>
 			</div>
@@ -228,7 +224,7 @@ watch(
 
 							<div class="flex flex-row items-center justify-between">
 								<label class="text-sm font-medium">QR Code Color</label>
-								<ColorPicker v-model="qrSettings.color" class="size-6" />
+								<UiColorPicker v-model="qrSettings.color" class="size-6" />
 							</div>
 						</div>
 					</div>
