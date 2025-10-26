@@ -1,0 +1,15 @@
+info:
+  lastfm_integration: LastFM integration not enabled
+  spotify_not_connected: Spotify not connected
+  failed_get_spotify_integration: Failed to get spotify integration
+  get_spotify_entity: Failed to get spotify entity
+  get_spotify_integration: 'Cannot get spotify integration: {reason}'
+  history: '{trackTitle} - {trackArtist} (~{minutes}m ago)'
+  no_needed_scope: 'No needed scope, reconnect spotify in dashboard'
+  no_integrations: No integrations connected
+errors:
+  get_recent_tracks: 'Cannot get recent tracks: {reason}'
+  create_lastfm_service: 'Cannot create lastfm service: {reason}'
+  fetch_tracks_lastfm: 'Cannot fetch tracks from lastfm: {reason}'
+  fetch_tracks_spotify: 'Cannot fetch tracks from spotify: {reason}'
+  parse_played_at: Cannot parse played at
