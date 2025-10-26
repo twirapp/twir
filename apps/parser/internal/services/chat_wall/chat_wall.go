@@ -77,16 +77,23 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 		},
 	)
 	if err != nil {
-		return model.ChatWall{}, fmt.Errorf(i18n.GetCtx(
-			ctx,
-			locales.Translations.Services.ChatWall.Errors.GetCurrentChatWalls.
-				SetVars(locales.KeysServicesChatWallErrorsGetCurrentChatWallsVars{Reason: err.Error()}),
-		))
+		return model.ChatWall{}, fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.GetCurrentChatWalls.
+					SetVars(locales.KeysServicesChatWallErrorsGetCurrentChatWallsVars{Reason: err.Error()}),
+			),
+		)
 	}
 
 	for _, chatWall := range currentChatWalls {
 		if chatWall.Phrase == input.Phrase {
-			return model.ChatWall{}, fmt.Errorf(i18n.GetCtx(ctx, locales.Translations.Services.ChatWall.Errors.CreateChatWallWithPhrase))
+			return model.ChatWall{}, fmt.Errorf(
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Services.ChatWall.Errors.CreateChatWallWithPhrase,
+				),
+			)
 		}
 	}
 
@@ -102,11 +109,13 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 		},
 	)
 	if err != nil {
-		return model.ChatWall{}, fmt.Errorf(i18n.GetCtx(
-			ctx,
-			locales.Translations.Services.ChatWall.Errors.CreateChatWall.
-				SetVars(locales.KeysServicesChatWallErrorsCreateChatWallVars{Reason: err.Error()}),
-		))
+		return model.ChatWall{}, fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.CreateChatWall.
+					SetVars(locales.KeysServicesChatWallErrorsCreateChatWallVars{Reason: err.Error()}),
+			),
+		)
 	}
 
 	c.chatWallCache.Invalidate(ctx, input.ChannelID)
@@ -128,11 +137,13 @@ func (c *Service) HandlePastMessages(
 ) error {
 	chatWallSettings, err := c.repo.GetChannelSettings(ctx, input.ChannelID)
 	if err != nil && !errors.Is(err, chatwallrepository.ErrSettingsNotFound) {
-		return fmt.Errorf(i18n.GetCtx(
-			ctx,
-			locales.Translations.Services.ChatWall.Errors.GetChatWallSettings.
-				SetVars(locales.KeysServicesChatWallErrorsGetChatWallSettingsVars{Reason: err.Error()}),
-		))
+		return fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.GetChatWallSettings.
+					SetVars(locales.KeysServicesChatWallErrorsGetChatWallSettingsVars{Reason: err.Error()}),
+			),
+		)
 	}
 
 	timeGte := time.Now().Add(-10 * time.Minute)
@@ -180,11 +191,13 @@ func (c *Service) HandlePastMessages(
 			), input.ChannelID,
 		).
 		Find(&usersStats).Error; err != nil {
-		return fmt.Errorf(i18n.GetCtx(
-			ctx,
-			locales.Translations.Services.ChatWall.Errors.GetUsersStats.
-				SetVars(locales.KeysServicesChatWallErrorsGetUsersStatsVars{Reason: err.Error()}),
-		))
+		return fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.GetUsersStats.
+					SetVars(locales.KeysServicesChatWallErrorsGetUsersStatsVars{Reason: err.Error()}),
+			),
+		)
 	}
 
 	messages = lo.Filter(
@@ -219,11 +232,13 @@ func (c *Service) HandlePastMessages(
 		fmt.Sprintf(redis_keys.NukeRedisPrefix, input.ChannelID),
 	).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
-		return fmt.Errorf(i18n.GetCtx(
-			ctx,
-			locales.Translations.Services.ChatWall.Errors.GetAlreadyHandled.
-				SetVars(locales.KeysServicesChatWallErrorsGetAlreadyHandledVars{Reason: err.Error()}),
-		))
+		return fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.GetAlreadyHandled.
+					SetVars(locales.KeysServicesChatWallErrorsGetAlreadyHandledVars{Reason: err.Error()}),
+			),
+		)
 	}
 
 	if input.Action == model.ChatWallActionDelete {
@@ -246,11 +261,13 @@ func (c *Service) HandlePastMessages(
 			},
 		)
 		if err != nil {
-			return fmt.Errorf(i18n.GetCtx(
-				ctx,
-				locales.Translations.Services.ChatWall.Errors.PublishDeletedMessages.
-					SetVars(locales.KeysServicesChatWallErrorsPublishDeletedMessagesVars{Reason: err.Error()}),
-			))
+			return fmt.Errorf(
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Services.ChatWall.Errors.PublishDeletedMessages.
+						SetVars(locales.KeysServicesChatWallErrorsPublishDeletedMessagesVars{Reason: err.Error()}),
+				),
+			)
 		}
 	} else if input.Action == model.ChatWallActionBan || input.Action == model.ChatWallActionTimeout {
 		request := make([]botsservice.BanRequest, 0, len(messages))
@@ -268,9 +285,12 @@ func (c *Service) HandlePastMessages(
 			request = append(
 				request,
 				botsservice.BanRequest{
-					ChannelID:      input.ChannelID,
-					UserID:         m.UserID,
-					Reason:         i18n.GetCtx(ctx, locales.Translations.Services.ChatWall.Info.BannedByTwir.SetVars(locales.KeysServicesChatWallInfoBannedByTwirVars{BanPhrase: input.Phrase})),
+					ChannelID: input.ChannelID,
+					UserID:    m.UserID,
+					Reason: i18n.GetCtx(
+						ctx,
+						locales.Translations.Services.ChatWall.Info.BannedByTwir.SetVars(locales.KeysServicesChatWallInfoBannedByTwirVars{BanPhrase: input.Phrase}),
+					),
 					BanTime:        banTime,
 					IsModerator:    false,
 					AddModAfterBan: false,
@@ -280,7 +300,12 @@ func (c *Service) HandlePastMessages(
 
 		err = c.twirBus.Bots.BanUsers.Publish(ctx, request)
 		if err != nil {
-			return fmt.Errorf(i18n.GetCtx(ctx, locales.Translations.Services.ChatWall.Errors.PublishBanUsers.SetVars(locales.KeysServicesChatWallErrorsPublishBanUsersVars{Reason: err.Error()})))
+			return fmt.Errorf(
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Services.ChatWall.Errors.PublishBanUsers.SetVars(locales.KeysServicesChatWallErrorsPublishBanUsersVars{Reason: err.Error()}),
+				),
+			)
 		}
 	}
 
@@ -308,11 +333,13 @@ func (c *Service) HandlePastMessages(
 	}
 
 	if err := c.repo.CreateManyLogs(ctx, logs); err != nil {
-		return fmt.Errorf(i18n.GetCtx(
-			ctx,
-			locales.Translations.Services.ChatWall.Errors.CreateChatLogsInDb.
-				SetVars(locales.KeysServicesChatWallErrorsCreateChatLogsInDbVars{Reason: err.Error()}),
-		))
+		return fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.CreateChatLogsInDb.
+					SetVars(locales.KeysServicesChatWallErrorsCreateChatLogsInDbVars{Reason: err.Error()}),
+			),
+		)
 	}
 
 	_, err = c.redis.Pipelined(
@@ -336,11 +363,13 @@ func (c *Service) HandlePastMessages(
 		},
 	)
 	if err != nil {
-		return fmt.Errorf(i18n.GetCtx(
-			ctx,
-			locales.Translations.Services.ChatWall.Errors.HandledMessagesToRedis.
-				SetVars(locales.KeysServicesChatWallErrorsHandledMessagesToRedisVars{Reason: err.Error()}),
-		))
+		return fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.HandledMessagesToRedis.
+					SetVars(locales.KeysServicesChatWallErrorsHandledMessagesToRedisVars{Reason: err.Error()}),
+			),
+		)
 	}
 
 	return nil
@@ -351,7 +380,7 @@ type StopInput struct {
 	Phrase    string
 }
 
-var ErrChatWallNotFound = errors.New(i18n.Get(locales.Translations.Services.ChatWall.Errors.ChatWallNotFound))
+var ErrChatWallNotFound = errors.New("chat wall not found")
 
 func (c *Service) Stop(ctx context.Context, input StopInput) error {
 	enabled := true
@@ -364,11 +393,13 @@ func (c *Service) Stop(ctx context.Context, input StopInput) error {
 		},
 	)
 	if err != nil {
-		return fmt.Errorf(i18n.GetCtx(
-			ctx,
-			locales.Translations.Services.ChatWall.Errors.GetChatWalls.
-				SetVars(locales.KeysServicesChatWallErrorsGetChatWallsVars{Reason: err.Error()}),
-		))
+		return fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.GetChatWalls.
+					SetVars(locales.KeysServicesChatWallErrorsGetChatWallsVars{Reason: err.Error()}),
+			),
+		)
 	}
 
 	for _, wall := range walls {
@@ -381,11 +412,13 @@ func (c *Service) Stop(ctx context.Context, input StopInput) error {
 				},
 			)
 			if err != nil {
-				return fmt.Errorf(i18n.GetCtx(
-					ctx,
-					locales.Translations.Services.ChatWall.Errors.UpdateChatWalls.
-						SetVars(locales.KeysServicesChatWallErrorsUpdateChatWallsVars{Reason: err.Error()}),
-				))
+				return fmt.Errorf(
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Services.ChatWall.Errors.UpdateChatWalls.
+							SetVars(locales.KeysServicesChatWallErrorsUpdateChatWallsVars{Reason: err.Error()}),
+					),
+				)
 			}
 
 			c.chatWallCache.Invalidate(ctx, input.ChannelID)
