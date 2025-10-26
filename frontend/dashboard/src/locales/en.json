@@ -438,9 +438,7 @@
 			"moderatorDisplayName": "Event Triggerer Moderator Display Name",
 			"banReason": "Ban Reason",
 			"banEndsInMinutes": "Timeout (in minutes, or set to \"permanent\" to ban permamently)",
-			"message": "Message",
-      "channelFollowers": "Total channel followers",
-      "channelStreamFollowers": "Followers gained during current stream",
+			"message": "Message"
 		}
 	},
 	"overlays": {
