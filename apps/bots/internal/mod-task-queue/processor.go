@@ -6,9 +6,9 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

@@ -7,19 +7,19 @@ import (
 	"sync"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/redis/go-redis/v9"
-	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
+	config "github.com/twirapp/twir/libs/config"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -30,7 +30,7 @@ type Opts struct {
 
 	Gorm                    *gorm.DB
 	CachedTwitchClient      *twitchcache.CachedTwitchClient
-	Redis                   *redis.Client
+	KV                      kv.KV
 	Config                  config.Config
 	Logger                  logger.Logger
 	TwirBus                 *buscore.Bus
@@ -42,7 +42,7 @@ func New(opts Opts) *Service {
 	return &Service{
 		gorm:                    opts.Gorm,
 		cachedTwitchClient:      opts.CachedTwitchClient,
-		redis:                   opts.Redis,
+		kv:                      opts.KV,
 		config:                  opts.Config,
 		logger:                  opts.Logger,
 		twirBus:                 opts.TwirBus,
@@ -54,7 +54,7 @@ func New(opts Opts) *Service {
 type Service struct {
 	gorm                    *gorm.DB
 	cachedTwitchClient      *twitchcache.CachedTwitchClient
-	redis                   *redis.Client
+	kv                      kv.KV
 	config                  config.Config
 	logger                  logger.Logger
 	twirBus                 *buscore.Bus
@@ -164,7 +164,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return result, nil
 	}
 
-	parsedMessages, err := c.redis.Get(
+	parsedMessages, err := c.kv.Get(
 		ctx,
 		redis_keys.StreamParsedMessages(stream.ID),
 	).Int()
@@ -172,7 +172,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return entity.DashboardStats{}, fmt.Errorf("get stream parsed messages: %w", err)
 	}
 
-	result.StreamChatMessages = parsedMessages
+	result.StreamChatMessages = int(parsedMessages)
 
 	var (
 		usedEmotes     int64

@@ -13,7 +13,7 @@ func (c *Directives) IsAuthenticated(
 	next graphql.Resolver,
 ) (interface{}, error) {
 	_, apiKeyErr := c.sessions.GetAuthenticatedUserByApiKey(ctx)
-	_, sessionErr := c.sessions.GetAuthenticatedUser(ctx)
+	_, sessionErr := c.sessions.GetAuthenticatedUserModel(ctx)
 
 	if apiKeyErr != nil && sessionErr != nil {
 		return nil, fmt.Errorf("not authenticated")

@@ -2,9 +2,11 @@ package manager
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
+	"github.com/kr/pretty"
 	"github.com/kvizyx/twitchy/eventsub"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -27,6 +29,18 @@ func (c *Manager) startWebSocket() {
 			if err := c.twitchUpdateConduitShard(context.Background()); err != nil {
 				c.logger.Error("failed to update conduit shard", slog.Any("err", err))
 			}
+		},
+	)
+
+	ws.OnReconnect(
+		func(message eventsub.WebsocketReconnectMessage) {
+			pretty.Println(message)
+		},
+	)
+
+	ws.OnReconnectError(
+		func(err error) {
+			fmt.Println(err)
 		},
 	)
 
@@ -57,7 +71,6 @@ func (c *Manager) startWebSocket() {
 	)
 	ws.OnChannelPredictionLock(wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelPredictionLock))
 	ws.OnChannelPredictionEnd(wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelPredictionEnd))
-	ws.OnChannelBan(wrapWsEventsubHandlerWithCtx(c.handler.HandleBan))
 	ws.OnChannelSubscribe(wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelSubscribe))
 	ws.OnChannelSubscriptionMessage(
 		wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelSubscriptionMessage),
@@ -78,6 +91,7 @@ func (c *Manager) startWebSocket() {
 	ws.OnStreamOnline(wrapWsEventsubHandlerWithCtx(c.handler.HandleStreamOnline))
 	ws.OnStreamOffline(wrapWsEventsubHandlerWithCtx(c.handler.HandleStreamOffline))
 	ws.OnUserUpdate(wrapWsEventsubHandlerWithCtx(c.handler.HandleUserUpdate))
+	ws.OnChannelModerateV2(wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelModerateV2))
 
 	for {
 		if err := ws.Connect(wsCtx); err != nil {

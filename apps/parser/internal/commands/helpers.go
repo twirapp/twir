@@ -5,16 +5,18 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/twirapp/twir/libs/gomodels"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )
 
 func (c *Commands) shouldCheckCooldown(
 	badges []string,
-	command *model.ChannelsCommands,
+	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 	userRoles []model.ChannelRole,
 ) bool {
-	if command.Cooldown.Int64 == 0 {
+	if command.Cooldown == nil || *command.Cooldown == 0 {
 		return false
 	}
 
@@ -48,7 +50,7 @@ func (c *Commands) prepareCooldownAndPermissionsCheck(
 	userId,
 	channelId string,
 	userBadges []string,
-	command *model.ChannelsCommands,
+	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 ) (
 	dbUser *model.Users,
 	channelRoles []model.ChannelRole,
@@ -91,8 +93,8 @@ func (c *Commands) prepareCooldownAndPermissionsCheck(
 		}
 
 		isCommandRole := lo.SomeBy(
-			command.RolesIDS, func(roleId string) bool {
-				return roleId == role.ID
+			command.RolesIDS, func(roleId uuid.UUID) bool {
+				return roleId.String() == role.ID
 			},
 		)
 		if isCommandRole {
@@ -106,7 +108,7 @@ func (c *Commands) prepareCooldownAndPermissionsCheck(
 func (c *Commands) isUserHasPermissionToCommand(
 	userId,
 	channelId string,
-	command *model.ChannelsCommands,
+	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 	dbUser *model.Users,
 	userRoles []model.ChannelRole,
 	commandRoles []model.ChannelRole,
@@ -151,7 +153,7 @@ func (c *Commands) isUserHasPermissionToCommand(
 
 	for _, commandRole := range command.RolesIDS {
 		for _, role := range userRoles {
-			if role.ID != commandRole {
+			if role.ID != commandRole.String() {
 				continue
 			}
 

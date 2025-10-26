@@ -14,6 +14,10 @@ export function newRouter() {
 			component: () => import('../pages/IntegrationsCallbackSpotify.vue'),
 		},
 		{
+			path: '/dashboard/integrations/donationalerts',
+			component: () => import('../pages/IntegrationsCallbackDonationAlerts.vue'),
+		},
+		{
 			path: '/dashboard/integrations/:integrationName',
 			component: () => import('../pages/IntegrationsCallback.vue'),
 		},

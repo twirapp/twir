@@ -8,6 +8,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
@@ -46,6 +47,7 @@ import (
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
+	donationalertsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
@@ -191,7 +193,12 @@ import (
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 	tokensrepositorypgx "github.com/twirapp/twir/libs/repositories/tokens/datasources/postgres"
 
+	donationalertsrepository "github.com/twirapp/twir/libs/repositories/donationalerts_integration"
+	donationalertsrepoitorypostgres "github.com/twirapp/twir/libs/repositories/donationalerts_integration/datasource/postgres"
+
 	"go.uber.org/fx"
+
+	commandshttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/commands"
 )
 
 func main() {
@@ -368,6 +375,10 @@ func main() {
 				streamsrepositorypostgres.NewFx,
 				fx.As(new(streamsrepository.Repository)),
 			),
+			fx.Annotate(
+				donationalertsrepoitorypostgres.NewFx,
+				fx.As(new(donationalertsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -425,8 +436,9 @@ func main() {
 			toxic_messages.New,
 			channels_files.New,
 			channels_redemptions_history.New,
-			donatellointegration.New,
+			donationalertsintegration.New,
 			donatestreamintegration.New,
+			donatellointegration.New,
 		),
 		// app itself
 		fx.Provide(
@@ -460,13 +472,17 @@ func main() {
 			middlewares.New,
 			server.New,
 		),
+		// huma routes
+		shortlinks.FxModule,
+		pastebins.FxModule,
+		commandshttp.FxModule,
+		// huma routes end
 		fx.Invoke(
 			gql.New,
 			publicroutes.New,
 			http_webhooks.New,
+			httpbase.RegisterRoutes,
 			authroutes.New,
-			shortlinks.New,
-			pastebins.New,
 			channelsfilesroute.New,
 			valorant.New,
 			stream.New,

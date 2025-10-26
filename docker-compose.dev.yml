@@ -28,7 +28,7 @@ services:
       - twir-dev
 
   pgbouncer:
-    image: bitnami/pgbouncer:1.23.1
+    image: bitnamilegacy/pgbouncer:1.23.1
     restart: unless-stopped
     environment:
       - POSTGRESQL_HOST=postgres

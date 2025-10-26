@@ -26,7 +26,7 @@ func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesC
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -72,7 +72,7 @@ func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts g
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -119,7 +119,7 @@ func (r *mutationResolver) RolesRemove(ctx context.Context, id uuid.UUID) (bool,
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}

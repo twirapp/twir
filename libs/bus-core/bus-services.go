@@ -41,13 +41,15 @@ type channelBus struct {
 }
 
 type botsBus struct {
-	SendMessage   Queue[botsservice.SendMessageRequest, struct{}]
-	DeleteMessage Queue[botsservice.DeleteMessageRequest, struct{}]
-	BanUser       Queue[botsservice.BanRequest, struct{}]
-	BanUsers      Queue[[]botsservice.BanRequest, struct{}]
-	ShoutOut      Queue[botsservice.SentShoutOutRequest, struct{}]
-	Vip           Queue[botsservice.VipRequest, struct{}]
-	UnVip         Queue[botsservice.UnVipRequest, struct{}]
+	SendMessage     Queue[botsservice.SendMessageRequest, struct{}]
+	DeleteMessage   Queue[botsservice.DeleteMessageRequest, struct{}]
+	BanUser         Queue[botsservice.BanRequest, struct{}]
+	BanUsers        Queue[[]botsservice.BanRequest, struct{}]
+	ShoutOut        Queue[botsservice.SentShoutOutRequest, struct{}]
+	Vip             Queue[botsservice.VipRequest, struct{}]
+	UnVip           Queue[botsservice.UnVipRequest, struct{}]
+	ModeratorAdd    Queue[botsservice.ModeratorAddRequest, struct{}]
+	ModeratorRemove Queue[botsservice.ModeratorRemoveRequest, struct{}]
 }
 
 type emotesCacherBus struct {
@@ -115,6 +117,7 @@ type eventsBus struct {
 	PredictionEnd              Queue[events.PredictionEndMessage, struct{}]
 	StreamFirstUserJoin        Queue[events.StreamFirstUserJoinMessage, struct{}]
 	ChannelBan                 Queue[events.ChannelBanMessage, struct{}]
+	ChannelUnban               Queue[events.ChannelUnbanMessage, struct{}]
 	ChannelUnbanRequestCreate  Queue[events.ChannelUnbanRequestCreateMessage, struct{}]
 	ChannelUnbanRequestResolve Queue[events.ChannelUnbanRequestResolveMessage, struct{}]
 	ChannelMessageDelete       Queue[events.ChannelMessageDeleteMessage, struct{}]

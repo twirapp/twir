@@ -7,7 +7,8 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/goccy/go-json"
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
@@ -24,7 +25,7 @@ type Opts struct {
 	Config   config.Config
 	Sessions *auth.Auth
 	Service  *valorantintegration.Service
-	Redis    *redis.Client
+	KV       kv.KV
 }
 
 func New(opts Opts) {
@@ -45,7 +46,7 @@ func New(opts Opts) {
 			ctx context.Context,
 			input *struct{},
 		) (*httpdelivery.BaseOutputJson[integrationsValorantStatsOutput], error) {
-			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
 			if user == nil || err != nil {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
@@ -56,7 +57,7 @@ func New(opts Opts) {
 			}
 
 			var output *integrationsValorantStatsOutput
-			if cachedBytes, _ := opts.Redis.Get(
+			if cachedBytes, _ := opts.KV.Get(
 				ctx,
 				"valorant_stats_"+selectedDashboardId,
 			).Bytes(); cachedBytes != nil {
@@ -110,12 +111,12 @@ func New(opts Opts) {
 
 			bytes, err := json.Marshal(output)
 			if err == nil {
-				if err := opts.Redis.Set(
+				if err := opts.KV.Set(
 					ctx,
 					"valorant_stats_"+selectedDashboardId,
 					bytes,
-					10*time.Second,
-				).Err(); err != nil {
+					kvoptions.WithExpire(10*time.Second),
+				); err != nil {
 					return nil, huma.NewError(
 						http.StatusInternalServerError,
 						"Failed to cache valorant stats",

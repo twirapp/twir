@@ -39,6 +39,7 @@ export default defineNuxtConfig({
 	],
 
 	icon: {
+		mode: 'svg',
 		localApiEndpoint: '/_nuxt_icon',
 		clientBundle: {
 			includeCustomCollections: true,

@@ -51,6 +51,51 @@ export interface BaseOutputBodyJsonIntegrationsValorantStatsOutput {
   data: IntegrationsValorantStatsOutput;
 }
 
+export interface BaseOutputBodyJsonLinkOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: LinkOutputDto;
+}
+
+export interface BaseOutputBodyJsonLinksProfileOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: LinksProfileOutputDto;
+}
+
+export interface BaseOutputBodyJsonListCommandResponseDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: CommandResponseDto[];
+}
+
+export interface BaseOutputBodyJsonPasteBinOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: PasteBinOutputDto;
+}
+
+export interface BaseOutputBodyJsonProfileResponseDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: ProfileResponseDto;
+}
+
 export interface BaseOutputBodyJsonStream {
   /**
    * A URL to the JSON Schema for this object.
@@ -70,6 +115,58 @@ export interface CommandDto {
 
 export interface CommandDtoResponse {
   text: string;
+}
+
+export interface CommandGroupResponseDto {
+  color: string;
+  /** @format uuid */
+  id: string;
+  name: string;
+}
+
+export interface CommandResponseDto {
+  aliases: string[];
+  allowed_users_ids: string[];
+  /** @format int64 */
+  cooldown: number | null;
+  cooldown_roles_ids: string[];
+  cooldown_type: CommandResponseDtoCooldownTypeEnum;
+  default_name: string | null;
+  denied_users_ids: string[];
+  description: string | null;
+  enabled: boolean;
+  enabled_categories: string[];
+  expire: Expire;
+  group: CommandGroupResponseDto;
+  id: string;
+  is_default: boolean;
+  is_reply: boolean;
+  keep_responses_order: boolean;
+  module: string;
+  name: string;
+  offline_only: boolean;
+  online_only: boolean;
+  /** @format int64 */
+  required_messages: number;
+  /** @format int64 */
+  required_used_channel_points: number;
+  /** @format int64 */
+  required_watch_time: number;
+  responses: CommandResponsesResponseDto[];
+  /** @format uuid */
+  roles_ids: string[];
+  visible: boolean;
+}
+
+export interface CommandResponsesResponseDto {
+  /** @format uuid */
+  id: string;
+  offline_only: boolean;
+  online_only: boolean;
+  /** @format int64 */
+  order: number;
+  text: string;
+  twitch_category_id: string[];
 }
 
 export interface CreateLinkInputDto {
@@ -138,15 +235,10 @@ export interface ErrorModel {
   type?: string;
 }
 
-export interface GetManyOutputDto {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
-  items: PasteBinOutputDto[];
-  /** @format int64 */
-  total: number;
+export interface Expire {
+  /** @format date-time */
+  expires_at: string;
+  expires_type: ExpireExpiresTypeEnum;
 }
 
 export interface IntegrationsValorantStatsOutput {
@@ -174,11 +266,8 @@ export interface LeaderboardPlacementStruct {
 }
 
 export interface LinkOutputDto {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
+  /** @format date-time */
+  created_at: string;
   id: string;
   short_url: string;
   url: string;
@@ -187,11 +276,6 @@ export interface LinkOutputDto {
 }
 
 export interface LinksProfileOutputDto {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
   items: LinkOutputDto[];
   /** @format int64 */
   total: number;
@@ -234,7 +318,7 @@ export interface MmrResponseDataPeakStruct {
   tier: TierStruct;
 }
 
-export interface PasteBinCreateDto {
+export interface PasteBinCreateRequestDtoBody {
   /**
    * A URL to the JSON Schema for this object.
    * @format uri
@@ -250,11 +334,6 @@ export interface PasteBinCreateDto {
 }
 
 export interface PasteBinOutputDto {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
   content: string;
   /** @format date-time */
   created_at: string;
@@ -262,6 +341,12 @@ export interface PasteBinOutputDto {
   expire_at: string | null;
   id: string;
   owner_user_id: string | null;
+}
+
+export interface ProfileResponseDto {
+  items: PasteBinOutputDto[];
+  /** @format int64 */
+  total: number;
 }
 
 export interface SeasonStruct {
@@ -360,6 +445,16 @@ export interface TierStruct {
   /** @format int64 */
   id: number;
   name: string;
+}
+
+export enum CommandResponseDtoCooldownTypeEnum {
+  GLOBAL = "GLOBAL",
+  PER_USER = "PER_USER",
+}
+
+export enum ExpireExpiresTypeEnum {
+  DISABLE = "DISABLE",
+  DELETE = "DELETE",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -627,12 +722,38 @@ export class Api<SecurityDataType extends unknown> {
       }),
 
     /**
+     * No description
+     *
+     * @tags Commands
+     * @name CommandsGetListByChannelId
+     * @summary Get commands list by channel id
+     * @request GET:/v1/channels/{channel_id}/commands
+     * @response `200` `BaseOutputBodyJsonListCommandResponseDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    commandsGetListByChannelId: (
+      channelId: string,
+      query?: {
+        /** @example "CUSTOM" */
+        module?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonListCommandResponseDto, any>({
+        path: `/v1/channels/${channelId}/commands`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Get file content by id
      *
      * @tags Files
      * @name ChannelsFilesContentDetail
      * @summary Get file content
-     * @request GET:/v1/channels/{channelId}/files/content/{fileId}
+     * @request GET:/v1/channels/{channel_id}/files/content/{file_id}
      * @response `200` `File` File content
      * @response `default` `ErrorModel` Error
      */
@@ -671,7 +792,7 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Get authenticated user pastebins
      * @request GET:/v1/pastebin
      * @secure
-     * @response `200` `GetManyOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonProfileResponseDto` OK
      * @response `default` `ErrorModel` Error
      */
     pastebinGetUserList: (
@@ -693,7 +814,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<GetManyOutputDto, any>({
+      this.http.request<BaseOutputBodyJsonProfileResponseDto, any>({
         path: `/v1/pastebin`,
         method: "GET",
         query: query,
@@ -709,11 +830,11 @@ export class Api<SecurityDataType extends unknown> {
      * @name PastebinCreate
      * @summary Create pastebin
      * @request POST:/v1/pastebin
-     * @response `200` `PasteBinOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonPasteBinOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
-    pastebinCreate: (data: PasteBinCreateDto, params: RequestParams = {}) =>
-      this.http.request<PasteBinOutputDto, any>({
+    pastebinCreate: (data: PasteBinCreateRequestDtoBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonPasteBinOutputDto, any>({
         path: `/v1/pastebin`,
         method: "POST",
         body: data,
@@ -730,15 +851,14 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Delete pastebin
      * @request DELETE:/v1/pastebin/{id}
      * @secure
-     * @response `200` `PasteBinOutputDto` OK
+     * @response `204` `void` No Content
      * @response `default` `ErrorModel` Error
      */
     pastebinDelete: (id: string, params: RequestParams = {}) =>
-      this.http.request<PasteBinOutputDto, any>({
+      this.http.request<void, any>({
         path: `/v1/pastebin/${id}`,
         method: "DELETE",
         secure: true,
-        format: "json",
         ...params,
       }),
 
@@ -749,11 +869,11 @@ export class Api<SecurityDataType extends unknown> {
      * @name PastebinGetById
      * @summary Get pastebin by id
      * @request GET:/v1/pastebin/{id}
-     * @response `200` `PasteBinOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonPasteBinOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
     pastebinGetById: (id: string, params: RequestParams = {}) =>
-      this.http.request<PasteBinOutputDto, any>({
+      this.http.request<BaseOutputBodyJsonPasteBinOutputDto, any>({
         path: `/v1/pastebin/${id}`,
         method: "GET",
         format: "json",
@@ -801,9 +921,9 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags Short links
      * @name ShortUrlProfile
-     * @summary Get user's short links
+     * @summary Get user's short links from authenticated user and/or from browser session
      * @request GET:/v1/short-links
-     * @response `200` `LinksProfileOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonLinksProfileOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
     shortUrlProfile: (
@@ -824,7 +944,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<LinksProfileOutputDto, any>({
+      this.http.request<BaseOutputBodyJsonLinksProfileOutputDto, any>({
         path: `/v1/short-links`,
         method: "GET",
         query: query,
@@ -839,11 +959,11 @@ export class Api<SecurityDataType extends unknown> {
      * @name ShortUrlCreate
      * @summary Create short url
      * @request POST:/v1/short-links
-     * @response `200` `LinkOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonLinkOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
     shortUrlCreate: (data: CreateLinkInputDto, params: RequestParams = {}) =>
-      this.http.request<LinkOutputDto, any>({
+      this.http.request<BaseOutputBodyJsonLinkOutputDto, any>({
         path: `/v1/short-links`,
         method: "POST",
         body: data,
@@ -877,7 +997,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name ShortUrlGetInfo
      * @summary Get short url data
      * @request GET:/v1/short-links/{shortId}/info
-     * @response `200` `LinkOutputDto` OK
+     * @response `200` `BaseOutputBodyJsonLinkOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
     shortUrlGetInfo: (
@@ -891,7 +1011,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<LinkOutputDto, any>({
+      this.http.request<BaseOutputBodyJsonLinkOutputDto, any>({
         path: `/v1/short-links/${shortId}/info`,
         method: "GET",
         query: query,

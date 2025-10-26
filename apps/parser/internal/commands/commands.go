@@ -11,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
@@ -55,6 +54,9 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/i18n"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
+	commandsmodel "github.com/twirapp/twir/libs/repositories/commands/model"
+	commandresponsemodel "github.com/twirapp/twir/libs/repositories/commands_response/model"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/zap"
 )
 
@@ -172,12 +174,12 @@ func New(opts *Opts) *Commands {
 func (c *Commands) GetChannelCommands(
 	ctx context.Context,
 	channelId string,
-) ([]model.ChannelsCommands, error) {
+) ([]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses, error) {
 	return c.services.CommandsCache.Get(ctx, channelId)
 }
 
 type FindByMessageResult struct {
-	Cmd     *model.ChannelsCommands
+	Cmd     *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses
 	FoundBy string
 }
 
@@ -187,7 +189,7 @@ type FindByMessageResult struct {
 // or we found a command in message
 func (c *Commands) FindChannelCommandInInput(
 	input string,
-	cmds []model.ChannelsCommands,
+	cmds []commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 ) *FindByMessageResult {
 	input = strings.ToLower(input)
 	splitName := strings.Fields(input)
@@ -266,8 +268,8 @@ func (c *Commands) ParseCommandResponses(
 
 	var defaultCommand *types.DefaultCommand
 
-	if command.Cmd.Default {
-		cmd, ok := c.DefaultCommands[command.Cmd.DefaultName.String]
+	if command.Cmd.Default && command.Cmd.DefaultName != nil {
+		cmd, ok := c.DefaultCommands[*command.Cmd.DefaultName]
 		if ok {
 			defaultCommand = cmd
 		}
@@ -275,17 +277,12 @@ func (c *Commands) ParseCommandResponses(
 		result.SkipToxicityCheck = cmd.SkipToxicityCheck
 	}
 
-	commandUUID, err := uuid.Parse(command.Cmd.ID)
-	if err != nil {
-		return nil
-	}
-
 	go c.services.ChannelsCommandsUsagesRepo.Create(
 		ctx,
 		channelscommandsusages.CreateInput{
 			ChannelID: requestData.BroadcasterUserId,
 			UserID:    requestData.ChatterUserId,
-			CommandID: commandUUID,
+			CommandID: command.Cmd.ID,
 		},
 	)
 
@@ -399,7 +396,11 @@ func (c *Commands) ParseCommandResponses(
 					zap.String("name", requestData.ChatterUserLogin),
 				),
 				zap.String("message", requestData.Message.Text),
-				zap.Dict("command", zap.String("id", command.Cmd.ID), zap.String("name", command.Cmd.Name)),
+				zap.Dict(
+					"command",
+					zap.String("id", command.Cmd.ID.String()),
+					zap.String("name", command.Cmd.Name),
+				),
 			)
 
 			var commandErr *types.CommandHandlerError
@@ -426,7 +427,11 @@ func (c *Commands) ParseCommandResponses(
 				},
 			)
 	} else {
-		responsesForCategory := make([]model.ChannelsCommandsResponses, 0, len(command.Cmd.Responses))
+		responsesForCategory := make(
+			[]commandresponsemodel.Response,
+			0,
+			len(command.Cmd.Responses),
+		)
 		for _, r := range command.Cmd.Responses {
 			if len(r.TwitchCategoryIDs) > 0 && requestData.EnrichedData.ChannelStream != nil {
 				if !lo.ContainsBy(
@@ -447,13 +452,13 @@ func (c *Commands) ParseCommandResponses(
 				continue
 			}
 
-			responsesForCategory = append(responsesForCategory, *r)
+			responsesForCategory = append(responsesForCategory, r)
 		}
 
 		result.Responses = lo.Map(
 			responsesForCategory,
-			func(r model.ChannelsCommandsResponses, _ int) string {
-				return r.Text.String
+			func(r commandresponsemodel.Response, _ int) string {
+				return *r.Text
 			},
 		)
 	}
@@ -494,12 +499,12 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	cmd := c.FindChannelCommandInInput(data.Message.Text[len(commandsPrefix):], cmds)
-	if cmd.Cmd == nil {
+	if cmd.Cmd == nil || !cmd.Cmd.Enabled {
 		return nil, nil
 	}
 
-	if cmd.Cmd.ExpiresAt.Valid && cmd.Cmd.ExpiresType != nil && cmd.Cmd.ExpiresAt.Time.Before(time.Now().UTC()) {
-		if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDisable && cmd.Cmd.Enabled {
+	if cmd.Cmd.ExpiresAt != nil && cmd.Cmd.ExpiresType != nil && cmd.Cmd.ExpiresAt.Before(time.Now().UTC()) {
+		if *cmd.Cmd.ExpiresType == commandsmodel.ExpireTypeDisable && cmd.Cmd.Enabled {
 			err = c.services.Gorm.
 				WithContext(ctx).
 				Where(`"id" = ?`, cmd.Cmd.ID).
@@ -518,7 +523,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
-		} else if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDelete && !cmd.Cmd.Default {
+		} else if *cmd.Cmd.ExpiresType == commandsmodel.ExpireTypeDelete && !cmd.Cmd.Default {
 			err = c.services.Gorm.
 				WithContext(ctx).
 				Where(`"id" = ?`, cmd.Cmd.ID).
@@ -590,12 +595,12 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	shouldCheckCooldown := c.shouldCheckCooldown(convertedBadges, cmd.Cmd, userRoles)
-	if cmd.Cmd.CooldownType == "GLOBAL" && cmd.Cmd.Cooldown.Int64 > 0 && shouldCheckCooldown {
+	if cmd.Cmd.CooldownType == "GLOBAL" && cmd.Cmd.Cooldown != nil && *cmd.Cmd.Cooldown > 0 && shouldCheckCooldown {
 		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
 		rErr := c.services.Redis.Get(ctx, key).Err()
 
 		if errors.Is(rErr, redis.Nil) {
-			c.services.Redis.Set(ctx, key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+			c.services.Redis.Set(ctx, key, "", time.Duration(*cmd.Cmd.Cooldown)*time.Second)
 		} else if rErr != nil {
 			c.services.Logger.Sugar().Error(rErr)
 			return nil, errors.New("error while setting redis cooldown for command")
@@ -604,12 +609,12 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		}
 	}
 
-	if cmd.Cmd.CooldownType == "PER_USER" && cmd.Cmd.Cooldown.Int64 > 0 && shouldCheckCooldown {
+	if cmd.Cmd.CooldownType == "PER_USER" && cmd.Cmd.Cooldown != nil && *cmd.Cmd.Cooldown > 0 && shouldCheckCooldown {
 		key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.ChatterUserId)
 		rErr := c.services.Redis.Get(ctx, key).Err()
 
-		if rErr == redis.Nil {
-			c.services.Redis.Set(ctx, key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+		if errors.Is(rErr, redis.Nil) {
+			c.services.Redis.Set(ctx, key, "", time.Duration(*cmd.Cmd.Cooldown)*time.Second)
 		} else if rErr != nil {
 			zap.S().Error(rErr)
 			return nil, errors.New("error while setting redis cooldown for command")
@@ -641,14 +646,14 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 					ChannelID:   data.BroadcasterUserId,
 					ChannelName: data.BroadcasterUserLogin,
 				},
-				CommandID:          cmd.Cmd.ID,
+				CommandID:          cmd.Cmd.ID.String(),
 				CommandName:        cmd.Cmd.Name,
 				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy)+1:]),
 				UserName:           data.ChatterUserLogin,
 				UserDisplayName:    data.ChatterUserName,
 				UserID:             data.ChatterUserId,
 				IsDefault:          cmd.Cmd.Default,
-				DefaultCommandName: cmd.Cmd.DefaultName.String,
+				DefaultCommandName: cmd.Cmd.DefaultName,
 				MessageID:          data.MessageId,
 			},
 		)
@@ -657,7 +662,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		if err := c.services.Gorm.WithContext(withoutCancel).Where(
 			"channel_id = ? AND command_ids && ?",
 			data.BroadcasterUserId,
-			pq.StringArray{cmd.Cmd.ID},
+			pq.StringArray{cmd.Cmd.ID.String()},
 		).Find(&alert).Error; err != nil {
 			zap.S().Error(err)
 			return

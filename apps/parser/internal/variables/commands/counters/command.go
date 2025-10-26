@@ -21,7 +21,7 @@ var CommandCounter = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		commandUUID, err := uuid.Parse(parseCtx.Command.ID)
+		commandUUID, err := uuid.Parse(parseCtx.Command.ID.String())
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 

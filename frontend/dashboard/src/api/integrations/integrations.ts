@@ -7,7 +7,9 @@ import { useMutation } from '@/composables/use-mutation.ts'
 export const integrationsCacheKey = 'integrations'
 
 export const useIntegrations = createGlobalState(() => {
-	const useData = () =>
+	const refreshBroadcaster = new BroadcastChannel('integrations_broadcast_channel')
+
+	const useData = (pause = false) =>
 		useQuery({
 			query: graphql(`
 				query Integrations {
@@ -22,12 +24,19 @@ export const useIntegrations = createGlobalState(() => {
 					integrationsDonateStream {
 						integrationId
 					}
+					donationAlerts {
+						enabled
+						userName
+						avatar
+					}
+					donationAlertsAuthLink
 				}
 			`),
 			context: {
 				additionalTypenames: [integrationsCacheKey],
 			},
 			variables: {},
+			pause,
 		})
 
 	const donateStreamPostCode = () =>
@@ -39,8 +48,43 @@ export const useIntegrations = createGlobalState(() => {
 			`)
 		)
 
+	const donationAlertsPostCode = () =>
+		useMutation(
+			graphql(`
+				mutation DonationAlertsPostCode($code: String!) {
+					donationAlertsPostCode(code: $code)
+				}
+			`),
+			[integrationsCacheKey]
+		)
+
+	const donationAlertsLogout = () =>
+		useMutation(
+			graphql(`
+				mutation DonationAlertsLogout {
+					donationAlertsLogout
+				}
+			`),
+			[integrationsCacheKey]
+		)
+
+	const { executeQuery: refreshIntegrations } = useData(true)
+
+	refreshBroadcaster.onmessage = (event) => {
+		if (event.data !== 'refresh') return
+		refreshIntegrations({ requestPolicy: 'network-only' })
+	}
+
+	function broadcastRefresh() {
+		refreshBroadcaster.postMessage('refresh')
+	}
+
 	return {
 		useQuery: useData,
 		donateStreamPostCode,
+		donationAlertsPostCode,
+		donationAlertsLogout,
+
+		broadcastRefresh,
 	}
 })

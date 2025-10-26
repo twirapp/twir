@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
-import { BellIcon, ClipboardPenLine, ExternalLink, Globe } from 'lucide-vue-next'
+import { BellIcon, ClipboardPenLine, ExternalLink, Globe, LinkIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -26,6 +26,10 @@ const { notificationsCounter } = useNotifications()
 
 const hastebinLink = computed(() => {
 	return `${window.location.origin}/h`
+})
+
+const urlShortenerLink = computed(() => {
+	return `${window.location.origin}/url-shortener`
 })
 </script>
 
@@ -67,6 +71,13 @@ const hastebinLink = computed(() => {
 					<a :href="publicPageHref" target="_blank">
 						<Globe />
 						<span>{{ t('sidebar.publicPage') }}</span>
+						<ExternalLink class="ml-auto" />
+					</a>
+				</SidebarMenuButton>
+				<SidebarMenuButton as-child tooltip="Hastebin">
+					<a :href="urlShortenerLink" target="_blank">
+						<LinkIcon />
+						<span>URL Shortener</span>
 						<ExternalLink class="ml-auto" />
 					</a>
 				</SidebarMenuButton>

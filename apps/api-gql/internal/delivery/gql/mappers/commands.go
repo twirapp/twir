@@ -3,10 +3,10 @@ package mappers
 import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
 
@@ -55,6 +55,7 @@ func CommandEntityTo(e entity.Command) gqlmodel.Command {
 		AllowedUsersIds:           e.AllowedUsersIDS,
 		RolesIds:                  rolesIds,
 		OnlineOnly:                e.OnlineOnly,
+		OfflineOnly:               e.OfflineOnly,
 		CooldownRolesIds:          e.CooldownRolesIDs,
 		EnabledCategories:         e.EnabledCategories,
 		RequiredWatchTime:         e.RequiredWatchTime,

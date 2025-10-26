@@ -152,3 +152,10 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) (GetListOutpu
 func (c *Service) Delete(ctx context.Context, id string) error {
 	return c.repository.Delete(ctx, id)
 }
+
+func (c *Service) GetManyByShortIDs(ctx context.Context, ids []string) (
+	[]model.ShortenedUrl,
+	error,
+) {
+	return c.repository.GetManyByShortIDs(ctx, ids)
+}

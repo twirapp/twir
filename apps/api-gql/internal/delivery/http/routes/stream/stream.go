@@ -43,7 +43,7 @@ func New(opts Opts) {
 			*httpdelivery.BaseOutputJson[streammodel.Stream],
 			error,
 		) {
-			user, err := opts.Sessions.GetAuthenticatedUser(ctx)
+			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
 			if user == nil || err != nil {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}

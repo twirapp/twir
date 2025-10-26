@@ -3,6 +3,7 @@ package chat_eval
 import (
 	"context"
 	"fmt"
+	"unicode/utf8"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
@@ -42,7 +43,11 @@ var ChatEval = &types.Variable{
 
 		var res string
 		if req.Result != "" {
-			res = req.Result
+			if utf8.RuneCountInString(req.Result) > 474 {
+				res = req.Result[:474] + "..."
+			} else {
+				res = req.Result
+			}
 		} else if req.Error != "" {
 			res = req.Error
 		}

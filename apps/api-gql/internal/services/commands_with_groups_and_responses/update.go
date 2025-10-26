@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	commandmodel "github.com/twirapp/twir/libs/repositories/commands/model"
 	"github.com/twirapp/twir/libs/repositories/commands_response"

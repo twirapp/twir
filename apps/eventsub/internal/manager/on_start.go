@@ -235,6 +235,7 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 		slog.Int("shard_id", shardId),
 		slog.String("session_id", *c.wsCurrentSessionId),
 		slog.String("current_replica_id", currentReplicaId),
+		slog.String("response", resp.String()),
 	)
 
 	return nil

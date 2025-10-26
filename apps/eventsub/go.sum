@@ -68,12 +68,10 @@ github.com/kr/pretty v0.3.0/go.mod h1:640gp4NfQd8pI5XOwp5fnNeVWj67G7CFk/SaSQn7NB
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
-github.com/kvizyx/twitchy v0.0.0-20250731171337-667fcefe2b90 h1:KaMhz0/ZeeiN/iftpKCv6r/mVSpB88tW350R5hg6/sg=
-github.com/kvizyx/twitchy v0.0.0-20250731171337-667fcefe2b90/go.mod h1:AFcT2PlWegf5dcBFAb+AfZGhxP0+iraMJpexrn/aJtc=
-github.com/kvizyx/twitchy v0.0.0-20250802065058-bb5db67c4363 h1:bolx5IWS3MDDAha/lFQsG6mr8Ke7tasAUz5Pd/c55aU=
-github.com/kvizyx/twitchy v0.0.0-20250802065058-bb5db67c4363/go.mod h1:AFcT2PlWegf5dcBFAb+AfZGhxP0+iraMJpexrn/aJtc=
-github.com/kvizyx/twitchy v0.0.1 h1:G3SvfnJl+E92K/tp4ukgMABVTUgXPkHqdhPB7N12L1U=
-github.com/kvizyx/twitchy v0.0.1/go.mod h1:AFcT2PlWegf5dcBFAb+AfZGhxP0+iraMJpexrn/aJtc=
+github.com/kvizyx/twitchy v0.1.2 h1:1NMeOISNoqTaVi/5Ul4E/vTNNGGPo08ZJfqPwymmV+U=
+github.com/kvizyx/twitchy v0.1.2/go.mod h1:3hiAKt13I2JH8f8/5XUPXFh7GC0o5stUjz3K+MQuZ3U=
+github.com/kvizyx/twitchy v0.1.3 h1:Z7JTC0JJDRpl9D/LVWYiJtGKd59IKf3tLvbwUXSQIjo=
+github.com/kvizyx/twitchy v0.1.3/go.mod h1:3hiAKt13I2JH8f8/5XUPXFh7GC0o5stUjz3K+MQuZ3U=
 github.com/lann/builder v0.0.0-20180802200727-47ae307949d0/go.mod h1:dXGbAdH5GtBTC4WfIxhKZfyBF/HBFgRZSWwZ9g/He9o=
 github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0/go.mod h1:vmVJ0l/dxyfGW6FmdpVm2joNMFikkuWg0EoCKLGUMNw=
 github.com/lib/pq v1.2.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
@@ -102,7 +100,7 @@ github.com/quic-go/qpack v0.5.1/go.mod h1:+PC4XFrEskIVkcLzpEkbLqq1uCoxPhQuvK5rH1
 github.com/quic-go/quic-go v0.54.0/go.mod h1:e68ZEaCdyviluZmy44P6Iey98v/Wfz6HCjQEm+l8zTY=
 github.com/redis/go-redis/extra/rediscmd/v9 v9.11.0/go.mod h1:/2yj0RD4xjZQ7wOg9u7gVoBM0IgMGrHunAql1hr1NDg=
 github.com/redis/go-redis/extra/redisotel/v9 v9.11.0/go.mod h1:Yy5oaeVwWj7KMu6Mga/i4imlXFvgitQWN5HFiT5JqoE=
-github.com/redis/go-redis/v9 v9.11.0/go.mod h1:huWgSWd8mW6+m0VPhJjSSQ+d6Nh1VICQ6Q5lHuCH/Iw=
+github.com/redis/go-redis/v9 v9.13.0/go.mod h1:huWgSWd8mW6+m0VPhJjSSQ+d6Nh1VICQ6Q5lHuCH/Iw=
 github.com/refraction-networking/utls v1.8.0/go.mod h1:jkSOEkLqn+S/jtpEHPOsVv/4V4EVnelwbMQl4vCWXAM=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
 github.com/rogpeppe/go-internal v1.12.0/go.mod h1:E+RYuTGaKKdloAfM02xzb0FW3Paa99yedzYV+kq4uf4=
@@ -130,6 +128,10 @@ github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/twirapp/batch-processor v0.0.1/go.mod h1:c+30kcwj/vdwVB+/NfotydNFrLfFBVDucSUFJrw2oP8=
 github.com/twirapp/twitch-eventsub-framework v1.3.9/go.mod h1:G67t1kwDexqC38efhh97md/HcnEZFqPFs+B1HeZkBtc=
+github.com/twirapp/twitchy v0.0.2 h1:do4jGaXOp6yjDjWp9Q0B1inq9lEaU2gVW3sw7JkaGeI=
+github.com/twirapp/twitchy v0.0.2/go.mod h1:JvAMzYzxwFcDfHBWWowc4iY52fh84X4VsbCz/DwghyY=
+github.com/twirapp/twitchy v0.0.3 h1:EMmqUOvf+JckKE1IPIb/fAMnBMeFTfgydOoZn5rGAhk=
+github.com/twirapp/twitchy v0.0.3/go.mod h1:JvAMzYzxwFcDfHBWWowc4iY52fh84X4VsbCz/DwghyY=
 github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2/go.mod h1:wocb5pNrj/sjhWB9J5jctnC0K2eisSdz/nJJBNFHo+A=
 github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2/go.mod h1:O8bHQfyinKwTXKkiKNGmLQS7vRsqRxIQTFZpYpHK3IQ=
 github.com/uptrace/uptrace-go v1.37.0/go.mod h1:3xAdXLVyEoqvRwuj3D/n1s9bLl7Ok+OnNaW889fvtDQ=

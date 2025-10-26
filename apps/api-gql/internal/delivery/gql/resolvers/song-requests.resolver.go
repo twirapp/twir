@@ -32,7 +32,7 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		return false, err
 	}
 
-	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return false, err
 	}

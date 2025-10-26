@@ -23,7 +23,7 @@ func NewAuthMiddleware(api huma.API, sessions *auth.Auth) func(
 			return
 		}
 
-		user, err := sessions.GetAuthenticatedUser(ctx.Context())
+		user, err := sessions.GetAuthenticatedUserModel(ctx.Context())
 		if err != nil {
 			huma.WriteErr(
 				api,

@@ -4,10 +4,10 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	auditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
+	cache_invalidator "github.com/twirapp/twir/libs/bus-core/cache-invalidator"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -20,26 +20,28 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
+	cfg "github.com/twirapp/twir/libs/config"
 )
 
 type Bus struct {
-	AuditLogs     *auditLogsBus
-	Parser        *parserBus
-	Websocket     *websocketBus
-	Channel       *channelBus
-	Bots          *botsBus
-	EmotesCacher  *emotesCacherBus
-	Timers        *timersBus
-	EventSub      *eventSubBus
-	Scheduler     *schedulerBus
-	Giveaways     *giveawaysBus
-	ChatMessages  Queue[twitch.TwitchChatMessage, struct{}]
-	RedemptionAdd Queue[twitch.ActivatedRedemption, struct{}]
-	Events        *eventsBus
-	YTSRSearch    Queue[ytsr.SearchRequest, ytsr.SearchResponse]
-	Tokens        *tokensBus
-	Integrations  *integrationsBus
-	Api           *apiBus
+	AuditLogs        *auditLogsBus
+	Parser           *parserBus
+	Websocket        *websocketBus
+	Channel          *channelBus
+	Bots             *botsBus
+	EmotesCacher     *emotesCacherBus
+	Timers           *timersBus
+	EventSub         *eventSubBus
+	Scheduler        *schedulerBus
+	Giveaways        *giveawaysBus
+	ChatMessages     Queue[twitch.TwitchChatMessage, struct{}]
+	RedemptionAdd    Queue[twitch.ActivatedRedemption, struct{}]
+	Events           *eventsBus
+	YTSRSearch       Queue[ytsr.SearchRequest, ytsr.SearchResponse]
+	Tokens           *tokensBus
+	Integrations     *integrationsBus
+	Api              *apiBus
+	CacheInvalidator Queue[cache_invalidator.InvalidateRequest, struct{}]
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -149,6 +151,18 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			UnVip: NewNatsQueue[botsservice.UnVipRequest, struct{}](
 				nc,
 				botsservice.UnVipSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			ModeratorAdd: NewNatsQueue[botsservice.ModeratorAddRequest, struct{}](
+				nc,
+				botsservice.ModeratorAddSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			ModeratorRemove: NewNatsQueue[botsservice.ModeratorRemoveRequest, struct{}](
+				nc,
+				botsservice.ModeratorRemoveSubject,
 				1*time.Minute,
 				GobEncoder,
 			),
@@ -453,6 +467,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				GobEncoder,
 			),
+			ChannelUnban: NewNatsQueue[events.ChannelUnbanMessage, struct{}](
+				nc,
+				events.ChannelUnbanSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
 		},
 		YTSRSearch: NewNatsQueue[ytsr.SearchRequest, ytsr.SearchResponse](
 			nc,
@@ -503,6 +523,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				GobEncoder,
 			),
 		},
+
+		CacheInvalidator: NewNatsQueue[cache_invalidator.InvalidateRequest, struct{}](
+			nc,
+			cache_invalidator.CacheInvalidatorSubject,
+			1*time.Minute,
+			GobEncoder,
+		),
 	}
 }
 

@@ -5,16 +5,18 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
-	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/redis_keys"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -28,8 +30,7 @@ type Opts struct {
 
 	Logger logger.Logger
 
-	Tracer             trace.Tracer
-	ModTaskDistributor mod_task_queue.TaskDistributor
+	Tracer trace.Tracer
 
 	Gorm           *gorm.DB
 	TwitchActions  *twitchactions.TwitchActions
@@ -37,18 +38,19 @@ type Opts struct {
 	Bus            *bus_core.Bus
 	Cfg            cfg.Config
 	WorkersPool    *workers.Pool
+	KV             kv.KV
 }
 
 func New(opts Opts) (*BusListener, error) {
 	listener := &BusListener{
-		gorm:               opts.Gorm,
-		logger:             opts.Logger,
-		config:             opts.Cfg,
-		twitchActions:      opts.TwitchActions,
-		messageHandler:     opts.MessageHandler,
-		tracer:             opts.Tracer,
-		bus:                opts.Bus,
-		modTaskDistributor: opts.ModTaskDistributor,
+		gorm:           opts.Gorm,
+		logger:         opts.Logger,
+		config:         opts.Cfg,
+		twitchActions:  opts.TwitchActions,
+		messageHandler: opts.MessageHandler,
+		tracer:         opts.Tracer,
+		bus:            opts.Bus,
+		kv:             opts.KV,
 	}
 
 	opts.LC.Append(
@@ -142,6 +144,54 @@ func New(opts Opts) (*BusListener, error) {
 					return err
 				}
 
+				err = listener.bus.Bots.ModeratorAdd.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data bots.ModeratorAddRequest) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.handleModeratorAdd(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}, err
+					},
+				)
+				if err != nil {
+					return err
+				}
+
+				err = listener.bus.Bots.ModeratorRemove.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data bots.ModeratorRemoveRequest) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.handleModeratorRemove(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}, err
+					},
+				)
+				if err != nil {
+					return err
+				}
+
+				err = listener.bus.Events.ChannelUnban.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data events.ChannelUnbanMessage) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.handleUnban(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}, err
+					},
+				)
+				if err != nil {
+					return err
+				}
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
@@ -150,6 +200,9 @@ func New(opts Opts) (*BusListener, error) {
 				listener.bus.Bots.DeleteMessage.Unsubscribe()
 				listener.bus.Bots.BanUser.Unsubscribe()
 				listener.bus.Bots.ShoutOut.Unsubscribe()
+				listener.bus.Bots.ModeratorAdd.Unsubscribe()
+				listener.bus.Bots.ModeratorRemove.Unsubscribe()
+				listener.bus.Events.ChannelUnban.Unsubscribe()
 
 				return nil
 			},
@@ -160,14 +213,14 @@ func New(opts Opts) (*BusListener, error) {
 }
 
 type BusListener struct {
-	logger             logger.Logger
-	tracer             trace.Tracer
-	modTaskDistributor mod_task_queue.TaskDistributor
-	gorm               *gorm.DB
-	twitchActions      *twitchactions.TwitchActions
-	messageHandler     *messagehandler.MessageHandler
-	bus                *bus_core.Bus
-	config             cfg.Config
+	logger         logger.Logger
+	tracer         trace.Tracer
+	gorm           *gorm.DB
+	twitchActions  *twitchactions.TwitchActions
+	messageHandler *messagehandler.MessageHandler
+	bus            *bus_core.Bus
+	config         cfg.Config
+	kv             kv.KV
 }
 
 func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageRequest) error {
@@ -286,5 +339,52 @@ func (c *BusListener) handleShoutOut(ctx context.Context, req bots.SentShoutOutR
 		c.logger.Error("cannot send shoutout", slog.Any("err", err))
 		return err
 	}
+	return nil
+}
+
+func (c *BusListener) handleModeratorAdd(
+	ctx context.Context,
+	req bots.ModeratorAddRequest,
+) error {
+	return c.twitchActions.AddModerator(ctx, req.ChannelID, req.TargetID)
+}
+
+func (c *BusListener) handleModeratorRemove(
+	ctx context.Context,
+	req bots.ModeratorRemoveRequest,
+) error {
+	return c.twitchActions.RemoveModerator(ctx, req.ChannelID, req.TargetID)
+}
+
+func (c *BusListener) handleUnban(
+	ctx context.Context,
+	data events.ChannelUnbanMessage,
+) error {
+	modTaskExists, err := c.kv.Exists(
+		ctx,
+		redis_keys.CreateDistributedModTaskKey(data.ModeratorUserID, data.UserID),
+	)
+	if err != nil {
+		return fmt.Errorf("cannot check distributed mod task existence: %w", err)
+	}
+
+	if modTaskExists {
+		defer c.kv.Delete(
+			ctx,
+			redis_keys.CreateDistributedModTaskKey(data.ModeratorUserID, data.UserID),
+		)
+
+		err := c.twitchActions.AddModerator(ctx, data.ModeratorUserID, data.UserID)
+		if err != nil {
+			return fmt.Errorf("cannot add moderator after unban: %w", err)
+		}
+
+		c.logger.Info(
+			"added moderator after unban",
+			slog.String("channel_id", data.ModeratorUserID),
+			slog.String("user_id", data.UserID),
+		)
+	}
+
 	return nil
 }

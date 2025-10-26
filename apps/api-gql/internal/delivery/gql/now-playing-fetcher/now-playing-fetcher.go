@@ -8,13 +8,14 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
+	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"gorm.io/gorm"
 )
@@ -23,7 +24,7 @@ type Opts struct {
 	Logger            logger.Logger
 	SpotifyRepository channelsintegrationsspotify.Repository
 	Gorm              *gorm.DB
-	Redis             *redis.Client
+	Kv                kv.KV
 	ChannelID         string
 }
 
@@ -31,8 +32,8 @@ type NowPlayingFetcher struct {
 	spotifyRepository channelsintegrationsspotify.Repository
 	logger            logger.Logger
 
-	gorm  *gorm.DB
-	redis *redis.Client
+	gorm *gorm.DB
+	kv   kv.KV
 
 	lastfmService  *lastfm.Lastfm
 	spotifyService *spotify.Spotify
@@ -114,7 +115,7 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		spotifyRepository: opts.SpotifyRepository,
 		channelId:         opts.ChannelID,
 		gorm:              opts.Gorm,
-		redis:             opts.Redis,
+		kv:                opts.Kv,
 		lastfmService:     lfmService,
 		spotifyService:    spotifyService,
 		vkService:         vkService,
@@ -130,7 +131,12 @@ func (c *NowPlayingFetcher) Fetch(ctx context.Context) (*Track, error) {
 
 	if track != nil && !track.fromCache {
 		redisKey := fmt.Sprintf("overlays:nowplaying:%s", c.channelId)
-		if err := c.redis.Set(ctx, redisKey, track, 10*time.Second).Err(); err != nil {
+		if err := c.kv.Set(
+			ctx,
+			redisKey,
+			track,
+			kvoptions.WithExpire(10*time.Second),
+		); err != nil {
 			return nil, err
 		}
 	}
@@ -142,11 +148,11 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	redisKey := fmt.Sprintf("overlays:nowplaying:%s", c.channelId)
 
 	cachedTrack := &Track{}
-	err := c.redis.Get(ctx, redisKey).Scan(cachedTrack)
+	err := c.kv.Get(ctx, redisKey).Scan(cachedTrack)
 	if err == nil {
 		cachedTrack.fromCache = true
 		return cachedTrack, nil
-	} else if !errors.Is(err, redis.Nil) {
+	} else if !errors.Is(err, kv.ErrKeyNil) {
 		return nil, err
 	}
 

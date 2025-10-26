@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/libs/repositories/roles"
 	"github.com/twirapp/twir/libs/repositories/roles/model"
 
@@ -13,11 +13,11 @@ import (
 
 func New(
 	repo roles.Repository,
-	redis *redis.Client,
+	kv kv.KV,
 ) *generic_cacher.GenericCacher[[]model.Role] {
 	return generic_cacher.New(
 		generic_cacher.Opts[[]model.Role]{
-			Redis:     redis,
+			KV:        kv,
 			KeyPrefix: "cache:twir:roles:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]model.Role, error) {
 				return repo.GetManyByChannelID(ctx, key)

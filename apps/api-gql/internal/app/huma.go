@@ -8,10 +8,10 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humagin"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
-	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
+	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
 )
 

@@ -33,6 +33,7 @@ use (
 	./libs/redis_keys
 	./libs/repositories
 	./libs/sentry
+	./libs/services
 	./libs/twitch
 	./libs/types
 	./libs/uptrace

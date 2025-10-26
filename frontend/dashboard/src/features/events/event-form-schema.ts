@@ -129,7 +129,7 @@ export const eventFormSchema = toTypedSchema(
 				}
 
 				if (operation.type === EventOperationType.TriggerAlert) {
-					if (!operation.input) {
+					if (!operation.target) {
 						ctx.addIssue({
 							code: 'custom',
 							message: 'Target is required for alert operations',

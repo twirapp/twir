@@ -1,7 +1,8 @@
-import type { ErrorModel } from '@twir/api/openapi'
+import type { ErrorModel, LinkOutputDto } from '@twir/api/openapi'
 
-export function useUrlShortener() {
+export const useUrlShortener = defineStore('url-shortener', () => {
 	const api = useOapi()
+	const latestShortenedUrls = ref<LinkOutputDto[]>([])
 
 	async function shortUrl(opts: { url: string; alias?: string }) {
 		try {
@@ -9,6 +10,8 @@ export function useUrlShortener() {
 				url: opts.url,
 				alias: opts.alias,
 			})
+
+			latestShortenedUrls.value = [response.data.data, ...latestShortenedUrls.value.slice(0, 2)]
 
 			return {
 				data: response.data,
@@ -33,7 +36,24 @@ export function useUrlShortener() {
 		}
 	}
 
+	async function refetchLatestShortenedUrls(opts = { page: 0, perPage: 3 }) {
+		const response = await api.v1.shortUrlProfile(opts)
+
+		latestShortenedUrls.value = response.data.data.items
+
+		return {
+			data: response.data?.data,
+			error: response.error,
+		}
+	}
+
 	return {
 		shortUrl,
+		refetchLatestShortenedUrls,
+		latestShortenedUrls,
 	}
+})
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(useUrlShortener, import.meta.hot))
 }

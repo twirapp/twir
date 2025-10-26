@@ -38,14 +38,6 @@ func installNodeDeps() error {
 	return nil
 }
 
-type packageJson struct {
-	Engines struct {
-		Node string `json:"node"`
-		Pnpm string `json:"pnpm"`
-		Bun  string `json:"bun"`
-	} `json:"engines"`
-}
-
 func checkBunVersion() error {
 	currentVersionData, err := exec.Command("bun", "--version").Output()
 	if err != nil {

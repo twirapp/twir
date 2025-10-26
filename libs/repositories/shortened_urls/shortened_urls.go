@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	GetByShortID(ctx context.Context, id string) (model.ShortenedUrl, error)
+	GetManyByShortIDs(ctx context.Context, ids []string) ([]model.ShortenedUrl, error)
 	GetByUrl(ctx context.Context, url string) (model.ShortenedUrl, error)
 	Create(ctx context.Context, input CreateInput) (model.ShortenedUrl, error)
 	Update(ctx context.Context, id string, input UpdateInput) (model.ShortenedUrl, error)

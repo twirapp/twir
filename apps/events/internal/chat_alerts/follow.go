@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 func (c *ChatAlerts) follow(
@@ -55,6 +57,22 @@ func (c *ChatAlerts) follow(
 	}
 
 	text = strings.ReplaceAll(text, "{streamFollowers}", fmt.Sprint(followersCount))
+
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, req.BaseInfo.ChannelID, c.cfg, c.bus)
+	if err != nil {
+		return err
+	}
+
+	followersReq, err := twitchClient.GetChannelFollows(
+		&helix.GetChannelFollowsParams{
+			BroadcasterID: req.BaseInfo.ChannelID,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	text = strings.ReplaceAll(text, "{followers}", fmt.Sprint(followersReq.Data.Total))
 
 	if text == "" {
 		return nil

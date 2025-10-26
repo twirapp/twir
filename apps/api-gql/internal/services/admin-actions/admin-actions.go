@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/twirapp/kv"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/timers"
@@ -18,7 +18,7 @@ import (
 type Opts struct {
 	fx.In
 
-	Redis              *redis.Client
+	KV                 kv.KV
 	ChannelsRepository channels.Repository
 	TwirBus            *buscore.Bus
 	Gorm               *gorm.DB
@@ -26,7 +26,7 @@ type Opts struct {
 
 func New(opts Opts) *Service {
 	return &Service{
-		redis:              opts.Redis,
+		kv:                 opts.KV,
 		channelsRepository: opts.ChannelsRepository,
 		twirbus:            opts.TwirBus,
 		gorm:               opts.Gorm,
@@ -34,32 +34,23 @@ func New(opts Opts) *Service {
 }
 
 type Service struct {
-	redis              *redis.Client
+	kv                 kv.KV
 	channelsRepository channels.Repository
 	twirbus            *buscore.Bus
 	gorm               *gorm.DB
 }
 
 func (c *Service) DropAllAuthSessions(ctx context.Context) error {
-	iter := c.redis.Scan(ctx, 0, "scs:*", 0).Iterator()
-
-	_, err := c.redis.Pipelined(
-		ctx, func(pipe redis.Pipeliner) error {
-			for iter.Next(ctx) {
-				if err := pipe.Del(ctx, iter.Val()).Err(); err != nil {
-					return err
-				}
-			}
-
-			if err := iter.Err(); err != nil {
-				return fmt.Errorf("scan err: %w", err)
-			}
-
-			return nil
-		},
-	)
+	keys, err := c.kv.GetKeysByPattern(ctx, "scs:*")
 	if err != nil {
-		return fmt.Errorf("scan err: %w", err)
+		return fmt.Errorf("cannot get keys: %w", err)
+	}
+	if len(keys) == 0 {
+		return nil
+	}
+
+	if err := c.kv.DeleteMany(ctx, keys); err != nil {
+		return fmt.Errorf("cannot delete keys: %w", err)
 	}
 
 	return nil

@@ -6,15 +6,15 @@ import (
 	"strings"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	commandsservice "github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
+	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
 )
 
@@ -27,7 +27,7 @@ type Opts struct {
 	ResponsesRepository                      commands_response.Repository
 	CommandsService                          *commandsservice.Service
 	Logger                                   logger.Logger
-	CachedCommandsClient                     *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
+	CachedCommandsClient                     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
 func New(opts Opts) *Service {
@@ -50,7 +50,7 @@ type Service struct {
 
 	commandsService      *commandsservice.Service
 	logger               logger.Logger
-	cachedCommandsClient *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
+	cachedCommandsClient *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
 func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.CommandWithGroupAndResponses {

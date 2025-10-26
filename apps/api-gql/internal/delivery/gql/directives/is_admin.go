@@ -12,7 +12,7 @@ func (c *Directives) IsAdmin(
 	obj interface{},
 	next graphql.Resolver,
 ) (interface{}, error) {
-	user, err := c.sessions.GetAuthenticatedUser(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
 	}
