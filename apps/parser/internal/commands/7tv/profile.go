@@ -31,7 +31,9 @@ var Profile = &types.DefaultCommand{
 		command_arguments.String{
 			Name:     profileArg,
 			Optional: true,
-			Hint:     i18n.Get(locales.Translations.Commands.Seventv.Hints.CopySetChannelName),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Hints.CopySetChannelName)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -56,18 +58,21 @@ var Profile = &types.DefaultCommand{
 
 		result := &types.CommandsHandlerResult{
 			Result: []string{
-				i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.ProfileInfo.Response.
-					SetVars(locales.KeysCommandsSeventvProfileInfoResponseVars{
-						ProfileName:      seventvvariables.ProfileLink.Name,
-						PaintName:        seventvvariables.Paint.Name,
-						UnlockedPaints:   seventvvariables.UnlockedPaints.Name,
-						Roles:            seventvvariables.Roles.Name,
-						EditorCount:      seventvvariables.EditorForCount.Name,
-						EmoteSetName:     seventvvariables.EmoteSetName.Name,
-						EmoteSetCount:    seventvvariables.EmoteSetCount.Name,
-						EmoteSetCapacity: seventvvariables.EmoteSetCapacity.Name,
-						ProfileCreatedAt: seventvvariables.ProfileCreatedAt.Name,
-					}),
+				i18n.GetCtx(
+					ctx, locales.Translations.Commands.Seventv.ProfileInfo.Response.
+						SetVars(
+							locales.KeysCommandsSeventvProfileInfoResponseVars{
+								ProfileName:      seventvvariables.ProfileLink.Name,
+								PaintName:        seventvvariables.Paint.Name,
+								UnlockedPaints:   seventvvariables.UnlockedPaints.Name,
+								Roles:            seventvvariables.Roles.Name,
+								EditorCount:      seventvvariables.EditorForCount.Name,
+								EmoteSetName:     seventvvariables.EmoteSetName.Name,
+								EmoteSetCount:    seventvvariables.EmoteSetCount.Name,
+								EmoteSetCapacity: seventvvariables.EmoteSetCapacity.Name,
+								ProfileCreatedAt: seventvvariables.ProfileCreatedAt.Name,
+							},
+						),
 				),
 			},
 		}

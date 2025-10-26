@@ -33,11 +33,15 @@ var Add = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: "user",
-			Hint: i18n.Get(locales.Translations.Commands.Vips.Hints.User),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Hints.User)
+			},
 		},
 		command_arguments.VariadicString{
-			Name:     "unvip_in",
-			Hint:     i18n.Get(locales.Translations.Commands.Vips.Hints.UnvipIn),
+			Name: "unvip_in",
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Hints.UnvipIn)
+			},
 			Optional: true,
 		},
 	},

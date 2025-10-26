@@ -1,6 +1,7 @@
 package command_arguments
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"slices"
@@ -111,7 +112,7 @@ func NewParser(opts Opts) (*Parser, error) {
 	return p, nil
 }
 
-func (c *Parser) BuildUsageString(args []Arg, cmdName string) string {
+func (c *Parser) BuildUsageString(ctx context.Context, args []Arg, cmdName string) string {
 	var usageBuidler strings.Builder
 
 	usageBuidler.WriteString("!")
@@ -125,16 +126,16 @@ func (c *Parser) BuildUsageString(args []Arg, cmdName string) string {
 
 		switch typedArgument := arg.(type) {
 		case VariadicString:
-			usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint()))
+			usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint(ctx)))
 		case String:
 			if len(typedArgument.OneOf) > 0 {
 				usageBuidler.WriteString(
 					c.buildUsagePrefixAndSuffix(
-						fmt.Sprintf("%s %s", typedArgument.Name, typedArgument.GetHint()),
+						fmt.Sprintf("%s %s", typedArgument.Name, typedArgument.GetHint(ctx)),
 					),
 				)
 			} else {
-				usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint()))
+				usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint(ctx)))
 			}
 		case Int:
 			if typedArgument.Min != nil && typedArgument.Max != nil {
@@ -142,7 +143,7 @@ func (c *Parser) BuildUsageString(args []Arg, cmdName string) string {
 					c.buildUsagePrefixAndSuffix(
 						fmt.Sprintf(
 							"%s (min %d, max %d)",
-							typedArgument.GetHint(),
+							typedArgument.GetHint(ctx),
 							*typedArgument.Min,
 							*typedArgument.Max,
 						),
@@ -153,7 +154,7 @@ func (c *Parser) BuildUsageString(args []Arg, cmdName string) string {
 					c.buildUsagePrefixAndSuffix(
 						fmt.Sprintf(
 							"%s (min %d)",
-							typedArgument.GetHint(),
+							typedArgument.GetHint(ctx),
 							*typedArgument.Min,
 						),
 					),
@@ -163,13 +164,13 @@ func (c *Parser) BuildUsageString(args []Arg, cmdName string) string {
 					c.buildUsagePrefixAndSuffix(
 						fmt.Sprintf(
 							"%s (max %d)",
-							typedArgument.GetHint(),
+							typedArgument.GetHint(ctx),
 							*typedArgument.Max,
 						),
 					),
 				)
 			} else {
-				usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint()))
+				usageBuidler.WriteString(c.buildUsagePrefixAndSuffix(typedArgument.GetHint(ctx)))
 			}
 		}
 	}

@@ -1,5 +1,9 @@
 package command_arguments
 
+import (
+	"context"
+)
+
 type Int struct {
 	value    int
 	Name     string
@@ -7,6 +11,7 @@ type Int struct {
 	Max      *int
 	Optional bool
 	Hint     string
+	HintFunc func(ctx context.Context) string
 }
 
 var _ Arg = Int{}
@@ -25,7 +30,11 @@ func (c Int) GetName() string {
 	return c.Name
 }
 
-func (c Int) GetHint() string {
+func (c Int) GetHint(ctx context.Context) string {
+	if c.HintFunc != nil {
+		return c.HintFunc(ctx)
+	}
+	
 	if c.Hint == "" {
 		return c.Name
 	}

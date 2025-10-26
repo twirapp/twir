@@ -35,15 +35,30 @@ var Start = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name: startPredictionDuration,
-			Hint: i18n.Get(locales.Translations.Commands.Predictions.Hints.StartPredictionDuration),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Hints.StartPredictionDuration,
+				)
+			},
 		},
 		command_arguments.String{
 			Name: startPredictionArgTitle,
-			Hint: i18n.Get(locales.Translations.Commands.Predictions.Hints.StartPredictionArgTitle),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Hints.StartPredictionArgTitle,
+				)
+			},
 		},
 		command_arguments.String{
 			Name: startPredictionArgVariants,
-			Hint: i18n.Get(locales.Translations.Commands.Predictions.Hints.StartPredictionArgVariants),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Hints.StartPredictionArgVariants,
+				)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (

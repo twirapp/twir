@@ -35,11 +35,15 @@ var Timeout = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: timeoutDurationArgName,
-			Hint: i18n.Get(locales.Translations.Commands.ChatWall.Hints.TimeoutDurationArgName),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.ChatWall.Hints.TimeoutDurationArgName)
+			},
 		},
 		command_arguments.VariadicString{
 			Name: timeoutPhraseArgName,
-			Hint: i18n.Get(locales.Translations.Commands.ChatWall.Hints.TimeoutPhraseArgName),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.ChatWall.Hints.TimeoutPhraseArgName)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -91,11 +95,13 @@ var Timeout = &types.DefaultCommand{
 		}
 
 		result := &types.CommandsHandlerResult{
-			Result: []string{i18n.GetCtx(
-				ctx,
-				locales.Translations.Commands.ChatWall.Start.ChatWallStart.
-					SetVars(locales.KeysCommandsChatWallStartChatWallStartVars{ChatWallPhrase: phrase}),
-			)},
+			Result: []string{
+				i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.ChatWall.Start.ChatWallStart.
+						SetVars(locales.KeysCommandsChatWallStartChatWallStartVars{ChatWallPhrase: phrase}),
+				),
+			},
 		}
 
 		return result, nil

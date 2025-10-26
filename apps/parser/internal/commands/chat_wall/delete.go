@@ -31,7 +31,9 @@ var Delete = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.VariadicString{
 			Name: deletePhraseArgName,
-			Hint: i18n.Get(locales.Translations.Commands.ChatWall.Hints.DeletePhraseArgName),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(locales.Translations.Commands.ChatWall.Hints.DeletePhraseArgName)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -79,7 +81,8 @@ var Delete = &types.DefaultCommand{
 					ctx,
 					locales.Translations.Commands.ChatWall.Start.ChatWallStart.
 						SetVars(locales.KeysCommandsChatWallStartChatWallStartVars{ChatWallPhrase: phrase}),
-				)},
+				),
+			},
 		}
 
 		return result, nil

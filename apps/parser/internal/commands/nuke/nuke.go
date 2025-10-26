@@ -43,7 +43,9 @@ var Command = &types.DefaultCommand{
 		command_arguments.String{
 			Name:     nukeTimeArgName,
 			Optional: false,
-			Hint:     i18n.Get(locales.Translations.Commands.Nuke.Hints.NukeTimeArgName),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Hints.NukeTimeArgName)
+			},
 		},
 		command_arguments.VariadicString{
 			Name: nukePhraseArgName,
@@ -108,8 +110,11 @@ var Command = &types.DefaultCommand{
 		).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetHandeledMessages),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Nuke.Errors.CannotGetHandeledMessages,
+				),
+				Err: err,
 			}
 		}
 

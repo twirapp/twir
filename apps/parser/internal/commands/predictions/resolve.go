@@ -31,7 +31,12 @@ var Resolve = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name: predictionResolveOutcomeNum,
-			Hint: i18n.Get(locales.Translations.Commands.Predictions.Hints.PredictionResolveOutcomeNum),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Hints.PredictionResolveOutcomeNum,
+				)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -60,8 +65,11 @@ var Resolve = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.CannotGetCurrent),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Predictions.Errors.CannotGetCurrent,
+				),
+				Err: err,
 			}
 		}
 		if currentPredictionReq.ErrorMessage != "" {

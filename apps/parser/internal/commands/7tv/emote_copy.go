@@ -38,17 +38,23 @@ var EmoteCopy = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: emoteForCopyArgName,
-			Hint: i18n.Get(locales.Translations.Commands.Seventv.Hints.EmoteForCopyArgName),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Hints.EmoteForCopyArgName)
+			},
 		},
 		command_arguments.String{
 			Name:     emoteForCopyChannel,
 			Optional: false,
-			Hint:     i18n.Get(locales.Translations.Errors.Generic.ShouldMentionWithAt),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Errors.Generic.ShouldMentionWithAt)
+			},
 		},
 		command_arguments.String{
 			Name:     emoteForCopyAlias,
 			Optional: true,
-			Hint:     i18n.Get(locales.Translations.Commands.Seventv.Hints.EmoteForCopyAlias),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Hints.EmoteForCopyAlias)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -76,17 +82,21 @@ var EmoteCopy = &types.DefaultCommand{
 			func() error {
 				broadcasterSeventvProfile, err := client.GetProfileByTwitchId(ctx, parseCtx.Channel.ID)
 				if err != nil {
-					return fmt.Errorf(i18n.GetCtx(
-						ctx,
-						locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
-							SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
-					))
+					return fmt.Errorf(
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+								SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+						),
+					)
 				}
 				if broadcasterSeventvProfile.Users.UserByConnection.Style.ActiveEmoteSetId == nil {
-					return fmt.Errorf(i18n.GetCtx(
-						ctx,
-						locales.Translations.Commands.Seventv.Errors.EmotesetNotActive,
-					))
+					return fmt.Errorf(
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Seventv.Errors.EmotesetNotActive,
+						),
+					)
 				}
 
 				broadcasterProfile = broadcasterSeventvProfile
@@ -98,18 +108,22 @@ var EmoteCopy = &types.DefaultCommand{
 			func() error {
 				targetSeventvProfile, err := client.GetProfileByTwitchId(ctx, parseCtx.Mentions[0].UserId)
 				if err != nil {
-					return fmt.Errorf(i18n.GetCtx(
-						ctx,
-						locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
-							SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
-					))
+					return fmt.Errorf(
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+								SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+						),
+					)
 				}
 				if targetSeventvProfile.Users.UserByConnection.Style.ActiveEmoteSetId == nil {
-					return fmt.Errorf(i18n.GetCtx(
-						ctx,
-						locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
-							SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
-					))
+					return fmt.Errorf(
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Seventv.Errors.ProfileFailedToGet.
+								SetVars(locales.KeysCommandsSeventvErrorsProfileFailedToGetVars{Reason: err.Error()}),
+						),
+					)
 				}
 
 				targetProfile = targetSeventvProfile

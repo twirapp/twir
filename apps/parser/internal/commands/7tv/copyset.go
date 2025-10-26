@@ -38,11 +38,15 @@ var CopySet = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: copySetChannelName,
-			Hint: i18n.Get(locales.Translations.Commands.Seventv.Hints.CopySetChannelName),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Hints.CopySetChannelName)
+			},
 		},
 		command_arguments.VariadicString{
 			Name: copySetNameOfSet,
-			Hint: i18n.Get(locales.Translations.Commands.Seventv.Hints.CopySetNameOfSet),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Hints.CopySetNameOfSet)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (

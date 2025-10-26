@@ -1,5 +1,9 @@
 package command_arguments
 
+import (
+	"context"
+)
+
 type Arg interface {
 	isCommandArg()
 
@@ -8,6 +12,6 @@ type Arg interface {
 	Int() int
 	// IsOptional only latest argument can be optional
 	IsOptional() bool
-	GetHint() string
+	GetHint(ctx context.Context) string
 	Value() any
 }

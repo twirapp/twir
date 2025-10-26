@@ -31,7 +31,9 @@ var Ban = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.VariadicString{
 			Name: banPhraseArgName,
-			Hint: i18n.Get(locales.Translations.Commands.ChatWall.Hints.BanPhraseArgName),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.ChatWall.Hints.BanPhraseArgName)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -79,7 +81,8 @@ var Ban = &types.DefaultCommand{
 					ctx,
 					locales.Translations.Commands.ChatWall.Start.ChatWallStart.
 						SetVars(locales.KeysCommandsChatWallStartChatWallStartVars{ChatWallPhrase: phrase}),
-				)},
+				),
+			},
 		}
 
 		return result, nil

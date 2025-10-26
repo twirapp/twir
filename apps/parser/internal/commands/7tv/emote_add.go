@@ -33,12 +33,16 @@ var EmoteAdd = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: emoteForAddArgLink,
-			Hint: i18n.Get(locales.Translations.Commands.Seventv.Hints.EmoteForAddArgLink),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Hints.EmoteForAddArgLink)
+			},
 		},
 		command_arguments.String{
 			Name:     emoteForAddArgAlias,
 			Optional: true,
-			Hint:     i18n.Get(locales.Translations.Commands.Seventv.Hints.EmoteForAddArgAlias),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Seventv.Hints.EmoteForAddArgAlias)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (

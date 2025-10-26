@@ -30,7 +30,9 @@ var Remove = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: "user",
-			Hint: i18n.Get(locales.Translations.Commands.Vips.Hints.User),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Hints.User)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (

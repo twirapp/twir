@@ -34,11 +34,15 @@ var SetExpire = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: "user",
-			Hint: i18n.Get(locales.Translations.Commands.Vips.Hints.User),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Hints.User)
+			},
 		},
 		command_arguments.VariadicString{
 			Name: "unvip_in",
-			Hint: i18n.Get(locales.Translations.Commands.Vips.Hints.UnvipIn),
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Hints.UnvipIn)
+			},
 		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -97,8 +101,11 @@ var SetExpire = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Errors.CannotCreateScheduledInDb),
-					Err:     err,
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Vips.Errors.CannotCreateScheduledInDb,
+					),
+					Err: err,
 				}
 			}
 		} else {

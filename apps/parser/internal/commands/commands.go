@@ -370,7 +370,21 @@ func (c *Commands) ParseCommandResponses(
 			},
 		)
 		if err != nil {
-			usage := argsParser.BuildUsageString(defaultCommand.Args, defaultCommand.Name)
+			if argsParser == nil {
+				c.services.Logger.Sugar().Error(
+					"error happened on args parser creation for default command",
+					zap.Error(err),
+					zap.Dict(
+						"channel",
+						zap.String("id", requestData.BroadcasterUserId),
+						zap.String("name", requestData.BroadcasterUserLogin),
+					),
+				)
+				
+				return result
+			}
+
+			usage := argsParser.BuildUsageString(ctx, defaultCommand.Args, defaultCommand.Name)
 
 			results := &busparser.CommandParseResponse{
 				Responses: []string{fmt.Sprintf("[Usage]: %s", usage)},

@@ -32,8 +32,10 @@ var SetCommand = &types.DefaultCommand{
 	},
 	Args: []command_arguments.Arg{
 		command_arguments.VariadicString{
-			Name:     gameArgName,
-			Hint:     i18n.Get(locales.Translations.Commands.Channel.Hints.GameArgName),
+			Name: gameArgName,
+			HintFunc: func(ctx context.Context) string {
+				return i18n.GetCtx(ctx, locales.Translations.Commands.Channel.Hints.GameArgName)
+			},
 			Optional: true,
 		},
 	},
@@ -82,7 +84,12 @@ var SetCommand = &types.DefaultCommand{
 						ctx,
 						locales.Translations.Commands.Channel.Errors.ChannelNotFound,
 					),
-					Err: fmt.Errorf(i18n.GetCtx(ctx, locales.Translations.Commands.Channel.Errors.ChannelNotFound)),
+					Err: fmt.Errorf(
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Channel.Errors.ChannelNotFound,
+						),
+					),
 				}
 			}
 
@@ -141,8 +148,11 @@ var SetCommand = &types.DefaultCommand{
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
-						Message: i18n.GetCtx(ctx, locales.Translations.Commands.Channel.Errors.CategoryCannotGet),
-						Err:     err,
+						Message: i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Channel.Errors.CategoryCannotGet,
+						),
+						Err: err,
 					}
 				}
 				if categoryRequest.ErrorMessage != "" {
@@ -162,10 +172,12 @@ var SetCommand = &types.DefaultCommand{
 							ctx,
 							locales.Translations.Commands.Channel.Errors.CategoryNotFound,
 						),
-						Err: fmt.Errorf(i18n.GetCtx(
-							ctx,
-							locales.Translations.Commands.Channel.Errors.CategoryNotFound,
-						)),
+						Err: fmt.Errorf(
+							i18n.GetCtx(
+								ctx,
+								locales.Translations.Commands.Channel.Errors.CategoryNotFound,
+							),
+						),
 					}
 				}
 
