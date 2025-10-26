@@ -634,15 +634,15 @@
 			"secondTitle": "Faceit Stats",
 			"settings": {
 				"general": {
-					"title": "General",
+					"title": "Загальне",
 					"faceitNickname": "Faceit nickname",
-					"game": "Game"
+					"game": "Гра"
 				},
 				"appearance": {
-					"title": "Appearance",
-					"background": "Background Color",
-					"textColor": "Text color",
-					"borderRadius": "Border Radius"
+					"title": "Вигляд",
+					"background": "Колір фону",
+					"textColor": "Колір тексту",
+					"borderRadius": "Округлення кутів"
 				},
 				"display": {
 					"title": "Display",
@@ -676,8 +676,8 @@
 					"glow": "Glow effect",
 					"leaderboard": "Leaderboard place",
 					"winLose": "Win / Lose",
-					"progress": "Progress",
-					"last20MatchesStats": "Show last 20 matches stats"
+					"progress": "Прогрес",
+					"last20MatchesStats": "Показати статистику за останні 20 матчів"
 				}
 			}
 		}
