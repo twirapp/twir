@@ -6,6 +6,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var UsedChannelPoints = &types.Variable{
@@ -25,16 +27,22 @@ var UsedChannelPoints = &types.Variable{
 			).
 			Else(parseCtx.Sender.ID)
 
+		var count int
+
 		if targetUserId == parseCtx.Sender.ID {
 			result.Result = strconv.Itoa(int(parseCtx.Sender.UserChannelStats.UsedChannelPoints))
 		} else {
 			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
 			if dbUser != nil {
-				result.Result = strconv.Itoa(int(dbUser.UsedChannelPoints))
-			} else {
-				result.Result = "0"
+				count = int(dbUser.UsedChannelPoints)
 			}
 		}
+
+		result.Result = i18n.GetCtx(
+			ctx,
+			locales.Translations.Variables.User.Info.Points.
+				SetVars(locales.KeysVariablesUserInfoPointsVars{UserPoints: count}),
+		)
 
 		return &result, nil
 	},

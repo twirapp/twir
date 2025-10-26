@@ -7,6 +7,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Watched = &types.Variable{
@@ -41,7 +43,17 @@ var Watched = &types.Variable{
 
 		watchedD := time.Duration(watched) * time.Millisecond
 
-		result.Result = fmt.Sprintf("%.1fh", watchedD.Hours())
+		result.Result = i18n.GetCtx(
+			ctx,
+			locales.Translations.Variables.User.Info.Watched.SetVars(
+				locales.KeysVariablesUserInfoWatchedVars{
+					UserWatched: fmt.Sprintf(
+						"%.1f",
+						watchedD.Hours(),
+					),
+				},
+			),
+		)
 
 		return &result, nil
 	},

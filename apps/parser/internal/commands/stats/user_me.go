@@ -2,17 +2,15 @@ package stats
 
 import (
 	"context"
+	"fmt"
 	"strings"
-
-	"github.com/twirapp/twir/apps/parser/internal/types"
-	"github.com/twirapp/twir/apps/parser/internal/variables/user"
-	"github.com/twirapp/twir/apps/parser/locales"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/variables/user"
 
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/i18n"
 )
 
 var UserMe = &types.DefaultCommand{
@@ -30,36 +28,16 @@ var UserMe = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		var slice []string
+		var vars []string
 
-		slice = append(slice, i18n.GetCtx(
-			ctx,
-			locales.Translations.Commands.Stats.Info.Watched.
-				SetVars(locales.KeysCommandsStatsInfoWatchedVars{UserWatched: user.Watched.Name}),
-		))
-		slice = append(slice, i18n.GetCtx(
-			ctx,
-			locales.Translations.Commands.Stats.Info.Messages.
-				SetVars(locales.KeysCommandsStatsInfoMessagesVars{UserMessages: user.Messages.Name}),
-		))
-		slice = append(slice, i18n.GetCtx(
-			ctx,
-			locales.Translations.Commands.Stats.Info.Emotes.
-				SetVars(locales.KeysCommandsStatsInfoEmotesVars{UserEmotes: user.Messages.Name}),
-		))
-		slice = append(slice, i18n.GetCtx(
-			ctx,
-			locales.Translations.Commands.Stats.Info.Points.
-				SetVars(locales.KeysCommandsStatsInfoPointsVars{UserPoints: user.UsedChannelPoints.Name}),
-		))
-		slice = append(slice, i18n.GetCtx(
-			ctx,
-			locales.Translations.Commands.Stats.Info.Songs.
-				SetVars(locales.KeysCommandsStatsInfoSongsVars{UserSongs: user.SongsRequested.Name}),
-		))
+		vars = append(vars, fmt.Sprintf("$(%s)", user.Watched.Name))
+		vars = append(vars, fmt.Sprintf("$(%s)", user.Messages.Name))
+		vars = append(vars, fmt.Sprintf("$(%s)", user.Emotes.Name))
+		vars = append(vars, fmt.Sprintf("$(%s)", user.UsedChannelPoints.Name))
+		vars = append(vars, fmt.Sprintf("$(%s)", user.SongsRequested.Name))
 
 		result := &types.CommandsHandlerResult{
-			Result: []string{strings.Join(slice, " · ")},
+			Result: []string{strings.Join(vars, " · ")},
 		}
 
 		return result, nil
