@@ -6,8 +6,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	"github.com/twirapp/twir/apps/parser/locales"
-	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Emotes = &types.Variable{
@@ -27,22 +25,18 @@ var Emotes = &types.Variable{
 			).
 			Else(parseCtx.Sender.ID)
 
-		var emotes int
-
+		var count int
 		if targetUserId == parseCtx.Sender.ID {
 			result.Result = strconv.Itoa(parseCtx.Sender.UserChannelStats.Emotes)
 		} else {
 			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
 			if dbUser != nil {
-				emotes = dbUser.Emotes
+				count = dbUser.Emotes
 			}
 		}
 
-		result.Result = i18n.GetCtx(
-			ctx,
-			locales.Translations.Variables.User.Info.Emotes.
-				SetVars(locales.KeysVariablesUserInfoEmotesVars{UserEmotes: emotes}),
-		)
+		formattedCount := strconv.Itoa(count)
+		result.Result = formattedCount
 
 		return result, nil
 	},

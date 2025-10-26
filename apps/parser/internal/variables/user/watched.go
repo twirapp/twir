@@ -7,8 +7,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	"github.com/twirapp/twir/apps/parser/locales"
-	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Watched = &types.Variable{
@@ -28,31 +26,21 @@ var Watched = &types.Variable{
 			).
 			Else(parseCtx.Sender.ID)
 
-		var watched int64 = 0
-
-		if targetUserId == parseCtx.Sender.ID {
-			watched = parseCtx.Sender.UserChannelStats.Watched
-		} else {
+		count := parseCtx.Sender.UserChannelStats.Watched
+		if targetUserId != parseCtx.Sender.ID {
 			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
 			if dbUser != nil {
-				watched = dbUser.Watched
+				count = dbUser.Watched
 			} else {
-				watched = 0
+				count = 0
 			}
 		}
 
-		watchedD := time.Duration(watched) * time.Millisecond
+		watchedD := time.Duration(count) * time.Millisecond
 
-		result.Result = i18n.GetCtx(
-			ctx,
-			locales.Translations.Variables.User.Info.Watched.SetVars(
-				locales.KeysVariablesUserInfoWatchedVars{
-					UserWatched: fmt.Sprintf(
-						"%.1f",
-						watchedD.Hours(),
-					),
-				},
-			),
+		result.Result = fmt.Sprintf(
+			"%.1f",
+			watchedD.Hours(),
 		)
 
 		return &result, nil

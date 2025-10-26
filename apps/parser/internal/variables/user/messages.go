@@ -6,8 +6,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	"github.com/twirapp/twir/apps/parser/locales"
-	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Messages = &types.Variable{
@@ -27,22 +25,18 @@ var Messages = &types.Variable{
 			).
 			Else(parseCtx.Sender.ID)
 
-		var msgs int
-
-		if targetUserId == parseCtx.Sender.ID {
-			result.Result = strconv.Itoa(int(parseCtx.Sender.UserChannelStats.Messages))
-		} else {
+		count := parseCtx.Sender.UserChannelStats.Messages
+		if targetUserId != parseCtx.Sender.ID {
 			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
 			if dbUser != nil {
-				msgs = int(dbUser.Messages)
+				count = dbUser.Messages
+			} else {
+				count = 0
 			}
 		}
 
-		result.Result = i18n.GetCtx(
-			ctx,
-			locales.Translations.Variables.User.Info.Messages.
-				SetVars(locales.KeysVariablesUserInfoMessagesVars{UserMessages: msgs}),
-		)
+		formattedCount := strconv.Itoa(int(count))
+		result.Result = formattedCount
 
 		return &result, nil
 	},

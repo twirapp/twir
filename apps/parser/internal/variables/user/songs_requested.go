@@ -2,12 +2,11 @@ package user
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/i18n"
 )
 
 var SongsRequested = &types.Variable{
@@ -39,11 +38,8 @@ var SongsRequested = &types.Variable{
 			return result, nil
 		}
 
-		result.Result = i18n.GetCtx(
-			ctx,
-			locales.Translations.Variables.User.Info.Songs.
-				SetVars(locales.KeysVariablesUserInfoSongsVars{UserSongs: count}),
-		)
+		formattedCount := strconv.Itoa(int(count))
+		result.Result = formattedCount
 
 		return result, nil
 	},

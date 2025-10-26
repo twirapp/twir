@@ -1,10 +1,3 @@
 errors:
   find_user_on_twitch: Cannot find user on twitch
 
-info:
-  # Me
-  watched: '{userWatched}h watched'
-  messages: '{userMessages} messages'
-  emotes: '{userEmotes} used emotes'
-  points: '{userPoints} used points'
-  songs: '{userSongs} songs requests'
