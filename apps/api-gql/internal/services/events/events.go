@@ -113,7 +113,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, 
 		return entity.EventNil, fmt.Errorf("failed to get channelEvents: %w", err)
 	}
 
-	if len(channelEvents) >= 10 {
+	if len(channelEvents) >= 250 {
 		return entity.EventNil, fmt.Errorf("maximum number of channelEvents reached")
 	}
 
