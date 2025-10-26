@@ -1,0 +1,24 @@
+hints:
+  gameArgName: Category name or created category alias
+add:
+  category_change: '✅ {categoryName}'
+errors:
+  # Twitch-channel
+  broadcaster_twitch_client_cannot_create: Cannot create broadcaster twitch client
+  broadcaster_twitch_api_client: 'Cannot create broadcaster twitch api client: {reason}'
+  # Channel
+  channel_cannot_get_information: Cannot get channel information
+  channel_not_found: Channel not found
+  # Alias
+  alias_cannot_get_category: Cannot get category aliases
+  # Category
+  category_not_found: Category not found
+  category_cannot_get: Cannot get category
+  category_cannot_get_error: 'Cannot get category: {errorMessage}'
+  category_cannot_change: Cannot change category
+  category_cannot_change_error: 'Cannot change category: {errorMessage}'
+  # Game
+  game_not_found: Game not found on twitch
+  # History
+  history_game_message: Cannot find used games in database
+  history_title_message: 'Cannot get history of titles from database: {reason}'
