@@ -32,7 +32,7 @@ var Delete = &types.DefaultCommand{
 		command_arguments.VariadicString{
 			Name: deletePhraseArgName,
 			HintFunc: func(ctx context.Context) string {
-				return i18n.GetCtx(locales.Translations.Commands.ChatWall.Hints.DeletePhraseArgName)
+				return i18n.GetCtx(ctx, locales.Translations.Commands.ChatWall.Hints.DeletePhraseArgName)
 			},
 		},
 	},
