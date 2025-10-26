@@ -38,7 +38,7 @@ func (c *Manager) startWebSocket() {
 		},
 	)
 
-	ws.OnReconnectError(
+	ws.OnError(
 		func(err error) {
 			fmt.Println(err)
 		},
