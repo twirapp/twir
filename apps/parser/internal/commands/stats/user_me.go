@@ -32,22 +32,22 @@ var UserMe = &types.DefaultCommand{
 	) {
 		vars := []string{
 			fmt.Sprintf(
-				"(%s) %s",
+				"$(%s) %s",
 				user.Watched.Name,
 				i18n.GetCtx(ctx, locales.Translations.Commands.Stats.Me.Watched),
 			),
 			fmt.Sprintf(
-				"(%s) %s",
+				"$(%s) %s",
 				user.Messages.Name,
 				i18n.GetCtx(ctx, locales.Translations.Commands.Stats.Me.Messages),
 			),
 			fmt.Sprintf(
-				"(%s) %s",
+				"$(%s) %s",
 				user.Emotes.Name,
 				i18n.GetCtx(ctx, locales.Translations.Commands.Stats.Me.Emotes),
 			),
 			fmt.Sprintf(
-				"(%s) %s",
+				"$(%s) %s",
 				user.UsedChannelPoints.Name,
 				i18n.GetCtx(ctx, locales.Translations.Commands.Stats.Me.Points),
 			),
