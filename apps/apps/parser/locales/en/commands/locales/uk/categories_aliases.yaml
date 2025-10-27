@@ -1,7 +1,7 @@
 errors:
   # Category
   category_required: Alias and category are required
-  category_failed_to_get: Failed to get caterogies
+  category_failed_to_get: Не вдалося отримати категорії
   category_cannot_to_get: Cannot get categories
   category_not_found: Category not found
   category_failed_to_create: Failed to create category
