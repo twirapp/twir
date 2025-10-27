@@ -1,4 +1,4 @@
 errors:
-  cannot_create_marker: 'Cannot create marker. {reason}'
+  cannot_create_marker: 'Неможливо створити маркер. {reason}'
 success:
-  marker_created: Marker created
+  marker_created: Маркер створено
