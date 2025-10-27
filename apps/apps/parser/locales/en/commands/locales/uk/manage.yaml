@@ -7,19 +7,19 @@ errors:
   # Command
   command_with_alias_already_exists: Command with that name or alias already exists
   command_with_name_cannot_find: Command with that name not found
-  command_not_found: Command not found
-  command_cannot_get: Cannot get command
-  command_large_size: Command name cannot be greatest then 20.
+  command_not_found: Команда не знайдена
+  command_cannot_get: Не вдалося отримати команду
+  command_large_size: Назва команди не може бути більш ніж 20 символів.
   command_have_no_aliases: Command have no aliases
   command_cannot_delete_default: Cannot delete default command
   command_cannot_update_response: Cannot update response because you have more than 1 response in command. Please use UI.
   command_cannot_update: Cannot update command
   command_cannot_save: Cannot save command
 add:
-  alias_add: '✅ Alias added'
-  command_add: '✅ Command added'
+  alias_add: '✅ Аліас додано'
+  command_add: '✅ Команду додано'
 edit:
-  command_edited: '✅ Command edited'
+  command_edited: '✅ Команду відредаговано'
 remove:
-  alias_removed: '✅ Alias removed'
-  command_removed: '✅ Command removed'
+  alias_removed: '✅ Аліас видалений'
+  command_removed: '✅ Команду видалено'
