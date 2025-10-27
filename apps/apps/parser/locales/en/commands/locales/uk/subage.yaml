@@ -1,8 +1,8 @@
 errors:
   not_subscriber_or_hidden: User is not a subscriber or their subscription info is hidden
 responses:
-  not_subscriber: '{user} is not a subscriber'
-  not_subscriber_but_was: '{user} is not a subscriber but was subscribed for {months} months'
-  subscription_info: '{user} is a {tier} subscriber of {channel} for {months} months'
+  not_subscriber: '{user} не є підписником'
+  not_subscriber_but_was: '{user} не є підписником, але був підписаний на {months} місяців'
+  subscription_info: '{user} є {tier} підписником на {channel} вже {months} місяців'
   streak_info: '(streak: {months} months)'
-  time_remaining: '(time remaining: {duration})'
+  time_remaining: '(часу залишилось: {duration})'
