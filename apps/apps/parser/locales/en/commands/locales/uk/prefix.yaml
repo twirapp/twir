@@ -1,8 +1,8 @@
 errors:
-  required: Prefix is required
-  too_long: Prefix cannot be longer than 10 characters
-  cannot_get_current: Cannot get current prefix
-  cannot_create: Cannot create prefix
-  cannot_update: Cannot update prefix
+  required: Префікс є обов'язковим
+  too_long: Префікс не може бути більше 10 символів
+  cannot_get_current: Неможливо отримати поточний префікс
+  cannot_create: Неможливо створити префікс
+  cannot_update: Неможливо оновити префікс
 success:
-  updated: Prefix updated
+  updated: Префікс оновлено
