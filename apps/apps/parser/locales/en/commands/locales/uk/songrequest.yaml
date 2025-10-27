@@ -1,25 +1,25 @@
 errors:
   # Song
-  get_current_song: Cannot get current song
-  not_found: Current song not found
-  search_song: Cannot search song
-  get_latest_song: Cannot get latest song
-  update_song: Cannot update song
+  get_current_song: Не вдалося отримати поточну пісню
+  not_found: Поточну пісню не знайдено
+  search_song: Неможливо знайти пісню
+  get_latest_song: Не вдалося отримати останню пісню
+  update_song: Неможливо оновити пісню
   # Setting
-  get_settings: Cannot get song requests settings
+  get_settings: Неможливо отримати налаштування запитів для пісень
   # Queue
-  get_current_queue_count: Cannot get current queue count
-  get_songs_from_queue: Cannot get songs from queue
-  remove_song_from_queue: Cannot remove song from queue
+  get_current_queue_count: Неможливо отримати поточну чергу
+  get_songs_from_queue: Неможливо отримати пісні з черги
+  remove_song_from_queue: Неможливо видалити пісню з черги
   # Other
-  get_users_count: Cannot get online users count
-  get_votes_count: Cannot get votes count
-  get_current_vote: Cannot get current vote
+  get_users_count: Неможливо отримати кількість онлайн користувачів
+  get_votes_count: Неможливо отримати кількість голосів
+  get_current_vote: Не вдалося отримати поточний голос
 info:
-  delete: 'Song {songTitle} deleted from queue'
-  song_skipped: 'Song {songTitle} skipped'
-  no_requested_songs: You haven't requested any song
-  only_count_songs: 'There is only {songsCount} songs'
+  delete: 'Пісню {songTitle} видалено з черги'
+  song_skipped: 'Пісня {songTitle} пропущена'
+  no_requested_songs: Ви не запросили жодної пісні
+  only_count_songs: 'Тут тільки {songsCount} пісень'
 validate:
   errors:
     restrictions_on_user: 'There are restrictions on user, but i cannot find you in db, sorry :('
