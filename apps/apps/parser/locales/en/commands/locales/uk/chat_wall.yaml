@@ -1,8 +1,8 @@
 hints:
-  banPhraseArgName: Phrase to ban
-  deletePhraseArgName: Phrase to delete
+  banPhraseArgName: Фраза для бану
+  deletePhraseArgName: Фраза для видалення
   timeoutDurationArgName: 'Time. Examples: 10m, 10, 1h5m'
-  timeoutPhraseArgName: Phrase to ban
+  timeoutPhraseArgName: Фраза для бану
 errors:
   chat_wall_not_found: 'Chat wall {errorPhrase} not found or already stopped'
   invalid_duration: 'Invalid duration. Cannot be longer 2w Examples: 10m, 10, 1h5m'
