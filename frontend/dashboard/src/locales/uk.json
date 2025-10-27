@@ -629,13 +629,13 @@
 			}
 		},
 		"faceit": {
-			"title": "Faceit Stats Builder",
-			"description": "Set up an overlay to display your Faceit statistics. Customize it according to your preferences.",
-			"secondTitle": "Faceit Stats",
+			"title": "Налаштування Faceit оверлею",
+			"description": "Налаштуйте оверлей для відображення вашої Faceit статистики. Налаштуйте його відповідно до ваших вподобань.",
+			"secondTitle": "Статистика Faceit",
 			"settings": {
 				"general": {
 					"title": "Загальне",
-					"faceitNickname": "Faceit nickname",
+					"faceitNickname": "Faceit нікнейм",
 					"game": "Гра"
 				},
 				"appearance": {
@@ -645,37 +645,37 @@
 					"borderRadius": "Округлення кутів"
 				},
 				"display": {
-					"title": "Display",
-					"showAvarageKdr": "Show avarage kdr",
-					"worldRanking": "World ranking",
-					"last20MatchesStats": "Last 20 matches stats"
+					"title": "Відображення",
+					"showAvarageKdr": "Показати середній kdr",
+					"worldRanking": "Світовий рейтинг",
+					"last20MatchesStats": "Статистика за останні 20 матчів"
 				}
 			}
 		},
 		"valorant": {
-			"title": "Valorant Stats Builder",
-			"secondTitle": "Valorant Stats",
-			"description": "Configure the overlay with your Valorant stats. Change its design according to your personal requirements.",
+			"title": "Налаштування Valorant оверлею",
+			"secondTitle": "Valorant статистика",
+			"description": "Налаштуйте оверлей з вашою Valorant статистикою. Змініть його дизайн відповідно до ваших особистих вимог.",
 			"valorantIntegration": {
-				"connect": "Connect valorant integration to use this overlay",
-				"button": "Connect"
+				"connect": "Увімкніть valorant інтеграцію для використання цього оверлею",
+				"button": "Увімкнути"
 			},
 			"settings": {
 				"colors": {
-					"title": "Colors",
-					"background": "Background color",
-					"text": "Text color",
-					"primaryText": "Primary Text Color",
-					"win": "Win Color",
-					"lose": "Lose Color"
+					"title": "Кольори",
+					"background": "Колір фону",
+					"text": "Колір тексту",
+					"primaryText": "Основний колір тексту",
+					"win": "Колір перемоги",
+					"lose": "Колір програшу"
 				},
 				"general": {
-					"title": "General",
-					"background": "Background",
-					"border": "Border",
-					"glow": "Glow effect",
-					"leaderboard": "Leaderboard place",
-					"winLose": "Win / Lose",
+					"title": "Загальне",
+					"background": "Фон",
+					"border": "Рамка",
+					"glow": "Ефект світіння",
+					"leaderboard": "Місце таблиці лідерів",
+					"winLose": "Перемог / Програшів",
 					"progress": "Прогрес",
 					"last20MatchesStats": "Показати статистику за останні 20 матчів"
 				}
