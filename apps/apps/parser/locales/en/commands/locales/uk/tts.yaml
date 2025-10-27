@@ -5,8 +5,8 @@ errors:
   sending_to_tts: Error while sending message to tts service
   while_getting_voices: Error while getting voices
 info:
-  disabled: TTS disabled
-  enabled: TTS enabled
+  disabled: TTS вимкнено
+  enabled: TTS увімкнено
   pitch: 'Global pitch: {globalPitch} | Your pitch: {userPitch}'
   change_pitch: 'Pitch changed to {newPitch}'
   rate: 'Global rate: {globalRate} | Your rate: {userRate}'
