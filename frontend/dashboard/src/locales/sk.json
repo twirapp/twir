@@ -709,7 +709,7 @@
 			"deniedUsers": "Zablokovaní používatelia",
 			"deniedSongs": "Zoznam zakázaných piesní",
 			"takeSongFromDonationMessage": "Pokúsiť sa o získanie odkazov na piesne z darcovských správ?",
-			"confirmClearQueue": "Naozaj chcete vymazať frontu?",
+			"confirmClearQueue": "Naozaj chceš vymazať frontu?",
 			"users": {
 				"maxRequests": "Maximálne množstvo žiadosti na používateľa",
 				"minimalWatchTime": "Minimálny čas sledovania streamu (v minútach)",
@@ -717,7 +717,7 @@
 				"minimalFollowTime": "Minimálna doba sledovania kanálu (v minútach)"
 			},
 			"songs": {
-				"maxRequests": "Maximálny limit frontu skladieb",
+				"maxRequests": "Maximálny limit pre frontu piesní",
 				"minLength": "Minimálna dĺžka skladby (v minútach)",
 				"maxLength": "Maximálna dĺžka skladby (v minútach)",
 				"minViews": "Minimálne množstvo zobrazení"
