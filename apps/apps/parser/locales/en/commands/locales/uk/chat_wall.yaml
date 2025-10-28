@@ -1,7 +1,7 @@
 hints:
   banPhraseArgName: Фраза для бану
   deletePhraseArgName: Фраза для видалення
-  timeoutDurationArgName: 'Time. Examples: 10m, 10, 1h5m'
+  timeoutDurationArgName: 'Час. Приклади: 10m, 10, 1h5m'
   timeoutPhraseArgName: Фраза для бану
 errors:
   chat_wall_not_found: 'Chat wall {errorPhrase} not found or already stopped'
