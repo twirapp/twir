@@ -1,7 +1,7 @@
 # Generic
-something_went_wrong: 'Something went wrong, please try again later'
-twir_error: '[Twir error]: Unknown error happened. Please contact developers.'
-internal: '❌ Internal error'
+something_went_wrong: 'Щось пішло не так. Будь ласка, спробуйте пізніше'
+twir_error: '[Twir помилка]: Сталася невідома помилка. Будь ласка, зв''яжіться з розробниками.'
+internal: '❌ Внутрішня помилка'
 # Broadcaster
 broadcaster_client: Cannot create broadcaster twitch client
 # User
@@ -25,12 +25,12 @@ getting_channel_settings: Error while getting channel settings
 # Mention
 should_mention_with_at: Тобі потрібно тегнути користувача за допомогою @
 # Stream
-cannot_get_stream: 'Cannot get stream. {reason}'
+cannot_get_stream: 'Не можу отримати стрім. {reason}'
 # Moderator
-cannot_get_moderators: 'Cannot get moderators: {reason}'
+cannot_get_moderators: 'Неможливо отримати модераторів: {reason}'
 # Command
 cannot_get_accept_command_name: Cannot get accept command name
-cannot_create_command: Cannot create command
+cannot_create_command: Неможливо створити команду
 cannot_get_command: Не вдалося отримати команду
 # Message
 cannot_get_message: Не вдалося отримати повідомлення
