@@ -1,16 +1,16 @@
 info:
-  color: 'Your color is {dudeColor}'
-  sprite: 'Your sprite is {dudeSprite}'
-  color_required: Color is required
-  sprite_required: 'Sprite is required, available: {availableSprites}'
-  color_reset: Color reset to default
-  color_changed: 'Color changed to {dudeColor}'
-  sprite_changed: 'Sprite changed to {dudeSprite}'
+  color: 'Ваш колір {dudeColor}'
+  sprite: 'Ваш спрайт {dudeSprite}'
+  color_required: Колір обов'язковий
+  sprite_required: 'Спрайт обов''язковий, доступні: {availableSprites}'
+  color_reset: Колір скинуто за замовчуванням
+  color_changed: 'Колір змінено на {dudeColor}'
+  sprite_changed: 'Спрайт змінено на {dudeSprite}'
 errors:
   color_invalid: Некоректний колір
   sprite_invalid: 'Неправильний спрайт, доступні: {availableSprites}'
-  color_cannot_trigger: Cannot trigger dudes color
-  grow_cannot_trigger: Cannot trigger dudes grow
-  jump_cannot_trigger: Cannot trigger dudes jump
-  leave_cannot_trigger: Cannot trigger dudes leave
-  sprite_cannot_trigger: Cannot trigger dudes sprite
+  color_cannot_trigger: Не вдалося увімкнути колір для чувака
+  grow_cannot_trigger: Не вдалося увімкнути ріст для чувака
+  jump_cannot_trigger: Не вдалося увімкнути стрибок для чувака
+  leave_cannot_trigger: Не вдалося увімкнути зникнення для чувака
+  sprite_cannot_trigger: Не вдалося увімкнути спрайт для чувака
