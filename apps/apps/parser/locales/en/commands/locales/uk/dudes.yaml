@@ -7,8 +7,8 @@ info:
   color_changed: 'Color changed to {dudeColor}'
   sprite_changed: 'Sprite changed to {dudeSprite}'
 errors:
-  color_invalid: Invalid color
-  sprite_invalid: 'Invalid sprite, available: {availableSprites}'
+  color_invalid: Некоректний колір
+  sprite_invalid: 'Неправильний спрайт, доступні: {availableSprites}'
   color_cannot_trigger: Cannot trigger dudes color
   grow_cannot_trigger: Cannot trigger dudes grow
   jump_cannot_trigger: Cannot trigger dudes jump
