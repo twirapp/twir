@@ -6,8 +6,8 @@ hints:
 errors:
   chat_wall_not_found: 'Chat wall {errorPhrase} not found or already stopped'
   invalid_duration: 'Invalid duration. Cannot be longer 2w Examples: 10m, 10, 1h5m'
-  long_duration_timeout: Duration of timeout cannot be longer than 2 weeks
-  duration_cannot_parse: Cannot parse duration
+  long_duration_timeout: Тривалість тайм-ауту не може бути довше 2 тижнів
+  duration_cannot_parse: Не вдалося отримати тривалість
 start:
   chat_wall_start: '✅ Chat wall started for 10 minutes, you can stop it with !chat wall stop {chatWallPhrase}'
 stop:
