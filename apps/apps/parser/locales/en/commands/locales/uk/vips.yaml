@@ -6,9 +6,9 @@ errors:
   already_have_role: User already vip or moderator!
   cannot_create_scheduled_in_db: Cannot create scheduled vip in database
   added_with_remove_time: '✅ Added vip to {userName}, will be removed at {endTime}'
-  added: '✅ Added vip to {userName}'
+  added: '✅ Додано vip {userName}'
   cannot_get_list_from_db: Cannot get vip list from database
   no_scheduled_vips: There are no scheduled vips
-  removed: '✅ Removed vip from {userName}'
+  removed: '✅ Знято vip з {userName}'
   cannot_update: Cannot update scheduled vip
   updated: '✅ Updated vip for user {userName} new expriation time {endTime}'
