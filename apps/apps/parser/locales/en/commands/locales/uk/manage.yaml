@@ -10,11 +10,11 @@ errors:
   command_not_found: Команда не знайдена
   command_cannot_get: Не вдалося отримати команду
   command_large_size: Назва команди не може бути більш ніж 20 символів.
-  command_have_no_aliases: Command have no aliases
-  command_cannot_delete_default: Cannot delete default command
-  command_cannot_update_response: Cannot update response because you have more than 1 response in command. Please use UI.
-  command_cannot_update: Cannot update command
-  command_cannot_save: Cannot save command
+  command_have_no_aliases: Команда не має аліасів
+  command_cannot_delete_default: Неможливо видалити команду за замовчуванням
+  command_cannot_update_response: Неможливо оновити відповідь, оскільки у вас є більш ніж 1-єї відповіді в команді. Будь-ласка, використовуйте інтерфейс.
+  command_cannot_update: Неможливо оновити команду
+  command_cannot_save: Неможливо зберегти команду
 add:
   alias_add: '✅ Аліас додано'
   command_add: '✅ Команду додано'
