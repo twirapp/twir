@@ -27,7 +27,7 @@ var Emotes = &types.Variable{
 
 		var count int
 		if targetUserId == parseCtx.Sender.ID {
-			result.Result = strconv.Itoa(parseCtx.Sender.UserChannelStats.Emotes)
+			count = parseCtx.Sender.UserChannelStats.Emotes
 		} else {
 			dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
 			if dbUser != nil {
