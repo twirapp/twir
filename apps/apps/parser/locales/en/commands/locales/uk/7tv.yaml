@@ -22,7 +22,7 @@ remove:
 rename:
   emote_rename: '✅ Емодзі {oldEmoteName} перейменований на {newEmoteName}'
 emote_info:
-  response: '{name}: {link} · Added by @{addedByUserName} {addedByTime} ago · Author {emoteAuthor}'
+  response: '{name}: {link} · Додано @{addedByUserName} {addedByTime} назад · Автор {emoteAuthor}'
 profile_info:
   response: '{profileName} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}'
 hints:
