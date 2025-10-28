@@ -12,7 +12,7 @@ errors:
   # Alias
   alias_cannot_get_category: Не вдалося отримати аліаси категорії
   # Category
-  category_not_found: Category not found
+  category_not_found: Категорія не знайдена
   category_cannot_get: Не вдалося отримати категорію
   category_cannot_get_error: 'Не вдалося отримати категорію: {errorMessage}'
   category_cannot_change: Не вдалося змінити категорію
