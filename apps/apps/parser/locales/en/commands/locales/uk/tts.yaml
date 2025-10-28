@@ -1,7 +1,7 @@
 errors:
-  while_disable: Error while disabling tts
-  while_enable: Error while enabling tts
-  not_configured: TTS is not configured for this channel
+  while_disable: Помилка при відключенні tts
+  while_enable: Помилка при увімкненні tts
+  not_configured: TTS не налаштований для цього каналу
   sending_to_tts: Error while sending message to tts service
   while_getting_voices: Error while getting voices
 info:
@@ -12,8 +12,8 @@ info:
   rate: 'Global rate: {globalRate} | Your rate: {userRate}'
   change_rate: 'Rate changed to {newRate}'
   voice: 'Global voice: {globalVoice} | Your voice: {userVoice}'
-  change_voice: Voice changed to {newVoice}
-  no_voices: No voices available
-  current_volume: 'Current volume: {ttsVolume}'
-  change_volume: 'TTS volume changed to {userVolume}'
-  voice_disallowed: 'Voice {voiceName} is disallowed for usage'
+  change_voice: Голос змінено на {newVoice}
+  no_voices: Немає доступних голосів
+  current_volume: 'Поточна гучність: {ttsVolume}'
+  change_volume: 'Гучність TTS змінено на {userVolume}'
+  voice_disallowed: 'Голос {voiceName} заборонений для використання'
