@@ -1,8 +1,8 @@
 errors:
-  get_history_of_categories: Cannot get history of categories
-  error: Error
-  offline: offline
-  count_followers: Cannot count followers
+  get_history_of_categories: Неможливо отримати історію категорій
+  error: Помилка
+  offline: офлайн
+  count_followers: Неможливо порахувати підписників
 info:
   offline: Offline or error on getting category
-  no_history: No history recorded
+  no_history: Історія відсутня
