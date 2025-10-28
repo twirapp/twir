@@ -1,19 +1,19 @@
 errors:
   # Category
-  category_required: Alias and category are required
+  category_required: Аліас та категорія обов'язкові
   category_failed_to_get: Не вдалося отримати категорії
-  category_cannot_to_get: Cannot get categories
-  category_not_found: Category not found
-  category_failed_to_create: Failed to create category
-  category_cannot_delete: Cannot delete category
+  category_cannot_to_get: Неможливо отримати категорії
+  category_not_found: Категорія не знайдена
+  category_failed_to_create: Не вдалося створити категорію
+  category_cannot_delete: Не вдалося видалити категорію
   # Alias
-  alias_already_exists: 'Alias {aliasName} already exists'
-  alias_empty: No categories aliases created
-  alias_not_found: Category alias not found
-  alias_removed: 'Category alias {aliasName} removed'
+  alias_already_exists: 'Аліас {aliasName} вже існує'
+  alias_empty: Немає аліасів категорій
+  alias_not_found: Аліас категорії не знайдено
+  alias_removed: 'Аліас {aliasName} категорії видалено'
   # TwitchClient
-  twitch_client_cannot_to_create: Cannot create twitch client
+  twitch_client_cannot_to_create: Неможливо створити twitch клієнт
   # Game
-  game_cannot_to_get: Cannot get games
+  game_cannot_to_get: Неможливо отримати ігри
 add:
-  alias_add_to_category: 'Category alias {aliasName} added with category {categoryName}'
+  alias_add_to_category: 'Аліас {aliasName} додано до категорії {categoryName}'
