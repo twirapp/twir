@@ -1,6 +1,6 @@
 info:
-  not_configured: TTS not configured
-  no_voices: No voices available
+  not_configured: TTS не налаштовано
+  no_voices: Немає доступних голосів
 errors:
-  not_found: 'Voice {userVoice} not found'
-  voice_disallowed: 'Voice {userVoice} is disallowed for usage'
+  not_found: 'Голос {userVoice} не знайдено'
+  voice_disallowed: 'Голос {userVoice} заборонений для використання'
