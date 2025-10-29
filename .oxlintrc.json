@@ -249,13 +249,7 @@
 				"@typescript-eslint/prefer-literal-enum-member": "error",
 				"@typescript-eslint/triple-slash-reference": "off",
 				"@typescript-eslint/consistent-type-definitions": ["error", "interface"],
-				"@typescript-eslint/consistent-type-imports": [
-					"error",
-					{
-						"disallowTypeAnnotations": false,
-						"prefer": "type-imports"
-					}
-				],
+				"@typescript-eslint/consistent-type-imports": "error",
 				"@typescript-eslint/no-import-type-side-effects": "error",
 				"@typescript-eslint/no-require-imports": "error",
 				"@typescript-eslint/prefer-ts-expect-error": "error"

@@ -13,9 +13,7 @@ import ModalLongMessage from './ui/form/moderation-form-longmessage.vue'
 import ModalOneManSpam from './ui/form/moderation-form-one-man-spam.vue'
 import ModalSymbols from './ui/form/moderation-form-symbols.vue'
 
-import type {
-	EditableItem,
-} from '@/features/moderation/composables/use-moderation-form.ts'
+import type { EditableItem } from '@/features/moderation/composables/use-moderation-form.ts'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,11 +31,9 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
 import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.ts'
-import {
-	moderationValidationRules,
-} from '@/features/moderation/composables/use-moderation-form.ts'
-import type { ModerationSettingsType } from '@/gql/graphql.ts';
-import { RoleTypeEnum } from '@/gql/graphql.ts'
+import { moderationValidationRules } from '@/features/moderation/composables/use-moderation-form.ts'
+// oxlint-disable-next-line consistent-type-imports
+import { ModerationSettingsType, RoleTypeEnum } from '@/gql/graphql.ts'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()
@@ -47,7 +43,11 @@ const { t } = useI18n()
 
 const manager = useModerationApi()
 
-const { resetForm: formReset, setFieldValue, values } = useForm({
+const {
+	resetForm: formReset,
+	setFieldValue,
+	values,
+} = useForm({
 	validationSchema: moderationValidationRules,
 	keepValuesOnUnmount: false,
 	validateOnMount: false,
@@ -68,7 +68,7 @@ onMounted(async () => {
 		await manager.fetchItems()
 		await nextTick()
 
-		const item = manager.items.value.find(i => i.id === id)
+		const item = manager.items.value.find((i) => i.id === id)
 		if (!item) return
 
 		const values = structuredClone(toRaw(item))
@@ -141,33 +141,19 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 							</FormItem>
 						</FormField>
 
-						<ModalSymbols
-							v-if="currentEditType === ModerationSettingsType.Symbols"
-						/>
+						<ModalSymbols v-if="currentEditType === ModerationSettingsType.Symbols" />
 
-						<ModalLanguage
-							v-if="currentEditType === ModerationSettingsType.Language"
-						/>
+						<ModalLanguage v-if="currentEditType === ModerationSettingsType.Language" />
 
-						<ModalLongMessage
-							v-if="currentEditType === ModerationSettingsType.LongMessage"
-						/>
+						<ModalLongMessage v-if="currentEditType === ModerationSettingsType.LongMessage" />
 
-						<ModalCaps
-							v-if="currentEditType === ModerationSettingsType.Caps"
-						/>
+						<ModalCaps v-if="currentEditType === ModerationSettingsType.Caps" />
 
-						<ModalEmotes
-							v-if="currentEditType === ModerationSettingsType.Emotes"
-						/>
+						<ModalEmotes v-if="currentEditType === ModerationSettingsType.Emotes" />
 
-						<ModalLinks
-							v-if="currentEditType === ModerationSettingsType.Links"
-						/>
+						<ModalLinks v-if="currentEditType === ModerationSettingsType.Links" />
 
-						<ModalOneManSpam
-							v-if="currentEditType === ModerationSettingsType.OneManSpam"
-						/>
+						<ModalOneManSpam v-if="currentEditType === ModerationSettingsType.OneManSpam" />
 
 						<Separator label="Timeouts" />
 
@@ -228,9 +214,7 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 							/>
 						</div>
 
-						<ModalDenylist
-							v-if="currentEditType === ModerationSettingsType.DenyList"
-						/>
+						<ModalDenylist v-if="currentEditType === ModerationSettingsType.DenyList" />
 					</CardContent>
 				</Card>
 			</template>

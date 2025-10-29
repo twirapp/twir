@@ -1,52 +1,58 @@
 <!-- eslint-disable vue/no-v-html -->
 <!-- eslint-disable no-undef -->
 <script setup lang="ts">
-import { useIntervalFn } from '@vueuse/core';
-import { transform as transformNested } from 'nested-css-to-flat';
-import { computed, nextTick, ref, watch } from 'vue';
+import { useIntervalFn } from '@vueuse/core'
+import { transform as transformNested } from 'nested-css-to-flat'
+import { computed, nextTick, ref, watch } from 'vue'
 
-import { useOverlaysParseHtml } from '@/api/registry';
+import { useOverlaysParseHtml } from '@/api/registry'
 
 const props = defineProps<{
-	index: number | string;
-	posX: number;
-	posY: number;
-	width: number;
-	height: number;
-	text: string;
-	css: string;
+	index: number | string
+	posX: number
+	posY: number
+	width: number
+	height: number
+	text: string
+	css: string
 	js: string
-	periodicallyRefetchData: boolean,
-}>();
+	periodicallyRefetchData: boolean
+}>()
 
-const fetcher = useOverlaysParseHtml();
+const fetcher = useOverlaysParseHtml()
 
-const exampleValue = ref('');
+const exampleValue = ref('')
 
-const { pause, resume } = useIntervalFn(async () => {
-	const data = await fetcher.mutateAsync(props.text ?? '');
-	exampleValue.value = data ?? '';
-}, 1000, { immediate: true, immediateCallback: true });
+const { pause, resume } = useIntervalFn(
+	async () => {
+		const data = await fetcher.mutateAsync(props.text ?? '')
+		exampleValue.value = data ?? ''
+	},
+	1000,
+	{ immediate: true, immediateCallback: true }
+)
 
 const executeFunc = computed(() => {
-// oxlint-disable-next-line no-new-func
-	return new Function(`${props.js}; onDataUpdate();`);
-});
+	// oxlint-disable-next-line no-new-func
+	return new Function(`${props.js}; onDataUpdate();`)
+})
 
 watch(exampleValue, async () => {
-	await nextTick();
+	await nextTick()
 	// calling user defined function
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
-	executeFunc.value?.();
-});
+	executeFunc.value?.()
+})
 
-watch(props, (p) => {
-	const v = p.periodicallyRefetchData;
+watch(
+	props,
+	(p) => {
+		const v = p.periodicallyRefetchData
 
-	if (!v) pause();
-	else resume();
-}, { immediate: true });
+		if (!v) pause()
+		else resume()
+	},
+	{ immediate: true }
+)
 </script>
 
 <template>
@@ -67,6 +73,6 @@ watch(props, (p) => {
 			}}
 		</component>
 
-		<div :id="'layersExampleRender'+index" class="w-full h-full" v-html="exampleValue" />
+		<div :id="'layersExampleRender' + index" class="w-full h-full" v-html="exampleValue" />
 	</div>
 </template>

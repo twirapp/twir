@@ -14,13 +14,11 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-	Icons,
-} from '@/features/moderation/composables/use-moderation-form.ts'
+import { Icons } from '@/features/moderation/composables/use-moderation-form.ts'
 import ModerationTabChatWall from '@/features/moderation/tabs/moderation-tab-chat-wall.vue'
 import ModerationTabRules from '@/features/moderation/tabs/moderation-tab-rules.vue'
-import type { ModerationSettingsType } from '@/gql/graphql';
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+// oxlint-disable-next-line consistent-type-imports
+import { ChannelRolePermissionEnum, ModerationSettingsType } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()
@@ -82,10 +80,7 @@ function createNewRule(ruleType: ModerationSettingsType) {
 						@click="createNewRule(itemType)"
 					>
 						<div class="flex items-center gap-1">
-							<component
-								:is="Icons[itemType]"
-								:size="20"
-							/>
+							<component :is="Icons[itemType]" :size="20" />
 							<span>{{ t(`moderation.types.${itemType}.name`) }}</span>
 						</div>
 					</DropdownMenuItem>

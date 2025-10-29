@@ -5,7 +5,9 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommandsApi } from '@/api/commands/commands'
-import type { EventType } from '@/api/events.ts'
+
+// oxlint-disable-next-line consistent-type-imports
+import { EventType } from '@/api/events.ts'
 import { useKeywordsApi } from '@/api/keywords'
 import TwitchRewardsSelector from '@/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
