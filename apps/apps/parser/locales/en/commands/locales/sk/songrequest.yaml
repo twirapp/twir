@@ -9,15 +9,15 @@ errors:
   get_settings: Nepodarilo sa získať nastavenia požiadaviek na piesne
   # Queue
   get_current_queue_count: Nepodarilo sa získať aktuálny počet piesní vo fronte
-  get_songs_from_queue: Cannot get songs from queue
-  remove_song_from_queue: Cannot remove song from queue
+  get_songs_from_queue: Nepodarilo sa získať piesne z frontu
+  remove_song_from_queue: Nepodarilo sa odstrániť pieseň z frontu
   # Other
-  get_users_count: Cannot get online users count
-  get_votes_count: Cannot get votes count
+  get_users_count: Nepodarilo sa získať počet online používateľov
+  get_votes_count: Nepodarilo sa získať počet hlasov
   get_current_vote: Cannot get current vote
 info:
-  delete: 'Song {songTitle} deleted from queue'
-  song_skipped: 'Song {songTitle} skipped'
+  delete: 'Pieseň {songTitle} bola odstránená z frontu'
+  song_skipped: 'Pieseň {songTitle} bola preskočená'
   no_requested_songs: You haven't requested any song
   only_count_songs: 'There is only {songsCount} songs'
 validate:
