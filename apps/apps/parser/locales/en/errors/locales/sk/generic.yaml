@@ -1,11 +1,11 @@
 # Generic
-something_went_wrong: 'Something went wrong, please try again later'
-twir_error: '[Twir error]: Unknown error happened. Please contact developers.'
-internal: '❌ Internal error'
+something_went_wrong: 'Ups, niečo nevyšlo, skúsiš to neskôr'
+twir_error: '[Twir chyba]: Vyskytla sa neznáma chyba. Prosím, kontaktuj vývojárov.'
+internal: '❌ Vnútorná chyba'
 # Broadcaster
 broadcaster_client: Cannot create broadcaster twitch client
 # User
-cannot_find_user_db: Cannot find user in database
+cannot_find_user_db: Nepodarilo sa nájsť používateľa v databáze
 cannot_find_user_twitch: Cannot find user on twitch
 cannot_find_users_twitch: Cannot find users on twitch
 cannot_create_twitch: Cannot create twitch client
