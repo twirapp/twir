@@ -18,10 +18,10 @@ errors:
 info:
   delete: 'Pieseň {songTitle} bola odstránená z frontu'
   song_skipped: 'Pieseň {songTitle} bola preskočená'
-  no_requested_songs: You haven't requested any song
-  only_count_songs: 'There is only {songsCount} songs'
+  no_requested_songs: Ešte si nevyžiadal žiadnu pieseň
+  only_count_songs: 'Je tu iba {songsCount} piesní'
 validate:
   errors:
-    restrictions_on_user: 'There are restrictions on user, but i cannot find you in db, sorry :('
-    internal_error: Internal error when checking follow
-    need_follow: For request song you need to be a followed
+    restrictions_on_user: 'Na používateľa sú obmedzenia, ale v databáze ťa nemôžem nájsť, prepáč :('
+    internal_error: Vnútorná chyba pri overovaní followu
+    need_follow: Na vyžiadanie piesne musíš sledovať kanál
