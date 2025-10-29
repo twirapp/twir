@@ -19,7 +19,8 @@ import {
 } from '@/features/moderation/composables/use-moderation-form.ts'
 import ModerationTabChatWall from '@/features/moderation/tabs/moderation-tab-chat-wall.vue'
 import ModerationTabRules from '@/features/moderation/tabs/moderation-tab-rules.vue'
-import { ChannelRolePermissionEnum, ModerationSettingsType } from '@/gql/graphql'
+import type { ModerationSettingsType } from '@/gql/graphql';
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()

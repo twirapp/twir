@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { NSelect } from 'naive-ui'
-import { computed, h, ref, watch } from 'vue'
-import { type VNodeChild, onMounted } from 'vue'
+import { type VNodeChild, computed, h, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { generateFontKey } from '../api.js'
@@ -25,19 +24,25 @@ const selectedFont = ref<string>('')
 const availableSubsets = ref<Set<string>>(new Set())
 const filteredSubsets = ref<string[]>(props.subsets ?? [])
 
-watch(() => fontSource.fontList.value, (fonts) => {
-	if (!fonts) return
+watch(
+	() => fontSource.fontList.value,
+	(fonts) => {
+		if (!fonts) return
 
-	for (const font of fonts) {
-		for (const subset of font.subsets) {
-			availableSubsets.value.add(subset)
+		for (const font of fonts) {
+			for (const subset of font.subsets) {
+				availableSubsets.value.add(subset)
+			}
 		}
 	}
-})
+)
 
-watch(() => selectedFont.value, (selectedFont) => {
-	font.value = fontSource.getFont(selectedFont)
-})
+watch(
+	() => selectedFont.value,
+	(selectedFont) => {
+		font.value = fontSource.getFont(selectedFont)
+	}
+)
 
 interface FontOption {
 	label: string
@@ -61,8 +66,7 @@ const fontOptions = computed((): Array<SelectMixedOption & FontOption> => {
 })
 
 const availableSubsetsOptions = computed(() => {
-	return [...availableSubsets.value.values()]
-		.map(subset => ({ label: subset, value: subset }))
+	return [...availableSubsets.value.values()].map((subset) => ({ label: subset, value: subset }))
 })
 
 function renderLabel(option: FontOption): VNodeChild {
@@ -71,16 +75,11 @@ function renderLabel(option: FontOption): VNodeChild {
 	}
 
 	const fontFamily = generateFontKey(option.value!, option.fontWeight, option.fontStyle)
-	return h(
-		'div',
-		{ style: { 'font-family': `"${fontFamily}"` } },
-		{ default: () => option.label },
-	)
+	return h('div', { style: { 'font-family': `"${fontFamily}"` } }, { default: () => option.label })
 }
 
 onMounted(async () => {
-	const loadedFont = await fontSource
-		.loadFont(props.fontFamily, props.fontWeight, props.fontStyle)
+	const loadedFont = await fontSource.loadFont(props.fontFamily, props.fontWeight, props.fontStyle)
 
 	if (loadedFont) {
 		font.value = loadedFont

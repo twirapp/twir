@@ -45,7 +45,7 @@ const countriesMapping: Record<string, string> = {
 	'br': '🇧🇷 Brazilian',
 };
 
-type Voice = { label: string, value: string, key: string }
+interface Voice { label: string, value: string, key: string }
 type VoiceGroup = Omit<Voice, 'value' | 'gender'> & { children: Voice[], type: 'group' }
 const voicesOptions = computed<VoiceGroup[]>(() => {
 	if (!ttsInfo.data.value?.voicesInfo) return [];

@@ -37,7 +37,7 @@ watch(exampleValue, async () => {
 	await nextTick();
 	// calling user defined function
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
+	// @ts-expect-error
 	executeFunc.value?.();
 });
 

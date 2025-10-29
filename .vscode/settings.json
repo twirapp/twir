@@ -1,55 +1,19 @@
 {
-  "go.lintTool": "golangci-lint",
-  "go.lintFlags": [
-    "--fast"
-  ],
+	"go.lintTool": "golangci-lint",
+	"go.lintFlags": ["--fast"],
 
-	  // Enable the ESlint flat config support
-  "eslint.useFlatConfig": true,
+	"prettier.enable": false,
+	"editor.formatOnSave": false,
 
-  // Disable the default formatter, use eslint instead
-  "prettier.enable": false,
-  "editor.formatOnSave": false,
+	// Auto fix
+	"oxc.fmt.experimental": true,
+	"editor.defaultFormatter": "oxc.oxc-vscode",
+	"oxc.enable": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.oxc": "explicit",
+		"source.organizeImports": "never"
+	},
 
-  // Auto fix
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "never"
-  },
-
-  // Silent the stylistic rules in you IDE, but still auto fix them
-  "eslint.rules.customizations": [
-    { "rule": "style/*", "severity": "off" },
-    { "rule": "format/*", "severity": "off" },
-    { "rule": "*-indent", "severity": "off" },
-    { "rule": "*-spacing", "severity": "off" },
-    { "rule": "*-spaces", "severity": "off" },
-    { "rule": "*-order", "severity": "off" },
-    { "rule": "*-dangle", "severity": "off" },
-    { "rule": "*-newline", "severity": "off" },
-    { "rule": "*quotes", "severity": "off" },
-    { "rule": "*semi", "severity": "off" }
-  ],
-
-  // Enable eslint for all supported languages
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "vue",
-    "html",
-    "markdown",
-    "json",
-    "jsonc",
-    "yaml",
-    "toml",
-    "gql",
-    "graphql"
-  ],
-
-  "oxc.enable": true,
-
-  "typescript.preferences.importModuleSpecifierEnding": "js",
-  "typescript.tsdk": "node_modules/typescript/lib"
+	"typescript.preferences.importModuleSpecifierEnding": "js",
+	"typescript.tsdk": "node_modules/typescript/lib"
 }

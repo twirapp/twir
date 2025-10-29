@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { transform } from 'nested-css-to-flat';
-import { computed, nextTick, watch } from 'vue';
+import { transform } from 'nested-css-to-flat'
+import { computed, nextTick, watch } from 'vue'
 
-import type { Layer } from '@/composables/overlays/use-overlays.js';
+import type { Layer } from '@/composables/overlays/use-overlays.js'
 
 const props = defineProps<{
 	layer: Layer
 	parsedData?: string
-}>();
+}>()
 
 const executeFunc = computed(() => {
-	return new Function(`${props.layer.settings.htmlOverlayJs}; onDataUpdate();`);
-});
+	// oxlint-disable-next-line no-new-func
+	return new Function(`${props.layer.settings.htmlOverlayJs}; onDataUpdate();`)
+})
 
-watch(() => props.parsedData, async () => {
-	await nextTick();
-	executeFunc.value?.();
-});
+watch(
+	() => props.parsedData,
+	async () => {
+		await nextTick()
+		executeFunc.value?.()
+	}
+)
 </script>
 
 <template>
@@ -24,8 +28,7 @@ watch(() => props.parsedData, async () => {
 		{{
 			transform(`#layer${layer.id} {
 					${layer.settings.htmlOverlayCss}
-				}`
-			)
+				}`)
 		}}
 	</component>
 	<div

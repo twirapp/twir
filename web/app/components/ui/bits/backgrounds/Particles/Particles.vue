@@ -7,8 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, useTemplateRef } from 'vue';
-import { Renderer, Camera, Geometry, Program, Mesh } from 'ogl';
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { Camera, Geometry, Mesh, Program, Renderer } from 'ogl';
 
 interface ParticlesProps {
   particleCount?: number;
@@ -61,7 +61,7 @@ const hexToRgb = (hex: string): [number, number, number] => {
       .map(c => c + c)
       .join('');
   }
-  const int = parseInt(hex, 16);
+  const int = Number.parseInt(hex, 16);
   const r = ((int >> 16) & 255) / 255;
   const g = ((int >> 8) & 255) / 255;
   const b = (int & 255) / 255;

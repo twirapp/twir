@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { OverlayLayer, OverlayLayerType } from '@twir/api/messages/overlays/overlays';
+import type { OverlayLayer} from '@twir/api/messages/overlays/overlays';
+import { OverlayLayerType } from '@twir/api/messages/overlays/overlays';
 import { NGrid, NGridItem } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 

@@ -7,6 +7,7 @@ import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
 import { type Component, onBeforeMount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
+// oxlint-disable-next-line ban-ts-comment
 // @ts-expect-error
 import type { StringOrNumber } from 'radix-vue/dist/shared/types'
 

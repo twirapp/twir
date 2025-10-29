@@ -502,7 +502,7 @@ function setup() {
 			if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
 				const u32 = new Uint32Array(1)
 				window.crypto.getRandomValues(u32)
-				return u32[0] / 0xffffffff
+				return u32[0] / 0xFFFFFFFF
 			}
 			return Math.random()
 		}

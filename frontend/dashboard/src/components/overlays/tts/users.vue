@@ -16,7 +16,8 @@ import {
 	NText,
 	useThemeVars,
 } from 'naive-ui';
-import { UnwrapRef, computed, ref, watch } from 'vue';
+import type { UnwrapRef} from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useTtsOverlayManager, useTwitchGetUsers } from '@/api/index.js';

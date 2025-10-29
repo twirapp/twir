@@ -22,7 +22,7 @@ export function getSprite(sprite?: DudeSprite): DudesTypes.SpriteData {
 }
 
 export const assetsLoaderOptions: AssetsLoaderOptions = {
-	basePath: location.origin + '/overlays/dudes/sprites/',
+	basePath: `${location.origin}/overlays/dudes/sprites/`,
 	defaultSearchParams: {
 		ts: Date.now(),
 	},
@@ -132,6 +132,6 @@ export const dudesSprites: Record<Exclude<DudeSprite, 'random'>, DudesTypes.Spri
 export const dudesSounds: SoundAsset[] = [
 	{
 		alias: 'Jump',
-		src: location.origin + '/overlays/dudes/sounds/jump.mp3',
+		src: `${location.origin}/overlays/dudes/sounds/jump.mp3`,
 	},
 ]

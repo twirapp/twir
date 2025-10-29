@@ -3,7 +3,7 @@ import { flatOperations } from '@/features/events/constants/helpers.ts'
 
 import type { EventOperation } from '@/api/events.ts'
 import { getOperationColor } from '@/features/events/composables/use-operation-color.ts'
-import { EventOperationType } from '@/gql/graphql.ts'
+import type { EventOperationType } from '@/gql/graphql.ts'
 
 defineProps<{
 	operations: EventOperation[]

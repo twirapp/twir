@@ -1,17 +1,13 @@
-// Folder-specific settings
-//
-// For a full list of overridable settings, and general information on folder-specific settings,
-// see the documentation: https://zed.dev/docs/configuring-zed#settings-files
 {
 	"languages": {
 		"JavaScript": {
 			"code_actions_on_format": {
-				"source.fixAll.eslint": true
+				"source.fixAll.oxc": true
 			}
 		},
 		"TypeScript": {
 			"code_actions_on_format": {
-				"source.fixAll.eslint": true
+				"source.fixAll.oxc": true
 			}
 		},
 		"Go": {
@@ -27,6 +23,18 @@
 			"initialization_options": {
 				"usePlaceholders": false,
 				"gofumpt": true
+			}
+		},
+		"oxc": {
+			"initialization_options": {
+				"options": {
+					"run": "onType",
+					"configPath": null,
+					"tsConfigPath": null,
+					"unusedDisableDirectives": "allow",
+					"typeAware": false,
+					"flags": {}
+				}
 			}
 		}
 	}

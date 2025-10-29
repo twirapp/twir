@@ -36,7 +36,8 @@ import { useModerationApi } from '@/features/moderation/composables/use-moderati
 import {
 	moderationValidationRules,
 } from '@/features/moderation/composables/use-moderation-form.ts'
-import { ModerationSettingsType , RoleTypeEnum } from '@/gql/graphql.ts'
+import type { ModerationSettingsType } from '@/gql/graphql.ts';
+import { RoleTypeEnum } from '@/gql/graphql.ts'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()

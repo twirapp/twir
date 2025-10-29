@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import HastebinEditor from './HastebinEditor.vue'
+import type HastebinEditor from './HastebinEditor.vue'
 import HastebinToolbar from './HastebinToolbar.vue'
 import HastebinViewer from './HastebinViewer.vue'
 import { usePasteStore } from '../../stores/pasteStore'
