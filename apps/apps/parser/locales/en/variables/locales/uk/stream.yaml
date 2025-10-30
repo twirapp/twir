@@ -4,5 +4,5 @@ errors:
   offline: офлайн
   count_followers: Неможливо порахувати підписників
 info:
-  offline: Offline or error on getting category
+  offline: Офлайн або помилка при отриманні категорії
   no_history: Історія відсутня
