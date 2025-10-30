@@ -7,30 +7,30 @@ broadcaster_client: Cannot create broadcaster twitch client
 # User
 cannot_find_user_db: Nepodarilo sa nájsť používateľa v databáze
 cannot_find_user_twitch: Nepodarilo sa nájsť používateľa na Twitchi
-cannot_find_users_twitch: Cannot find users on twitch
+cannot_find_users_twitch: Nepodarilo sa nájsť používateľov na Twitchi
 cannot_create_twitch: Cannot create twitch client
-cannot_timeout_user: Cannot timeout user
-cannot_get_user: 'Cannot get user: {reason}'
-cannot_ban_user: Cannot ban user
-user_not_found: User not found
-getting_user_settings: Error while getting user settings
-updating_settings: Error while updating settings
-create_settings: Error while creating settings
+cannot_timeout_user: Nepodarilo sa udeliť timeout používateľovi
+cannot_get_user: 'Nepodarilo sa získať používateľa: {reason}'
+cannot_ban_user: Nepodarilo sa zabanovať používateľa
+user_not_found: Používateľ sa nenašiel
+getting_user_settings: Chyba pri načítaní nastavení používateľa
+updating_settings: Chyba pri aktualizácii nastavení
+create_settings: Chyba pri vytváraní nastavení
 not_a_follower: Not a follower
 # Channel
-cannot_find_channel_db: Cannot find channel in database
-cannot_find_channel_twitch: 'Cannot find channel on twitch. {reason}'
-cannot_get_db_channel: Cannot get database channel
-getting_channel_settings: Error while getting channel settings
+cannot_find_channel_db: Kanál sa nenašiel v databáze
+cannot_find_channel_twitch: 'Twitch kanál sa nenašiel: {reason}'
+cannot_get_db_channel: Nepodarilo sa získať kanál z databázy
+getting_channel_settings: Chyba pri načítaní nastavení kanála
 # Mention
-should_mention_with_at: You should tag user with @
+should_mention_with_at: Použi @ pred menom používateľa
 # Stream
-cannot_get_stream: 'Cannot get stream. {reason}'
+cannot_get_stream: 'Nepodarilo sa načítať stream: {reason}'
 # Moderator
-cannot_get_moderators: 'Cannot get moderators: {reason}'
+cannot_get_moderators: 'Chyba pri načítaní moderátorov: {reason}'
 # Command
-cannot_get_accept_command_name: Cannot get accept command name
-cannot_create_command: Cannot create command
-cannot_get_command: Cannot get command
+cannot_get_accept_command_name: Nepodarilo sa získať názov príkazu accept
+cannot_create_command: Nepodarilo sa vytvoriť príkaz
+cannot_get_command: Nepodarilo sa získať príkaz
 # Message
-cannot_get_message: Cannot get messages
+cannot_get_message: Nepodarilo sa získať správy
