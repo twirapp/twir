@@ -2,5 +2,5 @@ errors:
   no_active_set: Ви не маєте 7TV набору
   profile_not_found: 'Не вдалося отримати 7tv профіль: {reason}'
   emote_not_found: 'Емодзі {name} не знайдений'
-  no_paint: No paint
-  no_roles: No roles
+  no_paint: Без кольору
+  no_roles: Немає ролей
