@@ -22,6 +22,6 @@ info:
   only_count_songs: 'Тут тільки {songsCount} пісень'
 validate:
   errors:
-    restrictions_on_user: 'There are restrictions on user, but i cannot find you in db, sorry :('
-    internal_error: Internal error when checking follow
-    need_follow: For request song you need to be a followed
+    restrictions_on_user: 'Користувач має обмеження, але я не можу знайти тебе в базі даних, вибачте :('
+    internal_error: Внутрішня помилка під час перевірки підписки
+    need_follow: Для запиту пісні вам потрібно бути підписником
