@@ -1,4 +1,4 @@
 errors:
-  cannot_create: Cannot create permit
+  cannot_create: Не вдалося створити дозвіл
 success:
-  added_permit: '✅ Added {countPermit} permits to {userName}'
+  added_permit: '✅ Додано {countPermit} дозволів на {userName}'
