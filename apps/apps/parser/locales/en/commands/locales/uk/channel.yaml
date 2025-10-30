@@ -4,8 +4,8 @@ add:
   category_change: '✅ {categoryName}'
 errors:
   # Twitch-channel
-  broadcaster_twitch_client_cannot_create: Cannot create broadcaster twitch client
-  broadcaster_twitch_api_client: 'Cannot create broadcaster twitch api client: {reason}'
+  broadcaster_twitch_client_cannot_create: Не вдалося створити клієнт twitch стрімера
+  broadcaster_twitch_api_client: 'Не вдалося створити клієнт twitch api стрімера: {reason}'
   # Channel
   channel_cannot_get_information: Неможливо отримати інформацію про канал
   channel_not_found: Канал не знайдено
