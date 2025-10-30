@@ -16,4 +16,4 @@ errors:
   # Game
   game_cannot_to_get: Неможливо отримати ігри
 add:
-  alias_add_to_category: 'Аліас {aliasName} додано до категорії {categoryName}'
+  alias_add_to_category: 'Аліас категорії {aliasName} додано до категорії {categoryName}'
