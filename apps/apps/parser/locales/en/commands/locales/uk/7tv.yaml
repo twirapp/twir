@@ -24,7 +24,7 @@ rename:
 emote_info:
   response: '{name}: {link} · Додано @{addedByUserName} {addedByTime} назад · Автор {emoteAuthor}'
 profile_info:
-  response: '{profileName} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}'
+  response: '{profileName} · Колір: {paintName} ({unlockedPaints} розблоковано) · Ролі: {roles} · Редактор для {editorCount} · Набір: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Створений: {profileCreatedAt}'
 hints:
   emoteForCopyArgName: Назва емодзі для копіювання
   copySetChannelName: '@channelName'
