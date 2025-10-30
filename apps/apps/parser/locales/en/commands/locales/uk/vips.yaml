@@ -1,8 +1,8 @@
 hints:
   user: '@username'
-  unvip_in: 'Time in, example: 1w5d1m5s'
+  unvip_in: 'Час, наприклад: 1w5d1m5s'
 errors:
-  invalid_duration: 'Invalid duration format. Please use formats like <1h>, <30m>, or <2d>'
+  invalid_duration: 'Некоректна тривалість. Будь ласка, використовуйте формати, такі як <1h>, <30m> або <2d>'
   already_have_role: Користувач вже vip або модератор!
   cannot_create_scheduled_in_db: Не вдалося створити запланованого vip в базі даних
   added_with_remove_time: '✅ Додано vip для {userName}, буде знятий {endTime}'
