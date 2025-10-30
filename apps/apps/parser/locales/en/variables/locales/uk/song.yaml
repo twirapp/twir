@@ -12,4 +12,4 @@ errors:
   create_lastfm_service: 'Неможливо створити lastfm сервіс: {reason}'
   fetch_tracks_lastfm: 'Неможливо отримати пісні з lastfm: {reason}'
   fetch_tracks_spotify: 'Неможливо отримати пісні зі spotify: {reason}'
-  parse_played_at: Cannot parse played at
+  parse_played_at: Не вдалося отримати відтворення
