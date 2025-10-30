@@ -1,5 +1,5 @@
 hints:
-  gameArgName: Category name or created category alias
+  gameArgName: Назва категорії або створений аліас категорії
 add:
   category_change: '✅ {categoryName}'
 errors:
@@ -7,7 +7,7 @@ errors:
   broadcaster_twitch_client_cannot_create: Cannot create broadcaster twitch client
   broadcaster_twitch_api_client: 'Cannot create broadcaster twitch api client: {reason}'
   # Channel
-  channel_cannot_get_information: Cannot get channel information
+  channel_cannot_get_information: Неможливо отримати інформацію про канал
   channel_not_found: Канал не знайдено
   # Alias
   alias_cannot_get_category: Не вдалося отримати аліаси категорії
@@ -20,5 +20,5 @@ errors:
   # Game
   game_not_found: Гра не знайдена на twitch
   # History
-  history_game_message: Cannot find used games in database
-  history_title_message: 'Cannot get history of titles from database: {reason}'
+  history_game_message: Не вдалося знайти використані ігри в базі даних
+  history_title_message: 'Не вдалося отримати історію назв стрімів з бази даних: {reason}'
