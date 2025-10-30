@@ -1,16 +1,16 @@
 errors:
-  get_chat_walls: 'Cannot get chat walls: {reason}'
-  update_chat_walls: 'Cannot update chat wall: {reason}'
-  get_current_chat_walls: 'Cannot get current chat walls: {reason}'
-  get_chat_wall_settings: 'Cannot get chat wall settings: {reason}'
-  get_users_stats: 'Cannot get users stats: {reason}'
-  publish_deleted_messages: 'Cannot publish deleted messages: {reason}'
-  publish_ban_users: 'Cannot publish ban users: {reason}'
-  get_already_handled: 'Cannot get already handled messages: {reason}'
-  create_chat_wall: 'Cannot create chat wall: {reason}'
-  create_chat_wall_with_phrase: Cannot create chat wall with phrase that already exists
-  create_chat_logs_in_db: 'Cannot create chat wall logs in db: {reason}'
-  handled_messages_to_redis: 'Cannot add handled messages to redis: {reason}'
-  chat_wall_not_found: Chat wall not found
+  get_chat_walls: 'Неможливо отримати чат-стіну: {reason}'
+  update_chat_walls: 'Неможливо оновити чат-стіну: {reason}'
+  get_current_chat_walls: 'Неможливо отримати поточні чат-стіни: {reason}'
+  get_chat_wall_settings: 'Неможливо отримати налаштування чат-стіни: {reason}'
+  get_users_stats: 'Неможливо отримати статистику користувачів: {reason}'
+  publish_deleted_messages: 'Не вдалося опублікувати видалені повідомлення: {reason}'
+  publish_ban_users: 'Не вдалося опублікувати заблокованих користувачів: {reason}'
+  get_already_handled: 'Не вдалося отримати вже оброблені повідомлення: {reason}'
+  create_chat_wall: 'Не вдалося створити чат-стіну: {reason}'
+  create_chat_wall_with_phrase: Не вдалося створити чат-стіну з фразою, яка вже існує
+  create_chat_logs_in_db: 'Не вдалося створити логи чат-стіни в базі даних: {reason}'
+  handled_messages_to_redis: 'Не вдалося додати оброблені повідомлення до redis: {reason}'
+  chat_wall_not_found: Чат-стіна не знайдена
 info:
-  banned_by_twir: 'Banned by twir for chat wall phrase: {banPhrase}'
+  banned_by_twir: 'Заблокований twir''ом за фразу чат-стіни: {banPhrase}'
