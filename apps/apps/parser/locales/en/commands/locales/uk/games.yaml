@@ -6,15 +6,15 @@ errors:
   duel_cannot_get_sender: Cannot get sender current duel
   duel_cannot_save_result: 'Неможливо зберегти результат дуелі: {reason}'
   duel_cannot_save_data: 'Неможливо зберегти дані дуелі: {reason}'
-  duel_cannot_check_user: 'Cannot check user in duel: {reason}'
+  duel_cannot_check_user: 'Неможливо перевірити користувача в дуелі: {reason}'
   duel_with_yourself: Ви не можете створити дуель з самим собою
   duel_with_streamer: Ви не можете мати дуель з стрімером
   duel_with_bot: Ви не можете мати дуель з ботом
-  duel_cannot_set_user_cooldown: 'Cannot set user cooldown: {reason}'
-  duel_cannot_set_global_cooldown: 'Cannot set global cooldown: {reason}'
-  duel_cannot_check_cooldown: 'Cannot check duel cooldown: {reason}'
-  duel_cannot_validate_participants: Cannot validate participants
-  duel_cannot_save_to_cache: Cannot save duel data to cache
+  duel_cannot_set_user_cooldown: 'Неможливо встановити час очікування: {reason}'
+  duel_cannot_set_global_cooldown: 'Неможливо встановити глобальний час очікування: {reason}'
+  duel_cannot_check_cooldown: 'Неможливо перевірити час очікування в дуелі: {reason}'
+  duel_cannot_validate_participants: Неможливо перевірити учасників
+  duel_cannot_save_to_cache: Неможливо зберегти дані дуелі до кешу
   # Roulette
   roulette_cannot_get_with_settings: Cannot get roulette settings from database
   roulette_cannot_send_initial_message: Неможливо надіслати початкове повідомлення
@@ -26,8 +26,8 @@ errors:
   voteban_cannot_find_settings: Cannot find voteban settings
   voteban_cannot_check_progress: Неможливо перевірити, чи триває голосування
   voteban_cannot_find_user: Не вдалося знайти користувача
-  voteban_cannot_set_vote: Cannot set vote
-  voteban_cannot_set_vote_expiration: Cannot set vote expiration
+  voteban_cannot_set_vote: Неможливо встановити голос
+  voteban_cannot_set_vote_expiration: Неможливо встановити термін дії голосу
 info:
   # Duel
   user_not_participate: Ви не є учасником в жодній дуелі
