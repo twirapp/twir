@@ -7,10 +7,10 @@ errors:
 info:
   disabled: TTS вимкнено
   enabled: TTS увімкнено
-  pitch: 'Global pitch: {globalPitch} | Your pitch: {userPitch}'
-  change_pitch: 'Pitch changed to {newPitch}'
-  rate: 'Global rate: {globalRate} | Your rate: {userRate}'
-  change_rate: 'Rate changed to {newRate}'
+  pitch: 'Глобальна октава: {globalPitch} | Твоя октава: {userPitch}'
+  change_pitch: 'Октава змінена на {newPitch}'
+  rate: 'Глобальна частота: {globalRate} | Твоя частота: {userRate}'
+  change_rate: 'Частота змінена на {newRate}'
   voice: 'Глобальний голос: {globalVoice} | Ваш голос: {userVoice}'
   change_voice: Голос змінено на {newVoice}
   no_voices: Немає доступних голосів
