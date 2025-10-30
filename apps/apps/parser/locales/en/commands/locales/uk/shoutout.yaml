@@ -1,4 +1,4 @@
 errors:
-  bot_have_no_permissions: We have no permissions for shoutout. Streamer must re-authorize to bot dashboard.
-response_online: 'Join https://twitch.tv/{userName} shining in 🎮 {categoryName} 📜 {title} with 👁️ {viewers} viewers!'
-response_offline: 'Explore https://twitch.tv/{userName}’s world, last featured in 🎮 {categoryName} 📜 {title}!'
+  bot_have_no_permissions: Ми не маємо дозволу на публікацію повідомлень. Стрімер повинен повторно авторизуватися в панелі управління ботом.
+response_online: 'Приєднуйтесь до https://twitch.tv/{userName} у 🎮 {categoryName} 📜 {title} з 👁️ {viewers} глядачів!'
+response_offline: 'Досліджуйте світ https://twitch.tv/{userName}, який востаннє з''являвся в 🎮 {categoryName} 📜 {title}!'
