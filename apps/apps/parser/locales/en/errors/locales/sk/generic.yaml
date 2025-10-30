@@ -6,7 +6,7 @@ internal: '❌ Vnútorná chyba'
 broadcaster_client: Cannot create broadcaster twitch client
 # User
 cannot_find_user_db: Nepodarilo sa nájsť používateľa v databáze
-cannot_find_user_twitch: Cannot find user on twitch
+cannot_find_user_twitch: Nepodarilo sa nájsť používateľa na Twitchi
 cannot_find_users_twitch: Cannot find users on twitch
 cannot_create_twitch: Cannot create twitch client
 cannot_timeout_user: Cannot timeout user
