@@ -3,7 +3,7 @@ something_went_wrong: 'Щось пішло не так. Будь ласка, с�
 twir_error: '[Twir помилка]: Сталася невідома помилка. Будь ласка, зв''яжіться з розробниками.'
 internal: '❌ Внутрішня помилка'
 # Broadcaster
-broadcaster_client: Cannot create broadcaster twitch client
+broadcaster_client: Не вдалося створити клієнт twitch стрімера
 # User
 cannot_find_user_db: Не вдалося знайти користувача в базі даних
 cannot_find_user_twitch: Не вдалося знайти користувача на twitch
@@ -20,8 +20,8 @@ not_a_follower: Не підписник
 # Channel
 cannot_find_channel_db: Не вдалося знайти канал в базі даних
 cannot_find_channel_twitch: 'Не вдалося знайти канал на twitch. {reason}'
-cannot_get_db_channel: Cannot get database channel
-getting_channel_settings: Error while getting channel settings
+cannot_get_db_channel: Не вдалося отримати канал бази даних
+getting_channel_settings: Помилка під час отримання налаштувань каналу
 # Mention
 should_mention_with_at: Тобі потрібно тегнути користувача за допомогою @
 # Stream
@@ -29,7 +29,7 @@ cannot_get_stream: 'Не можу отримати стрім. {reason}'
 # Moderator
 cannot_get_moderators: 'Неможливо отримати модераторів: {reason}'
 # Command
-cannot_get_accept_command_name: Cannot get accept command name
+cannot_get_accept_command_name: Не вдалося отримати назву прийнятої команди
 cannot_create_command: Неможливо створити команду
 cannot_get_command: Не вдалося отримати команду
 # Message
