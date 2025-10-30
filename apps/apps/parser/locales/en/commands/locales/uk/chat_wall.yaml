@@ -4,11 +4,11 @@ hints:
   timeoutDurationArgName: 'Час. Приклади: 10m, 10, 1h5m'
   timeoutPhraseArgName: Фраза для бану
 errors:
-  chat_wall_not_found: 'Chat wall {errorPhrase} not found or already stopped'
-  invalid_duration: 'Invalid duration. Cannot be longer 2w Examples: 10m, 10, 1h5m'
+  chat_wall_not_found: 'Чат-стіна {errorPhrase} не знайдена або вже зупинена'
+  invalid_duration: 'Некоректна тривалість. Не може бути довше двох тижнів. Приклади: 10m, 10, 1h5m'
   long_duration_timeout: Тривалість тайм-ауту не може бути довше 2 тижнів
   duration_cannot_parse: Не вдалося отримати тривалість
 start:
-  chat_wall_start: '✅ Chat wall started for 10 minutes, you can stop it with !chat wall stop {chatWallPhrase}'
+  chat_wall_start: '✅ Чат-стіна запущена на 10 хвилин, ви можете зупинити її командою !chat wall stop {chatWallPhrase}'
 stop:
-  chat_wal_stop: '✅ Chat wall {chatWallPhrase} stopped'
+  chat_wal_stop: '✅ Чат-стіна {chatWallPhrase} зупинена'
