@@ -16,7 +16,7 @@ user_not_found: Používateľ sa nenašiel
 getting_user_settings: Chyba pri načítaní nastavení používateľa
 updating_settings: Chyba pri aktualizácii nastavení
 create_settings: Chyba pri vytváraní nastavení
-not_a_follower: Not a follower
+not_a_follower: Nie je sledovateľ
 # Channel
 cannot_find_channel_db: Kanál sa nenašiel v databáze
 cannot_find_channel_twitch: 'Twitch kanál sa nenašiel: {reason}'
