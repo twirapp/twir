@@ -11,4 +11,4 @@ errors:
   no_scheduled_vips: Nie sú naplánovaní žiadni VIP
   removed: '✅ VIP pre {userName} bolo zrušené'
   cannot_update: Nepodarilo sa aktualizovať naplánované VIP
-  updated: '✅ Aktualizoval som VIP {userName}, nová platnosť končí {endTime}'
+  updated: '✅ VIP pre používateľa {userName} bol aktualizovaný, nový dátum vypršania: {endTime}'
