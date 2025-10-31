@@ -1,10 +1,10 @@
 info:
-  color: 'Your color is {dudeColor}'
-  sprite: 'Your sprite is {dudeSprite}'
-  color_required: Color is required
-  sprite_required: 'Sprite is required, available: {availableSprites}'
-  color_reset: Color reset to default
-  color_changed: 'Color changed to {dudeColor}'
+  color: 'Tvoja farba je {dudeColor}'
+  sprite: 'Tvoj sprite je {dudeSprite}'
+  color_required: Farba je povinná
+  sprite_required: 'Sprite je povinný, dostupné: {availableSprites}'
+  color_reset: Farba bola resetovaná na predvolenú
+  color_changed: 'Farba zmenená na {dudeColor}'
   sprite_changed: 'Sprite changed to {dudeSprite}'
 errors:
   color_invalid: Invalid color
