@@ -14,6 +14,6 @@ errors:
   # TwitchClient
   twitch_client_cannot_to_create: Cannot create twitch client
   # Game
-  game_cannot_to_get: Cannot get games
+  game_cannot_to_get: Nepodarilo sa získať hry
 add:
-  alias_add_to_category: 'Category alias {aliasName} added with category {categoryName}'
+  alias_add_to_category: 'Alias kategórie {aliasName} bol pridaný ku kategórii {categoryName}'
