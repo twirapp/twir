@@ -1,11 +1,11 @@
 errors:
   # 8ball
-  8ball_cannot_find: Cannot find 8ball settings
+  8ball_cannot_find: Nepodarilo sa nájsť nastavenia 8ball
   # Duel
-  duel_cannot_get_with_settings: Cannot get duel channel settings
-  duel_cannot_get_sender: Cannot get sender current duel
-  duel_cannot_save_result: 'Cannot save duel result: {reason}'
-  duel_cannot_save_data: 'Cannot save duel data: {reason}'
+  duel_cannot_get_with_settings: Nepodarilo sa získať nastavenia duelu
+  duel_cannot_get_sender: Nepodarilo sa získať aktuálny duel odosielateľa
+  duel_cannot_save_result: 'Nepodarilo sa uložiť výsledok duelu: {reason}'
+  duel_cannot_save_data: 'Nepodarilo sa uložiť údaje o dueli: {reason}'
   duel_cannot_check_user: 'Cannot check user in duel: {reason}'
   duel_with_yourself: You cannot duel with yourself
   duel_with_streamer: You cannot duel with streamer
