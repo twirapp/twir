@@ -1245,7 +1245,7 @@
 	},
 	"chatWall": {
 		"description": {
-			"line1": "Hromadné zabanovanie/odstránenie/timeout správ, ktoré obsahujú konkrétnu frázu.",
+			"line1": "Hromadný ban/zmazanie/timeout správ obsahujúcich určitú frázu.",
 			"line2": "Nesprávne používanie môže viesť k trvalému banu v službe TwirApp. "
 		},
 		"settings": {
@@ -1255,10 +1255,10 @@
 		},
 		"commands": {
 			"title": "Príkazy",
-			"delete": "Mazacia chatová stena",
-			"ban": "Banovacia chatová stena",
-			"timeout": "Timeout chatová stena",
-			"stop": "Stop chatová stena"
+			"delete": "Chat wall delete",
+			"ban": "Chat wall ban",
+			"timeout": "Chat wall timeout",
+			"stop": "Chat wall stop"
 		},
 		"table": {
 			"phrase": "Fráza",
