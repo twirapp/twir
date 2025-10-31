@@ -23,5 +23,5 @@ info:
 validate:
   errors:
     restrictions_on_user: 'Na používateľa sú obmedzenia, ale v databáze ťa nemôžem nájsť, prepáč :('
-    internal_error: Vnútorná chyba pri overovaní followu
+    internal_error: Interná chyba pri kontrole sledovania
     need_follow: Na vyžiadanie piesne musíš sledovať kanál
