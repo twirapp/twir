@@ -5,12 +5,12 @@ info:
   sprite_required: 'Sprite je povinný, dostupné: {availableSprites}'
   color_reset: Farba bola resetovaná na predvolenú
   color_changed: 'Farba zmenená na {dudeColor}'
-  sprite_changed: 'Sprite changed to {dudeSprite}'
+  sprite_changed: 'Sprite zmenený na {dudeSprite}'
 errors:
-  color_invalid: Invalid color
-  sprite_invalid: 'Invalid sprite, available: {availableSprites}'
-  color_cannot_trigger: Cannot trigger dudes color
-  grow_cannot_trigger: Cannot trigger dudes grow
-  jump_cannot_trigger: Cannot trigger dudes jump
-  leave_cannot_trigger: Cannot trigger dudes leave
-  sprite_cannot_trigger: Cannot trigger dudes sprite
+  color_invalid: Neplatná farba
+  sprite_invalid: 'Neplatný sprite, dostupné: {availableSprites}'
+  color_cannot_trigger: Nepodarilo sa aktivovať farbu Dudes
+  grow_cannot_trigger: Nepodarilo sa aktivovať rast Dudes
+  jump_cannot_trigger: Nepodarilo sa aktivovať skok Dudes
+  leave_cannot_trigger: Nepodarilo sa aktivovať odchod Dudes
+  sprite_cannot_trigger: Nepodarilo sa aktivovať sprite Dudes
