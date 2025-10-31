@@ -1,7 +1,7 @@
 # Generic
-something_went_wrong: 'Ups, niečo nevyšlo, skúsiš to neskôr'
+something_went_wrong: 'Niečo sa pokazilo, skús to prosím neskôr'
 twir_error: '[Twir chyba]: Vyskytla sa neznáma chyba. Prosím, kontaktuj vývojárov.'
-internal: '❌ Vnútorná chyba'
+internal: '❌ Interná chyba'
 # Broadcaster
 broadcaster_client: Cannot create broadcaster twitch client
 # User
@@ -19,7 +19,7 @@ create_settings: Chyba pri vytváraní nastavení
 not_a_follower: Nie je sledovateľ
 # Channel
 cannot_find_channel_db: Kanál sa nenašiel v databáze
-cannot_find_channel_twitch: 'Twitch kanál sa nenašiel: {reason}'
+cannot_find_channel_twitch: 'Nepodarilo sa nájsť kanál na Twitchi: {reason}'
 cannot_get_db_channel: Nepodarilo sa získať kanál z databázy
 getting_channel_settings: Chyba pri načítaní nastavení kanála
 # Mention
@@ -29,7 +29,7 @@ cannot_get_stream: 'Nepodarilo sa načítať stream: {reason}'
 # Moderator
 cannot_get_moderators: 'Chyba pri načítaní moderátorov: {reason}'
 # Command
-cannot_get_accept_command_name: Nepodarilo sa získať názov príkazu accept
+cannot_get_accept_command_name: Nepodarilo sa získať názov prijatého príkazu
 cannot_create_command: Nepodarilo sa vytvoriť príkaz
 cannot_get_command: Nepodarilo sa získať príkaz
 # Message
