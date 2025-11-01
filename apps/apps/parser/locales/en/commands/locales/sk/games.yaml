@@ -6,14 +6,14 @@ errors:
   duel_cannot_get_sender: Nepodarilo sa získať aktuálny duel odosielateľa
   duel_cannot_save_result: 'Nepodarilo sa uložiť výsledok duelu: {reason}'
   duel_cannot_save_data: 'Nepodarilo sa uložiť údaje o dueli: {reason}'
-  duel_cannot_check_user: 'Cannot check user in duel: {reason}'
-  duel_with_yourself: You cannot duel with yourself
-  duel_with_streamer: You cannot duel with streamer
-  duel_with_bot: You cannot duel with bot
-  duel_cannot_set_user_cooldown: 'Cannot set user cooldown: {reason}'
-  duel_cannot_set_global_cooldown: 'Cannot set global cooldown: {reason}'
-  duel_cannot_check_cooldown: 'Cannot check duel cooldown: {reason}'
-  duel_cannot_validate_participants: Cannot validate participants
+  duel_cannot_check_user: 'Nepodarilo sa skontrolovať používateľa v dueli: {reason}'
+  duel_with_yourself: Nemôžeš sa duelovať sám so sebou
+  duel_with_streamer: Nemôžeš začať duel so streamerom
+  duel_with_bot: Nemôžeš začať duel s botom
+  duel_cannot_set_user_cooldown: 'Nepodarilo sa nastaviť cooldown používateľa: {reason}'
+  duel_cannot_set_global_cooldown: 'Nepodarilo sa nastaviť globálny cooldown: {reason}'
+  duel_cannot_check_cooldown: 'Nepodarilo sa skontrolovať cooldown duelu: {reason}'
+  duel_cannot_validate_participants: Nepodarilo sa overiť účastníkov
   duel_cannot_save_to_cache: Cannot save duel data to cache
   # Roulette
   roulette_cannot_get_with_settings: Cannot get roulette settings from database
