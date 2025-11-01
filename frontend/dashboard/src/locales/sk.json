@@ -780,7 +780,7 @@
 		"regularDescription": "Regulárny výraz by mal byť napísaný vo formáte golang! Pozri {0} tu.",
 		"regularDescriptionCheatSheet": "Ťahák",
 		"settings": "Nastavenia",
-		"cooldown": "Vychladnutie (v sekundách)",
+		"cooldown": "Cooldown (v sekundách)",
 		"validations": {
 			"triggerRequired": "Spúšťací text je povinný!",
 			"triggerLong": "Spúšťací text je príliš dlhy!",
