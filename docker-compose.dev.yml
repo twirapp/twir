@@ -44,7 +44,7 @@ services:
     networks:
       - twir-dev
     ports:
-      -  '6432:6432'
+      - '6432:6432'
 
   redis:
     image: redis:8.0.2
@@ -73,18 +73,19 @@ services:
     networks:
       - twir-dev
 
-  minio:
-    image: quay.io/minio/minio
-    command: server /data --console-address ":9090"
+  # s3
+  rustfs:
+    image: rustfs/rustfs:1.0.0-alpha.66
     restart: unless-stopped
     ports:
       - '8000:9000'
-      - '8090:9090'
+      - '8090:9001' #web console
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio-password
+      RUSTFS_ACCESS_KEY: minio
+      RUSTFS_SECRET_KEY: minio-password
+      RUSTFS_CONSOLE_ENABLE: true
     volumes:
-      - minio-data:/data
+      - rustfs-data:/data
 
   temporal:
     image: temporalio/auto-setup:1.22.2
@@ -183,7 +184,7 @@ services:
 volumes:
   redis-data:
   postgres-data:
-  minio-data:
+  rustfs-data:
   clickhouse-data:
 
 networks:
