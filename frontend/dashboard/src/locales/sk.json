@@ -297,8 +297,8 @@
 	},
 	"integrations": {
 		"notLoggedIn": "Nie ste prihlásení!",
-		"songServicesInfo": "Poskytnutie prístupu k tejto službe umožňuje Twiru automaticky získať a zobraziť aktuálne prehrávanú skladbu v chate, keď sa použije príkaz {0}.",
-		"donateServicesInfo": "Poskytnutie prístupu k tejto službe umožní Twiru počúvať prichádzajúce dary a nastaví pre vás interakcie v kategóriách {0}, {1}.",
+		"songServicesInfo": "Poskytnutie prístupu k tejto službe umožňuje Twiru automaticky získať a zobraziť aktuálne prehrávanú pieseň v chate, keď sa použije príkaz {0}.",
+		"donateServicesInfo": "Poskytnutie prístupu k tejto službe umožní Twiru počúvať prichádzajúce donaty a nastaví pre vás interakcie v kategóriách {0}, {1}.",
 		"discord": {
 			"description": "Poskytnutie prístupu k službe Discord umožňuje Twiru nastaviť automatické pingy a upozornenia o stave streamu na vašich serveroch Discord.",
 			"guildPluralization": "Žiadne servery | 1 server | {count} servery",
@@ -412,9 +412,9 @@
 			"newStreamCategory": "Nová kategória streamu",
 			"streamTitle": "Názov streamu",
 			"streamCategory": "Kategória streamu",
-			"donateAmount": "Výška daru",
-			"donateCurrency": "Mena daru",
-			"donateMessage": "Darcovská správa",
+			"donateAmount": "Výška donatu",
+			"donateCurrency": "Mena pre donaty",
+			"donateMessage": "Donate správa",
 			"keywordName": "Názov kľúčového slova",
 			"keywordResponse": "Odpovede na kľúčové slovo (oddelené medzerou)",
 			"greetingText": "Uvítacia správa",
@@ -449,7 +449,7 @@
 		"buildWidget": "Vytvoriť Widget",
 		"generateObsLink": "Vygenerovať odkaz pre OBS",
 		"nowPlaying": {
-			"description": "Prekrytie s aktuálnymi informáciami o prehrávanej skladbe. Toto prekrytie bude fungovať len vtedy, ak máte pripojenú integráciu, ako je spotify, lastfm."
+			"description": "Prekrytie s aktuálnymi informáciami o prehrávanej piesni. Toto prekrytie bude fungovať len vtedy, ak máte pripojenú integráciu, ako je spotify, lastfm."
 		},
 		"tts": {
 			"description": "Toto prekrytie umožňuje prehrávať správy chatu ako zvuk prostredníctvom služby OBS so sadou prednastavených hlasov. Toto prekrytie môžete ovládať pomocou príkazov alebo udalostí.",
@@ -686,7 +686,7 @@
 		"waiting": "Čakáme na žiadosť o pieseň...",
 		"player": {
 			"title": "Aktuálna pieseň",
-			"noAccess": "Prehrávač je k dispozícii len na vašom ovládacom paneli, skladby na ovlád. paneloch iných používateľov nemôžete počúvať."
+			"noAccess": "Prehrávač máš k dispozícii len vo svojom ovládacom paneli, skladby na paneloch iných používateľov nemôžeš počúvať."
 		},
 		"table": {
 			"title": "Fronta",
@@ -701,15 +701,15 @@
 			"onlineOnly": "Povoliť žiadostí o pieseň pri streamovaní?",
 			"announcePlay": "Oznámenie aktuálnej piesne do chatu?",
 			"playerNoCookieMode": "Režim inkognito pre hráča",
-			"playerNoCookieModeDescription": "Ak túto možnosť povolíte, budete môcť počúvať skladby bez povolenia cookies a histórie zobrazenia. Po povolení je potrebné obnoviť stránku.",
+			"playerNoCookieModeDescription": "Ak túto možnosť povolíš, budeš môcť počúvať skladby bez povolenia cookies a histórie zobrazenia. Po povolení je potrebné obnoviť stránku.",
 			"neededPercentageForskip": "Percentuálny podiel užívateľov za preskočenie",
 			"channelReward": "Spúšťače odmien kanálových bodov",
 			"deniedChannels": "Zoznam zakázaných kanálov YouTube (zo žiadostí o skladby)",
 			"deniedWords": "Zoznam zakázaných slov (týka sa názvov videí aj kanálov YouTube)",
 			"deniedUsers": "Zablokovaní používatelia",
 			"deniedSongs": "Zoznam zakázaných piesní",
-			"takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
-			"confirmClearQueue": "Naozaj chcete vymazať frontu?",
+			"takeSongFromDonationMessage": "Pokúsiť sa o získanie odkazov na piesne z darcovských správ?",
+			"confirmClearQueue": "Naozaj chceš vymazať frontu?",
 			"users": {
 				"maxRequests": "Maximálne množstvo žiadosti na používateľa",
 				"minimalWatchTime": "Minimálny čas sledovania streamu (v minútach)",
@@ -717,7 +717,7 @@
 				"minimalFollowTime": "Minimálna doba sledovania kanálu (v minútach)"
 			},
 			"songs": {
-				"maxRequests": "Maximálny limit frontu skladieb",
+				"maxRequests": "Maximálny limit pre frontu piesní",
 				"minLength": "Minimálna dĺžka skladby (v minútach)",
 				"maxLength": "Maximálna dĺžka skladby (v minútach)",
 				"minViews": "Minimálne množstvo zobrazení"
@@ -780,7 +780,7 @@
 		"regularDescription": "Regulárny výraz by mal byť napísaný vo formáte golang! Pozri {0} tu.",
 		"regularDescriptionCheatSheet": "Ťahák",
 		"settings": "Nastavenia",
-		"cooldown": "Vychladnutie (v sekundách)",
+		"cooldown": "Cooldown (v sekundách)",
 		"validations": {
 			"triggerRequired": "Spúšťací text je povinný!",
 			"triggerLong": "Spúšťací text je príliš dlhy!",
@@ -1245,7 +1245,7 @@
 	},
 	"chatWall": {
 		"description": {
-			"line1": "Hromadné zabanovanie/odstránenie/timeout správ, ktoré obsahujú konkrétnu frázu.",
+			"line1": "Hromadný ban/zmazanie/timeout správ obsahujúcich určitú frázu.",
 			"line2": "Nesprávne používanie môže viesť k trvalému banu v službe TwirApp. "
 		},
 		"settings": {
@@ -1255,10 +1255,10 @@
 		},
 		"commands": {
 			"title": "Príkazy",
-			"delete": "Mazacia chatová stena",
-			"ban": "Banovacia chatová stena",
-			"timeout": "Timeout chatová stena",
-			"stop": "Stop chatová stena"
+			"delete": "Chat wall delete",
+			"ban": "Chat wall ban",
+			"timeout": "Chat wall timeout",
+			"stop": "Chat wall stop"
 		},
 		"table": {
 			"phrase": "Fráza",

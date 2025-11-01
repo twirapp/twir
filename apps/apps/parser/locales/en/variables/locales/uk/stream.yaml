@@ -1,0 +1,8 @@
+errors:
+  get_history_of_categories: Неможливо отримати історію категорій
+  error: Помилка
+  offline: офлайн
+  count_followers: Неможливо порахувати підписників
+info:
+  offline: Офлайн або помилка при отриманні категорії
+  no_history: Історія відсутня

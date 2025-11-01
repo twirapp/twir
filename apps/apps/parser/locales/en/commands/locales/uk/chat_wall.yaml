@@ -1,0 +1,14 @@
+hints:
+  banPhraseArgName: Фраза для бану
+  deletePhraseArgName: Фраза для видалення
+  timeoutDurationArgName: 'Час. Приклади: 10m, 10, 1h5m'
+  timeoutPhraseArgName: Фраза для бану
+errors:
+  chat_wall_not_found: 'Чат-стіна {errorPhrase} не знайдена або вже зупинена'
+  invalid_duration: 'Некоректна тривалість. Не може бути довше двох тижнів. Приклади: 10m, 10, 1h5m'
+  long_duration_timeout: Тривалість тайм-ауту не може бути довше 2 тижнів
+  duration_cannot_parse: Не вдалося отримати тривалість
+start:
+  chat_wall_start: '✅ Чат-стіна запущена на 10 хвилин, ви можете зупинити її командою !chat wall stop {chatWallPhrase}'
+stop:
+  chat_wal_stop: '✅ Чат-стіна {chatWallPhrase} зупинена'

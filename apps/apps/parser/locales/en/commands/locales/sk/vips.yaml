@@ -1,0 +1,14 @@
+hints:
+  user: '@username'
+  unvip_in: 'Čas trvania, napríklad: 1t5d1m5s'
+errors:
+  invalid_duration: 'Neplatný formát času. Použi formáty ako <1h>, <30m> alebo <2d>'
+  already_have_role: '{user} už je VIP alebo moderátor!'
+  cannot_create_scheduled_in_db: Nepodarilo sa vytvoriť naplánované VIP v databáze
+  added_with_remove_time: '✅ VIP pridané pre {userName}, bude odstránené o {endTime}'
+  added: '✅ VIP pridané pre {userName}'
+  cannot_get_list_from_db: Nepodarilo sa získať zoznam VIP z databázy
+  no_scheduled_vips: Nie sú naplánovaní žiadni VIP
+  removed: '✅ VIP pre {userName} bolo zrušené'
+  cannot_update: Nepodarilo sa aktualizovať naplánované VIP
+  updated: '✅ VIP pre používateľa {userName} bol aktualizovaný, nový dátum vypršania: {endTime}'

@@ -1,0 +1,4 @@
+errors:
+  bot_have_no_permissions: Nemáme oprávnenia na shoutout. Streamer musí znova autorizovať prístup cez ovládací panel bota.
+response_online: 'Pridaj sa na https://twitch.tv/{userName}, ktorý práve hrá 🎮 {categoryName} 📜 {title} s 👁️ {viewers} divákmi!'
+response_offline: 'Preskúmaj svet https://twitch.tv/{userName}, naposledy v 🎮 {categoryName} 📜 {title}!'

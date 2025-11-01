@@ -1,0 +1,8 @@
+errors:
+  required: Prefix is required
+  too_long: Prefix cannot be longer than 10 characters
+  cannot_get_current: Cannot get current prefix
+  cannot_create: Cannot create prefix
+  cannot_update: Cannot update prefix
+success:
+  updated: Prefix updated

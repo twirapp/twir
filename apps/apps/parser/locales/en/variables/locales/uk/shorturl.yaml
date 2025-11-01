@@ -1,0 +1,3 @@
+errors:
+  url_required: Посилання обов'язкове
+  create_short_url: 'Неможливо створити коротке посилання: {reason}'

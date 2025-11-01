@@ -1,0 +1,19 @@
+hints:
+  predictionResolveOutcomeNum: 'Номер варіанту, наприклад: 1,2,3,4,5'
+  startPredictionDuration: '120'
+  startPredictionArgTitle: Ми переможемо у цій гри?
+  startPredictionArgVariants: 'Так, переможемо / Ні, програємо'
+errors:
+  cannot_create: Неможливо створити прогноз
+  cannot_create_var: 'Неможливо створити прогноз: {reason}'
+  cannot_get_current: Не можливо отримати поточний прогноз
+  cannot_get_current_var: 'Неможливо отримати поточний прогноз: {reason}'
+  cannot_cancel: Неможливо скасувати прогноз
+  cannot_cancel_var: 'Неможливо скасувати прогноз: {reason}'
+  no_variant: Немає варіанту прогнозу
+info:
+  no_runed: Прогноз не запущено
+  cancel: '✅ Прогнозування скасовано'
+  locked: '✅ Прогнозування заблоковано'
+  resolved: '✅ Прогнозування закрито'
+  started: '✅ Прогнозування розпочато'

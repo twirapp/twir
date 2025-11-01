@@ -1,0 +1,3 @@
+errors:
+  id_not_provided: ID не надано
+  not_found: Ключове слово не знайдено

@@ -1,0 +1,4 @@
+errors:
+  cannot_create_short_url: 'Nepodarilo sa vytvoriť skrátenú URL: {error}'
+success:
+  short_url_created: 'Skrátená URL: {url}'

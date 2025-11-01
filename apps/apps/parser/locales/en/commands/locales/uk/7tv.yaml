@@ -1,0 +1,34 @@
+errors:
+  # EmoteSet
+  emoteset_not_active: У вас немає активного 7TV емодзі набору
+  emoteset_not_found: Емодзі набір {emoteName} не знайдений
+  emoteset_broadcaster_not_active: '❌ Немає активних емодзі наборів для стримера'
+  # Profile
+  profile_failed_to_get: 'Не вдалось отримати 7tv профіль: {reason}'
+  profile_not_found: 7tv профіль не знайдений
+  # Emote
+  emote_failed_to_add: 'Не вдалось додати 7tv емодзі: {reason}'
+  emote_failed_to_remove: 'Не вдалось видалити 7tv емодзі: {reason}'
+  emote_failed_to_fetch: 'Не вдалось отримати 7tv емодзі: {reason}'
+  emote_failed_to_rename: 'Не вдалось перейменувати 7tv емодзі: {reason}'
+  emote_not_found: 'Емодзі {emoteName} не знайдений.'
+  emote_not_found_in_emoteset: 'Емодзі {emoteName} не знайдений у наборі {emoteSet}'
+  emote_not_found_in_channel: '❌ Емодзі {emoteSearch} не знайдений у вказаному каналі'
+  emote_already_exist_in_channel: '❌ Емодзі {emoteName} вже існує в цьому каналі'
+add:
+  emote_add: '✅ Емодзі додано'
+remove:
+  emote_remove: '✅ Емодзі {emoteName} видалено'
+rename:
+  emote_rename: '✅ Емодзі {oldEmoteName} перейменований на {newEmoteName}'
+emote_info:
+  response: '{name}: {link} · Додано @{addedByUserName} {addedByTime} назад · Автор {emoteAuthor}'
+profile_info:
+  response: '{profileName} · Колір: {paintName} ({unlockedPaints} розблоковано) · Ролі: {roles} · Редактор для {editorCount} · Набір: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Створений: {profileCreatedAt}'
+hints:
+  emoteForCopyArgName: Назва емодзі для копіювання
+  copySetChannelName: '@channelName'
+  copySetNameOfSet: Назва набору для копіювання
+  emoteForAddArgLink: Посилання або назва
+  emoteForAddArgAlias: Опціональні аліаси
+  emoteForCopyAlias: Аліас для емодзі

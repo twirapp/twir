@@ -1,0 +1,27 @@
+errors:
+  # Song
+  get_current_song: Nepodarilo sa získať aktuálnu pieseň
+  not_found: Aktuálna pieseň sa nenašla
+  search_song: Nepodarilo sa vyhľadať pieseň
+  get_latest_song: Nepodarilo sa získať poslednú pieseň
+  update_song: Nepodarilo sa aktualizovať pieseň
+  # Setting
+  get_settings: Nepodarilo sa získať nastavenia požiadaviek na piesne
+  # Queue
+  get_current_queue_count: Nepodarilo sa získať aktuálny počet piesní vo fronte
+  get_songs_from_queue: Nepodarilo sa získať piesne z frontu
+  remove_song_from_queue: Nepodarilo sa odstrániť pieseň z frontu
+  # Other
+  get_users_count: Nepodarilo sa získať počet online používateľov
+  get_votes_count: Nepodarilo sa získať počet hlasov
+  get_current_vote: Cannot get current vote
+info:
+  delete: 'Pieseň {songTitle} bola odstránená z frontu'
+  song_skipped: 'Pieseň {songTitle} bola preskočená'
+  no_requested_songs: Ešte si nevyžiadal žiadnu pieseň
+  only_count_songs: 'Je tu iba {songsCount} piesní'
+validate:
+  errors:
+    restrictions_on_user: 'Na používateľa sú obmedzenia, ale v databáze ťa nemôžem nájsť, prepáč :('
+    internal_error: Interná chyba pri kontrole sledovania
+    need_follow: Na vyžiadanie piesne musíš sledovať kanál

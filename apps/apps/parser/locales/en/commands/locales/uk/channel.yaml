@@ -1,0 +1,24 @@
+hints:
+  gameArgName: Назва категорії або створений аліас категорії
+add:
+  category_change: '✅ {categoryName}'
+errors:
+  # Twitch-channel
+  broadcaster_twitch_client_cannot_create: Не вдалося створити клієнт twitch стрімера
+  broadcaster_twitch_api_client: 'Не вдалося створити клієнт twitch api стрімера: {reason}'
+  # Channel
+  channel_cannot_get_information: Неможливо отримати інформацію про канал
+  channel_not_found: Канал не знайдено
+  # Alias
+  alias_cannot_get_category: Не вдалося отримати аліаси категорії
+  # Category
+  category_not_found: Категорія не знайдена
+  category_cannot_get: Не вдалося отримати категорію
+  category_cannot_get_error: 'Не вдалося отримати категорію: {errorMessage}'
+  category_cannot_change: Не вдалося змінити категорію
+  category_cannot_change_error: 'Не вдалося змінити категорію: {errorMessage}'
+  # Game
+  game_not_found: Гра не знайдена на twitch
+  # History
+  history_game_message: Не вдалося знайти використані ігри в базі даних
+  history_title_message: 'Не вдалося отримати історію назв стрімів з бази даних: {reason}'

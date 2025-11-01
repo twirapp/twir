@@ -1,0 +1,4 @@
+info:
+  no_passed_params: Не передано параметри до змінної
+  command_with_name_not_found: 'Команда з назвою {commandName} не знайдена'
+  get_count: Неможливо отримати кількість

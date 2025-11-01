@@ -1,0 +1,8 @@
+errors:
+  required: Prefix je povinný
+  too_long: Prefix nemôže byť dlhší ako 10 znakov
+  cannot_get_current: Nepodarilo sa získať aktuálny prefix
+  cannot_create: Nepodarilo sa vytvoriť prefix
+  cannot_update: Nepodarilo sa aktualizovať prefix
+success:
+  updated: Prefix aktualizovaný

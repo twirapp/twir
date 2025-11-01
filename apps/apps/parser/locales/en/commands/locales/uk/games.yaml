@@ -1,0 +1,38 @@
+errors:
+  # 8ball
+  8ball_cannot_find: Налаштування 8ball не знайдено
+  # Duel
+  duel_cannot_get_with_settings: Неможливо отримати налаштування дуелів каналу
+  duel_cannot_get_sender: Не вдалося отримати поточну дуель відправника
+  duel_cannot_save_result: 'Неможливо зберегти результат дуелі: {reason}'
+  duel_cannot_save_data: 'Неможливо зберегти дані дуелі: {reason}'
+  duel_cannot_check_user: 'Неможливо перевірити користувача в дуелі: {reason}'
+  duel_with_yourself: Ви не можете створити дуель з самим собою
+  duel_with_streamer: Ви не можете мати дуель з стрімером
+  duel_with_bot: Ви не можете мати дуель з ботом
+  duel_cannot_set_user_cooldown: 'Неможливо встановити час очікування: {reason}'
+  duel_cannot_set_global_cooldown: 'Неможливо встановити глобальний час очікування: {reason}'
+  duel_cannot_check_cooldown: 'Неможливо перевірити час очікування в дуелі: {reason}'
+  duel_cannot_validate_participants: Неможливо перевірити учасників
+  duel_cannot_save_to_cache: Неможливо зберегти дані дуелі до кешу
+  # Roulette
+  roulette_cannot_get_with_settings: Не вдалося отримати налаштування рулетки з бази даних
+  roulette_cannot_send_initial_message: Неможливо надіслати початкове повідомлення
+  roulette_cannot_send_death_message: Неможливо надіслати повідомлення про смерть
+  # Seppuku
+  seppuku_cannot_find_settings: Не вдалося знайти налаштування сеппуку
+  # Voteban
+  voteban_cannot_lock: Неможливо заблокувати голосування за бан
+  voteban_cannot_find_settings: Не вдалося знайти налаштування для голосування за бан
+  voteban_cannot_check_progress: Неможливо перевірити, чи триває голосування
+  voteban_cannot_find_user: Не вдалося знайти користувача
+  voteban_cannot_set_vote: Неможливо встановити голос
+  voteban_cannot_set_vote_expiration: Неможливо встановити термін дії голосу
+info:
+  # Duel
+  user_not_participate: Ви не є учасником в жодній дуелі
+  user_already_in_duel: Вказаний користувач вже знаходиться у дуелі
+  sender_already_in_duel: Ви вже знаходитесь на дуелі
+  duel_stats: 'Ти стріляв {duels} разів · {wins} W – {loses} L ({winrate} WR)'
+  # Voteban
+  voteban_in_progress: Інше голосування за бан в процесі

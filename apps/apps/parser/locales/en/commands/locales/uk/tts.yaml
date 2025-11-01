@@ -1,0 +1,19 @@
+errors:
+  while_disable: Помилка при вимкненні tts
+  while_enable: Помилка при ввімкненні tts
+  not_configured: TTS не налаштований для цього каналу
+  sending_to_tts: Помилка під час відправки повідомлення до tts сервісу
+  while_getting_voices: Помилка при отриманні голосів
+info:
+  disabled: TTS вимкнено
+  enabled: TTS увімкнено
+  pitch: 'Глобальна октава: {globalPitch} | Твоя октава: {userPitch}'
+  change_pitch: 'Октава змінена на {newPitch}'
+  rate: 'Глобальна частота: {globalRate} | Твоя частота: {userRate}'
+  change_rate: 'Частота змінена на {newRate}'
+  voice: 'Глобальний голос: {globalVoice} | Ваш голос: {userVoice}'
+  change_voice: Голос змінено на {newVoice}
+  no_voices: Немає доступних голосів
+  current_volume: 'Поточна гучність: {ttsVolume}'
+  change_volume: 'Гучність TTS змінено на {userVolume}'
+  voice_disallowed: 'Голос {voiceName} заборонений для використання'

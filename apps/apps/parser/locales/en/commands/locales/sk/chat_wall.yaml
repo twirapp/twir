@@ -1,0 +1,14 @@
+hints:
+  banPhraseArgName: Zakázaná fráza
+  deletePhraseArgName: Fráza na vymazanie
+  timeoutDurationArgName: 'Čas. Príklady: 10m, 10, 1h5m'
+  timeoutPhraseArgName: Fráza, ktorá sa má zabanovať
+errors:
+  chat_wall_not_found: 'Chat wall {errorPhrase} sa nenašiel alebo už bol zastavený'
+  invalid_duration: 'Neplatná dĺžka. Nemôže byť dlhšia ako 2 týždne. Príklady: 10m, 10, 1h5m'
+  long_duration_timeout: Dĺžka timeoutu nemôže presiahnuť 2 týždne
+  duration_cannot_parse: Nepodarilo sa získať trvanie
+start:
+  chat_wall_start: 'Chat wall spustený na 10 minút, môžeš ho zastaviť príkazom !chat wall stop {chatWallPhrase}'
+stop:
+  chat_wal_stop: '✅ Chat wall {chatWallPhrase} bol zastavený'

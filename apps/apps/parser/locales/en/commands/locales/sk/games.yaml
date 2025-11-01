@@ -1,0 +1,38 @@
+errors:
+  # 8ball
+  8ball_cannot_find: Nepodarilo sa nájsť nastavenia 8ball
+  # Duel
+  duel_cannot_get_with_settings: Nepodarilo sa získať nastavenia duelu
+  duel_cannot_get_sender: Nepodarilo sa získať aktuálny duel odosielateľa
+  duel_cannot_save_result: 'Nepodarilo sa uložiť výsledok duelu: {reason}'
+  duel_cannot_save_data: 'Nepodarilo sa uložiť údaje o dueli: {reason}'
+  duel_cannot_check_user: 'Nepodarilo sa skontrolovať používateľa v dueli: {reason}'
+  duel_with_yourself: Nemôžeš sa duelovať sám so sebou
+  duel_with_streamer: Nemôžeš začať duel so streamerom
+  duel_with_bot: Nemôžeš začať duel s botom
+  duel_cannot_set_user_cooldown: 'Nepodarilo sa nastaviť cooldown používateľa: {reason}'
+  duel_cannot_set_global_cooldown: 'Nepodarilo sa nastaviť globálny cooldown: {reason}'
+  duel_cannot_check_cooldown: 'Nepodarilo sa skontrolovať cooldown duelu: {reason}'
+  duel_cannot_validate_participants: Nepodarilo sa overiť účastníkov
+  duel_cannot_save_to_cache: Cannot save duel data to cache
+  # Roulette
+  roulette_cannot_get_with_settings: Cannot get roulette settings from database
+  roulette_cannot_send_initial_message: Cannot send initial message
+  roulette_cannot_send_death_message: Cannot send death message
+  # Seppuku
+  seppuku_cannot_find_settings: Cannot find seppuku settings
+  # Voteban
+  voteban_cannot_lock: Cannot lock voteban
+  voteban_cannot_find_settings: Cannot find voteban settings
+  voteban_cannot_check_progress: Cannot check if vote in progress
+  voteban_cannot_find_user: Cannot find target user
+  voteban_cannot_set_vote: Cannot set vote
+  voteban_cannot_set_vote_expiration: Cannot set vote expiration
+info:
+  # Duel
+  user_not_participate: You are not participate in any duel
+  user_already_in_duel: Target user already in duel
+  sender_already_in_duel: You already in duel
+  duel_stats: 'You have shoot {duels} times · {wins} W – {loses} L ({winrate} WR)'
+  # Voteban
+  voteban_in_progress: Another voteban in progress
