@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -47,24 +46,24 @@ func New(opts Opts) (*Server, error) {
 		),
 	)
 
-	err := r.SetTrustedProxies(
-		append(
-			opts.Config.TrustedProxies,
-			"127.0.0.1",
-			"::1",
-			"172.17.0.0/16",
-			"172.18.0.0/16",
-			// docker 10
-			"10.0.2.0/24",
-			"10.0.1.0/24",
-		),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to set trusted proxies: %w", err)
-	}
-
-	r.ForwardedByClientIP = true
-	r.RemoteIPHeaders = append(r.RemoteIPHeaders, "Cf-Connecting-IP", "X-Forwarded-For", "X-Real-IP")
+	// err := r.SetTrustedProxies(
+	// 	append(
+	// 		opts.Config.TrustedProxies,
+	// 		"127.0.0.1",
+	// 		"::1",
+	// 		"172.17.0.0/16",
+	// 		"172.18.0.0/16",
+	// 		// docker 10
+	// 		"10.0.2.0/24",
+	// 		"10.0.1.0/24",
+	// 	),
+	// )
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to set trusted proxies: %w", err)
+	// }
+	//
+	// r.ForwardedByClientIP = true
+	// r.RemoteIPHeaders = append(r.RemoteIPHeaders, "Cf-Connecting-IP", "X-Forwarded-For", "X-Real-IP")
 
 	r.Use(otelgin.Middleware("api-gql"))
 	r.Use(opts.Sessions.Middleware())
