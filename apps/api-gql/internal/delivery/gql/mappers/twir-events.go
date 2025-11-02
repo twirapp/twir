@@ -544,6 +544,22 @@ func TwirEventModeratorRemovedToGql(event events.ModeratorRemovedMessage) gqlmod
 	}
 }
 
+func TwirEventChannelUnbanToGql(event events.ChannelUnbanMessage) gqlmodel.EventChannelUnbanMessage {
+	return gqlmodel.EventChannelUnbanMessage{
+		BaseInfo: TwirEventBaseInfoToGql(
+			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelName,
+			entity.EventTypeChannelUnban,
+		),
+		UserID:               event.UserID,
+		UserName:             event.UserName,
+		UserDisplayName:      event.UserName,
+		ModeratorDisplayName: event.ModeratorUserName,
+		ModeratorID:          event.ModeratorUserID,
+		ModeratorName:        event.ModeratorUserLogin,
+	}
+}
+
 func MapEventToGqlType(eventName string, data []byte) (gqlmodel.EventMessage, error) {
 	switch eventName {
 	case events.FollowSubject:
@@ -750,6 +766,13 @@ func MapEventToGqlType(eventName string, data []byte) (gqlmodel.EventMessage, er
 			return nil, err
 		}
 		return TwirEventModeratorRemovedToGql(moderatorRemovedMessage), nil
+	case events.ChannelUnbanSubject:
+		channelUnbanMessage := events.ChannelUnbanMessage{}
+		err := json.Unmarshal(data, &channelUnbanMessage)
+		if err != nil {
+			return nil, err
+		}
+		return TwirEventChannelUnbanToGql(channelUnbanMessage), nil
 	}
 
 	return nil, fmt.Errorf("unknown event: %s", eventName)

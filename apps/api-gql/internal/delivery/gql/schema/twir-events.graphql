@@ -310,3 +310,13 @@ type EventModeratorRemovedMessage implements EventMessage {
 	userName: String!
 	userDisplayName: String!
 }
+
+type EventChannelUnbanMessage implements  EventMessage {
+	baseInfo: EventBaseInfo!
+	userId: String!
+	userName: String!
+	userDisplayName: String!
+	moderatorId: String!
+	moderatorName: String!
+	moderatorDisplayName: String!
+}

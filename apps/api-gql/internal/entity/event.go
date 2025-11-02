@@ -69,6 +69,7 @@ const (
 	EventTypeVipRemoved                 EventType = "VIP_REMOVED"
 	EventTypeModeratorAdded             EventType = "MODERATOR_ADDED"
 	EventTypeModeratorRemoved           EventType = "MODERATOR_REMOVED"
+	EventTypeChannelUnban               EventType = "CHANNEL_UNBAN"
 )
 
 var AllEventType = []EventType{
@@ -98,6 +99,11 @@ var AllEventType = []EventType{
 	EventTypeChannelUnbanRequestCreate,
 	EventTypeChannelUnbanRequestResolve,
 	EventTypeChannelMessageDelete,
+	EventTypeVipAdded,
+	EventTypeVipRemoved,
+	EventTypeModeratorAdded,
+	EventTypeModeratorRemoved,
+	EventTypeChannelUnban,
 }
 
 func (e EventType) IsValid() bool {
