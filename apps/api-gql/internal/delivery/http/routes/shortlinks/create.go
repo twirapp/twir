@@ -4,10 +4,12 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
@@ -18,27 +20,30 @@ import (
 var _ httpbase.Route[*createLinkInput, *httpbase.BaseOutputJson[linkOutputDto]] = (*create)(nil)
 
 type create struct {
-	config   config.Config
-	service  *shortenedurls.Service
-	sessions *auth.Auth
-	logger   logger.Logger
+	config      config.Config
+	service     *shortenedurls.Service
+	sessions    *auth.Auth
+	logger      logger.Logger
+	middlewares *middlewares.Middlewares
 }
 
 type CreateOpts struct {
 	fx.In
 
-	Config   config.Config
-	Service  *shortenedurls.Service
-	Sessions *auth.Auth
-	Logger   logger.Logger
+	Config      config.Config
+	Service     *shortenedurls.Service
+	Sessions    *auth.Auth
+	Logger      logger.Logger
+	Middlewares *middlewares.Middlewares
 }
 
 func newCreate(opts CreateOpts) *create {
 	return &create{
-		config:   opts.Config,
-		service:  opts.Service,
-		sessions: opts.Sessions,
-		logger:   opts.Logger,
+		config:      opts.Config,
+		service:     opts.Service,
+		sessions:    opts.Sessions,
+		logger:      opts.Logger,
+		middlewares: opts.Middlewares,
 	}
 }
 
@@ -49,6 +54,7 @@ func (c *create) GetMeta() huma.Operation {
 		Path:        "/v1/short-links",
 		Tags:        []string{"Short links"},
 		Summary:     "Create short url",
+		Middlewares: huma.Middlewares{c.middlewares.RateLimit("short-url-create", 10, 1*time.Minute)},
 	}
 }
 

@@ -13,7 +13,13 @@ directive @hasAccessToSelectedDashboard on FIELD_DEFINITION
 
 directive @validate(constraint: String!) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
+directive @rateLimit(
+	key: String!
+	capacity: Int!
+	window: Duration!
+) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
 scalar Upload
 scalar Time
 scalar UUID
+scalar Duration
