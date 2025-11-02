@@ -58,8 +58,9 @@ type Config struct {
 
 	EventSubDisableSignatureVerification bool `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
 
-	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
-	DonationAlertsSecret   string `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
+	DonationAlertsClientId string   `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
+	DonationAlertsSecret   string   `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
+	TrustedProxies         []string `envconfig:"TRUSTED_PROXIES"`
 }
 
 func (c *Config) GetTwitchCallbackUrl() string {
