@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
@@ -442,6 +443,7 @@ func main() {
 		),
 		// app itself
 		fx.Provide(
+			rate_limiter.NewLeakyBucket,
 			httpmiddlewares.New,
 			app.NewHuma,
 			dataloader.New,

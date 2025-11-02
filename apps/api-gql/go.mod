@@ -42,6 +42,7 @@ require (
 require (
 	github.com/ClickHouse/ch-go v0.67.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.39.0 // indirect
+	github.com/JGLTechnologies/gin-rate-limit v1.5.6 // indirect
 	github.com/Khan/genqlient v0.8.1 // indirect
 	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect

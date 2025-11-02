@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
@@ -44,6 +45,7 @@ type Opts struct {
 	CommandsResponseService *commands_responses.Service
 	TwitchService           *twitchservice.Service
 	DataLoaderFactory       *data_loader.LoaderFactory
+	Middlewares             *middlewares.Middlewares
 }
 
 func New(opts Opts) *Gql {
@@ -55,6 +57,7 @@ func New(opts Opts) *Gql {
 	graphConfig.Directives.IsAdmin = opts.Directives.IsAdmin
 	graphConfig.Directives.HasChannelRolesDashboardPermission = opts.Directives.HasChannelRolesDashboardPermission
 	graphConfig.Directives.Validate = opts.Directives.Validate
+	graphConfig.Directives.RateLimit = opts.Directives.RateLimit
 
 	schema := graph.NewExecutableSchema(graphConfig)
 
@@ -85,9 +88,7 @@ func New(opts Opts) *Gql {
 		),
 	)
 
-	// if opts.Config.AppEnv != "production" {
 	srv.Use(extension.Introspection{})
-	// }
 
 	playgroundHandler := playground.Handler("GraphQL", "/api/query")
 	opts.Server.Any(
@@ -99,6 +100,11 @@ func New(opts Opts) *Gql {
 	opts.Server.Any(
 		"/query",
 		opts.DataLoaderFactory.LoadMiddleware,
+		opts.Middlewares.RateLimit(
+			"graphql",
+			100,
+			60*time.Second,
+		),
 		func(c *gin.Context) {
 			srv.ServeHTTP(c.Writer, c.Request)
 		},
