@@ -1,13 +1,13 @@
 hints:
-  predictionResolveOutcomeNum: 'Variant number, for example: 1,2,3,4,5'
+  predictionResolveOutcomeNum: 'Číslo variantu, napríklad: 1, 2, 3, 4, 5'
   startPredictionDuration: '120'
-  startPredictionArgTitle: Will we win this game?
-  startPredictionArgVariants: 'Yes, win / No, lose'
+  startPredictionArgTitle: Vyhráme túto hru?
+  startPredictionArgVariants: 'Áno, výhra / Nie, prehra'
 errors:
-  cannot_create: Cannot create prediction
-  cannot_create_var: 'Cannot create prediction: {reason}'
-  cannot_get_current: Cannot get current prediction
-  cannot_get_current_var: 'Cannot get current prediction: {reason}'
+  cannot_create: Nepodarilo sa vytvoriť predikciu
+  cannot_create_var: 'Nepodarilo sa vytvoriť predikciu: {reason}'
+  cannot_get_current: Nepodarilo sa získať aktuálnu predikciu
+  cannot_get_current_var: 'Nepodarilo sa získať aktuálnu predikciu: {reason}'
   cannot_cancel: Cannot cancel prediction
   cannot_cancel_var: 'Cannot cancel prediction: {reason}'
   no_variant: No prediction variant
