@@ -1,15 +1,15 @@
 errors:
   # Alias
-  alias_cannot_get_existed_commands: Cannot get existed commands
-  alias_already_exist: 'Command with {alias} name or alias already exists'
-  alias_cannot_update: Cannot update command aliases
-  alias_not_command: That alias not in the command
+  alias_cannot_get_existed_commands: Nepodarilo sa získať existujúce príkazy
+  alias_already_exist: 'Príkaz s názvom alebo aliasom {alias} už existuje'
+  alias_cannot_update: Nepodarilo sa aktualizovať aliasy príkazu
+  alias_not_command: Tento alias nie je priradený k príkazu
   # Command
-  command_with_alias_already_exists: Command with that name or alias already exists
-  command_with_name_cannot_find: Command with that name not found
-  command_not_found: Command not found
-  command_cannot_get: Cannot get command
-  command_large_size: Command name cannot be greatest then 20.
+  command_with_alias_already_exists: Príkaz s týmto názvom alebo aliasom už existuje
+  command_with_name_cannot_find: Príkaz s týmto názvom sa nenašiel
+  command_not_found: Príkaz sa nenašiel
+  command_cannot_get: Nepodarilo sa získať príkaz
+  command_large_size: Názov príkazu nemôže mať viac než 20 znakov.
   command_have_no_aliases: Command have no aliases
   command_cannot_delete_default: Cannot delete default command
   command_cannot_update_response: Cannot update response because you have more than 1 response in command. Please use UI.
