@@ -11,6 +11,8 @@ type ShortenedUrl struct {
 	URL             string
 	CreatedByUserId *string
 	Views           int
+	UserAgent       *string
+	UserIp          *string
 }
 
 var Nil = ShortenedUrl{}

@@ -38,7 +38,7 @@ type Pgx struct {
 
 func (c *Pgx) GetManyByShortIDs(ctx context.Context, ids []string) ([]model.ShortenedUrl, error) {
 	query := `
-SELECT short_id, created_at, updated_at, url, created_by_user_id, views
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
 FROM shortened_urls
 WHERE short_id = ANY($1)
 `
@@ -99,7 +99,7 @@ func (c *Pgx) Update(
 ) (model.ShortenedUrl, error) {
 	updateBuilder := sq.Update("shortened_urls").
 		Where(squirrel.Eq{"short_id": id}).
-		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views")
+		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent")
 
 	if input.Views != nil {
 		updateBuilder = updateBuilder.Set("views", *input.Views)
@@ -126,7 +126,7 @@ func (c *Pgx) Update(
 
 func (c *Pgx) GetByUrl(ctx context.Context, url string) (model.ShortenedUrl, error) {
 	query := `
-SELECT short_id, created_at, updated_at, url, created_by_user_id, views
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
 FROM shortened_urls
 WHERE url = $1
 LIMIT 1
@@ -151,7 +151,7 @@ LIMIT 1
 
 func (c *Pgx) GetByShortID(ctx context.Context, id string) (model.ShortenedUrl, error) {
 	query := `
-SELECT short_id, created_at, updated_at, url, created_by_user_id, views
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
 FROM shortened_urls
 WHERE short_id = $1
 LIMIT 1
@@ -179,13 +179,21 @@ func (c *Pgx) Create(ctx context.Context, input shortened_urls.CreateInput) (
 	error,
 ) {
 	query := `
-INSERT INTO shortened_urls (short_id, url, created_by_user_id)
+INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent)
 VALUES ($1, $2, $3)
-RETURNING short_id, created_at, updated_at, url, created_by_user_id, views
+RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, input.ShortID, input.URL, input.CreatedByUserID)
+	rows, err := conn.Query(
+		ctx,
+		query,
+		input.ShortID,
+		input.URL,
+		input.CreatedByUserID,
+		input.UserIp,
+		input.UserAgent,
+	)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -202,7 +210,7 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 	shortened_urls.GetListOutput,
 	error,
 ) {
-	queryBuilder := sq.Select("short_id, created_at, updated_at, url, created_by_user_id, views").
+	queryBuilder := sq.Select("short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent").
 		From("shortened_urls").
 		OrderBy("created_at DESC")
 

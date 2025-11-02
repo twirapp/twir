@@ -38,6 +38,8 @@ type CreateInput struct {
 	CreatedByUserID *string
 	ShortID         string
 	URL             string
+	UserIp          *string
+	UserAgent       *string
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (model.ShortenedUrl, error) {
@@ -52,6 +54,8 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.Shortene
 			ShortID:         shortId,
 			URL:             input.URL,
 			CreatedByUserID: input.CreatedByUserID,
+			UserIp:          input.UserIp,
+			UserAgent:       input.UserAgent,
 		},
 	)
 }

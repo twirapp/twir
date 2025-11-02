@@ -21,6 +21,8 @@ type CreateInput struct {
 	ShortID         string
 	URL             string
 	CreatedByUserID *string
+	UserIp          *string
+	UserAgent       *string
 }
 
 type UpdateInput struct {

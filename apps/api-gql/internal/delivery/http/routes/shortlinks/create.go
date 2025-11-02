@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
+	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
@@ -118,11 +119,31 @@ func (c *create) Handler(
 		createdByUserID = &user.ID
 	}
 
+	clientIp, err := humahelpers.GetClientIpFromCtx(ctx)
+	if err != nil {
+		return nil, huma.NewError(
+			http.StatusInternalServerError,
+			"Internal error on getting your information",
+			err,
+		)
+	}
+
+	clientAgent, err := humahelpers.GetClientUserAgentFromCtx(ctx)
+	if err != nil {
+		return nil, huma.NewError(
+			http.StatusInternalServerError,
+			"Internal error on getting your information",
+			err,
+		)
+	}
+
 	link, err := c.service.Create(
 		ctx, shortenedurls.CreateInput{
-			URL:             input.Body.Url,
-			ShortID:         input.Body.Alias,
 			CreatedByUserID: createdByUserID,
+			ShortID:         input.Body.Alias,
+			URL:             input.Body.Url,
+			UserIp:          &clientIp,
+			UserAgent:       &clientAgent,
 		},
 	)
 	if err != nil {
