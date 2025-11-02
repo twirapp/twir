@@ -9,7 +9,15 @@ import { defineUrqlClient } from '#urql/client'
 export default defineUrqlClient((ssrExchange) => {
 	const exchanges = import.meta.server ? setupServer(ssrExchange) : setupClient(ssrExchange)
 
-	const headers = useRequestHeaders(['cookie', 'session'])
+	const headers = useRequestHeaders([
+		'cookie',
+		'session',
+		'x-forwarded-for',
+		'x-forwarded-proto',
+		'x-forwarded-host',
+		'x-real-ip',
+		'cf-connecting-ip',
+	])
 
 	return {
 		exchanges,

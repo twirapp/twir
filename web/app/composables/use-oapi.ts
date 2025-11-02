@@ -9,12 +9,23 @@ export function useOapi(opts?: { headers?: Record<string, any> }) {
 			: 'http://localhost:3009'
 		: `${window.location.origin}/api`
 
-	let headers = {}
+	let headers = opts?.headers ?? {}
 	try {
-		if (opts?.headers) {
-			headers = opts.headers
-		} else if (import.meta.server && useRequestHeaders) {
-			headers = useRequestHeaders(['cookie', 'session'])
+		if (import.meta.server && useRequestHeaders) {
+			const serverHeaders = useRequestHeaders([
+				'cookie',
+				'session',
+				'x-forwarded-for',
+				'x-forwarded-proto',
+				'x-forwarded-host',
+				'x-real-ip',
+				'cf-connecting-ip',
+			])
+
+			headers = {
+				...headers,
+				...serverHeaders,
+			}
 		}
 	} catch {}
 
