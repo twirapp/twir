@@ -10,16 +10,16 @@ errors:
   command_not_found: Príkaz sa nenašiel
   command_cannot_get: Nepodarilo sa získať príkaz
   command_large_size: Názov príkazu nemôže mať viac než 20 znakov.
-  command_have_no_aliases: Command have no aliases
-  command_cannot_delete_default: Cannot delete default command
-  command_cannot_update_response: Cannot update response because you have more than 1 response in command. Please use UI.
-  command_cannot_update: Cannot update command
-  command_cannot_save: Cannot save command
+  command_have_no_aliases: Príkaz nemá žiadne aliasy
+  command_cannot_delete_default: Nepodarilo sa zmazať predvolený príkaz
+  command_cannot_update_response: Nepodarilo sa aktualizovať odpoveď, pretože príkaz obsahuje viac než jednu odpoveď. Použi UI.
+  command_cannot_update: Nepodarilo sa aktualizovať príkaz
+  command_cannot_save: Nepodarilo sa uložiť príkaz
 add:
-  alias_add: '✅ Alias added'
-  command_add: '✅ Command added'
+  alias_add: '✅ Alias pridaný'
+  command_add: '✅ Príkaz pridaný'
 edit:
-  command_edited: '✅ Command edited'
+  command_edited: '✅ Príkaz bol upravený'
 remove:
-  alias_removed: '✅ Alias removed'
-  command_removed: '✅ Command removed'
+  alias_removed: '✅ Alias odstránený'
+  command_removed: '✅ Príkaz odstránený'
