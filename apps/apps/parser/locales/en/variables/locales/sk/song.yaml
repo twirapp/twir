@@ -1,8 +1,8 @@
 info:
-  lastfm_integration: LastFM integration not enabled
-  spotify_not_connected: Spotify not connected
-  failed_get_spotify_integration: Failed to get spotify integration
-  get_spotify_entity: Failed to get spotify entity
+  lastfm_integration: Integrácia LastFM nie je povolená
+  spotify_not_connected: Spotify nie je pripojené
+  failed_get_spotify_integration: Nepodarilo sa získať integráciu so Spotify
+  get_spotify_entity: Spotify entitu sa nepodarilo načítať
   get_spotify_integration: 'Cannot get spotify integration: {reason}'
   history: '{trackTitle} - {trackArtist} (~{minutes}m ago)'
   no_needed_scope: 'No needed scope, reconnect spotify in dashboard'
