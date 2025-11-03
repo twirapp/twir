@@ -1,4 +1,4 @@
 errors:
-  wrong_numbers: 'Wrong number: {reason}'
-  update_custom_var: Cannot update custom variables
-  evaluate_variable: 'Cannot evaluate variable. This is internal error, please report this bug'
+  wrong_numbers: 'Neplatné číslo: {reason}'
+  update_custom_var: Nepodarilo sa aktualizovať vlastné premenné
+  evaluate_variable: 'Nepodarilo sa vyhodnotiť premennú. Ide o internú chybu, prosím nahlás tento problém'
