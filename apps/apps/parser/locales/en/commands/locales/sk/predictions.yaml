@@ -8,12 +8,12 @@ errors:
   cannot_create_var: 'Nepodarilo sa vytvoriť predikciu: {reason}'
   cannot_get_current: Nepodarilo sa získať aktuálnu predikciu
   cannot_get_current_var: 'Nepodarilo sa získať aktuálnu predikciu: {reason}'
-  cannot_cancel: Cannot cancel prediction
-  cannot_cancel_var: 'Cannot cancel prediction: {reason}'
-  no_variant: No prediction variant
+  cannot_cancel: Nepodarilo sa zrušiť predikciu
+  cannot_cancel_var: 'Nepodarilo sa zrušiť predikciu: {reason}'
+  no_variant: Žiadna varianta predikcie
 info:
-  no_runed: No prediction runed
-  cancel: '✅ Prediction canceled'
-  locked: '✅ Prediction locked'
-  resolved: '✅ Prediction resolved'
-  started: '✅ Prediction started'
+  no_runed: Nie je spustená žiadna predikcia
+  cancel: '✅ Predikcia zrušená'
+  locked: '✅ Predikcia uzamknutá'
+  resolved: '✅ Predikcia ukončená'
+  started: '✅ Predikcia spustená'
