@@ -1,4 +1,4 @@
 info:
-  no_passed_params: Neprešli parametre do premennej
+  no_passed_params: Neboli odovzdané parametre do premennej
   command_with_name_not_found: 'Príkaz s názvom {commandName} nebol nájdený'
   get_count: Nepodarilo sa získať počet
