@@ -9,8 +9,8 @@ info:
   enabled: TTS aktivované
   pitch: 'Globálny tón: {globalPitch} | Tvoj tón: {userPitch}'
   change_pitch: 'Výška tónu zmenená na {newPitch}'
-  rate: 'Globálna sadzba: {globalRate} | Tvoja sadzba: {userRate}'
-  change_rate: 'Sadzba zmenená na {newRate}'
+  rate: 'Globálna rýchlosť: {globalRate} | Tvoja rýchlosť: {userRate}'
+  change_rate: 'Rýchlosť zmenená na {newRate}'
   voice: 'Globálny hlas: {globalVoice} | Tvoj hlas: {userVoice}'
   change_voice: Hlas zmenený na {newVoice}
   no_voices: Nie sú dostupné žiadne hlasy
