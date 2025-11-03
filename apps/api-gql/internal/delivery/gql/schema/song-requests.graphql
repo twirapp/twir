@@ -123,9 +123,9 @@ input SongRequestsTranslationsOpts {
 	notEnabled: String! @validate(constraint: "max=400")
 	noText: String! @validate(constraint: "max=400")
 	acceptOnlyWhenOnline: String! @validate(constraint: "max=400")
-	user: SongRequestsUserTranslationsOpts! @validate(constraint: "max=400")
-	song: SongRequestsSongTranslationsOpts! @validate(constraint: "max=400")
-	channel: SongRequestsChannelTranslationsOpts! @validate(constraint: "max=400")
+	user: SongRequestsUserTranslationsOpts!
+	song: SongRequestsSongTranslationsOpts!
+	channel: SongRequestsChannelTranslationsOpts!
 }
 
 input SongRequestsUserTranslationsOpts {

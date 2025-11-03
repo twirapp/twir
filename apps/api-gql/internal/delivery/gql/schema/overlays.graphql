@@ -89,7 +89,7 @@ type NowPlayingOverlay {
 }
 
 input NowPlayingOverlayMutateOpts {
-	preset: NowPlayingOverlayPreset @validate(constraint: "max=90,omitempty")
+	preset: NowPlayingOverlayPreset @validate(constraint: "omitempty")
 	fontFamily: String @validate(constraint: "max=90,omitempty")
 	fontWeight: Int @validate(constraint: "lte=1000,omitempty")
 	backgroundColor: String @validate(constraint: "max=1000,omitempty")

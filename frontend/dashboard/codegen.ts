@@ -40,6 +40,9 @@ const config: CodegenConfig = {
 			// 	addTypenameSelectionDocumentTransform,
 			// ],
 		},
+		'./src/gql/validation-schemas.ts': {
+			plugins: ['./codegen-plugins/zod.ts'],
+		},
 	},
 }
 

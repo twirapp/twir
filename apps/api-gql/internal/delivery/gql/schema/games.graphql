@@ -124,7 +124,7 @@ input VotebanGameOpts {
 	surviveMessageModerators: String @validate(constraint: "max=500")
 	neededVotes: Int @validate(constraint: "min=1,max=999999")
 	voteDuration: Int @validate(constraint: "min=1,max=86400")
-	votingMode: VoteBanGameVotingMode @validate(constraint: "max=500")
+	votingMode: VoteBanGameVotingMode
 	chatVotesWordsPositive: [String!] @validate(constraint: "dive,max=500")
 	chatVotesWordsNegative: [String!] @validate(constraint: "dive,max=500")
 }
