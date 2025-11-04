@@ -26,6 +26,19 @@ var EmotesUsers = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		var page = 1
+
+		if parseCtx.Text != nil {
+			p, err := strconv.Atoi(*parseCtx.Text)
+			if err == nil {
+				page = p
+			}
+
+			if page <= 0 {
+				page = 1
+			}
+		}
+
 		limit := 10
 		if variableData.Params != nil {
 			newLimit, err := strconv.Atoi(*variableData.Params)
@@ -44,6 +57,7 @@ FROM users_stats
 WHERE "channelId" = ? AND emotes > 0
 ORDER BY emotes DESC
 LIMIT ?
+OFFSET ?
 `
 
 		usages := make([]emotesUsersRow, 0, limit)
@@ -51,7 +65,7 @@ LIMIT ?
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Raw(
-				query, parseCtx.Channel.ID, limit,
+				query, parseCtx.Channel.ID, limit, limit*(page-1),
 			).
 			Scan(&usages).
 			Error

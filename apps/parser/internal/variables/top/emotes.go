@@ -29,6 +29,19 @@ var Emotes = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		var page = 1
+
+		if parseCtx.Text != nil {
+			p, err := strconv.Atoi(*parseCtx.Text)
+			if err == nil {
+				page = p
+			}
+
+			if page <= 0 {
+				page = 1
+			}
+		}
+
 		limit := 10
 		if variableData.Params != nil {
 			newLimit, err := strconv.Atoi(*variableData.Params)
@@ -47,6 +60,7 @@ var Emotes = &types.Variable{
 				ChannelID: parseCtx.Channel.ID,
 				PerPage:   limit,
 				Sort:      channelsemotesusagesrepository.SortDesc,
+				Page:      page - 1,
 			},
 		)
 		if err != nil {

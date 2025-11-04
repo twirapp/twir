@@ -34,7 +34,7 @@ var SongRequesters = &types.Variable{
 
 		if parseCtx.Text != nil {
 			p, err := strconv.Atoi(*parseCtx.Text)
-			if err != nil {
+			if err == nil {
 				page = p
 			}
 
