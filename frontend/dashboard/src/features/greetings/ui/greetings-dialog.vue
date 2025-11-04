@@ -1,18 +1,15 @@
-<script setup lang='ts'>
-import {
-	type FormInst,
-	type FormItemRule,
-	type FormRules,
-	NForm,
-	NFormItem,
-	NSpace,
-	NSwitch,
-} from 'naive-ui'
-import { ref, toRaw, watch } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 
-import type { GreetingsCreateInput } from '@/gql/graphql'
-
+import {
+	type GreetingsCreateInputInput,
+	GreetingsCreateInputSchema,
+	type GreetingsUpdateInputInput,
+	GreetingsUpdateInputSchema,
+} from '@/gql/validation-schemas.js'
 import { type Greetings, useGreetingsApi } from '@/api/greetings'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import TwitchUserSelect from '@/components/twitchUsers/twitch-user-select.vue'
@@ -25,6 +22,9 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import VariableInput from '@/components/variable-input.vue'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Switch } from '@/components/ui/switch'
+import { useToast } from '@/components/ui/toast'
 
 const props = defineProps<{
 	greeting?: Greetings | null
@@ -34,83 +34,70 @@ const emits = defineEmits<{
 	close: []
 }>()
 
+const greetingForm = useForm({
+	validationSchema: toTypedSchema(
+		props.greeting ? GreetingsUpdateInputSchema : GreetingsCreateInputSchema
+	),
+	keepValuesOnUnmount: true,
+	validateOnMount: false,
+	initialValues: {
+		userId: props.greeting?.userId ?? '',
+		text: props.greeting?.text,
+		enabled: props.greeting?.enabled ?? true,
+		isReply: props.greeting?.isReply ?? true,
+		withShoutOut: props.greeting?.withShoutOut ?? false,
+	},
+})
+
 const open = ref(false)
-const formRef = ref<FormInst | null>(null)
-const defaultFormValue: Omit<Greetings, 'twitchProfile'> = {
-	id: '',
-	text: '',
-	userId: '',
-	enabled: true,
-	isReply: true,
-	withShoutOut: false,
-}
-
-const formValue = ref(structuredClone(defaultFormValue))
-function resetFormValue() {
-	formValue.value = structuredClone(defaultFormValue)
-}
-
-watch(() => props.greeting, (greeting) => {
-	if (!greeting) return
-	formValue.value = structuredClone(toRaw(greeting))
-}, { immediate: true })
 
 const greetingsApi = useGreetingsApi()
 const greetingsUpdate = greetingsApi.useMutationUpdateGreetings()
 const greetingsCreate = greetingsApi.useMutationCreateGreetings()
 
-async function save() {
-	if (!formRef.value || !formValue.value) return
-	await formRef.value.validate()
+function isUpdate(
+	values: GreetingsCreateInputInput | GreetingsUpdateInputInput
+): values is GreetingsUpdateInputInput {
+	return !props.greeting?.id && Object.values(values).some((v) => v === undefined)
+}
 
-	const data = formValue.value
-	const opts: GreetingsCreateInput = {
-		enabled: data.enabled,
-		isReply: data.isReply,
-		text: data.text,
-		userId: data.userId,
-		withShoutOut: data.withShoutOut,
-	}
+const { toast } = useToast()
 
+const onSubmit = greetingForm.handleSubmit(async (values) => {
 	try {
-		if (data.id) {
+		if (isUpdate(values)) {
 			await greetingsUpdate.executeMutation({
-				id: data.id,
-				opts,
+				id: props.greeting!.id,
+				opts: values,
 			})
 		} else {
-			await greetingsCreate.executeMutation({ opts })
+			await greetingsCreate.executeMutation({ opts: values })
 		}
 		emits('close')
 		open.value = false
+
+		toast({
+			description: 'Saved',
+			duration: 2500,
+		})
 	} catch (e) {
 		console.error(e)
+
+		if ('message' in (e as Error)) {
+			toast({
+				// oxlint-disable-next-line ban-ts-comment
+				// @ts-expect-error
+				description: `Error ${e.message}`,
+			})
+		}
 	}
-}
+})
 
 const { t } = useI18n()
-
-const rules: FormRules = {
-	userId: {
-		trigger: ['input', 'blur'],
-		validator: (_: FormItemRule, value: string) => {
-			if (!value || !value.length) {
-				return new Error(t('greetings.validations.userName'))
-			}
-
-			return true
-		},
-	},
-}
 </script>
 
 <template>
-	<Dialog
-		v-model:open="open"
-		@update:open="(state) => {
-			if (!state && !greeting) resetFormValue()
-		}"
-	>
+	<Dialog v-model:open="open">
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
 		</DialogTrigger>
@@ -120,31 +107,58 @@ const rules: FormRules = {
 					{{ greeting ? t('greetings.edit') : t('greetings.create') }}
 				</DialogTitle>
 			</DialogHeader>
-			<NForm ref="formRef" :model="formValue" :rules="rules">
-				<div class="grid gap-4 py-4">
-					<NSpace vertical class="w-full">
-						<NFormItem :label="t('sharedTexts.userName')" path="userId" show-require-mark>
-							<TwitchUserSelect v-model="formValue.userId" twir-only />
-						</NFormItem>
-						<NFormItem :label="t('sharedTexts.response')" path="text">
-							<VariableInput v-model="formValue.text" input-type="textarea" />
-						</NFormItem>
+			<form @submit="onSubmit" class="grid gap-4 py-4">
+				<FormField v-slot="{ componentField }" name="userId">
+					<FormItem>
+						<FormLabel>{{ t('sharedTexts.userName') }}</FormLabel>
+						<FormControl>
+							<TwitchUserSelect
+								v-model="componentField.modelValue"
+								@update:model-value="componentField['onUpdate:modelValue']"
+								twir-only
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
-						<NFormItem label="Send shoutout with greeting" path="text">
-							<NSwitch v-model:value="formValue.withShoutOut" />
-						</NFormItem>
-
-						<NFormItem :label="t('sharedTexts.reply.text')" path="text">
-							<NSwitch v-model:value="formValue.isReply" />
-						</NFormItem>
-					</NSpace>
+				<div class="relative">
+					<FormField v-slot="{ componentField }" name="text">
+						<FormItem>
+							<FormLabel>{{ t('sharedTexts.response') }}</FormLabel>
+							<FormControl>
+								<VariableInput v-bind="componentField" input-type="textarea" />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
 				</div>
+
+				<FormField v-slot="{ value, handleChange }" name="withShoutOut">
+					<FormItem class="flex justify-between items-center flex-wrap">
+						<FormLabel>Send shoutout with greeting</FormLabel>
+						<FormControl>
+							<Switch :checked="value" @update:checked="handleChange" />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
+
+				<FormField v-slot="{ value, handleChange }" name="isReply">
+					<FormItem class="flex justify-between items-center flex-wrap">
+						<FormLabel>{{ t('sharedTexts.reply.text') }}</FormLabel>
+						<FormControl>
+							<Switch :checked="value" @update:checked="handleChange" />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 				<DialogFooter>
-					<Button type="submit" @click="save">
+					<Button type="submit">
 						{{ t('sharedButtons.save') }}
 					</Button>
 				</DialogFooter>
-			</NForm>
+			</form>
 		</DialogOrSheet>
 	</Dialog>
 </template>

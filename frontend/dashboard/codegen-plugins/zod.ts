@@ -1,5 +1,3 @@
-// *super puper vibe-coded graphql validation -> zod schemas plugin *
-
 import type { CodegenPlugin, Types } from '@graphql-codegen/plugin-helpers'
 import type { DirectiveNode, GraphQLSchema, InputObjectTypeDefinitionNode } from 'graphql'
 import { print } from 'graphql'
@@ -23,6 +21,10 @@ export const plugin: (
 	content: string
 } = (schema: GraphQLSchema, _documents: Types.DocumentFile[], config: ZodValidatorPluginConfig) => {
 	const { debug = false, importFrom } = config
+	const header = `
+/**
+	Code generated. DO NOT EDIT.
+*/`
 	const zodImport = importFrom ? `import { z } from '${importFrom}';` : `import { z } from 'zod';`
 
 	// --------------------------------------------------------------------- //
@@ -43,7 +45,7 @@ export const plugin: (
 	// --------------------------------------------------------------------- //
 	const generated = inputTypes.map((input) => generateZodSchema(input, schema))
 
-	const content = `${zodImport}\n\n${generated.join('\n\n')}\n`
+	const content = `${header}\n\n${zodImport}\n\n${generated.join('\n\n')}\n`
 
 	if (debug) {
 		console.log(
@@ -72,10 +74,7 @@ function generateZodSchema(input: InputObjectTypeDefinitionNode, schema: GraphQL
 		const hasOmitempty = rawConstraint?.includes('omitempty') ?? false
 		const isOptional = !isNonNull || hasQuestionMark || hasOmitempty
 
-		// ---- base Zod type ----------------------------------------------- //
-		let validator = getBaseZodType(field.type, schema)
-
-		// ---- apply constraints (except omitempty) ------------------------ //
+		// ---- constraints ------------------------------------------------- //
 		const constraints = rawConstraint
 			? rawConstraint
 					.split(',')
@@ -83,38 +82,40 @@ function generateZodSchema(input: InputObjectTypeDefinitionNode, schema: GraphQL
 					.filter((s) => s !== 'omitempty')
 			: []
 
-		// apply simple constraints
-		for (const part of constraints) {
-			if (part.startsWith('max=')) {
-				const val = part.split('=')[1]
-				validator = `${validator}.max(${val})`
-			} else if (part.startsWith('min=')) {
-				const val = part.split('=')[1]
-				validator = `${validator}.min(${val})`
-			} else if (part.startsWith('lte=')) {
-				const val = part.split('=')[1]
-				validator = `${validator}.max(${val})`
-			}
-		}
-
+		const hasDive = constraints.includes('dive')
 		const isList =
 			field.type.kind === 'ListType' ||
 			(field.type.kind === 'NonNullType' && field.type.type.kind === 'ListType')
 
-		if (isList && constraints.includes('dive')) {
+		// Length-related tags
+		const lengthTags = new Set(['min', 'max', 'len', 'lte', 'gte'])
+		const lengthParts = constraints.filter((part) => {
+			const [tag] = part.split('=')
+			return lengthTags.has(tag!)
+		})
+
+		// Parts to apply to outer validator
+		const partsToApply = isList && hasDive ? lengthParts : constraints.filter((c) => c !== 'dive')
+
+		// ---- base validator ---------------------------------------------- //
+		let validator: string
+		let inner: string | null = null
+		if (isList) {
 			const innerNode = field.type.kind === 'ListType' ? field.type.type : field.type.type
-
-			let inner = getBaseZodType(innerNode, schema)
-			const diveConstraints = constraints.filter((c) => c !== 'dive')
-
-			for (const part of diveConstraints) {
-				if (part.startsWith('max=')) inner = `${inner}.max(${part.split('=')[1]})`
-				if (part.startsWith('min=')) inner = `${inner}.min(${part.split('=')[1]})`
-				if (part.startsWith('lte=')) inner = `${inner}.max(${part.split('=')[1]})`
+			inner = getBaseZodType(innerNode, schema)
+			if (hasDive) {
+				inner = applyConstraints(
+					inner,
+					constraints.filter((c) => c !== 'dive')
+				)
 			}
-
 			validator = `z.array(${inner})`
+		} else {
+			validator = getBaseZodType(field.type, schema)
 		}
+
+		// Apply constraints to outer
+		validator = applyConstraints(validator, partsToApply)
 
 		// ---- make optional ------------------------------------------------ //
 		if (isOptional) {
@@ -127,6 +128,59 @@ function generateZodSchema(input: InputObjectTypeDefinitionNode, schema: GraphQL
 	return `export const ${name}Schema = z.object({\n${zodFields.join(
 		'\n'
 	)}\n});\n\nexport type ${name}Input = z.infer<typeof ${name}Schema>;`
+}
+
+/* --------------------------------------------------------------------- */
+/* Helper: apply constraints to a base Zod validator string             */
+/* --------------------------------------------------------------------- */
+function applyConstraints(base: string, parts: string[]): string {
+	let v = base
+	for (const part of parts) {
+		const [tag, paramStr] = part.split('=')
+		const param = paramStr ?? null
+		if (tag === 'min' && param !== null) {
+			v = `${v}.min(${param})`
+		} else if (tag === 'max' && param !== null) {
+			v = `${v}.max(${param})`
+		} else if (tag === 'len' && param !== null) {
+			v = `${v}.length(${param})`
+		} else if (tag === 'lte' && param !== null) {
+			v = `${v}.max(${param})`
+		} else if (tag === 'gte' && param !== null) {
+			v = `${v}.min(${param})`
+		} else if (tag === 'email') {
+			v = `${v}.email()`
+		} else if (tag === 'url') {
+			v = `${v}.url()`
+		} else if (tag === 'startswith' && param !== null) {
+			const p = JSON.stringify(param)
+			v = `${v}.startsWith(${p})`
+		} else if (tag === 'endswith' && param !== null) {
+			const p = JSON.stringify(param)
+			v = `${v}.endsWith(${p})`
+		} else if (tag === 'startsnotwith' && param !== null) {
+			const p = JSON.stringify(param)
+			v = `${v}.refine(val => !val.startsWith(${p}))`
+		} else if (tag === 'endsnotwith' && param !== null) {
+			const p = JSON.stringify(param)
+			v = `${v}.refine(val => !val.endsWith(${p}))`
+		} else if (tag === 'contains' && param !== null) {
+			const p = JSON.stringify(param)
+			v = `${v}.includes(${p})`
+		} else if (tag === 'excludes' && param !== null) {
+			const p = JSON.stringify(param)
+			v = `${v}.refine(val => !val.includes(${p}))`
+		} else if (tag === 'alpha') {
+			v = `${v}.regex(/^[a-zA-Z]+$/i)`
+		} else if (tag === 'required') {
+			// Basic required handling: ensure non-empty for strings/arrays
+			if (v.includes('z.string') || v.includes('z.array')) {
+				v = `${v}.min(1)`
+			}
+		}
+		// Add more constraints here as needed from go-playground/validator tags
+	}
+	return v
 }
 
 /* --------------------------------------------------------------------- */
