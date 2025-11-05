@@ -29,7 +29,7 @@ type TimerResponse {
 input TimerCreateInput {
 	name: String! @validate(constraint: "max=50")
 	enabled: Boolean!
-	timeInterval: Int! @validate(constraint: "min=1,max=999999")
+	timeInterval: Int! @validate(constraint: "min=0,max=999999")
 	messageInterval: Int! @validate(constraint: "min=0,max=999999")
 	responses: [TimerResponseCreateInput!]!
 }

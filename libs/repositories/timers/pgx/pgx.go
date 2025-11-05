@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories/timers"
@@ -345,4 +346,116 @@ func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (c *Pgx) Count(ctx context.Context, input timers.CountInput) (int64, error) {
+	qb := sq.Select("COUNT(*)").From("channels_timers")
+
+	if input.ChannelID != nil {
+		qb = qb.Where(squirrel.Eq{`"channelId"`: *input.ChannelID})
+	}
+
+	if input.Enabled != nil {
+		qb = qb.Where(squirrel.Eq{"enabled": *input.Enabled})
+	}
+
+	query, args, err := qb.ToSql()
+	if err != nil {
+		return 0, fmt.Errorf("failed to build count query: %w", err)
+	}
+
+	var count int64
+	err = c.pool.QueryRow(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count timers: %w", err)
+	}
+
+	return count, nil
+}
+
+func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]model.Timer, error) {
+	qb := sq.Select(
+		"t.id",
+		`t."channelId"`,
+		"t.name",
+		"t.enabled",
+		`t."timeInterval"`,
+		`t."messageInterval"`,
+		`t."lastTriggerMessageNumber"`,
+		`COALESCE(
+		json_agg(
+			json_build_object(
+				'id',            tr.id,
+				'text',          tr.text,
+				'isAnnounce',    tr."isAnnounce",
+				'timerId',       tr."timerId",
+				'count',         tr.count,
+				'announce_color',tr.announce_color
+			)
+		),
+		'[]'::json
+	) AS responses`,
+	).
+		From("channels_timers t").
+		LeftJoin(`channels_timers_responses tr ON t.id = tr."timerId"`).
+		GroupBy("t.id")
+
+	if input.ChannelID != nil {
+		qb = qb.Where(squirrel.Eq{"t.channelId": *input.ChannelID})
+	}
+	if input.Enabled != nil {
+		qb = qb.Where(squirrel.Eq{"t.enabled": *input.Enabled})
+	}
+
+	if input.Limit > 0 {
+		qb = qb.Limit(uint64(input.Limit))
+	}
+	if input.Offset > 0 {
+		qb = qb.Offset(uint64(input.Offset))
+	}
+
+	qb = qb.OrderBy("t.id")
+
+	query, args, err := qb.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build get many query: %w", err)
+	}
+
+	rows, err := c.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query timers: %w", err)
+	}
+	defer rows.Close()
+
+	var result []model.Timer
+
+	for rows.Next() {
+		var (
+			timer        model.Timer
+			rawResponses []byte
+		)
+
+		if err := rows.Scan(
+			&timer.ID,
+			&timer.ChannelID,
+			&timer.Name,
+			&timer.Enabled,
+			&timer.TimeInterval,
+			&timer.MessageInterval,
+			&timer.LastTriggerMessageNumber,
+			&rawResponses, // responses JSON
+		); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+
+		var responses []model.Response
+		if err := json.Unmarshal(rawResponses, &responses); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal responses JSON: %w", err)
+		}
+		timer.Responses = responses
+
+		result = append(result, timer)
+	}
+
+	return result, nil
 }

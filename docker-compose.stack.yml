@@ -389,11 +389,8 @@ services:
     networks:
       - twir
     deploy:
-      update_config:
-        parallelism: 2
-        order: start-first
       mode: replicated
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
         delay: 30s

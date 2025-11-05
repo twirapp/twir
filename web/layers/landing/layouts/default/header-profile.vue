@@ -39,7 +39,7 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 					class="w-8 h-8 rounded-full flex-shrink-0"
 				/>
 				<span class="max-[600px]:hidden truncate">
-					{{ userStore.userWithoutDashboards.twitchProfile.login }}
+					{{ userStore.userWithoutDashboards?.twitchProfile.login }}
 				</span>
 				<Icon name="lucide:chevron-down" class="w-4 h-4 flex-shrink-0" />
 			</div>

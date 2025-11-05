@@ -14,6 +14,8 @@ type Repository interface {
 	Create(ctx context.Context, data CreateInput) (model.Timer, error)
 	UpdateByID(ctx context.Context, id uuid.UUID, data UpdateInput) (model.Timer, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	Count(ctx context.Context, input CountInput) (int64, error)
+	GetMany(ctx context.Context, input GetManyInput) ([]model.Timer, error)
 }
 
 type CreateInput struct {
@@ -38,4 +40,16 @@ type UpdateInput struct {
 	TimeInterval    *int
 	MessageInterval *int
 	Responses       []CreateResponse
+}
+
+type CountInput struct {
+	ChannelID *string
+	Enabled   *bool
+}
+
+type GetManyInput struct {
+	ChannelID *string
+	Enabled   *bool
+	Limit     int
+	Offset    int
 }

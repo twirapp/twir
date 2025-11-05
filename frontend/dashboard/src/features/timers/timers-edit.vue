@@ -20,12 +20,20 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import VariableInput from '@/components/variable-input.vue'
 import { formSchema, useTimersEdit } from '@/features/timers/composables/use-timers-edit.js'
 import { TwitchAnnounceColor } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
+import { Separator } from '@/components/ui/separator'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -63,9 +71,7 @@ const responsesHasError = computed(() => {
 </script>
 
 <template>
-	<form
-		@submit="onSubmit"
-	>
+	<form @submit="onSubmit">
 		<PageLayout sticky-header show-back backRedirectTo="/dashboard/timers">
 			<template #title>
 				{{ route.params.id === 'create' ? t('sharedTexts.create') : t('sharedTexts.edit') }}
@@ -95,17 +101,22 @@ const responsesHasError = computed(() => {
 								<FormItem>
 									<FormLabel>{{ t('timers.table.columns.intervalInMinutes') }}</FormLabel>
 									<FormControl>
-										<Slider
-											:model-value="[componentField.modelValue]"
-											:max="100"
-											:default-value="[0, 100]"
-											:min="0"
-											:step="1"
-											@update:model-value="(v) => {
-												if (!v) return
-												componentField.onChange(v[0])
-											}"
-										/>
+										<div class="flex gap-6 flex-wrap">
+											<Input type="number" v-bind="componentField" />
+											<Slider
+												:model-value="[componentField.modelValue]"
+												:max="1000"
+												:default-value="[0, 1000]"
+												:min="0"
+												:step="1"
+												@update:model-value="
+													(v) => {
+														if (!v) return
+														componentField.onChange(v[0])
+													}
+												"
+											/>
+										</div>
 									</FormControl>
 									<FormMessage />
 									<FormDescription class="flex justify-end">
@@ -113,6 +124,8 @@ const responsesHasError = computed(() => {
 									</FormDescription>
 								</FormItem>
 							</FormField>
+
+							<Separator class="my-4" />
 
 							<FormField v-slot="{ componentField }" name="messageInterval">
 								<FormItem>
@@ -126,11 +139,13 @@ const responsesHasError = computed(() => {
 						</CardContent>
 					</Card>
 
-					<Label
-						:class="{ 'text-destructive': responsesHasError }"
-					>{{ t('sharedTexts.responses') }}</Label>
+					<Label :class="{ 'text-destructive': responsesHasError }">{{
+						t('sharedTexts.responses')
+					}}</Label>
 					<span class="text-sm text-muted-foreground">
-						Responses are sent in sequence: the first on the initial trigger, the second after <b>{{ controlledValues.timeInterval }}</b> minutes, etc., cycling back to the first after last are sent.
+						Responses are sent in sequence: the first on the initial trigger, the second after
+						<b>{{ controlledValues.timeInterval }}</b> minutes, etc., cycling back to the first
+						after last are sent.
 					</span>
 
 					<FieldArray v-slot="{ fields, push, remove }" name="responses">
@@ -167,14 +182,21 @@ const responsesHasError = computed(() => {
 																How many times send this message on trigger
 															</Label>
 
-															<Input :id="`responses[${index}].count`" v-model:modelValue="(field.value as any).count" type="number" />
+															<Input
+																:id="`responses[${index}].count`"
+																v-model:modelValue="(field.value as any).count"
+																type="number"
+															/>
 														</div>
 
 														<div class="flex flex-col gap-2">
 															<Label :for="`responses[${index}].isAnnounce`">
 																Send as announcement
 															</Label>
-															<Checkbox :id="`responses[${index}].isAnnounce`" v-model:checked="(field.value as any).isAnnounce" />
+															<Checkbox
+																:id="`responses[${index}].isAnnounce`"
+																v-model:checked="(field.value as any).isAnnounce"
+															/>
 														</div>
 
 														<div class="flex flex-col gap-2">
@@ -191,8 +213,14 @@ const responsesHasError = computed(() => {
 																</SelectTrigger>
 																<SelectContent>
 																	<SelectGroup>
-																		<SelectItem v-for="color of TwitchAnnounceColor" :key="color" :value="color">
-																			{{ color.at(0)!.toUpperCase() + color.slice(1).toLowerCase() }}
+																		<SelectItem
+																			v-for="color of TwitchAnnounceColor"
+																			:key="color"
+																			:value="color"
+																		>
+																			{{
+																				color.at(0)!.toUpperCase() + color.slice(1).toLowerCase()
+																			}}
 																		</SelectItem>
 																	</SelectGroup>
 																</SelectContent>
@@ -200,7 +228,11 @@ const responsesHasError = computed(() => {
 														</div>
 													</div>
 
-													<Button variant="outline" class="flex gap-2 place-self-end" @click="remove(index)">
+													<Button
+														variant="outline"
+														class="flex gap-2 place-self-end"
+														@click="remove(index)"
+													>
 														<TrashIcon class="size-4" />
 														Remove
 													</Button>

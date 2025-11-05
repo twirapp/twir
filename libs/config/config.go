@@ -63,6 +63,14 @@ type Config struct {
 	TrustedProxies         []string `envconfig:"TRUSTED_PROXIES"`
 }
 
+func (c *Config) IsProduction() bool {
+	return c.AppEnv == "production"
+}
+
+func (c *Config) IsDevelopment() bool {
+	return c.AppEnv == "development"
+}
+
 func (c *Config) GetTwitchCallbackUrl() string {
 	u, err := url.Parse(c.SiteBaseUrl)
 	if err != nil {

@@ -111,5 +111,9 @@ func (c *Handler) updateBotStatus(
 	err = c.gorm.Save(&channel).Error
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
+	} else {
+		if err = c.channelsCache.Invalidate(ctx, channelId); err != nil {
+			c.logger.Error(err.Error(), slog.Any("err", err))
+		}
 	}
 }

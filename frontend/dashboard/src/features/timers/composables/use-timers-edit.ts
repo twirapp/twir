@@ -10,7 +10,7 @@ import { TwitchAnnounceColor } from '@/gql/graphql.ts'
 export const formSchema = object({
 	id: string().optional(),
 	name: string().min(2).max(50),
-	timeInterval: number().int().min(0).max(100).default(0),
+	timeInterval: number().int().min(0).max(1000).default(0),
 	messageInterval: number().int().min(0).max(5000).default(0),
 	responses: array(
 		object({
@@ -18,7 +18,7 @@ export const formSchema = object({
 			isAnnounce: boolean(),
 			count: number().int().min(1).max(20).default(1),
 			announceColor: nativeEnum(TwitchAnnounceColor).default(TwitchAnnounceColor.Primary),
-		}),
+		})
 	).min(1),
 	enabled: boolean().default(true),
 })
@@ -65,7 +65,7 @@ export const useTimersEdit = createGlobalState(() => {
 
 			if (result.error) {
 				toast({
-					title: result.error.graphQLErrors?.map(e => e.message).join(', ') ?? 'error',
+					title: result.error.graphQLErrors?.map((e) => e.message).join(', ') ?? 'error',
 					duration: 5000,
 					variant: 'destructive',
 				})
