@@ -76,13 +76,11 @@ func (c *Manager) tryTick(id TimerID) {
 	case timeInterval == 0 && messageInterval > 0:
 		if messagesSinceLast >= messageInterval {
 			shouldSend = true
-			t.lastTriggerMessageNumber = streamParsedMessages
 		}
 		break
 	case timeInterval > 0 && messageInterval == 0:
 		if secondsSinceLast >= timeInterval.Seconds() {
 			shouldSend = true
-			t.lastTriggerTimestamp = now
 		}
 		break
 	case timeInterval > 0 && messageInterval > 0:
@@ -92,11 +90,9 @@ func (c *Manager) tryTick(id TimerID) {
 		)
 		if secondsSinceLast >= timeInterval.Seconds() {
 			timeTriggered = true
-			t.lastTriggerTimestamp = now
 		}
 		if messagesSinceLast >= messageInterval {
 			msgTriggered = true
-			t.lastTriggerMessageNumber = streamParsedMessages
 		}
 		shouldSend = timeTriggered && msgTriggered
 	}
@@ -104,6 +100,9 @@ func (c *Manager) tryTick(id TimerID) {
 	if !shouldSend {
 		return
 	}
+
+	t.lastTriggerMessageNumber = streamParsedMessages
+	t.lastTriggerTimestamp = now
 
 	var response timersmodel.Response
 	for index, r := range t.dbRow.Responses {
