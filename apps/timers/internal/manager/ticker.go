@@ -37,32 +37,31 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	// stream, err := c.getChannelStream(ctx, t.dbRow.ChannelID)
-	// if err != nil {
-	// 	c.logger.Error(
-	// 		"[tick] cannot get channel stream",
-	// 		slog.Any("err", err),
-	// 		slog.String("channelId", t.dbRow.ChannelID),
-	// 		slog.String("timerId", id.String()),
-	// 	)
-	// 	return
-	// }
-	//
-	// if stream == nil {
-	// 	return
-	// }
+	stream, err := c.getChannelStream(ctx, t.dbRow.ChannelID)
+	if err != nil {
+		c.logger.Error(
+			"[tick] cannot get channel stream",
+			slog.Any("err", err),
+			slog.String("channelId", t.dbRow.ChannelID),
+			slog.String("timerId", id.String()),
+		)
+		return
+	}
 
-	streamParsedMessages := 0
-	// streamParsedMessages, err := c.getStreamChatLines(ctx, stream.ID)
-	// if err != nil {
-	// 	c.logger.Error(
-	// 		"[tick] cannot get stream parsed messages",
-	// 		slog.Any("err", err),
-	// 		slog.String("channelId", t.dbRow.ChannelID),
-	// 		slog.String("timerId", id.String()),
-	// 	)
-	// 	return
-	// }
+	if stream == nil {
+		return
+	}
+
+	streamParsedMessages, err := c.getStreamChatLines(ctx, stream.ID)
+	if err != nil {
+		c.logger.Error(
+			"[tick] cannot get stream parsed messages",
+			slog.Any("err", err),
+			slog.String("channelId", t.dbRow.ChannelID),
+			slog.String("timerId", id.String()),
+		)
+		return
+	}
 
 	var (
 		now               = time.Now()
