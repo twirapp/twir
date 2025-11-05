@@ -155,14 +155,7 @@ func (c *Manager) addTimer(dbRow model.Timer) {
 	}
 
 	if dbRow.TimeInterval != 0 {
-		var tickDuration time.Duration
-		if !c.config.IsDevelopment() {
-			tickDuration = time.Duration(dbRow.TimeInterval) * time.Minute
-		} else {
-			tickDuration = time.Duration(dbRow.TimeInterval) * time.Second
-		}
-
-		timer.ticker = time.NewTicker(tickDuration)
+		timer.ticker = time.NewTicker(time.Duration(dbRow.TimeInterval) * time.Minute)
 
 		go func() {
 			for {
