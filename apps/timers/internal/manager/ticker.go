@@ -66,7 +66,7 @@ func (c *Manager) tryTick(id TimerID) {
 	var (
 		now               = time.Now()
 		shouldSend        bool
-		timeInterval      = t.dbRow.TimeInterval
+		timeInterval      = time.Duration(t.dbRow.TimeInterval) * time.Minute
 		messageInterval   = t.dbRow.MessageInterval
 		messagesSinceLast = streamParsedMessages - t.lastTriggerMessageNumber
 		secondsSinceLast  = now.Sub(t.lastTriggerTimestamp).Seconds()
@@ -80,7 +80,7 @@ func (c *Manager) tryTick(id TimerID) {
 		}
 		break
 	case timeInterval > 0 && messageInterval == 0:
-		if secondsSinceLast >= float64(timeInterval) {
+		if secondsSinceLast >= timeInterval.Seconds() {
 			shouldSend = true
 			t.lastTriggerTimestamp = now
 		}
@@ -90,7 +90,7 @@ func (c *Manager) tryTick(id TimerID) {
 			timeTriggered bool
 			msgTriggered  bool
 		)
-		if secondsSinceLast >= float64(timeInterval) {
+		if secondsSinceLast >= timeInterval.Seconds() {
 			timeTriggered = true
 			t.lastTriggerTimestamp = now
 		}
