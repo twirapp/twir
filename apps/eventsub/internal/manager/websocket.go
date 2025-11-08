@@ -16,7 +16,7 @@ import (
 // todo: signal for shutdown
 func (c *Manager) startWebSocket() {
 	wsCtx := context.TODO()
-	ws := c.eventsub.Websocket()
+	ws := c.eventsub.Websocket(eventsub.WebsocketWithKeepalive(30))
 
 	ws.OnWelcome(
 		func(message eventsub.WebsocketWelcomeMessage) {
