@@ -11,6 +11,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -48,6 +49,14 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			slog.String("userId", event.UserId),
 			slog.String("channelName", event.BroadcasterUserLogin),
 			slog.String("channelId", event.BroadcasterUserId),
+		)
+
+		c.userCreatorService.UnsureUser(
+			ctx, user_creator.CreateUserInput{
+				UserID:    event.UserId,
+				ChannelID: &event.BroadcasterUserId,
+				Badges:    nil,
+			},
 		)
 
 		itemsForHistoryCreate[i] = channelredemptionshistory.CreateInput{

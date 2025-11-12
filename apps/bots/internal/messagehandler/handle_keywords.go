@@ -111,7 +111,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 				userBadges := createUserBadges(msg.Badges)
 				hasRole := slices.Contains(userBadges, "BROADCASTER")
 
-				if msg.DbUser.IsBotAdmin {
+				if msg.EnrichedData.DbUser.IsBotAdmin {
 					hasRole = true
 				}
 

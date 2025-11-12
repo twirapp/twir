@@ -52,20 +52,11 @@ func (c *Commands) prepareCooldownAndPermissionsCheck(
 	userBadges []string,
 	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 ) (
-	dbUser *model.Users,
 	channelRoles []model.ChannelRole,
 	userRoles []model.ChannelRole,
 	commandRoles []model.ChannelRole,
 	err error,
 ) {
-	if err = c.services.Gorm.
-		WithContext(ctx).
-		Where(`"id" = ?`, userId).
-		Preload("Stats", `"channelId" = ? AND "userId" = ?`, channelId, userId).
-		First(&dbUser).Error; err != nil {
-		return
-	}
-
 	if err = c.services.Gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, channelId).

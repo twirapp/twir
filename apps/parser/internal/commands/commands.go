@@ -380,7 +380,7 @@ func (c *Commands) ParseCommandResponses(
 						zap.String("name", requestData.BroadcasterUserLogin),
 					),
 				)
-				
+
 				return result
 			}
 
@@ -501,6 +501,10 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	*busparser.CommandParseResponse,
 	error,
 ) {
+	if data.EnrichedData.DbUser == nil || data.EnrichedData.DbUserChannelStat == nil {
+		return nil, fmt.Errorf("db user or user channel stats is nil")
+	}
+
 	commandsPrefix := data.EnrichedData.ChannelCommandPrefix
 
 	if !strings.HasPrefix(data.Message.Text, commandsPrefix) {
@@ -597,7 +601,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		convertedBadges = append(convertedBadges, strings.ToUpper(badge.SetId))
 	}
 
-	dbUser, _, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
+	_, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
 		ctx,
 		data.ChatterUserId,
 		data.BroadcasterUserId,
@@ -635,6 +639,30 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		} else {
 			return nil, nil
 		}
+	}
+
+	dbUser := &model.Users{
+		ID:         data.EnrichedData.DbUser.ID,
+		IsBotAdmin: data.EnrichedData.DbUser.IsBotAdmin,
+		ApiKey:     data.EnrichedData.DbUser.ApiKey,
+		Stats: &model.UsersStats{
+			ID:                data.EnrichedData.DbUserChannelStat.ID.String(),
+			UserID:            data.EnrichedData.DbUserChannelStat.UserID,
+			ChannelID:         data.EnrichedData.DbUserChannelStat.ChannelID,
+			Messages:          data.EnrichedData.DbUserChannelStat.Messages,
+			Watched:           data.EnrichedData.DbUserChannelStat.Watched,
+			UsedChannelPoints: data.EnrichedData.DbUserChannelStat.UsedChannelPoints,
+			IsMod:             data.EnrichedData.DbUserChannelStat.IsMod,
+			IsVip:             data.EnrichedData.DbUserChannelStat.IsVip,
+			IsSubscriber:      data.EnrichedData.DbUserChannelStat.IsSubscriber,
+			Reputation:        data.EnrichedData.DbUserChannelStat.Reputation,
+			Emotes:            data.EnrichedData.DbUserChannelStat.Emotes,
+			CreatedAt:         data.EnrichedData.DbUserChannelStat.CreatedAt,
+			UpdatedAt:         data.EnrichedData.DbUserChannelStat.UpdatedAt,
+		},
+		IsBanned:          data.EnrichedData.DbUser.IsBanned,
+		CreatedAt:         data.EnrichedData.DbUser.CreatedAt,
+		HideOnLandingPage: data.EnrichedData.DbUser.HideOnLandingPage,
 	}
 
 	hasPerm := c.isUserHasPermissionToCommand(

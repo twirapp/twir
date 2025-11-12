@@ -7,12 +7,13 @@ import (
 	"log/slog"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/apps/eventsub/internal/mappers"
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -24,25 +25,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func convertFragmentTypeToEnumValue(t string) twitch.FragmentType {
-	switch t {
-	case "text":
-		return twitch.FragmentType_TEXT
-	case "cheermote":
-		return twitch.FragmentType_CHEERMOTE
-	case "emote":
-		return twitch.FragmentType_EMOTE
-	case "mention":
-		return twitch.FragmentType_MENTION
-	default:
-		return twitch.FragmentType_TEXT
-	}
-}
-
 func (c *Handler) HandleChannelChatMessage(
 	ctx context.Context,
 	event eventsub.ChannelChatMessageEvent,
-	meta eventsub.WebsocketNotificationMetadata,
+	_ eventsub.WebsocketNotificationMetadata,
 ) {
 	_, span := c.tracer.Start(ctx, "HandleChannelChatMessage")
 	span.SetAttributes(
@@ -51,116 +37,7 @@ func (c *Handler) HandleChannelChatMessage(
 	)
 	defer span.End()
 
-	fragments := make([]twitch.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
-
-	startFragmentPosition := 0
-	for _, fragment := range event.Message.Fragments {
-		var cheerMote *twitch.ChatMessageMessageFragmentCheermote
-		var emote *twitch.ChatMessageMessageFragmentEmote
-		var mention *twitch.ChatMessageMessageFragmentMention
-
-		if fragment.Cheermote != nil {
-			cheerMote = &twitch.ChatMessageMessageFragmentCheermote{
-				Prefix: fragment.Cheermote.Prefix,
-				Bits:   int64(fragment.Cheermote.Bits),
-				Tier:   int64(fragment.Cheermote.Tier),
-			}
-		}
-
-		if fragment.Emote != nil {
-			formats := make([]string, 0, len(fragment.Emote.Format))
-			for _, f := range fragment.Emote.Format {
-				formats = append(formats, string(f))
-			}
-
-			emote = &twitch.ChatMessageMessageFragmentEmote{
-				Id:         fragment.Emote.Id,
-				EmoteSetId: fragment.Emote.EmoteSetId,
-				OwnerId:    fragment.Emote.OwnerId,
-				Format:     formats,
-			}
-		}
-
-		if fragment.Mention != nil {
-			mention = &twitch.ChatMessageMessageFragmentMention{
-				UserId:    fragment.Mention.UserId,
-				UserName:  fragment.Mention.UserName,
-				UserLogin: fragment.Mention.UserLogin,
-			}
-		}
-
-		position := twitch.ChatMessageMessageFragmentPosition{
-			Start: startFragmentPosition,
-			End:   startFragmentPosition + utf8.RuneCountInString(fragment.Text),
-		}
-
-		fragments = append(
-			fragments,
-			twitch.ChatMessageMessageFragment{
-				Type:      convertFragmentTypeToEnumValue(string(fragment.Type)),
-				Text:      fragment.Text,
-				Cheermote: cheerMote,
-				Emote:     emote,
-				Mention:   mention,
-				Position:  position,
-			},
-		)
-
-		startFragmentPosition += utf8.RuneCountInString(fragment.Text)
-	}
-
-	badges := make([]twitch.ChatMessageBadge, 0, len(event.Badges))
-	for _, badge := range event.Badges {
-		badges = append(
-			badges,
-			twitch.ChatMessageBadge{
-				Id:    badge.Id,
-				SetId: badge.SetId,
-				Info:  badge.Info,
-			},
-		)
-	}
-
-	var cheer *twitch.ChatMessageCheer
-	if event.Cheer != nil {
-		cheer = &twitch.ChatMessageCheer{Bits: int64(event.Cheer.Bits)}
-	}
-
-	var reply *twitch.ChatMessageReply
-	if event.Reply != nil {
-		reply = &twitch.ChatMessageReply{
-			ParentMessageId:   event.Reply.ParentMessageId,
-			ParentMessageBody: event.Reply.ParentMessageBody,
-			ParentUserId:      event.Reply.ParentUserId,
-			ParentUserName:    event.Reply.ParentUserName,
-			ParentUserLogin:   event.Reply.ParentUserLogin,
-			ThreadMessageId:   event.Reply.ThreadMessageId,
-			ThreadUserId:      event.Reply.ThreadUserId,
-			ThreadUserName:    event.Reply.ThreadUserName,
-			ThreadUserLogin:   event.Reply.ThreadUserLogin,
-		}
-	}
-
-	data := twitch.TwitchChatMessage{
-		ID:                   event.MessageId,
-		BroadcasterUserId:    event.BroadcasterUserId,
-		BroadcasterUserName:  event.BroadcasterUserName,
-		BroadcasterUserLogin: event.BroadcasterUserLogin,
-		ChatterUserId:        event.ChatterUserId,
-		ChatterUserName:      event.ChatterUserName,
-		ChatterUserLogin:     event.ChatterUserLogin,
-		MessageId:            event.MessageId,
-		Message: &twitch.ChatMessageMessage{
-			Text:      event.Message.Text,
-			Fragments: fragments,
-		},
-		Color:                       event.Color,
-		Badges:                      badges,
-		MessageType:                 string(event.Type),
-		Cheer:                       cheer,
-		Reply:                       reply,
-		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardId,
-	}
+	data := mappers.EventSubChatMessageToBus(event)
 
 	var errwg errgroup.Group
 
@@ -216,6 +93,50 @@ func (c *Handler) HandleChannelChatMessage(
 	if err := errwg.Wait(); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 		return
+	}
+
+	var usedEmotesWithThirdParty int
+	for _, count := range data.EnrichedData.UsedEmotesWithThirdParty {
+		usedEmotesWithThirdParty += count
+	}
+
+	ensuredUser, ensuredUserStats, err := c.userCreatorService.UnsureUser(
+		ctx, user_creator.CreateUserInput{
+			UserID:                   data.ChatterUserId,
+			ChannelID:                &data.BroadcasterUserId,
+			Badges:                   data.Badges,
+			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,
+			ShouldUpdateStats:        data.EnrichedData.ChannelStream != nil && data.EnrichedData.ChannelStream.ID != "",
+		},
+	)
+	if err != nil {
+		c.logger.Error("cannot ensure user for chat message", slog.Any("err", err))
+		return
+	}
+
+	data.EnrichedData.DbUser = &twitch.DbUser{
+		ID:                ensuredUser.ID,
+		TokenID:           ensuredUser.TokenID.Ptr(),
+		IsBotAdmin:        ensuredUser.IsBotAdmin,
+		ApiKey:            ensuredUser.ApiKey,
+		IsBanned:          ensuredUser.IsBanned,
+		HideOnLandingPage: ensuredUser.HideOnLandingPage,
+		CreatedAt:         ensuredUser.CreatedAt,
+	}
+	data.EnrichedData.DbUserChannelStat = &twitch.DbUserChannelStat{
+		ID:                ensuredUserStats.ID,
+		UserID:            ensuredUserStats.UserID,
+		ChannelID:         ensuredUserStats.ChannelID,
+		Messages:          ensuredUserStats.Messages,
+		Watched:           ensuredUserStats.Watched,
+		UsedChannelPoints: ensuredUserStats.UsedChannelPoints,
+		IsMod:             ensuredUserStats.IsMod,
+		IsVip:             ensuredUserStats.IsVip,
+		IsSubscriber:      ensuredUserStats.IsSubscriber,
+		Reputation:        ensuredUserStats.Reputation,
+		Emotes:            ensuredUserStats.Emotes,
+		CreatedAt:         ensuredUserStats.CreatedAt,
+		UpdatedAt:         ensuredUserStats.UpdatedAt,
 	}
 
 	if err := c.twirBus.ChatMessages.Publish(ctx, data); err != nil {

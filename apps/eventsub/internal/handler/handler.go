@@ -7,6 +7,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/redis/go-redis/v9"
 	batchprocessor "github.com/twirapp/batch-processor"
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -40,6 +41,8 @@ type Handler struct {
 	redemptionsHistoryRepository channelsredemptionshistory.Repository
 	eventsListRepository         channelseventslist.Repository
 
+	userCreatorService *user_creator.UserCreatorService
+
 	gorm        *gorm.DB
 	redisClient *redis.Client
 
@@ -70,6 +73,7 @@ type Opts struct {
 	CommandsCache                       *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	ChannelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
 	ChannelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
+	UserCreatorService                  *user_creator.UserCreatorService
 
 	Tracer trace.Tracer
 	Gorm   *gorm.DB
@@ -102,6 +106,7 @@ func New(opts Opts) *Handler {
 		commandsCache:                       opts.CommandsCache,
 		channelSongRequestsSettingsCache:    opts.ChannelSongRequestsSettingsCache,
 		channelsIntegrationsSettingsSeventv: opts.ChannelsIntegrationsSettingsSeventv,
+		userCreatorService:                  opts.UserCreatorService,
 	}
 
 	batcherCtx, batcherStop := context.WithCancel(context.Background())

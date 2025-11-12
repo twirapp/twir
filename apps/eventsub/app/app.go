@@ -4,6 +4,7 @@ import (
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
@@ -36,6 +37,12 @@ import (
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
+	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
+	userswithstatsrepository "github.com/twirapp/twir/libs/repositories/userswithstats"
+	userswithstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/userswithstats/datasource/postgres"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
@@ -89,6 +96,18 @@ var App = fx.Options(
 			commandswithgroupsandresponsespostgres.NewFx,
 			fx.As(new(commandswithgroupsandresponsesrepository.Repository)),
 		),
+		fx.Annotate(
+			userswithstatsrepositorypostgres.NewFx,
+			fx.As(new(userswithstatsrepository.Repository)),
+		),
+		fx.Annotate(
+			usersstatsrepositorypostgres.NewFx,
+			fx.As(new(usersstats.Repository)),
+		),
+		fx.Annotate(
+			usersrepositorypgx.NewFx,
+			fx.As(new(usersrepository.Repository)),
+		),
 		channelcache.New,
 		func(
 			repo channelscommandsprefixrepository.Repository,
@@ -96,6 +115,7 @@ var App = fx.Options(
 		) *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix] {
 			return channelscommandsprefixcache.New(repo, bus)
 		},
+		user_creator.New,
 		channelalertscache.New,
 		commandscache.New,
 		channelsongrequestssettingscache.New,

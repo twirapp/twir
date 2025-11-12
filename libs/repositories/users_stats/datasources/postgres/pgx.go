@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/twirapp/twir/libs/repositories"
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
 	"github.com/twirapp/twir/libs/repositories/users_stats/model"
 )
@@ -126,51 +125,84 @@ func (c *Pgx) Create(ctx context.Context, input usersstats.CreateInput) (*model.
 	return &stat, nil
 }
 
-func (c *Pgx) Update(
+func (c *Pgx) CreateOrUpdate(
 	ctx context.Context,
 	userID, channelID string,
 	input usersstats.UpdateInput,
 ) (*model.UserStat, error) {
-	updateBuilder := sq.Update("users_stats").
-		Where(
-			squirrel.Eq{
-				`"userId"`:    userID,
-				`"channelId"`: channelID,
-			},
-		)
+	queryInsert := `
+INSERT INTO users_stats (
+    "userId",
+    "channelId",
+    messages,
+    watched,
+    "usedChannelPoints",
+    is_mod,
+    is_vip,
+    is_subscriber,
+    reputation,
+    emotes,
+    created_at,
+    updated_at
+) VALUES (
+    @user_id,
+    @channel_id,
+    COALESCE(@messages, 0),
+    COALESCE(@watched, 0),
+    COALESCE(@usedChannelPoints, 0),
+    COALESCE(@is_mod, false),
+    COALESCE(@is_vip, false),
+    COALESCE(@is_subscriber, false),
+    COALESCE(@reputation, 0),
+    COALESCE(@emotes, 0),
+    NOW(),
+    NOW()
+) ON CONFLICT ("userId", "channelId") DO UPDATE SET `
 
-	updateBuilder = repositories.SquirrelApplyPatch(
-		updateBuilder,
-		map[string]any{
-			`is_mod`:        input.IsMod,
-			`is_vip`:        input.IsVip,
-			`is_subscriber`: input.IsSubscriber,
-			`updated_at`:    squirrel.Expr("NOW()"),
-		},
-	)
+	setClauses := []string{
+		"updated_at = NOW()",
+	}
+	setMap := pgx.NamedArgs{
+		`user_id`:    userID,
+		`channel_id`: channelID,
+	}
 
-	for name, value := range input.NumberFields {
-		fieldName := fmt.Sprintf(`"%s"`, name)
+	for field, update := range input.NumberFields {
+		fieldName := string(field)
+		paramName := fmt.Sprintf("val_%s", fieldName)
 
-		if value.IsIncrement {
-			updateBuilder = updateBuilder.Set(
-				fieldName,
-				squirrel.Expr(fmt.Sprintf(`%s + %d`, fieldName, value.Count)),
+		if update.IsIncrement {
+			setClauses = append(
+				setClauses,
+				fmt.Sprintf(`"%s" = users_stats."%s" + @%s`, fieldName, fieldName, paramName),
 			)
+			setMap[paramName] = update.Count
 		} else {
-			updateBuilder = updateBuilder.Set(fieldName, value.Count)
+			setClauses = append(setClauses, fmt.Sprintf(`"%s" = @%s`, fieldName, paramName))
+			setMap[paramName] = update.Count
+			setMap[fieldName] = update.Count
 		}
 	}
 
-	updateBuilder = updateBuilder.Suffix(fmt.Sprintf("RETURNING %s", selectFieldsJoined))
-	query, args, err := updateBuilder.ToSql()
-	if err != nil {
-		return nil, fmt.Errorf("failed to build users update query: %w", err)
+	if input.IsMod != nil {
+		setClauses = append(setClauses, `is_mod = @is_mod`)
+		setMap["is_mod"] = *input.IsMod
 	}
+	if input.IsVip != nil {
+		setClauses = append(setClauses, `is_vip = @is_vip`)
+		setMap["is_vip"] = *input.IsVip
+	}
+	if input.IsSubscriber != nil {
+		setClauses = append(setClauses, `is_subscriber = @is_subscriber`)
+		setMap["is_subscriber"] = *input.IsSubscriber
+	}
+
+	finalQuery := queryInsert + strings.Join(setClauses, ", ") + " RETURNING " + selectFieldsJoined
+
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, args...)
+	rows, err := conn.Query(ctx, finalQuery, setMap)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute users update query: %w", err)
+		return nil, fmt.Errorf("failed to execute CreateOrUpdate query: %w", err)
 	}
 
 	stat, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.UserStat])
@@ -178,7 +210,7 @@ func (c *Pgx) Update(
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, usersstats.ErrNotFound
 		}
-		return nil, fmt.Errorf("failed to collect users update result: %w", err)
+		return nil, err
 	}
 
 	return &stat, nil

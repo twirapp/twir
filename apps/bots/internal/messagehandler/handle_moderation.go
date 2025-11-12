@@ -47,8 +47,8 @@ var excludedModerationBadges = []string{"BROADCASTER", "MODERATOR"}
 
 func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	badges := createUserBadges(msg.Badges)
 
@@ -197,16 +197,16 @@ func (c *MessageHandler) moderationHandleResult(
 			userHasRole = true
 		}
 
-		if msg.DbUser.Stats != nil && !userHasRole {
-			if r.RequiredWatchTime > 0 && msg.DbUser.Stats.Watched >= r.RequiredWatchTime {
+		if msg.EnrichedData.DbUserChannelStat != nil && !userHasRole {
+			if r.RequiredWatchTime > 0 && msg.EnrichedData.DbUserChannelStat.Watched >= r.RequiredWatchTime {
 				userHasRole = true
 			}
 
-			if r.RequiredMessages > 0 && msg.DbUser.Stats.Messages >= r.RequiredMessages {
+			if r.RequiredMessages > 0 && msg.EnrichedData.DbUserChannelStat.Messages >= r.RequiredMessages {
 				userHasRole = true
 			}
 
-			if r.RequiredUsedChannelPoints > 0 && msg.DbUser.Stats.UsedChannelPoints >= r.RequiredUsedChannelPoints {
+			if r.RequiredUsedChannelPoints > 0 && msg.EnrichedData.DbUserChannelStat.UsedChannelPoints >= r.RequiredUsedChannelPoints {
 				userHasRole = true
 			}
 		}

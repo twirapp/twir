@@ -23,7 +23,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -206,7 +205,6 @@ func New(opts Opts) *MessageHandler {
 }
 
 type handleMessage struct {
-	DbUser *deprecatedgormmodel.Users
 	twitch.TwitchChatMessage
 }
 
@@ -250,11 +248,9 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 		return nil
 	}
 
-	dbUser, err := c.ensureUser(ctx, msg)
-	if err != nil {
-		return err
+	if req.EnrichedData.DbUser == nil {
+		return fmt.Errorf("db user not found after ensureUser")
 	}
-	msg.DbUser = dbUser
 
 	if req.ChatterUserId == msg.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 		return nil

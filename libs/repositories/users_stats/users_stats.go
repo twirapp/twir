@@ -11,7 +11,10 @@ type Repository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*model.UserStat, error)
 	GetByUserAndChannelID(ctx context.Context, userID, channelID string) (*model.UserStat, error)
 	Create(ctx context.Context, input CreateInput) (*model.UserStat, error)
-	Update(ctx context.Context, userID, channelID string, input UpdateInput) (*model.UserStat, error)
+	CreateOrUpdate(ctx context.Context, userID, channelID string, input UpdateInput) (
+		*model.UserStat,
+		error,
+	)
 }
 
 type CreateInput struct {

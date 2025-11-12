@@ -1,6 +1,9 @@
 package twitch
 
 import (
+	"time"
+
+	"github.com/google/uuid"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
@@ -30,6 +33,8 @@ type ChatMessageEnrichedData struct {
 	ChannelCommandPrefix     string                `json:"channel_command_prefix"`
 	DbChannel                channelsmodel.Channel `json:"db_channel"`
 	ChannelStream            *streamsmodel.Stream  `json:"channel_stream"`
+	DbUser                   *DbUser               `json:"db_user,omitempty"`
+	DbUserChannelStat        *DbUserChannelStat    `json:"db_user_channel_stat,omitempty"`
 }
 
 type FragmentType int32
@@ -99,4 +104,30 @@ type ChatMessageReply struct {
 	ThreadUserId      string `json:"thread_user_id,omitempty"`
 	ThreadUserName    string `json:"thread_user_name,omitempty"`
 	ThreadUserLogin   string `json:"thread_user_login,omitempty"`
+}
+
+type DbUser struct {
+	ID                string
+	TokenID           *string
+	IsBotAdmin        bool
+	ApiKey            string
+	IsBanned          bool
+	HideOnLandingPage bool
+	CreatedAt         time.Time
+}
+
+type DbUserChannelStat struct {
+	ID                uuid.UUID
+	UserID            string
+	ChannelID         string
+	Messages          int32
+	Watched           int64
+	UsedChannelPoints int64
+	IsMod             bool
+	IsVip             bool
+	IsSubscriber      bool
+	Reputation        int64
+	Emotes            int
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
