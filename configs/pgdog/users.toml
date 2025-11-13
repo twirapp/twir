@@ -2,3 +2,5 @@
 name = "twir"
 database = "twir"
 password = "twir"
+server_user = "twir"
+server_password = "twir"

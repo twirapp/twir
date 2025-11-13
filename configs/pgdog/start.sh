@@ -18,7 +18,10 @@ cp "$PGDOG_USERS_BASE" "$PGDOG_USERS_FILE"
 # Use Linux-compatible sed -i (no backup suffix)
 sed -i "s/database = \".*\"/database = \"$POSTGRES_DB\"/" "$PGDOG_USERS_FILE"
 echo "Database sed applied"
-sed -i "s/password = \".*\"/password = \"$POSTGRES_PASSWORD\"/" "$PGDOG_USERS_FILE"
+sed -i "s/server_password = \".*\"/server_password = \"$POSTGRES_PASSWORD\"/" "$PGDOG_USERS_FILE"
+echo "Password sed applied"
+sed -i "s/server_user = \".*\"/server_user = \"$POSTGRES_USER\"/" "$PGDOG_USERS_FILE"
+echo "User sed applied"
 
 echo "Config updated. Starting pgdog..."
 
