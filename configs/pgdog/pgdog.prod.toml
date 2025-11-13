@@ -1,0 +1,13 @@
+[general]
+min_pool_size = 1
+default_pool_size = 30 # we'll run 3 instances of pgdog in production, so we need split real connections to postgres to each instace of pgdog
+pooler_mode = "transaction"
+
+[admin]
+password = "twir"
+
+[[databases]]
+name = "twir"
+host = "postgres"
+port = 5432
+
