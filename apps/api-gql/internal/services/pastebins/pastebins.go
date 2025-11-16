@@ -68,7 +68,7 @@ func (c *Service) deleteIfNeed(ctx context.Context, p entity.Pastebin) (bool, er
 func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, error) {
 	cacheKey := makeKvStoreKey(id)
 	cachedBytes, err := c.kv.Get(ctx, cacheKey).Bytes()
-	if err != nil && !errors.Is(err, redis.Nil) {
+	if err != nil && !errors.Is(err, kv.ErrKeyNil) {
 		return entity.PastebinNil, err
 	}
 	if len(cachedBytes) > 0 {
