@@ -25,9 +25,19 @@ require (
 	buf.build/go/standard v0.1.0 // indirect
 	codeberg.org/chavacava/garif v0.2.0 // indirect
 	github.com/KimMachineGun/automemlimit v0.7.1 // indirect
+	github.com/cilium/ebpf v0.11.0 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cosiner/argv v0.1.0 // indirect
+	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d // indirect
+	github.com/go-delve/delve v1.25.2 // indirect
+	github.com/go-delve/liner v1.2.3-0.20231231155935-4726ab1d7f62 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
+	github.com/google/go-dap v0.12.0 // indirect
+	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
+	go.starlark.net v0.0.0-20231101134539-556fd59b42f6 // indirect
+	golang.org/x/arch v0.11.0 // indirect
+	golang.org/x/telemetry v0.0.0-20250710130107-8d8967aff50b // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
 
@@ -255,6 +265,7 @@ require (
 tool (
 	github.com/bufbuild/buf/cmd/buf
 	github.com/caddyserver/caddy/v2/cmd/caddy
+	github.com/go-delve/delve/cmd/dlv
 	github.com/mgechev/revive
 	github.com/twitchtv/twirp/protoc-gen-twirp
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc

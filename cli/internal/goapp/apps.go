@@ -9,23 +9,24 @@ import (
 )
 
 var Apps = []TwirGoApp{
-	{Name: "api"},
-	{Name: "tokens"},
-	{Name: "events"},
-	{Name: "emotes-cacher"},
-	{Name: "parser"},
-	{Name: "eventsub"},
-	{Name: "bots"},
-	{Name: "timers"},
-	{Name: "websockets"},
-	{Name: "ytsr"},
-	{Name: "scheduler"},
-	{Name: "discord"},
-	{Name: "chat-translator"},
-	{Name: "giveaways"},
+	{Name: "api", DebugPort: 2345},
+	{Name: "tokens", DebugPort: 2346},
+	{Name: "events", DebugPort: 2347},
+	{Name: "emotes-cacher", DebugPort: 2348},
+	{Name: "parser", DebugPort: 2349},
+	{Name: "eventsub", DebugPort: 2350},
+	{Name: "bots", DebugPort: 2351},
+	{Name: "timers", DebugPort: 2352},
+	{Name: "websockets", DebugPort: 2353},
+	{Name: "ytsr", DebugPort: 2354},
+	{Name: "scheduler", DebugPort: 2355},
+	{Name: "discord", DebugPort: 2356},
+	{Name: "chat-translator", DebugPort: 2357},
+	{Name: "giveaways", DebugPort: 2358},
 	{
-		Name: "api-gql",
-		Port: lo.ToPtr(3009),
+		Name:      "api-gql",
+		Port:      lo.ToPtr(3009),
+		DebugPort: 2359,
 		OnPortReady: func() {
 			wd, err := os.Getwd()
 			if err != nil {

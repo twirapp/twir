@@ -21,9 +21,10 @@ type TwirGoApp struct {
 	debugEnabled bool
 	Port         *int
 	OnPortReady  func()
+	DebugPort    int
 }
 
-func NewApplication(name string, enableDebug bool, port *int, onPortReady func()) (
+func NewApplication(name string, enableDebug bool, port *int, debugPort int, onPortReady func()) (
 	*TwirGoApp,
 	error,
 ) {
@@ -40,6 +41,7 @@ func NewApplication(name string, enableDebug bool, port *int, onPortReady func()
 		debugEnabled: enableDebug,
 		Port:         port,
 		OnPortReady:  onPortReady,
+		DebugPort:    debugPort,
 	}
 
 	cmd, err := app.CreateAppCommand()
@@ -119,12 +121,18 @@ func (c *TwirGoApp) Build() error {
 }
 
 func (c *TwirGoApp) CreateAppCommand() (*exec.Cmd, error) {
+	// dlv exec .out/twir-emotes-cacher --headless=true --api-version=2 --check-go-version=false --only-same-user=false --listen=:2345 --log
+
 	cmd, err := shell.CreateCommand(
 		shell.ExecCommandOpts{
-			Command: c.getAppPath(),
-			Pwd:     c.Path,
-			Stdout:  os.Stdout,
-			Stderr:  os.Stderr,
+			Command: fmt.Sprintf(
+				"go tool dlv exec %s --headless=true --api-version=2 --check-go-version=false --only-same-user=false --listen=:%d --log --continue --accept-multiclient",
+				c.getAppPath(),
+				c.DebugPort,
+			),
+			Pwd:    c.Path,
+			Stdout: os.Stdout,
+			Stderr: os.Stderr,
 		},
 	)
 

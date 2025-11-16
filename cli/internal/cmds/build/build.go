@@ -78,7 +78,7 @@ var AppBuildCmd = &cli.Command{
 				continue
 			}
 
-			foundApp, err := goapp.NewApplication(a.Name, false, nil, nil)
+			foundApp, err := goapp.NewApplication(a.Name, false, nil, a.DebugPort, nil)
 			if err != nil {
 				return err
 			}
@@ -157,7 +157,7 @@ func build(cmd string, withGoApps bool) error {
 		for _, app := range goapp.Apps {
 			pterm.Info.Printfln("Building %s", app.Name)
 
-			a, err := goapp.NewApplication(app.Name, false, nil, nil)
+			a, err := goapp.NewApplication(app.Name, false, nil, app.DebugPort, nil)
 			if err != nil {
 				pterm.Fatal.Println(err)
 			}

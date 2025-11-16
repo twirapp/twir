@@ -17,7 +17,13 @@ func New(enableDebug bool) (*GoApps, error) {
 		debugEnabled: enableDebug,
 	}
 	for _, app := range goapp.Apps {
-		application, err := goapp.NewApplication(app.Name, enableDebug, app.Port, app.OnPortReady)
+		application, err := goapp.NewApplication(
+			app.Name,
+			enableDebug,
+			app.Port,
+			app.DebugPort,
+			app.OnPortReady,
+		)
 		if err != nil {
 			return nil, err
 		}
