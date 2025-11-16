@@ -17,7 +17,7 @@ const { data: pastes, error } = await useAsyncData('userPastesProfile', async ()
 		throw req.error
 	}
 
-	return req.data
+	return req.data.data
 })
 
 const requestUrl = useRequestURL()

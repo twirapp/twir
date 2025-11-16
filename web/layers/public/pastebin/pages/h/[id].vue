@@ -7,21 +7,18 @@ import { usePasteStore } from '#layers/pastebin/stores/pasteStore'
 const route = useRoute()
 const api = useOapi()
 
-const { data, status, error } = await useAsyncData(
-	'hastebin',
-	async () => {
-		const req = await api.v1.pastebinGetById(route.params.id as string)
-		if (req.error) {
-			throw req.error
-		}
+const { data, status, error } = await useAsyncData('hastebin', async () => {
+	const req = await api.v1.pastebinGetById(route.params.id as string)
+	if (req.error) {
+		throw req.error
+	}
 
-		return req.data
-	},
-)
+	return req.data
+})
 const pasteStore = usePasteStore()
 
-if (data.value) {
-	pasteStore.setCurrentPaste(data.value)
+if (data.value?.data) {
+	pasteStore.setCurrentPaste(data.value.data)
 }
 
 const pageTitle = computed(() => {
@@ -31,7 +28,10 @@ const pageTitle = computed(() => {
 
 <template>
 	<HastebinLayout :title="pageTitle">
-		<div v-if="status === 'pending'" class="flex items-center justify-center w-full h-full text-white">
+		<div
+			v-if="status === 'pending'"
+			class="flex items-center justify-center w-full h-full text-white"
+		>
 			<p>Loading paste...</p>
 		</div>
 

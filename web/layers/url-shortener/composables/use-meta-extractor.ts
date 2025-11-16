@@ -30,7 +30,7 @@ export function useMetaExtractor() {
 			}
 
 			try {
-				const response = await $fetch(`https://api.microlink.io`, {
+				const response = await $fetch<any>(`https://api.microlink.io`, {
 					params: { url },
 					timeout: 3000,
 				})

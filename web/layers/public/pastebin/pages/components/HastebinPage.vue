@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type HastebinEditor from './HastebinEditor.vue'
+// oxlint-disable-next-line consistent-type-imports
+import HastebinEditor from './HastebinEditor.vue'
 import HastebinToolbar from './HastebinToolbar.vue'
 import HastebinViewer from './HastebinViewer.vue'
 import { usePasteStore } from '../../stores/pasteStore'
@@ -20,7 +21,7 @@ async function create() {
 		throw req.error
 	}
 
-	await router.push(`/h/${req.data?.id}`)
+	await router.push(`/h/${req.data?.data?.id}`)
 }
 
 async function duplicate() {
@@ -46,19 +47,10 @@ async function newPaste() {
 
 <template>
 	<div class="min-h-screen w-full p-4 relative">
-		<HastebinToolbar
-			@save="create"
-			@new="newPaste"
-			@copy="duplicate"
-		/>
+		<HastebinToolbar @save="create" @new="newPaste" @copy="duplicate" />
 
-		<HastebinViewer
-			v-if="currentPaste"
-		/>
+		<HastebinViewer v-if="currentPaste" />
 
-		<HastebinEditor
-			v-else
-			ref="editorRef"
-		/>
+		<HastebinEditor v-else ref="editorRef" />
 	</div>
 </template>
