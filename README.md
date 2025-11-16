@@ -7,59 +7,81 @@
 
 * [Docker](https://docs.docker.com/engine/)
 
-
 ### Development
 
 > [!NOTE]
-> For MOST of project management tasks we use own written cli. You can use `bun cli help` for print cli usage
+> For MOST of project management tasks we use own written cli. You can use `bun cli help` for print
+> cli usage
 
 * Create twitch application https://dev.twitch.tv/console/apps
-* Set `http://localhost:3005/login` and `https://tokens-generator.twir.app` as your redirect url's for twitch application
-* Go to https://tokens-generator.twir.app, set clientID and clientSecret from your app and generate initial token WITH
-  ALL SCOPES
+* Set `http://localhost:3005/login` and `https://tokens-generator.twir.app` as your redirect url's
+	for twitch application
+* Go to https://tokens-generator.twir.app, set clientID and clientSecret from your app and generate
+	initial token WITH
+	ALL SCOPES
 * `cp .env.example .env` and fill required envs
 
 * Run needed services (Postgres, Adminer, Redis, Minio, e.t.c)
+
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
 * Start project
+
 ```bash
 bun dev
 ```
+
 * Visit https://localhost:3005
 
 ## Writing migrations
 
 * Use command for create new migration
+
 ```bash
 bun cli migrations create
 ```
+
 * Navigate to folder and edit new migration file
+
 ```bash
 cd libs/migrations/migrations
 ```
 
 * Run new created migrations (optional, because it's running when you execute `bun dev`)
+
 ```bash
 bun cli migrations run
 ```
 
 ## Https on localhost (optional)
 
-We'll use `twir.localhost` domain, which is enables ability to grant ssl out of the box, but you can use any other domain and deal with ssl yourself.
+We'll use `twir.localhost` domain, which is enables ability to grant ssl out of the box, but you can
+use any other domain and deal with ssl yourself.
 
 * Add `https://twir.localhost/login` to your twitch application redirect url's
 
 * Edit `.env`, change site base url:
+
 ```ini
 SITE_BASE_URL=https://twir.localhost
 ```
 
 * Start application as usual:
+
 ```bash
 bun dev
 ```
 
 * Open https://twir.localhost
+
+## Debugging with IDE
+
+For JetBrains IDEs (WebStorm, GoLand e.t.c) we have prepared run configurations, if you started
+project with `bun dev`, you can attach debugger to the running process via `Attach debugers`
+configuration.
+
+Otherwise, there is configuration to run each one app separately, which mostly makes no sense,
+because apps depending on each other and cannot work separately. So start them all via
+configurations (there is compound configuration for that) or use `bun dev` command.
