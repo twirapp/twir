@@ -1,21 +1,24 @@
-Of course. Here is the updated version of the copilot instructions with `yup` replaced by `zod` for form validation.
-
 ### **Project Development Guidelines for AI Assistants (GitHub Copilot)**
 
 This document outlines the core conventions, technologies, and patterns used in this project. Please adhere to these guidelines strictly to maintain code consistency and quality.
 
 ### **1. General Project Context**
 
-*   **Structure:** This is a monorepo. The frontend is built with Vue 3 and the backend is written in Go (Golang).
+*   **Structure:** This is a monorepo.
+    *   **`frontend/dashboard`**: The main dashboard application (Vue 3 + Vite).
+    *   **`web`**: The public-facing website (Nuxt 3).
+    *   **`apps/api-gql`**: The main backend service (Go) serving GraphQL and HTTP APIs.
+    *   **`libs`**: Shared Go libraries.
 *   **Package Manager & Runtime:** We use **Bun** for all JavaScript/TypeScript package management, script execution, and as the runtime. Use `bun install`, `bun add`, and `bun run` commands.
 *   **Primary Technologies:**
-	*   **Frontend:** Vue 3, TypeScript, Vite, Tailwind CSS, vee-validate, zod, lucide-vue-next
-	*   **Backend:** Go (Golang)
-	*   **Tooling:** Bun
+	*   **Frontend (Dashboard):** Vue 3, TypeScript, Vite, Tailwind CSS, vee-validate, zod, lucide-vue-next, shadcn-vue, TanStack Query, Urql.
+    *   **Web (Public Site):** Nuxt 3, TypeScript, Tailwind CSS, shadcn-nuxt, Pinia, Urql.
+	*   **Backend:** Go (Golang), pgx (PostgreSQL driver), gqlgen (GraphQL).
+	*   **Tooling:** Bun, Docker.
 
 ---
 
-### **2. Vue.js Frontend Development**
+### **2. Vue.js Frontend Development (Dashboard & Web)**
 
 #### **2.1. Component Structure & Syntax**
 
@@ -108,7 +111,7 @@ const formSchema = z.object({
 });
 
 const { handleSubmit, defineField } = useForm({
-  validationSchema: formSchema,
+  validationSchema: toTypedSchema(formSchema),
 });
 
 const [name, nameAttrs] = defineField('name');
@@ -156,9 +159,11 @@ const onSubmit = handleSubmit(values => {
 
 *   **Primary Library:** **Always use `lucide-vue-next` for icons.** It is the project's standard.
 *   **Fallback:** Only if a specific icon is absolutely not available in Lucide should you consider using another library or a local SVG file. This should be a rare exception.
-*   **Usage:** Import icons by name from the library for frontend/dashboard. For web use <Icon /> nuxtjs component, and pass name of icon as `name:""` prop, for example `name="lucide:sun"`
+*   **Usage:**
+    *   **Dashboard (`frontend`):** Import icons by name from the library.
+    *   **Web (`web`):** Use the `<Icon />` Nuxt component, and pass the name of the icon as `name="lucide:icon-name"`.
 
-**Example dashboard:**
+**Example Dashboard:**
 ```typescript
 import { User, Mail, CheckCircle2 } from 'lucide-vue-next';
 ```
@@ -171,7 +176,7 @@ import { User, Mail, CheckCircle2 } from 'lucide-vue-next';
 </template>
 ```
 
-**Example web:**
+**Example Web:**
 ```vue
 <template>
   <Icon name="lucide:user" class="h-4 w-4 mr-2" />
@@ -193,10 +198,23 @@ import { User, Mail, CheckCircle2 } from 'lucide-vue-next';
 ### **6. Go (Golang) Backend**
 
 *   **Code Style:** Follow standard Go formatting (`gofmt`/`goimports`).
-*   **Project Structure:** Observe the existing directory structure for handlers, models, services, and repositories. Create new files in the appropriate locations.
-*   **Error Handling:** Follow the project's established error handling patterns.
-*   **Dependencies:** Look at existing code to understand how dependencies (like a database connection or logger) are injected into handlers and services.
-* 	**Repositories** Look inside existed repositories, and always use pgx implementations, in folder {repository_name}/datasources/postgres/pgx.go, never use gorm or other ORMs.
-*  	**Mappers** For new services inside api-gql or some other app, if you're writing service write entity mapper too, so it should be mapped as model -> entity -> dto (gql/http depends on context)
-* 	**Gql** After udpating gql schemas you should run `bun cli build gql` for regenerate resolvers, and after regeneration refresh your data (re-read golang files)
-* 	**Errors** When writing errors, use `fmt.Errorf` with `%w` for wrapping, and create custom error types if needed for better error handling.
+*   **Project Structure:**
+    *   **`apps/api-gql`**: Main API service.
+        *   `internal/delivery/gql`: GraphQL resolvers.
+        *   `internal/delivery/http`: HTTP handlers.
+        *   `internal/services`: Business logic layer.
+        *   `internal/entity`: Domain models.
+    *   **`libs/repositories`**: Data access layer.
+*   **Repositories:**
+    *   Always use **pgx** implementations.
+    *   Located in `libs/repositories/{repository_name}/pgx/pgx.go`.
+    *   **NEVER** use GORM or other ORMs.
+*   **Mappers:**
+    *   When creating new services (e.g., in `api-gql`), always create an entity mapper.
+    *   Data flow: `Model (DB)` -> `Entity (Domain)` -> `DTO (GraphQL/HTTP)`.
+*   **GraphQL Generation:**
+    *   After updating GraphQL schemas (`.graphql` files), run `bun cli build gql` to regenerate resolvers.
+    *   After regeneration, refresh your data (re-read Golang files) to pick up changes.
+*   **Error Handling:**
+    *   Use `fmt.Errorf` with `%w` for wrapping errors.
+    *   Create custom error types if needed for specific domain error handling.
