@@ -8,12 +8,46 @@ import svgSprite from '@twirapp/vite-plugin-svg-spritemap'
 import vue from '@vitejs/plugin-vue'
 import autoprefixer from 'autoprefixer'
 import tailwind from 'tailwindcss'
-import { defineConfig, loadEnv } from 'vite'
+import { type PluginOption, defineConfig, loadEnv } from 'vite'
 import { watch } from 'vite-plugin-watch'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, path.resolve(process.cwd(), '..', '..'), '')
+
+	console.log(mode)
+
+	const plugins: PluginOption[] = [
+		// @ts-ignore
+		vue(),
+		svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
+		webUpdateNotice({
+			notificationProps: {
+				title: 'New version',
+				description:
+					'An update available, please refresh the page to get latest features and bug fixes!',
+				buttonText: 'refresh',
+				dismissButtonText: 'cancel',
+			},
+			checkInterval: 1 * 60 * 1000,
+		}),
+		VueI18nPlugin({
+			include: [path.resolve(__dirname, './src/locales/**')],
+			strictMessage: false,
+			escapeHtml: false,
+			runtimeOnly: true,
+		}),
+	]
+
+	if (mode === 'development') {
+		plugins.push(
+			watch({
+				onInit: true,
+				pattern: 'src/api/**/*.ts',
+				command: 'graphql-codegen',
+			})
+		)
+	}
 
 	return {
 		css: {
@@ -21,35 +55,7 @@ export default defineConfig(({ mode }) => {
 				plugins: [tailwind(), autoprefixer()],
 			},
 		},
-		plugins: [
-			watch({
-				onInit: true,
-				pattern: 'src/api/**/*.ts',
-				command: 'graphql-codegen',
-			}),
-			vue({
-				script: {
-					defineModel: true,
-				},
-			}),
-			svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
-			webUpdateNotice({
-				notificationProps: {
-					title: 'New version',
-					description:
-						'An update available, please refresh the page to get latest features and bug fixes!',
-					buttonText: 'refresh',
-					dismissButtonText: 'cancel',
-				},
-				checkInterval: 1 * 60 * 1000,
-			}),
-			VueI18nPlugin({
-				include: [path.resolve(__dirname, './src/locales/**')],
-				strictMessage: false,
-				escapeHtml: false,
-				runtimeOnly: true,
-			}),
-		],
+		plugins,
 		base: '/dashboard',
 		resolve: {
 			alias: {
