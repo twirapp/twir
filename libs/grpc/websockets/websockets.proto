@@ -35,7 +35,6 @@ service Websocket {
 
 enum RefreshOverlaySettingsName {
 	CUSTOM = 0;
-	BRB = 2;
 	DUDES = 3;
 	CHAT = 4;
 	NOW_PLAYING = 5;

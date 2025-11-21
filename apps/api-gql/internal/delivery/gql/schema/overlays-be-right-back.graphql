@@ -20,7 +20,7 @@ type BeRightBackOverlay {
 	fontFamily: String!
 	createdAt: Time!
 	updatedAt: Time!
-	channelID: String!
+	channelId: String!
 	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
 }
 

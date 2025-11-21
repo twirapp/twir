@@ -11,15 +11,15 @@ func (c *GrpcImpl) TriggerShowBrb(
 	_ context.Context,
 	req *websockets.TriggerShowBrbRequest,
 ) (*emptypb.Empty, error) {
-	err := c.beRightBackServer.SendEvent(
-		req.GetChannelId(),
-		"start", map[string]any{
-			"minutes": req.GetMinutes(),
-			"text":    req.Text,
-		},
-	)
+	// err := c.beRightBackServer.SendEvent(
+	// 	req.GetChannelId(),
+	// 	"start", map[string]any{
+	// 		"minutes": req.GetMinutes(),
+	// 		"text":    req.Text,
+	// 	},
+	// )
 
-	return &emptypb.Empty{}, err
+	return nil, nil
 }
 
 func (c *GrpcImpl) TriggerHideBrb(
@@ -28,7 +28,8 @@ func (c *GrpcImpl) TriggerHideBrb(
 ) (
 	*emptypb.Empty, error,
 ) {
-	err := c.beRightBackServer.SendEvent(req.GetChannelId(), "stop", nil)
-
-	return &emptypb.Empty{}, err
+	return nil, nil
+	// err := c.beRightBackServer.SendEvent(req.GetChannelId(), "stop", nil)
+	//
+	// return &emptypb.Empty{}, err
 }

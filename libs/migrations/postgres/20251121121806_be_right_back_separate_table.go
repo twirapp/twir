@@ -3,9 +3,9 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 
+	"github.com/goccy/go-json"
 	"github.com/pressly/goose/v3"
 )
 
@@ -20,7 +20,14 @@ CREATE TABLE channels_overlays_be_right_back (
 	channel_id TEXT NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
 	updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-	data jsonb
+	text TEXT NOT NULL DEFAULT 'BRB',
+	late_enabled BOOLEAN NOT NULL DEFAULT false,
+	late_text TEXT NOT NULL DEFAULT 'Streamer is late',
+	late_display_brb_time BOOLEAN NOT NULL DEFAULT false,
+	background_color TEXT NOT NULL DEFAULT '#000000',
+	font_size INTEGER NOT NULL DEFAULT 48,
+	font_color TEXT NOT NULL DEFAULT '#FFFFFF',
+	font_family TEXT NOT NULL DEFAULT 'Roboto'
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS channels_overlays_be_right_back_channel_id_unique ON channels_overlays_be_right_back (channel_id);
@@ -89,47 +96,35 @@ SELECT id, settings, "channelId" FROM channels_modules_settings WHERE type = 'be
 		return fmt.Errorf("rows: %w", err)
 	}
 
-	// New format with snake_case keys
-	type NewBeRightBackOverlaySettingsLate struct {
-		Enabled        bool   `json:"enabled"`
-		Text           string `json:"text"`
-		DisplayBrbTime bool   `json:"display_brb_time"`
-	}
-
-	type NewBeRightBackOverlaySettings struct {
-		Text            string                            `json:"text"`
-		Late            NewBeRightBackOverlaySettingsLate `json:"late"`
-		BackgroundColor string                            `json:"background_color"`
-		FontSize        int32                             `json:"font_size"`
-		FontColor       string                            `json:"font_color"`
-		FontFamily      string                            `json:"font_family"`
-	}
-
 	for _, d := range data {
-		newSettings := NewBeRightBackOverlaySettings{
-			Text: d.settings.Text,
-			Late: NewBeRightBackOverlaySettingsLate{
-				Enabled:        d.settings.Late.Enabled,
-				Text:           d.settings.Late.Text,
-				DisplayBrbTime: d.settings.Late.DisplayBrbTime,
-			},
-			BackgroundColor: d.settings.BackgroundColor,
-			FontSize:        d.settings.FontSize,
-			FontColor:       d.settings.FontColor,
-			FontFamily:      d.settings.FontFamily,
-		}
-
-		settingsBytes, err := json.Marshal(newSettings)
-		if err != nil {
-			return fmt.Errorf("marshal: %w", err)
-		}
-
 		insertQuery := `
-INSERT INTO channels_overlays_be_right_back (channel_id, data)
-VALUES ($1, $2);
+INSERT INTO channels_overlays_be_right_back (
+	channel_id,
+	text,
+	late_enabled,
+	late_text,
+	late_display_brb_time,
+	background_color,
+	font_size,
+	font_color,
+	font_family
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 		`
 
-		if _, err := tx.ExecContext(ctx, insertQuery, d.channelID, string(settingsBytes)); err != nil {
+		if _, err := tx.ExecContext(
+			ctx,
+			insertQuery,
+			d.channelID,
+			d.settings.Text,
+			d.settings.Late.Enabled,
+			d.settings.Late.Text,
+			d.settings.Late.DisplayBrbTime,
+			d.settings.BackgroundColor,
+			d.settings.FontSize,
+			d.settings.FontColor,
+			d.settings.FontFamily,
+		); err != nil {
 			return fmt.Errorf("insert: %w", err)
 		}
 	}
@@ -146,13 +141,6 @@ DELETE FROM channels_modules_settings WHERE type = 'be_right_back_overlay'
 }
 
 func downBeRightBackSeparateTable(ctx context.Context, tx *sql.Tx) error {
-	query := `
-DROP TABLE IF EXISTS channels_overlays_be_right_back;
-	`
-
-	if _, err := tx.ExecContext(ctx, query); err != nil {
-		return fmt.Errorf("drop table: %w", err)
-	}
-
+	// This code is executed when the migration is rolled back.
 	return nil
 }

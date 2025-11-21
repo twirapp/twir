@@ -23,7 +23,6 @@ import { SetChannelInformationRequest } from "./messages/twitch_protected/twitch
 import { GetCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
 import { SearchCategoriesResponse } from "./messages/twitch_protected/twitch_protected";
 import { SearchCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
-import { Settings } from "./messages/overlays_be_right_back/overlays_be_right_back";
 import { UsersDeleteRequest } from "./messages/modules_tts/modules_tts";
 import { GetUsersSettingsResponse } from "./messages/modules_tts/modules_tts";
 import { GetInfoResponse } from "./messages/modules_tts/modules_tts";
@@ -101,8 +100,6 @@ export const Protected = new ServiceType("api.Protected", [
     { name: "ModulesTTSGetInfo", options: {}, I: Empty, O: GetInfoResponse },
     { name: "ModulesTTSGetUsersSettings", options: {}, I: Empty, O: GetUsersSettingsResponse },
     { name: "ModulesTTSUsersDelete", options: {}, I: UsersDeleteRequest, O: Empty },
-    { name: "OverlayBeRightBackGet", options: {}, I: Empty, O: Settings },
-    { name: "OverlayBeRightBackUpdate", options: {}, I: Settings, O: Settings },
     { name: "TwitchSearchCategories", options: {}, I: SearchCategoriesRequest, O: SearchCategoriesResponse },
     { name: "TwitchGetCategories", options: {}, I: GetCategoriesRequest, O: SearchCategoriesResponse },
     { name: "TwitchSetChannelInformation", options: {}, I: SetChannelInformationRequest, O: Empty },

@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
-	"github.com/goccy/go-json"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
@@ -30,7 +28,6 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 }
 
 var _ overlays_be_right_back.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -42,7 +39,19 @@ func (p *Pgx) GetByChannelID(ctx context.Context, channelID string) (
 	error,
 ) {
 	query := `
-SELECT id, channel_id, created_at, updated_at, data
+SELECT
+	id,
+	channel_id,
+	created_at,
+	updated_at,
+	text,
+	late_enabled,
+	late_text,
+	late_display_brb_time,
+	background_color,
+	font_size,
+	font_color,
+	font_family
 FROM channels_overlays_be_right_back
 WHERE channel_id = $1
 LIMIT 1;
@@ -50,16 +59,23 @@ LIMIT 1;
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
 	row := conn.QueryRow(ctx, query, channelID)
-	overlay := brbmodel.BeRightBackOverlay{}
-
-	var brbOverlaySettings []byte
+	overlay := brbmodel.BeRightBackOverlay{
+		Settings: &brbmodel.BeRightBackOverlaySettings{},
+	}
 
 	err := row.Scan(
 		&overlay.ID,
 		&overlay.ChannelID,
 		&overlay.CreatedAt,
 		&overlay.UpdatedAt,
-		&brbOverlaySettings,
+		&overlay.Settings.Text,
+		&overlay.Settings.Late.Enabled,
+		&overlay.Settings.Late.Text,
+		&overlay.Settings.Late.DisplayBrbTime,
+		&overlay.Settings.BackgroundColor,
+		&overlay.Settings.FontSize,
+		&overlay.Settings.FontColor,
+		&overlay.Settings.FontFamily,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -71,12 +87,6 @@ LIMIT 1;
 		)
 	}
 
-	if len(brbOverlaySettings) > 0 {
-		if err := json.Unmarshal(brbOverlaySettings, &overlay.Settings); err != nil {
-			return brbmodel.BeRightBackOverlay{}, err
-		}
-	}
-
 	return overlay, nil
 }
 
@@ -85,17 +95,34 @@ func (p *Pgx) Create(
 	input overlays_be_right_back.CreateInput,
 ) (brbmodel.BeRightBackOverlay, error) {
 	query := `
-INSERT INTO channels_overlays_be_right_back (channel_id, data)
-VALUES ($1, $2);
+INSERT INTO channels_overlays_be_right_back (
+	channel_id,
+	text,
+	late_enabled,
+	late_text,
+	late_display_brb_time,
+	background_color,
+	font_size,
+	font_color,
+	font_family
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 `
 
-	settingsBytes, err := json.Marshal(input.Settings)
-	if err != nil {
-		return brbmodel.BeRightBackOverlay{}, err
-	}
-
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	_, err = conn.Exec(ctx, query, input.ChannelID, string(settingsBytes))
+	_, err := conn.Exec(
+		ctx,
+		query,
+		input.ChannelID,
+		input.Settings.Text,
+		input.Settings.Late.Enabled,
+		input.Settings.Late.Text,
+		input.Settings.Late.DisplayBrbTime,
+		input.Settings.BackgroundColor,
+		input.Settings.FontSize,
+		input.Settings.FontColor,
+		input.Settings.FontFamily,
+	)
 	if err != nil {
 		return brbmodel.BeRightBackOverlay{}, fmt.Errorf("be right back overlay create: %w", err)
 	}
@@ -110,21 +137,37 @@ func (p *Pgx) Update(
 ) (brbmodel.BeRightBackOverlay, error) {
 	query := `
 UPDATE channels_overlays_be_right_back
-SET data = $1, updated_at = now()
-WHERE channel_id = $2
+SET
+	text = $1,
+	late_enabled = $2,
+	late_text = $3,
+	late_display_brb_time = $4,
+	background_color = $5,
+	font_size = $6,
+	font_color = $7,
+	font_family = $8,
+	updated_at = now()
+WHERE channel_id = $9
 RETURNING channel_id
 	`
 
-	settingsBytes, err := json.Marshal(input.Settings)
-	if err != nil {
-		return brbmodel.BeRightBackOverlay{}, err
-	}
-
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	row := conn.QueryRow(ctx, query, string(settingsBytes), channelID)
+	row := conn.QueryRow(
+		ctx,
+		query,
+		input.Settings.Text,
+		input.Settings.Late.Enabled,
+		input.Settings.Late.Text,
+		input.Settings.Late.DisplayBrbTime,
+		input.Settings.BackgroundColor,
+		input.Settings.FontSize,
+		input.Settings.FontColor,
+		input.Settings.FontFamily,
+		channelID,
+	)
 	var channelId string
 
-	err = row.Scan(&channelId)
+	err := row.Scan(&channelId)
 	if err != nil {
 		return brbmodel.BeRightBackOverlay{}, fmt.Errorf("be right back overlay update: %w", err)
 	}
