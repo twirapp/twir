@@ -522,6 +522,18 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				GobEncoder,
 			),
+			TriggerBrbStart: NewNatsQueue[api.TriggerBrbStart, struct{}](
+				nc,
+				api.TriggerBrbStartSubject,
+				time.Second,
+				GobEncoder,
+			),
+			TriggerBrbStop: NewNatsQueue[api.TriggerBrbStop, struct{}](
+				nc,
+				api.TriggerBrbStopSubject,
+				time.Second,
+				GobEncoder,
+			),
 		},
 
 		CacheInvalidator: NewNatsQueue[cache_invalidator.InvalidateRequest, struct{}](

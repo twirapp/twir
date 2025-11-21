@@ -7,16 +7,15 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/alerts"
-	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/youtube"
-	"github.com/twirapp/twir/libs/logger"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
@@ -45,7 +44,6 @@ type GrpcImpl struct {
 	obsServer              *obs.OBS
 	alertsServer           *alerts.Alerts
 	overlaysRegistryServer *overlays.Registry
-	beRightBackServer      *be_right_back.BeRightBack
 	dudesServer            *dudes.Dudes
 	alertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
 }
@@ -63,7 +61,6 @@ type GrpcOpts struct {
 	OBSServer              *obs.OBS
 	AlertsServer           *alerts.Alerts
 	OverlaysRegistryServer *overlays.Registry
-	BeRightBackServer      *be_right_back.BeRightBack
 	DudesServer            *dudes.Dudes
 	AlertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
 }
@@ -78,7 +75,6 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		obsServer:              opts.OBSServer,
 		alertsServer:           opts.AlertsServer,
 		overlaysRegistryServer: opts.OverlaysRegistryServer,
-		beRightBackServer:      opts.BeRightBackServer,
 		dudesServer:            opts.DudesServer,
 		alertsCache:            opts.AlertsCache,
 	}
@@ -123,8 +119,6 @@ func (c *GrpcImpl) RefreshOverlaySettings(
 			"refreshOverlays",
 			nil,
 		)
-	case websockets.RefreshOverlaySettingsName_BRB:
-		err = c.beRightBackServer.SendSettings(req.GetChannelId())
 	default:
 		return nil, fmt.Errorf("unknown overlay: %s", req.GetOverlayName())
 	}

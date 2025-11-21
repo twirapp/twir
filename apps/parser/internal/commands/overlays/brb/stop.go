@@ -6,8 +6,8 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
 var Stop = &types.DefaultCommand{
@@ -28,14 +28,14 @@ var Stop = &types.DefaultCommand{
 	) {
 		result := types.CommandsHandlerResult{}
 
-		if _, err := parseCtx.Services.GrpcClients.WebSockets.TriggerHideBrb(
-			ctx,
-			&websockets.TriggerHideBrbRequest{
+		err := parseCtx.Services.Bus.Api.TriggerBrbStop.Publish(
+			ctx, api.TriggerBrbStop{
 				ChannelId: parseCtx.Channel.ID,
 			},
-		); err != nil {
-			return &result, &types.CommandHandlerError{
-				Message: "cannot trigger hide brb",
+		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot trigger stop brb",
 				Err:     err,
 			}
 		}

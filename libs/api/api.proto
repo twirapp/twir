@@ -16,7 +16,6 @@ import "messages/integrations_nightbot/integrations_nightbot.proto";
 
 import "messages/modules_obs_websocket/modules_obs_websocket.proto";
 import "messages/modules_tts/modules_tts.proto";
-import "messages/overlays_be_right_back/overlays_be_right_back.proto";
 
 import "messages/twitch_protected/twitch_protected.proto";
 import "messages/overlays/overlays.proto";
@@ -67,8 +66,6 @@ service Protected {
 	rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (messages.modules_tts.GetUsersSettingsResponse) {}
 	rpc ModulesTTSUsersDelete(messages.modules_tts.UsersDeleteRequest) returns (google.protobuf.Empty) {}
 
-	rpc OverlayBeRightBackGet(google.protobuf.Empty) returns (messages.overlays_be_right_back.Settings) {}
-	rpc OverlayBeRightBackUpdate(messages.overlays_be_right_back.Settings) returns (messages.overlays_be_right_back.Settings) {}
 
 	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}

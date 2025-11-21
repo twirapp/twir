@@ -7,15 +7,14 @@ import (
 	bus_listener "github.com/twirapp/twir/apps/websockets/internal/bus-listener"
 	"github.com/twirapp/twir/apps/websockets/internal/grpc_impl"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/alerts"
-	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/youtube"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
+	"github.com/twirapp/twir/libs/logger"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -47,7 +46,6 @@ var App = fx.Module(
 		alerts.NewAlerts,
 		channelalertscache.New,
 		overlays.New,
-		be_right_back.New,
 		dudes.New,
 	),
 	fx.Invoke(

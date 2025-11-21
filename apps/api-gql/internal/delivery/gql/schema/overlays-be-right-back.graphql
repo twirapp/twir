@@ -1,0 +1,54 @@
+extend type Query {
+	overlaysBeRightBack: BeRightBackOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	overlaysBeRightBackUpdate(input: BeRightBackUpdateInput!): BeRightBackOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	overlaysBeRightBack(apiKey: String!): BeRightBackOverlay!
+	overlaysBeRightBackStart(apiKey: String!): BeRightBackOverlayStartMessage!
+	overlaysBeRightBackStop(apiKey: String!): Time!
+}
+
+type BeRightBackOverlay {
+	id: UUID!
+	text: String!
+	late: BeRightBackLate!
+	backgroundColor: String!
+	fontSize: Int!
+	fontColor: String!
+	fontFamily: String!
+	createdAt: Time!
+	updatedAt: Time!
+	channelId: String!
+	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
+}
+
+type BeRightBackLate {
+	enabled: Boolean!
+	text: String!
+	displayBrbTime: Boolean!
+}
+
+
+input BeRightBackUpdateInput {
+	text: String! @validate(constraint: "max=50,min=1")
+	late: BeRightBackLateInput!
+	backgroundColor: String! @validate(constraint: "max=20,min=1")
+	fontSize: Int! @validate(constraint: "min=1,max=500")
+	fontColor: String! @validate(constraint: "max=20,min=1")
+	fontFamily: String! @validate(constraint: "max=50,min=1")
+}
+
+input BeRightBackLateInput {
+	enabled: Boolean!
+	text: String! @validate(constraint: "max=50,min=1")
+	displayBrbTime: Boolean!
+}
+
+type BeRightBackOverlayStartMessage {
+	time: Int!
+	text: String
+}
