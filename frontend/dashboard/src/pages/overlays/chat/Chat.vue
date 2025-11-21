@@ -1,18 +1,7 @@
 <script setup lang="ts">
-import {
-	ChatBox,
-	type Settings as ChatBoxSettings,
-	type Message,
-} from '@twir/frontend-chat'
+import { ChatBox, type Settings as ChatBoxSettings, type Message } from '@twir/frontend-chat'
 import { useIntervalFn } from '@vueuse/core'
-import {
-	NAlert,
-	NScrollbar,
-	NTabPane,
-	NTabs,
-	NText,
-	useThemeVars,
-} from 'naive-ui'
+import { NAlert, NScrollbar, NTabPane, NTabs, NText, useThemeVars } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -21,10 +10,7 @@ import Form from './components/Form.vue'
 import { globalBadges } from './constants.js'
 import * as faker from './faker.js'
 
-import {
-	useChatOverlayApi,
-	useUserAccessFlagChecker,
-} from '@/api/index.js'
+import { useChatOverlayApi, useUserAccessFlagChecker } from '@/api/index.js'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
@@ -50,12 +36,15 @@ useIntervalFn(() => {
 
 	messagesMock.value.push({
 		sender: faker.firstName(),
-		chunks: [{
-			type: 'text',
-			value: formValue.value.direction === 'left' || formValue.value.direction === 'right'
-				? faker.loremWithLen(3)
-				: faker.lorem(),
-		}],
+		chunks: [
+			{
+				type: 'text',
+				value:
+					formValue.value.direction === 'left' || formValue.value.direction === 'right'
+						? faker.loremWithLen(3)
+						: faker.lorem(),
+			},
+		],
 		createdAt: new Date(),
 		internalId,
 		isAnnounce: faker.boolean(),
@@ -72,7 +61,7 @@ useIntervalFn(() => {
 
 	if (formValue.value.messageHideTimeout !== 0) {
 		setTimeout(() => {
-			messagesMock.value = messagesMock.value.filter(m => m.internalId !== internalId)
+			messagesMock.value = messagesMock.value.filter((m) => m.internalId !== internalId)
 		}, formValue.value.messageHideTimeout * 1000)
 	}
 
@@ -92,12 +81,16 @@ function resetTab() {
 	openedTab.value = chatOverlaysData.value.chatOverlays.at(0)!.id
 }
 
-watch(() => chatOverlaysData.value?.chatOverlays, () => {
-	resetTab()
-}, { immediate: true })
+watch(
+	() => chatOverlaysData.value?.chatOverlays,
+	() => {
+		resetTab()
+	},
+	{ immediate: true }
+)
 
 watch(openedTab, (v) => {
-	const entity = chatOverlaysData.value?.chatOverlays.find(s => s.id === v)
+	const entity = chatOverlaysData.value?.chatOverlays.find((s) => s.id === v)
 	if (!entity) return
 
 	setData(entity)
@@ -126,7 +119,7 @@ async function handleClose(id: string) {
 		negativeText: 'Cancel',
 		showIcon: false,
 		onPositiveClick: async () => {
-			const entity = chatOverlaysData.value?.chatOverlays.find(s => s.id === id)
+			const entity = chatOverlaysData.value?.chatOverlays.find((s) => s.id === id)
 			if (!entity?.id) return
 
 			await deleter.executeMutation({ id: entity.id })
@@ -146,7 +139,12 @@ const addable = computed(() => {
 
 <template>
 	<div class="page">
-		<div class="chatBox w-[70%]">
+		<div
+			class="chatBox-wrapper"
+			:class="{
+				'is-horizontal': formValue?.direction === 'left' || formValue?.direction === 'right',
+			}"
+		>
 			<ChatBox
 				v-if="openedTab"
 				class="chatBox"
@@ -154,12 +152,10 @@ const addable = computed(() => {
 				:settings="chatBoxSettings"
 			/>
 			<div v-else class="flex justify-center items-center h-full">
-				<NText class="text-base">
-					Preview of chat will be here when you select some preset
-				</NText>
+				<NText class="text-base"> Preview of chat will be here when you select some preset </NText>
 			</div>
 		</div>
-		<div class="w-[30%]">
+		<div class="form-wrapper">
 			<NTabs
 				v-model:value="openedTab"
 				type="card"
@@ -195,13 +191,57 @@ const addable = computed(() => {
 <style scoped>
 @import '../styles.css';
 
-:deep(.chat) {
-	height: 80dvh;
+.chatBox-wrapper {
+	width: 70%;
+	flex-shrink: 0;
+	flex-grow: 0;
+	overflow: hidden;
+	min-width: 0; /* Allows flex item to shrink below content size */
+	max-width: 70%;
+}
+
+.chatBox-wrapper.is-horizontal {
+	contain: layout size style;
+}
+
+.form-wrapper {
+	width: 30%;
+	flex-shrink: 0;
+	flex-grow: 0;
+	min-width: 0;
 }
 
 .chatBox {
 	background-color: v-bind('themeVars.cardColor');
 	border-radius: 8px;
 	height: 80dvh;
+	width: 100%;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+/* Force chat component to respect container width */
+:deep(.chat) {
+	height: 80dvh !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+/* Force messages container to respect parent width and enable scrolling */
+:deep(.messages) {
+	max-width: 100% !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+	overflow: auto !important;
+}
+
+/* Constrain ALL messages to prevent horizontal expansion */
+:deep(.message) {
+	max-width: 400px !important;
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow-wrap: break-word !important;
+	box-sizing: border-box !important;
 }
 </style>
