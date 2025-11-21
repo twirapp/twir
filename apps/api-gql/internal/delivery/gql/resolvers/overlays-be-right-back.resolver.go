@@ -19,18 +19,12 @@ import (
 )
 
 // Channel is the resolver for the channel field.
-func (r *beRightBackOverlayResolver) Channel(
-	ctx context.Context,
-	obj *gqlmodel.BeRightBackOverlay,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.BeRightBackOverlay) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return dataloader.GetHelixUserById(ctx, obj.ChannelID)
 }
 
 // OverlaysBeRightBackUpdate is the resolver for the overlaysBeRightBackUpdate field.
-func (r *mutationResolver) OverlaysBeRightBackUpdate(
-	ctx context.Context,
-	input gqlmodel.BeRightBackUpdateInput,
-) (*gqlmodel.BeRightBackOverlay, error) {
+func (r *mutationResolver) OverlaysBeRightBackUpdate(ctx context.Context, input gqlmodel.BeRightBackUpdateInput) (*gqlmodel.BeRightBackOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -65,10 +59,7 @@ func (r *mutationResolver) OverlaysBeRightBackUpdate(
 }
 
 // OverlaysBeRightBack is the resolver for the overlaysBeRightBack field.
-func (r *queryResolver) OverlaysBeRightBack(ctx context.Context) (
-	*gqlmodel.BeRightBackOverlay,
-	error,
-) {
+func (r *queryResolver) OverlaysBeRightBack(ctx context.Context) (*gqlmodel.BeRightBackOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -84,10 +75,7 @@ func (r *queryResolver) OverlaysBeRightBack(ctx context.Context) (
 }
 
 // OverlaysBeRightBack is the resolver for the overlaysBeRightBack field.
-func (r *subscriptionResolver) OverlaysBeRightBack(
-	ctx context.Context,
-	apiKey string,
-) (<-chan *gqlmodel.BeRightBackOverlay, error) {
+func (r *subscriptionResolver) OverlaysBeRightBack(ctx context.Context, apiKey string) (<-chan *gqlmodel.BeRightBackOverlay, error) {
 	updateChan, err := r.deps.BeRightBackService.SettingsSubscriptionSignalerByApiKey(ctx, apiKey)
 	if err != nil {
 		return nil, err
@@ -116,10 +104,7 @@ func (r *subscriptionResolver) OverlaysBeRightBack(
 }
 
 // OverlaysBeRightBackStart is the resolver for the overlaysBeRightBackStart field.
-func (r *subscriptionResolver) OverlaysBeRightBackStart(
-	ctx context.Context,
-	apiKey string,
-) (<-chan *gqlmodel.BeRightBackOverlayStartMessage, error) {
+func (r *subscriptionResolver) OverlaysBeRightBackStart(ctx context.Context, apiKey string) (<-chan *gqlmodel.BeRightBackOverlayStartMessage, error) {
 	updateChan, err := r.deps.BeRightBackService.StartSubscriptionSignalerByApiKey(ctx, apiKey)
 	if err != nil {
 		return nil, err
@@ -151,10 +136,7 @@ func (r *subscriptionResolver) OverlaysBeRightBackStart(
 }
 
 // OverlaysBeRightBackStop is the resolver for the overlaysBeRightBackStop field.
-func (r *subscriptionResolver) OverlaysBeRightBackStop(
-	ctx context.Context,
-	apiKey string,
-) (<-chan *time.Time, error) {
+func (r *subscriptionResolver) OverlaysBeRightBackStop(ctx context.Context, apiKey string) (<-chan *time.Time, error) {
 	updateChan, err := r.deps.BeRightBackService.StopSubscriptionSignalerByApiKey(ctx, apiKey)
 	if err != nil {
 		return nil, err

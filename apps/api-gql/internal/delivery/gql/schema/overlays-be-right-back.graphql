@@ -32,21 +32,21 @@ type BeRightBackLate {
 	displayBrbTime: Boolean!
 }
 
+
 input BeRightBackUpdateInput {
-	text: String!
+	text: String! @validate(constraint: "max=50,min=1")
 	late: BeRightBackLateInput!
-	backgroundColor: String!
-	fontSize: Int!
-	fontColor: String!
-	fontFamily: String!
+	backgroundColor: String! @validate(constraint: "max=20,min=1")
+	fontSize: Int! @validate(constraint: "min=1,max=500")
+	fontColor: String! @validate(constraint: "max=20,min=1")
+	fontFamily: String! @validate(constraint: "max=50,min=1")
 }
 
 input BeRightBackLateInput {
 	enabled: Boolean!
-	text: String!
+	text: String! @validate(constraint: "max=50,min=1")
 	displayBrbTime: Boolean!
 }
-
 
 type BeRightBackOverlayStartMessage {
 	time: Int!
