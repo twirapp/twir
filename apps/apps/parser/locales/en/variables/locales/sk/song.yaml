@@ -5,7 +5,7 @@ info:
   get_spotify_entity: Chyba pri získavaní entity zo Spotify
   get_spotify_integration: 'Nepodarilo sa načítať integráciu so Spotify: {reason}'
   history: '{trackTitle} – {trackArtist} (pred ~{minutes} minútami)'
-  no_needed_scope: 'Chýbajú potrebné práva, pripojte Spotify znova v ovládacom paneli'
+  no_needed_scope: 'Chýbajú potrebné práva, pripoj Spotify znova v ovládacom paneli'
   no_integrations: Nie sú pripojené žiadne integrácie
 errors:
   get_recent_tracks: 'Nepodarilo sa získať nedávne skladby: {reason}'
