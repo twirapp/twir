@@ -168,7 +168,7 @@ export function newRouter() {
 				{
 					name: 'BrbOverlay',
 					path: '/dashboard/overlays/brb',
-					component: () => import('../pages/overlays/brb/Brb.vue'),
+					component: () => import('../features/overlays/brb/page.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ManageOverlays,

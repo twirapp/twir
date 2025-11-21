@@ -5,8 +5,8 @@ import { useRoute } from 'vue-router'
 import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js'
 
 import BrbTimer, { type BrbTimerMethods } from '@/components/brb-timer.vue'
+import { useBeRightBackOverlayGraphQL } from '@/composables/brb/use-brb-graphql.js'
 import { useBrbIframe } from '@/composables/brb/use-brb-iframe.js'
-import { useBeRightBackOverlaySocket } from '@/composables/brb/use-brb-socket.js'
 
 const route = useRoute()
 const brbTimerRef = ref<BrbTimerMethods | null>(null)
@@ -24,10 +24,7 @@ const iframe = useBrbIframe({
 	onStop,
 })
 
-const apiKey = route.params.apiKey as string
-
-const socket = useBeRightBackOverlaySocket({
-	apiKey,
+const graphql = useBeRightBackOverlayGraphQL({
 	onStart,
 	onStop,
 })
@@ -36,13 +33,18 @@ onMounted(() => {
 	if (window.frameElement) {
 		iframe.create()
 	} else {
-		socket.create()
+		const apiKey = route.params.apiKey as string
+		if (!apiKey) {
+			console.error('API key is required for Be Right Back overlay')
+			return
+		}
+		graphql.connect(apiKey)
 	}
 })
 
 onUnmounted(() => {
 	iframe.destroy()
-	socket.destroy()
+	graphql.destroy()
 })
 </script>
 

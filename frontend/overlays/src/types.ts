@@ -1,4 +1,4 @@
-import type { Settings as BrbOverlaySettings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back'
+import type { BrbSettings as BrbOverlaySettings } from '@/composables/brb/use-brb-settings.js'
 
 // emotes start
 export type SevenTvEmote = {

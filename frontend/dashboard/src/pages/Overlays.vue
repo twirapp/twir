@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router'
 
 import { useOverlaysRegistry, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
 import Card from '@/components/card/card.vue'
-import Brb from '@/components/overlays/brb.vue'
+import Brb from '@/features/overlays/brb/card.vue'
 import Chat from '@/components/overlays/chat.vue'
 import Dudes from '@/components/overlays/dudes.vue'
 import Kappagen from '@/components/overlays/kappagen.vue'
