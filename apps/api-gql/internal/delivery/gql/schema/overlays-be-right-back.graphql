@@ -9,7 +9,7 @@ extend type Mutation {
 extend type Subscription {
 	overlaysBeRightBack(apiKey: String!): BeRightBackOverlay!
 	overlaysBeRightBackStart(apiKey: String!): BeRightBackOverlayStartMessage!
-	overlaysBeRightBackStop(apiKey: String!): Boolean!
+	overlaysBeRightBackStop(apiKey: String!): Time!
 }
 
 type BeRightBackOverlay {
