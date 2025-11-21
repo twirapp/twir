@@ -210,6 +210,7 @@ func main() {
 			},
 		),
 		di.OverlaysKappagenModule,
+		di.OverlaysBeRightBackModule,
 		// repositories
 		fx.Provide(
 			fx.Annotate(

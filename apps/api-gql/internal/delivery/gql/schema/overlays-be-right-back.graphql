@@ -1,0 +1,47 @@
+extend type Query {
+	overlaysBeRightBack: BeRightBackOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	overlaysBeRightBackUpdate(input: BeRightBackUpdateInput!): BeRightBackOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	overlaysBeRightBack(apiKey: String!): BeRightBackOverlay!
+}
+
+type BeRightBackOverlay {
+	id: UUID!
+	text: String!
+	late: BeRightBackLate!
+	backgroundColor: String!
+	fontSize: Int!
+	fontColor: String!
+	fontFamily: String!
+	createdAt: Time!
+	updatedAt: Time!
+	channelID: String!
+	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
+}
+
+type BeRightBackLate {
+	enabled: Boolean!
+	text: String!
+	displayBrbTime: Boolean!
+}
+
+input BeRightBackUpdateInput {
+	text: String!
+	late: BeRightBackLateInput!
+	backgroundColor: String!
+	fontSize: Int!
+	fontColor: String!
+	fontFamily: String!
+}
+
+input BeRightBackLateInput {
+	enabled: Boolean!
+	text: String!
+	displayBrbTime: Boolean!
+}
+
