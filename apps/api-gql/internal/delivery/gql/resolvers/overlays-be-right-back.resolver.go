@@ -8,14 +8,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
-	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 // Channel is the resolver for the channel field.
@@ -76,50 +74,90 @@ func (r *queryResolver) OverlaysBeRightBack(ctx context.Context) (*gqlmodel.BeRi
 
 // OverlaysBeRightBack is the resolver for the overlaysBeRightBack field.
 func (r *subscriptionResolver) OverlaysBeRightBack(ctx context.Context, apiKey string) (<-chan *gqlmodel.BeRightBackOverlay, error) {
-	user := model.Users{}
-	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
-	}
-
-	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{be_right_back.CreateSettingsSubscriptionKey(user.ID)})
+	updateChan, err := r.deps.BeRightBackService.SettingsSubscriptionSignalerByApiKey(ctx, apiKey)
 	if err != nil {
 		return nil, err
 	}
 
-	chann := make(chan *gqlmodel.BeRightBackOverlay, 1)
-
-	settings, err := r.deps.BeRightBackService.GetOrCreate(ctx, user.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get be right back overlay: %w", err)
-	}
-
-	converted := mappers.MapBeRightBackEntityToGQL(settings)
-	chann <- &converted
+	outputChan := make(chan *gqlmodel.BeRightBackOverlay, 1)
 
 	go func() {
 		defer func() {
-			wsRouterSub.Unsubscribe()
-			close(chann)
+			close(outputChan)
 		}()
 
 		for {
 			select {
 			case <-ctx.Done():
 				return
-			case data := <-wsRouterSub.GetChannel():
-				var newSettings entity.BeRightBackOverlay
-				if err := json.Unmarshal(data, &newSettings); err != nil {
-					panic(err)
-				}
+			case data := <-updateChan:
+				newSettingsConverted := mappers.MapBeRightBackEntityToGQL(data)
 
-				newSettingsConverted := mappers.MapBeRightBackEntityToGQL(newSettings)
-
-				chann <- &newSettingsConverted
+				outputChan <- &newSettingsConverted
 			}
 		}
 	}()
 
-	return chann, nil
+	return outputChan, nil
+}
+
+// OverlaysBeRightBackStart is the resolver for the overlaysBeRightBackStart field.
+func (r *subscriptionResolver) OverlaysBeRightBackStart(ctx context.Context, apiKey string) (<-chan *gqlmodel.BeRightBackOverlayStartMessage, error) {
+	updateChan, err := r.deps.BeRightBackService.StartSubscriptionSignalerByApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, err
+	}
+
+	outputChan := make(chan *gqlmodel.BeRightBackOverlayStartMessage, 1)
+
+	go func() {
+		defer func() {
+			close(outputChan)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data := <-updateChan:
+				msg := &gqlmodel.BeRightBackOverlayStartMessage{
+					Time: int(data.Minutes),
+					Text: data.Text,
+				}
+
+				outputChan <- msg
+			}
+		}
+	}()
+
+	return outputChan, nil
+}
+
+// OverlaysBeRightBackStop is the resolver for the overlaysBeRightBackStop field.
+func (r *subscriptionResolver) OverlaysBeRightBackStop(ctx context.Context, apiKey string) (<-chan bool, error) {
+	updateChan, err := r.deps.BeRightBackService.StopSubscriptionSignalerByApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, err
+	}
+
+	outputChan := make(chan bool, 1)
+
+	go func() {
+		defer func() {
+			close(outputChan)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data := <-updateChan:
+				outputChan <- data
+			}
+		}
+	}()
+
+	return outputChan, nil
 }
 
 // BeRightBackOverlay returns graph.BeRightBackOverlayResolver implementation.

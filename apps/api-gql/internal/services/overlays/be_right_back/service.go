@@ -7,25 +7,66 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/api"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back/model"
+	"github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
 
 type Opts struct {
 	fx.In
+	LC fx.Lifecycle
 
-	Repository overlays_be_right_back.Repository
-	WsRouter   wsrouter.WsRouter
-	TwirBus    *buscore.Bus
+	Repository      overlays_be_right_back.Repository
+	WsRouter        wsrouter.WsRouter
+	TwirBus         *buscore.Bus
+	Logger          logger.Logger
+	UsersRepository users.Repository
 }
 
 func New(opts Opts) *Service {
 	s := &Service{
-		repository: opts.Repository,
-		wsRouter:   opts.WsRouter,
-		twirBus:    opts.TwirBus,
+		repository:      opts.Repository,
+		wsRouter:        opts.WsRouter,
+		twirBus:         opts.TwirBus,
+		usersRepository: opts.UsersRepository,
 	}
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				s.twirBus.Api.TriggerBrbStart.SubscribeGroup(
+					"api",
+					func(ctx context.Context, data api.TriggerBrbStart) (struct{}, error) {
+						return struct{}{}, s.wsRouter.Publish(createStartSubscriptionKey(data.ChannelId), data)
+					},
+				)
+
+				opts.Logger.Info("Subscribed to TriggerBrbStart events")
+
+				s.twirBus.Api.TriggerBrbStop.SubscribeGroup(
+					"api",
+					func(ctx context.Context, data api.TriggerBrbStop) (struct{}, error) {
+						return struct{}{}, s.wsRouter.Publish(createStopSubscriptionKey(data.ChannelId), data)
+					},
+				)
+
+				opts.Logger.Info("Subscribed to TriggerBrbStop events")
+
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				s.twirBus.Api.TriggerBrbStart.Unsubscribe()
+				s.twirBus.Api.TriggerBrbStop.Unsubscribe()
+
+				opts.Logger.Info("Unsubscribed from TriggerBrbStart and TriggerBrbStop events")
+
+				return nil
+			},
+		},
+	)
 
 	return s
 }
@@ -34,6 +75,8 @@ type Service struct {
 	repository overlays_be_right_back.Repository
 	wsRouter   wsrouter.WsRouter
 	twirBus    *buscore.Bus
+
+	usersRepository users.Repository
 }
 
 // GetOrCreate gets the be right back overlay for the given channel ID or creates a new one with default settings if it doesn't exist
@@ -77,7 +120,7 @@ func (s *Service) Update(
 	}
 
 	if err := s.wsRouter.Publish(
-		CreateSettingsSubscriptionKey(input.ChannelID),
+		createSettingsSubscriptionKey(input.ChannelID),
 		mapModelToEntity(updated),
 	); err != nil {
 		return entity.BeRightBackOverlay{}, err

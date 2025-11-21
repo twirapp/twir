@@ -8,6 +8,8 @@ extend type Mutation {
 
 extend type Subscription {
 	overlaysBeRightBack(apiKey: String!): BeRightBackOverlay!
+	overlaysBeRightBackStart(apiKey: String!): BeRightBackOverlayStartMessage!
+	overlaysBeRightBackStop(apiKey: String!): Boolean!
 }
 
 type BeRightBackOverlay {
@@ -45,3 +47,8 @@ input BeRightBackLateInput {
 	displayBrbTime: Boolean!
 }
 
+
+type BeRightBackOverlayStartMessage {
+	time: Int!
+	text: String
+}

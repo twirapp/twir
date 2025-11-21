@@ -8,8 +8,8 @@ import (
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
 const (
@@ -52,14 +52,14 @@ var Start = &types.DefaultCommand{
 			text = lo.ToPtr(textArg.String())
 		}
 
-		if _, err := parseCtx.Services.GrpcClients.WebSockets.TriggerShowBrb(
-			ctx,
-			&websockets.TriggerShowBrbRequest{
+		err := parseCtx.Services.Bus.Api.TriggerBrbStart.Publish(
+			ctx, api.TriggerBrbStart{
 				ChannelId: parseCtx.Channel.ID,
 				Minutes:   int32(parseCtx.ArgsParser.Get(startTimeArgName).Int()),
 				Text:      text,
 			},
-		); err != nil {
+		)
+		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot trigger show brb",
 				Err:     err,
