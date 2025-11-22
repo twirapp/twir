@@ -1,38 +1,38 @@
 errors:
   # 8ball
-  8ball_cannot_find: Cannot find 8ball settings
+  8ball_cannot_find: 8ball Einstellungen nicht gefunden
   # Duel
-  duel_cannot_get_with_settings: Cannot get duel channel settings
-  duel_cannot_get_sender: Cannot get sender current duel
-  duel_cannot_save_result: 'Cannot save duel result: {reason}'
-  duel_cannot_save_data: 'Cannot save duel data: {reason}'
-  duel_cannot_check_user: 'Cannot check user in duel: {reason}'
-  duel_with_yourself: You cannot duel with yourself
-  duel_with_streamer: You cannot duel with streamer
-  duel_with_bot: You cannot duel with bot
-  duel_cannot_set_user_cooldown: 'Cannot set user cooldown: {reason}'
-  duel_cannot_set_global_cooldown: 'Cannot set global cooldown: {reason}'
-  duel_cannot_check_cooldown: 'Cannot check duel cooldown: {reason}'
-  duel_cannot_validate_participants: Cannot validate participants
-  duel_cannot_save_to_cache: Cannot save duel data to cache
+  duel_cannot_get_with_settings: Duellkanal-Einstellungen können nicht abgerufen werden
+  duel_cannot_get_sender: Aktuelles Duell des Absenders kann nicht abgerufen werden
+  duel_cannot_save_result: 'Duell-Ergebnis kann nicht gespeichert werden: {reason}'
+  duel_cannot_save_data: 'Duell-Daten können nicht gespeichert werden: {reason}'
+  duel_cannot_check_user: 'Benutzer im Duell kann nicht überprüft werden: {reason}'
+  duel_with_yourself: Du kannst dich nicht mit dir selbst duellieren
+  duel_with_streamer: Du kannst dich nicht mit Streamern duellieren
+  duel_with_bot: Du kannst dich nicht mit Bots duellieren
+  duel_cannot_set_user_cooldown: 'Abklingzeit des Nutzers kann nicht eingestellt werden: {reason}'
+  duel_cannot_set_global_cooldown: 'Globale Abklingzeit kann nicht eingestellt werden: {reason}'
+  duel_cannot_check_cooldown: 'Duell Abklingzeit kann nicht überprüft werden: {reason}'
+  duel_cannot_validate_participants: Teilnehmer können nicht validiert werden
+  duel_cannot_save_to_cache: Duell-Daten können nicht im Cache gespeichert werden
   # Roulette
-  roulette_cannot_get_with_settings: Cannot get roulette settings from database
-  roulette_cannot_send_initial_message: Cannot send initial message
-  roulette_cannot_send_death_message: Cannot send death message
+  roulette_cannot_get_with_settings: Roulette-Einstellungen können nicht von der Datenbank abgerufen werden
+  roulette_cannot_send_initial_message: Startnachricht kann nicht gesendet werden
+  roulette_cannot_send_death_message: Todesnachricht kann nicht gesendet werden
   # Seppuku
-  seppuku_cannot_find_settings: Cannot find seppuku settings
+  seppuku_cannot_find_settings: Seppuku-Einstellungen nicht gefunden
   # Voteban
-  voteban_cannot_lock: Cannot lock voteban
-  voteban_cannot_find_settings: Cannot find voteban settings
-  voteban_cannot_check_progress: Cannot check if vote in progress
-  voteban_cannot_find_user: Cannot find target user
-  voteban_cannot_set_vote: Cannot set vote
-  voteban_cannot_set_vote_expiration: Cannot set vote expiration
+  voteban_cannot_lock: Voteban kann nicht gesperrt werden
+  voteban_cannot_find_settings: Keine Voteban-Einstellungen gefunden
+  voteban_cannot_check_progress: Kann nicht prüfen, ob die Abstimmung läuft
+  voteban_cannot_find_user: Zielnutzer nicht gefunden
+  voteban_cannot_set_vote: Abstimmung kann nicht festgelegt werden
+  voteban_cannot_set_vote_expiration: Ablaufdatum der Abstimmung kann nicht festgelegt werden
 info:
   # Duel
-  user_not_participate: You are not participate in any duel
-  user_already_in_duel: Target user already in duel
-  sender_already_in_duel: You already in duel
-  duel_stats: 'You have shoot {duels} times · {wins} W – {loses} L ({winrate} WR)'
+  user_not_participate: Du nimmst an keinem Duell teil
+  user_already_in_duel: Zielbenutzer bereits im Duell
+  sender_already_in_duel: Du bist bereits im Duell
+  duel_stats: 'Du hast {duels} mal geschossen · {wins} W – {loses} L ({winrate} WR)'
   # Voteban
-  voteban_in_progress: Another voteban in progress
+  voteban_in_progress: Ein weiterer Abstimmungsbann läuft

@@ -1,34 +1,34 @@
 errors:
   # EmoteSet
-  emoteset_not_active: You don't have an active 7TV emote set
-  emoteset_not_found: Emote set {emoteName} not found
-  emoteset_broadcaster_not_active: '❌ No active emote set for broadcaster'
+  emoteset_not_active: Du hast kein aktives 7TV Emote Set
+  emoteset_not_found: Emote Set {emoteName} wurde nicht gefunden
+  emoteset_broadcaster_not_active: '❌ Kein aktives Emote-Set für Broadcaster'
   # Profile
-  profile_failed_to_get: 'Failed to get 7tv profile: {reason}'
-  profile_not_found: 7tv profile not found
+  profile_failed_to_get: 'Fehler beim Abrufen des 7tv Profils: {reason}'
+  profile_not_found: 7tv Profil wurde nicht gefunden
   # Emote
-  emote_failed_to_add: 'Failed to add 7tv emote: {reason}'
-  emote_failed_to_remove: 'Failed to remove 7tv emote: {reason}'
-  emote_failed_to_fetch: 'Failed to fetch 7tv emote: {reason}'
-  emote_failed_to_rename: 'Failed to rename 7tv emote: {reason}'
-  emote_not_found: 'Emote {emoteName} not found.'
-  emote_not_found_in_emoteset: 'Emote {emoteName} not found in set {emoteSet}'
-  emote_not_found_in_channel: '❌ Emote {emoteSearch} not found in target channel'
-  emote_already_exist_in_channel: '❌ Emote {emoteName} already exists in this channel'
+  emote_failed_to_add: 'Fehler beim Hinzufügen von 7tv Emote: {reason}'
+  emote_failed_to_remove: 'Fehler beim Entfernen von 7tv Emote: {reason}'
+  emote_failed_to_fetch: 'Fehler beim Abrufen von 7tv Emote: {reason}'
+  emote_failed_to_rename: 'Fehler beim Umbenennen von 7tv Emote: {reason}'
+  emote_not_found: 'Emote {emoteName} wurde nicht gefunden.'
+  emote_not_found_in_emoteset: 'Emote {emoteName} wurde im Set {emoteSet} nicht gefunden'
+  emote_not_found_in_channel: '❌ Emote {emoteSearch} nicht im Zielkanal gefunden'
+  emote_already_exist_in_channel: '❌ Emote {emoteName} existiert bereits in diesem Kanal'
 add:
-  emote_add: '✅ Emote added'
+  emote_add: '✅ Emote hinzugefügt'
 remove:
-  emote_remove: '✅ Emote {emoteName} removed'
+  emote_remove: '✅ Emote {emoteName} entfernt'
 rename:
-  emote_rename: '✅ Emote {oldEmoteName} renamed to {newEmoteName}"'
+  emote_rename: '✅ Emote {oldEmoteName} umbenannt in {newEmoteName}'
 emote_info:
-  response: '{name}: {link} · Added by @{addedByUserName} {addedByTime} ago · Author {emoteAuthor}'
+  response: '{name}: {link} · Hinzugefügt von @{addedByUserName} {addedByTime} vor · Autor {emoteAuthor}'
 profile_info:
-  response: '{profileName} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}'
+  response: '{profileName} · Paint: {paintName} ({unlockedPaints} freigeschaltet) · Rollen: {roles} · Editor für {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Erstellt: {profileCreatedAt}'
 hints:
-  emoteForCopyArgName: Name of emote to copy
+  emoteForCopyArgName: Name des zu kopierenden Emotes
   copySetChannelName: '@channelName'
-  copySetNameOfSet: Name of set to copy
-  emoteForAddArgLink: Link or name
-  emoteForAddArgAlias: Optional alias
-  emoteForCopyAlias: Alias for emote
+  copySetNameOfSet: Name des zu kopierenden Sets
+  emoteForAddArgLink: Link oder Name
+  emoteForAddArgAlias: Optionaler Alias
+  emoteForCopyAlias: Alias für Emote

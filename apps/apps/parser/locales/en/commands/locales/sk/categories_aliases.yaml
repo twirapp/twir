@@ -12,7 +12,7 @@ errors:
   alias_not_found: Alias kategórie sa nenašiel
   alias_removed: 'Alias kategórie {aliasName} bol zmazaný'
   # TwitchClient
-  twitch_client_cannot_to_create: Cannot create twitch client
+  twitch_client_cannot_to_create: Nepodarilo sa vytvoriť Twitch klienta
   # Game
   game_cannot_to_get: Nepodarilo sa získať hry
 add:

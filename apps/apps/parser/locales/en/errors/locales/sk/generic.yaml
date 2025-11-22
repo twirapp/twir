@@ -3,12 +3,12 @@ something_went_wrong: 'Niečo sa pokazilo, skús to prosím neskôr'
 twir_error: '[Twir chyba]: Vyskytla sa neznáma chyba. Prosím, kontaktuj vývojárov.'
 internal: '❌ Interná chyba'
 # Broadcaster
-broadcaster_client: Cannot create broadcaster twitch client
+broadcaster_client: Nepodarilo sa vytvoriť Twitch klienta pre streamera
 # User
 cannot_find_user_db: Nepodarilo sa nájsť používateľa v databáze
 cannot_find_user_twitch: Nepodarilo sa nájsť používateľa na Twitchi
 cannot_find_users_twitch: Nepodarilo sa nájsť používateľov na Twitchi
-cannot_create_twitch: Cannot create twitch client
+cannot_create_twitch: Nepodarilo sa vytvoriť Twitch klienta
 cannot_timeout_user: Nepodarilo sa udeliť timeout používateľovi
 cannot_get_user: 'Nepodarilo sa získať používateľa: {reason}'
 cannot_ban_user: Nepodarilo sa zabanovať používateľa

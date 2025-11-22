@@ -1,6 +1,6 @@
 info:
-  not_configured: TTS not configured
-  no_voices: No voices available
+  not_configured: TTS nie je nastavené
+  no_voices: Nie sú dostupné žiadne hlasy
 errors:
-  not_found: 'Voice {userVoice} not found'
-  voice_disallowed: 'Voice {userVoice} is disallowed for usage'
+  not_found: 'Hlas {userVoice} nenájdený'
+  voice_disallowed: 'Používanie hlasu {userVoice} nie je povolené'

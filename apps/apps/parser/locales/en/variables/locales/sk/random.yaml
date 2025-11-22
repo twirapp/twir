@@ -1,11 +1,11 @@
 errors:
-  not_passed_params: Have not passed params to random variable
-  wrong_number: Wrong number of arguments passed to random
-  parse_first_number: Cannot parse first number from arguments
-  parse_second_number: Cannot parse second number from arguments
-  first_larger_second: First number cannot be larger then second
-  lower_numbers: Numbers cannot be lower then 0
-  parameters_not_specified: Parameters are not specified
-  wrong_with_params: Something is wrong with your params
-  empty_phrase: 'Your phrases contains empty phrase, check you writed commas correctly'
-  get_online_user: Cannot get online user
+  not_passed_params: Neboli odovzdané parametre do náhodnej premennej
+  wrong_number: Do funkcie `random` bolo odovzdané nesprávne množstvo argumentov
+  parse_first_number: Nepodarilo sa spracovať prvé číslo z argumentov
+  parse_second_number: Nepodarilo sa spracovať druhé číslo z argumentov
+  first_larger_second: Prvé číslo nemôže byť väčšie ako druhé
+  lower_numbers: Čísla nemôžu byť menšie ako 0
+  parameters_not_specified: Parametre nie sú zadané
+  wrong_with_params: Niečo je zle s tvojimi parametrami
+  empty_phrase: 'Tvoje frázy obsahujú prázdnu frázu, skontroluj, či si správne napísal čiarky'
+  get_online_user: Nepodarilo sa získať online používateľa
