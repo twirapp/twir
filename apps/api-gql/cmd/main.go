@@ -53,6 +53,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/modules_tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
@@ -124,6 +125,8 @@ import (
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
+	modulesttsrepository "github.com/twirapp/twir/libs/repositories/modules_tts"
+	modulesttsrepositorypgx "github.com/twirapp/twir/libs/repositories/modules_tts/pgx"
 	overlaysdudesrepository "github.com/twirapp/twir/libs/repositories/overlays_dudes"
 	overlaysdudesrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_dudes/pgx"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
@@ -330,6 +333,10 @@ func main() {
 				fx.As(new(channelsmoderationsettingsrepository.Repository)),
 			),
 			fx.Annotate(
+				modulesttsrepositorypgx.NewFx,
+				fx.As(new(modulesttsrepository.Repository)),
+			),
+			fx.Annotate(
 				overlaysdudesrepositorypgx.NewFx,
 				fx.As(new(overlaysdudesrepository.Repository)),
 			),
@@ -414,6 +421,7 @@ func main() {
 			channels_commands_prefix.New,
 			channels_emotes_usages.New,
 			tts.New,
+			modules_tts.New,
 			song_requests.New,
 			community_redemptions.New,
 			streamelements.New,
