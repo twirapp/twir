@@ -12,6 +12,16 @@ extend type Mutation {
 
 extend type Subscription {
 	overlaysTTS(apiKey: String!): TTSOverlay!
+	overlaysTTSSay(apiKey: String!): TTSSayMessage!
+	overlaysTTSSkip(apiKey: String!): Time!
+}
+
+type TTSSayMessage {
+	text: String!
+	voice: String!
+	rate: String!
+	pitch: String!
+	volume: String!
 }
 
 type TTSOverlay {

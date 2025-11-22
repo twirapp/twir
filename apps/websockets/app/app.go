@@ -10,7 +10,6 @@ import (
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
-	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/youtube"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
@@ -40,7 +39,6 @@ var App = fx.Module(
 			alertsrepositorypgx.NewFx,
 			fx.As(new(alertsrepository.Repository)),
 		),
-		tts.NewTts,
 		obs.NewObs,
 		youtube.NewYouTube,
 		alerts.NewAlerts,

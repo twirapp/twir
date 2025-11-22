@@ -11,6 +11,7 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/services/tts"
 	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
@@ -18,8 +19,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	"github.com/twirapp/twir/libs/grpc/websockets"
 )
+
 
 var emojiRx = regexp.MustCompile(`[\p{So}\p{Sk}\p{Sm}\p{Sc}]`)
 
@@ -212,9 +213,9 @@ var SayCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		_, err = parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(
+		err = parseCtx.Services.Bus.Api.TriggerTtsSay.Publish(
 			ctx,
-			&websockets.TTSMessage{
+			api.TriggerTtsSay{
 				ChannelId: parseCtx.Channel.ID,
 				Text:      resultedText,
 				Voice:     voice,

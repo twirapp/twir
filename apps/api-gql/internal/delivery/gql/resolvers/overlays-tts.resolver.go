@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -189,6 +190,71 @@ func (r *subscriptionResolver) OverlaysTts(ctx context.Context, apiKey string) (
 
 				converted := mappers.MapTTSOverlayEntityToGQL(settings)
 				outputChan <- &converted
+			}
+		}
+	}()
+
+	return outputChan, nil
+}
+
+// OverlaysTTSSay is the resolver for the overlaysTTSSay field.
+func (r *subscriptionResolver) OverlaysTTSSay(ctx context.Context, apiKey string) (<-chan *gqlmodel.TTSSayMessage, error) {
+	sayChan, err := r.deps.TTSService.SaySubscriptionSignalerByApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to subscribe to tts say: %w", err)
+	}
+
+	outputChan := make(chan *gqlmodel.TTSSayMessage, 1)
+
+	go func() {
+		defer close(outputChan)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case msg, ok := <-sayChan:
+				if !ok {
+					return
+				}
+
+				outputChan <- &gqlmodel.TTSSayMessage{
+					Text:   msg.Text,
+					Voice:  msg.Voice,
+					Rate:   msg.Rate,
+					Pitch:  msg.Pitch,
+					Volume: msg.Volume,
+				}
+			}
+		}
+	}()
+
+	return outputChan, nil
+}
+
+// OverlaysTTSSkip is the resolver for the overlaysTTSSkip field.
+func (r *subscriptionResolver) OverlaysTTSSkip(ctx context.Context, apiKey string) (<-chan *time.Time, error) {
+	skipChan, err := r.deps.TTSService.SkipSubscriptionSignalerByApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to subscribe to tts skip: %w", err)
+	}
+
+	outputChan := make(chan *time.Time, 1)
+
+	go func() {
+		defer close(outputChan)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case _, ok := <-skipChan:
+				if !ok {
+					return
+				}
+
+				now := time.Now()
+				outputChan <- &now
 			}
 		}
 	}()

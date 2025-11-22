@@ -534,6 +534,18 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				time.Second,
 				GobEncoder,
 			),
+			TriggerTtsSay: NewNatsQueue[api.TriggerTtsSay, struct{}](
+				nc,
+				api.TriggerTtsSaySubject,
+				time.Second,
+				GobEncoder,
+			),
+			TriggerTtsSkip: NewNatsQueue[api.TriggerTtsSkip, struct{}](
+				nc,
+				api.TriggerTtsSkipSubject,
+				time.Second,
+				GobEncoder,
+			),
 		},
 
 		CacheInvalidator: NewNatsQueue[cache_invalidator.InvalidateRequest, struct{}](

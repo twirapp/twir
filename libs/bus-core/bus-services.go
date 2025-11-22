@@ -131,4 +131,6 @@ type apiBus struct {
 	TriggerKappagen Queue[api.TriggerKappagenMessage, struct{}]
 	TriggerBrbStart Queue[api.TriggerBrbStart, struct{}]
 	TriggerBrbStop  Queue[api.TriggerBrbStop, struct{}]
+	TriggerTtsSay   Queue[api.TriggerTtsSay, struct{}]
+	TriggerTtsSkip  Queue[api.TriggerTtsSkip, struct{}]
 }

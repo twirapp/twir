@@ -10,10 +10,14 @@ import (
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	config "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	ttsmodel "github.com/twirapp/twir/libs/repositories/overlays_tts/model"
+	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -21,27 +25,71 @@ import (
 
 type Opts struct {
 	fx.In
+	LC fx.Lifecycle
 
-	Repository overlays_tts.Repository
-	WsRouter   wsrouter.WsRouter
-	Gorm       *gorm.DB
-	Config     config.Config
+	Repository      overlays_tts.Repository
+	WsRouter        wsrouter.WsRouter
+	Gorm            *gorm.DB
+	Config          config.Config
+	TwirBus         *buscore.Bus
+	Logger          logger.Logger
+	UsersRepository users.Repository
 }
 
 func New(opts Opts) *Service {
-	return &Service{
-		repository: opts.Repository,
-		wsRouter:   opts.WsRouter,
-		gorm:       opts.Gorm,
-		config:     opts.Config,
+	s := &Service{
+		repository:      opts.Repository,
+		wsRouter:        opts.WsRouter,
+		gorm:            opts.Gorm,
+		config:          opts.Config,
+		twirBus:         opts.TwirBus,
+		usersRepository: opts.UsersRepository,
 	}
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				s.twirBus.Api.TriggerTtsSay.SubscribeGroup(
+					"api",
+					func(ctx context.Context, data api.TriggerTtsSay) (struct{}, error) {
+						return struct{}{}, s.wsRouter.Publish(createSaySubscriptionKey(data.ChannelId), data)
+					},
+				)
+
+				opts.Logger.Info("Subscribed to TriggerTtsSay events")
+
+				s.twirBus.Api.TriggerTtsSkip.SubscribeGroup(
+					"api",
+					func(ctx context.Context, data api.TriggerTtsSkip) (struct{}, error) {
+						return struct{}{}, s.wsRouter.Publish(createSkipSubscriptionKey(data.ChannelId), data)
+					},
+				)
+
+				opts.Logger.Info("Subscribed to TriggerTtsSkip events")
+
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				s.twirBus.Api.TriggerTtsSay.Unsubscribe()
+				s.twirBus.Api.TriggerTtsSkip.Unsubscribe()
+
+				opts.Logger.Info("Unsubscribed from TriggerTtsSay and TriggerTtsSkip events")
+
+				return nil
+			},
+		},
+	)
+
+	return s
 }
 
 type Service struct {
-	repository overlays_tts.Repository
-	wsRouter   wsrouter.WsRouter
-	gorm       *gorm.DB
-	config     config.Config
+	repository      overlays_tts.Repository
+	wsRouter        wsrouter.WsRouter
+	gorm            *gorm.DB
+	config          config.Config
+	twirBus         *buscore.Bus
+	usersRepository users.Repository
 }
 
 // GetOrCreate gets the TTS overlay for the given channel ID or creates a new one with default settings if it doesn't exist
