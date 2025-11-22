@@ -26,7 +26,7 @@ const config: CodegenConfig = {
 	},
 	schema: schemaDir,
 	documents: ['src/**/*.{vue,ts}'],
-	ignoreNoDocuments: true, // for better experience with the watcher
+	ignoreNoDocuments: true, //for better experience with the watcher
 	generates: {
 		'./src/gql/': {
 			preset: 'client',

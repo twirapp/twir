@@ -36,9 +36,9 @@ type BeRightBackLate {
 input BeRightBackUpdateInput {
 	text: String! @validate(constraint: "max=50,min=1")
 	late: BeRightBackLateInput!
-	backgroundColor: String! @validate(constraint: "max=20,min=1")
+	backgroundColor: String! @validate(constraint: "max=50,min=1")
 	fontSize: Int! @validate(constraint: "min=1,max=500")
-	fontColor: String! @validate(constraint: "max=20,min=1")
+	fontColor: String! @validate(constraint: "max=50,min=1")
 	fontFamily: String! @validate(constraint: "max=50,min=1")
 }
 
