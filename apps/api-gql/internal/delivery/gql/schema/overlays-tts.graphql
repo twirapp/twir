@@ -1,0 +1,80 @@
+extend type Query {
+	overlaysTTS: TTSOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	overlaysTTSGetInfo: TTSVoicesInfo! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	overlaysTTSUsersSettings: [TTSUserSettings!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	ttsPublicUsersSettings(channelId: String!): [TTSUserSettings!]!
+}
+
+extend type Mutation {
+	overlaysTTSUpdate(input: TTSUpdateInput!): TTSOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	overlaysTTSUsersDelete(userIds: [String!]!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	overlaysTTS(apiKey: String!): TTSOverlay!
+}
+
+type TTSOverlay {
+	id: UUID!
+	enabled: Boolean!
+	voice: String!
+	disallowedVoices: [String!]!
+	pitch: Int!
+	rate: Int!
+	volume: Int!
+	doNotReadTwitchEmotes: Boolean!
+	doNotReadEmoji: Boolean!
+	doNotReadLinks: Boolean!
+	allowUsersChooseVoiceInMainCommand: Boolean!
+	maxSymbols: Int!
+	readChatMessages: Boolean!
+	readChatMessagesNicknames: Boolean!
+	createdAt: Time!
+	updatedAt: Time!
+	channelId: String!
+	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
+}
+
+input TTSUpdateInput {
+	enabled: Boolean!
+	voice: String! @validate(constraint: "max=100,min=1")
+	disallowedVoices: [String!]!
+	pitch: Int! @validate(constraint: "min=0,max=100")
+	rate: Int! @validate(constraint: "min=0,max=100")
+	volume: Int! @validate(constraint: "min=0,max=100")
+	doNotReadTwitchEmotes: Boolean!
+	doNotReadEmoji: Boolean!
+	doNotReadLinks: Boolean!
+	allowUsersChooseVoiceInMainCommand: Boolean!
+	maxSymbols: Int! @validate(constraint: "min=0,max=5000")
+	readChatMessages: Boolean!
+	readChatMessagesNicknames: Boolean!
+}
+
+type TTSVoiceInfo {
+	country: String!
+	gender: String!
+	lang: String!
+	name: String!
+	no: Int!
+}
+
+type TTSVoicesInfo {
+	voicesInfo: [TTSVoiceInfoItem!]!
+}
+
+type TTSVoiceInfoItem {
+	key: String!
+	info: TTSVoiceInfo!
+}
+
+type TTSUserSettings {
+	userId: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	rate: Int!
+	pitch: Int!
+	volume: Int!
+	voice: String!
+	isChannelOwner: Boolean!
+}
+

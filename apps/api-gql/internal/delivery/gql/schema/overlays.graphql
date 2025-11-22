@@ -4,8 +4,6 @@ extend type Query {
 
 	nowPlayingOverlays: [NowPlayingOverlay!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
 	nowPlayingOverlaysById(id: String!): NowPlayingOverlay @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
-
-	ttsPublicUsersSettings(channelId: String!): [TTSUserSettings!]!
 }
 
 extend type Mutation {
@@ -103,12 +101,3 @@ type NowPlayingOverlayTrack {
 	imageUrl: String
 }
 
-type TTSUserSettings {
-	userId: String!
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
-	rate: Int!
-	pitch: Int!
-	volume: Int!
-	voice: String!
-	isChannelOwner: Boolean!
-}

@@ -35,7 +35,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/modules_tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
@@ -115,7 +114,6 @@ type Deps struct {
 	ChannelsCommandsPrefix                *channels_commands_prefix.Service
 	ChannelsEmotesUsagesService           *channels_emotes_usages.Service
 	TTSService                            *tts.Service
-	ModulesTtsService                     *modules_tts.Service
 	SongRequestsService                   *song_requests.Service
 	CommunityRedemptionsService           *community_redemptions.Service
 	StreamElementsService                 *streamelements.Service

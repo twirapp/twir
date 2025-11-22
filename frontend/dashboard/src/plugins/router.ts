@@ -175,6 +175,15 @@ export function newRouter() {
 					},
 				},
 				{
+					name: 'TTSOverlay',
+					path: '/dashboard/overlays/tts',
+					component: () => import('../features/overlays/tts/page.vue'),
+					meta: {
+						noPadding: true,
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
+					},
+				},
+				{
 					name: 'DudesOverlay',
 					path: '/dashboard/overlays/dudes',
 					component: () => import('../pages/overlays/dudes/dudes-settings.vue'),
