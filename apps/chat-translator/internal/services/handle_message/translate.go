@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	googletranslate "cloud.google.com/go/translate"
 	"github.com/imroc/req/v3"
 	"github.com/lkretschmer/deepl-go"
+	"golang.org/x/text/language"
 )
 
 type translateRequest struct {
@@ -22,20 +24,12 @@ type translateResult struct {
 	DestinationLanguage string   `json:"destination_language"`
 }
 
-var providers = []func(c *Service, ctx context.Context, input translateRequest) (
-	*translateResult,
-	error,
-){
-	(*Service).translateUnOfficial,
-	(*Service).translateOfficial,
-}
-
 func (c *Service) translate(
 	ctx context.Context,
 	input translateRequest,
 ) (*translateResult, error) {
-	for _, provider := range providers {
-		result, err := provider(c, ctx, input)
+	for _, p := range providers {
+		result, err := p(c, ctx, input)
 		if err != nil {
 			c.logger.Error("translate provider error", "err", err)
 			continue
@@ -48,11 +42,10 @@ func (c *Service) translate(
 	return nil, fmt.Errorf("all translate providers failed")
 }
 
-func (c *Service) translateOfficial(
+func (c *Service) translateDeeplOfficial(
 	ctx context.Context,
 	input translateRequest,
 ) (*translateResult, error) {
-
 	translation, err := c.deeplClient.TranslateTextWithOptions(
 		ctx, deepl.TranslateTextOptions{
 			Text:       []string{input.Text},
@@ -86,7 +79,7 @@ func (c *Service) translateOfficial(
 	return result, nil
 }
 
-func (c *Service) translateUnOfficial(
+func (c *Service) translateDeeplUnOfficial(
 	ctx context.Context,
 	input translateRequest,
 ) (*translateResult, error) {
@@ -112,4 +105,38 @@ func (c *Service) translateUnOfficial(
 	}
 
 	return &resp, nil
+}
+
+func (c *Service) translateGoogleOfficial(
+	ctx context.Context,
+	input translateRequest,
+) (*translateResult, error) {
+	sourceLang, err := language.Parse(input.SrcLang)
+	if err != nil {
+		return nil, err
+	}
+	targetLang, err := language.Parse(input.DestLang)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := c.googleTranslateClient.Translate(
+		ctx, []string{input.Text}, targetLang, &googletranslate.Options{
+			Source: sourceLang,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	if len(result) == 0 {
+		return nil, nil
+	}
+
+	return &translateResult{
+		SourceLanguage:      result[0].Source.String(),
+		SourceText:          input.Text,
+		TranslatedText:      []string{result[0].Text},
+		DestinationLanguage: targetLang.String(),
+	}, nil
 }

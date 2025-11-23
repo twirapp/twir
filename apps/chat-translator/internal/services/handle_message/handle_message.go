@@ -2,6 +2,7 @@ package handle_message
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	googletranslate "cloud.google.com/go/translate"
 	redislimiter "github.com/aidenwallis/go-ratelimiting/redis"
 	redislimiteradapter "github.com/aidenwallis/go-ratelimiting/redis/adapters/go-redis"
 	"github.com/lkretschmer/deepl-go"
@@ -24,10 +26,12 @@ import (
 	channelschattrenslationsrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
 	"go.uber.org/fx"
+	googleapioption "google.golang.org/api/option"
 )
 
 type Opts struct {
 	fx.In
+	LC fx.Lifecycle
 
 	Config  config.Config
 	Logger  logger.Logger
@@ -38,6 +42,15 @@ type Opts struct {
 	ChannelsTranslationsRepository channelschattrenslationsrepository.Repository
 	ChannelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]
 	ChannelsCache                  *generic_cacher.GenericCacher[channelmodel.Channel]
+}
+
+type provider = func(c *Service, ctx context.Context, input translateRequest) (
+	*translateResult,
+	error,
+)
+
+var providers = []provider{
+	(*Service).translateDeeplUnOfficial,
 }
 
 func New(opts Opts) *Service {
@@ -55,7 +68,62 @@ func New(opts Opts) *Service {
 
 	if opts.Config.DeeplApiKey != "" {
 		s.deeplClient = deepl.NewClient(opts.Config.DeeplApiKey)
+		providers = append(
+			[]provider{
+				(*Service).translateDeeplOfficial,
+			},
+			providers...,
+		)
 	}
+
+	if len(opts.Config.GoogleTranslateServiceAccountJson) > 0 {
+		key, err := base64.StdEncoding.DecodeString(opts.Config.GoogleTranslateServiceAccountJson)
+		if err != nil {
+			panic(err)
+		}
+
+		cl, err := googletranslate.NewClient(
+			context.TODO(),
+			googleapioption.WithCredentialsJSON(key),
+		)
+		if err != nil {
+			panic(err)
+		}
+
+		s.googleTranslateClient = cl
+
+		providers = append(
+			[]provider{
+				(*Service).translateGoogleOfficial,
+			},
+			providers...,
+		)
+
+		time.Sleep(5 * time.Second)
+
+		fmt.Println(
+			s.translateGoogleOfficial(
+				context.TODO(), translateRequest{
+					Text:          "Hello world",
+					SrcLang:       "en",
+					DestLang:      "ru",
+					ExcludedWords: nil,
+				},
+			),
+		)
+	}
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStop: func(ctx context.Context) error {
+				if s.googleTranslateClient != nil {
+					return s.googleTranslateClient.Close()
+				}
+
+				return nil
+			},
+		},
+	)
 
 	return s
 }
@@ -71,7 +139,9 @@ type Service struct {
 	channelsCache                  *generic_cacher.GenericCacher[channelmodel.Channel]
 
 	rateLimiter redislimiter.SlidingWindow
-	deeplClient *deepl.Client
+
+	deeplClient           *deepl.Client
+	googleTranslateClient *googletranslate.Client
 }
 
 func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (struct{}, error) {

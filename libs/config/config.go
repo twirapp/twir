@@ -61,7 +61,9 @@ type Config struct {
 	DonationAlertsClientId string   `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
 	DonationAlertsSecret   string   `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
 	TrustedProxies         []string `envconfig:"TRUSTED_PROXIES"`
-	DeeplApiKey            string   `required:"false" envconfig:"DEEPL_API_KEY"`
+
+	DeeplApiKey                       string `required:"false" envconfig:"DEEPL_API_KEY"`
+	GoogleTranslateServiceAccountJson string `required:"false" envconfig:"GOOGLE_TRANSLATE_SERVICE_ACCOUNT_JSON"`
 }
 
 func (c *Config) IsProduction() bool {
