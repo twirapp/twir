@@ -181,7 +181,7 @@ func (c *CommandsBus) Subscribe() error {
 				}
 
 				if res.KeepOrder {
-					if err := c.bus.Bots.SendMessage.Publish(ctx, params); err != nil {
+					if _, err := c.bus.Bots.SendMessage.Request(ctx, params); err != nil {
 						zap.S().Error(err)
 					}
 				} else {
