@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
+	"github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 )
 
@@ -43,19 +44,19 @@ CREATE UNIQUE INDEX IF NOT EXISTS channels_overlays_tts_channel_id_unique ON cha
 	}
 
 	type OldTTSSettings struct {
-		Enabled                          bool     `json:"enabled"`
-		Voice                            string   `json:"voice"`
-		DisallowedVoices                 []string `json:"disallowedVoices"`
-		Pitch                            int32    `json:"pitch"`
-		Rate                             int32    `json:"rate"`
-		Volume                           int32    `json:"volume"`
-		DoNotReadTwitchEmotes            bool     `json:"doNotReadTwitchEmotes"`
-		DoNotReadEmoji                   bool     `json:"doNotReadEmoji"`
-		DoNotReadLinks                   bool     `json:"doNotReadLinks"`
+		Enabled                            bool     `json:"enabled"`
+		Voice                              string   `json:"voice"`
+		DisallowedVoices                   []string `json:"disallowedVoices"`
+		Pitch                              int32    `json:"pitch"`
+		Rate                               int32    `json:"rate"`
+		Volume                             int32    `json:"volume"`
+		DoNotReadTwitchEmotes              bool     `json:"doNotReadTwitchEmotes"`
+		DoNotReadEmoji                     bool     `json:"doNotReadEmoji"`
+		DoNotReadLinks                     bool     `json:"doNotReadLinks"`
 		AllowUsersChooseVoiceInMainCommand bool     `json:"allowUsersChooseVoiceInMainCommand"`
-		MaxSymbols                       int32    `json:"maxSymbols"`
-		ReadChatMessages                 bool     `json:"readChatMessages"`
-		ReadChatMessagesNicknames        bool     `json:"readChatMessagesNicknames"`
+		MaxSymbols                         int32    `json:"maxSymbols"`
+		ReadChatMessages                   bool     `json:"readChatMessages"`
+		ReadChatMessagesNicknames          bool     `json:"readChatMessagesNicknames"`
 	}
 
 	findQuery := `
@@ -129,7 +130,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
 			d.channelID,
 			d.settings.Enabled,
 			d.settings.Voice,
-			d.settings.DisallowedVoices,
+			append(pq.StringArray{}, d.settings.DisallowedVoices...),
 			d.settings.Pitch,
 			d.settings.Rate,
 			d.settings.Volume,
@@ -160,4 +161,3 @@ func downTTSSeparateTable(ctx context.Context, tx *sql.Tx) error {
 	// This code is executed when the migration is rolled back.
 	return nil
 }
-

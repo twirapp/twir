@@ -102,11 +102,7 @@ ON CONFLICT (channel_id, user_id) DO NOTHING;
 `
 
 	for _, d := range data {
-		// Set defaults for missing values
 		voice := d.settings.Voice
-		if voice == "" {
-			voice = ""
-		}
 
 		rate := d.settings.Rate
 		if rate == 0 {
