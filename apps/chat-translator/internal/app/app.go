@@ -4,6 +4,7 @@ import (
 	"github.com/twirapp/twir/apps/chat-translator/internal/messaging/twirbus"
 	"github.com/twirapp/twir/apps/chat-translator/internal/services/handle_message"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/cache/channel"
 	"github.com/twirapp/twir/libs/cache/chat_translations_settings"
 	"go.uber.org/fx"
 
@@ -27,6 +28,7 @@ var App = fx.Module(
 			channelschattrenslationsrepositorypostgres.NewFx,
 			fx.As(new(channelschattrenslationsrepository.Repository)),
 		),
+		channel.New,
 	),
 	fx.Provide(
 		chat_translations_settings.New,

@@ -2,18 +2,10 @@ module github.com/twirapp/twir/apps/chat-translator
 
 go 1.24.7
 
-
-
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5
 	github.com/imroc/req/v3 v3.54.0
 	github.com/redis/go-redis/v9 v9.11.0
-
-
-
-
-
-
 	go.uber.org/fx v1.24.0
 )
 
@@ -74,11 +66,8 @@ require (
 	github.com/samber/slog-multi v1.4.1 // indirect
 	github.com/samber/slog-sentry/v2 v2.9.3 // indirect
 	github.com/samber/slog-zerolog/v2 v2.7.3 // indirect
-
-
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
 	github.com/uptrace/uptrace-go v1.37.0 // indirect
@@ -117,3 +106,5 @@ require (
 	gorm.io/gorm v1.30.1 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
+
+require github.com/lkretschmer/deepl-go v0.3.0 // indirect

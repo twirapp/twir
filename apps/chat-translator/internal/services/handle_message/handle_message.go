@@ -11,14 +11,16 @@ import (
 
 	redislimiter "github.com/aidenwallis/go-ratelimiting/redis"
 	redislimiteradapter "github.com/aidenwallis/go-ratelimiting/redis/adapters/go-redis"
+	"github.com/lkretschmer/deepl-go"
 	"github.com/redis/go-redis/v9"
-	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelschattrenslationsrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
 	"go.uber.org/fx"
@@ -35,10 +37,11 @@ type Opts struct {
 	ChannelsRepository             channelsrepository.Repository
 	ChannelsTranslationsRepository channelschattrenslationsrepository.Repository
 	ChannelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]
+	ChannelsCache                  *generic_cacher.GenericCacher[channelmodel.Channel]
 }
 
 func New(opts Opts) *Service {
-	return &Service{
+	s := &Service{
 		config:                         opts.Config,
 		logger:                         opts.Logger,
 		twirBus:                        opts.TwirBus,
@@ -47,7 +50,14 @@ func New(opts Opts) *Service {
 		channelsTranslationsRepository: opts.ChannelsTranslationsRepository,
 		channelsTranslationsCache:      opts.ChannelsTranslationsCache,
 		rateLimiter:                    redislimiter.NewSlidingWindow(redislimiteradapter.NewAdapter(opts.Redis)),
+		channelsCache:                  opts.ChannelsCache,
 	}
+
+	if opts.Config.DeeplApiKey != "" {
+		s.deeplClient = deepl.NewClient(opts.Config.DeeplApiKey)
+	}
+
+	return s
 }
 
 type Service struct {
@@ -58,8 +68,10 @@ type Service struct {
 	channelsRepository             channelsrepository.Repository
 	channelsTranslationsRepository channelschattrenslationsrepository.Repository
 	channelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]
+	channelsCache                  *generic_cacher.GenericCacher[channelmodel.Channel]
 
 	rateLimiter redislimiter.SlidingWindow
+	deeplClient *deepl.Client
 }
 
 func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (struct{}, error) {
@@ -104,6 +116,15 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 	if channelTranslationSettings.ChannelID == "" ||
 		!channelTranslationSettings.Enabled ||
 		slices.Contains(channelTranslationSettings.ExcludedUsersIDs, msg.ChatterUserId) {
+		return struct{}{}, nil
+	}
+
+	channel, err := c.channelsCache.Get(ctx, msg.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error("cannot get channel", slog.Any("err", err))
+		return struct{}{}, err
+	}
+	if c.config.IsProduction() && msg.ChatterUserId == channel.BotID {
 		return struct{}{}, nil
 	}
 
