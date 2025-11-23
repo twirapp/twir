@@ -475,9 +475,7 @@ func (p *Pgx) GetOrCreateUserSettings(
 	if defaults.UserID == "" {
 		defaults.UserID = userID
 	}
-	if defaults.Voice == "" {
-		defaults.Voice = ""
-	}
+	// No need to set defaults.Voice to empty string if already empty.
 	if defaults.Rate == 0 {
 		defaults.Rate = 50
 	}
