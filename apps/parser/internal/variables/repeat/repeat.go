@@ -2,7 +2,6 @@ package repeat
 
 import (
 	"context"
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -46,7 +45,8 @@ var Variable = &types.Variable{
 		}
 
 		result := &types.VariableHandlerResult{
-			Result: fmt.Sprintf("__REPEAT_MARKER_%d__", repeatCount),
+			Result:               "",
+			RepeatVariableResult: &repeatCount,
 		}
 
 		return result, nil

@@ -5,7 +5,8 @@ import (
 )
 
 type VariableHandlerResult struct {
-	Result string
+	Result               string
+	RepeatVariableResult *int
 }
 
 type VariableData struct {

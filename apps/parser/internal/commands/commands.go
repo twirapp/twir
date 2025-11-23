@@ -478,21 +478,28 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	wg := &sync.WaitGroup{}
-	for i, r := range result.Responses {
+
+	responses := make([]string, 0, len(result.Responses))
+
+	for _, r := range result.Responses {
 		wg.Add(1)
 
-		index := i
-		response := r
 		go func() {
 			defer wg.Done()
-			result.Responses[index] = c.variablesService.ParseVariablesInText(
+			variablesResult := c.variablesService.ParseVariablesInText(
 				ctx,
 				parseCtx,
-				response,
+				r,
 			)
+
+			for _, res := range variablesResult {
+				responses = append(responses, res)
+			}
 		}()
 	}
 	wg.Wait()
+
+	result.Responses = responses
 
 	return result
 }

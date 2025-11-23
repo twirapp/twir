@@ -49,17 +49,21 @@ var CustomVar = &types.Variable{
 		if parseCtx.Text != nil &&
 			len(*parseCtx.Text) > 0 &&
 			v.Type != model.CustomVarScript &&
-			slices.ContainsFunc(parseCtx.Sender.Roles, func(item model.ChannelRole) bool {
-				return item.Type == model.ChannelRoleTypeBroadcaster || item.Type == model.ChannelRoleTypeModerator
-			}) {
+			slices.ContainsFunc(
+				parseCtx.Sender.Roles, func(item model.ChannelRole) bool {
+					return item.Type == model.ChannelRoleTypeBroadcaster || item.Type == model.ChannelRoleTypeModerator
+				},
+			) {
 			if v.Type == model.CustomVarNumber {
 				parsed, err := strconv.Atoi(*parseCtx.Text)
 				if err != nil {
-					return nil, fmt.Errorf(i18n.GetCtx(
-						ctx,
-						locales.Translations.Variables.CustomVar.Errors.WrongNumbers.
-							SetVars(locales.KeysVariablesCustomVarErrorsWrongNumbersVars{Reason: err.Error()}),
-					))
+					return nil, fmt.Errorf(
+						i18n.GetCtx(
+							ctx,
+							locales.Translations.Variables.CustomVar.Errors.WrongNumbers.
+								SetVars(locales.KeysVariablesCustomVarErrorsWrongNumbersVars{Reason: err.Error()}),
+						),
+					)
 				}
 
 				v.Response = fmt.Sprint(parsed)
@@ -68,7 +72,12 @@ var CustomVar = &types.Variable{
 			}
 
 			if err := parseCtx.Services.Gorm.Save(&v).Error; err != nil {
-				return nil, fmt.Errorf(i18n.GetCtx(ctx, locales.Translations.Variables.CustomVar.Errors.UpdateCustomVar))
+				return nil, fmt.Errorf(
+					i18n.GetCtx(
+						ctx,
+						locales.Translations.Variables.CustomVar.Errors.UpdateCustomVar,
+					),
+				)
 			}
 		}
 

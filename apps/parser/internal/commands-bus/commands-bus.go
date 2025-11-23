@@ -2,6 +2,7 @@ package commands_bus
 
 import (
 	"context"
+	"strings"
 
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
 	"github.com/twirapp/twir/apps/parser/internal/commands"
@@ -144,7 +145,7 @@ func (c *CommandsBus) Subscribe() error {
 			)
 
 			return parser.ParseVariablesInTextResponse{
-				Text: parsed,
+				Text: strings.Join(parsed, " "),
 			}, nil
 		},
 	)

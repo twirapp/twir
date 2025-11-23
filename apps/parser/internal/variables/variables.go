@@ -170,7 +170,7 @@ func (c *Variables) ParseVariablesInText(
 	ctx context.Context,
 	parseCtx *types.ParseContext,
 	input string,
-) string {
+) []string {
 	newCtx, span := tracer.VariablesTracer.Start(ctx, "ParseVariablesInText")
 	defer span.End()
 	ctx = newCtx
@@ -193,10 +193,7 @@ func (c *Variables) ParseVariablesInText(
 		},
 	)
 
-	if parseCtx.Text != nil && len(*parseCtx.Text) > 0 {
-		// уязвимость на выполнение произвольного текста с чата через эту переменную
-		input = strings.ReplaceAll(input, "$(command.param)", *parseCtx.Text)
-	}
+	repeatVariableResult := 1
 
 	for _, s := range Regexp.FindAllString(input, len(input)) {
 		v := Regexp.FindStringSubmatch(s)
@@ -254,11 +251,21 @@ func (c *Variables) ParseVariablesInText(
 					input = strings.ReplaceAll(input, str, res.Result)
 				}
 
+				if res.RepeatVariableResult != nil {
+					repeatVariableResult = *res.RepeatVariableResult
+				}
+
 				mu.Unlock()
 			}
 		}()
 	}
 
 	wg.Wait()
-	return input
+
+	result := make([]string, repeatVariableResult)
+	for i := 0; i < repeatVariableResult; i++ {
+		result[i] = input
+	}
+
+	return result
 }

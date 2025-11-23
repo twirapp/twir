@@ -14,6 +14,12 @@ var Variable = &types.Variable{
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
+		if parseCtx.Text != nil {
+			return &types.VariableHandlerResult{
+				Result: *parseCtx.Text,
+			}, nil
+		}
+
 		return nil, nil
 	},
 }
