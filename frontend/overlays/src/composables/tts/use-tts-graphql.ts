@@ -153,4 +153,3 @@ export function useTTSOverlayGraphQL(options: Options) {
 		settingsData,
 	}
 }
-

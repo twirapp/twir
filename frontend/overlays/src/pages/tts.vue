@@ -58,7 +58,7 @@ async function sayMessage(data: TTSSayMessage) {
 	const audioContext = new (window.AudioContext || window.webkitAudioContext)()
 	const gainNode = audioContext.createGain()
 
-	const { data: response } = await openApi.v1.ttsSay({
+	const response = await openApi.v1.ttsSay({
 		voice: data.voice,
 		text: data.text,
 		volume: Number(data.volume),
