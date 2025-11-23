@@ -4,11 +4,13 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/events/internal/hydrator"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
 	"github.com/twirapp/twir/libs/repositories/greetings"
+	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	"github.com/twirapp/twir/libs/repositories/variables"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -24,7 +26,8 @@ type Opts struct {
 	Bus                 *bus_core.Bus
 	GreetingsRepository greetings.Repository
 	VariablesRepository variables.Repository
-	TTSRepository       channels_modules_settings_tts.Repository
+	TTSRepository       overlays_tts.Repository
+	TTSCache            *generic_cacher.GenericCacher[modules.TTSSettings]
 }
 
 func New(opts Opts) *Activity {
@@ -38,6 +41,7 @@ func New(opts Opts) *Activity {
 		greetingsRepository: opts.GreetingsRepository,
 		variablesRepository: opts.VariablesRepository,
 		ttsRepository:       opts.TTSRepository,
+		ttsCache:            opts.TTSCache,
 	}
 }
 
@@ -50,5 +54,6 @@ type Activity struct {
 	bus                 *bus_core.Bus
 	greetingsRepository greetings.Repository
 	variablesRepository variables.Repository
-	ttsRepository       channels_modules_settings_tts.Repository
+	ttsRepository       overlays_tts.Repository
+	ttsCache            *generic_cacher.GenericCacher[modules.TTSSettings]
 }

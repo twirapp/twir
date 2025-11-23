@@ -25,7 +25,7 @@ func NewTTSSettings(
 				overlay, err := repository.GetByChannelID(ctx, key)
 				if err != nil {
 					if errors.Is(err, overlays_tts.ErrNotFound) {
-						return modules.TTSSettings{}, err
+						return modules.TTSSettings{}, overlays_tts.ErrNotFound
 					}
 					return modules.TTSSettings{}, err
 				}

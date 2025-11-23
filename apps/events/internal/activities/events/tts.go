@@ -8,35 +8,11 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
-	ttsmodel "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	ttsrepository "github.com/twirapp/twir/libs/repositories/overlays_tts"
+	ttsmodel "github.com/twirapp/twir/libs/repositories/overlays_tts/model"
 	"go.temporal.io/sdk/activity"
 )
-
-func (c *Activity) getTtsSettings(
-	ctx context.Context,
-	channelId,
-	userId string,
-) (*ttsmodel.ChannelModulesSettingsTTS, error) {
-	activity.RecordHeartbeat(ctx, nil)
-
-	if userId != "" {
-		data, err := c.ttsRepository.GetByChannelIDAndUserID(ctx, channelId, userId)
-		if err != nil {
-			return nil, fmt.Errorf("cannot get tts settings by channel id and user id %s", err)
-		}
-
-		return &data, nil
-	}
-
-	data, err := c.ttsRepository.GetByChannelID(ctx, channelId)
-	if err != nil {
-		return nil, fmt.Errorf("cannot get tts settings by channel id %s", err)
-	}
-
-	return &data, nil
-}
 
 func (c *Activity) TtsSay(
 	ctx context.Context,
@@ -54,30 +30,30 @@ func (c *Activity) TtsSay(
 		return fmt.Errorf("cannot hydrate string %s", hydrateErr)
 	}
 
-	channelSettings, err := c.getTtsSettings(ctx, data.ChannelID, "")
+	channelSettings, err := c.ttsCache.Get(ctx, data.ChannelID)
 	if err != nil {
 		return fmt.Errorf("cannot get tts settings %s", err)
 	}
 
-	if channelSettings == nil || !*channelSettings.Enabled {
+	if channelSettings.Enabled == nil || !*channelSettings.Enabled {
 		return nil
 	}
 
-	userSettings, _ := c.getTtsSettings(ctx, data.ChannelID, data.UserID)
+	userSettings, _ := c.ttsRepository.GetUserSettings(ctx, data.ChannelID, data.UserID)
 
 	voice := lo.IfF(
-		userSettings != nil, func() string {
+		userSettings != ttsmodel.NilUserSettings, func() string {
 			return userSettings.Voice
 		},
 	).Else(channelSettings.Voice)
 	rate := lo.IfF(
-		userSettings != nil, func() int {
-			return userSettings.Rate
+		userSettings != ttsmodel.NilUserSettings, func() int {
+			return int(userSettings.Rate)
 		},
 	).Else(channelSettings.Rate)
 	pitch := lo.IfF(
-		userSettings != nil, func() int {
-			return userSettings.Pitch
+		userSettings != ttsmodel.NilUserSettings, func() int {
+			return int(userSettings.Pitch)
 		},
 	).Else(channelSettings.Pitch)
 
@@ -126,13 +102,9 @@ func (c *Activity) TtsChangeState(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	currentSettings, err := c.getTtsSettings(ctx, data.ChannelID, "")
+	currentSettings, err := c.ttsCache.Get(ctx, data.ChannelID)
 	if err != nil {
 		return fmt.Errorf("cannot get tts settings %s", err)
-	}
-
-	if currentSettings == nil {
-		return nil
 	}
 
 	var newState bool
@@ -142,25 +114,25 @@ func (c *Activity) TtsChangeState(
 		newState = false
 	}
 
-	_, err = c.ttsRepository.UpdateForChannel(
+	_, err = c.ttsRepository.Update(
 		ctx,
 		data.ChannelID,
-		channels_modules_settings_tts.CreateOrUpdateInput{
-			ChannelID:                          data.ChannelID,
-			UserID:                             nil,
-			Enabled:                            &newState,
-			Rate:                               currentSettings.Rate,
-			Volume:                             currentSettings.Volume,
-			Pitch:                              currentSettings.Pitch,
-			Voice:                              currentSettings.Voice,
-			AllowUsersChooseVoiceInMainCommand: currentSettings.AllowUsersChooseVoiceInMainCommand,
-			MaxSymbols:                         currentSettings.MaxSymbols,
-			DisallowedVoices:                   currentSettings.DisallowedVoices,
-			DoNotReadEmoji:                     currentSettings.DoNotReadEmoji,
-			DoNotReadTwitchEmotes:              currentSettings.DoNotReadTwitchEmotes,
-			DoNotReadLinks:                     currentSettings.DoNotReadLinks,
-			ReadChatMessages:                   currentSettings.ReadChatMessages,
-			ReadChatMessagesNicknames:          currentSettings.ReadChatMessagesNicknames,
+		ttsrepository.UpdateInput{
+			Settings: ttsmodel.TTSOverlaySettings{
+				Enabled:                            newState,
+				Rate:                               int32(currentSettings.Rate),
+				Volume:                             int32(currentSettings.Volume),
+				Pitch:                              int32(currentSettings.Pitch),
+				Voice:                              currentSettings.Voice,
+				AllowUsersChooseVoiceInMainCommand: currentSettings.AllowUsersChooseVoiceInMainCommand,
+				MaxSymbols:                         int32(currentSettings.MaxSymbols),
+				DisallowedVoices:                   currentSettings.DisallowedVoices,
+				DoNotReadEmoji:                     currentSettings.DoNotReadEmoji,
+				DoNotReadTwitchEmotes:              currentSettings.DoNotReadTwitchEmotes,
+				DoNotReadLinks:                     currentSettings.DoNotReadLinks,
+				ReadChatMessages:                   currentSettings.ReadChatMessages,
+				ReadChatMessagesNicknames:          currentSettings.ReadChatMessagesNicknames,
+			},
 		},
 	)
 	if err != nil {
@@ -177,12 +149,9 @@ func (c *Activity) TtsChangeAutoReadState(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	currentSettings, err := c.getTtsSettings(ctx, data.ChannelID, "")
+	currentSettings, err := c.ttsCache.Get(ctx, data.ChannelID)
 	if err != nil {
 		return fmt.Errorf("cannot get tts settings %s", err)
-	}
-	if currentSettings == nil {
-		return nil
 	}
 
 	var newState bool
@@ -194,25 +163,25 @@ func (c *Activity) TtsChangeAutoReadState(
 		newState = !currentSettings.ReadChatMessages
 	}
 
-	_, err = c.ttsRepository.UpdateForChannel(
+	_, err = c.ttsRepository.Update(
 		ctx,
 		data.ChannelID,
-		channels_modules_settings_tts.CreateOrUpdateInput{
-			ChannelID:                          data.ChannelID,
-			UserID:                             nil,
-			Enabled:                            currentSettings.Enabled,
-			Rate:                               currentSettings.Rate,
-			Volume:                             currentSettings.Volume,
-			Pitch:                              currentSettings.Pitch,
-			Voice:                              currentSettings.Voice,
-			AllowUsersChooseVoiceInMainCommand: currentSettings.AllowUsersChooseVoiceInMainCommand,
-			MaxSymbols:                         currentSettings.MaxSymbols,
-			DisallowedVoices:                   currentSettings.DisallowedVoices,
-			DoNotReadEmoji:                     currentSettings.DoNotReadEmoji,
-			DoNotReadTwitchEmotes:              currentSettings.DoNotReadTwitchEmotes,
-			DoNotReadLinks:                     currentSettings.DoNotReadLinks,
-			ReadChatMessages:                   newState,
-			ReadChatMessagesNicknames:          currentSettings.ReadChatMessagesNicknames,
+		ttsrepository.UpdateInput{
+			Settings: ttsmodel.TTSOverlaySettings{
+				Enabled:                            currentSettings.Enabled != nil && *currentSettings.Enabled,
+				Rate:                               int32(currentSettings.Rate),
+				Volume:                             int32(currentSettings.Volume),
+				Pitch:                              int32(currentSettings.Pitch),
+				Voice:                              currentSettings.Voice,
+				AllowUsersChooseVoiceInMainCommand: currentSettings.AllowUsersChooseVoiceInMainCommand,
+				MaxSymbols:                         int32(currentSettings.MaxSymbols),
+				DisallowedVoices:                   currentSettings.DisallowedVoices,
+				DoNotReadEmoji:                     currentSettings.DoNotReadEmoji,
+				DoNotReadTwitchEmotes:              currentSettings.DoNotReadTwitchEmotes,
+				DoNotReadLinks:                     currentSettings.DoNotReadLinks,
+				ReadChatMessages:                   newState,
+				ReadChatMessagesNicknames:          currentSettings.ReadChatMessagesNicknames,
+			},
 		},
 	)
 	if err != nil {
