@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"regexp"
 	"slices"
 	"sort"
 	"strings"
@@ -744,5 +743,3 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 
 	return result, nil
 }
-
-var repeatRegexp = regexp.MustCompile(`__REPEAT_MARKER_(\d+)__`)
