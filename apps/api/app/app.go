@@ -17,7 +17,6 @@ import (
 	"github.com/twirapp/twir/apps/api/internal/twirp_handlers"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
-	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
@@ -57,7 +56,6 @@ var App = fx.Options(
 		interceptors.New,
 		impl_protected.New,
 		impl_unprotected.New,
-		ttscache.NewTTSSettings,
 		handlers.AsHandler(twirp_handlers.NewProtected),
 		handlers.AsHandler(twirp_handlers.NewUnProtected),
 		handlers.AsHandler(proxy.New),

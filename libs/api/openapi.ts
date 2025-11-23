@@ -1026,7 +1026,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name TtsSay
      * @summary Text-to-Speech Say
      * @request GET:/v1/tts/say
-     * @response `200` `string` OK
+     * @response `200` `File` Successful TTS conversion
      * @response `default` `ErrorModel` Error
      */
     ttsSay: (
@@ -1075,11 +1075,10 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<string, any>({
+      this.http.request<File, any>({
         path: `/v1/tts/say`,
         method: "GET",
         query: query,
-        format: "json",
         ...params,
       }),
   };

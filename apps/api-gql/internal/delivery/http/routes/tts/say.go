@@ -11,6 +11,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/imroc/req/v3"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
 )
@@ -37,17 +38,20 @@ var _ httpbase.Route[*sayRequestDto, *sayResponseDto] = (*say)(nil)
 type SayOpts struct {
 	fx.In
 
-	Config config.Config
+	Config  config.Config
+	Service *tts.Service
 }
 
 func newSay(opts SayOpts) *say {
 	return &say{
-		config: opts.Config,
+		config:  opts.Config,
+		service: opts.Service,
 	}
 }
 
 type say struct {
-	config config.Config
+	config  config.Config
+	service *tts.Service
 }
 
 func (s *say) GetMeta() huma.Operation {
@@ -58,6 +62,34 @@ func (s *say) GetMeta() huma.Operation {
 		Tags:        []string{"TTS"},
 		Summary:     "Text-to-Speech Say",
 		Description: "Convert text to speech using the TTS service. Returns an audio file.",
+		Responses: map[string]*huma.Response{
+			"200": {
+				Description: "Successful TTS conversion",
+				Content: map[string]*huma.MediaType{
+					"audio/wav": {
+						Schema: &huma.Schema{
+							Type:        "string",
+							Format:      "binary",
+							Description: "File content",
+						},
+					},
+					"audio/mpeg": {
+						Schema: &huma.Schema{
+							Type:        "string",
+							Format:      "binary",
+							Description: "File content",
+						},
+					},
+					"audio/mp3": {
+						Schema: &huma.Schema{
+							Type:        "string",
+							Format:      "binary",
+							Description: "File content",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -94,7 +126,7 @@ func (s *say) Handler(
 	}
 
 	return &sayResponseDto{
-		ContentType: "audio/wav",
+		ContentType: resp.Header.Get("Content-Type"),
 		Body:        b.Bytes(),
 	}, nil
 }
@@ -102,4 +134,3 @@ func (s *say) Handler(
 func (s *say) Register(api huma.API) {
 	huma.Register(api, s.GetMeta(), s.Handler)
 }
-

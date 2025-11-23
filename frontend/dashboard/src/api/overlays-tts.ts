@@ -6,10 +6,7 @@ import type { OverlaysTtsQuery } from '@/gql/graphql.js'
 import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql/gql.js'
 
-export type TTSOverlay = Omit<
-	OverlaysTtsQuery['overlaysTTS'],
-	'__typename' | 'channel'
->
+export type TTSOverlay = Omit<OverlaysTtsQuery['overlaysTTS'], '__typename' | 'channel'>
 
 const invalidationKey = 'TTSOverlayInvalidateKey'
 
@@ -86,7 +83,6 @@ export const useTTSOverlayApi = createGlobalState(() => {
 						}
 						rate
 						pitch
-						volume
 						voice
 						isChannelOwner
 					}
@@ -133,4 +129,3 @@ export const useTTSOverlayApi = createGlobalState(() => {
 		useQueryTTSGetInfo,
 	}
 })
-

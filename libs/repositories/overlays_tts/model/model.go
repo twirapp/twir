@@ -8,11 +8,11 @@ import (
 )
 
 type TTSOverlay struct {
-	ID                                 uuid.UUID
-	ChannelID                          string
-	CreatedAt                          time.Time
-	UpdatedAt                          time.Time
-	Settings                           *TTSOverlaySettings
+	ID        uuid.UUID
+	ChannelID string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Settings  *TTSOverlaySettings
 }
 
 type TTSOverlaySettings struct {
@@ -31,5 +31,16 @@ type TTSOverlaySettings struct {
 	ReadChatMessagesNicknames          bool           `json:"read_chat_messages_nicknames"`
 }
 
-var Nil = TTSOverlay{}
+type TTSUserSettings struct {
+	ID        uuid.UUID
+	ChannelID string
+	UserID    string
+	Voice     string
+	Rate      int32
+	Pitch     int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
 
+var Nil = TTSOverlay{}
+var NilUserSettings = TTSUserSettings{}

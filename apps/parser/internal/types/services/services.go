@@ -24,11 +24,11 @@ import (
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
-	channelsmodules_settingstts "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
+	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
@@ -58,7 +58,7 @@ type Services struct {
 	CommandsLock               *redsync.Mutex
 	CommandsPrefixRepository   channelscommandsprefixrepository.Repository
 	TTSCache                   *generic_cacher.GenericCacher[modules.TTSSettings]
-	TTSRepository              channelsmodules_settingstts.Repository
+	TTSRepository              overlays_tts.Repository
 	TTSService                 *ttsservice.Service
 	SpotifyRepo                channelsintegrationsspotify.Repository
 	UsersRepo                  users.Repository

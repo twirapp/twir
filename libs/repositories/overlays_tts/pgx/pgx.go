@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/jackc/pgx/v5"
@@ -202,3 +203,286 @@ RETURNING channel_id
 	return p.GetByChannelID(ctx, channelID)
 }
 
+func (p *Pgx) GetOrCreate(
+	ctx context.Context,
+	channelID string,
+) (ttsmodel.TTSOverlay, error) {
+	overlay, err := p.GetByChannelID(ctx, channelID)
+	if err == nil {
+		return overlay, nil
+	}
+	if !errors.Is(err, overlays_tts.ErrNotFound) {
+		return ttsmodel.TTSOverlay{}, err
+	}
+	// Create with default settings
+	defaultSettings := ttsmodel.TTSOverlaySettings{
+		Enabled:                            true,
+		Voice:                              "aleksandr",
+		DisallowedVoices:                   []string{},
+		Pitch:                              0,
+		Rate:                               0,
+		Volume:                             70,
+		DoNotReadTwitchEmotes:              true,
+		DoNotReadEmoji:                     true,
+		DoNotReadLinks:                     true,
+		AllowUsersChooseVoiceInMainCommand: false,
+		MaxSymbols:                         500,
+		ReadChatMessages:                   false,
+		ReadChatMessagesNicknames:          false,
+	}
+	return p.Create(
+		ctx,
+		overlays_tts.CreateInput{
+			ChannelID: channelID,
+			Settings:  defaultSettings,
+		},
+	)
+}
+
+func (p *Pgx) GetUserSettings(
+	ctx context.Context,
+	channelID, userID string,
+) (ttsmodel.TTSUserSettings, error) {
+	query := `
+SELECT
+	id,
+	channel_id,
+	user_id,
+	voice,
+	rate,
+	pitch,
+	created_at,
+	updated_at
+FROM channels_overlays_tts_users
+WHERE channel_id = $1 AND user_id = $2
+LIMIT 1;
+`
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	row := conn.QueryRow(ctx, query, channelID, userID)
+	var settings ttsmodel.TTSUserSettings
+	err := row.Scan(
+		&settings.ID,
+		&settings.ChannelID,
+		&settings.UserID,
+		&settings.Voice,
+		&settings.Rate,
+		&settings.Pitch,
+		&settings.CreatedAt,
+		&settings.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ttsmodel.TTSUserSettings{}, overlays_tts.ErrNotFound
+		}
+		return ttsmodel.TTSUserSettings{}, fmt.Errorf(
+			"tts user settings get by channel and user ID: %w",
+			err,
+		)
+	}
+	return settings, nil
+}
+func (p *Pgx) CreateUserSettings(
+	ctx context.Context,
+	input overlays_tts.CreateUserSettingsInput,
+) (ttsmodel.TTSUserSettings, error) {
+	query := `
+INSERT INTO channels_overlays_tts_users (
+channel_id,
+user_id,
+voice,
+rate,
+pitch
+)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, channel_id, user_id, voice, rate, pitch, created_at, updated_at;
+`
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	row := conn.QueryRow(
+		ctx,
+		query,
+		input.ChannelID,
+		input.UserID,
+		input.Voice,
+		input.Rate,
+		input.Pitch,
+	)
+	var settings ttsmodel.TTSUserSettings
+	err := row.Scan(
+		&settings.ID,
+		&settings.ChannelID,
+		&settings.UserID,
+		&settings.Voice,
+		&settings.Rate,
+		&settings.Pitch,
+		&settings.CreatedAt,
+		&settings.UpdatedAt,
+	)
+	if err != nil {
+		return ttsmodel.TTSUserSettings{}, fmt.Errorf("tts user settings create: %w", err)
+	}
+	return settings, nil
+}
+func (p *Pgx) UpdateUserSettings(
+	ctx context.Context,
+	channelID, userID string,
+	input overlays_tts.UpdateUserSettingsInput,
+) (ttsmodel.TTSUserSettings, error) {
+	updates := []string{}
+	args := []interface{}{}
+	argIndex := 1
+	if input.Voice != nil {
+		updates = append(updates, fmt.Sprintf("voice = $%d", argIndex))
+		args = append(args, *input.Voice)
+		argIndex++
+	}
+	if input.Rate != nil {
+		updates = append(updates, fmt.Sprintf("rate = $%d", argIndex))
+		args = append(args, *input.Rate)
+		argIndex++
+	}
+	if input.Pitch != nil {
+		updates = append(updates, fmt.Sprintf("pitch = $%d", argIndex))
+		args = append(args, *input.Pitch)
+		argIndex++
+	}
+	if len(updates) == 0 {
+		return p.GetUserSettings(ctx, channelID, userID)
+	}
+	updates = append(updates, "updated_at = now()")
+	query := fmt.Sprintf(
+		`
+UPDATE channels_overlays_tts_users
+SET %s
+WHERE channel_id = $%d AND user_id = $%d
+RETURNING id, channel_id, user_id, voice, rate, pitch, created_at, updated_at;
+`, strings.Join(updates, ", "), argIndex, argIndex+1,
+	)
+	args = append(args, channelID, userID)
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	row := conn.QueryRow(ctx, query, args...)
+	var settings ttsmodel.TTSUserSettings
+	err := row.Scan(
+		&settings.ID,
+		&settings.ChannelID,
+		&settings.UserID,
+		&settings.Voice,
+		&settings.Rate,
+		&settings.Pitch,
+		&settings.CreatedAt,
+		&settings.UpdatedAt,
+	)
+	if err != nil {
+		return ttsmodel.TTSUserSettings{}, fmt.Errorf("tts user settings update: %w", err)
+	}
+	return settings, nil
+}
+func (p *Pgx) GetAllUserSettings(
+	ctx context.Context,
+	channelID string,
+) ([]ttsmodel.TTSUserSettings, error) {
+	query := `
+SELECT
+	id,
+	channel_id,
+	user_id,
+	voice,
+	rate,
+	pitch,
+	created_at,
+	updated_at
+FROM channels_overlays_tts_users
+WHERE channel_id = $1
+ORDER BY user_id DESC;
+`
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	rows, err := conn.Query(ctx, query, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("tts user settings get all: %w", err)
+	}
+	defer rows.Close()
+	var settings []ttsmodel.TTSUserSettings
+	for rows.Next() {
+		var s ttsmodel.TTSUserSettings
+		err := rows.Scan(
+			&s.ID,
+			&s.ChannelID,
+			&s.UserID,
+			&s.Voice,
+			&s.Rate,
+			&s.Pitch,
+			&s.CreatedAt,
+			&s.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("tts user settings scan: %w", err)
+		}
+		settings = append(settings, s)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("tts user settings rows error: %w", err)
+	}
+	return settings, nil
+}
+func (p *Pgx) DeleteUserSettings(
+	ctx context.Context,
+	channelID, userID string,
+) error {
+	query := `
+DELETE FROM channels_overlays_tts_users
+WHERE channel_id = $1 AND user_id = $2;
+`
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	_, err := conn.Exec(ctx, query, channelID, userID)
+	if err != nil {
+		return fmt.Errorf("tts user settings delete: %w", err)
+	}
+	return nil
+}
+func (p *Pgx) DeleteMultipleUserSettings(
+	ctx context.Context,
+	channelID string,
+	userIDs []string,
+) error {
+	if len(userIDs) == 0 {
+		return nil
+	}
+	query := `
+DELETE FROM channels_overlays_tts_users
+WHERE channel_id = $1 AND user_id = ANY($2);
+`
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	_, err := conn.Exec(ctx, query, channelID, userIDs)
+	if err != nil {
+		return fmt.Errorf("tts user settings delete multiple: %w", err)
+	}
+	return nil
+}
+func (p *Pgx) GetOrCreateUserSettings(
+	ctx context.Context,
+	channelID, userID string,
+	defaults overlays_tts.CreateUserSettingsInput,
+) (ttsmodel.TTSUserSettings, error) {
+	settings, err := p.GetUserSettings(ctx, channelID, userID)
+	if err == nil {
+		return settings, nil
+	}
+	if !errors.Is(err, overlays_tts.ErrNotFound) {
+		return ttsmodel.TTSUserSettings{}, err
+	}
+	if defaults.ChannelID == "" {
+		defaults.ChannelID = channelID
+	}
+	if defaults.UserID == "" {
+		defaults.UserID = userID
+	}
+	if defaults.Voice == "" {
+		defaults.Voice = ""
+	}
+	if defaults.Rate == 0 {
+		defaults.Rate = 50
+	}
+	if defaults.Pitch == 0 {
+		defaults.Pitch = 50
+	}
+	return p.CreateUserSettings(ctx, defaults)
+}

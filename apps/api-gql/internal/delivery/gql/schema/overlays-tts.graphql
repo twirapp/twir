@@ -83,7 +83,6 @@ type TTSUserSettings {
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	rate: Int!
 	pitch: Int!
-	volume: Int!
 	voice: String!
 	isChannelOwner: Boolean!
 }

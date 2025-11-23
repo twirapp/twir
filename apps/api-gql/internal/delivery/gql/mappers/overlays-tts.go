@@ -32,9 +32,7 @@ func TTSUserSettingTo(e entity.TTSUserSettings) gqlmodel.TTSUserSettings {
 		UserID:         e.UserID,
 		Rate:           e.Rate,
 		Pitch:          e.Pitch,
-		Volume:         e.Volume,
 		Voice:          e.Voice,
 		IsChannelOwner: e.IsChannelOwner,
 	}
 }
-

@@ -21,7 +21,6 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 )
 
-
 var emojiRx = regexp.MustCompile(`[\p{So}\p{Sk}\p{Sm}\p{Sc}]`)
 
 const (
@@ -209,6 +208,7 @@ var SayCommand = &types.DefaultCommand{
 			}
 		}
 
+		resultedText = strings.TrimSpace(resultedText)
 		if len(resultedText) == 0 || resultedText == parseCtx.Sender.Name {
 			return result, nil
 		}

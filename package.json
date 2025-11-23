@@ -2,7 +2,7 @@
 	"name": "twir",
 	"author": "Satont <satontworldwide@gmail.com>",
 	"devDependencies": {
-		"@prettier/plugin-oxc": "0.0.4",
+		"@prettier/plugin-oxc": "0.0.5",
 		"@types/bun": "catalog:",
 		"@types/node": "20.12.7",
 		"@vue/language-server": "3.1.0",

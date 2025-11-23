@@ -5,22 +5,20 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/goccy/go-json"
 	"github.com/imroc/req/v3"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	ttsmodel "github.com/twirapp/twir/libs/repositories/overlays_tts/model"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -29,21 +27,21 @@ type Opts struct {
 
 	Repository      overlays_tts.Repository
 	WsRouter        wsrouter.WsRouter
-	Gorm            *gorm.DB
 	Config          config.Config
 	TwirBus         *buscore.Bus
 	Logger          logger.Logger
 	UsersRepository users.Repository
+	Cacher          *generic_cacher.GenericCacher[modules.TTSSettings]
 }
 
 func New(opts Opts) *Service {
 	s := &Service{
 		repository:      opts.Repository,
 		wsRouter:        opts.WsRouter,
-		gorm:            opts.Gorm,
 		config:          opts.Config,
 		twirBus:         opts.TwirBus,
 		usersRepository: opts.UsersRepository,
+		cacher:          opts.Cacher,
 	}
 
 	opts.LC.Append(
@@ -86,10 +84,10 @@ func New(opts Opts) *Service {
 type Service struct {
 	repository      overlays_tts.Repository
 	wsRouter        wsrouter.WsRouter
-	gorm            *gorm.DB
 	config          config.Config
 	twirBus         *buscore.Bus
 	usersRepository users.Repository
+	cacher          *generic_cacher.GenericCacher[modules.TTSSettings]
 }
 
 // GetOrCreate gets the TTS overlay for the given channel ID or creates a new one with default settings if it doesn't exist
@@ -139,67 +137,54 @@ func (s *Service) Update(
 		return entity.TTSOverlay{}, err
 	}
 
+	if err := s.cacher.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.TTSOverlay{}, fmt.Errorf("invalidate cache: %w", err)
+	}
+
 	return mapModelToEntity(updated), nil
-}
-
-func (s *Service) mapUserSettingsToEntity(
-	userId string,
-	isChannelOwner bool,
-	data []byte,
-) entity.TTSUserSettings {
-	settings := modules.TTSSettings{}
-	if err := json.Unmarshal(data, &settings); err != nil {
-		return entity.TTSUserSettings{}
-	}
-
-	return entity.TTSUserSettings{
-		UserID:         userId,
-		Rate:           settings.Rate,
-		Pitch:          settings.Pitch,
-		Volume:         settings.Volume,
-		Voice:          settings.Voice,
-		IsChannelOwner: isChannelOwner,
-	}
 }
 
 func (s *Service) GetTTSUsersSettings(
 	ctx context.Context,
 	channelID string,
 ) ([]entity.TTSUserSettings, error) {
-	var entities []model.ChannelModulesSettings
-	if err := s.gorm.WithContext(ctx).
-		Where(
-			`"channelId" = ? AND "userId" IS NOT NULL AND type = ?`,
-			channelID,
-			"tts",
-		).
-		Order(`"userId" desc`).
-		Find(&entities).Error; err != nil {
-		return nil, err
+	userSettings, err := s.repository.GetAllUserSettings(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get all user settings: %w", err)
 	}
 
-	mappedEntities := make([]entity.TTSUserSettings, 0, len(entities))
+	mappedEntities := make([]entity.TTSUserSettings, 0, len(userSettings)+1)
 
-	channelSettings := model.ChannelModulesSettings{}
-	if err := s.gorm.WithContext(ctx).Where(
-		`"channelId" = ? AND "userId" IS NULL AND type = ?`,
-		channelID,
-		"tts",
-	).Find(&channelSettings).Error; err != nil {
-		return nil, err
+	// Add channel owner settings if they exist
+	channelSettings, err := s.repository.GetByChannelID(ctx, channelID)
+	if err != nil && !errors.Is(err, overlays_tts.ErrNotFound) {
+		return nil, fmt.Errorf("get channel settings: %w", err)
 	}
 
-	if channelSettings.ID != "" {
+	if err == nil && channelSettings.Settings != nil {
 		mappedEntities = append(
 			mappedEntities,
-			s.mapUserSettingsToEntity(channelID, true, channelSettings.Settings),
+			entity.TTSUserSettings{
+				UserID:         channelID,
+				Rate:           int(channelSettings.Settings.Rate),
+				Pitch:          int(channelSettings.Settings.Pitch),
+				Voice:          channelSettings.Settings.Voice,
+				IsChannelOwner: true,
+			},
 		)
 	}
 
-	for _, e := range entities {
+	// Add user-specific settings
+	for _, setting := range userSettings {
 		mappedEntities = append(
 			mappedEntities,
-			s.mapUserSettingsToEntity(e.UserId.String, false, e.Settings),
+			entity.TTSUserSettings{
+				UserID:         setting.UserID,
+				Rate:           int(setting.Rate),
+				Pitch:          int(setting.Pitch),
+				Voice:          setting.Voice,
+				IsChannelOwner: false,
+			},
 		)
 	}
 
@@ -211,14 +196,7 @@ func (s *Service) DeleteUsersSettings(
 	channelID string,
 	userIds []string,
 ) error {
-	return s.gorm.WithContext(ctx).
-		Where(
-			`"channelId" = ? AND "userId" IN (?) AND type = ?`,
-			channelID,
-			userIds,
-			"tts",
-		).
-		Delete(&model.ChannelModulesSettings{}).Error
+	return s.repository.DeleteMultipleUserSettings(ctx, channelID, userIds)
 }
 
 // Mappers between repository model and entity
