@@ -16,7 +16,6 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelseventsmodel "github.com/twirapp/twir/libs/repositories/events/model"
-	apimodules "github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -41,7 +40,6 @@ type Opts struct {
 	SessionManager *scs.SessionManager
 
 	Bus                               *buscore.Bus
-	TTSSettingsCacher                 *generic_cacher.GenericCacher[apimodules.TTSSettings]
 	Config                            config.Config
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]channelseventsmodel.Event]
 }
@@ -58,7 +56,6 @@ func New(opts Opts) *Protected {
 		},
 		Logger:                            opts.Logger,
 		Bus:                               opts.Bus,
-		TTSSettingsCacher:                 opts.TTSSettingsCacher,
 		SpotifyRepo:                       opts.SpotifyRepository,
 		ChannelsEventsWithOperationsCache: opts.ChannelsEventsWithOperationsCache,
 	}

@@ -21,11 +21,6 @@ import { SetChannelInformationRequest } from "./messages/twitch_protected/twitch
 import { GetCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
 import { SearchCategoriesResponse } from "./messages/twitch_protected/twitch_protected";
 import { SearchCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
-import { UsersDeleteRequest } from "./messages/modules_tts/modules_tts";
-import { GetUsersSettingsResponse } from "./messages/modules_tts/modules_tts";
-import { GetInfoResponse } from "./messages/modules_tts/modules_tts";
-import { PostRequest as PostRequest$ } from "./messages/modules_tts/modules_tts";
-import { GetResponse as GetResponse$ } from "./messages/modules_tts/modules_tts";
 import { PostRequest } from "./messages/modules_obs_websocket/modules_obs_websocket";
 import { GetResponse } from "./messages/modules_obs_websocket/modules_obs_websocket";
 import { GetGuildInfoResponse } from "./messages/integrations_discord/integrations_discord";
@@ -93,11 +88,6 @@ export const Protected = new ServiceType("api.Protected", [
     { name: "IntegrationsDiscordGetGuildInfo", options: {}, I: GetGuildInfoRequest, O: GetGuildInfoResponse },
     { name: "ModulesOBSWebsocketGet", options: {}, I: Empty, O: GetResponse },
     { name: "ModulesOBSWebsocketUpdate", options: {}, I: PostRequest, O: Empty },
-    { name: "ModulesTTSGet", options: {}, I: Empty, O: GetResponse$ },
-    { name: "ModulesTTSUpdate", options: {}, I: PostRequest$, O: Empty },
-    { name: "ModulesTTSGetInfo", options: {}, I: Empty, O: GetInfoResponse },
-    { name: "ModulesTTSGetUsersSettings", options: {}, I: Empty, O: GetUsersSettingsResponse },
-    { name: "ModulesTTSUsersDelete", options: {}, I: UsersDeleteRequest, O: Empty },
     { name: "TwitchSearchCategories", options: {}, I: SearchCategoriesRequest, O: SearchCategoriesResponse },
     { name: "TwitchGetCategories", options: {}, I: GetCategoriesRequest, O: SearchCategoriesResponse },
     { name: "TwitchSetChannelInformation", options: {}, I: SetChannelInformationRequest, O: Empty },

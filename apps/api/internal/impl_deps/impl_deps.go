@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	eventsmodel "github.com/twirapp/twir/libs/repositories/events/model"
-	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +27,6 @@ type Deps struct {
 	Grpc                              *Grpc
 	SessionManager                    *scs.SessionManager
 	Bus                               *buscore.Bus
-	TTSSettingsCacher                 *generic_cacher.GenericCacher[modules.TTSSettings]
 	Config                            cfg.Config
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]eventsmodel.Event]
 }

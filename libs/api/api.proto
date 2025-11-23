@@ -59,14 +59,7 @@ service Protected {
 
 	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (messages.modules_obs_websocket.GetResponse) {}
 	rpc ModulesOBSWebsocketUpdate(messages.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
-
-	rpc ModulesTTSGet(google.protobuf.Empty) returns (messages.modules_tts.GetResponse) {}
-	rpc ModulesTTSUpdate(messages.modules_tts.PostRequest) returns (google.protobuf.Empty) {}
-	rpc ModulesTTSGetInfo(google.protobuf.Empty) returns (messages.modules_tts.GetInfoResponse) {}
-	rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (messages.modules_tts.GetUsersSettingsResponse) {}
-	rpc ModulesTTSUsersDelete(messages.modules_tts.UsersDeleteRequest) returns (google.protobuf.Empty) {}
-
-
+	
 	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest) returns (google.protobuf.Empty) {}
