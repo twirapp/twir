@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"github.com/guregu/null"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
-	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
 var SkipCommand = &types.DefaultCommand{
@@ -26,8 +26,9 @@ var SkipCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSkip(
-			context.Background(), &websockets.TTSSkipMessage{
+		err := parseCtx.Services.Bus.Api.TriggerTtsSkip.Publish(
+			ctx,
+			api.TriggerTtsSkip{
 				ChannelId: parseCtx.Channel.ID,
 			},
 		)

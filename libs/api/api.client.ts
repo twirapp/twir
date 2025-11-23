@@ -3,8 +3,6 @@
 // @generated from protobuf file "api.proto" (package "api", syntax proto3)
 // tslint:disable
 import { UnProtected } from "./api";
-import type { SayResponse } from "./messages/modules_tts/modules_tts";
-import type { SayRequest } from "./messages/modules_tts/modules_tts";
 import type { TwitchSearchChannelsResponse } from "./messages/twitch/twitch";
 import type { TwitchSearchChannelsRequest } from "./messages/twitch/twitch";
 import type { TwitchGetUsersResponse } from "./messages/twitch/twitch";
@@ -642,10 +640,6 @@ export interface IUnProtectedClient {
      * @generated from protobuf rpc: TwitchSearchChannels(messages.twitch.TwitchSearchChannelsRequest) returns (messages.twitch.TwitchSearchChannelsResponse);
      */
     twitchSearchChannels(input: TwitchSearchChannelsRequest, options?: RpcOptions): UnaryCall<TwitchSearchChannelsRequest, TwitchSearchChannelsResponse>;
-    /**
-     * @generated from protobuf rpc: ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse);
-     */
-    modulesTTSSay(input: SayRequest, options?: RpcOptions): UnaryCall<SayRequest, SayResponse>;
 }
 /**
  * @generated from protobuf service api.UnProtected
@@ -669,12 +663,5 @@ export class UnProtectedClient implements IUnProtectedClient, ServiceInfo {
     twitchSearchChannels(input: TwitchSearchChannelsRequest, options?: RpcOptions): UnaryCall<TwitchSearchChannelsRequest, TwitchSearchChannelsResponse> {
         const method = this.methods[1], opt = this._transport.mergeOptions(options);
         return stackIntercept<TwitchSearchChannelsRequest, TwitchSearchChannelsResponse>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse);
-     */
-    modulesTTSSay(input: SayRequest, options?: RpcOptions): UnaryCall<SayRequest, SayResponse> {
-        const method = this.methods[2], opt = this._transport.mergeOptions(options);
-        return stackIntercept<SayRequest, SayResponse>("unary", this._transport, method, opt, input);
     }
 }

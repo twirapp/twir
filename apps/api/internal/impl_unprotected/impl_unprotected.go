@@ -4,21 +4,19 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
-	"github.com/twirapp/twir/apps/api/internal/impl_unprotected/modules"
 	"github.com/twirapp/twir/apps/api/internal/impl_unprotected/twitch"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
-	apimodules "github.com/twirapp/twir/libs/types/types/api/modules"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/discord"
+	"github.com/twirapp/twir/libs/logger"
+	apimodules "github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type UnProtected struct {
 	*twitch.Twitch
-	*modules.Modules
 }
 
 type Opts struct {
@@ -52,9 +50,6 @@ func New(opts Opts) *UnProtected {
 
 	return &UnProtected{
 		Twitch: &twitch.Twitch{
-			Deps: d,
-		},
-		Modules: &modules.Modules{
 			Deps: d,
 		},
 	}

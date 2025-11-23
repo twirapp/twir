@@ -17,7 +17,6 @@ export function useTtsPublicSettings() {
 					pitch
 					rate
 					voice
-					volume
 				}
 			}
 		`),

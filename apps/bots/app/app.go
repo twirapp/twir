@@ -51,6 +51,8 @@ import (
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
+	overlays_tts_repository "github.com/twirapp/twir/libs/repositories/overlays_tts"
+	overlays_tts_pgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	sentmessagesrepository "github.com/twirapp/twir/libs/repositories/sentmessages"
@@ -124,6 +126,10 @@ var App = fx.Module(
 		fx.Annotate(
 			rolesrepositorypgx.NewFx,
 			fx.As(new(rolesrepository.Repository)),
+		),
+		fx.Annotate(
+			overlays_tts_pgx.NewFx,
+			fx.As(new(overlays_tts_repository.Repository)),
 		),
 	),
 	fx.Provide(

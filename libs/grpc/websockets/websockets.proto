@@ -19,8 +19,6 @@ service Websocket {
 	rpc ObsStopStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
 	rpc ObsStartStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
 
-	rpc TextToSpeechSay(TTSMessage) returns (google.protobuf.Empty) {}
-	rpc TextToSpeechSkip(TTSSkipMessage) returns (google.protobuf.Empty) {}
 
 	rpc TriggerAlert(TriggerAlertRequest) returns (google.protobuf.Empty) {}
 	rpc RefreshOverlaySettings(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
@@ -85,19 +83,6 @@ message ObsAudioDisableOrEnableMessage {
 }
 
 message ObsStopOrStartStream {
-	string channelId = 1;
-}
-
-message TTSMessage {
-	string channelId = 1;
-	string text = 2;
-	string voice = 3;
-	string rate = 4;
-	string pitch = 5;
-	string volume = 6;
-}
-
-message TTSSkipMessage {
 	string channelId = 1;
 }
 

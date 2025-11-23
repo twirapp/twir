@@ -15,18 +15,18 @@ import (
 	"github.com/twirapp/twir/apps/parser/locales"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/i18n"
-	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
-	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/model"
+	"github.com/twirapp/twir/libs/repositories/overlays_tts"
+	"github.com/twirapp/twir/libs/repositories/overlays_tts/model"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 )
 
 type Service struct {
-	repository channels_modules_settings_tts.Repository
+	repository overlays_tts.Repository
 	config     *config.Config
 }
 
 func New(
-	repository channels_modules_settings_tts.Repository,
+	repository overlays_tts.Repository,
 	config *config.Config,
 ) *Service {
 	return &Service{
@@ -43,31 +43,35 @@ type Voice struct {
 // GetChannelSettings retrieves TTS settings for a channel
 func (s *Service) GetChannelSettings(ctx context.Context, channelID string) (
 	*modules.TTSSettings,
-	*model.ChannelModulesSettingsTTS,
+	*model.TTSOverlay,
 	error,
 ) {
 	settings, err := s.repository.GetByChannelID(ctx, channelID)
 	if err != nil {
-		if errors.Is(err, channels_modules_settings_tts.ErrNotFound) {
+		if errors.Is(err, overlays_tts.ErrNotFound) {
 			return nil, nil, nil
 		}
 		return nil, nil, err
 	}
 
+	if settings.Settings == nil {
+		return nil, nil, nil
+	}
+
 	ttsSettings := &modules.TTSSettings{
-		Enabled:                            settings.Enabled,
-		Rate:                               settings.Rate,
-		Volume:                             settings.Volume,
-		Pitch:                              settings.Pitch,
-		Voice:                              settings.Voice,
-		AllowUsersChooseVoiceInMainCommand: settings.AllowUsersChooseVoiceInMainCommand,
-		MaxSymbols:                         settings.MaxSymbols,
-		DisallowedVoices:                   settings.DisallowedVoices,
-		DoNotReadEmoji:                     settings.DoNotReadEmoji,
-		DoNotReadTwitchEmotes:              settings.DoNotReadTwitchEmotes,
-		DoNotReadLinks:                     settings.DoNotReadLinks,
-		ReadChatMessages:                   settings.ReadChatMessages,
-		ReadChatMessagesNicknames:          settings.ReadChatMessagesNicknames,
+		Enabled:                            &settings.Settings.Enabled,
+		Rate:                               int(settings.Settings.Rate),
+		Volume:                             int(settings.Settings.Volume),
+		Pitch:                              int(settings.Settings.Pitch),
+		Voice:                              settings.Settings.Voice,
+		AllowUsersChooseVoiceInMainCommand: settings.Settings.AllowUsersChooseVoiceInMainCommand,
+		MaxSymbols:                         int(settings.Settings.MaxSymbols),
+		DisallowedVoices:                   settings.Settings.DisallowedVoices,
+		DoNotReadEmoji:                     settings.Settings.DoNotReadEmoji,
+		DoNotReadTwitchEmotes:              settings.Settings.DoNotReadTwitchEmotes,
+		DoNotReadLinks:                     settings.Settings.DoNotReadLinks,
+		ReadChatMessages:                   settings.Settings.ReadChatMessages,
+		ReadChatMessagesNicknames:          settings.Settings.ReadChatMessagesNicknames,
 	}
 
 	return ttsSettings, &settings, nil
@@ -77,32 +81,23 @@ func (s *Service) GetChannelSettings(ctx context.Context, channelID string) (
 func (s *Service) GetUserSettings(
 	ctx context.Context,
 	channelID, userID string,
-) (*modules.TTSSettings, *model.ChannelModulesSettingsTTS, error) {
-	settings, err := s.repository.GetByChannelIDAndUserID(ctx, channelID, userID)
+) (*modules.TTSSettings, *model.TTSUserSettings, error) {
+	userSettings, err := s.repository.GetUserSettings(ctx, channelID, userID)
 	if err != nil {
-		if errors.Is(err, channels_modules_settings_tts.ErrNotFound) {
+		if errors.Is(err, overlays_tts.ErrNotFound) {
 			return nil, nil, nil
 		}
 		return nil, nil, err
 	}
 
 	ttsSettings := &modules.TTSSettings{
-		Enabled:                            settings.Enabled,
-		Rate:                               settings.Rate,
-		Volume:                             settings.Volume,
-		Pitch:                              settings.Pitch,
-		Voice:                              settings.Voice,
-		AllowUsersChooseVoiceInMainCommand: settings.AllowUsersChooseVoiceInMainCommand,
-		MaxSymbols:                         settings.MaxSymbols,
-		DisallowedVoices:                   settings.DisallowedVoices,
-		DoNotReadEmoji:                     settings.DoNotReadEmoji,
-		DoNotReadTwitchEmotes:              settings.DoNotReadTwitchEmotes,
-		DoNotReadLinks:                     settings.DoNotReadLinks,
-		ReadChatMessages:                   settings.ReadChatMessages,
-		ReadChatMessagesNicknames:          settings.ReadChatMessagesNicknames,
+		Enabled: lo.ToPtr(true),
+		Voice:   userSettings.Voice,
+		Rate:    int(userSettings.Rate),
+		Pitch:   int(userSettings.Pitch),
 	}
 
-	return ttsSettings, &settings, nil
+	return ttsSettings, &userSettings, nil
 }
 
 // UpdateChannelSettings updates TTS settings for a channel
@@ -111,25 +106,30 @@ func (s *Service) UpdateChannelSettings(
 	channelID string,
 	settings *modules.TTSSettings,
 ) error {
-	input := channels_modules_settings_tts.CreateOrUpdateInput{
-		ChannelID:                          channelID,
-		UserID:                             nil,
-		Enabled:                            settings.Enabled,
-		Rate:                               settings.Rate,
-		Volume:                             settings.Volume,
-		Pitch:                              settings.Pitch,
-		Voice:                              settings.Voice,
-		AllowUsersChooseVoiceInMainCommand: settings.AllowUsersChooseVoiceInMainCommand,
-		MaxSymbols:                         settings.MaxSymbols,
-		DisallowedVoices:                   settings.DisallowedVoices,
-		DoNotReadEmoji:                     settings.DoNotReadEmoji,
-		DoNotReadTwitchEmotes:              settings.DoNotReadTwitchEmotes,
-		DoNotReadLinks:                     settings.DoNotReadLinks,
-		ReadChatMessages:                   settings.ReadChatMessages,
-		ReadChatMessagesNicknames:          settings.ReadChatMessagesNicknames,
+	enabled := true
+	if settings.Enabled != nil {
+		enabled = *settings.Enabled
 	}
 
-	_, err := s.repository.UpdateForChannel(ctx, channelID, input)
+	input := overlays_tts.UpdateInput{
+		Settings: model.TTSOverlaySettings{
+			Enabled:                            enabled,
+			Rate:                               int32(settings.Rate),
+			Volume:                             int32(settings.Volume),
+			Pitch:                              int32(settings.Pitch),
+			Voice:                              settings.Voice,
+			AllowUsersChooseVoiceInMainCommand: settings.AllowUsersChooseVoiceInMainCommand,
+			MaxSymbols:                         int32(settings.MaxSymbols),
+			DisallowedVoices:                   settings.DisallowedVoices,
+			DoNotReadEmoji:                     settings.DoNotReadEmoji,
+			DoNotReadTwitchEmotes:              settings.DoNotReadTwitchEmotes,
+			DoNotReadLinks:                     settings.DoNotReadLinks,
+			ReadChatMessages:                   settings.ReadChatMessages,
+			ReadChatMessagesNicknames:          settings.ReadChatMessagesNicknames,
+		},
+	}
+
+	_, err := s.repository.Update(ctx, channelID, input)
 	return err
 }
 
@@ -139,25 +139,21 @@ func (s *Service) UpdateUserSettings(
 	channelID, userID string,
 	settings *modules.TTSSettings,
 ) error {
-	input := channels_modules_settings_tts.CreateOrUpdateInput{
-		ChannelID:                          channelID,
-		UserID:                             nil,
-		Enabled:                            settings.Enabled,
-		Rate:                               settings.Rate,
-		Volume:                             settings.Volume,
-		Pitch:                              settings.Pitch,
-		Voice:                              settings.Voice,
-		AllowUsersChooseVoiceInMainCommand: settings.AllowUsersChooseVoiceInMainCommand,
-		MaxSymbols:                         settings.MaxSymbols,
-		DisallowedVoices:                   settings.DisallowedVoices,
-		DoNotReadEmoji:                     settings.DoNotReadEmoji,
-		DoNotReadTwitchEmotes:              settings.DoNotReadTwitchEmotes,
-		DoNotReadLinks:                     settings.DoNotReadLinks,
-		ReadChatMessages:                   settings.ReadChatMessages,
-		ReadChatMessagesNicknames:          settings.ReadChatMessagesNicknames,
+	input := overlays_tts.UpdateUserSettingsInput{}
+
+	if settings.Voice != "" {
+		input.Voice = &settings.Voice
+	}
+	if settings.Rate != 0 {
+		rate := int32(settings.Rate)
+		input.Rate = &rate
+	}
+	if settings.Pitch != 0 {
+		pitch := int32(settings.Pitch)
+		input.Pitch = &pitch
 	}
 
-	_, err := s.repository.UpdateForUser(ctx, channelID, userID, input)
+	_, err := s.repository.UpdateUserSettings(ctx, channelID, userID, input)
 	return err
 }
 
@@ -168,38 +164,27 @@ func (s *Service) CreateUserSettings(
 	rate, pitch int,
 	voice string,
 ) (*modules.TTSSettings, error) {
-	userSettings := &modules.TTSSettings{
-		Enabled: lo.ToPtr(true),
-		Rate:    rate,
-		Volume:  70,
-		Pitch:   pitch,
-		Voice:   voice,
+	input := overlays_tts.CreateUserSettingsInput{
+		ChannelID: channelID,
+		UserID:    userID,
+		Voice:     voice,
+		Rate:      int32(rate),
+		Pitch:     int32(pitch),
 	}
 
-	input := channels_modules_settings_tts.CreateOrUpdateInput{
-		ChannelID:                          channelID,
-		UserID:                             &userID,
-		Enabled:                            userSettings.Enabled,
-		Rate:                               userSettings.Rate,
-		Volume:                             userSettings.Volume,
-		Pitch:                              userSettings.Pitch,
-		Voice:                              userSettings.Voice,
-		AllowUsersChooseVoiceInMainCommand: userSettings.AllowUsersChooseVoiceInMainCommand,
-		MaxSymbols:                         userSettings.MaxSymbols,
-		DisallowedVoices:                   userSettings.DisallowedVoices,
-		DoNotReadEmoji:                     userSettings.DoNotReadEmoji,
-		DoNotReadTwitchEmotes:              userSettings.DoNotReadTwitchEmotes,
-		DoNotReadLinks:                     userSettings.DoNotReadLinks,
-		ReadChatMessages:                   userSettings.ReadChatMessages,
-		ReadChatMessagesNicknames:          userSettings.ReadChatMessagesNicknames,
-	}
-
-	_, err := s.repository.CreateForUser(ctx, input)
+	userSettings, err := s.repository.CreateUserSettings(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	return userSettings, nil
+	ttsSettings := &modules.TTSSettings{
+		Enabled: lo.ToPtr(true),
+		Voice:   userSettings.Voice,
+		Rate:    int(userSettings.Rate),
+		Pitch:   int(userSettings.Pitch),
+	}
+
+	return ttsSettings, nil
 }
 
 // ToggleChannelEnabled toggles the enabled state for a channel's TTS settings

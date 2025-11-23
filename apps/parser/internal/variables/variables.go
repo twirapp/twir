@@ -194,6 +194,7 @@ func (c *Variables) ParseVariablesInText(
 	)
 
 	if parseCtx.Text != nil && len(*parseCtx.Text) > 0 {
+		// уязвимость на выполнение произвольного текста с чата через эту переменную
 		input = strings.ReplaceAll(input, "$(command.param)", *parseCtx.Text)
 	}
 

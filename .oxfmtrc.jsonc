@@ -1,0 +1,25 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"trailingComma": "es5",
+	"tabWidth": 2,
+	"useTabs": true,
+	"semi": false,
+	"printWidth": 100,
+	"quoteProps": "as-needed",
+	"singleQuote": true,
+	"bracketSpacing": true,
+	"experimentalSortImports": {
+		"enabled": true,
+		"order": "asc",
+		"ignoreCase": true,
+		"newlinesBetween": true
+	},
+	"singleAttributePerLine": true,
+	"ignorePatterns": [
+		"dist/**",
+		"node_modules/**",
+		"build/**",
+		".output",
+		".nuxt"
+	]
+}

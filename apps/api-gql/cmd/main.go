@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/stream"
+	ttsroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
@@ -53,7 +54,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
@@ -90,6 +90,7 @@ import (
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	rolescache "github.com/twirapp/twir/libs/cache/roles"
+	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	valorantintegration "github.com/twirapp/twir/libs/integrations/valorant"
@@ -211,6 +212,7 @@ func main() {
 		),
 		di.OverlaysKappagenModule,
 		di.OverlaysBeRightBackModule,
+		di.OverlaysTTSModule,
 		// repositories
 		fx.Provide(
 			fx.Annotate(
@@ -413,7 +415,6 @@ func main() {
 			chat_messages.New,
 			channels_commands_prefix.New,
 			channels_emotes_usages.New,
-			tts.New,
 			song_requests.New,
 			community_redemptions.New,
 			streamelements.New,
@@ -459,6 +460,7 @@ func main() {
 			giveawayscache.New,
 			chatalertscache.New,
 			channelalertscache.New,
+			ttscache.NewTTSSettings,
 			channelsmoderationsettingsccahe.New,
 			chattranslationssettignscache.New,
 			channelsongrequestssettingscache.New,
@@ -479,6 +481,7 @@ func main() {
 		shortlinks.FxModule,
 		pastebins.FxModule,
 		commandshttp.FxModule,
+		ttsroutes.FxModule,
 		// huma routes end
 		fx.Invoke(
 			gql.New,

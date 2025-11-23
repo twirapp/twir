@@ -91,6 +91,4 @@ import "messages/songs_unprotected/songs_unprotected.proto";
 service UnProtected {
 	rpc TwitchGetUsers(messages.twitch.TwitchGetUsersRequest) returns (messages.twitch.TwitchGetUsersResponse) {}
 	rpc TwitchSearchChannels(messages.twitch.TwitchSearchChannelsRequest) returns (messages.twitch.TwitchSearchChannelsResponse) {}
-
-	rpc ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse) {}
 }

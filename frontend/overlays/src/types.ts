@@ -77,6 +77,18 @@ export type BrbOnStartFn = (minutes: number, text: string) => void
 export type BrbOnStopFn = () => void
 // brb end
 
+// tts start
+export type TTSSayMessage = {
+	text: string
+	voice: string
+	rate: string
+	pitch: string
+	volume: string
+}
+export type TTSOnSayFn = (message: TTSSayMessage) => void
+export type TTSOnSkipFn = () => void
+// tts end
+
 export type KappagenTriggerRequestEmote = {
 	id: string
 	positions: string[]

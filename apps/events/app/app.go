@@ -12,16 +12,17 @@ import (
 	"github.com/twirapp/twir/libs/cache/channel"
 	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
+	"github.com/twirapp/twir/libs/cache/tts"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
-	"github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts"
-	channelsmodules_settingsttspgx "github.com/twirapp/twir/libs/repositories/channels_modules_settings_tts/postgres"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
+	"github.com/twirapp/twir/libs/repositories/overlays_tts"
+	overlaysttspgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
@@ -60,11 +61,12 @@ var App = fx.Module(
 			fx.As(new(channelseventslist.Repository)),
 		),
 		fx.Annotate(
-			channelsmodules_settingsttspgx.NewFx,
-			fx.As(new(channels_modules_settings_tts.Repository)),
+			overlaysttspgx.NewFx,
+			fx.As(new(overlays_tts.Repository)),
 		),
 
 		channel.New,
+		tts.NewTTSSettings,
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},

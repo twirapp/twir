@@ -1018,5 +1018,68 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Convert text to speech using the TTS service. Returns an audio file.
+     *
+     * @tags TTS
+     * @name TtsSay
+     * @summary Text-to-Speech Say
+     * @request GET:/v1/tts/say
+     * @response `200` `File` Successful TTS conversion
+     * @response `default` `ErrorModel` Error
+     */
+    ttsSay: (
+      query?: {
+        /**
+         * Voice name to use for TTS
+         * @minLength 1
+         * @maxLength 100
+         * @example "alan"
+         */
+        voice?: string;
+        /**
+         * Text to convert to speech
+         * @minLength 1
+         * @maxLength 5000
+         * @example "Hello world"
+         */
+        text?: string;
+        /**
+         * Voice pitch (0-100)
+         * @format int64
+         * @min 0
+         * @max 100
+         * @default 50
+         * @example 50
+         */
+        pitch?: number;
+        /**
+         * Speech rate (0-100)
+         * @format int64
+         * @min 0
+         * @max 100
+         * @default 50
+         * @example 50
+         */
+        rate?: number;
+        /**
+         * Volume level (0-100)
+         * @format int64
+         * @min 0
+         * @max 100
+         * @default 50
+         * @example 50
+         */
+        volume?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<File, any>({
+        path: `/v1/tts/say`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
   };
 }
