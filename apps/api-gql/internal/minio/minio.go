@@ -8,11 +8,10 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
-func New(l logger.Logger, config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
+func New(l *slog.Logger, config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
 	var creds *credentials.Credentials
 	if config.AppEnv != "production" {
 		creds = credentials.NewStaticV4("minio", "minio-password", "")
@@ -62,7 +61,7 @@ func New(l logger.Logger, config cfg.Config, lc fx.Lifecycle) (*minio.Client, er
 					}
 				}
 
-				// we use cloudflare r2, which doesnt support this operation
+				// we use cloudflare r2, which doesn't support this operation
 				if config.AppEnv != "production" {
 					err = client.SetBucketPolicy(
 						ctx,

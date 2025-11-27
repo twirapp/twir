@@ -11,8 +11,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/twirapp/twir/apps/websockets/types"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -21,7 +21,7 @@ type Registry struct {
 	manager *melody.Melody
 
 	gorm   *gorm.DB
-	logger logger.Logger
+	logger *slog.Logger
 	redis  *redis.Client
 	bus    *buscore.Bus
 }
@@ -30,7 +30,7 @@ type Opts struct {
 	fx.In
 
 	Gorm   *gorm.DB
-	Logger logger.Logger
+	Logger *slog.Logger
 	Redis  *redis.Client
 	Bus    *buscore.Bus
 }
@@ -51,7 +51,7 @@ func New(opts Opts) *Registry {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
-					opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+					opts.Logger.Error("cannot check user by api key", logger.Error(err))
 				}
 				return
 			}

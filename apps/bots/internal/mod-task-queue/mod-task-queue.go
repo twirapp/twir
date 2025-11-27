@@ -2,11 +2,11 @@ package mod_task_queue
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 )
 
 type TaskDistributor interface {
@@ -19,14 +19,14 @@ type TaskDistributor interface {
 
 type ModTaskDistributor struct {
 	client *asynq.Client
-	logger logger.Logger
+	logger *slog.Logger
 }
 
 var _ TaskDistributor = (*ModTaskDistributor)(nil)
 
 func NewRedisModTaskDistributor(
 	cfg config.Config,
-	logger logger.Logger,
+	logger *slog.Logger,
 ) (*ModTaskDistributor, error) {
 	url, err := redis.ParseURL(cfg.RedisUrl)
 	if err != nil {
@@ -42,7 +42,7 @@ func NewRedisModTaskDistributor(
 	}
 
 	client := asynq.NewClient(redisOpt)
-	
+
 	distributor := &ModTaskDistributor{
 		client: client,
 		logger: logger,

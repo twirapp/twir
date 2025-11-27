@@ -24,7 +24,7 @@ type BusListener struct {
 	eventSubClient *manager.Manager
 	gorm           *gorm.DB
 	bus            *buscore.Bus
-	logger         logger.Logger
+	logger         *slog.Logger
 	channelsRepo   channels.Repository
 	config         config.Config
 }
@@ -36,7 +36,7 @@ type Opts struct {
 	Manager      *manager.Manager
 	Gorm         *gorm.DB
 	Bus          *buscore.Bus
-	Logger       logger.Logger
+	Logger       *slog.Logger
 	ChannelsRepo channels.Repository
 	Config       config.Config
 }
@@ -240,7 +240,7 @@ func (c *BusListener) reinitChannels(
 					ChannelID: channel.ID,
 				},
 			); err != nil {
-				c.logger.Error("error subscribing to all events", slog.Any("err", err))
+				c.logger.Error("error subscribing to all events", logger.Error(err))
 			}
 		}()
 	}

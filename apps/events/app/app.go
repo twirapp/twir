@@ -1,6 +1,8 @@
 package app
 
 import (
+	"log/slog"
+
 	eventsActivity "github.com/twirapp/twir/apps/events/internal/activities/events"
 	"github.com/twirapp/twir/apps/events/internal/chat_alerts"
 	"github.com/twirapp/twir/apps/events/internal/hydrator"
@@ -16,7 +18,6 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
@@ -82,7 +83,7 @@ var App = fx.Module(
 		uptrace.NewFx("events"),
 		workers.NewEventsWorker,
 		listener.New,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info("🤖 Events service started")
 		},
 	),

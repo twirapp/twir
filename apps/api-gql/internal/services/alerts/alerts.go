@@ -6,12 +6,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/audit"
+	genericcacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/alerts"
 	"github.com/twirapp/twir/libs/repositories/alerts/model"
 	"go.uber.org/fx"
@@ -21,22 +20,22 @@ type Opts struct {
 	fx.In
 
 	AlertsRepository alerts.Repository
-	Logger           logger.Logger
-	AlertsCache      *generic_cacher.GenericCacher[[]model.Alert]
+	AuditRecorder    audit.Recorder
+	AlertsCache      *genericcacher.GenericCacher[[]model.Alert]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		alertsRepository: opts.AlertsRepository,
-		logger:           opts.Logger,
+		auditRecorder:    opts.AuditRecorder,
 		alertsCache:      opts.AlertsCache,
 	}
 }
 
 type Service struct {
 	alertsRepository alerts.Repository
-	logger           logger.Logger
-	alertsCache      *generic_cacher.GenericCacher[[]model.Alert]
+	auditRecorder    audit.Recorder
+	alertsCache      *genericcacher.GenericCacher[[]model.Alert]
 }
 
 func (c *Service) modelToEntity(m model.Alert) entity.Alert {
@@ -101,15 +100,16 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Alert, 
 		return entity.AlertNil, err
 	}
 
-	c.logger.Audit(
-		"Channel alert create",
-		audit.Fields{
-			NewValue:      alert,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
-			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(alert.ID.String()),
+	_ = c.auditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(alert.ID.String()),
+			},
+			NewValue: alert,
 		},
 	)
 
@@ -163,16 +163,17 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		return entity.AlertNil, err
 	}
 
-	c.logger.Audit(
-		"Channel alert update",
-		audit.Fields{
-			OldValue:      dbAlert,
-			NewValue:      newAlert,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(newAlert.ID.String()),
+	_ = c.auditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(newAlert.ID.String()),
+			},
+			NewValue: newAlert,
+			OldValue: dbAlert,
 		},
 	)
 
@@ -201,15 +202,16 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 		return fmt.Errorf("failed to invalidate cache: %w", err)
 	}
 
-	c.logger.Audit(
-		"Channel alert delete",
-		audit.Fields{
-			OldValue:      dbAlert,
-			ActorID:       &actorID,
-			ChannelID:     &channelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
-			OperationType: audit.OperationDelete,
-			ObjectID:      lo.ToPtr(dbAlert.ID.String()),
+	_ = c.auditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
+				ActorID:   &actorID,
+				ChannelID: &channelID,
+				ObjectID:  lo.ToPtr(dbAlert.ID.String()),
+			},
+			OldValue: dbAlert,
 		},
 	)
 

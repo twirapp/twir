@@ -6,10 +6,10 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/audit"
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
 )
@@ -51,16 +51,16 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVa
 		return entity.CustomVarNil, err
 	}
 
-	c.logger.Audit(
-		"Variable create",
-		audit.Fields{
-			OldValue:      nil,
-			NewValue:      variable,
-			ActorID:       &data.ActorID,
-			ChannelID:     &data.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
-			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(variable.ID.String()),
+	_ = c.auditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
+				ActorID:   &data.ActorID,
+				ChannelID: &data.ChannelID,
+				ObjectID:  lo.ToPtr(variable.ID.String()),
+			},
+			NewValue: variable,
 		},
 	)
 

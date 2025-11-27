@@ -22,7 +22,7 @@ type Alerts struct {
 	manager *melody.Melody
 
 	gorm   *gorm.DB
-	logger logger.Logger
+	logger *slog.Logger
 	redis  *redis.Client
 
 	counter prometheus.Gauge
@@ -32,7 +32,7 @@ type Opts struct {
 	fx.In
 
 	Gorm   *gorm.DB
-	Logger logger.Logger
+	Logger *slog.Logger
 	Redis  *redis.Client
 }
 
@@ -57,7 +57,7 @@ func NewAlerts(opts Opts) *Alerts {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
-					opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+					opts.Logger.Error("cannot check user by api key", logger.Error(err))
 				}
 				return
 			}
@@ -90,7 +90,7 @@ func (c *Alerts) SendEvent(channelId, eventName string, data any) error {
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.logger.Error("cannot process message", slog.Any("err", err))
+		c.logger.Error("cannot process message", logger.Error(err))
 		return err
 	}
 
@@ -102,7 +102,7 @@ func (c *Alerts) SendEvent(channelId, eventName string, data any) error {
 	)
 
 	if err != nil {
-		c.logger.Error("cannot broadcast message", slog.Any("err", err))
+		c.logger.Error("cannot broadcast message", logger.Error(err))
 		return err
 	}
 

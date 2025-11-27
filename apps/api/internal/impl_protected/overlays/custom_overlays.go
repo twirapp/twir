@@ -10,10 +10,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api/internal/helpers"
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/overlays"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -241,7 +242,7 @@ func (c *Overlays) OverlaysUpdate(ctx context.Context, req *overlays.UpdateReque
 		&websockets.RefreshOverlaysRequest{ChannelId: dashboardId},
 	)
 	if err != nil {
-		c.Logger.Error("failed to refresh overlays", err)
+		c.Logger.Error("failed to refresh overlays", logger.Error(err))
 	}
 
 	return c.OverlaysGetOne(ctx, &overlays.GetByIdRequest{Id: req.Id})

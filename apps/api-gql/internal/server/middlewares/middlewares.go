@@ -1,9 +1,10 @@
 package middlewares
 
 import (
+	"log/slog"
+
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
-	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
@@ -11,7 +12,7 @@ type Opts struct {
 	fx.In
 
 	Sessions    *auth.Auth
-	Logger      logger.Logger
+	Logger      *slog.Logger
 	RateLimiter *rate_limiter.LeakyBucketRateLimiter
 }
 
@@ -25,6 +26,6 @@ func New(opts Opts) *Middlewares {
 
 type Middlewares struct {
 	sessions    *auth.Auth
-	logger      logger.Logger
+	logger      *slog.Logger
 	rateLimiter *rate_limiter.LeakyBucketRateLimiter
 }

@@ -23,7 +23,7 @@ type Opts struct {
 	fx.In
 
 	Gorm                       *gorm.DB
-	Logger                     logger.Logger
+	Logger                     *slog.Logger
 	Config                     config.Config
 	CachedTwitchClient         *twitchcache.CachedTwitchClient
 	ChannelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
@@ -36,7 +36,7 @@ type TwirStats struct {
 	gorm *gorm.DB
 
 	cachedResponse             *gqlmodel.TwirStats
-	logger                     logger.Logger
+	logger                     *slog.Logger
 	config                     config.Config
 	cachedTwitchClient         *twitchcache.CachedTwitchClient
 	channelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
@@ -123,7 +123,7 @@ func (c *TwirStats) cacheCounts() {
 			channelsemotesusagesrepository.CountInput{},
 		)
 		if err != nil {
-			c.logger.Error("cannot count emotes", slog.Any("err", err))
+			c.logger.Error("cannot count emotes", logger.Error(err))
 			return
 		}
 
@@ -138,7 +138,7 @@ func (c *TwirStats) cacheCounts() {
 			channelscommandsusages.CountInput{},
 		)
 		if err != nil {
-			c.logger.Error("cannot count commands", slog.Any("err", err))
+			c.logger.Error("cannot count commands", logger.Error(err))
 			return
 		}
 
@@ -150,7 +150,7 @@ func (c *TwirStats) cacheCounts() {
 
 		count, err := c.shortenedUrlsRepository.Count(context.TODO(), shortened_urls.CountInput{})
 		if err != nil {
-			c.logger.Error("cannot count shortened urls", slog.Any("err", err))
+			c.logger.Error("cannot count shortened urls", logger.Error(err))
 			return
 		}
 
@@ -162,7 +162,7 @@ func (c *TwirStats) cacheCounts() {
 
 		count, err := c.pastebinsRepository.Count(context.TODO(), pastebins.CountInput{})
 		if err != nil {
-			c.logger.Error("cannot count pastebins", slog.Any("err", err))
+			c.logger.Error("cannot count pastebins", logger.Error(err))
 			return
 		}
 
@@ -187,7 +187,7 @@ type statsNResult struct {
 // 		).
 // 		Joins("User").
 // 		Find(&streamers).Error; err != nil {
-// 		c.logger.Error("cannot cache streamers", slog.Any("err", err))
+// 		c.logger.Error("cannot cache streamers", logger.Error(err))
 // 		return
 // 	}
 //
@@ -234,7 +234,7 @@ type statsNResult struct {
 // 				if err != nil {
 // 					c.logger.Error(
 // 						"cannot get followers",
-// 						slog.Any("err", err),
+// 						logger.Error(err),
 // 						slog.String("userId", user.ID),
 // 					)
 // 					return
@@ -273,7 +273,7 @@ type statsNResult struct {
 // 		if err := c.gorm.Where(`"userId" = ?`, streamer.ID).Find(&stream).Error; err != nil {
 // 			c.logger.Error(
 // 				"cannot get stream",
-// 				slog.Any("err", err),
+// 				logger.Error(err),
 // 				slog.String("channelId", streamer.ID),
 // 			)
 // 			continue

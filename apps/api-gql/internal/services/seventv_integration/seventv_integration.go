@@ -24,7 +24,7 @@ type Opts struct {
 	BotsRepository    bots.Repository
 	Config            config.Config
 	Cacher            *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv]
-	Logger            logger.Logger
+	Logger            *slog.Logger
 }
 
 func New(opts Opts) *Service {
@@ -42,7 +42,7 @@ type Service struct {
 	botsRepository    bots.Repository
 	config            config.Config
 	cacher            *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv]
-	logger            logger.Logger
+	logger            *slog.Logger
 }
 
 func (c *Service) getBotSevenTvProfile(ctx context.Context) (entity.SevenTvProfile, error) {
@@ -264,7 +264,7 @@ func (c *Service) CreateOrUpdateSevenTvData(ctx context.Context, input CreateInp
 		defer cancel()
 
 		if err := c.cacher.Invalidate(invalidateCtx, input.ChannelID); err != nil {
-			c.logger.Error("failed to invalidate cache", slog.Any("err", err))
+			c.logger.Error("failed to invalidate cache", logger.Error(err))
 		}
 	}()
 

@@ -2,14 +2,14 @@ package timers
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/libs/audit"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID string) error {
@@ -23,7 +23,7 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 	}
 
 	if err := c.timersRepository.Delete(ctx, id); err != nil {
-		c.logger.Error("cannot delete timer", slog.Any("err", err))
+		c.logger.Error("cannot delete timer", logger.Error(err))
 		return err
 	}
 
@@ -34,15 +34,16 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 		return err
 	}
 
-	c.logger.Audit(
-		"Timers remove",
-		audit.Fields{
-			OldValue:      timer,
-			ActorID:       &actorID,
-			ChannelID:     &channelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
-			OperationType: audit.OperationDelete,
-			ObjectID:      lo.ToPtr(timer.ID.String()),
+	_ = c.auditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
+				ActorID:   &actorID,
+				ChannelID: &channelID,
+				ObjectID:  lo.ToPtr(timer.ID.String()),
+			},
+			OldValue: timer,
 		},
 	)
 

@@ -9,7 +9,6 @@ import (
 	"unsafe"
 
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
-	"github.com/twirapp/twir/libs/logger"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -20,7 +19,7 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	Gorm   *gorm.DB
-	Logger logger.Logger
+	Logger *slog.Logger
 }
 
 const GlobalChannelID = "global"
@@ -62,7 +61,7 @@ type EmotesStore struct {
 	channels map[ChannelID]map[emotes_cacher.ServiceName]Service
 	mu       sync.RWMutex
 
-	logger logger.Logger
+	logger *slog.Logger
 	gorm   *gorm.DB
 }
 

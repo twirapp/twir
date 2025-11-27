@@ -6,7 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -15,6 +14,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // DudesUpdate is the resolver for the dudesUpdate field.
@@ -257,7 +257,7 @@ func (r *subscriptionResolver) DudesSettings(ctx context.Context, id uuid.UUID, 
 			case data := <-sub.GetChannel():
 				var settings entity.DudesOverlaySettings
 				if err := json.Unmarshal(data, &settings); err != nil {
-					r.deps.Logger.Error("cannot unmarshall dudes settings", slog.Any("err", err))
+					r.deps.Logger.Error("cannot unmarshall dudes settings", logger.Error(err))
 					continue
 				}
 

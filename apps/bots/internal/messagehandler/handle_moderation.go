@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
@@ -92,7 +93,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 					"cannot delete message",
 					slog.String("userId", msg.ChatterUserId),
 					slog.String("channelId", msg.BroadcasterUserId),
-					slog.Any("err", err),
+					logger.Error(err),
 				)
 			}
 
@@ -123,7 +124,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 					"cannot warn user",
 					slog.String("userId", msg.ChatterUserId),
 					slog.String("channelId", msg.BroadcasterUserId),
-					slog.Any("err", err),
+					logger.Error(err),
 				)
 			}
 		} else {
@@ -142,7 +143,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 					"cannot ban user",
 					slog.String("userId", msg.ChatterUserId),
 					slog.String("channelId", msg.BroadcasterUserId),
-					slog.Any("err", err),
+					logger.Error(err),
 				)
 			}
 		}
@@ -177,7 +178,7 @@ func (c *MessageHandler) moderationHandleResult(
 	).
 		Find(&channelRoles).
 		Error; err != nil {
-		c.logger.Error("cannot get channel roles", slog.Any("err", err))
+		c.logger.Error("cannot get channel roles", logger.Error(err))
 		return nil
 	}
 	badges := createUserBadges(msg.Badges)
@@ -493,7 +494,7 @@ func (c *MessageHandler) moderationOneManSpam(
 			msg.ID,
 			msg.Message.Text,
 		).Err(); err != nil {
-			c.logger.Error("cannot set one man spam to redis", slog.Any("err", err))
+			c.logger.Error("cannot set one man spam to redis", logger.Error(err))
 			return
 		}
 
@@ -503,7 +504,7 @@ func (c *MessageHandler) moderationOneManSpam(
 			time.Duration(settings.OneManSpamMessageMemorySeconds)*time.Second,
 			msg.ID,
 		).Err(); err != nil {
-			c.logger.Error("cannot expire one man spam redis key", slog.Any("err", err))
+			c.logger.Error("cannot expire one man spam redis key", logger.Error(err))
 			return
 		}
 	}()

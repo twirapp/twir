@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/kvizyx/twitchy/eventsub"
@@ -13,7 +14,6 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/logger"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
@@ -30,7 +30,7 @@ import (
 )
 
 type Handler struct {
-	logger logger.Logger
+	logger *slog.Logger
 
 	websocketsGrpc               websockets.WebsocketClient
 	tracer                       trace.Tracer
@@ -61,7 +61,7 @@ type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 
 	WebsocketsGrpc                      websockets.WebsocketClient
 	ScheduledVipsRepo                   scheduledvipsrepository.Repository

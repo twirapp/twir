@@ -7,7 +7,6 @@ package resolvers
 import (
 	"context"
 	"encoding/json"
-	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
@@ -56,7 +56,7 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text *string
 		}
 
 		if err := r.deps.WsRouter.Publish(subKey, &userNotification); err != nil {
-			r.deps.Logger.Error("failed to publish notification", slog.Any("err", err))
+			r.deps.Logger.Error("failed to publish notification", logger.Error(err))
 		}
 	}()
 
@@ -230,7 +230,7 @@ func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gql
 			},
 		)
 		if err != nil {
-			r.deps.Logger.Error("subscription", slog.Any("err", err))
+			r.deps.Logger.Error("subscription", logger.Error(err))
 			return
 		}
 		defer func() {

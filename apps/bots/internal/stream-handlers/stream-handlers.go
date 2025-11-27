@@ -2,8 +2,8 @@ package stream_handlers
 
 import (
 	"context"
+	"log/slog"
 
-	"github.com/twirapp/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/greetings"
@@ -14,7 +14,7 @@ import (
 
 type PubSubHandlers struct {
 	db                  *gorm.DB
-	logger              logger.Logger
+	logger              *slog.Logger
 	bus                 *bus_core.Bus
 	greetingsRepository greetings.Repository
 	greetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
@@ -27,7 +27,7 @@ type Opts struct {
 
 	DB                  *gorm.DB
 	Bus                 *bus_core.Bus
-	Logger              logger.Logger
+	Logger              *slog.Logger
 	GreetingsRepository greetings.Repository
 	GreetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 }

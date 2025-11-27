@@ -23,7 +23,7 @@ import (
 
 type Manager struct {
 	config             cfg.Config
-	logger             logger.Logger
+	logger             *slog.Logger
 	gorm               *gorm.DB
 	twirBus            *buscore.Bus
 	conduitsRepository twitchconduits.Repository
@@ -40,7 +40,7 @@ type Opts struct {
 	Lc fx.Lifecycle
 
 	Config             cfg.Config
-	Logger             logger.Logger
+	Logger             *slog.Logger
 	Gorm               *gorm.DB
 	TwirBus            *buscore.Bus
 	ConduitsRepository twitchconduits.Repository
@@ -113,7 +113,7 @@ func (c *Manager) SubscribeToNeededEvents(
 			if err != nil {
 				c.logger.Error(
 					"failed to subscribe to event",
-					slog.Any("err", err),
+					logger.Error(err),
 					slog.Any("topic", topic.Topic),
 					slog.String("version", topic.Version),
 				)

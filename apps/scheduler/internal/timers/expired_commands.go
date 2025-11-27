@@ -22,7 +22,7 @@ type ExpiredCommandsOpts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 	Config config.Config
 
 	Gorm         *gorm.DB
@@ -32,7 +32,7 @@ type ExpiredCommandsOpts struct {
 
 type expiredCommands struct {
 	config        config.Config
-	logger        logger.Logger
+	logger        *slog.Logger
 	db            *gorm.DB
 	commandsCache *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
@@ -86,7 +86,7 @@ func (s *expiredCommands) checkForExpiredCommands(ctx context.Context) {
 		`"expires_at" < ?`,
 		time.Now().UTC(),
 	).Find(&commands).Error; err != nil {
-		s.logger.Error("failed to get commands", slog.Any("err", err))
+		s.logger.Error("failed to get commands", logger.Error(err))
 		return
 	}
 
@@ -107,7 +107,7 @@ func (s *expiredCommands) checkForExpiredCommands(ctx context.Context) {
 				&c,
 			).Error
 			if err != nil {
-				s.logger.Error("failed to delete command", slog.Any("err", err))
+				s.logger.Error("failed to delete command", logger.Error(err))
 			}
 		}
 
@@ -116,7 +116,7 @@ func (s *expiredCommands) checkForExpiredCommands(ctx context.Context) {
 			c.ChannelID,
 		)
 		if err != nil {
-			s.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+			s.logger.Error("failed to invalidate commands cache", logger.Error(err))
 			return
 		}
 	}

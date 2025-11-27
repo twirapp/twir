@@ -25,14 +25,14 @@ import (
 type Commands struct {
 	db            *gorm.DB
 	lock          sync.Mutex
-	logger        logger.Logger
+	logger        *slog.Logger
 	commandsCache *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	BusCore       *buscore.Bus
 }
 
 func NewCommands(
 	db *gorm.DB,
-	l logger.Logger,
+	l *slog.Logger,
 	buscore *buscore.Bus,
 	commandsRepo commandswithgroupsandresponsesrepository.Repository,
 ) *Commands {
@@ -190,7 +190,7 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
 			if err != nil {
 				c.logger.Error(
 					"failed to invalidate commands cache",
-					slog.Any("err", err),
+					logger.Error(err),
 					slog.String("channelId", channel.ChannelID),
 				)
 			}

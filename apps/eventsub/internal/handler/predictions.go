@@ -7,6 +7,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func convertOutCome(outcomes []eventsub.ChannelPredictionEventOutcome) []events.PredictionOutcome {
@@ -79,7 +80,7 @@ func (c *Handler) HandleChannelPredictionBegin(
 	)
 
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }
 
@@ -114,7 +115,7 @@ func (c *Handler) HandleChannelPredictionProgress(
 	)
 
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }
 
@@ -149,7 +150,7 @@ func (c *Handler) HandleChannelPredictionLock(
 	)
 
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }
 
@@ -190,6 +191,6 @@ func (c *Handler) HandleChannelPredictionEnd(
 	)
 
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/imroc/req/v3"
 	"github.com/lib/pq"
@@ -13,7 +14,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/api"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	ttsmodel "github.com/twirapp/twir/libs/repositories/overlays_tts/model"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -29,7 +29,7 @@ type Opts struct {
 	WsRouter        wsrouter.WsRouter
 	Config          config.Config
 	TwirBus         *buscore.Bus
-	Logger          logger.Logger
+	Logger          *slog.Logger
 	UsersRepository users.Repository
 	Cacher          *generic_cacher.GenericCacher[modules.TTSSettings]
 }

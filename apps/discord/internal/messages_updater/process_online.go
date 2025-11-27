@@ -10,6 +10,7 @@ import (
 	"github.com/diamondburned/arikawa/v3/state"
 	"github.com/twirapp/twir/apps/discord/internal/sended_messages_store"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *MessagesUpdater) processOnline(
@@ -58,7 +59,7 @@ func (c *MessagesUpdater) processOnline(
 		for _, channel := range guild.LiveNotificationChannelsIds {
 			dChanUid, err := strconv.ParseUint(channel, 10, 64)
 			if err != nil {
-				c.logger.Error("Failed to parse channel id", slog.Any("err", err))
+				c.logger.Error("Failed to parse channel id", logger.Error(err))
 				continue
 			}
 
@@ -83,7 +84,7 @@ func (c *MessagesUpdater) processOnline(
 			)
 
 			if err != nil {
-				c.logger.Error("Failed to send message", slog.Any("err", err))
+				c.logger.Error("Failed to send message", logger.Error(err))
 				continue
 			}
 			sendedMessage = append(

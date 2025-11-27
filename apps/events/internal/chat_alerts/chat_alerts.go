@@ -23,7 +23,7 @@ import (
 type ChatAlerts struct {
 	db                    *gorm.DB
 	redis                 *redis.Client
-	logger                logger.Logger
+	logger                *slog.Logger
 	cfg                   cfg.Config
 	websocketsGrpc        websockets.WebsocketClient
 	bus                   *buscore.Bus
@@ -36,7 +36,7 @@ type Opts struct {
 
 	DB                    *gorm.DB
 	Redis                 *redis.Client
-	Logger                logger.Logger
+	Logger                *slog.Logger
 	Cfg                   cfg.Config
 	WebsocketsGrpc        websockets.WebsocketClient
 	Bus                   *buscore.Bus
@@ -69,7 +69,7 @@ func (c *ChatAlerts) ProcessEvent(
 			return
 		}
 
-		c.logger.Error("cannot get chat alerts", slog.Any("err", err))
+		c.logger.Error("cannot get chat alerts", logger.Error(err))
 		return
 	}
 
@@ -81,7 +81,7 @@ func (c *ChatAlerts) ProcessEvent(
 		eventType.String(),
 	)
 	if err != nil {
-		c.logger.Error("cannot get channel event cooldown", slog.Any("err", err))
+		c.logger.Error("cannot get channel event cooldown", logger.Error(err))
 		return
 	}
 	if eventCooldown {
@@ -182,7 +182,7 @@ func (c *ChatAlerts) ProcessEvent(
 	if cooldown != 0 {
 		err = c.SetCooldown(ctx, channelId, eventType.String(), cooldown)
 		if err != nil {
-			c.logger.Error("cannot set cooldown", slog.Any("err", err))
+			c.logger.Error("cannot set cooldown", logger.Error(err))
 		}
 	}
 

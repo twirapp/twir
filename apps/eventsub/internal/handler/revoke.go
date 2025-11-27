@@ -7,6 +7,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *Handler) HandleUserAuthorizationRevoke(
@@ -24,7 +25,7 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 		Where("id = ?", event.UserId).
 		Update(`"isBotMod"`, false).
 		Update(`"isEnabled"`, false).Error; err != nil {
-		c.logger.Error("failed to update channel", slog.Any("err", err))
+		c.logger.Error("failed to update channel", logger.Error(err))
 	}
 
 	user := &model.Users{}
@@ -32,7 +33,7 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 		WithContext(ctx).
 		Where("id = ?", event.UserId).
 		First(user).Error; err != nil {
-		c.logger.Error("failed to get user", slog.Any("err", err))
+		c.logger.Error("failed to get user", logger.Error(err))
 	}
 
 	if user.TokenID.Valid {
@@ -45,13 +46,13 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 			).Error; err != nil {
 			c.logger.Error(
 				"failed to delete token",
-				slog.Any("err", err),
+				logger.Error(err),
 			)
 		}
 
 		user.TokenID = sql.NullString{}
 		if err := c.gorm.WithContext(ctx).Save(&user).Error; err != nil {
-			c.logger.Error("failed to update user", slog.Any("err", err))
+			c.logger.Error("failed to update user", logger.Error(err))
 		}
 	}
 }

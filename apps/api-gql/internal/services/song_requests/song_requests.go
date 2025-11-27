@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

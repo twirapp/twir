@@ -31,7 +31,7 @@ type Opts struct {
 	GiveawaysParticipantsRepository giveaways_participants.Repository
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]model.ChannelGiveaway]
 	TwirBus                         *buscore.Bus
-	Logger                          logger.Logger
+	Logger                          *slog.Logger
 	WsRouter                        wsrouter.WsRouter
 }
 
@@ -72,7 +72,7 @@ type Service struct {
 	giveawaysParticipantsRepository giveaways_participants.Repository
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]model.ChannelGiveaway]
 	twirBus                         *buscore.Bus
-	logger                          logger.Logger
+	logger                          *slog.Logger
 	wsRouter                        wsrouter.WsRouter
 }
 
@@ -87,10 +87,10 @@ func (c *Service) handleNewParticipants(
 	participant giveawaysbus.NewParticipant,
 ) error {
 	if err := c.wsRouter.Publish(
-		CreateNewPariticipantSubscriptionKeyByGiveawayID(participant.GiveawayID),
+		CreateNewParticipantSubscriptionKeyByGiveawayID(participant.GiveawayID),
 		participant,
 	); err != nil {
-		c.logger.Error("cannot publish new participant", slog.Any("err", err))
+		c.logger.Error("cannot publish new participant", logger.Error(err))
 		return err
 	}
 
@@ -208,7 +208,7 @@ func (c *Service) ChooseWinners(
 		},
 	)
 	if err != nil {
-		c.logger.Error("Cannot choose winners", slog.Any("err", err))
+		c.logger.Error("Cannot choose winners", logger.Error(err))
 		return nil, err
 	}
 
@@ -223,7 +223,7 @@ func (c *Service) ChooseWinners(
 
 	err = c.updateGiveawaysCacheForChannel(ctx, channelID)
 	if err != nil {
-		c.logger.Error("Cannot update winners cache", slog.Any("err", err))
+		c.logger.Error("Cannot update winners cache", logger.Error(err))
 		return nil, err
 	}
 

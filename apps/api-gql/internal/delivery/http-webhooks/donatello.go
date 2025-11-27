@@ -1,12 +1,12 @@
 package http_webhooks
 
 import (
-	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 type donatelloBody struct {
@@ -53,7 +53,7 @@ func (c *Webhooks) donatelloHandler(g *gin.Context) {
 	}
 	integrationsNameBytes, err := json.Marshal(integrationsMessage)
 	if err != nil {
-		c.logger.Error("cannot marshal message", slog.Any("err", err))
+		c.logger.Error("cannot marshal message", logger.Error(err))
 	} else {
 		c.pubSub.Publish("donations:new", integrationsNameBytes)
 	}

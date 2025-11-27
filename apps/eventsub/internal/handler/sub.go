@@ -7,6 +7,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 )
@@ -51,7 +52,7 @@ func (c *Handler) HandleChannelSubscribe(
 			},
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	if err := c.twirBus.Events.Subscribe.Publish(
@@ -67,7 +68,7 @@ func (c *Handler) HandleChannelSubscribe(
 			Level:           level,
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }
 
@@ -101,7 +102,7 @@ func (c *Handler) HandleChannelSubscriptionMessage(
 			},
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	if err := c.twirBus.Events.ReSubscribe.Publish(
@@ -121,6 +122,6 @@ func (c *Handler) HandleChannelSubscriptionMessage(
 			Level:           level,
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }

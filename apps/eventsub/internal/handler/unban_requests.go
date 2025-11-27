@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 )
@@ -38,7 +39,7 @@ func (c *Handler) HandleChannelUnbanRequestCreate(
 			},
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	c.twirBus.Events.ChannelUnbanRequestCreate.Publish(
@@ -93,7 +94,7 @@ func (c *Handler) HandleChannelUnbanRequestResolve(
 			},
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	c.twirBus.Events.ChannelUnbanRequestResolve.Publish(

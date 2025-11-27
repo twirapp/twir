@@ -2,12 +2,13 @@ package timers
 
 import (
 	"errors"
+	"log/slog"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/audit"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/logger"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
 	"go.uber.org/fx"
@@ -18,7 +19,8 @@ type Opts struct {
 	fx.In
 
 	Gorm             *gorm.DB
-	Logger           logger.Logger
+	AuditRecorder    audit.Recorder
+	Logger           *slog.Logger
 	TwirBus          *buscore.Bus
 	TimersRepository timersrepository.Repository
 	TrmManager       trm.Manager
@@ -27,6 +29,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		gorm:             opts.Gorm,
+		auditRecorder:    opts.AuditRecorder,
 		logger:           opts.Logger,
 		twirbus:          opts.TwirBus,
 		timersRepository: opts.TimersRepository,
@@ -36,7 +39,8 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	gorm             *gorm.DB
-	logger           logger.Logger
+	logger           *slog.Logger
+	auditRecorder    audit.Recorder
 	twirbus          *buscore.Bus
 	timersRepository timersrepository.Repository
 	trmManager       trm.Manager

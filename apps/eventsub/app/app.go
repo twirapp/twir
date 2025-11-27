@@ -1,6 +1,8 @@
 package app
 
 import (
+	"log/slog"
+
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
@@ -17,7 +19,6 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/logger"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -127,7 +128,7 @@ var App = fx.Options(
 		uptrace.NewFx("eventsub"),
 		handler.New,
 		bus_listener.New,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info("🚀 EventSub App started")
 		},
 	),

@@ -8,11 +8,11 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
+	"github.com/twirapp/twir/libs/audit"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
 	"go.uber.org/fx"
@@ -27,7 +27,7 @@ type Opts struct {
 	Config              config.Config
 	CachedTwitchClient  *twitch.CachedTwitchClient
 	Gorm                *gorm.DB
-	Logger              logger.Logger
+	AuditRecorder       audit.Recorder
 	VariablesRepository variables.Repository
 	Executron           executron.Executron
 }
@@ -37,7 +37,7 @@ type Service struct {
 	config              config.Config
 	cachedTwitchClient  *twitch.CachedTwitchClient
 	gorm                *gorm.DB
-	logger              logger.Logger
+	auditRecorder       audit.Recorder
 	variablesRepository variables.Repository
 	executron           executron.Executron
 }
@@ -48,7 +48,7 @@ func New(opts Opts) *Service {
 		config:              opts.Config,
 		cachedTwitchClient:  opts.CachedTwitchClient,
 		gorm:                opts.Gorm,
-		logger:              opts.Logger,
+		auditRecorder:       opts.AuditRecorder,
 		variablesRepository: opts.VariablesRepository,
 		executron:           opts.Executron,
 	}

@@ -5,9 +5,9 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/scheduler/internal/services"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
@@ -15,14 +15,14 @@ type schedulerListener struct {
 	commandsService *services.Commands
 	rolesService    *services.Roles
 	bus             *buscore.Bus
-	logger          logger.Logger
+	logger          *slog.Logger
 }
 
 type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 
 	CommandsService *services.Commands
 	RolesService    *services.Roles
@@ -68,7 +68,7 @@ func (c *schedulerListener) createDefaultCommands(
 	req scheduler.CreateDefaultCommandsRequest,
 ) (struct{}, error) {
 	if err := c.commandsService.CreateDefaultCommands(ctx); err != nil {
-		c.logger.Error("failed to create default commands", slog.Any("err", err))
+		c.logger.Error("failed to create default commands", logger.Error(err))
 		return struct{}{}, err
 	}
 
@@ -80,7 +80,7 @@ func (c *schedulerListener) createDefaultRoles(
 	req scheduler.CreateDefaultRolesRequest,
 ) (struct{}, error) {
 	if err := c.rolesService.CreateDefaultRoles(ctx); err != nil {
-		c.logger.Error("failed to create default roles", slog.Any("err", err))
+		c.logger.Error("failed to create default roles", logger.Error(err))
 		return struct{}{}, err
 	}
 

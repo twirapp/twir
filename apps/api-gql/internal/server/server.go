@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -11,7 +12,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/fx"
 )
@@ -21,7 +21,7 @@ type Opts struct {
 	LC                 fx.Lifecycle
 	Sessions           *auth.Auth
 	CachedTwitchClient *twitch.CachedTwitchClient
-	Logger             logger.Logger
+	Logger             *slog.Logger
 	Middlewares        *middlewares.Middlewares
 	Config             config.Config
 }
@@ -34,7 +34,7 @@ func New(opts Opts) (*Server, error) {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
-	r.Use(gin.Logger())
+	r.Use(opts.Middlewares.Logger())
 	r.Use(
 		cors.New(
 			cors.Config{
@@ -49,7 +49,6 @@ func New(opts Opts) (*Server, error) {
 
 	r.Use(otelgin.Middleware("api-gql"))
 	r.Use(opts.Sessions.Middleware())
-	r.Use(opts.Middlewares.Logging)
 	r.Use(opts.Middlewares.DashboardID)
 	r.Use(gin.Recovery())
 	r.Use(gincontext.Middleware())

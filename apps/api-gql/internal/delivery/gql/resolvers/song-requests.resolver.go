@@ -20,8 +20,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/libs/audit"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"gorm.io/gorm"
 )
 
@@ -48,6 +48,7 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		return false, fmt.Errorf("failed to update song requests settings: %w", err)
 	}
 
+	oldEntity := entity
 	entity = model.ChannelSongRequestsSettings{
 		ID:                                   entity.ID,
 		ChannelID:                            dashboardId,
@@ -101,15 +102,17 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		return false, fmt.Errorf("failed to update song requests settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Song requests updated",
-		audit.Fields{
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelSongRequests),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      &entity.ID,
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelSongRequests),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  &entity.ID,
+			},
+			NewValue: entity,
+			OldValue: oldEntity,
 		},
 	)
 

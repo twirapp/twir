@@ -34,7 +34,7 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	Config  config.Config
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	TwirBus *buscore.Bus
 	Redis   *redis.Client
 
@@ -130,7 +130,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	config                         config.Config
-	logger                         logger.Logger
+	logger                         *slog.Logger
 	twirBus                        *buscore.Bus
 	redis                          *redis.Client
 	channelsRepository             channelsrepository.Repository
@@ -164,7 +164,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 		},
 	)
 	if err != nil {
-		c.logger.Error("cannot use rate limiter", slog.Any("err", err))
+		c.logger.Error("cannot use rate limiter", logger.Error(err))
 		return struct{}{}, err
 	}
 	if !resp.Success {
@@ -179,7 +179,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 		if errors.Is(err, channelschattrenslationsrepository.ErrSettingsNotFound) {
 			return struct{}{}, nil
 		}
-		c.logger.Error("cannot get channel translation settings", slog.Any("err", err))
+		c.logger.Error("cannot get channel translation settings", logger.Error(err))
 		return struct{}{}, err
 	}
 
@@ -191,7 +191,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 
 	channel, err := c.channelsCache.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
-		c.logger.Error("cannot get channel", slog.Any("err", err))
+		c.logger.Error("cannot get channel", logger.Error(err))
 		return struct{}{}, err
 	}
 	if c.config.IsProduction() && msg.ChatterUserId == channel.BotID {
@@ -205,7 +205,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 
 	msgLang, err := c.detectLanguage(ctx, textForDetect)
 	if err != nil {
-		c.logger.Error("cannot detect language", slog.Any("err", err))
+		c.logger.Error("cannot detect language", logger.Error(err))
 		return struct{}{}, err
 	}
 
@@ -238,7 +238,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 		},
 	)
 	if err != nil {
-		c.logger.Error("cannot translate message", slog.Any("err", err))
+		c.logger.Error("cannot translate message", logger.Error(err))
 		return struct{}{}, err
 	}
 	if res == nil || len(res.TranslatedText) == 0 {
@@ -264,7 +264,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 			SkipToxicityCheck: false,
 		},
 	); err != nil {
-		c.logger.Error("cannot send message", slog.Any("err", err))
+		c.logger.Error("cannot send message", logger.Error(err))
 		return struct{}{}, err
 	}
 

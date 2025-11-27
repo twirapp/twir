@@ -12,11 +12,11 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/giveaways/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbusmodel "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	giveawaymodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
@@ -31,7 +31,7 @@ type Opts struct {
 	GiveawaysRepository             giveaways.Repository
 	GiveawaysParticipantsRepository giveaways_participants.Repository
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]giveawaymodel.ChannelGiveaway]
-	Logger                          logger.Logger
+	Logger                          *slog.Logger
 	Redis                           *redis.Client
 	TwirBus                         *buscore.Bus
 }
@@ -53,7 +53,7 @@ type Service struct {
 	giveawaysRepository             giveaways.Repository
 	giveawaysParticipantsRepository giveaways_participants.Repository
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]giveawaymodel.ChannelGiveaway]
-	logger                          logger.Logger
+	logger                          *slog.Logger
 	redis                           *redis.Client
 	twirBus                         *buscore.Bus
 }
@@ -95,11 +95,11 @@ func (c *Service) TryAddParticipant(
 			UserDisplayName: userDisplayName,
 		},
 	); err != nil {
-		c.logger.Error("cannot publish new participant", slog.Any("err", err))
+		c.logger.Error("cannot publish new participant", logger.Error(err))
 	}
 
 	if err := c.redis.Set(ctx, cacheKey, 1, 1*time.Hour).Err(); err != nil {
-		c.logger.Error("cannot set giveaway participant to redis cache", slog.Any("err", err))
+		c.logger.Error("cannot set giveaway participant to redis cache", logger.Error(err))
 	}
 
 	return nil
@@ -130,7 +130,7 @@ func (c *Service) ChooseWinner(
 		},
 	)
 	if err != nil {
-		c.logger.Error("cannot get participants", slog.Any("err", err))
+		c.logger.Error("cannot get participants", logger.Error(err))
 		return nil, err
 	}
 
@@ -153,7 +153,7 @@ func (c *Service) ChooseWinner(
 			// 	)...,
 			// )
 			// if err != nil {
-			// 	c.logger.Error("reset winners error", slog.Any("err", err))
+			// 	c.logger.Error("reset winners error", logger.Error(err))
 			// 	return err
 			// }
 
@@ -168,7 +168,7 @@ func (c *Service) ChooseWinner(
 				},
 			)
 			if err != nil {
-				c.logger.Error("update winner error", slog.Any("err", err))
+				c.logger.Error("update winner error", logger.Error(err))
 				return err
 			}
 			winners = append(winners, winner)
@@ -181,7 +181,7 @@ func (c *Service) ChooseWinner(
 				},
 			)
 			if err != nil {
-				c.logger.Error("update error", slog.Any("err", err))
+				c.logger.Error("update error", logger.Error(err))
 				return err
 			}
 
@@ -189,12 +189,12 @@ func (c *Service) ChooseWinner(
 		},
 	)
 	if err != nil {
-		c.logger.Error("tx error", slog.Any("err", err))
+		c.logger.Error("tx error", logger.Error(err))
 		return nil, err
 	}
 
 	if err := c.giveawaysCacher.Invalidate(ctx, giveaway.ChannelID); err != nil {
-		c.logger.Error("cannot invalidate giveaways cache", slog.Any("err", err))
+		c.logger.Error("cannot invalidate giveaways cache", logger.Error(err))
 	}
 
 	mappedWinners := make([]entity.Winner, 0, len(winners))

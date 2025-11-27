@@ -3,10 +3,10 @@ package roles_with_roles_users
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
@@ -19,7 +19,7 @@ type Opts struct {
 	TrmManager        trm.Manager
 	RolesService      *roles.Service
 	RolesUsersService *roles_users.Service
-	Logger            logger.Logger
+	Logger            *slog.Logger
 }
 
 func New(opts Opts) *Service {
@@ -35,7 +35,7 @@ type Service struct {
 	trmManager        trm.Manager
 	rolesService      *roles.Service
 	rolesUsersService *roles_users.Service
-	logger            logger.Logger
+	logger            *slog.Logger
 }
 
 type CreateInput struct {

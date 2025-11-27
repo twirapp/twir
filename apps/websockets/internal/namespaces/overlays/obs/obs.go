@@ -21,7 +21,7 @@ import (
 type OBS struct {
 	manager *melody.Melody
 	gorm    *gorm.DB
-	logger  logger.Logger
+	logger  *slog.Logger
 	redis   *redis.Client
 	counter prometheus.Gauge
 }
@@ -30,7 +30,7 @@ type Opts struct {
 	fx.In
 
 	Gorm   *gorm.DB
-	Logger logger.Logger
+	Logger *slog.Logger
 	Redis  *redis.Client
 }
 
@@ -55,7 +55,7 @@ func NewObs(opts Opts) *OBS {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
-					opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+					opts.Logger.Error("cannot check user by api key", logger.Error(err))
 				}
 				return
 			}

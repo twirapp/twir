@@ -6,7 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/goccy/go-json"
 	ulid "github.com/oklog/ulid/v2"
@@ -18,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // Winners is the resolver for the winners field.
@@ -271,11 +271,11 @@ func (r *subscriptionResolver) GiveawaysParticipants(ctx context.Context, giveaw
 	go func() {
 		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
-				giveaways.CreateNewPariticipantSubscriptionKeyByGiveawayID(giveawayID),
+				giveaways.CreateNewParticipantSubscriptionKeyByGiveawayID(giveawayID),
 			},
 		)
 		if err != nil {
-			r.deps.Logger.Error("subscription", slog.Any("err", err))
+			r.deps.Logger.Error("subscription", logger.Error(err))
 			return
 		}
 		defer func() {
@@ -290,7 +290,7 @@ func (r *subscriptionResolver) GiveawaysParticipants(ctx context.Context, giveaw
 			case data := <-sub.GetChannel():
 				var notification giveawaysbus.NewParticipant
 				if err := json.Unmarshal(data, &notification); err != nil {
-					r.deps.Logger.Error("cannot parse participant", slog.Any("err", err))
+					r.deps.Logger.Error("cannot parse participant", logger.Error(err))
 					continue
 				}
 

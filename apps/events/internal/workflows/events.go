@@ -3,6 +3,7 @@ package workflows
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,7 +13,6 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/client"
@@ -30,7 +30,7 @@ type EventsWorkflowOpts struct {
 	Gorm                              *gorm.DB
 	Redis                             *redis.Client
 	Hydrator                          *hydrator.Hydrator
-	Logger                            logger.Logger
+	Logger                            *slog.Logger
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
 	ChannelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
 }
@@ -39,7 +39,7 @@ func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 	c, err := client.Dial(
 		client.Options{
 			HostPort: opts.Cfg.TemporalHost,
-			Logger:   log.NewStructuredLogger(opts.Logger.GetSlog()),
+			Logger:   log.NewStructuredLogger(opts.Logger),
 		},
 	)
 	if err != nil {

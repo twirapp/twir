@@ -8,8 +8,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/audit"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
-	"github.com/twirapp/twir/libs/logger/audit"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	"github.com/twirapp/twir/libs/repositories/timers/model"
 )
@@ -69,16 +69,17 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Timer, e
 		return entity.TimerNil, err
 	}
 
-	c.logger.Audit(
-		"Timers update",
-		audit.Fields{
-			OldValue:      timer,
-			NewValue:      newTimer,
-			ActorID:       &data.ActorID,
-			ChannelID:     &data.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(newTimer.ID.String()),
+	_ = c.auditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
+				ActorID:   &data.ActorID,
+				ChannelID: &data.ChannelID,
+				ObjectID:  lo.ToPtr(newTimer.ID.String()),
+			},
+			NewValue: newTimer,
+			OldValue: timer,
 		},
 	)
 

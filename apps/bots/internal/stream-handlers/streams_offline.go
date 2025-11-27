@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/logger"
 
 	model "github.com/twirapp/twir/libs/gomodels"
 )
@@ -27,7 +28,7 @@ func (c *PubSubHandlers) streamsOffline(
 		c.logger.Error(
 			"cannot invalidate greetings cache",
 			slog.String("channelId", data.ChannelID),
-			slog.Any("err", err),
+			logger.Error(err),
 		)
 		return struct{}{}, err
 	}

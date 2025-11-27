@@ -16,7 +16,7 @@ type CommandsAndRolesOpts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 	Config config.Config
 
 	RolesService    *services.Roles
@@ -44,12 +44,12 @@ func NewCommandsAndRoles(opts CommandsAndRolesOpts) {
 							return
 						case <-ticker.C:
 							if err := opts.RolesService.CreateDefaultRoles(ctx); err != nil {
-								opts.Logger.Error("error while creating default roles", slog.Any("err", err))
+								opts.Logger.Error("error while creating default roles", logger.Error(err))
 								return
 							}
 
 							if err := opts.CommandsService.CreateDefaultCommands(ctx); err != nil {
-								opts.Logger.Error("error while creating default commands", slog.Any("err", err))
+								opts.Logger.Error("error while creating default commands", logger.Error(err))
 								return
 							}
 						}

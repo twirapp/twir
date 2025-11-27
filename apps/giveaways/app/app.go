@@ -1,15 +1,15 @@
 package app
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	bus_listener "github.com/twirapp/twir/apps/giveaways/internal/bus-listener"
 	"github.com/twirapp/twir/apps/giveaways/internal/services"
 	"github.com/twirapp/twir/libs/baseapp"
 	giveawayscacher "github.com/twirapp/twir/libs/cache/giveaways"
+	cfg "github.com/twirapp/twir/libs/config"
 	giveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
 	giveawaysrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways/pgx"
 	giveawaysparticipantsrepository "github.com/twirapp/twir/libs/repositories/giveaways_participants"
@@ -42,7 +42,7 @@ var App = fx.Module(
 			}
 		},
 		bus_listener.New,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info("Giveaways started")
 		},
 	),

@@ -9,6 +9,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/zap"
@@ -23,7 +24,7 @@ func (c *Handler) HandleStreamOnline(
 		ctx,
 		redis_keys.StreamByChannelID(event.BroadcasterUserId),
 	).Err(); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	c.logger.Info(
@@ -34,7 +35,7 @@ func (c *Handler) HandleStreamOnline(
 
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 
@@ -45,7 +46,7 @@ func (c *Handler) HandleStreamOnline(
 	)
 
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 

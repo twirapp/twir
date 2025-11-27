@@ -2,8 +2,8 @@ package messagehandler
 
 import (
 	"context"
-	"log/slog"
 
+	"github.com/twirapp/twir/libs/logger"
 	chatmessages "github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
@@ -12,8 +12,8 @@ import (
 
 func (c *MessageHandler) handleSaveMessageBatched(ctx context.Context, data []handleMessage) {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	createMessageInputs := make([]chatmessages.CreateInput, len(data))
 
@@ -31,7 +31,7 @@ func (c *MessageHandler) handleSaveMessageBatched(ctx context.Context, data []ha
 
 	err := c.chatMessagesRepository.CreateMany(ctx, createMessageInputs)
 	if err != nil {
-		c.logger.Error("cannot save chat messages to db", slog.Any("err", err))
+		c.logger.Error("cannot save chat messages to db", logger.Error(err))
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/zap"
 )
 
@@ -106,7 +107,7 @@ func (c *Handler) HandleChannelPollProgress(
 
 	err := c.twirBus.Events.PollProgress.Publish(ctx, msg)
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }
 
@@ -147,6 +148,6 @@ func (c *Handler) HandleChannelPollEnd(
 
 	err := c.twirBus.Events.PollEnd.Publish(ctx, msg)
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }

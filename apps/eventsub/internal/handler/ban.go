@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"math"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 )
@@ -39,14 +39,14 @@ func (c *Handler) handleModerateActionBan(
 			Where(`"id" = ?`, event.BroadcasterUserID).
 			First(&channel).
 			Error; err != nil {
-			c.logger.Error("channel not found", slog.Any("err", err))
+			c.logger.Error("channel not found", logger.Error(err))
 			return
 		}
 
 		if channel.BotID == userId {
 			channel.IsEnabled = false
 			if err := c.gorm.WithContext(ctx).Save(&channel).Error; err != nil {
-				c.logger.Error("failed to disable channel", slog.Any("err", err))
+				c.logger.Error("failed to disable channel", logger.Error(err))
 			}
 
 			return
@@ -105,7 +105,7 @@ func (c *Handler) handleModerateActionBan(
 			},
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	c.websocketsGrpc.DudesUserPunished(

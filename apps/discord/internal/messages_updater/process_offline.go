@@ -13,6 +13,7 @@ import (
 	"github.com/diamondburned/arikawa/v3/utils/json/option"
 	"github.com/samber/lo"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *MessagesUpdater) processOffline(
@@ -80,7 +81,7 @@ func (c *MessagesUpdater) processOffline(
 			)
 
 			if err != nil {
-				c.logger.Error("Failed to delete message", slog.Any("err", err))
+				c.logger.Error("Failed to delete message", logger.Error(err))
 				continue
 			}
 		} else {
@@ -112,7 +113,7 @@ func (c *MessagesUpdater) processOffline(
 			)
 
 			if err != nil {
-				c.logger.Error("Failed to edit message", slog.Any("err", err))
+				c.logger.Error("Failed to edit message", logger.Error(err))
 				continue
 			}
 		}

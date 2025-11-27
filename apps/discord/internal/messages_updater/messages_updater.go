@@ -7,11 +7,11 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/discord/internal/discord_go"
 	"github.com/twirapp/twir/apps/discord/internal/sended_messages_store"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/twitch"
-	buscore "github.com/twirapp/twir/libs/bus-core"
-	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -20,7 +20,7 @@ type Opts struct {
 	fx.In
 
 	Store   *sended_messages_store.SendedMessagesStore
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	LC      fx.Lifecycle
 	Config  cfg.Config
 	DB      *gorm.DB
@@ -36,7 +36,7 @@ func New(opts Opts) (*MessagesUpdater, error) {
 
 	updater := &MessagesUpdater{
 		store:        opts.Store,
-		logger:       opts.Logger.WithComponent("messages_updater"),
+		logger:       logger.WithComponent(opts.Logger, "messages_updater"),
 		config:       opts.Config,
 		db:           opts.DB,
 		discord:      opts.Discord,
@@ -51,7 +51,7 @@ func New(opts Opts) (*MessagesUpdater, error) {
 					"discord",
 					func(ctx context.Context, data bustwitch.StreamOnlineMessage) (struct{}, error) {
 						if err := updater.processOnline(ctx, data.ChannelID); err != nil {
-							opts.Logger.Error("Failed to process online", slog.Any("err", err))
+							opts.Logger.Error("Failed to process online", logger.Error(err))
 							return struct{}{}, err
 						}
 
@@ -63,7 +63,7 @@ func New(opts Opts) (*MessagesUpdater, error) {
 					"discord",
 					func(ctx context.Context, data bustwitch.StreamOfflineMessage) (struct{}, error) {
 						if err := updater.processOffline(ctx, data.ChannelID); err != nil {
-							opts.Logger.Error("Failed to process offline", slog.Any("err", err))
+							opts.Logger.Error("Failed to process offline", logger.Error(err))
 							return struct{}{}, err
 						}
 
@@ -87,7 +87,7 @@ func New(opts Opts) (*MessagesUpdater, error) {
 
 type MessagesUpdater struct {
 	store   *sended_messages_store.SendedMessagesStore
-	logger  logger.Logger
+	logger  *slog.Logger
 	config  cfg.Config
 	db      *gorm.DB
 	discord *discord_go.Discord

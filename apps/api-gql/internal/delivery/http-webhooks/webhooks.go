@@ -1,11 +1,12 @@
 package http_webhooks
 
 import (
+	"log/slog"
+
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/pubsub"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -17,7 +18,7 @@ type Opts struct {
 	Server  *server.Server
 	KV      kv.KV
 	Db      *gorm.DB
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	Config  cfg.Config
 	TwirBus *buscore.Bus
 }
@@ -25,7 +26,7 @@ type Opts struct {
 type Webhooks struct {
 	kv      kv.KV
 	db      *gorm.DB
-	logger  logger.Logger
+	logger  *slog.Logger
 	config  cfg.Config
 	pubSub  *pubsub.PubSub
 	twirBus *buscore.Bus

@@ -32,7 +32,7 @@ type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 	Cfg    cfg.Config
 	Db     *gorm.DB
 	Redis  *redis.Client
@@ -274,7 +274,7 @@ func New(opts Opts) error {
 type EventsGrpcImplementation struct {
 	db     *gorm.DB
 	redis  *redis.Client
-	logger logger.Logger
+	logger *slog.Logger
 	cfg    cfg.Config
 
 	websocketsGrpc websockets.WebsocketClient
@@ -297,7 +297,7 @@ func (c *EventsGrpcImplementation) Follow(
 			var stream *deprecatedgormmodel.ChannelsStreams
 			if err := c.db.Where(`"userId" = ?`, msg.BaseInfo.ChannelID).
 				Find(&stream).Error; err != nil {
-				c.logger.Error("Error get stream", slog.Any("err", err))
+				c.logger.Error("Error get stream", logger.Error(err))
 				return
 			}
 
@@ -313,7 +313,7 @@ func (c *EventsGrpcImplementation) Follow(
 					},
 				)
 				if err != nil {
-					c.logger.Error("Error get stream followers count", slog.Any("err", err))
+					c.logger.Error("Error get stream followers count", logger.Error(err))
 					return
 				}
 
@@ -327,7 +327,7 @@ func (c *EventsGrpcImplementation) Follow(
 				c.twirBus,
 			)
 			if err != nil {
-				c.logger.Error("Error create twitch client", slog.Any("err", err))
+				c.logger.Error("Error create twitch client", logger.Error(err))
 				return
 			}
 
@@ -337,7 +337,7 @@ func (c *EventsGrpcImplementation) Follow(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error get channel followers", slog.Any("err", err))
+				c.logger.Error("Error get channel followers", logger.Error(err))
 				return
 			}
 
@@ -354,7 +354,7 @@ func (c *EventsGrpcImplementation) Follow(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -394,7 +394,7 @@ func (c *EventsGrpcImplementation) Subscribe(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -441,7 +441,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -485,7 +485,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -529,7 +529,7 @@ func (c *EventsGrpcImplementation) CommandUsed(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -558,7 +558,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -599,7 +599,7 @@ func (c *EventsGrpcImplementation) Raided(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -640,7 +640,7 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -668,7 +668,7 @@ func (c *EventsGrpcImplementation) StreamOnline(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -705,7 +705,7 @@ func (c *EventsGrpcImplementation) StreamOffline(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -746,7 +746,7 @@ func (c *EventsGrpcImplementation) SubGift(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -772,7 +772,7 @@ func (c *EventsGrpcImplementation) ChatClear(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -813,7 +813,7 @@ func (c *EventsGrpcImplementation) Donate(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -839,7 +839,7 @@ func (c *EventsGrpcImplementation) Donate(
 			)
 
 			if err != nil {
-				c.logger.Error("Error processing donation", slog.Any("err", err))
+				c.logger.Error("Error processing donation", logger.Error(err))
 			}
 		},
 	)
@@ -871,7 +871,7 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -901,7 +901,7 @@ func (c *EventsGrpcImplementation) GreetingSended(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -937,7 +937,7 @@ func (c *EventsGrpcImplementation) PollBegin(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -979,7 +979,7 @@ func (c *EventsGrpcImplementation) PollProgress(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -1032,7 +1032,7 @@ func (c *EventsGrpcImplementation) PollEnd(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -1067,7 +1067,7 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -1108,7 +1108,7 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -1150,7 +1150,7 @@ func (c *EventsGrpcImplementation) PredictionLock(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -1204,7 +1204,7 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -1230,7 +1230,7 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -1261,7 +1261,7 @@ func (c *EventsGrpcImplementation) ChannelBan(
 				},
 			)
 			if err != nil {
-				c.logger.Error("Error execute workflow", slog.Any("err", err))
+				c.logger.Error("Error execute workflow", logger.Error(err))
 			}
 		},
 	)
@@ -1304,7 +1304,7 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestCreate(
 		},
 	)
 	if err != nil {
-		c.logger.Error("Error execute workflow", slog.Any("err", err))
+		c.logger.Error("Error execute workflow", logger.Error(err))
 	}
 
 	return struct{}{}, nil
@@ -1328,7 +1328,7 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestResolve(
 		},
 	)
 	if err != nil {
-		c.logger.Error("Error execute workflow", slog.Any("err", err))
+		c.logger.Error("Error execute workflow", logger.Error(err))
 	}
 
 	return struct{}{}, nil
@@ -1356,7 +1356,7 @@ func (c *EventsGrpcImplementation) ChannelMessageDelete(
 		},
 	)
 	if err != nil {
-		c.logger.Error("Error execute workflow", slog.Any("err", err))
+		c.logger.Error("Error execute workflow", logger.Error(err))
 	}
 
 	return struct{}{}, nil

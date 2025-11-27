@@ -10,16 +10,15 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	"gorm.io/gorm"
 )
 
 type Roles struct {
 	db     *gorm.DB
-	logger logger.Logger
+	logger *slog.Logger
 }
 
-func NewRoles(db *gorm.DB, l logger.Logger) *Roles {
+func NewRoles(db *gorm.DB, l *slog.Logger) *Roles {
 	return &Roles{
 		db:     db,
 		logger: l,

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -28,7 +29,7 @@ func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) erro
 		for _, sub := range existedSubsRes.Data.EventSubSubscriptions {
 			res, err := twitchClient.RemoveEventSubSubscription(sub.ID)
 			if err != nil {
-				c.logger.Warn("failed to remove subscription", slog.Any("err", err))
+				c.logger.Warn("failed to remove subscription", logger.Error(err))
 			}
 			if res.ErrorMessage != "" {
 				c.logger.Warn("failed to remove subscription", slog.String("error", res.ErrorMessage))

@@ -2,11 +2,11 @@ package discord_go
 
 import (
 	"fmt"
-	"log/slog"
 
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/samber/lo"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *Discord) handleGuildDelete(e *gateway.GuildDeleteEvent) {
@@ -18,7 +18,7 @@ func (c *Discord) handleGuildDelete(e *gateway.GuildDeleteEvent) {
 	if err := c.db.
 		Where(`data->'discord'->'guilds' @> ?::jsonb`, fmt.Sprintf(`[{"id": "%s"}]`, e.ID)).
 		Find(&integrations).Error; err != nil {
-		c.logger.Error("failed to find channels integrations", slog.Any("error", err))
+		c.logger.Error("failed to find channels integrations", logger.Error(err))
 		return
 	}
 
@@ -31,7 +31,7 @@ func (c *Discord) handleGuildDelete(e *gateway.GuildDeleteEvent) {
 		)
 
 		if err := c.db.Save(&integration).Error; err != nil {
-			c.logger.Error("failed to save channels integrations", slog.Any("error", err))
+			c.logger.Error("failed to save channels integrations", logger.Error(err))
 			return
 		}
 	}

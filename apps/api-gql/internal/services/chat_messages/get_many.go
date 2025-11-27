@@ -33,9 +33,9 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.Cha
 		return nil, fmt.Errorf("failed to get chat messages: %w", err)
 	}
 
-	convertedMessages := make([]entity.ChatMessage, 0, len(messages))
-	for _, m := range messages {
-		convertedMessages = append(convertedMessages, c.modelToGql(m))
+	convertedMessages := make([]entity.ChatMessage, len(messages))
+	for i, message := range messages {
+		convertedMessages[i] = c.modelToGql(message)
 	}
 
 	return convertedMessages, nil

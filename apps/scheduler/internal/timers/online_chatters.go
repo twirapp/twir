@@ -11,11 +11,11 @@ import (
 	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/twitch"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -24,7 +24,7 @@ type OnlineUsersOpts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 	Config config.Config
 
 	Gorm    *gorm.DB
@@ -33,7 +33,7 @@ type OnlineUsersOpts struct {
 
 type onlineUsers struct {
 	config  config.Config
-	logger  logger.Logger
+	logger  *slog.Logger
 	db      *gorm.DB
 	twirBus *buscore.Bus
 }
@@ -82,7 +82,7 @@ func NewOnlineUsers(opts OnlineUsersOpts) {
 func (c *onlineUsers) updateOnlineUsers(ctx context.Context) {
 	streams, err := c.getStreams(ctx)
 	if err != nil {
-		c.logger.Error("cannot get streams", slog.Any("err", err))
+		c.logger.Error("cannot get streams", logger.Error(err))
 		return
 	}
 

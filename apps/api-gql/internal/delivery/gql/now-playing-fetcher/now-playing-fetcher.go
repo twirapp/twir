@@ -21,7 +21,7 @@ import (
 )
 
 type Opts struct {
-	Logger            logger.Logger
+	Logger            *slog.Logger
 	SpotifyRepository channelsintegrationsspotify.Repository
 	Gorm              *gorm.DB
 	Kv                kv.KV
@@ -30,7 +30,7 @@ type Opts struct {
 
 type NowPlayingFetcher struct {
 	spotifyRepository channelsintegrationsspotify.Repository
-	logger            logger.Logger
+	logger            *slog.Logger
 
 	gorm *gorm.DB
 	kv   kv.KV
@@ -161,7 +161,7 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 		if err != nil {
 			c.logger.Error(
 				"cannot fetch spotify track",
-				slog.Any("err", err),
+				logger.Error(err),
 				slog.String("channel_id", c.channelId),
 			)
 		}
@@ -179,7 +179,7 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 		lastfmTrack, err := c.lastfmService.GetTrack()
 		c.logger.Error(
 			"cannot fetch lastfm track",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channel_id", c.channelId),
 		)
 
@@ -197,7 +197,7 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 		if err != nil {
 			c.logger.Error(
 				"cannot fetch vk track",
-				slog.Any("err", err),
+				logger.Error(err),
 				slog.String("channel_id", c.channelId),
 			)
 		}

@@ -2,10 +2,10 @@ package messagehandler
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -19,7 +19,7 @@ func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []h
 			ctx,
 			removeLurkerRedisCacheKey+msg.ChatterUserId,
 		).Result(); err != nil {
-			c.logger.Error("cannot remove lurker", slog.Any("err", err))
+			c.logger.Error("cannot remove lurker", logger.Error(err))
 			continue
 		} else if exists == 1 {
 			continue
@@ -28,14 +28,14 @@ func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []h
 		ignoredUser := &model.IgnoredUser{}
 		err := c.gorm.WithContext(ctx).Where(`"id" = ?`, msg.ChatterUserId).Find(ignoredUser).Error
 		if err != nil {
-			c.logger.Error("cannot remove lurker", slog.Any("err", err))
+			c.logger.Error("cannot remove lurker", logger.Error(err))
 			continue
 		}
 
 		if ignoredUser.ID != "" && !ignoredUser.Force {
 			err = c.gorm.WithContext(ctx).Delete(ignoredUser).Error
 			if err != nil {
-				c.logger.Error("cannot remove lurker", slog.Any("err", err))
+				c.logger.Error("cannot remove lurker", logger.Error(err))
 				continue
 			}
 		}
@@ -47,7 +47,7 @@ func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []h
 			1*time.Hour,
 		).Err()
 		if err != nil {
-			c.logger.Error("cannot remove lurker", slog.Any("err", err))
+			c.logger.Error("cannot remove lurker", logger.Error(err))
 			continue
 		}
 	}
@@ -55,8 +55,8 @@ func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []h
 
 func (c *MessageHandler) handleRemoveLurker(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	c.messagesLurkersBatcher.Add(msg)
 	return nil

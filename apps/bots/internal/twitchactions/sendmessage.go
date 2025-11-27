@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
 	"github.com/twirapp/twir/libs/twitch"
@@ -42,12 +43,17 @@ var allowedSlashCommands = []string{
 }
 
 func validateResponseSlashes(response string) string {
-	if slices.ContainsFunc(allowedSlashCommands, func(s string) bool {
-		return strings.HasPrefix(response, s)
-	}) {
+	if slices.ContainsFunc(
+		allowedSlashCommands, func(s string) bool {
+			return strings.HasPrefix(response, s)
+		},
+	) {
 		return response
 	} else if strings.HasPrefix(response, "/") {
-		return fmt.Sprintf("Slash commands except %s is disallowed. This response wont be ever sended.", strings.Join(allowedSlashCommands, ", "))
+		return fmt.Sprintf(
+			"Slash commands except %s is disallowed. This response wont be ever sended.",
+			strings.Join(allowedSlashCommands, ", "),
+		)
 	} else if strings.HasPrefix(response, ".") {
 		return `Message cannot start with "." symbol.`
 	} else {
@@ -130,7 +136,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	// if !opts.SkipToxicityCheck {
 	// 	t, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
 	// 	if err != nil {
-	// 		c.logger.Error("cannot check toxicity", slog.Any("err", err))
+	// 		c.logger.Error("cannot check toxicity", logger.Error(err))
 	// 		// return fmt.Errorf("cannot send message: %w", err)
 	// 	} else {
 	// 		toxicity = t
@@ -157,7 +163,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 					Text:          part,
 				},
 			); err != nil {
-				c.logger.Warn("Cannot save toxic message to db", slog.Any("err", err))
+				c.logger.Warn("Cannot save toxic message to db", logger.Error(err))
 			}
 
 			message = "[TwirApp] Redacted due toxicity validation. Contact support if you sure there is no toxicity."
@@ -258,7 +264,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 					},
 				)
 				if err != nil {
-					c.logger.Warn("Cannot save message to db", slog.Any("err", err))
+					c.logger.Warn("Cannot save message to db", logger.Error(err))
 				}
 			}
 		}

@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	channelredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
@@ -98,7 +99,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			},
 		)
 		if err != nil {
-			c.logger.Error(err.Error(), slog.Any("err", err))
+			c.logger.Error(err.Error(), logger.Error(err))
 		}
 
 		if _, ok := usersForIncrementUsedEmotes[event.BroadcasterUserId+event.UserId]; ok {
@@ -170,21 +171,21 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 				userForIncrement.cost,
 			)
 			if err != nil {
-				c.logger.Error(err.Error(), slog.Any("err", err))
+				c.logger.Error(err.Error(), logger.Error(err))
 			}
 		}
 
 		if len(itemsForHistoryCreate) > 0 {
 			err := c.redemptionsHistoryRepository.CreateMany(ctxWithoutCancel, itemsForHistoryCreate)
 			if err != nil {
-				c.logger.Error(err.Error(), slog.Any("err", err))
+				c.logger.Error(err.Error(), logger.Error(err))
 			}
 		}
 
 		if len(itemsForEventsCreate) > 0 {
 			err := c.eventsListRepository.CreateMany(ctxWithoutCancel, itemsForEventsCreate)
 			if err != nil {
-				c.logger.Error(err.Error(), slog.Any("err", err))
+				c.logger.Error(err.Error(), logger.Error(err))
 			}
 		}
 	}()
@@ -210,7 +211,7 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 	userStats := &model.UsersStats{}
 	err := c.gorm.WithContext(ctx).Where(`"userId" = ?`, event.UserId).Find(userStats).Error
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 	if userStats.ID == "" {
@@ -219,7 +220,7 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 	userStats.UsedChannelPoints -= int64(event.Reward.Cost)
 	err = c.gorm.WithContext(ctx).Save(userStats).Error
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 }

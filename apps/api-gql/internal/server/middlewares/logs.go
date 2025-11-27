@@ -7,9 +7,9 @@ import (
 	sloggin "github.com/samber/slog-gin"
 )
 
-func (m *Middlewares) Logging(c *gin.Context) {
-	sloggin.NewWithConfig(
-		m.logger.GetSlog(),
+func (m *Middlewares) Logger() gin.HandlerFunc {
+	return sloggin.NewWithConfig(
+		m.logger,
 		sloggin.Config{
 			DefaultLevel:     slog.LevelInfo,
 			ClientErrorLevel: slog.LevelWarn,

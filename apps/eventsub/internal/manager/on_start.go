@@ -9,6 +9,7 @@ import (
 
 	"github.com/imroc/req/v3"
 	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twir/libs/logger"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
 )
 
@@ -54,7 +55,7 @@ func (c *Manager) createConduit() error {
 		"", // channelId, not needed for this event
 		"", // botId, not needed for this event
 	); err != nil {
-		c.logger.Error("Failed to subscribe to UserAuthorizationRevoke event", slog.Any("err", err))
+		c.logger.Error("Failed to subscribe to UserAuthorizationRevoke event", logger.Error(err))
 	} else {
 		c.logger.Info("Subscribed to UserAuthorizationRevoke event")
 	}

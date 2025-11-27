@@ -3,6 +3,7 @@ package grpc_impl
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 
 	"github.com/redis/go-redis/v9"
@@ -14,7 +15,6 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/logger"
 	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
@@ -35,7 +35,7 @@ type GrpcImpl struct {
 
 	gorm   *gorm.DB
 	redis  *redis.Client
-	logger logger.Logger
+	logger *slog.Logger
 
 	youTubeServer          *youtube.YouTube
 	obsServer              *obs.OBS
@@ -51,7 +51,7 @@ type GrpcOpts struct {
 
 	Gorm   *gorm.DB
 	Redis  *redis.Client
-	Logger logger.Logger
+	Logger *slog.Logger
 
 	YouTubeServer          *youtube.YouTube
 	OBSServer              *obs.OBS

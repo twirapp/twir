@@ -1,11 +1,12 @@
 package app
 
 import (
+	"log/slog"
+
 	bus_listener "github.com/twirapp/twir/apps/timers/internal/bus-listener"
 	"github.com/twirapp/twir/apps/timers/internal/manager"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
-	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
@@ -32,7 +33,7 @@ var App = fx.Module(
 	fx.Invoke(
 		uptrace.NewFx("timers"),
 		bus_listener.New,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info("🚀 Timers service started")
 		},
 	),

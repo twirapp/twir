@@ -1,6 +1,8 @@
 package impl_protected
 
 import (
+	"log/slog"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
@@ -13,7 +15,6 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelseventsmodel "github.com/twirapp/twir/libs/repositories/events/model"
 	"go.uber.org/fx"
@@ -32,7 +33,7 @@ type Opts struct {
 
 	WebsocketsGrpc    websockets.WebsocketClient
 	DiscordGrpc       discord.DiscordClient
-	Logger            logger.Logger
+	Logger            *slog.Logger
 	SpotifyRepository channelsintegrationsspotify.Repository
 
 	Redis          *redis.Client

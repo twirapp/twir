@@ -7,11 +7,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/greetings/model"
@@ -22,21 +21,21 @@ type Opts struct {
 	fx.In
 
 	GreetingsRepository greetings.Repository
-	Logger              logger.Logger
+	AuditRecorder       audit.Recorder
 	GreetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		greetingsRepository: opts.GreetingsRepository,
-		logger:              opts.Logger,
+		auditRecorder:       opts.AuditRecorder,
 		greetingsCache:      opts.GreetingsCache,
 	}
 }
 
 type Service struct {
 	greetingsRepository greetings.Repository
-	logger              logger.Logger
+	auditRecorder       audit.Recorder
 	greetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
 }
 
@@ -126,15 +125,16 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 		return entity.GreetingNil, err
 	}
 
-	c.logger.Audit(
-		"New greeting",
-		audit.Fields{
-			NewValue:      newGreeting,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
-			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(newGreeting.ID.String()),
+	_ = c.auditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(newGreeting.ID.String()),
+			},
+			NewValue: newGreeting,
 		},
 	)
 
@@ -187,15 +187,17 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		return entity.GreetingNil, err
 	}
 
-	c.logger.Audit(
-		"Update greeting",
-		audit.Fields{
-			OldValue:      dbGreeting,
-			NewValue:      newGreeting,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
-			OperationType: audit.OperationUpdate,
+	_ = c.auditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(newGreeting.ID.String()),
+			},
+			NewValue: newGreeting,
+			OldValue: dbGreeting,
 		},
 	)
 
@@ -235,15 +237,16 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 		return err
 	}
 
-	c.logger.Audit(
-		"Remove greeting",
-		audit.Fields{
-			OldValue:      dbGreeting,
-			ActorID:       lo.ToPtr(input.ActorID),
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
-			OperationType: audit.OperationDelete,
-			ObjectID:      lo.ToPtr(dbGreeting.ID.String()),
+	_ = c.auditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
+				ActorID:   lo.ToPtr(input.ActorID),
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(dbGreeting.ID.String()),
+			},
+			OldValue: dbGreeting,
 		},
 	)
 

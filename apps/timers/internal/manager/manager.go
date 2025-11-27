@@ -12,7 +12,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/timers"
@@ -25,7 +24,7 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	Repository        timers.Repository
-	Logger            logger.Logger
+	Logger            *slog.Logger
 	ChannelCachedRepo *generic_cacher.GenericCacher[channelmodel.Channel]
 	Redis             *redis.Client
 	TwirBus           *buscore.Bus
@@ -70,7 +69,7 @@ type Manager struct {
 	timers map[TimerID]*Timer
 
 	repository        timers.Repository
-	logger            logger.Logger
+	logger            *slog.Logger
 	stopChan          chan struct{}
 	channelCachedRepo *generic_cacher.GenericCacher[channelmodel.Channel]
 	redis             *redis.Client

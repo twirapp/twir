@@ -4,6 +4,6 @@ const (
 	newParticipantsSubscriptionKey = "api-gql.giveaways.newParticipants"
 )
 
-func CreateNewPariticipantSubscriptionKeyByGiveawayID(giveawayID string) string {
+func CreateNewParticipantSubscriptionKeyByGiveawayID(giveawayID string) string {
 	return newParticipantsSubscriptionKey + "." + giveawayID
 }

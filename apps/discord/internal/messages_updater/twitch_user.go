@@ -1,7 +1,7 @@
 package messages_updater
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/nicklaw5/helix/v2"
 )
@@ -12,9 +12,14 @@ func (c *MessagesUpdater) getTwitchUser(userId string) (helix.User, error) {
 			IDs: []string{userId},
 		},
 	)
-	if len(users.Data.Users) == 0 {
-		return helix.User{}, fmt.Errorf("user not found")
+	if err != nil {
+		return helix.User{}, err
 	}
 
-	return users.Data.Users[0], err
+	if users == nil || len(users.Data.Users) == 0 {
+		return helix.User{}, errors.New("user not found")
+	}
+
+	twitchUser := users.Data.Users[0]
+	return twitchUser, nil
 }

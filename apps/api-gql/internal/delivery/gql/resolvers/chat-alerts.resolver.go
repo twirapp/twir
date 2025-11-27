@@ -14,8 +14,9 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/libs/audit"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/utils"
 	"gorm.io/gorm"
 )
@@ -76,21 +77,22 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 		return nil, err
 	}
 
-	r.deps.Logger.Audit(
-		"Chat alerts updated",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsChatAlerts),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      &entity.ID,
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsChatAlerts),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  &entity.ID,
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 
 	if err := r.deps.ChatAlertsCache.Invalidate(ctx, dashboardId); err != nil {
-		r.deps.Logger.Error("failed to invalidate chat alerts cache", err)
+		r.deps.Logger.Error("failed to invalidate chat alerts cache", logger.Error(err))
 	}
 
 	return r.Query().ChatAlerts(ctx)

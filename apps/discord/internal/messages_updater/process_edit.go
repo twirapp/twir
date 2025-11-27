@@ -9,6 +9,7 @@ import (
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/state"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *MessagesUpdater) updateDiscordMessages(
@@ -41,7 +42,7 @@ func (c *MessagesUpdater) updateDiscordMessages(
 
 			twitchUser, err := c.getTwitchUser(stream.UserId)
 			if err != nil {
-				c.logger.Error("Failed to get twitch user", slog.Any("err", err))
+				c.logger.Error("Failed to get twitch user", logger.Error(err))
 				continue
 			}
 
@@ -86,7 +87,7 @@ func (c *MessagesUpdater) updateDiscordMessages(
 			)
 
 			if err != nil {
-				c.logger.Error("Failed to edit message", slog.Any("err", err))
+				c.logger.Error("Failed to edit message", logger.Error(err))
 				continue
 			}
 		}

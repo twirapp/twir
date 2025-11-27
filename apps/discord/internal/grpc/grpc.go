@@ -3,12 +3,12 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"strconv"
 
 	arikawa_state "github.com/diamondburned/arikawa/v3/state"
 	"github.com/twirapp/twir/apps/discord/internal/discord_go"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -24,7 +24,7 @@ type Opts struct {
 	fx.In
 
 	LC      fx.Lifecycle
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	Discord *discord_go.Discord
 }
 
