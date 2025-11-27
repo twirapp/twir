@@ -4,7 +4,7 @@ add:
   category_change: '✅ {categoryName}'
 errors:
   # Twitch-channel
-  broadcaster_twitch_client_cannot_create: Cannot create broadcaster twitch client
+  broadcaster_twitch_client_cannot_create: Nepodarilo sa vytvoriť Twitch klienta pre streamera
   broadcaster_twitch_api_client: 'Nepodarilo sa vytvoriť Twitch API klienta pre vysielateľa: {reason}'
   # Channel
   channel_cannot_get_information: Nepodarilo sa získať informácie o kanáli

@@ -1,15 +1,15 @@
 info:
-  lastfm_integration: LastFM integration not enabled
-  spotify_not_connected: Spotify not connected
-  failed_get_spotify_integration: Failed to get spotify integration
-  get_spotify_entity: Failed to get spotify entity
-  get_spotify_integration: 'Cannot get spotify integration: {reason}'
-  history: '{trackTitle} - {trackArtist} (~{minutes}m ago)'
-  no_needed_scope: 'No needed scope, reconnect spotify in dashboard'
-  no_integrations: No integrations connected
+  lastfm_integration: Integrácia LastFM nie je povolená
+  spotify_not_connected: Spotify nie je pripojené
+  failed_get_spotify_integration: Nepodarilo sa načítať integráciu so Spotify
+  get_spotify_entity: Chyba pri získavaní entity zo Spotify
+  get_spotify_integration: 'Nepodarilo sa načítať integráciu so Spotify: {reason}'
+  history: '{trackTitle} – {trackArtist} (pred ~{minutes} minútami)'
+  no_needed_scope: 'Chýbajú potrebné práva, pripoj Spotify znova v ovládacom paneli'
+  no_integrations: Nie sú pripojené žiadne integrácie
 errors:
-  get_recent_tracks: 'Cannot get recent tracks: {reason}'
-  create_lastfm_service: 'Cannot create lastfm service: {reason}'
-  fetch_tracks_lastfm: 'Cannot fetch tracks from lastfm: {reason}'
-  fetch_tracks_spotify: 'Cannot fetch tracks from spotify: {reason}'
-  parse_played_at: Cannot parse played at
+  get_recent_tracks: 'Nepodarilo sa získať nedávne skladby: {reason}'
+  create_lastfm_service: 'Nepodarilo sa vytvoriť LastFM službu: {reason}'
+  fetch_tracks_lastfm: 'Nepodarilo sa načítať skladby z LastFM: {reason}'
+  fetch_tracks_spotify: 'Nepodarilo sa načítať skladby zo Spotify: {reason}'
+  parse_played_at: Nepodarilo sa spracovať čas prehrania

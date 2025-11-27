@@ -14,7 +14,7 @@ errors:
   # Other
   get_users_count: Nepodarilo sa získať počet online používateľov
   get_votes_count: Nepodarilo sa získať počet hlasov
-  get_current_vote: Cannot get current vote
+  get_current_vote: Nepodarilo sa získať aktuálne hlasovanie
 info:
   delete: 'Pieseň {songTitle} bola odstránená z frontu'
   song_skipped: 'Pieseň {songTitle} bola preskočená'
