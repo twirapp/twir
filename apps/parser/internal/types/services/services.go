@@ -23,6 +23,7 @@ import (
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
+	channelsgamesvotebanprogressstate "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -71,9 +72,10 @@ type Services struct {
 	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
 	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
 	ChatMessagesRepo           chatmessagesrepository.Repository
-	ChannelEventListsRepo      channelseventslist.Repository
-	ChannelsGamesVotebanRepo   channelsgamesvoteban.Repository
-	ShortUrlServices           *shortenedurls.Service
+	ChannelEventListsRepo              channelseventslist.Repository
+	ChannelsGamesVotebanRepo           channelsgamesvoteban.Repository
+	ChannelsGamesVotebanProgressState  channelsgamesvotebanprogressstate.Repository
+	ShortUrlServices                   *shortenedurls.Service
 	Executron                  executron.Executron
 	I18n                       *i18n.I18n
 }

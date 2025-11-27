@@ -28,6 +28,7 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsgamesvotebanmodel "github.com/twirapp/twir/libs/repositories/channels_games_voteban/model"
+	channelsgamesvotebanprogressstate "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -72,6 +73,7 @@ type Opts struct {
 	GiveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	ChannelsGamesVotebanCacher       *generic_cacher.GenericCacher[channelsgamesvotebanmodel.VoteBan]
+	VotebanProgressStateRepository   channelsgamesvotebanprogressstate.Repository
 
 	TrmManager trm.Manager
 
@@ -99,6 +101,7 @@ type MessageHandler struct {
 	giveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	channelsGamesVotebanCacher       *generic_cacher.GenericCacher[channelsgamesvotebanmodel.VoteBan]
+	votebanProgressStateRepository   channelsgamesvotebanprogressstate.Repository
 
 	keywordsService *keywords.Service
 	ttsService      *tts.Service
@@ -141,6 +144,7 @@ func New(opts Opts) *MessageHandler {
 		trmManager:                       opts.TrmManager,
 		usersRepository:                  opts.UsersRepository,
 		channelsGamesVotebanCacher:       opts.ChannelsGamesVotebanCacher,
+		votebanProgressStateRepository:   opts.VotebanProgressStateRepository,
 
 		workersPool: opts.WorkersPool,
 	}

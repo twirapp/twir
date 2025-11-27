@@ -45,6 +45,7 @@ import (
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
 	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
+	channelsgamesvotebanprogressstateredis "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state/redis"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
@@ -234,6 +235,7 @@ func main() {
 	chatMessagesRepo := chatmessagesrepositoryclickhouse.New(chatmessagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 	channelsEventListRepo := channelseventslistpostgres.New(channelseventslistpostgres.Opts{PgxPool: pgxconn})
 	channelsGamesVotebanRepo := channelsgamesvotebanpgx.New(channelsgamesvotebanpgx.Opts{PgxPool: pgxconn})
+	channelsGamesVotebanProgressStateRepo := channelsgamesvotebanprogressstateredis.New(channelsgamesvotebanprogressstateredis.Opts{Redis: redisClient})
 
 	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
@@ -294,9 +296,10 @@ func main() {
 		),
 		ChannelEmotesUsagesRepo:    channelsEmotesUsage,
 		ChannelsCommandsUsagesRepo: channelsCommandsUsagesRepo,
-		ChatMessagesRepo:           chatMessagesRepo,
-		ChannelsGamesVotebanRepo:   channelsGamesVotebanRepo,
-		Executron:                  executron.New(*config, redisClient),
+		ChatMessagesRepo:                  chatMessagesRepo,
+		ChannelsGamesVotebanRepo:          channelsGamesVotebanRepo,
+		ChannelsGamesVotebanProgressState: channelsGamesVotebanProgressStateRepo,
+		Executron:                         executron.New(*config, redisClient),
 		I18n:                       translationService,
 	}
 
