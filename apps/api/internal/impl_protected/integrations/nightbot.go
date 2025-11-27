@@ -19,7 +19,9 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api/internal/helpers"
 	"github.com/twirapp/twir/libs/api/messages/integrations_nightbot"
+	"github.com/twirapp/twir/libs/bus-core/timers"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -146,7 +148,12 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 		return nil, errors.New("enable nightbot integration first")
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.nightbot.tv/1/commands", nil)
+	httpReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		"https://api.nightbot.tv/1/commands",
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -374,6 +381,10 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 		importedCount++
 	}
 
+	if err := c.ChannelsCommandsCache.Invalidate(ctx, dashboardId); err != nil {
+		c.Logger.Error("failed to invalidate commands cacher after nightbot import", logger.Error(err))
+	}
+
 	return &integrations_nightbot.ImportCommandsResponse{
 		ImportedCount:       int32(importedCount),
 		FailedCount:         int32(failedCount),
@@ -403,7 +414,12 @@ func (c *Integrations) IntegrationsNightbotImportTimers(
 		return nil, errors.New("enable nightbot integration first")
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.nightbot.tv/1/timers", nil)
+	httpReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		"https://api.nightbot.tv/1/timers",
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -444,7 +460,6 @@ func (c *Integrations) IntegrationsNightbotImportTimers(
 		}, nil
 	}
 
-	importedCount := 0
 	failedCount := 0
 	failedTimersNames := []string{}
 
@@ -455,6 +470,8 @@ func (c *Integrations) IntegrationsNightbotImportTimers(
 	).Count(&currentCount).Error; err != nil {
 		return nil, fmt.Errorf("cannot get timers count time: %w", err)
 	}
+
+	var createdTimers []model.ChannelsTimers
 
 	spaceLeft := 10 - currentCount
 	re := regexp.MustCompile(`\*/(\d+)|(\d+) \* \* \* \*`)
@@ -533,12 +550,25 @@ func (c *Integrations) IntegrationsNightbotImportTimers(
 			continue
 		}
 
-		importedCount++
+		createdTimers = append(createdTimers, *entity)
+
 		spaceLeft--
 	}
 
+	for _, timer := range createdTimers {
+		if err := c.Bus.Timers.AddTimer.Publish(
+			ctx,
+			timers.AddOrRemoveTimerRequest{TimerID: timer.ID},
+		); err != nil {
+			c.Logger.Error(
+				"failed to publish add timer bus event after nightbot import",
+				logger.Error(err),
+			)
+		}
+	}
+
 	return &integrations_nightbot.ImportTimersResponse{
-		ImportedCount:     int32(importedCount),
+		ImportedCount:     int32(len(createdTimers)),
 		FailedCount:       int32(failedCount),
 		FailedTimersNames: failedTimersNames,
 	}, nil

@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	commandwithgroupandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	channelseventsmodel "github.com/twirapp/twir/libs/repositories/events/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -43,6 +44,7 @@ type Opts struct {
 	Bus                               *buscore.Bus
 	Config                            config.Config
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]channelseventsmodel.Event]
+	CommandsCache                     *generic_cacher.GenericCacher[[]commandwithgroupandresponsesmodel.CommandWithGroupAndResponses]
 }
 
 func New(opts Opts) *Protected {
@@ -59,6 +61,7 @@ func New(opts Opts) *Protected {
 		Bus:                               opts.Bus,
 		SpotifyRepo:                       opts.SpotifyRepository,
 		ChannelsEventsWithOperationsCache: opts.ChannelsEventsWithOperationsCache,
+		ChannelsCommandsCache:             opts.CommandsCache,
 	}
 
 	return &Protected{

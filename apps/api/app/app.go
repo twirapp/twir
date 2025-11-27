@@ -17,12 +17,15 @@ import (
 	"github.com/twirapp/twir/apps/api/internal/twirp_handlers"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
+	commandswithgroupsandresponsescache "github.com/twirapp/twir/libs/cache/commands"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	channelseventsrepository "github.com/twirapp/twir/libs/repositories/events"
 	channelseventsrepositorypostgres "github.com/twirapp/twir/libs/repositories/events/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -40,6 +43,10 @@ var App = fx.Options(
 			channelseventsrepositorypostgres.NewFx,
 			fx.As(new(channelseventsrepository.Repository)),
 		),
+		fx.Annotate(
+			commandswithgroupsandresponsespostgres.NewFx,
+			fx.As(new(commandswithgroupsandresponsesrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		func(c cfg.Config) websockets.WebsocketClient {
@@ -52,6 +59,7 @@ var App = fx.Options(
 			return sessions.New(r)
 		},
 		channelseventswithoperations.New,
+		commandswithgroupsandresponsescache.New,
 		interceptors.New,
 		impl_protected.New,
 		impl_unprotected.New,
