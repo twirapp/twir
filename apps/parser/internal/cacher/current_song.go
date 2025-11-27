@@ -2,15 +2,17 @@ package cacher
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 
-	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	lfm "github.com/shkh/lastfm-go/lastfm"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	model "github.com/twirapp/twir/libs/gomodels"
-	lfm "github.com/shkh/lastfm-go/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
 	"go.uber.org/zap"
@@ -199,6 +201,29 @@ checkServices:
 			query.Set("channel", c.parseCtxChannel.Name)
 			u.RawQuery = query.Encode()
 
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+			if err != nil {
+				c.services.Logger.Error("failed to create recognize request", zap.Error(err))
+				continue
+			}
+
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				c.services.Logger.Error("failed to recognize track", zap.Error(err))
+				continue
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				continue
+			}
+
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				c.services.Logger.Error("failed to read recognize response", zap.Error(err))
+				continue
+			}
+
 			var successResult struct {
 				Track struct {
 					Title  string `json:"title"`
@@ -207,14 +232,8 @@ checkServices:
 				Service string `json:"service"`
 			}
 
-			resp, err := req.R().
-				SetSuccessResult(&successResult).
-				Get(u.String())
-			if err != nil {
-				c.services.Logger.Error("failed to recognize track", zap.Error(err))
-				continue
-			}
-			if !resp.IsSuccessState() {
+			if err := json.Unmarshal(body, &successResult); err != nil {
+				c.services.Logger.Error("failed to unmarshal recognize response", zap.Error(err))
 				continue
 			}
 

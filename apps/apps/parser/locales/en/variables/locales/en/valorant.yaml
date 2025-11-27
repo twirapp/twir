@@ -1,2 +1,0 @@
-info:
-  matches: '{matchResult}({roundsWon}/{roundsLost}}) — {char} {KDA}'

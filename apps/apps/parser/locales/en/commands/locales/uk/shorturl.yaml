@@ -1,4 +1,0 @@
-errors:
-  cannot_create_short_url: 'Неможливо створити коротке посилання. {error}'
-success:
-  short_url_created: 'Коротке посилання: {url}'

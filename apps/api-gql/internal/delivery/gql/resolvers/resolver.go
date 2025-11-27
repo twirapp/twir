@@ -33,6 +33,7 @@ import (
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
+	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -142,6 +143,7 @@ type Deps struct {
 	TwirEventsService                     *twir_events.Service
 	DonatePayService                      *donatepay_integration.Service
 	DonationAlertsIntegrationService      *donationalerts_integration.Service
+	GamesVotebanService                   *gamesvoteban.Service
 }
 
 type Resolver struct {

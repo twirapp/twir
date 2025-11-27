@@ -1,12 +1,15 @@
 package donationalerts_integration
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -235,39 +238,63 @@ func (s *Service) getProfileData(
 	*donationAlertsProfileResponse,
 	error,
 ) {
-	data := donationAlertsTokensResponse{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetFormData(
-			map[string]string{
-				"grant_type":    "authorization_code",
-				"client_id":     clientId,
-				"client_secret": clientSecret,
-				"redirect_uri":  redirectURL,
-				"code":          code,
-			},
-		).
-		SetSuccessResult(&data).
-		SetContentType("application/x-www-form-urlencoded").
-		Post("https://www.donationalerts.com/oauth/token")
+	formData := url.Values{}
+	formData.Set("grant_type", "authorization_code")
+	formData.Set("client_id", clientId)
+	formData.Set("client_secret", clientSecret)
+	formData.Set("redirect_uri", redirectURL)
+	formData.Set("code", code)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://www.donationalerts.com/oauth/token", bytes.NewBufferString(formData.Encode()))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create token request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to exchange code for tokens: %w", err)
 	}
-	if !resp.IsSuccessState() {
-		return nil, nil, fmt.Errorf("failed to exchange code for tokens: %s", resp.String())
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to read token response: %w", err)
 	}
 
-	profile := donationAlertsProfileResponse{}
-	profileResp, err := req.R().
-		SetContext(ctx).
-		SetSuccessResult(&profile).
-		SetBearerAuthToken(data.AccessToken).
-		Get("https://www.donationalerts.com/api/v1/user/oauth")
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, nil, fmt.Errorf("failed to exchange code for tokens: %s", string(body))
+	}
+
+	var data donationAlertsTokensResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, nil, fmt.Errorf("failed to parse token response: %w", err)
+	}
+
+	profileReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://www.donationalerts.com/api/v1/user/oauth", nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create profile request: %w", err)
+	}
+	profileReq.Header.Set("Authorization", "Bearer "+data.AccessToken)
+
+	profileResp, err := http.DefaultClient.Do(profileReq)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to fetch donationalerts profile: %w", err)
 	}
-	if !profileResp.IsSuccessState() {
-		return nil, nil, fmt.Errorf("failed to fetch donationalerts profile: %s", profileResp.String())
+	defer profileResp.Body.Close()
+
+	profileBody, err := io.ReadAll(profileResp.Body)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to read profile response: %w", err)
+	}
+
+	if profileResp.StatusCode < 200 || profileResp.StatusCode >= 300 {
+		return nil, nil, fmt.Errorf("failed to fetch donationalerts profile: %s", string(profileBody))
+	}
+
+	var profile donationAlertsProfileResponse
+	if err := json.Unmarshal(profileBody, &profile); err != nil {
+		return nil, nil, fmt.Errorf("failed to parse profile response: %w", err)
 	}
 
 	return &data, &profile, nil

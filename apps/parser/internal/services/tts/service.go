@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
+	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/tidwall/gjson"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -204,12 +205,24 @@ func (s *Service) ToggleChannelEnabled(ctx context.Context, channelID string, en
 
 // GetAvailableVoices retrieves available TTS voices from the service
 func (s *Service) GetAvailableVoices(ctx context.Context) []Voice {
-	data := map[string]any{}
-	_, err := req.R().
-		SetContext(ctx).
-		SetSuccessResult(&data).
-		Get(fmt.Sprintf("http://%s/info", s.config.TTSServiceUrl))
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/info", s.config.TTSServiceUrl), nil)
 	if err != nil {
+		return nil
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil
+	}
+
+	var data map[string]any
+	if err := json.Unmarshal(body, &data); err != nil {
 		return nil
 	}
 

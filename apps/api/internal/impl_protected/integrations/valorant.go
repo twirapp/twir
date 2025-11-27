@@ -2,16 +2,19 @@ package integrations
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/guregu/null"
-	"github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/api/internal/helpers"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_valorant"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -117,87 +120,145 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, err
 	}
 
-	tokenResponse := ValorantTokenResponse{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetFormData(
-			map[string]string{
-				// "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-				// "client_assertion":      "",
-				"grant_type":   "authorization_code",
-				"redirect_uri": integration.Integration.RedirectURL.String,
-				"code":         request.GetCode(),
-			},
-		).
-		SetBasicAuth(
-			integration.Integration.ClientID.String,
-			integration.Integration.ClientSecret.String,
-		).
-		SetSuccessResult(&tokenResponse).
-		SetContentType("application/x-www-form-urlencoded").
-		Post("https://auth.riotgames.com/token")
+	formData := url.Values{}
+	formData.Set("grant_type", "authorization_code")
+	formData.Set("redirect_uri", integration.Integration.RedirectURL.String)
+	formData.Set("code", request.GetCode())
+
+	tokenReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://auth.riotgames.com/token",
+		strings.NewReader(formData.Encode()),
+	)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("failed to get valorant tokens: %s", resp.String())
+	tokenReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	authStr := base64.StdEncoding.EncodeToString(
+		[]byte(integration.Integration.ClientID.String + ":" + integration.Integration.ClientSecret.String),
+	)
+	tokenReq.Header.Set("Authorization", "Basic "+authStr)
+
+	tokenResp, err := http.DefaultClient.Do(tokenReq)
+	if err != nil {
+		return nil, err
+	}
+	defer tokenResp.Body.Close()
+
+	if tokenResp.StatusCode < 200 || tokenResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(tokenResp.Body)
+		return nil, fmt.Errorf("failed to get valorant tokens: %s", string(bodyBytes))
+	}
+
+	tokenBodyBytes, err := io.ReadAll(tokenResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenResponse := ValorantTokenResponse{}
+	if err := json.Unmarshal(tokenBodyBytes, &tokenResponse); err != nil {
+		return nil, err
+	}
+
+	accountReq, err := http.NewRequestWithContext(ctx, http.MethodGet, api_base+"/riot/account/v1/accounts/me", nil)
+	if err != nil {
+		return nil, err
+	}
+	accountReq.Header.Set("Authorization", "Bearer "+tokenResponse.AccessToken)
+
+	accountResp, err := http.DefaultClient.Do(accountReq)
+	if err != nil {
+		return nil, err
+	}
+	defer accountResp.Body.Close()
+
+	if accountResp.StatusCode < 200 || accountResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(accountResp.Body)
+		return nil, fmt.Errorf("cannot get valorant account info: %s", string(bodyBytes))
+	}
+
+	accountBodyBytes, err := io.ReadAll(accountResp.Body)
+	if err != nil {
+		return nil, err
 	}
 
 	accountResponse := ValorantAccountResp{}
-	accountReq, err := req.
-		SetSuccessResult(&accountResponse).
-		SetBearerAuthToken(tokenResponse.AccessToken).
-		Get(api_base + "/riot/account/v1/accounts/me")
+	if err := json.Unmarshal(accountBodyBytes, &accountResponse); err != nil {
+		return nil, err
+	}
+
+	shardUrl := fmt.Sprintf(
+		"%s/riot/account/v1/active-shards/by-game/%s/by-puuid/%s",
+		api_base,
+		"val",
+		accountResponse.Puuid,
+	)
+	shardReq, err := http.NewRequestWithContext(ctx, http.MethodGet, shardUrl, nil)
 	if err != nil {
 		return nil, err
 	}
-	if !accountReq.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get valorant account info: %s", accountReq.String())
+	shardReq.Header.Set("X-Riot-Token", integration.Integration.APIKey.String)
+
+	shardResp, err := http.DefaultClient.Do(shardReq)
+	if err != nil {
+		return nil, err
+	}
+	defer shardResp.Body.Close()
+
+	if shardResp.StatusCode < 200 || shardResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(shardResp.Body)
+		return nil, fmt.Errorf(
+			"cannot get valorant shard info: %v, %s",
+			shardResp.StatusCode,
+			string(bodyBytes),
+		)
+	}
+
+	shardBodyBytes, err := io.ReadAll(shardResp.Body)
+	if err != nil {
+		return nil, err
 	}
 
 	shardResponse := ValorantShardResponse{}
-	shardReq, err := req.
-		SetHeader("X-Riot-Token", integration.Integration.APIKey.String).
-		SetSuccessResult(&shardResponse).
-		Get(
-			fmt.Sprintf(
-				"%s/riot/account/v1/active-shards/by-game/%s/by-puuid/%s",
-				api_base,
-				"val",
-				accountResponse.Puuid,
-			),
-		)
+	if err := json.Unmarshal(shardBodyBytes, &shardResponse); err != nil {
+		return nil, err
+	}
+
+	henrikUrl := fmt.Sprintf(
+		"https://api.henrikdev.xyz/valorant/v1/account/%s/%s",
+		accountResponse.UserName,
+		accountResponse.TagLine,
+	)
+	henrikReq, err := http.NewRequestWithContext(ctx, http.MethodGet, henrikUrl, nil)
 	if err != nil {
 		return nil, err
 	}
-	if !shardReq.IsSuccessState() {
+	henrikReq.Header.Set("Authorization", c.Config.ValorantHenrikApiKey)
+
+	henrikResp, err := http.DefaultClient.Do(henrikReq)
+	if err != nil {
+		return nil, err
+	}
+	defer henrikResp.Body.Close()
+
+	if henrikResp.StatusCode < 200 || henrikResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(henrikResp.Body)
 		return nil, fmt.Errorf(
-			"cannot get valorant shard info: %v, %s",
-			shardReq.StatusCode,
-			shardReq.String(),
+			"cannot get valorant shard info: %d %s",
+			henrikResp.StatusCode,
+			string(bodyBytes),
 		)
 	}
 
-	henrikResponse := ValorantHenrikResponse{}
-	henrikReq, err := req.
-		SetSuccessResult(&henrikResponse).
-		SetHeader("Authorization", c.Config.ValorantHenrikApiKey).
-		Get(
-			fmt.Sprintf(
-				"https://api.henrikdev.xyz/valorant/v1/account/%s/%s",
-				accountResponse.UserName,
-				accountResponse.TagLine,
-			),
-		)
+	henrikBodyBytes, err := io.ReadAll(henrikResp.Body)
 	if err != nil {
 		return nil, err
 	}
-	if !henrikReq.IsSuccessState() {
-		return nil, fmt.Errorf(
-			"cannot get valorant shard info: %d %s",
-			henrikReq.StatusCode,
-			henrikReq.String(),
-		)
+
+	henrikResponse := ValorantHenrikResponse{}
+	if err := json.Unmarshal(henrikBodyBytes, &henrikResponse); err != nil {
+		return nil, err
 	}
 
 	userName := fmt.Sprintf(

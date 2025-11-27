@@ -53,6 +53,7 @@ import (
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	donationalertsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
+	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -83,6 +84,7 @@ import (
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	eventscache "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
+	channelsgamesvotebancache "github.com/twirapp/twir/libs/cache/channels_games_voteban"
 	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
 	channelsmoderationsettingsccahe "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
@@ -198,6 +200,9 @@ import (
 
 	donationalertsrepository "github.com/twirapp/twir/libs/repositories/donationalerts_integration"
 	donationalertsrepoitorypostgres "github.com/twirapp/twir/libs/repositories/donationalerts_integration/datasource/postgres"
+
+	channelsgamesvotebanrepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
+	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
 
 	"go.uber.org/fx"
 
@@ -384,6 +389,10 @@ func main() {
 				donationalertsrepoitorypostgres.NewFx,
 				fx.As(new(donationalertsrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsgamesvotebanpgx.NewFx,
+				fx.As(new(channelsgamesvotebanrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -434,6 +443,7 @@ func main() {
 			twir_events.New,
 			donatepay_integration.New,
 			valorantintegrationservice.New,
+			gamesvoteban.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -466,6 +476,7 @@ func main() {
 			chattranslationssettignscache.New,
 			channelsongrequestssettingscache.New,
 			channelsintegrationssettingsseventvcache.New,
+			channelsgamesvotebancache.New,
 			eventscache.New,
 			rolescache.New,
 			fx.Annotate(

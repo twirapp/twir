@@ -3,71 +3,60 @@ package messagehandler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"slices"
 	"strings"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
-	model "github.com/twirapp/twir/libs/gomodels"
+	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
+	channelsgamesvotebanprogressstate "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state"
+	progressstatemodel "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state/model"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"gorm.io/gorm"
 )
 
 func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
-	mu := c.votebanLock.NewMutex("bots:voteban_handle_message:"+msg.BroadcasterUserId)
+	mu := c.votebanLock.NewMutex("bots:voteban_handle_message:" + msg.BroadcasterUserId)
 	mu.Lock()
 	defer mu.Unlock()
 
-	redisKey := fmt.Sprintf("channels:%s:games:voteban", msg.BroadcasterUserId)
-
-	voteExists, err := c.redis.Exists(ctx, redisKey).Result()
+	// Check if voting is not in progress
+	voteExists, err := c.votebanProgressStateRepository.Exists(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
 
-	if voteExists > 0 {
+	if !voteExists {
 		return nil
 	}
 
-	userVoteExists, err := c.redis.Exists(
-		ctx,
-		fmt.Sprintf("%s:totalVotes:%s", redisKey, msg.ChatterUserId),
-	).Result()
+	// Check if user has already voted
+	userVoted, err := c.votebanProgressStateRepository.UserHasVoted(ctx, msg.BroadcasterUserId, msg.ChatterUserId)
 	if err != nil {
 		return err
 	}
 
-	if userVoteExists == 1 {
+	if userVoted {
 		return nil
 	}
 
-	var voteEntity model.ChannelGamesVoteBanRedisStruct
-	err = c.redis.HGetAll(ctx, redisKey).Scan(&voteEntity)
+	// Get current vote state
+	voteState, err := c.votebanProgressStateRepository.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
-		if !errors.Is(err, redis.Nil) {
+		if errors.Is(err, channelsgamesvotebanprogressstate.ErrNotFound) {
 			return nil
 		}
 		return err
 	}
 
-	gameEntity := model.ChannelGamesVoteBan{}
-	err = c.gorm.
-		WithContext(ctx).
-		Where(
-			`"channel_id" = ?`,
-			msg.BroadcasterUserId,
-		).
-		First(&gameEntity).
-		Error
+	// Get game settings
+	gameEntity, err := c.channelsGamesVotebanCacher.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, channelsgamesvoteban.ErrNotFound) {
 			return nil
 		}
 		return err
@@ -81,38 +70,35 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 
 	for _, word := range splittedChatMessage {
 		if slices.Contains(gameEntity.ChatVotesWordsPositive, word) {
-			voteEntity.TotalVotes++
-			voteEntity.PositiveVotes++
+			voteState.TotalVotes++
+			voteState.PositiveVotes++
 			break
 		} else if slices.Contains(gameEntity.ChatVotesWordsNegative, word) {
-			voteEntity.TotalVotes++
-			voteEntity.NegativeVotes++
+			voteState.TotalVotes++
+			voteState.NegativeVotes++
 			break
 		}
 	}
 
-	if voteEntity.TotalVotes >= gameEntity.NeededVotes {
-		isPositive := true
-		if voteEntity.NegativeVotes > voteEntity.PositiveVotes {
-			isPositive = false
-		}
+	if voteState.TotalVotes >= gameEntity.NeededVotes {
+		isPositive := voteState.PositiveVotes > voteState.NegativeVotes
 
 		var message string
 		if isPositive {
-			if voteEntity.TargetIsMod {
+			if voteState.TargetIsMod {
 				message = gameEntity.BanMessageModerators
 			} else {
 				message = gameEntity.BanMessage
 			}
 		} else {
-			if voteEntity.TargetIsMod {
+			if voteState.TargetIsMod {
 				message = gameEntity.SurviveMessageModerators
 			} else {
 				message = gameEntity.SurviveMessage
 			}
 		}
 
-		message = strings.ReplaceAll(message, "{targetUser}", voteEntity.TargetUserName)
+		message = strings.ReplaceAll(message, "{targetUser}", voteState.TargetUserName)
 
 		if isPositive {
 			if err := c.twitchActions.Ban(
@@ -121,9 +107,9 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 					Duration:       gameEntity.TimeoutSeconds,
 					Reason:         message,
 					BroadcasterID:  msg.BroadcasterUserId,
-					UserID:         voteEntity.TargetUserId,
+					UserID:         voteState.TargetUserID,
 					ModeratorID:    msg.EnrichedData.DbChannel.BotID,
-					IsModerator:    voteEntity.TargetIsMod,
+					IsModerator:    voteState.TargetIsMod,
 					AddModAfterBan: true,
 				},
 			); err != nil {
@@ -142,38 +128,25 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 			return err
 		}
 
-		if err := c.redis.Del(ctx, redisKey).Err(); err != nil {
+		// Delete vote state and clear user votes
+		if err := c.votebanProgressStateRepository.Delete(ctx, msg.BroadcasterUserId); err != nil {
 			return err
 		}
 
-		_, err := c.redis.Pipelined(
-			ctx, func(pipe redis.Pipeliner) error {
-				votesIter := pipe.Scan(ctx, 0, fmt.Sprintf("%s:votes:*", redisKey), 0).Iterator()
-
-				for votesIter.Next(ctx) {
-					pipe.Del(ctx, votesIter.Val()).Err()
-				}
-
-				if err := votesIter.Err(); err != nil {
-					return err
-				}
-
-				return nil
-			},
-		)
-
-		if err != nil {
+		if err := c.votebanProgressStateRepository.ClearUserVotes(ctx, msg.BroadcasterUserId); err != nil {
 			return err
 		}
 	} else {
-		if err := c.redis.HSet(
-			ctx,
-			redisKey,
-			voteEntity,
-		).Err(); err != nil {
+		// Update vote state
+		if err := c.votebanProgressStateRepository.Update(ctx, msg.BroadcasterUserId, voteState); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// mapVoteStateToModel converts internal VoteState to progressstatemodel.VoteState
+func mapVoteStateToProgressModel(state progressstatemodel.VoteState) progressstatemodel.VoteState {
+	return state
 }

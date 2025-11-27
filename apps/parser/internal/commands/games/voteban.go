@@ -3,7 +3,6 @@ package games
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -15,7 +14,9 @@ import (
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
-	"gorm.io/gorm"
+	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
+	votebanmodel "github.com/twirapp/twir/libs/repositories/channels_games_voteban/model"
+	progressstatemodel "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state/model"
 )
 
 const (
@@ -52,15 +53,9 @@ var Voteban = &types.DefaultCommand{
 		}
 		defer mu.Unlock()
 
-		entity := model.ChannelGamesVoteBan{}
-		if err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Preload("Channel").
-			Where(
-				`"channel_id" = ?`,
-				parseCtx.Channel.ID,
-			).First(&entity).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
+		entity, err := parseCtx.Services.ChannelsGamesVotebanRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		if err != nil {
+			if errors.Is(err, channelsgamesvoteban.ErrNotFound) {
 				return nil, nil
 			}
 
@@ -80,15 +75,26 @@ var Voteban = &types.DefaultCommand{
 
 		targetUser := parseCtx.Mentions[0]
 
-		if entity.Channel == nil ||
-			targetUser.UserId == parseCtx.Channel.ID ||
-			targetUser.UserId == entity.Channel.BotID {
+		// Fetch channel to check BotID
+		dbChannel := model.Channels{}
+		if err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"id" = ?`, parseCtx.Channel.ID).
+			First(&dbChannel).Error; err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotFindSettings),
+				Err:     err,
+			}
+		}
+
+		if targetUser.UserId == parseCtx.Channel.ID ||
+			targetUser.UserId == dbChannel.BotID {
 			return nil, nil
 		}
 
-		redisKey := fmt.Sprintf("channels:%s:games:voteban", parseCtx.Channel.ID)
-		if entity.VotingMode == model.ChannelGamesVoteBanVotingModeChat {
-			voteInProgress, err := parseCtx.Services.Redis.Exists(ctx, redisKey).Result()
+		if entity.VotingMode == votebanmodel.VotingModeChat {
+			// Check if vote is already in progress
+			voteInProgress, err := parseCtx.Services.ChannelsGamesVotebanProgressState.Exists(ctx, parseCtx.Channel.ID)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotCheckProgress),
@@ -96,7 +102,7 @@ var Voteban = &types.DefaultCommand{
 				}
 			}
 
-			if voteInProgress == 1 {
+			if voteInProgress {
 				return &types.CommandsHandlerResult{
 					Result: []string{i18n.GetCtx(ctx, locales.Translations.Commands.Games.Info.VotebanInProgress)},
 				}, nil
@@ -113,44 +119,37 @@ var Voteban = &types.DefaultCommand{
 				}
 			}
 
-			if err := parseCtx.Services.Redis.HSet(
+			voteDuration := time.Second * time.Duration(entity.VoteDuration)
+
+			// Create vote state using repository
+			if err := parseCtx.Services.ChannelsGamesVotebanProgressState.Create(
 				ctx,
-				redisKey,
-				model.ChannelGamesVoteBanRedisStruct{
-					TargetUserId:   targetUser.UserId,
+				parseCtx.Channel.ID,
+				progressstatemodel.VoteState{
+					TargetUserID:   targetUser.UserId,
 					TargetUserName: targetUser.UserName,
 					TargetIsMod:    targetUserStatsEntity.IsMod,
 					TotalVotes:     1,
 					PositiveVotes:  1,
 					NegativeVotes:  0,
 				},
-			).Err(); err != nil {
+				voteDuration,
+			); err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotSetVote),
 					Err:     err,
 				}
 			}
 
-			if err := parseCtx.Services.Redis.Expire(
+			// Mark user as voted
+			if err := parseCtx.Services.ChannelsGamesVotebanProgressState.MarkUserVoted(
 				ctx,
-				redisKey,
-				time.Second*time.Duration(entity.VoteDuration),
-			).Err(); err != nil {
-				parseCtx.Services.Redis.Del(ctx, redisKey)
-
-				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotSetVoteExpiration),
-					Err:     err,
-				}
-			}
-
-			if err := parseCtx.Services.Redis.Set(
-				ctx,
-				fmt.Sprintf("%s:votes:%s", redisKey, parseCtx.Sender.ID),
-				1,
-				time.Second*time.Duration(entity.VoteDuration),
-			).Err(); err != nil {
-				parseCtx.Services.Redis.Del(ctx, redisKey)
+				parseCtx.Channel.ID,
+				parseCtx.Sender.ID,
+				voteDuration,
+			); err != nil {
+				// Cleanup on error
+				parseCtx.Services.ChannelsGamesVotebanProgressState.Delete(ctx, parseCtx.Channel.ID)
 			}
 
 			initMessage := strings.ReplaceAll(

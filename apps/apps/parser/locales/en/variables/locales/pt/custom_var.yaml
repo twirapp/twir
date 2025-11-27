@@ -1,4 +1,0 @@
-errors:
-  wrong_numbers: 'Wrong number: {reason}'
-  update_custom_var: Cannot update custom variables
-  evaluate_variable: 'Cannot evaluate variable. This is internal error, please report this bug'

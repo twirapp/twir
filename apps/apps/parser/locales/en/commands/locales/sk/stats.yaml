@@ -1,9 +1,0 @@
-info:
-  # Watchtime
-  watching_stream: You're watching stream for {userWatching}
-me:
-  watched: 'watched'
-  messages: 'messages'
-  emotes: 'used emotes'
-  points: 'used points'
-  songs: 'songs requests'

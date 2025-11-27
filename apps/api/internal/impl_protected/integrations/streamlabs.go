@@ -2,12 +2,15 @@ package integrations
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/guregu/null"
-	"github.com/imroc/req/v3"
 	"github.com/twirapp/twir/libs/api/messages/integrations_streamlabs"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -90,39 +93,70 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 		return nil, err
 	}
 
-	tokensData := streamlabsTokensResponse{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetFormData(
-			map[string]string{
-				"grant_type":    "authorization_code",
-				"client_id":     channelIntegration.Integration.ClientID.String,
-				"client_secret": channelIntegration.Integration.ClientSecret.String,
-				"redirect_uri":  channelIntegration.Integration.RedirectURL.String,
-				"code":          request.Code,
-			},
-		).
-		SetSuccessResult(&tokensData).
-		SetContentType("application/x-www-form-urlencoded").
-		Post("https://streamlabs.com/api/v2.0/token")
+	formData := url.Values{}
+	formData.Set("grant_type", "authorization_code")
+	formData.Set("client_id", channelIntegration.Integration.ClientID.String)
+	formData.Set("client_secret", channelIntegration.Integration.ClientSecret.String)
+	formData.Set("redirect_uri", channelIntegration.Integration.RedirectURL.String)
+	formData.Set("code", request.Code)
+
+	tokenReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://streamlabs.com/api/v2.0/token",
+		strings.NewReader(formData.Encode()),
+	)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("streamlabs token request failed: %s", resp.String())
+	tokenReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	tokenResp, err := http.DefaultClient.Do(tokenReq)
+	if err != nil {
+		return nil, err
+	}
+	defer tokenResp.Body.Close()
+
+	if tokenResp.StatusCode < 200 || tokenResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(tokenResp.Body)
+		return nil, fmt.Errorf("streamlabs token request failed: %s", string(bodyBytes))
+	}
+
+	tokenBodyBytes, err := io.ReadAll(tokenResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	tokensData := streamlabsTokensResponse{}
+	if err := json.Unmarshal(tokenBodyBytes, &tokensData); err != nil {
+		return nil, err
+	}
+
+	userReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://streamlabs.com/api/v2.0/user", nil)
+	if err != nil {
+		return nil, err
+	}
+	userReq.Header.Set("Authorization", "Bearer "+tokensData.AccessToken)
+
+	userResp, err := http.DefaultClient.Do(userReq)
+	if err != nil {
+		return nil, err
+	}
+	defer userResp.Body.Close()
+
+	if userResp.StatusCode < 200 || userResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(userResp.Body)
+		return nil, fmt.Errorf("streamlabs token request failed: %s", string(bodyBytes))
+	}
+
+	userBodyBytes, err := io.ReadAll(userResp.Body)
+	if err != nil {
+		return nil, err
 	}
 
 	profileData := &streamlabsProfileResponse{}
-	resp, err = req.R().
-		SetContext(ctx).
-		SetSuccessResult(profileData).
-		SetBearerAuthToken(tokensData.AccessToken).
-		Get("https://streamlabs.com/api/v2.0/user")
-	if err != nil {
+	if err := json.Unmarshal(userBodyBytes, profileData); err != nil {
 		return nil, err
-	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("streamlabs token request failed: %s", resp.String())
 	}
 
 	channelIntegration.Data = &model.ChannelsIntegrationsData{

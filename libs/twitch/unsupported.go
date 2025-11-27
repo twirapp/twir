@@ -1,11 +1,13 @@
 package twitch
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"time"
-
-	"github.com/imroc/req/v3"
 )
 
 const twitchOfficialClientId = "kimne78kx3ncx6brgo4mv6wki5h1ko"
@@ -53,18 +55,37 @@ type FoundCategory struct {
 }
 
 func SearchCategory(ctx context.Context, query string) (*FoundCategory, error) {
-	var searchResponse []TwitchGqlSearchCategoryResponse
-	res, err := req.
-		SetContext(ctx).
-		SetHeader("client-id", twitchOfficialClientId).
-		SetSuccessResult(&searchResponse).
-		SetBodyJsonString(fmt.Sprintf(categorySearchQuery, query)).
-		Post("https://gql.twitch.tv/gql")
+	bodyStr := fmt.Sprintf(categorySearchQuery, query)
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://gql.twitch.tv/gql",
+		bytes.NewBufferString(bodyStr),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("client-id", twitchOfficialClientId)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	if !res.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get game from twitch: %s", res.String())
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return nil, fmt.Errorf("cannot get game from twitch: %s", string(body))
+	}
+
+	var searchResponse []TwitchGqlSearchCategoryResponse
+	if err := json.Unmarshal(body, &searchResponse); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	if len(searchResponse) == 0 || searchResponse[0].Data == nil ||
@@ -141,19 +162,37 @@ type FirstFollower struct {
 }
 
 func GetFirstChannelFollowers(ctx context.Context, channelName string) ([]FirstFollower, error) {
-	var data []FollowersResponse
+	bodyStr := fmt.Sprintf(firstFollowerQuery, channelName)
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://gql.twitch.tv/gql",
+		bytes.NewBufferString(bodyStr),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("client-id", twitchOfficialClientId)
+	req.Header.Set("Content-Type", "application/json")
 
-	res, err := req.
-		SetContext(ctx).
-		SetHeader("client-id", twitchOfficialClientId).
-		SetBodyJsonString(fmt.Sprintf(firstFollowerQuery, channelName)).
-		SetSuccessResult(&data).
-		Post("https://gql.twitch.tv/gql")
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	if !res.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get followers from twitch: %s", res.String())
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return nil, fmt.Errorf("cannot get followers from twitch: %s", string(body))
+	}
+
+	var data []FollowersResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	if len(data) == 0 {

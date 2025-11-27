@@ -2,10 +2,12 @@ package twitch
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"time"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 )
 
@@ -58,16 +60,30 @@ func GetUserSubAge(
 	ctx context.Context,
 	channelName, userName string,
 ) (*UserSubscribePayload, error) {
-	var requestData ivrSubAgeResponse
-	res, err := req.
-		SetContext(ctx).
-		SetSuccessResult(&requestData).
-		Get(fmt.Sprintf("https://api.ivr.fi/v2/twitch/subage/%s/%s", userName, channelName))
+	apiUrl := fmt.Sprintf("https://api.ivr.fi/v2/twitch/subage/%s/%s", userName, channelName)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	if !res.IsSuccessState() {
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		return nil, fmt.Errorf("cannot get sub age: %d", res.StatusCode)
+	}
+
+	var requestData ivrSubAgeResponse
+	if err := json.Unmarshal(body, &requestData); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	if requestData.StatusHidden {

@@ -1,4 +1,0 @@
-errors:
-  cannot_create_marker: 'Nepodarilo sa vytvoriť marker: {reason}'
-success:
-  marker_created: Marker vytvorený

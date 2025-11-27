@@ -2,10 +2,11 @@ package valorant
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"time"
-
-	"github.com/imroc/req/v3"
 )
 
 type StoredMatchesResponse struct {
@@ -87,22 +88,35 @@ func (c *HenrikValorantApiClient) GetProfileStoredMatches(
 		puuid,
 	)
 
-	var data *StoredMatchesResponse
-	response, err := req.R().
-		SetContext(ctx).
-		SetHeader("Authorization", c.apiKey).
-		SetSuccessResult(&data).
-		Get(apiUrl)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Authorization", c.apiKey)
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	if response.IsErrorState() {
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf(
 			"cannot get valorant stored matches for puuid %s in region %s: %s",
 			puuid,
 			region,
-			response.String(),
+			string(body),
 		)
+	}
+
+	var data *StoredMatchesResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	return data, nil

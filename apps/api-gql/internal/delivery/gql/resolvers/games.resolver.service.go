@@ -8,6 +8,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/libs/audit"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/utils"
@@ -497,25 +499,25 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 	return r.Query().GamesSeppuku(ctx)
 }
 
-func gamesVotebanVotingModeDbToGql(votingMode model.ChannelGamesVoteBanVotingMode) gqlmodel.VoteBanGameVotingMode {
+func gamesVotebanVotingModeEntityToGql(votingMode entity.VotingMode) gqlmodel.VoteBanGameVotingMode {
 	switch votingMode {
-	case model.ChannelGamesVoteBanVotingModeChat:
+	case entity.VotingModeChat:
 		return gqlmodel.VoteBanGameVotingModeChat
-	case model.ChannelGamesVoteBanVotingModeTwitchPolls:
+	case entity.VotingModeTwitchPolls:
 		return gqlmodel.VoteBanGameVotingModePolls
 	default:
 		return gqlmodel.VoteBanGameVotingModeChat
 	}
 }
 
-func gamesVotebanVotingModeGqlToDb(votingMode gqlmodel.VoteBanGameVotingMode) model.ChannelGamesVoteBanVotingMode {
+func gamesVotebanVotingModeGqlToEntity(votingMode gqlmodel.VoteBanGameVotingMode) entity.VotingMode {
 	switch votingMode {
 	case gqlmodel.VoteBanGameVotingModeChat:
-		return model.ChannelGamesVoteBanVotingModeChat
+		return entity.VotingModeChat
 	case gqlmodel.VoteBanGameVotingModePolls:
-		return model.ChannelGamesVoteBanVotingModeTwitchPolls
+		return entity.VotingModeTwitchPolls
 	default:
-		return model.ChannelGamesVoteBanVotingModeChat
+		return entity.VotingModeChat
 	}
 }
 
@@ -533,92 +535,68 @@ func (r *mutationResolver) gamesUpdateVoteban(
 		return nil, err
 	}
 
-	entity := model.ChannelGamesVoteBan{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where(`"channel_id" = ?`, dashboardId).
-		First(&entity).
-		Error; err != nil {
-		return nil, fmt.Errorf("failed to get voteban settings: %w", err)
-	}
-
-	var entityCopy model.ChannelGamesVoteBan
-	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
-		return nil, err
+	updateInput := gamesvoteban.UpdateInput{
+		ActorID:   user.ID,
+		ChannelID: dashboardId,
 	}
 
 	if opts.Enabled.IsSet() {
-		entity.Enabled = *opts.Enabled.Value()
+		updateInput.Enabled = opts.Enabled.Value()
 	}
 
 	if opts.TimeoutSeconds.IsSet() {
-		entity.TimeoutSeconds = *opts.TimeoutSeconds.Value()
+		updateInput.TimeoutSeconds = opts.TimeoutSeconds.Value()
 	}
 
 	if opts.TimeoutModerators.IsSet() {
-		entity.TimeoutModerators = *opts.TimeoutModerators.Value()
+		updateInput.TimeoutModerators = opts.TimeoutModerators.Value()
 	}
 
 	if opts.InitMessage.IsSet() {
-		entity.InitMessage = *opts.InitMessage.Value()
+		updateInput.InitMessage = opts.InitMessage.Value()
 	}
 
 	if opts.BanMessage.IsSet() {
-		entity.BanMessage = *opts.BanMessage.Value()
+		updateInput.BanMessage = opts.BanMessage.Value()
 	}
 
 	if opts.BanMessageModerators.IsSet() {
-		entity.BanMessageModerators = *opts.BanMessageModerators.Value()
+		updateInput.BanMessageModerators = opts.BanMessageModerators.Value()
 	}
 
 	if opts.SurviveMessage.IsSet() {
-		entity.SurviveMessage = *opts.SurviveMessage.Value()
+		updateInput.SurviveMessage = opts.SurviveMessage.Value()
 	}
 
 	if opts.SurviveMessageModerators.IsSet() {
-		entity.SurviveMessageModerators = *opts.SurviveMessageModerators.Value()
+		updateInput.SurviveMessageModerators = opts.SurviveMessageModerators.Value()
 	}
 
 	if opts.NeededVotes.IsSet() {
-		entity.NeededVotes = *opts.NeededVotes.Value()
+		updateInput.NeededVotes = opts.NeededVotes.Value()
 	}
 
 	if opts.VoteDuration.IsSet() {
-		entity.VoteDuration = *opts.VoteDuration.Value()
+		updateInput.VoteDuration = opts.VoteDuration.Value()
 	}
 
 	if opts.VotingMode.IsSet() {
-		entity.VotingMode = gamesVotebanVotingModeGqlToDb(*opts.VotingMode.Value())
+		votingMode := gamesVotebanVotingModeGqlToEntity(*opts.VotingMode.Value())
+		updateInput.VotingMode = &votingMode
 	}
 
 	if opts.ChatVotesWordsPositive.IsSet() {
-		entity.ChatVotesWordsPositive = append(pq.StringArray{}, opts.ChatVotesWordsPositive.Value()...)
+		updateInput.ChatVotesWordsPositive = opts.ChatVotesWordsPositive.Value()
 	}
 
 	if opts.ChatVotesWordsNegative.IsSet() {
-		entity.ChatVotesWordsNegative = append(pq.StringArray{}, opts.ChatVotesWordsNegative.Value()...)
+		updateInput.ChatVotesWordsNegative = opts.ChatVotesWordsNegative.Value()
 	}
 
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Save(&entity).
-		Error; err != nil {
-		return nil, fmt.Errorf("failed to save settings: %w", err)
+	_, err = r.deps.GamesVotebanService.Update(ctx, updateInput)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update voteban settings: %w", err)
 	}
-
-	_ = r.deps.AuditRecorder.RecordUpdateOperation(
-		ctx,
-		audit.UpdateOperation{
-			Metadata: audit.OperationMetadata{
-				System:    "channels_games_voteban",
-				ActorID:   lo.ToPtr(user.ID),
-				ChannelID: lo.ToPtr(dashboardId),
-				ObjectID:  lo.ToPtr(entity.ID.String()),
-			},
-			NewValue: entity,
-			OldValue: entityCopy,
-		},
-	)
 
 	return r.Query().GamesVoteban(ctx)
 }
@@ -629,46 +607,24 @@ func (r *queryResolver) gamesVoteban(ctx context.Context) (*gqlmodel.VotebanGame
 		return nil, err
 	}
 
-	entity := model.ChannelGamesVoteBan{
-		ChannelID:         dashboardId,
-		Enabled:           false,
-		TimeoutSeconds:    60,
-		TimeoutModerators: false,
-		InitMessage: "The Twitch Police have decided that {targetUser} is not worthy of" +
-			" being in chat for not knowing memes. Write \"{positiveTexts}\" to support, " +
-			"or \"{negativeTexts}\" if you disagree.",
-		BanMessage:               "User {targetUser} is not worthy of being in chat.",
-		BanMessageModerators:     "User {targetUser} is not worthy of being in chat.",
-		SurviveMessage:           "Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.",
-		SurviveMessageModerators: "Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.",
-		NeededVotes:              1,
-		VoteDuration:             1,
-		VotingMode:               model.ChannelGamesVoteBanVotingModeChat,
-		ChatVotesWordsPositive:   pq.StringArray{"Yay"},
-		ChatVotesWordsNegative:   pq.StringArray{"Nay"},
-	}
-	if err := r.deps.Gorm.
-		Debug().
-		WithContext(ctx).
-		Where(`"channel_id" = ?`, dashboardId).
-		FirstOrCreate(&entity).
-		Error; err != nil {
+	votebanEntity, err := r.deps.GamesVotebanService.GetByChannelID(ctx, dashboardId)
+	if err != nil {
 		return nil, fmt.Errorf("failed to get voteban settings: %w", err)
 	}
 
 	return &gqlmodel.VotebanGame{
-		Enabled:                  entity.Enabled,
-		TimeoutSeconds:           int(entity.TimeoutSeconds),
-		TimeoutModerators:        entity.TimeoutModerators,
-		InitMessage:              entity.InitMessage,
-		BanMessage:               entity.BanMessage,
-		BanMessageModerators:     entity.BanMessageModerators,
-		SurviveMessage:           entity.SurviveMessage,
-		SurviveMessageModerators: entity.SurviveMessageModerators,
-		NeededVotes:              entity.NeededVotes,
-		VoteDuration:             entity.VoteDuration,
-		VotingMode:               gamesVotebanVotingModeDbToGql(entity.VotingMode),
-		ChatVotesWordsPositive:   entity.ChatVotesWordsPositive,
-		ChatVotesWordsNegative:   entity.ChatVotesWordsNegative,
+		Enabled:                  votebanEntity.Enabled,
+		TimeoutSeconds:           votebanEntity.TimeoutSeconds,
+		TimeoutModerators:        votebanEntity.TimeoutModerators,
+		InitMessage:              votebanEntity.InitMessage,
+		BanMessage:               votebanEntity.BanMessage,
+		BanMessageModerators:     votebanEntity.BanMessageModerators,
+		SurviveMessage:           votebanEntity.SurviveMessage,
+		SurviveMessageModerators: votebanEntity.SurviveMessageModerators,
+		NeededVotes:              votebanEntity.NeededVotes,
+		VoteDuration:             votebanEntity.VoteDuration,
+		VotingMode:               gamesVotebanVotingModeEntityToGql(votebanEntity.VotingMode),
+		ChatVotesWordsPositive:   votebanEntity.ChatVotesWordsPositive,
+		ChatVotesWordsNegative:   votebanEntity.ChatVotesWordsNegative,
 	}, nil
 }

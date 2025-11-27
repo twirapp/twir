@@ -21,6 +21,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	channelsgamesvotebancache "github.com/twirapp/twir/libs/cache/channels_games_voteban"
 	channelsmoderationsettingscache "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -39,6 +40,10 @@ import (
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
+	channelsgamesvotebanrepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
+	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
+	channelsgamesvotebanprogressstaterepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state"
+	channelsgamesvotebanprogressstateredis "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state/redis"
 	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -131,6 +136,14 @@ var App = fx.Module(
 			overlays_tts_pgx.NewFx,
 			fx.As(new(overlays_tts_repository.Repository)),
 		),
+		fx.Annotate(
+			channelsgamesvotebanpgx.NewFx,
+			fx.As(new(channelsgamesvotebanrepository.Repository)),
+		),
+		fx.Annotate(
+			channelsgamesvotebanprogressstateredis.NewFx,
+			fx.As(new(channelsgamesvotebanprogressstaterepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -159,6 +172,7 @@ var App = fx.Module(
 		channelcache.New,
 		twitchactions.New,
 		channelsmoderationsettingscache.New,
+		channelsgamesvotebancache.New,
 		moderationhelpers.New,
 		messagehandler.New,
 		keywords.New,

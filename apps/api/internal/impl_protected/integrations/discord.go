@@ -3,19 +3,22 @@ package integrations
 import (
 	"cmp"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"slices"
 	"strings"
 	"sync"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api/internal/helpers"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_discord"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -234,26 +237,51 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 	}
 
 	res := DiscordPostCodeResponse{}
-	r, err := req.
-		SetBasicAuth(c.Config.DiscordClientID, c.Config.DiscordClientSecret).
-		SetSuccessResult(&res).
-		SetFormData(
-			map[string]string{
-				"grant_type": "authorization_code",
-				"code":       data.GetCode(),
-				"redirect_uri": fmt.Sprintf(
-					"%s/dashboard/integrations/discord",
-					c.Config.SiteBaseUrl,
-				),
-			},
-		).
-		Post("https://discord.com/api/oauth2/token")
+
+	formData := url.Values{}
+	formData.Set("grant_type", "authorization_code")
+	formData.Set("code", data.GetCode())
+	formData.Set("redirect_uri", fmt.Sprintf(
+		"%s/dashboard/integrations/discord",
+		c.Config.SiteBaseUrl,
+	))
+
+	httpReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://discord.com/api/oauth2/token",
+		strings.NewReader(formData.Encode()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	authStr := base64.StdEncoding.EncodeToString(
+		[]byte(c.Config.DiscordClientID + ":" + c.Config.DiscordClientSecret),
+	)
+	httpReq.Header.Set("Authorization", "Basic "+authStr)
+
+	r, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get token: %w", err)
 	}
-	if !r.IsSuccessState() {
-		return nil, fmt.Errorf("failed to get token: %s", r.String())
+	defer r.Body.Close()
+
+	if r.StatusCode < 200 || r.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(r.Body)
+		return nil, fmt.Errorf("failed to get token: %s", string(bodyBytes))
 	}
+
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if err := json.Unmarshal(bodyBytes, &res); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
 	if res.Guild.Id == "" {
 		return nil, fmt.Errorf("failed to get guild id")
 	}
