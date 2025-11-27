@@ -34,7 +34,7 @@ func New(opts Opts) (*Server, error) {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
-	r.Use(gin.Logger())
+	r.Use(opts.Middlewares.Logger())
 	r.Use(
 		cors.New(
 			cors.Config{
@@ -49,7 +49,6 @@ func New(opts Opts) (*Server, error) {
 
 	r.Use(otelgin.Middleware("api-gql"))
 	r.Use(opts.Sessions.Middleware())
-	r.Use(opts.Middlewares.Logging)
 	r.Use(opts.Middlewares.DashboardID)
 	r.Use(gin.Recovery())
 	r.Use(gincontext.Middleware())
