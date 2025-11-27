@@ -39,6 +39,8 @@ import (
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
+	channelsgamesvotebanrepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
+	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
 	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -130,6 +132,10 @@ var App = fx.Module(
 		fx.Annotate(
 			overlays_tts_pgx.NewFx,
 			fx.As(new(overlays_tts_repository.Repository)),
+		),
+		fx.Annotate(
+			channelsgamesvotebanpgx.NewFx,
+			fx.As(new(channelsgamesvotebanrepository.Repository)),
 		),
 	),
 	fx.Provide(

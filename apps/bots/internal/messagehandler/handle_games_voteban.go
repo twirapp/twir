@@ -10,10 +10,10 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"gorm.io/gorm"
 )
 
 func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessage) error {
@@ -57,17 +57,9 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 		return err
 	}
 
-	gameEntity := model.ChannelGamesVoteBan{}
-	err = c.gorm.
-		WithContext(ctx).
-		Where(
-			`"channel_id" = ?`,
-			msg.BroadcasterUserId,
-		).
-		First(&gameEntity).
-		Error
+	gameEntity, err := c.channelsGamesVotebanRepository.GetByChannelID(ctx, msg.BroadcasterUserId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, channelsgamesvoteban.ErrNotFound) {
 			return nil
 		}
 		return err

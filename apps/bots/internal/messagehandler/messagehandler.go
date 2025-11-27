@@ -27,6 +27,7 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -68,6 +69,7 @@ type Opts struct {
 	ChatWallRepository               chatwallrepository.Repository
 	ChatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 	ChannelsRepository               channelsrepository.Repository
+	ChannelsGamesVotebanRepository   channelsgamesvoteban.Repository
 	GiveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 
@@ -96,6 +98,7 @@ type MessageHandler struct {
 	chatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 	giveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
+	channelsGamesVotebanRepository   channelsgamesvoteban.Repository
 
 	keywordsService *keywords.Service
 	ttsService      *tts.Service
@@ -137,6 +140,7 @@ func New(opts Opts) *MessageHandler {
 		channelsModerationSettingsCacher: opts.ChannelsModerationSettingsCacher,
 		trmManager:                       opts.TrmManager,
 		usersRepository:                  opts.UsersRepository,
+		channelsGamesVotebanRepository:   opts.ChannelsGamesVotebanRepository,
 
 		workersPool: opts.WorkersPool,
 	}

@@ -15,7 +15,8 @@ import (
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
-	"gorm.io/gorm"
+	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
+	votebanmodel "github.com/twirapp/twir/libs/repositories/channels_games_voteban/model"
 )
 
 const (
@@ -52,15 +53,9 @@ var Voteban = &types.DefaultCommand{
 		}
 		defer mu.Unlock()
 
-		entity := model.ChannelGamesVoteBan{}
-		if err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Preload("Channel").
-			Where(
-				`"channel_id" = ?`,
-				parseCtx.Channel.ID,
-			).First(&entity).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
+		entity, err := parseCtx.Services.ChannelsGamesVotebanRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		if err != nil {
+			if errors.Is(err, channelsgamesvoteban.ErrNotFound) {
 				return nil, nil
 			}
 
@@ -80,14 +75,25 @@ var Voteban = &types.DefaultCommand{
 
 		targetUser := parseCtx.Mentions[0]
 
-		if entity.Channel == nil ||
-			targetUser.UserId == parseCtx.Channel.ID ||
-			targetUser.UserId == entity.Channel.BotID {
+		// Fetch channel to check BotID
+		dbChannel := model.Channels{}
+		if err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"id" = ?`, parseCtx.Channel.ID).
+			First(&dbChannel).Error; err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotFindSettings),
+				Err:     err,
+			}
+		}
+
+		if targetUser.UserId == parseCtx.Channel.ID ||
+			targetUser.UserId == dbChannel.BotID {
 			return nil, nil
 		}
 
 		redisKey := fmt.Sprintf("channels:%s:games:voteban", parseCtx.Channel.ID)
-		if entity.VotingMode == model.ChannelGamesVoteBanVotingModeChat {
+		if entity.VotingMode == votebanmodel.VotingModeChat {
 			voteInProgress, err := parseCtx.Services.Redis.Exists(ctx, redisKey).Result()
 			if err != nil {
 				return nil, &types.CommandHandlerError{
