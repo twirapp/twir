@@ -15,6 +15,7 @@ import (
 	redislimiteradapter "github.com/aidenwallis/go-ratelimiting/redis/adapters/go-redis"
 	"github.com/lkretschmer/deepl-go"
 	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/kv"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -37,6 +38,7 @@ type Opts struct {
 	Logger  *slog.Logger
 	TwirBus *buscore.Bus
 	Redis   *redis.Client
+	KV      kv.KV
 
 	ChannelsRepository             channelsrepository.Repository
 	ChannelsTranslationsRepository channelschattrenslationsrepository.Repository
@@ -64,6 +66,7 @@ func New(opts Opts) *Service {
 		channelsTranslationsCache:      opts.ChannelsTranslationsCache,
 		rateLimiter:                    redislimiter.NewSlidingWindow(redislimiteradapter.NewAdapter(opts.Redis)),
 		channelsCache:                  opts.ChannelsCache,
+		kv:                             opts.KV,
 	}
 
 	if opts.Config.DeeplApiKey != "" {
@@ -98,19 +101,6 @@ func New(opts Opts) *Service {
 			},
 			providers...,
 		)
-
-		time.Sleep(5 * time.Second)
-
-		fmt.Println(
-			s.translateGoogleOfficial(
-				context.TODO(), translateRequest{
-					Text:          "Hello world",
-					SrcLang:       "en",
-					DestLang:      "ru",
-					ExcludedWords: nil,
-				},
-			),
-		)
 	}
 
 	opts.LC.Append(
@@ -133,6 +123,7 @@ type Service struct {
 	logger                         *slog.Logger
 	twirBus                        *buscore.Bus
 	redis                          *redis.Client
+	kv                             kv.KV
 	channelsRepository             channelsrepository.Repository
 	channelsTranslationsRepository channelschattrenslationsrepository.Repository
 	channelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]

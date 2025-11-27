@@ -3,13 +3,18 @@ package handle_message
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"strings"
+	"time"
 
 	googletranslate "cloud.google.com/go/translate"
 	"github.com/lkretschmer/deepl-go"
+	kvoptions "github.com/twirapp/kv/options"
 	"golang.org/x/text/language"
 )
 
@@ -31,15 +36,71 @@ func (c *Service) translate(
 	ctx context.Context,
 	input translateRequest,
 ) (*translateResult, error) {
-	for _, p := range providers {
-		result, err := p(c, ctx, input)
-		if err != nil {
-			c.logger.Error("translate provider error", "err", err)
-			continue
+	start := time.Now()
+
+	cacheKey := fmt.Sprintf(
+		"chat-translator:%s",
+		base64.StdEncoding.EncodeToString(
+			[]byte(fmt.Sprintf(
+				"%s:%s:%s",
+				input.SrcLang,
+				input.DestLang,
+				input.Text,
+			)),
+		),
+	)
+
+	var (
+		r         *translateResult
+		fromCache = false
+	)
+
+	if cachedValue, err := c.kv.Get(ctx, cacheKey).String(); err == nil && len(cachedValue) > 0 {
+		r = &translateResult{
+			SourceLanguage:      input.SrcLang,
+			SourceText:          input.Text,
+			TranslatedText:      []string{cachedValue},
+			DestinationLanguage: input.DestLang,
 		}
-		if result != nil && len(result.TranslatedText) > 0 {
-			return result, nil
+		fromCache = true
+	} else {
+		for _, p := range providers {
+			result, err := p(c, ctx, input)
+			if err != nil {
+				c.logger.Error("translate provider error", "err", err)
+				continue
+			}
+			if result != nil && len(result.TranslatedText) > 0 {
+				r = result
+				break
+			}
 		}
+	}
+
+	if r != nil && len(r.TranslatedText) > 0 {
+		if !fromCache {
+			err := c.kv.Set(
+				ctx,
+				cacheKey,
+				strings.Join(r.TranslatedText, " "),
+				kvoptions.WithExpire(24*7*time.Hour),
+			)
+			if err != nil {
+				c.logger.Error("failed to cache translation", "err", err)
+			}
+		}
+
+		c.logger.Info(
+			"translated text",
+			slog.String("src_lang", input.SrcLang),
+			slog.String("dest_lang", input.DestLang),
+			slog.String("original_text", input.Text),
+			slog.String("translated_text", strings.Join(r.TranslatedText, " ")),
+			slog.Bool("from_cache", fromCache),
+			slog.Int64("duration_ms", time.Since(start).Milliseconds()),
+		)
+
+		return r, nil
 	}
 
 	return nil, fmt.Errorf("all translate providers failed")
