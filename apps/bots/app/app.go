@@ -21,6 +21,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
+	channelsgamesvotebancache "github.com/twirapp/twir/libs/cache/channels_games_voteban"
 	channelsmoderationsettingscache "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -165,6 +166,7 @@ var App = fx.Module(
 		channelcache.New,
 		twitchactions.New,
 		channelsmoderationsettingscache.New,
+		channelsgamesvotebancache.New,
 		moderationhelpers.New,
 		messagehandler.New,
 		keywords.New,

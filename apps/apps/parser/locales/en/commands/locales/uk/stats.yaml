@@ -1,9 +1,0 @@
-info:
-  # Watchtime
-  watching_stream: Ви дивитесь стрім {userWatching}
-me:
-  watched: 'переглянуто'
-  messages: 'повідомлень'
-  emotes: 'використано емодзі'
-  points: 'використанні бали'
-  songs: 'запити пісень'

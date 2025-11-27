@@ -18,10 +18,10 @@ import (
 
 func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
-	mu := c.votebanLock.NewMutex("bots:voteban_handle_message:"+msg.BroadcasterUserId)
+	mu := c.votebanLock.NewMutex("bots:voteban_handle_message:" + msg.BroadcasterUserId)
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -57,7 +57,7 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 		return err
 	}
 
-	gameEntity, err := c.channelsGamesVotebanRepository.GetByChannelID(ctx, msg.BroadcasterUserId)
+	gameEntity, err := c.channelsGamesVotebanCacher.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		if errors.Is(err, channelsgamesvoteban.ErrNotFound) {
 			return nil

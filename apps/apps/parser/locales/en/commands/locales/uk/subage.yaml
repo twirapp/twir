@@ -1,8 +1,0 @@
-errors:
-  not_subscriber_or_hidden: Користувач не є підписником або інформація про його підписку прихована
-responses:
-  not_subscriber: '{user} не є підписником'
-  not_subscriber_but_was: '{user} не є підписником, але був підписаний на {months} місяців'
-  subscription_info: '{user} є {tier} підписником на {channel} вже {months} місяців'
-  streak_info: '(стрік: {months} місяців)'
-  time_remaining: '(часу залишилось: {duration})'

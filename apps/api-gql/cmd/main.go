@@ -84,6 +84,7 @@ import (
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	eventscache "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
+	channelsgamesvotebancache "github.com/twirapp/twir/libs/cache/channels_games_voteban"
 	channelsintegrationssettingsseventvcache "github.com/twirapp/twir/libs/cache/channels_integrations_settings_seventv"
 	channelsmoderationsettingsccahe "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
 	chattranslationssettignscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
@@ -475,6 +476,7 @@ func main() {
 			chattranslationssettignscache.New,
 			channelsongrequestssettingscache.New,
 			channelsintegrationssettingsseventvcache.New,
+			channelsgamesvotebancache.New,
 			eventscache.New,
 			rolescache.New,
 			fx.Annotate(

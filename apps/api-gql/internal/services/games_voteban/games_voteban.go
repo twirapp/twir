@@ -2,9 +2,11 @@ package gamesvoteban
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"go.uber.org/fx"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -18,18 +20,21 @@ type Opts struct {
 
 	Repository    channelsgamesvoteban.Repository
 	AuditRecorder audit.Recorder
+	Cacher        *generic_cacher.GenericCacher[model.VoteBan]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		repository:    opts.Repository,
 		auditRecorder: opts.AuditRecorder,
+		cacher:        opts.Cacher,
 	}
 }
 
 type Service struct {
 	repository    channelsgamesvoteban.Repository
 	auditRecorder audit.Recorder
+	cacher        *generic_cacher.GenericCacher[model.VoteBan]
 }
 
 func (s *Service) mapToEntity(m model.VoteBan) entity.GamesVoteBan {
@@ -80,10 +85,17 @@ var defaultSettings = channelsgamesvoteban.CreateInput{
 	ChatVotesWordsNegative:   pq.StringArray{"Nay"},
 }
 
-func (s *Service) GetByChannelID(ctx context.Context, channelID string) (entity.GamesVoteBan, error) {
+func (s *Service) GetByChannelID(ctx context.Context, channelID string) (
+	entity.GamesVoteBan,
+	error,
+) {
 	result, err := s.repository.GetOrCreateByChannelID(ctx, channelID, defaultSettings)
 	if err != nil {
-		return entity.GamesVoteBanNil, err
+		return entity.GamesVoteBanNil, fmt.Errorf("failed to get or create games voteban: %w", err)
+	}
+
+	if err = s.cacher.Invalidate(ctx, result.ChannelID); err != nil {
+		return entity.GamesVoteBanNil, fmt.Errorf("failed to invalidate cache: %w", err)
 	}
 
 	return s.mapToEntity(result), nil
@@ -112,7 +124,7 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.GamesVo
 	// Get current entity first (or create with defaults)
 	currentEntity, err := s.repository.GetOrCreateByChannelID(ctx, input.ChannelID, defaultSettings)
 	if err != nil {
-		return entity.GamesVoteBanNil, err
+		return entity.GamesVoteBanNil, fmt.Errorf("failed to get or create games voteban: %w", err)
 	}
 
 	// Build update input
@@ -138,7 +150,7 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.GamesVo
 
 	updatedEntity, err := s.repository.Update(ctx, currentEntity.ID, updateInput)
 	if err != nil {
-		return entity.GamesVoteBanNil, err
+		return entity.GamesVoteBanNil, fmt.Errorf("failed to update games voteban: %w", err)
 	}
 
 	_ = s.auditRecorder.RecordUpdateOperation(
@@ -154,6 +166,10 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.GamesVo
 			OldValue: currentEntity,
 		},
 	)
+
+	if err := s.cacher.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.GamesVoteBanNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
 
 	return s.mapToEntity(updatedEntity), nil
 }

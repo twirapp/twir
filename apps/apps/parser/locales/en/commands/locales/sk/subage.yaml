@@ -1,8 +1,0 @@
-errors:
-  not_subscriber_or_hidden: Používateľ nie je predplatiteľ alebo sú jeho informácie o predplatnom skryté
-responses:
-  not_subscriber: '{user} nie je predplatiteľ'
-  not_subscriber_but_was: '{user} nie je predplatiteľ, ale bol predplatiteľom {months} mesiacov'
-  subscription_info: '{user} je {tier} predplatiteľ kanála {channel} už {months} mesiacov'
-  streak_info: '(séria: {months} mesiacov)'
-  time_remaining: '(zostáva: {duration})'

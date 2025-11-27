@@ -1,4 +1,0 @@
-info:
-  no_passed_params: Have not passed params to variable
-  command_with_name_not_found: 'Command with name {commandName} not found'
-  get_count: Cannot get count
