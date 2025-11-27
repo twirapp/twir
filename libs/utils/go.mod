@@ -1,3 +1,3 @@
 module github.com/twirapp/twir/libs/utils
 
-go 1.24.7
+go 1.25.4

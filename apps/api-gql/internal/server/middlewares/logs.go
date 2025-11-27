@@ -15,7 +15,7 @@ func (m *Middlewares) Logger() gin.HandlerFunc {
 			ClientErrorLevel: slog.LevelWarn,
 			ServerErrorLevel: slog.LevelError,
 			Filters: []sloggin.Filter{
-				sloggin.IgnoreStatus(200, 404),
+				sloggin.IgnoreStatus(404),
 			},
 		},
 	)
