@@ -2,14 +2,18 @@ package integrations
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/guregu/null"
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_faceit"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -92,47 +96,74 @@ func (c *Integrations) IntegrationsFaceitPostCode(
 		return nil, err
 	}
 
-	tokensData := make(map[string]any)
+	formData := url.Values{}
+	formData.Set("grant_type", "authorization_code")
+	formData.Set("code", request.Code)
 
-	resp, err := req.
-		C().EnableForceHTTP1().
-		R().
-		SetContext(ctx).
-		SetFormData(
-			map[string]string{
-				"grant_type": "authorization_code",
-				"code":       request.Code,
-			},
-		).
-		SetSuccessResult(&tokensData).
-		SetBasicAuth(
-			integration.Integration.ClientID.String,
-			integration.Integration.ClientSecret.String,
-		).
-		Post("https://api.faceit.com/auth/v1/oauth/token")
+	tokenReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://api.faceit.com/auth/v1/oauth/token",
+		strings.NewReader(formData.Encode()),
+	)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
-		return nil, resp.Err
+	tokenReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	authStr := base64.StdEncoding.EncodeToString(
+		[]byte(integration.Integration.ClientID.String + ":" + integration.Integration.ClientSecret.String),
+	)
+	tokenReq.Header.Set("Authorization", "Basic "+authStr)
+
+	tokenResp, err := http.DefaultClient.Do(tokenReq)
+	if err != nil {
+		return nil, err
+	}
+	defer tokenResp.Body.Close()
+
+	if tokenResp.StatusCode < 200 || tokenResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(tokenResp.Body)
+		return nil, errors.New(string(bodyBytes))
+	}
+
+	tokenBodyBytes, err := io.ReadAll(tokenResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	tokensData := make(map[string]any)
+	if err := json.Unmarshal(tokenBodyBytes, &tokensData); err != nil {
+		return nil, err
 	}
 
 	integration.AccessToken = null.StringFrom(tokensData["access_token"].(string))
 	integration.RefreshToken = null.StringFrom(tokensData["refresh_token"].(string))
 
-	userInfoResult := make(map[string]any)
-	resp, err = req.
-		C().EnableForceHTTP1().
-		R().
-		SetContext(ctx).
-		SetBearerAuthToken(integration.AccessToken.String).
-		SetSuccessResult(&userInfoResult).
-		Get("https://api.faceit.com/auth/v1/resources/userinfo")
+	userInfoReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.faceit.com/auth/v1/resources/userinfo", nil)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
-		return nil, resp.Err
+	userInfoReq.Header.Set("Authorization", "Bearer "+integration.AccessToken.String)
+
+	userInfoResp, err := http.DefaultClient.Do(userInfoReq)
+	if err != nil {
+		return nil, err
+	}
+	defer userInfoResp.Body.Close()
+
+	if userInfoResp.StatusCode < 200 || userInfoResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(userInfoResp.Body)
+		return nil, errors.New(string(bodyBytes))
+	}
+
+	userInfoBodyBytes, err := io.ReadAll(userInfoResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	userInfoResult := make(map[string]any)
+	if err := json.Unmarshal(userInfoBodyBytes, &userInfoResult); err != nil {
+		return nil, err
 	}
 
 	integrationData := model.ChannelsIntegrationsData{
@@ -141,19 +172,31 @@ func (c *Integrations) IntegrationsFaceitPostCode(
 		Game:     lo.ToPtr("cs2"),
 	}
 
-	profileResult := make(map[string]any)
-	resp, err = req.
-		C().EnableForceHTTP1().
-		R().
-		SetContext(ctx).
-		SetBearerAuthToken(integration.Integration.APIKey.String).
-		SetSuccessResult(&profileResult).
-		Get("https://open.faceit.com/data/v4/players/" + *integrationData.UserId)
+	profileReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://open.faceit.com/data/v4/players/"+*integrationData.UserId, nil)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
-		return nil, resp.Err
+	profileReq.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
+
+	profileResp, err := http.DefaultClient.Do(profileReq)
+	if err != nil {
+		return nil, err
+	}
+	defer profileResp.Body.Close()
+
+	if profileResp.StatusCode < 200 || profileResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(profileResp.Body)
+		return nil, errors.New(string(bodyBytes))
+	}
+
+	profileBodyBytes, err := io.ReadAll(profileResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	profileResult := make(map[string]any)
+	if err := json.Unmarshal(profileBodyBytes, &profileResult); err != nil {
+		return nil, err
 	}
 
 	integrationData.Avatar = lo.ToPtr(profileResult["avatar"].(string))

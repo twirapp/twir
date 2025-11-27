@@ -2,9 +2,12 @@ package vk
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 
-	"github.com/imroc/req/v3"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
@@ -59,18 +62,40 @@ type Track struct {
 }
 
 func (c *VK) GetTrack(ctx context.Context) (*Track, error) {
-	response := vkResponse{}
+	u, _ := url.Parse("https://api.vk.com/method/status.get")
+	q := u.Query()
+	q.Set("access_token", c.integration.AccessToken.String)
+	q.Set("v", "5.199")
+	u.RawQuery = q.Encode()
 
-	resp, err := req.R().
-		SetContext(ctx).
-		SetQueryParam("access_token", c.integration.AccessToken.String).
-		SetQueryParam("v", "5.199").
-		SetSuccessResult(&response).
-		SetContentType("application/json").
-		Get("https://api.vk.com/method/status.get")
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
 
-	if err != nil || !resp.IsSuccessState() || response.Error != nil {
-		return nil, fmt.Errorf("failed to get track from VK: %s", resp.String())
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get track from VK: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("failed to get track from VK: %s", string(body))
+	}
+
+	var response vkResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	if response.Error != nil {
+		return nil, fmt.Errorf("failed to get track from VK: %s", string(body))
 	}
 
 	if response.Status == nil || response.Status.Audio == nil {

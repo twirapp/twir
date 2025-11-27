@@ -2,9 +2,11 @@ package emotes
 
 import (
 	"context"
+	"encoding/json"
+	"io"
+	"net/http"
 	"strings"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 )
@@ -28,14 +30,27 @@ var SevenTv = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		var response sevenUserTvResponse
-
-		_, err := req.R().
-			SetContext(ctx).
-			SetSuccessResult(&response).
-			Get("https://7tv.io/v3/users/twitch/" + parseCtx.Channel.ID)
-
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://7tv.io/v3/users/twitch/"+parseCtx.Channel.ID, nil)
 		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+			return result, nil
+		}
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+			return result, nil
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+			return result, nil
+		}
+
+		var response sevenUserTvResponse
+		if err := json.Unmarshal(body, &response); err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 			return result, nil
 		}

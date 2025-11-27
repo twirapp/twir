@@ -1,15 +1,14 @@
 package tts
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/imroc/req/v3"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	config "github.com/twirapp/twir/libs/config"
@@ -110,15 +109,23 @@ func (s *say) Handler(
 	query.Set("text", input.Text)
 	reqUrl.RawQuery = query.Encode()
 
-	var b bytes.Buffer
-	resp, err := req.
-		SetContext(ctx).
-		SetOutput(&b).
-		Get(reqUrl.String())
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqUrl.String(), nil)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "Failed to create request", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, huma.NewError(http.StatusInternalServerError, "Failed to call TTS service", err)
 	}
-	if !resp.IsSuccessState() {
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "Failed to read TTS response", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, huma.NewError(
 			http.StatusBadGateway,
 			fmt.Sprintf("TTS service returned error: %s", resp.Status),
@@ -127,7 +134,7 @@ func (s *say) Handler(
 
 	return &sayResponseDto{
 		ContentType: resp.Header.Get("Content-Type"),
-		Body:        b.Bytes(),
+		Body:        body,
 	}, nil
 }
 

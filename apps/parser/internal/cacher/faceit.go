@@ -2,13 +2,15 @@ package cacher
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math"
+	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -30,20 +32,33 @@ func (c *cacher) GetFaceitLatestMatches(ctx context.Context) ([]*types.FaceitMat
 		return c.cache.faceitData.Matches, nil
 	}
 
-	reqResult := faceitMatchesResponse{}
+	reqUrl := fmt.Sprintf(
+		"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
+		c.cache.faceitData.FaceitUser.PlayerId,
+		c.cache.faceitData.FaceitUser.FaceitGame.Name,
+	)
 
-	_, err = req.C().EnableForceHTTP1().R().
-		SetContext(ctx).
-		SetSuccessResult(&reqResult).
-		Get(
-			fmt.Sprintf(
-				"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
-				c.cache.faceitData.FaceitUser.PlayerId,
-				c.cache.faceitData.FaceitUser.FaceitGame.Name,
-			),
-		)
-
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqUrl, nil)
 	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil, err
+	}
+
+	var reqResult faceitMatchesResponse
+	if err := json.Unmarshal(body, &reqResult); err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil, err
 	}
@@ -162,20 +177,32 @@ func (c *cacher) GetFaceitUserData(ctx context.Context) (*types.FaceitUser, erro
 		game = "cs2"
 	}
 
-	data := &types.FaceitUserResponse{}
-	resp, err := req.C().EnableForceHTTP1().R().
-		SetContext(ctx).
-		SetBearerAuthToken(integration.Integration.APIKey.String).
-		SetSuccessResult(data).
-		Get("https://open.faceit.com/data/v4/players/" + *integration.Data.UserId)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://open.faceit.com/data/v4/players/"+*integration.Data.UserId, nil)
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
 		return nil, errors.New(
 			"user not found on faceit. Please make sure you typed correct nickname",
 		)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var data types.FaceitUserResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, err
 	}
 
 	if data.Games[game] == nil {
@@ -234,16 +261,29 @@ func (c *cacher) ComputeFaceitGainLoseEstimate(ctx context.Context) (
 		}, nil
 	}
 
-	var stateData faceitStateResponse
-	resp, err := req.C().EnableForceHTTP1().R().
-		SetContext(ctx).
-		SetSuccessResult(&stateData).
-		Get("https://api.faceit.com/match/v1/matches/groupByState?userId=" + faceitUser.PlayerId)
+	stateReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.faceit.com/match/v1/matches/groupByState?userId="+faceitUser.PlayerId, nil)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
+
+	stateResp, err := http.DefaultClient.Do(stateReq)
+	if err != nil {
+		return nil, err
+	}
+	defer stateResp.Body.Close()
+
+	if stateResp.StatusCode < 200 || stateResp.StatusCode >= 300 {
 		return nil, errors.New("cannot get data from faceit")
+	}
+
+	stateBody, err := io.ReadAll(stateResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var stateData faceitStateResponse
+	if err := json.Unmarshal(stateBody, &stateData); err != nil {
+		return nil, err
 	}
 
 	// match not going
@@ -251,16 +291,29 @@ func (c *cacher) ComputeFaceitGainLoseEstimate(ctx context.Context) (
 		return nil, nil
 	}
 
-	var matchData faceitMatchResponse
-	matchResp, err := req.C().EnableForceHTTP1().R().
-		SetContext(ctx).
-		SetSuccessResult(&matchData).
-		Get("https://api.faceit.com/match/v2/match/" + stateData.Payload.Ongoing.ID)
+	matchReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.faceit.com/match/v2/match/"+stateData.Payload.Ongoing.ID, nil)
 	if err != nil {
 		return nil, err
 	}
-	if !matchResp.IsSuccessState() {
+
+	matchResp, err := http.DefaultClient.Do(matchReq)
+	if err != nil {
+		return nil, err
+	}
+	defer matchResp.Body.Close()
+
+	if matchResp.StatusCode < 200 || matchResp.StatusCode >= 300 {
 		return nil, errors.New("cannot get data from faceit")
+	}
+
+	matchBody, err := io.ReadAll(matchResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var matchData faceitMatchResponse
+	if err := json.Unmarshal(matchBody, &matchData); err != nil {
+		return nil, err
 	}
 
 	// by default set user team to faction 1, if user found in faction2, then we reassign team

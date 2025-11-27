@@ -1,12 +1,15 @@
 package executron
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 
 	"github.com/go-redis/redis_rate/v10"
-	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
 	config "github.com/twirapp/twir/libs/config"
 )
@@ -51,22 +54,39 @@ func (c *Executron) ExecuteUserCode(
 	u, _ := url.Parse(c.apiUrl)
 	u.Path = "/run"
 
-	var executeResponse Response
-	resp, err := req.R().
-		SetContext(ctx).
-		SetBodyJsonMarshal(
-			request{
-				Language: language,
-				Code:     code,
-			},
-		).
-		SetSuccessResult(&executeResponse).
-		Post(u.String())
+	bodyData := request{
+		Language: language,
+		Code:     code,
+	}
+	bodyBytes, err := json.Marshal(bodyData)
+	if err != nil {
+		return nil, fmt.Errorf("cannot marshal request body: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		return nil, fmt.Errorf("cannot create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("cannot execute code: %s", resp.String())
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read response body: %w", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("cannot execute code: %s", string(respBody))
+	}
+
+	var executeResponse Response
+	if err := json.Unmarshal(respBody, &executeResponse); err != nil {
+		return nil, fmt.Errorf("cannot unmarshal response: %w", err)
 	}
 
 	if executeResponse.Error != "" {

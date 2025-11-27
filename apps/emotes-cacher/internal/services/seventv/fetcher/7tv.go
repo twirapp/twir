@@ -2,8 +2,10 @@ package fetcher
 
 import (
 	"context"
+	"encoding/json"
+	"io"
+	"net/http"
 
-	"github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
 )
 
@@ -23,18 +25,29 @@ type SevenTvGlobalResponse struct {
 }
 
 func GetChannelSevenTvEmotes(ctx context.Context, channelID string) ([]emote.Emote, error) {
-	data := SevenUserTvResponse{}
-
-	resp, err := req.
-		SetContext(ctx).
-		SetSuccessResult(&data).
-		Get("https://7tv.io/v3/users/twitch/" + channelID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://7tv.io/v3/users/twitch/"+channelID, nil)
 	if err != nil {
 		return nil, err
 	}
 
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
 	if resp.StatusCode > 299 {
 		return nil, nil
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var data SevenUserTvResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, err
 	}
 
 	if data.EmoteSet == nil {
@@ -56,17 +69,29 @@ func GetChannelSevenTvEmotes(ctx context.Context, channelID string) ([]emote.Emo
 }
 
 func GetGlobalSevenTvEmotes(ctx context.Context) ([]emote.Emote, error) {
-	data := SevenTvGlobalResponse{}
-	resp, err := req.
-		SetContext(ctx).
-		SetSuccessResult(&data).
-		Get("https://7tv.io/v3/emote-sets/global")
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://7tv.io/v3/emote-sets/global", nil)
 	if err != nil {
 		return nil, err
 	}
 
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
 	if resp.StatusCode > 299 {
 		return nil, nil
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var data SevenTvGlobalResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, err
 	}
 
 	result := make([]emote.Emote, 0, len(data.Emotes))

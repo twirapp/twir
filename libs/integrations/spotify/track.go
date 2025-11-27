@@ -2,11 +2,14 @@ package spotify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"slices"
 	"strings"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 )
 
@@ -62,13 +65,24 @@ type GetTrackResponse struct {
 }
 
 func (c *Spotify) getTrackByCurrentPlayingTrack(ctx context.Context) (*GetTrackResponse, error) {
-	data := spotifyCurrentPlayingResponse{}
-	resp, err := req.R().
-		SetBearerAuthToken(c.channelIntegration.AccessToken).
-		SetSuccessResult(&data).
-		Get("https://api.spotify.com/v1/me/player/currently-playing")
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		"https://api.spotify.com/v1/me/player/currently-playing",
+		nil,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+c.channelIntegration.AccessToken)
 
-	if resp != nil && resp.StatusCode == 401 && !c.isRetry {
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
 		if err := c.refreshToken(ctx); err != nil {
 			c.isRetry = false
@@ -78,15 +92,24 @@ func (c *Spotify) getTrackByCurrentPlayingTrack(ctx context.Context) (*GetTrackR
 
 		return c.GetTrack(ctx)
 	}
+
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
-	}
-	if resp == nil {
-		return nil, fmt.Errorf("cannot get spotify track: %s", "empty response")
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get spotify track: %s", resp.String())
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("cannot get spotify track: %s", string(body))
+	}
+
+	// Handle empty response (no track playing)
+	if len(body) == 0 {
+		return nil, nil
+	}
+
+	var data spotifyCurrentPlayingResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	if data.Track == nil {
@@ -145,11 +168,18 @@ type spotifyPlayerStateResponse struct {
 }
 
 func (c *Spotify) getTrackByPlayerState(ctx context.Context) (*GetTrackResponse, error) {
-	data := spotifyPlayerStateResponse{}
-	stateResp, err := req.R().
-		SetBearerAuthToken(c.channelIntegration.AccessToken).
-		SetSuccessResult(&data).
-		Get("https://api.spotify.com/v1/me/player")
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.spotify.com/v1/me/player", nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+c.channelIntegration.AccessToken)
+
+	stateResp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer stateResp.Body.Close()
+
 	if stateResp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
 		if err := c.refreshToken(ctx); err != nil {
@@ -159,12 +189,19 @@ func (c *Spotify) getTrackByPlayerState(ctx context.Context) (*GetTrackResponse,
 		c.isRetry = false
 		return c.getTrackByPlayerState(ctx)
 	}
+
+	body, err := io.ReadAll(stateResp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	if !stateResp.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get player state: %s", stateResp.String())
+	if stateResp.StatusCode < 200 || stateResp.StatusCode >= 300 {
+		return nil, fmt.Errorf("cannot get player state: %s", string(body))
+	}
+
+	var data spotifyPlayerStateResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	var playlistResponse *GetTrackResponsePlaylist
@@ -238,15 +275,23 @@ type spotifyPlaylistResponse struct {
 }
 
 func (c *Spotify) getPlaylist(ctx context.Context, id string) (*GetTrackResponsePlaylist, error) {
-	data := spotifyPlaylistResponse{}
-	resp, err := req.R().
-		SetBearerAuthToken(c.channelIntegration.AccessToken).
-		SetSuccessResult(&data).
-		SetQueryParam(
-			"fields",
-			"description,uri,external_urls,followers,href,id,images,name,owner,public",
-		).
-		Get(fmt.Sprintf("https://api.spotify.com/v1/playlists/%s", id))
+	u, _ := url.Parse(fmt.Sprintf("https://api.spotify.com/v1/playlists/%s", id))
+	q := u.Query()
+	q.Set("fields", "description,uri,external_urls,followers,href,id,images,name,owner,public")
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+c.channelIntegration.AccessToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
 	if resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
 		if err := c.refreshToken(ctx); err != nil {
@@ -257,17 +302,24 @@ func (c *Spotify) getPlaylist(ctx context.Context, id string) (*GetTrackResponse
 
 		return c.getPlaylist(ctx, id)
 	}
+
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	if !resp.IsSuccessState() {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if resp.StatusCode == 404 {
 			// playlist not found, probably radio by track or something
 			return nil, nil
 		}
 
-		return nil, fmt.Errorf("cannot get profile: %s", resp.String())
+		return nil, fmt.Errorf("cannot get profile: %s", string(body))
+	}
+
+	var data spotifyPlaylistResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	meta := GetTrackResponsePlaylistMeta{

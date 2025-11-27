@@ -2,9 +2,11 @@ package cacher
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -37,15 +39,28 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []types.ValorantMatch {
 		*integration.Data.ValorantPuuid,
 	)
 
-	var data *types.ValorantMatchesResponse
-
-	r := req.R().
-		SetContext(ctx).
-		SetHeader("Authorization", c.services.Config.ValorantHenrikApiKey).
-		SetSuccessResult(&data)
-
-	_, err := r.Get(apiUrl)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl, nil)
 	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+	req.Header.Set("Authorization", c.services.Config.ValorantHenrikApiKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+
+	var data types.ValorantMatchesResponse
+	if err := json.Unmarshal(body, &data); err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil
 	}
@@ -82,15 +97,28 @@ func (c *cacher) GetValorantMMR(ctx context.Context) *types.ValorantMMR {
 		*integration.Data.ValorantPuuid,
 	)
 
-	c.cache.valorantProfile = &types.ValorantMMR{}
-
-	r := req.R().
-		SetContext(ctx).
-		SetHeader("Authorization", c.services.Config.ValorantHenrikApiKey).
-		SetSuccessResult(c.cache.valorantProfile)
-
-	_, err := r.Get(apiUrl)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl, nil)
 	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+	req.Header.Set("Authorization", c.services.Config.ValorantHenrikApiKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+
+	c.cache.valorantProfile = &types.ValorantMMR{}
+	if err := json.Unmarshal(body, c.cache.valorantProfile); err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil
 	}

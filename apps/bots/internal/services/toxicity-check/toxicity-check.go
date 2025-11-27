@@ -3,13 +3,15 @@ package toxicity_check
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"sync"
 	"time"
 
-	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
 	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
@@ -57,8 +59,6 @@ func (c *Service) CheckTextToxicity(ctx context.Context, text string) (bool, err
 		return cachedToxicity, nil
 	}
 
-	var response float64
-
 	requestUrl, err := url.Parse(c.config.ToxicityAddr)
 	if err != nil {
 		return false, fmt.Errorf("cannot parse toxicity addr: %w", err)
@@ -68,15 +68,30 @@ func (c *Service) CheckTextToxicity(ctx context.Context, text string) (bool, err
 	query.Set("text", text)
 	requestUrl.RawQuery = query.Encode()
 
-	resp, err := req.R().
-		SetContext(ctx).
-		SetSuccessResult(&response).
-		Get(requestUrl.String())
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, requestUrl.String(), nil)
+	if err != nil {
+		return false, fmt.Errorf("cannot create request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		return false, fmt.Errorf("cannot request toxicity: %w", err)
 	}
-	if !resp.IsSuccessState() {
-		return false, fmt.Errorf("cannot request toxicity: %s", resp.String())
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return false, fmt.Errorf("cannot request toxicity: %s", string(bodyBytes))
+	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Errorf("cannot read response body: %w", err)
+	}
+
+	var response float64
+	if err := json.Unmarshal(bodyBytes, &response); err != nil {
+		return false, fmt.Errorf("cannot unmarshal response: %w", err)
 	}
 
 	isToxic := response == 1

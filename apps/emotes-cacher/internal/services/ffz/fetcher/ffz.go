@@ -2,8 +2,10 @@ package fetcher
 
 import (
 	"context"
+	"encoding/json"
+	"io"
+	"net/http"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
 )
@@ -22,13 +24,24 @@ type FfzResponse struct {
 }
 
 func GetChannelFfzEmotes(ctx context.Context, channelID string) ([]emote.Emote, error) {
-	reqData := FfzResponse{}
-
-	_, err := req.R().
-		SetContext(ctx).
-		SetSuccessResult(&reqData).
-		Get("https://api.frankerfacez.com/v1/room/id/" + channelID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.frankerfacez.com/v1/room/id/"+channelID, nil)
 	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var reqData FfzResponse
+	if err := json.Unmarshal(body, &reqData); err != nil {
 		return nil, err
 	}
 
@@ -50,13 +63,24 @@ func GetChannelFfzEmotes(ctx context.Context, channelID string) ([]emote.Emote, 
 }
 
 func GetGlobalFfzEmotes(ctx context.Context) ([]emote.Emote, error) {
-	reqData := FfzResponse{}
-
-	_, err := req.R().
-		SetContext(ctx).
-		SetSuccessResult(&reqData).
-		Get("https://api.frankerfacez.com/v1/set/global")
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.frankerfacez.com/v1/set/global", nil)
 	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var reqData FfzResponse
+	if err := json.Unmarshal(body, &reqData); err != nil {
 		return nil, err
 	}
 

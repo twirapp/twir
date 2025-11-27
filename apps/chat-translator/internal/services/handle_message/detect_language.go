@@ -2,9 +2,11 @@ package handle_message
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
-	"github.com/imroc/req/v3"
+	"io"
+	"net/http"
+	"net/url"
 )
 
 type detectedLang struct {
@@ -26,16 +28,37 @@ func (c *Service) detectLanguage(ctx context.Context, text string) (*langDetectR
 		reqUrl = "http://localhost:3012/detect"
 	}
 
-	resp := langDetectResult{}
-	res, err := req.R().SetContext(ctx).
-		SetQueryParam("text", text).
-		SetSuccessResult(&resp).
-		Get(reqUrl)
+	u, err := url.Parse(reqUrl)
 	if err != nil {
 		return nil, err
 	}
+	q := u.Query()
+	q.Set("text", text)
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("cannot detect language: %s", res.String())
+		return nil, fmt.Errorf("cannot detect language: %s", string(body))
+	}
+
+	var resp langDetectResult
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, err
 	}
 
 	return &resp, nil

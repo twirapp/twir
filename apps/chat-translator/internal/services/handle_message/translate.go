@@ -1,11 +1,14 @@
 package handle_message
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 
 	googletranslate "cloud.google.com/go/translate"
-	"github.com/imroc/req/v3"
 	"github.com/lkretschmer/deepl-go"
 	"golang.org/x/text/language"
 )
@@ -85,23 +88,40 @@ func (c *Service) translateDeeplUnOfficial(
 ) (*translateResult, error) {
 	var reqUrl string
 	if c.config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-processor:3012/translate")
+		reqUrl = "http://language-processor:3012/translate"
 	} else {
 		reqUrl = "http://localhost:3012/translate"
 	}
 
-	resp := translateResult{}
-	res, err := req.R().
-		SetContext(ctx).
-		SetBody(input).
-		SetHeader("Content-Type", "application/json").
-		SetSuccessResult(&resp).
-		Post(reqUrl)
+	bodyBytes, err := json.Marshal(input)
 	if err != nil {
 		return nil, err
 	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, reqUrl, bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("cannot translate: %s", res.String())
+		return nil, fmt.Errorf("cannot translate: %s", string(respBody))
+	}
+
+	var resp translateResult
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
 	}
 
 	return &resp, nil

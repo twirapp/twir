@@ -2,9 +2,10 @@ package spotify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
-	"github.com/imroc/req/v3"
+	"io"
+	"net/http"
 )
 
 type SpotifyProfile struct {
@@ -35,12 +36,17 @@ type SpotifyProfile struct {
 }
 
 func (c *Spotify) GetProfile(ctx context.Context) (*SpotifyProfile, error) {
-	data := SpotifyProfile{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetBearerAuthToken(c.channelIntegration.AccessToken).
-		SetSuccessResult(&data).
-		Get("https://api.spotify.com/v1/me")
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.spotify.com/v1/me", nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+c.channelIntegration.AccessToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
@@ -48,12 +54,18 @@ func (c *Spotify) GetProfile(ctx context.Context) (*SpotifyProfile, error) {
 		return c.GetProfile(ctx)
 	}
 
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get profile: %s", resp.String())
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("cannot get profile: %s", string(body))
+	}
+
+	var data SpotifyProfile
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	return &data, nil

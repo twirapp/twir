@@ -2,12 +2,15 @@ package weather
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 )
@@ -89,23 +92,34 @@ var Weather = &types.Variable{
 			return result, nil
 		}
 
-		data := weatherResponse{}
-		resp, err := req.
-			R().
-			SetQueryParams(
-				map[string]string{
-					"appid": apiKey,
-					"lang":  lang,
-					"units": "metric",
-					"q":     query,
-				},
-			).
-			SetSuccessResult(&data).
-			SetHeader("Content-Type", "application/json").
-			Get("https://api.openweathermap.org/data/2.5/weather")
+		u, err := url.Parse("https://api.openweathermap.org/data/2.5/weather")
 		if err != nil {
 			return nil, err
 		}
+		q := u.Query()
+		q.Set("appid", apiKey)
+		q.Set("lang", lang)
+		q.Set("units", "metric")
+		q.Set("q", query)
+		u.RawQuery = q.Encode()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
 		if resp.StatusCode != 200 && resp.StatusCode != 404 {
 			result.Result = fmt.Sprintf("OpenWeatherMap API error: %d", resp.StatusCode)
 			return result, nil
@@ -113,6 +127,11 @@ var Weather = &types.Variable{
 		if resp.StatusCode == 404 {
 			result.Result = "Location not found"
 			return result, nil
+		}
+
+		var data weatherResponse
+		if err := json.Unmarshal(body, &data); err != nil {
+			return nil, err
 		}
 
 		weatherDescription := make([]string, len(data.Weather))

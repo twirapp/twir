@@ -2,14 +2,16 @@ package integrations
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 
 	"github.com/guregu/null"
-	"github.com/imroc/req/v3"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_vk"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -83,44 +85,72 @@ func (c *Integrations) IntegrationsVKPostCode(
 		return nil, err
 	}
 
-	tokensData := &vkTokensResponse{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetQueryParams(
-			map[string]string{
-				"grant_type":    "authorization_code",
-				"client_id":     integration.Integration.ClientID.String,
-				"client_secret": integration.Integration.ClientSecret.String,
-				"redirect_uri":  integration.Integration.RedirectURL.String,
-				"code":          request.Code,
-			},
-		).
-		SetSuccessResult(tokensData).
-		Get("https://oauth.vk.com/access_token")
+	tokenUrl, _ := url.Parse("https://oauth.vk.com/access_token")
+	q := tokenUrl.Query()
+	q.Set("grant_type", "authorization_code")
+	q.Set("client_id", integration.Integration.ClientID.String)
+	q.Set("client_secret", integration.Integration.ClientSecret.String)
+	q.Set("redirect_uri", integration.Integration.RedirectURL.String)
+	q.Set("code", request.Code)
+	tokenUrl.RawQuery = q.Encode()
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, tokenUrl.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("vk auth error: %s", resp.String())
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("vk auth error: %s", string(bodyBytes))
+	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	tokensData := &vkTokensResponse{}
+	if err := json.Unmarshal(bodyBytes, tokensData); err != nil {
+		return nil, err
+	}
+
+	profileUrl, _ := url.Parse("https://api.vk.com/method/users.get")
+	pq := profileUrl.Query()
+	pq.Set("v", "5.131")
+	pq.Set("fields", "photo_max_orig")
+	pq.Set("access_token", tokensData.AccessToken)
+	profileUrl.RawQuery = pq.Encode()
+
+	profileReq, err := http.NewRequestWithContext(ctx, http.MethodGet, profileUrl.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	profileResp, err := http.DefaultClient.Do(profileReq)
+	if err != nil {
+		return nil, err
+	}
+	defer profileResp.Body.Close()
+
+	if profileResp.StatusCode < 200 || profileResp.StatusCode >= 300 {
+		profileBodyBytes, _ := io.ReadAll(profileResp.Body)
+		return nil, fmt.Errorf("vk auth error: %s", string(profileBodyBytes))
+	}
+
+	profileBodyBytes, err := io.ReadAll(profileResp.Body)
+	if err != nil {
+		return nil, err
 	}
 
 	profileData := &vkProfileResponse{}
-	resp, err = req.R().
-		SetContext(ctx).
-		SetQueryParams(
-			map[string]string{
-				"v":            "5.131",
-				"fields":       "photo_max_orig",
-				"access_token": tokensData.AccessToken,
-			},
-		).
-		SetSuccessResult(profileData).
-		Get("https://api.vk.com/method/users.get")
-	if err != nil {
+	if err := json.Unmarshal(profileBodyBytes, profileData); err != nil {
 		return nil, err
-	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("vk auth error: %s", resp.String())
 	}
 
 	userName := profileData.Response[0].FirstName + " " + profileData.Response[0].LastName

@@ -2,11 +2,13 @@ package tts
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
+	"net/http"
 
-	"github.com/imroc/req/v3"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -280,17 +282,30 @@ type TTSInfo struct {
 }
 
 func (s *Service) GetInfo(ctx context.Context) (*TTSInfo, error) {
-	result := map[string]any{}
-	resp, err := req.
-		R().
-		SetContext(ctx).
-		SetSuccessResult(&result).
-		Get(fmt.Sprintf("http://%s/info", s.config.TTSServiceUrl))
+	apiUrl := fmt.Sprintf("http://%s/info", s.config.TTSServiceUrl)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("tts service is not available: %w", err)
 	}
-	if !resp.IsSuccessState() {
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("tts service returned error status: %s", resp.Status)
+	}
+
+	result := map[string]any{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	respVoicesInfo, ok := result["rhvoice_wrapper_voices_info"].(map[string]interface{})

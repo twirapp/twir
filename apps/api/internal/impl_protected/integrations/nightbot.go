@@ -2,8 +2,10 @@ package integrations
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -12,7 +14,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/imroc/req/v3"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
@@ -73,25 +74,42 @@ func (c *Integrations) refreshNightbotTokens(
 	ctx context.Context,
 	integration *model.ChannelsIntegrations,
 ) error {
-	refreshData := nightbotRefreshResponse{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetFormData(
-			map[string]string{
-				"grant_type":    "refresh_token",
-				"client_id":     integration.ClientID.String,
-				"client_secret": integration.ClientSecret.String,
-				"refresh_token": integration.RefreshToken.String,
-			},
-		).
-		SetSuccessResult(&refreshData).
-		Post("https://api.nightbot.tv/oauth2/token")
+	formData := url.Values{}
+	formData.Set("grant_type", "refresh_token")
+	formData.Set("client_id", integration.ClientID.String)
+	formData.Set("client_secret", integration.ClientSecret.String)
+	formData.Set("refresh_token", integration.RefreshToken.String)
+
+	httpReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://api.nightbot.tv/oauth2/token",
+		strings.NewReader(formData.Encode()),
+	)
+	if err != nil {
+		return err
+	}
+	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("nightbot integration error: %s", string(bodyBytes))
+	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
-	if !resp.IsSuccessState() {
-		return fmt.Errorf("nightbot integration error: %s", resp.String())
+	refreshData := nightbotRefreshResponse{}
+	if err := json.Unmarshal(bodyBytes, &refreshData); err != nil {
+		return err
 	}
 
 	integration.AccessToken = null.StringFrom(refreshData.AccessToken)
@@ -128,23 +146,37 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 		return nil, errors.New("enable nightbot integration first")
 	}
 
-	commandsData := nightbotCustomCommandsResponse{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetBearerAuthToken(integration.AccessToken.String).
-		SetSuccessResult(&commandsData).
-		Get("https://api.nightbot.tv/1/commands")
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.nightbot.tv/1/commands", nil)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
+	httpReq.Header.Set("Authorization", "Bearer "+integration.AccessToken.String)
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if resp.StatusCode == http.StatusUnauthorized {
 			err = c.refreshNightbotTokens(ctx, integration)
 			if err != nil {
 				return nil, err
 			}
 		}
-		return nil, fmt.Errorf("nightbot integration error: %s", resp.String())
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("nightbot integration error: %s", string(bodyBytes))
+	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	commandsData := nightbotCustomCommandsResponse{}
+	if err := json.Unmarshal(bodyBytes, &commandsData); err != nil {
+		return nil, err
 	}
 
 	if len(commandsData.Commands) == 0 {
@@ -371,23 +403,37 @@ func (c *Integrations) IntegrationsNightbotImportTimers(
 		return nil, errors.New("enable nightbot integration first")
 	}
 
-	timersData := nightbotTimersResponse{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetBearerAuthToken(integration.AccessToken.String).
-		SetSuccessResult(&timersData).
-		Get("https://api.nightbot.tv/1/timers")
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.nightbot.tv/1/timers", nil)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
+	httpReq.Header.Set("Authorization", "Bearer "+integration.AccessToken.String)
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if resp.StatusCode == http.StatusUnauthorized {
 			err = c.refreshNightbotTokens(ctx, integration)
 			if err != nil {
 				return nil, err
 			}
 		}
-		return nil, fmt.Errorf("nightbot integration error: %s", resp.String())
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("nightbot integration error: %s", string(bodyBytes))
+	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	timersData := nightbotTimersResponse{}
+	if err := json.Unmarshal(bodyBytes, &timersData); err != nil {
+		return nil, err
 	}
 
 	if len(timersData.Timers) == 0 {
@@ -568,38 +614,70 @@ func (c *Integrations) IntegrationsNightbotPostCode(
 		return nil, err
 	}
 
-	tokensData := nightbotTokensResponse{}
-	resp, err := req.R().
-		SetContext(ctx).
-		SetFormData(
-			map[string]string{
-				"grant_type":    "authorization_code",
-				"client_id":     channelIntegration.Integration.ClientID.String,
-				"client_secret": channelIntegration.Integration.ClientSecret.String,
-				"redirect_uri":  channelIntegration.Integration.RedirectURL.String,
-				"code":          request.Code,
-			},
-		).
-		SetSuccessResult(&tokensData).
-		Post("https://api.nightbot.tv/oauth2/token")
+	formData := url.Values{}
+	formData.Set("grant_type", "authorization_code")
+	formData.Set("client_id", channelIntegration.Integration.ClientID.String)
+	formData.Set("client_secret", channelIntegration.Integration.ClientSecret.String)
+	formData.Set("redirect_uri", channelIntegration.Integration.RedirectURL.String)
+	formData.Set("code", request.Code)
+
+	tokenReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://api.nightbot.tv/oauth2/token",
+		strings.NewReader(formData.Encode()),
+	)
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("nightbot token request failed: %s", resp.String())
+	tokenReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	tokenResp, err := http.DefaultClient.Do(tokenReq)
+	if err != nil {
+		return nil, err
+	}
+	defer tokenResp.Body.Close()
+
+	if tokenResp.StatusCode < 200 || tokenResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(tokenResp.Body)
+		return nil, fmt.Errorf("nightbot token request failed: %s", string(bodyBytes))
+	}
+
+	tokenBodyBytes, err := io.ReadAll(tokenResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	tokensData := nightbotTokensResponse{}
+	if err := json.Unmarshal(tokenBodyBytes, &tokensData); err != nil {
+		return nil, err
+	}
+
+	meReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.nightbot.tv/1/me", nil)
+	if err != nil {
+		return nil, err
+	}
+	meReq.Header.Set("Authorization", "Bearer "+tokensData.AccessToken)
+
+	meResp, err := http.DefaultClient.Do(meReq)
+	if err != nil {
+		return nil, err
+	}
+	defer meResp.Body.Close()
+
+	if meResp.StatusCode < 200 || meResp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(meResp.Body)
+		return nil, fmt.Errorf("nightbot token request failed: %s", string(bodyBytes))
+	}
+
+	meBodyBytes, err := io.ReadAll(meResp.Body)
+	if err != nil {
+		return nil, err
 	}
 
 	channelData := &nightbotChannelResponse{}
-	resp, err = req.R().
-		SetContext(ctx).
-		SetSuccessResult(channelData).
-		SetBearerAuthToken(tokensData.AccessToken).
-		Get("https://api.nightbot.tv/1/me")
-	if err != nil {
+	if err := json.Unmarshal(meBodyBytes, channelData); err != nil {
 		return nil, err
-	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("nightbot token request failed: %s", resp.String())
 	}
 
 	channelIntegration.Data = &model.ChannelsIntegrationsData{

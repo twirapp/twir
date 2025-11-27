@@ -1,13 +1,17 @@
 package spotify_integration
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 
 	"github.com/google/uuid"
-	"github.com/imroc/req/v3"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/spotify"
@@ -72,28 +76,45 @@ func (s *Service) PostCode(
 		return fmt.Errorf("spotify not enabled on our side, please be patient")
 	}
 
-	var data spotifyTokensResponse
-	resp, err := req.R().
-		SetContext(ctx).
-		SetFormData(
-			map[string]string{
-				"grant_type":   "authorization_code",
-				"redirect_uri": *integration.RedirectURL,
-				"code":         code,
-			},
-		).
-		SetBasicAuth(
-			*integration.ClientID,
-			*integration.ClientSecret,
-		).
-		SetSuccessResult(&data).
-		SetContentType("application/x-www-form-urlencoded").
-		Post("https://accounts.spotify.com/api/token")
+	formData := url.Values{}
+	formData.Set("grant_type", "authorization_code")
+	formData.Set("redirect_uri", *integration.RedirectURL)
+	formData.Set("code", code)
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://accounts.spotify.com/api/token",
+		bytes.NewBufferString(formData.Encode()),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	auth := base64.StdEncoding.EncodeToString(
+		[]byte(*integration.ClientID + ":" + *integration.ClientSecret),
+	)
+	req.Header.Set("Authorization", "Basic "+auth)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to get spotify tokens: %w", err)
 	}
-	if !resp.IsSuccessState() {
-		return fmt.Errorf("failed to get spotify tokens: %s", resp.String())
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("failed to get spotify tokens: %s", string(body))
+	}
+
+	var data spotifyTokensResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		return fmt.Errorf("failed to parse response: %w", err)
 	}
 
 	createInput := channelsintegrationsspotify.CreateInput{

@@ -3,10 +3,9 @@ package tlds
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 	"time"
-
-	"github.com/imroc/req/v3"
 )
 
 type TLDS struct {
@@ -25,30 +24,35 @@ func New() (*TLDS, error) {
 }
 
 func (c *TLDS) fetch() error {
-	res, err := req.R().
-		SetRetryCount(10).
-		SetRetryInterval(
-			func(resp *req.Response, attempt int) time.Duration {
-				return 2 * time.Second
-			},
-		).
-		Get("https://data.iana.org/TLD/tlds-alpha-by-domain.txt")
+	var res *http.Response
+	var err error
+
+	for attempt := 0; attempt < 10; attempt++ {
+		res, err = http.Get("https://data.iana.org/TLD/tlds-alpha-by-domain.txt")
+		if err == nil && res.StatusCode == 200 {
+			break
+		}
+		if res != nil {
+			res.Body.Close()
+		}
+		time.Sleep(2 * time.Second)
+	}
+
 	if err != nil {
 		return fmt.Errorf("cannot get tlds %w", err)
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		return fmt.Errorf("cannot get tlds %v %v", res.StatusCode, res.ErrorResult())
+		return fmt.Errorf("cannot get tlds %v", res.StatusCode)
 	}
 
-	resString := ""
-	defer res.Body.Close()
 	bytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("cannot read body %w", err)
 	}
 
-	resString = string(bytes)
+	resString := string(bytes)
 
 	splittedTlds := strings.Split(resString, "\n")
 	splittedTlds = splittedTlds[1 : len(splittedTlds)-1]

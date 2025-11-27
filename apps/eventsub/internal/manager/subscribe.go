@@ -1,16 +1,18 @@
 package manager
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/avast/retry-go/v4"
-	"github.com/imroc/req/v3"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 )
@@ -73,13 +75,7 @@ func (c *Manager) SubscribeWithLimits(
 		return err
 	}
 
-	reqBuilder := req.R().
-		SetContext(ctx).
-		SetHeader(
-			"Client-id",
-			c.config.TwitchClientId,
-		)
-
+	var accessToken string
 	switch eventTransport.(type) {
 	case eventsub.ConduitTransport:
 		appToken, err := c.twirBus.Tokens.RequestAppToken.Request(
@@ -89,9 +85,7 @@ func (c *Manager) SubscribeWithLimits(
 		if err != nil {
 			return err
 		}
-
-		reqBuilder = reqBuilder.
-			SetBearerAuthToken(appToken.Data.AccessToken)
+		accessToken = appToken.Data.AccessToken
 	case eventsub.WebsocketTransport:
 		botToken, err := c.twirBus.Tokens.RequestBotToken.Request(
 			ctx,
@@ -102,9 +96,7 @@ func (c *Manager) SubscribeWithLimits(
 		if err != nil {
 			return err
 		}
-
-		reqBuilder = reqBuilder.
-			SetBearerAuthToken(botToken.Data.AccessToken)
+		accessToken = botToken.Data.AccessToken
 	case eventsub.WebhookTransport:
 		appToken, err := c.twirBus.Tokens.RequestAppToken.Request(
 			ctx,
@@ -113,21 +105,37 @@ func (c *Manager) SubscribeWithLimits(
 		if err != nil {
 			return err
 		}
-
-		reqBuilder = reqBuilder.
-			SetBearerAuthToken(appToken.Data.AccessToken)
+		accessToken = appToken.Data.AccessToken
 	}
 
 	err = retry.Do(
 		func() error {
-			resp, err := reqBuilder.SetBodyJsonBytes(requestBytes).Post("https://api.twitch.tv/helix/eventsub/subscriptions")
+			req, err := http.NewRequestWithContext(
+				ctx,
+				http.MethodPost,
+				"https://api.twitch.tv/helix/eventsub/subscriptions",
+				bytes.NewBuffer(requestBytes),
+			)
 			if err != nil {
 				return err
 			}
 
-			if resp.IsErrorState() {
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Client-Id", c.config.TwitchClientId)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				return err
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				bodyBytes, _ := io.ReadAll(resp.Body)
+				bodyStr := string(bodyBytes)
+
 				if resp.StatusCode == 429 && !strings.Contains(
-					resp.String(),
+					bodyStr,
 					"maximum subscriptions with type and condition exceeded",
 				) {
 					resetTimeStr := resp.Header.Get("ratelimit-reset")
@@ -150,7 +158,7 @@ func (c *Manager) SubscribeWithLimits(
 					}
 				}
 
-				return errors.New(resp.String())
+				return errors.New(bodyStr)
 			}
 
 			return nil

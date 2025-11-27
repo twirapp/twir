@@ -2,15 +2,18 @@ package messagehandler
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
+	"net/http"
+	"net/url"
 	"slices"
 	"strings"
 	"time"
 	"unicode/utf8"
 
-	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
@@ -408,18 +411,42 @@ type langDetectResult struct {
 func (c *MessageHandler) moderationDetectLanguage(text string) (*langDetectResult, error) {
 	var reqUrl string
 	if c.config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-processor:3012/detect")
+		reqUrl = "http://language-processor:3012/detect"
 	} else {
 		reqUrl = "http://localhost:3012/detect"
 	}
 
-	resp := langDetectResult{}
-	res, err := req.R().SetQueryParam("text", text).SetSuccessResult(&resp).Get(reqUrl)
+	u, err := url.Parse(reqUrl)
 	if err != nil {
 		return nil, err
 	}
-	if !res.IsSuccessState() {
+	q := u.Query()
+	q.Set("text", text)
+	u.RawQuery = q.Encode()
+
+	httpReq, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		return nil, errors.New("cannot get response")
+	}
+
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := langDetectResult{}
+	if err := json.Unmarshal(bodyBytes, &resp); err != nil {
+		return nil, err
 	}
 
 	return &resp, nil
