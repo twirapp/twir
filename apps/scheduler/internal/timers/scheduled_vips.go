@@ -7,11 +7,11 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/twitch"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 )
 
@@ -20,7 +20,7 @@ type ScheduledVipsOpts struct {
 	LC fx.Lifecycle
 
 	Config  config.Config
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	TwirBus *buscore.Bus
 
 	ScheduledVipsRepo scheduledvipsrepository.Repository
@@ -69,7 +69,7 @@ func NewScheduledVips(opts ScheduledVipsOpts) {
 
 type scheduledVips struct {
 	config            config.Config
-	logger            logger.Logger
+	logger            *slog.Logger
 	twirBus           *buscore.Bus
 	scheduledVipsRepo scheduledvipsrepository.Repository
 }
@@ -81,7 +81,7 @@ func (s *scheduledVips) process(ctx context.Context) {
 		},
 	)
 	if err != nil {
-		s.logger.Error("failed to get scheduled vips", slog.Any("err", err))
+		s.logger.Error("failed to get scheduled vips", logger.Error(err))
 		return
 	}
 
@@ -96,7 +96,7 @@ func (s *scheduledVips) process(ctx context.Context) {
 				s.twirBus,
 			)
 			if err != nil {
-				s.logger.Error("failed to create twitch client", slog.Any("err", err))
+				s.logger.Error("failed to create twitch client", logger.Error(err))
 				continue
 			}
 
@@ -120,7 +120,7 @@ func (s *scheduledVips) process(ctx context.Context) {
 			},
 		)
 		if err != nil {
-			s.logger.Error("failed to remove vip", slog.Any("err", err))
+			s.logger.Error("failed to remove vip", logger.Error(err))
 			continue
 		}
 		if resp.ErrorMessage != "" {

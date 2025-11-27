@@ -5,6 +5,7 @@ go 1.24.7
 require (
 	github.com/99designs/gqlgen v0.17.76
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/aidenwallis/go-ratelimiting v0.0.5
 	github.com/alexedwards/scs/goredisstore v0.0.0-20250417082927-ab20b3feb5e9
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.0
@@ -26,9 +27,25 @@ require (
 	github.com/oklog/ulid/v2 v2.1.1
 	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/ravilushqa/otelgqlgen v0.18.0
-	github.com/redis/go-redis/v9 v9.11.0
+	github.com/redis/go-redis/v9 v9.14.0
 	github.com/samber/lo v1.51.0
 	github.com/samber/slog-gin v1.15.1
+	github.com/twirapp/kv v0.5.1
+	github.com/twirapp/twir/apps/parser v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/baseapp v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/cache v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/config v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/crypto v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/gomodels v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/integrations v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/logger v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/pubsub v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/redis_keys v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/repositories v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/twitch v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/types v0.0.0-20251123190613-ee46e3691fbc
+	github.com/twirapp/twir/libs/utils v0.0.0-20251123190613-ee46e3691fbc
 	github.com/vektah/gqlparser/v2 v2.5.30
 	github.com/vikstrous/dataloadgen v0.0.9
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.62.0
@@ -42,19 +59,15 @@ require (
 require (
 	github.com/ClickHouse/ch-go v0.67.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.39.0 // indirect
-	github.com/JGLTechnologies/gin-rate-limit v1.5.6 // indirect
 	github.com/Khan/genqlient v0.8.1 // indirect
 	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.0 // indirect
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
-	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
-	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/exaring/otelpgx v0.9.3 // indirect
@@ -70,7 +83,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-redis/redis_rate/v10 v10.0.1 // indirect
-	github.com/go-redsync/redsync/v4 v4.13.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1 // indirect
@@ -94,6 +106,7 @@ require (
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/maypok86/otter/v2 v2.2.1 // indirect
 	github.com/minio/crc64nvme v1.1.0 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -122,6 +135,8 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
+	github.com/twirapp/twir/libs/sentry v0.0.0-20251123190613-ee46e3691fbc // indirect
+	github.com/twirapp/twir/libs/uptrace v0.0.0-20251123190613-ee46e3691fbc // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
@@ -150,7 +165,7 @@ require (
 	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/mod v0.26.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/tools v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250721164621-a45f3dfb1074 // indirect
@@ -159,5 +174,4 @@ require (
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
-	gotest.tools/v3 v3.5.2 // indirect
 )

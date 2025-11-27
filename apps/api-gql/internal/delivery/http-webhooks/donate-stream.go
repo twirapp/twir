@@ -1,12 +1,12 @@
 package http_webhooks
 
 import (
-	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 type donateStreamIncomingData struct {
@@ -40,7 +40,7 @@ func (c *Webhooks) donateStreamHandler(g *gin.Context) {
 			"donate_stream_confirmation"+integration.ID,
 		).String()
 		if err != nil {
-			c.logger.Error("cannot get confirmation from kv", slog.Any("err", err))
+			c.logger.Error("cannot get confirmation from kv", logger.Error(err))
 			g.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
 			return
 		}
@@ -54,7 +54,7 @@ func (c *Webhooks) donateStreamHandler(g *gin.Context) {
 		}
 		integrationsNameBytes, err := json.Marshal(integrationsMessage)
 		if err != nil {
-			c.logger.Error("cannot marshal message", slog.Any("err", err))
+			c.logger.Error("cannot marshal message", logger.Error(err))
 		} else {
 			c.pubSub.Publish("donations:new", integrationsNameBytes)
 		}

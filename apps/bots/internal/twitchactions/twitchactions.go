@@ -1,6 +1,8 @@
 package twitchactions
 
 import (
+	"log/slog"
+
 	"github.com/aidenwallis/go-ratelimiting/redis"
 	adapter "github.com/aidenwallis/go-ratelimiting/redis/adapters/go-redis"
 	goredis "github.com/redis/go-redis/v9"
@@ -10,7 +12,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
@@ -22,7 +23,7 @@ import (
 type Opts struct {
 	fx.In
 
-	Logger                  logger.Logger
+	Logger                  *slog.Logger
 	SentMessagesRepository  sentmessages.Repository
 	ChannelsRepository      channels.Repository
 	ToxicMessagesRepository toxic_messages.Repository
@@ -56,7 +57,7 @@ func New(opts Opts) *TwitchActions {
 }
 
 type TwitchActions struct {
-	logger                  logger.Logger
+	logger                  *slog.Logger
 	twirBus                 *buscore.Bus
 	rateLimiter             redis.SlidingWindow
 	sentMessagesRepository  sentmessages.Repository

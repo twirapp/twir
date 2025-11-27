@@ -5,8 +5,9 @@ import (
 	"log/slog"
 
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 )
 
@@ -37,7 +38,7 @@ func (c *PubSubHandlers) streamsOnline(
 		c.logger.Error(
 			"cannot update channel greetings",
 			slog.String("channelId", data.ChannelID),
-			slog.Any("err", err),
+			logger.Error(err),
 		)
 		return struct{}{}, err
 	}
@@ -46,7 +47,7 @@ func (c *PubSubHandlers) streamsOnline(
 		c.logger.Error(
 			"cannot invalidate greetings cache",
 			slog.String("channelId", data.ChannelID),
-			slog.Any("err", err),
+			logger.Error(err),
 		)
 		return struct{}{}, err
 	}

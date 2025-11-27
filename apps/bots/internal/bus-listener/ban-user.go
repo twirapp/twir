@@ -3,13 +3,13 @@ package bus_listener
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"sync"
 	"time"
 
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *BusListener) banUser(
@@ -25,7 +25,7 @@ func (c *BusListener) banUser(
 		`"id" = ?`,
 		req.ChannelID,
 	).First(&channelEntity).Error; err != nil {
-		c.logger.Error("cannot get channel entity", slog.Any("err", err))
+		c.logger.Error("cannot get channel entity", logger.Error(err))
 		return err
 	}
 
@@ -41,7 +41,7 @@ func (c *BusListener) banUser(
 			AddModAfterBan: req.AddModAfterBan,
 		},
 	); err != nil {
-		c.logger.Error("cannot ban user", slog.Any("err", err))
+		c.logger.Error("cannot ban user", logger.Error(err))
 		return err
 	}
 
@@ -77,7 +77,7 @@ func (c *BusListener) banUsers(
 		`"id" IN ?`,
 		uniqueChannelsIds,
 	).Find(&channelsEntities).Error; err != nil {
-		c.logger.Error("cannot get channels entities", slog.Any("err", err))
+		c.logger.Error("cannot get channels entities", logger.Error(err))
 		return err
 	}
 
@@ -121,7 +121,7 @@ func (c *BusListener) banUsers(
 					AddModAfterBan: r.AddModAfterBan,
 				},
 			); err != nil {
-				c.logger.Error("cannot ban user", slog.Any("err", err))
+				c.logger.Error("cannot ban user", logger.Error(err))
 				collectedErrors = append(collectedErrors, err)
 			}
 		}()

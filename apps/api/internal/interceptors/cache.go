@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twitchtv/twirp"
 )
 
@@ -74,11 +75,11 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 			if err == nil {
 				bytes, marshallErr := json.Marshal(result)
 				if marshallErr != nil {
-					s.logger.Error("cannot unmarshall", slog.Any("err", err))
+					s.logger.Error("cannot unmarshall", logger.Error(err))
 				} else {
 					redisSetErr := s.redis.Set(ctx, cacheKey, bytes, option.CacheDuration).Err()
 					if redisSetErr != nil {
-						s.logger.Error("cannot set redis cache", slog.Any("err", err))
+						s.logger.Error("cannot set redis cache", logger.Error(err))
 					}
 				}
 			}

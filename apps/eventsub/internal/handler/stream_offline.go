@@ -7,6 +7,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 )
 
@@ -25,7 +26,7 @@ func (c *Handler) HandleStreamOffline(
 		ctx,
 		redis_keys.StreamByChannelID(event.BroadcasterUserId),
 	).Err(); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	dbStream := model.ChannelsStreams{}
@@ -33,7 +34,7 @@ func (c *Handler) HandleStreamOffline(
 		`"userId" = ?`,
 		event.BroadcasterUserId,
 	).First(&dbStream).Error; err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 
@@ -50,6 +51,6 @@ func (c *Handler) HandleStreamOffline(
 		event.BroadcasterUserId,
 	).Delete(&model.ChannelsStreams{}).Error
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }

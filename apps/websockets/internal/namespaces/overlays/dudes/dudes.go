@@ -13,9 +13,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/twirapp/twir/apps/websockets/types"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -24,7 +24,7 @@ type Dudes struct {
 	manager *melody.Melody
 
 	gorm    *gorm.DB
-	logger  logger.Logger
+	logger  *slog.Logger
 	redis   *redis.Client
 	config  config.Config
 	counter prometheus.Gauge
@@ -35,7 +35,7 @@ type Opts struct {
 	fx.In
 
 	Gorm    *gorm.DB
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	Redis   *redis.Client
 	Config  config.Config
 	TwirBus *buscore.Bus
@@ -64,7 +64,7 @@ func New(opts Opts) *Dudes {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
-					opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+					opts.Logger.Error("cannot check user by api key", logger.Error(err))
 				}
 				return
 			}
@@ -106,7 +106,7 @@ func (c *Dudes) SendEvent(channelId, eventName string, data any) error {
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.logger.Error("cannot process message", slog.Any("err", err))
+		c.logger.Error("cannot process message", logger.Error(err))
 		return err
 	}
 
@@ -119,7 +119,7 @@ func (c *Dudes) SendEvent(channelId, eventName string, data any) error {
 	)
 
 	if err != nil {
-		c.logger.Error("cannot broadcast message", slog.Any("err", err))
+		c.logger.Error("cannot broadcast message", logger.Error(err))
 		return err
 	}
 

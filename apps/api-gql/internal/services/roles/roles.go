@@ -10,9 +10,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/repositories/roles"
 	"github.com/twirapp/twir/libs/repositories/roles/model"
 	"github.com/twirapp/twir/libs/repositories/roles_users"
@@ -24,7 +23,7 @@ type Opts struct {
 
 	RolesRepository      roles.Repository
 	RolesUsersRepository roles_users.Repository
-	Logger               logger.Logger
+	AuditRecorder        audit.Recorder
 	RolesCache           *generic_cacher.GenericCacher[[]model.Role]
 }
 
@@ -32,7 +31,7 @@ func New(opts Opts) *Service {
 	return &Service{
 		rolesRepository:      opts.RolesRepository,
 		rolesUsersRepository: opts.RolesUsersRepository,
-		logger:               opts.Logger,
+		auditRecorder:        opts.AuditRecorder,
 		rolesCache:           opts.RolesCache,
 	}
 }
@@ -40,7 +39,7 @@ func New(opts Opts) *Service {
 type Service struct {
 	rolesRepository      roles.Repository
 	rolesUsersRepository roles_users.Repository
-	logger               logger.Logger
+	auditRecorder        audit.Recorder
 	rolesCache           *generic_cacher.GenericCacher[[]model.Role]
 }
 
@@ -65,9 +64,9 @@ func (c *Service) GetManyByIDS(ctx context.Context, ids []uuid.UUID) ([]entity.C
 		return nil, err
 	}
 
-	entities := make([]entity.ChannelRole, 0, len(dbRoles))
-	for _, dbRole := range dbRoles {
-		entities = append(entities, c.modelToEntity(dbRole))
+	entities := make([]entity.ChannelRole, len(dbRoles))
+	for i, dbRole := range dbRoles {
+		entities[i] = c.modelToEntity(dbRole)
 	}
 
 	return entities, nil
@@ -82,9 +81,9 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 		return nil, err
 	}
 
-	entities := make([]entity.ChannelRole, 0, len(dbRoles))
-	for _, dbRole := range dbRoles {
-		entities = append(entities, c.modelToEntity(dbRole))
+	entities := make([]entity.ChannelRole, len(dbRoles))
+	for i, dbRole := range dbRoles {
+		entities[i] = c.modelToEntity(dbRole)
 	}
 
 	slices.SortFunc(
@@ -136,15 +135,16 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 		return entity.ChannelRole{}, err
 	}
 
-	c.logger.Audit(
-		"Role create",
-		audit.Fields{
-			NewValue:      dbRole,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
-			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(dbRole.ID.String()),
+	_ = c.auditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(dbRole.ID.String()),
+			},
+			NewValue: dbRole,
 		},
 	)
 
@@ -193,16 +193,17 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		return entity.ChannelRole{}, err
 	}
 
-	c.logger.Audit(
-		"Role update",
-		audit.Fields{
-			OldValue:      dbRole,
-			NewValue:      newRole,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(newRole.ID.String()),
+	_ = c.auditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(newRole.ID.String()),
+			},
+			NewValue: newRole,
+			OldValue: dbRole,
 		},
 	)
 
@@ -237,15 +238,16 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 		return err
 	}
 
-	c.logger.Audit(
-		"Role remove",
-		audit.Fields{
-			OldValue:      dbRole,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
-			OperationType: audit.OperationDelete,
-			ObjectID:      lo.ToPtr(dbRole.ID.String()),
+	_ = c.auditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(dbRole.ID.String()),
+			},
+			OldValue: dbRole,
 		},
 	)
 

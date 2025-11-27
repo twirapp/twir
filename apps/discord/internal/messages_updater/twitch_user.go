@@ -12,7 +12,8 @@ func (c *MessagesUpdater) getTwitchUser(userId string) (helix.User, error) {
 			IDs: []string{userId},
 		},
 	)
-	if len(users.Data.Users) == 0 {
+
+	if users == nil || len(users.Data.Users) == 0 {
 		return helix.User{}, fmt.Errorf("user not found")
 	}
 

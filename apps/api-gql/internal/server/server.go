@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -11,7 +12,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/fx"
 )
@@ -21,7 +21,7 @@ type Opts struct {
 	LC                 fx.Lifecycle
 	Sessions           *auth.Auth
 	CachedTwitchClient *twitch.CachedTwitchClient
-	Logger             logger.Logger
+	Logger             *slog.Logger
 	Middlewares        *middlewares.Middlewares
 	Config             config.Config
 }

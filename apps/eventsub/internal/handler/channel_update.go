@@ -7,6 +7,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 )
@@ -20,7 +21,7 @@ func (c *Handler) HandleChannelUpdate(
 		ctx,
 		redis_keys.StreamByChannelID(event.BroadcasterUserId),
 	).Err(); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	c.logger.Info(
@@ -48,7 +49,7 @@ func (c *Handler) HandleChannelUpdate(
 			Category:  event.CategoryName,
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	err := c.gorm.
@@ -63,6 +64,6 @@ func (c *Handler) HandleChannelUpdate(
 			},
 		).Error
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }

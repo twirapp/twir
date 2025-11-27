@@ -10,8 +10,8 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/socket_client"
-	"github.com/twirapp/twir/libs/logger"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -22,13 +22,13 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	Gorm       *gorm.DB
-	Logger     logger.Logger
+	Logger     *slog.Logger
 	EmoteStore *emotes_store.EmotesStore
 }
 
 type Service struct {
 	gorm               *gorm.DB
-	logger             logger.Logger
+	logger             *slog.Logger
 	registeredChannels map[string]struct{}
 	socket             *socket_client.WsConnection
 	emotesStore        *emotes_store.EmotesStore
@@ -175,7 +175,7 @@ func (c *Service) onMessage(ctx context.Context, client *socket_client.WsConnect
 	if err := json.Unmarshal(data, &baseMsg); err != nil {
 		c.logger.Error(
 			"Failed to unmarshal message",
-			slog.Any("error", err),
+			logger.Error(err),
 			slog.String("data", string(data)),
 		)
 		return
@@ -187,7 +187,7 @@ func (c *Service) onMessage(ctx context.Context, client *socket_client.WsConnect
 		if err := json.Unmarshal(data, &msg); err != nil {
 			c.logger.Error(
 				"Failed to unmarshal emote_create message",
-				slog.Any("error", err),
+				logger.Error(err),
 				slog.String("data", string(data)),
 			)
 			return
@@ -215,7 +215,7 @@ func (c *Service) onMessage(ctx context.Context, client *socket_client.WsConnect
 		if err := json.Unmarshal(data, &msg); err != nil {
 			c.logger.Error(
 				"Failed to unmarshal emote_update message",
-				slog.Any("error", err),
+				logger.Error(err),
 				slog.String("data", string(data)),
 			)
 			return
@@ -244,7 +244,7 @@ func (c *Service) onMessage(ctx context.Context, client *socket_client.WsConnect
 		if err := json.Unmarshal(data, &msg); err != nil {
 			c.logger.Error(
 				"Failed to unmarshal emote_delete message",
-				slog.Any("error", err),
+				logger.Error(err),
 				slog.String("data", string(data)),
 			)
 			return

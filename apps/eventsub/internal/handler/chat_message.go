@@ -17,6 +17,7 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
@@ -91,7 +92,7 @@ func (c *Handler) HandleChannelChatMessage(
 	)
 
 	if err := errwg.Wait(); err != nil {
-		c.logger.Error("cannot handle message", slog.Any("err", err))
+		c.logger.Error("cannot handle message", logger.Error(err))
 		return
 	}
 
@@ -110,7 +111,7 @@ func (c *Handler) HandleChannelChatMessage(
 		},
 	)
 	if err != nil {
-		c.logger.Error("cannot ensure user for chat message", slog.Any("err", err))
+		c.logger.Error("cannot ensure user for chat message", logger.Error(err))
 		return
 	}
 
@@ -140,7 +141,7 @@ func (c *Handler) HandleChannelChatMessage(
 	}
 
 	if err := c.twirBus.ChatMessages.Publish(ctx, data); err != nil {
-		c.logger.Error("cannot publish message for handle", slog.Any("err", err))
+		c.logger.Error("cannot publish message for handle", logger.Error(err))
 	}
 
 	isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
@@ -149,7 +150,7 @@ func (c *Handler) HandleChannelChatMessage(
 		return
 	} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
 		if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
-			c.logger.Error("cannot publish process command", slog.Any("err", err))
+			c.logger.Error("cannot publish process command", logger.Error(err))
 		}
 	}
 }
@@ -182,7 +183,7 @@ func (c *Handler) HandleChannelChatMessageDelete(
 			MessageId:            event.MessageId,
 		},
 	); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }
 
@@ -238,7 +239,7 @@ func (c *Handler) chatMessageCountEmotes(
 	)
 
 	if err := wg.Wait(); err != nil {
-		c.logger.Error("failed to fetch global emotes", slog.Any("err", err))
+		c.logger.Error("failed to fetch global emotes", logger.Error(err))
 		return nil, err
 	}
 
@@ -318,7 +319,7 @@ func (c *Handler) chatMessageGetChannelCommandPrefix(ctx context.Context, channe
 					UpdatedAt: time.Now(),
 				},
 			); err != nil {
-				c.logger.Error("cannot set default command prefix", slog.Any("err", err))
+				c.logger.Error("cannot set default command prefix", logger.Error(err))
 			}
 		}()
 	}

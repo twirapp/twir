@@ -2,13 +2,13 @@ package bus_listener
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/timers/internal/manager"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
@@ -20,7 +20,7 @@ type Opts struct {
 	fx.In
 
 	Lc      fx.Lifecycle
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	Bus     *buscore.Bus
 	Manager *manager.Manager
 }

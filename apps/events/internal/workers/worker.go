@@ -2,12 +2,12 @@ package workers
 
 import (
 	"context"
+	"log/slog"
 
 	eventsActivity "github.com/twirapp/twir/apps/events/internal/activities/events"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/apps/events/internal/workflows"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/worker"
@@ -20,7 +20,7 @@ type EventsWorkerOpts struct {
 
 	Cfg        config.Config
 	Workflow   *workflows.EventWorkflow
-	Logger     logger.Logger
+	Logger     *slog.Logger
 	Activities *eventsActivity.Activity
 }
 
@@ -28,7 +28,7 @@ func NewEventsWorker(opts EventsWorkerOpts) error {
 	c, err := client.Dial(
 		client.Options{
 			HostPort: opts.Cfg.TemporalHost,
-			Logger:   log.NewStructuredLogger(opts.Logger.GetSlog()),
+			Logger:   log.NewStructuredLogger(opts.Logger),
 		},
 	)
 	if err != nil {

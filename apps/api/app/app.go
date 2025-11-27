@@ -21,7 +21,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	channelseventsrepository "github.com/twirapp/twir/libs/repositories/events"
@@ -75,7 +74,7 @@ var App = fx.Options(
 		func(
 			mux *http.ServeMux,
 			sessionManager *scs.SessionManager,
-			l logger.Logger,
+			l *slog.Logger,
 			lc fx.Lifecycle,
 		) error {
 			server := &http.Server{

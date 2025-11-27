@@ -48,7 +48,7 @@ type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Logger                           logger.Logger
+	Logger                           *slog.Logger
 	WebsocketsGrpc                   websockets.WebsocketClient
 	GreetingsRepository              greetings.Repository
 	ChatMessagesRepository           chat_messages.Repository
@@ -77,7 +77,7 @@ type Opts struct {
 }
 
 type MessageHandler struct {
-	logger                           logger.Logger
+	logger                           *slog.Logger
 	websocketsGrpc                   websockets.WebsocketClient
 	greetingsRepository              greetings.Repository
 	chatMessagesRepository           chat_messages.Repository
@@ -289,7 +289,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	}
 
 	if err := handleTask.Wait(); err != nil {
-		c.logger.Error("error on execution all handlers", slog.Any("err", err))
+		c.logger.Error("error on execution all handlers", logger.Error(err))
 		return err
 	}
 

@@ -2,14 +2,15 @@ package commands_with_groups_and_responses
 
 import (
 	"context"
+	"log/slog"
 	"slices"
 	"strings"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	commandsservice "github.com/twirapp/twir/apps/api-gql/internal/services/commands"
+	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
@@ -26,7 +27,8 @@ type Opts struct {
 	CommandsWithGroupsAndResponsesRepository commands_with_groups_and_responses.Repository
 	ResponsesRepository                      commands_response.Repository
 	CommandsService                          *commandsservice.Service
-	Logger                                   logger.Logger
+	Logger                                   *slog.Logger
+	AuditRecorder                            audit.Recorder
 	CachedCommandsClient                     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
@@ -37,6 +39,7 @@ func New(opts Opts) *Service {
 		responsesRepository:                      opts.ResponsesRepository,
 		commandsRepository:                       opts.CommandsRepository,
 		logger:                                   opts.Logger,
+		auditRecorder:                            opts.AuditRecorder,
 		commandsService:                          opts.CommandsService,
 		cachedCommandsClient:                     opts.CachedCommandsClient,
 	}
@@ -49,7 +52,8 @@ type Service struct {
 	responsesRepository                      commands_response.Repository
 
 	commandsService      *commandsservice.Service
-	logger               logger.Logger
+	logger               *slog.Logger
+	auditRecorder        audit.Recorder
 	cachedCommandsClient *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 

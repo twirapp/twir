@@ -1,10 +1,11 @@
 package app
 
 import (
+	"log/slog"
+
 	"github.com/twirapp/twir/apps/tokens/internal/bus_listener"
 	"github.com/twirapp/twir/apps/tokens/internal/redis"
 	"github.com/twirapp/twir/libs/baseapp"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
@@ -32,7 +33,7 @@ var App = fx.Module(
 	fx.Invoke(
 		uptrace.NewFx("tokens"),
 		bus_listener.NewTokens,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info("Started")
 		},
 	),

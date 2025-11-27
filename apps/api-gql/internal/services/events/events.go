@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/events"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.uber.org/fx"
@@ -17,7 +17,7 @@ type Opts struct {
 	fx.In
 
 	EventsRepository events.Repository
-	Logger           logger.Logger
+	Logger           *slog.Logger
 	Cacher           *generic_cacher.GenericCacher[[]model.Event]
 }
 
@@ -31,7 +31,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	eventsRepository events.Repository
-	logger           logger.Logger
+	logger           *slog.Logger
 	cacher           *generic_cacher.GenericCacher[[]model.Event]
 }
 

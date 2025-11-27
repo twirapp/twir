@@ -24,7 +24,7 @@ type Opts struct {
 
 	Repo   pastebins.Repository
 	KV     kv.KV
-	Logger logger.Logger
+	Logger *slog.Logger
 }
 
 func New(opts Opts) *Service {
@@ -38,7 +38,7 @@ func New(opts Opts) *Service {
 type Service struct {
 	repo   pastebins.Repository
 	kv     kv.KV
-	logger logger.Logger
+	logger *slog.Logger
 }
 
 var ErrNotFound = fmt.Errorf("pastebin not found")
@@ -116,11 +116,11 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, erro
 
 		bytes, err := json.Marshal(converted)
 		if err != nil {
-			c.logger.Error("cannot convert pastebin entity to bytes", slog.Any("err", err))
+			c.logger.Error("cannot convert pastebin entity to bytes", logger.Error(err))
 			return
 		}
 		if err := c.kv.Set(cacheCtx, cacheKey, bytes, kvoptions.WithExpire(cacheTime)); err != nil {
-			c.logger.Error("cannot save pastebin entity to kv", slog.Any("err", err))
+			c.logger.Error("cannot save pastebin entity to kv", logger.Error(err))
 			return
 		}
 	}()

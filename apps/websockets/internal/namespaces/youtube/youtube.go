@@ -1,6 +1,7 @@
 package youtube
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/olahol/melody"
@@ -8,7 +9,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/helpers"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -18,7 +18,7 @@ type YouTube struct {
 	manager *melody.Melody
 
 	gorm   *gorm.DB
-	logger logger.Logger
+	logger *slog.Logger
 	redis  *redis.Client
 
 	counter prometheus.Gauge
@@ -29,7 +29,7 @@ type Opts struct {
 	fx.In
 
 	Gorm   *gorm.DB
-	Logger logger.Logger
+	Logger *slog.Logger
 	Redis  *redis.Client
 	Bus    *buscore.Bus
 }

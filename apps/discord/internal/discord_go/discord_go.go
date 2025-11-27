@@ -2,6 +2,7 @@ package discord_go
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/diamondburned/arikawa/v3/state"
@@ -18,14 +19,14 @@ type Opts struct {
 
 	LC     fx.Lifecycle
 	Config cfg.Config
-	Logger logger.Logger
+	Logger *slog.Logger
 	Db     *gorm.DB
 }
 
 type Discord struct {
 	*shard.Manager
 
-	logger logger.Logger
+	logger *slog.Logger
 	db     *gorm.DB
 }
 
@@ -34,7 +35,7 @@ func New(opts Opts) (*Discord, error) {
 		return &Discord{}, nil
 	}
 
-	log := opts.Logger.WithComponent("discord_session")
+	log := logger.WithComponent(opts.Logger, "discord_session")
 	discord := &Discord{
 		logger: log,
 		db:     opts.Db,

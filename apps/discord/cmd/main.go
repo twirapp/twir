@@ -9,6 +9,6 @@ import (
 func main() {
 	fx.New(
 		app.App,
-		logger.FxDiOnlyErrors,
+		logger.FxOnlyErrorsLoggerOption(),
 	).Run()
 }

@@ -7,8 +7,7 @@ import (
 
 	"github.com/oklog/ulid/v2"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	repo "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
@@ -21,21 +20,21 @@ type Opts struct {
 	fx.In
 
 	ChatTranslationRepository repo.Repository
-	Logger                    logger.Logger
+	AuditRecorder             audit.Recorder
 	TranslationsSettingsCache *generic_cacher.GenericCacher[model.ChatTranslation]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		chatTranslationRepository: opts.ChatTranslationRepository,
-		logger:                    opts.Logger,
+		auditRecorder:             opts.AuditRecorder,
 		translationsSettingsCache: opts.TranslationsSettingsCache,
 	}
 }
 
 type Service struct {
 	chatTranslationRepository repo.Repository
-	logger                    logger.Logger
+	auditRecorder             audit.Recorder
 	translationsSettingsCache *generic_cacher.GenericCacher[model.ChatTranslation]
 }
 
@@ -94,15 +93,16 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (
 		return entity.ChatTranslation{}, fmt.Errorf("failed to create chat translation: %w", err)
 	}
 
-	s.logger.Audit(
-		"Chat translation created", audit.Fields{
-			System:        "channels_chat_translation",
-			OperationType: audit.OperationCreate,
-			OldValue:      nil,
-			NewValue:      translation,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			ObjectID:      lo.ToPtr(translation.ID.String()),
+	_ = s.auditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    "channels_chat_translation",
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(translation.ID.String()),
+			},
+			NewValue: translation,
 		},
 	)
 
@@ -158,14 +158,17 @@ func (s *Service) Update(
 		return entity.ChatTranslation{}, fmt.Errorf("failed to update chat translation: %w", err)
 	}
 
-	s.logger.Audit(
-		"Chat translation updated", audit.Fields{
-			OldValue:      translation,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        "channels_chat_translation",
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(translation.ID.String()),
+	_ = s.auditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    "channels_chat_translation",
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(translation.ID.String()),
+			},
+			NewValue: translation,
+			OldValue: existingTranslation,
 		},
 	)
 
@@ -185,31 +188,33 @@ type DeleteInput struct {
 func (s *Service) Delete(ctx context.Context, input DeleteInput) error {
 	oldTranslation, err := s.chatTranslationRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return fmt.Errorf("failed to get chat translation: %w", err)
+		return fmt.Errorf("get chat translation by channel id: %w", err)
 	}
-	// Check if the settings belong to the current channel
+
+	// Check if the settings belongs to the current channel.
 	if oldTranslation.ChannelID != input.ChannelID {
-		return fmt.Errorf("chat translation settings do not belong to this channel")
+		return errors.New("chat translation settings doesn't belongs to this channel")
 	}
 
-	if err := s.chatTranslationRepository.Delete(ctx, input.ID); err != nil {
-		return fmt.Errorf("failed to delete chat translation: %w", err)
+	if err = s.chatTranslationRepository.Delete(ctx, input.ID); err != nil {
+		return fmt.Errorf("delete chat translation: %w", err)
 	}
 
-	s.logger.Audit(
-		"Chat translation deleted", audit.Fields{
-			System:        "channels_chat_translation",
-			OperationType: audit.OperationDelete,
-			OldValue:      &oldTranslation,
-			NewValue:      nil,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			ObjectID:      lo.ToPtr(oldTranslation.ID.String()),
+	_ = s.auditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    "channels_chat_translation",
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(oldTranslation.ID.String()),
+			},
+			OldValue: &oldTranslation,
 		},
 	)
 
 	if err := s.translationsSettingsCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return fmt.Errorf("failed to invalidate cache: %w", err)
+		return fmt.Errorf("invalidate cache: %w", err)
 	}
 
 	return nil

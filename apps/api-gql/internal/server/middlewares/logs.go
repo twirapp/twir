@@ -9,7 +9,7 @@ import (
 
 func (m *Middlewares) Logging(c *gin.Context) {
 	sloggin.NewWithConfig(
-		m.logger.GetSlog(),
+		m.logger,
 		sloggin.Config{
 			DefaultLevel:     slog.LevelInfo,
 			ClientErrorLevel: slog.LevelWarn,

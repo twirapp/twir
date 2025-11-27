@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 )
@@ -161,15 +161,16 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 
 	convertedCommand := c.modelToEntity(dbCmd)
 
-	c.logger.Audit(
-		"New command created",
-		audit.Fields{
-			NewValue:      convertedCommand,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        "channels_commands", // TODO: use some enum
-			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(convertedCommand.ID.String()),
+	_ = c.auditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    "channels_commands",
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(convertedCommand.ID.String()),
+			},
+			NewValue: convertedCommand,
 		},
 	)
 

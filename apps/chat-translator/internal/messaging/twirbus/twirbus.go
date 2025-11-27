@@ -2,8 +2,8 @@ package twirbus
 
 import (
 	"context"
+	"log/slog"
 
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/chat-translator/internal/services/handle_message"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
@@ -15,7 +15,7 @@ type Opts struct {
 
 	BusCore              *buscore.Bus
 	HandleMessageService *handle_message.Service
-	Logger               logger.Logger
+	Logger               *slog.Logger
 }
 
 func New(opts Opts) {

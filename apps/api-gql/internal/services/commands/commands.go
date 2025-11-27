@@ -10,9 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
+	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
@@ -25,7 +24,7 @@ type Opts struct {
 	TrManager                trm.Manager
 	CommandsRepository       commands.Repository
 	CommandsResponsesService *commands_responses.Service
-	Logger                   logger.Logger
+	AuditRecorder            audit.Recorder
 	CachedCommandsClient     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
@@ -33,8 +32,8 @@ func New(opts Opts) *Service {
 	return &Service{
 		commandsRepository:       opts.CommandsRepository,
 		commandsResponsesService: opts.CommandsResponsesService,
-		logger:                   opts.Logger,
 		trManager:                opts.TrManager,
+		auditRecorder:            opts.AuditRecorder,
 		cachedCommandsClient:     opts.CachedCommandsClient,
 	}
 }
@@ -43,7 +42,7 @@ type Service struct {
 	trManager                trm.Manager
 	commandsRepository       commands.Repository
 	commandsResponsesService *commands_responses.Service
-	logger                   logger.Logger
+	auditRecorder            audit.Recorder
 	cachedCommandsClient     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
@@ -115,15 +114,16 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 		return err
 	}
 
-	c.logger.Audit(
-		"Command removed",
-		audit.Fields{
-			OldValue:      command,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        "channels_commands", // TODO: use some enum
-			OperationType: audit.OperationDelete,
-			ObjectID:      lo.ToPtr(command.ID.String()),
+	_ = c.auditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    "channels_commands",
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(command.ID.String()),
+			},
+			OldValue: command,
 		},
 	)
 

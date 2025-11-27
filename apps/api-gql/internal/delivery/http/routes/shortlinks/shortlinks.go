@@ -1,6 +1,7 @@
 package shortlinks
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -8,7 +9,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
@@ -19,7 +19,7 @@ type Opts struct {
 	Config   config.Config
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
-	Logger   logger.Logger
+	Logger   *slog.Logger
 }
 
 var FxModule = fx.Provide(

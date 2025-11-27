@@ -2,17 +2,17 @@ package bus_listener
 
 import (
 	"context"
+	"log/slog"
 	"slices"
 
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"go.uber.org/fx"
 )
 
 type BusListener struct {
-	logger logger.Logger
+	logger *slog.Logger
 	bus    *buscore.Bus
 	store  *emotes_store.EmotesStore
 }
@@ -21,7 +21,7 @@ type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 	Bus    *buscore.Bus
 	Store  *emotes_store.EmotesStore
 }

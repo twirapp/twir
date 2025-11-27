@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *Handler) flushChannelPointsRewardsCache(ctx context.Context, channelID string) error {
@@ -24,7 +25,7 @@ func (c *Handler) HandleChannelPointsRewardAdd(
 	)
 
 	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserId); err != nil {
-		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
+		c.logger.Error("failed to flush channel points rewards cache", logger.Error(err))
 	}
 }
 
@@ -40,7 +41,7 @@ func (c *Handler) HandleChannelPointsRewardUpdate(
 	)
 
 	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserId); err != nil {
-		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
+		c.logger.Error("failed to flush channel points rewards cache", logger.Error(err))
 	}
 }
 
@@ -56,6 +57,6 @@ func (c *Handler) HandleChannelPointsRewardRemove(
 	)
 
 	if err := c.flushChannelPointsRewardsCache(ctx, event.BroadcasterUserId); err != nil {
-		c.logger.Error("failed to flush channel points rewards cache", slog.Any("err", err))
+		c.logger.Error("failed to flush channel points rewards cache", logger.Error(err))
 	}
 }

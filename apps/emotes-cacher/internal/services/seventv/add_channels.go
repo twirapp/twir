@@ -3,11 +3,11 @@ package seventv
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"sync"
 
 	"github.com/avast/retry-go/v4"
 	dispatchtypes "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error {
@@ -38,7 +38,7 @@ func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error 
 			if err := instance.Instance.subscribe(msg); err != nil {
 				c.logger.Error(
 					"failed to subscribe to 7TV websocket",
-					slog.Any("err", err),
+					logger.Error(err),
 				)
 				continue
 			}

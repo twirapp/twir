@@ -13,7 +13,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/crypto"
-	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 
@@ -35,7 +34,7 @@ type Opts struct {
 	Config           cfg.Config
 	Gorm             *gorm.DB
 	Redsync          *redsync.Redsync
-	Logger           logger.Logger
+	Logger           *slog.Logger
 	TwirBus          *buscore.Bus
 	TokensRepository tokensrepository.Repository
 }
@@ -45,7 +44,7 @@ type tokensImpl struct {
 	appAccessToken *appToken
 
 	config           cfg.Config
-	log              logger.Logger
+	log              *slog.Logger
 	redSync          *redsync.Redsync
 	twirBus          *buscore.Bus
 	tokensRepository tokensrepository.Repository

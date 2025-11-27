@@ -24,7 +24,7 @@ type Opts struct {
 
 	Gorm        *gorm.DB
 	Config      config.Config
-	Logger      logger.Logger
+	Logger      *slog.Logger
 	EmotesStore *emotes_store.EmotesStore
 }
 
@@ -65,7 +65,7 @@ type Service struct {
 	gorm                             *gorm.DB
 	sevenTvApiClient                 seventv.Client
 	registeredChannelsWithEmoteSetId channelsWithEmotesSetsIds
-	logger                           logger.Logger
+	logger                           *slog.Logger
 	emotesStore                      *emotes_store.EmotesStore
 }
 
@@ -101,7 +101,7 @@ func (c *Service) onMessage(
 ) {
 	var base messages.BaseMessageWithoutData
 	if err := json.Unmarshal(msg, &base); err != nil {
-		c.logger.Error("Failed to unmarshal base message", slog.Any("error", err))
+		c.logger.Error("Failed to unmarshal base message", logger.Error(err))
 		return
 	}
 
@@ -109,7 +109,7 @@ func (c *Service) onMessage(
 	case operations.IncomingOpHello:
 		var helloMsg messages.BaseMessage[messages.HelloMessage]
 		if err := json.Unmarshal(msg, &helloMsg); err != nil {
-			c.logger.Error("Failed to unmarshal hello message", slog.Any("error", err))
+			c.logger.Error("Failed to unmarshal hello message", logger.Error(err))
 			return
 		}
 
@@ -124,7 +124,7 @@ func (c *Service) onMessage(
 	case operations.IncomingOpDispatch:
 		var baseWithType messages.BaseMessage[messages.Dispatch]
 		if err := json.Unmarshal(msg, &baseWithType); err != nil {
-			c.logger.Error("Failed to unmarshal dispatch message", slog.Any("error", err))
+			c.logger.Error("Failed to unmarshal dispatch message", logger.Error(err))
 			return
 		}
 
@@ -133,7 +133,7 @@ func (c *Service) onMessage(
 		}
 
 		if err := c.handleEmoteSetUpdate(ctx, baseWithType.Data); err != nil {
-			c.logger.Error("Failed to handle emote set update", slog.Any("error", err))
+			c.logger.Error("Failed to handle emote set update", logger.Error(err))
 		}
 	}
 }

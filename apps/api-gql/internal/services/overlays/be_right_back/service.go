@@ -3,12 +3,12 @@ package be_right_back
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back/model"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -22,7 +22,7 @@ type Opts struct {
 	Repository      overlays_be_right_back.Repository
 	WsRouter        wsrouter.WsRouter
 	TwirBus         *buscore.Bus
-	Logger          logger.Logger
+	Logger          *slog.Logger
 	UsersRepository users.Repository
 }
 

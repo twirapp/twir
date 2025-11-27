@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -13,7 +14,6 @@ import (
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/youtube"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
-	"github.com/twirapp/twir/libs/logger"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -55,7 +55,7 @@ var App = fx.Module(
 			go http.ListenAndServe(":3004", nil)
 		},
 		grpc_impl.NewGrpcImplementation,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info(service + " started")
 		},
 	),

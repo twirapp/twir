@@ -10,7 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	commandmodel "github.com/twirapp/twir/libs/repositories/commands/model"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
@@ -188,16 +188,17 @@ func (c *Service) Update(
 		c.logger.Error("failed to invalidate cached commands", err)
 	}
 
-	c.logger.Audit(
-		"Command edited",
-		audit.Fields{
-			OldValue:      cmd,
-			NewValue:      newCmd,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(newCmd.Command.ID.String()),
+	_ = c.auditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(newCmd.Command.ID.String()),
+			},
+			NewValue: newCmd,
+			OldValue: cmd,
 		},
 	)
 

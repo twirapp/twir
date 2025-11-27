@@ -15,10 +15,11 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/kv"
 	kvredis "github.com/twirapp/kv/stores/redis"
+	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/audit/recorder"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/logger/audit"
+	logger "github.com/twirapp/twir/libs/logger"
 	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
@@ -53,21 +54,25 @@ func CreateBaseApp(opts Opts) fx.Option {
 				fx.As(new(auditlogsrepository.Repository)),
 			),
 			fx.Annotate(
-				audit.NewDatabaseFx,
-				fx.As(new(slog.Handler)),
-				fx.ResultTags(`group:"slog-handlers"`),
+				recorder.NewDatabase,
+				fx.As(new(audit.Recorder)),
+				fx.ResultTags(`group:"audit-recorders"`),
 			),
 			fx.Annotate(
-				audit.NewPubsubFx(),
-				fx.As(new(slog.Handler)),
-				fx.ResultTags(`group:"slog-handlers"`),
+				recorder.NewPubSub,
+				fx.As(new(audit.Recorder)),
+				fx.ResultTags(`group:"audit-recorders"`),
+			),
+			fx.Annotate(
+				recorder.NewFxFanout,
+				fx.As(new(audit.Recorder)),
 			),
 			func(r *redis.Client) kv.KV {
 				return kvredis.New(r)
 			},
 			logger.NewFx(
-				logger.Opts{
-					Service: opts.AppName,
+				logger.Options{
+					AppName: opts.AppName,
 					Level:   slog.LevelInfo,
 				},
 			),

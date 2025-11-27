@@ -8,7 +8,7 @@ import (
 
 func main() {
 	fx.New(
-		logger.FxDiOnlyErrors,
+		logger.FxOnlyErrorsLoggerOption(),
 		app.App,
 	).Run()
 }

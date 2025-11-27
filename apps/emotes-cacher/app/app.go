@@ -1,11 +1,12 @@
 package app
 
 import (
+	"log/slog"
+
 	bus_listener "github.com/twirapp/twir/apps/emotes-cacher/internal/bus-listener"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/bttv"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
@@ -22,7 +23,7 @@ var App = fx.Module(
 	fx.Invoke(
 		uptrace.NewFx("emotes-cacher"),
 		bus_listener.New,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info("Emotes Cacher started")
 		},
 		seventv.New,

@@ -15,9 +15,9 @@ func (c *Service) GetAllByChannelID(ctx context.Context, channelID string) (
 		return nil, err
 	}
 
-	converted := make([]entity.Keyword, 0, len(keywords))
-	for _, keyword := range keywords {
-		converted = append(converted, c.dbToModel(keyword))
+	converted := make([]entity.Keyword, len(keywords))
+	for i, keyword := range keywords {
+		converted[i] = c.dbToModel(keyword)
 	}
 
 	return converted, nil

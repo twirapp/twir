@@ -2,8 +2,8 @@ package messagehandler
 
 import (
 	"context"
-	"log/slog"
 
+	"github.com/twirapp/twir/libs/logger"
 	channelsemotesusages "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
@@ -30,14 +30,14 @@ func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []h
 
 	err := c.channelsEmotesUsagesRepository.CreateMany(ctx, createEmoteUsageInputs)
 	if err != nil {
-		c.logger.Error("cannot create emotes usages", slog.Any("err", err))
+		c.logger.Error("cannot create emotes usages", logger.Error(err))
 	}
 }
 
 func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	c.messagesEmotesBatcher.Add(msg)
 	return nil

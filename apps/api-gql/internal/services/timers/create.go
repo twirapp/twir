@@ -3,15 +3,15 @@ package timers
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/logger"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	"github.com/twirapp/twir/libs/repositories/timers/model"
 )
@@ -80,23 +80,24 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
 	if timer.Enabled {
 		if err := c.twirbus.Timers.AddTimer.Publish(ctx, timersReq); err != nil {
-			c.logger.Error("cannot publish add timer", slog.Any("err", err))
+			c.logger.Error("cannot publish add timer", logger.Error(err))
 		}
 	} else {
 		if err := c.twirbus.Timers.RemoveTimer.Publish(ctx, timersReq); err != nil {
-			c.logger.Error("cannot publish remove timer", slog.Any("err", err))
+			c.logger.Error("cannot publish remove timer", logger.Error(err))
 		}
 	}
 
-	c.logger.Audit(
-		"Timers create",
-		audit.Fields{
-			NewValue:      timer,
-			ActorID:       &data.ActorID,
-			ChannelID:     &data.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
-			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(timer.ID.String()),
+	_ = c.auditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
+				ActorID:   &data.ActorID,
+				ChannelID: &data.ChannelID,
+				ObjectID:  lo.ToPtr(timer.ID.String()),
+			},
+			NewValue: timer,
 		},
 	)
 

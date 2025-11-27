@@ -8,8 +8,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/libs/audit"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/libs/utils"
 )
 
@@ -91,16 +91,17 @@ func (r *mutationResolver) gamesUpdateEightBall(
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"8ball update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesEightBall),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(entity.ID.String()),
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesEightBall),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 
@@ -235,16 +236,17 @@ func (r *mutationResolver) gamesUpdateDuel(
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Duel update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesDuel),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(entity.ID.String()),
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesDuel),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 
@@ -375,16 +377,17 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Russian roulette update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesRussianRoulette),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(entity.ID.String()),
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesRussianRoulette),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 
@@ -477,16 +480,17 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Seppuku update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesSeppuku),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(entity.ID.String()),
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesSeppuku),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 
@@ -602,16 +606,17 @@ func (r *mutationResolver) gamesUpdateVoteban(
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Voteban update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_games_voteban",
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(entity.ID.String()),
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    "channels_games_voteban",
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 

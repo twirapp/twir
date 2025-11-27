@@ -10,7 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/repositories/keywords"
 )
 
@@ -57,15 +57,16 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword
 		return entity.KeywordNil, err
 	}
 
-	c.logger.Audit(
-		"Keywords create",
-		audit.Fields{
-			NewValue:      k,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
-			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(k.ID.String()),
+	_ = c.auditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(k.ID.String()),
+			},
+			NewValue: k,
 		},
 	)
 

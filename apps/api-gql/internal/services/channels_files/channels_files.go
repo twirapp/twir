@@ -12,9 +12,8 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
-	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/channels_files"
 	"github.com/twirapp/twir/libs/repositories/channels_files/model"
 	"go.uber.org/fx"
@@ -28,7 +27,6 @@ type Opts struct {
 	TrmManager trm.Manager
 	S3Client   *minio.Client
 	Config     config.Config
-	Logger     logger.Logger
 }
 
 type cachedFile struct {

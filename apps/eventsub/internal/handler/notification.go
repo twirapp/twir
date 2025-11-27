@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"gorm.io/gorm/clause"
 )
@@ -56,7 +57,7 @@ func (c *Handler) OnNotification(
 		userId,
 	)
 	if exists, err := c.redisClient.Exists(ctx, redisKey).Result(); err != nil {
-		c.logger.Error("failed to check redis", slog.Any("err", err))
+		c.logger.Error("failed to check redis", logger.Error(err))
 		return
 	} else if exists == 1 {
 		return
@@ -72,7 +73,7 @@ func (c *Handler) OnNotification(
 			Where("topic = ?", notification.Subscription.Type).
 			First(&topicEntity).
 			Error; err != nil {
-			c.logger.Error("failed to find topic", slog.Any("err", err))
+			c.logger.Error("failed to find topic", logger.Error(err))
 			return
 		}
 		knownTopicsEntitiesCache[notification.Subscription.Type] = topicEntity
@@ -99,7 +100,7 @@ func (c *Handler) OnNotification(
 			CallbackUrl: notification.Subscription.Transport.Callback,
 		},
 	).Error; err != nil {
-		c.logger.Error("failed to create/update subscription", slog.Any("err", err))
+		c.logger.Error("failed to create/update subscription", logger.Error(err))
 	}
 
 	c.redisClient.Set(ctx, redisKey, "true", 1*time.Minute)

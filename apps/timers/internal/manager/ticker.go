@@ -9,6 +9,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
@@ -26,7 +27,7 @@ func (c *Manager) tryTick(id TimerID) {
 	if err != nil {
 		c.logger.Error(
 			"[tick] cannot get channel",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", t.dbRow.ChannelID),
 			slog.String("timerId", id.String()),
 		)
@@ -41,7 +42,7 @@ func (c *Manager) tryTick(id TimerID) {
 	if err != nil {
 		c.logger.Error(
 			"[tick] cannot get channel stream",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", t.dbRow.ChannelID),
 			slog.String("timerId", id.String()),
 		)
@@ -56,7 +57,7 @@ func (c *Manager) tryTick(id TimerID) {
 	if err != nil {
 		c.logger.Error(
 			"[tick] cannot get stream parsed messages",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", t.dbRow.ChannelID),
 			slog.String("timerId", id.String()),
 		)
@@ -123,7 +124,7 @@ func (c *Manager) tryTick(id TimerID) {
 	if err != nil {
 		c.logger.Error(
 			"[tick] cannot send timer message",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", t.dbRow.ChannelID),
 			slog.String("timerId", id.String()),
 		)

@@ -10,6 +10,7 @@ import (
 	ffzfetcher "github.com/twirapp/twir/apps/emotes-cacher/internal/services/ffz/fetcher"
 	seventvfetcher "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/fetcher"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
@@ -27,7 +28,7 @@ func (c *EmotesStore) fillChannels() {
 			Offset(int(page * size)).
 			Limit(int(size)).
 			Find(&channelsIDs).Error; err != nil {
-			c.logger.Error("failed to get channels", slog.Any("error", err))
+			c.logger.Error("failed to get channels", logger.Error(err))
 			return
 		}
 		if len(channelsIDs) == 0 {
@@ -60,7 +61,7 @@ func (c *EmotesStore) fillChannels() {
 					c.logger.Debug(
 						"failed to fetch 7tv emotes",
 						slog.String("channel_id", channelID),
-						slog.Any("error", err),
+						logger.Error(err),
 					)
 				}
 

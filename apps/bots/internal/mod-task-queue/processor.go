@@ -32,7 +32,7 @@ type TaskProcessor interface {
 type RedisTaskProcessor struct {
 	config  config.Config
 	server  *asynq.Server
-	logger  logger.Logger
+	logger  *slog.Logger
 	gorm    *gorm.DB
 	twirBus *buscore.Bus
 }
@@ -44,7 +44,7 @@ type RedisTaskProcessorOpts struct {
 	LC fx.Lifecycle
 
 	Cfg     config.Config
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	Gorm    *gorm.DB
 	TwirBus *buscore.Bus
 }
@@ -71,7 +71,7 @@ func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
 			},
 			ErrorHandler: asynq.ErrorHandlerFunc(
 				func(ctx context.Context, task *asynq.Task, err error) {
-					opts.Logger.Error("error processing task", slog.Any("task", task), slog.Any("err", err))
+					opts.Logger.Error("error processing task", slog.Any("task", task), logger.Error(err))
 				},
 			),
 			LogLevel: asynq.ErrorLevel,

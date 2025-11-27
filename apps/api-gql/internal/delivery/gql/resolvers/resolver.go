@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/minio/minio-go/v7"
@@ -56,13 +57,13 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/libs/audit"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
@@ -76,8 +77,9 @@ import (
 type Deps struct {
 	fx.In
 
-	Logger   logger.Logger
-	WsRouter wsrouter.WsRouter
+	Logger        *slog.Logger
+	AuditRecorder audit.Recorder
+	WsRouter      wsrouter.WsRouter
 
 	SpotifyRepository channelsintegrationsspotify.Repository
 

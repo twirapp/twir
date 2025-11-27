@@ -1,6 +1,8 @@
 package impl_unprotected
 
 import (
+	"log/slog"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
@@ -8,7 +10,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/discord"
-	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -28,7 +29,7 @@ type Opts struct {
 	DiscordGrpc discord.DiscordClient
 
 	Bus    *buscore.Bus
-	Logger logger.Logger
+	Logger *slog.Logger
 }
 
 func New(opts Opts) *UnProtected {

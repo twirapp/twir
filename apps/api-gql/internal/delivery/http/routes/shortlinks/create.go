@@ -2,6 +2,7 @@ package shortlinks
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -13,7 +14,6 @@ import (
 	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
 )
@@ -24,7 +24,7 @@ type create struct {
 	config      config.Config
 	service     *shortenedurls.Service
 	sessions    *auth.Auth
-	logger      logger.Logger
+	logger      *slog.Logger
 	middlewares *middlewares.Middlewares
 }
 
@@ -34,7 +34,7 @@ type CreateOpts struct {
 	Config      config.Config
 	Service     *shortenedurls.Service
 	Sessions    *auth.Auth
-	Logger      logger.Logger
+	Logger      *slog.Logger
 	Middlewares *middlewares.Middlewares
 }
 

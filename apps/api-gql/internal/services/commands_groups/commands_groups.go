@@ -25,7 +25,7 @@ type Service struct {
 	commandsGroupsRepository commands_group.Repository
 }
 
-// GetManyByIDs returns a list of command groups by their IDs in in same order.
+// GetManyByIDs returns a list of command groups by their IDs in the same order.
 func (c *Service) GetManyByIDs(ctx context.Context, ids []uuid.UUID) (
 	[]*entity.CommandGroup,
 	error,

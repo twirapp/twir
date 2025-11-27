@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/giveaways/app"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
 func main() {
 	fx.New(
-		logger.FxDiOnlyErrors,
+		logger.FxOnlyErrorsLoggerOption(),
 		app.App,
 	).Run()
 }

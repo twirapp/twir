@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/libs/audit"
 )
 
 func (c *Service) Delete(ctx context.Context, channelID, actorID string, id uuid.UUID) error {
@@ -29,15 +29,16 @@ func (c *Service) Delete(ctx context.Context, channelID, actorID string, id uuid
 		c.logger.Error("failed to invalidate keywords cache", err)
 	}
 
-	c.logger.Audit(
-		"Keywords remove",
-		audit.Fields{
-			OldValue:      keyword,
-			ActorID:       &actorID,
-			ChannelID:     &channelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
-			OperationType: audit.OperationDelete,
-			ObjectID:      lo.ToPtr(keyword.ID.String()),
+	_ = c.auditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
+				ActorID:   &actorID,
+				ChannelID: &channelID,
+				ObjectID:  lo.ToPtr(keyword.ID.String()),
+			},
+			OldValue: keyword,
 		},
 	)
 

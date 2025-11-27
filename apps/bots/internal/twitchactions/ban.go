@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
 	kvoptions "github.com/twirapp/kv/options"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/twitch"
 )
@@ -43,7 +43,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 		c.twirBus,
 	)
 	if err != nil {
-		c.logger.Error("cannot create helix client", slog.Any("err", err))
+		c.logger.Error("cannot create helix client", logger.Error(err))
 		return fmt.Errorf("cannot create helix client: %w", err)
 	}
 

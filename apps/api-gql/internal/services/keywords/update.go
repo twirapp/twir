@@ -9,7 +9,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/logger"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 )
 
@@ -58,21 +59,22 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword
 		return entity.KeywordNil, err
 	}
 
-	c.logger.Audit(
-		"Keywords update",
-		audit.Fields{
-			OldValue:      keyword,
-			NewValue:      newKeyword,
-			ActorID:       &input.ActorID,
-			ChannelID:     &input.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(keyword.ID.String()),
+	_ = c.auditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
+				ActorID:   &input.ActorID,
+				ChannelID: &input.ChannelID,
+				ObjectID:  lo.ToPtr(keyword.ID.String()),
+			},
+			NewValue: newKeyword,
+			OldValue: keyword,
 		},
 	)
 
-	if err := c.keywordsCacher.Invalidate(ctx, input.ChannelID); err != nil {
-		c.logger.Error("failed to invalidate keywords cache", err)
+	if err = c.keywordsCacher.Invalidate(ctx, input.ChannelID); err != nil {
+		c.logger.Error("failed to invalidate keywords cache", logger.Error(err))
 	}
 
 	return c.dbToModel(newKeyword), nil

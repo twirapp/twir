@@ -4,24 +4,24 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/giveaways/internal/services"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
 type giveawaysListener struct {
 	giveawaysService *services.Service
 	bus              *buscore.Bus
-	logger           logger.Logger
+	logger           *slog.Logger
 }
 
 type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger           logger.Logger
+	Logger           *slog.Logger
 	GiveawaysService *services.Service
 	Bus              *buscore.Bus
 }
@@ -71,7 +71,7 @@ func (c *giveawaysListener) tryAddParticipant(
 		req.UserDisplayName,
 		req.GiveawayID,
 	); err != nil {
-		c.logger.Error("failed to add participant to giveaways", slog.Any("err", err))
+		c.logger.Error("failed to add participant to giveaways", logger.Error(err))
 		return struct{}{}, err
 	}
 

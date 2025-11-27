@@ -7,14 +7,14 @@ package resolvers
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/libs/audit"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/utils"
 )
 
@@ -55,15 +55,16 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 		return false, err
 	}
 
-	r.deps.Logger.Audit(
-		"New command group",
-		audit.Fields{
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
-			OperationType: audit.OperationCreate,
-			ObjectID:      &entity.ID,
+	_ = r.deps.AuditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  &entity.ID,
+			},
+			NewValue: entity,
 		},
 	)
 
@@ -109,19 +110,20 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 	}
 
 	if err := r.deps.CachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
-		r.deps.Logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+		r.deps.Logger.Error("failed to invalidate commands cache", logger.Error(err))
 	}
 
-	r.deps.Logger.Audit(
-		"Command group update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      &entity.ID,
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  &entity.ID,
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 
@@ -157,19 +159,19 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 	}
 
 	if err := r.deps.CachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
-		r.deps.Logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+		r.deps.Logger.Error("failed to invalidate commands cache", logger.Error(err))
 	}
 
-	r.deps.Logger.Audit(
-		"Command group remove",
-		audit.Fields{
-			OldValue:      entity,
-			NewValue:      nil,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
-			OperationType: audit.OperationDelete,
-			ObjectID:      &entity.ID,
+	_ = r.deps.AuditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  &entity.ID,
+			},
+			OldValue: entity,
 		},
 	)
 

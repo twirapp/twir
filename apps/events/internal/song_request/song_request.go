@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log/slog"
 
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
+	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -20,7 +20,7 @@ type Opts struct {
 
 	Gorm    *gorm.DB
 	TwirBus *buscore.Bus
-	Logger  logger.Logger
+	Logger  *slog.Logger
 }
 
 func New(opts Opts) *SongRequest {
@@ -34,7 +34,7 @@ func New(opts Opts) *SongRequest {
 type SongRequest struct {
 	gorm    *gorm.DB
 	twirBus *buscore.Bus
-	logger  logger.Logger
+	logger  *slog.Logger
 }
 
 type ProcessFromDonationInput struct {
@@ -129,7 +129,7 @@ func (c *SongRequest) ProcessFromDonation(
 		)
 
 		if err != nil {
-			c.logger.Error("cannot publish process message", slog.Any("err", err))
+			c.logger.Error("cannot publish process message", logger.Error(err))
 		}
 	}
 

@@ -3,8 +3,8 @@ package audit_logs
 import (
 	"context"
 
-	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
 	"go.uber.org/fx"
@@ -14,19 +14,19 @@ type Opts struct {
 	fx.In
 
 	AuditLogsRepository auditlogsrepository.Repository
-	LogsPubsub          auditlogs.PubSub
+	AuditLogsPubSub     auditlogs.PubSub
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		auditLogsRepository: opts.AuditLogsRepository,
-		logsPubsub:          opts.LogsPubsub,
+		auditLogsPubSub:     opts.AuditLogsPubSub,
 	}
 }
 
 type Service struct {
 	auditLogsRepository auditlogsrepository.Repository
-	logsPubsub          auditlogs.PubSub
+	auditLogsPubSub     auditlogs.PubSub
 }
 
 func modelToEntity(m model.AuditLog) entity.AuditLog {
@@ -86,7 +86,7 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 }
 
 func (c *Service) Subscribe(ctx context.Context, channelID string) (chan entity.AuditLog, error) {
-	auditLogs, err := c.logsPubsub.Subscribe(ctx, channelID)
+	auditLogs, err := c.auditLogsPubSub.Subscribe(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}

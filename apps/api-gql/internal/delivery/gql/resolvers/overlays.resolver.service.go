@@ -3,7 +3,6 @@ package resolvers
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -13,8 +12,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	now_playing_fetcher "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/now-playing-fetcher"
+	"github.com/twirapp/twir/libs/audit"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/logger/audit"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/types/types/api/overlays"
 	"github.com/twirapp/twir/libs/utils"
 )
@@ -191,19 +191,20 @@ func (r *mutationResolver) updateChatOverlay(
 			chatOverlaySubscriptionKeyCreate(entity.ID.String(), entity.ChannelID),
 			chatOverlayDbToGql(&entity),
 		); err != nil {
-			r.deps.Logger.Error("failed to publish settings", slog.Any("err", err))
+			r.deps.Logger.Error("failed to publish settings", logger.Error(err))
 		}
 	}()
 
-	r.deps.Logger.Audit(
-		"Chat overlay update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
-			OperationType: audit.OperationUpdate,
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 
@@ -303,14 +304,16 @@ func (r *mutationResolver) chatOverlayCreate(
 		return false, fmt.Errorf("failed to create chat overlay settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Chat overlay create",
-		audit.Fields{
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
-			OperationType: audit.OperationCreate,
+	_ = r.deps.AuditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			NewValue: entity,
 		},
 	)
 
@@ -336,15 +339,16 @@ func (r *mutationResolver) chatOverlayDelete(ctx context.Context, id string) (bo
 		return false, fmt.Errorf("failed to delete chat overlay settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Chat overlay delete",
-		audit.Fields{
-			OldValue:      entity,
-			NewValue:      nil,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
-			OperationType: audit.OperationDelete,
+	_ = r.deps.AuditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardId),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			OldValue: entity,
 		},
 	)
 
@@ -445,16 +449,16 @@ func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id strin
 		return false, fmt.Errorf("failed to delete now playing overlay settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Now playing overlay delete",
-		audit.Fields{
-			OldValue:      entity,
-			NewValue:      nil,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardID),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
-			OperationType: audit.OperationDelete,
-			ObjectID:      lo.ToPtr(entity.ID.String()),
+	_ = r.deps.AuditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardID),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			OldValue: entity,
 		},
 	)
 
@@ -514,14 +518,16 @@ func (r *mutationResolver) createNowPlayingOverlay(
 		return false, fmt.Errorf("failed to create now playing overlay settings: %w", err)
 	}
 
-	r.deps.Logger.Audit(
-		"Now playing overlay create",
-		audit.Fields{
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardID),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
-			OperationType: audit.OperationCreate,
+	_ = r.deps.AuditRecorder.RecordCreateOperation(
+		ctx,
+		audit.CreateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardID),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			NewValue: entity,
 		},
 	)
 
@@ -606,20 +612,21 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 				HideTimeout:     lo.ToPtr(int(entity.HideTimeout.Int64)),
 			},
 		); err != nil {
-			r.deps.Logger.Error("failed to publish settings", slog.Any("err", err))
+			r.deps.Logger.Error("failed to publish settings", logger.Error(err))
 		}
 	}()
 
-	r.deps.Logger.Audit(
-		"Now playing overlay update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardID),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(entity.ID.String()),
+	_ = r.deps.AuditRecorder.RecordUpdateOperation(
+		ctx,
+		audit.UpdateOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
+				ActorID:   lo.ToPtr(user.ID),
+				ChannelID: lo.ToPtr(dashboardID),
+				ObjectID:  lo.ToPtr(entity.ID.String()),
+			},
+			NewValue: entity,
+			OldValue: entityCopy,
 		},
 	)
 
@@ -715,7 +722,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 			default:
 				track, err := npService.Fetch(ctx)
 				if err != nil {
-					r.deps.Logger.Error("failed to get now playing track", slog.Any("err", err))
+					r.deps.Logger.Error("failed to get now playing track", logger.Error(err))
 					time.Sleep(5 * time.Second)
 					continue
 				}

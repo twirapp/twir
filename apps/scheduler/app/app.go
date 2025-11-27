@@ -1,11 +1,12 @@
 package app
 
 import (
+	"log/slog"
+
 	bus_listener "github.com/twirapp/twir/apps/scheduler/internal/bus-listener"
 	"github.com/twirapp/twir/apps/scheduler/internal/services"
 	"github.com/twirapp/twir/apps/scheduler/internal/timers"
 	"github.com/twirapp/twir/libs/baseapp"
-	"github.com/twirapp/twir/libs/logger"
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -41,7 +42,7 @@ var App = fx.Module(
 		timers.NewWatched,
 		timers.NewExpiredCommands,
 		timers.NewScheduledVips,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info("Started")
 		},
 	),

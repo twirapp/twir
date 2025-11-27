@@ -28,7 +28,7 @@ type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 
 	Tracer trace.Tracer
 
@@ -213,7 +213,7 @@ func New(opts Opts) (*BusListener, error) {
 }
 
 type BusListener struct {
-	logger         logger.Logger
+	logger         *slog.Logger
 	tracer         trace.Tracer
 	gorm           *gorm.DB
 	twitchActions  *twitchactions.TwitchActions
@@ -295,7 +295,7 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 		},
 	)
 	if err != nil {
-		c.logger.Error("cannot send message", slog.Any("err", err))
+		c.logger.Error("cannot send message", logger.Error(err))
 		return err
 	}
 	return nil
@@ -319,7 +319,7 @@ func (c *BusListener) handleChatMessage(
 			"cannot handle message",
 			slog.String("channelId", req.BroadcasterUserId),
 			slog.String("channelName", req.BroadcasterUserLogin),
-			slog.Any("err", err),
+			logger.Error(err),
 		)
 		return struct{}{}, err
 	}
@@ -336,7 +336,7 @@ func (c *BusListener) handleShoutOut(ctx context.Context, req bots.SentShoutOutR
 		},
 	)
 	if err != nil {
-		c.logger.Error("cannot send shoutout", slog.Any("err", err))
+		c.logger.Error("cannot send shoutout", logger.Error(err))
 		return err
 	}
 	return nil

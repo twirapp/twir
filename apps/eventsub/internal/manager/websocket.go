@@ -8,6 +8,7 @@ import (
 
 	"github.com/kr/pretty"
 	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twir/libs/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -27,7 +28,7 @@ func (c *Manager) startWebSocket() {
 			c.wsCurrentSessionId = &message.Payload.Session.Id
 
 			if err := c.twitchUpdateConduitShard(context.Background()); err != nil {
-				c.logger.Error("failed to update conduit shard", slog.Any("err", err))
+				c.logger.Error("failed to update conduit shard", logger.Error(err))
 			}
 		},
 	)
@@ -95,11 +96,11 @@ func (c *Manager) startWebSocket() {
 
 	for {
 		if err := ws.Connect(wsCtx); err != nil {
-			c.logger.Error("websocket connection failed", slog.Any("err", err))
+			c.logger.Error("websocket connection failed", logger.Error(err))
 		}
 
 		if err := ws.Disconnect(); err != nil {
-			c.logger.Warn("websocket disconnection failed", slog.Any("err", err))
+			c.logger.Warn("websocket disconnection failed", logger.Error(err))
 		}
 
 		time.Sleep(1 * time.Second)

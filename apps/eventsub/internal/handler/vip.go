@@ -7,6 +7,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	scheduledmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
 )
 
@@ -37,7 +38,7 @@ func (c *Handler) HandleChannelVipAdd(
 	if err := c.gorm.WithContext(ctx).Model(&model.UsersStats{}).
 		Where(`"userId" = ? and "channelId" = ?`, event.UserId, event.BroadcasterUserId).
 		Update(`"is_vip"`, true).Error; err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }
 
@@ -56,7 +57,7 @@ func (c *Handler) HandleChannelVipRemove(
 	if err := c.gorm.WithContext(ctx).Model(&model.UsersStats{}).
 		Where(`"userId" = ? and "channelId" = ?`, event.UserId, event.BroadcasterUserId).
 		Update(`"is_vip"`, false).Error; err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
 	c.twirBus.Events.VipRemoved.Publish(
@@ -77,13 +78,13 @@ func (c *Handler) HandleChannelVipRemove(
 		event.BroadcasterUserId,
 	)
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 
 	if scheduledVip != scheduledmodel.Nil {
 		if err := c.scheduledVipsRepo.Delete(ctx, scheduledVip.ID); err != nil {
-			c.logger.Error(err.Error(), slog.Any("err", err))
+			c.logger.Error(err.Error(), logger.Error(err))
 		}
 	}
 }

@@ -10,10 +10,10 @@ import (
 	"sync"
 
 	"github.com/samber/lo"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
@@ -22,7 +22,7 @@ type YtsrServer struct {
 	linksRegexp regexp.Regexp
 
 	config cfg.Config
-	logger logger.Logger
+	logger *slog.Logger
 }
 
 type Opts struct {
@@ -30,7 +30,7 @@ type Opts struct {
 	Lc fx.Lifecycle
 
 	Config  cfg.Config
-	Logger  logger.Logger
+	Logger  *slog.Logger
 	TwirBus *buscore.Bus
 }
 
@@ -96,7 +96,7 @@ func (c *YtsrServer) search(ctx context.Context, req ytsr.SearchRequest) (
 
 				// if odesli search fails, then we push raw youtube link to slice
 				if err != nil {
-					c.logger.Error("searchOdesli", slog.Any("err", err))
+					c.logger.Error("searchOdesli", logger.Error(err))
 					internalSongs = append(
 						internalSongs,
 						internalSong{
@@ -153,7 +153,7 @@ func (c *YtsrServer) search(ctx context.Context, req ytsr.SearchRequest) (
 				).Else(internalLink.youtubeQuery),
 			)
 			if err != nil {
-				c.logger.Error("searchByText", slog.Any("err", err))
+				c.logger.Error("searchByText", logger.Error(err))
 				return
 			}
 			if res.ID == "" {

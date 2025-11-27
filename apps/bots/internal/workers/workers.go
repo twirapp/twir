@@ -16,7 +16,7 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	ChannelsRepository channelsrepository.Repository
-	Logger             logger.Logger
+	Logger             *slog.Logger
 }
 
 func New(opts Opts) *Pool {
@@ -60,7 +60,7 @@ type Pool struct {
 	pond.Pool
 
 	channelsRepository channelsrepository.Repository
-	logger             logger.Logger
+	logger             *slog.Logger
 }
 
 const (
@@ -75,7 +75,7 @@ func (c *Pool) setSize(ctx context.Context) {
 		},
 	)
 	if err != nil {
-		c.logger.Error("cannot get channels count", slog.Any("err", err))
+		c.logger.Error("cannot get channels count", logger.Error(err))
 		return
 	}
 	newSize := channelsCount * proposedMessageHandlers * proposedTwitchActions

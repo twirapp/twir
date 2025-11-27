@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
@@ -174,7 +175,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	if err != nil {
 		r.deps.Logger.Error(
 			"cannot get community users",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("query", query),
 			slog.Any("args", args),
 		)

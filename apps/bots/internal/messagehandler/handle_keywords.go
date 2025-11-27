@@ -19,6 +19,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	rolesmodel "github.com/twirapp/twir/libs/repositories/roles/model"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
@@ -102,7 +103,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 				if err != nil {
 					c.logger.Error(
 						"cannot get channel roles",
-						slog.Any("err", err),
+						logger.Error(err),
 						slog.String("channelId", msg.BroadcasterUserId),
 					)
 					return
@@ -133,7 +134,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 					if err != nil {
 						c.logger.Error(
 							"cannot get user roles",
-							slog.Any("err", err),
+							logger.Error(err),
 							slog.String("channelId", msg.BroadcasterUserId),
 							slog.String("userId", msg.ChatterUserId),
 						)
@@ -198,7 +199,7 @@ func (c *MessageHandler) keywordsIncrementStats(
 	if err != nil {
 		c.logger.Error(
 			"cannot update keyword usages",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", keyword.ChannelID),
 		)
 	}
@@ -228,7 +229,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 	if err != nil {
 		c.logger.Error(
 			"cannot send keywords matched event",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", msg.BroadcasterUserId),
 			slog.String("userId", msg.ChatterUserId),
 		)
@@ -257,7 +258,7 @@ func (c *MessageHandler) keywordsParseResponse(
 	if err != nil {
 		c.logger.Error(
 			"cannot parse keyword response",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", msg.BroadcasterUserId),
 		)
 	}
@@ -277,7 +278,7 @@ func (c *MessageHandler) keywordsTriggerAlert(
 	).Find(&alert).Error; err != nil {
 		c.logger.Error(
 			"cannot get alert",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", keyword.ChannelID),
 		)
 		return
@@ -296,7 +297,7 @@ func (c *MessageHandler) keywordsTriggerAlert(
 	); err != nil {
 		c.logger.Error(
 			"cannot trigger alert",
-			slog.Any("err", err),
+			logger.Error(err),
 			slog.String("channelId", keyword.ChannelID),
 		)
 	}

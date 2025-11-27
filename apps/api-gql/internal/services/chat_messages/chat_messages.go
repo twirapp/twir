@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
 	"go.uber.org/fx"
@@ -26,7 +26,7 @@ type Opts struct {
 	ChatMessagesRepository chat_messages.Repository
 	TwirBus                *buscore.Bus
 	WsRouter               wsrouter.WsRouter
-	Logger                 logger.Logger
+	Logger                 *slog.Logger
 }
 
 const (
@@ -65,7 +65,7 @@ type Service struct {
 	chatMessagesRepository chat_messages.Repository
 
 	wsRouter   wsrouter.WsRouter
-	logger     logger.Logger
+	logger     *slog.Logger
 	chanSubs   map[string]struct{}
 	chanSubsMu sync.RWMutex
 }
@@ -109,8 +109,8 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 		err := c.wsRouter.Publish(chatMessagesSubscriptionKeyCreate(data.BroadcasterUserId), msg)
 		if err != nil {
 			c.logger.Error(
-				"Cannot publish some message to separate broadcaster messages",
-				slog.Any("err", err),
+				"cannot publish some message to separate broadcaster messages",
+				logger.Error(err),
 			)
 		}
 	}
@@ -118,7 +118,7 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 
 	err := c.wsRouter.Publish(chatMessagesSubscriptionKeyAll, msg)
 	if err != nil {
-		c.logger.Error("Cannot publish some message to all messages", slog.Any("err", err))
+		c.logger.Error("cannot publish some message to all messages", logger.Error(err))
 		return struct{}{}, err
 	}
 

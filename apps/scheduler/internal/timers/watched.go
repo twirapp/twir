@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"time"
 
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -17,7 +17,7 @@ type WatchedOpts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Logger logger.Logger
+	Logger *slog.Logger
 	Config config.Config
 
 	Gorm    *gorm.DB
@@ -45,7 +45,7 @@ func NewWatched(opts WatchedOpts) {
 						case <-ticker.C:
 							var streams []model.ChannelsStreams
 							if err := opts.Gorm.WithContext(ctx).Select(`"userId"`).Find(&streams).Error; err != nil {
-								opts.Logger.Error("cannot get streams", slog.Any("err", err))
+								opts.Logger.Error("cannot get streams", logger.Error(err))
 								continue
 							}
 
@@ -62,7 +62,7 @@ func NewWatched(opts WatchedOpts) {
 									).
 									Update("watched", gorm.Expr("watched + ?", timeTick.Milliseconds())).Error
 								if err != nil {
-									opts.Logger.Error("cannot update watched", slog.Any("err", err))
+									opts.Logger.Error("cannot update watched", logger.Error(err))
 								}
 							}
 						}

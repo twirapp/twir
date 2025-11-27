@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
+	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 
@@ -26,7 +26,7 @@ type StreamOpts struct {
 	Lc fx.Lifecycle
 
 	Config config.Config
-	Logger logger.Logger
+	Logger *slog.Logger
 
 	Gorm    *gorm.DB
 	TwirBus *buscore.Bus
@@ -34,7 +34,7 @@ type StreamOpts struct {
 
 type streams struct {
 	config  config.Config
-	logger  logger.Logger
+	logger  *slog.Logger
 	gorm    *gorm.DB
 	twirBus *buscore.Bus
 }
@@ -66,7 +66,7 @@ func NewStreams(opts StreamOpts) {
 							return
 						case <-ticker.C:
 							if err := s.processStreams(ctx); err != nil {
-								opts.Logger.Error("cannot process streams", slog.Any("err", err))
+								opts.Logger.Error("cannot process streams", logger.Error(err))
 							}
 						}
 					}
@@ -170,7 +170,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 			)
 
 			if err != nil || streams.ErrorMessage != "" {
-				c.logger.Error("cannot get streams", slog.Any("err", err))
+				c.logger.Error("cannot get streams", logger.Error(err))
 				return
 			}
 
@@ -252,7 +252,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 						userId,
 					).Delete(&model.ChannelsStreams{}).Error
 					if err != nil {
-						c.logger.Error("cannot delete stream", slog.Any("err", err))
+						c.logger.Error("cannot delete stream", logger.Error(err))
 						return
 					}
 

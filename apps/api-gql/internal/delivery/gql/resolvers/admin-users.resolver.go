@@ -6,7 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"log/slog"
 
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -14,13 +13,14 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // SwitchUserBan is the resolver for the switchUserBan field.
 func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bool, error) {
 	user, err := r.deps.UsersService.GetByID(ctx, userID)
 	if err != nil {
-		r.deps.Logger.Error("failed to get user by id", slog.Any("err", err))
+		r.deps.Logger.Error("failed to get user by id", logger.Error(err))
 		return false, err
 	}
 
@@ -33,7 +33,7 @@ func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bo
 		},
 	)
 	if err != nil {
-		r.deps.Logger.Error("failed to update user", slog.Any("err", err))
+		r.deps.Logger.Error("failed to update user", logger.Error(err))
 		return false, err
 	}
 
@@ -44,7 +44,7 @@ func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bo
 func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (bool, error) {
 	user, err := r.deps.UsersService.GetByID(ctx, userID)
 	if err != nil {
-		r.deps.Logger.Error("failed to get user by id", slog.Any("err", err))
+		r.deps.Logger.Error("failed to get user by id", logger.Error(err))
 		return false, err
 	}
 
@@ -57,7 +57,7 @@ func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (
 		},
 	)
 	if err != nil {
-		r.deps.Logger.Error("failed to update user", slog.Any("err", err))
+		r.deps.Logger.Error("failed to update user", logger.Error(err))
 		return false, err
 	}
 
@@ -93,7 +93,7 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 
 	dbUsers, err := r.deps.TwirUsersService.GetMany(ctx, manyInput)
 	if err != nil {
-		r.deps.Logger.Error("failed to get many users", slog.Any("err", err))
+		r.deps.Logger.Error("failed to get many users", logger.Error(err))
 		return nil, err
 	}
 

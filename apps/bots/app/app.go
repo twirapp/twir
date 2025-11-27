@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log/slog"
 	"net/http"
 	_ "net/http/pprof"
 
@@ -31,7 +32,6 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -174,7 +174,7 @@ var App = fx.Module(
 		},
 		stream_handlers.New,
 		bus_listener.New,
-		func(l logger.Logger) {
+		func(l *slog.Logger) {
 			l.Info("🚀 Bots started")
 		},
 	),

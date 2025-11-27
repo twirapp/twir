@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/libs/audit"
 )
 
 func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID string) error {
@@ -25,15 +25,16 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 		return err
 	}
 
-	c.logger.Audit(
-		"Variable delete",
-		audit.Fields{
-			OldValue:      variable,
-			ActorID:       &actorID,
-			ChannelID:     &channelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
-			OperationType: audit.OperationDelete,
-			ObjectID:      lo.ToPtr(variable.ID.String()),
+	_ = c.auditRecorder.RecordDeleteOperation(
+		ctx,
+		audit.DeleteOperation{
+			Metadata: audit.OperationMetadata{
+				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
+				ActorID:   &actorID,
+				ChannelID: &channelID,
+				ObjectID:  lo.ToPtr(variable.ID.String()),
+			},
+			OldValue: variable,
 		},
 	)
 

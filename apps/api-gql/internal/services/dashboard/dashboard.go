@@ -32,7 +32,7 @@ type Opts struct {
 	CachedTwitchClient      *twitchcache.CachedTwitchClient
 	KV                      kv.KV
 	Config                  config.Config
-	Logger                  logger.Logger
+	Logger                  *slog.Logger
 	TwirBus                 *buscore.Bus
 	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	ChannelEmotesUsagesRepo channelsemotesusagesrepository.Repository
@@ -56,7 +56,7 @@ type Service struct {
 	cachedTwitchClient      *twitchcache.CachedTwitchClient
 	kv                      kv.KV
 	config                  config.Config
-	logger                  logger.Logger
+	logger                  *slog.Logger
 	twirBus                 *buscore.Bus
 	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
@@ -108,7 +108,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 			},
 		)
 		if err != nil {
-			c.logger.Error("cannot get followers", slog.Any("err", err))
+			c.logger.Error("cannot get followers", logger.Error(err))
 			return
 		}
 		if followers.ErrorMessage != "" {

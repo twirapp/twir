@@ -2,7 +2,6 @@ package messagehandler
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
@@ -11,6 +10,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	"github.com/twirapp/twir/libs/utils"
@@ -20,8 +20,8 @@ import (
 
 func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	if msg.EnrichedData.ChannelStream == nil {
 		return nil
@@ -118,7 +118,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 			msg.BroadcasterUserId,
 			pq.StringArray{greeting.ID.String()},
 		).Find(&alert).Error; err != nil {
-		c.logger.Error("cannot find channel alert", slog.Any("err", err))
+		c.logger.Error("cannot find channel alert", logger.Error(err))
 		return err
 	}
 

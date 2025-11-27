@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // TwirEvents is the resolver for the twirEvents field.
@@ -45,7 +46,7 @@ func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<
 				if err := json.Unmarshal(data, &msg); err != nil {
 					r.deps.Logger.Error(
 						"failed to unmarshal twir event message",
-						slog.Any("err", err),
+						logger.Error(err),
 						slog.String("data", string(data)),
 					)
 					continue
@@ -55,7 +56,7 @@ func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<
 				if err != nil {
 					r.deps.Logger.Error(
 						"failed to map event to gql type",
-						slog.Any("err", err),
+						logger.Error(err),
 						slog.String("eventName", msg.EventName),
 					)
 					continue

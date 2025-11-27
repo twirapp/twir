@@ -2,9 +2,9 @@ package interceptors
 
 import (
 	"context"
-	"log/slog"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twitchtv/twirp"
 )
 
@@ -45,7 +45,7 @@ func (s *Service) DbUserInterceptor(next twirp.Method) twirp.Method {
 
 			dbUser, err := s.getUserByApiKey(castedApiKey)
 			if err != nil {
-				s.logger.Error("get user by api key", slog.Any("err", err))
+				s.logger.Error("get user by api key", logger.Error(err))
 				return nil, twirp.Internal.Error("internal error")
 			}
 			if dbUser == nil {

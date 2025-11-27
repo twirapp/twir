@@ -2,8 +2,8 @@ package interceptors
 
 import (
 	"context"
-	"log/slog"
 
+	"github.com/twirapp/twir/libs/logger"
 	"gorm.io/gorm"
 
 	"github.com/twitchtv/twirp"
@@ -14,7 +14,7 @@ func (s *Service) Errors(next twirp.Method) twirp.Method {
 		resp, err := next(ctx, req)
 
 		if err != nil && err != gorm.ErrRecordNotFound {
-			s.logger.Error("unexpected error", slog.Any("err", err))
+			s.logger.Error("unexpected error", logger.Error(err))
 		}
 		return resp, err
 	}

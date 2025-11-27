@@ -7,6 +7,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 func (c *Handler) HandleChannelModeratorAdd(
@@ -35,7 +36,7 @@ func (c *Handler) HandleChannelModeratorAdd(
 	)
 
 	if err := c.updateUserModStatus(ctx, event.BroadcasterUserId, event.UserId, true); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 }
@@ -66,7 +67,7 @@ func (c *Handler) HandleChannelModeratorRemove(
 	)
 
 	if err := c.updateUserModStatus(ctx, event.BroadcasterUserId, event.UserId, false); err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 }
@@ -99,7 +100,7 @@ func (c *Handler) updateBotStatus(
 	channel := model.Channels{}
 	err := c.gorm.WithContext(ctx).Where("id = ?", channelId).First(&channel).Error
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 
@@ -110,10 +111,10 @@ func (c *Handler) updateBotStatus(
 	channel.IsBotMod = newStatus
 	err = c.gorm.Save(&channel).Error
 	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
+		c.logger.Error(err.Error(), logger.Error(err))
 	} else {
 		if err = c.channelsCache.Invalidate(ctx, channelId); err != nil {
-			c.logger.Error(err.Error(), slog.Any("err", err))
+			c.logger.Error(err.Error(), logger.Error(err))
 		}
 	}
 }

@@ -6,7 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -15,6 +14,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // Users is the resolver for the users field.
@@ -26,7 +26,7 @@ func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]strin
 		},
 	)
 	if err != nil {
-		r.deps.Logger.Error("cannot get badge users", slog.Any("err", err))
+		r.deps.Logger.Error("cannot get badge users", logger.Error(err))
 		return nil, err
 	}
 
@@ -41,7 +41,7 @@ func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]strin
 // BadgesDelete is the resolver for the badgesDelete field.
 func (r *mutationResolver) BadgesDelete(ctx context.Context, id uuid.UUID) (bool, error) {
 	if err := r.deps.BadgesService.Delete(ctx, id); err != nil {
-		r.deps.Logger.Error("cannot delete badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot delete badge", logger.Error(err))
 		return false, err
 	}
 
@@ -69,7 +69,7 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id uuid.UUID, opts 
 
 	newBadge, err := r.deps.BadgesService.Update(ctx, id, input)
 	if err != nil {
-		r.deps.Logger.Error("cannot update badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot update badge", logger.Error(err))
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (r *mutationResolver) BadgesCreate(ctx context.Context, opts gqlmodel.TwirB
 
 	newBadge, err := r.deps.BadgesService.Create(ctx, input)
 	if err != nil {
-		r.deps.Logger.Error("cannot create badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot create badge", logger.Error(err))
 		return nil, err
 	}
 
@@ -115,7 +115,7 @@ func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, user
 		},
 	)
 	if err != nil {
-		r.deps.Logger.Error("cannot add user to badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot add user to badge", logger.Error(err))
 		return false, err
 	}
 
@@ -132,7 +132,7 @@ func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, u
 		},
 	)
 	if err != nil {
-		r.deps.Logger.Error("cannot remove user from badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot remove user from badge", logger.Error(err))
 		return false, err
 	}
 
