@@ -88,7 +88,7 @@ func (p PubSub) publishOperation(
 			return fmt.Errorf("marshal operation old value: %w", err)
 		}
 
-		auditLog.NewValue = null.StringFrom(string(oldValueBytes))
+		auditLog.OldValue = null.StringFrom(string(oldValueBytes))
 	}
 
 	if err := p.pubSub.Publish(ctx, auditLog); err != nil {

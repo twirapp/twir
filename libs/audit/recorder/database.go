@@ -93,7 +93,7 @@ func (d Database) saveOperation(
 			return fmt.Errorf("marshal operation old value: %w", err)
 		}
 
-		auditLog.NewValue = lo.ToPtr(string(oldValueBytes))
+		auditLog.OldValue = lo.ToPtr(string(oldValueBytes))
 	}
 
 	if err := d.repository.Create(ctx, auditLog); err != nil {
