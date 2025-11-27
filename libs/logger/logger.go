@@ -45,6 +45,14 @@ func New(options Options, additionalHandlers ...slog.Handler) *slog.Logger {
 	return logger
 }
 
+// SetDefault creates [*slog.Logger] with New constructor and sets it as default (global) logger.
+//
+// See [slog.SetDefault] for more detailed description.
+func SetDefault(options Options, additionalHandlers ...slog.Handler) {
+	logger := New(options, additionalHandlers...)
+	slog.SetDefault(logger)
+}
+
 // WithComponent returns a [*slog.Logger] that includes component attribute with the given name in each
 // subsequent output operation.
 func WithComponent(logger *slog.Logger, name string) *slog.Logger {
