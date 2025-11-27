@@ -2,6 +2,7 @@ package chat_translations_settings
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/twirapp/kv"
@@ -19,7 +20,16 @@ func New(
 			KV:        kv,
 			KeyPrefix: "cache:twir:chat_translation_settings:channel:",
 			LoadFn: func(ctx context.Context, key string) (model.ChatTranslation, error) {
-				return repo.GetByChannelID(ctx, key)
+				result, err := repo.GetByChannelID(ctx, key)
+				if err != nil {
+					if errors.Is(err, chat_translation.ErrSettingsNotFound) {
+						return model.ChatTranslationNil, nil
+					}
+
+					return model.ChatTranslationNil, err
+				}
+
+				return result, nil
 			},
 			Ttl: 24 * time.Hour,
 		},

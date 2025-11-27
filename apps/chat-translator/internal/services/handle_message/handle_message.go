@@ -183,6 +183,10 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 		return struct{}{}, err
 	}
 
+	if channelTranslationSettings.IsNil() {
+		return struct{}{}, nil
+	}
+
 	if channelTranslationSettings.ChannelID == "" ||
 		!channelTranslationSettings.Enabled ||
 		slices.Contains(channelTranslationSettings.ExcludedUsersIDs, msg.ChatterUserId) {

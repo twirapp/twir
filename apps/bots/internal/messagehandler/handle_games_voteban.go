@@ -35,7 +35,11 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 	}
 
 	// Check if user has already voted
-	userVoted, err := c.votebanProgressStateRepository.UserHasVoted(ctx, msg.BroadcasterUserId, msg.ChatterUserId)
+	userVoted, err := c.votebanProgressStateRepository.UserHasVoted(
+		ctx,
+		msg.BroadcasterUserId,
+		msg.ChatterUserId,
+	)
 	if err != nil {
 		return err
 	}
@@ -60,6 +64,10 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 			return nil
 		}
 		return err
+	}
+
+	if gameEntity.IsNil() {
+		return nil
 	}
 
 	if !gameEntity.Enabled {
@@ -133,12 +141,19 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 			return err
 		}
 
-		if err := c.votebanProgressStateRepository.ClearUserVotes(ctx, msg.BroadcasterUserId); err != nil {
+		if err := c.votebanProgressStateRepository.ClearUserVotes(
+			ctx,
+			msg.BroadcasterUserId,
+		); err != nil {
 			return err
 		}
 	} else {
 		// Update vote state
-		if err := c.votebanProgressStateRepository.Update(ctx, msg.BroadcasterUserId, voteState); err != nil {
+		if err := c.votebanProgressStateRepository.Update(
+			ctx,
+			msg.BroadcasterUserId,
+			voteState,
+		); err != nil {
 			return err
 		}
 	}

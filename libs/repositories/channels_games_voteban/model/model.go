@@ -28,6 +28,14 @@ type VoteBan struct {
 	VotingMode               VotingMode     `db:"voting_mode"`
 	ChatVotesWordsPositive   pq.StringArray `db:"chat_votes_words_positive"`
 	ChatVotesWordsNegative   pq.StringArray `db:"chat_votes_words_negative"`
+
+	isNil bool
 }
 
-var Nil = VoteBan{}
+func (v VoteBan) IsNil() bool {
+	return v.isNil
+}
+
+var Nil = VoteBan{
+	isNil: true,
+}

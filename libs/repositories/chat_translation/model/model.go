@@ -17,6 +17,14 @@ type ChatTranslation struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+
+	isNil bool
 }
 
-var ChatTranslationNil = ChatTranslation{}
+func (c ChatTranslation) IsNil() bool {
+	return c.isNil
+}
+
+var ChatTranslationNil = ChatTranslation{
+	isNil: true,
+}

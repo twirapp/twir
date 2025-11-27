@@ -173,7 +173,7 @@ func (c *Pgx) GetByChannelID(
 	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ChannelModerationSettings])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
+			return []model.ChannelModerationSettings{}, nil
 		}
 		return nil, err
 	}

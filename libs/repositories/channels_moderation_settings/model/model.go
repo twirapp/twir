@@ -38,6 +38,12 @@ type ChannelModerationSettings struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+
+	isNil bool
+}
+
+func (c ChannelModerationSettings) IsNil() bool {
+	return c.isNil
 }
 
 type ModerationSettingsType string
@@ -56,3 +62,7 @@ const (
 	ModerationSettingsTypeLanguage    ModerationSettingsType = "language"
 	ModerationSettingsTypeOneManSpam  ModerationSettingsType = "one_man_spam"
 )
+
+var Nil = ChannelModerationSettings{
+	isNil: true,
+}

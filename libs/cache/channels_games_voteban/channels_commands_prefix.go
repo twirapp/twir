@@ -2,6 +2,7 @@ package channels_games_voteban_cache
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	kvotter "github.com/twirapp/kv/stores/otter"
@@ -20,7 +21,16 @@ func New(
 			KV:        kvotter.New(),
 			KeyPrefix: "cache:twir:channels_games_voteban:channel:",
 			LoadFn: func(ctx context.Context, key string) (model.VoteBan, error) {
-				return repo.GetByChannelID(ctx, key)
+				result, err := repo.GetByChannelID(ctx, key)
+				if err != nil {
+					if errors.Is(err, channelsgamesvoteban.ErrNotFound) {
+						return model.Nil, nil
+					}
+
+					return model.Nil, err
+				}
+
+				return result, nil
 			},
 			Ttl:                24 * time.Hour,
 			InvalidateSignaler: generic_cacher.NewBusCoreInvalidator(bus),
