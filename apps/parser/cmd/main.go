@@ -242,7 +242,7 @@ func main() {
 		panic(err)
 	}
 
-	chatWallCache := chatwallcache.NewEnabledOnly(chatWallRepository, kvStorageRedis)
+	chatWallCache := chatwallcache.NewEnabledOnly(chatWallRepository, bus)
 
 	chatWallService := chatwallservice.New(
 		chatwallservice.Opts{
@@ -294,13 +294,13 @@ func main() {
 				Config:     *config,
 			},
 		),
-		ChannelEmotesUsagesRepo:    channelsEmotesUsage,
-		ChannelsCommandsUsagesRepo: channelsCommandsUsagesRepo,
+		ChannelEmotesUsagesRepo:           channelsEmotesUsage,
+		ChannelsCommandsUsagesRepo:        channelsCommandsUsagesRepo,
 		ChatMessagesRepo:                  chatMessagesRepo,
 		ChannelsGamesVotebanRepo:          channelsGamesVotebanRepo,
 		ChannelsGamesVotebanProgressState: channelsGamesVotebanProgressStateRepo,
 		Executron:                         executron.New(*config, redisClient),
-		I18n:                       translationService,
+		I18n:                              translationService,
 	}
 
 	variablesService := variables.New(

@@ -13,9 +13,17 @@ type ChatWallSettings struct {
 	UpdatedAt       time.Time
 	MuteSubscribers bool
 	MuteVips        bool
+
+	isNil bool
 }
 
-var ChatWallSettingsNil = ChatWallSettings{}
+func (c ChatWallSettings) IsNil() bool {
+	return c.isNil
+}
+
+var ChatWallSettingsNil = ChatWallSettings{
+	isNil: true,
+}
 
 type ChatWallAction string
 
@@ -36,9 +44,17 @@ type ChatWall struct {
 	DurationSeconds        int
 	TimeoutDurationSeconds *int
 	AffectedMessages       int
+
+	isNil bool
 }
 
-var ChatWallNil = ChatWall{}
+func (c ChatWall) IsNil() bool {
+	return c.isNil
+}
+
+var ChatWallNil = ChatWall{
+	isNil: true,
+}
 
 type ChatWallLog struct {
 	ID        ulid.ULID

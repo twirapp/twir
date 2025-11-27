@@ -146,6 +146,10 @@ func (c *Service) HandlePastMessages(
 		)
 	}
 
+	if chatWallSettings.IsNil() {
+		return nil
+	}
+
 	timeGte := time.Now().Add(-10 * time.Minute)
 
 	messages, err := c.chatMessagesRepo.GetMany(
