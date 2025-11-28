@@ -57,6 +57,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	nightbotintegration "github.com/twirapp/twir/apps/api-gql/internal/services/nightbot_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
@@ -203,6 +204,9 @@ import (
 
 	channelsgamesvotebanrepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
+
+	channelsintegrationsrepository "github.com/twirapp/twir/libs/repositories/channels_integrations"
+	channelsintegrationspostgres "github.com/twirapp/twir/libs/repositories/channels_integrations/datasource/postgres"
 
 	"go.uber.org/fx"
 
@@ -393,6 +397,10 @@ func main() {
 				channelsgamesvotebanpgx.NewFx,
 				fx.As(new(channelsgamesvotebanrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsintegrationspostgres.NewFx,
+				fx.As(new(channelsintegrationsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -444,6 +452,7 @@ func main() {
 			donatepay_integration.New,
 			valorantintegrationservice.New,
 			gamesvoteban.New,
+			nightbotintegration.New,
 		),
 		// grpc clients
 		fx.Provide(

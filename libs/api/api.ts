@@ -6,9 +6,9 @@ import { TwitchSearchChannelsResponse } from "./messages/twitch/twitch";
 import { TwitchSearchChannelsRequest } from "./messages/twitch/twitch";
 import { TwitchGetUsersResponse } from "./messages/twitch/twitch";
 import { TwitchGetUsersRequest } from "./messages/twitch/twitch";
-import { PostCodeRequest as PostCodeRequest$6 } from "./messages/integrations_valorant/integrations_valorant";
-import { GetDataResponse as GetDataResponse$6 } from "./messages/integrations_valorant/integrations_valorant";
-import { GetAuthLink as GetAuthLink$6 } from "./messages/integrations_valorant/integrations_valorant";
+import { PostCodeRequest as PostCodeRequest$5 } from "./messages/integrations_valorant/integrations_valorant";
+import { GetDataResponse as GetDataResponse$5 } from "./messages/integrations_valorant/integrations_valorant";
+import { GetAuthLink as GetAuthLink$5 } from "./messages/integrations_valorant/integrations_valorant";
 import { ParseHtmlOverlayResponse } from "./messages/overlays/overlays";
 import { ParseHtmlOverlayRequest } from "./messages/overlays/overlays";
 import { CreateRequest } from "./messages/overlays/overlays";
@@ -28,18 +28,13 @@ import { GetGuildInfoRequest } from "./messages/integrations_discord/integration
 import { GetGuildChannelsResponse } from "./messages/integrations_discord/integrations_discord";
 import { GetGuildChannelsRequest } from "./messages/integrations_discord/integrations_discord";
 import { DisconnectGuildMessage } from "./messages/integrations_discord/integrations_discord";
-import { PostCodeRequest as PostCodeRequest$5 } from "./messages/integrations_discord/integrations_discord";
+import { PostCodeRequest as PostCodeRequest$4 } from "./messages/integrations_discord/integrations_discord";
 import { UpdateMessage } from "./messages/integrations_discord/integrations_discord";
-import { GetDataResponse as GetDataResponse$5 } from "./messages/integrations_discord/integrations_discord";
-import { GetAuthLink as GetAuthLink$5 } from "./messages/integrations_discord/integrations_discord";
-import { PostCodeRequest as PostCodeRequest$4 } from "./messages/integrations_vk/integrations_vk";
-import { GetDataResponse as GetDataResponse$4 } from "./messages/integrations_vk/integrations_vk";
-import { GetAuthLink as GetAuthLink$4 } from "./messages/integrations_vk/integrations_vk";
-import { ImportTimersResponse } from "./messages/integrations_nightbot/integrations_nightbot";
-import { ImportCommandsResponse } from "./messages/integrations_nightbot/integrations_nightbot";
-import { PostCodeRequest as PostCodeRequest$3 } from "./messages/integrations_nightbot/integrations_nightbot";
-import { GetDataResponse as GetDataResponse$3 } from "./messages/integrations_nightbot/integrations_nightbot";
-import { GetAuthLink as GetAuthLink$3 } from "./messages/integrations_nightbot/integrations_nightbot";
+import { GetDataResponse as GetDataResponse$4 } from "./messages/integrations_discord/integrations_discord";
+import { GetAuthLink as GetAuthLink$4 } from "./messages/integrations_discord/integrations_discord";
+import { PostCodeRequest as PostCodeRequest$3 } from "./messages/integrations_vk/integrations_vk";
+import { GetDataResponse as GetDataResponse$3 } from "./messages/integrations_vk/integrations_vk";
+import { GetAuthLink as GetAuthLink$3 } from "./messages/integrations_vk/integrations_vk";
 import { PostCodeRequest as PostCodeRequest$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import { GetDataResponse as GetDataResponse$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import { GetAuthLink as GetAuthLink$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
@@ -69,20 +64,14 @@ export const Protected = new ServiceType("api.Protected", [
     { name: "IntegrationsStreamlabsGetData", options: {}, I: Empty, O: GetDataResponse$2 },
     { name: "IntegrationsStreamlabsPostCode", options: {}, I: PostCodeRequest$2, O: Empty },
     { name: "IntegrationsStreamlabsLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsNightbotGetAuthLink", options: {}, I: Empty, O: GetAuthLink$3 },
-    { name: "IntegrationsNightbotGetData", options: {}, I: Empty, O: GetDataResponse$3 },
-    { name: "IntegrationsNightbotPostCode", options: {}, I: PostCodeRequest$3, O: Empty },
-    { name: "IntegrationsNightbotLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsNightbotImportCommands", options: {}, I: Empty, O: ImportCommandsResponse },
-    { name: "IntegrationsNightbotImportTimers", options: {}, I: Empty, O: ImportTimersResponse },
-    { name: "IntegrationsVKGetAuthLink", options: {}, I: Empty, O: GetAuthLink$4 },
-    { name: "IntegrationsVKGetData", options: {}, I: Empty, O: GetDataResponse$4 },
-    { name: "IntegrationsVKPostCode", options: {}, I: PostCodeRequest$4, O: Empty },
+    { name: "IntegrationsVKGetAuthLink", options: {}, I: Empty, O: GetAuthLink$3 },
+    { name: "IntegrationsVKGetData", options: {}, I: Empty, O: GetDataResponse$3 },
+    { name: "IntegrationsVKPostCode", options: {}, I: PostCodeRequest$3, O: Empty },
     { name: "IntegrationsVKLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsDiscordGetAuthLink", options: {}, I: Empty, O: GetAuthLink$5 },
-    { name: "IntegrationsDiscordGetData", options: {}, I: Empty, O: GetDataResponse$5 },
+    { name: "IntegrationsDiscordGetAuthLink", options: {}, I: Empty, O: GetAuthLink$4 },
+    { name: "IntegrationsDiscordGetData", options: {}, I: Empty, O: GetDataResponse$4 },
     { name: "IntegrationsDiscordUpdate", options: {}, I: UpdateMessage, O: Empty },
-    { name: "IntegrationDiscordConnectGuild", options: {}, I: PostCodeRequest$5, O: Empty },
+    { name: "IntegrationDiscordConnectGuild", options: {}, I: PostCodeRequest$4, O: Empty },
     { name: "IntegrationsDiscordDisconnectGuild", options: {}, I: DisconnectGuildMessage, O: Empty },
     { name: "IntegrationsDiscordGetGuildChannels", options: {}, I: GetGuildChannelsRequest, O: GetGuildChannelsResponse },
     { name: "IntegrationsDiscordGetGuildInfo", options: {}, I: GetGuildInfoRequest, O: GetGuildInfoResponse },
@@ -97,9 +86,9 @@ export const Protected = new ServiceType("api.Protected", [
     { name: "OverlaysDelete", options: {}, I: DeleteRequest, O: Empty },
     { name: "OverlaysCreate", options: {}, I: CreateRequest, O: Overlay },
     { name: "OverlaysParseHtml", options: {}, I: ParseHtmlOverlayRequest, O: ParseHtmlOverlayResponse },
-    { name: "IntegrationsValorantGetAuthLink", options: {}, I: Empty, O: GetAuthLink$6 },
-    { name: "IntegrationsValorantGetData", options: {}, I: Empty, O: GetDataResponse$6 },
-    { name: "IntegrationsValorantPostCode", options: {}, I: PostCodeRequest$6, O: Empty },
+    { name: "IntegrationsValorantGetAuthLink", options: {}, I: Empty, O: GetAuthLink$5 },
+    { name: "IntegrationsValorantGetData", options: {}, I: Empty, O: GetDataResponse$5 },
+    { name: "IntegrationsValorantPostCode", options: {}, I: PostCodeRequest$5, O: Empty },
     { name: "IntegrationsValorantLogout", options: {}, I: Empty, O: Empty }
 ]);
 /**

@@ -1,6 +1,36 @@
 extend type Query {
 	streamelementsGetAuthorizationUrl: String! @isAuthenticated
 	streamelementsExchangeDataByCode(code: String!): StreamElementsImportDataOutput! @isAuthenticated
+	nightbotGetAuthLink: String! @isAuthenticated
+	nightbotGetData: NightbotIntegration @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+}
+
+extend type Mutation {
+	nightbotPostCode(input: NightbotPostCodeInput!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	nightbotLogout: Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	nightbotImportCommands: NightbotImportCommandsOutput! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	nightbotImportTimers: NightbotImportTimersOutput! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+}
+
+input NightbotPostCodeInput {
+	code: String!
+}
+
+type NightbotIntegration {
+	userName: String!
+	avatar: String!
+}
+
+type NightbotImportCommandsOutput {
+	importedCount: Int!
+	failedCount: Int!
+	failedCommandsNames: [String!]!
+}
+
+type NightbotImportTimersOutput {
+	importedCount: Int!
+	failedCount: Int!
+	failedTimersNames: [String!]!
 }
 
 type StreamElementsImportDataOutput {

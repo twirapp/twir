@@ -1,6 +1,8 @@
 package gql
 
 import (
+	"context"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -24,6 +26,8 @@ import (
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 )
@@ -46,6 +50,7 @@ type Opts struct {
 	TwitchService           *twitchservice.Service
 	DataLoaderFactory       *data_loader.LoaderFactory
 	Middlewares             *middlewares.Middlewares
+	Logger                  *slog.Logger
 }
 
 func New(opts Opts) *Gql {
@@ -86,6 +91,22 @@ func New(opts Opts) *Gql {
 				},
 			),
 		),
+	)
+
+	srv.SetErrorPresenter(
+		func(ctx context.Context, err error) *gqlerror.Error {
+			gerr := graphql.DefaultErrorPresenter(ctx, err)
+
+			opts.Logger.Error(
+				"GraphQL error",
+				slog.String("message", gerr.Message),
+				slog.String("path", gerr.Path.String()),
+				slog.Any("extensions", gerr.Extensions),
+				logger.Error(gerr.Err),
+			)
+
+			return gerr
+		},
 	)
 
 	srv.Use(extension.Introspection{})

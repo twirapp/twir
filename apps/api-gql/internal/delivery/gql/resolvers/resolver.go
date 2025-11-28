@@ -37,6 +37,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	nightbotintegration "github.com/twirapp/twir/apps/api-gql/internal/services/nightbot_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
@@ -144,6 +145,7 @@ type Deps struct {
 	DonatePayService                      *donatepay_integration.Service
 	DonationAlertsIntegrationService      *donationalerts_integration.Service
 	GamesVotebanService                   *gamesvoteban.Service
+	NightbotIntegrationService            *nightbotintegration.Service
 }
 
 type Resolver struct {

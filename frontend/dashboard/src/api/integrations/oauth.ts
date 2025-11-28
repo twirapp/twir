@@ -137,13 +137,3 @@ export function useValorantIntegration() {
 		useLogout: protectedApiClient.integrationsValorantLogout,
 	})
 }
-
-export function useNightbotIntegration() {
-	return createIntegrationOauth({
-		integrationName: 'nightbot',
-		getData: protectedApiClient.integrationsNightbotGetData,
-		getAuthLink: protectedApiClient.integrationsNightbotGetAuthLink,
-		usePostCode: protectedApiClient.integrationsNightbotPostCode,
-		useLogout: protectedApiClient.integrationsNightbotLogout,
-	})
-}

@@ -53,7 +53,7 @@ func newGorm(
 		&gorm.Config{
 			Logger:                 newLogger,
 			SkipDefaultTransaction: true,
-			PrepareStmt:            false,
+			// PrepareStmt:            false,
 		},
 	)
 	if err != nil {

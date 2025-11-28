@@ -7,7 +7,6 @@ import {
 	useDiscordIntegration,
 	useFaceitIntegration,
 	useLastfmIntegration,
-	useNightbotIntegration,
 	useStreamlabsIntegration,
 	useVKIntegration,
 	useValorantIntegration,
@@ -49,10 +48,6 @@ const integrationsHooks: {
 	},
 	valorant: {
 		manager: useValorantIntegration(),
-		closeWindow: true,
-	},
-	nightbot: {
-		manager: useNightbotIntegration(),
 		closeWindow: true,
 	},
 }
