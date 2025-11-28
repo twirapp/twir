@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Nightbot from './import/nightbot.vue';
-import StreamElements from './import/streamelements.vue';
-import Streamlabs from './import/streamlabs.vue';
+import Nightbot from '@/features/import/nightbot/nightbot-import.vue'
+import StreamElements from './import/streamelements.vue'
+import Streamlabs from './import/streamlabs.vue'
 </script>
 
 <template>

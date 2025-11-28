@@ -12,6 +12,84 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
+// NightbotPostCode is the resolver for the nightbotPostCode field.
+func (r *mutationResolver) NightbotPostCode(ctx context.Context, input gqlmodel.NightbotPostCodeInput) (bool, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.deps.NightbotIntegrationService.PostCode(ctx, dashboardId, input.Code)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// NightbotLogout is the resolver for the nightbotLogout field.
+func (r *mutationResolver) NightbotLogout(ctx context.Context) (bool, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.deps.NightbotIntegrationService.Logout(ctx, dashboardId)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// NightbotImportCommands is the resolver for the nightbotImportCommands field.
+func (r *mutationResolver) NightbotImportCommands(ctx context.Context) (*gqlmodel.NightbotImportCommandsOutput, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.deps.NightbotIntegrationService.ImportCommands(ctx, dashboardId, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.NightbotImportCommandsOutput{
+		ImportedCount:       result.ImportedCount,
+		FailedCount:         result.FailedCount,
+		FailedCommandsNames: result.FailedCommandsNames,
+	}, nil
+}
+
+// NightbotImportTimers is the resolver for the nightbotImportTimers field.
+func (r *mutationResolver) NightbotImportTimers(ctx context.Context) (*gqlmodel.NightbotImportTimersOutput, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.deps.NightbotIntegrationService.ImportTimers(ctx, dashboardId, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.NightbotImportTimersOutput{
+		ImportedCount:     result.ImportedCount,
+		FailedCount:       result.FailedCount,
+		FailedTimersNames: result.FailedTimersNames,
+	}, nil
+}
+
 // StreamelementsGetAuthorizationURL is the resolver for the streamelementsGetAuthorizationUrl field.
 func (r *queryResolver) StreamelementsGetAuthorizationURL(ctx context.Context) (string, error) {
 	link, err := r.deps.StreamElementsService.GetAuthLink()
@@ -43,5 +121,37 @@ func (r *queryResolver) StreamelementsExchangeDataByCode(ctx context.Context, co
 	return &gqlmodel.StreamElementsImportDataOutput{
 		Commands: convertedCommands,
 		Timers:   convertedTimers,
+	}, nil
+}
+
+// NightbotGetAuthLink is the resolver for the nightbotGetAuthLink field.
+func (r *queryResolver) NightbotGetAuthLink(ctx context.Context) (string, error) {
+	link, err := r.deps.NightbotIntegrationService.GetAuthLink(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return link, nil
+}
+
+// NightbotGetData is the resolver for the nightbotGetData field.
+func (r *queryResolver) NightbotGetData(ctx context.Context) (*gqlmodel.NightbotIntegration, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := r.deps.NightbotIntegrationService.GetData(ctx, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	if data == nil {
+		return nil, nil
+	}
+
+	return &gqlmodel.NightbotIntegration{
+		UserName: data.UserName,
+		Avatar:   data.Avatar,
 	}, nil
 }

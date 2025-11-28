@@ -18,6 +18,10 @@ export function newRouter() {
 			component: () => import('../pages/IntegrationsCallbackDonationAlerts.vue'),
 		},
 		{
+			path: '/dashboard/integrations/nightbot',
+			component: () => import('../features/import/nightbot/nightbot-callback.vue'),
+		},
+		{
 			path: '/dashboard/integrations/:integrationName',
 			component: () => import('../pages/IntegrationsCallback.vue'),
 		},

@@ -9,7 +9,6 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/exaring/otelpgx"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
@@ -19,7 +18,7 @@ import (
 	"github.com/twirapp/twir/libs/audit/recorder"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
-	logger "github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/logger"
 	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
@@ -119,7 +118,7 @@ func newPgxPool(cfg config.Config) (PgxResult, error) {
 	connConfig.MinConns = 1
 	connConfig.HealthCheckPeriod = 30 * time.Second
 	connConfig.ConnConfig.Config.ConnectTimeout = 5 * time.Second
-	connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+	// connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	pool, err := pgxpool.NewWithConfig(
 		context.Background(),
