@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
 type ChannelModerationSettings struct {
@@ -22,11 +21,11 @@ type ChannelModerationSettings struct {
 	TriggerLength int
 	MaxPercentage int
 	// ISO639_1
-	DeniedChatLanguages pq.StringArray
-	ExcludedRoles       pq.StringArray
+	DeniedChatLanguages []string
+	ExcludedRoles       []string
 	MaxWarnings         int
 
-	DenyList                    pq.StringArray
+	DenyList                    []string
 	DenyListRegexpEnabled       bool
 	DenyListWordBoundaryEnabled bool
 	DenyListSensitivityEnabled  bool
@@ -34,7 +33,7 @@ type ChannelModerationSettings struct {
 	OneManSpamMinimumStoredMessages int
 	OneManSpamMessageMemorySeconds  int
 
-	LanguageExcludedWords pq.StringArray
+	LanguageExcludedWords []string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

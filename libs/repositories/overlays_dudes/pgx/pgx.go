@@ -61,9 +61,9 @@ func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.OverlaysDudes, e
 	result, err := pgx.CollectExactlyOneRow(
 		rows, func(row pgx.CollectableRow) (model.OverlaysDudes, error) {
 			var entity model.OverlaysDudes
-			var nameBoxFill pq.StringArray
+			var nameBoxFill []string
 			var nameBoxFillGradientStops pq.Float32Array
-			var ignoredUsers pq.StringArray
+			var ignoredUsers []string
 
 			err := row.Scan(
 				&entity.ID,
@@ -163,9 +163,9 @@ func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) (
 	result, err := pgx.CollectRows(
 		rows, func(row pgx.CollectableRow) (model.OverlaysDudes, error) {
 			var entity model.OverlaysDudes
-			var nameBoxFill pq.StringArray
+			var nameBoxFill []string
 			var nameBoxFillGradientStops pq.Float32Array
-			var ignoredUsers pq.StringArray
+			var ignoredUsers []string
 
 			err := row.Scan(
 				&entity.ID,
@@ -302,7 +302,7 @@ func (c *Pgx) Create(ctx context.Context, input overlays_dudes.CreateInput) (
 		input.MessageBoxFill,
 		input.NameBoxFontFamily,
 		input.NameBoxFontSize,
-		pq.StringArray(input.NameBoxFill),
+		(input.NameBoxFill),
 		input.NameBoxLineJoin,
 		input.NameBoxStrokeThickness,
 		input.NameBoxStroke,
@@ -319,7 +319,7 @@ func (c *Pgx) Create(ctx context.Context, input overlays_dudes.CreateInput) (
 		input.NameBoxDropShadowColor,
 		input.IgnoreCommands,
 		input.IgnoreUsers,
-		pq.StringArray(input.IgnoredUsers),
+		input.IgnoredUsers,
 		input.SpitterEmoteEnabled,
 	)
 	if err != nil {
@@ -329,9 +329,9 @@ func (c *Pgx) Create(ctx context.Context, input overlays_dudes.CreateInput) (
 	result, err := pgx.CollectExactlyOneRow(
 		rows, func(row pgx.CollectableRow) (model.OverlaysDudes, error) {
 			var entity model.OverlaysDudes
-			var nameBoxFill pq.StringArray
+			var nameBoxFill []string
 			var nameBoxFillGradientStops pq.Float32Array
-			var ignoredUsers pq.StringArray
+			var ignoredUsers []string
 
 			err := row.Scan(
 				&entity.ID,
@@ -480,7 +480,7 @@ func (c *Pgx) Update(
 		updateBuilder = updateBuilder.Set("name_box_font_size", *input.NameBoxFontSize)
 	}
 	if input.NameBoxFill != nil {
-		updateBuilder = updateBuilder.Set("name_box_fill", pq.StringArray(*input.NameBoxFill))
+		updateBuilder = updateBuilder.Set("name_box_fill", *input.NameBoxFill)
 	}
 	if input.NameBoxLineJoin != nil {
 		updateBuilder = updateBuilder.Set("name_box_line_join", *input.NameBoxLineJoin)
@@ -539,7 +539,7 @@ func (c *Pgx) Update(
 		updateBuilder = updateBuilder.Set("ignore_users", *input.IgnoreUsers)
 	}
 	if input.IgnoredUsers != nil {
-		updateBuilder = updateBuilder.Set("ignored_users", pq.StringArray(*input.IgnoredUsers))
+		updateBuilder = updateBuilder.Set("ignored_users", *input.IgnoredUsers)
 	}
 
 	// Spitter emote settings

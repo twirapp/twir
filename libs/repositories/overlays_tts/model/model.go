@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
 type TTSOverlay struct {
@@ -16,19 +15,19 @@ type TTSOverlay struct {
 }
 
 type TTSOverlaySettings struct {
-	Enabled                            bool           `json:"enabled"`
-	Voice                              string         `json:"voice"`
-	DisallowedVoices                   pq.StringArray `json:"disallowed_voices"`
-	Pitch                              int32          `json:"pitch"`
-	Rate                               int32          `json:"rate"`
-	Volume                             int32          `json:"volume"`
-	DoNotReadTwitchEmotes              bool           `json:"do_not_read_twitch_emotes"`
-	DoNotReadEmoji                     bool           `json:"do_not_read_emoji"`
-	DoNotReadLinks                     bool           `json:"do_not_read_links"`
-	AllowUsersChooseVoiceInMainCommand bool           `json:"allow_users_choose_voice_in_main_command"`
-	MaxSymbols                         int32          `json:"max_symbols"`
-	ReadChatMessages                   bool           `json:"read_chat_messages"`
-	ReadChatMessagesNicknames          bool           `json:"read_chat_messages_nicknames"`
+	Enabled                            bool     `json:"enabled"`
+	Voice                              string   `json:"voice"`
+	DisallowedVoices                   []string `json:"disallowed_voices"`
+	Pitch                              int32    `json:"pitch"`
+	Rate                               int32    `json:"rate"`
+	Volume                             int32    `json:"volume"`
+	DoNotReadTwitchEmotes              bool     `json:"do_not_read_twitch_emotes"`
+	DoNotReadEmoji                     bool     `json:"do_not_read_emoji"`
+	DoNotReadLinks                     bool     `json:"do_not_read_links"`
+	AllowUsersChooseVoiceInMainCommand bool     `json:"allow_users_choose_voice_in_main_command"`
+	MaxSymbols                         int32    `json:"max_symbols"`
+	ReadChatMessages                   bool     `json:"read_chat_messages"`
+	ReadChatMessagesNicknames          bool     `json:"read_chat_messages_nicknames"`
 }
 
 type TTSUserSettings struct {

@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/lib/pq"
 	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	"github.com/twirapp/twir/libs/repositories/channels_games_voteban/model"
@@ -82,22 +81,24 @@ func (c *Pgx) GetOrCreateByChannelID(
 
 	insertBuilder := sq.
 		Insert("channels_games_voteban").
-		SetMap(map[string]any{
-			"channel_id":                 channelID,
-			"enabled":                    input.Enabled,
-			"timeout_seconds":            input.TimeoutSeconds,
-			"timeout_moderators":         input.TimeoutModerators,
-			"init_message":               input.InitMessage,
-			"ban_message":                input.BanMessage,
-			"ban_message_moderators":     input.BanMessageModerators,
-			"survive_message":            input.SurviveMessage,
-			"survive_message_moderators": input.SurviveMessageModerators,
-			"needed_votes":               input.NeededVotes,
-			"vote_duration":              input.VoteDuration,
-			"voting_mode":                input.VotingMode,
-			"chat_votes_words_positive":  input.ChatVotesWordsPositive,
-			"chat_votes_words_negative":  input.ChatVotesWordsNegative,
-		}).
+		SetMap(
+			map[string]any{
+				"channel_id":                 channelID,
+				"enabled":                    input.Enabled,
+				"timeout_seconds":            input.TimeoutSeconds,
+				"timeout_moderators":         input.TimeoutModerators,
+				"init_message":               input.InitMessage,
+				"ban_message":                input.BanMessage,
+				"ban_message_moderators":     input.BanMessageModerators,
+				"survive_message":            input.SurviveMessage,
+				"survive_message_moderators": input.SurviveMessageModerators,
+				"needed_votes":               input.NeededVotes,
+				"vote_duration":              input.VoteDuration,
+				"voting_mode":                input.VotingMode,
+				"chat_votes_words_positive":  input.ChatVotesWordsPositive,
+				"chat_votes_words_negative":  input.ChatVotesWordsNegative,
+			},
+		).
 		Suffix("RETURNING " + selectColumns)
 
 	query, args, err := insertBuilder.ToSql()
@@ -148,10 +149,10 @@ func (c *Pgx) Update(
 
 	// Handle string arrays separately since they're not pointers
 	if input.ChatVotesWordsPositive != nil {
-		updateBuilder = updateBuilder.Set("chat_votes_words_positive", pq.StringArray(input.ChatVotesWordsPositive))
+		updateBuilder = updateBuilder.Set("chat_votes_words_positive", input.ChatVotesWordsPositive)
 	}
 	if input.ChatVotesWordsNegative != nil {
-		updateBuilder = updateBuilder.Set("chat_votes_words_negative", pq.StringArray(input.ChatVotesWordsNegative))
+		updateBuilder = updateBuilder.Set("chat_votes_words_negative", input.ChatVotesWordsNegative)
 	}
 
 	query, args, err := updateBuilder.ToSql()

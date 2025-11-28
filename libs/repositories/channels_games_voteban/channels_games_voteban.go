@@ -4,13 +4,15 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/twirapp/twir/libs/repositories/channels_games_voteban/model"
 )
 
 type Repository interface {
 	GetByChannelID(ctx context.Context, channelID string) (model.VoteBan, error)
-	GetOrCreateByChannelID(ctx context.Context, channelID string, input CreateInput) (model.VoteBan, error)
+	GetOrCreateByChannelID(ctx context.Context, channelID string, input CreateInput) (
+		model.VoteBan,
+		error,
+	)
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.VoteBan, error)
 }
 
@@ -26,8 +28,8 @@ type CreateInput struct {
 	NeededVotes              int
 	VoteDuration             int
 	VotingMode               model.VotingMode
-	ChatVotesWordsPositive   pq.StringArray
-	ChatVotesWordsNegative   pq.StringArray
+	ChatVotesWordsPositive   []string
+	ChatVotesWordsNegative   []string
 }
 
 type UpdateInput struct {
