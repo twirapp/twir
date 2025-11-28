@@ -17,8 +17,8 @@ func (c ChannelIntegration) IsNil() bool {
 }
 
 type Data struct {
-	UserName *string
-	Avatar   *string
+	UserName *string `json:"userName"`
+	Avatar   *string `json:"avatar"`
 }
 
 var Nil = ChannelIntegration{
