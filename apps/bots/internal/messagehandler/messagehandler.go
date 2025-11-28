@@ -24,7 +24,6 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsgamesvotebanmodel "github.com/twirapp/twir/libs/repositories/channels_games_voteban/model"
@@ -297,7 +296,6 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	}
 
 	if err := handleTask.Wait(); err != nil {
-		c.logger.Error("error on execution all handlers", logger.Error(err))
 		return err
 	}
 
