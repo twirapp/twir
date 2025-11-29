@@ -454,8 +454,8 @@
 		"tts": {
 			"title": "Text-to-Speech (TTS)",
 			"description": "Відтворюйте аудіо в OBS за допомогою певного набору попередньо налаштованих голосів. Ви можете використовувати цей оверлей за допомогою команд або подій.",
-			"generalSettings": "General Settings",
-			"advancedSettings": "Advanced Settings",
+			"generalSettings": "Загальні налаштування",
+			"advancedSettings": "Розширені налаштування",
 			"advancedDescription": "Configure advanced TTS behavior and filtering options",
 			"eventsHint": "Підказка: ви можете використовувати систему подій, щоб запускати TTS за винагороду.",
 			"allowUsersChooseVoice": "Allow Users to Choose Voice",
@@ -470,7 +470,7 @@
 			"readChatMessagesDesc": "Automatically read all incoming chat messages",
 			"readChatMessagesNicknames": "Читати нікнейми",
 			"readChatMessagesNicknamesDesc": "Include username before the message",
-			"voice": "Voice",
+			"voice": "Голос",
 			"selectVoice": "Select a voice",
 			"disallowedVoices": "Disallowed Voices",
 			"volume": "Гучність",
@@ -478,13 +478,13 @@
 			"rate": "Швидкість",
 			"maxSymbols": "Maximum Symbols",
 			"maxSymbolsDesc": "Maximum message length (0 = unlimited)",
-			"preview": "Preview",
-			"previewText": "Enter text to preview",
-			"previewError": "Failed to play preview",
-			"playingPreview": "Playing preview...",
-			"readingOptions": "Reading Options",
-			"chatMessages": "Chat Messages",
-			"userSettings": "User Settings",
+			"preview": "Прев'ю",
+			"previewText": "Введіть текст для попереднього перегляду",
+			"previewError": "Не вдалося відтворити попередній перегляд",
+			"playingPreview": "Відтворення попереднього перегляду...",
+			"readingOptions": "Параметри читання",
+			"chatMessages": "Повідомлення чату",
+			"userSettings": "Налаштування користувача",
 			"usersDescription": "Manage individual user TTS settings",
 			"usersDeleted": "Deleted {count} user settings",
 			"testTextPlaceholder": "Enter text to test voices",
@@ -496,12 +496,12 @@
 				"emptyDescription": "No users have created their own TTS customizations yet. Users can set their voice, pitch, rate, and volume using chat commands."
 			},
 			"tabs": {
-				"settings": "Settings",
-				"users": "User Settings",
-				"commands": "Commands"
+				"settings": "Налаштування",
+				"users": "Налаштування користувача",
+				"commands": "Команди"
 			},
 			"commands": {
-				"info": "TTS Commands",
+				"info": "TTS команди",
 				"infoDescription": "Use these commands in chat to control TTS",
 				"main": "Main TTS Command",
 				"mainDescription": "Send a message to be read by TTS",
@@ -512,7 +512,7 @@
 				"volumeDescription": "Set volume level (0-100)",
 				"skip": "Skip Command",
 				"skipDescription": "Skip the current TTS message (moderator only)",
-				"examples": "Examples"
+				"examples": "Приклади"
 			}
 		},
 		"obs": {
