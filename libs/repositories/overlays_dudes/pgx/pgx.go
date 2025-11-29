@@ -58,71 +58,7 @@ func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.OverlaysDudes, e
 		return model.Nil, err
 	}
 
-	result, err := pgx.CollectExactlyOneRow(
-		rows, func(row pgx.CollectableRow) (model.OverlaysDudes, error) {
-			var entity model.OverlaysDudes
-			var nameBoxFill []string
-			var nameBoxFillGradientStops pq.Float32Array
-			var ignoredUsers []string
-
-			err := row.Scan(
-				&entity.ID,
-				&entity.ChannelID,
-				&entity.CreatedAt,
-				&entity.DudeColor,
-				&entity.DudeEyesColor,
-				&entity.DudeCosmeticsColor,
-				&entity.DudeMaxLifeTime,
-				&entity.DudeGravity,
-				&entity.DudeScale,
-				&entity.DudeSoundsEnabled,
-				&entity.DudeSoundsVolume,
-				&entity.DudeVisibleName,
-				&entity.DudeGrowTime,
-				&entity.DudeGrowMaxScale,
-				&entity.DudeMaxOnScreen,
-				&entity.DudeDefaultSprite,
-				&entity.MessageBoxEnabled,
-				&entity.MessageBoxBorderRadius,
-				&entity.MessageBoxBoxColor,
-				&entity.MessageBoxFontFamily,
-				&entity.MessageBoxFontSize,
-				&entity.MessageBoxPadding,
-				&entity.MessageBoxShowTime,
-				&entity.MessageBoxFill,
-				&entity.NameBoxFontFamily,
-				&entity.NameBoxFontSize,
-				&nameBoxFill,
-				&entity.NameBoxLineJoin,
-				&entity.NameBoxStrokeThickness,
-				&entity.NameBoxStroke,
-				&nameBoxFillGradientStops,
-				&entity.NameBoxFillGradientType,
-				&entity.NameBoxFontStyle,
-				&entity.NameBoxFontVariant,
-				&entity.NameBoxFontWeight,
-				&entity.NameBoxDropShadow,
-				&entity.NameBoxDropShadowAlpha,
-				&entity.NameBoxDropShadowAngle,
-				&entity.NameBoxDropShadowBlur,
-				&entity.NameBoxDropShadowDistance,
-				&entity.NameBoxDropShadowColor,
-				&entity.IgnoreCommands,
-				&entity.IgnoreUsers,
-				&ignoredUsers,
-				&entity.SpitterEmoteEnabled,
-			)
-			if err != nil {
-				return model.Nil, err
-			}
-
-			entity.NameBoxFill = []string(nameBoxFill)
-			entity.NameBoxFillGradientStops = []float32(nameBoxFillGradientStops)
-			entity.IgnoredUsers = []string(ignoredUsers)
-
-			return entity, nil
-		},
-	)
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.OverlaysDudes])
 
 	if err != nil {
 		return model.Nil, err
@@ -160,72 +96,7 @@ func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) (
 		return nil, err
 	}
 
-	result, err := pgx.CollectRows(
-		rows, func(row pgx.CollectableRow) (model.OverlaysDudes, error) {
-			var entity model.OverlaysDudes
-			var nameBoxFill []string
-			var nameBoxFillGradientStops pq.Float32Array
-			var ignoredUsers []string
-
-			err := row.Scan(
-				&entity.ID,
-				&entity.ChannelID,
-				&entity.CreatedAt,
-				&entity.DudeColor,
-				&entity.DudeEyesColor,
-				&entity.DudeCosmeticsColor,
-				&entity.DudeMaxLifeTime,
-				&entity.DudeGravity,
-				&entity.DudeScale,
-				&entity.DudeSoundsEnabled,
-				&entity.DudeSoundsVolume,
-				&entity.DudeVisibleName,
-				&entity.DudeGrowTime,
-				&entity.DudeGrowMaxScale,
-				&entity.DudeMaxOnScreen,
-				&entity.DudeDefaultSprite,
-				&entity.MessageBoxEnabled,
-				&entity.MessageBoxBorderRadius,
-				&entity.MessageBoxBoxColor,
-				&entity.MessageBoxFontFamily,
-				&entity.MessageBoxFontSize,
-				&entity.MessageBoxPadding,
-				&entity.MessageBoxShowTime,
-				&entity.MessageBoxFill,
-				&entity.NameBoxFontFamily,
-				&entity.NameBoxFontSize,
-				&nameBoxFill,
-				&entity.NameBoxLineJoin,
-				&entity.NameBoxStrokeThickness,
-				&entity.NameBoxStroke,
-				&nameBoxFillGradientStops,
-				&entity.NameBoxFillGradientType,
-				&entity.NameBoxFontStyle,
-				&entity.NameBoxFontVariant,
-				&entity.NameBoxFontWeight,
-				&entity.NameBoxDropShadow,
-				&entity.NameBoxDropShadowAlpha,
-				&entity.NameBoxDropShadowAngle,
-				&entity.NameBoxDropShadowBlur,
-				&entity.NameBoxDropShadowDistance,
-				&entity.NameBoxDropShadowColor,
-				&entity.IgnoreCommands,
-				&entity.IgnoreUsers,
-				&ignoredUsers,
-				&entity.SpitterEmoteEnabled,
-			)
-			if err != nil {
-				return model.Nil, err
-			}
-
-			entity.NameBoxFill = []string(nameBoxFill)
-			entity.NameBoxFillGradientStops = []float32(nameBoxFillGradientStops)
-			entity.IgnoredUsers = []string(ignoredUsers)
-
-			return entity, nil
-		},
-	)
-
+	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.OverlaysDudes])
 	if err != nil {
 		return nil, err
 	}
@@ -326,71 +197,7 @@ func (c *Pgx) Create(ctx context.Context, input overlays_dudes.CreateInput) (
 		return model.Nil, err
 	}
 
-	result, err := pgx.CollectExactlyOneRow(
-		rows, func(row pgx.CollectableRow) (model.OverlaysDudes, error) {
-			var entity model.OverlaysDudes
-			var nameBoxFill []string
-			var nameBoxFillGradientStops pq.Float32Array
-			var ignoredUsers []string
-
-			err := row.Scan(
-				&entity.ID,
-				&entity.ChannelID,
-				&entity.CreatedAt,
-				&entity.DudeColor,
-				&entity.DudeEyesColor,
-				&entity.DudeCosmeticsColor,
-				&entity.DudeMaxLifeTime,
-				&entity.DudeGravity,
-				&entity.DudeScale,
-				&entity.DudeSoundsEnabled,
-				&entity.DudeSoundsVolume,
-				&entity.DudeVisibleName,
-				&entity.DudeGrowTime,
-				&entity.DudeGrowMaxScale,
-				&entity.DudeMaxOnScreen,
-				&entity.DudeDefaultSprite,
-				&entity.MessageBoxEnabled,
-				&entity.MessageBoxBorderRadius,
-				&entity.MessageBoxBoxColor,
-				&entity.MessageBoxFontFamily,
-				&entity.MessageBoxFontSize,
-				&entity.MessageBoxPadding,
-				&entity.MessageBoxShowTime,
-				&entity.MessageBoxFill,
-				&entity.NameBoxFontFamily,
-				&entity.NameBoxFontSize,
-				&nameBoxFill,
-				&entity.NameBoxLineJoin,
-				&entity.NameBoxStrokeThickness,
-				&entity.NameBoxStroke,
-				&nameBoxFillGradientStops,
-				&entity.NameBoxFillGradientType,
-				&entity.NameBoxFontStyle,
-				&entity.NameBoxFontVariant,
-				&entity.NameBoxFontWeight,
-				&entity.NameBoxDropShadow,
-				&entity.NameBoxDropShadowAlpha,
-				&entity.NameBoxDropShadowAngle,
-				&entity.NameBoxDropShadowBlur,
-				&entity.NameBoxDropShadowDistance,
-				&entity.NameBoxDropShadowColor,
-				&entity.IgnoreCommands,
-				&entity.IgnoreUsers,
-				&ignoredUsers,
-				&entity.SpitterEmoteEnabled,
-			)
-			if err != nil {
-				return model.Nil, err
-			}
-
-			entity.NameBoxFill = []string(nameBoxFill)
-			entity.NameBoxFillGradientStops = []float32(nameBoxFillGradientStops)
-			entity.IgnoredUsers = []string(ignoredUsers)
-
-			return entity, nil
-		},
-	)
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.OverlaysDudes])
 
 	if err != nil {
 		return model.Nil, err
