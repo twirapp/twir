@@ -2,7 +2,6 @@
 import { ExternalLink, Settings } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 
 import { useUserAccessFlagChecker } from '@/api'
 import DiscordIcon from '@/assets/integrations/discord.svg?use'
