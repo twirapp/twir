@@ -1,0 +1,85 @@
+extend type Query {
+	discordIntegrationData: DiscordIntegrationData! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	discordIntegrationAuthLink: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	discordIntegrationGuildChannels(guildId: String!): [DiscordGuildChannel!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	discordIntegrationGuildInfo(guildId: String!): DiscordGuildInfo @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+}
+
+extend type Mutation {
+	discordIntegrationConnectGuild(code: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	discordIntegrationDisconnectGuild(guildId: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	discordIntegrationUpdateGuild(guildId: String!, input: DiscordGuildUpdateInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+type DiscordIntegrationData {
+	guilds: [DiscordGuild!]!
+}
+
+type DiscordGuild {
+	id: String!
+	name: String!
+	icon: String
+
+	liveNotificationEnabled: Boolean!
+	liveNotificationChannelsIds: [String!]!
+	liveNotificationShowTitle: Boolean!
+	liveNotificationShowCategory: Boolean!
+	liveNotificationShowViewers: Boolean!
+	liveNotificationMessage: String!
+	liveNotificationShowPreview: Boolean!
+	liveNotificationShowProfileImage: Boolean!
+	offlineNotificationMessage: String!
+	shouldDeleteMessageOnOffline: Boolean!
+	additionalUsersIdsForLiveCheck: [String!]!
+}
+
+type DiscordGuildChannel {
+	id: String!
+	name: String!
+	type: DiscordChannelType!
+	canSendMessages: Boolean!
+}
+
+type DiscordGuildRole {
+	id: String!
+	name: String!
+	color: String!
+}
+
+type DiscordGuildInfo {
+	id: String!
+	name: String!
+	icon: String
+	channels: [DiscordGuildChannel!]!
+	roles: [DiscordGuildRole!]!
+}
+
+enum DiscordChannelType {
+	CHANNEL_TYPE_TEXT
+	CHANNEL_TYPE_VOICE
+	CHANNEL_TYPE_DM
+	CHANNEL_TYPE_GROUP_DM
+	CHANNEL_TYPE_CATEGORY
+	CHANNEL_TYPE_ANNOUNCEMENT
+	CHANNEL_TYPE_ANNOUNCEMENT_THREAD
+	CHANNEL_TYPE_PUBLIC_THREAD
+	CHANNEL_TYPE_PRIVATE_THREAD
+	CHANNEL_TYPE_STAGE_VOICE
+	CHANNEL_TYPE_DIRECTORY
+	CHANNEL_TYPE_FORUM
+	CHANNEL_TYPE_MEDIA
+}
+
+input DiscordGuildUpdateInput {
+	liveNotificationEnabled: Boolean
+	liveNotificationChannelsIds: [String!]
+	liveNotificationShowTitle: Boolean
+	liveNotificationShowCategory: Boolean
+	liveNotificationShowViewers: Boolean
+	liveNotificationMessage: String
+	liveNotificationShowPreview: Boolean
+	liveNotificationShowProfileImage: Boolean
+	offlineNotificationMessage: String
+	shouldDeleteMessageOnOffline: Boolean
+	additionalUsersIdsForLiveCheck: [String!]
+}

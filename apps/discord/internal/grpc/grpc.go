@@ -142,7 +142,6 @@ func (c *Impl) GetGuildInfo(
 	errWg, _ := errgroup.WithContext(ctx)
 
 	var guild *arikawa_discord.Guild
-	var guildIcon string
 	var guildChannels []*discord.GuildChannel
 	var guildRoles []*discord.Role
 
@@ -208,7 +207,7 @@ func (c *Impl) GetGuildInfo(
 	return &discord.GetGuildInfoResponse{
 		Id:       guild.ID.String(),
 		Name:     guild.Name,
-		Icon:     guildIcon,
+		Icon:     guild.Icon,
 		Channels: guildChannels,
 		Roles:    guildRoles,
 	}, nil

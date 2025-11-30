@@ -8,8 +8,8 @@ import (
 	"github.com/diamondburned/arikawa/v3/state"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
+	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 
 	"github.com/diamondburned/arikawa/v3/session/shard"
 )
@@ -17,17 +17,17 @@ import (
 type Opts struct {
 	fx.In
 
-	LC     fx.Lifecycle
-	Config cfg.Config
-	Logger *slog.Logger
-	Db     *gorm.DB
+	LC          fx.Lifecycle
+	Config      cfg.Config
+	Logger      *slog.Logger
+	DiscordRepo channelsintegrationsdiscord.Repository
 }
 
 type Discord struct {
 	*shard.Manager
 
-	logger *slog.Logger
-	db     *gorm.DB
+	logger      *slog.Logger
+	discordRepo channelsintegrationsdiscord.Repository
 }
 
 func New(opts Opts) (*Discord, error) {
@@ -37,8 +37,8 @@ func New(opts Opts) (*Discord, error) {
 
 	log := logger.WithComponent(opts.Logger, "discord_session")
 	discord := &Discord{
-		logger: log,
-		db:     opts.Db,
+		logger:      log,
+		discordRepo: opts.DiscordRepo,
 	}
 
 	newShard := state.NewShardFunc(

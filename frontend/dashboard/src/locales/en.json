@@ -319,7 +319,7 @@
 				"shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
 				"additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
 			},
-			"connectGuild": "+ Connect Server",
+			"connectGuild": "Connect Server",
 			"disconnectGuild": "Disconnect Server",
 			"noGuilds": "No Servers Connected",
 			"cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."

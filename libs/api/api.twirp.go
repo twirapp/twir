@@ -17,7 +17,6 @@ import twirp "github.com/twitchtv/twirp"
 import ctxsetters "github.com/twitchtv/twirp/ctxsetters"
 
 import google_protobuf "google.golang.org/protobuf/types/known/emptypb"
-import messages_integrations_discord "github.com/twirapp/twir/libs/api/messages/integrations_discord"
 import messages_integrations_faceit "github.com/twirapp/twir/libs/api/messages/integrations_faceit"
 import messages_integrations_lastfm "github.com/twirapp/twir/libs/api/messages/integrations_lastfm"
 import messages_integrations_streamlabs "github.com/twirapp/twir/libs/api/messages/integrations_streamlabs"
@@ -77,20 +76,6 @@ type Protected interface {
 
 	IntegrationsVKLogout(context.Context, *google_protobuf.Empty) (*google_protobuf.Empty, error)
 
-	IntegrationsDiscordGetAuthLink(context.Context, *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error)
-
-	IntegrationsDiscordGetData(context.Context, *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error)
-
-	IntegrationsDiscordUpdate(context.Context, *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error)
-
-	IntegrationDiscordConnectGuild(context.Context, *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error)
-
-	IntegrationsDiscordDisconnectGuild(context.Context, *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error)
-
-	IntegrationsDiscordGetGuildChannels(context.Context, *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error)
-
-	IntegrationsDiscordGetGuildInfo(context.Context, *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error)
-
 	ModulesOBSWebsocketGet(context.Context, *google_protobuf.Empty) (*messages_modules_obs_websocket.GetResponse, error)
 
 	ModulesOBSWebsocketUpdate(context.Context, *messages_modules_obs_websocket.PostRequest) (*google_protobuf.Empty, error)
@@ -120,7 +105,7 @@ type Protected interface {
 
 type protectedProtobufClient struct {
 	client      HTTPClient
-	urls        [35]string
+	urls        [28]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -148,7 +133,7 @@ func NewProtectedProtobufClient(baseURL string, client HTTPClient, opts ...twirp
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "api", "Protected")
-	urls := [35]string{
+	urls := [28]string{
 		serviceURL + "IntegrationsFaceitGetAuthLink",
 		serviceURL + "IntegrationsFaceitGetData",
 		serviceURL + "IntegrationsFaceitUpdate",
@@ -166,13 +151,6 @@ func NewProtectedProtobufClient(baseURL string, client HTTPClient, opts ...twirp
 		serviceURL + "IntegrationsVKGetData",
 		serviceURL + "IntegrationsVKPostCode",
 		serviceURL + "IntegrationsVKLogout",
-		serviceURL + "IntegrationsDiscordGetAuthLink",
-		serviceURL + "IntegrationsDiscordGetData",
-		serviceURL + "IntegrationsDiscordUpdate",
-		serviceURL + "IntegrationDiscordConnectGuild",
-		serviceURL + "IntegrationsDiscordDisconnectGuild",
-		serviceURL + "IntegrationsDiscordGetGuildChannels",
-		serviceURL + "IntegrationsDiscordGetGuildInfo",
 		serviceURL + "ModulesOBSWebsocketGet",
 		serviceURL + "ModulesOBSWebsocketUpdate",
 		serviceURL + "TwitchSearchCategories",
@@ -976,328 +954,6 @@ func (c *protectedProtobufClient) callIntegrationsVKLogout(ctx context.Context, 
 	return out, nil
 }
 
-func (c *protectedProtobufClient) IntegrationsDiscordGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetAuthLink")
-	caller := c.callIntegrationsDiscordGetAuthLink
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDiscordGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
-	out := new(messages_integrations_discord.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsDiscordGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetData")
-	caller := c.callIntegrationsDiscordGetData
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDiscordGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
-	out := new(messages_integrations_discord.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsDiscordUpdate(ctx context.Context, in *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordUpdate")
-	caller := c.callIntegrationsDiscordUpdate
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.UpdateMessage)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.UpdateMessage) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordUpdate(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDiscordUpdate(ctx context.Context, in *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationDiscordConnectGuild(ctx context.Context, in *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationDiscordConnectGuild")
-	caller := c.callIntegrationDiscordConnectGuild
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.PostCodeRequest) when calling interceptor")
-					}
-					return c.callIntegrationDiscordConnectGuild(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationDiscordConnectGuild(ctx context.Context, in *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsDiscordDisconnectGuild(ctx context.Context, in *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordDisconnectGuild")
-	caller := c.callIntegrationsDiscordDisconnectGuild
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.DisconnectGuildMessage)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.DisconnectGuildMessage) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordDisconnectGuild(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDiscordDisconnectGuild(ctx context.Context, in *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsDiscordGetGuildChannels(ctx context.Context, in *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetGuildChannels")
-	caller := c.callIntegrationsDiscordGetGuildChannels
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.GetGuildChannelsRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.GetGuildChannelsRequest) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordGetGuildChannels(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetGuildChannelsResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetGuildChannelsResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDiscordGetGuildChannels(ctx context.Context, in *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
-	out := new(messages_integrations_discord.GetGuildChannelsResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[22], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsDiscordGetGuildInfo(ctx context.Context, in *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetGuildInfo")
-	caller := c.callIntegrationsDiscordGetGuildInfo
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.GetGuildInfoRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.GetGuildInfoRequest) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordGetGuildInfo(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetGuildInfoResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetGuildInfoResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsDiscordGetGuildInfo(ctx context.Context, in *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
-	out := new(messages_integrations_discord.GetGuildInfoResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[23], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 func (c *protectedProtobufClient) ModulesOBSWebsocketGet(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_obs_websocket.GetResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api")
 	ctx = ctxsetters.WithServiceName(ctx, "Protected")
@@ -1329,7 +985,7 @@ func (c *protectedProtobufClient) ModulesOBSWebsocketGet(ctx context.Context, in
 
 func (c *protectedProtobufClient) callModulesOBSWebsocketGet(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_obs_websocket.GetResponse, error) {
 	out := new(messages_modules_obs_websocket.GetResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[24], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1375,7 +1031,7 @@ func (c *protectedProtobufClient) ModulesOBSWebsocketUpdate(ctx context.Context,
 
 func (c *protectedProtobufClient) callModulesOBSWebsocketUpdate(ctx context.Context, in *messages_modules_obs_websocket.PostRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[25], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1421,7 +1077,7 @@ func (c *protectedProtobufClient) TwitchSearchCategories(ctx context.Context, in
 
 func (c *protectedProtobufClient) callTwitchSearchCategories(ctx context.Context, in *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[26], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1467,7 +1123,7 @@ func (c *protectedProtobufClient) TwitchGetCategories(ctx context.Context, in *m
 
 func (c *protectedProtobufClient) callTwitchGetCategories(ctx context.Context, in *messages_twitch_protected.GetCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[27], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1513,7 +1169,7 @@ func (c *protectedProtobufClient) TwitchSetChannelInformation(ctx context.Contex
 
 func (c *protectedProtobufClient) callTwitchSetChannelInformation(ctx context.Context, in *messages_twitch_protected.SetChannelInformationRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[28], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1559,7 +1215,7 @@ func (c *protectedProtobufClient) OverlaysGetAll(ctx context.Context, in *google
 
 func (c *protectedProtobufClient) callOverlaysGetAll(ctx context.Context, in *google_protobuf.Empty) (*messages_overlays.GetAllResponse, error) {
 	out := new(messages_overlays.GetAllResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[29], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[22], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1605,7 +1261,7 @@ func (c *protectedProtobufClient) OverlaysGetOne(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysGetOne(ctx context.Context, in *messages_overlays.GetByIdRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[30], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[23], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1651,7 +1307,7 @@ func (c *protectedProtobufClient) OverlaysUpdate(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysUpdate(ctx context.Context, in *messages_overlays.UpdateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[31], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[24], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1697,7 +1353,7 @@ func (c *protectedProtobufClient) OverlaysDelete(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysDelete(ctx context.Context, in *messages_overlays.DeleteRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[32], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[25], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1743,7 +1399,7 @@ func (c *protectedProtobufClient) OverlaysCreate(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysCreate(ctx context.Context, in *messages_overlays.CreateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[33], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[26], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1789,7 +1445,7 @@ func (c *protectedProtobufClient) OverlaysParseHtml(ctx context.Context, in *mes
 
 func (c *protectedProtobufClient) callOverlaysParseHtml(ctx context.Context, in *messages_overlays.ParseHtmlOverlayRequest) (*messages_overlays.ParseHtmlOverlayResponse, error) {
 	out := new(messages_overlays.ParseHtmlOverlayResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[34], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[27], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1810,7 +1466,7 @@ func (c *protectedProtobufClient) callOverlaysParseHtml(ctx context.Context, in 
 
 type protectedJSONClient struct {
 	client      HTTPClient
-	urls        [35]string
+	urls        [28]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -1838,7 +1494,7 @@ func NewProtectedJSONClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "api", "Protected")
-	urls := [35]string{
+	urls := [28]string{
 		serviceURL + "IntegrationsFaceitGetAuthLink",
 		serviceURL + "IntegrationsFaceitGetData",
 		serviceURL + "IntegrationsFaceitUpdate",
@@ -1856,13 +1512,6 @@ func NewProtectedJSONClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 		serviceURL + "IntegrationsVKGetData",
 		serviceURL + "IntegrationsVKPostCode",
 		serviceURL + "IntegrationsVKLogout",
-		serviceURL + "IntegrationsDiscordGetAuthLink",
-		serviceURL + "IntegrationsDiscordGetData",
-		serviceURL + "IntegrationsDiscordUpdate",
-		serviceURL + "IntegrationDiscordConnectGuild",
-		serviceURL + "IntegrationsDiscordDisconnectGuild",
-		serviceURL + "IntegrationsDiscordGetGuildChannels",
-		serviceURL + "IntegrationsDiscordGetGuildInfo",
 		serviceURL + "ModulesOBSWebsocketGet",
 		serviceURL + "ModulesOBSWebsocketUpdate",
 		serviceURL + "TwitchSearchCategories",
@@ -2666,328 +2315,6 @@ func (c *protectedJSONClient) callIntegrationsVKLogout(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *protectedJSONClient) IntegrationsDiscordGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetAuthLink")
-	caller := c.callIntegrationsDiscordGetAuthLink
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDiscordGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
-	out := new(messages_integrations_discord.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsDiscordGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetData")
-	caller := c.callIntegrationsDiscordGetData
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDiscordGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
-	out := new(messages_integrations_discord.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsDiscordUpdate(ctx context.Context, in *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordUpdate")
-	caller := c.callIntegrationsDiscordUpdate
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.UpdateMessage)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.UpdateMessage) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordUpdate(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDiscordUpdate(ctx context.Context, in *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationDiscordConnectGuild(ctx context.Context, in *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationDiscordConnectGuild")
-	caller := c.callIntegrationDiscordConnectGuild
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.PostCodeRequest) when calling interceptor")
-					}
-					return c.callIntegrationDiscordConnectGuild(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationDiscordConnectGuild(ctx context.Context, in *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsDiscordDisconnectGuild(ctx context.Context, in *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordDisconnectGuild")
-	caller := c.callIntegrationsDiscordDisconnectGuild
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.DisconnectGuildMessage)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.DisconnectGuildMessage) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordDisconnectGuild(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDiscordDisconnectGuild(ctx context.Context, in *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsDiscordGetGuildChannels(ctx context.Context, in *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetGuildChannels")
-	caller := c.callIntegrationsDiscordGetGuildChannels
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.GetGuildChannelsRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.GetGuildChannelsRequest) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordGetGuildChannels(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetGuildChannelsResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetGuildChannelsResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDiscordGetGuildChannels(ctx context.Context, in *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
-	out := new(messages_integrations_discord.GetGuildChannelsResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[22], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsDiscordGetGuildInfo(ctx context.Context, in *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetGuildInfo")
-	caller := c.callIntegrationsDiscordGetGuildInfo
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.GetGuildInfoRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.GetGuildInfoRequest) when calling interceptor")
-					}
-					return c.callIntegrationsDiscordGetGuildInfo(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetGuildInfoResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetGuildInfoResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsDiscordGetGuildInfo(ctx context.Context, in *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
-	out := new(messages_integrations_discord.GetGuildInfoResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[23], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 func (c *protectedJSONClient) ModulesOBSWebsocketGet(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_obs_websocket.GetResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api")
 	ctx = ctxsetters.WithServiceName(ctx, "Protected")
@@ -3019,7 +2346,7 @@ func (c *protectedJSONClient) ModulesOBSWebsocketGet(ctx context.Context, in *go
 
 func (c *protectedJSONClient) callModulesOBSWebsocketGet(ctx context.Context, in *google_protobuf.Empty) (*messages_modules_obs_websocket.GetResponse, error) {
 	out := new(messages_modules_obs_websocket.GetResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[24], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3065,7 +2392,7 @@ func (c *protectedJSONClient) ModulesOBSWebsocketUpdate(ctx context.Context, in 
 
 func (c *protectedJSONClient) callModulesOBSWebsocketUpdate(ctx context.Context, in *messages_modules_obs_websocket.PostRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[25], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3111,7 +2438,7 @@ func (c *protectedJSONClient) TwitchSearchCategories(ctx context.Context, in *me
 
 func (c *protectedJSONClient) callTwitchSearchCategories(ctx context.Context, in *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[26], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3157,7 +2484,7 @@ func (c *protectedJSONClient) TwitchGetCategories(ctx context.Context, in *messa
 
 func (c *protectedJSONClient) callTwitchGetCategories(ctx context.Context, in *messages_twitch_protected.GetCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[27], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3203,7 +2530,7 @@ func (c *protectedJSONClient) TwitchSetChannelInformation(ctx context.Context, i
 
 func (c *protectedJSONClient) callTwitchSetChannelInformation(ctx context.Context, in *messages_twitch_protected.SetChannelInformationRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[28], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3249,7 +2576,7 @@ func (c *protectedJSONClient) OverlaysGetAll(ctx context.Context, in *google_pro
 
 func (c *protectedJSONClient) callOverlaysGetAll(ctx context.Context, in *google_protobuf.Empty) (*messages_overlays.GetAllResponse, error) {
 	out := new(messages_overlays.GetAllResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[29], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[22], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3295,7 +2622,7 @@ func (c *protectedJSONClient) OverlaysGetOne(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysGetOne(ctx context.Context, in *messages_overlays.GetByIdRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[30], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[23], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3341,7 +2668,7 @@ func (c *protectedJSONClient) OverlaysUpdate(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysUpdate(ctx context.Context, in *messages_overlays.UpdateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[31], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[24], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3387,7 +2714,7 @@ func (c *protectedJSONClient) OverlaysDelete(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysDelete(ctx context.Context, in *messages_overlays.DeleteRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[32], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[25], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3433,7 +2760,7 @@ func (c *protectedJSONClient) OverlaysCreate(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysCreate(ctx context.Context, in *messages_overlays.CreateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[33], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[26], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3479,7 +2806,7 @@ func (c *protectedJSONClient) OverlaysParseHtml(ctx context.Context, in *message
 
 func (c *protectedJSONClient) callOverlaysParseHtml(ctx context.Context, in *messages_overlays.ParseHtmlOverlayRequest) (*messages_overlays.ParseHtmlOverlayResponse, error) {
 	out := new(messages_overlays.ParseHtmlOverlayResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[34], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[27], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -3641,27 +2968,6 @@ func (s *protectedServer) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 		return
 	case "IntegrationsVKLogout":
 		s.serveIntegrationsVKLogout(ctx, resp, req)
-		return
-	case "IntegrationsDiscordGetAuthLink":
-		s.serveIntegrationsDiscordGetAuthLink(ctx, resp, req)
-		return
-	case "IntegrationsDiscordGetData":
-		s.serveIntegrationsDiscordGetData(ctx, resp, req)
-		return
-	case "IntegrationsDiscordUpdate":
-		s.serveIntegrationsDiscordUpdate(ctx, resp, req)
-		return
-	case "IntegrationDiscordConnectGuild":
-		s.serveIntegrationDiscordConnectGuild(ctx, resp, req)
-		return
-	case "IntegrationsDiscordDisconnectGuild":
-		s.serveIntegrationsDiscordDisconnectGuild(ctx, resp, req)
-		return
-	case "IntegrationsDiscordGetGuildChannels":
-		s.serveIntegrationsDiscordGetGuildChannels(ctx, resp, req)
-		return
-	case "IntegrationsDiscordGetGuildInfo":
-		s.serveIntegrationsDiscordGetGuildInfo(ctx, resp, req)
 		return
 	case "ModulesOBSWebsocketGet":
 		s.serveModulesOBSWebsocketGet(ctx, resp, req)
@@ -6740,1266 +6046,6 @@ func (s *protectedServer) serveIntegrationsVKLogoutProtobuf(ctx context.Context,
 	}
 	if respContent == nil {
 		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsVKLogout. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetAuthLink(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDiscordGetAuthLinkJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDiscordGetAuthLinkProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetAuthLinkJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetAuthLink")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordGetAuthLink
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_discord.GetAuthLink
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_discord.GetAuthLink and nil error while calling IntegrationsDiscordGetAuthLink. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetAuthLinkProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetAuthLink")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordGetAuthLink
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_discord.GetAuthLink, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_discord.GetAuthLink
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_discord.GetAuthLink and nil error while calling IntegrationsDiscordGetAuthLink. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetData(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDiscordGetDataJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDiscordGetDataProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetDataJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetData")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordGetData
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_discord.GetDataResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_discord.GetDataResponse and nil error while calling IntegrationsDiscordGetData. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetDataProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetData")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordGetData
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_discord.GetDataResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_discord.GetDataResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_discord.GetDataResponse and nil error while calling IntegrationsDiscordGetData. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordUpdate(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDiscordUpdateJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDiscordUpdateProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDiscordUpdateJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordUpdate")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.UpdateMessage)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordUpdate
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.UpdateMessage)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.UpdateMessage) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordUpdate(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsDiscordUpdate. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordUpdateProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordUpdate")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.UpdateMessage)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordUpdate
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.UpdateMessage) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.UpdateMessage)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.UpdateMessage) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordUpdate(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsDiscordUpdate. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationDiscordConnectGuild(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationDiscordConnectGuildJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationDiscordConnectGuildProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationDiscordConnectGuildJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationDiscordConnectGuild")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.PostCodeRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationDiscordConnectGuild
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.PostCodeRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationDiscordConnectGuild(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationDiscordConnectGuild. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationDiscordConnectGuildProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationDiscordConnectGuild")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.PostCodeRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationDiscordConnectGuild
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.PostCodeRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationDiscordConnectGuild(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationDiscordConnectGuild. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordDisconnectGuild(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDiscordDisconnectGuildJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDiscordDisconnectGuildProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDiscordDisconnectGuildJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordDisconnectGuild")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.DisconnectGuildMessage)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordDisconnectGuild
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.DisconnectGuildMessage)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.DisconnectGuildMessage) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordDisconnectGuild(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsDiscordDisconnectGuild. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordDisconnectGuildProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordDisconnectGuild")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.DisconnectGuildMessage)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordDisconnectGuild
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.DisconnectGuildMessage) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.DisconnectGuildMessage)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.DisconnectGuildMessage) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordDisconnectGuild(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsDiscordDisconnectGuild. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetGuildChannels(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDiscordGetGuildChannelsJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDiscordGetGuildChannelsProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetGuildChannelsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetGuildChannels")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.GetGuildChannelsRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordGetGuildChannels
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.GetGuildChannelsRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.GetGuildChannelsRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordGetGuildChannels(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetGuildChannelsResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetGuildChannelsResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_discord.GetGuildChannelsResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_discord.GetGuildChannelsResponse and nil error while calling IntegrationsDiscordGetGuildChannels. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetGuildChannelsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetGuildChannels")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.GetGuildChannelsRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordGetGuildChannels
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.GetGuildChannelsRequest) (*messages_integrations_discord.GetGuildChannelsResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.GetGuildChannelsRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.GetGuildChannelsRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordGetGuildChannels(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetGuildChannelsResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetGuildChannelsResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_discord.GetGuildChannelsResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_discord.GetGuildChannelsResponse and nil error while calling IntegrationsDiscordGetGuildChannels. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetGuildInfo(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsDiscordGetGuildInfoJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsDiscordGetGuildInfoProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetGuildInfoJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetGuildInfo")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.GetGuildInfoRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordGetGuildInfo
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.GetGuildInfoRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.GetGuildInfoRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordGetGuildInfo(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetGuildInfoResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetGuildInfoResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_discord.GetGuildInfoResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_discord.GetGuildInfoResponse and nil error while calling IntegrationsDiscordGetGuildInfo. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsDiscordGetGuildInfoProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsDiscordGetGuildInfo")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(messages_integrations_discord.GetGuildInfoRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsDiscordGetGuildInfo
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_discord.GetGuildInfoRequest) (*messages_integrations_discord.GetGuildInfoResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_discord.GetGuildInfoRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_discord.GetGuildInfoRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsDiscordGetGuildInfo(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_discord.GetGuildInfoResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_discord.GetGuildInfoResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_discord.GetGuildInfoResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_discord.GetGuildInfoResponse and nil error while calling IntegrationsDiscordGetGuildInfo. nil responses are not supported"))
 		return
 	}
 
@@ -11357,65 +9403,56 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 955 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x57, 0x5d, 0x8f, 0xdb, 0x44,
-	0x14, 0x6d, 0x84, 0x84, 0xd4, 0x41, 0xaa, 0x84, 0x29, 0x51, 0x9b, 0x2d, 0xb0, 0x0d, 0xa2, 0xa8,
-	0x5f, 0x0e, 0xa4, 0xa2, 0x45, 0x3c, 0x20, 0xb1, 0x59, 0x9a, 0xae, 0x48, 0xb4, 0x81, 0x65, 0x41,
-	0x42, 0x45, 0xd1, 0xd8, 0xbe, 0x71, 0x4c, 0x6c, 0x8f, 0xf1, 0x8c, 0xb7, 0xda, 0x07, 0x9e, 0x78,
-	0xe5, 0x07, 0xf0, 0x17, 0xf9, 0x07, 0x3c, 0x56, 0xb6, 0x67, 0xc6, 0x1e, 0x7b, 0xfc, 0xb1, 0xd9,
-	0x97, 0x4d, 0xf6, 0xce, 0xb9, 0xe7, 0xdc, 0xb9, 0xe7, 0x66, 0x3c, 0x46, 0x37, 0x71, 0xe4, 0x99,
-	0x51, 0x4c, 0x18, 0x31, 0xde, 0xc1, 0x91, 0x37, 0x3a, 0x70, 0x09, 0x71, 0x7d, 0x98, 0x64, 0x21,
-	0x2b, 0xd9, 0x4c, 0x20, 0x88, 0xd8, 0x65, 0x8e, 0x18, 0xdd, 0x09, 0x80, 0x52, 0xec, 0x02, 0x9d,
-	0x04, 0xc0, 0x70, 0xf6, 0x87, 0xaf, 0x3c, 0x97, 0x2b, 0x5e, 0xc8, 0xc0, 0x8d, 0x31, 0xf3, 0x48,
-	0x48, 0xd7, 0x1b, 0x6c, 0x83, 0xc7, 0x74, 0xb1, 0xf6, 0x3c, 0x1f, 0x53, 0xb6, 0x09, 0x74, 0x31,
-	0x9e, 0xf7, 0xad, 0x3e, 0x8f, 0xb2, 0x18, 0x70, 0xe0, 0x63, 0xab, 0x31, 0xce, 0xf3, 0x4d, 0x7d,
-	0xfe, 0xc5, 0xae, 0xfa, 0x3f, 0xc7, 0x7f, 0xad, 0xc7, 0x3b, 0x1e, 0xb5, 0x49, 0xec, 0x68, 0x83,
-	0x3c, 0xf3, 0x9b, 0xa2, 0x67, 0xc4, 0x49, 0x7c, 0xa0, 0x6b, 0x62, 0xd1, 0xf5, 0x1b, 0xb0, 0x28,
-	0xb1, 0x77, 0xc0, 0xf4, 0x51, 0x9e, 0xfb, 0xa0, 0x96, 0xcb, 0x98, 0xf2, 0x9d, 0xe3, 0xbe, 0x90,
-	0x38, 0xf6, 0xc6, 0x63, 0xf6, 0x76, 0x9d, 0x86, 0xc1, 0x66, 0xe0, 0xd4, 0x02, 0x3c, 0xe3, 0x50,
-	0x66, 0x90, 0x0b, 0x88, 0x7d, 0x7c, 0x59, 0x7c, 0xe1, 0x88, 0x7b, 0x15, 0x4e, 0xfe, 0xc1, 0x57,
-	0xa7, 0x72, 0x95, 0x92, 0xd0, 0xa5, 0xeb, 0x24, 0x2c, 0x24, 0x6b, 0x91, 0x3c, 0x67, 0xfa, 0xff,
-	0x01, 0xba, 0xb9, 0x12, 0x31, 0xc3, 0x41, 0x1f, 0x9d, 0x94, 0xba, 0xf6, 0x32, 0x9b, 0x8a, 0x39,
-	0xb0, 0xef, 0x12, 0xb6, 0x5d, 0x78, 0xe1, 0xce, 0x18, 0x9a, 0xf9, 0x28, 0x9a, 0x62, 0x14, 0xcd,
-	0xef, 0xd3, 0x51, 0x1c, 0x3d, 0x94, 0xde, 0x99, 0xba, 0xb9, 0x2a, 0x51, 0x8c, 0x6f, 0x18, 0x0e,
-	0xba, 0xab, 0x55, 0x39, 0xc6, 0x0c, 0x37, 0x2a, 0x3c, 0xed, 0x54, 0x48, 0xd3, 0x7f, 0x02, 0x1a,
-	0x91, 0x90, 0xc2, 0xf8, 0x86, 0x01, 0xe8, 0x4e, 0x5d, 0xe5, 0x3c, 0x72, 0x30, 0x03, 0x63, 0xd2,
-	0x4e, 0x96, 0xa3, 0x72, 0xbe, 0x3f, 0x13, 0xa0, 0x6c, 0xd4, 0x50, 0x55, 0x26, 0x33, 0xaa, 0xcb,
-	0xac, 0x08, 0x65, 0x33, 0xe2, 0x80, 0xd1, 0x51, 0xb5, 0xc0, 0x75, 0xcb, 0x2c, 0x74, 0xbb, 0x59,
-	0x10, 0x97, 0x24, 0xac, 0xb1, 0x65, 0xcd, 0x6c, 0x15, 0x9f, 0x17, 0x98, 0xb2, 0x97, 0xcb, 0xeb,
-	0xf8, 0xcc, 0xcf, 0x81, 0x56, 0x9f, 0xa5, 0xca, 0x5e, 0x3e, 0x17, 0x0a, 0x35, 0x9f, 0x47, 0x75,
-	0x95, 0x4e, 0x03, 0x38, 0xdd, 0xde, 0x06, 0xe4, 0x32, 0x7b, 0x1b, 0xe0, 0xa3, 0xfb, 0x65, 0xb6,
-	0x33, 0x79, 0x14, 0xf6, 0x31, 0xa1, 0x69, 0x4f, 0xa5, 0x03, 0x55, 0x35, 0xc2, 0x57, 0xed, 0x56,
-	0xd4, 0x5a, 0xcd, 0xf8, 0xb2, 0x97, 0x52, 0xc5, 0x90, 0x00, 0x7d, 0xac, 0x57, 0x93, 0xa6, 0xf4,
-	0xa0, 0xed, 0x6f, 0xcc, 0x0a, 0xdd, 0xd3, 0xcb, 0xed, 0x6d, 0xce, 0x6b, 0x75, 0x6e, 0x7f, 0xf9,
-	0xa1, 0x8f, 0x29, 0x9f, 0x35, 0xec, 0xe9, 0x62, 0x57, 0x31, 0xe3, 0x35, 0xfa, 0xb0, 0xc6, 0xde,
-	0x6a, 0xc2, 0xc3, 0x56, 0xe6, 0x4a, 0xf3, 0x7f, 0x47, 0x43, 0x95, 0x5d, 0x36, 0xbd, 0x85, 0xa6,
-	0x7f, 0xb3, 0x5f, 0xa1, 0xdb, 0x2a, 0xfd, 0xde, 0x4d, 0xde, 0xa8, 0x53, 0x72, 0x9c, 0x3f, 0x9f,
-	0xfb, 0x74, 0xfa, 0x51, 0xc3, 0x46, 0xc4, 0x23, 0x5e, 0x6d, 0xf7, 0x46, 0x3d, 0x1e, 0x0a, 0x9d,
-	0xd6, 0x9e, 0x9b, 0xdd, 0x1a, 0x95, 0xc6, 0xdb, 0xea, 0xd0, 0x70, 0x1d, 0xfe, 0xbc, 0x79, 0xd2,
-	0x41, 0x97, 0xc3, 0x96, 0x39, 0xa6, 0xa5, 0x69, 0x7f, 0x28, 0x4d, 0xe3, 0x1a, 0x33, 0x12, 0x86,
-	0x60, 0xb3, 0x79, 0xe2, 0xf9, 0x8e, 0xd1, 0x55, 0x78, 0x7f, 0xab, 0x13, 0x34, 0xd6, 0x6c, 0x28,
-	0xfb, 0x28, 0xe9, 0x7d, 0xd5, 0xa1, 0x57, 0xc1, 0x77, 0x6f, 0xf1, 0xdf, 0x01, 0xfa, 0x54, 0x6f,
-	0x58, 0x46, 0x30, 0xdb, 0xe2, 0x30, 0x04, 0x9f, 0x1a, 0xcf, 0xbb, 0x1d, 0x52, 0x12, 0xc4, 0x86,
-	0x5f, 0x5c, 0x39, 0x4f, 0x5a, 0xfc, 0xcf, 0x00, 0x7d, 0xd2, 0x52, 0xda, 0x49, 0xb8, 0x21, 0xc6,
-	0xb4, 0x27, 0x7d, 0x0a, 0x16, 0x25, 0x3d, 0xbb, 0x52, 0x8e, 0x2c, 0x67, 0x8d, 0x86, 0xcb, 0xfc,
-	0xd6, 0x79, 0x7a, 0x74, 0xf6, 0xab, 0xb8, 0xa5, 0xce, 0xa1, 0xf9, 0xd7, 0xf8, 0xb8, 0x10, 0xd2,
-	0xdf, 0x70, 0xe7, 0xc0, 0x4a, 0x02, 0x16, 0xba, 0xab, 0x11, 0xe0, 0x23, 0xdd, 0xc9, 0x95, 0x4e,
-	0x5a, 0xf7, 0x94, 0xfd, 0x3d, 0x40, 0xc3, 0x9f, 0xb3, 0x4b, 0xec, 0x19, 0xe0, 0xd8, 0xde, 0xce,
-	0x30, 0x03, 0x97, 0xc4, 0x1e, 0xd0, 0x72, 0x2b, 0x6b, 0x17, 0xe6, 0x2a, 0x58, 0xd3, 0xca, 0x1e,
-	0x39, 0x72, 0xa7, 0x7f, 0xa1, 0x0f, 0xf2, 0x22, 0xe6, 0xc0, 0x4a, 0x15, 0x4c, 0x5a, 0xd8, 0x14,
-	0xe4, 0x35, 0xe5, 0x23, 0x74, 0x20, 0x7a, 0xc0, 0xf8, 0xdc, 0xa5, 0x5e, 0xc7, 0x41, 0x36, 0x08,
-	0xc6, 0x8b, 0x56, 0x56, 0x4d, 0x46, 0x77, 0xdb, 0x97, 0xe8, 0xd6, 0x29, 0x7f, 0xb5, 0x48, 0x8f,
-	0x4b, 0xdf, 0x6f, 0x9c, 0x99, 0xfb, 0x85, 0xb8, 0x7c, 0x19, 0xc9, 0x53, 0x4a, 0x1b, 0xf8, 0x51,
-	0xa1, 0x3b, 0x0d, 0xc1, 0x68, 0x48, 0x3b, 0xba, 0x3c, 0x71, 0x44, 0x75, 0x23, 0x0d, 0x84, 0xb3,
-	0x64, 0x8f, 0x75, 0x49, 0xc9, 0x27, 0xee, 0x50, 0x83, 0xcf, 0x97, 0xfa, 0x31, 0x2e, 0x0a, 0xc6,
-	0x63, 0xf0, 0xa1, 0x81, 0x31, 0x5f, 0xea, 0x73, 0xed, 0x90, 0x6c, 0xb3, 0x18, 0x9a, 0xea, 0xcb,
-	0x97, 0xfa, 0xd5, 0x17, 0xa2, 0xf7, 0x05, 0xe3, 0x0a, 0xc7, 0x14, 0x5e, 0xb1, 0xc0, 0x37, 0x1e,
-	0x69, 0x52, 0xe4, 0x2a, 0x87, 0x0b, 0xfa, 0xc7, 0xbd, 0xb0, 0xc2, 0xb4, 0xe9, 0x7f, 0x03, 0xf4,
-	0xde, 0x79, 0x58, 0xbc, 0xfc, 0xd9, 0xe8, 0x96, 0xfc, 0x11, 0x9c, 0x53, 0x88, 0xa9, 0xf1, 0xa0,
-	0x3a, 0x78, 0xa6, 0x0a, 0x10, 0xc2, 0x9f, 0x77, 0xe2, 0xe4, 0xa4, 0x24, 0xe8, 0xb6, 0xf2, 0x73,
-	0x17, 0xc7, 0xf9, 0x93, 0x06, 0x0a, 0x15, 0x26, 0x04, 0x9f, 0xf6, 0x44, 0x0b, 0xd9, 0xa3, 0xf1,
-	0x6f, 0x87, 0xae, 0xc7, 0xb6, 0x89, 0x65, 0xda, 0x24, 0x48, 0xdf, 0x9a, 0x63, 0x1c, 0x45, 0xd9,
-	0xe7, 0xc4, 0xf7, 0x2c, 0x3a, 0xc1, 0x91, 0x67, 0xbd, 0x9b, 0x79, 0xfc, 0xec, 0x6d, 0x00, 0x00,
-	0x00, 0xff, 0xff, 0xb0, 0x38, 0x5a, 0x55, 0x7e, 0x11, 0x00, 0x00,
+	// 811 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0x5d, 0x4f, 0xd4, 0x4c,
+	0x14, 0x86, 0xbc, 0xc9, 0x9b, 0x30, 0x6f, 0x42, 0xf2, 0x56, 0xd8, 0xc0, 0x82, 0x06, 0x48, 0xc4,
+	0x20, 0xd2, 0xd5, 0x25, 0xd1, 0xc4, 0x0b, 0x13, 0x59, 0x64, 0x21, 0x2e, 0x61, 0x15, 0xd1, 0xc4,
+	0x60, 0x36, 0xd3, 0xf6, 0x6c, 0xb7, 0xd9, 0xb6, 0x53, 0x3b, 0x53, 0x08, 0x17, 0x5e, 0xf9, 0x9f,
+	0xfc, 0x4f, 0xfe, 0x0b, 0xb3, 0xed, 0x74, 0xfa, 0x35, 0xfd, 0x70, 0xb9, 0x61, 0xcb, 0x39, 0xcf,
+	0x79, 0x9e, 0x99, 0xf3, 0x9c, 0x76, 0x06, 0x2d, 0x61, 0xcf, 0x52, 0x3d, 0x9f, 0x30, 0xa2, 0xfc,
+	0x83, 0x3d, 0xab, 0xbd, 0x61, 0x12, 0x62, 0xda, 0xd0, 0x09, 0x43, 0x5a, 0x30, 0xee, 0x80, 0xe3,
+	0xb1, 0xbb, 0x08, 0xd1, 0x5e, 0x73, 0x80, 0x52, 0x6c, 0x02, 0xed, 0x38, 0xc0, 0x70, 0xf8, 0x87,
+	0x67, 0x5e, 0x8a, 0x8c, 0xe5, 0x32, 0x30, 0x7d, 0xcc, 0x2c, 0xe2, 0xd2, 0xd1, 0x18, 0xeb, 0x60,
+	0x31, 0x59, 0xac, 0xba, 0xce, 0xc6, 0x94, 0x8d, 0x1d, 0x59, 0x8c, 0xd7, 0xbd, 0x91, 0xd7, 0x51,
+	0xe6, 0x03, 0x76, 0x6c, 0xac, 0x95, 0xc6, 0x79, 0xbd, 0x2a, 0xaf, 0xbf, 0x99, 0xe6, 0xff, 0xe7,
+	0xf8, 0xd7, 0xc9, 0xce, 0x89, 0x11, 0xd8, 0x40, 0x47, 0x44, 0xa3, 0xa3, 0x5b, 0xd0, 0x28, 0xd1,
+	0xa7, 0xc0, 0xe4, 0x51, 0x5e, 0xbb, 0x5b, 0xa8, 0x65, 0x2c, 0xf3, 0xcc, 0x71, 0xcf, 0x05, 0x8e,
+	0xdd, 0x5a, 0x4c, 0x9f, 0x8c, 0x66, 0x61, 0xd0, 0x19, 0x18, 0x85, 0x00, 0xaf, 0xd8, 0x12, 0x15,
+	0xe4, 0x06, 0x7c, 0x1b, 0xdf, 0x25, 0x0f, 0x1c, 0xb1, 0x99, 0xe3, 0xe4, 0x3f, 0x3c, 0xdb, 0x15,
+	0x59, 0x4a, 0x5c, 0x93, 0x8e, 0x02, 0x37, 0x91, 0x2c, 0x44, 0xa2, 0x9a, 0xee, 0xaf, 0x55, 0xb4,
+	0x34, 0x8c, 0x63, 0x8a, 0x81, 0x1e, 0x9e, 0xa5, 0x1a, 0x76, 0x12, 0x7a, 0xdb, 0x07, 0xf6, 0x36,
+	0x60, 0x93, 0x81, 0xe5, 0x4e, 0x95, 0x96, 0x1a, 0x0d, 0x94, 0x1a, 0x0f, 0x94, 0xfa, 0x6e, 0x36,
+	0x50, 0xed, 0x3d, 0xe1, 0x80, 0x2a, 0x9b, 0x8e, 0x14, 0xc5, 0xce, 0x82, 0x62, 0xa0, 0x75, 0xa9,
+	0xca, 0x31, 0x66, 0xb8, 0x54, 0xe1, 0xa0, 0x56, 0x61, 0x56, 0xfe, 0x11, 0xa8, 0x47, 0x5c, 0x0a,
+	0x3b, 0x0b, 0x0a, 0xa0, 0xb5, 0xa2, 0xca, 0x95, 0x67, 0x60, 0x06, 0x4a, 0xa7, 0x9a, 0x2c, 0x42,
+	0x45, 0x7c, 0xdf, 0x03, 0xa0, 0xac, 0x5d, 0xb2, 0xaa, 0x50, 0xa6, 0x5d, 0x94, 0x19, 0x12, 0xca,
+	0x7a, 0xc4, 0x00, 0xa5, 0x66, 0xd5, 0x31, 0xae, 0x5e, 0x66, 0x20, 0xdb, 0xcd, 0x80, 0x98, 0x24,
+	0x60, 0xa5, 0x2d, 0x2b, 0x67, 0xcb, 0xf9, 0x3c, 0xc0, 0x94, 0x9d, 0x9c, 0xdf, 0xc7, 0x67, 0xfe,
+	0x36, 0x57, 0xfa, 0x2c, 0x54, 0xe6, 0xf2, 0x39, 0x51, 0x28, 0xf8, 0xdc, 0x2e, 0xaa, 0xd4, 0x1a,
+	0xc0, 0xe9, 0xe6, 0x36, 0x20, 0x92, 0x99, 0xdb, 0x00, 0x1b, 0x6d, 0xa7, 0xd9, 0x2e, 0xc5, 0x07,
+	0xad, 0x89, 0x09, 0x65, 0x7b, 0x4a, 0x7d, 0x16, 0xb3, 0x46, 0xd8, 0x59, 0xbb, 0x33, 0x6a, 0x95,
+	0x66, 0xbc, 0x68, 0xa4, 0x94, 0x33, 0xc4, 0x41, 0x8f, 0xe4, 0x6a, 0xc2, 0x94, 0x06, 0xb4, 0xcd,
+	0x8d, 0x19, 0xa2, 0x4d, 0xb9, 0xdc, 0xdc, 0xe6, 0x5c, 0x67, 0xe7, 0xf6, 0xf3, 0xfb, 0x26, 0xa6,
+	0x3c, 0x2e, 0xd9, 0xd3, 0xcd, 0x34, 0x67, 0xc6, 0x35, 0x5a, 0x2d, 0xb0, 0x57, 0x9a, 0xb0, 0x57,
+	0xc9, 0x9c, 0x6b, 0xfe, 0x37, 0xd4, 0xca, 0xb2, 0x8b, 0xa6, 0x57, 0xd0, 0x34, 0x6f, 0xf6, 0x29,
+	0x5a, 0xc9, 0xd2, 0xcf, 0xdd, 0xe4, 0x11, 0x6a, 0x9d, 0x47, 0x67, 0xe6, 0xc5, 0xd1, 0xe5, 0x97,
+	0xf8, 0x8c, 0xed, 0x43, 0x39, 0xd7, 0x7e, 0xb2, 0x01, 0xf9, 0xf9, 0xdc, 0x07, 0x96, 0xea, 0x84,
+	0x86, 0xd6, 0x25, 0x02, 0xfc, 0x00, 0xa8, 0xe5, 0x9a, 0xb5, 0xa4, 0xbe, 0x1d, 0x3f, 0x17, 0x51,
+	0xeb, 0x53, 0x78, 0x04, 0x5f, 0x02, 0xf6, 0xf5, 0x49, 0x0f, 0x33, 0x30, 0x89, 0x6f, 0x01, 0x55,
+	0xba, 0x89, 0x42, 0xe1, 0xb8, 0xcf, 0x83, 0x63, 0xa1, 0xc3, 0xbf, 0xaa, 0x11, 0x3b, 0xfd, 0x81,
+	0x1e, 0x44, 0x8b, 0xe8, 0x03, 0x4b, 0xad, 0xa0, 0x53, 0xc1, 0x96, 0x41, 0xde, 0x53, 0xde, 0x43,
+	0x1b, 0x71, 0x0f, 0x58, 0x6f, 0x82, 0x5d, 0x17, 0xec, 0x33, 0x77, 0x4c, 0x7c, 0x27, 0x9c, 0x11,
+	0xe5, 0x55, 0x25, 0xab, 0xa4, 0xa2, 0xbe, 0xed, 0xe7, 0x68, 0xf9, 0x82, 0x5f, 0x8c, 0x66, 0xef,
+	0x96, 0x6d, 0x97, 0xce, 0xcc, 0x76, 0x22, 0x2e, 0xae, 0x52, 0x51, 0x49, 0x6a, 0x03, 0x1f, 0x32,
+	0x74, 0x17, 0x2e, 0x28, 0x25, 0x65, 0x47, 0x77, 0x67, 0x46, 0xbc, 0xba, 0xb6, 0x04, 0xc2, 0x59,
+	0xc2, 0x8f, 0x92, 0xa0, 0xe4, 0x13, 0xb7, 0x25, 0xc1, 0x47, 0xa9, 0x66, 0x8c, 0x83, 0x84, 0xf1,
+	0x18, 0x6c, 0x28, 0x61, 0x8c, 0x52, 0x4d, 0x3e, 0x9a, 0x82, 0xad, 0xe7, 0x43, 0xd9, 0xfa, 0xa2,
+	0x54, 0xb3, 0xf5, 0xb9, 0xe8, 0xff, 0x98, 0x71, 0x88, 0x7d, 0x0a, 0xa7, 0xcc, 0xb1, 0x95, 0xa7,
+	0x92, 0x12, 0x91, 0xe5, 0xf0, 0x98, 0x7e, 0xbf, 0x11, 0x36, 0x36, 0xad, 0xfb, 0x7b, 0x11, 0xfd,
+	0x77, 0xe5, 0x26, 0x57, 0x57, 0x1d, 0x2d, 0x8b, 0x97, 0xe0, 0x8a, 0x82, 0x4f, 0x95, 0xdd, 0xfc,
+	0xe0, 0xa9, 0x59, 0x40, 0x2c, 0xfc, 0xa4, 0x16, 0x27, 0x26, 0x25, 0x40, 0x2b, 0x99, 0xd7, 0x3d,
+	0x9a, 0x5d, 0xaa, 0x3c, 0x2b, 0xa1, 0xc8, 0xc2, 0x62, 0xc1, 0x83, 0x86, 0xe8, 0x58, 0xf6, 0x68,
+	0xe7, 0xeb, 0x96, 0x69, 0xb1, 0x49, 0xa0, 0xa9, 0x3a, 0x71, 0x66, 0x77, 0x7e, 0x1f, 0x7b, 0x5e,
+	0xf8, 0xdb, 0xb1, 0x2d, 0x8d, 0x76, 0xb0, 0x67, 0x69, 0xff, 0x86, 0x1e, 0x1f, 0xfe, 0x09, 0x00,
+	0x00, 0xff, 0xff, 0x16, 0xa1, 0x18, 0x97, 0x02, 0x0e, 0x00, 0x00,
 }

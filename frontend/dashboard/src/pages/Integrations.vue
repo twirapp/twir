@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Discord from '@/components/integrations/discord.vue'
 import Donatello from '@/components/integrations/donatello.vue'
 import Donatepay from '@/components/integrations/donatepay.vue'
 import Donatestream from '@/components/integrations/donatestream.vue'
@@ -9,6 +8,7 @@ import Lastfm from '@/components/integrations/lastfm.vue'
 import Spotify from '@/components/integrations/spotify.vue'
 import Streamlabs from '@/components/integrations/streamlabs.vue'
 import Vk from '@/components/integrations/vk.vue'
+import Discord from '@/features/integrations/ui/discord/card.vue'
 import SevenTv from '@/features/integrations/ui/seventv/seven-tv.vue'
 import Valorant from '@/features/integrations/ui/valorant/valorant.vue'
 import PageLayout from '@/layout/page-layout.vue'

@@ -10,7 +10,6 @@ import "messages/integrations_faceit/integrations_faceit.proto";
 import "messages/integrations_lastfm/integrations_lastfm.proto";
 import "messages/integrations_streamlabs/integrations_streamlabs.proto";
 import "messages/integrations_vk/integrations_vk.proto";
-import "messages/integrations_discord/integrations_discord.proto";
 
 import "messages/modules_obs_websocket/modules_obs_websocket.proto";
 import "messages/modules_tts/modules_tts.proto";
@@ -39,14 +38,6 @@ service Protected {
 	rpc IntegrationsVKGetData(google.protobuf.Empty) returns (messages.integrations_vk.GetDataResponse) {}
 	rpc IntegrationsVKPostCode(messages.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-	rpc IntegrationsDiscordGetAuthLink(google.protobuf.Empty) returns (messages.integrations_discord.GetAuthLink) {}
-	rpc IntegrationsDiscordGetData(google.protobuf.Empty) returns (messages.integrations_discord.GetDataResponse) {}
-	rpc IntegrationsDiscordUpdate(messages.integrations_discord.UpdateMessage) returns (google.protobuf.Empty) {}
-	rpc IntegrationDiscordConnectGuild(messages.integrations_discord.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsDiscordDisconnectGuild(messages.integrations_discord.DisconnectGuildMessage) returns (google.protobuf.Empty) {}
-	rpc IntegrationsDiscordGetGuildChannels(messages.integrations_discord.GetGuildChannelsRequest) returns (messages.integrations_discord.GetGuildChannelsResponse) {}
-	rpc IntegrationsDiscordGetGuildInfo(messages.integrations_discord.GetGuildInfoRequest) returns (messages.integrations_discord.GetGuildInfoResponse) {}
 
 	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (messages.modules_obs_websocket.GetResponse) {}
 	rpc ModulesOBSWebsocketUpdate(messages.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}

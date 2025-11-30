@@ -4,26 +4,34 @@ import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import {
-	useDiscordIntegration,
 	useFaceitIntegration,
 	useLastfmIntegration,
 	useStreamlabsIntegration,
 	useVKIntegration,
 } from '@/api/index.js'
+import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
 
 const router = useRouter()
 const route = useRoute()
 
+const discordIntegration = useDiscordIntegration()
+
 const integrationsHooks: {
-	[x: string]: {
-		manager: {
-			usePostCode: (...args: any) => any | Promise<any>
-			useData?: () => {
-				refetch: (...args: any) => any | Promise<any>
-			}
-		}
-		closeWindow?: boolean
-	}
+	[x: string]:
+		| {
+				manager: {
+					usePostCode: (...args: any) => any | Promise<any>
+					useData?: () => {
+						refetch: (...args: any) => any | Promise<any>
+					}
+				}
+				closeWindow?: boolean
+		  }
+		| {
+				custom: true
+				handler: (code: string) => Promise<void>
+				closeWindow?: boolean
+		  }
 } = {
 	lastfm: {
 		manager: useLastfmIntegration(),
@@ -42,8 +50,12 @@ const integrationsHooks: {
 		closeWindow: true,
 	},
 	discord: {
-		manager: useDiscordIntegration(),
+		custom: true,
 		closeWindow: true,
+		handler: async (code: string) => {
+			await discordIntegration.connectGuild(code)
+			window.opener?.postMessage('discord-connected', '*')
+		},
 	},
 }
 
@@ -55,13 +67,11 @@ onMounted(async () => {
 	}
 
 	const integration = integrationsHooks[integrationName]
-	const postCodeHook = integration?.manager?.usePostCode()
-	const getDataHook = integration?.manager?.useData?.()
 
 	const { code, token } = route.query
 	const incomingCode = code ?? token
 
-	if (typeof incomingCode !== 'string' || !postCodeHook) {
+	if (typeof incomingCode !== 'string') {
 		if (integration?.closeWindow) {
 			window.close()
 		} else {
@@ -70,16 +80,44 @@ onMounted(async () => {
 		return
 	}
 
-	postCodeHook.mutateAsync({ code: incomingCode }).finally(async () => {
-		if (integration?.closeWindow) {
-			if (getDataHook) {
-				await getDataHook.refetch({})
+	// Handle custom integrations (like Discord with GraphQL)
+	if (integration && 'custom' in integration && integration.custom) {
+		try {
+			await integration.handler(incomingCode)
+		} finally {
+			if (integration.closeWindow) {
+				window.close()
+			} else {
+				router.push({ name: 'Integrations' })
 			}
-			window.close()
-		} else {
-			router.push({ name: 'Integrations' })
 		}
-	})
+		return
+	}
+
+	// Handle legacy integrations
+	if (integration && 'manager' in integration) {
+		const postCodeHook = integration.manager.usePostCode()
+		const getDataHook = integration.manager.useData?.()
+
+		postCodeHook.mutateAsync({ code: incomingCode }).finally(async () => {
+			if (integration.closeWindow) {
+				if (getDataHook) {
+					await getDataHook.refetch({})
+				}
+				window.close()
+			} else {
+				router.push({ name: 'Integrations' })
+			}
+		})
+		return
+	}
+
+	// Fallback
+	if (integration?.closeWindow) {
+		window.close()
+	} else {
+		router.push({ name: 'Integrations' })
+	}
 })
 </script>
 

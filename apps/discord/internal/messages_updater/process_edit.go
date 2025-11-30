@@ -16,21 +16,21 @@ func (c *MessagesUpdater) updateDiscordMessages(
 	ctx context.Context,
 	stream model.ChannelsStreams,
 ) error {
-	settings, err := c.getChannelDiscordIntegration(ctx, stream.UserId)
+	integrations, err := c.getChannelDiscordIntegrations(ctx, stream.UserId)
 	if err != nil {
 		return err
 	}
 
-	if settings.Data.Discord == nil || len(settings.Data.Discord.Guilds) == 0 {
+	if len(integrations) == 0 {
 		return nil
 	}
 
-	for _, guild := range settings.Data.Discord.Guilds {
-		if !guild.LiveNotificationEnabled {
+	for _, integration := range integrations {
+		if !integration.LiveNotificationEnabled {
 			continue
 		}
 
-		messages, err := c.store.GetByGuildId(ctx, guild.ID)
+		messages, err := c.store.GetByGuildId(ctx, integration.GuildID)
 		if err != nil {
 			return err
 		}
@@ -46,12 +46,12 @@ func (c *MessagesUpdater) updateDiscordMessages(
 				continue
 			}
 
-			embed := c.buildEmbed(twitchUser, stream, guild)
+			embed := c.buildEmbed(twitchUser, stream, integration)
 
-			gUid, _ := strconv.ParseUint(guild.ID, 10, 64)
+			gUid, _ := strconv.ParseUint(integration.GuildID, 10, 64)
 			shard, _ := c.discord.FromGuildID(discord.GuildID(gUid))
 			if shard == nil {
-				c.logger.Error("Shard not found", slog.Any("guild_id", guild.ID))
+				c.logger.Error("Shard not found", slog.Any("guild_id", integration.GuildID))
 				continue
 			}
 
@@ -68,7 +68,7 @@ func (c *MessagesUpdater) updateDiscordMessages(
 					}
 
 					content := c.replaceMessageVars(
-						guild.LiveNotificationMessage, replaceMessageVarsOpts{
+						integration.LiveNotificationMessage, replaceMessageVarsOpts{
 							UserName:     stream.UserLogin,
 							DisplayName:  stream.UserName,
 							CategoryName: stream.GameName,
