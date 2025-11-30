@@ -1,6 +1,7 @@
 package model
 
 import (
+	"net/netip"
 	"time"
 )
 
@@ -12,7 +13,7 @@ type ShortenedUrl struct {
 	CreatedByUserId *string
 	Views           int
 	UserAgent       *string
-	UserIp          *string
+	UserIp          *netip.Addr
 }
 
 var Nil = ShortenedUrl{}

@@ -180,7 +180,7 @@ func (c *Pgx) Create(ctx context.Context, input shortened_urls.CreateInput) (
 ) {
 	query := `
 INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent)
-VALUES ($1, $2, $3)
+VALUES (@short_id, @url, @created_by_user_id, @user_ip, @user_agent)
 RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
 `
 
@@ -188,11 +188,13 @@ RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user
 	rows, err := conn.Query(
 		ctx,
 		query,
-		input.ShortID,
-		input.URL,
-		input.CreatedByUserID,
-		input.UserIp,
-		input.UserAgent,
+		pgx.NamedArgs{
+			"short_id":           input.ShortID,
+			"url":                input.URL,
+			"created_by_user_id": input.CreatedByUserID,
+			"user_ip":            input.UserIp,
+			"user_agent":         input.UserAgent,
+		},
 	)
 	if err != nil {
 		return model.Nil, err
