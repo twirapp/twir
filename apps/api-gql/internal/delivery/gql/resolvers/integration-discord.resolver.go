@@ -15,10 +15,7 @@ import (
 )
 
 // DiscordIntegrationConnectGuild is the resolver for the discordIntegrationConnectGuild field.
-func (r *mutationResolver) DiscordIntegrationConnectGuild(ctx context.Context, code string) (
-	bool,
-	error,
-) {
+func (r *mutationResolver) DiscordIntegrationConnectGuild(ctx context.Context, code string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -33,10 +30,7 @@ func (r *mutationResolver) DiscordIntegrationConnectGuild(ctx context.Context, c
 }
 
 // DiscordIntegrationDisconnectGuild is the resolver for the discordIntegrationDisconnectGuild field.
-func (r *mutationResolver) DiscordIntegrationDisconnectGuild(
-	ctx context.Context,
-	guildID string,
-) (bool, error) {
+func (r *mutationResolver) DiscordIntegrationDisconnectGuild(ctx context.Context, guildID string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -51,11 +45,7 @@ func (r *mutationResolver) DiscordIntegrationDisconnectGuild(
 }
 
 // DiscordIntegrationUpdateGuild is the resolver for the discordIntegrationUpdateGuild field.
-func (r *mutationResolver) DiscordIntegrationUpdateGuild(
-	ctx context.Context,
-	guildID string,
-	input gqlmodel.DiscordGuildUpdateInput,
-) (bool, error) {
+func (r *mutationResolver) DiscordIntegrationUpdateGuild(ctx context.Context, guildID string, input gqlmodel.DiscordGuildUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -102,10 +92,7 @@ func (r *mutationResolver) DiscordIntegrationUpdateGuild(
 }
 
 // DiscordIntegrationData is the resolver for the discordIntegrationData field.
-func (r *queryResolver) DiscordIntegrationData(ctx context.Context) (
-	*gqlmodel.DiscordIntegrationData,
-	error,
-) {
+func (r *queryResolver) DiscordIntegrationData(ctx context.Context) (*gqlmodel.DiscordIntegrationData, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -125,10 +112,7 @@ func (r *queryResolver) DiscordIntegrationAuthLink(ctx context.Context) (string,
 }
 
 // DiscordIntegrationGuildChannels is the resolver for the discordIntegrationGuildChannels field.
-func (r *queryResolver) DiscordIntegrationGuildChannels(
-	ctx context.Context,
-	guildID string,
-) ([]gqlmodel.DiscordGuildChannel, error) {
+func (r *queryResolver) DiscordIntegrationGuildChannels(ctx context.Context, guildID string) ([]gqlmodel.DiscordGuildChannel, error) {
 	channels, err := r.deps.DiscordIntegrationService.GetGuildChannels(ctx, guildID)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get discord guild channels: %w", err)
@@ -138,10 +122,7 @@ func (r *queryResolver) DiscordIntegrationGuildChannels(
 }
 
 // DiscordIntegrationGuildInfo is the resolver for the discordIntegrationGuildInfo field.
-func (r *queryResolver) DiscordIntegrationGuildInfo(
-	ctx context.Context,
-	guildID string,
-) (*gqlmodel.DiscordGuildInfo, error) {
+func (r *queryResolver) DiscordIntegrationGuildInfo(ctx context.Context, guildID string) (*gqlmodel.DiscordGuildInfo, error) {
 	info, err := r.deps.DiscordIntegrationService.GetGuildInfo(ctx, guildID)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get discord guild info: %w", err)

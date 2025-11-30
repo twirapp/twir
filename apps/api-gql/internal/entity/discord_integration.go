@@ -31,19 +31,19 @@ type DiscordGuildChannel struct {
 type DiscordChannelType int
 
 const (
-DiscordChannelTypeText DiscordChannelType = iota
-DiscordChannelTypeVoice
-DiscordChannelTypeDM
-DiscordChannelTypeGroupDM
-DiscordChannelTypeCategory
-DiscordChannelTypeAnnouncement
-DiscordChannelTypeAnnouncementThread
-DiscordChannelTypePublicThread
-DiscordChannelTypePrivateThread
-DiscordChannelTypeStageVoice
-DiscordChannelTypeDirectory
-DiscordChannelTypeForum
-DiscordChannelTypeMedia
+	DiscordChannelTypeText DiscordChannelType = iota
+	DiscordChannelTypeVoice
+	DiscordChannelTypeDM
+	DiscordChannelTypeGroupDM
+	DiscordChannelTypeCategory
+	DiscordChannelTypeAnnouncement
+	DiscordChannelTypeAnnouncementThread
+	DiscordChannelTypePublicThread
+	DiscordChannelTypePrivateThread
+	DiscordChannelTypeStageVoice
+	DiscordChannelTypeDirectory
+	DiscordChannelTypeForum
+	DiscordChannelTypeMedia
 )
 
 type DiscordGuildRole struct {

@@ -296,6 +296,17 @@ type UpdateGuildInput struct {
 	AdditionalUsersIdsForLiveCheck   *[]string
 }
 
+func discordChannelTypeToEntity(t discord.ChannelType) entity.DiscordChannelType {
+	switch t {
+	case discord.ChannelType_VOICE:
+		return entity.DiscordChannelTypeVoice
+	case discord.ChannelType_TEXT:
+		return entity.DiscordChannelTypeText
+	default:
+		return entity.DiscordChannelTypeText
+	}
+}
+
 func (s *Service) GetGuildChannels(
 	ctx context.Context,
 	guildID string,
@@ -315,7 +326,7 @@ func (s *Service) GetGuildChannels(
 			channels, entity.DiscordGuildChannel{
 				ID:              channel.Id,
 				Name:            channel.Name,
-				Type:            entity.DiscordChannelType(channel.Type.Number()),
+				Type:            discordChannelTypeToEntity(channel.Type),
 				CanSendMessages: channel.CanSendMessages,
 			},
 		)
@@ -343,7 +354,7 @@ func (s *Service) GetGuildInfo(ctx context.Context, guildID string) (
 			channels, entity.DiscordGuildChannel{
 				ID:              channel.Id,
 				Name:            channel.Name,
-				Type:            entity.DiscordChannelType(channel.Type.Number()),
+				Type:            discordChannelTypeToEntity(channel.Type),
 				CanSendMessages: channel.CanSendMessages,
 			},
 		)

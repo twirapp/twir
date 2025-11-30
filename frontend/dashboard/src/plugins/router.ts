@@ -11,47 +11,51 @@ export function newRouter() {
 	const routes: ReadonlyArray<RouteRecordRaw> = [
 		{
 			path: '/dashboard/integrations/spotify',
-			component: () => import('../pages/IntegrationsCallbackSpotify.vue'),
+			component: () => import('@/pages/IntegrationsCallbackSpotify.vue'),
 		},
 		{
 			path: '/dashboard/integrations/donationalerts',
-			component: () => import('../pages/IntegrationsCallbackDonationAlerts.vue'),
+			component: () => import('@/pages/IntegrationsCallbackDonationAlerts.vue'),
 		},
 		{
 			path: '/dashboard/integrations/nightbot',
-			component: () => import('../features/import/nightbot/nightbot-callback.vue'),
+			component: () => import('@/features/import/nightbot/nightbot-callback.vue'),
 		},
 		{
 			path: '/dashboard/integrations/valorant',
-			component: () => import('../features/integrations/valorant-callback.vue'),
+			component: () => import('@/features/integrations/pages/valorant-callback.vue'),
+		},
+		{
+			path: '/dashboard/integrations/discord',
+			component: () => import('@/features/integrations/pages/discord-callback.vue'),
 		},
 		{
 			path: '/dashboard/integrations/:integrationName',
-			component: () => import('../pages/IntegrationsCallback.vue'),
+			component: () => import('@/pages/IntegrationsCallback.vue'),
 		},
 		{
 			path: '/dashboard/popup',
-			component: () => import('../popup-layout/popup-layout.vue'),
+			component: () => import('@/popup-layout/popup-layout.vue'),
 			children: [
 				{
 					path: '/dashboard/popup/widgets/eventslist',
-					component: () => import('../components/dashboard/events.vue'),
+					component: () => import('@/components/dashboard/events.vue'),
 					props: { popup: true },
 				},
 				{
 					path: '/dashboard/popup/widgets/audit-log',
-					component: () => import('../components/dashboard/audit-logs.vue'),
+					component: () => import('@/components/dashboard/audit-logs.vue'),
 					props: { popup: true },
 				},
 			],
 		},
 		{
 			path: '/dashboard',
-			component: () => import('../layout/layout.vue'),
+			component: () => import('@/layout/layout.vue'),
 			children: [
 				{
 					path: '/dashboard',
-					component: () => import('../pages/Dashboard.vue'),
+					component: () => import('@/pages/Dashboard.vue'),
 					meta: { noPadding: true },
 				},
 				{
@@ -65,63 +69,69 @@ export function newRouter() {
 				{
 					name: 'Integrations',
 					path: '/dashboard/integrations',
-					component: () => import('../pages/Integrations.vue'),
+					component: () => import('@/pages/Integrations.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewIntegrations, noPadding: true },
+				},
+				{
+					name: 'DiscordIntegration',
+					path: '/dashboard/integrations/discord-settings',
+					component: () => import('@/features/integrations/pages/discord-settings.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewIntegrations, noPadding: true },
 				},
 				{
 					path: '/dashboard/commands/:system',
-					component: () => import('../features/commands/commands.vue'),
+					component: () => import('@/features/commands/commands.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewCommands, noPadding: true },
 				},
 				{
 					path: '/dashboard/commands/:system/:id',
-					component: () => import('../features/commands/commands-edit.vue'),
+					component: () => import('@/features/commands/commands-edit.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageCommands, noPadding: true },
 				},
 				{
 					path: '/dashboard/timers',
-					component: () => import('../features/timers/timers.vue'),
+					component: () => import('@/features/timers/timers.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewTimers, noPadding: true },
 				},
 				{
 					path: '/dashboard/giveaways',
-					component: () => import('../features/giveaways/giveaways.vue'),
+					component: () => import('@/features/giveaways/giveaways.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewGiveaways, noPadding: true },
 				},
 				{
 					name: 'giveaways-view',
 					path: '/dashboard/giveaways/view/:id',
-					component: () => import('../features/giveaways/giveaways.vue'),
+					component: () => import('@/features/giveaways/giveaways.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewGiveaways, noPadding: true },
 				},
 				{
 					path: '/dashboard/modules',
-					component: () => import('../features/modules/modules.vue'),
+					component: () => import('@/features/modules/modules.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewModules, noPadding: true },
 				},
 				{
 					path: '/dashboard/timers/:id',
-					component: () => import('../features/timers/timers-edit.vue'),
+					component: () => import('@/features/timers/timers-edit.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageTimers, noPadding: true },
 				},
 				{
 					path: '/dashboard/keywords',
-					component: () => import('../pages/Keywords.vue'),
+					component: () => import('@/pages/Keywords.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewKeywords, noPadding: true },
 				},
 				{
 					path: '/dashboard/variables',
-					component: () => import('../features/variables/variables.vue'),
+					component: () => import('@/features/variables/variables.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewVariables, noPadding: true },
 				},
 				{
 					path: '/dashboard/variables/:id',
-					component: () => import('../features/variables/variables-edit.vue'),
+					component: () => import('@/features/variables/variables-edit.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageVariables, noPadding: true },
 				},
 				{
 					path: '/dashboard/greetings',
-					component: () => import('../pages/greetings.vue'),
+					component: () => import('@/pages/greetings.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ViewGreetings,
@@ -134,12 +144,12 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/community',
-					component: () => import('../pages/community.vue'),
+					component: () => import('@/pages/community.vue'),
 					meta: { noPadding: true },
 				},
 				{
 					path: '/dashboard/community/roles',
-					component: () => import('../features/community-roles/community-roles.vue'),
+					component: () => import('@/features/community-roles/community-roles.vue'),
 					meta: {
 						neededPermission: ChannelRolePermissionEnum.ViewRoles,
 						noPadding: true,
@@ -147,18 +157,18 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/song-requests',
-					component: () => import('../pages/SongRequests.vue'),
+					component: () => import('@/pages/SongRequests.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewSongRequests },
 				},
 				{
 					path: '/dashboard/overlays',
-					component: () => import('../pages/Overlays.vue'),
+					component: () => import('@/pages/Overlays.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewOverlays },
 				},
 				{
 					name: 'ChatOverlay',
 					path: '/dashboard/overlays/chat',
-					component: () => import('../pages/overlays/chat/Chat.vue'),
+					component: () => import('@/pages/overlays/chat/Chat.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
@@ -176,7 +186,7 @@ export function newRouter() {
 				{
 					name: 'BrbOverlay',
 					path: '/dashboard/overlays/brb',
-					component: () => import('../features/overlays/brb/page.vue'),
+					component: () => import('@/features/overlays/brb/page.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
@@ -185,7 +195,7 @@ export function newRouter() {
 				{
 					name: 'TTSOverlay',
 					path: '/dashboard/overlays/tts',
-					component: () => import('../features/overlays/tts/page.vue'),
+					component: () => import('@/features/overlays/tts/page.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
@@ -194,7 +204,7 @@ export function newRouter() {
 				{
 					name: 'DudesOverlay',
 					path: '/dashboard/overlays/dudes',
-					component: () => import('../pages/overlays/dudes/dudes-settings.vue'),
+					component: () => import('@/pages/overlays/dudes/dudes-settings.vue'),
 					meta: {
 						fullScreen: true,
 						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
@@ -203,7 +213,7 @@ export function newRouter() {
 				{
 					name: 'FaceitStatsOverlay',
 					path: '/dashboard/overlays/faceit-stats',
-					component: () => import('../features/overlays/faceit-stats/builder.vue'),
+					component: () => import('@/features/overlays/faceit-stats/builder.vue'),
 					meta: {
 						noPadding: true,
 					},
@@ -211,14 +221,14 @@ export function newRouter() {
 				{
 					name: 'ValorantStatsOverlay',
 					path: '/dashboard/overlays/valorant-stats',
-					component: () => import('../features/overlays/valorant-stats/builder.vue'),
+					component: () => import('@/features/overlays/valorant-stats/builder.vue'),
 					meta: {
 						noPadding: true,
 					},
 				},
 				{
 					path: '/dashboard/events/chat-alerts',
-					component: () => import('../pages/chat-alerts.vue'),
+					component: () => import('@/pages/chat-alerts.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ViewEvents,
@@ -226,17 +236,17 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/events',
-					component: () => import('../features/events/events-list.vue'),
+					component: () => import('@/features/events/events-list.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewEvents, noPadding: true },
 				},
 				{
 					path: '/dashboard/events/:id',
-					component: () => import('../features/events/event-form.vue'),
+					component: () => import('@/features/events/event-form.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageEvents, noPadding: true },
 				},
 				{
 					path: '/dashboard/alerts',
-					component: () => import('../pages/alerts.vue'),
+					component: () => import('@/pages/alerts.vue'),
 					meta: {
 						noPadding: true,
 						neededPermission: ChannelRolePermissionEnum.ViewAlerts,
@@ -244,64 +254,64 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/games',
-					component: () => import('../pages/Games.vue'),
+					component: () => import('@/pages/Games.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewGames, noPadding: true },
 				},
 				{
 					path: '/dashboard/files',
-					component: () => import('../pages/Files.vue'),
+					component: () => import('@/pages/Files.vue'),
 				},
 				{
 					name: 'RegistryOverlayEdit',
 					path: '/dashboard/registry/overlays/:id',
-					component: () => import('../components/registry/overlays/edit.vue'),
+					component: () => import('@/components/registry/overlays/edit.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewOverlays },
 				},
 				{
 					name: 'Moderation',
 					path: '/dashboard/moderation',
-					component: () => import('../features/moderation/moderation.vue'),
+					component: () => import('@/features/moderation/moderation.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageModeration, noPadding: true },
 				},
 				{
 					name: 'ModerationForm',
 					path: '/dashboard/moderation/:id',
-					component: () => import('../features/moderation/moderation-form.vue'),
+					component: () => import('@/features/moderation/moderation-form.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ManageModeration, noPadding: true },
 				},
 				{
 					name: 'Settings',
 					path: '/dashboard/settings',
-					component: () => import('../pages/user-settings/user-settings.vue'),
+					component: () => import('@/pages/user-settings/user-settings.vue'),
 					meta: { noPadding: true },
 				},
 				{
 					name: 'AdminPanel',
 					path: '/dashboard/admin',
-					component: () => import('../pages/admin-panel.vue'),
+					component: () => import('@/pages/admin-panel.vue'),
 					meta: { noPadding: true, adminOnly: true },
 				},
 				{
 					name: 'Import',
 					path: '/dashboard/import',
-					component: () => import('../pages/Import.vue'),
+					component: () => import('@/pages/Import.vue'),
 				},
 				{
 					name: 'Notifications',
 					path: '/dashboard/notifications',
-					component: () => import('../pages/notifications.vue'),
+					component: () => import('@/pages/notifications.vue'),
 					meta: { noPadding: true },
 				},
 				{
 					name: 'Forbidden',
 					path: '/dashboard/forbidden',
-					component: () => import('../pages/NoAccess.vue'),
+					component: () => import('@/pages/NoAccess.vue'),
 					meta: { fullScreen: true },
 				},
 				{
 					path: '/:pathMatch(.*)*',
 					name: 'NotFound',
-					component: () => import('../pages/NotFound.vue'),
+					component: () => import('@/pages/NotFound.vue'),
 					meta: { fullScreen: true },
 				},
 			],
