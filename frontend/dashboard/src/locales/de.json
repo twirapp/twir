@@ -331,7 +331,15 @@
 			"info": "Durch den Zugriff auf diesen Service kann Twir Befehle und Timer von Nightbot importieren."
 		},
 		"valorant": {
-			"info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Valorant-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten. "
+			"info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Valorant-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten. ",
+			"description": "Track your Valorant matches and display stats in your stream.",
+			"notConnected": "Valorant account not connected",
+			"notConnectedDescription": "Connect your Valorant account to enable match tracking and stats display.",
+			"connect": "Connect Valorant",
+			"connected": "Successfully connected",
+			"connectedAs": "Connected as",
+			"disconnect": "Disconnect",
+			"notConfigured": "Not configured"
 		},
 		"sevenTv": {
 			"description": "Wir können 7TV Channel Emotes verwalten, wenn diese Integration aktiviert ist.",
