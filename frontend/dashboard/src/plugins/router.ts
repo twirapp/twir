@@ -22,6 +22,10 @@ export function newRouter() {
 			component: () => import('../features/import/nightbot/nightbot-callback.vue'),
 		},
 		{
+			path: '/dashboard/integrations/valorant',
+			component: () => import('../features/integrations/valorant-callback.vue'),
+		},
+		{
 			path: '/dashboard/integrations/:integrationName',
 			component: () => import('../pages/IntegrationsCallback.vue'),
 		},

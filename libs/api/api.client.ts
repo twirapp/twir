@@ -10,9 +10,6 @@ import type { TwitchGetUsersRequest } from "./messages/twitch/twitch";
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Protected } from "./api";
-import type { PostCodeRequest as PostCodeRequest$5 } from "./messages/integrations_valorant/integrations_valorant";
-import type { GetDataResponse as GetDataResponse$5 } from "./messages/integrations_valorant/integrations_valorant";
-import type { GetAuthLink as GetAuthLink$5 } from "./messages/integrations_valorant/integrations_valorant";
 import type { ParseHtmlOverlayResponse } from "./messages/overlays/overlays";
 import type { ParseHtmlOverlayRequest } from "./messages/overlays/overlays";
 import type { CreateRequest } from "./messages/overlays/overlays";
@@ -197,22 +194,6 @@ export interface IProtectedClient {
      * @generated from protobuf rpc: OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse);
      */
     overlaysParseHtml(input: ParseHtmlOverlayRequest, options?: RpcOptions): UnaryCall<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse>;
-    /**
-     * @generated from protobuf rpc: IntegrationsValorantGetAuthLink(google.protobuf.Empty) returns (messages.integrations_valorant.GetAuthLink);
-     */
-    integrationsValorantGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$5>;
-    /**
-     * @generated from protobuf rpc: IntegrationsValorantGetData(google.protobuf.Empty) returns (messages.integrations_valorant.GetDataResponse);
-     */
-    integrationsValorantGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$5>;
-    /**
-     * @generated from protobuf rpc: IntegrationsValorantPostCode(messages.integrations_valorant.PostCodeRequest) returns (google.protobuf.Empty);
-     */
-    integrationsValorantPostCode(input: PostCodeRequest$5, options?: RpcOptions): UnaryCall<PostCodeRequest$5, Empty>;
-    /**
-     * @generated from protobuf rpc: IntegrationsValorantLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
-     */
-    integrationsValorantLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty>;
 }
 /**
  * @generated from protobuf service api.Protected
@@ -467,34 +448,6 @@ export class ProtectedClient implements IProtectedClient, ServiceInfo {
     overlaysParseHtml(input: ParseHtmlOverlayRequest, options?: RpcOptions): UnaryCall<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse> {
         const method = this.methods[34], opt = this._transport.mergeOptions(options);
         return stackIntercept<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: IntegrationsValorantGetAuthLink(google.protobuf.Empty) returns (messages.integrations_valorant.GetAuthLink);
-     */
-    integrationsValorantGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$5> {
-        const method = this.methods[35], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, GetAuthLink$5>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: IntegrationsValorantGetData(google.protobuf.Empty) returns (messages.integrations_valorant.GetDataResponse);
-     */
-    integrationsValorantGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$5> {
-        const method = this.methods[36], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, GetDataResponse$5>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: IntegrationsValorantPostCode(messages.integrations_valorant.PostCodeRequest) returns (google.protobuf.Empty);
-     */
-    integrationsValorantPostCode(input: PostCodeRequest$5, options?: RpcOptions): UnaryCall<PostCodeRequest$5, Empty> {
-        const method = this.methods[37], opt = this._transport.mergeOptions(options);
-        return stackIntercept<PostCodeRequest$5, Empty>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: IntegrationsValorantLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
-     */
-    integrationsValorantLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty> {
-        const method = this.methods[38], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, Empty>("unary", this._transport, method, opt, input);
     }
 }
 /**

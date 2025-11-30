@@ -405,7 +405,7 @@ func main() {
 		// services
 		fx.Provide(
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
-				return valorantintegration.NewHenrikApiClient(c.ValorantHenrikApiKey)
+				return valorantintegration.NewHenrikApiClient(c.Valorant.HenrikApiKey)
 			},
 			executron.New,
 			dashboard_widget_events.New,

@@ -57,6 +57,7 @@ import (
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/audit"
@@ -124,6 +125,7 @@ type Deps struct {
 	DashboardService                      *dashboard.Service
 	SevenTvIntegrationService             *seventv_integration.Service
 	SpotifyIntegrationService             *spotify_integration.Service
+	ValorantIntegrationService            *valorantintegration.Service
 	DonatelloIntegrationService           *donatellointegration.Service
 	DonateStreamIntegrationService        *donatestreamintegration.Service
 	ScheduledVipsService                  *scheduled_vips.Service

@@ -6,9 +6,6 @@ import { TwitchSearchChannelsResponse } from "./messages/twitch/twitch";
 import { TwitchSearchChannelsRequest } from "./messages/twitch/twitch";
 import { TwitchGetUsersResponse } from "./messages/twitch/twitch";
 import { TwitchGetUsersRequest } from "./messages/twitch/twitch";
-import { PostCodeRequest as PostCodeRequest$5 } from "./messages/integrations_valorant/integrations_valorant";
-import { GetDataResponse as GetDataResponse$5 } from "./messages/integrations_valorant/integrations_valorant";
-import { GetAuthLink as GetAuthLink$5 } from "./messages/integrations_valorant/integrations_valorant";
 import { ParseHtmlOverlayResponse } from "./messages/overlays/overlays";
 import { ParseHtmlOverlayRequest } from "./messages/overlays/overlays";
 import { CreateRequest } from "./messages/overlays/overlays";
@@ -85,11 +82,7 @@ export const Protected = new ServiceType("api.Protected", [
     { name: "OverlaysUpdate", options: {}, I: UpdateRequest, O: Overlay },
     { name: "OverlaysDelete", options: {}, I: DeleteRequest, O: Empty },
     { name: "OverlaysCreate", options: {}, I: CreateRequest, O: Overlay },
-    { name: "OverlaysParseHtml", options: {}, I: ParseHtmlOverlayRequest, O: ParseHtmlOverlayResponse },
-    { name: "IntegrationsValorantGetAuthLink", options: {}, I: Empty, O: GetAuthLink$5 },
-    { name: "IntegrationsValorantGetData", options: {}, I: Empty, O: GetDataResponse$5 },
-    { name: "IntegrationsValorantPostCode", options: {}, I: PostCodeRequest$5, O: Empty },
-    { name: "IntegrationsValorantLogout", options: {}, I: Empty, O: Empty }
+    { name: "OverlaysParseHtml", options: {}, I: ParseHtmlOverlayRequest, O: ParseHtmlOverlayResponse }
 ]);
 /**
  * @generated ServiceType for protobuf service api.UnProtected

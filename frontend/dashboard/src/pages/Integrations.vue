@@ -8,17 +8,15 @@ import Faceit from '@/components/integrations/faceit.vue'
 import Lastfm from '@/components/integrations/lastfm.vue'
 import Spotify from '@/components/integrations/spotify.vue'
 import Streamlabs from '@/components/integrations/streamlabs.vue'
-import Valorant from '@/components/integrations/valorant.vue'
 import Vk from '@/components/integrations/vk.vue'
 import SevenTv from '@/features/integrations/ui/seventv/seven-tv.vue'
+import Valorant from '@/features/integrations/ui/valorant/valorant.vue'
 import PageLayout from '@/layout/page-layout.vue'
 </script>
 
 <template>
 	<PageLayout>
-		<template #title>
-			Integrations
-		</template>
+		<template #title> Integrations </template>
 
 		<template #content>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">

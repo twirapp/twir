@@ -10,7 +10,6 @@ import "messages/integrations_faceit/integrations_faceit.proto";
 import "messages/integrations_lastfm/integrations_lastfm.proto";
 import "messages/integrations_streamlabs/integrations_streamlabs.proto";
 import "messages/integrations_vk/integrations_vk.proto";
-import "messages/integrations_valorant/integrations_valorant.proto";
 import "messages/integrations_discord/integrations_discord.proto";
 
 import "messages/modules_obs_websocket/modules_obs_websocket.proto";
@@ -62,11 +61,6 @@ service Protected {
 	rpc OverlaysDelete(messages.overlays.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc OverlaysCreate(messages.overlays.CreateRequest) returns (messages.overlays.Overlay) {}
 	rpc OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse) {}
-
-	rpc IntegrationsValorantGetAuthLink(google.protobuf.Empty) returns (messages.integrations_valorant.GetAuthLink) {}
-	rpc IntegrationsValorantGetData(google.protobuf.Empty) returns (messages.integrations_valorant.GetDataResponse) {}
-	rpc IntegrationsValorantPostCode(messages.integrations_valorant.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsValorantLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 // UnProtected

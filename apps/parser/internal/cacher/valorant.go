@@ -44,7 +44,7 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []types.ValorantMatch {
 		c.services.Logger.Sugar().Error(err)
 		return nil
 	}
-	req.Header.Set("Authorization", c.services.Config.ValorantHenrikApiKey)
+	req.Header.Set("Authorization", c.services.Config.Valorant.HenrikApiKey)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -102,7 +102,7 @@ func (c *cacher) GetValorantMMR(ctx context.Context) *types.ValorantMMR {
 		c.services.Logger.Sugar().Error(err)
 		return nil
 	}
-	req.Header.Set("Authorization", c.services.Config.ValorantHenrikApiKey)
+	req.Header.Set("Authorization", c.services.Config.Valorant.HenrikApiKey)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

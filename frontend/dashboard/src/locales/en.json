@@ -331,7 +331,15 @@
 			"info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
 		},
 		"valorant": {
-			"info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
+			"info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. ",
+			"description": "Track your Valorant matches and display stats in your stream.",
+			"notConnected": "Valorant account not connected",
+			"notConnectedDescription": "Connect your Valorant account to enable match tracking and stats display.",
+			"connect": "Connect Valorant",
+			"connected": "Successfully connected",
+			"connectedAs": "Connected as",
+			"disconnect": "Disconnect",
+			"notConfigured": "Not configured"
 		},
 		"sevenTv": {
 			"description": "We can manage 7tv channel emotes, when this integration is enabled.",

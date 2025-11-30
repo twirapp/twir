@@ -10,6 +10,14 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+type ValorantConfig struct {
+	HenrikApiKey string `required:"false" envconfig:"VALORANT_HENRIK_API_KEY"`
+	ClientID     string `required:"false" envconfig:"VALORANT_CLIENT_ID"`
+	ClientSecret string `required:"false" envconfig:"VALORANT_CLIENT_SECRET"`
+	RedirectURL  string `required:"false" envconfig:"VALORANT_REDIRECT_URL"`
+	RiotApiKey   string `required:"false" envconfig:"VALORANT_RIOT_API_KEY"`
+}
+
 type Config struct {
 	BotAccessToken  string `required:"false"    envconfig:"BOT_ACCESS_TOKEN"`
 	BotRefreshToken string `required:"false"    envconfig:"BOT_REFRESH_TOKEN"`
@@ -44,9 +52,10 @@ type Config struct {
 
 	SevenTvToken string `required:"false" envconfig:"SEVENTV_TOKEN"`
 
-	UptraceDsn           string `required:"false" envconfig:"UPTRACE_DSN"`
-	NatsUrl              string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
-	ValorantHenrikApiKey string `required:"false" envconfig:"VALORANT_HENRIK_API_KEY"`
+	UptraceDsn string `required:"false" envconfig:"UPTRACE_DSN"`
+	NatsUrl    string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
+
+	Valorant ValorantConfig
 
 	ToxicityAddr        string `required:"false" envconfig:"TOXICITY_ADDR"`
 	MusicRecognizerAddr string `required:"false" envconfig:"MUSIC_RECOGNIZER_ADDR"`

@@ -21,7 +21,6 @@ import messages_integrations_discord "github.com/twirapp/twir/libs/api/messages/
 import messages_integrations_faceit "github.com/twirapp/twir/libs/api/messages/integrations_faceit"
 import messages_integrations_lastfm "github.com/twirapp/twir/libs/api/messages/integrations_lastfm"
 import messages_integrations_streamlabs "github.com/twirapp/twir/libs/api/messages/integrations_streamlabs"
-import messages_integrations_valorant "github.com/twirapp/twir/libs/api/messages/integrations_valorant"
 import messages_integrations_vk "github.com/twirapp/twir/libs/api/messages/integrations_vk"
 import messages_modules_obs_websocket "github.com/twirapp/twir/libs/api/messages/modules_obs_websocket"
 import messages_overlays "github.com/twirapp/twir/libs/api/messages/overlays"
@@ -113,14 +112,6 @@ type Protected interface {
 	OverlaysCreate(context.Context, *messages_overlays.CreateRequest) (*messages_overlays.Overlay, error)
 
 	OverlaysParseHtml(context.Context, *messages_overlays.ParseHtmlOverlayRequest) (*messages_overlays.ParseHtmlOverlayResponse, error)
-
-	IntegrationsValorantGetAuthLink(context.Context, *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error)
-
-	IntegrationsValorantGetData(context.Context, *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error)
-
-	IntegrationsValorantPostCode(context.Context, *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error)
-
-	IntegrationsValorantLogout(context.Context, *google_protobuf.Empty) (*google_protobuf.Empty, error)
 }
 
 // =========================
@@ -129,7 +120,7 @@ type Protected interface {
 
 type protectedProtobufClient struct {
 	client      HTTPClient
-	urls        [39]string
+	urls        [35]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -157,7 +148,7 @@ func NewProtectedProtobufClient(baseURL string, client HTTPClient, opts ...twirp
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "api", "Protected")
-	urls := [39]string{
+	urls := [35]string{
 		serviceURL + "IntegrationsFaceitGetAuthLink",
 		serviceURL + "IntegrationsFaceitGetData",
 		serviceURL + "IntegrationsFaceitUpdate",
@@ -193,10 +184,6 @@ func NewProtectedProtobufClient(baseURL string, client HTTPClient, opts ...twirp
 		serviceURL + "OverlaysDelete",
 		serviceURL + "OverlaysCreate",
 		serviceURL + "OverlaysParseHtml",
-		serviceURL + "IntegrationsValorantGetAuthLink",
-		serviceURL + "IntegrationsValorantGetData",
-		serviceURL + "IntegrationsValorantPostCode",
-		serviceURL + "IntegrationsValorantLogout",
 	}
 
 	return &protectedProtobufClient{
@@ -1817,197 +1804,13 @@ func (c *protectedProtobufClient) callOverlaysParseHtml(ctx context.Context, in 
 	return out, nil
 }
 
-func (c *protectedProtobufClient) IntegrationsValorantGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantGetAuthLink")
-	caller := c.callIntegrationsValorantGetAuthLink
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsValorantGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_valorant.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_valorant.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsValorantGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
-	out := new(messages_integrations_valorant.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[35], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsValorantGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantGetData")
-	caller := c.callIntegrationsValorantGetData
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsValorantGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_valorant.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_valorant.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsValorantGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
-	out := new(messages_integrations_valorant.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[36], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsValorantPostCode(ctx context.Context, in *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantPostCode")
-	caller := c.callIntegrationsValorantPostCode
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_valorant.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_valorant.PostCodeRequest) when calling interceptor")
-					}
-					return c.callIntegrationsValorantPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsValorantPostCode(ctx context.Context, in *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[37], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsValorantLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantLogout")
-	caller := c.callIntegrationsValorantLogout
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsValorantLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsValorantLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[38], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 // =====================
 // Protected JSON Client
 // =====================
 
 type protectedJSONClient struct {
 	client      HTTPClient
-	urls        [39]string
+	urls        [35]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -2035,7 +1838,7 @@ func NewProtectedJSONClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "api", "Protected")
-	urls := [39]string{
+	urls := [35]string{
 		serviceURL + "IntegrationsFaceitGetAuthLink",
 		serviceURL + "IntegrationsFaceitGetData",
 		serviceURL + "IntegrationsFaceitUpdate",
@@ -2071,10 +1874,6 @@ func NewProtectedJSONClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 		serviceURL + "OverlaysDelete",
 		serviceURL + "OverlaysCreate",
 		serviceURL + "OverlaysParseHtml",
-		serviceURL + "IntegrationsValorantGetAuthLink",
-		serviceURL + "IntegrationsValorantGetData",
-		serviceURL + "IntegrationsValorantPostCode",
-		serviceURL + "IntegrationsValorantLogout",
 	}
 
 	return &protectedJSONClient{
@@ -3695,190 +3494,6 @@ func (c *protectedJSONClient) callOverlaysParseHtml(ctx context.Context, in *mes
 	return out, nil
 }
 
-func (c *protectedJSONClient) IntegrationsValorantGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantGetAuthLink")
-	caller := c.callIntegrationsValorantGetAuthLink
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsValorantGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_valorant.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_valorant.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsValorantGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
-	out := new(messages_integrations_valorant.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[35], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsValorantGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantGetData")
-	caller := c.callIntegrationsValorantGetData
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsValorantGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_valorant.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_valorant.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsValorantGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
-	out := new(messages_integrations_valorant.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[36], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsValorantPostCode(ctx context.Context, in *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantPostCode")
-	caller := c.callIntegrationsValorantPostCode
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_valorant.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_valorant.PostCodeRequest) when calling interceptor")
-					}
-					return c.callIntegrationsValorantPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsValorantPostCode(ctx context.Context, in *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[37], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsValorantLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantLogout")
-	caller := c.callIntegrationsValorantLogout
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsValorantLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsValorantLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[38], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 // ========================
 // Protected Server Handler
 // ========================
@@ -4080,18 +3695,6 @@ func (s *protectedServer) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 		return
 	case "OverlaysParseHtml":
 		s.serveOverlaysParseHtml(ctx, resp, req)
-		return
-	case "IntegrationsValorantGetAuthLink":
-		s.serveIntegrationsValorantGetAuthLink(ctx, resp, req)
-		return
-	case "IntegrationsValorantGetData":
-		s.serveIntegrationsValorantGetData(ctx, resp, req)
-		return
-	case "IntegrationsValorantPostCode":
-		s.serveIntegrationsValorantPostCode(ctx, resp, req)
-		return
-	case "IntegrationsValorantLogout":
-		s.serveIntegrationsValorantLogout(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -10400,726 +10003,6 @@ func (s *protectedServer) serveOverlaysParseHtmlProtobuf(ctx context.Context, re
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *protectedServer) serveIntegrationsValorantGetAuthLink(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsValorantGetAuthLinkJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsValorantGetAuthLinkProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsValorantGetAuthLinkJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantGetAuthLink")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsValorantGetAuthLink
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsValorantGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_valorant.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_valorant.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_valorant.GetAuthLink
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_valorant.GetAuthLink and nil error while calling IntegrationsValorantGetAuthLink. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsValorantGetAuthLinkProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantGetAuthLink")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsValorantGetAuthLink
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_valorant.GetAuthLink, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsValorantGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_valorant.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_valorant.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_valorant.GetAuthLink
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_valorant.GetAuthLink and nil error while calling IntegrationsValorantGetAuthLink. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsValorantGetData(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsValorantGetDataJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsValorantGetDataProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsValorantGetDataJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantGetData")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsValorantGetData
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsValorantGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_valorant.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_valorant.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_valorant.GetDataResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_valorant.GetDataResponse and nil error while calling IntegrationsValorantGetData. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsValorantGetDataProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantGetData")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsValorantGetData
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_valorant.GetDataResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsValorantGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_valorant.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_valorant.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_valorant.GetDataResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_valorant.GetDataResponse and nil error while calling IntegrationsValorantGetData. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsValorantPostCode(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsValorantPostCodeJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsValorantPostCodeProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsValorantPostCodeJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantPostCode")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(messages_integrations_valorant.PostCodeRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsValorantPostCode
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_valorant.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_valorant.PostCodeRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsValorantPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsValorantPostCode. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsValorantPostCodeProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantPostCode")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(messages_integrations_valorant.PostCodeRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsValorantPostCode
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_valorant.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_valorant.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_valorant.PostCodeRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsValorantPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsValorantPostCode. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsValorantLogout(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsValorantLogoutJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsValorantLogoutProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsValorantLogoutJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantLogout")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsValorantLogout
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsValorantLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsValorantLogout. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsValorantLogoutProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsValorantLogout")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsValorantLogout
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsValorantLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsValorantLogout. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
 func (s *protectedServer) ServiceDescriptor() ([]byte, int) {
 	return twirpFileDescriptor0, 0
 }
@@ -12474,69 +11357,65 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 1017 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x57, 0x5d, 0x6f, 0xdc, 0x44,
-	0x14, 0x6d, 0x84, 0x84, 0xd4, 0x41, 0xaa, 0x84, 0x29, 0x51, 0xbb, 0x29, 0x34, 0x0d, 0xa2, 0xa8,
-	0x4d, 0x6b, 0x43, 0x2a, 0x5a, 0xc4, 0x03, 0x12, 0xd9, 0xd0, 0x6d, 0xc4, 0x86, 0x04, 0x42, 0x8a,
-	0x84, 0x8a, 0x56, 0xb3, 0xf6, 0x5d, 0xaf, 0x89, 0xed, 0x31, 0x9e, 0x71, 0xa2, 0x3c, 0xf0, 0xc4,
-	0x03, 0x2f, 0xfc, 0x00, 0xfe, 0x22, 0xff, 0x02, 0xad, 0x3d, 0x33, 0xf6, 0xd8, 0x33, 0xf6, 0x74,
-	0xf3, 0x52, 0x6f, 0x67, 0xce, 0x3d, 0xe7, 0xce, 0x3d, 0x37, 0xf3, 0x81, 0x6e, 0xe2, 0x2c, 0x72,
-	0xb3, 0x9c, 0x30, 0xe2, 0xbc, 0x83, 0xb3, 0x68, 0xb4, 0x15, 0x12, 0x12, 0xc6, 0xe0, 0x95, 0x43,
-	0xf3, 0x62, 0xe1, 0x41, 0x92, 0xb1, 0xab, 0x0a, 0x31, 0xba, 0x93, 0x00, 0xa5, 0x38, 0x04, 0xea,
-	0x25, 0xc0, 0x70, 0xf9, 0x0f, 0x9f, 0x79, 0x2e, 0x67, 0xa2, 0x94, 0x41, 0x98, 0x63, 0x16, 0x91,
-	0x94, 0xce, 0x16, 0xd8, 0x87, 0x88, 0xe9, 0xc6, 0xfa, 0xe3, 0x62, 0x4c, 0xd9, 0x22, 0xd1, 0x8d,
-	0xf1, 0xb8, 0x6f, 0xf4, 0x71, 0x94, 0xe5, 0x80, 0x93, 0x18, 0xcf, 0x8d, 0xe3, 0x3c, 0xde, 0xd5,
-	0xc7, 0x5f, 0x9c, 0xb7, 0xff, 0xcf, 0xf1, 0x5f, 0x1b, 0xf0, 0x38, 0x26, 0x39, 0x4e, 0x99, 0x7e,
-	0x94, 0xc7, 0x7e, 0xa5, 0x8f, 0x0d, 0x22, 0xea, 0x93, 0x3c, 0xd0, 0x0e, 0x76, 0x54, 0x13, 0x12,
-	0x14, 0x31, 0xd0, 0x19, 0x99, 0xd3, 0xd9, 0x25, 0xcc, 0x29, 0xf1, 0xcf, 0x81, 0xe9, 0x47, 0x79,
-	0xec, 0xc3, 0x4e, 0x2c, 0x63, 0xca, 0x6f, 0x8e, 0xfb, 0x5c, 0xe2, 0xd8, 0x65, 0xc4, 0xfc, 0xe5,
-	0x6c, 0x35, 0x0c, 0x3e, 0x83, 0xa0, 0x33, 0xc0, 0x23, 0xb6, 0x65, 0x04, 0xb9, 0x80, 0x3c, 0xc6,
-	0x57, 0xf5, 0x0f, 0x8e, 0xb8, 0xd7, 0xe2, 0xe4, 0x1f, 0x3e, 0xbb, 0x27, 0x67, 0x29, 0x49, 0x43,
-	0x3a, 0x2b, 0xd2, 0x5a, 0xb2, 0x33, 0x52, 0xc5, 0xec, 0xfd, 0x7d, 0x1f, 0xdd, 0x3c, 0x11, 0x63,
-	0x4e, 0x80, 0x3e, 0x3a, 0x6c, 0x54, 0xed, 0x65, 0xd9, 0x51, 0x13, 0x60, 0xdf, 0x16, 0x6c, 0x39,
-	0x8d, 0xd2, 0x73, 0x67, 0xd3, 0xad, 0xda, 0xd8, 0x15, 0x6d, 0xec, 0x7e, 0xb7, 0x6a, 0xe3, 0xd1,
-	0x23, 0xe9, 0xbb, 0xab, 0xeb, 0xc9, 0x06, 0xc5, 0xce, 0x0d, 0x27, 0x40, 0x77, 0xb5, 0x2a, 0x07,
-	0x98, 0x61, 0xa3, 0xc2, 0xd3, 0x41, 0x85, 0x55, 0xf8, 0x4f, 0x40, 0x33, 0x92, 0x52, 0xd8, 0xb9,
-	0xe1, 0x00, 0xba, 0xd3, 0x55, 0x39, 0xcb, 0x02, 0xcc, 0xc0, 0xf1, 0xfa, 0xc9, 0x2a, 0x54, 0xc5,
-	0xf7, 0x47, 0x01, 0x94, 0x8d, 0x0c, 0x59, 0x95, 0x32, 0xa3, 0xae, 0xcc, 0x09, 0xa1, 0x6c, 0x4c,
-	0x02, 0x70, 0x06, 0xb2, 0x16, 0xb8, 0x61, 0x99, 0xa9, 0x6e, 0x35, 0x53, 0x12, 0x92, 0x82, 0x19,
-	0x4b, 0x66, 0x66, 0x6b, 0xf9, 0x3c, 0xc5, 0x94, 0xbd, 0x3c, 0xba, 0x8e, 0xcf, 0x7c, 0x0f, 0xe9,
-	0xf5, 0x59, 0xaa, 0xac, 0xe5, 0x73, 0xad, 0xd0, 0xf1, 0x79, 0xd4, 0x55, 0x19, 0x34, 0x80, 0xd3,
-	0xad, 0x6d, 0x40, 0x25, 0xb3, 0xb6, 0x01, 0x31, 0x7a, 0xd0, 0x64, 0x3b, 0x95, 0xdb, 0xa8, 0x8d,
-	0x09, 0xa6, 0x35, 0x35, 0x36, 0x63, 0xd5, 0x88, 0x58, 0xb5, 0x5b, 0x51, 0xeb, 0x35, 0xe3, 0x0b,
-	0x2b, 0xa5, 0x96, 0x21, 0x09, 0xfa, 0x58, 0xaf, 0x26, 0x4d, 0xb1, 0xa0, 0xb5, 0x37, 0xe6, 0x04,
-	0xdd, 0xd3, 0xcb, 0xad, 0x6d, 0xce, 0x1b, 0xb5, 0x6f, 0x5f, 0x7f, 0x6f, 0x63, 0xca, 0xa7, 0x86,
-	0x35, 0x5d, 0x9c, 0xb7, 0xcc, 0x78, 0x83, 0x3e, 0xec, 0xb0, 0xf7, 0x9a, 0xf0, 0xa8, 0x97, 0xb9,
-	0x55, 0xfc, 0xdf, 0xd0, 0xa6, 0xca, 0x2e, 0x8b, 0xde, 0x43, 0x63, 0x5f, 0xec, 0x57, 0xe8, 0xb6,
-	0x4a, 0xbf, 0x76, 0x91, 0x17, 0x6a, 0x97, 0x1c, 0x54, 0xe7, 0xb3, 0x4d, 0xa5, 0x1f, 0x1b, 0x16,
-	0x22, 0x8e, 0x78, 0xb5, 0xdc, 0x0b, 0x75, 0x7b, 0xa8, 0x75, 0x7a, 0x6b, 0xee, 0x0e, 0x6b, 0xb4,
-	0x0a, 0xef, 0xab, 0x4d, 0xc3, 0x75, 0xf8, 0x79, 0xf3, 0x64, 0x80, 0xae, 0x82, 0x1d, 0x55, 0x98,
-	0x9e, 0xa2, 0xfd, 0xae, 0x14, 0x8d, 0x6b, 0x8c, 0x49, 0x9a, 0x82, 0xcf, 0x26, 0x45, 0x14, 0x07,
-	0xce, 0x50, 0xe2, 0xf6, 0x56, 0x17, 0x68, 0x47, 0xb3, 0xa0, 0xf2, 0xd3, 0xd0, 0xfb, 0x72, 0x40,
-	0xaf, 0x85, 0x1f, 0x5e, 0xe2, 0xbf, 0x1b, 0xe8, 0x13, 0xbd, 0x61, 0x25, 0xc1, 0x78, 0x89, 0xd3,
-	0x14, 0x62, 0xea, 0x3c, 0x1f, 0x76, 0x48, 0x09, 0x10, 0x0b, 0x7e, 0xf1, 0xd6, 0x71, 0xd2, 0xe2,
-	0x7f, 0x36, 0xd0, 0xfd, 0x9e, 0xd4, 0x0e, 0xd3, 0x05, 0x71, 0xf6, 0x2c, 0xe9, 0x57, 0x60, 0x91,
-	0xd2, 0xb3, 0xb7, 0x8a, 0x91, 0xe9, 0xcc, 0xd0, 0xe6, 0x51, 0x75, 0xeb, 0x3c, 0xde, 0x3f, 0xfd,
-	0x45, 0xdc, 0x52, 0x27, 0x60, 0xfe, 0x6b, 0xdc, 0xad, 0x85, 0xf4, 0x37, 0xdc, 0x09, 0xb0, 0x86,
-	0xc0, 0x1c, 0xdd, 0xd5, 0x08, 0xf0, 0x96, 0x1e, 0xe4, 0x5a, 0x75, 0xda, 0x70, 0x97, 0xfd, 0xb5,
-	0x81, 0x36, 0x7f, 0x2e, 0x2f, 0xb1, 0xa7, 0x80, 0x73, 0x7f, 0x39, 0xc6, 0x0c, 0x42, 0x92, 0x47,
-	0x40, 0x9b, 0xa5, 0xec, 0x5c, 0x98, 0xdb, 0x60, 0x4d, 0x29, 0x2d, 0x62, 0xe4, 0x4a, 0xff, 0x44,
-	0x1f, 0x54, 0x49, 0x4c, 0x80, 0x35, 0x32, 0xf0, 0x7a, 0xd8, 0x14, 0xe4, 0x35, 0xe5, 0x33, 0xb4,
-	0x25, 0x6a, 0xc0, 0x78, 0xdf, 0xad, 0xbc, 0xce, 0x93, 0xb2, 0x11, 0x9c, 0x17, 0xbd, 0xac, 0x9a,
-	0x88, 0xe1, 0xb2, 0x1f, 0xa1, 0x5b, 0xc7, 0xfc, 0x69, 0xb1, 0xda, 0x2e, 0xe3, 0xd8, 0xd8, 0x33,
-	0x0f, 0x6a, 0x71, 0xf9, 0x18, 0xa9, 0x42, 0x1a, 0x0b, 0xf8, 0x51, 0xa1, 0x3b, 0x4e, 0xc1, 0x31,
-	0x84, 0xed, 0x5f, 0x1d, 0x06, 0x22, 0xbb, 0x91, 0x06, 0xc2, 0x59, 0xca, 0x63, 0x5d, 0x52, 0xf2,
-	0x8e, 0xdb, 0xd6, 0xe0, 0xab, 0x29, 0x3b, 0xc6, 0x69, 0xcd, 0x78, 0x00, 0x31, 0x18, 0x18, 0xab,
-	0x29, 0x9b, 0x6b, 0x87, 0x64, 0x1b, 0xe7, 0x60, 0xca, 0xaf, 0x9a, 0xb2, 0xcb, 0x2f, 0x45, 0xef,
-	0x0b, 0xc6, 0x13, 0x9c, 0x53, 0x78, 0xc5, 0x92, 0xd8, 0x79, 0xac, 0x09, 0x91, 0xb3, 0x1c, 0x2e,
-	0xe8, 0x77, 0xad, 0xb0, 0xd2, 0xb4, 0xa5, 0xba, 0x9b, 0xbd, 0xe6, 0x8f, 0x6b, 0x9b, 0x23, 0x78,
-	0xd7, 0x74, 0x97, 0x10, 0x0f, 0x74, 0xf5, 0x0c, 0x5e, 0xa2, 0x2d, 0x83, 0x52, 0xef, 0x21, 0xec,
-	0x59, 0xa8, 0xb4, 0x4e, 0xe1, 0x48, 0xbd, 0x0c, 0x0a, 0x25, 0x79, 0x09, 0x1a, 0xa4, 0xb4, 0x3f,
-	0x1f, 0x7f, 0x50, 0x2f, 0x16, 0x42, 0x6a, 0xdd, 0x0b, 0xd1, 0xde, 0x7f, 0x1b, 0xe8, 0xbd, 0xb3,
-	0xb4, 0x7e, 0x8b, 0xfb, 0xe8, 0x96, 0xdc, 0x93, 0xce, 0x28, 0xe4, 0xd4, 0x79, 0xd8, 0xde, 0x07,
-	0x5c, 0x15, 0x20, 0x72, 0xfe, 0x6c, 0x10, 0x27, 0xeb, 0x55, 0xa0, 0xdb, 0xca, 0xee, 0x2b, 0x4e,
-	0xd7, 0x27, 0x06, 0x0a, 0x15, 0x26, 0x04, 0x9f, 0x5a, 0xa2, 0x85, 0xec, 0xfe, 0xce, 0xaf, 0xdb,
-	0x61, 0xc4, 0x96, 0xc5, 0xdc, 0xf5, 0x49, 0xe2, 0xb1, 0xcb, 0x28, 0xc7, 0x59, 0x56, 0x7e, 0xbd,
-	0x38, 0x9a, 0x53, 0x0f, 0x67, 0xd1, 0xfc, 0xdd, 0xb2, 0x42, 0xcf, 0xfe, 0x0f, 0x00, 0x00, 0xff,
-	0xff, 0x54, 0x3a, 0x62, 0x6a, 0x49, 0x13, 0x00, 0x00,
+	// 955 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x57, 0x5d, 0x8f, 0xdb, 0x44,
+	0x14, 0x6d, 0x84, 0x84, 0xd4, 0x41, 0xaa, 0x84, 0x29, 0x51, 0x9b, 0x2d, 0xb0, 0x0d, 0xa2, 0xa8,
+	0x5f, 0x0e, 0xa4, 0xa2, 0x45, 0x3c, 0x20, 0xb1, 0x59, 0x9a, 0xae, 0x48, 0xb4, 0x81, 0x65, 0x41,
+	0x42, 0x45, 0xd1, 0xd8, 0xbe, 0x71, 0x4c, 0x6c, 0x8f, 0xf1, 0x8c, 0xb7, 0xda, 0x07, 0x9e, 0x78,
+	0xe5, 0x07, 0xf0, 0x17, 0xf9, 0x07, 0x3c, 0x56, 0xb6, 0x67, 0xc6, 0x1e, 0x7b, 0xfc, 0xb1, 0xd9,
+	0x97, 0x4d, 0xf6, 0xce, 0xb9, 0xe7, 0xdc, 0xb9, 0xe7, 0x66, 0x3c, 0x46, 0x37, 0x71, 0xe4, 0x99,
+	0x51, 0x4c, 0x18, 0x31, 0xde, 0xc1, 0x91, 0x37, 0x3a, 0x70, 0x09, 0x71, 0x7d, 0x98, 0x64, 0x21,
+	0x2b, 0xd9, 0x4c, 0x20, 0x88, 0xd8, 0x65, 0x8e, 0x18, 0xdd, 0x09, 0x80, 0x52, 0xec, 0x02, 0x9d,
+	0x04, 0xc0, 0x70, 0xf6, 0x87, 0xaf, 0x3c, 0x97, 0x2b, 0x5e, 0xc8, 0xc0, 0x8d, 0x31, 0xf3, 0x48,
+	0x48, 0xd7, 0x1b, 0x6c, 0x83, 0xc7, 0x74, 0xb1, 0xf6, 0x3c, 0x1f, 0x53, 0xb6, 0x09, 0x74, 0x31,
+	0x9e, 0xf7, 0xad, 0x3e, 0x8f, 0xb2, 0x18, 0x70, 0xe0, 0x63, 0xab, 0x31, 0xce, 0xf3, 0x4d, 0x7d,
+	0xfe, 0xc5, 0xae, 0xfa, 0x3f, 0xc7, 0x7f, 0xad, 0xc7, 0x3b, 0x1e, 0xb5, 0x49, 0xec, 0x68, 0x83,
+	0x3c, 0xf3, 0x9b, 0xa2, 0x67, 0xc4, 0x49, 0x7c, 0xa0, 0x6b, 0x62, 0xd1, 0xf5, 0x1b, 0xb0, 0x28,
+	0xb1, 0x77, 0xc0, 0xf4, 0x51, 0x9e, 0xfb, 0xa0, 0x96, 0xcb, 0x98, 0xf2, 0x9d, 0xe3, 0xbe, 0x90,
+	0x38, 0xf6, 0xc6, 0x63, 0xf6, 0x76, 0x9d, 0x86, 0xc1, 0x66, 0xe0, 0xd4, 0x02, 0x3c, 0xe3, 0x50,
+	0x66, 0x90, 0x0b, 0x88, 0x7d, 0x7c, 0x59, 0x7c, 0xe1, 0x88, 0x7b, 0x15, 0x4e, 0xfe, 0xc1, 0x57,
+	0xa7, 0x72, 0x95, 0x92, 0xd0, 0xa5, 0xeb, 0x24, 0x2c, 0x24, 0x6b, 0x91, 0x3c, 0x67, 0xfa, 0xff,
+	0x01, 0xba, 0xb9, 0x12, 0x31, 0xc3, 0x41, 0x1f, 0x9d, 0x94, 0xba, 0xf6, 0x32, 0x9b, 0x8a, 0x39,
+	0xb0, 0xef, 0x12, 0xb6, 0x5d, 0x78, 0xe1, 0xce, 0x18, 0x9a, 0xf9, 0x28, 0x9a, 0x62, 0x14, 0xcd,
+	0xef, 0xd3, 0x51, 0x1c, 0x3d, 0x94, 0xde, 0x99, 0xba, 0xb9, 0x2a, 0x51, 0x8c, 0x6f, 0x18, 0x0e,
+	0xba, 0xab, 0x55, 0x39, 0xc6, 0x0c, 0x37, 0x2a, 0x3c, 0xed, 0x54, 0x48, 0xd3, 0x7f, 0x02, 0x1a,
+	0x91, 0x90, 0xc2, 0xf8, 0x86, 0x01, 0xe8, 0x4e, 0x5d, 0xe5, 0x3c, 0x72, 0x30, 0x03, 0x63, 0xd2,
+	0x4e, 0x96, 0xa3, 0x72, 0xbe, 0x3f, 0x13, 0xa0, 0x6c, 0xd4, 0x50, 0x55, 0x26, 0x33, 0xaa, 0xcb,
+	0xac, 0x08, 0x65, 0x33, 0xe2, 0x80, 0xd1, 0x51, 0xb5, 0xc0, 0x75, 0xcb, 0x2c, 0x74, 0xbb, 0x59,
+	0x10, 0x97, 0x24, 0xac, 0xb1, 0x65, 0xcd, 0x6c, 0x15, 0x9f, 0x17, 0x98, 0xb2, 0x97, 0xcb, 0xeb,
+	0xf8, 0xcc, 0xcf, 0x81, 0x56, 0x9f, 0xa5, 0xca, 0x5e, 0x3e, 0x17, 0x0a, 0x35, 0x9f, 0x47, 0x75,
+	0x95, 0x4e, 0x03, 0x38, 0xdd, 0xde, 0x06, 0xe4, 0x32, 0x7b, 0x1b, 0xe0, 0xa3, 0xfb, 0x65, 0xb6,
+	0x33, 0x79, 0x14, 0xf6, 0x31, 0xa1, 0x69, 0x4f, 0xa5, 0x03, 0x55, 0x35, 0xc2, 0x57, 0xed, 0x56,
+	0xd4, 0x5a, 0xcd, 0xf8, 0xb2, 0x97, 0x52, 0xc5, 0x90, 0x00, 0x7d, 0xac, 0x57, 0x93, 0xa6, 0xf4,
+	0xa0, 0xed, 0x6f, 0xcc, 0x0a, 0xdd, 0xd3, 0xcb, 0xed, 0x6d, 0xce, 0x6b, 0x75, 0x6e, 0x7f, 0xf9,
+	0xa1, 0x8f, 0x29, 0x9f, 0x35, 0xec, 0xe9, 0x62, 0x57, 0x31, 0xe3, 0x35, 0xfa, 0xb0, 0xc6, 0xde,
+	0x6a, 0xc2, 0xc3, 0x56, 0xe6, 0x4a, 0xf3, 0x7f, 0x47, 0x43, 0x95, 0x5d, 0x36, 0xbd, 0x85, 0xa6,
+	0x7f, 0xb3, 0x5f, 0xa1, 0xdb, 0x2a, 0xfd, 0xde, 0x4d, 0xde, 0xa8, 0x53, 0x72, 0x9c, 0x3f, 0x9f,
+	0xfb, 0x74, 0xfa, 0x51, 0xc3, 0x46, 0xc4, 0x23, 0x5e, 0x6d, 0xf7, 0x46, 0x3d, 0x1e, 0x0a, 0x9d,
+	0xd6, 0x9e, 0x9b, 0xdd, 0x1a, 0x95, 0xc6, 0xdb, 0xea, 0xd0, 0x70, 0x1d, 0xfe, 0xbc, 0x79, 0xd2,
+	0x41, 0x97, 0xc3, 0x96, 0x39, 0xa6, 0xa5, 0x69, 0x7f, 0x28, 0x4d, 0xe3, 0x1a, 0x33, 0x12, 0x86,
+	0x60, 0xb3, 0x79, 0xe2, 0xf9, 0x8e, 0xd1, 0x55, 0x78, 0x7f, 0xab, 0x13, 0x34, 0xd6, 0x6c, 0x28,
+	0xfb, 0x28, 0xe9, 0x7d, 0xd5, 0xa1, 0x57, 0xc1, 0x77, 0x6f, 0xf1, 0xdf, 0x01, 0xfa, 0x54, 0x6f,
+	0x58, 0x46, 0x30, 0xdb, 0xe2, 0x30, 0x04, 0x9f, 0x1a, 0xcf, 0xbb, 0x1d, 0x52, 0x12, 0xc4, 0x86,
+	0x5f, 0x5c, 0x39, 0x4f, 0x5a, 0xfc, 0xcf, 0x00, 0x7d, 0xd2, 0x52, 0xda, 0x49, 0xb8, 0x21, 0xc6,
+	0xb4, 0x27, 0x7d, 0x0a, 0x16, 0x25, 0x3d, 0xbb, 0x52, 0x8e, 0x2c, 0x67, 0x8d, 0x86, 0xcb, 0xfc,
+	0xd6, 0x79, 0x7a, 0x74, 0xf6, 0xab, 0xb8, 0xa5, 0xce, 0xa1, 0xf9, 0xd7, 0xf8, 0xb8, 0x10, 0xd2,
+	0xdf, 0x70, 0xe7, 0xc0, 0x4a, 0x02, 0x16, 0xba, 0xab, 0x11, 0xe0, 0x23, 0xdd, 0xc9, 0x95, 0x4e,
+	0x5a, 0xf7, 0x94, 0xfd, 0x3d, 0x40, 0xc3, 0x9f, 0xb3, 0x4b, 0xec, 0x19, 0xe0, 0xd8, 0xde, 0xce,
+	0x30, 0x03, 0x97, 0xc4, 0x1e, 0xd0, 0x72, 0x2b, 0x6b, 0x17, 0xe6, 0x2a, 0x58, 0xd3, 0xca, 0x1e,
+	0x39, 0x72, 0xa7, 0x7f, 0xa1, 0x0f, 0xf2, 0x22, 0xe6, 0xc0, 0x4a, 0x15, 0x4c, 0x5a, 0xd8, 0x14,
+	0xe4, 0x35, 0xe5, 0x23, 0x74, 0x20, 0x7a, 0xc0, 0xf8, 0xdc, 0xa5, 0x5e, 0xc7, 0x41, 0x36, 0x08,
+	0xc6, 0x8b, 0x56, 0x56, 0x4d, 0x46, 0x77, 0xdb, 0x97, 0xe8, 0xd6, 0x29, 0x7f, 0xb5, 0x48, 0x8f,
+	0x4b, 0xdf, 0x6f, 0x9c, 0x99, 0xfb, 0x85, 0xb8, 0x7c, 0x19, 0xc9, 0x53, 0x4a, 0x1b, 0xf8, 0x51,
+	0xa1, 0x3b, 0x0d, 0xc1, 0x68, 0x48, 0x3b, 0xba, 0x3c, 0x71, 0x44, 0x75, 0x23, 0x0d, 0x84, 0xb3,
+	0x64, 0x8f, 0x75, 0x49, 0xc9, 0x27, 0xee, 0x50, 0x83, 0xcf, 0x97, 0xfa, 0x31, 0x2e, 0x0a, 0xc6,
+	0x63, 0xf0, 0xa1, 0x81, 0x31, 0x5f, 0xea, 0x73, 0xed, 0x90, 0x6c, 0xb3, 0x18, 0x9a, 0xea, 0xcb,
+	0x97, 0xfa, 0xd5, 0x17, 0xa2, 0xf7, 0x05, 0xe3, 0x0a, 0xc7, 0x14, 0x5e, 0xb1, 0xc0, 0x37, 0x1e,
+	0x69, 0x52, 0xe4, 0x2a, 0x87, 0x0b, 0xfa, 0xc7, 0xbd, 0xb0, 0xc2, 0xb4, 0xe9, 0x7f, 0x03, 0xf4,
+	0xde, 0x79, 0x58, 0xbc, 0xfc, 0xd9, 0xe8, 0x96, 0xfc, 0x11, 0x9c, 0x53, 0x88, 0xa9, 0xf1, 0xa0,
+	0x3a, 0x78, 0xa6, 0x0a, 0x10, 0xc2, 0x9f, 0x77, 0xe2, 0xe4, 0xa4, 0x24, 0xe8, 0xb6, 0xf2, 0x73,
+	0x17, 0xc7, 0xf9, 0x93, 0x06, 0x0a, 0x15, 0x26, 0x04, 0x9f, 0xf6, 0x44, 0x0b, 0xd9, 0xa3, 0xf1,
+	0x6f, 0x87, 0xae, 0xc7, 0xb6, 0x89, 0x65, 0xda, 0x24, 0x48, 0xdf, 0x9a, 0x63, 0x1c, 0x45, 0xd9,
+	0xe7, 0xc4, 0xf7, 0x2c, 0x3a, 0xc1, 0x91, 0x67, 0xbd, 0x9b, 0x79, 0xfc, 0xec, 0x6d, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0xb0, 0x38, 0x5a, 0x55, 0x7e, 0x11, 0x00, 0x00,
 }

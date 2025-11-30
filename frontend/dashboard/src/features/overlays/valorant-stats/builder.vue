@@ -2,11 +2,10 @@
 import { ValorantStatsWidget } from '@twir/frontend-valorant-stats'
 import { BanIcon } from 'lucide-vue-next'
 import { Label } from 'radix-vue'
-import { computed } from 'vue'
 
 import { useValorantStats } from './composables/use-valorant-stats'
 
-import { useValorantIntegration } from '@/api'
+import { useValorantIntegration } from '@/features/integrations/composables/valorant/use-valorant-integration.ts'
 import { Button } from '@/components/ui/button'
 import { ColorPicker } from '@/components/ui/color-picker'
 import InputWithIcon from '@/components/ui/InputWithIcon.vue'
@@ -19,19 +18,7 @@ const { t } = useI18n()
 
 const { settings, copyOverlayLink } = useValorantStats()
 
-const valorantManager = useValorantIntegration()
-const { data, isLoading } = valorantManager.useData()
-const { data: authLink } = valorantManager.useAuthLink()
-
-async function login() {
-	if (!authLink.value) return
-
-	window.open(authLink.value.link, 'Twir connect integration', 'width=800,height=600')
-}
-
-const isConnected = computed(() => {
-	return data.value && data.value.userName
-})
+const { isConfigured: isConnected, isDataFetching } = useValorantIntegration()
 </script>
 
 <template>
@@ -40,7 +27,7 @@ const isConnected = computed(() => {
 
 		<template #content>
 			<div
-				v-if="isLoading"
+				v-if="isDataFetching"
 				class="flex items-center justify-center p-20 text-2xl bg-yellow-900/30 m-40 rounded-xl"
 			>
 				Loading...
@@ -52,10 +39,6 @@ const isConnected = computed(() => {
 				>
 					<BanIcon class="size-10" />
 					<span class="text-2xl"> {{ t('overlays.valorant.valorantIntegration.connect') }} </span>
-
-					<Button class="mx-2" @click="login">
-						{{ t('overlays.valorant.valorantIntegration.button') }}
-					</Button>
 				</div>
 
 				<div

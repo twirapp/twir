@@ -25,7 +25,7 @@ export function createIntegrationOauth<
 }) {
 	for (const [key, value] of Object.entries(opts)) {
 		if (typeof value === 'function') {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			//
 			// @ts-expect-error
 			opts[key] = value.bind(protectedApiClient)
 		}
@@ -125,15 +125,5 @@ export function useFaceitIntegration() {
 		usePostCode: protectedApiClient.integrationsFaceitPostCode,
 		useLogout: protectedApiClient.integrationsFaceitLogout,
 		updateData: protectedApiClient.integrationsFaceitUpdate,
-	})
-}
-
-export function useValorantIntegration() {
-	return createIntegrationOauth({
-		integrationName: 'valorant',
-		getData: protectedApiClient.integrationsValorantGetData,
-		getAuthLink: protectedApiClient.integrationsValorantGetAuthLink,
-		usePostCode: protectedApiClient.integrationsValorantPostCode,
-		useLogout: protectedApiClient.integrationsValorantLogout,
 	})
 }

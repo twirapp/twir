@@ -9,7 +9,6 @@ import {
 	useLastfmIntegration,
 	useStreamlabsIntegration,
 	useVKIntegration,
-	useValorantIntegration,
 } from '@/api/index.js'
 
 const router = useRouter()
@@ -44,10 +43,6 @@ const integrationsHooks: {
 	},
 	discord: {
 		manager: useDiscordIntegration(),
-		closeWindow: true,
-	},
-	valorant: {
-		manager: useValorantIntegration(),
 		closeWindow: true,
 	},
 }

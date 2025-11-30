@@ -102,7 +102,7 @@ const { t } = useI18n()
 
 				<div
 					v-if="data?.userName"
-					class="flex items-center gap-2 rounded-md bg-muted px-3 h-9 text-sm"
+					class="flex items-center gap-2 rounded-md px-3 h-9 text-sm border-2 border-gray-700"
 				>
 					<img
 						v-if="data?.avatar"
@@ -110,7 +110,7 @@ const { t } = useI18n()
 						:alt="data.userName"
 						class="h-5 w-5 rounded-full object-cover"
 					/>
-					<span>{{ data.userName }}</span>
+					<span class="font-medium">{{ data.userName }}</span>
 				</div>
 			</div>
 		</CardFooter>
