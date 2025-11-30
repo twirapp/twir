@@ -169,7 +169,7 @@ func (p *Pgx) GetByAdditionalUserID(
 	query, args, err := sq.
 		Select(selectColumnsStr).
 		From("channels_integrations_discord").
-		Where(squirrel.Expr("@user_id = ANY(additional_users_ids_for_live_check)")).
+		Where(squirrel.Expr("? = ANY(additional_users_ids_for_live_check)", userID)).
 		OrderBy("id").
 		ToSql()
 	if err != nil {
