@@ -331,7 +331,15 @@
 			"info": "Proporcionar acceso a este servicio permite a Twir importar comandos y temporizadores de Nightbot."
 		},
 		"valorant": {
-			"info": "Proporcionar acceso a este servicio permite a Twir rastrear sus coincidencias de Valorant y configurará variables de comandos como {0}, {1} y mucho más."
+			"info": "Proporcionar acceso a este servicio permite a Twir rastrear sus coincidencias de Valorant y configurará variables de comandos como {0}, {1} y mucho más.",
+			"description": "Track your Valorant matches and display stats in your stream.",
+			"notConnected": "Valorant account not connected",
+			"notConnectedDescription": "Connect your Valorant account to enable match tracking and stats display.",
+			"connect": "Connect Valorant",
+			"connected": "Successfully connected",
+			"connectedAs": "Connected as",
+			"disconnect": "Disconnect",
+			"notConfigured": "Not configured"
 		},
 		"sevenTv": {
 			"description": "Podemos gestionar emotes de canal 7tv, cuando esta integración está habilitada.",
