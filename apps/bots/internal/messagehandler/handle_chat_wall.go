@@ -21,9 +21,8 @@ import (
 
 func (c *MessageHandler) handleChatWall(ctx context.Context, msg handleMessage) error {
 	span := trace.SpanFromContext(ctx)
-  defer span.End()
-  span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
-
+	defer span.End()
+	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	if msg.Message == nil ||
 		msg.ChatterUserId == msg.EnrichedData.DbChannel.ID ||
@@ -43,9 +42,17 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg handleMessage) 
 		return err
 	}
 
+	if len(walls) == 0 {
+		return nil
+	}
+
 	wallSettings, err := c.chatWallSettingsCacher.Get(ctx, msg.BroadcasterUserId)
 	if err != nil && !errors.Is(err, chatwallrepository.ErrSettingsNotFound) {
 		return err
+	}
+
+	if wallSettings.IsNil() {
+		return nil
 	}
 
 	var shouldInvalidate bool

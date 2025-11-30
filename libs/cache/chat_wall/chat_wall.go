@@ -2,6 +2,7 @@ package chat_wall
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	kvotter "github.com/twirapp/kv/stores/otter"
@@ -45,10 +46,15 @@ func NewSettings(
 			KV:        kvotter.New(),
 			KeyPrefix: "cache:twir:channels_chat_wall_settings:channel:",
 			LoadFn: func(ctx context.Context, key string) (model.ChatWallSettings, error) {
-				return repo.GetChannelSettings(
+				result, err := repo.GetChannelSettings(
 					ctx,
 					key,
 				)
+				if err != nil && !errors.Is(err, chat_wall.ErrSettingsNotFound) {
+					return model.ChatWallSettingsNil, err
+				}
+
+				return result, nil
 			},
 			Ttl:                24 * time.Hour,
 			InvalidateSignaler: generic_cacher.NewBusCoreInvalidator(bus),
