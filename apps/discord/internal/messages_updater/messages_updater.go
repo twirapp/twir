@@ -11,6 +11,7 @@ import (
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
+	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -19,13 +20,14 @@ import (
 type Opts struct {
 	fx.In
 
-	Store   *sended_messages_store.SendedMessagesStore
-	Logger  *slog.Logger
-	LC      fx.Lifecycle
-	Config  cfg.Config
-	DB      *gorm.DB
-	Discord *discord_go.Discord
-	Bus     *buscore.Bus
+	Store           *sended_messages_store.SendedMessagesStore
+	Logger          *slog.Logger
+	LC              fx.Lifecycle
+	Config          cfg.Config
+	DB              *gorm.DB
+	Discord         *discord_go.Discord
+	Bus             *buscore.Bus
+	DiscordRepo     channelsintegrationsdiscord.Repository
 }
 
 func New(opts Opts) (*MessagesUpdater, error) {
@@ -42,6 +44,7 @@ func New(opts Opts) (*MessagesUpdater, error) {
 		discord:      opts.Discord,
 		twitchClient: twitchClient,
 		twirBus:      opts.Bus,
+		discordRepo:  opts.DiscordRepo,
 	}
 
 	opts.LC.Append(
@@ -94,4 +97,5 @@ type MessagesUpdater struct {
 
 	twirBus      *buscore.Bus
 	twitchClient *helix.Client
+	discordRepo  channelsintegrationsdiscord.Repository
 }

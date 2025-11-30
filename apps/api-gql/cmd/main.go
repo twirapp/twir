@@ -48,6 +48,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/discord_integration"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
@@ -98,6 +99,8 @@ import (
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/grpc/clients"
+	"github.com/twirapp/twir/libs/grpc/discord"
 	valorantintegration "github.com/twirapp/twir/libs/integrations/valorant"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
@@ -207,6 +210,9 @@ import (
 
 	channelsintegrationsrepository "github.com/twirapp/twir/libs/repositories/channels_integrations"
 	channelsintegrationspostgres "github.com/twirapp/twir/libs/repositories/channels_integrations/datasource/postgres"
+
+	channelsintegrationsdiscordrepository "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
+	channelsintegrationsdiscordpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/datasource/postgres"
 
 	"go.uber.org/fx"
 
@@ -401,6 +407,10 @@ func main() {
 				channelsintegrationspostgres.NewFx,
 				fx.As(new(channelsintegrationsrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsintegrationsdiscordpostgres.NewFx,
+				fx.As(new(channelsintegrationsdiscordrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -453,9 +463,13 @@ func main() {
 			valorantintegrationservice.New,
 			gamesvoteban.New,
 			nightbotintegration.New,
+			discord_integration.New,
 		),
 		// grpc clients
 		fx.Provide(
+			func(c cfg.Config) discord.DiscordClient {
+				return clients.NewDiscord(c.AppEnv)
+			},
 			toxic_messages.New,
 			channels_files.New,
 			channels_redemptions_history.New,

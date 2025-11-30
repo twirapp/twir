@@ -7,70 +7,50 @@ import (
 	"strings"
 
 	model "github.com/twirapp/twir/libs/gomodels"
+	discordmodel "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/model"
 )
 
 var ErrIntegrationNotFound = fmt.Errorf("integration not found")
 
-func (c *MessagesUpdater) getChannelDiscordIntegration(
+// getChannelDiscordIntegrations returns all Discord integrations for a channel
+func (c *MessagesUpdater) getChannelDiscordIntegrations(
 	ctx context.Context,
 	channelId string,
-) (*model.ChannelsIntegrations, error) {
-	discordIntegration := model.Integrations{}
-	err := c.db.WithContext(ctx).Where(
-		`service = ?`,
-		model.IntegrationServiceDiscord,
-	).First(&discordIntegration).Error
+) ([]discordmodel.ChannelIntegrationDiscord, error) {
+	integrations, err := c.discordRepo.GetByChannelID(ctx, channelId)
 	if err != nil {
 		return nil, err
 	}
 
-	integration := &model.ChannelsIntegrations{}
-	err = c.db.WithContext(ctx).
-		Where(
-			`"integrationId" = ? AND "channelId" = ?`,
-			discordIntegration.ID,
-			channelId,
-		).
-		Preload("Channel").
-		Find(integration).Error
-
-	if integration.ID != "" && integration.Channel.IsEnabled {
-		return integration, nil
-	}
-
-	additionalUserQuery := fmt.Sprintf(
-		`
-SELECT *
-FROM channels_integrations
-WHERE EXISTS (
-    SELECT 1
-    FROM jsonb_array_elements(data->'discord'->'guilds') guild
-    WHERE (guild->'additionalUsersIdsForLiveCheck') @> '["%s"]'::jsonb
-)
-`, channelId,
-	)
-
-	err = c.db.WithContext(ctx).Raw(additionalUserQuery).Scan(integration).Error
-	if err != nil {
-		return nil, err
-	}
-
-	if integration.ID == "" {
-		channel := &model.Channels{}
-		if err := c.db.WithContext(ctx).Where(`id = ?`, channelId).First(channel).Error; err != nil {
+	if len(integrations) == 0 {
+		// Also check for additional users
+		additionalIntegrations, err := c.discordRepo.GetByAdditionalUserID(ctx, channelId)
+		if err != nil {
 			return nil, err
 		}
 
-		if !channel.IsEnabled {
-			return nil, fmt.Errorf("channel is not enabled")
+		if len(additionalIntegrations) == 0 {
+			return nil, ErrIntegrationNotFound
 		}
 
-		integration.Channel = channel
-
-		return nil, ErrIntegrationNotFound
+		return additionalIntegrations, nil
 	}
 
-	return integration, err
+	return integrations, nil
+}
+
+// getChannel fetches a channel by ID and checks if it's enabled
+func (c *MessagesUpdater) getChannel(ctx context.Context, channelId string) (*model.Channels, error) {
+	channel := &model.Channels{}
+	if err := c.db.WithContext(ctx).Where(`id = ?`, channelId).First(channel).Error; err != nil {
+		return nil, err
+	}
+
+	if !channel.IsEnabled {
+		return nil, fmt.Errorf("channel is not enabled")
+	}
+
+	return channel, nil
 }
 
 type replaceMessageVarsOpts struct {

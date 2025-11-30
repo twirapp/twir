@@ -8,12 +8,13 @@ import (
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/twirapp/twir/libs/gomodels"
+	discordmodel "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/model"
 )
 
 func (c *MessagesUpdater) buildEmbed(
 	twitchUser helix.User,
 	stream model.ChannelsStreams,
-	guild model.ChannelIntegrationDataDiscordGuild,
+	integration discordmodel.ChannelIntegrationDiscord,
 ) discord.Embed {
 	twitchUrl := fmt.Sprintf("https://twitch.tv/%s", stream.UserLogin)
 	var width uint = 1920
@@ -34,7 +35,7 @@ func (c *MessagesUpdater) buildEmbed(
 		Fields: []discord.EmbedField{},
 	}
 
-	if guild.LiveNotificationShowPreview {
+	if integration.LiveNotificationShowPreview {
 		embed.Image = &discord.EmbedImage{
 			URL:    thumbNailUrl,
 			Width:  width,
@@ -42,7 +43,7 @@ func (c *MessagesUpdater) buildEmbed(
 		}
 	}
 
-	if guild.LiveNotificationShowProfileImage {
+	if integration.LiveNotificationShowProfileImage {
 		embed.Thumbnail = &discord.EmbedThumbnail{
 			URL: fmt.Sprintf(
 				"%s?t=%v",
@@ -52,7 +53,7 @@ func (c *MessagesUpdater) buildEmbed(
 		}
 	}
 
-	if guild.LiveNotificationShowTitle {
+	if integration.LiveNotificationShowTitle {
 		embed.Fields = append(
 			embed.Fields,
 			discord.EmbedField{
@@ -63,7 +64,7 @@ func (c *MessagesUpdater) buildEmbed(
 		)
 	}
 
-	if guild.LiveNotificationShowViewers {
+	if integration.LiveNotificationShowViewers {
 		embed.Fields = append(
 			embed.Fields,
 			discord.EmbedField{
@@ -74,7 +75,7 @@ func (c *MessagesUpdater) buildEmbed(
 		)
 	}
 
-	if guild.LiveNotificationShowCategory {
+	if integration.LiveNotificationShowCategory {
 		embed.Fields = append(
 			embed.Fields,
 			discord.EmbedField{

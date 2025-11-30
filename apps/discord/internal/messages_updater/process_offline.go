@@ -11,8 +11,6 @@ import (
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/state"
 	"github.com/diamondburned/arikawa/v3/utils/json/option"
-	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 )
 
@@ -26,30 +24,19 @@ func (c *MessagesUpdater) processOffline(
 	}
 
 	for _, message := range messages {
-		settings, err := c.getChannelDiscordIntegration(ctx, twitchChannelId)
+		integration, err := c.discordRepo.GetByChannelIDAndGuildID(ctx, twitchChannelId, message.GuildID)
 		if err != nil {
 			return err
 		}
 
-		if settings.Data.Discord == nil || len(settings.Data.Discord.Guilds) == 0 {
-			return nil
-		}
-
-		guild, ok := lo.Find(
-			settings.Data.Discord.Guilds,
-			func(guild model.ChannelIntegrationDataDiscordGuild) bool {
-				return guild.ID == message.GuildID
-			},
-		)
-
-		if !ok {
+		if integration.IsNil() {
 			continue
 		}
 
-		gUid, _ := strconv.ParseUint(guild.ID, 10, 64)
+		gUid, _ := strconv.ParseUint(integration.GuildID, 10, 64)
 		shard, _ := c.discord.FromGuildID(discord.GuildID(gUid))
 		if shard == nil {
-			c.logger.Error("Shard not found", slog.Any("guild_id", guild.ID))
+			c.logger.Error("Shard not found", slog.Any("guild_id", integration.GuildID))
 			continue
 		}
 
@@ -68,7 +55,7 @@ func (c *MessagesUpdater) processOffline(
 			return err
 		}
 
-		if guild.ShouldDeleteMessageOnOffline {
+		if integration.ShouldDeleteMessageOnOffline {
 			err = retry.Do(
 				func() error {
 					return shard.(*state.State).DeleteMessage(
@@ -85,7 +72,7 @@ func (c *MessagesUpdater) processOffline(
 				continue
 			}
 		} else {
-			content := guild.OfflineNotificationMessage
+			content := integration.OfflineNotificationMessage
 			if content == "" {
 				content = "{userName} is offline now"
 			}

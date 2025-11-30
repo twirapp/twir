@@ -20,15 +20,6 @@ import { SearchCategoriesResponse } from "./messages/twitch_protected/twitch_pro
 import { SearchCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
 import { PostRequest } from "./messages/modules_obs_websocket/modules_obs_websocket";
 import { GetResponse } from "./messages/modules_obs_websocket/modules_obs_websocket";
-import { GetGuildInfoResponse } from "./messages/integrations_discord/integrations_discord";
-import { GetGuildInfoRequest } from "./messages/integrations_discord/integrations_discord";
-import { GetGuildChannelsResponse } from "./messages/integrations_discord/integrations_discord";
-import { GetGuildChannelsRequest } from "./messages/integrations_discord/integrations_discord";
-import { DisconnectGuildMessage } from "./messages/integrations_discord/integrations_discord";
-import { PostCodeRequest as PostCodeRequest$4 } from "./messages/integrations_discord/integrations_discord";
-import { UpdateMessage } from "./messages/integrations_discord/integrations_discord";
-import { GetDataResponse as GetDataResponse$4 } from "./messages/integrations_discord/integrations_discord";
-import { GetAuthLink as GetAuthLink$4 } from "./messages/integrations_discord/integrations_discord";
 import { PostCodeRequest as PostCodeRequest$3 } from "./messages/integrations_vk/integrations_vk";
 import { GetDataResponse as GetDataResponse$3 } from "./messages/integrations_vk/integrations_vk";
 import { GetAuthLink as GetAuthLink$3 } from "./messages/integrations_vk/integrations_vk";
@@ -65,13 +56,6 @@ export const Protected = new ServiceType("api.Protected", [
     { name: "IntegrationsVKGetData", options: {}, I: Empty, O: GetDataResponse$3 },
     { name: "IntegrationsVKPostCode", options: {}, I: PostCodeRequest$3, O: Empty },
     { name: "IntegrationsVKLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsDiscordGetAuthLink", options: {}, I: Empty, O: GetAuthLink$4 },
-    { name: "IntegrationsDiscordGetData", options: {}, I: Empty, O: GetDataResponse$4 },
-    { name: "IntegrationsDiscordUpdate", options: {}, I: UpdateMessage, O: Empty },
-    { name: "IntegrationDiscordConnectGuild", options: {}, I: PostCodeRequest$4, O: Empty },
-    { name: "IntegrationsDiscordDisconnectGuild", options: {}, I: DisconnectGuildMessage, O: Empty },
-    { name: "IntegrationsDiscordGetGuildChannels", options: {}, I: GetGuildChannelsRequest, O: GetGuildChannelsResponse },
-    { name: "IntegrationsDiscordGetGuildInfo", options: {}, I: GetGuildInfoRequest, O: GetGuildInfoResponse },
     { name: "ModulesOBSWebsocketGet", options: {}, I: Empty, O: GetResponse },
     { name: "ModulesOBSWebsocketUpdate", options: {}, I: PostRequest, O: Empty },
     { name: "TwitchSearchCategories", options: {}, I: SearchCategoriesRequest, O: SearchCategoriesResponse },
