@@ -331,7 +331,15 @@
 			"info": "Надайте доступ до Nightbot, щоб імпортувати команди та таймери."
 		},
 		"valorant": {
-			"info": "Надання доступу до цієї служби дозволяє Twir відстежувати ваші матчі Valorant і налаштує змінні команди, такі як {0}, {1} та інші. "
+			"info": "Надання доступу до цієї служби дозволяє Twir відстежувати ваші матчі Valorant і налаштує змінні команди, такі як {0}, {1} та інші. ",
+			"description": "Track your Valorant matches and display stats in your stream.",
+			"notConnected": "Valorant account not connected",
+			"notConnectedDescription": "Connect your Valorant account to enable match tracking and stats display.",
+			"connect": "Connect Valorant",
+			"connected": "Successfully connected",
+			"connectedAs": "Connected as",
+			"disconnect": "Disconnect",
+			"notConfigured": "Not configured"
 		},
 		"sevenTv": {
 			"description": "Ми можемо керувати емодзі 7tv каналів, коли ця інтеграція увімкнена.",
