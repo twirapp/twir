@@ -319,7 +319,7 @@
 				"shouldDeleteMessageOnOffline": "¿Eliminar el mensaje de alerta en lugar de editarlo cuando el Stream se desconecta?",
 				"additionalUsersIdsForLiveCheck": "Lista adicional de usuarios de Twitch a seguir para enviar alertas de Stream."
 			},
-			"connectGuild": "+ Conectar servidor",
+			"connectGuild": "Connect Server",
 			"disconnectGuild": "Desconectar Servidor",
 			"noGuilds": "No hay servidores conectados",
 			"cannotSendMessage": "Bot no tiene la capacidad de enviar mensajes en ese canal. Echa un vistazo a los permisos del canal para resolverlo."
