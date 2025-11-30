@@ -319,7 +319,7 @@
 				"shouldDeleteMessageOnOffline": "Vymazať upozornenie namiesto jeho úpravy, keď stream prejde do offline režimu?",
 				"additionalUsersIdsForLiveCheck": "Ďalší používatelia na kontrolu online stavu pre upozornenia."
 			},
-			"connectGuild": "+ Pripojiť server",
+			"connectGuild": "Connect Server",
 			"disconnectGuild": "Odpojiť server",
 			"noGuilds": "Žiadne pripojené servery",
 			"cannotSendMessage": "Bot nemá možnosť posielať správy v tomto kanáli. Skontroluj oprávnenia kanála, aby si to opravil."
