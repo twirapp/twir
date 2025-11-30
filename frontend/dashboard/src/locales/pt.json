@@ -319,7 +319,7 @@
 				"shouldDeleteMessageOnOffline": "Excluir a mensagem de alerta invés de editá-la quando a transmissão terminar?",
 				"additionalUsersIdsForLiveCheck": "Lista adicional de usuários da Twitch para seguir e enviar alertas de transmissão."
 			},
-			"connectGuild": "+ Conectar Servidor",
+			"connectGuild": "Connect Server",
 			"disconnectGuild": "Desconectar Servidor",
 			"noGuilds": "Sem Servidores Conectados",
 			"cannotSendMessage": "O Bot não tem permissão para enviar mensagens nesse canal. Confira as permissões do canal para resolver isso."
