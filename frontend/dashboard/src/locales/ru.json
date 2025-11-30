@@ -331,7 +331,15 @@
 			"info": "Предоставьте доступ к Nightbot, чтобы импортировать команды и таймеры."
 		},
 		"valorant": {
-			"info": "При предоставлении доступа к этому сервису, Twir сможет отслеживать ваши матчи в Valorant и автоматически настроит командные переменные, такие как {0}, {1} и многое другое."
+			"info": "При предоставлении доступа к этому сервису, Twir сможет отслеживать ваши матчи в Valorant и автоматически настроит командные переменные, такие как {0}, {1} и многое другое.",
+			"description": "Track your Valorant matches and display stats in your stream.",
+			"notConnected": "Valorant account not connected",
+			"notConnectedDescription": "Connect your Valorant account to enable match tracking and stats display.",
+			"connect": "Connect Valorant",
+			"connected": "Successfully connected",
+			"connectedAs": "Connected as",
+			"disconnect": "Disconnect",
+			"notConfigured": "Not configured"
 		},
 		"sevenTv": {
 			"description": "Мы можем управлять смайликами 7tv, когда эта интеграция включена.",
