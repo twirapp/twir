@@ -319,7 +319,7 @@
 				"shouldDeleteMessageOnOffline": "Warnmeldung löschen statt bearbeiten, wenn der Stream offline geht?",
 				"additionalUsersIdsForLiveCheck": "Zusätzliche Liste von Twitch-Nutzern, denen Sie folgen können, um Stream-Benachrichtigungen zu senden."
 			},
-			"connectGuild": "+ Server verbinden",
+			"connectGuild": "Connect Server",
 			"disconnectGuild": "Server trennen",
 			"noGuilds": "Keine Server verbunden",
 			"cannotSendMessage": "Der Bot hat keine Möglichkeit, Nachrichten in diesem Kanal zu senden. Prüfen Sie die Kanalberechtigungen, um dieses Problem zu lösen."
