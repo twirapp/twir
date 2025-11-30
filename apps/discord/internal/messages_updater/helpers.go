@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	model "github.com/twirapp/twir/libs/gomodels"
 	discordmodel "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/model"
 )
 
@@ -37,20 +36,6 @@ func (c *MessagesUpdater) getChannelDiscordIntegrations(
 	}
 
 	return integrations, nil
-}
-
-// getChannel fetches a channel by ID and checks if it's enabled
-func (c *MessagesUpdater) getChannel(ctx context.Context, channelId string) (*model.Channels, error) {
-	channel := &model.Channels{}
-	if err := c.db.WithContext(ctx).Where(`id = ?`, channelId).First(channel).Error; err != nil {
-		return nil, err
-	}
-
-	if !channel.IsEnabled {
-		return nil, fmt.Errorf("channel is not enabled")
-	}
-
-	return channel, nil
 }
 
 type replaceMessageVarsOpts struct {
