@@ -1,6 +1,6 @@
 extend type Query {
     spotifyData: SpotifyIntegration @isAuthenticated
-    spotifyAuthLink: String! @isAuthenticated
+    spotifyAuthLink: String @isAuthenticated
 }
 
 extend type Mutation {

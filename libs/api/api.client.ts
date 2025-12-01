@@ -24,15 +24,12 @@ import type { SearchCategoriesResponse } from "./messages/twitch_protected/twitc
 import type { SearchCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
 import type { PostRequest } from "./messages/modules_obs_websocket/modules_obs_websocket";
 import type { GetResponse } from "./messages/modules_obs_websocket/modules_obs_websocket";
-import type { PostCodeRequest as PostCodeRequest$3 } from "./messages/integrations_vk/integrations_vk";
-import type { GetDataResponse as GetDataResponse$3 } from "./messages/integrations_vk/integrations_vk";
-import type { GetAuthLink as GetAuthLink$3 } from "./messages/integrations_vk/integrations_vk";
-import type { PostCodeRequest as PostCodeRequest$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import type { GetDataResponse as GetDataResponse$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import type { GetAuthLink as GetAuthLink$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import type { PostCodeRequest as PostCodeRequest$ } from "./messages/integrations_lastfm/integrations_lastfm";
-import type { GetDataResponse as GetDataResponse$ } from "./messages/integrations_lastfm/integrations_lastfm";
-import type { GetAuthLink as GetAuthLink$ } from "./messages/integrations_lastfm/integrations_lastfm";
+import type { PostCodeRequest as PostCodeRequest$2 } from "./messages/integrations_vk/integrations_vk";
+import type { GetDataResponse as GetDataResponse$2 } from "./messages/integrations_vk/integrations_vk";
+import type { GetAuthLink as GetAuthLink$2 } from "./messages/integrations_vk/integrations_vk";
+import type { PostCodeRequest as PostCodeRequest$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
+import type { GetDataResponse as GetDataResponse$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
+import type { GetAuthLink as GetAuthLink$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import type { PostCodeRequest } from "./messages/integrations_faceit/integrations_faceit";
 import type { UpdateDataRequest } from "./messages/integrations_faceit/integrations_faceit";
 import type { GetDataResponse } from "./messages/integrations_faceit/integrations_faceit";
@@ -66,33 +63,17 @@ export interface IProtectedClient {
      */
     integrationsFaceitLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty>;
     /**
-     * @generated from protobuf rpc: IntegrationsLastFMGetAuthLink(google.protobuf.Empty) returns (messages.integrations_lastfm.GetAuthLink);
-     */
-    integrationsLastFMGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$>;
-    /**
-     * @generated from protobuf rpc: IntegrationsLastFMGetData(google.protobuf.Empty) returns (messages.integrations_lastfm.GetDataResponse);
-     */
-    integrationsLastFMGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$>;
-    /**
-     * @generated from protobuf rpc: IntegrationsLastFMPostCode(messages.integrations_lastfm.PostCodeRequest) returns (google.protobuf.Empty);
-     */
-    integrationsLastFMPostCode(input: PostCodeRequest$, options?: RpcOptions): UnaryCall<PostCodeRequest$, Empty>;
-    /**
-     * @generated from protobuf rpc: IntegrationsLastFMLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
-     */
-    integrationsLastFMLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty>;
-    /**
      * @generated from protobuf rpc: IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetAuthLink);
      */
-    integrationsStreamlabsGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$2>;
+    integrationsStreamlabsGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$>;
     /**
      * @generated from protobuf rpc: IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse);
      */
-    integrationsStreamlabsGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$2>;
+    integrationsStreamlabsGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$>;
     /**
      * @generated from protobuf rpc: IntegrationsStreamlabsPostCode(messages.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty);
      */
-    integrationsStreamlabsPostCode(input: PostCodeRequest$2, options?: RpcOptions): UnaryCall<PostCodeRequest$2, Empty>;
+    integrationsStreamlabsPostCode(input: PostCodeRequest$, options?: RpcOptions): UnaryCall<PostCodeRequest$, Empty>;
     /**
      * @generated from protobuf rpc: IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
      */
@@ -100,15 +81,15 @@ export interface IProtectedClient {
     /**
      * @generated from protobuf rpc: IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (messages.integrations_vk.GetAuthLink);
      */
-    integrationsVKGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$3>;
+    integrationsVKGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$2>;
     /**
      * @generated from protobuf rpc: IntegrationsVKGetData(google.protobuf.Empty) returns (messages.integrations_vk.GetDataResponse);
      */
-    integrationsVKGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$3>;
+    integrationsVKGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$2>;
     /**
      * @generated from protobuf rpc: IntegrationsVKPostCode(messages.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty);
      */
-    integrationsVKPostCode(input: PostCodeRequest$3, options?: RpcOptions): UnaryCall<PostCodeRequest$3, Empty>;
+    integrationsVKPostCode(input: PostCodeRequest$2, options?: RpcOptions): UnaryCall<PostCodeRequest$2, Empty>;
     /**
      * @generated from protobuf rpc: IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
      */
@@ -203,164 +184,136 @@ export class ProtectedClient implements IProtectedClient, ServiceInfo {
         return stackIntercept<Empty, Empty>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: IntegrationsLastFMGetAuthLink(google.protobuf.Empty) returns (messages.integrations_lastfm.GetAuthLink);
+     * @generated from protobuf rpc: IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetAuthLink);
      */
-    integrationsLastFMGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$> {
+    integrationsStreamlabsGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$> {
         const method = this.methods[5], opt = this._transport.mergeOptions(options);
         return stackIntercept<Empty, GetAuthLink$>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: IntegrationsLastFMGetData(google.protobuf.Empty) returns (messages.integrations_lastfm.GetDataResponse);
+     * @generated from protobuf rpc: IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse);
      */
-    integrationsLastFMGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$> {
+    integrationsStreamlabsGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$> {
         const method = this.methods[6], opt = this._transport.mergeOptions(options);
         return stackIntercept<Empty, GetDataResponse$>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: IntegrationsLastFMPostCode(messages.integrations_lastfm.PostCodeRequest) returns (google.protobuf.Empty);
-     */
-    integrationsLastFMPostCode(input: PostCodeRequest$, options?: RpcOptions): UnaryCall<PostCodeRequest$, Empty> {
-        const method = this.methods[7], opt = this._transport.mergeOptions(options);
-        return stackIntercept<PostCodeRequest$, Empty>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: IntegrationsLastFMLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
-     */
-    integrationsLastFMLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty> {
-        const method = this.methods[8], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, Empty>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetAuthLink);
-     */
-    integrationsStreamlabsGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$2> {
-        const method = this.methods[9], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, GetAuthLink$2>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse);
-     */
-    integrationsStreamlabsGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$2> {
-        const method = this.methods[10], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, GetDataResponse$2>("unary", this._transport, method, opt, input);
-    }
-    /**
      * @generated from protobuf rpc: IntegrationsStreamlabsPostCode(messages.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty);
      */
-    integrationsStreamlabsPostCode(input: PostCodeRequest$2, options?: RpcOptions): UnaryCall<PostCodeRequest$2, Empty> {
-        const method = this.methods[11], opt = this._transport.mergeOptions(options);
-        return stackIntercept<PostCodeRequest$2, Empty>("unary", this._transport, method, opt, input);
+    integrationsStreamlabsPostCode(input: PostCodeRequest$, options?: RpcOptions): UnaryCall<PostCodeRequest$, Empty> {
+        const method = this.methods[7], opt = this._transport.mergeOptions(options);
+        return stackIntercept<PostCodeRequest$, Empty>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
      */
     integrationsStreamlabsLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty> {
-        const method = this.methods[12], opt = this._transport.mergeOptions(options);
+        const method = this.methods[8], opt = this._transport.mergeOptions(options);
         return stackIntercept<Empty, Empty>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (messages.integrations_vk.GetAuthLink);
      */
-    integrationsVKGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$3> {
-        const method = this.methods[13], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, GetAuthLink$3>("unary", this._transport, method, opt, input);
+    integrationsVKGetAuthLink(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAuthLink$2> {
+        const method = this.methods[9], opt = this._transport.mergeOptions(options);
+        return stackIntercept<Empty, GetAuthLink$2>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: IntegrationsVKGetData(google.protobuf.Empty) returns (messages.integrations_vk.GetDataResponse);
      */
-    integrationsVKGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$3> {
-        const method = this.methods[14], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, GetDataResponse$3>("unary", this._transport, method, opt, input);
+    integrationsVKGetData(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetDataResponse$2> {
+        const method = this.methods[10], opt = this._transport.mergeOptions(options);
+        return stackIntercept<Empty, GetDataResponse$2>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: IntegrationsVKPostCode(messages.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty);
      */
-    integrationsVKPostCode(input: PostCodeRequest$3, options?: RpcOptions): UnaryCall<PostCodeRequest$3, Empty> {
-        const method = this.methods[15], opt = this._transport.mergeOptions(options);
-        return stackIntercept<PostCodeRequest$3, Empty>("unary", this._transport, method, opt, input);
+    integrationsVKPostCode(input: PostCodeRequest$2, options?: RpcOptions): UnaryCall<PostCodeRequest$2, Empty> {
+        const method = this.methods[11], opt = this._transport.mergeOptions(options);
+        return stackIntercept<PostCodeRequest$2, Empty>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
      */
     integrationsVKLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty> {
-        const method = this.methods[16], opt = this._transport.mergeOptions(options);
+        const method = this.methods[12], opt = this._transport.mergeOptions(options);
         return stackIntercept<Empty, Empty>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: ModulesOBSWebsocketGet(google.protobuf.Empty) returns (messages.modules_obs_websocket.GetResponse);
      */
     modulesOBSWebsocketGet(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetResponse> {
-        const method = this.methods[17], opt = this._transport.mergeOptions(options);
+        const method = this.methods[13], opt = this._transport.mergeOptions(options);
         return stackIntercept<Empty, GetResponse>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: ModulesOBSWebsocketUpdate(messages.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty);
      */
     modulesOBSWebsocketUpdate(input: PostRequest, options?: RpcOptions): UnaryCall<PostRequest, Empty> {
-        const method = this.methods[18], opt = this._transport.mergeOptions(options);
+        const method = this.methods[14], opt = this._transport.mergeOptions(options);
         return stackIntercept<PostRequest, Empty>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse);
      */
     twitchSearchCategories(input: SearchCategoriesRequest, options?: RpcOptions): UnaryCall<SearchCategoriesRequest, SearchCategoriesResponse> {
-        const method = this.methods[19], opt = this._transport.mergeOptions(options);
+        const method = this.methods[15], opt = this._transport.mergeOptions(options);
         return stackIntercept<SearchCategoriesRequest, SearchCategoriesResponse>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse);
      */
     twitchGetCategories(input: GetCategoriesRequest, options?: RpcOptions): UnaryCall<GetCategoriesRequest, SearchCategoriesResponse> {
-        const method = this.methods[20], opt = this._transport.mergeOptions(options);
+        const method = this.methods[16], opt = this._transport.mergeOptions(options);
         return stackIntercept<GetCategoriesRequest, SearchCategoriesResponse>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest) returns (google.protobuf.Empty);
      */
     twitchSetChannelInformation(input: SetChannelInformationRequest, options?: RpcOptions): UnaryCall<SetChannelInformationRequest, Empty> {
-        const method = this.methods[21], opt = this._transport.mergeOptions(options);
+        const method = this.methods[17], opt = this._transport.mergeOptions(options);
         return stackIntercept<SetChannelInformationRequest, Empty>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse);
      */
     overlaysGetAll(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAllResponse> {
-        const method = this.methods[22], opt = this._transport.mergeOptions(options);
+        const method = this.methods[18], opt = this._transport.mergeOptions(options);
         return stackIntercept<Empty, GetAllResponse>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay);
      */
     overlaysGetOne(input: GetByIdRequest, options?: RpcOptions): UnaryCall<GetByIdRequest, Overlay> {
-        const method = this.methods[23], opt = this._transport.mergeOptions(options);
+        const method = this.methods[19], opt = this._transport.mergeOptions(options);
         return stackIntercept<GetByIdRequest, Overlay>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysUpdate(messages.overlays.UpdateRequest) returns (messages.overlays.Overlay);
      */
     overlaysUpdate(input: UpdateRequest, options?: RpcOptions): UnaryCall<UpdateRequest, Overlay> {
-        const method = this.methods[24], opt = this._transport.mergeOptions(options);
+        const method = this.methods[20], opt = this._transport.mergeOptions(options);
         return stackIntercept<UpdateRequest, Overlay>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysDelete(messages.overlays.DeleteRequest) returns (google.protobuf.Empty);
      */
     overlaysDelete(input: DeleteRequest, options?: RpcOptions): UnaryCall<DeleteRequest, Empty> {
-        const method = this.methods[25], opt = this._transport.mergeOptions(options);
+        const method = this.methods[21], opt = this._transport.mergeOptions(options);
         return stackIntercept<DeleteRequest, Empty>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysCreate(messages.overlays.CreateRequest) returns (messages.overlays.Overlay);
      */
     overlaysCreate(input: CreateRequest, options?: RpcOptions): UnaryCall<CreateRequest, Overlay> {
-        const method = this.methods[26], opt = this._transport.mergeOptions(options);
+        const method = this.methods[22], opt = this._transport.mergeOptions(options);
         return stackIntercept<CreateRequest, Overlay>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse);
      */
     overlaysParseHtml(input: ParseHtmlOverlayRequest, options?: RpcOptions): UnaryCall<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse> {
-        const method = this.methods[27], opt = this._transport.mergeOptions(options);
+        const method = this.methods[23], opt = this._transport.mergeOptions(options);
         return stackIntercept<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse>("unary", this._transport, method, opt, input);
     }
 }

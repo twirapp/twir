@@ -7,9 +7,11 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 )
 
 // DonatePayIntegration is the resolver for the donatePayIntegration field.
@@ -44,6 +46,9 @@ func (r *queryResolver) DonatePayIntegration(ctx context.Context) (*gqlmodel.Don
 
 	data, err := r.deps.DonatePayService.GetByChannelID(ctx, dashboardID)
 	if err != nil {
+		if errors.Is(err, donatepay_integration.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("failed to get DonatePay integration: %w", err)
 	}
 
