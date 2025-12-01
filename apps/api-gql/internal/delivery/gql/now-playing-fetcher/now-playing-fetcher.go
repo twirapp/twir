@@ -11,11 +11,13 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
+	cfg "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
 	"github.com/twirapp/twir/libs/logger"
+	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"gorm.io/gorm"
 )
@@ -23,6 +25,8 @@ import (
 type Opts struct {
 	Logger            *slog.Logger
 	SpotifyRepository channelsintegrationsspotify.Repository
+	LastfmRepository  channelsintegrationslastfm.Repository
+	Config            cfg.Config
 	Gorm              *gorm.DB
 	Kv                kv.KV
 	ChannelID         string
@@ -54,12 +58,6 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		return nil, fmt.Errorf("failed to get channel integrations: %w", err)
 	}
 
-	lfmEntity, _ := lo.Find(
-		channelIntegrations,
-		func(integration *model.ChannelsIntegrations) bool {
-			return integration.Integration.Service == "LASTFM" && integration.Enabled
-		},
-	)
 	vkEntity, _ := lo.Find(
 		channelIntegrations,
 		func(integration *model.ChannelsIntegrations) bool {
@@ -71,11 +69,14 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 	var spotifyService *spotify.Spotify
 	var vkService *vk.VK
 
-	if lfmEntity != nil {
+	// Get lastfm integration from the new repository
+	lastfmIntegration, err := opts.LastfmRepository.GetByChannelID(ctx, opts.ChannelID)
+	if err == nil && !lastfmIntegration.IsNil() && lastfmIntegration.Enabled && lastfmIntegration.SessionKey != nil {
 		l, err := lastfm.New(
 			lastfm.Opts{
-				Gorm:        opts.Gorm,
-				Integration: lfmEntity,
+				ApiKey:       opts.Config.LastFM.ApiKey,
+				ClientSecret: opts.Config.LastFM.ClientSecret,
+				SessionKey:   *lastfmIntegration.SessionKey,
 			},
 		)
 		if err == nil {

@@ -25,6 +25,7 @@ import (
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	channelsgamesvotebanprogressstate "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -76,6 +77,7 @@ type Services struct {
 	ChannelsGamesVotebanRepo           channelsgamesvoteban.Repository
 	ChannelsGamesVotebanProgressState  channelsgamesvotebanprogressstate.Repository
 	ShortUrlServices                   *shortenedurls.Service
+	LastfmRepo                         channelsintegrationslastfm.Repository
 	Executron                  executron.Executron
 	I18n                       *i18n.I18n
 }

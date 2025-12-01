@@ -1,25 +1,47 @@
 <script setup lang="ts">
-import { useLastfmIntegration } from '@/api/index.js';
-import IconLastFM from '@/assets/integrations/lastfm.svg?use';
-import SongDescription from '@/components/integrations/helpers/songDescription.vue';
-import OauthComponent from '@/components/integrations/variants/oauth.vue';
+import { computed, onMounted } from 'vue'
 
-const manager = useLastfmIntegration();
-const { data } = manager.useData();
-const logout = manager.useLogout();
-const { data: authLink } = manager.useAuthLink();
+import IconLastFM from '@/assets/integrations/lastfm.svg?use'
+import SongDescription from '@/components/integrations/helpers/songDescription.vue'
+import OauthComponent from '@/components/integrations/variants/oauth.vue'
+import {
+	lastfmBroadcaster,
+	useLastfmIntegration,
+} from '@/features/integrations/composables/lastfm/use-lastfm-integration.ts'
+
+const { userName, avatar, logout, authLink, isDataFetching, refetchData } = useLastfmIntegration()
+
+const oauthData = computed(() => {
+	if (!userName.value && !avatar.value) {
+		return null
+	}
+
+	return {
+		userName: userName.value,
+		avatar: avatar.value,
+	}
+})
+
+onMounted(async () => {
+	lastfmBroadcaster.onmessage = async (event) => {
+		if (event.data !== 'refresh') return
+
+		await refetchData()
+	}
+})
 </script>
 
 <template>
-	<oauth-component
+	<OauthComponent
 		title="Last.fm"
-		:data="data"
-		:logout="() => logout.mutateAsync({})"
-		:authLink="authLink?.link"
+		:data="oauthData"
+		:logout="logout"
+		:authLink="authLink"
 		:icon="IconLastFM"
+		:is-loading="isDataFetching"
 	>
 		<template #description>
-			<song-description />
+			<SongDescription />
 		</template>
-	</oauth-component>
+	</OauthComponent>
 </template>

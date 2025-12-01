@@ -18,6 +18,12 @@ type ValorantConfig struct {
 	RiotApiKey   string `required:"false" envconfig:"VALORANT_RIOT_API_KEY"`
 }
 
+type LastFMConfig struct {
+	ApiKey       string `required:"false" envconfig:"LASTFM_API_KEY"`
+	ClientSecret string `required:"false" envconfig:"LASTFM_CLIENT_SECRET"`
+	RedirectURL  string `required:"false" envconfig:"LASTFM_REDIRECT_URL"`
+}
+
 type Config struct {
 	BotAccessToken  string `required:"false"    envconfig:"BOT_ACCESS_TOKEN"`
 	BotRefreshToken string `required:"false"    envconfig:"BOT_REFRESH_TOKEN"`
@@ -56,6 +62,7 @@ type Config struct {
 	NatsUrl    string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
 
 	Valorant ValorantConfig
+	LastFM   LastFMConfig
 
 	ToxicityAddr        string `required:"false" envconfig:"TOXICITY_ADDR"`
 	MusicRecognizerAddr string `required:"false" envconfig:"MUSIC_RECOGNIZER_ADDR"`
