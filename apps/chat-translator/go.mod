@@ -7,6 +7,7 @@ require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5
 	github.com/lkretschmer/deepl-go v0.3.0
 	github.com/redis/go-redis/v9 v9.17.1
+	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/cache v0.0.0-20251127124349-67ad7fa0003f
@@ -96,7 +97,6 @@ require (
 	github.com/samber/slog-zerolog/v2 v2.9.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/twirapp/kv v0.5.1 // indirect
 	github.com/twirapp/twir/libs/audit v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/pubsub v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/sentry v0.0.0-20251127124349-67ad7fa0003f // indirect

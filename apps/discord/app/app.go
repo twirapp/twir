@@ -1,8 +1,8 @@
 package app
 
 import (
+	bus_handler "github.com/twirapp/twir/apps/discord/internal/bus_handler"
 	"github.com/twirapp/twir/apps/discord/internal/discord_go"
-	"github.com/twirapp/twir/apps/discord/internal/grpc"
 	"github.com/twirapp/twir/apps/discord/internal/messages_updater"
 	"github.com/twirapp/twir/apps/discord/internal/sended_messages_store"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -28,10 +28,10 @@ var App = fx.Module(
 		sended_messages_store.New,
 		messages_updater.New,
 		discord_go.New,
-		grpc.New,
+		bus_handler.New,
 	),
 	fx.Invoke(
 		messages_updater.New,
-		grpc.New,
+		bus_handler.New,
 	),
 )

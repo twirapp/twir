@@ -4,6 +4,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/api"
 	auditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/bus-core/discord"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -133,4 +134,11 @@ type apiBus struct {
 	TriggerBrbStop  Queue[api.TriggerBrbStop, struct{}]
 	TriggerTtsSay   Queue[api.TriggerTtsSay, struct{}]
 	TriggerTtsSkip  Queue[api.TriggerTtsSkip, struct{}]
+}
+
+type discordBus struct {
+	GetGuildChannels Queue[discord.GetGuildChannelsRequest, discord.GetGuildChannelsResponse]
+	GetGuildInfo     Queue[discord.GetGuildInfoRequest, discord.GetGuildInfoResponse]
+	LeaveGuild       Queue[discord.LeaveGuildRequest, struct{}]
+	GetGuildRoles    Queue[discord.GetGuildRolesRequest, discord.GetGuildRolesResponse]
 }

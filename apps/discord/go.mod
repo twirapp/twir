@@ -5,9 +5,7 @@ go 1.25.4
 require (
 	github.com/avast/retry-go/v4 v4.7.0
 	github.com/diamondburned/arikawa/v3 v3.6.0
-	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.32.0
-	github.com/samber/lo v1.52.0
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/config v0.0.0-20251127124349-67ad7fa0003f
@@ -43,6 +41,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/schema v1.4.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
@@ -79,6 +78,7 @@ require (
 	github.com/redis/go-redis/v9 v9.17.1 // indirect
 	github.com/refraction-networking/utls v1.8.0 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect
+	github.com/samber/lo v1.52.0 // indirect
 	github.com/samber/slog-common v0.19.0 // indirect
 	github.com/samber/slog-multi v1.6.0 // indirect
 	github.com/samber/slog-sentry/v2 v2.10.1 // indirect

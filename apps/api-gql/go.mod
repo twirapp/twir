@@ -29,6 +29,7 @@ require (
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0
 	github.com/samber/slog-gin v1.18.0
+	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/apps/parser v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
@@ -137,7 +138,6 @@ require (
 	github.com/samber/slog-zerolog/v2 v2.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
-	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/tinylib/msgp v1.5.0 // indirect

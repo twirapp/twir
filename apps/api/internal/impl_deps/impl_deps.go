@@ -8,7 +8,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandwithgroupandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
@@ -18,7 +17,6 @@ import (
 
 type Grpc struct {
 	Websockets websockets.WebsocketClient
-	Discord    discord.DiscordClient
 }
 
 type Deps struct {

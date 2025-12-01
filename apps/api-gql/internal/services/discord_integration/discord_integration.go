@@ -14,8 +14,9 @@ import (
 	"sync"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/discord"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/grpc/discord"
 	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
 	"github.com/twirapp/twir/libs/repositories/channels_integrations_discord/model"
 	"go.uber.org/fx"
@@ -27,21 +28,21 @@ type Opts struct {
 
 	DiscordRepository channelsintegrationsdiscord.Repository
 	Config            cfg.Config
-	DiscordGrpc       discord.DiscordClient
+	Bus               *buscore.Bus
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repo:        opts.DiscordRepository,
-		config:      opts.Config,
-		discordGrpc: opts.DiscordGrpc,
+		repo:   opts.DiscordRepository,
+		config: opts.Config,
+		bus:    opts.Bus,
 	}
 }
 
 type Service struct {
-	repo        channelsintegrationsdiscord.Repository
-	config      cfg.Config
-	discordGrpc discord.DiscordClient
+	repo   channelsintegrationsdiscord.Repository
+	config cfg.Config
+	bus    *buscore.Bus
 }
 
 func (s *Service) GetAuthLink(_ context.Context) (string, error) {
@@ -88,15 +89,17 @@ func (s *Service) GetData(ctx context.Context, channelID string) (
 
 		guildsGroup.Go(
 			func() error {
-				guildInfo, err := s.discordGrpc.GetGuildInfo(
-					gCtx, &discord.GetGuildInfoRequest{
-						GuildId: guild.GuildID,
+				guildInfoResp, err := s.bus.Discord.GetGuildInfo.Request(
+					gCtx, discord.GetGuildInfoRequest{
+						GuildID: guild.GuildID,
 					},
 				)
 				if err != nil {
 					// Skip guild if we can't get info (bot might have been kicked)
 					return nil
 				}
+
+				guildInfo := guildInfoResp.Data
 
 				var icon *string
 				if guildInfo.Icon != "" {
@@ -298,9 +301,9 @@ type UpdateGuildInput struct {
 
 func discordChannelTypeToEntity(t discord.ChannelType) entity.DiscordChannelType {
 	switch t {
-	case discord.ChannelType_VOICE:
+	case discord.ChannelTypeVoice:
 		return entity.DiscordChannelTypeVoice
-	case discord.ChannelType_TEXT:
+	case discord.ChannelTypeText:
 		return entity.DiscordChannelTypeText
 	default:
 		return entity.DiscordChannelTypeText
@@ -311,20 +314,20 @@ func (s *Service) GetGuildChannels(
 	ctx context.Context,
 	guildID string,
 ) ([]entity.DiscordGuildChannel, error) {
-	channelsResp, err := s.discordGrpc.GetGuildChannels(
-		ctx, &discord.GetGuildChannelsRequest{
-			GuildId: guildID,
+	channelsResp, err := s.bus.Discord.GetGuildChannels.Request(
+		ctx, discord.GetGuildChannelsRequest{
+			GuildID: guildID,
 		},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get guild channels: %w", err)
 	}
 
-	channels := make([]entity.DiscordGuildChannel, 0, len(channelsResp.Channels))
-	for _, channel := range channelsResp.Channels {
+	channels := make([]entity.DiscordGuildChannel, 0, len(channelsResp.Data.Channels))
+	for _, channel := range channelsResp.Data.Channels {
 		channels = append(
 			channels, entity.DiscordGuildChannel{
-				ID:              channel.Id,
+				ID:              channel.ID,
 				Name:            channel.Name,
 				Type:            discordChannelTypeToEntity(channel.Type),
 				CanSendMessages: channel.CanSendMessages,
@@ -339,20 +342,22 @@ func (s *Service) GetGuildInfo(ctx context.Context, guildID string) (
 	*entity.DiscordGuildInfo,
 	error,
 ) {
-	guildInfo, err := s.discordGrpc.GetGuildInfo(
-		ctx, &discord.GetGuildInfoRequest{
-			GuildId: guildID,
+	guildInfoResp, err := s.bus.Discord.GetGuildInfo.Request(
+		ctx, discord.GetGuildInfoRequest{
+			GuildID: guildID,
 		},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get guild info: %w", err)
 	}
 
+	guildInfo := guildInfoResp.Data
+
 	channels := make([]entity.DiscordGuildChannel, 0, len(guildInfo.Channels))
 	for _, channel := range guildInfo.Channels {
 		channels = append(
 			channels, entity.DiscordGuildChannel{
-				ID:              channel.Id,
+				ID:              channel.ID,
 				Name:            channel.Name,
 				Type:            discordChannelTypeToEntity(channel.Type),
 				CanSendMessages: channel.CanSendMessages,
@@ -364,7 +369,7 @@ func (s *Service) GetGuildInfo(ctx context.Context, guildID string) (
 	for _, role := range guildInfo.Roles {
 		roles = append(
 			roles, entity.DiscordGuildRole{
-				ID:    role.Id,
+				ID:    role.ID,
 				Name:  role.Name,
 				Color: role.Color,
 			},
@@ -377,7 +382,7 @@ func (s *Service) GetGuildInfo(ctx context.Context, guildID string) (
 	}
 
 	return &entity.DiscordGuildInfo{
-		ID:       guildInfo.Id,
+		ID:       guildInfo.ID,
 		Name:     guildInfo.Name,
 		Icon:     icon,
 		Channels: channels,

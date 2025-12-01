@@ -24,7 +24,6 @@ require (
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0
 	github.com/satori/go.uuid v1.2.0
-	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/tidwall/gjson v1.18.0
 	github.com/valyala/fasttemplate v1.2.2
 	github.com/xhit/go-str2duration/v2 v2.1.0

@@ -100,8 +100,6 @@ import (
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/discord"
 	valorantintegration "github.com/twirapp/twir/libs/integrations/valorant"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
@@ -473,11 +471,7 @@ func main() {
 			discord_integration.New,
 			lastfmintegration.New,
 		),
-		// grpc clients
 		fx.Provide(
-			func(c cfg.Config) discord.DiscordClient {
-				return clients.NewDiscord(c.AppEnv)
-			},
 			toxic_messages.New,
 			channels_files.New,
 			channels_redemptions_history.New,

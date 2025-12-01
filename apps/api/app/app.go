@@ -20,7 +20,6 @@ import (
 	commandswithgroupsandresponsescache "github.com/twirapp/twir/libs/cache/commands"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
@@ -51,9 +50,6 @@ var App = fx.Options(
 	fx.Provide(
 		func(c cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(c.AppEnv)
-		},
-		func(c cfg.Config) discord.DiscordClient {
-			return clients.NewDiscord(c.AppEnv)
 		},
 		func(r *redis.Client) *scs.SessionManager {
 			return sessions.New(r)

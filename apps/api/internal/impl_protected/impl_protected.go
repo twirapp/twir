@@ -13,7 +13,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandwithgroupandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
@@ -33,7 +32,6 @@ type Opts struct {
 	fx.In
 
 	WebsocketsGrpc    websockets.WebsocketClient
-	DiscordGrpc       discord.DiscordClient
 	Logger            *slog.Logger
 	SpotifyRepository channelsintegrationsspotify.Repository
 
@@ -55,7 +53,6 @@ func New(opts Opts) *Protected {
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
 			Websockets: opts.WebsocketsGrpc,
-			Discord:    opts.DiscordGrpc,
 		},
 		Logger:                            opts.Logger,
 		Bus:                               opts.Bus,

@@ -8,6 +8,7 @@ import (
 	auditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	cache_invalidator "github.com/twirapp/twir/libs/bus-core/cache-invalidator"
+	"github.com/twirapp/twir/libs/bus-core/discord"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -42,6 +43,7 @@ type Bus struct {
 	Integrations     *integrationsBus
 	Api              *apiBus
 	CacheInvalidator Queue[cache_invalidator.InvalidateRequest, struct{}]
+	Discord          *discordBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -554,6 +556,33 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			1*time.Minute,
 			GobEncoder,
 		),
+
+		Discord: &discordBus{
+			GetGuildChannels: NewNatsQueue[discord.GetGuildChannelsRequest, discord.GetGuildChannelsResponse](
+				nc,
+				discord.GetGuildChannelsSubject,
+				10*time.Second,
+				GobEncoder,
+			),
+			GetGuildInfo: NewNatsQueue[discord.GetGuildInfoRequest, discord.GetGuildInfoResponse](
+				nc,
+				discord.GetGuildInfoSubject,
+				10*time.Second,
+				GobEncoder,
+			),
+			LeaveGuild: NewNatsQueue[discord.LeaveGuildRequest, struct{}](
+				nc,
+				discord.LeaveGuildSubject,
+				10*time.Second,
+				GobEncoder,
+			),
+			GetGuildRoles: NewNatsQueue[discord.GetGuildRolesRequest, discord.GetGuildRolesResponse](
+				nc,
+				discord.GetGuildRolesSubject,
+				10*time.Second,
+				GobEncoder,
+			),
+		},
 	}
 }
 
