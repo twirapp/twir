@@ -90,6 +90,7 @@ export const useIntegrationsPageData = createGlobalState(() => {
 		context: {
 			additionalTypenames: [integrationsPageCacheKey],
 		},
+		variables: {}
 	})
 
 	// Discord
