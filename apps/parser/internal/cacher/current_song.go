@@ -10,9 +10,9 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	lfm "github.com/shkh/lastfm-go/lastfm"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
 	"go.uber.org/zap"
@@ -31,7 +31,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		integrations,
 		func(integration *model.ChannelsIntegrations, _ int) bool {
 			switch integration.Integration.Service {
-			case "SPOTIFY", "VK", "LASTFM":
+			case "SPOTIFY", "VK":
 				return integration.Enabled
 			default:
 				return false
@@ -39,16 +39,23 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		},
 	)
 
-	lastFmIntegration, ok := lo.Find(
-		integrations,
-		func(integration *model.ChannelsIntegrations) bool {
-			return integration.Integration.Service == "LASTFM"
-		},
-	)
-
-	var lastfmService *lastFm
-	if ok {
-		lastfmService = newLastfm(lastFmIntegration)
+	var lastfmService *lastfm.Lastfm
+	if lfmIntegration, err := c.services.LastfmRepo.GetByChannelID(
+		ctx,
+		c.parseCtxChannel.ID,
+	); err == nil && !lfmIntegration.IsNil() && lfmIntegration.SessionKey != nil {
+		s, lfmErr := lastfm.New(
+			lastfm.Opts{
+				ApiKey:       c.services.Config.LastFM.ApiKey,
+				ClientSecret: c.services.Config.LastFM.ClientSecret,
+				SessionKey:   *lfmIntegration.SessionKey,
+			},
+		)
+		if lfmErr != nil {
+			c.services.Logger.Error("failed to create lastfm service", zap.Error(lfmErr))
+		} else {
+			lastfmService = s
+		}
 	}
 
 	var spotifyService *spotify.Spotify
@@ -98,6 +105,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		model.IntegrationServiceSpotify,
 		"YOUTUBE_SR",
 		"MUSIC_RECOGNIZER",
+		"LASTFM",
 	)
 
 checkServices:
@@ -133,12 +141,16 @@ checkServices:
 
 				break checkServices
 			}
-		case model.IntegrationServiceLastfm:
+		case "LASTFM":
 			if lastfmService == nil {
 				continue
 			}
 
-			track := lastfmService.GetTrack()
+			track, err := lastfmService.GetTrack()
+			if err != nil {
+				c.services.Logger.Error("failed to get track from lfm", zap.Error(err))
+				continue
+			}
 
 			if track != nil {
 				c.cache.currentSong = &types.CurrentSong{
@@ -246,65 +258,4 @@ checkServices:
 	}
 
 	return c.cache.currentSong
-}
-
-type lastFm struct {
-	integration *model.ChannelsIntegrations
-}
-
-func newLastfm(integration *model.ChannelsIntegrations) *lastFm {
-	if integration == nil || !integration.APIKey.Valid || !integration.Integration.APIKey.Valid ||
-		!integration.Integration.ClientSecret.Valid {
-		return nil
-	}
-
-	service := lastFm{
-		integration: integration,
-	}
-
-	return &service
-}
-
-type LFMGetTrackResponse struct {
-	Title  string
-	Artist string
-	Image  string
-}
-
-func (c *lastFm) GetTrack() *LFMGetTrackResponse {
-	api := lfm.New(
-		c.integration.Integration.APIKey.String,
-		c.integration.Integration.ClientSecret.String,
-	)
-	api.SetSession(c.integration.APIKey.String)
-
-	user, err := api.User.GetInfo(map[string]interface{}{})
-	if err != nil {
-		return nil
-	}
-
-	tracks, err := api.User.GetRecentTracks(
-		map[string]interface{}{
-			"limit": "1",
-			"user":  user.Name,
-		},
-	)
-
-	if err != nil || len(tracks.Tracks) == 0 || tracks.Tracks[0].NowPlaying != "true" {
-		return nil
-	}
-
-	track := tracks.Tracks[0]
-
-	// track.Images
-	var cover string
-	if len(track.Images) > 0 {
-		cover = track.Images[0].Url
-	}
-
-	return &LFMGetTrackResponse{
-		Title:  track.Name,
-		Artist: track.Artist.Name,
-		Image:  cover,
-	}
 }
