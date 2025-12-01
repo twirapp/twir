@@ -96,6 +96,7 @@ func (s *Service) PostCode(
 
 	var avatar *string
 	if len(userInfo.Images) > 0 {
+		// Last.fm API returns images in ascending size order; select the largest (last) image as avatar.
 		avatar = &userInfo.Images[len(userInfo.Images)-1].Url
 	}
 
