@@ -41,6 +41,7 @@ func upLastfmSeparateTable(ctx context.Context, tx *sql.Tx) error {
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("get lastfm integration: %w", err)
 	}
+	// Do not reuse 'err' for subsequent queries; use a new variable (e.g., err2) for later error checks.
 
 	// Create new table first
 	createTableQuery := `
