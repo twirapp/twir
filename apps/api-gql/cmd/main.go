@@ -58,6 +58,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	lastfmintegration "github.com/twirapp/twir/apps/api-gql/internal/services/lastfm_integration"
 	nightbotintegration "github.com/twirapp/twir/apps/api-gql/internal/services/nightbot_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
@@ -112,6 +113,8 @@ import (
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
+	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
+	channelsintegrationslastfmpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm/datasources/postgres"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	channelsintegrationsvalorant "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant"
@@ -411,6 +414,10 @@ func main() {
 				channelsintegrationsdiscordpostgres.NewFx,
 				fx.As(new(channelsintegrationsdiscordrepository.Repository)),
 			),
+			fx.Annotate(
+				channelsintegrationslastfmpostgres.NewFx,
+				fx.As(new(channelsintegrationslastfm.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -464,6 +471,7 @@ func main() {
 			gamesvoteban.New,
 			nightbotintegration.New,
 			discord_integration.New,
+			lastfmintegration.New,
 		),
 		// grpc clients
 		fx.Provide(

@@ -59,7 +59,11 @@ func (r *queryResolver) SpotifyData(ctx context.Context) (*gqlmodel.SpotifyInteg
 }
 
 // SpotifyAuthLink is the resolver for the spotifyAuthLink field.
-func (r *queryResolver) SpotifyAuthLink(ctx context.Context) (string, error) {
-	// Implementation similar to your existing IntegrationsSpotifyGetAuthLink
-	return r.deps.SpotifyIntegrationService.GetAuthLink(ctx)
+func (r *queryResolver) SpotifyAuthLink(ctx context.Context) (*string, error) {
+	link, err := r.deps.SpotifyIntegrationService.GetAuthLink(ctx)
+	if err != nil {
+		// Return nil when Spotify is not configured instead of error
+		return nil, nil
+	}
+	return &link, nil
 }

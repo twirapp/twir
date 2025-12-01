@@ -2,27 +2,27 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
 import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
-import { useValorantIntegrationApi } from '@/api/integrations/valorant.ts'
+import { useLastfmIntegrationApi } from '@/api/integrations/lastfm.ts'
 
-export const valorantBroadcaster = new BroadcastChannel('valorant_channel')
+export const lastfmBroadcaster = new BroadcastChannel('lastfm_channel')
 
-export const useValorantIntegration = createGlobalState(() => {
+export const useLastfmIntegration = createGlobalState(() => {
 	const integrationsPage = useIntegrationsPageData()
-	const { useLogoutMutation, usePostCodeMutation } = useValorantIntegrationApi()
+	const { useLogoutMutation, usePostCodeMutation } = useLastfmIntegrationApi()
 
 	const { executeMutation: postCodeMutation } = usePostCodeMutation()
 	const { executeMutation: logoutMutation } = useLogoutMutation()
 
 	const isEnabled = computed(() => {
-		return integrationsPage.valorantData.value?.enabled ?? false
+		return integrationsPage.lastfmData.value?.enabled ?? false
 	})
 
 	const userName = computed(() => {
-		return integrationsPage.valorantData.value?.userName ?? null
+		return integrationsPage.lastfmData.value?.userName ?? null
 	})
 
 	const avatar = computed(() => {
-		return integrationsPage.valorantData.value?.avatar ?? null
+		return integrationsPage.lastfmData.value?.avatar ?? null
 	})
 
 	const isConfigured = computed(() => {
@@ -50,11 +50,11 @@ export const useValorantIntegration = createGlobalState(() => {
 	}
 
 	function broadcastRefresh() {
-		valorantBroadcaster.postMessage('refresh')
+		lastfmBroadcaster.postMessage('refresh')
 	}
 
 	const authLink = computed(() => {
-		return integrationsPage.valorantAuthLink.value
+		return integrationsPage.lastfmAuthLink.value
 	})
 
 	return {

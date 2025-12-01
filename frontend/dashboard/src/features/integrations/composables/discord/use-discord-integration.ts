@@ -2,36 +2,8 @@ import { useMutation, useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import { graphql } from '@/gql'
-
-const DiscordIntegrationDataQuery = graphql(`
-	query DiscordIntegrationData {
-		discordIntegrationData {
-			guilds {
-				id
-				name
-				icon
-				liveNotificationEnabled
-				liveNotificationChannelsIds
-				liveNotificationShowTitle
-				liveNotificationShowCategory
-				liveNotificationShowViewers
-				liveNotificationMessage
-				liveNotificationShowPreview
-				liveNotificationShowProfileImage
-				offlineNotificationMessage
-				shouldDeleteMessageOnOffline
-				additionalUsersIdsForLiveCheck
-			}
-		}
-	}
-`)
-
-const DiscordAuthLinkQuery = graphql(`
-	query DiscordIntegrationAuthLink {
-		discordIntegrationAuthLink
-	}
-`)
 
 const DiscordGuildInfoQuery = graphql(`
 	query DiscordIntegrationGuildInfo($guildId: String!) {
@@ -73,24 +45,18 @@ const DiscordUpdateGuildMutation = graphql(`
 `)
 
 export const useDiscordIntegration = createGlobalState(() => {
-	const dataQuery = useQuery({
-		query: DiscordIntegrationDataQuery,
-	})
-
-	const authLinkQuery = useQuery({
-		query: DiscordAuthLinkQuery,
-	})
+	const integrationsPage = useIntegrationsPageData()
 
 	const connectGuildMutation = useMutation(DiscordConnectGuildMutation)
 	const disconnectGuildMutation = useMutation(DiscordDisconnectGuildMutation)
 	const updateGuildMutation = useMutation(DiscordUpdateGuildMutation)
 
-	const guilds = computed(() => dataQuery.data.value?.discordIntegrationData.guilds ?? [])
-	const authLink = computed(() => authLinkQuery.data.value?.discordIntegrationAuthLink ?? null)
-	const isLoading = computed(() => dataQuery.fetching.value)
+	const guilds = computed(() => integrationsPage.discordGuilds.value ?? [])
+	const authLink = computed(() => integrationsPage.discordAuthLink.value ?? null)
+	const isLoading = computed(() => integrationsPage.fetching.value)
 
 	async function refetchData() {
-		await dataQuery.executeQuery({ requestPolicy: 'network-only' })
+		await integrationsPage.refetch()
 	}
 
 	async function connectGuild(code: string) {
@@ -130,8 +96,6 @@ export const useDiscordIntegration = createGlobalState(() => {
 	}
 
 	return {
-		dataQuery,
-		authLinkQuery,
 		guilds,
 		authLink,
 		isLoading,

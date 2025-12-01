@@ -6,10 +6,9 @@ import DonateDescription from '@/components/integrations/helpers/donateDescripti
 import WithSettings from '@/components/integrations/variants/withSettings.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import CopyInput from '@/components/ui/copy-input/CopyInput.vue'
-import { useIntegrations } from '@/api/integrations/integrations.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 
-const integrationsManager = useIntegrations()
-const { data } = integrationsManager.useQuery()
+const integrationsPage = useIntegrationsPageData()
 
 const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatello`
 </script>
@@ -61,7 +60,7 @@ const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatell
 						<span class="text-sm text-muted-foreground"
 							>Copy api key and paste into "Api Key" input</span
 						>
-						<CopyInput :text="data?.donatello.integrationId ?? ''" />
+						<CopyInput :text="integrationsPage.donatelloData.value?.integrationId ?? ''" />
 					</div>
 				</div>
 

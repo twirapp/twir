@@ -3,7 +3,7 @@ import { useQuery } from '@urql/vue'
 
 import { useMutation } from '@/composables/use-mutation.ts'
 import { graphql } from '@/gql'
-import { integrationsCacheKey } from '@/api/integrations/integrations.ts'
+import { integrationsPageCacheKey } from '@/api/integrations/integrations-page.ts'
 
 export const nightbotCacheKey = 'nightbot'
 
@@ -47,7 +47,7 @@ export const useNightbotIntegration = createGlobalState(() => {
 				nightbotPostCode(input: $input)
 			}
 		`),
-		[nightbotCacheKey, integrationsCacheKey]
+		[nightbotCacheKey, integrationsPageCacheKey]
 	)
 
 	const logout = useMutation(
@@ -56,7 +56,7 @@ export const useNightbotIntegration = createGlobalState(() => {
 				nightbotLogout
 			}
 		`),
-		[nightbotCacheKey, integrationsCacheKey]
+		[nightbotCacheKey, integrationsPageCacheKey]
 	)
 
 	const importCommands = useMutation(

@@ -5,16 +5,17 @@ import { useRoute, useRouter } from 'vue-router'
 
 import {
 	useFaceitIntegration,
-	useLastfmIntegration,
 	useStreamlabsIntegration,
 	useVKIntegration,
 } from '@/api/index.js'
 import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
+import { lastfmBroadcaster, useLastfmIntegration } from '@/features/integrations/composables/lastfm/use-lastfm-integration.ts'
 
 const router = useRouter()
 const route = useRoute()
 
 const discordIntegration = useDiscordIntegration()
+const lastfmIntegration = useLastfmIntegration()
 
 const integrationsHooks: {
 	[x: string]:
@@ -34,8 +35,14 @@ const integrationsHooks: {
 		  }
 } = {
 	lastfm: {
-		manager: useLastfmIntegration(),
+		custom: true,
 		closeWindow: true,
+		handler: async (code: string) => {
+			const error = await lastfmIntegration.postCode(code)
+			if (!error) {
+				lastfmBroadcaster.postMessage('refresh')
+			}
+		},
 	},
 	vk: {
 		manager: useVKIntegration(),

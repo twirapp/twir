@@ -38,6 +38,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	lastfmintegration "github.com/twirapp/twir/apps/api-gql/internal/services/lastfm_integration"
 	nightbotintegration "github.com/twirapp/twir/apps/api-gql/internal/services/nightbot_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
@@ -68,6 +69,7 @@ import (
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
@@ -86,6 +88,7 @@ type Deps struct {
 	WsRouter      wsrouter.WsRouter
 
 	SpotifyRepository channelsintegrationsspotify.Repository
+	LastfmRepository  channelsintegrationslastfm.Repository
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB
@@ -150,6 +153,7 @@ type Deps struct {
 	DonationAlertsIntegrationService      *donationalerts_integration.Service
 	GamesVotebanService                   *gamesvoteban.Service
 	NightbotIntegrationService            *nightbotintegration.Service
+	LastfmIntegrationService              *lastfmintegration.Service
 }
 
 type Resolver struct {

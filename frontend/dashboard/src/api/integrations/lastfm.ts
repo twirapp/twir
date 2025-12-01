@@ -4,12 +4,12 @@ import { useMutation } from '@/composables/use-mutation.ts'
 import { graphql } from '@/gql'
 import { integrationsPageCacheKey } from '@/api/integrations/integrations-page.ts'
 
-export const useValorantIntegrationApi = createGlobalState(() => {
+export const useLastfmIntegrationApi = createGlobalState(() => {
 	const usePostCodeMutation = () =>
 		useMutation(
 			graphql(`
-				mutation ValorantPostCode($code: String!) {
-					valorantPostCode(code: $code)
+				mutation LastfmPostCode($code: String!) {
+					lastfmPostCode(code: $code)
 				}
 			`),
 			[integrationsPageCacheKey]
@@ -18,8 +18,8 @@ export const useValorantIntegrationApi = createGlobalState(() => {
 	const useLogoutMutation = () =>
 		useMutation(
 			graphql(`
-				mutation ValorantLogout {
-					valorantLogout
+				mutation LastfmLogout {
+					lastfmLogout
 				}
 			`),
 			[integrationsPageCacheKey]

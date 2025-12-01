@@ -7,7 +7,6 @@ import "google/protobuf/empty.proto";
 import "messages/meta/meta.proto";
 
 import "messages/integrations_faceit/integrations_faceit.proto";
-import "messages/integrations_lastfm/integrations_lastfm.proto";
 import "messages/integrations_streamlabs/integrations_streamlabs.proto";
 import "messages/integrations_vk/integrations_vk.proto";
 
@@ -23,11 +22,6 @@ service Protected {
 	rpc IntegrationsFaceitUpdate(messages.integrations_faceit.UpdateDataRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsFaceitPostCode(messages.integrations_faceit.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsFaceitLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-	rpc IntegrationsLastFMGetAuthLink(google.protobuf.Empty) returns (messages.integrations_lastfm.GetAuthLink) {}
-	rpc IntegrationsLastFMGetData(google.protobuf.Empty) returns (messages.integrations_lastfm.GetDataResponse) {}
-	rpc IntegrationsLastFMPostCode(messages.integrations_lastfm.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsLastFMLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
 	rpc IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetAuthLink) {}
 	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse) {}

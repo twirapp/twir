@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/bots"
 	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
 	"go.uber.org/fx"
+	"golang.org/x/sync/errgroup"
 )
 
 type Opts struct {
@@ -59,7 +60,7 @@ func (c *Service) getBotSevenTvProfile(ctx context.Context) (entity.SevenTvProfi
 	}
 
 	if resp == nil || resp.Users.UserByConnection == nil {
-		return entity.SevenTvProfile{}, fmt.Errorf("failed to get bot profile: %w", err)
+		return entity.SevenTvProfile{}, fmt.Errorf("failed to get bot profile")
 	}
 
 	editorFor := make([]entity.SevenTvProfileEditor, 0, len(resp.Users.UserByConnection.EditorFor))
@@ -151,14 +152,33 @@ func (c *Service) GetSevenTvData(
 	ctx context.Context,
 	channelID string,
 ) (entity.SevenTvIntegrationData, error) {
-	botProfile, err := c.getBotSevenTvProfile(ctx)
-	if err != nil {
-		return entity.SevenTvIntegrationData{}, fmt.Errorf("failed to get bot profile: %w", err)
-	}
+	var (
+		botProfile entity.SevenTvProfile
+		userProfile entity.SevenTvProfile
+	)
 
-	userProfile, err := c.getUserSevenTvResponse(ctx, channelID)
-	if err != nil {
-		return entity.SevenTvIntegrationData{}, fmt.Errorf("failed to get user profile: %w", err)
+	wg := errgroup.Group{}
+
+	wg.Go(func() error {
+		var err error
+		botProfile, err = c.getBotSevenTvProfile(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	wg.Go(func() error {
+		var err error
+		userProfile, err = c.getUserSevenTvResponse(ctx, channelID)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err := wg.Wait(); err != nil {
+		return entity.SevenTvIntegrationData{}, err
 	}
 
 	var isBotEditor bool

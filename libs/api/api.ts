@@ -20,15 +20,12 @@ import { SearchCategoriesResponse } from "./messages/twitch_protected/twitch_pro
 import { SearchCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
 import { PostRequest } from "./messages/modules_obs_websocket/modules_obs_websocket";
 import { GetResponse } from "./messages/modules_obs_websocket/modules_obs_websocket";
-import { PostCodeRequest as PostCodeRequest$3 } from "./messages/integrations_vk/integrations_vk";
-import { GetDataResponse as GetDataResponse$3 } from "./messages/integrations_vk/integrations_vk";
-import { GetAuthLink as GetAuthLink$3 } from "./messages/integrations_vk/integrations_vk";
-import { PostCodeRequest as PostCodeRequest$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import { GetDataResponse as GetDataResponse$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import { GetAuthLink as GetAuthLink$2 } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import { PostCodeRequest as PostCodeRequest$ } from "./messages/integrations_lastfm/integrations_lastfm";
-import { GetDataResponse as GetDataResponse$ } from "./messages/integrations_lastfm/integrations_lastfm";
-import { GetAuthLink as GetAuthLink$ } from "./messages/integrations_lastfm/integrations_lastfm";
+import { PostCodeRequest as PostCodeRequest$2 } from "./messages/integrations_vk/integrations_vk";
+import { GetDataResponse as GetDataResponse$2 } from "./messages/integrations_vk/integrations_vk";
+import { GetAuthLink as GetAuthLink$2 } from "./messages/integrations_vk/integrations_vk";
+import { PostCodeRequest as PostCodeRequest$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
+import { GetDataResponse as GetDataResponse$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
+import { GetAuthLink as GetAuthLink$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import { PostCodeRequest } from "./messages/integrations_faceit/integrations_faceit";
 import { UpdateDataRequest } from "./messages/integrations_faceit/integrations_faceit";
 import { GetDataResponse } from "./messages/integrations_faceit/integrations_faceit";
@@ -44,17 +41,13 @@ export const Protected = new ServiceType("api.Protected", [
     { name: "IntegrationsFaceitUpdate", options: {}, I: UpdateDataRequest, O: Empty },
     { name: "IntegrationsFaceitPostCode", options: {}, I: PostCodeRequest, O: Empty },
     { name: "IntegrationsFaceitLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsLastFMGetAuthLink", options: {}, I: Empty, O: GetAuthLink$ },
-    { name: "IntegrationsLastFMGetData", options: {}, I: Empty, O: GetDataResponse$ },
-    { name: "IntegrationsLastFMPostCode", options: {}, I: PostCodeRequest$, O: Empty },
-    { name: "IntegrationsLastFMLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsStreamlabsGetAuthLink", options: {}, I: Empty, O: GetAuthLink$2 },
-    { name: "IntegrationsStreamlabsGetData", options: {}, I: Empty, O: GetDataResponse$2 },
-    { name: "IntegrationsStreamlabsPostCode", options: {}, I: PostCodeRequest$2, O: Empty },
+    { name: "IntegrationsStreamlabsGetAuthLink", options: {}, I: Empty, O: GetAuthLink$ },
+    { name: "IntegrationsStreamlabsGetData", options: {}, I: Empty, O: GetDataResponse$ },
+    { name: "IntegrationsStreamlabsPostCode", options: {}, I: PostCodeRequest$, O: Empty },
     { name: "IntegrationsStreamlabsLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsVKGetAuthLink", options: {}, I: Empty, O: GetAuthLink$3 },
-    { name: "IntegrationsVKGetData", options: {}, I: Empty, O: GetDataResponse$3 },
-    { name: "IntegrationsVKPostCode", options: {}, I: PostCodeRequest$3, O: Empty },
+    { name: "IntegrationsVKGetAuthLink", options: {}, I: Empty, O: GetAuthLink$2 },
+    { name: "IntegrationsVKGetData", options: {}, I: Empty, O: GetDataResponse$2 },
+    { name: "IntegrationsVKPostCode", options: {}, I: PostCodeRequest$2, O: Empty },
     { name: "IntegrationsVKLogout", options: {}, I: Empty, O: Empty },
     { name: "ModulesOBSWebsocketGet", options: {}, I: Empty, O: GetResponse },
     { name: "ModulesOBSWebsocketUpdate", options: {}, I: PostRequest, O: Empty },

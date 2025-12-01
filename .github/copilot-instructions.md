@@ -230,7 +230,72 @@ import { User, Mail, CheckCircle2 } from 'lucide-vue-next';
 
 ---
 
-### **6. Go (Golang) Backend**
+### **6. Dashboard Integrations Page Architecture**
+
+The integrations page uses a **unified GraphQL query** pattern to fetch all integration data in a single request, optimizing network usage and improving user experience.
+
+#### **6.1. Unified Query Pattern**
+
+* **Single Query File:** All integrations page data is fetched via a unified query in
+  `frontend/dashboard/src/api/integrations/integrations-page.ts`.
+* **Why:** This approach allows fetching data for all integrations (Discord, Spotify, LastFM,
+  Valorant, DonationAlerts, etc.) in a single GraphQL request, which is significantly more efficient
+  than making separate requests per integration.
+* **Composable:** Use `useIntegrationsPageData()` to access the unified data. It provides computed
+  refs for each integration's data.
+
+#### **6.2. Adding or Refactoring Integrations**
+
+When creating a new integration or refactoring an existing one to use GraphQL:
+
+1. **Add fields to the unified query** in `integrations-page.ts`:
+   ```typescript
+   const IntegrationsPageQuery = graphql(`
+     query IntegrationsPageData {
+       # ... existing fields ...
+
+       # New integration
+       myNewIntegrationData {
+         enabled
+         userName
+         avatar
+       }
+       myNewIntegrationAuthLink
+     }
+   `)
+   ```
+
+2. **Add computed refs** for the new integration data:
+   ```typescript
+   // MyNewIntegration
+   const myNewIntegrationData = computed(() => query.data.value?.myNewIntegrationData ?? null)
+   const myNewIntegrationAuthLink = computed(() => query.data.value?.myNewIntegrationAuthLink ?? null)
+   ```
+
+3. **Export the new computed refs** in the return statement.
+
+4. **Use the unified data in components** instead of creating separate queries:
+   ```typescript
+   const integrationsPage = useIntegrationsPageData()
+   // Access via integrationsPage.myNewIntegrationData
+   ```
+
+#### **6.3. Mutations**
+
+* Mutations (login, logout, update, etc.) should still be defined separately in dedicated files or
+  in `integrations.ts`.
+* Use `integrationsPageCacheKey` to invalidate the unified query cache after mutations:
+  ```typescript
+  const myMutation = () =>
+    useMutation(
+      graphql(`mutation MyMutation { ... }`),
+      [integrationsPageCacheKey]
+    )
+  ```
+
+---
+
+### **7. Go (Golang) Backend**
 
 * **Code Style:** Follow standard Go formatting (`gofmt`/`goimports`).
 * **Project Structure:**

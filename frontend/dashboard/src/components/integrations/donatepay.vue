@@ -3,6 +3,7 @@ import { ExternalLink, Eye, EyeOff } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
 import { useDonatepayIntegration } from '@/api/index.js'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import DonatePaySVG from '@/assets/integrations/donatepay.svg?use'
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
 import WithSettings from '@/components/integrations/variants/withSettings.vue'
@@ -15,20 +16,20 @@ function redirectToGetApiKey() {
 	window.open('https://donatepay.ru/page/api', '_blank')
 }
 
+const integrationsPage = useIntegrationsPageData()
 const manager = useDonatepayIntegration()
-const { data } = manager.useQuery()
 const { executeMutation } = manager.useUpdate()
 
 const apiKey = ref<string>('')
 const enabled = ref(true)
 const showPassword = ref(false)
 
-watch(data, (value) => {
-	if (value?.donatePayIntegration?.apiKey) {
-		apiKey.value = value.donatePayIntegration.apiKey
-		enabled.value = value.donatePayIntegration.enabled
+watch(() => integrationsPage.donatePayData.value, (value) => {
+	if (value?.apiKey) {
+		apiKey.value = value.apiKey
+		enabled.value = value.enabled
 	}
-})
+}, { immediate: true })
 
 async function save() {
 	await executeMutation({

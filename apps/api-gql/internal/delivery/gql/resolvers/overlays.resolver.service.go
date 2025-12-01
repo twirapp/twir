@@ -706,6 +706,8 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 			Kv:                r.deps.KV,
 			Logger:            r.deps.Logger,
 			SpotifyRepository: r.deps.SpotifyRepository,
+			LastfmRepository:  r.deps.LastfmRepository,
+			Config:            r.deps.Config,
 		},
 	)
 	if err != nil {

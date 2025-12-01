@@ -35,20 +35,15 @@ var History = &types.Variable{
 		result := &types.VariableHandlerResult{}
 		limit := 5
 
-		integrations := parseCtx.Cacher.GetEnabledChannelIntegrations(ctx)
-		lastFmIntegration, ok := lo.Find(
-			integrations,
-			func(integration *model.ChannelsIntegrations) bool {
-				return integration.Integration.Service == "LASTFM"
-			},
-		)
-
+		// Try to get lastfm integration from the new repository
 		var lastfmService *lastfm.Lastfm
-		if ok {
+		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		if err == nil && !lastfmIntegration.IsNil() && lastfmIntegration.Enabled && lastfmIntegration.SessionKey != nil {
 			i, err := lastfm.New(
 				lastfm.Opts{
-					Gorm:        parseCtx.Services.Gorm,
-					Integration: lastFmIntegration,
+					ApiKey:       parseCtx.Services.Config.LastFM.ApiKey,
+					ClientSecret: parseCtx.Services.Config.LastFM.ClientSecret,
+					SessionKey:   *lastfmIntegration.SessionKey,
 				},
 			)
 			if err == nil {

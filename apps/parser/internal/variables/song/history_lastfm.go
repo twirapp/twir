@@ -10,7 +10,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 )
@@ -36,22 +35,17 @@ var HistoryLastfm = &types.Variable{
 			limit = 10
 		}
 
-		enabledIntegrations := parseCtx.Cacher.GetEnabledChannelIntegrations(ctx)
-		lastfmIntegration, ok := lo.Find(
-			enabledIntegrations,
-			func(integration *model.ChannelsIntegrations) bool {
-				return integration.Integration.Service == "LASTFM"
-			},
-		)
-		if !ok {
+		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		if err != nil || lastfmIntegration.IsNil() || !lastfmIntegration.Enabled || lastfmIntegration.SessionKey == nil {
 			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.LastfmIntegration)
 			return result, nil
 		}
 
 		lastfmService, err := lastfm.New(
 			lastfm.Opts{
-				Gorm:        parseCtx.Services.Gorm,
-				Integration: lastfmIntegration,
+				ApiKey:       parseCtx.Services.Config.LastFM.ApiKey,
+				ClientSecret: parseCtx.Services.Config.LastFM.ClientSecret,
+				SessionKey:   *lastfmIntegration.SessionKey,
 			},
 		)
 		if err != nil {

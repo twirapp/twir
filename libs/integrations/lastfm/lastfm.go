@@ -4,41 +4,30 @@ import (
 	"errors"
 	"fmt"
 
-	model "github.com/twirapp/twir/libs/gomodels"
 	api "github.com/shkh/lastfm-go/lastfm"
-	"gorm.io/gorm"
 )
 
 type Opts struct {
-	Gorm        *gorm.DB
-	Integration *model.ChannelsIntegrations
+	ApiKey       string
+	ClientSecret string
+	SessionKey   string
 }
 
 type Lastfm struct {
-	gorm        *gorm.DB
-	integration *model.ChannelsIntegrations
-	api         *api.Api
-	user        *api.UserGetInfo
+	api  *api.Api
+	user *api.UserGetInfo
 }
 
 func New(opts Opts) (*Lastfm, error) {
-	if !opts.Integration.APIKey.Valid ||
-		opts.Integration.Integration == nil ||
-		!opts.Integration.Integration.ClientSecret.Valid ||
-		!opts.Integration.Integration.APIKey.Valid {
-		return nil, errors.New("integration params is not valid")
+	if opts.ApiKey == "" || opts.ClientSecret == "" || opts.SessionKey == "" {
+		return nil, errors.New("lastfm api key, client secret, and session key are required")
 	}
 
 	lfm := &Lastfm{
-		gorm:        opts.Gorm,
-		integration: opts.Integration,
-		api: api.New(
-			opts.Integration.Integration.APIKey.String,
-			opts.Integration.Integration.ClientSecret.String,
-		),
+		api: api.New(opts.ApiKey, opts.ClientSecret),
 	}
 
-	lfm.api.SetSession(opts.Integration.APIKey.String)
+	lfm.api.SetSession(opts.SessionKey)
 
 	user, err := lfm.api.User.GetInfo(map[string]interface{}{})
 	if err != nil {
