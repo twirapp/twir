@@ -3,20 +3,18 @@ import { useSpotifyIntegration } from '@/api/integrations/spotify.ts'
 import IconSpotify from '@/assets/integrations/spotify.svg?use'
 import SongDescription from '@/components/integrations/helpers/songDescription.vue'
 import OauthComponent from '@/components/integrations/variants/oauth.vue'
-import { useIntegrations } from '@/api/integrations/integrations.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 
 const manager = useSpotifyIntegration()
-
-const integrationsManager = useIntegrations()
-const { data } = integrationsManager.useQuery()
+const integrationsPage = useIntegrationsPageData()
 </script>
 
 <template>
 	<OauthComponent
 		title="Spotify"
-		:data="data?.spotifyData"
+		:data="integrationsPage.spotifyData.value"
 		:logout="() => manager.logout.executeMutation({})"
-		:authLink="data?.spotifyAuthLink"
+		:authLink="integrationsPage.spotifyAuthLink.value"
 		:icon="IconSpotify"
 	>
 		<template #description>

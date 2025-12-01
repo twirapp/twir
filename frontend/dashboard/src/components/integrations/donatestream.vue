@@ -2,6 +2,7 @@
 import { ExternalLink, Info } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import { useIntegrations } from '@/api/integrations/integrations.ts'
 import DonateStreamSVG from '@/assets/integrations/donatestream.svg?use'
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
@@ -11,13 +12,13 @@ import { Button } from '@/components/ui/button'
 import CopyInput from '@/components/ui/copy-input/CopyInput.vue'
 import { Input } from '@/components/ui/input'
 
+const integrationsPage = useIntegrationsPageData()
 const manager = useIntegrations()
-const { data } = manager.useQuery()
 const { executeMutation } = manager.donateStreamPostCode()
 
 const currentPageUrl = `${window.location.origin}/api/webhooks/integrations/donatestream`
 const webhookUrl = computed(() => {
-	return `${currentPageUrl}/${data.value?.integrationsDonateStream?.integrationId}`
+	return `${currentPageUrl}/${integrationsPage.donateStreamData.value?.integrationId}`
 })
 
 const secret = ref('')
@@ -67,7 +68,7 @@ async function saveSecret() {
 						</p>
 						<CopyInput
 							:text="webhookUrl"
-							:disabled="!data?.integrationsDonateStream?.integrationId"
+							:disabled="!integrationsPage.donateStreamData.value?.integrationId"
 							class="relative"
 						/>
 					</div>

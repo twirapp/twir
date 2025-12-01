@@ -2,20 +2,20 @@
 import IconDonationAlerts from '@/assets/integrations/donationalerts.svg?use'
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
 import OauthComponent from '@/components/integrations/variants/oauth.vue'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import { useIntegrations } from '@/api/integrations/integrations.ts'
 
+const integrationsPage = useIntegrationsPageData()
 const integrationsManager = useIntegrations()
-const { data } = integrationsManager.useQuery()
-
 const logout = integrationsManager.donationAlertsLogout()
 </script>
 
 <template>
 	<oauth-component
 		title="DonationAlerts"
-		:data="data?.donationAlerts"
+		:data="integrationsPage.donationAlertsData.value"
 		:logout="() => logout.executeMutation({})"
-		:authLink="data?.donationAlertsAuthLink"
+		:authLink="integrationsPage.donationAlertsAuthLink.value"
 		:icon="IconDonationAlerts"
 	>
 		<template #description>

@@ -1,28 +1,28 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import { useValorantIntegrationApi } from '@/api/integrations/valorant.ts'
 
 export const valorantBroadcaster = new BroadcastChannel('valorant_channel')
 
 export const useValorantIntegration = createGlobalState(() => {
-	const { useData, useLogoutMutation, usePostCodeMutation } = useValorantIntegrationApi()
-
-	const { data: integrationData, executeQuery, fetching: isDataFetching } = useData()
+	const integrationsPage = useIntegrationsPageData()
+	const { useLogoutMutation, usePostCodeMutation } = useValorantIntegrationApi()
 
 	const { executeMutation: postCodeMutation } = usePostCodeMutation()
 	const { executeMutation: logoutMutation } = useLogoutMutation()
 
 	const isEnabled = computed(() => {
-		return integrationData.value?.valorantData?.enabled ?? false
+		return integrationsPage.valorantData.value?.enabled ?? false
 	})
 
 	const userName = computed(() => {
-		return integrationData.value?.valorantData?.userName ?? null
+		return integrationsPage.valorantData.value?.userName ?? null
 	})
 
 	const avatar = computed(() => {
-		return integrationData.value?.valorantData?.avatar ?? null
+		return integrationsPage.valorantData.value?.avatar ?? null
 	})
 
 	const isConfigured = computed(() => {
@@ -30,17 +30,22 @@ export const useValorantIntegration = createGlobalState(() => {
 	})
 
 	async function refetchData() {
-		await executeQuery({ requestPolicy: 'network-only' })
+		await integrationsPage.refetch()
 	}
 
 	async function postCode(code: string) {
 		const { error } = await postCodeMutation({ code })
+		if (!error) {
+			await refetchData()
+		}
 		return error
 	}
 
 	async function logout() {
 		const { error } = await logoutMutation({})
-
+		if (!error) {
+			await refetchData()
+		}
 		return error
 	}
 
@@ -49,7 +54,7 @@ export const useValorantIntegration = createGlobalState(() => {
 	}
 
 	const authLink = computed(() => {
-		return integrationData.value?.valorantAuthLink
+		return integrationsPage.valorantAuthLink.value
 	})
 
 	return {
@@ -62,6 +67,6 @@ export const useValorantIntegration = createGlobalState(() => {
 		postCode,
 		broadcastRefresh,
 		refetchData,
-		isDataFetching: readonly(isDataFetching),
+		isDataFetching: readonly(integrationsPage.fetching),
 	}
 })

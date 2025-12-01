@@ -1,27 +1,10 @@
-import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { useMutation } from '@/composables/use-mutation.ts'
 
 import { graphql } from '@/gql'
-
-const cacheKey = 'valorantIntegrationData'
+import { integrationsPageCacheKey } from '@/api/integrations/integrations-page.ts'
 
 export const useValorantIntegrationApi = createGlobalState(() => {
-	const useData = () =>
-		useQuery({
-			query: graphql(`
-				query ValorantData {
-					valorantData {
-						enabled
-						userName
-						avatar
-					}
-					valorantAuthLink
-				}
-			`),
-			context: { additionalTypenames: [cacheKey] },
-		})
-
 	const usePostCodeMutation = () =>
 		useMutation(
 			graphql(`
@@ -29,7 +12,7 @@ export const useValorantIntegrationApi = createGlobalState(() => {
 					valorantPostCode(code: $code)
 				}
 			`),
-			[cacheKey]
+			[integrationsPageCacheKey]
 		)
 
 	const useLogoutMutation = () =>
@@ -39,11 +22,10 @@ export const useValorantIntegrationApi = createGlobalState(() => {
 					valorantLogout
 				}
 			`),
-			[cacheKey]
+			[integrationsPageCacheKey]
 		)
 
 	return {
-		useData,
 		usePostCodeMutation,
 		useLogoutMutation,
 	}

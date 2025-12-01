@@ -1,43 +1,12 @@
 import { createGlobalState } from '@vueuse/core'
-import { useQuery } from '@urql/vue'
 
 import { graphql } from '@/gql'
 import { useMutation } from '@/composables/use-mutation.ts'
-
-export const integrationsCacheKey = 'integrations'
+import { integrationsPageCacheKey, useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 
 export const useIntegrations = createGlobalState(() => {
 	const refreshBroadcaster = new BroadcastChannel('integrations_broadcast_channel')
-
-	const useData = (pause = false) =>
-		useQuery({
-			query: graphql(`
-				query Integrations {
-					donatello {
-						integrationId
-					}
-					spotifyData {
-						userName
-						avatar
-					}
-					spotifyAuthLink
-					integrationsDonateStream {
-						integrationId
-					}
-					donationAlerts {
-						enabled
-						userName
-						avatar
-					}
-					donationAlertsAuthLink
-				}
-			`),
-			context: {
-				additionalTypenames: [integrationsCacheKey],
-			},
-			variables: {},
-			pause,
-		})
+	const integrationsPage = useIntegrationsPageData()
 
 	const donateStreamPostCode = () =>
 		useMutation(
@@ -45,7 +14,8 @@ export const useIntegrations = createGlobalState(() => {
 				mutation DonateStreamPostCode($secret: String!) {
 					integrationsDonateStreamPostSecret(input: { secret: $secret })
 				}
-			`)
+			`),
+			[integrationsPageCacheKey]
 		)
 
 	const donationAlertsPostCode = () =>
@@ -55,7 +25,7 @@ export const useIntegrations = createGlobalState(() => {
 					donationAlertsPostCode(code: $code)
 				}
 			`),
-			[integrationsCacheKey]
+			[integrationsPageCacheKey]
 		)
 
 	const donationAlertsLogout = () =>
@@ -65,14 +35,12 @@ export const useIntegrations = createGlobalState(() => {
 					donationAlertsLogout
 				}
 			`),
-			[integrationsCacheKey]
+			[integrationsPageCacheKey]
 		)
-
-	const { executeQuery: refreshIntegrations } = useData(true)
 
 	refreshBroadcaster.onmessage = (event) => {
 		if (event.data !== 'refresh') return
-		refreshIntegrations({ requestPolicy: 'network-only' })
+		integrationsPage.refetch()
 	}
 
 	function broadcastRefresh() {
@@ -80,7 +48,6 @@ export const useIntegrations = createGlobalState(() => {
 	}
 
 	return {
-		useQuery: useData,
 		donateStreamPostCode,
 		donationAlertsPostCode,
 		donationAlertsLogout,

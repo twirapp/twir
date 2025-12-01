@@ -1,28 +1,28 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import { useLastfmIntegrationApi } from '@/api/integrations/lastfm.ts'
 
 export const lastfmBroadcaster = new BroadcastChannel('lastfm_channel')
 
 export const useLastfmIntegration = createGlobalState(() => {
-	const { useData, useLogoutMutation, usePostCodeMutation } = useLastfmIntegrationApi()
-
-	const { data: integrationData, executeQuery, fetching: isDataFetching } = useData()
+	const integrationsPage = useIntegrationsPageData()
+	const { useLogoutMutation, usePostCodeMutation } = useLastfmIntegrationApi()
 
 	const { executeMutation: postCodeMutation } = usePostCodeMutation()
 	const { executeMutation: logoutMutation } = useLogoutMutation()
 
 	const isEnabled = computed(() => {
-		return integrationData.value?.lastfmData?.enabled ?? false
+		return integrationsPage.lastfmData.value?.enabled ?? false
 	})
 
 	const userName = computed(() => {
-		return integrationData.value?.lastfmData?.userName ?? null
+		return integrationsPage.lastfmData.value?.userName ?? null
 	})
 
 	const avatar = computed(() => {
-		return integrationData.value?.lastfmData?.avatar ?? null
+		return integrationsPage.lastfmData.value?.avatar ?? null
 	})
 
 	const isConfigured = computed(() => {
@@ -30,17 +30,22 @@ export const useLastfmIntegration = createGlobalState(() => {
 	})
 
 	async function refetchData() {
-		await executeQuery({ requestPolicy: 'network-only' })
+		await integrationsPage.refetch()
 	}
 
 	async function postCode(code: string) {
 		const { error } = await postCodeMutation({ code })
+		if (!error) {
+			await refetchData()
+		}
 		return error
 	}
 
 	async function logout() {
 		const { error } = await logoutMutation({})
-
+		if (!error) {
+			await refetchData()
+		}
 		return error
 	}
 
@@ -49,7 +54,7 @@ export const useLastfmIntegration = createGlobalState(() => {
 	}
 
 	const authLink = computed(() => {
-		return integrationData.value?.lastfmAuthLink
+		return integrationsPage.lastfmAuthLink.value
 	})
 
 	return {
@@ -62,6 +67,6 @@ export const useLastfmIntegration = createGlobalState(() => {
 		postCode,
 		broadcastRefresh,
 		refetchData,
-		isDataFetching: readonly(isDataFetching),
+		isDataFetching: readonly(integrationsPage.fetching),
 	}
 })

@@ -1,29 +1,11 @@
-import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
 import { useMutation } from '@/composables/use-mutation.ts'
 import { graphql } from '@/gql'
+import { integrationsPageCacheKey } from '@/api/integrations/integrations-page.ts'
 
 export const useDonatepayIntegration = createGlobalState(() => {
-	const cacheKey = ['donatepay']
-
-	const data = () =>
-		useQuery({
-			query: graphql(`
-				query DonatepayIntegration {
-					donatePayIntegration {
-						apiKey
-						enabled
-					}
-				}
-			`),
-			variables: {},
-			context: {
-				additionalTypenames: cacheKey,
-			},
-		})
-
-	const update = () =>
+	const useUpdate = () =>
 		useMutation(
 			graphql(`
 				mutation UpdateDonatepayIntegration($apiKey: String!, $enabled: Boolean!) {
@@ -33,11 +15,10 @@ export const useDonatepayIntegration = createGlobalState(() => {
 					}
 				}
 			`),
-			cacheKey
+			[integrationsPageCacheKey]
 		)
 
 	return {
-		useQuery: data,
-		useUpdate: update,
+		useUpdate,
 	}
 })

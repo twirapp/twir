@@ -2,12 +2,11 @@ import { createGlobalState } from '@vueuse/core'
 
 import { useMutation } from '@/composables/use-mutation.ts'
 import { graphql } from '@/gql'
-import { integrationsCacheKey, useIntegrations } from '@/api/integrations/integrations.ts'
+import { integrationsPageCacheKey, useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 
 export const useSpotifyIntegration = createGlobalState(() => {
 	const spotifyBroadcaster = new BroadcastChannel('spotify_channel')
-	const integrationsManager = useIntegrations()
-	const { executeQuery: refreshIntegrations } = integrationsManager.useQuery()
+	const integrationsPage = useIntegrationsPageData()
 
 	const postCode = useMutation(
 		graphql(`
@@ -15,7 +14,7 @@ export const useSpotifyIntegration = createGlobalState(() => {
 				spotifyPostCode(input: $input)
 			}
 		`),
-		[integrationsCacheKey]
+		[integrationsPageCacheKey]
 	)
 
 	const logout = useMutation(
@@ -24,12 +23,12 @@ export const useSpotifyIntegration = createGlobalState(() => {
 				spotifyLogout
 			}
 		`),
-		[integrationsCacheKey]
+		[integrationsPageCacheKey]
 	)
 
 	spotifyBroadcaster.onmessage = (event) => {
 		if (event.data !== 'refresh') return
-		refreshIntegrations({ requestPolicy: 'network-only' })
+		integrationsPage.refetch()
 	}
 
 	function broadcastRefresh() {

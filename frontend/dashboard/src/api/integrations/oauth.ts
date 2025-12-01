@@ -87,16 +87,6 @@ export function createIntegrationOauth<
 	}
 }
 
-export function useLastfmIntegration() {
-	return createIntegrationOauth({
-		integrationName: 'lastfm',
-		getData: protectedApiClient.integrationsLastFMGetData,
-		getAuthLink: protectedApiClient.integrationsLastFMGetAuthLink,
-		usePostCode: protectedApiClient.integrationsLastFMPostCode,
-		useLogout: protectedApiClient.integrationsLastFMLogout,
-	})
-}
-
 export function useVKIntegration() {
 	return createIntegrationOauth({
 		integrationName: 'vk',

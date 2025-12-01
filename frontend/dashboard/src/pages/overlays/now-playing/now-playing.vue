@@ -8,12 +8,12 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import {
-	useLastfmIntegration,
 	useNowPlayingOverlayApi,
 	useProfile,
 	useUserAccessFlagChecker,
 	useVKIntegration,
 } from '@/api'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -25,7 +25,6 @@ import {
 	defaultSettings,
 	useNowPlayingForm,
 } from '@/pages/overlays/now-playing/use-now-playing-form'
-import { useIntegrations } from '@/api/integrations/integrations.ts'
 
 const { theme } = useTheme()
 const themeVars = useThemeVars()
@@ -36,16 +35,14 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 const nowPlayingOverlayManager = useNowPlayingOverlayApi()
 const creator = nowPlayingOverlayManager.useNowPlayingCreate()
 
-const integrationsManager = useIntegrations()
+const integrationsPage = useIntegrationsPageData()
 
-const { data: integrationsData } = integrationsManager.useQuery()
-const { data: lastFmData } = useLastfmIntegration().useData()
 const { data: vkData } = useVKIntegration().useData()
 
 const isSomeSongIntegrationEnabled = computed(() => {
 	return (
-		integrationsData.value?.spotifyData?.userName ||
-		lastFmData.value?.userName ||
+		integrationsPage.spotifyData.value?.userName ||
+		integrationsPage.lastfmData.value?.userName ||
 		vkData.value?.userName
 	)
 })
