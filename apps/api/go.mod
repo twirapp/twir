@@ -8,15 +8,12 @@ require (
 	github.com/bakins/twirpotel v0.2.0
 	github.com/bytedance/sonic v1.14.2
 	github.com/goccy/go-json v0.10.5
-	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/guregu/null v4.0.0+incompatible
-	github.com/lib/pq v1.10.9
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/rs/cors v1.11.1
 	github.com/samber/lo v1.52.0
-	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twirapp/twir/libs/api v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
@@ -31,7 +28,6 @@ require (
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	go.uber.org/fx v1.24.0
-	golang.org/x/sync v0.18.0
 	gorm.io/gorm v1.31.1
 )
 
@@ -66,7 +62,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jackc/pgx/v5 v5.7.6 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
@@ -98,8 +94,10 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/maypok86/otter/v2 v2.2.1 // indirect
 	github.com/nats-io/nats.go v1.47.0 // indirect
 	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
@@ -138,6 +136,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
+	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251124214823-79d6a2a48846 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251124214823-79d6a2a48846 // indirect
