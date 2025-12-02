@@ -178,11 +178,13 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 
 	if c.lastfmService != nil {
 		lastfmTrack, err := c.lastfmService.GetTrack()
-		c.logger.Error(
-			"cannot fetch lastfm track",
-			logger.Error(err),
-			slog.String("channel_id", c.channelId),
-		)
+		if err != nil {
+			c.logger.Error(
+				"cannot fetch lastfm track",
+				logger.Error(err),
+				slog.String("channel_id", c.channelId),
+			)
+		}
 
 		if lastfmTrack != nil {
 			return &Track{
