@@ -1,6 +1,12 @@
 <script lang="ts" setup>
 import Footer from './default/footer.vue'
 import Header from './default/header.vue'
+
+useHead({
+	bodyAttrs: {
+		class: 'bg-[#09090B] overflow-x-hidden',
+	},
+})
 </script>
 
 <template>
@@ -17,9 +23,5 @@ import Header from './default/header.vue'
 <style>
 html {
 	scroll-behavior: smooth;
-}
-
-body {
-	@apply bg-[#09090B] overflow-x-hidden
 }
 </style>

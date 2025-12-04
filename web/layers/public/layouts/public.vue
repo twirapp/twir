@@ -4,6 +4,12 @@ import PublicUserProfile from './public/public-user-profile.vue'
 
 import { useStreamerProfile } from '~~/layers/public/api/use-streamer-profile'
 
+useHead({
+	bodyAttrs: {
+		class: 'bg-background-main text-foreground',
+	},
+})
+
 const streamerProfile = useStreamerProfile()
 await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
 </script>
@@ -13,9 +19,14 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 		<UiSidebar collapsible="icon">
 			<UiSidebarHeader>
 				<div class="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
-					<NuxtLink to="/" class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2">
+					<NuxtLink
+						to="/"
+						class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2"
+					>
 						<TwirLogo class="size-8" />
-						<h1 class="text-2xl font-semibold group-data-[collapsible=icon]:hidden text-accent-foreground">
+						<h1
+							class="text-2xl font-semibold group-data-[collapsible=icon]:hidden text-accent-foreground"
+						>
 							Twir
 						</h1>
 					</NuxtLink>
@@ -50,11 +61,19 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 				<UiCardContent class="p-6">
 					<div class="flex flex-row flex-wrap justify-between w-full gap-4">
 						<div class="flex gap-4 flex-row flex-1">
-							<img :src="streamerProfile.profile?.twitchGetUserByName?.profileImageUrl" class="size-16 rounded-full" />
+							<img
+								:src="streamerProfile.profile?.twitchGetUserByName?.profileImageUrl"
+								class="size-16 rounded-full"
+							/>
 							<div class="flex flex-col gap-2">
-								<span class="text-4xl">{{ streamerProfile.profile?.twitchGetUserByName?.displayName }}</span>
+								<span class="text-4xl">{{
+									streamerProfile.profile?.twitchGetUserByName?.displayName
+								}}</span>
 								<span class="text-sm text-muted-foreground break-all">
-									{{ streamerProfile.publicProfile?.userPublicSettings.description || streamerProfile.profile?.twitchGetUserByName?.description }}
+									{{
+										streamerProfile.publicProfile?.userPublicSettings.description ||
+										streamerProfile.profile?.twitchGetUserByName?.description
+									}}
 								</span>
 							</div>
 						</div>
@@ -84,10 +103,3 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 		</UiSidebarInset>
 	</UiSidebarProvider>
 </template>
-
-<style>
-html,
-body {
-	@apply bg-background-main text-foreground;
-}
-</style>
