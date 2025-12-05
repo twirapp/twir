@@ -97,7 +97,10 @@ func (c *Pgx) Upsert(
 	ctx context.Context,
 	input channelsmodulesobswebsocket.UpsertInput,
 ) (obsentity.ObsWebsocketData, error) {
-	m, _ := c.GetByChannelID(ctx, input.ChannelID)
+	m, err := c.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return obsentity.NilObsWebsocket, err
+	}
 
 	setMap := map[string]any{
 		"channel_id": input.ChannelID,
