@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	gojson "github.com/goccy/go-json"
+	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	obsentity "github.com/twirapp/twir/libs/entities/obs"
+	"github.com/twirapp/twir/libs/redis_keys"
 	channelsmodulesobswebsocket "github.com/twirapp/twir/libs/repositories/channels_modules_obs_websocket"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
@@ -24,6 +28,7 @@ type Opts struct {
 	UsersRepository        users.Repository
 	Bus                    *buscore.Bus
 	Logger                 *slog.Logger
+	KV                     kv.KV
 }
 
 type Service struct {
@@ -31,6 +36,7 @@ type Service struct {
 	wsRouter               wsrouter.WsRouter
 	usersRepository        users.Repository
 	bus                    *buscore.Bus
+	kv                     kv.KV
 }
 
 func New(opts Opts) *Service {
@@ -39,6 +45,7 @@ func New(opts Opts) *Service {
 		wsRouter:               opts.WsRouter,
 		usersRepository:        opts.UsersRepository,
 		bus:                    opts.Bus,
+		kv:                     opts.KV,
 	}
 
 	opts.LC.Append(
@@ -195,6 +202,7 @@ func (s *Service) UpdateObsWebsocket(
 }
 
 // SettingsSubscriptionSignalerByApiKey subscribes to obs websocket settings changes by API key
+// This is used by the overlay to receive settings updates
 func (s *Service) SettingsSubscriptionSignalerByApiKey(
 	ctx context.Context,
 	apiKey string,
@@ -287,6 +295,25 @@ func (s *Service) UpdateFromOverlay(
 	}
 
 	return nil
+}
+
+func (s *Service) SetConnectedState(ctx context.Context, apiKey string, connected bool) error {
+	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		return fmt.Errorf("failed to get user by api key: %w", err)
+	}
+	if user.IsNil() {
+		return fmt.Errorf("user not found for provided api key")
+	}
+
+	key := redis_keys.ObsOverlayConnection(user.ID)
+
+	return s.kv.Set(ctx, key, connected, kvoptions.WithExpire(5*time.Second))
+}
+
+func (s *Service) IsConnected(ctx context.Context, channelID string) (bool, error) {
+	key := redis_keys.ObsOverlayConnection(channelID)
+	return s.kv.Get(ctx, key).Bool()
 }
 
 // CommandsSubscriptionByApiKey subscribes to OBS commands by API key

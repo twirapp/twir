@@ -10,8 +10,8 @@ import {
 } from '@/composables/obs/use-obs-graphql.js'
 import { ObsWebsocketCommandAction } from '@/gql/graphql.js'
 
-const obs = useObs()
 const route = useRoute()
+const obs = useObs()
 
 const apiKey = route.params.apiKey as string
 const settings = ref<ObsSettings | null>(null)

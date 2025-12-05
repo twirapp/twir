@@ -8,10 +8,12 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/obs_websocket_module"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // ObsWebsocketUpdate is the resolver for the obsWebsocketUpdate field.
@@ -62,6 +64,19 @@ func (r *mutationResolver) ObsWebsocketUpdateFromOverlay(
 	return true, nil
 }
 
+// ObsWebsocketSetConnected is the resolver for the obsWebsocketSetConnected field.
+func (r *mutationResolver) ObsWebsocketSetConnected(ctx context.Context, apiKey string) (
+	bool,
+	error,
+) {
+	err := r.deps.ObsWebsocketModuleService.SetConnectedState(ctx, apiKey, true)
+	if err != nil {
+		return false, fmt.Errorf("cannot set obs websocket connected state: %w", err)
+	}
+
+	return true, nil
+}
+
 // ObsWebsocketData is the resolver for the obsWebsocketData field.
 func (r *queryResolver) ObsWebsocketData(ctx context.Context) (
 	*gqlmodel.ObsWebsocketModule,
@@ -107,6 +122,16 @@ func (r *subscriptionResolver) ObsWebsocketData(
 					return
 				}
 
+				converted := mappers.MapObsWebsocketModuleDataToGql(&data)
+				isConnected, err := r.deps.ObsWebsocketModuleService.IsConnected(ctx, data.ChannelID)
+				if err != nil {
+					r.deps.Logger.Warn(
+						"failed to check obs websocket connection status",
+						logger.Error(err),
+					)
+				}
+				converted.IsConnected = isConnected
+
 				outputChan <- mappers.MapObsWebsocketModuleDataToGql(&data)
 			}
 		}
@@ -148,4 +173,41 @@ func (r *subscriptionResolver) ObsWebsocketCommands(
 	}()
 
 	return outputChan, nil
+}
+
+// ObsWebsocketIsConnected is the resolver for the obsWebsocketIsConnected field.
+func (r *subscriptionResolver) ObsWebsocketIsConnected(ctx context.Context) (<-chan bool, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	chann := make(chan bool, 1)
+
+	var latestState bool
+
+	go func() {
+		defer close(chann)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				time.Sleep(500 * time.Millisecond)
+				isConnected, _ := r.deps.ObsWebsocketModuleService.IsConnected(ctx, dashboardID)
+
+				if isConnected == latestState {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+
+				chann <- isConnected
+				latestState = isConnected
+			}
+		}
+
+	}()
+
+	return chann, nil
 }

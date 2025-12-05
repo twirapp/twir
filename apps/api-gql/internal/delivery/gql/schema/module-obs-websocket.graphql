@@ -5,11 +5,13 @@ extend type Query {
 extend type Mutation {
 	obsWebsocketUpdate(input: ObsWebsocketUpdateInput!): Boolean! @isAuthenticated
 	obsWebsocketUpdateFromOverlay(apiKey: String!, input: ObsWebsocketOverlayInput!): Boolean!
+	obsWebsocketSetConnected(apiKey: String!): Boolean!
 }
 
 extend type Subscription {
 	obsWebsocketData(apiKey: String!): ObsWebsocketModule!
 	obsWebsocketCommands(apiKey: String!): ObsWebsocketCommand!
+	obsWebsocketIsConnected: Boolean! @isAuthenticated
 }
 
 type ObsWebsocketModule {

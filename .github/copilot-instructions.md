@@ -250,36 +250,36 @@ single request, optimizing network usage and improving user experience.
 When creating a new integration or refactoring an existing one to use GraphQL:
 
 1. **Add fields to the unified query** in `integrations-page.ts`:
-	 ```typescript
-	 const IntegrationsPageQuery = graphql(`
+	 	```typescript
+		 const IntegrationsPageQuery = graphql(`
 		 query IntegrationsPageData {
-			 # ... existing fields ...
+		 # ... existing fields ...
 
-			 # New integration
-			 myNewIntegrationData {
-				 enabled
-				 userName
-				 avatar
-			 }
-			 myNewIntegrationAuthLink
-		 }
-	 `)
-	 ```
+												# New integration
+												myNewIntegrationData {
+													enabled
+													userName
+													avatar
+												}
+												myNewIntegrationAuthLink
+											}
+										`)
+										```
 
 2. **Add computed refs** for the new integration data:
-	 ```typescript
-	 // MyNewIntegration
-	 const myNewIntegrationData = computed(() => query.data.value?.myNewIntegrationData ?? null)
-	 const myNewIntegrationAuthLink = computed(() => query.data.value?.myNewIntegrationAuthLink ?? null)
-	 ```
+	 	```typescript
+		 // MyNewIntegration
+		 const myNewIntegrationData = computed(() => query.data.value?.myNewIntegrationData ?? null)
+		 const myNewIntegrationAuthLink = computed(() => query.data.value?.myNewIntegrationAuthLink ?? null)
+		 ```
 
 3. **Export the new computed refs** in the return statement.
 
 4. **Use the unified data in components** instead of creating separate queries:
-	 ```typescript
-	 const integrationsPage = useIntegrationsPageData()
-	 // Access via integrationsPage.myNewIntegrationData
-	 ```
+	 	```typescript
+		 const integrationsPage = useIntegrationsPageData()
+		 // Access via integrationsPage.myNewIntegrationData
+		 ```
 
 #### **6.3. Mutations**
 
@@ -297,6 +297,10 @@ When creating a new integration or refactoring an existing one to use GraphQL:
 ---
 
 ### **7. Go (Golang) Backend**
+
+* **Migrations**
+	* If need to create new database migration for your task, use:
+	* command `bun cli m create --name value --db postgres|clickhouse--type sql|go`
 
 * **Code Style:** Follow standard Go formatting (`gofmt`/`goimports`).
 * **Project Structure:**

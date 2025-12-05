@@ -1,5 +1,5 @@
 import { useMutation, useSubscription } from '@urql/vue'
-import { computed, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 
 import type { ObsWebsocketCommandAction } from '@/gql/graphql'
 
@@ -23,9 +23,13 @@ type Options = {
 	onCommand: (command: ObsCommand) => void
 }
 
+// Heartbeat interval in milliseconds (should be less than Redis TTL of 5 seconds)
+const HEARTBEAT_INTERVAL = 1000
+
 export function useObsOverlayGraphQL(options: Options) {
 	const apiKey = ref<string>('')
 	const paused = computed(() => !apiKey.value)
+	let heartbeatInterval: ReturnType<typeof setInterval> | null = null
 
 	// Subscribe to settings updates
 	const {
@@ -87,9 +91,50 @@ export function useObsOverlayGraphQL(options: Options) {
 		`)
 	)
 
+	// Mutation to set connected state
+	const setConnectedMutation = useMutation(
+		graphql(`
+			mutation ObsWebsocketSetConnected($apiKey: String!) {
+				obsWebsocketSetConnected(apiKey: $apiKey)
+			}
+		`)
+	)
+
+	// Send heartbeat to keep connection status alive
+	async function sendHeartbeat() {
+		if (!apiKey.value) return
+		try {
+			await setConnectedMutation.executeMutation({ apiKey: apiKey.value })
+		} catch (error) {
+			console.error('Failed to send OBS connection heartbeat:', error)
+		}
+	}
+
+	function startHeartbeat() {
+		// Send initial heartbeat
+		sendHeartbeat()
+		// Start periodic heartbeat
+		heartbeatInterval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL)
+	}
+
+	function stopHeartbeat() {
+		if (heartbeatInterval) {
+			clearInterval(heartbeatInterval)
+			heartbeatInterval = null
+		}
+	}
+
 	// Watch for settings updates
-	watch(settingsData, (data) => {
+	watch(settingsData, (data, oldValue) => {
 		if (!data?.obsWebsocketData) return
+
+		if (
+			data.obsWebsocketData.serverAddress === oldValue?.obsWebsocketData.serverAddress &&
+			data.obsWebsocketData.serverPort === oldValue?.obsWebsocketData.serverPort &&
+			data.obsWebsocketData.serverPassword === oldValue?.obsWebsocketData.serverPassword
+		) {
+			return
+		}
 
 		const settings = data.obsWebsocketData
 		options.onSettings({
@@ -113,6 +158,7 @@ export function useObsOverlayGraphQL(options: Options) {
 	})
 
 	function destroy() {
+		stopHeartbeat()
 		pauseSettings()
 		pauseCommands()
 	}
@@ -121,6 +167,7 @@ export function useObsOverlayGraphQL(options: Options) {
 		apiKey.value = key
 		connectSettings()
 		connectCommands()
+		// Note: heartbeat should be started manually after OBS connection is established
 	}
 
 	async function updateSources(input: {
@@ -134,10 +181,17 @@ export function useObsOverlayGraphQL(options: Options) {
 		})
 	}
 
+	// Cleanup on unmount
+	onUnmounted(() => {
+		stopHeartbeat()
+	})
+
 	return {
 		connect,
 		destroy,
 		updateSources,
 		settingsData,
+		startHeartbeat,
+		stopHeartbeat,
 	}
 }
