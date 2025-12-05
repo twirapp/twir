@@ -524,12 +524,24 @@
 			}
 		},
 		"obs": {
+			"title": "OBS WebSocket",
 			"description": "Цей оверлей використовується для зв’язку Twir з OBS. Він надає можливість боту управляти вашими джерелами, сценами та аудіо-джерелами за допомогою подій.",
 			"address": "Адреса сервера OBS WebSocket",
+			"addressDescription": "Usually it's localhost, but you can connect to remote servers.",
 			"port": "Порт сервера OBS WebSocket",
-			"connected": "З’єднано!",
-			"notConnected": "Не з’єднано!",
-			"checkConnection": "Перевірте з’єднання"
+			"password": "Password",
+			"passwordDescription": "Ensure the password matches, as many users misconfigure it.",
+			"connected": "Connected",
+			"notConnected": "Not Connected",
+			"checkConnection": "Перевірте з’єднання",
+			"settingsSavedHint": "Settings saved, now you can paste overlay link into OBS",
+			"connectionInfo": "Connection Info",
+			"scenesCount": "Scenes",
+			"sourcesCount": "Sources",
+			"audioSourcesCount": "Audio Sources",
+			"tabs": {
+				"settings": "Settings"
+			}
 		},
 		"alerts": {
 			"description": "Цей оверлей використовується для відтворення налаштованих сповіщень."
