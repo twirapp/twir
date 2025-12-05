@@ -7,7 +7,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/integrations"
-	"github.com/twirapp/twir/apps/api/internal/impl_protected/modules"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/overlays"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/twitch"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -23,7 +22,6 @@ import (
 
 type Protected struct {
 	*integrations.Integrations
-	*modules.Modules
 	*twitch.Twitch
 	*overlays.Overlays
 }
@@ -63,7 +61,6 @@ func New(opts Opts) *Protected {
 
 	return &Protected{
 		Integrations: &integrations.Integrations{Deps: d},
-		Modules:      &modules.Modules{Deps: d},
 		Twitch:       &twitch.Twitch{Deps: d},
 		Overlays:     &overlays.Overlays{Deps: d},
 	}

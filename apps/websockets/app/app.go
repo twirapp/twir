@@ -9,7 +9,6 @@ import (
 	"github.com/twirapp/twir/apps/websockets/internal/grpc_impl"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
-	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/youtube"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -39,7 +38,6 @@ var App = fx.Module(
 			alertsrepositorypgx.NewFx,
 			fx.As(new(alertsrepository.Repository)),
 		),
-		obs.NewObs,
 		youtube.NewYouTube,
 		alerts.NewAlerts,
 		channelalertscache.New,

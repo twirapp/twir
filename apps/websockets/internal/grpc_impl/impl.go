@@ -9,7 +9,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
-	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/youtube"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -25,7 +24,6 @@ import (
 
 type Sockets struct {
 	YouTube          *youtube.YouTube
-	OBS              *obs.OBS
 	Alerts           *alerts.Alerts
 	OverlaysRegistry *overlays.Registry
 }
@@ -38,7 +36,6 @@ type GrpcImpl struct {
 	logger *slog.Logger
 
 	youTubeServer          *youtube.YouTube
-	obsServer              *obs.OBS
 	alertsServer           *alerts.Alerts
 	overlaysRegistryServer *overlays.Registry
 	dudesServer            *dudes.Dudes
@@ -54,7 +51,6 @@ type GrpcOpts struct {
 	Logger *slog.Logger
 
 	YouTubeServer          *youtube.YouTube
-	OBSServer              *obs.OBS
 	AlertsServer           *alerts.Alerts
 	OverlaysRegistryServer *overlays.Registry
 	DudesServer            *dudes.Dudes
@@ -67,7 +63,6 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		redis:                  opts.Redis,
 		logger:                 opts.Logger,
 		youTubeServer:          opts.YouTubeServer,
-		obsServer:              opts.OBSServer,
 		alertsServer:           opts.AlertsServer,
 		overlaysRegistryServer: opts.OverlaysRegistryServer,
 		dudesServer:            opts.DudesServer,

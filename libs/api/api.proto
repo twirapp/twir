@@ -10,7 +10,6 @@ import "messages/integrations_faceit/integrations_faceit.proto";
 import "messages/integrations_streamlabs/integrations_streamlabs.proto";
 import "messages/integrations_vk/integrations_vk.proto";
 
-import "messages/modules_obs_websocket/modules_obs_websocket.proto";
 import "messages/modules_tts/modules_tts.proto";
 
 import "messages/twitch_protected/twitch_protected.proto";
@@ -32,9 +31,6 @@ service Protected {
 	rpc IntegrationsVKGetData(google.protobuf.Empty) returns (messages.integrations_vk.GetDataResponse) {}
 	rpc IntegrationsVKPostCode(messages.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (messages.modules_obs_websocket.GetResponse) {}
-	rpc ModulesOBSWebsocketUpdate(messages.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
 
 	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
