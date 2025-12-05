@@ -116,7 +116,7 @@ func (r *subscriptionResolver) ObsWebsocketData(ctx context.Context, apiKey stri
 				}
 				converted.IsConnected = isConnected
 
-				outputChan <- mappers.MapObsWebsocketModuleDataToGql(&data)
+				outputChan <- converted
 			}
 		}
 	}()
