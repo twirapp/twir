@@ -1,0 +1,55 @@
+extend type Query {
+	obsWebsocketData: ObsWebsocketModule @isAuthenticated
+}
+
+extend type Mutation {
+	obsWebsocketUpdate(input: ObsWebsocketUpdateInput!): Boolean! @isAuthenticated
+	obsWebsocketUpdateFromOverlay(apiKey: String!, input: ObsWebsocketOverlayInput!): Boolean!
+}
+
+extend type Subscription {
+	obsWebsocketData(apiKey: String!): ObsWebsocketModule!
+	obsWebsocketCommands(apiKey: String!): ObsWebsocketCommand!
+}
+
+type ObsWebsocketModule {
+	serverPort: Int!
+	serverAddress: String!
+	serverPassword: String!
+	sources: [String!]!
+	audioSources: [String!]!
+	scenes: [String!]!
+	isConnected: Boolean!
+}
+
+type ObsWebsocketCommand {
+	action: ObsWebsocketCommandAction!
+	target: String!
+	volumeValue: Int
+	volumeStep: Int
+}
+
+enum ObsWebsocketCommandAction {
+	SET_SCENE
+	TOGGLE_SOURCE
+	TOGGLE_AUDIO
+	SET_VOLUME
+	INCREASE_VOLUME
+	DECREASE_VOLUME
+	ENABLE_AUDIO
+	DISABLE_AUDIO
+	START_STREAM
+	STOP_STREAM
+}
+
+input ObsWebsocketUpdateInput {
+	serverPort: Int!
+	serverAddress: String!
+	serverPassword: String!
+}
+
+input ObsWebsocketOverlayInput {
+	scenes: [String!]!
+	sources: [String!]!
+	audioSources: [String!]!
+}

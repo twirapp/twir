@@ -13,6 +13,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/twirapp/twir/apps/websockets/types"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -133,4 +134,79 @@ func (c *OBS) SendEvent(userId, eventName string, data any) error {
 	}
 
 	return nil
+}
+
+// HandleObsCommand handles OBS commands from bus and routes to appropriate websocket events
+func (c *OBS) HandleObsCommand(cmd api.TriggerObsCommand) error {
+	var eventData any
+
+	switch cmd.Action {
+	case api.ObsCommandActionSetScene:
+		eventData = map[string]string{
+			"channelId": cmd.ChannelId,
+			"sceneName": cmd.Target,
+		}
+	case api.ObsCommandActionToggleSource:
+		eventData = map[string]string{
+			"channelId":  cmd.ChannelId,
+			"sourceName": cmd.Target,
+		}
+	case api.ObsCommandActionToggleAudio:
+		eventData = map[string]string{
+			"channelId":       cmd.ChannelId,
+			"audioSourceName": cmd.Target,
+		}
+	case api.ObsCommandActionSetVolume:
+		volume := 0
+		if cmd.VolumeValue != nil {
+			volume = *cmd.VolumeValue
+		}
+		eventData = map[string]any{
+			"channelId":       cmd.ChannelId,
+			"audioSourceName": cmd.Target,
+			"volume":          volume,
+		}
+	case api.ObsCommandActionIncreaseVolume:
+		step := 1
+		if cmd.VolumeStep != nil {
+			step = *cmd.VolumeStep
+		}
+		eventData = map[string]any{
+			"channelId":       cmd.ChannelId,
+			"audioSourceName": cmd.Target,
+			"step":            step,
+		}
+	case api.ObsCommandActionDecreaseVolume:
+		step := 1
+		if cmd.VolumeStep != nil {
+			step = *cmd.VolumeStep
+		}
+		eventData = map[string]any{
+			"channelId":       cmd.ChannelId,
+			"audioSourceName": cmd.Target,
+			"step":            step,
+		}
+	case api.ObsCommandActionEnableAudio:
+		eventData = map[string]string{
+			"channelId":       cmd.ChannelId,
+			"audioSourceName": cmd.Target,
+		}
+	case api.ObsCommandActionDisableAudio:
+		eventData = map[string]string{
+			"channelId":       cmd.ChannelId,
+			"audioSourceName": cmd.Target,
+		}
+	case api.ObsCommandActionStartStream:
+		eventData = map[string]string{
+			"channelId": cmd.ChannelId,
+		}
+	case api.ObsCommandActionStopStream:
+		eventData = map[string]string{
+			"channelId": cmd.ChannelId,
+		}
+	default:
+		return nil
+	}
+
+	return c.SendEvent(cmd.ChannelId, string(cmd.Action), eventData)
 }

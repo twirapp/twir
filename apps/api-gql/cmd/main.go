@@ -60,6 +60,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	lastfmintegration "github.com/twirapp/twir/apps/api-gql/internal/services/lastfm_integration"
 	nightbotintegration "github.com/twirapp/twir/apps/api-gql/internal/services/nightbot_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/obs_websocket_module"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
@@ -117,6 +118,8 @@ import (
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	channelsintegrationsvalorant "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant"
 	channelsintegrationsvalorantpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant/datasources/postgres"
+	channelsmodulesobswebsocket "github.com/twirapp/twir/libs/repositories/channels_modules_obs_websocket"
+	channelsmodulesobswebsocketpgx "github.com/twirapp/twir/libs/repositories/channels_modules_obs_websocket/datasources/postgres"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -416,6 +419,10 @@ func main() {
 				channelsintegrationslastfmpostgres.NewFx,
 				fx.As(new(channelsintegrationslastfm.Repository)),
 			),
+			fx.Annotate(
+				channelsmodulesobswebsocketpgx.NewFx,
+				fx.As(new(channelsmodulesobswebsocket.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -470,6 +477,7 @@ func main() {
 			nightbotintegration.New,
 			discord_integration.New,
 			lastfmintegration.New,
+			obs_websocket_module.New,
 		),
 		fx.Provide(
 			toxic_messages.New,

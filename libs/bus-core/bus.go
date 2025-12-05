@@ -548,6 +548,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				time.Second,
 				GobEncoder,
 			),
+			TriggerObsCommand: NewNatsQueue[api.TriggerObsCommand, struct{}](
+				nc,
+				api.TriggerObsCommandSubject,
+				time.Second,
+				GobEncoder,
+			),
 		},
 
 		CacheInvalidator: NewNatsQueue[cache_invalidator.InvalidateRequest, struct{}](

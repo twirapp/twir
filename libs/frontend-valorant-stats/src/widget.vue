@@ -211,7 +211,7 @@ const rankSrc = computed(() => {
 		</div>
 		<div v-else class="flex flex-col gap-1">
 			<div
-				class="minimal-style flex min-h-[50px] w-full min-[310px]:flex-row flex-col items-center justify-between gap-3 rounded-lg bg-black/90 px-3 py-1 overflow-hidden border-[2px] border-white/10 h-fit"
+				class="minimal-style flex min-h-[50px] w-full min-[310px]:flex-row flex-col items-center justify-between gap-3 rounded-lg bg-black/90 px-3 py-1 overflow-hidden border-2 border-white/10 h-fit"
 				:style="{
 					backgroundColor: settings.backgroundColor,
 				}"
@@ -238,7 +238,7 @@ const rankSrc = computed(() => {
 						</span>
 					</div>
 					<div
-						class="font-bold text-[var(--primary-text-color)] uppercase"
+						class="font-bold text-(--primary-text-color) uppercase"
 						:class="{
 							'drop-shadow-[0px_0px_6px_var(--primary-text-color)]': !settings.disabledGlowEffect,
 						}"
@@ -251,7 +251,7 @@ const rankSrc = computed(() => {
 						v-if="
 							stats.mmr.current.leaderboard_placement.rank && !settings.disabledLeaderboardPlace
 						"
-						class="inline-flex items-center gap-1 font-bold text-[var(--primary-text-color)] uppercase"
+						class="inline-flex items-center gap-1 font-bold text-(--primary-text-color) uppercase"
 						:class="{
 							'drop-shadow-[0px_0px_6px_var(--primary-text-color)]': !settings.disabledGlowEffect,
 						}"
@@ -260,14 +260,14 @@ const rankSrc = computed(() => {
 						#{{ stats.mmr.current.leaderboard_placement.rank }}
 					</span>
 					<span
-						class="inline-flex items-center gap-1 font-bold text-[var(--win-color)]"
+						class="inline-flex items-center gap-1 font-bold text-(--win-color)"
 						:class="{ 'drop-shadow-[0px_0px_6px_var(--win-color)]': !settings.disabledGlowEffect }"
 					>
 						<ArrowUp />
 						{{ wins }}
 					</span>
 					<span
-						class="inline-flex items-center gap-1 font-bold text-[var(--lose-color)]"
+						class="inline-flex items-center gap-1 font-bold text-(--lose-color)"
 						:class="{ 'drop-shadow-[0px_0px_6px_var(--lose-color)]': !settings.disabledGlowEffect }"
 					>
 						<ArrowDown />
@@ -282,9 +282,9 @@ const rankSrc = computed(() => {
 								!settings.disabledGlowEffect && stats.mmr.current.last_change < 0,
 							'drop-shadow-[0px_0px_6px_var(--primary-text-color)]':
 								!settings.disabledGlowEffect && stats.mmr.current.last_change === 0,
-							'text-[var(--win-color)]': stats.mmr.current.last_change > 0,
-							'text-[var(--lose-color)]': stats.mmr.current.last_change < 0,
-							'text-[var(--primary-text-color)]': stats.mmr.current.last_change === 0,
+							'text-(--win-color)': stats.mmr.current.last_change > 0,
+							'text-(--lose-color)': stats.mmr.current.last_change < 0,
+							'text-(--primary-text-color)': stats.mmr.current.last_change === 0,
 						}"
 					>
 						<TrendingUp v-if="stats.mmr.current.last_change > 0" />
@@ -297,7 +297,7 @@ const rankSrc = computed(() => {
 
 			<div
 				v-if="!settings.disabledTwentyLastMatches"
-				class="minimal-style flex min-h-[50px] w-full flex-col items-center justify-between rounded-lg bg-black/90 px-3 py-1 text-[var(--primary-text-color)] uppercase overflow-hidden border-[2px] border-white/10 h-fit"
+				class="minimal-style flex min-h-[50px] w-full flex-col items-center justify-between rounded-lg bg-black/90 px-3 py-1 text-(--primary-text-color) uppercase overflow-hidden border-2 border-white/10 h-fit"
 				:style="{
 					backgroundColor: settings.backgroundColor,
 				}"
