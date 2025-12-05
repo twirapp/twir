@@ -15,8 +15,9 @@ const obs = useObs()
 
 const apiKey = route.params.apiKey as string
 const settings = ref<ObsSettings | null>(null)
+const isObsConnected = ref(false)
 
-const { connect, destroy, updateSources } = useObsOverlayGraphQL({
+const { connect, destroy, updateSources, startHeartbeat, stopHeartbeat } = useObsOverlayGraphQL({
 	onSettings: async (newSettings) => {
 		settings.value = newSettings
 		await handleSettingsChange(newSettings)
@@ -69,6 +70,9 @@ function handleCommand(command: ObsCommand) {
 
 async function handleSettingsChange(newSettings: ObsSettings) {
 	if (!newSettings.serverAddress || !newSettings.serverPort || !newSettings.serverPassword) {
+		// Stop heartbeat and disconnect if settings are invalid
+		stopHeartbeat()
+		isObsConnected.value = false
 		await obs.disconnect()
 		return
 	}
@@ -76,6 +80,10 @@ async function handleSettingsChange(newSettings: ObsSettings) {
 	try {
 		await obs.connect(newSettings.serverAddress, newSettings.serverPort, newSettings.serverPassword)
 		console.log('Twir OBS WebSocket connected')
+		isObsConnected.value = true
+
+		// Start heartbeat only after successful OBS connection
+		startHeartbeat()
 
 		// Send initial data after connect
 		await sendObsData()
@@ -84,6 +92,8 @@ async function handleSettingsChange(newSettings: ObsSettings) {
 		setupObsListeners()
 	} catch (error) {
 		console.error('Failed to connect to OBS:', error)
+		isObsConnected.value = false
+		stopHeartbeat()
 	}
 }
 
@@ -110,6 +120,13 @@ function setupObsListeners() {
 	const updateHandler = async () => {
 		await sendObsData()
 	}
+
+	// Handle OBS disconnect
+	obs.instance.value.on('ConnectionClosed', () => {
+		console.log('OBS WebSocket disconnected')
+		isObsConnected.value = false
+		stopHeartbeat()
+	})
 
 	obs.instance.value
 		.on('SceneListChanged', updateHandler)

@@ -228,7 +228,9 @@ func (s *Service) SettingsSubscriptionSignalerByApiKey(
 		return nil, fmt.Errorf("failed to get obs websocket data: %w", err)
 	}
 
-	chann <- *initialSettings
+	if initialSettings != nil {
+		chann <- *initialSettings
+	}
 
 	go func() {
 		defer func() {
