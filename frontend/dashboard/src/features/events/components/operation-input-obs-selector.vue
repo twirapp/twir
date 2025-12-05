@@ -28,11 +28,17 @@ const { value: currentOperation } = useField<Omit<EventOperation, 'id'> | undefi
 
 const { t } = useI18n()
 const obsApi = useObsWebsocketApi()
-const { data: obsData } = obsApi.useQueryObsWebsocket()
+const { data: queryData } = obsApi.useQueryObsWebsocket()
+const { data: subscriptionData } = obsApi.useSubscriptionObsData()
+
+// Use subscription data for realtime updates, fallback to query data
+const obsData = computed(() => {
+	return subscriptionData.value?.obsWebsocketData ?? queryData.value?.obsWebsocketData
+})
 
 const obsScenes = computed(() => {
 	return (
-		obsData.value?.obsWebsocketData?.scenes?.map((s: string) => ({
+		obsData.value?.scenes?.map((s: string) => ({
 			value: s,
 			label: s,
 		})) ?? []
@@ -41,7 +47,7 @@ const obsScenes = computed(() => {
 
 const obsSources = computed(() => {
 	return (
-		obsData.value?.obsWebsocketData?.sources?.map((s: string) => ({
+		obsData.value?.sources?.map((s: string) => ({
 			value: s,
 			label: s,
 		})) ?? []
@@ -50,7 +56,7 @@ const obsSources = computed(() => {
 
 const obsAudioSources = computed(() => {
 	return (
-		obsData.value?.obsWebsocketData?.audioSources?.map((s: string) => ({
+		obsData.value?.audioSources?.map((s: string) => ({
 			value: s,
 			label: s,
 		})) ?? []
