@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
@@ -17,11 +17,9 @@ func (c *Activity) ObsSetScene(
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
-
 	if operation.Input == nil || *operation.Input == "" {
 		return errors.New("input is required for operation ObsSetScene")
 	}
-
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		*operation.Input,
@@ -33,32 +31,28 @@ func (c *Activity) ObsSetScene(
 	if hydratedString == "" {
 		return nil
 	}
-
-	_, err := c.websocketsGrpc.ObsSetScene(
+	err := c.bus.Api.TriggerObsCommand.Publish(
 		ctx,
-		&websockets.ObsSetSceneMessage{
+		api.TriggerObsCommand{
 			ChannelId: data.ChannelID,
-			SceneName: hydratedString,
+			Action:    api.ObsCommandActionSetScene,
+			Target:    hydratedString,
 		},
 	)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
-
 func (c *Activity) ObsToggleSource(
 	ctx context.Context,
 	operation model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
-
 	if operation.Target == nil || *operation.Target == "" {
 		return errors.New("target is required for operation ObsToggleSource")
 	}
-
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		*operation.Target,
@@ -70,21 +64,19 @@ func (c *Activity) ObsToggleSource(
 	if hydratedString == "" {
 		return nil
 	}
-
-	_, err := c.websocketsGrpc.ObsToggleSource(
+	err := c.bus.Api.TriggerObsCommand.Publish(
 		ctx,
-		&websockets.ObsToggleSourceMessage{
-			ChannelId:  data.ChannelID,
-			SourceName: hydratedString,
+		api.TriggerObsCommand{
+			ChannelId: data.ChannelID,
+			Action:    api.ObsCommandActionToggleSource,
+			Target:    hydratedString,
 		},
 	)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
-
 func (c *Activity) ObsToggleAudio(
 	ctx context.Context,
 	operation model.EventOperation,
@@ -93,7 +85,6 @@ func (c *Activity) ObsToggleAudio(
 	if operation.Target == nil || *operation.Target == "" {
 		return errors.New("target is required for operation ObsToggleAudio")
 	}
-
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		*operation.Target,
@@ -105,31 +96,28 @@ func (c *Activity) ObsToggleAudio(
 	if hydratedString == "" {
 		return nil
 	}
-
-	_, err := c.websocketsGrpc.ObsToggleAudio(
-		context.Background(), &websockets.ObsToggleAudioMessage{
-			ChannelId:       data.ChannelID,
-			AudioSourceName: hydratedString,
+	err := c.bus.Api.TriggerObsCommand.Publish(
+		ctx,
+		api.TriggerObsCommand{
+			ChannelId: data.ChannelID,
+			Action:    api.ObsCommandActionToggleAudio,
+			Target:    hydratedString,
 		},
 	)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
-
 func (c *Activity) ObsAudioChangeVolume(
 	ctx context.Context,
 	operation model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
-
 	if operation.Target == nil || *operation.Target == "" {
 		return errors.New("target is required for operation ObsAudioChangeVolume")
 	}
-
 	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Target, data)
 	if err != nil {
 		return err
@@ -137,55 +125,42 @@ func (c *Activity) ObsAudioChangeVolume(
 	if msg == "" {
 		return nil
 	}
-
 	parsedStep, err := strconv.Atoi(msg)
 	if err != nil {
 		return err
 	}
-
 	if parsedStep < 0 || parsedStep > 20 {
 		return errors.New("step must be between 0 and 20")
 	}
-
+	var action api.ObsCommandAction
 	if operation.Type == model.EventOperationTypeObsIncreaseAudioVolume {
-		_, err = c.websocketsGrpc.ObsAudioIncreaseVolume(
-			ctx,
-			&websockets.ObsAudioIncreaseVolumeMessage{
-				ChannelId:       data.ChannelID,
-				AudioSourceName: *operation.Target,
-				Step:            uint32(parsedStep),
-			},
-		)
-		if err != nil {
-			return err
-		}
+		action = api.ObsCommandActionIncreaseVolume
 	} else {
-		_, err = c.websocketsGrpc.ObsAudioDecreaseVolume(
-			context.Background(), &websockets.ObsAudioDecreaseVolumeMessage{
-				ChannelId:       data.ChannelID,
-				AudioSourceName: *operation.Target,
-				Step:            uint32(parsedStep),
-			},
-		)
-		if err != nil {
-			return err
-		}
+		action = api.ObsCommandActionDecreaseVolume
 	}
-
+	err = c.bus.Api.TriggerObsCommand.Publish(
+		ctx,
+		api.TriggerObsCommand{
+			ChannelId:  data.ChannelID,
+			Action:     action,
+			Target:     *operation.Target,
+			VolumeStep: &parsedStep,
+		},
+	)
+	if err != nil {
+		return err
+	}
 	return nil
 }
-
 func (c *Activity) ObsAudioSetVolume(
 	ctx context.Context,
 	operation model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
-
 	if operation.Target == nil || *operation.Target == "" {
 		return errors.New("target is required for operation ObsAudioSetVolume")
 	}
-
 	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Target, data)
 	if err != nil {
 		return err
@@ -193,101 +168,76 @@ func (c *Activity) ObsAudioSetVolume(
 	if msg == "" {
 		return nil
 	}
-
 	parsedVolume, err := strconv.Atoi(msg)
 	if err != nil {
 		return err
 	}
-
 	if parsedVolume < 0 || parsedVolume > 20 {
 		return errors.New("volume must be between 0 and 20")
 	}
-
-	_, err = c.websocketsGrpc.ObsAudioSetVolume(
+	err = c.bus.Api.TriggerObsCommand.Publish(
 		ctx,
-		&websockets.ObsAudioSetVolumeMessage{
-			ChannelId:       data.ChannelID,
-			AudioSourceName: *operation.Target,
-			Volume:          uint32(parsedVolume),
+		api.TriggerObsCommand{
+			ChannelId:   data.ChannelID,
+			Action:      api.ObsCommandActionSetVolume,
+			Target:      *operation.Target,
+			VolumeValue: &parsedVolume,
 		},
 	)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
-
 func (c *Activity) ObsEnableOrDisableAudio(
 	ctx context.Context,
 	operation model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
-
 	if operation.Target == nil || *operation.Target == "" {
 		return errors.New("target is required for operation ObsEnableOrDisableAudio")
 	}
-
+	var action api.ObsCommandAction
 	if operation.Type == model.EventOperationTypeObsDisableAudio {
-		_, err := c.websocketsGrpc.ObsAudioDisable(
-			ctx,
-			&websockets.ObsAudioDisableOrEnableMessage{
-				ChannelId:       data.ChannelID,
-				AudioSourceName: *operation.Target,
-			},
-		)
-		if err != nil {
-			return err
-		}
+		action = api.ObsCommandActionDisableAudio
+	} else {
+		action = api.ObsCommandActionEnableAudio
 	}
-
-	if operation.Type == model.EventOperationTypeObsEnableAudio {
-		_, err := c.websocketsGrpc.ObsAudioEnable(
-			ctx,
-			&websockets.ObsAudioDisableOrEnableMessage{
-				ChannelId:       data.ChannelID,
-				AudioSourceName: *operation.Target,
-			},
-		)
-		if err != nil {
-			return err
-		}
+	err := c.bus.Api.TriggerObsCommand.Publish(
+		ctx,
+		api.TriggerObsCommand{
+			ChannelId: data.ChannelID,
+			Action:    action,
+			Target:    *operation.Target,
+		},
+	)
+	if err != nil {
+		return err
 	}
-
 	return nil
 }
-
 func (c *Activity) ObsStartOrStopStream(
 	ctx context.Context,
 	operation model.EventOperation,
 	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
-
+	var action api.ObsCommandAction
 	if operation.Type == model.EventOperationTypeObsStartStream {
-		_, err := c.websocketsGrpc.ObsStartStream(
-			ctx,
-			&websockets.ObsStopOrStartStream{
-				ChannelId: data.ChannelID,
-			},
-		)
-		if err != nil {
-			return err
-		}
+		action = api.ObsCommandActionStartStream
+	} else {
+		action = api.ObsCommandActionStopStream
 	}
-
-	if operation.Type == model.EventOperationTypeObsStopStream {
-		_, err := c.websocketsGrpc.ObsStopStream(
-			ctx,
-			&websockets.ObsStopOrStartStream{
-				ChannelId: data.ChannelID,
-			},
-		)
-		if err != nil {
-			return err
-		}
+	err := c.bus.Api.TriggerObsCommand.Publish(
+		ctx,
+		api.TriggerObsCommand{
+			ChannelId: data.ChannelID,
+			Action:    action,
+		},
+	)
+	if err != nil {
+		return err
 	}
-
 	return nil
 }

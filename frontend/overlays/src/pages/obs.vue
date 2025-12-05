@@ -1,122 +1,151 @@
 <script lang="ts" setup>
-import { useWebSocket } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useObs } from '@/composables/obs/use-obs.js'
-import { generateSocketUrlWithParams } from '@/helpers.js'
+import {
+	type ObsCommand,
+	type ObsSettings,
+	useObsOverlayGraphQL,
+} from '@/composables/obs/use-obs-graphql.js'
+import { ObsWebsocketCommandAction } from '@/gql/graphql.js'
 
-const obs = useObs()
 const route = useRoute()
+const obs = useObs()
 
 const apiKey = route.params.apiKey as string
-const obsUrl = generateSocketUrlWithParams('/overlays/obs', {
-	apiKey,
+const settings = ref<ObsSettings | null>(null)
+const isObsConnected = ref(false)
+
+const { connect, destroy, updateSources, startHeartbeat, stopHeartbeat } = useObsOverlayGraphQL({
+	onSettings: async (newSettings) => {
+		settings.value = newSettings
+		await handleSettingsChange(newSettings)
+	},
+	onCommand: (command) => {
+		handleCommand(command)
+	},
 })
 
-const internalSocket = useWebSocket(obsUrl, {
-	immediate: true,
-	autoReconnect: {
-		delay: 500,
-	},
-	onConnected(ws) {
-		ws.send(JSON.stringify({ eventName: 'requestSettings' }))
-	},
-})
-
-const settings = ref<Record<string, any> | null>(null)
-
-watch(internalSocket.data, (message) => {
-	const { eventName, data } = JSON.parse(message)
-
-	switch (eventName) {
-		case 'settings':
-			settings.value = data
+function handleCommand(command: ObsCommand) {
+	switch (command.action) {
+		case ObsWebsocketCommandAction.SetScene:
+			obs.setScene(command.target)
 			break
-		case 'setScene':
-			obs.setScene(data.sceneName)
+		case ObsWebsocketCommandAction.ToggleSource:
+			obs.toggleSource(command.target)
 			break
-		case 'toggleSource':
-			obs.toggleSource(data.sourceName)
+		case ObsWebsocketCommandAction.ToggleAudio:
+			obs.toggleAudioSource(command.target)
 			break
-		case 'toggleAudioSource':
-			obs.toggleAudioSource(data.audioSourceName)
+		case ObsWebsocketCommandAction.SetVolume:
+			if (command.volumeValue !== null && command.volumeValue !== undefined) {
+				obs.setVolume(command.target, command.volumeValue)
+			}
 			break
-		case 'setVolume':
-			obs.setVolume(data.audioSourceName, data.volume)
+		case ObsWebsocketCommandAction.IncreaseVolume:
+			if (command.volumeStep !== null && command.volumeStep !== undefined) {
+				obs.changeVolume(command.target, command.volumeStep, 'increase')
+			}
 			break
-		case 'increaseVolume':
-			obs.changeVolume(data.audioSourceName, data.step, 'increase')
+		case ObsWebsocketCommandAction.DecreaseVolume:
+			if (command.volumeStep !== null && command.volumeStep !== undefined) {
+				obs.changeVolume(command.target, command.volumeStep, 'decrease')
+			}
 			break
-		case 'decreaseVolume':
-			obs.changeVolume(data.audioSourceName, data.step, 'decrease')
+		case ObsWebsocketCommandAction.EnableAudio:
+			obs.toggleAudioSource(command.target, true)
 			break
-		case 'enableAudio':
-			obs.toggleAudioSource(data.audioSourceName, true)
+		case ObsWebsocketCommandAction.DisableAudio:
+			obs.toggleAudioSource(command.target, false)
 			break
-		case 'disableAudio':
-			obs.toggleAudioSource(data.audioSourceName, false)
-			break
-		case 'startStream':
+		case ObsWebsocketCommandAction.StartStream:
 			obs.startStream()
 			break
-		case 'stopStream':
+		case ObsWebsocketCommandAction.StopStream:
 			obs.stopStream()
 			break
 	}
-})
+}
 
-watch(settings, async (settings) => {
-	if (!settings) {
+async function handleSettingsChange(newSettings: ObsSettings) {
+	if (!newSettings.serverAddress || !newSettings.serverPort || !newSettings.serverPassword) {
+		// Stop heartbeat and disconnect if settings are invalid
+		stopHeartbeat()
+		isObsConnected.value = false
 		await obs.disconnect()
 		return
 	}
 
-	await obs.connect(settings.serverAddress, settings.serverPort, settings.serverPassword)
-	console.log('Twir obs socket opened')
+	try {
+		await obs.connect(newSettings.serverAddress, newSettings.serverPort, newSettings.serverPassword)
+		console.log('Twir OBS WebSocket connected')
+		isObsConnected.value = true
 
-	internalSocket.send(JSON.stringify({ eventName: 'obsConnected' }))
+		// Start heartbeat only after successful OBS connection
+		startHeartbeat()
 
-	obs.getSources().then((sources) => {
-		if (!sources) return
-		internalSocket.send(JSON.stringify({
-			eventName: 'setSources',
-			data: sources,
-		}))
+		// Send initial data after connect
+		await sendObsData()
+
+		// Setup listeners for OBS changes
+		setupObsListeners()
+	} catch (error) {
+		console.error('Failed to connect to OBS:', error)
+		isObsConnected.value = false
+		stopHeartbeat()
+	}
+}
+
+async function sendObsData() {
+	const [sources, audioSources] = await Promise.all([obs.getSources(), obs.getAudioSources()])
+
+	if (!sources) return
+
+	// Extract scene names from sources object keys
+	const scenes = Object.keys(sources)
+	// Flatten all sources from all scenes
+	const allSources = Object.values(sources)
+		.flat()
+		.map((s) => s.name)
+
+	await updateSources({
+		scenes,
+		sources: allSources,
+		audioSources: audioSources ?? [],
 	})
+}
 
-	obs.getAudioSources().then((sources) => {
-		if (!sources) return
-		internalSocket.send(JSON.stringify({
-			eventName: 'setAudioSources',
-			data: sources,
-		}))
-	})
-
-	const scenesHandler = async () => {
-		const sources = await obs.getSources()
-		internalSocket.send(JSON.stringify({
-			eventName: 'setSources',
-			data: sources,
-		}))
+function setupObsListeners() {
+	const updateHandler = async () => {
+		await sendObsData()
 	}
 
-	const audioHandler = async () => {
-		const sources = await obs.getAudioSources()
-		internalSocket.send(JSON.stringify({
-			eventName: 'setAudioSources',
-			data: sources,
-		}))
-	}
+	// Handle OBS disconnect
+	obs.instance.value.on('ConnectionClosed', () => {
+		console.log('OBS WebSocket disconnected')
+		isObsConnected.value = false
+		stopHeartbeat()
+	})
 
 	obs.instance.value
-		.on('SceneListChanged', scenesHandler)
+		.on('SceneListChanged', updateHandler)
+		.on('InputCreated', updateHandler)
+		.on('InputRemoved', updateHandler)
+		.on('InputNameChanged', updateHandler)
+		.on('SceneItemCreated', updateHandler)
+		.on('SceneItemRemoved', updateHandler)
+}
 
-		.on('InputCreated', audioHandler)
-		.on('InputRemoved', audioHandler)
-		.on('InputNameChanged', audioHandler)
+onMounted(() => {
+	connect(apiKey)
+})
 
-		.on('SceneItemCreated', scenesHandler)
-		.on('SceneItemRemoved', scenesHandler)
+onBeforeUnmount(() => {
+	destroy()
 })
 </script>
+
+<template>
+	<!-- OBS overlay has no visible UI, it only controls OBS -->
+</template>

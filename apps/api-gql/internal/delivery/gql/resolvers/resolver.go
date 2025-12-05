@@ -40,6 +40,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	lastfmintegration "github.com/twirapp/twir/apps/api-gql/internal/services/lastfm_integration"
 	nightbotintegration "github.com/twirapp/twir/apps/api-gql/internal/services/nightbot_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/obs_websocket_module"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
@@ -154,6 +155,7 @@ type Deps struct {
 	GamesVotebanService                   *gamesvoteban.Service
 	NightbotIntegrationService            *nightbotintegration.Service
 	LastfmIntegrationService              *lastfmintegration.Service
+	ObsWebsocketModuleService             *obs_websocket_module.Service
 }
 
 type Resolver struct {

@@ -15,15 +15,31 @@ type User struct {
 	IsBanned          bool
 	HideOnLandingPage bool
 	CreatedAt         time.Time
+
+	isNil bool
 }
 
-var Nil = User{}
+func (c User) IsNil() bool {
+	return c.isNil
+}
+
+var Nil = User{
+	isNil: true,
+}
 
 type OnlineUser struct {
 	ID        uuid.UUID
 	ChannelID string
 	UserID    string
 	UserName  string
+
+	isNil bool
 }
 
-var NilOnlineUser = OnlineUser{}
+func (c OnlineUser) IsNil() bool {
+	return c.isNil
+}
+
+var NilOnlineUser = OnlineUser{
+	isNil: true,
+}

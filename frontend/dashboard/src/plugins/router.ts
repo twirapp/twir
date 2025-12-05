@@ -202,6 +202,15 @@ export function newRouter() {
 					},
 				},
 				{
+					name: 'ObsOverlay',
+					path: '/dashboard/overlays/obs',
+					component: () => import('@/features/overlays/obs/page.vue'),
+					meta: {
+						noPadding: true,
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
+					},
+				},
+				{
 					name: 'DudesOverlay',
 					path: '/dashboard/overlays/dudes',
 					component: () => import('@/pages/overlays/dudes/dudes-settings.vue'),

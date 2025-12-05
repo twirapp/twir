@@ -31,7 +31,7 @@ export const urqlClientOptions: ClientOptions = {
 	fetchOptions: () => {
 		const headers: Record<string, string> = {}
 		const route = useRoute()
-		const apiKey = route.params.apiKey
+		const apiKey = route?.params?.apiKey
 		if (typeof apiKey === 'string') {
 			headers['api-key'] = apiKey
 		}

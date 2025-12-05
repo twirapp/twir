@@ -5,14 +5,8 @@ import { useI18n } from 'vue-i18n'
 
 import type { EventOperation } from '@/api/events.ts'
 
-import { useObsOverlayManager } from '@/api'
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
+import { useObsWebsocketApi } from '@/api/overlays-obs'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
 	Select,
 	SelectContent,
@@ -28,44 +22,55 @@ const props = defineProps<{
 }>()
 
 const currentOperationPath = computed(() => `operations.${props.operationIndex}`)
-const { value: currentOperation } = useField<Omit<EventOperation, 'id'> | undefined>(currentOperationPath)
+const { value: currentOperation } = useField<Omit<EventOperation, 'id'> | undefined>(
+	currentOperationPath
+)
 
 const { t } = useI18n()
-const obsManager = useObsOverlayManager()
-const obsSettings = obsManager.getSettings()
+const obsApi = useObsWebsocketApi()
+const { data: obsData } = obsApi.useQueryObsWebsocket()
 
 const obsScenes = computed(() => {
-	return obsSettings.data.value?.scenes.map(s => ({
-		value: s,
-		label: s,
-	})) ?? []
+	return (
+		obsData.value?.obsWebsocketData?.scenes?.map((s: string) => ({
+			value: s,
+			label: s,
+		})) ?? []
+	)
 })
 
 const obsSources = computed(() => {
-	return obsSettings.data.value?.sources.map(s => ({
-		value: s,
-		label: s,
-	})) ?? []
+	return (
+		obsData.value?.obsWebsocketData?.sources?.map((s: string) => ({
+			value: s,
+			label: s,
+		})) ?? []
+	)
 })
 
 const obsAudioSources = computed(() => {
-	return obsSettings.data.value?.audioSources.map(s => ({
-		value: s,
-		label: s,
-	})) ?? []
+	return (
+		obsData.value?.obsWebsocketData?.audioSources?.map((s: string) => ({
+			value: s,
+			label: s,
+		})) ?? []
+	)
 })
 
 const data = computed(() => {
 	if (!currentOperation.value?.type) return
 
-	if ([
-		EventOperationType.ObsSetAudioVolume,
-		EventOperationType.ObsIncreaseAudioVolume,
-		EventOperationType.ObsDecreaseAudioVolume,
-		EventOperationType.ObsEnableAudio,
-		EventOperationType.ObsDisableAudio,
-		EventOperationType.ObsToggleAudio,
-	].includes(currentOperation.value?.type)) return obsAudioSources.value
+	if (
+		[
+			EventOperationType.ObsSetAudioVolume,
+			EventOperationType.ObsIncreaseAudioVolume,
+			EventOperationType.ObsDecreaseAudioVolume,
+			EventOperationType.ObsEnableAudio,
+			EventOperationType.ObsDisableAudio,
+			EventOperationType.ObsToggleAudio,
+		].includes(currentOperation.value?.type)
+	)
+		return obsAudioSources.value
 
 	if (currentOperation.value.type === EventOperationType.ObsChangeScene) return obsScenes.value
 	if (currentOperation.value.type === EventOperationType.ObsToggleSource) return obsSources.value
@@ -75,17 +80,11 @@ const data = computed(() => {
 </script>
 
 <template>
-	<FormField
-		v-slot="{ componentField }"
-		:name="`operations.${operationIndex}.target`"
-	>
+	<FormField v-slot="{ componentField }" :name="`operations.${operationIndex}.target`">
 		<FormItem>
 			<FormLabel>Select source</FormLabel>
 			<FormControl>
-				<Select
-					v-bind="componentField"
-					:placeholder="t('events.targetAlertPlaceholder')"
-				>
+				<Select v-bind="componentField" :placeholder="t('events.targetAlertPlaceholder')">
 					<SelectTrigger>
 						<SelectValue placeholder="Select" />
 					</SelectTrigger>
