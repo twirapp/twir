@@ -524,12 +524,24 @@
 			}
 		},
 		"obs": {
+			"title": "OBS WebSocket",
 			"description": "Dieses Overlay ermöglicht es Ihnen, Twir mit Ihrem OBS zu verbinden. Es bietet die Möglichkeit, Ihre Quellen, Szenen, Audioquellen und Ereignisse zu verwalten.",
 			"address": "Adresse des OBS WebSocket-Servers",
+			"addressDescription": "Usually it's localhost, but you can connect to remote servers.",
 			"port": "Port des OBS WebSocket-Servers",
-			"connected": "Verbunden!",
-			"notConnected": "Nicht verbunden!",
-			"checkConnection": "Verbindung prüfen"
+			"password": "Password",
+			"passwordDescription": "Ensure the password matches, as many users misconfigure it.",
+			"connected": "Connected",
+			"notConnected": "Not Connected",
+			"checkConnection": "Verbindung prüfen",
+			"settingsSavedHint": "Settings saved, now you can paste overlay link into OBS",
+			"connectionInfo": "Connection Info",
+			"scenesCount": "Scenes",
+			"sourcesCount": "Sources",
+			"audioSourcesCount": "Audio Sources",
+			"tabs": {
+				"settings": "Settings"
+			}
 		},
 		"alerts": {
 			"description": "Mit diesem Overlay können Sie konfigurierte Alarme aus dem Bereich \"Alarme\" abspielen."
