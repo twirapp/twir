@@ -137,16 +137,24 @@ func (c *Pgx) Upsert(
 	)
 
 	if m.IsNil() {
-		query, args, _ = sq.Insert("channels_modules_obs_websocket").
+		var err error
+		query, args, err = sq.Insert("channels_modules_obs_websocket").
 			SetMap(setMap).
 			Suffix(suffix).
 			ToSql()
+		if err != nil {
+			return obsentity.NilObsWebsocket, err
+		}
 	} else {
-		query, args, _ = sq.Update("channels_modules_obs_websocket").
+		var err error
+		query, args, err = sq.Update("channels_modules_obs_websocket").
 			SetMap(setMap).
 			Where(squirrel.Eq{"id": m.ID}).
 			Suffix(suffix).
 			ToSql()
+		if err != nil {
+			return obsentity.NilObsWebsocket, err
+		}
 	}
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
