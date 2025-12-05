@@ -524,12 +524,24 @@
 			}
 		},
 		"obs": {
+			"title": "OBS WebSocket",
 			"description": "Toto prekrytie vám umožňuje prepojiť Twir s OBS. Poskytuje možnosť spravovať vaše zdroje, scény, zdroje zvuku a udalosti.",
 			"address": "Adresa servera OBS WebSocket",
+			"addressDescription": "Usually it's localhost, but you can connect to remote servers.",
 			"port": "Port servera OBS WebSocket",
-			"connected": "Pripojené!",
-			"notConnected": "Nepripojené!",
-			"checkConnection": "Skontrolovať pripojenie"
+			"password": "Password",
+			"passwordDescription": "Ensure the password matches, as many users misconfigure it.",
+			"connected": "Connected",
+			"notConnected": "Not Connected",
+			"checkConnection": "Skontrolovať pripojenie",
+			"settingsSavedHint": "Settings saved, now you can paste overlay link into OBS",
+			"connectionInfo": "Connection Info",
+			"scenesCount": "Scenes",
+			"sourcesCount": "Sources",
+			"audioSourcesCount": "Audio Sources",
+			"tabs": {
+				"settings": "Settings"
+			}
 		},
 		"alerts": {
 			"description": "Toto prekrytie umožňuje prehrávať nakonfigurované upozornenia zo sekcie \"Upozornenia\"."
