@@ -15,6 +15,7 @@ export function useObsForm() {
 	const api = useObsWebsocketApi()
 	const { data: queryData, fetching } = api.useQueryObsWebsocket()
 	const { data: isConnectedData } = api.useSubscriptionIsConnected()
+	const { data: obsDataSubscription } = api.useSubscriptionObsData()
 	const updateMutation = api.useMutationUpdateObsWebsocket()
 
 	const form = useForm({
@@ -26,15 +27,18 @@ export function useObsForm() {
 		},
 	})
 
-	const currentSettings = computed(() => queryData.value?.obsWebsocketData)
+	// Use subscription data for realtime updates, fallback to query data
+	const currentSettings = computed(() => {
+		return obsDataSubscription.value?.obsWebsocketData ?? queryData.value?.obsWebsocketData
+	})
 
 	// Use subscription for real-time connection status, fallback to query data
 	const isConnected = computed(() => {
-		// Prefer subscription data for real-time updates
+		// Prefer isConnected subscription for real-time updates
 		if (isConnectedData.value?.obsWebsocketIsConnected !== undefined) {
 			return isConnectedData.value.obsWebsocketIsConnected
 		}
-		// Fallback to query data
+		// Fallback to obsData subscription or query data
 		return currentSettings.value?.isConnected ?? false
 	})
 

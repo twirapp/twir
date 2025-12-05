@@ -37,8 +37,8 @@ async function handleSave() {
 <template>
 	<div class="flex flex-col gap-4 p-4">
 		<Card>
-			<CardHeader class="flex flex-row items-center justify-between space-y-0 pb-4">
-				<div class="flex items-center gap-3">
+			<CardHeader class="flex flex-row flex-wrap items-center justify-between space-y-0 pb-4">
+				<div class="flex items-center flex-wrap gap-3">
 					<h2 class="text-2xl font-bold">
 						{{ t('overlays.obs.title') }}
 					</h2>

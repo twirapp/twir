@@ -17,10 +17,7 @@ import (
 )
 
 // ObsWebsocketUpdate is the resolver for the obsWebsocketUpdate field.
-func (r *mutationResolver) ObsWebsocketUpdate(
-	ctx context.Context,
-	input gqlmodel.ObsWebsocketUpdateInput,
-) (bool, error) {
+func (r *mutationResolver) ObsWebsocketUpdate(ctx context.Context, input gqlmodel.ObsWebsocketUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -43,11 +40,7 @@ func (r *mutationResolver) ObsWebsocketUpdate(
 }
 
 // ObsWebsocketUpdateFromOverlay is the resolver for the obsWebsocketUpdateFromOverlay field.
-func (r *mutationResolver) ObsWebsocketUpdateFromOverlay(
-	ctx context.Context,
-	apiKey string,
-	input gqlmodel.ObsWebsocketOverlayInput,
-) (bool, error) {
+func (r *mutationResolver) ObsWebsocketUpdateFromOverlay(ctx context.Context, apiKey string, input gqlmodel.ObsWebsocketOverlayInput) (bool, error) {
 	err := r.deps.ObsWebsocketModuleService.UpdateFromOverlay(
 		ctx,
 		apiKey,
@@ -65,10 +58,7 @@ func (r *mutationResolver) ObsWebsocketUpdateFromOverlay(
 }
 
 // ObsWebsocketSetConnected is the resolver for the obsWebsocketSetConnected field.
-func (r *mutationResolver) ObsWebsocketSetConnected(ctx context.Context, apiKey string) (
-	bool,
-	error,
-) {
+func (r *mutationResolver) ObsWebsocketSetConnected(ctx context.Context, apiKey string) (bool, error) {
 	err := r.deps.ObsWebsocketModuleService.SetConnectedState(ctx, apiKey, true)
 	if err != nil {
 		return false, fmt.Errorf("cannot set obs websocket connected state: %w", err)
@@ -78,10 +68,7 @@ func (r *mutationResolver) ObsWebsocketSetConnected(ctx context.Context, apiKey 
 }
 
 // ObsWebsocketData is the resolver for the obsWebsocketData field.
-func (r *queryResolver) ObsWebsocketData(ctx context.Context) (
-	*gqlmodel.ObsWebsocketModule,
-	error,
-) {
+func (r *queryResolver) ObsWebsocketData(ctx context.Context) (*gqlmodel.ObsWebsocketModule, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -96,10 +83,7 @@ func (r *queryResolver) ObsWebsocketData(ctx context.Context) (
 }
 
 // ObsWebsocketData is the resolver for the obsWebsocketData field.
-func (r *subscriptionResolver) ObsWebsocketData(
-	ctx context.Context,
-	apiKey string,
-) (<-chan *gqlmodel.ObsWebsocketModule, error) {
+func (r *subscriptionResolver) ObsWebsocketData(ctx context.Context, apiKey string) (<-chan *gqlmodel.ObsWebsocketModule, error) {
 	settingsChan, err := r.deps.ObsWebsocketModuleService.SettingsSubscriptionSignalerByApiKey(
 		ctx,
 		apiKey,
@@ -141,10 +125,7 @@ func (r *subscriptionResolver) ObsWebsocketData(
 }
 
 // ObsWebsocketCommands is the resolver for the obsWebsocketCommands field.
-func (r *subscriptionResolver) ObsWebsocketCommands(
-	ctx context.Context,
-	apiKey string,
-) (<-chan *gqlmodel.ObsWebsocketCommand, error) {
+func (r *subscriptionResolver) ObsWebsocketCommands(ctx context.Context, apiKey string) (<-chan *gqlmodel.ObsWebsocketCommand, error) {
 	commandsChan, err := r.deps.ObsWebsocketModuleService.CommandsSubscriptionByApiKey(
 		ctx,
 		apiKey,
