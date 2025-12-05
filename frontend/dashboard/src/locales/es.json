@@ -524,12 +524,24 @@
 			}
 		},
 		"obs": {
+			"title": "OBS WebSocket",
 			"description": "Esta superposición le permite conectar Twir con su OBS. Le da la capacidad de administrar sus fuentes, escenas, fuentes de audio y eventos.",
 			"address": "Dirección del servidor OBS WebSocket",
+			"addressDescription": "Usually it's localhost, but you can connect to remote servers.",
 			"port": "Puerto del servidor OBS WebSocket",
-			"connected": "¡Conectado!",
-			"notConnected": "¡No está conectado!",
-			"checkConnection": "Compruebe la conexión"
+			"password": "Password",
+			"passwordDescription": "Ensure the password matches, as many users misconfigure it.",
+			"connected": "Connected",
+			"notConnected": "Not Connected",
+			"checkConnection": "Compruebe la conexión",
+			"settingsSavedHint": "Settings saved, now you can paste overlay link into OBS",
+			"connectionInfo": "Connection Info",
+			"scenesCount": "Scenes",
+			"sourcesCount": "Sources",
+			"audioSourcesCount": "Audio Sources",
+			"tabs": {
+				"settings": "Settings"
+			}
 		},
 		"alerts": {
 			"description": "Esta superposición le permite reproducir alertas configuradas desde la sección «Alertas»."
