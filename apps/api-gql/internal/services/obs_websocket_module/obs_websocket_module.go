@@ -245,7 +245,8 @@ func (s *Service) SettingsSubscriptionSignalerByApiKey(
 			case data := <-wsRouterSub.GetChannel():
 				var newSettings obsentity.ObsWebsocketData
 				if err := gojson.Unmarshal(data, &newSettings); err != nil {
-					panic(err)
+					slog.Error("failed to unmarshal obs websocket data", "error", err)
+					return
 				}
 
 				chann <- newSettings
