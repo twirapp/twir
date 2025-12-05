@@ -93,57 +93,64 @@ WHERE channel_id = $1
 	return modelToEntity(result), nil
 }
 
-func (c *Pgx) Update(
+func (c *Pgx) Upsert(
 	ctx context.Context,
-	id int,
-	input channelsmodulesobswebsocket.UpdateInput,
-) error {
-	updateBuilder := sq.Update("channels_modules_obs_websocket").Where(squirrel.Eq{"id": id})
+	input channelsmodulesobswebsocket.UpsertInput,
+) (obsentity.ObsWebsocketData, error) {
+	m, _ := c.GetByChannelID(ctx, input.ChannelID)
+
+	setMap := map[string]any{
+		"channel_id": input.ChannelID,
+	}
 
 	if input.ServerPort != nil {
-		updateBuilder = updateBuilder.Set("server_port", *input.ServerPort)
+		setMap["server_port"] = *input.ServerPort
 	}
 
 	if input.ServerAddress != nil {
-		updateBuilder = updateBuilder.Set("server_address", *input.ServerAddress)
+		setMap["server_address"] = *input.ServerAddress
 	}
 
 	if input.ServerPassword != nil {
-		updateBuilder = updateBuilder.Set("server_password", *input.ServerPassword)
+		setMap["server_password"] = *input.ServerPassword
 	}
 
-	updateBuilder = updateBuilder.Set("updated_at", squirrel.Expr("NOW()"))
-
-	query, args, err := updateBuilder.ToSql()
-	if err != nil {
-		return err
+	if input.Scenes != nil {
+		setMap["scenes"] = *input.Scenes
 	}
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err = conn.Exec(ctx, query, args...)
-	return err
-}
+	if input.Sources != nil {
+		setMap["sources"] = *input.Sources
+	}
 
-func (c *Pgx) Create(
-	ctx context.Context,
-	input channelsmodulesobswebsocket.CreateInput,
-) (obsentity.ObsWebsocketData, error) {
-	query := `
-INSERT INTO channels_modules_obs_websocket (channel_id, server_port, server_address, server_password)
-VALUES ($1, $2, $3, $4)
-ON CONFLICT (channel_id)
-DO UPDATE SET server_port = EXCLUDED.server_port, server_address = EXCLUDED.server_address, server_password = EXCLUDED.server_password, updated_at = NOW()
-RETURNING id, channel_id, server_port, server_address, server_password, scenes, sources, audio_sources, created_at, updated_at
-`
+	if input.AudioSources != nil {
+		setMap["audio_sources"] = *input.AudioSources
+	}
+
+	var (
+		query  string
+		args   []interface{}
+		suffix = "RETURNING id, channel_id, server_port, server_address, server_password, scenes, sources, audio_sources, created_at, updated_at"
+	)
+
+	if m.IsNil() {
+		query, args, _ = sq.Insert("channels_modules_obs_websocket").
+			SetMap(setMap).
+			Suffix(suffix).
+			ToSql()
+	} else {
+		query, args, _ = sq.Update("channels_modules_obs_websocket").
+			SetMap(setMap).
+			Where(squirrel.Eq{"id": m.ID}).
+			Suffix(suffix).
+			ToSql()
+	}
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(
 		ctx,
 		query,
-		input.ChannelID,
-		input.ServerPort,
-		input.ServerAddress,
-		input.ServerPassword,
+		args...,
 	)
 	if err != nil {
 		return obsentity.NilObsWebsocket, err
@@ -158,23 +165,6 @@ RETURNING id, channel_id, server_port, server_address, server_password, scenes, 
 	}
 
 	return modelToEntity(result), nil
-}
-
-func (c *Pgx) UpdateSources(
-	ctx context.Context,
-	channelID string,
-	input channelsmodulesobswebsocket.UpdateSourcesInput,
-) error {
-	query := `
-INSERT INTO channels_modules_obs_websocket (channel_id, scenes, sources, audio_sources)
-VALUES ($1, $2, $3, $4)
-ON CONFLICT (channel_id)
-DO UPDATE SET scenes = EXCLUDED.scenes, sources = EXCLUDED.sources, audio_sources = EXCLUDED.audio_sources, updated_at = NOW()
-`
-
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err := conn.Exec(ctx, query, channelID, input.Scenes, input.Sources, input.AudioSources)
-	return err
 }
 
 func (c *Pgx) Delete(ctx context.Context, id int) error {

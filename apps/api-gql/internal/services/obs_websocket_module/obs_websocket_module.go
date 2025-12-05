@@ -151,20 +151,30 @@ func (s *Service) GetObsWebsocketData(
 	}, nil
 }
 
+type UpdateInput struct {
+	ChannelID      string
+	ServerPort     *int
+	ServerAddress  *string
+	ServerPassword *string
+	Scenes         *[]string
+	Sources        *[]string
+	AudioSources   *[]string
+}
+
 func (s *Service) UpdateObsWebsocket(
 	ctx context.Context,
-	channelID string,
-	serverPort int,
-	serverAddress string,
-	serverPassword string,
+	input UpdateInput,
 ) error {
-	_, err := s.obsWebsocketRepository.Create(
+	_, err := s.obsWebsocketRepository.Upsert(
 		ctx,
-		channelsmodulesobswebsocket.CreateInput{
-			ChannelID:      channelID,
-			ServerPort:     serverPort,
-			ServerAddress:  serverAddress,
-			ServerPassword: serverPassword,
+		channelsmodulesobswebsocket.UpsertInput{
+			ChannelID:      input.ChannelID,
+			ServerPort:     input.ServerPort,
+			ServerAddress:  input.ServerAddress,
+			ServerPassword: input.ServerPassword,
+			Scenes:         input.Scenes,
+			Sources:        input.Sources,
+			AudioSources:   input.AudioSources,
 		},
 	)
 	if err != nil {
@@ -172,12 +182,12 @@ func (s *Service) UpdateObsWebsocket(
 	}
 
 	// Publish update to subscribers
-	data, err := s.GetObsWebsocketData(ctx, channelID)
+	data, err := s.GetObsWebsocketData(ctx, input.ChannelID)
 	if err != nil {
 		return fmt.Errorf("failed to get obs websocket data for publish: %w", err)
 	}
 
-	if err := s.wsRouter.Publish(createSettingsSubscriptionKey(channelID), data); err != nil {
+	if err := s.wsRouter.Publish(createSettingsSubscriptionKey(input.ChannelID), data); err != nil {
 		return fmt.Errorf("failed to publish obs websocket update: %w", err)
 	}
 
@@ -259,26 +269,20 @@ func (s *Service) UpdateFromOverlay(
 	channelID := user.ID
 
 	// Store data in database
-	err = s.obsWebsocketRepository.UpdateSources(
+	newValue, err := s.obsWebsocketRepository.Upsert(
 		ctx,
-		channelID,
-		channelsmodulesobswebsocket.UpdateSourcesInput{
-			Scenes:       input.Scenes,
-			Sources:      input.Sources,
-			AudioSources: input.AudioSources,
+		channelsmodulesobswebsocket.UpsertInput{
+			ChannelID:    channelID,
+			Scenes:       &input.Scenes,
+			Sources:      &input.Sources,
+			AudioSources: &input.AudioSources,
 		},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update sources in database: %w", err)
 	}
 
-	// Publish update to subscribers
-	data, err := s.GetObsWebsocketData(ctx, channelID)
-	if err != nil {
-		return fmt.Errorf("failed to get obs websocket data for publish: %w", err)
-	}
-
-	if err := s.wsRouter.Publish(createSettingsSubscriptionKey(channelID), data); err != nil {
+	if err := s.wsRouter.Publish(createSettingsSubscriptionKey(channelID), newValue); err != nil {
 		return fmt.Errorf("failed to publish obs websocket update: %w", err)
 	}
 
