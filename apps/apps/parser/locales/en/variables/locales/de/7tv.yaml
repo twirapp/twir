@@ -2,5 +2,5 @@ errors:
   no_active_set: Du hast kein 7TV Set
   profile_not_found: 'Fehler beim Abrufen des 7TV Profils: {reason}'
   emote_not_found: 'Emote {name} wurde nicht gefunden'
-  no_paint: Keine Paint
-  no_roles: No roles
+  no_paint: Kein Paint
+  no_roles: Keine Rolle
