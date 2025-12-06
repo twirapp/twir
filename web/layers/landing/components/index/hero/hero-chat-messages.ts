@@ -97,7 +97,7 @@ export const liveChatMessages: Message[] = [
 
 	userMessage('!me', 'red', botMessage(`210.4h watched · 1519 messages · 6507 used emotes · 0 used points · 0 songs requestes`)),
 
-	userMessage('!sr sandstorm', 'pink', botMessage(`You're ordered "Darude - Sandstorm"`)),
+	userMessage('!sr sandstorm', 'pink', botMessage(`You're requested "Darude - Sandstorm"`)),
 
 	userMessage('!followage', 'orange', botMessage(`You're following channel 2mo 1d 50m`)),
 
