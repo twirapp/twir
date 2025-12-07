@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
 	initial: null,
 })
 
+const open = ref(false)
 const userId = defineModel<string | null>({ required: true })
 
 const selectedUsersQuery = useTwitchGetUsers({ ids: userId })
@@ -64,6 +65,7 @@ function handleSelect(
 	userId.value = event.detail.value
 
 	search.value = ''
+	open.value = false
 }
 </script>
 
@@ -91,7 +93,7 @@ function handleSelect(
 			</div>
 		</PopoverTrigger>
 		<PopoverContent class="p-0">
-			<Command>
+			<Command v-model:open="open">
 				<CommandList>
 					<CommandGroup>
 						<CommandItem
