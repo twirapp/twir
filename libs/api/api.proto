@@ -11,8 +11,6 @@ import "messages/integrations_streamlabs/integrations_streamlabs.proto";
 import "messages/integrations_vk/integrations_vk.proto";
 
 import "messages/modules_tts/modules_tts.proto";
-
-import "messages/twitch_protected/twitch_protected.proto";
 import "messages/overlays/overlays.proto";
 
 service Protected {
@@ -26,10 +24,6 @@ service Protected {
 	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse) {}
 	rpc IntegrationsStreamlabsPostCode(messages.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
-	rpc TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
-	rpc TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest) returns (google.protobuf.Empty) {}
 
 	rpc OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse) {}
 	rpc OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay) {}

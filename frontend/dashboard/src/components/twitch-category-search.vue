@@ -33,16 +33,16 @@ const {
 
 const categoriesOptions = computed(() => {
 	return [
-		...searchCategoriesData.value?.categories.map((c) => ({
+		...searchCategoriesData.value.map((c) => ({
 			label: c.name,
 			value: c.id,
-			image: c.image.replace('52x72', '144x192'),
-		})) ?? [],
-		...getCategoriesData.value?.categories.map((c) => ({
+			image: c.boxArtUrl.replace('{width}', '144').replace('{height}', '192'),
+		})),
+		...getCategoriesData.value.map((c) => ({
 			label: c.name,
 			value: c.id,
-			image: c.image.replace('{width}', '144').replace('{height}', '192'),
-		})) ?? [],
+			image: c.boxArtUrl.replace('{width}', '144').replace('{height}', '192'),
+		})),
 	]
 })
 

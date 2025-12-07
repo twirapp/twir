@@ -8,7 +8,6 @@ import (
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/integrations"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/overlays"
-	"github.com/twirapp/twir/apps/api/internal/impl_protected/twitch"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
@@ -22,7 +21,6 @@ import (
 
 type Protected struct {
 	*integrations.Integrations
-	*twitch.Twitch
 	*overlays.Overlays
 }
 
@@ -61,7 +59,6 @@ func New(opts Opts) *Protected {
 
 	return &Protected{
 		Integrations: &integrations.Integrations{Deps: d},
-		Twitch:       &twitch.Twitch{Deps: d},
 		Overlays:     &overlays.Overlays{Deps: d},
 	}
 }

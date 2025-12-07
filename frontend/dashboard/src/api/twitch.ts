@@ -1,11 +1,10 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
 import { useQuery as useGqlQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
-import { computed, isRef, unref } from 'vue'
+import { computed, unref } from 'vue'
+import { useMutation } from '@/composables/use-mutation.ts'
 
-import type { ComputedRef, MaybeRef, Ref } from 'vue'
+import type { MaybeRef, Ref } from 'vue'
 
-import { protectedApiClient } from '@/api/twirp.js'
 import { graphql } from '@/gql/gql.js'
 import { TwitchGetUsersQuery, TwitchSearchChannelsQuery } from '@/gql/graphql.ts'
 
@@ -115,41 +114,83 @@ export const useTwitchRewardsNew = createGlobalState(() =>
 	})
 )
 
-export function useTwitchSearchCategories(query: string | Ref<string>) {
-	return useQuery({
-		queryKey: ['twitchSearchCategories', query || ''],
-		queryFn: async () => {
-			const input = isRef(query) ? query.value : query
-			if (!input) return { categories: [] }
-
-			const call = await protectedApiClient.twitchSearchCategories({ query: input })
-			return call.response
-		},
+export function useTwitchSearchCategories(query: MaybeRef<string>) {
+	const pause = computed(() => {
+		const q = unref(query)
+		return !q || q.trim() === ''
 	})
+
+	const gqlQuery = useGqlQuery({
+		query: graphql(`
+			query TwitchSearchCategories($query: String!) {
+				twitchSearchCategories(query: $query) {
+					categories {
+						id
+						name
+						boxArtUrl
+					}
+				}
+			}
+		`),
+		variables: computed(() => ({
+			query: unref(query) || '',
+		})),
+		pause,
+	})
+
+	return {
+		data: computed(() => {
+			if (!gqlQuery.data.value) return []
+			return gqlQuery.data.value.twitchSearchCategories.categories
+		}),
+		isLoading: gqlQuery.fetching,
+		error: gqlQuery.error,
+	}
 }
 
-export function useTwitchGetCategories(
-	ids: MaybeRef<string[]> | ComputedRef<string[]>,
-	options?: { keepPreviousData?: boolean }
-) {
-	return useQuery({
-		queryKey: ['twitchGetCategories', ids || ''],
-		queryFn: async () => {
-			const input = isRef(ids) ? ids.value : ids
-			if (!input) return { categories: [] }
-
-			const call = await protectedApiClient.twitchGetCategories({ ids: input })
-			return call.response
-		},
-		keepPreviousData: options?.keepPreviousData,
+export function useTwitchGetCategories(ids: MaybeRef<string[]>) {
+	const pause = computed(() => {
+		const idsValue = unref(ids)
+		return !idsValue || idsValue.length === 0
 	})
+
+	const gqlQuery = useGqlQuery({
+		query: graphql(`
+			query TwitchGetCategories($ids: [ID!]!) {
+				twitchGetCategories(ids: $ids) {
+					categories {
+						id
+						name
+						boxArtUrl
+					}
+				}
+			}
+		`),
+		variables: computed(() => ({
+			ids: unref(ids) || [],
+		})),
+		pause,
+	})
+
+	return {
+		data: computed(() => {
+			if (!gqlQuery.data.value) return []
+			return gqlQuery.data.value.twitchGetCategories.categories
+		}),
+		isLoading: gqlQuery.fetching,
+		error: gqlQuery.error,
+	}
 }
 
 export function twitchSetChannelInformationMutation() {
-	return useMutation({
-		mutationKey: ['twitchSetChannelInformation'],
-		mutationFn: async (req: { categoryId: string; title: string }) => {
-			await protectedApiClient.twitchSetChannelInformation(req)
-		},
-	})
+	return useMutation(
+		graphql(`
+			mutation TwitchSetChannelInformation(
+				$title: String
+				$categoryId: String
+			) {
+					twitchSetChannelInformation(title: $title, categoryId: $categoryId)
+			}
+		`),
+	)
 }

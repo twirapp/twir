@@ -6,6 +6,14 @@ type Channel struct {
 	IsTwitchBanned bool
 	IsBotMod       bool
 	BotID          string
+
+	isNil bool
 }
 
-var Nil = Channel{}
+func (c Channel) IsNil() bool {
+	return c.isNil
+}
+
+var Nil = Channel{
+	isNil: true,
+}

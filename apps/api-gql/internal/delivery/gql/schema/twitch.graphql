@@ -24,6 +24,27 @@ extend type Query {
 	"""
 	twitchGetChannelBadges(channelId: ID): TwirTwitchChannelBadgeResponse!
 	twitchGetGlobalBadges: TwirTwitchGlobalBadgeResponse!
+
+	"""
+	Search for Twitch categories/games by query string.
+	Returns empty array if query is empty.
+	"""
+	twitchSearchCategories(query: String!): TwitchSearchCategoriesResponse! @isAuthenticated @hasAccessToSelectedDashboard
+
+	"""
+	Get Twitch categories/games by IDs.
+	Returns empty array if ids is empty.
+	"""
+	twitchGetCategories(ids: [ID!]!): TwitchSearchCategoriesResponse! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	"""
+	Set channel information (title and category/game).
+	Requires dashboard access and appropriate permissions.
+	At least one of categoryId or title must be provided.
+	"""
+	twitchSetChannelInformation(categoryId: String, title: String): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
 type TwirTwitchChannelRewardResponse {
@@ -102,6 +123,10 @@ type TwitchCategory {
 	id: String!
 	name: String!
 	boxArtUrl: String!
+}
+
+type TwitchSearchCategoriesResponse {
+	categories: [TwitchCategory!]!
 }
 
 type TwitchSearchChannelsResponse {

@@ -3,8 +3,7 @@ import { IconEdit } from '@tabler/icons-vue'
 import { useIntervalFn } from '@vueuse/core'
 import { intervalToDuration } from 'date-fns'
 import { ChevronDownIcon } from 'lucide-vue-next'
-import { NText } from 'naive-ui'
-import { computed, h, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import StreamInfoEditor from '../stream-info-editor.vue'
@@ -19,7 +18,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { BotJoinLeaveAction } from '@/gql/graphql.ts'
 import { padTo2Digits } from '@/helpers/convertMillisToTime'
 
@@ -55,18 +53,10 @@ onBeforeUnmount(() => {
 
 const { t } = useI18n()
 
-const discrete = useNaiveDiscrete()
+const streamInfoEditorOpen = ref(false)
 
 function openInfoEditor() {
-	discrete.dialog.create({
-		showIcon: false,
-		content: () =>
-			h(StreamInfoEditor, {
-				title: stats.value?.title,
-				categoryId: stats.value?.categoryId,
-				categoryName: stats.value?.categoryName,
-			}),
-	})
+	streamInfoEditorOpen.value = true
 }
 
 const waitingBotStatusData = ref(true)
@@ -91,78 +81,78 @@ async function changeChatState() {
 		<div class="flex flex-wrap gap-4 py-2">
 			<div class="flex items-center cursor-pointer" @click="openInfoEditor">
 				<div class="flex flex-col pr-2.5">
-					<NText>
+					<p>
 						{{ stats?.title ?? 'No title' }}
-					</NText>
-					<NText>
+					</p>
+					<p>
 						{{ stats?.categoryName ?? 'No category' }}
-					</NText>
+					</p>
 				</div>
 				<IconEdit class="h-5 w-5 cursor-pointer" />
 			</div>
 
 			<div class="item stats-item">
-				<NText :depth="3" class="stats-type">
+				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.uptime`) }}
-				</NText>
-				<NText class="stats-display">
+				</p>
+				<p class="stats-display">
 					{{ uptime }}
-				</NText>
+				</p>
 			</div>
 
 			<div class="item stats-item">
-				<NText :depth="3" class="stats-type">
+				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.viewers`) }}
-				</NText>
-				<NText class="stats-display">
+				</p>
+				<p class="stats-display">
 					{{ stats?.viewers ?? 0 }}
-				</NText>
+				</p>
 			</div>
 
 			<div class="item stats-item">
-				<NText :depth="3" class="stats-type">
+				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.followers`) }}
-				</NText>
+				</p>
 
-				<NText class="stats-display">
+				<p class="stats-display">
 					{{ stats?.followers }}
-				</NText>
+				</p>
 			</div>
 
 			<div class="item stats-item">
-				<NText :depth="3" class="stats-type">
+				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.messages`) }}
-				</NText>
-				<NText class="stats-display">
+				</p>
+				<p class="stats-display">
 					{{ stats?.chatMessages }}
-				</NText>
+				</p>
 			</div>
 
 			<div class="item stats-item">
-				<NText :depth="3" class="stats-type">
+				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.subs`) }}
-				</NText>
-				<NText class="stats-display">
+				</p>
+				<p class="stats-display">
 					{{ stats?.subs }}
-				</NText>
+				</p>
 			</div>
 
 			<div class="item stats-item">
-				<NText :depth="3" class="stats-type">
+				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.usedEmotes`) }}
-				</NText>
-				<NText class="stats-display">
+				</p>
+				<p class="stats-display">
 					{{ stats?.usedEmotes }}
-				</NText>
+				</p>
 			</div>
 
 			<div class="item stats-item">
-				<NText :depth="3" class="stats-type">
+				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.requestedSongs`) }}
-				</NText>
-				<NText class="stats-display">
+				</p>
+				<p class="stats-display">
 					{{ stats?.requestedSongs }}
-				</NText>
+				</p>
 			</div>
 		</div>
 
@@ -199,6 +189,13 @@ async function changeChatState() {
 			</DropdownMenu>
 		</div>
 	</div>
+
+	<StreamInfoEditor
+		v-model:open="streamInfoEditorOpen"
+		:title="stats?.title"
+		:category-id="stats?.categoryId"
+		:category-name="stats?.categoryName"
+	/>
 </template>
 
 <style>

@@ -13,10 +13,6 @@ import type { UpdateRequest } from "./messages/overlays/overlays";
 import type { Overlay } from "./messages/overlays/overlays";
 import type { GetByIdRequest } from "./messages/overlays/overlays";
 import type { GetAllResponse } from "./messages/overlays/overlays";
-import type { SetChannelInformationRequest } from "./messages/twitch_protected/twitch_protected";
-import type { GetCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
-import type { SearchCategoriesResponse } from "./messages/twitch_protected/twitch_protected";
-import type { SearchCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
 import type { PostCodeRequest as PostCodeRequest$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import type { GetDataResponse as GetDataResponse$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import type { GetAuthLink as GetAuthLink$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
@@ -68,18 +64,6 @@ export interface IProtectedClient {
      * @generated from protobuf rpc: IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
      */
     integrationsStreamlabsLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty>;
-    /**
-     * @generated from protobuf rpc: TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse);
-     */
-    twitchSearchCategories(input: SearchCategoriesRequest, options?: RpcOptions): UnaryCall<SearchCategoriesRequest, SearchCategoriesResponse>;
-    /**
-     * @generated from protobuf rpc: TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse);
-     */
-    twitchGetCategories(input: GetCategoriesRequest, options?: RpcOptions): UnaryCall<GetCategoriesRequest, SearchCategoriesResponse>;
-    /**
-     * @generated from protobuf rpc: TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest) returns (google.protobuf.Empty);
-     */
-    twitchSetChannelInformation(input: SetChannelInformationRequest, options?: RpcOptions): UnaryCall<SetChannelInformationRequest, Empty>;
     /**
      * @generated from protobuf rpc: OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse);
      */
@@ -178,66 +162,45 @@ export class ProtectedClient implements IProtectedClient, ServiceInfo {
         return stackIntercept<Empty, Empty>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse);
-     */
-    twitchSearchCategories(input: SearchCategoriesRequest, options?: RpcOptions): UnaryCall<SearchCategoriesRequest, SearchCategoriesResponse> {
-        const method = this.methods[9], opt = this._transport.mergeOptions(options);
-        return stackIntercept<SearchCategoriesRequest, SearchCategoriesResponse>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse);
-     */
-    twitchGetCategories(input: GetCategoriesRequest, options?: RpcOptions): UnaryCall<GetCategoriesRequest, SearchCategoriesResponse> {
-        const method = this.methods[10], opt = this._transport.mergeOptions(options);
-        return stackIntercept<GetCategoriesRequest, SearchCategoriesResponse>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest) returns (google.protobuf.Empty);
-     */
-    twitchSetChannelInformation(input: SetChannelInformationRequest, options?: RpcOptions): UnaryCall<SetChannelInformationRequest, Empty> {
-        const method = this.methods[11], opt = this._transport.mergeOptions(options);
-        return stackIntercept<SetChannelInformationRequest, Empty>("unary", this._transport, method, opt, input);
-    }
-    /**
      * @generated from protobuf rpc: OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse);
      */
     overlaysGetAll(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAllResponse> {
-        const method = this.methods[12], opt = this._transport.mergeOptions(options);
+        const method = this.methods[9], opt = this._transport.mergeOptions(options);
         return stackIntercept<Empty, GetAllResponse>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay);
      */
     overlaysGetOne(input: GetByIdRequest, options?: RpcOptions): UnaryCall<GetByIdRequest, Overlay> {
-        const method = this.methods[13], opt = this._transport.mergeOptions(options);
+        const method = this.methods[10], opt = this._transport.mergeOptions(options);
         return stackIntercept<GetByIdRequest, Overlay>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysUpdate(messages.overlays.UpdateRequest) returns (messages.overlays.Overlay);
      */
     overlaysUpdate(input: UpdateRequest, options?: RpcOptions): UnaryCall<UpdateRequest, Overlay> {
-        const method = this.methods[14], opt = this._transport.mergeOptions(options);
+        const method = this.methods[11], opt = this._transport.mergeOptions(options);
         return stackIntercept<UpdateRequest, Overlay>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysDelete(messages.overlays.DeleteRequest) returns (google.protobuf.Empty);
      */
     overlaysDelete(input: DeleteRequest, options?: RpcOptions): UnaryCall<DeleteRequest, Empty> {
-        const method = this.methods[15], opt = this._transport.mergeOptions(options);
+        const method = this.methods[12], opt = this._transport.mergeOptions(options);
         return stackIntercept<DeleteRequest, Empty>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysCreate(messages.overlays.CreateRequest) returns (messages.overlays.Overlay);
      */
     overlaysCreate(input: CreateRequest, options?: RpcOptions): UnaryCall<CreateRequest, Overlay> {
-        const method = this.methods[16], opt = this._transport.mergeOptions(options);
+        const method = this.methods[13], opt = this._transport.mergeOptions(options);
         return stackIntercept<CreateRequest, Overlay>("unary", this._transport, method, opt, input);
     }
     /**
      * @generated from protobuf rpc: OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse);
      */
     overlaysParseHtml(input: ParseHtmlOverlayRequest, options?: RpcOptions): UnaryCall<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse> {
-        const method = this.methods[17], opt = this._transport.mergeOptions(options);
+        const method = this.methods[14], opt = this._transport.mergeOptions(options);
         return stackIntercept<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse>("unary", this._transport, method, opt, input);
     }
 }

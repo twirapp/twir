@@ -15,6 +15,29 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 )
 
+// TwitchSetChannelInformation is the resolver for the twitchSetChannelInformation field.
+func (r *mutationResolver) TwitchSetChannelInformation(ctx context.Context, categoryID *string, title *string) (bool, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	if categoryID == nil && title == nil {
+		return false, fmt.Errorf("at least one of categoryId or title must be provided")
+	}
+
+	err = r.deps.TwitchService.SetChannelInformation(ctx, twitch.SetChannelInformationInput{
+		ChannelID:  dashboardID,
+		CategoryID: categoryID,
+		Title:      title,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // TwitchGetUserByID is the resolver for the twitchGetUserById field.
 func (r *queryResolver) TwitchGetUserByID(ctx context.Context, id string) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if id == "" {
@@ -197,5 +220,73 @@ func (r *queryResolver) TwitchGetGlobalBadges(ctx context.Context) (*gqlmodel.Tw
 
 	return &gqlmodel.TwirTwitchGlobalBadgeResponse{
 		Badges: mappedBadges,
+	}, nil
+}
+
+// TwitchSearchCategories is the resolver for the twitchSearchCategories field.
+func (r *queryResolver) TwitchSearchCategories(ctx context.Context, query string) (*gqlmodel.TwitchSearchCategoriesResponse, error) {
+	if query == "" {
+		return &gqlmodel.TwitchSearchCategoriesResponse{
+			Categories: []gqlmodel.TwitchCategory{},
+		}, nil
+	}
+
+	categories, err := r.deps.TwitchService.SearchCategories(
+		ctx,
+		twitch.SearchCategoriesInput{
+			Query: query,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	mappedCategories := make([]gqlmodel.TwitchCategory, 0, len(categories))
+	for _, category := range categories {
+		mappedCategories = append(
+			mappedCategories, gqlmodel.TwitchCategory{
+				ID:        category.ID,
+				Name:      category.Name,
+				BoxArtURL: category.BoxArtURL,
+			},
+		)
+	}
+
+	return &gqlmodel.TwitchSearchCategoriesResponse{
+		Categories: mappedCategories,
+	}, nil
+}
+
+// TwitchGetCategories is the resolver for the twitchGetCategories field.
+func (r *queryResolver) TwitchGetCategories(ctx context.Context, ids []string) (*gqlmodel.TwitchSearchCategoriesResponse, error) {
+	if len(ids) == 0 {
+		return &gqlmodel.TwitchSearchCategoriesResponse{
+			Categories: []gqlmodel.TwitchCategory{},
+		}, nil
+	}
+
+	games, err := r.deps.TwitchService.GetCategories(
+		ctx,
+		twitch.GetCategoriesInput{
+			IDs: ids,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	mappedCategories := make([]gqlmodel.TwitchCategory, 0, len(games))
+	for _, game := range games {
+		mappedCategories = append(
+			mappedCategories, gqlmodel.TwitchCategory{
+				ID:        game.ID,
+				Name:      game.Name,
+				BoxArtURL: game.BoxArtURL,
+			},
+		)
+	}
+
+	return &gqlmodel.TwitchSearchCategoriesResponse{
+		Categories: mappedCategories,
 	}, nil
 }

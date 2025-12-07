@@ -28,7 +28,7 @@ const {
 
 const {
 	data: selectedCategories,
-} = useTwitchGetCategories(categories, { keepPreviousData: true })
+} = useTwitchGetCategories(categories)
 
 interface SelectedCategoryValue {
 	id: string
@@ -39,10 +39,10 @@ interface SelectedCategoryValue {
 const selectedCategoriesValues = computed<Record<string, SelectedCategoryValue>>(() => {
 	if (!selectedCategories.value) return {}
 
-	return selectedCategories.value.categories.reduce((acc, val) => {
+	return selectedCategories.value.reduce((acc, val) => {
 		acc[val.id] = {
 			id: val.id,
-			image: val.image.replace('{height}', '80').replace('{width}', '60'),
+			image: val.boxArtUrl.replace('{height}', '80').replace('{width}', '60'),
 			label: val.name,
 		}
 
@@ -66,7 +66,7 @@ function handleSelect(event: CustomEvent<{
 </script>
 
 <template>
-	<Popover :open="!!searchCategoriesData?.categories.length">
+	<Popover :open="!!searchCategoriesData?.length">
 		<PopoverTrigger as-child>
 			<TagsInput v-model="categories">
 				<TagsInputItem v-for="item in selectedCategoriesValues" :key="item.label" :value="item.id" class="flex gap-1 items-center rounded-full px-2">
@@ -89,13 +89,13 @@ function handleSelect(event: CustomEvent<{
 				<CommandList>
 					<CommandGroup>
 						<CommandItem
-							v-for="option in searchCategoriesData?.categories"
+							v-for="option in searchCategoriesData"
 							:key="option.id"
 							:value="option.id"
 							class="flex gap-2.5 h-24 items-center"
 							@select="handleSelect"
 						>
-							<img :src="option.image" class="h-[80px] w-[60px]" />
+							<img :src="option.boxArtUrl.replace('{width}', '60').replace('{height}', '80')" class="h-[80px] w-[60px]" />
 							<span>{{ option.name }}</span>
 						</CommandItem>
 					</CommandGroup>
