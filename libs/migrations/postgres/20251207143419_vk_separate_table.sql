@@ -5,7 +5,6 @@ SELECT 'up SQL query';
 CREATE TABLE IF NOT EXISTS channels_integrations_vk
 (
 	id           SERIAL PRIMARY KEY,
-	public_id    ulid        NOT NULL DEFAULT gen_ulid(),
 	channel_id   TEXT        NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
 	access_token TEXT        NOT NULL,
 	username     TEXT        NOT NULL,

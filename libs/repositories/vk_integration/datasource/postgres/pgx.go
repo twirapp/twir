@@ -8,7 +8,6 @@ import (
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/libs/entities/vk_integration"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
 )
@@ -38,7 +37,6 @@ type Pgx struct {
 // scanModel is used for scanning database rows
 type scanModel struct {
 	ID          int64     `db:"id"`
-	PublicID    ulid.ULID `db:"public_id"`
 	ChannelID   string    `db:"channel_id"`
 	AccessToken string    `db:"access_token"`
 	UserName    string    `db:"username"`
@@ -52,7 +50,6 @@ type scanModel struct {
 func (s scanModel) toEntity() vk_integration.Entity {
 	return vk_integration.Entity{
 		ID:          s.ID,
-		PublicID:    s.PublicID,
 		Enabled:     s.Enabled,
 		ChannelID:   s.ChannelID,
 		AccessToken: s.AccessToken,
@@ -68,7 +65,7 @@ func (c *Pgx) GetByChannelID(ctx context.Context, channelID string) (
 	error,
 ) {
 	query := `
-SELECT id, public_id, channel_id, access_token, username, avatar, created_at, updated_at, enabled
+SELECT id, channel_id, access_token, username, avatar, created_at, updated_at, enabled
 FROM channels_integrations_vk
 WHERE channel_id = $1
 LIMIT 1;
