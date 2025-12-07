@@ -34,6 +34,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
+	vkintegration "github.com/twirapp/twir/libs/repositories/vk_integration"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -78,6 +79,7 @@ type Services struct {
 	ChannelsGamesVotebanProgressState channelsgamesvotebanprogressstate.Repository
 	ShortUrlServices                  *shortenedurls.Service
 	LastfmRepo                        channelsintegrationslastfm.Repository
+	VKRepo                            vkintegration.Repository
 	Executron                         executron.Executron
 	I18n                              *i18n.I18n
 }

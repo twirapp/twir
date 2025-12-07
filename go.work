@@ -24,6 +24,7 @@ use (
 	./libs/cache
 	./libs/config
 	./libs/crypto
+	./libs/entities
 	./libs/gomodels
 	./libs/grpc
 	./libs/i18n
@@ -39,5 +40,4 @@ use (
 	./libs/types
 	./libs/uptrace
 	./libs/utils
-	./libs/entities
 )

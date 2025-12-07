@@ -79,6 +79,14 @@ const IntegrationsPageQuery = graphql(`
 			apiKey
 			enabled
 		}
+
+		# VK
+		vk {
+			enabled
+			userName
+			avatar
+		}
+		vkAuthLink
 	}
 `)
 
@@ -90,7 +98,7 @@ export const useIntegrationsPageData = createGlobalState(() => {
 		context: {
 			additionalTypenames: [integrationsPageCacheKey],
 		},
-		variables: {}
+		variables: {},
 	})
 
 	// Discord
@@ -121,6 +129,10 @@ export const useIntegrationsPageData = createGlobalState(() => {
 
 	// DonatePay
 	const donatePayData = computed(() => query.data.value?.donatePayIntegration ?? null)
+
+	// VK
+	const vkData = computed(() => query.data.value?.vk ?? null)
+	const vkAuthLink = computed(() => query.data.value?.vkAuthLink ?? null)
 
 	async function refetch() {
 		await query.executeQuery({ requestPolicy: 'network-only' })
@@ -171,5 +183,9 @@ export const useIntegrationsPageData = createGlobalState(() => {
 
 		// DonatePay
 		donatePayData,
+
+		// VK
+		vkData,
+		vkAuthLink,
 	}
 })

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/samber/lo"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -19,6 +18,7 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	vkintegration "github.com/twirapp/twir/libs/repositories/vk_integration"
 	"gorm.io/gorm"
 )
 
@@ -26,6 +26,7 @@ type Opts struct {
 	Logger            *slog.Logger
 	SpotifyRepository channelsintegrationsspotify.Repository
 	LastfmRepository  channelsintegrationslastfm.Repository
+	VKRepository      vkintegration.Repository
 	Config            cfg.Config
 	Gorm              *gorm.DB
 	Kv                kv.KV
@@ -48,22 +49,6 @@ type NowPlayingFetcher struct {
 func New(opts Opts) (*NowPlayingFetcher, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-
-	var channelIntegrations []*model.ChannelsIntegrations
-	if err := opts.Gorm.
-		Where(`"channelId" = ?`, opts.ChannelID).
-		Preload("Integration").
-		Find(&channelIntegrations).
-		Error; err != nil {
-		return nil, fmt.Errorf("failed to get channel integrations: %w", err)
-	}
-
-	vkEntity, _ := lo.Find(
-		channelIntegrations,
-		func(integration *model.ChannelsIntegrations) bool {
-			return integration.Integration.Service == "VK" && integration.Enabled
-		},
-	)
 
 	var lfmService *lastfm.Lastfm
 	var spotifyService *spotify.Spotify
@@ -100,10 +85,11 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		spotifyService = spotify.New(spotifyIntegration, spotifyEntity, opts.SpotifyRepository)
 	}
 
-	if vkEntity != nil {
+	// Get VK integration from the new repository
+	vkEntity, err := opts.VKRepository.GetByChannelID(ctx, opts.ChannelID)
+	if err == nil && !vkEntity.IsNil() && vkEntity.Enabled && vkEntity.AccessToken != "" {
 		v, err := vk.New(
 			vk.Opts{
-				Gorm:        opts.Gorm,
 				Integration: vkEntity,
 			},
 		)

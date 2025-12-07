@@ -40,3 +40,5 @@ vite.config.ts.timestamp-*.mjs
 
 *.backup
 configs/otel/otel-collector.yaml
+
+apps/*/main

@@ -7,12 +7,7 @@ import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import {
-	useNowPlayingOverlayApi,
-	useProfile,
-	useUserAccessFlagChecker,
-	useVKIntegration,
-} from '@/api'
+import { useNowPlayingOverlayApi, useProfile, useUserAccessFlagChecker } from '@/api'
 import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -37,13 +32,11 @@ const creator = nowPlayingOverlayManager.useNowPlayingCreate()
 
 const integrationsPage = useIntegrationsPageData()
 
-const { data: vkData } = useVKIntegration().useData()
-
 const isSomeSongIntegrationEnabled = computed(() => {
 	return (
 		integrationsPage.spotifyData.value?.userName ||
 		integrationsPage.lastfmData.value?.userName ||
-		vkData.value?.userName
+		integrationsPage.vkData.value?.userName
 	)
 })
 

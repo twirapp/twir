@@ -250,36 +250,36 @@ single request, optimizing network usage and improving user experience.
 When creating a new integration or refactoring an existing one to use GraphQL:
 
 1. **Add fields to the unified query** in `integrations-page.ts`:
-	 	```typescript
-		 const IntegrationsPageQuery = graphql(`
-		 query IntegrationsPageData {
-		 # ... existing fields ...
+	  ```typescript
+		const IntegrationsPageQuery = graphql(`
+		query IntegrationsPageData {
+		# ... existing fields ...
 
-												# New integration
-												myNewIntegrationData {
-													enabled
-													userName
-													avatar
+													# New integration
+													myNewIntegrationData {
+														enabled
+														userName
+														avatar
+													}
+													myNewIntegrationAuthLink
 												}
-												myNewIntegrationAuthLink
-											}
-										`)
-										```
+											`)
+											```
 
 2. **Add computed refs** for the new integration data:
-	 	```typescript
-		 // MyNewIntegration
-		 const myNewIntegrationData = computed(() => query.data.value?.myNewIntegrationData ?? null)
-		 const myNewIntegrationAuthLink = computed(() => query.data.value?.myNewIntegrationAuthLink ?? null)
-		 ```
+	  ```typescript
+		// MyNewIntegration
+		const myNewIntegrationData = computed(() => query.data.value?.myNewIntegrationData ?? null)
+		const myNewIntegrationAuthLink = computed(() => query.data.value?.myNewIntegrationAuthLink ?? null)
+		```
 
 3. **Export the new computed refs** in the return statement.
 
 4. **Use the unified data in components** instead of creating separate queries:
-	 	```typescript
-		 const integrationsPage = useIntegrationsPageData()
-		 // Access via integrationsPage.myNewIntegrationData
-		 ```
+	  ```typescript
+		const integrationsPage = useIntegrationsPageData()
+		// Access via integrationsPage.myNewIntegrationData
+		```
 
 #### **6.3. Mutations**
 
@@ -308,8 +308,12 @@ When creating a new integration or refactoring an existing one to use GraphQL:
 		* `internal/delivery/gql`: GraphQL resolvers.
 		* `internal/delivery/http`: HTTP handlers.
 		* `internal/services`: Business logic layer.
-		* `internal/entity`: Domain models.
 	* **`libs/repositories`**: Data access layer.
+* **Entities**
+	* Write entities in `libs/entities/{entity_name}/entity.go` file.
+	* Entities should contain only domain logic and validation.
+		* Avoid dependencies on other layers (e.g., repositories, services).
+	* use Nil thing
 * **Repositories:**
 	* Always use **pgx** implementations.
 	* Located in `libs/repositories/{repository_name}/pgx/pgx.go`.
@@ -348,8 +352,3 @@ isNil: true,
 * **Error Handling:**
 	* Use `fmt.Errorf` with `%w` for wrapping errors.
 	* Create custom error types if needed for specific domain error handling.
-* **Entities**
-	* Write entities in `libs/entities/{entity_name}/entity.go` file.
-	* Entities should contain only domain logic and validation.
-		* Avoid dependencies on other layers (e.g., repositories, services).
-	* use Nil thing

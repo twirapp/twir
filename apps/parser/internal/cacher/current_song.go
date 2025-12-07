@@ -9,7 +9,6 @@ import (
 	"net/url"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
@@ -25,19 +24,6 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 	if c.cache.currentSong != nil {
 		return c.cache.currentSong
 	}
-
-	integrations := c.GetEnabledChannelIntegrations(ctx)
-	integrations = lo.Filter(
-		integrations,
-		func(integration *model.ChannelsIntegrations, _ int) bool {
-			switch integration.Integration.Service {
-			case "SPOTIFY", "VK":
-				return integration.Enabled
-			default:
-				return false
-			}
-		},
-	)
 
 	var lastfmService *lastfm.Lastfm
 	if lfmIntegration, err := c.services.LastfmRepo.GetByChannelID(
@@ -77,36 +63,28 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		spotifyService = spotify.New(spotifyIntegration, spotifyEntity, c.services.SpotifyRepo)
 	}
 
-	vkIntegration, ok := lo.Find(
-		integrations,
-		func(integration *model.ChannelsIntegrations) bool {
-			return integration.Integration.Service == "VK"
-		},
-	)
 	var vkService *vk.VK
-	if ok {
-		vkService, _ = vk.New(
+	vkEntity, err := c.services.VKRepo.GetByChannelID(ctx, c.parseCtxChannel.ID)
+	if err == nil && !vkEntity.IsNil() && vkEntity.Enabled && vkEntity.AccessToken != "" {
+		v, vkErr := vk.New(
 			vk.Opts{
-				Gorm:        c.services.Gorm,
-				Integration: vkIntegration,
+				Integration: vkEntity,
 			},
 		)
+		if vkErr != nil {
+			c.services.Logger.Error("failed to create vk service", zap.Error(vkErr))
+		} else {
+			vkService = v
+		}
 	}
 
-	integrationsForFetch := lo.Map(
-		integrations,
-		func(integration *model.ChannelsIntegrations, _ int) model.IntegrationService {
-			return integration.Integration.Service
-		},
-	)
-
-	integrationsForFetch = append(
-		integrationsForFetch,
+	integrationsForFetch := []model.IntegrationService{
 		model.IntegrationServiceSpotify,
+		model.IntegrationServiceVK,
 		"YOUTUBE_SR",
 		"MUSIC_RECOGNIZER",
 		"LASTFM",
-	)
+	}
 
 checkServices:
 	for _, integration := range integrationsForFetch {

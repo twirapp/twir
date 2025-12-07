@@ -29,6 +29,7 @@ services:
 
   pgdog:
     image: ghcr.io/pgdogdev/pgdog:main
+    restart: unless-stopped
     volumes:
       - ./configs/pgdog/pgdog.dev.toml:/pgdog/pgdog.toml
       - ./configs/pgdog/users.toml:/pgdog/users.toml
@@ -68,7 +69,7 @@ services:
 
   # s3
   rustfs:
-    image: rustfs/rustfs:1.0.0-alpha.66
+    image: rustfs/rustfs:1.0.0-alpha.72
     restart: unless-stopped
     ports:
       - '8000:9000'

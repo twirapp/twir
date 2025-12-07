@@ -30,6 +30,10 @@ export function newRouter() {
 			component: () => import('@/features/integrations/pages/discord-callback.vue'),
 		},
 		{
+			path: '/dashboard/integrations/vk',
+			component: () => import('@/features/integrations/pages/vk-callback.vue'),
+		},
+		{
 			path: '/dashboard/integrations/:integrationName',
 			component: () => import('@/pages/IntegrationsCallback.vue'),
 		},

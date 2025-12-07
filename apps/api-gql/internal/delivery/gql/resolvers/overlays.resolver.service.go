@@ -707,6 +707,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 			Logger:            r.deps.Logger,
 			SpotifyRepository: r.deps.SpotifyRepository,
 			LastfmRepository:  r.deps.LastfmRepository,
+			VKRepository:      r.deps.VKIntegrationRepository,
 			Config:            r.deps.Config,
 		},
 	)
