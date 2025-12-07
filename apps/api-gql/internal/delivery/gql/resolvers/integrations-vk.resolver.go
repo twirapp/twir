@@ -10,6 +10,7 @@ import (
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // VkPostCode is the resolver for the vkPostCode field.
@@ -61,7 +62,8 @@ func (r *queryResolver) Vk(ctx context.Context) (*gqlmodel.VKIntegration, error)
 func (r *queryResolver) VkAuthLink(ctx context.Context) (string, error) {
 	authLink, err := r.deps.VKIntegrationService.GetAuthLink(ctx)
 	if err != nil {
-		return "", err
+		r.deps.Logger.Warn("failed to get vk auth link", logger.Error(err))
+		return "", nil
 	}
 
 	return authLink.Link, nil
