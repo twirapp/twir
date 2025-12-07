@@ -3,6 +3,7 @@
 	"sharedButtons": {
 		"create": "Создать",
 		"save": "Сохранить",
+		"saving": "Saving...",
 		"close": "Закрыть",
 		"copy": "Копировать",
 		"delete": "Удалить",
@@ -230,6 +231,8 @@
 				"noTitle": "Невозможно получить название трансляции!",
 				"noCategory": "Невозможно получить категорию!",
 				"modalTitle": "Редактирование информации о трансляции",
+				"editStreamInfo": "Edit Stream Information",
+				"editStreamInfoDescription": "Update your stream title and category",
 				"title": "Название трансляции",
 				"category": "Категория"
 			},
