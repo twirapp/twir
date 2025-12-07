@@ -3,6 +3,7 @@
 	"sharedButtons": {
 		"create": "Criar",
 		"save": "Salvar",
+		"saving": "Saving...",
 		"close": "Fechar",
 		"copy": "Copiar",
 		"delete": "Apagar",
@@ -230,6 +231,8 @@
 				"noTitle": "Não foi possível obter o Título da Transmissão!",
 				"noCategory": "Não foi possível obter a Categoria!",
 				"modalTitle": "Editar Informações da Transmissão",
+				"editStreamInfo": "Edit Stream Information",
+				"editStreamInfoDescription": "Update your stream title and category",
 				"title": "Título da Transmissão",
 				"category": "Categoria"
 			},
