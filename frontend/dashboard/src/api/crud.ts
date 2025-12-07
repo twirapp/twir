@@ -3,7 +3,6 @@ import { unref } from 'vue'
 
 import { protectedApiClient } from './twirp.js'
 
-import type { unprotectedApiClient } from './twirp.js'
 import type { RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc'
 import type { MaybeRefOrGetter } from 'vue'
 
@@ -20,7 +19,7 @@ export function createCrudManager<
 	Create extends CallFunc<any, any>,
 	Update extends CallFunc<any, any>,
 >(opts: {
-	client: typeof protectedApiClient | typeof unprotectedApiClient
+	client: typeof protectedApiClient
 	getAll: GetAll
 	getOne?: GetOne | null
 	deleteOne: Delete
@@ -35,7 +34,7 @@ export function createCrudManager<
 
 	for (const [key, value] of Object.entries(opts)) {
 		if (typeof value === 'function') {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			//
 			// @ts-expect-error
 			opts[key] = value.bind(opts.client)
 		}

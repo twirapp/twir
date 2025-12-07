@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 )
 
 // TwitchGetUserByID is the resolver for the twitchGetUserById field.
@@ -30,6 +31,91 @@ func (r *queryResolver) TwitchGetUserByName(ctx context.Context, name string) (*
 	}
 
 	return dataloader.GetHelixUserByName(ctx, name)
+}
+
+// TwitchGetUsers is the resolver for the twitchGetUsers field.
+func (r *queryResolver) TwitchGetUsers(ctx context.Context, ids []string, names []string) ([]gqlmodel.TwirUserTwitchInfo, error) {
+	// Validate that at least one parameter is provided
+	if (ids == nil || len(ids) == 0) && (names == nil || len(names) == 0) {
+		return []gqlmodel.TwirUserTwitchInfo{}, nil
+	}
+
+	var users []*gqlmodel.TwirUserTwitchInfo
+
+	// Get users by IDs
+	if ids != nil && len(ids) > 0 {
+		usersByIds, err := dataloader.GetHelixUsersByIds(ctx, ids)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, usersByIds...)
+	}
+
+	// Get users by names
+	if names != nil && len(names) > 0 {
+		usersByNames, err := dataloader.GetHelixUsersByName(ctx, names)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, usersByNames...)
+	}
+
+	// Remove duplicates based on ID
+	seen := make(map[string]bool)
+	uniqueUsers := make([]gqlmodel.TwirUserTwitchInfo, 0, len(users))
+	for _, user := range users {
+		if user != nil && !seen[user.ID] {
+			seen[user.ID] = true
+			uniqueUsers = append(uniqueUsers, *user)
+		}
+	}
+
+	return uniqueUsers, nil
+}
+
+// TwitchSearchChannels is the resolver for the twitchSearchChannels field.
+func (r *queryResolver) TwitchSearchChannels(ctx context.Context, query string, twirOnly *bool) (*gqlmodel.TwitchSearchChannelsResponse, error) {
+	if query == "" {
+		return &gqlmodel.TwitchSearchChannelsResponse{
+			Channels: []gqlmodel.TwitchChannel{},
+		}, nil
+	}
+
+	twirOnlyFlag := false
+	if twirOnly != nil {
+		twirOnlyFlag = *twirOnly
+	}
+
+	channels, err := r.deps.TwitchService.SearchChannels(
+		ctx,
+		twitch.SearchChannelsInput{
+			Query:    query,
+			TwirOnly: twirOnlyFlag,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	mappedChannels := make([]gqlmodel.TwitchChannel, 0, len(channels))
+	for _, channel := range channels {
+		mappedChannels = append(
+			mappedChannels, gqlmodel.TwitchChannel{
+				ID:              channel.ID,
+				Login:           channel.BroadcasterLogin,
+				DisplayName:     channel.DisplayName,
+				ProfileImageURL: channel.ThumbnailURL,
+				Title:           channel.Title,
+				GameName:        channel.GameName,
+				GameID:          channel.GameID,
+				IsLive:          channel.IsLive,
+			},
+		)
+	}
+
+	return &gqlmodel.TwitchSearchChannelsResponse{
+		Channels: mappedChannels,
+	}, nil
 }
 
 // TwitchGetChannelRewards is the resolver for the twitchGetChannelRewards field.

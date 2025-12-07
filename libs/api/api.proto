@@ -39,11 +39,3 @@ service Protected {
 	rpc OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse) {}
 }
 
-// UnProtected
-import "messages/twitch/twitch.proto";
-import "messages/songs_unprotected/songs_unprotected.proto";
-
-service UnProtected {
-	rpc TwitchGetUsers(messages.twitch.TwitchGetUsersRequest) returns (messages.twitch.TwitchGetUsersResponse) {}
-	rpc TwitchSearchChannels(messages.twitch.TwitchSearchChannelsRequest) returns (messages.twitch.TwitchSearchChannelsResponse) {}
-}

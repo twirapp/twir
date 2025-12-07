@@ -115,8 +115,8 @@ func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]mod
 	selectBuilder := sq.Select(
 		"id",
 		`"tokenId"`,
-		"isBotAdmin",
-		"apiKey",
+		`"isBotAdmin"`,
+		`"apiKey"`,
 		"is_banned",
 		"hide_on_landing_page",
 		"created_at",
@@ -140,7 +140,7 @@ func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]mod
 	}
 
 	if input.IsBotAdmin != nil {
-		selectBuilder = selectBuilder.Where(squirrel.Eq{"isBotAdmin": input.IsBotAdmin})
+		selectBuilder = selectBuilder.Where(squirrel.Eq{`"isBotAdmin"`: input.IsBotAdmin})
 	}
 
 	if input.IsBanned != nil {

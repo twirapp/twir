@@ -2,6 +2,19 @@ extend type Query {
 	twitchGetUserById(id: ID!): TwirUserTwitchInfo
 	twitchGetUserByName(name: String!): TwirUserTwitchInfo
 
+	"""
+	Get multiple users by IDs or names.
+	At least one of ids or names must be provided.
+	"""
+	twitchGetUsers(ids: [ID!], names: [String!]): [TwirUserTwitchInfo!]!
+
+	"""
+	Search for Twitch channels by query string.
+	Returns empty array if query is empty.
+	If twirOnly is true, only returns channels that are registered in Twir.
+	"""
+	twitchSearchChannels(query: String!, twirOnly: Boolean): TwitchSearchChannelsResponse!
+
 	twitchGetChannelRewards(channelId: ID): TwirTwitchChannelRewardResponse!
 
 	"""
@@ -89,6 +102,21 @@ type TwitchCategory {
 	id: String!
 	name: String!
 	boxArtUrl: String!
+}
+
+type TwitchSearchChannelsResponse {
+	channels: [TwitchChannel!]!
+}
+
+type TwitchChannel {
+	id: ID!
+	login: String!
+	displayName: String!
+	profileImageUrl: String!
+	title: String!
+	gameName: String!
+	gameId: String!
+	isLive: Boolean!
 }
 
 enum TwitchAnnounceColor {

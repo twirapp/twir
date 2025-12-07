@@ -13,10 +13,8 @@ import { useI18n } from 'vue-i18n'
 
 import AlertsDialogContentAudio from './alerts-dialog-content-audio.vue'
 
-import {
-	useTwitchGetUsers,
-} from '@/api'
-import { type Alert,useAlertsApi } from '@/api/alerts.js'
+import { useTwitchGetUsers } from '@/api'
+import { type Alert, useAlertsApi } from '@/api/alerts.js'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import { useGreetingsApi } from '@/api/greetings.js'
 import { useKeywordsApi } from '@/api/keywords.js'
@@ -84,36 +82,31 @@ async function save() {
 
 const commandsApi = useCommandsApi()
 const { data: commands } = commandsApi.useQueryCommands()
-const commandsSelectOptions = computed(() => commands.value?.commands
-	.map((command) => ({ label: command.name, value: command.id })),
+const commandsSelectOptions = computed(() =>
+	commands.value?.commands.map((command) => ({ label: command.name, value: command.id }))
 )
 
 const greetingsApi = useGreetingsApi()
 const { data: greetings } = greetingsApi.useQueryGreetings()
-const greetingsUsersIds = computed(() => greetings.value?.greetings.map(g => g.userId) ?? [])
+const greetingsUsersIds = computed(() => greetings.value?.greetings.map((g) => g.userId) ?? [])
 const { data: twitchUsers } = useTwitchGetUsers({ ids: greetingsUsersIds })
 const greetingsSelectOptions = computed(() => {
-	if (!greetingsUsersIds.value.length || !twitchUsers.value?.users.length) return []
-	return greetings.value?.greetings.map(g => {
-		const twitchUser = twitchUsers.value.users.find(u => u.id === g.userId)
+	if (!greetingsUsersIds.value.length || !twitchUsers.value?.length) return []
+	return greetings.value?.greetings.map((g) => {
+		const twitchUser = twitchUsers.value.find((u) => u.id === g.userId)
 		return { label: twitchUser?.login ?? g.userId, value: g.id }
 	})
 })
 
 const keywordsApi = useKeywordsApi()
 const { data: keywords } = keywordsApi.useQueryKeywords()
-const keywordsSelectOptions = computed(() => keywords.value?.keywords
-	.map(k => ({ label: k.text, value: k.id })),
+const keywordsSelectOptions = computed(() =>
+	keywords.value?.keywords.map((k) => ({ label: k.text, value: k.id }))
 )
 </script>
 
 <template>
-	<NForm
-		ref="formRef"
-		class="p-6 pt-0"
-		:model="formValue"
-		:rules="rules"
-	>
+	<NForm ref="formRef" class="p-6 pt-0" :model="formValue" :rules="rules">
 		<div class="flex flex-col gap-6">
 			<NFormItem label="Name" path="name" show-require-mark>
 				<Input v-model="formValue.name" :maxlength="30" />

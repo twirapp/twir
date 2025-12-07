@@ -10,7 +10,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/api/internal/handlers"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected"
-	"github.com/twirapp/twir/apps/api/internal/impl_unprotected"
 	"github.com/twirapp/twir/apps/api/internal/interceptors"
 	"github.com/twirapp/twir/apps/api/internal/proxy"
 	"github.com/twirapp/twir/apps/api/internal/sessions"
@@ -58,9 +57,7 @@ var App = fx.Options(
 		commandswithgroupsandresponsescache.New,
 		interceptors.New,
 		impl_protected.New,
-		impl_unprotected.New,
 		handlers.AsHandler(twirp_handlers.NewProtected),
-		handlers.AsHandler(twirp_handlers.NewUnProtected),
 		handlers.AsHandler(proxy.New),
 		fx.Annotate(
 			func(handlers []handlers.IHandler) *http.ServeMux {

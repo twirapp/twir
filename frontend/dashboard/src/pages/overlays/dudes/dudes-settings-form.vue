@@ -29,7 +29,7 @@ import type { Font } from '@twir/fontsource'
 
 import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
-import SelectTwitchUsers from '@/components/twitchUsers/multiple.vue'
+import SelectTwitchUsers from '@/components/twitchUsers/twitch-users-select.vue'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 

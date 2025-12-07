@@ -26,7 +26,7 @@ import type { VNodeChild } from 'vue'
 
 import { useCommandsApi } from '@/api/commands/commands'
 import { useSongRequestsApi } from '@/api/song-requests'
-import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue'
+import TwitchSearchUsers from '@/components/twitchUsers/twitch-users-select.vue'
 import CommandList from '@/features/commands/ui/list.vue'
 import { SongRequestsSearchChannelOrVideoOptsType } from '@/gql/graphql'
 
@@ -79,18 +79,23 @@ const formValue = ref<SongRequestsSettingsOpts>({
 			cannotGetInformation: 'Cannot get information about song.',
 			live: 'Seems like that song is live, which is disallowed.',
 			denied: 'That song is denied for requests.',
-			requestedMessage: 'Song "{{songTitle}}" requested, queue position {{position}}. Estimated wait time before your track will be played is {{waitTime}}.',
+			requestedMessage:
+				'Song "{{songTitle}}" requested, queue position {{position}}. Estimated wait time before your track will be played is {{waitTime}}.',
 			maximumOrdered: 'Maximum number of songs is queued ({{maximum}}).',
-			minViews: 'Song {{songTitle}} ({{songViews}} views) haven\'t {{neededViews}} views for being ordered',
+			minViews:
+				"Song {{songTitle}} ({{songViews}} views) haven't {{neededViews}} views for being ordered",
 			maxLength: 'Maximum length of song is {{maxLength}}',
 			minLength: 'Minimum length of song is {{minLength}}',
 		},
 		user: {
 			denied: 'You are denied to request any song.',
 			maxRequests: 'Maximum number of songs ordered by you ({{count}})',
-			minMessages: 'You have only {{userMessages}} messages, but needed {{neededMessages}} for requesting song',
-			minWatched: 'You\'ve only watched {{userWatched}} but needed {{neededWatched}} to request a song.',
-			minFollow: 'You are followed for {{userFollow}} minutes, but needed {{neededFollow}} for requesting song',
+			minMessages:
+				'You have only {{userMessages}} messages, but needed {{neededMessages}} for requesting song',
+			minWatched:
+				"You've only watched {{userWatched}} but needed {{neededWatched}} to request a song.",
+			minFollow:
+				'You are followed for {{userFollow}} minutes, but needed {{neededFollow}} for requesting song',
 		},
 		channel: {
 			denied: 'That channel is denied for requests.',
@@ -98,10 +103,14 @@ const formValue = ref<SongRequestsSettingsOpts>({
 	},
 })
 
-watch(youtubeModuleSettings, async (v) => {
-	if (!v) return
-	formValue.value = toRaw(v)
-}, { immediate: true })
+watch(
+	youtubeModuleSettings,
+	async (v) => {
+		if (!v) return
+		formValue.value = toRaw(v)
+	},
+	{ immediate: true }
+)
 
 const message = useMessage()
 
@@ -113,18 +122,22 @@ async function save() {
 }
 
 function renderSelectOption(option: SelectOption & { image: string }): VNodeChild {
-	return h(NSpace, {
-		align: 'center',
-	}, {
-		default: () => [
-			h(NAvatar, {
-				src: option.image,
-				round: true,
-				class: 'flex h-5 w-5',
-			}),
-			h(NText, { class: 'ml-2' }, { default: () => option.label }),
-		],
-	})
+	return h(
+		NSpace,
+		{
+			align: 'center',
+		},
+		{
+			default: () => [
+				h(NAvatar, {
+					src: option.image,
+					round: true,
+					class: 'flex h-5 w-5',
+				}),
+				h(NText, { class: 'ml-2' }, { default: () => option.label }),
+			],
+		}
+	)
 }
 
 const channelsSearchValue = ref('')
@@ -160,28 +173,29 @@ const songsSearchOpts = computed(() => {
 
 const songsSearch = youtubeModuleManager.useYoutubeVideoOrChannelSearch(songsSearchOpts)
 const songsSearchOptions = computed(() => {
-	return songsSearch?.data.value?.songRequestsSearchChannelOrVideo.items.map((channel) => {
-		return {
-			label: channel.title,
-			value: channel.id,
-			image: channel.thumbnail,
-		}
-	}) ?? []
+	return (
+		songsSearch?.data.value?.songRequestsSearchChannelOrVideo.items.map((channel) => {
+			return {
+				label: channel.title,
+				value: channel.id,
+				image: channel.thumbnail,
+			}
+		}) ?? []
+	)
 })
 
 const commandsManager = useCommandsApi()
 const { data: commands } = commandsManager.useQueryCommands()
 const srCommands = computed(() => {
-	return commands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? []
+	return (
+		commands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? []
+	)
 })
 </script>
 
 <template>
 	<NForm>
-		<NTabs
-			type="line"
-			animated
-		>
+		<NTabs type="line" animated>
 			<NTabPane name="general" :tab="t('songRequests.tabs.general')">
 				<NSpace vertical>
 					<NSpace justify="space-between">
@@ -221,15 +235,8 @@ const srCommands = computed(() => {
 						<NInputNumber v-model:value="formValue.neededVotesForSkip" />
 					</NFormItem>
 
-					<NFormItem
-						:label="t('songRequests.settings.channelReward')"
-						path="channelPointsRewardId"
-					>
-						<RewardsSelector
-							v-model="formValue.channelPointsRewardId"
-							only-with-input
-							clearable
-						/>
+					<NFormItem :label="t('songRequests.settings.channelReward')" path="channelPointsRewardId">
+						<RewardsSelector v-model="formValue.channelPointsRewardId" only-with-input clearable />
 					</NFormItem>
 
 					<NFormItem
@@ -246,21 +253,12 @@ const srCommands = computed(() => {
 							multiple
 							:clear-filter-after-select="false"
 							:render-label="renderSelectOption"
-							@search="(v) => channelsSearchValue = v"
+							@search="(v) => (channelsSearchValue = v)"
 						/>
 					</NFormItem>
 
-					<NFormItem
-						:label="t('songRequests.settings.deniedWords')"
-						path="channelPointsRewardId"
-					>
-						<NSelect
-							v-model:value="formValue.denyList!.words"
-							filterable
-							multiple
-							clearable
-							tag
-						/>
+					<NFormItem :label="t('songRequests.settings.deniedWords')" path="channelPointsRewardId">
+						<NSelect v-model:value="formValue.denyList!.words" filterable multiple clearable tag />
 					</NFormItem>
 				</NSpace>
 			</NTabPane>
@@ -290,7 +288,8 @@ const srCommands = computed(() => {
 					path="user.minFollowTime"
 				>
 					<NInputNumber
-						v-model:value="formValue.user!.minFollowTime" :min="0"
+						v-model:value="formValue.user!.minFollowTime"
+						:min="0"
 						:max="99999999999999"
 					/>
 				</NFormItem>
@@ -323,7 +322,7 @@ const srCommands = computed(() => {
 						:options="songsSearchOptions"
 						:render-label="renderSelectOption"
 						clearable
-						@search="(v) => songsSearchValue = v"
+						@search="(v) => (songsSearchValue = v)"
 					/>
 				</NFormItem>
 			</NTabPane>

@@ -3,9 +3,7 @@ import { refDebounced } from '@vueuse/core'
 import { XIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
-import type { TwitchSearchChannelsRequest } from '@twir/api/messages/twitch/twitch'
-
-import { useTwitchGetUsers,useTwitchSearchChannels } from '@/api'
+import { useTwitchGetUsers, useTwitchSearchChannels } from '@/api'
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { resolveUserName } from '@/helpers'
@@ -23,37 +21,45 @@ const userId = defineModel<string | null>({ required: true })
 
 const selectedUsersQuery = useTwitchGetUsers({ ids: userId })
 const selectedUser = computed(() => {
-	const user = selectedUsersQuery.data.value?.users?.[0]
+	if (!userId.value) {
+		return null
+	}
+
+	const user = selectedUsersQuery.data.value?.[0]
 
 	return user
 		? {
-			label: resolveUserName(user.login, user.displayName),
-			value: user.id,
-			profileImageUrl: user.profileImageUrl,
-		}
+				label: resolveUserName(user.login, user.displayName),
+				value: user.id,
+				profileImageUrl: user.profileImageUrl,
+			}
 		: null
 })
 
 const search = ref('')
 const searchDebounced = refDebounced(search, 500)
 
-const searchParams = computed<TwitchSearchChannelsRequest>(() => ({
+const searchParams = computed(() => ({
 	query: searchDebounced.value,
 	twirOnly: props.twirOnly,
 }))
 const twitchSearch = useTwitchSearchChannels(searchParams)
 const selectOptions = computed(() => {
-	return twitchSearch.data?.value?.channels.map((channel) => ({
-		label: resolveUserName(channel.login, channel.displayName),
-		value: channel.id,
-		profileImageUrl: channel.profileImageUrl,
-	})) ?? []
+	return (
+		twitchSearch.data?.value?.map((channel) => ({
+			label: resolveUserName(channel.login, channel.displayName),
+			value: channel.id,
+			profileImageUrl: channel.profileImageUrl,
+		})) ?? []
+	)
 })
 
-function handleSelect(event: CustomEvent<{
-	originalEvent: PointerEvent
-	value?: string | number | boolean | Record<string, any>
-}>) {
+function handleSelect(
+	event: CustomEvent<{
+		originalEvent: PointerEvent
+		value?: string | number | boolean | Record<string, any>
+	}>
+) {
 	if (typeof event.detail.value !== 'string') return
 	userId.value = event.detail.value
 
@@ -64,13 +70,24 @@ function handleSelect(event: CustomEvent<{
 <template>
 	<Popover :open="!!selectOptions.length">
 		<PopoverTrigger as-child>
-			<div class="flex flex-wrap gap-2 items-center rounded-md border border-input bg-background px-3 py-2 text-sm w-full">
-				<div v-if="selectedUser" class="flex h-6 items-center bg-secondary gap-1 py-1 px-2 text-sm rounded-full">
+			<div
+				class="flex flex-wrap gap-2 items-center rounded-md border border-input bg-background px-3 py-2 text-sm w-full"
+			>
+				<div
+					v-if="selectedUser"
+					class="flex h-6 items-center bg-secondary gap-1 py-1 px-2 text-sm rounded-full"
+				>
 					<img :src="selectedUser.profileImageUrl" class="size-4 rounded-full" />
 					<span>{{ selectedUser.label }}</span>
 					<XIcon class="size-4 cursor-pointer" @click="userId = null" />
 				</div>
-				<input v-if="!selectedUser" v-model="search" type="text" :placeholder="placeholder ?? 'Search...'" class="text-sm min-h-6 focus:outline-none flex-1 bg-transparent px-1" />
+				<input
+					v-if="!selectedUser"
+					v-model="search"
+					type="text"
+					:placeholder="placeholder ?? 'Search...'"
+					class="text-sm min-h-6 focus:outline-none flex-1 bg-transparent px-1"
+				/>
 			</div>
 		</PopoverTrigger>
 		<PopoverContent class="p-0">

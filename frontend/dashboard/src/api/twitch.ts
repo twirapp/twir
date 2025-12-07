@@ -1,79 +1,119 @@
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { useQuery as useGqlQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
-import { isRef, unref } from 'vue'
+import { computed, isRef, unref } from 'vue'
 
-import type { TwitchGetUsersResponse, TwitchSearchChannelsRequest, TwitchSearchChannelsResponse } from '@twir/api/messages/twitch/twitch'
 import type { ComputedRef, MaybeRef, Ref } from 'vue'
 
-import { protectedApiClient, unprotectedApiClient } from '@/api/twirp.js'
+import { protectedApiClient } from '@/api/twirp.js'
 import { graphql } from '@/gql/gql.js'
+import { TwitchGetUsersQuery, TwitchSearchChannelsQuery } from '@/gql/graphql.ts'
 
 type TwitchIn = MaybeRef<string | string[] | null>
-export function useTwitchGetUsers(opts: {
-	ids?: TwitchIn
-	names?: TwitchIn
-}) {
-	return useQuery({
-		queryKey: ['twitch', 'search', 'users', opts.ids, opts.names],
-		queryFn: async (): Promise<TwitchGetUsersResponse> => {
-			const rawIds = unref(opts.ids) ?? []
-			const rawNames = unref(opts.names) ?? []
+export function useTwitchGetUsers(opts: { ids?: TwitchIn; names?: TwitchIn }) {
+	const queryIds = computed(() => {
+		const rawIds = unref(opts.ids) ?? []
+		let ids: string[] = Array.isArray(rawIds) ? rawIds : [rawIds]
+		return ids.filter((n) => n !== '')
+	})
 
-			let ids: string[] = Array.isArray(rawIds) ? rawIds : [rawIds]
-			let names: string[] = Array.isArray(rawNames) ? rawNames : [rawNames]
+	const queryNames = computed(() => {
+		const rawNames = unref(opts.names) ?? []
+		let names: string[] = Array.isArray(rawNames) ? rawNames : [rawNames]
+		return names.filter((n) => n !== '')
+	})
 
-			names = names.filter(n => n !== '')
-			ids = ids.filter(n => n !== '')
+	const pause = computed(() => {
+		return queryIds.value.length === 0 && queryNames.value.length === 0
+	})
 
-			if (ids.length === 0 && names.length === 0) {
-				return {
-					users: [],
+	const query = useGqlQuery({
+		query: graphql(`
+			query TwitchGetUsers($ids: [ID!], $names: [String!]) {
+				twitchGetUsers(ids: $ids, names: $names) {
+					id
+					login
+					displayName
+					profileImageUrl
+					description
 				}
 			}
-
-			const call = await unprotectedApiClient.twitchGetUsers({
-				ids,
-				names,
-			})
-
-			return call.response
-		},
+		`),
+		variables: computed(() => ({
+			ids: queryIds.value.length > 0 ? queryIds.value : undefined,
+			names: queryNames.value.length > 0 ? queryNames.value : undefined,
+		})),
+		pause,
 	})
-}
 
-export function useTwitchSearchChannels(params: Ref<TwitchSearchChannelsRequest>) {
-	return useQuery({
-		queryKey: ['twitch', 'search', 'channels', params],
-		queryFn: async (): Promise<TwitchSearchChannelsResponse> => {
-			const rawParams = isRef(params) ? params.value : params
-
-			if (!rawParams.query) {
-				return { channels: [] }
+	return {
+		data: computed<TwitchGetUsersQuery['twitchGetUsers']>(() => {
+			if (!query.data.value) {
+				return []
 			}
 
-			const call = await unprotectedApiClient.twitchSearchChannels(rawParams)
-			return call.response
-		},
-	})
+			return query.data.value.twitchGetUsers
+		}),
+		isLoading: query.fetching,
+		error: query.error,
+	}
 }
 
-export const useTwitchRewardsNew = createGlobalState(() => useGqlQuery({
-	query: graphql(`
-		query GetChannelRewards {
-			twitchRewards {
-				id
-				title
-				cost
-				imageUrls
-				backgroundColor
-				enabled
-				usedTimes
-				userInputRequired
+export function useTwitchSearchChannels(params: Ref<{ query: string; twirOnly?: boolean }>) {
+	const pause = computed(() => !params.value.query)
+
+	const query = useGqlQuery({
+		query: graphql(`
+			query TwitchSearchChannels($query: String!, $twirOnly: Boolean) {
+				twitchSearchChannels(query: $query, twirOnly: $twirOnly) {
+					channels {
+						id
+						login
+						displayName
+						profileImageUrl
+						title
+						gameName
+						gameId
+						isLive
+					}
+				}
 			}
-		}
-	`),
-}))
+		`),
+		variables: params,
+		pause,
+	})
+
+	return {
+		data: computed<TwitchSearchChannelsQuery['twitchSearchChannels']['channels']>(() => {
+			if (!query.data.value) {
+				return []
+			}
+
+			return query.data.value.twitchSearchChannels?.channels ?? []
+		}),
+		isLoading: query.fetching,
+		error: query.error,
+	}
+}
+
+export const useTwitchRewardsNew = createGlobalState(() =>
+	useGqlQuery({
+		query: graphql(`
+			query GetChannelRewards {
+				twitchRewards {
+					id
+					title
+					cost
+					imageUrls
+					backgroundColor
+					enabled
+					usedTimes
+					userInputRequired
+				}
+			}
+		`),
+	})
+)
 
 export function useTwitchSearchCategories(query: string | Ref<string>) {
 	return useQuery({
@@ -88,7 +128,10 @@ export function useTwitchSearchCategories(query: string | Ref<string>) {
 	})
 }
 
-export function useTwitchGetCategories(ids: MaybeRef<string[]> | ComputedRef<string[]>, options?: { keepPreviousData?: boolean }) {
+export function useTwitchGetCategories(
+	ids: MaybeRef<string[]> | ComputedRef<string[]>,
+	options?: { keepPreviousData?: boolean }
+) {
 	return useQuery({
 		queryKey: ['twitchGetCategories', ids || ''],
 		queryFn: async () => {
@@ -105,7 +148,7 @@ export function useTwitchGetCategories(ids: MaybeRef<string[]> | ComputedRef<str
 export function twitchSetChannelInformationMutation() {
 	return useMutation({
 		mutationKey: ['twitchSetChannelInformation'],
-		mutationFn: async (req: { categoryId: string, title: string }) => {
+		mutationFn: async (req: { categoryId: string; title: string }) => {
 			await protectedApiClient.twitchSetChannelInformation(req)
 		},
 	})

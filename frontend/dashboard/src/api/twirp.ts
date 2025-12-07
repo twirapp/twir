@@ -1,5 +1,5 @@
 import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport'
-import { ProtectedClient, UnProtectedClient } from '@twir/api/api.client'
+import { ProtectedClient } from '@twir/api/api.client'
 
 import type { MethodInfo, NextUnaryFn, RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc'
 
@@ -8,7 +8,12 @@ const transport = new TwirpFetchTransport({
 	sendJson: import.meta.env.DEV,
 	interceptors: [
 		{
-			interceptUnary(next: NextUnaryFn, method: MethodInfo, input: object, options: RpcOptions): UnaryCall {
+			interceptUnary(
+				next: NextUnaryFn,
+				method: MethodInfo,
+				input: object,
+				options: RpcOptions
+			): UnaryCall {
 				const locationQuery = new URLSearchParams(window.location.search)
 				const apiKey = locationQuery.get('apiKey')
 
@@ -25,4 +30,3 @@ const transport = new TwirpFetchTransport({
 	],
 })
 export const protectedApiClient = new ProtectedClient(transport)
-export const unprotectedApiClient = new UnProtectedClient(transport)
