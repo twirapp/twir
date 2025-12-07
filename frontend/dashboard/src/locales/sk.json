@@ -3,6 +3,7 @@
 	"sharedButtons": {
 		"create": "Vytvoriť",
 		"save": "Uložiť",
+		"saving": "Saving...",
 		"close": "Zavrieť",
 		"copy": "Kopírovať",
 		"delete": "Vymazať",
@@ -230,6 +231,8 @@
 				"noTitle": "Nemôžem získať názov streamu!",
 				"noCategory": "Nemôžem získať kategóriu!",
 				"modalTitle": "Upraviť informácie o streame",
+				"editStreamInfo": "Edit Stream Information",
+				"editStreamInfoDescription": "Update your stream title and category",
 				"title": "Názov streamu",
 				"category": "Kategória"
 			},
