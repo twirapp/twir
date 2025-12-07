@@ -3,6 +3,7 @@
 	"sharedButtons": {
 		"create": "Створити",
 		"save": "Зберегти",
+		"saving": "Saving...",
 		"close": "Закрити",
 		"copy": "Скопіювати",
 		"delete": "Видалити",
@@ -230,6 +231,8 @@
 				"noTitle": "Неможливо отримати назву!",
 				"noCategory": "Неможливо отримати категорію!",
 				"modalTitle": "Редагувати інформацію про трансляцію",
+				"editStreamInfo": "Edit Stream Information",
+				"editStreamInfoDescription": "Update your stream title and category",
 				"title": "Назва трансляції",
 				"category": "Категорія"
 			},
