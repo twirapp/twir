@@ -62,6 +62,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
+	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/audit"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
@@ -73,6 +74,7 @@ import (
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
+	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -88,8 +90,9 @@ type Deps struct {
 	AuditRecorder audit.Recorder
 	WsRouter      wsrouter.WsRouter
 
-	SpotifyRepository channelsintegrationsspotify.Repository
-	LastfmRepository  channelsintegrationslastfm.Repository
+	SpotifyRepository       channelsintegrationsspotify.Repository
+	LastfmRepository        channelsintegrationslastfm.Repository
+	VKIntegrationRepository vkintegrationrepo.Repository
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB
@@ -156,6 +159,7 @@ type Deps struct {
 	NightbotIntegrationService            *nightbotintegration.Service
 	LastfmIntegrationService              *lastfmintegration.Service
 	ObsWebsocketModuleService             *obs_websocket_module.Service
+	VKIntegrationService                  *vkintegration.Service
 }
 
 type Resolver struct {

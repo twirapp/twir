@@ -55,6 +55,7 @@ import (
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+	vkintegrationpostgres "github.com/twirapp/twir/libs/repositories/vk_integration/datasource/postgres"
 	"github.com/twirapp/twir/libs/uptrace"
 
 	shortenedurlspgx "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
@@ -238,6 +239,7 @@ func main() {
 	channelsGamesVotebanRepo := channelsgamesvotebanpgx.New(channelsgamesvotebanpgx.Opts{PgxPool: pgxconn})
 	channelsGamesVotebanProgressStateRepo := channelsgamesvotebanprogressstateredis.New(channelsgamesvotebanprogressstateredis.Opts{Redis: redisClient})
 	lastfmRepo := channelsintegrationslastfmpostgres.New(channelsintegrationslastfmpostgres.Opts{PgxPool: pgxconn})
+	vkRepo := vkintegrationpostgres.NewFx(pgxconn)
 
 	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
@@ -302,6 +304,7 @@ func main() {
 		ChannelsGamesVotebanRepo:          channelsGamesVotebanRepo,
 		ChannelsGamesVotebanProgressState: channelsGamesVotebanProgressStateRepo,
 		LastfmRepo:                        lastfmRepo,
+		VKRepo:                            vkRepo,
 		Executron:                         executron.New(*config, redisClient),
 		I18n:                              translationService,
 	}

@@ -24,7 +24,6 @@ require (
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/twitch v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/types v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	go.uber.org/fx v1.24.0
@@ -119,6 +118,7 @@ require (
 	github.com/twirapp/twir/libs/audit v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/pubsub v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/sentry v0.0.0-20251127124349-67ad7fa0003f // indirect
+	github.com/twirapp/twir/libs/types v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
 	github.com/uptrace/uptrace-go v1.38.0 // indirect

@@ -28,6 +28,8 @@ type Config struct {
 	BotAccessToken  string `required:"false"    envconfig:"BOT_ACCESS_TOKEN"`
 	BotRefreshToken string `required:"false"    envconfig:"BOT_REFRESH_TOKEN"`
 
+	TrustedProxies []string `envconfig:"TRUSTED_PROXIES"`
+
 	RedisUrl           string `required:"true"  default:"redis://localhost:6379/0"    envconfig:"REDIS_URL"`
 	TwitchClientId     string `required:"true"                                        envconfig:"TWITCH_CLIENTID"`
 	TwitchClientSecret string `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
@@ -74,9 +76,12 @@ type Config struct {
 
 	EventSubDisableSignatureVerification bool `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
 
-	DonationAlertsClientId string   `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
-	DonationAlertsSecret   string   `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
-	TrustedProxies         []string `envconfig:"TRUSTED_PROXIES"`
+	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
+	DonationAlertsSecret   string `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
+
+	VKClientId       string `required:"false" envconfig:"VK_CLIENT_ID"`
+	VKClientSecret   string `required:"false" envconfig:"VK_CLIENT_SECRET"`
+	VkAppAccessToken string `required:"false" envconfig:"VK_APP_ACCESS_TOKEN"`
 
 	DeeplApiKey                       string `required:"false" envconfig:"DEEPL_API_KEY"`
 	GoogleTranslateServiceAccountJson string `required:"false" envconfig:"GOOGLE_TRANSLATE_SERVICE_ACCOUNT_JSON"`

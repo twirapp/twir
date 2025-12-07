@@ -3,13 +3,12 @@ import { NSpin } from 'naive-ui'
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import {
-	useFaceitIntegration,
-	useStreamlabsIntegration,
-	useVKIntegration,
-} from '@/api/index.js'
+import { useFaceitIntegration, useStreamlabsIntegration } from '@/api/index.js'
 import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
-import { lastfmBroadcaster, useLastfmIntegration } from '@/features/integrations/composables/lastfm/use-lastfm-integration.ts'
+import {
+	lastfmBroadcaster,
+	useLastfmIntegration,
+} from '@/features/integrations/composables/lastfm/use-lastfm-integration.ts'
 
 const router = useRouter()
 const route = useRoute()
@@ -43,10 +42,6 @@ const integrationsHooks: {
 				lastfmBroadcaster.postMessage('refresh')
 			}
 		},
-	},
-	vk: {
-		manager: useVKIntegration(),
-		closeWindow: true,
 	},
 	streamlabs: {
 		manager: useStreamlabsIntegration(),

@@ -80,6 +80,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	valorantintegrationservice "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
+	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -154,6 +155,8 @@ import (
 	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users_with_channel/pgx"
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
+	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
+	vkintegrationrepopostgres "github.com/twirapp/twir/libs/repositories/vk_integration/datasource/postgres"
 
 	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
 	seventvintegrationpostgres "github.com/twirapp/twir/libs/repositories/seventv_integration/datasource/postgres"
@@ -423,6 +426,10 @@ func main() {
 				channelsmodulesobswebsocketpgx.NewFx,
 				fx.As(new(channelsmodulesobswebsocket.Repository)),
 			),
+			fx.Annotate(
+				vkintegrationrepopostgres.NewFx,
+				fx.As(new(vkintegrationrepo.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -486,6 +493,7 @@ func main() {
 			donationalertsintegration.New,
 			donatestreamintegration.New,
 			donatellointegration.New,
+			vkintegration.New,
 		),
 		// app itself
 		fx.Provide(

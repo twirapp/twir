@@ -8,8 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
-	model "github.com/twirapp/twir/libs/gomodels"
-	"gorm.io/gorm"
+	"github.com/twirapp/twir/libs/entities/vk_integration"
 )
 
 type vkError struct {
@@ -33,22 +32,19 @@ type vkResponse struct {
 }
 
 type Opts struct {
-	Gorm        *gorm.DB
-	Integration *model.ChannelsIntegrations
+	Integration vk_integration.Entity
 }
 
 type VK struct {
-	gorm        *gorm.DB
-	integration *model.ChannelsIntegrations
+	integration vk_integration.Entity
 }
 
 func New(opts Opts) (*VK, error) {
-	if !opts.Integration.AccessToken.Valid {
-		return nil, fmt.Errorf("integration access token is not valid")
+	if opts.Integration.AccessToken == "" {
+		return nil, fmt.Errorf("integration access token is empty")
 	}
 
 	vk := &VK{
-		gorm:        opts.Gorm,
 		integration: opts.Integration,
 	}
 
@@ -64,7 +60,7 @@ type Track struct {
 func (c *VK) GetTrack(ctx context.Context) (*Track, error) {
 	u, _ := url.Parse("https://api.vk.com/method/status.get")
 	q := u.Query()
-	q.Set("access_token", c.integration.AccessToken.String)
+	q.Set("access_token", c.integration.AccessToken)
 	q.Set("v", "5.199")
 	u.RawQuery = q.Encode()
 

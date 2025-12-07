@@ -27,11 +27,6 @@ service Protected {
 	rpc IntegrationsStreamlabsPostCode(messages.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-	rpc IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (messages.integrations_vk.GetAuthLink) {}
-	rpc IntegrationsVKGetData(google.protobuf.Empty) returns (messages.integrations_vk.GetDataResponse) {}
-	rpc IntegrationsVKPostCode(messages.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
 	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
 	rpc TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest) returns (google.protobuf.Empty) {}

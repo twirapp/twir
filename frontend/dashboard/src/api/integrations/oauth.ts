@@ -87,16 +87,6 @@ export function createIntegrationOauth<
 	}
 }
 
-export function useVKIntegration() {
-	return createIntegrationOauth({
-		integrationName: 'vk',
-		getData: protectedApiClient.integrationsVKGetData,
-		getAuthLink: protectedApiClient.integrationsVKGetAuthLink,
-		usePostCode: protectedApiClient.integrationsVKPostCode,
-		useLogout: protectedApiClient.integrationsVKLogout,
-	})
-}
-
 export function useStreamlabsIntegration() {
 	return createIntegrationOauth({
 		integrationName: 'streamlabs',

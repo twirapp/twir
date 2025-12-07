@@ -1,0 +1,16 @@
+extend type Query {
+	vk: VKIntegration! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	vkAuthLink: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+extend type Mutation {
+	vkPostCode(code: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	vkLogout: Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+type VKIntegration {
+	enabled: Boolean!
+	userName: String
+	avatar: String
+}
+
