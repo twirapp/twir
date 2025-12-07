@@ -110,7 +110,7 @@ func (c *Service) getUserSevenTvResponse(ctx context.Context, userID string) (
 	}
 
 	if resp == nil || resp.Users.UserByConnection == nil {
-		return entity.SevenTvProfile{}, fmt.Errorf("failed to get user profile: %w", err)
+		return entity.SevenTvProfile{}, fmt.Errorf("failed to get user profile")
 	}
 
 	editors := make([]entity.SevenTvProfileEditor, 0, len(resp.Users.UserByConnection.Editors))
@@ -153,29 +153,33 @@ func (c *Service) GetSevenTvData(
 	channelID string,
 ) (entity.SevenTvIntegrationData, error) {
 	var (
-		botProfile entity.SevenTvProfile
+		botProfile  entity.SevenTvProfile
 		userProfile entity.SevenTvProfile
 	)
 
 	wg := errgroup.Group{}
 
-	wg.Go(func() error {
-		var err error
-		botProfile, err = c.getBotSevenTvProfile(ctx)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	wg.Go(
+		func() error {
+			var err error
+			botProfile, err = c.getBotSevenTvProfile(ctx)
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+	)
 
-	wg.Go(func() error {
-		var err error
-		userProfile, err = c.getUserSevenTvResponse(ctx, channelID)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	wg.Go(
+		func() error {
+			var err error
+			userProfile, err = c.getUserSevenTvResponse(ctx, channelID)
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+	)
 
 	if err := wg.Wait(); err != nil {
 		return entity.SevenTvIntegrationData{}, err

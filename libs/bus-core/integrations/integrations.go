@@ -9,8 +9,9 @@ type Service string
 
 const (
 	DonationAlerts Service = "DONATIONALERTS"
-	StreamLabs     Service = "STREAMLABS"
+	Streamlabs     Service = "STREAMLABS"
 	DonatePay      Service = "DONATEPAY"
+	Faceit         Service = "FACEIT"
 )
 
 type Request struct {

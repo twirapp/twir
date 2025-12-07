@@ -171,7 +171,7 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 		return nil, err
 	}
 
-	if err = c.sendBusEvent(ctx, channelIntegration.ID, channelIntegration.Enabled, integrations.StreamLabs); err != nil {
+	if err = c.sendBusEvent(ctx, channelIntegration.ID, channelIntegration.Enabled, integrations.Streamlabs); err != nil {
 		return nil, err
 	}
 
@@ -199,7 +199,7 @@ func (c *Integrations) IntegrationsStreamlabsLogout(
 		return nil, err
 	}
 
-	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled, integrations.StreamLabs); err != nil {
+	if err = c.sendBusEvent(ctx, integration.ID, integration.Enabled, integrations.Streamlabs); err != nil {
 		return nil, err
 	}
 

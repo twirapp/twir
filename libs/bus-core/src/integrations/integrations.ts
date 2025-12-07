@@ -5,6 +5,7 @@ export enum IntegrationService {
 	DONATIONALERTS = 'DONATIONALERTS',
 	STREAMLABS = 'STREAMLABS',
 	DONATEPAY = 'DONATEPAY',
+	FACEIT = 'FACEIT',
 }
 
 export interface Request {

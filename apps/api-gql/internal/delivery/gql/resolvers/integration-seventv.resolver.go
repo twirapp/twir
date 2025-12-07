@@ -13,11 +13,13 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
-	"github.com/twirapp/twir/libs/logger"
 )
 
 // SevenTvUpdate is the resolver for the sevenTvUpdate field.
-func (r *mutationResolver) SevenTvUpdate(ctx context.Context, input gqlmodel.SevenTvUpdateInput) (bool, error) {
+func (r *mutationResolver) SevenTvUpdate(
+	ctx context.Context,
+	input gqlmodel.SevenTvUpdateInput,
+) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -40,7 +42,10 @@ func (r *mutationResolver) SevenTvUpdate(ctx context.Context, input gqlmodel.Sev
 }
 
 // SevenTvData is the resolver for the sevenTvData field.
-func (r *subscriptionResolver) SevenTvData(ctx context.Context) (<-chan *gqlmodel.SevenTvIntegration, error) {
+func (r *subscriptionResolver) SevenTvData(ctx context.Context) (
+	<-chan *gqlmodel.SevenTvIntegration,
+	error,
+) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -58,7 +63,6 @@ func (r *subscriptionResolver) SevenTvData(ctx context.Context) (<-chan *gqlmode
 			default:
 				data, err := r.deps.SevenTvIntegrationService.GetSevenTvData(ctx, dashboardID)
 				if err != nil {
-					r.deps.Logger.Error("failed to get seven tv data", logger.Error(err))
 					time.Sleep(1 * time.Second)
 					continue
 				}

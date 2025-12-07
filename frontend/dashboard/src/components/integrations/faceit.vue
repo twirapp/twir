@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { useFaceitIntegration } from '@/api/index.js'
+import { useFaceitIntegration } from '@/api/integrations/faceit.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import IconFaceit from '@/assets/integrations/faceit.svg?use'
 import OauthComponent from '@/components/integrations/variants/oauth.vue'
 import { Label } from '@/components/ui/label'
@@ -13,11 +14,8 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 
+const integrationsPage = useIntegrationsPageData()
 const manager = useFaceitIntegration()
-const { data } = manager.useData()
-const logout = manager.useLogout()
-const { data: authLink } = manager.useAuthLink()
-const updater = manager.update!()
 
 const game = ref('cs2')
 
@@ -27,22 +25,26 @@ const gameOptions = [
 	{ label: 'Dota 2', value: 'dota2' },
 ]
 
-watch(data, (newData) => {
-	if (!newData?.game) return
-	game.value = newData.game
-})
+watch(
+	() => integrationsPage.faceitData.value,
+	(newData) => {
+		if (!newData?.game) return
+		game.value = newData.game
+	},
+	{ immediate: true }
+)
 
 async function save() {
-	await updater.mutateAsync({ game: game.value })
+	await manager.update.executeMutation({ game: game.value })
 }
 </script>
 
 <template>
 	<OauthComponent
 		title="Faceit"
-		:data="data"
-		:logout="() => logout.mutateAsync({})"
-		:authLink="authLink?.link"
+		:data="integrationsPage.faceitData.value"
+		:logout="() => manager.logout.executeMutation({})"
+		:authLink="integrationsPage.faceitAuthLink.value"
 		:icon="IconFaceit"
 		:withSettings="true"
 		:save="save"
@@ -62,11 +64,7 @@ async function save() {
 							<SelectValue :placeholder="gameOptions[0].label" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem
-								v-for="option in gameOptions"
-								:key="option.value"
-								:value="option.value"
-							>
+							<SelectItem v-for="option in gameOptions" :key="option.value" :value="option.value">
 								{{ option.label }}
 							</SelectItem>
 						</SelectContent>

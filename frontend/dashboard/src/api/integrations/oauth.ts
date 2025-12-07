@@ -96,14 +96,3 @@ export function useStreamlabsIntegration() {
 		useLogout: protectedApiClient.integrationsStreamlabsLogout,
 	})
 }
-
-export function useFaceitIntegration() {
-	return createIntegrationOauth({
-		integrationName: 'faceit',
-		getData: protectedApiClient.integrationsFaceitGetData,
-		getAuthLink: protectedApiClient.integrationsFaceitGetAuthLink,
-		usePostCode: protectedApiClient.integrationsFaceitPostCode,
-		useLogout: protectedApiClient.integrationsFaceitLogout,
-		updateData: protectedApiClient.integrationsFaceitUpdate,
-	})
-}

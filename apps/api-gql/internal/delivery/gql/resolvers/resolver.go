@@ -34,6 +34,7 @@ import (
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
+	faceitintegration "github.com/twirapp/twir/apps/api-gql/internal/services/faceit_integration"
 	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
@@ -160,6 +161,7 @@ type Deps struct {
 	LastfmIntegrationService              *lastfmintegration.Service
 	ObsWebsocketModuleService             *obs_websocket_module.Service
 	VKIntegrationService                  *vkintegration.Service
+	FaceitIntegrationService              *faceitintegration.Service
 }
 
 type Resolver struct {
