@@ -18,9 +18,6 @@ import { SetChannelInformationRequest } from "./messages/twitch_protected/twitch
 import { GetCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
 import { SearchCategoriesResponse } from "./messages/twitch_protected/twitch_protected";
 import { SearchCategoriesRequest } from "./messages/twitch_protected/twitch_protected";
-import { PostCodeRequest as PostCodeRequest$2 } from "./messages/integrations_vk/integrations_vk";
-import { GetDataResponse as GetDataResponse$2 } from "./messages/integrations_vk/integrations_vk";
-import { GetAuthLink as GetAuthLink$2 } from "./messages/integrations_vk/integrations_vk";
 import { PostCodeRequest as PostCodeRequest$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import { GetDataResponse as GetDataResponse$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import { GetAuthLink as GetAuthLink$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
@@ -43,10 +40,6 @@ export const Protected = new ServiceType("api.Protected", [
     { name: "IntegrationsStreamlabsGetData", options: {}, I: Empty, O: GetDataResponse$ },
     { name: "IntegrationsStreamlabsPostCode", options: {}, I: PostCodeRequest$, O: Empty },
     { name: "IntegrationsStreamlabsLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsVKGetAuthLink", options: {}, I: Empty, O: GetAuthLink$2 },
-    { name: "IntegrationsVKGetData", options: {}, I: Empty, O: GetDataResponse$2 },
-    { name: "IntegrationsVKPostCode", options: {}, I: PostCodeRequest$2, O: Empty },
-    { name: "IntegrationsVKLogout", options: {}, I: Empty, O: Empty },
     { name: "TwitchSearchCategories", options: {}, I: SearchCategoriesRequest, O: SearchCategoriesResponse },
     { name: "TwitchGetCategories", options: {}, I: GetCategoriesRequest, O: SearchCategoriesResponse },
     { name: "TwitchSetChannelInformation", options: {}, I: SetChannelInformationRequest, O: Empty },

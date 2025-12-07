@@ -19,7 +19,6 @@ import ctxsetters "github.com/twitchtv/twirp/ctxsetters"
 import google_protobuf "google.golang.org/protobuf/types/known/emptypb"
 import messages_integrations_faceit "github.com/twirapp/twir/libs/api/messages/integrations_faceit"
 import messages_integrations_streamlabs "github.com/twirapp/twir/libs/api/messages/integrations_streamlabs"
-import messages_integrations_vk "github.com/twirapp/twir/libs/api/messages/integrations_vk"
 import messages_overlays "github.com/twirapp/twir/libs/api/messages/overlays"
 import messages_twitch "github.com/twirapp/twir/libs/api/messages/twitch"
 import messages_twitch_protected "github.com/twirapp/twir/libs/api/messages/twitch_protected"
@@ -58,14 +57,6 @@ type Protected interface {
 
 	IntegrationsStreamlabsLogout(context.Context, *google_protobuf.Empty) (*google_protobuf.Empty, error)
 
-	IntegrationsVKGetAuthLink(context.Context, *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error)
-
-	IntegrationsVKGetData(context.Context, *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error)
-
-	IntegrationsVKPostCode(context.Context, *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error)
-
-	IntegrationsVKLogout(context.Context, *google_protobuf.Empty) (*google_protobuf.Empty, error)
-
 	TwitchSearchCategories(context.Context, *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error)
 
 	TwitchGetCategories(context.Context, *messages_twitch_protected.GetCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error)
@@ -91,7 +82,7 @@ type Protected interface {
 
 type protectedProtobufClient struct {
 	client      HTTPClient
-	urls        [22]string
+	urls        [18]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -119,7 +110,7 @@ func NewProtectedProtobufClient(baseURL string, client HTTPClient, opts ...twirp
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "api", "Protected")
-	urls := [22]string{
+	urls := [18]string{
 		serviceURL + "IntegrationsFaceitGetAuthLink",
 		serviceURL + "IntegrationsFaceitGetData",
 		serviceURL + "IntegrationsFaceitUpdate",
@@ -129,10 +120,6 @@ func NewProtectedProtobufClient(baseURL string, client HTTPClient, opts ...twirp
 		serviceURL + "IntegrationsStreamlabsGetData",
 		serviceURL + "IntegrationsStreamlabsPostCode",
 		serviceURL + "IntegrationsStreamlabsLogout",
-		serviceURL + "IntegrationsVKGetAuthLink",
-		serviceURL + "IntegrationsVKGetData",
-		serviceURL + "IntegrationsVKPostCode",
-		serviceURL + "IntegrationsVKLogout",
 		serviceURL + "TwitchSearchCategories",
 		serviceURL + "TwitchGetCategories",
 		serviceURL + "TwitchSetChannelInformation",
@@ -566,190 +553,6 @@ func (c *protectedProtobufClient) callIntegrationsStreamlabsLogout(ctx context.C
 	return out, nil
 }
 
-func (c *protectedProtobufClient) IntegrationsVKGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKGetAuthLink")
-	caller := c.callIntegrationsVKGetAuthLink
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsVKGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_vk.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_vk.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsVKGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
-	out := new(messages_integrations_vk.GetAuthLink)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsVKGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKGetData")
-	caller := c.callIntegrationsVKGetData
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsVKGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_vk.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_vk.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsVKGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
-	out := new(messages_integrations_vk.GetDataResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsVKPostCode(ctx context.Context, in *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKPostCode")
-	caller := c.callIntegrationsVKPostCode
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_vk.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_vk.PostCodeRequest) when calling interceptor")
-					}
-					return c.callIntegrationsVKPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsVKPostCode(ctx context.Context, in *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedProtobufClient) IntegrationsVKLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKLogout")
-	caller := c.callIntegrationsVKLogout
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsVKLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedProtobufClient) callIntegrationsVKLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 func (c *protectedProtobufClient) TwitchSearchCategories(ctx context.Context, in *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api")
 	ctx = ctxsetters.WithServiceName(ctx, "Protected")
@@ -781,7 +584,7 @@ func (c *protectedProtobufClient) TwitchSearchCategories(ctx context.Context, in
 
 func (c *protectedProtobufClient) callTwitchSearchCategories(ctx context.Context, in *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -827,7 +630,7 @@ func (c *protectedProtobufClient) TwitchGetCategories(ctx context.Context, in *m
 
 func (c *protectedProtobufClient) callTwitchGetCategories(ctx context.Context, in *messages_twitch_protected.GetCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -873,7 +676,7 @@ func (c *protectedProtobufClient) TwitchSetChannelInformation(ctx context.Contex
 
 func (c *protectedProtobufClient) callTwitchSetChannelInformation(ctx context.Context, in *messages_twitch_protected.SetChannelInformationRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -919,7 +722,7 @@ func (c *protectedProtobufClient) OverlaysGetAll(ctx context.Context, in *google
 
 func (c *protectedProtobufClient) callOverlaysGetAll(ctx context.Context, in *google_protobuf.Empty) (*messages_overlays.GetAllResponse, error) {
 	out := new(messages_overlays.GetAllResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -965,7 +768,7 @@ func (c *protectedProtobufClient) OverlaysGetOne(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysGetOne(ctx context.Context, in *messages_overlays.GetByIdRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1011,7 +814,7 @@ func (c *protectedProtobufClient) OverlaysUpdate(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysUpdate(ctx context.Context, in *messages_overlays.UpdateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1057,7 +860,7 @@ func (c *protectedProtobufClient) OverlaysDelete(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysDelete(ctx context.Context, in *messages_overlays.DeleteRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1103,7 +906,7 @@ func (c *protectedProtobufClient) OverlaysCreate(ctx context.Context, in *messag
 
 func (c *protectedProtobufClient) callOverlaysCreate(ctx context.Context, in *messages_overlays.CreateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1149,7 +952,7 @@ func (c *protectedProtobufClient) OverlaysParseHtml(ctx context.Context, in *mes
 
 func (c *protectedProtobufClient) callOverlaysParseHtml(ctx context.Context, in *messages_overlays.ParseHtmlOverlayRequest) (*messages_overlays.ParseHtmlOverlayResponse, error) {
 	out := new(messages_overlays.ParseHtmlOverlayResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1170,7 +973,7 @@ func (c *protectedProtobufClient) callOverlaysParseHtml(ctx context.Context, in 
 
 type protectedJSONClient struct {
 	client      HTTPClient
-	urls        [22]string
+	urls        [18]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -1198,7 +1001,7 @@ func NewProtectedJSONClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "api", "Protected")
-	urls := [22]string{
+	urls := [18]string{
 		serviceURL + "IntegrationsFaceitGetAuthLink",
 		serviceURL + "IntegrationsFaceitGetData",
 		serviceURL + "IntegrationsFaceitUpdate",
@@ -1208,10 +1011,6 @@ func NewProtectedJSONClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 		serviceURL + "IntegrationsStreamlabsGetData",
 		serviceURL + "IntegrationsStreamlabsPostCode",
 		serviceURL + "IntegrationsStreamlabsLogout",
-		serviceURL + "IntegrationsVKGetAuthLink",
-		serviceURL + "IntegrationsVKGetData",
-		serviceURL + "IntegrationsVKPostCode",
-		serviceURL + "IntegrationsVKLogout",
 		serviceURL + "TwitchSearchCategories",
 		serviceURL + "TwitchGetCategories",
 		serviceURL + "TwitchSetChannelInformation",
@@ -1645,190 +1444,6 @@ func (c *protectedJSONClient) callIntegrationsStreamlabsLogout(ctx context.Conte
 	return out, nil
 }
 
-func (c *protectedJSONClient) IntegrationsVKGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKGetAuthLink")
-	caller := c.callIntegrationsVKGetAuthLink
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsVKGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_vk.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_vk.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsVKGetAuthLink(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
-	out := new(messages_integrations_vk.GetAuthLink)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsVKGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKGetData")
-	caller := c.callIntegrationsVKGetData
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsVKGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_vk.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_vk.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsVKGetData(ctx context.Context, in *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
-	out := new(messages_integrations_vk.GetDataResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsVKPostCode(ctx context.Context, in *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKPostCode")
-	caller := c.callIntegrationsVKPostCode
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_vk.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_vk.PostCodeRequest) when calling interceptor")
-					}
-					return c.callIntegrationsVKPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsVKPostCode(ctx context.Context, in *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *protectedJSONClient) IntegrationsVKLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api")
-	ctx = ctxsetters.WithServiceName(ctx, "Protected")
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKLogout")
-	caller := c.callIntegrationsVKLogout
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return c.callIntegrationsVKLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *protectedJSONClient) callIntegrationsVKLogout(ctx context.Context, in *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 func (c *protectedJSONClient) TwitchSearchCategories(ctx context.Context, in *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api")
 	ctx = ctxsetters.WithServiceName(ctx, "Protected")
@@ -1860,7 +1475,7 @@ func (c *protectedJSONClient) TwitchSearchCategories(ctx context.Context, in *me
 
 func (c *protectedJSONClient) callTwitchSearchCategories(ctx context.Context, in *messages_twitch_protected.SearchCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1906,7 +1521,7 @@ func (c *protectedJSONClient) TwitchGetCategories(ctx context.Context, in *messa
 
 func (c *protectedJSONClient) callTwitchGetCategories(ctx context.Context, in *messages_twitch_protected.GetCategoriesRequest) (*messages_twitch_protected.SearchCategoriesResponse, error) {
 	out := new(messages_twitch_protected.SearchCategoriesResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1952,7 +1567,7 @@ func (c *protectedJSONClient) TwitchSetChannelInformation(ctx context.Context, i
 
 func (c *protectedJSONClient) callTwitchSetChannelInformation(ctx context.Context, in *messages_twitch_protected.SetChannelInformationRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1998,7 +1613,7 @@ func (c *protectedJSONClient) OverlaysGetAll(ctx context.Context, in *google_pro
 
 func (c *protectedJSONClient) callOverlaysGetAll(ctx context.Context, in *google_protobuf.Empty) (*messages_overlays.GetAllResponse, error) {
 	out := new(messages_overlays.GetAllResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2044,7 +1659,7 @@ func (c *protectedJSONClient) OverlaysGetOne(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysGetOne(ctx context.Context, in *messages_overlays.GetByIdRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2090,7 +1705,7 @@ func (c *protectedJSONClient) OverlaysUpdate(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysUpdate(ctx context.Context, in *messages_overlays.UpdateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[18], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2136,7 +1751,7 @@ func (c *protectedJSONClient) OverlaysDelete(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysDelete(ctx context.Context, in *messages_overlays.DeleteRequest) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[19], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[15], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2182,7 +1797,7 @@ func (c *protectedJSONClient) OverlaysCreate(ctx context.Context, in *messages_o
 
 func (c *protectedJSONClient) callOverlaysCreate(ctx context.Context, in *messages_overlays.CreateRequest) (*messages_overlays.Overlay, error) {
 	out := new(messages_overlays.Overlay)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[20], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[16], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2228,7 +1843,7 @@ func (c *protectedJSONClient) OverlaysParseHtml(ctx context.Context, in *message
 
 func (c *protectedJSONClient) callOverlaysParseHtml(ctx context.Context, in *messages_overlays.ParseHtmlOverlayRequest) (*messages_overlays.ParseHtmlOverlayResponse, error) {
 	out := new(messages_overlays.ParseHtmlOverlayResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[21], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[17], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -2366,18 +1981,6 @@ func (s *protectedServer) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 		return
 	case "IntegrationsStreamlabsLogout":
 		s.serveIntegrationsStreamlabsLogout(ctx, resp, req)
-		return
-	case "IntegrationsVKGetAuthLink":
-		s.serveIntegrationsVKGetAuthLink(ctx, resp, req)
-		return
-	case "IntegrationsVKGetData":
-		s.serveIntegrationsVKGetData(ctx, resp, req)
-		return
-	case "IntegrationsVKPostCode":
-		s.serveIntegrationsVKPostCode(ctx, resp, req)
-		return
-	case "IntegrationsVKLogout":
-		s.serveIntegrationsVKLogout(ctx, resp, req)
 		return
 	case "TwitchSearchCategories":
 		s.serveTwitchSearchCategories(ctx, resp, req)
@@ -4010,726 +3613,6 @@ func (s *protectedServer) serveIntegrationsStreamlabsLogoutProtobuf(ctx context.
 	}
 	if respContent == nil {
 		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsStreamlabsLogout. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsVKGetAuthLink(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsVKGetAuthLinkJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsVKGetAuthLinkProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsVKGetAuthLinkJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKGetAuthLink")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsVKGetAuthLink
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsVKGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_vk.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_vk.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_vk.GetAuthLink
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_vk.GetAuthLink and nil error while calling IntegrationsVKGetAuthLink. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsVKGetAuthLinkProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKGetAuthLink")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsVKGetAuthLink
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_vk.GetAuthLink, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsVKGetAuthLink(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_vk.GetAuthLink)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_vk.GetAuthLink) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_vk.GetAuthLink
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_vk.GetAuthLink and nil error while calling IntegrationsVKGetAuthLink. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsVKGetData(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsVKGetDataJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsVKGetDataProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsVKGetDataJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKGetData")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsVKGetData
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsVKGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_vk.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_vk.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_vk.GetDataResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_vk.GetDataResponse and nil error while calling IntegrationsVKGetData. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsVKGetDataProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKGetData")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsVKGetData
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*messages_integrations_vk.GetDataResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsVKGetData(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*messages_integrations_vk.GetDataResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*messages_integrations_vk.GetDataResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *messages_integrations_vk.GetDataResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *messages_integrations_vk.GetDataResponse and nil error while calling IntegrationsVKGetData. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsVKPostCode(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsVKPostCodeJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsVKPostCodeProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsVKPostCodeJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKPostCode")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(messages_integrations_vk.PostCodeRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsVKPostCode
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_vk.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_vk.PostCodeRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsVKPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsVKPostCode. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsVKPostCodeProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKPostCode")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(messages_integrations_vk.PostCodeRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsVKPostCode
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *messages_integrations_vk.PostCodeRequest) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*messages_integrations_vk.PostCodeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*messages_integrations_vk.PostCodeRequest) when calling interceptor")
-					}
-					return s.Protected.IntegrationsVKPostCode(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsVKPostCode. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsVKLogout(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIntegrationsVKLogoutJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIntegrationsVKLogoutProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *protectedServer) serveIntegrationsVKLogoutJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKLogout")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Protected.IntegrationsVKLogout
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsVKLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsVKLogout. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *protectedServer) serveIntegrationsVKLogoutProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IntegrationsVKLogout")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(google_protobuf.Empty)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Protected.IntegrationsVKLogout
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *google_protobuf.Empty) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*google_protobuf.Empty)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*google_protobuf.Empty) when calling interceptor")
-					}
-					return s.Protected.IntegrationsVKLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling IntegrationsVKLogout. nil responses are not supported"))
 		return
 	}
 
@@ -7727,50 +6610,46 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 706 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0x51, 0x4f, 0xd4, 0x40,
-	0x10, 0x86, 0x98, 0x98, 0xb0, 0x26, 0x44, 0x57, 0x24, 0x78, 0xa0, 0x01, 0x12, 0x31, 0xa8, 0xb4,
-	0x7a, 0x24, 0xfa, 0x66, 0x22, 0x87, 0x02, 0xf1, 0x0c, 0xa7, 0x88, 0x0f, 0x06, 0x73, 0xd9, 0xbb,
-	0x0e, 0xbd, 0x86, 0xb6, 0x5b, 0xbb, 0x53, 0x0c, 0x0f, 0x3e, 0xf9, 0x6b, 0x7d, 0xf3, 0x27, 0x98,
-	0x6b, 0xb7, 0xdb, 0x6b, 0x6f, 0xb7, 0x57, 0xf1, 0xe5, 0xda, 0x9b, 0xf9, 0xe6, 0xfb, 0x66, 0xe7,
-	0xdb, 0x6d, 0x4b, 0x16, 0x58, 0xe4, 0x59, 0x51, 0xcc, 0x91, 0xd3, 0x1b, 0x2c, 0xf2, 0x5a, 0xab,
-	0x2e, 0xe7, 0xae, 0x0f, 0x76, 0x1a, 0x1a, 0x24, 0xe7, 0x36, 0x04, 0x11, 0x5e, 0x65, 0x88, 0xd6,
-	0x4a, 0x00, 0x42, 0x30, 0x17, 0x84, 0x1d, 0x00, 0xb2, 0xf4, 0x47, 0x66, 0x5e, 0xaa, 0x8c, 0x17,
-	0x22, 0xb8, 0x31, 0x43, 0x8f, 0x87, 0xa2, 0x7f, 0xce, 0x86, 0xe0, 0xa1, 0x2e, 0x26, 0xeb, 0x5e,
-	0xeb, 0xeb, 0x04, 0xc6, 0xc0, 0x02, 0x9f, 0x0d, 0x8c, 0x71, 0x59, 0x6f, 0xe9, 0xeb, 0x2f, 0x2f,
-	0xaa, 0xff, 0x25, 0x7e, 0xab, 0x58, 0x01, 0x77, 0x12, 0x1f, 0x44, 0x1f, 0xb1, 0x74, 0x2f, 0x71,
-	0xcf, 0x15, 0x0e, 0x7f, 0x78, 0x38, 0x1c, 0xf5, 0xc7, 0x61, 0x18, 0x22, 0x38, 0x53, 0x01, 0x59,
-	0xb1, 0xae, 0x2a, 0xf8, 0x25, 0xc4, 0x3e, 0xbb, 0x2a, 0x6e, 0x24, 0x62, 0xad, 0xc2, 0x29, 0x2f,
-	0x32, 0xdb, 0x56, 0x59, 0xc1, 0x43, 0x57, 0xf4, 0x93, 0xb0, 0x90, 0x9c, 0x8a, 0x64, 0x35, 0xed,
-	0x3f, 0xb7, 0xc9, 0x42, 0x2f, 0x8f, 0x51, 0x87, 0x3c, 0x38, 0x9a, 0x58, 0xf4, 0xbb, 0x74, 0xce,
-	0x07, 0x80, 0x6f, 0x12, 0x1c, 0x75, 0xbd, 0xf0, 0x82, 0x2e, 0x5b, 0x99, 0xb9, 0x56, 0x6e, 0xae,
-	0xf5, 0x76, 0x6c, 0x6e, 0x6b, 0x5b, 0x4d, 0xd1, 0xd2, 0x39, 0x35, 0x41, 0xb1, 0x39, 0x47, 0x1d,
-	0x72, 0x5f, 0xab, 0xb2, 0xcf, 0x90, 0x19, 0x15, 0x76, 0x66, 0x2a, 0x8c, 0xcb, 0x3f, 0x81, 0x88,
-	0x78, 0x28, 0x60, 0x73, 0x8e, 0x02, 0x59, 0x99, 0x56, 0x39, 0x8d, 0x1c, 0x86, 0x40, 0xed, 0x7a,
-	0xb2, 0x0c, 0x95, 0xf1, 0x7d, 0x4f, 0x40, 0x60, 0xcb, 0xd0, 0x55, 0x2a, 0xd3, 0x9a, 0x96, 0xe9,
-	0x71, 0x81, 0x1d, 0xee, 0x00, 0x9d, 0xd1, 0x75, 0x8e, 0x9b, 0x2d, 0xd3, 0xd5, 0xad, 0xa6, 0xcb,
-	0x5d, 0x9e, 0xa0, 0x71, 0x64, 0x66, 0x36, 0x9f, 0x6c, 0x4c, 0xb2, 0x9d, 0xa8, 0x33, 0xd1, 0xc4,
-	0x6b, 0xd3, 0x9a, 0x26, 0x4e, 0x56, 0xd9, 0x6f, 0xbf, 0xbc, 0xab, 0x4a, 0x6a, 0xb5, 0x9e, 0xbf,
-	0x68, 0xa4, 0x54, 0xf1, 0x3d, 0x20, 0x0f, 0xf5, 0x6a, 0xca, 0x94, 0x06, 0xb4, 0xcd, 0x8d, 0xe9,
-	0x91, 0x35, 0xbd, 0xdc, 0xb5, 0xcd, 0x39, 0x2b, 0x1f, 0x8f, 0x2f, 0xef, 0x9b, 0x98, 0xf2, 0xc8,
-	0xb0, 0xa6, 0xcb, 0x8b, 0x8a, 0x19, 0x67, 0xe4, 0xde, 0x14, 0x7b, 0xad, 0x09, 0xdb, 0xb5, 0xcc,
-	0x95, 0xe1, 0x7f, 0x23, 0xcb, 0x65, 0x76, 0x35, 0xf4, 0x1a, 0x9a, 0xe6, 0xc3, 0x3e, 0x24, 0x4b,
-	0x65, 0xfa, 0x6b, 0x0f, 0xf9, 0xd7, 0x3c, 0x59, 0xfe, 0x9c, 0x3e, 0x3c, 0x4f, 0x80, 0xc5, 0xc3,
-	0x51, 0x87, 0x21, 0xb8, 0x3c, 0xf6, 0x40, 0xd0, 0x76, 0xd1, 0xe9, 0xd4, 0x83, 0xba, 0x0a, 0xce,
-	0x5b, 0xde, 0xfd, 0xa7, 0x1a, 0x35, 0xae, 0x9f, 0xe4, 0x6e, 0xd6, 0xc4, 0x01, 0xe0, 0x44, 0x07,
-	0x76, 0x0d, 0x5b, 0x09, 0xf9, 0x9f, 0xf2, 0x11, 0x59, 0xcd, 0x67, 0x80, 0x9d, 0x11, 0x0b, 0x43,
-	0xf0, 0x8f, 0xc2, 0x73, 0x1e, 0x07, 0xe9, 0x78, 0xe9, 0xab, 0x5a, 0x56, 0x4d, 0xc5, 0x6c, 0x03,
-	0x3f, 0x90, 0xc5, 0x63, 0xf9, 0x4a, 0x1b, 0x6f, 0x4b, 0xdf, 0x37, 0x5a, 0xb7, 0x51, 0x88, 0xab,
-	0x97, 0x60, 0x56, 0x32, 0xb1, 0x80, 0x8f, 0x25, 0xba, 0xe3, 0x10, 0xa8, 0xa1, 0x6c, 0xef, 0xea,
-	0xc8, 0xc9, 0xbb, 0x6b, 0x69, 0x20, 0x92, 0x25, 0x3d, 0xcf, 0x8a, 0x52, 0xbe, 0x2c, 0xd6, 0x35,
-	0xf8, 0x2c, 0xd5, 0x8c, 0xb1, 0x5b, 0x30, 0xee, 0x83, 0x0f, 0x06, 0xc6, 0x2c, 0xd5, 0xe4, 0x79,
-	0xa3, 0xd8, 0x3a, 0x31, 0x98, 0xfa, 0xcb, 0x52, 0xcd, 0xfa, 0x0b, 0xc9, 0x9d, 0x9c, 0xb1, 0xc7,
-	0x62, 0x01, 0x87, 0x18, 0xf8, 0xf4, 0x89, 0xa6, 0x44, 0x65, 0x25, 0x3c, 0xa7, 0x7f, 0xda, 0x08,
-	0x9b, 0x9b, 0xd6, 0xfe, 0x3d, 0x4f, 0x6e, 0x9d, 0x86, 0xc5, 0x47, 0xc7, 0x90, 0x2c, 0xaa, 0x43,
-	0x70, 0x2a, 0x20, 0x16, 0x74, 0xab, 0xba, 0xf1, 0xac, 0x32, 0x20, 0x17, 0x7e, 0x3c, 0x13, 0xa7,
-	0x76, 0x4a, 0x42, 0x96, 0x4a, 0xc7, 0x3d, 0xdb, 0xbb, 0x82, 0x3e, 0x33, 0x50, 0x94, 0x61, 0xb9,
-	0xe0, 0x4e, 0x43, 0x74, 0x2e, 0xbb, 0xb7, 0xf9, 0x75, 0xdd, 0xf5, 0x70, 0x94, 0x0c, 0xac, 0x21,
-	0x0f, 0xc6, 0x5f, 0x6b, 0x31, 0x8b, 0xa2, 0xf4, 0x6a, 0xfb, 0xde, 0x40, 0xd8, 0x2c, 0xf2, 0x06,
-	0x37, 0x53, 0x8f, 0x77, 0xff, 0x06, 0x00, 0x00, 0xff, 0xff, 0x1a, 0x8d, 0xc3, 0x4b, 0x48, 0x0b,
-	0x00, 0x00,
+	// 655 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0x4f, 0x6f, 0xd3, 0x30,
+	0x14, 0xdf, 0x84, 0x84, 0x34, 0x23, 0x4d, 0xc2, 0xa0, 0x69, 0x74, 0x03, 0x6d, 0x3b, 0x0c, 0xf1,
+	0x67, 0x09, 0x74, 0x12, 0xdc, 0x90, 0x58, 0x07, 0x63, 0x52, 0xd1, 0x0a, 0x63, 0x17, 0x2e, 0x95,
+	0xdb, 0xbc, 0xa5, 0xd1, 0x1c, 0x3b, 0xc4, 0x2f, 0x43, 0x3b, 0x70, 0xe2, 0xc8, 0x27, 0xe5, 0x5b,
+	0xa0, 0x26, 0xb6, 0x93, 0xb4, 0x4e, 0x1b, 0xe0, 0xd2, 0xa4, 0x7e, 0xbf, 0x3f, 0xcf, 0xfe, 0xd9,
+	0x6e, 0xc9, 0x1a, 0x4b, 0x22, 0x2f, 0x49, 0x25, 0x4a, 0x7a, 0x8b, 0x25, 0x51, 0x67, 0x2b, 0x94,
+	0x32, 0xe4, 0xe0, 0xe7, 0x43, 0xa3, 0xec, 0xd2, 0x87, 0x38, 0xc1, 0x9b, 0x02, 0xd1, 0xd9, 0x8c,
+	0x41, 0x29, 0x16, 0x82, 0xf2, 0x63, 0x40, 0x96, 0x7f, 0xe8, 0xca, 0x2b, 0x5b, 0x89, 0x04, 0x42,
+	0x98, 0x32, 0x8c, 0xa4, 0x50, 0xc3, 0x4b, 0x36, 0x86, 0x08, 0x5d, 0x63, 0x9a, 0xf7, 0xc6, 0xcd,
+	0x53, 0x98, 0x02, 0x8b, 0x39, 0x1b, 0x35, 0x8e, 0x6b, 0xbe, 0xe7, 0xe6, 0x5f, 0x5f, 0xcd, 0x7e,
+	0xd7, 0xf8, 0xfd, 0x72, 0x06, 0x32, 0xc8, 0x38, 0xa8, 0x21, 0x62, 0xed, 0x5d, 0xe3, 0x5e, 0x58,
+	0x1c, 0x7e, 0x8f, 0x70, 0x3c, 0x19, 0x4e, 0x87, 0x61, 0x8c, 0x10, 0xcc, 0x0d, 0x68, 0xc6, 0x8e,
+	0x65, 0xc8, 0x6b, 0x48, 0x39, 0xbb, 0x29, 0x5f, 0x34, 0x62, 0x7b, 0x46, 0x53, 0x3f, 0x74, 0xb5,
+	0x6b, 0xab, 0x4a, 0x8a, 0x50, 0x0d, 0x33, 0x51, 0x5a, 0xce, 0x8d, 0x14, 0x9c, 0xee, 0xaf, 0x75,
+	0xb2, 0x36, 0x30, 0x63, 0x34, 0x20, 0x0f, 0x4f, 0x2b, 0x93, 0x7e, 0x9f, 0xaf, 0xf3, 0x09, 0xe0,
+	0xdb, 0x0c, 0x27, 0xfd, 0x48, 0x5c, 0xd1, 0x0d, 0xaf, 0x08, 0xd7, 0x33, 0xe1, 0x7a, 0xef, 0xa6,
+	0xe1, 0x76, 0x9e, 0xd8, 0x55, 0xf4, 0x5c, 0x49, 0x55, 0x24, 0xf6, 0x56, 0x68, 0x40, 0x1e, 0x38,
+	0x5d, 0x8e, 0x19, 0xb2, 0x46, 0x87, 0x83, 0xa5, 0x0e, 0x53, 0xfa, 0x67, 0x50, 0x89, 0x14, 0x0a,
+	0xf6, 0x56, 0x28, 0x90, 0xcd, 0x79, 0x97, 0x8b, 0x24, 0x60, 0x08, 0xd4, 0x5f, 0x2c, 0x56, 0xa0,
+	0x0a, 0xbd, 0x6f, 0x19, 0x28, 0xec, 0x34, 0x74, 0x95, 0xdb, 0x74, 0xe6, 0x6d, 0x06, 0x52, 0x61,
+	0x4f, 0x06, 0x40, 0x97, 0x74, 0x6d, 0x70, 0xcb, 0x6d, 0xfa, 0xae, 0xd9, 0xf4, 0x65, 0x28, 0x33,
+	0x6c, 0x5c, 0xb2, 0x66, 0x35, 0x4e, 0x76, 0xab, 0x6a, 0xe7, 0xf6, 0x4c, 0xb4, 0xc9, 0xba, 0x69,
+	0x4e, 0x95, 0x93, 0x55, 0xcf, 0x9b, 0xd7, 0x77, 0x55, 0xcd, 0x6d, 0x61, 0xe6, 0x2f, 0x5b, 0x39,
+	0xcd, 0xe4, 0x1e, 0x93, 0x47, 0x6e, 0x37, 0x1b, 0x4a, 0x0b, 0xd9, 0xf6, 0xc1, 0x0c, 0xc8, 0xb6,
+	0xdb, 0xee, 0x9f, 0xc3, 0xf9, 0xb9, 0x4a, 0x36, 0xbe, 0xe4, 0xe7, 0xfa, 0x1c, 0x58, 0x3a, 0x9e,
+	0xf4, 0x18, 0x42, 0x28, 0xd3, 0x08, 0x14, 0xed, 0x96, 0x9d, 0xcf, 0xdd, 0x21, 0xb3, 0x60, 0xd3,
+	0xfa, 0xe1, 0x5f, 0x71, 0xec, 0x32, 0xfe, 0x20, 0xf7, 0x8a, 0x26, 0x4e, 0x00, 0x2b, 0x1d, 0xf8,
+	0x0b, 0xd4, 0x6a, 0xc8, 0xff, 0xb4, 0x4f, 0xc8, 0x96, 0x59, 0x03, 0xec, 0x4d, 0x98, 0x10, 0xc0,
+	0x4f, 0xc5, 0xa5, 0x4c, 0xe3, 0x7c, 0x99, 0xe9, 0xeb, 0x85, 0xaa, 0x0e, 0xc6, 0xf2, 0x20, 0x3f,
+	0x92, 0xf5, 0x33, 0x7d, 0xdb, 0x4e, 0xb7, 0x2f, 0xe7, 0x8d, 0xd1, 0xed, 0x96, 0xe6, 0xf6, 0x7e,
+	0x2e, 0x28, 0x95, 0x09, 0x7c, 0xaa, 0xc9, 0x9d, 0x09, 0xa0, 0x0d, 0xb4, 0xa3, 0x9b, 0xd3, 0xc0,
+	0x74, 0xd7, 0x71, 0x40, 0xb4, 0x4a, 0xbe, 0xd5, 0xac, 0xa4, 0xbe, 0xc7, 0x76, 0x1c, 0xf8, 0xa2,
+	0xd4, 0x4e, 0xb1, 0x5f, 0x2a, 0x1e, 0x03, 0x87, 0x06, 0xc5, 0xa2, 0xd4, 0xe6, 0x28, 0x58, 0xb5,
+	0x5e, 0x0a, 0x4d, 0xfd, 0x15, 0xa5, 0x76, 0xfd, 0x09, 0x72, 0xd7, 0x28, 0x0e, 0x58, 0xaa, 0xe0,
+	0x03, 0xc6, 0x9c, 0x3e, 0x75, 0x50, 0x6c, 0x55, 0xc3, 0x8d, 0xfc, 0xb3, 0x56, 0x58, 0x13, 0x5a,
+	0xf7, 0xf7, 0x2a, 0xb9, 0x73, 0x21, 0xca, 0xdf, 0xc3, 0x31, 0x59, 0xb7, 0x87, 0xe0, 0x42, 0x41,
+	0xaa, 0xe8, 0xfe, 0xec, 0xc6, 0xf3, 0xea, 0x00, 0x63, 0xfc, 0x78, 0x29, 0xce, 0xee, 0x94, 0x8c,
+	0xdc, 0xaf, 0x1d, 0xf7, 0x62, 0xef, 0x2a, 0xfa, 0xbc, 0x41, 0xa2, 0x0e, 0x33, 0x86, 0x07, 0x2d,
+	0xd1, 0xc6, 0xf6, 0x68, 0xef, 0xeb, 0x4e, 0x18, 0xe1, 0x24, 0x1b, 0x79, 0x63, 0x19, 0x4f, 0xff,
+	0x48, 0xa4, 0x2c, 0x49, 0xf2, 0xa7, 0xcf, 0xa3, 0x91, 0xf2, 0x59, 0x12, 0x8d, 0x6e, 0xe7, 0x19,
+	0x1f, 0xfe, 0x09, 0x00, 0x00, 0xff, 0xff, 0xe6, 0xda, 0xf2, 0x5a, 0xe3, 0x09, 0x00, 0x00,
 }
