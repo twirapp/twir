@@ -25,7 +25,7 @@ INSERT INTO channels_integrations_vk (channel_id,
 																			enabled)
 SELECT ci."channelId",
 			 ci."accessToken",
-			 ci.data ->> 'userName' AS username,
+			 ci.data ->> 'username' AS username,
 			 ci.data ->> 'avatar'   AS avatar,
 			 NOW()                  AS created_at,
 			 NOW()                  AS updated_at,
@@ -36,7 +36,8 @@ WHERE ci."integrationId" = (SELECT id FROM public.integrations WHERE service = '
 									FROM channels_integrations_vk civ
 									WHERE civ.channel_id = ci."channelId")
 	AND ci."accessToken" IS NOT NULL
-	AND ci."accessToken" != '';
+	AND ci."accessToken" != ''
+	AND ci.data ->> 'username' IS NOT NULL;
 -- +goose StatementEnd
 
 -- +goose Down
