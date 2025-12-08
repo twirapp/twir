@@ -87,18 +87,9 @@ func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInf
 		return fmt.Errorf("at least one of categoryID or title must be provided")
 	}
 
-	channel, err := s.channelsRepository.GetByID(ctx, input.ChannelID)
-	if err != nil {
-		return fmt.Errorf("cannot get channel by userID %s: %w", input.ChannelID, err)
-	}
-
-	if channel.IsNil() {
-		return fmt.Errorf("channel with userID %s not found", input.ChannelID)
-	}
-
-	twitchClient, err := twitch.NewBotClientWithContext(
+	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		channel.BotID,
+		input.ChannelID,
 		s.config,
 		s.twirBus,
 	)
