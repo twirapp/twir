@@ -11,19 +11,16 @@ import Stream from '@/components/dashboard/stream.vue'
 import { useWidgets } from '@/components/dashboard/widgets.js'
 import { Button } from '@/components/ui/button'
 import { useIsMobile } from '@/composables/use-is-mobile'
-import Stats from '@/layout/stats/stats.vue'
 
 const { isMobile } = useIsMobile()
 const widgets = useWidgets()
 const visibleWidgets = computed(() => widgets.value.filter((v) => v.visible))
 const dropdownOptions = computed(() => {
-	return widgets.value
-		.filter((v) => !v.visible)
-		.map((v) => ({ label: v.i, key: v.i }))
+	return widgets.value.filter((v) => !v.visible).map((v) => ({ label: v.i, key: v.i }))
 })
 
 function addWidget(key: string) {
-	const item = widgets.value.find(v => v.i === key)
+	const item = widgets.value.find((v) => v.i === key)
 	if (!item) return
 
 	const widgetsLength = visibleWidgets.value.length
@@ -57,13 +54,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<Stats />
 	<div class="w-full h-full pl-1">
-		<GridLayout
-			v-model:layout="widgets"
-			:row-height="30"
-			:use-css-transforms="false"
-		>
+		<GridLayout v-model:layout="widgets" :row-height="30" :use-css-transforms="false">
 			<GridItem
 				v-for="item in visibleWidgets"
 				:key="item.i"
@@ -89,12 +81,7 @@ onBeforeUnmount(() => {
 			class="fixed right-[2rem] bottom-[2rem] z-50"
 			:class="[{ '!right-[6rem]': isMobile }]"
 		>
-			<NDropdown
-				size="huge"
-				trigger="click"
-				:options="dropdownOptions"
-				@select="addWidget"
-			>
+			<NDropdown size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
 				<Button variant="secondary" class="h-14 w-14" size="icon">
 					<SquarePen class="size-8" />
 				</Button>

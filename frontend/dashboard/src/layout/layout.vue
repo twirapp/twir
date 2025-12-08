@@ -16,19 +16,18 @@ import type { RouteLocationNormalized } from 'vue-router'
 
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { Toaster } from '@/components/ui/toast'
-import {
-	TooltipProvider,
-} from '@/components/ui/tooltip'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { useTheme } from '@/composables/use-theme.js'
 import Sidebar from '@/layout/sidebar/sidebar.vue'
+import Stats from '@/layout/header/header.vue'
 
 const { theme } = useTheme()
-const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme)
+const themeStyles = computed(() => (theme.value === 'dark' ? darkTheme : lightTheme))
 
 const isRouterReady = ref(false)
 const router = useRouter()
 
-router.isReady().finally(() => isRouterReady.value = true)
+router.isReady().finally(() => (isRouterReady.value = true))
 
 interface HistoryState {
 	noTransition?: boolean
@@ -48,7 +47,7 @@ function getTransition(route: RouteLocationNormalized) {
 	<NConfigProvider
 		:theme="themeStyles"
 		class="h-full"
-		:breakpoints="{ 'xs': 0, 's': 640, 'm': 1024, 'l': 1280, 'xl': 1536, 'xxl': 1920, '2xl': 2560 }"
+		:breakpoints="{ xs: 0, s: 640, m: 1024, l: 1280, xl: 1536, xxl: 1920, '2xl': 2560 }"
 	>
 		<NNotificationProvider :max="5">
 			<TooltipProvider :delay-duration="100">
@@ -56,6 +55,7 @@ function getTransition(route: RouteLocationNormalized) {
 					<NDialogProvider>
 						<Sidebar>
 							<SidebarFloatingButton />
+							<Stats />
 							<RouterView v-slot="{ Component, route }">
 								<transition :name="getTransition(route)" mode="out-in">
 									<div
