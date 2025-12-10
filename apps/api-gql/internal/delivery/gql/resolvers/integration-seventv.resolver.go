@@ -16,10 +16,7 @@ import (
 )
 
 // SevenTvUpdate is the resolver for the sevenTvUpdate field.
-func (r *mutationResolver) SevenTvUpdate(
-	ctx context.Context,
-	input gqlmodel.SevenTvUpdateInput,
-) (bool, error) {
+func (r *mutationResolver) SevenTvUpdate(ctx context.Context, input gqlmodel.SevenTvUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -42,10 +39,7 @@ func (r *mutationResolver) SevenTvUpdate(
 }
 
 // SevenTvData is the resolver for the sevenTvData field.
-func (r *subscriptionResolver) SevenTvData(ctx context.Context) (
-	<-chan *gqlmodel.SevenTvIntegration,
-	error,
-) {
+func (r *subscriptionResolver) SevenTvData(ctx context.Context) (<-chan *gqlmodel.SevenTvIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err

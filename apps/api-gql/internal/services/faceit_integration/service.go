@@ -3,14 +3,22 @@ package faceitintegration
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/samber/lo"
+	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	config "github.com/twirapp/twir/libs/config"
@@ -25,6 +33,7 @@ type Opts struct {
 	FaceitRepository faceitintegration.Repository
 	TwirBus          *buscore.Bus
 	Config           config.Config
+	KV               kv.KV
 }
 
 func New(opts Opts) *Service {
@@ -32,6 +41,7 @@ func New(opts Opts) *Service {
 		faceitRepository: opts.FaceitRepository,
 		twirBus:          opts.TwirBus,
 		config:           opts.Config,
+		kv:               opts.KV,
 	}
 }
 
@@ -39,6 +49,7 @@ type Service struct {
 	faceitRepository faceitintegration.Repository
 	twirBus          *buscore.Bus
 	config           config.Config
+	kv               kv.KV
 }
 
 type AuthLinkResponse struct {
@@ -75,10 +86,60 @@ func (s *Service) getCallbackUrl() (string, error) {
 	return u.JoinPath("dashboard", "integrations", "faceit").String(), nil
 }
 
-func (s *Service) GetAuthLink(ctx context.Context) (*AuthLinkResponse, error) {
+func generatePkceCodeChallenge(verifier string) string {
+	h := sha256.Sum256([]byte(verifier))
+	b64 := base64.StdEncoding.EncodeToString(h[:])
+	b64 = strings.ReplaceAll(b64, "+", "-")
+	b64 = strings.ReplaceAll(b64, "/", "_")
+	b64 = strings.TrimRight(b64, "=")
+	return b64
+}
+
+func (s *Service) getPkceCodeVerifier(ctx context.Context, dashboardID string) (string, error) {
+	verifierValuer := s.kv.Get(ctx, fmt.Sprintf("faceit_pkce_%s", dashboardID))
+	if err := verifierValuer.Err(); err != nil {
+		return "", fmt.Errorf("failed to get PKCE code verifier: %w", err)
+	}
+
+	verifier, err := verifierValuer.String()
+	if err != nil {
+		return "", fmt.Errorf("failed to parse PKCE code verifier: %w", err)
+	}
+
+	return verifier, nil
+}
+
+func (s *Service) generatePkceCodeVerifier(ctx context.Context, dashboardID string) (string, error) {
+	b := make([]byte, 48)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+
+	verifier := hex.EncodeToString(b)
+
+	if err := s.kv.Set(
+		ctx,
+		fmt.Sprintf("faceit_pkce_%s", dashboardID),
+		verifier,
+		kvoptions.WithExpire(15*time.Minute),
+	); err != nil {
+		return "", fmt.Errorf("failed to store PKCE code verifier: %w", err)
+	}
+
+	return verifier, nil
+}
+
+func (s *Service) GetAuthLink(ctx context.Context, dashboardID string) (*AuthLinkResponse, error) {
 	if s.config.FaceitClientId == "" || s.config.FaceitClientSecret == "" {
 		return nil, errors.New("faceit integration not properly configured")
 	}
+
+	codeVerifier, err := s.generatePkceCodeVerifier(ctx, dashboardID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate PKCE code verifier: %w", err)
+	}
+
+	codeChallange := generatePkceCodeChallenge(codeVerifier)
 
 	redirectUrl, err := s.getCallbackUrl()
 	if err != nil {
@@ -88,9 +149,11 @@ func (s *Service) GetAuthLink(ctx context.Context) (*AuthLinkResponse, error) {
 	authURL := "https://accounts.faceit.com"
 	params := url.Values{}
 	params.Add("client_id", s.config.FaceitClientId)
-	params.Add("redirect_popup", "false")
+	params.Add("redirect_popup", "true")
 	params.Add("response_type", "code")
 	params.Add("redirect_uri", redirectUrl)
+	params.Add("code_challenge", codeChallange)
+	params.Add("code_challenge_method", "S256")
 
 	fullURL := fmt.Sprintf("%s?%s", authURL, params.Encode())
 
@@ -99,12 +162,17 @@ func (s *Service) GetAuthLink(ctx context.Context) (*AuthLinkResponse, error) {
 	}, nil
 }
 
-func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
+func (s *Service) PostCode(ctx context.Context, dashboardId, code string) error {
 	if s.config.FaceitClientId == "" || s.config.FaceitClientSecret == "" {
 		return errors.New("faceit integration not properly configured")
 	}
 
-	foundIntegration, err := s.faceitRepository.GetByChannelID(ctx, channelID)
+	verifier, err := s.getPkceCodeVerifier(ctx, dashboardId)
+	if err != nil {
+		return fmt.Errorf("failed to get PKCE code verifier: %w", err)
+	}
+
+	foundIntegration, err := s.faceitRepository.GetByChannelID(ctx, dashboardId)
 	if err != nil && !errors.Is(err, faceitintegration.ErrNotFound) {
 		return fmt.Errorf("failed to get faceit integration: %w", err)
 	}
@@ -119,6 +187,7 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 		s.config.FaceitClientId,
 		s.config.FaceitClientSecret,
 		redirectUrl,
+		verifier,
 		code,
 	)
 	if err != nil {
@@ -128,7 +197,7 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 	if foundIntegration.IsNil() {
 		if err := s.faceitRepository.Create(
 			ctx, faceitintegration.CreateOpts{
-				ChannelID:   channelID,
+				ChannelID:   dashboardId,
 				AccessToken: tokens.AccessToken,
 				Enabled:     true,
 				UserName:    profile.Nickname,
@@ -142,7 +211,7 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 		if err := s.faceitRepository.Update(
 			ctx,
 			faceitintegration.UpdateOpts{
-				ChannelID:   channelID,
+				ChannelID:   dashboardId,
 				AccessToken: &tokens.AccessToken,
 				Enabled:     lo.ToPtr(true),
 				UserName:    &profile.Nickname,
@@ -153,7 +222,7 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 		}
 	}
 
-	newIntegration, err := s.faceitRepository.GetByChannelID(ctx, channelID)
+	newIntegration, err := s.faceitRepository.GetByChannelID(ctx, dashboardId)
 	if err != nil {
 		return fmt.Errorf("failed to get faceit integration after update: %w", err)
 	}
@@ -219,7 +288,7 @@ type faceitProfileResponse struct {
 
 func (s *Service) getProfileData(
 	ctx context.Context,
-	clientId, clientSecret, redirectURL, code string,
+	clientId, clientSecret, redirectURL, verifier, code string,
 ) (
 	*faceitTokensResponse,
 	*faceitProfileResponse,
@@ -228,8 +297,8 @@ func (s *Service) getProfileData(
 	formData := url.Values{}
 	formData.Set("grant_type", "authorization_code")
 	formData.Set("client_id", clientId)
-	formData.Set("client_secret", clientSecret)
 	formData.Set("redirect_uri", redirectURL)
+	formData.Set("code_verifier", verifier)
 	formData.Set("code", code)
 
 	req, err := http.NewRequestWithContext(
@@ -243,6 +312,11 @@ func (s *Service) getProfileData(
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	authHeader := "Basic " + base64.StdEncoding.EncodeToString(
+		[]byte(fmt.Sprintf("%s:%s", clientId, clientSecret)),
+	)
+	req.Header.Set("Authorization", authHeader)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

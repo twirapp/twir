@@ -78,7 +78,12 @@ func (r *queryResolver) Faceit(ctx context.Context) (*gqlmodel.FaceitIntegration
 
 // FaceitAuthLink is the resolver for the faceitAuthLink field.
 func (r *queryResolver) FaceitAuthLink(ctx context.Context) (string, error) {
-	authLink, err := r.deps.FaceitIntegrationService.GetAuthLink(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	authLink, err := r.deps.FaceitIntegrationService.GetAuthLink(ctx, dashboardID)
 	if err != nil {
 		return "", err
 	}

@@ -2,17 +2,6 @@
   <code_scheme name="Project" version="173">
     <option name="FORMATTER_OFF_TAG" value="@formatter:off" />
     <option name="FORMATTER_TAGS_ACCEPT_REGEXP" value="true" />
-    <GoCodeStyleSettings>
-      <option name="ADD_PARENTHESES_FOR_SINGLE_IMPORT" value="true" />
-      <option name="REMOVE_REDUNDANT_IMPORT_ALIASES" value="true" />
-      <option name="ADD_LEADING_SPACE_TO_COMMENTS" value="true" />
-      <option name="MOVE_ALL_STDLIB_IMPORTS_IN_ONE_GROUP" value="true" />
-      <option name="GROUP_STDLIB_IMPORTS" value="true" />
-      <option name="LOCAL_PACKAGE_PREFIXES" />
-      <option name="WRAP_COMP_LIT" value="5" />
-      <option name="WRAP_FUNC_PARAMS" value="5" />
-      <option name="WRAP_FUNC_RESULT" value="5" />
-    </GoCodeStyleSettings>
     <HTMLCodeStyleSettings>
       <option name="HTML_ENFORCE_QUOTES" value="true" />
       <option name="HTML_NEWLINE_AFTER_LAST_ATTRIBUTE" value="When multiline" />
