@@ -4,7 +4,6 @@ import { BellIcon, ClipboardPenLine, ExternalLink, Globe, LinkIcon } from 'lucid
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import SidebarProfile from './sidebar-profile.vue'
 import { usePublicPageHref } from '../use-public-page-href'
 
 import DiscordLogo from '@/assets/integrations/discord.svg?use'
@@ -88,10 +87,6 @@ const urlShortenerLink = computed(() => {
 						<ExternalLink class="ml-auto" />
 					</a>
 				</SidebarMenuButton>
-			</SidebarMenuItem>
-
-			<SidebarMenuItem class="mt-1">
-				<SidebarProfile />
 			</SidebarMenuItem>
 		</SidebarMenu>
 	</SidebarFooter>

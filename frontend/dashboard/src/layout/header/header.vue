@@ -2,28 +2,17 @@
 import { IconEdit } from '@tabler/icons-vue'
 import { useIntervalFn } from '@vueuse/core'
 import { intervalToDuration } from 'date-fns'
-import { ChevronDownIcon } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import StreamInfoEditor from '../stream-info-editor.vue'
 
-import CircleSvg from '@/assets/images/circle.svg?use'
 import { useRealtimeDashboardStats } from '@/api'
-import { useBotJoinPart, useBotStatus } from '@/api/dashboard'
-import { Button } from '@/components/ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { BotJoinLeaveAction } from '@/gql/graphql.ts'
 import { padTo2Digits } from '@/helpers/convertMillisToTime'
+import HeaderProfile from '@/layout/header/header-profile.vue'
+import HeaderBotStatus from '@/layout/header/header-bot-status.vue'
 
 const { stats } = useRealtimeDashboardStats()
-const stateMutation = useBotJoinPart()
-const { botStatus, executeSubscription } = useBotStatus()
 
 const currentTime = ref(new Date())
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {
@@ -57,20 +46,6 @@ const streamInfoEditorOpen = ref(false)
 
 function openInfoEditor() {
 	streamInfoEditorOpen.value = true
-}
-
-const waitingBotStatusData = ref(true)
-
-watch(botStatus, () => {
-	waitingBotStatusData.value = false
-})
-
-async function changeChatState() {
-	const action = botStatus.value?.enabled ? BotJoinLeaveAction.Leave : BotJoinLeaveAction.Join
-
-	waitingBotStatusData.value = true
-	await stateMutation.executeMutation({ action })
-	executeSubscription()
 }
 </script>
 
@@ -156,37 +131,9 @@ async function changeChatState() {
 			</div>
 		</div>
 
-		<div class="flex justify-end flex-end items-center">
-			<Button
-				v-if="!botStatus?.enabled"
-				size="sm"
-				:disabled="waitingBotStatusData"
-				@click="changeChatState"
-				class="flex items-center gap-0.5"
-				variant="secondary"
-			>
-				<CircleSvg class="circle text-red-400" />
-				{{ botStatus?.botName ?? 'Bot' }} disabled, click to join channel
-			</Button>
-			<DropdownMenu v-else>
-				<DropdownMenuTrigger as-child>
-					<Button
-						variant="secondary"
-						size="sm"
-						:disabled="waitingBotStatusData"
-						class="flex items-center gap-0.5"
-					>
-						<CircleSvg class="circle text-green-400" />
-						{{ botStatus?.botName ?? 'Bot' }} online
-						<ChevronDownIcon class="ml-2 size-4" />
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent>
-					<DropdownMenuItem class="text-red-700" @click="changeChatState">
-						Leave channel
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
+		<div class="flex justify-end gap-2 flex-end items-center">
+			<HeaderBotStatus />
+			<HeaderProfile />
 		</div>
 	</div>
 
@@ -197,29 +144,3 @@ async function changeChatState() {
 		:category-name="stats?.categoryName"
 	/>
 </template>
-
-<style>
-.stats-item {
-	@apply flex flex-col justify-between min-w-8 rounded-md;
-}
-
-.stats-type {
-	@apply text-xs;
-}
-
-.stats-display {
-	@apply text-base tabular-nums;
-}
-
-.circle {
-	@apply size-6;
-}
-
-@keyframes ping {
-	75%,
-	100% {
-		transform: scale(2);
-		opacity: 0;
-	}
-}
-</style>
