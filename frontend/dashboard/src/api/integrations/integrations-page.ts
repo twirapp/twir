@@ -87,6 +87,16 @@ const IntegrationsPageQuery = graphql(`
 			avatar
 		}
 		vkAuthLink
+
+		# Faceit
+		faceit {
+			enabled
+			userName
+			avatar
+			game
+			faceitUserId
+		}
+		faceitAuthLink
 	}
 `)
 
@@ -133,6 +143,10 @@ export const useIntegrationsPageData = createGlobalState(() => {
 	// VK
 	const vkData = computed(() => query.data.value?.vk ?? null)
 	const vkAuthLink = computed(() => query.data.value?.vkAuthLink ?? null)
+
+	// Faceit
+	const faceitData = computed(() => query.data.value?.faceit ?? null)
+	const faceitAuthLink = computed(() => query.data.value?.faceitAuthLink ?? null)
 
 	async function refetch() {
 		await query.executeQuery({ requestPolicy: 'network-only' })
@@ -187,5 +201,9 @@ export const useIntegrationsPageData = createGlobalState(() => {
 		// VK
 		vkData,
 		vkAuthLink,
+
+		// Faceit
+		faceitData,
+		faceitAuthLink,
 	}
 })

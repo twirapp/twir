@@ -24,17 +24,17 @@ var TrendExtended = &types.Variable{
 			return result, nil
 		}
 
-		trend := make([]string, len(matches))
+		trend := make([]string, 0, len(matches))
 
 		for _, match := range matches {
-			if match.EloDiff == nil {
+			if match.EloDelta == nil {
 				continue
 			}
 			trend = append(
 				trend,
 				lo.
-					If(match.IsWin, fmt.Sprintf("W +%s", *match.EloDiff)).
-					Else(fmt.Sprintf("L -%s", *match.EloDiff)),
+					If(match.IsWin, fmt.Sprintf("W +%s", *match.EloDelta)).
+					Else(fmt.Sprintf("L -%s", *match.EloDelta)),
 			)
 		}
 

@@ -1,0 +1,29 @@
+package faceitintegration
+
+import (
+	"time"
+)
+
+type Entity struct {
+	ID           int64
+	Enabled      bool
+	ChannelID    string
+	AccessToken  string
+	RefreshToken string
+	UserName     string
+	Avatar       string
+	Game         string
+	FaceitUserID string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+
+	isNil bool
+}
+
+func (c Entity) IsNil() bool {
+	return c.isNil
+}
+
+var Nil = Entity{
+	isNil: true,
+}

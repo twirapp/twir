@@ -83,6 +83,10 @@ type Config struct {
 	VKClientSecret   string `required:"false" envconfig:"VK_CLIENT_SECRET"`
 	VkAppAccessToken string `required:"false" envconfig:"VK_APP_ACCESS_TOKEN"`
 
+	FaceitClientId     string `required:"false" envconfig:"FACEIT_CLIENT_ID"`
+	FaceitClientSecret string `required:"false" envconfig:"FACEIT_CLIENT_SECRET"`
+	FaceitApiKey       string `required:"false" envconfig:"FACEIT_API_KEY"`
+
 	DeeplApiKey                       string `required:"false" envconfig:"DEEPL_API_KEY"`
 	GoogleTranslateServiceAccountJson string `required:"false" envconfig:"GOOGLE_TRANSLATE_SERVICE_ACCOUNT_JSON"`
 }

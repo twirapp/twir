@@ -13,7 +13,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 type faceitMatchesResponse []*types.FaceitMatch
@@ -33,7 +32,7 @@ func (c *cacher) GetFaceitLatestMatches(ctx context.Context) ([]*types.FaceitMat
 	}
 
 	reqUrl := fmt.Sprintf(
-		"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
+		"https://www.faceit.com/api/stats/v1/stats/time/users/%s/games/%s?size=30",
 		c.cache.faceitData.FaceitUser.PlayerId,
 		c.cache.faceitData.FaceitUser.FaceitGame.Name,
 	)
@@ -98,22 +97,6 @@ func (c *cacher) GetFaceitLatestMatches(ctx context.Context) ([]*types.FaceitMat
 			continue
 		}
 
-		prevElo, pErr := strconv.Atoi(*prevMatch.Elo)
-		currElo, cErr := strconv.Atoi(*match.Elo)
-
-		if pErr != nil || cErr != nil {
-			continue
-		}
-
-		var eloDiff int
-		if *prevMatch.Elo > *match.Elo {
-			eloDiff = -(prevElo - currElo)
-		} else {
-			eloDiff = currElo - prevElo
-		}
-
-		newMatchEloDiff := strconv.Itoa(eloDiff)
-		match.EloDiff = &newMatchEloDiff
 		matches = append(matches, match)
 	}
 
@@ -130,10 +113,10 @@ func (c *cacher) GetFaceitTodayEloDiff(_ context.Context, matches []*types.Facei
 
 	sum := lo.Reduce(
 		matches, func(agg int, item *types.FaceitMatch, _ int) int {
-			if item.EloDiff == nil {
+			if item.EloDelta == nil {
 				return agg
 			}
-			v, err := strconv.Atoi(*item.EloDiff)
+			v, err := strconv.Atoi(*item.EloDelta)
 			if err != nil {
 				return agg
 			}
@@ -155,39 +138,51 @@ func (c *cacher) GetFaceitUserData(ctx context.Context) (*types.FaceitUser, erro
 
 	c.cache.faceitData = &types.FaceitResult{}
 
-	integrations := c.GetEnabledChannelIntegrations(ctx)
-
-	if integrations == nil {
-		return nil, errors.New("no enabled integrations")
+	integration, err := c.services.FaceitRepo.GetByChannelID(ctx, c.parseCtxChannel.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get faceit integration: %w", err)
 	}
 
-	integration, ok := lo.Find(
-		integrations, func(i *model.ChannelsIntegrations) bool {
-			return i.Integration.Service == "FACEIT" && i.Enabled
-		},
-	)
-
-	if !ok {
+	if integration.IsNil() || !integration.Enabled {
 		return nil, errors.New("faceit integration not enabled")
 	}
 
-	var game = *integration.Data.Game
-
-	if integration.Data.Game == nil {
+	game := integration.Game
+	if game == "" {
 		game = "cs2"
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://open.faceit.com/data/v4/players/"+*integration.Data.UserId, nil)
+	if integration.FaceitUserID == "" {
+		return nil, errors.New("faceit user ID not found in integration")
+	}
+
+	apiKey := c.services.Config.FaceitApiKey
+	if apiKey == "" {
+		return nil, errors.New("faceit API key not configured")
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		fmt.Sprintf("https://open.faceit.com/data/v4/players/%s", integration.FaceitUserID),
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
+	req.Header.Set("Authorization", "Bearer "+apiKey)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == 403 {
+		return nil, errors.New(
+			"access to faceit data forbidden. Please reauthorize the integration",
+		)
+	}
 
 	if resp.StatusCode == 404 {
 		return nil, errors.New(
@@ -221,7 +216,7 @@ func (c *cacher) GetFaceitUserData(ctx context.Context) (*types.FaceitUser, erro
 
 type faceitStateResponse struct {
 	Payload struct {
-		Ongoing struct {
+		Ongoing []struct {
 			ID string `json:"id"`
 		} `json:"ONGOING"`
 	} `json:"payload"`
@@ -261,7 +256,12 @@ func (c *cacher) ComputeFaceitGainLoseEstimate(ctx context.Context) (
 		}, nil
 	}
 
-	stateReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.faceit.com/match/v1/matches/groupByState?userId="+faceitUser.PlayerId, nil)
+	stateReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		"https://api.faceit.com/match/v1/matches/groupByState?userId="+faceitUser.PlayerId,
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -287,11 +287,18 @@ func (c *cacher) ComputeFaceitGainLoseEstimate(ctx context.Context) (
 	}
 
 	// match not going
-	if stateData.Payload.Ongoing.ID == "" {
+	if len(stateData.Payload.Ongoing) == 0 {
 		return nil, nil
 	}
 
-	matchReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.faceit.com/match/v2/match/"+stateData.Payload.Ongoing.ID, nil)
+	ongoing := stateData.Payload.Ongoing[0]
+
+	matchReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		"https://api.faceit.com/match/v2/match/"+ongoing.ID,
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -13,7 +13,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
-	"github.com/twirapp/twir/libs/logger"
 )
 
 // SevenTvUpdate is the resolver for the sevenTvUpdate field.
@@ -58,7 +57,6 @@ func (r *subscriptionResolver) SevenTvData(ctx context.Context) (<-chan *gqlmode
 			default:
 				data, err := r.deps.SevenTvIntegrationService.GetSevenTvData(ctx, dashboardID)
 				if err != nil {
-					r.deps.Logger.Error("failed to get seven tv data", logger.Error(err))
 					time.Sleep(1 * time.Second)
 					continue
 				}

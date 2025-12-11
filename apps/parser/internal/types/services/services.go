@@ -31,6 +31,7 @@ import (
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
+	faceitintegration "github.com/twirapp/twir/libs/repositories/faceit_integration"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -80,6 +81,7 @@ type Services struct {
 	ShortUrlServices                  *shortenedurls.Service
 	LastfmRepo                        channelsintegrationslastfm.Repository
 	VKRepo                            vkintegration.Repository
+	FaceitRepo                        faceitintegration.Repository
 	Executron                         executron.Executron
 	I18n                              *i18n.I18n
 }

@@ -54,6 +54,7 @@ import (
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
 	donationalertsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
+	faceitintegration "github.com/twirapp/twir/apps/api-gql/internal/services/faceit_integration"
 	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
@@ -211,6 +212,8 @@ import (
 
 	donationalertsrepository "github.com/twirapp/twir/libs/repositories/donationalerts_integration"
 	donationalertsrepoitorypostgres "github.com/twirapp/twir/libs/repositories/donationalerts_integration/datasource/postgres"
+	faceitrepository "github.com/twirapp/twir/libs/repositories/faceit_integration"
+	faceitrepositorypostgres "github.com/twirapp/twir/libs/repositories/faceit_integration/datasource/postgres"
 
 	channelsgamesvotebanrepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
@@ -407,6 +410,10 @@ func main() {
 				fx.As(new(donationalertsrepository.Repository)),
 			),
 			fx.Annotate(
+				faceitrepositorypostgres.NewFx,
+				fx.As(new(faceitrepository.Repository)),
+			),
+			fx.Annotate(
 				channelsgamesvotebanpgx.NewFx,
 				fx.As(new(channelsgamesvotebanrepository.Repository)),
 			),
@@ -494,6 +501,7 @@ func main() {
 			donatestreamintegration.New,
 			donatellointegration.New,
 			vkintegration.New,
+			faceitintegration.New,
 		),
 		// app itself
 		fx.Provide(

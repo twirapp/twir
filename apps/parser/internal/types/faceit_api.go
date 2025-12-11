@@ -2,15 +2,15 @@ package types
 
 type FaceitMatch struct {
 	Elo          *string `json:"elo"`
-	EloDiff      *string
-	Team         string `json:"i5"`
-	TeamScore    string `json:"i18"`
-	Map          string `json:"i1"`
-	Kd           string `json:"c2"`
-	HsPercentage string `json:"c4"`
-	HsNumber     string `json:"i13"`
-	Kills        string `json:"i6"`
-	Deaths       string `json:"i8"`
+	EloDelta     *string `json:"elo_delta"`
+	Team         string  `json:"i5"`
+	TeamScore    string  `json:"i18"`
+	Map          string  `json:"i1"`
+	Kd           string  `json:"c2"`
+	HsPercentage string  `json:"c4"`
+	HsNumber     string  `json:"i13"`
+	Kills        string  `json:"i6"`
+	Deaths       string  `json:"i8"`
 
 	RawIsWin  string `json:"i10"`
 	CreatedAt int64  `json:"created_at"`

@@ -10,27 +10,18 @@ import { UpdateRequest } from "./messages/overlays/overlays";
 import { Overlay } from "./messages/overlays/overlays";
 import { GetByIdRequest } from "./messages/overlays/overlays";
 import { GetAllResponse } from "./messages/overlays/overlays";
-import { PostCodeRequest as PostCodeRequest$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import { GetDataResponse as GetDataResponse$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import { GetAuthLink as GetAuthLink$ } from "./messages/integrations_streamlabs/integrations_streamlabs";
-import { PostCodeRequest } from "./messages/integrations_faceit/integrations_faceit";
-import { UpdateDataRequest } from "./messages/integrations_faceit/integrations_faceit";
-import { GetDataResponse } from "./messages/integrations_faceit/integrations_faceit";
-import { GetAuthLink } from "./messages/integrations_faceit/integrations_faceit";
+import { PostCodeRequest } from "./messages/integrations_streamlabs/integrations_streamlabs";
+import { GetDataResponse } from "./messages/integrations_streamlabs/integrations_streamlabs";
+import { GetAuthLink } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import { Empty } from "./google/protobuf/empty";
 import { ServiceType } from "@protobuf-ts/runtime-rpc";
 /**
  * @generated ServiceType for protobuf service api.Protected
  */
 export const Protected = new ServiceType("api.Protected", [
-    { name: "IntegrationsFaceitGetAuthLink", options: {}, I: Empty, O: GetAuthLink },
-    { name: "IntegrationsFaceitGetData", options: {}, I: Empty, O: GetDataResponse },
-    { name: "IntegrationsFaceitUpdate", options: {}, I: UpdateDataRequest, O: Empty },
-    { name: "IntegrationsFaceitPostCode", options: {}, I: PostCodeRequest, O: Empty },
-    { name: "IntegrationsFaceitLogout", options: {}, I: Empty, O: Empty },
-    { name: "IntegrationsStreamlabsGetAuthLink", options: {}, I: Empty, O: GetAuthLink$ },
-    { name: "IntegrationsStreamlabsGetData", options: {}, I: Empty, O: GetDataResponse$ },
-    { name: "IntegrationsStreamlabsPostCode", options: {}, I: PostCodeRequest$, O: Empty },
+    { name: "IntegrationsStreamlabsGetAuthLink", options: {}, I: Empty, O: GetAuthLink },
+    { name: "IntegrationsStreamlabsGetData", options: {}, I: Empty, O: GetDataResponse },
+    { name: "IntegrationsStreamlabsPostCode", options: {}, I: PostCodeRequest, O: Empty },
     { name: "IntegrationsStreamlabsLogout", options: {}, I: Empty, O: Empty },
     { name: "OverlaysGetAll", options: {}, I: Empty, O: GetAllResponse },
     { name: "OverlaysGetOne", options: {}, I: GetByIdRequest, O: Overlay },

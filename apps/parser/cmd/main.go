@@ -51,6 +51,7 @@ import (
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
+	faceitintegrationpostgres "github.com/twirapp/twir/libs/repositories/faceit_integration/datasource/postgres"
 	overlaysttspgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
@@ -240,6 +241,7 @@ func main() {
 	channelsGamesVotebanProgressStateRepo := channelsgamesvotebanprogressstateredis.New(channelsgamesvotebanprogressstateredis.Opts{Redis: redisClient})
 	lastfmRepo := channelsintegrationslastfmpostgres.New(channelsintegrationslastfmpostgres.Opts{PgxPool: pgxconn})
 	vkRepo := vkintegrationpostgres.NewFx(pgxconn)
+	faceitRepo := faceitintegrationpostgres.New(pgxconn)
 
 	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
@@ -305,6 +307,7 @@ func main() {
 		ChannelsGamesVotebanProgressState: channelsGamesVotebanProgressStateRepo,
 		LastfmRepo:                        lastfmRepo,
 		VKRepo:                            vkRepo,
+		FaceitRepo:                        faceitRepo,
 		Executron:                         executron.New(*config, redisClient),
 		I18n:                              translationService,
 	}

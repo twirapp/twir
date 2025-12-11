@@ -3,7 +3,8 @@ import { NSpin } from 'naive-ui'
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { useFaceitIntegration, useStreamlabsIntegration } from '@/api/index.js'
+import { useStreamlabsIntegration } from '@/api/index.js'
+import { useFaceitIntegration } from '@/api/integrations/faceit.ts'
 import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
 import {
 	lastfmBroadcaster,
@@ -15,6 +16,7 @@ const route = useRoute()
 
 const discordIntegration = useDiscordIntegration()
 const lastfmIntegration = useLastfmIntegration()
+const faceitIntegration = useFaceitIntegration()
 
 const integrationsHooks: {
 	[x: string]:
@@ -48,8 +50,12 @@ const integrationsHooks: {
 		closeWindow: true,
 	},
 	faceit: {
-		manager: useFaceitIntegration(),
+		custom: true,
 		closeWindow: true,
+		handler: async (code: string) => {
+			await faceitIntegration.postCode.executeMutation({ code })
+			faceitIntegration.broadcastRefresh()
+		},
 	},
 	discord: {
 		custom: true,
