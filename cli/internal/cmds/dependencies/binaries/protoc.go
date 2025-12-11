@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const protocVersion = "v25.1"
+const protocVersion = "v29.0"
 const protocUrl = "https://github.com/protocolbuffers/protobuf/releases/download"
 
 func InstallProtoc() error {
