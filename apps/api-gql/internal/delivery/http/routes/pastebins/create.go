@@ -14,7 +14,7 @@ import (
 
 type pasteBinCreateRequestDto struct {
 	Body struct {
-		Content  string     `json:"content" required:"true" minLength:"1" maxLength:"100000" example:"Hello world"`
+		Content  string     `json:"content" required:"true" minLength:"1" maxLength:"1000000" example:"Hello world"`
 		ExpireAt *time.Time `json:"expire_at" format:"date-time" nullable:"true" required:"false"`
 	}
 }
