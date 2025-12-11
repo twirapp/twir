@@ -94,6 +94,7 @@ const IntegrationsPageQuery = graphql(`
 			userName
 			avatar
 			game
+			faceitUserId
 		}
 		faceitAuthLink
 	}

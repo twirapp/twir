@@ -14,19 +14,23 @@ type Repository interface {
 }
 
 type CreateOpts struct {
-	ChannelID   string
-	AccessToken string
-	Enabled     bool
-	UserName    string
-	Avatar      string
-	Game        string
+	ChannelID    string
+	AccessToken  string
+	RefreshToken string
+	Enabled      bool
+	UserName     string
+	Avatar       string
+	Game         string
+	FaceitUserID string
 }
 
 type UpdateOpts struct {
-	ChannelID   string
-	AccessToken *string
-	Enabled     *bool
-	UserName    *string
-	Avatar      *string
-	Game        *string
+	ChannelID    string
+	AccessToken  *string
+	RefreshToken *string
+	Enabled      *bool
+	UserName     *string
+	Avatar       *string
+	Game         *string
+	FaceitUserID *string
 }

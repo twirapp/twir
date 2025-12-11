@@ -85,6 +85,7 @@ type Config struct {
 
 	FaceitClientId     string `required:"false" envconfig:"FACEIT_CLIENT_ID"`
 	FaceitClientSecret string `required:"false" envconfig:"FACEIT_CLIENT_SECRET"`
+	FaceitApiKey       string `required:"false" envconfig:"FACEIT_API_KEY"`
 
 	DeeplApiKey                       string `required:"false" envconfig:"DEEPL_API_KEY"`
 	GoogleTranslateServiceAccountJson string `required:"false" envconfig:"GOOGLE_TRANSLATE_SERVICE_ACCOUNT_JSON"`

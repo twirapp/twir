@@ -69,10 +69,11 @@ func (r *queryResolver) Faceit(ctx context.Context) (*gqlmodel.FaceitIntegration
 	}
 
 	return &gqlmodel.FaceitIntegration{
-		Enabled:  entity.Enabled,
-		UserName: &entity.UserName,
-		Avatar:   &entity.Avatar,
-		Game:     &entity.Game,
+		Enabled:      entity.Enabled,
+		UserName:     &entity.UserName,
+		Avatar:       &entity.Avatar,
+		Game:         &entity.Game,
+		FaceitUserID: &entity.FaceitUserID,
 	}, nil
 }
 

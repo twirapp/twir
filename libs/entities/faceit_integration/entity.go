@@ -5,15 +5,17 @@ import (
 )
 
 type Entity struct {
-	ID          int64
-	Enabled     bool
-	ChannelID   string
-	AccessToken string
-	UserName    string
-	Avatar      string
-	Game        string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID           int64
+	Enabled      bool
+	ChannelID    string
+	AccessToken  string
+	RefreshToken string
+	UserName     string
+	Avatar       string
+	Game         string
+	FaceitUserID string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 
 	isNil bool
 }

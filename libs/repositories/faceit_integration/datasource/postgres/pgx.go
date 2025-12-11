@@ -34,30 +34,34 @@ func New(pool *pgxpool.Pool) *Pgx {
 }
 
 type scanModel struct {
-	ID          int64
-	Enabled     bool
-	ChannelID   string
-	AccessToken string
-	UserName    string
-	Avatar      string
-	Game        string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID           int64
+	Enabled      bool
+	ChannelID    string
+	AccessToken  string
+	RefreshToken string
+	UserName     string
+	Avatar       string
+	Game         string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	FaceitUserID string
 
 	isNil bool
 }
 
 func (c scanModel) toEntity() faceitintegrationentity.Entity {
 	return faceitintegrationentity.Entity{
-		ID:          c.ID,
-		Enabled:     c.Enabled,
-		ChannelID:   c.ChannelID,
-		AccessToken: c.AccessToken,
-		UserName:    c.UserName,
-		Avatar:      c.Avatar,
-		Game:        c.Game,
-		CreatedAt:   c.CreatedAt,
-		UpdatedAt:   c.UpdatedAt,
+		ID:           c.ID,
+		Enabled:      c.Enabled,
+		ChannelID:    c.ChannelID,
+		AccessToken:  c.AccessToken,
+		RefreshToken: c.RefreshToken,
+		UserName:     c.UserName,
+		Avatar:       c.Avatar,
+		Game:         c.Game,
+		CreatedAt:    c.CreatedAt,
+		UpdatedAt:    c.UpdatedAt,
+		FaceitUserID: c.FaceitUserID,
 	}
 }
 
@@ -70,12 +74,14 @@ func (p *Pgx) GetByChannelID(ctx context.Context, channelID string) (
 			id,
 			channel_id,
 			access_token,
+			refresh_token,
 			username,
 			avatar,
 			game,
 			enabled,
 			created_at,
-			updated_at
+			updated_at,
+			faceit_user_id
 		FROM channels_integrations_faceit
 		WHERE channel_id = $1
 		LIMIT 1
@@ -92,7 +98,7 @@ func (p *Pgx) GetByChannelID(ctx context.Context, channelID string) (
 	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[scanModel])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return faceitintegrationentity.Nil, faceitintegration.ErrNotFound
+			return faceitintegrationentity.Nil, nil
 		}
 		return faceitintegrationentity.Nil, fmt.Errorf("GetByChannelID: failed to collect row: %w", err)
 	}
@@ -105,13 +111,15 @@ func (p *Pgx) Create(ctx context.Context, opts faceitintegration.CreateOpts) err
 		INSERT INTO channels_integrations_faceit (
 			channel_id,
 			access_token,
+			refresh_token,
 			username,
 			avatar,
 			game,
 			enabled,
 			created_at,
-			updated_at
-		) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+			updated_at,
+			faceit_user_id
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8)
 	`
 
 	_, err := p.pool.Exec(
@@ -119,10 +127,12 @@ func (p *Pgx) Create(ctx context.Context, opts faceitintegration.CreateOpts) err
 		query,
 		opts.ChannelID,
 		opts.AccessToken,
+		opts.RefreshToken,
 		opts.UserName,
 		opts.Avatar,
 		opts.Game,
 		opts.Enabled,
+		opts.FaceitUserID,
 	)
 	if err != nil {
 		return fmt.Errorf("Create: failed to insert faceit integration: %w", err)
@@ -139,6 +149,9 @@ func (p *Pgx) Update(ctx context.Context, opts faceitintegration.UpdateOpts) err
 	if opts.AccessToken != nil {
 		builder = builder.Set("access_token", *opts.AccessToken)
 	}
+	if opts.RefreshToken != nil {
+		builder = builder.Set("refresh_token", *opts.RefreshToken)
+	}
 	if opts.Enabled != nil {
 		builder = builder.Set("enabled", *opts.Enabled)
 	}
@@ -150,6 +163,9 @@ func (p *Pgx) Update(ctx context.Context, opts faceitintegration.UpdateOpts) err
 	}
 	if opts.Game != nil {
 		builder = builder.Set("game", *opts.Game)
+	}
+	if opts.FaceitUserID != nil {
+		builder = builder.Set("faceit_user_id", *opts.FaceitUserID)
 	}
 
 	query, args, err := builder.ToSql()

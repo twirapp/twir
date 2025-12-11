@@ -16,11 +16,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/samber/lo"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
-	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/bus-core/integrations"
 	config "github.com/twirapp/twir/libs/config"
 	faceitintegrationentity "github.com/twirapp/twir/libs/entities/faceit_integration"
 	faceitintegration "github.com/twirapp/twir/libs/repositories/faceit_integration"
@@ -31,7 +30,6 @@ type Opts struct {
 	fx.In
 
 	FaceitRepository faceitintegration.Repository
-	TwirBus          *buscore.Bus
 	Config           config.Config
 	KV               kv.KV
 }
@@ -39,7 +37,6 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		faceitRepository: opts.FaceitRepository,
-		twirBus:          opts.TwirBus,
 		config:           opts.Config,
 		kv:               opts.KV,
 	}
@@ -47,7 +44,6 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	faceitRepository faceitintegration.Repository
-	twirBus          *buscore.Bus
 	config           config.Config
 	kv               kv.KV
 }
@@ -182,7 +178,7 @@ func (s *Service) PostCode(ctx context.Context, dashboardId, code string) error 
 		return fmt.Errorf("failed to get redirect URL: %w", err)
 	}
 
-	tokens, profile, err := s.getProfileData(
+	tokens, err := s.getProfileData(
 		ctx,
 		s.config.FaceitClientId,
 		s.config.FaceitClientSecret,
@@ -194,15 +190,30 @@ func (s *Service) PostCode(ctx context.Context, dashboardId, code string) error 
 		return fmt.Errorf("failed to get faceit profile data: %w", err)
 	}
 
+	idTokenClaims, err := s.parseIDToken(tokens.IDToken)
+	if err != nil {
+		return fmt.Errorf("failed to parse ID token: %w", err)
+	}
+
+	if idTokenClaims == nil {
+		return errors.New("ID token claims are nil")
+	}
+
+	userName := idTokenClaims.Nickname
+	avatar := idTokenClaims.Picture
+	faceitUserID := idTokenClaims.GUID
+
 	if foundIntegration.IsNil() {
 		if err := s.faceitRepository.Create(
 			ctx, faceitintegration.CreateOpts{
-				ChannelID:   dashboardId,
-				AccessToken: tokens.AccessToken,
-				Enabled:     true,
-				UserName:    profile.Nickname,
-				Avatar:      profile.Avatar,
-				Game:        "",
+				ChannelID:    dashboardId,
+				AccessToken:  tokens.AccessToken,
+				RefreshToken: tokens.RefreshToken,
+				Enabled:      true,
+				UserName:     userName,
+				Avatar:       avatar,
+				Game:         "cs2",
+				FaceitUserID: faceitUserID,
 			},
 		); err != nil {
 			return fmt.Errorf("failed to create faceit integration: %w", err)
@@ -211,29 +222,17 @@ func (s *Service) PostCode(ctx context.Context, dashboardId, code string) error 
 		if err := s.faceitRepository.Update(
 			ctx,
 			faceitintegration.UpdateOpts{
-				ChannelID:   dashboardId,
-				AccessToken: &tokens.AccessToken,
-				Enabled:     lo.ToPtr(true),
-				UserName:    &profile.Nickname,
-				Avatar:      &profile.Avatar,
+				ChannelID:    dashboardId,
+				AccessToken:  &tokens.AccessToken,
+				RefreshToken: &tokens.RefreshToken,
+				Enabled:      lo.ToPtr(true),
+				UserName:     &userName,
+				Avatar:       &avatar,
+				FaceitUserID: &faceitUserID,
 			},
 		); err != nil {
 			return fmt.Errorf("failed to update faceit integration: %w", err)
 		}
-	}
-
-	newIntegration, err := s.faceitRepository.GetByChannelID(ctx, dashboardId)
-	if err != nil {
-		return fmt.Errorf("failed to get faceit integration after update: %w", err)
-	}
-
-	if err = s.twirBus.Integrations.Add.Publish(
-		ctx, integrations.Request{
-			ID:      fmt.Sprint(newIntegration.ID),
-			Service: integrations.Faceit,
-		},
-	); err != nil {
-		return fmt.Errorf("failed to publish add integration event: %w", err)
 	}
 
 	return nil
@@ -260,30 +259,43 @@ func (s *Service) Logout(ctx context.Context, channelID string) error {
 		return fmt.Errorf("failed to disable faceit integration: %w", err)
 	}
 
-	if err := s.twirBus.Integrations.Remove.Publish(
-		ctx,
-		integrations.Request{
-			ID:      channelID,
-			Service: integrations.Faceit,
-		},
-	); err != nil {
-		return fmt.Errorf("failed to publish remove integration event: %w", err)
-	}
-
 	return nil
 }
 
 type faceitTokensResponse struct {
-	AccessToken string `json:"access_token"`
-	TokenType   string `json:"token_type"`
-	ExpiresIn   int    `json:"expires_in"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	IDToken      string `json:"id_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
 }
 
-type faceitProfileResponse struct {
-	Nickname string `json:"nickname"`
-	Avatar   string `json:"avatar"`
-	Country  string `json:"country"`
-	GUID     string `json:"guid"`
+type faceitIDTokenClaims struct {
+	GUID          string   `json:"guid"`
+	Picture       string   `json:"picture"`
+	Email         string   `json:"email"`
+	Birthdate     string   `json:"birthdate"`
+	Nickname      string   `json:"nickname"`
+	Locale        string   `json:"locale"`
+	Memberships   []string `json:"memberships"`
+	GivenName     string   `json:"given_name"`
+	FamilyName    string   `json:"family_name"`
+	EmailVerified bool     `json:"email_verified"`
+	jwt.RegisteredClaims
+}
+
+func (s *Service) parseIDToken(idToken string) (*faceitIDTokenClaims, error) {
+	token, _, err := jwt.NewParser().ParseUnverified(idToken, &faceitIDTokenClaims{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse ID token: %w", err)
+	}
+
+	claims, ok := token.Claims.(*faceitIDTokenClaims)
+	if !ok {
+		return nil, errors.New("failed to extract claims from ID token")
+	}
+
+	return claims, nil
 }
 
 func (s *Service) getProfileData(
@@ -291,7 +303,6 @@ func (s *Service) getProfileData(
 	clientId, clientSecret, redirectURL, verifier, code string,
 ) (
 	*faceitTokensResponse,
-	*faceitProfileResponse,
 	error,
 ) {
 	formData := url.Values{}
@@ -308,7 +319,7 @@ func (s *Service) getProfileData(
 		bytes.NewBufferString(formData.Encode()),
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create token request: %w", err)
+		return nil, fmt.Errorf("failed to create token request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -321,17 +332,17 @@ func (s *Service) getProfileData(
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to execute token request: %w", err)
+		return nil, fmt.Errorf("failed to execute token request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to read token response body: %w", err)
+		return nil, fmt.Errorf("failed to read token response body: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"token request failed with status %d: %s",
 			resp.StatusCode,
 			string(body),
@@ -340,44 +351,8 @@ func (s *Service) getProfileData(
 
 	var tokens faceitTokensResponse
 	if err := json.Unmarshal(body, &tokens); err != nil {
-		return nil, nil, fmt.Errorf("failed to parse token response: %w", err)
+		return nil, fmt.Errorf("failed to parse token response: %w", err)
 	}
 
-	profileReq, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		"https://api.faceit.com/auth/v1/resources/userinfo",
-		nil,
-	)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create profile request: %w", err)
-	}
-
-	profileReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokens.AccessToken))
-
-	profileResp, err := client.Do(profileReq)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to execute profile request: %w", err)
-	}
-	defer profileResp.Body.Close()
-
-	profileBody, err := io.ReadAll(profileResp.Body)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to read profile response body: %w", err)
-	}
-
-	if profileResp.StatusCode != http.StatusOK {
-		return nil, nil, fmt.Errorf(
-			"profile request failed with status %d: %s",
-			profileResp.StatusCode,
-			string(profileBody),
-		)
-	}
-
-	var profile faceitProfileResponse
-	if err := json.Unmarshal(profileBody, &profile); err != nil {
-		return nil, nil, fmt.Errorf("failed to parse profile response: %w", err)
-	}
-
-	return &tokens, &profile, nil
+	return &tokens, nil
 }
