@@ -74,6 +74,8 @@ export default defineConfig(({ mode }) => {
 
 		build: {
 			sourcemap: true,
+			outDir: './dist/dashboard',
+			emptyOutDir: true,
 		},
 	}
 })
