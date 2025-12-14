@@ -5,6 +5,7 @@ import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Command, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import type { AcceptableValue } from 'reka-ui'
 
 interface Props {
 	id: string
@@ -16,15 +17,17 @@ const model = defineModel<boolean>({ required: true })
 
 const show = ref(false)
 
-function handleSelect(event: CustomEvent<{
-	originalEvent: PointerEvent
-	value?: string | number | boolean | Record<string, any>
-}>) {
-	if (typeof event.detail.value !== 'boolean') {
+function handleSelect(
+	event: CustomEvent<{
+		originalEvent: PointerEvent
+		value?: AcceptableValue
+	}>
+) {
+	if (typeof event.detail.value !== 'string') {
 		return
 	}
 
-	model.value = event.detail.value
+	model.value = event.detail.value === 'true'
 	show.value = false
 }
 </script>
@@ -39,12 +42,12 @@ function handleSelect(event: CustomEvent<{
 		</PopoverTrigger>
 
 		<PopoverContent class="p-1">
-			<Command v-model:modelValue="model">
+			<Command>
 				<CommandList>
-					<CommandItem :value="false" @select="handleSelect">
-						<CheckIcon v-if="!model" class="size-4 mr-2" />	Hide
+					<CommandItem value="false" @select="handleSelect">
+						<CheckIcon v-if="!model" class="size-4 mr-2" /> Hide
 					</CommandItem>
-					<CommandItem :value="true" @select="handleSelect">
+					<CommandItem value="true" @select="handleSelect">
 						<CheckIcon v-if="model" class="size-4 mr-2" /> Show
 					</CommandItem>
 				</CommandList>

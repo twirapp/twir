@@ -4,7 +4,7 @@ import { useAttrs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { type WidgetItem, useWidgets } from './widgets.js'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 defineProps<{

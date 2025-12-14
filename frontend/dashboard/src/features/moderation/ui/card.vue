@@ -39,7 +39,7 @@ const userCanManageModeration = useUserAccessFlagChecker(ChannelRolePermissionEn
 
 async function switchState(id: string, v: boolean) {
 	patchExecuting.value = true
-	const item = manager.items.value.find(i => i.id === id)
+	const item = manager.items.value.find((i) => i.id === id)
 	if (!item) return
 
 	const data = structuredClone(toRaw(item))
@@ -69,18 +69,14 @@ async function removeItem() {
 </script>
 
 <template>
-	<Card
-		:title="t(`moderation.types.${item.type}.name`)"
-		:icon="Icons[item.type]"
-		class="h-full"
-	>
+	<Card :title="t(`moderation.types.${item.type}.name`)" :icon="Icons[item.type]" class="h-full">
 		<template #headerExtra>
 			<Switch
 				v-if="item.id"
 				:disabled="!userCanManageModeration"
 				:checked="item.enabled"
 				:aria-disabled="patchExecuting"
-				@update:checked="(v) => switchState(item.id!, v)"
+				@update:checked="(v: boolean) => switchState(item.id!, v)"
 			/>
 		</template>
 
@@ -120,16 +116,10 @@ async function removeItem() {
 				<DialogTitle>{{ t('deleteConfirmation.text') }}</DialogTitle>
 			</DialogHeader>
 			<DialogFooter>
-				<Button
-					variant="outline"
-					@click="showDeleteDialog = false"
-				>
+				<Button variant="outline" @click="showDeleteDialog = false">
 					{{ t('deleteConfirmation.cancel') }}
 				</Button>
-				<Button
-					variant="destructive"
-					@click="removeItem"
-				>
+				<Button variant="destructive" @click="removeItem">
 					{{ t('deleteConfirmation.confirm') }}
 				</Button>
 			</DialogFooter>

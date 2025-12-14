@@ -184,7 +184,7 @@ const onSubmit = handleSubmit(async (formData) => {
 											) && permission.perm !== ChannelRolePermissionEnum.CanAccessDashboard
 										"
 										@update:checked="
-											(checked) => {
+											(checked: boolean) => {
 												if (checked) {
 													handleChange([...(value || []), permission.perm])
 												} else {

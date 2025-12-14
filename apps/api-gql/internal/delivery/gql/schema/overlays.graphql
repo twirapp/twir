@@ -83,7 +83,7 @@ type NowPlayingOverlay {
 	fontWeight: Int!
 	backgroundColor: String!
 	showImage: Boolean!
-	hideTimeout: Int
+	hideTimeout: Int!
 }
 
 input NowPlayingOverlayMutateOpts {

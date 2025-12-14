@@ -105,7 +105,7 @@ async function resetSettings() {
 				<DialogTitle>Russian Roulette</DialogTitle>
 			</DialogHeader>
 
-			<form>
+			<form class="flex flex-col gap-4">
 				<div class="space-y-4">
 					<div class="flex flex-col gap-4">
 						<FormField v-slot="{ value, handleChange }" name="enabled">

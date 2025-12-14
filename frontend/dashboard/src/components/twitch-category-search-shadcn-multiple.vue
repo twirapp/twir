@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { refDebounced } from '@vueuse/core'
+import type { AcceptableValue } from 'reka-ui'
 import { computed, ref } from 'vue'
 
 import Command from './ui/command/Command.vue'
@@ -22,13 +23,9 @@ const categories = defineModel<string[]>({ default: [] })
 const categoriesSearch = ref('')
 const categoriesSearchDebounced = refDebounced(categoriesSearch, 500)
 
-const {
-	data: searchCategoriesData,
-} = useTwitchSearchCategories(categoriesSearchDebounced)
+const { data: searchCategoriesData } = useTwitchSearchCategories(categoriesSearchDebounced)
 
-const {
-	data: selectedCategories,
-} = useTwitchGetCategories(categories)
+const { data: selectedCategories } = useTwitchGetCategories(categories)
 
 interface SelectedCategoryValue {
 	id: string
@@ -39,21 +36,26 @@ interface SelectedCategoryValue {
 const selectedCategoriesValues = computed<Record<string, SelectedCategoryValue>>(() => {
 	if (!selectedCategories.value) return {}
 
-	return selectedCategories.value.reduce((acc, val) => {
-		acc[val.id] = {
-			id: val.id,
-			image: val.boxArtUrl.replace('{height}', '80').replace('{width}', '60'),
-			label: val.name,
-		}
+	return selectedCategories.value.reduce(
+		(acc, val) => {
+			acc[val.id] = {
+				id: val.id,
+				image: val.boxArtUrl.replace('{height}', '80').replace('{width}', '60'),
+				label: val.name,
+			}
 
-		return acc
-	}, {} as Record<string, SelectedCategoryValue>)
+			return acc
+		},
+		{} as Record<string, SelectedCategoryValue>
+	)
 })
 
-function handleSelect(event: CustomEvent<{
-	originalEvent: PointerEvent
-	value?: string | number | boolean | Record<string, any>
-}>) {
+function handleSelect(
+	event: CustomEvent<{
+		originalEvent: PointerEvent
+		value?: AcceptableValue
+	}>
+) {
 	if (typeof event.detail.value !== 'string') return
 	if (categories.value.includes(event.detail.value)) {
 		return
@@ -69,7 +71,12 @@ function handleSelect(event: CustomEvent<{
 	<Popover :open="!!searchCategoriesData?.length">
 		<PopoverTrigger as-child>
 			<TagsInput v-model="categories">
-				<TagsInputItem v-for="item in selectedCategoriesValues" :key="item.label" :value="item.id" class="flex gap-1 items-center rounded-full px-2">
+				<TagsInputItem
+					v-for="item in selectedCategoriesValues"
+					:key="item.label"
+					:value="item.id"
+					class="flex gap-1 items-center rounded-full px-2"
+				>
 					<img :src="item.image" class="size-4 rounded-full" />
 					{{ item.label }}
 					<TagsInputItemDelete />
@@ -95,7 +102,10 @@ function handleSelect(event: CustomEvent<{
 							class="flex gap-2.5 h-24 items-center"
 							@select="handleSelect"
 						>
-							<img :src="option.boxArtUrl.replace('{width}', '60').replace('{height}', '80')" class="h-[80px] w-[60px]" />
+							<img
+								:src="option.boxArtUrl.replace('{width}', '60').replace('{height}', '80')"
+								class="h-[80px] w-[60px]"
+							/>
 							<span>{{ option.name }}</span>
 						</CommandItem>
 					</CommandGroup>

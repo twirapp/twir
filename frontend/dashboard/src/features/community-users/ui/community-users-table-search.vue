@@ -4,7 +4,10 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommunityTableActions } from '../composables/use-community-table-actions.js'
-import { TABLE_ACCESSOR_KEYS, useCommunityUsersTable } from '../composables/use-community-users-table.js'
+import {
+	TABLE_ACCESSOR_KEYS,
+	useCommunityUsersTable,
+} from '../composables/use-community-users-table.js'
 
 import SearchBar from '@/components/search-bar.vue'
 import { Button } from '@/components/ui/button'
@@ -23,15 +26,13 @@ const communityUsersTable = useCommunityUsersTable()
 
 // TODO: column labels
 const columns = computed(() => {
-	return communityUsersTable.table
-		.getAllColumns()
-		.filter(column => {
-			if (column.id !== TABLE_ACCESSOR_KEYS.user) {
-				return typeof column.accessorFn !== 'undefined' && column.getCanHide()
-			}
+	return communityUsersTable.table.getAllColumns().filter((column) => {
+		if (column.id !== TABLE_ACCESSOR_KEYS.user) {
+			return typeof column.accessorFn !== 'undefined' && column.getCanHide()
+		}
 
-			return false
-		})
+		return false
+	})
 })
 </script>
 
@@ -43,11 +44,7 @@ const columns = computed(() => {
 		/>
 		<DropdownMenu>
 			<DropdownMenuTrigger as-child>
-				<Button
-					variant="outline"
-					size="sm"
-					class="flex ml-auto h-9"
-				>
+				<Button variant="outline" size="sm" class="flex ml-auto h-9">
 					<Settings2Icon class="mr-2 h-4 w-4" />
 					{{ t('sharedTexts.view') }}
 				</Button>
@@ -63,7 +60,7 @@ const columns = computed(() => {
 					:key="column.id"
 					class="capitalize"
 					:checked="column.getIsVisible()"
-					@update:checked="(value) => column.toggleVisibility(!!value)"
+					@update:checked="(value: boolean | 'indeterminate') => column.toggleVisibility(!!value)"
 				>
 					{{ column.id }}
 				</DropdownMenuCheckboxItem>

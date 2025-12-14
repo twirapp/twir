@@ -64,7 +64,7 @@ function getTransition(route: RouteLocationNormalized) {
 											padding: route.meta?.noPadding ? undefined : '24px',
 											height: '100%',
 										}"
-										class="bg-background"
+										class="bg-[#0b0b0c]"
 									>
 										<component :is="Component" />
 									</div>

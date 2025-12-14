@@ -36,7 +36,6 @@ import {
 	TagsInputItemDelete,
 	TagsInputItemText,
 } from '@/components/ui/tags-input'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 const { t } = useI18n()
 
@@ -79,7 +78,6 @@ function computeSelectedGroupColor(id: string) {
 			</CardAction>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4 pt-4">
-			<Switch />
 			<FormField v-slot="{ componentField }" name="name">
 				<FormItem>
 					<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>

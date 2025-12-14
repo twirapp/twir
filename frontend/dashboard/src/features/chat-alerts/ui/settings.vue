@@ -105,7 +105,7 @@ const { t } = useI18n()
 						<Switch
 							id="enabled"
 							:checked="formValue[formKey]!.enabled"
-							@update:checked="(v) => (formValue[formKey]!.enabled = v)"
+							@update:checked="(v: boolean) => (formValue[formKey]!.enabled = v)"
 						/>
 					</div>
 				</CardHeader>

@@ -35,7 +35,7 @@ defineSlots<{
 	'additional-buttons': FunctionalComponent
 }>()
 
-const text = defineModel<string | undefined | null>({ default: '' })
+const text = defineModel<string | undefined>({ default: '' })
 const { t } = useI18n()
 
 const { allVariables } = useVariablesApi()
