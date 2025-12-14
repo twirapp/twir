@@ -1,0 +1,14 @@
+{
+	"$schema": "../../node_modules/wrangler/config-schema.json",
+	"name": "Twir Dashboard",
+	"compatibility_date": "2025-12-13",
+	"route": "twir.app/dashboard/*",
+	"assets": {
+		"directory": "dist",
+		"html_handling": "drop-trailing-slash"
+	},
+	"build": {
+		"command": "bun run build app dashboard",
+		"cwd": "../.."
+	}
+}
