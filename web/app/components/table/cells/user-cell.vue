@@ -12,8 +12,8 @@ const userName = computed(() => {
 
 <template>
 	<div class="flex items-center gap-4 max-sm:justify-start">
-		<img :src="avatar" :alt="name" class="size-9 rounded-full" />
-		<!-- <UiAvatar class="size-9">
+		<img :src="avatar" :alt="name" class="w-9 h-9 rounded-full" />
+		<!-- <UiAvatar class="w-9 h-9">
 			<UiAvatarImage :src="avatar" :alt="name" />
 			<UiAvatarFallback>{{ name.charAt(0).toUpperCase() }}</UiAvatarFallback>
 		</UiAvatar> -->

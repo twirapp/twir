@@ -63,7 +63,7 @@ function onMouseLeave() {
 
 				<div
 					v-if="message.type === 'redemption'"
-					class="font-normal flex flex-col py-3 px-5 bg-[#4C47F5]/[.15] gap-2 rounded-md relative w-full"
+					class="font-normal flex flex-col py-3 px-5 bg-[#4C47F5]/15 gap-2 rounded-md relative w-full"
 				>
 					<span class="text-sm leading-normal text-white/90" v-html="message.text"></span>
 					<span class="font-semibold">{{ message.input }}</span>

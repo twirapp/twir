@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { Plus, TrashIcon } from 'lucide-vue-next'
-import {
-	NAlert,
-	NCard,
-	NDivider,
-} from 'naive-ui'
+import { NAlert, NCard, NDivider } from 'naive-ui'
 import { type VNode, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -34,16 +30,20 @@ defineSlots<{
 	additionalSettings: VNode
 }>()
 
-const { formValue, formRef, save } = useForm()
+const { formValue, save } = useForm()
 const hasAccessToManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts)
 
-watch(formValue, (v) => {
-	if (!v) return
+watch(
+	formValue,
+	(v) => {
+		if (!v) return
 
-	if (!v[props.formKey]?.messages.length) {
-		createMessage()
-	}
-}, { immediate: true })
+		if (!v[props.formKey]?.messages.length) {
+			createMessage()
+		}
+	},
+	{ immediate: true }
+)
 
 function createMessage() {
 	if (!hasAccessToManageAlerts) return
@@ -67,19 +67,16 @@ function removeMessage(index: number) {
 	if (!hasAccessToManageAlerts) return
 	if (!formValue?.value?.[props.formKey]?.messages) return
 
-	formValue.value[props.formKey]!.messages = formValue.value[props.formKey]!.messages.filter((_, i) => i !== index)
+	formValue.value[props.formKey]!.messages = formValue.value[props.formKey]!.messages.filter(
+		(_, i) => i !== index
+	)
 }
 
 const { t } = useI18n()
 </script>
 
 <template>
-	<form
-		v-if="formValue?.[formKey]"
-		ref="formRef"
-		class="flex flex-col gap-4"
-		@submit.prevent
-	>
+	<form v-if="formValue?.[formKey]" ref="formRef" class="flex flex-col gap-4" @submit.prevent>
 		<div class="relative">
 			<div v-if="!hasAccessToManageAlerts" class="absolute w-full h-full z-50">
 				<div class="flex flex-col items-center justify-center h-full gap-2">
@@ -94,14 +91,19 @@ const { t } = useI18n()
 				</div>
 			</div>
 
-			<NCard :class="{ 'opacity-20': !hasAccessToManageAlerts }" :title="title" size="small" bordered>
+			<NCard
+				:class="{ 'opacity-20': !hasAccessToManageAlerts }"
+				:title="title"
+				size="small"
+				bordered
+			>
 				<template #header-extra>
 					<div class="flex items-center gap-4">
 						<Label for="enabled">{{ t('sharedTexts.enabled') }}</Label>
 						<Switch
 							id="enabled"
 							:checked="formValue[formKey]!.enabled"
-							@update:checked="(v) => formValue[formKey]!.enabled = v"
+							@update:checked="(v) => (formValue[formKey]!.enabled = v)"
 						/>
 					</div>
 				</template>
@@ -124,10 +126,8 @@ const { t } = useI18n()
 					<NDivider>
 						{{ t('sharedTexts.messages') }}
 					</NDivider>
-					<p class="leading-7 " v-html="alertMessage" />
-					<NAlert v-if="!formValue[formKey]!.messages?.length" type="warning">
-						No messages
-					</NAlert>
+					<p class="leading-7" v-html="alertMessage" />
+					<NAlert v-if="!formValue[formKey]!.messages?.length" type="warning"> No messages </NAlert>
 					<ul v-else class="flex flex-col gap-3.5 p-0 mx-0 my-3.5">
 						<li
 							v-for="(message, index) of formValue[formKey]!.messages"
@@ -147,9 +147,7 @@ const { t } = useI18n()
 									/>
 								</div>
 
-								<Input
-									v-model="message.text"
-								/>
+								<Input v-model="message.text" />
 
 								<Button
 									:disabled="!hasAccessToManageAlerts"
@@ -163,23 +161,24 @@ const { t } = useI18n()
 						</li>
 					</ul>
 					<Button
-						:disabled="(formValue[formKey]!.messages?.length === maxMessages) || !hasAccessToManageAlerts"
+						:disabled="
+							formValue[formKey]!.messages?.length === maxMessages || !hasAccessToManageAlerts
+						"
 						variant="secondary"
 						class="flex w-full"
 						@click="createMessage"
 					>
 						<Plus class="mr-1" />
-						<span v-if="formValue[formKey]!.messages?.length">{{ t('sharedButtons.create') }} ({{ formValue[formKey]!.messages.length }} / {{ maxMessages }})</span>
+						<span v-if="formValue[formKey]!.messages?.length"
+							>{{ t('sharedButtons.create') }} ({{ formValue[formKey]!.messages.length }} /
+							{{ maxMessages }})</span
+						>
 						<span v-else>{{ t('sharedButtons.create') }}</span>
 					</Button>
 				</div>
 				<template #action>
 					<div class="flex justify-end">
-						<Button
-							:disabled="!hasAccessToManageAlerts"
-							variant="default"
-							@click="save"
-						>
+						<Button :disabled="!hasAccessToManageAlerts" variant="default" @click="save">
 							<span>{{ t('sharedButtons.save') }}</span>
 						</Button>
 					</div>

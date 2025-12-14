@@ -28,7 +28,7 @@ const { data: entities } = dudesOverlayManager.useGetAll()
 
 const openedTab = ref<string>()
 
-const { dudesIframe, sendIframeMessage } = useDudesIframe()
+const { sendIframeMessage } = useDudesIframe()
 const dudesIframeUrl = computed(() => {
 	if (!profile.value || !openedTab.value) return null
 	return `${window.location.origin}/overlays/${profile.value.apiKey}/dudes?id=${openedTab.value}`

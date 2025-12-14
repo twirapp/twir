@@ -4,26 +4,20 @@ import PublicUserProfile from './public/public-user-profile.vue'
 
 import { useStreamerProfile } from '~~/layers/public/api/use-streamer-profile'
 
-useHead({
-	bodyAttrs: {
-		class: 'bg-background-main text-foreground',
-	},
-})
-
 const streamerProfile = useStreamerProfile()
 await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
 </script>
 
 <template>
 	<UiSidebarProvider>
-		<UiSidebar collapsible="icon">
+		<UiSidebar collapsible="icon" variant="inset">
 			<UiSidebarHeader>
 				<div class="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
 					<NuxtLink
 						to="/"
 						class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2"
 					>
-						<TwirLogo class="size-8" />
+						<TwirLogo class="w-8 h-8" />
 						<h1
 							class="text-2xl font-semibold group-data-[collapsible=icon]:hidden text-accent-foreground"
 						>
@@ -33,37 +27,24 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 				</div>
 			</UiSidebarHeader>
 
-			<UiSidebarSeparator />
-
 			<UiSidebarContent>
 				<PublicNavigation />
 			</UiSidebarContent>
 
-			<UiSidebarSeparator />
-
 			<UiSidebarFooter>
 				<PublicUserProfile />
-				<!--				<div class="min-h-12"> -->
-				<!--					<ClientOnly> -->
-				<!--						<template #fallback> -->
-				<!--							<div class="h-full w-full flex items-center justify-center"> -->
-				<!--								Loading... -->
-				<!--							</div> -->
-				<!--						</template> -->
-				<!--						<PublicUserProfile /> -->
-				<!--					</ClientOnly> -->
-				<!--				</div> -->
 			</UiSidebarFooter>
 		</UiSidebar>
 
-		<UiSidebarInset class="p-4 container">
-			<UiCard style="background-color: rgb(24, 24, 28)">
+		<UiSidebarInset class="p-4">
+			<UiCard>
 				<UiCardContent class="p-6">
 					<div class="flex flex-row flex-wrap justify-between w-full gap-4">
 						<div class="flex gap-4 flex-row flex-1">
 							<img
 								:src="streamerProfile.profile?.twitchGetUserByName?.profileImageUrl"
-								class="size-16 rounded-full"
+								class="w-16 h-16 rounded-full"
+								:alt="`${streamerProfile.profile?.twitchGetUserByName?.login}-avatar`"
 							/>
 							<div class="flex flex-col gap-2">
 								<span class="text-4xl">{{

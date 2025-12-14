@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { type Cell, type ColumnDef, FlexRender, getCoreRowModel, getExpandedRowModel, useVueTable } from '@tanstack/vue-table'
+import {
+	type Cell,
+	type ColumnDef,
+	FlexRender,
+	getCoreRowModel,
+	getExpandedRowModel,
+	useVueTable,
+} from '@tanstack/vue-table'
 
 import { useCommands } from '~~/layers/public/api/use-commands'
 import CommandsCooldownCell from '~~/layers/public/components/commands/commands-cooldown-cell.vue'
@@ -21,41 +28,45 @@ const columns: ColumnDef<Command | Group>[] = [
 	{
 		accessorKey: 'Name',
 		size: 10,
-		cell: ({ row }) => isCommand(row.original)
-			? h(CommandsNameCell, {
-				name: row.original.name,
-				aliases: isCommand(row.original) ? row.original.aliases : [],
-			})
-			: h('div', {}, row.original.name),
+		cell: ({ row }) =>
+			isCommand(row.original)
+				? h(CommandsNameCell, {
+						name: row.original.name,
+						aliases: isCommand(row.original) ? row.original.aliases : [],
+					})
+				: h('div', {}, row.original.name),
 	},
 	{
 		accessorKey: 'Response',
 		size: 80,
-		cell: ({ row }) => isCommand(row.original)
-			? h(CommandsResponsesCell, {
-				responses: row.original.responses,
-				description: row.original.description,
-			})
-			: null,
+		cell: ({ row }) =>
+			isCommand(row.original)
+				? h(CommandsResponsesCell, {
+						responses: row.original.responses,
+						description: row.original.description,
+					})
+				: null,
 	},
 	{
 		accessorKey: 'Permissions',
 		size: 5,
-		cell: ({ row }) => isCommand(row.original)
-			? h(CommandsPermissionsCell, {
-				permissions: row.original.permissions,
-			})
-			: null,
+		cell: ({ row }) =>
+			isCommand(row.original)
+				? h(CommandsPermissionsCell, {
+						permissions: row.original.permissions,
+					})
+				: null,
 	},
 	{
 		accessorKey: 'Cooldown',
 		size: 5,
-		cell: ({ row }) => isCommand(row.original)
-			? h(CommandsCooldownCell, {
-				cooldown: row.original.cooldown,
-				cooldownType: row.original.cooldownType,
-			})
-			: null,
+		cell: ({ row }) =>
+			isCommand(row.original)
+				? h(CommandsCooldownCell, {
+						cooldown: row.original.cooldown,
+						cooldownType: row.original.cooldownType,
+					})
+				: null,
 	},
 ]
 
@@ -90,7 +101,7 @@ function computeCellSpan(cell: Cell<Command | Group, unknown>) {
 </script>
 
 <template>
-	<div class="flex-wrap w-full border rounded-md" style="background-color: rgb(24, 24, 28)">
+	<div class="flex-wrap w-full border rounded-md bg-card">
 		<UiTable>
 			<UiTableHeader>
 				<UiTableRow
@@ -113,14 +124,8 @@ function computeCellSpan(cell: Cell<Command | Group, unknown>) {
 			</UiTableHeader>
 
 			<UiTableBody>
-				<UiTableRow
-					v-for="row in table.getRowModel().rows"
-					:key="row.id"
-				>
-					<template
-						v-for="cell in row.getVisibleCells()"
-						:key="cell.id"
-					>
+				<UiTableRow v-for="row in table.getRowModel().rows" :key="row.id">
+					<template v-for="cell in row.getVisibleCells()" :key="cell.id">
 						<UiTableCell
 							v-if="isCommand(cell.row.original) || cell.column.id === 'Name'"
 							:colspan="computeCellSpan(cell)"

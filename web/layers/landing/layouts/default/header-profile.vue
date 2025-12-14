@@ -1,20 +1,9 @@
 <script setup lang="ts">
-import type { DropdownMenuContentProps } from 'radix-vue'
-
 import { UserStoreKey } from '~/stores/user'
 
 const userStore = useAuth()
 
 await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())])
-
-const dropdownProps = computed((): DropdownMenuContentProps & { class?: string } => {
-	return {
-		class: 'w-[200px]',
-		side: 'bottom',
-		align: 'end',
-		sideOffset: 4,
-	}
-})
 </script>
 
 <template>
@@ -36,16 +25,16 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 				<img
 					:src="userStore.userWithoutDashboards.twitchProfile.profileImageUrl"
 					:alt="userStore.userWithoutDashboards.twitchProfile.displayName"
-					class="w-8 h-8 rounded-full flex-shrink-0"
+					class="w-8 h-8 rounded-full shrink-0"
 				/>
 				<span class="max-[600px]:hidden truncate">
 					{{ userStore.userWithoutDashboards?.twitchProfile.login }}
 				</span>
-				<Icon name="lucide:chevron-down" class="w-4 h-4 flex-shrink-0" />
+				<Icon name="lucide:chevron-down" class="w-4 h-4 shrink-0" />
 			</div>
 		</UiDropdownMenuTrigger>
 
-		<UiDropdownMenuContent v-bind="dropdownProps">
+		<UiDropdownMenuContent align="end" side="bottom" :side-offset="4" class="w-50">
 			<UiDropdownMenuItem as-child>
 				<a href="/dashboard" class="flex w-full items-center">
 					<Icon name="lucide:layout-dashboard" class="mr-2 h-4 w-4" />
@@ -57,7 +46,7 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 
 			<UiDropdownMenuItem
 				as="button"
-				class="flex w-full items-center text-destructive"
+				class="flex w-full items-center text-red-500"
 				@click="userStore.logout"
 			>
 				<Icon name="lucide:log-out" class="mr-2 h-4 w-4" />
@@ -66,9 +55,3 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 		</UiDropdownMenuContent>
 	</UiDropdownMenu>
 </template>
-
-<style scoped>
-.text-destructive {
-	color: rgb(239 68 68);
-}
-</style>

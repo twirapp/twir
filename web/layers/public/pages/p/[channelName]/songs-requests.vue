@@ -11,19 +11,13 @@ const { data } = await useSongRequests()
 </script>
 
 <template>
-	<div class="flex-wrap w-full border rounded-md" style="background-color: rgb(24, 24, 28)">
+	<div class="flex-wrap w-full border rounded-md bg-card">
 		<UiTable>
 			<UiTableHeader>
 				<UiTableRow>
-					<UiTableHead class="w-[60%]">
-						Name
-					</UiTableHead>
-					<UiTableHead class="w-[30%]">
-						Requested by
-					</UiTableHead>
-					<UiTableHead class="w-[10%]">
-						Duration
-					</UiTableHead>
+					<UiTableHead class="w-[60%]"> Name </UiTableHead>
+					<UiTableHead class="w-[30%]"> Requested by </UiTableHead>
+					<UiTableHead class="w-[10%]"> Duration </UiTableHead>
 				</UiTableRow>
 			</UiTableHeader>
 			<UiTableBody>
@@ -34,7 +28,11 @@ const { data } = await useSongRequests()
 						</a>
 					</UiTableCell>
 					<UiTableCell class="font-medium">
-						<UserCell :name="song.twitchProfile.login" :display-name="song.twitchProfile.displayName" :avatar="song.twitchProfile.profileImageUrl" />
+						<UserCell
+							:name="song.twitchProfile.login"
+							:display-name="song.twitchProfile.displayName"
+							:avatar="song.twitchProfile.profileImageUrl"
+						/>
 					</UiTableCell>
 					<UiTableCell>
 						{{ convertMillisToTime(song.durationSeconds * 1000) }}

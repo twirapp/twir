@@ -31,7 +31,7 @@ async function deletePaste(id: string) {
 <template>
 	<div class="bg-[#1E1E1E] h-full min-h-screen">
 		<div v-if="!userStore.userWithoutDashboards">
-			<div class="container flex flex-col gap-2 pt-4 items-center justify-center h-full">
+			<div class="container mx-auto flex flex-col gap-2 pt-4 items-center justify-center h-full">
 				<h1 class="text-2xl">You need to be logged in to view your pastes</h1>
 
 				<button
@@ -44,7 +44,10 @@ async function deletePaste(id: string) {
 				</button>
 			</div>
 		</div>
-		<div v-else class="container flex flex-col gap-2 pt-4 items-center justify-center h-full">
+		<div
+			v-else
+			class="container mx-auto flex flex-col gap-2 pt-4 items-center justify-center h-full"
+		>
 			<div class="border-border w-full">
 				<UiTable class="bg-zinc-700 rounded-md">
 					<UiTableHeader>
@@ -84,7 +87,7 @@ async function deletePaste(id: string) {
 										class="flex items-center gap-2"
 										@click="deletePaste(paste.id)"
 									>
-										<Icon name="lucide:trash" class="size-4" />
+										<Icon name="lucide:trash" class="w-4 h-4" />
 									</UiButton>
 								</UiTableCell>
 							</UiTableRow>

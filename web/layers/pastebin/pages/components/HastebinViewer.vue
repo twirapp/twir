@@ -2,22 +2,24 @@
 import { usePasteStore } from '#layers/pastebin/stores/pasteStore'
 
 const { currentPaste } = storeToRefs(usePasteStore())
+const { detectLanguage, highlight } = useHighlight()
+
+const code = computed(() => {
+	if (!currentPaste.value) return null
+
+	const lang = detectLanguage(currentPaste.value.content)
+	return highlight(currentPaste.value.content, lang)
+})
 </script>
 
 <template>
-	<Shiki
-		v-if="currentPaste?.content"
-		:code="currentPaste.content"
-		class="h-full"
-	/>
+	<pre class="h-full"><code v-html="code"></code></pre>
 </template>
 
 <style scoped>
-:deep(pre code) {
-  font-family: 'JetBrains Mono';
-}
+@reference "~/assets/css/tailwind.css";
 
 :deep(code) {
-	@apply break-words text-wrap
+	font-family: 'JetBrains Mono', serif;
 }
 </style>

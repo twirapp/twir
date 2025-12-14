@@ -1,13 +1,13 @@
 import path from 'node:path'
 import process from 'node:process'
-
 import gqlcodegen from './modules/gql-codegen'
+import tailwindcss from '@tailwindcss/vite'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-	compatibilityDate: '2024-04-03',
+	compatibilityDate: '2025-12-14',
 	future: {
 		compatibilityVersion: 4,
 	},
@@ -23,7 +23,6 @@ export default defineNuxtConfig({
 	modules: [
 		'@pinia/nuxt',
 		'@bicou/nuxt-urql',
-		'@nuxtjs/tailwindcss',
 		'reka-ui/nuxt',
 		'@nuxtjs/color-mode',
 		'shadcn-nuxt',
@@ -35,7 +34,6 @@ export default defineNuxtConfig({
 		'@nuxtjs/seo',
 		gqlcodegen,
 		'@nuxtjs/fontaine',
-		'nuxt-shiki',
 	],
 
 	icon: {
@@ -58,7 +56,10 @@ export default defineNuxtConfig({
 		// asyncContext: true,
 	},
 
-	css: ['~/assets/css/global.css'],
+	vite: {
+		plugins: [tailwindcss()],
+	},
+	css: ['~/assets/css/tailwind.css', '~/assets/css/global.css'],
 
 	nitro: {
 		preset: 'bun',
@@ -88,19 +89,6 @@ export default defineNuxtConfig({
 		 * @default "./components/ui"
 		 */
 		componentDir: './app/components/ui',
-	},
-
-	tailwindcss: {
-		config: {
-			content: {
-				files: [
-					path.join(
-						path.dirname(require.resolve('@twir/frontend-valorant-stats')),
-						'**/*.{js,vue,ts}'
-					),
-				],
-			},
-		},
 	},
 
 	imports: {
@@ -133,10 +121,6 @@ export default defineNuxtConfig({
 		blockAiBots: true,
 	},
 
-	shiki: {
-		bundledThemes: ['dark-plus'],
-		defaultTheme: 'dark-plus',
-	},
 	telemetry: {
 		enabled: true,
 		consent: 1,

@@ -2,8 +2,7 @@
 import { FlexRender } from '@tanstack/vue-table'
 
 import { useCommunityUsersTable } from '~/features/community-users/composables/use-community-users-table'
-import CommunityUsersTableSearch
-	from '~/features/community-users/ui/community-users-table-search.vue'
+import CommunityUsersTableSearch from '~/features/community-users/ui/community-users-table-search.vue'
 
 definePageMeta({
 	layout: 'public',
@@ -20,11 +19,11 @@ await useAsyncData('communityUsers', async () => store.fetchUsers().then(() => t
 			:total="store.totalUsers"
 			:table="store.table"
 			:pagination="store.pagination"
-			@update:page="(page) => store.pagination.pageIndex = page"
-			@update:page-size="(pageSize) => store.pagination.pageSize = pageSize"
+			@update:page="(page) => (store.pagination.pageIndex = page)"
+			@update:page-size="(pageSize) => (store.pagination.pageSize = pageSize)"
 		/>
 
-		<div class="flex-wrap w-full border rounded-md" style="background-color: rgb(24, 24, 28)">
+		<div class="flex-wrap w-full border rounded-md bg-card">
 			<UiTable>
 				<UiTableHeader>
 					<UiTableRow
@@ -47,19 +46,10 @@ await useAsyncData('communityUsers', async () => store.fetchUsers().then(() => t
 				</UiTableHeader>
 
 				<UiTableBody>
-					<UiTableRow
-						v-for="row in store.table.getRowModel().rows"
-						:key="row.id"
-					>
-						<template
-							v-for="cell in row.getVisibleCells()"
-							:key="cell.id"
-						>
+					<UiTableRow v-for="row in store.table.getRowModel().rows" :key="row.id">
+						<template v-for="cell in row.getVisibleCells()" :key="cell.id">
 							<UiTableCell>
-								<FlexRender
-									:render="cell.column.columnDef.cell"
-									:props="cell.getContext()"
-								/>
+								<FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
 							</UiTableCell>
 						</template>
 					</UiTableRow>
@@ -71,8 +61,8 @@ await useAsyncData('communityUsers', async () => store.fetchUsers().then(() => t
 			:total="store.totalUsers"
 			:table="store.table"
 			:pagination="store.pagination"
-			@update:page="(page) => store.pagination.pageIndex = page"
-			@update:page-size="(pageSize) => store.pagination.pageSize = pageSize"
+			@update:page="(page) => (store.pagination.pageIndex = page)"
+			@update:page-size="(pageSize) => (store.pagination.pageSize = pageSize)"
 		/>
 	</div>
 </template>

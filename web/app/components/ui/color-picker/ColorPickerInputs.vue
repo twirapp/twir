@@ -257,12 +257,12 @@ const inputClass =
 			v-if="props.showCopy"
 			variant="outline"
 			size="custom"
-			class="size-8 bg-transparent"
+			class="w-8 h-8 bg-transparent"
 			@click="copyColor"
 		>
 			<Transition name="fade" mode="out-in">
-				<Icon v-if="isCopied" name="lucide:check" class="size-3" />
-				<Icon v-else name="lucide:copy" class="size-3" />
+				<Icon v-if="isCopied" name="lucide:check" class="w-3 h-3" />
+				<Icon v-else name="lucide:copy" class="w-3 h-3" />
 			</Transition>
 		</UiButton>
 	</div>
