@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import VariableInput from '@/components/variable-input.vue'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
 
@@ -31,7 +31,6 @@ const emits = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { toast } = useToast()
 
 const open = ref(false)
 
@@ -108,10 +107,7 @@ const save = keywordsForm.handleSubmit(async (values) => {
 		open.value = false
 		resetFormValue()
 	} catch (e) {
-		toast({
-			title: 'Error occured while saving keyword',
-			variant: 'default',
-		})
+		toast.error('Error occured while saving keyword')
 		console.error(e)
 	}
 })

@@ -33,7 +33,7 @@ onMounted(() => {
 					<CardContent class="pt-6">
 						<NText
 							v-if="notification.text"
-							class="w-full break-words"
+							class="w-full wrap-break-word"
 							v-html="notification.text"
 						/>
 						<BlocksRender v-if="notification.editorJsJson" :data="notification.editorJsJson" />

@@ -32,7 +32,7 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import {
 	useDiscordGuildInfo,
 	useDiscordIntegration,
@@ -55,7 +55,6 @@ const props = defineProps<{
 const { data: currentUser } = useProfile()
 
 const { t } = useI18n()
-const { toast } = useToast()
 
 const { updateGuild } = useDiscordIntegration()
 const { channels, roles, isLoading: isGuildInfoLoading } = useDiscordGuildInfo(() => props.guildId)
@@ -99,15 +98,12 @@ const onSubmit = form.handleSubmit(async (values) => {
 	const result = await updateGuild(props.guildId, values)
 
 	if (result.error) {
-		toast({
-			title: t('sharedTexts.error'),
+		toast.error(t('sharedTexts.error'), {
 			description: result.error.message,
-			variant: 'destructive',
 			duration: 5000,
 		})
 	} else {
-		toast({
-			title: t('sharedTexts.saved'),
+		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
 		})
 	}
@@ -135,7 +131,7 @@ const messageWithMentions = computed(() => {
 									<FormControl>
 										<Checkbox :checked="value" @update:checked="handleChange" />
 									</FormControl>
-									<FormLabel class="!mt-0">{{ t('sharedTexts.enabled') }}</FormLabel>
+									<FormLabel class="mt-0!">{{ t('sharedTexts.enabled') }}</FormLabel>
 									<FormMessage />
 								</FormItem>
 							</FormField>
@@ -145,7 +141,7 @@ const messageWithMentions = computed(() => {
 									<FormControl>
 										<Checkbox :checked="value" @update:checked="handleChange" />
 									</FormControl>
-									<FormLabel class="!mt-0">{{
+									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showTitle')
 									}}</FormLabel>
 									<FormMessage />
@@ -157,7 +153,7 @@ const messageWithMentions = computed(() => {
 									<FormControl>
 										<Checkbox :checked="value" @update:checked="handleChange" />
 									</FormControl>
-									<FormLabel class="!mt-0">{{
+									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showCategory')
 									}}</FormLabel>
 									<FormMessage />
@@ -169,7 +165,7 @@ const messageWithMentions = computed(() => {
 									<FormControl>
 										<Checkbox :checked="value" @update:checked="handleChange" />
 									</FormControl>
-									<FormLabel class="!mt-0">{{
+									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showPreview')
 									}}</FormLabel>
 									<FormMessage />
@@ -181,7 +177,7 @@ const messageWithMentions = computed(() => {
 									<FormControl>
 										<Checkbox :checked="value" @update:checked="handleChange" />
 									</FormControl>
-									<FormLabel class="!mt-0">{{
+									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showProfileImage')
 									}}</FormLabel>
 									<FormMessage />
@@ -193,7 +189,7 @@ const messageWithMentions = computed(() => {
 									<FormControl>
 										<Checkbox :checked="value" @update:checked="handleChange" />
 									</FormControl>
-									<FormLabel class="!mt-0">{{
+									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showViewers')
 									}}</FormLabel>
 									<FormMessage />
@@ -286,7 +282,7 @@ const messageWithMentions = computed(() => {
 								<FormControl>
 									<Checkbox :checked="value" @update:checked="handleChange" />
 								</FormControl>
-								<FormLabel class="!mt-0">{{
+								<FormLabel class="mt-0!">{{
 									t('integrations.discord.alerts.shouldDeleteMessageOnOffline')
 								}}</FormLabel>
 								<FormMessage />

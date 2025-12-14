@@ -7,8 +7,15 @@ import type { PaginationState, RowData, Table } from '@tanstack/vue-table'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { formatNumber } from '@/helpers/format-number.js'
+import type { AcceptableValue } from 'reka-ui'
 
 const props = defineProps<{
 	total: number
@@ -34,7 +41,7 @@ function handleGoToPage(event: any) {
 	emits('update:page', page < 0 ? 0 : page)
 }
 
-function handlePageSizeChange(pageSize: string) {
+function handlePageSizeChange(pageSize: AcceptableValue) {
 	emits('update:page', 0)
 	emits('update:pageSize', Number(pageSize))
 }
@@ -44,10 +51,12 @@ function handlePageSizeChange(pageSize: string) {
 	<div class="flex justify-between max-sm:flex-col gap-4">
 		<div class="flex gap-2 items-center">
 			<div class="text-sm text-muted-foreground text-nowrap">
-				{{ t('sharedTexts.pagination', {
-					page: table.getPageCount(),
-					total: formatNumber(total),
-				}) }}
+				{{
+					t('sharedTexts.pagination', {
+						page: table.getPageCount(),
+						total: formatNumber(total),
+					})
+				}}
 			</div>
 			<Select default-value="10" @update:model-value="handlePageSizeChange">
 				<SelectTrigger class="h-9 justify-between gap-2">
@@ -57,7 +66,11 @@ function handlePageSizeChange(pageSize: string) {
 					</div>
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem v-for="pageSize in ['10', '20', '50', '100']" :key="pageSize" :value="pageSize">
+					<SelectItem
+						v-for="pageSize in ['10', '20', '50', '100']"
+						:key="pageSize"
+						:value="pageSize"
+					>
 						{{ pageSize }}
 					</SelectItem>
 				</SelectContent>
@@ -98,13 +111,13 @@ function handlePageSizeChange(pageSize: string) {
 </template>
 
 <style scoped>
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
 	-webkit-appearance: none;
 	margin: 0;
 }
 
-input[type="number"] {
+input[type='number'] {
 	-moz-appearance: textfield;
 	appearance: textfield;
 }

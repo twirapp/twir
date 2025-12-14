@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 const { t } = useI18n()
 
@@ -36,17 +36,14 @@ const { handleSubmit } = useForm({
 	},
 })
 
-const toast = useToast()
 const onSubmit = handleSubmit(async (values) => {
 	const result = await mutationEventSubSubscribe.executeMutation({
 		opts: values,
 	})
 
 	if (result.error) {
-		toast.toast({
+		toast.error(result.error.message, {
 			duration: 2500,
-			variant: 'destructive',
-			title: result.error.message,
 		})
 	}
 })

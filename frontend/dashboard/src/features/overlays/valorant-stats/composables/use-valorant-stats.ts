@@ -4,11 +4,10 @@ import { ref } from 'vue'
 import type { Settings } from '@twir/frontend-valorant-stats'
 
 import { useProfile } from '@/api/auth.ts'
-import { useToast } from '@/components/ui/toast/use-toast.ts'
+import { toast } from 'vue-sonner'
 
 export const useValorantStats = createGlobalState(() => {
 	const { data: profile } = useProfile()
-	const { toast } = useToast()
 
 	const settings = ref<Required<Settings>>({
 		backgroundColor: '#07090e',
@@ -45,9 +44,8 @@ export const useValorantStats = createGlobalState(() => {
 		}
 
 		navigator.clipboard.writeText(url.toString())
-		toast({
-			variant: 'success',
-			description: 'Overlay link copied to clipboard',
+		toast.success('Overlay link copied to clipboard', {
+			duration: 2500,
 		})
 	}
 

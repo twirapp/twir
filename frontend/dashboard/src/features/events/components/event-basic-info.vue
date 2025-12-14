@@ -88,7 +88,7 @@ const opened = ref(false)
 										variant="outline"
 										role="combobox"
 										:class="
-											cn('w-[400px] justify-between', !currentEventType && 'text-muted-foreground')
+											cn('w-100 justify-between', !currentEventType && 'text-muted-foreground')
 										"
 									>
 										{{ currentEventType ? getEventName(currentEventType) : 'Select...' }}
@@ -96,11 +96,11 @@ const opened = ref(false)
 									</Button>
 								</FormControl>
 							</PopoverTrigger>
-							<PopoverContent class="w-[200px] p-0">
+							<PopoverContent class="w-50 p-0">
 								<Command>
-									<CommandInput placeholder="Search language..." />
-									<CommandEmpty>Nothing found.</CommandEmpty>
+									<CommandInput placeholder="Search trigger..." />
 									<CommandList>
+										<CommandEmpty>Nothing found.</CommandEmpty>
 										<template v-for="selectOption of typeSelectOptions">
 											<CommandGroup
 												v-if="selectOption.isGroup"
@@ -130,29 +130,31 @@ const opened = ref(false)
 												</CommandItem>
 											</CommandGroup>
 
-											<CommandItem
-												v-else
-												:key="selectOption.value!"
-												:value="selectOption.value!"
-												@select="
-													() => {
-														setCurrentEventType(selectOption.value!)
-														opened = false
-													}
-												"
-											>
-												{{ selectOption.name }}
-												<CheckIcon
-													:class="
-														cn(
-															'ml-auto h-4 w-4',
-															currentEventType === selectOption.value ? 'opacity-100' : 'opacity-0'
-														)
+											<CommandGroup v-else>
+												<CommandItem
+													:key="selectOption.value!"
+													:value="selectOption.value!"
+													@select="
+														() => {
+															setCurrentEventType(selectOption.value!)
+															opened = false
+														}
 													"
-												/>
-											</CommandItem>
+												>
+													{{ selectOption.name }}
+													<CheckIcon
+														:class="
+															cn(
+																'ml-auto h-4 w-4',
+																currentEventType === selectOption.value
+																	? 'opacity-100'
+																	: 'opacity-0'
+															)
+														"
+													/>
+												</CommandItem>
+											</CommandGroup>
 										</template>
-										<CommandGroup> </CommandGroup>
 									</CommandList>
 								</Command>
 							</PopoverContent>
@@ -175,7 +177,7 @@ const opened = ref(false)
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<FormField v-slot="{ value, handleChange }" name="enabled">
 					<FormItem
-						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
+						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs"
 					>
 						<div class="space-y-0.5">
 							<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
@@ -188,7 +190,7 @@ const opened = ref(false)
 
 				<FormField v-slot="{ value, handleChange }" name="onlineOnly">
 					<FormItem
-						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
+						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs"
 					>
 						<div class="space-y-0.5">
 							<FormLabel>{{ t('events.onlineOnly') }}</FormLabel>

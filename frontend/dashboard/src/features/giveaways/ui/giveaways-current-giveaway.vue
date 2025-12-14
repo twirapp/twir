@@ -70,9 +70,9 @@ async function handleChooseWinners() {
 		<Card class="flex-1 h-full min-h-0">
 			<Tabs v-model="activeTab" class="h-full flex flex-col">
 				<CardHeader
-					class="flex-row items-center p-2 justify-between border-b border-border border-solid"
+					class="flex flex-row items-center justify-between border-b border-border border-solid"
 				>
-					<CardTitle class="flex items-center">
+					<CardTitle class="flex items-center text-3xl">
 						<span>
 							{{ currentGiveaway?.keyword }}
 						</span>

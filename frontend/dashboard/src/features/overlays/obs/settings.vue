@@ -16,20 +16,17 @@ import {
 	FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 
 const { t } = useI18n()
-const { toast } = useToast()
 const { onSubmit, isLoading, isSaving, settings, isConnected } = useObsForm()
 const { copyOverlayLink } = useCopyOverlayLink('obs')
 
 async function handleSave() {
 	await onSubmit()
-	toast({
-		title: t('sharedTexts.saved'),
+	toast.success(t('sharedTexts.saved'), {
 		description: t('overlays.obs.settingsSavedHint'),
-		variant: 'default',
 	})
 }
 </script>

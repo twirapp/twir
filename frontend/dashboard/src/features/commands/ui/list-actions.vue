@@ -11,12 +11,8 @@ import { useCommandsApi } from '@/api/commands/commands.js'
 import ActionConfirmation from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast/use-toast'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { toast } from 'vue-sonner'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = defineProps<{ row: Command }>()
@@ -28,7 +24,6 @@ const deleter = manager.useMutationDeleteCommand()
 const patcher = manager.useMutationUpdateCommand()!
 
 const { t } = useI18n()
-const { toast } = useToast()
 
 const showDelete = ref(false)
 
@@ -40,9 +35,7 @@ async function switchEnabled(newValue: boolean) {
 		},
 	})
 
-	toast({
-		title: t('sharedTexts.saved'),
-		variant: 'success',
+	toast.success(t('sharedTexts.saved'), {
 		duration: 1500,
 	})
 }
@@ -50,9 +43,7 @@ async function switchEnabled(newValue: boolean) {
 async function deleteCommand() {
 	await deleter.executeMutation({ id: props.row.id })
 
-	toast({
-		title: t('sharedTexts.deleted'),
-		variant: 'success',
+	toast.success(t('sharedTexts.deleted'), {
 		duration: 1500,
 	})
 }
@@ -77,11 +68,7 @@ function goToCopyCommand() {
 		<div class="flex gap-2">
 			<Tooltip v-if="row.module === 'CUSTOM'">
 				<TooltipTrigger>
-					<Button
-						:disabled="!userCanManageCommands"
-						size="icon"
-						@click="goToCopyCommand"
-					>
+					<Button :disabled="!userCanManageCommands" size="icon" @click="goToCopyCommand">
 						<CopyIcon class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
@@ -114,8 +101,5 @@ function goToCopyCommand() {
 		</div>
 	</div>
 
-	<ActionConfirmation
-		v-model:open="showDelete"
-		@confirm="deleteCommand"
-	/>
+	<ActionConfirmation v-model:open="showDelete" @confirm="deleteCommand" />
 </template>

@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { BubblesIcon, EyeIcon, HeartIcon, MessageSquareIcon, ShieldUserIcon, SmileIcon } from 'lucide-vue-next'
+import {
+	BubblesIcon,
+	EyeIcon,
+	HeartIcon,
+	MessageSquareIcon,
+	ShieldUserIcon,
+	SmileIcon,
+} from 'lucide-vue-next'
 import { computed, nextTick, toRef, watch } from 'vue'
 
 import { useChannelUserInfo } from '@/api/users.ts'
@@ -10,17 +17,19 @@ const props = defineProps<{
 
 const userId = toRef(() => props.userId)
 
-const {
-	data: selectedWinnerChannelInformation,
-	executeQuery: refetchWinnerChannelInfo,
-} = useChannelUserInfo(userId, { manual: true })
+const { data: selectedWinnerChannelInformation, executeQuery: refetchWinnerChannelInfo } =
+	useChannelUserInfo(userId, { manual: true })
 
-watch(userId, async () => {
-	await nextTick()
-	await refetchWinnerChannelInfo({ requestPolicy: 'cache-and-network' })
-}, {
-	immediate: true,
-})
+watch(
+	userId,
+	async () => {
+		await nextTick()
+		await refetchWinnerChannelInfo({ requestPolicy: 'cache-and-network' })
+	},
+	{
+		immediate: true,
+	}
+)
 
 const ONE_HOUR = 60 * 60 * 1000
 
@@ -51,7 +60,9 @@ const userHaveSomeRole = computed(() => {
 						Watched time
 					</td>
 					<td>
-						{{ `${(Number(selectedWinnerChannelInformation?.channelUserInfo.watchedMs) / ONE_HOUR).toFixed(1)}h` }}
+						{{
+							`${(Number(selectedWinnerChannelInformation?.channelUserInfo.watchedMs) / ONE_HOUR).toFixed(1)}h`
+						}}
 					</td>
 				</tr>
 				<tr>
@@ -83,13 +94,23 @@ const userHaveSomeRole = computed(() => {
 								No roles
 							</span>
 
-							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isMod" class="font-light">
+							<span
+								v-if="selectedWinnerChannelInformation?.channelUserInfo.isMod"
+								class="font-light"
+							>
 								MOD
 							</span>
-							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isVip" class="font-light">
+							<span
+								v-if="selectedWinnerChannelInformation?.channelUserInfo.isVip"
+								class="font-light"
+							>
 								VIP
 							</span>
-							<span v-if="selectedWinnerChannelInformation?.channelUserInfo.isSubscriber" class="font-light">SUB</span>
+							<span
+								v-if="selectedWinnerChannelInformation?.channelUserInfo.isSubscriber"
+								class="font-light"
+								>SUB</span
+							>
 						</div>
 					</td>
 				</tr>
@@ -100,7 +121,11 @@ const userHaveSomeRole = computed(() => {
 					</td>
 					<td>
 						<span v-if="selectedWinnerChannelInformation?.channelUserInfo.followerSince">
-							{{ new Date(selectedWinnerChannelInformation.channelUserInfo.followerSince).toLocaleString() }}
+							{{
+								new Date(
+									selectedWinnerChannelInformation.channelUserInfo.followerSince
+								).toLocaleString()
+							}}
 						</span>
 						<span v-else class="font-light text-muted-foreground">Not a follower</span>
 					</td>
@@ -111,7 +136,9 @@ const userHaveSomeRole = computed(() => {
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
+
 .table-td {
-	@apply text-sm font-medium inline-flex items-center gap-2
+	@apply text-sm font-medium inline-flex items-center gap-2;
 }
 </style>

@@ -10,7 +10,7 @@ const { isMobile, setOpenMobile } = useSidebar()
 <template>
 	<Button
 		v-if="isMobile"
-		class="fixed right-[2rem] bottom-[2rem] z-50 h-14 w-14"
+		class="fixed right-8 bottom-8 z-50 h-14 w-14"
 		variant="secondary"
 		size="icon"
 		@click="setOpenMobile(true)"

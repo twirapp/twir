@@ -121,7 +121,7 @@ const usersSearchPlaceholder = computed(() => {
 						</CommandGroup>
 
 						<div class="absolute bottom-0 w-full bg-background">
-							<CommandGroup class="border-t-[1px] border-border">
+							<CommandGroup class="border-t border-border">
 								<CommandItem
 									:value="{ label: 'Clear filters' }"
 									class="justify-center text-center cursor-pointer"

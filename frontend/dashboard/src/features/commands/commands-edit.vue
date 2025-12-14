@@ -107,7 +107,7 @@ const backButton = computed(() => {
 </script>
 
 <template>
-	<form :class="{ 'blur-sm': loading }" @submit="onSubmit">
+	<form :class="{ 'blur-xs': loading }" @submit="onSubmit">
 		<PageLayout stickyHeader show-back :back-redirect-to="backButton">
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>

@@ -67,7 +67,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 							class="flex flex-col items-start sm:flex-row sm:items-center rounded-xl p-2 border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,15%)] w-full focus-within:ring ring-[hsl(240,11%,30%)] focus-within:border-[hsl(240,11%,30%)] focus-within:ring-[hsl(240,11%,30%)] transition-all"
 						>
 							<label for="url" class="flex items-center w-full gap-2.5 overflow-hidden">
-								<Icon name="lucide:link" class="flex-none size-4 ml-2 mr-1 cursor-pointer" />
+								<Icon name="lucide:link" class="flex-none w-4 h-4 ml-2 mr-1 cursor-pointer" />
 								<input
 									id="url"
 									type="text"

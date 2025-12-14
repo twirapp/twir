@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { toast } from 'vue-sonner'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
@@ -25,16 +25,19 @@ const formValue = ref({
 	answers: ['Yes', 'No'],
 })
 
-watch(data, (v) => {
-	if (!v) return
+watch(
+	data,
+	(v) => {
+		if (!v) return
 
-	const raw = toRaw(v)
-	formValue.value.answers = raw.gamesEightBall.answers
-	formValue.value.enabled = raw.gamesEightBall.enabled
-}, { immediate: true })
+		const raw = toRaw(v)
+		formValue.value.answers = raw.gamesEightBall.answers
+		formValue.value.enabled = raw.gamesEightBall.enabled
+	},
+	{ immediate: true }
+)
 
 const { t } = useI18n()
-const { toast } = useToast()
 
 async function save() {
 	await updater.executeMutation({
@@ -43,10 +46,7 @@ async function save() {
 			enabled: formValue.value.enabled,
 		},
 	})
-	toast({
-		title: t('sharedTexts.saved'),
-		variant: 'success',
-	})
+	toast.success(t('sharedTexts.saved'))
 }
 </script>
 
@@ -71,7 +71,7 @@ async function save() {
 					<span>{{ t('sharedTexts.enabled') }}</span>
 					<Switch
 						:model-value="formValue.enabled"
-						@update:checked="() => formValue.enabled = !formValue.enabled"
+						@update:checked="() => (formValue.enabled = !formValue.enabled)"
 					/>
 				</div>
 
@@ -86,23 +86,17 @@ async function save() {
 				</h3>
 
 				<div class="space-y-2">
-					<div
-						v-for="(_, index) of formValue.answers"
-						:key="index"
-						class="flex gap-2"
-					>
-						<Input
-							v-model="formValue.answers[index]"
-							placeholder="Yes"
-							class="flex-1"
-						/>
+					<div v-for="(_, index) of formValue.answers" :key="index" class="flex gap-2">
+						<Input v-model="formValue.answers[index]" placeholder="Yes" class="flex-1" />
 
 						<Button
 							variant="destructive"
 							size="icon"
-							@click="() => {
-								formValue.answers = formValue.answers.filter((_, i) => i != index)
-							}"
+							@click="
+								() => {
+									formValue.answers = formValue.answers.filter((_, i) => i != index)
+								}
+							"
 						>
 							<Trash class="h-4 w-4" />
 						</Button>

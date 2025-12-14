@@ -22,7 +22,7 @@ const typeSelectOptions = Object.values(EventsOptions).map<{
 	isGroup: boolean
 	name: string
 	value?: EventType
-	childrens: Array<{ name: string, value: EventType }>
+	childrens: Array<{ name: string; value: EventType }>
 }>((value) => {
 	if (value.childrens) {
 		return {
@@ -92,18 +92,19 @@ const open = ref(false)
 								/>
 							</CommandItem>
 						</CommandGroup>
-						<CommandItem
-							v-else
-							:key="selectOption.name"
-							:value="selectOption.value!"
-							@select="handleSelect(selectOption.value!)"
-						>
-							{{ selectOption.name }}
-							<CheckIcon
-								v-if="table.selectedTypes.value.includes(selectOption.value!)"
-								class="ml-auto text-xs text-muted-foreground size-4"
-							/>
-						</CommandItem>
+						<CommandGroup v-else>
+							<CommandItem
+								:key="selectOption.name"
+								:value="selectOption.value!"
+								@select="handleSelect(selectOption.value!)"
+							>
+								{{ selectOption.name }}
+								<CheckIcon
+									v-if="table.selectedTypes.value.includes(selectOption.value!)"
+									class="ml-auto text-xs text-muted-foreground size-4"
+								/>
+							</CommandItem>
+						</CommandGroup>
 					</template>
 				</CommandList>
 			</Command>

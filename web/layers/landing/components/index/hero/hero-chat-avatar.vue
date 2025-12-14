@@ -40,8 +40,8 @@ const variant = computed(() => variantStyles[props.variant])
 </script>
 
 <template>
-	<img v-if="isBot" :src="TwirLogo" class="w-9 h-9 flex-shrink-0" />
-	<svg v-else fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="h-9 w-9 flex-shrink-0">
+	<img v-if="isBot" :src="TwirLogo" class="w-9 h-9 shrink-0" />
+	<svg v-else fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="h-9 w-9 shrink-0">
 		<path d="M36 18a18 18 0 1 1-36 0 18 18 0 0 1 36 0Z" :fill="variant.bg"></path>
 		<path
 			fill-rule="evenodd"

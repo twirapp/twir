@@ -5,14 +5,13 @@ import type { AdminShortUrl } from '@/api/admin/short-urls.ts'
 import type { AdminShortUrlsInput } from '@/gql/graphql.ts'
 
 import { useAdminShortUrlsApi as useApiManager } from '@/api/admin/short-urls.ts'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { usePagination } from '@/composables/use-pagination.ts'
 
 export const useAdminShortUrlsApi = createGlobalState(() => {
 	const api = useApiManager()
 	const deleter = api.useDeleteMutation()
 	const creator = api.useCreateMutation()
-	const { toast } = useToast()
 
 	const { pagination, setPagination } = usePagination()
 	const params = computed<AdminShortUrlsInput>(() => ({
@@ -35,15 +34,12 @@ export const useAdminShortUrlsApi = createGlobalState(() => {
 		try {
 			const { error } = await deleter.executeMutation({ id })
 			if (!error) {
-				toast({
-					description: 'Deleted',
+				toast.success('Deleted', {
 					duration: 2500,
 				})
 			}
 		} catch (e) {
-			toast({
-				description: `${e}`,
-				variant: 'destructive',
+			toast.error(`${e}`, {
 				duration: 2500,
 			})
 		}
@@ -58,15 +54,12 @@ export const useAdminShortUrlsApi = createGlobalState(() => {
 				},
 			})
 			if (!error) {
-				toast({
-					description: 'Created',
+				toast.success('Created', {
 					duration: 2500,
 				})
 			}
 		} catch (e) {
-			toast({
-				description: `${e}`,
-				variant: 'destructive',
+			toast.error(`${e}`, {
 				duration: 2500,
 			})
 		}

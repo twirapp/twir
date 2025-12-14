@@ -117,10 +117,10 @@ function handleSelectWinner(winnerId: string) {
 							:key="message.id"
 							class="py-1 px-2 flex items-start gap-2 hover:bg-muted rounded-sm"
 						>
-							<span class="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{{
+							<span class="text-xs text-muted-foreground whitespace-nowrap shrink-0">{{
 								new Date(message.createdAt).toLocaleString()
 							}}</span>
-							<span class="text-sm break-words">{{ message.text }}</span>
+							<span class="text-sm wrap-break-word">{{ message.text }}</span>
 						</div>
 					</div>
 				</div>

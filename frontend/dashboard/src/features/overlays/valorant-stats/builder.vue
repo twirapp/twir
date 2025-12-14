@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ValorantStatsWidget } from '@twir/frontend-valorant-stats'
 import { BanIcon } from 'lucide-vue-next'
-import { Label } from 'radix-vue'
+import { Label } from 'reka-ui'
 
 import { useValorantStats } from './composables/use-valorant-stats'
 
@@ -43,7 +43,7 @@ const { isConfigured: isConnected, isDataFetching } = useValorantIntegration()
 
 				<div
 					class="flex flex-col-reverse lg:flex-row"
-					:class="{ 'blur-sm pointer-events-none': !isConnected }"
+					:class="{ 'blur-xs pointer-events-none': !isConnected }"
 				>
 					<div class="overflow-auto bg-card lg:max-w-[400px] w-full flex flex-col p-4 shadow-md">
 						<div class="flex flex-col gap-2">

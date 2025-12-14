@@ -16,7 +16,6 @@ useHead({
 	<Header />
 
 	<slot />
-
 	<Footer />
 </template>
 

@@ -156,7 +156,7 @@ const innerWidth = computed(() => window.innerWidth)
 	<div class="flex max-w-full">
 		<div class="w-[85%]">
 			<div
-				class="container"
+				class="container mx-auto"
 				:style="{
 					width: `${formValue.width}px`,
 					height: `${formValue.height}px`,

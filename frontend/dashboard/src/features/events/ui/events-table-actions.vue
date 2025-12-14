@@ -9,7 +9,7 @@ import { type Event, useEventsApi } from '@/api/events'
 import ActionConfirmation from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { toast } from 'vue-sonner'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = defineProps<{
@@ -18,7 +18,6 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const router = useRouter()
-const { toast } = useToast()
 const eventsApi = useEventsApi()
 const deleteEventMutation = eventsApi.useMutationDeleteEvent()
 const showDeleteDialog = ref(false)
@@ -34,17 +33,14 @@ async function deleteEvent() {
 
 	try {
 		await deleteEventMutation.executeMutation({ id: props.event.id })
-		toast({
-			title: t('events.deleteSuccess'),
+		toast.success(t('events.deleteSuccess'), {
 			description: t('events.deleteSuccessDescription'),
 		})
 		showDeleteDialog.value = false
 	} catch (error) {
 		console.error(error)
-		toast({
-			title: t('events.deleteError'),
+		toast.error(t('events.deleteError'), {
 			description: t('events.deleteErrorDescription'),
-			variant: 'destructive',
 		})
 	}
 }
@@ -60,40 +56,34 @@ async function toggleSwitch(newState: boolean) {
 		}
 	} catch (error) {
 		console.error(error)
-		toast({
-			description: `${error}`,
-			variant: 'destructive',
-		})
+		toast.error(`${error}`)
 	}
 }
 </script>
 
 <template>
 	<div class="flex items-center gap-2">
-		<Switch
-			:checked="props.event.enabled"
-			@update:checked="toggleSwitch"
-		/>
+		<Switch :checked="props.event.enabled" @update:checked="toggleSwitch" />
 
 		<Button
 			type="button"
 			variant="secondary"
 			size="icon"
-			:disabled="!userCanManageEvents" @click="editEvent"
+			:disabled="!userCanManageEvents"
+			@click="editEvent"
 		>
 			<PencilIcon class="size-4" />
 		</Button>
 		<Button
 			type="button"
 			variant="destructive"
-			size="icon" :disabled="!userCanManageEvents" @click="showDeleteDialog = true"
+			size="icon"
+			:disabled="!userCanManageEvents"
+			@click="showDeleteDialog = true"
 		>
 			<TrashIcon class="size-4" />
 		</Button>
 
-		<ActionConfirmation
-			v-model:open="showDeleteDialog"
-			@confirm="deleteEvent"
-		/>
+		<ActionConfirmation v-model:open="showDeleteDialog" @confirm="deleteEvent" />
 	</div>
 </template>

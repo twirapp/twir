@@ -130,34 +130,35 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 										</CommandItem>
 									</CommandGroup>
 
-									<CommandItem
-										v-else
-										:key="selectOption.name!"
-										:value="selectOption.value!"
-										@select="
-											() => {
-												if (!currentOperation) return
-												currentOperation.type = selectOption.value!
-											}
-										"
-										class="flex items-center gap-2"
-									>
-										<div
-											class="rounded-full size-3"
-											:class="[getOperationColor(selectOption.value)]"
-										></div>
-										{{ selectOption.name }}
-										<CheckIcon
-											:class="
-												cn(
-													'ml-auto h-4 w-4',
-													currentOperation?.type === selectOption.value
-														? 'opacity-100'
-														: 'opacity-0'
-												)
+									<CommandGroup v-else>
+										<CommandItem
+											:key="selectOption.name!"
+											:value="selectOption.value!"
+											@select="
+												() => {
+													if (!currentOperation) return
+													currentOperation.type = selectOption.value!
+												}
 											"
-										/>
-									</CommandItem>
+											class="flex items-center gap-2"
+										>
+											<div
+												class="rounded-full size-3"
+												:class="[getOperationColor(selectOption.value)]"
+											></div>
+											{{ selectOption.name }}
+											<CheckIcon
+												:class="
+													cn(
+														'ml-auto h-4 w-4',
+														currentOperation?.type === selectOption.value
+															? 'opacity-100'
+															: 'opacity-0'
+													)
+												"
+											/>
+										</CommandItem>
+									</CommandGroup>
 								</template>
 								<CommandGroup> </CommandGroup>
 							</CommandList>

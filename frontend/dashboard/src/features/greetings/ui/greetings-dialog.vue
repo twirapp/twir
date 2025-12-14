@@ -24,7 +24,7 @@ import {
 import VariableInput from '@/components/variable-input.vue'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 const props = defineProps<{
 	greeting?: Greetings | null
@@ -61,8 +61,6 @@ function isUpdate(
 	return !props.greeting?.id && Object.values(values).some((v) => v === undefined)
 }
 
-const { toast } = useToast()
-
 const onSubmit = greetingForm.handleSubmit(async (values) => {
 	try {
 		if (isUpdate(values)) {
@@ -76,19 +74,14 @@ const onSubmit = greetingForm.handleSubmit(async (values) => {
 		emits('close')
 		open.value = false
 
-		toast({
-			description: 'Saved',
+		toast.success('Saved', {
 			duration: 2500,
 		})
 	} catch (e) {
 		console.error(e)
 
 		if ('message' in (e as Error)) {
-			toast({
-				// oxlint-disable-next-line ban-ts-comment
-				// @ts-expect-error
-				description: `Error ${e.message}`,
-			})
+			toast.error(`Error ${(e as Error).message}`)
 		}
 	}
 })

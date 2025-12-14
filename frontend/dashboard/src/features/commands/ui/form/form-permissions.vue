@@ -22,7 +22,7 @@ const { t } = useI18n()
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
+		<CardHeader class="flex flex-row place-content-center">
 			<CardTitle class="flex items-center gap-2">
 				<ShieldUser />
 				{{ t('commands.modal.permissions.divider') }}
@@ -73,9 +73,7 @@ const { t } = useI18n()
 						/>
 					</FormControl>
 					<FormMessage />
-					<FormDescription>
-						Users, who cannot use that command.
-					</FormDescription>
+					<FormDescription> Users, who cannot use that command. </FormDescription>
 				</FormItem>
 			</FormField>
 
@@ -115,6 +113,8 @@ const { t } = useI18n()
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
+
 .required-block {
 	@apply flex flex-row flex-wrap justify-between items-center;
 }

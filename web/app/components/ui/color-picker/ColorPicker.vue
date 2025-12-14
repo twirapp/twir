@@ -214,7 +214,7 @@ onMounted(() => {
 		<PopoverTrigger
 			@click="colorPickerState = true"
 			:style="{ backgroundColor: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` }"
-			:class="cn('size-5 cursor-pointer rounded-sm border ', props.class)"
+			:class="cn('w-5 h-5 cursor-pointer rounded-sm border ', props.class)"
 		/>
 		<PopoverContent align="start" class="w-80 overflow-hidden">
 			<div class="grid gap-3">

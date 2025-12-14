@@ -51,7 +51,7 @@ const parsedMessage = computed(() => {
 			<span :style="{ color: message.userColor }">{{ message.userDisplayName }}</span>:
 		</span>
 		{{ ' ' }}
-		<span class="break-words">
+		<span class="wrap-break-word">
 			<template v-for="(part, index) in parsedMessage" :key="index">
 				<a
 					v-if="part.type === 'url'"

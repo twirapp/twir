@@ -70,7 +70,7 @@ const { t } = useI18n()
 			</CardTitle>
 		</CardHeader>
 
-		<CardContent class="flex-grow">
+		<CardContent class="grow">
 			<slot name="description" />
 		</CardContent>
 

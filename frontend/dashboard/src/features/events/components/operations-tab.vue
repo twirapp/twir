@@ -72,7 +72,7 @@ useDraggable(draggableRef, operations.fields, {
 		<CardContent>
 			<div class="flex flex-col lg:flex-row gap-4">
 				<div
-					class="basis-1/3 h-full w-full lg:w-[30%] lg:max-w-[30%] lg:min-w-[30%] flex flex-col gap-2 flex-wrap items-center rounded-lg border p-3 shadow-sm"
+					class="basis-1/3 h-full w-full lg:w-[30%] lg:max-w-[30%] lg:min-w-[30%] flex flex-col gap-2 flex-wrap items-center rounded-lg border p-3 shadow-xs"
 				>
 					<Button
 						type="button"

@@ -113,7 +113,7 @@ function setVolume(audioId: string, volume: number) {
 				</DialogTrigger>
 
 				<DialogOrSheet class="p-0 gap-0 h-[80dvh] md:h-auto">
-					<DialogHeader class="p-6 border-b-[1px]">
+					<DialogHeader class="p-6 border-b">
 						<DialogTitle>
 							{{ t('alerts.select.audio') }}
 						</DialogTitle>

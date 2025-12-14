@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
 import { useGamesApi } from '@/api/games/games'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { VoteBanGameVotingMode } from '@/gql/graphql'
 
 const rules = z.object({
@@ -29,18 +29,20 @@ export type FormSchema = z.infer<typeof rules>
 
 export const useVotebanForm = createGlobalState(() => {
 	const { t } = useI18n()
-	const { toast } = useToast()
 	const gamesApi = useGamesApi()
 	const { data: settings } = gamesApi.useGamesQuery()
 	const updater = gamesApi.useVotebanMutation()
 
 	const initialValues: FormSchema = {
 		enabled: false,
-		initMessage: 'The Twitch Police have decided that {targetUser} is not worthy of being in chat for not knowing memes. Write "{positiveTexts}" to support, or "{negativeTexts}" if you disagree.',
+		initMessage:
+			'The Twitch Police have decided that {targetUser} is not worthy of being in chat for not knowing memes. Write "{positiveTexts}" to support, or "{negativeTexts}" if you disagree.',
 		banMessage: 'User {targetUser} is not worthy of being in chat.',
 		banMessageModerators: 'User {targetUser} is not worthy of being in chat.',
-		surviveMessage: 'Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.',
-		surviveMessageModerators: 'Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.',
+		surviveMessage:
+			'Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.',
+		surviveMessageModerators:
+			'Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.',
 		votingMode: VoteBanGameVotingMode.Chat,
 		chatVotesWordsPositive: ['Yay'],
 		chatVotesWordsNegative: ['Nay'],
@@ -55,8 +57,7 @@ export const useVotebanForm = createGlobalState(() => {
 			opts: values,
 		})
 
-		toast({
-			title: t('sharedTexts.saved'),
+		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
 		})
 	}

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FaceitStatsWidget } from '@twir/frontend-faceit-stats'
-import { Label } from 'radix-vue'
+import { Label } from 'reka-ui'
 import { ColorPicker } from '@/components/ui/color-picker'
 import InputWithIcon from '@/components/ui/InputWithIcon.vue'
 import { SwitchToggle } from '@/components/ui/switch'

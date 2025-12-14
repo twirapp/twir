@@ -37,7 +37,11 @@ function handlePageSizeChange(pageSize: string) {
 			<div class="text-sm text-muted-foreground text-nowrap">
 				{{ table.getPageCount() }} page(s) / {{ formatNumber(total) }} item(s)
 			</div>
-			<UiSelect default-value="10" :model-value="pagination.pageSize.toString()" @update:model-value="handlePageSizeChange">
+			<UiSelect
+				default-value="10"
+				:model-value="pagination.pageSize.toString()"
+				@update:model-value="handlePageSizeChange"
+			>
 				<UiSelectTrigger class="h-9 justify-between gap-2">
 					<div>
 						Per page
@@ -45,7 +49,11 @@ function handlePageSizeChange(pageSize: string) {
 					</div>
 				</UiSelectTrigger>
 				<UiSelectContent>
-					<UiSelectItem v-for="pageSize in ['10', '20', '50', '100']" :key="pageSize" :value="pageSize">
+					<UiSelectItem
+						v-for="pageSize in ['10', '20', '50', '100']"
+						:key="pageSize"
+						:value="pageSize"
+					>
 						{{ pageSize }}
 					</UiSelectItem>
 				</UiSelectContent>
@@ -54,7 +62,7 @@ function handlePageSizeChange(pageSize: string) {
 		<div class="flex gap-2 items-center">
 			<div class="flex gap-2 max-sm:justify-end max-sm:w-full">
 				<UiButton
-					class="size-9 min-w-9 max-sm:w-full"
+					class="w-9 h-9 min-w-9 max-sm:w-full"
 					variant="outline"
 					size="icon"
 					:disabled="!table.getCanPreviousPage()"
@@ -73,7 +81,7 @@ function handlePageSizeChange(pageSize: string) {
 					@input="handleGoToPage"
 				/>
 				<UiButton
-					class="size-9 min-w-9 max-sm:w-full"
+					class="w-9 h-9 min-w-9 max-sm:w-full"
 					variant="outline"
 					size="icon"
 					:disabled="!table.getCanNextPage()"

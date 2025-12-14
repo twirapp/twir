@@ -28,7 +28,7 @@ const date = computed(() => new Date(Number(props.createdAt)))
 </script>
 
 <template>
-	<div class="flex min-h-[50px] gap-2.5 px-2.5 select-text border-b-[color:var(--n-border-color)] border-b border-solid">
+	<div class="flex min-h-[50px] gap-2.5 px-2.5 select-text border-b-(--n-border-color) border-b border-solid">
 		<div class="flex justify-between items-center w-full">
 			<div class="flex gap-2.5 items-center">
 				<component
@@ -41,7 +41,7 @@ const date = computed(() => new Date(Number(props.createdAt)))
 				</div>
 			</div>
 
-			<div class="flex items-end text-xs h-full py-2 flex-shrink-0">
+			<div class="flex items-end text-xs h-full py-2 shrink-0">
 				<UseTimeAgo
 					v-slot="{ timeAgo }"
 					:time="date"

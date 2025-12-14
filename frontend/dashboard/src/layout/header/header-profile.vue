@@ -12,8 +12,6 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { DropdownMenuContentProps } from 'radix-vue'
-
 import { useLogout, useProfile } from '@/api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -33,6 +31,7 @@ import {
 import { useTheme } from '@/composables/use-theme.ts'
 import { AVAILABLE_LOCALES } from '@/plugins/i18n.ts'
 import { Button } from '@/components/ui/button'
+import type { DropdownMenuContentProps } from 'reka-ui'
 
 const { t, locale } = useI18n()
 const { data: profileData } = useProfile()
@@ -43,7 +42,7 @@ const currentLocale = useLocalStorage<string>('twirLocale', 'en')
 
 const dropdownProps = computed((): DropdownMenuContentProps & { class?: string } => {
 	return {
-		class: 'w-[--radix-dropdown-menu-trigger-width]',
+		class: 'w-(--radix-dropdown-menu-trigger-width)',
 		side: 'bottom',
 		align: 'end',
 		sideOffset: 4,

@@ -41,7 +41,7 @@ function reset() {
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
+		<CardHeader class="flex flex-row place-content-center flex-wrap">
 			<CardTitle class="flex items-center gap-2">
 				<HourglassIcon />
 				{{ t('commands.modal.expiration.label') }}
@@ -59,17 +59,17 @@ function reset() {
 									<SelectValue placeholder="No expiration" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem v-for="option of expiresTypeOptions" :key="option.label" :value="option.value">
+									<SelectItem
+										v-for="option of expiresTypeOptions"
+										:key="option.label"
+										:value="option.value"
+									>
 										<SelectLabel>{{ option.label }}</SelectLabel>
 									</SelectItem>
 								</SelectContent>
 							</Select>
 						</FormControl>
-						<Button
-							variant="outline"
-							type="button"
-							@click="reset"
-						>
+						<Button variant="outline" type="button" @click="reset">
 							<XIcon class="size-4" />
 						</Button>
 					</div>

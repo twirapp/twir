@@ -49,7 +49,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-	<div id="brb-container" class="container">
+	<div id="brb-container mx-auto" class="container">
 		<BrbTimer ref="brbTimerRef" />
 	</div>
 </template>

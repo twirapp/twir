@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { BadgePlus, Ellipsis, GripVertical, MessageCircleReplyIcon, Settings, Trash } from 'lucide-vue-next'
+import {
+	BadgePlus,
+	Ellipsis,
+	GripVertical,
+	MessageCircleReplyIcon,
+	Settings,
+	Trash,
+} from 'lucide-vue-next'
 import { FieldArray, useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
@@ -10,10 +17,7 @@ import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 import type { FormSchema } from '../../composables/use-command-edit-v2'
 
 import TwitchCategorySearchShadcnMultiple from '@/components/twitch-category-search-shadcn-multiple.vue'
-import {
-	Alert,
-	AlertDescription,
-} from '@/components/ui/alert'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -32,12 +36,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormMessage,
-} from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import FormLabel from '@/components/ui/form/FormLabel.vue'
 import VariableInput from '@/components/variable-input.vue'
 
@@ -46,7 +45,10 @@ const { t } = useI18n()
 const { errors: responsesErrors, value, setValue } = useField<FormSchema['responses']>('responses')
 
 function handlePush() {
-	setValue([...value.value, { text: '', twitchCategoriesIds: [], onlineOnly: false, offlineOnly: false }])
+	setValue([
+		...value.value,
+		{ text: '', twitchCategoriesIds: [], onlineOnly: false, offlineOnly: false },
+	])
 }
 
 const responseDialogOpened = ref(false)
@@ -58,19 +60,18 @@ const editable = computed(() => !command.value?.default)
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
-			<CardTitle :class="{ 'text-destructive': responsesErrors.length }" class="flex items-center gap-2">
+		<CardHeader class="flex flex-row place-content-center flex-wrap">
+			<CardTitle
+				:class="{ 'text-destructive': responsesErrors.length }"
+				class="flex items-center gap-2"
+			>
 				<MessageCircleReplyIcon />
 				{{ t('sharedTexts.responses') }}
 			</CardTitle>
 		</CardHeader>
 		<CardContent v-if="editable" class="flex flex-col gap-2 pt-4">
 			<FieldArray v-slot="{ fields, remove }" name="responses">
-				<VueDraggable
-					v-model="value"
-					handle=".drag-handle"
-					class="flex flex-col gap-2"
-				>
+				<VueDraggable v-model="value" handle=".drag-handle" class="flex flex-col gap-2">
 					<div v-for="(field, index) in fields" :key="`responses-text-${field.key}`">
 						<Dialog>
 							<FormField v-slot="{ componentField }" :name="`responses[${index}].text`">
@@ -78,12 +79,14 @@ const editable = computed(() => !command.value?.default)
 									<div class="relative flex items-center">
 										<FormControl>
 											<div class="w-full">
-												<div class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle">
+												<div
+													class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle"
+												>
 													<GripVertical class="my-auto size-6" />
 												</div>
 												<VariableInput
 													input-type="textarea"
-													class="pl-6 !pr-14"
+													class="pl-6 pr-14!"
 													:model-value="componentField.modelValue"
 													:min-rows="1"
 													:rows="1"
@@ -131,11 +134,12 @@ const editable = computed(() => !command.value?.default)
 									<DialogTitle>Edit response settings</DialogTitle>
 								</DialogHeader>
 
-								<FormField v-slot="{ componentField }" :name="`responses[${index}].twitchCategoriesIds`">
+								<FormField
+									v-slot="{ componentField }"
+									:name="`responses[${index}].twitchCategoriesIds`"
+								>
 									<FormItem>
-										<FormLabel>
-											Category for response
-										</FormLabel>
+										<FormLabel> Category for response </FormLabel>
 										<FormControl>
 											<TwitchCategorySearchShadcnMultiple
 												:id="componentField.name"
@@ -152,12 +156,14 @@ const editable = computed(() => !command.value?.default)
 										type="checkbox"
 										:name="`responses[${index}].onlineOnly`"
 									>
-										<FormItem class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4">
+										<FormItem
+											class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4"
+										>
 											<FormControl>
 												<Checkbox :checked="value" @update:checked="handleChange" />
 											</FormControl>
 											<div class="space-y-1 leading-none">
-												<FormLabel>{{	t('commands.modal.settings.onlineOnly.label') }}</FormLabel>
+												<FormLabel>{{ t('commands.modal.settings.onlineOnly.label') }}</FormLabel>
 												<FormMessage />
 											</div>
 										</FormItem>
@@ -168,12 +174,14 @@ const editable = computed(() => !command.value?.default)
 										type="checkbox"
 										:name="`responses[${index}].offlineOnly`"
 									>
-										<FormItem class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4">
+										<FormItem
+											class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4"
+										>
 											<FormControl>
 												<Checkbox :checked="value" @update:checked="handleChange" />
 											</FormControl>
 											<div class="space-y-1 leading-none">
-												<FormLabel>{{	t('commands.modal.settings.offlineOnly.label') }}</FormLabel>
+												<FormLabel>{{ t('commands.modal.settings.offlineOnly.label') }}</FormLabel>
 												<FormMessage />
 											</div>
 										</FormItem>

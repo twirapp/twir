@@ -22,13 +22,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.ts'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()
 const route = useRoute()
-const { toast } = useToast()
 
 const { guilds, authLink, disconnectGuild } = useDiscordIntegration()
 
@@ -70,15 +69,12 @@ function handleConnectGuild() {
 async function handleDisconnectGuild(guildId: string) {
 	const result = await disconnectGuild(guildId)
 	if (result.error) {
-		toast({
-			title: t('sharedTexts.error'),
+		toast.error(t('sharedTexts.error'), {
 			description: result.error.message,
-			variant: 'destructive',
 			duration: 5000,
 		})
 	} else {
-		toast({
-			title: t('sharedTexts.saved'),
+		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
 		})
 	}

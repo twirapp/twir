@@ -21,10 +21,9 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 const { t } = useI18n()
-const { toast } = useToast()
 
 const api = useTTSOverlayApi()
 const { data: usersData, fetching: isLoading } = api.useQueryTTSUsersSettings()
@@ -46,7 +45,7 @@ function toggleAll() {
 	if (allSelected.value) {
 		selectedUsers.value.clear()
 	} else {
-		selectedUsers.value = new Set(users.value.map(u => u.userId))
+		selectedUsers.value = new Set(users.value.map((u) => u.userId))
 	}
 }
 
@@ -64,21 +63,17 @@ async function handleDelete() {
 	const result = await deleteMutation.executeMutation({ userIds })
 
 	if (!result.error) {
-		toast({
-			title: t('sharedTexts.deleted'),
+		toast.success(t('sharedTexts.deleted'), {
 			description: t('overlays.tts.usersDeleted', { count: userIds.length }),
 		})
 		selectedUsers.value.clear()
 		showDeleteDialog.value = false
 	} else {
-		toast({
-			title: t('sharedTexts.error'),
-			variant: 'destructive',
-		})
+		toast.error(t('sharedTexts.error'))
 	}
 }
 
-function testUserVoice(user: typeof users.value[0]) {
+function testUserVoice(user: (typeof users.value)[0]) {
 	// TODO: Implement actual preview using the TTS say mutation
 	console.log('Testing voice for user:', user.userId, 'with text:', testText.value)
 	toast({
@@ -97,11 +92,7 @@ function testUserVoice(user: typeof users.value[0]) {
 						<CardDescription>{{ t('overlays.tts.usersDescription') }}</CardDescription>
 					</div>
 					<div class="flex gap-2">
-						<Button
-							variant="outline"
-							:disabled="users.length === 0"
-							@click="toggleAll"
-						>
+						<Button variant="outline" :disabled="users.length === 0" @click="toggleAll">
 							{{
 								allSelected
 									? t('overlays.tts.users.undoSelection')
@@ -165,9 +156,7 @@ function testUserVoice(user: typeof users.value[0]) {
 											<p class="font-semibold truncate">
 												{{ user.twitchProfile.displayName }}
 											</p>
-											<Badge v-if="user.isChannelOwner" variant="secondary">
-												Owner
-											</Badge>
+											<Badge v-if="user.isChannelOwner" variant="secondary"> Owner </Badge>
 										</div>
 										<p class="text-sm text-muted-foreground">
 											{{ t('overlays.tts.voice') }}: {{ user.voice }} |
@@ -178,11 +167,7 @@ function testUserVoice(user: typeof users.value[0]) {
 								</div>
 
 								<div class="flex items-center gap-2" @click.stop>
-									<Button
-										variant="ghost"
-										size="icon"
-										@click="testUserVoice(user)"
-									>
+									<Button variant="ghost" size="icon" @click="testUserVoice(user)">
 										<Volume2 class="h-4 w-4" />
 									</Button>
 									<Checkbox
@@ -216,4 +201,3 @@ function testUserVoice(user: typeof users.value[0]) {
 		</AlertDialog>
 	</div>
 </template>
-

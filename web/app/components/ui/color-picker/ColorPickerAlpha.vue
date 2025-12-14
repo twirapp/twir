@@ -41,10 +41,10 @@ function startAlphaDrag(e: MouseEvent): void {
 			class="alpha-checker relative w-full h-2.5 cursor-pointer rounded-full"
 			@mousedown="startAlphaDrag"
 		>
-			<div class="absolute inset-0 rounded-full bg-gradient-to-r from-transparent to-black/50" />
+			<div class="absolute inset-0 rounded-full bg-linear-to-r from-transparent to-black/50" />
 			<div
 				:style="{ left: `calc(${props.alpha}%  - 7px)` }"
-				class="absolute w-[14px] h-[14px] bg-white rounded-full border-[3px] border-white cursor-pointer z-[999] top-1/2 -translate-y-1/2 pointer-events-none"
+				class="absolute w-[14px] h-[14px] bg-white rounded-full border-[3px] border-white cursor-pointer z-999 top-1/2 -translate-y-1/2 pointer-events-none"
 			/>
 		</div>
 	</div>

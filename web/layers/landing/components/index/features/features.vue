@@ -17,7 +17,7 @@ function prepareDescription(d: string): string {
 <template>
 	<section id="features">
 		<div
-			class="container flex flex-col items-center py-24 md:px-8 px-5 text-center purple-gradient"
+			class="container mx-auto flex flex-col items-center py-24 md:px-8 px-5 text-center purple-gradient"
 		>
 			<h2 class="font-semibold text-[#B0ADFF] text-base uppercase tracking-wider mb-3">Features</h2>
 			<div class="flex flex-col items-center gap-[20px]">
@@ -39,7 +39,7 @@ function prepareDescription(d: string): string {
 					class="flex flex-col items-center text-center"
 					:class="[feature.fullWidth ? 'col-span-full mb-8' : 'col-span-1']"
 				>
-					<div class="bg-[#B1AEFF]/[.12] p-2.5 rounded-full flex ring-8 ring-[#B1AEFF]/5 mb-5">
+					<div class="bg-[#B1AEFF]/12 p-2.5 rounded-full flex ring-8 ring-[#B1AEFF]/5 mb-5">
 						<component :is="feature.icon" class="w-6 h-6 text-[#B0ADFF]" />
 					</div>
 					<span class="text-xl text-white font-semibold mb-2">{{ feature.title }}</span>

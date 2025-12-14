@@ -6,7 +6,7 @@ import {
 	AccordionItem,
 	AccordionRoot,
 	AccordionTrigger,
-} from 'radix-vue'
+} from 'reka-ui'
 
 import AnimationsTab from '@/features/overlays/kappagen/components/animations-tab.vue'
 import EventsTab from '@/features/overlays/kappagen/components/events-tab.vue'
@@ -47,7 +47,7 @@ const content = [
 			>
 				<AccordionHeader class="flex">
 					<AccordionTrigger
-						class="flex h-[45px] flex-1 cursor-pointer items-center justify-between bg-stone-700/40 px-5 text-[15px] leading-none outline-none group rounded-md hover"
+						class="flex h-[45px] flex-1 cursor-pointer items-center justify-between bg-stone-700/40 px-5 text-[15px] leading-none outline-hidden group rounded-md hover"
 					>
 						<span>{{ item.title }}</span>
 						<ChevronDown class="group-data-[state=open]:rotate-180" />

@@ -26,7 +26,7 @@ function uncheckAll() {
 
 const roles = computed(() => {
 	if (!channelRoles.value?.roles) return []
-	return channelRoles.value.roles.filter(r => !props.excludedTypes?.includes(r.type))
+	return channelRoles.value.roles.filter((r) => !props.excludedTypes?.includes(r.type))
 })
 </script>
 
@@ -54,10 +54,7 @@ const roles = computed(() => {
 			<FormItem class="space-y-0">
 				<FormLabel class="role">
 					<FormControl>
-						<Checkbox
-							:checked="value?.includes(role.id)"
-							@update:checked="handleChange"
-						/>
+						<Checkbox :checked="value?.includes(role.id)" @update:checked="handleChange" />
 					</FormControl>
 					<span>{{ role.name.at(0) + role.name.slice(1).toLowerCase() }}</span>
 				</FormLabel>
@@ -67,7 +64,9 @@ const roles = computed(() => {
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
+
 .role {
-	@apply flex flex-row items-center gap-2 space-y-0 bg-accent px-3 py-2 rounded-md leading-5
+	@apply flex flex-row items-center gap-2 space-y-0 bg-accent px-3 py-2 rounded-md leading-5;
 }
 </style>

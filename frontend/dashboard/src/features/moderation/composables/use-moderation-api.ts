@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import type { ModerationCreateOrUpdateInput, ModerationItem } from '@/api/moderation.ts'
 
 import { useChannelModerationSettingsApi } from '@/api/moderation.ts'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 export const useModerationApi = createGlobalState(() => {
 	const api = useChannelModerationSettingsApi()
@@ -14,21 +14,23 @@ export const useModerationApi = createGlobalState(() => {
 	const creator = api.useCreate()
 
 	const { t } = useI18n()
-	const { toast } = useToast()
 
 	const { data: moderationItems, fetching, executeQuery: refetchItems } = api.useQuery()
 	const items = computed<ModerationItem[]>(() => {
 		return moderationItems?.value?.moderationSettings ?? []
 	})
 
-	async function update(id: string, input: ModerationCreateOrUpdateInput): Promise<{ id: string } | undefined> {
-		// eslint-disable-next-line ts/ban-ts-comment
+	async function update(
+		id: string,
+		input: ModerationCreateOrUpdateInput
+	): Promise<{ id: string } | undefined> {
+		//
 		// @ts-expect-error
 		delete input.createdAt
-		// eslint-disable-next-line ts/ban-ts-comment
+		//
 		// @ts-expect-error
 		delete input.updatedAt
-		// eslint-disable-next-line ts/ban-ts-comment
+		//
 		// @ts-expect-error
 		delete input.id
 
@@ -38,16 +40,13 @@ export const useModerationApi = createGlobalState(() => {
 				throw result.error
 			}
 
-			toast({
-				description: 'Updated',
+			toast.success('Updated', {
 				duration: 2500,
 			})
 
 			return result.data?.moderationSettingsUpdate
 		} catch (e) {
-			toast({
-				variant: 'destructive',
-				description: `Cannot update: ${e}`,
+			toast.error(`Cannot update: ${e}`, {
 				duration: 2500,
 			})
 		}
@@ -60,16 +59,13 @@ export const useModerationApi = createGlobalState(() => {
 				throw result.error
 			}
 
-			toast({
-				description: 'Created',
+			toast.success('Created', {
 				duration: 2500,
 			})
 
 			return result.data?.moderationSettingsCreate
 		} catch (e) {
-			toast({
-				variant: 'destructive',
-				description: `Cannot create: ${e}`,
+			toast.error(`Cannot create: ${e}`, {
 				duration: 2500,
 			})
 		}
@@ -82,14 +78,11 @@ export const useModerationApi = createGlobalState(() => {
 				throw result.error
 			}
 
-			toast({
-				description: t('sharedTexts.deleted'),
+			toast.success(t('sharedTexts.deleted'), {
 				duration: 2500,
 			})
 		} catch (e) {
-			toast({
-				variant: 'destructive',
-				description: `Cannot delete: ${e}`,
+			toast.error(`Cannot delete: ${e}`, {
 				duration: 2500,
 			})
 		}

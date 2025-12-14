@@ -8,26 +8,33 @@ import { useTTSVoices } from '@/features/overlays/tts/composables/use-tts-voices
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import { useProfile, useUserAccessFlagChecker } from '@/api'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()
-const { toast } = useToast()
-const {
-	form,
-	onSubmit,
-	isLoading,
-	isSaving
-} = useTTSForm()
+const { form, onSubmit, isLoading, isSaving } = useTTSForm()
 const { voices } = useTTSVoices()
 
 const { data: profile } = useProfile()
@@ -43,10 +50,7 @@ const isPlaying = ref(false)
 
 async function handleSave() {
 	await onSubmit()
-	toast({
-		title: t('sharedTexts.saved'),
-		variant: 'default',
-	})
+	toast.success(t('sharedTexts.saved'))
 }
 
 async function playPreview() {
@@ -127,10 +131,7 @@ async function playPreview() {
 					>
 						{{ t('overlays.copyOverlayLink') }}
 					</Button>
-					<Button
-						:disabled="isLoading || isSaving"
-						@click="handleSave"
-					>
+					<Button :disabled="isLoading || isSaving" @click="handleSave">
 						{{ t('sharedButtons.save') }}
 					</Button>
 				</div>
@@ -151,10 +152,7 @@ async function playPreview() {
 							<div class="flex items-center justify-between">
 								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 								<FormControl>
-									<Switch
-										:checked="field.value"
-										@update:checked="field['onUpdate:modelValue']"
-									/>
+									<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 								</FormControl>
 							</div>
 							<FormMessage />
@@ -218,12 +216,17 @@ async function playPreview() {
 											:min="0"
 											:max="100"
 											:step="1"
-											@update:model-value="(val) => val?.[0] !== undefined && componentField['onUpdate:modelValue']?.(val[0])"
+											@update:model-value="
+												(val) =>
+													val?.[0] !== undefined && componentField['onUpdate:modelValue']?.(val[0])
+											"
 										/>
 									</FormControl>
 									<Input
 										:model-value="componentField.modelValue"
-										@update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))"
+										@update:model-value="
+											(val) => componentField['onUpdate:modelValue']?.(Number(val))
+										"
 										type="number"
 										:min="0"
 										:max="100"
@@ -247,12 +250,17 @@ async function playPreview() {
 											:min="0"
 											:max="100"
 											:step="1"
-											@update:model-value="(val) => val?.[0] !== undefined && componentField['onUpdate:modelValue']?.(val[0])"
+											@update:model-value="
+												(val) =>
+													val?.[0] !== undefined && componentField['onUpdate:modelValue']?.(val[0])
+											"
 										/>
 									</FormControl>
 									<Input
 										:model-value="componentField.modelValue"
-										@update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))"
+										@update:model-value="
+											(val) => componentField['onUpdate:modelValue']?.(Number(val))
+										"
 										type="number"
 										:min="0"
 										:max="100"
@@ -276,12 +284,17 @@ async function playPreview() {
 											:min="0"
 											:max="100"
 											:step="1"
-											@update:model-value="(val) => val?.[0] !== undefined && componentField['onUpdate:modelValue']?.(val[0])"
+											@update:model-value="
+												(val) =>
+													val?.[0] !== undefined && componentField['onUpdate:modelValue']?.(val[0])
+											"
 										/>
 									</FormControl>
 									<Input
 										:model-value="componentField.modelValue"
-										@update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))"
+										@update:model-value="
+											(val) => componentField['onUpdate:modelValue']?.(Number(val))
+										"
 										type="number"
 										:min="0"
 										:max="100"
@@ -303,10 +316,7 @@ async function playPreview() {
 					<CardTitle>{{ t('overlays.tts.advancedSettings') }}</CardTitle>
 					<CardDescription>{{ t('overlays.tts.advancedDescription') }}</CardDescription>
 				</div>
-				<Button
-					:disabled="isLoading || isSaving"
-					@click="handleSave"
-				>
+				<Button :disabled="isLoading || isSaving" @click="handleSave">
 					{{ t('sharedButtons.save') }}
 				</Button>
 			</CardHeader>
@@ -329,10 +339,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch
-											:checked="field.value"
-											@update:checked="field['onUpdate:modelValue']"
-										/>
+										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -349,10 +356,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch
-											:checked="field.value"
-											@update:checked="field['onUpdate:modelValue']"
-										/>
+										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -369,10 +373,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch
-											:checked="field.value"
-											@update:checked="field['onUpdate:modelValue']"
-										/>
+										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -398,10 +399,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch
-											:checked="field.value"
-											@update:checked="field['onUpdate:modelValue']"
-										/>
+										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -418,10 +416,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch
-											:checked="field.value"
-											@update:checked="field['onUpdate:modelValue']"
-										/>
+										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -447,10 +442,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch
-											:checked="field.value"
-											@update:checked="field['onUpdate:modelValue']"
-										/>
+										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -464,12 +456,7 @@ async function playPreview() {
 									{{ t('overlays.tts.maxSymbolsDesc') }}
 								</FormDescription>
 								<FormControl>
-									<Input
-										v-bind="componentField"
-										type="number"
-										:min="0"
-										:max="5000"
-									/>
+									<Input v-bind="componentField" type="number" :min="0" :max="5000" />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -480,4 +467,3 @@ async function playPreview() {
 		</Card>
 	</div>
 </template>
-

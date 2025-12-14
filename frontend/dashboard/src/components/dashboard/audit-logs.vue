@@ -82,7 +82,7 @@ function openPopup() {
 				<div
 					v-for="log of logs"
 					:key="`${log.system}-${log.objectId}-${log.objectId}-${log.createdAt}`"
-					class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-[color:var(--n-border-color)] border-b border-solid @lg:items-center"
+					class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-(--n-border-color) border-b border-solid @lg:items-center"
 				>
 					<div
 						class="flex h-full flex-col @sm:flex-col @lg:flex-row min-h-[40px] gap-2.5 px-2.5 @lg:items-center"

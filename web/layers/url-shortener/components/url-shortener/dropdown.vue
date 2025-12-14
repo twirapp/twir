@@ -6,7 +6,7 @@
 				variant="outline"
 				class="w-8 rounded-lg font-semibold border-transparent bg-transparent hover:bg-[hsl(240,11%,15%)]"
 			>
-				<Icon name="lucide:ellipsis-vertical" class="size-4" />
+				<Icon name="lucide:ellipsis-vertical" class="w-4 h-4" />
 			</UiButton>
 		</UiDropdownMenuTrigger>
 		<UiDropdownMenuContent

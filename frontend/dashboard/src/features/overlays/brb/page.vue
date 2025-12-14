@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql.ts'
@@ -24,7 +24,6 @@ import InputWithIcon from '@/components/ui/InputWithIcon.vue'
 import { BeRightBackUpdateInputSchema } from '@/gql/validation-schemas.ts'
 
 const { t } = useI18n()
-const { toast } = useToast()
 
 const { data: profile } = useProfile()
 
@@ -146,15 +145,9 @@ const save = brbForm.handleSubmit(async (values) => {
 			},
 		})
 
-		toast({
-			title: t('sharedTexts.saved'),
-			variant: 'default',
-		})
+		toast.success(t('sharedTexts.saved'))
 	} catch (e) {
-		toast({
-			title: 'Error occurred while saving BRB overlay',
-			variant: 'destructive',
-		})
+		toast.error('Error occurred while saving BRB overlay')
 		console.error(e)
 	}
 })
@@ -324,7 +317,7 @@ watch(
 												@update:checked="field['onUpdate:modelValue']"
 											/>
 										</FormControl>
-										<FormLabel class="!mt-0">{{ t('sharedTexts.enabled') }}</FormLabel>
+										<FormLabel class="mt-0!">{{ t('sharedTexts.enabled') }}</FormLabel>
 									</div>
 									<FormMessage />
 								</FormItem>
@@ -339,7 +332,7 @@ watch(
 												@update:checked="field['onUpdate:modelValue']"
 											/>
 										</FormControl>
-										<FormLabel class="!mt-0">{{
+										<FormLabel class="mt-0!">{{
 											t('overlays.brb.settings.late.displayBrb')
 										}}</FormLabel>
 									</div>

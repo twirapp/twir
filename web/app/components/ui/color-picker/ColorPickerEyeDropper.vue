@@ -38,7 +38,7 @@ async function handleEyeDropperClick() {
 		size="custom"
 		@click="handleEyeDropperClick"
 	>
-		<Icon name="lucide:pipette" class="size-4" />
+		<Icon name="lucide:pipette" class="w-4 h-4" />
 	</UiButton>
 
 	<UiButton
@@ -49,6 +49,6 @@ async function handleEyeDropperClick() {
 		:class="props.class"
 		title="EyeDropper API don't supported in this browser"
 	>
-		<Icon name="lucide:ban" class="size-4" />
+		<Icon name="lucide:ban" class="w-4 h-4" />
 	</UiButton>
 </template>

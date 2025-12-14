@@ -43,7 +43,7 @@ function startHueDrag(e: MouseEvent): void {
 		>
 			<div
 				:style="{ left: `calc(${(hue / 360) * 100}% - 7px)` }"
-				class="absolute w-[14px] h-[14px] bg-white rounded-full border-[3px] border-white cursor-pointer z-[999] top-1/2 -translate-y-1/2 pointer-events-none"
+				class="absolute w-[14px] h-[14px] bg-white rounded-full border-[3px] border-white cursor-pointer z-999 top-1/2 -translate-y-1/2 pointer-events-none"
 			/>
 		</div>
 	</div>

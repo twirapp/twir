@@ -7,11 +7,11 @@ import { integrationsData } from './integrations-data.js'
 		<div class="container mx-auto">
 			<div class="px-[32px] pb-[100px] pt-[140px]">
 				<div class="flex flex-col flex-wrap items-center text-center gap-[20px] relative">
-					<SvgoCube :fontControlled="false" :filled="true" class="absolute -top-[68px] h-[270px] w-[270px] stroke-[1]" aria-hidden />
+					<SvgoCube :fontControlled="false" :filled="true" class="absolute -top-[68px] h-[270px] w-[270px] stroke-1" aria-hidden />
 					<h2 class="font-semibold text-[#B0ADFF] text-base uppercase text-center">
 						Integrations
 					</h2>
-					<h3 class="text-4xl text-white font-bold z-10 max-w-2xl leading-[1.25] tracking-tight">
+					<h3 class="text-4xl text-white font-bold z-10 max-w-2xl leading-tight tracking-tight">
 						Power-up your stream with seamless integrations
 					</h3>
 					<span class="text-xl text-[#ADB0B8] font-normal leading-normal max-w-3xl">

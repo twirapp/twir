@@ -11,13 +11,12 @@ import type {
 } from '@/api/giveaways.js'
 
 import { useGiveawaysApi } from '@/api/giveaways.js'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 export const useGiveaways = createGlobalState(() => {
 	const giveawaysApi = useGiveawaysApi()
 	const { data: giveaways, fetching: giveawaysListFetching } = giveawaysApi.useGiveawaysList()
 	const router = useRouter()
-	const { toast } = useToast()
 	const { t } = useI18n()
 
 	// Current giveaway state
@@ -56,15 +55,12 @@ export const useGiveaways = createGlobalState(() => {
 			if (result.error) {
 				throw new Error(result.error.message)
 			}
-			toast({
-				title: t('giveaways.notifications.created'),
+			toast.success(t('giveaways.notifications.created'), {
 				description: t('giveaways.notifications.createdDescription', { keyword }),
 			})
 			return result.data?.giveawaysCreate
 		} catch (error) {
-			toast({
-				variant: 'destructive',
-				title: t('giveaways.notifications.error'),
+			toast.error(t('giveaways.notifications.error'), {
 				description: error instanceof Error ? error.message : 'Unknown error',
 			})
 			return null
@@ -77,15 +73,12 @@ export const useGiveaways = createGlobalState(() => {
 			if (result.error) {
 				throw new Error(result.error.message)
 			}
-			toast({
-				title: 'Giveaway started',
+			toast.success('Giveaway started', {
 				description: 'The giveaway has been started successfully',
 			})
 			return result.data?.giveawaysStart
 		} catch (error) {
-			toast({
-				variant: 'destructive',
-				title: 'Error starting giveaway',
+			toast.error('Error starting giveaway', {
 				description: error instanceof Error ? error.message : 'Unknown error',
 			})
 			return null
@@ -98,15 +91,12 @@ export const useGiveaways = createGlobalState(() => {
 			if (result.error) {
 				throw new Error(result.error.message)
 			}
-			toast({
-				title: 'Giveaway stopped',
+			toast.success('Giveaway stopped', {
 				description: 'The giveaway has been stopped successfully',
 			})
 			return result.data?.giveawaysStop
 		} catch (error) {
-			toast({
-				variant: 'destructive',
-				title: 'Error stopping giveaway',
+			toast.error('Error stopping giveaway', {
 				description: error instanceof Error ? error.message : 'Unknown error',
 			})
 			return null
@@ -120,17 +110,14 @@ export const useGiveaways = createGlobalState(() => {
 				throw new Error(result.error.message)
 			}
 			winners.value.push(...((result.data?.giveawaysChooseWinners as GiveawayWinner[]) || []))
-			toast({
-				title: t('giveaways.notifications.winnersChosen'),
+			toast.success(t('giveaways.notifications.winnersChosen'), {
 				description: t('giveaways.notifications.winnersChosenDescription', {
 					count: winners.value.length,
 				}),
 			})
 			return winners.value
 		} catch (error) {
-			toast({
-				variant: 'destructive',
-				title: t('giveaways.notifications.errorChoosingWinners'),
+			toast.error(t('giveaways.notifications.errorChoosingWinners'), {
 				description: error instanceof Error ? error.message : 'Unknown error',
 			})
 			return []

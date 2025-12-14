@@ -16,7 +16,7 @@ const confirmOpened = ref(false)
 </script>
 
 <template>
-	<Card class="rounded-lg border bg-card text-card-foreground shadow-sm border-red-500 p-4 flex flex-col gap-4">
+	<Card class="rounded-lg border bg-card text-card-foreground shadow-xs border-red-500 p-4 flex flex-col gap-4">
 		<div class="flex items-center">
 			<div class="flex-auto">
 				<small class="text-sm font-medium leading-none">

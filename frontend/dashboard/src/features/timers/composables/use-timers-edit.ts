@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { type TypeOf, array, boolean, nativeEnum, number, object, string } from 'zod'
 
 import { useTimersApi } from '@/api/timers'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { TwitchAnnounceColor } from '@/gql/graphql.ts'
 
 export const formSchema = object({
@@ -26,7 +26,6 @@ export const formSchema = object({
 type FormSchema = TypeOf<typeof formSchema>
 
 export const useTimersEdit = createGlobalState(() => {
-	const { toast } = useToast()
 	const { t } = useI18n()
 	const router = useRouter()
 
@@ -53,7 +52,7 @@ export const useTimersEdit = createGlobalState(() => {
 				opts: {
 					...data,
 					// this deletes id field from object, because backend will respond with error if it's presented
-					// eslint-disable-next-line ts/ban-ts-comment
+					//
 					// @ts-expect-error
 					id: undefined,
 				},
@@ -64,10 +63,8 @@ export const useTimersEdit = createGlobalState(() => {
 			})
 
 			if (result.error) {
-				toast({
-					title: result.error.graphQLErrors?.map((e) => e.message).join(', ') ?? 'error',
+				toast.error(result.error.graphQLErrors?.map((e) => e.message).join(', ') ?? 'error', {
 					duration: 5000,
-					variant: 'destructive',
 				})
 				return
 			}
@@ -80,10 +77,8 @@ export const useTimersEdit = createGlobalState(() => {
 			})
 		}
 
-		toast({
-			title: t('sharedTexts.saved'),
+		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
-			variant: 'success',
 		})
 	}
 

@@ -55,7 +55,7 @@ export const useNotificationsTable = createGlobalState(() => {
 				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 				cell: ({ row }) => {
 					if (row.original.text) {
-						return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.text })
+						return h('div', { class: 'wrap-break-word max-w-[450px]', innerHTML: row.original.text })
 					} else if (row.original.editorJsJson) {
 						return h(BlocksRenderer, { data: row.original.editorJsJson })
 					}

@@ -28,17 +28,11 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { toast } from 'vue-sonner'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
@@ -72,21 +66,21 @@ onMounted(() => {
 	rouletteForm.setValues(structuredClone(toRaw(settings.value.gamesRussianRoulette)))
 })
 
-watch(settings, (v) => {
-	if (!v) return
-	const raw = toRaw(v)
-	rouletteForm.setValues(structuredClone(raw.gamesRussianRoulette))
-}, { immediate: true })
+watch(
+	settings,
+	(v) => {
+		if (!v) return
+		const raw = toRaw(v)
+		rouletteForm.setValues(structuredClone(raw.gamesRussianRoulette))
+	},
+	{ immediate: true }
+)
 
 const { t } = useI18n()
-const { toast } = useToast()
 
 const save = rouletteForm.handleSubmit(async () => {
 	await updater.executeMutation({ opts: rouletteForm.values })
-	toast({
-		title: t('sharedTexts.saved'),
-		variant: 'success',
-	})
+	toast.success(t('sharedTexts.saved'))
 	isModalOpened.value = false
 })
 
@@ -111,17 +105,14 @@ async function resetSettings() {
 				<DialogTitle>Russian Roulette</DialogTitle>
 			</DialogHeader>
 
-			<form>
+			<form class="flex flex-col gap-4">
 				<div class="space-y-4">
 					<div class="flex flex-col gap-4">
 						<FormField v-slot="{ value, handleChange }" name="enabled">
 							<FormItem class="flex gap-2 space-y-0 items-center">
 								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 								<FormControl>
-									<Switch
-										:checked="value"
-										@update:checked="handleChange"
-									/>
+									<Switch :checked="value" @update:checked="handleChange" />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -136,10 +127,7 @@ async function resetSettings() {
 						<FormItem class="flex gap-2 space-y-0 items-center">
 							<FormLabel>{{ t('games.russianRoulette.canBeUsedByModerator') }}</FormLabel>
 							<FormControl>
-								<Switch
-									:checked="value"
-									@update:checked="handleChange"
-								/>
+								<Switch :checked="value" @update:checked="handleChange" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -152,11 +140,7 @@ async function resetSettings() {
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.timeoutSeconds') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								type="number"
-								:max="86400"
-							/>
+							<Input v-bind="componentField" type="number" :max="86400" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -166,11 +150,7 @@ async function resetSettings() {
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.decisionSeconds') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								type="number"
-								:max="60"
-							/>
+							<Input v-bind="componentField" type="number" :max="60" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -182,10 +162,7 @@ async function resetSettings() {
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.initMessage') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								:maxlength="450"
-							/>
+							<Input v-bind="componentField" :maxlength="450" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -195,10 +172,7 @@ async function resetSettings() {
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.surviveMessage') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								:maxlength="450"
-							/>
+							<Input v-bind="componentField" :maxlength="450" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -208,10 +182,7 @@ async function resetSettings() {
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.deathMessage') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								:maxlength="450"
-							/>
+							<Input v-bind="componentField" :maxlength="450" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -221,12 +192,7 @@ async function resetSettings() {
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.chargedBullets') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								type="number"
-								:min="1"
-								:max="6"
-							/>
+							<Input v-bind="componentField" type="number" :min="1" :max="6" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -236,12 +202,7 @@ async function resetSettings() {
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.tumberSize') }}</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								type="number"
-								:min="6"
-								:max="12"
-							/>
+							<Input v-bind="componentField" type="number" :min="6" :max="12" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -259,9 +220,7 @@ async function resetSettings() {
 						<AlertDialogContent>
 							<AlertDialogHeader>
 								<AlertDialogTitle>{{ t('sharedTexts.areYouSure') }}</AlertDialogTitle>
-								<AlertDialogDescription>
-									Are you sure?
-								</AlertDialogDescription>
+								<AlertDialogDescription> Are you sure? </AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
 								<AlertDialogCancel>

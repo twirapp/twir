@@ -9,7 +9,7 @@ import ManageGroups from '@/components/commands/manageGroups.vue'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import {
 	FormControl,
@@ -36,11 +36,6 @@ import {
 	TagsInputItemDelete,
 	TagsInputItemText,
 } from '@/components/ui/tags-input'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 
 const { t } = useI18n()
 
@@ -60,7 +55,7 @@ function computeSelectedGroupColor(id: string) {
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row justify-between flex-wrap p-4 border-b">
+		<CardHeader class="flex flex-row justify-between flex-wrap">
 			<div></div>
 
 			<CardTitle class="flex items-center gap-2">
@@ -68,24 +63,19 @@ function computeSelectedGroupColor(id: string) {
 				General
 			</CardTitle>
 
-			<FormField v-slot="{ field }" name="enabled">
-				<FormItem class="space-y-0 flex items-center gap-4">
-					<FormControl>
-						<Tooltip>
-							<TooltipTrigger as-child>
-								<Switch
-									:checked="field.value"
-									default-checked
-									@update:checked="field['onUpdate:modelValue']"
-								/>
-							</TooltipTrigger>
-							<TooltipContent>
-								{{ t('sharedTexts.enabled') }}
-							</TooltipContent>
-						</Tooltip>
-					</FormControl>
-				</FormItem>
-			</FormField>
+			<CardAction>
+				<FormField v-slot="{ field }" name="enabled">
+					<FormItem class="space-y-0 flex items-center gap-4">
+						<FormControl>
+							<Switch
+								:checked="field.value"
+								default-checked
+								@update:checked="field['onUpdate:modelValue']"
+							/>
+						</FormControl>
+					</FormItem>
+				</FormField>
+			</CardAction>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4 pt-4">
 			<FormField v-slot="{ componentField }" name="name">
@@ -164,12 +154,10 @@ function computeSelectedGroupColor(id: string) {
 									/>
 								</SelectTrigger>
 								<SelectContent>
-									<div v-if="!groups?.commandsGroups.length" class="p-2">
-										No groups created
-									</div>
+									<div v-if="!groups?.commandsGroups.length" class="p-2">No groups created</div>
 									<SelectGroup v-else>
 										<SelectItem
-											v-for="(group) in groups?.commandsGroups"
+											v-for="group in groups?.commandsGroups"
 											:key="group.id"
 											:value="group.id"
 											:style="{ color: group.color }"
@@ -190,13 +178,12 @@ function computeSelectedGroupColor(id: string) {
 						</Button>
 					</div>
 					<Alert v-else class="py-2">
-						<AlertDescription>
-							Group cannot be set for default command
-						</AlertDescription>
+						<AlertDescription> Group cannot be set for default command </AlertDescription>
 					</Alert>
 					<FormMessage />
 					<FormDescription>
-						Groups used to create "folder" of commands in dashboard and public page, so you can stick related commands together.
+						Groups used to create "folder" of commands in dashboard and public page, so you can
+						stick related commands together.
 					</FormDescription>
 				</FormItem>
 			</FormField>

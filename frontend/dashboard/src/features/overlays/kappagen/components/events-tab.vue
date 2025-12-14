@@ -91,7 +91,7 @@ function handleEventEnabledChange(index: number, value: boolean) {
 					</Popover>
 					<Switch
 						:checked="event.value.enabled"
-						@update:checked="(v) => handleEventEnabledChange(eventIndex, v)"
+						@update:checked="(v: boolean) => handleEventEnabledChange(eventIndex, v)"
 					/>
 				</div>
 			</div>

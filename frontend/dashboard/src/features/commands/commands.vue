@@ -29,18 +29,22 @@ const commandsFilter = ref('')
 const commands = computed(() => {
 	if (!commandsResponse.value?.commands) return []
 
-	const system = (Array.isArray(route.params.system) ? route.params.system[0] : route.params.system) ?? ''
+	const system =
+		(Array.isArray(route.params.system) ? route.params.system[0] : route.params.system) ?? ''
 
 	return commandsResponse.value.commands
-		.filter(c => {
+		.filter((c) => {
 			if (system.toUpperCase() === 'CUSTOM') {
 				return c.module === 'CUSTOM'
 			}
 
 			return c.module !== 'CUSTOM' && !excludedModules.includes(c.module)
 		})
-		.filter(c => {
-			return c.name.includes(commandsFilter.value) || c.aliases.some(a => a.includes(commandsFilter.value))
+		.filter((c) => {
+			return (
+				c.name.includes(commandsFilter.value) ||
+				c.aliases.some((a) => a.includes(commandsFilter.value))
+			)
 		})
 })
 
@@ -65,9 +69,7 @@ const title = computed(() => {
 
 <template>
 	<PageLayout>
-		<template #title>
-			{{ title }} {{ t('sidebar.commands.label').toLocaleLowerCase() }}
-		</template>
+		<template #title> {{ title }} {{ t('sidebar.commands.label').toLocaleLowerCase() }} </template>
 
 		<template v-if="isCustom" #action>
 			<div class="flex gap-2 flex-wrap">
@@ -94,11 +96,7 @@ const title = computed(() => {
 		<template #content>
 			<div class="flex flex-col gap-2">
 				<Input v-model="commandsFilter" placeholder="Search..." class="w-full lg:w-[40%]" />
-				<List
-					:commands="commands"
-					show-background
-					enable-groups
-				/>
+				<List :commands="commands" show-background enable-groups />
 			</div>
 		</template>
 	</PageLayout>

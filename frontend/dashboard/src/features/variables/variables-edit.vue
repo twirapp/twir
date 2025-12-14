@@ -2,7 +2,7 @@
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { toTypedSchema } from '@vee-validate/zod'
 import { InfoIcon, TerminalIcon } from 'lucide-vue-next'
-import { Label } from 'radix-vue'
+import { Label } from 'reka-ui'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -79,13 +79,16 @@ onMounted(async () => {
 	loading.value = false
 })
 
-watch(() => values.scriptLanguage, (newLanguage) => {
-	if (newLanguage === VariableScriptLanguage.Python) {
-		setValues({ evalValue: pythonExample })
-	} else if (newLanguage === VariableScriptLanguage.Javascript) {
-		setValues({ evalValue: jsExample })
+watch(
+	() => values.scriptLanguage,
+	(newLanguage) => {
+		if (newLanguage === VariableScriptLanguage.Python) {
+			setValues({ evalValue: pythonExample })
+		} else if (newLanguage === VariableScriptLanguage.Javascript) {
+			setValues({ evalValue: jsExample })
+		}
 	}
-})
+)
 
 const onSubmit = handleSubmit(submit)
 
@@ -104,7 +107,7 @@ async function executeScript() {
 			executionResult.value = result
 		}
 	} catch (error: any) {
-		if ('message' in error as any) {
+		if (('message' in error) as any) {
 			executionResult.value = error.message
 		}
 	}
@@ -112,7 +115,7 @@ async function executeScript() {
 </script>
 
 <template>
-	<form :class="{ 'blur-sm': loading }" @submit="onSubmit">
+	<form :class="{ 'blur-xs': loading }" @submit="onSubmit">
 		<PageLayout stickyHeader show-back back-redirect-to="/dashboard/variables">
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>
@@ -131,9 +134,7 @@ async function executeScript() {
 						<FormItem>
 							<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
 							<FormControl>
-								<Input
-									v-bind="componentField"
-								/>
+								<Input v-bind="componentField" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -162,7 +163,8 @@ async function executeScript() {
 					</FormField>
 
 					<FormField
-						v-if="values.type !== VariableType.Script" v-slot="{ componentField }"
+						v-if="values.type !== VariableType.Script"
+						v-slot="{ componentField }"
 						name="response"
 					>
 						<FormItem>
@@ -213,7 +215,8 @@ async function executeScript() {
 						<div class="flex flex-col gap-2">
 							<Label for="testFromUserName">Test as specific viewer</Label>
 							<Input
-								id="testFromUserName" v-model:model-value="testFromUserName"
+								id="testFromUserName"
+								v-model:model-value="testFromUserName"
 								placeholder="Enter username from which perspective script will run"
 							/>
 						</div>
@@ -223,18 +226,14 @@ async function executeScript() {
 							<AlertTitle>Heads up!</AlertTitle>
 							<AlertDescription class="flex flex-col justify-start items-start gap-2">
 								<span>
-									You can use variables as you doing it in commands, like <code
-										class="text-teal-200"
-									>$(user.followage)</code>.
-									They will be parsed and evaluated.
-									But you must enclose them in quotes for proper usage!
+									You can use variables as you doing it in commands, like
+									<code class="text-teal-200">$(user.followage)</code>. They will be parsed and
+									evaluated. But you must enclose them in quotes for proper usage!
 								</span>
 
 								<VariablesList>
 									<template #trigger>
-										<Button type="button" size="sm">
-											Show variables list
-										</Button>
+										<Button type="button" size="sm"> Show variables list </Button>
 									</template>
 								</VariablesList>
 							</AlertDescription>

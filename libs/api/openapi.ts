@@ -326,7 +326,7 @@ export interface PasteBinCreateRequestDtoBody {
   $schema?: string;
   /**
    * @minLength 1
-   * @maxLength 100000
+   * @maxLength 1000000
    */
   content: string;
   /** @format date-time */

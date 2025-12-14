@@ -111,7 +111,7 @@ watch(open, (isOpen) => {
 					>
 						{{ props.options.find(option => option.value === value)?.label || value }}
 						<button
-							class="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+							class="ml-1 ring-offset-background rounded-full outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2"
 							@click.stop="removeOption(value)"
 						>
 							<XIcon class="h-3 w-3 text-background hover:text-background" />

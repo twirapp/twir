@@ -21,7 +21,7 @@ const { t } = useI18n()
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
+		<CardHeader class="flex flex-row place-content-center flex-wrap">
 			<CardTitle class="flex items-center gap-2">
 				<RefreshCcwIcon />
 				{{ t('commands.modal.cooldown.label') }}
@@ -59,7 +59,7 @@ const { t } = useI18n()
 										<SelectItem value="PER_USER">
 											{{ t('commands.modal.cooldown.type.user') }}
 										</SelectItem>
-									</selectgroup>
+									</SelectGroup>
 								</SelectContent>
 							</Select>
 						</FormControl>
@@ -86,6 +86,4 @@ const { t } = useI18n()
 	</Card>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

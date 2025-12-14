@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { LoaderCircleIcon, UploadIcon } from 'lucide-vue-next'
-import { useId } from 'radix-vue'
+import { useId } from 'reka-ui'
 import { computed, ref } from 'vue'
 
 import Button from './Button.vue'
@@ -8,10 +8,13 @@ import Button from './Button.vue'
 defineOptions({
 	inheritAttrs: false,
 })
-const props = withDefaults(defineProps<{
-	accept?: string[] | string
-	loading?: boolean
-}>(), { loading: false })
+const props = withDefaults(
+	defineProps<{
+		accept?: string[] | string
+		loading?: boolean
+	}>(),
+	{ loading: false }
+)
 const emit = defineEmits<{
 	fileSelected: [File]
 }>()
@@ -73,10 +76,7 @@ const computedAccept = computed(() => {
 			class="w-full justify-center border-dashed border-2"
 			as-child
 		>
-			<label
-				:for="id"
-				class="cursor-pointer flex items-center gap-2"
-			>
+			<label :for="id" class="cursor-pointer flex items-center gap-2">
 				<template v-if="!loading">
 					<UploadIcon class="size-4" />
 					<!-- {{ selectedFile ? selectedFile.name : 'Upload File' }} -->

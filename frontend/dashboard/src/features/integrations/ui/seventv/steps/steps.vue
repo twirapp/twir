@@ -38,7 +38,7 @@ const {
 
 			<StepperTrigger as-child>
 				<Button
-					:variant="step.completed ? 'default' : 'outline'"
+					:variant="step.completed ? 'default' : 'outline-solid'"
 					size="icon"
 					class="z-10 rounded-full shrink-0"
 					:class="[step.completed && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"

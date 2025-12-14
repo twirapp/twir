@@ -374,9 +374,9 @@ func (r *queryResolver) nowPlayingOverlays(ctx context.Context) (
 
 	result := make([]gqlmodel.NowPlayingOverlay, 0, len(entities))
 	for _, entity := range entities {
-		var hideTimeout *int
+		var hideTimeout int
 		if entity.HideTimeout.Valid {
-			hideTimeout = lo.ToPtr(int(*entity.HideTimeout.Ptr()))
+			hideTimeout = int(entity.HideTimeout.Int64)
 		}
 
 		result = append(
@@ -411,9 +411,9 @@ func (r *Resolver) getNowPlayingOverlaySettings(ctx context.Context, id, dashboa
 		return nil, fmt.Errorf("failed to get now playing overlay settings: %w", err)
 	}
 
-	var hideTimeout *int
+	var hideTimeout int
 	if entity.HideTimeout.Valid {
-		hideTimeout = lo.ToPtr(int(*entity.HideTimeout.Ptr()))
+		hideTimeout = int(entity.HideTimeout.Int64)
 	}
 
 	return &gqlmodel.NowPlayingOverlay{
@@ -609,7 +609,7 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 				FontWeight:      int(entity.FontWeight),
 				BackgroundColor: entity.BackgroundColor,
 				ShowImage:       entity.ShowImage,
-				HideTimeout:     lo.ToPtr(int(entity.HideTimeout.Int64)),
+				HideTimeout:     int(entity.HideTimeout.Int64),
 			},
 		); err != nil {
 			r.deps.Logger.Error("failed to publish settings", logger.Error(err))

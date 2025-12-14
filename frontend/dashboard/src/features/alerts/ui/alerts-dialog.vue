@@ -28,7 +28,7 @@ const open = ref(false)
 		</DialogTrigger>
 
 		<DialogOrSheet class="p-0">
-			<DialogHeader class="p-6 border-b-[1px]">
+			<DialogHeader class="p-6 border-b">
 				<DialogTitle>
 					{{ alert ? t('alerts.editAlert') : t('alerts.createAlert') }}
 				</DialogTitle>

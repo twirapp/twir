@@ -68,7 +68,7 @@ const chatWallCommands = computed(() => {
 			<CardContent :class="cn('relative', { 'pointer-events-none': fetching })">
 				<div
 					v-if="fetching"
-					class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+					class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-xs"
 				>
 					<div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
 				</div>
@@ -133,7 +133,7 @@ const chatWallCommands = computed(() => {
 </template>
 
 <style scoped>
-.backdrop-blur-sm {
+.backdrop-blur-xs {
   backdrop-filter: blur(4px);
 }
 </style>

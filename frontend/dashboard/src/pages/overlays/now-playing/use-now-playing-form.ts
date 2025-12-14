@@ -13,7 +13,7 @@ export const defaultSettings: NowPlayingOverlay = {
 	fontFamily: 'inter',
 	fontWeight: 400,
 	showImage: true,
-	hideTimeout: undefined,
+	hideTimeout: 0,
 }
 
 export const useNowPlayingForm = createGlobalState(() => {

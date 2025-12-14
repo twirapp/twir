@@ -14,7 +14,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 <template>
 	<section class="px-5 md:px-9 overflow-hidden">
 		<div
-			class="container py-20 lg:py-28 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-12 before:-rotate-[30deg] before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,_#181F4E_0%,_rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8"
+			class="container mx-auto py-20 lg:py-28 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-12 before:-rotate-30 before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,#181F4E_0%,rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8"
 		>
 			<div class="flex justify-between items-center md:flex-nowrap flex-wrap gap-[60px]">
 				<div class="flex flex-col items-start w-full">
@@ -26,7 +26,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 						🚀 View latest updates
 						<SvgoArrowRight
 							:fontControlled="false"
-							class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0"
+							class="h-4 w-4 stroke-white/50 stroke-[1.5] shrink-0"
 						/>
 					</a>
 					<h1

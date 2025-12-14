@@ -6,27 +6,14 @@ import { useI18n } from 'vue-i18n'
 
 import { useNowPlayingForm } from './use-now-playing-form'
 
-import {
-	useNowPlayingOverlayApi,
-	useProfile,
-	useUserAccessFlagChecker,
-} from '@/api'
+import { useNowPlayingOverlayApi, useProfile, useUserAccessFlagChecker } from '@/api'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import {
-	Command,
-	CommandGroup,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command'
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
 	Select,
 	SelectContent,
@@ -78,10 +65,14 @@ async function save() {
 }
 
 const fontData = ref<Font | null>(null)
-watch(() => fontData.value, (font) => {
-	if (!font) return
-	formValue.value.fontFamily = font.id
-}, { deep: true })
+watch(
+	() => fontData.value,
+	(font) => {
+		if (!font) return
+		formValue.value.fontFamily = font.id
+	},
+	{ deep: true }
+)
 
 const fontWeightOptions = computed(() => {
 	if (!fontData.value) return []
@@ -100,15 +91,9 @@ const fontWeightOptions = computed(() => {
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>
-							<SelectItem value="AIDEN_REDESIGN">
-								Aiden Redesign
-							</SelectItem>
-							<SelectItem value="TRANSPARENT">
-								Transparent
-							</SelectItem>
-							<SelectItem value="SIMPLE_LINE">
-								Simple line
-							</SelectItem>
+							<SelectItem value="AIDEN_REDESIGN"> Aiden Redesign </SelectItem>
+							<SelectItem value="TRANSPARENT"> Transparent </SelectItem>
+							<SelectItem value="SIMPLE_LINE"> Simple line </SelectItem>
 						</SelectGroup>
 					</SelectContent>
 				</Select>
@@ -125,9 +110,7 @@ const fontWeightOptions = computed(() => {
 
 			<div class="flex flex-col gap-2">
 				<Label for="backgroundColor">Background color</Label>
-				<NColorPicker
-					v-model:value="formValue.backgroundColor"
-				/>
+				<NColorPicker v-model:value="formValue.backgroundColor" />
 			</div>
 
 			<div class="flex flex-col gap-2">
@@ -146,17 +129,11 @@ const fontWeightOptions = computed(() => {
 
 				<Popover>
 					<PopoverTrigger as-child>
-						<Button
-							variant="outline"
-							size="sm"
-							class="w-[150px] justify-start"
-						>
+						<Button variant="outline" size="sm" class="w-[150px] justify-start">
 							<template v-if="formValue.fontWeight">
 								{{ formValue.fontWeight }}
 							</template>
-							<template v-else>
-								+ Set font weight
-							</template>
+							<template v-else> + Set font weight </template>
 						</Button>
 					</PopoverTrigger>
 					<PopoverContent class="p-0" side="right" align="start">
@@ -167,9 +144,11 @@ const fontWeightOptions = computed(() => {
 										v-for="weight in fontWeightOptions"
 										:key="weight.value"
 										:value="weight.value"
-										@select="() => {
-											formValue.fontWeight = weight.value
-										}"
+										@select="
+											() => {
+												formValue.fontWeight = weight.value
+											}
+										"
 									>
 										{{ weight.label }}
 									</CommandItem>

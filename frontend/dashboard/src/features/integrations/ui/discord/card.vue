@@ -37,7 +37,7 @@ function getGuildIconUrl(guildId: string, icon: string | null | undefined) {
 			</CardTitle>
 		</CardHeader>
 
-		<CardContent class="flex-grow">
+		<CardContent class="grow">
 			<p class="text-sm text-muted-foreground">
 				{{ t('integrations.discord.description') }}
 			</p>

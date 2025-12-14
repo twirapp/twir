@@ -7,6 +7,7 @@ import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TagsInput, TagsInputItem, TagsInputItemDelete } from '@/components/ui/tags-input'
 import { resolveUserName } from '@/helpers'
+import type { AcceptableValue } from 'reka-ui'
 
 interface Props {
 	twirOnly?: boolean
@@ -59,7 +60,7 @@ const selectOptions = computed(() => {
 function handleSelect(
 	event: CustomEvent<{
 		originalEvent: PointerEvent
-		value?: string | number | boolean | Record<string, any>
+		value?: AcceptableValue
 	}>
 ) {
 	if (typeof event.detail.value !== 'string') return
@@ -95,7 +96,7 @@ function handleSelect(
 					v-model="search"
 					type="text"
 					:placeholder="placeholder ?? 'Search...'"
-					class="text-sm min-h-6 focus:outline-none flex-1 bg-transparent px-1"
+					class="text-sm min-h-6 focus:outline-hidden flex-1 bg-transparent px-1"
 				/>
 			</TagsInput>
 		</PopoverTrigger>
