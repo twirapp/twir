@@ -4,7 +4,7 @@ import { NButton, NCard, NFormItem, NInput, NSwitch, NText } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile, useUserSettings } from '@/api'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 const { data: profile } = useProfile()
 
@@ -13,7 +13,6 @@ const updateUser = userManager.useUserUpdateMutation()
 const regenerateUserApiKey = userManager.useApiKeyGenerateMutation()
 
 const { t } = useI18n()
-const toast = useToast()
 
 async function changeLandingVisibility() {
 	if (!profile.value) return
@@ -24,29 +23,22 @@ async function changeLandingVisibility() {
 		},
 	})
 
-	toast.toast({
-		title: t('sharedTexts.saved'),
+	toast.success(t('sharedTexts.saved'), {
 		duration: 1500,
-		variant: 'success',
 	})
 }
 
 async function callRegenerateKey() {
 	await regenerateUserApiKey.executeMutation({})
 
-	toast.toast({
-		title: t('sharedTexts.saved'),
-		variant: 'success',
-	})
+	toast.success(t('sharedTexts.saved'))
 }
 </script>
 
 <template>
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-6">
-			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
-				Private
-			</h4>
+			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">Private</h4>
 			<NCard size="small" bordered>
 				<div class="flex gap-3">
 					<NText>{{ t('userSettings.account.showMeOnLanding') }}</NText>
@@ -60,9 +52,7 @@ async function callRegenerateKey() {
 		</div>
 
 		<div class="flex flex-col gap-6">
-			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
-				Api
-			</h4>
+			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">Api</h4>
 
 			<NCard size="small" bordered>
 				<NFormItem label="Key">
@@ -74,7 +64,12 @@ async function callRegenerateKey() {
 							:maxlength="8"
 							class="flex-1"
 						/>
-						<NButton secondary type="warning" class="min-w-[150px] sm:w-full" @click="callRegenerateKey">
+						<NButton
+							secondary
+							type="warning"
+							class="min-w-[150px] sm:w-full"
+							@click="callRegenerateKey"
+						>
 							<div class="flex items-center gap-1">
 								<IconRefresh class="h-5 w-5" />
 								{{ t('userSettings.account.regenerateApiKey.button') }}

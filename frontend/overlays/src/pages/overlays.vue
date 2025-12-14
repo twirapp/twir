@@ -7,12 +7,7 @@ import { useOverlays } from '@/composables/overlays/use-overlays.js'
 
 const route = useRoute()
 
-const {
-	layers,
-	parsedLayersData,
-	connectToOverlays,
-	requestLayerData,
-} = useOverlays()
+const { layers, parsedLayersData, connectToOverlays, requestLayerData } = useOverlays()
 
 onMounted(() => {
 	const apiKey = route.params.apiKey as string
@@ -29,7 +24,7 @@ watch(layers, (layers) => {
 
 			setInterval(
 				() => requestLayerData(layer.id),
-				layer.settings.htmlOverlayDataPollSecondsInterval * 1000,
+				layer.settings.htmlOverlayDataPollSecondsInterval * 1000
 			)
 		}
 	}
@@ -37,7 +32,7 @@ watch(layers, (layers) => {
 </script>
 
 <template>
-	<div class="container">
+	<div class="container mx-auto">
 		<template v-for="layer of layers" :key="layer.id">
 			<htmlLayer :layer="layer" :parsedData="parsedLayersData[layer.id]" />
 		</template>

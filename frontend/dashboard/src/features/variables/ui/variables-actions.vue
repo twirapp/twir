@@ -7,7 +7,7 @@ import { useUserAccessFlagChecker } from '@/api'
 import { type CustomVariable, useVariablesApi } from '@/api/variables'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = defineProps<{ row: CustomVariable }>()
@@ -17,16 +17,13 @@ const deleter = manager.useMutationRemoveVariable()
 
 const userCanManageVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageVariables)
 const { t } = useI18n()
-const { toast } = useToast()
 
 const showDelete = ref(false)
 
 async function deleteVariable() {
 	await deleter.executeMutation({ id: props.row.id })
 
-	toast({
-		title: t('sharedTexts.deleted'),
-		variant: 'success',
+	toast.success(t('sharedTexts.deleted'), {
 		duration: 1500,
 	})
 }

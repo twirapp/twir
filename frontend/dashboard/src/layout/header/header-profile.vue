@@ -43,7 +43,7 @@ const currentLocale = useLocalStorage<string>('twirLocale', 'en')
 
 const dropdownProps = computed((): DropdownMenuContentProps & { class?: string } => {
 	return {
-		class: 'w-[--radix-dropdown-menu-trigger-width]',
+		class: 'w-(--radix-dropdown-menu-trigger-width)',
 		side: 'bottom',
 		align: 'end',
 		sideOffset: 4,

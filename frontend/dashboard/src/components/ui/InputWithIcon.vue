@@ -66,7 +66,7 @@ function toggleInputType() {
 			class="show-password opacity-0 transition-all group-hover:opacity-100"
 		>
 			<Button
-				class="absolute inset-y-0 end-0 flex h-full items-center justify-center rounded-none border-l border-white/15 backdrop-blur-sm"
+				class="absolute inset-y-0 end-0 flex h-full items-center justify-center rounded-none border-l border-white/15 backdrop-blur-xs"
 				size="icon"
 				variant="ghost"
 				@click="toggleInputType"

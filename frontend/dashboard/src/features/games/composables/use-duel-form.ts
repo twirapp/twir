@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
 import { useGamesApi } from '@/api/games/games'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 const rules = z.object({
 	enabled: z.boolean(),
@@ -26,16 +26,18 @@ export type FormSchema = z.infer<typeof rules>
 
 export const useDuelForm = createGlobalState(() => {
 	const { t } = useI18n()
-	const { toast } = useToast()
 	const gamesApi = useGamesApi()
 	const { data: settings } = gamesApi.useGamesQuery()
 	const updater = gamesApi.useDuelMutation()
 
 	const initialValues: FormSchema = {
 		enabled: false,
-		startMessage: '@{target}, @{initiator} challenges you to a fight. Use {duelAcceptCommandName} for next {acceptSeconds} seconds to accept the challenge.',
-		resultMessage: 'Sadly, @{loser} couldn\'t find a way to dodge the bullet and falls apart into eternal slumber.',
-		bothDieMessage: 'Unexpectedly @{initiator} and @{target} shoot each other. Only the time knows why this happened...',
+		startMessage:
+			'@{target}, @{initiator} challenges you to a fight. Use {duelAcceptCommandName} for next {acceptSeconds} seconds to accept the challenge.',
+		resultMessage:
+			"Sadly, @{loser} couldn't find a way to dodge the bullet and falls apart into eternal slumber.",
+		bothDieMessage:
+			'Unexpectedly @{initiator} and @{target} shoot each other. Only the time knows why this happened...',
 		userCooldown: 0,
 		globalCooldown: 0,
 		secondsToAccept: 60,
@@ -50,8 +52,7 @@ export const useDuelForm = createGlobalState(() => {
 			opts: values,
 		})
 
-		toast({
-			title: t('sharedTexts.saved'),
+		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
 		})
 	}

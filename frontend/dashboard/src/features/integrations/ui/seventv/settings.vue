@@ -17,7 +17,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 const schema = z.object({
 	rewardIdForAddEmote: z.string().nullable().default(null),
@@ -32,37 +32,37 @@ const settingsForm = useForm({
 })
 
 const { updater, subscription } = useSevenTvIntegration()
-const toast = useToast()
 const { t } = useI18n()
 
 const handleSubmit = settingsForm.handleSubmit(async (values) => {
 	await updater.executeMutation({
 		input: values,
 	})
-	toast.toast({
-		title: t('sharedTexts.saved'),
+	toast.success(t('sharedTexts.saved'), {
 		duration: 2500,
 	})
 })
 
-watch(subscription.data, (data) => {
-	if (data?.sevenTvData) {
-		settingsForm.setValues({
-			rewardIdForAddEmote: data.sevenTvData.rewardIdForAddEmote,
-			rewardIdForRemoveEmote: data.sevenTvData.rewardIdForRemoveEmote,
-			deleteEmotesOnlyAddedByApp: data.sevenTvData.deleteEmotesOnlyAddedByApp,
-		})
-	}
-}, { once: true })
+watch(
+	subscription.data,
+	(data) => {
+		if (data?.sevenTvData) {
+			settingsForm.setValues({
+				rewardIdForAddEmote: data.sevenTvData.rewardIdForAddEmote,
+				rewardIdForRemoveEmote: data.sevenTvData.rewardIdForRemoveEmote,
+				deleteEmotesOnlyAddedByApp: data.sevenTvData.deleteEmotesOnlyAddedByApp,
+			})
+		}
+	},
+	{ once: true }
+)
 </script>
 
 <template>
 	<form class="flex flex-col gap-4" @submit="handleSubmit">
 		<FormField v-slot="{ componentField }" name="deleteEmotesOnlyAddedByApp">
 			<FormItem class="flex flex-row items-center gap-2">
-				<FormLabel>
-					Delete emotes only added by app
-				</FormLabel>
+				<FormLabel> Delete emotes only added by app </FormLabel>
 				<FormControl>
 					<Checkbox
 						:checked="componentField.modelValue"
@@ -106,8 +106,6 @@ watch(subscription.data, (data) => {
 			</FormItem>
 		</FormField>
 
-		<Button type="submit">
-			Save
-		</Button>
+		<Button type="submit"> Save </Button>
 	</form>
 </template>

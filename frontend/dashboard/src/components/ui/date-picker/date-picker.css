@@ -1,11 +1,11 @@
 .dp__theme_dark {
 	--dp-background-color: hsl(var(--background));
-	--dp-text-color: theme(colors.white);
+	--dp-text-color: hsl(var(--color-fuchsia-50));
 	--dp-hover-color: hsl(var(--accent));
-	--dp-hover-text-color: theme(colors.white);
+	--dp-hover-text-color: hsl(var(--color-fuchsia-50));
 	--dp-primary-color: hsl(var(--accent));
 	--dp-primary-text-color: #ffffff;
-	--dp-secondary-color: theme(colors.stone.300);
+	--dp-secondary-color: hsl(var(--color-stone-300));
 	--dp-border-color: hsl(var(--border));
 	--dp-menu-border-color: hsl(var(--border));
 	--dp-border-color-hover: hsl(var(--border));

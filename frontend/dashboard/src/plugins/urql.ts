@@ -1,8 +1,7 @@
 import { Client, cacheExchange, fetchExchange, mapExchange, subscriptionExchange } from '@urql/vue'
 import { type SubscribePayload, createClient as createWS } from 'graphql-ws'
 import { ref } from 'vue'
-
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/query`
 const gqlApiUrl = `${window.location.protocol}//${window.location.host}/api/query`
@@ -24,8 +23,6 @@ const gqlWs = createWS({
 	},
 })
 
-const toast = useToast()
-
 function createClient() {
 	return new Client({
 		url: gqlApiUrl,
@@ -34,11 +31,11 @@ function createClient() {
 				onError(error, _operation) {
 					for (const er of error.graphQLErrors) {
 						if (er.extensions.code !== 'BAD_REQUEST') continue
-						const validationErrors = Object.entries(er.extensions.validation_errors ?? {} as Record<string, any>)
+						const validationErrors = Object.entries(
+							er.extensions.validation_errors ?? ({} as Record<string, any>)
+						)
 
-						toast.toast({
-							variant: 'destructive',
-							title: er.message,
+						toast.error(er.message, {
 							description: validationErrors.map(([key, value]) => `${key}: ${value}`).join(', '),
 							duration: 10000,
 						})

@@ -9,7 +9,7 @@ import OperationsTab from './components/operations-tab.vue'
 
 import { EventType, useEventsApi } from '@/api/events'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { toast } from 'vue-sonner'
 import EventVariables from '@/features/events/components/event-variables.vue'
 import { eventFormSchema } from '@/features/events/event-form-schema.ts'
 import { EventOperationType } from '@/gql/graphql'
@@ -18,7 +18,6 @@ import PageLayout from '@/layout/page-layout.vue'
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
-const { toast } = useToast()
 const eventsApi = useEventsApi()
 const isNewEvent = computed(() => route.params.id === 'new')
 const eventId = computed(() => (isNewEvent.value ? '' : String(route.params.id)))
@@ -53,10 +52,8 @@ onMounted(async () => {
 
 	const { data } = await executeQuery()
 	if (!data.value?.eventById) {
-		toast({
-			title: t('events.notFound'),
+		toast.error(t('events.notFound'), {
 			description: t('events.notFoundDescription'),
-			variant: 'destructive',
 		})
 		router.push('/dashboard/events')
 		return
@@ -120,16 +117,12 @@ const onSubmit = eventForm.handleSubmit(async (input) => {
 			}
 		}
 
-		toast({
-			title: t('sharedTexts.saved'),
+		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
 		})
 	} catch (error) {
 		console.error(error)
-		toast({
-			description: `${error}`,
-			variant: 'destructive',
-		})
+		toast.error(`${error}`)
 	}
 })
 </script>

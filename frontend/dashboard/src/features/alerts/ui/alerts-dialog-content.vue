@@ -46,7 +46,7 @@ const { t } = useI18n()
 
 const rules: FormRules = {
 	name: {
-		trigger: ['input', 'blur'],
+		trigger: ['input', 'blur-sm'],
 		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length || value.length > 30) {
 				return new Error(t('alerts.validations.name'))

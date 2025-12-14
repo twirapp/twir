@@ -238,6 +238,7 @@ async function save() {
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
 @import '../../styles.css';
 
 .card-body-column {

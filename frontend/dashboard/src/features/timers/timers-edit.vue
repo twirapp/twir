@@ -84,7 +84,7 @@ const responsesHasError = computed(() => {
 			</template>
 
 			<template #content>
-				<div class="flex flex-col gap-4 max-w-4xl mx-auto" :class="{ 'blur-sm': loading }">
+				<div class="flex flex-col gap-4 max-w-4xl mx-auto" :class="{ 'blur-xs': loading }">
 					<FormField v-slot="{ componentField }" name="name">
 						<FormItem>
 							<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>

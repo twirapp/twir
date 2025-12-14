@@ -8,6 +8,7 @@
   "dependencies": {
     "@vueuse/core": "catalog:",
     "lucide-vue-next": "0.368.0",
+    "tailwindcss": "4.1.18",
     "vue": "catalog:"
   },
   "devDependencies": {

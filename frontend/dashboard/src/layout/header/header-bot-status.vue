@@ -63,6 +63,8 @@ async function changeChatState() {
 </template>
 
 <style>
+@reference '@/assets/index.css';
+
 .stats-item {
 	@apply flex flex-col justify-between min-w-8 rounded-md;
 }

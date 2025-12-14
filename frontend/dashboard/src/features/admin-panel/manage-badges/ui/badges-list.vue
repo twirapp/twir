@@ -35,7 +35,7 @@ const badgesActions = useBadgesActions()
 			v-for="badge of badges"
 			:key="badge.id"
 		>
-			<CardHeader class="flex-row justify-between items-center border-b-[1px] p-4">
+			<CardHeader class="flex-row justify-between items-center border-b p-4">
 				<CardTitle>
 					{{ badge.name }}
 				</CardTitle>

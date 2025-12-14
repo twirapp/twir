@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CopyIcon } from 'lucide-vue-next'
-import { useThemeVars } from 'naive-ui'
 import { useForm } from 'vee-validate'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -13,13 +12,12 @@ import type { KappagenOverlaySettingsFragment } from '@/gql/graphql'
 import { useKappagenApi } from '@/api/overlays/kappagen'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { toast } from 'vue-sonner'
 import KappagenPreview from '@/features/overlays/kappagen/kappagen-preview.vue'
 import { KappagenEmojiStyle } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()
-const { toast } = useToast()
 const { kappagen, isLoading, isUpdating, updateKappagen, refetch } = useKappagenApi()
 
 // Initialize form with proper variable name
@@ -76,13 +74,13 @@ onMounted(async () => {
 			style: anim.style,
 			prefs: anim.prefs
 				? {
-					size: anim.prefs.size,
-					center: anim.prefs.center,
-					speed: anim.prefs.speed,
-					faces: anim.prefs.faces,
-					message: anim.prefs.message,
-					// time: anim.prefs.time,
-				}
+						size: anim.prefs.size,
+						center: anim.prefs.center,
+						speed: anim.prefs.speed,
+						faces: anim.prefs.faces,
+						message: anim.prefs.message,
+						// time: anim.prefs.time,
+					}
 				: null,
 			count: anim.count ?? null,
 			enabled: anim.enabled,
@@ -127,13 +125,13 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 					style: anim.style,
 					prefs: anim.prefs
 						? {
-							size: anim.prefs.size,
-							center: anim.prefs.center,
-							speed: anim.prefs.speed,
-							faces: anim.prefs.faces,
-							message: anim.prefs.message,
-							time: anim.prefs.time,
-						}
+								size: anim.prefs.size,
+								center: anim.prefs.center,
+								speed: anim.prefs.speed,
+								faces: anim.prefs.faces,
+								message: anim.prefs.message,
+								time: anim.prefs.time,
+							}
 						: null,
 					count: anim.count,
 					enabled: anim.enabled,
@@ -165,35 +163,25 @@ const onSubmit = kappagenForm.handleSubmit(async (values) => {
 			throw new Error(error.message)
 		}
 
-		toast({
-			title: t('sharedTexts.saved'),
+		toast.success(t('sharedTexts.saved'), {
 			description: 'Kappagen settings updated successfully',
 			duration: 2500,
 		})
 	} catch (error) {
 		console.error('Failed to update Kappagen settings:', error)
-		toast({
-			description: 'Failed to update Kappagen settings',
-			variant: 'destructive',
-		})
+		toast.error('Failed to update Kappagen settings')
 	}
 })
-
-const themeVars = useThemeVars()
 
 const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 </script>
 
 <template>
 	<PageLayout clean-body>
-		<template #title>
-			Kappagen overlay
-		</template>
+		<template #title> Kappagen overlay </template>
 
 		<template #title-footer>
-			<p class="text-sm text-muted-foreground">
-				Flying emotes on your screen!
-			</p>
+			<p class="text-sm text-muted-foreground">Flying emotes on your screen!</p>
 		</template>
 
 		<template #action>
@@ -210,14 +198,11 @@ const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 
 		<template #content>
 			<div v-if="isLoading" class="flex items-center justify-center h-64">
-				<div class="text-muted-foreground">
-					Loading Kappagen settings...
-				</div>
+				<div class="text-muted-foreground">Loading Kappagen settings...</div>
 			</div>
 			<div v-else class="p-8">
 				<form
-					class="relative w-full rounded-lg h-[80dvh] border-2 border-border bg-background/60 shadow-lg"
-					:style="{ backgroundColor: themeVars.cardColor }"
+					class="relative w-full rounded-lg h-[80dvh] border-2 border-border bg-background/60 shadow-lg bg-card"
 					@submit.prevent="onSubmit"
 				>
 					<KappagenForm class="absolute top-2 left-4 h-full" />

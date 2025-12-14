@@ -2,8 +2,7 @@
 import { useClipboard } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import { useToast } from './ui/toast'
+import { toast } from 'vue-sonner'
 
 import { useVariablesApi } from '@/api/variables'
 import {
@@ -22,7 +21,6 @@ defineProps<{
 }>()
 
 const { t } = useI18n()
-const { toast } = useToast()
 const clipboard = useClipboard()
 
 const { builtInVariables } = useVariablesApi()
@@ -40,8 +38,7 @@ const selectVariables = computed(() => {
 
 function handleSelect(value: string) {
 	clipboard.copy(value)
-	toast({
-		title: 'Copied',
+	toast.success('Copied', {
 		duration: 2500,
 	})
 	open.value = false
@@ -53,18 +50,10 @@ function handleSelect(value: string) {
 		<PopoverTrigger>
 			<slot name="trigger" />
 		</PopoverTrigger>
-		<PopoverContent
-			class="p-0 z-[9999] max-w-[400px]"
-			:align="popoverAlign"
-			:side="popoverSide"
-		>
-			<Command
-				:reset-search-term-on-blur="false"
-			>
+		<PopoverContent class="p-0 z-9999 max-w-[400px]" :align="popoverAlign" :side="popoverSide">
+			<Command :reset-search-term-on-blur="false">
 				<CommandInput class="h-9" :placeholder="t('sharedTexts.searchPlaceholder')" />
-				<CommandEmpty>
-					Not found
-				</CommandEmpty>
+				<CommandEmpty> Not found </CommandEmpty>
 				<CommandList>
 					<CommandGroup>
 						<CommandItem
@@ -77,7 +66,13 @@ function handleSelect(value: string) {
 								<span>{{ option.label }}</span>
 								<span v-if="option.description" class="text-xs">{{ option.description }}</span>
 								<div v-if="option.links" class="flex flex-wrap gap-4">
-									<a v-for="link of option.links" :key="link.href" :href="link.href" target="_blank" class="text-xs underline">
+									<a
+										v-for="link of option.links"
+										:key="link.href"
+										:href="link.href"
+										target="_blank"
+										class="text-xs underline"
+									>
 										{{ link.name }}
 									</a>
 								</div>

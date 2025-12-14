@@ -97,10 +97,10 @@ onUnmounted(() => {
       class="absolute size-3.5 border-2 border-white rounded-full z-10 shadow-[0_0_6px_rgba(0,0,0,0.2)] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
     />
     <div
-      class="absolute inset-0 bg-gradient-to-r from-white to-transparent rounded-[inherit] pointer-events-none"
+      class="absolute inset-0 bg-linear-to-r from-white to-transparent rounded-[inherit] pointer-events-none"
     />
     <div
-      class="absolute inset-0 bg-gradient-to-t from-black to-transparent rounded-[inherit] pointer-events-none"
+      class="absolute inset-0 bg-linear-to-t from-black to-transparent rounded-[inherit] pointer-events-none"
     />
   </div>
 </template>

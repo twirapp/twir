@@ -44,7 +44,7 @@ async function saveSecret() {
 			<div class="space-y-8">
 				<!-- Step 1 -->
 				<div
-					class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-[1px] before:bg-border"
+					class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-px before:bg-border"
 				>
 					<div
 						class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium"
@@ -76,7 +76,7 @@ async function saveSecret() {
 
 				<!-- Step 2 -->
 				<div
-					class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-[1px] before:bg-border"
+					class="relative pl-8 before:absolute before:left-3 before:top-[5px] before:h-full before:w-px before:bg-border"
 				>
 					<div
 						class="absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full border bg-background text-sm font-medium"

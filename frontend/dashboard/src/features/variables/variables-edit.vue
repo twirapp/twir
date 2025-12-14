@@ -112,7 +112,7 @@ async function executeScript() {
 </script>
 
 <template>
-	<form :class="{ 'blur-sm': loading }" @submit="onSubmit">
+	<form :class="{ 'blur-xs': loading }" @submit="onSubmit">
 		<PageLayout stickyHeader show-back back-redirect-to="/dashboard/variables">
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>

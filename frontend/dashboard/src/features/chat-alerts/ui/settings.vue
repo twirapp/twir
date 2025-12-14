@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Plus, TrashIcon } from 'lucide-vue-next'
-import { NAlert, NCard, NDivider } from 'naive-ui'
+import { AlertCircleIcon, Plus, TrashIcon } from 'lucide-vue-next'
 import { type VNode, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -12,6 +11,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertTitle } from '@/components/ui/alert'
 
 const props = defineProps<{
 	formKey: FormKey
@@ -85,19 +86,20 @@ const { t } = useI18n()
 					>
 						{{ t('haveNoAccess.title') }}
 					</h2>
-					<p class="leading-7 [&:not(:first-child)]:mt-6">
+					<p class="leading-7 not-first:mt-6">
 						{{ t('haveNoAccess.description') }}
 					</p>
 				</div>
 			</div>
 
-			<NCard
+			<Card
 				:class="{ 'opacity-20': !hasAccessToManageAlerts }"
 				:title="title"
 				size="small"
 				bordered
 			>
-				<template #header-extra>
+				<CardHeader>
+					<CardTitle>{{ title }}</CardTitle>
 					<div class="flex items-center gap-4">
 						<Label for="enabled">{{ t('sharedTexts.enabled') }}</Label>
 						<Switch
@@ -106,8 +108,9 @@ const { t } = useI18n()
 							@update:checked="(v) => (formValue[formKey]!.enabled = v)"
 						/>
 					</div>
-				</template>
-				<div class="flex flex-col gap-4">
+				</CardHeader>
+
+				<CardContent class="flex flex-col gap-4">
 					<div class="grid items-center gap-1.5">
 						<Label for="cooldown">{{ t('chatAlerts.cooldown') }}</Label>
 						<Input
@@ -123,11 +126,15 @@ const { t } = useI18n()
 
 					<slot name="additionalSettings" />
 
-					<NDivider>
-						{{ t('sharedTexts.messages') }}
-					</NDivider>
+					{{ t('sharedTexts.messages') }}
+
 					<p class="leading-7" v-html="alertMessage" />
-					<NAlert v-if="!formValue[formKey]!.messages?.length" type="warning"> No messages </NAlert>
+
+					<Alert v-if="!formValue[formKey]!.messages?.length" variant="destructive">
+						<AlertCircleIcon />
+						<AlertTitle>No messages</AlertTitle>
+					</Alert>
+
 					<ul v-else class="flex flex-col gap-3.5 p-0 mx-0 my-3.5">
 						<li
 							v-for="(message, index) of formValue[formKey]!.messages"
@@ -175,15 +182,14 @@ const { t } = useI18n()
 						>
 						<span v-else>{{ t('sharedButtons.create') }}</span>
 					</Button>
-				</div>
-				<template #action>
-					<div class="flex justify-end">
-						<Button :disabled="!hasAccessToManageAlerts" variant="default" @click="save">
-							<span>{{ t('sharedButtons.save') }}</span>
-						</Button>
-					</div>
-				</template>
-			</NCard>
+				</CardContent>
+
+				<CardFooter class="flex justify-end">
+					<Button :disabled="!hasAccessToManageAlerts" variant="default" @click="save">
+						<span>{{ t('sharedButtons.save') }}</span>
+					</Button>
+				</CardFooter>
+			</Card>
 		</div>
 	</form>
 </template>

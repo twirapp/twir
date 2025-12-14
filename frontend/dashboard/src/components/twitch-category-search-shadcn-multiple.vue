@@ -80,7 +80,7 @@ function handleSelect(event: CustomEvent<{
 					v-model="categoriesSearch"
 					type="text"
 					placeholder="Search..."
-					class="text-sm min-h-6 focus:outline-none flex-1 bg-transparent px-1"
+					class="text-sm min-h-6 focus:outline-hidden flex-1 bg-transparent px-1"
 				/>
 			</TagsInput>
 		</PopoverTrigger>

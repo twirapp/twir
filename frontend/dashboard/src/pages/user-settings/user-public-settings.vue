@@ -8,7 +8,7 @@ import {
 	NCard,
 	NForm,
 	NFormItem,
-	NInput
+	NInput,
 } from 'naive-ui'
 import { computed, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -17,16 +17,18 @@ import type { UserPublicSettingsQuery } from '@/gql/graphql'
 import type { OmitDeep } from 'type-fest'
 
 import { useUserSettings } from '@/api'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 type Link = Omit<UserPublicSettingsQuery['userPublicSettings']['socialLinks'][number], '__typename'>
 
-type FormParams = OmitDeep<UserPublicSettingsQuery['userPublicSettings'], '__typename' | 'socialLinks'> & {
+type FormParams = OmitDeep<
+	UserPublicSettingsQuery['userPublicSettings'],
+	'__typename' | 'socialLinks'
+> & {
 	socialLinks: Array<Link & { isEditing?: boolean }>
 }
 
 const { t } = useI18n()
-const toast = useToast()
 const manager = useUserSettings()
 const { data } = manager.usePublicQuery()
 const updater = manager.usePublicMutation()
@@ -34,17 +36,21 @@ const updater = manager.usePublicMutation()
 const formRef = ref<FormInst | null>(null)
 const formData = ref<FormParams>({
 	socialLinks: [],
-	description: ''
+	description: '',
 })
 
-watch(data, (v) => {
-	if (!v) return
-	const rawData = toRaw(v).userPublicSettings
-	formData.value = {
-		...rawData,
-		socialLinks: rawData.socialLinks.map((link) => ({ ...link, isEditing: false }))
-	}
-}, { immediate: true })
+watch(
+	data,
+	(v) => {
+		if (!v) return
+		const rawData = toRaw(v).userPublicSettings
+		formData.value = {
+			...rawData,
+			socialLinks: rawData.socialLinks.map((link) => ({ ...link, isEditing: false })),
+		}
+	},
+	{ immediate: true }
+)
 
 async function save() {
 	await updater.executeMutation({
@@ -52,20 +58,19 @@ async function save() {
 			...formData.value,
 			socialLinks: formData.value.socialLinks.map((link) => ({
 				title: link.title,
-				href: link.href
-			}))
-		}
+				href: link.href,
+			})),
+		},
 	})
 
-	toast.toast({
-		title: t('sharedTexts.saved'),
-		duration: 1500
+	toast.success(t('sharedTexts.saved'), {
+		duration: 1500,
 	})
 }
 
 const rules: FormRules = {
 	title: {
-		trigger: ['input', 'blur'],
+		trigger: ['input', 'blur-sm'],
 		validator: (_: FormItemRule, value: string) => {
 			if (value.length === 0) {
 				return new Error(t('userSettings.public.errorEmpty'))
@@ -76,10 +81,10 @@ const rules: FormRules = {
 			}
 
 			return true
-		}
+		},
 	},
 	href: {
-		trigger: ['input', 'blur'],
+		trigger: ['input', 'blur-sm'],
 		validator: (_: FormItemRule, value: string) => {
 			if (value.length === 0) {
 				return new Error(t('userSettings.public.errorEmpty'))
@@ -90,15 +95,15 @@ const rules: FormRules = {
 			}
 
 			return true
-		}
-	}
+		},
+	},
 }
 
 const linksLimitReached = computed(() => formData.value.socialLinks.length >= 10)
 
 const newLinkForm = ref({
 	title: '',
-	href: ''
+	href: '',
 })
 
 async function addLink() {
@@ -106,7 +111,7 @@ async function addLink() {
 	formData.value.socialLinks.push(newLinkForm.value)
 	newLinkForm.value = {
 		title: '',
-		href: ''
+		href: '',
 	}
 }
 
@@ -148,14 +153,15 @@ function changeSort(from: number, to: number) {
 
 			<NCard size="small" bordered>
 				<div class="flex flex-col gap-1">
-					<NCard
-						v-for="(link, idx) of formData.socialLinks"
-						:key="idx"
-						size="small"
-						embedded
-					>
+					<NCard v-for="(link, idx) of formData.socialLinks" :key="idx" size="small" embedded>
 						<template #header>
-							<NInput v-if="link.isEditing" v-model:value="link.title" size="small" class="w-[30%]" :maxlength="30" />
+							<NInput
+								v-if="link.isEditing"
+								v-model:value="link.title"
+								size="small"
+								class="w-[30%]"
+								:maxlength="30"
+							/>
 							<template v-else>
 								{{ link.title }}
 							</template>
@@ -169,20 +175,13 @@ function changeSort(from: number, to: number) {
 								>
 									<ArrowDownIcon />
 								</NButton>
-								<NButton
-									text
-									:disabled="idx === 0"
-									@click="changeSort(idx, idx - 1)"
-								>
+								<NButton text :disabled="idx === 0" @click="changeSort(idx, idx - 1)">
 									<ArrowUpIcon />
 								</NButton>
 								<NButton text @click="link.isEditing = !link.isEditing">
 									<EditIcon />
 								</NButton>
-								<NButton
-									text
-									@click="removeLink(idx)"
-								>
+								<NButton text @click="removeLink(idx)">
 									<TrashIcon />
 								</NButton>
 							</div>
@@ -201,18 +200,33 @@ function changeSort(from: number, to: number) {
 						</template>
 					</NCard>
 				</div>
-				<NForm ref="formRef" :rules="rules" :model="newLinkForm" class="flex flex-wrap gap-2 items-center w-full mt-5">
-					<NFormItem style="--n-label-height: 0px;" :label="t('userSettings.public.linkTitle')" class="flex-auto" path="title">
+				<NForm
+					ref="formRef"
+					:rules="rules"
+					:model="newLinkForm"
+					class="flex flex-wrap gap-2 items-center w-full mt-5"
+				>
+					<NFormItem
+						style="--n-label-height: 0px"
+						:label="t('userSettings.public.linkTitle')"
+						class="flex-auto"
+						path="title"
+					>
 						<NInput
 							v-model:value="newLinkForm.title"
 							name="title"
 							:maxlength="30"
 							placeholder="Twir"
-							:disabled=" linksLimitReached"
+							:disabled="linksLimitReached"
 							:input-props="{ name: 'title' }"
 						/>
 					</NFormItem>
-					<NFormItem style="--n-label-height: 0px;" :label="t('userSettings.public.linkLabel')" class="flex-auto" path="href">
+					<NFormItem
+						style="--n-label-height: 0px"
+						:label="t('userSettings.public.linkLabel')"
+						class="flex-auto"
+						path="href"
+					>
 						<NInput
 							v-model:value="newLinkForm.href"
 							:input-props="{ name: 'href', type: 'url', pattern: 'https?://.+' }"

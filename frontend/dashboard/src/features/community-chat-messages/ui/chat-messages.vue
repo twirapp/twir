@@ -116,7 +116,7 @@ const measureElement = (el: any) => {
 			<MoveDown v-if="messages.length !== 0" class="absolute top-4 right-4 opacity-40" />
 			<div
 				ref="boxRef"
-				class="overflow-y-auto h-full flex-1 [contain:strict] [overflow-anchor:none]"
+				class="overflow-y-auto h-full flex-1 contain-strict [overflow-anchor:none]"
 			>
 				<div v-if="messages.length === 0">No data</div>
 				<div

@@ -8,7 +8,7 @@ import type { TypeOf } from 'zod'
 
 import { type Command, useCommandsApi } from '@/api/commands/commands'
 import { useRoles } from '@/api/roles'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 import { CommandExpiresType } from '@/gql/graphql'
 
 export const formSchema = object({
@@ -16,17 +16,11 @@ export const formSchema = object({
 	name: string()
 		.min(1)
 		.max(50)
-		.refine(
-			(val) => !val.startsWith('!'),
-			{ message: 'Command name cannot start with "!"' },
-		),
+		.refine((val) => !val.startsWith('!'), { message: 'Command name cannot start with "!"' }),
 	aliases: array(
 		string()
 			.max(50)
-			.refine(
-				(val) => !val.startsWith('!'),
-				{ message: 'Alias cannot start with "!"' },
-			),
+			.refine((val) => !val.startsWith('!'), { message: 'Alias cannot start with "!"' })
 	).max(50),
 	enabled: boolean(),
 	responses: array(
@@ -35,8 +29,10 @@ export const formSchema = object({
 			twitchCategoriesIds: array(string()).max(100),
 			onlineOnly: boolean(),
 			offlineOnly: boolean(),
-		}),
-	).max(3).default([]),
+		})
+	)
+		.max(3)
+		.default([]),
 	description: string().max(500),
 	rolesIds: array(string()).max(100),
 	deniedUsersIds: array(string()).max(100),
@@ -55,29 +51,32 @@ export const formSchema = object({
 	groupId: string().nullable().optional().default(null),
 	enabledCategories: array(string()).max(100),
 	module: string().optional(),
-})
-	.and(object({
+}).and(
+	object({
 		expiresAt: number().nullable().optional(),
 		expiresType: nativeEnum(CommandExpiresType).nullable().optional(),
-	}).refine((data) => {
-		if (data.expiresAt && !data.expiresType) {
-			return false
-		}
+	}).refine(
+		(data) => {
+			if (data.expiresAt && !data.expiresType) {
+				return false
+			}
 
-		if (!data.expiresAt && data.expiresType) {
-			return false
-		}
+			if (!data.expiresAt && data.expiresType) {
+				return false
+			}
 
-		return true
-	}, {
-		message: 'ExpiresAt and ExpiresType must be both set or both not set',
-		path: ['expiresAt', 'expiresType'],
-	}))
+			return true
+		},
+		{
+			message: 'ExpiresAt and ExpiresType must be both set or both not set',
+			path: ['expiresAt', 'expiresType'],
+		}
+	)
+)
 
 export type FormSchema = TypeOf<typeof formSchema>
 
 export const useCommandEditV2 = createGlobalState(() => {
-	const { toast } = useToast()
 	const { t } = useI18n()
 	const router = useRouter()
 
@@ -116,7 +115,7 @@ export const useCommandEditV2 = createGlobalState(() => {
 				id: data.id,
 				opts: {
 					...data,
-					// eslint-disable-next-line ts/ban-ts-comment
+					//
 					// @ts-expect-error
 					id: undefined,
 					module: undefined,
@@ -128,10 +127,8 @@ export const useCommandEditV2 = createGlobalState(() => {
 			})
 
 			if (result.error) {
-				toast({
-					title: result.error.graphQLErrors?.map(e => e.message).join(', ') ?? 'error',
+				toast.error(result.error.graphQLErrors?.map((e) => e.message).join(', ') ?? 'error', {
 					duration: 5000,
-					variant: 'destructive',
 				})
 				return
 			}
@@ -144,10 +141,8 @@ export const useCommandEditV2 = createGlobalState(() => {
 			})
 		}
 
-		toast({
-			title: t('sharedTexts.saved'),
+		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
-			variant: 'success',
 		})
 	}
 

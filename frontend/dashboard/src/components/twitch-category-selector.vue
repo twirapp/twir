@@ -100,7 +100,7 @@ function selectCategory(category: typeof searchResults.value[0] | null) {
 						v-model="searchQuery"
 						type="text"
 						placeholder="Search categories..."
-						class="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+						class="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
 					>
 				</div>
 				<CommandList>
@@ -121,7 +121,7 @@ function selectCategory(category: typeof searchResults.value[0] | null) {
 								<img
 									:src="category.boxArtUrl.replace('{width}', '52').replace('{height}', '72')"
 									:alt="category.name"
-									class="h-14 w-10 object-cover rounded flex-shrink-0"
+									class="h-14 w-10 object-cover rounded shrink-0"
 								>
 								<span class="flex-1 truncate">{{ category.name }}</span>
 								<Check

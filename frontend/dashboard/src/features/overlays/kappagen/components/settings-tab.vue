@@ -146,10 +146,10 @@ function getEmojiPreview(style: KappagenEmojiStyle) {
 						:name="`emotes.${service.key}Enabled`"
 					>
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
-							<FormControl class="flex items-center !m-0">
+							<FormControl class="flex items-center m-0!">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0">
+							<FormLabel class="select-none cursor-pointer m-0!">
 								{{ service.label }}
 							</FormLabel>
 						</FormItem>
@@ -267,19 +267,19 @@ function getEmojiPreview(style: KappagenEmojiStyle) {
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
 					<FormField v-slot="{ value, handleChange }" name="animation.fadeIn">
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
-							<FormControl class="flex items-center !m-0">
+							<FormControl class="flex items-center m-0!">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0"> Fade </FormLabel>
+							<FormLabel class="select-none cursor-pointer m-0!"> Fade </FormLabel>
 						</FormItem>
 					</FormField>
 
 					<FormField v-slot="{ value, handleChange }" name="animation.zoomIn">
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
-							<FormControl class="flex items-center !m-0">
+							<FormControl class="flex items-center m-0!">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0"> Zoom </FormLabel>
+							<FormLabel class="select-none cursor-pointer m-0!"> Zoom </FormLabel>
 						</FormItem>
 					</FormField>
 				</div>
@@ -291,19 +291,19 @@ function getEmojiPreview(style: KappagenEmojiStyle) {
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
 					<FormField v-slot="{ value, handleChange }" name="animation.fadeOut">
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
-							<FormControl class="flex items-center !m-0">
+							<FormControl class="flex items-center m-0!">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0"> Fade </FormLabel>
+							<FormLabel class="select-none cursor-pointer m-0!"> Fade </FormLabel>
 						</FormItem>
 					</FormField>
 
 					<FormField v-slot="{ value, handleChange }" name="animation.zoomOut">
 						<FormItem class="flex gap-2 items-center rounded-md bg-stone-700/40 p-2">
-							<FormControl class="flex items-center !m-0">
+							<FormControl class="flex items-center m-0!">
 								<Checkbox :checked="value" @update:checked="handleChange" />
 							</FormControl>
-							<FormLabel class="select-none cursor-pointer !m-0"> Zoom </FormLabel>
+							<FormLabel class="select-none cursor-pointer m-0!"> Zoom </FormLabel>
 						</FormItem>
 					</FormField>
 				</div>

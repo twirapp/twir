@@ -6,16 +6,13 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { webUpdateNotice } from '@plugin-web-update-notification/vite'
 import svgSprite from '@twirapp/vite-plugin-svg-spritemap'
 import vue from '@vitejs/plugin-vue'
-import autoprefixer from 'autoprefixer'
-import tailwind from 'tailwindcss'
 import { type PluginOption, defineConfig, loadEnv } from 'vite'
 import { watch } from 'vite-plugin-watch'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, path.resolve(process.cwd(), '..', '..'), '')
-
-	console.log(mode)
 
 	const plugins: PluginOption[] = [
 		// @ts-ignore
@@ -37,6 +34,7 @@ export default defineConfig(({ mode }) => {
 			escapeHtml: false,
 			runtimeOnly: true,
 		}),
+		tailwindcss(),
 	]
 
 	if (mode === 'development') {
@@ -50,11 +48,6 @@ export default defineConfig(({ mode }) => {
 	}
 
 	return {
-		css: {
-			postcss: {
-				plugins: [tailwind(), autoprefixer()],
-			},
-		},
 		plugins,
 		base: '/dashboard',
 		resolve: {

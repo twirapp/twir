@@ -6,21 +6,24 @@ import type { FunctionalComponent } from 'vue'
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card'
 
-withDefaults(defineProps<{
-	title: string
-	description?: string
-	icon?: FunctionalComponent
-	iconStroke?: number
-	withStroke?: boolean
-	iconFill?: string
-	iconWidth?: string
-	iconHeight?: string
-	isLoading?: boolean
-}>(), {
-	withStroke: true,
-	iconWidth: '48px',
-	iconHeight: '48px',
-})
+withDefaults(
+	defineProps<{
+		title: string
+		description?: string
+		icon?: FunctionalComponent
+		iconStroke?: number
+		withStroke?: boolean
+		iconFill?: string
+		iconWidth?: string
+		iconHeight?: string
+		isLoading?: boolean
+	}>(),
+	{
+		withStroke: true,
+		iconWidth: '48px',
+		iconHeight: '48px',
+	}
+)
 
 defineEmits<{
 	openSettings: []
@@ -76,6 +79,8 @@ const titleColor = computed(() => themeVars.value.textColor1)
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
+
 :deep(button span) {
 	@apply text-sm;
 }

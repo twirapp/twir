@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import 'vue-sonner/style.css'
 import {
 	NConfigProvider,
 	NDialogProvider,
@@ -14,8 +15,7 @@ import SidebarFloatingButton from './sidebar/sidebar-floating-button.vue'
 
 import type { RouteLocationNormalized } from 'vue-router'
 
-import { Toaster as Sonner } from '@/components/ui/sonner'
-import { Toaster } from '@/components/ui/toast'
+import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useTheme } from '@/composables/use-theme.js'
 import Sidebar from '@/layout/sidebar/sidebar.vue'
@@ -64,7 +64,7 @@ function getTransition(route: RouteLocationNormalized) {
 											padding: route.meta?.noPadding ? undefined : '24px',
 											height: '100%',
 										}"
-										class="dark:bg-[#101014]"
+										class="bg-background"
 									>
 										<component :is="Component" />
 									</div>
@@ -72,7 +72,6 @@ function getTransition(route: RouteLocationNormalized) {
 							</RouterView>
 
 							<Toaster />
-							<Sonner />
 						</Sidebar>
 					</NDialogProvider>
 				</NMessageProvider>

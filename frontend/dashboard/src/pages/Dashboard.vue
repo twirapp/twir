@@ -78,8 +78,8 @@ onBeforeUnmount(() => {
 
 		<div
 			v-if="dropdownOptions.length"
-			class="fixed right-[2rem] bottom-[2rem] z-50"
-			:class="[{ '!right-[6rem]': isMobile }]"
+			class="fixed right-8 bottom-8 z-50"
+			:class="[{ 'right-24!': isMobile }]"
 		>
 			<NDropdown size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
 				<Button variant="secondary" class="h-14 w-14" size="icon">
@@ -91,6 +91,8 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
+
 .vgl-layout {
 	@apply w-full;
 }

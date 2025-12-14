@@ -3,7 +3,12 @@ import formatJson from '@crashmax/json-format-highlight'
 
 import type { AdminAuditLogsQuery } from '@/gql/graphql'
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 defineProps<{
@@ -46,6 +51,8 @@ function computeDisplayedText(text?: string | null) {
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
+
 .code {
 	@apply p-2 bg-[#1e1e1e] select-text max-h-[200px];
 }

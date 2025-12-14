@@ -67,7 +67,7 @@ watch(dialogOpened, (v) => {
 							</a>
 						</TableCell>
 						<TableCell>
-							<span class="break-words">
+							<span class="wrap-break-word">
 								{{ message.text }}
 							</span>
 						</TableCell>

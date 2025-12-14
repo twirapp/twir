@@ -1,14 +1,11 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { onMounted , toRaw } from 'vue'
+import { onMounted, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
-import type {
-	ChannelRolesQuery,
-	RolesCreateOrUpdateOpts,
-} from '@/gql/graphql'
+import type { ChannelRolesQuery, RolesCreateOrUpdateOpts } from '@/gql/graphql'
 
 import { PERMISSIONS_FLAGS } from '@/api/index.js'
 import { useRoles } from '@/api/roles'
@@ -18,10 +15,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { useToast } from '@/components/ui/toast'
-import {
-	ChannelRolePermissionEnum,
-} from '@/gql/graphql'
+import { toast } from 'vue-sonner'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = defineProps<{
 	role?: ChannelRolesQuery['roles'][number] | null
@@ -32,18 +27,19 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { toast } = useToast()
-
-const formSchema = toTypedSchema(z.object({
-	name: z.string().min(1, t('roles.validations.nameRequired')).max(50),
-	permissions: z.array(z.nativeEnum(ChannelRolePermissionEnum)),
-	users: z.array(z.string()),
-	settings: z.object({
-		requiredMessages: z.number().min(0).max(99999999),
-		requiredUserChannelPoints: z.number().min(0).max(999999999999),
-		requiredWatchTime: z.number().min(0).max(99999999),
-	}),
-}))
+z
+const formSchema = toTypedSchema(
+	z.object({
+		name: z.string().min(1, t('roles.validations.nameRequired')).max(50),
+		permissions: z.array(z.nativeEnum(ChannelRolePermissionEnum)),
+		users: z.array(z.string()),
+		settings: z.object({
+			requiredMessages: z.number().min(0).max(99999999),
+			requiredUserChannelPoints: z.number().min(0).max(999999999999),
+			requiredWatchTime: z.number().min(0).max(99999999),
+		}),
+	})
+)
 
 const initialValues = {
 	name: '',
@@ -70,7 +66,7 @@ onMounted(() => {
 		name: raw.name,
 		permissions: raw.permissions,
 		settings: raw.settings,
-		users: props.role.users.map(u => u.id),
+		users: props.role.users.map((u) => u.id),
 	})
 })
 
@@ -90,8 +86,7 @@ const onSubmit = handleSubmit(async (formData) => {
 		})
 	}
 
-	toast({
-		title: t('sharedTexts.saved'),
+	toast.success(t('sharedTexts.saved'), {
 		duration: 1500,
 	})
 
@@ -120,7 +115,10 @@ const onSubmit = handleSubmit(async (formData) => {
 				</h4>
 				<FormField v-slot="{ componentField }" name="users">
 					<FormItem>
-						<UsersMultiSearch :model-value="componentField.modelValue" @update:model-value="componentField['onUpdate:modelValue']" />
+						<UsersMultiSearch
+							:model-value="componentField.modelValue"
+							@update:model-value="componentField['onUpdate:modelValue']"
+						/>
 						<FormMessage />
 					</FormItem>
 				</FormField>
@@ -137,12 +135,7 @@ const onSubmit = handleSubmit(async (formData) => {
 						<FormItem>
 							<FormLabel>{{ t('roles.modal.requiredWatchTime') }}</FormLabel>
 							<FormControl>
-								<Input
-									type="number"
-									v-bind="componentField"
-									min="0"
-									max="99999999"
-								/>
+								<Input type="number" v-bind="componentField" min="0" max="99999999" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -152,12 +145,7 @@ const onSubmit = handleSubmit(async (formData) => {
 						<FormItem>
 							<FormLabel>{{ t('roles.modal.requiredMessages') }}</FormLabel>
 							<FormControl>
-								<Input
-									type="number"
-									v-bind="componentField"
-									min="0"
-									max="99999999"
-								/>
+								<Input type="number" v-bind="componentField" min="0" max="99999999" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -167,12 +155,7 @@ const onSubmit = handleSubmit(async (formData) => {
 						<FormItem>
 							<FormLabel>{{ t('roles.modal.requiredChannelPoints') }}</FormLabel>
 							<FormControl>
-								<Input
-									type="number"
-									v-bind="componentField"
-									min="0"
-									max="999999999999"
-								/>
+								<Input type="number" v-bind="componentField" min="0" max="999999999999" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -194,16 +177,25 @@ const onSubmit = handleSubmit(async (formData) => {
 								<FormControl>
 									<Checkbox
 										:checked="value?.includes(permission.perm)"
-										:disabled="value?.some((p: ChannelRolePermissionEnum) => p === ChannelRolePermissionEnum.CanAccessDashboard)
-											&& permission.perm !== ChannelRolePermissionEnum.CanAccessDashboard"
-										@update:checked="(checked) => {
-											if (checked) {
-												handleChange([...(value || []), permission.perm])
+										:disabled="
+											value?.some(
+												(p: ChannelRolePermissionEnum) =>
+													p === ChannelRolePermissionEnum.CanAccessDashboard
+											) && permission.perm !== ChannelRolePermissionEnum.CanAccessDashboard
+										"
+										@update:checked="
+											(checked) => {
+												if (checked) {
+													handleChange([...(value || []), permission.perm])
+												} else {
+													handleChange(
+														value?.filter(
+															(p: ChannelRolePermissionEnum) => p !== permission.perm
+														) || []
+													)
+												}
 											}
-											else {
-												handleChange(value?.filter((p: ChannelRolePermissionEnum) => p !== permission.perm) || [])
-											}
-										}"
+										"
 									/>
 								</FormControl>
 								<FormLabel class="font-normal">
@@ -219,5 +211,5 @@ const onSubmit = handleSubmit(async (formData) => {
 				{{ t('sharedButtons.save') }}
 			</Button>
 		</div>
-	</Form>
+	</form>
 </template>

@@ -6,7 +6,7 @@ import type { ChatAlerts } from '@/gql/graphql'
 import type { KeysOfUnion, RequiredDeep, SetNonNullable } from 'type-fest'
 
 import { useChatAlertsApi } from '@/api/chat-alerts.js'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 export type FormKey = Exclude<KeysOfUnion<RequiredDeep<SetNonNullable<ChatAlerts>>>, '__typename'>
 
@@ -14,18 +14,17 @@ type OmitDeep<T, K extends string> = T extends object
 	? T extends Array<infer U>
 		? OmitDeep<U, K>[]
 		: {
-			[P in keyof T as P extends K ? never : P]: OmitDeep<T[P], K>
-		}
+				[P in keyof T as P extends K ? never : P]: OmitDeep<T[P], K>
+			}
 	: T
 
 type NonNullableFields<T> = {
-	[P in keyof T]-?: NonNullable<T[P]>;
+	[P in keyof T]-?: NonNullable<T[P]>
 }
 
 type Form = OmitDeep<NonNullableFields<ChatAlerts>, '__typename'>
 
 export const useForm = createGlobalState(() => {
-	const { toast } = useToast()
 	const { t } = useI18n()
 	const formRef = ref<HTMLFormElement>()
 
@@ -114,30 +113,31 @@ export const useForm = createGlobalState(() => {
 
 		try {
 			await updateChatAlerts.executeMutation({ input })
-			toast({
-				title: t('sharedTexts.saved'),
+			toast.success(t('sharedTexts.saved'), {
 				duration: 2500,
 			})
 		} catch (error) {
-			toast({
-				title: t('sharedTexts.errorOnSave'),
-				variant: 'destructive',
+			toast.error(t('sharedTexts.errorOnSave'), {
 				duration: 2500,
 			})
 		}
 	}
 
-	watch(data, (v) => {
-		if (!v?.chatAlerts) return
-		for (const key of Object.keys(formValue.value)) {
-			// eslint-disable-next-line ts/ban-ts-comment
-			// @ts-expect-error
-			if (!v.chatAlerts[key]) continue
-			// eslint-disable-next-line ts/ban-ts-comment
-			// @ts-expect-error
-			formValue.value[key] = v.chatAlerts[key]
-		}
-	}, { immediate: true })
+	watch(
+		data,
+		(v) => {
+			if (!v?.chatAlerts) return
+			for (const key of Object.keys(formValue.value)) {
+				//
+				// @ts-expect-error
+				if (!v.chatAlerts[key]) continue
+				//
+				// @ts-expect-error
+				formValue.value[key] = v.chatAlerts[key]
+			}
+		},
+		{ immediate: true }
+	)
 
 	return {
 		formValue,

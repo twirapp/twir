@@ -30,9 +30,11 @@ type Duel = Omit<GamesQuery['gamesDuel'], '__typename'>
 
 const initialSettings: Duel = {
 	enabled: false,
-	startMessage: '@{target}, @{initiator} challenges you to a fight. Use {duelAcceptCommandName} for next {acceptSeconds} seconds to accept the challenge.',
+	startMessage:
+		'@{target}, @{initiator} challenges you to a fight. Use {duelAcceptCommandName} for next {acceptSeconds} seconds to accept the challenge.',
 	resultMessage: `Sadly, @{loser} couldn't find a way to dodge the bullet and falls apart into eternal slumber.`,
-	bothDieMessage: 'Unexpectedly @{initiator} and @{target} shoot each other. Only the time knows why this happened...',
+	bothDieMessage:
+		'Unexpectedly @{initiator} and @{target} shoot each other. Only the time knows why this happened...',
 	userCooldown: 0,
 	globalCooldown: 0,
 	secondsToAccept: 60,
@@ -44,11 +46,15 @@ const initialSettings: Duel = {
 
 const formValue = ref<Duel>({ ...initialSettings })
 
-watch(settings, (v) => {
-	if (!v) return
+watch(
+	settings,
+	(v) => {
+		if (!v) return
 
-	formValue.value = toRaw(v.gamesDuel)
-}, { immediate: true })
+		formValue.value = toRaw(v.gamesDuel)
+	},
+	{ immediate: true }
+)
 
 const isModalOpened = ref(false)
 
@@ -100,17 +106,15 @@ function resetSettings() {
 		:title="t('games.duel.title')"
 		content-style="padding: 10px; width: 100%"
 		:style="{
-			'width': '40vw',
-			'maxWidth': 'calc(100vw - 40px)',
+			width: '40vw',
+			maxWidth: 'calc(100vw - 40px)',
 			'--card-background': themeVars.actionColor,
 			'--title-border': `1px solid ${themeVars.borderColor}`,
 		}"
 	>
 		<div class="flex flex-col gap-2">
 			<NFormItem label="Enabled" label-placement="left" :show-feedback="false">
-				<NSwitch
-					v-model:value="formValue.enabled"
-				/>
+				<NSwitch v-model:value="formValue.enabled" />
 			</NFormItem>
 
 			<div class="card">
@@ -133,7 +137,8 @@ function resetSettings() {
 					</div>
 					<div class="form-item">
 						<NFormItem
-							:label="t('games.duel.cooldown.user')" :show-feedback="false"
+							:label="t('games.duel.cooldown.user')"
+							:show-feedback="false"
 							style="width: 45%"
 						>
 							<NInputNumber
@@ -144,7 +149,8 @@ function resetSettings() {
 						</NFormItem>
 
 						<NFormItem
-							:label="t('games.duel.cooldown.global')" :show-feedback="false"
+							:label="t('games.duel.cooldown.global')"
+							:show-feedback="false"
 							style="width: 45%"
 						>
 							<NInputNumber
@@ -210,34 +216,19 @@ function resetSettings() {
 
 					<div class="form-item">
 						<NFormItem :label="t('games.duel.settings.secondsToAccept')" :show-feedback="false">
-							<NInputNumber
-								v-model:value="formValue.secondsToAccept"
-								:max="600"
-							/>
+							<NInputNumber v-model:value="formValue.secondsToAccept" :max="600" />
 						</NFormItem>
 						<NFormItem :label="t('games.duel.settings.timeoutTime')" :show-feedback="false">
-							<NInputNumber
-								v-model:value="formValue.timeoutSeconds"
-								:max="84000"
-							/>
+							<NInputNumber v-model:value="formValue.timeoutSeconds" :max="84000" />
 						</NFormItem>
 						<NFormItem :label="t('games.duel.settings.bothDiePercent')" :show-feedback="false">
-							<NInputNumber
-								v-model:value="formValue.bothDiePercent"
-								:max="100"
-							/>
+							<NInputNumber v-model:value="formValue.bothDiePercent" :max="100" />
 						</NFormItem>
 						<NFormItem :label="t('games.duel.settings.pointsPerWin')" :show-feedback="false">
-							<NInputNumber
-								v-model:value="formValue.pointsPerWin"
-								:max="99999999"
-							/>
+							<NInputNumber v-model:value="formValue.pointsPerWin" :max="99999999" />
 						</NFormItem>
 						<NFormItem :label="t('games.duel.settings.pointsPerLose')" :show-feedback="false">
-							<NInputNumber
-								v-model:value="formValue.pointsPerLose"
-								:max="99999999"
-							/>
+							<NInputNumber v-model:value="formValue.pointsPerLose" :max="99999999" />
 						</NFormItem>
 					</div>
 				</div>
@@ -247,21 +238,11 @@ function resetSettings() {
 		<NDivider />
 
 		<NSpace vertical>
-			<NButton
-				block
-				secondary
-				type="warning"
-				@click="resetSettings"
-			>
+			<NButton block secondary type="warning" @click="resetSettings">
 				{{ t('sharedButtons.setDefaultSettings') }}
 			</NButton>
 
-			<NButton
-				secondary
-				block
-				type="success"
-				@click="save"
-			>
+			<NButton secondary block type="success" @click="save">
 				{{ t('sharedButtons.save') }}
 			</NButton>
 		</NSpace>
@@ -269,6 +250,8 @@ function resetSettings() {
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
+
 .card {
 	@apply flex flex-col gap-2 h-full rounded bg-[color:var(--card-background)];
 }

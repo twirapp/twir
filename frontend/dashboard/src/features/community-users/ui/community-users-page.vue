@@ -9,7 +9,7 @@ import CommunityUsersResetButton
 <template>
 	<div class="flex flex-col w-full gap-4">
 		<div class="flex flex-wrap gap-4 w-full">
-			<CommunityUsersTableSearch class="flex-grow" />
+			<CommunityUsersTableSearch class="grow" />
 			<CommunityUsersResetButton />
 		</div>
 		<slot name="pagination" />

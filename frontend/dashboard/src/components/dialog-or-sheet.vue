@@ -19,7 +19,7 @@ function onInteractOutside(event: any) {
 <template>
 	<DialogContent
 		v-if="windowWidth > 800"
-		class="max-w-3xl max-h-[90dvh] overflow-auto rounded-2xl outline-none"
+		class="max-w-3xl max-h-[90dvh] overflow-auto rounded-2xl outline-hidden"
 		v-bind="$attrs"
 		@interact-outside="onInteractOutside"
 	>

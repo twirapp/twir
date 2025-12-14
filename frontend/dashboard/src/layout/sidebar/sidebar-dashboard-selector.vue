@@ -65,7 +65,7 @@ function filterFunction(_items: any, searchTerm: string): string[] {
 }
 
 const popoverProps = computed((): PopoverContentProps & { class?: string } => {
-	if (sidebarOpen.value) return { class: 'w-[--radix-popper-anchor-width]' }
+	if (sidebarOpen.value) return { class: 'w-(--radix-popper-anchor-width)' }
 	return {
 		class: 'w-[300px]',
 		alignOffset: -4,
@@ -112,7 +112,7 @@ const { list: virtualizedList, containerProps, wrapperProps } = useVirtualList(o
 						<CommandEmpty>
 							No user found
 						</CommandEmpty>
-						<CommandList class="!max-h-full">
+						<CommandList class="max-h-full!">
 							<CommandGroup :heading="t(`dashboard.header.channelsAccess`)">
 								<div v-bind="containerProps" class="max-h-72">
 									<div v-bind="wrapperProps">

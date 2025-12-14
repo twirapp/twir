@@ -331,6 +331,8 @@ const rankSrc = computed(() => {
 </template>
 
 <style scoped>
+@reference "tailwindcss";
+
 .minimal-style {
 	--text-color: v-bind(settings.textColor);
 	--primary-text-color: v-bind(settings.primaryTextColor);

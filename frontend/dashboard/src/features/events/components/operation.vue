@@ -140,7 +140,7 @@ function onRemoveFilter(filterIndex: number) {
 					:name="`operations.${operationIndex}.useAnnounce`"
 				>
 					<FormItem
-						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
+						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs"
 					>
 						<div class="space-y-0.5">
 							<FormLabel>Use announce</FormLabel>
@@ -202,7 +202,7 @@ function onRemoveFilter(filterIndex: number) {
 					<FormItem>
 						<FormLabel>{{ t('events.operations.banMessage') }}</FormLabel>
 						<FormControl>
-							<VariableInput v-bind="componentField" input-type="textarea" />
+							<VariableInput v-bind="componentField" input-type="textarea" class="relative" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -289,7 +289,7 @@ function onRemoveFilter(filterIndex: number) {
 
 			<FormField v-slot="{ value, handleChange }" :name="`operations.${operationIndex}.enabled`">
 				<FormItem
-					class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"
+					class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs"
 				>
 					<div class="space-y-0.5">
 						<FormLabel>{{ t('sharedTexts.enabled') }}?</FormLabel>
@@ -336,7 +336,7 @@ function onRemoveFilter(filterIndex: number) {
 
 		<div
 			v-else
-			class="flex flex-col flex-grow items-center justify-center border-2 rounded-md p-4 border-dashed"
+			class="flex flex-col grow items-center justify-center border-2 rounded-md p-4 border-dashed"
 		>
 			Create operation.
 		</div>

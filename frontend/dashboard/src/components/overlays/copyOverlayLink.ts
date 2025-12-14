@@ -2,12 +2,11 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '@/api/auth.js'
-import { useToast } from '@/components/ui/toast'
+import { toast } from 'vue-sonner'
 
 export function useCopyOverlayLink(overlayPath: string) {
 	const { data: profile } = useProfile()
 	const { t } = useI18n()
-	const { toast } = useToast()
 
 	const selectedDashboardUser = computed(() => {
 		return profile.value?.availableDashboards.find(
@@ -25,10 +24,8 @@ export function useCopyOverlayLink(overlayPath: string) {
 
 	const copyOverlayLink = (query?: Record<string, string>) => {
 		if (!overlayLink.value) {
-			toast({
-				title: 'Something went wrong at copying the overlay link',
+			toast.error('Something went wrong at copying the overlay link', {
 				duration: 2500,
-				variant: 'destructive',
 			})
 			return
 		}
@@ -42,8 +39,7 @@ export function useCopyOverlayLink(overlayPath: string) {
 
 		navigator.clipboard.writeText(url.toString())
 
-		toast({
-			title: t('overlays.copied'),
+		toast.success(t('overlays.copied'), {
 			duration: 5000,
 		})
 	}

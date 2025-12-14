@@ -30,17 +30,11 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { toast } from 'vue-sonner'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const formSchema = toTypedSchema(
@@ -50,12 +44,11 @@ const formSchema = toTypedSchema(
 		messageModerators: z.string().max(500),
 		timeoutModerators: z.boolean(),
 		timeoutSeconds: z.number().min(1).max(86400),
-	}),
+	})
 )
 
 const isModalOpened = ref(false)
 const { t } = useI18n()
-const { toast } = useToast()
 
 const gamesManager = useGamesApi()
 const { data } = gamesManager.useGamesQuery()
@@ -63,7 +56,8 @@ const updater = gamesManager.useSeppukuMutation()
 
 const initialValues = {
 	enabled: false,
-	message: '{sender} said: my honor tarnished, I reclaim it through death. May my spirit find peace. Farewell.',
+	message:
+		'{sender} said: my honor tarnished, I reclaim it through death. May my spirit find peace. Farewell.',
 	messageModerators: '{sender} drew his sword and ripped open his belly for the sad emperor.',
 	timeoutModerators: false,
 	timeoutSeconds: 60,
@@ -76,17 +70,21 @@ const seppukuForm = useForm<SeppukuGame>({
 	keepValuesOnUnmount: true,
 })
 
-watch(data, (v) => {
-	if (!v) return
-	const raw = toRaw(v)
-	seppukuForm.setValues({
-		enabled: raw.gamesSeppuku.enabled,
-		message: raw.gamesSeppuku.message,
-		messageModerators: raw.gamesSeppuku.messageModerators,
-		timeoutModerators: raw.gamesSeppuku.timeoutModerators,
-		timeoutSeconds: raw.gamesSeppuku.timeoutSeconds,
-	})
-}, { immediate: true })
+watch(
+	data,
+	(v) => {
+		if (!v) return
+		const raw = toRaw(v)
+		seppukuForm.setValues({
+			enabled: raw.gamesSeppuku.enabled,
+			message: raw.gamesSeppuku.message,
+			messageModerators: raw.gamesSeppuku.messageModerators,
+			timeoutModerators: raw.gamesSeppuku.timeoutModerators,
+			timeoutSeconds: raw.gamesSeppuku.timeoutSeconds,
+		})
+	},
+	{ immediate: true }
+)
 
 onMounted(() => {
 	if (!data.value) return
@@ -97,9 +95,7 @@ const save = seppukuForm.handleSubmit(async () => {
 	await updater.executeMutation({
 		opts: seppukuForm.values,
 	})
-	toast({
-		title: t('sharedTexts.saved'),
-	})
+	toast.success(t('sharedTexts.saved'))
 	isModalOpened.value = false
 })
 
@@ -133,10 +129,7 @@ function resetSettings() {
 									{{ t('sharedTexts.enabled') }}
 								</FormLabel>
 								<FormControl>
-									<Switch
-										:checked="value"
-										@update:checked="handleChange"
-									/>
+									<Switch :checked="value" @update:checked="handleChange" />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -151,10 +144,7 @@ function resetSettings() {
 						<FormItem>
 							<FormLabel>{{ t('games.seppuku.message') }}</FormLabel>
 							<FormControl>
-								<Input
-									v-bind="componentField"
-									:maxlength="500"
-								/>
+								<Input v-bind="componentField" :maxlength="500" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -164,12 +154,7 @@ function resetSettings() {
 						<FormItem>
 							<FormLabel>{{ t('games.seppuku.timeoutSeconds') }}</FormLabel>
 							<FormControl>
-								<Input
-									v-bind="componentField"
-									type="number"
-									:min="1"
-									:max="86400"
-								/>
+								<Input v-bind="componentField" type="number" :min="1" :max="86400" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -179,10 +164,7 @@ function resetSettings() {
 						<FormItem>
 							<FormLabel>{{ t('games.seppuku.timeoutModerators') }}</FormLabel>
 							<FormControl>
-								<Switch
-									:checked="value"
-									@update:checked="handleChange"
-								/>
+								<Switch :checked="value" @update:checked="handleChange" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -215,9 +197,7 @@ function resetSettings() {
 						<AlertDialogContent>
 							<AlertDialogHeader>
 								<AlertDialogTitle>{{ t('sharedTexts.areYouSure') }}</AlertDialogTitle>
-								<AlertDialogDescription>
-									Are you sure?
-								</AlertDialogDescription>
+								<AlertDialogDescription> Are you sure? </AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
 								<AlertDialogCancel>

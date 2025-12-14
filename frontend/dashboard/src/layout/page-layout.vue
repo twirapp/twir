@@ -2,7 +2,6 @@
 import { useWindowScroll } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { ChevronLeft } from 'lucide-vue-next'
-import { useThemeVars } from 'naive-ui'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
 import { type Component, onBeforeMount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -22,7 +21,6 @@ const props = withDefaults(defineProps<PageLayoutProps>(), {
 	noContainer: false,
 })
 const router = useRouter()
-const themeVars = useThemeVars()
 const { theme } = useTheme()
 
 export interface PageLayoutProps {
@@ -92,19 +90,19 @@ watch(y, (value) => {
 		<div
 			class="after:inset-0 after:bottom-0 after:block after:h-px after:w-full after:content-['']"
 			:class="[
-				theme === 'dark' ? 'after:bg-white/[.15]' : 'after:bg-zinc-600/[.15]',
+				theme === 'dark' ? 'after:bg-white/15' : 'after:bg-zinc-600/15',
 				{
 					'sticky top-0 z-50': props.stickyHeader,
 				},
+				'bg-card',
 			]"
-			:style="{ 'background-color': themeVars.cardColor }"
 		>
 			<div
-				class="container flex flex-col gap-2"
+				class="container mx-auto flex flex-col gap-2"
 				:class="[
 					activeTab ? 'pt-9' : 'py-9',
 					{
-						'h-20 !py-4': shrink && props.stickyHeader,
+						'h-20 py-4!': shrink && props.stickyHeader,
 					},
 				]"
 			>
@@ -129,7 +127,7 @@ watch(y, (value) => {
 						<TabsTrigger
 							v-for="tab of props.tabs"
 							:key="tab.name"
-							class="tabs-trigger data-[disabled]:cursor-not-allowed data-[disabled]:text-zinc-400"
+							class="tabs-trigger data-disabled:cursor-not-allowed data-disabled:text-zinc-400"
 							:value="tab.name"
 							:class="[
 								theme === 'dark'
@@ -145,13 +143,13 @@ watch(y, (value) => {
 			</div>
 		</div>
 
-		<div :class="[{ container: !cleanBody }, { 'py-8': !cleanBody }, contentClass]">
+		<div :class="[{ 'container mx-auto py-8': !cleanBody }, contentClass]">
 			<template v-if="activeTab">
 				<TabsContent
 					v-for="tab of props.tabs"
 					:key="tab.name"
 					:value="tab.name"
-					class="outline-none"
+					class="outline-hidden"
 				>
 					<component :is="tab.component" :activeTab="activeTab" />
 				</TabsContent>
@@ -165,7 +163,9 @@ watch(y, (value) => {
 </template>
 
 <style scoped>
+@reference '@/assets/index.css';
+
 .tabs-trigger {
-	@apply relative z-[1] flex whitespace-nowrap px-3 py-4 text-sm  transition-colors before:absolute before:left-0 before:top-2 before:-z-[1] before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''] data-[state=active]:after:rounded-t-sm font-medium;
+	@apply relative z-1 flex whitespace-nowrap px-3 py-4 text-sm  transition-colors before:absolute before:left-0 before:top-2 before:-z-1 before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''] data-[state=active]:after:rounded-t-sm font-medium;
 }
 </style>

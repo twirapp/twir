@@ -65,7 +65,7 @@ const checkboxes = computed(() => {
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row place-content-center flex-wrap p-4 border-b">
+		<CardHeader class="flex flex-row place-content-center flex-wrap">
 			<CardTitle class="flex items-center gap-2">
 				<SlidersHorizontalIcon />
 				Conditions

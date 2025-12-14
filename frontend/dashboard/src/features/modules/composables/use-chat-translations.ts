@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
 import { useChatTranslationApi } from '@/api/chat-translation'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { toast } from 'vue-sonner'
 
 export const formSchema = z.object({
 	id: z.string().optional(),
@@ -20,7 +20,6 @@ export type FormSchema = z.infer<typeof formSchema>
 
 export function useChatTranslations() {
 	const { t } = useI18n()
-	const toast = useToast()
 	const isLoading = ref(false)
 
 	const chatTranslationApi = useChatTranslationApi()
@@ -83,10 +82,7 @@ export function useChatTranslations() {
 				})
 
 				if (result.error) {
-					toast.toast({
-						title: result.error.message || 'Error updating chat translation',
-						variant: 'destructive',
-					})
+					toast.error(result.error.message || 'Error updating chat translation')
 					return
 				}
 			} else {
@@ -102,24 +98,15 @@ export function useChatTranslations() {
 				})
 
 				if (result.error) {
-					toast.toast({
-						title: result.error.message || 'Error creating chat translation',
-						variant: 'destructive',
-					})
+					toast.error(result.error.message || 'Error creating chat translation')
 					return
 				}
 			}
 
-			toast.toast({
-				title: t('sharedTexts.saved'),
-				variant: 'success',
-			})
+			toast.success(t('sharedTexts.saved'))
 		} catch (err) {
 			console.error(err)
-			toast.toast({
-				title: 'An error occurred',
-				variant: 'destructive',
-			})
+			toast.error('An error occurred')
 		} finally {
 			isLoading.value = false
 		}
