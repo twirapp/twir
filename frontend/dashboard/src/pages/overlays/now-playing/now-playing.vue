@@ -3,7 +3,7 @@ import { NowPlaying, Preset } from '@twir/frontend-now-playing'
 import { useSubscription } from '@urql/vue'
 import { PlusIcon } from 'lucide-vue-next'
 import { NA, NResult, useThemeVars } from 'naive-ui'
-import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
+import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 

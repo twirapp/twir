@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next'
-import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'radix-vue'
+import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui'
 import { useFieldArray } from 'vee-validate'
 
 import { Button } from '@/components/ui/button'

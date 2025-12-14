@@ -2,7 +2,7 @@
 import { useWindowScroll } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { ChevronLeft } from 'lucide-vue-next'
-import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
+import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { type Component, onBeforeMount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 

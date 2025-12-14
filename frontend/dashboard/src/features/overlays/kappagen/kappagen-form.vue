@@ -6,7 +6,7 @@ import {
 	AccordionItem,
 	AccordionRoot,
 	AccordionTrigger,
-} from 'radix-vue'
+} from 'reka-ui'
 
 import AnimationsTab from '@/features/overlays/kappagen/components/animations-tab.vue'
 import EventsTab from '@/features/overlays/kappagen/components/events-tab.vue'

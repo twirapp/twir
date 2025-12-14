@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ValorantStatsWidget } from '@twir/frontend-valorant-stats'
 import { BanIcon } from 'lucide-vue-next'
-import { Label } from 'radix-vue'
+import { Label } from 'reka-ui'
 
 import { useValorantStats } from './composables/use-valorant-stats'
 

@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ColorType, createChart } from 'lightweight-charts'
-import { RadioGroupItem, RadioGroupRoot } from 'radix-vue'
+import { RadioGroupItem, RadioGroupRoot } from 'reka-ui'
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { AutoscaleInfo, IChartApi , ISeriesApi, UTCTimestamp } from 'lightweight-charts'
+import type { AutoscaleInfo, IChartApi, ISeriesApi, UTCTimestamp } from 'lightweight-charts'
 
-import { useCommunityEmotesDetails,	useCommunityEmotesDetailsName } from '@/features/community-emotes-statistic/composables/use-community-emotes-details.js'
+import {
+	useCommunityEmotesDetails,
+	useCommunityEmotesDetailsName,
+} from '@/features/community-emotes-statistic/composables/use-community-emotes-details.js'
 import { useTranslatedRanges } from '@/features/community-emotes-statistic/composables/use-translated-ranges.js'
 import CommunityEmotesDetailsContentUsersHistory from '@/features/community-emotes-statistic/ui/community-emotes-details-content-users-history.vue'
 import CommunityEmotesDetailsContentUsersTop from '@/features/community-emotes-statistic/ui/community-emotes-details-content-users-top.vue'
@@ -82,11 +85,20 @@ onMounted(() => {
 })
 
 function setData() {
-	if (!chart || !areaSeries || !details.value?.emotesStatisticEmoteDetailedInformation?.graphicUsages) return
-	areaSeries.setData(details.value.emotesStatisticEmoteDetailedInformation.graphicUsages.map(({ timestamp, count }) => ({
-		time: timestamp / 1000 as UTCTimestamp,
-		value: count,
-	})))
+	if (
+		!chart ||
+		!areaSeries ||
+		!details.value?.emotesStatisticEmoteDetailedInformation?.graphicUsages
+	)
+		return
+	areaSeries.setData(
+		details.value.emotesStatisticEmoteDetailedInformation.graphicUsages.map(
+			({ timestamp, count }) => ({
+				time: (timestamp / 1000) as UTCTimestamp,
+				value: count,
+			})
+		)
+	)
 	chart.timeScale().fitContent()
 }
 
@@ -112,9 +124,12 @@ const tableTab = ref<'top' | 'history'>('top')
 				<h1 class="text-2xl font-medium">
 					{{ t('community.emotesStatistic.details.stats') }}
 				</h1>
-				<RadioGroupRoot v-model="range" class="inline-flex w-full rounded-[7px] bg-zinc-800 p-px md:w-auto">
+				<RadioGroupRoot
+					v-model="range"
+					class="inline-flex w-full rounded-[7px] bg-zinc-800 p-px md:w-auto"
+				>
 					<RadioGroupItem
-						v-for="([key, text]) of Object.entries(ranges)"
+						v-for="[key, text] of Object.entries(ranges)"
 						:key="key"
 						:value="key"
 						class="h-8 flex-1 rounded-md px-3 text-[13px] text-white/75 transition-colors hover:bg-white/5 data-[active=true]:bg-white/20 data-[active=true]:text-white data-[active=true]:shadow-md md:flex-auto whitespace-nowrap"
@@ -124,17 +139,17 @@ const tableTab = ref<'top' | 'history'>('top')
 				</RadioGroupRoot>
 			</div>
 
-			<div
-				ref="chartContainer"
-				class="relative h-[240px]"
-			></div>
+			<div ref="chartContainer" class="relative h-[240px]"></div>
 		</div>
 		<div class="flex flex-col gap-6 px-6 py-7">
 			<div class="flex justify-between flex-wrap">
 				<h1 class="text-2xl font-medium">
 					{{ t('community.emotesStatistic.details.users') }}
 				</h1>
-				<RadioGroupRoot v-model="tableTab" class="inline-flex w-full rounded-[7px] bg-zinc-800 p-px md:w-auto">
+				<RadioGroupRoot
+					v-model="tableTab"
+					class="inline-flex w-full rounded-[7px] bg-zinc-800 p-px md:w-auto"
+				>
 					<RadioGroupItem
 						v-for="tab of tableTabs"
 						:key="tab.key"
