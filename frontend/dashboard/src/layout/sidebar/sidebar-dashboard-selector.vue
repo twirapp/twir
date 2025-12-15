@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import { useVirtualList } from '@vueuse/core'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ListboxVirtualizer } from 'reka-ui'
 
 import { resolveUserName } from '../../helpers'
 
@@ -46,6 +46,7 @@ const currentDashboard = computed(() => {
 function selectDashboard(id: string) {
 	setDashboard(id)
 	open.value = false
+	search.value = ''
 }
 
 const popoverProps = computed((): PopoverContentProps & { class?: string } => {
@@ -60,7 +61,35 @@ const popoverProps = computed((): PopoverContentProps & { class?: string } => {
 })
 
 const options = computed(() => {
-	return profile.value?.availableDashboards ?? []
+	return (
+		profile.value?.availableDashboards.filter((item) => {
+			return item.twitchProfile.login.toLowerCase().includes(search.value.toLowerCase())
+		}) ?? []
+	)
+})
+
+const search = ref('')
+
+function filterFunction(_items: any, searchTerm: string): string[] {
+	if (!profile.value?.availableDashboards) return []
+
+	search.value = searchTerm
+
+	return profile.value.availableDashboards
+
+		.filter((item) => {
+			return item.twitchProfile.login.toLowerCase().includes(searchTerm.toLowerCase())
+		})
+
+		.map((item) => item.id)
+}
+
+const {
+	list: virtualizedList,
+	containerProps,
+	wrapperProps,
+} = useVirtualList(options, {
+	itemHeight: 32,
 })
 </script>
 
@@ -87,61 +116,61 @@ const options = computed(() => {
 					</SidebarMenuButton>
 				</PopoverTrigger>
 				<PopoverContent class="p-0 min-h-20!" v-bind="popoverProps">
-					<Command>
+					<Command :filter-function="filterFunction">
 						<CommandInput class="h-9" placeholder="Search user" />
 						<CommandEmpty> No user found </CommandEmpty>
 						<CommandList class="max-h-full!">
-							<ListboxVirtualizer
-								v-slot="{ option }"
-								:options="options"
-								:text-content="(opt) => opt.twitchProfile.login"
-								:estimateSize="32"
-								class="min-h-28!"
-							>
-								<CommandGroup :heading="t(`dashboard.header.channelsAccess`)" class="w-full">
-									<CommandItem
-										style="height: 32px"
-										:value="option.id"
-										@select="
-											(ev) => {
-												if (typeof ev.detail.value === 'string') {
-													selectDashboard(ev.detail.value)
+							<CommandGroup :heading="t(`dashboard.header.channelsAccess`)" class="w-full">
+								<div v-bind="containerProps" class="max-h-72">
+									<div v-bind="wrapperProps">
+										<CommandItem
+											v-for="option in virtualizedList"
+											:key="option.index"
+											style="height: 32px"
+											:value="option.data.id"
+											@select="
+												(ev) => {
+													if (typeof ev.detail.value === 'string') {
+														selectDashboard(ev.detail.value)
+													}
 												}
-											}
-										"
-										class="cursor-pointer"
-										:data-highligted="profile.selectedDashboardId === option.id"
-									>
-										<div class="flex items-center gap-2">
-											<Avatar class="size-4">
-												<AvatarImage
-													:src="option.twitchProfile.profileImageUrl"
-													:alt="option.twitchProfile.displayName"
-												/>
-												<AvatarFallback>
-													{{ option.twitchProfile.displayName.slice(0, 2).toUpperCase() }}
-												</AvatarFallback>
-											</Avatar>
-											<span>
-												{{
-													resolveUserName(
-														option.twitchProfile.login,
-														option.twitchProfile.displayName
-													)
-												}}
-											</span>
-										</div>
-										<Check
-											:class="
-												cn(
-													'ml-auto h-4 w-4',
-													profile.selectedDashboardId === option.id ? 'opacity-100' : 'opacity-0'
-												)
 											"
-										/>
-									</CommandItem>
-								</CommandGroup>
-							</ListboxVirtualizer>
+											class="cursor-pointer"
+											:data-highligted="profile.selectedDashboardId === option.data.id"
+										>
+											<div class="flex items-center gap-2">
+												<Avatar class="size-4">
+													<AvatarImage
+														:src="option.data.twitchProfile.profileImageUrl"
+														:alt="option.data.twitchProfile.displayName"
+													/>
+													<AvatarFallback>
+														{{ option.data.twitchProfile.displayName.slice(0, 2).toUpperCase() }}
+													</AvatarFallback>
+												</Avatar>
+												<span>
+													{{
+														resolveUserName(
+															option.data.twitchProfile.login,
+															option.data.twitchProfile.displayName
+														)
+													}}
+												</span>
+											</div>
+											<Check
+												:class="
+													cn(
+														'ml-auto h-4 w-4',
+														profile.selectedDashboardId === option.data.id
+															? 'opacity-100'
+															: 'opacity-0'
+													)
+												"
+											/>
+										</CommandItem>
+									</div>
+								</div>
+							</CommandGroup>
 						</CommandList>
 					</Command>
 				</PopoverContent>
