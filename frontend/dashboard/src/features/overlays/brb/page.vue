@@ -313,8 +313,8 @@ watch(
 									<div class="flex items-center gap-2">
 										<FormControl>
 											<Switch
-												:checked="field.value"
-												@update:checked="field['onUpdate:modelValue']"
+												:model-value="field.value"
+												@update:model-value="field['onUpdate:modelValue']"
 											/>
 										</FormControl>
 										<FormLabel class="mt-0!">{{ t('sharedTexts.enabled') }}</FormLabel>
@@ -328,8 +328,8 @@ watch(
 									<div class="flex items-center gap-2">
 										<FormControl>
 											<Switch
-												:checked="field.value"
-												@update:checked="field['onUpdate:modelValue']"
+												:model-value="field.value"
+												@update:model-value="field['onUpdate:modelValue']"
 											/>
 										</FormControl>
 										<FormLabel class="mt-0!">{{

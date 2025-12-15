@@ -32,7 +32,7 @@ function deleteGreetings() {
 
 <template>
 	<div class="flex items-center gap-2">
-		<Switch :checked="keyword.enabled" @update:checked="toggleEnabledGreetings" />
+		<Switch :model-value="keyword.enabled" @update:model-value="toggleEnabledGreetings" />
 
 		<KeywordDialog :keyword="keyword">
 			<template #dialog-trigger>

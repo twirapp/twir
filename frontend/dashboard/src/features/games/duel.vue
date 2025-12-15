@@ -20,19 +20,8 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
+import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import CommandButton from '@/features/commands/ui/command-button.vue'
@@ -48,10 +37,14 @@ const duelForm = useForm({
 	keepValuesOnUnmount: true,
 })
 
-watch(settings, (newSettings) => {
-	if (!newSettings) return
-	duelForm.setValues(toRaw(newSettings.gamesDuel))
-}, { immediate: true })
+watch(
+	settings,
+	(newSettings) => {
+		if (!newSettings) return
+		duelForm.setValues(toRaw(newSettings.gamesDuel))
+	},
+	{ immediate: true }
+)
 
 onMounted(() => {
 	if (!settings.value) return
@@ -71,12 +64,7 @@ function resetSettings() {
 <template>
 	<Dialog v-model:open="isDialogOpen">
 		<DialogTrigger asChild>
-			<Card
-				title="Duel"
-				:icon="Bomb"
-				:icon-stroke="1"
-				:description="t('games.duel.description')"
-			/>
+			<Card title="Duel" :icon="Bomb" :icon-stroke="1" :description="t('games.duel.description')" />
 		</DialogTrigger>
 
 		<DialogOrSheet class="sm:max-w-[625px]">
@@ -86,17 +74,13 @@ function resetSettings() {
 
 			<form>
 				<div class="grid gap-4 py-4">
-					<FormField
-						v-slot="{ value, handleChange }"
-						name="enabled"
-					>
-						<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4 space-y-0">
+					<FormField v-slot="{ value, handleChange }" name="enabled">
+						<FormItem
+							class="flex flex-row items-center justify-between rounded-lg border p-4 space-y-0"
+						>
 							<FormLabel>Enabled</FormLabel>
 							<FormControl>
-								<Switch
-									:checked="value"
-									@update:checked="handleChange"
-								/>
+								<Switch :model-value="value" @update:model-value="handleChange" />
 							</FormControl>
 						</FormItem>
 					</FormField>
@@ -117,10 +101,7 @@ function resetSettings() {
 							{{ t('games.duel.cooldown.title') }}
 						</h4>
 						<div class="grid grid-cols-2 gap-4">
-							<FormField
-								v-slot="{ componentField }"
-								name="userCooldown"
-							>
+							<FormField v-slot="{ componentField }" name="userCooldown">
 								<FormItem>
 									<FormLabel>{{ t('games.duel.cooldown.user') }}</FormLabel>
 									<FormControl>
@@ -130,10 +111,7 @@ function resetSettings() {
 								</FormItem>
 							</FormField>
 
-							<FormField
-								v-slot="{ componentField }"
-								name="globalCooldown"
-							>
+							<FormField v-slot="{ componentField }" name="globalCooldown">
 								<FormItem>
 									<FormLabel>{{ t('games.duel.cooldown.global') }}</FormLabel>
 									<FormControl>
@@ -150,10 +128,7 @@ function resetSettings() {
 							{{ t('games.duel.settings.title') }}
 						</h4>
 						<div class="grid grid-cols-2 gap-4">
-							<FormField
-								v-slot="{ componentField }"
-								name="timeoutSeconds"
-							>
+							<FormField v-slot="{ componentField }" name="timeoutSeconds">
 								<FormItem>
 									<FormLabel>{{ t('games.duel.settings.timeoutTime') }}</FormLabel>
 									<FormControl>
@@ -163,10 +138,7 @@ function resetSettings() {
 								</FormItem>
 							</FormField>
 
-							<FormField
-								v-slot="{ componentField }"
-								name="secondsToAccept"
-							>
+							<FormField v-slot="{ componentField }" name="secondsToAccept">
 								<FormItem>
 									<FormLabel>{{ t('games.duel.settings.secondsToAccept') }}</FormLabel>
 									<FormControl>
@@ -176,10 +148,7 @@ function resetSettings() {
 								</FormItem>
 							</FormField>
 
-							<FormField
-								v-slot="{ componentField }"
-								name="bothDiePercent"
-							>
+							<FormField v-slot="{ componentField }" name="bothDiePercent">
 								<FormItem>
 									<FormLabel>{{ t('games.duel.settings.bothDiePercent') }}</FormLabel>
 									<FormControl>
@@ -222,10 +191,7 @@ function resetSettings() {
 							{{ t('games.duel.messages.title') }}
 						</h4>
 						<div class="space-y-4">
-							<FormField
-								v-slot="{ componentField }"
-								name="startMessage"
-							>
+							<FormField v-slot="{ componentField }" name="startMessage">
 								<FormItem>
 									<FormLabel>{{ t('games.duel.messages.start.title') }}</FormLabel>
 									<FormControl>
@@ -238,10 +204,7 @@ function resetSettings() {
 								</FormItem>
 							</FormField>
 
-							<FormField
-								v-slot="{ componentField }"
-								name="resultMessage"
-							>
+							<FormField v-slot="{ componentField }" name="resultMessage">
 								<FormItem>
 									<FormLabel>{{ t('games.duel.messages.result.title') }}</FormLabel>
 									<FormControl>
@@ -254,10 +217,7 @@ function resetSettings() {
 								</FormItem>
 							</FormField>
 
-							<FormField
-								v-slot="{ componentField }"
-								name="bothDieMessage"
-							>
+							<FormField v-slot="{ componentField }" name="bothDieMessage">
 								<FormItem>
 									<FormLabel>{{ t('games.duel.messages.bothDie.title') }}</FormLabel>
 									<FormControl>
@@ -279,9 +239,7 @@ function resetSettings() {
 							<AlertDialogContent>
 								<AlertDialogHeader>
 									<AlertDialogTitle>{{ t('sharedTexts.areYouSure') }}</AlertDialogTitle>
-									<AlertDialogDescription>
-										Are you sure?
-									</AlertDialogDescription>
+									<AlertDialogDescription> Are you sure? </AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
 									<AlertDialogCancel>

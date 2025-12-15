@@ -24,12 +24,16 @@ const apiKey = ref<string>('')
 const enabled = ref(true)
 const showPassword = ref(false)
 
-watch(() => integrationsPage.donatePayData.value, (value) => {
-	if (value?.apiKey) {
-		apiKey.value = value.apiKey
-		enabled.value = value.enabled
-	}
-}, { immediate: true })
+watch(
+	() => integrationsPage.donatePayData.value,
+	(value) => {
+		if (value?.apiKey) {
+			apiKey.value = value.apiKey
+			enabled.value = value.enabled
+		}
+	},
+	{ immediate: true }
+)
 
 async function save() {
 	await executeMutation({
@@ -83,7 +87,7 @@ async function save() {
 				</FormItem>
 				<FormItem class="flex flex-row items-center gap-4">
 					<span>Enabled</span>
-					<Switch v-model:checked="enabled" />
+					<Switch v-model:model-value="enabled" />
 				</FormItem>
 			</div>
 		</template>

@@ -63,7 +63,7 @@ async function toggleSwitch(newState: boolean) {
 
 <template>
 	<div class="flex items-center gap-2">
-		<Switch :checked="props.event.enabled" @update:checked="toggleSwitch" />
+		<Switch :model-value="props.event.enabled" @update:model-value="toggleSwitch" />
 
 		<Button
 			type="button"

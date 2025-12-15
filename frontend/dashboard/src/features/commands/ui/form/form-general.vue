@@ -68,9 +68,9 @@ function computeSelectedGroupColor(id: string) {
 					<FormItem class="space-y-0 flex items-center gap-4">
 						<FormControl>
 							<Switch
-								:checked="field.value"
+								:model-value="field.value"
 								default-checked
-								@update:checked="field['onUpdate:modelValue']"
+								@update:model-value="field['onUpdate:modelValue']"
 							/>
 						</FormControl>
 					</FormItem>

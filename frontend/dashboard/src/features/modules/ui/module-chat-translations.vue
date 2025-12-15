@@ -10,9 +10,22 @@ import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
 import { Button } from '@/components/ui/button'
 import { CardContent, CardHeader, CardTitle, Card as UICard } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
 import { MultiSelect } from '@/components/ui/multi-select'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { useChatTranslations } from '@/features/modules/composables/use-chat-translations'
 import { ChannelRolePermissionEnum } from '@/gql/graphql.ts'
@@ -21,21 +34,17 @@ const { t } = useI18n()
 
 const showSettings = ref(false)
 
-const {
-	handleSubmit,
-	isLoading,
-	fetching,
-	exists,
-} = useChatTranslations()
+const { handleSubmit, isLoading, fetching, exists } = useChatTranslations()
 
 const languagesApi = useLanguagesApi()
 const { data: languagesData } = languagesApi.useAvailableLanguages()
 
-const availableLanguages = computed(() =>
-	languagesData.value?.moderationLanguagesAvailableLanguages.languages.map(lang => ({
-		label: lang.name,
-		value: lang.iso_639_1,
-	})) || [],
+const availableLanguages = computed(
+	() =>
+		languagesData.value?.moderationLanguagesAvailableLanguages.languages.map((lang) => ({
+			label: lang.name,
+			value: lang.iso_639_1,
+		})) || []
 )
 
 const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageModules)
@@ -51,7 +60,12 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 		:description="t('modules.chatTranslations.description')"
 	>
 		<template #footer>
-			<Button class="flex gap-2 items-center" variant="secondary" :disabled="!canManageModules" @click="showSettings = !showSettings">
+			<Button
+				class="flex gap-2 items-center"
+				variant="secondary"
+				:disabled="!canManageModules"
+				@click="showSettings = !showSettings"
+			>
 				{{ t('sharedTexts.settings') }}
 				<SettingsIcon class="size-4" />
 			</Button>
@@ -71,12 +85,14 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 							<FormLabel class="text-base">
 								{{ t('modules.chatTranslations.settings.enabled.label') }}
 							</FormLabel>
-							<FormDescription>{{ t('modules.chatTranslations.settings.enabled.description') }}</FormDescription>
+							<FormDescription>{{
+								t('modules.chatTranslations.settings.enabled.description')
+							}}</FormDescription>
 						</div>
 						<FormControl>
 							<Switch
-								:checked="componentField.modelValue"
-								@update:checked="componentField['onUpdate:modelValue']"
+								:model-value="componentField.modelValue"
+								@update:model-value="componentField['onUpdate:modelValue']"
 							/>
 						</FormControl>
 					</FormItem>
@@ -91,7 +107,9 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 								@update:model-value="componentField['onUpdate:modelValue']"
 							>
 								<SelectTrigger>
-									<SelectValue :placeholder="t('modules.chatTranslations.settings.targetLanguage.placeholder')" />
+									<SelectValue
+										:placeholder="t('modules.chatTranslations.settings.targetLanguage.placeholder')"
+									/>
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem
@@ -104,14 +122,18 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 								</SelectContent>
 							</Select>
 						</FormControl>
-						<FormDescription>{{ t('modules.chatTranslations.settings.targetLanguage.description') }}</FormDescription>
+						<FormDescription>{{
+							t('modules.chatTranslations.settings.targetLanguage.description')
+						}}</FormDescription>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
 				<FormField v-slot="{ componentField }" name="excludedLanguages">
 					<FormItem>
-						<FormLabel>{{ t('modules.chatTranslations.settings.excludedLanguages.label') }}</FormLabel>
+						<FormLabel>{{
+							t('modules.chatTranslations.settings.excludedLanguages.label')
+						}}</FormLabel>
 						<FormControl>
 							<MultiSelect
 								v-model:model-value="componentField.modelValue"
@@ -120,7 +142,9 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 								@update:model-value="componentField['onUpdate:modelValue']"
 							/>
 						</FormControl>
-						<FormDescription>{{ t('modules.chatTranslations.settings.excludedLanguages.description') }}</FormDescription>
+						<FormDescription>{{
+							t('modules.chatTranslations.settings.excludedLanguages.description')
+						}}</FormDescription>
 						<FormMessage />
 					</FormItem>
 				</FormField>
@@ -131,12 +155,14 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 							<FormLabel class="text-base">
 								{{ t('modules.chatTranslations.settings.useItalic.label') }}
 							</FormLabel>
-							<FormDescription>{{ t('modules.chatTranslations.settings.useItalic.description') }}</FormDescription>
+							<FormDescription>{{
+								t('modules.chatTranslations.settings.useItalic.description')
+							}}</FormDescription>
 						</div>
 						<FormControl>
 							<Switch
-								:checked="componentField.modelValue"
-								@update:checked="componentField['onUpdate:modelValue']"
+								:model-value="componentField.modelValue"
+								@update:model-value="componentField['onUpdate:modelValue']"
 							/>
 						</FormControl>
 					</FormItem>
@@ -154,7 +180,9 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 									class="flex-1"
 									@update:model-value="field['onUpdate:modelValue']"
 								/>
-								<FormDescription>{{ t('modules.chatTranslations.settings.excludedUsers.description') }}</FormDescription>
+								<FormDescription>{{
+									t('modules.chatTranslations.settings.excludedUsers.description')
+								}}</FormDescription>
 								<FormMessage />
 							</FormItem>
 						</FormField>
@@ -163,7 +191,11 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 
 				<div class="flex justify-end">
 					<Button type="submit" :disabled="isLoading">
-						{{ exists ? t('modules.chatTranslations.settings.buttons.update') : t('modules.chatTranslations.settings.buttons.create') }}
+						{{
+							exists
+								? t('modules.chatTranslations.settings.buttons.update')
+								: t('modules.chatTranslations.settings.buttons.create')
+						}}
 					</Button>
 				</div>
 			</form>

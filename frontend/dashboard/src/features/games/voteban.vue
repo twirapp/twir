@@ -26,13 +26,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
 	Select,
@@ -43,7 +37,13 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
+import {
+	TagsInput,
+	TagsInputInput,
+	TagsInputItem,
+	TagsInputItemDelete,
+	TagsInputItemText,
+} from '@/components/ui/tags-input'
 import { Textarea } from '@/components/ui/textarea'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 import { VoteBanGameVotingMode } from '@/gql/graphql'
@@ -59,10 +59,14 @@ const votebanForm = useForm({
 	keepValuesOnUnmount: true,
 })
 
-watch(settings, (newSettings) => {
-	if (!newSettings) return
-	votebanForm.setValues(toRaw(newSettings.gamesVoteban))
-}, { immediate: true })
+watch(
+	settings,
+	(newSettings) => {
+		if (!newSettings) return
+		votebanForm.setValues(toRaw(newSettings.gamesVoteban))
+	},
+	{ immediate: true }
+)
 
 const onSubmit = votebanForm.handleSubmit(async (values) => {
 	await save(values)
@@ -93,17 +97,11 @@ function resetSettings() {
 			<form @submit="onSubmit">
 				<div class="grid gap-4 py-4">
 					<div class="flex items-center gap-6">
-						<FormField
-							v-slot="{ value, handleChange }"
-							name="enabled"
-						>
+						<FormField v-slot="{ value, handleChange }" name="enabled">
 							<FormItem class="flex flex-col items-center gap-1">
 								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 								<FormControl>
-									<Switch
-										:checked="value"
-										@update:checked="handleChange"
-									/>
+									<Switch :model-value="value" @update:model-value="handleChange" />
 								</FormControl>
 							</FormItem>
 						</FormField>
@@ -114,14 +112,9 @@ function resetSettings() {
 					<Separator />
 
 					<div class="space-y-4">
-						<h4 class="font-medium">
-							Messages
-						</h4>
+						<h4 class="font-medium">Messages</h4>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="initMessage"
-						>
+						<FormField v-slot="{ componentField }" name="initMessage">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.initialMessage') }}</FormLabel>
 								<FormControl>
@@ -131,10 +124,7 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="banMessage"
-						>
+						<FormField v-slot="{ componentField }" name="banMessage">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.banMessage') }}</FormLabel>
 								<FormControl>
@@ -144,10 +134,7 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="surviveMessage"
-						>
+						<FormField v-slot="{ componentField }" name="surviveMessage">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.surviveMessage') }}</FormLabel>
 								<FormControl>
@@ -165,10 +152,7 @@ function resetSettings() {
 							{{ t('sharedTexts.settings') }}
 						</h4>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="votingMode"
-						>
+						<FormField v-slot="{ componentField }" name="votingMode">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.voteMode') }}</FormLabel>
 								<Select v-bind="componentField">
@@ -178,9 +162,7 @@ function resetSettings() {
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem :value="VoteBanGameVotingMode.Chat">
-											Chat
-										</SelectItem>
+										<SelectItem :value="VoteBanGameVotingMode.Chat"> Chat </SelectItem>
 										<SelectItem :value="VoteBanGameVotingMode.Polls" disabled>
 											Twitch polls (soon)
 										</SelectItem>
@@ -190,10 +172,7 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ value }"
-							name="chatVotesWordsPositive"
-						>
+						<FormField v-slot="{ value }" name="chatVotesWordsPositive">
 							<FormItem>
 								<FormControl>
 									<FormLabel>{{ t('games.voteban.wordsPositive') }}</FormLabel>
@@ -214,10 +193,7 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ value }"
-							name="chatVotesWordsNegative"
-						>
+						<FormField v-slot="{ value }" name="chatVotesWordsNegative">
 							<FormItem>
 								<FormControl>
 									<FormLabel>{{ t('games.voteban.wordsNegative') }}</FormLabel>
@@ -238,10 +214,7 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="voteDuration"
-						>
+						<FormField v-slot="{ componentField }" name="voteDuration">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.voteDuration') }}</FormLabel>
 								<FormControl>
@@ -251,10 +224,7 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="neededVotes"
-						>
+						<FormField v-slot="{ componentField }" name="neededVotes">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.neededVotes') }}</FormLabel>
 								<FormControl>
@@ -264,10 +234,7 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="timeoutSeconds"
-						>
+						<FormField v-slot="{ componentField }" name="timeoutSeconds">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.banDuration') }}</FormLabel>
 								<FormControl>
@@ -281,29 +248,18 @@ function resetSettings() {
 					<Separator />
 
 					<div class="space-y-4">
-						<h4 class="font-medium">
-							Moderators
-						</h4>
+						<h4 class="font-medium">Moderators</h4>
 
-						<FormField
-							v-slot="{ value, handleChange }"
-							name="timeoutModerators"
-						>
+						<FormField v-slot="{ value, handleChange }" name="timeoutModerators">
 							<FormItem class="flex items-center justify-between">
 								<FormLabel>{{ t('games.voteban.timeoutModerators') }}</FormLabel>
 								<FormControl>
-									<Switch
-										:checked="value"
-										@update:checked="handleChange"
-									/>
+									<Switch :model-value="value" @update:model-value="handleChange" />
 								</FormControl>
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="banMessageModerators"
-						>
+						<FormField v-slot="{ componentField }" name="banMessageModerators">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.banMessageModerators') }}</FormLabel>
 								<FormControl>
@@ -313,10 +269,7 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField
-							v-slot="{ componentField }"
-							name="surviveMessageModerators"
-						>
+						<FormField v-slot="{ componentField }" name="surviveMessageModerators">
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.surviveMessageModerators') }}</FormLabel>
 								<FormControl>
@@ -337,9 +290,7 @@ function resetSettings() {
 							<AlertDialogContent>
 								<AlertDialogHeader>
 									<AlertDialogTitle>{{ t('sharedTexts.areYouSure') }}</AlertDialogTitle>
-									<AlertDialogDescription>
-										Are you sure?
-									</AlertDialogDescription>
+									<AlertDialogDescription> Are you sure? </AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
 									<AlertDialogCancel>

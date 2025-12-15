@@ -121,9 +121,9 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 								<FormItem>
 									<FormControl>
 										<Switch
-											:checked="field.value"
+											:model-value="field.value"
 											default-checked
-											@update:checked="field['onUpdate:modelValue']"
+											@update:model-value="field['onUpdate:modelValue']"
 										/>
 									</FormControl>
 								</FormItem>

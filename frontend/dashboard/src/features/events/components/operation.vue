@@ -146,7 +146,7 @@ function onRemoveFilter(filterIndex: number) {
 							<FormLabel>Use announce</FormLabel>
 						</div>
 						<FormControl>
-							<Switch :checked="value" @update:checked="handleChange" />
+							<Switch :model-value="value" @update:model-value="handleChange" />
 						</FormControl>
 					</FormItem>
 				</FormField>
@@ -295,7 +295,7 @@ function onRemoveFilter(filterIndex: number) {
 						<FormLabel>{{ t('sharedTexts.enabled') }}?</FormLabel>
 					</div>
 					<FormControl>
-						<Switch :checked="value" @update:checked="handleChange" />
+						<Switch :model-value="value" @update:model-value="handleChange" />
 					</FormControl>
 				</FormItem>
 			</FormField>

@@ -151,7 +151,10 @@ const save = keywordsForm.handleSubmit(async (values) => {
 							{{ t('keywords.isRegular') }}
 						</FormLabel>
 						<FormControl>
-							<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+							<Switch
+								:model-value="field.value"
+								@update:model-value="field['onUpdate:modelValue']"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -196,7 +199,10 @@ const save = keywordsForm.handleSubmit(async (values) => {
 							{{ t('sharedTexts.reply.label') }}
 						</FormLabel>
 						<FormControl>
-							<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+							<Switch
+								:model-value="field.value"
+								@update:model-value="field['onUpdate:modelValue']"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>

@@ -30,7 +30,7 @@ function deleteTimer() {
 
 <template>
 	<div class="flex items-center gap-2">
-		<Switch :checked="timer.enabled" @update:checked="toggleEnabledGreetings" />
+		<Switch :model-value="timer.enabled" @update:model-value="toggleEnabledGreetings" />
 
 		<RouterLink v-slot="{ navigate, href }" custom :to="`/dashboard/timers/${timer.id}`">
 			<Button

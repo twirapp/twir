@@ -104,8 +104,8 @@ const { t } = useI18n()
 						<Label for="enabled">{{ t('sharedTexts.enabled') }}</Label>
 						<Switch
 							id="enabled"
-							:checked="formValue[formKey]!.enabled"
-							@update:checked="(v: boolean) => (formValue[formKey]!.enabled = v)"
+							:model-value="formValue[formKey]!.enabled"
+							@update:model-value="(v: boolean) => (formValue[formKey]!.enabled = v)"
 						/>
 					</div>
 				</CardHeader>

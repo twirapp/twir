@@ -134,9 +134,9 @@ const kappagen = useKappagenInstance()
 
 									<FormControl>
 										<Switch
-											:checked="field.value"
+											:model-value="field.value"
 											default-checked
-											@update:checked="field['onUpdate:modelValue']"
+											@update:model-value="field['onUpdate:modelValue']"
 										/>
 									</FormControl>
 								</FormItem>
@@ -152,9 +152,9 @@ const kappagen = useKappagenInstance()
 
 									<FormControl>
 										<Switch
-											:checked="field.value"
+											:model-value="field.value"
 											default-checked
-											@update:checked="field['onUpdate:modelValue']"
+											@update:model-value="field['onUpdate:modelValue']"
 										/>
 									</FormControl>
 								</FormItem>
@@ -208,7 +208,10 @@ const kappagen = useKappagenInstance()
 						</div>
 					</PopoverContent>
 				</Popover>
-				<Switch :checked="animation.value.enabled" @update:checked="switchEnabled(index, $event)" />
+				<Switch
+					:model-value="animation.value.enabled"
+					@update:model-value="switchEnabled(index, $event)"
+				/>
 			</div>
 		</div>
 	</div>

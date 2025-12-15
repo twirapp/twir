@@ -112,7 +112,7 @@ async function resetSettings() {
 							<FormItem class="flex gap-2 space-y-0 items-center">
 								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 								<FormControl>
-									<Switch :checked="value" @update:checked="handleChange" />
+									<Switch :model-value="value" @update:model-value="handleChange" />
 								</FormControl>
 								<FormMessage />
 							</FormItem>

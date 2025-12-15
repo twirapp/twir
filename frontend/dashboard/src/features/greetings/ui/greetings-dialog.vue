@@ -131,7 +131,7 @@ const { t } = useI18n()
 					<FormItem class="flex justify-between items-center flex-wrap">
 						<FormLabel>Send shoutout with greeting</FormLabel>
 						<FormControl>
-							<Switch :checked="value" @update:checked="handleChange" />
+							<Switch :model-value="value" @update:model-value="handleChange" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -141,7 +141,7 @@ const { t } = useI18n()
 					<FormItem class="flex justify-between items-center flex-wrap">
 						<FormLabel>{{ t('sharedTexts.reply.text') }}</FormLabel>
 						<FormControl>
-							<Switch :checked="value" @update:checked="handleChange" />
+							<Switch :model-value="value" @update:model-value="handleChange" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>

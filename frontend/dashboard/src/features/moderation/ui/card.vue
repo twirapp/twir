@@ -74,9 +74,9 @@ async function removeItem() {
 			<Switch
 				v-if="item.id"
 				:disabled="!userCanManageModeration"
-				:checked="item.enabled"
+				:model-value="item.enabled"
 				:aria-disabled="patchExecuting"
-				@update:checked="(v: boolean) => switchState(item.id!, v)"
+				@update:model-value="(v: boolean) => switchState(item.id!, v)"
 			/>
 		</template>
 

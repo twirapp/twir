@@ -30,7 +30,7 @@ function deleteGreetings() {
 
 <template>
 	<div class="flex items-center gap-2">
-		<Switch :checked="greetings.enabled" @update:checked="toggleEnabledGreetings" />
+		<Switch :model-value="greetings.enabled" @update:model-value="toggleEnabledGreetings" />
 
 		<GreetingsDialog :greeting="greetings">
 			<template #dialog-trigger>

@@ -152,7 +152,7 @@ async function playPreview() {
 							<div class="flex items-center justify-between">
 								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 								<FormControl>
-									<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+									<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
 								</FormControl>
 							</div>
 							<FormMessage />
@@ -339,7 +339,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -356,7 +356,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -373,7 +373,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -399,7 +399,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -416,7 +416,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -442,7 +442,7 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :checked="field.value" @update:checked="field['onUpdate:modelValue']" />
+										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
 									</FormControl>
 								</div>
 								<FormMessage />

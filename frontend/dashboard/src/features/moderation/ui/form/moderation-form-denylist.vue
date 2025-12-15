@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { AlertTriangle, CaseSensitiveIcon, Plus, RegexIcon, WholeWordIcon, X } from 'lucide-vue-next'
+import {
+	AlertTriangle,
+	CaseSensitiveIcon,
+	Plus,
+	RegexIcon,
+	WholeWordIcon,
+	X,
+} from 'lucide-vue-next'
 import { FieldArray, useField } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 
@@ -52,9 +59,9 @@ function addItem() {
 				</div>
 				<FormControl>
 					<Switch
-						:checked="field.value"
+						:model-value="field.value"
 						default-checked
-						@update:checked="field['onUpdate:modelValue']"
+						@update:model-value="field['onUpdate:modelValue']"
 					/>
 				</FormControl>
 			</FormItem>
@@ -79,9 +86,9 @@ function addItem() {
 				<FormControl>
 					<Switch
 						:disabled="isRegexpEnabled"
-						:checked="field.value"
+						:model-value="field.value"
 						default-checked
-						@update:checked="field['onUpdate:modelValue']"
+						@update:model-value="field['onUpdate:modelValue']"
 					/>
 				</FormControl>
 			</FormItem>
@@ -100,9 +107,9 @@ function addItem() {
 				</div>
 				<FormControl>
 					<Switch
-						:checked="field.value"
+						:model-value="field.value"
 						default-checked
-						@update:checked="field['onUpdate:modelValue']"
+						@update:model-value="field['onUpdate:modelValue']"
 					/>
 				</FormControl>
 				<FormMessage />
@@ -112,10 +119,7 @@ function addItem() {
 		<FieldArray v-slot="{ fields, remove }" name="denyList">
 			<Separator />
 
-			<Alert
-				v-if="!denyList?.length"
-				class="flex items-center gap-2"
-			>
+			<Alert v-if="!denyList?.length" class="flex items-center gap-2">
 				<AlertTriangle class="h-4 w-4" />
 				<AlertDescription>
 					{{ t('moderation.types.deny_list.empty') }}

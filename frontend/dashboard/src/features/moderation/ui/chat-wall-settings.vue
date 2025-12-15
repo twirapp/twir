@@ -28,13 +28,17 @@ const chatSettingsForm = useForm({
 })
 
 const { data, fetching } = api.useSettings()
-watch(data, (v) => {
-	if (!v) return
-	chatSettingsForm.setValues({
-		muteSubscribers: v.chatWallSettings.muteSubscribers,
-		muteVips: v.chatWallSettings.muteVips,
-	})
-}, { immediate: true })
+watch(
+	data,
+	(v) => {
+		if (!v) return
+		chatSettingsForm.setValues({
+			muteSubscribers: v.chatWallSettings.muteSubscribers,
+			muteVips: v.chatWallSettings.muteVips,
+		})
+	},
+	{ immediate: true }
+)
 
 const onSubmit = chatSettingsForm.handleSubmit(async (values) => {
 	await update.executeMutation({
@@ -53,7 +57,7 @@ const chatWallCommandsNames = [
 ]
 
 const chatWallCommands = computed(() => {
-	return commands.value?.commands?.filter(c => {
+	return commands.value?.commands?.filter((c) => {
 		return c.defaultName && chatWallCommandsNames.includes(c.defaultName)
 	})
 })
@@ -70,7 +74,9 @@ const chatWallCommands = computed(() => {
 					v-if="fetching"
 					class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-xs"
 				>
-					<div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+					<div
+						class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"
+					/>
 				</div>
 				<div class="flex flex-col gap-4">
 					<FormField v-slot="{ field }" name="muteSubscribers">
@@ -82,9 +88,9 @@ const chatWallCommands = computed(() => {
 							</div>
 							<FormControl>
 								<Switch
-									:checked="field.value"
+									:model-value="field.value"
 									default-checked
-									@update:checked="field['onUpdate:modelValue']"
+									@update:model-value="field['onUpdate:modelValue']"
 								/>
 							</FormControl>
 						</FormItem>
@@ -99,9 +105,9 @@ const chatWallCommands = computed(() => {
 							</div>
 							<FormControl>
 								<Switch
-									:checked="field.value"
+									:model-value="field.value"
 									default-checked
-									@update:checked="field['onUpdate:modelValue']"
+									@update:model-value="field['onUpdate:modelValue']"
 								/>
 							</FormControl>
 						</FormItem>
@@ -122,11 +128,7 @@ const chatWallCommands = computed(() => {
 		</CardHeader>
 		<CardContent>
 			<div class="flex flex-row flex-wrap gap-4">
-				<CommandsList
-					v-if="chatWallCommands"
-					:commands="chatWallCommands"
-					show-background
-				/>
+				<CommandsList v-if="chatWallCommands" :commands="chatWallCommands" show-background />
 			</div>
 		</CardContent>
 	</Card>
@@ -134,6 +136,6 @@ const chatWallCommands = computed(() => {
 
 <style scoped>
 .backdrop-blur-xs {
-  backdrop-filter: blur(4px);
+	backdrop-filter: blur(4px);
 }
 </style>

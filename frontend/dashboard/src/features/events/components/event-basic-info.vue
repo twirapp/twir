@@ -183,7 +183,7 @@ const opened = ref(false)
 							<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 						</div>
 						<FormControl>
-							<Switch :checked="value" @update:checked="handleChange" />
+							<Switch :model-value="value" @update:model-value="handleChange" />
 						</FormControl>
 					</FormItem>
 				</FormField>
@@ -196,7 +196,7 @@ const opened = ref(false)
 							<FormLabel>{{ t('events.onlineOnly') }}</FormLabel>
 						</div>
 						<FormControl>
-							<Switch :checked="value" @update:checked="handleChange" />
+							<Switch :model-value="value" @update:model-value="handleChange" />
 						</FormControl>
 					</FormItem>
 				</FormField>

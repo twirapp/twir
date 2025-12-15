@@ -68,7 +68,7 @@ function getEmojiPreview(style: KappagenEmojiStyle) {
 						<div class="text-[0.8rem] text-muted-foreground">Spawn emote on each chat message</div>
 					</div>
 
-					<Switch :checked="value" @update:checked="handleChange" />
+					<Switch :model-value="value" @update:model-value="handleChange" />
 					<FormMessage />
 				</FormItem>
 			</FormField>
@@ -81,7 +81,7 @@ function getEmojiPreview(style: KappagenEmojiStyle) {
 							Enable special rave animations and effects
 						</div>
 					</div>
-					<Switch :checked="value" @update:checked="handleChange" />
+					<Switch :model-value="value" @update:model-value="handleChange" />
 					<FormMessage />
 				</FormItem>
 			</FormField>

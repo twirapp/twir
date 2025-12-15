@@ -62,8 +62,8 @@ function goToCopyCommand() {
 	<div class="flex items-center gap-4">
 		<Switch
 			:disabled="!userCanManageCommands"
-			:checked="row.enabled"
-			@update:checked="switchEnabled"
+			:model-value="row.enabled"
+			@update:model-value="switchEnabled"
 		/>
 		<div class="flex gap-2">
 			<Tooltip v-if="row.module === 'CUSTOM'">
