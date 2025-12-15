@@ -3,6 +3,7 @@ import { useVirtualList } from '@vueuse/core'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useFilter } from 'reka-ui'
 
 import { resolveUserName } from '../../helpers'
 
@@ -60,29 +61,16 @@ const popoverProps = computed((): PopoverContentProps & { class?: string } => {
 	}
 })
 
-const options = computed(() => {
-	return (
-		profile.value?.availableDashboards.filter((item) => {
-			return item.twitchProfile.login.toLowerCase().includes(search.value.toLowerCase())
-		}) ?? []
-	)
-})
-
 const search = ref('')
 
-function filterFunction(_items: any, searchTerm: string): string[] {
-	if (!profile.value?.availableDashboards) return []
-
-	search.value = searchTerm
-
-	return profile.value.availableDashboards
-
-		.filter((item) => {
-			return item.twitchProfile.login.toLowerCase().includes(searchTerm.toLowerCase())
-		})
-
-		.map((item) => item.id)
-}
+const { contains } = useFilter({ sensitivity: 'base' })
+const options = computed(() => {
+	return (
+		profile.value?.availableDashboards.filter((p) =>
+			contains(p.twitchProfile.login, search.value)
+		) ?? []
+	)
+})
 
 const {
 	list: virtualizedList,
@@ -116,8 +104,8 @@ const {
 					</SidebarMenuButton>
 				</PopoverTrigger>
 				<PopoverContent class="p-0 min-h-20!" v-bind="popoverProps">
-					<Command :filter-function="filterFunction">
-						<CommandInput class="h-9" placeholder="Search user" />
+					<Command>
+						<CommandInput v-model="search" class="h-9" placeholder="Search user" />
 						<CommandEmpty> No user found </CommandEmpty>
 						<CommandList class="max-h-full!">
 							<CommandGroup :heading="t(`dashboard.header.channelsAccess`)" class="w-full">
