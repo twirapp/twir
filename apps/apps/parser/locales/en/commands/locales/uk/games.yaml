@@ -28,6 +28,7 @@ errors:
   voteban_cannot_find_user: Не вдалося знайти користувача
   voteban_cannot_set_vote: Неможливо встановити голос
   voteban_cannot_set_vote_expiration: Неможливо встановити термін дії голосу
+  voteban_cannot_timeout_moderator: Cannot start voteban on moderator
 info:
   # Duel
   user_not_participate: Ви не є учасником в жодній дуелі
