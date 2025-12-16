@@ -28,6 +28,7 @@ errors:
   voteban_cannot_find_user: Cannot find target user
   voteban_cannot_set_vote: Cannot set vote
   voteban_cannot_set_vote_expiration: Cannot set vote expiration
+  voteban_cannot_timeout_moderator: Cannot start voteban on moderator
 
 info:
   # Duel
