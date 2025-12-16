@@ -45,7 +45,6 @@ import (
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
 	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
-	channelsgamesvotebanprogressstateredis "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state/redis"
 	channelsinfohistorypostgres "github.com/twirapp/twir/libs/repositories/channels_info_history/datasource/postgres"
 	channelsintegrationslastfmpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm/datasources/postgres"
 	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
@@ -56,6 +55,7 @@ import (
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+	userswithstatspostgres "github.com/twirapp/twir/libs/repositories/userswithstats/datasource/postgres"
 	vkintegrationpostgres "github.com/twirapp/twir/libs/repositories/vk_integration/datasource/postgres"
 	"github.com/twirapp/twir/libs/uptrace"
 
@@ -187,7 +187,6 @@ func main() {
 
 	// redis
 	url, err := redis.ParseURL(config.RedisUrl)
-
 	if err != nil {
 		panic("Wrong redis url")
 	}
@@ -238,10 +237,10 @@ func main() {
 	chatMessagesRepo := chatmessagesrepositoryclickhouse.New(chatmessagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 	channelsEventListRepo := channelseventslistpostgres.New(channelseventslistpostgres.Opts{PgxPool: pgxconn})
 	channelsGamesVotebanRepo := channelsgamesvotebanpgx.New(channelsgamesvotebanpgx.Opts{PgxPool: pgxconn})
-	channelsGamesVotebanProgressStateRepo := channelsgamesvotebanprogressstateredis.New(channelsgamesvotebanprogressstateredis.Opts{Redis: redisClient})
 	lastfmRepo := channelsintegrationslastfmpostgres.New(channelsintegrationslastfmpostgres.Opts{PgxPool: pgxconn})
 	vkRepo := vkintegrationpostgres.NewFx(pgxconn)
 	faceitRepo := faceitintegrationpostgres.New(pgxconn)
+	usersWithStatsRepository := userswithstatspostgres.NewFx(pgxconn)
 
 	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
@@ -300,16 +299,16 @@ func main() {
 				Config:     *config,
 			},
 		),
-		ChannelEmotesUsagesRepo:           channelsEmotesUsage,
-		ChannelsCommandsUsagesRepo:        channelsCommandsUsagesRepo,
-		ChatMessagesRepo:                  chatMessagesRepo,
-		ChannelsGamesVotebanRepo:          channelsGamesVotebanRepo,
-		ChannelsGamesVotebanProgressState: channelsGamesVotebanProgressStateRepo,
-		LastfmRepo:                        lastfmRepo,
-		VKRepo:                            vkRepo,
-		FaceitRepo:                        faceitRepo,
-		Executron:                         executron.New(*config, redisClient),
-		I18n:                              translationService,
+		ChannelEmotesUsagesRepo:    channelsEmotesUsage,
+		ChannelsCommandsUsagesRepo: channelsCommandsUsagesRepo,
+		ChatMessagesRepo:           chatMessagesRepo,
+		ChannelsGamesVotebanRepo:   channelsGamesVotebanRepo,
+		LastfmRepo:                 lastfmRepo,
+		VKRepo:                     vkRepo,
+		FaceitRepo:                 faceitRepo,
+		Executron:                  executron.New(*config, redisClient),
+		I18n:                       translationService,
+		UsersWithStatsRepository:   usersWithStatsRepository,
 	}
 
 	variablesService := variables.New(

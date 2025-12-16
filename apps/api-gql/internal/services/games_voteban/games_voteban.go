@@ -9,10 +9,9 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"go.uber.org/fx"
 
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
+	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
-	"github.com/twirapp/twir/libs/repositories/channels_games_voteban/model"
 )
 
 type Opts struct {
@@ -20,7 +19,7 @@ type Opts struct {
 
 	Repository    channelsgamesvoteban.Repository
 	AuditRecorder audit.Recorder
-	Cacher        *generic_cacher.GenericCacher[model.VoteBan]
+	Cacher        *generic_cacher.GenericCacher[votebanentity.Voteban]
 }
 
 func New(opts Opts) *Service {
@@ -34,38 +33,7 @@ func New(opts Opts) *Service {
 type Service struct {
 	repository    channelsgamesvoteban.Repository
 	auditRecorder audit.Recorder
-	cacher        *generic_cacher.GenericCacher[model.VoteBan]
-}
-
-func (s *Service) mapToEntity(m model.VoteBan) entity.GamesVoteBan {
-	return entity.GamesVoteBan{
-		ID:                       m.ID,
-		ChannelID:                m.ChannelID,
-		Enabled:                  m.Enabled,
-		TimeoutSeconds:           m.TimeoutSeconds,
-		TimeoutModerators:        m.TimeoutModerators,
-		InitMessage:              m.InitMessage,
-		BanMessage:               m.BanMessage,
-		BanMessageModerators:     m.BanMessageModerators,
-		SurviveMessage:           m.SurviveMessage,
-		SurviveMessageModerators: m.SurviveMessageModerators,
-		NeededVotes:              m.NeededVotes,
-		VoteDuration:             m.VoteDuration,
-		VotingMode:               entity.VotingMode(m.VotingMode),
-		ChatVotesWordsPositive:   m.ChatVotesWordsPositive,
-		ChatVotesWordsNegative:   m.ChatVotesWordsNegative,
-	}
-}
-
-func (s *Service) mapVotingModeToModel(mode entity.VotingMode) model.VotingMode {
-	switch mode {
-	case entity.VotingModeChat:
-		return model.VotingModeChat
-	case entity.VotingModeTwitchPolls:
-		return model.VotingModeTwitchPolls
-	default:
-		return model.VotingModeChat
-	}
+	cacher        *generic_cacher.GenericCacher[votebanentity.Voteban]
 }
 
 var defaultSettings = channelsgamesvoteban.CreateInput{
@@ -80,25 +48,25 @@ var defaultSettings = channelsgamesvoteban.CreateInput{
 	SurviveMessageModerators: "Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.",
 	NeededVotes:              1,
 	VoteDuration:             1,
-	VotingMode:               model.VotingModeChat,
+	VotingMode:               votebanentity.VotingModeChat,
 	ChatVotesWordsPositive:   pq.StringArray{"Yay"},
 	ChatVotesWordsNegative:   pq.StringArray{"Nay"},
 }
 
 func (s *Service) GetByChannelID(ctx context.Context, channelID string) (
-	entity.GamesVoteBan,
+	votebanentity.Voteban,
 	error,
 ) {
 	result, err := s.repository.GetOrCreateByChannelID(ctx, channelID, defaultSettings)
 	if err != nil {
-		return entity.GamesVoteBanNil, fmt.Errorf("failed to get or create games voteban: %w", err)
+		return votebanentity.Nil, fmt.Errorf("failed to get or create games voteban: %w", err)
 	}
 
 	if err = s.cacher.Invalidate(ctx, result.ChannelID); err != nil {
-		return entity.GamesVoteBanNil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return votebanentity.Nil, fmt.Errorf("failed to invalidate cache: %w", err)
 	}
 
-	return s.mapToEntity(result), nil
+	return result, nil
 }
 
 type UpdateInput struct {
@@ -115,16 +83,16 @@ type UpdateInput struct {
 	SurviveMessageModerators *string
 	NeededVotes              *int
 	VoteDuration             *int
-	VotingMode               *entity.VotingMode
+	VotingMode               *votebanentity.VotingMode
 	ChatVotesWordsPositive   []string
 	ChatVotesWordsNegative   []string
 }
 
-func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.GamesVoteBan, error) {
+func (s *Service) Update(ctx context.Context, input UpdateInput) (votebanentity.Voteban, error) {
 	// Get current entity first (or create with defaults)
 	currentEntity, err := s.repository.GetOrCreateByChannelID(ctx, input.ChannelID, defaultSettings)
 	if err != nil {
-		return entity.GamesVoteBanNil, fmt.Errorf("failed to get or create games voteban: %w", err)
+		return votebanentity.Nil, fmt.Errorf("failed to get or create games voteban: %w", err)
 	}
 
 	// Build update input
@@ -141,16 +109,12 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.GamesVo
 		VoteDuration:             input.VoteDuration,
 		ChatVotesWordsPositive:   input.ChatVotesWordsPositive,
 		ChatVotesWordsNegative:   input.ChatVotesWordsNegative,
-	}
-
-	if input.VotingMode != nil {
-		votingMode := s.mapVotingModeToModel(*input.VotingMode)
-		updateInput.VotingMode = &votingMode
+		VotingMode:               input.VotingMode,
 	}
 
 	updatedEntity, err := s.repository.Update(ctx, currentEntity.ID, updateInput)
 	if err != nil {
-		return entity.GamesVoteBanNil, fmt.Errorf("failed to update games voteban: %w", err)
+		return votebanentity.Nil, fmt.Errorf("failed to update games voteban: %w", err)
 	}
 
 	_ = s.auditRecorder.RecordUpdateOperation(
@@ -168,8 +132,8 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.GamesVo
 	)
 
 	if err := s.cacher.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.GamesVoteBanNil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return votebanentity.Nil, fmt.Errorf("failed to invalidate cache: %w", err)
 	}
 
-	return s.mapToEntity(updatedEntity), nil
+	return updatedEntity, nil
 }

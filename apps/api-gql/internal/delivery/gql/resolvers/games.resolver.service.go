@@ -8,9 +8,9 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/libs/audit"
+	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/utils"
 )
@@ -499,25 +499,25 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 	return r.Query().GamesSeppuku(ctx)
 }
 
-func gamesVotebanVotingModeEntityToGql(votingMode entity.VotingMode) gqlmodel.VoteBanGameVotingMode {
+func gamesVotebanVotingModeEntityToGql(votingMode votebanentity.VotingMode) gqlmodel.VoteBanGameVotingMode {
 	switch votingMode {
-	case entity.VotingModeChat:
+	case votebanentity.VotingModeChat:
 		return gqlmodel.VoteBanGameVotingModeChat
-	case entity.VotingModeTwitchPolls:
+	case votebanentity.VotingModeTwitchPolls:
 		return gqlmodel.VoteBanGameVotingModePolls
 	default:
 		return gqlmodel.VoteBanGameVotingModeChat
 	}
 }
 
-func gamesVotebanVotingModeGqlToEntity(votingMode gqlmodel.VoteBanGameVotingMode) entity.VotingMode {
+func gamesVotebanVotingModeGqlToEntity(votingMode gqlmodel.VoteBanGameVotingMode) votebanentity.VotingMode {
 	switch votingMode {
 	case gqlmodel.VoteBanGameVotingModeChat:
-		return entity.VotingModeChat
+		return votebanentity.VotingModeChat
 	case gqlmodel.VoteBanGameVotingModePolls:
-		return entity.VotingModeTwitchPolls
+		return votebanentity.VotingModeTwitchPolls
 	default:
-		return entity.VotingModeChat
+		return votebanentity.VotingModeChat
 	}
 }
 

@@ -10,13 +10,12 @@ import (
 	"time"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/redis/go-redis/v9"
 	batchprocessor "github.com/twirapp/batch-processor"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
+	"github.com/twirapp/twir/apps/bots/internal/services/voteban"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -26,8 +25,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
-	channelsgamesvotebanmodel "github.com/twirapp/twir/libs/repositories/channels_games_voteban/model"
-	channelsgamesvotebanprogressstate "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -71,8 +68,7 @@ type Opts struct {
 	ChannelsRepository               channelsrepository.Repository
 	GiveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
-	ChannelsGamesVotebanCacher       *generic_cacher.GenericCacher[channelsgamesvotebanmodel.VoteBan]
-	VotebanProgressStateRepository   channelsgamesvotebanprogressstate.Repository
+	VotebanService                   *voteban.Service
 
 	TrmManager trm.Manager
 
@@ -92,15 +88,13 @@ type MessageHandler struct {
 	twitchActions                    *twitchactions.TwitchActions
 	moderationHelpers                *moderationhelpers.ModerationHelpers
 	twirBus                          *buscore.Bus
-	votebanLock                      *redsync.Redsync
 	greetingsCache                   *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 	chatWallCacher                   *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
 	chatWallRepository               chatwallrepository.Repository
 	chatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 	giveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
-	channelsGamesVotebanCacher       *generic_cacher.GenericCacher[channelsgamesvotebanmodel.VoteBan]
-	votebanProgressStateRepository   channelsgamesvotebanprogressstate.Repository
+	votebanService                   *voteban.Service
 
 	keywordsService *keywords.Service
 	ttsService      *tts.Service
@@ -116,18 +110,16 @@ type MessageHandler struct {
 var messageHandlerTracer = otel.Tracer("message-handler")
 
 func New(opts Opts) *MessageHandler {
-	votebanLock := redsync.New(goredis.NewPool(opts.Redis))
-
 	handler := &MessageHandler{
-		logger:                           opts.Logger,
-		gorm:                             opts.Gorm,
-		redis:                            opts.Redis,
-		twitchActions:                    opts.TwitchActions,
-		websocketsGrpc:                   opts.WebsocketsGrpc,
-		moderationHelpers:                opts.ModerationHelpers,
-		config:                           opts.Config,
-		twirBus:                          opts.Bus,
-		votebanLock:                      votebanLock,
+		logger:            opts.Logger,
+		gorm:              opts.Gorm,
+		redis:             opts.Redis,
+		twitchActions:     opts.TwitchActions,
+		websocketsGrpc:    opts.WebsocketsGrpc,
+		moderationHelpers: opts.ModerationHelpers,
+		config:            opts.Config,
+		twirBus:           opts.Bus,
+
 		keywordsService:                  opts.KeywordsService,
 		greetingsRepository:              opts.GreetingsRepository,
 		chatMessagesRepository:           opts.ChatMessagesRepository,
@@ -142,8 +134,7 @@ func New(opts Opts) *MessageHandler {
 		channelsModerationSettingsCacher: opts.ChannelsModerationSettingsCacher,
 		trmManager:                       opts.TrmManager,
 		usersRepository:                  opts.UsersRepository,
-		channelsGamesVotebanCacher:       opts.ChannelsGamesVotebanCacher,
-		votebanProgressStateRepository:   opts.VotebanProgressStateRepository,
+		votebanService:                   opts.VotebanService,
 
 		workersPool: opts.WorkersPool,
 	}

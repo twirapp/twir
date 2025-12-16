@@ -168,6 +168,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				GobEncoder,
 			),
+			VotebanRegister: NewNatsQueue[botsservice.VotebanRegisterRequest, botsservice.VotebanRegisterResponse](
+				nc,
+				botsservice.RegisterVotebanSubsject,
+				1*time.Minute,
+				GobEncoder,
+			),
 		},
 
 		Websocket: &websocketBus{

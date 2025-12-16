@@ -172,16 +172,16 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ value }" name="chatVotesWordsPositive">
+						<FormField v-slot="{ field }" name="chatVotesWordsPositive">
 							<FormItem>
 								<FormControl>
 									<FormLabel>{{ t('games.voteban.wordsPositive') }}</FormLabel>
 									<TagsInput
-										:model-value="value"
-										:placeholder="t('games.voteban.wordsPositive')"
+										:model-value="field.value"
+										@update:model-value="field['onUpdate:modelValue']"
 										:max="10"
 									>
-										<TagsInputItem v-for="item in value" :key="item" :value="item">
+										<TagsInputItem v-for="item in field.value" :key="item" :value="item">
 											<TagsInputItemText />
 											<TagsInputItemDelete />
 										</TagsInputItem>
@@ -193,16 +193,17 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ value }" name="chatVotesWordsNegative">
+						<FormField v-slot="{ field }" name="chatVotesWordsNegative">
 							<FormItem>
 								<FormControl>
 									<FormLabel>{{ t('games.voteban.wordsNegative') }}</FormLabel>
 									<TagsInput
-										:model-value="value"
-										:placeholder="t('games.voteban.wordsNegative')"
+										:model-value="field.value"
+										@update:model-value="field['onUpdate:modelValue']"
+										:placeholder="t('games.voteban.wordsPositive')"
 										:max="10"
 									>
-										<TagsInputItem v-for="item in value" :key="item" :value="item">
+										<TagsInputItem v-for="item in field.value" :key="item" :value="item">
 											<TagsInputItemText />
 											<TagsInputItemDelete />
 										</TagsInputItem>

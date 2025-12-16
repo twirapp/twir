@@ -51,6 +51,7 @@ type botsBus struct {
 	UnVip           Queue[botsservice.UnVipRequest, struct{}]
 	ModeratorAdd    Queue[botsservice.ModeratorAddRequest, struct{}]
 	ModeratorRemove Queue[botsservice.ModeratorRemoveRequest, struct{}]
+	VotebanRegister Queue[botsservice.VotebanRegisterRequest, botsservice.VotebanRegisterResponse]
 }
 
 type emotesCacherBus struct {

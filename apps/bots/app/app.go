@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
+	"github.com/twirapp/twir/apps/bots/internal/services/voteban"
 	stream_handlers "github.com/twirapp/twir/apps/bots/internal/stream-handlers"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
@@ -42,8 +43,6 @@ import (
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsgamesvotebanrepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
-	channelsgamesvotebanprogressstaterepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state"
-	channelsgamesvotebanprogressstateredis "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state/redis"
 	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -140,10 +139,6 @@ var App = fx.Module(
 			channelsgamesvotebanpgx.NewFx,
 			fx.As(new(channelsgamesvotebanrepository.Repository)),
 		),
-		fx.Annotate(
-			channelsgamesvotebanprogressstateredis.NewFx,
-			fx.As(new(channelsgamesvotebanprogressstaterepository.Repository)),
-		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -177,6 +172,7 @@ var App = fx.Module(
 		messagehandler.New,
 		keywords.New,
 		tts.New,
+		voteban.New,
 	),
 	fx.Invoke(
 		mod_task_queue.NewRedisTaskProcessor,

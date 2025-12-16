@@ -164,7 +164,7 @@ We use `vee-validate` with `zod` for schema-based validation. Follow this patter
 		<!-- v-slot usage for a Switch/Checkbox -->
 		<div class="flex items-center space-x-2">
 			<VeeField name="subscribe" v-slot="{ value, handleChange }">
-				<Switch id="subscribe" :checked="value" @update:checked="handleChange"/>
+				<Switch id="subscribe" :model-value="value" @update:model-value="handleChange"/>
 				<label for="subscribe">Subscribe to newsletter</label>
 			</VeeField>
 			<FormMessage name="subscribe"/>
@@ -250,36 +250,36 @@ single request, optimizing network usage and improving user experience.
 When creating a new integration or refactoring an existing one to use GraphQL:
 
 1. **Add fields to the unified query** in `integrations-page.ts`:
-	  ```typescript
-		const IntegrationsPageQuery = graphql(`
-		query IntegrationsPageData {
-		# ... existing fields ...
+	 	```typescript
+		 const IntegrationsPageQuery = graphql(`
+		 query IntegrationsPageData {
+		 # ... existing fields ...
 
-													# New integration
-													myNewIntegrationData {
-														enabled
-														userName
-														avatar
-													}
-													myNewIntegrationAuthLink
-												}
-											`)
-											```
+													 # New integration
+													 myNewIntegrationData {
+														 enabled
+														 userName
+														 avatar
+													 }
+													 myNewIntegrationAuthLink
+												 }
+											 `)
+											 ```
 
 2. **Add computed refs** for the new integration data:
-	  ```typescript
-		// MyNewIntegration
-		const myNewIntegrationData = computed(() => query.data.value?.myNewIntegrationData ?? null)
-		const myNewIntegrationAuthLink = computed(() => query.data.value?.myNewIntegrationAuthLink ?? null)
-		```
+	 	```typescript
+		 // MyNewIntegration
+		 const myNewIntegrationData = computed(() => query.data.value?.myNewIntegrationData ?? null)
+		 const myNewIntegrationAuthLink = computed(() => query.data.value?.myNewIntegrationAuthLink ?? null)
+		 ```
 
 3. **Export the new computed refs** in the return statement.
 
 4. **Use the unified data in components** instead of creating separate queries:
-	  ```typescript
-		const integrationsPage = useIntegrationsPageData()
-		// Access via integrationsPage.myNewIntegrationData
-		```
+	 	```typescript
+		 const integrationsPage = useIntegrationsPageData()
+		 // Access via integrationsPage.myNewIntegrationData
+		 ```
 
 #### **6.3. Mutations**
 

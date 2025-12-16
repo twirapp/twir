@@ -1,6 +1,7 @@
 package twitch
 
 import (
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,6 +27,31 @@ type TwitchChatMessage struct {
 	Badges                      []ChatMessageBadge  `json:"badges,omitempty"`
 
 	EnrichedData ChatMessageEnrichedData `json:"enriched_data,omitempty"`
+}
+
+const (
+	broadcasterBadgeId       = "broadcaster"
+	subscriberBadgeId        = "subscriber"
+	subscriberFounderBadgeId = "founder"
+	vipfounderBadgeId        = "vip"
+)
+
+func (c TwitchChatMessage) IsChatterBroadcaster() bool {
+	return slices.ContainsFunc(c.Badges, func(b ChatMessageBadge) bool {
+		return b.Id == broadcasterBadgeId
+	})
+}
+
+func (c TwitchChatMessage) IsChatterVip() bool {
+	return slices.ContainsFunc(c.Badges, func(b ChatMessageBadge) bool {
+		return b.Id == vipfounderBadgeId
+	})
+}
+
+func (c TwitchChatMessage) IsChatterSubscriber() bool {
+	return slices.ContainsFunc(c.Badges, func(b ChatMessageBadge) bool {
+		return b.Id == subscriberBadgeId || b.Id == subscriberFounderBadgeId
+	})
 }
 
 type ChatMessageEnrichedData struct {

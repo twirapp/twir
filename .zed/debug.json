@@ -1,0 +1,14 @@
+[
+	{
+		"adapter": "Delve",
+		"label": "Bots",
+		"program": "${ZED_WORKTREE_ROOT}/apps/bots/cmd/main",
+		"cwd": "${ZED_WORKTREE_ROOT}/apps/bots",
+		"args": [],
+		"env": {},
+		"request": "launch",
+		"mode": "exec",
+		"stopOnEntry": false,
+		"tcp_connection": { "host": "127.0.0.1", "port": 2351 }
+	}
+]

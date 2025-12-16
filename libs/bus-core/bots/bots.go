@@ -2,18 +2,22 @@ package bots
 
 import (
 	"math/rand/v2"
+
+	"github.com/twirapp/twir/libs/bus-core/twitch"
+	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 )
 
 const (
-	SendMessageSubject     = "bots.send_message"
-	DeleteMessageSubject   = "bots.delete_message"
-	BanSubject             = "bots.ban"
-	BanMultipleSubject     = "bots.ban_multiple"
-	ShoutOutSubject        = "bots.shoutout"
-	VipSubject             = "bots.vip"
-	UnVipSubject           = "bots.unvip"
-	ModeratorAddSubject    = "bots.moderator_add"
-	ModeratorRemoveSubject = "bots.moderator_remove"
+	SendMessageSubject      = "bots.send_message"
+	DeleteMessageSubject    = "bots.delete_message"
+	BanSubject              = "bots.ban"
+	BanMultipleSubject      = "bots.ban_multiple"
+	ShoutOutSubject         = "bots.shoutout"
+	VipSubject              = "bots.vip"
+	UnVipSubject            = "bots.unvip"
+	ModeratorAddSubject     = "bots.moderator_add"
+	ModeratorRemoveSubject  = "bots.moderator_remove"
+	RegisterVotebanSubsject = "bots.voteban.register"
 )
 
 type SendMessageRequest struct {
@@ -37,7 +41,7 @@ type BanRequest struct {
 	ChannelID string
 	UserID    string
 	Reason    string
-	// BanTime set 0 to time permanent
+	// BanTime in seconds, set 0 to time permanent
 	BanTime        int
 	IsModerator    bool
 	AddModAfterBan bool
@@ -94,3 +98,15 @@ const (
 	AnnounceColorOrange
 	AnnounceColorPurple
 )
+
+type VotebanRegisterRequest struct {
+	Data                 votebanentity.Voteban
+	TargerUser           twitch.ChatMessageMessageFragmentMention
+	InitiatorUserID      string
+	InitiatorUserLogin   string
+	InitiatorIsModerator bool
+}
+
+type VotebanRegisterResponse struct {
+	AlreadyInProgress bool
+}

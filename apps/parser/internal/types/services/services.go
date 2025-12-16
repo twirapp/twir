@@ -23,7 +23,6 @@ import (
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
-	channelsgamesvotebanprogressstate "github.com/twirapp/twir/libs/repositories/channels_games_voteban_progress_state"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
@@ -35,6 +34,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
+	"github.com/twirapp/twir/libs/repositories/userswithstats"
 	vkintegration "github.com/twirapp/twir/libs/repositories/vk_integration"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
@@ -46,42 +46,42 @@ type Grpc struct {
 }
 
 type Services struct {
-	Config                            *cfg.Config
-	Logger                            *zap.Logger
-	Gorm                              *gorm.DB
-	Sqlx                              *sqlx.DB
-	Redis                             *redis.Client
-	GrpcClients                       *Grpc
-	Bus                               *buscore.Bus
-	TrmManager                        trm.Manager
-	CommandsCache                     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	CommandsPrefixCache               *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
-	SevenTvCache                      *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser]
-	ChatWallCache                     *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
-	ChatWallService                   *chat_wall.Service
-	RedSync                           *redsync.Redsync
-	CommandsLock                      *redsync.Mutex
-	CommandsPrefixRepository          channelscommandsprefixrepository.Repository
-	TTSCache                          *generic_cacher.GenericCacher[modules.TTSSettings]
-	TTSRepository                     overlays_tts.Repository
-	TTSService                        *ttsservice.Service
-	SpotifyRepo                       channelsintegrationsspotify.Repository
-	UsersRepo                         users.Repository
-	CategoriesAliasesRepo             channelscategoriesaliases.Repository
-	ScheduledVipsRepo                 scheduledvipsrepository.Repository
-	CacheTwitchClient                 *twitch.CachedTwitchClient
-	ChatWallRepo                      chatwallrepository.Repository
-	ChannelsInfoHistoryRepo           channelsinfohistory.Repository
-	ChannelEmotesUsagesRepo           channelsemotesusagesrepository.Repository
-	ChannelsCommandsUsagesRepo        channelscommandsusages.Repository
-	ChatMessagesRepo                  chatmessagesrepository.Repository
-	ChannelEventListsRepo             channelseventslist.Repository
-	ChannelsGamesVotebanRepo          channelsgamesvoteban.Repository
-	ChannelsGamesVotebanProgressState channelsgamesvotebanprogressstate.Repository
-	ShortUrlServices                  *shortenedurls.Service
-	LastfmRepo                        channelsintegrationslastfm.Repository
-	VKRepo                            vkintegration.Repository
-	FaceitRepo                        faceitintegration.Repository
-	Executron                         executron.Executron
-	I18n                              *i18n.I18n
+	Config                     *cfg.Config
+	Logger                     *zap.Logger
+	Gorm                       *gorm.DB
+	Sqlx                       *sqlx.DB
+	Redis                      *redis.Client
+	GrpcClients                *Grpc
+	Bus                        *buscore.Bus
+	TrmManager                 trm.Manager
+	CommandsCache              *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
+	CommandsPrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	SevenTvCache               *generic_cacher.GenericCacher[seventvintegrationapi.TwirSeventvUser]
+	ChatWallCache              *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
+	ChatWallService            *chat_wall.Service
+	RedSync                    *redsync.Redsync
+	CommandsLock               *redsync.Mutex
+	CommandsPrefixRepository   channelscommandsprefixrepository.Repository
+	TTSCache                   *generic_cacher.GenericCacher[modules.TTSSettings]
+	TTSRepository              overlays_tts.Repository
+	TTSService                 *ttsservice.Service
+	SpotifyRepo                channelsintegrationsspotify.Repository
+	UsersRepo                  users.Repository
+	CategoriesAliasesRepo      channelscategoriesaliases.Repository
+	ScheduledVipsRepo          scheduledvipsrepository.Repository
+	CacheTwitchClient          *twitch.CachedTwitchClient
+	ChatWallRepo               chatwallrepository.Repository
+	ChannelsInfoHistoryRepo    channelsinfohistory.Repository
+	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
+	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
+	ChatMessagesRepo           chatmessagesrepository.Repository
+	ChannelEventListsRepo      channelseventslist.Repository
+	ChannelsGamesVotebanRepo   channelsgamesvoteban.Repository
+	ShortUrlServices           *shortenedurls.Service
+	LastfmRepo                 channelsintegrationslastfm.Repository
+	VKRepo                     vkintegration.Repository
+	FaceitRepo                 faceitintegration.Repository
+	Executron                  executron.Executron
+	I18n                       *i18n.I18n
+	UsersWithStatsRepository   userswithstats.Repository
 }
