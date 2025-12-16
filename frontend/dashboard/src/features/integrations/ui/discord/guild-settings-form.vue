@@ -129,7 +129,7 @@ const messageWithMentions = computed(() => {
 							<FormField v-slot="{ value, handleChange }" name="liveNotificationEnabled">
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :checked="value" @update:checked="handleChange" />
+										<Checkbox :model-value="value" @update:model-value="handleChange" />
 									</FormControl>
 									<FormLabel class="mt-0!">{{ t('sharedTexts.enabled') }}</FormLabel>
 									<FormMessage />
@@ -139,7 +139,7 @@ const messageWithMentions = computed(() => {
 							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowTitle">
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :checked="value" @update:checked="handleChange" />
+										<Checkbox :model-value="value" @update:model-value="handleChange" />
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showTitle')
@@ -151,7 +151,7 @@ const messageWithMentions = computed(() => {
 							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowCategory">
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :checked="value" @update:checked="handleChange" />
+										<Checkbox :model-value="value" @update:model-value="handleChange" />
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showCategory')
@@ -163,7 +163,7 @@ const messageWithMentions = computed(() => {
 							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowPreview">
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :checked="value" @update:checked="handleChange" />
+										<Checkbox :model-value="value" @update:model-value="handleChange" />
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showPreview')
@@ -175,7 +175,7 @@ const messageWithMentions = computed(() => {
 							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowProfileImage">
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :checked="value" @update:checked="handleChange" />
+										<Checkbox :model-value="value" @update:model-value="handleChange" />
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showProfileImage')
@@ -187,7 +187,7 @@ const messageWithMentions = computed(() => {
 							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowViewers">
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :checked="value" @update:checked="handleChange" />
+										<Checkbox :model-value="value" @update:model-value="handleChange" />
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showViewers')
@@ -280,7 +280,7 @@ const messageWithMentions = computed(() => {
 						<FormField v-slot="{ value, handleChange }" name="shouldDeleteMessageOnOffline">
 							<FormItem class="flex flex-row items-center gap-3">
 								<FormControl>
-									<Checkbox :checked="value" @update:checked="handleChange" />
+									<Checkbox :model-value="value" @update:model-value="handleChange" />
 								</FormControl>
 								<FormLabel class="mt-0!">{{
 									t('integrations.discord.alerts.shouldDeleteMessageOnOffline')

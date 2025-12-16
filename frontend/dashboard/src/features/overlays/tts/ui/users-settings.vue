@@ -171,8 +171,8 @@ function testUserVoice(user: (typeof users.value)[0]) {
 										<Volume2 class="h-4 w-4" />
 									</Button>
 									<Checkbox
-										:checked="selectedUsers.has(user.userId)"
-										@update:checked="() => toggleUser(user.userId)"
+										:model-value="selectedUsers.has(user.userId)"
+										@update:model-value="() => toggleUser(user.userId)"
 									/>
 								</div>
 							</div>

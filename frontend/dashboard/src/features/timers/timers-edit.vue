@@ -195,7 +195,7 @@ const responsesHasError = computed(() => {
 															</Label>
 															<Checkbox
 																:id="`responses[${index}].isAnnounce`"
-																v-model:checked="(field.value as any).isAnnounce"
+																v-model:model-value="(field.value as any).isAnnounce"
 															/>
 														</div>
 

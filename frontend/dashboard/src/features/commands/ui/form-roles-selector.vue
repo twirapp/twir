@@ -41,20 +41,15 @@ const roles = computed(() => {
 			:unchecked-value="false"
 			:name="fieldName"
 		>
-			<!--			<div v-if="index === 0 && !hideBroadcaster" class="role"> -->
-			<!--				<Checkbox id="allRoles" checked disabled /> -->
-			<!--				<Label for="allRoles" class="capitalize">Broadcaster</Label> -->
-			<!--			</div> -->
-
 			<div v-if="index === 0 && !hideEveryone" class="role" @click="uncheckAll">
-				<Checkbox id="allRoles" :checked="!value?.length" />
+				<Checkbox id="allRoles" :model-value="!value?.length" />
 				<Label for="allRoles" class="capitalize">Everyone</Label>
 			</div>
 
 			<FormItem class="space-y-0">
 				<FormLabel class="role">
 					<FormControl>
-						<Checkbox :checked="value?.includes(role.id)" @update:checked="handleChange" />
+						<Checkbox :model-value="value?.includes(role.id)" @update:model-value="handleChange" />
 					</FormControl>
 					<span>{{ role.name.at(0) + role.name.slice(1).toLowerCase() }}</span>
 				</FormLabel>

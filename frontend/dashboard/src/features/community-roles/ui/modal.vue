@@ -176,15 +176,15 @@ const onSubmit = handleSubmit(async (formData) => {
 							<FormItem v-else class="flex flex-row items-start space-x-3 space-y-0">
 								<FormControl>
 									<Checkbox
-										:checked="value?.includes(permission.perm)"
+										:model-value="value?.includes(permission.perm)"
 										:disabled="
 											value?.some(
 												(p: ChannelRolePermissionEnum) =>
 													p === ChannelRolePermissionEnum.CanAccessDashboard
 											) && permission.perm !== ChannelRolePermissionEnum.CanAccessDashboard
 										"
-										@update:checked="
-											(checked: boolean) => {
+										@update:model-value="
+											(checked: boolean | 'indeterminate') => {
 												if (checked) {
 													handleChange([...(value || []), permission.perm])
 												} else {
