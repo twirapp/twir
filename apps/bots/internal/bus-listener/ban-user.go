@@ -12,42 +12,6 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 )
 
-func (c *BusListener) banUser(
-	ctx context.Context,
-	req bots.BanRequest,
-) error {
-	if req.ChannelID == req.UserID {
-		return nil
-	}
-
-	channelEntity := model.Channels{}
-	if err := c.gorm.WithContext(ctx).Where(
-		`"id" = ?`,
-		req.ChannelID,
-	).First(&channelEntity).Error; err != nil {
-		c.logger.Error("cannot get channel entity", logger.Error(err))
-		return err
-	}
-
-	if err := c.twitchActions.Ban(
-		ctx,
-		twitchactions.BanOpts{
-			Duration:       req.BanTime,
-			Reason:         req.Reason,
-			BroadcasterID:  req.ChannelID,
-			UserID:         req.UserID,
-			ModeratorID:    channelEntity.BotID,
-			IsModerator:    req.IsModerator,
-			AddModAfterBan: req.AddModAfterBan,
-		},
-	); err != nil {
-		c.logger.Error("cannot ban user", logger.Error(err))
-		return err
-	}
-
-	return nil
-}
-
 func (c *BusListener) banUsers(
 	ctx context.Context,
 	req []bots.BanRequest,

@@ -10,164 +10,155 @@ import (
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 )
 
-type votebanSession struct {
-	data     votebanentity.Voteban
-	yesWords map[string]struct{}
-	noWords  map[string]struct{}
-	votes    map[string]bool
-
-	targerUserId          string
-	targerUserLogin       string
-	isTargerUserModerator bool
-
-	mu         sync.Mutex
-	stopFunc   context.CancelFunc
-	finishChan chan sessionResult
-}
-
-func createVotebanSession(data votebanentity.Voteban, initiatorUserId, targerUserId, targerUserLogin string, isTargerUserModerator bool) *votebanSession {
-	s := votebanSession{
-		data:     data,
-		mu:       sync.Mutex{},
-		yesWords: map[string]struct{}{},
-		noWords:  map[string]struct{}{},
-		votes: map[string]bool{
-			targerUserId: true,
-		},
-		targerUserId:          targerUserId,
-		targerUserLogin:       targerUserLogin,
-		isTargerUserModerator: isTargerUserModerator,
+type (
+	sessionResult struct {
+		channelId    string
+		haveDecision bool
+		isModerator  bool
+		isBan        bool
+		targetUserId string
+		message      string
+		yesVotes     int
+		noVotes      int
+		banDuration  int
 	}
 
-	for _, w := range data.ChatVotesWordsPositive {
-		s.yesWords[w] = struct{}{}
+	session struct {
+		words                 map[string]bool
+		votes                 map[string]bool
+		yesVotes              int
+		noVotes               int
+		votesMu               sync.Mutex
+		result                chan sessionResult
+		voteban               votebanentity.Voteban
+		targetUserId          string
+		targetUserLogin       string
+		isTargetUserModerator bool
+	}
+)
+
+func newSession(
+	voteban votebanentity.Voteban,
+	targetUserId string,
+	targetUserLogin string,
+	isTargetUserModerator bool,
+) *session {
+	sess := session{
+		words:  make(map[string]bool),
+		votes:  make(map[string]bool),
+		result: make(chan sessionResult),
+
+		voteban:               voteban,
+		targetUserId:          targetUserId,
+		targetUserLogin:       targetUserLogin,
+		isTargetUserModerator: isTargetUserModerator,
 	}
 
-	for _, w := range data.ChatVotesWordsNegative {
-		s.noWords[w] = struct{}{}
+	for _, word := range voteban.ChatVotesWordsPositive {
+		sess.words[word] = true
 	}
 
-	return &s
+	for _, word := range voteban.ChatVotesWordsNegative {
+		sess.words[word] = false
+	}
+
+	sess.votes[targetUserId] = true
+	return &sess
 }
 
-type sessionResult struct {
-	channelId    string
-	haveDecision bool
-	isModerator  bool
-	isBan        bool
-	targerUserId string
-	message      string
-	yesVotes     int
-	noVotes      int
-	banDuration  int
-}
-
-func (c *votebanSession) start() chan sessionResult {
-	c.finishChan = make(chan sessionResult)
-
+func (s *session) waitResult() (sessionResult, bool) {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		time.Duration(c.data.VoteDuration)*time.Second,
+		time.Duration(s.voteban.VoteDuration)*time.Second,
 	)
+	defer cancel()
 
-	c.stopFunc = cancel
-
-	go func() {
-		<-ctx.Done()
-		c.finish()
-		close(c.finishChan)
-	}()
-
-	return c.finishChan
+	select {
+	case <-ctx.Done():
+		s.writeResult()
+		result := <-s.result
+		return result, true
+	case result := <-s.result:
+		return result, true
+	}
 }
 
-func (c *votebanSession) finish() {
-	defer c.stopFunc()
+func (s *session) writeResult() {
+	s.votesMu.Lock()
+	defer s.votesMu.Unlock()
 
-	if len(c.votes) < c.data.NeededVotes {
-		c.finishChan <- sessionResult{
+	if len(s.votes) < s.voteban.NeededVotes {
+		s.result <- sessionResult{
 			haveDecision: false,
 		}
 		return
 	}
 
 	var (
-		yesVotes int
-		noVotes  int
-	)
-
-	for _, v := range c.votes {
-		if v {
-			yesVotes++
-		} else {
-			noVotes++
-		}
-	}
-
-	var (
 		message string
-		isBan   bool
+		isBan   = s.yesVotes > s.noVotes
 	)
 
-	if yesVotes <= noVotes {
-		if c.isTargerUserModerator {
-			message = c.data.SurviveMessageModerators
+	if s.isTargetUserModerator {
+		message = s.voteban.SurviveMessageModerators
+	} else {
+		message = s.voteban.SurviveMessage
+	}
+
+	if isBan {
+		if s.isTargetUserModerator {
+			message = s.voteban.BanMessageModerators
 		} else {
-			message = c.data.SurviveMessage
-		}
-	} else if yesVotes > noVotes {
-		isBan = true
-		if c.isTargerUserModerator {
-			message = c.data.BanMessageModerators
-		} else {
-			message = c.data.BanMessage
+			message = s.voteban.BanMessage
 		}
 	}
 
-	message = strings.ReplaceAll(message, "{targetUser}", c.targerUserLogin)
+	message = strings.ReplaceAll(message, "{targetUser}", s.targetUserLogin)
 
-	c.finishChan <- sessionResult{
+	s.result <- sessionResult{
 		haveDecision: true,
-		isModerator:  c.isTargerUserModerator,
+		isModerator:  s.isTargetUserModerator,
 		isBan:        isBan,
-		targerUserId: c.targerUserId,
+		targetUserId: s.targetUserId,
 		message:      message,
-		yesVotes:     yesVotes,
-		noVotes:      noVotes,
-		channelId:    c.data.ChannelID,
-		banDuration:  c.data.TimeoutSeconds,
+		yesVotes:     s.yesVotes,
+		noVotes:      s.noVotes,
+		channelId:    s.voteban.ChannelID,
+		banDuration:  s.voteban.TimeoutSeconds,
 	}
 }
 
-func (c *votebanSession) tryRegisterVote(msg twitch.TwitchChatMessage) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
+func (s *session) tryRegisterVote(msg twitch.TwitchChatMessage) {
 	if msg.Message == nil {
 		return
 	}
 
-	if len(c.votes) >= c.data.NeededVotes {
+	s.votesMu.Lock()
+	defer s.votesMu.Unlock()
+
+	// Session has already finished or in process of finishing it.
+	if len(s.votes) >= s.voteban.NeededVotes {
 		return
 	}
 
-	if _, ok := c.votes[msg.ChatterUserId]; ok {
+	// Chatter has already voted during this session.
+	if _, ok := s.votes[msg.ChatterUserId]; ok {
 		return
 	}
 
-	for part := range strings.FieldsSeq(msg.Message.Text) {
-		if _, ok := c.yesWords[part]; ok {
-			c.votes[msg.ChatterUserId] = true
-			break
-		}
+	for word := range strings.FieldsSeq(msg.Message.Text) {
+		if isYay, exists := s.words[word]; exists {
+			s.votes[msg.ChatterUserId] = isYay
 
-		if _, ok := c.noWords[part]; ok {
-			c.votes[msg.ChatterUserId] = false
-			break
+			if isYay {
+				s.yesVotes++
+			} else {
+				s.noVotes++
+			}
 		}
 	}
 
-	if len(c.votes) >= c.data.NeededVotes {
-		c.finish()
+	if len(s.votes) >= s.voteban.NeededVotes {
+		s.writeResult()
 	}
 }

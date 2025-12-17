@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
+	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
@@ -170,6 +171,7 @@ var App = fx.Module(
 		channelsgamesvotebancache.New,
 		moderationhelpers.New,
 		messagehandler.New,
+		channel.New,
 		keywords.New,
 		tts.New,
 		voteban.New,
