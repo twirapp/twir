@@ -8,7 +8,6 @@ use (
 	./apps/emotes-cacher
 	./apps/events
 	./apps/eventsub
-	./apps/giveaways
 	./apps/parser
 	./apps/scheduler
 	./apps/timers

@@ -11,6 +11,7 @@ import (
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
 	chattranslationsservice "github.com/twirapp/twir/apps/bots/internal/services/chat_translations"
+	"github.com/twirapp/twir/apps/bots/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
@@ -56,6 +57,8 @@ import (
 	chatwallrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
 	giveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
 	giveawaysrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways/pgx"
+	giveawaysparticipantsrepository "github.com/twirapp/twir/libs/repositories/giveaways_participants"
+	giveawaysparticipantsrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways_participants/pgx"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
@@ -148,6 +151,10 @@ var App = fx.Module(
 			channelschattrenslationsrepositorypostgres.NewFx,
 			fx.As(new(channelschattrenslationsrepository.Repository)),
 		),
+		fx.Annotate(
+			giveawaysparticipantsrepositorypgx.NewFx,
+			fx.As(new(giveawaysparticipantsrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -184,6 +191,7 @@ var App = fx.Module(
 		voteban.New,
 		chattranslationssettingscache.New,
 		chattranslationsservice.New,
+		giveaways.New,
 	),
 	fx.Invoke(
 		ytsr.New,

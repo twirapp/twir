@@ -7,7 +7,6 @@
     <toRun name="emotes-cacher" type="GoRemoteDebugConfigurationType" />
     <toRun name="events" type="GoRemoteDebugConfigurationType" />
     <toRun name="eventsub" type="GoRemoteDebugConfigurationType" />
-    <toRun name="giveaways" type="GoRemoteDebugConfigurationType" />
     <toRun name="parser" type="GoRemoteDebugConfigurationType" />
     <toRun name="scheduler" type="GoRemoteDebugConfigurationType" />
     <toRun name="timers" type="GoRemoteDebugConfigurationType" />

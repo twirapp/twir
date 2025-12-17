@@ -14,6 +14,7 @@ import (
 	batchprocessor "github.com/twirapp/batch-processor"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
 	chattranslationsservice "github.com/twirapp/twir/apps/bots/internal/services/chat_translations"
+	"github.com/twirapp/twir/apps/bots/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
 	"github.com/twirapp/twir/apps/bots/internal/services/voteban"
@@ -72,6 +73,7 @@ type Opts struct {
 	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	VotebanService                   *voteban.Service
 	ChatTranslatorService            *chattranslationsservice.Service
+	GiveawaysService                 *giveaways.Service
 
 	TrmManager trm.Manager
 
@@ -99,6 +101,7 @@ type MessageHandler struct {
 	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	votebanService                   *voteban.Service
 	chatTranslatorService            *chattranslationsservice.Service
+	giveawaysService                 *giveaways.Service
 
 	keywordsService *keywords.Service
 	ttsService      *tts.Service
@@ -158,6 +161,7 @@ func New(opts Opts) *MessageHandler {
 		usersRepository:                  opts.UsersRepository,
 		votebanService:                   opts.VotebanService,
 		chatTranslatorService:            opts.ChatTranslatorService,
+		giveawaysService:                 opts.GiveawaysService,
 
 		workersPool: opts.WorkersPool,
 	}

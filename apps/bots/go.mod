@@ -24,7 +24,9 @@ require (
 
 require (
 	cloud.google.com/go/translate v1.12.7
+	github.com/guregu/null v4.0.0+incompatible
 	github.com/lkretschmer/deepl-go v0.3.0
+	github.com/oklog/ulid/v2 v2.1.1
 	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251217140736-48670d138d86
@@ -65,7 +67,6 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
-	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.6 // indirect
@@ -80,7 +81,6 @@ require (
 	github.com/nats-io/nats.go v1.47.0 // indirect
 	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/oklog/ulid/v2 v2.1.1 // indirect
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

@@ -49,12 +49,6 @@ type Bus struct {
 func NewNatsBus(nc *nats.Conn) *Bus {
 	return &Bus{
 		Giveaways: &giveawaysBus{
-			TryAddParticipant: NewNatsQueue[giveaways.TryAddParticipantRequest, struct{}](
-				nc,
-				giveaways.TryAddParticipantSubject,
-				1*time.Minute,
-				GobEncoder,
-			),
 			ChooseWinner: NewNatsQueue[giveaways.ChooseWinnerRequest, giveaways.ChooseWinnerResponse](
 				nc,
 				giveaways.ChooseWinnerSubject,

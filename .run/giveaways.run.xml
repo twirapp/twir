@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="giveaways" type="GoRemoteDebugConfigurationType" factoryName="Go Remote" port="2358">
-    <option name="disconnectOption" value="LEAVE" />
-    <disconnect value="LEAVE" />
-    <method v="2" />
-  </configuration>
-</component>

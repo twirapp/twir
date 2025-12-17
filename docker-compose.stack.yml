@@ -776,27 +776,6 @@ services:
         constraints:
           - node.labels.databases != true
 
-  giveaways:
-    image: registry.twir.app/twirapp/giveaways:latest
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      replicas: 4
-      mode: replicated
-      update_config:
-        parallelism: 2
-        order: start-first
-      placement:
-        constraints:
-          - node.labels.databases != true
-
 configs:
   clickhouse_config:
     file: ./configs/clickhouse-config.xml
