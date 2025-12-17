@@ -664,27 +664,6 @@ services:
         constraints:
           - node.labels.databases != true
 
-  ytsr:
-    image: registry.twir.app/twirapp/ytsr:latest
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-    deploy:
-      update_config:
-        parallelism: 2
-        order: start-first
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      mode: replicated
-      replicas: 6
-      placement:
-        constraints:
-          - node.labels.databases != true
-
   tts:
     image: aculeasis/rhvoice-rest:latest
     networks:

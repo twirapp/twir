@@ -25,6 +25,7 @@ require (
 require (
 	cloud.google.com/go/translate v1.12.7
 	github.com/lkretschmer/deepl-go v0.3.0
+	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251217140736-48670d138d86
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251217140736-48670d138d86

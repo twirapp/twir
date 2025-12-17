@@ -13,7 +13,6 @@
     <toRun name="Dev Timers" type="GoApplicationRunConfiguration" />
     <toRun name="Dev Tokens" type="GoApplicationRunConfiguration" />
     <toRun name="Dev WebSockets" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Ytsr" type="GoApplicationRunConfiguration" />
     <method v="2" />
   </configuration>
 </component>

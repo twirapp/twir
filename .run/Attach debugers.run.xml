@@ -13,7 +13,6 @@
     <toRun name="timers" type="GoRemoteDebugConfigurationType" />
     <toRun name="tokens" type="GoRemoteDebugConfigurationType" />
     <toRun name="websockets" type="GoRemoteDebugConfigurationType" />
-    <toRun name="ytsr" type="GoRemoteDebugConfigurationType" />
     <method v="2" />
   </configuration>
 </component>

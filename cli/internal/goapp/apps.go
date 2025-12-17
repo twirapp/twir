@@ -18,7 +18,6 @@ var Apps = []TwirGoApp{
 	{Name: "bots", DebugPort: 2351},
 	{Name: "timers", DebugPort: 2352},
 	{Name: "websockets", DebugPort: 2353},
-	{Name: "ytsr", DebugPort: 2354},
 	{Name: "scheduler", DebugPort: 2355},
 	{Name: "discord", DebugPort: 2356},
 	{Name: "giveaways", DebugPort: 2358},

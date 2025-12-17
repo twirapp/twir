@@ -193,6 +193,7 @@ github.com/prometheus/common v0.67.4 h1:yR3NqWO1/UyO1w2PhUvXlGQs/PtFmoveVO0KZ4+L
 github.com/prometheus/common v0.67.4/go.mod h1:gP0fq6YjjNCLssJCQp0yk4M8W6ikLURwkdd/YKtTbyI=
 github.com/prometheus/procfs v0.19.2 h1:zUMhqEW66Ex7OXIiDkll3tl9a1ZdilUOd/F6ZXw4Vws=
 github.com/prometheus/procfs v0.19.2/go.mod h1:M0aotyiemPhBCM0z5w87kL22CxfcH05ZpYlu+b4J7mw=
+github.com/raitonoberu/ytsearch v0.2.0 h1:pOkkBuOiqCyKycWq1AAmhjfB+MlBNMvhHY8YEywP2ck=
 github.com/redis/go-redis/extra/rediscmd/v9 v9.17.1 h1:ErE6skNGn7YIKCBufDD4YYStrk45nRHdVTzoJYTYjhM=
 github.com/redis/go-redis/extra/rediscmd/v9 v9.17.1/go.mod h1:jLBbYsVAMs85soAYsEfA+DH5A1y66TE6oVokZKQqXkc=
 github.com/redis/go-redis/extra/redisotel/v9 v9.17.1 h1:cgM1dz9Nz6ZfhiUK1vQgpaC9rnP6UMS3q5AY8Ad1ys8=

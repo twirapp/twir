@@ -42,8 +42,6 @@ jobs:
             runtime: go
           - path: apps/websockets
             runtime: go
-          - path: apps/ytsr
-            runtime: go
           - path: apps/giveaways
             runtime: go
           - path: frontend/dashboard

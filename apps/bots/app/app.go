@@ -15,6 +15,7 @@ import (
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
 	"github.com/twirapp/twir/apps/bots/internal/services/voteban"
+	"github.com/twirapp/twir/apps/bots/internal/services/ytsr"
 	stream_handlers "github.com/twirapp/twir/apps/bots/internal/stream-handlers"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
@@ -185,6 +186,7 @@ var App = fx.Module(
 		chattranslationsservice.New,
 	),
 	fx.Invoke(
+		ytsr.New,
 		mod_task_queue.NewRedisTaskProcessor,
 		func(config cfg.Config) {
 			if config.AppEnv != "development" {
