@@ -128,8 +128,8 @@ jobs:
         if: env.run-build == 'true'
         run: bun cli build app ${{ env.app }}
 
-        if: env.run-build == 'true'
       - name: Setup Blacksmith Builder
+        if: env.run-build == 'true'
         uses: useblacksmith/setup-docker-builder@v1
       - name: Login to Twir registry
         if: env.run-build == 'true'
