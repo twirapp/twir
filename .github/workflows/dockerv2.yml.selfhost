@@ -8,7 +8,7 @@ name: Docker v2
 
 jobs:
   base:
-    runs-on: self-hosted
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     strategy:
       matrix:
         target:
@@ -30,7 +30,7 @@ jobs:
           .
 
   backend:
-    runs-on: self-hosted
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs:
       - base
     strategy:
@@ -61,7 +61,7 @@ jobs:
           docker push twirapp/${{ matrix.target }}:latest
 
   frontend:
-    runs-on: self-hosted
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs:
       - base
     strategy:
@@ -82,7 +82,7 @@ jobs:
           docker push twirapp/${{ matrix.target }}:latest
 
   migrations:
-    runs-on: self-hosted
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs:
       - base
     steps:
