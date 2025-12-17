@@ -21,15 +21,25 @@ const rules = z.object({
 	neededVotes: z.number().min(1).max(999999),
 	timeoutSeconds: z.number().min(1).max(86400),
 	timeoutModerators: z.boolean(),
-}).refine(
-	({chatVotesWordsPositive, chatVotesWordsNegative}) => {
-		const negatives = new Set(chatVotesWordsNegative);
-		return !chatVotesWordsPositive.some(word => negatives.has(word))
-	},
-	{
-		message: "Cannot use the same words in different vote options"
+}).superRefine((data, ctx) => {
+	const positives = new Set(data.chatVotesWordsPositive)
+
+	for (const word of data.chatVotesWordsNegative) {
+		if (positives.has(word)) {
+			ctx.addIssue({
+				code: 'custom',
+				message: `Word "${word}" is already in use`,
+				path: ['chatVotesWordsPositive'],
+			})
+			ctx.addIssue({
+				code: 'custom',
+				message: `Word "${word}" is already in use`,
+				path: ['chatVotesWordsNegative'],
+			})
+			return
+		}
 	}
-)
+})
 
 export const formSchema = toTypedSchema(rules)
 
