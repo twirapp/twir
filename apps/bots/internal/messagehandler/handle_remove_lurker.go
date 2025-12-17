@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/utils"
@@ -13,7 +14,7 @@ import (
 
 var removeLurkerRedisCacheKey = "cache:bots:remove_lurkers:"
 
-func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []handleMessage) {
+func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []twitch.TwitchChatMessage) {
 	for _, msg := range data {
 		if exists, err := c.redis.Exists(
 			ctx,
@@ -53,7 +54,7 @@ func (c *MessageHandler) handleRemoveLurkerBatched(ctx context.Context, data []h
 	}
 }
 
-func (c *MessageHandler) handleRemoveLurker(ctx context.Context, msg handleMessage) error {
+func (c *MessageHandler) handleRemoveLurker(ctx context.Context, msg twitch.TwitchChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))

@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
@@ -26,7 +27,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) error {
+func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -207,7 +208,7 @@ func (c *MessageHandler) keywordsIncrementStats(
 
 func (c *MessageHandler) keywordsTriggerEvent(
 	ctx context.Context,
-	msg handleMessage,
+	msg twitch.TwitchChatMessage,
 	keyword entity.Keyword,
 	response string,
 ) {
@@ -238,7 +239,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 
 func (c *MessageHandler) keywordsParseResponse(
 	ctx context.Context,
-	msg handleMessage,
+	msg twitch.TwitchChatMessage,
 	keyword entity.Keyword,
 ) string {
 	if keyword.Response == "" {

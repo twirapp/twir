@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
+	chattranslationsservice "github.com/twirapp/twir/apps/bots/internal/services/chat_translations"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
@@ -24,6 +25,7 @@ import (
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	channelsgamesvotebancache "github.com/twirapp/twir/libs/cache/channels_games_voteban"
 	channelsmoderationsettingscache "github.com/twirapp/twir/libs/cache/channels_moderation_settings"
+	chattranslationssettingscache "github.com/twirapp/twir/libs/cache/chat_translations_settings"
 	chatwallcacher "github.com/twirapp/twir/libs/cache/chat_wall"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
@@ -47,6 +49,8 @@ import (
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
+	channelschattrenslationsrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
+	channelschattrenslationsrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_translation/datasource/postgres"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
 	giveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
@@ -139,6 +143,10 @@ var App = fx.Module(
 			channelsgamesvotebanpgx.NewFx,
 			fx.As(new(channelsgamesvotebanrepository.Repository)),
 		),
+		fx.Annotate(
+			channelschattrenslationsrepositorypostgres.NewFx,
+			fx.As(new(channelschattrenslationsrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -173,6 +181,8 @@ var App = fx.Module(
 		keywords.New,
 		tts.New,
 		voteban.New,
+		chattranslationssettingscache.New,
+		chattranslationsservice.New,
 	),
 	fx.Invoke(
 		mod_task_queue.NewRedisTaskProcessor,

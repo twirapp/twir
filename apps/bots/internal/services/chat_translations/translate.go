@@ -1,4 +1,4 @@
-package handle_message
+package chat_translations
 
 import (
 	"bytes"

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	"github.com/twirapp/twir/libs/utils"
@@ -12,7 +13,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error {
+func (c *MessageHandler) handleTts(ctx context.Context, msg twitch.TwitchChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -64,8 +65,8 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 	text := msgText.String()
 
 	// copy message to avoid changing original message
-	newMessage := msg.TwitchChatMessage
-	originalCopy := *msg.TwitchChatMessage.Message
+	newMessage := msg
+	originalCopy := *msg.Message
 	originalCopy.Text = text
 	newMessage.Message = &originalCopy
 

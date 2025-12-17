@@ -1,6 +1,5 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Backend" type="CompoundRunConfigurationType">
-    <toRun name="[Backend] Eval" type="BunRunConfiguration" />
     <toRun name="[Backend] Integrations" type="BunRunConfiguration" />
     <toRun name="Dev Api" type="GoApplicationRunConfiguration" />
     <toRun name="Dev Api-gql" type="GoApplicationRunConfiguration" />

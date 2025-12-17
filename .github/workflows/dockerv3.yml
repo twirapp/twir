@@ -44,8 +44,6 @@ jobs:
             runtime: go
           - path: apps/ytsr
             runtime: go
-          - path: apps/chat-translator
-            runtime: go
           - path: apps/giveaways
             runtime: go
           - path: frontend/dashboard
