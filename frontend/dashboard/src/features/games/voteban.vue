@@ -60,6 +60,16 @@ const votebanForm = useForm({
 })
 
 watch(
+	() => [
+    votebanForm.values.chatVotesWordsPositive,
+    votebanForm.values.chatVotesWordsNegative,
+  ],
+  () => {
+    votebanForm.validate()
+  }
+)
+
+watch(
 	settings,
 	(newSettings) => {
 		if (!newSettings) return

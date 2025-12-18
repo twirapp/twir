@@ -8,6 +8,7 @@ import (
 	"github.com/alitto/pond/v2"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	"go.uber.org/atomic"
 	"go.uber.org/fx"
 )
 
@@ -34,11 +35,14 @@ func New(opts Opts) *Pool {
 				w.setSize(workersResizerCtx)
 
 				go func() {
+					ticker := time.NewTicker(1 * time.Minute)
+					defer ticker.Stop()
+
 					for {
 						select {
 						case <-workersResizerCtx.Done():
 							return
-						case <-time.After(1 * time.Minute):
+						case <-ticker.C:
 							w.setSize(workersResizerCtx)
 						}
 					}
@@ -61,6 +65,7 @@ type Pool struct {
 
 	channelsRepository channelsrepository.Repository
 	logger             *slog.Logger
+	lastSize           atomic.Int64
 }
 
 const (
@@ -78,7 +83,12 @@ func (c *Pool) setSize(ctx context.Context) {
 		c.logger.Error("cannot get channels count", logger.Error(err))
 		return
 	}
+
 	newSize := channelsCount * proposedMessageHandlers * proposedTwitchActions
+	if c.lastSize.Swap(int64(newSize)) == int64(newSize) {
+		return
+	}
+
 	c.Resize(newSize)
 	c.logger.Info(
 		"workers pool resized",

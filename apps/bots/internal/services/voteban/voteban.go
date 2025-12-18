@@ -2,37 +2,41 @@ package voteban
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"sync"
 	"time"
 
+	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
+	"golang.org/x/sync/errgroup"
 )
 
 type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	TwirBus *buscore.Bus
-	Logger  *slog.Logger
+	TwirBus        *buscore.Bus
+	Logger         *slog.Logger
+	ChannelService *channel.Service
 }
 
 func New(opts Opts) *Service {
 	s := &Service{
-		inProgressVotebans: make(map[voteBanChannelId]*votebanSession),
-		mu:                 sync.Mutex{},
+		inProgressVotebans: make(map[voteBanChannelId]*session),
 		twirBus:            opts.TwirBus,
 		logger:             opts.Logger,
+		channelService:     opts.ChannelService,
 	}
 
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				s.twirBus.Bots.VotebanRegister.SubscribeGroup("bots", s.tryRegisterVoteban)
-				return nil
+				return s.twirBus.Bots.VotebanRegister.SubscribeGroup("bots", s.tryRegisterVoteban)
 			},
 			OnStop: func(ctx context.Context) error {
 				s.twirBus.Bots.VotebanRegister.Unsubscribe()
@@ -44,34 +48,56 @@ func New(opts Opts) *Service {
 	return s
 }
 
-type voteBanChannelId string
+type voteBanChannelId = string
 
 type Service struct {
-	inProgressVotebans map[voteBanChannelId]*votebanSession
-	mu                 sync.Mutex
+	inProgressVotebans map[voteBanChannelId]*session
+	mu                 sync.RWMutex
 	twirBus            *buscore.Bus
 	logger             *slog.Logger
+	channelService     *channel.Service
 }
 
-func (c *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, error) {
-	if _, ok := c.inProgressVotebans[voteBanChannelId(req.Data.ChannelID)]; ok {
+func (s *Service) TryRegisterVote(msg twitch.TwitchChatMessage) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	sess, exists := s.inProgressVotebans[msg.BroadcasterUserId]
+	if !exists {
+		return
+	}
+
+	sess.tryRegisterVote(msg)
+}
+
+func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, error) {
+	s.mu.RLock()
+	if _, ok := s.inProgressVotebans[req.Data.ChannelID]; ok {
+		s.mu.RUnlock()
+		return bots.VotebanRegisterResponse{
+			AlreadyInProgress: true,
+		}, nil
+	}
+	s.mu.RUnlock()
+
+	sess := newSession(
+		req.Data,
+		req.TargerUser.UserId,
+		req.TargerUser.UserLogin,
+		req.InitiatorIsModerator,
+	)
+
+	s.mu.Lock()
+	if _, ok := s.inProgressVotebans[req.Data.ChannelID]; ok {
 		return bots.VotebanRegisterResponse{
 			AlreadyInProgress: true,
 		}, nil
 	}
 
-	session := createVotebanSession(
-		req.Data,
-		req.InitiatorUserID,
-		req.TargerUser.UserId,
-		req.TargerUser.UserLogin,
-		req.InitiatorIsModerator,
-	)
-	c.mu.Lock()
-	c.inProgressVotebans[voteBanChannelId(req.Data.ChannelID)] = session
-	c.mu.Unlock()
+	s.inProgressVotebans[req.Data.ChannelID] = sess
+	s.mu.Unlock()
 
-	c.logger.Info(
+	s.logger.Info(
 		"voteban started",
 		slog.String("channel_id", req.Data.ChannelID),
 		slog.Group(
@@ -81,71 +107,84 @@ func (c *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 		),
 	)
 
-	finishChann := session.start()
-
 	go func() {
-		for data := range finishChann {
-			c.logger.Info(
-				"voteban finished",
-				slog.String("channel_id", data.channelId),
-				slog.Group(
-					"user",
-					slog.String("id", data.targerUserId),
-				),
-			)
+		result, ok := sess.waitResult()
+		if !ok {
+			return
+		}
 
-			c.mu.Lock()
-			defer func() {
-				delete(c.inProgressVotebans, voteBanChannelId(session.data.ChannelID))
-				c.mu.Unlock()
-			}()
-			if !data.haveDecision {
-				continue
-			}
+		s.logger.Info(
+			"voteban finished",
+			slog.String("channel_id", result.channelId),
+			slog.Group(
+				"user",
+				slog.String("id", result.targetUserId),
+			),
+		)
 
-			ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-			defer cancel()
-
-			c.twirBus.Bots.SendMessage.Publish(
-				ctx, bots.SendMessageRequest{
-					ChannelId:         data.channelId,
-					Message:           data.message,
-					IsAnnounce:        true,
-					SkipRateLimits:    true,
-					SkipToxicityCheck: false,
-					AnnounceColor:     bots.RandomAnnounceColor(),
-				},
-			)
-
-			if data.isBan {
-				c.twirBus.Bots.BanUser.Publish(
-					ctx, bots.BanRequest{
-						ChannelID:      data.channelId,
-						UserID:         data.targerUserId,
-						Reason:         data.message,
-						BanTime:        data.banDuration,
-						IsModerator:    data.isModerator,
-						AddModAfterBan: data.isModerator,
-					},
-				)
-			}
+		if err := s.processSessionResult(req.Data.ChannelID, result); err != nil {
+			s.logger.Error("failed to process voteban session result", logger.Error(err))
 		}
 	}()
 
 	return bots.VotebanRegisterResponse{}, nil
 }
 
-func (c *Service) HandleTwitchMessage(ctx context.Context, msg twitch.TwitchChatMessage) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (s *Service) processSessionResult(channelId string, result sessionResult) error {
+	defer func() {
+		s.mu.Lock()
+		delete(s.inProgressVotebans, channelId)
+		s.mu.Unlock()
+	}()
 
-	for channelId, s := range c.inProgressVotebans {
-		if channelId != voteBanChannelId(msg.BroadcasterUserId) {
-			continue
-		}
-
-		s.tryRegisterVote(msg)
+	if !result.haveDecision {
+		return nil
 	}
 
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	group, _ := errgroup.WithContext(ctx)
+
+	group.Go(
+		func() error {
+			if err := s.channelService.SendMessage(
+				ctx, bots.SendMessageRequest{
+					ChannelId:         result.channelId,
+					Message:           result.message,
+					IsAnnounce:        true,
+					SkipRateLimits:    true,
+					SkipToxicityCheck: false,
+					AnnounceColor:     bots.RandomAnnounceColor(),
+				},
+			); err != nil {
+				return fmt.Errorf("send message: %w", err)
+			}
+
+			return nil
+		},
+	)
+
+	if result.isBan {
+		group.Go(
+			func() error {
+				if err := s.channelService.Ban(
+					ctx, bots.BanRequest{
+						ChannelID:      result.channelId,
+						UserID:         result.targetUserId,
+						Reason:         result.message,
+						BanTime:        result.banDuration,
+						IsModerator:    result.isModerator,
+						AddModAfterBan: result.isModerator,
+					},
+				); err != nil {
+					return fmt.Errorf("ban: %w", err)
+				}
+
+				return nil
+			},
+		)
+	}
+
+	return group.Wait()
 }

@@ -1,11 +1,11 @@
-import { toTypedSchema } from '@vee-validate/zod'
-import { createGlobalState } from '@vueuse/core'
-import { useI18n } from 'vue-i18n'
-import { z } from 'zod'
+import { toTypedSchema } from '@vee-validate/zod';
+import { createGlobalState } from '@vueuse/core';
+import { useI18n } from 'vue-i18n';
+import { z } from 'zod';
 
-import { useGamesApi } from '@/api/games/games'
-import { toast } from 'vue-sonner'
-import { VoteBanGameVotingMode } from '@/gql/graphql'
+import { useGamesApi } from '@/api/games/games';
+import { toast } from 'vue-sonner';
+import { VoteBanGameVotingMode } from '@/gql/graphql';
 
 const rules = z.object({
 	enabled: z.boolean(),
@@ -21,6 +21,24 @@ const rules = z.object({
 	neededVotes: z.number().min(1).max(999999),
 	timeoutSeconds: z.number().min(1).max(86400),
 	timeoutModerators: z.boolean(),
+}).superRefine((data, ctx) => {
+	const positives = new Set(data.chatVotesWordsPositive)
+
+	for (const word of data.chatVotesWordsNegative) {
+		if (positives.has(word)) {
+			ctx.addIssue({
+				code: 'custom',
+				message: `Word "${word}" is already in use`,
+				path: ['chatVotesWordsPositive'],
+			})
+			ctx.addIssue({
+				code: 'custom',
+				message: `Word "${word}" is already in use`,
+				path: ['chatVotesWordsNegative'],
+			})
+			return
+		}
+	}
 })
 
 export const formSchema = toTypedSchema(rules)
@@ -53,9 +71,16 @@ export const useVotebanForm = createGlobalState(() => {
 	}
 
 	async function save(values: FormSchema) {
-		await updater.executeMutation({
+		const result = await updater.executeMutation({
 			opts: values,
 		})
+
+		if (result.error) {
+			toast.error(result.error.graphQLErrors?.map((e) => e.message).join(', ') ?? 'error', {
+				duration: 5000,
+			})
+			return
+		}
 
 		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,

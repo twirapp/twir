@@ -28,9 +28,7 @@ func New(options Options, additionalHandlers ...slog.Handler) *slog.Logger {
 		newSentryHandler(slog.LevelError),
 	}
 
-	for _, handler := range additionalHandlers {
-		handlers = append(handlers, handler)
-	}
+	handlers = append(handlers, additionalHandlers...)
 
 	logger := slog.New(
 		slogmulti.Fanout(handlers...),
@@ -65,6 +63,10 @@ func WithComponent(logger *slog.Logger, name string) *slog.Logger {
 //
 // In perfect world every log message that contains error output should be built with this helper.
 func Error(err error) slog.Attr {
+	if err == nil {
+		return slog.Any("error", err)
+	}
+
 	return slog.String("error", err.Error())
 }
 

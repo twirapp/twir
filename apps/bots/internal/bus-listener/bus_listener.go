@@ -7,20 +7,19 @@ import (
 
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
+	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
-	bus_core "github.com/twirapp/twir/libs/bus-core"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
-	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
@@ -28,17 +27,17 @@ type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Logger *slog.Logger
-
-	Tracer trace.Tracer
-
+	Logger         *slog.Logger
+	Tracer         trace.Tracer
 	Gorm           *gorm.DB
 	TwitchActions  *twitchactions.TwitchActions
 	MessageHandler *messagehandler.MessageHandler
-	Bus            *bus_core.Bus
+	Bus            *buscore.Bus
 	Cfg            cfg.Config
 	WorkersPool    *workers.Pool
 	KV             kv.KV
+
+	ChannelService *channel.Service
 }
 
 func New(opts Opts) (*BusListener, error) {
@@ -51,6 +50,7 @@ func New(opts Opts) (*BusListener, error) {
 		tracer:         opts.Tracer,
 		bus:            opts.Bus,
 		kv:             opts.KV,
+		channelService: opts.ChannelService,
 	}
 
 	opts.LC.Append(
@@ -58,14 +58,12 @@ func New(opts Opts) (*BusListener, error) {
 			OnStart: func(_ context.Context) error {
 				err := listener.bus.Bots.SendMessage.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data bots.SendMessageRequest) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
-							func() error {
-								return listener.sendMessage(ctx, data)
-							},
-						).Wait()
+					func(ctx context.Context, req bots.SendMessageRequest) (struct{}, error) {
+						if err := listener.channelService.SendMessage(ctx, req); err != nil {
+							return struct{}{}, fmt.Errorf("send message: %w", err)
+						}
 
-						return struct{}{}, err
+						return struct{}{}, nil
 					},
 				)
 				if err != nil {
@@ -74,14 +72,12 @@ func New(opts Opts) (*BusListener, error) {
 
 				err = listener.bus.Bots.DeleteMessage.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data bots.DeleteMessageRequest) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
-							func() error {
-								return listener.deleteMessage(ctx, data)
-							},
-						).Wait()
+					func(ctx context.Context, req bots.DeleteMessageRequest) (struct{}, error) {
+						if err := listener.channelService.DeleteMessage(ctx, req); err != nil {
+							return struct{}{}, fmt.Errorf("delete message: %w", err)
+						}
 
-						return struct{}{}, err
+						return struct{}{}, nil
 					},
 				)
 				if err != nil {
@@ -98,14 +94,12 @@ func New(opts Opts) (*BusListener, error) {
 
 				err = listener.bus.Bots.BanUser.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data bots.BanRequest) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
-							func() error {
-								return listener.banUser(ctx, data)
-							},
-						).Wait()
+					func(ctx context.Context, req bots.BanRequest) (struct{}, error) {
+						if err := listener.channelService.Ban(ctx, req); err != nil {
+							return struct{}{}, fmt.Errorf("ban: %w", err)
+						}
 
-						return struct{}{}, err
+						return struct{}{}, nil
 					},
 				)
 				if err != nil {
@@ -114,14 +108,12 @@ func New(opts Opts) (*BusListener, error) {
 
 				err = listener.bus.Bots.BanUsers.SubscribeGroup(
 					"bots",
-					func(ctx context.Context, data []bots.BanRequest) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
-							func() error {
-								return listener.banUsers(ctx, data)
-							},
-						).Wait()
+					func(ctx context.Context, reqs []bots.BanRequest) (struct{}, error) {
+						if err := listener.channelService.BanMany(ctx, reqs); err != nil {
+							return struct{}{}, fmt.Errorf("ban many: %w", err)
+						}
 
-						return struct{}{}, err
+						return struct{}{}, nil
 					},
 				)
 				if err != nil {
@@ -218,87 +210,10 @@ type BusListener struct {
 	gorm           *gorm.DB
 	twitchActions  *twitchactions.TwitchActions
 	messageHandler *messagehandler.MessageHandler
-	bus            *bus_core.Bus
+	bus            *buscore.Bus
 	config         cfg.Config
 	kv             kv.KV
-}
-
-func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageRequest) error {
-	channel := model.Channels{}
-	err := c.gorm.WithContext(ctx).Where("id = ?", req.ChannelId).Find(&channel).Error
-	if err != nil {
-		c.logger.Error(
-			"cannot get channel",
-			slog.String("channelId", req.ChannelId),
-		)
-		return err
-	}
-
-	if channel.ID == "" {
-		return nil
-	}
-
-	wg, wgCtx := errgroup.WithContext(ctx)
-
-	for _, m := range req.MessageIds {
-		wg.Go(
-			func() error {
-				e := c.twitchActions.DeleteMessage(
-					wgCtx,
-					twitchactions.DeleteMessageOpts{
-						BroadcasterID: req.ChannelId,
-						ModeratorID:   channel.BotID,
-						MessageID:     m,
-					},
-				)
-				if e != nil {
-					c.logger.Error("cannot delete message", slog.Any("err", e))
-					return e
-				}
-
-				return nil
-			},
-		)
-	}
-
-	if err := wg.Wait(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageRequest) error {
-	span := trace.SpanFromContext(ctx)
-	defer span.End()
-	span.SetAttributes(
-		attribute.String("channel_id", req.ChannelId),
-		attribute.String("message", req.Message),
-		attribute.String("reply_to", req.ReplyTo),
-	)
-
-	if req.ChannelId == "" {
-		return fmt.Errorf("channel id is empty")
-	}
-
-	err := c.twitchActions.SendMessage(
-		ctx,
-		twitchactions.SendMessageOpts{
-			BroadcasterID:        req.ChannelId,
-			SenderID:             "",
-			Message:              req.Message,
-			ReplyParentMessageID: req.ReplyTo,
-			IsAnnounce:           req.IsAnnounce,
-			SkipToxicityCheck:    req.SkipToxicityCheck,
-			SkipRateLimits:       req.SkipRateLimits,
-			AnnounceColor:        req.AnnounceColor,
-		},
-	)
-	if err != nil {
-		c.logger.Error("cannot send message", logger.Error(err))
-		return err
-	}
-	return nil
+	channelService *channel.Service
 }
 
 func (c *BusListener) handleChatMessage(
