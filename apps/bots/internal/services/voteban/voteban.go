@@ -89,6 +89,7 @@ func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 
 	s.mu.Lock()
 	if _, ok := s.inProgressVotebans[req.Data.ChannelID]; ok {
+		s.mu.Unlock()
 		return bots.VotebanRegisterResponse{
 			AlreadyInProgress: true,
 		}, nil
@@ -110,15 +111,23 @@ func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 	go func() {
 		result, ok := sess.waitResult()
 		if !ok {
+			s.logger.Error(
+				"voteban failed",
+				slog.String("channel_id", req.Data.ChannelID),
+				slog.Group(
+					"user",
+					slog.String("id", req.TargerUser.UserId),
+				),
+			)
 			return
 		}
 
 		s.logger.Info(
 			"voteban finished",
-			slog.String("channel_id", result.channelId),
+			slog.String("channel_id", req.Data.ChannelID),
 			slog.Group(
 				"user",
-				slog.String("id", result.targetUserId),
+				slog.String("id", req.TargerUser.UserId),
 			),
 		)
 
