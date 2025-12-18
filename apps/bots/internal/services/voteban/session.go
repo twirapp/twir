@@ -75,10 +75,10 @@ func (s *session) waitResult() (sessionResult, bool) {
 	select {
 	case <-ctx.Done():
 		s.writeResultOnce()
-		result, ok := <-s.result
-		return result, ok
-	case result, ok := <-s.result:
-		return result, ok
+		result := <-s.result
+		return result, true
+	case result := <-s.result:
+		return result, true
 	}
 }
 
@@ -88,46 +88,6 @@ func (s *session) writeResultOnce() {
 			s.writeResult()
 		},
 	)
-}
-
-func (s *session) tryRegisterVote(msg twitch.TwitchChatMessage) {
-	if msg.Message == nil {
-		return
-	}
-
-	s.votesMu.RLock()
-	if !s.canVote(msg.ChatterUserId) {
-		s.votesMu.RUnlock()
-		return
-	}
-	s.votesMu.RUnlock()
-
-	for word := range strings.FieldsSeq(msg.Message.Text) {
-		if isPositive, exists := s.words[word]; exists {
-			s.votesMu.Lock()
-			if !s.canVote(msg.ChatterUserId) {
-				s.votesMu.Unlock()
-				break
-			}
-
-			s.votes[msg.ChatterUserId] = isPositive
-
-			if isPositive {
-				s.yesVotes++
-			} else {
-				s.noVotes++
-			}
-			s.votesMu.Unlock()
-		}
-	}
-
-	s.votesMu.RLock()
-	if len(s.votes) >= s.voteban.NeededVotes {
-		s.votesMu.RUnlock()
-		s.writeResultOnce()
-		return
-	}
-	s.votesMu.RUnlock()
 }
 
 func (s *session) writeResult() {
@@ -175,6 +135,46 @@ func (s *session) writeResult() {
 		banDuration:  s.voteban.TimeoutSeconds,
 	}
 	close(s.result)
+}
+
+func (s *session) tryRegisterVote(msg twitch.TwitchChatMessage) {
+	if msg.Message == nil {
+		return
+	}
+
+	s.votesMu.RLock()
+	if !s.canVote(msg.ChatterUserId) {
+		s.votesMu.RUnlock()
+		return
+	}
+	s.votesMu.RUnlock()
+
+	for word := range strings.FieldsSeq(msg.Message.Text) {
+		if isPositive, exists := s.words[word]; exists {
+			s.votesMu.Lock()
+			if !s.canVote(msg.ChatterUserId) {
+				s.votesMu.Unlock()
+				break
+			}
+
+			s.votes[msg.ChatterUserId] = isPositive
+
+			if isPositive {
+				s.yesVotes++
+			} else {
+				s.noVotes++
+			}
+			s.votesMu.Unlock()
+		}
+	}
+
+	s.votesMu.RLock()
+	if len(s.votes) >= s.voteban.NeededVotes {
+		s.votesMu.RUnlock()
+		s.writeResultOnce()
+		return
+	}
+	s.votesMu.RUnlock()
 }
 
 func (s *session) canVote(chatterUserId string) bool {
