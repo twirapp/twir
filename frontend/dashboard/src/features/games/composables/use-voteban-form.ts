@@ -17,8 +17,8 @@ const rules = z.object({
 	votingMode: z.nativeEnum(VoteBanGameVotingMode),
 	chatVotesWordsPositive: z.array(z.string()).max(10),
 	chatVotesWordsNegative: z.array(z.string()).max(10),
-	voteDuration: z.number().min(1).max(86400),
-	neededVotes: z.number().min(1).max(999999),
+	voteDuration: z.number().min(10).max(86400),
+	neededVotes: z.number().min(2).max(999999),
 	timeoutSeconds: z.number().min(1).max(86400),
 	timeoutModerators: z.boolean(),
 }).superRefine((data, ctx) => {
