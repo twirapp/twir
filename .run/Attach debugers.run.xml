@@ -3,18 +3,15 @@
     <toRun name="api" type="GoRemoteDebugConfigurationType" />
     <toRun name="api-gql" type="GoRemoteDebugConfigurationType" />
     <toRun name="bots" type="GoRemoteDebugConfigurationType" />
-    <toRun name="chat-translator" type="GoRemoteDebugConfigurationType" />
     <toRun name="discord" type="GoRemoteDebugConfigurationType" />
     <toRun name="emotes-cacher" type="GoRemoteDebugConfigurationType" />
     <toRun name="events" type="GoRemoteDebugConfigurationType" />
     <toRun name="eventsub" type="GoRemoteDebugConfigurationType" />
-    <toRun name="giveaways" type="GoRemoteDebugConfigurationType" />
     <toRun name="parser" type="GoRemoteDebugConfigurationType" />
     <toRun name="scheduler" type="GoRemoteDebugConfigurationType" />
     <toRun name="timers" type="GoRemoteDebugConfigurationType" />
     <toRun name="tokens" type="GoRemoteDebugConfigurationType" />
     <toRun name="websockets" type="GoRemoteDebugConfigurationType" />
-    <toRun name="ytsr" type="GoRemoteDebugConfigurationType" />
     <method v="2" />
   </configuration>
 </component>

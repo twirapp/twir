@@ -1,14 +1,19 @@
-package bus_listener
+package ytsr
 
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/goccy/go-json"
+	"github.com/raitonoberu/ytsearch"
 	"github.com/samber/lo"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
@@ -16,14 +21,6 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 )
-
-type YtsrServer struct {
-	ytRegexp    regexp.Regexp
-	linksRegexp regexp.Regexp
-
-	config cfg.Config
-	logger *slog.Logger
-}
 
 type Opts struct {
 	fx.In
@@ -35,7 +32,7 @@ type Opts struct {
 }
 
 func New(opts Opts) error {
-	impl := &YtsrServer{
+	s := &Service{
 		ytRegexp: *regexp.MustCompile(
 			`(?m)http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?`,
 		),
@@ -46,7 +43,8 @@ func New(opts Opts) error {
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				return opts.TwirBus.YTSRSearch.SubscribeGroup("ytsr", impl.search)
+				opts.Logger.Info("ytsr started")
+				return opts.TwirBus.YTSRSearch.SubscribeGroup("ytsr", s.search)
 			},
 			OnStop: func(ctx context.Context) error {
 				opts.TwirBus.YTSRSearch.Unsubscribe()
@@ -58,12 +56,20 @@ func New(opts Opts) error {
 	return nil
 }
 
+type Service struct {
+	ytRegexp    regexp.Regexp
+	linksRegexp regexp.Regexp
+
+	config cfg.Config
+	logger *slog.Logger
+}
+
 type internalSong struct {
 	odesliUrl    string
 	youtubeQuery string
 }
 
-func (c *YtsrServer) search(ctx context.Context, req ytsr.SearchRequest) (
+func (c *Service) search(ctx context.Context, req ytsr.SearchRequest) (
 	ytsr.SearchResponse,
 	error,
 ) {
@@ -199,4 +205,81 @@ func (c *YtsrServer) search(ctx context.Context, req ytsr.SearchRequest) (
 	return ytsr.SearchResponse{
 		Songs: songs,
 	}, nil
+}
+
+func (c *Service) searchByText(_ context.Context, query string) (ytsearch.VideoItem, error) {
+	q := ytsearch.VideoSearch(query)
+
+	items, err := q.Next()
+	if err != nil {
+		return ytsearch.VideoItem{}, nil
+	}
+
+	if len(items.Videos) == 0 {
+		return ytsearch.VideoItem{}, nil
+	}
+
+	return *items.Videos[0], nil
+}
+
+type odesliPlatform struct {
+	Url string `json:"url"`
+}
+type odesliPlatforms map[string]*odesliPlatform
+
+type odesliResponse struct {
+	PageUrl         string          `json:"pageUrl"`
+	LinksByPlatform odesliPlatforms `json:"linksByPlatform"`
+}
+
+type odesliErrorResponse struct {
+	StatusCode int    `json:"statusCode"`
+	Code       string `json:"code"`
+}
+
+func (c *Service) searchOdesli(ctx context.Context, query string) (odesliResponse, error) {
+	result := odesliResponse{}
+
+	reqUrl := fmt.Sprintf(
+		"https://api.song.link/v1-alpha.1/links?url=%s&key=%s",
+		query,
+		c.config.OdesliApiKey,
+	)
+	httpClient := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+	req, err := http.NewRequest("GET", reqUrl, nil)
+	if err != nil {
+		return result, err
+	}
+	req = req.WithContext(ctx)
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return result, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return result, err
+	}
+
+	if resp.StatusCode != 200 {
+		odesliError := odesliErrorResponse{}
+		if err = json.Unmarshal(body, &odesliError); err != nil {
+			return result, err
+		}
+		return result, fmt.Errorf(`odesli error for input "%s": %s`, query, odesliError.Code)
+	}
+
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, err
+	}
+
+	if _, ok := result.LinksByPlatform["youtube"]; !ok {
+		return result, fmt.Errorf(`odesli error for input "%s": %s`, query, "no youtube link")
+	}
+
+	return result, nil
 }

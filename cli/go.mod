@@ -24,6 +24,8 @@ require (
 	cloud.google.com/go/kms v1.22.0 // indirect
 	codeberg.org/chavacava/garif v0.2.0 // indirect
 	github.com/KimMachineGun/automemlimit v0.7.1 // indirect
+	github.com/aws/aws-sdk-go-v2/config v1.29.12 // indirect
+	github.com/aws/smithy-go v1.22.3 // indirect
 	github.com/cilium/ebpf v0.11.0 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cosiner/argv v0.1.0 // indirect
@@ -32,6 +34,7 @@ require (
 	github.com/go-delve/delve v1.25.2 // indirect
 	github.com/go-delve/liner v1.2.3-0.20231231155935-4726ab1d7f62 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
+	github.com/google/btree v1.1.3 // indirect
 	github.com/google/go-dap v0.12.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
@@ -44,7 +47,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.23.0 // indirect
 	golang.org/x/telemetry v0.0.0-20251111182119-bc8e575c7b54 // indirect
-	google.golang.org/api v0.256.0 // indirect
+	google.golang.org/api v0.257.0 // indirect
 	google.golang.org/genproto v0.0.0-20250721164621-a45f3dfb1074 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )

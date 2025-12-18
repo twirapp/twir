@@ -4,18 +4,15 @@ use (
 	./apps/api
 	./apps/api-gql
 	./apps/bots
-	./apps/chat-translator
 	./apps/discord
 	./apps/emotes-cacher
 	./apps/events
 	./apps/eventsub
-	./apps/giveaways
 	./apps/parser
 	./apps/scheduler
 	./apps/timers
 	./apps/tokens
 	./apps/websockets
-	./apps/ytsr
 	./cli
 	./libs/api
 	./libs/audit

@@ -1,4 +1,4 @@
-package handle_message
+package chat_translations
 
 import (
 	"context"
@@ -23,7 +23,6 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelschattrenslationsrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
 	"go.uber.org/fx"
@@ -40,10 +39,8 @@ type Opts struct {
 	Redis   *redis.Client
 	KV      kv.KV
 
-	ChannelsRepository             channelsrepository.Repository
 	ChannelsTranslationsRepository channelschattrenslationsrepository.Repository
 	ChannelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]
-	ChannelsCache                  *generic_cacher.GenericCacher[channelmodel.Channel]
 }
 
 type provider = func(c *Service, ctx context.Context, input translateRequest) (
@@ -61,11 +58,9 @@ func New(opts Opts) *Service {
 		logger:                         opts.Logger,
 		twirBus:                        opts.TwirBus,
 		redis:                          opts.Redis,
-		channelsRepository:             opts.ChannelsRepository,
 		channelsTranslationsRepository: opts.ChannelsTranslationsRepository,
 		channelsTranslationsCache:      opts.ChannelsTranslationsCache,
 		rateLimiter:                    redislimiter.NewSlidingWindow(redislimiteradapter.NewAdapter(opts.Redis)),
-		channelsCache:                  opts.ChannelsCache,
 		kv:                             opts.KV,
 	}
 
@@ -127,7 +122,6 @@ type Service struct {
 	channelsRepository             channelsrepository.Repository
 	channelsTranslationsRepository channelschattrenslationsrepository.Repository
 	channelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]
-	channelsCache                  *generic_cacher.GenericCacher[channelmodel.Channel]
 
 	rateLimiter redislimiter.SlidingWindow
 
@@ -135,12 +129,12 @@ type Service struct {
 	googleTranslateClient *googletranslate.Client
 }
 
-func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (struct{}, error) {
+func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) error {
 	if msg.Message == nil || strings.HasPrefix(
 		msg.Message.Text,
 		msg.EnrichedData.ChannelCommandPrefix,
 	) {
-		return struct{}{}, nil
+		return nil
 	}
 
 	// if msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
@@ -156,10 +150,10 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 	)
 	if err != nil {
 		c.logger.Error("cannot use rate limiter", logger.Error(err))
-		return struct{}{}, err
+		return err
 	}
 	if !resp.Success {
-		return struct{}{}, nil
+		return nil
 	}
 
 	channelTranslationSettings, err := c.channelsTranslationsCache.Get(
@@ -168,29 +162,24 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 	)
 	if err != nil {
 		if errors.Is(err, channelschattrenslationsrepository.ErrSettingsNotFound) {
-			return struct{}{}, nil
+			return nil
 		}
 		c.logger.Error("cannot get channel translation settings", logger.Error(err))
-		return struct{}{}, err
+		return err
 	}
 
 	if channelTranslationSettings.IsNil() {
-		return struct{}{}, nil
+		return nil
 	}
 
 	if channelTranslationSettings.ChannelID == "" ||
 		!channelTranslationSettings.Enabled ||
 		slices.Contains(channelTranslationSettings.ExcludedUsersIDs, msg.ChatterUserId) {
-		return struct{}{}, nil
+		return nil
 	}
 
-	channel, err := c.channelsCache.Get(ctx, msg.BroadcasterUserId)
-	if err != nil {
-		c.logger.Error("cannot get channel", logger.Error(err))
-		return struct{}{}, err
-	}
-	if c.config.IsProduction() && msg.ChatterUserId == channel.BotID {
-		return struct{}{}, nil
+	if c.config.IsProduction() && msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
+		return nil
 	}
 
 	textForDetect := msg.Message.Text
@@ -201,21 +190,21 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 	msgLang, err := c.detectLanguage(ctx, textForDetect)
 	if err != nil {
 		c.logger.Error("cannot detect language", logger.Error(err))
-		return struct{}{}, err
+		return err
 	}
 
 	if len(msgLang.DetectedLanguages) == 0 {
-		return struct{}{}, nil
+		return nil
 	}
 
 	if msgLang.DetectedLanguages[0].Language == channelTranslationSettings.TargetLanguage {
-		return struct{}{}, nil
+		return nil
 	}
 
 	bestDetected := msgLang.DetectedLanguages[0]
 
 	if slices.Contains(channelTranslationSettings.ExcludedLanguages, bestDetected.Language) {
-		return struct{}{}, nil
+		return nil
 	}
 
 	excludedWords := make([]string, 0, len(msg.EnrichedData.UsedEmotesWithThirdParty))
@@ -234,14 +223,14 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 	)
 	if err != nil {
 		c.logger.Error("cannot translate message", logger.Error(err))
-		return struct{}{}, err
+		return err
 	}
 	if res == nil || len(res.TranslatedText) == 0 {
-		return struct{}{}, nil
+		return nil
 	}
 
 	if res.TranslatedText[0] == msg.Message.Text {
-		return struct{}{}, nil
+		return nil
 	}
 
 	var resultText strings.Builder
@@ -260,8 +249,8 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) (str
 		},
 	); err != nil {
 		c.logger.Error("cannot send message", logger.Error(err))
-		return struct{}{}, err
+		return err
 	}
 
-	return struct{}{}, nil
+	return nil
 }

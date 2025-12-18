@@ -1,4 +1,4 @@
-package services
+package giveaways
 
 import (
 	"context"
@@ -12,7 +12,6 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/giveaways/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbusmodel "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -26,6 +25,7 @@ import (
 
 type Opts struct {
 	fx.In
+	LC fx.Lifecycle
 
 	TxManager                       trm.Manager
 	GiveawaysRepository             giveaways.Repository
@@ -37,7 +37,7 @@ type Opts struct {
 }
 
 func New(opts Opts) *Service {
-	return &Service{
+	s := &Service{
 		txManager:                       opts.TxManager,
 		giveawaysRepository:             opts.GiveawaysRepository,
 		giveawaysParticipantsRepository: opts.GiveawaysParticipantsRepository,
@@ -46,6 +46,24 @@ func New(opts Opts) *Service {
 		redis:                           opts.Redis,
 		twirBus:                         opts.TwirBus,
 	}
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				return s.twirBus.Giveaways.ChooseWinner.SubscribeGroup(
+					"giveaways",
+					s.chooseWinner,
+				)
+			},
+			OnStop: func(ctx context.Context) error {
+				s.twirBus.Giveaways.ChooseWinner.Unsubscribe()
+
+				return nil
+			},
+		},
+	)
+
+	return s
 }
 
 type Service struct {
@@ -105,37 +123,37 @@ func (c *Service) TryAddParticipant(
 	return nil
 }
 
-func (c *Service) ChooseWinner(
+func (c *Service) chooseWinner(
 	ctx context.Context,
-	giveawayID string,
-) ([]entity.Winner, error) {
-	parsedGiveawayId, err := ulid.Parse(giveawayID)
+	req giveawaysbusmodel.ChooseWinnerRequest,
+) (giveawaysbusmodel.ChooseWinnerResponse, error) {
+	parsedGiveawayId, err := ulid.Parse(req.GiveawayID)
 	if err != nil {
-		return nil, err
+		return giveawaysbusmodel.ChooseWinnerResponse{}, err
 	}
 
 	giveaway, err := c.giveawaysRepository.GetByID(ctx, parsedGiveawayId)
 	if err != nil {
-		return nil, err
+		return giveawaysbusmodel.ChooseWinnerResponse{}, err
 	}
 	if giveaway == giveawaymodel.ChannelGiveawayNil {
-		return nil, fmt.Errorf("giveaway not found")
+		return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("giveaway not found")
 	}
 
 	participants, err := c.giveawaysParticipantsRepository.GetManyByGiveawayID(
 		ctx,
-		giveawayID,
+		req.GiveawayID,
 		giveaways_participants.GetManyInput{
 			IgnoreWinners: true,
 		},
 	)
 	if err != nil {
 		c.logger.Error("cannot get participants", logger.Error(err))
-		return nil, err
+		return giveawaysbusmodel.ChooseWinnerResponse{}, err
 	}
 
 	if len(participants) == 0 {
-		return nil, fmt.Errorf("Cannot do roll with empty participants")
+		return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("Cannot do roll with empty participants")
 	}
 
 	winners := make([]model.ChannelGiveawayParticipant, 0, 1)
@@ -190,18 +208,18 @@ func (c *Service) ChooseWinner(
 	)
 	if err != nil {
 		c.logger.Error("tx error", logger.Error(err))
-		return nil, err
+		return giveawaysbusmodel.ChooseWinnerResponse{}, err
 	}
 
 	if err := c.giveawaysCacher.Invalidate(ctx, giveaway.ChannelID); err != nil {
 		c.logger.Error("cannot invalidate giveaways cache", logger.Error(err))
 	}
 
-	mappedWinners := make([]entity.Winner, 0, len(winners))
+	mappedWinners := make([]giveawaysbusmodel.Winner, 0, len(winners))
 	for _, winner := range winners {
 		mappedWinners = append(
 			mappedWinners,
-			entity.Winner{
+			giveawaysbusmodel.Winner{
 				UserID:          winner.UserID,
 				UserLogin:       winner.UserLogin,
 				UserDisplayName: winner.DisplayName,
@@ -209,5 +227,7 @@ func (c *Service) ChooseWinner(
 		)
 	}
 
-	return mappedWinners, nil
+	return giveawaysbusmodel.ChooseWinnerResponse{
+		Winners: mappedWinners,
+	}, nil
 }

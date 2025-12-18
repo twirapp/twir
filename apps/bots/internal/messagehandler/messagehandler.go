@@ -13,6 +13,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	batchprocessor "github.com/twirapp/batch-processor"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
+	chattranslationsservice "github.com/twirapp/twir/apps/bots/internal/services/chat_translations"
+	"github.com/twirapp/twir/apps/bots/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	"github.com/twirapp/twir/apps/bots/internal/services/tts"
 	"github.com/twirapp/twir/apps/bots/internal/services/voteban"
@@ -23,6 +25,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
@@ -69,6 +72,8 @@ type Opts struct {
 	GiveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	VotebanService                   *voteban.Service
+	ChatTranslatorService            *chattranslationsservice.Service
+	GiveawaysService                 *giveaways.Service
 
 	TrmManager trm.Manager
 
@@ -95,6 +100,8 @@ type MessageHandler struct {
 	giveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
 	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	votebanService                   *voteban.Service
+	chatTranslatorService            *chattranslationsservice.Service
+	giveawaysService                 *giveaways.Service
 
 	keywordsService *keywords.Service
 	ttsService      *tts.Service
@@ -102,12 +109,30 @@ type MessageHandler struct {
 	workersPool     *workers.Pool
 	trmManager      trm.Manager
 
-	messagesSaveBatcher    *batchprocessor.BatchProcessor[handleMessage]
-	messagesLurkersBatcher *batchprocessor.BatchProcessor[handleMessage]
-	messagesEmotesBatcher  *batchprocessor.BatchProcessor[handleMessage]
+	messagesSaveBatcher    *batchprocessor.BatchProcessor[twitch.TwitchChatMessage]
+	messagesLurkersBatcher *batchprocessor.BatchProcessor[twitch.TwitchChatMessage]
+	messagesEmotesBatcher  *batchprocessor.BatchProcessor[twitch.TwitchChatMessage]
 }
 
 var messageHandlerTracer = otel.Tracer("message-handler")
+
+var handlersForExecute = []func(
+	c *MessageHandler,
+	ctx context.Context,
+	msg twitch.TwitchChatMessage,
+) error{
+	(*MessageHandler).handleSaveMessage,
+	(*MessageHandler).handleIncrementStreamMessages,
+	(*MessageHandler).handleGreetings,
+	(*MessageHandler).handleKeywords,
+	(*MessageHandler).handleEmotesUsages,
+	(*MessageHandler).handleTts,
+	(*MessageHandler).handleRemoveLurker,
+	(*MessageHandler).handleModeration,
+	(*MessageHandler).handleFirstStreamUserJoin,
+	(*MessageHandler).handleChatWall,
+	(*MessageHandler).handleGiveaways,
+}
 
 func New(opts Opts) *MessageHandler {
 	handler := &MessageHandler{
@@ -135,28 +160,30 @@ func New(opts Opts) *MessageHandler {
 		trmManager:                       opts.TrmManager,
 		usersRepository:                  opts.UsersRepository,
 		votebanService:                   opts.VotebanService,
+		chatTranslatorService:            opts.ChatTranslatorService,
+		giveawaysService:                 opts.GiveawaysService,
 
 		workersPool: opts.WorkersPool,
 	}
 
 	batcherCtx, batcherCancel := context.WithCancel(context.Background())
 
-	handler.messagesSaveBatcher = batchprocessor.NewBatchProcessor[handleMessage](
-		batchprocessor.BatchProcessorOpts[handleMessage]{
+	handler.messagesSaveBatcher = batchprocessor.NewBatchProcessor[twitch.TwitchChatMessage](
+		batchprocessor.BatchProcessorOpts[twitch.TwitchChatMessage]{
 			Interval:  500 * time.Millisecond,
 			BatchSize: 1000,
 			Callback:  handler.handleSaveMessageBatched,
 		},
 	)
-	handler.messagesLurkersBatcher = batchprocessor.NewBatchProcessor[handleMessage](
-		batchprocessor.BatchProcessorOpts[handleMessage]{
+	handler.messagesLurkersBatcher = batchprocessor.NewBatchProcessor[twitch.TwitchChatMessage](
+		batchprocessor.BatchProcessorOpts[twitch.TwitchChatMessage]{
 			Interval:  100 * time.Millisecond,
 			BatchSize: 100,
 			Callback:  handler.handleRemoveLurkerBatched,
 		},
 	)
-	handler.messagesEmotesBatcher = batchprocessor.NewBatchProcessor[handleMessage](
-		batchprocessor.BatchProcessorOpts[handleMessage]{
+	handler.messagesEmotesBatcher = batchprocessor.NewBatchProcessor[twitch.TwitchChatMessage](
+		batchprocessor.BatchProcessorOpts[twitch.TwitchChatMessage]{
 			Interval:  500 * time.Millisecond,
 			BatchSize: 1000,
 			Callback:  handler.handleEmotesUsagesBatched,
@@ -199,30 +226,17 @@ func New(opts Opts) *MessageHandler {
 		},
 	)
 
+	handlersForExecute = append(
+		handlersForExecute,
+		func(c *MessageHandler, ctx context.Context, msg twitch.TwitchChatMessage) error {
+			return c.votebanService.HandleTwitchMessage(ctx, msg)
+		},
+		func(c *MessageHandler, ctx context.Context, msg twitch.TwitchChatMessage) error {
+			return c.chatTranslatorService.Handle(ctx, msg)
+		},
+	)
+
 	return handler
-}
-
-type handleMessage struct {
-	twitch.TwitchChatMessage
-}
-
-var handlersForExecute = []func(
-	c *MessageHandler,
-	ctx context.Context,
-	msg handleMessage,
-) error{
-	(*MessageHandler).handleSaveMessage,
-	(*MessageHandler).handleIncrementStreamMessages,
-	(*MessageHandler).handleGreetings,
-	(*MessageHandler).handleKeywords,
-	(*MessageHandler).handleEmotesUsages,
-	(*MessageHandler).handleTts,
-	(*MessageHandler).handleRemoveLurker,
-	(*MessageHandler).handleModeration,
-	(*MessageHandler).handleFirstStreamUserJoin,
-	(*MessageHandler).handleGamesVoteban,
-	(*MessageHandler).handleChatWall,
-	(*MessageHandler).handleGiveaways,
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {
@@ -238,11 +252,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 		attribute.String("user.login", req.ChatterUserLogin),
 	)
 
-	msg := handleMessage{
-		TwitchChatMessage: req,
-	}
-
-	if !msg.EnrichedData.DbChannel.IsEnabled {
+	if !req.EnrichedData.DbChannel.IsEnabled {
 		return nil
 	}
 
@@ -250,7 +260,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 		return fmt.Errorf("db user not found after ensureUser")
 	}
 
-	if req.ChatterUserId == msg.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
+	if req.ChatterUserId == req.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 		return nil
 	}
 
@@ -262,8 +272,8 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 		splitName := strings.Split(funcName, ".")
 		shortFuncName := splitName[len(splitName)-1]
 
-		handleTask.SubmitErr(
-			func() error {
+		handleTask.Submit(
+			func() {
 				handlerCtx, handlerSpan := messageHandlerTracer.Start(
 					ctx, shortFuncName, trace.WithAttributes(
 						attribute.String("handler.name", funcName),
@@ -271,17 +281,15 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 				)
 				defer handlerSpan.End()
 
-				handlerError := handlerFunc(c, handlerCtx, msg)
+				handlerError := handlerFunc(c, handlerCtx, req)
 				if handlerError != nil {
 					handlerSpan.RecordError(handlerError)
-					return fmt.Errorf(
-						"error executing %s handler: %w",
-						shortFuncName,
-						handlerError,
+					c.logger.Error(
+						"error executing handler",
+						slog.String("shortFuncName", shortFuncName),
+						logger.Error(handlerError),
 					)
 				}
-
-				return nil
 			},
 		)
 	}

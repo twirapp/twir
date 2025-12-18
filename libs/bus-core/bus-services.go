@@ -78,9 +78,7 @@ type schedulerBus struct {
 }
 
 type giveawaysBus struct {
-	TryAddParticipant Queue[giveaways.TryAddParticipantRequest, struct{}]
-	ChooseWinner      Queue[giveaways.ChooseWinnerRequest, giveaways.ChooseWinnerResponse]
-
+	ChooseWinner    Queue[giveaways.ChooseWinnerRequest, giveaways.ChooseWinnerResponse]
 	NewParticipants Queue[giveaways.NewParticipant, struct{}]
 }
 

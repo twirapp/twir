@@ -4,14 +4,14 @@ import (
 	"context"
 	"strings"
 
-	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/repositories/giveaways/model"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage) error {
+func (c *MessageHandler) handleGiveaways(ctx context.Context, msg twitch.TwitchChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -45,14 +45,12 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage)
 			return nil
 		}
 
-		err = c.twirBus.Giveaways.TryAddParticipant.Publish(
+		err := c.giveawaysService.TryAddParticipant(
 			ctx,
-			giveawaysbus.TryAddParticipantRequest{
-				UserID:          msg.ChatterUserId,
-				UserLogin:       msg.ChatterUserLogin,
-				UserDisplayName: msg.ChatterUserName,
-				GiveawayID:      giveaway.ID.String(),
-			},
+			msg.ChatterUserId,
+			msg.ChatterUserLogin,
+			msg.ChatterUserName,
+			giveaway.ID.String(),
 		)
 		if err != nil {
 			return err
