@@ -122,7 +122,7 @@ func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 			),
 		)
 
-		if err := s.processSessionResult(result); err != nil {
+		if err := s.processSessionResult(req.Data.ChannelID, result); err != nil {
 			s.logger.Error("failed to process voteban session result", logger.Error(err))
 		}
 	}()
@@ -130,10 +130,10 @@ func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 	return bots.VotebanRegisterResponse{}, nil
 }
 
-func (s *Service) processSessionResult(result sessionResult) error {
+func (s *Service) processSessionResult(channelId string, result sessionResult) error {
 	defer func() {
 		s.mu.Lock()
-		delete(s.inProgressVotebans, result.channelId)
+		delete(s.inProgressVotebans, channelId)
 		s.mu.Unlock()
 	}()
 

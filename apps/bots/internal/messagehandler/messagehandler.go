@@ -229,7 +229,8 @@ func New(opts Opts) *MessageHandler {
 	handlersForExecute = append(
 		handlersForExecute,
 		func(c *MessageHandler, ctx context.Context, msg twitch.TwitchChatMessage) error {
-			return c.votebanService.HandleTwitchMessage(ctx, msg)
+			c.votebanService.TryRegisterVote(msg)
+			return nil
 		},
 		func(c *MessageHandler, ctx context.Context, msg twitch.TwitchChatMessage) error {
 			return c.chatTranslatorService.Handle(ctx, msg)
