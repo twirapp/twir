@@ -96,13 +96,6 @@ jobs:
           echo "mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
           echo "build=$(go env GOCACHE)" >> $GITHUB_OUTPUT
 
-      - name: Get Go cache paths
-        if: env.run-build == 'true' && matrix.folders.runtime == 'go'
-        id: go-cache-paths
-        run: |
-          echo "mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
-          echo "build=$(go env GOCACHE)" >> $GITHUB_OUTPUT
-
       - name: Cache Go modules (per app)
         if: env.run-build == 'true' && matrix.folders.runtime == 'go'
         uses: actions/cache@v4
