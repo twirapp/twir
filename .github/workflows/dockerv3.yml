@@ -87,25 +87,32 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: ./go.work
-          cache-dependency-path: |
-            go.work.sum
-            **/go.sum
+          cache: false
 
-      #      - name: Compute Go files hash
-      #        if: ${{ matrix.folders.runtime == 'go' && env.run-build == 'true' }}
-      #        id: go-files-hash
-      #        run: |
-      #          echo "hash=$(sha256sum go.work go.work.sum ${{ matrix.folders.path }}/go.mod ${{ matrix.folders.path }}/go.sum 2>/dev/null | sha256sum | awk '{print $1}')" >> $GITHUB_ENV
-      #
-      #      - name: Cache Go build
-      #        if: ${{ matrix.folders.runtime == 'go' && env.run-build == 'true' }}
-      #        uses: actions/cache@v4
-      #        with:
-      #          path: |
-      #            ~/.cache/go-build
-      #          key: ${{ runner.os }}-go-${{ matrix.folders.path }}-${{ env.hash }}
-      #          restore-keys: |
-      #            ${{ runner.os }}-go-${{ matrix.folders.path }}-
+      - name: Get Go cache paths
+        if: env.run-build == 'true' && matrix.folders.runtime == 'go'
+        id: go-cache-paths
+        run: |
+          echo "mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
+          echo "build=$(go env GOCACHE)" >> $GITHUB_OUTPUT
+
+      - name: Cache Go modules (per app)
+        if: env.run-build == 'true' && matrix.folders.runtime == 'go'
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.go-cache-paths.outputs.mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('go.work', 'go.work.sum', matrix.folders.path '/go.mod', matrix.folders.path '/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-mod-${{ hashFiles('go.work', 'go.work.sum', matrix.folders.path '/go.mod') }}
+
+      - name: Cache Go build artifacts (per app)
+        if: env.run-build == 'true' && matrix.folders.runtime == 'go'
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.go-cache-paths.outputs.build }}
+          key: ${{ runner.os }}-go-build-${{ matrix.folders.path }}-${{ hashFiles(matrix.folders.path '/**/*.go', 'go.work', matrix.folders.path '/go.mod', matrix.folders.path '/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ matrix.folders.path }}-${{ hashFiles('go.work', matrix.folders.path '/go.mod', matrix.folders.path '/go.sum') }}
 
       - name: Install binaries dependencies
         if: env.run-build == 'true'
