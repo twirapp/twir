@@ -2,6 +2,7 @@ package gamesvoteban
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/lib/pq"
@@ -13,6 +14,8 @@ import (
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 )
+
+var ErrDuplicateWords = errors.New("vote options words must be unique")
 
 type Opts struct {
 	fx.In
@@ -93,6 +96,15 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (votebanentity.
 	currentEntity, err := s.repository.GetOrCreateByChannelID(ctx, input.ChannelID, defaultSettings)
 	if err != nil {
 		return votebanentity.Nil, fmt.Errorf("failed to get or create games voteban: %w", err)
+	}
+
+	// Check if vote options words are unique (usually there are no more than 2-3 of them)
+	for _, positive := range input.ChatVotesWordsPositive {
+		for _, negative := range input.ChatVotesWordsNegative {
+			if negative == positive {
+				return votebanentity.Voteban{}, ErrDuplicateWords
+			}
+		}
 	}
 
 	// Build update input
