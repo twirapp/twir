@@ -108,6 +108,10 @@ func (c *Handler) HandleChannelChatMessage(
 			Badges:                   data.Badges,
 			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,
 			ShouldUpdateStats:        data.EnrichedData.ChannelStream != nil && data.EnrichedData.ChannelStream.ID != "",
+			IsBroadcaster:            data.IsChatterBroadcaster(),
+			IsModerator:              data.IsChatterModerator(),
+			IsVip:                    data.IsChatterVip(),
+			IsSubscriber:             data.IsChatterSubscriber(),
 		},
 	)
 	if err != nil {

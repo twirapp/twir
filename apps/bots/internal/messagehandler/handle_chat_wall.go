@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
 	"strings"
 	"time"
 
@@ -31,11 +30,8 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 		return nil
 	}
 
-	badges := createUserBadges(msg.Badges)
-	for _, b := range badges {
-		if slices.Contains(excludedModerationBadges, b) {
-			return nil
-		}
+	if msg.IsChatterBroadcaster() || msg.IsChatterModerator() {
+		return nil
 	}
 
 	walls, err := c.chatWallCacher.Get(ctx, msg.BroadcasterUserId)
@@ -86,11 +82,10 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 		}
 
 		if wallSettings.ChannelID != "" {
-			if !wallSettings.MuteSubscribers &&
-				(slices.Contains(badges, "SUBSCRIBER") || slices.Contains(badges, "FOUNDER")) {
+			if !wallSettings.MuteSubscribers && msg.IsChatterSubscriber() {
 				continue
 			}
-			if !wallSettings.MuteVips && slices.Contains(badges, "VIP") {
+			if !wallSettings.MuteVips && msg.IsChatterVip() {
 				continue
 			}
 		}

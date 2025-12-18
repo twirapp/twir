@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
-	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -110,19 +109,16 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 					return
 				}
 
-				userBadges := createUserBadges(msg.Badges)
-				hasRole := slices.Contains(userBadges, "BROADCASTER")
+				hasRole := msg.IsChatterBroadcaster()
 
 				if msg.EnrichedData.DbUser.IsBotAdmin {
 					hasRole = true
 				}
 
-				for _, badge := range userBadges {
-					for _, r := range channelRoles {
-						if r.Type != rolesmodel.ChannelRoleTypeCustom && badge == r.Type.String() {
-							hasRole = true
-							break
-						}
+				for _, r := range channelRoles {
+					if r.Type != rolesmodel.ChannelRoleTypeCustom && msg.HasRoleFromDbByType(r.Type.String()) {
+						hasRole = true
+						break
 					}
 				}
 

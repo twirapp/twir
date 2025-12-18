@@ -48,19 +48,13 @@ var moderationFunctionsMapping = map[channelsmoderationsettingsmodel.ModerationS
 	channelsmoderationsettingsmodel.ModerationSettingsTypeOneManSpam:  (*MessageHandler).moderationOneManSpam,
 }
 
-var excludedModerationBadges = []string{"BROADCASTER", "MODERATOR"}
-
 func (c *MessageHandler) handleModeration(ctx context.Context, msg twitch.TwitchChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
-	badges := createUserBadges(msg.Badges)
-
-	for _, b := range badges {
-		if slices.Contains(excludedModerationBadges, b) {
-			return nil
-		}
+	if msg.IsChatterBroadcaster() || msg.IsChatterModerator() {
+		return nil
 	}
 
 	settings, err := c.getChannelModerationSettings(ctx, msg.BroadcasterUserId)
@@ -185,7 +179,6 @@ func (c *MessageHandler) moderationHandleResult(
 		c.logger.Error("cannot get channel roles", logger.Error(err))
 		return nil
 	}
-	badges := createUserBadges(msg.Badges)
 
 	for _, r := range channelRoles {
 		if r.Type == model.ChannelRoleTypeCustom {
@@ -198,7 +191,7 @@ func (c *MessageHandler) moderationHandleResult(
 			userHasRole = true
 		}
 
-		if slices.Contains(badges, r.Type.String()) {
+		if msg.HasRoleFromDbByType(r.Type.String()) {
 			userHasRole = true
 		}
 

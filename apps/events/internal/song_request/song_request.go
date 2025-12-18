@@ -116,9 +116,9 @@ func (c *SongRequest) ProcessFromDonation(
 				Color: "",
 				Badges: []twitch.ChatMessageBadge{
 					{
-						Id:    "BROADCASTER",
-						SetId: "BROADCASTER",
-						Info:  "BROADCASTER",
+						Id:    "broadcaster",
+						SetId: "broadcaster",
+						Info:  "broadcaster",
 					},
 				},
 				MessageType:                 "",
