@@ -28,8 +28,9 @@ type (
 		votes                 map[string]bool
 		yesVotes              int
 		noVotes               int
-		votesMu               sync.Mutex
+		votesMu               sync.RWMutex
 		result                chan sessionResult
+		resultOnce            sync.Once
 		voteban               votebanentity.Voteban
 		targetUserId          string
 		targetUserLogin       string
@@ -44,10 +45,9 @@ func newSession(
 	isTargetUserModerator bool,
 ) *session {
 	sess := session{
-		words:  make(map[string]bool),
-		votes:  make(map[string]bool),
-		result: make(chan sessionResult),
-
+		words:                 make(map[string]bool),
+		votes:                 make(map[string]bool),
+		result:                make(chan sessionResult, 1),
 		voteban:               voteban,
 		targetUserId:          targetUserId,
 		targetUserLogin:       targetUserLogin,
@@ -62,7 +62,6 @@ func newSession(
 		sess.words[word] = false
 	}
 
-	sess.votes[targetUserId] = true
 	return &sess
 }
 
@@ -75,12 +74,20 @@ func (s *session) waitResult() (sessionResult, bool) {
 
 	select {
 	case <-ctx.Done():
-		s.writeResult()
+		s.writeResultOnce()
 		result := <-s.result
 		return result, true
 	case result := <-s.result:
 		return result, true
 	}
+}
+
+func (s *session) writeResultOnce() {
+	s.resultOnce.Do(
+		func() {
+			s.writeResult()
+		},
+	)
 }
 
 func (s *session) writeResult() {
@@ -91,6 +98,7 @@ func (s *session) writeResult() {
 		s.result <- sessionResult{
 			haveDecision: false,
 		}
+		close(s.result)
 		return
 	}
 
@@ -126,6 +134,7 @@ func (s *session) writeResult() {
 		channelId:    s.voteban.ChannelID,
 		banDuration:  s.voteban.TimeoutSeconds,
 	}
+	close(s.result)
 }
 
 func (s *session) tryRegisterVote(msg twitch.TwitchChatMessage) {
@@ -133,32 +142,51 @@ func (s *session) tryRegisterVote(msg twitch.TwitchChatMessage) {
 		return
 	}
 
-	s.votesMu.Lock()
-	defer s.votesMu.Unlock()
-
-	// Session has already finished or in process of finishing it.
-	if len(s.votes) >= s.voteban.NeededVotes {
+	s.votesMu.RLock()
+	if !s.canVote(msg.ChatterUserId) {
+		s.votesMu.RUnlock()
 		return
 	}
-
-	// Chatter has already voted during this session.
-	if _, ok := s.votes[msg.ChatterUserId]; ok {
-		return
-	}
+	s.votesMu.RUnlock()
 
 	for word := range strings.FieldsSeq(msg.Message.Text) {
-		if isYay, exists := s.words[word]; exists {
-			s.votes[msg.ChatterUserId] = isYay
+		if isPositive, exists := s.words[word]; exists {
+			s.votesMu.Lock()
+			if !s.canVote(msg.ChatterUserId) {
+				s.votesMu.Unlock()
+				break
+			}
 
-			if isYay {
+			s.votes[msg.ChatterUserId] = isPositive
+
+			if isPositive {
 				s.yesVotes++
 			} else {
 				s.noVotes++
 			}
+			s.votesMu.Unlock()
 		}
 	}
 
+	s.votesMu.RLock()
 	if len(s.votes) >= s.voteban.NeededVotes {
-		s.writeResult()
+		s.votesMu.RUnlock()
+		s.writeResultOnce()
+		return
 	}
+	s.votesMu.RUnlock()
+}
+
+func (s *session) canVote(chatterUserId string) bool {
+	// Session has already finished or in process of finishing it.
+	if len(s.votes) >= s.voteban.NeededVotes {
+		return false
+	}
+
+	// Chatter has already voted during this session.
+	if _, ok := s.votes[chatterUserId]; ok {
+		return false
+	}
+
+	return true
 }

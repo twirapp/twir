@@ -2,7 +2,6 @@ package voteban
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -16,8 +15,6 @@ import (
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
-
-var ErrInProgress = errors.New("voteban is in progress")
 
 type Opts struct {
 	fx.In
@@ -61,17 +58,16 @@ type Service struct {
 	channelService     *channel.Service
 }
 
-func (s *Service) TryRegisterVote(msg twitch.TwitchChatMessage) error {
+func (s *Service) TryRegisterVote(msg twitch.TwitchChatMessage) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	sess, exists := s.inProgressVotebans[msg.BroadcasterUserId]
 	if !exists {
-		return ErrInProgress
+		return
 	}
 
 	sess.tryRegisterVote(msg)
-	return nil
 }
 
 func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, error) {
@@ -102,7 +98,7 @@ func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 	s.mu.Unlock()
 
 	s.logger.Info(
-		"voteban has started",
+		"voteban started",
 		slog.String("channel_id", req.Data.ChannelID),
 		slog.Group(
 			"user",

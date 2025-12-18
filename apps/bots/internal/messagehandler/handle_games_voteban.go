@@ -13,5 +13,6 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
-	return c.votebanService.TryRegisterVote(msg.TwitchChatMessage)
+	c.votebanService.TryRegisterVote(msg.TwitchChatMessage)
+	return nil
 }
