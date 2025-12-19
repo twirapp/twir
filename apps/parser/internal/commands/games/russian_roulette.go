@@ -3,7 +3,6 @@ package games
 import (
 	"context"
 	"errors"
-	"slices"
 	"strings"
 	"time"
 
@@ -46,8 +45,11 @@ var RussianRoulette = &types.DefaultCommand{
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.RouletteCannotGetWithSettings),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Games.Errors.RouletteCannotGetWithSettings,
+				),
+				Err: err,
 			}
 		}
 
@@ -89,8 +91,11 @@ var RussianRoulette = &types.DefaultCommand{
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.RouletteCannotSendInitialMessage),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Games.Errors.RouletteCannotSendInitialMessage,
+				),
+				Err: err,
 			}
 		}
 
@@ -98,7 +103,7 @@ var RussianRoulette = &types.DefaultCommand{
 			time.Sleep(time.Duration(entity.DecisionSeconds) * time.Second)
 		}
 
-		if slices.Contains(parseCtx.Sender.Badges, "BROADCASTER") {
+		if parseCtx.Sender.IsBroadcaster {
 			result.Result = []string{surviveMessage}
 			return result, nil
 		}
@@ -120,12 +125,15 @@ var RussianRoulette = &types.DefaultCommand{
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.RouletteCannotSendDeathMessage),
-					Err:     err,
+					Message: i18n.GetCtx(
+						ctx,
+						locales.Translations.Commands.Games.Errors.RouletteCannotSendDeathMessage,
+					),
+					Err: err,
 				}
 			}
 
-			isModerator := slices.Contains(parseCtx.Sender.Badges, "MODERATOR")
+			isModerator := parseCtx.Sender.IsModerator
 
 			if entity.TimeoutSeconds > 0 {
 				if isModerator && !entity.CanBeUsedByModerators {

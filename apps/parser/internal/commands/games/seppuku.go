@@ -3,7 +3,6 @@ package games
 import (
 	"context"
 	"errors"
-	"slices"
 	"strings"
 
 	"github.com/guregu/null"
@@ -39,8 +38,11 @@ var Seppuku = &types.DefaultCommand{
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.SeppukuCannotFindSettings),
-				Err:     err,
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Games.Errors.SeppukuCannotFindSettings,
+				),
+				Err: err,
 			}
 		}
 
@@ -50,14 +52,14 @@ var Seppuku = &types.DefaultCommand{
 			}, nil
 		}
 
-		if !entity.TimeoutModerators && slices.Contains(parseCtx.Sender.Badges, "MODERATOR") {
+		if !entity.TimeoutModerators && parseCtx.Sender.IsModerator {
 			return &types.CommandsHandlerResult{
 				Result: []string{},
 			}, nil
 		}
 
 		var message string
-		if slices.Contains(parseCtx.Sender.Badges, "MODERATOR") {
+		if parseCtx.Sender.IsModerator {
 			message = entity.MessageModerators
 		} else {
 			message = entity.Message
@@ -70,8 +72,7 @@ var Seppuku = &types.DefaultCommand{
 			}, nil
 		}
 
-		isModerator := slices.Contains(parseCtx.Sender.Badges, "MODERATOR")
-		if !entity.TimeoutModerators && isModerator {
+		if !entity.TimeoutModerators && parseCtx.Sender.IsModerator {
 			return &types.CommandsHandlerResult{
 				Result: []string{message},
 			}, nil
@@ -84,7 +85,7 @@ var Seppuku = &types.DefaultCommand{
 				UserID:         parseCtx.Sender.ID,
 				BanTime:        entity.TimeoutSeconds,
 				Reason:         message,
-				IsModerator:    isModerator,
+				IsModerator:    parseCtx.Sender.IsModerator,
 				AddModAfterBan: true,
 			},
 		); err != nil {

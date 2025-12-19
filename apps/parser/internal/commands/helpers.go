@@ -7,12 +7,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )
 
 func (c *Commands) shouldCheckCooldown(
-	badges []string,
+	msg twitch.TwitchChatMessage,
 	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 	userRoles []model.ChannelRole,
 ) bool {
@@ -20,7 +21,7 @@ func (c *Commands) shouldCheckCooldown(
 		return false
 	}
 
-	if slices.Contains(badges, "BROADCASTER") {
+	if msg.IsChatterBroadcaster() {
 		return false
 	}
 
@@ -49,7 +50,7 @@ func (c *Commands) prepareCooldownAndPermissionsCheck(
 	ctx context.Context,
 	userId,
 	channelId string,
-	userBadges []string,
+	msg twitch.TwitchChatMessage,
 	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 ) (
 	channelRoles []model.ChannelRole,
@@ -72,12 +73,8 @@ func (c *Commands) prepareCooldownAndPermissionsCheck(
 				return user.UserID == userId
 			},
 		)
-		hasBadge := lo.SomeBy(
-			userBadges,
-			func(badge string) bool {
-				return badge == role.Type.String()
-			},
-		)
+
+		hasBadge := msg.HasRoleFromDbByType(role.Type.String())
 
 		if userHasDbRole || hasBadge {
 			userRoles = append(userRoles, role)
