@@ -36,7 +36,13 @@ func New(opts Opts) *Service {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				return s.twirBus.Bots.VotebanRegister.SubscribeGroup("bots", s.tryRegisterVoteban)
+				return s.twirBus.Bots.VotebanRegister.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, error) {
+						res, _ := s.tryRegisterVoteban(req)
+						return res, nil
+					},
+				)
 			},
 			OnStop: func(ctx context.Context) error {
 				s.twirBus.Bots.VotebanRegister.Unsubscribe()
@@ -58,25 +64,30 @@ type Service struct {
 	channelService     *channel.Service
 }
 
-func (s *Service) TryRegisterVote(msg twitch.TwitchChatMessage) {
+func (s *Service) TryRegisterVote(msg twitch.TwitchChatMessage) bool {
+	if msg.Message == nil {
+		return false
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	sess, exists := s.inProgressVotebans[msg.BroadcasterUserId]
 	if !exists {
-		return
+		return false
 	}
 
-	sess.tryRegisterVote(msg)
+	isSuccess := sess.tryRegisterVote(msg.ChatterUserId, msg.Message.Text)
+	return isSuccess
 }
 
-func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, error) {
+func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, bool) {
 	s.mu.RLock()
 	if _, ok := s.inProgressVotebans[req.Data.ChannelID]; ok {
 		s.mu.RUnlock()
 		return bots.VotebanRegisterResponse{
 			AlreadyInProgress: true,
-		}, nil
+		}, false
 	}
 	s.mu.RUnlock()
 
@@ -92,7 +103,7 @@ func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 		s.mu.Unlock()
 		return bots.VotebanRegisterResponse{
 			AlreadyInProgress: true,
-		}, nil
+		}, false
 	}
 
 	s.inProgressVotebans[req.Data.ChannelID] = sess
@@ -109,6 +120,12 @@ func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 	)
 
 	go func() {
+		defer func() {
+			s.mu.Lock()
+			delete(s.inProgressVotebans, req.Data.ChannelID)
+			s.mu.Unlock()
+		}()
+
 		result, ok := sess.waitResult()
 		if !ok {
 			s.logger.Error(
@@ -131,25 +148,15 @@ func (s *Service) tryRegisterVoteban(_ context.Context, req bots.VotebanRegister
 			),
 		)
 
-		if err := s.processSessionResult(req.Data.ChannelID, result); err != nil {
+		if err := s.processSessionResult(result); err != nil {
 			s.logger.Error("failed to process voteban session result", logger.Error(err))
 		}
 	}()
 
-	return bots.VotebanRegisterResponse{}, nil
+	return bots.VotebanRegisterResponse{}, true
 }
 
-func (s *Service) processSessionResult(channelId string, result sessionResult) error {
-	defer func() {
-		s.mu.Lock()
-		delete(s.inProgressVotebans, channelId)
-		s.mu.Unlock()
-	}()
-
-	if !result.haveDecision {
-		return nil
-	}
-
+func (s *Service) processSessionResult(result sessionResult) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 

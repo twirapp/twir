@@ -6,14 +6,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/twirapp/twir/libs/bus-core/twitch"
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 )
 
 type (
 	sessionResult struct {
 		channelId    string
-		haveDecision bool
 		isModerator  bool
 		isBan        bool
 		targetUserId string
@@ -74,7 +72,7 @@ func (s *session) waitResult() (sessionResult, bool) {
 
 	select {
 	case <-ctx.Done():
-		s.writeResultOnce()
+		s.writeResult()
 		result, ok := <-s.result
 		return result, ok
 	case result, ok := <-s.result:
@@ -82,70 +80,10 @@ func (s *session) waitResult() (sessionResult, bool) {
 	}
 }
 
-func (s *session) writeResultOnce() {
-	s.resultOnce.Do(
-		func() {
-			s.writeResult()
-		},
-	)
-}
-
-func (s *session) tryRegisterVote(msg twitch.TwitchChatMessage) {
-	if msg.Message == nil {
-		return
-	}
-
-	s.votesMu.RLock()
-	if !s.canVote(msg.ChatterUserId) {
-		s.votesMu.RUnlock()
-		return
-	}
-	s.votesMu.RUnlock()
-
-	for word := range strings.FieldsSeq(msg.Message.Text) {
-		if isPositive, exists := s.words[word]; exists {
-			s.votesMu.Lock()
-			if !s.canVote(msg.ChatterUserId) {
-				s.votesMu.Unlock()
-				break
-			}
-
-			s.votes[msg.ChatterUserId] = isPositive
-
-			if isPositive {
-				s.yesVotes++
-			} else {
-				s.noVotes++
-			}
-			s.votesMu.Unlock()
-		}
-	}
-
-	s.votesMu.RLock()
-	if len(s.votes) >= s.voteban.NeededVotes {
-		s.votesMu.RUnlock()
-		s.writeResultOnce()
-		return
-	}
-	s.votesMu.RUnlock()
-}
-
+// writeResult computes sessionResult based on current state of session, writes it to the result channel
+// and closes it. The result will be written only once, as the session has only one result.
 func (s *session) writeResult() {
-	s.votesMu.Lock()
-	defer s.votesMu.Unlock()
-
-	if len(s.votes) < s.voteban.NeededVotes {
-		s.result <- sessionResult{
-			haveDecision: false,
-		}
-		close(s.result)
-		return
-	}
-
-	var (
-		message string
-		isBan   = s.yesVotes > s.noVotes
-	)
+	var message string
 
 	if s.isTargetUserModerator {
 		message = s.voteban.SurviveMessageModerators
@@ -153,6 +91,11 @@ func (s *session) writeResult() {
 		message = s.voteban.SurviveMessage
 	}
 
+	s.votesMu.RLock()
+	defer s.votesMu.RUnlock()
+
+	// We should ban chatter if there are enough votes and most of them are positive.
+	isBan := s.yesVotes > s.noVotes && len(s.votes) >= s.voteban.NeededVotes
 	if isBan {
 		if s.isTargetUserModerator {
 			message = s.voteban.BanMessageModerators
@@ -163,21 +106,27 @@ func (s *session) writeResult() {
 
 	message = strings.ReplaceAll(message, "{targetUser}", s.targetUserLogin)
 
-	s.result <- sessionResult{
-		haveDecision: true,
-		isModerator:  s.isTargetUserModerator,
-		isBan:        isBan,
-		targetUserId: s.targetUserId,
-		message:      message,
-		yesVotes:     s.yesVotes,
-		noVotes:      s.noVotes,
-		channelId:    s.voteban.ChannelID,
-		banDuration:  s.voteban.TimeoutSeconds,
-	}
-	close(s.result)
+	s.resultOnce.Do(
+		func() {
+			s.result <- sessionResult{
+				isModerator:  s.isTargetUserModerator,
+				isBan:        isBan,
+				targetUserId: s.targetUserId,
+				message:      message,
+				yesVotes:     s.yesVotes,
+				noVotes:      s.noVotes,
+				channelId:    s.voteban.ChannelID,
+				banDuration:  s.voteban.TimeoutSeconds,
+			}
+			close(s.result)
+		},
+	)
 }
 
-func (s *session) canVote(chatterUserId string) bool {
+func (s *session) tryRegisterVote(chatterUserId, message string) bool {
+	s.votesMu.Lock()
+	defer s.votesMu.Unlock()
+
 	// Session has already finished or in process of finishing it.
 	if len(s.votes) >= s.voteban.NeededVotes {
 		return false
@@ -188,5 +137,24 @@ func (s *session) canVote(chatterUserId string) bool {
 		return false
 	}
 
-	return true
+	lastVotesCount := len(s.votes)
+	for word := range strings.FieldsSeq(message) {
+		if isPositive, exists := s.words[word]; exists {
+			s.votes[chatterUserId] = isPositive
+
+			if isPositive {
+				s.yesVotes++
+			} else {
+				s.noVotes++
+			}
+			break
+		}
+	}
+
+	if len(s.votes) >= s.voteban.NeededVotes {
+		go s.writeResult()
+	}
+
+	isVoteRegistered := len(s.votes) > lastVotesCount
+	return isVoteRegistered
 }
