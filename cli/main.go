@@ -16,26 +16,6 @@ import (
 )
 
 func main() {
-	// var rootCmd = &cobra.Command{
-	// 	Use:   "cli",
-	// 	Short: "Cli for manage twir project",
-	// 	PreRunE: func(cmd *cobra.Command, args []string) error {
-	// 		return dependencies.InstallDependencies().Execute()
-	// 	},
-	// 	RunE: func(cmd *cobra.Command, args []string) error {
-	// 		return nil
-	// 	},
-	// 	CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
-	// }
-	//
-	// rootCmd.AddCommand(dependencies.InstallDependencies())
-	// rootCmd.AddCommand(migrations.Migrations())
-	//
-	// if err := rootCmd.Execute(); err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
-
 	app := &cli.App{
 		Name:        "go run cmd/main.go",
 		Description: "TwirApp cli for helping in manage project",
