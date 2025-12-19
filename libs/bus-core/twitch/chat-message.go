@@ -2,6 +2,7 @@ package twitch
 
 import (
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,25 +34,72 @@ const (
 	broadcasterBadgeId       = "broadcaster"
 	subscriberBadgeId        = "subscriber"
 	subscriberFounderBadgeId = "founder"
-	vipfounderBadgeId        = "vip"
+	vipBadgeId               = "vip"
+	moderatorBadgeId         = "moderator"
+	leadModeratorBadgeId     = "lead_moderator"
 )
 
 func (c TwitchChatMessage) IsChatterBroadcaster() bool {
-	return slices.ContainsFunc(c.Badges, func(b ChatMessageBadge) bool {
-		return b.Id == broadcasterBadgeId
-	})
+	flag := c.EnrichedData.IsChatterBroadcaster || slices.ContainsFunc(
+		c.Badges, func(b ChatMessageBadge) bool {
+			return b.SetId == broadcasterBadgeId
+		},
+	)
+
+	c.EnrichedData.IsChatterBroadcaster = flag
+
+	return c.EnrichedData.IsChatterBroadcaster
 }
 
 func (c TwitchChatMessage) IsChatterVip() bool {
-	return slices.ContainsFunc(c.Badges, func(b ChatMessageBadge) bool {
-		return b.Id == vipfounderBadgeId
-	})
+	flag := c.EnrichedData.IsChatterVip || slices.ContainsFunc(
+		c.Badges, func(b ChatMessageBadge) bool {
+			return b.SetId == vipBadgeId
+		},
+	)
+
+	c.EnrichedData.IsChatterVip = flag
+
+	return c.EnrichedData.IsChatterVip
 }
 
 func (c TwitchChatMessage) IsChatterSubscriber() bool {
-	return slices.ContainsFunc(c.Badges, func(b ChatMessageBadge) bool {
-		return b.Id == subscriberBadgeId || b.Id == subscriberFounderBadgeId
-	})
+	flag := c.EnrichedData.IsChatterBroadcaster || slices.ContainsFunc(
+		c.Badges, func(b ChatMessageBadge) bool {
+			return b.SetId == subscriberBadgeId || b.SetId == subscriberFounderBadgeId
+		},
+	)
+
+	c.EnrichedData.IsChatterSubscriber = flag
+
+	return c.EnrichedData.IsChatterSubscriber
+}
+
+func (c TwitchChatMessage) IsChatterModerator() bool {
+	flag := slices.ContainsFunc(
+		c.Badges, func(b ChatMessageBadge) bool {
+			return b.SetId == moderatorBadgeId || b.SetId == leadModeratorBadgeId
+		},
+	)
+
+	c.EnrichedData.IsChatterModerator = flag
+
+	return c.EnrichedData.IsChatterModerator
+}
+
+func (c TwitchChatMessage) HasRoleFromDbByType(roleType string) bool {
+	switch strings.ToLower(roleType) {
+	case "broadcaster":
+		return c.IsChatterBroadcaster()
+	case "moderator":
+		return c.IsChatterModerator()
+	case "subscriber":
+		return c.IsChatterSubscriber()
+	case "vip":
+		return c.IsChatterVip()
+	default:
+		return false
+	}
 }
 
 type ChatMessageEnrichedData struct {
@@ -61,6 +109,11 @@ type ChatMessageEnrichedData struct {
 	ChannelStream            *streamsmodel.Stream  `json:"channel_stream"`
 	DbUser                   *DbUser               `json:"db_user,omitempty"`
 	DbUserChannelStat        *DbUserChannelStat    `json:"db_user_channel_stat,omitempty"`
+
+	IsChatterBroadcaster bool `json:"is_chatter_broadcaster"`
+	IsChatterModerator   bool `json:"is_chatter_moderator"`
+	IsChatterVip         bool `json:"is_chatter_vip"`
+	IsChatterSubscriber  bool `json:"is_chatter_subscriber"`
 }
 
 type FragmentType int32

@@ -14,10 +14,13 @@ type ParseContextSender struct {
 	Name             string
 	DisplayName      string
 	Color            string
-	Badges           []string
 	Roles            []model.ChannelRole
 	UserChannelStats *model.UsersStats
 	DbUser           *model.Users
+	IsBroadcaster    bool
+	IsModerator      bool
+	IsVip            bool
+	IsSubscriber     bool
 }
 
 type ParseContextChannel struct {

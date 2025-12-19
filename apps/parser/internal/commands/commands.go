@@ -290,20 +290,18 @@ func (c *Commands) ParseCommandResponses(
 		Name: requestData.BroadcasterUserLogin,
 	}
 
-	badges := make([]string, 0, len(requestData.Badges))
-	for _, b := range requestData.Badges {
-		badges = append(badges, strings.ToUpper(b.SetId))
-	}
-
 	parseCtxSender := &types.ParseContextSender{
 		ID:               requestData.ChatterUserId,
 		Name:             requestData.ChatterUserLogin,
 		DisplayName:      requestData.ChatterUserName,
-		Badges:           badges,
 		Color:            requestData.Color,
 		Roles:            userRoles,
 		DbUser:           dbUser,
 		UserChannelStats: userChannelStats,
+		IsBroadcaster:    requestData.IsChatterBroadcaster(),
+		IsModerator:      requestData.IsChatterModerator(),
+		IsVip:            requestData.IsChatterVip(),
+		IsSubscriber:     requestData.IsChatterSubscriber(),
 	}
 
 	mentions := make(
@@ -605,23 +603,18 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		}
 	}
 
-	convertedBadges := make([]string, 0, len(data.Badges))
-	for _, badge := range data.Badges {
-		convertedBadges = append(convertedBadges, strings.ToUpper(badge.SetId))
-	}
-
 	_, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
 		ctx,
 		data.ChatterUserId,
 		data.BroadcasterUserId,
-		convertedBadges,
+		data,
 		cmd.Cmd,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	shouldCheckCooldown := c.shouldCheckCooldown(convertedBadges, cmd.Cmd, userRoles)
+	shouldCheckCooldown := c.shouldCheckCooldown(data, cmd.Cmd, userRoles)
 	if cmd.Cmd.CooldownType == "GLOBAL" && cmd.Cmd.Cooldown != nil && *cmd.Cmd.Cooldown > 0 && shouldCheckCooldown {
 		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
 		rErr := c.services.Redis.Get(ctx, key).Err()

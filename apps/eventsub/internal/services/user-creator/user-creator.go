@@ -48,6 +48,10 @@ type CreateUserInput struct {
 	Badges                   []twitch.ChatMessageBadge
 	UsedEmotesWithThirdParty *int
 	ShouldUpdateStats        bool
+	IsBroadcaster            bool
+	IsModerator              bool
+	IsVip                    bool
+	IsSubscriber             bool
 }
 
 func (c *UserCreatorService) UnsureUser(ctx context.Context, input CreateUserInput) (
@@ -59,8 +63,6 @@ func (c *UserCreatorService) UnsureUser(ctx context.Context, input CreateUserInp
 		return nil, nil, fmt.Errorf("UnsureUser: user_id is required")
 	}
 
-	isMod, isVip, isSubscriber := getUserRoles(input.Badges)
-
 	// If there's no channel context, we only need to ensure the base user exists.
 	if input.ChannelID == nil {
 		user, err := c.ensureUserExists(ctx, input.UserID)
@@ -71,14 +73,13 @@ func (c *UserCreatorService) UnsureUser(ctx context.Context, input CreateUserInp
 	}
 
 	// With a channel context, we handle both user and their channel-specific stats.
-	return c.handleUserWithChannel(ctx, input, isMod, isVip, isSubscriber)
+	return c.handleUserWithChannel(ctx, input)
 }
 
 // handleUserWithChannel orchestrates the logic for a user within a specific channel.
 func (c *UserCreatorService) handleUserWithChannel(
 	ctx context.Context,
 	input CreateUserInput,
-	isMod, isVip, isSubscriber bool,
 ) (*usermodel.User, *usersstatsmodel.UserStat, error) {
 	userWithStats, err := c.usersWithStatsRepo.GetByUserAndChannelID(
 		ctx, userswithstatsrepository.GetByUserAndChannelIDInput{
@@ -92,14 +93,26 @@ func (c *UserCreatorService) handleUserWithChannel(
 		if errors.Is(err, userswithstatsrepository.ErrNotFound) {
 			// This means the user might exist, but their stats for this channel do not.
 			// Or the user doesn't exist at all. This function handles both cases.
-			return c.findUserAndCreateStats(ctx, input, isMod, isVip, isSubscriber)
+			return c.findUserAndCreateStats(
+				ctx,
+				input,
+				input.IsModerator,
+				input.IsVip,
+				input.IsSubscriber,
+			)
 		}
 		return nil, nil, fmt.Errorf("UnsureUser: failed to get user with stats: %w", err)
 	}
 
 	// User and stats record were found, proceed with updating stats.
 	ensuredUser := &userWithStats.User
-	ensuredStats, err := c.updateUserStats(ctx, input, isMod, isVip, isSubscriber)
+	ensuredStats, err := c.updateUserStats(
+		ctx,
+		input,
+		input.IsModerator,
+		input.IsVip,
+		input.IsSubscriber,
+	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("UnsureUser: failed to update user stats: %w", err)
 	}
@@ -241,19 +254,4 @@ func (c *UserCreatorService) createUser(ctx context.Context, input users.CreateI
 		return nil, err
 	}
 	return &newUser, nil
-}
-
-// getUserRoles extracts role information from Twitch badges.
-func getUserRoles(badges []twitch.ChatMessageBadge) (isMod, isVip, isSubscriber bool) {
-	for _, b := range badges {
-		switch b.SetId {
-		case "moderator":
-			isMod = true
-		case "vip":
-			isVip = true
-		case "subscriber", "founder":
-			isSubscriber = true
-		}
-	}
-	return
 }

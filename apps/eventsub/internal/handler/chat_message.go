@@ -42,6 +42,11 @@ func (c *Handler) HandleChannelChatMessage(
 
 	var errwg errgroup.Group
 
+	data.EnrichedData.IsChatterBroadcaster = data.IsChatterBroadcaster()
+	data.EnrichedData.IsChatterModerator = data.IsChatterModerator()
+	data.EnrichedData.IsChatterVip = data.IsChatterVip()
+	data.EnrichedData.IsChatterSubscriber = data.IsChatterSubscriber()
+
 	errwg.Go(
 		func() error {
 			emotes, emotesErr := c.chatMessageCountEmotes(ctx, data)
@@ -108,6 +113,10 @@ func (c *Handler) HandleChannelChatMessage(
 			Badges:                   data.Badges,
 			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,
 			ShouldUpdateStats:        data.EnrichedData.ChannelStream != nil && data.EnrichedData.ChannelStream.ID != "",
+			IsBroadcaster:            data.IsChatterBroadcaster(),
+			IsModerator:              data.IsChatterModerator(),
+			IsVip:                    data.IsChatterVip(),
+			IsSubscriber:             data.IsChatterSubscriber(),
 		},
 	)
 	if err != nil {
