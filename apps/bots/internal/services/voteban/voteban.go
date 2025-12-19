@@ -36,16 +36,30 @@ func New(opts Opts) *Service {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				return s.twirBus.Bots.VotebanRegister.SubscribeGroup(
+				if err := s.twirBus.Bots.VotebanRegister.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, error) {
 						res, _ := s.tryRegisterVoteban(req)
 						return res, nil
 					},
-				)
+				); err != nil {
+					return fmt.Errorf("subscribe on voteban register: %w", err)
+				}
+
+				if err := s.twirBus.ChatMessages.Subscribe(
+					func(ctx context.Context, msg twitch.TwitchChatMessage) (struct{}, error) {
+						_ = s.tryRegisterVote(msg)
+						return struct{}{}, nil
+					},
+				); err != nil {
+					return fmt.Errorf("subscribe on chat messages: %w", err)
+				}
+
+				return nil
 			},
 			OnStop: func(ctx context.Context) error {
 				s.twirBus.Bots.VotebanRegister.Unsubscribe()
+				s.twirBus.ChatMessages.Unsubscribe()
 				return nil
 			},
 		},
@@ -64,7 +78,7 @@ type Service struct {
 	channelService     *channel.Service
 }
 
-func (s *Service) TryRegisterVote(msg twitch.TwitchChatMessage) bool {
+func (s *Service) tryRegisterVote(msg twitch.TwitchChatMessage) bool {
 	if msg.Message == nil {
 		return false
 	}
