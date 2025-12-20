@@ -90,7 +90,7 @@ jobs:
           cache: false
 
       - name: Get Go cache paths
-        if: env.run-build == 'true' && matrix.folders.runtime == 'go'
+        if: env.run-build == 'true'
         id: go-cache-paths
         run: |
           echo "mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
