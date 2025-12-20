@@ -1,24 +1,14 @@
 <script lang="ts" setup>
 import { useVirtualList } from '@vueuse/core'
-import { Check, ChevronsUpDown } from 'lucide-vue-next'
+import { ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFilter } from 'reka-ui'
-
-import { resolveUserName } from '../../helpers'
 
 import type { PopoverContentProps } from 'reka-ui'
 
 import { useDashboard, useProfile } from '@/api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
 	SidebarMenu,
@@ -26,7 +16,6 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
