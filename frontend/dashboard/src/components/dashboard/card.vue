@@ -33,8 +33,8 @@ const { t } = useI18n()
 </script>
 
 <template>
-	<Card v-bind="$attrs" class="p-0">
-		<CardContent class="h-10 border-b">
+	<Card v-bind="$attrs" class="p-0 gap-0">
+		<CardContent class="px-2 h-10 border-b mt-0">
 			<div class="flex flex-row justify-between items-center h-10">
 				<div class="widgets-draggable-handle flex items-center">
 					<GripVertical class="w-5 h-5" />
@@ -43,7 +43,7 @@ const { t } = useI18n()
 
 				<div v-if="!popup" class="flex gap-2">
 					<slot name="header-extra" />
-					<Button size="sm" variant="outline" @click="hideItem">
+					<Button size="sm" variant="ghost" @click="hideItem" class="cursor-pointer">
 						<EyeOff />
 					</Button>
 				</div>
