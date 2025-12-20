@@ -57,8 +57,10 @@ const search = ref('')
 const { contains } = useFilter({ sensitivity: 'base' })
 const options = computed(() => {
 	return (
-		profile.value?.availableDashboards.filter((p) =>
-			contains(p.twitchProfile.login, search.value)
+		profile.value?.availableDashboards.filter(
+			(p) =>
+				contains(p.twitchProfile.login, search.value) ||
+				contains(p.twitchProfile.displayName, search.value)
 		) ?? []
 	)
 })
