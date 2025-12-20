@@ -24,13 +24,13 @@ const open = useLocalStorage('twirSidebarIsOpen', true)
 
 			<SidebarDashboardSelector />
 
-			<SidebarSeparator />
+			<SidebarSeparator class="mx-1" />
 
 			<SidebarContent>
 				<SidebarNavigation />
 			</SidebarContent>
 
-			<SidebarSeparator />
+			<SidebarSeparator class="mx-1" />
 
 			<SidebarFooter />
 		</Sidebar>

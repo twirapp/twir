@@ -27,6 +27,8 @@ import {
 	useSidebar,
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const { open: sidebarOpen } = useSidebar()
@@ -104,63 +106,36 @@ const {
 					</SidebarMenuButton>
 				</PopoverTrigger>
 				<PopoverContent class="p-0 min-h-20!" v-bind="popoverProps">
-					<Command>
-						<CommandInput v-model="search" class="h-9" placeholder="Search user" />
-						<CommandEmpty> No user found </CommandEmpty>
-						<CommandList class="max-h-full!">
-							<CommandGroup :heading="t(`dashboard.header.channelsAccess`)" class="w-full">
-								<div v-bind="containerProps" class="max-h-72">
-									<div v-bind="wrapperProps">
-										<CommandItem
-											v-for="option in virtualizedList"
-											:key="option.index"
-											style="height: 32px"
-											:value="option.data.id"
-											@select="
-												(ev) => {
-													if (typeof ev.detail.value === 'string') {
-														selectDashboard(ev.detail.value)
-													}
-												}
-											"
-											class="cursor-pointer"
-											:data-highligted="profile.selectedDashboardId === option.data.id"
-										>
-											<div class="flex items-center gap-2">
-												<Avatar class="size-4">
-													<AvatarImage
-														:src="option.data.twitchProfile.profileImageUrl"
-														:alt="option.data.twitchProfile.displayName"
-													/>
-													<AvatarFallback>
-														{{ option.data.twitchProfile.displayName.slice(0, 2).toUpperCase() }}
-													</AvatarFallback>
-												</Avatar>
-												<span>
-													{{
-														resolveUserName(
-															option.data.twitchProfile.login,
-															option.data.twitchProfile.displayName
-														)
-													}}
-												</span>
-											</div>
-											<Check
-												:class="
-													cn(
-														'ml-auto h-4 w-4',
-														profile.selectedDashboardId === option.data.id
-															? 'opacity-100'
-															: 'opacity-0'
-													)
-												"
-											/>
-										</CommandItem>
-									</div>
-								</div>
-							</CommandGroup>
-						</CommandList>
-					</Command>
+					<div class="p-2">
+						<Input v-model="search" placeholder="Search user..." />
+					</div>
+
+					<div
+						v-bind="containerProps"
+						class="max-h-72 w-full px-2 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-zinc-800"
+					>
+						<div v-bind="wrapperProps" class="w-full">
+							<Button
+								v-for="option in virtualizedList"
+								:key="option.data.id"
+								style="height: 32px"
+								class="flex justify-start w-full"
+								variant="ghost"
+								@click="selectDashboard(option.data.id)"
+							>
+								<Avatar class="size-4">
+									<AvatarImage
+										:src="option.data.twitchProfile.profileImageUrl"
+										:alt="option.data.twitchProfile.displayName"
+									/>
+									<AvatarFallback>
+										{{ option.data.twitchProfile.displayName.slice(0, 2).toUpperCase() }}
+									</AvatarFallback>
+								</Avatar>
+								{{ option.data.twitchProfile.login }}
+							</Button>
+						</div>
+					</div>
 				</PopoverContent>
 			</Popover>
 		</SidebarMenuItem>
