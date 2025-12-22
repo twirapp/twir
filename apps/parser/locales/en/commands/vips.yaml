@@ -1,6 +1,6 @@
 hints:
   user: '@username'
-  unvip_in: 'Time in, example: 1w5d1m5s'
+  unvip_in: 'can be time in format: 1w1h30m, 2d5h; or can be stream_end to unvip when stream ends (delayed for 10 mins in case of stream crash). Leave it empty for permanent vip.'
 
 errors:
   invalid_duration: 'Invalid duration format. Please use formats like <1h>, <30m>, or <2d>'

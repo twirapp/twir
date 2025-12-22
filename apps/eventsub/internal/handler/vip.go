@@ -8,7 +8,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
-	scheduledmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
 )
 
 func (c *Handler) HandleChannelVipAdd(
@@ -82,7 +81,7 @@ func (c *Handler) HandleChannelVipRemove(
 		return
 	}
 
-	if scheduledVip != scheduledmodel.Nil {
+	if scheduledVip.IsNil() {
 		if err := c.scheduledVipsRepo.Delete(ctx, scheduledVip.ID); err != nil {
 			c.logger.Error(err.Error(), logger.Error(err))
 		}

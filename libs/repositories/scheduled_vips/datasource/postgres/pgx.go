@@ -3,14 +3,15 @@ package postgres
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/oklog/ulid/v2"
+	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/scheduled_vips"
-	"github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
 )
 
 type Opts struct {
@@ -36,6 +37,34 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+type scanModel struct {
+	ID         ulid.ULID
+	UserID     string
+	ChannelID  string
+	CreatedAt  time.Time
+	RemoveType *string
+	RemoveAt   *time.Time
+
+	isNil bool
+}
+
+func (c scanModel) toEntity() scheduledvipsentity.ScheduledVip {
+	e := scheduledvipsentity.ScheduledVip{
+		ID:        c.ID,
+		UserID:    c.UserID,
+		ChannelID: c.ChannelID,
+		CreatedAt: c.CreatedAt,
+		RemoveAt:  c.RemoveAt,
+	}
+
+	if c.RemoveType != nil {
+		removeType := scheduledvipsentity.RemoveType(*c.RemoveType)
+		e.RemoveType = &removeType
+	}
+
+	return e
+}
+
 func (c *Pgx) Update(ctx context.Context, id ulid.ULID, input scheduled_vips.UpdateInput) error {
 	updateBuilder := sq.Update("channels_scheduled_vips").
 		Where(squirrel.Eq{"id": id.String()})
@@ -54,9 +83,9 @@ func (c *Pgx) Update(ctx context.Context, id ulid.ULID, input scheduled_vips.Upd
 	return err
 }
 
-func (c *Pgx) GetByID(ctx context.Context, id ulid.ULID) (model.ScheduledVip, error) {
+func (c *Pgx) GetByID(ctx context.Context, id ulid.ULID) (scheduledvipsentity.ScheduledVip, error) {
 	query := `
-SELECT id, channel_id, user_id, created_at, remove_at
+SELECT id, channel_id, user_id, created_at, remove_at, remove_type
 FROM channels_scheduled_vips
 WHERE id = $1
 `
@@ -64,26 +93,26 @@ WHERE id = $1
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, id.String())
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Nil, nil
-		}
-		return model.Nil, err
+		return scheduledvipsentity.Nil, err
 	}
 
-	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ScheduledVip])
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[scanModel])
 	if err != nil {
-		return model.Nil, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return scheduledvipsentity.Nil, nil
+		}
+		return scheduledvipsentity.Nil, err
 	}
 
-	return result, nil
+	return result.toEntity(), nil
 }
 
 func (c *Pgx) GetByUserAndChannelID(
 	ctx context.Context,
 	userID, channelID string,
-) (model.ScheduledVip, error) {
+) (scheduledvipsentity.ScheduledVip, error) {
 	query := `
-SELECT id, channel_id, user_id, created_at, remove_at
+SELECT id, channel_id, user_id, created_at, remove_at, remove_type
 FROM channels_scheduled_vips
 WHERE channel_id = $1 AND user_id = $2
 `
@@ -91,22 +120,22 @@ WHERE channel_id = $1 AND user_id = $2
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, channelID, userID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Nil, nil
-		}
-		return model.Nil, err
+		return scheduledvipsentity.Nil, err
 	}
 
-	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ScheduledVip])
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[scanModel])
 	if err != nil {
-		return model.Nil, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return scheduledvipsentity.Nil, nil
+		}
+		return scheduledvipsentity.Nil, err
 	}
 
-	return result, nil
+	return result.toEntity(), nil
 }
 
 func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
-	[]model.ScheduledVip,
+	[]scheduledvipsentity.ScheduledVip,
 	error,
 ) {
 	builder := sq.Select(
@@ -115,6 +144,7 @@ func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
 		"user_id",
 		"created_at",
 		"remove_at",
+		"remove_type",
 	).From("channels_scheduled_vips")
 
 	if input.Expired != nil {
@@ -123,6 +153,14 @@ func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
 		} else {
 			builder = builder.Where("remove_at > NOW()")
 		}
+	}
+
+	if input.RemoveType != nil {
+		builder = builder.Where(squirrel.Eq{"remove_type": *input.RemoveType})
+	}
+
+	if input.ChannelID != nil {
+		builder = builder.Where(squirrel.Eq{"channel_id": *input.ChannelID})
 	}
 
 	query, args, err := builder.ToSql()
@@ -136,7 +174,7 @@ func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
 		return nil, err
 	}
 
-	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ScheduledVip])
+	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[scanModel])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
@@ -144,44 +182,22 @@ func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
 		return nil, err
 	}
 
-	return result, nil
-}
-
-func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) (
-	[]model.ScheduledVip,
-	error,
-) {
-	query := `
-SELECT id, channel_id, user_id, created_at, remove_at
-FROM channels_scheduled_vips
-WHERE channel_id = $1
-`
-
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, channelID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
+	mappedResult := make([]scheduledvipsentity.ScheduledVip, len(result))
+	for i, r := range result {
+		mappedResult[i] = r.toEntity()
 	}
 
-	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ScheduledVip])
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return mappedResult, nil
 }
 
 func (c *Pgx) Create(ctx context.Context, input scheduled_vips.CreateInput) error {
 	query := `
-INSERT INTO channels_scheduled_vips (channel_id, user_id, remove_at)
+INSERT INTO channels_scheduled_vips (channel_id, user_id, remove_at, remove_type)
 VALUES ($1, $2, $3)
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err := conn.Exec(ctx, query, input.ChannelID, input.UserID, input.RemoveAt)
+	_, err := conn.Exec(ctx, query, input.ChannelID, input.UserID, input.RemoveAt, input.RemoveType)
 	return err
 }
 

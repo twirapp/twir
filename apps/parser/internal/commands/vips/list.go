@@ -13,9 +13,10 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
-	scheduledvipmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
+	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 )
 
 var List = &types.DefaultCommand{
@@ -35,9 +36,11 @@ var List = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		scheduledVips, err := parseCtx.Services.ScheduledVipsRepo.GetManyByChannelID(
+		scheduledVips, err := parseCtx.Services.ScheduledVipsRepo.GetMany(
 			ctx,
-			parseCtx.Channel.ID,
+			scheduledvipsrepository.GetManyInput{
+				ChannelID: &parseCtx.Channel.ID,
+			},
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -102,6 +105,10 @@ var List = &types.DefaultCommand{
 
 		slices.SortFunc(
 			scheduledVipsWithUsers, func(a, b scheduledVip) int {
+				if a.Vip.RemoveAt == nil || b.Vip.RemoveAt == nil {
+					return 0
+				}
+
 				return a.Vip.RemoveAt.Compare(*b.Vip.RemoveAt)
 			},
 		)
@@ -115,12 +122,19 @@ var List = &types.DefaultCommand{
 
 			resultedString.WriteString(vip.User.DisplayName)
 			resultedString.WriteString(" ")
-			resultedString.WriteString(
-				fmt.Sprintf(
-					"(%s)",
-					vip.Vip.RemoveAt.Format("2006-01-02 15:04:05"),
-				),
-			)
+
+			if vip.Vip.RemoveAt != nil {
+				resultedString.WriteString(
+					fmt.Sprintf(
+						"(%s)",
+						vip.Vip.RemoveAt.Format("2006-01-02 15:04:05"),
+					),
+				)
+			} else if vip.Vip.RemoveType != nil && *vip.Vip.RemoveType == scheduledvipsentity.RemoveTypeStreamEnd {
+				resultedString.WriteString(
+					"(stream end)",
+				)
+			}
 		}
 
 		result.Result = []string{resultedString.String()}
@@ -132,5 +146,5 @@ var List = &types.DefaultCommand{
 type scheduledVip struct {
 	UserID string
 	User   *helix.User
-	Vip    scheduledvipmodel.ScheduledVip
+	Vip    scheduledvipsentity.ScheduledVip
 }

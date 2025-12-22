@@ -7,13 +7,14 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
-	scheduledvipmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"github.com/xhit/go-str2duration/v2"
 )
@@ -67,16 +68,27 @@ var SetExpire = &types.DefaultCommand{
 			}
 		}
 
+		var (
+			unvipAt   *time.Time
+			unvipType *scheduledvipsentity.RemoveType
+		)
 		unvipArg := parseCtx.ArgsParser.Get("unvip_in").String()
-		duration, err := str2duration.ParseDuration(unvipArg)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Errors.InvalidDuration),
-				Err:     err,
-			}
-		}
 
-		newUnvipAt := time.Now().Add(duration)
+		if unvipArg == "stream_end" {
+			unvipType = lo.ToPtr(scheduledvipsentity.RemoveTypeStreamEnd)
+		} else {
+			unvipType = lo.ToPtr(scheduledvipsentity.RemoveTypeTime)
+			duration, err := str2duration.ParseDuration(unvipArg)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Vips.Errors.InvalidDuration),
+					Err:     err,
+				}
+			}
+
+			newUnvipAt := time.Now().Add(duration)
+			unvipAt = &newUnvipAt
+		}
 
 		user := parseCtx.Mentions[0]
 
@@ -91,12 +103,14 @@ var SetExpire = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
-		if vip == scheduledvipmodel.Nil {
+		if vip.IsNil() {
 			err := parseCtx.Services.ScheduledVipsRepo.Create(
 				ctx,
 				scheduledvipsrepository.CreateInput{
-					ChannelID: parseCtx.Channel.ID,
-					UserID:    user.UserId,
+					ChannelID:  parseCtx.Channel.ID,
+					UserID:     user.UserId,
+					RemoveType: unvipType,
+					RemoveAt:   unvipAt,
 				},
 			)
 			if err != nil {
@@ -113,7 +127,8 @@ var SetExpire = &types.DefaultCommand{
 				ctx,
 				vip.ID,
 				scheduledvipsrepository.UpdateInput{
-					RemoveAt: &newUnvipAt,
+					RemoveAt:   unvipAt,
+					RemoveType: unvipType,
 				},
 			)
 			if err != nil {
@@ -132,16 +147,22 @@ var SetExpire = &types.DefaultCommand{
 			},
 		)
 
+		localeVars := locales.KeysCommandsVipsErrorsUpdatedVars{
+			UserName: user.UserName,
+		}
+		if unvipType != nil && *unvipType == scheduledvipsentity.RemoveTypeTime && unvipAt != nil {
+			localeVars.EndTime = unvipAt.Format("2006-01-02 15:04:05")
+		} else if unvipType != nil && *unvipType == scheduledvipsentity.RemoveTypeStreamEnd {
+			localeVars.EndTime = "stream end"
+		} else {
+			localeVars.EndTime = "never"
+		}
+
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Vips.Errors.Updated.SetVars(
-						locales.KeysCommandsVipsErrorsUpdatedVars{
-							UserName: user.UserName,
-							EndTime:  newUnvipAt.Format("2006-01-02 15:04:05"),
-						},
-					),
+					locales.Translations.Commands.Vips.Errors.Updated.SetVars(localeVars),
 				),
 			},
 		}

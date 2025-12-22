@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
+	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 )
 
 // ScheduledVipsCreate is the resolver for the scheduledVipsCreate field.
@@ -29,12 +30,25 @@ func (r *mutationResolver) ScheduledVipsCreate(ctx context.Context, input gqlmod
 		removeAt = &newRemoveAt
 	}
 
+	var removeType *scheduledvipsentity.RemoveType
+	if input.RemoveType.Value() != nil {
+		switch *input.RemoveType.Value() {
+		case gqlmodel.ScheduledVipRemoveTypeStreamEnd:
+			rt := scheduledvipsentity.RemoveTypeStreamEnd
+			removeType = &rt
+		case gqlmodel.ScheduledVipRemoveTypeTime:
+			rt := scheduledvipsentity.RemoveTypeTime
+			removeType = &rt
+		}
+	}
+
 	err = r.deps.ScheduledVipsService.Create(
 		ctx,
 		scheduled_vips.CreateInput{
-			UserID:    input.UserID,
-			ChannelID: dashboardID,
-			RemoveAt:  removeAt,
+			UserID:     input.UserID,
+			ChannelID:  dashboardID,
+			RemoveAt:   removeAt,
+			RemoveType: removeType,
 		},
 	)
 	if err != nil {

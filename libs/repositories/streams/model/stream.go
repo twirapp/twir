@@ -21,10 +21,14 @@ type Stream struct {
 	TagIds       []string
 	Tags         []string
 	IsMature     bool
+
+	isNil bool
 }
 
-var Nil = Stream{}
-
 func (c Stream) IsNil() bool {
-	return c.ID == ""
+	return c.isNil || c.ID == ""
+}
+
+var Nil = Stream{
+	isNil: true,
 }

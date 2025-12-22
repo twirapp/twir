@@ -7,9 +7,11 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
@@ -20,7 +22,7 @@ import (
 var Add = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "vips add",
-		Description: null.StringFrom("Add vip to user, can be scheduled for unvip."),
+		Description: null.StringFrom("Add vip to user, can be scheduled for unvip in time or stream end."),
 		RolesIDS: pq.StringArray{
 			model.ChannelRoleTypeModerator.String(),
 		},
@@ -49,22 +51,30 @@ var Add = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		var unvipAt *time.Time
+		var (
+			unvipAt   *time.Time
+			unvipType *scheduledvipsentity.RemoveType
+		)
 		unvipArg := parseCtx.ArgsParser.Get("unvip_in")
 		if unvipArg != nil {
-			duration, err := str2duration.ParseDuration(unvipArg.String())
-			if err != nil {
-				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(
-						ctx,
-						locales.Translations.Commands.Vips.Errors.InvalidDuration,
-					),
-					Err: err,
+			if unvipArg.String() == "stream_end" {
+				unvipType = lo.ToPtr(scheduledvipsentity.RemoveTypeStreamEnd)
+			} else {
+				unvipType = lo.ToPtr(scheduledvipsentity.RemoveTypeTime)
+				duration, err := str2duration.ParseDuration(unvipArg.String())
+				if err != nil {
+					return nil, &types.CommandHandlerError{
+						Message: i18n.GetCtx(
+							ctx,
+							locales.Translations.Commands.Vips.Errors.InvalidDuration,
+						),
+						Err: err,
+					}
 				}
-			}
 
-			newUnvipAt := time.Now().Add(duration)
-			unvipAt = &newUnvipAt
+				newUnvipAt := time.Now().Add(duration)
+				unvipAt = &newUnvipAt
+			}
 		}
 
 		twitchClient, err := twitch.NewUserClient(
@@ -145,9 +155,10 @@ var Add = &types.DefaultCommand{
 				err = parseCtx.Services.ScheduledVipsRepo.Create(
 					trCtx,
 					scheduledvipsrepository.CreateInput{
-						ChannelID: parseCtx.Channel.ID,
-						UserID:    user.UserId,
-						RemoveAt:  unvipAt,
+						ChannelID:  parseCtx.Channel.ID,
+						UserID:     user.UserId,
+						RemoveAt:   unvipAt,
+						RemoveType: unvipType,
 					},
 				)
 				if err != nil {

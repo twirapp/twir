@@ -8,6 +8,11 @@ extend type Mutation {
 	scheduledVipsUpdate(id: String!, input: ScheduledVipsUpdateInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
+enum ScheduledVipRemoveType {
+	TIME,
+	STREAM_END
+}
+
 type ScheduledVip {
 	id: String!
 	userID: String!
@@ -15,11 +20,13 @@ type ScheduledVip {
 	channelID: String!
 	createdAt: Time!
 	removeAt: Time
+	removeType: ScheduledVipRemoveType
 }
 
 input ScheduledVipsCreateInput {
 	userID: String! @validate(constraint: "max=90")
 	removeAt: Int
+	removeType: ScheduledVipRemoveType
 }
 
 input ScheduledVipsRemoveInput {
@@ -28,4 +35,5 @@ input ScheduledVipsRemoveInput {
 
 input ScheduledVipsUpdateInput {
 	removeAt: Int!
+	removeType: ScheduledVipRemoveType!
 }

@@ -6,9 +6,8 @@ import (
 	"time"
 
 	"github.com/oklog/ulid/v2"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
-	scheduledvipmodel "github.com/twirapp/twir/libs/repositories/scheduled_vips/model"
 	"go.uber.org/fx"
 )
 
@@ -28,46 +27,38 @@ type Service struct {
 	repo scheduledvipsrepository.Repository
 }
 
-func (c *Service) modelToEntity(m scheduledvipmodel.ScheduledVip) entity.ScheduledVip {
-	return entity.ScheduledVip{
-		ID:        m.ID,
-		UserID:    m.UserID,
-		ChannelID: m.ChannelID,
-		CreatedAt: m.CreatedAt,
-		RemoveAt:  m.RemoveAt,
-	}
-}
-
 func (c *Service) GetScheduledVips(ctx context.Context, channelID string) (
-	[]entity.ScheduledVip,
+	[]scheduledvipsentity.ScheduledVip,
 	error,
 ) {
-	scheduledVips, err := c.repo.GetManyByChannelID(ctx, channelID)
+	scheduledVips, err := c.repo.GetMany(
+		ctx,
+		scheduledvipsrepository.GetManyInput{
+			ChannelID: &channelID,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	entities := make([]entity.ScheduledVip, 0, len(scheduledVips))
-	for _, vip := range scheduledVips {
-		entities = append(entities, c.modelToEntity(vip))
-	}
-
-	return entities, nil
+	return scheduledVips, nil
 }
 
 type CreateInput struct {
-	UserID    string
-	ChannelID string
-	RemoveAt  *time.Time
+	UserID     string
+	ChannelID  string
+	RemoveAt   *time.Time
+	RemoveType *scheduledvipsentity.RemoveType
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) error {
 	return c.repo.Create(
 		ctx,
 		scheduledvipsrepository.CreateInput{
-			ChannelID: input.ChannelID,
-			UserID:    input.UserID,
-			RemoveAt:  input.RemoveAt,
+			ChannelID:  input.ChannelID,
+			UserID:     input.UserID,
+			RemoveAt:   input.RemoveAt,
+			RemoveType: input.RemoveType,
 		},
 	)
 }
