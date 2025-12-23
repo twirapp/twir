@@ -11,6 +11,7 @@ import (
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -35,6 +36,7 @@ type Opts struct {
 	TwirBus                 *buscore.Bus
 	KV                      kv.KV
 	ModTaskDistributor      mod_task_queue.TaskDistributor
+	CachedTwitchClient      *twitch.CachedTwitchClient
 }
 
 func New(opts Opts) *TwitchActions {
@@ -51,6 +53,7 @@ func New(opts Opts) *TwitchActions {
 		channelsCache:           opts.ChannelsCache,
 		kv:                      opts.KV,
 		modTaskDistributor:      opts.ModTaskDistributor,
+		cachedTwitchClient:      opts.CachedTwitchClient,
 	}
 
 	return actions
@@ -69,4 +72,5 @@ type TwitchActions struct {
 	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	kv                      kv.KV
 	modTaskDistributor      mod_task_queue.TaskDistributor
+	cachedTwitchClient      *twitch.CachedTwitchClient
 }

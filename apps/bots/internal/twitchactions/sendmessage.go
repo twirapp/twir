@@ -40,6 +40,8 @@ var allowedSlashCommands = []string{
 	"/announceorange",
 	"/announcepurple",
 	"/shoutout",
+	"/timeout",
+	"/ban",
 }
 
 func validateResponseSlashes(response string) string {
@@ -96,6 +98,10 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		slog.String("sender_id", opts.SenderID),
 		slog.Bool("is_announce", opts.IsAnnounce),
 	)
+
+	if strings.HasPrefix(opts.Message, "/timeout") || strings.HasPrefix(opts.Message, "/ban") {
+		return c.timeoutFromMessage(ctx, channel, opts)
+	}
 
 	if strings.HasPrefix(opts.Message, "/announce") && !opts.IsAnnounce {
 		opts.IsAnnounce = true

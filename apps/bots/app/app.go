@@ -36,6 +36,7 @@ import (
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	rolescache "github.com/twirapp/twir/libs/cache/roles"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
+	"github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -194,6 +195,7 @@ var App = fx.Module(
 		chattranslationssettingscache.New,
 		chattranslationsservice.New,
 		giveaways.New,
+		twitch.New,
 	),
 	fx.Invoke(
 		ytsr.New,
