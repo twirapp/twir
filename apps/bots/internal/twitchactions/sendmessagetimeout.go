@@ -10,25 +10,23 @@ import (
 
 func (c *TwitchActions) timeoutFromMessage(ctx context.Context, channel model.Channel, opts SendMessageOpts) error {
 	splittedMsg := strings.Fields(opts.Message)
+
+	// /timeout [username] [duration in seconds] [reason]
 	var (
-		durationStr string
-		reason      string
-		userName    = splittedMsg[1]
+		userName = splittedMsg[1]
+		reason   string
+		duration = 600
 	)
 
-	if len(splittedMsg) >= 2 {
-		durationStr = splittedMsg[1]
-	} else {
-		durationStr = "600"
-	}
-
 	if len(splittedMsg) >= 3 {
-		reason = strings.Join(splittedMsg[2:], " ")
+		d, err := strconv.Atoi(splittedMsg[2])
+		if err == nil {
+			duration = d
+		}
 	}
 
-	duration, err := strconv.Atoi(durationStr)
-	if err != nil {
-		duration = 600
+	if len(splittedMsg) >= 4 {
+		reason = strings.Join(splittedMsg[3:], " ")
 	}
 
 	if splittedMsg[0] == "/ban" {
