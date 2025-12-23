@@ -102,7 +102,7 @@ function computeSelectedGroupColor(id: string) {
 								<TagsInputItemDelete />
 							</TagsInputItem>
 
-							<TagsInputInput :placeholder="t('commands.modal.aliases.label')" />
+							<TagsInputInput :placeholder="t('commands.modal.aliases.label')" class="h-7" />
 						</TagsInput>
 					</FormControl>
 					<FormDescription>

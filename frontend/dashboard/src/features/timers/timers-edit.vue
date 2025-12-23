@@ -8,7 +8,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardAction, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
 	FormControl,
@@ -95,8 +95,8 @@ const responsesHasError = computed(() => {
 						</FormItem>
 					</FormField>
 
-					<Card>
-						<CardContent class="pt-6">
+					<Card class="p-0">
+						<CardContent class="py-4">
 							<FormField v-slot="{ componentField }" name="timeInterval">
 								<FormItem>
 									<FormLabel>{{ t('timers.table.columns.intervalInMinutes') }}</FormLabel>
@@ -155,7 +155,7 @@ const responsesHasError = computed(() => {
 							class="flex flex-col gap-2"
 						>
 							<div v-for="(field, index) in fields" :key="`responses-text-${field.key}`">
-								<Card class="relative flex items-center">
+								<Card class="relative flex items-center p-0">
 									<div
 										class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle"
 									>
@@ -227,20 +227,20 @@ const responsesHasError = computed(() => {
 															</Select>
 														</div>
 													</div>
-
-													<Button
-														variant="outline"
-														class="flex gap-2 place-self-end"
-														@click="remove(index)"
-													>
-														<TrashIcon class="size-4" />
-														Remove
-													</Button>
 												</FormControl>
-
 												<FormMessage />
 											</FormItem>
 										</FormField>
+										<CardAction class="w-full flex justify-end py-2">
+											<Button
+												variant="destructive"
+												class="flex gap-2 place-self-end"
+												@click="remove(index)"
+											>
+												<TrashIcon class="size-4" />
+												Remove
+											</Button>
+										</CardAction>
 									</CardContent>
 								</Card>
 							</div>
