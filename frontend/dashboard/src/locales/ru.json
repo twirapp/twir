@@ -609,10 +609,10 @@
 			"nameBoxStroke": "Цвет обводки",
 			"nameStrokeThickness": "Толщина обводки",
 			"nameBoxLineJoin": "Форма обводки",
-			"nameBoxDropShadow": "Тень",
+			"nameBoxDropShadow": "Drop shadow-sm",
 			"nameBoxDropShadowColor": "Цвет тени",
 			"nameBoxDropShadowAlpha": "Прозрачность тени",
-			"nameBoxDropShadowBlur": "Размытие тени",
+			"nameBoxDropShadowBlur": "Shadow blur-sm",
 			"nameBoxDropShadowDistance": "Расстояние тени",
 			"nameBoxDropShadowAngle": "Угол тени",
 			"messageBoxIgnoreCommands": "Игнорировать команды",
@@ -783,7 +783,9 @@
 				"minLength": "Минимальная длительность песни для заказа (в минутах)",
 				"maxLength": "Максимальная длительность песни для заказа (в минутах)",
 				"minViews": "Минимальное количество просмотров песни для заказа"
-			}
+			},
+			"takeSongFromDonationMessageDescription": "Enabling this option will make the bot to try to find song links in donation messages and add them to the queue automatically.",
+			"onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live."
 		},
 		"tabs": {
 			"general": "Общие настройки",
