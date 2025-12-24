@@ -609,10 +609,10 @@
 			"nameBoxStroke": "Колір контуру",
 			"nameStrokeThickness": "Товщина контуру",
 			"nameBoxLineJoin": "Форма контуру",
-			"nameBoxDropShadow": "Тінь",
+			"nameBoxDropShadow": "Drop shadow-sm",
 			"nameBoxDropShadowColor": "Колір тіні",
 			"nameBoxDropShadowAlpha": "Прозорість тіні",
-			"nameBoxDropShadowBlur": "Розмиття тіні",
+			"nameBoxDropShadowBlur": "Shadow blur-sm",
 			"nameBoxDropShadowDistance": "Відстань тіні",
 			"nameBoxDropShadowAngle": "Кут тіні",
 			"messageBoxIgnoreCommands": "Ігнорувати команди",
@@ -783,7 +783,9 @@
 				"minLength": "Мінімальна тривалість пісні для замовлення (у хвилинах)",
 				"maxLength": "Максимальна тривалість пісні для замовлення (у хвилинах)",
 				"minViews": "Мінімальна кількість переглядів пісні для замовлення"
-			}
+			},
+			"takeSongFromDonationMessageDescription": "Enabling this option will make the bot to try to find song links in donation messages and add them to the queue automatically.",
+			"onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live."
 		},
 		"tabs": {
 			"general": "Загальні",
