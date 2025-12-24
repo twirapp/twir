@@ -609,10 +609,10 @@
 			"nameBoxStroke": "Color del trazo",
 			"nameStrokeThickness": "Espesor del trazo",
 			"nameBoxLineJoin": "Unión de trazo",
-			"nameBoxDropShadow": "Sombra paralela",
+			"nameBoxDropShadow": "Drop shadow-sm",
 			"nameBoxDropShadowColor": "Color de sombra",
 			"nameBoxDropShadowAlpha": "Alfa de sombra",
-			"nameBoxDropShadowBlur": "Desenfoque de sombra",
+			"nameBoxDropShadowBlur": "Shadow blur-sm",
 			"nameBoxDropShadowDistance": "Distancia de sombra",
 			"nameBoxDropShadowAngle": "Ángulo de sombra",
 			"messageBoxIgnoreCommands": "Ignorar comandos",
@@ -783,7 +783,9 @@
 				"minLength": "Duración mínima de la canción (en minutos)",
 				"maxLength": "Duración máxima de la canción (en minutos)",
 				"minViews": "Cantidad mínima de vistas"
-			}
+			},
+			"takeSongFromDonationMessageDescription": "Enabling this option will make the bot to try to find song links in donation messages and add them to the queue automatically.",
+			"onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live."
 		},
 		"tabs": {
 			"general": "General",
