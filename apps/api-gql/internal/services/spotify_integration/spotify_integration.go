@@ -161,7 +161,10 @@ func (s *Service) PostCode(
 		return fmt.Errorf("failed to get spotify profile: %w", err)
 	}
 
-	createInput.AvatarURI = profile.Images[0].URL
+	if len(profile.Images) > 0 {
+		createInput.AvatarURI = profile.Images[0].URL
+	}
+
 	createInput.Username = profile.DisplayName
 
 	if _, err := s.spotifyRepository.Create(ctx, createInput); err != nil {
