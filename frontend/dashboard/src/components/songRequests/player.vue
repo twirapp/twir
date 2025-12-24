@@ -1,26 +1,38 @@
 <script lang="ts" setup>
 import {
-	IconBan,
-	IconEye,
-	IconEyeOff,
-	IconLink,
-	IconPlayerPauseFilled,
-	IconPlayerPlayFilled,
-	IconPlayerSkipForwardFilled,
-	IconPlaylist,
-	IconSettings,
-	IconUser,
-	IconVolume,
-	IconVolume3,
-} from '@tabler/icons-vue'
+	Ban,
+	Eye,
+	EyeOff,
+	Link,
+	ListMusic,
+	Loader2,
+	Pause,
+	Play,
+	Settings,
+	SkipForward,
+	User,
+	Volume2,
+	VolumeX,
+} from 'lucide-vue-next'
 import { useLocalStorage, useScriptTag } from '@vueuse/core'
-import { NCard, NEmpty, NList, NListItem, NPopconfirm, NResult, NSlider, NSpin } from 'naive-ui'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '@/api/index.js'
 import { useYoutubeSocket } from '@/components/songRequests/hook.js'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { convertMillisToTime } from '@/helpers/convertMillisToTime.js'
 
 interface YTPlayer {
@@ -273,9 +285,9 @@ const sliderVolume = computed(() => {
 	return volume.value
 })
 
-function formatLabelTime(v: number) {
-	return `${convertMillisToTime(v * 1000)}/${convertMillisToTime(duration.value * 1000)}`
-}
+const formattedTime = computed(() => {
+	return `${convertMillisToTime(sliderTime.value * 1000)} / ${convertMillisToTime(duration.value * 1000)}`
+})
 
 function handlePlayPause() {
 	if (!player.value || !playerReady.value) return
@@ -286,13 +298,18 @@ function handlePlayPause() {
 	}
 }
 
-function handleSeek(time: number) {
-	if (!player.value || !playerReady.value) return
+function handleSeek(value: number[] | undefined) {
+	if (!player.value || !playerReady.value || !value) return
 	try {
-		player.value.seekTo(time, true)
+		player.value.seekTo(value[0], true)
 	} catch (e) {
 		console.error('Error seeking:', e)
 	}
+}
+
+function handleVolumeChange(value: number[] | undefined) {
+	if (!value) return
+	volume.value = value[0]
 }
 
 const { data: profile } = useProfile()
@@ -300,178 +317,163 @@ const { t } = useI18n()
 </script>
 
 <template>
-	<NCard
-		:title="t('songRequests.player.title')"
-		content-style="padding: 0;"
-		header-style="padding: 10px;"
-		segmented
-	>
-		<div v-if="profile?.id !== profile?.selectedDashboardId" class="p-2.5">
-			<NResult status="404" :title="t('songRequests.player.noAccess')" size="small"> </NResult>
-		</div>
-
-		<div v-else>
-			<div v-show="playerVisible" class="player-wrapper">
-				<div id="yt-player-container" class="player-container"></div>
-			</div>
-
-			<div class="flex flex-col gap-4 py-5 px-6">
-				<div class="flex gap-2 items-center">
+	<Card class="p-0">
+		<CardContent class="p-0">
+			<div class="flex flex-row justify-between items-center px-2 py-2 border-b">
+				<CardTitle class="text-base">{{ t('songRequests.player.title') }}</CardTitle>
+				<div class="flex gap-1">
 					<Button
+						variant="outline"
 						size="icon"
-						class="flex size-8 min-w-8"
-						variant="secondary"
-						:disabled="currentVideo == null"
-						@click="handlePlayPause"
+						class="size-8"
+						@click="playerVisible = !playerVisible"
 					>
-						<IconPlayerPlayFilled v-if="!isPlaying" class="size-4" />
-						<IconPlayerPauseFilled v-else class="size-4" />
+						<EyeOff v-if="playerVisible" class="size-4" />
+						<Eye v-else class="size-4" />
 					</Button>
-
-					<Button
-						size="icon"
-						class="flex size-8 min-w-8"
-						variant="secondary"
-						:disabled="currentVideo == null"
-						@click="playNext"
-					>
-						<IconPlayerSkipForwardFilled class="size-4" />
+					<Button variant="outline" size="icon" class="size-8" @click="openSettingsModal">
+						<Settings class="size-4" />
 					</Button>
-
-					<NSlider
-						:value="sliderTime"
-						:format-tooltip="formatLabelTime"
-						:step="1"
-						:max="duration"
-						placement="bottom"
-						:disabled="!currentVideo"
-						@update-value="handleSeek"
-					/>
-				</div>
-
-				<div class="flex items-center gap-2">
-					<Button
-						size="icon"
-						variant="secondary"
-						class="size-8 min-w-8"
-						@click="isMuted = !isMuted"
-					>
-						<IconVolume v-if="!isMuted" class="size-4" />
-						<IconVolume3 v-else class="size-4" />
-					</Button>
-					<NSlider :value="sliderVolume" :step="1" @update-value="(v) => (volume = v)" />
 				</div>
 			</div>
-		</div>
-
-		<template #header-extra>
-			<div class="flex gap-2">
-				<Button
-					variant="secondary"
-					size="icon"
-					class="size-8"
-					@click="playerVisible = !playerVisible"
-				>
-					<IconEyeOff v-if="playerVisible" class="size-4" />
-					<IconEye v-else class="size-4" />
-				</Button>
-				<Button variant="secondary" size="icon" class="size-8" @click="openSettingsModal">
-					<IconSettings class="size-4" />
-				</Button>
+			<div v-if="profile?.id !== profile?.selectedDashboardId" class="p-6 text-center">
+				<p class="text-muted-foreground">{{ t('songRequests.player.noAccess') }}</p>
 			</div>
-		</template>
-		<template #footer>
+
+			<div v-else>
+				<div v-show="playerVisible" class="h-[300px] overflow-hidden">
+					<div
+						id="yt-player-container"
+						class="w-full h-full [&_iframe]:w-full [&_iframe]:!h-[300px] [&_iframe]:block"
+					></div>
+				</div>
+
+				<div class="flex flex-col gap-4 py-5 px-6">
+					<div class="flex gap-2 items-center">
+						<Button
+							size="icon"
+							class="flex size-8 min-w-8"
+							variant="secondary"
+							:disabled="currentVideo == null"
+							@click="handlePlayPause"
+						>
+							<Play v-if="!isPlaying" class="size-4" />
+							<Pause v-else class="size-4" />
+						</Button>
+
+						<Button
+							size="icon"
+							class="flex size-8 min-w-8"
+							variant="secondary"
+							:disabled="currentVideo == null"
+							@click="playNext"
+						>
+							<SkipForward class="size-4" />
+						</Button>
+
+						<Slider
+							:model-value="[sliderTime]"
+							:step="1"
+							:max="duration || 1"
+							:disabled="!currentVideo"
+							@update:model-value="handleSeek"
+						/>
+						<span class="text-xs text-muted-foreground whitespace-nowrap">{{ formattedTime }}</span>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<Button
+							size="icon"
+							variant="secondary"
+							class="size-8 min-w-8"
+							@click="isMuted = !isMuted"
+						>
+							<Volume2 v-if="!isMuted" class="size-4" />
+							<VolumeX v-else class="size-4" />
+						</Button>
+						<Slider
+							:model-value="[sliderVolume]"
+							:step="1"
+							:max="100"
+							@update:model-value="handleVolumeChange"
+						/>
+					</div>
+				</div>
+			</div>
+		</CardContent>
+
+		<CardFooter class="flex-col items-start gap-4 border-t pt-2">
 			<template v-if="currentVideo">
-				<NList :show-divider="false">
-					<NListItem>
-						<template #prefix>
-							<IconPlaylist class="flex" />
-						</template>
+				<div class="flex flex-col gap-2 w-full">
+					<div class="flex items-center gap-2">
+						<ListMusic class="size-4 shrink-0" />
+						<span class="truncate">{{ currentVideo?.title }}</span>
+					</div>
 
-						{{ currentVideo?.title }}
-					</NListItem>
+					<div class="flex items-center gap-2">
+						<User class="size-4 shrink-0" />
+						<span>{{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}</span>
+					</div>
 
-					<NListItem>
-						<template #prefix>
-							<IconUser class="card-icon" />
-						</template>
-
-						{{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}
-					</NListItem>
-
-					<NListItem>
-						<template #prefix>
-							<IconLink class="card-icon" />
-						</template>
-
+					<div class="flex items-center gap-2">
+						<Link class="size-4 shrink-0" />
 						<a
-							class="underline"
+							class="underline text-sm truncate"
 							:href="currentVideo.songLink ?? `https://youtu.be/${currentVideo?.videoId}`"
 							target="_blank"
 						>
 							{{ currentVideo.songLink || `youtu.be/${currentVideo?.videoId}` }}
 						</a>
-					</NListItem>
-				</NList>
-				<div class="flex gap-2 justify-end">
-					<NPopconfirm
-						:positive-text="t('deleteConfirmation.confirm')"
-						:negative-text="t('deleteConfirmation.cancel')"
-						@positive-click="() => banSong(currentVideo.videoId)"
-					>
-						<template #trigger>
-							<Button size="sm" variant="destructive">
-								<div class="flex gap-1 items-center">
-									<IconBan />
-									{{ t('songRequests.ban.song') }}
-								</div>
-							</Button>
-						</template>
+					</div>
+				</div>
 
-						{{ t('songRequests.ban.songConfirm') }}
-					</NPopconfirm>
-					<NPopconfirm
-						:positive-text="t('deleteConfirmation.confirm')"
-						:negative-text="t('deleteConfirmation.cancel')"
-						@positive-click="() => banUser(currentVideo.orderedById)"
-					>
-						<template #trigger>
+				<div class="flex gap-2 mb-2 justify-end w-full">
+					<AlertDialog>
+						<AlertDialogTrigger as-child>
 							<Button size="sm" variant="destructive">
-								<div class="flex gap-1 items-center">
-									<IconBan />
-									{{ t('songRequests.ban.user') }}
-								</div>
+								<Ban class="size-4 mr-1" />
+								{{ t('songRequests.ban.song') }}
 							</Button>
-						</template>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>{{ t('songRequests.ban.songConfirm') }}</AlertDialogTitle>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>{{ t('deleteConfirmation.cancel') }}</AlertDialogCancel>
+								<AlertDialogAction @click="banSong(currentVideo.videoId)">
+									{{ t('deleteConfirmation.confirm') }}
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 
-						{{ t('songRequests.ban.userConfirm') }}
-					</NPopconfirm>
+					<AlertDialog>
+						<AlertDialogTrigger as-child>
+							<Button size="sm" variant="destructive">
+								<Ban class="size-4 mr-1" />
+								{{ t('songRequests.ban.user') }}
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>{{ t('songRequests.ban.userConfirm') }}</AlertDialogTitle>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>{{ t('deleteConfirmation.cancel') }}</AlertDialogCancel>
+								<AlertDialogAction @click="banUser(currentVideo.orderedById)">
+									{{ t('deleteConfirmation.confirm') }}
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 				</div>
 			</template>
-			<NEmpty v-else :description="t('songRequests.waiting')">
-				<template #icon>
-					<NSpin size="small" stroke="#959596" />
-				</template>
-			</NEmpty>
-		</template>
-	</NCard>
+
+			<div v-else class="flex flex-col items-center justify-center w-full py-4 gap-2">
+				<Loader2 class="size-6 animate-spin text-muted-foreground" />
+				<p class="text-muted-foreground text-sm">{{ t('songRequests.waiting') }}</p>
+			</div>
+		</CardFooter>
+	</Card>
 </template>
-
-<style scoped>
-.player-wrapper {
-	height: 300px;
-	overflow: hidden;
-}
-
-.player-container {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
-.player-container :deep(iframe) {
-	width: 100%;
-	height: 300px !important;
-	display: block;
-}
-</style>

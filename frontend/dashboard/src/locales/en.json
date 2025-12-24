@@ -783,7 +783,9 @@
 				"minLength": "Minimal Song Length (in minutes)",
 				"maxLength": "Maximum Song Length (in minutes)",
 				"minViews": "Minimal Views Amount"
-			}
+			},
+			"takeSongFromDonationMessageDescription": "Enabling this option will make the bot to try to find song links in donation messages and add them to the queue automatically.",
+			"onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live."
 		},
 		"tabs": {
 			"general": "General",

@@ -1,9 +1,4 @@
 <script setup lang="ts">
-import {
-	NGrid,
-	NGridItem,
-	NModal,
-} from 'naive-ui'
 import { computed, ref } from 'vue'
 
 import { useSongRequestsApi } from '@/api/song-requests.js'
@@ -13,7 +8,7 @@ import VideosQueue from '@/components/songRequests/queue.vue'
 import SettingsModal from '@/components/songRequests/settings.vue'
 
 const isSettingsModalOpened = ref(false)
-const openSettingsModal = () => isSettingsModalOpened.value = true
+const openSettingsModal = () => (isSettingsModalOpened.value = true)
 
 useYoutubeSocket()
 
@@ -26,29 +21,19 @@ const noCookie = computed(() => {
 </script>
 
 <template>
-	<NGrid cols="1 s:1 m:1 l:3" responsive="screen" :y-gap="15" :x-gap="15">
-		<NGridItem :span="1">
+	<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+		<div class="lg:col-span-1">
 			<Player
 				v-if="!youtubeModuleData.fetching.value"
 				:no-cookie="noCookie"
 				:open-settings-modal="openSettingsModal"
 			/>
-		</NGridItem>
+		</div>
 
-		<NGridItem :span="2">
+		<div class="lg:col-span-2">
 			<VideosQueue />
-		</NGridItem>
-	</NGrid>
+		</div>
+	</div>
 
-	<NModal
-		v-model:show="isSettingsModalOpened"
-		:span="10"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		title="Settings"
-		:style="{ width: '70%', top: '50px' }"
-	>
-		<SettingsModal />
-	</NModal>
+	<SettingsModal v-model:open="isSettingsModalOpened" />
 </template>

@@ -1,36 +1,73 @@
 <script setup lang="ts">
 import { useDebounce } from '@vueuse/core'
-import {
-	NAvatar,
-	NButton,
-	NForm,
-	NFormItem,
-	NInput,
-	NInputNumber,
-	NSelect,
-	NSpace,
-	NSwitch,
-	NTabPane,
-	NTabs,
-	NText,
-	type SelectOption,
-	useMessage,
-} from 'naive-ui'
-import { computed, h, ref, toRaw, unref, watch } from 'vue'
+import { computed, ref, toRaw, unref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 
 import RewardsSelector from '../rewardsSelector.vue'
 
 import type { SongRequestsSettingsOpts } from '@/gql/graphql'
-import type { VNodeChild } from 'vue'
 
 import { useCommandsApi } from '@/api/commands/commands'
 import { useSongRequestsApi } from '@/api/song-requests'
 import TwitchSearchUsers from '@/components/twitchUsers/twitch-users-select.vue'
-import CommandList from '@/features/commands/ui/list.vue'
+import CommandsList from '@/features/commands/ui/list.vue'
 import { SongRequestsSearchChannelOrVideoOptsType } from '@/gql/graphql'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command'
+import {
+	TagsInput,
+	TagsInputInput,
+	TagsInputItem,
+	TagsInputItemDelete,
+	TagsInputItemText,
+} from '@/components/ui/tags-input'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
+
+const props = defineProps<{
+	open?: boolean
+}>()
+
+const emit = defineEmits<{
+	'update:open': [value: boolean]
+}>()
+
 const { t } = useI18n()
+
+const isOpen = ref(props.open ?? false)
+
+watch(
+	() => props.open,
+	(v) => {
+		if (v !== undefined) isOpen.value = v
+	}
+)
+
+watch(isOpen, (v) => {
+	emit('update:open', v)
+})
 
 const youtubeModuleManager = useSongRequestsApi()
 const youtubeModuleData = youtubeModuleManager.useSongRequestQuery()
@@ -112,32 +149,11 @@ watch(
 	{ immediate: true }
 )
 
-const message = useMessage()
-
 async function save() {
 	const data = unref(formValue)
-
 	await youtubeModuleUpdater.executeMutation({ opts: data })
-	message.success(t('sharedTexts.saved'))
-}
-
-function renderSelectOption(option: SelectOption & { image: string }): VNodeChild {
-	return h(
-		NSpace,
-		{
-			align: 'center',
-		},
-		{
-			default: () => [
-				h(NAvatar, {
-					src: option.image,
-					round: true,
-					class: 'flex h-5 w-5',
-				}),
-				h(NText, { class: 'ml-2' }, { default: () => option.label }),
-			],
-		}
-	)
+	toast.success(t('sharedTexts.saved'))
+	isOpen.value = false
 }
 
 const channelsSearchValue = ref('')
@@ -152,13 +168,15 @@ const channelsSearchOpts = computed(() => {
 const channelsSearch = youtubeModuleManager.useYoutubeVideoOrChannelSearch(channelsSearchOpts)
 
 const channelsOptions = computed(() => {
-	return channelsSearch?.data.value?.songRequestsSearchChannelOrVideo.items.map((channel) => {
-		return {
-			label: channel.title,
-			value: channel.id,
-			image: channel.thumbnail,
-		}
-	})
+	return (
+		channelsSearch?.data.value?.songRequestsSearchChannelOrVideo.items.map((channel) => {
+			return {
+				label: channel.title,
+				value: channel.id,
+				image: channel.thumbnail,
+			}
+		}) ?? []
+	)
 })
 
 const songsSearchValue = ref('')
@@ -191,338 +209,471 @@ const srCommands = computed(() => {
 		commands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? []
 	)
 })
+
+function findChannelLabel(id: string) {
+	return channelsOptions.value.find((o) => o.value === id)?.label ?? id
+}
+
+function findChannelImage(id: string): string {
+	return channelsOptions.value.find((o) => o.value === id)?.image ?? ''
+}
+
+function findSongLabel(id: string) {
+	return songsSearchOptions.value.find((o) => o.value === id)?.label ?? id
+}
+
+function findSongImage(id: string): string {
+	return songsSearchOptions.value.find((o) => o.value === id)?.image ?? ''
+}
 </script>
 
 <template>
-	<NForm>
-		<NTabs type="line" animated>
-			<NTabPane name="general" :tab="t('songRequests.tabs.general')">
-				<NSpace vertical>
-					<NSpace justify="space-between">
-						<NText>{{ t('sharedTexts.enabled') }}</NText>
-						<NSwitch v-model:value="formValue.enabled" />
-					</NSpace>
+	<Dialog v-model:open="isOpen">
+		<DialogContent class="sm:max-w-[700px] max-h-[85vh] p-0">
+			<DialogHeader class="p-6 pb-0">
+				<DialogTitle>{{ t('sharedTexts.settings') }}</DialogTitle>
+			</DialogHeader>
 
-					<NSpace justify="space-between">
-						<NText>{{ t('songRequests.settings.takeSongFromDonationMessage') }}</NText>
-						<NSwitch v-model:value="formValue.takeSongFromDonationMessages" />
-					</NSpace>
+			<ScrollArea class="max-h-[calc(85vh-140px)]">
+				<div class="p-6 pt-4">
+					<Tabs default-value="general" class="w-full">
+						<TabsList class="w-full grid grid-cols-5">
+							<TabsTrigger value="general">{{ t('songRequests.tabs.general') }}</TabsTrigger>
+							<TabsTrigger value="commands">{{ t('commands.name') }}</TabsTrigger>
+							<TabsTrigger value="users">{{ t('songRequests.tabs.users') }}</TabsTrigger>
+							<TabsTrigger value="songs">{{ t('songRequests.tabs.songs') }}</TabsTrigger>
+							<TabsTrigger value="translations">{{
+								t('songRequests.tabs.translations')
+							}}</TabsTrigger>
+						</TabsList>
 
-					<NSpace justify="space-between">
-						<NText>{{ t('songRequests.settings.onlineOnly') }}</NText>
-						<NSwitch v-model:value="formValue.acceptOnlyWhenOnline" />
-					</NSpace>
+						<TabsContent value="general" class="mt-4 space-y-4">
+							<div class="space-y-3">
+								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
+									<Switch v-model="formValue.enabled" />
+									<div class="space-y-0.5 flex-1">
+										<Label class="text-base font-medium">{{ t('sharedTexts.enabled') }}</Label>
+									</div>
+								</div>
 
-					<NSpace justify="space-between">
-						<NText>{{ t('songRequests.settings.announcePlay') }}</NText>
-						<NSwitch v-model:value="formValue.announcePlay" />
-					</NSpace>
+								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
+									<Switch v-model="formValue.takeSongFromDonationMessages" />
+									<div class="space-y-0.5 flex-1">
+										<Label class="text-base font-medium">{{
+											t('songRequests.settings.takeSongFromDonationMessage')
+										}}</Label>
+										<p class="text-sm text-muted-foreground">
+											{{ t('songRequests.settings.takeSongFromDonationMessageDescription') }}
+										</p>
+									</div>
+								</div>
 
-					<div>
-						<NSpace justify="space-between">
-							<NText>{{ t('songRequests.settings.playerNoCookieMode') }}</NText>
-							<NSwitch v-model:value="formValue.playerNoCookieMode" />
-						</NSpace>
-						<NText class="text-xs mt-1">
-							{{ t('songRequests.settings.playerNoCookieModeDescription') }}
-						</NText>
-					</div>
+								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
+									<Switch v-model="formValue.acceptOnlyWhenOnline" />
+									<div class="space-y-0.5 flex-1">
+										<Label class="text-base font-medium">{{
+											t('songRequests.settings.onlineOnly')
+										}}</Label>
+										<p class="text-sm text-muted-foreground">
+											{{ t('songRequests.settings.onlineOnlyDescription') }}
+										</p>
+									</div>
+								</div>
 
-					<NFormItem
-						:label="t('songRequests.settings.neededPercentageForskip')"
-						path="neededVotesVorSkip"
-					>
-						<NInputNumber v-model:value="formValue.neededVotesForSkip" />
-					</NFormItem>
+								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
+									<Switch v-model="formValue.announcePlay" />
+									<div class="space-y-0.5 flex-1">
+										<Label class="text-base font-medium">{{
+											t('songRequests.settings.announcePlay')
+										}}</Label>
+									</div>
+								</div>
 
-					<NFormItem :label="t('songRequests.settings.channelReward')" path="channelPointsRewardId">
-						<RewardsSelector v-model="formValue.channelPointsRewardId" only-with-input clearable />
-					</NFormItem>
+								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
+									<Switch v-model="formValue.playerNoCookieMode" />
+									<div class="space-y-0.5 flex-1">
+										<Label class="text-base font-medium">{{
+											t('songRequests.settings.playerNoCookieMode')
+										}}</Label>
+										<p class="text-sm text-muted-foreground">
+											{{ t('songRequests.settings.playerNoCookieModeDescription') }}
+										</p>
+									</div>
+								</div>
+							</div>
 
-					<NFormItem
-						:label="t('songRequests.settings.deniedChannels')"
-						path="channelPointsRewardId"
-					>
-						<NSelect
-							v-model:value="formValue.denyList!.channels"
-							:loading="channelsSearch.fetching.value"
-							remote
-							filterable
-							:options="channelsOptions"
-							clearable
-							multiple
-							:clear-filter-after-select="false"
-							:render-label="renderSelectOption"
-							@search="(v) => (channelsSearchValue = v)"
-						/>
-					</NFormItem>
+							<div class="space-y-2">
+								<Label>{{ t('songRequests.settings.neededPercentageForskip') }}</Label>
+								<Input v-model="formValue.neededVotesForSkip" type="number" :min="0" :max="100" />
+							</div>
 
-					<NFormItem :label="t('songRequests.settings.deniedWords')" path="channelPointsRewardId">
-						<NSelect v-model:value="formValue.denyList!.words" filterable multiple clearable tag />
-					</NFormItem>
-				</NSpace>
-			</NTabPane>
+							<div class="space-y-2">
+								<Label>{{ t('songRequests.settings.channelReward') }}</Label>
+								<RewardsSelector
+									v-model="formValue.channelPointsRewardId"
+									only-with-input
+									clearable
+								/>
+							</div>
 
-			<NTabPane name="commands" :tab="t('commands.name')">
-				<CommandList class="mb-2" :commands="srCommands" />
-			</NTabPane>
+							<div class="space-y-2">
+								<Label>{{ t('songRequests.settings.deniedChannels') }}</Label>
+								<div v-if="formValue.denyList!.channels.length" class="flex flex-wrap gap-2 mb-2">
+									<div
+										v-for="channelId of formValue.denyList!.channels"
+										:key="channelId"
+										class="flex items-center gap-2 bg-muted rounded-md px-2 py-1"
+									>
+										<Avatar class="size-5">
+											<AvatarImage :src="findChannelImage(channelId)" />
+											<AvatarFallback>{{ findChannelLabel(channelId).charAt(0) }}</AvatarFallback>
+										</Avatar>
+										<span class="text-sm">{{ findChannelLabel(channelId) }}</span>
+										<button
+											type="button"
+											class="text-muted-foreground hover:text-foreground cursor-pointer"
+											@click="
+												formValue.denyList!.channels = formValue.denyList!.channels.filter(
+													(c) => c !== channelId
+												)
+											"
+										>
+											×
+										</button>
+									</div>
+								</div>
+								<Popover>
+									<PopoverTrigger as-child>
+										<Button variant="outline" class="w-full justify-start">
+											{{ 'Search channels...' }}
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent class="w-full p-0" align="start">
+										<Command>
+											<CommandInput
+												v-model="channelsSearchValue"
+												placeholder="Search channels..."
+											/>
+											<CommandList>
+												<CommandEmpty>No channels found.</CommandEmpty>
+												<CommandGroup>
+													<CommandItem
+														v-for="option of channelsOptions.filter(
+															(o) => !formValue.denyList!.channels.includes(o.value)
+														)"
+														:key="option.value"
+														:value="option.value"
+														@select="
+															() => {
+																if (!formValue.denyList!.channels.includes(option.value)) {
+																	formValue.denyList!.channels.push(option.value)
+																}
+															}
+														"
+														class="cursor-pointer"
+													>
+														<Avatar class="size-5 mr-2">
+															<AvatarImage :src="option.image" />
+															<AvatarFallback>{{ option.label.charAt(0) }}</AvatarFallback>
+														</Avatar>
+														<span>{{ option.label }}</span>
+													</CommandItem>
+												</CommandGroup>
+											</CommandList>
+										</Command>
+									</PopoverContent>
+								</Popover>
+							</div>
 
-			<NTabPane name="users" :tab="t('songRequests.tabs.users')">
-				<NFormItem :label="t('songRequests.settings.users.maxRequests')" path="user.maxRequests">
-					<NInputNumber v-model:value="formValue.user!.maxRequests" :min="0" :max="1000" />
-				</NFormItem>
-				<NFormItem
-					:label="t('songRequests.settings.users.minimalWatchTime')"
-					path="user.minWatchTime"
-				>
-					<NInputNumber v-model:value="formValue.user!.minWatchTime" :min="0" :max="999999999" />
-				</NFormItem>
-				<NFormItem
-					:label="t('songRequests.settings.users.minimalMessages')"
-					path="user.minMessages"
-				>
-					<NInputNumber v-model:value="formValue.user!.minMessages" :min="0" :max="999999999" />
-				</NFormItem>
-				<NFormItem
-					:label="t('songRequests.settings.users.minimalFollowTime')"
-					path="user.minFollowTime"
-				>
-					<NInputNumber
-						v-model:value="formValue.user!.minFollowTime"
-						:min="0"
-						:max="99999999999999"
-					/>
-				</NFormItem>
+							<div class="space-y-2">
+								<Label>{{ t('songRequests.settings.deniedWords') }}</Label>
+								<TagsInput v-model="formValue.denyList!.words">
+									<TagsInputItem
+										v-for="item in formValue.denyList!.words"
+										:key="item"
+										:value="item"
+									>
+										<TagsInputItemText />
+										<TagsInputItemDelete />
+									</TagsInputItem>
+									<TagsInputInput placeholder="Add word..." />
+								</TagsInput>
+							</div>
+						</TabsContent>
 
-				<NFormItem :label="t('songRequests.settings.deniedUsers')">
-					<TwitchSearchUsers v-model="formValue.denyList!.users" />
-				</NFormItem>
-			</NTabPane>
+						<TabsContent value="commands" class="mt-4">
+							<CommandsList class="mb-2" :commands="srCommands" />
+						</TabsContent>
 
-			<NTabPane name="songs" :tab="t('songRequests.tabs.songs')">
-				<NFormItem :label="t('songRequests.settings.songs.maxRequests')">
-					<NInputNumber v-model:value="formValue.maxRequests" :min="0" :max="99999999999999" />
-				</NFormItem>
-				<NFormItem :label="t('songRequests.settings.songs.minLength')">
-					<NInputNumber v-model:value="formValue.song!.minLength" :min="0" :max="999999" />
-				</NFormItem>
-				<NFormItem :label="t('songRequests.settings.songs.maxLength')">
-					<NInputNumber v-model:value="formValue.song!.maxLength" :min="0" :max="999999" />
-				</NFormItem>
-				<NFormItem :label="t('songRequests.settings.songs.minViews')">
-					<NInputNumber v-model:value="formValue.song!.minViews" :min="0" :max="99999999999999" />
-				</NFormItem>
-				<NFormItem :label="t('songRequests.settings.deniedSongs')">
-					<NSelect
-						v-model:value="formValue.denyList!.songs"
-						:loading="songsSearch.fetching.value"
-						remote
-						filterable
-						multiple
-						:options="songsSearchOptions"
-						:render-label="renderSelectOption"
-						clearable
-						@search="(v) => (songsSearchValue = v)"
-					/>
-				</NFormItem>
-			</NTabPane>
+						<TabsContent value="users" class="mt-4 space-y-4">
+							<div class="grid grid-cols-2 gap-4">
+								<div class="space-y-2">
+									<Label>{{ t('songRequests.settings.users.maxRequests') }}</Label>
+									<Input v-model="formValue.user!.maxRequests" type="number" :min="0" :max="1000" />
+								</div>
+								<div class="space-y-2">
+									<Label>{{ t('songRequests.settings.users.minimalWatchTime') }}</Label>
+									<Input
+										v-model="formValue.user!.minWatchTime"
+										type="number"
+										:min="0"
+										:max="999999999"
+									/>
+								</div>
+								<div class="space-y-2">
+									<Label>{{ t('songRequests.settings.users.minimalMessages') }}</Label>
+									<Input
+										v-model="formValue.user!.minMessages"
+										type="number"
+										:min="0"
+										:max="999999999"
+									/>
+								</div>
+								<div class="space-y-2">
+									<Label>{{ t('songRequests.settings.users.minimalFollowTime') }}</Label>
+									<Input
+										v-model="formValue.user!.minFollowTime"
+										type="number"
+										:min="0"
+										:max="99999999999999"
+									/>
+								</div>
+							</div>
 
-			<NTabPane name="translations" :tab="t('songRequests.tabs.translations')" class="mb-5">
-				<div class="flex flex-wrap flex-row justify-between gap-2">
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.notEnabled"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+							<div class="space-y-2">
+								<Label>{{ t('songRequests.settings.deniedUsers') }}</Label>
+								<TwitchSearchUsers v-model="formValue.denyList!.users" />
+							</div>
+						</TabsContent>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.nowPlaying"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+						<TabsContent value="songs" class="mt-4 space-y-4">
+							<div class="grid grid-cols-2 gap-4">
+								<div class="space-y-2">
+									<Label>{{ t('songRequests.settings.songs.maxRequests') }}</Label>
+									<Input
+										v-model="formValue.maxRequests"
+										type="number"
+										:min="0"
+										:max="99999999999999"
+									/>
+								</div>
+								<div class="space-y-2">
+									<Label>{{ t('songRequests.settings.songs.minLength') }}</Label>
+									<Input v-model="formValue.song!.minLength" type="number" :min="0" :max="999999" />
+								</div>
+								<div class="space-y-2">
+									<Label>{{ t('songRequests.settings.songs.maxLength') }}</Label>
+									<Input v-model="formValue.song!.maxLength" type="number" :min="0" :max="999999" />
+								</div>
+								<div class="space-y-2">
+									<Label>{{ t('songRequests.settings.songs.minViews') }}</Label>
+									<Input
+										v-model="formValue.song!.minViews"
+										type="number"
+										:min="0"
+										:max="99999999999999"
+									/>
+								</div>
+							</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.noText"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+							<div class="space-y-2">
+								<Label>{{ t('songRequests.settings.deniedSongs') }}</Label>
+								<div v-if="formValue.denyList!.songs.length" class="flex flex-wrap gap-2 mb-2">
+									<div
+										v-for="songId of formValue.denyList!.songs"
+										:key="songId"
+										class="flex items-center gap-2 bg-muted rounded-md px-2 py-1"
+									>
+										<Avatar class="size-5 rounded">
+											<AvatarImage :src="findSongImage(songId)" />
+											<AvatarFallback>{{ findSongLabel(songId).charAt(0) }}</AvatarFallback>
+										</Avatar>
+										<span class="text-sm">{{ findSongLabel(songId) }}</span>
+										<button
+											type="button"
+											class="text-muted-foreground hover:text-foreground"
+											@click="
+												formValue.denyList!.songs = formValue.denyList!.songs.filter(
+													(s) => s !== songId
+												)
+											"
+										>
+											×
+										</button>
+									</div>
+								</div>
+								<Popover>
+									<PopoverTrigger as-child>
+										<Button variant="outline" class="w-full justify-start">
+											{{ 'Search songs...' }}
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent class="w-full p-0" align="start">
+										<Command>
+											<CommandInput v-model="songsSearchValue" placeholder="Search songs..." />
+											<CommandList>
+												<CommandEmpty>No songs found.</CommandEmpty>
+												<CommandGroup>
+													<CommandItem
+														v-for="option of songsSearchOptions.filter(
+															(o) => !formValue.denyList!.songs.includes(o.value)
+														)"
+														:key="option.value"
+														:value="option.value"
+														@select="
+															() => {
+																if (!formValue.denyList!.songs.includes(option.value)) {
+																	formValue.denyList!.songs.push(option.value)
+																}
+															}
+														"
+													>
+														<Avatar class="size-5 rounded mr-2">
+															<AvatarImage :src="option.image" />
+															<AvatarFallback>{{ option.label.charAt(0) }}</AvatarFallback>
+														</Avatar>
+														<span>{{ option.label }}</span>
+													</CommandItem>
+												</CommandGroup>
+											</CommandList>
+										</Command>
+									</PopoverContent>
+								</Popover>
+							</div>
+						</TabsContent>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.acceptOnlyWhenOnline"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+						<TabsContent value="translations" class="mt-4">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">notEnabled</Label>
+									<Textarea v-model="formValue.translations.notEnabled" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.notFound"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">nowPlaying</Label>
+									<Textarea v-model="formValue.translations.nowPlaying" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.alreadyInQueue"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">noText</Label>
+									<Textarea v-model="formValue.translations.noText" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.ageRestrictions"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">acceptOnlyWhenOnline</Label>
+									<Textarea
+										v-model="formValue.translations.acceptOnlyWhenOnline"
+										class="min-h-20"
+									/>
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.cannotGetInformation"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.notFound</Label>
+									<Textarea v-model="formValue.translations.song.notFound" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.live"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.alreadyInQueue</Label>
+									<Textarea v-model="formValue.translations.song.alreadyInQueue" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.denied"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.ageRestrictions</Label>
+									<Textarea
+										v-model="formValue.translations.song.ageRestrictions"
+										class="min-h-20"
+									/>
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.requestedMessage"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.cannotGetInformation</Label>
+									<Textarea
+										v-model="formValue.translations.song.cannotGetInformation"
+										class="min-h-20"
+									/>
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.maximumOrdered"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.live</Label>
+									<Textarea v-model="formValue.translations.song.live" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.minViews"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.denied</Label>
+									<Textarea v-model="formValue.translations.song.denied" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.maxLength"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.requestedMessage</Label>
+									<Textarea
+										v-model="formValue.translations.song.requestedMessage"
+										class="min-h-20"
+									/>
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.song.minLength"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.maximumOrdered</Label>
+									<Textarea v-model="formValue.translations.song.maximumOrdered" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.user.denied"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.minViews</Label>
+									<Textarea v-model="formValue.translations.song.minViews" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.user.maxRequests"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.maxLength</Label>
+									<Textarea v-model="formValue.translations.song.maxLength" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.user.minMessages"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">song.minLength</Label>
+									<Textarea v-model="formValue.translations.song.minLength" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.user.minWatched"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">user.denied</Label>
+									<Textarea v-model="formValue.translations.user.denied" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.user.minFollow"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">user.maxRequests</Label>
+									<Textarea v-model="formValue.translations.user.maxRequests" class="min-h-20" />
+								</div>
 
-					<NFormItem style="width: 48%; height: 100%">
-						<NInput
-							v-model:value="formValue.translations.channel.denied"
-							class="w-full"
-							type="textarea"
-							autosize
-						/>
-					</NFormItem>
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">user.minMessages</Label>
+									<Textarea v-model="formValue.translations.user.minMessages" class="min-h-20" />
+								</div>
+
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">user.minWatched</Label>
+									<Textarea v-model="formValue.translations.user.minWatched" class="min-h-20" />
+								</div>
+
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">user.minFollow</Label>
+									<Textarea v-model="formValue.translations.user.minFollow" class="min-h-20" />
+								</div>
+
+								<div class="space-y-1">
+									<Label class="text-xs text-muted-foreground">channel.denied</Label>
+									<Textarea v-model="formValue.translations.channel.denied" class="min-h-20" />
+								</div>
+							</div>
+						</TabsContent>
+					</Tabs>
 				</div>
-			</NTabPane>
-		</NTabs>
+			</ScrollArea>
 
-		<NButton secondary block type="success" @click="save">
-			{{ t('sharedButtons.save') }}
-		</NButton>
-	</NForm>
+			<DialogFooter class="p-6 pt-0">
+				<Button variant="outline" @click="isOpen = false">
+					{{ t('sharedButtons.close') }}
+				</Button>
+				<Button @click="save">
+					{{ t('sharedButtons.save') }}
+				</Button>
+			</DialogFooter>
+		</DialogContent>
+	</Dialog>
 </template>
