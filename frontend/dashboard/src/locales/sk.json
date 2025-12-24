@@ -609,10 +609,10 @@
 			"nameBoxStroke": "Farba obrysu",
 			"nameStrokeThickness": "Hrúbka ohraničenia",
 			"nameBoxLineJoin": "Stroke line join",
-			"nameBoxDropShadow": "Drop shadow",
+			"nameBoxDropShadow": "Drop shadow-sm",
 			"nameBoxDropShadowColor": "Farba tieňa",
 			"nameBoxDropShadowAlpha": "Shadow alpha",
-			"nameBoxDropShadowBlur": "Shadow blur",
+			"nameBoxDropShadowBlur": "Shadow blur-sm",
 			"nameBoxDropShadowDistance": "Vzdialenosť tieňa",
 			"nameBoxDropShadowAngle": "Uhol tieňa",
 			"messageBoxIgnoreCommands": "Ignorovať príkazy",
@@ -783,7 +783,9 @@
 				"minLength": "Minimálna dĺžka skladby (v minútach)",
 				"maxLength": "Maximálna dĺžka skladby (v minútach)",
 				"minViews": "Minimálne množstvo zobrazení"
-			}
+			},
+			"takeSongFromDonationMessageDescription": "Enabling this option will make the bot to try to find song links in donation messages and add them to the queue automatically.",
+			"onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live."
 		},
 		"tabs": {
 			"general": "Všeobecné",
