@@ -103,8 +103,8 @@ const fontWeightOptions = computed(() => {
 				<Label for="showImage">Show image</Label>
 				<Switch
 					id="showImage"
-					v-model:checked="formValue.showImage"
-					@update:checked="formValue.showImage = $event"
+					:model-value="formValue.showImage"
+					@update:model-value="formValue.showImage = $event"
 				/>
 			</div>
 
