@@ -1,18 +1,25 @@
 <script setup lang="ts">
-import { IconRefresh } from '@tabler/icons-vue'
-import { NButton, NCard, NFormItem, NInput, NSwitch, NText } from 'naive-ui'
+import { CopyIcon, EyeIcon, EyeOffIcon, RefreshCwIcon } from 'lucide-vue-next'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile, useUserSettings } from '@/api'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
 
-const { data: profile } = useProfile()
+const { data: profile, executeQuery } = useProfile()
 
 const userManager = useUserSettings()
 const updateUser = userManager.useUserUpdateMutation()
 const regenerateUserApiKey = userManager.useApiKeyGenerateMutation()
 
 const { t } = useI18n()
+
+const showApiKey = ref(false)
 
 async function changeLandingVisibility() {
 	if (!profile.value) return
@@ -23,15 +30,37 @@ async function changeLandingVisibility() {
 		},
 	})
 
+	await executeQuery({ requestPolicy: 'network-only' })
+
 	toast.success(t('sharedTexts.saved'), {
 		duration: 1500,
 	})
 }
 
 async function callRegenerateKey() {
-	await regenerateUserApiKey.executeMutation({})
+	const result = await regenerateUserApiKey.executeMutation({})
+
+	if (result.error) {
+		toast.error('Failed to regenerate API key')
+		return
+	}
+
+	await executeQuery({ requestPolicy: 'network-only' })
 
 	toast.success(t('sharedTexts.saved'))
+}
+
+async function copyApiKey() {
+	if (!profile.value?.apiKey) return
+
+	try {
+		await navigator.clipboard.writeText(profile.value.apiKey)
+		toast.success(t('sharedTexts.copied'), {
+			duration: 1500,
+		})
+	} catch (err) {
+		toast.error('Failed to copy')
+	}
 }
 </script>
 
@@ -39,48 +68,51 @@ async function callRegenerateKey() {
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-6">
 			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">Private</h4>
-			<NCard size="small" bordered>
-				<div class="flex gap-3">
-					<NText>{{ t('userSettings.account.showMeOnLanding') }}</NText>
-					<NSwitch
-						:value="!profile?.hideOnLandingPage"
-						:disabled="updateUser.fetching.value"
-						@update-value="changeLandingVisibility"
-					/>
-				</div>
-			</NCard>
+			<Card class="p-2">
+				<CardContent>
+					<div class="flex items-center gap-2">
+						<Switch
+							:model-value="!profile?.hideOnLandingPage"
+							@update:model-value="changeLandingVisibility"
+						/>
+						<Label>{{ t('userSettings.account.showMeOnLanding') }}</Label>
+					</div>
+				</CardContent>
+			</Card>
 		</div>
 
 		<div class="flex flex-col gap-6">
 			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">Api</h4>
 
-			<NCard size="small" bordered>
-				<NFormItem label="Key">
-					<div class="flex gap-1 w-full flex-wrap">
-						<NInput
-							type="password"
-							show-password-on="click"
-							:value="profile?.apiKey"
-							:maxlength="8"
+			<Card>
+				<CardHeader>
+					<CardTitle>Key</CardTitle>
+				</CardHeader>
+				<CardContent class="space-y-4">
+					<div class="flex gap-2 w-full flex-wrap">
+						<Input
+							:type="showApiKey ? 'text' : 'password'"
+							:model-value="profile?.apiKey ?? ''"
 							class="flex-1"
+							readonly
 						/>
-						<NButton
-							secondary
-							type="warning"
-							class="min-w-[150px] sm:w-full"
-							@click="callRegenerateKey"
-						>
-							<div class="flex items-center gap-1">
-								<IconRefresh class="h-5 w-5" />
-								{{ t('userSettings.account.regenerateApiKey.button') }}
-							</div>
-						</NButton>
+						<Button variant="outline" size="icon" type="button" @click="showApiKey = !showApiKey">
+							<EyeIcon v-if="!showApiKey" />
+							<EyeOffIcon v-else />
+						</Button>
+						<Button variant="outline" size="icon" type="button" @click="copyApiKey">
+							<CopyIcon />
+						</Button>
+						<Button variant="outline" class="min-w-37.5 sm:w-full" @click="callRegenerateKey">
+							<RefreshCwIcon />
+							{{ t('userSettings.account.regenerateApiKey.button') }}
+						</Button>
 					</div>
-				</NFormItem>
-				<NText class="text-sx" depth="3">
-					{{ t('userSettings.account.regenerateApiKey.info') }}
-				</NText>
-			</NCard>
+					<p class="text-sm text-muted-foreground">
+						{{ t('userSettings.account.regenerateApiKey.info') }}
+					</p>
+				</CardContent>
+			</Card>
 		</div>
 	</div>
 </template>
