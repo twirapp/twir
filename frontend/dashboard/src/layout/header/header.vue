@@ -51,14 +51,15 @@ function openInfoEditor() {
 
 <template>
 	<div
-		class="flex flex-wrap justify-between bg-card w-full h-auto px-2 gap-2 border-b border-b-border min-h-12"
+		class="flex flex-wrap justify-between bg-card w-full px-2 py-1 gap-2 border-b border-b-border"
 	>
-		<div class="flex flex-wrap gap-4 py-2">
-			<div class="flex items-center cursor-pointer" @click="openInfoEditor">
-				<div class="flex flex-col pr-2.5">
+		<div class="flex flex-wrap md:flex-row flex-col gap-4 py-2">
+			<div class="flex items-center cursor-pointer overflow-hidden" @click="openInfoEditor">
+				<div class="flex flex-row md:flex-col pr-2.5">
 					<p>
 						{{ stats?.title ?? 'No title' }}
 					</p>
+					<div class="block md:hidden">|</div>
 					<p>
 						{{ stats?.categoryName ?? 'No category' }}
 					</p>
@@ -66,7 +67,7 @@ function openInfoEditor() {
 				<IconEdit class="h-5 w-5 cursor-pointer" />
 			</div>
 
-			<div class="item stats-item">
+			<div class="item stats-item md:block! hidden!">
 				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.uptime`) }}
 				</p>
@@ -75,7 +76,7 @@ function openInfoEditor() {
 				</p>
 			</div>
 
-			<div class="item stats-item">
+			<div class="item stats-item md:block! hidden!">
 				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.viewers`) }}
 				</p>
@@ -84,7 +85,7 @@ function openInfoEditor() {
 				</p>
 			</div>
 
-			<div class="item stats-item">
+			<div class="item stats-item md:block! hidden!">
 				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.followers`) }}
 				</p>
@@ -94,7 +95,7 @@ function openInfoEditor() {
 				</p>
 			</div>
 
-			<div class="item stats-item">
+			<div class="item stats-item md:block! hidden!">
 				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.messages`) }}
 				</p>
@@ -103,7 +104,7 @@ function openInfoEditor() {
 				</p>
 			</div>
 
-			<div class="item stats-item">
+			<div class="item stats-item md:block! hidden!">
 				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.subs`) }}
 				</p>
@@ -112,7 +113,7 @@ function openInfoEditor() {
 				</p>
 			</div>
 
-			<div class="item stats-item">
+			<div class="item stats-item md:block! hidden!">
 				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.usedEmotes`) }}
 				</p>
@@ -121,7 +122,7 @@ function openInfoEditor() {
 				</p>
 			</div>
 
-			<div class="item stats-item">
+			<div class="item stats-item md:block! hidden!">
 				<p class="stats-type">
 					{{ t(`dashboard.statsWidgets.requestedSongs`) }}
 				</p>
@@ -131,7 +132,7 @@ function openInfoEditor() {
 			</div>
 		</div>
 
-		<div class="flex justify-end gap-2 flex-end items-center">
+		<div class="ml-auto flex flex-wrap justify-end gap-2 flex-end items-center">
 			<HeaderBotStatus />
 			<HeaderProfile />
 		</div>
