@@ -1,5 +1,5 @@
 import { join, resolve } from 'node:path'
-import process from 'node:process'
+import * as process from 'node:process'
 
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
@@ -14,6 +14,7 @@ const schemaDir = resolve(
 		'delivery',
 		'gql',
 		'schema',
+		'**',
 		'*.graphql'
 	)
 )

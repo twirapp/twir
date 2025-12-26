@@ -17,6 +17,7 @@ import (
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	channelsfilesroute "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/channels/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/integrations/valorant"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/overlays/brb"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/stream"
@@ -543,6 +544,7 @@ func main() {
 		pastebins.FxModule,
 		commandshttp.FxModule,
 		ttsroutes.FxModule,
+		brb.FxModule,
 		// huma routes end
 		fx.Invoke(
 			gql.New,

@@ -1,6 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphql
 schema:
-  - apps/api-gql/internal/delivery/gql/schema/*.graphql
+  - apps/api-gql/internal/delivery/gql/schema/**/*.graphql
 
 # Where should the generated server code go?
 exec:
@@ -58,7 +58,7 @@ omit_slice_element_pointers: true
 nullable_input_omittable: true
 
 # Optional: set to speed up generation time by not performing a final validation pass.
-# skip_validation: true
+skip_validation: true
 
 # Optional: set to skip running `go mod tidy` when generating server code
 skip_mod_tidy: true

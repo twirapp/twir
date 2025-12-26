@@ -96,6 +96,24 @@ export interface BaseOutputBodyJsonProfileResponseDto {
   data: ProfileResponseDto;
 }
 
+export interface BaseOutputBodyJsonStartResponseDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: StartResponseDto;
+}
+
+export interface BaseOutputBodyJsonStopResponseDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: StopResponseDto;
+}
+
 export interface BaseOutputBodyJsonStream {
   /**
    * A URL to the JSON Schema for this object.
@@ -352,6 +370,25 @@ export interface ProfileResponseDto {
 export interface SeasonStruct {
   id: string;
   short: string;
+}
+
+export interface StartRequestDtoBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  text: string | null;
+  /** @format int32 */
+  time: number;
+}
+
+export interface StartResponseDto {
+  success: boolean;
+}
+
+export interface StopResponseDto {
+  success: boolean;
 }
 
 export interface StoredMatchesResponseMatch {
@@ -701,6 +738,48 @@ export class Api<SecurityDataType extends unknown> {
       }),
   };
   v1 = {
+    /**
+     * No description
+     *
+     * @tags Overlays/BRB
+     * @name OverlaysBrbStart
+     * @summary Start BRB overlay
+     * @request PUT:/v1/channels/overlays/brb/start
+     * @secure
+     * @response `200` `BaseOutputBodyJsonStartResponseDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    overlaysBrbStart: (data: StartRequestDtoBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonStartResponseDto, any>({
+        path: `/v1/channels/overlays/brb/start`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Overlays/BRB
+     * @name OverlaysBrbStop
+     * @summary Stop BRB overlay
+     * @request PUT:/v1/channels/overlays/brb/stop
+     * @secure
+     * @response `200` `BaseOutputBodyJsonStopResponseDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    overlaysBrbStop: (params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonStopResponseDto, any>({
+        path: `/v1/channels/overlays/brb/stop`,
+        method: "PUT",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
     /**
      * @description Get current stream
      *
