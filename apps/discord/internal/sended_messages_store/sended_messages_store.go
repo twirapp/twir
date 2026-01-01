@@ -30,13 +30,20 @@ func New(opts Opts) *SendedMessagesStore {
 	}
 }
 
-func (c *SendedMessagesStore) Add(ctx context.Context, msg Message) error {
-	return c.repo.Create(ctx, discordsendednotifications.CreateInput{
-		GuildID:          msg.GuildID,
-		MessageID:        msg.MessageID,
-		TwitchChannelID:  msg.TwitchChannelID,
-		DiscordChannelID: msg.DiscordChannelID,
-	})
+func (c *SendedMessagesStore) Add(ctx context.Context, msg ...Message) error {
+	input := make([]discordsendednotifications.CreateInput, 0, len(msg))
+	for _, m := range msg {
+		input = append(
+			input, discordsendednotifications.CreateInput{
+				GuildID:          m.GuildID,
+				MessageID:        m.MessageID,
+				TwitchChannelID:  m.TwitchChannelID,
+				DiscordChannelID: m.DiscordChannelID,
+			},
+		)
+	}
+
+	return c.repo.CreateMany(ctx, input)
 }
 
 func (c *SendedMessagesStore) GetByMessageId(ctx context.Context, messageID string) (
@@ -71,12 +78,14 @@ func (c *SendedMessagesStore) GetByChannelId(ctx context.Context, channelId stri
 
 	result := make([]Message, 0, len(entities))
 	for _, e := range entities {
-		result = append(result, Message{
-			GuildID:          e.GuildID,
-			MessageID:        e.MessageID,
-			TwitchChannelID:  e.TwitchChannelID,
-			DiscordChannelID: e.DiscordChannelID,
-		})
+		result = append(
+			result, Message{
+				GuildID:          e.GuildID,
+				MessageID:        e.MessageID,
+				TwitchChannelID:  e.TwitchChannelID,
+				DiscordChannelID: e.DiscordChannelID,
+			},
+		)
 	}
 
 	return result, nil
@@ -93,12 +102,14 @@ func (c *SendedMessagesStore) GetByGuildId(ctx context.Context, guildID string) 
 
 	result := make([]Message, 0, len(entities))
 	for _, e := range entities {
-		result = append(result, Message{
-			GuildID:          e.GuildID,
-			MessageID:        e.MessageID,
-			TwitchChannelID:  e.TwitchChannelID,
-			DiscordChannelID: e.DiscordChannelID,
-		})
+		result = append(
+			result, Message{
+				GuildID:          e.GuildID,
+				MessageID:        e.MessageID,
+				TwitchChannelID:  e.TwitchChannelID,
+				DiscordChannelID: e.DiscordChannelID,
+			},
+		)
 	}
 
 	return result, nil
@@ -124,12 +135,14 @@ func (c *SendedMessagesStore) GetAll(ctx context.Context) ([]Message, error) {
 
 	messages := make([]Message, 0, len(entities))
 	for _, entity := range entities {
-		messages = append(messages, Message{
-			GuildID:          entity.GuildID,
-			MessageID:        entity.MessageID,
-			TwitchChannelID:  entity.TwitchChannelID,
-			DiscordChannelID: entity.DiscordChannelID,
-		})
+		messages = append(
+			messages, Message{
+				GuildID:          entity.GuildID,
+				MessageID:        entity.MessageID,
+				TwitchChannelID:  entity.TwitchChannelID,
+				DiscordChannelID: entity.DiscordChannelID,
+			},
+		)
 	}
 
 	return messages, nil

@@ -99,5 +99,9 @@ func (c *MessagesUpdater) processOnline(
 		}
 	}
 
+	if err := c.store.Add(ctx, sendedMessage...); err != nil {
+		c.logger.Error("Failed to store sent messages", logger.Error(err))
+	}
+
 	return nil
 }

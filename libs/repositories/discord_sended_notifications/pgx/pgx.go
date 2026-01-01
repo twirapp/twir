@@ -45,6 +45,34 @@ var selectColumns = []string{
 
 var selectColumnsStr = strings.Join(selectColumns, ", ")
 
+func (p *Pgx) CreateMany(ctx context.Context, input []discordsendednotifications.CreateInput) error {
+	batch := &pgx.Batch{}
+
+	for _, i := range input {
+		batch.Queue(
+			"INSERT INTO discord_sended_notifications (guild_id, message_id, channel_id, discord_channel_id) VALUES ($1, $2, $3, $4)",
+			i.GuildID,
+			i.MessageID,
+			i.TwitchChannelID,
+			i.DiscordChannelID,
+		)
+	}
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+
+	br := conn.SendBatch(ctx, batch)
+	defer br.Close()
+
+	for range input {
+		_, err := br.Exec()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (p *Pgx) Create(ctx context.Context, input discordsendednotifications.CreateInput) error {
 	query := `
 INSERT INTO discord_sended_notifications (

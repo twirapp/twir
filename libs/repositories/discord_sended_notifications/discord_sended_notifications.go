@@ -6,6 +6,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, input CreateInput) error
+	CreateMany(ctx context.Context, inputs []CreateInput) error
 	GetByMessageID(ctx context.Context, messageID string) (DiscordSendedNotification, error)
 	GetByChannelID(ctx context.Context, channelID string) ([]DiscordSendedNotification, error)
 	GetByGuildID(ctx context.Context, guildID string) ([]DiscordSendedNotification, error)
