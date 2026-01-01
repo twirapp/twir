@@ -157,17 +157,21 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 		}
 	}
 
-	for idx, res := range opts.Responses.Value() {
-		updateInput.Responses = append(
-			updateInput.Responses,
-			commands_with_groups_and_responses.UpdateInputResponse{
-				Text:              &res.Text,
-				Order:             idx,
-				TwitchCategoryIDs: res.TwitchCategoriesIds,
-				OnlineOnly:        res.OnlineOnly,
-				OfflineOnly:       res.OfflineOnly,
-			},
-		)
+	if len(opts.Responses.Value()) == 0 {
+		updateInput.Responses = []commands_with_groups_and_responses.UpdateInputResponse{}
+	} else {
+		for idx, res := range opts.Responses.Value() {
+			updateInput.Responses = append(
+				updateInput.Responses,
+				commands_with_groups_and_responses.UpdateInputResponse{
+					Text:              &res.Text,
+					Order:             idx,
+					TwitchCategoryIDs: res.TwitchCategoriesIds,
+					OnlineOnly:        res.OnlineOnly,
+					OfflineOnly:       res.OfflineOnly,
+				},
+			)
+		}
 	}
 
 	if _, err := r.deps.CommandsWithGroupsAndResponsesService.Update(
