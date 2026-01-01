@@ -139,6 +139,10 @@ func (c *Activity) TtsChangeState(
 		return fmt.Errorf("cannot update tts settings %s", err)
 	}
 
+	if err := c.ttsCache.Invalidate(ctx, data.ChannelID); err != nil {
+		return fmt.Errorf("cannot invalidate tts cache %s", err)
+	}
+
 	return nil
 }
 
@@ -186,6 +190,10 @@ func (c *Activity) TtsChangeAutoReadState(
 	)
 	if err != nil {
 		return fmt.Errorf("cannot update tts settings %s", err)
+	}
+
+	if err := c.ttsCache.Invalidate(ctx, data.ChannelID); err != nil {
+		return fmt.Errorf("cannot invalidate tts cache %s", err)
 	}
 
 	return nil

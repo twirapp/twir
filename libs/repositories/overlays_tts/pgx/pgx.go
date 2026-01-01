@@ -159,42 +159,46 @@ func (p *Pgx) Update(
 	query := `
 UPDATE channels_overlays_tts
 SET
-	enabled = $1,
-	voice = $2,
-	disallowed_voices = $3,
-	pitch = $4,
-	rate = $5,
-	volume = $6,
-	do_not_read_twitch_emotes = $7,
-	do_not_read_emoji = $8,
-	do_not_read_links = $9,
-	allow_users_choose_voice_in_main_command = $10,
-	max_symbols = $11,
-	read_chat_messages = $12,
-	read_chat_messages_nicknames = $13,
+	enabled = @enabled,
+	voice = @voice,
+	disallowed_voices = @disallowed_voices,
+	pitch = @pitch,
+	rate = @rate,
+	volume = @volume,
+	do_not_read_twitch_emotes = @do_not_read_twitch_emotes,
+	do_not_read_emoji = @do_not_read_emoji,
+	do_not_read_links = @do_not_read_links,
+	allow_users_choose_voice_in_main_command = @allow_users_choose_voice_in_main_command,
+	max_symbols = @max_symbols,
+	read_chat_messages = @read_chat_messages,
+	read_chat_messages_nicknames = @read_chat_messages_nicknames,
 	updated_at = now()
-WHERE channel_id = $14
+WHERE channel_id = @channel_id
 RETURNING channel_id
 `
+
+	namedArgs := pgx.NamedArgs{
+		"enabled":                   input.Settings.Enabled,
+		"voice":                     input.Settings.Voice,
+		"disallowed_voices":         input.Settings.DisallowedVoices,
+		"pitch":                     input.Settings.Pitch,
+		"rate":                      input.Settings.Rate,
+		"volume":                    input.Settings.Volume,
+		"do_not_read_twitch_emotes": input.Settings.DoNotReadTwitchEmotes,
+		"do_not_read_emoji":         input.Settings.DoNotReadEmoji,
+		"do_not_read_links":         input.Settings.DoNotReadLinks,
+		"allow_users_choose_voice_in_main_command": input.Settings.AllowUsersChooseVoiceInMainCommand,
+		"max_symbols":                  input.Settings.MaxSymbols,
+		"read_chat_messages":           input.Settings.ReadChatMessages,
+		"read_chat_messages_nicknames": input.Settings.ReadChatMessagesNicknames,
+		"channel_id":                   channelID,
+	}
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
 	_, err := conn.Exec(
 		ctx,
 		query,
-		input.Settings.Enabled,
-		input.Settings.Voice,
-		input.Settings.DisallowedVoices,
-		input.Settings.Pitch,
-		input.Settings.Rate,
-		input.Settings.Volume,
-		input.Settings.DoNotReadTwitchEmotes,
-		input.Settings.DoNotReadEmoji,
-		input.Settings.DoNotReadLinks,
-		input.Settings.AllowUsersChooseVoiceInMainCommand,
-		input.Settings.MaxSymbols,
-		input.Settings.ReadChatMessages,
-		input.Settings.ReadChatMessagesNicknames,
-		channelID,
+		namedArgs,
 	)
 	if err != nil {
 		return ttsmodel.TTSOverlay{}, fmt.Errorf("tts overlay update: %w", err)
