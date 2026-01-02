@@ -15,7 +15,7 @@ import type {
 const MAX_HISTORY_SIZE = 50
 
 export function useOverlayBuilder() {
-	// Project state
+	// Project state (canvas size fixed at 1920x1080)
 	const project = reactive<OverlayProject>({
 		id: '',
 		name: '',
@@ -477,6 +477,35 @@ export function useOverlayBuilder() {
 		return guides
 	}
 
+	// Constrain layers to canvas bounds
+	function constrainLayersToCanvas() {
+		project.layers.forEach((layer) => {
+			// Ensure layer doesn't exceed canvas width
+			if (layer.width > project.width) {
+				layer.width = project.width
+			}
+			// Ensure layer doesn't exceed canvas height
+			if (layer.height > project.height) {
+				layer.height = project.height
+			}
+
+			// Constrain position to keep layer within canvas
+			const maxX = project.width - layer.width
+			const maxY = project.height - layer.height
+
+			if (layer.posX > maxX) {
+				layer.posX = Math.max(0, maxX)
+			}
+			if (layer.posY > maxY) {
+				layer.posY = Math.max(0, maxY)
+			}
+
+			// Ensure position is not negative
+			layer.posX = Math.max(0, layer.posX)
+			layer.posY = Math.max(0, layer.posY)
+		})
+	}
+
 	// Load project
 	function loadProject(data: OverlayProject) {
 		Object.assign(project, JSON.parse(JSON.stringify(data)))
@@ -552,5 +581,6 @@ export function useOverlayBuilder() {
 		// Project
 		loadProject,
 		exportProject,
+		constrainLayersToCanvas,
 	}
 }

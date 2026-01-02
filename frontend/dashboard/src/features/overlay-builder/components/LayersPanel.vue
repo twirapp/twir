@@ -7,6 +7,7 @@ import {
 	EyeOff,
 	Lock,
 	LockOpen,
+	Plus,
 	Trash2,
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
@@ -41,6 +42,7 @@ const emit = defineEmits<{
 	moveUp: [layerId: string]
 	moveDown: [layerId: string]
 	reorder: [layers: Layer[]]
+	addLayer: []
 }>()
 
 const { t } = useI18n()
@@ -81,8 +83,17 @@ function getLayerTypeIcon(type: string): string {
 
 <template>
 	<Card class="h-full flex flex-col border-0 p-0">
-		<div class="border-b p-2">
-			<CardTitle class="text-base">{{ t('overlaysRegistry.layers') || 'Layers' }}</CardTitle>
+		<div class="border-b p-2 flex flex-row items-center justify-between space-y-0">
+			<CardTitle class="text-sm font-medium">{{ t('overlaysRegistry.layers') || 'Layers' }}</CardTitle>
+			<Button
+				variant="default"
+				size="sm"
+				class="h-7 text-xs"
+				@click="emit('addLayer')"
+			>
+				<Plus class="h-3 w-3 mr-1" />
+				Add
+			</Button>
 		</div>
 		<CardContent class="flex-1 p-0 overflow-hidden">
 			<ScrollArea class="h-full">

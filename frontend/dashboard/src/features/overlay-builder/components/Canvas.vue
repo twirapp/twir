@@ -35,13 +35,16 @@ const emit = defineEmits<{
 const canvasElement = ref<HTMLElement>()
 
 const canvasTransform = computed(() => {
-	return `scale(${props.zoom}) translate(${props.panX}px, ${props.panY}px)`
+	// Don't scale the canvas itself, let it stay at logical size
+	// Only apply pan, Moveable will work with actual coordinates
+	return `translate(${props.panX}px, ${props.panY}px)`
 })
 
 const gridStyle = computed(() => {
 	if (!props.showGrid) return {}
 
-	const size = props.gridSize * props.zoom
+	// Use logical grid size, no zoom multiplication needed
+	const size = props.gridSize
 	return {
 		backgroundImage: `
 			linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
@@ -80,12 +83,20 @@ function onDrag(e: OnDrag) {
 	const layer = props.layers.find(l => l.id === layerId)
 	if (!layer || layer.locked) return
 
-	// Update the element transform
-	target.style.transform = e.transform
+	// e.translate is already in logical coordinates since canvas is not scaled
+	let newPosX = Math.round(e.translate[0])
+	let newPosY = Math.round(e.translate[1])
 
-	// e.translate contains absolute position from Moveable
-	const newPosX = Math.round(e.translate[0])
-	const newPosY = Math.round(e.translate[1])
+	// Calculate bounds
+	const maxX = props.canvasWidth - layer.width
+	const maxY = props.canvasHeight - layer.height
+
+	// Clamp position within canvas bounds
+	newPosX = Math.max(0, Math.min(newPosX, maxX))
+	newPosY = Math.max(0, Math.min(newPosY, maxY))
+
+	// Update the element transform with clamped position
+	target.style.transform = `translate(${newPosX}px, ${newPosY}px) rotate(${layer.rotation}deg)`
 
 	// Update layer position
 	emit('updateLayer', layerId, {
@@ -107,16 +118,38 @@ function onResize(e: OnResize) {
 	const layer = props.layers.find(l => l.id === layerId)
 	if (!layer || layer.locked) return
 
-	// Update element styles
-	target.style.width = `${e.width}px`
-	target.style.height = `${e.height}px`
-	target.style.transform = e.drag.transform
+	// e.width and e.drag.translate are in logical coordinates
+	const minSize = 10
+	let width = Math.round(e.width)
+	let height = Math.round(e.height)
+	let posX = Math.round(e.drag.translate[0])
+	let posY = Math.round(e.drag.translate[1])
 
+	// Ensure minimum size
+	width = Math.max(minSize, width)
+	height = Math.max(minSize, height)
+
+	// Ensure size doesn't exceed canvas bounds
+	width = Math.min(width, props.canvasWidth)
+	height = Math.min(height, props.canvasHeight)
+
+	// Ensure position + size stays within canvas bounds
+	const maxX = props.canvasWidth - width
+	const maxY = props.canvasHeight - height
+	posX = Math.max(0, Math.min(posX, maxX))
+	posY = Math.max(0, Math.min(posY, maxY))
+
+	// Update element styles with clamped values
+	target.style.width = `${width}px`
+	target.style.height = `${height}px`
+	target.style.transform = `translate(${posX}px, ${posY}px) rotate(${layer.rotation}deg)`
+
+	// Update layer
 	emit('updateLayer', layerId, {
-		width: Math.round(e.width),
-		height: Math.round(e.height),
-		posX: Math.round(e.drag.translate[0]),
-		posY: Math.round(e.drag.translate[1]),
+		width,
+		height,
+		posX,
+		posY,
 	})
 }
 
@@ -126,13 +159,24 @@ function onRotate(e: OnRotate) {
 	const layer = props.layers.find(l => l.id === layerId)
 	if (!layer || layer.locked) return
 
-	// Update element transform
-	target.style.transform = e.drag.transform
+	const rotation = Math.round(e.rotate)
+	let posX = Math.round(e.drag.translate[0])
+	let posY = Math.round(e.drag.translate[1])
 
+	// Constrain position within canvas bounds during rotation
+	const maxX = props.canvasWidth - layer.width
+	const maxY = props.canvasHeight - layer.height
+	posX = Math.max(0, Math.min(posX, maxX))
+	posY = Math.max(0, Math.min(posY, maxY))
+
+	// Update element transform with clamped values
+	target.style.transform = `translate(${posX}px, ${posY}px) rotate(${rotation}deg)`
+
+	// Update layer
 	emit('updateLayer', layerId, {
-		rotation: Math.round(e.rotate),
-		posX: Math.round(e.drag.translate[0]),
-		posY: Math.round(e.drag.translate[1]),
+		rotation,
+		posX,
+		posY,
 	})
 }
 
@@ -176,10 +220,16 @@ onUnmounted(() => {
 
 <template>
 	<div
-		class="relative flex-1 overflow-auto bg-slate-900"
+		class="relative flex-1 overflow-hidden bg-slate-900"
 		@click="handleCanvasClick"
 	>
-		<div class="flex items-center justify-center min-h-full p-8">
+		<div
+			class="flex items-center justify-center w-full h-full p-8"
+			:style="{
+				transform: `scale(${zoom})`,
+				transformOrigin: 'center',
+			}"
+		>
 			<div
 				ref="canvasElement"
 				class="relative bg-[#121212] shadow-2xl border border-slate-700"
@@ -279,11 +329,12 @@ onUnmounted(() => {
 					:rotatable="true"
 					:snappable="snapToGrid"
 					:snapThreshold="5"
-					:bounds="{ left: 0, top: 0, right: canvasWidth, bottom: canvasHeight }"
 					:origin="false"
 					:renderDirections="['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se']"
 					:keepRatio="false"
 					:edge-draggable="false"
+					:throttleDrag="0"
+					:throttleResize="0"
 					@drag="onDrag"
 					@drag-end="onDragEnd"
 					@resize="onResize"

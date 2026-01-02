@@ -33,10 +33,13 @@ const { executeQuery: refetchOverlays } = useChannelOverlaysQuery()
 const createOverlayMutation = useChannelOverlayCreate()
 const updateOverlayMutation = useChannelOverlayUpdate()
 
+// Check if we're creating a new overlay or editing existing one
+const isNewOverlay = computed(() => overlayId.value === '')
+
 // Convert existing overlay data to builder format
 const projectData = computed(() => {
-	if (!overlay.value) {
-		// Return empty project for new overlay
+	// For new overlay, return empty project immediately
+	if (isNewOverlay.value) {
 		return {
 			id: '',
 			name: '',
@@ -46,12 +49,17 @@ const projectData = computed(() => {
 		}
 	}
 
-	// Convert existing overlay to builder format
+	// For existing overlay, wait for data to load
+	if (!overlay.value) {
+		return null
+	}
+
+	// Convert existing overlay data to builder format (canvas size fixed at 1920x1080)
 	return {
 		id: overlay.value.id,
 		name: overlay.value.name,
-		width: overlay.value.width,
-		height: overlay.value.height,
+		width: 1920,
+		height: 1080,
 		layers: overlay.value.layers.map((layer, index) => ({
 			id: `layer-${layer.id || index}`,
 			type: layer.type,
@@ -112,8 +120,8 @@ async function handleSave(project: any) {
 				id: project.id,
 				input: {
 					name: project.name,
-					width: project.width,
-					height: project.height,
+					width: 1920,
+					height: 1080,
 					layers: layersInput,
 				},
 			})
@@ -129,8 +137,8 @@ async function handleSave(project: any) {
 			const result = await createOverlayMutation.executeMutation({
 				input: {
 					name: project.name,
-					width: project.width,
-					height: project.height,
+					width: 1920,
+					height: 1080,
 					layers: layersInput,
 				},
 			})

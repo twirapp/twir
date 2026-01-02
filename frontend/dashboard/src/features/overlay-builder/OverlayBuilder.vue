@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
 import LayersPanel from './components/LayersPanel.vue'
@@ -40,41 +40,94 @@ const builder = useOverlayBuilder()
 
 // Overlay name state
 const overlayName = ref('')
+const canvasContainerRef = ref<HTMLElement>()
+const loadedProjectId = ref<string>('')
 
-// Load initial project if provided
-onMounted(() => {
-	if (props.initialProject) {
-		overlayName.value = props.initialProject.name || ''
-		const layers = props.initialProject.layers.map((layer, index) => ({
-			id: layer.id || `layer-${index}`,
-			type: layer.type,
-			name: layer.name || `Layer ${index + 1}`,
-			posX: layer.posX,
-			posY: layer.posY,
-			width: layer.width,
-			height: layer.height,
-			rotation: layer.rotation || 0,
-			opacity: layer.opacity || 1,
-			visible: layer.visible !== undefined ? layer.visible : true,
-			locked: layer.locked || false,
-			zIndex: index,
-			periodicallyRefetchData: layer.periodicallyRefetchData,
-			settings: {
-				htmlOverlayHtml: layer.settings?.htmlOverlayHtml || '',
-				htmlOverlayCss: layer.settings?.htmlOverlayCss || '',
-				htmlOverlayJs: layer.settings?.htmlOverlayJs || '',
-				htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval || 5,
-			},
-		}))
+// Auto-fit zoom calculation
+function calculateFitZoom() {
+	if (!canvasContainerRef.value) return
 
-		builder.loadProject({
-			id: props.initialProject.id,
-			name: props.initialProject.name,
-			width: props.initialProject.width,
-			height: props.initialProject.height,
-			layers,
-		})
+	const container = canvasContainerRef.value
+	const containerWidth = container.clientWidth - 64 // padding
+	const containerHeight = container.clientHeight - 64
+
+	const scaleX = containerWidth / builder.project.width
+	const scaleY = containerHeight / builder.project.height
+	const fitZoom = Math.min(scaleX, scaleY) // Always fit to viewport
+
+	// Set zoom to 80% of fit for more comfortable working space
+	builder.canvasState.zoom = Math.max(0.1, fitZoom * 0.8)
+}
+
+// Recalculate zoom on mount and window resize only (canvas size is fixed at 1920x1080)
+
+// Load initial project when it becomes available (handles async data loading)
+function loadInitialProject() {
+	if (!props.initialProject) return
+
+	// Don't reload if it's the same project (prevents reset when editing name)
+	if (loadedProjectId.value === props.initialProject.id && props.initialProject.id !== '') {
+		return
 	}
+
+	loadedProjectId.value = props.initialProject.id
+	overlayName.value = props.initialProject.name || ''
+	const layers = props.initialProject.layers.map((layer, index) => ({
+		id: layer.id || `layer-${index}`,
+		type: layer.type,
+		name: layer.name || `Layer ${index + 1}`,
+		posX: layer.posX,
+		posY: layer.posY,
+		width: layer.width,
+		height: layer.height,
+		rotation: layer.rotation || 0,
+		opacity: layer.opacity || 1,
+		visible: layer.visible !== undefined ? layer.visible : true,
+		locked: layer.locked || false,
+		zIndex: index,
+		periodicallyRefetchData: layer.periodicallyRefetchData,
+		settings: {
+			htmlOverlayHtml: layer.settings?.htmlOverlayHtml || '',
+			htmlOverlayCss: layer.settings?.htmlOverlayCss || '',
+			htmlOverlayJs: layer.settings?.htmlOverlayJs || '',
+			htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval || 5,
+		},
+	}))
+
+	builder.loadProject({
+		id: props.initialProject.id,
+		name: props.initialProject.name,
+		width: 1920,
+		height: 1080,
+		layers,
+	})
+
+	// Recalculate zoom after loading
+	nextTick(() => {
+		calculateFitZoom()
+	})
+}
+
+// Watch for initialProject changes (handles async loading)
+// Only watch the ID to avoid reloading when other props change
+watch(() => props.initialProject?.id, (newId) => {
+	if (newId !== undefined) {
+		loadInitialProject()
+	}
+}, { immediate: true })
+
+// Load initial project on mount as well
+onMounted(() => {
+	loadInitialProject()
+})
+
+// Handle window resize for auto-fit zoom
+onMounted(() => {
+	window.addEventListener('resize', calculateFitZoom)
+})
+
+onUnmounted(() => {
+	window.removeEventListener('resize', calculateFitZoom)
 })
 
 // Add layer dialog
@@ -97,6 +150,8 @@ function handleSave() {
 	}
 	emit('save', project)
 }
+
+
 
 // Canvas handlers
 function handleUpdateLayer(layerId: string, updates: Partial<Layer>) {
@@ -269,6 +324,9 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 			:zoom="builder.canvasState.zoom"
 			:show-grid="builder.canvasState.showGrid"
 			:snap-to-grid="builder.canvasState.snapToGrid"
+			:overlay-id="initialProject?.id"
+			:overlay-name="overlayName"
+			@save="handleSave"
 			@undo="builder.undo"
 			@redo="builder.redo"
 			@copy="builder.copyToClipboard"
@@ -292,7 +350,7 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 		/>
 
 		<!-- Main Content -->
-		<div class="flex-1 flex overflow-hidden">
+		<div ref="canvasContainerRef" class="flex-1 flex overflow-hidden">
 			<!-- Canvas -->
 			<Canvas
 				:layers="builder.project.layers"
@@ -323,17 +381,14 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 			<!-- Right Sidebar -->
 			<div class="w-80 flex flex-col border-l">
 				<!-- Overlay Settings -->
-				<div class="border-b bg-background">
+				<div class="border-b bg-background p-2">
 					<OverlaySettings
 						v-model:overlay-name="overlayName"
-						:overlay-id="initialProject?.id"
-						@save="handleSave"
-						@add-layer="handleAddLayer"
 					/>
 				</div>
 
 				<!-- Layers Panel -->
-				<div class="flex-1 min-h-0 overflow-hidde p-2">
+				<div class="flex-1 min-h-0 overflow-hidden p-2">
 					<LayersPanel
 						:layers="builder.project.layers"
 						:selected-layer-ids="builder.canvasState.selectedLayerIds"
@@ -345,6 +400,7 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 						@move-up="handleMoveLayerUp"
 						@move-down="handleMoveLayerDown"
 						@reorder="handleReorderLayers"
+						@add-layer="handleAddLayer"
 					/>
 				</div>
 

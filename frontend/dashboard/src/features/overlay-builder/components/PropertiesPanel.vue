@@ -97,7 +97,10 @@ const localPollInterval = computed({
 <template>
 	<Card class="h-full flex flex-col border-0 p-0">
 		<div class="border-b p-2">
+			<CardTitle class="text-sm font-medium">
 				{{ t('overlaysRegistry.properties') || 'Properties' }}
+
+			</CardTitle>
 		</div>
 		<CardContent class="flex-1 p-0 overflow-hidden">
 			<ScrollArea class="h-full">

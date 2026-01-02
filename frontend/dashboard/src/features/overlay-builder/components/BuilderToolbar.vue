@@ -7,11 +7,13 @@ import {
 	AlignVerticalDistributeCenter,
 	ArrowLeft,
 	Copy,
+	ExternalLink,
 	Grid3x3,
 	Layers,
 	Minus,
 	Plus,
 	Redo,
+	Save,
 	Scissors,
 	Trash2,
 	Undo,
@@ -19,6 +21,7 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { useMessage } from 'naive-ui'
 
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -38,11 +41,14 @@ interface Props {
 	zoom: number
 	showGrid: boolean
 	snapToGrid: boolean
+	overlayId?: string
+	overlayName?: string
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
+	save: []
 	undo: []
 	redo: []
 	copy: []
@@ -67,11 +73,25 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const router = useRouter()
+const message = useMessage()
 
 const formatZoom = computed(() => (zoom: number) => `${Math.round(zoom * 100)}%`)
 
 function goBack() {
 	router.push('/dashboard/overlays')
+}
+
+function copyOverlayLink() {
+	if (!props.overlayId) return
+
+	const baseUrl = window.location.origin
+	const overlayUrl = `${baseUrl}/overlays/${props.overlayId}`
+
+	navigator.clipboard.writeText(overlayUrl).then(() => {
+		message.success(t('sharedTexts.copied') || 'Link copied to clipboard!')
+	}).catch(() => {
+		message.error('Failed to copy link')
+	})
 }
 </script>
 
@@ -311,6 +331,35 @@ function goBack() {
 				</TooltipTrigger>
 				<TooltipContent>
 					<p>Snap to Grid</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<div class="flex-1" />
+
+		<!-- Right Side Actions -->
+		<TooltipProvider v-if="overlayId">
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button variant="ghost" size="icon" @click="copyOverlayLink">
+						<ExternalLink class="h-4 w-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ t('overlaysRegistry.copyLink') || 'Copy Overlay Link' }}</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button variant="default" size="icon" @click="emit('save')">
+						<Save class="h-4 w-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ t('sharedButtons.save') || 'Save' }} (Ctrl+S)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
