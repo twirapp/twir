@@ -7,6 +7,7 @@ import {
 	AlignVerticalDistributeCenter,
 	ArrowLeft,
 	Copy,
+	CopyPlus,
 	ExternalLink,
 	Grid3x3,
 	Layers,
@@ -165,6 +166,19 @@ function copyOverlayLink() {
 				</TooltipTrigger>
 				<TooltipContent>
 					<p>Cut (Ctrl+X)</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('duplicate')">
+						<CopyPlus class="h-4 w-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>Duplicate (Ctrl+D)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import Moveable from 'vue3-moveable'
 import type { OnDrag, OnResize, OnRotate } from 'vue3-moveable'
 
@@ -33,6 +33,7 @@ const emit = defineEmits<{
 }>()
 
 const canvasElement = ref<HTMLElement>()
+const moveableRef = ref<InstanceType<typeof Moveable>>()
 
 const canvasTransform = computed(() => {
 	// Don't scale the canvas itself, let it stay at logical size
@@ -62,6 +63,8 @@ const moveableTargets = computed(() => {
 	return props.selectedLayerIds.map(id => `#layer-${id}`)
 })
 
+const isDragging = ref(false)
+
 function handleCanvasClick(event: MouseEvent) {
 	if (event.target === canvasElement.value) {
 		emit('deselectAll')
@@ -78,6 +81,7 @@ function handleLayerClick(layerId: string, event: MouseEvent) {
 }
 
 function onDrag(e: OnDrag) {
+	isDragging.value = true
 	const target = e.target as HTMLElement
 	const layerId = target.id.replace('layer-', '')
 	const layer = props.layers.find(l => l.id === layerId)
@@ -109,6 +113,7 @@ function onDrag(e: OnDrag) {
 }
 
 function onDragEnd() {
+	isDragging.value = false
 	emit('clearGuides')
 }
 
@@ -208,6 +213,16 @@ function handleKeyDown(event: KeyboardEvent) {
 		}
 	}
 }
+
+// Watch for external layer changes and update Moveable position
+watch(() => props.layers.map(l => ({ id: l.id, posX: l.posX, posY: l.posY, width: l.width, height: l.height, rotation: l.rotation })), () => {
+	// Only update if not currently dragging
+	if (!isDragging.value && moveableRef.value) {
+		nextTick(() => {
+			moveableRef.value?.updateRect()
+		})
+	}
+}, { deep: true })
 
 onMounted(() => {
 	window.addEventListener('keydown', handleKeyDown)
@@ -323,6 +338,7 @@ onUnmounted(() => {
 
 				<Moveable
 					v-if="selectedLayerIds.length > 0 && selectedLayers.every(l => !l.locked)"
+					ref="moveableRef"
 					:target="moveableTargets"
 					:draggable="true"
 					:resizable="true"
