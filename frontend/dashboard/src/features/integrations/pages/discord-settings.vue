@@ -7,7 +7,6 @@ import DiscordSvg from '@/assets/integrations/discord.svg?use'
 
 import DiscordGuildSettingsForm from '../ui/discord/guild-settings-form.vue'
 
-import { useProfile } from '@/api'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -89,8 +88,6 @@ if (typeof window !== 'undefined') {
 		}
 	})
 }
-
-const { data: currentUser } = useProfile()
 </script>
 
 <template>
