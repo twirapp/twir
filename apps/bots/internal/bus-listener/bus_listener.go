@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/kv"
+	discordmessagesupdater "github.com/twirapp/twir/apps/bots/internal/discord/messages_updater"
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
 	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
@@ -37,20 +38,22 @@ type Opts struct {
 	WorkersPool    *workers.Pool
 	KV             kv.KV
 
-	ChannelService *channel.Service
+	ChannelService         *channel.Service
+	DiscordMessagesUpdater *discordmessagesupdater.MessagesUpdater
 }
 
 func New(opts Opts) (*BusListener, error) {
 	listener := &BusListener{
-		gorm:           opts.Gorm,
-		logger:         opts.Logger,
-		config:         opts.Cfg,
-		twitchActions:  opts.TwitchActions,
-		messageHandler: opts.MessageHandler,
-		tracer:         opts.Tracer,
-		bus:            opts.Bus,
-		kv:             opts.KV,
-		channelService: opts.ChannelService,
+		gorm:                   opts.Gorm,
+		logger:                 opts.Logger,
+		config:                 opts.Cfg,
+		twitchActions:          opts.TwitchActions,
+		messageHandler:         opts.MessageHandler,
+		tracer:                 opts.Tracer,
+		bus:                    opts.Bus,
+		kv:                     opts.KV,
+		channelService:         opts.ChannelService,
+		discordMessagesUpdater: opts.DiscordMessagesUpdater,
 	}
 
 	opts.LC.Append(
@@ -184,6 +187,32 @@ func New(opts Opts) (*BusListener, error) {
 					return err
 				}
 
+				err = listener.bus.Channel.StreamOffline.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data twitch.StreamOfflineMessage) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.handleStreamOffline(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}, err
+					},
+				)
+
+				err = listener.bus.Channel.StreamOnline.SubscribeGroup(
+					"bots",
+					func(ctx context.Context, data twitch.StreamOnlineMessage) (struct{}, error) {
+						err := opts.WorkersPool.SubmitErr(
+							func() error {
+								return listener.handleStreamOnline(ctx, data)
+							},
+						).Wait()
+
+						return struct{}{}, err
+					},
+				)
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
@@ -195,6 +224,8 @@ func New(opts Opts) (*BusListener, error) {
 				listener.bus.Bots.ModeratorAdd.Unsubscribe()
 				listener.bus.Bots.ModeratorRemove.Unsubscribe()
 				listener.bus.Events.ChannelUnban.Unsubscribe()
+				listener.bus.Channel.StreamOnline.Unsubscribe()
+				listener.bus.Channel.StreamOffline.Unsubscribe()
 
 				return nil
 			},
@@ -205,15 +236,16 @@ func New(opts Opts) (*BusListener, error) {
 }
 
 type BusListener struct {
-	logger         *slog.Logger
-	tracer         trace.Tracer
-	gorm           *gorm.DB
-	twitchActions  *twitchactions.TwitchActions
-	messageHandler *messagehandler.MessageHandler
-	bus            *buscore.Bus
-	config         cfg.Config
-	kv             kv.KV
-	channelService *channel.Service
+	logger                 *slog.Logger
+	tracer                 trace.Tracer
+	gorm                   *gorm.DB
+	twitchActions          *twitchactions.TwitchActions
+	messageHandler         *messagehandler.MessageHandler
+	bus                    *buscore.Bus
+	config                 cfg.Config
+	kv                     kv.KV
+	channelService         *channel.Service
+	discordMessagesUpdater *discordmessagesupdater.MessagesUpdater
 }
 
 func (c *BusListener) handleChatMessage(
@@ -298,6 +330,30 @@ func (c *BusListener) handleUnban(
 			"added moderator after unban",
 			slog.String("channel_id", data.ModeratorUserID),
 			slog.String("user_id", data.UserID),
+		)
+	}
+
+	return nil
+}
+
+func (c *BusListener) handleStreamOnline(ctx context.Context, data twitch.StreamOnlineMessage) error {
+	if err := c.discordMessagesUpdater.ProcessOnline(ctx, data.ChannelID); err != nil {
+		c.logger.Error(
+			"cannot handle discord stream online",
+			logger.Error(err),
+			slog.String("channel_id", data.ChannelID),
+		)
+	}
+
+	return nil
+}
+
+func (c *BusListener) handleStreamOffline(ctx context.Context, data twitch.StreamOfflineMessage) error {
+	if err := c.discordMessagesUpdater.ProcessOffline(ctx, data.ChannelID); err != nil {
+		c.logger.Error(
+			"cannot handle discord stream offline",
+			logger.Error(err),
+			slog.String("channel_id", data.ChannelID),
 		)
 	}
 

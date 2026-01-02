@@ -1,13 +1,9 @@
-package messages_updater
+package discordmessagesupdater
 
 import (
 	"context"
-	"log/slog"
-	"strconv"
 
 	"github.com/avast/retry-go/v4"
-	"github.com/diamondburned/arikawa/v3/discord"
-	"github.com/diamondburned/arikawa/v3/state"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 )
@@ -48,25 +44,8 @@ func (c *MessagesUpdater) updateDiscordMessages(
 
 			embed := c.buildEmbed(twitchUser, stream, integration)
 
-			gUid, _ := strconv.ParseUint(integration.GuildID, 10, 64)
-			shard, _ := c.discord.FromGuildID(discord.GuildID(gUid))
-			if shard == nil {
-				c.logger.Error("Shard not found", slog.Any("guild_id", integration.GuildID))
-				continue
-			}
-
-			_, err = retry.DoWithData(
-				func() (*discord.Message, error) {
-					dsChannelUid, err := strconv.ParseUint(message.DiscordChannelID, 10, 64)
-					if err != nil {
-						return nil, err
-					}
-
-					dMsgId, err := strconv.ParseUint(message.MessageID, 10, 64)
-					if err != nil {
-						return nil, err
-					}
-
+			err = retry.Do(
+				func() error {
 					content := c.replaceMessageVars(
 						integration.LiveNotificationMessage, replaceMessageVarsOpts{
 							UserName:     stream.UserLogin,
@@ -76,9 +55,10 @@ func (c *MessagesUpdater) updateDiscordMessages(
 						},
 					)
 
-					return shard.(*state.State).EditMessage(
-						discord.ChannelID(dsChannelUid),
-						discord.MessageID(dMsgId),
+					return c.discord.EditMessage(
+						ctx,
+						message.DiscordChannelID,
+						message.MessageID,
 						content,
 						embed,
 					)

@@ -7,6 +7,10 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	bus_listener "github.com/twirapp/twir/apps/bots/internal/bus-listener"
+	discordbushandler "github.com/twirapp/twir/apps/bots/internal/discord/bus_handler"
+	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
+	"github.com/twirapp/twir/apps/bots/internal/discord/messages_updater"
+	"github.com/twirapp/twir/apps/bots/internal/discord/sended_messages_store"
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
@@ -49,6 +53,8 @@ import (
 	channelsemotesusagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/datasources/clickhouse"
 	channelsgamesvotebanrepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
+	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
+	channelsintegrationsdiscordpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/datasource/postgres"
 	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -57,6 +63,8 @@ import (
 	channelschattrenslationsrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_translation/datasource/postgres"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallrepositorypostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
+	discordsendednotifications "github.com/twirapp/twir/libs/repositories/discord_sended_notifications"
+	discordsendednotificationspgx "github.com/twirapp/twir/libs/repositories/discord_sended_notifications/pgx"
 	giveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
 	giveawaysrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways/pgx"
 	giveawaysparticipantsrepository "github.com/twirapp/twir/libs/repositories/giveaways_participants"
@@ -77,6 +85,7 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
+
 	"go.uber.org/fx"
 )
 
@@ -157,6 +166,14 @@ var App = fx.Module(
 			giveawaysparticipantsrepositorypgx.NewFx,
 			fx.As(new(giveawaysparticipantsrepository.Repository)),
 		),
+		fx.Annotate(
+			channelsintegrationsdiscordpostgres.NewFx,
+			fx.As(new(channelsintegrationsdiscord.Repository)),
+		),
+		fx.Annotate(
+			discordsendednotificationspgx.NewFx,
+			fx.As(new(discordsendednotifications.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -196,6 +213,9 @@ var App = fx.Module(
 		chattranslationsservice.New,
 		giveaways.New,
 		twitch.New,
+		sended_messages_store.New,
+		discordmessagesupdater.New,
+		discord_go.New,
 	),
 	fx.Invoke(
 		ytsr.New,
@@ -208,6 +228,7 @@ var App = fx.Module(
 		},
 		stream_handlers.New,
 		bus_listener.New,
+		discordbushandler.New,
 		func(l *slog.Logger) {
 			l.Info("🚀 Bots started")
 		},

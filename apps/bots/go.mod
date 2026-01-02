@@ -24,6 +24,8 @@ require (
 
 require (
 	cloud.google.com/go/translate v1.12.7
+	github.com/avast/retry-go/v4 v4.7.0
+	github.com/diamondburned/arikawa/v3 v3.6.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lkretschmer/deepl-go v0.3.0
 	github.com/oklog/ulid/v2 v2.1.1
@@ -42,6 +44,7 @@ require (
 	github.com/twirapp/twir/libs/twitch v0.0.0-20251217140736-48670d138d86
 	github.com/twirapp/twir/libs/types v0.0.0-20251217140736-48670d138d86
 	github.com/twirapp/twir/libs/utils v0.0.0-20251217140736-48670d138d86
+	go.uber.org/atomic v1.11.0
 	google.golang.org/api v0.257.0
 )
 
@@ -66,6 +69,8 @@ require (
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
+	github.com/gorilla/schema v1.4.1 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect

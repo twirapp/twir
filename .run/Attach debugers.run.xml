@@ -3,7 +3,6 @@
     <toRun name="api" type="GoRemoteDebugConfigurationType" />
     <toRun name="api-gql" type="GoRemoteDebugConfigurationType" />
     <toRun name="bots" type="GoRemoteDebugConfigurationType" />
-    <toRun name="discord" type="GoRemoteDebugConfigurationType" />
     <toRun name="emotes-cacher" type="GoRemoteDebugConfigurationType" />
     <toRun name="events" type="GoRemoteDebugConfigurationType" />
     <toRun name="eventsub" type="GoRemoteDebugConfigurationType" />

@@ -1,25 +1,22 @@
-package messages_updater
+package discordmessagesupdater
 
 import (
 	"context"
-	"log/slog"
-	"strconv"
 
 	"github.com/avast/retry-go/v4"
-	"github.com/diamondburned/arikawa/v3/discord"
-	"github.com/diamondburned/arikawa/v3/state"
-	"github.com/twirapp/twir/apps/discord/internal/sended_messages_store"
+	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
+	"github.com/twirapp/twir/apps/bots/internal/discord/sended_messages_store"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 )
 
-func (c *MessagesUpdater) processOnline(
+func (c *MessagesUpdater) ProcessOnline(
 	ctx context.Context,
-	channelId string,
+	twitchChannelId string,
 ) error {
 	stream := model.ChannelsStreams{}
 	err := c.db.
-		Where(`"userId" = ?`, channelId).
+		Where(`"userId" = ?`, twitchChannelId).
 		First(&stream).
 		Error
 	if err != nil {
@@ -48,21 +45,7 @@ func (c *MessagesUpdater) processOnline(
 		}
 
 		embed := c.buildEmbed(twitchUser, stream, integration)
-
-		gUid, _ := strconv.ParseUint(integration.GuildID, 10, 64)
-		shard, _ := c.discord.FromGuildID(discord.GuildID(gUid))
-		if shard == nil {
-			c.logger.Error("Shard not found", slog.Any("guild_id", integration.GuildID))
-			continue
-		}
-
 		for _, channel := range integration.LiveNotificationChannelsIds {
-			dChanUid, err := strconv.ParseUint(channel, 10, 64)
-			if err != nil {
-				c.logger.Error("Failed to parse channel id", logger.Error(err))
-				continue
-			}
-
 			message := c.replaceMessageVars(
 				integration.LiveNotificationMessage, replaceMessageVarsOpts{
 					UserName:     stream.UserLogin,
@@ -73,9 +56,10 @@ func (c *MessagesUpdater) processOnline(
 			)
 
 			m, err := retry.DoWithData(
-				func() (*discord.Message, error) {
-					return shard.(*state.State).SendMessage(
-						discord.ChannelID(dChanUid),
+				func() (discord_go.SendMessageResponse, error) {
+					return c.discord.SendMessage(
+						ctx,
+						channel,
 						message,
 						embed,
 					)
@@ -90,10 +74,10 @@ func (c *MessagesUpdater) processOnline(
 			sendedMessage = append(
 				sendedMessage,
 				sended_messages_store.Message{
-					MessageID:        m.ID.String(),
+					MessageID:        m.MessageID,
 					TwitchChannelID:  stream.UserId,
 					GuildID:          integration.GuildID,
-					DiscordChannelID: m.ChannelID.String(),
+					DiscordChannelID: channel,
 				},
 			)
 		}

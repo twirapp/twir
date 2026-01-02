@@ -151,23 +151,7 @@ const { data: currentUser } = useProfile()
 
 					<TabsContent v-for="guild in guilds" :key="guild.id" :value="guild.id">
 						<div class="flex flex-col gap-6">
-							<DiscordGuildSettingsForm
-								:guild-id="guild.id"
-								:initial-values="{
-									liveNotificationEnabled: guild.liveNotificationEnabled,
-									liveNotificationChannelsIds: guild.liveNotificationChannelsIds,
-									liveNotificationShowTitle: guild.liveNotificationShowTitle,
-									liveNotificationShowCategory: guild.liveNotificationShowCategory,
-									liveNotificationShowViewers: guild.liveNotificationShowViewers,
-									liveNotificationMessage: guild.liveNotificationMessage,
-									liveNotificationShowPreview: guild.liveNotificationShowPreview,
-									liveNotificationShowProfileImage: guild.liveNotificationShowProfileImage,
-									offlineNotificationMessage: guild.offlineNotificationMessage,
-									shouldDeleteMessageOnOffline: guild.shouldDeleteMessageOnOffline,
-									additionalUsersIdsForLiveCheck: guild.additionalUsersIdsForLiveCheck,
-								}"
-								:current-user="currentUser"
-							/>
+							<DiscordGuildSettingsForm :guild-id="guild.id" />
 
 							<!-- Danger Zone -->
 							<div class="border border-destructive/50 rounded-lg p-4">

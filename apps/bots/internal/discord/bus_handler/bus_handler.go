@@ -4,11 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strconv"
 
-	arikawa_discord "github.com/diamondburned/arikawa/v3/discord"
-	arikawa_state "github.com/diamondburned/arikawa/v3/state"
-	"github.com/twirapp/twir/apps/discord/internal/discord_go"
+	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/discord"
 	"go.uber.org/fx"
@@ -30,7 +27,7 @@ type Handler struct {
 	logger  *slog.Logger
 }
 
-func New(opts Opts) (*Handler, error) {
+func New(opts Opts) error {
 	h := &Handler{
 		discord: opts.Discord,
 		bus:     opts.Bus,
@@ -53,33 +50,33 @@ func New(opts Opts) (*Handler, error) {
 		},
 	)
 
-	return h, nil
+	return nil
 }
 
 func (h *Handler) subscribe() error {
 	if err := h.bus.Discord.GetGuildChannels.SubscribeGroup(
-		"discord",
+		"bots",
 		h.handleGetGuildChannels,
 	); err != nil {
 		return fmt.Errorf("failed to subscribe to GetGuildChannels: %w", err)
 	}
 
 	if err := h.bus.Discord.GetGuildInfo.SubscribeGroup(
-		"discord",
+		"bots",
 		h.handleGetGuildInfo,
 	); err != nil {
 		return fmt.Errorf("failed to subscribe to GetGuildInfo: %w", err)
 	}
 
 	if err := h.bus.Discord.LeaveGuild.SubscribeGroup(
-		"discord",
+		"bots",
 		h.handleLeaveGuild,
 	); err != nil {
 		return fmt.Errorf("failed to subscribe to LeaveGuild: %w", err)
 	}
 
 	if err := h.bus.Discord.GetGuildRoles.SubscribeGroup(
-		"discord",
+		"bots",
 		h.handleGetGuildRoles,
 	); err != nil {
 		return fmt.Errorf("failed to subscribe to GetGuildRoles: %w", err)
@@ -99,25 +96,9 @@ func (h *Handler) handleGetGuildChannels(
 	ctx context.Context,
 	req discord.GetGuildChannelsRequest,
 ) (discord.GetGuildChannelsResponse, error) {
-	gUid, err := strconv.ParseUint(req.GuildID, 10, 64)
+	channels, err := h.discord.GetGuildChannels(ctx, req.GuildID)
 	if err != nil {
 		return discord.GetGuildChannelsResponse{}, err
-	}
-
-	shard, _ := h.discord.FromGuildID(arikawa_discord.GuildID(gUid))
-	if shard == nil {
-		return discord.GetGuildChannelsResponse{}, fmt.Errorf("shard not found")
-	}
-	state := shard.(*arikawa_state.State)
-
-	channels, err := state.Channels(arikawa_discord.GuildID(gUid))
-	if err != nil {
-		return discord.GetGuildChannelsResponse{}, err
-	}
-
-	discordUser, discordUserErr := state.Me()
-	if discordUserErr != nil {
-		return discord.GetGuildChannelsResponse{}, discordUserErr
 	}
 
 	resultedChannels := make([]discord.GuildChannel, 0, len(channels))
@@ -125,9 +106,9 @@ func (h *Handler) handleGetGuildChannels(
 		var t discord.ChannelType
 
 		switch channel.Type {
-		case arikawa_discord.GuildText, arikawa_discord.GuildAnnouncement:
+		case discord_go.DiscordChannelTypeText, discord_go.DiscordChannelTypeAnnouncement:
 			t = discord.ChannelTypeText
-		case arikawa_discord.GuildVoice:
+		case discord_go.DiscordChannelTypeVoice:
 			t = discord.ChannelTypeVoice
 		default:
 			t = -1
@@ -137,23 +118,12 @@ func (h *Handler) handleGetGuildChannels(
 			continue
 		}
 
-		var hasSendMessagePerm bool
-
-		if t == discord.ChannelTypeText {
-			perms, permsErr := state.Permissions(channel.ID, discordUser.ID)
-			if permsErr != nil {
-				return discord.GetGuildChannelsResponse{}, permsErr
-			}
-
-			hasSendMessagePerm = perms.Has(arikawa_discord.PermissionSendMessages)
-		}
-
 		resultedChannels = append(
 			resultedChannels, discord.GuildChannel{
-				ID:              channel.ID.String(),
+				ID:              channel.ID,
 				Name:            channel.Name,
 				Type:            t,
-				CanSendMessages: hasSendMessagePerm,
+				CanSendMessages: channel.CanSendMessages,
 			},
 		)
 	}
@@ -169,29 +139,22 @@ func (h *Handler) handleGetGuildInfo(
 ) (discord.GetGuildInfoResponse, error) {
 	errWg, _ := errgroup.WithContext(ctx)
 
-	var guild *arikawa_discord.Guild
+	var guild discord.GetGuildInfoResponse
 	var guildChannels []discord.GuildChannel
 	var guildRoles []discord.Role
 
-	gUid, err := strconv.ParseUint(req.GuildID, 10, 64)
-	if err != nil {
-		return discord.GetGuildInfoResponse{}, err
-	}
-
-	shard, _ := h.discord.FromGuildID(arikawa_discord.GuildID(gUid))
-	if shard == nil {
-		return discord.GetGuildInfoResponse{}, fmt.Errorf("shard not found")
-	}
-	state := shard.(*arikawa_state.State)
-
 	errWg.Go(
 		func() error {
-			disGuild, err := state.Guild(arikawa_discord.GuildID(gUid))
+			disGuild, err := h.discord.GetGuild(ctx, req.GuildID)
 			if err != nil {
 				return err
 			}
 
-			guild = disGuild
+			guild = discord.GetGuildInfoResponse{
+				ID:   disGuild.ID,
+				Name: disGuild.Name,
+				Icon: disGuild.Icon,
+			}
 			return nil
 		},
 	)
@@ -233,7 +196,7 @@ func (h *Handler) handleGetGuildInfo(
 	}
 
 	return discord.GetGuildInfoResponse{
-		ID:       guild.ID.String(),
+		ID:       guild.ID,
 		Name:     guild.Name,
 		Icon:     guild.Icon,
 		Channels: guildChannels,
@@ -245,18 +208,7 @@ func (h *Handler) handleLeaveGuild(
 	ctx context.Context,
 	req discord.LeaveGuildRequest,
 ) (struct{}, error) {
-	gUid, err := strconv.ParseUint(req.GuildID, 10, 64)
-	if err != nil {
-		return struct{}{}, err
-	}
-
-	shard, _ := h.discord.FromGuildID(arikawa_discord.GuildID(gUid))
-	if shard == nil {
-		return struct{}{}, fmt.Errorf("shard not found")
-	}
-	state := shard.(*arikawa_state.State)
-
-	if err := state.LeaveGuild(arikawa_discord.GuildID(gUid)); err != nil {
+	if err := h.discord.LeaveGuild(ctx, req.GuildID); err != nil {
 		return struct{}{}, err
 	}
 
@@ -267,18 +219,7 @@ func (h *Handler) handleGetGuildRoles(
 	ctx context.Context,
 	req discord.GetGuildRolesRequest,
 ) (discord.GetGuildRolesResponse, error) {
-	gUid, err := strconv.ParseUint(req.GuildID, 10, 64)
-	if err != nil {
-		return discord.GetGuildRolesResponse{}, err
-	}
-
-	shard, _ := h.discord.FromGuildID(arikawa_discord.GuildID(gUid))
-	if shard == nil {
-		return discord.GetGuildRolesResponse{}, fmt.Errorf("shard not found")
-	}
-	state := shard.(*arikawa_state.State)
-
-	roles, err := state.Roles(arikawa_discord.GuildID(gUid))
+	roles, err := h.discord.GetGuildRoles(ctx, req.GuildID)
 	if err != nil {
 		return discord.GetGuildRolesResponse{}, err
 	}
@@ -288,7 +229,7 @@ func (h *Handler) handleGetGuildRoles(
 	for _, role := range roles {
 		resultedRoles = append(
 			resultedRoles, discord.Role{
-				ID:    role.ID.String(),
+				ID:    role.ID,
 				Name:  role.Name,
 				Color: fmt.Sprint(role.Color),
 			},

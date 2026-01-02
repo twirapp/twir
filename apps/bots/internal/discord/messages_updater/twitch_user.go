@@ -1,4 +1,4 @@
-package messages_updater
+package discordmessagesupdater
 
 import (
 	"errors"

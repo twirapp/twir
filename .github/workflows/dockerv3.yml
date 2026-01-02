@@ -22,8 +22,6 @@ jobs:
             runtime: go
           - path: apps/bots
             runtime: go
-          - path: apps/discord
-            runtime: go
           - path: apps/emotes-cacher
             runtime: go
           - path: apps/events

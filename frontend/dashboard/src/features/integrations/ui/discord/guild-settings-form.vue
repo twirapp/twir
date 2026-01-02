@@ -49,27 +49,41 @@ import { DiscordChannelType } from '@/gql/graphql.ts'
 
 const props = defineProps<{
 	guildId: string
-	initialValues: DiscordGuildUpdateInputInput
 }>()
 
 const { data: currentUser } = useProfile()
 
 const { t } = useI18n()
 
-const { updateGuild } = useDiscordIntegration()
+const { updateGuild, guilds } = useDiscordIntegration()
 const { channels, roles, isLoading: isGuildInfoLoading } = useDiscordGuildInfo(() => props.guildId)
 
 const form = useForm<DiscordGuildUpdateInputInput>({
 	validationSchema: toTypedSchema(DiscordGuildUpdateInputSchema),
-	initialValues: props.initialValues,
 })
 
 // Update form when initialValues change
 watch(
-	() => props.initialValues,
-	(newValues) => {
-		form.setValues(newValues)
-	}
+	guilds,
+	(newGuilds) => {
+		const g = newGuilds.find((guild) => guild.id === props.guildId)
+		if (!g) return
+
+		form.setValues({
+			liveNotificationEnabled: g.liveNotificationEnabled,
+			liveNotificationChannelsIds: g.liveNotificationChannelsIds,
+			liveNotificationShowTitle: g.liveNotificationShowTitle,
+			liveNotificationShowCategory: g.liveNotificationShowCategory,
+			liveNotificationShowViewers: g.liveNotificationShowViewers,
+			liveNotificationMessage: g.liveNotificationMessage,
+			liveNotificationShowPreview: g.liveNotificationShowPreview,
+			liveNotificationShowProfileImage: g.liveNotificationShowProfileImage,
+			offlineNotificationMessage: g.offlineNotificationMessage,
+			shouldDeleteMessageOnOffline: g.shouldDeleteMessageOnOffline,
+			additionalUsersIdsForLiveCheck: g.additionalUsersIdsForLiveCheck,
+		})
+	},
+	{ immediate: true }
 )
 
 const textChannelOptions = computed(() => {
