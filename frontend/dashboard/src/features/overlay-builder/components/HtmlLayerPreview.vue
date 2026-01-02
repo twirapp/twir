@@ -1,28 +1,80 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
+import { useChannelOverlayParseHtml } from '@/api/overlays/custom'
+
 interface Props {
 	html?: string
 	css?: string
 	js?: string
 	width: number
 	height: number
+	refreshInterval?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	html: '',
 	css: '',
 	js: '',
+	refreshInterval: 5,
 })
 
 const containerRef = ref<HTMLDivElement>()
 const contentRef = ref<HTMLDivElement>()
 const styleElement = ref<HTMLStyleElement>()
 const renderKey = ref(0)
+const parsedHtml = ref('')
+const pollInterval = ref<ReturnType<typeof setInterval>>()
+
+const parseHtmlMutation = useChannelOverlayParseHtml()
 
 const sanitizedHtml = computed(() => {
-	return props.html || '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.5); font-size: 14px;">Empty HTML Layer</div>'
+	// Use parsed HTML if available, otherwise use raw HTML
+	const html = parsedHtml.value || props.html
+	return html || '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.5); font-size: 14px;">Empty HTML Layer</div>'
 })
+
+// Parse HTML with variables
+async function parseHtml() {
+	if (!props.html) {
+		parsedHtml.value = ''
+		return
+	}
+
+	try {
+		const result = await parseHtmlMutation.executeMutation({ html: props.html })
+		parsedHtml.value = result.data?.channelOverlayParseHtml ?? props.html
+
+		// Call onDataUpdate after parsing
+		executeScript()
+	} catch (e) {
+		console.error('Canvas Layer: Failed to parse HTML:', e)
+		parsedHtml.value = props.html
+	}
+}
+
+// Start periodic polling
+function startPolling() {
+	stopPolling()
+
+	// Initial parse
+	parseHtml()
+
+	// Set up interval
+	if (props.refreshInterval && props.refreshInterval > 0) {
+		pollInterval.value = setInterval(() => {
+			parseHtml()
+		}, props.refreshInterval * 1000)
+	}
+}
+
+// Stop polling
+function stopPolling() {
+	if (pollInterval.value) {
+		clearInterval(pollInterval.value)
+		pollInterval.value = undefined
+	}
+}
 
 // Apply CSS by injecting a style element
 function updateStyles() {
@@ -48,11 +100,11 @@ function executeScript() {
 	if (!props.js) return
 
 	try {
-		// Create a safer execution context
+		// eslint-disable-next-line no-new-func
 		const scriptFunc = new Function('container', props.js)
 		scriptFunc(contentRef.value)
 	} catch (e) {
-		console.error('Layer JS Error:', e)
+		console.error('Canvas Layer JS Error:', e)
 	}
 }
 
@@ -62,13 +114,13 @@ function forceUpdate() {
 	// Wait for DOM update before applying styles and scripts
 	setTimeout(() => {
 		updateStyles()
-		executeScript()
 	}, 0)
 }
 
 // Watch for prop changes
 watch(() => props.html, () => {
 	forceUpdate()
+	startPolling()
 })
 
 watch(() => props.css, () => {
@@ -79,12 +131,17 @@ watch(() => props.js, () => {
 	executeScript()
 })
 
+watch(() => props.refreshInterval, () => {
+	startPolling()
+})
+
 onMounted(() => {
 	updateStyles()
-	executeScript()
+	startPolling()
 })
 
 onUnmounted(() => {
+	stopPolling()
 	if (styleElement.value) {
 		styleElement.value.remove()
 	}

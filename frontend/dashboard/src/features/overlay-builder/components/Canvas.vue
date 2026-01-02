@@ -230,6 +230,7 @@ onUnmounted(() => {
 							:js="layer.settings?.htmlOverlayJs"
 							:width="layer.width"
 							:height="layer.height"
+							:refresh-interval="layer.settings?.htmlOverlayDataPollSecondsInterval"
 						/>
 						<!-- Fallback content -->
 						<div v-else class="w-full h-full flex items-center justify-center">

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { Plus } from 'lucide-vue-next'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
 import LayersPanel from './components/LayersPanel.vue'
 import PropertiesPanel from './components/PropertiesPanel.vue'
 import Canvas from './components/Canvas.vue'
 import CodeEditorDialog from './components/CodeEditorDialog.vue'
+import OverlaySettings from './components/OverlaySettings.vue'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -38,9 +38,13 @@ const emit = defineEmits<{
 // Initialize builder
 const builder = useOverlayBuilder()
 
+// Overlay name state
+const overlayName = ref('')
+
 // Load initial project if provided
 onMounted(() => {
 	if (props.initialProject) {
+		overlayName.value = props.initialProject.name || ''
 		const layers = props.initialProject.layers.map((layer, index) => ({
 			id: layer.id || `layer-${index}`,
 			type: layer.type,
@@ -87,7 +91,10 @@ function addHtmlLayer() {
 
 // Toolbar handlers
 function handleSave() {
-	const project = builder.exportProject()
+	const project = {
+		...builder.exportProject(),
+		name: overlayName.value,
+	}
 	emit('save', project)
 }
 
@@ -262,9 +269,6 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 			:zoom="builder.canvasState.zoom"
 			:show-grid="builder.canvasState.showGrid"
 			:snap-to-grid="builder.canvasState.snapToGrid"
-			:overlay-id="builder.project.id"
-			:overlay-name="builder.project.name"
-			@save="handleSave"
 			@undo="builder.undo"
 			@redo="builder.redo"
 			@copy="builder.copyToClipboard"
@@ -318,12 +322,14 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 
 			<!-- Right Sidebar -->
 			<div class="w-80 flex flex-col border-l">
-				<!-- Add Layer Button -->
-				<div class="p-3 border-b bg-background">
-					<Button class="w-full" @click="handleAddLayer">
-						<Plus class="h-4 w-4 mr-2" />
-						Add Layer
-					</Button>
+				<!-- Overlay Settings -->
+				<div class="border-b bg-background">
+					<OverlaySettings
+						v-model:overlay-name="overlayName"
+						:overlay-id="initialProject?.id"
+						@save="handleSave"
+						@add-layer="handleAddLayer"
+					/>
 				</div>
 
 				<!-- Layers Panel -->
