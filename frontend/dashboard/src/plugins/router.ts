@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router'
-
-import { urqlClient } from './urql.js'
-
 import type { RouteRecordRaw } from 'vue-router'
+
+import { createRouter, createWebHistory } from 'vue-router'
 
 import { profileQuery, userAccessFlagChecker } from '@/api/auth.js'
 import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+
+import { urqlClient } from './urql.js'
 
 export function newRouter() {
 	const routes: ReadonlyArray<RouteRecordRaw> = [
@@ -278,7 +278,10 @@ export function newRouter() {
 					name: 'RegistryOverlayEdit',
 					path: '/dashboard/registry/overlays/:id',
 					component: () => import('@/components/registry/overlays/edit.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewOverlays },
+					meta: {
+						neededPermission: ChannelRolePermissionEnum.ViewOverlays,
+						fullScreen: true,
+					},
 				},
 				{
 					name: 'Moderation',

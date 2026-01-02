@@ -9,7 +9,7 @@ import {
 	lightTheme,
 } from 'naive-ui'
 import { computed, ref } from 'vue'
-import { RouterView, useRouter } from 'vue-router'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 
 import SidebarFloatingButton from './sidebar/sidebar-floating-button.vue'
 
@@ -26,8 +26,11 @@ const themeStyles = computed(() => (theme.value === 'dark' ? darkTheme : lightTh
 
 const isRouterReady = ref(false)
 const router = useRouter()
+const route = useRoute()
 
 router.isReady().finally(() => (isRouterReady.value = true))
+
+const isFullScreen = computed(() => route.meta?.fullScreen === true)
 
 interface HistoryState {
 	noTransition?: boolean
@@ -53,7 +56,17 @@ function getTransition(route: RouteLocationNormalized) {
 			<TooltipProvider :delay-duration="100">
 				<NMessageProvider :duration="2500" :closable="true">
 					<NDialogProvider>
-						<Sidebar>
+						<template v-if="isFullScreen">
+							<RouterView v-slot="{ Component, route }">
+								<transition :name="getTransition(route)" mode="out-in">
+									<div :key="route.path" class="w-full h-full">
+										<component :is="Component" />
+									</div>
+								</transition>
+							</RouterView>
+							<Toaster />
+						</template>
+						<Sidebar v-else>
 							<SidebarFloatingButton />
 							<Stats />
 							<RouterView v-slot="{ Component, route }">

@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMessage } from 'naive-ui'
 
-import OverlayBuilder from '@/features/overlay-builder/OverlayBuilder.vue'
+import OverlayBuilder from './OverlayBuilder.vue'
 import {
 	useChannelOverlayByIdQuery,
 	useChannelOverlayCreate,
@@ -60,10 +60,10 @@ const projectData = computed(() => {
 			posY: layer.posY,
 			width: layer.width,
 			height: layer.height,
-			rotation: 0,
-			opacity: 1,
-			visible: true,
-			locked: false,
+			rotation: 0, // New property - not in old format
+			opacity: 1, // New property - not in old format
+			visible: true, // New property - not in old format
+			locked: false, // New property - not in old format
 			zIndex: index,
 			periodicallyRefetchData: layer.periodicallyRefetchData,
 			settings: {
@@ -141,6 +141,9 @@ async function handleSave(project: any) {
 			}
 
 			messages.success('Overlay created successfully!')
+
+			// Optionally navigate to the new overlay's edit page
+			// router.push(`/overlays/registry/${result.data?.channelOverlayCreate?.id}`)
 		}
 
 		// Refresh the overlays list
@@ -153,13 +156,13 @@ async function handleSave(project: any) {
 </script>
 
 <template>
-	<div class="fixed inset-0 w-full h-full overflow-hidden">
+	<div class="h-full">
 		<OverlayBuilder
 			v-if="projectData"
 			:initial-project="projectData"
 			@save="handleSave"
 		/>
-		<div v-else class="flex items-center justify-center w-full h-full">
+		<div v-else class="flex items-center justify-center h-full">
 			<p class="text-muted-foreground">Loading overlay...</p>
 		</div>
 	</div>
