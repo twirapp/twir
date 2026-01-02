@@ -681,24 +681,6 @@ services:
         constraints:
           - node.labels.databases != true
 
-  discord:
-    image: registry.twir.app/twirapp/discord:latest
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-    deploy:
-      update_config:
-        order: stop-first
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.labels.databases != true
-
   language-processor:
     image: registry.twir.app/twirapp/language-processor:latest
     secrets:
