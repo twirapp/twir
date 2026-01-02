@@ -1,10 +1,10 @@
-import { OverlayLayerType } from '@twir/api/messages/overlays/overlays';
+import { ChannelOverlayLayerType } from '@/gql/graphql'
 
-export const convertOverlayLayerTypeToText = (type: OverlayLayerType) => {
+export function convertOverlayLayerTypeToText(type: ChannelOverlayLayerType): string {
 	switch (type) {
-		case OverlayLayerType.HTML:
-			return 'HTML';
+		case ChannelOverlayLayerType.Html:
+			return 'HTML'
 		default:
-			return 'UNKNOWN';
+			return 'UNKNOWN'
 	}
-};
+}

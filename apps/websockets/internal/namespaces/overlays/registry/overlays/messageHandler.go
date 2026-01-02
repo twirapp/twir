@@ -8,8 +8,8 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/olahol/melody"
 	"github.com/twirapp/twir/apps/websockets/types"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 type parseLayerVariablesMessage struct {
@@ -29,12 +29,12 @@ func textToBase64(text string) string {
 	return base64.StdEncoding.EncodeToString([]byte(text))
 }
 
-func base64ToText(text string) string {
+func base64ToText(text string) (string, bool) {
 	bytes, err := base64.StdEncoding.DecodeString(text)
 	if err != nil {
-		return ""
+		return "", false
 	}
-	return string(bytes)
+	return string(bytes), true
 }
 
 func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
@@ -66,7 +66,13 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			return
 		}
 
-		text := base64ToText(layer.Settings.HtmlOverlayHTML)
+		// Handle both old base64-encoded data and new plain text data
+		// Try to decode as base64. If successful, use decoded text.
+		// Otherwise, use the original text (new GraphQL format stores plain text).
+		text := layer.Settings.HtmlOverlayHTML
+		if decodedText, ok := base64ToText(text); ok {
+			text = decodedText
+		}
 
 		res, err := c.bus.Parser.ParseVariablesInText.Request(
 			context.Background(),

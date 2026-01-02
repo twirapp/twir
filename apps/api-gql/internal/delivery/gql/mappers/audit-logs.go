@@ -61,6 +61,7 @@ var tableToGqlModel = map[string]gqlmodel.AuditLogSystem{
 	"channels_overlays_dudes":         gqlmodel.AuditLogSystemChannelOverlayDudes,
 	"channels_overlays_kappagen":      gqlmodel.AuditLogSystemChannelOverlayKappagen,
 	"channels_overlays_now_playing":   gqlmodel.AuditLogSystemChannelOverlayNowPlaying,
+	"channels_overlays":               gqlmodel.AuditLogSystemChannelsOverlays,
 	"channels_roles":                  gqlmodel.AuditLogSystemChannelRoles,
 	"channels_timers":                 gqlmodel.AuditLogSystemChannelTimers,
 	"channels_song_requests_settings": gqlmodel.AuditLogSystemChannelSongRequests,

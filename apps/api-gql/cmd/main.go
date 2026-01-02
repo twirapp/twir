@@ -216,6 +216,10 @@ import (
 	faceitrepository "github.com/twirapp/twir/libs/repositories/faceit_integration"
 	faceitrepositorypostgres "github.com/twirapp/twir/libs/repositories/faceit_integration/datasource/postgres"
 
+	channelsoverlaysservice "github.com/twirapp/twir/apps/api-gql/internal/services/channels_overlays"
+	channelsoverlaysrepository "github.com/twirapp/twir/libs/repositories/channels_overlays"
+	channelsoverlaysrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_overlays/pgx"
+
 	channelsgamesvotebanrepository "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 	channelsgamesvotebanpgx "github.com/twirapp/twir/libs/repositories/channels_games_voteban/pgx"
 
@@ -438,6 +442,10 @@ func main() {
 				vkintegrationrepopostgres.NewFx,
 				fx.As(new(vkintegrationrepo.Repository)),
 			),
+			fx.Annotate(
+				channelsoverlaysrepositorypgx.NewFx,
+				fx.As(new(channelsoverlaysrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -503,6 +511,7 @@ func main() {
 			donatellointegration.New,
 			vkintegration.New,
 			faceitintegration.New,
+			channelsoverlaysservice.New,
 		),
 		// app itself
 		fx.Provide(

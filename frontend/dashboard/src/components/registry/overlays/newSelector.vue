@@ -1,16 +1,30 @@
 <script setup lang="ts">
-import type { OverlayLayer} from '@twir/api/messages/overlays/overlays';
-import { OverlayLayerType } from '@twir/api/messages/overlays/overlays';
-import { NGrid, NGridItem } from 'naive-ui';
-import { useI18n } from 'vue-i18n';
+import { ChannelOverlayLayerType } from '@/gql/graphql'
+import { NGrid, NGridItem } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
-import Card from '@/components/card/card.vue';
+import Card from '@/components/card/card.vue'
+
+interface OverlayLayerForm {
+	type: ChannelOverlayLayerType
+	posX: number
+	posY: number
+	width: number
+	height: number
+	periodicallyRefetchData: boolean
+	settings: {
+		htmlOverlayHtml: string
+		htmlOverlayCss: string
+		htmlOverlayJs: string
+		htmlOverlayDataPollSecondsInterval: number
+	}
+}
 
 defineEmits<{
-	select: [OverlayLayer]
-}>();
+	select: [OverlayLayerForm]
+}>()
 
-const { t } = useI18n();
+const { t } = useI18n()
 </script>
 
 <template>
@@ -19,31 +33,29 @@ const { t } = useI18n();
 			<card
 				class="cursor-pointer"
 				title="HTML"
-				@click="() => {
-					$emit('select', {
-						id: '',
-						posX: 0,
-						posY: 0,
-						width: 200,
-						height: 200,
-						settings: {
-							htmlOverlayCss: '.text { color: red }',
-							htmlOverlayHtml: `<span class='text'>$(stream.uptime)</span>`,
-							htmlOverlayHtmlDataPollSecondsInterval: 5,
-							htmlOverlayJs: `
+				@click="
+					() => {
+						$emit('select', {
+							posX: 0,
+							posY: 0,
+							width: 200,
+							height: 200,
+							settings: {
+								htmlOverlayCss: '.text { color: red }',
+								htmlOverlayHtml: `<span class='text'>$(stream.uptime)</span>`,
+								htmlOverlayDataPollSecondsInterval: 5,
+								htmlOverlayJs: `
 // will be triggered, when new overlay data comes from backend
 function onDataUpdate() {
 	console.log('updated')
 }
-							`
-						},
-						createdAt: '',
-						overlayId: '',
-						type: OverlayLayerType.HTML,
-						updatedAt: '',
-						periodicallyRefetchData: true,
-					})
-				}"
+							`,
+							},
+							type: ChannelOverlayLayerType.Html,
+							periodicallyRefetchData: true,
+						})
+					}
+				"
 			>
 				<template #content>
 					{{ t('overlaysRegistry.html.description') }}

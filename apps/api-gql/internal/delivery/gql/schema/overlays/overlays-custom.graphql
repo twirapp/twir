@@ -1,0 +1,79 @@
+extend type Query {
+	channelOverlays: [ChannelOverlay!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	channelOverlayById(id: UUID!): ChannelOverlay @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	channelOverlayCreate(input: ChannelOverlayCreateInput!): ChannelOverlay! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	channelOverlayUpdate(id: UUID!, input: ChannelOverlayUpdateInput!): ChannelOverlay! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	channelOverlayDelete(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	channelOverlayParseHtml(html: String!): String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+enum ChannelOverlayLayerType {
+	HTML
+}
+
+type ChannelOverlayLayerSettings {
+	htmlOverlayHtml: String!
+	htmlOverlayCss: String!
+	htmlOverlayJs: String!
+	htmlOverlayDataPollSecondsInterval: Int!
+}
+
+type ChannelOverlayLayer {
+	id: UUID!
+	type: ChannelOverlayLayerType!
+	settings: ChannelOverlayLayerSettings!
+	overlayId: UUID!
+	posX: Int!
+	posY: Int!
+	width: Int!
+	height: Int!
+	createdAt: Time!
+	updatedAt: Time!
+	periodicallyRefetchData: Boolean!
+}
+
+type ChannelOverlay {
+	id: UUID!
+	channelId: String!
+	name: String!
+	createdAt: Time!
+	updatedAt: Time!
+	width: Int!
+	height: Int!
+	layers: [ChannelOverlayLayer!]!
+}
+
+input ChannelOverlayLayerSettingsInput {
+	htmlOverlayHtml: String!
+	htmlOverlayCss: String!
+	htmlOverlayJs: String!
+	htmlOverlayDataPollSecondsInterval: Int! @validate(constraint: "min=5,max=600")
+}
+
+input ChannelOverlayLayerInput {
+	type: ChannelOverlayLayerType!
+	settings: ChannelOverlayLayerSettingsInput!
+	posX: Int!
+	posY: Int!
+	width: Int!
+	height: Int!
+	periodicallyRefetchData: Boolean!
+}
+
+input ChannelOverlayCreateInput {
+	name: String! @validate(constraint: "max=30")
+	width: Int! @validate(constraint: "min=1")
+	height: Int! @validate(constraint: "min=1")
+	layers: [ChannelOverlayLayerInput!]! @validate(constraint: "max=15,dive")
+}
+
+input ChannelOverlayUpdateInput {
+	name: String! @validate(constraint: "max=30")
+	width: Int! @validate(constraint: "min=1")
+	height: Int! @validate(constraint: "min=1")
+	layers: [ChannelOverlayLayerInput!]! @validate(constraint: "max=15,dive")
+}
+

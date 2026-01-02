@@ -28,7 +28,7 @@ watch(layers, (layers) => {
 			)
 		}
 	}
-})
+}, { immediate: true })
 </script>
 
 <template>

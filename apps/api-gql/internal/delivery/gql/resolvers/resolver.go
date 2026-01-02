@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
+	channels_overlays "github.com/twirapp/twir/apps/api-gql/internal/services/channels_overlays"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
@@ -162,6 +163,7 @@ type Deps struct {
 	ObsWebsocketModuleService             *obs_websocket_module.Service
 	VKIntegrationService                  *vkintegration.Service
 	FaceitIntegrationService              *faceitintegration.Service
+	ChannelOverlaysService                *channels_overlays.Service
 }
 
 type Resolver struct {

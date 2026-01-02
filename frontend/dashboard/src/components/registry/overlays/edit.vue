@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { IconCopy, IconDeviceFloppy } from '@tabler/icons-vue'
-import { type Overlay, OverlayLayerType } from '@twir/api/messages/overlays/overlays'
+import { Copy, Save } from 'lucide-vue-next'
 import { NButton, NDivider, NFormItem, NInput, NInputNumber, NModal, useMessage } from 'naive-ui'
 import { computed, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,9 +11,20 @@ import HtmlLayerForm from './layers/htmlForm.vue'
 
 import type { OnDrag, OnResize } from 'vue3-moveable'
 
-import { useOverlaysRegistry, useProfile } from '@/api/index.js'
+import {
+	useChannelOverlayByIdQuery,
+	useChannelOverlayCreate,
+	useChannelOverlaysQuery,
+	useChannelOverlayUpdate,
+	useProfile,
+} from '@/api/index.js'
 import NewSelector from '@/components/registry/overlays/newSelector.vue'
 import { copyToClipBoard } from '@/helpers'
+import {
+	type ChannelOverlay,
+	type ChannelOverlayLayerInput,
+	ChannelOverlayLayerType,
+} from '@/gql/graphql'
 
 const { t } = useI18n()
 
@@ -28,24 +38,26 @@ const overlayId = computed(() => {
 	return id
 })
 
-const overlaysManager = useOverlaysRegistry()
-const creator = overlaysManager.create
-const updater = overlaysManager.update!
-const { data: overlay, refetch } = overlaysManager.getOne!({
-	id: overlayId.value,
-	isQueryDisabled: true,
-})
+const { data: overlayData } = useChannelOverlayByIdQuery(overlayId)
+const overlay = computed(() => overlayData.value?.channelOverlayById)
 
-watch(
-	overlayId,
-	(v) => {
-		if (!v) return
-		refetch()
-	},
-	{ immediate: true }
-)
+const { executeQuery: refetchOverlays } = useChannelOverlaysQuery()
+const createOverlayMutation = useChannelOverlayCreate()
+const updateOverlayMutation = useChannelOverlayUpdate()
 
-type OverlayForm = Omit<Overlay, 'updatedAt' | 'channelId' | 'createdAt'>
+type OverlayForm = Omit<
+	ChannelOverlay,
+	'updatedAt' | 'channelId' | 'createdAt' | '__typename' | 'layers'
+> & {
+	layers: Array<
+		Omit<
+			ChannelOverlay['layers'][number],
+			'__typename' | 'id' | 'overlayId' | 'createdAt' | 'updatedAt' | 'settings'
+		> & {
+			settings: Omit<ChannelOverlay['layers'][number]['settings'], '__typename'>
+		}
+	>
+}
 
 const formValue = ref<OverlayForm>({
 	id: '',
@@ -58,13 +70,24 @@ const formValue = ref<OverlayForm>({
 watch(overlay, (v) => {
 	if (!v) return
 
-	const raw = toRaw(v)
-
-	formValue.value.id = raw.id
-	formValue.value.name = raw.name
-	formValue.value.layers = raw.layers
-	formValue.value.width = raw.width
-	formValue.value.height = raw.height
+	formValue.value.id = v.id
+	formValue.value.name = v.name
+	formValue.value.layers = v.layers.map((layer) => ({
+		type: layer.type,
+		posX: layer.posX,
+		posY: layer.posY,
+		width: layer.width,
+		height: layer.height,
+		periodicallyRefetchData: layer.periodicallyRefetchData,
+		settings: {
+			htmlOverlayHtml: layer.settings.htmlOverlayHtml,
+			htmlOverlayCss: layer.settings.htmlOverlayCss,
+			htmlOverlayJs: layer.settings.htmlOverlayJs,
+			htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval,
+		},
+	}))
+	formValue.value.width = v.width
+	formValue.value.height = v.height
 })
 
 const messages = useMessage()
@@ -82,21 +105,74 @@ async function save() {
 		return
 	}
 
+	const layersInput: ChannelOverlayLayerInput[] = data.layers.map((layer) => ({
+		type: layer.type,
+		posX: layer.posX,
+		posY: layer.posY,
+		width: layer.width,
+		height: layer.height,
+		periodicallyRefetchData: layer.periodicallyRefetchData,
+		settings: {
+			htmlOverlayHtml: layer.settings?.htmlOverlayHtml ?? '',
+			htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
+			htmlOverlayJs: layer.settings?.htmlOverlayJs ?? '',
+			htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
+		},
+	}))
+
 	if (data.id) {
-		await updater.mutateAsync({
-			...data,
+		const result = await updateOverlayMutation.executeMutation({
 			id: data.id,
+			input: {
+				name: data.name,
+				width: data.width,
+				height: data.height,
+				layers: layersInput,
+			},
 		})
+		if (result.error) {
+			messages.error(result.error.message)
+			return
+		}
+		// Invalidate cache to refresh the overlays list
+		refetchOverlays({ requestPolicy: 'network-only' })
 	} else {
-		const newOverlayData = await creator.mutateAsync(data)
+		const result = await createOverlayMutation.executeMutation({
+			input: {
+				name: data.name,
+				width: data.width,
+				height: data.height,
+				layers: layersInput,
+			},
+		})
+		if (result.error) {
+			messages.error(result.error.message)
+			return
+		}
 
-		const raw = toRaw(newOverlayData)
-
-		formValue.value.id = raw.id
-		formValue.value.name = raw.name
-		formValue.value.layers = raw.layers
-		formValue.value.width = raw.width
-		formValue.value.height = raw.height
+		if (result.data?.channelOverlayCreate) {
+			const created = result.data.channelOverlayCreate
+			formValue.value.id = created.id
+			formValue.value.name = created.name
+			formValue.value.width = created.width
+			formValue.value.height = created.height
+			formValue.value.layers = created.layers.map((layer) => ({
+				type: layer.type,
+				posX: layer.posX,
+				posY: layer.posY,
+				width: layer.width,
+				height: layer.height,
+				periodicallyRefetchData: layer.periodicallyRefetchData,
+				settings: {
+					htmlOverlayHtml: layer.settings.htmlOverlayHtml,
+					htmlOverlayCss: layer.settings.htmlOverlayCss,
+					htmlOverlayJs: layer.settings.htmlOverlayJs,
+					htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval,
+				},
+			}))
+		}
+		// Invalidate cache to refresh the overlays list
+		refetchOverlays({ requestPolicy: 'network-only' })
 	}
 
 	messages.success(t('sharedTexts.saved'))
@@ -165,7 +241,7 @@ const innerWidth = computed(() => window.innerWidth)
 			>
 				<div v-for="(layer, index) of formValue.layers" :key="index">
 					<HtmlLayer
-						v-if="layer.type === OverlayLayerType.HTML"
+						v-if="layer.type === ChannelOverlayLayerType.Html"
 						:posX="layer.posX"
 						:posY="layer.posY"
 						:width="layer.width"
@@ -211,11 +287,11 @@ const innerWidth = computed(() => window.innerWidth)
 				type="success"
 				@click="save"
 			>
-				<IconDeviceFloppy />
+				<Save class="size-4" />
 				{{ t('sharedButtons.save') }}
 			</NButton>
 			<NButton block secondary type="info" :disabled="!formValue.id" @click="copyUrl(formValue.id)">
-				<IconCopy />
+				<Copy class="size-4" />
 				{{ t('overlays.copyOverlayLink') }}
 			</NButton>
 
@@ -252,13 +328,13 @@ const innerWidth = computed(() => window.innerWidth)
 			<div class="flex flex-col gap-3 w-full">
 				<template v-for="(layer, index) of formValue.layers">
 					<HtmlLayerForm
-						v-if="layer.type === OverlayLayerType.HTML"
+						v-if="layer.type === ChannelOverlayLayerType.Html"
 						:key="index"
 						v-model:html="formValue.layers[index].settings!.htmlOverlayHtml"
 						v-model:css="formValue.layers[index].settings!.htmlOverlayCss"
 						v-model:js="formValue.layers[index].settings!.htmlOverlayJs"
 						v-model:pollInterval="
-							formValue.layers[index].settings!.htmlOverlayHtmlDataPollSecondsInterval
+							formValue.layers[index].settings!.htmlOverlayDataPollSecondsInterval
 						"
 						v-model:periodicallyRefetchData="formValue.layers[index].periodicallyRefetchData"
 						:isFocused="currentlyFocused === index"

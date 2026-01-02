@@ -1,22 +1,24 @@
 import { createGlobalState, useWebSocket } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+
+import type { ChannelOverlayLayerType } from '@/gql/graphql'
 
 import { base64DecodeUnicode, generateSocketUrlWithParams } from '@/helpers.js'
 
+import { useCustomOverlayById } from './use-custom-overlay.js'
+
 export interface Layer {
 	id: string
-	type: 'HTML'
+	type: ChannelOverlayLayerType
 	settings: LayerSettings
-	overlay_id: string
-	pos_x: number
-	pos_y: number
+	overlayId: string
+	posX: number
+	posY: number
 	width: number
 	height: number
 	createdAt: string
 	updatedAt: string
-	overlay: any
-	periodically_refetch_data: boolean
-	htmlContent?: string
+	periodicallyRefetchData: boolean
 }
 
 export interface LayerSettings {
@@ -29,47 +31,55 @@ export interface LayerSettings {
 export const useOverlays = createGlobalState(() => {
 	const overlayUrl = ref('')
 	const overlayId = ref('')
-	const layers = ref<Array<Layer>>([])
+	const apiKey = ref('')
 
-	const { data, status, send, open } = useWebSocket(
-		overlayUrl,
-		{
-			immediate: false,
-			autoReconnect: {
-				delay: 500,
+	// Use GraphQL query to fetch overlay data
+	const { data: overlayData } = useCustomOverlayById(overlayId)
+
+	// Transform GraphQL data to the expected Layer format
+	const layers = computed<Layer[]>(() => {
+		if (!overlayData.value?.channelOverlayById?.layers) {
+			return []
+		}
+
+		return overlayData.value.channelOverlayById.layers.map((layer) => ({
+			id: layer.id,
+			type: layer.type,
+			settings: {
+				htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval,
+				htmlOverlayHtml: layer.settings.htmlOverlayHtml,
+				htmlOverlayCss: layer.settings.htmlOverlayCss,
+				htmlOverlayJs: layer.settings.htmlOverlayJs,
 			},
-			onConnected() {
-				send(
-					JSON.stringify({
-						eventName: 'getLayers',
-						data: {
-							overlayId: overlayId.value,
-						},
-					}),
-				)
-			},
+			overlayId: layer.overlayId,
+			posX: layer.posX,
+			posY: layer.posY,
+			width: layer.width,
+			height: layer.height,
+			createdAt: layer.createdAt,
+			updatedAt: layer.updatedAt,
+			periodicallyRefetchData: layer.periodicallyRefetchData,
+		}))
+	})
+
+	// Keep WebSocket for real-time variable parsing
+	const { data, status, send, open } = useWebSocket(overlayUrl, {
+		immediate: false,
+		autoReconnect: {
+			delay: 500,
 		},
-	)
+		onConnected() {
+			// No longer need to fetch layers via WebSocket
+			// Layers are now fetched via GraphQL
+		},
+	})
 
 	const parsedLayersData = ref<Record<string, string>>({})
 
 	watch(data, (d) => {
+		if (!d) return
+
 		const parsedData = JSON.parse(d)
-
-		if (parsedData.eventName === 'layers') {
-			const parsedLayers = parsedData.layers as Array<Layer>
-
-			layers.value = parsedLayers.map((l) => ({
-				...l,
-				settings: {
-					...l.settings,
-					htmlOverlayCss: l.settings.htmlOverlayCss
-						? base64DecodeUnicode(l.settings.htmlOverlayCss)
-						: '',
-					htmlOverlayJs: l.settings.htmlOverlayJs ? base64DecodeUnicode(l.settings.htmlOverlayJs) : '',
-				},
-			}))
-		}
 
 		if (parsedData.eventName === 'parsedLayerVariables') {
 			parsedLayersData.value[parsedData.layerId] = parsedData.data
@@ -89,21 +99,22 @@ export const useOverlays = createGlobalState(() => {
 				data: {
 					layerId,
 				},
-			}),
+			})
 		)
 	}
 
-	function connectToOverlays(apiKey: string, _overlayId: string): void {
-		if (status.value === 'OPEN') return
-
+	function connectToOverlays(_apiKey: string, _overlayId: string): void {
 		const url = generateSocketUrlWithParams('/overlays/registry/overlays', {
-			apiKey,
+			apiKey: _apiKey,
 		})
 
 		overlayUrl.value = url
 		overlayId.value = _overlayId
+		apiKey.value = _apiKey
 
-		open()
+		if (status.value !== 'OPEN') {
+			open()
+		}
 	}
 
 	return {

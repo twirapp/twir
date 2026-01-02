@@ -2,11 +2,16 @@
 import { IconSettings, IconTrash } from '@tabler/icons-vue'
 import { SquarePen } from 'lucide-vue-next'
 import { NAlert, NButton, NCard, NPopconfirm, NTag, useNotification } from 'naive-ui'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import { useOverlaysRegistry, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
+import {
+	useChannelOverlayDelete,
+	useChannelOverlaysQuery,
+	useProfile,
+	useUserAccessFlagChecker,
+} from '@/api/index.js'
 import Card from '@/components/card/card.vue'
 import Brb from '@/features/overlays/brb/card.vue'
 import Chat from '@/components/overlays/chat.vue'
@@ -38,10 +43,15 @@ async function copyUrl(id: string) {
 		duration: 2500,
 	})
 }
-const overlaysManager = useOverlaysRegistry()
-const deleter = overlaysManager.deleteOne
-const { data: customOverlays, refetch } = overlaysManager.getAll({})
-onMounted(refetch)
+
+const { data: customOverlaysData, executeQuery: refetchOverlays } = useChannelOverlaysQuery()
+const customOverlays = computed(() => customOverlaysData.value?.channelOverlays ?? [])
+const deleteOverlay = useChannelOverlayDelete()
+
+async function handleDelete(id: string) {
+	await deleteOverlay.executeMutation({ id })
+	refetchOverlays({ requestPolicy: 'network-only' })
+}
 
 const router = useRouter()
 
@@ -86,7 +96,7 @@ function editCustomOverlay(id?: string) {
 				<Brb />
 			</div>
 
-			<div v-for="overlay of customOverlays?.overlays" :key="overlay.id" :span="1">
+			<div v-for="overlay of customOverlays" :key="overlay.id" :span="1">
 				<Card :title="overlay.name" style="height: 100%">
 					<template #content>
 						<div v-if="overlay.layers.length" class="flex gap-1 flex-wrap">
@@ -125,7 +135,7 @@ function editCustomOverlay(id?: string) {
 							<NPopconfirm
 								:positive-text="t('deleteConfirmation.confirm')"
 								:negative-text="t('deleteConfirmation.cancel')"
-								@positive-click="() => deleter.mutate({ id: overlay.id })"
+								@positive-click="() => handleDelete(overlay.id)"
 							>
 								{{ t('deleteConfirmation.text') }}
 								<template #trigger>

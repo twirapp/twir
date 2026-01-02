@@ -1,4 +1,4 @@
-extend type Query	{
+extend type Query  {
 	auditLog: [AuditLog!]! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
@@ -36,6 +36,7 @@ enum AuditLogSystem {
 	CHANNEL_OVERLAY_DUDES
 	CHANNEL_OVERLAY_KAPPAGEN
 	CHANNEL_OVERLAY_NOW_PLAYING
+	CHANNELS_OVERLAYS
 	CHANNEL_ROLES
 	CHANNEL_TIMERS
 	CHANNEL_SONG_REQUESTS

@@ -7,7 +7,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/api/internal/impl_deps"
 	"github.com/twirapp/twir/apps/api/internal/impl_protected/integrations"
-	"github.com/twirapp/twir/apps/api/internal/impl_protected/overlays"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
@@ -21,7 +20,6 @@ import (
 
 type Protected struct {
 	*integrations.Integrations
-	*overlays.Overlays
 }
 
 type Opts struct {
@@ -59,6 +57,5 @@ func New(opts Opts) *Protected {
 
 	return &Protected{
 		Integrations: &integrations.Integrations{Deps: d},
-		Overlays:     &overlays.Overlays{Deps: d},
 	}
 }

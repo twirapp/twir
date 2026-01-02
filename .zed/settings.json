@@ -1,41 +1,82 @@
 {
 	"languages": {
 		"JavaScript": {
-			"code_actions_on_format": {
-				"source.fixAll.oxc": true
-			}
+			"format_on_save": "on",
+			"formatter": [
+				{
+					"language_server": {
+						"name": "oxfmt",
+					},
+				},
+				{
+					"code_action": "source.fixAll.oxc",
+				},
+			],
 		},
 		"TypeScript": {
-			"code_actions_on_format": {
-				"source.fixAll.oxc": true
-			}
+			"format_on_save": "on",
+			"formatter": [
+				{
+					"language_server": {
+						"name": "oxfmt",
+					},
+				},
+				{
+					"code_action": "source.fixAll.oxc",
+				},
+			],
+		},
+		"Vue.js": {
+			"format_on_save": "on",
+			"formatter": [
+				{
+					"language_server": {
+						"name": "oxfmt",
+					},
+				},
+				{
+					"code_action": "source.fixAll.oxc",
+				},
+			],
 		},
 		"Go": {
-			"formatter": "language_server"
-		}
+			"formatter": "language_server",
+		},
 	},
 	"format_on_save": "on",
 	"file_types": {
-		"graphql": ["graphqls"]
+		"graphql": ["graphqls"],
 	},
 	"lsp": {
+		"oxlint": {
+			"initialization_options": {
+				"settings": {
+					"disableNestedConfig": false,
+					"fixKind": "safe_fix",
+					"run": "onSave",
+					"typeAware": true,
+					"unusedDisableDirectives": "deny",
+				},
+			},
+		},
+		"oxfmt": {
+			"initialization_options": {
+				"settings": {
+					"configPath": null,
+					"flags": {},
+					"fmt.configPath": null,
+					"fmt.experimental": true,
+					"run": "onSave",
+					"typeAware": false,
+					"unusedDisableDirectives": false,
+				},
+			},
+		},
 		"gopls": {
 			"initialization_options": {
 				"usePlaceholders": false,
-				"gofumpt": true
-			}
+				"gofumpt": true,
+			},
 		},
-		"oxc": {
-			"initialization_options": {
-				"options": {
-					"run": "onType",
-					"configPath": null,
-					"tsConfigPath": null,
-					"unusedDisableDirectives": "allow",
-					"typeAware": false,
-					"flags": {}
-				}
-			}
-		}
-	}
+	},
 }

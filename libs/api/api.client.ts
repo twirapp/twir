@@ -5,14 +5,6 @@
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Protected } from "./api";
-import type { ParseHtmlOverlayResponse } from "./messages/overlays/overlays";
-import type { ParseHtmlOverlayRequest } from "./messages/overlays/overlays";
-import type { CreateRequest } from "./messages/overlays/overlays";
-import type { DeleteRequest } from "./messages/overlays/overlays";
-import type { UpdateRequest } from "./messages/overlays/overlays";
-import type { Overlay } from "./messages/overlays/overlays";
-import type { GetByIdRequest } from "./messages/overlays/overlays";
-import type { GetAllResponse } from "./messages/overlays/overlays";
 import type { PostCodeRequest } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import type { GetDataResponse } from "./messages/integrations_streamlabs/integrations_streamlabs";
 import { stackIntercept } from "@protobuf-ts/runtime-rpc";
@@ -40,30 +32,6 @@ export interface IProtectedClient {
      * @generated from protobuf rpc: IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty);
      */
     integrationsStreamlabsLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty>;
-    /**
-     * @generated from protobuf rpc: OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse);
-     */
-    overlaysGetAll(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAllResponse>;
-    /**
-     * @generated from protobuf rpc: OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay);
-     */
-    overlaysGetOne(input: GetByIdRequest, options?: RpcOptions): UnaryCall<GetByIdRequest, Overlay>;
-    /**
-     * @generated from protobuf rpc: OverlaysUpdate(messages.overlays.UpdateRequest) returns (messages.overlays.Overlay);
-     */
-    overlaysUpdate(input: UpdateRequest, options?: RpcOptions): UnaryCall<UpdateRequest, Overlay>;
-    /**
-     * @generated from protobuf rpc: OverlaysDelete(messages.overlays.DeleteRequest) returns (google.protobuf.Empty);
-     */
-    overlaysDelete(input: DeleteRequest, options?: RpcOptions): UnaryCall<DeleteRequest, Empty>;
-    /**
-     * @generated from protobuf rpc: OverlaysCreate(messages.overlays.CreateRequest) returns (messages.overlays.Overlay);
-     */
-    overlaysCreate(input: CreateRequest, options?: RpcOptions): UnaryCall<CreateRequest, Overlay>;
-    /**
-     * @generated from protobuf rpc: OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse);
-     */
-    overlaysParseHtml(input: ParseHtmlOverlayRequest, options?: RpcOptions): UnaryCall<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse>;
 }
 /**
  * @generated from protobuf service api.Protected
@@ -101,47 +69,5 @@ export class ProtectedClient implements IProtectedClient, ServiceInfo {
     integrationsStreamlabsLogout(input: Empty, options?: RpcOptions): UnaryCall<Empty, Empty> {
         const method = this.methods[3], opt = this._transport.mergeOptions(options);
         return stackIntercept<Empty, Empty>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse);
-     */
-    overlaysGetAll(input: Empty, options?: RpcOptions): UnaryCall<Empty, GetAllResponse> {
-        const method = this.methods[4], opt = this._transport.mergeOptions(options);
-        return stackIntercept<Empty, GetAllResponse>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay);
-     */
-    overlaysGetOne(input: GetByIdRequest, options?: RpcOptions): UnaryCall<GetByIdRequest, Overlay> {
-        const method = this.methods[5], opt = this._transport.mergeOptions(options);
-        return stackIntercept<GetByIdRequest, Overlay>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: OverlaysUpdate(messages.overlays.UpdateRequest) returns (messages.overlays.Overlay);
-     */
-    overlaysUpdate(input: UpdateRequest, options?: RpcOptions): UnaryCall<UpdateRequest, Overlay> {
-        const method = this.methods[6], opt = this._transport.mergeOptions(options);
-        return stackIntercept<UpdateRequest, Overlay>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: OverlaysDelete(messages.overlays.DeleteRequest) returns (google.protobuf.Empty);
-     */
-    overlaysDelete(input: DeleteRequest, options?: RpcOptions): UnaryCall<DeleteRequest, Empty> {
-        const method = this.methods[7], opt = this._transport.mergeOptions(options);
-        return stackIntercept<DeleteRequest, Empty>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: OverlaysCreate(messages.overlays.CreateRequest) returns (messages.overlays.Overlay);
-     */
-    overlaysCreate(input: CreateRequest, options?: RpcOptions): UnaryCall<CreateRequest, Overlay> {
-        const method = this.methods[8], opt = this._transport.mergeOptions(options);
-        return stackIntercept<CreateRequest, Overlay>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse);
-     */
-    overlaysParseHtml(input: ParseHtmlOverlayRequest, options?: RpcOptions): UnaryCall<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse> {
-        const method = this.methods[9], opt = this._transport.mergeOptions(options);
-        return stackIntercept<ParseHtmlOverlayRequest, ParseHtmlOverlayResponse>("unary", this._transport, method, opt, input);
     }
 }

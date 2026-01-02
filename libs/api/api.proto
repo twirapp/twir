@@ -1,28 +1,18 @@
 syntax = "proto3";
-option go_package = "github.com/twirapp/twir/libs/api";
 
 package api;
 
 import "google/protobuf/empty.proto";
-import "messages/meta/meta.proto";
-
 import "messages/integrations_streamlabs/integrations_streamlabs.proto";
 import "messages/integrations_vk/integrations_vk.proto";
-
+import "messages/meta/meta.proto";
 import "messages/modules_tts/modules_tts.proto";
-import "messages/overlays/overlays.proto";
+
+option go_package = "github.com/twirapp/twir/libs/api";
 
 service Protected {
-	rpc IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetAuthLink) {}
-	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse) {}
-	rpc IntegrationsStreamlabsPostCode(messages.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-	rpc OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse) {}
-	rpc OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay) {}
-	rpc OverlaysUpdate(messages.overlays.UpdateRequest) returns (messages.overlays.Overlay) {}
-	rpc OverlaysDelete(messages.overlays.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc OverlaysCreate(messages.overlays.CreateRequest) returns (messages.overlays.Overlay) {}
-	rpc OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse) {}
+  rpc IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetAuthLink) {}
+  rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse) {}
+  rpc IntegrationsStreamlabsPostCode(messages.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
-

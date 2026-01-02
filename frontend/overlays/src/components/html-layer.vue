@@ -35,8 +35,8 @@ watch(
 		:id="'layer' + layer.id"
 		style="position: absolute; overflow: hidden; 'text-wrap': 'nowrap'"
 		:style="{
-			top: `${layer.pos_y}px`,
-			left: `${layer.pos_x}px`,
+			top: `${layer.posY}px`,
+			left: `${layer.posX}px`,
 			width: `${layer.width}px`,
 			height: `${layer.height}px`,
 		}"
