@@ -22,8 +22,8 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useMessage } from 'naive-ui'
 
+import { useProfile } from '@/api/auth.js'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -74,7 +74,13 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const router = useRouter()
-const message = useMessage()
+const { data: profile } = useProfile()
+
+const selectedDashboardUser = computed(() => {
+	return profile.value?.availableDashboards.find(
+		(dashboard) => dashboard.id === profile.value?.selectedDashboardId
+	)
+})
 
 const formatZoom = computed(() => (zoom: number) => `${Math.round(zoom * 100)}%`)
 
@@ -83,15 +89,21 @@ function goBack() {
 }
 
 function copyOverlayLink() {
-	if (!props.overlayId) return
+	if (!props.overlayId || !selectedDashboardUser.value?.apiKey) return
 
 	const baseUrl = window.location.origin
-	const overlayUrl = `${baseUrl}/overlays/${props.overlayId}`
+	const overlayUrl = `${baseUrl}/overlays/${selectedDashboardUser.value.apiKey}/registry/overlays/${props.overlayId}`
 
 	navigator.clipboard.writeText(overlayUrl).then(() => {
-		message.success(t('sharedTexts.copied') || 'Link copied to clipboard!')
+		// Use vue-sonner toast if available, fallback to message
+		const toastModule = import('vue-sonner')
+		toastModule.then(({ toast }) => {
+			toast.success(t('sharedTexts.copied') || 'Link copied to clipboard!')
+		}).catch(() => {
+			console.log('Link copied to clipboard!')
+		})
 	}).catch(() => {
-		message.error('Failed to copy link')
+		console.error('Failed to copy link')
 	})
 }
 </script>
