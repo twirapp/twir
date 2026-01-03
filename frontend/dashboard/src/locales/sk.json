@@ -489,7 +489,7 @@
 			"rate": "Rýchlosť",
 			"maxSymbols": "Maximum Symbols",
 			"maxSymbolsDesc": "Maximum message length (0 = unlimited)",
-			"preview": "Preview",
+			"preview": "Náhľad",
 			"previewText": "Enter text to preview",
 			"previewError": "Failed to play preview",
 			"playingPreview": "Playing preview...",
@@ -507,9 +507,9 @@
 				"emptyDescription": "No users have created their own TTS customizations yet. Users can set their voice, pitch, rate, and volume using chat commands."
 			},
 			"tabs": {
-				"settings": "Settings",
-				"users": "User Settings",
-				"commands": "Commands"
+				"settings": "Nastavenia",
+				"users": "Používateľské nastavenia",
+				"commands": "Príkazy"
 			},
 			"commands": {
 				"info": "TTS Commands",
@@ -523,7 +523,7 @@
 				"volumeDescription": "Set volume level (0-100)",
 				"skip": "Skip Command",
 				"skipDescription": "Skip the current TTS message (moderator only)",
-				"examples": "Examples"
+				"examples": "Príklady"
 			}
 		},
 		"obs": {
@@ -532,18 +532,18 @@
 			"address": "Adresa servera OBS WebSocket",
 			"addressDescription": "Usually it's localhost, but you can connect to remote servers.",
 			"port": "Port servera OBS WebSocket",
-			"password": "Password",
+			"password": "Heslo",
 			"passwordDescription": "Ensure the password matches, as many users misconfigure it.",
-			"connected": "Connected",
-			"notConnected": "Not Connected",
+			"connected": "Pripojené",
+			"notConnected": "Nepripojené",
 			"checkConnection": "Skontrolovať pripojenie",
 			"settingsSavedHint": "Settings saved, now you can paste overlay link into OBS",
 			"connectionInfo": "Connection Info",
-			"scenesCount": "Scenes",
-			"sourcesCount": "Sources",
+			"scenesCount": "Scény",
+			"sourcesCount": "Zdroje",
 			"audioSourcesCount": "Audio Sources",
 			"tabs": {
-				"settings": "Settings"
+				"settings": "Nastavenia"
 			}
 		},
 		"alerts": {
