@@ -20,8 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const containerRef = ref<HTMLDivElement>()
-const contentRef = ref<HTMLDivElement>()
-const styleElement = ref<HTMLStyleElement>()
+const shadowRoot = ref<ShadowRoot>()
 const renderKey = ref(0)
 const parsedHtml = ref('')
 const pollInterval = ref<ReturnType<typeof setInterval>>()
@@ -76,33 +75,58 @@ function stopPolling() {
 	}
 }
 
-// Apply CSS by injecting a style element
-function updateStyles() {
-	if (!containerRef.value) return
+// Render content in shadow DOM
+function renderInShadowDOM() {
+	if (!shadowRoot.value) return
 
-	// Remove old style element if exists
-	if (styleElement.value) {
-		styleElement.value.remove()
-		styleElement.value = undefined
-	}
+	// Create base styles for shadow DOM
+	const baseStyles = `
+		* {
+			box-sizing: border-box;
+		}
+		:host {
+			display: block;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background: transparent;
+			color: #fff;
+			font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		}
+		.html-content {
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+		}
+	`
 
-	// Create new style element with scoped styles
-	if (props.css) {
-		const style = document.createElement('style')
-		style.textContent = props.css
-		styleElement.value = style
-		containerRef.value.appendChild(style)
-	}
+	// Combine base styles with user CSS
+	const combinedStyles = baseStyles + (props.css || '')
+
+	// Build shadow DOM content
+	shadowRoot.value.innerHTML = `
+		<style>${combinedStyles}</style>
+		<div class="html-content">${sanitizedHtml.value}</div>
+	`
+
+	// Execute user JavaScript after DOM is ready
+	setTimeout(() => {
+		executeScript()
+	}, 0)
 }
 
-// Execute JavaScript
+// Execute JavaScript in shadow DOM context
 function executeScript() {
-	if (!props.js) return
+	if (!props.js || !shadowRoot.value) return
 
 	try {
+		const contentElement = shadowRoot.value.querySelector('.html-content')
+		if (!contentElement) return
+
+		// Create a function that has access to the content element
 		// eslint-disable-next-line no-new-func
 		const scriptFunc = new Function('container', props.js)
-		scriptFunc(contentRef.value)
+		scriptFunc(contentElement)
 	} catch (e) {
 		console.error('Canvas Layer JS Error:', e)
 	}
@@ -111,10 +135,26 @@ function executeScript() {
 // Force re-render when content changes
 function forceUpdate() {
 	renderKey.value++
-	// Wait for DOM update before applying styles and scripts
 	setTimeout(() => {
-		updateStyles()
+		renderInShadowDOM()
 	}, 0)
+}
+
+// Initialize shadow DOM
+function initializeShadowDOM() {
+	if (!containerRef.value) return
+
+	// Create shadow root if it doesn't exist
+	if (!shadowRoot.value) {
+		try {
+			shadowRoot.value = containerRef.value.attachShadow({ mode: 'open' })
+		} catch (e) {
+			console.error('Failed to create shadow DOM:', e)
+			return
+		}
+	}
+
+	renderInShadowDOM()
 }
 
 // Watch for prop changes
@@ -124,60 +164,50 @@ watch(() => props.html, () => {
 })
 
 watch(() => props.css, () => {
-	updateStyles()
+	renderInShadowDOM()
 })
 
 watch(() => props.js, () => {
-	executeScript()
+	renderInShadowDOM()
 })
 
 watch(() => props.refreshInterval, () => {
 	startPolling()
 })
 
+watch(() => sanitizedHtml.value, () => {
+	renderInShadowDOM()
+})
+
 onMounted(() => {
-	updateStyles()
+	initializeShadowDOM()
 	startPolling()
 })
 
 onUnmounted(() => {
 	stopPolling()
-	if (styleElement.value) {
-		styleElement.value.remove()
+	if (shadowRoot.value) {
+		shadowRoot.value.innerHTML = ''
 	}
 })
 </script>
 
 <template>
 	<div
+		:key="renderKey"
 		ref="containerRef"
-		class="html-layer-preview w-full h-full relative overflow-hidden"
+		class="html-layer-preview"
 		:style="{
 			width: props.width + 'px',
 			height: props.height + 'px',
 		}"
-	>
-		<div
-			:key="renderKey"
-			ref="contentRef"
-			class="html-content w-full h-full"
-			v-html="sanitizedHtml"
-		/>
-	</div>
+	/>
 </template>
 
 <style scoped>
 .html-layer-preview {
+	display: block;
+	overflow: hidden;
 	background: transparent;
-	color: #fff;
-	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.html-layer-preview :deep(*) {
-	box-sizing: border-box;
-}
-
-.html-content {
-	pointer-events: none;
 }
 </style>
