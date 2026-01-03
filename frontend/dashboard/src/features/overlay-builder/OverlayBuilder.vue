@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
 import LayersPanel from './components/LayersPanel.vue'
