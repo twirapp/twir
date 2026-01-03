@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
 import LayersPanel from './components/LayersPanel.vue'
@@ -16,8 +16,30 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { useOverlayBuilder } from './composables/useOverlayBuilder'
-import { ChannelOverlayLayerType } from '@/gql/graphql'
-import type { Layer } from './types'
+import { type ChannelOverlayLayer, ChannelOverlayLayerType } from '@/gql/graphql'
+import type { Layer, OverlayProject } from './types'
+
+interface InitialProjectLayer {
+	id: string
+	type: ChannelOverlayLayer['type']
+	name?: string
+	posX: number
+	posY: number
+	width: number
+	height: number
+	rotation: number
+	opacity?: number
+	visible?: boolean
+	locked?: boolean
+	periodicallyRefetchData: boolean
+	settings?: {
+		htmlOverlayHtml?: string
+		htmlOverlayCss?: string
+		htmlOverlayJs?: string
+		htmlOverlayDataPollSecondsInterval?: number
+		imageUrl?: string
+	}
+}
 
 interface Props {
 	initialProject?: {
@@ -25,14 +47,14 @@ interface Props {
 		name: string
 		width: number
 		height: number
-		layers: any[]
+		layers: InitialProjectLayer[]
 	}
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-	save: [project: any]
+	save: [project: OverlayProject]
 }>()
 
 // Initialize builder

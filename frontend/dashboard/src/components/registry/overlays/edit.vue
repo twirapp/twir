@@ -11,6 +11,7 @@ import {
 	useChannelOverlaysQuery,
 } from '@/api/index.js'
 import type { ChannelOverlayLayerInput } from '@/gql/graphql'
+import type { OverlayProject } from '@/features/overlay-builder/types'
 
 const route = useRoute()
 const messages = useMessage()
@@ -98,7 +99,7 @@ const projectData = computed(() => {
 })
 
 // Handle save from builder
-async function handleSave(project: any) {
+async function handleSave(project: OverlayProject) {
 	console.log('[edit.vue] Saving overlay project:', project)
 
 	// Validate project data
@@ -113,7 +114,7 @@ async function handleSave(project: any) {
 	}
 
 	// Convert builder format back to API format
-	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer: any) => {
+	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer) => {
 		const rotation = Number(layer.rotation ?? 0)
 		console.log('[edit.vue] Converting layer to API format:', {
 			type: layer.type,

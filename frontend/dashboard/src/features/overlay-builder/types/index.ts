@@ -76,5 +76,5 @@ export interface BuilderAction {
 	layerId?: string
 	layerIds?: string[]
 	data?: Partial<Layer> | Layer | Layer[]
-	previousData?: any
+	previousData?: Partial<Layer> | Layer | Layer[]
 }
