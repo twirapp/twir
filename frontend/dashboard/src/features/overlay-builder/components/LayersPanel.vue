@@ -84,7 +84,7 @@ function getLayerTypeIcon(type: string): string {
 <template>
 	<Card class="h-full flex flex-col border-0 p-0">
 		<div class="border-b p-2 flex flex-row items-center justify-between space-y-0">
-			<CardTitle class="text-sm font-medium">{{ t('overlaysRegistry.layers') || 'Layers' }}</CardTitle>
+			<CardTitle class="text-sm font-medium">Layers</CardTitle>
 			<Button
 				variant="default"
 				size="sm"

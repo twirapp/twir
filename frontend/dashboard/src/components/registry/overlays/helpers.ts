@@ -4,6 +4,8 @@ export function convertOverlayLayerTypeToText(type: ChannelOverlayLayerType): st
 	switch (type) {
 		case ChannelOverlayLayerType.Html:
 			return 'HTML'
+		case ChannelOverlayLayerType.Image:
+			return 'Image'
 		default:
 			return 'UNKNOWN'
 	}

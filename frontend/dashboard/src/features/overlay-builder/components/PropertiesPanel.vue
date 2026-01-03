@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import ImageLayerEditor from './layer-editors/ImageLayerEditor.vue'
 
 import type { Layer } from '../types'
 
@@ -98,8 +99,7 @@ const localPollInterval = computed({
 	<Card class="h-full flex flex-col border-0 p-0">
 		<div class="border-b p-2">
 			<CardTitle class="text-sm font-medium">
-				{{ t('overlaysRegistry.properties') || 'Properties' }}
-
+				Properties
 			</CardTitle>
 		</div>
 		<CardContent class="flex-1 p-0 overflow-hidden">
@@ -269,6 +269,14 @@ const localPollInterval = computed({
 								:max="300"
 							/>
 						</div>
+					</div>
+
+					<!-- IMAGE Layer Settings -->
+					<div v-if="layer.type === 'IMAGE'">
+						<ImageLayerEditor
+							:layer="layer"
+							@update="emit('update', $event)"
+						/>
 					</div>
 				</div>
 			</ScrollArea>

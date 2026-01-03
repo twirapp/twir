@@ -22,6 +22,7 @@ export interface LayerSettings {
 	htmlOverlayCss?: string
 	htmlOverlayJs?: string
 	htmlOverlayDataPollSecondsInterval?: number
+	imageUrl?: string
 }
 
 export interface OverlayProject {

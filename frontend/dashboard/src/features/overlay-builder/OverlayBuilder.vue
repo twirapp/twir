@@ -72,27 +72,37 @@ function loadInitialProject() {
 
 	loadedProjectId.value = props.initialProject.id
 	overlayName.value = props.initialProject.name || ''
-	const layers = props.initialProject.layers.map((layer, index) => ({
-		id: layer.id || `layer-${index}`,
-		type: layer.type,
-		name: layer.name || `Layer ${index + 1}`,
-		posX: layer.posX,
-		posY: layer.posY,
-		width: layer.width,
-		height: layer.height,
-		rotation: Number(layer.rotation) || 0,
-		opacity: layer.opacity || 1,
-		visible: layer.visible !== undefined ? layer.visible : true,
-		locked: layer.locked || false,
-		zIndex: index,
-		periodicallyRefetchData: layer.periodicallyRefetchData,
-		settings: {
-			htmlOverlayHtml: layer.settings?.htmlOverlayHtml || '',
-			htmlOverlayCss: layer.settings?.htmlOverlayCss || '',
-			htmlOverlayJs: layer.settings?.htmlOverlayJs || '',
-			htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval || 5,
-		},
-	}))
+	const layers = props.initialProject.layers.map((layer, index) => {
+		console.log(`[OverlayBuilder] Loading layer ${index}:`, {
+			type: layer.type,
+			name: layer.name,
+			imageUrl: layer.settings?.imageUrl,
+			fullSettings: layer.settings,
+		})
+
+		return {
+			id: layer.id || `layer-${index}`,
+			type: layer.type,
+			name: layer.name || `Layer ${index + 1}`,
+			posX: layer.posX,
+			posY: layer.posY,
+			width: layer.width,
+			height: layer.height,
+			rotation: Number(layer.rotation) || 0,
+			opacity: layer.opacity || 1,
+			visible: layer.visible !== undefined ? layer.visible : true,
+			locked: layer.locked || false,
+			zIndex: index,
+			periodicallyRefetchData: layer.periodicallyRefetchData,
+			settings: {
+				htmlOverlayHtml: layer.settings?.htmlOverlayHtml || '',
+				htmlOverlayCss: layer.settings?.htmlOverlayCss || '',
+				htmlOverlayJs: layer.settings?.htmlOverlayJs || '',
+				htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval || 5,
+				imageUrl: layer.settings?.imageUrl || '',
+			},
+		}
+	})
 
 	builder.loadProject({
 		id: props.initialProject.id,
@@ -139,6 +149,11 @@ function handleAddLayer() {
 
 function addHtmlLayer() {
 	builder.addLayer(ChannelOverlayLayerType.Html)
+	showAddLayerDialog.value = false
+}
+
+function addImageLayer() {
+	builder.addLayer(ChannelOverlayLayerType.Image)
 	showAddLayerDialog.value = false
 }
 
@@ -433,6 +448,16 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 						</div>
 						<p class="text-sm text-muted-foreground text-left">
 							Create a custom layer with HTML, CSS, and JavaScript
+						</p>
+					</Button>
+
+					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addImageLayer">
+						<div class="flex items-center gap-2 mb-2">
+							<span class="text-2xl">🖼️</span>
+							<span class="font-semibold">Image Layer</span>
+						</div>
+						<p class="text-sm text-muted-foreground text-left">
+							Display an image from a URL
 						</p>
 					</Button>
 				</div>

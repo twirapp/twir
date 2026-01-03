@@ -30,6 +30,7 @@ extend type Mutation {
 
 enum ChannelOverlayLayerType {
 	HTML
+	IMAGE
 }
 
 type ChannelOverlayLayerSettings {
@@ -37,6 +38,7 @@ type ChannelOverlayLayerSettings {
 	htmlOverlayCss: String!
 	htmlOverlayJs: String!
 	htmlOverlayDataPollSecondsInterval: Int!
+	imageUrl: String!
 }
 
 type ChannelOverlayLayer {
@@ -70,6 +72,7 @@ input ChannelOverlayLayerSettingsInput {
 	htmlOverlayCss: String!
 	htmlOverlayJs: String!
 	htmlOverlayDataPollSecondsInterval: Int! @validate(constraint: "min=5,max=600")
+	imageUrl: String!
 }
 
 input ChannelOverlayLayerInput {

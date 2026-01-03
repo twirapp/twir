@@ -54,38 +54,53 @@ const projectData = computed(() => {
 		return null
 	}
 
+	console.log('[edit.vue] Loading overlay data from API:', overlay.value)
+
 	// Convert existing overlay data to builder format (canvas size fixed at 1920x1080)
-	return {
+	const converted = {
 		id: overlay.value.id,
 		name: overlay.value.name,
 		width: 1920,
 		height: 1080,
-		layers: overlay.value.layers.map((layer, index) => ({
-			id: `layer-${layer.id || index}`,
-			type: layer.type,
-			name: `${layer.type} Layer ${index + 1}`,
-			posX: layer.posX,
-			posY: layer.posY,
-			width: layer.width,
-			height: layer.height,
-			rotation: Number(layer.rotation) || 0,
-			opacity: 1,
-			visible: true,
-			locked: false,
-			zIndex: index,
-			periodicallyRefetchData: layer.periodicallyRefetchData,
-			settings: {
-				htmlOverlayHtml: layer.settings.htmlOverlayHtml || '',
-				htmlOverlayCss: layer.settings.htmlOverlayCss || '',
-				htmlOverlayJs: layer.settings.htmlOverlayJs || '',
-				htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval || 5,
-			},
-		})),
+		layers: overlay.value.layers.map((layer, index) => {
+			console.log('[edit.vue] Converting layer from API:', {
+				type: layer.type,
+				imageUrl: layer.settings.imageUrl,
+				fullSettings: layer.settings,
+			})
+			return {
+				id: `layer-${layer.id || index}`,
+				type: layer.type,
+				name: `${layer.type} Layer ${index + 1}`,
+				posX: layer.posX,
+				posY: layer.posY,
+				width: layer.width,
+				height: layer.height,
+				rotation: Number(layer.rotation) || 0,
+				opacity: 1,
+				visible: true,
+				locked: false,
+				zIndex: index,
+				periodicallyRefetchData: layer.periodicallyRefetchData,
+				settings: {
+					htmlOverlayHtml: layer.settings.htmlOverlayHtml || '',
+					htmlOverlayCss: layer.settings.htmlOverlayCss || '',
+					htmlOverlayJs: layer.settings.htmlOverlayJs || '',
+					htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval || 5,
+					imageUrl: layer.settings.imageUrl || '',
+				},
+			}
+		}),
 	}
+
+	console.log('[edit.vue] Converted project data:', converted)
+	return converted
 })
 
 // Handle save from builder
 async function handleSave(project: any) {
+	console.log('[edit.vue] Saving overlay project:', project)
+
 	// Validate project data
 	if (!project.name || project.name.length > 30) {
 		messages.error('Overlay name is required and must be less than 30 characters')
@@ -100,7 +115,11 @@ async function handleSave(project: any) {
 	// Convert builder format back to API format
 	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer: any) => {
 		const rotation = Number(layer.rotation ?? 0)
-
+		console.log('[edit.vue] Converting layer to API format:', {
+			type: layer.type,
+			imageUrl: layer.settings?.imageUrl,
+			fullSettings: layer.settings,
+		})
 		return {
 			type: layer.type,
 			posX: layer.posX,
@@ -114,9 +133,12 @@ async function handleSave(project: any) {
 				htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
 				htmlOverlayJs: layer.settings?.htmlOverlayJs ?? '',
 				htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
+				imageUrl: layer.settings?.imageUrl ?? '',
 			},
 		}
 	})
+
+	console.log('[edit.vue] Layers to be saved:', layersInput)
 
 	try {
 		if (project.id) {

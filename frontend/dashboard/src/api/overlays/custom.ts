@@ -21,6 +21,7 @@ const channelOverlaysQuery = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX
@@ -54,6 +55,7 @@ const channelOverlayByIdQuery = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX
@@ -87,6 +89,7 @@ const channelOverlayCreateMutation = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX
@@ -120,6 +123,7 @@ const channelOverlayUpdateMutation = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX

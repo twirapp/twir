@@ -21,6 +21,7 @@ const channelOverlayByIdQuery = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX

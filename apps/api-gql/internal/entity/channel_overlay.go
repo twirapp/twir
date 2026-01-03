@@ -9,7 +9,8 @@ import (
 type ChannelOverlayType string
 
 const (
-	ChannelOverlayTypeHTML ChannelOverlayType = "HTML"
+	ChannelOverlayTypeHTML  ChannelOverlayType = "HTML"
+	ChannelOverlayTypeIMAGE ChannelOverlayType = "IMAGE"
 )
 
 type ChannelOverlayLayerSettings struct {
@@ -17,6 +18,7 @@ type ChannelOverlayLayerSettings struct {
 	HtmlOverlayCSS                     string
 	HtmlOverlayJS                      string
 	HtmlOverlayDataPollSecondsInterval int
+	ImageUrl                           string
 }
 
 type ChannelOverlayLayer struct {

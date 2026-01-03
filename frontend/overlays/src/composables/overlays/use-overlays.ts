@@ -27,6 +27,7 @@ export interface LayerSettings {
 	htmlOverlayHtml: string
 	htmlOverlayCss: string
 	htmlOverlayJs: string
+	imageUrl: string
 }
 
 export const useOverlays = createGlobalState(() => {
@@ -51,6 +52,7 @@ export const useOverlays = createGlobalState(() => {
 				htmlOverlayHtml: layer.settings.htmlOverlayHtml,
 				htmlOverlayCss: layer.settings.htmlOverlayCss,
 				htmlOverlayJs: layer.settings.htmlOverlayJs,
+				imageUrl: layer.settings.imageUrl || '',
 			},
 			overlayId: layer.overlayId,
 			posX: layer.posX,

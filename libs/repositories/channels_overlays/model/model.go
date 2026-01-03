@@ -9,7 +9,8 @@ import (
 type OverlayType string
 
 const (
-	OverlayTypeHTML OverlayType = "HTML"
+	OverlayTypeHTML  OverlayType = "HTML"
+	OverlayTypeIMAGE OverlayType = "IMAGE"
 )
 
 type OverlayLayerSettings struct {
@@ -17,6 +18,7 @@ type OverlayLayerSettings struct {
 	HtmlOverlayCSS                     string `json:"htmlOverlayCss"`
 	HtmlOverlayJS                      string `json:"htmlOverlayJs"`
 	HtmlOverlayDataPollSecondsInterval int    `json:"htmlOverlayDataPollSecondsInterval"`
+	ImageUrl                           string `json:"imageUrl"`
 }
 
 type OverlayLayer struct {

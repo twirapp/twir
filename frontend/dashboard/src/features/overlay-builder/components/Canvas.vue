@@ -5,6 +5,7 @@ import Moveable from 'vue3-moveable'
 import type { OnDrag, OnResize, OnRotate } from 'vue3-moveable'
 
 import HtmlLayerPreview from './HtmlLayerPreview.vue'
+import ImageLayerPreview from './ImageLayerPreview.vue'
 import type { AlignmentGuide, Layer } from '../types'
 
 interface Props {
@@ -297,6 +298,13 @@ onUnmounted(() => {
 							:width="layer.width"
 							:height="layer.height"
 							:refresh-interval="layer.settings?.htmlOverlayDataPollSecondsInterval"
+						/>
+						<!-- IMAGE Layer Preview -->
+						<ImageLayerPreview
+							v-else-if="layer.type === 'IMAGE'"
+							:image-url="layer.settings?.imageUrl"
+							:width="layer.width"
+							:height="layer.height"
 						/>
 						<!-- Fallback content -->
 						<div v-else class="w-full h-full flex items-center justify-center">

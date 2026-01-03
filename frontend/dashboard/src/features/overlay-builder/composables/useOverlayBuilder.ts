@@ -102,13 +102,25 @@ export function useOverlayBuilder() {
 			visible: true,
 			locked: false,
 			zIndex: project.layers.length,
-			periodicallyRefetchData: options?.periodicallyRefetchData ?? true,
-			settings: options?.settings ?? {
-				htmlOverlayHtml: '<span class="text">$(stream.uptime)</span>',
-				htmlOverlayCss: '.text { color: #fff; font-size: 24px; }',
-				htmlOverlayJs: 'function onDataUpdate() { console.log("updated") }',
-				htmlOverlayDataPollSecondsInterval: 5,
-			},
+			periodicallyRefetchData:
+				options?.periodicallyRefetchData ?? type === ChannelOverlayLayerType.Html,
+			settings:
+				options?.settings ??
+				(type === ChannelOverlayLayerType.Image
+					? {
+							imageUrl: 'https://via.placeholder.com/300x200',
+							htmlOverlayHtml: '',
+							htmlOverlayCss: '',
+							htmlOverlayJs: '',
+							htmlOverlayDataPollSecondsInterval: 5,
+						}
+					: {
+							htmlOverlayHtml: '<span class="text">$(stream.uptime)</span>',
+							htmlOverlayCss: '.text { color: #fff; font-size: 24px; }',
+							htmlOverlayJs: 'function onDataUpdate() { console.log("updated") }',
+							htmlOverlayDataPollSecondsInterval: 5,
+							imageUrl: '',
+						}),
 		}
 
 		saveToHistory()
@@ -510,12 +522,7 @@ export function useOverlayBuilder() {
 
 	// Export project data
 	function exportProject(): OverlayProject {
-		const exported = JSON.parse(JSON.stringify(toRaw(project)))
-		console.log(
-			'[DEBUG] exportProject - layer rotations:',
-			exported.layers.map((l: Layer) => ({ id: l.id, rotation: l.rotation }))
-		)
-		return exported
+		return JSON.parse(JSON.stringify(toRaw(project)))
 	}
 
 	return {
