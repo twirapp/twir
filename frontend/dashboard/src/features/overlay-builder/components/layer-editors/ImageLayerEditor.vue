@@ -21,7 +21,7 @@ const emit = defineEmits<{
 
 const imageUrl = computed({
 	get: () => props.layer?.settings?.imageUrl ?? '',
-	set: (value: string) => {
+	set: (_value: string) => {
 		// Setter is not used directly anymore
 	},
 })

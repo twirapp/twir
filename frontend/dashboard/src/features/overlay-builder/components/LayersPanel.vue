@@ -12,10 +12,9 @@ import {
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
-import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
 	Tooltip,
@@ -44,8 +43,6 @@ const emit = defineEmits<{
 	reorder: [layers: Layer[]]
 	addLayer: []
 }>()
-
-const { t } = useI18n()
 
 // Reverse layers for display (top layer shown first)
 const displayLayers = ref<Layer[]>([])

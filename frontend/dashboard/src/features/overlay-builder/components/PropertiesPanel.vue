@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 import { Code2, Eye, Lock, RefreshCw } from 'lucide-vue-next'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -27,8 +26,6 @@ const emit = defineEmits<{
 	update: [updates: Partial<Layer>]
 	openCodeEditor: []
 }>()
-
-const { t } = useI18n()
 
 // Local reactive values for inputs
 const localName = computed({
