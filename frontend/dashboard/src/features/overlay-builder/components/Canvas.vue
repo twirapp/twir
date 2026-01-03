@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+// oxlint-disable-next-line consistent-type-imports
 import Moveable from 'vue3-moveable'
 import type { OnDrag, OnResize, OnRotate } from 'vue3-moveable'
 

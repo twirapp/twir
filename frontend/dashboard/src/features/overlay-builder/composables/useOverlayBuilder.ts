@@ -3,14 +3,7 @@ import { computed, reactive, ref, toRaw } from 'vue'
 
 import { ChannelOverlayLayerType } from '@/gql/graphql'
 
-import type {
-	AlignmentGuide,
-	BuilderAction,
-	CanvasState,
-	HistoryState,
-	Layer,
-	OverlayProject,
-} from '../types'
+import type { AlignmentGuide, CanvasState, HistoryState, Layer, OverlayProject } from '../types'
 
 const MAX_HISTORY_SIZE = 50
 
@@ -517,7 +510,12 @@ export function useOverlayBuilder() {
 
 	// Export project data
 	function exportProject(): OverlayProject {
-		return JSON.parse(JSON.stringify(toRaw(project)))
+		const exported = JSON.parse(JSON.stringify(toRaw(project)))
+		console.log(
+			'[DEBUG] exportProject - layer rotations:',
+			exported.layers.map((l: Layer) => ({ id: l.id, rotation: l.rotation }))
+		)
+		return exported
 	}
 
 	return {

@@ -1,6 +1,7 @@
-import { graphql } from '@/gql'
 import { useMutation, useQuery } from '@urql/vue'
 import { type MaybeRef, computed, unref } from 'vue'
+
+import { graphql } from '@/gql'
 
 const channelOverlaysQuery = graphql(`
 	query ChannelOverlays {
@@ -26,6 +27,7 @@ const channelOverlaysQuery = graphql(`
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData
@@ -58,6 +60,7 @@ const channelOverlayByIdQuery = graphql(`
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData
@@ -90,6 +93,7 @@ const channelOverlayCreateMutation = graphql(`
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData
@@ -122,6 +126,7 @@ const channelOverlayUpdateMutation = graphql(`
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData

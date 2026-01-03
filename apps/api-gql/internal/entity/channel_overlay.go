@@ -28,6 +28,7 @@ type ChannelOverlayLayer struct {
 	PosY                    int
 	Width                   int
 	Height                  int
+	Rotation                int
 	CreatedAt               time.Time
 	UpdatedAt               time.Time
 	PeriodicallyRefetchData bool

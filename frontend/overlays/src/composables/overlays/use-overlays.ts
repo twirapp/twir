@@ -16,6 +16,7 @@ export interface Layer {
 	posY: number
 	width: number
 	height: number
+	rotation: number
 	createdAt: string
 	updatedAt: string
 	periodicallyRefetchData: boolean
@@ -56,6 +57,7 @@ export const useOverlays = createGlobalState(() => {
 			posY: layer.posY,
 			width: layer.width,
 			height: layer.height,
+			rotation: layer.rotation || 0,
 			createdAt: layer.createdAt,
 			updatedAt: layer.updatedAt,
 			periodicallyRefetchData: layer.periodicallyRefetchData,

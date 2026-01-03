@@ -68,7 +68,7 @@ const projectData = computed(() => {
 			posY: layer.posY,
 			width: layer.width,
 			height: layer.height,
-			rotation: 0,
+			rotation: Number(layer.rotation) || 0,
 			opacity: 1,
 			visible: true,
 			locked: false,
@@ -98,25 +98,30 @@ async function handleSave(project: any) {
 	}
 
 	// Convert builder format back to API format
-	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer: any) => ({
-		type: layer.type,
-		posX: layer.posX,
-		posY: layer.posY,
-		width: layer.width,
-		height: layer.height,
-		periodicallyRefetchData: layer.periodicallyRefetchData,
-		settings: {
-			htmlOverlayHtml: layer.settings?.htmlOverlayHtml ?? '',
-			htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
-			htmlOverlayJs: layer.settings?.htmlOverlayJs ?? '',
-			htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
-		},
-	}))
+	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer: any) => {
+		const rotation = Number(layer.rotation ?? 0)
+
+		return {
+			type: layer.type,
+			posX: layer.posX,
+			posY: layer.posY,
+			width: layer.width,
+			height: layer.height,
+			rotation: rotation,
+			periodicallyRefetchData: layer.periodicallyRefetchData,
+			settings: {
+				htmlOverlayHtml: layer.settings?.htmlOverlayHtml ?? '',
+				htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
+				htmlOverlayJs: layer.settings?.htmlOverlayJs ?? '',
+				htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
+			},
+		}
+	})
 
 	try {
 		if (project.id) {
 			// Update existing overlay
-			const result = await updateOverlayMutation.executeMutation({
+			const mutationInput = {
 				id: project.id,
 				input: {
 					name: project.name,
@@ -124,7 +129,9 @@ async function handleSave(project: any) {
 					height: 1080,
 					layers: layersInput,
 				},
-			})
+			}
+
+			const result = await updateOverlayMutation.executeMutation(mutationInput)
 
 			if (result.error) {
 				messages.error(result.error.message)
@@ -134,14 +141,16 @@ async function handleSave(project: any) {
 			messages.success('Overlay updated successfully!')
 		} else {
 			// Create new overlay
-			const result = await createOverlayMutation.executeMutation({
+			const mutationInput = {
 				input: {
 					name: project.name,
 					width: 1920,
 					height: 1080,
 					layers: layersInput,
 				},
-			})
+			}
+
+			const result = await createOverlayMutation.executeMutation(mutationInput)
 
 			if (result.error) {
 				messages.error(result.error.message)

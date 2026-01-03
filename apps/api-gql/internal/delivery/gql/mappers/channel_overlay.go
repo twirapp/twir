@@ -45,6 +45,7 @@ func ChannelOverlayLayerEntityToGql(l entity.ChannelOverlayLayer) gqlmodel.Chann
 		CreatedAt:               l.CreatedAt,
 		UpdatedAt:               l.UpdatedAt,
 		PeriodicallyRefetchData: l.PeriodicallyRefetchData,
+		Rotation:                l.Rotation,
 	}
 }
 

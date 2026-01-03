@@ -28,6 +28,7 @@ type OverlayLayer struct {
 	PosY                    int                  `json:"pos_y"`
 	Width                   int                  `json:"width"`
 	Height                  int                  `json:"height"`
+	Rotation                int                  `json:"rotation"`
 	CreatedAt               time.Time            `json:"created_at"`
 	UpdatedAt               time.Time            `json:"updated_at"`
 	PeriodicallyRefetchData bool                 `json:"periodically_refetch_data"`

@@ -27,6 +27,7 @@ const channelOverlayByIdQuery = graphql(`
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData

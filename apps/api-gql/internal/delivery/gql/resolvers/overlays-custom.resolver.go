@@ -41,6 +41,7 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 			PosY:                    l.PosY,
 			Width:                   l.Width,
 			Height:                  l.Height,
+			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 		}
 	}
@@ -90,6 +91,7 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 			PosY:                    l.PosY,
 			Width:                   l.Width,
 			Height:                  l.Height,
+			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 		}
 	}

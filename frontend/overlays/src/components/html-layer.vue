@@ -39,6 +39,8 @@ watch(
 			left: `${layer.posX}px`,
 			width: `${layer.width}px`,
 			height: `${layer.height}px`,
+			transform: `rotate(${layer.rotation || 0}deg)`,
+			transformOrigin: 'center center',
 		}"
 		v-html="parsedData"
 	/>

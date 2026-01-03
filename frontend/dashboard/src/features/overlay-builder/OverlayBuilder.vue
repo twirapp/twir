@@ -80,7 +80,7 @@ function loadInitialProject() {
 		posY: layer.posY,
 		width: layer.width,
 		height: layer.height,
-		rotation: layer.rotation || 0,
+		rotation: Number(layer.rotation) || 0,
 		opacity: layer.opacity || 1,
 		visible: layer.visible !== undefined ? layer.visible : true,
 		locked: layer.locked || false,
