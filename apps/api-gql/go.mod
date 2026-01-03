@@ -33,17 +33,19 @@ require (
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/apps/parser v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/audit v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/cache v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/config v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20260102031833-cfb924c9b7eb
+	github.com/twirapp/twir/libs/cache v0.0.0-20260102031833-cfb924c9b7eb
+	github.com/twirapp/twir/libs/config v0.0.0-20251201102513-6f706c3cc7e1
 	github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/entities v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/gomodels v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/integrations v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/pubsub v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/redis_keys v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/repositories v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/twitch v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/types v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/utils v0.0.0-20251127124349-67ad7fa0003f
@@ -70,7 +72,6 @@ require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/exaring/otelpgx v0.9.3 // indirect
@@ -89,7 +90,6 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
-	github.com/golang/mock v1.7.0-rc.1 // indirect
 	github.com/gomodule/redigo v1.9.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -126,7 +126,6 @@ require (
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.57.1 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.17.1 // indirect

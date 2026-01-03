@@ -58,6 +58,7 @@
     "lodash.chunk": "4.2.0",
     "lucide-vue-next": "0.561.0",
     "naive-ui": "2.38.0",
+    "nanoid": "5.1.6",
     "nested-css-to-flat": "1.0.5",
     "reka-ui": "2.7.0",
     "tailwind-merge": "3.4.0",

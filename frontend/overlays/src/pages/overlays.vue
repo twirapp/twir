@@ -3,6 +3,7 @@ import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import htmlLayer from '@/components/html-layer.vue'
+import imageLayer from '@/components/image-layer.vue'
 import { useOverlays } from '@/composables/overlays/use-overlays.js'
 
 const route = useRoute()
@@ -34,7 +35,8 @@ watch(layers, (layers) => {
 <template>
 	<div class="container mx-auto">
 		<template v-for="layer of layers" :key="layer.id">
-			<htmlLayer :layer="layer" :parsedData="parsedLayersData[layer.id]" />
+			<htmlLayer v-if="layer.type === 'HTML'" :layer="layer" :parsedData="parsedLayersData[layer.id]" />
+			<imageLayer v-else-if="layer.type === 'IMAGE'" :layer="layer" />
 		</template>
 	</div>
 </template>

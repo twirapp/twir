@@ -51,6 +51,7 @@ type layerRow struct {
 	PosY                    int       `json:"pos_y"`
 	Width                   int       `json:"width"`
 	Height                  int       `json:"height"`
+	Rotation                int       `json:"rotation"`
 	CreatedAt               time.Time `json:"created_at"`
 	UpdatedAt               time.Time `json:"updated_at"`
 	PeriodicallyRefetchData bool      `json:"periodically_refetch_data"`
@@ -58,7 +59,7 @@ type layerRow struct {
 
 func (c *Pgx) getLayers(ctx context.Context, overlayID uuid.UUID) ([]model.OverlayLayer, error) {
 	query := `
-SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, created_at, updated_at, periodically_refetch_data
+SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data
 FROM channels_overlays_layers
 WHERE overlay_id = $1
 ORDER BY created_at ASC
@@ -81,6 +82,7 @@ ORDER BY created_at ASC
 			&row.PosY,
 			&row.Width,
 			&row.Height,
+			&row.Rotation,
 			&row.CreatedAt,
 			&row.UpdatedAt,
 			&row.PeriodicallyRefetchData,
@@ -103,6 +105,7 @@ ORDER BY created_at ASC
 				PosY:                    row.PosY,
 				Width:                   row.Width,
 				Height:                  row.Height,
+				Rotation:                row.Rotation,
 				CreatedAt:               row.CreatedAt,
 				UpdatedAt:               row.UpdatedAt,
 				PeriodicallyRefetchData: row.PeriodicallyRefetchData,
@@ -267,8 +270,8 @@ func (c *Pgx) insertLayer(
 	}
 
 	layerQuery := `
-INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, created_at, updated_at, periodically_refetch_data)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 `
 
 	_, err = tx.Exec(
@@ -282,6 +285,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		layer.PosY,
 		layer.Width,
 		layer.Height,
+		layer.Rotation,
 		now,
 		now,
 		layer.PeriodicallyRefetchData,

@@ -22,6 +22,7 @@ type CreateLayerInput struct {
 	PosY                    int
 	Width                   int
 	Height                  int
+	Rotation                int
 	PeriodicallyRefetchData bool
 }
 

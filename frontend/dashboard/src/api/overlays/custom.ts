@@ -1,6 +1,7 @@
-import { graphql } from '@/gql'
 import { useMutation, useQuery } from '@urql/vue'
 import { type MaybeRef, computed, unref } from 'vue'
+
+import { graphql } from '@/gql'
 
 const channelOverlaysQuery = graphql(`
 	query ChannelOverlays {
@@ -20,12 +21,14 @@ const channelOverlaysQuery = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData
@@ -52,12 +55,14 @@ const channelOverlayByIdQuery = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData
@@ -84,12 +89,14 @@ const channelOverlayCreateMutation = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData
@@ -116,12 +123,14 @@ const channelOverlayUpdateMutation = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData
