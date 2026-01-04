@@ -98,6 +98,7 @@
 		"giveaways": "Sorteios"
 	},
 	"deleteConfirmation": {
+		"title": "Are you sure?",
 		"text": "Você tem certeza que quer excluir isso?",
 		"cancel": "Cancelar",
 		"confirm": "Confirmar"
@@ -1073,6 +1074,8 @@
 		"customHeight": "Altura",
 		"name": "Nome da Sobreposição",
 		"createNewLayer": "Criar Nova Camada",
+		"createNew": "Create New Overlay",
+		"layers": "Layers",
 		"validations": {
 			"name": "O Nome da Camada não pode estar em branco e ter mais de 30 símbolos!",
 			"layers": "Camadas não podem estar em branco! Essa sobreposição não pode conter mais de 15 camadas."
