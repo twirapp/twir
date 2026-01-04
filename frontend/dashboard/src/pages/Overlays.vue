@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { IconSettings, IconTrash } from '@tabler/icons-vue'
-import { SquarePen } from 'lucide-vue-next'
-import { NAlert, NButton, NCard, NPopconfirm, NTag, useNotification } from 'naive-ui'
+import { Copy, Pencil, Plus, Trash2 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -12,7 +10,6 @@ import {
 	useProfile,
 	useUserAccessFlagChecker,
 } from '@/api/index.js'
-import Card from '@/components/card/card.vue'
 import Brb from '@/features/overlays/brb/card.vue'
 import Chat from '@/components/overlays/chat.vue'
 import Dudes from '@/components/overlays/dudes.vue'
@@ -25,6 +22,22 @@ import FaceitStats from '@/features/overlays/faceit-stats/ui/card.vue'
 import ValorantStats from '@/features/overlays/valorant-stats/ui/card.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 import { copyToClipBoard } from '@/helpers/index.js'
+import { Button } from '@/components/ui/button'
+import { Card as ShadCard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { toast } from 'vue-sonner'
 
 const { t } = useI18n()
 const userCanManageOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
@@ -33,15 +46,11 @@ const selectedDashboardTwitchUser = computed(() => {
 	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
 })
 
-const message = useNotification()
 async function copyUrl(id: string) {
 	await copyToClipBoard(
 		`${window.location.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/registry/overlays/${id}`
 	)
-	message.success({
-		title: t('overlays.copied'),
-		duration: 2500,
-	})
+	toast.success(t('overlays.copied'))
 }
 
 const { data: customOverlaysData, executeQuery: refetchOverlays } = useChannelOverlaysQuery()
@@ -51,6 +60,7 @@ const deleteOverlay = useChannelOverlayDelete()
 async function handleDelete(id: string) {
 	await deleteOverlay.executeMutation({ id })
 	refetchOverlays({ requestPolicy: 'network-only' })
+	toast.success(t('sharedTexts.saved'))
 }
 
 const router = useRouter()
@@ -96,72 +106,106 @@ function editCustomOverlay(id?: string) {
 				<Brb />
 			</div>
 
-			<div v-for="overlay of customOverlays" :key="overlay.id" :span="1">
-				<Card :title="overlay.name" style="height: 100%">
-					<template #content>
-						<div v-if="overlay.layers.length" class="flex gap-1 flex-wrap">
-							<NTag v-for="layer of overlay.layers" :key="layer.id" type="success">
-								{{ convertOverlayLayerTypeToText(layer.type) }}
-							</NTag>
-						</div>
-						<NAlert v-else type="warning" :title="t('overlaysRegistry.noLayersCreated.title')">
-							{{ t('overlaysRegistry.noLayersCreated.description') }}
-						</NAlert>
-					</template>
+			<!-- Custom Overlays -->
+			<ShadCard
+				v-for="overlay of customOverlays"
+				:key="overlay.id"
+				class="flex flex-col h-full"
+			>
+				<CardHeader>
+					<CardTitle class="flex items-center justify-between">
+						<span>{{ overlay.name }}</span>
+						<Badge variant="outline" class="ml-2">
+							{{ overlay.layers.length }} {{ overlay.layers.length === 1 ? 'layer' : 'layers' }}
+						</Badge>
+					</CardTitle>
+					<CardDescription v-if="overlay.layers.length">
+						{{ t('overlaysRegistry.layers') }}
+					</CardDescription>
+				</CardHeader>
 
-					<template #footer>
-						<div class="flex gap-2 flex-wrap">
-							<NButton
-								secondary
-								size="large"
-								:disabled="!userCanManageOverlays"
-								@click="editCustomOverlay(overlay.id)"
-							>
-								<span>{{ t('sharedButtons.settings') }}</span>
-								<IconSettings />
-							</NButton>
-
-							<NButton
-								secondary
-								type="info"
-								size="large"
-								:disabled="!userCanManageOverlays"
-								@click="copyUrl(overlay.id)"
-							>
-								<span>{{ t('overlays.copyOverlayLink') }}</span>
-								<IconSettings />
-							</NButton>
-
-							<NPopconfirm
-								:positive-text="t('deleteConfirmation.confirm')"
-								:negative-text="t('deleteConfirmation.cancel')"
-								@positive-click="() => handleDelete(overlay.id)"
-							>
-								{{ t('deleteConfirmation.text') }}
-								<template #trigger>
-									<NButton secondary size="large" type="error" :disabled="!userCanManageOverlays">
-										<span>{{ t('sharedButtons.delete') }}</span>
-										<IconTrash />
-									</NButton>
-								</template>
-							</NPopconfirm>
-						</div>
-					</template>
-				</Card>
-			</div>
-
-			<div>
-				<NCard
-					class="h-full"
-					:style="{ cursor: userCanManageOverlays ? 'pointer' : 'not-allowed' }"
-					embedded
-					@click="() => editCustomOverlay()"
-				>
-					<div class="flex items-center justify-center h-full">
-						<SquarePen class="size-16" />
+				<CardContent class="flex-1">
+					<div v-if="overlay.layers.length" class="flex gap-2 flex-wrap">
+						<Badge
+							v-for="layer of overlay.layers"
+							:key="layer.id"
+							variant="secondary"
+						>
+							{{ convertOverlayLayerTypeToText(layer.type) }}
+						</Badge>
 					</div>
-				</NCard>
-			</div>
+					<Alert v-else variant="default" class="border-yellow-500/50">
+						<AlertTitle>{{ t('overlaysRegistry.noLayersCreated.title') }}</AlertTitle>
+						<AlertDescription>
+							{{ t('overlaysRegistry.noLayersCreated.description') }}
+						</AlertDescription>
+					</Alert>
+				</CardContent>
+
+				<CardFooter class="flex gap-2 flex-wrap">
+					<Button
+						variant="outline"
+						size="sm"
+						:disabled="!userCanManageOverlays"
+						@click="editCustomOverlay(overlay.id)"
+					>
+						<Pencil class="h-4 w-4 mr-2" />
+						<span>{{ t('sharedButtons.settings') }}</span>
+					</Button>
+
+					<Button
+						variant="outline"
+						size="sm"
+						:disabled="!userCanManageOverlays"
+						@click="copyUrl(overlay.id)"
+					>
+						<Copy class="h-4 w-4 mr-2" />
+						<span>{{ t('overlays.copyOverlayLink') }}</span>
+					</Button>
+
+					<AlertDialog>
+						<AlertDialogTrigger as-child>
+							<Button
+								variant="outline"
+								size="sm"
+								:disabled="!userCanManageOverlays"
+								class="text-destructive hover:text-destructive"
+							>
+								<Trash2 class="h-4 w-4 mr-2" />
+								<span>{{ t('sharedButtons.delete') }}</span>
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>{{ t('deleteConfirmation.title') }}</AlertDialogTitle>
+								<AlertDialogDescription>
+									{{ t('deleteConfirmation.text') }}
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>{{ t('deleteConfirmation.cancel') }}</AlertDialogCancel>
+								<AlertDialogAction @click="() => handleDelete(overlay.id)">
+									{{ t('deleteConfirmation.confirm') }}
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+				</CardFooter>
+			</ShadCard>
+
+			<!-- Add New Overlay Card -->
+			<ShadCard
+				class="flex flex-col h-full cursor-pointer hover:bg-accent/50 transition-colors"
+				:class="{ 'cursor-not-allowed opacity-50': !userCanManageOverlays }"
+				@click="() => userCanManageOverlays && editCustomOverlay()"
+			>
+				<CardContent class="flex-1 flex items-center justify-center p-6">
+					<div class="flex flex-col items-center justify-center text-muted-foreground">
+						<Plus class="size-16 mb-4" />
+						<p class="text-sm font-medium">{{ t('overlaysRegistry.createNew') }}</p>
+					</div>
+				</CardContent>
+			</ShadCard>
 		</div>
 	</div>
 </template>
