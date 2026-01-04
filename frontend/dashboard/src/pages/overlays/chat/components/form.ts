@@ -1,10 +1,11 @@
+import { createGlobalState } from '@vueuse/core'
 import { ref, toRaw } from 'vue'
 
 import { type ChatSettingsWithOptionalId, defaultChatSettings } from './default-settings'
 
-const data = ref<ChatSettingsWithOptionalId>(structuredClone(defaultChatSettings))
+export const useChatOverlayForm = createGlobalState(() => {
+	const data = ref<ChatSettingsWithOptionalId>(structuredClone(defaultChatSettings))
 
-export function useChatOverlayForm() {
 	function setData(d: ChatSettingsWithOptionalId) {
 		data.value = structuredClone(toRaw(d))
 	}
@@ -26,4 +27,4 @@ export function useChatOverlayForm() {
 		reset,
 		getDefaultSettings,
 	}
-}
+})

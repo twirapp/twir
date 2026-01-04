@@ -7,8 +7,9 @@ import { graphql } from '@/gql'
 const cacheKey = ['chatOverlays']
 
 export const useChatOverlayApi = createGlobalState(() => {
-	const useOverlaysQuery = () => useQuery({
-		query: graphql(`
+	const useOverlaysQuery = () =>
+		useQuery({
+			query: graphql(`
 			query UseOverlaysData {
 				chatOverlays {
 					id
@@ -32,38 +33,41 @@ export const useChatOverlayApi = createGlobalState(() => {
 				}
 			}
 		`),
-		context: {
-			additionalTypenames: cacheKey,
-		},
-		variables: {},
-	})
+			context: {
+				additionalTypenames: cacheKey,
+			},
+			variables: {},
+		})
 
-	const useOverlayDelete = () => useMutation(
-		graphql(`
+	const useOverlayDelete = () =>
+		useMutation(
+			graphql(`
 			mutation DeleteOverlay($id: String!) {
 				chatOverlayDelete(id: $id)
 			}
 		`),
-		cacheKey,
-	)
+			cacheKey
+		)
 
-	const useOverlayCreate = () => useMutation(
-		graphql(`
+	const useOverlayCreate = () =>
+		useMutation(
+			graphql(`
 			mutation CreateOverlay($input: ChatOverlayMutateOpts!) {
 				chatOverlayCreate(opts: $input)
 			}
 		`),
-		cacheKey,
-	)
+			cacheKey
+		)
 
-	const useOverlayUpdate = () => useMutation(
-		graphql(`
+	const useOverlayUpdate = () =>
+		useMutation(
+			graphql(`
 			mutation UpdateOverlay($id: String!, $input: ChatOverlayMutateOpts!) {
 				chatOverlayUpdate(id: $id, opts: $input)
 			}
 		`),
-		cacheKey,
-	)
+			cacheKey
+		)
 
 	return {
 		useOverlaysQuery,

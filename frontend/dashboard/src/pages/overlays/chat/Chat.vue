@@ -1,247 +1,240 @@
 <script setup lang="ts">
-import { ChatBox, type Settings as ChatBoxSettings, type Message } from '@twir/frontend-chat'
-import { useIntervalFn } from '@vueuse/core'
-import { NAlert, NScrollbar, NTabPane, NTabs, NText, useThemeVars } from 'naive-ui'
-import { computed, ref, watch } from 'vue'
+import { until } from '@vueuse/core'
+import { useRouteQuery } from '@vueuse/router'
+import { type Component, computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Plus, Trash2 } from 'lucide-vue-next'
 
 import { useChatOverlayForm } from './components/form.js'
 import Form from './components/Form.vue'
-import { globalBadges } from './constants.js'
-import * as faker from './faker.js'
 
 import { useChatOverlayApi, useUserAccessFlagChecker } from '@/api/index.js'
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { Button } from '@/components/ui/button'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue'
 
-const themeVars = useThemeVars()
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
 const { t } = useI18n()
-const { dialog } = useNaiveDiscrete()
 
 const chatOverlaysManager = useChatOverlayApi()
 const deleter = chatOverlaysManager.useOverlayDelete()
 const creator = chatOverlaysManager.useOverlayCreate()
-const { data: chatOverlaysData } = chatOverlaysManager.useOverlaysQuery()
+const { data: chatOverlaysData, fetching: fetchingOverlays } = chatOverlaysManager.useOverlaysQuery()
 
-const messagesMock = ref<Message[]>([])
+const { setData, getDefaultSettings } = useChatOverlayForm()
 
-const { data: formValue, setData, getDefaultSettings } = useChatOverlayForm()
-
-useIntervalFn(() => {
-	if (!formValue.value) return
-
-	const internalId = crypto.randomUUID()
-
-	messagesMock.value.push({
-		sender: faker.firstName(),
-		chunks: [
-			{
-				type: 'text',
-				value:
-					formValue.value.direction === 'left' || formValue.value.direction === 'right'
-						? faker.loremWithLen(3)
-						: faker.lorem(),
-			},
-		],
-		createdAt: new Date(),
-		internalId,
-		isAnnounce: faker.boolean(),
-		isItalic: false,
-		type: 'message',
-		senderColor: faker.rgb(),
-		announceColor: '',
-		badges: {
-			[faker.randomArrayItem(globalBadges).set_id]: '1',
-		},
-		id: crypto.randomUUID(),
-		senderDisplayName: faker.firstName(),
-	})
-
-	if (formValue.value.messageHideTimeout !== 0) {
-		setTimeout(() => {
-			messagesMock.value = messagesMock.value.filter((m) => m.internalId !== internalId)
-		}, formValue.value.messageHideTimeout * 1000)
+const activeTabQuery = useRouteQuery<string | null>('tab', null)
+const activeTab = computed<string | undefined>({
+	get: () => activeTabQuery.value || undefined,
+	set: (value) => {
+		activeTabQuery.value = value || null
 	}
+})
 
-	if (messagesMock.value.length >= 20) {
-		messagesMock.value = messagesMock.value.slice(1)
-	}
-}, 1 * 1000)
+const deleteDialogOpen = ref(false)
+const presetToDelete = ref<string>()
 
-const openedTab = ref<string>()
+const tabs = computed<PageLayoutTab[]>(() => {
+	if (!chatOverlaysData.value?.chatOverlays.length) return []
 
-function resetTab() {
-	if (!chatOverlaysData.value?.chatOverlays.at(0)) {
-		openedTab.value = undefined
-		return
-	}
-
-	openedTab.value = chatOverlaysData.value.chatOverlays.at(0)!.id
-}
+	return chatOverlaysData.value.chatOverlays.map((overlay, index) => ({
+		name: overlay.id!,
+		title: `Preset #${index + 1}`,
+		component: Form as Component,
+	}))
+})
 
 watch(
 	() => chatOverlaysData.value?.chatOverlays,
-	() => {
-		resetTab()
+	(newValue) => {
+		if (!newValue?.length) {
+			activeTabQuery.value = null
+			return
+		}
+
+		// Auto-open first preset if no tab is selected
+		if (!activeTab.value) {
+			activeTabQuery.value = newValue[0].id!
+			return
+		}
+
+		// Clear invalid tabs
+		if (activeTab.value && !newValue.find((o) => o.id === activeTab.value)) {
+			activeTabQuery.value = null
+		}
 	},
 	{ immediate: true }
 )
 
-watch(openedTab, (v) => {
-	const entity = chatOverlaysData.value?.chatOverlays.find((s) => s.id === v)
+watch(activeTab, (id) => {
+	if (!id) return
+	const entity = chatOverlaysData.value?.chatOverlays.find((s) => s.id === id)
 	if (!entity) return
 
 	setData(entity)
 })
 
-watch(openedTab, () => {
-	messagesMock.value = []
-})
+// Initialize form data when data loads (for page refresh with ?tab=id)
+watch(
+	() => chatOverlaysData.value?.chatOverlays,
+	(overlays) => {
+		if (!overlays?.length || !activeTab.value) return
 
-const chatBoxSettings = computed<ChatBoxSettings>(() => {
-	return {
-		channelId: '',
-		channelName: '',
-		channelDisplayName: '',
-		globalBadges,
-		channelBadges: [],
-		...formValue.value,
+		const entity = overlays.find((s) => s.id === activeTab.value)
+		if (entity) {
+			setData(entity)
+		}
+	},
+	{ immediate: true }
+)
+
+function handleDeleteClick(id: string) {
+	presetToDelete.value = id
+	deleteDialogOpen.value = true
+}
+
+async function confirmDelete() {
+	if (!presetToDelete.value) return
+
+	const entity = chatOverlaysData.value?.chatOverlays.find((s) => s.id === presetToDelete.value)
+	if (!entity?.id) return
+
+	const overlays = chatOverlaysData.value?.chatOverlays ?? []
+	const currentIndex = overlays.findIndex(o => o.id === entity.id)
+
+	await deleter.executeMutation({ id: entity.id })
+
+	// Navigate after deletion
+	const remainingCount = overlays.length - 1
+	if (remainingCount === 0) {
+		// No presets left
+		activeTabQuery.value = null
+	} else if (currentIndex === 0) {
+		// Deleted first preset, navigate to new first (was second)
+		activeTabQuery.value = overlays[1]?.id ?? null
+	} else {
+		// Deleted other preset, navigate to first
+		activeTabQuery.value = overlays[0]?.id ?? null
 	}
-})
 
-async function handleClose(id: string) {
-	dialog.create({
-		title: 'Delete preset',
-		content: 'Are you sure you want to delete this preset?',
-		positiveText: 'Delete',
-		negativeText: 'Cancel',
-		showIcon: false,
-		onPositiveClick: async () => {
-			const entity = chatOverlaysData.value?.chatOverlays.find((s) => s.id === id)
-			if (!entity?.id) return
-
-			await deleter.executeMutation({ id: entity.id })
-			resetTab()
-		},
-	})
+	deleteDialogOpen.value = false
+	presetToDelete.value = undefined
 }
 
 async function handleAdd() {
+	const previousLength = chatOverlaysData.value?.chatOverlays.length ?? 0
+
 	await creator.executeMutation({ input: getDefaultSettings() })
+
+	// Wait for data to update reactively
+	await until(() => chatOverlaysData.value?.chatOverlays).changed()
+
+	// Navigate to newly created preset (last in array)
+	const overlays = chatOverlaysData.value?.chatOverlays
+	if (overlays && overlays.length > previousLength) {
+		activeTabQuery.value = overlays[overlays.length - 1].id!
+	}
 }
 
-const addable = computed(() => {
+const canAddMore = computed(() => {
 	return userCanEditOverlays.value && (chatOverlaysData.value?.chatOverlays.length ?? 0) < 5
 })
+
+const hasOverlays = computed(() => {
+	return (chatOverlaysData.value?.chatOverlays.length ?? 0) > 0
+})
+
+
 </script>
 
 <template>
-	<div class="page">
-		<div
-			class="chatBox-wrapper"
-			:class="{
-				'is-horizontal': formValue?.direction === 'left' || formValue?.direction === 'right',
-			}"
-		>
-			<ChatBox
-				v-if="openedTab"
-				class="chatBox"
-				:messages="messagesMock"
-				:settings="chatBoxSettings"
-			/>
-			<div v-else class="flex justify-center items-center h-full">
-				<NText class="text-base"> Preview of chat will be here when you select some preset </NText>
+	<PageLayout :active-tab="activeTab || ''" :tabs="tabs">
+		<template #title>
+			{{ t('overlays.chat.title') || 'Chat Overlay' }}
+		</template>
+
+		<template #action="{ activeTab: currentTab }">
+			<div class="flex gap-2">
+				<Button
+					v-if="canAddMore"
+					size="sm"
+					variant="default"
+					@click="handleAdd"
+				>
+					<Plus class="h-4 w-4 mr-2" />
+					{{ t('sharedButtons.add') || 'Add Preset' }}
+				</Button>
+				<Button
+					v-if="currentTab && userCanEditOverlays"
+					size="sm"
+					variant="destructive"
+					@click="handleDeleteClick(currentTab)"
+				>
+					<Trash2 class="h-4 w-4 mr-2" />
+					{{ t('sharedButtons.delete') || 'Delete' }}
+				</Button>
 			</div>
-		</div>
-		<div class="form-wrapper">
-			<NTabs
-				v-model:value="openedTab"
-				type="card"
-				:closable="userCanEditOverlays"
-				:addable="addable"
-				tab-style="min-width: 80px;"
-				@close="handleClose"
-				@add="handleAdd"
-			>
-				<template #prefix>
-					{{ t('overlays.chat.presets') }}
-				</template>
-				<template v-if="chatOverlaysData?.chatOverlays.length">
-					<NTabPane
-						v-for="(entity, entityIndex) in chatOverlaysData.chatOverlays"
-						:key="entity.id"
-						:tab="`#${entityIndex + 1}`"
-						:name="entity.id!"
+		</template>
+
+		<template v-if="fetchingOverlays" #content>
+			<div class="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+				<div class="text-center space-y-4">
+					<div class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+					<p class="text-muted-foreground">Loading presets...</p>
+				</div>
+			</div>
+		</template>
+
+		<template v-else-if="!hasOverlays" #content>
+			<div class="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+				<div class="text-center space-y-4 max-w-md">
+					<h2 class="text-2xl font-semibold">{{ t('overlays.chat.noPresets') || 'No Presets Yet' }}</h2>
+					<p class="text-muted-foreground">
+						{{ t('overlays.chat.noPresetsDescription') || 'Create your first chat overlay preset to get started.' }}
+					</p>
+					<Button
+						v-if="userCanEditOverlays"
+						size="lg"
+						variant="default"
+						@click="handleAdd"
 					>
-						<NScrollbar class="max-h-[75vh]" trigger="none">
-							<Form />
-						</NScrollbar>
-					</NTabPane>
-				</template>
-			</NTabs>
-			<NAlert v-if="!chatOverlaysData?.chatOverlays.length" type="info" class="mt-2">
-				Create new overlay for edit settings
-			</NAlert>
-		</div>
-	</div>
+						<Plus class="h-5 w-5 mr-2" />
+						{{ t('sharedButtons.create') || 'Create Preset' }}
+					</Button>
+				</div>
+			</div>
+		</template>
+	</PageLayout>
+
+	<!-- Delete Confirmation Dialog -->
+	<AlertDialog v-model:open="deleteDialogOpen">
+		<AlertDialogContent>
+			<AlertDialogHeader>
+				<AlertDialogTitle>{{ t('overlays.chat.deleteTitle') || 'Delete Preset' }}</AlertDialogTitle>
+				<AlertDialogDescription>
+					{{ t('overlays.chat.deleteDescription') || 'Are you sure you want to delete this preset? This action cannot be undone.' }}
+				</AlertDialogDescription>
+			</AlertDialogHeader>
+			<AlertDialogFooter>
+				<AlertDialogCancel>{{ t('sharedButtons.cancel') || 'Cancel' }}</AlertDialogCancel>
+				<AlertDialogAction @click="confirmDelete">
+					{{ t('sharedButtons.delete') || 'Delete' }}
+				</AlertDialogAction>
+			</AlertDialogFooter>
+		</AlertDialogContent>
+	</AlertDialog>
 </template>
 
 <style scoped>
-@import '../styles.css';
-
-.chatBox-wrapper {
-	width: 70%;
-	flex-shrink: 0;
-	flex-grow: 0;
-	overflow: hidden;
-	min-width: 0; /* Allows flex item to shrink below content size */
-	max-width: 70%;
-}
-
-.chatBox-wrapper.is-horizontal {
-	contain: layout size style;
-}
-
-.form-wrapper {
-	width: 30%;
-	flex-shrink: 0;
-	flex-grow: 0;
-	min-width: 0;
-}
-
-.chatBox {
-	background-color: v-bind('themeVars.cardColor');
-	border-radius: 8px;
-	height: 80dvh;
-	width: 100%;
-	max-width: 100%;
-	overflow: hidden;
-}
-
-/* Force chat component to respect container width */
-:deep(.chat) {
-	height: 80dvh !important;
-	width: 100% !important;
-	max-width: 100% !important;
-	box-sizing: border-box !important;
-}
-
-/* Force messages container to respect parent width and enable scrolling */
-:deep(.messages) {
-	max-width: 100% !important;
-	width: 100% !important;
-	box-sizing: border-box !important;
-	overflow: auto !important;
-}
-
-/* Constrain ALL messages to prevent horizontal expansion */
-:deep(.message) {
-	max-width: 400px !important;
-	white-space: normal !important;
-	word-wrap: break-word !important;
-	overflow-wrap: break-word !important;
-	box-sizing: border-box !important;
-}
 </style>

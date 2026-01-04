@@ -43,8 +43,20 @@ export interface PageLayoutTab {
 const activeTab = ref(props.activeTab)
 
 const queryActiveTab = useRouteQuery<string>('tab')
-const unsubscribe = watch(queryActiveTab, setTab)
+const unsubscribe = watch(queryActiveTab, setTab, { immediate: true })
 if (!props.activeTab) unsubscribe()
+
+// Sync internal activeTab with prop changes
+watch(() => props.activeTab, (newValue) => {
+	if (newValue !== activeTab.value) {
+		setTab()
+	}
+})
+
+// Revalidate activeTab when tabs list changes
+watch(() => props.tabs, () => {
+	setTab()
+}, { deep: true })
 
 onBeforeMount(() => {
 	if (!props.activeTab) return
@@ -53,9 +65,11 @@ onBeforeMount(() => {
 })
 
 function setTab(): void {
-	const tabValue = (queryActiveTab.value ?? props.activeTab).toLowerCase()
-	if (props.tabs.some((tab) => tab.name === tabValue)) {
+	const tabValue = (queryActiveTab.value ?? props.activeTab)?.toLowerCase()
+	if (tabValue && props.tabs.some((tab) => tab.name === tabValue)) {
 		activeTab.value = tabValue
+	} else {
+		activeTab.value = ''
 	}
 }
 
@@ -143,21 +157,23 @@ watch(y, (value) => {
 			</div>
 		</div>
 
-		<div :class="[{ 'container mx-auto py-8': !cleanBody }, contentClass]">
-			<template v-if="activeTab">
-				<TabsContent
-					v-for="tab of props.tabs"
-					:key="tab.name"
-					:value="tab.name"
-					class="outline-hidden"
-				>
-					<component :is="tab.component" :activeTab="activeTab" />
-				</TabsContent>
-			</template>
+		<div class="relative">
+			<div :class="[{ 'container mx-auto py-8': !cleanBody }, contentClass]">
+				<template v-if="activeTab">
+					<TabsContent
+						v-for="tab of props.tabs"
+						:key="tab.name"
+						:value="tab.name"
+						class="outline-hidden"
+					>
+						<component :is="tab.component" :activeTab="activeTab" />
+					</TabsContent>
+				</template>
 
-			<template v-else>
-				<slot name="content" />
-			</template>
+				<template v-else>
+					<slot name="content" />
+				</template>
+			</div>
 		</div>
 	</TabsRoot>
 </template>
