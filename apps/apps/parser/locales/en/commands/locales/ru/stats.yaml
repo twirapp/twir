@@ -1,6 +1,6 @@
 info:
   # Watchtime
-  watching_stream: You're watching stream for {userWatching}
+  watching_stream: You're watching stream for {userWatching} hours
 me:
   watched: 'watched'
   messages: 'messages'
