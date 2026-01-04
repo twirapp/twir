@@ -455,6 +455,7 @@
 	},
 	"overlays": {
 		"copyOverlayLink": "Copiar vínculo de superposición",
+		"copyLink": "Copy Link",
 		"uncongirured": "¡Primero debe Usted configurar la superposición!",
 		"noAccess": "¡No tiene acceso a esta superposición!",
 		"copied": "Se ha copiado correctamente la URL del vínculo de superposición. Debe establecerlo como fuente del navegador en OBS.",
@@ -551,6 +552,7 @@
 			"description": "Esta superposición le permite reproducir alertas configuradas desde la sección «Alertas»."
 		},
 		"chat": {
+			"title": "Chat Overlay",
 			"presets": "Preajustes",
 			"selectSubsetPlaceholder": "Seleccionar subconjuntos preferibles",
 			"hideTimeout": "Tiempo límite para ocultar mensajes",
@@ -577,7 +579,16 @@
 			"hideCommands": "Ocultar comandos",
 			"hideBots": "Ocultar otros mensajes de bots",
 			"style": "Estilo del mensaje",
-			"description": "Esta superposición le permite mostrar su chat de Twitch en su software de transmisión (como OBS, XSplit, etc.)"
+			"description": "Esta superposición le permite mostrar su chat de Twitch en su software de transmisión (como OBS, XSplit, etc.)",
+			"generalSettings": "General Settings",
+			"fontSettings": "Font Settings",
+			"colorSettings": "Color Settings",
+			"timingSettings": "Timing Settings",
+			"animation": "Animation",
+			"noPresets": "No Presets Yet",
+			"noPresetsDescription": "Create your first chat overlay preset to get started.",
+			"deleteTitle": "Delete Preset",
+			"deleteDescription": "Are you sure you want to delete this preset? This action cannot be undone."
 		},
 		"dudes": {
 			"description": "Caracteres animados para los chatters en tu Stream",
