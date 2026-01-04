@@ -455,6 +455,7 @@
 	},
 	"overlays": {
 		"copyOverlayLink": "Kopírovať link prekrytia",
+		"copyLink": "Copy Link",
 		"uncongirured": "Najprv by ste mali nakonfigurovať prekrytie!",
 		"noAccess": "K tomuto prekrytiu nemáte prístup!",
 		"copied": "Úspešne skopírovaná adresa URL prekryvného odkazu! Musíte ho nastaviť ako zdroj prehliadača v OBS.",
@@ -551,6 +552,7 @@
 			"description": "Toto prekrytie umožňuje prehrávať nakonfigurované upozornenia zo sekcie \"Upozornenia\"."
 		},
 		"chat": {
+			"title": "Chat Overlay",
 			"presets": "Presety",
 			"selectSubsetPlaceholder": "Výber preferovaných podskupín",
 			"hideTimeout": "Časový limit na skrytie správy",
@@ -577,7 +579,16 @@
 			"hideCommands": "Skryť príkazy",
 			"hideBots": "Skryť správy ostatných botov",
 			"style": "Štýl správy",
-			"description": "Toto prekrytie vám umožní zobraziť Twitch chat vo vašom streamovacom softvéri (napríklad OBS, XSplit atď.)"
+			"description": "Toto prekrytie vám umožní zobraziť Twitch chat vo vašom streamovacom softvéri (napríklad OBS, XSplit atď.)",
+			"generalSettings": "General Settings",
+			"fontSettings": "Font Settings",
+			"colorSettings": "Color Settings",
+			"timingSettings": "Timing Settings",
+			"animation": "Animation",
+			"noPresets": "No Presets Yet",
+			"noPresetsDescription": "Create your first chat overlay preset to get started.",
+			"deleteTitle": "Delete Preset",
+			"deleteDescription": "Are you sure you want to delete this preset? This action cannot be undone."
 		},
 		"dudes": {
 			"description": "Animované postavičky pre chatujúcich vo vašom streame",
