@@ -37,23 +37,42 @@ const emit = defineEmits<{
 const canvasElement = ref<HTMLElement>()
 const moveableRef = ref<InstanceType<typeof Moveable>>()
 
+// Canvas and grid wrapper transformation
 const canvasTransform = computed(() => {
-	// Don't scale the canvas itself, let it stay at logical size
-	// Only apply pan, Moveable will work with actual coordinates
 	return `translate(${props.panX}px, ${props.panY}px)`
 })
 
-const gridStyle = computed(() => {
-	if (!props.showGrid) return {}
+// Grid style applied directly to canvas background
+const canvasStyle = computed(() => {
+	const baseStyle = {
+		width: `${props.canvasWidth}px`,
+		height: `${props.canvasHeight}px`,
+		transform: canvasTransform.value,
+		transformOrigin: 'center',
+		zIndex: 1,
+	}
 
-	// Use logical grid size, no zoom multiplication needed
-	const size = props.gridSize
+	if (!props.showGrid) {
+		return baseStyle
+	}
+
+	// Add grid background
+	const gridSize = props.gridSize
 	return {
+		...baseStyle,
 		backgroundImage: `
-			linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-			linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+			linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+			linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
 		`,
-		backgroundSize: `${size}px ${size}px`,
+		backgroundSize: `${gridSize}px ${gridSize}px`,
+	}
+})
+
+// Canvas wrapper transformation (applies zoom)
+const canvasWrapperStyle = computed(() => {
+	return {
+		transform: `scale(${props.zoom})`,
+		transformOrigin: 'center',
 	}
 })
 
@@ -240,25 +259,18 @@ onUnmounted(() => {
 		class="relative flex-1 overflow-hidden bg-slate-900"
 		@click="handleCanvasClick"
 	>
-		<div
-			class="flex items-center justify-center w-full h-full p-8"
-			:style="{
-				transform: `scale(${zoom})`,
-				transformOrigin: 'center',
-			}"
-		>
-			<div
-				ref="canvasElement"
-				class="relative bg-[#121212] shadow-2xl border border-slate-700"
-				:style="{
-					width: `${canvasWidth}px`,
-					height: `${canvasHeight}px`,
-					transform: canvasTransform,
-					transformOrigin: 'center',
-					...gridStyle,
-				}"
-			>
+		<!-- Container for canvas and grid -->
+		<div class="flex items-center justify-center w-full h-full p-8">
+			<!-- Wrapper that scales canvas -->
+			<div class="relative" :style="canvasWrapperStyle">
+				<!-- Main canvas with grid background -->
 				<div
+					ref="canvasElement"
+					class="relative bg-[#121212] shadow-2xl border border-slate-700"
+					:style="canvasStyle"
+				>
+					<!-- Alignment guides -->
+					<div
 					v-for="(guide, index) in alignmentGuides"
 					:key="`guide-${index}`"
 					class="absolute pointer-events-none"
@@ -343,9 +355,9 @@ onUnmounted(() => {
 							/>
 						</svg>
 					</div>
-				</div>
+					</div>
 
-				<Moveable
+					<Moveable
 					v-if="selectedLayerIds.length > 0 && selectedLayers.every(l => !l.locked)"
 					ref="moveableRef"
 					:target="moveableTargets"
@@ -365,6 +377,7 @@ onUnmounted(() => {
 					@resize="onResize"
 					@rotate="onRotate"
 				/>
+				</div>
 			</div>
 		</div>
 	</div>

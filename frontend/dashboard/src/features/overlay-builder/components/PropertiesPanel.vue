@@ -116,7 +116,7 @@ const localPollInterval = computed({
 					<div class="space-y-3">
 						<div class="space-y-2">
 							<Label for="layer-name">Name</Label>
-							<Input id="layer-name" v-model="localName" placeholder="Layer name" />
+							<Input id="layer-name" v-model="localName" placeholder="Layer name" @keydown.stop />
 						</div>
 					</div>
 
@@ -138,6 +138,7 @@ const localPollInterval = computed({
 										v-model.number="localPosX"
 										type="number"
 										placeholder="0"
+										@keydown.stop
 									/>
 								</div>
 								<div class="space-y-2">
@@ -147,6 +148,7 @@ const localPollInterval = computed({
 										v-model.number="localPosY"
 										type="number"
 										placeholder="0"
+										@keydown.stop
 									/>
 								</div>
 							</div>
@@ -160,6 +162,7 @@ const localPollInterval = computed({
 										type="number"
 										:min="1"
 										placeholder="200"
+										@keydown.stop
 									/>
 								</div>
 								<div class="space-y-2">
@@ -170,6 +173,7 @@ const localPollInterval = computed({
 										type="number"
 										:min="1"
 										placeholder="200"
+										@keydown.stop
 									/>
 								</div>
 							</div>
@@ -264,6 +268,7 @@ const localPollInterval = computed({
 								type="number"
 								:min="5"
 								:max="300"
+								@keydown.stop
 							/>
 						</div>
 					</div>

@@ -283,6 +283,7 @@ onUnmounted(() => {
 								min="1"
 								max="60"
 								class="w-16 px-2 py-1 text-xs border rounded bg-background"
+								@keydown.stop
 							/>
 						</div>
 

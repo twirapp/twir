@@ -132,6 +132,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 				HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
 				HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
+				ImageUrl:                           l.Settings.ImageUrl,
 			},
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
