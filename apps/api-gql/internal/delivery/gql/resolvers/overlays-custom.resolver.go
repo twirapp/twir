@@ -36,11 +36,13 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 				HtmlOverlayCSS:                     l.Settings.HTMLOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HTMLOverlayJs,
 				HtmlOverlayDataPollSecondsInterval: l.Settings.HTMLOverlayDataPollSecondsInterval,
+				ImageUrl:                           l.Settings.ImageURL,
 			},
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
 			Width:                   l.Width,
 			Height:                  l.Height,
+			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 		}
 	}
@@ -85,11 +87,13 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 				HtmlOverlayCSS:                     l.Settings.HTMLOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HTMLOverlayJs,
 				HtmlOverlayDataPollSecondsInterval: l.Settings.HTMLOverlayDataPollSecondsInterval,
+				ImageUrl:                           l.Settings.ImageURL,
 			},
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
 			Width:                   l.Width,
 			Height:                  l.Height,
+			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 		}
 	}

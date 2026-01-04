@@ -9,7 +9,8 @@ import (
 type OverlayType string
 
 const (
-	OverlayTypeHTML OverlayType = "HTML"
+	OverlayTypeHTML  OverlayType = "HTML"
+	OverlayTypeIMAGE OverlayType = "IMAGE"
 )
 
 type OverlayLayerSettings struct {
@@ -17,6 +18,7 @@ type OverlayLayerSettings struct {
 	HtmlOverlayCSS                     string `json:"htmlOverlayCss"`
 	HtmlOverlayJS                      string `json:"htmlOverlayJs"`
 	HtmlOverlayDataPollSecondsInterval int    `json:"htmlOverlayDataPollSecondsInterval"`
+	ImageUrl                           string `json:"imageUrl"`
 }
 
 type OverlayLayer struct {
@@ -28,6 +30,7 @@ type OverlayLayer struct {
 	PosY                    int                  `json:"pos_y"`
 	Width                   int                  `json:"width"`
 	Height                  int                  `json:"height"`
+	Rotation                int                  `json:"rotation"`
 	CreatedAt               time.Time            `json:"created_at"`
 	UpdatedAt               time.Time            `json:"updated_at"`
 	PeriodicallyRefetchData bool                 `json:"periodically_refetch_data"`

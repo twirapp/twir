@@ -16,6 +16,7 @@ export interface Layer {
 	posY: number
 	width: number
 	height: number
+	rotation: number
 	createdAt: string
 	updatedAt: string
 	periodicallyRefetchData: boolean
@@ -26,6 +27,7 @@ export interface LayerSettings {
 	htmlOverlayHtml: string
 	htmlOverlayCss: string
 	htmlOverlayJs: string
+	imageUrl: string
 }
 
 export const useOverlays = createGlobalState(() => {
@@ -50,12 +52,14 @@ export const useOverlays = createGlobalState(() => {
 				htmlOverlayHtml: layer.settings.htmlOverlayHtml,
 				htmlOverlayCss: layer.settings.htmlOverlayCss,
 				htmlOverlayJs: layer.settings.htmlOverlayJs,
+				imageUrl: layer.settings.imageUrl || '',
 			},
 			overlayId: layer.overlayId,
 			posX: layer.posX,
 			posY: layer.posY,
 			width: layer.width,
 			height: layer.height,
+			rotation: layer.rotation || 0,
 			createdAt: layer.createdAt,
 			updatedAt: layer.updatedAt,
 			periodicallyRefetchData: layer.periodicallyRefetchData,

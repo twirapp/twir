@@ -21,12 +21,14 @@ const channelOverlayByIdQuery = graphql(`
 					htmlOverlayCss
 					htmlOverlayJs
 					htmlOverlayDataPollSecondsInterval
+					imageUrl
 				}
 				overlayId
 				posX
 				posY
 				width
 				height
+				rotation
 				createdAt
 				updatedAt
 				periodicallyRefetchData

@@ -50,12 +50,14 @@ func (s *Service) modelToEntity(m model.Overlay) entity.ChannelOverlay {
 				HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
 				HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
+				ImageUrl:                           l.Settings.ImageUrl,
 			},
 			OverlayID:               l.OverlayID,
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
 			Width:                   l.Width,
 			Height:                  l.Height,
+			Rotation:                l.Rotation,
 			CreatedAt:               l.CreatedAt,
 			UpdatedAt:               l.UpdatedAt,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
@@ -107,6 +109,7 @@ type CreateLayerInput struct {
 	PosY                    int
 	Width                   int
 	Height                  int
+	Rotation                int
 	PeriodicallyRefetchData bool
 }
 
@@ -134,6 +137,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 			PosY:                    l.PosY,
 			Width:                   l.Width,
 			Height:                  l.Height,
+			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 		}
 	}
@@ -199,11 +203,13 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 				HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
 				HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
+				ImageUrl:                           l.Settings.ImageUrl,
 			},
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
 			Width:                   l.Width,
 			Height:                  l.Height,
+			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 		}
 	}

@@ -17,6 +17,7 @@ type ChannelOverlayLayer struct {
 	PosX                    int                         `gorm:"column:pos_x;type:INTEGER;"  json:"pos_x"`
 	PosY                    int                         `gorm:"column:pos_y;type:INTEGER;"  json:"pos_y"`
 	Width                   int                         `gorm:"column:width;type:INTEGER;"  json:"width"`
+	Rotation                int                         `gorm:"column:rotation;type:INTEGER;default:0;"  json:"rotation"`
 	Height                  int                         `gorm:"column:height;type:INTEGER;"  json:"height"`
 	CreatedAt               time.Time                   `gorm:"column:created_at;data:timestamp;"  json:"createdAt"`
 	UpdatedAt               time.Time                   `gorm:"column:updated_at;data:timestamp;"  json:"updatedAt"`

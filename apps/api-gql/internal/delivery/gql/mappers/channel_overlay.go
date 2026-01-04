@@ -9,6 +9,8 @@ func ChannelOverlayLayerTypeEntityToGql(t entity.ChannelOverlayType) gqlmodel.Ch
 	switch t {
 	case entity.ChannelOverlayTypeHTML:
 		return gqlmodel.ChannelOverlayLayerTypeHTML
+	case entity.ChannelOverlayTypeIMAGE:
+		return gqlmodel.ChannelOverlayLayerTypeImage
 	default:
 		return gqlmodel.ChannelOverlayLayerTypeHTML
 	}
@@ -18,6 +20,8 @@ func ChannelOverlayLayerTypeGqlToEntity(t gqlmodel.ChannelOverlayLayerType) enti
 	switch t {
 	case gqlmodel.ChannelOverlayLayerTypeHTML:
 		return entity.ChannelOverlayTypeHTML
+	case gqlmodel.ChannelOverlayLayerTypeImage:
+		return entity.ChannelOverlayTypeIMAGE
 	default:
 		return entity.ChannelOverlayTypeHTML
 	}
@@ -29,6 +33,7 @@ func ChannelOverlayLayerSettingsEntityToGql(s entity.ChannelOverlayLayerSettings
 		HTMLOverlayCSS:                     s.HtmlOverlayCSS,
 		HTMLOverlayJs:                      s.HtmlOverlayJS,
 		HTMLOverlayDataPollSecondsInterval: s.HtmlOverlayDataPollSecondsInterval,
+		ImageURL:                           s.ImageUrl,
 	}
 }
 
@@ -45,6 +50,7 @@ func ChannelOverlayLayerEntityToGql(l entity.ChannelOverlayLayer) gqlmodel.Chann
 		CreatedAt:               l.CreatedAt,
 		UpdatedAt:               l.UpdatedAt,
 		PeriodicallyRefetchData: l.PeriodicallyRefetchData,
+		Rotation:                l.Rotation,
 	}
 }
 
