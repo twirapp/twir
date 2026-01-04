@@ -455,6 +455,7 @@
 	},
 	"overlays": {
 		"copyOverlayLink": "Overlay-Link kopieren",
+		"copyLink": "Copy Link",
 		"uncongirured": "Du solltest zuerst das Overlay konfigurieren!",
 		"noAccess": "Sie haben keinen Zugriff auf dieses Overlay!",
 		"copied": "Overlay-Link-URL erfolgreich kopiert! Sie müssen diese als Browser-Quelle in OBS einstellen.",
@@ -551,6 +552,7 @@
 			"description": "Mit diesem Overlay können Sie konfigurierte Alarme aus dem Bereich \"Alarme\" abspielen."
 		},
 		"chat": {
+			"title": "Chat Overlay",
 			"presets": "Voreinstellungen",
 			"selectSubsetPlaceholder": "Wählen Sie bevorzugte Untergruppen",
 			"hideTimeout": "Zeitüberschreitung beim Ausblenden von Nachrichten",
@@ -577,7 +579,16 @@
 			"hideCommands": "Befehle ausblenden",
 			"hideBots": "Andere Nachrichten von Bots verstecken",
 			"style": "Nachrichten Stil",
-			"description": "Dieses Overlay erlaubt es dir, deinen Twitch-Chat in deiner Streaming-Software anzuzeigen (z.B. OBS, XSplit, etc).)"
+			"description": "Dieses Overlay erlaubt es dir, deinen Twitch-Chat in deiner Streaming-Software anzuzeigen (z.B. OBS, XSplit, etc).)",
+			"generalSettings": "General Settings",
+			"fontSettings": "Font Settings",
+			"colorSettings": "Color Settings",
+			"timingSettings": "Timing Settings",
+			"animation": "Animation",
+			"noPresets": "No Presets Yet",
+			"noPresetsDescription": "Create your first chat overlay preset to get started.",
+			"deleteTitle": "Delete Preset",
+			"deleteDescription": "Are you sure you want to delete this preset? This action cannot be undone."
 		},
 		"dudes": {
 			"description": "Animierte Zeichen für Chatter in deinem Stream",
