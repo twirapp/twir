@@ -98,6 +98,7 @@
 		"giveaways": "Розыгрыши"
 	},
 	"deleteConfirmation": {
+		"title": "Вы уверены?",
 		"text": "Вы уверены, что хотите удалить это?",
 		"cancel": "Отменить",
 		"confirm": "Подтвердить"
@@ -609,10 +610,10 @@
 			"nameBoxStroke": "Цвет обводки",
 			"nameStrokeThickness": "Толщина обводки",
 			"nameBoxLineJoin": "Форма обводки",
-			"nameBoxDropShadow": "Drop shadow-sm",
+			"nameBoxDropShadow": "Тень",
 			"nameBoxDropShadowColor": "Цвет тени",
 			"nameBoxDropShadowAlpha": "Прозрачность тени",
-			"nameBoxDropShadowBlur": "Shadow blur-sm",
+			"nameBoxDropShadowBlur": "Размытие тени",
 			"nameBoxDropShadowDistance": "Расстояние тени",
 			"nameBoxDropShadowAngle": "Угол тени",
 			"messageBoxIgnoreCommands": "Игнорировать команды",
@@ -1073,6 +1074,8 @@
 		"customHeight": "Высота",
 		"name": "Имя оверлея",
 		"createNewLayer": "Создать новый слой",
+		"createNew": "Создать новый оверлей",
+		"layers": "Слои",
 		"validations": {
 			"name": "Имя не может быть пустым или длиннее чем 30 символов!",
 			"layers": "Слои не могут быть пустыми! Этот оверлей не может иметь более 15 слоев."
