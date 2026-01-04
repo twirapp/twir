@@ -1,6 +1,6 @@
 info:
   # Watchtime
-  watching_stream: Ви дивитесь стрім {userWatching}
+  watching_stream: You're watching stream for {userWatching} hours
 me:
   watched: 'переглянуто'
   messages: 'повідомлень'
