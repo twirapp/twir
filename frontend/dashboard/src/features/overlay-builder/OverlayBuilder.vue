@@ -62,19 +62,22 @@ const builder = useOverlayBuilder()
 
 // Overlay name state
 const overlayName = ref('')
-const canvasContainerRef = ref<HTMLElement>()
+const canvasAreaRef = ref<HTMLElement>()
 const loadedProjectId = ref<string>('')
 
 // Auto-fit zoom calculation
 function calculateFitZoom() {
-	if (!canvasContainerRef.value) return
+	if (!canvasAreaRef.value) return
 
-	const container = canvasContainerRef.value
-	const containerWidth = container.clientWidth - 64 // padding
-	const containerHeight = container.clientHeight - 64
+	// Get the actual DOM element from Vue component ref
+	const canvasArea = (canvasAreaRef.value as any)?.$el as HTMLElement
+	if (!canvasArea) return
 
-	const scaleX = containerWidth / builder.project.width
-	const scaleY = containerHeight / builder.project.height
+	const availableWidth = canvasArea.clientWidth - 64 // padding
+	const availableHeight = canvasArea.clientHeight - 64
+
+	const scaleX = availableWidth / builder.project.width
+	const scaleY = availableHeight / builder.project.height
 	const fitZoom = Math.min(scaleX, scaleY) // Always fit to viewport
 
 	// Set zoom to 80% of fit for more comfortable working space
@@ -95,13 +98,6 @@ function loadInitialProject() {
 	loadedProjectId.value = props.initialProject.id
 	overlayName.value = props.initialProject.name || ''
 	const layers = props.initialProject.layers.map((layer, index) => {
-		console.log(`[OverlayBuilder] Loading layer ${index}:`, {
-			type: layer.type,
-			name: layer.name,
-			imageUrl: layer.settings?.imageUrl,
-			fullSettings: layer.settings,
-		})
-
 		return {
 			id: layer.id || `layer-${index}`,
 			type: layer.type,
@@ -393,9 +389,10 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 		/>
 
 		<!-- Main Content -->
-		<div ref="canvasContainerRef" class="flex-1 flex overflow-hidden">
+		<div class="flex-1 flex overflow-hidden">
 			<!-- Canvas -->
 			<Canvas
+				ref="canvasAreaRef"
 				:layers="builder.project.layers"
 				:selected-layer-ids="builder.canvasState.selectedLayerIds"
 				:zoom="builder.canvasState.zoom"
