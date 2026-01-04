@@ -3,7 +3,7 @@
 	"sharedButtons": {
 		"create": "Vytvoriť",
 		"save": "Uložiť",
-		"saving": "Saving...",
+		"saving": "Ukladá sa…",
 		"close": "Zavrieť",
 		"copy": "Kopírovať",
 		"delete": "Vymazať",
@@ -231,8 +231,8 @@
 				"noTitle": "Nemôžem získať názov streamu!",
 				"noCategory": "Nemôžem získať kategóriu!",
 				"modalTitle": "Upraviť informácie o streame",
-				"editStreamInfo": "Edit Stream Information",
-				"editStreamInfoDescription": "Update your stream title and category",
+				"editStreamInfo": "Upraviť informácie o streame",
+				"editStreamInfoDescription": "Aktualizuj názov a kategóriu streamu",
 				"title": "Názov streamu",
 				"category": "Kategória"
 			},
@@ -322,7 +322,7 @@
 				"shouldDeleteMessageOnOffline": "Vymazať upozornenie namiesto jeho úpravy, keď stream prejde do offline režimu?",
 				"additionalUsersIdsForLiveCheck": "Ďalší používatelia na kontrolu online stavu pre upozornenia."
 			},
-			"connectGuild": "Connect Server",
+			"connectGuild": "Pripojiť server",
 			"disconnectGuild": "Odpojiť server",
 			"noGuilds": "Žiadne pripojené servery",
 			"cannotSendMessage": "Bot nemá možnosť posielať správy v tomto kanáli. Skontroluj oprávnenia kanála, aby si to opravil."
@@ -335,14 +335,14 @@
 		},
 		"valorant": {
 			"info": "Poskytnutie prístupu k tejto službe umožňuje Twiru sledovať vaše zápasy Valorant a nastaviť príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších. ",
-			"description": "Track your Valorant matches and display stats in your stream.",
-			"notConnected": "Valorant account not connected",
-			"notConnectedDescription": "Connect your Valorant account to enable match tracking and stats display.",
-			"connect": "Connect Valorant",
-			"connected": "Successfully connected",
-			"connectedAs": "Connected as",
-			"disconnect": "Disconnect",
-			"notConfigured": "Not configured"
+			"description": "Zaznamenávaj svoje zápasy vo Valorante a zobrazuj štatistiky vo svojom streame.",
+			"notConnected": "Účet Valorant nie je pripojený",
+			"notConnectedDescription": "Prepoj svoj účet Valorant, aby si povolili sledovanie zápasov a zobrazovanie štatistík.",
+			"connect": "Pripojiť Valorant",
+			"connected": "Úspešne prepojené",
+			"connectedAs": "Pripojený ako",
+			"disconnect": "Odpojiť",
+			"notConfigured": "Nenakonfigurované"
 		},
 		"sevenTv": {
 			"description": "Po aktivovaní tejto integrácie môžeme spravovať 7TV emoty na tvojom kanáli.",
@@ -465,11 +465,11 @@
 		"tts": {
 			"title": "Text-to-Speech (TTS)",
 			"description": "Toto prekrytie umožňuje prehrávať správy chatu ako zvuk prostredníctvom služby OBS so sadou prednastavených hlasov. Toto prekrytie môžete ovládať pomocou príkazov alebo udalostí.",
-			"generalSettings": "General Settings",
-			"advancedSettings": "Advanced Settings",
-			"advancedDescription": "Configure advanced TTS behavior and filtering options",
+			"generalSettings": "Všeobecné nastavenia",
+			"advancedSettings": "Pokročilé nastavenia",
+			"advancedDescription": "Nastav pokročilé správanie TTS a možnosti filtrovania",
 			"eventsHint": "Tip: Na spustenie TTS pri konkrétnej udalosti môžete použiť systém udalostí.",
-			"allowUsersChooseVoice": "Allow Users to Choose Voice",
+			"allowUsersChooseVoice": "Povoliť používateľom vybrať hlas",
 			"allowUsersChooseVoiceDesc": "Users can set their own voice using chat commands",
 			"doNotReadEmoji": "Nečítať emotikony",
 			"doNotReadEmojiDesc": "Skip emoji when reading messages",
