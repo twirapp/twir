@@ -57,10 +57,13 @@ func (r *subscriptionResolver) DashboardStats(ctx context.Context) (<-chan *gqlm
 				stats, err := r.deps.DashboardService.GetDashboardStats(ctx, dashboardID)
 				if err != nil {
 					r.deps.Logger.Error("cannot get dashboard stats", logger.Error(err))
-					return
+					continue
+				}
+				if stats == nil {
+					continue
 				}
 
-				convertedStats := mappers.DashboardStatsEntityToGql(stats)
+				convertedStats := mappers.DashboardStatsEntityToGql(*stats)
 
 				channel <- &convertedStats
 
@@ -91,7 +94,6 @@ func (r *subscriptionResolver) BotStatus(ctx context.Context) (<-chan *gqlmodel.
 
 			default:
 				botStatus, err := r.deps.DashboardService.GetBotStatus(ctx, dashboardID)
-
 				if err != nil {
 					return
 				}

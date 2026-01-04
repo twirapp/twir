@@ -19,6 +19,7 @@ import (
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	"github.com/twirapp/twir/libs/repositories/streams"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -36,6 +37,7 @@ type Opts struct {
 	TwirBus                 *buscore.Bus
 	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	ChannelEmotesUsagesRepo channelsemotesusagesrepository.Repository
+	StreamsRepository       streams.Repository
 }
 
 func New(opts Opts) *Service {
@@ -48,6 +50,7 @@ func New(opts Opts) *Service {
 		twirBus:                 opts.TwirBus,
 		channelsCache:           opts.ChannelsCache,
 		channelEmotesUsagesRepo: opts.ChannelEmotesUsagesRepo,
+		streamsRepository:       opts.StreamsRepository,
 	}
 }
 
@@ -60,22 +63,23 @@ type Service struct {
 	twirBus                 *buscore.Bus
 	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
+	streamsRepository       streams.Repository
 }
 
 func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
-	entity.DashboardStats,
+	*entity.DashboardStats,
 	error,
 ) {
-	var stream model.ChannelsStreams
+	stream, err := c.streamsRepository.GetByChannelID(
+		ctx,
+		channelID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("get stream by channel id: %w", err)
+	}
 
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(
-			`"userId" = ?`,
-			channelID,
-		).
-		Find(&stream).Error; err != nil {
-		return entity.DashboardStats{}, fmt.Errorf("get stream: %w", err)
+	if stream.IsNil() {
+		return nil, nil
 	}
 
 	result := entity.DashboardStats{
@@ -93,7 +97,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		c.twirBus,
 	)
 	if err != nil {
-		return entity.DashboardStats{}, err
+		return nil, fmt.Errorf("cannot get channel twitch client: %w", err)
 	}
 
 	var wg sync.WaitGroup
@@ -127,7 +131,6 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 			ctx,
 			channelID,
 		)
-
 		if err != nil {
 			result.Subs = subs
 		}
@@ -143,7 +146,6 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 				ctx,
 				channelID,
 			)
-
 			if err != nil {
 				return
 			}
@@ -161,16 +163,13 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	wg.Wait()
 
 	if len(stream.ID) == 0 {
-		return result, nil
+		return &result, nil
 	}
 
-	parsedMessages, err := c.kv.Get(
+	parsedMessages, _ := c.kv.Get(
 		ctx,
 		redis_keys.StreamParsedMessages(stream.ID),
 	).Int()
-	if err != nil {
-		return entity.DashboardStats{}, fmt.Errorf("get stream parsed messages: %w", err)
-	}
 
 	result.StreamChatMessages = int(parsedMessages)
 
@@ -214,13 +213,13 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	)
 
 	if err := errgrp.Wait(); err != nil {
-		return entity.DashboardStats{}, err
+		return nil, err
 	}
 
 	result.UsedEmotes = int(usedEmotes)
 	result.RequestedSongs = int(requestedSongs)
 
-	return result, nil
+	return &result, nil
 }
 
 func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.BotStatus, error) {
@@ -311,8 +310,10 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 	return result, nil
 }
 
-const BotJoinLeaveActionJoin = "JOIN"
-const BotJoinLeaveActionLeave = "LEAVE"
+const (
+	BotJoinLeaveActionJoin  = "JOIN"
+	BotJoinLeaveActionLeave = "LEAVE"
+)
 
 func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (bool, error) {
 	dbChannel := &model.Channels{}
