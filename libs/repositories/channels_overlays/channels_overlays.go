@@ -31,12 +31,14 @@ type CreateInput struct {
 	Name      string
 	Width     int
 	Height    int
+	InstaSave bool
 	Layers    []CreateLayerInput
 }
 
 type UpdateInput struct {
-	Name   string
-	Width  int
-	Height int
-	Layers []CreateLayerInput
+	Name      string
+	Width     int
+	Height    int
+	InstaSave bool
+	Layers    []CreateLayerInput
 }

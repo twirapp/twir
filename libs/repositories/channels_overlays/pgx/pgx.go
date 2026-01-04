@@ -40,6 +40,7 @@ type overlayRow struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Width     int       `json:"width"`
 	Height    int       `json:"height"`
+	InstaSave bool      `json:"insta_save"`
 }
 
 type layerRow struct {
@@ -118,7 +119,7 @@ ORDER BY created_at ASC
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Overlay, error) {
 	query := `
-SELECT id, channel_id, name, created_at, updated_at, width, height
+SELECT id, channel_id, name, created_at, updated_at, width, height, insta_save
 FROM channels_overlays
 WHERE id = $1
 `
@@ -134,6 +135,7 @@ WHERE id = $1
 		&overlay.UpdatedAt,
 		&overlay.Width,
 		&overlay.Height,
+		&overlay.InstaSave,
 	); err != nil {
 		if err == pgx.ErrNoRows {
 			return model.Nil, channels_overlays.ErrNotFound
@@ -154,13 +156,14 @@ WHERE id = $1
 		UpdatedAt: overlay.UpdatedAt,
 		Width:     overlay.Width,
 		Height:    overlay.Height,
+		InstaSave: overlay.InstaSave,
 		Layers:    layers,
 	}, nil
 }
 
 func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model.Overlay, error) {
 	query := `
-SELECT id, channel_id, name, created_at, updated_at, width, height
+SELECT id, channel_id, name, created_at, updated_at, width, height, insta_save
 FROM channels_overlays
 WHERE channel_id = $1
 ORDER BY created_at DESC
@@ -183,6 +186,7 @@ ORDER BY created_at DESC
 			&overlay.UpdatedAt,
 			&overlay.Width,
 			&overlay.Height,
+			&overlay.InstaSave,
 		); err != nil {
 			return nil, err
 		}
@@ -201,6 +205,7 @@ ORDER BY created_at DESC
 				UpdatedAt: overlay.UpdatedAt,
 				Width:     overlay.Width,
 				Height:    overlay.Height,
+				InstaSave: overlay.InstaSave,
 				Layers:    layers,
 			},
 		)
@@ -223,8 +228,8 @@ func (c *Pgx) Create(ctx context.Context, input channels_overlays.CreateInput) (
 	now := time.Now().UTC()
 
 	overlayQuery := `
-INSERT INTO channels_overlays (id, channel_id, name, created_at, updated_at, width, height)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO channels_overlays (id, channel_id, name, created_at, updated_at, width, height, insta_save)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 `
 
 	_, err = tx.Exec(
@@ -237,6 +242,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
 		now,
 		input.Width,
 		input.Height,
+		input.InstaSave,
 	)
 	if err != nil {
 		return model.Nil, err
@@ -307,11 +313,11 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input channels_overlays.
 
 	overlayQuery := `
 UPDATE channels_overlays
-SET name = $1, updated_at = $2, width = $3, height = $4
-WHERE id = $5
+SET name = $1, updated_at = $2, width = $3, height = $4, insta_save = $5
+WHERE id = $6
 `
 
-	result, err := tx.Exec(ctx, overlayQuery, input.Name, now, input.Width, input.Height, id)
+	result, err := tx.Exec(ctx, overlayQuery, input.Name, now, input.Width, input.Height, input.InstaSave, id)
 	if err != nil {
 		return model.Nil, err
 	}

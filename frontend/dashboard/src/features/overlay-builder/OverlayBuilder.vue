@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
 import LayersPanel from './components/LayersPanel.vue'
@@ -47,6 +48,7 @@ interface Props {
 		name: string
 		width: number
 		height: number
+		instaSave?: boolean
 		layers: InitialProjectLayer[]
 	}
 }
@@ -55,6 +57,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
 	save: [project: OverlayProject]
+	instantSave: [project: OverlayProject]
 }>()
 
 // Initialize builder
@@ -62,6 +65,7 @@ const builder = useOverlayBuilder()
 
 // Overlay name state
 const overlayName = ref('')
+const instaSave = ref(false)
 const canvasAreaRef = ref<HTMLElement>()
 const loadedProjectId = ref<string>('')
 
@@ -97,6 +101,7 @@ function loadInitialProject() {
 
 	loadedProjectId.value = props.initialProject.id
 	overlayName.value = props.initialProject.name || ''
+	instaSave.value = props.initialProject.instaSave || false
 	const layers = props.initialProject.layers.map((layer, index) => {
 		return {
 			id: layer.id || `layer-${index}`,
@@ -127,6 +132,7 @@ function loadInitialProject() {
 		name: props.initialProject.name,
 		width: 1920,
 		height: 1080,
+		instaSave: props.initialProject.instaSave || false,
 		layers,
 	})
 
@@ -180,8 +186,28 @@ function handleSave() {
 	const project = {
 		...builder.exportProject(),
 		name: overlayName.value,
+		instaSave: instaSave.value,
 	}
 	emit('save', project)
+}
+
+// Debounced instant save function
+const debouncedInstantSave = useDebounceFn(() => {
+	if (!instaSave.value) return
+
+	const project = {
+		...builder.exportProject(),
+		name: overlayName.value,
+		instaSave: instaSave.value,
+	}
+	emit('instantSave', project)
+}, 500)
+
+function handleLayerUpdate() {
+	// Trigger instant save if enabled
+	if (instaSave.value) {
+		debouncedInstantSave()
+	}
 }
 
 
@@ -189,6 +215,11 @@ function handleSave() {
 // Canvas handlers
 function handleUpdateLayer(layerId: string, updates: Partial<Layer>) {
 	builder.updateLayer(layerId, updates)
+
+	// Check if this is a position or rotation update
+	if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined) {
+		handleLayerUpdate()
+	}
 }
 
 function handleSelectLayer(layerId: string, addToSelection: boolean) {
@@ -424,6 +455,7 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 				<div class="border-b bg-background p-2">
 					<OverlaySettings
 						v-model:overlay-name="overlayName"
+						v-model:insta-save="instaSave"
 					/>
 				</div>
 

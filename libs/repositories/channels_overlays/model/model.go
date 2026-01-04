@@ -52,6 +52,7 @@ type Overlay struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 	Width     int            `json:"width"`
 	Height    int            `json:"height"`
+	InstaSave bool           `json:"insta_save"`
 	Layers    []OverlayLayer `json:"layers"`
 
 	isNil bool

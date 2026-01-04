@@ -76,6 +76,7 @@ func (s *Service) modelToEntity(m model.Overlay) entity.ChannelOverlay {
 		UpdatedAt: m.UpdatedAt,
 		Width:     m.Width,
 		Height:    m.Height,
+		InstaSave: m.InstaSave,
 		Layers:    layers,
 	}
 }
@@ -123,6 +124,7 @@ type CreateInput struct {
 	Name      string
 	Width     int
 	Height    int
+	InstaSave bool
 	Layers    []CreateLayerInput
 }
 
@@ -154,6 +156,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 			Name:      input.Name,
 			Width:     input.Width,
 			Height:    input.Height,
+			InstaSave: input.InstaSave,
 			Layers:    repoLayers,
 		},
 	)
@@ -183,6 +186,7 @@ type UpdateInput struct {
 	Name      string
 	Width     int
 	Height    int
+	InstaSave bool
 	Layers    []CreateLayerInput
 }
 
@@ -223,10 +227,11 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		ctx,
 		id,
 		channels_overlays.UpdateInput{
-			Name:   input.Name,
-			Width:  input.Width,
-			Height: input.Height,
-			Layers: repoLayers,
+			Name:      input.Name,
+			Width:     input.Width,
+			Height:    input.Height,
+			InstaSave: input.InstaSave,
+			Layers:    repoLayers,
 		},
 	)
 	if err != nil {

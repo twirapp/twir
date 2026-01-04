@@ -44,6 +44,7 @@ type ChannelOverlay struct {
 	UpdatedAt time.Time
 	Width     int
 	Height    int
+	InstaSave bool
 	Layers    []ChannelOverlayLayer
 }
 

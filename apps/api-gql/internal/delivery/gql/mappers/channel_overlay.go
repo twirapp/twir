@@ -68,6 +68,7 @@ func ChannelOverlayEntityToGql(o entity.ChannelOverlay) gqlmodel.ChannelOverlay 
 		UpdatedAt: o.UpdatedAt,
 		Width:     o.Width,
 		Height:    o.Height,
+		InstaSave: o.InstaSave,
 		Layers:    layers,
 	}
 }

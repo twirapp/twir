@@ -46,6 +46,7 @@ const projectData = computed(() => {
 			name: '',
 			width: 1920,
 			height: 1080,
+			instaSave: false,
 			layers: [],
 		}
 	}
@@ -61,6 +62,7 @@ const projectData = computed(() => {
 		name: overlay.value.name,
 		width: 1920,
 		height: 1080,
+		instaSave: overlay.value.instaSave || false,
 		layers: overlay.value.layers.map((layer, index) => {
 			return {
 				id: `layer-${layer.id || index}`,
@@ -133,6 +135,7 @@ async function handleSave(project: OverlayProject) {
 					name: project.name,
 					width: 1920,
 					height: 1080,
+					instaSave: project.instaSave || false,
 					layers: layersInput,
 				},
 			}
@@ -152,6 +155,7 @@ async function handleSave(project: OverlayProject) {
 					name: project.name,
 					width: 1920,
 					height: 1080,
+					instaSave: project.instaSave || false,
 					layers: layersInput,
 				},
 			}
@@ -183,6 +187,62 @@ async function handleSave(project: OverlayProject) {
 		toast.error('Failed to save overlay')
 	}
 }
+
+// Handle instant save (triggered by position/rotation changes when instaSave is enabled)
+async function handleInstantSave(project: OverlayProject) {
+	// Only save if we have an existing overlay (not for new overlays)
+	if (!project.id) return
+
+	// Validate project data
+	if (!project.name || project.name.length > 30) {
+		return
+	}
+
+	if (!project.layers.length || project.layers.length > 15) {
+		return
+	}
+
+	// Convert builder format back to API format
+	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer) => {
+		const rotation = Number(layer.rotation ?? 0)
+		return {
+			type: layer.type,
+			posX: layer.posX,
+			posY: layer.posY,
+			width: layer.width,
+			height: layer.height,
+			rotation: rotation,
+			periodicallyRefetchData: layer.periodicallyRefetchData,
+			settings: {
+				htmlOverlayHtml: layer.settings?.htmlOverlayHtml ?? '',
+				htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
+				htmlOverlayJs: layer.settings?.htmlOverlayJs ?? '',
+				htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
+				imageUrl: layer.settings?.imageUrl ?? '',
+			},
+		}
+	})
+
+	try {
+		// Update existing overlay silently
+		const mutationInput = {
+			id: project.id,
+			input: {
+				name: project.name,
+				width: 1920,
+				height: 1080,
+				instaSave: project.instaSave || false,
+				layers: layersInput,
+			},
+		}
+
+		await updateOverlayMutation.executeMutation(mutationInput)
+		// Don't show toast for instant saves to avoid spam
+	} catch (error) {
+		console.error('Error during instant save:', error)
+		// Silently fail for instant saves
+	}
+}
 </script>
 
 <template>
@@ -191,6 +251,7 @@ async function handleSave(project: OverlayProject) {
 			v-if="projectData"
 			:initial-project="projectData"
 			@save="handleSave"
+			@instant-save="handleInstantSave"
 		/>
 		<div v-else class="flex items-center justify-center w-full h-full">
 			<p class="text-muted-foreground">Loading overlay...</p>

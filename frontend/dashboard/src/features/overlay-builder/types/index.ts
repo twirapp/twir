@@ -30,6 +30,7 @@ export interface OverlayProject {
 	name: string
 	width: number
 	height: number
+	instaSave: boolean
 	layers: Layer[]
 }
 

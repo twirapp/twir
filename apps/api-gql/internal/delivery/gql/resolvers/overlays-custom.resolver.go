@@ -58,6 +58,7 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 			Name:      input.Name,
 			Width:     input.Width,
 			Height:    input.Height,
+			InstaSave: input.InstaSave,
 			Layers:    layers,
 		},
 	)
@@ -110,6 +111,7 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 			Name:      input.Name,
 			Width:     input.Width,
 			Height:    input.Height,
+			InstaSave: input.InstaSave,
 			Layers:    layers,
 		},
 	)
