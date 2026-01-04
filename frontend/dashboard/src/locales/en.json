@@ -98,6 +98,7 @@
 		"giveaways": "Giveaways"
 	},
 	"deleteConfirmation": {
+		"title": "Are you sure?",
 		"text": "Are you sure about deleting this thing?",
 		"cancel": "Cancel",
 		"confirm": "Confirm"
@@ -1073,6 +1074,8 @@
 		"customHeight": "Height",
 		"name": "Overlay Name",
 		"createNewLayer": "Create New Layer",
+		"createNew": "Create New Overlay",
+		"layers": "Layers",
 		"validations": {
 			"name": "Overlay Name cannot be empty and longer than 30 symbols!",
 			"layers": "Layers cannot be empty! This overlay cannot contain more than 15 layers."
