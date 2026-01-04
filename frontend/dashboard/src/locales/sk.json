@@ -338,7 +338,7 @@
 			"info": "Poskytnutie prístupu k tejto službe umožňuje Twiru sledovať vaše zápasy Valorant a nastaviť príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších. ",
 			"description": "Zaznamenávaj svoje zápasy vo Valorante a zobrazuj štatistiky vo svojom streame.",
 			"notConnected": "Účet Valorant nie je prepojený",
-			"notConnectedDescription": "Prepoj svoj účet Valorant, aby si povolili sledovanie zápasov a zobrazovanie štatistík.",
+			"notConnectedDescription": "Prepoj svoj účet Valorant, aby si povolil sledovanie zápasov a zobrazovanie štatistík.",
 			"connect": "Pripojiť Valorant",
 			"connected": "Úspešne prepojené",
 			"connectedAs": "Pripojený ako",
