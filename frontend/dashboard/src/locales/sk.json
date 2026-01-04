@@ -98,6 +98,7 @@
 		"giveaways": "Giveawaye"
 	},
 	"deleteConfirmation": {
+		"title": "Are you sure?",
 		"text": "Naozaj to chceš odstrániť?",
 		"cancel": "Zrušiť",
 		"confirm": "Potvrdiť"
@@ -1073,6 +1074,8 @@
 		"customHeight": "Výška",
 		"name": "Názov prekrytia",
 		"createNewLayer": "Vytvoriť novú vrstvu",
+		"createNew": "Create New Overlay",
+		"layers": "Layers",
 		"validations": {
 			"name": "Názov prekrytia nemôže byť prázdny a dlhší ako 30 znakov!",
 			"layers": "Vrstvy nemôžu byť prázdne! Toto prekrytie nemôže obsahovať viac ako 15 vrstiev."
