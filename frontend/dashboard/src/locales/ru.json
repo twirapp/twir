@@ -455,6 +455,7 @@
 	},
 	"overlays": {
 		"copyOverlayLink": "Скопировать ссылку на оверлей",
+		"copyLink": "Copy Link",
 		"uncongirured": "Сначала необходимо настроить оверлей!",
 		"noAccess": "У вас нет доступа к данному оверлею!",
 		"copied": "Ссылка была успешно скопирована в буфер обмена! Вставьте ее в OBS как источник-браузер.",
@@ -551,6 +552,7 @@
 			"description": "Этот оверлей позволяет воспроизводить настроенные оповещения из раздела «Оповещения»."
 		},
 		"chat": {
+			"title": "Chat Overlay",
 			"presets": "Предустановки",
 			"selectSubsetPlaceholder": "Выберите подходящие предустановки",
 			"hideTimeout": "Тайм-аут скрытия сообщения (в секундах)",
@@ -577,7 +579,16 @@
 			"hideCommands": "Скрывать команды, не отображать сообщения начинающиеся с \"!\"",
 			"hideBots": "Скрывать сообщения от ботов",
 			"style": "Стиль сообщений",
-			"description": "Этот оверлей позволяет отображать чат Twitch в программном обеспечении для потоковой трансляции. (OBS, XSplit и так далее)"
+			"description": "Этот оверлей позволяет отображать чат Twitch в программном обеспечении для потоковой трансляции. (OBS, XSplit и так далее)",
+			"generalSettings": "General Settings",
+			"fontSettings": "Font Settings",
+			"colorSettings": "Color Settings",
+			"timingSettings": "Timing Settings",
+			"animation": "Animation",
+			"noPresets": "No Presets Yet",
+			"noPresetsDescription": "Create your first chat overlay preset to get started.",
+			"deleteTitle": "Delete Preset",
+			"deleteDescription": "Are you sure you want to delete this preset? This action cannot be undone."
 		},
 		"dudes": {
 			"description": "Анимированные персонажи для участников чата",
