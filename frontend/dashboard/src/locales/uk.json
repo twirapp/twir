@@ -455,6 +455,7 @@
 	},
 	"overlays": {
 		"copyOverlayLink": "Скопіювати посилання на оверлей",
+		"copyLink": "Copy Link",
 		"uncongirured": "Спочатку слід налаштувати оверлеї!",
 		"noAccess": "Ви не можете копіювати оверлеї інших користувачів!",
 		"copied": "Посилання скопійовано, вставте його в obs як джерело-браузера.",
@@ -551,6 +552,7 @@
 			"description": "Цей оверлей використовується для відтворення налаштованих сповіщень."
 		},
 		"chat": {
+			"title": "Chat Overlay",
 			"presets": "Шаблони",
 			"selectSubsetPlaceholder": "Оберіть найкращі передналаштування",
 			"hideTimeout": "Час приховування повідомлення",
@@ -577,7 +579,16 @@
 			"hideCommands": "Приховати команди",
 			"hideBots": "Приховати інші повідомлення бота",
 			"style": "Стиль повідомлення",
-			"description": "Цей оверлей дозволяє вам показувати ваш Twitch чат у вашому додатку для трансляцій (наприклад, OBS, XSplit тощо)"
+			"description": "Цей оверлей дозволяє вам показувати ваш Twitch чат у вашому додатку для трансляцій (наприклад, OBS, XSplit тощо)",
+			"generalSettings": "General Settings",
+			"fontSettings": "Font Settings",
+			"colorSettings": "Color Settings",
+			"timingSettings": "Timing Settings",
+			"animation": "Animation",
+			"noPresets": "No Presets Yet",
+			"noPresetsDescription": "Create your first chat overlay preset to get started.",
+			"deleteTitle": "Delete Preset",
+			"deleteDescription": "Are you sure you want to delete this preset? This action cannot be undone."
 		},
 		"dudes": {
 			"description": "Анімовані персонажі для чаттерів вашої трансляції",
