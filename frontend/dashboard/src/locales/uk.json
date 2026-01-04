@@ -98,6 +98,7 @@
 		"giveaways": "Розіграші"
 	},
 	"deleteConfirmation": {
+		"title": "Are you sure?",
 		"text": "Ви впевнені, що хочете видалити це?",
 		"cancel": "Скасувати",
 		"confirm": "Підтвердити"
@@ -1073,6 +1074,8 @@
 		"customHeight": "Висота",
 		"name": "Назва оверлея",
 		"createNewLayer": "Створити новий шар",
+		"createNew": "Create New Overlay",
+		"layers": "Layers",
 		"validations": {
 			"name": "Назва не може бути порожньою і містити більше ніж 30 символів!",
 			"layers": "Шари не можуть бути порожніми! Цей оверлей не може містити більше ніж 15 шарів."
