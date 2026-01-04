@@ -98,6 +98,7 @@
 		"giveaways": "Gewinnspiele"
 	},
 	"deleteConfirmation": {
+		"title": "Are you sure?",
 		"text": "Bist du sicher, dass du das löschen möchtest?",
 		"cancel": "Abbrechen",
 		"confirm": "Bestätigen"
@@ -1073,6 +1074,8 @@
 		"customHeight": "Höhe",
 		"name": "Overlay Name",
 		"createNewLayer": "Neue Ebene erstellen",
+		"createNew": "Create New Overlay",
+		"layers": "Layers",
 		"validations": {
 			"name": "Overlay Name darf nicht leer sein und muss länger als 30 Zeichen sein!",
 			"layers": "Ebenen dürfen nicht leer sein! Dieses Overlay darf nicht mehr als 15 Ebenen enthalten."
