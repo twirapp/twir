@@ -28,6 +28,10 @@ extend type Mutation {
 		@hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
 }
 
+extend type Subscription {
+	customOverlaySettings(id: UUID!, apiKey: String!): ChannelOverlay!
+}
+
 enum ChannelOverlayLayerType {
 	HTML
 	IMAGE

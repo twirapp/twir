@@ -7,12 +7,15 @@ package resolvers
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_overlays"
+	"github.com/twirapp/twir/libs/logger"
 )
 
 // ChannelOverlayCreate is the resolver for the channelOverlayCreate field.
@@ -197,4 +200,62 @@ func (r *queryResolver) ChannelOverlayByID(ctx context.Context, id uuid.UUID) (*
 
 	converted := mappers.ChannelOverlayEntityToGql(overlay)
 	return &converted, nil
+}
+
+// CustomOverlaySettings is the resolver for the customOverlaySettings field.
+func (r *subscriptionResolver) CustomOverlaySettings(ctx context.Context, id uuid.UUID, apiKey string) (<-chan *gqlmodel.ChannelOverlay, error) {
+	user, err := r.deps.UsersService.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, err
+	}
+
+	channel := make(chan *gqlmodel.ChannelOverlay)
+
+	// Get initial overlay data
+	initialOverlay, err := r.deps.ChannelOverlaysService.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify that the overlay belongs to the user's channel
+	if initialOverlay.ChannelID != user.ID {
+		return nil, fmt.Errorf("overlay not found")
+	}
+
+	go func() {
+		sub, err := r.deps.WsRouter.Subscribe(
+			[]string{
+				channels_overlays.CreateCustomOverlayWsRouterKey(user.ID, id),
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+		defer func() {
+			sub.Unsubscribe()
+			close(channel)
+		}()
+
+		// Send initial data
+		mappedInitialOverlay := mappers.ChannelOverlayEntityToGql(initialOverlay)
+		channel <- &mappedInitialOverlay
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data := <-sub.GetChannel():
+				var overlay entity.ChannelOverlay
+				if err := json.Unmarshal(data, &overlay); err != nil {
+					r.deps.Logger.Error("cannot unmarshal custom overlay settings", logger.Error(err))
+					continue
+				}
+
+				convertedOverlay := mappers.ChannelOverlayEntityToGql(overlay)
+				channel <- &convertedOverlay
+			}
+		}
+	}()
+
+	return channel, nil
 }

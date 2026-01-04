@@ -1,11 +1,11 @@
+import { useSubscription } from '@urql/vue'
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import type { ChannelOverlayLayerType } from '@/gql/graphql'
 
+import { graphql } from '@/gql'
 import { base64DecodeUnicode, generateSocketUrlWithParams } from '@/helpers.js'
-
-import { useCustomOverlayById } from './use-custom-overlay.js'
 
 export interface Layer {
 	id: string
@@ -35,16 +35,62 @@ export const useOverlays = createGlobalState(() => {
 	const overlayId = ref('')
 	const apiKey = ref('')
 
-	// Use GraphQL query to fetch overlay data
-	const { data: overlayData } = useCustomOverlayById(overlayId)
+	const pauseGqlSub = computed(() => {
+		return !overlayId.value || !apiKey.value
+	})
+
+	// Use GraphQL subscription to get real-time overlay updates
+	const { data: overlayData } = useSubscription({
+		query: graphql(`
+			subscription CustomOverlaySettings($id: UUID!, $apiKey: String!) {
+				customOverlaySettings(id: $id, apiKey: $apiKey) {
+					id
+					channelId
+					name
+					createdAt
+					updatedAt
+					width
+					height
+					layers {
+						id
+						type
+						settings {
+							htmlOverlayHtml
+							htmlOverlayCss
+							htmlOverlayJs
+							htmlOverlayDataPollSecondsInterval
+							imageUrl
+						}
+						overlayId
+						posX
+						posY
+						width
+						height
+						rotation
+						createdAt
+						updatedAt
+						periodicallyRefetchData
+					}
+				}
+			}
+		`),
+		pause: pauseGqlSub,
+		get variables() {
+			return {
+				id: overlayId.value,
+				apiKey: apiKey.value,
+			}
+		},
+		context: {},
+	})
 
 	// Transform GraphQL data to the expected Layer format
 	const layers = computed<Layer[]>(() => {
-		if (!overlayData.value?.channelOverlayById?.layers) {
+		if (!overlayData.value?.customOverlaySettings?.layers) {
 			return []
 		}
 
-		return overlayData.value.channelOverlayById.layers.map((layer) => ({
+		return overlayData.value.customOverlaySettings.layers.map((layer) => ({
 			id: layer.id,
 			type: layer.type,
 			settings: {
@@ -73,8 +119,7 @@ export const useOverlays = createGlobalState(() => {
 			delay: 500,
 		},
 		onConnected() {
-			// No longer need to fetch layers via WebSocket
-			// Layers are now fetched via GraphQL
+			// Layers are now fetched via GraphQL subscription
 		},
 	})
 
@@ -89,10 +134,6 @@ export const useOverlays = createGlobalState(() => {
 			parsedLayersData.value[parsedData.layerId] = parsedData.data
 				? base64DecodeUnicode(parsedData.data)
 				: ''
-		}
-
-		if (parsedData.eventName === 'refreshOverlays') {
-			window.location.reload()
 		}
 	})
 

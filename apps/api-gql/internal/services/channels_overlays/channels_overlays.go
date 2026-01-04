@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/audit"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -23,6 +24,7 @@ type Opts struct {
 	OverlaysRepository channels_overlays.Repository
 	AuditRecorder      audit.Recorder
 	Bus                *buscore.Bus
+	WsRouter           wsrouter.WsRouter
 }
 
 func New(opts Opts) *Service {
@@ -30,6 +32,7 @@ func New(opts Opts) *Service {
 		overlaysRepository: opts.OverlaysRepository,
 		auditRecorder:      opts.AuditRecorder,
 		bus:                opts.Bus,
+		wsRouter:           opts.WsRouter,
 	}
 }
 
@@ -37,6 +40,7 @@ type Service struct {
 	overlaysRepository channels_overlays.Repository
 	auditRecorder      audit.Recorder
 	bus                *buscore.Bus
+	wsRouter           wsrouter.WsRouter
 }
 
 func (s *Service) modelToEntity(m model.Overlay) entity.ChannelOverlay {
@@ -243,7 +247,18 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		},
 	)
 
-	return s.modelToEntity(newOverlay), nil
+	entityOverlay := s.modelToEntity(newOverlay)
+
+	// Publish update event via WebSocket
+	if err := s.wsRouter.Publish(
+		CreateCustomOverlayWsRouterKey(input.ChannelID, id),
+		entityOverlay,
+	); err != nil {
+		// Log error but don't fail the update
+		// The overlay was updated successfully in the database
+	}
+
+	return entityOverlay, nil
 }
 
 func (s *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID string) error {
