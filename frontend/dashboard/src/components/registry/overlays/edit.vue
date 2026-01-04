@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { useMessage } from 'naive-ui'
+import { useRoute, useRouter } from 'vue-router'
+import { toast } from 'vue-sonner'
 
 import OverlayBuilder from '@/features/overlay-builder/OverlayBuilder.vue'
 import {
@@ -14,7 +14,7 @@ import type { ChannelOverlayLayerInput } from '@/gql/graphql'
 import type { OverlayProject } from '@/features/overlay-builder/types'
 
 const route = useRoute()
-const messages = useMessage()
+const router = useRouter()
 
 // Get overlay ID from route
 const overlayId = computed(() => {
@@ -55,8 +55,6 @@ const projectData = computed(() => {
 		return null
 	}
 
-	console.log('[edit.vue] Loading overlay data from API:', overlay.value)
-
 	// Convert existing overlay data to builder format (canvas size fixed at 1920x1080)
 	const converted = {
 		id: overlay.value.id,
@@ -64,11 +62,6 @@ const projectData = computed(() => {
 		width: 1920,
 		height: 1080,
 		layers: overlay.value.layers.map((layer, index) => {
-			console.log('[edit.vue] Converting layer from API:', {
-				type: layer.type,
-				imageUrl: layer.settings.imageUrl,
-				fullSettings: layer.settings,
-			})
 			return {
 				id: `layer-${layer.id || index}`,
 				type: layer.type,
@@ -94,33 +87,25 @@ const projectData = computed(() => {
 		}),
 	}
 
-	console.log('[edit.vue] Converted project data:', converted)
 	return converted
 })
 
 // Handle save from builder
 async function handleSave(project: OverlayProject) {
-	console.log('[edit.vue] Saving overlay project:', project)
-
 	// Validate project data
 	if (!project.name || project.name.length > 30) {
-		messages.error('Overlay name is required and must be less than 30 characters')
+		toast.error('Overlay name is required and must be less than 30 characters')
 		return
 	}
 
 	if (!project.layers.length || project.layers.length > 15) {
-		messages.error('Overlay must have between 1 and 15 layers')
+		toast.error('Overlay must have between 1 and 15 layers')
 		return
 	}
 
 	// Convert builder format back to API format
 	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer) => {
 		const rotation = Number(layer.rotation ?? 0)
-		console.log('[edit.vue] Converting layer to API format:', {
-			type: layer.type,
-			imageUrl: layer.settings?.imageUrl,
-			fullSettings: layer.settings,
-		})
 		return {
 			type: layer.type,
 			posX: layer.posX,
@@ -139,8 +124,6 @@ async function handleSave(project: OverlayProject) {
 		}
 	})
 
-	console.log('[edit.vue] Layers to be saved:', layersInput)
-
 	try {
 		if (project.id) {
 			// Update existing overlay
@@ -157,11 +140,11 @@ async function handleSave(project: OverlayProject) {
 			const result = await updateOverlayMutation.executeMutation(mutationInput)
 
 			if (result.error) {
-				messages.error(result.error.message)
+				toast.error(result.error.message)
 				return
 			}
 
-			messages.success('Overlay updated successfully!')
+			toast.success('Overlay updated successfully!')
 		} else {
 			// Create new overlay
 			const mutationInput = {
@@ -176,18 +159,28 @@ async function handleSave(project: OverlayProject) {
 			const result = await createOverlayMutation.executeMutation(mutationInput)
 
 			if (result.error) {
-				messages.error(result.error.message)
+				toast.error(result.error.message)
 				return
 			}
 
-			messages.success('Overlay created successfully!')
+			toast.success('Overlay created successfully!')
+
+			// Redirect to the newly created overlay
+			if (result.data?.channelOverlayCreate?.id) {
+				await router.replace({
+					name: 'RegistryOverlayEdit',
+					params: {
+						id: result.data.channelOverlayCreate.id,
+					},
+				})
+			}
 		}
 
 		// Refresh the overlays list
 		refetchOverlays({ requestPolicy: 'network-only' })
 	} catch (error) {
 		console.error('Error saving overlay:', error)
-		messages.error('Failed to save overlay')
+		toast.error('Failed to save overlay')
 	}
 }
 </script>

@@ -160,7 +160,6 @@ jobs:
             libs/migrations/**
             cli/**
             .github/workflows/dockerv3.yml
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
       - name: Setup Blacksmith Builder
         uses: useblacksmith/setup-docker-builder@v1
       - name: Login to Twir registry
@@ -196,7 +195,6 @@ jobs:
             bun.lock
             package.json
             .github/workflows/dockerv3.yml
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
       - name: Setup Blacksmith Builder
         uses: useblacksmith/setup-docker-builder@v1
       - name: Login to Twir registry
