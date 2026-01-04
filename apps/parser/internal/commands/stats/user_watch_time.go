@@ -2,6 +2,7 @@ package stats
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -29,13 +30,20 @@ var UserWatchTime = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
+		watching := fmt.Sprintf(
+			"$(%s)",
+			user.Watched.Name,
+		)
+
 		result := &types.CommandsHandlerResult{
 			Result: []string{i18n.GetCtx(
 				ctx,
 				locales.Translations.Commands.Stats.Info.WatchingStream.
-					SetVars(locales.KeysCommandsStatsInfoWatchingStreamVars{UserWatching: user.Watched.Name}),
+					SetVars(locales.KeysCommandsStatsInfoWatchingStreamVars{UserWatching: watching}),
 			)},
 		}
+
+		fmt.Println(result)
 
 		return result, nil
 	},
