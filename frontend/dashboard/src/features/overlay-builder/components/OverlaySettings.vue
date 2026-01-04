@@ -43,6 +43,7 @@ watch(localName, (newVal) => {
 					placeholder="My Overlay"
 					maxlength="30"
 					class="h-8 text-sm"
+					@keydown.stop
 				/>
 				<p class="text-xs text-muted-foreground">
 					{{ localName.length }}/30 characters

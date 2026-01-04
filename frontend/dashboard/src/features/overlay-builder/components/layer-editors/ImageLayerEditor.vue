@@ -21,20 +21,15 @@ const emit = defineEmits<{
 
 const imageUrl = computed({
 	get: () => props.layer?.settings?.imageUrl ?? '',
-	set: (_value: string) => {
-		// Setter is not used directly anymore
+	set: (value: string) => {
+		emit('update', {
+			settings: {
+				...props.layer.settings,
+				imageUrl: value,
+			},
+		})
 	},
 })
-
-function handleUrlChange(event: Event) {
-	const target = event.target as HTMLInputElement
-	emit('update', {
-		settings: {
-			...props.layer.settings,
-			imageUrl: target.value,
-		},
-	})
-}
 
 function setPlaceholder() {
 	emit('update', {
@@ -59,10 +54,10 @@ function setPlaceholder() {
 			<Label for="image-url">Image URL</Label>
 			<Input
 				id="image-url"
-				:model-value="imageUrl"
+				v-model="imageUrl"
 				type="url"
 				placeholder="https://example.com/image.png"
-				@input="handleUrlChange"
+				@keydown.stop
 			/>
 			<p class="text-xs text-muted-foreground">
 				Enter a direct URL to an image (PNG, JPG, GIF, etc.)

@@ -283,52 +283,58 @@ function handleSaveCode(data: { html: string; css: string; js: string; refreshIn
 
 // Keyboard shortcuts
 function handleKeyDown(event: KeyboardEvent) {
-	// Ctrl/Cmd + S: Save
+	// Check if focus is on an input element - if so, ignore most shortcuts
+	const target = event.target as HTMLElement
+	const isInputFocused = target.tagName === 'INPUT' ||
+		target.tagName === 'TEXTAREA' ||
+		target.isContentEditable
+
+	// Ctrl/Cmd + S: Save (always works, even in inputs)
 	if ((event.ctrlKey || event.metaKey) && event.key === 's') {
 		event.preventDefault()
 		handleSave()
 	}
-	// Ctrl/Cmd + Z: Undo
-	else if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
+	// Ctrl/Cmd + Z: Undo (only when not in input)
+	else if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey && !isInputFocused) {
 		event.preventDefault()
 		builder.undo()
 	}
-	// Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z: Redo
-	else if ((event.ctrlKey || event.metaKey) && (event.key === 'y' || (event.key === 'z' && event.shiftKey))) {
+	// Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z: Redo (only when not in input)
+	else if ((event.ctrlKey || event.metaKey) && (event.key === 'y' || (event.key === 'z' && event.shiftKey)) && !isInputFocused) {
 		event.preventDefault()
 		builder.redo()
 	}
-	// Ctrl/Cmd + C: Copy
-	else if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+	// Ctrl/Cmd + C: Copy (only when not in input - let native copy work in inputs)
+	else if ((event.ctrlKey || event.metaKey) && event.key === 'c' && !isInputFocused) {
 		event.preventDefault()
 		builder.copyToClipboard()
 	}
-	// Ctrl/Cmd + X: Cut
-	else if ((event.ctrlKey || event.metaKey) && event.key === 'x') {
+	// Ctrl/Cmd + X: Cut (only when not in input - let native cut work in inputs)
+	else if ((event.ctrlKey || event.metaKey) && event.key === 'x' && !isInputFocused) {
 		event.preventDefault()
 		builder.cutToClipboard()
 	}
-	// Ctrl/Cmd + V: Paste
-	else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+	// Ctrl/Cmd + V: Paste (only when not in input - let native paste work in inputs)
+	else if ((event.ctrlKey || event.metaKey) && event.key === 'v' && !isInputFocused) {
 		event.preventDefault()
 		builder.pasteFromClipboard()
 	}
-	// Ctrl/Cmd + D: Duplicate
-	else if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
+	// Ctrl/Cmd + D: Duplicate (only when not in input)
+	else if ((event.ctrlKey || event.metaKey) && event.key === 'd' && !isInputFocused) {
 		event.preventDefault()
 		if (builder.canvasState.selectedLayerIds.length > 0) {
 			builder.duplicateLayers(builder.canvasState.selectedLayerIds)
 		}
 	}
-	// Delete/Backspace: Delete selected layers
-	else if (event.key === 'Delete' || event.key === 'Backspace') {
+	// Delete/Backspace: Delete selected layers (only if not typing in input)
+	else if ((event.key === 'Delete' || event.key === 'Backspace') && !isInputFocused) {
 		if (builder.canvasState.selectedLayerIds.length > 0) {
 			event.preventDefault()
 			builder.removeLayers(builder.canvasState.selectedLayerIds)
 		}
 	}
-	// Ctrl/Cmd + A: Select all
-	else if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
+	// Ctrl/Cmd + A: Select all (only when not in input - let native select all work in inputs)
+	else if ((event.ctrlKey || event.metaKey) && event.key === 'a' && !isInputFocused) {
 		event.preventDefault()
 		builder.selectAll()
 	}
