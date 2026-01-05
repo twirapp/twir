@@ -1,11 +1,11 @@
 package entity
 
 import (
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 )
 
 type DonatePayIntegration struct {
-	ID        ulid.ULID
+	ID        uuid.UUID
 	ChannelID string
 	ApiKey    string
 	Enabled   bool

@@ -3,11 +3,11 @@ package model
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 )
 
 type ChatWallSettings struct {
-	ID              ulid.ULID
+	ID              uuid.UUID
 	ChannelID       string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
@@ -34,7 +34,7 @@ const (
 )
 
 type ChatWall struct {
-	ID                     ulid.ULID
+	ID                     uuid.UUID
 	ChannelID              string
 	CreatedAt              time.Time
 	UpdatedAt              time.Time
@@ -57,8 +57,8 @@ var ChatWallNil = ChatWall{
 }
 
 type ChatWallLog struct {
-	ID        ulid.ULID
-	WallID    ulid.ULID
+	ID        uuid.UUID
+	WallID    uuid.UUID
 	UserID    string
 	Text      string
 	CreatedAt time.Time

@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/libs/repositories/giveaways/model"
 )
 
@@ -16,13 +16,13 @@ type Repository interface {
 		ctx context.Context,
 		channelID, keyword string,
 	) (model.ChannelGiveaway, error)
-	GetByID(ctx context.Context, id ulid.ULID) (model.ChannelGiveaway, error)
+	GetByID(ctx context.Context, id uuid.UUID) (model.ChannelGiveaway, error)
 	Create(ctx context.Context, input CreateInput) (model.ChannelGiveaway, error)
-	Delete(ctx context.Context, id ulid.ULID) error
-	Update(ctx context.Context, id ulid.ULID, input UpdateInput) (model.ChannelGiveaway, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.ChannelGiveaway, error)
 	UpdateStatuses(
 		ctx context.Context,
-		id ulid.ULID,
+		id uuid.UUID,
 		input UpdateStatusInput,
 	) (model.ChannelGiveaway, error)
 }

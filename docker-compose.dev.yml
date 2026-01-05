@@ -11,11 +11,11 @@ services:
       - twir-dev
 
   postgres:
-    image: twirapp/postgres:latest
+    image: postgres:18.1
     restart: unless-stopped
-    command: postgres -c max_connections=500 -c shared_preload_libraries='pgx_ulid'
+    command: postgres -c 'max_connections=500'
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
     ports:
       - '54321:5432'
     environment:
@@ -34,7 +34,7 @@ services:
     networks:
       - twir-dev
     ports:
-      - "6432:6432"
+      - '6432:6432'
     environment:
       RUST_LOG: debug
 

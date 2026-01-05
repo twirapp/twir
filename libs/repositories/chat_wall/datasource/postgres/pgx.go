@@ -7,9 +7,9 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/libs/repositories/chat_wall"
 	"github.com/twirapp/twir/libs/repositories/chat_wall/model"
 )
@@ -29,15 +29,17 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ chat_wall.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  chat_wall.Repository = (*Pgx)(nil)
+	sq                      = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
 	getter *trmpgx.CtxGetter
 }
 
-func (c *Pgx) GetByID(ctx context.Context, id ulid.ULID) (model.ChatWall, error) {
+func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.ChatWall, error) {
 	query := `
 SELECT
 	id,
@@ -203,7 +205,7 @@ func (c *Pgx) GetMany(ctx context.Context, input chat_wall.GetManyInput) ([]mode
 	return result, nil
 }
 
-func (c *Pgx) GetLogs(ctx context.Context, wallID ulid.ULID) ([]model.ChatWallLog, error) {
+func (c *Pgx) GetLogs(ctx context.Context, wallID uuid.UUID) ([]model.ChatWallLog, error) {
 	query := `
 SELECT id, wall_id, user_id, text, created_at
 FROM channels_chat_wall_log
@@ -252,7 +254,6 @@ RETURNING id, channel_id, created_at, updated_at, phrase, enabled, action, durat
 		input.Duration.Seconds(),
 		timeoutDuration,
 	)
-
 	if err != nil {
 		return model.ChatWall{}, err
 	}
@@ -265,7 +266,7 @@ RETURNING id, channel_id, created_at, updated_at, phrase, enabled, action, durat
 	return result, nil
 }
 
-func (c *Pgx) Update(ctx context.Context, id ulid.ULID, input chat_wall.UpdateInput) (
+func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input chat_wall.UpdateInput) (
 	model.ChatWall,
 	error,
 ) {
@@ -317,7 +318,7 @@ func (c *Pgx) Update(ctx context.Context, id ulid.ULID, input chat_wall.UpdateIn
 	return result, nil
 }
 
-func (c *Pgx) Delete(ctx context.Context, id ulid.ULID) error {
+func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `
 DELETE FROM channels_chat_wall
 WHERE id = $1

@@ -3,7 +3,7 @@ package scheduledvipsentity
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 )
 
 type RemoveType string
@@ -14,7 +14,7 @@ const (
 )
 
 type ScheduledVip struct {
-	ID         ulid.ULID
+	ID         uuid.UUID
 	UserID     string
 	ChannelID  string
 	CreatedAt  time.Time

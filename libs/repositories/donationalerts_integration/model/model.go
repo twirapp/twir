@@ -3,12 +3,12 @@ package model
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 )
 
 type DonationAlertsIntegration struct {
 	ID           int64
-	PublicID     ulid.ULID
+	PublicID     uuid.UUID
 	Enabled      bool
 	ChannelID    string
 	AccessToken  string

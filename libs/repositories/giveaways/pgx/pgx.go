@@ -7,9 +7,9 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways/model"
@@ -30,8 +30,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ giveaways.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  giveaways.Repository = (*Pgx)(nil)
+	sq                      = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -68,7 +70,7 @@ INSERT INTO channels_giveaways ("channel_id", "keyword", "created_by_user_id") V
 	return result, nil
 }
 
-func (p *Pgx) Delete(ctx context.Context, id ulid.ULID) error {
+func (p *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `
 DELETE FROM channels_giveaways WHERE id = $1
 	`
@@ -115,7 +117,7 @@ ORDER BY created_at DESC;
 	return result, nil
 }
 
-func (p *Pgx) GetByID(ctx context.Context, id ulid.ULID) (model.ChannelGiveaway, error) {
+func (p *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.ChannelGiveaway, error) {
 	query := `
 SELECT id, channel_id, created_at, updated_at, started_at, stopped_at, keyword, created_by_user_id
 FROM channels_giveaways
@@ -218,7 +220,7 @@ func (p *Pgx) GetManyActiveByChannelID(
 
 func (p *Pgx) UpdateStatuses(
 	ctx context.Context,
-	id ulid.ULID,
+	id uuid.UUID,
 	input giveaways.UpdateStatusInput,
 ) (model.ChannelGiveaway, error) {
 	updateBuilder := sq.Update("channels_giveaways").
@@ -258,7 +260,7 @@ func (p *Pgx) UpdateStatuses(
 
 func (p *Pgx) Update(
 	ctx context.Context,
-	id ulid.ULID,
+	id uuid.UUID,
 	input giveaways.UpdateInput,
 ) (model.ChannelGiveaway, error) {
 	updateBuilder := sq.Update("channels_giveaways").

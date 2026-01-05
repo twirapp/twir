@@ -3,7 +3,7 @@
 SELECT 'up SQL query';
 
 CREATE TABLE channels_chat_translation_settings (
-	id ulid PRIMARY KEY DEFAULT gen_ulid(),
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
 	channel_id TEXT NOT NULL UNIQUE,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),

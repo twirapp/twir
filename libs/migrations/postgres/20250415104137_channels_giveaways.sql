@@ -3,7 +3,7 @@
 SELECT 'up SQL query';
 
 CREATE TABLE channels_giveaways (
-	id ulid PRIMARY KEY DEFAULT gen_ulid(),
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
 	channel_id TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -19,8 +19,8 @@ CREATE TABLE channels_giveaways (
 );
 
 CREATE TABLE channels_giveaways_participants (
-	id ulid PRIMARY KEY DEFAULT gen_ulid(),
-	giveaway_id ulid NOT NULL,
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
+	giveaway_id UUID NOT NULL,
 	is_winner BOOLEAN NOT NULL DEFAULT false,
 	display_name TEXT NOT NULL,
 	user_id TEXT NOT NULL,

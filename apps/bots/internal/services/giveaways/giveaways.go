@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
+	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/oklog/ulid/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -127,7 +127,7 @@ func (c *Service) chooseWinner(
 	ctx context.Context,
 	req giveawaysbusmodel.ChooseWinnerRequest,
 ) (giveawaysbusmodel.ChooseWinnerResponse, error) {
-	parsedGiveawayId, err := ulid.Parse(req.GiveawayID)
+	parsedGiveawayId, err := uuid.Parse(req.GiveawayID)
 	if err != nil {
 		return giveawaysbusmodel.ChooseWinnerResponse{}, err
 	}

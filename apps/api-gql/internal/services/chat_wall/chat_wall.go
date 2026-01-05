@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
@@ -78,7 +78,7 @@ func (c *Service) GetLogs(ctx context.Context, channelId, wallID string) (
 	[]entity.ChatWallLog,
 	error,
 ) {
-	parsedId, err := ulid.Parse(wallID)
+	parsedId, err := uuid.Parse(wallID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse wall id: %w", err)
 	}

@@ -15,7 +15,7 @@ CREATE TYPE channels_chat_wall_action AS ENUM (
 );
 
 CREATE TABLE IF NOT EXISTS channels_chat_wall_settings (
-	id ulid PRIMARY KEY DEFAULT gen_ulid(),
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
 	channel_id TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS channels_chat_wall_settings (
 CREATE UNIQUE INDEX channels_chat_wall_settings_channel_id_unique_idx ON channels_chat_wall_settings (channel_id);
 
 CREATE TABLE IF NOT EXISTS channels_chat_wall (
-	id ulid PRIMARY KEY DEFAULT gen_ulid(),
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
 	channel_id TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS channels_chat_wall (
 );
 
 CREATE TABLE IF NOT EXISTS channels_chat_wall_log (
-	id ulid PRIMARY KEY DEFAULT gen_ulid(),
-	wall_id ulid NOT NULL,
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
+	wall_id UUID NOT NULL,
 	user_id TEXT NOT NULL,
 	text TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

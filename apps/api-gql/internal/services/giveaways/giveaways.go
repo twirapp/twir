@@ -7,10 +7,9 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -20,6 +19,7 @@ import (
 	giveawaysmodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	giveawaysparticipantsmodel "github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
 
@@ -99,7 +99,7 @@ func (c *Service) handleNewParticipants(
 
 func (c *Service) Start(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID uuid.UUID,
 	channelID string,
 ) (entity.ChannelGiveaway, error) {
 	dbGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
@@ -153,7 +153,7 @@ func (c *Service) Start(
 
 func (c *Service) Stop(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID uuid.UUID,
 	channelID string,
 ) (entity.ChannelGiveaway, error) {
 	dbGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
@@ -190,7 +190,7 @@ func (c *Service) Stop(
 
 func (c *Service) ChooseWinners(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID uuid.UUID,
 	channelID string,
 ) ([]entity.ChannelGiveawayWinner, error) {
 	dbGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
@@ -272,7 +272,7 @@ type GetParticipantsInput struct {
 
 func (c *Service) GetParticipantsForGiveaway(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID uuid.UUID,
 	input GetParticipantsInput,
 ) ([]entity.ChannelGiveawayParticipant, error) {
 	participants, err := c.giveawaysParticipantsRepository.GetManyByGiveawayID(
@@ -296,7 +296,7 @@ func (c *Service) GetParticipantsForGiveaway(
 
 func (c *Service) GiveawayGet(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID uuid.UUID,
 	channelID string,
 ) (entity.ChannelGiveaway, error) {
 	giveaway, err := c.giveawaysRepository.GetByID(ctx, giveawayID)
@@ -335,7 +335,7 @@ func (c *Service) GiveawaysGetMany(
 
 func (c *Service) GiveawayRemove(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID uuid.UUID,
 	channelID string,
 ) error {
 	err := c.giveawaysRepository.Delete(ctx, giveawayID)
@@ -356,7 +356,7 @@ type UpdateInput struct {
 
 func (c *Service) GiveawayUpdate(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID uuid.UUID,
 	channelID string,
 	input UpdateInput,
 ) (entity.ChannelGiveaway, error) {
@@ -386,7 +386,7 @@ type UpdateStatusInput struct {
 
 func (c *Service) GiveawayUpdateStatus(
 	ctx context.Context,
-	giveawayID ulid.ULID,
+	giveawayID uuid.UUID,
 	channelID string,
 	input UpdateStatusInput,
 ) (entity.ChannelGiveaway, error) {

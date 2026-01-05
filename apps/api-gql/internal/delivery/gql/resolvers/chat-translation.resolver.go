@@ -9,7 +9,7 @@ import (
 	"context"
 	"errors"
 
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
@@ -85,7 +85,7 @@ func (r *mutationResolver) ChatTranslationUpdate(ctx context.Context, id string,
 		updateInput.UseItalic = input.UseItalic.Value()
 	}
 
-	parsedId, err := ulid.Parse(id)
+	parsedId, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (r *mutationResolver) ChatTranslationDelete(ctx context.Context, id string)
 		return false, err
 	}
 
-	parsedId, err := ulid.Parse(id)
+	parsedId, err := uuid.Parse(id)
 	if err != nil {
 		return false, err
 	}

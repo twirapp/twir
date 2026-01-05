@@ -7,9 +7,9 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/oklog/ulid/v2"
 	"github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
 )
@@ -29,8 +29,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ chat_translation.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  chat_translation.Repository = (*Pgx)(nil)
+	sq                             = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -97,7 +99,7 @@ RETURNING id, channel_id, created_at, updated_at, enabled, target_language, excl
 
 func (c *Pgx) Update(
 	ctx context.Context,
-	id ulid.ULID,
+	id uuid.UUID,
 	input chat_translation.UpdateInput,
 ) (model.ChatTranslation, error) {
 	builder := sq.Update("channels_chat_translation_settings").
@@ -146,7 +148,7 @@ func (c *Pgx) Update(
 	return translation, nil
 }
 
-func (c *Pgx) Delete(ctx context.Context, id ulid.ULID) error {
+func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `
 DELETE FROM channels_chat_translation_settings
 WHERE id = $1

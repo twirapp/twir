@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -126,7 +126,7 @@ type UpdateInput struct {
 
 func (s *Service) Update(
 	ctx context.Context,
-	id ulid.ULID,
+	id uuid.UUID,
 	input UpdateInput,
 ) (entity.ChatTranslation, error) {
 	// First get the existing translation to get the ID
@@ -180,7 +180,7 @@ func (s *Service) Update(
 }
 
 type DeleteInput struct {
-	ID        ulid.ULID
+	ID        uuid.UUID
 	ChannelID string
 	ActorID   string
 }

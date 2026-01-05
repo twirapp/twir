@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"go.uber.org/fx"
@@ -70,7 +70,7 @@ type RemoveInput struct {
 }
 
 func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
-	id, err := ulid.Parse(input.ID)
+	id, err := uuid.Parse(input.ID)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 }
 
 func (c *Service) Update(ctx context.Context, id, channelID string, removeAt *time.Time) error {
-	vipID, err := ulid.Parse(id)
+	vipID, err := uuid.Parse(id)
 	if err != nil {
 		return err
 	}

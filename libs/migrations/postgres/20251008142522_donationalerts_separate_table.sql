@@ -4,7 +4,7 @@ SELECT 'up SQL query';
 
 CREATE TABLE IF NOT EXISTS channels_integrations_donationalerts (
 	id SERIAL PRIMARY KEY,
-	public_id ulid NOT NULL DEFAULT gen_ulid(),
+	public_id UUID NOT NULL DEFAULT uuidv7(),
 	channel_id TEXT NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
 	access_token TEXT NOT NULL,
 	refresh_token TEXT NOT NULL,

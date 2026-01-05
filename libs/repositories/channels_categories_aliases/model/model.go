@@ -1,11 +1,11 @@
 package model
 
 import (
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 )
 
 type ChannelCategoryAliase struct {
-	ID         ulid.ULID
+	ID         uuid.UUID
 	ChannelID  string
 	Alias      string
 	CategoryID string

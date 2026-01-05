@@ -1,10 +1,8 @@
 -- +goose Up
 -- +goose StatementBegin
 SELECT 'up SQL query';
-CREATE EXTENSION ulid;
-
 CREATE TABLE IF NOT EXISTS channels_categories_aliases (
-		id ulid PRIMARY KEY DEFAULT gen_ulid(),
+		id UUID PRIMARY KEY DEFAULT uuidv7(),
 		channel_id TEXT NOT NULL,
 		alias TEXT NOT NULL,
 		category_id TEXT NOT NULL,

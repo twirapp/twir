@@ -23,7 +23,6 @@ require (
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/minio/minio-go/v7 v7.0.97
 	github.com/nicklaw5/helix/v2 v2.32.0
-	github.com/oklog/ulid/v2 v2.1.1
 	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/ravilushqa/otelgqlgen v0.19.0
 	github.com/redis/go-redis/v9 v9.17.1
@@ -38,7 +37,7 @@ require (
 	github.com/twirapp/twir/libs/cache v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/config v0.0.0-20260104225553-e12a225540d0
 	github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/entities v0.0.0-20260102031833-cfb924c9b7eb
+	github.com/twirapp/twir/libs/entities v0.0.0-20260105013918-15f7ceeeee01
 	github.com/twirapp/twir/libs/gomodels v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/integrations v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
@@ -122,6 +121,7 @@ require (
 	github.com/nats-io/nats.go v1.48.0 // indirect
 	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/oklog/ulid/v2 v2.1.1 // indirect
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect

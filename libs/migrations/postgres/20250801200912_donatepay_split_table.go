@@ -21,7 +21,7 @@ type donatePaySplitTableChannelsIntegrations20250801200912 struct {
 func upDonatepaySplitTable(ctx context.Context, tx *sql.Tx) error {
 	createQuery := `
 CREATE TABLE channels_integrations_donatepay (
-	id ulid PRIMARY KEY DEFAULT gen_ulid(),
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
 	channel_id text NOT NULL REFERENCES channels(id),
 	api_key text,
 	enabled boolean NOT NULL DEFAULT false

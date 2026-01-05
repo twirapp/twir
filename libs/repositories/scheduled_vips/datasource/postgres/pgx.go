@@ -7,9 +7,9 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/oklog/ulid/v2"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/scheduled_vips"
 )
@@ -29,8 +29,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ scheduled_vips.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  scheduled_vips.Repository = (*Pgx)(nil)
+	sq                           = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -38,7 +40,7 @@ type Pgx struct {
 }
 
 type scanModel struct {
-	ID         ulid.ULID
+	ID         uuid.UUID
 	UserID     string
 	ChannelID  string
 	CreatedAt  time.Time
@@ -65,7 +67,7 @@ func (c scanModel) toEntity() scheduledvipsentity.ScheduledVip {
 	return e
 }
 
-func (c *Pgx) Update(ctx context.Context, id ulid.ULID, input scheduled_vips.UpdateInput) error {
+func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input scheduled_vips.UpdateInput) error {
 	updateBuilder := sq.Update("channels_scheduled_vips").
 		Where(squirrel.Eq{"id": id.String()})
 
@@ -83,7 +85,7 @@ func (c *Pgx) Update(ctx context.Context, id ulid.ULID, input scheduled_vips.Upd
 	return err
 }
 
-func (c *Pgx) GetByID(ctx context.Context, id ulid.ULID) (scheduledvipsentity.ScheduledVip, error) {
+func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (scheduledvipsentity.ScheduledVip, error) {
 	query := `
 SELECT id, channel_id, user_id, created_at, remove_at, remove_type
 FROM channels_scheduled_vips
@@ -201,7 +203,7 @@ VALUES ($1, $2, $3)
 	return err
 }
 
-func (c *Pgx) Delete(ctx context.Context, id ulid.ULID) error {
+func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `
 DELETE FROM channels_scheduled_vips
 WHERE id = $1

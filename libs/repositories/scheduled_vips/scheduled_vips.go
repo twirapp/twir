@@ -4,17 +4,17 @@ import (
 	"context"
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 )
 
 type Repository interface {
-	GetByID(ctx context.Context, id ulid.ULID) (scheduledvipsentity.ScheduledVip, error)
+	GetByID(ctx context.Context, id uuid.UUID) (scheduledvipsentity.ScheduledVip, error)
 	GetMany(ctx context.Context, input GetManyInput) ([]scheduledvipsentity.ScheduledVip, error)
 	Create(ctx context.Context, input CreateInput) error
-	Delete(ctx context.Context, id ulid.ULID) error
+	Delete(ctx context.Context, id uuid.UUID) error
 	GetByUserAndChannelID(ctx context.Context, userID, channelID string) (scheduledvipsentity.ScheduledVip, error)
-	Update(ctx context.Context, id ulid.ULID, input UpdateInput) error
+	Update(ctx context.Context, id uuid.UUID, input UpdateInput) error
 }
 
 type GetManyInput struct {

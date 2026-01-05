@@ -3,11 +3,11 @@ package entity
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 )
 
 type ChatTranslation struct {
-	ID                ulid.ULID
+	ID                uuid.UUID
 	ChannelID         string
 	Enabled           bool
 	TargetLanguage    string

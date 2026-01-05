@@ -342,8 +342,8 @@ github.com/twirapp/twir/libs/config v0.0.0-20260104225553-e12a225540d0 h1:V3Ih59
 github.com/twirapp/twir/libs/config v0.0.0-20260104225553-e12a225540d0/go.mod h1:iqRJsvMcHnMpYvDw5l4pzglCKzrQ2qmIztQdKBgxtbY=
 github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f h1:xlvC57cO1m4XqQ3lopunigEQ+CLkl5ZQuzjHTt3zi9A=
 github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f/go.mod h1:SKVy/kWusso7zWb+UzM5vzdm+HAXg2e6EOMbRp5PwfI=
-github.com/twirapp/twir/libs/entities v0.0.0-20260102031833-cfb924c9b7eb h1:WonZVwqSmx1oYa151YzBjovymMZOkb9PIhH+QlgHzYI=
-github.com/twirapp/twir/libs/entities v0.0.0-20260102031833-cfb924c9b7eb/go.mod h1:Cr0Jo68+TvybfoI0sxu3CweIhuCLm92yTW/fzMFEAy4=
+github.com/twirapp/twir/libs/entities v0.0.0-20260105013918-15f7ceeeee01 h1:cRzpnGZ3mVQS3Oyp+ZZrywfxL6ACZObGKn/+yAa2YO0=
+github.com/twirapp/twir/libs/entities v0.0.0-20260105013918-15f7ceeeee01/go.mod h1:D5Z7iKb4aWk9hHrIsZ0yqgqRgA5rwkp4rxLIrh37Img=
 github.com/twirapp/twir/libs/gomodels v0.0.0-20251127124349-67ad7fa0003f h1:xbeHn65vFgaWxxVSTy31zNQD7Mb7tP8Gw0Opmd2W+7A=
 github.com/twirapp/twir/libs/gomodels v0.0.0-20251127124349-67ad7fa0003f/go.mod h1:8izlHEG3NNlj9gUg6dJqaeTCIa8pEBQAscDNf4iuk5M=
 github.com/twirapp/twir/libs/integrations v0.0.0-20251127124349-67ad7fa0003f h1:ETt7bMkSsAFSC+pmcznjwYs7WhuEh4/fzfSC50D+5ow=

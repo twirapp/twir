@@ -3,11 +3,11 @@ package entity
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 )
 
 type ChannelGiveaway struct {
-	ID              ulid.ULID
+	ID              uuid.UUID
 	ChannelID       string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time

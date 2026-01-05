@@ -9,7 +9,7 @@ import (
 	"context"
 
 	"github.com/goccy/go-json"
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -23,14 +23,14 @@ import (
 
 // Winners is the resolver for the winners field.
 func (r *channelGiveawayResolver) Winners(ctx context.Context, obj *gqlmodel.ChannelGiveaway) ([]gqlmodel.ChannelGiveawayWinner, error) {
-	parsedUlid, err := ulid.Parse(obj.ID)
+	parsedID, err := uuid.Parse(obj.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	winners, err := r.deps.GiveawaysService.GetParticipantsForGiveaway(
 		ctx,
-		parsedUlid,
+		parsedID,
 		giveaways.GetParticipantsInput{OnlyWinners: true},
 	)
 	if err != nil {
@@ -54,7 +54,7 @@ func (r *channelGiveawayResolver) Winners(ctx context.Context, obj *gqlmodel.Cha
 
 // Participants is the resolver for the participants field.
 func (r *channelGiveawayResolver) Participants(ctx context.Context, obj *gqlmodel.ChannelGiveaway) ([]gqlmodel.ChannelGiveawayParticipants, error) {
-	parsedID, err := ulid.Parse(obj.ID)
+	parsedID, err := uuid.Parse(obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (r *mutationResolver) GiveawaysUpdate(ctx context.Context, id string, opts 
 		return nil, err
 	}
 
-	parsedID, err := ulid.Parse(id)
+	parsedID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (r *mutationResolver) GiveawaysRemove(ctx context.Context, id string) (*gql
 		return nil, err
 	}
 
-	parsedID, err := ulid.Parse(id)
+	parsedID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (r *mutationResolver) GiveawaysStart(ctx context.Context, id string) (*gqlm
 		return nil, err
 	}
 
-	parsedID, err := ulid.Parse(id)
+	parsedID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func (r *mutationResolver) GiveawaysStop(ctx context.Context, id string) (*gqlmo
 		return nil, err
 	}
 
-	parsedID, err := ulid.Parse(id)
+	parsedID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +202,7 @@ func (r *mutationResolver) GiveawaysChooseWinners(ctx context.Context, id string
 		return nil, err
 	}
 
-	parsedID, err := ulid.Parse(id)
+	parsedID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +251,7 @@ func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (*gqlmo
 		return nil, err
 	}
 
-	parsedID, err := ulid.Parse(giveawayID)
+	parsedID, err := uuid.Parse(giveawayID)
 	if err != nil {
 		return nil, err
 	}

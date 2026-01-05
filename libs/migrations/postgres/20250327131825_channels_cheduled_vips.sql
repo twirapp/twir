@@ -4,7 +4,7 @@ SELECT 'up SQL query';
 ALTER TABLE users ADD CONSTRAINT users_id_unique UNIQUE (id);
 
 CREATE TABLE IF NOT EXISTS channels_scheduled_vips (
-	id ulid PRIMARY KEY DEFAULT gen_ulid(),
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
 	channel_id TEXT NOT NULL,
 	user_id TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

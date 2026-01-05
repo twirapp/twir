@@ -28,7 +28,6 @@ require (
 	github.com/diamondburned/arikawa/v3 v3.6.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lkretschmer/deepl-go v0.3.0
-	github.com/oklog/ulid/v2 v2.1.1
 	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251217140736-48670d138d86
@@ -86,6 +85,7 @@ require (
 	github.com/nats-io/nats.go v1.48.0 // indirect
 	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/oklog/ulid/v2 v2.1.1 // indirect
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

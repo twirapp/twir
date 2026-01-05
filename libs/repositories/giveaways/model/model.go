@@ -3,11 +3,11 @@ package model
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 )
 
 type ChannelGiveaway struct {
-	ID              ulid.ULID  `db:"id"`
+	ID              uuid.UUID  `db:"id"`
 	ChannelID       string     `db:"channel_id"`
 	CreatedAt       time.Time  `db:"created_at"`
 	Keyword         string     `db:"keyword"`
