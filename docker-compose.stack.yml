@@ -65,7 +65,7 @@ services:
       - twir_postgres_password
       - twir_postgres_db
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - pg18-data:/var/lib/postgresql
     networks:
       - twir
     deploy:
