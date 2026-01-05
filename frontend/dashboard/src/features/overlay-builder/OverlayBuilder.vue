@@ -47,6 +47,7 @@ interface Props {
 		name: string
 		width: number
 		height: number
+		instaSave?: boolean
 		layers: InitialProjectLayer[]
 	}
 }
@@ -55,6 +56,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
 	save: [project: OverlayProject]
+	instantSave: [project: OverlayProject]
 }>()
 
 // Initialize builder
@@ -62,6 +64,7 @@ const builder = useOverlayBuilder()
 
 // Overlay name state
 const overlayName = ref('')
+const instaSave = ref(false)
 const canvasAreaRef = ref<HTMLElement>()
 const loadedProjectId = ref<string>('')
 
@@ -97,6 +100,8 @@ function loadInitialProject() {
 
 	loadedProjectId.value = props.initialProject.id
 	overlayName.value = props.initialProject.name || ''
+	instaSave.value = props.initialProject.instaSave || false
+
 	const layers = props.initialProject.layers.map((layer, index) => {
 		return {
 			id: layer.id || `layer-${index}`,
@@ -127,6 +132,7 @@ function loadInitialProject() {
 		name: props.initialProject.name,
 		width: 1920,
 		height: 1080,
+		instaSave: props.initialProject.instaSave || false,
 		layers,
 	})
 
@@ -143,6 +149,15 @@ watch(() => props.initialProject?.id, (newId) => {
 		loadInitialProject()
 	}
 }, { immediate: true })
+
+// Watch for instaSave changes from props without reloading the whole project
+watch(() => props.initialProject?.instaSave, (newInstaSave) => {
+	// Only update if we have a loaded project and the value actually changed
+	if (loadedProjectId.value && newInstaSave !== undefined && newInstaSave !== instaSave.value) {
+		instaSave.value = newInstaSave
+		builder.project.instaSave = newInstaSave
+	}
+})
 
 // Load initial project on mount as well
 onMounted(() => {
@@ -177,18 +192,46 @@ function addImageLayer() {
 
 // Toolbar handlers
 function handleSave() {
-	const project = {
-		...builder.exportProject(),
-		name: overlayName.value,
-	}
+	builder.project.instaSave = instaSave.value
+	const project = builder.exportProject()
+	project.name = overlayName.value
+
 	emit('save', project)
 }
 
+function handleLayerUpdate() {
+	// Trigger instant save if enabled (debouncing handled by parent)
+	if (instaSave.value) {
+		builder.project.instaSave = instaSave.value
+		const project = builder.exportProject()
+		project.name = overlayName.value
 
+		emit('instantSave', project)
+	}
+}
+
+// Watch for instaSave changes to save the setting immediately
+watch(instaSave, (newValue, oldValue) => {
+	// Sync with builder.project.instaSave
+	builder.project.instaSave = newValue
+
+	// Only trigger if value actually changed and we have a loaded project
+	if (newValue !== oldValue && loadedProjectId.value) {
+		const project = builder.exportProject()
+		project.name = overlayName.value
+
+		emit('instantSave', project)
+	}
+})
 
 // Canvas handlers
 function handleUpdateLayer(layerId: string, updates: Partial<Layer>) {
 	builder.updateLayer(layerId, updates)
+
+	// Check if this is a position, size, or rotation update that should trigger instant save
+	if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined) {
+		handleLayerUpdate()
+	}
 }
 
 function handleSelectLayer(layerId: string, addToSelection: boolean) {
@@ -250,6 +293,11 @@ function handleReorderLayers(layers: Layer[]) {
 function handleUpdateLayerProperties(updates: Partial<Layer>) {
 	if (builder.activeLayer.value) {
 		builder.updateLayer(builder.activeLayer.value.id, updates)
+
+		// Check if this update should trigger instant save
+		if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined) {
+			handleLayerUpdate()
+		}
 	}
 }
 
@@ -424,6 +472,7 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 				<div class="border-b bg-background p-2">
 					<OverlaySettings
 						v-model:overlay-name="overlayName"
+						v-model:insta-save="instaSave"
 					/>
 				</div>
 

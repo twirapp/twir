@@ -40,6 +40,7 @@ type overlayRow struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Width     int       `json:"width"`
 	Height    int       `json:"height"`
+	InstaSave bool      `json:"insta_save"`
 }
 
 type layerRow struct {
@@ -118,7 +119,7 @@ ORDER BY created_at ASC
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Overlay, error) {
 	query := `
-SELECT id, channel_id, name, created_at, updated_at, width, height
+SELECT id, channel_id, name, created_at, updated_at, width, height, insta_save
 FROM channels_overlays
 WHERE id = $1
 `
@@ -134,6 +135,7 @@ WHERE id = $1
 		&overlay.UpdatedAt,
 		&overlay.Width,
 		&overlay.Height,
+		&overlay.InstaSave,
 	); err != nil {
 		if err == pgx.ErrNoRows {
 			return model.Nil, channels_overlays.ErrNotFound
@@ -154,13 +156,14 @@ WHERE id = $1
 		UpdatedAt: overlay.UpdatedAt,
 		Width:     overlay.Width,
 		Height:    overlay.Height,
+		InstaSave: overlay.InstaSave,
 		Layers:    layers,
 	}, nil
 }
 
 func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model.Overlay, error) {
 	query := `
-SELECT id, channel_id, name, created_at, updated_at, width, height
+SELECT id, channel_id, name, created_at, updated_at, width, height, insta_save
 FROM channels_overlays
 WHERE channel_id = $1
 ORDER BY created_at DESC
@@ -183,6 +186,7 @@ ORDER BY created_at DESC
 			&overlay.UpdatedAt,
 			&overlay.Width,
 			&overlay.Height,
+			&overlay.InstaSave,
 		); err != nil {
 			return nil, err
 		}
@@ -201,6 +205,7 @@ ORDER BY created_at DESC
 				UpdatedAt: overlay.UpdatedAt,
 				Width:     overlay.Width,
 				Height:    overlay.Height,
+				InstaSave: overlay.InstaSave,
 				Layers:    layers,
 			},
 		)
@@ -223,8 +228,8 @@ func (c *Pgx) Create(ctx context.Context, input channels_overlays.CreateInput) (
 	now := time.Now().UTC()
 
 	overlayQuery := `
-INSERT INTO channels_overlays (id, channel_id, name, created_at, updated_at, width, height)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO channels_overlays (id, channel_id, name, created_at, updated_at, width, height, insta_save)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 `
 
 	_, err = tx.Exec(
@@ -237,6 +242,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
 		now,
 		input.Width,
 		input.Height,
+		input.InstaSave,
 	)
 	if err != nil {
 		return model.Nil, err
@@ -307,11 +313,11 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input channels_overlays.
 
 	overlayQuery := `
 UPDATE channels_overlays
-SET name = $1, updated_at = $2, width = $3, height = $4
-WHERE id = $5
+SET name = $1, updated_at = $2, width = $3, height = $4, insta_save = $5
+WHERE id = $6
 `
 
-	result, err := tx.Exec(ctx, overlayQuery, input.Name, now, input.Width, input.Height, id)
+	result, err := tx.Exec(ctx, overlayQuery, input.Name, now, input.Width, input.Height, input.InstaSave, id)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -351,4 +357,84 @@ func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (c *Pgx) UpdateLayer(ctx context.Context, layerId uuid.UUID, input channels_overlays.LayerUpdateInput) (model.OverlayLayer, error) {
+	query := `
+UPDATE channels_overlays_layers
+SET pos_x = COALESCE($1, pos_x),
+		pos_y = COALESCE($2, pos_y),
+		updated_at = $3,
+		width = COALESCE($4, width),
+		height = COALESCE($5, height),
+		rotation = COALESCE($6, rotation)
+WHERE id = $7
+RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data
+`
+
+	now := time.Now().UTC()
+	result, err := c.pool.Exec(
+		ctx,
+		query,
+		input.PosX,
+		input.PosY,
+		now,
+		input.Width,
+		input.Height,
+		input.Rotation,
+		layerId,
+	)
+	if err != nil {
+		return model.OverlayLayer{}, err
+	}
+
+	if result.RowsAffected() == 0 {
+		return model.OverlayLayer{}, channels_overlays.ErrNotFound
+	}
+
+	getQuery := `
+SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data
+FROM channels_overlays_layers
+WHERE id = $1
+`
+
+	row := c.pool.QueryRow(ctx, getQuery, layerId)
+
+	var layer layerRow
+	if err := row.Scan(
+		&layer.ID,
+		&layer.Type,
+		&layer.Settings,
+		&layer.OverlayID,
+		&layer.PosX,
+		&layer.PosY,
+		&layer.Width,
+		&layer.Height,
+		&layer.Rotation,
+		&layer.CreatedAt,
+		&layer.UpdatedAt,
+		&layer.PeriodicallyRefetchData,
+	); err != nil {
+		return model.OverlayLayer{}, err
+	}
+
+	var settings model.OverlayLayerSettings
+	if err := json.Unmarshal(layer.Settings, &settings); err != nil {
+		return model.OverlayLayer{}, err
+	}
+
+	return model.OverlayLayer{
+		ID:                      layer.ID,
+		Type:                    model.OverlayType(layer.Type),
+		Settings:                settings,
+		OverlayID:               layer.OverlayID,
+		PosX:                    layer.PosX,
+		PosY:                    layer.PosY,
+		Width:                   layer.Width,
+		Height:                  layer.Height,
+		Rotation:                layer.Rotation,
+		CreatedAt:               layer.CreatedAt,
+		UpdatedAt:               layer.UpdatedAt,
+		PeriodicallyRefetchData: layer.PeriodicallyRefetchData,
+	}, nil
 }

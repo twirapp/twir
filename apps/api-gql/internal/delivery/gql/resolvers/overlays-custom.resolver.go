@@ -13,8 +13,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_overlays"
+	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 	"github.com/twirapp/twir/libs/logger"
 )
 
@@ -34,7 +34,7 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 	for i, l := range input.Layers {
 		layers[i] = channels_overlays.CreateLayerInput{
 			Type: mappers.ChannelOverlayLayerTypeGqlToEntity(l.Type),
-			Settings: entity.ChannelOverlayLayerSettings{
+			Settings: customoverlayentity.ChannelOverlayLayerSettings{
 				HtmlOverlayHTML:                    l.Settings.HTMLOverlayHTML,
 				HtmlOverlayCSS:                     l.Settings.HTMLOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HTMLOverlayJs,
@@ -58,6 +58,7 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 			Name:      input.Name,
 			Width:     input.Width,
 			Height:    input.Height,
+			InstaSave: input.InstaSave,
 			Layers:    layers,
 		},
 	)
@@ -85,7 +86,7 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 	for i, l := range input.Layers {
 		layers[i] = channels_overlays.CreateLayerInput{
 			Type: mappers.ChannelOverlayLayerTypeGqlToEntity(l.Type),
-			Settings: entity.ChannelOverlayLayerSettings{
+			Settings: customoverlayentity.ChannelOverlayLayerSettings{
 				HtmlOverlayHTML:                    l.Settings.HTMLOverlayHTML,
 				HtmlOverlayCSS:                     l.Settings.HTMLOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HTMLOverlayJs,
@@ -110,6 +111,7 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 			Name:      input.Name,
 			Width:     input.Width,
 			Height:    input.Height,
+			InstaSave: input.InstaSave,
 			Layers:    layers,
 		},
 	)
@@ -245,7 +247,7 @@ func (r *subscriptionResolver) CustomOverlaySettings(ctx context.Context, id uui
 			case <-ctx.Done():
 				return
 			case data := <-sub.GetChannel():
-				var overlay entity.ChannelOverlay
+				var overlay customoverlayentity.ChannelOverlay
 				if err := json.Unmarshal(data, &overlay); err != nil {
 					r.deps.Logger.Error("cannot unmarshal custom overlay settings", logger.Error(err))
 					continue

@@ -51,6 +51,7 @@ export const useOverlays = createGlobalState(() => {
 					updatedAt
 					width
 					height
+					instaSave
 					layers {
 						id
 						type

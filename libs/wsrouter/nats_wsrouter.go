@@ -3,6 +3,8 @@ package wsrouter
 import (
 	"github.com/goccy/go-json"
 	"github.com/nats-io/nats.go"
+	config "github.com/twirapp/twir/libs/config"
+	"go.uber.org/fx"
 )
 
 func NewNatsSubscription(opts Opts) (*WsRouterNats, error) {
@@ -14,6 +16,27 @@ func NewNatsSubscription(opts Opts) (*WsRouterNats, error) {
 	return &WsRouterNats{
 		nc: nc,
 	}, nil
+}
+
+func NewNatsWsRouterFx(cfg config.Config) (*WsRouterNats, error) {
+	nc, err := nats.Connect(cfg.NatsUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return &WsRouterNats{
+		nc: nc,
+	}, nil
+}
+
+type NatsWsRouterFxOpts struct {
+	fx.In
+
+	Config config.Config
+}
+
+func NewNatsWsRouterFxWithOpts(opts NatsWsRouterFxOpts) (*WsRouterNats, error) {
+	return NewNatsWsRouterFx(opts.Config)
 }
 
 type WsRouterNats struct {
@@ -52,7 +75,6 @@ func (c *WsRouterNats) Subscribe(keys []string) (WsRouterSubscription, error) {
 				ch <- msg.Data
 			},
 		)
-
 		if err != nil {
 			return nil, err
 		}

@@ -1,4 +1,4 @@
-package entity
+package customoverlayentity
 
 import (
 	"time"
@@ -44,7 +44,16 @@ type ChannelOverlay struct {
 	UpdatedAt time.Time
 	Width     int
 	Height    int
+	InstaSave bool
 	Layers    []ChannelOverlayLayer
+
+	isNil bool
 }
 
-var ChannelOverlayNil = ChannelOverlay{}
+func (c ChannelOverlay) IsNil() bool {
+	return c.isNil
+}
+
+var ChannelOverlayNil = ChannelOverlay{
+	isNil: true,
+}

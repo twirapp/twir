@@ -14,6 +14,7 @@ export function useOverlayBuilder() {
 		name: '',
 		width: 1920,
 		height: 1080,
+		instaSave: false,
 		layers: [],
 	})
 

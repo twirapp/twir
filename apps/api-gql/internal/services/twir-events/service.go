@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/goccy/go-json"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"

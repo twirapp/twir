@@ -11,7 +11,7 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"

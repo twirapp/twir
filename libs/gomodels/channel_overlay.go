@@ -14,6 +14,7 @@ type ChannelOverlay struct {
 	UpdatedAt time.Time `gorm:"column:updated_at;data:timestamp;"  json:"updatedAt"`
 	Width     int       `gorm:"column:width;type:INTEGER;default:1920;"  json:"width"`
 	Height    int       `gorm:"column:height;type:INTEGER;default:1080;"  json:"height"`
+	InstaSave bool      `gorm:"column:insta_save;type:BOOL;default:false;"  json:"insta_save"`
 
 	Channel *Channels `gorm:"foreignKey:ChannelID" json:"channel"`
 

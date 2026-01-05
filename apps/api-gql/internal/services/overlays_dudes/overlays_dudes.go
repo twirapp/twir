@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"github.com/twirapp/twir/libs/repositories/overlays_dudes"
 	"github.com/twirapp/twir/libs/repositories/overlays_dudes/model"
 	"go.uber.org/fx"

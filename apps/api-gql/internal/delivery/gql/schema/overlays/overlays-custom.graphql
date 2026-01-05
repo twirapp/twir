@@ -69,6 +69,7 @@ type ChannelOverlay {
 	width: Int!
 	height: Int!
 	layers: [ChannelOverlayLayer!]!
+	instaSave: Boolean!
 }
 
 input ChannelOverlayLayerSettingsInput {
@@ -95,6 +96,7 @@ input ChannelOverlayCreateInput {
 	width: Int! @validate(constraint: "min=1")
 	height: Int! @validate(constraint: "min=1")
 	layers: [ChannelOverlayLayerInput!]! @validate(constraint: "max=15,dive")
+	instaSave: Boolean!
 }
 
 input ChannelOverlayUpdateInput {
@@ -102,4 +104,5 @@ input ChannelOverlayUpdateInput {
 	width: Int! @validate(constraint: "min=1")
 	height: Int! @validate(constraint: "min=1")
 	layers: [ChannelOverlayLayerInput!]! @validate(constraint: "max=15,dive")
+	instaSave: Boolean!
 }

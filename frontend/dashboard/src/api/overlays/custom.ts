@@ -13,6 +13,7 @@ const channelOverlaysQuery = graphql(`
 			updatedAt
 			width
 			height
+			instaSave
 			layers {
 				id
 				type
@@ -47,6 +48,7 @@ const channelOverlayByIdQuery = graphql(`
 			updatedAt
 			width
 			height
+			instaSave
 			layers {
 				id
 				type
@@ -81,6 +83,7 @@ const channelOverlayCreateMutation = graphql(`
 			updatedAt
 			width
 			height
+			instaSave
 			layers {
 				id
 				type
@@ -115,6 +118,7 @@ const channelOverlayUpdateMutation = graphql(`
 			updatedAt
 			width
 			height
+			instaSave
 			layers {
 				id
 				type

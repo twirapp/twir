@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/websockets
 
-go 1.25.4
+go 1.25.5
 
 require (
 	github.com/goccy/go-json v0.10.5
@@ -12,13 +12,14 @@ require (
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/cache v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/config v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/config v0.0.0-20260104225553-e12a225540d0
 	github.com/twirapp/twir/libs/gomodels v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/grpc v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/types v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/wsrouter v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.1
@@ -61,7 +62,6 @@ require (
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.2 // indirect
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.2 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/exaring/otelpgx v0.9.3 // indirect
 	github.com/getsentry/sentry-go v0.40.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
@@ -81,13 +81,12 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/maypok86/otter/v2 v2.2.1 // indirect
-	github.com/nats-io/nats.go v1.47.0 // indirect
+	github.com/nats-io/nats.go v1.48.0 // indirect
 	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.17.1 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.17.1 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect
@@ -123,3 +122,5 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20251124214823-79d6a2a48846 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
+
+replace github.com/twirapp/twir/libs/wsrouter => ../../libs/wsrouter

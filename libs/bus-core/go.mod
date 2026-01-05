@@ -5,7 +5,7 @@ go 1.25.4
 require (
 	github.com/goccy/go-json v0.10.5
 	github.com/google/uuid v1.6.0
-	github.com/nats-io/nats.go v1.47.0
+	github.com/nats-io/nats.go v1.48.0
 	github.com/twirapp/twir/libs/config v0.0.0-20251201102513-6f706c3cc7e1
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251201102513-6f706c3cc7e1
 	go.opentelemetry.io/otel v1.38.0

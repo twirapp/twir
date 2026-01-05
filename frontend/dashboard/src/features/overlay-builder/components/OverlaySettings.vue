@@ -1,28 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Switch } from '@/components/ui/switch'
 
-interface Props {
-	overlayName: string
-}
-
-const props = defineProps<Props>()
-
-const emit = defineEmits<{
-	'update:overlayName': [name: string]
-}>()
-
-const localName = ref(props.overlayName)
-
-watch(() => props.overlayName, (newVal) => {
-	localName.value = newVal
+const overlayName = defineModel<string>('overlayName', {
+	type: String,
+	required: true,
 })
-
-watch(localName, (newVal) => {
-	emit('update:overlayName', newVal)
+const instaSave = defineModel<boolean>('instaSave', {
+	type: Boolean,
+	required: true,
 })
 </script>
 
@@ -39,14 +27,14 @@ watch(localName, (newVal) => {
 				</Label>
 				<Input
 					id="overlay-name"
-					v-model="localName"
+					v-model="overlayName"
 					placeholder="My Overlay"
 					maxlength="30"
 					class="h-8 text-sm"
 					@keydown.stop
 				/>
 				<p class="text-xs text-muted-foreground">
-					{{ localName.length }}/30 characters
+					{{ overlayName.length }}/30 characters
 				</p>
 			</div>
 
@@ -55,6 +43,23 @@ watch(localName, (newVal) => {
 				<Label class="text-xs">Canvas Size</Label>
 				<p class="text-sm text-muted-foreground">
 					1920 × 1080 (Full HD)
+				</p>
+			</div>
+
+			<!-- Insta Save -->
+			<div class="space-y-1.5">
+				<div class="flex items-center justify-between">
+					<Label for="insta-save" class="text-xs">
+						Instant Save
+					</Label>
+					<Switch
+						id="insta-save"
+						:model-value="instaSave"
+						@update:model-value="(val: boolean) => (instaSave = val)"
+					/>
+				</div>
+				<p class="text-xs text-muted-foreground">
+					Automatically save position and rotation changes in real-time
 				</p>
 			</div>
 		</CardContent>
