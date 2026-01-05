@@ -8,6 +8,7 @@ import { mapOperationTypeToTranslate, mapSystemToTranslate, useAuditLogs } from 
 import Card from '@/components/dashboard/card.vue'
 import { Badge, type BadgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { AuditOperationType } from '@/gql/graphql'
@@ -64,7 +65,7 @@ function openPopup() {
 </script>
 
 <template>
-	<Card :content-style="{ padding: '0px', height: '80%' }" :popup="props.popup" class="@container">
+	<Card :popup="props.popup" class="@container flex flex-col">
 		<template #header-extra>
 			<TooltipProvider>
 				<Tooltip>
@@ -80,7 +81,8 @@ function openPopup() {
 			</TooltipProvider>
 		</template>
 
-		<ScrollArea class="h-full">
+		<CardContent class="flex-1 overflow-hidden p-0">
+			<ScrollArea class="h-full">
 			<TransitionGroup name="list">
 				<div
 					v-for="log of logs"
@@ -118,6 +120,7 @@ function openPopup() {
 				</div>
 			</TransitionGroup>
 		</ScrollArea>
+		</CardContent>
 	</Card>
 </template>
 

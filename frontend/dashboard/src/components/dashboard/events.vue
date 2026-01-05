@@ -3,6 +3,7 @@ import { ExternalLinkIcon, SettingsIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
+import { CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -32,7 +33,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const { events, fetching, enabledEvents, enabledEventsOptions } = useEvents()
+const { events, enabledEvents, enabledEventsOptions } = useEvents()
 
 const { data } = useProfile()
 
@@ -53,7 +54,7 @@ function openPopup() {
 </script>
 
 <template>
-	<Card :content-style="{ padding: fetching ? '10px' : '0px', height: '80%' }" :popup="props.popup">
+	<Card :popup="props.popup" class="flex flex-col">
 		<template #header-extra>
 			<TooltipProvider>
 				<Tooltip>
@@ -107,7 +108,8 @@ function openPopup() {
 				</PopoverContent>
 			</Popover>
 		</template>
-		<ScrollArea v-if="events.length" class="h-full">
+		<CardContent v-if="events.length" class="flex-1 overflow-hidden p-0">
+			<ScrollArea class="h-full">
 			<TransitionGroup name="list">
 				<template v-for="(event) of events" :key="event.createdAt">
 					<Follow
@@ -204,12 +206,13 @@ function openPopup() {
 					/>
 				</template>
 			</TransitionGroup>
-		</ScrollArea>
-		<div v-else class="flex items-center justify-center h-full">
+			</ScrollArea>
+		</CardContent>
+		<CardContent v-else class="flex items-center justify-center flex-1">
 			<p class="text-4xl text-muted-foreground">
 				No events
 			</p>
-		</div>
+		</CardContent>
 	</Card>
 </template>
 
