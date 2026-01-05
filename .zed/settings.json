@@ -1,4 +1,5 @@
 {
+	"project_name": "TwirApp",
 	"languages": {
 		"JavaScript": {
 			"format_on_save": "on",
