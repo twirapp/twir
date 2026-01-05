@@ -1,6 +1,4 @@
 -- +goose Up
--- +goose StatementBegin
--- Drop the ULID extension
 DROP EXTENSION IF EXISTS ulid CASCADE;
 
 -- Convert channels_categories_aliases
@@ -81,11 +79,7 @@ BEGIN
     END IF;
 END $$;
 
--- +goose StatementEnd
-
 -- +goose Down
--- +goose StatementBegin
 -- This migration is not reversible as we're changing ID types
 -- Rolling back would require restoring from backup
 SELECT 'Migration ulid_to_uuidv7 is not reversible';
--- +goose StatementEnd
