@@ -12,6 +12,7 @@ type Repository interface {
 	GetManyByChannelID(ctx context.Context, channelID string) ([]model.Overlay, error)
 	Create(ctx context.Context, input CreateInput) (model.Overlay, error)
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.Overlay, error)
+	UpdateLayer(ctx context.Context, layerId uuid.UUID, input LayerUpdateInput) (model.OverlayLayer, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -41,4 +42,12 @@ type UpdateInput struct {
 	Height    int
 	InstaSave bool
 	Layers    []CreateLayerInput
+}
+
+type LayerUpdateInput struct {
+	PosX     *int
+	PosY     *int
+	Width    *int
+	Height   *int
+	Rotation *int
 }

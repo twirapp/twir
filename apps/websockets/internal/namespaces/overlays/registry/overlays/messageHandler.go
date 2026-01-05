@@ -6,10 +6,13 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/olahol/melody"
 	"github.com/twirapp/twir/apps/websockets/types"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/channels_overlays"
 )
 
 type parseLayerVariablesMessage struct {
@@ -23,6 +26,20 @@ type overlayGetLayersMessage struct {
 type overlayGetLayersResponse struct {
 	EventName string                      `json:"eventName"`
 	Layers    []model.ChannelOverlayLayer `json:"layers"`
+}
+
+type instantSaveLayerMessage struct {
+	OverlayID string                 `json:"overlayId"`
+	Layers    []instantSaveLayerData `json:"layers"`
+}
+
+type instantSaveLayerData struct {
+	ID       string `json:"id"`
+	PosX     int    `json:"posX"`
+	PosY     int    `json:"posY"`
+	Rotation int    `json:"rotation"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
 }
 
 func textToBase64(text string) string {
@@ -133,6 +150,106 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 		}
 
 		if err := session.Write(responseBytes); err != nil {
+			c.logger.Error(err.Error())
+		}
+	case "instantSaveLayerPositions":
+		var data instantSaveLayerMessage
+		bytes, _ := json.Marshal(message.Data)
+		if err := json.Unmarshal(bytes, &data); err != nil {
+			c.logger.Error(err.Error())
+			return
+		}
+
+		socketUserId, ok := session.Get("userId")
+		if !ok {
+			return
+		}
+
+		// Verify overlay belongs to user
+		overlay, err := c.channelsOverlaysRepository.GetByID(
+			context.Background(),
+			uuid.MustParse(data.OverlayID),
+		)
+		if err != nil {
+			c.logger.Error("failed to get overlay", "error", err)
+			return
+		}
+
+		if overlay.ChannelID != socketUserId {
+			c.logger.Error("overlay does not belong to user", "userId", socketUserId, "overlayId", data.OverlayID)
+			return
+		}
+
+		// Publish update via wsRouter to notify GraphQL subscribers
+		wsRouterKey := fmt.Sprintf("api.customOverlaySettings.%s.%s", overlay.ChannelID, overlay.ID)
+
+		e := customoverlayentity.ChannelOverlay{
+			ID:        overlay.ID,
+			ChannelID: overlay.ChannelID,
+			Name:      overlay.Name,
+			CreatedAt: overlay.CreatedAt,
+			UpdatedAt: overlay.UpdatedAt,
+			Width:     overlay.Width,
+			Height:    overlay.Height,
+			InstaSave: overlay.InstaSave,
+			Layers:    []customoverlayentity.ChannelOverlayLayer{},
+		}
+
+		for _, layer := range overlay.Layers {
+			var foundInputLayer *instantSaveLayerData
+			for _, inputLayer := range data.Layers {
+				if inputLayer.ID == layer.ID.String() {
+					foundInputLayer = &inputLayer
+					break
+				}
+			}
+
+			e.Layers = append(e.Layers, customoverlayentity.ChannelOverlayLayer{
+				ID:        layer.ID,
+				OverlayID: layer.OverlayID,
+				Type:      customoverlayentity.ChannelOverlayType(layer.Type),
+				PosX:      foundInputLayer.PosX,
+				PosY:      foundInputLayer.PosY,
+				Rotation:  foundInputLayer.Rotation,
+				Settings: customoverlayentity.ChannelOverlayLayerSettings{
+					HtmlOverlayHTML:                    layer.Settings.HtmlOverlayHTML,
+					HtmlOverlayCSS:                     layer.Settings.HtmlOverlayCSS,
+					HtmlOverlayJS:                      layer.Settings.HtmlOverlayJS,
+					HtmlOverlayDataPollSecondsInterval: layer.Settings.HtmlOverlayDataPollSecondsInterval,
+					ImageUrl:                           layer.Settings.ImageUrl,
+				},
+				CreatedAt:               layer.CreatedAt,
+				UpdatedAt:               layer.UpdatedAt,
+				Width:                   foundInputLayer.Width,
+				Height:                  foundInputLayer.Height,
+				PeriodicallyRefetchData: layer.PeriodicallyRefetchData,
+			})
+		}
+
+		if err := c.wsRouter.Publish(wsRouterKey, e); err != nil {
+			c.logger.Error("failed to publish overlay update", "error", err)
+		}
+
+		for _, layerData := range data.Layers {
+			layerID, err := uuid.Parse(layerData.ID)
+			if err != nil {
+				c.logger.Error("invalid layer ID", "error", err)
+				continue
+			}
+
+			c.channelsOverlaysRepository.UpdateLayer(context.TODO(), layerID, channels_overlays.LayerUpdateInput{
+				PosX:     &layerData.PosX,
+				PosY:     &layerData.PosY,
+				Rotation: &layerData.Rotation,
+				Width:    &layerData.Width,
+				Height:   &layerData.Height,
+			})
+		}
+
+		// Send acknowledgment
+		if err := session.Write(
+			[]byte(`{"eventName":"instantSaveAck"}`),
+		); err != nil {
 			c.logger.Error(err.Error())
 		}
 	}

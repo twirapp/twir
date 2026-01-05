@@ -1,40 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 
-interface Props {
-	overlayName: string
-	instaSave: boolean
-}
-
-const props = defineProps<Props>()
-
-const emit = defineEmits<{
-	'update:overlayName': [name: string]
-	'update:instaSave': [enabled: boolean]
-}>()
-
-const localName = ref(props.overlayName)
-const localInstaSave = ref(props.instaSave)
-
-watch(() => props.overlayName, (newVal) => {
-	localName.value = newVal
+const overlayName = defineModel<string>('overlayName', {
+	type: String,
+	required: true,
 })
-
-watch(() => props.instaSave, (newVal) => {
-	localInstaSave.value = newVal
-})
-
-watch(localName, (newVal) => {
-	emit('update:overlayName', newVal)
-})
-
-watch(localInstaSave, (newVal) => {
-	emit('update:instaSave', newVal)
+const instaSave = defineModel<boolean>('instaSave', {
+	type: Boolean,
+	required: true,
 })
 </script>
 
@@ -51,14 +27,14 @@ watch(localInstaSave, (newVal) => {
 				</Label>
 				<Input
 					id="overlay-name"
-					v-model="localName"
+					v-model="overlayName"
 					placeholder="My Overlay"
 					maxlength="30"
 					class="h-8 text-sm"
 					@keydown.stop
 				/>
 				<p class="text-xs text-muted-foreground">
-					{{ localName.length }}/30 characters
+					{{ overlayName.length }}/30 characters
 				</p>
 			</div>
 
@@ -78,7 +54,8 @@ watch(localInstaSave, (newVal) => {
 					</Label>
 					<Switch
 						id="insta-save"
-						v-model:checked="localInstaSave"
+						:model-value="instaSave"
+						@update:model-value="(val: boolean) => (instaSave = val)"
 					/>
 				</div>
 				<p class="text-xs text-muted-foreground">

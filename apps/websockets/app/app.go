@@ -15,7 +15,10 @@ import (
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
+	"github.com/twirapp/twir/libs/repositories/channels_overlays"
+	channelsoverlayspgx "github.com/twirapp/twir/libs/repositories/channels_overlays/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 
 	kappagenrepository "github.com/twirapp/twir/libs/repositories/overlays_kappagen"
@@ -37,6 +40,14 @@ var App = fx.Module(
 		fx.Annotate(
 			alertsrepositorypgx.NewFx,
 			fx.As(new(alertsrepository.Repository)),
+		),
+		fx.Annotate(
+			wsrouter.NewNatsWsRouterFx,
+			fx.As(new(wsrouter.WsRouter)),
+		),
+		fx.Annotate(
+			channelsoverlayspgx.NewFx,
+			fx.As(new(channels_overlays.Repository)),
 		),
 		youtube.NewYouTube,
 		alerts.NewAlerts,

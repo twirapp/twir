@@ -358,3 +358,83 @@ func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 
 	return nil
 }
+
+func (c *Pgx) UpdateLayer(ctx context.Context, layerId uuid.UUID, input channels_overlays.LayerUpdateInput) (model.OverlayLayer, error) {
+	query := `
+UPDATE channels_overlays_layers
+SET pos_x = COALESCE($1, pos_x),
+		pos_y = COALESCE($2, pos_y),
+		updated_at = $3,
+		width = COALESCE($4, width),
+		height = COALESCE($5, height),
+		rotation = COALESCE($6, rotation)
+WHERE id = $7
+RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data
+`
+
+	now := time.Now().UTC()
+	result, err := c.pool.Exec(
+		ctx,
+		query,
+		input.PosX,
+		input.PosY,
+		now,
+		input.Width,
+		input.Height,
+		input.Rotation,
+		layerId,
+	)
+	if err != nil {
+		return model.OverlayLayer{}, err
+	}
+
+	if result.RowsAffected() == 0 {
+		return model.OverlayLayer{}, channels_overlays.ErrNotFound
+	}
+
+	getQuery := `
+SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data
+FROM channels_overlays_layers
+WHERE id = $1
+`
+
+	row := c.pool.QueryRow(ctx, getQuery, layerId)
+
+	var layer layerRow
+	if err := row.Scan(
+		&layer.ID,
+		&layer.Type,
+		&layer.Settings,
+		&layer.OverlayID,
+		&layer.PosX,
+		&layer.PosY,
+		&layer.Width,
+		&layer.Height,
+		&layer.Rotation,
+		&layer.CreatedAt,
+		&layer.UpdatedAt,
+		&layer.PeriodicallyRefetchData,
+	); err != nil {
+		return model.OverlayLayer{}, err
+	}
+
+	var settings model.OverlayLayerSettings
+	if err := json.Unmarshal(layer.Settings, &settings); err != nil {
+		return model.OverlayLayer{}, err
+	}
+
+	return model.OverlayLayer{
+		ID:                      layer.ID,
+		Type:                    model.OverlayType(layer.Type),
+		Settings:                settings,
+		OverlayID:               layer.OverlayID,
+		PosX:                    layer.PosX,
+		PosY:                    layer.PosY,
+		Width:                   layer.Width,
+		Height:                  layer.Height,
+		Rotation:                layer.Rotation,
+		CreatedAt:               layer.CreatedAt,
+		UpdatedAt:               layer.UpdatedAt,
+		PeriodicallyRefetchData: layer.PeriodicallyRefetchData,
+	}, nil
+}

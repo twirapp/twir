@@ -8,13 +8,13 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/audit"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 	channels_overlays "github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays/model"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
 
@@ -43,13 +43,13 @@ type Service struct {
 	wsRouter           wsrouter.WsRouter
 }
 
-func (s *Service) modelToEntity(m model.Overlay) entity.ChannelOverlay {
-	layers := make([]entity.ChannelOverlayLayer, len(m.Layers))
+func (s *Service) modelToEntity(m model.Overlay) customoverlayentity.ChannelOverlay {
+	layers := make([]customoverlayentity.ChannelOverlayLayer, len(m.Layers))
 	for i, l := range m.Layers {
-		layers[i] = entity.ChannelOverlayLayer{
+		layers[i] = customoverlayentity.ChannelOverlayLayer{
 			ID:   l.ID,
-			Type: entity.ChannelOverlayType(l.Type),
-			Settings: entity.ChannelOverlayLayerSettings{
+			Type: customoverlayentity.ChannelOverlayType(l.Type),
+			Settings: customoverlayentity.ChannelOverlayLayerSettings{
 				HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
 				HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
@@ -68,7 +68,7 @@ func (s *Service) modelToEntity(m model.Overlay) entity.ChannelOverlay {
 		}
 	}
 
-	return entity.ChannelOverlay{
+	return customoverlayentity.ChannelOverlay{
 		ID:        m.ID,
 		ChannelID: m.ChannelID,
 		Name:      m.Name,
@@ -82,7 +82,7 @@ func (s *Service) modelToEntity(m model.Overlay) entity.ChannelOverlay {
 }
 
 func (s *Service) GetManyByChannelID(ctx context.Context, channelID string) (
-	[]entity.ChannelOverlay,
+	[]customoverlayentity.ChannelOverlay,
 	error,
 ) {
 	overlays, err := s.overlaysRepository.GetManyByChannelID(ctx, channelID)
@@ -90,7 +90,7 @@ func (s *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 		return nil, err
 	}
 
-	entities := make([]entity.ChannelOverlay, len(overlays))
+	entities := make([]customoverlayentity.ChannelOverlay, len(overlays))
 	for i, o := range overlays {
 		entities[i] = s.modelToEntity(o)
 	}
@@ -98,18 +98,18 @@ func (s *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 	return entities, nil
 }
 
-func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (entity.ChannelOverlay, error) {
+func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (customoverlayentity.ChannelOverlay, error) {
 	overlay, err := s.overlaysRepository.GetByID(ctx, id)
 	if err != nil {
-		return entity.ChannelOverlayNil, err
+		return customoverlayentity.ChannelOverlayNil, err
 	}
 
 	return s.modelToEntity(overlay), nil
 }
 
 type CreateLayerInput struct {
-	Type                    entity.ChannelOverlayType
-	Settings                entity.ChannelOverlayLayerSettings
+	Type                    customoverlayentity.ChannelOverlayType
+	Settings                customoverlayentity.ChannelOverlayLayerSettings
 	PosX                    int
 	PosY                    int
 	Width                   int
@@ -128,7 +128,7 @@ type CreateInput struct {
 	Layers    []CreateLayerInput
 }
 
-func (s *Service) Create(ctx context.Context, input CreateInput) (entity.ChannelOverlay, error) {
+func (s *Service) Create(ctx context.Context, input CreateInput) (customoverlayentity.ChannelOverlay, error) {
 	repoLayers := make([]channels_overlays.CreateLayerInput, len(input.Layers))
 	for i, l := range input.Layers {
 		repoLayers[i] = channels_overlays.CreateLayerInput{
@@ -161,7 +161,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 		},
 	)
 	if err != nil {
-		return entity.ChannelOverlayNil, err
+		return customoverlayentity.ChannelOverlayNil, err
 	}
 
 	_ = s.auditRecorder.RecordCreateOperation(
@@ -191,16 +191,16 @@ type UpdateInput struct {
 }
 
 func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
-	entity.ChannelOverlay,
+	customoverlayentity.ChannelOverlay,
 	error,
 ) {
 	dbOverlay, err := s.overlaysRepository.GetByID(ctx, id)
 	if err != nil {
-		return entity.ChannelOverlayNil, err
+		return customoverlayentity.ChannelOverlayNil, err
 	}
 
 	if dbOverlay.ChannelID != input.ChannelID {
-		return entity.ChannelOverlayNil, fmt.Errorf("overlay not found")
+		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("overlay not found")
 	}
 
 	repoLayers := make([]channels_overlays.CreateLayerInput, len(input.Layers))
@@ -235,7 +235,7 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		},
 	)
 	if err != nil {
-		return entity.ChannelOverlayNil, err
+		return customoverlayentity.ChannelOverlayNil, err
 	}
 
 	_ = s.auditRecorder.RecordUpdateOperation(

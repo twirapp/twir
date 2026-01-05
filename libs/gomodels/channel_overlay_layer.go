@@ -13,7 +13,7 @@ type ChannelOverlayLayer struct {
 	ID                      uuid.UUID                   `gorm:"primary_key;column:id;type:UUID;"  json:"id"`
 	Type                    ChannelOverlayType          `gorm:"column:type;type:TEXT;"  json:"type"`
 	Settings                ChannelOverlayLayerSettings `gorm:"column:settings;type:JSONB;"  json:"settings"`
-	OverlayID               uuid.UUID                   `gorm:"column:overlay_id;type:UUID;"  json:"overlay_id"`
+	OverlayID               uuid.UUID                   `gorm:"column:overlay_id;type:UUID;"  json:"overlayId"`
 	PosX                    int                         `gorm:"column:pos_x;type:INTEGER;"  json:"pos_x"`
 	PosY                    int                         `gorm:"column:pos_y;type:INTEGER;"  json:"pos_y"`
 	Width                   int                         `gorm:"column:width;type:INTEGER;"  json:"width"`

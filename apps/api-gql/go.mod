@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/api-gql
 
-go 1.25.4
+go 1.25.5
 
 require (
 	github.com/99designs/gqlgen v0.17.84
@@ -22,7 +22,6 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/minio/minio-go/v7 v7.0.97
-	github.com/nats-io/nats.go v1.47.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/oklog/ulid/v2 v2.1.1
 	github.com/raitonoberu/ytsearch v0.2.0
@@ -37,7 +36,7 @@ require (
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/cache v0.0.0-20260102031833-cfb924c9b7eb
-	github.com/twirapp/twir/libs/config v0.0.0-20251201102513-6f706c3cc7e1
+	github.com/twirapp/twir/libs/config v0.0.0-20260104225553-e12a225540d0
 	github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/entities v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/gomodels v0.0.0-20251127124349-67ad7fa0003f
@@ -49,6 +48,7 @@ require (
 	github.com/twirapp/twir/libs/twitch v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/types v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/utils v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/wsrouter v0.0.0-00010101000000-000000000000
 	github.com/vektah/gqlparser/v2 v2.5.31
 	github.com/vikstrous/dataloadgen v0.0.10
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.63.0
@@ -119,6 +119,7 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/nats-io/nats.go v1.48.0 // indirect
 	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/paulmach/orb v0.12.0 // indirect
@@ -182,3 +183,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
+
+replace github.com/twirapp/twir/libs/wsrouter => ../../libs/wsrouter

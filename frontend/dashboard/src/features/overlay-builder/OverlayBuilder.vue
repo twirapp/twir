@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
 import LayersPanel from './components/LayersPanel.vue'
@@ -102,6 +101,7 @@ function loadInitialProject() {
 	loadedProjectId.value = props.initialProject.id
 	overlayName.value = props.initialProject.name || ''
 	instaSave.value = props.initialProject.instaSave || false
+
 	const layers = props.initialProject.layers.map((layer, index) => {
 		return {
 			id: layer.id || `layer-${index}`,
@@ -150,6 +150,15 @@ watch(() => props.initialProject?.id, (newId) => {
 	}
 }, { immediate: true })
 
+// Watch for instaSave changes from props without reloading the whole project
+watch(() => props.initialProject?.instaSave, (newInstaSave) => {
+	// Only update if we have a loaded project and the value actually changed
+	if (loadedProjectId.value && newInstaSave !== undefined && newInstaSave !== instaSave.value) {
+		instaSave.value = newInstaSave
+		builder.project.instaSave = newInstaSave
+	}
+})
+
 // Load initial project on mount as well
 onMounted(() => {
 	loadInitialProject()
@@ -183,41 +192,44 @@ function addImageLayer() {
 
 // Toolbar handlers
 function handleSave() {
-	const project = {
-		...builder.exportProject(),
-		name: overlayName.value,
-		instaSave: instaSave.value,
-	}
+	builder.project.instaSave = instaSave.value
+	const project = builder.exportProject()
+	project.name = overlayName.value
+
 	emit('save', project)
 }
 
-// Debounced instant save function
-const debouncedInstantSave = useDebounceFn(() => {
-	if (!instaSave.value) return
-
-	const project = {
-		...builder.exportProject(),
-		name: overlayName.value,
-		instaSave: instaSave.value,
-	}
-	emit('instantSave', project)
-}, 500)
-
 function handleLayerUpdate() {
-	// Trigger instant save if enabled
+	// Trigger instant save if enabled (debouncing handled by parent)
 	if (instaSave.value) {
-		debouncedInstantSave()
+		builder.project.instaSave = instaSave.value
+		const project = builder.exportProject()
+		project.name = overlayName.value
+
+		emit('instantSave', project)
 	}
 }
 
+// Watch for instaSave changes to save the setting immediately
+watch(instaSave, (newValue, oldValue) => {
+	// Sync with builder.project.instaSave
+	builder.project.instaSave = newValue
 
+	// Only trigger if value actually changed and we have a loaded project
+	if (newValue !== oldValue && loadedProjectId.value) {
+		const project = builder.exportProject()
+		project.name = overlayName.value
+
+		emit('instantSave', project)
+	}
+})
 
 // Canvas handlers
 function handleUpdateLayer(layerId: string, updates: Partial<Layer>) {
 	builder.updateLayer(layerId, updates)
 
-	// Check if this is a position or rotation update
-	if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined) {
+	// Check if this is a position, size, or rotation update that should trigger instant save
+	if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined) {
 		handleLayerUpdate()
 	}
 }
@@ -281,6 +293,11 @@ function handleReorderLayers(layers: Layer[]) {
 function handleUpdateLayerProperties(updates: Partial<Layer>) {
 	if (builder.activeLayer.value) {
 		builder.updateLayer(builder.activeLayer.value.id, updates)
+
+		// Check if this update should trigger instant save
+		if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined) {
+			handleLayerUpdate()
+		}
 	}
 }
 

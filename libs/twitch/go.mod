@@ -23,7 +23,7 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
-	github.com/nats-io/nats.go v1.47.0 // indirect
+	github.com/nats-io/nats.go v1.48.0 // indirect
 	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect

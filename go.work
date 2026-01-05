@@ -1,4 +1,4 @@
-go 1.25.4
+go 1.25.5
 
 use (
 	./apps/api
@@ -36,4 +36,5 @@ use (
 	./libs/types
 	./libs/uptrace
 	./libs/utils
+	./libs/wsrouter
 )

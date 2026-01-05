@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/logger"

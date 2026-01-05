@@ -83,7 +83,6 @@ import (
 	valorantintegrationservice "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
@@ -159,6 +158,7 @@ import (
 	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
 	vkintegrationrepopostgres "github.com/twirapp/twir/libs/repositories/vk_integration/datasource/postgres"
+	"github.com/twirapp/twir/libs/wsrouter"
 
 	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
 	seventvintegrationpostgres "github.com/twirapp/twir/libs/repositories/seventv_integration/datasource/postgres"
@@ -539,7 +539,7 @@ func main() {
 			eventscache.New,
 			rolescache.New,
 			fx.Annotate(
-				wsrouter.NewNatsSubscription,
+				wsrouter.NewNatsWsRouterFx,
 				fx.As(new(wsrouter.WsRouter)),
 			),
 			twir_stats.New,

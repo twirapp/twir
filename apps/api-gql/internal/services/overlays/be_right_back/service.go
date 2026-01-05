@@ -6,7 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"

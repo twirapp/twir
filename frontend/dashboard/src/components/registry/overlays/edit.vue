@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 
 import OverlayBuilder from '@/features/overlay-builder/OverlayBuilder.vue'
 import {
 	useChannelOverlayByIdQuery,
-	useChannelOverlayCreate,
-	useChannelOverlayUpdate,
-	useChannelOverlaysQuery,
 } from '@/api/index.js'
-import type { ChannelOverlayLayerInput } from '@/gql/graphql'
 import type { OverlayProject } from '@/features/overlay-builder/types'
+import { useOverlaySave } from '@/features/overlay-builder/composables/useOverlaySave'
+import { useOverlayInstantSave } from '@/features/overlay-builder/composables/useOverlayInstantSave'
 
 const route = useRoute()
 const router = useRouter()
@@ -29,10 +27,15 @@ const overlayId = computed(() => {
 const { data: overlayData } = useChannelOverlayByIdQuery(overlayId)
 const overlay = computed(() => overlayData.value?.channelOverlayById)
 
-// Mutations for creating/updating overlays
-const { executeQuery: refetchOverlays } = useChannelOverlaysQuery()
-const createOverlayMutation = useChannelOverlayCreate()
-const updateOverlayMutation = useChannelOverlayUpdate()
+// Initialize save and instant save composables
+const {
+	saveOverlay,
+	saveInstaSaveSetting,
+	instantSavePositions,
+	instaSaveEnabled,
+} = useOverlaySave(overlayId.value)
+
+const { close: closeWebSocket } = useOverlayInstantSave(overlayId)
 
 // Check if we're creating a new overlay or editing existing one
 const isNewOverlay = computed(() => overlayId.value === '')
@@ -56,6 +59,9 @@ const projectData = computed(() => {
 		return null
 	}
 
+	// Sync instaSave state with composable
+	instaSaveEnabled.value = overlay.value.instaSave || false
+
 	// Convert existing overlay data to builder format (canvas size fixed at 1920x1080)
 	const converted = {
 		id: overlay.value.id,
@@ -65,7 +71,7 @@ const projectData = computed(() => {
 		instaSave: overlay.value.instaSave || false,
 		layers: overlay.value.layers.map((layer, index) => {
 			return {
-				id: `layer-${layer.id || index}`,
+				id: layer.id, // Use real layer ID from backend
 				type: layer.type,
 				name: `${layer.type} Layer ${index + 1}`,
 				posX: layer.posX,
@@ -94,155 +100,31 @@ const projectData = computed(() => {
 
 // Handle save from builder
 async function handleSave(project: OverlayProject) {
-	// Validate project data
-	if (!project.name || project.name.length > 30) {
-		toast.error('Overlay name is required and must be less than 30 characters')
-		return
-	}
+	const newId = await saveOverlay(project)
 
-	if (!project.layers.length || project.layers.length > 15) {
-		toast.error('Overlay must have between 1 and 15 layers')
-		return
-	}
-
-	// Convert builder format back to API format
-	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer) => {
-		const rotation = Number(layer.rotation ?? 0)
-		return {
-			type: layer.type,
-			posX: layer.posX,
-			posY: layer.posY,
-			width: layer.width,
-			height: layer.height,
-			rotation: rotation,
-			periodicallyRefetchData: layer.periodicallyRefetchData,
-			settings: {
-				htmlOverlayHtml: layer.settings?.htmlOverlayHtml ?? '',
-				htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
-				htmlOverlayJs: layer.settings?.htmlOverlayJs ?? '',
-				htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
-				imageUrl: layer.settings?.imageUrl ?? '',
-			},
-		}
-	})
-
-	try {
-		if (project.id) {
-			// Update existing overlay
-			const mutationInput = {
-				id: project.id,
-				input: {
-					name: project.name,
-					width: 1920,
-					height: 1080,
-					instaSave: project.instaSave || false,
-					layers: layersInput,
-				},
-			}
-
-			const result = await updateOverlayMutation.executeMutation(mutationInput)
-
-			if (result.error) {
-				toast.error(result.error.message)
-				return
-			}
-
-			toast.success('Overlay updated successfully!')
-		} else {
-			// Create new overlay
-			const mutationInput = {
-				input: {
-					name: project.name,
-					width: 1920,
-					height: 1080,
-					instaSave: project.instaSave || false,
-					layers: layersInput,
-				},
-			}
-
-			const result = await createOverlayMutation.executeMutation(mutationInput)
-
-			if (result.error) {
-				toast.error(result.error.message)
-				return
-			}
-
-			toast.success('Overlay created successfully!')
-
-			// Redirect to the newly created overlay
-			if (result.data?.channelOverlayCreate?.id) {
-				await router.replace({
-					name: 'RegistryOverlayEdit',
-					params: {
-						id: result.data.channelOverlayCreate.id,
-					},
-				})
-			}
-		}
-
-		// Refresh the overlays list
-		refetchOverlays({ requestPolicy: 'network-only' })
-	} catch (error) {
-		console.error('Error saving overlay:', error)
-		toast.error('Failed to save overlay')
+	// If created new overlay, redirect to edit page
+	if (!project.id && newId) {
+		await router.replace({
+			name: 'RegistryOverlayEdit',
+			params: { id: newId },
+		})
 	}
 }
-
-// Handle instant save (triggered by position/rotation changes when instaSave is enabled)
+// Handle instant save (position/rotation changes OR instaSave setting toggle)
 async function handleInstantSave(project: OverlayProject) {
-	// Only save if we have an existing overlay (not for new overlays)
-	if (!project.id) return
-
-	// Validate project data
-	if (!project.name || project.name.length > 30) {
+	if (!project.id) {
+		console.log('[OverlayEdit] Cannot instant save: no project ID')
 		return
 	}
 
-	if (!project.layers.length || project.layers.length > 15) {
-		return
-	}
-
-	// Convert builder format back to API format
-	const layersInput: ChannelOverlayLayerInput[] = project.layers.map((layer) => {
-		const rotation = Number(layer.rotation ?? 0)
-		return {
-			type: layer.type,
-			posX: layer.posX,
-			posY: layer.posY,
-			width: layer.width,
-			height: layer.height,
-			rotation: rotation,
-			periodicallyRefetchData: layer.periodicallyRefetchData,
-			settings: {
-				htmlOverlayHtml: layer.settings?.htmlOverlayHtml ?? '',
-				htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
-				htmlOverlayJs: layer.settings?.htmlOverlayJs ?? '',
-				htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
-				imageUrl: layer.settings?.imageUrl ?? '',
-			},
-		}
-	})
-
-	try {
-		// Update existing overlay silently
-		const mutationInput = {
-			id: project.id,
-			input: {
-				name: project.name,
-				width: 1920,
-				height: 1080,
-				instaSave: project.instaSave || false,
-				layers: layersInput,
-			},
-		}
-
-		await updateOverlayMutation.executeMutation(mutationInput)
-		// Don't show toast for instant saves to avoid spam
-	} catch (error) {
-		console.error('Error during instant save:', error)
-		// Silently fail for instant saves
-	}
+	instantSavePositions(project)
 }
+
+// Cleanup on unmount
+import { onUnmounted } from 'vue'
+onUnmounted(() => {
+	closeWebSocket()
+})
 </script>
 
 <template>

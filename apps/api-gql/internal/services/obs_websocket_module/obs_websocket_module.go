@@ -9,7 +9,7 @@ import (
 	gojson "github.com/goccy/go-json"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	obsentity "github.com/twirapp/twir/libs/entities/obs"

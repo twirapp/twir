@@ -6,7 +6,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
+	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	eventmodel "github.com/twirapp/twir/libs/repositories/events/model"

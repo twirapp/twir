@@ -2,32 +2,32 @@ package mappers
 
 import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 )
 
-func ChannelOverlayLayerTypeEntityToGql(t entity.ChannelOverlayType) gqlmodel.ChannelOverlayLayerType {
+func ChannelOverlayLayerTypeEntityToGql(t customoverlayentity.ChannelOverlayType) gqlmodel.ChannelOverlayLayerType {
 	switch t {
-	case entity.ChannelOverlayTypeHTML:
+	case customoverlayentity.ChannelOverlayTypeHTML:
 		return gqlmodel.ChannelOverlayLayerTypeHTML
-	case entity.ChannelOverlayTypeIMAGE:
+	case customoverlayentity.ChannelOverlayTypeIMAGE:
 		return gqlmodel.ChannelOverlayLayerTypeImage
 	default:
 		return gqlmodel.ChannelOverlayLayerTypeHTML
 	}
 }
 
-func ChannelOverlayLayerTypeGqlToEntity(t gqlmodel.ChannelOverlayLayerType) entity.ChannelOverlayType {
+func ChannelOverlayLayerTypeGqlToEntity(t gqlmodel.ChannelOverlayLayerType) customoverlayentity.ChannelOverlayType {
 	switch t {
 	case gqlmodel.ChannelOverlayLayerTypeHTML:
-		return entity.ChannelOverlayTypeHTML
+		return customoverlayentity.ChannelOverlayTypeHTML
 	case gqlmodel.ChannelOverlayLayerTypeImage:
-		return entity.ChannelOverlayTypeIMAGE
+		return customoverlayentity.ChannelOverlayTypeIMAGE
 	default:
-		return entity.ChannelOverlayTypeHTML
+		return customoverlayentity.ChannelOverlayTypeHTML
 	}
 }
 
-func ChannelOverlayLayerSettingsEntityToGql(s entity.ChannelOverlayLayerSettings) *gqlmodel.ChannelOverlayLayerSettings {
+func ChannelOverlayLayerSettingsEntityToGql(s customoverlayentity.ChannelOverlayLayerSettings) *gqlmodel.ChannelOverlayLayerSettings {
 	return &gqlmodel.ChannelOverlayLayerSettings{
 		HTMLOverlayHTML:                    s.HtmlOverlayHTML,
 		HTMLOverlayCSS:                     s.HtmlOverlayCSS,
@@ -37,7 +37,7 @@ func ChannelOverlayLayerSettingsEntityToGql(s entity.ChannelOverlayLayerSettings
 	}
 }
 
-func ChannelOverlayLayerEntityToGql(l entity.ChannelOverlayLayer) gqlmodel.ChannelOverlayLayer {
+func ChannelOverlayLayerEntityToGql(l customoverlayentity.ChannelOverlayLayer) gqlmodel.ChannelOverlayLayer {
 	return gqlmodel.ChannelOverlayLayer{
 		ID:                      l.ID,
 		Type:                    ChannelOverlayLayerTypeEntityToGql(l.Type),
@@ -54,7 +54,7 @@ func ChannelOverlayLayerEntityToGql(l entity.ChannelOverlayLayer) gqlmodel.Chann
 	}
 }
 
-func ChannelOverlayEntityToGql(o entity.ChannelOverlay) gqlmodel.ChannelOverlay {
+func ChannelOverlayEntityToGql(o customoverlayentity.ChannelOverlay) gqlmodel.ChannelOverlay {
 	layers := make([]gqlmodel.ChannelOverlayLayer, len(o.Layers))
 	for i, l := range o.Layers {
 		layers[i] = ChannelOverlayLayerEntityToGql(l)
