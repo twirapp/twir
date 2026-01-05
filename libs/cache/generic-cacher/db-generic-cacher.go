@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -63,12 +64,14 @@ func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 
 	cacheBytes, err := c.kv.Get(ctx, c.keyPrefix+key).Bytes()
 	if err != nil && !errors.Is(err, kv.ErrKeyNil) {
-		return value, fmt.Errorf("failed to get commands from cache: %w", err)
+		typeName := reflect.TypeOf(value).String()
+		return value, fmt.Errorf("failed to get %s from cache: %w", typeName, err)
 	}
 
 	if len(cacheBytes) > 0 {
 		if err := json.Unmarshal(cacheBytes, &value); err != nil {
-			return value, fmt.Errorf("failed to unmarshal commands: %w", err)
+			typeName := reflect.TypeOf(value).String()
+			return value, fmt.Errorf("failed to unmarshal %s: %w", typeName, err)
 		}
 		return value, nil
 	}
