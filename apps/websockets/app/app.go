@@ -17,7 +17,7 @@ import (
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays"
 	channelsoverlayspgx "github.com/twirapp/twir/libs/repositories/channels_overlays/pgx"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 
@@ -56,7 +56,7 @@ var App = fx.Module(
 		dudes.New,
 	),
 	fx.Invoke(
-		uptrace.NewFx(service),
+		otel.NewFx(service),
 		bus_listener.New,
 		func() {
 			http.Handle("/metrics", promhttp.Handler())

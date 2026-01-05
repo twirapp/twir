@@ -44,7 +44,7 @@ import (
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
 	userswithstatsrepository "github.com/twirapp/twir/libs/repositories/userswithstats"
 	userswithstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/userswithstats/datasource/postgres"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 
 	twitchconduitsrepository "github.com/twirapp/twir/libs/repositories/twitch_conduits"
@@ -125,7 +125,7 @@ var App = fx.Options(
 		handler.New,
 	),
 	fx.Invoke(
-		uptrace.NewFx("eventsub"),
+		otel.NewFx("eventsub"),
 		handler.New,
 		bus_listener.New,
 		func(l *slog.Logger) {

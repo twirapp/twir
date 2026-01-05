@@ -57,7 +57,7 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	userswithstatspostgres "github.com/twirapp/twir/libs/repositories/userswithstats/datasource/postgres"
 	vkintegrationpostgres "github.com/twirapp/twir/libs/repositories/vk_integration/datasource/postgres"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 
 	shortenedurlspgx "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 
@@ -111,7 +111,7 @@ func main() {
 		)
 	}
 
-	uptrace.New(*config, "parser")
+	otel.New(*config, "parser")
 
 	var logger *zap.Logger
 

@@ -24,7 +24,7 @@ import (
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	overlaysttspgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 
 	eventsrepository "github.com/twirapp/twir/libs/repositories/events"
@@ -80,7 +80,7 @@ var App = fx.Module(
 		chatalertscache.New,
 	),
 	fx.Invoke(
-		uptrace.NewFx("events"),
+		otel.NewFx("events"),
 		workers.NewEventsWorker,
 		listener.New,
 		func(l *slog.Logger) {

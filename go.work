@@ -27,6 +27,7 @@ use (
 	./libs/integrations
 	./libs/logger
 	./libs/migrations
+	./libs/otel
 	./libs/pubsub
 	./libs/redis_keys
 	./libs/repositories
@@ -34,7 +35,6 @@ use (
 	./libs/services
 	./libs/twitch
 	./libs/types
-	./libs/uptrace
 	./libs/utils
 	./libs/wsrouter
 )

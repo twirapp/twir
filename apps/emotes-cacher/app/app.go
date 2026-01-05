@@ -8,7 +8,7 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/bttv"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv"
 	"github.com/twirapp/twir/libs/baseapp"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 )
 
@@ -21,7 +21,7 @@ var App = fx.Module(
 		emotes_store.New,
 	),
 	fx.Invoke(
-		uptrace.NewFx("emotes-cacher"),
+		otel.NewFx("emotes-cacher"),
 		bus_listener.New,
 		func(l *slog.Logger) {
 			l.Info("Emotes Cacher started")

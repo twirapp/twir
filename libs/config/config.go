@@ -60,8 +60,14 @@ type Config struct {
 
 	SevenTvToken string `required:"false" envconfig:"SEVENTV_TOKEN"`
 
-	UptraceDsn string `required:"false" envconfig:"UPTRACE_DSN"`
-	NatsUrl    string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
+	// OpenTelemetry configuration
+	OtelEndpoint       string `required:"false" envconfig:"OTEL_ENDPOINT" default:"localhost:4317"`
+	OtelHeaders        string `required:"false" envconfig:"OTEL_HEADERS"`
+	OtelInsecure       bool   `required:"false" default:"true" envconfig:"OTEL_INSECURE"`
+	OtelTracingEnabled bool   `required:"false" default:"true" envconfig:"OTEL_TRACING_ENABLED"`
+	OtelMetricsEnabled bool   `required:"false" default:"true" envconfig:"OTEL_METRICS_ENABLED"`
+
+	NatsUrl string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
 
 	Valorant ValorantConfig
 	LastFM   LastFMConfig

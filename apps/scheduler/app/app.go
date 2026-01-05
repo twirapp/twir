@@ -9,7 +9,7 @@ import (
 	"github.com/twirapp/twir/libs/baseapp"
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
@@ -34,7 +34,7 @@ var App = fx.Module(
 		),
 	),
 	fx.Invoke(
-		uptrace.NewFx(service),
+		otel.NewFx(service),
 		bus_listener.New,
 		timers.NewOnlineUsers,
 		timers.NewStreams,

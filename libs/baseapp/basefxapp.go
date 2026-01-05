@@ -19,11 +19,11 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/otel"
 	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
 	twirsentry "github.com/twirapp/twir/libs/sentry"
-	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -38,7 +38,7 @@ func CreateBaseApp(opts Opts) fx.Option {
 		fx.Provide(
 			config.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: opts.AppName}),
-			uptrace.NewFx(opts.AppName),
+			otel.NewFx(opts.AppName),
 			newRedis,
 			newPgxPool,
 			newGorm,
@@ -76,7 +76,7 @@ func CreateBaseApp(opts Opts) fx.Option {
 				},
 			),
 		),
-		fx.Invoke(uptrace.NewFx(opts.AppName)),
+		fx.Invoke(otel.NewFx(opts.AppName)),
 	)
 }
 

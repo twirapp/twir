@@ -11,7 +11,7 @@ import (
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 )
 
@@ -31,7 +31,7 @@ var App = fx.Module(
 		manager.New,
 	),
 	fx.Invoke(
-		uptrace.NewFx("timers"),
+		otel.NewFx("timers"),
 		bus_listener.New,
 		func(l *slog.Logger) {
 			l.Info("🚀 Timers service started")

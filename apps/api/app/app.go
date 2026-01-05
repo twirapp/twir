@@ -26,7 +26,7 @@ import (
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	channelseventsrepository "github.com/twirapp/twir/libs/repositories/events"
 	channelseventsrepositorypostgres "github.com/twirapp/twir/libs/repositories/events/pgx"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 )
 
@@ -71,7 +71,7 @@ var App = fx.Options(
 		),
 	),
 	fx.Invoke(
-		uptrace.NewFx("api"),
+		otel.NewFx("api"),
 		func(
 			mux *http.ServeMux,
 			sessionManager *scs.SessionManager,

@@ -13,7 +13,7 @@ require (
 	github.com/twirapp/twir/libs/integrations v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/uptrace v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/uptrace v0.0.0-20251127124349-67ad7fa0003f // indirect
 	go.uber.org/fx v1.24.0
 	gorm.io/gorm v1.31.1
 )

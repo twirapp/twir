@@ -6,7 +6,7 @@ import (
 	"github.com/twirapp/twir/apps/tokens/internal/bus_listener"
 	"github.com/twirapp/twir/apps/tokens/internal/redis"
 	"github.com/twirapp/twir/libs/baseapp"
-	"github.com/twirapp/twir/libs/uptrace"
+	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 
 	userswithtokensrepository "github.com/twirapp/twir/libs/repositories/userswithtoken"
@@ -31,7 +31,7 @@ var App = fx.Module(
 		redis.NewRedisLock,
 	),
 	fx.Invoke(
-		uptrace.NewFx("tokens"),
+		otel.NewFx("tokens"),
 		bus_listener.NewTokens,
 		func(l *slog.Logger) {
 			l.Info("Started")
