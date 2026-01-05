@@ -1,14 +1,112 @@
 [
 	{
+		"label": "api (remote attach)",
 		"adapter": "Delve",
-		"label": "Bots",
-		"program": "${ZED_WORKTREE_ROOT}/apps/bots/cmd/main",
-		"cwd": "${ZED_WORKTREE_ROOT}/apps/bots",
-		"args": [],
-		"env": {},
-		"request": "launch",
-		"mode": "exec",
-		"stopOnEntry": false,
-		"tcp_connection": { "host": "127.0.0.1", "port": 2351 }
-	}
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2345,
+		},
+	},
+	{
+		"label": "api-gql (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2359,
+		},
+	},
+	{
+		"label": "bots (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2351,
+		},
+	},
+	{
+		"label": "emotes-cacher (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2348,
+		},
+	},
+	{
+		"label": "events (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2347,
+		},
+	},
+	{
+		"label": "eventsub (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2350,
+		},
+	},
+	{
+		"label": "parser (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2349,
+		},
+	},
+	{
+		"label": "scheduler (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2355,
+		},
+	},
+	{
+		"label": "timers (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2352,
+		},
+	},
+	{
+		"label": "tokens (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2346,
+		},
+	},
+	{
+		"label": "websockets (remote attach)",
+		"adapter": "Delve",
+		"request": "attach",
+		"mode": "remote",
+		"tcp_connection": {
+			"host": "127.0.0.1",
+			"port": 2353,
+		},
+	},
 ]
