@@ -66,19 +66,6 @@ ALTER TABLE channels_integrations_donationalerts
     ALTER COLUMN public_id TYPE UUID USING uuidv7(),
     ALTER COLUMN public_id SET DEFAULT uuidv7();
 
--- Convert channels_integrations_donatepay (if exists)
-DO $$
-BEGIN
-    IF EXISTS (
-        SELECT 1 FROM information_schema.tables
-        WHERE table_name = 'channels_integrations_donatepay'
-    ) THEN
-        ALTER TABLE channels_integrations_donatepay
-            ALTER COLUMN id TYPE UUID USING uuidv7(),
-            ALTER COLUMN id SET DEFAULT uuidv7();
-    END IF;
-END $$;
-
 -- +goose Down
 -- This migration is not reversible as we're changing ID types
 -- Rolling back would require restoring from backup
