@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { toast } from 'vue-sonner'
 
 import OverlayBuilder from '@/features/overlay-builder/OverlayBuilder.vue'
 import {
@@ -30,7 +29,6 @@ const overlay = computed(() => overlayData.value?.channelOverlayById)
 // Initialize save and instant save composables
 const {
 	saveOverlay,
-	saveInstaSaveSetting,
 	instantSavePositions,
 	instaSaveEnabled,
 } = useOverlaySave(overlayId.value)
