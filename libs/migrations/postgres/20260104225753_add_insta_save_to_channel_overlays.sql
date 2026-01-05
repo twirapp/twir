@@ -1,6 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
-ALTER TABLE "channels_overlays" ADD COLUMN "insta_save" boolean NOT NULL DEFAULT false;
+ALTER TABLE "channels_overlays"
+ADD COLUMN "insta_save" boolean NOT NULL DEFAULT false;
 -- +goose StatementEnd
 
 -- +goose Down
