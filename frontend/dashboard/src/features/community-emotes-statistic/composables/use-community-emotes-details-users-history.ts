@@ -1,3 +1,5 @@
+import type { ColumnDef } from '@tanstack/vue-table'
+
 import {
 	getCoreRowModel,
 	getFacetedRowModel,
@@ -5,20 +7,20 @@ import {
 	getPaginationRowModel,
 	useVueTable,
 } from '@tanstack/vue-table'
+import { UseTimeAgo } from '@vueuse/components'
 import { createGlobalState } from '@vueuse/core'
-import { NTime } from 'naive-ui'
 import { computed, h } from 'vue'
+
+import type { EmotesStatisticsDetail } from '@/api/emotes-statistic'
+
+import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
+import { valueUpdater } from '@/helpers/value-updater'
 
 import { useCommunityEmotesDetails } from './use-community-emotes-details'
 
-import type { EmotesStatisticsDetail } from '@/api/emotes-statistic'
-import type { ColumnDef } from '@tanstack/vue-table'
-
-import UsersTableCellUser
-	from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
-import { valueUpdater } from '@/helpers/value-updater'
-
-type UserUsage = NonNullable<EmotesStatisticsDetail['emotesStatisticEmoteDetailedInformation']>['usagesHistory'][number]
+type UserUsage = NonNullable<
+	EmotesStatisticsDetail['emotesStatisticEmoteDetailedInformation']
+>['usagesHistory'][number]
 
 export const useCommunityEmotesDetailsUsersHistory = createGlobalState(() => {
 	const { details, usagesPagination } = useCommunityEmotesDetails()
@@ -26,7 +28,9 @@ export const useCommunityEmotesDetailsUsersHistory = createGlobalState(() => {
 	const data = computed<UserUsage[]>(() => {
 		return details.value?.emotesStatisticEmoteDetailedInformation?.usagesHistory ?? []
 	})
-	const total = computed(() => details.value?.emotesStatisticEmoteDetailedInformation?.usagesByUsersTotal ?? 0)
+	const total = computed(
+		() => details.value?.emotesStatisticEmoteDetailedInformation?.usagesByUsersTotal ?? 0
+	)
 	const pageCount = computed(() => {
 		return Math.ceil(total.value / usagesPagination.value.pageSize)
 	})
@@ -37,15 +41,19 @@ export const useCommunityEmotesDetailsUsersHistory = createGlobalState(() => {
 			size: 50,
 			header: () => '',
 			cell: ({ row }) => {
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank',
-				}, h(UsersTableCellUser, {
-					avatar: row.original.twitchProfile.profileImageUrl,
-					name: row.original.twitchProfile.login,
-					displayName: row.original.twitchProfile.displayName,
-				}))
+				return h(
+					'a',
+					{
+						class: 'flex flex-col',
+						href: `https://twitch.tv/${row.original.twitchProfile.login}`,
+						target: '_blank',
+					},
+					h(UsersTableCellUser, {
+						avatar: row.original.twitchProfile.profileImageUrl,
+						name: row.original.twitchProfile.login,
+						displayName: row.original.twitchProfile.displayName,
+					})
+				)
 			},
 		},
 		{
@@ -53,8 +61,13 @@ export const useCommunityEmotesDetailsUsersHistory = createGlobalState(() => {
 			header: '',
 			cell: ({ row }) => {
 				const date = new Date(row.original.date)
-				const diff = Date.now() - date.getTime()
-				return h(NTime, { type: 'relative', time: 0, to: diff })
+				return h(
+					UseTimeAgo,
+					{ time: date },
+					{
+						default: ({ timeAgo }: { timeAgo: string }) => timeAgo,
+					}
+				)
 			},
 		},
 	])
@@ -88,5 +101,4 @@ export const useCommunityEmotesDetailsUsersHistory = createGlobalState(() => {
 		total,
 		pageCount,
 	}
-},
-)
+})

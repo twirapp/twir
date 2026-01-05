@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { RpcError } from '@protobuf-ts/runtime-rpc'
 import { ImageIcon, MusicIcon } from 'lucide-vue-next'
-import {
-	NAlert,
-	useMessage,
-} from 'naive-ui'
+import { toast } from 'vue-sonner'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useFilesApi } from '@/api/index.js'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, FileButton } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { convertBytesToSize } from '@/helpers/convertBytesToSize.js'
@@ -66,8 +64,6 @@ onMounted(() => {
 
 const audios = computed(() => files.value?.files.filter(f => f.mimetype.startsWith('audio')) ?? [])
 
-const message = useMessage()
-
 async function upload(f: File) {
 	if (!f.type.startsWith(activeTab.value.accept.split('*').at(0)!)) return
 
@@ -77,7 +73,7 @@ async function upload(f: File) {
 		})
 	} catch (error) {
 		if (error instanceof RpcError) {
-			message.error(error.message)
+			toast.error(error.message)
 		}
 	}
 }
@@ -161,9 +157,11 @@ const uploadedFilesSizeSlider = computed(() => {
 
 		<div class="p-4 w-full min-h-0 overflow-auto">
 			<div v-if="activeTab.name === 'Audios'">
-				<NAlert v-if="!audios.length" type="info">
-					{{ t('filePicker.emptyText', { type: 'audios' }) }}
-				</NAlert>
+				<Alert v-if="!audios.length">
+					<AlertDescription>
+						{{ t('filePicker.emptyText', { type: 'audios' }) }}
+					</AlertDescription>
+				</Alert>
 
 				<div v-else class="flex flex-col gap-4 overflow-y-auto">
 					<div

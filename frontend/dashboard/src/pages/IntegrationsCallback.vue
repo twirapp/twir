@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSpin } from 'naive-ui'
+import { Loader2Icon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -131,6 +131,6 @@ onMounted(async () => {
 
 <template>
 	<div class="flex items-center justify-center w-full h-full bg-[#0f0f14]">
-		<NSpin size="large" />
+		<Loader2Icon class="h-12 w-12 animate-spin text-primary" />
 	</div>
 </template>

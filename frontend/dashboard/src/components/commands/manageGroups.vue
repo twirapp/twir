@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { BadgePlus, SaveIcon, TrashIcon } from 'lucide-vue-next'
-import { NColorPicker } from 'naive-ui'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -9,6 +8,7 @@ import type { CommandGroup } from '@/gql/graphql'
 import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { Input } from '@/components/ui/input'
 
 const { t } = useI18n()
@@ -44,8 +44,8 @@ async function update(index: number) {
 }
 
 const swatches = [
-	'rgb(116, 242, 202)',
-	'rgb(208, 48, 80)',
+	'#74f2ca',
+	'#d03050',
 ]
 </script>
 
@@ -68,12 +68,10 @@ const swatches = [
 			</div>
 			<div class="flex flex-col gap-1 w-full md:w-[40%]">
 				<span>Color</span>
-				<NColorPicker
-					v-model:value="group.color"
-					:show-alpha="true"
-					:swatches="swatches"
-					:modes="['rgb']"
-					style="height: 100%"
+				<ColorPicker
+					v-model="group.color"
+					:presets="swatches"
+					show-presets
 				/>
 			</div>
 

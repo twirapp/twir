@@ -1,6 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
-
-import { createRouter, createWebHistory } from 'vue-router'
+import { type RouteRecordRaw, createRouter, createWebHistory } from 'vue-router'
 
 import { profileQuery, userAccessFlagChecker } from '@/api/auth.js'
 import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
@@ -219,7 +217,7 @@ export function newRouter() {
 					path: '/dashboard/overlays/dudes',
 					component: () => import('@/pages/overlays/dudes/dudes-settings.vue'),
 					meta: {
-						fullScreen: true,
+						fullScreen: false,
 						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 					},
 				},

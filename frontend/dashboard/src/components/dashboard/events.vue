@@ -1,7 +1,13 @@
 <script lang="ts" setup>
-import { IconExternalLink, IconSettings } from '@tabler/icons-vue'
-import { NButton, NPopselect, NScrollbar, NText, NTooltip } from 'naive-ui'
+import { ExternalLinkIcon, SettingsIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 import Card from './card.vue'
 import Ban from './events/ban.vue'
@@ -49,26 +55,59 @@ function openPopup() {
 <template>
 	<Card :content-style="{ padding: fetching ? '10px' : '0px', height: '80%' }" :popup="props.popup">
 		<template #header-extra>
-			<NTooltip trigger="hover" placement="bottom">
-				<template #trigger>
-					<NButton size="small" text @click="openPopup">
-						<IconExternalLink />
-					</NButton>
-				</template>
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger as-child>
+						<Button size="sm" variant="ghost" @click="openPopup">
+							<ExternalLinkIcon class="h-4 w-4" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						{{ t('sharedButtons.popout') }}
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 
-				{{ t('sharedButtons.popout') }}
-			</NTooltip>
-
-			<NPopselect
-				v-model:value="enabledEvents" multiple :options="enabledEventsOptions"
-				trigger="click"
-			>
-				<NButton text>
-					<IconSettings />
-				</NButton>
-			</NPopselect>
+			<Popover>
+				<PopoverTrigger as-child>
+					<Button variant="ghost" size="sm">
+						<SettingsIcon class="h-4 w-4" />
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent class="w-64">
+					<div class="space-y-3">
+						<h4 class="font-medium text-sm">{{ t('dashboard.events.settings') || 'Event Settings' }}</h4>
+						<div class="space-y-2">
+							<div
+								v-for="option in enabledEventsOptions"
+								:key="option.value"
+								class="flex items-center space-x-2"
+							>
+								<Checkbox
+									:id="`event-${option.value}`"
+									:checked="enabledEvents.includes(option.value)"
+									@update:checked="(checked: boolean) => {
+										if (checked) {
+											enabledEvents.push(option.value)
+										} else {
+											const index = enabledEvents.indexOf(option.value)
+											if (index > -1) enabledEvents.splice(index, 1)
+										}
+									}"
+								/>
+								<Label
+									:for="`event-${option.value}`"
+									class="text-sm font-normal cursor-pointer"
+								>
+									{{ option.label }}
+								</Label>
+							</div>
+						</div>
+					</div>
+				</PopoverContent>
+			</Popover>
 		</template>
-		<NScrollbar v-if="events.length" trigger="none">
+		<ScrollArea v-if="events.length" class="h-full">
 			<TransitionGroup name="list">
 				<template v-for="(event) of events" :key="event.createdAt">
 					<Follow
@@ -165,11 +204,11 @@ function openPopup() {
 					/>
 				</template>
 			</TransitionGroup>
-		</NScrollbar>
+		</ScrollArea>
 		<div v-else class="flex items-center justify-center h-full">
-			<NText class="text-4xl">
+			<p class="text-4xl text-muted-foreground">
 				No events
-			</NText>
+			</p>
 		</div>
 	</Card>
 </template>

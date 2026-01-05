@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { IconDog, IconMoon, IconSun } from '@tabler/icons-vue'
-import { NButton, NTooltip } from 'naive-ui'
 import { computed, ref } from 'vue'
 
 import Card from './card.vue'
 
 import { useProfile } from '@/api/index.js'
 import { useTheme } from '@/composables/use-theme.js'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const { data: profile } = useProfile()
 const { theme: chatTheme, toggleTheme } = useTheme()
@@ -39,20 +40,23 @@ const chatUrl = computed(() => {
 <template>
 	<Card :content-style="{ 'margin-bottom': '10px', 'padding': '0px' }">
 		<template #header-extra>
-			<NTooltip trigger="hover" placement="bottom">
-				<template #trigger>
-					<NButton size="small" text @click="openFrankerFaceZ = !openFrankerFaceZ">
-						<IconDog />
-					</NButton>
-				</template>
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger as-child>
+						<Button size="sm" variant="ghost" @click="openFrankerFaceZ = !openFrankerFaceZ">
+							<IconDog />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						FrankerFaceZ Control Center
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 
-				FrankerFaceZ Control Center
-			</NTooltip>
-
-			<NButton size="small" text @click="toggleTheme">
+			<Button size="sm" variant="ghost" @click="toggleTheme">
 				<IconSun v-if="chatTheme === 'dark'" color="orange" />
 				<IconMoon v-else />
-			</NButton>
+			</Button>
 		</template>
 
 		<iframe v-if="chatUrl" :src="chatUrl" frameborder="0" class="w-full h-full"> </iframe>

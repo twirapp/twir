@@ -1,28 +1,30 @@
 <script setup lang="ts">
-import { NButton, NResult } from 'naive-ui';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { HomeIcon, ShieldAlertIcon } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
-const { t } = useI18n();
-const router = useRouter();
+import { Button } from '@/components/ui/button'
+
+const { t } = useI18n()
+const router = useRouter()
 
 function goToDashboard() {
-	router.push('/dashboard');
+	router.push('/dashboard')
 }
 </script>
 
 <template>
 	<div class="flex items-center justify-center h-full">
-		<n-result
-			status="403"
-			:title="t('haveNoAccess.title')"
-			:description="t('haveNoAccess.description')"
-		>
-			<template #footer>
-				<n-button @click="goToDashboard">
-					{{ t('sharedButtons.goToDashboard') }}
-				</n-button>
-			</template>
-		</n-result>
+		<div class="flex flex-col items-center gap-4 text-center">
+			<ShieldAlertIcon class="h-24 w-24 text-destructive" />
+			<h1 class="text-2xl font-semibold">{{ t('haveNoAccess.title') }}</h1>
+			<p class="text-muted-foreground max-w-md">
+				{{ t('haveNoAccess.description') }}
+			</p>
+			<Button @click="goToDashboard" class="mt-4">
+				<HomeIcon class="h-4 w-4 mr-2" />
+				{{ t('sharedButtons.goToDashboard') }}
+			</Button>
+		</div>
 	</div>
 </template>

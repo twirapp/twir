@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { EditIcon, MoreVerticalIcon, ToggleLeftIcon, ToggleRightIcon, TrashIcon, UserIcon } from 'lucide-vue-next'
-import { NTime } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
 import BadgesPreview from './badges-preview.vue'
@@ -91,7 +90,14 @@ const badgesActions = useBadgesActions()
 					</Badge>
 					<Badge>
 						<span>
-							Created <NTime :to="new Date(badge.createdAt)" format="dd.MM.yyyy HH:mm:ss" type="datetime" />
+							Created {{ new Date(badge.createdAt).toLocaleString('en-GB', {
+								day: '2-digit',
+								month: '2-digit',
+								year: 'numeric',
+								hour: '2-digit',
+								minute: '2-digit',
+								second: '2-digit'
+							}) }}
 						</span>
 					</Badge>
 				</div>

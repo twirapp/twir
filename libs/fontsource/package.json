@@ -1,13 +1,11 @@
 {
-  "name": "@twir/fontsource",
-  "type": "module",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "dependencies": {
-    "naive-ui": "2.38.0",
-    "vue": "catalog:",
-    "vue-i18n": "9.12.1"
-  }
+	"name": "@twir/fontsource",
+	"type": "module",
+	"types": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"dependencies": {
+		"vue": "catalog:"
+	}
 }

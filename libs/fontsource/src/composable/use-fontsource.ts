@@ -1,8 +1,8 @@
 import { onMounted, ref } from 'vue'
 
-import { generateFontKey, loadFont as loadFontById, loadFontList } from '../api.js'
+import type { Font, FontItem } from '../types'
 
-import type { Font, FontItem } from '../types.js'
+import { generateFontKey, loadFont as loadFontById, loadFontList } from '../api'
 
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1729089
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1780657
@@ -37,7 +37,7 @@ export function useFontSource(preloadFonts = true) {
 	async function loadFont(
 		fontId: string,
 		fontWeight: number,
-		fontStyle: string,
+		fontStyle: string
 	): Promise<Font | undefined> {
 		const fontKey = generateFontKey(fontId, fontWeight, fontStyle)
 

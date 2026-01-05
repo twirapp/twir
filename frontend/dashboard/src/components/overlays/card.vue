@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CopyIcon, SettingsIcon } from 'lucide-vue-next'
-import { NTooltip } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
 import { useCopyOverlayLink } from './copyOverlayLink.js'
@@ -10,6 +9,7 @@ import type { FunctionalComponent } from 'vue'
 import { useUserAccessFlagChecker } from '@/api/index.js'
 import Card from '@/components/card/card.vue'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = withDefaults(
@@ -59,19 +59,23 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 				<SettingsIcon class="size-4" />
 				<span>{{ t('sharedButtons.settings') }}</span>
 			</Button>
-			<NTooltip v-if="showCopy">
-				<template #trigger>
-					<Button
-						:disabled="copyDisabled"
-						class="flex items-center gap-2"
-						@click="copyOverlayLink()"
-					>
-						<CopyIcon class="size-4" />
-						<span>{{ t('overlays.copyOverlayLink') }}</span>
-					</Button>
-				</template>
-				<span>{{ t('overlays.uncongirured') }}</span>
-			</NTooltip>
+			<TooltipProvider v-if="showCopy">
+				<Tooltip>
+					<TooltipTrigger as-child>
+						<Button
+							:disabled="copyDisabled"
+							class="flex items-center gap-2"
+							@click="copyOverlayLink()"
+						>
+							<CopyIcon class="size-4" />
+							<span>{{ t('overlays.copyOverlayLink') }}</span>
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						{{ t('overlays.uncongirured') }}
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 		</template>
 	</Card>
 </template>

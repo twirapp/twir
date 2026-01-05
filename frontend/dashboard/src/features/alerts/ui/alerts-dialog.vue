@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NScrollbar } from 'naive-ui'
+
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -14,6 +14,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 defineProps<{ alert?: Alert | null }>()
 
@@ -34,12 +35,12 @@ const open = ref(false)
 				</DialogTitle>
 			</DialogHeader>
 
-			<NScrollbar style="max-height: 85vh" trigger="none">
+			<ScrollArea class="max-h-[85vh]">
 				<AlertsModalContent
 					:alert="alert"
 					@close="() => open = false"
 				/>
-			</NScrollbar>
+			</ScrollArea>
 		</DialogOrSheet>
 	</Dialog>
 </template>

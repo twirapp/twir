@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NText, NTime } from 'naive-ui'
+import { UseTimeAgo } from '@vueuse/components'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -26,25 +26,28 @@ onMounted(() => {
 		<template #content>
 			<div class="flex flex-col gap-6 mr-4">
 				<div v-if="notifications.length === 0">
-					<NText>{{ t('adminPanel.notifications.emptyNotifications') }}</NText>
+					<p class="text-muted-foreground">
+						{{ t('adminPanel.notifications.emptyNotifications') }}
+					</p>
 				</div>
 
 				<Card v-for="notification of notifications" :key="notification.id">
 					<CardContent class="pt-6">
-						<NText
+						<div
 							v-if="notification.text"
-							class="w-full wrap-break-word"
+							class="w-full break-words"
 							v-html="notification.text"
 						/>
 						<BlocksRender v-if="notification.editorJsJson" :data="notification.editorJsJson" />
 
-						<NText
+						<p
 							:title="new Date(notification.createdAt).toLocaleString()"
-							class="flex text-xs justify-end"
-							:depth="3"
+							class="flex text-xs justify-end text-muted-foreground mt-2"
 						>
-							<NTime type="relative" :time="new Date(notification.createdAt)" />
-						</NText>
+							<UseTimeAgo v-slot="{ timeAgo }" :time="new Date(notification.createdAt)">
+								{{ timeAgo }}
+							</UseTimeAgo>
+						</p>
 					</CardContent>
 				</Card>
 			</div>

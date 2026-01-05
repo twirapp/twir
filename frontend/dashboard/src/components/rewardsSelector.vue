@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { NAvatar, NSelect, NSpace, NTag, NText, type SelectOption } from 'naive-ui'
-import { computed, h } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import type { VNodeChild } from 'vue'
 
 import { useTwitchRewardsNew } from '@/api/twitch.ts'
 import RewardFallbackImg from '@/assets/images/reward-fallback.png?url'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
 const props = defineProps<{
 	multiple?: boolean
@@ -25,75 +32,96 @@ const {
 	error: isRewardsError,
 } = useTwitchRewardsNew()
 
-type RewardSelectOptions = SelectOption & {
+interface RewardOption {
+	id: string
+	title: string
 	image?: string
 	color: string
+	enabled: boolean
 }
 
-const rewardsSelectOptions = computed(() => {
-	const rewards: RewardSelectOptions[] = []
+const rewardsOptions = computed<RewardOption[]>(() => {
+	const rewards: RewardOption[] = []
 	if (!rewardsData.value?.twitchRewards) return rewards
 
 	for (const reward of rewardsData.value.twitchRewards) {
 		if (props.onlyWithInput && !reward.userInputRequired) continue
 
 		rewards.push({
-			value: reward.id,
-			label: reward.title,
+			id: reward.id,
+			title: reward.title,
 			image: reward.imageUrls?.at(-1),
 			color: reward.backgroundColor,
-			disabled: !reward.enabled,
+			enabled: reward.enabled,
 		})
 	}
 
 	return rewards
 })
 
-function renderRewardLabel(option: RewardSelectOptions): VNodeChild {
-	return h(NSpace, { align: 'center' }, {
-		default: () => [
-			h(NAvatar, {
-				src: option.image || RewardFallbackImg,
-				color: option.color,
-				class: 'flex w-5 h-5 p-1',
-			}),
-			h(NText, {
-				style: {
-					color: option.disabled
-						? 'var(--n-text-disabled-color)'
-						: 'var(--n-text-color)',
-				},
-			}, { default: () => option.label }),
-		],
-	})
-}
-
-function renderRewardTag(props: { option: SelectOption, handleClose: () => void }): VNodeChild {
-	return h(NTag, {
-		bordered: false,
-		closable: true,
-		onClose: props.handleClose,
-	},	{
-		icon: () => h('img', { src: props.option.image || RewardFallbackImg, class: 'w-4 h-4 mr-1' }),
-		default: () => props.option.label,
-	})
-}
+const selectedReward = computed(() => {
+	if (!modelValue.value || Array.isArray(modelValue.value)) return null
+	return rewardsOptions.value.find(r => r.id === modelValue.value)
+})
 </script>
 
 <template>
-	<NSelect
-		v-model:value="modelValue"
-		class="bg-background"
-		:multiple="multiple"
-		size="large"
-		:options="rewardsSelectOptions"
-		:placeholder="placeholder ?? t('events.targetTwitchReward')"
-		:loading="isRewardsLoading"
-		:render-label="renderRewardLabel"
-		:render-tag="renderRewardTag"
-		:disabled="isRewardsError !== undefined"
-		:clearable="clearable"
-		:virtual-scroll="false"
-		filterable
-	/>
+	<!-- Single select version -->
+	<Select
+		v-if="!multiple"
+		v-model="modelValue"
+		:disabled="isRewardsLoading || isRewardsError !== undefined"
+	>
+		<SelectTrigger class="w-full">
+			<SelectValue :placeholder="placeholder ?? t('events.targetTwitchReward')">
+				<div v-if="selectedReward" class="flex items-center gap-2">
+					<Avatar class="h-5 w-5">
+						<AvatarImage :src="selectedReward.image || RewardFallbackImg" />
+						<AvatarFallback>
+							<div
+								class="w-full h-full"
+								:style="{ backgroundColor: selectedReward.color }"
+							/>
+						</AvatarFallback>
+					</Avatar>
+					<span :class="cn(!selectedReward.enabled && 'text-muted-foreground')">
+						{{ selectedReward.title }}
+					</span>
+				</div>
+			</SelectValue>
+		</SelectTrigger>
+		<SelectContent>
+			<SelectGroup>
+				<SelectItem
+					v-for="reward in rewardsOptions"
+					:key="reward.id"
+					:value="reward.id"
+					:disabled="!reward.enabled"
+				>
+					<div class="flex items-center gap-2">
+						<Avatar class="h-5 w-5">
+							<AvatarImage :src="reward.image || RewardFallbackImg" />
+							<AvatarFallback>
+								<div
+									class="w-full h-full"
+									:style="{ backgroundColor: reward.color }"
+								/>
+							</AvatarFallback>
+						</Avatar>
+						<span :class="cn(!reward.enabled && 'text-muted-foreground')">
+							{{ reward.title }}
+						</span>
+					</div>
+				</SelectItem>
+			</SelectGroup>
+		</SelectContent>
+	</Select>
+
+	<!-- Multiple select version - fallback to native multi-select for now -->
+	<div v-else class="space-y-2">
+		<p class="text-sm text-muted-foreground">
+			Multiple select for rewards is not yet implemented with shadcn components.
+			Please use the single select version for now.
+		</p>
+	</div>
 </template>

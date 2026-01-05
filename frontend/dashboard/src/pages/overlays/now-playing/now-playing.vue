@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { NowPlaying, Preset } from '@twir/frontend-now-playing'
 import { useSubscription } from '@urql/vue'
-import { PlusIcon } from 'lucide-vue-next'
-import { NA, NResult, useThemeVars } from 'naive-ui'
+import { AlertTriangleIcon, PlusIcon } from 'lucide-vue-next'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -22,7 +21,6 @@ import {
 } from '@/pages/overlays/now-playing/use-now-playing-form'
 
 const { theme } = useTheme()
-const themeVars = useThemeVars()
 const { t } = useI18n()
 const profile = useProfile()
 
@@ -133,79 +131,72 @@ const nowPlayingTrack = computed(() => {
 			<NowPlaying :settings="settings ?? { preset: Preset.TRANSPARENT }" :track="nowPlayingTrack" />
 		</div>
 		<Separator />
-		<div>
-			<NResult
-				v-if="!isSomeSongIntegrationEnabled"
-				status="warning"
-				title="No enabled song integrations!"
+		<Alert v-if="!isSomeSongIntegrationEnabled" variant="destructive">
+			<AlertTriangleIcon class="h-4 w-4" />
+			<AlertTitle>No enabled song integrations!</AlertTitle>
+			<AlertDescription>
+				Connect Spotify, Last.fm or VK in
+				<RouterLink :to="{ name: 'Integrations' }" class="text-primary hover:underline">
+					{{ t('sidebar.integrations') }}
+				</RouterLink>
+				to use this overlay
+			</AlertDescription>
+		</Alert>
+		<TabsRoot
+			v-else
+			:default-value="0"
+			orientation="vertical"
+			class="min-h-[45dvh]"
+			@update:model-value="(e) => (openedTab = entities?.nowPlayingOverlays[e].id)"
+		>
+			<TabsList
+				aria-label="tabs example"
+				class="flex flex-wrap items-center overflow-x-auto -mb-px"
 			>
-				<template #footer>
-					Connect Spotify, Last.fm or VK in
-					<router-link :to="{ name: 'Integrations' }" #="{ navigate, href }" custom>
-						<NA :href="href" @click="navigate">
-							{{ t('sidebar.integrations') }}
-						</NA>
-					</router-link>
-					to use this overlay
-				</template>
-			</NResult>
-			<TabsRoot
-				v-else
-				:default-value="0"
-				orientation="vertical"
-				class="min-h-[45dvh]"
-				@update:model-value="(e) => (openedTab = entities?.nowPlayingOverlays[e].id)"
-			>
-				<TabsList
-					aria-label="tabs example"
-					class="flex flex-wrap items-center overflow-x-auto -mb-px"
+				<Button
+					size="sm"
+					variant="secondary"
+					class="mr-1"
+					:disabled="!addable"
+					@click="handleAdd"
 				>
-					<Button
-						size="sm"
-						variant="secondary"
-						class="mr-1"
-						:disabled="!addable"
-						@click="handleAdd"
-					>
-						<PlusIcon />
-					</Button>
-					<TabsTrigger
-						v-for="(overlay, index) of entities?.nowPlayingOverlays"
-						:key="overlay.id"
-						class="tabs-trigger data-disabled:cursor-not-allowed data-disabled:text-zinc-400"
-						:class="[
-							theme === 'dark'
-								? 'data-[state=active]:after:border-white'
-								: 'data-[state=active]:after:border-zinc-800',
-						]"
-						:value="index"
-					>
-						#{{ index + 1 }} {{ overlay.preset }}
-					</TabsTrigger>
-				</TabsList>
-				<Alert v-if="!entities?.nowPlayingOverlays.length" class="mt-2">
-					<AlertTitle>No overlays!</AlertTitle>
-					<AlertDescription> Create new overlay for edit settings </AlertDescription>
-				</Alert>
-				<TabsContent
+					<PlusIcon />
+				</Button>
+				<TabsTrigger
 					v-for="(overlay, index) of entities?.nowPlayingOverlays"
 					:key="overlay.id"
-					class="mt-2"
+					class="tabs-trigger data-disabled:cursor-not-allowed data-disabled:text-zinc-400"
+					:class="[
+						theme === 'dark'
+							? 'data-[state=active]:after:border-white'
+							: 'data-[state=active]:after:border-zinc-800',
+					]"
 					:value="index"
 				>
-					<NowPlayingForm />
-				</TabsContent>
-			</TabsRoot>
-		</div>
+					#{{ index + 1 }} {{ overlay.preset }}
+				</TabsTrigger>
+			</TabsList>
+			<Alert v-if="!entities?.nowPlayingOverlays.length" class="mt-2">
+				<AlertTitle>No overlays!</AlertTitle>
+				<AlertDescription> Create new overlay for edit settings </AlertDescription>
+			</Alert>
+			<TabsContent
+				v-for="(overlay, index) of entities?.nowPlayingOverlays"
+				:key="overlay.id"
+				class="mt-2"
+				:value="index"
+			>
+				<NowPlayingForm />
+			</TabsContent>
+		</TabsRoot>
 	</div>
 </template>
 
 <style scoped>
 @reference '@/assets/index.css';
-@import '../styles.css';
 
 .iframe {
-	border: 1px solid v-bind('themeVars.borderColor');
+	border: 1px solid hsl(var(--border));
 	border-radius: 8px;
 	padding: 10px;
 	display: flex;
@@ -217,6 +208,14 @@ const nowPlayingTrack = computed(() => {
 }
 
 .tabs-trigger {
-	@apply relative z-1 flex whitespace-nowrap px-3 py-4 text-sm  transition-colors before:absolute before:left-0 before:top-2 before:-z-1 before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''] data-[state=active]:after:rounded-t-sm font-medium;
+	@apply relative z-10 flex whitespace-nowrap px-3 py-4 text-sm transition-colors;
+	@apply before:absolute before:left-0 before:top-2 before:-z-10 before:block before:h-9 before:w-full;
+	@apply before:rounded-md before:transition-colors before:content-[''];
+	@apply hover:text-white hover:before:bg-zinc-800;
+	@apply data-[state=active]:after:absolute data-[state=active]:after:bottom-0;
+	@apply data-[state=active]:after:left-2 data-[state=active]:after:right-2;
+	@apply data-[state=active]:after:block data-[state=active]:after:h-0;
+	@apply data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''];
+	@apply data-[state=active]:after:rounded-t-sm font-medium;
 }
 </style>

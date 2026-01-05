@@ -182,6 +182,14 @@ watch(y, (value) => {
 @reference '@/assets/index.css';
 
 .tabs-trigger {
-	@apply relative z-1 flex whitespace-nowrap px-3 py-4 text-sm  transition-colors before:absolute before:left-0 before:top-2 before:-z-1 before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''] data-[state=active]:after:rounded-t-sm font-medium;
+	@apply relative z-10 flex whitespace-nowrap px-3 py-4 text-sm transition-colors;
+	@apply before:absolute before:left-0 before:top-2 before:-z-10 before:block before:h-9 before:w-full;
+	@apply before:rounded-md before:transition-colors before:content-[''];
+	@apply hover:text-white hover:before:bg-zinc-800;
+	@apply data-[state=active]:after:absolute data-[state=active]:after:bottom-0;
+	@apply data-[state=active]:after:left-2 data-[state=active]:after:right-2;
+	@apply data-[state=active]:after:block data-[state=active]:after:h-0;
+	@apply data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''];
+	@apply data-[state=active]:after:rounded-t-sm font-medium;
 }
 </style>

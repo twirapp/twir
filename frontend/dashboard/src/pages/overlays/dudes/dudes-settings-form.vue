@@ -1,41 +1,53 @@
 <script setup lang="ts">
-import { FontSelector } from '@twir/fontsource'
+import { type Font, FontSelector } from '@/lib/fontsource'
 import { DudesSprite } from '@twir/types'
 import { addZero, capitalize, colorBrightness, hexToRgb } from '@zero-dependency/utils'
 import { intervalToDuration } from 'date-fns'
 import {
-	NButton,
-	NColorPicker,
-	NDynamicTags,
-	NForm,
-	NFormItem,
-	NInputNumber,
-	NScrollbar,
-	NSelect,
-	NSlider,
-	NSwitch,
-	NTabPane,
-	NTabs,
-	NTag,
-	useThemeVars,
-} from 'naive-ui'
-import { computed, h, ref, watch } from 'vue'
+	MessageSquareIcon,
+	MusicIcon,
+	PaletteIcon,
+	SmileIcon,
+	TrendingUpIcon,
+	UserIcon,
+	UsersIcon,
+	XIcon,
+} from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 
 import { useDudesForm } from './use-dudes-form.js'
 import { useDudesIframe } from './use-dudes-frame.js'
 
-import type { Font } from '@twir/fontsource'
-
 import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
 import SelectTwitchUsers from '@/components/twitchUsers/twitch-users-select.vue'
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { ColorPicker } from '@/components/ui/color-picker'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()
-const themeVars = useThemeVars()
-const discrete = useNaiveDiscrete()
 const { copyOverlayLink } = useCopyOverlayLink('dudes')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
@@ -85,8 +97,7 @@ async function save() {
 		input: settings,
 	})
 
-	discrete.notification.success({
-		title: t('sharedTexts.saved'),
+	toast.success(t('sharedTexts.saved'), {
 		duration: 1500,
 	})
 }
@@ -99,11 +110,6 @@ function formatDuration(duration: number) {
 
 	return `${addZero(hours)}:${addZero(minutes)}:${addZero(seconds)}`
 }
-
-const fillGradientStops = computed(() => {
-	if (!formValue.value) return []
-	return formValue.value.nameBoxSettings.fillGradientStops.map((stop) => `${stop}`)
-})
 
 const fillGradidentStopMessage = computed(() => {
 	if (!formValue.value.nameBoxSettings.fillGradientStops.length) {
@@ -173,512 +179,667 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 	label: capitalize(key),
 	value: key,
 }))
+
+// Color picker state for dynamic tags
+const showColorPicker = ref(false)
+const tempColor = ref('#74f2ca')
+
+function addFillColor() {
+	if (formValue.value.nameBoxSettings.fill.length < 6) {
+		formValue.value.nameBoxSettings.fill.push(tempColor.value)
+		showColorPicker.value = false
+		tempColor.value = '#74f2ca'
+	}
+}
+
+function removeFillColor(index: number) {
+	formValue.value.nameBoxSettings.fill.splice(index, 1)
+}
+
+// Gradient stop input
+const showGradientStopInput = ref(false)
+const tempGradientStop = ref(0.1)
+
+function addGradientStop() {
+	if (formValue.value.nameBoxSettings.fillGradientStops.length < formValue.value.nameBoxSettings.fill.length) {
+		formValue.value.nameBoxSettings.fillGradientStops.push(tempGradientStop.value)
+		showGradientStopInput.value = false
+		tempGradientStop.value = 0.1
+	}
+}
+
+function removeGradientStop(index: number) {
+	formValue.value.nameBoxSettings.fillGradientStops.splice(index, 1)
+}
 </script>
 
 <template>
-	<div v-if="formValue" class="card">
-		<div class="card-header">
-			<NButton secondary type="error" @click="reset">
-				{{ t('sharedButtons.setDefaultSettings') }}
-			</NButton>
-			<NButton
-				secondary
-				type="info"
-				:disabled="!formValue.id || !canCopyLink"
-				@click="copyOverlayLink({ id: formValue.id! })"
-			>
-				{{ t('overlays.copyOverlayLink') }}
-			</NButton>
-			<NButton secondary type="success" @click="save">
-				{{ t('sharedButtons.save') }}
-			</NButton>
+	<Card v-if="formValue">
+		<CardHeader>
+			<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+				<div class="flex flex-wrap gap-2">
+					<Button variant="destructive" size="sm" @click="reset">
+						{{ t('sharedButtons.setDefaultSettings') }}
+					</Button>
+					<Button
+						variant="secondary"
+						size="sm"
+						:disabled="!formValue.id || !canCopyLink"
+						@click="copyOverlayLink({ id: formValue.id! })"
+					>
+						{{ t('overlays.copyOverlayLink') }}
+					</Button>
+					<Button size="sm" @click="save">
+						{{ t('sharedButtons.save') }}
+					</Button>
+				</div>
+			</div>
+		</CardHeader>
 
-			<NTabs class="pt-2" type="line" placement="left" default-value="dude" animated>
-				<NTabPane name="dude" :tab="t('overlays.dudes.dudeDivider')">
-					<NFormItem :label="t('overlays.dudes.dudeDefaultSprite')">
-						<NSelect v-model:value="formValue.dudeSettings.defaultSprite" :options="dudesSprites" />
-					</NFormItem>
+		<CardContent>
+			<Accordion type="multiple" class="w-full" default-value="['dude']" :unmountOnHide="false">
+				<!-- Dude Section -->
+				<AccordionItem value="dude">
+					<AccordionTrigger>
+						<div class="flex items-center gap-2">
+							<UserIcon class="h-4 w-4" />
+							<span>{{ t('overlays.dudes.dudeDivider') }}</span>
+						</div>
+					</AccordionTrigger>
+					<AccordionContent class="space-y-4 pt-4">
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.dudeDefaultSprite') }}</Label>
+					<Select v-model="formValue.dudeSettings.defaultSprite">
+						<SelectTrigger>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem v-for="sprite in dudesSprites" :key="sprite.value" :value="sprite.value">
+								{{ sprite.label }}
+							</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeMaxOnScreen')">
-						<NSlider
-							v-model:value="formValue.dudeSettings.maxOnScreen"
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.dudeMaxOnScreen') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.dudeSettings.maxOnScreen]"
 							:min="0"
 							:max="128"
 							:step="1"
-							:format-tooltip="
-								(value) => {
-									if (value === 0) {
-										return t('overlays.dudes.dudeMaxOnScreenUnlimited')
-									}
-
-									return value
-								}
-							"
+							@update:model-value="(val) => formValue.dudeSettings.maxOnScreen = val?.[0] ?? 0"
 						/>
-					</NFormItem>
+						<span class="text-sm text-muted-foreground w-20">
+							{{ formValue.dudeSettings.maxOnScreen === 0 ? t('overlays.dudes.dudeMaxOnScreenUnlimited') : formValue.dudeSettings.maxOnScreen }}
+						</span>
+					</div>
+				</div>
 
-					<NFormItem :label="t('overlays.dudes.dudeColor')">
-						<NColorPicker v-model:value="formValue.dudeSettings.color" :modes="['hex']" />
-					</NFormItem>
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.dudeColor') }}</Label>
+					<ColorPicker v-model="formValue.dudeSettings.color" />
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeGravity')">
-						<NSlider v-model:value="formValue.dudeSettings.gravity" :min="100" :max="5000" />
-					</NFormItem>
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.dudeGravity') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.dudeSettings.gravity]"
+							:min="100"
+							:max="5000"
+							@update:model-value="(val) => formValue.dudeSettings.gravity = val?.[0] ?? 100"
+						/>
+						<span class="text-sm text-muted-foreground w-20">{{ formValue.dudeSettings.gravity }}</span>
+					</div>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeMaxLifeTime')">
-						<NSlider
-							v-model:value="formValue.dudeSettings.maxLifeTime"
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.dudeMaxLifeTime') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.dudeSettings.maxLifeTime]"
 							:min="1000"
 							:max="120 * 60 * 1000"
 							:step="1000"
-							:format-tooltip="(value) => formatDuration(value)"
+							@update:model-value="(val) => formValue.dudeSettings.maxLifeTime = val?.[0] ?? 1000"
 						/>
-					</NFormItem>
+						<span class="text-sm text-muted-foreground w-32">{{ formatDuration(formValue.dudeSettings.maxLifeTime) }}</span>
+					</div>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeScale')">
-						<NSlider v-model:value="formValue.dudeSettings.scale" :min="1" :max="10" :step="1" />
-					</NFormItem>
-				</NTabPane>
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.dudeScale') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.dudeSettings.scale]"
+							:min="1"
+							:max="10"
+							:step="1"
+							@update:model-value="(val) => formValue.dudeSettings.scale = val?.[0] ?? 1"
+						/>
+						<span class="text-sm text-muted-foreground w-20">{{ formValue.dudeSettings.scale }}</span>
+					</div>
+				</div>
+					</AccordionContent>
+				</AccordionItem>
 
-				<NTabPane name="ignoring" :tab="t('overlays.dudes.ignoreDivider')">
-					<NFormItem
-						class="form-item-switch"
-						:show-feedback="false"
-						:label="t('overlays.dudes.ignoreCommands')"
-					>
-						<NSwitch v-model:value="formValue.ignoreSettings.ignoreCommands" />
-					</NFormItem>
+				<!-- Ignoring Section -->
+				<AccordionItem value="ignoring">
+					<AccordionTrigger>
+						<div class="flex items-center gap-2">
+							<UsersIcon class="h-4 w-4" />
+							<span>{{ t('overlays.dudes.ignoreDivider') }}</span>
+						</div>
+					</AccordionTrigger>
+					<AccordionContent class="space-y-4 pt-4">
+				<div class="flex items-center justify-between">
+					<Label>{{ t('overlays.dudes.ignoreCommands') }}</Label>
+					<Switch
+						:model-value="formValue.ignoreSettings.ignoreCommands"
+						@update:model-value="formValue.ignoreSettings.ignoreCommands = $event"
+					/>
+				</div>
 
-					<NFormItem
-						class="form-item-switch"
-						:show-feedback="false"
-						:label="t('overlays.dudes.ignoreUsers')"
-					>
-						<NSwitch v-model:value="formValue.ignoreSettings.ignoreUsers" />
-					</NFormItem>
+				<div class="flex items-center justify-between">
+					<Label>{{ t('overlays.dudes.ignoreUsers') }}</Label>
+					<Switch
+						:model-value="formValue.ignoreSettings.ignoreUsers"
+						@update:model-value="formValue.ignoreSettings.ignoreUsers = $event"
+					/>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.ignoreUsersList')">
-						<SelectTwitchUsers v-model="formValue.ignoreSettings.users" />
-					</NFormItem>
-				</NTabPane>
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.ignoreUsersList') }}</Label>
+					<SelectTwitchUsers v-model="formValue.ignoreSettings.users" />
+				</div>
+					</AccordionContent>
+				</AccordionItem>
 
-				<NTabPane name="sounds" :tab="t('overlays.dudes.dudeSoundsDivider')">
-					<NFormItem
-						class="form-item-switch"
-						:show-feedback="false"
-						:label="t('overlays.dudes.enable')"
-					>
-						<NSwitch v-model:value="formValue.dudeSettings.soundsEnabled" />
-					</NFormItem>
+				<!-- Sounds Section -->
+				<AccordionItem value="sounds">
+					<AccordionTrigger>
+						<div class="flex items-center gap-2">
+							<MusicIcon class="h-4 w-4" />
+							<span>{{ t('overlays.dudes.dudeSoundsDivider') }}</span>
+						</div>
+					</AccordionTrigger>
+					<AccordionContent class="space-y-4 pt-4">
+				<div class="flex items-center justify-between">
+					<Label>{{ t('overlays.dudes.enable') }}</Label>
+					<Switch
+						:model-value="formValue.dudeSettings.soundsEnabled"
+						@update:model-value="formValue.dudeSettings.soundsEnabled = $event"
+					/>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeSoundsVolume')">
-						<NSlider
-							v-model:value="formValue.dudeSettings.soundsVolume"
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.dudeSoundsVolume') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.dudeSettings.soundsVolume]"
 							:min="0.01"
 							:max="1"
 							:step="0.01"
-							:format-tooltip="(value) => `${(value * 100).toFixed(0)}%`"
 							:disabled="!formValue.dudeSettings.soundsEnabled"
+							@update:model-value="(val) => formValue.dudeSettings.soundsVolume = val?.[0] ?? 0.01"
 						/>
-					</NFormItem>
-				</NTabPane>
+						<span class="text-sm text-muted-foreground w-20">{{ (formValue.dudeSettings.soundsVolume * 100).toFixed(0) }}%</span>
+					</div>
+				</div>
+					</AccordionContent>
+				</AccordionItem>
 
-				<NTabPane name="grow" :tab="t('overlays.dudes.growDivider')">
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.growTime')">
-						<NSlider
-							v-model:value="formValue.dudeSettings.growTime"
+				<!-- Grow Section -->
+				<AccordionItem value="grow">
+					<AccordionTrigger>
+						<div class="flex items-center gap-2">
+							<TrendingUpIcon class="h-4 w-4" />
+							<span>{{ t('overlays.dudes.growDivider') }}</span>
+						</div>
+					</AccordionTrigger>
+					<AccordionContent class="space-y-4 pt-4">
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.growTime') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.dudeSettings.growTime]"
 							:min="5000"
 							:max="1000 * 60 * 60"
 							:step="1000"
-							:format-tooltip="(value) => formatDuration(value)"
+							@update:model-value="(val) => formValue.dudeSettings.growTime = val?.[0] ?? 5000"
 						/>
-					</NFormItem>
+						<span class="text-sm text-muted-foreground w-32">{{ formatDuration(formValue.dudeSettings.growTime) }}</span>
+					</div>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.growMaxScale')">
-						<NSlider
-							v-model:value="formValue.dudeSettings.growMaxScale"
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.growMaxScale') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.dudeSettings.growMaxScale]"
 							:min="formValue.dudeSettings.scale + 1"
 							:max="32"
 							:step="1"
+							@update:model-value="(val) => formValue.dudeSettings.growMaxScale = val?.[0] ?? 1"
 						/>
-					</NFormItem>
-				</NTabPane>
+						<span class="text-sm text-muted-foreground w-20">{{ formValue.dudeSettings.growMaxScale }}</span>
+					</div>
+				</div>
+					</AccordionContent>
+				</AccordionItem>
 
-				<NTabPane name="name-box" :tab="t('overlays.dudes.nameBoxDivider')">
-					<NScrollbar style="max-height: calc(62vh - var(--layout-header-height))" trigger="none">
-						<div class="pr-4">
-							<NForm>
-								<NFormItem
-									class="form-item-switch"
-									:show-feedback="false"
-									:label="t('overlays.dudes.enable')"
-								>
-									<NSwitch v-model:value="formValue.dudeSettings.visibleName" />
-								</NFormItem>
+				<!-- Name Box Section -->
+				<AccordionItem value="name-box">
+					<AccordionTrigger>
+						<div class="flex items-center gap-2">
+							<PaletteIcon class="h-4 w-4" />
+							<span>{{ t('overlays.dudes.nameBoxDivider') }}</span>
+						</div>
+					</AccordionTrigger>
+					<AccordionContent class="space-y-4 pt-4">
+				<ScrollArea class="h-[50vh] pr-4">
+					<div class="space-y-4">
+						<div class="flex items-center justify-between">
+							<Label>{{ t('overlays.dudes.enable') }}</Label>
+							<Switch
+								:model-value="formValue.dudeSettings.visibleName"
+								@update:model-value="formValue.dudeSettings.visibleName = $event"
+							/>
+						</div>
 
-								<NFormItem
-									:validation-status="nameBoxFillMessage ? 'error' : undefined"
-									:feedback="nameBoxFillMessage"
-									:label="t('overlays.dudes.nameBoxFill')"
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxFill') }}</Label>
+							<div class="flex flex-wrap gap-2">
+								<Badge
+									v-for="(color, index) in formValue.nameBoxSettings.fill"
+									:key="index"
+									class="pr-1"
+									:style="{ backgroundColor: color, color: (hexToRgb(color) && colorBrightness(hexToRgb(color)!) > 128) ? '#000' : '#fff' }"
 								>
-									<NDynamicTags
-										v-model:value="formValue.nameBoxSettings.fill"
+									{{ color }}
+									<Button
+										variant="ghost"
+										size="icon"
+										class="h-4 w-4 ml-1 hover:bg-transparent"
 										:disabled="isNameBoxDisabled"
-										:max="6"
-										:render-tag="
-											(tag: string, index: number) => {
-												const rgb = hexToRgb(tag)
-												const textColor = rgb && colorBrightness(rgb) > 128 ? '#000' : '#fff'
-
-												return h(
-													NTag,
-													{
-														closable: true,
-														onClose: () => {
-															formValue.nameBoxSettings.fill.splice(index, 1)
-														},
-														style: {
-															'--n-close-icon-color': textColor,
-															'--n-close-icon-color-hover': textColor,
-														},
-														color: {
-															color: tag,
-															borderColor: tag,
-															textColor,
-														},
-													},
-													{ default: () => tag }
-												)
-											}
-										"
+										@click="removeFillColor(index)"
 									>
-										<template #input="{ submit, deactivate }">
-											<NColorPicker
-												style="width: 80px"
-												size="small"
-												default-show
-												:show-alpha="false"
-												:modes="['hex']"
-												:actions="['confirm']"
-												@confirm="submit($event)"
-												@update-show="deactivate"
-												@blur="deactivate"
-											/>
-										</template>
-									</NDynamicTags>
-								</NFormItem>
-							</NForm>
-
-							<NForm>
-								<NFormItem
+										<XIcon class="h-3 w-3" />
+									</Button>
+								</Badge>
+								<Button
+									v-if="!showColorPicker && formValue.nameBoxSettings.fill.length < 6"
+									variant="outline"
+									size="sm"
 									:disabled="isNameBoxDisabled"
-									:validation-status="fillGradidentStopMessage ? 'error' : undefined"
-									:feedback="fillGradidentStopMessage"
-									:label="t('overlays.dudes.nameBoxFillGradientStops')"
+									@click="showColorPicker = true"
 								>
-									<NDynamicTags
-										v-model:value="fillGradientStops"
-										:render-tag="
-											(tag: string, index: number) => {
-												return h(
-													NTag,
-													{
-														closable: true,
-														onClose: () => {
-															formValue.nameBoxSettings.fillGradientStops.splice(index, 1)
-														},
-													},
-													{ default: () => tag }
-												)
-											}
-										"
-										:max="formValue.nameBoxSettings.fill.length"
-										@update:value="
-											(values: string[]) => {
-												formValue.nameBoxSettings.fillGradientStops = values.map(Number)
-											}
-										"
+									+ Add Color
+								</Button>
+								<div v-if="showColorPicker" class="flex items-center gap-2">
+									<ColorPicker v-model="tempColor" class="w-20" />
+									<Button size="sm" @click="addFillColor">Add</Button>
+									<Button size="sm" variant="ghost" @click="showColorPicker = false">Cancel</Button>
+								</div>
+							</div>
+							<span v-if="nameBoxFillMessage" class="text-sm text-destructive">{{ nameBoxFillMessage }}</span>
+						</div>
+
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxFillGradientStops') }}</Label>
+							<div class="flex flex-wrap gap-2">
+								<Badge
+									v-for="(stop, index) in formValue.nameBoxSettings.fillGradientStops"
+									:key="index"
+									variant="secondary"
+									class="pr-1"
+								>
+									{{ stop }}
+									<Button
+										variant="ghost"
+										size="icon"
+										class="h-4 w-4 ml-1 hover:bg-transparent"
+										:disabled="isNameBoxDisabled"
+										@click="removeGradientStop(index)"
 									>
-										<template #input="{ submit, deactivate }">
-											<NInputNumber
-												style="width: 100px"
-												autofocus
-												placeholder=""
-												:max="1"
-												:min="0"
-												:step="0.01"
-												:default-value="0.1"
-												size="small"
-												:update-value-on-input="false"
-												:parse="
-													(v) => {
-														const parsedNum = Number(v)
-														return Number.isNaN(parsedNum) ? 0 : parsedNum
-													}
-												"
-												@keyup.enter="submit($event.target.value)"
-												@confirm="submit($event)"
-												@blur="deactivate"
-											/>
-										</template>
-									</NDynamicTags>
-								</NFormItem>
-							</NForm>
-
-							<NFormItem :label="t('overlays.dudes.nameBoxGradientType')">
-								<NSelect
-									v-model:value="formValue.nameBoxSettings.fillGradientType"
-									:disabled="isNameBoxDisabled || formValue.nameBoxSettings.fill.length < 2"
-									:options="[
-										{
-											label: 'Vertical',
-											value: 0,
-										},
-										{
-											label: 'Horizontal',
-											value: 1,
-										},
-									]"
-								/>
-							</NFormItem>
-
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxFontFamily')">
-								<FontSelector
-									v-model:font="fontData"
+										<XIcon class="h-3 w-3" />
+									</Button>
+								</Badge>
+								<Button
+									v-if="!showGradientStopInput && formValue.nameBoxSettings.fillGradientStops.length < formValue.nameBoxSettings.fill.length"
+									variant="outline"
+									size="sm"
 									:disabled="isNameBoxDisabled"
-									:font-family="formValue.nameBoxSettings.fontFamily"
-									:font-weight="formValue.nameBoxSettings.fontWeight"
-									:font-style="formValue.nameBoxSettings.fontStyle"
-									:subsets="['latin', 'cyrillic']"
-								/>
-							</NFormItem>
+									@click="showGradientStopInput = true"
+								>
+									+ Add Stop
+								</Button>
+								<div v-if="showGradientStopInput" class="flex items-center gap-2">
+									<Input
+										v-model.number="tempGradientStop"
+										type="number"
+										:min="0"
+										:max="1"
+										:step="0.01"
+										class="w-24"
+									/>
+									<Button size="sm" @click="addGradientStop">Add</Button>
+									<Button size="sm" variant="ghost" @click="showGradientStopInput = false">Cancel</Button>
+								</div>
+							</div>
+							<span v-if="fillGradidentStopMessage" class="text-sm text-destructive">{{ fillGradidentStopMessage }}</span>
+						</div>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxFontWeight')">
-								<NSelect
-									v-model:value="formValue.nameBoxSettings.fontWeight"
-									:disabled="isNameBoxDisabled"
-									:options="fontWeightOptions"
-								/>
-							</NFormItem>
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxGradientType') }}</Label>
+							<Select
+								v-model="formValue.nameBoxSettings.fillGradientType"
+								:disabled="isNameBoxDisabled || formValue.nameBoxSettings.fill.length < 2"
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem :value="0">Vertical</SelectItem>
+									<SelectItem :value="1">Horizontal</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxFontStyle')">
-								<NSelect
-									v-model:value="formValue.nameBoxSettings.fontStyle"
-									:disabled="isNameBoxDisabled"
-									:options="fontStyleOptions"
-								/>
-							</NFormItem>
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxFontFamily') }}</Label>
+							<FontSelector
+								v-model:font="fontData"
+								:disabled="isNameBoxDisabled"
+								:font-family="formValue.nameBoxSettings.fontFamily"
+								:font-weight="formValue.nameBoxSettings.fontWeight"
+								:font-style="formValue.nameBoxSettings.fontStyle"
+								:subsets="['latin', 'cyrillic']"
+							/>
+						</div>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxFontVariant')">
-								<NSelect
-									v-model:value="formValue.nameBoxSettings.fontVariant"
-									:disabled="isNameBoxDisabled"
-									:options="fontVariantOptions"
-								/>
-							</NFormItem>
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxFontWeight') }}</Label>
+							<Select v-model="formValue.nameBoxSettings.fontWeight" :disabled="isNameBoxDisabled">
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem v-for="option in fontWeightOptions" :key="option.value" :value="option.value">
+										{{ option.label }}
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 
-							<NFormItem :label="t('overlays.dudes.nameBoxFontSize')">
-								<NSlider
-									v-model:value="formValue.nameBoxSettings.fontSize"
-									:disabled="isNameBoxDisabled"
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxFontStyle') }}</Label>
+							<Select v-model="formValue.nameBoxSettings.fontStyle" :disabled="isNameBoxDisabled">
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem v-for="option in fontStyleOptions" :key="option.value" :value="option.value">
+										{{ option.label }}
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxFontVariant') }}</Label>
+							<Select v-model="formValue.nameBoxSettings.fontVariant" :disabled="isNameBoxDisabled">
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem v-for="option in fontVariantOptions" :key="option.value" :value="option.value">
+										{{ option.label }}
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxFontSize') }}</Label>
+							<div class="flex items-center gap-4">
+								<Slider
+									:model-value="[formValue.nameBoxSettings.fontSize]"
 									:min="1"
 									:max="128"
-								/>
-							</NFormItem>
-
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxStroke')">
-								<NColorPicker
-									v-model:value="formValue.nameBoxSettings.stroke"
 									:disabled="isNameBoxDisabled"
-									:modes="['hex']"
+									@update:model-value="(val) => formValue.nameBoxSettings.fontSize = val?.[0] ?? 1"
 								/>
-							</NFormItem>
+								<span class="text-sm text-muted-foreground w-20">{{ formValue.nameBoxSettings.fontSize }}</span>
+							</div>
+						</div>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameStrokeThickness')">
-								<NSlider
-									v-model:value="formValue.nameBoxSettings.strokeThickness"
-									:disabled="isNameBoxDisabled"
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxStroke') }}</Label>
+							<ColorPicker v-model="formValue.nameBoxSettings.stroke" :disabled="isNameBoxDisabled" />
+						</div>
+
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameStrokeThickness') }}</Label>
+							<div class="flex items-center gap-4">
+								<Slider
+									:model-value="[formValue.nameBoxSettings.strokeThickness]"
 									:min="0"
 									:max="16"
 									:step="1"
-								/>
-							</NFormItem>
-
-							<NFormItem :label="t('overlays.dudes.nameBoxLineJoin')">
-								<NSelect
-									v-model:value="formValue.nameBoxSettings.lineJoin"
 									:disabled="isNameBoxDisabled"
-									:options="lineJoinOptions"
+									@update:model-value="(val) => formValue.nameBoxSettings.strokeThickness = val?.[0] ?? 0"
 								/>
-							</NFormItem>
+								<span class="text-sm text-muted-foreground w-20">{{ formValue.nameBoxSettings.strokeThickness }}</span>
+							</div>
+						</div>
 
-							<NFormItem
-								class="form-item-switch"
-								:show-feedback="false"
-								:label="t('overlays.dudes.nameBoxDropShadow')"
-							>
-								<NSwitch
-									v-model:value="formValue.nameBoxSettings.dropShadow"
-									:disabled="isNameBoxDisabled"
-								/>
-							</NFormItem>
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxLineJoin') }}</Label>
+							<Select v-model="formValue.nameBoxSettings.lineJoin" :disabled="isNameBoxDisabled">
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem v-for="option in lineJoinOptions" :key="option.value" :value="option.value">
+										{{ option.label }}
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowColor')">
-								<NColorPicker
-									v-model:value="formValue.nameBoxSettings.dropShadowColor"
-									:modes="['hex']"
-									:disabled="isDropShadowDisabled"
-								/>
-							</NFormItem>
+						<div class="flex items-center justify-between">
+							<Label>{{ t('overlays.dudes.nameBoxDropShadow') }}</Label>
+							<Switch
+								:model-value="formValue.nameBoxSettings.dropShadow"
+								:disabled="isNameBoxDisabled"
+								@update:model-value="formValue.nameBoxSettings.dropShadow = $event"
+							/>
+						</div>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowAlpha')">
-								<NSlider
-									v-model:value="formValue.nameBoxSettings.dropShadowAlpha"
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxDropShadowColor') }}</Label>
+							<ColorPicker v-model="formValue.nameBoxSettings.dropShadowColor" :disabled="isDropShadowDisabled" />
+						</div>
+
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxDropShadowAlpha') }}</Label>
+							<div class="flex items-center gap-4">
+								<Slider
+									:model-value="[formValue.nameBoxSettings.dropShadowAlpha]"
 									:min="0"
 									:max="1"
 									:step="0.01"
 									:disabled="isDropShadowDisabled"
+									@update:model-value="(val) => formValue.nameBoxSettings.dropShadowAlpha = val?.[0] ?? 0"
 								/>
-							</NFormItem>
+								<span class="text-sm text-muted-foreground w-20">{{ formValue.nameBoxSettings.dropShadowAlpha.toFixed(2) }}</span>
+							</div>
+						</div>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowBlur')">
-								<NSlider
-									v-model:value="formValue.nameBoxSettings.dropShadowBlur"
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxDropShadowBlur') }}</Label>
+							<div class="flex items-center gap-4">
+								<Slider
+									:model-value="[formValue.nameBoxSettings.dropShadowBlur]"
 									:min="0"
 									:max="32"
 									:step="0.1"
 									:disabled="isDropShadowDisabled"
+									@update:model-value="(val) => formValue.nameBoxSettings.dropShadowBlur = val?.[0] ?? 0"
 								/>
-							</NFormItem>
+								<span class="text-sm text-muted-foreground w-20">{{ formValue.nameBoxSettings.dropShadowBlur.toFixed(1) }}</span>
+							</div>
+						</div>
 
-							<NFormItem
-								:show-feedback="false"
-								:label="t('overlays.dudes.nameBoxDropShadowDistance')"
-							>
-								<NSlider
-									v-model:value="formValue.nameBoxSettings.dropShadowDistance"
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxDropShadowDistance') }}</Label>
+							<div class="flex items-center gap-4">
+								<Slider
+									:model-value="[formValue.nameBoxSettings.dropShadowDistance]"
 									:min="0"
 									:max="32"
 									:step="0.1"
 									:disabled="isDropShadowDisabled"
+									@update:model-value="(val) => formValue.nameBoxSettings.dropShadowDistance = val?.[0] ?? 0"
 								/>
-							</NFormItem>
+								<span class="text-sm text-muted-foreground w-20">{{ formValue.nameBoxSettings.dropShadowDistance.toFixed(1) }}</span>
+							</div>
+						</div>
 
-							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowAngle')">
-								<NSlider
-									v-model:value="formValue.nameBoxSettings.dropShadowAngle"
+						<div class="flex flex-col gap-2">
+							<Label>{{ t('overlays.dudes.nameBoxDropShadowAngle') }}</Label>
+							<div class="flex items-center gap-4">
+								<Slider
+									:model-value="[formValue.nameBoxSettings.dropShadowAngle]"
 									:min="0"
 									:max="Math.PI * 2"
 									:step="0.01"
-									:format-tooltip="(value) => `${Math.round((value * 180) / Math.PI)}°`"
 									:disabled="isDropShadowDisabled"
+									@update:model-value="(val) => formValue.nameBoxSettings.dropShadowAngle = val?.[0] ?? 0"
 								/>
-							</NFormItem>
+								<span class="text-sm text-muted-foreground w-20">{{ Math.round((formValue.nameBoxSettings.dropShadowAngle * 180) / Math.PI) }}°</span>
+							</div>
 						</div>
-					</NScrollbar>
-				</NTabPane>
+					</div>
+				</ScrollArea>
+					</AccordionContent>
+				</AccordionItem>
 
-				<NTabPane name="message-box" :tab="t('overlays.dudes.messageBoxDivider')">
-					<NFormItem
-						class="form-item-switch"
-						:show-feedback="false"
-						:label="t('overlays.dudes.enable')"
-					>
-						<NSwitch v-model:value="formValue.messageBoxSettings.enabled" />
-					</NFormItem>
+				<!-- Message Box Section -->
+				<AccordionItem value="message-box">
+					<AccordionTrigger>
+						<div class="flex items-center gap-2">
+							<MessageSquareIcon class="h-4 w-4" />
+							<span>{{ t('overlays.dudes.messageBoxDivider') }}</span>
+						</div>
+					</AccordionTrigger>
+					<AccordionContent class="space-y-4 pt-4">
+				<div class="flex items-center justify-between">
+					<Label>{{ t('overlays.dudes.enable') }}</Label>
+					<Switch
+						:model-value="formValue.messageBoxSettings.enabled"
+						@update:model-value="formValue.messageBoxSettings.enabled = $event"
+					/>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxShowTime')">
-						<NSlider
-							v-model:value="formValue.messageBoxSettings.showTime"
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.messageBoxShowTime') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.messageBoxSettings.showTime]"
 							:min="1000"
 							:max="60 * 1000"
 							:step="1000"
-							:format-tooltip="(value) => `${Math.round(value / 1000)}s`"
 							:disabled="isMessageBoxDisabled"
+							@update:model-value="(val) => formValue.messageBoxSettings.showTime = val?.[0] ?? 1000"
 						/>
-					</NFormItem>
+						<span class="text-sm text-muted-foreground w-20">{{ Math.round(formValue.messageBoxSettings.showTime / 1000) }}s</span>
+					</div>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxFill')">
-						<NColorPicker
-							v-model:value="formValue.messageBoxSettings.fill"
-							:modes="['hex']"
-							:disabled="isMessageBoxDisabled"
-						/>
-					</NFormItem>
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.messageBoxFill') }}</Label>
+					<ColorPicker v-model="formValue.messageBoxSettings.fill" :disabled="isMessageBoxDisabled" />
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxBackground')">
-						<NColorPicker
-							v-model:value="formValue.messageBoxSettings.boxColor"
-							:modes="['hex']"
-							:disabled="isMessageBoxDisabled"
-						/>
-					</NFormItem>
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.messageBoxBackground') }}</Label>
+					<ColorPicker v-model="formValue.messageBoxSettings.boxColor" :disabled="isMessageBoxDisabled" />
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxPadding')">
-						<NSlider
-							v-model:value="formValue.messageBoxSettings.padding"
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.messageBoxPadding') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.messageBoxSettings.padding]"
 							:min="0"
 							:max="64"
 							:step="1"
 							:disabled="isMessageBoxDisabled"
+							@update:model-value="(val) => formValue.messageBoxSettings.padding = val?.[0] ?? 0"
 						/>
-					</NFormItem>
+						<span class="text-sm text-muted-foreground w-20">{{ formValue.messageBoxSettings.padding }}</span>
+					</div>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxBorderRadius')">
-						<NSlider
-							v-model:value="formValue.messageBoxSettings.borderRadius"
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.messageBoxBorderRadius') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.messageBoxSettings.borderRadius]"
 							:min="0"
 							:max="64"
 							:step="1"
 							:disabled="isMessageBoxDisabled"
+							@update:model-value="(val) => formValue.messageBoxSettings.borderRadius = val?.[0] ?? 0"
 						/>
-					</NFormItem>
+						<span class="text-sm text-muted-foreground w-20">{{ formValue.messageBoxSettings.borderRadius }}</span>
+					</div>
+				</div>
 
-					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxFontSize')">
-						<NSlider
-							v-model:value="formValue.messageBoxSettings.fontSize"
+				<div class="flex flex-col gap-2">
+					<Label>{{ t('overlays.dudes.messageBoxFontSize') }}</Label>
+					<div class="flex items-center gap-4">
+						<Slider
+							:model-value="[formValue.messageBoxSettings.fontSize]"
 							:min="12"
 							:max="64"
 							:step="1"
 							:disabled="isMessageBoxDisabled"
+							@update:model-value="(val) => formValue.messageBoxSettings.fontSize = val?.[0] ?? 12"
 						/>
-					</NFormItem>
-				</NTabPane>
+						<span class="text-sm text-muted-foreground w-20">{{ formValue.messageBoxSettings.fontSize }}</span>
+					</div>
+				</div>
+					</AccordionContent>
+				</AccordionItem>
 
-				<NTabPane name="emote" :tab="t('overlays.dudes.emoteDivider')">
-					<NFormItem
-						class="form-item-switch"
-						:show-feedback="false"
-						:label="t('overlays.dudes.enable')"
-					>
-						<NSwitch v-model:value="formValue.spitterEmoteSettings.enabled" />
-					</NFormItem>
-				</NTabPane>
-			</NTabs>
-		</div>
-	</div>
+				<!-- Emote Section -->
+				<AccordionItem value="emote">
+					<AccordionTrigger>
+						<div class="flex items-center gap-2">
+							<SmileIcon class="h-4 w-4" />
+							<span>{{ t('overlays.dudes.emoteDivider') }}</span>
+						</div>
+					</AccordionTrigger>
+					<AccordionContent class="space-y-4 pt-4">
+						<div class="flex items-center justify-between">
+							<Label>{{ t('overlays.dudes.enable') }}</Label>
+							<Switch
+								:model-value="formValue.spitterEmoteSettings.enabled"
+								@update:model-value="formValue.spitterEmoteSettings.enabled = $event"
+							/>
+						</div>
+					</AccordionContent>
+				</AccordionItem>
+			</Accordion>
+		</CardContent>
+	</Card>
 </template>
 
 <style scoped>
 @import '../styles.css';
-
-.card-header {
-	flex-wrap: wrap;
-	justify-content: flex-start;
-}
-
-.card-body-column {
-	width: 100%;
-	padding-bottom: 1rem;
-}
-
-.form-item-switch {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
-.card {
-	background-color: v-bind('themeVars.cardColor');
-}
 </style>

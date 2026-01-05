@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { NScrollbar } from 'naive-ui'
-
 import Pagination from '@/components/pagination.vue'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import Table from '@/components/table.vue'
 import {
 	useCommunityEmotesDetails,
@@ -24,12 +23,12 @@ const { total, table } = useCommunityEmotesDetailsUsersHistory()
 			@update:page-size="(pageSize) => usagesPagination.pageSize = pageSize"
 		/>
 
-		<NScrollbar style="max-height: 400px;" trigger="none">
+		<ScrollArea class="max-h-[400px]">
 			<Table :table="table" :is-loading="isLoading" hide-header>
 				<template #empty-message>
 					Empty
 				</template>
 			</Table>
-		</NScrollbar>
+		</ScrollArea>
 	</div>
 </template>

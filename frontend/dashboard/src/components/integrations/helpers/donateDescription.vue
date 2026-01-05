@@ -1,24 +1,17 @@
 <script setup lang="ts">
-import { NA } from 'naive-ui';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n();
+const { t } = useI18n()
 </script>
 
 <template>
-	<i18n-t
-		keypath="integrations.donateServicesInfo"
-	>
-		<router-link to="/dashboard/events/custom" #="{ navigate, href }" custom>
-			<n-a :href="href" @click="navigate">
-				{{ t('sidebar.events').toLocaleLowerCase() }}
-			</n-a>
-		</router-link>
+	<i18n-t keypath="integrations.donateServicesInfo">
+		<RouterLink to="/dashboard/events/custom" class="text-primary hover:underline">
+			{{ t('sidebar.events').toLocaleLowerCase() }}
+		</RouterLink>
 
-		<router-link to="/dashboard/events/chat-alerts" #="{ navigate, href }" custom>
-			<n-a :href="href" @click="navigate">
-				{{ t('sidebar.chatAlerts').toLocaleLowerCase() }}
-			</n-a>
-		</router-link>
+		<RouterLink to="/dashboard/events/chat-alerts" class="text-primary hover:underline">
+			{{ t('sidebar.chatAlerts').toLocaleLowerCase() }}
+		</RouterLink>
 	</i18n-t>
 </template>

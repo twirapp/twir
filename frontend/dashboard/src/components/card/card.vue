@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useThemeVars } from 'naive-ui'
-import { computed } from 'vue'
+
 
 import type { FunctionalComponent } from 'vue'
 
@@ -35,8 +34,7 @@ defineSlots<{
 	headerExtra?: FunctionalComponent
 }>()
 
-const themeVars = useThemeVars()
-const titleColor = computed(() => themeVars.value.textColor1)
+
 </script>
 
 <template>
@@ -55,7 +53,7 @@ const titleColor = computed(() => themeVars.value.textColor1)
 						height: iconHeight,
 					}"
 				/>
-				<h2 class="text-xl font-semibold" :style="{ color: titleColor }">
+				<h2 class="text-xl font-semibold text-foreground">
 					{{ title }}
 				</h2>
 				<slot name="headerExtra" />
@@ -66,7 +64,7 @@ const titleColor = computed(() => themeVars.value.textColor1)
 			</CardDescription>
 		</CardHeader>
 
-		<CardContent :style="{ color: themeVars.textColor3 }">
+		<CardContent class="text-muted-foreground">
 			<slot name="content" />
 		</CardContent>
 

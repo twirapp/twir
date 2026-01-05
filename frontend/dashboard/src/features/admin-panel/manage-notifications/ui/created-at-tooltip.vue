@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NTime } from 'naive-ui'
+import { UseTimeAgo } from '@vueuse/components'
 
 import {
 	Tooltip,
@@ -13,7 +13,9 @@ defineProps<{ time: Date }>()
 <template>
 	<Tooltip>
 		<TooltipTrigger as-child>
-			<NTime class="cursor-pointer text-nowrap" :time="time" type="relative" />
+			<UseTimeAgo v-slot="{ timeAgo }" :time="time">
+				<span class="cursor-pointer text-nowrap">{{ timeAgo }}</span>
+			</UseTimeAgo>
 		</TooltipTrigger>
 		<TooltipContent side="top">
 			{{ time.toLocaleString() }}

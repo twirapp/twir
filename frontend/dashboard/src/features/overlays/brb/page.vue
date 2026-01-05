@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { type Font, FontSelector } from '@twir/fontsource'
+import { type Font, FontSelector } from '@/lib/fontsource'
 import { InfoIcon } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { computed, ref, toRaw, watch } from 'vue'

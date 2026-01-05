@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { IconExternalLink } from '@tabler/icons-vue'
+import { ExternalLinkIcon } from 'lucide-vue-next'
 import { UseTimeAgo } from '@vueuse/components'
-import { NButton, NScrollbar, NTooltip } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-
-import type { BadgeVariants } from '@/components/ui/badge'
 
 import { useProfile } from '@/api'
 import { mapOperationTypeToTranslate, mapSystemToTranslate, useAuditLogs } from '@/api/audit-logs'
 import Card from '@/components/dashboard/card.vue'
-import { Badge } from '@/components/ui/badge'
+import { Badge, type BadgeVariants } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { AuditOperationType } from '@/gql/graphql'
 
 const props = defineProps<{
@@ -66,18 +66,21 @@ function openPopup() {
 <template>
 	<Card :content-style="{ padding: '0px', height: '80%' }" :popup="props.popup" class="@container">
 		<template #header-extra>
-			<NTooltip trigger="hover" placement="bottom">
-				<template #trigger>
-					<NButton size="small" text @click="openPopup">
-						<IconExternalLink />
-					</NButton>
-				</template>
-
-				{{ t('sharedButtons.popout') }}
-			</NTooltip>
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger as-child>
+						<Button size="sm" variant="ghost" @click="openPopup">
+							<ExternalLinkIcon class="h-4 w-4" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						{{ t('sharedButtons.popout') }}
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 		</template>
 
-		<NScrollbar trigger="none">
+		<ScrollArea class="h-full">
 			<TransitionGroup name="list">
 				<div
 					v-for="log of logs"
@@ -85,8 +88,13 @@ function openPopup() {
 					class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-border border-b border-solid @lg:items-center"
 				>
 					<div
-						class="flex h-full flex-col @sm:flex-col @lg:flex-row min-h-10 gap-2.5 px-2.5 @lg:items-center py-1"
+						class="flex h-full flex-row items-center min-h-10 gap-2.5 px-2.5 py-1"
 					>
+						<Badge variant="outline" class="mt-2 @lg:mt-0 flex w-fit p-1 h-fit px-2 bg-zinc-800">
+							<UseTimeAgo v-slot="{ timeAgo }" :time="new Date(log.createdAt)" show-second>
+								{{ timeAgo }}
+							</UseTimeAgo>
+						</Badge>
 						<div v-if="log.user" class="flex gap-2 items-center">
 							<img class="size-4 rounded-full" :src="log.user.profileImageUrl" />
 							<span>{{ log.user.displayName }}</span>
@@ -107,15 +115,9 @@ function openPopup() {
 							{{ computeValueHint(log.oldValue, log.newValue) }}
 						</Badge>
 					</div>
-
-					<Badge variant="outline" class="mt-2 @lg:mt-0 flex w-fit p-1 h-fit px-2 bg-zinc-800">
-						<UseTimeAgo v-slot="{ timeAgo }" :time="new Date(log.createdAt)" show-second>
-							{{ timeAgo }}
-						</UseTimeAgo>
-					</Badge>
 				</div>
 			</TransitionGroup>
-		</NScrollbar>
+		</ScrollArea>
 	</Card>
 </template>
 

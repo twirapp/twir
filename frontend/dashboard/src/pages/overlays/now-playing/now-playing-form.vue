@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { type Font, FontSelector } from '@twir/fontsource'
-import { NColorPicker } from 'naive-ui'
+import { type Font, FontSelector } from '@/lib/fontsource'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 
 import { useNowPlayingForm } from './use-now-playing-form'
 
@@ -10,10 +10,20 @@ import { useNowPlayingOverlayApi, useProfile, useUserAccessFlagChecker } from '@
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
+import { ColorPicker } from '@/components/ui/color-picker'
+import {
+	Command,
+	CommandGroup,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
 import {
 	Select,
 	SelectContent,
@@ -23,12 +33,9 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()
-
-const discrete = useNaiveDiscrete()
 const { copyOverlayLink } = useCopyOverlayLink('now-playing')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
@@ -58,8 +65,7 @@ async function save() {
 		},
 	})
 
-	discrete.notification.success({
-		title: t('sharedTexts.saved'),
+	toast.success(t('sharedTexts.saved'), {
 		duration: 1500,
 	})
 }
@@ -86,7 +92,7 @@ const fontWeightOptions = computed(() => {
 			<div class="flex flex-col gap-2">
 				<Label for="preset">Style</Label>
 				<Select id="preset" v-model:model-value="formValue.preset" default-value="AIDEN_REDESIGN">
-					<SelectTrigger class="w-[180px]">
+					<SelectTrigger class="w-45">
 						<SelectValue placeholder="Select a preset" />
 					</SelectTrigger>
 					<SelectContent>
@@ -110,7 +116,7 @@ const fontWeightOptions = computed(() => {
 
 			<div class="flex flex-col gap-2">
 				<Label for="backgroundColor">Background color</Label>
-				<NColorPicker v-model:value="formValue.backgroundColor" />
+				<ColorPicker v-model="formValue.backgroundColor" />
 			</div>
 
 			<div class="flex flex-col gap-2">
@@ -129,7 +135,7 @@ const fontWeightOptions = computed(() => {
 
 				<Popover>
 					<PopoverTrigger as-child>
-						<Button variant="outline" size="sm" class="w-[150px] justify-start">
+						<Button variant="outline" size="sm" class="w-37.5 justify-start">
 							<template v-if="formValue.fontWeight">
 								{{ formValue.fontWeight }}
 							</template>

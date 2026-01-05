@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { IconPencil } from '@tabler/icons-vue'
-import { NButton } from 'naive-ui'
+import { PencilIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommandsApi } from '@/api/commands/commands.js'
+import { Button } from '@/components/ui/button'
 
 const props = defineProps<{
 	name: string
@@ -25,12 +25,12 @@ const { t } = useI18n()
 		<span>{{ props.title ?? t('games.command') }}</span>
 		<div v-if="command" class="flex gap-1">
 			<RouterLink v-slot="{ href, navigate }" custom :to="`/dashboard/commands/${command.module.toLowerCase()}/${command.id}`">
-				<NButton tag="a" :href="href" secondary type="success" @click="navigate">
-					<div class="flex items-center min-w-20 justify-between">
+				<Button as="a" :href="href" variant="default" @click="navigate">
+					<div class="flex items-center min-w-20 justify-between gap-2">
 						<span>!{{ command.name }}</span>
-						<IconPencil />
+						<PencilIcon class="h-4 w-4" />
 					</div>
-				</NButton>
+				</Button>
 			</RouterLink>
 		</div>
 	</div>

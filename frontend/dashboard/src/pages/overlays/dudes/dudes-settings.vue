@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NAlert, NButton, NSpace, NTabPane, NTabs, useThemeVars } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -10,11 +9,22 @@ import { useDudesIframe } from './use-dudes-frame.js'
 import type { DudesSettingsWithOptionalId } from './dudes-settings.js'
 
 import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
-const themeVars = useThemeVars()
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 const dudesOverlayManager = useDudesOverlayManager()
 const creator = dudesOverlayManager.useCreate()
@@ -22,13 +32,15 @@ const deleter = dudesOverlayManager.useDelete()
 const { data: profile } = useProfile()
 
 const { t } = useI18n()
-const { dialog } = useNaiveDiscrete()
 
 const { data: entities } = dudesOverlayManager.useGetAll()
 
+const deleteDialogOpen = ref(false)
+const deleteTargetId = ref<string | null>(null)
+
 const openedTab = ref<string>()
 
-const { sendIframeMessage } = useDudesIframe()
+const { sendIframeMessage, dudesIframe } = useDudesIframe()
 const dudesIframeUrl = computed(() => {
 	if (!profile.value || !openedTab.value) return null
 	return `${window.location.origin}/overlays/${profile.value.apiKey}/dudes?id=${openedTab.value}`
@@ -59,21 +71,21 @@ watch(openedTab, (v) => {
 	setData(entity)
 })
 
-async function handleClose(id: string) {
-	dialog.create({
-		title: 'Delete preset',
-		content: 'Are you sure you want to delete this preset?',
-		positiveText: 'Delete',
-		negativeText: 'Cancel',
-		showIcon: false,
-		onPositiveClick: async () => {
-			const entity = entities.value?.dudesGetAll?.find((s) => s.id === id)
-			if (!entity?.id) return
+function handleClose(id: string) {
+	deleteTargetId.value = id
+	deleteDialogOpen.value = true
+}
 
-			await deleter.executeMutation({ id: entity.id })
-			resetTab()
-		},
-	})
+async function confirmDelete() {
+	if (!deleteTargetId.value) return
+
+	const entity = entities.value?.dudesGetAll?.find((s) => s.id === deleteTargetId.value)
+	if (!entity?.id) return
+
+	await deleter.executeMutation({ id: entity.id })
+	resetTab()
+	deleteDialogOpen.value = false
+	deleteTargetId.value = null
 }
 
 async function handleAdd() {
@@ -91,15 +103,15 @@ const addable = computed(() => {
 	<div class="flex gap-10" style="height: calc(100% - var(--layout-header-height))">
 		<div class="relative w-[70%]">
 			<div v-if="dudesIframeUrl">
-				<iframe ref="dudesIframe" style="position: absolute" :src="dudesIframeUrl" class="iframe" />
-				<NSpace :size="6" class="absolute top-[18px] left-2">
-					<NButton @click="sendIframeMessage('spawn-emote')"> Emote </NButton>
-					<NButton @click="sendIframeMessage('show-message')"> Message </NButton>
-					<NButton @click="sendIframeMessage('jump')"> Jump </NButton>
-					<NButton @click="sendIframeMessage('grow')"> Grow </NButton>
-					<NButton @click="sendIframeMessage('leave')"> Leave </NButton>
-					<NButton @click="sendIframeMessage('reset')"> Reset </NButton>
-				</NSpace>
+				<iframe :ref="(el) => dudesIframe = el as HTMLIFrameElement" style="position: absolute" :src="dudesIframeUrl" class="iframe" />
+				<div class="absolute top-4.5 left-2 flex gap-1.5">
+					<Button size="sm" @click="sendIframeMessage('spawn-emote')"> Emote </Button>
+					<Button size="sm" @click="sendIframeMessage('show-message')"> Message </Button>
+					<Button size="sm" @click="sendIframeMessage('jump')"> Jump </Button>
+					<Button size="sm" @click="sendIframeMessage('grow')"> Grow </Button>
+					<Button size="sm" @click="sendIframeMessage('leave')"> Leave </Button>
+					<Button size="sm" @click="sendIframeMessage('reset')"> Reset </Button>
+				</div>
 			</div>
 		</div>
 		<div class="w-[30%]">
@@ -110,38 +122,72 @@ const addable = computed(() => {
 				<CommandButton title="Sprite command" name="dudes sprite" />
 				<CommandButton title="Leave command" name="dudes leave" />
 			</div>
-			<NTabs
-				v-model:value="openedTab"
-				type="card"
-				:closable="userCanEditOverlays"
-				:addable="addable"
-				style="margin-top: 1rem"
-				tab-style="min-width: 80px;"
-				@close="handleClose"
-				@add="handleAdd"
-			>
-				<template #prefix>
-					{{ t('overlays.chat.presets') }}
-				</template>
-				<template v-if="entities?.dudesGetAll?.length">
-					<NTabPane
-						v-for="(entity, entityIndex) in entities?.dudesGetAll"
+			<div class="mt-4">
+				<div class="flex items-center justify-between mb-2">
+					<span class="text-sm font-medium">{{ t('overlays.chat.presets') }}</span>
+					<Button
+						v-if="addable"
+						size="sm"
+						variant="outline"
+						@click="handleAdd"
+					>
+						Add Preset
+					</Button>
+				</div>
+				<Tabs v-if="entities?.dudesGetAll?.length" v-model="openedTab">
+					<TabsList class="w-full">
+						<TabsTrigger
+							v-for="(entity, entityIndex) in entities?.dudesGetAll"
+							:key="entity.id"
+							:value="entity.id!"
+							class="relative group"
+						>
+							#{{ entityIndex + 1 }}
+							<Button
+								v-if="userCanEditOverlays"
+								size="icon"
+								variant="ghost"
+								class="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100"
+								@click.stop="handleClose(entity.id!)"
+							>
+								<span class="text-xs">×</span>
+							</Button>
+						</TabsTrigger>
+					</TabsList>
+					<TabsContent
+						v-for="entity in entities?.dudesGetAll"
 						:key="entity.id"
-						:tab="`#${entityIndex + 1}`"
-						:name="entity.id!"
+						:value="entity.id!"
 					>
 						<DudesSettingsForm />
-					</NTabPane>
-				</template>
-			</NTabs>
-			<NAlert v-if="!entities?.dudesGetAll?.length" type="info" class="mt-2">
-				Create new overlay for edit settings
-			</NAlert>
+					</TabsContent>
+				</Tabs>
+				<Alert v-else class="mt-2">
+					<AlertDescription>
+						Create new overlay for edit settings
+					</AlertDescription>
+				</Alert>
+			</div>
 		</div>
 	</div>
+
+	<AlertDialog v-model:open="deleteDialogOpen">
+		<AlertDialogContent>
+			<AlertDialogHeader>
+				<AlertDialogTitle>Delete preset</AlertDialogTitle>
+				<AlertDialogDescription>
+					Are you sure you want to delete this preset?
+				</AlertDialogDescription>
+			</AlertDialogHeader>
+			<AlertDialogFooter>
+				<AlertDialogCancel>Cancel</AlertDialogCancel>
+				<AlertDialogAction @click="confirmDelete">Delete</AlertDialogAction>
+			</AlertDialogFooter>
+		</AlertDialogContent>
+	</AlertDialog>
 </template>
 
-<style scope>
+<style scoped>
 @import '../styles.css';
 
 .iframe {
@@ -150,7 +196,7 @@ const addable = computed(() => {
 	aspect-ratio: 16 / 9;
 	border: 0;
 	margin-top: 8px;
-	border: 1px solid v-bind('themeVars.borderColor');
-	border-radius: 8px;
+	border: 1px solid hsl(var(--border));
+	border-radius: 0.5rem;
 }
 </style>

@@ -195,7 +195,7 @@ func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
 func (c *Pgx) Create(ctx context.Context, input scheduled_vips.CreateInput) error {
 	query := `
 INSERT INTO channels_scheduled_vips (channel_id, user_id, remove_at, remove_type)
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3, $4)
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)

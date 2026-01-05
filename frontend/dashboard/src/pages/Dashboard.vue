@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { GridItem, GridLayout } from 'grid-layout-plus'
 import { SquarePen } from 'lucide-vue-next'
-import { NDropdown } from 'naive-ui'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import AuditLogs from '@/components/dashboard/audit-logs.vue'
@@ -10,16 +9,20 @@ import Events from '@/components/dashboard/events.vue'
 import Stream from '@/components/dashboard/stream.vue'
 import { useWidgets } from '@/components/dashboard/widgets.js'
 import { Button } from '@/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useIsMobile } from '@/composables/use-is-mobile'
 
 const { isMobile } = useIsMobile()
 const widgets = useWidgets()
 const visibleWidgets = computed(() => widgets.value.filter((v) => v.visible))
-const dropdownOptions = computed(() => {
-	return widgets.value.filter((v) => !v.visible).map((v) => ({ label: v.i, key: v.i }))
-})
+const invisibleWidgets = computed(() => widgets.value.filter((v) => !v.visible))
 
-function addWidget(key: string) {
+function addWidget(key: string | number) {
 	const item = widgets.value.find((v) => v.i === key)
 	if (!item) return
 
@@ -77,15 +80,26 @@ onBeforeUnmount(() => {
 		</GridLayout>
 
 		<div
-			v-if="dropdownOptions.length"
+			v-if="invisibleWidgets.length"
 			class="fixed right-8 bottom-8 z-50"
 			:class="[{ 'right-24!': isMobile }]"
 		>
-			<NDropdown size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
-				<Button variant="secondary" class="h-14 w-14" size="icon">
-					<SquarePen class="size-8" />
-				</Button>
-			</NDropdown>
+			<DropdownMenu>
+				<DropdownMenuTrigger as-child>
+					<Button variant="secondary" class="h-14 w-14" size="icon">
+						<SquarePen class="size-8" />
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end">
+					<DropdownMenuItem
+						v-for="widget in invisibleWidgets"
+						:key="widget.i"
+						@click="addWidget(widget.i)"
+					>
+						{{ String(widget.i) }}
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
 		</div>
 	</div>
 </template>

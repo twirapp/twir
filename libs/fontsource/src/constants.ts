@@ -1,1 +1,1 @@
-export const FONTSOURCE_API_URL = 'https://api.fontsource.org/v1';
+export const FONTSOURCE_API_URL = 'https://api.fontsource.org/v1'

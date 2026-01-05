@@ -1,6 +1,4 @@
-import FontSelector from './components/font-selector.vue';
-
-export { FontSelector };
-
-export * from './composable/use-fontsource.js';
-export * from './types.js';
+export { useFontSource } from './composable/use-fontsource'
+export { generateFontKey, loadFont, loadFontList } from './api'
+export { FONTSOURCE_API_URL } from './constants'
+export type { Font, FontItem, FontStyle, FontSubset, FontType, FontVariant } from './types'
