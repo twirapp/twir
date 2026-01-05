@@ -132,6 +132,9 @@ ALTER TABLE toxic_messages
 ALTER TABLE channels_commands_prefix
     ALTER COLUMN id SET DEFAULT uuidv7();
 
+ALTER TABLE users
+		ALTER COLUMN "apiKey" SET DEFAULT uuidv7();
+
 -- Old tables that might still exist in some deployments
 -- Check if they exist before altering
 
