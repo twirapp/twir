@@ -96,7 +96,12 @@ services:
 
   pgdog:
     image: ghcr.io/pgdogdev/pgdog:main
-    entrypoint: [ "/bin/sh", "-c", "cp /pgdog/start.sh /tmp/start.sh && chmod +x /tmp/start.sh && exec /tmp/start.sh" ]
+    entrypoint:
+      [
+        '/bin/sh',
+        '-c',
+        'cp /pgdog/start.sh /tmp/start.sh && chmod +x /tmp/start.sh && exec /tmp/start.sh',
+      ]
     secrets:
       - twir_postgres_db
       - twir_postgres_password
@@ -325,20 +330,20 @@ services:
         - traefik.enable=true
 
         # Router for /api (twir-api-gql)
-        - "traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api`)"
-        - "traefik.http.routers.twir-api-gql.service=twir-api-gql"
-        - "traefik.http.routers.twir-api-gql.middlewares=api-gql-stripprefix"
-        - "traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api"
+        - 'traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api`)'
+        - 'traefik.http.routers.twir-api-gql.service=twir-api-gql'
+        - 'traefik.http.routers.twir-api-gql.middlewares=api-gql-stripprefix'
+        - 'traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api'
 
         # Router for /s (twir-api-shortener-redirect)
-        - "traefik.http.routers.twir-api-shortener.rule=Host(`twir.app`) && PathPrefix(`/s`)"
-        - "traefik.http.routers.twir-api-shortener.service=twir-api-gql"
-        - "traefik.http.middlewares.api-shortener-rewrite.replacepathregex.regex=^/s/(.*)"
-        - "traefik.http.middlewares.api-shortener-rewrite.replacepathregex.replacement=/v1/short-links/$$1"
-        - "traefik.http.routers.twir-api-shortener.middlewares=api-shortener-rewrite"
+        - 'traefik.http.routers.twir-api-shortener.rule=Host(`twir.app`) && PathPrefix(`/s`)'
+        - 'traefik.http.routers.twir-api-shortener.service=twir-api-gql'
+        - 'traefik.http.middlewares.api-shortener-rewrite.replacepathregex.regex=^/s/(.*)'
+        - 'traefik.http.middlewares.api-shortener-rewrite.replacepathregex.replacement=/v1/short-links/$$1'
+        - 'traefik.http.routers.twir-api-shortener.middlewares=api-shortener-rewrite'
 
         # Service definition (shared for both routers)
-        - "traefik.http.services.twir-api-gql.loadbalancer.server.port=3009"
+        - 'traefik.http.services.twir-api-gql.loadbalancer.server.port=3009'
 
         - traefik.docker.network=traefik-public
       update_config:
@@ -768,7 +773,7 @@ configs:
     file: ./configs/pgdog/start.sh
 
 volumes:
-  postgres-data:
+  pg18-data:
   redis-data:
   minio-data:
   temporal-postgres-data:
