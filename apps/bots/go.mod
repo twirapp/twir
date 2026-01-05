@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/bots
 
-go 1.25.4
+go 1.25.5
 
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5

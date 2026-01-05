@@ -1,3 +1,3 @@
 module github.com/twirapp/twir/libs/redis_keys
 
-go 1.25.4
+go 1.25.5

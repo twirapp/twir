@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/api
 
-go 1.25.4
+go 1.25.5
 
 require (
 	github.com/alexedwards/scs/goredisstore v0.0.0-20251002162104-209de6e426de

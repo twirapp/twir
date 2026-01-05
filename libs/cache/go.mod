@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/cache
 
-go 1.25.4
+go 1.25.5
 
 require (
 	github.com/goccy/go-json v0.10.5
