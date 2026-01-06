@@ -12,14 +12,8 @@
 		"enabled": true,
 		"order": "asc",
 		"ignoreCase": true,
-		"newlinesBetween": true
+		"newlinesBetween": true,
 	},
 	"singleAttributePerLine": true,
-	"ignorePatterns": [
-		"dist/**",
-		"node_modules/**",
-		"build/**",
-		".output",
-		".nuxt"
-	]
+	"ignorePatterns": ["dist/**", "node_modules/**", "build/**", ".output", ".nuxt"],
 }
