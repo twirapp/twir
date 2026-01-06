@@ -9,6 +9,7 @@
 		"oxc": true,
 		"caddyfile": true,
 		"postgres-language-server": true,
+		"editorconfig": true,
 	},
 	"languages": {
 		"JavaScript": {
