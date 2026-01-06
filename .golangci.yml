@@ -1,235 +1,97 @@
-# https://golangci-lint.run/usage/configuration/#config-file
+version: '2'
+run:
+  concurrency: 2
 linters:
-  disable-all: true
+  default: none
   enable:
+    - copyloopvar
+    - depguard
     - errcheck
-    - gosimple
+    - errorlint
+    - gocritic
+    - gocyclo
+    - gomodguard
     - govet
     - ineffassign
-    - unused
-
-    - errname
-    - exhaustive
-    - containedctx
-    - gocheckcompilerdirectives
-    - gochecknoinits
-    - goconst
-    - gocritic
-    - ireturn
-    - perfsprint
-    - prealloc
-    - protogetter
-    - sqlclosecheck
-    - whitespace
-    - goerr113
-    - goimports
+    - lll
+    - misspell
+    - nakedret
+    - nolintlint
     - revive
     - staticcheck
-    - vet
-    - forbidigo
-    - tagliatelle
-
-run:
-  exclude-dirs:
-    - ^api
-    - ^proto
-    - ^.git
-    - libs/grpc
-linters-settings:
-  forbidigo:
-    forbid:
-      - p: ^time\.After$
-        msg: time.After may leak resources. Use time.NewTimer instead.
-  revive:
-    severity: error
-    confidence: 0.8
-    enable-all-rules: true
-    rules:
-      # Disabled rules
-      - name: add-constant
-        disabled: true
-      - name: argument-limit
-        disabled: true
-      - name: bare-return
-        disabled: true
-      - name: banned-characters
-        disabled: true
-      - name: bool-literal-in-expr
-        disabled: true
-      - name: confusing-naming
-        disabled: true
-      - name: empty-lines
-        disabled: true
-      - name: error-naming
-        disabled: true
-      - name: errorf
-        disabled: true
-      - name: exported
-        disabled: true
-      - name: file-header
-        disabled: true
-      - name: function-length
-        disabled: true
-      - name: imports-blacklist
-        disabled: true
-      - name: increment-decrement
-        disabled: true
-      - name: line-length-limit
-        disabled: true
-      - name: max-public-structs
-        disabled: true
-      - name: nested-structs
-        disabled: true
-      - name: package-comments
-        disabled: true
-      - name: string-format
-        disabled: true
-      - name: unexported-naming
-        disabled: true
-      - name: unexported-return
-        disabled: true
-      - name: unused-parameter
-        disabled: true
-      - name: unused-receiver
-        disabled: true
-      - name: use-any
-        disabled: true
-      - name: var-naming
-        disabled: true
-      - name: empty-block
-        disabled: true
-      - name: flag-parameter
-        disabled: true
-
-      # Rule tuning
-      - name: cognitive-complexity
-        arguments:
-          - 25
-      - name: cyclomatic
-        arguments:
-          - 25
-      - name: function-result-limit
-        arguments:
-          - 5
-      - name: unhandled-error
-        arguments:
-          - 'fmt.*'
-          - 'bytes.Buffer.*'
-          - 'strings.Builder.*'
-  tagliatelle:
-    # Check the struck tag name case.
-    case:
-      # Use the struct field name to check the name of the struct tag.
-      # Default: false
-      use-field-name: true
+    - testifylint
+    - unconvert
+    - unparam
+    - unused
+  settings:
+    depguard:
       rules:
-        # Any struct tag type can be used.
-        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`, `header`.
-        json: snake
-        yaml: snake
-        xml: snake
-        toml: snake
-  govet:
-    disable-all: true
-    enable:
-      # Check for missing values after append.
-      - appends
-      # Report mismatches between assembly files and Go declarations.
-      - asmdecl
-      # Check for useless assignments.
-      - assign
-      # Check for common mistakes using the sync/atomic package.
-      - atomic
-      # Check for non-64-bits-aligned arguments to sync/atomic functions.
-      - atomicalign
-      # Check for common mistakes involving boolean operators.
-      - bools
-      # Check //go:build and // +build directives.
-      - buildtag
-      # Detect some violations of the cgo pointer passing rules.
-      - cgocall
-      # Check for unkeyed composite literals.
-      - composites
-      # Check for locks erroneously passed by value.
-      - copylocks
-      # Check for calls of reflect.DeepEqual on error values.
-      - deepequalerrors
-      # Report common mistakes in defer statements.
-      - defers
-      # Check Go toolchain directives such as //go:debug.
-      - directive
-      # Report passing non-pointer or non-error values to errors.As.
-      - errorsas
-      # Find structs that would use less memory if their fields were sorted.
-      - fieldalignment
-      # Find calls to a particular function.
-      - findcall
-      # Report assembly that clobbers the frame pointer before saving it.
-      - framepointer
-      # Check for mistakes using HTTP responses.
-      - httpresponse
-      # Detect impossible interface-to-interface type assertions.
-      - ifaceassert
-      # Check references to loop variables from within nested functions.
-      - loopclosure
-      # Check cancel func returned by context.WithCancel is called.
-      - lostcancel
-      # Check for useless comparisons between functions and nil.
-      - nilfunc
-      # Check for redundant or impossible nil comparisons.
-      - nilness
-      # Check consistency of Printf format strings and arguments.
-      - printf
-      # Check for comparing reflect.Value values with == or reflect.DeepEqual.
-      - reflectvaluecompare
-      # Check for possible unintended shadowing of variables.
-      - shadow
-      # Check for shifts that equal or exceed the width of the integer.
-      - shift
-      # Check for unbuffered channel of os.Signal.
-      - sigchanyzer
-      # Check for invalid structured logging calls.
-      - slog
-      # Check the argument type of sort.Slice.
-      - sortslice
-      # Check signature of methods of well-known interfaces.
-      - stdmethods
-      # Check for string(int) conversions.
-      - stringintconv
-      # Check that struct field tags conform to reflect.StructTag.Get.
-      - structtag
-      # Report calls to (*testing.T).Fatal from goroutines started by a test.
-      - testinggoroutine
-      # Check for common mistaken usages of tests and examples.
-      - tests
-      # Check for calls of (time.Time).Format or time.Parse with 2006-02-01.
-      - timeformat
-      # Report passing non-pointer or non-interface values to unmarshal.
-      - unmarshal
-      # Check for unreachable code.
-      - unreachable
-      # Check for invalid conversions of uintptr to unsafe.Pointer.
-      - unsafeptr
-      # Check for unused results of calls to some functions.
-      - unusedresult
-      # Checks for unused writes.
-      - unusedwrite
-
+        all:
+          deny:
+            - pkg: io/ioutil
+              desc: io/ioutil package has been deprecated
+            - pkg: github.com/docker/docker/errdefs
+              desc: use github.com/containerd/errdefs instead.
+            - pkg: golang.org/x/exp/maps
+              desc: use stdlib maps package
+            - pkg: golang.org/x/exp/slices
+              desc: use stdlib slices package
+    gocritic:
+      disabled-checks:
+        - paramTypeCombine
+        - unnamedResult
+        - whyNoLint
+      enabled-tags:
+        - diagnostic
+        - opinionated
+        - style
+    gocyclo:
+      min-complexity: 16
+    gomodguard:
+      blocked:
+        modules:
+          - github.com/pkg/errors:
+              recommendations:
+                - errors
+                - fmt
+        versions:
+          - github.com/distribution/distribution:
+              reason: use distribution/reference
+          - gotest.tools:
+              version: < 3.0.0
+              reason: deprecated, pre-modules version
+    lll:
+      line-length: 200
+    revive:
+      rules:
+        - name: package-comments
+          disabled: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  # Exclude cyclomatic and cognitive complexity rules for functional tests in the `tests` root directory.
-  exclude-rules:
-    - path: ^tests\/.+\.go
-      text: '(cyclomatic|cognitive)'
-      linters:
-        - revive
-    - path: _test\.go|^common/persistence\/tests\/.+\.go # Ignore things like err = errors.New("test error") in tests
-      linters:
-        - goerr113
-    - path: ^tools\/.+\.go
-      linters:
-        - goerr113
-        - revive
-    # exclude libs/gomodels from tagliatelle
-    - path: ^libs/gomodels\/.+\.go
-      linters:
-        - tagliatelle
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+    - gci
+    - gofumpt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+  settings:
+    gci:
+      sections:
+        - standard # Standard section: captures all standard packages.
+        - default # Default section: contains all imports that could not be matched to another section type.
+        - prefix(github.com/org/project) # Custom section: groups all imports with the specified Prefix.
+        - blank # Blank section: contains all blank imports. This section is not present unless explicitly enabled.
+        - dot # Dot section: contains all dot imports. This section is not present unless explicitly enabled.
+        - alias # Alias section: contains all alias imports. This section is not present unless explicitly enabled.
+      custom-order: true # make the section order the same as the order of "sections".

@@ -42,6 +42,7 @@
 		},
 		"Go": {
 			"formatter": "language_server",
+			"language_servers": ["gopls", "golangci-lint"],
 		},
 	},
 	"format_on_save": "on",
@@ -77,6 +78,18 @@
 			"initialization_options": {
 				"usePlaceholders": false,
 				"gofumpt": true,
+			},
+		},
+		"golangci-lint": {
+			"initialization_options": {
+				"command": [
+					"golangci-lint",
+					"run",
+					"--output.json.path",
+					"stdout",
+					"--show-stats=false",
+					"--output.text.path=",
+				],
 			},
 		},
 	},
