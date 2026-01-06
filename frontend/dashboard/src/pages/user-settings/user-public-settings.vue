@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 import type { UserPublicSettingsQuery } from '@/gql/graphql'
 
-import { useUserSettings } from '@/api'
+import { useUserSettings } from '@/api/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'

@@ -1,7 +1,7 @@
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import { useProfile } from '@/api/index.js'
+import { useProfile } from '@/api/auth'
 import { useSongRequestsApi } from '@/api/song-requests'
 
 export interface Video {
@@ -62,16 +62,15 @@ export const useYoutubeSocket = createGlobalState(() => {
 				...settings,
 				denyList: {
 					...settings.denyList,
-					users: [
-						...settings.denyList.users,
-						userId,
-					],
+					users: [...settings.denyList.users, userId],
 				},
 			},
 		})
 
-		callWsSkip(videos.value.filter(video => video.orderedById === userId).map(video => video.id))
-		videos.value = videos.value.filter(video => video.orderedById !== userId)
+		callWsSkip(
+			videos.value.filter((video) => video.orderedById === userId).map((video) => video.id)
+		)
+		videos.value = videos.value.filter((video) => video.orderedById !== userId)
 	}
 
 	async function banSong(videoId: string) {
@@ -83,18 +82,15 @@ export const useYoutubeSocket = createGlobalState(() => {
 				...settings,
 				denyList: {
 					...settings.denyList,
-					songs: [
-						...settings.denyList.songs,
-						videoId,
-					],
+					songs: [...settings.denyList.songs, videoId],
 				},
 			},
 		})
 
-		const video = videos.value.find(video => video.videoId === videoId)
+		const video = videos.value.find((video) => video.videoId === videoId)
 
 		callWsSkip(video!.id)
-		videos.value = videos.value.filter(video => video.videoId !== videoId)
+		videos.value = videos.value.filter((video) => video.videoId !== videoId)
 	}
 
 	watch(websocket.data, (data) => {
@@ -110,7 +106,7 @@ export const useYoutubeSocket = createGlobalState(() => {
 		}
 
 		if (parsedData.eventName === 'removeTrack') {
-			videos.value = videos.value.filter(video => video.id !== parsedData.data.id)
+			videos.value = videos.value.filter((video) => video.id !== parsedData.data.id)
 		}
 	})
 
@@ -132,16 +128,16 @@ export const useYoutubeSocket = createGlobalState(() => {
 
 	function deleteVideo(id: string) {
 		callWsSkip(id)
-		videos.value = videos.value.filter(video => video.id !== id)
+		videos.value = videos.value.filter((video) => video.id !== id)
 	}
 
 	function deleteAllVideos() {
-		callWsSkip(videos.value.map(video => video.id))
+		callWsSkip(videos.value.map((video) => video.id))
 		videos.value = []
 	}
 
 	function moveVideo(id: string, newPosition: number) {
-		const currentIndex = videos.value.findIndex(video => video.id === id)
+		const currentIndex = videos.value.findIndex((video) => video.id === id)
 		const itemToMove = videos.value.splice(currentIndex, 1)[0]
 		videos.value.splice(newPosition, 0, itemToMove)
 

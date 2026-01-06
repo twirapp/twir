@@ -5,7 +5,7 @@ import { toast } from 'vue-sonner'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useFilesApi } from '@/api/index.js'
+import { useFilesApi } from '@/api/files'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, FileButton } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'

@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { FunctionalComponent } from 'vue'
 
-import { useUserAccessFlagChecker } from '@/api'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import Card from '@/components/card/card.vue'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'

@@ -12,7 +12,7 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useLogout, useProfile } from '@/api'
+import { useLogout, useProfile } from '@/api/auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
 	DropdownMenu,

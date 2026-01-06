@@ -33,7 +33,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import { useUserAccessFlagChecker } from '@/api'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import Badge from '@/components/ui/badge/Badge.vue'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {

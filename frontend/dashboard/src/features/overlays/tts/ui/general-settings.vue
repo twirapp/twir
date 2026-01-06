@@ -30,7 +30,7 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
-import { useProfile, useUserAccessFlagChecker } from '@/api'
+import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()

@@ -1,7 +1,7 @@
 import { createGlobalState, useLocalStorage } from '@vueuse/core'
 import { computed } from 'vue'
 
-import { useDashboardEvents } from '@/api'
+import { useDashboardEvents } from '@/api/dashboard'
 import { DashboardEventType } from '@/gql/graphql'
 
 export const useEvents = createGlobalState(() => {
@@ -55,12 +55,18 @@ export const useEvents = createGlobalState(() => {
 			value: DashboardEventType.ChannelUnbanRequestResolve,
 		},
 	]
-	const enabledEvents = useLocalStorage<DashboardEventType[]>('twirEventsWidgetFilterV3', enabledEventsOptions.map(e => e.value))
+	const enabledEvents = useLocalStorage<DashboardEventType[]>(
+		'twirEventsWidgetFilterV3',
+		enabledEventsOptions.map((e) => e.value)
+	)
 	const { events, fetching } = useDashboardEvents()
 
-	const filteredEvents = computed(() => events.value?.filter(e => {
-		return enabledEvents.value.includes(e.type)
-	}) ?? [])
+	const filteredEvents = computed(
+		() =>
+			events.value?.filter((e) => {
+				return enabledEvents.value.includes(e.type)
+			}) ?? []
+	)
 
 	return {
 		events: filteredEvents,

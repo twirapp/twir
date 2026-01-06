@@ -3,7 +3,7 @@ import { Loader2Icon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { useStreamlabsIntegration } from '@/api/index.js'
+import { useStreamlabsIntegration } from '@/api/integrations/oauth'
 import { useFaceitIntegration } from '@/api/integrations/faceit.ts'
 import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
 import {

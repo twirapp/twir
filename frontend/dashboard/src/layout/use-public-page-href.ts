@@ -1,12 +1,13 @@
 import { computed } from 'vue'
 
-import { useProfile } from '@/api'
+import { useProfile } from '@/api/auth'
 
 export function usePublicPageHref() {
 	const { data: profileData } = useProfile()
 	const selectedDashboardTwitchUser = computed(() => {
-		return profileData.value?.availableDashboards.find((d) => d.id === profileData.value?.selectedDashboardId)
-			?.twitchProfile
+		return profileData.value?.availableDashboards.find(
+			(d) => d.id === profileData.value?.selectedDashboardId
+		)?.twitchProfile
 	})
 
 	return computed(() => {

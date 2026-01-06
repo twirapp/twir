@@ -2,7 +2,7 @@
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile } from '@/api'
+import { useProfile } from '@/api/auth'
 import BanSettings from '@/features/chat-alerts/ui/ban-settings.vue'
 import ChatAlertsRewardsSettings from '@/features/chat-alerts/ui/chat-alerts-rewards-settings.vue'
 import Settings from '@/features/chat-alerts/ui/settings.vue'

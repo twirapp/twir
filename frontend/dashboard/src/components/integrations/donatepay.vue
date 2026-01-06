@@ -2,7 +2,7 @@
 import { ExternalLink, Eye, EyeOff } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
-import { useDonatepayIntegration } from '@/api/index.js'
+import { useDonatepayIntegration } from '@/api/integrations/donatepay'
 import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
 import DonatePaySVG from '@/assets/integrations/donatepay.svg?use'
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'

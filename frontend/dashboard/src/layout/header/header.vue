@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 
 import StreamInfoEditor from '../stream-info-editor.vue'
 
-import { useRealtimeDashboardStats } from '@/api'
+import { useRealtimeDashboardStats } from '@/api/dashboard'
 import { padTo2Digits } from '@/helpers/convertMillisToTime'
 import HeaderProfile from '@/layout/header/header-profile.vue'
 import HeaderBotStatus from '@/layout/header/header-bot-status.vue'

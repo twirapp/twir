@@ -4,9 +4,9 @@ import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
 import {
-	twitchSetChannelInformationMutation,
 	useUserAccessFlagChecker,
-} from '@/api'
+} from '@/api/auth'
+import { twitchSetChannelInformationMutation } from '@/api/twitch'
 import TwitchCategorySelector from '@/components/twitch-category-selector.vue'
 import { Button } from '@/components/ui/button'
 import {

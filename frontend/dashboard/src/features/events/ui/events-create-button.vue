@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api'
+import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { useEventsApi } from '@/api/events.ts'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'

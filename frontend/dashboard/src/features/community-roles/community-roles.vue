@@ -7,7 +7,7 @@ import RoleModal from './ui/modal.vue'
 
 import type { ChannelRolesQuery } from '@/gql/graphql'
 
-import { useUserAccessFlagChecker } from '@/api/index.js'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import { useRoles } from '@/api/roles'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import ActionConfirm from '@/components/ui/action-confirm.vue'

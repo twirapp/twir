@@ -20,7 +20,8 @@ import { toast } from 'vue-sonner'
 import { useDudesForm } from './use-dudes-form.js'
 import { useDudesIframe } from './use-dudes-frame.js'
 
-import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
+import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
+import { useDudesOverlayManager } from '@/api/overlays/dudes'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
 import SelectTwitchUsers from '@/components/twitchUsers/twitch-users-select.vue'
 import {

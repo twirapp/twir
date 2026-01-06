@@ -22,7 +22,7 @@ import ReSubscribe from './events/resubscribe.vue'
 import SubGift from './events/subgift.vue'
 import Subscribe from './events/subscribe.vue'
 
-import { useProfile } from '@/api/index.js'
+import { useProfile } from '@/api/auth'
 import UnbanRequestCreated from '@/components/dashboard/events/unban-request-created.vue'
 import UnbanRequestResolved from '@/components/dashboard/events/unban-request-resolved.vue'
 import { useEvents } from '@/features/dashboard/widgets/composables/events'

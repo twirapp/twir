@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 
 import type { Command } from '@/gql/graphql'
 
-import { useUserAccessFlagChecker } from '@/api'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import ActionConfirmation from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'

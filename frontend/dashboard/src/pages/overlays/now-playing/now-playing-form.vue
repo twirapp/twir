@@ -6,7 +6,8 @@ import { toast } from 'vue-sonner'
 
 import { useNowPlayingForm } from './use-now-playing-form'
 
-import { useNowPlayingOverlayApi, useProfile, useUserAccessFlagChecker } from '@/api'
+import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
+import { useNowPlayingOverlayApi } from '@/api/overlays/now-playing'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'

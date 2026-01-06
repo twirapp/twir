@@ -5,11 +5,13 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import {
-	useChannelOverlayDelete,
-	useChannelOverlaysQuery,
 	useProfile,
 	useUserAccessFlagChecker,
-} from '@/api/index.js'
+} from '@/api/auth'
+import {
+	useChannelOverlayDelete,
+	useChannelOverlaysQuery,
+} from '@/api/overlays/custom'
 import Brb from '@/features/overlays/brb/card.vue'
 import Chat from '@/components/overlays/chat.vue'
 import Dudes from '@/components/overlays/dudes.vue'

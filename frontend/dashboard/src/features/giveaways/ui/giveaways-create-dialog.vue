@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 import type { Giveaway } from '@/api/giveaways.ts'
 
-import { useUserAccessFlagChecker } from '@/api'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent ,	DialogDescription,	DialogFooter,	DialogHeader,	DialogTitle,	DialogTrigger } from '@/components/ui/dialog'
 import {

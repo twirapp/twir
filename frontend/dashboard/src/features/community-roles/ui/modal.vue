@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 import type { ChannelRolesQuery, RolesCreateOrUpdateOpts } from '@/gql/graphql'
 
-import { PERMISSIONS_FLAGS } from '@/api/index.js'
+import { PERMISSIONS_FLAGS } from '@/api/auth'
 import { useRoles } from '@/api/roles'
 import UsersMultiSearch from '@/components/twitchUsers/twitch-users-select.vue'
 import { Button } from '@/components/ui/button'

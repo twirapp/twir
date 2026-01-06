@@ -40,7 +40,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 
 import StreamStarting from '@/assets/images/streamStarting.jpeg?url'
-import { useProfile } from '@/api'
+import { useProfile } from '@/api/auth'
 import {
 	type DiscordGuildUpdateInputInput,
 	DiscordGuildUpdateInputSchema,

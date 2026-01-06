@@ -7,7 +7,7 @@ import { useFilter } from 'reka-ui'
 
 import type { PopoverContentProps } from 'reka-ui'
 
-import { useDashboard, useProfile } from '@/api'
+import { useDashboard, useProfile } from '@/api/auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {

@@ -3,7 +3,7 @@ import { MessageCircle, Trash } from 'lucide-vue-next'
 import { computed, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile } from '@/api'
+import { useProfile } from '@/api/auth'
 import { useGamesApi } from '@/api/games/games.js'
 import Card from '@/components/games/card.vue'
 import { Button } from '@/components/ui/button'

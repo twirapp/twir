@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 import Card from './card.vue'
 
-import { useProfile } from '@/api/index.js'
+import { useProfile } from '@/api/auth'
 
 const { data: profile } = useProfile()
 

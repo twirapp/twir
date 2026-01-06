@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 import AlertsDialogContentAudio from './alerts-dialog-content-audio.vue'
 
-import { useTwitchGetUsers } from '@/api'
+import { useTwitchGetUsers } from '@/api/twitch'
 import { type Alert, useAlertsApi } from '@/api/alerts.js'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import { useGreetingsApi } from '@/api/greetings.js'

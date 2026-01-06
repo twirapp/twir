@@ -3,7 +3,7 @@ import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import { useTwitchGetCategories, useTwitchSearchCategories } from '@/api'
+import { useTwitchGetCategories, useTwitchSearchCategories } from '@/api/twitch'
 import { Button } from '@/components/ui/button'
 import {
 	Command,

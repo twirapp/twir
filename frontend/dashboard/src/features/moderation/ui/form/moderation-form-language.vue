@@ -4,7 +4,7 @@ import { useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useModerationAvailableLanguages } from '@/api'
+import { useModerationAvailableLanguages } from '@/api/moderation'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'

@@ -16,7 +16,7 @@ import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 
 import type { FormSchema } from '../../composables/use-command-edit-v2'
 
-import { useProfile } from '@/api'
+import { useProfile } from '@/api/auth'
 
 import TwitchCategorySearchShadcnMultiple from '@/components/twitch-category-search-shadcn-multiple.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'

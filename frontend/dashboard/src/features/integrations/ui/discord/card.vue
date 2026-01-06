@@ -3,7 +3,7 @@ import { ExternalLink, Settings } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import DiscordIcon from '@/assets/integrations/discord.svg?use'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'

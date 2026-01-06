@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router'
 
 import List from './ui/list.vue'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api'
+import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import ManageGroups from '@/components/commands/manageGroups.vue'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
