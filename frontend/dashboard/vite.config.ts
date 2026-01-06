@@ -1,6 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+// import { analyzer, unstableRolldownAdapter } from 'vite-bundle-analyzer'
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { webUpdateNotice } from '@plugin-web-update-notification/vite'
@@ -15,7 +16,6 @@ export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, path.resolve(process.cwd(), '..', '..'), '')
 
 	const plugins: PluginOption[] = [
-		// @ts-ignore
 		vue(),
 		svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
 		webUpdateNotice({
@@ -35,6 +35,8 @@ export default defineConfig(({ mode }) => {
 			runtimeOnly: true,
 		}),
 		tailwindcss(),
+		// https://github.com/nonzzz/vite-bundle-analyzer
+		// unstableRolldownAdapter(analyzer()),
 	]
 
 	if (mode === 'development') {
@@ -67,6 +69,77 @@ export default defineConfig(({ mode }) => {
 
 		build: {
 			sourcemap: true,
+			rolldownOptions: {
+				output: {
+					chunkFileNames: 'assets/[name]-[hash].js',
+					entryFileNames: 'assets/[name]-[hash].js',
+					assetFileNames: 'assets/[name]-[hash].[ext]',
+
+					manualChunks: (id) => {
+						if (id.includes('node_modules')) {
+							if (id.includes('node_modules/.bun/')) {
+								const match = id.match(/\.bun\/([^@/]+)@/)
+								if (match && match[1]) {
+									return `vendor-${match[1]}`
+								}
+
+								const simpleMatch = id.match(/\.bun\/([^/]+)/)
+								if (simpleMatch && simpleMatch[1] && simpleMatch[1] !== '.bun') {
+									return `vendor-${simpleMatch[1]}`
+								}
+
+								return 'vendor-common'
+							}
+
+							const match = id.match(/node_modules\/(@[^/]+\/[^/]+|[^/@]+)/)
+							if (match && match[1]) {
+								const packageName = match[1].replace('@', '').replace('/', '-')
+								return `vendor-${packageName}`
+							}
+
+							return 'vendor-common'
+						}
+
+						if (id.includes('src/gql/')) {
+							return 'gql'
+						}
+
+						if (id.includes('src/plugins/')) {
+							return 'plugins'
+						}
+
+						if (id.includes('src/api/')) {
+							return 'api'
+						}
+
+						if (id.includes('src/composables/')) {
+							return 'composables'
+						}
+
+						if (id.includes('src/features/')) {
+							const match = id.match(/src\/features\/([^/]+)/)
+							if (match) {
+								return `feature-${match[1]}`
+							}
+						}
+
+						if (id.includes('src/components/')) {
+							const match = id.match(/src\/components\/([^/]+)/)
+							if (match) {
+								return `components-${match[1]}`
+							}
+							return 'components-common'
+						}
+
+						if (id.includes('src/pages/')) {
+							const match = id.match(/src\/pages\/([^/]+)/)
+							if (match) {
+								return `page-${match[1].replace('.vue', '').toLowerCase()}`
+							}
+						}
+					},
+				},
+			},
 		},
 	}
 })
