@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { ChevronsUpDown } from 'lucide-vue-next'
 
-import { useBotJoinPart, useBotStatus } from '@/api'
+import { useBotJoinPart, useBotStatus } from '@/api/dashboard'
 import { BotJoinLeaveAction } from '@/gql/graphql.ts'
 import { Button } from '@/components/ui/button'
 import {

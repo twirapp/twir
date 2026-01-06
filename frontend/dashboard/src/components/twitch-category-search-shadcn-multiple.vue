@@ -14,7 +14,7 @@ import TagsInput from './ui/tags-input/TagsInput.vue'
 import TagsInputItem from './ui/tags-input/TagsInputItem.vue'
 import TagsInputItemDelete from './ui/tags-input/TagsInputItemDelete.vue'
 
-import { useTwitchGetCategories, useTwitchSearchCategories } from '@/api'
+import { useTwitchGetCategories, useTwitchSearchCategories } from '@/api/twitch'
 
 defineProps<{ id?: string }>()
 

@@ -4,7 +4,7 @@ import { computed } from 'vue'
 
 import type { KappagenOverlaySettingsFragment } from '@/gql/graphql.ts'
 
-import { useProfile } from '@/api'
+import { useProfile } from '@/api/auth'
 import { graphql } from '@/gql'
 
 graphql(`
@@ -137,12 +137,12 @@ export const useKappagenApi = createGlobalState(() => {
 	})
 
 	const { executeMutation: updateKappagen, fetching: isUpdating } = useMutation(
-		KappagenOverlayUpdateMutation,
+		KappagenOverlayUpdateMutation
 	)
 
 	const selectedDashboard = computed(() => {
 		return profile.value?.availableDashboards.find(
-			(d) => d.id === profile.value?.selectedDashboardId,
+			(d) => d.id === profile.value?.selectedDashboardId
 		)
 	})
 
@@ -161,12 +161,14 @@ export const useKappagenApi = createGlobalState(() => {
 	})
 
 	const availableAnimations = computed<string[]>(() => {
-		const data = subscriptionData.value?.overlaysKappagen as KappagenOverlaySettingsFragment | undefined
+		const data = subscriptionData.value?.overlaysKappagen as
+			| KappagenOverlaySettingsFragment
+			| undefined
 
 		return (
-			data?.animations?.map((a) => a.style)
-			|| kappagenData.value?.overlaysKappagenAvailableAnimations
-			|| []
+			data?.animations?.map((a) => a.style) ||
+			kappagenData.value?.overlaysKappagenAvailableAnimations ||
+			[]
 		)
 	})
 

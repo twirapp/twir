@@ -3,7 +3,7 @@ import { PlusIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api'
+import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { Button } from '@/components/ui/button'
 import { useTimersEdit } from '@/features/timers/composables/use-timers-edit'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'

@@ -8,7 +8,8 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 import { useChatOverlayForm } from './components/form.js'
 import Form from './components/Form.vue'
 
-import { useChatOverlayApi, useUserAccessFlagChecker } from '@/api/index.js'
+import { useUserAccessFlagChecker } from '@/api/auth'
+import { useChatOverlayApi } from '@/api/overlays/chat.js'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 import { Button } from '@/components/ui/button'
 import {

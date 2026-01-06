@@ -2,7 +2,7 @@
 import { refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import { useTwitchGetUsers, useTwitchSearchChannels } from '@/api'
+import { useTwitchGetUsers, useTwitchSearchChannels } from '@/api/twitch'
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TagsInput, TagsInputItem, TagsInputItemDelete } from '@/components/ui/tags-input'

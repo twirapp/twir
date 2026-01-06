@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import OverlayBuilder from '@/features/overlay-builder/OverlayBuilder.vue'
 import {
 	useChannelOverlayByIdQuery,
-} from '@/api/index.js'
+} from '@/api/overlays/custom'
 import type { OverlayProject } from '@/features/overlay-builder/types'
 import { useOverlaySave } from '@/features/overlay-builder/composables/useOverlaySave'
 import { useOverlayInstantSave } from '@/features/overlay-builder/composables/useOverlayInstantSave'

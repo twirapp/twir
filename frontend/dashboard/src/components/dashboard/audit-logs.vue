@@ -3,7 +3,7 @@ import { ExternalLinkIcon } from 'lucide-vue-next'
 import { UseTimeAgo } from '@vueuse/components'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile } from '@/api'
+import { useProfile } from '@/api/auth'
 import { mapOperationTypeToTranslate, mapSystemToTranslate, useAuditLogs } from '@/api/audit-logs'
 import Card from '@/components/dashboard/card.vue'
 import { Badge, type BadgeVariants } from '@/components/ui/badge'

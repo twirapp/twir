@@ -3,7 +3,7 @@ import { LanguagesIcon, SettingsIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import { useLanguagesApi } from '@/api/languages'
 import Card from '@/components/card/card.vue'
 import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'

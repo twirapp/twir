@@ -8,7 +8,8 @@ import { useDudesIframe } from './use-dudes-frame.js'
 
 import type { DudesSettingsWithOptionalId } from './dudes-settings.js'
 
-import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
+import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
+import { useDudesOverlayManager } from '@/api/overlays/dudes'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'

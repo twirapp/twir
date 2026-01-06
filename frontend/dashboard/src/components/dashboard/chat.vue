@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 
 import Card from './card.vue'
 
-import { useProfile } from '@/api/index.js'
+import { useProfile } from '@/api/auth'
 import { useTheme } from '@/composables/use-theme.js'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'

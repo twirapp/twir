@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { PageLayoutTab } from '@/layout/page-layout.vue'
 
-import { useUserAccessFlagChecker } from '@/api'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import CommunityChatMessages from '@/features/community-chat-messages/community-chat-messages.vue'
 import CommunityEmotesStatistic
 	from '@/features/community-emotes-statistic/community-emotes-statistic.vue'

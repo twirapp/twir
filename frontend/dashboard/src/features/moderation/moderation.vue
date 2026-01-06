@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 
 import type { PageLayoutTab } from '@/layout/page-layout.vue'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/index.js'
+import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,

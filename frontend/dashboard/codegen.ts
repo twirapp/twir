@@ -1,7 +1,7 @@
+import type { CodegenConfig } from '@graphql-codegen/cli'
+
 import { join, resolve } from 'node:path'
 import * as process from 'node:process'
-
-import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const schemaDir = resolve(
 	join(
@@ -33,6 +33,15 @@ const config: CodegenConfig = {
 			preset: 'client',
 			config: {
 				useTypeImports: true,
+			},
+			presetConfig: {
+				// persistedDocuments: {
+				// 	hashAlgorithm: (operation: string) => {
+				// 		const h = new Bun.CryptoHasher('sha256')
+				// 		h.update(operation)
+				// 		return h.digest('hex')
+				// 	},
+				// },
 			},
 			// presetConfig: {
 			// 	onExecutableDocumentNode: generatePersistHash,

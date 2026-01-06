@@ -3,7 +3,8 @@ import { computed, ref } from 'vue'
 
 import type { TwitchRedemptionsOpts } from '@/gql/graphql.ts'
 
-import { useProfile, useTwitchRewardsNew } from '@/api'
+import { useProfile } from '@/api/auth'
+import { useTwitchRewardsNew } from '@/api/twitch'
 import { usePagination } from '@/composables/use-pagination.ts'
 
 export const useCommunityRewardsHistoryQuery = createGlobalState(() => {
@@ -26,11 +27,13 @@ export const useCommunityRewardsHistoryQuery = createGlobalState(() => {
 	}))
 
 	const rewardsOptions = computed(() => {
-		return existedRewards.value?.twitchRewards.map((reward) => ({
-			id: reward.id,
-			title: reward.title,
-			image: reward.imageUrls?.at(0),
-		})) ?? []
+		return (
+			existedRewards.value?.twitchRewards.map((reward) => ({
+				id: reward.id,
+				title: reward.title,
+				image: reward.imageUrls?.at(0),
+			})) ?? []
+		)
 	})
 
 	function handleRewardFilter(id: string) {

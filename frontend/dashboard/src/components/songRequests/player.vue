@@ -18,7 +18,7 @@ import { useLocalStorage, useScriptTag } from '@vueuse/core'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile } from '@/api/index.js'
+import { useProfile } from '@/api/auth'
 import { useYoutubeSocket } from '@/components/songRequests/hook.js'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card'

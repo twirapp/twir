@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import { type FormKey, useForm } from '../composables/use-form.js'
 
-import { useUserAccessFlagChecker } from '@/api/index.js'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
