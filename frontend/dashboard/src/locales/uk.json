@@ -369,6 +369,7 @@
 		"onlineOnly": "Виконувати тільки коли трансляція онлайн",
 		"type": "Тип",
 		"description": "Опис",
+		"limitExceeded": "Event Limit exceeded!",
 		"targetCommand": "Оберіть команду",
 		"targetVariable": "Оберіть змінну",
 		"targetTwitchReward": "Оберіть винагороду каналу",
@@ -860,6 +861,7 @@
 		"regularDescriptionCheatSheet": "шпаргалка",
 		"settings": "Налаштування",
 		"cooldown": "Час відновлення (секунди)",
+		"limitExceeded": "Keyword Limit exceeded!",
 		"validations": {
 			"triggerRequired": "Текст тригеру є обов’язковим!",
 			"triggerLong": "Текст тригеру занадто довгий!",
@@ -879,6 +881,7 @@
 		"title": "Привітання",
 		"create": "Створити привітання",
 		"edit": "Редагувати привітання",
+		"limitExceeded": "Greeting Limit exceeded!",
 		"info": {
 			"title": "Інформація про привітання",
 			"text": "Привітання - це той тип повідомлень, які використовує бот, щоб привітати відомих глядачів трансляції, коли вони надсилають своє перше повідомлення в чаті. Якщо ви бажаєте вітати кожного користувача у чаті, ви можете подивитися на категорію подій замість категорії привітань."
@@ -896,6 +899,7 @@
 		"name": "Назва",
 		"rewards": "Винагороди",
 		"commands": "Команди",
+		"limitExceeded": "Alert Limit exceeded!",
 		"validations": {
 			"name": "Назва не може бути порожньою і містити понад 30 символів!"
 		},
@@ -1089,6 +1093,7 @@
 		"name": "Назва оверлея",
 		"createNewLayer": "Створити новий шар",
 		"createNew": "Create New Overlay",
+		"limitExceeded": "Custom Overlay Limit exceeded!",
 		"layers": "Layers",
 		"validations": {
 			"name": "Назва не може бути порожньою і містити більше ніж 30 символів!",
@@ -1105,6 +1110,8 @@
 		}
 	},
 	"chatAlerts": {
+		"totalMessagesLimit": "Total Messages Limit",
+		"totalMessagesDescription": "You are using {current} out of {max} total messages across all chat alert categories.",
 		"randomedMessage": "Якщо існує кілька варіантів сповіщень, то вони будуть обрані випадковим чином.<br>",
 		"randomMessageWithCount": "Якщо буде кілька варіантів з однаковим числом, то вони будуть обрані випадковим чином.<br>",
 		"replacedInfo": "Доступні змінні: {vars}. Вони будуть замінені актуальною інформацією в сповіщенні.<br>",
@@ -1133,6 +1140,7 @@
 	"moderation": {
 		"name": "Назва правила, лише для вашої зручності, щоб побачити назву в списку",
 		"createNewRule": "Створити нове правило модерації",
+		"limitExceeded": "Moderation Rules Limit exceeded!",
 		"banTime": "Час очікування",
 		"banDescription": "Встановіть значення 0 для перманентного блокування.",
 		"banMessage": "Повідомлення та причина тайм-ауту",
