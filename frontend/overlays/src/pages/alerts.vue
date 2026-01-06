@@ -6,12 +6,6 @@ import { useRoute } from 'vue-router'
 import { openApi } from '@/api.ts'
 import { generateSocketUrlWithParams } from '@/helpers.js'
 
-declare global {
-	interface Window {
-		webkitAudioContext: typeof AudioContext
-	}
-}
-
 const queue = ref<Array<{
 	id: string
 	channel_id: string

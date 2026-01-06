@@ -76,3 +76,19 @@ export function normalizeDisplayName(displayName: string, userName: string): str
 
 	return userName
 }
+
+export function loadEruda() {
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/eruda@3.4.3/eruda.min.js'
+
+  script.onload = () => {
+    if (!window.eruda) return
+    window.eruda.init()
+  }
+
+  script.onerror = () => {
+    console.error('Failed to load Eruda script')
+  }
+
+  document.head.append(script)
+}
