@@ -27,13 +27,21 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVariable, error) {
+	plan, err := c.plansRepository.GetByChannelID(ctx, data.ChannelID)
+	if err != nil {
+		return entity.CustomVarNil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return entity.CustomVarNil, fmt.Errorf("plan not found for channel")
+	}
+
 	createdCount, err := c.variablesRepository.CountByChannelID(ctx, data.ChannelID)
 	if err != nil {
 		return entity.CustomVarNil, err
 	}
 
-	if createdCount >= MaxPerChannel {
-		return entity.CustomVarNil, fmt.Errorf("you can have only %v variables", MaxPerChannel)
+	if createdCount >= plan.MaxVariables {
+		return entity.CustomVarNil, fmt.Errorf("you can have only %v variables", plan.MaxVariables)
 	}
 
 	variable, err := c.variablesRepository.Create(

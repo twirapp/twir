@@ -32,6 +32,24 @@ type Dashboard {
 	flags: [ChannelRolePermissionEnum!]!
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	apiKey: String!
+	plan: Plan! @goField(forceResolver: true)
+}
+
+type Plan {
+	id: ID!
+	name: String!
+	maxCommands: Int!
+	maxTimers: Int!
+	maxVariables: Int!
+	maxAlerts: Int!
+	maxEvents: Int!
+	maxChatAlertsMessages: Int!
+	maxCustomOverlays: Int!
+	maxEightballAnswers: Int!
+	maxCommandsResponses: Int!
+	maxModerationRules: Int!
+	maxKeywords: Int!
+	maxGreetings: Int!
 }
 
 input UserUpdateSettingsInput {

@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"go.uber.org/fx"
 )
 
@@ -26,6 +27,7 @@ type Opts struct {
 	CommandsResponsesService *commands_responses.Service
 	AuditRecorder            audit.Recorder
 	CachedCommandsClient     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
+	PlansRepository          plans.Repository
 }
 
 func New(opts Opts) *Service {
@@ -35,6 +37,7 @@ func New(opts Opts) *Service {
 		trManager:                opts.TrManager,
 		auditRecorder:            opts.AuditRecorder,
 		cachedCommandsClient:     opts.CachedCommandsClient,
+		plansRepository:          opts.PlansRepository,
 	}
 }
 
@@ -44,9 +47,8 @@ type Service struct {
 	commandsResponsesService *commands_responses.Service
 	auditRecorder            audit.Recorder
 	cachedCommandsClient     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
+	plansRepository          plans.Repository
 }
-
-var maxCommands = 50
 
 func (c *Service) IsNameConflicting(
 	cmds []model.Command,

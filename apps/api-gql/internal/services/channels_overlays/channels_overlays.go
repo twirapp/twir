@@ -14,6 +14,7 @@ import (
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 	channels_overlays "github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays/model"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
@@ -22,6 +23,7 @@ type Opts struct {
 	fx.In
 
 	OverlaysRepository channels_overlays.Repository
+	PlansRepository    plans.Repository
 	AuditRecorder      audit.Recorder
 	Bus                *buscore.Bus
 	WsRouter           wsrouter.WsRouter
@@ -30,6 +32,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		overlaysRepository: opts.OverlaysRepository,
+		plansRepository:    opts.PlansRepository,
 		auditRecorder:      opts.AuditRecorder,
 		bus:                opts.Bus,
 		wsRouter:           opts.WsRouter,
@@ -38,6 +41,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	overlaysRepository channels_overlays.Repository
+	plansRepository    plans.Repository
 	auditRecorder      audit.Recorder
 	bus                *buscore.Bus
 	wsRouter           wsrouter.WsRouter
@@ -129,6 +133,23 @@ type CreateInput struct {
 }
 
 func (s *Service) Create(ctx context.Context, input CreateInput) (customoverlayentity.ChannelOverlay, error) {
+	plan, err := s.plansRepository.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("plan not found for channel")
+	}
+
+	existingOverlays, err := s.overlaysRepository.GetManyByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("failed to get overlays: %w", err)
+	}
+
+	if len(existingOverlays) >= plan.MaxCustomOverlays {
+		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("you can have only %v custom overlays", plan.MaxCustomOverlays)
+	}
+
 	repoLayers := make([]channels_overlays.CreateLayerInput, len(input.Layers))
 	for i, l := range input.Layers {
 		repoLayers[i] = channels_overlays.CreateLayerInput{

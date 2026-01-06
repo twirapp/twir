@@ -10,6 +10,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/events"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"go.uber.org/fx"
 )
 
@@ -17,6 +18,7 @@ type Opts struct {
 	fx.In
 
 	EventsRepository events.Repository
+	PlansRepository  plans.Repository
 	Logger           *slog.Logger
 	Cacher           *generic_cacher.GenericCacher[[]model.Event]
 }
@@ -24,6 +26,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		eventsRepository: opts.EventsRepository,
+		plansRepository:  opts.PlansRepository,
 		logger:           opts.Logger,
 		cacher:           opts.Cacher,
 	}
@@ -31,6 +34,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	eventsRepository events.Repository
+	plansRepository  plans.Repository
 	logger           *slog.Logger
 	cacher           *generic_cacher.GenericCacher[[]model.Event]
 }
@@ -108,13 +112,21 @@ func (s *Service) GetByID(ctx context.Context, id string) (entity.Event, error) 
 }
 
 func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, error) {
+	plan, err := s.plansRepository.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.EventNil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return entity.EventNil, fmt.Errorf("plan not found for channel")
+	}
+
 	channelEvents, err := s.eventsRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
 		return entity.EventNil, fmt.Errorf("failed to get channelEvents: %w", err)
 	}
 
-	if len(channelEvents) >= 250 {
-		return entity.EventNil, fmt.Errorf("maximum number of channelEvents reached")
+	if len(channelEvents) >= plan.MaxEvents {
+		return entity.EventNil, fmt.Errorf("you can have only %v events", plan.MaxEvents)
 	}
 
 	repoInput := events.CreateInput{

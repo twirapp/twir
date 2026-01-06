@@ -14,6 +14,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/greetings/model"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"go.uber.org/fx"
 )
 
@@ -21,6 +22,7 @@ type Opts struct {
 	fx.In
 
 	GreetingsRepository greetings.Repository
+	PlansRepository     plans.Repository
 	AuditRecorder       audit.Recorder
 	GreetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
 }
@@ -28,6 +30,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		greetingsRepository: opts.GreetingsRepository,
+		plansRepository:     opts.PlansRepository,
 		auditRecorder:       opts.AuditRecorder,
 		greetingsCache:      opts.GreetingsCache,
 	}
@@ -35,6 +38,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	greetingsRepository greetings.Repository
+	plansRepository     plans.Repository
 	auditRecorder       audit.Recorder
 	greetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
 }
@@ -95,6 +99,27 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greeting, error) {
+	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.GreetingNil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return entity.GreetingNil, fmt.Errorf("plan not found for channel")
+	}
+
+	existingGreetings, err := c.greetingsRepository.GetManyByChannelID(
+		ctx,
+		input.ChannelID,
+		greetings.GetManyInput{},
+	)
+	if err != nil {
+		return entity.GreetingNil, fmt.Errorf("failed to get greetings: %w", err)
+	}
+
+	if len(existingGreetings) >= plan.MaxGreetings {
+		return entity.GreetingNil, fmt.Errorf("you can have only %v greetings", plan.MaxGreetings)
+	}
+
 	greeting, err := c.greetingsRepository.GetOneByChannelAndUserID(
 		ctx,
 		greetings.GetOneInput{

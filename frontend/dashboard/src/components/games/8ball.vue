@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { MessageCircle, Trash } from 'lucide-vue-next'
-import { ref, toRaw, watch } from 'vue'
+import { computed, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { useProfile } from '@/api'
 import { useGamesApi } from '@/api/games/games.js'
 import Card from '@/components/games/card.vue'
 import { Button } from '@/components/ui/button'
@@ -14,7 +15,14 @@ import { toast } from 'vue-sonner'
 import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
-const maxAnswers = 25
+const { data: profile } = useProfile()
+
+const maxAnswers = computed(() => {
+	const selectedDashboard = profile.value?.availableDashboards.find(
+		(d) => d.id === profile.value?.selectedDashboardId
+	)
+	return selectedDashboard?.plan.maxEightballAnswers ?? 25
+})
 
 const gamesManager = useGamesApi()
 const { data } = gamesManager.useGamesQuery()

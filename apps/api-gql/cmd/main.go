@@ -199,6 +199,9 @@ import (
 	channelsfilesrepository "github.com/twirapp/twir/libs/repositories/channels_files"
 	channelsfilesrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_files/datasource/postgres"
 
+	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
+	plansrepositorypgx "github.com/twirapp/twir/libs/repositories/plans/pgx"
+
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
 	channelscommandsusagesclickhouse "github.com/twirapp/twir/libs/repositories/channels_commands_usages/datasources/clickhouse"
 
@@ -381,6 +384,10 @@ func main() {
 			fx.Annotate(
 				channelsfilesrepositorypgx.NewFx,
 				fx.As(new(channelsfilesrepository.Repository)),
+			),
+			fx.Annotate(
+				plansrepositorypgx.NewFx,
+				fx.As(new(plansrepository.Repository)),
 			),
 			fx.Annotate(
 				channelsemotesusagesrepositoryclickhouse.NewFx,

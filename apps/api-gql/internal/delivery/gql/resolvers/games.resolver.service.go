@@ -54,6 +54,14 @@ func (r *mutationResolver) gamesUpdateEightBall(
 		return nil, err
 	}
 
+	plan, err := r.deps.PlansRepository.GetByChannelID(ctx, dashboardId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return nil, fmt.Errorf("plan not found for channel")
+	}
+
 	entity := model.ChannelGames8Ball{}
 	if err := r.deps.Gorm.
 		WithContext(ctx).
@@ -69,8 +77,8 @@ func (r *mutationResolver) gamesUpdateEightBall(
 	}
 
 	if opts.Answers.IsSet() {
-		if len(opts.Answers.Value()) > 25 {
-			return nil, fmt.Errorf("max answers is 25")
+		if len(opts.Answers.Value()) > plan.MaxEightballAnswers {
+			return nil, fmt.Errorf("you can have only %v 8ball answers", plan.MaxEightballAnswers)
 		}
 
 		for _, answer := range opts.Answers.Value() {

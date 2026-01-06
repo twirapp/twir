@@ -16,6 +16,8 @@ import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 
 import type { FormSchema } from '../../composables/use-command-edit-v2'
 
+import { useProfile } from '@/api'
+
 import TwitchCategorySearchShadcnMultiple from '@/components/twitch-category-search-shadcn-multiple.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -41,8 +43,16 @@ import FormLabel from '@/components/ui/form/FormLabel.vue'
 import VariableInput from '@/components/variable-input.vue'
 
 const { t } = useI18n()
+const { data: profile } = useProfile()
 
 const { errors: responsesErrors, value, setValue } = useField<FormSchema['responses']>('responses')
+
+const maxCommandResponses = computed(() => {
+	const selectedDashboard = profile.value?.availableDashboards.find(
+		(d) => d.id === profile.value?.selectedDashboardId
+	)
+	return selectedDashboard?.plan.maxCommandsResponses ?? 3
+})
 
 function handlePush() {
 	setValue([
@@ -203,11 +213,11 @@ const editable = computed(() => !command.value?.default)
 					variant="outline"
 					size="sm"
 					class="text-xs w-full flex gap-2 items-center mt-2"
-					:disabled="(fields.length ?? 0) >= 3"
+					:disabled="(fields.length ?? 0) >= maxCommandResponses"
 					@click="handlePush"
 				>
 					<BadgePlus class="size-4" />
-					Add response {{ fields.length ?? 0 }} / 3
+					Add response {{ fields.length ?? 0 }} / {{ maxCommandResponses }}
 				</Button>
 			</FieldArray>
 		</CardContent>

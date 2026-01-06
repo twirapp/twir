@@ -35,13 +35,21 @@ type CreateResponse struct {
 }
 
 func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, error) {
+	plan, err := c.plansRepository.GetByChannelID(ctx, data.ChannelID)
+	if err != nil {
+		return entity.TimerNil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return entity.TimerNil, fmt.Errorf("plan not found for channel")
+	}
+
 	createdCount, err := c.timersRepository.CountByChannelID(ctx, data.ChannelID)
 	if err != nil {
 		return entity.TimerNil, err
 	}
 
-	if createdCount >= MaxPerChannel {
-		return entity.TimerNil, fmt.Errorf("you can have only %v timers", MaxPerChannel)
+	if createdCount >= plan.MaxTimers {
+		return entity.TimerNil, fmt.Errorf("you can have only %v timers", plan.MaxTimers)
 	}
 
 	responses := make([]timersrepository.CreateResponse, 0, len(data.Responses))

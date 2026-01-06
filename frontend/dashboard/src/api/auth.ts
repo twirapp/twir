@@ -36,6 +36,22 @@ export const profileQuery = createRequest(
 						profileImageUrl
 					}
 					apiKey
+					plan {
+						id
+						name
+						maxCommands
+						maxTimers
+						maxVariables
+						maxAlerts
+						maxEvents
+						maxChatAlertsMessages
+						maxCustomOverlays
+						maxEightballAnswers
+						maxCommandsResponses
+						maxModerationRules
+						maxKeywords
+						maxGreetings
+					}
 				}
 			}
 		}

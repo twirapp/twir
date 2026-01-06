@@ -52,6 +52,14 @@ type CreateInputResponse struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command, error) {
+	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.CommandNil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return entity.CommandNil, fmt.Errorf("plan not found for channel")
+	}
+
 	cmds, err := c.commandsRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
 		return entity.CommandNil, fmt.Errorf("failed to get commands: %w", err)
@@ -64,8 +72,12 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 		}
 	}
 
-	if createdCommands >= maxCommands {
+	if createdCommands >= plan.MaxCommands {
 		return entity.CommandNil, fmt.Errorf("maximum commands limit reached")
+	}
+
+	if len(input.Responses) > plan.MaxCommandsResponses {
+		return entity.CommandNil, fmt.Errorf("you can have only %v responses per command", plan.MaxCommandsResponses)
 	}
 
 	isNameConflict, err := c.IsNameConflicting(

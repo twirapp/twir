@@ -9,26 +9,30 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	"github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"go.uber.org/fx"
 )
 
 type Opts struct {
 	fx.In
 
-	Repo   channels_moderation_settings.Repository
-	Cacher *generic_cacher.GenericCacher[[]model.ChannelModerationSettings]
+	Repo            channels_moderation_settings.Repository
+	PlansRepository plans.Repository
+	Cacher          *generic_cacher.GenericCacher[[]model.ChannelModerationSettings]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repo:   opts.Repo,
-		cacher: opts.Cacher,
+		repo:            opts.Repo,
+		plansRepository: opts.PlansRepository,
+		cacher:          opts.Cacher,
 	}
 }
 
 type Service struct {
-	repo   channels_moderation_settings.Repository
-	cacher *generic_cacher.GenericCacher[[]model.ChannelModerationSettings]
+	repo            channels_moderation_settings.Repository
+	plansRepository plans.Repository
+	cacher          *generic_cacher.GenericCacher[[]model.ChannelModerationSettings]
 }
 
 func (c *Service) modelToEntity(m model.ChannelModerationSettings) entity.ChannelModerationSettings {
@@ -115,6 +119,23 @@ func (c *Service) Create(
 	ctx context.Context,
 	input CreateOrUpdateInput,
 ) (entity.ChannelModerationSettings, error) {
+	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.ChannelModerationSettings{}, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return entity.ChannelModerationSettings{}, fmt.Errorf("plan not found for channel")
+	}
+
+	existingSettings, err := c.repo.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.ChannelModerationSettings{}, fmt.Errorf("failed to get moderation settings: %w", err)
+	}
+
+	if len(existingSettings) >= plan.MaxModerationRules {
+		return entity.ChannelModerationSettings{}, fmt.Errorf("you can have only %v moderation rules", plan.MaxModerationRules)
+	}
+
 	item, err := c.repo.Create(
 		ctx,
 		channels_moderation_settings.CreateOrUpdateInput{

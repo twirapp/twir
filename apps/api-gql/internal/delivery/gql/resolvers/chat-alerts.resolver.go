@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/google/uuid"
@@ -32,6 +33,58 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	// Check plan limits for total messages count
+	plan, err := r.deps.PlansRepository.GetByChannelID(ctx, dashboardId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return nil, fmt.Errorf("plan not found for channel")
+	}
+
+	if input.Followers.Value() != nil && len(input.Followers.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.Raids.Value() != nil && len(input.Raids.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.Donations.Value() != nil && len(input.Donations.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.Subscribers.Value() != nil && len(input.Subscribers.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.Cheers.Value() != nil && len(input.Cheers.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.Redemptions.Value() != nil && len(input.Redemptions.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.FirstUserMessage.Value() != nil && len(input.FirstUserMessage.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.StreamOnline.Value() != nil && len(input.StreamOnline.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.StreamOffline.Value() != nil && len(input.StreamOffline.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.ChatCleared.Value() != nil && len(input.ChatCleared.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.Ban.Value() != nil && len(input.Ban.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.UnbanRequestCreate.Value() != nil && len(input.UnbanRequestCreate.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.UnbanRequestResolve.Value() != nil && len(input.UnbanRequestResolve.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
+	}
+	if input.MessageDelete.Value() != nil && len(input.MessageDelete.Value().Messages.Value()) > plan.MaxChatAlertsMessages {
+		return nil, fmt.Errorf("you can have only %v messages across chat alerts", plan.MaxChatAlertsMessages)
 	}
 
 	entity := model.ChannelModulesSettings{}

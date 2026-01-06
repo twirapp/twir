@@ -8,6 +8,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"go.uber.org/fx"
 )
 
@@ -18,6 +19,7 @@ type Opts struct {
 	AuditRecorder      audit.Recorder
 	Logger             *slog.Logger
 	KeywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
+	PlansRepository    plans.Repository
 }
 
 func New(opts Opts) *Service {
@@ -26,16 +28,16 @@ func New(opts Opts) *Service {
 		auditRecorder:      opts.AuditRecorder,
 		logger:             opts.Logger,
 		keywordsCacher:     opts.KeywordsCacher,
+		plansRepository:    opts.PlansRepository,
 	}
 }
-
-const MaxPerChannel = 25
 
 type Service struct {
 	keywordsRepository keywords.Repository
 	auditRecorder      audit.Recorder
 	logger             *slog.Logger
 	keywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
+	plansRepository    plans.Repository
 }
 
 func (c *Service) dbToModel(m model.Keyword) entity.Keyword {

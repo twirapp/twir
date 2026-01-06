@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
 	"go.uber.org/fx"
@@ -30,6 +31,7 @@ type Opts struct {
 	AuditRecorder       audit.Recorder
 	VariablesRepository variables.Repository
 	Executron           executron.Executron
+	PlansRepository     plans.Repository
 }
 
 type Service struct {
@@ -40,6 +42,7 @@ type Service struct {
 	auditRecorder       audit.Recorder
 	variablesRepository variables.Repository
 	executron           executron.Executron
+	plansRepository     plans.Repository
 }
 
 func New(opts Opts) *Service {
@@ -51,10 +54,9 @@ func New(opts Opts) *Service {
 		auditRecorder:       opts.AuditRecorder,
 		variablesRepository: opts.VariablesRepository,
 		executron:           opts.Executron,
+		plansRepository:     opts.PlansRepository,
 	}
 }
-
-const MaxPerChannel = 50
 
 var ErrNotFound = errors.New("variable not found")
 

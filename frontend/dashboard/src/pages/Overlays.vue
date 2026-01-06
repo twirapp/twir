@@ -65,7 +65,22 @@ async function handleDelete(id: string) {
 
 const router = useRouter()
 
+const maxCustomOverlays = computed(() => {
+	const selectedDashboard = profile.value?.availableDashboards.find(
+		(d) => d.id === profile.value?.selectedDashboardId
+	)
+	return selectedDashboard?.plan.maxCustomOverlays ?? 10
+})
+
+const isCreateDisabled = computed(() => {
+	return customOverlays.value.length >= maxCustomOverlays.value || !userCanManageOverlays.value
+})
+
 function editCustomOverlay(id?: string) {
+	if (!id && isCreateDisabled.value) {
+		return
+	}
+
 	return router.push({
 		name: 'RegistryOverlayEdit',
 		params: {
@@ -196,13 +211,16 @@ function editCustomOverlay(id?: string) {
 			<!-- Add New Overlay Card -->
 			<ShadCard
 				class="flex flex-col h-full cursor-pointer hover:bg-accent/50 transition-colors"
-				:class="{ 'cursor-not-allowed opacity-50': !userCanManageOverlays }"
-				@click="() => userCanManageOverlays && editCustomOverlay()"
+				:class="{ 'cursor-not-allowed opacity-50': isCreateDisabled }"
+				@click="() => !isCreateDisabled && editCustomOverlay()"
 			>
 				<CardContent class="flex-1 flex items-center justify-center p-6">
 					<div class="flex flex-col items-center justify-center text-muted-foreground">
 						<Plus class="size-16 mb-4" />
-						<p class="text-sm font-medium">{{ t('overlaysRegistry.createNew') }}</p>
+						<p class="text-sm font-medium">
+							{{ customOverlays.length >= maxCustomOverlays ? t('overlaysRegistry.limitExceeded') : t('overlaysRegistry.createNew') }}
+							({{ customOverlays.length }}/{{ maxCustomOverlays }})
+						</p>
 					</div>
 				</CardContent>
 			</ShadCard>

@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/libs/audit"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
 	"go.uber.org/fx"
@@ -24,6 +25,7 @@ type Opts struct {
 	TwirBus          *buscore.Bus
 	TimersRepository timersrepository.Repository
 	TrmManager       trm.Manager
+	PlansRepository  plans.Repository
 }
 
 func New(opts Opts) *Service {
@@ -34,6 +36,7 @@ func New(opts Opts) *Service {
 		twirbus:          opts.TwirBus,
 		timersRepository: opts.TimersRepository,
 		trmManager:       opts.TrmManager,
+		plansRepository:  opts.PlansRepository,
 	}
 }
 
@@ -44,9 +47,8 @@ type Service struct {
 	twirbus          *buscore.Bus
 	timersRepository timersrepository.Repository
 	trmManager       trm.Manager
+	plansRepository  plans.Repository
 }
-
-const MaxPerChannel = 10
 
 var ErrTimerNotFound = errors.New("timer not found")
 

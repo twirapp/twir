@@ -65,7 +65,6 @@ import (
 	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
-	"github.com/twirapp/twir/libs/wsrouter"
 	"github.com/twirapp/twir/libs/audit"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
@@ -76,7 +75,9 @@ import (
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
+	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -95,6 +96,7 @@ type Deps struct {
 	SpotifyRepository       channelsintegrationsspotify.Repository
 	LastfmRepository        channelsintegrationslastfm.Repository
 	VKIntegrationRepository vkintegrationrepo.Repository
+	PlansRepository         plansrepository.Repository
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB

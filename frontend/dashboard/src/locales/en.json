@@ -369,6 +369,7 @@
 		"onlineOnly": "Online-Only Execution",
 		"type": "Type",
 		"description": "Description",
+		"limitExceeded": "Event Limit exceeded!",
 		"targetCommand": "Target Command",
 		"targetVariable": "Target Variable",
 		"targetTwitchReward": "Target Twitch Reward",
@@ -860,6 +861,7 @@
 		"regularDescriptionCheatSheet": "cheat sheet",
 		"settings": "Settings",
 		"cooldown": "Cooldown (in seconds)",
+		"limitExceeded": "Keyword Limit exceeded!",
 		"validations": {
 			"triggerRequired": "Trigger Text is required!",
 			"triggerLong": "Trigger Text is too long!",
@@ -879,6 +881,7 @@
 		"title": "Greetings",
 		"create": "Create greeting",
 		"edit": "Edit greeting",
+		"limitExceeded": "Greeting Limit exceeded!",
 		"info": {
 			"title": "Greetings Information",
 			"text": "Greetings are a type of messages that bot uses to welcome known stream viewers when they send their first message in chat on each stream. If you wish to greet every user in chat, then you can look at the events category instead of Greetings."
@@ -896,6 +899,7 @@
 		"name": "Name",
 		"rewards": "Rewards",
 		"commands": "Commands",
+		"limitExceeded": "Alert Limit exceeded!",
 		"validations": {
 			"name": "Name cannot be empty or longer than 30 symbols!"
 		},
@@ -1089,6 +1093,7 @@
 		"name": "Overlay Name",
 		"createNewLayer": "Create New Layer",
 		"createNew": "Create New Overlay",
+		"limitExceeded": "Custom Overlay Limit exceeded!",
 		"layers": "Layers",
 		"validations": {
 			"name": "Overlay Name cannot be empty and longer than 30 symbols!",
@@ -1105,6 +1110,8 @@
 		}
 	},
 	"chatAlerts": {
+		"totalMessagesLimit": "Total Messages Limit",
+		"totalMessagesDescription": "You are using {current} out of {max} total messages across all chat alert categories.",
 		"randomedMessage": "If there are several variants of the chat alerts, then they will be picked randomly.<br>",
 		"randomMessageWithCount": "If there will be several variants with the same counter number, then they will be picked randomly.<br>",
 		"replacedInfo": "Available Variables: {vars}. They will be replaced with the actual information in the alert.<br>",
@@ -1133,6 +1140,7 @@
 	"moderation": {
 		"name": "Name of rule, just for your convenience to see name in list",
 		"createNewRule": "Create a New Moderation Rule",
+		"limitExceeded": "Moderation Rules Limit exceeded!",
 		"banTime": "Timeout Time",
 		"banDescription": "Set to 0 for ban permamently.",
 		"banMessage": "Timeout Message",

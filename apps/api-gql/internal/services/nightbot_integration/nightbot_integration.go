@@ -26,6 +26,7 @@ import (
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"github.com/twirapp/twir/libs/repositories/integrations"
 	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"github.com/twirapp/twir/libs/repositories/roles"
 	rolesmodel "github.com/twirapp/twir/libs/repositories/roles/model"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
@@ -46,6 +47,7 @@ type Opts struct {
 	TimersService           *timers.Service
 	TimersRepository        timersrepository.Repository
 	CachedCommandsClient    *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
+	PlansRepository         plans.Repository
 }
 
 func New(opts Opts) (*Service, error) {
@@ -61,6 +63,7 @@ func New(opts Opts) (*Service, error) {
 		timersService:           opts.TimersService,
 		timersRepository:        opts.TimersRepository,
 		cachedCommandsClient:    opts.CachedCommandsClient,
+		plansRepository:         opts.PlansRepository,
 	}
 
 	siteBaseUrl, err := url.Parse(opts.Config.SiteBaseUrl)
@@ -85,6 +88,7 @@ type Service struct {
 	timersService           *timers.Service
 	timersRepository        timersrepository.Repository
 	cachedCommandsClient    *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
+	plansRepository         plans.Repository
 	redirectURL             string
 }
 
@@ -724,7 +728,15 @@ func (s *Service) ImportTimers(
 		return nil, fmt.Errorf("cannot get timers count: %w", err)
 	}
 
-	spaceLeft := timers.MaxPerChannel - currentCount
+	plan, err := s.plansRepository.GetByChannelID(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return nil, fmt.Errorf("plan not found for channel")
+	}
+
+	spaceLeft := plan.MaxTimers - currentCount
 	re := regexp.MustCompile(`\*/(\d+)|(\d+) \* \* \* \*`)
 
 	var timersToCreate []timers.CreateInput

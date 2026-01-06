@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router'
 
 import List from './ui/list.vue'
 
-import { useUserAccessFlagChecker } from '@/api'
+import { useProfile, useUserAccessFlagChecker } from '@/api'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import ManageGroups from '@/components/commands/manageGroups.vue'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
@@ -20,6 +20,7 @@ const route = useRoute()
 const { t } = useI18n()
 const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands)
 
+const { data: profile } = useProfile()
 const commandsManager = useCommandsApi()
 const { data: commandsResponse } = commandsManager.useQueryCommands()
 
@@ -50,8 +51,15 @@ const commands = computed(() => {
 
 const showManageGroupsModal = ref(false)
 
+const maxCommands = computed(() => {
+	const selectedDashboard = profile.value?.availableDashboards.find(
+		(d) => d.id === profile.value?.selectedDashboardId
+	)
+	return selectedDashboard?.plan.maxCommands ?? 50
+})
+
 const isCreateDisabled = computed(() => {
-	return commands.value.length >= 50 || !userCanManageCommands.value
+	return commands.value.length >= maxCommands.value || !userCanManageCommands.value
 })
 
 const isCustom = computed(() => {
@@ -87,7 +95,7 @@ const title = computed(() => {
 				<RouterLink v-slot="{ href, navigate }" custom to="/dashboard/commands/custom/create">
 					<Button as="a" :href="href" :disabled="isCreateDisabled" @click="navigate">
 						<PlusIcon class="size-4 mr-2" />
-						{{ t('sharedButtons.create') }} ({{ commands.length }}/50)
+						{{ t('sharedButtons.create') }} ({{ commands.length }}/{{ maxCommands }})
 					</Button>
 				</RouterLink>
 			</div>

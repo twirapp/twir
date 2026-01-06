@@ -13,6 +13,7 @@ import (
 	genericcacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/alerts"
 	"github.com/twirapp/twir/libs/repositories/alerts/model"
+	"github.com/twirapp/twir/libs/repositories/plans"
 	"go.uber.org/fx"
 )
 
@@ -20,6 +21,7 @@ type Opts struct {
 	fx.In
 
 	AlertsRepository alerts.Repository
+	PlansRepository  plans.Repository
 	AuditRecorder    audit.Recorder
 	AlertsCache      *genericcacher.GenericCacher[[]model.Alert]
 }
@@ -27,6 +29,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		alertsRepository: opts.AlertsRepository,
+		plansRepository:  opts.PlansRepository,
 		auditRecorder:    opts.AuditRecorder,
 		alertsCache:      opts.AlertsCache,
 	}
@@ -34,6 +37,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	alertsRepository alerts.Repository
+	plansRepository  plans.Repository
 	auditRecorder    audit.Recorder
 	alertsCache      *genericcacher.GenericCacher[[]model.Alert]
 }
@@ -83,6 +87,23 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Alert, error) {
+	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.AlertNil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return entity.AlertNil, fmt.Errorf("plan not found for channel")
+	}
+
+	existingAlerts, err := c.alertsRepository.GetManyByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.AlertNil, fmt.Errorf("failed to get alerts: %w", err)
+	}
+
+	if len(existingAlerts) >= plan.MaxAlerts {
+		return entity.AlertNil, fmt.Errorf("you can have only %v alerts", plan.MaxAlerts)
+	}
+
 	alert, err := c.alertsRepository.Create(
 		ctx,
 		alerts.CreateInput{

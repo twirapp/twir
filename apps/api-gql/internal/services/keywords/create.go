@@ -30,13 +30,21 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword, error) {
+	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.KeywordNil, fmt.Errorf("failed to get plan: %w", err)
+	}
+	if plan.IsNil() {
+		return entity.KeywordNil, fmt.Errorf("plan not found for channel")
+	}
+
 	createdCount, err := c.keywordsRepository.CountByChannelID(ctx, input.ChannelID)
 	if err != nil {
 		return entity.KeywordNil, err
 	}
 
-	if createdCount >= MaxPerChannel {
-		return entity.KeywordNil, fmt.Errorf("you can have only %v keywords", MaxPerChannel)
+	if createdCount >= plan.MaxKeywords {
+		return entity.KeywordNil, fmt.Errorf("you can have only %v keywords", plan.MaxKeywords)
 	}
 
 	k, err := c.keywordsRepository.Create(
