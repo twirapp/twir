@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (r *authenticatedUserResolver) getAvailableDashboards(
@@ -25,6 +25,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 				Flags: []gqlmodel.ChannelRolePermissionEnum{
 					gqlmodel.ChannelRolePermissionEnumCanAccessDashboard,
 				},
+				PlanID: channel.PlanID,
 			}
 
 			if channel.User != nil {
@@ -38,6 +39,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			ID:     obj.ID,
 			Flags:  []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
 			APIKey: obj.APIKey,
+			PlanID: obj.PlanID,
 		}
 
 		var roles []model.ChannelRoleUser
@@ -56,7 +58,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		}
 
 		for _, role := range roles {
-			if role.Role == nil || role.Role.Channel == nil || len(role.Role.Permissions) == 0 {
+			if role.Role == nil || role.Role.Channel == nil || role.Role.Channel.User == nil || len(role.Role.Permissions) == 0 {
 				continue
 			}
 
@@ -66,8 +68,10 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			}
 
 			dashboard := gqlmodel.Dashboard{
-				ID:    role.Role.Channel.ID,
-				Flags: append(dashboardsEntities[role.Role.Channel.ID].Flags, flags...),
+				ID:     role.Role.Channel.ID,
+				Flags:  append(dashboardsEntities[role.Role.Channel.ID].Flags, flags...),
+				PlanID: role.Role.Channel.PlanID,
+				APIKey: role.Role.Channel.User.ApiKey,
 			}
 
 			if role.Role.Channel.User != nil {

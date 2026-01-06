@@ -19,7 +19,7 @@ const maxTimers = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxTimers ?? 10
+	return selectedDashboard?.plan?.maxTimers ?? 10
 })
 </script>
 

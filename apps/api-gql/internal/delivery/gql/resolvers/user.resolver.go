@@ -44,31 +44,11 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 
 // Plan is the resolver for the plan field.
 func (r *dashboardResolver) Plan(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.Plan, error) {
-	plan, err := r.deps.PlansRepository.GetByChannelID(ctx, obj.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get plan: %w", err)
-	}
-
-	if plan.IsNil() {
-		return nil, fmt.Errorf("plan not found for channel")
-	}
-
-	return &gqlmodel.Plan{
-		ID:                    plan.ID,
-		Name:                  plan.Name,
-		MaxCommands:           plan.MaxCommands,
-		MaxTimers:             plan.MaxTimers,
-		MaxVariables:          plan.MaxVariables,
-		MaxAlerts:             plan.MaxAlerts,
-		MaxEvents:             plan.MaxEvents,
-		MaxChatAlertsMessages: plan.MaxChatAlertsMessages,
-		MaxCustomOverlays:     plan.MaxCustomOverlays,
-		MaxEightballAnswers:   plan.MaxEightballAnswers,
-		MaxCommandsResponses:  plan.MaxCommandsResponses,
-		MaxModerationRules:    plan.MaxModerationRules,
-		MaxKeywords:           plan.MaxKeywords,
-		MaxGreetings:          plan.MaxGreetings,
-	}, nil
+	// Use dataloader to get plan by channel ID
+	return data_loader.GetPlanByChannelID(ctx, data_loader.GetPlayByChannelId{
+		ChannelID: obj.ID,
+		PlanID:    obj.PlanID,
+	})
 }
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
@@ -243,6 +223,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		authedUser.IsEnabled = &user.Channel.IsEnabled
 		authedUser.IsBotModerator = &user.Channel.IsBotMod
 		authedUser.BotID = &user.Channel.BotID
+		authedUser.PlanID = user.Channel.PlanID
 	}
 
 	return authedUser, nil

@@ -71,7 +71,7 @@ const maxCustomOverlays = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxCustomOverlays ?? 10
+	return selectedDashboard?.plan?.maxCustomOverlays ?? 10
 })
 
 const isCreateDisabled = computed(() => {

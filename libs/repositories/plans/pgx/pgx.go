@@ -86,7 +86,7 @@ func (r *repository) GetByID(ctx context.Context, id string) (plan.Plan, error) 
 	return r.dbToEntity(dbPlan), nil
 }
 
-func (r *repository) GetByNameID(ctx context.Context, nameID string) (plan.Plan, error) {
+func (r *repository) GetByName(ctx context.Context, name string) (plan.Plan, error) {
 	query, args, err := squirrel.Select(
 		"id",
 		"name",
@@ -106,7 +106,7 @@ func (r *repository) GetByNameID(ctx context.Context, nameID string) (plan.Plan,
 		"updated_at",
 	).
 		From("plans").
-		Where(squirrel.Eq{"name": nameID}).
+		Where(squirrel.Eq{"name": name}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	if err != nil {
@@ -197,6 +197,87 @@ func (r *repository) GetByChannelID(ctx context.Context, channelID string) (plan
 	}
 
 	return r.dbToEntity(dbPlan), nil
+}
+
+func (r *repository) GetManyByIDs(ctx context.Context, ids []string) ([]plan.Plan, error) {
+	if len(ids) == 0 {
+		return []plan.Plan{}, nil
+	}
+
+	query, args, err := squirrel.Select(
+		"id",
+		"name",
+		"max_commands",
+		"max_timers",
+		"max_variables",
+		"max_alerts",
+		"max_events",
+		"max_chat_alerts_messages",
+		"max_custom_overlays",
+		"max_eightball_answers",
+		"max_commands_responses",
+		"max_moderation_rules",
+		"max_keywords",
+		"max_greetings",
+		"created_at",
+		"updated_at",
+	).
+		From("plans").
+		Where(squirrel.Eq{"id": ids}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := r.db.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query plans: %w", err)
+	}
+	defer rows.Close()
+
+	plansMap := make(map[string]plan.Plan)
+	for rows.Next() {
+		var dbPlan model.Plan
+		err = rows.Scan(
+			&dbPlan.ID,
+			&dbPlan.Name,
+			&dbPlan.MaxCommands,
+			&dbPlan.MaxTimers,
+			&dbPlan.MaxVariables,
+			&dbPlan.MaxAlerts,
+			&dbPlan.MaxEvents,
+			&dbPlan.MaxChatAlertsMessages,
+			&dbPlan.MaxCustomOverlays,
+			&dbPlan.MaxEightballAnswers,
+			&dbPlan.MaxCommandsResponses,
+			&dbPlan.MaxModerationRules,
+			&dbPlan.MaxKeywords,
+			&dbPlan.MaxGreetings,
+			&dbPlan.CreatedAt,
+			&dbPlan.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan plan: %w", err)
+		}
+		plansMap[dbPlan.ID] = r.dbToEntity(dbPlan)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows error: %w", err)
+	}
+
+	// Return plans in the same order as requested IDs
+	result := make([]plan.Plan, len(ids))
+	for i, id := range ids {
+		if p, ok := plansMap[id]; ok {
+			result[i] = p
+		} else {
+			result[i] = plan.Nil
+		}
+	}
+
+	return result, nil
 }
 
 func (r *repository) dbToEntity(m model.Plan) plan.Plan {

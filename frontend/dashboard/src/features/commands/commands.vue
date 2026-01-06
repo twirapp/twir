@@ -55,7 +55,7 @@ const maxCommands = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxCommands ?? 50
+	return selectedDashboard?.plan?.maxCommands ?? 50
 })
 
 const isCreateDisabled = computed(() => {

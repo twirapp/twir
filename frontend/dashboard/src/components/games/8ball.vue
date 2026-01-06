@@ -21,7 +21,7 @@ const maxAnswers = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxEightballAnswers ?? 25
+	return selectedDashboard?.plan?.maxEightballAnswers ?? 25
 })
 
 const gamesManager = useGamesApi()

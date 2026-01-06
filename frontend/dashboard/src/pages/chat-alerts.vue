@@ -15,7 +15,7 @@ const maxChatAlertsMessages = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxChatAlertsMessages ?? 20
+	return selectedDashboard?.plan?.maxChatAlertsMessages ?? 20
 })
 
 const pageTabs = computed<PageLayoutTab[]>(() => [

@@ -51,7 +51,7 @@ const maxCommandResponses = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxCommandsResponses ?? 3
+	return selectedDashboard?.plan?.maxCommandsResponses ?? 3
 })
 
 function handlePush() {

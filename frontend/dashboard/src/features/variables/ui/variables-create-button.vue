@@ -18,7 +18,7 @@ const maxVariables = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxVariables ?? 50
+	return selectedDashboard?.plan?.maxVariables ?? 50
 })
 
 const isCreateDisabled = computed(() => {

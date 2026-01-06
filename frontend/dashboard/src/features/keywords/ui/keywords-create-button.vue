@@ -20,7 +20,7 @@ const maxKeywords = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxKeywords ?? 50
+	return selectedDashboard?.plan?.maxKeywords ?? 50
 })
 
 const keywordsLength = computed(() => keywords.data.value?.keywords.length ?? 0)

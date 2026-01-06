@@ -21,7 +21,7 @@ const maxGreetings = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxGreetings ?? 50
+	return selectedDashboard?.plan?.maxGreetings ?? 50
 })
 
 const greetingsLength = computed(() => greetingsData.value?.greetings.length ?? 0)
