@@ -21,7 +21,7 @@ const maxAlerts = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxAlerts ?? 50
+	return selectedDashboard?.plan?.maxAlerts ?? 50
 })
 
 const alertsLength = computed(() => alertsData.value?.channelAlerts.length ?? 0)

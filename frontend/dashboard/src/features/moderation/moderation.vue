@@ -33,7 +33,7 @@ const maxModerationRules = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxModerationRules ?? 50
+	return selectedDashboard?.plan?.maxModerationRules ?? 50
 })
 
 const isCreateDisabled = computed(() => {

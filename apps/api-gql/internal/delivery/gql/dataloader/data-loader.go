@@ -6,6 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/vikstrous/dataloadgen"
+	"go.uber.org/fx"
+
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	channelsemotesusages "github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
@@ -13,8 +16,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/libs/cache/twitch"
-	"github.com/vikstrous/dataloadgen"
-	"go.uber.org/fx"
+	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
 )
 
 type ctxKey string
@@ -32,6 +34,7 @@ type Opts struct {
 	CommandsResponsesService *commands_responses.Service
 	TwitchService            *twitchservice.Service
 	EmoteStatisticService    *channelsemotesusages.Service
+	PlansRepository          plansrepository.Repository
 }
 
 type dataLoader struct {
@@ -43,6 +46,7 @@ type dataLoader struct {
 	commandsGroupsByIdLoader    *dataloadgen.Loader[uuid.UUID, *gqlmodel.CommandGroup]
 	commandsResponsesByIDLoader *dataloadgen.Loader[uuid.UUID, []gqlmodel.CommandResponse]
 	emoteStatistic              *dataloadgen.Loader[EmoteRangeKey, []gqlmodel.EmoteStatisticUsage]
+	plansByChannelIDLoader      *dataloadgen.Loader[GetPlayByChannelId, *gqlmodel.Plan]
 }
 
 type LoaderFactory struct {
@@ -87,6 +91,11 @@ func (c *LoaderFactory) Load() *dataLoader {
 
 	loader.emoteStatistic = dataloadgen.NewLoader(
 		loader.getEmoteStatistic,
+		dataloadgen.WithWait(time.Millisecond),
+	)
+
+	loader.plansByChannelIDLoader = dataloadgen.NewLoader(
+		loader.getPlansByChannelIDs,
 		dataloadgen.WithWait(time.Millisecond),
 	)
 

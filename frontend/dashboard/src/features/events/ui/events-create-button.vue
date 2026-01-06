@@ -21,7 +21,7 @@ const maxEvents = computed(() => {
 	const selectedDashboard = profile.value?.availableDashboards.find(
 		(d) => d.id === profile.value?.selectedDashboardId
 	)
-	return selectedDashboard?.plan.maxEvents ?? 50
+	return selectedDashboard?.plan?.maxEvents ?? 50
 })
 
 const eventsLength = computed(() => events.value?.events?.length ?? 0)
