@@ -7,12 +7,6 @@ import type { TTSSayMessage } from '@/types.js'
 import { useTTSOverlayGraphQL } from '@/composables/tts/use-tts-graphql.js'
 import { openApi } from '@/api.js'
 
-declare global {
-	interface Window {
-		webkitAudioContext: typeof AudioContext
-	}
-}
-
 const isProcessing = ref(false)
 const queueMessages = ref<TTSSayMessage[]>([])
 const currentAudioBuffer = ref<AudioBufferSourceNode | null>(null)
