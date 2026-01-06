@@ -1,7 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-// import { analyzer, unstableRolldownAdapter } from 'vite-bundle-analyzer'
+import { analyzer, unstableRolldownAdapter } from 'vite-bundle-analyzer'
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { webUpdateNotice } from '@plugin-web-update-notification/vite'
@@ -13,6 +13,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+	const analyzeMode = process.env.ANALYZE
 	const env = loadEnv(mode, path.resolve(process.cwd(), '..', '..'), '')
 
 	const plugins: PluginOption[] = [
@@ -36,7 +37,10 @@ export default defineConfig(({ mode }) => {
 		}),
 		tailwindcss(),
 		// https://github.com/nonzzz/vite-bundle-analyzer
-		// unstableRolldownAdapter(analyzer()),
+		// ANALYZE=server bun run build
+		analyzeMode && unstableRolldownAdapter(analyzer({
+			analyzerMode: analyzeMode === 'json' ? 'json' : 'server',
+		})),
 	]
 
 	if (mode === 'development') {
