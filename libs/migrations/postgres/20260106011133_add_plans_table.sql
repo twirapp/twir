@@ -57,7 +57,7 @@ ADD COLUMN plan_id UUID REFERENCES plans(id) ON DELETE SET NULL;
 
 -- Set all existing channels to free plan
 UPDATE channels
-SET plan_id = (SELECT id FROM plans WHERE name = 'free');
+SET plan_id = (SELECT id FROM plans WHERE name = 'Free');
 
 -- Create function to set default plan
 CREATE OR REPLACE FUNCTION set_default_plan_for_channel()
