@@ -88,6 +88,7 @@ export function loadEruda() {
 	script.onload = () => {
 		if (!window.eruda) return
 		window.eruda.init()
+		window.eruda.show()
 	}
 
 	script.onerror = () => {
