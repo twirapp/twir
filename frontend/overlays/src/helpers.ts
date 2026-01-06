@@ -78,17 +78,30 @@ export function normalizeDisplayName(displayName: string, userName: string): str
 }
 
 export function loadEruda() {
-  const script = document.createElement('script')
-  script.src = 'https://cdn.jsdelivr.net/npm/eruda@3.4.3/eruda.min.js'
+	const url = new URL(location.href)
+	const isDebug = url.searchParams.get('debug')
+	if (!isDebug) return
 
-  script.onload = () => {
-    if (!window.eruda) return
-    window.eruda.init()
-  }
+	const script = document.createElement('script')
+	script.src = 'https://cdn.jsdelivr.net/npm/eruda@3.4.3_/eruda.min.js'
 
-  script.onerror = () => {
-    console.error('Failed to load Eruda script')
-  }
+	script.onload = () => {
+		if (!window.eruda) return
+		window.eruda.init()
+	}
 
-  document.head.append(script)
+	script.onerror = () => {
+		const error = document.createElement('div')
+		error.textContent = 'Failed to load eruda'
+		Object.assign(error.style, {
+			background: 'red',
+			color: 'white',
+			textAlign: 'center',
+			fontWeight: 'bold',
+			padding: '10px 0',
+		})
+		document.body.prepend(error)
+	}
+
+	document.head.append(script)
 }

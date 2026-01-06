@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 declare global {
-  interface Window {
+	interface Window {
 		eruda: any
 	}
 }
