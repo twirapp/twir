@@ -64,7 +64,7 @@ CREATE OR REPLACE FUNCTION set_default_plan_for_channel()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.plan_id IS NULL THEN
-        NEW.plan_id := (SELECT id FROM plans WHERE name = 'free' LIMIT 1);
+        NEW.plan_id := (SELECT id FROM plans WHERE name = 'Free' LIMIT 1);
     END IF;
     RETURN NEW;
 END;
