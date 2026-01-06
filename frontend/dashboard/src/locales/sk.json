@@ -369,6 +369,7 @@
 		"onlineOnly": "Vykonávať len pri vysielaní online",
 		"type": "Typ",
 		"description": "Popis",
+		"limitExceeded": "Event Limit exceeded!",
 		"targetCommand": "Cieľový príkaz",
 		"targetVariable": "Cieľová premenná",
 		"targetTwitchReward": "Vyberte odmenu za kanál",
@@ -860,6 +861,7 @@
 		"regularDescriptionCheatSheet": "Ťahák",
 		"settings": "Nastavenia",
 		"cooldown": "Cooldown (v sekundách)",
+		"limitExceeded": "Keyword Limit exceeded!",
 		"validations": {
 			"triggerRequired": "Spúšťací text je povinný!",
 			"triggerLong": "Spúšťací text je príliš dlhy!",
@@ -879,6 +881,7 @@
 		"title": "Uvítacia správa",
 		"create": "Vytvoriť pozdrav",
 		"edit": "Upraviť pozdrav",
+		"limitExceeded": "Greeting Limit exceeded!",
 		"info": {
 			"title": "Informácie o pozdrave",
 			"text": "Pozdravy sú typom správ, ktoré bot používa na privítanie známych divákov, keď pošlú svoju prvú správu v chate v každom streame. Ak chcete privítať každého používateľa v chate, môžete sa namiesto kategórie Pozdravy pozrieť na kategóriu Udalosti."
@@ -896,6 +899,7 @@
 		"name": "Názov",
 		"rewards": "Odmeny",
 		"commands": "Príkazy",
+		"limitExceeded": "Alert Limit exceeded!",
 		"validations": {
 			"name": "Názov nesmie byť prázdny alebo dlhší ako 30 znakov!"
 		},
@@ -1089,6 +1093,7 @@
 		"name": "Názov prekrytia",
 		"createNewLayer": "Vytvoriť novú vrstvu",
 		"createNew": "Create New Overlay",
+		"limitExceeded": "Custom Overlay Limit exceeded!",
 		"layers": "Layers",
 		"validations": {
 			"name": "Názov prekrytia nemôže byť prázdny a dlhší ako 30 znakov!",
@@ -1105,6 +1110,8 @@
 		}
 	},
 	"chatAlerts": {
+		"totalMessagesLimit": "Total Messages Limit",
+		"totalMessagesDescription": "You are using {current} out of {max} total messages across all chat alert categories.",
 		"randomedMessage": "Ak existuje niekoľko variantov upozornení v chate, vyberú sa náhodne.",
 		"randomMessageWithCount": "Ak existuje niekoľko variantov s rovnakým číslom počítadla, vyberú sa náhodne.",
 		"replacedInfo": "Dostupné premenné: {vars}. Budú nahradené aktuálnymi informáciami v upozornení.",
@@ -1133,6 +1140,7 @@
 	"moderation": {
 		"name": "Názov pravidla, len pre tvoju orientáciu v zozname",
 		"createNewRule": "Vytvorenie nového pravidla moderácie",
+		"limitExceeded": "Moderation Rules Limit exceeded!",
 		"banTime": "Dĺžka timeoutu",
 		"banDescription": "Nastavte na 0 pre trvalý ban.",
 		"banMessage": "Správa timeoutu",
