@@ -369,6 +369,7 @@
 		"onlineOnly": "Nur Online-Ausführung",
 		"type": "Art",
 		"description": "Beschreibung",
+		"limitExceeded": "Event Limit exceeded!",
 		"targetCommand": "Ziel-Befehl",
 		"targetVariable": "Ziel-Variable",
 		"targetTwitchReward": "Ziel Twitch Belohnung",
@@ -860,6 +861,7 @@
 		"regularDescriptionCheatSheet": "Spickzettel",
 		"settings": "Einstellungen",
 		"cooldown": "Abklingzeit (in Sekunden)",
+		"limitExceeded": "Keyword Limit exceeded!",
 		"validations": {
 			"triggerRequired": "Auslösefeld ist erforderlich!",
 			"triggerLong": "Auslösetext ist zu lang!",
@@ -879,6 +881,7 @@
 		"title": "Begrüßung",
 		"create": "Begrüßung erstellen",
 		"edit": "Begrüßung bearbeiten",
+		"limitExceeded": "Greeting Limit exceeded!",
 		"info": {
 			"title": "Grüßinformationen",
 			"text": "Grüße sind eine Art von Nachrichten, die Bot verwendet, um bekannte Stream-Zuschauer willkommen zu heißen, wenn sie ihre erste Nachricht im Chat auf jedem Stream senden. Wenn Sie jeden Benutzer im Chat begrüßen möchten, dann können Sie sich die Veranstaltungskategorie ansehen, anstatt Grüße."
@@ -896,6 +899,7 @@
 		"name": "Name",
 		"rewards": "Belohnungen",
 		"commands": "Befehle",
+		"limitExceeded": "Alert Limit exceeded!",
 		"validations": {
 			"name": "Der Name darf nicht leer oder länger als 30 Zeichen sein!"
 		},
@@ -1089,6 +1093,7 @@
 		"name": "Overlay Name",
 		"createNewLayer": "Neue Ebene erstellen",
 		"createNew": "Create New Overlay",
+		"limitExceeded": "Custom Overlay Limit exceeded!",
 		"layers": "Layers",
 		"validations": {
 			"name": "Overlay Name darf nicht leer sein und muss länger als 30 Zeichen sein!",
@@ -1105,6 +1110,8 @@
 		}
 	},
 	"chatAlerts": {
+		"totalMessagesLimit": "Total Messages Limit",
+		"totalMessagesDescription": "You are using {current} out of {max} total messages across all chat alert categories.",
 		"randomedMessage": "Wenn es mehrere Varianten der Chat Alerts gibt, wird zufällig ausgewählt.<br>",
 		"randomMessageWithCount": "Wenn es mehrere Varianten mit der gleichen Zählernummer gibt, wird zufällig ausgewählt.<br>",
 		"replacedInfo": "Verfügbare Variablen: {vars}. Sie werden durch die tatsächlichen Informationen im Alert ersetzt.<br>",
@@ -1133,6 +1140,7 @@
 	"moderation": {
 		"name": "Name der Regel, nur damit du den Namen bequem in der Liste sehen kannst",
 		"createNewRule": "Erstelle eine neue Moderations-Regel",
+		"limitExceeded": "Moderation Rules Limit exceeded!",
 		"banTime": "Timeout Zeit",
 		"banDescription": "Auf 0 gesetzt für permanenten Bann.",
 		"banMessage": "Timeout Nachricht",
