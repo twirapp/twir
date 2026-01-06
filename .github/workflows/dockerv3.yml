@@ -64,7 +64,7 @@ jobs:
             .bun-version
             package.json
             .github/workflows/dockerv3.yml
-            .bunfig.toml
+            bunfig.toml
             bun.lock
 
       - name: Determine if build should run
