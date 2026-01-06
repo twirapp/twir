@@ -83,7 +83,7 @@ export function loadEruda() {
 	if (!isDebug) return
 
 	const script = document.createElement('script')
-	script.src = 'https://cdn.jsdelivr.net/npm/eruda@3.4.3_/eruda.min.js'
+	script.src = 'https://cdn.jsdelivr.net/npm/eruda@3.4.3/eruda.min.js'
 
 	script.onload = () => {
 		if (!window.eruda) return
