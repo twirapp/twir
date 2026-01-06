@@ -109,7 +109,12 @@ export default defineConfig(({ mode }) => {
 						}
 
 						if (id.includes('src/api/')) {
-							return 'api'
+							const match = id.match(/src\/api\/([^/]+)/)
+							if (match && match[1]) {
+								const fileName = match[1].replace(/\.ts$/, '')
+								return `api-${fileName}`
+							}
+							return 'api-common'
 						}
 
 						if (id.includes('src/composables/')) {
@@ -124,9 +129,10 @@ export default defineConfig(({ mode }) => {
 						}
 
 						if (id.includes('src/components/')) {
-							const match = id.match(/src\/components\/([^/]+)/)
-							if (match) {
-								return `components-${match[1]}`
+							const match = id.match(/src\/components\/([^/]+(?:\/[^/]+)?)/)
+							if (match && match[1]) {
+								const path = match[1].replace(/\.(ts|vue)$/, '').replace(/\//g, '-')
+								return `components-${path}`
 							}
 							return 'components-common'
 						}
