@@ -369,6 +369,7 @@
 		"onlineOnly": "Ejecución sólo en línea",
 		"type": "Tipo",
 		"description": "Descripción",
+		"limitExceeded": "Event Limit exceeded!",
 		"targetCommand": "Objetivo de comando",
 		"targetVariable": "Objetivo variable",
 		"targetTwitchReward": "Recompense de objetivo Twitch",
@@ -860,6 +861,7 @@
 		"regularDescriptionCheatSheet": "Hoja de referencia",
 		"settings": "Ajustes",
 		"cooldown": "Tiempo de reutilización (en segundos)",
+		"limitExceeded": "Keyword Limit exceeded!",
 		"validations": {
 			"triggerRequired": "¡Se requiere texto de activación!",
 			"triggerLong": "¡El nombre del temporizador es demasiado largo!",
@@ -879,6 +881,7 @@
 		"title": "Saludos",
 		"create": "Crear saludo",
 		"edit": "Editar saludo",
+		"limitExceeded": "Greeting Limit exceeded!",
 		"info": {
 			"title": "Información de Saludos",
 			"text": "Los saludos son un tipo de mensajes que el bot utiliza para dar la bienvenida a los espectadores conocidos de transmisión cuando envían su primer mensaje en el chat en cada transmisión. Si desea saludar a todos los usuarios en el chat, puede mirar la categoría de eventos en lugar de Saludos."
@@ -896,6 +899,7 @@
 		"name": "Nombre",
 		"rewards": "Recompensas",
 		"commands": "Comandos",
+		"limitExceeded": "Alert Limit exceeded!",
 		"validations": {
 			"name": "¡El nombre no puede estar vacío ni tener más de 30 símbolos!"
 		},
@@ -1089,6 +1093,7 @@
 		"name": "Nombre de superposición",
 		"createNewLayer": "Crear nueva capa",
 		"createNew": "Create New Overlay",
+		"limitExceeded": "Custom Overlay Limit exceeded!",
 		"layers": "Layers",
 		"validations": {
 			"name": "¡El nombre de superposición no puede estar vacío y tener más de 30 símbolos!",
@@ -1105,6 +1110,8 @@
 		}
 	},
 	"chatAlerts": {
+		"totalMessagesLimit": "Total Messages Limit",
+		"totalMessagesDescription": "You are using {current} out of {max} total messages across all chat alert categories.",
 		"randomedMessage": "Si hay varias variantes de las alertas de chat, se seleccionarán al azar.<br>",
 		"randomMessageWithCount": "Si hay varias variantes con el mismo número de contador, entonces se elegirán al azar.<br>",
 		"replacedInfo": "Variables disponibles: {vars}. Se reemplazarán con la información real en la alerta.<br>",
@@ -1133,6 +1140,7 @@
 	"moderation": {
 		"name": "Nombre de la regla, solo para su comodidad para ver el nombre en la lista",
 		"createNewRule": "Crear una nueva regla de moderación",
+		"limitExceeded": "Moderation Rules Limit exceeded!",
 		"banTime": "Tiempo de espera",
 		"banDescription": "Establecer en 0 para el bloqueo permanente.",
 		"banMessage": "Mensaje de tiempo de espera",
