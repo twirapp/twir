@@ -1,0 +1,23 @@
+{
+	"$schema": "https://pg-language-server.com/latest/schema.json",
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true
+		}
+	},
+	"typecheck": {
+		"enabled": true
+	},
+	"plpgsqlCheck": {
+		"enabled": true
+	},
+	"db": {
+		"connectionString": "postgres://twir:twir@127.0.0.1:54321/twir?sslmode=disable&schema=public",
+		"connTimeoutSecs": 10,
+		"allowStatementExecutionsAgainst": ["127.0.0.1/*", "localhost/*"]
+	},
+	"files": {
+		"ignore": ["./libs/migrations/clickhouse"]
+	}
+}

@@ -1,5 +1,15 @@
 {
 	"project_name": "TwirApp",
+	"auto_install_extensions": {
+		"dockerfile": true,
+		"sql": true,
+		"vue": true,
+		"graphql": true,
+		"golangci-lint": true,
+		"oxc": true,
+		"caddyfile": true,
+		"postgres-language-server": true,
+	},
 	"languages": {
 		"JavaScript": {
 			"format_on_save": "on",
