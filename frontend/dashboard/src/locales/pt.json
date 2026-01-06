@@ -369,6 +369,7 @@
 		"onlineOnly": "Executar Apenas Online",
 		"type": "Tipo",
 		"description": "Descrição",
+		"limitExceeded": "Event Limit exceeded!",
 		"targetCommand": "Comando de Destino",
 		"targetVariable": "Variável de Destino",
 		"targetTwitchReward": "Recompensa de Destino da Twitch",
@@ -860,6 +861,7 @@
 		"regularDescriptionCheatSheet": "guia rápido",
 		"settings": "Configurações",
 		"cooldown": "Tempo de Espera (em segundos)",
+		"limitExceeded": "Keyword Limit exceeded!",
 		"validations": {
 			"triggerRequired": "O Texto de Gatilho é obrigatório!",
 			"triggerLong": "O Texto de Gatilho é muito longo!",
@@ -879,6 +881,7 @@
 		"title": "Saudações",
 		"create": "Criar saudação",
 		"edit": "Editar saudação",
+		"limitExceeded": "Greeting Limit exceeded!",
 		"info": {
 			"title": "Informação da Saudação",
 			"text": "Saudações são um tipo de mensagem que o bot usa para dar boas-vindas aos espectadores conhecidos quando eles enviam sua primeira mensagem no chat em cada transmissão. Se você deseja cumprimentar todos os usuários no chat, então pode conferir a categoria de eventos em vez de Saudações."
@@ -896,6 +899,7 @@
 		"name": "Nome",
 		"rewards": "Recompensas",
 		"commands": "Comandos",
+		"limitExceeded": "Alert Limit exceeded!",
 		"validations": {
 			"name": "O Nome não pode estar em branco ou ter mais de 30 símbolos!"
 		},
@@ -1089,6 +1093,7 @@
 		"name": "Nome da Sobreposição",
 		"createNewLayer": "Criar Nova Camada",
 		"createNew": "Create New Overlay",
+		"limitExceeded": "Custom Overlay Limit exceeded!",
 		"layers": "Layers",
 		"validations": {
 			"name": "O Nome da Camada não pode estar em branco e ter mais de 30 símbolos!",
@@ -1105,6 +1110,8 @@
 		}
 	},
 	"chatAlerts": {
+		"totalMessagesLimit": "Total Messages Limit",
+		"totalMessagesDescription": "You are using {current} out of {max} total messages across all chat alert categories.",
 		"randomedMessage": "Se houver muitas variantes dos alertas do chat, elas serão selecionadas aleatoriamente.<br>",
 		"randomMessageWithCount": "Se houver muitas variantes com o mesmo número de contagem, elas serão selecionadas aleatoriamente.<br>",
 		"replacedInfo": "Variáveis Disponíveis: {vars}. Elas serão substituídas pelas informações reais no alerta.<br>",
@@ -1133,6 +1140,7 @@
 	"moderation": {
 		"name": "Nome da regra, apenas para facilitar a visualização do nome na lista",
 		"createNewRule": "Criar uma Nova Regra de Moderação",
+		"limitExceeded": "Moderation Rules Limit exceeded!",
 		"banTime": "Tempo de Suspensão",
 		"banDescription": "Defina como 0 para banimento permanente.",
 		"banMessage": "Mensagem de Suspensão",
