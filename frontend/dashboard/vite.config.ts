@@ -1,6 +1,6 @@
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import tailwindcss from '@tailwindcss/vite'
-// import { webUpdateNotice } from '@plugin-web-update-notification/vite'
+import { webUpdateNotice } from '@plugin-web-update-notification/vite'
 import svgSprite from '@twirapp/vite-plugin-svg-spritemap'
 import vue from '@vitejs/plugin-vue'
 import path from 'node:path'
@@ -18,16 +18,16 @@ export default defineConfig(({ mode }) => {
 	const plugins: PluginOption[] = [
 		vue(),
 		svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
-		// webUpdateNotice({
-		// 	notificationProps: {
-		// 		title: 'New version',
-		// 		description:
-		// 			'An update available, please refresh the page to get latest features and bug fixes!',
-		// 		buttonText: 'refresh',
-		// 		dismissButtonText: 'cancel',
-		// 	},
-		// 	checkInterval: 1 * 60 * 1000,
-		// }),
+		webUpdateNotice({
+			notificationProps: {
+				title: 'New version',
+				description:
+					'An update available, please refresh the page to get latest features and bug fixes!',
+				buttonText: 'refresh',
+				dismissButtonText: 'cancel',
+			},
+			checkInterval: 1 * 60 * 1000,
+		}),
 		VueI18nPlugin({
 			include: [path.resolve(__dirname, './src/locales/**')],
 			strictMessage: false,
@@ -81,7 +81,6 @@ export default defineConfig(({ mode }) => {
 					entryFileNames: 'assets/[name]-[hash].js',
 					assetFileNames: 'assets/[name]-[hash].[ext]',
 					advancedChunks: {
-						includeDependenciesRecursively: false,
 						groups: [
 							{
 								test: /@vue\+/,
@@ -90,6 +89,10 @@ export default defineConfig(({ mode }) => {
 							{
 								test: /@vuepic/,
 								name: 'vuepic',
+							},
+							{
+								test: /vue-draggable-plus/,
+								name: 'vue-draggable-plus',
 							},
 							{
 								test: /vexip/,
@@ -164,71 +167,71 @@ export default defineConfig(({ mode }) => {
 								name: 'interactjs',
 							},
 							{
-								test: /\/gql[./]/,
+								test: /\/src\/gql/,
 								name: 'gql',
 							},
 							{
-								test: /\/src\/api\//,
+								test: /\/src\/api/,
 								name: 'api',
 							},
 							{
-								test: /\/src\/components\/ui\//,
+								test: /\/src\/components\/ui/,
 								name: 'components-ui',
 							},
 							{
-								test: /\/src\/components\/dashboard\//,
+								test: /\/src\/components\/dashboard/,
 								name: 'components-dashboard',
 							},
 							{
-								test: /\/src\/components\//,
+								test: /\/src\/components/,
 								name: 'components',
 							},
 							{
-								test: /\/src\/features\/overlays\//,
+								test: /\/src\/features\/overlays/,
 								name: 'features-overlays',
 							},
 							{
-								test: /\/src\/features\/overlay-builder\//,
+								test: /\/src\/features\/overlay-builder/,
 								name: 'features-overlay-builder',
 							},
 							{
-								test: /\/src\/features\/admin-panel\//,
+								test: /\/src\/features\/admin-panel/,
 								name: 'features-admin-panel',
 							},
 							{
-								test: /\/src\/features\/events\//,
+								test: /\/src\/features\/events/,
 								name: 'features-events',
 							},
 							{
-								test: /\/src\/features\/giveaways\//,
+								test: /\/src\/features\/giveaways/,
 								name: 'features-giveaways',
 							},
 							{
-								test: /\/src\/features\/bot-settings\//,
+								test: /\/src\/features\/bot-settings/,
 								name: 'features-bot-settings',
 							},
 							{
-								test: /\/src\/features\/commands\//,
+								test: /\/src\/features\/commands/,
 								name: 'features-commands',
 							},
 							{
-								test: /\/src\/features\/integrations\//,
+								test: /\/src\/features\/integrations/,
 								name: 'features-integrations',
 							},
 							{
-								test: /\/src\/features\/moderation\//,
+								test: /\/src\/features\/moderation/,
 								name: 'features-moderation',
 							},
 							{
-								test: /\/src\/features\/community\//,
+								test: /\/src\/features\/community/,
 								name: 'features-community',
 							},
 							{
-								test: /\/src\/features\/dudes-settings\//,
+								test: /\/src\/features\/dudes-settings/,
 								name: 'features-dudes-settings',
 							},
 							{
-								test: /\/src\/features\//,
+								test: /\/src\/features/,
 								name: 'features-misc',
 							},
 						],
