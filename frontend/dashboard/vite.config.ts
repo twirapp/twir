@@ -78,75 +78,158 @@ export default defineConfig(({ mode }) => {
 					chunkFileNames: 'assets/[name]-[hash].js',
 					entryFileNames: 'assets/[name]-[hash].js',
 					assetFileNames: 'assets/[name]-[hash].[ext]',
-
-					manualChunks: (id) => {
-						if (id.includes('node_modules')) {
-							if (id.includes('node_modules/.bun/')) {
-								const match = id.match(/\.bun\/([^@/]+)@/)
-								if (match && match[1]) {
-									return `vendor-${match[1]}`
-								}
-
-								const simpleMatch = id.match(/\.bun\/([^/]+)/)
-								if (simpleMatch && simpleMatch[1] && simpleMatch[1] !== '.bun') {
-									return `vendor-${simpleMatch[1]}`
-								}
-
-								return 'vendor-common'
-							}
-
-							const match = id.match(/node_modules\/(@[^/]+\/[^/]+|[^/@]+)/)
-							if (match && match[1]) {
-								const packageName = match[1].replace('@', '').replace('/', '-')
-								return `vendor-${packageName}`
-							}
-
-							return 'vendor-common'
-						}
-
-						if (id.includes('src/gql/')) {
-							return 'gql'
-						}
-
-						if (id.includes('src/plugins/')) {
-							return 'plugins'
-						}
-
-						if (id.includes('src/api/')) {
-							const match = id.match(/src\/api\/([^/]+)/)
-							if (match && match[1]) {
-								const fileName = match[1].replace(/\.ts$/, '')
-								return `api-${fileName}`
-							}
-							return 'api-common'
-						}
-
-						if (id.includes('src/composables/')) {
-							return 'composables'
-						}
-
-						if (id.includes('src/features/')) {
-							const match = id.match(/src\/features\/([^/]+)/)
-							if (match) {
-								return `feature-${match[1]}`
-							}
-						}
-
-						if (id.includes('src/components/')) {
-							const match = id.match(/src\/components\/([^/]+(?:\/[^/]+)?)/)
-							if (match && match[1]) {
-								const path = match[1].replace(/\.(ts|vue)$/, '').replace(/\//g, '-')
-								return `components-${path}`
-							}
-							return 'components-common'
-						}
-
-						if (id.includes('src/pages/')) {
-							const match = id.match(/src\/pages\/([^/]+)/)
-							if (match) {
-								return `page-${match[1].replace('.vue', '').toLowerCase()}`
-							}
-						}
+					advancedChunks: {
+						includeDependenciesRecursively: false,
+						groups: [
+							{
+								test: /@vue\+/,
+								name: 'vue',
+							},
+							{
+								test: /@vuepic/,
+								name: 'vuepic',
+							},
+							{
+								test: /vexip/,
+								name: 'vexip',
+							},
+							{
+								test: /vee-validate/,
+								name: 'vee-validate',
+							},
+							{
+								test: /@floating-ui/,
+								name: 'floating-ui',
+							},
+							{
+								test: /@formkit\+drag-and-drop/,
+								name: 'formkit-drag-and-drop',
+							},
+							{
+								test: /@tanstack\+table/,
+								name: 'tanstack-table',
+							},
+							{
+								test: /@tanstack\+query/,
+								name: 'tanstack-query',
+							},
+							{
+								test: /tailwind/,
+								name: 'tailwind',
+							},
+							{
+								test: /zod/,
+								name: 'zod',
+							},
+							{
+								test: /date-fns/,
+								name: 'date-fns',
+							},
+							{
+								test: /grid-layout-plus/,
+								name: 'grid-layout-plus',
+							},
+							{
+								test: /lucide-vue-next/,
+								name: 'lucide-vue-next',
+							},
+							{
+								test: /@tabler\+/,
+								name: 'tabler',
+							},
+							{
+								test: /@discord-message/,
+								name: 'discord-message',
+							},
+							{
+								test: /editorjs|editor-js/,
+								name: 'editorjs',
+							},
+							{
+								test: /lightweight-charts/,
+								name: 'lightweight-charts',
+							},
+							{
+								test: /croact-moveable/,
+								name: 'croact-moveable',
+							},
+							{
+								test: /reka-ui/,
+								name: 'reka-ui',
+							},
+							{
+								test: /interactjs/,
+								name: 'interactjs',
+							},
+							{
+								test: /\/gql[./]/,
+								name: 'gql',
+							},
+							{
+								test: /\/src\/api\//,
+								name: 'api',
+							},
+							{
+								test: /\/src\/components\/ui\//,
+								name: 'components-ui',
+							},
+							{
+								test: /\/src\/components\/dashboard\//,
+								name: 'components-dashboard',
+							},
+							{
+								test: /\/src\/components\//,
+								name: 'components',
+							},
+							{
+								test: /\/src\/features\/overlays\//,
+								name: 'features-overlays',
+							},
+							{
+								test: /\/src\/features\/overlay-builder\//,
+								name: 'features-overlay-builder',
+							},
+							{
+								test: /\/src\/features\/admin-panel\//,
+								name: 'features-admin-panel',
+							},
+							{
+								test: /\/src\/features\/events\//,
+								name: 'features-events',
+							},
+							{
+								test: /\/src\/features\/giveaways\//,
+								name: 'features-giveaways',
+							},
+							{
+								test: /\/src\/features\/bot-settings\//,
+								name: 'features-bot-settings',
+							},
+							{
+								test: /\/src\/features\/commands\//,
+								name: 'features-commands',
+							},
+							{
+								test: /\/src\/features\/integrations\//,
+								name: 'features-integrations',
+							},
+							{
+								test: /\/src\/features\/moderation\//,
+								name: 'features-moderation',
+							},
+							{
+								test: /\/src\/features\/community\//,
+								name: 'features-community',
+							},
+							{
+								test: /\/src\/features\/dudes-settings\//,
+								name: 'features-dudes-settings',
+							},
+							{
+								test: /\/src\/features\//,
+								name: 'features-misc',
+							},
+						],
 					},
 				},
 			},
