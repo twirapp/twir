@@ -1,15 +1,14 @@
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import tailwindcss from '@tailwindcss/vite'
+// import { webUpdateNotice } from '@plugin-web-update-notification/vite'
+import svgSprite from '@twirapp/vite-plugin-svg-spritemap'
+import vue from '@vitejs/plugin-vue'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { analyzer, unstableRolldownAdapter } from 'vite-bundle-analyzer'
-
-import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
-import { webUpdateNotice } from '@plugin-web-update-notification/vite'
-import svgSprite from '@twirapp/vite-plugin-svg-spritemap'
-import vue from '@vitejs/plugin-vue'
 import { type PluginOption, defineConfig, loadEnv } from 'vite'
+import { analyzer, unstableRolldownAdapter } from 'vite-bundle-analyzer'
 import { watch } from 'vite-plugin-watch'
-import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -19,16 +18,16 @@ export default defineConfig(({ mode }) => {
 	const plugins: PluginOption[] = [
 		vue(),
 		svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
-		webUpdateNotice({
-			notificationProps: {
-				title: 'New version',
-				description:
-					'An update available, please refresh the page to get latest features and bug fixes!',
-				buttonText: 'refresh',
-				dismissButtonText: 'cancel',
-			},
-			checkInterval: 1 * 60 * 1000,
-		}),
+		// webUpdateNotice({
+		// 	notificationProps: {
+		// 		title: 'New version',
+		// 		description:
+		// 			'An update available, please refresh the page to get latest features and bug fixes!',
+		// 		buttonText: 'refresh',
+		// 		dismissButtonText: 'cancel',
+		// 	},
+		// 	checkInterval: 1 * 60 * 1000,
+		// }),
 		VueI18nPlugin({
 			include: [path.resolve(__dirname, './src/locales/**')],
 			strictMessage: false,
@@ -38,9 +37,12 @@ export default defineConfig(({ mode }) => {
 		tailwindcss(),
 		// https://github.com/nonzzz/vite-bundle-analyzer
 		// ANALYZE=server bun run build
-		analyzeMode && unstableRolldownAdapter(analyzer({
-			analyzerMode: analyzeMode === 'json' ? 'json' : 'server',
-		})),
+		analyzeMode &&
+			unstableRolldownAdapter(
+				analyzer({
+					analyzerMode: analyzeMode === 'json' ? 'json' : 'server',
+				})
+			),
 	]
 
 	if (mode === 'development') {
