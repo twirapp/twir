@@ -15,27 +15,27 @@ function formatNumber(value?: number | bigint) {
 
 const stats = [
 	{
-		key: 'Channels',
+		key: 'Active Channels',
 		value: formatNumber(statsStore.stats?.channels),
 	},
 	{
-		key: 'Created commands',
+		key: 'Created Commands',
 		value: formatNumber(statsStore.stats?.createdCommands),
 	},
 	{
-		key: 'Viewers',
+		key: 'Users Seen',
 		value: formatNumber(statsStore.stats?.viewers),
 	},
 	{
-		key: 'Messages',
+		key: 'Messages Processed',
 		value: formatNumber(statsStore.stats?.messages),
 	},
 	{
-		key: 'Used emotes',
+		key: 'Emotes Processed',
 		value: formatNumber(statsStore.stats?.usedEmotes),
 	},
 	{
-		key: 'Used commands',
+		key: 'Commands Processed',
 		value: formatNumber(statsStore.stats?.usedCommands),
 	},
 ]
