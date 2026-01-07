@@ -107,7 +107,7 @@
         "@graphql-codegen/plugin-helpers": "6.0.0",
         "@graphql-typed-document-node/core": "catalog:",
         "@intlify/unplugin-vue-i18n": "11.0.3",
-        "@plugin-web-update-notification/vite": "1.7.1",
+        "@plugin-web-update-notification/vite": "2.0.2",
         "@protobuf-ts/runtime-rpc": "2.9.4",
         "@tailwindcss/container-queries": "0.1.1",
         "@twirapp/vite-plugin-svg-spritemap": "0.0.0",
@@ -1145,9 +1145,9 @@
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
-    "@plugin-web-update-notification/core": ["@plugin-web-update-notification/core@1.7.1", "", {}, "sha512-G5xbuFE4B3TGxM9FxYwUlbGleuWNUzdbw3ZNcht1WDn85Qbhgzk7lQwuXVilxZII6LhsghJ4Zdapw0jgzuCJQw=="],
+    "@plugin-web-update-notification/core": ["@plugin-web-update-notification/core@2.0.2", "", {}, "sha512-i3REg6H/3cSImf5fyUj4xYA4OTndnwQ9qLkl3dckZEkER0Tpky9RulUn4ZcMw+BL+oWCa63ldFTtZHW6DuI6GQ=="],
 
-    "@plugin-web-update-notification/vite": ["@plugin-web-update-notification/vite@1.7.1", "", { "dependencies": { "@plugin-web-update-notification/core": "1.7.1" }, "peerDependencies": { "vite": "^5.0.0 || >4.0.0 || ^3.0.0" } }, "sha512-qIP2JBt19gZGWjagZOGc0qatoLGa2h4GnrHjF1ETzVgHUuJMgBeZpqMjzO81MwbmOUQdWbvwlF3ZZhXopeXB/w=="],
+    "@plugin-web-update-notification/vite": ["@plugin-web-update-notification/vite@2.0.2", "", { "dependencies": { "@plugin-web-update-notification/core": "2.0.2" }, "peerDependencies": { "vite": "^7.0.0 || ^6.0.0 || ^5.0.0 || >4.0.0 || ^3.0.0" } }, "sha512-DHqUOC78+SWwT/xILoY07HoMFHfFNtdTAJZOK22YW7R7+cUyS1IGgkfSKsuLHXzu1n3S3mlg0nEEuhczXC3J4g=="],
 
     "@polka/url": ["@polka/url@1.0.0-next.29", "", {}, "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww=="],
 
@@ -3759,6 +3759,8 @@
 
     "@twir/integrations/@types/node": ["@types/node@20.12.7", "", { "dependencies": { "undici-types": "~5.26.4" } }, "sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg=="],
 
+    "@twir/overlays/@plugin-web-update-notification/vite": ["@plugin-web-update-notification/vite@1.7.1", "", { "dependencies": { "@plugin-web-update-notification/core": "1.7.1" }, "peerDependencies": { "vite": "^5.0.0 || >4.0.0 || ^3.0.0" } }, "sha512-qIP2JBt19gZGWjagZOGc0qatoLGa2h4GnrHjF1ETzVgHUuJMgBeZpqMjzO81MwbmOUQdWbvwlF3ZZhXopeXB/w=="],
+
     "@twir/overlays/@vueuse/core": ["@vueuse/core@13.3.0", "", { "dependencies": { "@types/web-bluetooth": "^0.0.21", "@vueuse/metadata": "13.3.0", "@vueuse/shared": "13.3.0" }, "peerDependencies": { "vue": "^3.5.0" } }, "sha512-uYRz5oEfebHCoRhK4moXFM3NSCd5vu2XMLOq/Riz5FdqZMy2RvBtazdtL3gEcmDyqkztDe9ZP/zymObMIbiYSg=="],
 
     "@twir/web/@urql/vue": ["@urql/vue@2.0.0", "", { "dependencies": { "@urql/core": "^6.0.0", "wonka": "^6.3.2" }, "peerDependencies": { "vue": "^3.2.0" } }, "sha512-9eW8IfEPwnGHxvqfH2t8cBSI5eKPyLq2dizFVYIRGHi4ydMw5Q+vuMD+VP0I9zo0818zZ9b8TGLiyAmOzvyoAQ=="],
@@ -4295,6 +4297,10 @@
 
     "@twir/integrations/@types/node/undici-types": ["undici-types@5.26.5", "", {}, "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="],
 
+    "@twir/overlays/@plugin-web-update-notification/vite/@plugin-web-update-notification/core": ["@plugin-web-update-notification/core@1.7.1", "", {}, "sha512-G5xbuFE4B3TGxM9FxYwUlbGleuWNUzdbw3ZNcht1WDn85Qbhgzk7lQwuXVilxZII6LhsghJ4Zdapw0jgzuCJQw=="],
+
+    "@twir/overlays/@plugin-web-update-notification/vite/vite": ["vite@7.2.7", "", { "dependencies": { "esbuild": "^0.25.0", "fdir": "^6.5.0", "picomatch": "^4.0.3", "postcss": "^8.5.6", "rollup": "^4.43.0", "tinyglobby": "^0.2.15" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^20.19.0 || >=22.12.0", "jiti": ">=1.21.0", "less": "^4.0.0", "lightningcss": "^1.21.0", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "jiti", "less", "lightningcss", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-ITcnkFeR3+fI8P1wMgItjGrR10170d8auB4EpMLPqmx6uxElH3a/hHGQabSHKdqd4FXWO1nFIp9rRn7JQ34ACQ=="],
+
     "@twir/overlays/@vueuse/core/@vueuse/metadata": ["@vueuse/metadata@13.3.0", "", {}, "sha512-42IzJIOYCKIb0Yjv1JfaKpx8JlCiTmtCWrPxt7Ja6Wzoq0h79+YVXmBV03N966KEmDEESTbp5R/qO3AB5BDnGw=="],
 
     "@twir/web/reka-ui/@vueuse/core": ["@vueuse/core@12.8.2", "", { "dependencies": { "@types/web-bluetooth": "^0.0.21", "@vueuse/metadata": "12.8.2", "@vueuse/shared": "12.8.2", "vue": "^3.5.13" } }, "sha512-HbvCmZdzAu3VGi/pWYm5Ut+Kd9mn1ZHnn4L5G8kOQTPs/IwIAmJoBrmYk2ckLArgMXZj0AW3n5CAejLUO+PhdQ=="],
@@ -4606,6 +4612,8 @@
     "@nuxtjs/sitemap/@nuxt/devtools-kit/execa/strip-final-newline": ["strip-final-newline@3.0.0", "", {}, "sha512-dOESqjYr96iWYylGObzd39EuNTa5VJxyvVAEm5Jnh7KGo75V43Hk1odPQkNDyXNmUR6k+gEiDVXnjB8HJ3crXw=="],
 
     "@nuxtjs/sitemap/@nuxt/devtools-kit/vite/picomatch": ["picomatch@4.0.3", "", {}, "sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q=="],
+
+    "@twir/overlays/@plugin-web-update-notification/vite/vite/picomatch": ["picomatch@4.0.3", "", {}, "sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q=="],
 
     "@twir/web/reka-ui/@vueuse/core/@vueuse/metadata": ["@vueuse/metadata@12.8.2", "", {}, "sha512-rAyLGEuoBJ/Il5AmFHiziCPdQzRt88VxR+Y/A/QhJ1EWtWqPBBAxTAFaSkviwEuOEZNtW8pvkPgoCZQ+HxqW1A=="],
 

@@ -80,7 +80,7 @@
 		"@graphql-codegen/plugin-helpers": "6.0.0",
 		"@graphql-typed-document-node/core": "catalog:",
 		"@intlify/unplugin-vue-i18n": "11.0.3",
-		"@plugin-web-update-notification/vite": "1.7.1",
+		"@plugin-web-update-notification/vite": "2.0.2",
 		"@protobuf-ts/runtime-rpc": "2.9.4",
 		"@tailwindcss/container-queries": "0.1.1",
 		"@twirapp/vite-plugin-svg-spritemap": "0.0.0",
