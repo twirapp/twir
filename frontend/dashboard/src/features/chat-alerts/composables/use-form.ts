@@ -1,12 +1,13 @@
+import type { KeysOfUnion, RequiredDeep, SetNonNullable } from 'type-fest'
+
 import { createGlobalState } from '@vueuse/core'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 
 import type { ChatAlerts } from '@/gql/graphql'
-import type { KeysOfUnion, RequiredDeep, SetNonNullable } from 'type-fest'
 
 import { useChatAlertsApi } from '@/api/chat-alerts.js'
-import { toast } from 'vue-sonner'
 
 export type FormKey = Exclude<KeysOfUnion<RequiredDeep<SetNonNullable<ChatAlerts>>>, '__typename'>
 
@@ -119,6 +120,7 @@ export const useForm = createGlobalState(() => {
 		} catch (error) {
 			toast.error(t('sharedTexts.errorOnSave'), {
 				duration: 2500,
+				description: `${error}`,
 			})
 		}
 	}

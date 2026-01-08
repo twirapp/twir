@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import OverlayBuilder from '@/features/overlay-builder/OverlayBuilder.vue'
@@ -123,8 +123,6 @@ async function handleInstantSave(project: OverlayProject) {
 	instantSavePositions(project)
 }
 
-// Cleanup on unmount
-import { onUnmounted } from 'vue'
 onUnmounted(() => {
 	closeWebSocket()
 })

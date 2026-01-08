@@ -27,7 +27,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-z
+
 const formSchema = toTypedSchema(
 	z.object({
 		name: z.string().min(1, t('roles.validations.nameRequired')).max(50),
