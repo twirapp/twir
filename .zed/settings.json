@@ -1,107 +1,113 @@
 {
-	"project_name": "TwirApp",
-	"auto_install_extensions": {
-		"dockerfile": true,
-		"sql": true,
-		"vue": true,
-		"graphql": true,
-		"golangci-lint": true,
-		"oxc": true,
-		"caddyfile": true,
-		"postgres-language-server": true,
-		"editorconfig": true,
-	},
-	"languages": {
-		"JavaScript": {
-			"format_on_save": "on",
-			"formatter": [
-				{
-					"language_server": {
-						"name": "oxfmt",
-					},
-				},
-				{
-					"code_action": "source.fixAll.oxc",
-				},
-			],
-		},
-		"TypeScript": {
-			"format_on_save": "on",
-			"formatter": [
-				{
-					"language_server": {
-						"name": "oxfmt",
-					},
-				},
-				{
-					"code_action": "source.fixAll.oxc",
-				},
-			],
-		},
-		"Vue.js": {
-			"format_on_save": "on",
-			"formatter": [
-				{
-					"language_server": {
-						"name": "oxfmt",
-					},
-				},
-				{
-					"code_action": "source.fixAll.oxc",
-				},
-			],
-		},
-		"Go": {
-			"formatter": "language_server",
-			"language_servers": ["gopls", "golangci-lint"],
-		},
-	},
-	"format_on_save": "on",
-	"file_types": {
-		"graphql": ["graphqls"],
-	},
-	"lsp": {
-		"oxlint": {
-			"initialization_options": {
-				"settings": {
-					"disableNestedConfig": false,
-					"fixKind": "safe_fix",
-					"run": "onSave",
-					"typeAware": true,
-					"unusedDisableDirectives": "deny",
-				},
-			},
-		},
-		"oxfmt": {
-			"initialization_options": {
-				"settings": {
-					"configPath": null,
-					"flags": {},
-					"fmt.configPath": null,
-					"fmt.experimental": true,
-					"run": "onSave",
-					"typeAware": false,
-					"unusedDisableDirectives": false,
-				},
-			},
-		},
-		"gopls": {
-			"initialization_options": {
-				"usePlaceholders": false,
-				"gofumpt": true,
-			},
-		},
-		"golangci-lint": {
-			"initialization_options": {
-				"command": [
-					"golangci-lint",
-					"run",
-					"--output.json.path",
-					"stdout",
-					"--show-stats=false",
-					"--output.text.path=",
-				],
-			},
-		},
-	},
+  "project_name": "TwirApp",
+  "auto_install_extensions": {
+    "dockerfile": true,
+    "docker-compose": true,
+    "sql": true,
+    "vue": true,
+    "graphql": true,
+    "golangci-lint": true,
+    "oxc": true,
+    "caddyfile": true,
+    "postgres-language-server": true,
+    "editorconfig": true,
+  },
+  "languages": {
+    "JavaScript": {
+      "format_on_save": "on",
+      "formatter": [
+        {
+          "language_server": {
+            "name": "oxfmt",
+          },
+        },
+        {
+          "code_action": "source.fixAll.oxc",
+        },
+      ],
+    },
+    "TypeScript": {
+      "format_on_save": "on",
+      "formatter": [
+        {
+          "language_server": {
+            "name": "oxfmt",
+          },
+        },
+        {
+          "code_action": "source.fixAll.oxc",
+        },
+      ],
+    },
+    "Vue.js": {
+      "format_on_save": "on",
+      "formatter": [
+        {
+          "language_server": {
+            "name": "oxfmt",
+          },
+        },
+        {
+          "code_action": "source.fixAll.oxc",
+        },
+      ],
+    },
+    "Go": {
+      "formatter": "language_server",
+      "language_servers": ["gopls", "golangci-lint"],
+    },
+  },
+  "format_on_save": "on",
+  "file_types": {
+    "graphql": ["graphqls"],
+  },
+  "lsp": {
+    "vtsls": {
+      "settings": {
+        "autoUseWorkspaceTsdk": true,
+      },
+    },
+    "oxlint": {
+      "initialization_options": {
+        "settings": {
+          "disableNestedConfig": false,
+          "fixKind": "safe_fix",
+          "run": "onSave",
+          "typeAware": true,
+          "unusedDisableDirectives": "deny",
+        },
+      },
+    },
+    "oxfmt": {
+      "initialization_options": {
+        "settings": {
+          "configPath": null,
+          "flags": {},
+          "fmt.configPath": null,
+          "fmt.experimental": true,
+          "run": "onSave",
+          "typeAware": false,
+          "unusedDisableDirectives": false,
+        },
+      },
+    },
+    "gopls": {
+      "initialization_options": {
+        "usePlaceholders": false,
+        "gofumpt": true,
+      },
+    },
+    "golangci-lint": {
+      "initialization_options": {
+        "command": [
+          "golangci-lint",
+          "run",
+          "--output.json.path",
+          "stdout",
+          "--show-stats=false",
+          "--output.text.path=",
+        ],
+      },
+    },
+  },
 }
