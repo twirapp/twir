@@ -3,7 +3,7 @@ services:
     image: adminer
     restart: unless-stopped
     ports:
-      - '8085:8080'
+      - "8085:8080"
     environment:
       - ADMINER_DEFAULT_SERVER=postgres:5432
       - ADMINER_PLUGINS=enum-option json-column
@@ -17,7 +17,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql
     ports:
-      - '54321:5432'
+      - "54321:5432"
     environment:
       POSTGRES_USER: twir
       POSTGRES_PASSWORD: twir
@@ -34,7 +34,7 @@ services:
     networks:
       - twir-dev
     ports:
-      - '6432:6432'
+      - "6432:6432"
     environment:
       RUST_LOG: debug
 
@@ -43,7 +43,7 @@ services:
     command: redis-server --save 60 1 --loglevel warning --io-threads 2
     restart: unless-stopped
     ports:
-      - '6385:6379'
+      - "6385:6379"
     volumes:
       - redis-data:/data
     networks:
@@ -53,7 +53,7 @@ services:
     image: twirapp/language-processor:latest
     restart: unless-stopped
     ports:
-      - '3012:3012'
+      - "3012:3012"
     environment:
       - APP_ENV=development
 
@@ -61,17 +61,17 @@ services:
     image: aculeasis/rhvoice-rest
     restart: unless-stopped
     ports:
-      - '7001:8080'
+      - "7001:8080"
     networks:
       - twir-dev
 
   # s3
   rustfs:
-    image: rustfs/rustfs:1.0.0-alpha.72
+    image: rustfs/rustfs:1.0.0-alpha.79
     restart: unless-stopped
     ports:
-      - '8000:9000'
-      - '8090:9001' #web console
+      - "8000:9000"
+      - "8090:9001" #web console
     environment:
       RUSTFS_ACCESS_KEY: minio
       RUSTFS_SECRET_KEY: minio-password
@@ -99,7 +99,7 @@ services:
     networks:
       - twir-dev
     ports:
-      - '7233:7233'
+      - "7233:7233"
     labels:
       kompose.volume.type: configMap
 
@@ -127,22 +127,22 @@ services:
     networks:
       - twir-dev
     ports:
-      - '7234:8080'
+      - "7234:8080"
 
   nats:
     image: nats:2.10.11-scratch
     command: -js -m 8222
     restart: unless-stopped
     ports:
-      - '4222:4222'
-      - '8222:8222'
+      - "4222:4222"
+      - "8222:8222"
     networks:
       - twir-dev
 
   executron:
     image: twirapp/executron:latest
     ports:
-      - '7003:8080'
+      - "7003:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
@@ -162,8 +162,8 @@ services:
       - clickhouse-data:/var/lib/clickhouse
       - ./configs/clickhouse-config.xml:/etc/clickhouse-server/config.d/override.xml
     ports:
-      - '8123:8123'
-      - '9000:9000'
+      - "8123:8123"
+      - "9000:9000"
     networks:
       - twir-dev
     cap_add:

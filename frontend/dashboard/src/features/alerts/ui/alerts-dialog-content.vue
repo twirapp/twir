@@ -15,10 +15,9 @@ import { useKeywordsApi } from '@/api/keywords.js'
 import RewardsSelector from '@/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import FormMessage from '@/components/ui/form/FormMessage.vue'
+import { FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form'
 
 const props = defineProps<{ alert?: Alert | null }>()
 const emits = defineEmits<{ close: [] }>()
@@ -35,7 +34,7 @@ const formSchema = z.object({
 	keywordsIds: z.array(z.string()).default([]),
 })
 
-const { handleSubmit, defineField, setValues } = useForm({
+const { handleSubmit, setValues, useFieldModel } = useForm({
 	validationSchema: toTypedSchema(formSchema),
 	initialValues: {
 		name: '',
@@ -48,13 +47,8 @@ const { handleSubmit, defineField, setValues } = useForm({
 	},
 })
 
-const [name, nameAttrs] = defineField('name')
-const [commandIds] = defineField('commandIds')
-const [rewardIds] = defineField('rewardIds')
-const [keywordsIds] = defineField('keywordsIds')
-const [greetingsIds] = defineField('greetingsIds')
-const [audioId] = defineField('audioId')
-const audioVolume = defineField('audioVolume')[0]
+const audioId = useFieldModel<string | undefined>('audioId')
+const audioVolume = useFieldModel<number>('audioVolume')
 
 onMounted(() => {
 	if (!props.alert) return
@@ -120,72 +114,92 @@ const keywordsSelectOptions = computed(() =>
 	<form @submit="save" class="p-6 pt-0">
 		<div class="flex flex-col gap-6">
 			<div class="flex flex-col gap-2">
-				<Label for="name">Name <span class="text-destructive">*</span></Label>
-				<Input id="name" v-model="name" v-bind="nameAttrs" :maxlength="30" />
-				<FormMessage name="name" />
+				<FormField name="name" v-slot="{componentField}">
+		      <FormItem>
+						<FormLabel>Name <span class="text-destructive">*</span></FormLabel>
+						<Input v-bind="componentField" :maxlength="30" />
+						<FormMessage />
+		      </FormItem>
+				</FormField>
 			</div>
 
 			<div class="flex flex-col gap-2">
-				<Label for="commandIds">{{ t('alerts.trigger.commands') }}</Label>
-				<Select v-model="commandIds" multiple>
-					<SelectTrigger id="commandIds">
-						<SelectValue placeholder="Select commands" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem
-							v-for="option in commandsSelectOptions"
-							:key="option.value"
-							:value="option.value"
-						>
-							{{ option.label }}
-						</SelectItem>
-					</SelectContent>
-				</Select>
-				<FormMessage name="commandIds" />
+				<FormField name="commandIds" v-slot="{componentField}">
+		      <FormItem>
+						<FormLabel>Commands</FormLabel>
+						<Select v-bind="componentField" multiple>
+							<SelectTrigger>
+								<SelectValue placeholder="Select commands" />
+							</SelectTrigger>
+							<SelectContent class="max-h-60 overflow-y-auto">
+								<SelectItem
+									v-for="option in commandsSelectOptions"
+									:key="option.value"
+									:value="option.value"
+								>
+									{{ option.label }}
+								</SelectItem>
+							</SelectContent>
+						</Select>
+						<FormMessage />
+		      </FormItem>
+				</FormField>
 			</div>
 
 			<div class="flex flex-col gap-2">
-				<Label for="rewardIds">{{ t('alerts.trigger.rewards') }}</Label>
-				<RewardsSelector v-model="rewardIds" multiple />
-				<FormMessage name="rewardIds" />
+				<FormField name="rewardIds" v-slot="{componentField}">
+		      <FormItem>
+						<FormLabel>{{ t('alerts.trigger.rewards') }}</FormLabel>
+						<RewardsSelector v-bind="componentField" multiple />
+						<FormMessage />
+		      </FormItem>
+				</FormField>
 			</div>
 
 			<div class="flex flex-col gap-2">
-				<Label for="keywordsIds">{{ t('alerts.trigger.keywords') }}</Label>
-				<Select v-model="keywordsIds" multiple>
-					<SelectTrigger id="keywordsIds">
-						<SelectValue placeholder="Select keywords" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem
-							v-for="option in keywordsSelectOptions"
-							:key="option.value"
-							:value="option.value"
-						>
-							{{ option.label }}
-						</SelectItem>
-					</SelectContent>
-				</Select>
-				<FormMessage name="keywordsIds" />
+				<FormField name="keywordsIds" v-slot="{componentField}">
+		      <FormItem>
+						<FormLabel>{{ t('alerts.trigger.keywords') }}</FormLabel>
+						<Select v-bind="componentField" multiple>
+							<SelectTrigger>
+								<SelectValue placeholder="Select keywords" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									v-for="option in keywordsSelectOptions"
+									:key="option.value"
+									:value="option.value"
+								>
+									{{ option.label }}
+								</SelectItem>
+							</SelectContent>
+						</Select>
+						<FormMessage />
+		      </FormItem>
+				</FormField>
 			</div>
 
 			<div class="flex flex-col gap-2">
-				<Label for="greetingsIds">{{ t('alerts.trigger.greetings') }}</Label>
-				<Select v-model="greetingsIds" multiple>
-					<SelectTrigger id="greetingsIds">
-						<SelectValue placeholder="Select greetings" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem
-							v-for="option in greetingsSelectOptions"
-							:key="option.value"
-							:value="option.value"
-						>
-							{{ option.label }}
-						</SelectItem>
-					</SelectContent>
-				</Select>
-				<FormMessage name="greetingsIds" />
+				<FormField name="greetingsIds" v-slot="{componentField}">
+		      <FormItem>
+						<FormLabel>{{ t('alerts.trigger.greetings') }}</FormLabel>
+						<Select v-bind="componentField" multiple>
+							<SelectTrigger>
+								<SelectValue placeholder="Select greetings" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									v-for="option in greetingsSelectOptions"
+									:key="option.value"
+									:value="option.value"
+								>
+									{{ option.label }}
+								</SelectItem>
+							</SelectContent>
+						</Select>
+						<FormMessage />
+		      </FormItem>
+				</FormField>
 			</div>
 		</div>
 
@@ -194,8 +208,7 @@ const keywordsSelectOptions = computed(() =>
 		<div class="flex flex-col gap-6">
 			<AlertsDialogContentAudio
 				v-model:audio-id="audioId"
-				:initialVolume="audioVolume"
-				@update:volume="(val) => audioVolume = val"
+				v-model:volume="audioVolume"
 			/>
 
 			<div class="flex justify-end">

@@ -16,21 +16,9 @@ import {
 } from '@/components/ui/dialog'
 import { Slider } from '@/components/ui/slider'
 
-const props = defineProps<{ initialVolume?: number | null }>()
-const emits = defineEmits<{ 'update:volume': [volume: number] }>()
 const audioId = defineModel<string | null>('audioId')
-const volumeInputValue = computed({
-	get() {
-		return [props.initialVolume ?? 75]
-	},
-	set(value) {
-		const volume = value[0]
-		if (audioId.value) {
-			setVolume(audioId.value, volume)
-		}
-
-		emits('update:volume', volume)
-	},
+const volume = defineModel<number>('volume', {
+	default: 30,
 })
 
 const { t } = useI18n()
@@ -55,7 +43,7 @@ watch(audioId, (audioId, prevValue) => {
 })
 
 async function playAudio(audio: HTMLAudioElement) {
-	setVolume(audioId.value!, volumeInputValue.value[0])
+	setVolume(audioId.value!, volume.value)
 	audio.currentTime = 0
 	audio.play()
 }
@@ -94,10 +82,11 @@ async function getAudio() {
 	})
 }
 
-function setVolume(audioId: string, volume: number) {
+function setVolume(audioId: string, v: number) {
 	const audio = loadedAudios.get(audioId)
 	if (!audio) return
-	audio.volume = volume / 100
+	audio.volume = v / 100
+	volume.value = v
 }
 </script>
 
@@ -107,7 +96,7 @@ function setVolume(audioId: string, volume: number) {
 		<div class="flex gap-2 w-full">
 			<Dialog v-model:open="showAudioDialog" @update:open="showAudioDialog = false">
 				<DialogTrigger as-child>
-					<Button class="w-full" @click="showAudioDialog = true">
+					<Button class="w-[80%]" @click="showAudioDialog = true">
 						{{ selectedAudio?.name ?? t('sharedButtons.select') }}
 					</Button>
 				</DialogTrigger>
@@ -162,11 +151,18 @@ function setVolume(audioId: string, volume: number) {
 	<div class="flex flex-col gap-2">
 		<div class="flex justify-between">
 			<span>{{ t('alerts.audioVolume') }}</span>
-			<span>{{ initialVolume }}%</span>
+			<span>{{ volume }}%</span>
 		</div>
 		<Slider
-			v-model:model-value="volumeInputValue"
-			:disabled="!audioId"
+			:model-value="[volume]"
+			@update:model-value="(val) => {
+				if (!val) return;
+
+				volume = val[0]
+				if (audioId) {
+					setVolume(audioId, volume)
+				}
+			}"
 			:max="100"
 			:min="0"
 			:step="1"
