@@ -47,8 +47,8 @@ const { handleSubmit, setValues, useFieldModel } = useForm({
 	},
 })
 
-const audioId = useFieldModel<string | undefined>('audioId')
-const audioVolume = useFieldModel<number>('audioVolume')
+const audioId = useFieldModel<'audioId'>('audioId')
+const audioVolume = useFieldModel<'audioVolume'>('audioVolume')
 
 onMounted(() => {
 	if (!props.alert) return
