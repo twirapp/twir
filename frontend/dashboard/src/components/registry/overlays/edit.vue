@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import OverlayBuilder from '@/features/overlay-builder/OverlayBuilder.vue'
 import {
 	useChannelOverlayByIdQuery,
+	useChannelOverlaysQuery,
 } from '@/api/overlays/custom'
 import type { OverlayProject } from '@/features/overlay-builder/types'
 import { useOverlaySave } from '@/features/overlay-builder/composables/useOverlaySave'
@@ -26,12 +27,16 @@ const overlayId = computed(() => {
 const { data: overlayData } = useChannelOverlayByIdQuery(overlayId)
 const overlay = computed(() => overlayData.value?.channelOverlayById)
 
+// Fetch all overlays to generate default name
+const { data: allOverlaysData } = useChannelOverlaysQuery()
+const overlayCount = computed(() => allOverlaysData.value?.channelOverlays?.length ?? 0)
+
 // Initialize save and instant save composables
 const {
 	saveOverlay,
 	instantSavePositions,
 	instaSaveEnabled,
-} = useOverlaySave(overlayId.value)
+} = useOverlaySave(overlayId)
 
 const { close: closeWebSocket } = useOverlayInstantSave(overlayId)
 
@@ -44,7 +49,7 @@ const projectData = computed(() => {
 	if (isNewOverlay.value) {
 		return {
 			id: '',
-			name: '',
+			name: `Overlay #${overlayCount.value + 1}`,
 			width: 1920,
 			height: 1080,
 			instaSave: false,
@@ -77,9 +82,9 @@ const projectData = computed(() => {
 				width: layer.width,
 				height: layer.height,
 				rotation: Number(layer.rotation) || 0,
-				opacity: 1,
-				visible: true,
-				locked: false,
+				opacity: layer.opacity ?? 1.0,
+				visible: layer.visible ?? true,
+				locked: layer.locked ?? false,
 				zIndex: index,
 				periodicallyRefetchData: layer.periodicallyRefetchData,
 				settings: {

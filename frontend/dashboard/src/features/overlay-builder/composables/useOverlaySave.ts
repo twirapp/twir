@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
 import { toast } from 'vue-sonner'
 
 import type { ChannelOverlayLayerInput } from '@/gql/graphql'
@@ -13,11 +13,12 @@ import type { OverlayProject } from '../types'
 
 import { useOverlayInstantSave } from './useOverlayInstantSave'
 
-export function useOverlaySave(overlayId: string) {
+export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 	const createOverlayMutation = useChannelOverlayCreate()
 	const updateOverlayMutation = useChannelOverlayUpdate()
 	const { executeQuery: refetchOverlays } = useChannelOverlaysQuery()
 
+	const currentOverlayId = computed(() => toValue(overlayId))
 	const { sendLayerPositions, isEnabled: instaSaveEnabled } = useOverlayInstantSave(overlayId)
 
 	const isSaving = ref(false)
@@ -27,6 +28,7 @@ export function useOverlaySave(overlayId: string) {
 		return project.layers.map((layer) => {
 			const rotation = Number(layer.rotation ?? 0)
 			return {
+				id: layer.id ?? undefined, // Include layer ID for updates
 				type: layer.type,
 				posX: layer.posX,
 				posY: layer.posY,
@@ -34,6 +36,9 @@ export function useOverlaySave(overlayId: string) {
 				height: layer.height,
 				rotation: rotation,
 				periodicallyRefetchData: layer.periodicallyRefetchData,
+				locked: layer.locked ?? false,
+				visible: layer.visible ?? true,
+				opacity: layer.opacity ?? 1.0,
 				settings: {
 					htmlOverlayHtml: layer.settings?.htmlOverlayHtml ?? '',
 					htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
@@ -159,6 +164,12 @@ export function useOverlaySave(overlayId: string) {
 
 		if (!instaSaveEnabled.value) {
 			console.log('[OverlaySave] Instant save is disabled')
+			return
+		}
+
+		// Verify overlayId matches project.id before sending
+		if (currentOverlayId.value !== project.id) {
+			console.log('[OverlaySave] OverlayId mismatch, skipping instant save')
 			return
 		}
 

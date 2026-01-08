@@ -3,7 +3,6 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
 import LayersPanel from './components/LayersPanel.vue'
-import PropertiesPanel from './components/PropertiesPanel.vue'
 import Canvas from './components/Canvas.vue'
 import CodeEditorDialog from './components/CodeEditorDialog.vue'
 import OverlaySettings from './components/OverlaySettings.vue'
@@ -155,7 +154,6 @@ watch(() => props.initialProject?.instaSave, (newInstaSave) => {
 	// Only update if we have a loaded project and the value actually changed
 	if (loadedProjectId.value && newInstaSave !== undefined && newInstaSave !== instaSave.value) {
 		instaSave.value = newInstaSave
-		builder.project.instaSave = newInstaSave
 	}
 })
 
@@ -192,19 +190,22 @@ function addImageLayer() {
 
 // Toolbar handlers
 function handleSave() {
-	builder.project.instaSave = instaSave.value
 	const project = builder.exportProject()
 	project.name = overlayName.value
+	project.instaSave = instaSave.value
 
 	emit('save', project)
 }
 
-function handleLayerUpdate() {
+async function handleLayerUpdate() {
 	// Trigger instant save if enabled (debouncing handled by parent)
 	if (instaSave.value) {
-		builder.project.instaSave = instaSave.value
+		// Wait for Vue to apply the layer updates
+		await nextTick()
+
 		const project = builder.exportProject()
 		project.name = overlayName.value
+		project.instaSave = instaSave.value
 
 		emit('instantSave', project)
 	}
@@ -212,13 +213,11 @@ function handleLayerUpdate() {
 
 // Watch for instaSave changes to save the setting immediately
 watch(instaSave, (newValue, oldValue) => {
-	// Sync with builder.project.instaSave
-	builder.project.instaSave = newValue
-
 	// Only trigger if value actually changed and we have a loaded project
 	if (newValue !== oldValue && loadedProjectId.value) {
 		const project = builder.exportProject()
 		project.name = overlayName.value
+		project.instaSave = newValue
 
 		emit('instantSave', project)
 	}
@@ -228,8 +227,8 @@ watch(instaSave, (newValue, oldValue) => {
 function handleUpdateLayer(layerId: string, updates: Partial<Layer>) {
 	builder.updateLayer(layerId, updates)
 
-	// Check if this is a position, size, or rotation update that should trigger instant save
-	if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined) {
+	// Check if this is a position, size, rotation, opacity, or visibility update that should trigger instant save
+	if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined || updates.opacity !== undefined || updates.visible !== undefined) {
 		handleLayerUpdate()
 	}
 }
@@ -259,6 +258,8 @@ function handleToggleVisibility(layerId: string) {
 	const layer = builder.project.layers.find(l => l.id === layerId)
 	if (layer) {
 		builder.updateLayer(layerId, { visible: !layer.visible })
+		// Trigger instant save for visibility change (async to ensure update is applied)
+		handleLayerUpdate()
 	}
 }
 
@@ -290,14 +291,12 @@ function handleReorderLayers(layers: Layer[]) {
 }
 
 // Properties panel handlers
-function handleUpdateLayerProperties(updates: Partial<Layer>) {
-	if (builder.activeLayer.value) {
-		builder.updateLayer(builder.activeLayer.value.id, updates)
+function handleUpdateLayerProperties(layerId: string, updates: Partial<Layer>) {
+	builder.updateLayer(layerId, updates)
 
-		// Check if this update should trigger instant save
-		if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined) {
-			handleLayerUpdate()
-		}
+	// Check if this update should trigger instant save
+	if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined || updates.opacity !== undefined || updates.visible !== undefined) {
+		handleLayerUpdate()
 	}
 }
 
@@ -396,7 +395,6 @@ onUnmounted(() => {
 const hasSelection = computed(() => builder.canvasState.selectedLayerIds.length > 0)
 const canAlign = computed(() => builder.canvasState.selectedLayerIds.length >= 2)
 const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length >= 3)
-const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.length > 1)
 </script>
 
 <template>
@@ -490,15 +488,7 @@ const multipleSelected = computed(() => builder.canvasState.selectedLayerIds.len
 						@move-down="handleMoveLayerDown"
 						@reorder="handleReorderLayers"
 						@add-layer="handleAddLayer"
-					/>
-				</div>
-
-				<!-- Properties Panel -->
-				<div class="flex-1 min-h-0 overflow-hidden p-2">
-					<PropertiesPanel
-						:layer="builder.activeLayer.value ?? null"
-						:multiple-selected="multipleSelected"
-						@update="handleUpdateLayerProperties"
+						@update-layer-properties="handleUpdateLayerProperties"
 						@open-code-editor="handleOpenCodeEditor"
 					/>
 				</div>

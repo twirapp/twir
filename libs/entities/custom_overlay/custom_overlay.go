@@ -34,6 +34,9 @@ type ChannelOverlayLayer struct {
 	CreatedAt               time.Time
 	UpdatedAt               time.Time
 	PeriodicallyRefetchData bool
+	Locked                  bool
+	Visible                 bool
+	Opacity                 float64
 }
 
 type ChannelOverlay struct {

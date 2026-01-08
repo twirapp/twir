@@ -47,6 +47,9 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 			Height:                  l.Height,
 			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
+			Locked:                  l.Locked,
+			Visible:                 l.Visible,
+			Opacity:                 l.Opacity,
 		}
 	}
 
@@ -82,9 +85,15 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 		return nil, err
 	}
 
-	layers := make([]channels_overlays.CreateLayerInput, len(input.Layers))
+	layers := make([]channels_overlays.UpdateLayerInput, len(input.Layers))
 	for i, l := range input.Layers {
-		layers[i] = channels_overlays.CreateLayerInput{
+		var layerID *uuid.UUID
+		if l.ID.IsSet() {
+			layerID = l.ID.Value()
+		}
+
+		layers[i] = channels_overlays.UpdateLayerInput{
+			ID:   layerID,
 			Type: mappers.ChannelOverlayLayerTypeGqlToEntity(l.Type),
 			Settings: customoverlayentity.ChannelOverlayLayerSettings{
 				HtmlOverlayHTML:                    l.Settings.HTMLOverlayHTML,
@@ -99,6 +108,9 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 			Height:                  l.Height,
 			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
+			Locked:                  l.Locked,
+			Visible:                 l.Visible,
+			Opacity:                 l.Opacity,
 		}
 	}
 

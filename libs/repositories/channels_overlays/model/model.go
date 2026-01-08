@@ -34,6 +34,9 @@ type OverlayLayer struct {
 	CreatedAt               time.Time            `json:"created_at"`
 	UpdatedAt               time.Time            `json:"updated_at"`
 	PeriodicallyRefetchData bool                 `json:"periodically_refetch_data"`
+	Locked                  bool                 `json:"locked"`
+	Visible                 bool                 `json:"visible"`
+	Opacity                 float64              `json:"opacity"`
 
 	isNil bool
 }

@@ -56,11 +56,14 @@ type layerRow struct {
 	CreatedAt               time.Time `json:"created_at"`
 	UpdatedAt               time.Time `json:"updated_at"`
 	PeriodicallyRefetchData bool      `json:"periodically_refetch_data"`
+	Locked                  bool      `json:"locked"`
+	Visible                 bool      `json:"visible"`
+	Opacity                 float64   `json:"opacity"`
 }
 
 func (c *Pgx) getLayers(ctx context.Context, overlayID uuid.UUID) ([]model.OverlayLayer, error) {
 	query := `
-SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data
+SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
 FROM channels_overlays_layers
 WHERE overlay_id = $1
 ORDER BY created_at ASC
@@ -87,6 +90,9 @@ ORDER BY created_at ASC
 			&row.CreatedAt,
 			&row.UpdatedAt,
 			&row.PeriodicallyRefetchData,
+			&row.Locked,
+			&row.Visible,
+			&row.Opacity,
 		); err != nil {
 			return nil, err
 		}
@@ -110,6 +116,9 @@ ORDER BY created_at ASC
 				CreatedAt:               row.CreatedAt,
 				UpdatedAt:               row.UpdatedAt,
 				PeriodicallyRefetchData: row.PeriodicallyRefetchData,
+				Locked:                  row.Locked,
+				Visible:                 row.Visible,
+				Opacity:                 row.Opacity,
 			},
 		)
 	}
@@ -276,8 +285,8 @@ func (c *Pgx) insertLayer(
 	}
 
 	layerQuery := `
-INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 `
 
 	_, err = tx.Exec(
@@ -295,6 +304,9 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		now,
 		now,
 		layer.PeriodicallyRefetchData,
+		layer.Locked,
+		layer.Visible,
+		layer.Opacity,
 	)
 	return err
 }
@@ -326,14 +338,38 @@ WHERE id = $6
 		return model.Nil, channels_overlays.ErrNotFound
 	}
 
-	deleteLayersQuery := `DELETE FROM channels_overlays_layers WHERE overlay_id = $1`
-	_, err = tx.Exec(ctx, deleteLayersQuery, id)
-	if err != nil {
-		return model.Nil, err
+	// Collect IDs of layers that should exist
+	existingLayerIDs := make(map[uuid.UUID]bool)
+	for _, layer := range input.Layers {
+		if layer.ID != nil {
+			existingLayerIDs[*layer.ID] = true
+		}
 	}
 
+	// Delete layers that are not in the input
+	if len(existingLayerIDs) > 0 {
+		// Build the NOT IN clause with all IDs to keep
+		deleteQuery := `DELETE FROM channels_overlays_layers WHERE overlay_id = $1 AND id != ALL($2)`
+		keepIDs := make([]uuid.UUID, 0, len(existingLayerIDs))
+		for layerID := range existingLayerIDs {
+			keepIDs = append(keepIDs, layerID)
+		}
+		_, err = tx.Exec(ctx, deleteQuery, id, keepIDs)
+		if err != nil {
+			return model.Nil, err
+		}
+	} else {
+		// If no existing layers, delete all
+		deleteQuery := `DELETE FROM channels_overlays_layers WHERE overlay_id = $1`
+		_, err = tx.Exec(ctx, deleteQuery, id)
+		if err != nil {
+			return model.Nil, err
+		}
+	}
+
+	// Upsert layers
 	for _, layer := range input.Layers {
-		if err := c.insertLayer(ctx, tx, id, layer); err != nil {
+		if err := c.upsertLayer(ctx, tx, id, layer); err != nil {
 			return model.Nil, err
 		}
 	}
@@ -343,6 +379,76 @@ WHERE id = $6
 	}
 
 	return c.GetByID(ctx, id)
+}
+
+func (c *Pgx) upsertLayer(
+	ctx context.Context,
+	tx pgx.Tx,
+	overlayID uuid.UUID,
+	layer channels_overlays.UpdateLayerInputWithID,
+) error {
+	now := time.Now().UTC()
+
+	settingsJSON, err := json.Marshal(layer.Settings)
+	if err != nil {
+		return err
+	}
+
+	if layer.ID != nil {
+		// Update existing layer
+		layerQuery := `
+UPDATE channels_overlays_layers
+SET type = $1, settings = $2, pos_x = $3, pos_y = $4, width = $5, height = $6, rotation = $7, updated_at = $8, periodically_refetch_data = $9, locked = $10, visible = $11, opacity = $12
+WHERE id = $13 AND overlay_id = $14
+`
+		_, err = tx.Exec(
+			ctx,
+			layerQuery,
+			string(layer.Type),
+			settingsJSON,
+			layer.PosX,
+			layer.PosY,
+			layer.Width,
+			layer.Height,
+			layer.Rotation,
+			now,
+			layer.PeriodicallyRefetchData,
+			layer.Locked,
+			layer.Visible,
+			layer.Opacity,
+			*layer.ID,
+			overlayID,
+		)
+		return err
+	}
+
+	// Insert new layer
+	layerID := uuid.New()
+	layerQuery := `
+INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+`
+
+	_, err = tx.Exec(
+		ctx,
+		layerQuery,
+		layerID,
+		string(layer.Type),
+		settingsJSON,
+		overlayID,
+		layer.PosX,
+		layer.PosY,
+		layer.Width,
+		layer.Height,
+		layer.Rotation,
+		now,
+		now,
+		layer.PeriodicallyRefetchData,
+		layer.Locked,
+		layer.Visible,
+		layer.Opacity,
+	)
+	return err
 }
 
 func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
@@ -367,9 +473,11 @@ SET pos_x = COALESCE($1, pos_x),
 		updated_at = $3,
 		width = COALESCE($4, width),
 		height = COALESCE($5, height),
-		rotation = COALESCE($6, rotation)
-WHERE id = $7
-RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data
+		rotation = COALESCE($6, rotation),
+		visible = COALESCE($7, visible),
+		opacity = COALESCE($8, opacity)
+WHERE id = $9
+RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
 `
 
 	now := time.Now().UTC()
@@ -382,6 +490,8 @@ RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation,
 		input.Width,
 		input.Height,
 		input.Rotation,
+		input.Visible,
+		input.Opacity,
 		layerId,
 	)
 	if err != nil {
@@ -393,7 +503,7 @@ RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation,
 	}
 
 	getQuery := `
-SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data
+SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
 FROM channels_overlays_layers
 WHERE id = $1
 `
@@ -414,6 +524,9 @@ WHERE id = $1
 		&layer.CreatedAt,
 		&layer.UpdatedAt,
 		&layer.PeriodicallyRefetchData,
+		&layer.Locked,
+		&layer.Visible,
+		&layer.Opacity,
 	); err != nil {
 		return model.OverlayLayer{}, err
 	}
@@ -436,5 +549,8 @@ WHERE id = $1
 		CreatedAt:               layer.CreatedAt,
 		UpdatedAt:               layer.UpdatedAt,
 		PeriodicallyRefetchData: layer.PeriodicallyRefetchData,
+		Locked:                  layer.Locked,
+		Visible:                 layer.Visible,
+		Opacity:                 layer.Opacity,
 	}, nil
 }

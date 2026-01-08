@@ -34,12 +34,14 @@ type instantSaveLayerMessage struct {
 }
 
 type instantSaveLayerData struct {
-	ID       string `json:"id"`
-	PosX     int    `json:"posX"`
-	PosY     int    `json:"posY"`
-	Rotation int    `json:"rotation"`
-	Width    int    `json:"width"`
-	Height   int    `json:"height"`
+	ID       string  `json:"id"`
+	PosX     int     `json:"posX"`
+	PosY     int     `json:"posY"`
+	Rotation int     `json:"rotation"`
+	Width    int     `json:"width"`
+	Height   int     `json:"height"`
+	Visible  bool    `json:"visible"`
+	Opacity  float64 `json:"opacity"`
 }
 
 func textToBase64(text string) string {
@@ -165,10 +167,16 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			return
 		}
 
+		overlayIdParsed, err := uuid.Parse(data.OverlayID)
+		if err != nil {
+			c.logger.Error("invalid overlay ID", "error", err)
+			return
+		}
+
 		// Verify overlay belongs to user
 		overlay, err := c.channelsOverlaysRepository.GetByID(
 			context.Background(),
-			uuid.MustParse(data.OverlayID),
+			overlayIdParsed,
 		)
 		if err != nil {
 			c.logger.Error("failed to get overlay", "error", err)
@@ -204,6 +212,10 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				}
 			}
 
+			if foundInputLayer == nil {
+				continue
+			}
+
 			e.Layers = append(e.Layers, customoverlayentity.ChannelOverlayLayer{
 				ID:        layer.ID,
 				OverlayID: layer.OverlayID,
@@ -223,6 +235,9 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				Width:                   foundInputLayer.Width,
 				Height:                  foundInputLayer.Height,
 				PeriodicallyRefetchData: layer.PeriodicallyRefetchData,
+				Locked:                  layer.Locked,
+				Visible:                 foundInputLayer.Visible,
+				Opacity:                 foundInputLayer.Opacity,
 			})
 		}
 
@@ -237,13 +252,20 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				continue
 			}
 
-			c.channelsOverlaysRepository.UpdateLayer(context.TODO(), layerID, channels_overlays.LayerUpdateInput{
-				PosX:     &layerData.PosX,
-				PosY:     &layerData.PosY,
-				Rotation: &layerData.Rotation,
-				Width:    &layerData.Width,
-				Height:   &layerData.Height,
-			})
+			go func() {
+				_, e := c.channelsOverlaysRepository.UpdateLayer(context.TODO(), layerID, channels_overlays.LayerUpdateInput{
+					PosX:     &layerData.PosX,
+					PosY:     &layerData.PosY,
+					Rotation: &layerData.Rotation,
+					Width:    &layerData.Width,
+					Height:   &layerData.Height,
+					Visible:  &layerData.Visible,
+					Opacity:  &layerData.Opacity,
+				})
+				if e != nil {
+					c.logger.Error("failed to update layer", "error", e)
+				}
+			}()
 		}
 
 		// Send acknowledgment

@@ -25,6 +25,9 @@ type CreateLayerInput struct {
 	Height                  int
 	Rotation                int
 	PeriodicallyRefetchData bool
+	Locked                  bool
+	Visible                 bool
+	Opacity                 float64
 }
 
 type CreateInput struct {
@@ -36,12 +39,27 @@ type CreateInput struct {
 	Layers    []CreateLayerInput
 }
 
+type UpdateLayerInputWithID struct {
+	ID                      *uuid.UUID // nil for new layers, set for existing layers
+	Type                    model.OverlayType
+	Settings                model.OverlayLayerSettings
+	PosX                    int
+	PosY                    int
+	Width                   int
+	Height                  int
+	Rotation                int
+	PeriodicallyRefetchData bool
+	Locked                  bool
+	Visible                 bool
+	Opacity                 float64
+}
+
 type UpdateInput struct {
 	Name      string
 	Width     int
 	Height    int
 	InstaSave bool
-	Layers    []CreateLayerInput
+	Layers    []UpdateLayerInputWithID
 }
 
 type LayerUpdateInput struct {
@@ -50,4 +68,6 @@ type LayerUpdateInput struct {
 	Width    *int
 	Height   *int
 	Rotation *int
+	Visible  *bool
+	Opacity  *float64
 }

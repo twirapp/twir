@@ -33,6 +33,9 @@ const channelOverlaysQuery = graphql(`
 				createdAt
 				updatedAt
 				periodicallyRefetchData
+				locked
+				visible
+				opacity
 			}
 		}
 	}
@@ -68,6 +71,9 @@ const channelOverlayByIdQuery = graphql(`
 				createdAt
 				updatedAt
 				periodicallyRefetchData
+				locked
+				visible
+				opacity
 			}
 		}
 	}
@@ -103,6 +109,8 @@ const channelOverlayCreateMutation = graphql(`
 				createdAt
 				updatedAt
 				periodicallyRefetchData
+				locked
+				visible
 			}
 		}
 	}
@@ -138,6 +146,8 @@ const channelOverlayUpdateMutation = graphql(`
 				createdAt
 				updatedAt
 				periodicallyRefetchData
+				locked
+				visible
 			}
 		}
 	}

@@ -32,18 +32,18 @@ require (
 	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/apps/parser v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/audit v0.0.0-20260102031833-cfb924c9b7eb
-	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/baseapp v0.0.0-20260105021550-59420996421f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/cache v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/config v0.0.0-20260104225553-e12a225540d0
 	github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/entities v0.0.0-20260105013918-15f7ceeeee01
+	github.com/twirapp/twir/libs/entities v0.0.0-20260108025344-1fa4a824d92e
 	github.com/twirapp/twir/libs/gomodels v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/integrations v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/pubsub v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/redis_keys v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/repositories v0.0.0-20260102031833-cfb924c9b7eb
+	github.com/twirapp/twir/libs/repositories v0.0.0-20260108003416-e505f4cdcd8b
 	github.com/twirapp/twir/libs/twitch v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/types v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/utils v0.0.0-20251127124349-67ad7fa0003f
@@ -121,7 +121,6 @@ require (
 	github.com/nats-io/nats.go v1.48.0 // indirect
 	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/oklog/ulid/v2 v2.1.1 // indirect
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect

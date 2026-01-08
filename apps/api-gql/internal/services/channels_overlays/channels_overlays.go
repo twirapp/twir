@@ -69,6 +69,9 @@ func (s *Service) modelToEntity(m model.Overlay) customoverlayentity.ChannelOver
 			CreatedAt:               l.CreatedAt,
 			UpdatedAt:               l.UpdatedAt,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
+			Locked:                  l.Locked,
+			Visible:                 l.Visible,
+			Opacity:                 l.Opacity,
 		}
 	}
 
@@ -120,6 +123,24 @@ type CreateLayerInput struct {
 	Height                  int
 	Rotation                int
 	PeriodicallyRefetchData bool
+	Locked                  bool
+	Visible                 bool
+	Opacity                 float64
+}
+
+type UpdateLayerInput struct {
+	ID                      *uuid.UUID
+	Type                    customoverlayentity.ChannelOverlayType
+	Settings                customoverlayentity.ChannelOverlayLayerSettings
+	PosX                    int
+	PosY                    int
+	Width                   int
+	Height                  int
+	Rotation                int
+	PeriodicallyRefetchData bool
+	Locked                  bool
+	Visible                 bool
+	Opacity                 float64
 }
 
 type CreateInput struct {
@@ -167,6 +188,9 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (customoverlaye
 			Height:                  l.Height,
 			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
+			Locked:                  l.Locked,
+			Visible:                 l.Visible,
+			Opacity:                 l.Opacity,
 		}
 	}
 
@@ -208,7 +232,7 @@ type UpdateInput struct {
 	Width     int
 	Height    int
 	InstaSave bool
-	Layers    []CreateLayerInput
+	Layers    []UpdateLayerInput
 }
 
 func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
@@ -224,9 +248,10 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("overlay not found")
 	}
 
-	repoLayers := make([]channels_overlays.CreateLayerInput, len(input.Layers))
+	repoLayers := make([]channels_overlays.UpdateLayerInputWithID, len(input.Layers))
 	for i, l := range input.Layers {
-		repoLayers[i] = channels_overlays.CreateLayerInput{
+		repoLayers[i] = channels_overlays.UpdateLayerInputWithID{
+			ID:   l.ID,
 			Type: model.OverlayType(l.Type),
 			Settings: model.OverlayLayerSettings{
 				HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
@@ -241,6 +266,9 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 			Height:                  l.Height,
 			Rotation:                l.Rotation,
 			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
+			Locked:                  l.Locked,
+			Visible:                 l.Visible,
+			Opacity:                 l.Opacity,
 		}
 	}
 
