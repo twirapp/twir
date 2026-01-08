@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import KappagenOverlay from '@twirapp/kappagen'
+import '@twirapp/kappagen/styles'
+
 import { useFormValues } from 'vee-validate'
 import { computed } from 'vue'
 
