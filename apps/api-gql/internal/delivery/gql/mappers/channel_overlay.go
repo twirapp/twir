@@ -51,6 +51,9 @@ func ChannelOverlayLayerEntityToGql(l customoverlayentity.ChannelOverlayLayer) g
 		UpdatedAt:               l.UpdatedAt,
 		PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 		Rotation:                l.Rotation,
+		Locked:                  l.Locked,
+		Visible:                 l.Visible,
+		Opacity:                 l.Opacity,
 	}
 }
 

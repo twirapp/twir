@@ -37,14 +37,14 @@ function onlyPositionChanged(prev: MaybeRef<Layer>, current: MaybeRef<Layer>): b
 	const currentRaw = toRaw(toValue(current))
 
 	for (const key of nonPositionKeys) {
-		// @ts-expect-error
+		// @ts-expect-error fuck it
 		if (prevRaw.settings[key] !== currentRaw.settings[key]) {
 			return false
 		}
 	}
 
 	for (const key of positionKeys) {
-		// @ts-expect-error
+		// @ts-expect-error fuck it
 		if (prevRaw.settings[key] !== currentRaw.settings[key]) {
 			continue
 		}
@@ -98,9 +98,9 @@ watch(layers, (newLayers) => {
 
 <template>
 	<div class="container mx-auto">
-		<template v-for="layer of layers" :key="layer.id">
-			<htmlLayer v-if="layer.type === 'HTML'" :layer="layer" :parsedData="parsedLayersData[layer.id]" />
-			<imageLayer v-else-if="layer.type === 'IMAGE'" :layer="layer" />
+		<template v-for="(layer, index) of layers" :key="layer.id">
+			<htmlLayer v-if="layer.type === 'HTML'" :layer="layer" :parsedData="parsedLayersData[layer.id]" :z-index="index" />
+			<imageLayer v-else-if="layer.type === 'IMAGE'" :layer="layer" :z-index="index" />
 		</template>
 	</div>
 </template>

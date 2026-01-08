@@ -5,6 +5,7 @@ import type { Layer } from '@/composables/overlays/use-overlays.js'
 
 const props = defineProps<{
 	layer: Layer
+	zIndex?: number
 }>()
 
 const imageUrl = computed(() => props.layer.settings.imageUrl || '')
@@ -26,6 +27,7 @@ const hasValidUrl = computed(() => {
 			height: `${layer.height}px`,
 			transform: `rotate(${layer.rotation || 0}deg)`,
 			transformOrigin: 'center center',
+			zIndex: zIndex ?? 0,
 		}"
 	>
 		<img

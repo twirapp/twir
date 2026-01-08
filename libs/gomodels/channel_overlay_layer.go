@@ -22,6 +22,8 @@ type ChannelOverlayLayer struct {
 	CreatedAt               time.Time                   `gorm:"column:created_at;data:timestamp;"  json:"createdAt"`
 	UpdatedAt               time.Time                   `gorm:"column:updated_at;data:timestamp;"  json:"updatedAt"`
 	PeriodicallyRefetchData bool                        `gorm:"column:periodically_refetch_data;type:BOOLEAN"  json:"periodically_refetch_data"`
+	Locked                  bool                        `gorm:"column:locked;type:BOOLEAN;default:false"  json:"locked"`
+	Visible                 bool                        `gorm:"column:visible;type:BOOLEAN;default:true"  json:"visible"`
 
 	Overlay *ChannelOverlay `gorm:"foreignKey:OverlayID" json:"overlay"`
 }
@@ -47,6 +49,7 @@ type ChannelOverlayLayerSettings struct {
 	HtmlOverlayCSS                     string `json:"htmlOverlayCss,omitempty"`
 	HtmlOverlayJS                      string `json:"htmlOverlayJs,omitempty"`
 	HtmlOverlayDataPollSecondsInterval int    `json:"htmlOverlayDataPollSecondsInterval,omitempty"`
+	ImageUrl                           string `json:"imageUrl,omitempty"`
 }
 
 func (a ChannelOverlayLayerSettings) Value() (driver.Value, error) {

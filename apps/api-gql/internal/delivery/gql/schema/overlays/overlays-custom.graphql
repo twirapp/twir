@@ -1,108 +1,119 @@
 extend type Query {
-	channelOverlays: [ChannelOverlay!]!
-		@isAuthenticated
-		@hasAccessToSelectedDashboard
-		@hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
-	channelOverlayById(id: UUID!): ChannelOverlay
-		@isAuthenticated
-		@hasAccessToSelectedDashboard
-		@hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+  channelOverlays: [ChannelOverlay!]!
+    @isAuthenticated
+    @hasAccessToSelectedDashboard
+    @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+  channelOverlayById(id: UUID!): ChannelOverlay
+    @isAuthenticated
+    @hasAccessToSelectedDashboard
+    @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
 }
 
 extend type Mutation {
-	channelOverlayCreate(input: ChannelOverlayCreateInput!): ChannelOverlay!
-		@isAuthenticated
-		@hasAccessToSelectedDashboard
-		@hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
-	channelOverlayUpdate(id: UUID!, input: ChannelOverlayUpdateInput!): ChannelOverlay!
-		@isAuthenticated
-		@hasAccessToSelectedDashboard
-		@hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
-	channelOverlayDelete(id: UUID!): Boolean!
-		@isAuthenticated
-		@hasAccessToSelectedDashboard
-		@hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
-	channelOverlayParseHtml(html: String!): String!
-		@isAuthenticated
-		@hasAccessToSelectedDashboard
-		@hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+  channelOverlayCreate(input: ChannelOverlayCreateInput!): ChannelOverlay!
+    @isAuthenticated
+    @hasAccessToSelectedDashboard
+    @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+  channelOverlayUpdate(
+    id: UUID!
+    input: ChannelOverlayUpdateInput!
+  ): ChannelOverlay!
+    @isAuthenticated
+    @hasAccessToSelectedDashboard
+    @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+  channelOverlayDelete(id: UUID!): Boolean!
+    @isAuthenticated
+    @hasAccessToSelectedDashboard
+    @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+  channelOverlayParseHtml(html: String!): String!
+    @isAuthenticated
+    @hasAccessToSelectedDashboard
+    @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
 }
 
 extend type Subscription {
-	customOverlaySettings(id: UUID!, apiKey: String!): ChannelOverlay!
+  customOverlaySettings(id: UUID!, apiKey: String!): ChannelOverlay!
 }
 
 enum ChannelOverlayLayerType {
-	HTML
-	IMAGE
+  HTML
+  IMAGE
 }
 
 type ChannelOverlayLayerSettings {
-	htmlOverlayHtml: String!
-	htmlOverlayCss: String!
-	htmlOverlayJs: String!
-	htmlOverlayDataPollSecondsInterval: Int!
-	imageUrl: String!
+  htmlOverlayHtml: String!
+  htmlOverlayCss: String!
+  htmlOverlayJs: String!
+  htmlOverlayDataPollSecondsInterval: Int!
+  imageUrl: String!
 }
 
 type ChannelOverlayLayer {
-	id: UUID!
-	type: ChannelOverlayLayerType!
-	settings: ChannelOverlayLayerSettings!
-	overlayId: UUID!
-	posX: Int!
-	posY: Int!
-	width: Int!
-	height: Int!
-	rotation: Int!
-	createdAt: Time!
-	updatedAt: Time!
-	periodicallyRefetchData: Boolean!
+  id: UUID!
+  type: ChannelOverlayLayerType!
+  settings: ChannelOverlayLayerSettings!
+  overlayId: UUID!
+  posX: Int!
+  posY: Int!
+  width: Int!
+  height: Int!
+  rotation: Int!
+  createdAt: Time!
+  updatedAt: Time!
+  periodicallyRefetchData: Boolean!
+  locked: Boolean!
+  visible: Boolean!
+  opacity: Float!
 }
 
 type ChannelOverlay {
-	id: UUID!
-	channelId: String!
-	name: String!
-	createdAt: Time!
-	updatedAt: Time!
-	width: Int!
-	height: Int!
-	layers: [ChannelOverlayLayer!]!
-	instaSave: Boolean!
+  id: UUID!
+  channelId: String!
+  name: String!
+  createdAt: Time!
+  updatedAt: Time!
+  width: Int!
+  height: Int!
+  layers: [ChannelOverlayLayer!]!
+  instaSave: Boolean!
 }
 
 input ChannelOverlayLayerSettingsInput {
-	htmlOverlayHtml: String!
-	htmlOverlayCss: String!
-	htmlOverlayJs: String!
-	htmlOverlayDataPollSecondsInterval: Int! @validate(constraint: "min=5,max=600")
-	imageUrl: String!
+  htmlOverlayHtml: String!
+  htmlOverlayCss: String!
+  htmlOverlayJs: String!
+  htmlOverlayDataPollSecondsInterval: Int!
+    @validate(constraint: "min=5,max=600")
+  imageUrl: String!
 }
 
 input ChannelOverlayLayerInput {
-	type: ChannelOverlayLayerType!
-	settings: ChannelOverlayLayerSettingsInput!
-	posX: Int!
-	posY: Int!
-	width: Int!
-	height: Int!
-	rotation: Int!
-	periodicallyRefetchData: Boolean!
+  id: UUID
+  type: ChannelOverlayLayerType!
+  settings: ChannelOverlayLayerSettingsInput!
+  posX: Int!
+  posY: Int!
+  width: Int!
+  height: Int!
+  rotation: Int!
+  periodicallyRefetchData: Boolean!
+  locked: Boolean!
+  visible: Boolean!
+  opacity: Float!
 }
 
 input ChannelOverlayCreateInput {
-	name: String! @validate(constraint: "max=30")
-	width: Int! @validate(constraint: "min=1")
-	height: Int! @validate(constraint: "min=1")
-	layers: [ChannelOverlayLayerInput!]! @validate(constraint: "max=15,dive")
-	instaSave: Boolean!
+  name: String! @validate(constraint: "max=30")
+  width: Int! @validate(constraint: "min=1")
+  height: Int! @validate(constraint: "min=1")
+  layers: [ChannelOverlayLayerInput!]! @validate(constraint: "max=15,dive")
+  instaSave: Boolean!
 }
 
 input ChannelOverlayUpdateInput {
-	name: String! @validate(constraint: "max=30")
-	width: Int! @validate(constraint: "min=1")
-	height: Int! @validate(constraint: "min=1")
-	layers: [ChannelOverlayLayerInput!]! @validate(constraint: "max=15,dive")
-	instaSave: Boolean!
+  name: String! @validate(constraint: "max=30")
+  width: Int! @validate(constraint: "min=1")
+  height: Int! @validate(constraint: "min=1")
+  layers: [ChannelOverlayLayerInput!]! @validate(constraint: "max=15,dive")
+  instaSave: Boolean!
 }

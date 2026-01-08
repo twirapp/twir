@@ -221,7 +221,7 @@ const localPollInterval = computed({
 									<Label for="visible">Visible</Label>
 									<p class="text-xs text-muted-foreground">Show layer on canvas</p>
 								</div>
-								<Switch id="visible" v-model:checked="localVisible">
+								<Switch id="visible" v-model="localVisible">
 									<Eye class="h-4 w-4" />
 								</Switch>
 							</div>
@@ -231,7 +231,7 @@ const localPollInterval = computed({
 									<Label for="locked">Locked</Label>
 									<p class="text-xs text-muted-foreground">Prevent editing</p>
 								</div>
-								<Switch id="locked" v-model:checked="localLocked">
+								<Switch id="locked" v-model="localLocked">
 									<Lock class="h-4 w-4" />
 								</Switch>
 							</div>
@@ -255,7 +255,7 @@ const localPollInterval = computed({
 								<Label for="auto-refresh">Auto Refresh</Label>
 								<p class="text-xs text-muted-foreground">Periodically update data</p>
 							</div>
-							<Switch id="auto-refresh" v-model:checked="localPeriodicallyRefetch">
+							<Switch id="auto-refresh" v-model="localPeriodicallyRefetch">
 								<RefreshCw class="h-4 w-4" />
 							</Switch>
 						</div>

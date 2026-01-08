@@ -20,6 +20,7 @@ export interface Layer {
 	createdAt: string
 	updatedAt: string
 	periodicallyRefetchData: boolean
+	visible: boolean
 }
 
 export interface LayerSettings {
@@ -71,6 +72,7 @@ export const useOverlays = createGlobalState(() => {
 						createdAt
 						updatedAt
 						periodicallyRefetchData
+						visible
 					}
 				}
 			}
@@ -85,32 +87,35 @@ export const useOverlays = createGlobalState(() => {
 		context: {},
 	})
 
-	// Transform GraphQL data to the expected Layer format
+	// Transform GraphQL data to the expected Layer format, filtering out hidden layers
 	const layers = computed<Layer[]>(() => {
 		if (!overlayData.value?.customOverlaySettings?.layers) {
 			return []
 		}
 
-		return overlayData.value.customOverlaySettings.layers.map((layer) => ({
-			id: layer.id,
-			type: layer.type,
-			settings: {
-				htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval,
-				htmlOverlayHtml: layer.settings.htmlOverlayHtml,
-				htmlOverlayCss: layer.settings.htmlOverlayCss,
-				htmlOverlayJs: layer.settings.htmlOverlayJs,
-				imageUrl: layer.settings.imageUrl || '',
-			},
-			overlayId: layer.overlayId,
-			posX: layer.posX,
-			posY: layer.posY,
-			width: layer.width,
-			height: layer.height,
-			rotation: layer.rotation || 0,
-			createdAt: layer.createdAt,
-			updatedAt: layer.updatedAt,
-			periodicallyRefetchData: layer.periodicallyRefetchData,
-		}))
+		return overlayData.value.customOverlaySettings.layers
+			.filter((layer) => layer.visible)
+			.map((layer) => ({
+				id: layer.id,
+				type: layer.type,
+				settings: {
+					htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval,
+					htmlOverlayHtml: layer.settings.htmlOverlayHtml,
+					htmlOverlayCss: layer.settings.htmlOverlayCss,
+					htmlOverlayJs: layer.settings.htmlOverlayJs,
+					imageUrl: layer.settings.imageUrl || '',
+				},
+				overlayId: layer.overlayId,
+				posX: layer.posX,
+				posY: layer.posY,
+				width: layer.width,
+				height: layer.height,
+				rotation: layer.rotation || 0,
+				createdAt: layer.createdAt,
+				updatedAt: layer.updatedAt,
+				periodicallyRefetchData: layer.periodicallyRefetchData,
+				visible: layer.visible,
+			}))
 	})
 
 	// Keep WebSocket for real-time variable parsing

@@ -64,22 +64,6 @@ function setPlaceholder() {
 			</p>
 		</div>
 
-		<div class="space-y-2">
-			<Label>Preview</Label>
-			<div class="border rounded-lg p-4 bg-slate-50 dark:bg-slate-900 min-h-[100px] flex items-center justify-center">
-				<img
-					v-if="imageUrl"
-					:src="imageUrl"
-					alt="Image preview"
-					class="max-w-full max-h-[200px] object-contain"
-					@error="() => {}"
-				/>
-				<p v-else class="text-sm text-muted-foreground">
-					No image URL provided
-				</p>
-			</div>
-		</div>
-
 		<Button variant="outline" size="sm" class="w-full" @click="setPlaceholder">
 			Use Placeholder Image
 		</Button>

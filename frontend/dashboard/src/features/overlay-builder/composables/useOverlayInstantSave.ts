@@ -12,6 +12,8 @@ interface LayerPosition {
 	rotation: number
 	width: number
 	height: number
+	visible: boolean
+	opacity: number
 }
 
 interface InstantSaveMessage {
@@ -122,6 +124,8 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 				width: layer.width,
 				height: layer.height,
 				rotation: layer.rotation ?? 0,
+				visible: layer.visible ?? true,
+				opacity: layer.opacity ?? 1.0,
 			}
 		})
 

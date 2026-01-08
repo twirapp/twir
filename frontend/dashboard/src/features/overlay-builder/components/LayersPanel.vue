@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import {
-	ChevronDown,
-	ChevronUp,
 	Copy,
 	Eye,
 	EyeOff,
+	GripVertical,
 	Lock,
 	LockOpen,
 	Plus,
@@ -22,7 +21,13 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+} from '@/components/ui/accordion'
 
+import LayerPropertiesInline from './LayerPropertiesInline.vue'
 import type { Layer } from '../types'
 
 interface Props {
@@ -42,15 +47,22 @@ const emit = defineEmits<{
 	moveDown: [layerId: string]
 	reorder: [layers: Layer[]]
 	addLayer: []
+	updateLayerProperties: [layerId: string, updates: Partial<Layer>]
+	openCodeEditor: []
 }>()
 
 // Reverse layers for display (top layer shown first)
 const displayLayers = ref<Layer[]>([])
 
+// Track expanded accordion items
+const expandedLayerId = ref<string>()
+
 // Watch for prop changes and update local ref
 watch(() => props.layers, (newLayers) => {
 	displayLayers.value = [...newLayers].reverse()
 }, { immediate: true, deep: true })
+
+
 
 // Handle reordering when drag ends
 function handleReorder() {
@@ -61,7 +73,16 @@ function handleReorder() {
 
 function handleLayerClick(layerId: string, event: MouseEvent) {
 	const addToSelection = event.ctrlKey || event.metaKey
+	const wasSelected = isLayerSelected(layerId)
+
 	emit('select', layerId, addToSelection)
+
+	// Toggle accordion: close if already open and selected, open if not
+	if (wasSelected && expandedLayerId.value === layerId) {
+		expandedLayerId.value = undefined
+	} else if (!addToSelection) {
+		expandedLayerId.value = layerId
+	}
 }
 
 function isLayerSelected(layerId: string) {
@@ -107,155 +128,143 @@ function getLayerTypeIcon(type: string): string {
 					class="p-2 space-y-1"
 					@end="handleReorder"
 				>
-					<div
+					<Accordion
 						v-for="layer in displayLayers"
 						:key="layer.id"
-						class="layer-item group relative"
+						type="single"
+						collapsible
+						:model-value="expandedLayerId === layer.id ? layer.id : undefined"
+						class="layer-item"
 					>
-						<div
-							class="flex items-center gap-2 px-2 py-2 rounded-md border transition-all cursor-pointer drag-handle"
-							:class="{
-								'bg-accent border-primary': isLayerSelected(layer.id),
-								'hover:bg-accent/50': !isLayerSelected(layer.id) && !layer.locked,
-								'opacity-50': !layer.visible || layer.locked,
-							}"
-							@click="handleLayerClick(layer.id, $event)"
-						>
-							<!-- Layer Type Icon -->
-							<span class="text-lg select-none">{{ getLayerTypeIcon(layer.type) }}</span>
+						<AccordionItem :value="layer.id" class="border-0">
+							<div class="relative group">
+								<div
+									class="flex items-center gap-2 px-2 py-2 rounded-md border transition-all"
+									:class="{
+										'bg-accent border-primary': isLayerSelected(layer.id),
+										'hover:bg-accent/50': !isLayerSelected(layer.id) && !layer.locked,
+										'opacity-50': !layer.visible || layer.locked,
+									}"
+								>
+									<!-- Drag Handle -->
+									<div class="drag-handle cursor-grab active:cursor-grabbing">
+										<GripVertical class="h-4 w-4 text-muted-foreground" />
+									</div>
 
-							<!-- Layer Name -->
-							<div class="flex-1 min-w-0">
-								<p class="text-sm font-medium truncate">{{ layer.name }}</p>
-								<p class="text-xs text-muted-foreground">
-									{{ layer.width }}x{{ layer.height }}
-								</p>
+									<!-- Layer Type Icon -->
+									<span
+										class="text-lg select-none cursor-pointer"
+										@click="handleLayerClick(layer.id, $event)"
+									>
+										{{ getLayerTypeIcon(layer.type) }}
+									</span>
+
+									<!-- Layer Name -->
+									<div
+										class="flex-1 min-w-0 cursor-pointer"
+										@click="handleLayerClick(layer.id, $event)"
+									>
+										<p class="text-sm font-medium truncate">{{ layer.name }}</p>
+										<p class="text-xs text-muted-foreground">
+											{{ layer.width }}x{{ layer.height }}
+										</p>
+									</div>
+
+									<!-- Actions -->
+									<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+										<!-- Visibility Toggle -->
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger as-child>
+													<Button
+														variant="ghost"
+														size="icon"
+														class="h-7 w-7"
+														@click.stop="emit('toggleVisibility', layer.id)"
+													>
+														<Eye v-if="layer.visible" class="h-3.5 w-3.5" />
+														<EyeOff v-else class="h-3.5 w-3.5 text-muted-foreground" />
+													</Button>
+												</TooltipTrigger>
+												<TooltipContent>
+													<p>{{ layer.visible ? 'Hide' : 'Show' }}</p>
+												</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+
+										<!-- Lock Toggle -->
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger as-child>
+													<Button
+														variant="ghost"
+														size="icon"
+														class="h-7 w-7"
+														@click.stop="emit('toggleLock', layer.id)"
+													>
+														<LockOpen v-if="!layer.locked" class="h-3.5 w-3.5" />
+														<Lock v-else class="h-3.5 w-3.5 text-muted-foreground" />
+													</Button>
+												</TooltipTrigger>
+												<TooltipContent>
+													<p>{{ layer.locked ? 'Unlock' : 'Lock' }}</p>
+												</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+
+										<!-- Duplicate -->
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger as-child>
+													<Button
+														variant="ghost"
+														size="icon"
+														class="h-7 w-7"
+														@click.stop="emit('duplicate', layer.id)"
+													>
+														<Copy class="h-3.5 w-3.5" />
+													</Button>
+												</TooltipTrigger>
+												<TooltipContent>
+													<p>Duplicate</p>
+												</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+
+										<!-- Delete -->
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger as-child>
+													<Button
+														variant="ghost"
+														size="icon"
+														class="h-7 w-7 text-destructive hover:text-destructive"
+														@click.stop="emit('remove', layer.id)"
+													>
+														<Trash2 class="h-3.5 w-3.5" />
+													</Button>
+												</TooltipTrigger>
+												<TooltipContent>
+													<p>Delete</p>
+												</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									</div>
+								</div>
 							</div>
 
-							<!-- Actions -->
-							<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-								<!-- Visibility Toggle -->
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger as-child>
-											<Button
-												variant="ghost"
-												size="icon"
-												class="h-7 w-7"
-												@click.stop="emit('toggleVisibility', layer.id)"
-											>
-												<Eye v-if="layer.visible" class="h-3.5 w-3.5" />
-												<EyeOff v-else class="h-3.5 w-3.5 text-muted-foreground" />
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>{{ layer.visible ? 'Hide' : 'Show' }}</p>
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-
-								<!-- Lock Toggle -->
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger as-child>
-											<Button
-												variant="ghost"
-												size="icon"
-												class="h-7 w-7"
-												@click.stop="emit('toggleLock', layer.id)"
-											>
-												<LockOpen v-if="!layer.locked" class="h-3.5 w-3.5" />
-												<Lock v-else class="h-3.5 w-3.5 text-muted-foreground" />
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>{{ layer.locked ? 'Unlock' : 'Lock' }}</p>
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-
-								<!-- Duplicate -->
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger as-child>
-											<Button
-												variant="ghost"
-												size="icon"
-												class="h-7 w-7"
-												@click.stop="emit('duplicate', layer.id)"
-											>
-												<Copy class="h-3.5 w-3.5" />
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>Duplicate</p>
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-
-								<!-- Delete -->
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger as-child>
-											<Button
-												variant="ghost"
-												size="icon"
-												class="h-7 w-7 text-destructive hover:text-destructive"
-												@click.stop="emit('remove', layer.id)"
-											>
-												<Trash2 class="h-3.5 w-3.5" />
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>Delete</p>
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-							</div>
-						</div>
-
-						<!-- Layer Order Controls (Only visible when selected) -->
-						<div
-							v-if="isLayerSelected(layer.id)"
-							class="absolute -right-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5"
-						>
-							<TooltipProvider>
-								<Tooltip>
-									<TooltipTrigger as-child>
-										<Button
-											variant="secondary"
-											size="icon"
-											class="h-5 w-5 rounded-sm"
-											@click.stop="emit('moveUp', layer.id)"
-										>
-											<ChevronUp class="h-3 w-3" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Move Up</p>
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
-
-							<TooltipProvider>
-								<Tooltip>
-									<TooltipTrigger as-child>
-										<Button
-											variant="secondary"
-											size="icon"
-											class="h-5 w-5 rounded-sm"
-											@click.stop="emit('moveDown', layer.id)"
-										>
-											<ChevronDown class="h-3 w-3" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Move Down</p>
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
-						</div>
-					</div>
+							<!-- Properties in Accordion Content -->
+							<AccordionContent class="pt-2 pb-0">
+								<div class="pl-6 pr-2">
+									<LayerPropertiesInline
+										:layer="layer"
+										@update="emit('updateLayerProperties', layer.id, $event)"
+										@open-code-editor="emit('openCodeEditor')"
+									/>
+								</div>
+							</AccordionContent>
+						</AccordionItem>
+					</Accordion>
 				</VueDraggable>
 			</ScrollArea>
 		</CardContent>
@@ -265,13 +274,6 @@ function getLayerTypeIcon(type: string): string {
 <style scoped>
 .layer-item {
 	position: relative;
-}
-
-.drag-handle {
-	cursor: grab;
-}
-
-.drag-handle:active {
-	cursor: grabbing;
+	margin-bottom: 0.25rem;
 }
 </style>

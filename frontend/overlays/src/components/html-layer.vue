@@ -6,6 +6,7 @@ import type { Layer } from '@/composables/overlays/use-overlays.js'
 const props = defineProps<{
 	layer: Layer
 	parsedData?: string
+	zIndex?: number
 }>()
 
 const containerRef = ref<HTMLDivElement>()
@@ -128,6 +129,7 @@ onUnmounted(() => {
 			height: `${layer.height}px`,
 			transform: `rotate(${layer.rotation || 0}deg)`,
 			transformOrigin: 'center center',
+			zIndex: zIndex ?? 0,
 		}"
 	/>
 </template>
