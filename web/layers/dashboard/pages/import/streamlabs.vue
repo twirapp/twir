@@ -1,0 +1,17 @@
+<script setup lang="ts">
+import IconStreamLabs from '~/assets/integrations/streamlabs.svg?use';
+import OauthComponent from '#layers/dashboard/components/integrations/variants/oauth.vue';
+</script>
+
+<template>
+	<oauth-component
+		title="Streamlabs"
+		:icon="IconStreamLabs"
+		:data="{}"
+		:logout="() => {}"
+	>
+		<template #description>
+			Soon...
+		</template>
+	</oauth-component>
+</template>

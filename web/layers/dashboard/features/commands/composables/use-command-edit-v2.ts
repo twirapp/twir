@@ -1,0 +1,155 @@
+import type { TypeOf } from 'zod'
+
+import { type Command, useCommandsApi } from '#layers/dashboard/api/commands/commands'
+import { useRoles } from '#layers/dashboard/api/roles'
+import { createGlobalState } from '@vueuse/core'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { toast } from 'vue-sonner'
+import { array, boolean, nativeEnum, number, object, string } from 'zod'
+
+import { CommandExpiresType } from '~/gql/graphql'
+
+export const formSchema = object({
+	id: string().optional(),
+	name: string()
+		.min(1)
+		.max(50)
+		.refine((val) => !val.startsWith('!'), { message: 'Command name cannot start with "!"' }),
+	aliases: array(
+		string()
+			.max(50)
+			.refine((val) => !val.startsWith('!'), { message: 'Alias cannot start with "!"' })
+	).max(50),
+	enabled: boolean(),
+	responses: array(
+		object({
+			text: string().min(1).max(500),
+			twitchCategoriesIds: array(string()).max(100),
+			onlineOnly: boolean(),
+			offlineOnly: boolean(),
+		})
+	)
+		.max(3)
+		.default([]),
+	description: string().max(500),
+	rolesIds: array(string()).max(100),
+	deniedUsersIds: array(string()).max(100),
+	allowedUsersIds: array(string()).max(100),
+	requiredMessages: number().int().min(0).max(9999999999),
+	requiredUsedChannelPoints: number().int().min(0).max(999999999999),
+	requiredWatchTime: number().int().min(0).max(999999999999),
+	cooldown: number().int().min(0).max(84600),
+	cooldownType: string(),
+	cooldownRolesIds: array(string()).max(100),
+	isReply: boolean(),
+	visible: boolean(),
+	keepResponsesOrder: boolean(),
+	onlineOnly: boolean(),
+	offlineOnly: boolean(),
+	groupId: string().nullable().optional().default(null),
+	enabledCategories: array(string()).max(100),
+	module: string().optional(),
+}).and(
+	object({
+		expiresAt: number().nullable().optional(),
+		expiresType: nativeEnum(CommandExpiresType).nullable().optional(),
+	}).refine(
+		(data) => {
+			if (data.expiresAt && !data.expiresType) {
+				return false
+			}
+
+			if (!data.expiresAt && data.expiresType) {
+				return false
+			}
+
+			return true
+		},
+		{
+			message: 'ExpiresAt and ExpiresType must be both set or both not set',
+			path: ['expiresAt', 'expiresType'],
+		}
+	)
+)
+
+export type FormSchema = TypeOf<typeof formSchema>
+
+export const useCommandEditV2 = createGlobalState(() => {
+	const { t } = useI18n()
+	const router = useRouter()
+
+	const commandsApi = useCommandsApi()
+	const commands = commandsApi.useQueryCommands()
+	const update = commandsApi.useMutationUpdateCommand()
+	const create = commandsApi.useMutationCreateCommand()
+
+	const rolesManager = useRoles()
+	const { data: roles } = rolesManager.useRolesQuery()
+
+	const command = ref<Command | null>(null)
+	const isCustom = computed(() => {
+		return !command.value?.default
+	})
+
+	async function findCommand(id: string) {
+		command.value = null
+		if (id === 'create') return
+
+		const fetchedData = await commands.then((c) => c)
+		const foundCmd = fetchedData.data?.value?.commands.find((command) => command.id === id)
+
+		if (!foundCmd) {
+			throw new Error('Command not found')
+		}
+
+		command.value = foundCmd
+
+		return foundCmd
+	}
+
+	async function submit(data: FormSchema) {
+		if (data.id) {
+			await update.executeMutation({
+				id: data.id,
+				opts: {
+					...data,
+					//
+					// @ts-expect-error
+					id: undefined,
+					module: undefined,
+				},
+			})
+		} else {
+			const result = await create.executeMutation({
+				opts: data,
+			})
+
+			if (result.error) {
+				toast.error(result.error.graphQLErrors?.map((e) => e.message).join(', ') ?? 'error', {
+					duration: 5000,
+				})
+				return
+			}
+
+			await router.push({
+				path: `/dashboard/commands/custom/${result.data?.commandsCreate.id}`,
+				state: {
+					noTransition: true,
+				},
+			})
+		}
+
+		toast.success(t('sharedTexts.saved'), {
+			duration: 2500,
+		})
+	}
+
+	return {
+		findCommand,
+		submit,
+		channelRoles: roles,
+		command,
+		isCustom,
+	}
+})

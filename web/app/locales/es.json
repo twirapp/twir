@@ -1,0 +1,1325 @@
+{
+	"languageName": "Inglés",
+	"sharedButtons": {
+		"create": "Crear",
+		"save": "Guardar",
+		"close": "Cerrar",
+		"copy": "Copiar",
+		"delete": "Borrar",
+		"settings": "Ajustes",
+		"login": "Iniciar Sesión",
+		"logout": "Cerrar sesión",
+		"edit": "Editar",
+		"select": "Seleccionar",
+		"cancel": "Cancelar",
+		"confirm": "Confirmar",
+		"saveSettings": "Guardar configuración",
+		"setDefaultSettings": "Establecer la configuración predeterminada",
+		"goToDashboard": "Ir al panel de control",
+		"add": "Añadir",
+		"send": "Enviar",
+		"next": "Siguiente",
+		"previous": "Anterior",
+		"reset": "Reiniciar",
+		"popout": "Aparecer en una ventana nueva"
+	},
+	"sharedTexts": {
+		"saved": "Guardado",
+		"errorOnSave": "Error al guardar {error}",
+		"enabled": "Habilitado",
+		"status": "Estado",
+		"name": "Nombre",
+		"actions": "Acciones",
+		"responses": "Respuestas",
+		"reply": {
+			"label": "Contestar",
+			"text": "El bot enviará respuestas de comandos como contestación"
+		},
+		"response": "Respuesta",
+		"user": "Usuario",
+		"userName": "Nombre de usuario",
+		"dangerZone": "Zona de Peligro",
+		"deleted": "Borrado",
+		"updated": "Actualizado",
+		"disabled": "Deshabilitado",
+		"setDefaultSettings": "¿Está Usted seguro de que desea establecer la configuración predeterminada?",
+		"placeCursorMessage": "Coloca el cursor después de \"$\" para cambiar la variable",
+		"pagination": "{page} página(s) / {total} artículo(s)",
+		"paginationPerPage": "Por página",
+		"searchPlaceholder": "Buscar...",
+		"messages": "Mensajes",
+		"asc": "Ascendido",
+		"desc": "Descendido",
+		"hide": "Ocultar",
+		"view": "Vista",
+		"toggleColumns": "Alternar columnas",
+		"copied": "Copiado",
+		"userSelected": "{count} Usuarios seleccionados",
+		"userSelectPlaceholder": "Seleccionar usuario | Seleccionar usuarios",
+		"userNotFound": "Usuarios no encontrados",
+		"settings": "Ajustes",
+		"create": "Crear",
+		"edit": "Editar",
+		"noData": "Sin datos",
+		"loading": "Cargando..."
+	},
+	"sidebar": {
+		"dashboard": "Panel de control",
+		"commands": {
+			"label": "Comandos",
+			"custom": "Personalizado",
+			"builtin": "Incorporado"
+		},
+		"integrations": "Integraciones",
+		"events": "Eventos",
+		"chatAlerts": "Alertas de Chat",
+		"overlays": "Superposiciones",
+		"overlaysRegistry": "Registro de superposiciones",
+		"songRequests": "Solicitudes de canción",
+		"timers": "Temporizadores",
+		"roles": "Permisos",
+		"keywords": "Palabras clave",
+		"variables": "Variables",
+		"greetings": "Saludos",
+		"alerts": "Alertas",
+		"games": "Juegos",
+		"users": "Usuarios",
+		"moderation": "Moderación",
+		"publicPage": "Página Pública",
+		"import": "Importar",
+		"community": "Comunidad",
+		"logout": "Cerrar sesión",
+		"loggedAs": "Registrado como",
+		"lang": "Idioma",
+		"darkTheme": "Tema Oscuro",
+		"lightTheme": "Tema Claro",
+		"notifications": "Notificaciones",
+		"giveaways": "Sorteos"
+	},
+	"deleteConfirmation": {
+		"text": "¿Está Usted seguro de borrar esta cosa?",
+		"cancel": "Cancelar",
+		"confirm": "Confirmar"
+	},
+	"haveNoAccess": {
+		"title": "Sin acceso",
+		"description": "No está Usted autorizado para esto, pida a la emisora que se lo proporcione."
+	},
+	"pageNotFound": {
+		"title": "404 Página no encontrada",
+		"description": "Usted sabe que la vida siempre es ridícula."
+	},
+	"commands": {
+		"name": "Comando | Comandos",
+		"searchPlaceholder": "Buscar el comando...",
+		"newCommandTitle": "Nuevo comando",
+		"importCommands": "Importar Comandos",
+		"groups": {
+			"manageButton": "Administrar grupos",
+			"name": "Nombre",
+			"color": "Color"
+		},
+		"table": {
+			"responses": {
+				"empty": "¡Las respuestas están vacías!"
+			}
+		},
+		"modal": {
+			"name": {
+				"label": "Nombre",
+				"validations": {
+					"empty": "Se requiere el nombre del comando.",
+					"startsWith": "El nombre del comando no debe iniciar con '!'.",
+					"len": "Nombre del comando debe tener menos de 25 caracteres."
+				}
+			},
+			"aliases": {
+				"label": "Nombres adicionales"
+			},
+			"gameCategories": {
+				"label": "Activar comando sólo en ciertas categorías (dejar vacío para desactivar)"
+			},
+			"expiration": {
+				"label": "Expiración",
+				"actionsLabel": "Acción sobre caducar",
+				"defaultWarning": "No se puede establecer la caducidad para el comando predeterminado",
+				"actions": {
+					"delete": "El comando se eliminará",
+					"disable": "El comando se deshabilitará"
+				}
+			},
+			"description": {
+				"label": "Descripción del comando"
+			},
+			"responses": {
+				"add": "Añadir respuesta",
+				"description": "Esta es su respuesta de comando. Puede Usted utilizar tales variables de comando como {0}.",
+				"validations": {
+					"empty": "La respuesta no debe estar vacía. El comando se puede crear sin una respuesta, por lo que puede Usted omitir este campo.",
+					"len": "La respuesta debe tener menos de 500 caracteres."
+				},
+				"defaultWarning": "Las respuestas no se pueden editar para los comandos predeterminados."
+			},
+			"permissions": {
+				"divider": "Permisos",
+				"name": "Roles",
+				"placeholder": "Seleccione Usted roles para conceder permisos para utilizar comandos",
+				"deniedUsers": "Usuarios que no pueden utilizar ese comando.",
+				"allowedUsers": "Usuarios que pueden omitir la restricción de roles para ese comando.",
+				"exceptions": "Excepciones",
+				"blocked": "Usuarios bloqueados"
+			},
+			"restrictions": {
+				"name": "Restricciones por estadísticas",
+				"watchTime": "Tiempo de observación requerido para utilizar ese comando.",
+				"messages": "Recuento de mensajes requerido para utilizar ese comando.",
+				"channelsPoints": "Se requieren puntos de canales usados para utilizar ese comando."
+			},
+			"cooldown": {
+				"label": "Tiempo de reutilización",
+				"value": "Tiempo de reutilización en segundos",
+				"type": {
+					"name": "Tiempo de reutilización por",
+					"global": "Global",
+					"user": "Individual (por usuario)"
+				}
+			},
+			"settings": {
+				"divider": "Ajustes",
+				"visible": {
+					"label": "Visibilidad",
+					"text": "Visibilidad de comandos en una página de lista de comandos públicos."
+				},
+				"keepOrder": {
+					"label": "Mantenga el orden",
+					"text": "El bot mantendrá este orden de respuestas al enviarlas al chat."
+				},
+				"onlineOnly": {
+					"label": "Solo cuando está en línea",
+					"text": "Este comando sólo funcionará cuando la secuencia esté en línea."
+				},
+				"offlineOnly": {
+					"label": "Sólo cuando está sin conexión",
+					"text": "Este comando sólo funcionará cuando la secuencia esté sin conexión."
+				},
+				"other": {
+					"divider": "Otro",
+					"commandGroup": "Grupo de comandos"
+				}
+			},
+			"alert": {
+				"label": "Seleccione Usted una alerta, que se activará cuando el comando esté utilizado."
+			}
+		}
+	},
+	"dashboard": {
+		"header": {
+			"managingUser": "Administración de usuarios",
+			"channelsAccess": "Canales a los que tiene Usted acceso"
+		},
+		"botManage": {
+			"title": "El estado del bot",
+			"success": "Activado y tiene el estado de moderador",
+			"notEnabledTitle": "El bot no está habilitado en el canal",
+			"notModerator": "Hemos encontrado que el bot no es un moderador en este canal. Por favor, use {0}, de lo contrario el bot no enviará mensajes en el chat y la mayoría de las funciones no funcionarán",
+			"leave": "Deshabilitar",
+			"join": "Habilitar"
+		},
+		"statsWidgets": {
+			"streamInfo": {
+				"noTitle": "¡No se puede obtener el título del Stream!",
+				"noCategory": "¡No se puede obtener la categoría!",
+				"modalTitle": "Editar información del Stream",
+				"title": "Título del Stream",
+				"category": "Categoría"
+			},
+			"uptime": "Tiempo de operación",
+			"followers": "Seguidores",
+			"messages": "Mensajes",
+			"subs": "Suscriptores",
+			"usedEmotes": "Emoticonos enviados",
+			"viewers": "Espectadores",
+			"requestedSongs": "Canciones solicitadas"
+		},
+		"widgets": {
+			"chat": {
+				"title": "Chat"
+			},
+			"stream": {
+				"title": "Stream"
+			},
+			"events": {
+				"title": "Lista de eventos"
+			},
+			"bot": {
+				"title": "Gestión del bot"
+			},
+			"audit-logs": {
+				"title": "Registros de auditoría",
+				"search-label": "Buscar por",
+				"search": {
+					"channel": "Canal",
+					"actor": "Actor"
+				},
+				"operation-type-label": "Tipo de operación",
+				"operation-type": {
+					"create": "Creada",
+					"delete": "Borrado",
+					"update": "Editado"
+				},
+				"systems-label": "Sistemas",
+				"systems": {
+					"badge": "Insignia",
+					"badge-user": "Insignia de usuario",
+					"channel-command": "Comando",
+					"channel-command-group": "Grupo de comandos",
+					"channel-variable": "Variable",
+					"channel-games-eight-ball": "8ball",
+					"channel-games-duel": "Duelo",
+					"channel-games-russian-roulette": "Ruleta rusa",
+					"channel-games-seppuku": "Seppuku",
+					"channel-games-voteban": "Voteban",
+					"channel-greeting": "Saludo",
+					"channel-keyword": "Palabra clave",
+					"channel-moderation-setting": "Configuración de moderación",
+					"channel-overlay-chat": "Superposición del chat",
+					"channel-overlay-dudes": "Superposiciones para amigos",
+					"channel-overlay-now-playing": "Reproducción de superposición en proceso",
+					"channel-roles": "Role",
+					"channel-timers": "Temporizador",
+					"channel-song-requests": "Solicitudes de canción",
+					"channel-integrations": "Integración",
+					"channel-alerts": "Alerta",
+					"channel-chat-alerts": "Alertas de Chat"
+				}
+			}
+		}
+	},
+	"integrations": {
+		"notLoggedIn": "¡No ha iniciado Usted la sesión!",
+		"songServicesInfo": "Proporcionar acceso a este servicio permite a Twir obtener e imprimir automáticamente su canción que se está reproduciendo actualmente en el chat cuando se está utilizando el comando {0}.",
+		"donateServicesInfo": "Proporcionar acceso a este servicio permite a Twir escuchar las donaciones entrantes y establecerá interacciones para usted en las categorías {0}, {1}.",
+		"discord": {
+			"description": "Proporcionar acceso a Discord permite a Twir configurar pings automáticos y alertas sobre el estado de la transmisión en sus servidores de Discord.",
+			"guildPluralization": "No hay servidores | 1 servidor | {count} servidores",
+			"connectedGuilds": "{guilds} conectados",
+			"alerts": {
+				"label": "Alertas",
+				"showTitle": "¿Título del Stream?",
+				"showCategory": "¿Mostrar categoría de Stream?",
+				"showViewers": "¿Mostrar contador de espectadores?",
+				"showPreview": "¿Mostrar vista previa del Stream?",
+				"showProfileImage": "¿Mostrar el Avatar del perfil de Twitch?",
+				"channelsSelect": "¿Dónde se publicarán las alertas?",
+				"streamOnlineLabel": "Mensaje de alerta de Stream",
+				"streamOnlinePlaceholder": "Este mensaje Twir se enviará cuando se inicie el Stream.",
+				"streamOfflineLabel": "Mensaje finalizado del Stream",
+				"streamOfflinePlaceholder": "Este mensaje Twir se enviará cuando el Stream se desconecte.",
+				"updateAlert": "Twir actualizará el mensaje incrustado periódicamente para asegurarse de que esté sincronizado con su estado de Stream.",
+				"shouldDeleteMessageOnOffline": "¿Eliminar el mensaje de alerta en lugar de editarlo cuando el Stream se desconecta?",
+				"additionalUsersIdsForLiveCheck": "Lista adicional de usuarios de Twitch a seguir para enviar alertas de Stream."
+			},
+			"connectGuild": "+ Conectar servidor",
+			"disconnectGuild": "Desconectar Servidor",
+			"noGuilds": "No hay servidores conectados",
+			"cannotSendMessage": "Bot no tiene la capacidad de enviar mensajes en ese canal. Echa un vistazo a los permisos del canal para resolverlo."
+		},
+		"faceit": {
+			"info": "Proporcionar acceso a este servicio permite a Twir rastrear tus coincidencias de Faceit y configurará variables de comando como {0}, {1} y mucho más."
+		},
+		"nightbot": {
+			"info": "Proporcionar acceso a este servicio permite a Twir importar comandos y temporizadores de Nightbot."
+		},
+		"valorant": {
+			"info": "Proporcionar acceso a este servicio permite a Twir rastrear sus coincidencias de Valorant y configurará variables de comandos como {0}, {1} y mucho más."
+		},
+		"sevenTv": {
+			"description": "Podemos gestionar emotes de canal 7tv, cuando esta integración está habilitada.",
+			"alert": "También puede realizar flujos avanzados a través del sistema {0} para gestionar los emotes de 7tv.",
+			"connected": "Conectado",
+			"notConnected": "No conectado",
+			"notRegistered": "No está registrado Usted en {0}",
+			"errorSameReward": "¡No puedes usar la misma recompensa para agregar y eliminar emotes!",
+			"deleteOnlyAddedByApp": "Eliminar los emotes solo agregados por Twir",
+			"connectSteps": {
+				"step1": "Abra su perfil {0}",
+				"step2": "Haga clic en el botón \"Agregar editores\"",
+				"step3": "Añadir {0} como editor"
+			},
+			"rewardForAddEmote": "Recompensa por añadir emote",
+			"rewardForRemoveEmote": "Recompensa por eliminar emote",
+			"rewardSelectorDescription": "Debes crear recompensa con entrada. Los usuarios deben usar el enlace 7tv para emote cuando activan la recompensa."
+		}
+	},
+	"events": {
+		"delay": "Retraso (en segundos)",
+		"repeat": "Recuento de repeticiones",
+		"onlineOnly": "Ejecución sólo en línea",
+		"type": "Tipo",
+		"description": "Descripción",
+		"targetCommand": "Objetivo de comando",
+		"targetVariable": "Objetivo variable",
+		"targetTwitchReward": "Recompense de objetivo Twitch",
+		"targetKeyword": "Palabra clave de objetivo",
+		"operations": {
+			"divider": "Acciones",
+			"name": "Acción",
+			"inputs": {
+				"message": "Mensaje para enviar (admite variables)",
+				"default": "Texto de acción (admite variables)",
+				"vipSlots": "Cantidad de ranuras VIP",
+				"username": "Nombre de usuario (admite variables)",
+				"variableValue": "Nuevo valor variable (admite variables)",
+				"variableIncrementDecrement": "Valor de incremento/decremento (admite variables)"
+			},
+			"banMessage": "Mensaje de bloqueo",
+			"banTime": "Tiempo de bloqueo",
+			"obs": {
+				"warningTitle": "¡Tiene que configurar OBS primero antes de continuar!",
+				"warningText": "Parece que no ha conectado Usted Twir con OBS. Puedes hacerlo en la página “Superposiciones”.",
+				"scene": "Escena de OBS",
+				"source": "Fuente de OBS",
+				"audioSource": "Fuente de audio OBS"
+			},
+			"values": "Valores",
+			"triggerAlert": "Alerta de activación",
+			"filters": {
+				"label": "Filtros",
+				"description": "Puede filtrar eventos por condiciones específicas. Por ejemplo, si utiliza \"{'{raidViewers}'} igual a 10\" en el evento raid, sólo activará la operación cuando la cantidad de raiders sea 10.",
+				"placeholderLeft": "Lado izquierdo de la condición",
+				"placeholderRight": "Lado derecho de la condición",
+				"empty": "Aún no se han añadido filtros"
+			}
+		},
+		"variables": {
+			"userName": "Nombre de usuario del activador de eventos",
+			"userDisplayName": "Nombre de visualización del activador de eventos",
+			"targetUserName": "Nombre de usuario del objetivo del evento",
+			"targetDisplayUserName": "Nombre de visualización del objetivo del evento",
+			"subLevel": "Niveles de suscripción (como “1”/“2”/“3”/“prime”)",
+			"resubMonths": "Racha de longitud de suscriptor",
+			"resubStreak": "Número total de meses de suscriptor",
+			"resubMessage": "Mensaje de resuscripción del usuario",
+			"rewardName": "Nombre de la Recompensa de Puntos del Canal",
+			"rewardCost": "Precio de recompensa de puntos de canal",
+			"rewardInput": "Mensaje personalizado de recompensa de puntos de canal",
+			"commandName": "Nombre del comando",
+			"commandInput": "Argumentos de comando",
+			"raidViewers": "Cantidad de Raiders",
+			"oldStreamTitle": "Título de Stream antiguo",
+			"newStreamTitle": "Título de Stream nuevo",
+			"oldStreamCategory": "Categoría de Stream antiguo",
+			"newStreamCategory": "Categoría de Stream nuevo",
+			"streamTitle": "Título del Stream",
+			"streamCategory": "Categoría del Strea,",
+			"donateAmount": "Importe de la donación",
+			"donateCurrency": "Divisa de donación",
+			"donateMessage": "Mensaje de Donación",
+			"keywordName": "Nombre de palabra clave",
+			"keywordResponse": "Respuestas de palabra clave (separadas por espacio)",
+			"greetingText": "Mensaje de saludo",
+			"pollTitle": "Título de la encuesta",
+			"pollOptionsNames": "Configuración de encuesta (separada por coma)",
+			"pollTotalVotes": "Votos totales de la encuesta",
+			"pollWinnerTitle": "Nombre del ganador de la encuesta",
+			"pollWinnerBitsVotes": "Número de votos de bits del ganador",
+			"pollWinnerChannelsPointsVotes": "Número de votos del ganador de puntos de canal",
+			"pollWinnerTotalVotes": "Votos totales del ganador de la encuesta",
+			"predictionTitle": "Título de predicción",
+			"predictionOptionsNames": "Resultados de predicción (separados por · símbolo)",
+			"predictionTotalChannelPoints": "Total de puntos colocados de canal",
+			"predictionWinner": {
+				"title": "Resultado del ganador de la predicción",
+				"totalUsers": "Total de usuarios de resultados ganadores",
+				"totalPoints": "Puntos totales del canal colocados en el resultado del ganador",
+				"topUsers": "Los 10 mejores usuarios del resultado ganador"
+			},
+			"moderatorName": "Nombre de usuario del moderador activador de eventos",
+			"moderatorDisplayName": "Nombre de visualización del moderador activador de eventos",
+			"banReason": "Razón del bloqueo",
+			"banEndsInMinutes": "Tiempo de espera (en minutos o establecido en \"permanente\" para prohibirlo de forma permanente)",
+			"message": "Mensaje"
+		}
+	},
+	"overlays": {
+		"copyOverlayLink": "Copiar vínculo de superposición",
+		"uncongirured": "¡Primero debe Usted configurar la superposición!",
+		"noAccess": "¡No tiene acceso a esta superposición!",
+		"copied": "Se ha copiado correctamente la URL del vínculo de superposición. Debe establecerlo como fuente del navegador en OBS.",
+		"buildWidget": "Build Widget",
+		"generateObsLink": "Generate obs link",
+		"nowPlaying": {
+			"description": "Superposición con la información actual de la canción reproducible. Esta superposición funcionará solo si ha conectado la integración del servicio de canciones como spotify, lastfm."
+		},
+		"tts": {
+			"description": "Esta superposición le permite reproducir mensajes de chat como audio a través de OBS con el conjunto de voces preconfiguradas. Puede controlar esta superposición mediante comandos o eventos.",
+			"eventsHint": "Sugerencia: Puede utilizar el sistema de eventos para activar TTS en un evento específico.",
+			"allowUsersChooseVoice": "¿Permitir que los chatters usen diferentes voces?",
+			"doNotReadEmoji": "No leer Emojis",
+			"doNotReadTwitchEmotes": "No leer los emotes de Twitch (incluyendo 7TV, FFZ, BTTV",
+			"doNotReadLinks": "No leer vínculos",
+			"readChatMessages": "Leer Todos los Mensajes de Chat",
+			"readChatMessagesNicknames": "Leer nombres de usuario",
+			"voice": "Voz predeterminada",
+			"disallowedVoices": "Lista de voces no permitidas",
+			"volume": "Volumen",
+			"pitch": "Tono",
+			"rate": "Velocidad",
+			"users": {
+				"selectAll": "Seleccionar Todo",
+				"undoSelection": "Deshacer selección",
+				"empty": "Nadie ha creado sus propias personalizaciones todavía..."
+			},
+			"tabs": {
+				"general": "General",
+				"usersSettings": "Configuraciones Individuales"
+			},
+			"previewText": "Vista previa de voz con texto, tono y velocidad:"
+		},
+		"obs": {
+			"description": "Esta superposición le permite conectar Twir con su OBS. Le da la capacidad de administrar sus fuentes, escenas, fuentes de audio y eventos.",
+			"address": "Dirección del servidor OBS WebSocket",
+			"port": "Puerto del servidor OBS WebSocket",
+			"connected": "¡Conectado!",
+			"notConnected": "¡No está conectado!",
+			"checkConnection": "Compruebe la conexión"
+		},
+		"alerts": {
+			"description": "Esta superposición le permite reproducir alertas configuradas desde la sección «Alertas»."
+		},
+		"chat": {
+			"presets": "Preajustes",
+			"selectSubsetPlaceholder": "Seleccionar subconjuntos preferibles",
+			"hideTimeout": "Tiempo límite para ocultar mensajes",
+			"showDelay": "Retraso en la presentación del mensaje",
+			"showBadges": "Mostrar insignias",
+			"showAnnounceBadge": "Mostrar borde del anuncio",
+			"paddingContainer": "Relleno de contenedor interior",
+			"resetToDefault": "Restablecer al valor predeterminado",
+			"textShadow": "Sombra de Texto",
+			"backgroundColor": "Color de fondo",
+			"direction": "Dirección del mensaje",
+			"directions": {
+				"left": "Izquierda",
+				"right": "Derecha",
+				"top": "Arriba",
+				"bottom": "Abajo"
+			},
+			"directionWarning": "¡Para usar 'Izquierda' y 'Derecha', debe establecer la altura de superposición hasta 50x para que el chat se muestre correctamente!",
+			"fontFamily": "Familia de la fuente",
+			"fontSize": "Tamaño de fuente",
+			"fontStyle": "Estilo de Fuente",
+			"fontWeight": "Peso de la Fuente",
+			"availabeFonts": "Fuentes disponibles",
+			"hideCommands": "Ocultar comandos",
+			"hideBots": "Ocultar otros mensajes de bots",
+			"style": "Estilo del mensaje",
+			"description": "Esta superposición le permite mostrar su chat de Twitch en su software de transmisión (como OBS, XSplit, etc.)"
+		},
+		"dudes": {
+			"description": "Caracteres animados para los chatters en tu Stream",
+			"enable": "Habilitar",
+			"dudeDivider": "Dude",
+			"dudeDefaultSprite": "Sprite predeterminado",
+			"dudeMaxOnScreen": "Máximo en pantalla",
+			"dudeMaxOnScreenUnlimited": "Ilimitado",
+			"dudeColor": "Color de usuario predeterminado",
+			"dudeGravity": "Gravedad",
+			"dudeMaxLifeTime": "Tiempo de vida máximo",
+			"dudeScale": "Escala",
+			"dudeSoundsDivider": "Sonidos",
+			"dudeSoundsVolume": "Volumen",
+			"ignoreDivider": "Ignorando",
+			"ignoreCommands": "Ignorar comandos",
+			"ignoreUsers": "Ignorar usuarios",
+			"ignoreUsersList": "Lista de usuarios ignorados",
+			"nameBoxDivider": "Cuadro de nombre",
+			"nameBoxFill": "Color de texto",
+			"nameBoxFillError": "Se requiere color",
+			"nameBoxFillGradientStops": "Colores de texto de las paradas de degradado",
+			"nameBoxFillGradientStopsError": "Los colores del texto del rango de degradado deben ser de 0 a 1",
+			"nameBoxGradientType": "Tipo de degradado",
+			"nameBoxFontFamily": "Familia de fuente",
+			"nameBoxFontSize": "Tamaño de la fuente",
+			"nameBoxFontWeight": "Peso de la fuente",
+			"nameBoxFontStyle": "Estilo de fuente",
+			"nameBoxFontVariant": "Variante de fuente",
+			"nameBoxStroke": "Color del trazo",
+			"nameStrokeThickness": "Espesor del trazo",
+			"nameBoxLineJoin": "Unión de trazo",
+			"nameBoxDropShadow": "Sombra paralela",
+			"nameBoxDropShadowColor": "Color de sombra",
+			"nameBoxDropShadowAlpha": "Alfa de sombra",
+			"nameBoxDropShadowBlur": "Desenfoque de sombra",
+			"nameBoxDropShadowDistance": "Distancia de sombra",
+			"nameBoxDropShadowAngle": "Ángulo de sombra",
+			"messageBoxIgnoreCommands": "Ignorar comandos",
+			"messageBoxDivider": "Cuadro de mensajes",
+			"messageBoxShowTime": "Mostrar hora",
+			"messageBoxFill": "Color de texto",
+			"messageBoxBackground": "Color del fondo",
+			"messageBoxPadding": "Relleno",
+			"messageBoxBorderRadius": "Radio del borde",
+			"messageBoxFontSize": "Tamaño de la fuente",
+			"emoteDivider": "Emote",
+			"growDivider": "Crecer",
+			"growTime": "Tiempo de crecimiento",
+			"growMaxScale": "Escala máxima"
+		},
+		"kappagen": {
+			"description": "Esta superposición le permite llenar su pantalla con explosiones, movimientos, fuegos artificiales, paredes de emoticonos a través del chat.",
+			"testKappagen": "Prueba de Kappagen",
+			"testSpawn": "Prueba de Emote Spawn",
+			"clear": "Borrar superposición",
+			"info": "Spawn mostrará emotes en la pantalla mientras los usuarios solo chatean y envían emotes. Kappagen mostrará la cantidad configurada de emotes en un comando o eventos configurados.",
+			"tabs": {
+				"main": "Ajustes",
+				"events": "Eventos",
+				"animations": "Animaciones"
+			},
+			"settings": {
+				"spawn": "¿Generar un emote en cada mensaje de chat?",
+				"size": "Tamaño",
+				"sizeSmall": "Tamaño para la variante de pequeño emote",
+				"time": "Emote Livespan",
+				"maxEmotes": "Cantidad de Emotes",
+				"animationsOnAppear": "Aparición de Animación Emote",
+				"animationsOnDisappear": "Desaparición de Animación Emote",
+				"excludedEmotes": "Emotes excluidos",
+				"rave": "Mostrar Rave (Rainbow) Emotes",
+				"emotes": {
+					"bttvEnabled": "¿Habilitar BetterTTV Emotes?",
+					"ffzEnabled": "¿Habilitar FrankerFaceZ Emotes?",
+					"seventvEnabled": "¿Habilitar 7TV Emotes?",
+					"emojiStyle": "Estilo de emoji"
+				}
+			}
+		},
+		"brb": {
+			"description": "Esta superposición le permite mostrar una cuenta atrás en la pantalla para eventos específicos o mientras está AFK.",
+			"settings": {
+				"main": {
+					"label": "Ajustes",
+					"startCommand": {
+						"description": "Comando de inicio de superposición",
+						"example": "<b>!brb 1 Coffee</b> – inicia un temporizador de 1-minuto con la etiqueta 'Coffee'.<br><b>!brb 1</b> – inicia un temporizador de 1 minuto con el texto predeterminado especificado en las secciones Configuración y Configuración posterior al temporizador."
+					},
+					"stopCommand": {
+						"description": "Comando de detención de superposición",
+						"example": "!brbstop"
+					},
+					"text": "Texto superpuesto",
+					"background": "Fondo de superposición",
+					"backgroundOpacity": "Opacidad de fondo de superposición",
+					"font": {
+						"color": "Color de fuente",
+						"family": "Familia de la fuente",
+						"size": "Tamaño de fuente"
+					}
+				},
+				"late": {
+					"label": "Configuración posterior al temporizador",
+					"text": "Superponer texto posterior al temporizador",
+					"displayBrb": "Mostrar información de cuenta atrás"
+				}
+			},
+			"preview": {
+				"start": "Iniciar vista previa de superposición",
+				"stop": "Detener vista previa de superposición"
+			}
+		},
+		"faceit": {
+			"title": "Faceit Stats Builder",
+			"description": "Set up an overlay to display your Faceit statistics. Customize it according to your preferences.",
+			"secondTitle": "Faceit Stats",
+			"settings": {
+				"general": {
+					"title": "General",
+					"faceitNickname": "Faceit nickname",
+					"game": "Game"
+				},
+				"appearance": {
+					"title": "Appearance",
+					"background": "Background Color",
+					"textColor": "Text color",
+					"borderRadius": "Border Radius"
+				},
+				"display": {
+					"title": "Display",
+					"showAvarageKdr": "Show avarage kdr",
+					"worldRanking": "World ranking",
+					"last20MatchesStats": "Last 20 matches stats"
+				}
+			}
+		},
+		"valorant": {
+			"title": "Valorant Stats Builder",
+			"secondTitle": "Valorant Stats",
+			"description": "Configure the overlay with your Valorant stats. Change its design according to your personal requirements.",
+			"valorantIntegration": {
+				"connect": "Connect valorant integration to use this overlay",
+				"button": "Connect"
+			},
+			"settings": {
+				"colors": {
+					"title": "Colors",
+					"background": "Background color",
+					"text": "Text color",
+					"primaryText": "Primary Text Color",
+					"win": "Win Color",
+					"lose": "Lose Color"
+				},
+				"general": {
+					"title": "General",
+					"background": "Background",
+					"border": "Border",
+					"glow": "Glow effect",
+					"leaderboard": "Leaderboard place",
+					"winLose": "Win / Lose",
+					"progress": "Progress",
+					"last20MatchesStats": "Show last 20 matches stats"
+				}
+			}
+		}
+	},
+	"songRequests": {
+		"waiting": "Esperando una solicitud de canción...",
+		"player": {
+			"title": "Canción actual",
+			"noAccess": "Parece, que no son capaces de escuchar canciones allí... Vaya a su propio panel Solicitudes de canciones para acceder al reproductor."
+		},
+		"table": {
+			"title": "Cola",
+			"columns": {
+				"title": "Título",
+				"author": "Autor",
+				"added": "Añadido por",
+				"duration": "Duración"
+			}
+		},
+		"settings": {
+			"onlineOnly": "¿Permitir solicitudes de canciones durante la transmisión?",
+			"announcePlay": "¿Anunciar la canción actual en el chat?",
+			"playerNoCookieMode": "Modo de incógnito para el jugador",
+			"playerNoCookieModeDescription": "Habilitar esta opción le permitirá escuchar canciones sin cookies ni historial de visualización. Necesita actualizar la página después de habilitar.",
+			"neededPercentageForskip": "Porcentaje de omisión de usuario",
+			"channelReward": "Activación de solicitud de recompensa de puntos de canal",
+			"deniedChannels": "Lista de canales de YouTube prohibidos (de solicitar canciones)",
+			"deniedWords": "Lista de palabras prohibidas (afecta tanto a títulos como a nombres de canales de YouTube)",
+			"deniedUsers": "Usuarios prohibidos",
+			"deniedSongs": "Lista de canciones prohibidas",
+			"takeSongFromDonationMessage": "¿Intenta obtener enlaces de canciones de mensajes de donación?",
+			"confirmClearQueue": "¿Está Usted seguro de que desea borrar la cola?",
+			"users": {
+				"maxRequests": "Cantidad máxima de solicitudes por usuario",
+				"minimalWatchTime": "Tiempo mínimo de visualización (en minutos)",
+				"minimalMessages": "Cantidad mínima de mensajes",
+				"minimalFollowTime": "Tiempo de seguimiento mínimo (en minutos)"
+			},
+			"songs": {
+				"maxRequests": "Límite máximo de cola de canciones",
+				"minLength": "Duración mínima de la canción (en minutos)",
+				"maxLength": "Duración máxima de la canción (en minutos)",
+				"minViews": "Cantidad mínima de vistas"
+			}
+		},
+		"tabs": {
+			"general": "General",
+			"users": "Usuarios",
+			"songs": "Canciones",
+			"translations": "Traducciones"
+		},
+		"ban": {
+			"user": "Prohibir usuario",
+			"song": "Prohibir canción",
+			"userConfirm": "¿Está seguro de que desea prohibir este usuario?",
+			"songConfirm": "¿Estás seguro de que quieres prohibir esta canción?"
+		}
+	},
+	"timers": {
+		"table": {
+			"columns": {
+				"intervalInMinutes": "Intervalo en minutos",
+				"intervalInMessages": "Intervalo de líneas de chat"
+			}
+		},
+		"modal": {
+			"timelineDescription": "Cada respuesta se enviará una vez que se cumplan ambas condiciones de intervalo.",
+			"validations": {
+				"nameLong": "¡El nombre del temporizador es demasiado largo!",
+				"nameRequired": "¡Se requiere el nombre del temporizador!",
+				"responseRequired": "¡Se requiere texto de respuesta!",
+				"responseLong": "¡La respuesta es demasiado larga!"
+			}
+		},
+		"limitExceeded": "¡Límite de temporizador superado!",
+		"newTimer": "Nuevo temporizador"
+	},
+	"roles": {
+		"modal": {
+			"accessToUsers": "Usuarios permitidos",
+			"accessByStats": "Usuarios permitidos (por estadísticas)",
+			"requiredWatchTime": "Tiempo de observación requerido",
+			"requiredMessages": "Cantidad de mensajes requerida",
+			"requiredChannelPoints": "Puntos de canal requeridos gastados",
+			"permissions": "Permisos"
+		},
+		"validations": {
+			"nameRequired": "¡Se requiere nombre!"
+		}
+	},
+	"keywords": {
+		"title": "Palabras clave",
+		"info": {
+			"text": "Palabras clave le ayudan a activar el mensaje de chat en ciertas palabras coincidentes."
+		},
+		"create": "Crear palabra clave",
+		"triggerText": "Texto de activación",
+		"usages": "Recuento de uso",
+		"isRegular": "¿Es una expresión regular?",
+		"regularDescription": "¡La expresión regular debe escribirse en formato golang! Consulte {0} aquí.",
+		"regularDescriptionCheatSheet": "Hoja de referencia",
+		"settings": "Ajustes",
+		"cooldown": "Tiempo de reutilización (en segundos)",
+		"validations": {
+			"triggerRequired": "¡Se requiere texto de activación!",
+			"triggerLong": "¡El nombre del temporizador es demasiado largo!",
+			"responseLong": "¡El texto de respuesta es demasiado largo!"
+		}
+	},
+	"variables": {
+		"title": "Variables",
+		"type": "Tipo",
+		"info": "Las variables son un tipo de contexto que se puede usar en respuestas de bots, comandos y otras partes del bot. Puede especificar un valor constante o poner un script para obtener algunos valores que por lo general no se puede acceder fácilmente por el bot. Las variables de script se recomiendan para usuarios avanzados.",
+		"validations": {
+			"nameRequired": "¡Se requiere el nombre de variable!",
+			"nameLong": "El nombre de variable es demasiado largo"
+		}
+	},
+	"greetings": {
+		"title": "Saludos",
+		"create": "Crear saludo",
+		"edit": "Editar saludo",
+		"info": {
+			"title": "Información de Saludos",
+			"text": "Los saludos son un tipo de mensajes que el bot utiliza para dar la bienvenida a los espectadores conocidos de transmisión cuando envían su primer mensaje en el chat en cada transmisión. Si desea saludar a todos los usuarios en el chat, puede mirar la categoría de eventos en lugar de Saludos."
+		},
+		"validations": {
+			"userName": "¡El nombre de usuario es obligatorio!",
+			"textRequired": "¡Se requiere texto de respuesta!"
+		}
+	},
+	"alerts": {
+		"title": "Alertas",
+		"info": "Información de Alertas",
+		"overlayLabel": "Las alertas son una parte gráfica de la implementación del comando o evento. Puede Usted configurar una alerta con audio, imagen y texto especificados, y luego asignarla a un comando, evento, palabra clave o saludo específico. Además, no se olvide de insertar la URL superpuesta como fuente del navegador en su escena de software de transmisión. (como OBS, XSplit, etc.)",
+		"copyOverlayLink": "Copiar vínculo de superposición",
+		"name": "Nombre",
+		"rewards": "Recompensas",
+		"commands": "Comandos",
+		"validations": {
+			"name": "¡El nombre no puede estar vacío ni tener más de 30 símbolos!"
+		},
+		"trigger": {
+			"commands": "Activador de comando",
+			"rewards": "Activador del canal de puntos de recompensa",
+			"keywords": "Activador de palabra clave",
+			"greetings": "Activador de saludo"
+		},
+		"select": {
+			"audio": "Configure un audio",
+			"image": "Configurar una imagen",
+			"text": "Configure texto"
+		},
+		"audioVolume": "Volumen de audio",
+		"createAlert": "Crear alerta",
+		"editAlert": "Editar alerta",
+		"tableEmpty": "No se han encontrado alertas"
+	},
+	"games": {
+		"command": "Comando",
+		"8ball": {
+			"description": "Un juego de chat simple que permite a los chatters preguntar a la 8ball mágico algo y responderá al chat.",
+			"answers": "Respuestas"
+		},
+		"russianRoulette": {
+			"description": "Un juego de chat sencillo que permite a los chatters probar suerte en un juego de ruleta clásico russiano*.",
+			"canBeUsedByModerator": "¿Moderadores de tiempo de espera? * Los privilegios de moderador se otorgarán nuevamente después del tiempo de espera.",
+			"timeoutSeconds": "Tiempo de espera (en segundos, configúrelo en 0 para deshabilitar un tiempo de espera)",
+			"decisionSeconds": "Retraso del resultado (en segundos)",
+			"initMessage": "Anuncio de activación (mensaje de inicio del juego)",
+			"surviveMessage": "Mensaje de usuario sobrevivido",
+			"deathMessage": "Mensaje perdido de usuario",
+			"chargedBullets": "Cantidad de balas cargadas: {tumberSize}",
+			"tumberSize": "El tamaño del cilindro del revólver"
+		},
+		"duel": {
+			"title": "Duelos",
+			"description": "¡Un simple juego de chat entre dos usuarios que permite poner a prueba sus habilidades de esquivar!",
+			"commands": {
+				"title": "Comandos de Duelo",
+				"duel": "Pide un duelo",
+				"accept": "Aceptar un Duelo",
+				"stats": "Estadísticas"
+			},
+			"cooldown": {
+				"title": "Tiempo de reutilización de duelo",
+				"user": "Individual",
+				"global": "Global"
+			},
+			"messages": {
+				"title": "Mensajes",
+				"start": {
+					"title": "Mensaje inicial",
+					"description": "Envía este mensaje cuando se ha iniciado el duelo. Variables disponibles: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+				},
+				"result": {
+					"title": "Mensaje de resultado",
+					"description": "Envía este mensaje cuando el duelo ocurrió. Variables disponibles: {'{loser}, {winner}'}"
+				},
+				"bothDie": {
+					"title": "Mensaje «Nadie sobrevivió»",
+					"description": "Envía este mensaje cuando el duelo ocurrió y ambos duelistas están muertos. Variables disponibles: {'{target}, {initiator}'}"
+				}
+			},
+			"settings": {
+				"title": "Ajustes",
+				"secondsToAccept": "Segundos para aceptar el duelo",
+				"timeoutTime": "Tiempo de espera para el perdedor",
+				"pointsPerWin": "Reputación para ganar",
+				"pointsPerLose": "Reputación para perder",
+				"bothDiePercent": "Porcentaje de probabilidad de que ambos usuarios mueran"
+			}
+		},
+		"seppuku": {
+			"description": "Seppuku, es una forma de suicidio ritual japonés por destripamiento.",
+			"message": "Mensaje",
+			"timeoutModerators": "Habilitar seppuku para moderadores",
+			"messageModerators": "Mensaje cuando el moderador usó seppuku",
+			"timeoutSeconds": "Duración del tiempo de espera (segundos)"
+		},
+		"voteban": {
+			"description": "¡Comienza el juicio del culpable!",
+			"banMessage": "Mensaje sobre la prohibición",
+			"banMessageModerators": "Mensaje para el bloqueo de moderador",
+			"surviveMessage": "Mensaje de supervivencia",
+			"surviveMessageModerators": "Mensaje de sobrevivir para los moderadores",
+			"initialMessage": "Mensaje inicial",
+			"neededVotes": "Votos necesarios",
+			"banDuration": "Duración del ban (segundos)",
+			"voteMode": "Modo de votación",
+			"voteDuration": "Duración de la votación (segundos)",
+			"wordsNegative": "Palabras para votar a la opción \"no\"",
+			"wordsPositive": "Palabras para votar a la opción \"sí\"",
+			"timeoutModerators": "Habilitar voteban en moderadores"
+		}
+	},
+	"modules": {
+		"chatTranslations": {
+			"title": "Traducciones de chat",
+			"description": "Traducir chat en tiempo",
+			"settings": {
+				"title": "Configuración de traducción de chat",
+				"enabled": {
+					"label": "Habilitado",
+					"description": "Habilitar la traducción de chat para su canal"
+				},
+				"targetLanguage": {
+					"label": "Idioma de destino",
+					"description": "Los mensajes se traducirán a este idioma",
+					"placeholder": "Seleccione un idioma"
+				},
+				"excludedLanguages": {
+					"label": "Idiomas excluidos",
+					"description": "Los mensajes en estos idiomas no se traducirán",
+					"placeholder": "Seleccione idiomas para excluir"
+				},
+				"useItalic": {
+					"label": "Usar Italic",
+					"description": "Mostrar los mensajes traducidos en Italic"
+				},
+				"excludedUsers": {
+					"title": "Usuarios excluidos",
+					"description": "Los mensajes de estos usuarios no se traducirán"
+				},
+				"buttons": {
+					"update": "Actualice la configuración",
+					"create": "Crear configuración"
+				}
+			}
+		}
+	},
+	"community": {
+		"title": "Comunidad",
+		"users": {
+			"title": "Usuarios",
+			"searchPlaceholder": "Buscar usuarios...",
+			"table": {
+				"user": "Usuario",
+				"watchedTime": "Tiempo de observación",
+				"messages": "Mensajes",
+				"usedEmotes": "Emotes usados",
+				"usedChannelPoints": "Puntos de canal gastados",
+				"empty": "No hay usuarios"
+			},
+			"total": "Total de usuarios: {total}",
+			"reset": {
+				"label": "Reiniciar estadísticas",
+				"resetQuestion": "¿Está Usted seguro de que desea restablecer {title}?"
+			}
+		},
+		"emotesStatistic": {
+			"title": "Estadísticas de Emotes",
+			"searchPlaceholder": "Buscar emotes...",
+			"table": {
+				"emote": "Emote",
+				"usages": "Usos totales",
+				"users": "Usuarios",
+				"empty": "Sin emotes",
+				"chart": "Gráfico de usos",
+				"lastDay": "Día",
+				"lastWeek": "Semana",
+				"lastMonth": "Mes",
+				"lastThreeMonth": "3 Meses",
+				"lastYear": "Año"
+			},
+			"total": "Total emotes: {total}",
+			"details": {
+				"stats": "Estadísticas",
+				"users": "Usuarios",
+				"usersTabs": {
+					"top": "Arriba",
+					"history": "Historial"
+				}
+			}
+		}
+	},
+	"filePicker": {
+		"innerText": "Seleccione o lance {type} aquí.",
+		"usedSpace": "Utilizado {used} / {max} MB",
+		"emptyText": "No se ha cargado {type}."
+	},
+	"overlaysRegistry": {
+		"description": "Esta categoría le permite crear superposiciones configurables personalizadas para OBS. Actualmente sólo se admiten superposiciones HTML, pero más adelante se añadirán otras variantes de superposición. Gracias por la paciencia. <3",
+		"noLayersCreated": {
+			"title": "No configurado",
+			"description": "Capas de superposiciones actualmente no creadas"
+		},
+		"customWidth": "Ancho",
+		"customHeight": "Altura",
+		"name": "Nombre de superposición",
+		"createNewLayer": "Crear nueva capa",
+		"validations": {
+			"name": "¡El nombre de superposición no puede estar vacío y tener más de 30 símbolos!",
+			"layers": "¡Las capas no pueden estar vacías! Esta superposición no puede contener más de 15 capas."
+		},
+		"html": {
+			"description": "Permite utilizar variables HTML, CSS y bot personalizadas.",
+			"updateInterval": "Permite utilizar variables HTML, CSS y bot personalizadas",
+			"variablesAlert": {
+				"title": "Puede utilizar variables bot en HTML, haga clic en la lista de abajo para mostrar las opciones disponibles.",
+				"selectToCopy": "Seleccione una variable necesaria. Se copiará automáticamente en el portapapeles."
+			},
+			"periodicallyRefetchData": "¿Analizar y actualizar periódicamente los datos HTML del servidor?"
+		}
+	},
+	"chatAlerts": {
+		"randomedMessage": "Si hay varias variantes de las alertas de chat, se seleccionarán al azar.<br>",
+		"randomMessageWithCount": "Si hay varias variantes con el mismo número de contador, entonces se elegirán al azar.<br>",
+		"replacedInfo": "Variables disponibles: {vars}. Se reemplazarán con la información real en la alerta.<br>",
+		"cooldown": "Tiempo de reutilización del mensaje (en segundos)",
+		"ban": {
+			"alertInfo": "Establezca el tiempo en 0 para imprimir un mensaje cuando el usuario esté permanentemente prohibido (bloqueado).<br>",
+			"countLabel": "Tiempo (en minutos)",
+			"ignoreTimeoutFrom": "Ignorar los tiempos de espera de"
+		},
+		"labels": {
+			"followers": "Seguidores",
+			"raids": "Incursiones",
+			"donations": "Donaciones",
+			"subscriptions": "Suscripciones",
+			"rewards": "Recompensas",
+			"firstUserMessage": "Primer mensaje de usuario",
+			"streamOnline": "Stream en línea",
+			"streamOffline": "Stream desconectado",
+			"chatCleared": "Borrar chat",
+			"userBanned": "Bloqueo de usuario",
+			"channelUnbanRequestCreate": "Crear solicitud de desbloqueo",
+			"channelUnbanRequestResolve": "Resolver solicitud de desbloqueo",
+			"messageDelete": "Mensaje eliminado"
+		}
+	},
+	"moderation": {
+		"name": "Nombre de la regla, solo para su comodidad para ver el nombre en la lista",
+		"createNewRule": "Crear una nueva regla de moderación",
+		"banTime": "Tiempo de espera",
+		"banDescription": "Establecer en 0 para el bloqueo permanente.",
+		"banMessage": "Mensaje de tiempo de espera",
+		"warningMessage": "Mensaje de advertencia",
+		"warningMaxCount": "Número máximo de advertencias",
+		"excludedRoles": "Seleccione los roles que no se verán afectados por este filtro:",
+		"types": {
+			"links": {
+				"name": "Enlaces",
+				"description": "Escanea el chat de Twitch en busca de enlaces web o URL y los elimina rápidamente para evitar que se envíe spam o contenido inseguro al chat."
+			},
+			"deny_list": {
+				"name": "Lista de palabras no permitidas",
+				"description": "Ayuda a mantener el chat limpio al filtrar las palabras o frases especificadas en una lista predefinida, evitando que se muestren.",
+				"empty": "¡La lista de palabras no permitidas está vacía! Puedes añadir uno allí.",
+				"regexp": "Si es Usted un usuario avanzado, la Lista de palabras no permitidas también admite expresiones regulares. ¡La expresión regular debe escribirse en formato golang! Consulte {0} aquí.",
+				"regexpCheatSheet": "Hoja de trucos",
+				"wordBoundary": {
+					"label": "Límite de palabra",
+					"description": "Un límite de palabra en el filtrado marca el comienzo o el final de una palabra, asegurando que los filtros coincidan con palabras completas (por ejemplo, \"gata\") pero no con partes de palabras (por ejemplo, \"categoría\")."
+				},
+				"caseSensitive": {
+					"label": "Distingue entre mayúsculas y minúsculas",
+					"description": "La distinción entre mayúsculas y minúsculas en el filtrado significa que el filtro solo coincidirá con palabras con las mismas mayúsculas que el filtro (por ejemplo,\\« Cat\\» no coincidirá con\\« cat\\»)."
+				}
+			},
+			"symbols": {
+				"name": "Símbolos",
+				"description": "Identifica y restringe el uso excesivo de símbolos, evitando el desorden, el caos y manteniendo la legibilidad en el chat.",
+				"triggerLength": "Longitud mínima del mensaje",
+				"maxPercentage": "Porcentaje máximo de símbolos"
+			},
+			"long_message": {
+				"name": "Longitud del mensaje",
+				"description": "Identifica y restringe los mensajes largos limitando la longitud de los mensajes enviados al chat.",
+				"triggerLength": "Longitud máxima del mensaje"
+			},
+			"caps": {
+				"name": "Mayúsculas",
+				"description": "Identifica y restringe el uso excesivo de mayúsculas, promoviendo una conversación más equilibrada y respetuosa en el chat.",
+				"maxPercentage": "Porcentaje máximo de letras mayúsculas",
+				"triggerLength": "Longitud mínima del mensaje"
+			},
+			"emotes": {
+				"name": "Emotes",
+				"description": "Detecta la frecuencia y cantidad de emoticonos utilizados en los mensajes, evitando el uso excesivo y spam de los mismos.",
+				"triggerLength": "Límite máximo de uso de emote"
+			},
+			"language": {
+				"name": "Idioma",
+				"description": "Escanea y filtra los idiomas inapropiados.",
+				"allowedLanguages": "Lista de idiomas permitidos",
+				"disallowedLanguages": "Lista de idiomas no permitidos"
+			},
+			"one_man_spam": {
+				"name": "Spam de un solo hombre",
+				"description": "Detecta y restringe a los usuarios que están enviando spam al chat con muchos mensajes en un corto período de tiempo.",
+				"triggerLength": "Longitud mínima del mensaje para activar el almacenamiento y el filtrado",
+				"minimumStoredMessages": "Número de mensajes almacenados para comenzar el filtro",
+				"messageMemorySeconds": "Cuánto tiempo almacenar el mensaje del usuario en segundos",
+				"maxPercentage": "Porcentaje máximo de similitud de texto. La distancia de Levenshtein se utiliza para el cálculo."
+			}
+		}
+	},
+	"feedback": {
+		"button": "Enviar comentarios",
+		"notification": "Sus comentarios enviados",
+		"rateLimited": "Está enviando mensajes rápidamente, inténtelo de nuevo en {time}",
+		"messageLabel": "Mensaje",
+		"validation": {
+			"emptyMessage": "El mensaje no puede estar vacío"
+		}
+	},
+	"userSettings": {
+		"title": "Configuración de usuario",
+		"account": {
+			"title": "Cuenta",
+			"showMeOnLanding": "¿Mostrarte en la Landing Page?",
+			"regenerateApiKey": {
+				"button": "Regenerar clave de API privada",
+				"info": "Esta clave se utiliza para todos los enlaces superpuestos. Cuando lo regenere, debe verificar todas las superposiciones en su software de transmisión y reemplazar las URL con los nuevos enlaces."
+			}
+		},
+		"public": {
+			"title": "Página pública",
+			"description": "Descripción del canal",
+			"socialLinks": "Enlaces sociales",
+			"errorCreateLink": "\"{title}\" no contiene un vínculo válido {href}",
+			"errorInvalidLength": "Longitud no válida",
+			"errorInvalidLink": "Enlace no válido",
+			"errorEmpty": "No puede estar vacío",
+			"errorTooLong": "Demasiado largo",
+			"linkTitle": "Título",
+			"linkLabel": "Enlace"
+		}
+	},
+	"adminPanel": {
+		"title": "Panel de administración",
+		"notifications": {
+			"title": "Notificaciones",
+			"formTitle": "Enviar o editar notificación",
+			"emptyNotifications": "No hay notificaciones",
+			"userLabel": "Usuario",
+			"userPlaceholder": "Seleccione un usuario",
+			"messageLabel": "Mensaje",
+			"messagePreview": "Vista anticipada",
+			"createdAt": "Creado en",
+			"globals": "Globales",
+			"users": "Usuarios",
+			"confirmResetForm": "¿Está Usted seguro de que desea restablecer el formulario?"
+		},
+		"manageUsers": {
+			"title": "Usuarios",
+			"user": "Usuario",
+			"userId": "ID de Usuario",
+			"followers": "Seguidores",
+			"noUsers": "No hay usuarios",
+			"filters": "Filtros",
+			"clearFilters": "Borrar filtros",
+			"countSelected": "{count} seleccionado",
+			"isAdmin": "Administrador",
+			"isBanned": "Prohibido",
+			"isBotEnabled": "Bot habilitado",
+			"statusGroup": "Estado",
+			"badgesGroup": "Insignias",
+			"giveBan": "Prohibir usuario",
+			"unBan": "Desbloquear usuario",
+			"giveMod": "Dar administrador",
+			"unMod": "Eliminar administrador",
+			"dropSession": "Eliminar sesión"
+		},
+		"manageBadges": {
+			"title": "Insignias",
+			"formTitle": "Crear o editar insignia",
+			"name": "Nombre",
+			"users": "Usuarios",
+			"slot": "Ranura",
+			"image": "Imagen",
+			"preview": "Vista anticipada",
+			"usesCount": "Utiliza {count}",
+			"badgeSlot": "Ranura {slot}"
+		},
+		"adminActions": {
+			"title": "Acciones",
+			"eventsub": {
+				"title": "Suscribirse a EventSub",
+				"condition": "Condición",
+				"type": "Tipo",
+				"typeError": "Por favor, seleccione un tipo",
+				"version": "Versión",
+				"user": "Usuario",
+				"channel": "Canal",
+				"channelWithBotId": "Canal con ID de bot",
+				"channelWithModeratorId": "Canal con ID de moderador"
+			},
+			"dangerZone": {
+				"title": "Zona de Peligro",
+				"revoke": "Revocar",
+				"revokeSessions": "Revocar sesiones",
+				"revokeAllSessionsDescription": "Se revocarán todas las sesiones de usuario",
+				"revokeAllSessionsConfirm": "¿Está Usted seguro de que desea revocar todas las sesiones?"
+			}
+		},
+		"auditLogs": {
+			"title": "Registros de auditoría"
+		}
+	},
+	"expiringVips": {
+		"title": "VIP programados",
+		"description": {
+			"line1": "Con esta función puede crear VIPs para su canal, que se eliminarán después del tiempo seleccionado.",
+			"line2": "Puede utilizar comandos del módulo {module} integrado para ello."
+		},
+		"comingSoon": "Pronto, pero ya disponible a través de comandos",
+		"commands": {
+			"add": "Añadir VIP",
+			"remove": "Eliminar VIP",
+			"list": "Lista de VIPs",
+			"setExpire": "Extiende el tiempo de caducidad de los VIPs temporizados existentes, o añade un vencimiento para los usuarios VIP que no tienen uno"
+		},
+		"alert": {
+			"title": "¡Atención!",
+			"description": "Es una lista de VIPs que expiran, no una lista de todos los VIPs del canal."
+		}
+	},
+	"moderationRules": {
+		"description": {
+			"line1": "Crea reglas para moderar tu chat.",
+			"line2": "Ten cuidado."
+		}
+	},
+	"chatWall": {
+		"description": {
+			"line1": "Mensajes de baneo/eliminación/tiempo de espera en masa que contienen una frase específica.",
+			"line2": "El uso incorrecto puede resultar en una prohibición permanente en el servicio TwirApp. "
+		},
+		"settings": {
+			"title": "Configurar",
+			"muteSubscribers": "Silenciar suscriptores",
+			"muteVips": "Silenciar VIPs"
+		},
+		"commands": {
+			"title": "Comandos",
+			"delete": "Borrar muro de chat",
+			"ban": "Bloqueo de muro de chat",
+			"timeout": "Tiempo de espera del muro de chat",
+			"stop": "Parada del chat"
+		},
+		"table": {
+			"phrase": "Frase",
+			"createdAt": "Creado en",
+			"inProcess": "En proceso",
+			"action": "Acción",
+			"yes": "Si",
+			"no": "No",
+			"affectedMessages": "Mensajes afectados",
+			"logs": {
+				"title": "Mensajes afectados",
+				"user": "Usuario",
+				"message": "Mensaje"
+			},
+			"timeout": "segundo"
+		}
+	},
+	"giveaways": {
+		"title": "Sorteos",
+		"createNew": "Crear nuevo Sorteo",
+		"keyword": "Palabra clave",
+		"createdAt": "Creado en",
+		"startedAt": "Iniciado en",
+		"stoppedAt": "Detenido en",
+		"winners": "Ganadores",
+		"view": "Ver",
+		"start": "Comenzar",
+		"stop": "Parar",
+		"chooseWinner": "Elegir el ganador",
+		"pages": {
+			"list": {
+				"title": "Regalos activos"
+			},
+			"history": {
+				"title": "Historia del sorteo"
+			}
+		},
+		"createDialog": {
+			"title": "Crear nuevo Sorteo",
+			"description": "Introduce una palabra clave para el sorteo. Los usuarios usarán esta palabra clave para participar.",
+			"keywordLabel": "Palabra clave",
+			"keywordPlaceholder": "Introduzca la palabra clave (por ejemplo, '!sorteo' o 'rifa')",
+			"cancel": "Cancelar",
+			"create": "Crear"
+		},
+		"notifications": {
+			"created": "Sorteo creado",
+			"createdDescription": "Se ha creado un sorteo con la palabra clave\"{keyword}\"",
+			"error": "Error al crear el sorteo",
+			"winnersChosen": "Ganadores elegidos",
+			"winnersChosenDescription": "Se han elegido {count} ganadores",
+			"errorChoosingWinners": "Error al elegir a los ganadores"
+		},
+		"currentGiveaway": {
+			"totalParticipants": "Total de participantes: {count}",
+			"totalWinners": "Total de ganadores: {count}",
+			"selectWinner": "Seleccione a un ganador para ver sus registros de chat y perfil",
+			"tabs": {
+				"participants": "Participantes",
+				"winners": "Ganadores"
+			}
+		}
+	}
+}

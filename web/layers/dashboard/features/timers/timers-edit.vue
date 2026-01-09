@@ -1,0 +1,250 @@
+<script setup lang="ts">
+import { toTypedSchema } from '@vee-validate/zod'
+import { BadgePlus, GripVertical, TrashIcon } from 'lucide-vue-next'
+import { FieldArray, useForm } from 'vee-validate'
+import { computed, onMounted, ref, toRaw } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
+
+import { useRoute } from 'vue-router'
+
+
+
+
+
+
+
+
+
+import VariableInput from '#layers/dashboard/components/variable-input.vue'
+import { formSchema, useTimersEdit } from '~/features/timers/composables/use-timers-edit.js'
+import { TwitchAnnounceColor } from '~/gql/graphql.js'
+import PageLayout from '~/layout/page-layout.vue'
+
+
+const route = useRoute()
+const { t } = useI18n()
+const { findTimer, submit } = useTimersEdit()
+
+const loading = ref(true)
+
+const { resetForm, handleSubmit, controlledValues, errors, setValues } = useForm({
+	validationSchema: toTypedSchema(formSchema),
+	initialValues: {
+		timeInterval: 1,
+		messageInterval: 0,
+		responses: [{ text: '', isAnnounce: false, count: 1 }],
+	},
+})
+
+onMounted(async () => {
+	resetForm()
+
+	if (typeof route.params.id === 'string') {
+		const timer = await findTimer(route.params.id)
+		if (timer) {
+			setValues(toRaw(timer))
+		}
+	}
+
+	loading.value = false
+})
+
+const onSubmit = handleSubmit(submit)
+
+const responsesHasError = computed(() => {
+	return Object.keys(errors.value).some((key) => key.startsWith('responses'))
+})
+</script>
+
+<template>
+	<form @submit="onSubmit">
+		<PageLayout sticky-header show-back backRedirectTo="/dashboard/timers">
+			<template #title>
+				{{ route.params.id === 'create' ? t('sharedTexts.create') : t('sharedTexts.edit') }}
+			</template>
+
+			<template #action>
+				<UiButton type="submit">
+					{{ t('sharedButtons.save') }}
+				</UiButton>
+			</template>
+
+			<template #content>
+				<div class="flex flex-col gap-4 max-w-4xl mx-auto" :class="{ 'blur-xs': loading }">
+					<UiFormField v-slot="{ componentField }" name="name">
+						<UiFormItem>
+							<UiFormLabel>{{ t('sharedTexts.name') }}</UiFormLabel>
+							<UiFormControl>
+								<UiInput type="text" v-bind="componentField" />
+							</UiFormControl>
+							<UiFormMessage />
+						</UiFormItem>
+					</UiFormField>
+
+					<UiCard class="p-0">
+						<UiCardContent class="py-4">
+							<UiFormField v-slot="{ componentField }" name="timeInterval">
+								<UiFormItem>
+									<UiFormLabel>{{ t('timers.table.columns.intervalInMinutes') }}</UiFormLabel>
+									<UiFormControl>
+										<div class="flex gap-6 flex-wrap">
+											<UiInput type="number" v-bind="componentField" />
+											<UiSlider
+												:model-value="[componentField.modelValue]"
+												:max="1000"
+												:default-value="[0, 1000]"
+												:min="0"
+												:step="1"
+												@update:model-value="
+													(v) => {
+														if (!v) return
+														componentField.onChange(v[0])
+													}
+												"
+											/>
+										</div>
+									</UiFormControl>
+									<UiFormMessage />
+									<UiFormDescription class="flex justify-end">
+										<span>{{ componentField.modelValue }} minutes</span>
+									</UiFormDescription>
+								</UiFormItem>
+							</UiFormField>
+
+							<UiSeparator class="my-4" />
+
+							<UiFormField v-slot="{ componentField }" name="messageInterval">
+								<UiFormItem>
+									<UiFormLabel>{{ t('timers.table.columns.intervalInMessages') }}</UiFormLabel>
+									<UiFormControl>
+										<UiInput type="number" placeholder="0" v-bind="componentField" />
+									</UiFormControl>
+									<UiFormMessage />
+								</UiFormItem>
+							</UiFormField>
+						</UiCardContent>
+					</UiCard>
+
+					<UiLabel :class="{ 'text-destructive': responsesHasError }">{{
+						t('sharedTexts.responses')
+					}}</UiLabel>
+					<span class="text-sm text-muted-foreground">
+						Responses are sent in sequence: the first on the initial trigger, the second after
+						<b>{{ controlledValues.timeInterval }}</b> minutes, etc., cycling back to the first
+						after last are sent.
+					</span>
+
+					<FieldArray v-slot="{ fields, push, remove }" name="responses">
+						<VueDraggable
+							v-model="controlledValues.responses!"
+							handle=".drag-handle"
+							class="flex flex-col gap-2"
+						>
+							<div v-for="(field, index) in fields" :key="`responses-text-${field.key}`">
+								<UiCard class="relative flex items-center p-0">
+									<div
+										class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle"
+									>
+										<GripVertical class="my-auto size-6" />
+									</div>
+									<UiCardContent class="pt-2 w-full">
+										<UiFormField v-slot="{ componentField }" :name="`responses[${index}].text`">
+											<UiFormItem class="flex flex-col gap-4">
+												<UiFormControl>
+													<VariableInput
+														input-type="textarea"
+														class="relative p-2"
+														:model-value="componentField.modelValue"
+														:min-rows="1"
+														:rows="1"
+														popoverAlign="end"
+														popoverSide="bottom"
+														@update:model-value="componentField.onChange"
+													/>
+
+													<div class="flex flex-row flex-wrap gap-4">
+														<div class="flex flex-col gap-2">
+															<UiLabel :for="`responses[${index}].count`">
+																How many times send this message on trigger
+															</UiLabel>
+
+															<UiInput
+																:id="`responses[${index}].count`"
+																v-model:modelValue="(field.value as any).count"
+																type="number"
+															/>
+														</div>
+
+														<div class="flex flex-col gap-2">
+															<UiLabel :for="`responses[${index}].isAnnounce`">
+																Send as announcement
+															</UiLabel>
+															<UiCheckbox
+																:id="`responses[${index}].isAnnounce`"
+																v-model:model-value="(field.value as any).isAnnounce"
+															/>
+														</div>
+
+														<div class="flex flex-col gap-2">
+															<UiLabel :for="`responses[${index}].announceColor`">
+																Announcement color
+															</UiLabel>
+															<UiSelect
+																:id="`responses[${index}].announceColor`"
+																v-model:modelValue="(field.value as any).announceColor"
+																:default-value="TwitchAnnounceColor.Primary"
+															>
+																<UiSelectTrigger :disabled="!(field.value as any).isAnnounce">
+																	<UiSelectValue placeholder="Select a color" />
+																</UiSelectTrigger>
+																<UiSelectContent>
+																	<UiSelectGroup>
+																		<UiSelectItem
+																			v-for="color of TwitchAnnounceColor"
+																			:key="color"
+																			:value="color"
+																		>
+																			{{
+																				color.at(0)!.toUpperCase() + color.slice(1).toLowerCase()
+																			}}
+																		</UiSelectItem>
+																	</UiSelectGroup>
+																</UiSelectContent>
+															</UiSelect>
+														</div>
+													</div>
+												</UiFormControl>
+												<UiFormMessage />
+											</UiFormItem>
+										</UiFormField>
+										<UiCardAction class="w-full flex justify-end py-2">
+											<UiButton
+												variant="destructive"
+												class="flex gap-2 place-self-end"
+												@click="remove(index)"
+											>
+												<TrashIcon class="size-4" />
+												Remove
+											</UiButton>
+										</UiCardAction>
+									</UiCardContent>
+								</UiCard>
+							</div>
+						</VueDraggable>
+						<UiButton
+							type="button"
+							variant="outline"
+							size="sm"
+							class="text-xs w-full flex gap-2 items-center mt-2"
+							:disabled="(controlledValues.responses?.length ?? 0) >= 10"
+							@click="push({ text: '', isAnnounce: false, count: 1 })"
+						>
+							<BadgePlus class="size-4" />
+							Add response {{ controlledValues.responses?.length ?? 0 }} / 10
+						</UiButton>
+					</FieldArray>
+				</div>
+			</template>
+		</PageLayout>
+	</form>
+</template>

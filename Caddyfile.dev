@@ -25,10 +25,10 @@
     }
 
     # Dashboard proxy
-    handle_path /dashboard* {
-    		rewrite * /dashboard{path}
-        reverse_proxy http://127.0.0.1:3006
-    }
+    # handle_path /dashboard* {
+    # 		rewrite * /dashboard{path}
+    #     reverse_proxy http://127.0.0.1:3006
+    # }
 
     handle_path /s* {
 				rewrite * /v1/short-links{path}

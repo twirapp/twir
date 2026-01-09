@@ -1,0 +1,324 @@
+import { useQueryClient } from '@tanstack/vue-query'
+import { createRequest, useQuery } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
+import { computed, watch } from 'vue'
+
+import { useMutation } from '~/composables/use-mutation.js'
+import { graphql } from '~/gql'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
+
+export const profileQuery = createRequest(
+	graphql(`
+		query AuthenticatedUserDashboardProfile {
+			authenticatedUser {
+				id
+				isBotAdmin
+				isBanned
+				isEnabled
+				isBotModerator
+				hideOnLandingPage
+				botId
+				apiKey
+				twitchProfile {
+					description
+					displayName
+					login
+					profileImageUrl
+				}
+				selectedDashboardId
+				availableDashboards {
+					id
+					flags
+					twitchProfile {
+						login
+						displayName
+						profileImageUrl
+					}
+					apiKey
+					plan {
+						id
+						name
+						maxCommands
+						maxTimers
+						maxVariables
+						maxAlerts
+						maxEvents
+						maxChatAlertsMessages
+						maxCustomOverlays
+						maxEightballAnswers
+						maxCommandsResponses
+						maxModerationRules
+						maxKeywords
+						maxGreetings
+					}
+				}
+			}
+		}
+	`),
+	{}
+)
+
+export const userInvalidateQueryKey = 'UserInvalidateQueryKey'
+
+export const useProfile = defineStore('user-dashboard-profile', () => {
+	const {
+		data: response,
+		executeQuery,
+		fetching,
+	} = useQuery({
+		query: profileQuery.query,
+		variables: {},
+		context: {
+			key: profileQuery.key,
+			additionalTypenames: [userInvalidateQueryKey],
+		},
+	})
+
+	const computedUser = computed(() => {
+		const user = response.value?.authenticatedUser
+		if (!user) return null
+
+		return {
+			id: user.id,
+			avatar: user.twitchProfile.profileImageUrl,
+			login: user.twitchProfile.login,
+			displayName: user.twitchProfile.displayName,
+			apiKey: user.apiKey,
+			isBotAdmin: user.isBotAdmin,
+			isEnabled: user.isEnabled,
+			isBanned: user.isBanned,
+			isBotModerator: user.isBotModerator,
+			botId: user.botId,
+			selectedDashboardId: user.selectedDashboardId,
+			hideOnLandingPage: user.hideOnLandingPage,
+			availableDashboards: user.availableDashboards,
+		}
+	})
+
+	watch(
+		computedUser,
+		(newUser) => {
+			if (!newUser) {
+				return
+			}
+
+			window.rybbit?.identify(newUser.id)
+		},
+		{ immediate: true }
+	)
+
+	return { user: computedUser, executeQuery, isLoading: fetching }
+})
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(useProfile, import.meta.hot))
+}
+
+export function useLogout() {
+	const { executeMutation } = useMutation(
+		graphql(`
+			mutation userLogout {
+				logout
+			}
+		`)
+	)
+
+	async function execute() {
+		const result = await executeMutation({})
+		if (result.error) throw new Error(result.error.toString())
+
+		window.rybbit.clearUserId()
+		window.location.replace('/')
+	}
+
+	return execute
+}
+
+export const useUserSettings = createGlobalState(() => {
+	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey'
+
+	const usePublicQuery = () =>
+		useQuery({
+			query: graphql(`
+				query userPublicSettings {
+					userPublicSettings {
+						description
+						socialLinks {
+							href
+							title
+						}
+					}
+				}
+			`),
+			variables: {},
+			context: {
+				additionalTypenames: [userPublicSettingsInvalidateKey],
+			},
+		})
+
+	const usePublicMutation = () =>
+		useMutation(
+			graphql(`
+				mutation userPublicSettingsUpdate($opts: UserUpdatePublicSettingsInput!) {
+					authenticatedUserUpdatePublicPage(opts: $opts)
+				}
+			`),
+			[userPublicSettingsInvalidateKey]
+		)
+
+	const useApiKeyGenerateMutation = () =>
+		useMutation(
+			graphql(`
+				mutation userRegenerateApiKey {
+					authenticatedUserRegenerateApiKey
+				}
+			`),
+			[userInvalidateQueryKey]
+		)
+
+	const useUserUpdateMutation = () =>
+		useMutation(
+			graphql(`
+				mutation userUpdateSettings($opts: UserUpdateSettingsInput!) {
+					authenticatedUserUpdateSettings(opts: $opts)
+				}
+			`),
+			[userInvalidateQueryKey, userPublicSettingsInvalidateKey]
+		)
+
+	return {
+		usePublicQuery,
+		usePublicMutation,
+		useApiKeyGenerateMutation,
+		useUserUpdateMutation,
+	}
+})
+
+export const useDashboard = createGlobalState(() => {
+	// const urqlClient = useUrqlClient()
+
+	const mutationSetDashboard = useMutation(
+		graphql(`
+			mutation SetDashboard($dashboardId: String!) {
+				authenticatedUserSelectDashboard(dashboardId: $dashboardId)
+			}
+		`)
+	)
+
+	const queryClient = useQueryClient()
+
+	async function setDashboard(dashboardId: string) {
+		await mutationSetDashboard.executeMutation({ dashboardId })
+		// urqlClient.reInitClient()
+		await queryClient.invalidateQueries()
+		await queryClient.resetQueries()
+	}
+
+	return {
+		setDashboard,
+	}
+})
+
+type Flag = { perm: ChannelRolePermissionEnum; description: string } | 'delimiter'
+
+export const PERMISSIONS_FLAGS: Flag[] = [
+	{ perm: ChannelRolePermissionEnum.CanAccessDashboard, description: 'All permissions' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.UpdateChannelTitle, description: 'Can update channel title' },
+	{
+		perm: ChannelRolePermissionEnum.UpdateChannelCategory,
+		description: 'Can update channel category',
+	},
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewCommands, description: 'Can view commands' },
+	{ perm: ChannelRolePermissionEnum.ManageCommands, description: 'Can manage commands' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewKeywords, description: 'Can view keywords' },
+	{ perm: ChannelRolePermissionEnum.ManageKeywords, description: 'Can manage keywords' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewTimers, description: 'Can view timers' },
+	{ perm: ChannelRolePermissionEnum.ManageTimers, description: 'Can manage timers' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewIntegrations, description: 'Can view integrations' },
+	{ perm: ChannelRolePermissionEnum.ManageIntegrations, description: 'Can manage integrations' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewSongRequests, description: 'Can view song requests' },
+	{ perm: ChannelRolePermissionEnum.ManageSongRequests, description: 'Can manage song requests' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewModeration, description: 'Can view moderation settings' },
+	{
+		perm: ChannelRolePermissionEnum.ManageModeration,
+		description: 'Can manage moderation settings',
+	},
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewVariables, description: 'Can view variables' },
+	{ perm: ChannelRolePermissionEnum.ManageVariables, description: 'Can manage variables' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewGreetings, description: 'Can view greetings' },
+	{ perm: ChannelRolePermissionEnum.ManageGreetings, description: 'Can manage greetings' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewOverlays, description: 'Can view overlays' },
+	{ perm: ChannelRolePermissionEnum.ManageOverlays, description: 'Can manage overlays' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewRoles, description: 'Can view roles' },
+	{ perm: ChannelRolePermissionEnum.ManageRoles, description: 'Can manage roles' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewEvents, description: 'Can view events' },
+	{ perm: ChannelRolePermissionEnum.ManageEvents, description: 'Can manage events' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewAlerts, description: 'Can view alerts' },
+	{ perm: ChannelRolePermissionEnum.ManageAlerts, description: 'Can manage alerts' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewGames, description: 'Can view games' },
+	{ perm: ChannelRolePermissionEnum.ManageGames, description: 'Can manage games' },
+
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewBotSettings, description: 'View bot settings' },
+	{ perm: ChannelRolePermissionEnum.ManageBotSettings, description: 'Manage bot settings' },
+
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewModules, description: 'View modules' },
+	{ perm: ChannelRolePermissionEnum.ManageModules, description: 'Manage modules' },
+
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewGiveaways, description: 'View giveaways' },
+	{ perm: ChannelRolePermissionEnum.ManageGiveaways, description: 'Manage giveaways' },
+]
+
+export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {
+	const { user: profile } = storeToRefs(useProfile())
+
+	return computed(() => {
+		if (!profile.value?.availableDashboards || !profile.value?.selectedDashboardId) return false
+
+		if (profile.value.id === profile.value.selectedDashboardId) {
+			return true
+		}
+
+		if (profile.value.isBotAdmin) return true
+
+		const dashboard = profile.value?.availableDashboards.find((dashboard) => {
+			return dashboard.id === profile.value?.selectedDashboardId
+		})
+		if (!dashboard) return false
+
+		if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true
+		return dashboard.flags.includes(flag)
+	})
+}
+
+export async function userAccessFlagChecker(flag: ChannelRolePermissionEnum) {
+	const { user: profile } = storeToRefs(useProfile())
+
+	if (profile?.value?.isBotAdmin) return true
+	if (!profile || !profile?.value?.selectedDashboardId) return false
+	if (profile.value?.selectedDashboardId === profile.value?.id) return true
+
+	const dashboard = profile.value.availableDashboards.find((dashboard) => {
+		return dashboard.id === profile.value?.selectedDashboardId
+	})
+	if (!dashboard) return false
+
+	if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true
+	return dashboard.flags.includes(flag)
+}

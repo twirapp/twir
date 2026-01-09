@@ -1,12 +1,25 @@
-import { type ColumnDef, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useVueTable } from '@tanstack/vue-table'
-
-import { useCommunityUsersSorting } from './use-community-users-sorting.js'
-import CommunityUsersTableColumn from '../ui/community-users-table-column.vue'
+import {
+	type ColumnDef,
+	getCoreRowModel,
+	getFacetedRowModel,
+	getFacetedUniqueValues,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useVueTable,
+} from '@tanstack/vue-table'
 
 import UserCell from '~/components/table/cells/user-cell.vue'
 import { graphql } from '~/gql/gql.js'
-import { type CommunityUser, type CommunityUsersOpts, CommunityUsersResetType } from '~/gql/graphql.js'
+import {
+	type CommunityUser,
+	type CommunityUsersOpts,
+	CommunityUsersResetType,
+} from '~/gql/graphql.js'
 import { valueUpdater } from '~/lib/utils.js'
+
+import CommunityUsersTableColumn from '../ui/community-users-table-column.vue'
+import { useCommunityUsersSorting } from './use-community-users-sorting.js'
 
 const ONE_HOUR = 60 * 60 * 1000
 export const TABLE_ACCESSOR_KEYS = {
@@ -48,7 +61,7 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 
 	const communityUsers = useQuery({
 		query: graphql(`
-			query GetAllCommunityUsers($opts: CommunityUsersOpts!) {
+			query GetAllCommunityUsersPublic($opts: CommunityUsersOpts!) {
 				communityUsers(opts: $opts) {
 					total
 					users {
@@ -88,15 +101,19 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 			size: 20,
 			header: () => h('div', {}, 'User'),
 			cell: ({ row }) => {
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank',
-				}, h(UserCell, {
-					avatar: row.original.twitchProfile.profileImageUrl,
-					name: row.original.twitchProfile.login,
-					displayName: row.original.twitchProfile.displayName,
-				}))
+				return h(
+					'a',
+					{
+						class: 'flex flex-col',
+						href: `https://twitch.tv/${row.original.twitchProfile.login}`,
+						target: '_blank',
+					},
+					h(UserCell, {
+						avatar: row.original.twitchProfile.profileImageUrl,
+						name: row.original.twitchProfile.login,
+						displayName: row.original.twitchProfile.displayName,
+					})
+				)
 			},
 		},
 		{
@@ -193,10 +210,10 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 		manualPagination: true,
 		enableRowSelection: true,
 		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
-		onSortingChange: updaterOrValue => valueUpdater(updaterOrValue, sorting),
-		onColumnFiltersChange: updaterOrValue => valueUpdater(updaterOrValue, columnFilters),
-		onColumnVisibilityChange: updaterOrValue => valueUpdater(updaterOrValue, columnVisibility),
-		onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, rowSelection),
+		onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+		onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
+		onColumnVisibilityChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnVisibility),
+		onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),

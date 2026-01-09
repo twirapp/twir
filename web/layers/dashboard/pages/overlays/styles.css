@@ -1,0 +1,41 @@
+.page {
+	display: flex;
+	gap: 24px;
+	padding: 24px;
+}
+
+.page > div {
+	width: 50%;
+}
+
+.card {
+	padding: 8px;
+	border-radius: 8px;
+}
+
+.card-header {
+	width: 100%;
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.card-body {
+	display: flex;
+	gap: 12px;
+}
+
+.card-body-column {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: 50%;
+}
+
+.iframe {
+	height: 100%;
+	width: 100%;
+	aspect-ratio: 16/9;
+	border-radius: 8px;
+}

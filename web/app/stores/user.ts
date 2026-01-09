@@ -4,7 +4,7 @@ import { graphql } from '~/gql/gql.js'
 
 export const userProfileWithoutDashboards = createRequest(
 	graphql(`
-		query AuthenticatedUser {
+		query AuthenticatedUserWithoutDashboards {
 			authenticatedUser {
 				id
 				isBotAdmin
@@ -49,7 +49,7 @@ export const useAuth = defineStore('auth-store', () => {
 	watch(
 		userWithoutDashboards,
 		(newUser) => {
-			if (!newUser || !window.rybbit || !import.meta.client) {
+			if (!newUser || !window?.rybbit || !import.meta.client) {
 				return
 			}
 

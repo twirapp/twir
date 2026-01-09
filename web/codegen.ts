@@ -1,7 +1,7 @@
+import type { CodegenConfig } from '@graphql-codegen/cli'
+
 import { join, resolve } from 'node:path'
 import process from 'node:process'
-
-import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const schemaDir = resolve(
 	join(
@@ -33,6 +33,9 @@ const config: CodegenConfig = {
 			config: {
 				useTypeImports: true,
 			},
+		},
+		'./app/gql/validation-schemas.ts': {
+			plugins: ['./codegen-plugins/zod.ts'],
 		},
 	},
 }

@@ -1,7 +1,8 @@
+import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
 import process from 'node:process'
+
 import gqlcodegen from './modules/gql-codegen'
-import tailwindcss from '@tailwindcss/vite'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -18,6 +19,8 @@ export default defineNuxtConfig({
 		},
 	},
 
+	extends: ['./layers/dashboard'],
+
 	site: { indexable: true },
 
 	modules: [
@@ -32,6 +35,7 @@ export default defineNuxtConfig({
 		'nuxt-svgo',
 		'@vueuse/nuxt',
 		'@nuxtjs/seo',
+		// '@nuxtjs/i18n',
 		gqlcodegen,
 		'@nuxtjs/fontaine',
 	],
@@ -119,10 +123,37 @@ export default defineNuxtConfig({
 
 	robots: {
 		blockAiBots: true,
+		disableI18nIntegration: true,
 	},
 
 	telemetry: {
 		enabled: true,
 		consent: 1,
+	},
+
+	i18n: {
+		locales: [
+			{ code: 'en', name: 'English', file: 'en.json' },
+			{ code: 'ru', name: 'Russian', file: 'ru.json' },
+			{ code: 'uk', name: 'Українська', file: 'uk.json' },
+			{ code: 'de', name: 'Deutsch', file: 'de.json' },
+			{ code: 'ja', name: '日本語', file: 'ja.json' },
+			{ code: 'sk', name: 'Slovenčina', file: 'sk.json' },
+			{ code: 'es', name: 'Español', file: 'es.json' },
+			{ code: 'pt', name: 'Português', file: 'pt.json' },
+		],
+		defaultLocale: 'en',
+		strategy: 'no_prefix',
+		lazy: true,
+		langDir: 'locales',
+		detectBrowserLanguage: {
+			useCookie: true,
+			cookieKey: 'twir_locale',
+			redirectOn: 'root',
+		},
+		compilation: {
+			strictMessage: false,
+			escapeHtml: false,
+		},
 	},
 })
