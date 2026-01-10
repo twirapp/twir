@@ -13,5 +13,16 @@ import (
 
 // TwirStats is the resolver for the twirStats field.
 func (r *queryResolver) TwirStats(ctx context.Context) (*gqlmodel.TwirStats, error) {
-	return r.deps.TwirStats.GetCachedData(), nil
+	data := r.deps.TwirStats.GetCachedData()
+
+	return &gqlmodel.TwirStats{
+		Channels:        data.Channels,
+		CreatedCommands: data.CreatedCommands,
+		Viewers:         data.Viewers,
+		Messages:        data.Messages,
+		UsedEmotes:      data.UsedEmotes,
+		UsedCommands:    data.UsedCommands,
+		ShortUrls:       data.ShortUrls,
+		HasteBins:       data.HasteBins,
+	}, nil
 }

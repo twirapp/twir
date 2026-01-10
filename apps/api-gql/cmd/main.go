@@ -235,6 +235,8 @@ import (
 	"go.uber.org/fx"
 
 	commandshttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/commands"
+
+	twirhttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/twir"
 )
 
 func main() {
@@ -561,6 +563,7 @@ func main() {
 		commandshttp.FxModule,
 		ttsroutes.FxModule,
 		brb.FxModule,
+		twirhttp.FxModule,
 		// huma routes end
 		fx.Invoke(
 			gql.New,

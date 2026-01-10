@@ -484,6 +484,32 @@ export interface TierStruct {
   name: string;
 }
 
+export interface TwirStatsResponseBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /** @format int64 */
+  channels: number;
+  /** @format int64 */
+  created_commands: number;
+  /** @format int64 */
+  haste_bins: number;
+  /** @format int64 */
+  live_channels: number;
+  /** @format int64 */
+  messages: number;
+  /** @format int64 */
+  short_urls: number;
+  /** @format int64 */
+  used_commands: number;
+  /** @format int64 */
+  used_emotes: number;
+  /** @format int64 */
+  viewers: number;
+}
+
 export enum CommandResponseDtoCooldownTypeEnum {
   GLOBAL = "GLOBAL",
   PER_USER = "PER_USER",
@@ -1158,6 +1184,24 @@ export class Api<SecurityDataType extends unknown> {
         path: `/v1/tts/say`,
         method: "GET",
         query: query,
+        ...params,
+      }),
+
+    /**
+     * @description Get Twir application statistics
+     *
+     * @tags Twir
+     * @name TwirStats
+     * @summary Twir Stats
+     * @request GET:/v1/twir/stats
+     * @response `200` `TwirStatsResponseBody` OK
+     * @response `default` `ErrorModel` Error
+     */
+    twirStats: (params: RequestParams = {}) =>
+      this.http.request<TwirStatsResponseBody, any>({
+        path: `/v1/twir/stats`,
+        method: "GET",
+        format: "json",
         ...params,
       }),
   };
