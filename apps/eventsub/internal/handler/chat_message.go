@@ -35,6 +35,8 @@ func (c *Handler) HandleChannelChatMessage(
 	span.SetAttributes(
 		attribute.String("message_id", event.MessageId),
 		attribute.String("channel_id", event.BroadcasterUserId),
+		attribute.String("channel_name", event.BroadcasterUserLogin),
+		attribute.String("channel_display_name", event.BroadcasterUserName),
 	)
 	defer span.End()
 
