@@ -14,6 +14,7 @@ export interface BrbSettings {
 	fontSize: number
 	fontColor: string
 	fontFamily: string
+	channelId?: string
 }
 
 export const useBrbSettings = createGlobalState(() => {

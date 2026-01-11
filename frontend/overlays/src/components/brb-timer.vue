@@ -5,7 +5,9 @@ import { computed, ref, watch } from 'vue'
 
 import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js'
 
+import BrbTextWithEmotes from '@/components/brb-text-with-emotes.vue'
 import { useBrbSettings } from '@/composables/brb/use-brb-settings.js'
+import { useBrbTextParser } from '@/composables/brb/use-brb-text-parser.js'
 import { getTimeDiffInMilliseconds, millisecondsToTime } from '@/helpers.js'
 
 const { settings } = useBrbSettings()
@@ -97,6 +99,13 @@ const countUpFontSize = computed(() => {
 const countDownFontSize = computed(() => {
 	return `${settings.value?.fontSize || 16}px`
 })
+
+// Parse text for emotes
+const displayText = computed(() => text.value || settings.value?.text || '')
+const { chunks: textChunks } = useBrbTextParser(displayText)
+
+const lateDisplayText = computed(() => settings.value?.late?.text || '')
+const { chunks: lateTextChunks } = useBrbTextParser(lateDisplayText)
 </script>
 
 <template>
@@ -111,11 +120,11 @@ const countDownFontSize = computed(() => {
 				id="brb-count-up"
 				class="count-up"
 			>
-				{{ text || settings.text }}
+				<BrbTextWithEmotes :chunks="textChunks" />
 				{{
-					countDownTicks > 0
+					' ' + (countDownTicks > 0
 						? millisecondsToTime(countDownTicks * 1000)
-						: millisecondsToTime(minutes)
+						: millisecondsToTime(minutes))
 				}}
 			</div>
 			<div
@@ -123,7 +132,8 @@ const countDownFontSize = computed(() => {
 				id="brb-count-down"
 				class="count-down"
 			>
-				{{ settings.late?.text }} {{ millisecondsToTime(countUpTicks * 1000) }}
+				<BrbTextWithEmotes :chunks="lateTextChunks" />
+				{{ ' ' + millisecondsToTime(countUpTicks * 1000) }}
 			</div>
 		</div>
 	</Transition>

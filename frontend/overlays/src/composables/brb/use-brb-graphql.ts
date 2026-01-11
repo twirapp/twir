@@ -3,9 +3,9 @@ import { computed, ref, watch } from 'vue'
 
 import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js'
 
-import { useBrbSettings } from './use-brb-settings.js'
-
 import { graphql } from '@/gql'
+
+import { useBrbSettings } from './use-brb-settings.js'
 
 type Options = {
 	onStart: BrbOnStartFn
@@ -108,6 +108,7 @@ export function useBeRightBackOverlayGraphQL(options: Options) {
 			fontSize: overlay.fontSize,
 			fontColor: overlay.fontColor,
 			fontFamily: overlay.fontFamily,
+			channelId: overlay.channelId,
 		})
 	})
 

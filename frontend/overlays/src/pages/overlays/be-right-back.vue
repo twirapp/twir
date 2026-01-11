@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js'
 
 import BrbTimer, { type BrbTimerMethods } from '@/components/brb-timer.vue'
+import { useBrbEmotes } from '@/composables/brb/use-brb-emotes.js'
 import { useBeRightBackOverlayGraphQL } from '@/composables/brb/use-brb-graphql.js'
 import { useBrbIframe } from '@/composables/brb/use-brb-iframe.js'
 
@@ -29,6 +30,8 @@ const graphql = useBeRightBackOverlayGraphQL({
 	onStop,
 })
 
+const emotes = useBrbEmotes()
+
 onMounted(() => {
 	if (window.frameElement) {
 		iframe.create()
@@ -45,6 +48,7 @@ onMounted(() => {
 onUnmounted(() => {
 	iframe.destroy()
 	graphql.destroy()
+	emotes.destroy()
 })
 </script>
 
