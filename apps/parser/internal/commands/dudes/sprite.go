@@ -2,7 +2,6 @@ package dudes
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -71,19 +70,16 @@ var Sprite = &types.DefaultCommand{
 				result.Result = []string{i18n.GetCtx(
 					ctx,
 					locales.Translations.Commands.Dudes.Info.Sprite.
-						SetVars(locales.KeysCommandsDudesInfoSpriteVars{DudeSprite: *&entity.DudeColor}),
+						SetVars(locales.KeysCommandsDudesInfoSpriteVars{DudeSprite: *entity.DudeColor}),
 				)}
 				return &result, nil
 			}
 
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf(
-					i18n.GetCtx(
-						ctx,
-						locales.Translations.Commands.Dudes.Info.SpriteRequired.
-							SetVars(locales.KeysCommandsDudesInfoSpriteRequiredVars{AvailableSprites: availableSpritesStr}),
-					),
-					strings.Join(availableSpritesStr, ", "),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Dudes.Info.SpriteRequired.
+						SetVars(locales.KeysCommandsDudesInfoSpriteRequiredVars{AvailableSprites: strings.Join(availableSpritesStr, ", ")}),
 				),
 			}
 		}
@@ -97,13 +93,10 @@ var Sprite = &types.DefaultCommand{
 		sprite := overlays.DudesSprite(spriteArg.String())
 		if !sprite.IsValid() {
 			return nil, &types.CommandHandlerError{
-				Message: fmt.Sprintf(
-					i18n.GetCtx(
-						ctx,
-						locales.Translations.Commands.Dudes.Errors.SpriteInvalid.
-							SetVars(locales.KeysCommandsDudesErrorsSpriteInvalidVars{AvailableSprites: availableSpritesStr}),
-					),
-					strings.Join(availableSpritesStr, ", "),
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Dudes.Errors.SpriteInvalid.
+						SetVars(locales.KeysCommandsDudesErrorsSpriteInvalidVars{AvailableSprites: strings.Join(availableSpritesStr, ", ")}),
 				),
 			}
 		}

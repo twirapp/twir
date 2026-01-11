@@ -129,6 +129,7 @@ func New(opts *Opts) *Commands {
 			dudes.Color,
 			dudes.Sprite,
 			dudes.Leave,
+			dudes.List,
 			seventv.Profile,
 			seventv.EmoteFind,
 			seventv.EmoteRename,
