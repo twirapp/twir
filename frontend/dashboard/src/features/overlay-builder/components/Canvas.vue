@@ -20,6 +20,7 @@ interface Props {
 	snapToGrid: boolean
 	gridSize: number
 	alignmentGuides: AlignmentGuide[]
+	snapToGuidesEnabled: boolean
 }
 
 const props = defineProps<Props>()
@@ -36,6 +37,21 @@ const emit = defineEmits<{
 
 const canvasElement = ref<HTMLElement>()
 const moveableRef = ref<InstanceType<typeof Moveable>>()
+
+// Snapping state - tracks if layer is currently snapped
+const snappedState = ref<{
+	layerId: string | null
+	snappedX: boolean
+	snappedY: boolean
+	snapPositionX: number | null
+	snapPositionY: number | null
+}>({
+	layerId: null,
+	snappedX: false,
+	snappedY: false,
+	snapPositionX: null,
+	snapPositionY: null,
+})
 
 // Canvas and grid wrapper transformation
 const canvasTransform = computed(() => {
@@ -92,6 +108,152 @@ function handleCanvasClick(event: MouseEvent) {
 	}
 }
 
+// Local snapping function with hysteresis for sticky feel
+function snapToGuides(layer: Layer, posX: number, posY: number): { x: number; y: number } {
+	if (!props.snapToGuidesEnabled) return { x: posX, y: posY }
+
+	const snapThreshold = 8 // Distance to snap in
+	const releaseThreshold = 15 // Distance to release snap (higher = more sticky)
+	let snappedX = posX
+	let snappedY = posY
+	let newSnapX = false
+	let newSnapY = false
+	let newSnapPosX: number | null = null
+	let newSnapPosY: number | null = null
+
+	const layerCenterX = posX + layer.width / 2
+	const layerCenterY = posY + layer.height / 2
+	const layerRight = posX + layer.width
+	const layerBottom = posY + layer.height
+
+	const canvasCenterX = props.canvasWidth / 2
+	const canvasCenterY = props.canvasHeight / 2
+
+	// Check if we're continuing a previous snap for this layer
+	const isSameLayer = snappedState.value.layerId === layer.id
+	const wasSnappedX = isSameLayer && snappedState.value.snappedX
+	const wasSnappedY = isSameLayer && snappedState.value.snappedY
+
+	// Vertical snapping with hysteresis
+	const checkVerticalSnap = (targetPos: number, snapTo: number) => {
+		const distance = Math.abs(targetPos - snapTo)
+		if (wasSnappedX && snappedState.value.snapPositionX === snapTo) {
+			// Already snapped - need more distance to release
+			if (distance < releaseThreshold) {
+				return true
+			}
+		} else {
+			// Not snapped yet - easier to snap
+			if (distance < snapThreshold) {
+				return true
+			}
+		}
+		return false
+	}
+
+	// Horizontal snapping with hysteresis
+	const checkHorizontalSnap = (targetPos: number, snapTo: number) => {
+		const distance = Math.abs(targetPos - snapTo)
+		if (wasSnappedY && snappedState.value.snapPositionY === snapTo) {
+			// Already snapped - need more distance to release
+			if (distance < releaseThreshold) {
+				return true
+			}
+		} else {
+			// Not snapped yet - easier to snap
+			if (distance < snapThreshold) {
+				return true
+			}
+		}
+		return false
+	}
+
+	// Snap to canvas edges and center - vertical
+	if (checkVerticalSnap(posX, 0)) {
+		snappedX = 0
+		newSnapX = true
+		newSnapPosX = 0
+	} else if (checkVerticalSnap(layerCenterX, canvasCenterX)) {
+		snappedX = canvasCenterX - layer.width / 2
+		newSnapX = true
+		newSnapPosX = canvasCenterX
+	} else if (checkVerticalSnap(layerRight, props.canvasWidth)) {
+		snappedX = props.canvasWidth - layer.width
+		newSnapX = true
+		newSnapPosX = props.canvasWidth
+	}
+
+	// Snap to canvas edges and center - horizontal
+	if (checkHorizontalSnap(posY, 0)) {
+		snappedY = 0
+		newSnapY = true
+		newSnapPosY = 0
+	} else if (checkHorizontalSnap(layerCenterY, canvasCenterY)) {
+		snappedY = canvasCenterY - layer.height / 2
+		newSnapY = true
+		newSnapPosY = canvasCenterY
+	} else if (checkHorizontalSnap(layerBottom, props.canvasHeight)) {
+		snappedY = props.canvasHeight - layer.height
+		newSnapY = true
+		newSnapPosY = props.canvasHeight
+	}
+
+	// Snap to other layers
+	props.layers.forEach((other) => {
+		if (other.id === layer.id || !other.visible) return
+
+		const otherCenterX = other.posX + other.width / 2
+		const otherCenterY = other.posY + other.height / 2
+		const otherRight = other.posX + other.width
+		const otherBottom = other.posY + other.height
+
+		// Vertical snapping to other layers
+		if (!newSnapX) {
+			if (checkVerticalSnap(posX, other.posX)) {
+				snappedX = other.posX
+				newSnapX = true
+				newSnapPosX = other.posX
+			} else if (checkVerticalSnap(layerRight, otherRight)) {
+				snappedX = otherRight - layer.width
+				newSnapX = true
+				newSnapPosX = otherRight
+			} else if (checkVerticalSnap(layerCenterX, otherCenterX)) {
+				snappedX = otherCenterX - layer.width / 2
+				newSnapX = true
+				newSnapPosX = otherCenterX
+			}
+		}
+
+		// Horizontal snapping to other layers
+		if (!newSnapY) {
+			if (checkHorizontalSnap(posY, other.posY)) {
+				snappedY = other.posY
+				newSnapY = true
+				newSnapPosY = other.posY
+			} else if (checkHorizontalSnap(layerBottom, otherBottom)) {
+				snappedY = otherBottom - layer.height
+				newSnapY = true
+				newSnapPosY = otherBottom
+			} else if (checkHorizontalSnap(layerCenterY, otherCenterY)) {
+				snappedY = otherCenterY - layer.height / 2
+				newSnapY = true
+				newSnapPosY = otherCenterY
+			}
+		}
+	})
+
+	// Update snapped state
+	snappedState.value = {
+		layerId: layer.id,
+		snappedX: newSnapX,
+		snappedY: newSnapY,
+		snapPositionX: newSnapPosX,
+		snapPositionY: newSnapPosY,
+	}
+
+	return { x: snappedX, y: snappedY }
+}
+
 function handleLayerClick(layerId: string, event: MouseEvent) {
 	event.stopPropagation()
 	const layer = props.layers.find(l => l.id === layerId)
@@ -120,7 +282,12 @@ function onDrag(e: OnDrag) {
 	newPosX = Math.max(0, Math.min(newPosX, maxX))
 	newPosY = Math.max(0, Math.min(newPosY, maxY))
 
-	// Update the element transform with clamped position
+	// Apply snapping
+	const snappedPos = snapToGuides(layer, newPosX, newPosY)
+	newPosX = snappedPos.x
+	newPosY = snappedPos.y
+
+	// Update the element transform with snapped position
 	target.style.transform = `translate(${newPosX}px, ${newPosY}px) rotate(${layer.rotation}deg)`
 
 	// Update layer position
@@ -136,6 +303,15 @@ function onDrag(e: OnDrag) {
 function onDragEnd() {
 	isDragging.value = false
 	emit('clearGuides')
+
+	// Reset snapping state when drag ends
+	snappedState.value = {
+		layerId: null,
+		snappedX: false,
+		snappedY: false,
+		snapPositionX: null,
+		snapPositionY: null,
+	}
 }
 
 function onResize(e: OnResize) {

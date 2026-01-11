@@ -393,7 +393,7 @@ onUnmounted(() => {
 
 // Computed values for toolbar
 const hasSelection = computed(() => builder.canvasState.selectedLayerIds.length > 0)
-const canAlign = computed(() => builder.canvasState.selectedLayerIds.length >= 2)
+const canAlign = computed(() => builder.canvasState.selectedLayerIds.length >= 1)
 const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length >= 3)
 </script>
 
@@ -450,6 +450,7 @@ const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length
 				:snap-to-grid="builder.canvasState.snapToGrid"
 				:grid-size="builder.canvasState.gridSize"
 				:alignment-guides="builder.alignmentGuides.value"
+				:snap-to-guides-enabled="builder.canvasState.showGuides"
 				@update-layer="handleUpdateLayer"
 				@select-layer="handleSelectLayer"
 				@deselect-all="handleDeselectAll"

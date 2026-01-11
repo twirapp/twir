@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import {
 	AlignCenter,
+	AlignCenterVertical,
+	AlignEndVertical,
 	AlignHorizontalDistributeCenter,
 	AlignLeft,
 	AlignRight,
+	AlignStartVertical,
 	AlignVerticalDistributeCenter,
 	ArrowLeft,
 	Copy,
@@ -246,6 +249,48 @@ function copyOverlayLink() {
 				</TooltipTrigger>
 				<TooltipContent>
 					<p>Align Right</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<Separator orientation="vertical" class="h-6" />
+
+		<!-- Vertical Alignment -->
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignTop')">
+						<AlignStartVertical class="h-4 w-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>Align Top</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignMiddle')">
+						<AlignCenterVertical class="h-4 w-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>Align Middle</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignBottom')">
+						<AlignEndVertical class="h-4 w-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>Align Bottom</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>

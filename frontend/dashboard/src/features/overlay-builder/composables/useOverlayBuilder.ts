@@ -320,9 +320,37 @@ export function useOverlayBuilder() {
 
 	// Alignment
 	function alignLayers(alignment: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') {
-		if (selectedLayers.value.length < 2) return
+		if (selectedLayers.value.length === 0) return
 
 		saveToHistory()
+
+		// If only one layer selected, align to canvas
+		if (selectedLayers.value.length === 1) {
+			const layer = selectedLayers.value[0]
+			switch (alignment) {
+				case 'left':
+					layer.posX = 0
+					break
+				case 'center':
+					layer.posX = (project.width - layer.width) / 2
+					break
+				case 'right':
+					layer.posX = project.width - layer.width
+					break
+				case 'top':
+					layer.posY = 0
+					break
+				case 'middle':
+					layer.posY = (project.height - layer.height) / 2
+					break
+				case 'bottom':
+					layer.posY = project.height - layer.height
+					break
+			}
+			return
+		}
+
+		// Multiple layers selected, align to selection bounds
 		const bounds = getSelectionBounds()
 
 		selectedLayers.value.forEach((layer) => {
@@ -432,12 +460,106 @@ export function useOverlayBuilder() {
 		return Math.round(value / canvasState.gridSize) * canvasState.gridSize
 	}
 
+	function snapToGuides(layer: Layer, posX: number, posY: number): { x: number; y: number } {
+		if (!canvasState.showGuides) return { x: posX, y: posY }
+
+		const threshold = 5
+		const detachThreshold = 10 // sensitivity for detaching
+		let snappedX = posX
+		let snappedY = posY
+
+		const layerCenterX = posX + layer.width / 2
+		const layerCenterY = posY + layer.height / 2
+		const layerRight = posX + layer.width
+		const layerBottom = posY + layer.height
+
+		const canvasCenterX = project.width / 2
+		const canvasCenterY = project.height / 2
+
+		// Snap to canvas edges and center - vertical
+		if (Math.abs(posX) < threshold) {
+			snappedX = 0
+		} else if (Math.abs(layerCenterX - canvasCenterX) < threshold) {
+			snappedX = canvasCenterX - layer.width / 2
+		} else if (Math.abs(layerRight - project.width) < threshold) {
+			snappedX = project.width - layer.width
+		}
+
+		// Snap to canvas edges and center - horizontal
+		if (Math.abs(posY) < threshold) {
+			snappedY = 0
+		} else if (Math.abs(layerCenterY - canvasCenterY) < threshold) {
+			snappedY = canvasCenterY - layer.height / 2
+		} else if (Math.abs(layerBottom - project.height) < threshold) {
+			snappedY = project.height - layer.height
+		}
+
+		// Snap to other layers
+		project.layers.forEach((other) => {
+			if (other.id === layer.id || !other.visible) return
+
+			const otherCenterX = other.posX + other.width / 2
+			const otherCenterY = other.posY + other.height / 2
+			const otherRight = other.posX + other.width
+			const otherBottom = other.posY + other.height
+
+			// Vertical snapping to other layers
+			if (Math.abs(posX - other.posX) < threshold) {
+				snappedX = other.posX
+			} else if (Math.abs(layerRight - otherRight) < threshold) {
+				snappedX = otherRight - layer.width
+			} else if (Math.abs(layerCenterX - otherCenterX) < threshold) {
+				snappedX = otherCenterX - layer.width / 2
+			}
+
+			// Horizontal snapping to other layers
+			if (Math.abs(posY - other.posY) < threshold) {
+				snappedY = other.posY
+			} else if (Math.abs(layerBottom - otherBottom) < threshold) {
+				snappedY = otherBottom - layer.height
+			} else if (Math.abs(layerCenterY - otherCenterY) < threshold) {
+				snappedY = otherCenterY - layer.height / 2
+			}
+		})
+
+		return { x: snappedX, y: snappedY }
+	}
+
 	function findAlignmentGuides(layer: Layer): AlignmentGuide[] {
 		if (!canvasState.showGuides) return []
 
 		const guides: AlignmentGuide[] = []
 		const threshold = 5
 
+		// Add canvas edge guides
+		const layerCenterX = layer.posX + layer.width / 2
+		const layerCenterY = layer.posY + layer.height / 2
+		const canvasCenterX = project.width / 2
+		const canvasCenterY = project.height / 2
+
+		// Vertical canvas guides (left, center, right)
+		if (Math.abs(layer.posX) < threshold) {
+			guides.push({ type: 'vertical', position: 0, matchedLayers: [] })
+		}
+		if (Math.abs(layerCenterX - canvasCenterX) < threshold) {
+			guides.push({ type: 'vertical', position: canvasCenterX, matchedLayers: [] })
+		}
+		if (Math.abs(layer.posX + layer.width - project.width) < threshold) {
+			guides.push({ type: 'vertical', position: project.width, matchedLayers: [] })
+		}
+
+		// Horizontal canvas guides (top, center, bottom)
+		if (Math.abs(layer.posY) < threshold) {
+			guides.push({ type: 'horizontal', position: 0, matchedLayers: [] })
+		}
+		if (Math.abs(layerCenterY - canvasCenterY) < threshold) {
+			guides.push({ type: 'horizontal', position: canvasCenterY, matchedLayers: [] })
+		}
+		if (Math.abs(layer.posY + layer.height - project.height) < threshold) {
+			guides.push({ type: 'horizontal', position: project.height, matchedLayers: [] })
+		}
+
+		// Add guides for other layers
 		project.layers.forEach((other) => {
 			if (other.id === layer.id || !other.visible) return
 
@@ -582,6 +704,7 @@ export function useOverlayBuilder() {
 
 		// Snapping
 		snapToGrid,
+		snapToGuides,
 		findAlignmentGuides,
 
 		// Project
