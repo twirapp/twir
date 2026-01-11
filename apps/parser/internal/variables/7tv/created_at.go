@@ -13,7 +13,7 @@ import (
 var ProfileCreatedAt = &types.Variable{
 	Name:         "7tv.profile.createdAt",
 	Description:  lo.ToPtr("Date when profile created on 7tv"),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

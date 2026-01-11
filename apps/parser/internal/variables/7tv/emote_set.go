@@ -14,7 +14,7 @@ import (
 var EmoteSetName = &types.Variable{
 	Name:         "7tv.emoteset.name",
 	Description:  lo.ToPtr("Name of 7tv emote set"),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

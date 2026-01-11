@@ -13,7 +13,7 @@ import (
 var Roles = &types.Variable{
 	Name:         "7tv.roles",
 	Description:  lo.ToPtr("Roles of user on 7tv"),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

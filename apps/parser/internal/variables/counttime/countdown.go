@@ -15,7 +15,7 @@ import (
 var CountDown = &types.Variable{
 	Name:         "countdown",
 	Description:  lo.ToPtr("Shows countdown to date, support time."),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Example:      lo.ToPtr("countdown|May 8, 2050 5:57:51 PM +0300"),
 	Links: []types.VariableLink{
 		{

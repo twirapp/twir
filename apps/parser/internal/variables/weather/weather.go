@@ -40,7 +40,7 @@ var Weather = &types.Variable{
 	Name:         "weather",
 	Description:  lo.ToPtr("Get weather from OpenWeatherMap. If command used with param, then param will be used as city name."),
 	Example:      lo.ToPtr("weather|en|London"),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

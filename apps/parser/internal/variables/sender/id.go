@@ -8,8 +8,9 @@ import (
 )
 
 var ID = &types.Variable{
-	Name:        "sender.id",
-	Description: lo.ToPtr("Sender id"),
+	Name:         "sender.id",
+	Description:  lo.ToPtr("Sender id"),
+	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

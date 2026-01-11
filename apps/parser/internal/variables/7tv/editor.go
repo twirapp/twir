@@ -13,7 +13,7 @@ import (
 var EditorForCount = &types.Variable{
 	Name:         "7tv.editorfor.count",
 	Description:  lo.ToPtr("Count of channels where user is editor"),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

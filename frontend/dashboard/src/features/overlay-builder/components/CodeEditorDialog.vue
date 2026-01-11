@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { VueMonacoEditor, useMonaco } from '@guolao/vue-monaco-editor'
-import { Code2, Eye, EyeOff } from 'lucide-vue-next'
+import { Check, ChevronLeft, ChevronRight, Code2, Copy, ExternalLink, Eye, EyeOff, Search } from 'lucide-vue-next'
+import { useClipboard } from '@vueuse/core'
 
 import { useChannelOverlayParseHtml } from '@/api/overlays/custom'
+import { useVariablesApi } from '@/api/variables'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -16,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { Input } from '@/components/ui/input'
 
 interface Props {
 	open: boolean
@@ -41,6 +44,8 @@ const emit = defineEmits<{
 
 const { monacoRef } = useMonaco()
 const parseHtmlMutation = useChannelOverlayParseHtml()
+const variablesApi = useVariablesApi()
+const { copy } = useClipboard()
 
 // Local state
 const localHtml = ref(props.html)
@@ -53,11 +58,48 @@ const parsedHtml = ref('')
 const pollInterval = ref<ReturnType<typeof setInterval>>()
 const isLoading = ref(false)
 
+// Variables panel state
+const showVariablesPanel = ref(false)
+const variablesSearchQuery = ref('')
+const htmlEditorRef = ref<any>(null)
+const copiedVariableId = ref<string | null>(null)
+
 // Watch props changes
 watch(() => props.html, (newVal) => { localHtml.value = newVal })
 watch(() => props.css, (newVal) => { localCss.value = newVal })
 watch(() => props.js, (newVal) => { localJs.value = newVal })
 watch(() => props.refreshInterval, (newVal) => { localRefreshInterval.value = newVal })
+
+// Filtered variables based on search query
+const filteredVariables = computed(() => {
+	const query = variablesSearchQuery.value.toLowerCase().trim()
+	if (!query) return variablesApi.allVariables.value
+
+	return variablesApi.allVariables.value.filter((v) => {
+		return (
+			v.name.toLowerCase().includes(query) ||
+			v.description?.toLowerCase().includes(query) ||
+			v.example?.toLowerCase().includes(query)
+		)
+	})
+})
+
+// Format variable for insertion
+function formatVariableForInsertion(variable: typeof variablesApi.allVariables.value[number]) {
+	return `$(${variable.example})`
+}
+
+// Copy variable to clipboard
+async function copyVariable(variable: typeof variablesApi.allVariables.value[number]) {
+	const text = formatVariableForInsertion(variable)
+	await copy(text)
+
+	// Show copied feedback
+	copiedVariableId.value = variable.name
+	setTimeout(() => {
+		copiedVariableId.value = null
+	}, 2000)
+}
 
 // Preview refs
 const previewContainer = ref<HTMLDivElement>()
@@ -271,7 +313,7 @@ onUnmounted(() => {
 
 			<div class="flex-1 flex overflow-hidden">
 				<!-- Code Editor Side -->
-				<div class="flex-1 flex flex-col border-r">
+				<div class="flex flex-col border-r" style="flex: 1 1 0; min-width: 0;">
 					<!-- Settings Bar -->
 					<div class="flex items-center gap-4 px-4 py-3 border-b bg-muted/30">
 						<div class="flex items-center gap-2">
@@ -288,6 +330,17 @@ onUnmounted(() => {
 						</div>
 
 						<div class="flex items-center gap-2 ml-auto">
+							<Button
+								variant="outline"
+								size="sm"
+								class="h-7 text-xs gap-1.5"
+								@click="showVariablesPanel = !showVariablesPanel"
+							>
+								<ChevronLeft v-if="showVariablesPanel" class="h-3 w-3" />
+								<ChevronRight v-else class="h-3 w-3" />
+								Variables
+							</Button>
+
 							<Switch
 								id="preview-toggle"
 								:checked="showPreview"
@@ -332,6 +385,7 @@ onUnmounted(() => {
 									domReadOnly: false
 								}"
 								class="h-full"
+								@mount="(editor) => htmlEditorRef = editor"
 							/>
 						</TabsContent>
 
@@ -387,6 +441,101 @@ onUnmounted(() => {
 							/>
 						</TabsContent>
 					</Tabs>
+				</div>
+
+				<!-- Variables Panel -->
+				<div
+					v-if="showVariablesPanel"
+					class="flex flex-col border-r bg-background overflow-hidden"
+					style="width: 400px;"
+				>
+					<div class="px-4 py-3 border-b shrink-0">
+						<h3 class="text-sm font-semibold mb-2">Available Variables</h3>
+						<div class="relative">
+							<Search class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+							<Input
+								v-model="variablesSearchQuery"
+								placeholder="Search variables..."
+								class="pl-8 h-8 text-xs"
+								@keydown.stop
+							/>
+						</div>
+					</div>
+
+					<div class="flex-1 overflow-y-auto p-2 space-y-1">
+						<div
+							v-for="variable in filteredVariables"
+							:key="variable.name"
+							class="group relative rounded-lg border p-3 hover:bg-accent/50 transition-colors"
+						>
+								<div class="flex items-start justify-between gap-2 mb-1">
+									<div class="flex-1 min-w-0">
+										<div class="flex items-center gap-2">
+											<code class="text-xs font-mono font-semibold text-primary">
+												{{ variable.name }}
+											</code>
+											<span
+												v-if="'isBuiltIn' in variable && variable.isBuiltIn"
+												class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-medium"
+											>
+												Built-in
+											</span>
+											<span
+												v-else
+												class="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-500 font-medium"
+											>
+												Custom
+											</span>
+										</div>
+										<p v-if="variable.description" class="text-xs text-muted-foreground mt-1 line-clamp-2">
+											{{ variable.description }}
+										</p>
+									</div>
+								</div>
+
+								<div class="flex items-center gap-1 mt-2">
+									<code class="flex-1 text-[11px] px-2 py-1 rounded bg-muted/50 font-mono text-muted-foreground truncate">
+										$({{ variable.example }})
+									</code>
+									<Button
+										variant="ghost"
+										size="icon"
+										class="h-6 w-6 shrink-0"
+										:title="copiedVariableId === variable.name ? 'Copied!' : 'Copy to clipboard'"
+										@click="copyVariable(variable)"
+									>
+										<Check v-if="copiedVariableId === variable.name" class="h-3 w-3 text-green-500" />
+										<Copy v-else class="h-3 w-3" />
+									</Button>
+								</div>
+
+								<div v-if="'links' in variable && variable.links && variable.links.length > 0" class="flex flex-wrap gap-1 mt-2">
+									<a
+										v-for="link in variable.links"
+										:key="link.href"
+										:href="link.href"
+										target="_blank"
+										rel="noopener noreferrer"
+										class="inline-flex items-center gap-1 text-[10px] text-blue-500 hover:text-blue-600 hover:underline"
+									>
+										<ExternalLink class="h-2.5 w-2.5" />
+										{{ link.name }}
+									</a>
+								</div>
+							</div>
+
+						<div
+							v-if="filteredVariables.length === 0"
+							class="text-center py-8 text-sm text-muted-foreground"
+						>
+							<Search class="h-8 w-8 mx-auto mb-2 opacity-50" />
+							<p>No variables found</p>
+						</div>
+					</div>
+
+					<div class="px-4 py-2 border-t text-xs text-muted-foreground shrink-0">
+						{{ filteredVariables.length }} variable{{ filteredVariables.length !== 1 ? 's' : '' }}
+					</div>
 				</div>
 
 				<!-- Preview Side -->

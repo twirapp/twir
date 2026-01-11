@@ -31,6 +31,8 @@ var Request = &types.Variable{
 	Description:              lo.ToPtr("Request third party api"),
 	Example:                  lo.ToPtr("request|https://decapi.me/youtube/latest_video?id=UCjerlCIbLPQwSnYlClkjDXg"),
 	DisableInCustomVariables: true,
+	CommandsOnly:             true,
+	CanBeUsedInRegistry:      false,
 	Handler: func(
 		ctx context.Context,
 		parseCtx *types.VariableParseContext,

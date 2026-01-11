@@ -15,7 +15,7 @@ import (
 var CountUp = &types.Variable{
 	Name:         "countup",
 	Description:  lo.ToPtr("Shows time passed from time."),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Example:      lo.ToPtr("countup|Oct 5, 1998 5:57:51 PM +0300"),
 	Links: []types.VariableLink{
 		{

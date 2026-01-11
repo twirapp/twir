@@ -12,7 +12,7 @@ import (
 var ProfileLink = &types.Variable{
 	Name:         "7tv.profile.link",
 	Description:  lo.ToPtr("Link to 7tv profile"),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

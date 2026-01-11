@@ -8,8 +8,9 @@ import (
 )
 
 var SenderDisplayName = &types.Variable{
-	Name:        "sender.displayName",
-	Description: lo.ToPtr("Username of user, who sended message"),
+	Name:         "sender.displayName",
+	Description:  lo.ToPtr("Username of user, who sended message"),
+	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

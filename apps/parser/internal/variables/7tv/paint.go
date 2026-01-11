@@ -13,7 +13,7 @@ import (
 var Paint = &types.Variable{
 	Name:         "7tv.profile.paint",
 	Description:  lo.ToPtr("Paint of profile"),
-	CommandsOnly: true,
+	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

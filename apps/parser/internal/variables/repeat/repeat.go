@@ -12,10 +12,12 @@ import (
 )
 
 var Variable = &types.Variable{
-	Name:        "repeat",
-	Description: lo.ToPtr("If you use $(repeat) in response, then it will be repeated as many times as user typed in chat. Max repeat is 20"),
-	Example:     lo.ToPtr("repeat"),
-	Priority:    math.MaxInt,
+	Name:                "repeat",
+	Description:         lo.ToPtr("If you use $(repeat) in response, then it will be repeated as many times as user typed in chat. Max repeat is 20"),
+	Example:             lo.ToPtr("repeat"),
+	Priority:            math.MaxInt,
+	CommandsOnly:        true,
+	CanBeUsedInRegistry: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
