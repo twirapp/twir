@@ -49,7 +49,6 @@
         "@editorjs/underline": "1.1.0",
         "@formkit/drag-and-drop": "0.0.38",
         "@guolao/vue-monaco-editor": "1.5.1",
-        "@protobuf-ts/twirp-transport": "2.9.4",
         "@tabler/icons-vue": "2.46.0",
         "@tailwindcss/vite": "4.1.18",
         "@tanstack/query-broadcast-client-experimental": "4.36.1",
@@ -106,7 +105,6 @@
         "@graphql-typed-document-node/core": "catalog:",
         "@intlify/unplugin-vue-i18n": "11.0.3",
         "@plugin-web-update-notification/vite": "2.0.2",
-        "@protobuf-ts/runtime-rpc": "2.9.4",
         "@tailwindcss/container-queries": "0.1.1",
         "@twirapp/vite-plugin-svg-spritemap": "0.0.0",
         "@types/tinycolor2": "1.4.6",
@@ -128,7 +126,6 @@
       "name": "@twir/overlays",
       "dependencies": {
         "@plugin-web-update-notification/vite": "1.7.1",
-        "@protobuf-ts/twirp-transport": "2.9.4",
         "@twir/api": "workspace:*",
         "@twir/fontsource": "workspace:*",
         "@twir/frontend-chat": "workspace:*",
@@ -1124,12 +1121,6 @@
     "@poppinss/dumper": ["@poppinss/dumper@0.6.5", "", { "dependencies": { "@poppinss/colors": "^4.1.5", "@sindresorhus/is": "^7.0.2", "supports-color": "^10.0.0" } }, "sha512-NBdYIb90J7LfOI32dOewKI1r7wnkiH6m920puQ3qHUeZkxNkQiFnXVWoE6YtFSv6QOiPPf7ys6i+HWWecDz7sw=="],
 
     "@poppinss/exception": ["@poppinss/exception@1.2.3", "", {}, "sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw=="],
-
-    "@protobuf-ts/runtime": ["@protobuf-ts/runtime@2.9.4", "", {}, "sha512-vHRFWtJJB/SiogWDF0ypoKfRIZ41Kq+G9cEFj6Qm1eQaAhJ1LDFvgZ7Ja4tb3iLOQhz0PaoPnnOijF1qmEqTxg=="],
-
-    "@protobuf-ts/runtime-rpc": ["@protobuf-ts/runtime-rpc@2.9.4", "", { "dependencies": { "@protobuf-ts/runtime": "^2.9.4" } }, "sha512-y9L9JgnZxXFqH5vD4d7j9duWvIJ7AShyBRoNKJGhu9Q27qIbchfzli66H9RvrQNIFk5ER7z1Twe059WZGqERcA=="],
-
-    "@protobuf-ts/twirp-transport": ["@protobuf-ts/twirp-transport@2.9.4", "", { "dependencies": { "@protobuf-ts/runtime": "^2.9.4", "@protobuf-ts/runtime-rpc": "^2.9.4" } }, "sha512-hoLHHVn1GgLyRVxDW9f0QKG24u/T/hLC0D97cV18OLyeC6Ibsvfg6xSSgA9Q/9wtBPI9ntMU/5/XLpICUXDgDQ=="],
 
     "@protobufjs/aspromise": ["@protobufjs/aspromise@1.1.2", "", {}, "sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ=="],
 

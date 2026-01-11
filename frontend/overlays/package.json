@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@plugin-web-update-notification/vite": "1.7.1",
-    "@protobuf-ts/twirp-transport": "2.9.4",
     "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
