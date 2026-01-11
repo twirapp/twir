@@ -23,16 +23,16 @@ services:
     image: adminer
     networks:
       - twir
-      - traefik-public
+      - cloudflared
     deploy:
       placement:
         constraints:
           - node.labels.databases != true
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
-        - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
-        - traefik.docker.network=traefik-public
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
+      #   - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
+      #   - traefik.docker.network=traefik-public
 
   nats:
     image: nats:2.10.11-scratch
@@ -40,7 +40,7 @@ services:
     command: -js -m 8222
     networks:
       - twir
-      - traefik-public
+      - cloudflared
     deploy:
       restart_policy:
         condition: any
@@ -50,11 +50,11 @@ services:
       placement:
         constraints:
           - node.labels.databases != true
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-nats.rule=Host(`nats.twir.app`)
-        - traefik.http.services.twir-nats.loadbalancer.server.port=8222
-        - traefik.docker.network=traefik-public
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-nats.rule=Host(`nats.twir.app`)
+      #   - traefik.http.services.twir-nats.loadbalancer.server.port=8222
+      #   - traefik.docker.network=traefik-public
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.116.1
@@ -262,14 +262,14 @@ services:
     image: temporalio/ui:2.21.0
     networks:
       - twir
-      - traefik-public
+      - cloudflared
     deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-temporal.rule=Host(`temporal.twir.app`)
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-temporal.rule=Host(`temporal.twir.app`)
 
-        - traefik.http.services.twir-temporal.loadbalancer.server.port=8080
-        - traefik.docker.network=traefik-public
+      #   - traefik.http.services.twir-temporal.loadbalancer.server.port=8080
+      #   - traefik.docker.network=traefik-public
       placement:
         constraints:
           - node.labels.databases != true
@@ -311,15 +311,14 @@ services:
       - twir_doppler_token
     networks:
       - twir
-      - traefik-public
     deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-api.rule=Host(`twir.app`) && PathPrefix(`/api-old`)
-        - traefik.http.routers.twir-api.middlewares=api-stripprefix
-        - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api-old
-        - traefik.http.services.twir-api.loadbalancer.server.port=3002
-        - traefik.docker.network=traefik-public
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-api.rule=Host(`twir.app`) && PathPrefix(`/api-old`)
+      #   - traefik.http.routers.twir-api.middlewares=api-stripprefix
+      #   - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api-old
+      #   - traefik.http.services.twir-api.loadbalancer.server.port=3002
+      #   - traefik.docker.network=traefik-public
       update_config:
         parallelism: 2
         order: start-first
@@ -346,26 +345,26 @@ services:
       - twir
       - traefik-public
     deploy:
-      labels:
-        - traefik.enable=true
+      # labels:
+      #   - traefik.enable=true
 
-        # Router for /api (twir-api-gql)
-        - "traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api`)"
-        - "traefik.http.routers.twir-api-gql.service=twir-api-gql"
-        - "traefik.http.routers.twir-api-gql.middlewares=api-gql-stripprefix"
-        - "traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api"
+      #   # Router for /api (twir-api-gql)
+      #   - "traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api`)"
+      #   - "traefik.http.routers.twir-api-gql.service=twir-api-gql"
+      #   - "traefik.http.routers.twir-api-gql.middlewares=api-gql-stripprefix"
+      #   - "traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api"
 
-        # Router for /s (twir-api-shortener-redirect)
-        - "traefik.http.routers.twir-api-shortener.rule=Host(`twir.app`) && PathPrefix(`/s`)"
-        - "traefik.http.routers.twir-api-shortener.service=twir-api-gql"
-        - "traefik.http.middlewares.api-shortener-rewrite.replacepathregex.regex=^/s/(.*)"
-        - "traefik.http.middlewares.api-shortener-rewrite.replacepathregex.replacement=/v1/short-links/$$1"
-        - "traefik.http.routers.twir-api-shortener.middlewares=api-shortener-rewrite"
+      #   # Router for /s (twir-api-shortener-redirect)
+      #   - "traefik.http.routers.twir-api-shortener.rule=Host(`twir.app`) && PathPrefix(`/s`)"
+      #   - "traefik.http.routers.twir-api-shortener.service=twir-api-gql"
+      #   - "traefik.http.middlewares.api-shortener-rewrite.replacepathregex.regex=^/s/(.*)"
+      #   - "traefik.http.middlewares.api-shortener-rewrite.replacepathregex.replacement=/v1/short-links/$$1"
+      #   - "traefik.http.routers.twir-api-shortener.middlewares=api-shortener-rewrite"
 
-        # Service definition (shared for both routers)
-        - "traefik.http.services.twir-api-gql.loadbalancer.server.port=3009"
+      #   # Service definition (shared for both routers)
+      #   - "traefik.http.services.twir-api-gql.loadbalancer.server.port=3009"
 
-        - traefik.docker.network=traefik-public
+      #   - traefik.docker.network=traefik-public
       update_config:
         parallelism: 2
         order: start-first
@@ -392,12 +391,12 @@ services:
       - traefik-public
       - twir
     deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-bots.rule=Host(`services-bots.twir.app`)
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-bots.rule=Host(`services-bots.twir.app`)
 
-        - traefik.http.services.twir-bots.loadbalancer.server.port=3000
-        - traefik.docker.network=traefik-public
+      #   - traefik.http.services.twir-bots.loadbalancer.server.port=3000
+      #   - traefik.docker.network=traefik-public
       restart_policy:
         condition: any
         delay: 30s
@@ -531,12 +530,12 @@ services:
       mode: replicated
       replicas: 4
       endpoint_mode: dnsrr
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-web.rule=Host(`twir.app`)
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-web.rule=Host(`twir.app`)
 
-        - traefik.http.services.twir-web.loadbalancer.server.port=3000
-        - traefik.docker.network=traefik-public
+      #   - traefik.http.services.twir-web.loadbalancer.server.port=3000
+      #   - traefik.docker.network=traefik-public
       placement:
         constraints:
           - node.labels.databases != true
@@ -558,13 +557,13 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)
-        - traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix
-        - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
-        - traefik.http.services.twir-dashboard.loadbalancer.server.port=8080
-        - traefik.docker.network=traefik-public
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)
+      #   - traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix
+      #   - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
+      #   - traefik.http.services.twir-dashboard.loadbalancer.server.port=8080
+      #   - traefik.docker.network=traefik-public
       placement:
         constraints:
           - node.labels.databases != true
@@ -583,13 +582,13 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-overlays.rule=Host(`twir.app`) && PathPrefix(`/overlays`)
-        - traefik.http.routers.twir-overlays.middlewares=overlays-stripprefix
-        - traefik.http.middlewares.overlays-stripprefix.stripprefix.prefixes=/overlays
-        - traefik.http.services.twir-overlays.loadbalancer.server.port=8080
-        - traefik.docker.network=traefik-public
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-overlays.rule=Host(`twir.app`) && PathPrefix(`/overlays`)
+      #   - traefik.http.routers.twir-overlays.middlewares=overlays-stripprefix
+      #   - traefik.http.middlewares.overlays-stripprefix.stripprefix.prefixes=/overlays
+      #   - traefik.http.services.twir-overlays.loadbalancer.server.port=8080
+      #   - traefik.docker.network=traefik-public
       placement:
         constraints:
           - node.labels.databases != true
@@ -613,13 +612,13 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-websockets.rule=Host(`twir.app`) && PathPrefix(`/socket`)
-        - traefik.http.routers.twir-websockets.middlewares=sockets-stripprefix
-        - traefik.http.middlewares.sockets-stripprefix.stripprefix.prefixes=/socket
-        - traefik.http.services.twir-websockets.loadbalancer.server.port=3004
-        - traefik.docker.network=traefik-public
+      # labels:
+      #   - traefik.enable=true
+      #   - traefik.http.routers.twir-websockets.rule=Host(`twir.app`) && PathPrefix(`/socket`)
+      #   - traefik.http.routers.twir-websockets.middlewares=sockets-stripprefix
+      #   - traefik.http.middlewares.sockets-stripprefix.stripprefix.prefixes=/socket
+      #   - traefik.http.services.twir-websockets.loadbalancer.server.port=3004
+      #   - traefik.docker.network=traefik-public
       placement:
         constraints:
           - node.labels.databases != true
@@ -760,13 +759,12 @@ services:
       - twir_doppler_token
     networks:
       - twir
-      - traefik-public
     deploy:
-      labels: # for testing purposes, not needed in production because requests done via internal docker network
-        - traefik.enable=true
-        - traefik.http.routers.music-recognizer.rule=Host(`music-recognizer.twir.app`)
-        - traefik.http.services.music-recognizer.loadbalancer.server.port=3000
-        - traefik.docker.network=traefik-public
+      # labels: # for testing purposes, not needed in production because requests done via internal docker network
+      #   - traefik.enable=true
+      #   - traefik.http.routers.music-recognizer.rule=Host(`music-recognizer.twir.app`)
+      #   - traefik.http.services.music-recognizer.loadbalancer.server.port=3000
+      #   - traefik.docker.network=traefik-public
       update_config:
         parallelism: 2
         order: start-first
