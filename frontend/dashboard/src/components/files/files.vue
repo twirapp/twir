@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RpcError } from '@protobuf-ts/runtime-rpc'
 import { ImageIcon, MusicIcon } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { computed, onMounted, ref } from 'vue'
@@ -71,10 +70,8 @@ async function upload(f: File) {
 		await uploader.executeMutation({
 			file: f,
 		})
-	} catch (error) {
-		if (error instanceof RpcError) {
-			toast.error(error.message)
-		}
+	} catch (error: any) {
+		toast.error(error?.message)
 	}
 }
 
