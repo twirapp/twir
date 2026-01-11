@@ -464,7 +464,6 @@ export function useOverlayBuilder() {
 		if (!canvasState.showGuides) return { x: posX, y: posY }
 
 		const threshold = 5
-		const detachThreshold = 10 // sensitivity for detaching
 		let snappedX = posX
 		let snappedY = posY
 
