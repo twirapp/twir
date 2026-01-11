@@ -7,12 +7,15 @@ export class StreamLabs {
 
 	constructor(
 		private readonly token: string,
-		private readonly twitchUserId: string,
+		private readonly twitchUserId: string
 	) {
 		this.#conn = io.connect(`https://sockets.streamlabs.com?token=${token}`, {
 			transports: ['websocket'],
 		})
 
+		this.#conn!.on('connect', () => {
+			console.log(`StreamLabs connected for user ${this.twitchUserId}`)
+		})
 		this.#conn!.on('event', (eventData: StreamLabsEvent) => this.#eventCallback(eventData))
 	}
 

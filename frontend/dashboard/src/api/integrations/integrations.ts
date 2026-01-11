@@ -1,11 +1,11 @@
 import { createGlobalState } from '@vueuse/core'
 
-import { graphql } from '@/gql'
-import { useMutation } from '@/composables/use-mutation.ts'
 import {
 	integrationsPageCacheKey,
 	useIntegrationsPageData,
 } from '@/api/integrations/integrations-page.ts'
+import { useMutation } from '@/composables/use-mutation.ts'
+import { graphql } from '@/gql'
 
 export const useIntegrations = createGlobalState(() => {
 	const refreshBroadcaster = new BroadcastChannel('integrations_broadcast_channel')
@@ -61,6 +61,26 @@ export const useIntegrations = createGlobalState(() => {
 			[integrationsPageCacheKey]
 		)
 
+	const streamlabsPostCode = () =>
+		useMutation(
+			graphql(`
+				mutation StreamlabsPostCode($code: String!) {
+					streamlabsPostCode(code: $code)
+				}
+			`),
+			[integrationsPageCacheKey]
+		)
+
+	const streamlabsLogout = () =>
+		useMutation(
+			graphql(`
+				mutation StreamlabsLogout {
+					streamlabsLogout
+				}
+			`),
+			[integrationsPageCacheKey]
+		)
+
 	refreshBroadcaster.onmessage = (event) => {
 		if (event.data !== 'refresh') return
 		integrationsPage.refetch()
@@ -76,6 +96,8 @@ export const useIntegrations = createGlobalState(() => {
 		donationAlertsLogout,
 		vkPostCode,
 		vkLogout,
+		streamlabsPostCode,
+		streamlabsLogout,
 
 		broadcastRefresh,
 	}

@@ -1,8 +1,0 @@
-syntax = "proto3";
-option go_package = "github.com/twirapp/twir/libs/api/messages/meta";
-package messages.meta;
-import "google/protobuf/empty.proto";
-
-message BaseRequestMeta {
-	//string channelId = 1;
-}

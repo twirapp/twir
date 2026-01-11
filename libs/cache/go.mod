@@ -8,9 +8,9 @@ require (
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0
 	github.com/twirapp/kv v0.5.1
-	go.opentelemetry.io/otel v1.38.0
-	go.opentelemetry.io/otel/trace v1.38.0
-	golang.org/x/sync v0.18.0
+	go.opentelemetry.io/otel v1.39.0
+	go.opentelemetry.io/otel/trace v1.39.0
+	golang.org/x/sync v0.19.0
 	gorm.io/gorm v1.31.1
 )
 
@@ -23,6 +23,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/maypok86/otter/v2 v2.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
 )

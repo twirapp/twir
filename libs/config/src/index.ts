@@ -1,5 +1,4 @@
 import process from 'node:process'
-
 import { z } from 'zod'
 
 const envSchema = z.object({
@@ -34,6 +33,8 @@ const envSchema = z.object({
 		.default('false'),
 	DONATIONALERTS_CLIENT_ID: z.string().optional(),
 	DONATIONALERTS_CLIENT_SECRET: z.string().optional(),
+	STREAMLABS_CLIENT_ID: z.string().optional(),
+	STREAMLABS_CLIENT_SECRET: z.string().optional(),
 })
 
 export const config = envSchema.parse(process.env)

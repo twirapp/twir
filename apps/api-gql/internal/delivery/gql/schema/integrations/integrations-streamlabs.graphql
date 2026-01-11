@@ -1,0 +1,15 @@
+extend type Query {
+	streamlabs: StreamlabsIntegration! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	streamlabsAuthLink: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+extend type Mutation {
+	streamlabsPostCode(code: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	streamlabsLogout: Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+type StreamlabsIntegration {
+	enabled: Boolean!
+	userName: String
+	avatar: String
+}

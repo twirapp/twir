@@ -74,6 +74,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
+	streamlabsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/streamlabs_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/toxic_messages"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
@@ -237,6 +238,9 @@ import (
 	commandshttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/commands"
 
 	twirhttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/twir"
+
+	streamlabsrepository "github.com/twirapp/twir/libs/repositories/streamlabs_integration"
+	streamlabsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streamlabs_integration/datasource/postgres"
 )
 
 func main() {
@@ -455,6 +459,10 @@ func main() {
 				channelsoverlaysrepositorypgx.NewFx,
 				fx.As(new(channelsoverlaysrepository.Repository)),
 			),
+			fx.Annotate(
+				streamlabsrepositorypostgres.NewFx,
+				fx.As(new(streamlabsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -547,6 +555,7 @@ func main() {
 			channelsgamesvotebancache.New,
 			eventscache.New,
 			rolescache.New,
+			streamlabsintegration.New,
 			fx.Annotate(
 				wsrouter.NewNatsWsRouterFx,
 				fx.As(new(wsrouter.WsRouter)),

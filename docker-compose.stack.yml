@@ -305,38 +305,6 @@ services:
         constraints:
           - node.labels.databases == true
 
-  api:
-    image: registry.twir.app/twirapp/api:latest
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-    deploy:
-      # labels:
-      #   - traefik.enable=true
-      #   - traefik.http.routers.twir-api.rule=Host(`twir.app`) && PathPrefix(`/api-old`)
-      #   - traefik.http.routers.twir-api.middlewares=api-stripprefix
-      #   - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api-old
-      #   - traefik.http.services.twir-api.loadbalancer.server.port=3002
-      #   - traefik.docker.network=traefik-public
-      update_config:
-        parallelism: 2
-        order: start-first
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 3G
-      endpoint_mode: dnsrr
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.databases != true
-
   api-gql:
     image: registry.twir.app/twirapp/api-gql:latest
     secrets:

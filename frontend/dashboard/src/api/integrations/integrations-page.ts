@@ -97,6 +97,14 @@ const IntegrationsPageQuery = graphql(`
 			faceitUserId
 		}
 		faceitAuthLink
+
+		# Streamlabs
+		streamlabs {
+			enabled
+			userName
+			avatar
+		}
+		streamlabsAuthLink
 	}
 `)
 
@@ -147,6 +155,10 @@ export const useIntegrationsPageData = createGlobalState(() => {
 	// Faceit
 	const faceitData = computed(() => query.data.value?.faceit ?? null)
 	const faceitAuthLink = computed(() => query.data.value?.faceitAuthLink ?? null)
+
+	// Streamlabs
+	const streamlabsData = computed(() => query.data.value?.streamlabs ?? null)
+	const streamlabsAuthLink = computed(() => query.data.value?.streamlabsAuthLink ?? null)
 
 	async function refetch() {
 		await query.executeQuery({ requestPolicy: 'network-only' })
@@ -205,5 +217,9 @@ export const useIntegrationsPageData = createGlobalState(() => {
 		// Faceit
 		faceitData,
 		faceitAuthLink,
+
+		// Streamlabs
+		streamlabsData,
+		streamlabsAuthLink,
 	}
 })

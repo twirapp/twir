@@ -9,7 +9,6 @@ import (
 )
 
 var Apps = []TwirGoApp{
-	{Name: "api", DebugPort: 2345},
 	{Name: "tokens", DebugPort: 2346},
 	{Name: "events", DebugPort: 2347},
 	{Name: "emotes-cacher", DebugPort: 2348},

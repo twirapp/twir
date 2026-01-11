@@ -8,7 +8,7 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/samber/lo v1.52.0
 	go.uber.org/fx v1.24.0
-	golang.org/x/sync v0.18.0
+	golang.org/x/sync v0.19.0
 )
 
 require (
@@ -18,6 +18,6 @@ require (
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
 )

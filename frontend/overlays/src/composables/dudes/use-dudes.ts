@@ -1,16 +1,16 @@
+import type { MessageChunk } from '@twir/frontend-chat'
+import type DudesOverlay from '@twirapp/dudes-vue'
+import type { Dude } from '@twirapp/dudes-vue/types'
+
 import { DudesSprite } from '@twir/types'
 import { DudesLayers } from '@twirapp/dudes-vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
+import { randomRgbColor } from '@/helpers.js'
+
 import { getSprite } from './dudes-config.js'
 import { useDudesSettings } from './use-dudes-settings.js'
-
-import type { MessageChunk } from '@twir/frontend-chat'
-import type DudesOverlay from '@twirapp/dudes-vue'
-import type { Dude } from '@twirapp/dudes-vue/types'
-
-import { randomRgbColor } from '@/helpers.js'
 
 export const useDudes = createGlobalState(() => {
 	const { dudesSettings, dudesUserSettings } = useDudesSettings()
@@ -133,7 +133,8 @@ export const useDudes = createGlobalState(() => {
 			return `https://cdn.frankerfacez.com/static/emoji/images/twemoji/${code}.png`
 		}
 
-		return `${window.location.origin}/api-old/proxy?url=${messageChunk.value}`
+		// TODO: refactor to new api proxy
+		return `${messageChunk.value}`
 	}
 
 	function requestDudeUserSettings(userId: string) {

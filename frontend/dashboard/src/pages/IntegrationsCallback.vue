@@ -3,8 +3,8 @@ import { Loader2Icon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { useStreamlabsIntegration } from '@/api/integrations/oauth'
 import { useFaceitIntegration } from '@/api/integrations/faceit.ts'
+import { useIntegrations } from '@/api/integrations/integrations.ts'
 import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
 import {
 	lastfmBroadcaster,
@@ -17,6 +17,7 @@ const route = useRoute()
 const discordIntegration = useDiscordIntegration()
 const lastfmIntegration = useLastfmIntegration()
 const faceitIntegration = useFaceitIntegration()
+const integrationsManager = useIntegrations()
 
 const integrationsHooks: {
 	[x: string]:
@@ -46,8 +47,12 @@ const integrationsHooks: {
 		},
 	},
 	streamlabs: {
-		manager: useStreamlabsIntegration(),
+		custom: true,
 		closeWindow: true,
+		handler: async (code: string) => {
+			await integrationsManager.streamlabsPostCode().executeMutation({ code })
+			integrationsManager.broadcastRefresh()
+		},
 	},
 	faceit: {
 		custom: true,

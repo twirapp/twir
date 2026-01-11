@@ -1,32 +1,23 @@
 {
-	"name": "@twir/api",
-	"type": "module",
-	"scripts": {
-		"prebuild": "rimraf dist",
-		"build": "bun run build.ts",
-		"build:ts": "tsc",
-		"build:openapi": "bun --bun run codegen-api.ts"
-	},
-	"exports": {
-		"./*": {
-			"import": "./*.ts",
-			"require": "./*.ts"
-		}
-	},
-	"typesVersions": {
-		"*": {
-			"*": [
-				"./*.ts"
-			]
-		}
-	},
-	"dependencies": {
-		"@bufbuild/protoc-gen-es": "1.8.0",
-		"@protobuf-ts/plugin": "2.9.4",
-		"@protobuf-ts/runtime": "2.9.4",
-		"@protobuf-ts/runtime-rpc": "2.9.4"
-	},
-	"devDependencies": {
-		"swagger-typescript-api": "13.0.23"
-	}
+  "name": "@twir/api",
+  "type": "module",
+  "scripts": {
+    "build:openapi": "bun --bun run codegen-api.ts"
+  },
+  "exports": {
+    "./*": {
+      "import": "./*.ts",
+      "require": "./*.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./*.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "swagger-typescript-api": "13.0.23"
+  }
 }

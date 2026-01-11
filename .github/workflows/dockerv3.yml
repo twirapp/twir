@@ -16,8 +16,6 @@ jobs:
     strategy:
       matrix:
         folders:
-          - path: apps/api
-            runtime: go
           - path: apps/api-gql
             runtime: go
           - path: apps/bots

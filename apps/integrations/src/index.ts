@@ -1,12 +1,14 @@
+import { IntegrationService } from '@twir/bus-core'
 import process from 'node:process'
 
-import { IntegrationService } from '@twir/bus-core'
+import type { Integration } from './libs/db'
 
 import {
 	Service,
 	getDonationAlertsIntegrations,
 	getDonationPayIntegrations,
 	getIntegrations,
+	getStreamlabsIntegrations,
 } from './libs/db'
 import { twirBus } from './libs/twirbus.ts'
 import {
@@ -21,18 +23,7 @@ import {
 	addIntegration as addStreamlabsIntegration,
 	removeIntegration as removeStreamlabsIntegration,
 } from './store/streamlabs'
-
-import type { Integration } from './libs/db'
-
 import './pubsub'
-
-const integrations = await getIntegrations()
-
-for (const integration of integrations) {
-	if (integration.integration.service === Service.STREAMLABS) {
-		addStreamlabsIntegration(integration)
-	}
-}
 
 for (const donatePayIntegration of await getDonationPayIntegrations()) {
 	addDonatePayIntegration(donatePayIntegration)
@@ -40,6 +31,10 @@ for (const donatePayIntegration of await getDonationPayIntegrations()) {
 
 for (const integration of await getDonationAlertsIntegrations()) {
 	addDonationAlertsIntegration(integration)
+}
+
+for (const integration of await getStreamlabsIntegrations()) {
+	addStreamlabsIntegration(integration)
 }
 
 twirBus.Integrations.Add.subscribe(async (data) => {
@@ -65,14 +60,14 @@ twirBus.Integrations.Add.subscribe(async (data) => {
 		return
 	}
 
-	const integration = await getIntegrations(data.id)
-
-	if (!integration) {
-		return null
-	}
-
-	if (integration.integration.service === Service.STREAMLABS) {
+	if (data.service === IntegrationService.STREAMLABS) {
+		const integration = await getStreamlabsIntegrations({ id: data.id })
+		if (!integration) {
+			console.error(`Integration with id ${data.id} not found for Streamlabs`)
+			return null
+		}
 		await addStreamlabsIntegration(integration)
+		return
 	}
 
 	return null
@@ -91,24 +86,13 @@ twirBus.Integrations.Remove.subscribe(async (data) => {
 		return null
 	}
 
-	const integration = await getIntegrations(data.id)
-	if (!integration) {
+	if (data.service === IntegrationService.STREAMLABS) {
+		await removeStreamlabsIntegration(data.id) // channelId
 		return null
 	}
 
-	await removeIntegration(integration)
 	return null
 })
-
-export async function removeIntegration(integration: Integration) {
-	if (integration.integration.service === Service.STREAMLABS) {
-		await removeStreamlabsIntegration(integration.channelId)
-	}
-
-	if (integration.integration.service === Service.DONATIONALERTS) {
-		await removeDonationAlertsIntegration(integration.channelId)
-	}
-}
 
 console.info('Integrations started')
 

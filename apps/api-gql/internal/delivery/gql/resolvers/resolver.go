@@ -56,6 +56,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/streamlabs_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/toxic_messages"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
@@ -166,6 +167,7 @@ type Deps struct {
 	VKIntegrationService                  *vkintegration.Service
 	FaceitIntegrationService              *faceitintegration.Service
 	ChannelOverlaysService                *channels_overlays.Service
+	StreamlabsIntegrationService          *streamlabs_integration.Service
 }
 
 type Resolver struct {

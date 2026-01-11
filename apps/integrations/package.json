@@ -1,28 +1,28 @@
 {
-	"name": "@twir/integrations",
-	"type": "module",
-	"private": true,
-	"scripts": {
-		"dev": "bun run --watch --no-clear-screen src/index.ts",
-		"start": "bun --env-file=../../.env --bun src/index.ts",
-		"prebuild": "tsc --noEmit",
-		"build": "bun build --compile --minify --sourcemap src/index.ts --outfile=.out/twir-integrations"
-	},
-	"dependencies": {
-		"@twir/bus-core": "workspace:*",
-		"@twir/config": "workspace:*",
-		"@twir/pubsub": "workspace:*",
-		"centrifuge": "2.8.5",
-		"nats": "2.22.0",
-		"rate-limiter-algorithms": "2.1.0",
-		"socket.io-client": "2.3.1",
-		"ws": "8.16.0",
-		"xmlhttprequest": "1.8.0"
-	},
-	"devDependencies": {
-		"@types/bun": "catalog:",
-		"@types/node": "20.12.7",
-		"@types/socket.io-client": "1.4.36",
-		"@types/ws": "8.5.10"
-	}
+  "name": "@twir/integrations",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --env-file=../../.env --watch --no-clear-screen src/index.ts",
+    "start": "bun --env-file=../../.env --bun src/index.ts",
+    "prebuild": "tsc --noEmit",
+    "build": "bun build --compile --minify --sourcemap src/index.ts --outfile=.out/twir-integrations"
+  },
+  "dependencies": {
+    "@twir/bus-core": "workspace:*",
+    "@twir/config": "workspace:*",
+    "@twir/pubsub": "workspace:*",
+    "centrifuge": "2.8.5",
+    "nats": "2.22.0",
+    "rate-limiter-algorithms": "2.1.0",
+    "socket.io-client": "2.3.1",
+    "ws": "8.16.0",
+    "xmlhttprequest": "1.8.0"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "20.12.7",
+    "@types/socket.io-client": "1.4.36",
+    "@types/ws": "8.5.10"
+  }
 }

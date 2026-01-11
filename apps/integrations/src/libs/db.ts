@@ -1,12 +1,11 @@
-import process from 'node:process'
-
 import { config } from '@twir/config'
 import { SQL } from 'bun'
+import process from 'node:process'
 
 import type { Donate } from '../utils/onDonation.ts'
 
 const sql = new SQL(config.DATABASE_URL, {
-	prepare: false,
+	prepare: true,
 })
 
 try {
@@ -229,4 +228,56 @@ export async function updateDonationAlertsIntegration(opts: {
 	enabled?: string
 }) {
 	await sql`UPDATE channels_integrations_donationalerts SET ${sql(opts)} WHERE channel_id = ${opts.channel_id}`
+}
+
+export async function getStreamlabsIntegrations(opts: {
+	id: string
+}): Promise<StreamlabsIntegration | null>
+export async function getStreamlabsIntegrations(opts: {
+	channelId: string
+}): Promise<StreamlabsIntegration | null>
+export async function getStreamlabsIntegrations(): Promise<StreamlabsIntegration[]>
+export async function getStreamlabsIntegrations(opts?: {
+	channelId?: string
+	id?: string
+}): Promise<StreamlabsIntegration[] | StreamlabsIntegration | null> {
+	let where
+	if (opts?.id) {
+		where = sql`WHERE id = ${opts.id}::uuid`
+	} else if (opts?.channelId) {
+		where = sql`WHERE channel_id = ${String(opts.channelId)}`
+	} else {
+		where = sql``
+	}
+
+	const result = await sql`
+	SELECT id, channel_id, access_token, refresh_token, username, avatar, enabled
+	FROM channels_integrations_streamlabs
+	${where}
+	`
+
+	if (opts?.id || opts?.channelId) {
+		return result[0] ?? null
+	}
+
+	return result || []
+}
+
+export interface StreamlabsIntegration {
+	id: string
+	enabled: boolean
+	channel_id: string
+	access_token: string
+	refresh_token: string
+	username: string
+	avatar: string
+}
+
+export async function updateStreamlabsIntegration(opts: {
+	channel_id: string
+	access_token?: string
+	refresh_token?: string
+	enabled?: string
+}) {
+	await sql`UPDATE channels_integrations_streamlabs SET ${sql(opts)}	WHERE channel_id = ${opts.channel_id}`
 }

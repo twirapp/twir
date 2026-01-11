@@ -97,6 +97,9 @@ type Config struct {
 
 	DeeplApiKey                       string `required:"false" envconfig:"DEEPL_API_KEY"`
 	GoogleTranslateServiceAccountJson string `required:"false" envconfig:"GOOGLE_TRANSLATE_SERVICE_ACCOUNT_JSON"`
+
+	StreamlabsClientId     string `required:"false" envconfig:"STREAMLABS_CLIENT_ID"`
+	StreamlabsClientSecret string `required:"false" envconfig:"STREAMLABS_CLIENT_SECRET"`
 }
 
 func (c *Config) IsProduction() bool {
