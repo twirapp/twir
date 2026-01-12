@@ -1,51 +1,52 @@
 <script setup lang="ts">
-import { IconEdit } from '@tabler/icons-vue'
-import { useIntervalFn } from '@vueuse/core'
-import { intervalToDuration } from 'date-fns'
-import { computed, onBeforeUnmount, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { IconEdit } from "@tabler/icons-vue";
+import { useIntervalFn } from "@vueuse/core";
+import { intervalToDuration } from "date-fns";
+import { computed, onBeforeUnmount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-import StreamInfoEditor from '../stream-info-editor.vue'
+import StreamInfoEditor from "../stream-info-editor.vue";
 
-import { useRealtimeDashboardStats } from '@/api/dashboard'
-import { padTo2Digits } from '@/helpers/convertMillisToTime'
-import HeaderProfile from '@/layout/header/header-profile.vue'
-import HeaderBotStatus from '@/layout/header/header-bot-status.vue'
+import { useRealtimeDashboardStats } from "@/api/dashboard";
+import CommandMenu from "@/components/command-menu/CommandMenu.vue";
+import { padTo2Digits } from "@/helpers/convertMillisToTime";
+import HeaderProfile from "@/layout/header/header-profile.vue";
+import HeaderBotStatus from "@/layout/header/header-bot-status.vue";
 
-const { stats } = useRealtimeDashboardStats()
+const { stats } = useRealtimeDashboardStats();
 
-const currentTime = ref(new Date())
+const currentTime = ref(new Date());
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {
-	currentTime.value = new Date()
-}, 1000)
+	currentTime.value = new Date();
+}, 1000);
 
 const uptime = computed(() => {
-	if (!stats.value?.startedAt) return '00:00:00'
+	if (!stats.value?.startedAt) return "00:00:00";
 
 	const duration = intervalToDuration({
 		start: new Date(stats.value.startedAt),
 		end: currentTime.value,
-	})
+	});
 
-	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0]
-	if (duration.days !== undefined && duration.days !== 0) mappedDuration.unshift(duration.days)
+	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0];
+	if (duration.days !== undefined && duration.days !== 0) mappedDuration.unshift(duration.days);
 
 	return mappedDuration
 		.map((v) => padTo2Digits(v!))
-		.filter((v) => typeof v !== 'undefined')
-		.join(':')
-})
+		.filter((v) => typeof v !== "undefined")
+		.join(":");
+});
 
 onBeforeUnmount(() => {
-	pauseUptimeInterval()
-})
+	pauseUptimeInterval();
+});
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-const streamInfoEditorOpen = ref(false)
+const streamInfoEditorOpen = ref(false);
 
 function openInfoEditor() {
-	streamInfoEditorOpen.value = true
+	streamInfoEditorOpen.value = true;
 }
 </script>
 
@@ -57,11 +58,11 @@ function openInfoEditor() {
 			<div class="flex items-center cursor-pointer overflow-hidden" @click="openInfoEditor">
 				<div class="flex flex-row md:flex-col pr-2.5">
 					<p>
-						{{ stats?.title ?? 'No title' }}
+						{{ stats?.title ?? "No title" }}
 					</p>
 					<div class="block md:hidden">|</div>
 					<p>
-						{{ stats?.categoryName ?? 'No category' }}
+						{{ stats?.categoryName ?? "No category" }}
 					</p>
 				</div>
 				<IconEdit class="h-5 w-5 cursor-pointer" />
@@ -133,6 +134,7 @@ function openInfoEditor() {
 		</div>
 
 		<div class="ml-auto flex flex-wrap justify-end gap-2 flex-end items-center">
+			<CommandMenu />
 			<HeaderBotStatus />
 			<HeaderProfile />
 		</div>
