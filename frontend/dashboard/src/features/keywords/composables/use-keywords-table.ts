@@ -3,9 +3,9 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import KeywordsTableActions from '../ui/keywords-table-actions.vue'
-
 import { type KeywordResponse, useKeywordsApi } from '@/api/keywords.js'
+
+import KeywordsTableActions from '../ui/keywords-table-actions.vue'
 
 export const useKeywordsTable = createGlobalState(() => {
 	const { t } = useI18n()
@@ -22,19 +22,40 @@ export const useKeywordsTable = createGlobalState(() => {
 			accessorKey: 'text',
 			size: 20,
 			header: () => h('div', {}, t('keywords.triggerText')),
-			cell: ({ row }) => h('span', row.original.text),
+			cell: ({ row }) =>
+				h(
+					'span',
+					{
+						class: 'block max-w-xs truncate',
+						title: row.original.text,
+					},
+					row.original.text
+				),
 		},
 		{
 			accessorKey: 'response',
 			size: 20,
 			header: () => h('div', {}, t('sharedTexts.response')),
-			cell: ({ row }) => h('span', row.original.response ?? ''),
+			cell: ({ row }) =>
+				h(
+					'span',
+					{
+						class: 'block max-w-xs truncate',
+						title: row.original.response ?? '',
+					},
+					row.original.response ?? ''
+				),
 		},
 		{
 			accessorKey: 'variables',
 			size: 45,
 			header: () => h('div', {}, 'Counter variable'),
-			cell: ({ row }) => h('span', { class: 'cursor-pointer text-xs' }, { default: () => `$(keywords.counter|${row.original.id})` }),
+			cell: ({ row }) =>
+				h(
+					'span',
+					{ class: 'cursor-pointer text-xs' },
+					{ default: () => `$(keywords.counter|${row.original.id})` }
+				),
 		},
 		{
 			accessorKey: 'usages',
