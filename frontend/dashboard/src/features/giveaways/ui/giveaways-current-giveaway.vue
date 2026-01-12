@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { BanIcon, PlayIcon, ShuffleIcon, TrophyIcon, UsersIcon } from 'lucide-vue-next'
-import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { BanIcon, PlayIcon, ShuffleIcon, TrophyIcon, UsersIcon } from "lucide-vue-next";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
-import { useProfile } from '@/api/auth'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
-import GiveawaysCurrentGiveawayParticipants from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue'
-import GiveawaysCurrentGiveawayWinners from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners.vue'
+import { useProfile } from "@/api/auth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGiveaways } from "@/features/giveaways/composables/giveaways-use-giveaways.ts";
+import GiveawaysCurrentGiveawayParticipants from "@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue";
+import GiveawaysCurrentGiveawayWinners from "@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners.vue";
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 const {
 	participants,
@@ -21,52 +21,52 @@ const {
 	stopGiveaway,
 	chooseWinners,
 	winners,
-} = useGiveaways()
+} = useGiveaways();
 
-const { data: profile } = useProfile()
+const { data: profile } = useProfile();
 
 const selectedDashboardTwitchUser = computed(() => {
 	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
-		?.twitchProfile
-})
+		?.twitchProfile;
+});
 
 const chatUrl = computed(() => {
-	if (!selectedDashboardTwitchUser.value) return
+	if (!selectedDashboardTwitchUser.value) return;
 
-	return `https://www.twitch.tv/embed/${selectedDashboardTwitchUser.value.login}/chat?parent=${window.location.host}&darkpopout`
-})
+	return `https://www.twitch.tv/embed/${selectedDashboardTwitchUser.value.login}/chat?parent=${window.location.host}&darkpopout`;
+});
 
 // Tab state
-const activeTab = ref('participants')
+const activeTab = ref("participants");
 
 // Watch for winners and switch to winners tab when they are chosen
 watch(winners, (newWinners) => {
 	if (newWinners.length > 0) {
-		activeTab.value = 'winners'
+		activeTab.value = "winners";
 	}
-})
+});
 
 async function handleStartGiveaway() {
 	if (currentGiveawayId.value) {
-		await startGiveaway(currentGiveawayId.value)
+		await startGiveaway(currentGiveawayId.value);
 	}
 }
 
 async function handleStopGiveaway() {
 	if (currentGiveawayId.value) {
-		await stopGiveaway(currentGiveawayId.value)
+		await stopGiveaway(currentGiveawayId.value);
 	}
 }
 
 async function handleChooseWinners() {
 	if (currentGiveawayId.value) {
-		await chooseWinners(currentGiveawayId.value)
+		await chooseWinners(currentGiveawayId.value);
 	}
 }
 </script>
 
 <template>
-	<div class="flex flex-row flex-wrap-reverse gap-4 h-[98dvh] p-4">
+	<div class="flex flex-row flex-wrap-reverse gap-4 h-[90dvh] p-4">
 		<Card class="flex-1 h-full min-h-0">
 			<Tabs v-model="activeTab" class="h-full flex flex-col">
 				<CardHeader
@@ -85,7 +85,7 @@ async function handleChooseWinners() {
 							@click="handleStartGiveaway"
 						>
 							<PlayIcon class="size-4" />
-							{{ t('giveaways.start') }}
+							{{ t("giveaways.start") }}
 						</Button>
 
 						<Button
@@ -95,7 +95,7 @@ async function handleChooseWinners() {
 							@click="handleStopGiveaway"
 						>
 							<BanIcon class="size-4" />
-							{{ t('giveaways.stop') }}
+							{{ t("giveaways.stop") }}
 						</Button>
 
 						<!--						<Button -->
@@ -114,7 +114,7 @@ async function handleChooseWinners() {
 						<TabsList>
 							<TabsTrigger value="participants" class="flex flex-row gap-2">
 								<UsersIcon class="size-4 inline" />
-								{{ t('giveaways.currentGiveaway.tabs.participants') }}
+								{{ t("giveaways.currentGiveaway.tabs.participants") }}
 								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
 									{{ participants.length }}
 								</span>
@@ -122,7 +122,7 @@ async function handleChooseWinners() {
 							<TabsTrigger value="winners" class="flex flex-row gap-2">
 								<TrophyIcon class="size-4 inline" />
 								<span>
-									{{ t('giveaways.currentGiveaway.tabs.winners') }}
+									{{ t("giveaways.currentGiveaway.tabs.winners") }}
 								</span>
 								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
 									{{ winners.length }}
@@ -140,7 +140,7 @@ async function handleChooseWinners() {
 						<div class="flex flex-col h-full">
 							<div class="p-2 border-b flex justify-between flex-wrap gap-2 items-center">
 								<span class="text-sm font-medium">{{
-									t('giveaways.currentGiveaway.totalWinners', { count: winners.length })
+									t("giveaways.currentGiveaway.totalWinners", { count: winners.length })
 								}}</span>
 								<Button
 									size="sm"
@@ -150,7 +150,7 @@ async function handleChooseWinners() {
 									@click="handleChooseWinners"
 								>
 									<ShuffleIcon class="size-4" />
-									{{ t('giveaways.chooseWinner') }}
+									{{ t("giveaways.chooseWinner") }}
 								</Button>
 							</div>
 							<GiveawaysCurrentGiveawayWinners />
