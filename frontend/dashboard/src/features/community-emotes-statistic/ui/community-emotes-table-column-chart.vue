@@ -1,125 +1,119 @@
 <script setup lang="ts">
-import { ColorType, createChart } from 'lightweight-charts'
-import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
+import { computed } from "vue";
+import { VisAxis, VisLine, VisXYContainer } from "@unovis/vue";
 
-import { useCommunityChartSize } from '../composables/use-community-chart-size.js'
-import { useCommunityChartStyles } from '../composables/use-community-chart-styles.js'
+import type { ChartConfig } from "@/components/ui/chart";
 
-import type { DeepPartial, IChartApi, ISeriesApi, TimeChartOptions , UTCTimestamp } from 'lightweight-charts'
+import {
+	ChartContainer,
+	ChartCrosshair,
+	ChartTooltip,
+	ChartTooltipContent,
+	componentToString,
+} from "@/components/ui/chart";
 
 const props = defineProps<{
-	isDayRange: boolean
+	isDayRange: boolean;
 	usages: {
-		timestamp: number
-		count: number
-	}[]
-}>()
+		timestamp: number;
+		count: number;
+	}[];
+}>();
 
-const chart = shallowRef<IChartApi | null>(null)
-const chartContainer = ref<HTMLElement | null>(null)
+interface Data {
+	timestamp: number;
+	date: Date;
+	count: number;
+};
 
-const { chartSizes, setChartSize } = useCommunityChartSize()
-const { chartStyles } = useCommunityChartStyles()
+const chartData = computed<Data[]>(() => {
+	return props.usages.map(({ timestamp, count }) => ({
+		timestamp,
+		date: new Date(timestamp),
+		count,
+	}));
+});
 
-const chartOptions = computed<DeepPartial<TimeChartOptions>>(() => ({
-	layout: {
-		fontSize: 12,
-		fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif',
-		textColor: chartStyles.value.textColor,
-		background: {
-			type: ColorType.Solid,
-			color: 'transparent',
+const chartConfig = {
+	count: {
+		label: "Usage",
+		theme: {
+			light: "#10b981",
+			dark: "#10b981",
 		},
 	},
-	grid: {
-		horzLines: {
-			visible: false,
-		},
-		vertLines: {
-			visible: false,
-		},
-	},
-	localization: {
-		priceFormatter: (price: number) => price.toFixed(0),
-	},
-	timeScale: {
-		fixLeftEdge: true,
-		timeVisible: props.isDayRange,
-		borderColor: chartStyles.value.borderColor,
-	},
-	rightPriceScale: {
-		borderColor: chartStyles.value.borderColor,
-	},
-	handleScroll: {
-		mouseWheel: false,
-	},
-	handleScale: {
-		axisDoubleClickReset: false,
-		axisPressedMouseMove: false,
-		mouseWheel: false,
-		pinch: false,
-	},
-}))
-
-watch(chartOptions, (options) => {
-	if (!chart.value) return
-	// styles are not updated :(
-	chart.value.applyOptions(options)
-})
-
-function resizeHandler() {
-	if (!chart.value || !chartContainer.value) return
-
-	const dimensions = chartContainer.value.getBoundingClientRect()
-	if (dimensions.width !== 0 || dimensions.height !== 0) {
-		setChartSize(dimensions.width, dimensions.height)
-	}
-
-	chart.value.resize(chartSizes.value.width, chartSizes.value.height)
-	chart.value.timeScale().fitContent()
-}
-
-const areaSeries = ref<ISeriesApi<'Line'> | null>(null)
-
-onMounted(() => {
-	if (!chartContainer.value) return
-
-	chart.value = createChart(chartContainer.value, chartOptions.value)
-
-	areaSeries.value = chart.value.addLineSeries({
-		crosshairMarkerVisible: false,
-		priceLineVisible: false,
-	})
-
-	setUsages()
-
-	resizeHandler()
-	window.addEventListener('resize', resizeHandler)
-})
-
-function setUsages() {
-	if (!areaSeries.value || !chart.value) return
-
-	areaSeries.value.setData(props.usages.map(({ timestamp, count }) => ({
-		time: timestamp / 1000 as UTCTimestamp,
-		value: count,
-	})))
-	chart.value.timeScale().fitContent()
-}
-
-watch(() => props.usages, setUsages)
-
-onUnmounted(() => {
-	if (!chart.value) return
-
-	chart.value.remove()
-	chart.value = null
-	areaSeries.value = null
-
-	window.removeEventListener('resize', resizeHandler)
-})
+} satisfies ChartConfig;
 </script>
 
 <template>
-	<div ref="chartContainer" class="w-full h-[100px]"></div>
+	<div class="w-full h-[100px]">
+		<ChartContainer :config="chartConfig" class="w-full h-full" cursor>
+			<VisXYContainer
+				:data="chartData"
+				:margin="{ left: 0, right: 0, top: 5, bottom: 20 }"
+				:y-domain="[0, undefined]"
+			>
+				<VisLine
+					:x="(d: Data) => d.date"
+					:y="(d: Data) => d.count"
+					color="var(--color-count)"
+					:line-width="2"
+				/>
+				<VisAxis
+					type="x"
+					:x="(d: Data) => d.date"
+					:tick-line="false"
+					:domain-line="false"
+					:grid-line="false"
+					:num-ticks="props.isDayRange ? 4 : 3"
+					:tick-format="
+						(d: number) => {
+							const date = new Date(d);
+							if (props.isDayRange) {
+								return date.toLocaleTimeString('en-US', {
+									hour: '2-digit',
+									minute: '2-digit',
+								});
+							}
+							return date.toLocaleDateString('en-US', {
+								month: 'short',
+								day: 'numeric',
+							});
+						}
+					"
+				/>
+				<VisAxis
+					type="y"
+					:num-ticks="3"
+					:tick-line="false"
+					:domain-line="false"
+					:tick-format="() => ''"
+				/>
+				<ChartTooltip />
+				<ChartCrosshair
+					:template="
+						componentToString(chartConfig, ChartTooltipContent, {
+							labelFormatter(d) {
+								const date = new Date(d);
+								if (props.isDayRange) {
+									return date.toLocaleString('en-US', {
+										month: 'short',
+										day: 'numeric',
+										hour: '2-digit',
+										minute: '2-digit',
+									});
+								}
+								return date.toLocaleDateString('en-US', {
+									month: 'short',
+									day: 'numeric',
+									year: 'numeric',
+								});
+							},
+						})
+					"
+					color="var(--color-count)"
+				/>
+			</VisXYContainer>
+		</ChartContainer>
+	</div>
 </template>

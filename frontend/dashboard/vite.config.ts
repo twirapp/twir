@@ -1,6 +1,6 @@
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
-import tailwindcss from '@tailwindcss/vite'
 import { webUpdateNotice } from '@plugin-web-update-notification/vite'
+import tailwindcss from '@tailwindcss/vite'
 import svgSprite from '@twirapp/vite-plugin-svg-spritemap'
 import vue from '@vitejs/plugin-vue'
 import path from 'node:path'
@@ -149,10 +149,6 @@ export default defineConfig(({ mode }) => {
 							{
 								test: /editorjs|editor-js/,
 								name: 'editorjs',
-							},
-							{
-								test: /lightweight-charts/,
-								name: 'lightweight-charts',
 							},
 							{
 								test: /croact-moveable/,

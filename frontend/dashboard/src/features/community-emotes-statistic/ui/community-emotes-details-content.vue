@@ -1,117 +1,82 @@
 <script setup lang="ts">
-import { ColorType, createChart } from 'lightweight-charts'
-import { RadioGroupItem, RadioGroupRoot } from 'reka-ui'
-import { onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { RadioGroupItem, RadioGroupRoot } from "reka-ui";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { VisArea, VisAxis, VisLine, VisXYContainer } from "@unovis/vue";
 
-import type { AutoscaleInfo, IChartApi, ISeriesApi, UTCTimestamp } from 'lightweight-charts'
+import type { ChartConfig } from "@/components/ui/chart";
 
+import {
+	ChartContainer,
+	ChartCrosshair,
+	ChartTooltip,
+	ChartTooltipContent,
+	componentToString,
+} from "@/components/ui/chart";
 import {
 	useCommunityEmotesDetails,
 	useCommunityEmotesDetailsName,
-} from '@/features/community-emotes-statistic/composables/use-community-emotes-details.js'
-import { useTranslatedRanges } from '@/features/community-emotes-statistic/composables/use-translated-ranges.js'
-import CommunityEmotesDetailsContentUsersHistory from '@/features/community-emotes-statistic/ui/community-emotes-details-content-users-history.vue'
-import CommunityEmotesDetailsContentUsersTop from '@/features/community-emotes-statistic/ui/community-emotes-details-content-users-top.vue'
+} from "@/features/community-emotes-statistic/composables/use-community-emotes-details.js";
+import { useTranslatedRanges } from "@/features/community-emotes-statistic/composables/use-translated-ranges.js";
+import CommunityEmotesDetailsContentUsersHistory from "@/features/community-emotes-statistic/ui/community-emotes-details-content-users-history.vue";
+import CommunityEmotesDetailsContentUsersTop from "@/features/community-emotes-statistic/ui/community-emotes-details-content-users-top.vue";
 
-const { t } = useI18n()
-const { ranges } = useTranslatedRanges()
-const { details, range } = useCommunityEmotesDetails()
-const { emoteName } = useCommunityEmotesDetailsName()
+const { t } = useI18n();
+const { ranges } = useTranslatedRanges();
+const { details, range } = useCommunityEmotesDetails();
+const { emoteName } = useCommunityEmotesDetailsName();
 
-const chartContainer = ref<HTMLElement>()
+interface Data {
+	timestamp: number;
+	date: Date;
+	count: number;
+};
 
-let chart = null as IChartApi | null
-let areaSeries = null as ISeriesApi<'Area'> | null
+const chartData = computed<Data[]>(() => {
+	if (!details.value?.emotesStatisticEmoteDetailedInformation?.graphicUsages) {
+		return [];
+	}
 
-onMounted(() => {
-	if (!chartContainer.value) return
-	chart = createChart(chartContainer.value, {
-		height: 240,
-		autoSize: true,
-		layout: {
-			textColor: 'white',
-			fontFamily: 'Inter',
-			background: { type: ColorType.Solid, color: 'transparent' },
-		},
-		rightPriceScale: {
-			borderColor: '#454545',
-		},
-		crosshair: {
-			horzLine: {
-				visible: false,
-				color: '#999999',
-				labelBackgroundColor: '#555555',
-			},
-			vertLine: {
-				color: '#999999',
-				labelBackgroundColor: '#555555',
-			},
-		},
-		timeScale: {
-			timeVisible: true,
-			borderColor: '#454545',
-		},
-		grid: {
-			horzLines: {
-				color: 'rgb(255,255,255,0.15)',
-			},
-			vertLines: {
-				color: 'rgb(255,255,255,0.15)',
-			},
-		},
-	})
-
-	areaSeries = chart.addAreaSeries({
-		lineColor: '#01D154',
-		topColor: 'rgba(1, 209, 84, 0.5)',
-		bottomColor: 'rgb(0,135,54,0.1)',
-		lineWidth: 2,
-		priceLineColor: 'rgba(2,209,84,0.6)',
-		lastValueVisible: false,
-		autoscaleInfoProvider: (original: () => AutoscaleInfo | null) => ({
-			priceRange: {
-				minValue: 0,
-				maxValue: original()?.priceRange.maxValue || 1,
-			},
+	return details.value.emotesStatisticEmoteDetailedInformation.graphicUsages.map(
+		({ timestamp, count }) => ({
+			timestamp,
+			date: new Date(timestamp),
+			count,
 		}),
-		priceFormat: {
-			precision: 0,
-			minMove: 1,
+	);
+});
+
+const chartConfig = {
+	count: {
+		label: "Usage",
+		theme: {
+			light: "#10b981",
+			dark: "#10b981",
 		},
-	})
+	},
+} satisfies ChartConfig;
 
-	setData()
-})
-
-function setData() {
-	if (
-		!chart ||
-		!areaSeries ||
-		!details.value?.emotesStatisticEmoteDetailedInformation?.graphicUsages
-	)
-		return
-	areaSeries.setData(
-		details.value.emotesStatisticEmoteDetailedInformation.graphicUsages.map(
-			({ timestamp, count }) => ({
-				time: (timestamp / 1000) as UTCTimestamp,
-				value: count,
-			})
-		)
-	)
-	chart.timeScale().fitContent()
-}
-
-watch(details, () => {
-	setData()
-})
+const svgDefs = `
+  <linearGradient id="fillCount" x1="0" y1="0" x2="0" y2="1">
+    <stop
+      offset="5%"
+      stop-color="var(--color-count)"
+      stop-opacity="0.8"
+    />
+    <stop
+      offset="95%"
+      stop-color="var(--color-count)"
+      stop-opacity="0.1"
+    />
+  </linearGradient>
+`;
 
 const tableTabs = [
-	{ key: 'top', text: t('community.emotesStatistic.details.usersTabs.top') },
-	{ key: 'history', text: t('community.emotesStatistic.details.usersTabs.history') },
-]
+	{ key: "top", text: t("community.emotesStatistic.details.usersTabs.top") },
+	{ key: "history", text: t("community.emotesStatistic.details.usersTabs.history") },
+];
 
-const tableTab = ref<'top' | 'history'>('top')
+const tableTab = ref<"top" | "history">("top");
 </script>
 
 <template>
@@ -122,7 +87,7 @@ const tableTab = ref<'top' | 'history'>('top')
 		<div class="flex flex-col gap-6 px-6 py-7">
 			<div class="flex justify-between flex-wrap">
 				<h1 class="text-2xl font-medium">
-					{{ t('community.emotesStatistic.details.stats') }}
+					{{ t("community.emotesStatistic.details.stats") }}
 				</h1>
 				<RadioGroupRoot
 					v-model="range"
@@ -139,12 +104,72 @@ const tableTab = ref<'top' | 'history'>('top')
 				</RadioGroupRoot>
 			</div>
 
-			<div ref="chartContainer" class="relative h-[240px]"></div>
+			<div class="relative h-[240px]">
+				<ChartContainer
+					v-if="chartData.length > 0"
+					:config="chartConfig"
+					class="w-full h-full"
+					cursor
+				>
+					<VisXYContainer
+						:data="chartData"
+						:svg-defs="svgDefs"
+						:margin="{ left: 0, right: 0, top: 10, bottom: 30 }"
+						:y-domain="[0, undefined]"
+					>
+						<VisArea
+							:x="(d: Data) => d.date"
+							:y="(d: Data) => d.count"
+							color="url(#fillCount)"
+							:opacity="0.4"
+						/>
+						<VisLine
+							:x="(d: Data) => d.date"
+							:y="(d: Data) => d.count"
+							color="var(--color-count)"
+							:line-width="2"
+						/>
+						<VisAxis
+							type="x"
+							:x="(d: Data) => d.date"
+							:tick-line="false"
+							:domain-line="false"
+							:grid-line="false"
+							:num-ticks="6"
+							:tick-format="
+								(d: number) => {
+									const date = new Date(d);
+									return date.toLocaleDateString('en-US', {
+										month: 'short',
+										day: 'numeric',
+									});
+								}
+							"
+						/>
+						<VisAxis type="y" :num-ticks="4" :tick-line="false" :domain-line="false" />
+						<ChartTooltip />
+						<ChartCrosshair
+							:template="
+								componentToString(chartConfig, ChartTooltipContent, {
+									labelFormatter(d) {
+										return new Date(d).toLocaleDateString('en-US', {
+											month: 'short',
+											day: 'numeric',
+											year: 'numeric',
+										});
+									},
+								})
+							"
+							color="var(--color-count)"
+						/>
+					</VisXYContainer>
+				</ChartContainer>
+			</div>
 		</div>
 		<div class="flex flex-col gap-6 px-6 py-7">
 			<div class="flex justify-between flex-wrap">
 				<h1 class="text-2xl font-medium">
-					{{ t('community.emotesStatistic.details.users') }}
+					{{ t("community.emotesStatistic.details.users") }}
 				</h1>
 				<RadioGroupRoot
 					v-model="tableTab"
