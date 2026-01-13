@@ -13,7 +13,7 @@
   "devDependencies": {
     "@types/bun": "catalog:",
     "@types/node": "25.0.3",
-    "oxfmt": "0.22.0",
+    "oxfmt": "0.24.0",
     "oxlint": "1.36.0",
     "prettier": "3.6.2",
     "rimraf": "5.0.5",
