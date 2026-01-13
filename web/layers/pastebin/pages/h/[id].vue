@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import HastebinLayout from '../components/HastebinLayout.vue'
-import HastebinPage from '../components/HastebinPage.vue'
+import HastebinLayout from '../../components/HastebinLayout.vue'
+import HastebinPage from '../../components/HastebinPage.vue'
 
 import { usePasteStore } from '#layers/pastebin/stores/pasteStore'
 
@@ -15,6 +15,12 @@ const { data, status, error } = await useAsyncData('hastebin', async () => {
 
 	return req.data
 })
+
+if (error) {
+	console.log(error)
+	console.log(import.meta.server)
+}
+
 const pasteStore = usePasteStore()
 
 if (data.value?.data) {
@@ -35,10 +41,16 @@ const pageTitle = computed(() => {
 			<p>Loading paste...</p>
 		</div>
 
-		<div v-else-if="error" class="flex items-center justify-center w-full h-full text-white">
+		<div
+			v-else-if="error"
+			class="flex items-center justify-center w-full h-full text-white"
+		>
 			<p>Error loading paste: {{ error.message }}</p>
 		</div>
 
-		<HastebinPage v-else :item="data" />
+		<HastebinPage
+			v-else
+			:item="data"
+		/>
 	</HastebinLayout>
 </template>

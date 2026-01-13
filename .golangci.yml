@@ -451,6 +451,10 @@ linters:
       os-temp-dir: true
 
   exclusions:
+    paths:
+      - "**/*.vue"
+      - "**/*.ts"
+      - "**/*.js"
     # Log a warning if an exclusion rule is unused.
     # Default: false
     warn-unused: true
