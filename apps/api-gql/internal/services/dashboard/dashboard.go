@@ -70,26 +70,6 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	*entity.DashboardStats,
 	error,
 ) {
-	stream, err := c.streamsRepository.GetByChannelID(
-		ctx,
-		channelID,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("get stream by channel id: %w", err)
-	}
-
-	if stream.IsNil() {
-		return nil, nil
-	}
-
-	result := entity.DashboardStats{
-		StreamViewers:      &stream.ViewerCount,
-		StreamCategoryID:   stream.GameId,
-		StreamCategoryName: stream.GameName,
-		StreamTitle:        stream.Title,
-		StreamStartedAt:    &stream.StartedAt,
-	}
-
 	channelTwitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
 		channelID,
@@ -100,12 +80,43 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return nil, fmt.Errorf("cannot get channel twitch client: %w", err)
 	}
 
+	stream, err := c.streamsRepository.GetByChannelID(
+		ctx,
+		channelID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("get stream by channel id: %w", err)
+	}
+
+	result := entity.DashboardStats{}
+
+	if stream.IsNil() {
+		channelInformation, err := channelTwitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
+			BroadcasterIDs: []string{channelID},
+		})
+		if err != nil {
+			return nil, fmt.Errorf("get channel information: %w", err)
+		}
+		if channelInformation.ErrorMessage != "" {
+			return nil, fmt.Errorf("get channel information: %s", channelInformation.ErrorMessage)
+		}
+		if len(channelInformation.Data.Channels) > 0 {
+			c := channelInformation.Data.Channels[0]
+			result.StreamCategoryName = c.GameName
+			result.StreamTitle = c.Title
+			result.StreamCategoryID = c.GameID
+		}
+	} else {
+		result.StreamViewers = &stream.ViewerCount
+		result.StreamCategoryID = stream.GameId
+		result.StreamCategoryName = stream.GameName
+		result.StreamTitle = stream.Title
+		result.StreamStartedAt = &stream.StartedAt
+	}
+
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		followers, err := channelTwitchClient.GetChannelFollows(
 			&helix.GetChannelFollowsParams{
 				BroadcasterID: channelID,
@@ -121,12 +132,9 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		}
 
 		result.Followers = followers.Data.Total
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		subs, err := c.cachedTwitchClient.GetChannelSubscribersCountByChannelId(
 			ctx,
 			channelID,
@@ -134,14 +142,10 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		if err != nil {
 			result.Subs = subs
 		}
-	}()
+	})
 
 	if stream.ID == "" {
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			channelInformation, err := c.cachedTwitchClient.GetChannelInformationById(
 				ctx,
 				channelID,
@@ -157,7 +161,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 			result.StreamCategoryName = channelInformation.GameName
 			result.StreamTitle = channelInformation.Title
 			result.StreamCategoryID = channelInformation.GameID
-		}()
+		})
 	}
 
 	wg.Wait()
