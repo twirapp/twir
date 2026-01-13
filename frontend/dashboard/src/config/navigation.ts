@@ -255,7 +255,7 @@ export const footerNavigationItems: FooterNavigationItem[] = [
 export function getFlatNavigationItems() {
 	const result: Array<{
 		name?: string
-		translationKey?: string
+		translationKey?: string | string[]
 		icon: Component
 		path: string
 		disabled?: boolean
@@ -267,20 +267,20 @@ export function getFlatNavigationItems() {
 
 		if (item.child) {
 			// Add parent
-			result.push({
-				name: item.name,
-				translationKey: item.translationKey,
-				icon: item.icon,
-				path: item.path,
-				disabled: item.disabled,
-				isNew: item.isNew,
-			})
+			// result.push({
+			// 	name: item.name,
+			// 	translationKey: item.translationKey,
+			// 	icon: item.icon,
+			// 	path: item.path,
+			// 	disabled: item.disabled,
+			// 	isNew: item.isNew,
+			// })
 			// Add children
 			for (const child of item.child) {
 				if (!child.icon || !child.path) continue
 				result.push({
 					name: child.name,
-					translationKey: child.translationKey,
+					translationKey: [item.translationKey ?? '', child.translationKey ?? ''].filter(Boolean),
 					icon: child.icon,
 					path: child.path,
 					disabled: child.disabled,

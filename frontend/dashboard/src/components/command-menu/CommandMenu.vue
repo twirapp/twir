@@ -50,10 +50,21 @@ const { commands, keywords, variables } = useCommandMenuData()
 
 // Get navigation routes from shared config with translations
 const navRoutes = computed(() => {
-	return getFlatNavigationItems().map((route) => ({
-		...route,
-		displayName: route.translationKey ? t(route.translationKey) : route.name || '',
-	}))
+	return getFlatNavigationItems().map((route) => {
+		let displayName = ''
+		if (route.translationKey) {
+			if (Array.isArray(route.translationKey)) {
+				displayName = route.translationKey.map((key) => t(key)).join(' / ')
+			} else {
+				displayName = t(route.translationKey)
+			}
+		}
+
+		return {
+			...route,
+			displayName: displayName || route.name || '',
+		}
+	})
 })
 
 // Get footer navigation items
