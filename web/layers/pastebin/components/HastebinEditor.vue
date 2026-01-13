@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePasteStore } from '../../stores/pasteStore'
+import { usePasteStore } from '#layers/pastebin/stores/pasteStore'
 
 const textareaRef = ref<HTMLTextAreaElement>()
 const { editableContent } = storeToRefs(usePasteStore())
@@ -29,6 +29,6 @@ defineExpose({
 
 <style scoped>
 .input {
-  font-family: 'JetBrains Mono';
+	font-family: 'JetBrains Mono';
 }
 </style>

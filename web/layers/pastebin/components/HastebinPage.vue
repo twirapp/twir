@@ -3,7 +3,7 @@
 import HastebinEditor from './HastebinEditor.vue'
 import HastebinToolbar from './HastebinToolbar.vue'
 import HastebinViewer from './HastebinViewer.vue'
-import { usePasteStore } from '../../stores/pasteStore'
+import { usePasteStore } from '#layers/pastebin/stores/pasteStore'
 
 const editorRef = ref<InstanceType<typeof HastebinEditor>>()
 const router = useRouter()
@@ -47,10 +47,17 @@ async function newPaste() {
 
 <template>
 	<div class="min-h-screen w-full p-4 relative">
-		<HastebinToolbar @save="create" @new="newPaste" @copy="duplicate" />
+		<HastebinToolbar
+			@save="create"
+			@new="newPaste"
+			@copy="duplicate"
+		/>
 
 		<HastebinViewer v-if="currentPaste" />
 
-		<HastebinEditor v-else ref="editorRef" />
+		<HastebinEditor
+			v-else
+			ref="editorRef"
+		/>
 	</div>
 </template>
