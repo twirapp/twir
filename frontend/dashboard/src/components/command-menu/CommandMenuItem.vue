@@ -7,7 +7,9 @@ import { ref } from "vue";
 import { cn } from "@/lib/utils";
 import { CommandItem } from "@/components/ui/command";
 
-const props = defineProps<ListboxItemProps & { class?: HTMLAttributes["class"] }>();
+const props = defineProps<
+	ListboxItemProps & { class?: HTMLAttributes["class"]; isActive?: boolean }
+>();
 
 const emits = defineEmits<{
 	(e: "select"): void;
@@ -48,7 +50,8 @@ useMutationObserver(
 		ref="itemRef"
 		:class="
 			cn(
-				'data-[highlighted]:border-input data-[selected=true]:border-input data-[selected=true]:bg-input/50 data-[highlighted]:bg-input/50 h-9 rounded-md border border-transparent !px-3 font-medium',
+				'data-[highlighted]:border-input data-[selected=true]:border-input data-[selected=true]:bg-input/50 data-[highlighted]:bg-input/50 h-9 rounded-md border border-transparent !px-3 font-medium hover:border-input hover:bg-input/50',
+				props.isActive && 'bg-input/50 border-input',
 				props.class,
 			)
 		"
