@@ -35,15 +35,27 @@ var UserWatchTime = &types.DefaultCommand{
 			user.Watched.Name,
 		)
 
-		result := &types.CommandsHandlerResult{
-			Result: []string{i18n.GetCtx(
+		var resultMessage string
+		if len(parseCtx.Mentions) > 0 {
+			resultMessage = i18n.GetCtx(
+				ctx,
+				locales.Translations.Commands.Stats.Info.WatchingStreamMentioned.
+					SetVars(locales.KeysCommandsStatsInfoWatchingStreamMentionedVars{
+						UserName:     parseCtx.Mentions[0].UserName,
+						UserWatching: watching,
+					}),
+			)
+		} else {
+			resultMessage = i18n.GetCtx(
 				ctx,
 				locales.Translations.Commands.Stats.Info.WatchingStream.
 					SetVars(locales.KeysCommandsStatsInfoWatchingStreamVars{UserWatching: watching}),
-			)},
+			)
 		}
 
-		fmt.Println(result)
+		result := &types.CommandsHandlerResult{
+			Result: []string{resultMessage},
+		}
 
 		return result, nil
 	},
