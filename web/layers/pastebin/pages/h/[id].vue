@@ -16,11 +16,6 @@ const { data, status, error } = await useAsyncData('hastebin', async () => {
 	return req.data
 })
 
-if (error) {
-	console.log(error)
-	console.log(import.meta.server)
-}
-
 const pasteStore = usePasteStore()
 
 if (data.value?.data) {
