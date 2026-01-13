@@ -1,91 +1,108 @@
 <script setup lang="ts">
-import { DISCORD_INVITE_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
-import { BellIcon, ClipboardPenLine, ExternalLink, Globe, LinkIcon } from 'lucide-vue-next'
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ExternalLink } from "lucide-vue-next";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-import { usePublicPageHref } from '../use-public-page-href'
+import { usePublicPageHref } from "../use-public-page-href";
 
-import DiscordLogo from '@/assets/integrations/discord.svg?use'
-import GithubLogo from '@/assets/integrations/github.svg?use'
-import Badge from '@/components/ui/badge/Badge.vue'
+import DiscordLogo from "@/assets/integrations/discord.svg?use";
+import GithubLogo from "@/assets/integrations/github.svg?use";
+import Badge from "@/components/ui/badge/Badge.vue";
 import {
 	SidebarFooter,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
 	useSidebar,
-} from '@/components/ui/sidebar'
-import { useNotifications } from '@/composables/use-notifications'
+} from "@/components/ui/sidebar";
+import { footerNavigationItems } from "@/config/navigation";
+import { useNotifications } from "@/composables/use-notifications";
 
-const { t } = useI18n()
-const { setOpenMobile } = useSidebar()
-const publicPageHref = usePublicPageHref()
-const { notificationsCounter } = useNotifications()
+const { t } = useI18n();
+const { setOpenMobile } = useSidebar();
+const publicPageHref = usePublicPageHref();
+const { notificationsCounter } = useNotifications();
 
-const hastebinLink = computed(() => {
-	return `${window.location.origin}/h`
-})
+// Filter and prepare footer items
+const visibleFooterItems = computed(() => {
+	return footerNavigationItems
+		.filter((item) => {
+			// Filter out public page dependent items if no public page
+			if (item.isPublicPageDependent && !publicPageHref.value) {
+				return false;
+			}
+			return true;
+		})
+		.map((item) => {
+			// Compute dynamic hrefs
+			let href = item.href;
+			if (item.isPublicPageDependent && item.translationKey === "sidebar.publicPage") {
+				href = publicPageHref.value || "";
+			} else if (item.href.startsWith("/") && item.isExternal) {
+				href = `${window.location.origin}${item.href}`;
+			}
 
-const urlShortenerLink = computed(() => {
-	return `${window.location.origin}/url-shortener`
-})
+			return {
+				...item,
+				href,
+			};
+		});
+});
+
+// Separate Discord and GitHub for special layout
+const socialItems = computed(() =>
+	visibleFooterItems.value.filter((item) => item.icon === "discord" || item.icon === "github"),
+);
+
+const regularItems = computed(() =>
+	visibleFooterItems.value.filter((item) => item.icon !== "discord" && item.icon !== "github"),
+);
 </script>
 
 <template>
 	<SidebarFooter>
 		<SidebarMenu>
+			<!-- Discord and GitHub in special layout -->
 			<div class="flex gap-2 group-data-[collapsible=icon]:flex-col">
-				<SidebarMenuButton class="flex justify-center" variant="active" as-child tooltip="Discord">
-					<a :href="DISCORD_INVITE_URL" target="_blank">
-						<DiscordLogo />
-					</a>
-				</SidebarMenuButton>
-
-				<SidebarMenuButton class="flex justify-center" variant="active" as-child tooltip="GitHub">
-					<a :href="GITHUB_REPOSITORY_URL" target="_blank">
-						<GithubLogo />
-					</a>
-				</SidebarMenuButton>
+				<template v-for="item in socialItems" :key="item.name">
+					<SidebarMenuButton
+						class="flex justify-center"
+						variant="active"
+						as-child
+						:tooltip="item.name"
+					>
+						<a :href="item.href" target="_blank">
+							<DiscordLogo v-if="item.icon === 'discord'" />
+							<GithubLogo v-else-if="item.icon === 'github'" />
+						</a>
+					</SidebarMenuButton>
+				</template>
 			</div>
 
-			<SidebarMenuItem>
+			<!-- Regular footer items -->
+			<SidebarMenuItem v-for="item in regularItems" :key="item.href">
 				<SidebarMenuButton
 					as-child
-					:tooltip="t('sidebar.notifications')"
-					@click="setOpenMobile(false)"
+					:tooltip="item.translationKey ? t(item.translationKey) : item.name"
+					@click="!item.isExternal && setOpenMobile(false)"
 				>
-					<RouterLink to="/dashboard/notifications">
-						<BellIcon />
-						<span>{{ t('sidebar.notifications') }}</span>
-						<Badge v-if="notificationsCounter.counter > 0" variant="success" class="ml-auto">
+					<component
+						:is="item.isExternal ? 'a' : 'RouterLink'"
+						:href="item.isExternal ? item.href : undefined"
+						:to="!item.isExternal ? item.href : undefined"
+						:target="item.isExternal ? '_blank' : undefined"
+					>
+						<component :is="item.icon" />
+						<span>{{ item.translationKey ? t(item.translationKey) : item.name }}</span>
+						<Badge
+							v-if="item.showNotificationsBadge && notificationsCounter.counter > 0"
+							variant="success"
+							class="ml-auto"
+						>
 							{{ notificationsCounter.counter }}
 						</Badge>
-					</RouterLink>
-				</SidebarMenuButton>
-			</SidebarMenuItem>
-
-			<SidebarMenuItem v-if="publicPageHref">
-				<SidebarMenuButton as-child :tooltip="t('sidebar.publicPage')">
-					<a :href="publicPageHref" target="_blank">
-						<Globe />
-						<span>{{ t('sidebar.publicPage') }}</span>
-						<ExternalLink class="ml-auto" />
-					</a>
-				</SidebarMenuButton>
-				<SidebarMenuButton as-child tooltip="Hastebin">
-					<a :href="urlShortenerLink" target="_blank">
-						<LinkIcon />
-						<span>URL Shortener</span>
-						<ExternalLink class="ml-auto" />
-					</a>
-				</SidebarMenuButton>
-				<SidebarMenuButton as-child tooltip="Hastebin">
-					<a :href="hastebinLink" target="_blank">
-						<ClipboardPenLine />
-						<span>Hastebin</span>
-						<ExternalLink class="ml-auto" />
-					</a>
+						<ExternalLink v-else-if="item.isExternal" class="ml-auto" />
+					</component>
 				</SidebarMenuButton>
 			</SidebarMenuItem>
 		</SidebarMenu>

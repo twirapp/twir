@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconEdit } from "@tabler/icons-vue";
-import { useIntervalFn, useLocalStorage } from "@vueuse/core";
+import { useIntervalFn, useLocalStorage, useMediaQuery } from "@vueuse/core";
 import { intervalToDuration } from "date-fns";
 import { Edit3, GripVertical, Plus, X } from "lucide-vue-next";
 import { computed, onBeforeUnmount, ref } from "vue";
@@ -18,6 +18,9 @@ import HeaderProfile from "@/layout/header/header-profile.vue";
 import HeaderBotStatus from "@/layout/header/header-bot-status.vue";
 
 const { stats } = useRealtimeDashboardStats();
+
+// Mobile detection
+const isDesktop = useMediaQuery("(min-width: 768px)");
 
 const currentTime = ref(new Date());
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {
@@ -190,8 +193,11 @@ function onDragEnd() {
 		class="flex flex-wrap justify-between bg-card w-full px-2 py-1 gap-2 border-b border-b-border"
 	>
 		<div class="flex flex-wrap md:flex-row flex-col gap-2 py-1">
+			<!-- Mobile search icon -->
+			<CommandMenu v-if="!isDesktop" :icon-only="true" />
+
 			<!-- Stream info widget -->
-			<div class="header-widget cursor-pointer" @click="openInfoEditor">
+			<div v-if="isDesktop" class="header-widget cursor-pointer" @click="openInfoEditor">
 				<div class="header-widget-content">
 					<div class="flex items-center gap-2">
 						<div class="flex flex-col flex-1">
@@ -208,53 +214,56 @@ function onDragEnd() {
 			</div>
 
 			<!-- Stats widgets -->
-			<div
-				v-for="widget in visibleWidgets"
-				:key="widget.id"
-				class="header-widget"
-				:class="{
-					'pl-9': isEditMode,
-					'opacity-50': draggedWidgetId === widget.id,
-					'ring-2 ring-primary': dragOverWidgetId === widget.id && draggedWidgetId !== widget.id,
-				}"
-				:draggable="isEditMode"
-				@dragstart="onDragStart(widget.id, $event)"
-				@dragover="onDragOver(widget.id, $event)"
-				@dragleave="onDragLeave"
-				@drop="onDrop(widget.id, $event)"
-				@dragend="onDragEnd"
-			>
-				<!-- Edit mode: Grip icon -->
+			<template v-if="isDesktop">
 				<div
-					v-if="isEditMode"
-					class="absolute left-0 top-1/3 -translate-y-1/2 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
-					@mousedown.stop
+					v-for="widget in visibleWidgets"
+					:key="widget.id"
+					class="header-widget"
+					:class="{
+						'pl-9': isEditMode,
+						'opacity-50': draggedWidgetId === widget.id,
+						'ring-2 ring-primary': dragOverWidgetId === widget.id && draggedWidgetId !== widget.id,
+					}"
+					:draggable="isEditMode"
+					@dragstart="onDragStart(widget.id, $event)"
+					@dragover="onDragOver(widget.id, $event)"
+					@dragleave="onDragLeave"
+					@drop="onDrop(widget.id, $event)"
+					@dragend="onDragEnd"
 				>
-					<GripVertical :size="16" :stroke-width="1.5" />
-				</div>
+					<!-- Edit mode: Grip icon -->
+					<div
+						v-if="isEditMode"
+						class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
+						@mousedown.stop
+					>
+						<GripVertical :size="16" :stroke-width="1.5" />
+					</div>
 
-				<!-- Edit mode: Remove button -->
-				<button
-					v-if="isEditMode"
-					class="hover-show absolute right-1.5 top-1.5 text-muted-foreground/50 hover:text-red-400 transition-colors opacity-0"
-					@click.stop="removeWidget(widget.id)"
-				>
-					<X :size="14" />
-				</button>
+					<!-- Edit mode: Remove button -->
+					<button
+						v-if="isEditMode"
+						class="hover-show absolute right-1.5 top-1.5 text-muted-foreground/50 hover:text-red-400 transition-colors opacity-0"
+						@click.stop="removeWidget(widget.id)"
+					>
+						<X :size="14" />
+					</button>
 
-				<!-- Widget content -->
-				<div class="header-widget-content">
-					<p class="header-widget-value">
-						{{ getWidgetValue(widget.id) }}
-					</p>
-					<p class="header-widget-label">
-						{{ t(`dashboard.statsWidgets.${widget.id}`) }}
-					</p>
+					<!-- Widget content -->
+					<div class="header-widget-content">
+						<p class="header-widget-value">
+							{{ getWidgetValue(widget.id) }}
+						</p>
+						<p class="header-widget-label">
+							{{ t(`dashboard.statsWidgets.${widget.id}`) }}
+						</p>
+					</div>
 				</div>
-			</div>
+			</template>
 
 			<!-- Edit button -->
 			<button
+				v-if="isDesktop"
 				class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
 				:class="{ 'bg-white/5 border-white/10 text-foreground': isEditMode }"
 				@click="toggleEditMode"
@@ -264,7 +273,7 @@ function onDragEnd() {
 			</button>
 
 			<!-- Add widget button -->
-			<Popover v-if="isEditMode && hiddenWidgets.length > 0">
+			<Popover v-if="isDesktop && isEditMode && hiddenWidgets.length > 0">
 				<PopoverTrigger as-child>
 					<button
 						class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
@@ -293,7 +302,7 @@ function onDragEnd() {
 		</div>
 
 		<div class="ml-auto flex flex-wrap justify-end gap-2 flex-end items-center">
-			<CommandMenu />
+			<CommandMenu v-if="isDesktop" />
 			<HeaderBotStatus />
 			<HeaderProfile />
 		</div>

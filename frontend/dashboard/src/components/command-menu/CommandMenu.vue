@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight, Command, Hash, Variable } from "lucide-vue-next";
+import { ChevronRight, Command, Hash, Search, Variable } from "lucide-vue-next";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -26,14 +26,24 @@ import {
 } from "@/components/ui/dialog";
 import { Kbd } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
-import { getFlatNavigationItems } from "@/config/navigation";
+import { getFlatNavigationItems, footerNavigationItems } from "@/config/navigation";
 import { useIsMac } from "@/composables/useIsMac";
+import { usePublicPageHref } from "@/layout/use-public-page-href";
+
+interface Props {
+	iconOnly?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	iconOnly: false,
+});
 
 const router = useRouter();
 const open = ref(false);
 const { t } = useI18n();
 
 const isMac = useIsMac();
+const publicPageHref = usePublicPageHref();
 
 const { commands, keywords, variables } = useCommandMenuData();
 
@@ -45,12 +55,50 @@ const navRoutes = computed(() => {
 	}));
 });
 
+// Get footer navigation items
+const footerRoutes = computed(() => {
+	return footerNavigationItems
+		.filter((item) => {
+			// Filter out social items (Discord, GitHub) and public page dependent items if no public page
+			if (item.icon === "discord" || item.icon === "github") {
+				return false;
+			}
+			if (item.isPublicPageDependent && !publicPageHref.value) {
+				return false;
+			}
+			return true;
+		})
+		.map((item) => {
+			// Compute dynamic hrefs
+			let href = item.href;
+			if (item.isPublicPageDependent && item.translationKey === "sidebar.publicPage") {
+				href = publicPageHref.value || "";
+			} else if (item.href.startsWith("/") && item.isExternal) {
+				href = `${window.location.origin}${item.href}`;
+			}
+
+			return {
+				...item,
+				href,
+				displayName: item.translationKey ? t(item.translationKey) : item.name || "",
+			};
+		});
+});
+
 function runCommand(command: () => unknown) {
 	open.value = false;
 	command();
 }
+
+function openExternalLink(url: string) {
+	window.open(url, "_blank");
+	open.value = false;
+}
 const down = (e: KeyboardEvent) => {
 	if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || e.key === "/") {
+		// Prevent default browser behavior first
+		e.preventDefault();
+
 		if (
 			(e.target instanceof HTMLElement && e.target.isContentEditable) ||
 			e.target instanceof HTMLInputElement ||
@@ -59,7 +107,7 @@ const down = (e: KeyboardEvent) => {
 		) {
 			return;
 		}
-		e.preventDefault();
+
 		open.value = !open.value;
 	}
 };
@@ -72,6 +120,7 @@ onUnmounted(() => document.removeEventListener("keydown", down));
 	<Dialog v-model:open="open">
 		<DialogTrigger as-child>
 			<Button
+				v-if="!iconOnly"
 				variant="outline"
 				class="relative h-9 w-full justify-start text-sm text-muted-foreground sm:pr-12 md:w-48 lg:w-64"
 				@click="open = true"
@@ -83,6 +132,9 @@ onUnmounted(() => document.removeEventListener("keydown", down));
 					<Kbd>{{ isMac ? "⌘" : "Ctrl" }}</Kbd>
 					<Kbd>K</Kbd>
 				</div>
+			</Button>
+			<Button v-else variant="ghost" size="icon" class="h-9 w-9" @click="open = true">
+				<Search class="h-5 w-5" />
 			</Button>
 		</DialogTrigger>
 		<DialogContent class="gap-0 p-0" :show-close-button="false">
@@ -107,6 +159,24 @@ onUnmounted(() => document.removeEventListener("keydown", down));
 						>
 							<component :is="route.icon" class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ route.displayName }}</span>
+						</CommandMenuItem>
+					</CommandGroup>
+
+					<!-- Footer Links -->
+					<CommandGroup v-if="footerRoutes.length > 0" heading="Links">
+						<CommandMenuItem
+							v-for="item in footerRoutes"
+							:key="item.href"
+							:value="`link ${item.displayName}`"
+							@select="
+								() =>
+									item.isExternal
+										? openExternalLink(item.href)
+										: runCommand(() => router.push(item.href))
+							"
+						>
+							<component :is="item.icon" class="mr-2 h-4 w-4 flex-shrink-0" />
+							<span class="truncate">{{ item.displayName }}</span>
 						</CommandMenuItem>
 					</CommandGroup>
 

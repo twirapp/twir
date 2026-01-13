@@ -1,34 +1,32 @@
 <script setup lang="ts">
-import 'vue-sonner/style.css'
-import { computed, ref } from 'vue'
-import { type RouteLocationNormalized, RouterView, useRoute, useRouter } from 'vue-router'
+import "vue-sonner/style.css";
+import { computed, ref } from "vue";
+import { type RouteLocationNormalized, RouterView, useRoute, useRouter } from "vue-router";
 
-import SidebarFloatingButton from './sidebar/sidebar-floating-button.vue'
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import Sidebar from "@/layout/sidebar/sidebar.vue";
+import Stats from "@/layout/header/header.vue";
 
-import { Toaster } from '@/components/ui/sonner'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import Sidebar from '@/layout/sidebar/sidebar.vue'
-import Stats from '@/layout/header/header.vue'
+const isRouterReady = ref(false);
+const router = useRouter();
+const route = useRoute();
 
-const isRouterReady = ref(false)
-const router = useRouter()
-const route = useRoute()
+router.isReady().finally(() => (isRouterReady.value = true));
 
-router.isReady().finally(() => (isRouterReady.value = true))
-
-const isFullScreen = computed(() => route.meta?.fullScreen === true)
+const isFullScreen = computed(() => route.meta?.fullScreen === true);
 
 interface HistoryState {
-	noTransition?: boolean
+	noTransition?: boolean;
 }
 
 function getTransition(route: RouteLocationNormalized) {
-	const state = window.history.state as HistoryState
+	const state = window.history.state as HistoryState;
 	if (state.noTransition) {
-		return undefined
+		return undefined;
 	}
 
-	return route.meta.transition || 'router'
+	return route.meta.transition || "router";
 }
 </script>
 
@@ -45,7 +43,6 @@ function getTransition(route: RouteLocationNormalized) {
 			<Toaster />
 		</template>
 		<Sidebar v-else>
-			<SidebarFloatingButton />
 			<Stats />
 			<RouterView v-slot="{ Component, route }">
 				<transition :name="getTransition(route)" mode="out-in">
