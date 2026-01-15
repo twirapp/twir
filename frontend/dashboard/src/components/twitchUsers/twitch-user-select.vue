@@ -68,10 +68,18 @@ function handleSelect(
 	search.value = ''
 	open.value = false
 }
+
+const isPopoverOpen = computed(() => {
+	if (open.value) {
+		return true
+	}
+
+	return !userId.value && !!selectOptions.value?.length
+})
 </script>
 
 <template>
-	<Popover :open="!!selectOptions.length">
+	<Popover :open="isPopoverOpen">
 		<PopoverTrigger as-child>
 			<div
 				class="flex flex-wrap gap-2 items-center rounded-md border border-input bg-background px-3 py-2 text-sm w-full"
@@ -80,9 +88,15 @@ function handleSelect(
 					v-if="selectedUser"
 					class="flex h-6 items-center bg-secondary gap-1 py-1 px-2 text-sm rounded-full"
 				>
-					<img :src="selectedUser.profileImageUrl" class="size-4 rounded-full" />
+					<img
+						:src="selectedUser.profileImageUrl"
+						class="size-4 rounded-full"
+					/>
 					<span>{{ selectedUser.label }}</span>
-					<XIcon class="size-4 cursor-pointer" @click="userId = null" />
+					<XIcon
+						class="size-4 cursor-pointer"
+						@click="userId = null"
+					/>
 				</div>
 				<input
 					v-if="!selectedUser"
@@ -104,7 +118,10 @@ function handleSelect(
 							@select="handleSelect"
 						>
 							<div class="flex gap-2 items-center">
-								<img :src="option.profileImageUrl" class="size-5 rounded-full" />
+								<img
+									:src="option.profileImageUrl"
+									class="size-5 rounded-full"
+								/>
 								<span>
 									{{ option.label }}
 								</span>

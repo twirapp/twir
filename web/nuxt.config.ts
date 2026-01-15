@@ -1,7 +1,8 @@
+import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
 import process from 'node:process'
+
 import gqlcodegen from './modules/gql-codegen'
-import tailwindcss from '@tailwindcss/vite'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -68,13 +69,13 @@ export default defineNuxtConfig({
 	app: {
 		head: {
 			script: [
-				{
-					src: 'https://rybbit.a.twir.app/api/script.js',
-					async: true,
-					defer: true,
-					'data-site-id': '1',
-					'data-mask-patterns': '["/overlays/**"]',
-				},
+				// {
+				// 	src: 'https://rybbit.a.twir.app/api/script.js',
+				// 	async: true,
+				// 	defer: true,
+				// 	'data-site-id': '1',
+				// 	'data-mask-patterns': '["/overlays/**"]',
+				// },
 			],
 		},
 	},

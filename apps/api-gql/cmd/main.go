@@ -19,6 +19,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/integrations/valorant"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/overlays/brb"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
+	scheduledvipsroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/scheduled_vips"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/stream"
 	ttsroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/tts"
@@ -573,6 +574,7 @@ func main() {
 		ttsroutes.FxModule,
 		brb.FxModule,
 		twirhttp.FxModule,
+		scheduledvipsroutes.FxModule,
 		// huma routes end
 		fx.Invoke(
 			gql.New,

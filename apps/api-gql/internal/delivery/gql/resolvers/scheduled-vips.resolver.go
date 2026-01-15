@@ -42,9 +42,10 @@ func (r *mutationResolver) ScheduledVipsCreate(ctx context.Context, input gqlmod
 		}
 	}
 
-	err = r.deps.ScheduledVipsService.Create(
+	// Use CreateWithTwitchVip to add VIP on Twitch and create scheduled VIP
+	err = r.deps.ScheduledVipsService.CreateWithTwitchVip(
 		ctx,
-		scheduled_vips.CreateInput{
+		scheduled_vips.CreateWithTwitchVipInput{
 			UserID:     input.UserID,
 			ChannelID:  dashboardID,
 			RemoveAt:   removeAt,

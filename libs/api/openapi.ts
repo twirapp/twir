@@ -96,6 +96,15 @@ export interface BaseOutputBodyJsonProfileResponseDto {
   data: ProfileResponseDto;
 }
 
+export interface BaseOutputBodyJsonScheduledVipOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: ScheduledVipOutputDto;
+}
+
 export interface BaseOutputBodyJsonStartResponseDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -208,6 +217,27 @@ export interface CreateLinkInputDto {
   url: string;
 }
 
+export interface CreateRequestDtoBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /**
+   * When to remove VIP (for time-based removal)
+   * @format date-time
+   */
+  remove_at?: string | null;
+  /** Type of removal: 'time' or 'stream_end' */
+  remove_type: CreateRequestDtoBodyRemoveTypeEnum;
+  /**
+   * Twitch user ID
+   * @minLength 1
+   * @maxLength 100
+   */
+  user_id: string;
+}
+
 export interface EndTierStruct {
   /** @format int64 */
   id: number;
@@ -299,6 +329,15 @@ export interface LinksProfileOutputDto {
   total: number;
 }
 
+export interface ListResponseDtoBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: ScheduledVipOutputDto[];
+}
+
 export interface MapStruct {
   id: string;
   name: string;
@@ -365,6 +404,17 @@ export interface ProfileResponseDto {
   items: PasteBinOutputDto[];
   /** @format int64 */
   total: number;
+}
+
+export interface ScheduledVipOutputDto {
+  channel_id: string;
+  /** @format date-time */
+  created_at: string;
+  id: string;
+  /** @format date-time */
+  remove_at?: string | null;
+  remove_type?: ScheduledVipOutputDtoRemoveTypeEnum;
+  user_id: string;
 }
 
 export interface SeasonStruct {
@@ -515,9 +565,20 @@ export enum CommandResponseDtoCooldownTypeEnum {
   PER_USER = "PER_USER",
 }
 
+/** Type of removal: 'time' or 'stream_end' */
+export enum CreateRequestDtoBodyRemoveTypeEnum {
+  Time = "time",
+  StreamEnd = "stream_end",
+}
+
 export enum ExpireExpiresTypeEnum {
   DISABLE = "DISABLE",
   DELETE = "DELETE",
+}
+
+export enum ScheduledVipOutputDtoRemoveTypeEnum {
+  Time = "time",
+  StreamEnd = "stream_end",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1018,6 +1079,67 @@ export class Api<SecurityDataType extends unknown> {
         path: `/v1/public/channels/${channelId}/commands`,
         method: "GET",
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Get all scheduled VIPs for the selected dashboard
+     *
+     * @tags Scheduled VIPs
+     * @name ScheduledVipsList
+     * @summary List scheduled VIPs
+     * @request GET:/v1/scheduled-vips
+     * @secure
+     * @response `200` `ListResponseDtoBody` OK
+     * @response `default` `ErrorModel` Error
+     */
+    scheduledVipsList: (params: RequestParams = {}) =>
+      this.http.request<ListResponseDtoBody, any>({
+        path: `/v1/scheduled-vips`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Add a user as VIP on Twitch and schedule their removal
+     *
+     * @tags Scheduled VIPs
+     * @name ScheduledVipsCreate
+     * @summary Create scheduled VIP
+     * @request POST:/v1/scheduled-vips
+     * @secure
+     * @response `200` `BaseOutputBodyJsonScheduledVipOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    scheduledVipsCreate: (data: CreateRequestDtoBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonScheduledVipOutputDto, any>({
+        path: `/v1/scheduled-vips`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Remove a scheduled VIP. Note: This only removes the schedule, not the VIP status on Twitch.
+     *
+     * @tags Scheduled VIPs
+     * @name ScheduledVipsDelete
+     * @summary Delete scheduled VIP
+     * @request DELETE:/v1/scheduled-vips/{id}
+     * @secure
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    scheduledVipsDelete: (id: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/v1/scheduled-vips/${id}`,
+        method: "DELETE",
+        secure: true,
         ...params,
       }),
 
