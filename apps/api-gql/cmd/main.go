@@ -146,6 +146,8 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
+	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
+	shortlinksviewsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/short_links_views/datasources/clickhouse"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	shortenedurlsrepositorypostgres "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
@@ -407,6 +409,10 @@ func main() {
 			fx.Annotate(
 				channelsredemptionshistoryclickhouse.NewFx,
 				fx.As(new(channelsredemptionshistory.Repository)),
+			),
+			fx.Annotate(
+				shortlinksviewsrepositoryclickhouse.NewFx,
+				fx.As(new(shortlinksviewsrepository.Repository)),
 			),
 			fx.Annotate(
 				donatepayrepositorypostgres.NewFx,

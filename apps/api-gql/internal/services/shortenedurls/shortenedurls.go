@@ -3,9 +3,11 @@ package shortenedurls
 import (
 	"context"
 	"errors"
+	"time"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
@@ -14,12 +16,14 @@ import (
 type Opts struct {
 	fx.In
 
-	Repository shortenedurlsrepository.Repository
+	Repository      shortenedurlsrepository.Repository
+	ViewsRepository shortlinksviewsrepository.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repository: opts.Repository,
+		repository:      opts.Repository,
+		viewsRepository: opts.ViewsRepository,
 	}
 }
 
@@ -31,7 +35,8 @@ func genId() string {
 }
 
 type Service struct {
-	repository shortenedurlsrepository.Repository
+	repository      shortenedurlsrepository.Repository
+	viewsRepository shortlinksviewsrepository.Repository
 }
 
 type CreateInput struct {
@@ -162,4 +167,24 @@ func (c *Service) GetManyByShortIDs(ctx context.Context, ids []string) (
 	error,
 ) {
 	return c.repository.GetManyByShortIDs(ctx, ids)
+}
+
+type RecordViewInput struct {
+	ShortLinkID string
+	UserID      *string
+	IP          *string
+	UserAgent   *string
+}
+
+func (c *Service) RecordView(ctx context.Context, input RecordViewInput) error {
+	return c.viewsRepository.Create(
+		ctx,
+		shortlinksviewsrepository.CreateInput{
+			ShortLinkID: input.ShortLinkID,
+			UserID:      input.UserID,
+			IP:          input.IP,
+			UserAgent:   input.UserAgent,
+			CreatedAt:   time.Now(),
+		},
+	)
 }

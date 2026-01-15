@@ -2,10 +2,13 @@ package shortlinks
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
@@ -26,20 +29,26 @@ var _ httpbase.Route[*redirectRequestDto, *redirectResponseDto] = (*redirect)(ni
 type RedirectOpts struct {
 	fx.In
 
-	Service *shortenedurls.Service
-	Config  config.Config
+	Service  *shortenedurls.Service
+	Config   config.Config
+	Sessions *auth.Auth
+	Logger   *slog.Logger
 }
 
 func newRedirect(opts RedirectOpts) *redirect {
 	return &redirect{
-		service: opts.Service,
-		config:  opts.Config,
+		service:  opts.Service,
+		config:   opts.Config,
+		sessions: opts.Sessions,
+		logger:   opts.Logger,
 	}
 }
 
 type redirect struct {
-	service *shortenedurls.Service
-	config  config.Config
+	service  *shortenedurls.Service
+	config   config.Config
+	sessions *auth.Auth
+	logger   *slog.Logger
 }
 
 func (r *redirect) GetMeta() huma.Operation {
@@ -64,6 +73,38 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 
 	if link == model.Nil {
 		return nil, huma.NewError(http.StatusNotFound, "Link not found")
+	}
+
+	var userID *string
+	user, _ := r.sessions.GetAuthenticatedUserModel(ctx)
+	if user != nil {
+		userID = &user.ID
+	}
+
+	var clientIp *string
+	if ip, err := humahelpers.GetClientIpFromCtx(ctx); err == nil {
+		clientIp = &ip
+	} else {
+		r.logger.Warn("Cannot get client IP", "error", err)
+	}
+
+	var clientAgent *string
+	if agent, err := humahelpers.GetClientUserAgentFromCtx(ctx); err == nil {
+		clientAgent = &agent
+	} else {
+		r.logger.Warn("Cannot get client user agent", "error", err)
+	}
+
+	if err := r.service.RecordView(
+		ctx,
+		shortenedurls.RecordViewInput{
+			ShortLinkID: link.ShortID,
+			UserID:      userID,
+			IP:          clientIp,
+			UserAgent:   clientAgent,
+		},
+	); err != nil {
+		r.logger.Warn("Cannot record view", "error", err)
 	}
 
 	newViews := link.Views + 1
