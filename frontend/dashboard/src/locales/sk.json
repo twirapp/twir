@@ -1325,6 +1325,29 @@
     "alert": {
       "title": "Upozornenie!",
       "description": "Je to zoznam VIP členov, ktorým čoskoro vyprší platnosť, nie zoznam všetkých VIP členov kanála."
+    },
+    "form": {
+      "createTitle": "Create Scheduled VIP",
+      "createDescription": "Add a user as VIP with automatic removal at a specified time or when stream ends.",
+      "info": "This will immediately grant VIP status to the user on Twitch and schedule its removal.",
+      "user": "User",
+      "userPlaceholder": "Search for a Twitch user",
+      "removeType": "Removal Type",
+      "removeTypePlaceholder": "Select when to remove VIP",
+      "removeTypeTime": "At specific time",
+      "removeTypeStreamEnd": "When stream ends",
+      "removeAt": "Removal Date",
+      "pickDate": "Pick a date",
+      "successCreate": "VIP scheduled successfully",
+      "errors": {
+        "userRequired": "User is required",
+        "dateRequired": "Date is required when using time-based removal"
+      }
+    },
+    "successDelete": "Scheduled VIP removed successfully",
+    "deleteDialog": {
+      "title": "Are you sure?",
+      "description": "This will remove the scheduled VIP for {user}. The VIP status will not be removed immediately, but the schedule will be cancelled."
     }
   },
   "moderationRules": {
