@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useVirtualizer } from '@tanstack/vue-virtual'
 import { watchThrottled } from '@vueuse/core'
-import { ArrowDownToLine, MoveDown } from 'lucide-vue-next'
+import { ArrowDownToLine } from 'lucide-vue-next'
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import ChatMessage from './message.vue'
@@ -53,7 +53,8 @@ const rowVirtualizer = useVirtualizer({
 const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
 const virtualRows = computed(() => rowVirtualizer.value.getVirtualItems())
 
-function scrollToBottom() {
+async function scrollToBottom() {
+	await nextTick()
 	rowVirtualizer.value.scrollToIndex(messages.value.length - 1, { align: 'end' })
 
 	if (!isAutoScrolling.value) {
@@ -65,7 +66,7 @@ watch(subscription.data, (v) => {
 
 	messages.value.push(v.chatMessages)
 	if (isAutoScrolling.value) {
-		scrollToBottom()
+		nextTick(() => scrollToBottom())
 	}
 })
 
@@ -105,15 +106,20 @@ const measureElement = (el: any) => {
 </script>
 
 <template>
-	<Card>
-		<CardContent class="p-2 flex flex-col gap-2 h-[78dvh] relative">
-			<div v-if="!isAutoScrolling" class="absolute z-10 inset-x-0 bottom-3 w-fit mx-auto">
-				<Button variant="secondary" @click="scrollToBottom">
+	<Card class="py-0 gap-0">
+		<CardContent class="p-2 flex flex-col gap-2 h-[70dvh] relative">
+			<div
+				v-if="!isAutoScrolling"
+				class="absolute z-10 inset-x-0 bottom-3 w-fit mx-auto"
+			>
+				<Button
+					variant="secondary"
+					@click="scrollToBottom"
+				>
 					Scroll to bottom
 					<ArrowDownToLine />
 				</Button>
 			</div>
-			<MoveDown v-if="messages.length !== 0" class="absolute top-4 right-4 opacity-40" />
 			<div
 				ref="boxRef"
 				class="overflow-y-auto h-full flex-1 contain-strict [overflow-anchor:none]"
@@ -140,7 +146,10 @@ const measureElement = (el: any) => {
 							:key="virtualRow.index"
 							:ref="measureElement"
 							:data-index="virtualRow.index"
-							class="border-b border-border px-2 py-0.5 flex items-center justify-between"
+							:class="[
+								'px-2 py-0.5 flex items-center justify-between',
+								virtualRow.index < messages.length - 1 ? 'border-b border-border' : '',
+							]"
 						>
 							<ChatMessage :message="messages[virtualRow.index]" />
 						</div>
