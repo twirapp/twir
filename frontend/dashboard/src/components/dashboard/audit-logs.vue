@@ -65,12 +65,19 @@ function openPopup() {
 </script>
 
 <template>
-	<Card :popup="props.popup" class="@container flex flex-col">
+	<Card
+		:popup="props.popup"
+		class="@container flex flex-col min-h-0"
+	>
 		<template #header-extra>
 			<TooltipProvider>
 				<Tooltip>
 					<TooltipTrigger as-child>
-						<Button size="sm" variant="ghost" @click="openPopup">
+						<Button
+							size="sm"
+							variant="ghost"
+							@click="openPopup"
+						>
 							<ExternalLinkIcon class="h-4 w-4" />
 						</Button>
 					</TooltipTrigger>
@@ -81,45 +88,63 @@ function openPopup() {
 			</TooltipProvider>
 		</template>
 
-		<CardContent class="flex-1 overflow-hidden p-0">
-			<ScrollArea class="h-full">
-			<TransitionGroup name="list">
-				<div
-					v-for="log of logs"
-					:key="`${log.system}-${log.objectId}-${log.objectId}-${log.createdAt}`"
-					class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-border border-b border-solid @lg:items-center"
-				>
+		<CardContent class="flex-1 min-h-0 overflow-hidden p-0">
+			<ScrollArea class="h-full w-full">
+				<TransitionGroup name="list">
 					<div
-						class="flex h-full flex-row items-center min-h-10 gap-2.5 px-2.5 py-1"
+						v-for="log of logs"
+						:key="`${log.system}-${log.objectId}-${log.objectId}-${log.createdAt}`"
+						class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-border border-b border-solid @lg:items-center"
 					>
-						<Badge variant="outline" class="mt-2 @lg:mt-0 flex w-fit p-1 h-fit px-2 bg-zinc-800">
-							<UseTimeAgo v-slot="{ timeAgo }" :time="new Date(log.createdAt)" show-second>
-								{{ timeAgo }}
-							</UseTimeAgo>
-						</Badge>
-						<div v-if="log.user" class="flex gap-2 items-center">
-							<img class="size-4 rounded-full" :src="log.user.profileImageUrl" />
-							<span>{{ log.user.displayName }}</span>
+						<div class="flex h-full flex-row items-center min-h-10 gap-2.5 px-2.5 py-1 flex-wrap">
+							<Badge
+								variant="outline"
+								class="mt-2 @lg:mt-0 flex w-fit p-1 h-fit px-2 bg-zinc-800 shrink-0"
+							>
+								<UseTimeAgo
+									v-slot="{ timeAgo }"
+									:time="new Date(log.createdAt)"
+									show-second
+								>
+									{{ timeAgo }}
+								</UseTimeAgo>
+							</Badge>
+							<div
+								v-if="log.user"
+								class="flex gap-2 items-center shrink-0"
+							>
+								<img
+									class="size-4 rounded-full"
+									:src="log.user.profileImageUrl"
+								/>
+								<span class="truncate">{{ log.user.displayName }}</span>
+							</div>
+							<Badge
+								:variant="computeOperationBadgeVariant(log.operationType)"
+								class="shrink-0"
+							>
+								{{ t(mapOperationTypeToTranslate(log.operationType)).toLocaleLowerCase() }}
+								<template v-if="log.system">
+									{{
+										t(
+											mapSystemToTranslate(log.system),
+											{},
+											{ default: log.system }
+										).toLocaleLowerCase()
+									}}
+								</template>
+							</Badge>
+							<Badge
+								v-if="computeValueHint(log.oldValue, log.newValue)"
+								variant="secondary"
+								class="shrink-0 truncate max-w-[200px]"
+							>
+								{{ computeValueHint(log.oldValue, log.newValue) }}
+							</Badge>
 						</div>
-						<Badge :variant="computeOperationBadgeVariant(log.operationType)">
-							{{ t(mapOperationTypeToTranslate(log.operationType)).toLocaleLowerCase() }}
-							<template v-if="log.system">
-								{{
-									t(
-										mapSystemToTranslate(log.system),
-										{},
-										{ default: log.system }
-									).toLocaleLowerCase()
-								}}
-							</template>
-						</Badge>
-						<Badge v-if="computeValueHint(log.oldValue, log.newValue)" variant="secondary">
-							{{ computeValueHint(log.oldValue, log.newValue) }}
-						</Badge>
 					</div>
-				</div>
-			</TransitionGroup>
-		</ScrollArea>
+				</TransitionGroup>
+			</ScrollArea>
 		</CardContent>
 	</Card>
 </template>
