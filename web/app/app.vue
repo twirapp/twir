@@ -22,7 +22,6 @@ useHead({
 		{ name: 'description', content: description },
 	],
 	link: [
-		{ rel: 'dns-prefetch', href: 'https://rybbit.a.twir.app' },
 		{ rel: 'dns-prefetch', href: 'https://static-cdn.jtvnw.net' },
 		{ rel: 'dns-prefetch', href: 'https://avatars.githubusercontent.com' },
 	],

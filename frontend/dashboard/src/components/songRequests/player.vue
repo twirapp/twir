@@ -14,12 +14,12 @@ import {
 	Volume2,
 	VolumeX,
 } from 'lucide-vue-next'
-import { useLocalStorage, useScriptTag } from '@vueuse/core'
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '@/api/auth'
 import { useYoutubeSocket } from '@/components/songRequests/hook.js'
+import { useGlobalYoutubePlayer } from '@/composables/useGlobalYoutubePlayer.js'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
@@ -35,281 +35,100 @@ import {
 } from '@/components/ui/alert-dialog'
 import { convertMillisToTime } from '@/helpers/convertMillisToTime.js'
 
-interface YTPlayer {
-	playVideo: () => void
-	pauseVideo: () => void
-	stopVideo: () => void
-	loadVideoById: (videoId: string) => void
-	cueVideoById: (videoId: string) => void
-	seekTo: (seconds: number, allowSeekAhead: boolean) => void
-	getPlayerState: () => number
-	getCurrentTime: () => number
-	getDuration: () => number
-	setVolume: (volume: number) => void
-	getVolume: () => number
-	mute: () => void
-	unMute: () => void
-	isMuted: () => boolean
-	destroy: () => void
-}
-
-const enum PlayerState {
-	ENDED = 0,
-	PLAYING = 1,
-	PAUSED = 2,
-	BUFFERING = 3,
-}
-
-interface YT {
-	Player: new (
-		elementId: string,
-		options: {
-			height?: string
-			width?: string
-			videoId?: string
-			host?: string
-			playerVars?: {
-				autoplay?: number
-				controls?: number
-				rel?: number
-				playsinline?: number
-			}
-			events?: {
-				onReady?: (event: { target: YTPlayer }) => void
-				onStateChange?: (event: { target: YTPlayer; data: number }) => void
-				onError?: (event: { target: YTPlayer; data: number }) => void
-			}
-		}
-	) => YTPlayer
-	PlayerState: typeof PlayerState
-}
-
-declare global {
-	interface Window {
-		YT?: YT
-		onYouTubeIframeAPIReady?: () => void
-	}
-}
-
 const props = defineProps<{
 	noCookie: boolean
 	openSettingsModal: () => void
 }>()
 
-const { currentVideo, nextVideo, sendPlaying, banSong, banUser } = useYoutubeSocket()
+const { currentVideo, banSong, banUser } = useYoutubeSocket()
 
-const player = ref<YTPlayer>()
-const playerReady = ref(false)
-const isPlaying = ref(false)
-const sliderTime = ref(0)
-const duration = ref(0)
-const updateTimeInterval = ref<number>()
+const {
+	playerReady,
+	isPlaying,
+	sliderTime,
+	duration,
+	playerVisible,
+	isMuted,
+	sliderVolume,
+	noCookie,
+	initPlayer,
+	togglePlay,
+	seek,
+	setVolume,
+	toggleMute,
+	playNext,
+} = useGlobalYoutubePlayer()
 
-const volume = useLocalStorage('twirPlayerVolume', 10)
-const playerVisible = useLocalStorage('twirPlayerVisible', true)
-const isMuted = useLocalStorage('twirPlayerIsMuted', false)
+const playerContainerRef = ref<HTMLElement | null>(null)
 
-function playNext() {
-	nextVideo()
-}
+// Update noCookie setting
+watch(() => props.noCookie, (value) => {
+	noCookie.value = value
+}, { immediate: true })
 
-function startTimeUpdate() {
-	if (updateTimeInterval.value) {
-		clearInterval(updateTimeInterval.value)
-	}
-	updateTimeInterval.value = window.setInterval(() => {
-		if (player.value && playerReady.value) {
-			try {
-				const time = player.value.getCurrentTime()
-				if (time !== undefined && !Number.isNaN(time)) {
-					sliderTime.value = time
-				}
-			} catch (e) {
-				console.warn('Could not get current time:', e)
-			}
-		}
-	}, 100)
-}
+function updatePlayerPosition() {
+	if (!playerContainerRef.value) return
 
-function stopTimeUpdate() {
-	if (updateTimeInterval.value) {
-		clearInterval(updateTimeInterval.value)
-		updateTimeInterval.value = undefined
-	}
-}
+	const rect = playerContainerRef.value.getBoundingClientRect()
+	const globalContainer = document.getElementById('global-yt-player-container')
 
-function onPlayerReady(event: { target: YTPlayer }) {
-	player.value = event.target
-	playerReady.value = true
-
-	const vol = volume.value
-	event.target.setVolume(vol)
-	if (isMuted.value) {
-		event.target.mute()
+	if (globalContainer) {
+		globalContainer.style.left = `${rect.left}px`
+		globalContainer.style.top = `${rect.top}px`
+		globalContainer.style.width = `${rect.width}px`
+		globalContainer.style.height = `${rect.height}px`
+		console.log('[Player] Updated position:', rect)
 	}
 }
-
-function onPlayerStateChange(event: { target: YTPlayer; data: number }) {
-	if (event.data === PlayerState.PLAYING) {
-		isPlaying.value = true
-		if (player.value && playerReady.value) {
-			try {
-				const dur = player.value.getDuration()
-				if (dur && !Number.isNaN(dur)) {
-					duration.value = dur
-				}
-			} catch (e) {
-				console.warn('Could not get duration:', e)
-			}
-		}
-		startTimeUpdate()
-		sendPlaying()
-	} else if (event.data === PlayerState.PAUSED) {
-		isPlaying.value = false
-		stopTimeUpdate()
-	} else if (event.data === PlayerState.ENDED) {
-		isPlaying.value = false
-		stopTimeUpdate()
-		playNext()
-	} else if (event.data === PlayerState.BUFFERING) {
-		if (player.value && playerReady.value) {
-			try {
-				const dur = player.value.getDuration()
-				if (dur && !Number.isNaN(dur)) {
-					duration.value = dur
-				}
-			} catch (e) {
-				console.warn('Could not get duration while buffering:', e)
-			}
-		}
-	}
-}
-
-function onPlayerError(event: { target: YTPlayer; data: number }) {
-	console.error('YouTube Player Error:', event.data)
-	isPlaying.value = false
-	stopTimeUpdate()
-}
-
-const { load: loadYTScript } = useScriptTag('https://www.youtube.com/iframe_api', () => {}, {
-	manual: true,
-})
 
 onMounted(async () => {
-	const initPlayer = () => {
-		if (!window.YT || !window.YT.Player) return
+	console.log('[Player] Mounted, initializing player if needed')
 
-		const playerConfig: any = {
-			height: '300',
-			width: '100%',
-			host: props.noCookie ? 'https://www.youtube-nocookie.com' : undefined,
-			playerVars: {
-				autoplay: 0,
-				controls: 1,
-				rel: 0,
-				playsinline: 1,
-			},
-			events: {
-				onReady: onPlayerReady,
-				onStateChange: onPlayerStateChange,
-				onError: onPlayerError,
-			},
-		}
-
-		if (currentVideo.value) {
-			playerConfig.videoId = currentVideo.value.videoId
-		}
-
-		// oxlint-disable-next-line no-new
-		new window.YT.Player('yt-player-container', playerConfig)
+	// Initialize player if not already initialized
+	if (!playerReady.value) {
+		console.log('[Player] Initializing player...')
+		await initPlayer()
 	}
 
-	if (window.YT && window.YT.Player) {
-		await nextTick()
-		initPlayer()
-	} else {
-		window.onYouTubeIframeAPIReady = () => {
-			nextTick(() => {
-				initPlayer()
-			})
-		}
-		await loadYTScript()
-	}
-})
+	// Wait a bit for DOM to settle
+	await new Promise(resolve => setTimeout(resolve, 100))
 
-watch(currentVideo, (video) => {
-	if (!player.value || !playerReady.value) return
+	// Position the global player over our container
+	updatePlayerPosition()
 
-	if (!video) {
-		player.value.stopVideo()
-		sliderTime.value = 0
-		duration.value = 0
-		return
-	}
-
-	player.value.loadVideoById(video.videoId)
+	// Update position on window resize
+	window.addEventListener('resize', updatePlayerPosition)
+	window.addEventListener('scroll', updatePlayerPosition, true)
 })
 
 onUnmounted(() => {
-	stopTimeUpdate()
-	if (player.value) {
-		player.value.destroy()
+	console.log('[Player] Unmounted, moving iframe off-screen')
+	window.removeEventListener('resize', updatePlayerPosition)
+	window.removeEventListener('scroll', updatePlayerPosition, true)
+
+	// Reset iframe position to off-screen
+	const globalContainer = document.getElementById('global-yt-player-container')
+	if (globalContainer) {
+		globalContainer.style.left = '-9999px'
+		globalContainer.style.top = '-9999px'
+		globalContainer.style.width = '640px'
+		globalContainer.style.height = '360px'
+		console.log('[Player] Iframe moved off-screen')
 	}
-	playerReady.value = false
-})
-
-watch(volume, (value) => {
-	if (!player.value || !playerReady.value) return
-
-	if (value === 0) {
-		isMuted.value = true
-		player.value.mute()
-	} else {
-		isMuted.value = false
-		player.value.unMute()
-		player.value.setVolume(value)
-	}
-})
-
-watch(isMuted, (v) => {
-	if (!player.value || !playerReady.value) return
-	if (v) {
-		player.value.mute()
-	} else {
-		player.value.unMute()
-	}
-})
-
-const sliderVolume = computed(() => {
-	if (isMuted.value) return 0
-	return volume.value
 })
 
 const formattedTime = computed(() => {
 	return `${convertMillisToTime(sliderTime.value * 1000)} / ${convertMillisToTime(duration.value * 1000)}`
 })
 
-function handlePlayPause() {
-	if (!player.value || !playerReady.value) return
-	if (isPlaying.value) {
-		player.value.pauseVideo()
-	} else {
-		player.value.playVideo()
-	}
-}
-
 function handleSeek(value: number[] | undefined) {
-	if (!player.value || !playerReady.value || !value) return
-	try {
-		player.value.seekTo(value[0], true)
-	} catch (e) {
-		console.error('Error seeking:', e)
-	}
+	if (!value) return
+	seek(value[0])
 }
 
 function handleVolumeChange(value: number[] | undefined) {
 	if (!value) return
-	volume.value = value[0]
+	setVolume(value[0])
 }
 
 const { data: profile } = useProfile()
@@ -341,11 +160,12 @@ const { t } = useI18n()
 			</div>
 
 			<div v-else>
-				<div v-show="playerVisible" class="h-[300px] overflow-hidden">
-					<div
-						id="yt-player-container"
-						class="w-full h-full [&_iframe]:w-full [&_iframe]:!h-[300px] [&_iframe]:block"
-					></div>
+				<div
+					v-show="playerVisible"
+					ref="playerContainerRef"
+					class="h-[300px] overflow-hidden relative bg-black"
+				>
+					<!-- Global YouTube iframe will be positioned over this container -->
 				</div>
 
 				<div class="flex flex-col gap-4 py-5 px-6">
@@ -355,7 +175,7 @@ const { t } = useI18n()
 							class="flex size-8 min-w-8"
 							variant="secondary"
 							:disabled="currentVideo == null"
-							@click="handlePlayPause"
+							@click="togglePlay"
 						>
 							<Play v-if="!isPlaying" class="size-4" />
 							<Pause v-else class="size-4" />
@@ -386,7 +206,7 @@ const { t } = useI18n()
 							size="icon"
 							variant="secondary"
 							class="size-8 min-w-8"
-							@click="isMuted = !isMuted"
+							@click="toggleMute"
 						>
 							<Volume2 v-if="!isMuted" class="size-4" />
 							<VolumeX v-else class="size-4" />

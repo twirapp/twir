@@ -10,6 +10,8 @@ import { type PluginOption, defineConfig, loadEnv } from 'vite'
 import { analyzer, unstableRolldownAdapter } from 'vite-bundle-analyzer'
 import { watch } from 'vite-plugin-watch'
 
+
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const analyzeMode = process.env.ANALYZE
