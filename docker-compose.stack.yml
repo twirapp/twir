@@ -115,7 +115,7 @@ services:
           - node.labels.databases == true
 
   pgdog:
-    image: ghcr.io/pgdogdev/pgdog:main
+    image: ghcr.io/pgdogdev/pgdog:v0.1.25
     entrypoint:
       [
         "/bin/sh",
