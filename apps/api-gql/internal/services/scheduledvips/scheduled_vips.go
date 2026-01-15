@@ -1,8 +1,10 @@
-package scheduled_vips
+package scheduledvips
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,6 +12,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
+	"github.com/twirapp/twir/libs/logger"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
@@ -21,6 +24,7 @@ type Opts struct {
 	ScheduledVipsRepository scheduledvipsrepository.Repository
 	Config                  config.Config
 	Bus                     *buscore.Bus
+	Logger                  *slog.Logger
 }
 
 func New(opts Opts) *Service {
@@ -28,6 +32,7 @@ func New(opts Opts) *Service {
 		repo:   opts.ScheduledVipsRepository,
 		config: opts.Config,
 		bus:    opts.Bus,
+		logger: opts.Logger,
 	}
 }
 
@@ -35,6 +40,7 @@ type Service struct {
 	repo   scheduledvipsrepository.Repository
 	config config.Config
 	bus    *buscore.Bus
+	logger *slog.Logger
 }
 
 func (c *Service) GetScheduledVips(ctx context.Context, channelID string) (
@@ -93,7 +99,34 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return fmt.Errorf("vip does not belong to the channel")
 	}
 
-	return c.repo.Delete(ctx, id)
+	twitchClient, err := twitch.NewUserClient(
+		input.ChannelID,
+		c.config,
+		c.bus,
+	)
+	if err != nil {
+		return fmt.Errorf("cannot create twitch client: %w", err)
+	}
+
+	err = c.repo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	vipResp, err := twitchClient.RemoveChannelVip(
+		&helix.RemoveChannelVipParams{
+			BroadcasterID: input.ChannelID,
+			UserID:        vip.UserID,
+		},
+	)
+	if err != nil {
+		c.logger.Error("Cannot remove VIP on Twitch", logger.Error(err))
+	}
+	if vipResp.ErrorMessage != "" {
+		c.logger.Error("Twitch error", logger.Error(errors.New(vipResp.ErrorMessage)))
+	}
+
+	return nil
 }
 
 func (c *Service) Update(ctx context.Context, id, channelID string, removeAt *time.Time) error {

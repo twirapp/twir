@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	"go.uber.org/fx"
 )
 
@@ -25,7 +25,7 @@ var _ httpbase.Route[*listRequestDto, *listResponseDto] = (*list)(nil)
 type ListOpts struct {
 	fx.In
 
-	Service  *scheduled_vips.Service
+	Service  *scheduledvips.Service
 	Sessions *auth.Auth
 }
 
@@ -37,7 +37,7 @@ func newList(opts ListOpts) *list {
 }
 
 type list struct {
-	service  *scheduled_vips.Service
+	service  *scheduledvips.Service
 	sessions *auth.Auth
 }
 

@@ -7,7 +7,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	"go.uber.org/fx"
 )
 
@@ -24,7 +24,7 @@ var _ httpbase.Route[*deleteRequestDto, *deleteResponseDto] = (*deleteRoute)(nil
 type DeleteOpts struct {
 	fx.In
 
-	Service  *scheduled_vips.Service
+	Service  *scheduledvips.Service
 	Sessions *auth.Auth
 }
 
@@ -36,7 +36,7 @@ func newDelete(opts DeleteOpts) *deleteRoute {
 }
 
 type deleteRoute struct {
-	service  *scheduled_vips.Service
+	service  *scheduledvips.Service
 	sessions *auth.Auth
 }
 
@@ -65,7 +65,7 @@ func (d *deleteRoute) Handler(
 
 	err = d.service.Remove(
 		ctx,
-		scheduled_vips.RemoveInput{
+		scheduledvips.RemoveInput{
 			ID:        input.ID,
 			ChannelID: dashboardID,
 		},

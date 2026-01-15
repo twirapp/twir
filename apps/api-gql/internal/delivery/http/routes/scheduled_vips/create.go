@@ -9,7 +9,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"go.uber.org/fx"
 )
@@ -27,7 +27,7 @@ var _ httpbase.Route[*createRequestDto, *httpbase.BaseOutputJson[scheduledVipOut
 type CreateOpts struct {
 	fx.In
 
-	Service  *scheduled_vips.Service
+	Service  *scheduledvips.Service
 	Sessions *auth.Auth
 }
 
@@ -39,7 +39,7 @@ func newCreate(opts CreateOpts) *create {
 }
 
 type create struct {
-	service  *scheduled_vips.Service
+	service  *scheduledvips.Service
 	sessions *auth.Auth
 }
 
@@ -95,7 +95,7 @@ func (c *create) Handler(
 	// Create scheduled VIP with Twitch VIP addition
 	err = c.service.CreateWithTwitchVip(
 		ctx,
-		scheduled_vips.CreateWithTwitchVipInput{
+		scheduledvips.CreateWithTwitchVipInput{
 			UserID:     input.Body.UserID,
 			ChannelID:  dashboardID,
 			RemoveAt:   input.Body.RemoveAt,

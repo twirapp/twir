@@ -13,7 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 )
 
@@ -45,7 +45,7 @@ func (r *mutationResolver) ScheduledVipsCreate(ctx context.Context, input gqlmod
 	// Use CreateWithTwitchVip to add VIP on Twitch and create scheduled VIP
 	err = r.deps.ScheduledVipsService.CreateWithTwitchVip(
 		ctx,
-		scheduled_vips.CreateWithTwitchVipInput{
+		scheduledvips.CreateWithTwitchVipInput{
 			UserID:     input.UserID,
 			ChannelID:  dashboardID,
 			RemoveAt:   removeAt,
@@ -68,7 +68,7 @@ func (r *mutationResolver) ScheduledVipsRemove(ctx context.Context, id string, i
 
 	err = r.deps.ScheduledVipsService.Remove(
 		ctx,
-		scheduled_vips.RemoveInput{
+		scheduledvips.RemoveInput{
 			ID:        id,
 			ChannelID: dashboardID,
 			KeepVip:   input.KeepVip.Value(),

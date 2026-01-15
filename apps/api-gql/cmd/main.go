@@ -69,7 +69,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduled_vips"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
@@ -502,7 +502,7 @@ func main() {
 			dashboard.New,
 			seventv_integration.New,
 			spotify_integration.New,
-			scheduled_vips.New,
+			scheduledvips.New,
 			chat_wall.New,
 			chat_translation.New,
 			shortenedurls.New,
