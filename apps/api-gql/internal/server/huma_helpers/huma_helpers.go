@@ -20,6 +20,24 @@ func GetClientUserAgentFromCtx(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	return gCtx.GetHeader("user-agent"), nil
+}
+
+func GetCloudflareCountryFromCtx(ctx context.Context) (string, error) {
+	gCtx, err := gincontext.GetGinContext(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return gCtx.GetHeader("CF-IPCountry"), nil
+}
+
+func GetCloudflareCityFromCtx(ctx context.Context) (string, error) {
+	gCtx, err := gincontext.GetGinContext(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return gCtx.GetHeader("CF-IPCity"), nil
 }

@@ -4,6 +4,8 @@ CREATE TABLE short_links_views (
 	user_id Nullable(String),
 	ip Nullable(String),
 	user_agent Nullable(String),
+	country Nullable(String),
+	city Nullable(String),
 	created_at DateTime DEFAULT now()
 ) ENGINE = MergeTree()
 	PARTITION BY toYYYYMM(created_at)

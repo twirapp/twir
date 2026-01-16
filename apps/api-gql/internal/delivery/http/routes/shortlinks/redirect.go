@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
@@ -11,6 +12,7 @@ import (
 	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
+	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
 )
@@ -95,6 +97,16 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 		r.logger.Warn("Cannot get client user agent", "error", err)
 	}
 
+	var country *string
+	if cfCountry, err := humahelpers.GetCloudflareCountryFromCtx(ctx); err == nil && cfCountry != "" {
+		country = &cfCountry
+	}
+
+	var city *string
+	if cfCity, err := humahelpers.GetCloudflareCityFromCtx(ctx); err == nil && cfCity != "" {
+		city = &cfCity
+	}
+
 	if err := r.service.RecordView(
 		ctx,
 		shortenedurls.RecordViewInput{
@@ -102,6 +114,8 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 			UserID:      userID,
 			IP:          clientIp,
 			UserAgent:   clientAgent,
+			Country:     country,
+			City:        city,
 		},
 	); err != nil {
 		r.logger.Warn("Cannot record view", "error", err)
@@ -118,6 +132,18 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 	); err != nil {
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot update link", err)
 	}
+
+	// Publish update to subscribers
+	go func() {
+		lastView := &shortlinksviewsrepository.View{
+			ShortLinkID: link.ShortID,
+			UserID:      userID,
+			Country:     country,
+			City:        city,
+			CreatedAt:   time.Now(),
+		}
+		_ = r.service.PublishViewUpdate(link.ShortID, newViews, lastView)
+	}()
 
 	return &redirectResponseDto{
 		Status:   http.StatusPermanentRedirect,

@@ -27,6 +27,8 @@ var FxModule = fx.Provide(
 	httpbase.AsFxRoute(newInfo),
 	httpbase.AsFxRoute(newRedirect),
 	httpbase.AsFxRoute(newProfile),
+	httpbase.AsFxRoute(newStatistics),
+	httpbase.AsFxRoute(newTopCountries),
 )
 
 type linkOutputDto struct {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { WandSparklesIcon } from 'lucide-vue-next'
+import { WandSparklesIcon } from "lucide-vue-next";
 </script>
 
 <template>
@@ -15,6 +15,13 @@ import { WandSparklesIcon } from 'lucide-vue-next'
 			<span class="text-xl text-center w-3/4">
 				Free lightning-fast URL shortening for modern web sharing
 			</span>
+			<NuxtLink
+				to="/url-shortener/profile"
+				class="flex items-center gap-2 px-4 py-2 rounded-lg border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)] transition-colors text-sm font-medium"
+			>
+				<Icon name="lucide:user" class="w-4 h-4" />
+				View My Links
+			</NuxtLink>
 		</div>
 	</div>
 </template>

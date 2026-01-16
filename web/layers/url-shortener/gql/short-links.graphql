@@ -1,0 +1,26 @@
+query ShortLinkViews($input: ShortLinkViewsInput!) {
+	shortLinkViews(input: $input) {
+		views {
+			shortLinkId
+			userId
+			country
+			city
+			createdAt
+		}
+		total
+	}
+}
+
+subscription ShortLinkViewsUpdates($shortLinkId: String!) {
+	shortLinkViewsUpdates(shortLinkId: $shortLinkId) {
+		shortLinkId
+		totalViews
+		lastView {
+			shortLinkId
+			userId
+			country
+			city
+			createdAt
+		}
+	}
+}

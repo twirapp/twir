@@ -1,5 +1,7 @@
 import type { ErrorModel, LinkOutputDto } from '@twir/api/openapi'
 
+import { useOapi } from '~/composables/use-oapi'
+
 export const useUrlShortener = defineStore('url-shortener', () => {
 	const api = useOapi()
 	const latestShortenedUrls = ref<LinkOutputDto[]>([])

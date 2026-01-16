@@ -1,0 +1,32 @@
+extend type Query {
+	shortLinkViews(input: ShortLinkViewsInput!): ShortLinkViewsResponse! @isAuthenticated
+}
+
+extend type Subscription {
+	shortLinkViewsUpdates(shortLinkId: String!): ShortLinkViewUpdate! @isAuthenticated
+}
+
+input ShortLinkViewsInput {
+	shortLinkId: String! @validate(constraint: "required,min=1")
+	page: Int @validate(constraint: "gte=0")
+	perPage: Int @validate(constraint: "lte=100")
+}
+
+type ShortLinkViewsResponse {
+	views: [ShortLinkView!]!
+	total: Int!
+}
+
+type ShortLinkView {
+	shortLinkId: String!
+	userId: String
+	country: String
+	city: String
+	createdAt: Time!
+}
+
+type ShortLinkViewUpdate {
+	shortLinkId: String!
+	totalViews: Int!
+	lastView: ShortLinkView
+}

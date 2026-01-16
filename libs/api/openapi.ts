@@ -78,6 +78,24 @@ export interface BaseOutputBodyJsonListCommandResponseDto {
   data: CommandResponseDto[];
 }
 
+export interface BaseOutputBodyJsonListCountryStatsDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: CountryStatsDto[];
+}
+
+export interface BaseOutputBodyJsonListStatisticsPointDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: StatisticsPointDto[];
+}
+
 export interface BaseOutputBodyJsonPasteBinOutputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -194,6 +212,12 @@ export interface CommandResponsesResponseDto {
   order: number;
   text: string;
   twitch_category_id: string[];
+}
+
+export interface CountryStatsDto {
+  /** @format int64 */
+  count: number;
+  country: string;
 }
 
 export interface CreateLinkInputDto {
@@ -437,6 +461,13 @@ export interface StartResponseDto {
   success: boolean;
 }
 
+export interface StatisticsPointDto {
+  /** @format int64 */
+  count: number;
+  /** @format int64 */
+  timestamp: number;
+}
+
 export interface StopResponseDto {
   success: boolean;
 }
@@ -579,6 +610,12 @@ export enum ExpireExpiresTypeEnum {
 export enum ScheduledVipOutputDtoRemoveTypeEnum {
   Time = "time",
   StreamEnd = "stream_end",
+}
+
+/** @default "day" */
+export enum ShortUrlGetStatisticsParamsIntervalEnum {
+  Hour = "hour",
+  Day = "day",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1240,6 +1277,67 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<BaseOutputBodyJsonLinkOutputDto, any>({
         path: `/v1/short-links/${shortId}/info`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortUrlGetStatistics
+     * @summary Get short url statistics
+     * @request GET:/v1/short-links/{shortId}/statistics
+     * @response `200` `BaseOutputBodyJsonListStatisticsPointDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortUrlGetStatistics: (
+      shortId: string,
+      query: {
+        /** @format int64 */
+        from: number;
+        /** @format int64 */
+        to: number;
+        /** @default "day" */
+        interval?: ShortUrlGetStatisticsParamsIntervalEnum;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonListStatisticsPointDto, any>({
+        path: `/v1/short-links/${shortId}/statistics`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortUrlGetTopCountries
+     * @summary Get top countries by views for short url
+     * @request GET:/v1/short-links/{shortId}/top-countries
+     * @response `200` `BaseOutputBodyJsonListCountryStatsDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortUrlGetTopCountries: (
+      shortId: string,
+      query?: {
+        /**
+         * @format int64
+         * @min 1
+         * @max 50
+         * @default 10
+         */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonListCountryStatsDto, any>({
+        path: `/v1/short-links/${shortId}/top-countries`,
         method: "GET",
         query: query,
         format: "json",
