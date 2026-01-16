@@ -1,123 +1,123 @@
 <script setup lang="ts">
-import type { LinkOutputDto } from "@twir/api/openapi";
-import { toast } from "vue-sonner";
+import type { LinkOutputDto } from '@twir/api/openapi'
+import { toast } from 'vue-sonner'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import Button from "@/components/ui/button/Button.vue";
-import UrlShortenerLinkChart from "./link-chart.vue";
-import ViewsHistoryDialog from "./views-history-dialog.vue";
-import TopCountriesDialog from "./top-countries-dialog.vue";
-import { useMetaExtractor } from "../../composables/use-meta-extractor";
-import { useShortLinkViewsSubscription } from "../../composables/use-short-link-views-subscription";
+} from '@/components/ui/select'
+import Button from '@/components/ui/button/Button.vue'
+import UrlShortenerLinkChart from './link-chart.vue'
+import ViewsHistoryDialog from './views-history-dialog.vue'
+import TopCountriesDialog from './top-countries-dialog.vue'
+import { useMetaExtractor } from '../../composables/use-meta-extractor'
+import { useShortLinkViewsSubscription } from '../../composables/use-short-link-views-subscription'
 
 const props = defineProps<{
-	link: LinkOutputDto;
-}>();
+	link: LinkOutputDto
+}>()
 
-const shortId = computed(() => props.link.id);
-const { statistics, range, isDayRange, isLoading, refetch } = useShortLinkStatistics(shortId);
+const shortId = computed(() => props.link.id)
+const { statistics, range, isDayRange, isLoading, refetch } = useShortLinkStatistics(shortId)
 
 // Subscribe to real-time view updates
-const { totalViews: liveViews, lastView } = useShortLinkViewsSubscription(shortId);
+const { totalViews: liveViews, lastView } = useShortLinkViewsSubscription(shortId)
 
 // Use live views if available, otherwise fall back to initial link views
-const displayViews = computed(() => liveViews.value ?? props.link.views);
+const displayViews = computed(() => liveViews.value ?? props.link.views)
 
 // Throttled refetch to update chart smoothly without overwhelming the backend
 // Refetch at most once per 10 seconds
-let lastRefetchTime = 0;
-let pendingRefetch = false;
-let refetchTimeout: ReturnType<typeof setTimeout> | null = null;
-const REFETCH_THROTTLE = 10000; // 10 seconds
+let lastRefetchTime = 0
+let pendingRefetch = false
+let refetchTimeout: ReturnType<typeof setTimeout> | null = null
+const REFETCH_THROTTLE = 10000 // 10 seconds
 
 watch(liveViews, (newViews, oldViews) => {
 	if (newViews !== null && oldViews !== null && newViews > oldViews) {
-		const now = Date.now();
-		const timeSinceLastRefetch = now - lastRefetchTime;
+		const now = Date.now()
+		const timeSinceLastRefetch = now - lastRefetchTime
 
 		if (timeSinceLastRefetch >= REFETCH_THROTTLE) {
 			// Enough time has passed, refetch immediately
-			refetch();
-			lastRefetchTime = now;
-			pendingRefetch = false;
+			refetch()
+			lastRefetchTime = now
+			pendingRefetch = false
 		} else if (!pendingRefetch) {
 			// Schedule a refetch for when the throttle period ends
-			pendingRefetch = true;
-			const delay = REFETCH_THROTTLE - timeSinceLastRefetch;
+			pendingRefetch = true
+			const delay = REFETCH_THROTTLE - timeSinceLastRefetch
 
 			if (refetchTimeout) {
-				clearTimeout(refetchTimeout);
+				clearTimeout(refetchTimeout)
 			}
 
 			refetchTimeout = setTimeout(() => {
-				refetch();
-				lastRefetchTime = Date.now();
-				pendingRefetch = false;
-				refetchTimeout = null;
-			}, delay);
+				refetch()
+				lastRefetchTime = Date.now()
+				pendingRefetch = false
+				refetchTimeout = null
+			}, delay)
 		}
 	}
-});
+})
 
 // Cleanup timeout on unmount
 onUnmounted(() => {
 	if (refetchTimeout) {
-		clearTimeout(refetchTimeout);
+		clearTimeout(refetchTimeout)
 	}
-});
+})
 
 // Views history dialog
-const showViewsDialog = ref(false);
+const showViewsDialog = ref(false)
 
 // Top countries dialog
-const showTopCountriesDialog = ref(false);
+const showTopCountriesDialog = ref(false)
 
-const clipboardApi = useClipboard();
+const clipboardApi = useClipboard()
 
 function copyShortUrl() {
-	clipboardApi.copy(props.link.short_url);
-	toast.success("Copied", {
-		description: "Shortened URL copied to clipboard",
+	clipboardApi.copy(props.link.short_url)
+	toast.success('Copied', {
+		description: 'Shortened URL copied to clipboard',
 		duration: 2500,
-	});
+	})
 }
 
 function removeProtocol(url: string) {
-	return url.replace(/^https?:\/\//, "");
+	return url.replace(/^https?:\/\//, '')
 }
 
-const displayShortUrl = computed(() => removeProtocol(props.link.short_url));
-const displayUrl = computed(() => removeProtocol(props.link.url));
+const displayShortUrl = computed(() => removeProtocol(props.link.short_url))
+const displayUrl = computed(() => removeProtocol(props.link.url))
 
 function formatViews(views: number) {
-	const intl = new Intl.NumberFormat(import.meta.client ? navigator.language : "en-US", {
-		notation: "compact",
+	const intl = new Intl.NumberFormat(import.meta.client ? navigator.language : 'en-US', {
+		notation: 'compact',
 		maximumFractionDigits: 1,
-	});
-	return intl.format(views);
+	})
+	return intl.format(views)
 }
 
-const { extractMetaFromUrl, loading: metaLoading } = useMetaExtractor();
-const hasLoaded = ref(false);
-const metaData = ref<any>(null);
+const { extractMetaFromUrl, loading: metaLoading } = useMetaExtractor()
+const hasLoaded = ref(false)
+const metaData = ref<any>(null)
 
 async function fetchMetadata() {
-	if (metaLoading.value || hasLoaded.value) return;
+	if (metaLoading.value || hasLoaded.value) return
 
 	if (props.link.url) {
-		hasLoaded.value = true;
+		hasLoaded.value = true
 
 		try {
-			const meta = await extractMetaFromUrl(props.link.url);
-			metaData.value = meta;
+			const meta = await extractMetaFromUrl(props.link.url)
+			metaData.value = meta
 		} catch (err) {
-			console.error("Failed to fetch metadata:", err);
-			hasLoaded.value = false;
+			console.error('Failed to fetch metadata:', err)
+			hasLoaded.value = false
 		}
 	}
 }
@@ -125,10 +125,10 @@ async function fetchMetadata() {
 watch(
 	() => props.link.url,
 	() => {
-		fetchMetadata();
+		fetchMetadata()
 	},
-	{ immediate: true },
-);
+	{ immediate: true }
+)
 </script>
 
 <template>
@@ -141,8 +141,16 @@ watch(
 				<div
 					class="flex-none size-fit p-3 rounded-full font-semibold border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,20%)]"
 				>
-					<Icon v-if="!hasLoaded || !metaData" name="lucide:link" class="w-4 h-4" />
-					<img v-else :src="metaData.favicon" class="w-4 h-4" />
+					<Icon
+						v-if="!hasLoaded || !metaData"
+						name="lucide:link"
+						class="w-4 h-4"
+					/>
+					<img
+						v-else
+						:src="metaData.favicon"
+						class="w-4 h-4"
+					/>
 				</div>
 				<div class="overflow-hidden min-w-0 flex-1">
 					<div class="flex items-center gap-2">
@@ -158,7 +166,10 @@ watch(
 							class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
 							title="Copy short URL"
 						>
-							<Icon name="lucide:copy" class="w-3.5 h-3.5" />
+							<Icon
+								name="lucide:copy"
+								class="w-3.5 h-3.5"
+							/>
 						</button>
 					</div>
 					<span class="flex gap-1 items-center">
@@ -182,7 +193,10 @@ watch(
 					'ring-2 ring-green-500/50': liveViews !== null && liveViews !== props.link.views,
 				}"
 			>
-				<Icon name="lucide:eye" class="w-4 h-4" />
+				<Icon
+					name="lucide:eye"
+					class="w-4 h-4"
+				/>
 				<span>{{ formatViews(displayViews) }}</span>
 			</div>
 		</div>
@@ -196,7 +210,10 @@ watch(
 					@click="showViewsDialog = true"
 					class="border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,20%)]"
 				>
-					<Icon name="lucide:list" class="h-4 w-4 mr-2" />
+					<Icon
+						name="lucide:list"
+						class="h-4 w-4 mr-2"
+					/>
 					View History
 				</Button>
 				<Button
@@ -205,7 +222,10 @@ watch(
 					@click="showTopCountriesDialog = true"
 					class="border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,20%)]"
 				>
-					<Icon name="lucide:globe" class="h-4 w-4 mr-2" />
+					<Icon
+						name="lucide:globe"
+						class="h-4 w-4 mr-2"
+					/>
 					Top Countries
 				</Button>
 			</div>
@@ -225,8 +245,14 @@ watch(
 
 		<!-- Chart section -->
 		<div class="rounded-xl border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,12%)] p-4">
-			<div v-if="isLoading" class="flex items-center justify-center h-[200px]">
-				<Icon name="lucide:loader-2" class="h-8 w-8 animate-spin text-[hsl(240,11%,50%)]" />
+			<div
+				v-if="isLoading"
+				class="flex items-center justify-center h-[200px]"
+			>
+				<Icon
+					name="lucide:loader-2"
+					class="h-8 w-8 animate-spin text-[hsl(240,11%,50%)]"
+				/>
 			</div>
 			<div
 				v-else-if="statistics.length === 0"
@@ -234,7 +260,12 @@ watch(
 			>
 				No data available
 			</div>
-			<UrlShortenerLinkChart v-else :is-day-range="isDayRange" :usages="statistics" />
+			<ClientOnly v-else>
+				<UrlShortenerLinkChart
+					:is-day-range="isDayRange"
+					:usages="statistics"
+				/>
+			</ClientOnly>
 		</div>
 
 		<!-- Views History Dialog -->

@@ -215,7 +215,10 @@ export interface CommandResponsesResponseDto {
 }
 
 export interface CountryStatsDto {
-  /** @format int64 */
+  /**
+   * @format int64
+   * @min 0
+   */
   count: number;
   country: string;
 }
