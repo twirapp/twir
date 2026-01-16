@@ -60,5 +60,5 @@ type GetTopCountriesInput struct {
 
 type CountryStats struct {
 	Country string
-	Count   int64
+	Count   uint64
 }

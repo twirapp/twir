@@ -374,7 +374,7 @@ type GetTopCountriesInput struct {
 
 type CountryStatsOutput struct {
 	Country string
-	Count   int64
+	Count   uint64
 }
 
 func (c *Service) GetTopCountries(ctx context.Context, input GetTopCountriesInput) ([]CountryStatsOutput, error) {

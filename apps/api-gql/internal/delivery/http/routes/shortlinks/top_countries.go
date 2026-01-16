@@ -17,7 +17,7 @@ type topCountriesRequestDto struct {
 
 type countryStatsDto struct {
 	Country string `json:"country" example:"US"`
-	Count   int64  `json:"count" example:"42"`
+	Count   uint64 `json:"count" example:"42"`
 }
 
 var _ httpbase.Route[*topCountriesRequestDto, *httpbase.BaseOutputJson[[]countryStatsDto]] = (*topCountries)(nil)
