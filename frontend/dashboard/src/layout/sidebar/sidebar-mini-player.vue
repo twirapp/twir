@@ -8,7 +8,6 @@ import { useGlobalYoutubePlayer } from '@/composables/useGlobalYoutubePlayer.js'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { convertMillisToTime } from '@/helpers/convertMillisToTime.js'
-
 const { currentVideo } = useYoutubeSocket()
 const {
 	isPlaying,
@@ -27,13 +26,18 @@ const {
 const router = useRouter()
 
 // Show mini-player only if:
-// 1. User has played a song at least once
+// 1. User has ever played a song (to know they use the feature)
 // 2. There's a current video
-// 3. Not on the song-requests page
+// 3. The video is actually playing OR has been played (has progress)
+// 4. Not on the song-requests page
 const shouldShowMiniPlayer = computed(() => {
-	return hasEverPlayedSong.value
-		&& currentVideo.value !== null
-		&& router.currentRoute.value.path !== '/dashboard/song-requests'
+	return (
+		hasEverPlayedSong.value &&
+		currentVideo.value != null &&
+		currentVideo.value !== undefined &&
+		(isPlaying.value || sliderTime.value > 0) &&
+		router.currentRoute.value.path !== '/dashboard/song-requests'
+	)
 })
 
 const formattedTime = computed(() => {
@@ -96,8 +100,14 @@ function handleVolumeChange(value: number[] | undefined) {
 				:disabled="!currentVideo"
 				@click="togglePlay"
 			>
-				<Play v-if="!isPlaying" class="size-3.5" />
-				<Pause v-else class="size-3.5" />
+				<Play
+					v-if="!isPlaying"
+					class="size-3.5"
+				/>
+				<Pause
+					v-else
+					class="size-3.5"
+				/>
 			</Button>
 
 			<Button
@@ -118,8 +128,14 @@ function handleVolumeChange(value: number[] | undefined) {
 				class="size-7"
 				@click="toggleMute"
 			>
-				<Volume2 v-if="!isMuted" class="size-3.5" />
-				<VolumeX v-else class="size-3.5" />
+				<Volume2
+					v-if="!isMuted"
+					class="size-3.5"
+				/>
+				<VolumeX
+					v-else
+					class="size-3.5"
+				/>
 			</Button>
 		</div>
 

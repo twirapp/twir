@@ -74,6 +74,7 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 	const sliderTime = ref(0)
 	const duration = ref(0)
 	const updateTimeInterval = ref<number>()
+	const shouldAutoplayNext = ref(false)
 
 	// Settings
 	const volume = useLocalStorage('twirPlayerVolume', 10)
@@ -127,9 +128,9 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 			event.target.mute()
 		}
 
-		// Load current video if it exists
+		// Cue current video if it exists (without autoplay)
 		if (currentVideo.value) {
-			event.target.loadVideoById(currentVideo.value.videoId)
+			event.target.cueVideoById(currentVideo.value.videoId)
 		}
 	}
 
@@ -166,6 +167,7 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 			console.log('[YouTube Player] ⏹️ Ended')
 			isPlaying.value = false
 			stopTimeUpdate()
+			shouldAutoplayNext.value = true
 			playNext()
 		} else if (event.data === PlayerState.BUFFERING) {
 			console.log('[YouTube Player] ⏳ Buffering')
@@ -294,7 +296,7 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 		console.log('[YouTube Player] Current video changed:', video?.videoId)
 
 		if (!player.value || !playerReady.value) {
-			console.log('[YouTube Player] Player not ready, will load video when ready')
+			console.log('[YouTube Player] Player not ready, will cue video when ready')
 			return
 		}
 
@@ -302,10 +304,20 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 			player.value.stopVideo()
 			sliderTime.value = 0
 			duration.value = 0
+			shouldAutoplayNext.value = false
 			return
 		}
 
-		player.value.loadVideoById(video.videoId)
+		// If track ended and we're auto-playing next, use loadVideoById
+		// Otherwise use cueVideoById to prevent autoplay
+		if (shouldAutoplayNext.value) {
+			console.log('[YouTube Player] Auto-playing next video')
+			player.value.loadVideoById(video.videoId)
+			shouldAutoplayNext.value = false
+		} else {
+			console.log('[YouTube Player] Cueing video without autoplay')
+			player.value.cueVideoById(video.videoId)
+		}
 	})
 
 	// Watch volume changes
