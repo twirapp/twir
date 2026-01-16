@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 import {
 	ChartContainer,
 	ChartCrosshair,
 	ChartTooltip,
 	ChartTooltipContent,
 	componentToString,
-} from '@/components/ui/chart'
-import { VisAxis, VisLine, VisXYContainer } from '@unovis/vue'
-import type { ChartConfig } from '@/components/ui/chart'
+} from "@/components/ui/chart";
+import { VisAxis, VisLine, VisXYContainer } from "@unovis/vue";
+import type { ChartConfig } from "@/components/ui/chart";
 
 const props = defineProps<{
-	isDayRange: boolean
+	isDayRange: boolean;
 	usages: {
-		timestamp: number
-		count: number
-	}[]
-}>()
+		timestamp: number;
+		count: number;
+	}[];
+}>();
 
 interface Data {
-	timestamp: number
-	date: Date
-	count: number
+	timestamp: number;
+	date: Date;
+	count: number;
 }
 
 const chartData = computed<Data[]>(() => {
@@ -29,32 +29,29 @@ const chartData = computed<Data[]>(() => {
 		timestamp,
 		date: new Date(timestamp),
 		count,
-	}))
-})
+	}));
+});
 
 const chartConfig = {
 	count: {
-		label: 'Views',
+		label: "Views",
 		theme: {
-			light: '#10b981',
-			dark: '#10b981',
+			light: "#10b981",
+			dark: "#10b981",
 		},
 	},
-} satisfies ChartConfig
+} satisfies ChartConfig;
 </script>
 
 <template>
-	<div class="w-full h-[200px]">
-		<ChartContainer
-			:config="chartConfig"
-			class="w-full h-full smooth-chart"
-			cursor
-		>
+	<div class="w-full h-[200px] overflow-hidden">
+		<ChartContainer :config="chartConfig" class="w-full h-full smooth-chart" cursor>
 			<VisXYContainer
 				:data="chartData"
 				:margin="{ left: 0, right: 0, top: 5, bottom: 20 }"
 				:y-domain="[0, undefined]"
 				:duration="300"
+				class="w-full"
 			>
 				<VisLine
 					:x="(d: Data) => d.date"
@@ -71,17 +68,17 @@ const chartConfig = {
 					:num-ticks="props.isDayRange ? 4 : 3"
 					:tick-format="
 						(d: number) => {
-							const date = new Date(d)
+							const date = new Date(d);
 							if (props.isDayRange) {
 								return date.toLocaleTimeString('en-US', {
 									hour: '2-digit',
 									minute: '2-digit',
-								})
+								});
 							}
 							return date.toLocaleDateString('en-US', {
 								month: 'short',
 								day: 'numeric',
-							})
+							});
 						}
 					"
 				/>
@@ -97,20 +94,20 @@ const chartConfig = {
 					:template="
 						componentToString(chartConfig, ChartTooltipContent, {
 							labelFormatter(d) {
-								const date = new Date(d)
+								const date = new Date(d);
 								if (props.isDayRange) {
 									return date.toLocaleString('en-US', {
 										month: 'short',
 										day: 'numeric',
 										hour: '2-digit',
 										minute: '2-digit',
-									})
+									});
 								}
 								return date.toLocaleDateString('en-US', {
 									month: 'short',
 									day: 'numeric',
 									year: 'numeric',
-								})
+								});
 							},
 						})
 					"
