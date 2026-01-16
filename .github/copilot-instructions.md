@@ -18,7 +18,11 @@ adhere to these guidelines strictly to maintain code consistency and quality.
   - **Web (Public Site):** Nuxt 3, TypeScript, Tailwind CSS, shadcn-nuxt, Pinia, Urql.
   - **Backend:** Go (Golang), pgx (PostgreSQL driver), gqlgen (GraphQL).
   - **Tooling:** Bun, Docker.
-
+- **MCP**
+  - If you unsure about some library, please use context7 mcp for lbirary documentation. For example if you know how to use version 3 of some library, but the project uses version 4, you can ask mcp about version 4 documentation.
+  - Please avoid searching the internet for library documentation, always use mcp if NEEDED.
+  - If you need to search the internet for some library documentation, please inform the reviewer.
+  - Let me know when you using mcp, always type about that.
 ---
 
 ### **2. Vue.js Frontend Development (Dashboard & Web)**
