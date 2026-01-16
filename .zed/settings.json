@@ -110,4 +110,10 @@
       },
     },
   },
+  "agent_servers": {
+    "OpenCode": {
+      "command": "opencode",
+      "args": ["acp"],
+    },
+  },
 }
