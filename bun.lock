@@ -269,6 +269,7 @@
     "web": {
       "name": "@twir/web",
       "dependencies": {
+        "@emotion/cache": "11.14.0",
         "@nuxt/fonts": "0.12.1",
         "@nuxt/image": "2.0.0",
         "@nuxt/kit": "4.2.2",
