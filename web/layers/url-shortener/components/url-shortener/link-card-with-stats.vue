@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { LinkOutputDto } from "@twir/api/openapi";
-import { toast } from "vue-sonner";
+import type { LinkOutputDto } from '@twir/api/openapi';
+import { toast } from 'vue-sonner';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import Button from "@/components/ui/button/Button.vue";
-import UrlShortenerLinkChart from "./link-chart.vue";
-import ViewsHistoryDialog from "./views-history-dialog.vue";
-import TopCountriesDialog from "./top-countries-dialog.vue";
-import EditLinkDialog from "./edit-link-dialog.vue";
-import DeleteLinkDialog from "./delete-link-dialog.vue";
-import { useMetaExtractor } from "../../composables/use-meta-extractor";
-import { useShortLinkViewsSubscription } from "../../composables/use-short-link-views-subscription";
+} from '@/components/ui/select';
+import Button from '@/components/ui/button/Button.vue';
+import UrlShortenerLinkChart from './link-chart.vue';
+import ViewsHistoryDialog from './views-history-dialog.vue';
+import TopCountriesDialog from './top-countries-dialog.vue';
+import EditLinkDialog from './edit-link-dialog.vue';
+import DeleteLinkDialog from './delete-link-dialog.vue';
+import { useMetaExtractor } from '../../composables/use-meta-extractor';
+import { useShortLinkViewsSubscription } from '../../composables/use-short-link-views-subscription';
 
 const props = defineProps<{
 	link: LinkOutputDto;
@@ -158,8 +158,8 @@ watch(
 					<Icon v-if="!hasLoaded || !metaData" name="lucide:link" class="w-4 h-4" />
 					<img v-else :src="metaData.favicon" class="w-4 h-4" />
 				</div>
-				<div class="overflow-hidden min-w-0 flex-1">
-					<div class="flex items-center gap-2">
+				<div class="min-w-0 flex-1">
+					<div class="flex items-center gap-2 overflow-hidden min-w-0">
 						<a
 							:href="link.short_url"
 							target="_blank"
@@ -189,7 +189,7 @@ watch(
 							<Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
 						</button>
 					</div>
-					<span class="flex gap-1 items-center">
+					<span class="flex gap-1 items-center max-w-xs overflow-hidden">
 						<Icon
 							name="lucide:corner-down-right"
 							class="w-4 h-4 text-[hsl(240,11%,50%)] shrink-0"
@@ -197,7 +197,7 @@ watch(
 						<a
 							:href="link.url"
 							target="_blank"
-							class="text-sm font-medium text-[hsl(240,11%,50%)] hover:text-[hsl(240,11%,65%)] transition-colors truncate"
+							class="text-sm font-medium text-[hsl(240,11%,50%)] hover:text-[hsl(240,11%,65%)] transition-colors overflow-hidden text-ellipsis truncate"
 						>
 							{{ displayUrl }}
 						</a>
