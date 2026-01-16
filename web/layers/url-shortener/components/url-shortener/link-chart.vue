@@ -51,7 +51,8 @@ const chartConfig = {
 				:margin="{ left: 0, right: 0, top: 5, bottom: 20 }"
 				:y-domain="[0, undefined]"
 				:duration="300"
-
+				:height="200"
+				width="100%"
 			>
 				<VisLine
 					:x="(d: Data) => d.date"
@@ -147,25 +148,5 @@ const chartConfig = {
 		y1 300ms ease-in-out,
 		y2 300ms ease-in-out,
 		opacity 300ms ease-in-out;
-}
-
-.smooth-chart :deep([data-vis-xy-container]) {
-	max-width: 100% !important;
-	width: 100% !important;
-}
-
-.smooth-chart :deep([data-vis-xy-container] svg) {
-	max-width: 100% !important;
-	width: 100% !important;
-}
-
-.smooth-chart :deep([data-vis-single-container]) {
-	max-width: 100% !important;
-	width: 100% !important;
-}
-
-.smooth-chart :deep([data-vis-single-container] svg) {
-	max-width: 100% !important;
-	width: 100% !important;
 }
 </style>
