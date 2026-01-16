@@ -123,13 +123,14 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 
 	newViews := link.Views + 1
 
-	if err := r.service.Update(
+	_, err = r.service.Update(
 		ctx,
 		link.ShortID,
 		shortenedurls.UpdateInput{
 			Views: &newViews,
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot update link", err)
 	}
 

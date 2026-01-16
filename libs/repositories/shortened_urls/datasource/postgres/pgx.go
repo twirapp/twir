@@ -99,10 +99,19 @@ func (c *Pgx) Update(
 ) (model.ShortenedUrl, error) {
 	updateBuilder := sq.Update("shortened_urls").
 		Where(squirrel.Eq{"short_id": id}).
+		Set("updated_at", squirrel.Expr("NOW()")).
 		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent")
 
 	if input.Views != nil {
 		updateBuilder = updateBuilder.Set("views", *input.Views)
+	}
+
+	if input.ShortID != nil {
+		updateBuilder = updateBuilder.Set("short_id", *input.ShortID)
+	}
+
+	if input.URL != nil {
+		updateBuilder = updateBuilder.Set("url", *input.URL)
 	}
 
 	query, args, err := updateBuilder.ToSql()
@@ -213,8 +222,19 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 	error,
 ) {
 	queryBuilder := sq.Select("short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent").
-		From("shortened_urls").
-		OrderBy("created_at DESC")
+		From("shortened_urls")
+
+	// Set sorting order based on SortBy parameter
+	sortBy := input.SortBy
+	if sortBy == "" {
+		sortBy = "created_at" // Default sorting
+	}
+
+	if sortBy == "views" {
+		queryBuilder = queryBuilder.OrderBy("views DESC")
+	} else {
+		queryBuilder = queryBuilder.OrderBy("created_at DESC")
+	}
 
 	countQueryBuilder := sq.Select("COUNT(*)").From("shortened_urls")
 

@@ -1,4 +1,4 @@
-import type { ErrorModel, LinkOutputDto } from '@twir/api/openapi'
+import type { ErrorModel, LinkOutputDto, ShortUrlProfileParamsSortByEnum } from '@twir/api/openapi'
 
 import { useOapi } from '~/composables/use-oapi'
 
@@ -38,7 +38,13 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		}
 	}
 
-	async function refetchLatestShortenedUrls(opts = { page: 0, perPage: 3 }) {
+	async function refetchLatestShortenedUrls(
+		opts: { page?: number; perPage?: number; sortBy?: ShortUrlProfileParamsSortByEnum } = {
+			page: 0,
+			perPage: 3,
+			sortBy: 'views' as ShortUrlProfileParamsSortByEnum,
+		}
+	) {
 		const response = await api.v1.shortUrlProfile(opts)
 
 		latestShortenedUrls.value = response.data.data.items

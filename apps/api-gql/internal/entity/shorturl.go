@@ -12,3 +12,5 @@ type ShortenedUrl struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
+
+var Nil = ShortenedUrl{}

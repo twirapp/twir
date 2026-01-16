@@ -15,8 +15,9 @@ import (
 )
 
 type profileRequestDto struct {
-	Page    int `query:"page" minimum:"0" default:"0"`
-	PerPage int `query:"perPage" minimum:"1" maximum:"100" default:"20"`
+	Page    int    `query:"page" minimum:"0" default:"0"`
+	PerPage int    `query:"perPage" minimum:"1" maximum:"100" default:"20"`
+	SortBy  string `query:"sortBy" enum:"views,created_at" default:"views"`
 }
 
 type linksProfileOutputDto struct {
@@ -74,6 +75,7 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (
 				Page:        input.Page,
 				PerPage:     input.PerPage,
 				OwnerUserID: &user.ID,
+				SortBy:      input.SortBy,
 			},
 		)
 		if err != nil {
@@ -139,12 +141,25 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (
 
 	links = uniqueLinks
 
-	slices.SortFunc(
-		links,
-		func(a, b linkOutputDto) int {
-			return b.CreatedAt.Compare(a.CreatedAt)
-		},
-	)
+	// Sort based on sortBy parameter
+	if input.SortBy == "views" {
+		slices.SortFunc(
+			links,
+			func(a, b linkOutputDto) int {
+				if a.Views != b.Views {
+					return b.Views - a.Views // descending
+				}
+				return b.CreatedAt.Compare(a.CreatedAt) // tie-breaker by date
+			},
+		)
+	} else {
+		slices.SortFunc(
+			links,
+			func(a, b linkOutputDto) int {
+				return b.CreatedAt.Compare(a.CreatedAt)
+			},
+		)
+	}
 
 	if total == 0 {
 		total = len(links)

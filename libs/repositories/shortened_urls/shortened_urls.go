@@ -26,13 +26,16 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
-	Views *int
+	Views   *int
+	ShortID *string
+	URL     *string
 }
 
 type GetListInput struct {
 	Page    int
 	PerPage int
 	UserID  *string
+	SortBy  string // "views" or "created_at"
 }
 
 type GetListOutput struct {

@@ -12,6 +12,8 @@ import Button from '@/components/ui/button/Button.vue'
 import UrlShortenerLinkChart from './link-chart.vue'
 import ViewsHistoryDialog from './views-history-dialog.vue'
 import TopCountriesDialog from './top-countries-dialog.vue'
+import EditLinkDialog from './edit-link-dialog.vue'
+import DeleteLinkDialog from './delete-link-dialog.vue'
 import { useMetaExtractor } from '../../composables/use-meta-extractor'
 import { useShortLinkViewsSubscription } from '../../composables/use-short-link-views-subscription'
 
@@ -76,6 +78,18 @@ const showViewsDialog = ref(false)
 
 // Top countries dialog
 const showTopCountriesDialog = ref(false)
+
+// Edit dialog
+const showEditDialog = ref(false)
+
+// Delete dialog
+const showDeleteDialog = ref(false)
+
+// Emit to parent to refresh list when link is updated/deleted
+const emit = defineEmits<{
+	(e: 'updated'): void
+	(e: 'deleted'): void
+}>()
 
 const clipboardApi = useClipboard()
 
@@ -168,6 +182,26 @@ watch(
 						>
 							<Icon
 								name="lucide:copy"
+								class="w-3.5 h-3.5"
+							/>
+						</button>
+						<button
+							@click="showEditDialog = true"
+							class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
+							title="Edit link"
+						>
+							<Icon
+								name="lucide:pencil"
+								class="w-3.5 h-3.5"
+							/>
+						</button>
+						<button
+							@click="showDeleteDialog = true"
+							class="flex-none p-1.5 rounded-lg border border-red-900/50 hover:border-red-700 bg-red-950/30 hover:bg-red-950/50 text-red-400 hover:text-red-300 transition-colors"
+							title="Delete link"
+						>
+							<Icon
+								name="lucide:trash-2"
 								class="w-3.5 h-3.5"
 							/>
 						</button>
@@ -281,5 +315,26 @@ watch(
 			:short-link-id="link.id"
 			:short-url="displayShortUrl"
 		/>
+
+		<!-- Edit Link Dialog -->
+		<ClientOnly>
+			<EditLinkDialog
+				v-model:open="showEditDialog"
+				:link-id="link.id"
+				:current-short-id="link.id"
+				:current-url="link.url"
+				@updated="emit('updated')"
+			/>
+		</ClientOnly>
+
+		<!-- Delete Link Dialog -->
+		<ClientOnly>
+			<DeleteLinkDialog
+				v-model:open="showDeleteDialog"
+				:link-id="link.id"
+				:short-url="displayShortUrl"
+				@deleted="emit('deleted')"
+			/>
+		</ClientOnly>
 	</div>
 </template>

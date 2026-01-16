@@ -107,24 +107,40 @@ func (c *Service) GetByUrl(ctx context.Context, url string) (model.ShortenedUrl,
 }
 
 type UpdateInput struct {
-	Views *int
+	Views   *int
+	ShortID *string
+	URL     *string
 }
 
-func (c *Service) Update(ctx context.Context, id string, input UpdateInput) error {
-	_, err := c.repository.Update(
+func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (entity.ShortenedUrl, error) {
+	updatedModel, err := c.repository.Update(
 		ctx,
 		id,
 		shortenedurlsrepository.UpdateInput{
-			Views: input.Views,
+			Views:   input.Views,
+			ShortID: input.ShortID,
+			URL:     input.URL,
 		},
 	)
-	return err
+	if err != nil {
+		return entity.Nil, err
+	}
+
+	return entity.ShortenedUrl{
+		ID:          updatedModel.ShortID,
+		Link:        updatedModel.URL,
+		Views:       updatedModel.Views,
+		CreatedAt:   updatedModel.CreatedAt,
+		UpdatedAt:   updatedModel.UpdatedAt,
+		OwnerUserID: updatedModel.CreatedByUserId,
+	}, nil
 }
 
 type GetListInput struct {
 	Page        int
 	PerPage     int
 	OwnerUserID *string
+	SortBy      string // "views" or "created_at"
 }
 
 type GetListOutput struct {
@@ -148,6 +164,7 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) (GetListOutpu
 			Page:    page,
 			PerPage: perPage,
 			UserID:  input.OwnerUserID,
+			SortBy:  input.SortBy,
 		},
 	)
 	if err != nil {

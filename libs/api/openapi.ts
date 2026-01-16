@@ -51,6 +51,15 @@ export interface BaseOutputBodyJsonIntegrationsValorantStatsOutput {
   data: IntegrationsValorantStatsOutput;
 }
 
+export interface BaseOutputBodyJsonInterface {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: any;
+}
+
 export interface BaseOutputBodyJsonLinkOutputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -594,6 +603,26 @@ export interface TwirStatsResponseBody {
   viewers: number;
 }
 
+export interface UpdateRequestDtoBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /**
+   * @minLength 3
+   * @maxLength 50
+   * @pattern ^[a-zA-Z0-9]+$
+   */
+  new_short_id?: string;
+  /**
+   * @format uri
+   * @minLength 1
+   * @maxLength 2048
+   */
+  url?: string;
+}
+
 export enum CommandResponseDtoCooldownTypeEnum {
   GLOBAL = "GLOBAL",
   PER_USER = "PER_USER",
@@ -613,6 +642,12 @@ export enum ExpireExpiresTypeEnum {
 export enum ScheduledVipOutputDtoRemoveTypeEnum {
   Time = "time",
   StreamEnd = "stream_end",
+}
+
+/** @default "views" */
+export enum ShortUrlProfileParamsSortByEnum {
+  Views = "views",
+  CreatedAt = "created_at",
 }
 
 /** @default "day" */
@@ -1208,6 +1243,8 @@ export class Api<SecurityDataType extends unknown> {
          * @default 20
          */
         perPage?: number;
+        /** @default "views" */
+        sortBy?: ShortUrlProfileParamsSortByEnum;
       },
       params: RequestParams = {},
     ) =>
@@ -1243,6 +1280,26 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Short links
+     * @name ShortUrlDelete
+     * @summary Delete short url
+     * @request DELETE:/v1/short-links/{shortId}
+     * @secure
+     * @response `200` `BaseOutputBodyJsonInterface` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortUrlDelete: (shortId: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonInterface, any>({
+        path: `/v1/short-links/${shortId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
      * @name ShortUrlRedirect
      * @summary Redirect to url
      * @request GET:/v1/short-links/{shortId}
@@ -1253,6 +1310,28 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<ErrorModel, void>({
         path: `/v1/short-links/${shortId}`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortUrlUpdate
+     * @summary Update short url
+     * @request PATCH:/v1/short-links/{shortId}
+     * @secure
+     * @response `200` `BaseOutputBodyJsonLinkOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortUrlUpdate: (shortId: string, data: UpdateRequestDtoBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonLinkOutputDto, any>({
+        path: `/v1/short-links/${shortId}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
