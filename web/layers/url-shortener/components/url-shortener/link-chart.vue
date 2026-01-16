@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed } from 'vue';
+import type { ChartConfig } from '@/components/ui/chart';
 import {
 	ChartContainer,
 	ChartCrosshair,
 	ChartTooltip,
 	ChartTooltipContent,
 	componentToString,
-} from "@/components/ui/chart";
-import { VisAxis, VisLine, VisXYContainer } from "@unovis/vue";
-import type { ChartConfig } from "@/components/ui/chart";
+} from '@/components/ui/chart';
+import { VisAxis, VisLine, VisXYContainer } from '@unovis/vue';
 
 const props = defineProps<{
 	isDayRange: boolean;
@@ -44,14 +44,14 @@ const chartConfig = {
 </script>
 
 <template>
-	<div class="w-full h-[200px] overflow-hidden">
+	<div class="chart-container">
 		<ChartContainer :config="chartConfig" class="w-full h-full smooth-chart" cursor>
 			<VisXYContainer
 				:data="chartData"
 				:margin="{ left: 0, right: 0, top: 5, bottom: 20 }"
 				:y-domain="[0, undefined]"
 				:duration="300"
-				class="w-full"
+
 			>
 				<VisLine
 					:x="(d: Data) => d.date"
@@ -119,6 +119,14 @@ const chartConfig = {
 </template>
 
 <style scoped>
+.chart-container {
+	width: 100%;
+	height: 200px;
+	max-width: 100%;
+	overflow: hidden;
+	position: relative;
+}
+
 .smooth-chart :deep(path) {
 	transition:
 		d 300ms ease-in-out,
@@ -139,5 +147,25 @@ const chartConfig = {
 		y1 300ms ease-in-out,
 		y2 300ms ease-in-out,
 		opacity 300ms ease-in-out;
+}
+
+.smooth-chart :deep([data-vis-xy-container]) {
+	max-width: 100% !important;
+	width: 100% !important;
+}
+
+.smooth-chart :deep([data-vis-xy-container] svg) {
+	max-width: 100% !important;
+	width: 100% !important;
+}
+
+.smooth-chart :deep([data-vis-single-container]) {
+	max-width: 100% !important;
+	width: 100% !important;
+}
+
+.smooth-chart :deep([data-vis-single-container] svg) {
+	max-width: 100% !important;
+	width: 100% !important;
 }
 </style>
