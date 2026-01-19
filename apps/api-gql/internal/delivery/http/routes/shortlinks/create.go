@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
@@ -72,14 +73,19 @@ type createLinkInput struct {
 }
 
 type createLinkInputDto struct {
-	Url   string `json:"url" required:"true" format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
-	Alias string `json:"alias" required:"false" minLength:"3" maxLength:"30" example:"stream" pattern:"^[a-zA-Z0-9]+$"`
+	Url   string `json:"url"   required:"true"  format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
+	Alias string `json:"alias" required:"false"              minLength:"3" maxLength:"30"   example:"stream"              pattern:"^[a-zA-Z0-9]+$"`
 }
 
 func (c *create) Handler(
 	ctx context.Context,
 	input *createLinkInput,
 ) (*httpbase.BaseOutputJson[linkOutputDto], error) {
+	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, c.config.SiteBaseUrl)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get base URL", err)
+	}
+
 	if input.Body.Alias == "" {
 		existedLink, err := c.service.GetByUrl(ctx, input.Body.Url)
 		if err != nil {
@@ -87,14 +93,14 @@ func (c *create) Handler(
 		}
 
 		if existedLink != model.Nil {
-			baseUrl, _ := url.Parse(c.config.SiteBaseUrl)
-			baseUrl.Path = "/s/" + existedLink.ShortID
+			parsedBaseUrl, _ := url.Parse(baseUrl)
+			parsedBaseUrl.Path = "/s/" + existedLink.ShortID
 
 			return httpbase.CreateBaseOutputJson(
 				linkOutputDto{
 					Id:        existedLink.ShortID,
 					Url:       existedLink.URL,
-					ShortUrl:  baseUrl.String(),
+					ShortUrl:  parsedBaseUrl.String(),
 					Views:     existedLink.Views,
 					CreatedAt: existedLink.CreatedAt,
 				},
@@ -150,8 +156,8 @@ func (c *create) Handler(
 		return nil, huma.NewError(http.StatusNotFound, "Cannot generate short id", err)
 	}
 
-	baseUrl, _ := url.Parse(c.config.SiteBaseUrl)
-	baseUrl.Path = "/s/" + link.ShortID
+	parsedBaseUrl, _ := url.Parse(baseUrl)
+	parsedBaseUrl.Path = "/s/" + link.ShortID
 
 	if err := c.sessions.AddLatestShortenerUrlsId(ctx, link.ShortID); err != nil {
 		c.logger.Warn("Cannot save latest short links ids to session: " + err.Error())
@@ -161,7 +167,7 @@ func (c *create) Handler(
 		linkOutputDto{
 			Id:        link.ShortID,
 			Url:       link.URL,
-			ShortUrl:  baseUrl.String(),
+			ShortUrl:  parsedBaseUrl.String(),
 			Views:     link.Views,
 			CreatedAt: link.CreatedAt,
 		},

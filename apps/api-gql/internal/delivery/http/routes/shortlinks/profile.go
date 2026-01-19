@@ -9,15 +9,16 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
 )
 
 type profileRequestDto struct {
-	Page    int    `query:"page" minimum:"0" default:"0"`
-	PerPage int    `query:"perPage" minimum:"1" maximum:"100" default:"20"`
-	SortBy  string `query:"sortBy" enum:"views,created_at" default:"views"`
+	Page    int    `query:"page"    minimum:"0" default:"0"`
+	PerPage int    `query:"perPage" minimum:"1" default:"20"    maximum:"100"`
+	SortBy  string `query:"sortBy"              default:"views"               enum:"views,created_at"`
 }
 
 type linksProfileOutputDto struct {
@@ -68,6 +69,11 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (
 		total int
 	)
 
+	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, p.config.SiteBaseUrl)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get base URL", err)
+	}
+
 	user, err := p.sessions.GetAuthenticatedUserModel(ctx)
 	if user != nil && err == nil {
 		data, err := p.service.GetList(
@@ -83,17 +89,17 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (
 		}
 		total = data.Total
 
-		baseUrl, _ := url.Parse(p.config.SiteBaseUrl)
+		parsedBaseUrl, _ := url.Parse(baseUrl)
 
 		for _, link := range data.List {
-			baseUrl.Path = "/s/" + link.ID
+			parsedBaseUrl.Path = "/s/" + link.ID
 
 			links = append(
 				links,
 				linkOutputDto{
 					Id:        link.ID,
 					Url:       link.Link,
-					ShortUrl:  baseUrl.String(),
+					ShortUrl:  parsedBaseUrl.String(),
 					Views:     link.Views,
 					CreatedAt: link.CreatedAt,
 				},
@@ -108,15 +114,15 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (
 		}
 
 		for _, link := range data {
-			baseUrl, _ := url.Parse(p.config.SiteBaseUrl)
-			baseUrl.Path = "/s/" + link.ShortID
+			parsedBaseUrl, _ := url.Parse(baseUrl)
+			parsedBaseUrl.Path = "/s/" + link.ShortID
 
 			links = append(
 				links,
 				linkOutputDto{
 					Id:        link.ShortID,
 					Url:       link.URL,
-					ShortUrl:  baseUrl.String(),
+					ShortUrl:  parsedBaseUrl.String(),
 					Views:     link.Views,
 					CreatedAt: link.CreatedAt,
 				},

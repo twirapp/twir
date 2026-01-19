@@ -20,6 +20,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	config "github.com/twirapp/twir/libs/config"
 	faceitintegrationentity "github.com/twirapp/twir/libs/entities/faceit_integration"
 	faceitintegration "github.com/twirapp/twir/libs/repositories/faceit_integration"
@@ -73,8 +74,9 @@ func (s *Service) GetIntegrationData(ctx context.Context, channelID string) (
 	return integration, nil
 }
 
-func (s *Service) getCallbackUrl() (string, error) {
-	u, err := url.Parse(s.config.SiteBaseUrl)
+func (s *Service) getCallbackUrl(ctx context.Context) (string, error) {
+	baseUrl, _ := gincontext.GetBaseUrlFromContext(ctx, s.config.SiteBaseUrl)
+	u, err := url.Parse(baseUrl)
 	if err != nil {
 		return "", fmt.Errorf("invalid site base URL: %w", err)
 	}
@@ -137,7 +139,7 @@ func (s *Service) GetAuthLink(ctx context.Context, dashboardID string) (*AuthLin
 
 	codeChallange := generatePkceCodeChallenge(codeVerifier)
 
-	redirectUrl, err := s.getCallbackUrl()
+	redirectUrl, err := s.getCallbackUrl(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get redirect URL: %w", err)
 	}
@@ -173,7 +175,7 @@ func (s *Service) PostCode(ctx context.Context, dashboardId, code string) error 
 		return fmt.Errorf("failed to get faceit integration: %w", err)
 	}
 
-	redirectUrl, err := s.getCallbackUrl()
+	redirectUrl, err := s.getCallbackUrl(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get redirect URL: %w", err)
 	}

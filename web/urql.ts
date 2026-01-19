@@ -1,10 +1,9 @@
-import { cacheExchange, fetchExchange, subscriptionExchange } from '@urql/vue'
-import { createClient as createWS } from 'graphql-ws'
+import type { SSRExchange } from '@urql/vue';
+import { cacheExchange, fetchExchange, subscriptionExchange } from '@urql/vue';
+import type { SubscribePayload } from 'graphql-ws';
+import { createClient as createWS } from 'graphql-ws';
 
-import type { SSRExchange } from '@urql/vue'
-import type { SubscribePayload } from 'graphql-ws'
-
-import { defineUrqlClient } from '#urql/client'
+import { defineUrqlClient } from '#urql/client';
 
 export default defineUrqlClient((ssrExchange) => {
 	const exchanges = import.meta.server ? setupServer(ssrExchange) : setupClient(ssrExchange)
@@ -17,6 +16,8 @@ export default defineUrqlClient((ssrExchange) => {
 		'x-forwarded-host',
 		'x-real-ip',
 		'cf-connecting-ip',
+		'X-Ru-Detected-IP',
+		'remote-host',
 	])
 
 	return {

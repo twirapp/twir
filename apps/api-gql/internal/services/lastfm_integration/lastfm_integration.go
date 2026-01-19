@@ -3,9 +3,11 @@ package lastfmintegration
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	lfmapi "github.com/shkh/lastfm-go/lastfm"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	"go.uber.org/fx"
@@ -30,15 +32,30 @@ type Service struct {
 	config cfg.Config
 }
 
+func (s *Service) getCallbackUrl(ctx context.Context) (string, error) {
+	baseUrl, _ := gincontext.GetBaseUrlFromContext(ctx, s.config.SiteBaseUrl)
+	u, err := url.Parse(baseUrl)
+	if err != nil {
+		return "", fmt.Errorf("invalid site base URL: %w", err)
+	}
+
+	return u.JoinPath("dashboard", "integrations", "lastfm").String(), nil
+}
+
 func (s *Service) GetAuthLink(ctx context.Context) (string, error) {
-	if s.config.LastFM.ApiKey == "" || s.config.LastFM.RedirectURL == "" {
+	if s.config.LastFM.ApiKey == "" {
 		return "", fmt.Errorf("lastfm integration not configured")
+	}
+
+	redirectUrl, err := s.getCallbackUrl(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to get redirect URL: %w", err)
 	}
 
 	link := fmt.Sprintf(
 		"https://www.last.fm/api/auth/?api_key=%s&cb=%s",
 		s.config.LastFM.ApiKey,
-		s.config.LastFM.RedirectURL,
+		redirectUrl,
 	)
 
 	return link, nil

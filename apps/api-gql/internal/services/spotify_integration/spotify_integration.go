@@ -13,6 +13,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
+	config "github.com/twirapp/twir/libs/config"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
@@ -31,15 +33,18 @@ type spotifyTokensResponse struct {
 type Service struct {
 	spotifyRepository channelsintegrationsspotify.Repository
 	integrationsRepo  integrations.Repository
+	config            config.Config
 }
 
 func New(
 	spotifyRepository channelsintegrationsspotify.Repository,
 	integrationsRepo integrations.Repository,
+	cfg config.Config,
 ) *Service {
 	return &Service{
 		spotifyRepository: spotifyRepository,
 		integrationsRepo:  integrationsRepo,
+		config:            cfg,
 	}
 }
 
@@ -62,6 +67,16 @@ func (s *Service) GetSpotifyData(
 	}, nil
 }
 
+func (s *Service) getCallbackUrl(ctx context.Context) (string, error) {
+	baseUrl, _ := gincontext.GetBaseUrlFromContext(ctx, s.config.SiteBaseUrl)
+	u, err := url.Parse(baseUrl)
+	if err != nil {
+		return "", fmt.Errorf("invalid site base URL: %w", err)
+	}
+
+	return u.JoinPath("dashboard", "integrations", "spotify").String(), nil
+}
+
 func (s *Service) PostCode(
 	ctx context.Context,
 	channelID string,
@@ -72,13 +87,18 @@ func (s *Service) PostCode(
 		return fmt.Errorf("failed to get integration: %w", err)
 	}
 
-	if integration.ClientID == nil || integration.ClientSecret == nil || integration.RedirectURL == nil {
+	if integration.ClientID == nil || integration.ClientSecret == nil {
 		return fmt.Errorf("spotify not enabled on our side, please be patient")
+	}
+
+	redirectUrl, err := s.getCallbackUrl(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get redirect URL: %w", err)
 	}
 
 	formData := url.Values{}
 	formData.Set("grant_type", "authorization_code")
-	formData.Set("redirect_uri", *integration.RedirectURL)
+	formData.Set("redirect_uri", redirectUrl)
 	formData.Set("code", code)
 
 	req, err := http.NewRequestWithContext(
@@ -144,11 +164,8 @@ func (s *Service) PostCode(
 				String: *integration.ClientSecret,
 				Valid:  true,
 			},
-			APIKey: sql.NullString{},
-			RedirectURL: sql.NullString{
-				String: *integration.RedirectURL,
-				Valid:  true,
-			},
+			APIKey:      sql.NullString{},
+			RedirectURL: sql.NullString{},
 		},
 		model.ChannelIntegrationSpotify{
 			AccessToken:  data.AccessToken,
@@ -194,8 +211,13 @@ func (s *Service) GetAuthLink(
 		return "", err
 	}
 
-	if integration.ClientID == nil || integration.ClientSecret == nil || integration.RedirectURL == nil {
+	if integration.ClientID == nil || integration.ClientSecret == nil {
 		return "", fmt.Errorf("spotify not enabled on our side, please be patient")
+	}
+
+	redirectUrl, err := s.getCallbackUrl(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to get redirect URL: %w", err)
 	}
 
 	link, _ := url.Parse("https://accounts.spotify.com/authorize")
@@ -204,7 +226,7 @@ func (s *Service) GetAuthLink(
 	q.Add("response_type", "code")
 	q.Add("client_id", *integration.ClientID)
 	q.Add("scope", "user-read-currently-playing user-read-playback-state user-read-recently-played")
-	q.Add("redirect_uri", *integration.RedirectURL)
+	q.Add("redirect_uri", redirectUrl)
 	link.RawQuery = q.Encode()
 
 	return link.String(), nil

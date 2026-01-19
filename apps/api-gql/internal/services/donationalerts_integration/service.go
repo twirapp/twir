@@ -12,6 +12,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	config "github.com/twirapp/twir/libs/config"
@@ -84,8 +85,9 @@ func (s *Service) GetIntegrationData(ctx context.Context, channelID string) (
 	return s.mapModelToEntity(integration), nil
 }
 
-func (s *Service) getCallbackUrl() (string, error) {
-	u, err := url.Parse(s.config.SiteBaseUrl)
+func (s *Service) getCallbackUrl(ctx context.Context) (string, error) {
+	baseUrl, _ := gincontext.GetBaseUrlFromContext(ctx, s.config.SiteBaseUrl)
+	u, err := url.Parse(baseUrl)
 	if err != nil {
 		return "", fmt.Errorf("invalid site base URL: %w", err)
 	}
@@ -98,7 +100,7 @@ func (s *Service) GetAuthLink(ctx context.Context) (*AuthLinkResponse, error) {
 		return nil, errors.New("donationalerts integration not properly configured")
 	}
 
-	redirectUrl, err := s.getCallbackUrl()
+	redirectUrl, err := s.getCallbackUrl(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get redirect URL: %w", err)
 	}
@@ -134,7 +136,7 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 		return fmt.Errorf("failed to get donationalerts integration: %w", err)
 	}
 
-	redirectUrl, err := s.getCallbackUrl()
+	redirectUrl, err := s.getCallbackUrl(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get redirect URL: %w", err)
 	}

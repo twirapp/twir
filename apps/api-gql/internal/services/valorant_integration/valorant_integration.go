@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/valorant"
 	channelsintegrationsvalorant "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant"
@@ -132,9 +133,24 @@ func (c *Service) GetChannelMmr(ctx context.Context, channelID string) (
 	return response, nil
 }
 
-func (c *Service) GetAuthLink(_ context.Context) (string, error) {
-	if c.config.Valorant.ClientID == "" || c.config.Valorant.ClientSecret == "" || c.config.Valorant.RedirectURL == "" {
+func (c *Service) getCallbackUrl(ctx context.Context) (string, error) {
+	baseUrl, _ := gincontext.GetBaseUrlFromContext(ctx, c.config.SiteBaseUrl)
+	u, err := url.Parse(baseUrl)
+	if err != nil {
+		return "", fmt.Errorf("invalid site base URL: %w", err)
+	}
+
+	return u.JoinPath("dashboard", "integrations", "valorant").String(), nil
+}
+
+func (c *Service) GetAuthLink(ctx context.Context) (string, error) {
+	if c.config.Valorant.ClientID == "" || c.config.Valorant.ClientSecret == "" {
 		return "", fmt.Errorf("valorant not enabled on our side, please be patient")
+	}
+
+	redirectUrl, err := c.getCallbackUrl(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to get redirect URL: %w", err)
 	}
 
 	link, _ := url.Parse("https://auth.riotgames.com/authorize")
@@ -143,7 +159,7 @@ func (c *Service) GetAuthLink(_ context.Context) (string, error) {
 	q.Add("response_type", "code")
 	q.Add("client_id", c.config.Valorant.ClientID)
 	q.Add("scope", strings.Join([]string{"openid", "offline_access", "cpid"}, "+"))
-	q.Add("redirect_uri", c.config.Valorant.RedirectURL)
+	q.Add("redirect_uri", redirectUrl)
 	link.RawQuery = q.Encode()
 
 	return link.String(), nil
@@ -178,14 +194,19 @@ func (c *Service) PostCode(
 	channelID string,
 	code string,
 ) error {
-	if c.config.Valorant.ClientID == "" || c.config.Valorant.ClientSecret == "" || c.config.Valorant.RedirectURL == "" {
+	if c.config.Valorant.ClientID == "" || c.config.Valorant.ClientSecret == "" {
 		return fmt.Errorf("valorant not enabled on our side, please be patient")
+	}
+
+	redirectUrl, err := c.getCallbackUrl(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get redirect URL: %w", err)
 	}
 
 	// Exchange code for tokens
 	formData := url.Values{}
 	formData.Set("grant_type", "authorization_code")
-	formData.Set("redirect_uri", c.config.Valorant.RedirectURL)
+	formData.Set("redirect_uri", redirectUrl)
 	formData.Set("code", code)
 
 	tokenReq, err := http.NewRequestWithContext(

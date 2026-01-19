@@ -14,6 +14,7 @@ import (
 	"sync"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/discord"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -45,14 +46,15 @@ type Service struct {
 	bus    *buscore.Bus
 }
 
-func (s *Service) GetAuthLink(_ context.Context) (string, error) {
+func (s *Service) GetAuthLink(ctx context.Context) (string, error) {
 	if s.config.DiscordClientID == "" || s.config.DiscordClientSecret == "" {
 		return "", fmt.Errorf("discord not enabled on our side, please be patient")
 	}
 
 	u, _ := url.Parse("https://discord.com/oauth2/authorize")
 
-	redirectUrl := fmt.Sprintf("%s/dashboard/integrations/discord", s.config.SiteBaseUrl)
+	baseUrl, _ := gincontext.GetBaseUrlFromContext(ctx, s.config.SiteBaseUrl)
+	redirectUrl := fmt.Sprintf("%s/dashboard/integrations/discord", baseUrl)
 
 	q := u.Query()
 	q.Add("client_id", s.config.DiscordClientID)
@@ -163,13 +165,15 @@ func (s *Service) ConnectGuild(ctx context.Context, channelID, code string) erro
 
 	res := discordPostCodeResponse{}
 
+	baseUrl, _ := gincontext.GetBaseUrlFromContext(ctx, s.config.SiteBaseUrl)
+
 	formData := url.Values{}
 	formData.Set("grant_type", "authorization_code")
 	formData.Set("code", code)
 	formData.Set(
 		"redirect_uri", fmt.Sprintf(
 			"%s/dashboard/integrations/discord",
-			s.config.SiteBaseUrl,
+			baseUrl,
 		),
 	)
 

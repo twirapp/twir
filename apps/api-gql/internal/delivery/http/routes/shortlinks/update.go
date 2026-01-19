@@ -8,6 +8,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls"
@@ -115,14 +116,19 @@ func (u *updateRoute) Handler(
 	}
 
 	// Build short URL
-	baseUrl, _ := url.Parse(u.config.SiteBaseUrl)
-	baseUrl.Path = "/s/" + updatedLink.ID
+	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, u.config.SiteBaseUrl)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get base URL", err)
+	}
+
+	parsedBaseUrl, _ := url.Parse(baseUrl)
+	parsedBaseUrl.Path = "/s/" + updatedLink.ID
 
 	return httpbase.CreateBaseOutputJson(
 		linkOutputDto{
 			Id:        updatedLink.ID,
 			Url:       updatedLink.Link,
-			ShortUrl:  baseUrl.String(),
+			ShortUrl:  parsedBaseUrl.String(),
 			Views:     updatedLink.Views,
 			CreatedAt: updatedLink.CreatedAt,
 		},
