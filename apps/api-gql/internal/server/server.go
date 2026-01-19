@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -54,19 +53,6 @@ func New(opts Opts) (*Server, error) {
 	r.Use(gin.Recovery())
 	r.Use(gincontext.Middleware())
 	r.Use(opts.Middlewares.RateLimit("global", 1000, 60*time.Second))
-	r.Use(
-		func(c *gin.Context) {
-			fmt.Println(
-				fmt.Sprintf(
-					"request to %s from %s with x-twir-client-ip=%s",
-					c.Request.URL.Path,
-					c.ClientIP(),
-					c.GetHeader("x-twir-client-ip"),
-				),
-			)
-			fmt.Println(c.Request.Header)
-		},
-	)
 
 	server := &Server{
 		r,
