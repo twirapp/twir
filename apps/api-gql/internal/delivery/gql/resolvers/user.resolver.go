@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"net/url"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -17,6 +18,7 @@ import (
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
@@ -274,14 +276,24 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 
 // AuthLink is the resolver for the authLink field.
 func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string, error) {
+	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, r.deps.Config.SiteBaseUrl)
+	if err != nil {
+		return "", err
+	}
+
 	if redirectTo == "" {
 		return "", fmt.Errorf("incorrect auth link %s", redirectTo)
+	}
+
+	u, err := url.Parse(baseUrl)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse base url: %w", err)
 	}
 
 	twitchClient, err := helix.NewClientWithContext(
 		ctx, &helix.Options{
 			ClientID:    r.deps.Config.TwitchClientId,
-			RedirectURI: r.deps.Config.GetTwitchCallbackUrl(),
+			RedirectURI: u.JoinPath("login").String(),
 		},
 	)
 	if err != nil {
