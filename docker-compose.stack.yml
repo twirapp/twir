@@ -493,8 +493,8 @@ services:
         max_attempts: 30
       resources:
         limits:
-          cpus: "1.0"
-          memory: 2G
+          cpus: "0.5"
+          memory: 1500M
       mode: replicated
       replicas: 4
       endpoint_mode: dnsrr
