@@ -69,13 +69,13 @@ export default defineNuxtConfig({
 	app: {
 		head: {
 			script: [
-				// {
-				// 	src: 'https://rybbit.a.twir.app/api/script.js',
-				// 	async: true,
-				// 	defer: true,
-				// 	'data-site-id': '1',
-				// 	'data-mask-patterns': '["/overlays/**"]',
-				// },
+				{
+					src: 'https://rybbit.twir.app/api/script.js',
+					async: true,
+					defer: true,
+					'data-site-id': '1',
+					'data-mask-patterns': '["/overlays/**"]',
+				},
 			],
 		},
 	},
