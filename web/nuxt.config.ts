@@ -73,7 +73,7 @@ export default defineNuxtConfig({
 					src: 'https://rybbit.twir.app/api/script.js',
 					async: true,
 					defer: true,
-					'data-site-id': '1',
+					'data-site-id': '8eaa535a44ba',
 					'data-mask-patterns': '["/overlays/**"]',
 				},
 			],
