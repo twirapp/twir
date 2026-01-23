@@ -13,9 +13,24 @@ services:
   postgres:
     image: postgres:18.1
     restart: unless-stopped
-    command: postgres -c 'max_connections=500'
+    #    command: postgres -c 'max_connections=500' -c wal_level=replica -c max_wal_senders=10
+    command: >
+      bash -c "
+      docker-entrypoint.sh postgres -c max_connections=500 -c wal_level=replica -c max_wal_senders=10 &
+      PG_PID=$$!;
+
+      until pg_isready -U twir 2>/dev/null; do sleep 1; done;
+
+      if ! grep -q 'host replication replicator all scram-sha-256' /var/lib/postgresql/18/docker/pg_hba.conf 2>/dev/null; then
+        echo 'host replication replicator all scram-sha-256' >> /var/lib/postgresql/18/docker/pg_hba.conf;
+        psql -U twir -d twir -c 'SELECT pg_reload_conf();' 2>/dev/null || true;
+      fi;
+
+      wait $$PG_PID
+      "
     volumes:
       - postgres-data:/var/lib/postgresql
+      - ./configs/postgres/primary-init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "54321:5432"
     environment:
@@ -24,6 +39,37 @@ services:
       POSTGRES_DB: twir
     networks:
       - twir-dev
+
+  postgres-replica:
+    image: postgres:18.1
+    environment:
+      POSTGRES_USER: twir
+      POSTGRES_PASSWORD: twir
+      POSTGRES_DB: twir
+    user: postgres
+    entrypoint: [ "/bin/bash", "-c" ]
+    command: >
+      "
+      echo 'Waiting for primary...';
+      until pg_isready -h postgres -p 5432 -U twir; do sleep 2; done;
+
+      echo 'Primary ready. Initializing replica...';
+      rm -rf /var/lib/postgresql/18/docker;
+      mkdir -p /var/lib/postgresql/18;
+
+      PGPASSWORD=replicator pg_basebackup -h postgres -U replicator -D /var/lib/postgresql/18/docker -Fp -Xs -R -P;
+
+      echo 'Basebackup complete. Starting PostgreSQL in standby mode...';
+      exec postgres -c max_connections=500  -c log_statement=all -c log_connections=on -c hot_standby=on
+      "
+    depends_on:
+      - postgres
+    networks:
+      - twir-dev
+    deploy:
+      replicas: 3
+      endpoint_mode: dnsrr
+
 
   pgdog:
     image: ghcr.io/pgdogdev/pgdog:v0.1.25
@@ -176,6 +222,8 @@ services:
 volumes:
   redis-data:
   postgres-data:
+  postgres-replica1-data:
+  postgres-replica2-data:
   rustfs-data:
   clickhouse-data:
 
