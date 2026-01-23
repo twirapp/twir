@@ -129,9 +129,9 @@ type EventOperationFilter {
 
 input EventCreateInput {
 	type: EventType! @validate(constraint: "required")
-	rewardId: String @validate(constraint: "uuid4,omitempty")
-	commandId: String @validate(constraint: "uuid4,omitempty")
-	keywordId: String @validate(constraint: "uuid4,omitempty")
+	rewardId: String @validate(constraint: "uuid,omitempty")
+	commandId: String @validate(constraint: "uuid,omitempty")
+	keywordId: String @validate(constraint: "uuid,omitempty")
 	description: String! @validate(constraint: "required,max=20")
 	enabled: Boolean!
 	onlineOnly: Boolean!
@@ -140,9 +140,9 @@ input EventCreateInput {
 
 input EventUpdateInput {
 	type: EventType
-	rewardId: String @validate(constraint: "uuid4,omitempty")
-	commandId: String @validate(constraint: "uuid4,omitempty")
-	keywordId: String @validate(constraint: "uuid4,omitempty")
+	rewardId: String @validate(constraint: "uuid,omitempty")
+	commandId: String @validate(constraint: "uuid,omitempty")
+	keywordId: String @validate(constraint: "uuid,omitempty")
 	description: String @validate(constraint: "max=20,omitempty")
 	enabled: Boolean
 	onlineOnly: Boolean
