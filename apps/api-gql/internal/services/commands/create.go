@@ -8,9 +8,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/libs/audit"
+	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
+	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 )
@@ -41,6 +42,7 @@ type CreateInput struct {
 	ExpiresAt                 *int
 	ExpiresType               *string
 	Responses                 []CreateInputResponse
+	RoleCooldowns             []CreateInputRoleCooldown
 }
 
 type CreateInputResponse struct {
@@ -51,18 +53,23 @@ type CreateInputResponse struct {
 	OfflineOnly       bool
 }
 
-func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command, error) {
+type CreateInputRoleCooldown struct {
+	RoleID   string
+	Cooldown int
+}
+
+func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrelationentity.Command, error) {
 	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.CommandNil, fmt.Errorf("failed to get plan: %w", err)
+		return commandwithrelationentity.CommandNil, fmt.Errorf("failed to get plan: %w", err)
 	}
 	if plan.IsNil() {
-		return entity.CommandNil, fmt.Errorf("plan not found for channel")
+		return commandwithrelationentity.CommandNil, fmt.Errorf("plan not found for channel")
 	}
 
 	cmds, err := c.commandsRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.CommandNil, fmt.Errorf("failed to get commands: %w", err)
+		return commandwithrelationentity.CommandNil, fmt.Errorf("failed to get commands: %w", err)
 	}
 
 	var createdCommands int
@@ -73,11 +80,11 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 	}
 
 	if createdCommands >= plan.MaxCommands {
-		return entity.CommandNil, fmt.Errorf("maximum commands limit reached")
+		return commandwithrelationentity.CommandNil, fmt.Errorf("maximum commands limit reached")
 	}
 
 	if len(input.Responses) > plan.MaxCommandsResponses {
-		return entity.CommandNil, fmt.Errorf("you can have only %v responses per command", plan.MaxCommandsResponses)
+		return commandwithrelationentity.CommandNil, fmt.Errorf("you can have only %v responses per command", plan.MaxCommandsResponses)
 	}
 
 	isNameConflict, err := c.IsNameConflicting(
@@ -87,10 +94,10 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 		nil,
 	)
 	if err != nil {
-		return entity.CommandNil, err
+		return commandwithrelationentity.CommandNil, err
 	}
 	if isNameConflict {
-		return entity.CommandNil, fmt.Errorf("command with this name or alias already exists")
+		return commandwithrelationentity.CommandNil, fmt.Errorf("command with this name or alias already exists")
 	}
 
 	aliases := make([]string, 0, len(input.Aliases))
@@ -160,6 +167,26 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 				}
 			}
 
+			// Create role cooldowns if any
+			for _, roleCooldown := range input.RoleCooldowns {
+				roleID, err := uuid.Parse(roleCooldown.RoleID)
+				if err != nil {
+					return fmt.Errorf("failed to parse role ID: %w", err)
+				}
+
+				_, err = c.commandRoleCooldownsRepository.Create(
+					txCtx,
+					command_role_cooldown.CreateInput{
+						CommandID: dbCmd.ID,
+						RoleID:    roleID,
+						Cooldown:  roleCooldown.Cooldown,
+					},
+				)
+				if err != nil {
+					return fmt.Errorf("failed to create role cooldown: %w", err)
+				}
+			}
+
 			if err := c.cachedCommandsClient.Invalidate(ctx, input.ChannelID); err != nil {
 				return fmt.Errorf("failed to invalidate cached commands: %w", err)
 			}
@@ -168,7 +195,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 		},
 	)
 	if trErr != nil {
-		return entity.CommandNil, fmt.Errorf("failed to create command: %w", trErr)
+		return commandwithrelationentity.CommandNil, fmt.Errorf("failed to create command: %w", trErr)
 	}
 
 	convertedCommand := c.modelToEntity(dbCmd)

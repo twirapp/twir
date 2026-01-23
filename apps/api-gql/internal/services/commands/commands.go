@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
@@ -22,32 +23,35 @@ import (
 type Opts struct {
 	fx.In
 
-	TrManager                trm.Manager
-	CommandsRepository       commands.Repository
-	CommandsResponsesService *commands_responses.Service
-	AuditRecorder            audit.Recorder
-	CachedCommandsClient     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	PlansRepository          plans.Repository
+	TrManager                      trm.Manager
+	CommandsRepository             commands.Repository
+	CommandsResponsesService       *commands_responses.Service
+	AuditRecorder                  audit.Recorder
+	CachedCommandsClient           *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
+	PlansRepository                plans.Repository
+	CommandRoleCooldownsRepository command_role_cooldown.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		commandsRepository:       opts.CommandsRepository,
-		commandsResponsesService: opts.CommandsResponsesService,
-		trManager:                opts.TrManager,
-		auditRecorder:            opts.AuditRecorder,
-		cachedCommandsClient:     opts.CachedCommandsClient,
-		plansRepository:          opts.PlansRepository,
+		commandsRepository:             opts.CommandsRepository,
+		commandsResponsesService:       opts.CommandsResponsesService,
+		trManager:                      opts.TrManager,
+		auditRecorder:                  opts.AuditRecorder,
+		cachedCommandsClient:           opts.CachedCommandsClient,
+		plansRepository:                opts.PlansRepository,
+		commandRoleCooldownsRepository: opts.CommandRoleCooldownsRepository,
 	}
 }
 
 type Service struct {
-	trManager                trm.Manager
-	commandsRepository       commands.Repository
-	commandsResponsesService *commands_responses.Service
-	auditRecorder            audit.Recorder
-	cachedCommandsClient     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	plansRepository          plans.Repository
+	trManager                      trm.Manager
+	commandsRepository             commands.Repository
+	commandsResponsesService       *commands_responses.Service
+	auditRecorder                  audit.Recorder
+	cachedCommandsClient           *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
+	plansRepository                plans.Repository
+	commandRoleCooldownsRepository command_role_cooldown.Repository
 }
 
 func (c *Service) IsNameConflicting(

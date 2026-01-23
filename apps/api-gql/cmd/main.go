@@ -128,6 +128,8 @@ import (
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
+	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
+	commandrolecooldownpgx "github.com/twirapp/twir/libs/repositories/command_role_cooldown/pgx"
 	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
 	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
 	commandsgroupsrepository "github.com/twirapp/twir/libs/repositories/commands_group"
@@ -469,6 +471,10 @@ func main() {
 			fx.Annotate(
 				streamlabsrepositorypostgres.NewFx,
 				fx.As(new(streamlabsrepository.Repository)),
+			),
+			fx.Annotate(
+				commandrolecooldownpgx.NewFx,
+				fx.As(new(command_role_cooldown.Repository)),
 			),
 		),
 		// services

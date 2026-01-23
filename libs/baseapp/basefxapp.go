@@ -25,7 +25,6 @@ import (
 	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
 	twirsentry "github.com/twirapp/twir/libs/sentry"
 	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
 )
 
 type Opts struct {
@@ -36,9 +35,9 @@ type Opts struct {
 
 func CreateBaseApp(opts Opts) fx.Option {
 	return fx.Options(
-		fx.WithLogger(func() fxevent.Logger {
-			return &errorOnlyFxLogger{}
-		}),
+		//fx.WithLogger(func() fxevent.Logger {
+		//	return &errorOnlyFxLogger{}
+		//}),
 		fx.Provide(
 			config.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: opts.AppName}),

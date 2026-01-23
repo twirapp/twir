@@ -1,15 +1,15 @@
-import { useQuery } from "@urql/vue";
-import { createGlobalState } from "@vueuse/core";
+import { useQuery } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
 
-import type { GetAllCommandsQuery } from "@/gql/graphql";
+import type { GetAllCommandsQuery } from '@/gql/graphql'
 
-import { commandMenuCacheKey } from "@/api/command-menu.js";
-import { useMutation } from "@/composables/use-mutation.js";
-import { graphql } from "@/gql/gql.js";
+import { commandMenuCacheKey } from '@/api/command-menu.js'
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
 
-export const invalidationKey = "CommandsInvalidateKey";
+export const invalidationKey = 'CommandsInvalidateKey'
 
-export type Command = GetAllCommandsQuery["commands"][0];
+export type Command = GetAllCommandsQuery['commands'][0]
 
 export const useCommandsApi = createGlobalState(() => {
 	const useQueryCommands = () =>
@@ -61,6 +61,12 @@ export const useCommandsApi = createGlobalState(() => {
 						groupId
 						expiresAt
 						expiresType
+						roleCooldowns {
+							id
+							commandId
+							roleId
+							cooldown
+						}
 					}
 				}
 			`),
@@ -68,7 +74,7 @@ export const useCommandsApi = createGlobalState(() => {
 				additionalTypenames: [invalidationKey],
 			},
 			variables: {},
-		});
+		})
 
 	const useMutationDeleteCommand = () =>
 		useMutation(
@@ -77,8 +83,8 @@ export const useCommandsApi = createGlobalState(() => {
 					commandsRemove(id: $id)
 				}
 			`),
-			[invalidationKey, commandMenuCacheKey],
-		);
+			[invalidationKey, commandMenuCacheKey]
+		)
 
 	const useMutationCreateCommand = () =>
 		useMutation(
@@ -89,8 +95,8 @@ export const useCommandsApi = createGlobalState(() => {
 					}
 				}
 			`),
-			[invalidationKey, commandMenuCacheKey],
-		);
+			[invalidationKey, commandMenuCacheKey]
+		)
 
 	const useMutationUpdateCommand = () =>
 		useMutation(
@@ -99,13 +105,13 @@ export const useCommandsApi = createGlobalState(() => {
 					commandsUpdate(id: $id, opts: $opts)
 				}
 			`),
-			[invalidationKey, commandMenuCacheKey],
-		);
+			[invalidationKey, commandMenuCacheKey]
+		)
 
 	return {
 		useQueryCommands,
 		useMutationDeleteCommand,
 		useMutationCreateCommand,
 		useMutationUpdateCommand,
-	};
-});
+	}
+})

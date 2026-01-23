@@ -32,8 +32,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ commands_with_groups_and_responses.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  commands_with_groups_and_responses.Repository = (*Pgx)(nil)
+	sq                                               = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -67,6 +69,16 @@ json_build_object(
 	'color', g.color
 ) as group
 `,
+		`
+COALESCE(json_agg(json_build_object(
+	'id', rc.id,
+	'commandId', rc.command_id,
+	'roleId', rc.role_id,
+	'cooldown', rc.cooldown,
+	'createdAt', to_char(rc.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
+	'updatedAt', to_char(rc.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
+)) FILTER (WHERE rc.id IS NOT NULL), '[]'::json) as role_cooldowns
+`,
 	)
 
 	selectColumns = append(selectColumns, columns...)
@@ -80,6 +92,7 @@ func (c *Pgx) GetManyByChannelID(
 		From("channels_commands c").
 		LeftJoin(`channels_commands_groups g ON c."groupId" = g.id`).
 		LeftJoin(`channels_commands_responses r ON c.id = r."commandId"`).
+		LeftJoin(`channels_commands_role_cooldowns rc ON c.id = rc.command_id`).
 		Where(`c."channelId" = ?`, channelID).
 		GroupBy("c.id", "g.id")
 
@@ -116,6 +129,7 @@ func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (
 		From("channels_commands c").
 		LeftJoin(`channels_commands_groups g ON c."groupId" = g.id`).
 		LeftJoin(`channels_commands_responses r ON c.id = r."commandId"`).
+		LeftJoin(`channels_commands_role_cooldowns rc ON c.id = rc.command_id`).
 		Where(`c.id = ?`, id).
 		GroupBy("c.id", "g.id")
 

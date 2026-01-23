@@ -29,8 +29,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ commands.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  commands.Repository = (*Pgx)(nil)
+	sq                     = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -81,7 +83,6 @@ var SelectColumns = []string{
 	`"rolesIds"`,
 	`online_only`,
 	`offline_only`,
-	`cooldown_roles_ids`,
 	`enabled_categories`,
 	`"requiredWatchTime"`,
 	`"requiredMessages"`,

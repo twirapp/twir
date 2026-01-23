@@ -2,17 +2,17 @@ package commands
 
 import (
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 )
 
-func (c *Service) modelToEntity(m model.Command) entity.Command {
-	var expiresType *entity.CommandExpireType
+func (c *Service) modelToEntity(m model.Command) commandwithrelationentity.Command {
+	var expiresType *commandwithrelationentity.CommandExpireType
 	if m.ExpiresType != nil {
-		expiresType = lo.ToPtr(entity.CommandExpireType(*m.ExpiresType))
+		expiresType = lo.ToPtr(commandwithrelationentity.CommandExpireType(*m.ExpiresType))
 	}
 
-	return entity.Command{
+	return commandwithrelationentity.Command{
 		ID:                        m.ID,
 		Name:                      m.Name,
 		Cooldown:                  m.Cooldown,
@@ -32,7 +32,6 @@ func (c *Service) modelToEntity(m model.Command) entity.Command {
 		RolesIDS:                  m.RolesIDS,
 		OnlineOnly:                m.OnlineOnly,
 		OfflineOnly:               m.OfflineOnly,
-		CooldownRolesIDs:          m.CooldownRolesIDs,
 		EnabledCategories:         m.EnabledCategories,
 		RequiredWatchTime:         m.RequiredWatchTime,
 		RequiredMessages:          m.RequiredMessages,

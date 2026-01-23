@@ -1,14 +1,14 @@
+import type { TypeOf } from 'zod'
+
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { toast } from 'vue-sonner'
 import { array, boolean, nativeEnum, number, object, string } from 'zod'
-
-import type { TypeOf } from 'zod'
 
 import { type Command, useCommandsApi } from '@/api/commands/commands'
 import { useRoles } from '@/api/roles'
-import { toast } from 'vue-sonner'
 import { CommandExpiresType } from '@/gql/graphql'
 
 export const formSchema = object({
@@ -43,6 +43,14 @@ export const formSchema = object({
 	cooldown: number().int().min(0).max(84600),
 	cooldownType: string(),
 	cooldownRolesIds: array(string()).max(100),
+	roleCooldowns: array(
+		object({
+			roleId: string(),
+			cooldown: number().int().min(0).max(84600),
+		})
+	)
+		.max(100)
+		.default([]),
 	isReply: boolean(),
 	visible: boolean(),
 	keepResponsesOrder: boolean(),
