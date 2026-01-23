@@ -3,6 +3,7 @@ package twitch
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -12,8 +13,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const rewardsCacheKey = "cache:twir:twitch:rewards:"
-const rewardsCacheDuration = 6 * time.Hour
+const (
+	rewardsCacheKey      = "cache:twir:twitch:rewards:"
+	rewardsCacheDuration = 6 * time.Hour
+)
 
 func BuildRewardsCacheKeyForId(channelId string) string {
 	return rewardsCacheKey + channelId
@@ -64,6 +67,10 @@ func (c *CachedTwitchClient) GetChannelRewards(
 		)
 	}
 	if rewards.ErrorMessage != "" {
+		if rewards.StatusCode == http.StatusForbidden {
+			return []helix.ChannelCustomReward{}, nil
+		}
+
 		return nil, fmt.Errorf(
 			"failed to get rewards for broadcaster #%s: %s", channelID, rewards.ErrorMessage,
 		)
