@@ -7,10 +7,11 @@ import (
 	"strings"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	commandsservice "github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
+	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
@@ -26,6 +27,7 @@ type Opts struct {
 	CommandsRepository                       commands.Repository
 	CommandsWithGroupsAndResponsesRepository commands_with_groups_and_responses.Repository
 	ResponsesRepository                      commands_response.Repository
+	CommandRoleCooldownRepository            command_role_cooldown.Repository
 	CommandsService                          *commandsservice.Service
 	Logger                                   *slog.Logger
 	AuditRecorder                            audit.Recorder
@@ -38,6 +40,7 @@ func New(opts Opts) *Service {
 		commandsWithGroupsAndResponsesRepository: opts.CommandsWithGroupsAndResponsesRepository,
 		responsesRepository:                      opts.ResponsesRepository,
 		commandsRepository:                       opts.CommandsRepository,
+		commandRoleCooldownRepository:            opts.CommandRoleCooldownRepository,
 		logger:                                   opts.Logger,
 		auditRecorder:                            opts.AuditRecorder,
 		commandsService:                          opts.CommandsService,
@@ -50,6 +53,7 @@ type Service struct {
 	commandsRepository                       commands.Repository
 	commandsWithGroupsAndResponsesRepository commands_with_groups_and_responses.Repository
 	responsesRepository                      commands_response.Repository
+	commandRoleCooldownRepository            command_role_cooldown.Repository
 
 	commandsService      *commandsservice.Service
 	logger               *slog.Logger
@@ -57,9 +61,11 @@ type Service struct {
 	cachedCommandsClient *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
-func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.CommandWithGroupAndResponses {
-	e := entity.CommandWithGroupAndResponses{
-		Command: entity.Command{
+func (c *Service) mapToEntity(
+	m model.CommandWithGroupAndResponses,
+) commandwithrelationentity.CommandWithGroupAndResponses {
+	e := commandwithrelationentity.CommandWithGroupAndResponses{
+		Command: commandwithrelationentity.Command{
 			ID:                        m.Command.ID,
 			Name:                      m.Command.Name,
 			Cooldown:                  m.Command.Cooldown,
@@ -78,7 +84,6 @@ func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.Comma
 			AllowedUsersIDS:           m.Command.AllowedUsersIDS,
 			RolesIDS:                  m.Command.RolesIDS,
 			OnlineOnly:                m.Command.OnlineOnly,
-			CooldownRolesIDs:          m.Command.CooldownRolesIDs,
 			EnabledCategories:         m.Command.EnabledCategories,
 			RequiredWatchTime:         m.Command.RequiredWatchTime,
 			RequiredMessages:          m.Command.RequiredMessages,
@@ -90,12 +95,12 @@ func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.Comma
 	}
 
 	if m.Command.ExpiresType != nil {
-		expire := entity.CommandExpireType(*m.Command.ExpiresType)
+		expire := commandwithrelationentity.CommandExpireType(*m.Command.ExpiresType)
 		e.Command.ExpiresType = &expire
 	}
 
 	if m.Group != nil {
-		e.Group = &entity.CommandGroup{
+		e.Group = &commandwithrelationentity.CommandGroup{
 			ID:        m.Group.ID,
 			ChannelID: m.Group.ChannelID,
 			Name:      m.Group.Name,
@@ -103,10 +108,10 @@ func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.Comma
 		}
 	}
 
-	responses := make([]entity.CommandResponse, 0, len(m.Responses))
+	responses := make([]commandwithrelationentity.CommandResponse, 0, len(m.Responses))
 	for _, r := range m.Responses {
 		responses = append(
-			responses, entity.CommandResponse{
+			responses, commandwithrelationentity.CommandResponse{
 				ID:                r.ID,
 				Text:              r.Text,
 				CommandID:         r.CommandID,
@@ -119,12 +124,13 @@ func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.Comma
 	}
 
 	e.Responses = responses
+	e.RolesCooldowns = m.RoleCooldowns
 
 	return e
 }
 
 func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
-	[]entity.CommandWithGroupAndResponses,
+	[]commandwithrelationentity.CommandWithGroupAndResponses,
 	error,
 ) {
 	cmds, err := c.commandsWithGroupsAndResponsesRepository.GetManyByChannelID(ctx, channelID)
@@ -132,13 +138,19 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 		return nil, err
 	}
 
-	entities := make([]entity.CommandWithGroupAndResponses, 0, len(cmds))
+	slices.SortFunc(
+		cmds, func(a, b model.CommandWithGroupAndResponses) int {
+			return strings.Compare(a.Command.Name, b.Command.Name)
+		},
+	)
+
+	entities := make([]commandwithrelationentity.CommandWithGroupAndResponses, 0, len(cmds))
 	for _, cmd := range cmds {
 		entities = append(entities, c.mapToEntity(cmd))
 	}
 
 	slices.SortFunc(
-		entities, func(a, b entity.CommandWithGroupAndResponses) int {
+		entities, func(a, b commandwithrelationentity.CommandWithGroupAndResponses) int {
 			return strings.Compare(a.Command.Name, b.Command.Name)
 		},
 	)

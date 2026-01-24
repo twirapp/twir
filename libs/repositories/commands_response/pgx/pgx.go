@@ -29,8 +29,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ commands_response.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  commands_response.Repository = (*Pgx)(nil)
+	sq                              = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -116,7 +118,10 @@ WHERE id = $1;
 	}
 
 	if rows.RowsAffected() != 1 {
-		return fmt.Errorf("delete: failed to delete exactly one row")
+		return fmt.Errorf(
+			"delete: failed to delete exactly one row, %v rows affected",
+			rows.RowsAffected(),
+		)
 	}
 
 	return nil

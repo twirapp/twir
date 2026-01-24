@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_response/model"
 	"go.uber.org/fx"
@@ -26,8 +26,8 @@ type Service struct {
 	commandsResponsesRepository commands_response.Repository
 }
 
-func (c *Service) modelToEntity(dbResponse model.Response) entity.CommandResponse {
-	return entity.CommandResponse{
+func (c *Service) modelToEntity(dbResponse model.Response) commandwithrelationentity.CommandResponse {
+	return commandwithrelationentity.CommandResponse{
 		ID:                dbResponse.ID,
 		CommandID:         dbResponse.CommandID,
 		Text:              dbResponse.Text,
@@ -39,7 +39,7 @@ func (c *Service) modelToEntity(dbResponse model.Response) entity.CommandRespons
 
 // GetManyByIDs returns a list of command responses by their IDs in same order.
 func (c *Service) GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
-	[][]entity.CommandResponse,
+	[][]commandwithrelationentity.CommandResponse,
 	error,
 ) {
 	dbResponses, err := c.commandsResponsesRepository.GetManyByIDs(ctx, commandsIDs)
@@ -47,7 +47,7 @@ func (c *Service) GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
 		return nil, err
 	}
 
-	mappedResponses := make([][]entity.CommandResponse, len(commandsIDs))
+	mappedResponses := make([][]commandwithrelationentity.CommandResponse, len(commandsIDs))
 	for i, id := range commandsIDs {
 		for _, dbResponse := range dbResponses {
 			if dbResponse.CommandID == id {
@@ -71,7 +71,7 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (
-	entity.CommandResponse,
+	commandwithrelationentity.CommandResponse,
 	error,
 ) {
 	dbResponse, err := c.commandsResponsesRepository.Create(
@@ -86,7 +86,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (
 		},
 	)
 	if err != nil {
-		return entity.CommandResponseNil, err
+		return commandwithrelationentity.CommandResponseNil, err
 	}
 
 	return c.modelToEntity(dbResponse), nil

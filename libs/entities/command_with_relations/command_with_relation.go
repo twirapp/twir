@@ -1,9 +1,10 @@
-package entity
+package commandwithrelationentity
 
 import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/commandrolecooldownentity"
 )
 
 type Command struct {
@@ -26,7 +27,6 @@ type Command struct {
 	RolesIDS                  []uuid.UUID
 	OnlineOnly                bool
 	OfflineOnly               bool
-	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         int
 	RequiredMessages          int
@@ -34,6 +34,9 @@ type Command struct {
 	GroupID                   *uuid.UUID
 	ExpiresAt                 *time.Time
 	ExpiresType               *CommandExpireType
+	RolesCooldowns            []commandrolecooldownentity.CommandRoleCooldown
+
+	isNil bool
 }
 
 var CommandNil = Command{}
@@ -50,9 +53,17 @@ type CommandGroup struct {
 	ChannelID string
 	Name      string
 	Color     string
+
+	isNil bool
 }
 
-var CommandGroupNil = CommandGroup{}
+func (c CommandGroup) IsNil() bool {
+	return c.isNil
+}
+
+var CommandGroupNil = CommandGroup{
+	isNil: true,
+}
 
 type CommandResponse struct {
 	ID                uuid.UUID
@@ -62,14 +73,31 @@ type CommandResponse struct {
 	TwitchCategoryIDs []string
 	OnlineOnly        bool
 	OfflineOnly       bool
+
+	isNil bool
 }
 
-var CommandResponseNil = CommandResponse{}
+func (c CommandResponse) IsNil() bool {
+	return c.isNil
+}
+
+var CommandResponseNil = CommandResponse{
+	isNil: true,
+}
 
 type CommandWithGroupAndResponses struct {
-	Command   Command
-	Group     *CommandGroup
-	Responses []CommandResponse
+	Command        Command
+	Group          *CommandGroup
+	Responses      []CommandResponse
+	RolesCooldowns []commandrolecooldownentity.CommandRoleCooldown
+
+	isNil bool
 }
 
-var CommandWithGroupAndResponsesNil = CommandWithGroupAndResponses{}
+func (c CommandWithGroupAndResponses) IsNil() bool {
+	return c.isNil
+}
+
+var CommandWithGroupAndResponsesNil = CommandWithGroupAndResponses{
+	isNil: true,
+}

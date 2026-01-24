@@ -8,9 +8,9 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
+	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
 	"go.uber.org/fx"
 )
 
@@ -77,7 +77,7 @@ func (l *listById) Handler(
 		var group *commandGroupResponseDto
 		var expire *Expire
 
-		if cmd.Group != nil && *cmd.Group != entity.CommandGroupNil {
+		if cmd.Group != nil && *cmd.Group != commandwithrelationentity.CommandGroupNil {
 			group = &commandGroupResponseDto{
 				ID:    cmd.Group.ID,
 				Name:  cmd.Group.Name,
@@ -112,6 +112,14 @@ func (l *listById) Handler(
 			)
 		}
 
+		rolesCooldowns := make([]commandRoleCooldownResponseDto, 0, len(cmd.RolesCooldowns))
+		for _, c := range cmd.RolesCooldowns {
+			rolesCooldowns = append(rolesCooldowns, commandRoleCooldownResponseDto{
+				RoleID:   c.RoleID,
+				Cooldown: c.Cooldown,
+			})
+		}
+
 		dto := commandResponseDto{
 			ID:                        cmd.Command.ID,
 			Name:                      cmd.Command.Name,
@@ -131,7 +139,6 @@ func (l *listById) Handler(
 			RolesIDS:                  append([]uuid.UUID{}, cmd.Command.RolesIDS...),
 			OnlineOnly:                cmd.Command.OnlineOnly,
 			OfflineOnly:               cmd.Command.OfflineOnly,
-			CooldownRolesIDs:          append([]string{}, cmd.Command.CooldownRolesIDs...),
 			EnabledCategories:         append([]string{}, cmd.Command.EnabledCategories...),
 			RequiredWatchTime:         cmd.Command.RequiredWatchTime,
 			RequiredMessages:          cmd.Command.RequiredMessages,
@@ -139,6 +146,7 @@ func (l *listById) Handler(
 			Expire:                    expire,
 			Responses:                 responses,
 			Group:                     group,
+			RolesCooldowns:            rolesCooldowns,
 		}
 
 		output = append(output, dto)

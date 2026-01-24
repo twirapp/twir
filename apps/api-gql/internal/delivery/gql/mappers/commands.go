@@ -4,8 +4,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
+	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
@@ -25,75 +25,88 @@ func CommandsExpiresAtGqlToDb(in gqlmodel.CommandExpiresType) model.ChannelComma
 	return model.ChannelCommandExpiresTypeDelete
 }
 
-var commandsEntityExpiresAtMap = map[entity.CommandExpireType]gqlmodel.CommandExpiresType{
-	entity.CommandExpireTypeDelete:  gqlmodel.CommandExpiresTypeDelete,
-	entity.CommandExpireTypeDisable: gqlmodel.CommandExpiresTypeDisable,
+var commandsEntityExpiresAtMap = map[commandwithrelationentity.CommandExpireType]gqlmodel.CommandExpiresType{
+	commandwithrelationentity.CommandExpireTypeDelete:  gqlmodel.CommandExpiresTypeDelete,
+	commandwithrelationentity.CommandExpireTypeDisable: gqlmodel.CommandExpiresTypeDisable,
 }
 
-func CommandEntityTo(e entity.Command) gqlmodel.Command {
-	rolesIds := make([]string, len(e.RolesIDS))
-	for i, v := range e.RolesIDS {
+func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) gqlmodel.Command {
+	rolesIds := make([]string, len(e.Command.RolesIDS))
+	for i, v := range e.Command.RolesIDS {
 		rolesIds[i] = v.String()
 	}
 
 	m := gqlmodel.Command{
-		ID:                        e.ID,
-		Name:                      e.Name,
+		ID:                        e.Command.ID,
+		Name:                      e.Command.Name,
 		Description:               "", // will be set later
-		Aliases:                   e.Aliases,
+		Aliases:                   e.Command.Aliases,
 		Responses:                 nil, // will be set later
 		Cooldown:                  0,   // will be set later
-		CooldownType:              e.CooldownType,
-		Enabled:                   e.Enabled,
-		Visible:                   e.Visible,
-		Default:                   e.Default,
-		DefaultName:               e.DefaultName,
-		Module:                    e.Module,
-		IsReply:                   e.IsReply,
-		KeepResponsesOrder:        e.KeepResponsesOrder,
-		DeniedUsersIds:            e.DeniedUsersIDS,
-		AllowedUsersIds:           e.AllowedUsersIDS,
+		CooldownType:              e.Command.CooldownType,
+		Enabled:                   e.Command.Enabled,
+		Visible:                   e.Command.Visible,
+		Default:                   e.Command.Default,
+		DefaultName:               e.Command.DefaultName,
+		Module:                    e.Command.Module,
+		IsReply:                   e.Command.IsReply,
+		KeepResponsesOrder:        e.Command.KeepResponsesOrder,
+		DeniedUsersIds:            e.Command.DeniedUsersIDS,
+		AllowedUsersIds:           e.Command.AllowedUsersIDS,
 		RolesIds:                  rolesIds,
-		OnlineOnly:                e.OnlineOnly,
-		OfflineOnly:               e.OfflineOnly,
-		CooldownRolesIds:          e.CooldownRolesIDs,
-		EnabledCategories:         e.EnabledCategories,
-		RequiredWatchTime:         e.RequiredWatchTime,
-		RequiredMessages:          e.RequiredMessages,
-		RequiredUsedChannelPoints: e.RequiredUsedChannelPoints,
+		OnlineOnly:                e.Command.OnlineOnly,
+		OfflineOnly:               e.Command.OfflineOnly,
+		EnabledCategories:         e.Command.EnabledCategories,
+		RequiredWatchTime:         e.Command.RequiredWatchTime,
+		RequiredMessages:          e.Command.RequiredMessages,
+		RequiredUsedChannelPoints: e.Command.RequiredUsedChannelPoints,
 		GroupID:                   nil, // will be set later
 		Group:                     nil, // will be set later
 		ExpiresAt:                 nil, // will be set later
 		ExpiresType:               nil, // will be set later
+		RoleCooldowns:             nil, // will be set later
 	}
 
-	if e.Cooldown != nil {
-		m.Cooldown = *e.Cooldown
+	if e.Command.Cooldown != nil {
+		m.Cooldown = *e.Command.Cooldown
 	}
 
-	if e.Description != nil {
-		m.Description = *e.Description
+	if e.Command.Description != nil {
+		m.Description = *e.Command.Description
 	}
 
-	if e.ExpiresAt != nil {
-		expires := int(e.ExpiresAt.UnixMilli())
+	if e.Command.ExpiresAt != nil {
+		expires := int(e.Command.ExpiresAt.UnixMilli())
 		m.ExpiresAt = &expires
 	}
 
-	if e.ExpiresType != nil {
-		expiresType := commandsEntityExpiresAtMap[*e.ExpiresType]
+	if e.Command.ExpiresType != nil {
+		expiresType := commandsEntityExpiresAtMap[*e.Command.ExpiresType]
 		m.ExpiresType = &expiresType
 	}
 
-	if e.GroupID != nil {
-		id := e.GroupID.String()
+	if e.Command.GroupID != nil {
+		id := e.Command.GroupID.String()
 		m.GroupID = &id
 	}
+
+	rolesCooldowns := make([]gqlmodel.CommandRoleCooldown, 0, len(e.RolesCooldowns))
+	for _, rc := range e.RolesCooldowns {
+		rolesCooldowns = append(
+			rolesCooldowns, gqlmodel.CommandRoleCooldown{
+				ID:        rc.ID,
+				CommandID: rc.CommandID,
+				RoleID:    rc.RoleID,
+				Cooldown:  rc.Cooldown,
+			},
+		)
+	}
+	m.RoleCooldowns = rolesCooldowns
 
 	return m
 }
 
-func CommandGroupTo(e entity.CommandGroup) gqlmodel.CommandGroup {
+func CommandGroupTo(e commandwithrelationentity.CommandGroup) gqlmodel.CommandGroup {
 	return gqlmodel.CommandGroup{
 		ID:    e.ID.String(),
 		Name:  e.Name,
@@ -101,7 +114,7 @@ func CommandGroupTo(e entity.CommandGroup) gqlmodel.CommandGroup {
 	}
 }
 
-func CommandResponseTo(e entity.CommandResponse) gqlmodel.CommandResponse {
+func CommandResponseTo(e commandwithrelationentity.CommandResponse) gqlmodel.CommandResponse {
 	m := gqlmodel.CommandResponse{
 		ID:                  e.ID,
 		CommandID:           e.CommandID.String(),
@@ -146,6 +159,16 @@ func CommandGqlInputToService(
 		expiresType = lo.ToPtr(input.ExpiresType.Value().String())
 	}
 
+	roleCooldowns := make([]commands.CreateInputRoleCooldown, 0, len(input.RoleCooldowns))
+	for _, rc := range input.RoleCooldowns {
+		roleCooldowns = append(
+			roleCooldowns, commands.CreateInputRoleCooldown{
+				RoleID:   rc.RoleID.String(),
+				Cooldown: rc.Cooldown,
+			},
+		)
+	}
+
 	return commands.CreateInput{
 		ChannelID:                 channelID,
 		ActorID:                   actorID,
@@ -162,7 +185,6 @@ func CommandGqlInputToService(
 		AllowedUsersIDS:           input.AllowedUsersIds,
 		RolesIDS:                  input.RolesIds,
 		OnlineOnly:                input.OnlineOnly,
-		CooldownRolesIDs:          input.CooldownRolesIds,
 		EnabledCategories:         input.EnabledCategories,
 		RequiredWatchTime:         input.RequiredWatchTime,
 		RequiredMessages:          input.RequiredMessages,
@@ -171,6 +193,7 @@ func CommandGqlInputToService(
 		ExpiresAt:                 input.ExpiresAt.Value(),
 		ExpiresType:               expiresType,
 		Responses:                 responses,
+		RoleCooldowns:             roleCooldowns,
 	}
 }
 

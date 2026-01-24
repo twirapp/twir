@@ -29,8 +29,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ commands.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  commands.Repository = (*Pgx)(nil)
+	sq                     = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -81,7 +83,6 @@ var SelectColumns = []string{
 	`"rolesIds"`,
 	`online_only`,
 	`offline_only`,
-	`cooldown_roles_ids`,
 	`enabled_categories`,
 	`"requiredWatchTime"`,
 	`"requiredMessages"`,
@@ -139,7 +140,6 @@ func (c *Pgx) Create(ctx context.Context, input commands.CreateInput) (model.Com
 				`"rolesIds"`:                  append([]string{}, input.RolesIDS...),
 				"online_only":                 input.OnlineOnly,
 				"offline_only":                input.OfflineOnly,
-				`"cooldown_roles_ids"`:        append([]string{}, input.CooldownRolesIDs...),
 				`"enabled_categories"`:        input.EnabledCategories,
 				`"requiredWatchTime"`:         input.RequiredWatchTime,
 				`"requiredMessages"`:          input.RequiredMessages,
@@ -205,7 +205,6 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input commands.UpdateInp
 			`"rolesIds"`:                  input.RolesIDS,
 			"online_only":                 input.OnlineOnly,
 			`"offline_only"`:              input.OfflineOnly,
-			`"cooldown_roles_ids"`:        input.CooldownRolesIDs,
 			`"enabled_categories"`:        input.EnabledCategories,
 			`"requiredWatchTime"`:         input.RequiredWatchTime,
 			`"requiredMessages"`:          input.RequiredMessages,

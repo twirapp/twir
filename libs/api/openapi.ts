@@ -183,7 +183,6 @@ export interface CommandResponseDto {
   allowed_users_ids: string[];
   /** @format int64 */
   cooldown: number | null;
-  cooldown_roles_ids: string[];
   cooldown_type: CommandResponseDtoCooldownTypeEnum;
   default_name: string | null;
   denied_users_ids: string[];
@@ -207,6 +206,7 @@ export interface CommandResponseDto {
   /** @format int64 */
   required_watch_time: number;
   responses: CommandResponsesResponseDto[];
+  roles_cooldowns: CommandRoleCooldownResponseDto[];
   /** @format uuid */
   roles_ids: string[];
   visible: boolean;
@@ -221,6 +221,12 @@ export interface CommandResponsesResponseDto {
   order: number;
   text: string;
   twitch_category_id: string[];
+}
+
+export interface CommandRoleCooldownResponseDto {
+  /** @format int64 */
+  cooldown: number;
+  role_id: string;
 }
 
 export interface CountryStatsDto {

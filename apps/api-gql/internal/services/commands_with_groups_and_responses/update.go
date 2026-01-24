@@ -9,8 +9,9 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
+	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
+	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	commandmodel "github.com/twirapp/twir/libs/repositories/commands/model"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
@@ -36,7 +37,6 @@ type UpdateInput struct {
 	RolesIDS                  []string
 	OnlineOnly                *bool
 	OfflineOnly               *bool
-	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         *int
 	RequiredMessages          *int
@@ -45,6 +45,7 @@ type UpdateInput struct {
 	ExpiresAt                 *time.Time
 	ExpiresType               *string
 	Responses                 []UpdateInputResponse
+	RoleCooldowns             []UpdateInputRoleCooldown
 }
 
 type UpdateInputResponse struct {
@@ -55,14 +56,19 @@ type UpdateInputResponse struct {
 	OfflineOnly       bool
 }
 
+type UpdateInputRoleCooldown struct {
+	RoleID   string
+	Cooldown int
+}
+
 func (c *Service) Update(
 	ctx context.Context,
 	id uuid.UUID,
 	input UpdateInput,
-) (entity.CommandWithGroupAndResponses, error) {
+) (commandwithrelationentity.CommandWithGroupAndResponses, error) {
 	cmds, err := c.commandsWithGroupsAndResponsesRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.CommandWithGroupAndResponsesNil, err
+		return commandwithrelationentity.CommandWithGroupAndResponsesNil, err
 	}
 
 	var cmd *model.CommandWithGroupAndResponses
@@ -74,15 +80,17 @@ func (c *Service) Update(
 	}
 
 	if cmd == nil {
-		return entity.CommandWithGroupAndResponsesNil, fmt.Errorf("command not found")
+		return commandwithrelationentity.CommandWithGroupAndResponsesNil, fmt.Errorf("command not found")
 	}
 
 	if cmd.Command.ChannelID != input.ChannelID {
-		return entity.CommandWithGroupAndResponsesNil, fmt.Errorf("command not found")
+		return commandwithrelationentity.CommandWithGroupAndResponsesNil, fmt.Errorf("command not found")
 	}
 
 	if cmd.Command.Default && input.ExpiresType != nil && *input.ExpiresType == "DELETE" {
-		return entity.CommandWithGroupAndResponsesNil, fmt.Errorf("default command cannot be deleted")
+		return commandwithrelationentity.CommandWithGroupAndResponsesNil, fmt.Errorf(
+			"default command cannot be deleted",
+		)
 	}
 
 	onlyCmds := make([]commandmodel.Command, 0, len(cmds))
@@ -97,7 +105,9 @@ func (c *Service) Update(
 			input.Aliases,
 			[]uuid.UUID{cmd.Command.ID},
 		); conflict {
-			return entity.CommandWithGroupAndResponsesNil, fmt.Errorf("command with this name or alias already exists")
+			return commandwithrelationentity.CommandWithGroupAndResponsesNil, fmt.Errorf(
+				"command with this name or alias already exists",
+			)
 		}
 	}
 
@@ -108,7 +118,9 @@ func (c *Service) Update(
 			input.Aliases,
 			[]uuid.UUID{cmd.Command.ID},
 		); conflict {
-			return entity.CommandWithGroupAndResponsesNil, fmt.Errorf("command with this name or alias already exists")
+			return commandwithrelationentity.CommandWithGroupAndResponsesNil, fmt.Errorf(
+				"command with this name or alias already exists",
+			)
 		}
 	}
 
@@ -127,7 +139,6 @@ func (c *Service) Update(
 		RolesIDS:                  input.RolesIDS,
 		OnlineOnly:                input.OnlineOnly,
 		OfflineOnly:               input.OfflineOnly,
-		CooldownRolesIDs:          input.CooldownRolesIDs,
 		EnabledCategories:         input.EnabledCategories,
 		RequiredWatchTime:         input.RequiredWatchTime,
 		RequiredMessages:          input.RequiredMessages,
@@ -143,7 +154,7 @@ func (c *Service) Update(
 		func(trCtx context.Context) error {
 			newDbCmd, err := c.commandsRepository.Update(trCtx, id, commandUpdateInput)
 			if err != nil {
-				return err
+				return fmt.Errorf("cannot update cmd: %w", err)
 			}
 
 			newCmd.Command = newDbCmd
@@ -152,7 +163,7 @@ func (c *Service) Update(
 				for _, r := range cmd.Responses {
 					err := c.responsesRepository.Delete(trCtx, r.ID)
 					if err != nil {
-						return err
+						return fmt.Errorf("cannot delete response: %w", err)
 					}
 				}
 
@@ -170,10 +181,47 @@ func (c *Service) Update(
 						},
 					)
 					if err != nil {
-						return err
+						return fmt.Errorf("cannot create response: %w", err)
 					}
 
 					newCmd.Responses = append(newCmd.Responses, newResponse)
+				}
+			}
+
+			// Handle RoleCooldowns if provided
+			if input.RoleCooldowns != nil {
+				// Delete existing role cooldowns
+				if err := c.commandRoleCooldownRepository.DeleteByCommandID(trCtx, id); err != nil {
+					return fmt.Errorf("failed to delete existing role cooldowns: %w", err)
+				}
+
+				// Create new role cooldowns (only those with cooldown > 0)
+				if len(input.RoleCooldowns) > 0 {
+					createInputs := make([]command_role_cooldown.CreateInput, 0, len(input.RoleCooldowns))
+					for _, rc := range input.RoleCooldowns {
+						if rc.Cooldown == 0 {
+							continue
+						}
+
+						roleID, err := uuid.Parse(rc.RoleID)
+						if err != nil {
+							return fmt.Errorf("invalid role ID %s: %w", rc.RoleID, err)
+						}
+
+						createInputs = append(
+							createInputs, command_role_cooldown.CreateInput{
+								CommandID: id,
+								RoleID:    roleID,
+								Cooldown:  rc.Cooldown,
+							},
+						)
+					}
+
+					if len(createInputs) > 0 {
+						if err := c.commandRoleCooldownRepository.CreateMany(trCtx, createInputs); err != nil {
+							return fmt.Errorf("failed to create role cooldowns: %w", err)
+						}
+					}
 				}
 			}
 
@@ -181,7 +229,7 @@ func (c *Service) Update(
 		},
 	)
 	if trErr != nil {
-		return entity.CommandWithGroupAndResponsesNil, trErr
+		return commandwithrelationentity.CommandWithGroupAndResponsesNil, trErr
 	}
 
 	if err := c.cachedCommandsClient.Invalidate(ctx, input.ChannelID); err != nil {

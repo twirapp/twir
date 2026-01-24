@@ -584,7 +584,6 @@ func (s *Service) ImportCommands(
 				AllowedUsersIDS:           []string{},
 				RolesIDS:                  commandRoles,
 				OnlineOnly:                false,
-				CooldownRolesIDs:          []string{},
 				EnabledCategories:         []string{},
 				RequiredWatchTime:         0,
 				RequiredMessages:          0,
