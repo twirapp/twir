@@ -1,0 +1,46 @@
+extend type Query {
+	webhookNotifications: WebhookNotificationsSettings
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_MODULES)
+}
+
+extend type Mutation {
+	webhookNotificationsCreate(input: WebhookNotificationsCreateInput!): WebhookNotificationsSettings!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+	webhookNotificationsUpdate(id: String!, input: WebhookNotificationsUpdateInput!): WebhookNotificationsSettings!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+	webhookNotificationsDelete(id: String!): Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+}
+
+type WebhookNotificationsSettings {
+	id: String!
+	channelID: String!
+	enabled: Boolean!
+	githubIssues: Boolean!
+	githubPullRequests: Boolean!
+	githubCommits: Boolean!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+input WebhookNotificationsCreateInput {
+	enabled: Boolean!
+	githubIssues: Boolean!
+	githubPullRequests: Boolean!
+	githubCommits: Boolean!
+}
+
+input WebhookNotificationsUpdateInput {
+	enabled: Boolean
+	githubIssues: Boolean
+	githubPullRequests: Boolean
+	githubCommits: Boolean
+}

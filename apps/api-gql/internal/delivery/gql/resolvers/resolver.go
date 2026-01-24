@@ -66,6 +66,7 @@ import (
 	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/webhook_notifications"
 	"github.com/twirapp/twir/libs/audit"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
@@ -164,6 +165,7 @@ type Deps struct {
 	NightbotIntegrationService            *nightbotintegration.Service
 	LastfmIntegrationService              *lastfmintegration.Service
 	ObsWebsocketModuleService             *obs_websocket_module.Service
+	WebhookNotificationsService           *webhook_notifications.Service
 	VKIntegrationService                  *vkintegration.Service
 	FaceitIntegrationService              *faceitintegration.Service
 	ChannelOverlaysService                *channels_overlays.Service

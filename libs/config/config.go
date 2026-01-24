@@ -53,6 +53,7 @@ type Config struct {
 	DiscordClientSecret string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
 	DiscordBotToken     string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
 	DiscordFeedbackUrl  string `required:"false" envconfig:"DISCORD_FEEDBACK_URL"`
+	GithubWebhookSecret string `required:"false" envconfig:"GITHUB_WEBHOOK_SECRET"`
 
 	OpenWeatherMapApiKey string `required:"false" envconfig:"OPENWEATHERMAP_API_KEY"`
 

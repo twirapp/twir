@@ -85,6 +85,7 @@ import (
 	valorantintegrationservice "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/webhook_notifications"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
@@ -124,6 +125,8 @@ import (
 	channelsintegrationsvalorantpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant/datasources/postgres"
 	channelsmodulesobswebsocket "github.com/twirapp/twir/libs/repositories/channels_modules_obs_websocket"
 	channelsmodulesobswebsocketpgx "github.com/twirapp/twir/libs/repositories/channels_modules_obs_websocket/datasources/postgres"
+	channelsmoduleswebhooks "github.com/twirapp/twir/libs/repositories/channels_modules_webhooks"
+	channelsmoduleswebhookspgx "github.com/twirapp/twir/libs/repositories/channels_modules_webhooks/pgx"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -461,6 +464,10 @@ func main() {
 				fx.As(new(channelsmodulesobswebsocket.Repository)),
 			),
 			fx.Annotate(
+				channelsmoduleswebhookspgx.NewFx,
+				fx.As(new(channelsmoduleswebhooks.Repository)),
+			),
+			fx.Annotate(
 				vkintegrationrepopostgres.NewFx,
 				fx.As(new(vkintegrationrepo.Repository)),
 			),
@@ -531,6 +538,7 @@ func main() {
 			discord_integration.New,
 			lastfmintegration.New,
 			obs_websocket_module.New,
+			webhook_notifications.New,
 		),
 		fx.Provide(
 			toxic_messages.New,

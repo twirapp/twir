@@ -69,6 +69,7 @@ var tableToGqlModel = map[string]gqlmodel.AuditLogSystem{
 	"channels_alerts":                 gqlmodel.AuditLogSystemChannelsAlerts,
 	"channels_chat_alerts":            gqlmodel.AuditLogSystemChannelsChatAlerts,
 	"channels_chat_translation":       gqlmodel.AuditLogSystemChannelsChatTranslation,
+	"channels_modules_webhooks":       gqlmodel.AuditLogSystemChannelsModulesSettings,
 }
 
 func AuditTableNameToGqlSystem(t string) gqlmodel.AuditLogSystem {
