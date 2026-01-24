@@ -11,6 +11,7 @@ type ShortenedUrl struct {
 	OwnerUserID *string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	Domain      *string
 }
 
 var Nil = ShortenedUrl{}

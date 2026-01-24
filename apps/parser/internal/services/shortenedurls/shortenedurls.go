@@ -11,7 +11,6 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/i18n"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
-	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 )
 
 type Opts struct {
@@ -43,14 +42,14 @@ func (c *Service) FindOrCreate(ctx context.Context, uri, actorId string) (*Link,
 		return nil, errors.New(i18n.GetCtx(ctx, locales.Translations.Services.Shortenedurls.Errors.InvalidUrl))
 	}
 
-	link, err := c.repo.GetByUrl(ctx, uri)
+	link, err := c.repo.GetByUrl(ctx, nil, uri)
 	if err != nil && !errors.Is(err, shortenedurlsrepository.ErrNotFound) {
 		return nil, err
 	}
 
 	siteBaseUrl, _ := url.Parse(c.config.SiteBaseUrl)
 
-	if link != model.Nil {
+	if !link.IsNil() {
 		siteBaseUrl.Path = "/s/" + link.ShortID
 		return &Link{
 			Long:  link.URL,

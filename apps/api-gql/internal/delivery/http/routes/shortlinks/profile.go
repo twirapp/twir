@@ -89,17 +89,22 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (
 		}
 		total = data.Total
 
-		parsedBaseUrl, _ := url.Parse(baseUrl)
-
 		for _, link := range data.List {
-			parsedBaseUrl.Path = "/s/" + link.ID
+			var shortURL string
+			if link.Domain != nil {
+				shortURL = "https://" + *link.Domain + "/" + link.ID
+			} else {
+				parsedBaseUrl, _ := url.Parse(baseUrl)
+				parsedBaseUrl.Path = "/s/" + link.ID
+				shortURL = parsedBaseUrl.String()
+			}
 
 			links = append(
 				links,
 				linkOutputDto{
 					Id:        link.ID,
 					Url:       link.Link,
-					ShortUrl:  parsedBaseUrl.String(),
+					ShortUrl:  shortURL,
 					Views:     link.Views,
 					CreatedAt: link.CreatedAt,
 				},
@@ -114,15 +119,21 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (
 		}
 
 		for _, link := range data {
-			parsedBaseUrl, _ := url.Parse(baseUrl)
-			parsedBaseUrl.Path = "/s/" + link.ShortID
+			var shortURL string
+			if link.Domain != nil {
+				shortURL = "https://" + *link.Domain + "/" + link.ShortID
+			} else {
+				parsedBaseUrl, _ := url.Parse(baseUrl)
+				parsedBaseUrl.Path = "/s/" + link.ShortID
+				shortURL = parsedBaseUrl.String()
+			}
 
 			links = append(
 				links,
 				linkOutputDto{
 					Id:        link.ShortID,
 					Url:       link.URL,
-					ShortUrl:  parsedBaseUrl.String(),
+					ShortUrl:  shortURL,
 					Views:     link.Views,
 					CreatedAt: link.CreatedAt,
 				},
@@ -134,8 +145,12 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (
 	seen := make(map[string]bool)
 	uniqueLinks := []linkOutputDto{}
 	for _, link := range links {
-		if !seen[link.Id] {
-			seen[link.Id] = true
+		key := link.ShortUrl
+		if key == "" {
+			key = link.Id
+		}
+		if !seen[key] {
+			seen[key] = true
 			uniqueLinks = append(uniqueLinks, link)
 		}
 	}

@@ -46,6 +46,7 @@ func (r *repository) GetByID(ctx context.Context, id string) (plan.Plan, error) 
 		"max_moderation_rules",
 		"max_keywords",
 		"max_greetings",
+		"links_shortener_custom_domains",
 		"created_at",
 		"updated_at",
 	).
@@ -73,6 +74,7 @@ func (r *repository) GetByID(ctx context.Context, id string) (plan.Plan, error) 
 		&dbPlan.MaxModerationRules,
 		&dbPlan.MaxKeywords,
 		&dbPlan.MaxGreetings,
+		&dbPlan.LinksShortenerCustomDomains,
 		&dbPlan.CreatedAt,
 		&dbPlan.UpdatedAt,
 	)
@@ -102,6 +104,7 @@ func (r *repository) GetByName(ctx context.Context, name string) (plan.Plan, err
 		"max_moderation_rules",
 		"max_keywords",
 		"max_greetings",
+		"links_shortener_custom_domains",
 		"created_at",
 		"updated_at",
 	).
@@ -129,6 +132,7 @@ func (r *repository) GetByName(ctx context.Context, name string) (plan.Plan, err
 		&dbPlan.MaxModerationRules,
 		&dbPlan.MaxKeywords,
 		&dbPlan.MaxGreetings,
+		&dbPlan.LinksShortenerCustomDomains,
 		&dbPlan.CreatedAt,
 		&dbPlan.UpdatedAt,
 	)
@@ -158,6 +162,7 @@ func (r *repository) GetByChannelID(ctx context.Context, channelID string) (plan
 		"p.max_moderation_rules",
 		"p.max_keywords",
 		"p.max_greetings",
+		"p.links_shortener_custom_domains",
 		"p.created_at",
 		"p.updated_at",
 	).
@@ -186,6 +191,7 @@ func (r *repository) GetByChannelID(ctx context.Context, channelID string) (plan
 		&dbPlan.MaxModerationRules,
 		&dbPlan.MaxKeywords,
 		&dbPlan.MaxGreetings,
+		&dbPlan.LinksShortenerCustomDomains,
 		&dbPlan.CreatedAt,
 		&dbPlan.UpdatedAt,
 	)
@@ -219,6 +225,7 @@ func (r *repository) GetManyByIDs(ctx context.Context, ids []string) ([]plan.Pla
 		"max_moderation_rules",
 		"max_keywords",
 		"max_greetings",
+		"links_shortener_custom_domains",
 		"created_at",
 		"updated_at",
 	).
@@ -254,6 +261,7 @@ func (r *repository) GetManyByIDs(ctx context.Context, ids []string) ([]plan.Pla
 			&dbPlan.MaxModerationRules,
 			&dbPlan.MaxKeywords,
 			&dbPlan.MaxGreetings,
+			&dbPlan.LinksShortenerCustomDomains,
 			&dbPlan.CreatedAt,
 			&dbPlan.UpdatedAt,
 		)
@@ -282,21 +290,22 @@ func (r *repository) GetManyByIDs(ctx context.Context, ids []string) ([]plan.Pla
 
 func (r *repository) dbToEntity(m model.Plan) plan.Plan {
 	return plan.Plan{
-		ID:                    m.ID,
-		Name:                  m.Name,
-		MaxCommands:           m.MaxCommands,
-		MaxTimers:             m.MaxTimers,
-		MaxVariables:          m.MaxVariables,
-		MaxAlerts:             m.MaxAlerts,
-		MaxEvents:             m.MaxEvents,
-		MaxChatAlertsMessages: m.MaxChatAlertsMessages,
-		MaxCustomOverlays:     m.MaxCustomOverlays,
-		MaxEightballAnswers:   m.MaxEightballAnswers,
-		MaxCommandsResponses:  m.MaxCommandsResponses,
-		MaxModerationRules:    m.MaxModerationRules,
-		MaxKeywords:           m.MaxKeywords,
-		MaxGreetings:          m.MaxGreetings,
-		CreatedAt:             m.CreatedAt,
-		UpdatedAt:             m.UpdatedAt,
+		ID:                          m.ID,
+		Name:                        m.Name,
+		MaxCommands:                 m.MaxCommands,
+		MaxTimers:                   m.MaxTimers,
+		MaxVariables:                m.MaxVariables,
+		MaxAlerts:                   m.MaxAlerts,
+		MaxEvents:                   m.MaxEvents,
+		MaxChatAlertsMessages:       m.MaxChatAlertsMessages,
+		MaxCustomOverlays:           m.MaxCustomOverlays,
+		MaxEightballAnswers:         m.MaxEightballAnswers,
+		MaxCommandsResponses:        m.MaxCommandsResponses,
+		MaxModerationRules:          m.MaxModerationRules,
+		MaxKeywords:                 m.MaxKeywords,
+		MaxGreetings:                m.MaxGreetings,
+		LinksShortenerCustomDomains: m.LinksShortenerCustomDomains,
+		CreatedAt:                   m.CreatedAt,
+		UpdatedAt:                   m.UpdatedAt,
 	}
 }

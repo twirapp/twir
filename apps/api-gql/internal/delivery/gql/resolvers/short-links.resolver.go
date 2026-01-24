@@ -27,10 +27,13 @@ func (r *queryResolver) ShortLinkViews(ctx context.Context, input gqlmodel.Short
 		perPage = *input.PerPage.Value()
 	}
 
+	domain := r.resolveShortLinkDomain(ctx, input.ShortLinkID)
+
 	result, err := r.deps.ShortenedUrlsService.GetViews(
 		ctx,
 		shortenedurls.GetViewsInput{
 			ShortLinkID: input.ShortLinkID,
+			Domain:      domain,
 			Page:        page,
 			PerPage:     perPage,
 		},
@@ -52,7 +55,8 @@ func (r *queryResolver) ShortLinkViews(ctx context.Context, input gqlmodel.Short
 
 // ShortLinkViewsUpdates is the resolver for the shortLinkViewsUpdates field.
 func (r *subscriptionResolver) ShortLinkViewsUpdates(ctx context.Context, shortLinkID string) (<-chan *gqlmodel.ShortLinkViewUpdate, error) {
-	ch := r.deps.ShortenedUrlsService.SubscribeToViewUpdates(ctx, shortLinkID)
+	domain := r.resolveShortLinkDomain(ctx, shortLinkID)
+	ch := r.deps.ShortenedUrlsService.SubscribeToViewUpdates(ctx, domain, shortLinkID)
 	gqlCh := make(chan *gqlmodel.ShortLinkViewUpdate, 1)
 
 	go func() {

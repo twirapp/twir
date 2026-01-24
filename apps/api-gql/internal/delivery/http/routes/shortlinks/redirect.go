@@ -13,7 +13,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
-	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
 )
 
@@ -68,12 +67,17 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 	*redirectResponseDto,
 	error,
 ) {
-	link, err := r.service.GetByShortID(ctx, input.ShortId)
+	var domain *string
+	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(host) {
+		domain = &host
+	}
+
+	link, err := r.service.GetByShortID(ctx, domain, input.ShortId)
 	if err != nil {
 		return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
 	}
 
-	if link == model.Nil {
+	if link.IsNil() {
 		return nil, huma.NewError(http.StatusNotFound, "Link not found")
 	}
 
@@ -111,6 +115,7 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 		ctx,
 		shortenedurls.RecordViewInput{
 			ShortLinkID: link.ShortID,
+			Domain:      domain,
 			UserID:      userID,
 			IP:          clientIp,
 			UserAgent:   clientAgent,
@@ -125,6 +130,7 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 
 	_, err = r.service.Update(
 		ctx,
+		domain,
 		link.ShortID,
 		shortenedurls.UpdateInput{
 			Views: &newViews,
@@ -143,7 +149,7 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 			City:        city,
 			CreatedAt:   time.Now(),
 		}
-		_ = r.service.PublishViewUpdate(link.ShortID, newViews, lastView)
+		_ = r.service.PublishViewUpdate(domain, link.ShortID, newViews, lastView)
 	}()
 
 	return &redirectResponseDto{
@@ -158,4 +164,8 @@ func (r *redirect) Register(api huma.API) {
 		r.GetMeta(),
 		r.Handler,
 	)
+}
+
+func isDefaultDomain(host string) bool {
+	return host == "twir.app" || host == "cf.twir.app"
 }

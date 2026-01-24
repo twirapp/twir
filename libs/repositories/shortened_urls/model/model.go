@@ -14,6 +14,15 @@ type ShortenedUrl struct {
 	Views           int
 	UserAgent       *string
 	UserIp          *netip.Addr
+	Domain          *string
+
+	isNil bool
 }
 
-var Nil = ShortenedUrl{}
+func (s ShortenedUrl) IsNil() bool {
+	return s.isNil
+}
+
+var Nil = ShortenedUrl{
+	isNil: true,
+}

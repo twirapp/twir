@@ -1,10 +1,27 @@
+import { ContentType } from '@twir/api/openapi'
 import type { ErrorModel, LinkOutputDto, ShortUrlProfileParamsSortByEnum } from '@twir/api/openapi'
 
 import { useOapi } from '~/composables/use-oapi'
 
+type CustomDomainOutputDto = {
+	id: string
+	domain: string
+	verified: boolean
+	verification_token: string
+	verification_target: string
+	created_at: string
+}
+
+type CustomDomainResponseDto = {
+	$schema?: string
+	data: CustomDomainOutputDto
+}
+
 export const useUrlShortener = defineStore('url-shortener', () => {
 	const api = useOapi()
 	const latestShortenedUrls = ref<LinkOutputDto[]>([])
+	const customDomain = ref<CustomDomainOutputDto | null>(null)
+	const isCustomDomainLoading = ref(false)
 
 	async function shortUrl(opts: { url: string; alias?: string }) {
 		try {
@@ -20,20 +37,113 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 				error: response.error,
 			}
 		} catch (e) {
-			if (e instanceof Response) {
-				const errorData = (await e.json()) as ErrorModel
+			return {
+				data: null,
+				error: await parseApiError(e),
+			}
+		}
+	}
+
+	async function fetchCustomDomain() {
+		isCustomDomainLoading.value = true
+
+		try {
+			const response = await api.http.request<CustomDomainResponseDto, ErrorModel>({
+				path: '/v1/short-links/custom-domain',
+				method: 'GET',
+				format: 'json',
+			})
+
+			customDomain.value = response.data.data
+
+			return {
+				data: response.data,
+				error: response.error,
+			}
+		} catch (e) {
+			if (e instanceof Response && e.status === 404) {
+				customDomain.value = null
 				return {
 					data: null,
-					error:
-						errorData.detail ??
-						errorData.errors?.map((e) => e.message)?.join(', ') ??
-						errorData.title,
+					error: null,
 				}
 			}
 
 			return {
 				data: null,
-				error: 'Unknown error',
+				error: await parseApiError(e),
+			}
+		} finally {
+			isCustomDomainLoading.value = false
+		}
+	}
+
+	async function createCustomDomain(domain: string) {
+		try {
+			const response = await api.http.request<CustomDomainResponseDto, ErrorModel>({
+				path: '/v1/short-links/custom-domain',
+				method: 'POST',
+				type: ContentType.Json,
+				format: 'json',
+				body: {
+					domain,
+				},
+			})
+
+			customDomain.value = response.data.data
+
+			return {
+				data: response.data,
+				error: response.error,
+			}
+		} catch (e) {
+			return {
+				data: null,
+				error: await parseApiError(e),
+			}
+		}
+	}
+
+	async function verifyCustomDomain() {
+		try {
+			const response = await api.http.request<CustomDomainResponseDto, ErrorModel>({
+				path: '/v1/short-links/custom-domain/verify',
+				method: 'POST',
+				format: 'json',
+			})
+
+			customDomain.value = response.data.data
+
+			return {
+				data: response.data,
+				error: response.error,
+			}
+		} catch (e) {
+			return {
+				data: null,
+				error: await parseApiError(e),
+			}
+		}
+	}
+
+	async function deleteCustomDomain() {
+		try {
+			const response = await api.http.request<Record<string, never>, ErrorModel>({
+				path: '/v1/short-links/custom-domain',
+				method: 'DELETE',
+				format: 'json',
+			})
+
+			customDomain.value = null
+
+			return {
+				data: response.data,
+				error: response.error,
+			}
+		} catch (e) {
+			return {
+				data: null,
+				error: await parseApiError(e),
 			}
 		}
 	}
@@ -59,8 +169,28 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		shortUrl,
 		refetchLatestShortenedUrls,
 		latestShortenedUrls,
+		fetchCustomDomain,
+		createCustomDomain,
+		verifyCustomDomain,
+		deleteCustomDomain,
+		customDomain,
+		isCustomDomainLoading,
 	}
 })
+
+async function parseApiError(error: unknown) {
+	if (error instanceof Response) {
+		const errorData = (await error.json()) as ErrorModel
+		return (
+			errorData.detail ??
+			errorData.errors?.map((err) => err.message)?.join(', ') ??
+			errorData.title ??
+			'Unknown error'
+		)
+	}
+
+	return 'Unknown error'
+}
 
 if (import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(useUrlShortener, import.meta.hot))

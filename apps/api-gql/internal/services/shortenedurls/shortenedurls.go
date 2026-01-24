@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strings"
 	"sync"
 	"time"
 
@@ -44,8 +45,32 @@ const (
 	shortLinkViewsSubscriptionKey = "api.shortLinkViews"
 )
 
-func shortLinkViewsSubscriptionKeyCreate(shortLinkId string) string {
-	return shortLinkViewsSubscriptionKey + "." + shortLinkId
+func shortLinkViewsSubscriptionKeyCreate(viewKey string) string {
+	return shortLinkViewsSubscriptionKey + "." + viewKey
+}
+
+const shortLinkDomainSeparator = "|"
+
+func EncodeShortLinkKey(domain *string, shortID string) string {
+	if domain == nil || *domain == "" {
+		return shortID
+	}
+
+	return *domain + shortLinkDomainSeparator + shortID
+}
+
+func DecodeShortLinkKey(value string) (*string, string) {
+	if value == "" {
+		return nil, ""
+	}
+
+	parts := strings.SplitN(value, shortLinkDomainSeparator, 2)
+	if len(parts) == 2 && parts[0] != "" {
+		domain := parts[0]
+		return &domain, parts[1]
+	}
+
+	return nil, value
 }
 
 type Service struct {
@@ -62,6 +87,7 @@ type CreateInput struct {
 	URL             string
 	UserIp          *string
 	UserAgent       *string
+	Domain          *string
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (model.ShortenedUrl, error) {
@@ -78,12 +104,17 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.Shortene
 			CreatedByUserID: input.CreatedByUserID,
 			UserIp:          input.UserIp,
 			UserAgent:       input.UserAgent,
+			Domain:          input.Domain,
 		},
 	)
 }
 
-func (c *Service) GetByShortID(ctx context.Context, id string) (model.ShortenedUrl, error) {
-	link, err := c.repository.GetByShortID(ctx, id)
+func (c *Service) GetByShortID(
+	ctx context.Context,
+	domain *string,
+	id string,
+) (model.ShortenedUrl, error) {
+	link, err := c.repository.GetByShortID(ctx, domain, id)
 	if err != nil {
 		if errors.Is(err, shortenedurlsrepository.ErrNotFound) {
 			return model.Nil, nil
@@ -94,8 +125,12 @@ func (c *Service) GetByShortID(ctx context.Context, id string) (model.ShortenedU
 	return link, nil
 }
 
-func (c *Service) GetByUrl(ctx context.Context, url string) (model.ShortenedUrl, error) {
-	link, err := c.repository.GetByUrl(ctx, url)
+func (c *Service) GetByUrl(
+	ctx context.Context,
+	domain *string,
+	url string,
+) (model.ShortenedUrl, error) {
+	link, err := c.repository.GetByUrl(ctx, domain, url)
 	if err != nil {
 		if errors.Is(err, shortenedurlsrepository.ErrNotFound) {
 			return model.Nil, nil
@@ -110,16 +145,24 @@ type UpdateInput struct {
 	Views   *int
 	ShortID *string
 	URL     *string
+	Domain  *string
 }
 
-func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (entity.ShortenedUrl, error) {
+func (c *Service) Update(
+	ctx context.Context,
+	domain *string,
+	id string,
+	input UpdateInput,
+) (entity.ShortenedUrl, error) {
 	updatedModel, err := c.repository.Update(
 		ctx,
+		domain,
 		id,
 		shortenedurlsrepository.UpdateInput{
 			Views:   input.Views,
 			ShortID: input.ShortID,
 			URL:     input.URL,
+			Domain:  input.Domain,
 		},
 	)
 	if err != nil {
@@ -133,6 +176,7 @@ func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 		CreatedAt:   updatedModel.CreatedAt,
 		UpdatedAt:   updatedModel.UpdatedAt,
 		OwnerUserID: updatedModel.CreatedByUserId,
+		Domain:      updatedModel.Domain,
 	}, nil
 }
 
@@ -182,6 +226,7 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) (GetListOutpu
 				CreatedAt:   link.CreatedAt,
 				UpdatedAt:   link.UpdatedAt,
 				OwnerUserID: link.CreatedByUserId,
+				Domain:      link.Domain,
 			},
 		)
 	}
@@ -192,19 +237,57 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) (GetListOutpu
 	}, nil
 }
 
-func (c *Service) Delete(ctx context.Context, id string) error {
-	return c.repository.Delete(ctx, id)
+func (c *Service) Delete(ctx context.Context, domain *string, id string) error {
+	return c.repository.Delete(ctx, domain, id)
 }
 
-func (c *Service) GetManyByShortIDs(ctx context.Context, ids []string) (
-	[]model.ShortenedUrl,
-	error,
-) {
-	return c.repository.GetManyByShortIDs(ctx, ids)
+func (c *Service) GetManyByShortIDs(ctx context.Context, ids []string) ([]model.ShortenedUrl, error) {
+	if len(ids) == 0 {
+		return []model.ShortenedUrl{}, nil
+	}
+
+	grouped := make(map[string][]string)
+	var defaultDomainIDs []string
+
+	for _, rawID := range ids {
+		domain, shortID := DecodeShortLinkKey(rawID)
+		if shortID == "" {
+			continue
+		}
+		if domain == nil {
+			defaultDomainIDs = append(defaultDomainIDs, shortID)
+			continue
+		}
+		grouped[*domain] = append(grouped[*domain], shortID)
+	}
+
+	results := make([]model.ShortenedUrl, 0, len(ids))
+	if len(defaultDomainIDs) > 0 {
+		links, err := c.repository.GetManyByShortIDs(ctx, nil, defaultDomainIDs)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, links...)
+	}
+
+	for domain, domainIDs := range grouped {
+		if len(domainIDs) == 0 {
+			continue
+		}
+		domainValue := domain
+		links, err := c.repository.GetManyByShortIDs(ctx, &domainValue, domainIDs)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, links...)
+	}
+
+	return results, nil
 }
 
 type RecordViewInput struct {
 	ShortLinkID string
+	Domain      *string
 	UserID      *string
 	IP          *string
 	UserAgent   *string
@@ -213,10 +296,11 @@ type RecordViewInput struct {
 }
 
 func (c *Service) RecordView(ctx context.Context, input RecordViewInput) error {
+	viewKey := EncodeShortLinkKey(input.Domain, input.ShortLinkID)
 	return c.viewsRepository.Create(
 		ctx,
 		shortlinksviewsrepository.CreateInput{
-			ShortLinkID: input.ShortLinkID,
+			ShortLinkID: viewKey,
 			UserID:      input.UserID,
 			IP:          input.IP,
 			UserAgent:   input.UserAgent,
@@ -229,6 +313,7 @@ func (c *Service) RecordView(ctx context.Context, input RecordViewInput) error {
 
 type GetStatisticsInput struct {
 	ShortLinkID string
+	Domain      *string
 	From        time.Time
 	To          time.Time
 	Interval    string
@@ -243,10 +328,11 @@ func (c *Service) GetStatistics(
 	ctx context.Context,
 	input GetStatisticsInput,
 ) ([]StatisticsPoint, error) {
+	viewKey := EncodeShortLinkKey(input.Domain, input.ShortLinkID)
 	points, err := c.viewsRepository.GetStatistics(
 		ctx,
 		shortlinksviewsrepository.GetStatisticsInput{
-			ShortLinkID: input.ShortLinkID,
+			ShortLinkID: viewKey,
 			From:        input.From,
 			To:          input.To,
 			Interval:    input.Interval,
@@ -273,11 +359,17 @@ type ShortLinkViewUpdate struct {
 	LastView    *shortlinksviewsrepository.View
 }
 
-func (c *Service) PublishViewUpdate(shortLinkID string, totalViews int, lastView *shortlinksviewsrepository.View) error {
+func (c *Service) PublishViewUpdate(
+	domain *string,
+	shortLinkID string,
+	totalViews int,
+	lastView *shortlinksviewsrepository.View,
+) error {
+	viewKey := EncodeShortLinkKey(domain, shortLinkID)
 	c.viewsSubsMu.RLock()
 	defer c.viewsSubsMu.RUnlock()
 
-	if _, ok := c.viewsSubs[shortLinkID]; !ok {
+	if _, ok := c.viewsSubs[viewKey]; !ok {
 		return nil
 	}
 
@@ -287,19 +379,24 @@ func (c *Service) PublishViewUpdate(shortLinkID string, totalViews int, lastView
 		LastView:    lastView,
 	}
 
-	return c.wsRouter.Publish(shortLinkViewsSubscriptionKeyCreate(shortLinkID), update)
+	return c.wsRouter.Publish(shortLinkViewsSubscriptionKeyCreate(viewKey), update)
 }
 
-func (c *Service) SubscribeToViewUpdates(ctx context.Context, shortLinkID string) <-chan ShortLinkViewUpdate {
+func (c *Service) SubscribeToViewUpdates(
+	ctx context.Context,
+	domain *string,
+	shortLinkID string,
+) <-chan ShortLinkViewUpdate {
+	viewKey := EncodeShortLinkKey(domain, shortLinkID)
 	c.viewsSubsMu.Lock()
-	c.viewsSubs[shortLinkID] = struct{}{}
+	c.viewsSubs[viewKey] = struct{}{}
 	c.viewsSubsMu.Unlock()
 
 	channel := make(chan ShortLinkViewUpdate)
 	go func() {
 		sub, err := c.wsRouter.Subscribe(
 			[]string{
-				shortLinkViewsSubscriptionKeyCreate(shortLinkID),
+				shortLinkViewsSubscriptionKeyCreate(viewKey),
 			},
 		)
 		if err != nil {
@@ -307,7 +404,7 @@ func (c *Service) SubscribeToViewUpdates(ctx context.Context, shortLinkID string
 		}
 		defer func() {
 			c.viewsSubsMu.Lock()
-			delete(c.viewsSubs, shortLinkID)
+			delete(c.viewsSubs, viewKey)
 			c.viewsSubsMu.Unlock()
 			sub.Unsubscribe()
 			close(channel)
@@ -337,6 +434,7 @@ func (c *Service) SubscribeToViewUpdates(ctx context.Context, shortLinkID string
 
 type GetViewsInput struct {
 	ShortLinkID string
+	Domain      *string
 	Page        int
 	PerPage     int
 }
@@ -355,10 +453,11 @@ type GetViewsOutput struct {
 }
 
 func (c *Service) GetViews(ctx context.Context, input GetViewsInput) (GetViewsOutput, error) {
+	viewKey := EncodeShortLinkKey(input.Domain, input.ShortLinkID)
 	result, err := c.viewsRepository.GetViews(
 		ctx,
 		shortlinksviewsrepository.GetViewsInput{
-			ShortLinkID: input.ShortLinkID,
+			ShortLinkID: viewKey,
 			Page:        input.Page,
 			PerPage:     input.PerPage,
 		},
@@ -369,8 +468,9 @@ func (c *Service) GetViews(ctx context.Context, input GetViewsInput) (GetViewsOu
 
 	views := make([]ViewOutput, len(result.Views))
 	for i, v := range result.Views {
+		_, shortID := DecodeShortLinkKey(v.ShortLinkID)
 		views[i] = ViewOutput{
-			ShortLinkID: v.ShortLinkID,
+			ShortLinkID: shortID,
 			UserID:      v.UserID,
 			Country:     v.Country,
 			City:        v.City,
@@ -386,6 +486,7 @@ func (c *Service) GetViews(ctx context.Context, input GetViewsInput) (GetViewsOu
 
 type GetTopCountriesInput struct {
 	ShortLinkID string
+	Domain      *string
 	Limit       int
 }
 
@@ -395,10 +496,11 @@ type CountryStatsOutput struct {
 }
 
 func (c *Service) GetTopCountries(ctx context.Context, input GetTopCountriesInput) ([]CountryStatsOutput, error) {
+	viewKey := EncodeShortLinkKey(input.Domain, input.ShortLinkID)
 	result, err := c.viewsRepository.GetTopCountries(
 		ctx,
 		shortlinksviewsrepository.GetTopCountriesInput{
-			ShortLinkID: input.ShortLinkID,
+			ShortLinkID: viewKey,
 			Limit:       input.Limit,
 		},
 	)

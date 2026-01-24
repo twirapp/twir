@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
+import { storeToRefs } from 'pinia'
 
 import { useUrlShortener } from '../../composables/use-url-shortener'
 
@@ -30,8 +31,16 @@ const form = useForm({
 })
 
 const api = useUrlShortener()
+const { customDomain } = storeToRefs(api)
 const currentUrl = ref<LinkOutputDto>()
 const currentError = ref<string>()
+const customDomainPrefix = computed(() => {
+	if (customDomain.value?.domain) {
+		return `https://${customDomain.value.domain}/`
+	}
+
+	return `${twirShortenerUrl.origin}/s/`
+})
 
 const onSubmit = form.handleSubmit(async (values) => {
 	currentUrl.value = undefined
@@ -112,8 +121,13 @@ const onSubmit = form.handleSubmit(async (values) => {
 											class="flex items-center rounded-xl p-1.5 py-3 border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,15%)] w-full"
 										>
 											<label for="alias" class="flex items-center w-full">
-												<span class="ml-2 mr-1 font-semibold">
-													{{ twirShortenerUrl.origin + '/s/' }}
+												<span
+													class="ml-2 mr-1 font-semibold"
+													:class="{
+														'text-yellow-300/80': customDomain && !customDomain.verified,
+													}"
+												>
+													{{ customDomainPrefix }}
 												</span>
 												<input
 													id="alias"
@@ -128,6 +142,13 @@ const onSubmit = form.handleSubmit(async (values) => {
 									<UiFormDescription class="text-xs text-[hsl(240,11%,50%)]">
 										Custom alias for your shortened URL. Must be between 3 and 30 characters.
 									</UiFormDescription>
+									<p
+										v-if="customDomain && !customDomain.verified"
+										class="text-xs text-yellow-300/80"
+									>
+										Verify your custom domain to use it for new links. Until then, links use
+										{{ twirShortenerUrl.origin + '/s/' }}.
+									</p>
 									<UiFormMessage class="text-xs" />
 								</div>
 							</UiFormItem>

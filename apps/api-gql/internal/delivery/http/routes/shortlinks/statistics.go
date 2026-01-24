@@ -6,8 +6,11 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	"go.uber.org/fx"
 )
 
@@ -28,16 +31,22 @@ var _ httpbase.Route[*statisticsRequestDto, *httpbase.BaseOutputJson[[]statistic
 type StatisticsOpts struct {
 	fx.In
 
-	Service *shortenedurls.Service
+	Service              *shortenedurls.Service
+	Sessions             *auth.Auth
+	CustomDomainsService *shortlinkscustomdomains.Service
 }
 
 type statistics struct {
-	service *shortenedurls.Service
+	service              *shortenedurls.Service
+	sessions             *auth.Auth
+	customDomainsService *shortlinkscustomdomains.Service
 }
 
 func newStatistics(opts StatisticsOpts) *statistics {
 	return &statistics{
-		service: opts.Service,
+		service:              opts.Service,
+		sessions:             opts.Sessions,
+		customDomainsService: opts.CustomDomainsService,
 	}
 }
 
@@ -63,6 +72,19 @@ func (s *statistics) Handler(
 	ctx context.Context,
 	input *statisticsRequestDto,
 ) (*httpbase.BaseOutputJson[[]statisticsPointDto], error) {
+	var domain *string
+	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(host) {
+		domain = &host
+	} else if user, err := s.sessions.GetAuthenticatedUserModel(ctx); err == nil && user != nil {
+		if userDomain, err := s.customDomainsService.GetByUserID(ctx, user.ID); err == nil && !userDomain.IsNil() && userDomain.Verified {
+			domain = &userDomain.Domain
+			link, err := s.service.GetByShortID(ctx, domain, input.ShortId)
+			if err == nil && link.IsNil() {
+				domain = nil
+			}
+		}
+	}
+
 	from := time.Unix(input.From/1000, (input.From%1000)*1000000)
 	to := time.Unix(input.To/1000, (input.To%1000)*1000000)
 
@@ -75,6 +97,7 @@ func (s *statistics) Handler(
 		ctx,
 		shortenedurls.GetStatisticsInput{
 			ShortLinkID: input.ShortId,
+			Domain:      domain,
 			From:        from,
 			To:          to,
 			Interval:    interval,

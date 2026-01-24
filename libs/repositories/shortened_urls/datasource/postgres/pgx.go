@@ -36,15 +36,27 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
-func (c *Pgx) GetManyByShortIDs(ctx context.Context, ids []string) ([]model.ShortenedUrl, error) {
+func (c *Pgx) GetManyByShortIDs(
+	ctx context.Context,
+	domain *string,
+	ids []string,
+) ([]model.ShortenedUrl, error) {
 	query := `
-SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain
 FROM shortened_urls
 WHERE short_id = ANY($1)
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, ids)
+	args := []any{ids}
+	if domain == nil {
+		query += "\nAND domain IS NULL"
+	} else {
+		query += "\nAND domain = $2"
+		args = append(args, *domain)
+	}
+
+	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -81,26 +93,41 @@ func (c *Pgx) Count(ctx context.Context, input shortened_urls.CountInput) (int64
 	return count, nil
 }
 
-func (c *Pgx) Delete(ctx context.Context, id string) error {
+func (c *Pgx) Delete(ctx context.Context, domain *string, id string) error {
 	query := `
 DELETE FROM shortened_urls
 WHERE short_id = $1
 `
 
+	args := []any{id}
+	if domain == nil {
+		query += "\nAND domain IS NULL"
+	} else {
+		query += "\nAND domain = $2"
+		args = append(args, *domain)
+	}
+
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err := conn.Exec(ctx, query, id)
+	_, err := conn.Exec(ctx, query, args...)
 	return err
 }
 
 func (c *Pgx) Update(
 	ctx context.Context,
+	domain *string,
 	id string,
 	input shortened_urls.UpdateInput,
 ) (model.ShortenedUrl, error) {
 	updateBuilder := sq.Update("shortened_urls").
 		Where(squirrel.Eq{"short_id": id}).
 		Set("updated_at", squirrel.Expr("NOW()")).
-		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent")
+		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain")
+
+	if domain == nil {
+		updateBuilder = updateBuilder.Where("domain IS NULL")
+	} else {
+		updateBuilder = updateBuilder.Where(squirrel.Eq{"domain": *domain})
+	}
 
 	if input.Views != nil {
 		updateBuilder = updateBuilder.Set("views", *input.Views)
@@ -112,6 +139,10 @@ func (c *Pgx) Update(
 
 	if input.URL != nil {
 		updateBuilder = updateBuilder.Set("url", *input.URL)
+	}
+
+	if input.Domain != nil {
+		updateBuilder = updateBuilder.Set("domain", *input.Domain)
 	}
 
 	query, args, err := updateBuilder.ToSql()
@@ -133,16 +164,24 @@ func (c *Pgx) Update(
 	return result, nil
 }
 
-func (c *Pgx) GetByUrl(ctx context.Context, url string) (model.ShortenedUrl, error) {
+func (c *Pgx) GetByUrl(ctx context.Context, domain *string, url string) (model.ShortenedUrl, error) {
 	query := `
-SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain
 FROM shortened_urls
 WHERE url = $1
-LIMIT 1
 `
 
+	args := []any{url}
+	if domain == nil {
+		query += "\nAND domain IS NULL"
+	} else {
+		query += "\nAND domain = $2"
+		args = append(args, *domain)
+	}
+	query += "\nLIMIT 1"
+
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, url)
+	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -158,16 +197,24 @@ LIMIT 1
 	return result, nil
 }
 
-func (c *Pgx) GetByShortID(ctx context.Context, id string) (model.ShortenedUrl, error) {
+func (c *Pgx) GetByShortID(ctx context.Context, domain *string, id string) (model.ShortenedUrl, error) {
 	query := `
-SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
+SELECT short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain
 FROM shortened_urls
 WHERE short_id = $1
-LIMIT 1
 `
 
+	args := []any{id}
+	if domain == nil {
+		query += "\nAND domain IS NULL"
+	} else {
+		query += "\nAND domain = $2"
+		args = append(args, *domain)
+	}
+	query += "\nLIMIT 1"
+
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, id)
+	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -188,9 +235,9 @@ func (c *Pgx) Create(ctx context.Context, input shortened_urls.CreateInput) (
 	error,
 ) {
 	query := `
-INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent)
-VALUES (@short_id, @url, @created_by_user_id, @user_ip, @user_agent)
-RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent
+INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent, domain)
+VALUES (@short_id, @url, @created_by_user_id, @user_ip, @user_agent, @domain)
+RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -203,6 +250,7 @@ RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user
 			"created_by_user_id": input.CreatedByUserID,
 			"user_ip":            input.UserIp,
 			"user_agent":         input.UserAgent,
+			"domain":             input.Domain,
 		},
 	)
 	if err != nil {
@@ -221,7 +269,17 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 	shortened_urls.GetListOutput,
 	error,
 ) {
-	queryBuilder := sq.Select("short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent").
+	queryBuilder := sq.Select(
+		"short_id",
+		"created_at",
+		"updated_at",
+		"url",
+		"created_by_user_id",
+		"views",
+		"user_ip",
+		"user_agent",
+		"domain",
+	).
 		From("shortened_urls")
 
 	// Set sorting order based on SortBy parameter

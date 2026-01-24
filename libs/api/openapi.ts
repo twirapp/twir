@@ -42,6 +42,15 @@ export interface BaseOutputBodyJsonAuthResponseDto {
   data: AuthResponseDto;
 }
 
+export interface BaseOutputBodyJsonCustomDomainOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: CustomDomainOutputDto;
+}
+
 export interface BaseOutputBodyJsonIntegrationsValorantStatsOutput {
   /**
    * A URL to the JSON Schema for this object.
@@ -238,6 +247,19 @@ export interface CountryStatsDto {
   country: string;
 }
 
+export interface CreateCustomDomainInputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /**
+   * @minLength 3
+   * @maxLength 255
+   */
+  domain: string;
+}
+
 export interface CreateLinkInputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -278,6 +300,16 @@ export interface CreateRequestDtoBody {
    * @maxLength 100
    */
   user_id: string;
+}
+
+export interface CustomDomainOutputDto {
+  /** @format date-time */
+  created_at: string;
+  domain: string;
+  id: string;
+  verification_target: string;
+  verification_token: string;
+  verified: boolean;
 }
 
 export interface EndTierStruct {
@@ -1278,6 +1310,88 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksDeleteCustomDomain
+     * @summary Delete custom domain configuration
+     * @request DELETE:/v1/short-links/custom-domain
+     * @secure
+     * @response `200` `BaseOutputBodyJsonInterface` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksDeleteCustomDomain: (params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonInterface, any>({
+        path: `/v1/short-links/custom-domain`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksGetCustomDomain
+     * @summary Get custom domain configuration
+     * @request GET:/v1/short-links/custom-domain
+     * @secure
+     * @response `200` `BaseOutputBodyJsonCustomDomainOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksGetCustomDomain: (params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonCustomDomainOutputDto, any>({
+        path: `/v1/short-links/custom-domain`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksCreateCustomDomain
+     * @summary Configure custom domain
+     * @request POST:/v1/short-links/custom-domain
+     * @secure
+     * @response `200` `BaseOutputBodyJsonCustomDomainOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksCreateCustomDomain: (data: CreateCustomDomainInputBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonCustomDomainOutputDto, any>({
+        path: `/v1/short-links/custom-domain`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksVerifyCustomDomain
+     * @summary Verify custom domain DNS configuration
+     * @request POST:/v1/short-links/custom-domain/verify
+     * @secure
+     * @response `200` `BaseOutputBodyJsonCustomDomainOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksVerifyCustomDomain: (params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonCustomDomainOutputDto, any>({
+        path: `/v1/short-links/custom-domain/verify`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),

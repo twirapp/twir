@@ -5,8 +5,11 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	"go.uber.org/fx"
 )
 
@@ -25,16 +28,22 @@ var _ httpbase.Route[*topCountriesRequestDto, *httpbase.BaseOutputJson[[]country
 type TopCountriesOpts struct {
 	fx.In
 
-	Service *shortenedurls.Service
+	Service              *shortenedurls.Service
+	Sessions             *auth.Auth
+	CustomDomainsService *shortlinkscustomdomains.Service
 }
 
 type topCountries struct {
-	service *shortenedurls.Service
+	service              *shortenedurls.Service
+	sessions             *auth.Auth
+	customDomainsService *shortlinkscustomdomains.Service
 }
 
 func newTopCountries(opts TopCountriesOpts) *topCountries {
 	return &topCountries{
-		service: opts.Service,
+		service:              opts.Service,
+		sessions:             opts.Sessions,
+		customDomainsService: opts.CustomDomainsService,
 	}
 }
 
@@ -65,10 +74,24 @@ func (s *topCountries) Handler(
 		limit = 10
 	}
 
+	var domain *string
+	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(host) {
+		domain = &host
+	} else if user, err := s.sessions.GetAuthenticatedUserModel(ctx); err == nil && user != nil {
+		if userDomain, err := s.customDomainsService.GetByUserID(ctx, user.ID); err == nil && !userDomain.IsNil() && userDomain.Verified {
+			domain = &userDomain.Domain
+			link, err := s.service.GetByShortID(ctx, domain, input.ShortId)
+			if err == nil && link.IsNil() {
+				domain = nil
+			}
+		}
+	}
+
 	countries, err := s.service.GetTopCountries(
 		ctx,
 		shortenedurls.GetTopCountriesInput{
 			ShortLinkID: input.ShortId,
+			Domain:      domain,
 			Limit:       limit,
 		},
 	)

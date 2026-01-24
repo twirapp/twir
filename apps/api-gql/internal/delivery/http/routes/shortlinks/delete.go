@@ -8,7 +8,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
-	"github.com/twirapp/twir/libs/repositories/shortened_urls"
+	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	"go.uber.org/fx"
 )
 
@@ -21,19 +21,22 @@ var _ httpbase.Route[*deleteRequestDto, *httpbase.BaseOutputJson[any]] = (*delet
 type DeleteOpts struct {
 	fx.In
 
-	Service  *shortenedurls.Service
-	Sessions *auth.Auth
+	Service              *shortenedurls.Service
+	CustomDomainsService *shortlinkscustomdomains.Service
+	Sessions             *auth.Auth
 }
 
 type deleteRoute struct {
-	service  *shortenedurls.Service
-	sessions *auth.Auth
+	service              *shortenedurls.Service
+	customDomainsService *shortlinkscustomdomains.Service
+	sessions             *auth.Auth
 }
 
 func newDelete(opts DeleteOpts) *deleteRoute {
 	return &deleteRoute{
-		service:  opts.Service,
-		sessions: opts.Sessions,
+		service:              opts.Service,
+		customDomainsService: opts.CustomDomainsService,
+		sessions:             opts.Sessions,
 	}
 }
 
@@ -67,13 +70,25 @@ func (d *deleteRoute) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized", err)
 	}
 
+	var domain *string
+	if userDomain, err := d.customDomainsService.GetByUserID(ctx, user.ID); err == nil && !userDomain.IsNil() && userDomain.Verified {
+		domain = &userDomain.Domain
+	}
+
 	// Get the link to verify ownership
-	link, err := d.service.GetByShortID(ctx, input.ShortId)
+	link, err := d.service.GetByShortID(ctx, domain, input.ShortId)
 	if err != nil {
-		if err == shortened_urls.ErrNotFound {
-			return nil, huma.NewError(http.StatusNotFound, "Link not found")
-		}
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get link", err)
+	}
+	if link.IsNil() && domain != nil {
+		domain = nil
+		link, err = d.service.GetByShortID(ctx, domain, input.ShortId)
+		if err != nil {
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get link", err)
+		}
+	}
+	if link.IsNil() {
+		return nil, huma.NewError(http.StatusNotFound, "Link not found")
 	}
 
 	// Check if user owns this link
@@ -82,7 +97,7 @@ func (d *deleteRoute) Handler(
 	}
 
 	// Delete the link
-	err = d.service.Delete(ctx, input.ShortId)
+	err = d.service.Delete(ctx, domain, input.ShortId)
 	if err != nil {
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot delete link", err)
 	}

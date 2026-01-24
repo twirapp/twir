@@ -8,9 +8,9 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
+	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
 )
 
@@ -61,12 +61,17 @@ func (i *info) Handler(
 	ctx context.Context,
 	input *infoRequestDto,
 ) (*httpbase.BaseOutputJson[linkOutputDto], error) {
-	link, err := i.service.GetByShortID(ctx, input.ShortId)
+	var domain *string
+	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(host) {
+		domain = &host
+	}
+
+	link, err := i.service.GetByShortID(ctx, domain, input.ShortId)
 	if err != nil {
 		return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
 	}
 
-	if link == model.Nil {
+	if link.IsNil() {
 		return nil, huma.NewError(http.StatusNotFound, "Link not found")
 	}
 
@@ -75,14 +80,20 @@ func (i *info) Handler(
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get base URL", err)
 	}
 
-	parsedBaseUrl, _ := url.Parse(baseUrl)
-	parsedBaseUrl.Path = "/s/" + input.ShortId
+	var shortURL string
+	if domain != nil {
+		shortURL = "https://" + *domain + "/" + input.ShortId
+	} else {
+		parsedBaseUrl, _ := url.Parse(baseUrl)
+		parsedBaseUrl.Path = "/s/" + input.ShortId
+		shortURL = parsedBaseUrl.String()
+	}
 
 	return httpbase.CreateBaseOutputJson(
 		linkOutputDto{
 			Id:       link.ShortID,
 			Url:      link.URL,
-			ShortUrl: parsedBaseUrl.String(),
+			ShortUrl: shortURL,
 			Views:    link.Views,
 		},
 	), nil
