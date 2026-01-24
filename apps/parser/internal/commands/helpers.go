@@ -25,10 +25,6 @@ func (c *Commands) shouldCheckCooldown(
 		return false
 	}
 
-	if len(command.RoleCooldowns) == 0 {
-		return true
-	}
-
 	for _, role := range command.RoleCooldowns {
 		hasRoleForCheck := lo.SomeBy(
 			userRoles,
@@ -50,23 +46,21 @@ func (c *Commands) shouldCheckCooldown(
 func (c *Commands) getRoleCooldown(
 	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 	userRoles []model.ChannelRole,
-) *int {
-	// If no role cooldowns are configured, use default cooldown
+) (*string, *int) {
 	if len(command.RoleCooldowns) == 0 {
-		return command.Cooldown
+		return nil, command.Cooldown
 	}
 
-	// Find the highest priority role that has a custom cooldown
 	for _, userRole := range userRoles {
 		for _, roleCooldown := range command.RoleCooldowns {
 			if roleCooldown.RoleID.String() == userRole.ID {
-				return &roleCooldown.Cooldown
+				return lo.ToPtr(roleCooldown.RoleID.String()), &roleCooldown.Cooldown
 			}
 		}
 	}
 
 	// If user has no roles with custom cooldowns, use default
-	return command.Cooldown
+	return nil, command.Cooldown
 }
 
 func (c *Commands) prepareCooldownAndPermissionsCheck(

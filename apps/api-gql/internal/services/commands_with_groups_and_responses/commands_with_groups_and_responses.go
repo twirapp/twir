@@ -61,7 +61,9 @@ type Service struct {
 	cachedCommandsClient *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
-func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) commandwithrelationentity.CommandWithGroupAndResponses {
+func (c *Service) mapToEntity(
+	m model.CommandWithGroupAndResponses,
+) commandwithrelationentity.CommandWithGroupAndResponses {
 	e := commandwithrelationentity.CommandWithGroupAndResponses{
 		Command: commandwithrelationentity.Command{
 			ID:                        m.Command.ID,
@@ -122,6 +124,7 @@ func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) commandwithr
 	}
 
 	e.Responses = responses
+	e.RolesCooldowns = m.RoleCooldowns
 
 	return e
 }
@@ -134,6 +137,12 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 	if err != nil {
 		return nil, err
 	}
+
+	slices.SortFunc(
+		cmds, func(a, b model.CommandWithGroupAndResponses) int {
+			return strings.Compare(a.Command.Name, b.Command.Name)
+		},
+	)
 
 	entities := make([]commandwithrelationentity.CommandWithGroupAndResponses, 0, len(cmds))
 	for _, cmd := range cmds {

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/entities/command_role_cooldown"
+	"github.com/twirapp/twir/libs/entities/commandrolecooldownentity"
 )
 
 type Command struct {
@@ -34,6 +34,7 @@ type Command struct {
 	GroupID                   *uuid.UUID
 	ExpiresAt                 *time.Time
 	ExpiresType               *CommandExpireType
+	RolesCooldowns            []commandrolecooldownentity.CommandRoleCooldown
 
 	isNil bool
 }
@@ -88,7 +89,7 @@ type CommandWithGroupAndResponses struct {
 	Command        Command
 	Group          *CommandGroup
 	Responses      []CommandResponse
-	RolesCooldowns []command_role_cooldown.CommandRoleCooldown
+	RolesCooldowns []commandrolecooldownentity.CommandRoleCooldown
 
 	isNil bool
 }

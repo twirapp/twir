@@ -42,7 +42,6 @@ export const formSchema = object({
 	requiredWatchTime: number().int().min(0).max(999999999999),
 	cooldown: number().int().min(0).max(84600),
 	cooldownType: string(),
-	cooldownRolesIds: array(string()).max(100),
 	roleCooldowns: array(
 		object({
 			roleId: string(),

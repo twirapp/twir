@@ -115,7 +115,6 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 		AllowedUsersIDS:           opts.AllowedUsersIds.Value(),
 		RolesIDS:                  opts.RolesIds.Value(),
 		OnlineOnly:                opts.OnlineOnly.Value(),
-		CooldownRolesIDs:          opts.CooldownRolesIds.Value(),
 		EnabledCategories:         opts.EnabledCategories.Value(),
 		RequiredWatchTime:         opts.RequiredWatchTime.Value(),
 		RequiredMessages:          opts.RequiredMessages.Value(),
@@ -183,7 +182,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 				updateInput.RoleCooldowns = append(
 					updateInput.RoleCooldowns,
 					commands_with_groups_and_responses.UpdateInputRoleCooldown{
-						RoleID:   rc.RoleID,
+						RoleID:   rc.RoleID.String(),
 						Cooldown: rc.Cooldown,
 					},
 				)
@@ -287,7 +286,7 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 
 	converted := make([]gqlmodel.Command, 0, len(cmds))
 	for _, c := range cmds {
-		command := mappers.CommandEntityTo(c.Command)
+		command := mappers.CommandEntityTo(c)
 		converted = append(converted, command)
 	}
 
@@ -309,7 +308,11 @@ func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([
 		return nil, err
 	}
 
-	filteredCommands := make([]commandwithrelationentity.CommandWithGroupAndResponses, 0, len(entities))
+	filteredCommands := make(
+		[]commandwithrelationentity.CommandWithGroupAndResponses,
+		0,
+		len(entities),
+	)
 	for _, cmd := range entities {
 		if cmd.Command.Visible && cmd.Command.Enabled {
 			filteredCommands = append(filteredCommands, cmd)

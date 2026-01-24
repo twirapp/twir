@@ -10,9 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	entity "github.com/twirapp/twir/libs/entities/command_role_cooldown"
+	entity "github.com/twirapp/twir/libs/entities/commandrolecooldownentity"
 	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
-	"github.com/twirapp/twir/libs/repositories/command_role_cooldown/model"
 )
 
 type Opts struct {
@@ -30,8 +29,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ command_role_cooldown.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  command_role_cooldown.Repository = (*Pgx)(nil)
+	sq                                  = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -45,6 +46,15 @@ var selectColumns = []string{
 	"cooldown",
 	"created_at",
 	"updated_at",
+}
+
+type scanModel struct {
+	ID        uuid.UUID `db:"id"`
+	CommandID uuid.UUID `db:"command_id"`
+	RoleID    uuid.UUID `db:"role_id"`
+	Cooldown  int       `db:"cooldown"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 func (c *Pgx) GetByCommandID(ctx context.Context, commandID uuid.UUID) ([]entity.CommandRoleCooldown, error) {
@@ -63,21 +73,23 @@ func (c *Pgx) GetByCommandID(ctx context.Context, commandID uuid.UUID) ([]entity
 		return nil, fmt.Errorf("GetByCommandID: failed to execute select query: %w", err)
 	}
 
-	dbModels, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.CommandRoleCooldown])
+	dbModels, err := pgx.CollectRows(rows, pgx.RowToStructByName[scanModel])
 	if err != nil {
 		return nil, fmt.Errorf("GetByCommandID: failed to collect rows: %w", err)
 	}
 
 	result := make([]entity.CommandRoleCooldown, 0, len(dbModels))
 	for _, dbModel := range dbModels {
-		result = append(result, entity.CommandRoleCooldown{
-			ID:        dbModel.ID,
-			CommandID: dbModel.CommandID,
-			RoleID:    dbModel.RoleID,
-			Cooldown:  dbModel.Cooldown,
-			CreatedAt: dbModel.CreatedAt,
-			UpdatedAt: dbModel.UpdatedAt,
-		})
+		result = append(
+			result, entity.CommandRoleCooldown{
+				ID:        dbModel.ID,
+				CommandID: dbModel.CommandID,
+				RoleID:    dbModel.RoleID,
+				Cooldown:  dbModel.Cooldown,
+				CreatedAt: dbModel.CreatedAt,
+				UpdatedAt: dbModel.UpdatedAt,
+			},
+		)
 	}
 
 	return result, nil
@@ -103,21 +115,23 @@ func (c *Pgx) GetByCommandIDs(ctx context.Context, commandIDs []uuid.UUID) ([]en
 		return nil, fmt.Errorf("GetByCommandIDs: failed to execute select query: %w", err)
 	}
 
-	dbModels, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.CommandRoleCooldown])
+	dbModels, err := pgx.CollectRows(rows, pgx.RowToStructByName[scanModel])
 	if err != nil {
 		return nil, fmt.Errorf("GetByCommandIDs: failed to collect rows: %w", err)
 	}
 
 	result := make([]entity.CommandRoleCooldown, 0, len(dbModels))
 	for _, dbModel := range dbModels {
-		result = append(result, entity.CommandRoleCooldown{
-			ID:        dbModel.ID,
-			CommandID: dbModel.CommandID,
-			RoleID:    dbModel.RoleID,
-			Cooldown:  dbModel.Cooldown,
-			CreatedAt: dbModel.CreatedAt,
-			UpdatedAt: dbModel.UpdatedAt,
-		})
+		result = append(
+			result, entity.CommandRoleCooldown{
+				ID:        dbModel.ID,
+				CommandID: dbModel.CommandID,
+				RoleID:    dbModel.RoleID,
+				Cooldown:  dbModel.Cooldown,
+				CreatedAt: dbModel.CreatedAt,
+				UpdatedAt: dbModel.UpdatedAt,
+			},
+		)
 	}
 
 	return result, nil
@@ -127,11 +141,13 @@ func (c *Pgx) Create(ctx context.Context, input command_role_cooldown.CreateInpu
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 
 	query, args, err := sq.Insert("channels_commands_role_cooldowns").
-		SetMap(map[string]any{
-			"command_id": input.CommandID,
-			"role_id":    input.RoleID,
-			"cooldown":   input.Cooldown,
-		}).
+		SetMap(
+			map[string]any{
+				"command_id": input.CommandID,
+				"role_id":    input.RoleID,
+				"cooldown":   input.Cooldown,
+			},
+		).
 		Suffix("RETURNING id, created_at, updated_at").
 		ToSql()
 	if err != nil {
@@ -204,10 +220,12 @@ func (c *Pgx) DeleteByCommandIDAndRoleID(ctx context.Context, commandID, roleID 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 
 	query, args, err := sq.Delete("channels_commands_role_cooldowns").
-		Where(squirrel.Eq{
-			"command_id": commandID,
-			"role_id":    roleID,
-		}).
+		Where(
+			squirrel.Eq{
+				"command_id": commandID,
+				"role_id":    roleID,
+			},
+		).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("DeleteByCommandIDAndRoleID: failed to build delete query: %w", err)

@@ -1,4 +1,4 @@
-package command_role_cooldown
+package commandrolecooldownentity
 
 import (
 	"time"

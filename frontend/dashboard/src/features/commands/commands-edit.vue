@@ -45,7 +45,6 @@ const { handleSubmit, setValues, values } = useForm({
 		requiredWatchTime: 0,
 		cooldown: 0,
 		cooldownType: 'GLOBAL',
-		cooldownRolesIds: [],
 		isReply: true,
 		visible: true,
 		keepResponsesOrder: true,
@@ -54,6 +53,7 @@ const { handleSubmit, setValues, values } = useForm({
 		enabledCategories: [],
 		expiresType: null,
 		expiresAt: null,
+		roleCooldowns: []
 	},
 	keepValuesOnUnmount: true,
 })

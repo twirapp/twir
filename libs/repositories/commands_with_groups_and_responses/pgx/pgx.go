@@ -53,13 +53,15 @@ func init() {
 	columns = append(
 		columns,
 		`
-COALESCE(json_agg(json_build_object(
-	'id', r.id,
-	'text', r.text,
-	'commandId', r."commandId",
-	'order', r."order",
-	'twitch_category_id', r."twitch_category_id"
-)) FILTER (WHERE r.id IS NOT NULL), '[]'::json) as responses
+ (SELECT COALESCE(json_agg(json_build_object(
+			 'id', r.id,
+			 'text', r.text,
+			 'commandId', r."commandId",
+			 'order', r."order",
+			 'twitch_category_id', r."twitch_category_id"
+												 )), '[]'::json)
+FROM channels_commands_responses r
+WHERE r."commandId" = c.id) as responses
 `,
 		`
 json_build_object(
@@ -70,14 +72,16 @@ json_build_object(
 ) as group
 `,
 		`
-COALESCE(json_agg(json_build_object(
-	'id', rc.id,
-	'commandId', rc.command_id,
-	'roleId', rc.role_id,
-	'cooldown', rc.cooldown,
-	'createdAt', to_char(rc.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
-	'updatedAt', to_char(rc.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
-)) FILTER (WHERE rc.id IS NOT NULL), '[]'::json) as role_cooldowns
+(SELECT COALESCE(json_agg(json_build_object(
+			 'id', rc.id,
+			 'commandId', rc.command_id,
+			 'roleId', rc.role_id,
+			 'cooldown', rc.cooldown,
+			 'createdAt', to_char(rc.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
+			 'updatedAt', to_char(rc.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
+)), '[]'::json)
+FROM channels_commands_role_cooldowns rc
+WHERE rc.command_id = c.id) as role_cooldowns
 `,
 	)
 

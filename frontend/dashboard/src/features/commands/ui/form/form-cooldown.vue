@@ -16,24 +16,29 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import FormRolesSelector from "@/features/commands/ui/form-roles-selector.vue";
 import CommunityRolesModal from "@/features/community-roles/community-roles-modal.vue";
-import { useCommandEditV2 } from "@/features/commands/composables/use-command-edit-v2";
+import type {
+	FormSchema} from '@/features/commands/composables/use-command-edit-v2.ts';
+import {
+	useCommandEditV2,
+} from '@/features/commands/composables/use-command-edit-v2.ts';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const { t } = useI18n();
-const { values, setFieldValue } = useFormContext();
-const { channelRoles } = useCommandEditV2();
+const { channelRoles } = useCommandEditV2()
+const { values, setFieldValue } = useFormContext<FormSchema>();
 
-// Get or initialize roleCooldowns map
 const roleCooldowns = computed({
 	get: () => {
-		const cooldowns = (values.roleCooldowns as Array<{ roleId: string; cooldown: number }>) || [];
+		const cooldowns = values.roleCooldowns || [];
 		return new Map(cooldowns.map((rc) => [rc.roleId, rc.cooldown]));
 	},
 	set: (map: Map<string, number>) => {
 		const cooldowns = Array.from(map.entries())
 			.filter(([_, cooldown]) => cooldown > 0)
 			.map(([roleId, cooldown]) => ({ roleId, cooldown }));
+
 		setFieldValue("roleCooldowns", cooldowns);
 	},
 });
@@ -109,39 +114,52 @@ function getRoleCooldown(roleId: string): number {
 					</p>
 
 					<div class="@container w-full max-w-2xl">
-						<FormRolesSelector
-							field-name="cooldownRolesIds"
-							hide-broadcaster
-							everyone-always-active
-						>
-							<template #extra="{ roleId }">
-								<div class="flex items-center gap-2 flex-1 min-w-[180px]">
-									<Input
-										:disabled="roleId ? !values.cooldownRolesIds?.includes(roleId) : false"
-										:model-value="!roleId ? values.cooldown : getRoleCooldown(roleId)"
-										@update:model-value="
-											(val) => {
-												if (!roleId) {
-													setFieldValue('cooldown', Number(val) || 0);
-												} else {
-													updateRoleCooldown(roleId, Number(val) || 0);
-												}
-											}
-										"
-										min="0"
-										max="86400"
-										class="w-auto"
-										:placeholder="t('commands.modal.cooldown.value')"
-									/>
-									<span class="text-sm text-muted-foreground whitespace-nowrap">sec</span>
+						<div class="grid grid-cols-1 gap-1 xl:max-w-[50%]">
+							<div class="flex flex-row items-center gap-2 space-y-0">
+								<div class="flex flex-row gap-2 bg-accent px-3 py-2 rounded-md leading w-56 min-w-56">
+									<Checkbox id="allRoles" :model-value="true" disabled />
+									<Label for="allRoles" class="capitalize">Everyone</Label>
 								</div>
-							</template>
-						</FormRolesSelector>
+								<Input
+									v-model="values.cooldown"
+									min="0"
+									max="86400"
+									class="w-auto"
+									:placeholder="t('commands.modal.cooldown.value')"
+								/>
+								sec
+							</div>
+
+							<div
+								v-for="(role) in channelRoles?.roles"
+								:key="role!.id"
+								class="flex flex-row items-center gap-2 space-y-0"
+							>
+								<div class="flex flex-row fle flex-wrap gap-2 space-y-0 bg-accent px-3 py-2 rounded-md leading w-56 min-w-56">
+									<Checkbox
+										:model-value="roleCooldowns.has(role.id)"
+										@update:model-value="roleCooldowns.has(role.id) ? updateRoleCooldown(role.id, 0) : updateRoleCooldown(role.id, 5)"
+										:id="`cooldown-${role.id}`"
+									/>
+									<Label :for="`cooldown-${role.id}`" class="cursor-pointer text-ellipsis overflow-hidden">
+										{{ role.name }}
+									</Label>
+								</div>
+								<Input
+									:disabled="!roleCooldowns.has(role.id)"
+									:model-value="getRoleCooldown(role.id)"
+									@update:model-value="(val) => updateRoleCooldown(role.id, Number(val) ?? 5)"
+									min="0"
+									max="86400"
+									class="w-auto"
+									:placeholder="t('commands.modal.cooldown.value')"
+								/>
+								sec
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</CardContent>
 	</Card>
 </template>
-
-<style scoped></style>

@@ -92,10 +92,14 @@ func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) g
 
 	rolesCooldowns := make([]gqlmodel.CommandRoleCooldown, 0, len(e.RolesCooldowns))
 	for _, rc := range e.RolesCooldowns {
-		rolesCooldowns = append(rolesCooldowns, gqlmodel.CommandRoleCooldown{
-			RoleID:   rc.RoleID,
-			Cooldown: rc.Cooldown,
-		})
+		rolesCooldowns = append(
+			rolesCooldowns, gqlmodel.CommandRoleCooldown{
+				ID:        rc.ID,
+				CommandID: rc.CommandID,
+				RoleID:    rc.RoleID,
+				Cooldown:  rc.Cooldown,
+			},
+		)
 	}
 	m.RoleCooldowns = rolesCooldowns
 
@@ -157,10 +161,12 @@ func CommandGqlInputToService(
 
 	roleCooldowns := make([]commands.CreateInputRoleCooldown, 0, len(input.RoleCooldowns))
 	for _, rc := range input.RoleCooldowns {
-		roleCooldowns = append(roleCooldowns, commands.CreateInputRoleCooldown{
-			RoleID:   rc.RoleID,
-			Cooldown: rc.Cooldown,
-		})
+		roleCooldowns = append(
+			roleCooldowns, commands.CreateInputRoleCooldown{
+				RoleID:   rc.RoleID.String(),
+				Cooldown: rc.Cooldown,
+			},
+		)
 	}
 
 	return commands.CreateInput{
@@ -179,7 +185,6 @@ func CommandGqlInputToService(
 		AllowedUsersIDS:           input.AllowedUsersIds,
 		RolesIDS:                  input.RolesIds,
 		OnlineOnly:                input.OnlineOnly,
-		CooldownRolesIDs:          input.CooldownRolesIds,
 		EnabledCategories:         input.EnabledCategories,
 		RequiredWatchTime:         input.RequiredWatchTime,
 		RequiredMessages:          input.RequiredMessages,

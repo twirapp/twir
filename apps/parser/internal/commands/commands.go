@@ -618,32 +618,31 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	shouldCheckCooldown := c.shouldCheckCooldown(data, cmd.Cmd, userRoles)
 
 	if shouldCheckCooldown {
-		roleCooldown := c.getRoleCooldown(cmd.Cmd, userRoles)
-		if cmd.Cmd.CooldownType == "GLOBAL" && roleCooldown != nil && *roleCooldown > 0 && shouldCheckCooldown {
-			key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
-			rErr := c.services.Redis.Get(ctx, key).Err()
+		roleId, cooldown := c.getRoleCooldown(cmd.Cmd, userRoles)
+		if cooldown != nil {
+			var redisKey strings.Builder
+			redisKey.WriteString("commands:")
+			redisKey.WriteString(cmd.Cmd.ID.String())
+			redisKey.WriteString(":cooldowns")
+			redisKey.WriteString(cmd.Cmd.CooldownType)
+			if cmd.Cmd.CooldownType == "PER_USER" {
+				redisKey.WriteString(fmt.Sprintf(":user:%s", data.ChatterUserId))
+			}
 
+			if roleId != nil {
+				redisKey.WriteString(fmt.Sprintf(":role:%s", *roleId))
+			}
+
+			finalRedisKey := redisKey.String()
+			rErr := c.services.Redis.Get(ctx, finalRedisKey).Err()
 			if errors.Is(rErr, redis.Nil) {
-				c.services.Redis.Set(ctx, key, "", time.Duration(*roleCooldown)*time.Second)
+				c.services.Redis.Set(ctx, finalRedisKey, "", time.Duration(*cooldown)*time.Second)
 			} else if rErr != nil {
 				c.services.Logger.Sugar().Error(rErr)
 				return nil, errors.New("error while setting redis cooldown for command")
-			} else {
-				return nil, nil
 			}
-		}
-		if cmd.Cmd.CooldownType == "PER_USER" && roleCooldown != nil && *roleCooldown > 0 && shouldCheckCooldown {
-			key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.ChatterUserId)
-			rErr := c.services.Redis.Get(ctx, key).Err()
 
-			if errors.Is(rErr, redis.Nil) {
-				c.services.Redis.Set(ctx, key, "", time.Duration(*roleCooldown)*time.Second)
-			} else if rErr != nil {
-				zap.S().Error(rErr)
-				return nil, errors.New("error while setting redis cooldown for command")
-			} else {
-				return nil, nil
-			}
+			return nil, nil
 		}
 	}
 

@@ -33,7 +33,6 @@ type CreateInput struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []string
 	OnlineOnly                bool
-	CooldownRolesIDs          []string
 	EnabledCategories         []string
 	RequiredWatchTime         int
 	RequiredMessages          int
@@ -84,7 +83,10 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 	}
 
 	if len(input.Responses) > plan.MaxCommandsResponses {
-		return commandwithrelationentity.CommandNil, fmt.Errorf("you can have only %v responses per command", plan.MaxCommandsResponses)
+		return commandwithrelationentity.CommandNil, fmt.Errorf(
+			"you can have only %v responses per command",
+			plan.MaxCommandsResponses,
+		)
 	}
 
 	isNameConflict, err := c.IsNameConflicting(
@@ -134,7 +136,6 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 					AllowedUsersIDS:           input.AllowedUsersIDS,
 					RolesIDS:                  input.RolesIDS,
 					OnlineOnly:                input.OnlineOnly,
-					CooldownRolesIDs:          input.CooldownRolesIDs,
 					EnabledCategories:         input.EnabledCategories,
 					RequiredWatchTime:         input.RequiredWatchTime,
 					RequiredMessages:          input.RequiredMessages,
