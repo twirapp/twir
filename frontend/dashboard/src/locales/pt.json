@@ -333,7 +333,7 @@
         "shouldDeleteMessageOnOffline": "Excluir a mensagem de alerta invés de editá-la quando a transmissão terminar?",
         "additionalUsersIdsForLiveCheck": "Lista adicional de usuários da Twitch para seguir e enviar alertas de transmissão."
       },
-      "connectGuild": "Connect Server",
+      "connectGuild": "+ Conectar Servidor",
       "disconnectGuild": "Desconectar Servidor",
       "noGuilds": "Sem Servidores Conectados",
       "cannotSendMessage": "O Bot não tem permissão para enviar mensagens nesse canal. Confira as permissões do canal para resolver isso."
@@ -482,11 +482,11 @@
       "advancedSettings": "Advanced Settings",
       "advancedDescription": "Configure advanced TTS behavior and filtering options",
       "eventsHint": "Dica: Você pode usar o sistema de eventos para acionar o Texto-para-voz em um evento específico.",
-      "allowUsersChooseVoice": "Allow Users to Choose Voice",
+      "allowUsersChooseVoice": "Permitir que os usuários usem vozes diferentes?",
       "allowUsersChooseVoiceDesc": "Users can set their own voice using chat commands",
       "doNotReadEmoji": "Não Ler Emojis",
       "doNotReadEmojiDesc": "Skip emoji when reading messages",
-      "doNotReadTwitchEmotes": "Do Not Read Twitch Emotes",
+      "doNotReadTwitchEmotes": "Não Ler Emotes da Twitch (incluindo 7TV, FFZ, BTTV",
       "doNotReadTwitchEmotesDesc": "Skip Twitch, 7TV, FFZ, and BTTV emotes",
       "doNotReadLinks": "Não Ler Links",
       "doNotReadLinksDesc": "Skip URLs in messages",
@@ -494,16 +494,16 @@
       "readChatMessagesDesc": "Automatically read all incoming chat messages",
       "readChatMessagesNicknames": "Ler Nomes de Usuário",
       "readChatMessagesNicknamesDesc": "Include username before the message",
-      "voice": "Voice",
+      "voice": "Voz Padrão",
       "selectVoice": "Select a voice",
-      "disallowedVoices": "Disallowed Voices",
+      "disallowedVoices": "Lista de Vozes Proibidas",
       "volume": "Volume",
       "pitch": "Tom",
       "rate": "Velocidade",
       "maxSymbols": "Maximum Symbols",
       "maxSymbolsDesc": "Maximum message length (0 = unlimited)",
       "preview": "Preview",
-      "previewText": "Enter text to preview",
+      "previewText": "Pré-visualizar voz com texto, tom e velocidade:",
       "previewError": "Failed to play preview",
       "playingPreview": "Playing preview...",
       "readingOptions": "Reading Options",
@@ -516,7 +516,7 @@
       "users": {
         "selectAll": "Selecionar Tudo",
         "undoSelection": "Desfazer Seleção",
-        "empty": "No Custom User Settings",
+        "empty": "Ninguém criou suas próprias personalizações ainda...",
         "emptyDescription": "No users have created their own TTS customizations yet. Users can set their voice, pitch, rate, and volume using chat commands."
       },
       "tabs": {
@@ -547,8 +547,8 @@
       "port": "Porta do servidor WebSocket do OBS",
       "password": "Password",
       "passwordDescription": "Ensure the password matches, as many users misconfigure it.",
-      "connected": "Connected",
-      "notConnected": "Not Connected",
+      "connected": "Conectado!",
+      "notConnected": "Não Conectado!",
       "checkConnection": "Verificar Conexão",
       "settingsSavedHint": "Settings saved, now you can paste overlay link into OBS",
       "connectionInfo": "Connection Info",
@@ -635,10 +635,10 @@
       "nameBoxStroke": "Cor do traçado",
       "nameStrokeThickness": "Espessura do traçado",
       "nameBoxLineJoin": "Junção de linha do traçado",
-      "nameBoxDropShadow": "Drop shadow-sm",
+      "nameBoxDropShadow": "Sombra projetada",
       "nameBoxDropShadowColor": "Cor da sombra",
       "nameBoxDropShadowAlpha": "Alpha da sombra",
-      "nameBoxDropShadowBlur": "Shadow blur-sm",
+      "nameBoxDropShadowBlur": "Desfoque da sombra",
       "nameBoxDropShadowDistance": "Distância da sombra",
       "nameBoxDropShadowAngle": "Ângulo da sombra",
       "messageBoxIgnoreCommands": "Ignorar comandos",
@@ -1038,6 +1038,41 @@
         "buttons": {
           "update": "Atualizar Configurações",
           "create": "Criar Configurações"
+        }
+      }
+    },
+    "webhookNotifications": {
+      "title": "Webhook notifications",
+      "description": "Send GitHub updates to chat",
+      "status": {
+        "enabled": "Notifications enabled",
+        "disabled": "Notifications disabled"
+      },
+      "settings": {
+        "title": "Webhook Notifications Settings",
+        "info": "Webhooks are configured globally by the project admin.",
+        "enabled": {
+          "label": "Enabled",
+          "description": "Send webhook updates to chat"
+        },
+        "github": {
+          "title": "GitHub",
+          "issues": {
+            "label": "Issues",
+            "description": "Notify about new issues"
+          },
+          "pullRequests": {
+            "label": "Pull requests",
+            "description": "Notify about new pull requests"
+          },
+          "commits": {
+            "label": "Commits",
+            "description": "Notify about new commits"
+          }
+        },
+        "buttons": {
+          "update": "Update Settings",
+          "create": "Create Settings"
         }
       }
     }
