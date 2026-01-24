@@ -623,14 +623,14 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 			var redisKey strings.Builder
 			redisKey.WriteString("commands:")
 			redisKey.WriteString(cmd.Cmd.ID.String())
-			redisKey.WriteString(":cooldowns")
+			redisKey.WriteString(":cooldowns:")
 			redisKey.WriteString(cmd.Cmd.CooldownType)
 			if cmd.Cmd.CooldownType == "PER_USER" {
-				redisKey.WriteString(fmt.Sprintf(":user:%s", data.ChatterUserId))
+				redisKey.WriteString(fmt.Sprintf("user:%s:", data.ChatterUserId))
 			}
 
 			if roleId != nil {
-				redisKey.WriteString(fmt.Sprintf(":role:%s", *roleId))
+				redisKey.WriteString(fmt.Sprintf("role:%s", *roleId))
 			}
 
 			finalRedisKey := redisKey.String()
@@ -640,9 +640,9 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 			} else if rErr != nil {
 				c.services.Logger.Sugar().Error(rErr)
 				return nil, errors.New("error while setting redis cooldown for command")
+			} else {
+				return nil, nil
 			}
-
-			return nil, nil
 		}
 	}
 

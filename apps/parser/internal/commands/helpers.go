@@ -21,6 +21,10 @@ func (c *Commands) shouldCheckCooldown(
 		return false
 	}
 
+	if len(command.RoleCooldowns) == 0 && command.Cooldown != nil && *command.Cooldown > 0 {
+		return true
+	}
+
 	if msg.IsChatterBroadcaster() {
 		return false
 	}
