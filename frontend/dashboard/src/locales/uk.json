@@ -333,7 +333,7 @@
         "shouldDeleteMessageOnOffline": "Видалити сповіщення замість редагування тексту, коли трансляція завершується?",
         "additionalUsersIdsForLiveCheck": "Додатковий список Twitch користувачів, щоб отримувати сповіщення про трансляції."
       },
-      "connectGuild": "Connect Server",
+      "connectGuild": "+ Підключити сервер",
       "disconnectGuild": "Від'єднати сервер",
       "noGuilds": "Немає під'єднаних серверів",
       "cannotSendMessage": "Бот не має можливості надсилати повідомлення у цьому каналі. Перевірте права доступу до каналів для вирішення цієї проблеми."
@@ -482,11 +482,11 @@
       "advancedSettings": "Розширені налаштування",
       "advancedDescription": "Configure advanced TTS behavior and filtering options",
       "eventsHint": "Підказка: ви можете використовувати систему подій, щоб запускати TTS за винагороду.",
-      "allowUsersChooseVoice": "Allow Users to Choose Voice",
+      "allowUsersChooseVoice": "Дозволити користувачам використовувати голоси?",
       "allowUsersChooseVoiceDesc": "Users can set their own voice using chat commands",
       "doNotReadEmoji": "Не читати емодзі",
       "doNotReadEmojiDesc": "Skip emoji when reading messages",
-      "doNotReadTwitchEmotes": "Do Not Read Twitch Emotes",
+      "doNotReadTwitchEmotes": "Не читати емодзі Twitch (включаючи 7TV, FFZ та BTTV)",
       "doNotReadTwitchEmotesDesc": "Skip Twitch, 7TV, FFZ, and BTTV emotes",
       "doNotReadLinks": "Не читати посилання",
       "doNotReadLinksDesc": "Skip URLs in messages",
@@ -494,16 +494,16 @@
       "readChatMessagesDesc": "Automatically read all incoming chat messages",
       "readChatMessagesNicknames": "Читати нікнейми",
       "readChatMessagesNicknamesDesc": "Include username before the message",
-      "voice": "Голос",
+      "voice": "Стандартний голос",
       "selectVoice": "Select a voice",
-      "disallowedVoices": "Disallowed Voices",
+      "disallowedVoices": "Заборонені голоси",
       "volume": "Гучність",
       "pitch": "Висота тону",
       "rate": "Швидкість",
       "maxSymbols": "Maximum Symbols",
       "maxSymbolsDesc": "Maximum message length (0 = unlimited)",
       "preview": "Прев'ю",
-      "previewText": "Введіть текст для попереднього перегляду",
+      "previewText": "Попередній перегляд голосу з текстом, висотою та швидкістю:",
       "previewError": "Не вдалося відтворити попередній перегляд",
       "playingPreview": "Відтворення попереднього перегляду...",
       "readingOptions": "Параметри читання",
@@ -516,7 +516,7 @@
       "users": {
         "selectAll": "Обрати все",
         "undoSelection": "Скасувати вибір",
-        "empty": "No Custom User Settings",
+        "empty": "Ніхто ще не створив свої власні налаштування...",
         "emptyDescription": "No users have created their own TTS customizations yet. Users can set their voice, pitch, rate, and volume using chat commands."
       },
       "tabs": {
@@ -547,8 +547,8 @@
       "port": "Порт сервера OBS WebSocket",
       "password": "Password",
       "passwordDescription": "Ensure the password matches, as many users misconfigure it.",
-      "connected": "Connected",
-      "notConnected": "Not Connected",
+      "connected": "З’єднано!",
+      "notConnected": "Не з’єднано!",
       "checkConnection": "Перевірте з’єднання",
       "settingsSavedHint": "Settings saved, now you can paste overlay link into OBS",
       "connectionInfo": "Connection Info",
@@ -635,10 +635,10 @@
       "nameBoxStroke": "Колір контуру",
       "nameStrokeThickness": "Товщина контуру",
       "nameBoxLineJoin": "Форма контуру",
-      "nameBoxDropShadow": "Drop shadow-sm",
+      "nameBoxDropShadow": "Тінь",
       "nameBoxDropShadowColor": "Колір тіні",
       "nameBoxDropShadowAlpha": "Прозорість тіні",
-      "nameBoxDropShadowBlur": "Shadow blur-sm",
+      "nameBoxDropShadowBlur": "Розмиття тіні",
       "nameBoxDropShadowDistance": "Відстань тіні",
       "nameBoxDropShadowAngle": "Кут тіні",
       "messageBoxIgnoreCommands": "Ігнорувати команди",
@@ -1038,6 +1038,41 @@
         "buttons": {
           "update": "Оновити налаштування",
           "create": "Створити налаштування"
+        }
+      }
+    },
+    "webhookNotifications": {
+      "title": "Webhook notifications",
+      "description": "Send GitHub updates to chat",
+      "status": {
+        "enabled": "Notifications enabled",
+        "disabled": "Notifications disabled"
+      },
+      "settings": {
+        "title": "Webhook Notifications Settings",
+        "info": "Webhooks are configured globally by the project admin.",
+        "enabled": {
+          "label": "Enabled",
+          "description": "Send webhook updates to chat"
+        },
+        "github": {
+          "title": "GitHub",
+          "issues": {
+            "label": "Issues",
+            "description": "Notify about new issues"
+          },
+          "pullRequests": {
+            "label": "Pull requests",
+            "description": "Notify about new pull requests"
+          },
+          "commits": {
+            "label": "Commits",
+            "description": "Notify about new commits"
+          }
+        },
+        "buttons": {
+          "update": "Update Settings",
+          "create": "Create Settings"
         }
       }
     }
