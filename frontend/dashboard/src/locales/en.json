@@ -1040,6 +1040,41 @@
           "create": "Create Settings"
         }
       }
+    },
+    "webhookNotifications": {
+      "title": "Webhook notifications",
+      "description": "Send GitHub updates to chat",
+      "status": {
+        "enabled": "Notifications enabled",
+        "disabled": "Notifications disabled"
+      },
+      "settings": {
+        "title": "Webhook Notifications Settings",
+        "info": "Webhooks are configured globally by the project admin.",
+        "enabled": {
+          "label": "Enabled",
+          "description": "Send webhook updates to chat"
+        },
+        "github": {
+          "title": "GitHub",
+          "issues": {
+            "label": "Issues",
+            "description": "Notify about new issues"
+          },
+          "pullRequests": {
+            "label": "Pull requests",
+            "description": "Notify about new pull requests"
+          },
+          "commits": {
+            "label": "Commits",
+            "description": "Notify about new commits"
+          }
+        },
+        "buttons": {
+          "update": "Update Settings",
+          "create": "Create Settings"
+        }
+      }
     }
   },
   "community": {
