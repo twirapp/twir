@@ -333,7 +333,7 @@
         "shouldDeleteMessageOnOffline": "¿Eliminar el mensaje de alerta en lugar de editarlo cuando el Stream se desconecta?",
         "additionalUsersIdsForLiveCheck": "Lista adicional de usuarios de Twitch a seguir para enviar alertas de Stream."
       },
-      "connectGuild": "Connect Server",
+      "connectGuild": "+ Conectar servidor",
       "disconnectGuild": "Desconectar Servidor",
       "noGuilds": "No hay servidores conectados",
       "cannotSendMessage": "Bot no tiene la capacidad de enviar mensajes en ese canal. Echa un vistazo a los permisos del canal para resolverlo."
@@ -482,11 +482,11 @@
       "advancedSettings": "Advanced Settings",
       "advancedDescription": "Configure advanced TTS behavior and filtering options",
       "eventsHint": "Sugerencia: Puede utilizar el sistema de eventos para activar TTS en un evento específico.",
-      "allowUsersChooseVoice": "Allow Users to Choose Voice",
+      "allowUsersChooseVoice": "¿Permitir que los chatters usen diferentes voces?",
       "allowUsersChooseVoiceDesc": "Users can set their own voice using chat commands",
       "doNotReadEmoji": "No leer Emojis",
       "doNotReadEmojiDesc": "Skip emoji when reading messages",
-      "doNotReadTwitchEmotes": "Do Not Read Twitch Emotes",
+      "doNotReadTwitchEmotes": "No leer los emotes de Twitch (incluyendo 7TV, FFZ, BTTV",
       "doNotReadTwitchEmotesDesc": "Skip Twitch, 7TV, FFZ, and BTTV emotes",
       "doNotReadLinks": "No leer vínculos",
       "doNotReadLinksDesc": "Skip URLs in messages",
@@ -494,16 +494,16 @@
       "readChatMessagesDesc": "Automatically read all incoming chat messages",
       "readChatMessagesNicknames": "Leer nombres de usuario",
       "readChatMessagesNicknamesDesc": "Include username before the message",
-      "voice": "Voice",
+      "voice": "Voz predeterminada",
       "selectVoice": "Select a voice",
-      "disallowedVoices": "Disallowed Voices",
+      "disallowedVoices": "Lista de voces no permitidas",
       "volume": "Volumen",
       "pitch": "Tono",
       "rate": "Velocidad",
       "maxSymbols": "Maximum Symbols",
       "maxSymbolsDesc": "Maximum message length (0 = unlimited)",
       "preview": "Preview",
-      "previewText": "Enter text to preview",
+      "previewText": "Vista previa de voz con texto, tono y velocidad:",
       "previewError": "Failed to play preview",
       "playingPreview": "Playing preview...",
       "readingOptions": "Reading Options",
@@ -516,7 +516,7 @@
       "users": {
         "selectAll": "Seleccionar Todo",
         "undoSelection": "Deshacer selección",
-        "empty": "No Custom User Settings",
+        "empty": "Nadie ha creado sus propias personalizaciones todavía...",
         "emptyDescription": "No users have created their own TTS customizations yet. Users can set their voice, pitch, rate, and volume using chat commands."
       },
       "tabs": {
@@ -547,8 +547,8 @@
       "port": "Puerto del servidor OBS WebSocket",
       "password": "Password",
       "passwordDescription": "Ensure the password matches, as many users misconfigure it.",
-      "connected": "Connected",
-      "notConnected": "Not Connected",
+      "connected": "¡Conectado!",
+      "notConnected": "¡No está conectado!",
       "checkConnection": "Compruebe la conexión",
       "settingsSavedHint": "Settings saved, now you can paste overlay link into OBS",
       "connectionInfo": "Connection Info",
@@ -635,10 +635,10 @@
       "nameBoxStroke": "Color del trazo",
       "nameStrokeThickness": "Espesor del trazo",
       "nameBoxLineJoin": "Unión de trazo",
-      "nameBoxDropShadow": "Drop shadow-sm",
+      "nameBoxDropShadow": "Sombra paralela",
       "nameBoxDropShadowColor": "Color de sombra",
       "nameBoxDropShadowAlpha": "Alfa de sombra",
-      "nameBoxDropShadowBlur": "Shadow blur-sm",
+      "nameBoxDropShadowBlur": "Desenfoque de sombra",
       "nameBoxDropShadowDistance": "Distancia de sombra",
       "nameBoxDropShadowAngle": "Ángulo de sombra",
       "messageBoxIgnoreCommands": "Ignorar comandos",
@@ -1038,6 +1038,41 @@
         "buttons": {
           "update": "Actualice la configuración",
           "create": "Crear configuración"
+        }
+      }
+    },
+    "webhookNotifications": {
+      "title": "Webhook notifications",
+      "description": "Send GitHub updates to chat",
+      "status": {
+        "enabled": "Notifications enabled",
+        "disabled": "Notifications disabled"
+      },
+      "settings": {
+        "title": "Webhook Notifications Settings",
+        "info": "Webhooks are configured globally by the project admin.",
+        "enabled": {
+          "label": "Enabled",
+          "description": "Send webhook updates to chat"
+        },
+        "github": {
+          "title": "GitHub",
+          "issues": {
+            "label": "Issues",
+            "description": "Notify about new issues"
+          },
+          "pullRequests": {
+            "label": "Pull requests",
+            "description": "Notify about new pull requests"
+          },
+          "commits": {
+            "label": "Commits",
+            "description": "Notify about new commits"
+          }
+        },
+        "buttons": {
+          "update": "Update Settings",
+          "create": "Create Settings"
         }
       }
     }
