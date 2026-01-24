@@ -156,9 +156,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 		}
 	}
 
-	if len(opts.Responses.Value()) == 0 {
-		updateInput.Responses = []commands_with_groups_and_responses.UpdateInputResponse{}
-	} else {
+	if opts.Responses.IsSet() {
 		for idx, res := range opts.Responses.Value() {
 			updateInput.Responses = append(
 				updateInput.Responses,
@@ -175,19 +173,18 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 
 	if opts.RoleCooldowns.IsSet() {
 		roleCooldowns := opts.RoleCooldowns.Value()
-		if len(roleCooldowns) == 0 {
-			updateInput.RoleCooldowns = []commands_with_groups_and_responses.UpdateInputRoleCooldown{}
-		} else {
-			for _, rc := range roleCooldowns {
-				updateInput.RoleCooldowns = append(
-					updateInput.RoleCooldowns,
-					commands_with_groups_and_responses.UpdateInputRoleCooldown{
-						RoleID:   rc.RoleID.String(),
-						Cooldown: rc.Cooldown,
-					},
-				)
-			}
+
+		updateInput.RoleCooldowns = []commands_with_groups_and_responses.UpdateInputRoleCooldown{}
+		for _, rc := range roleCooldowns {
+			updateInput.RoleCooldowns = append(
+				updateInput.RoleCooldowns,
+				commands_with_groups_and_responses.UpdateInputRoleCooldown{
+					RoleID:   rc.RoleID.String(),
+					Cooldown: rc.Cooldown,
+				},
+			)
 		}
+
 	}
 
 	if _, err := r.deps.CommandsWithGroupsAndResponsesService.Update(
