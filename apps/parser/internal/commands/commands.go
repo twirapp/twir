@@ -640,8 +640,6 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 			} else if rErr != nil {
 				c.services.Logger.Sugar().Error(rErr)
 				return nil, errors.New("error while setting redis cooldown for command")
-			} else {
-				return nil, nil
 			}
 		}
 	}
