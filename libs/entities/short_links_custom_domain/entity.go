@@ -35,7 +35,7 @@ func (c Entity) GetVerificationTarget(base string) string {
 	base = strings.Replace(base, "http://", "", 1)
 	base = strings.Replace(base, "https://", "", 1)
 
-	return c.VerificationToken + "." + base
+	return c.VerificationToken + ".shortener." + base
 }
 
 func (c Entity) Validate() error {

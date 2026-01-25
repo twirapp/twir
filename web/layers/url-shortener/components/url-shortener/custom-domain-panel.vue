@@ -37,7 +37,7 @@ const statusClasses = computed(() => {
 const currentUrl = useRequestURL()
 
 const verificationTarget = computed(
-	() => customDomain.value?.verification_target ?? `short.{token}.${currentUrl.host}`
+	() => customDomain.value?.verification_target ?? `{token}.shortener.${currentUrl.host}`
 )
 const dnsRecordDomain = computed(
 	() => customDomain.value?.domain || domainInput.value || 'links.example.com'
