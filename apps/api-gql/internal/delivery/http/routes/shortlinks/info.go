@@ -61,8 +61,13 @@ func (i *info) Handler(
 	ctx context.Context,
 	input *infoRequestDto,
 ) (*httpbase.BaseOutputJson[linkOutputDto], error) {
+	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, i.config.SiteBaseUrl)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get base URL", err)
+	}
+
 	var domain *string
-	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(host) {
+	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(i.config.SiteBaseUrl, host) {
 		domain = &host
 	}
 
@@ -73,11 +78,6 @@ func (i *info) Handler(
 
 	if link.IsNil() {
 		return nil, huma.NewError(http.StatusNotFound, "Link not found")
-	}
-
-	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, i.config.SiteBaseUrl)
-	if err != nil {
-		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get base URL", err)
 	}
 
 	var shortURL string

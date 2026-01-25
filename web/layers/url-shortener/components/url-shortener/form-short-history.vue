@@ -1,23 +1,19 @@
 <script setup lang="ts">
 import { useUrlShortener } from '#layers/url-shortener/composables/use-url-shortener'
 import UrlShortenerHistoryCard from '#layers/url-shortener/components/url-shortener/short-history-card.vue'
+import { ShortUrlProfileParamsSortByEnum } from '@twir/api/openapi';
 
 const api = useUrlShortener()
 const recentUrlsError = ref<string | null>(null)
 
-onMounted(async () => {
-	if (!import.meta.client) return
-
-	const response = await api.refetchLatestShortenedUrls({
-		page: 0,
-		perPage: 3,
-		sortBy: 'created_at',
-	})
-	if (response.error) {
-		recentUrlsError.value = response.error
-		return
-	}
+const response = await api.refetchLatestShortenedUrls({
+	page: 0,
+	perPage: 3,
+	sortBy: ShortUrlProfileParamsSortByEnum.CreatedAt,
 })
+if (response.error) {
+	recentUrlsError.value = response.error
+}
 </script>
 
 <template>

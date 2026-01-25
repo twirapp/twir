@@ -2,9 +2,9 @@ package shortlinks
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -68,12 +68,15 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 	*redirectResponseDto,
 	error,
 ) {
-	var domain *string
-	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(host) {
-		domain = &host
+	host, err := humahelpers.GetHostFromCtx(ctx)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get host", err)
 	}
 
-	fmt.Println(domain, input.ShortId)
+	var domain *string
+	if !isDefaultDomain(r.config.SiteBaseUrl, host) {
+		domain = &host
+	}
 
 	link, err := r.service.GetByShortID(ctx, domain, input.ShortId)
 	if err != nil {
@@ -169,6 +172,11 @@ func (r *redirect) Register(api huma.API) {
 	)
 }
 
-func isDefaultDomain(host string) bool {
-	return host == "twir.app" || host == "cf.twir.app"
+func isDefaultDomain(defaultHost, host string) bool {
+	defaultHost = strings.Replace(defaultHost, "http://", "", 1)
+	defaultHost = strings.Replace(defaultHost, "https://", "", 1)
+	host = strings.Replace(host, "http://", "", 1)
+	host = strings.Replace(host, "https://", "", 1)
+
+	return host == defaultHost || host == "localhost"
 }

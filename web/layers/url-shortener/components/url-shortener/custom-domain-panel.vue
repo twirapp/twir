@@ -33,8 +33,11 @@ const statusClasses = computed(() => {
 		? 'border-emerald-500/40 text-emerald-300'
 		: 'border-yellow-500/40 text-yellow-300'
 })
+
+const currentUrl = useRequestURL()
+
 const verificationTarget = computed(
-	() => customDomain.value?.verification_target ?? 'short-{token}.twir.app'
+	() => customDomain.value?.verification_target ?? `short.{token}.${currentUrl.origin}`
 )
 const dnsRecordDomain = computed(
 	() => customDomain.value?.domain || domainInput.value || 'links.example.com'
@@ -53,14 +56,11 @@ async function refreshCustomDomain() {
 
 	const { error } = await urlShortener.fetchCustomDomain()
 	if (error) {
-		errorMessage.value = error
+		errorMessage.value = error.toString()
 	}
 }
 
-onMounted(async () => {
-	if (!import.meta.client) return
-	await refreshCustomDomain()
-})
+await refreshCustomDomain()
 
 watch(
 	() => isAuthenticated.value,
@@ -85,7 +85,7 @@ async function handleCreate() {
 
 	const { error } = await urlShortener.createCustomDomain(value)
 	if (error) {
-		errorMessage.value = error
+		errorMessage.value = error.toString()
 		isCreating.value = false
 		return
 	}
@@ -103,7 +103,7 @@ async function handleVerify() {
 
 	const { error } = await urlShortener.verifyCustomDomain()
 	if (error) {
-		errorMessage.value = error
+		errorMessage.value = error.toString()
 		isVerifying.value = false
 		return
 	}
@@ -120,7 +120,7 @@ async function handleDelete() {
 
 	const { error } = await urlShortener.deleteCustomDomain()
 	if (error) {
-		errorMessage.value = error
+		errorMessage.value = error.toString()
 		isDeleting.value = false
 		return
 	}

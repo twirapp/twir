@@ -11,14 +11,15 @@ import (
 	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
+	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
 )
 
 type statisticsRequestDto struct {
 	ShortId  string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
-	From     int64  `query:"from" required:"true"`
-	To       int64  `query:"to" required:"true"`
-	Interval string `query:"interval" enum:"hour,day" default:"day"`
+	From     int64  `                                                      required:"true" query:"from"`
+	To       int64  `                                                      required:"true" query:"to"`
+	Interval string `                                                                      query:"interval" enum:"hour,day" default:"day"`
 }
 
 type statisticsPointDto struct {
@@ -34,12 +35,14 @@ type StatisticsOpts struct {
 	Service              *shortenedurls.Service
 	Sessions             *auth.Auth
 	CustomDomainsService *shortlinkscustomdomains.Service
+	Config               config.Config
 }
 
 type statistics struct {
 	service              *shortenedurls.Service
 	sessions             *auth.Auth
 	customDomainsService *shortlinkscustomdomains.Service
+	config               config.Config
 }
 
 func newStatistics(opts StatisticsOpts) *statistics {
@@ -47,6 +50,7 @@ func newStatistics(opts StatisticsOpts) *statistics {
 		service:              opts.Service,
 		sessions:             opts.Sessions,
 		customDomainsService: opts.CustomDomainsService,
+		config:               opts.Config,
 	}
 }
 
@@ -73,10 +77,16 @@ func (s *statistics) Handler(
 	input *statisticsRequestDto,
 ) (*httpbase.BaseOutputJson[[]statisticsPointDto], error) {
 	var domain *string
-	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(host) {
+	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(
+		s.config.SiteBaseUrl,
+		host,
+	) {
 		domain = &host
 	} else if user, err := s.sessions.GetAuthenticatedUserModel(ctx); err == nil && user != nil {
-		if userDomain, err := s.customDomainsService.GetByUserID(ctx, user.ID); err == nil && !userDomain.IsNil() && userDomain.Verified {
+		if userDomain, err := s.customDomainsService.GetByUserID(
+			ctx,
+			user.ID,
+		); err == nil && !userDomain.IsNil() && userDomain.Verified {
 			domain = &userDomain.Domain
 			link, err := s.service.GetByShortID(ctx, domain, input.ShortId)
 			if err == nil && link.IsNil() {

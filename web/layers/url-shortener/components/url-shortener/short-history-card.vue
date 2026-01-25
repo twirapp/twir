@@ -62,6 +62,8 @@ async function fetchMetadata() {
 watch(
 	() => props.url.url,
 	() => {
+		if (import.meta.server) return;
+
 		fetchMetadata()
 	},
 	{ immediate: true }
