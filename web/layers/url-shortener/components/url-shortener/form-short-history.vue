@@ -1,32 +1,43 @@
 <script setup lang="ts">
 import { useUrlShortener } from '#layers/url-shortener/composables/use-url-shortener'
+import UrlShortenerHistoryCard from '#layers/url-shortener/components/url-shortener/short-history-card.vue'
+import { ShortUrlProfileParamsSortByEnum } from '@twir/api/openapi';
 
 const api = useUrlShortener()
-const recentUrlsError = ref()
+const recentUrlsError = ref<string | null>(null)
 
-onMounted(async () => {
-	if (!import.meta.client) return
-
-	const response = await api.refetchLatestShortenedUrls({ page: 0, perPage: 3 })
-	if (response.error) {
-		recentUrlsError.value = response.error
-		return
-	}
+const response = await api.refetchLatestShortenedUrls({
+	page: 0,
+	perPage: 3,
+	sortBy: ShortUrlProfileParamsSortByEnum.CreatedAt,
 })
+if (response.error) {
+	recentUrlsError.value = response.error
+}
 </script>
 
 <template>
 	<div class="flex flex-col w-full max-w-xl gap-3">
-		<template v-if="recentUrlsError">
+		<div class="flex items-center justify-between">
+			<h3 class="text-sm font-semibold">Recent links</h3>
+			<NuxtLink
+				to="/url-shortener/profile"
+				class="text-xs text-[hsl(240,11%,65%)] hover:text-white transition-colors"
+			>
+				View all
+			</NuxtLink>
+		</div>
+		<p v-if="recentUrlsError" class="text-sm text-red-400">
 			{{ recentUrlsError }}
-		</template>
-		<template v-else>
-			<TransitionGroup name="list" tag="div" class="flex flex-col gap-3">
-				<div v-for="url in api.latestShortenedUrls" :key="url.id">
-					<UrlShortenerCard :url="url" />
-				</div>
-			</TransitionGroup>
-		</template>
+		</p>
+		<p v-else-if="api.latestShortenedUrls.length === 0" class="text-sm text-[hsl(240,11%,65%)]">
+			No recent links yet. Create your first short link above.
+		</p>
+		<TransitionGroup v-else name="list" tag="div" class="flex flex-col gap-3">
+			<div v-for="url in api.latestShortenedUrls" :key="url.id">
+				<UrlShortenerHistoryCard :url="url" />
+			</div>
+		</TransitionGroup>
 	</div>
 </template>
 

@@ -15,12 +15,15 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { useOapi } from '~/composables/use-oapi'
 import { toast } from 'vue-sonner'
+import { storeToRefs } from 'pinia'
+import { useUrlShortener } from '../../composables/use-url-shortener'
 
 const props = defineProps<{
 	open: boolean
 	linkId: string
 	currentShortId: string
 	currentUrl: string
+	currentShortUrl: string
 }>()
 
 const emit = defineEmits<{
@@ -30,6 +33,10 @@ const emit = defineEmits<{
 
 const api = useOapi()
 const isSubmitting = ref(false)
+const urlShortener = useUrlShortener()
+const { customDomain } = storeToRefs(urlShortener)
+const hasInitializedDomain = ref(false)
+const initialUseCustomDomain = ref(false)
 
 const formSchema = z.object({
 	shortId: z
@@ -38,19 +45,53 @@ const formSchema = z.object({
 		.max(50, 'Short ID must be at most 50 characters')
 		.regex(/^[a-zA-Z0-9]+$/, 'Short ID can only contain letters and numbers'),
 	url: z.string().url('Must be a valid URL').min(1, 'URL is required'),
+	useCustomDomain: z.boolean().default(false),
 })
 
 const { handleSubmit, setFieldValue, resetForm } = useForm({
-	validationSchema: formSchema,
+	validationSchema: toTypedSchema(formSchema),
+	initialValues: {
+		useCustomDomain: false,
+	},
 })
+
+const hasVerifiedCustomDomain = computed(
+	() => Boolean(customDomain.value?.domain && customDomain.value?.verified)
+)
+const customDomainLabel = computed(() => customDomain.value?.domain ?? '')
+const currentShortHost = computed(() => {
+	if (!props.currentShortUrl) return ''
+	try {
+		return new URL(props.currentShortUrl).hostname.toLowerCase()
+	} catch {
+		return ''
+	}
+})
+
+async function syncCustomDomainField() {
+	const usingCustomDomain =
+		hasVerifiedCustomDomain.value &&
+		customDomain.value?.domain?.toLowerCase() === currentShortHost.value
+
+	initialUseCustomDomain.value = usingCustomDomain
+	setFieldValue('useCustomDomain', usingCustomDomain)
+	hasInitializedDomain.value = true
+}
 
 // Initialize form with current values when dialog opens
 watch(
 	() => props.open,
-	(isOpen) => {
+	async (isOpen) => {
 		if (isOpen) {
+			hasInitializedDomain.value = false
 			setFieldValue('shortId', props.currentShortId)
 			setFieldValue('url', props.currentUrl)
+
+			if (!customDomain.value && import.meta.client) {
+				await urlShortener.fetchCustomDomain()
+			}
+
+			await syncCustomDomainField()
 		}
 	}
 )
@@ -60,12 +101,21 @@ onMounted(() => {
 	setFieldValue('url', props.currentUrl)
 })
 
+watch(
+	() => customDomain.value,
+	() => {
+		if (props.open && !hasInitializedDomain.value) {
+			syncCustomDomainField()
+		}
+	}
+)
+
 const onSubmit = handleSubmit(async (values) => {
 	isSubmitting.value = true
 
 	try {
 		// Only send changed fields
-		const body: { new_short_id?: string; url?: string } = {}
+		const body: { new_short_id?: string; url?: string; use_custom_domain?: boolean } = {}
 
 		if (values.shortId !== props.currentShortId) {
 			body.new_short_id = values.shortId
@@ -73,6 +123,10 @@ const onSubmit = handleSubmit(async (values) => {
 
 		if (values.url !== props.currentUrl) {
 			body.url = values.url
+		}
+
+		if (values.useCustomDomain !== initialUseCustomDomain.value) {
+			body.use_custom_domain = values.useCustomDomain
 		}
 
 		// If nothing changed, just close
@@ -158,6 +212,36 @@ function closeDialog() {
 						<FormMessage />
 					</FormItem>
 				</FormField>
+
+				<FormField
+					v-if="customDomain?.domain"
+					v-slot="{ value, handleChange }"
+					name="useCustomDomain"
+				>
+					<FormItem class="flex items-center justify-between gap-3">
+						<div class="space-y-1">
+							<FormLabel>Use custom domain</FormLabel>
+							<p class="text-xs text-[hsl(240,11%,60%)]">
+								{{ customDomainLabel }}
+							</p>
+						</div>
+						<FormControl>
+							<UiSwitch
+								:model-value="value"
+								:disabled="!hasVerifiedCustomDomain || isSubmitting"
+								@update:model-value="handleChange"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
+
+				<p
+					v-if="customDomain?.domain && !customDomain?.verified"
+					class="text-xs text-yellow-300/80"
+				>
+					Verify your custom domain to enable switching.
+				</p>
 
 				<DialogFooter>
 					<Button

@@ -31,6 +31,11 @@ var FxModule = fx.Provide(
 	httpbase.AsFxRoute(newTopCountries),
 	httpbase.AsFxRoute(newUpdate),
 	httpbase.AsFxRoute(newDelete),
+	httpbase.AsFxRoute(newGetCustomDomain),
+	httpbase.AsFxRoute(newCreateCustomDomain),
+	httpbase.AsFxRoute(newVerifyCustomDomain),
+	httpbase.AsFxRoute(newDeleteCustomDomain),
+	httpbase.AsFxRoute(newAllowCustomDomain),
 )
 
 type linkOutputDto struct {

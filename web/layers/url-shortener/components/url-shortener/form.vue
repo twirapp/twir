@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
+import { storeToRefs } from 'pinia'
 
 import { useUrlShortener } from '../../composables/use-url-shortener'
 
 import type { LinkOutputDto } from '@twir/api/openapi'
-import FormShortHistory from '#layers/url-shortener/components/url-shortener/form-short-history.vue'
 
 const twirShortenerUrl = useRequestURL()
 
@@ -23,15 +23,59 @@ const schema = z.object({
 		.regex(/^[a-zA-Z0-9]*$/, 'Custom alias can only contain letters and numbers')
 		.optional()
 		.or(z.literal('')),
+	useCustomDomain: z.boolean().default(false),
 })
 
 const form = useForm({
 	validationSchema: schema,
+	initialValues: {
+		useCustomDomain: false,
+	},
 })
 
 const api = useUrlShortener()
+const { customDomain } = storeToRefs(api)
 const currentUrl = ref<LinkOutputDto>()
 const currentError = ref<string>()
+const { setFieldValue, values } = form
+const hasVerifiedCustomDomain = computed(
+	() => Boolean(customDomain.value?.domain && customDomain.value?.verified)
+)
+const hasManualDomainChoice = ref(false)
+const useCustomDomainPreference = computed(() => {
+	if (!hasVerifiedCustomDomain.value) return false
+	return Boolean(values.useCustomDomain)
+})
+const customDomainPrefix = computed(() => {
+	if (useCustomDomainPreference.value && customDomain.value?.domain) {
+		return `https://${customDomain.value.domain}/`
+	}
+
+	return `${twirShortenerUrl.origin}/s/`
+})
+
+function handleCustomDomainToggle(
+	nextValue: boolean,
+	handleChange: (value: boolean) => void
+) {
+	hasManualDomainChoice.value = true
+	handleChange(nextValue)
+}
+
+watch(
+	hasVerifiedCustomDomain,
+	(hasCustomDomain) => {
+		if (!hasCustomDomain) {
+			hasManualDomainChoice.value = false
+			setFieldValue('useCustomDomain', false)
+			return
+		}
+		if (!hasManualDomainChoice.value) {
+			setFieldValue('useCustomDomain', true)
+		}
+	},
+	{ immediate: true }
+)
 
 const onSubmit = form.handleSubmit(async (values) => {
 	currentUrl.value = undefined
@@ -40,6 +84,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 	const { data, error } = await api.shortUrl({
 		url: values.url,
 		alias: values.customAlias || undefined,
+		useCustomDomain: useCustomDomainPreference.value,
 	})
 
 	if (error) {
@@ -47,10 +92,14 @@ const onSubmit = form.handleSubmit(async (values) => {
 		return
 	}
 
-	if (data?.data) {
-		currentUrl.value = data.data
-		form.resetForm()
-	}
+	currentUrl.value = data.data
+	form.resetForm({
+		values: {
+			url: '',
+			customAlias: '',
+			useCustomDomain: values.useCustomDomain ?? false,
+		},
+	})
 })
 </script>
 
@@ -98,6 +147,27 @@ const onSubmit = form.handleSubmit(async (values) => {
 						<span class="flex gap-2 items-center"> Optional </span>
 					</UiAccordionTrigger>
 					<UiAccordionContent class="accordion-content">
+						<div v-if="hasVerifiedCustomDomain" class="px-2 pb-3">
+							<UiFormField v-slot="{ value, handleChange }" name="useCustomDomain">
+								<UiFormItem class="flex items-center justify-between gap-3">
+									<div class="space-y-1">
+										<UiFormLabel class="text-sm">Use custom domain</UiFormLabel>
+										<UiFormDescription class="text-xs text-[hsl(240,11%,55%)]">
+											Default: {{ customDomain?.domain }}
+										</UiFormDescription>
+									</div>
+									<UiFormControl>
+										<UiSwitch
+											:model-value="value"
+											@update:model-value="
+												(nextValue: boolean) => handleCustomDomainToggle(nextValue, handleChange)
+											"
+										/>
+									</UiFormControl>
+									<UiFormMessage />
+								</UiFormItem>
+							</UiFormField>
+						</div>
 						<UiFormField v-slot="{ componentField }" name="customAlias">
 							<UiFormItem>
 								<div class="flex flex-col gap-2 px-2">
@@ -112,8 +182,13 @@ const onSubmit = form.handleSubmit(async (values) => {
 											class="flex items-center rounded-xl p-1.5 py-3 border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,15%)] w-full"
 										>
 											<label for="alias" class="flex items-center w-full">
-												<span class="ml-2 mr-1 font-semibold">
-													{{ twirShortenerUrl.origin + '/s/' }}
+												<span
+													class="ml-2 mr-1 font-semibold"
+													:class="{
+														'text-yellow-300/80': customDomain && !customDomain.verified,
+													}"
+												>
+													{{ customDomainPrefix }}
 												</span>
 												<input
 													id="alias"
@@ -128,6 +203,13 @@ const onSubmit = form.handleSubmit(async (values) => {
 									<UiFormDescription class="text-xs text-[hsl(240,11%,50%)]">
 										Custom alias for your shortened URL. Must be between 3 and 30 characters.
 									</UiFormDescription>
+									<p
+										v-if="customDomain && !customDomain.verified"
+										class="text-xs text-yellow-300/80"
+									>
+										Verify your custom domain to use it for new links. Until then, links use
+										{{ twirShortenerUrl.origin + '/s/' }}.
+									</p>
 									<UiFormMessage class="text-xs" />
 								</div>
 							</UiFormItem>
@@ -142,5 +224,4 @@ const onSubmit = form.handleSubmit(async (values) => {
 			</div>
 		</form>
 	</div>
-	<FormShortHistory />
 </template>

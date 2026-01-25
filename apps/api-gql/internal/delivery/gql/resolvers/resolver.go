@@ -53,6 +53,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
@@ -150,6 +151,7 @@ type Deps struct {
 	GiveawaysService                      *giveaways.Service
 	ChannelsModerationSettingsService     *channels_moderation_settings.Service
 	ShortenedUrlsService                  *shortenedurls.Service
+	ShortLinksCustomDomainsService        *shortlinkscustomdomains.Service
 	ToxicMessagesService                  *toxic_messages.Service
 	ChatAlertsCache                       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
 	ChannelsFilesService                  *channels_files.Service

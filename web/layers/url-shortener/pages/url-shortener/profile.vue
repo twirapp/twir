@@ -12,6 +12,7 @@ const urlShortener = useUrlShortener()
 const pagination = useLinksPagination()
 
 const { data: linksData, refresh } = await useAsyncData(
+	'links',
 	async () => {
 		const result = await urlShortener.refetchLatestShortenedUrls({
 			page: pagination.currentPage.value,

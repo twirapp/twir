@@ -52,7 +52,7 @@ func (r *mutationResolver) AdminShortURLCreate(ctx context.Context, input gqlmod
 
 // AdminShortURLDelete is the resolver for the adminShortUrlDelete field.
 func (r *mutationResolver) AdminShortURLDelete(ctx context.Context, id string) (bool, error) {
-	if err := r.deps.ShortenedUrlsService.Delete(ctx, id); err != nil {
+	if err := r.deps.ShortenedUrlsService.Delete(ctx, nil, id); err != nil {
 		return false, fmt.Errorf("error deleting shortened url: %w", err)
 	}
 

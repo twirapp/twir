@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -13,7 +15,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
-	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
 )
 
@@ -68,12 +69,22 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 	*redirectResponseDto,
 	error,
 ) {
-	link, err := r.service.GetByShortID(ctx, input.ShortId)
+	host, err := humahelpers.GetHostFromCtx(ctx)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get host", err)
+	}
+
+	var domain *string
+	if !isDefaultDomain(r.config.SiteBaseUrl, host) {
+		domain = &host
+	}
+
+	link, err := r.service.GetByShortID(ctx, domain, input.ShortId)
 	if err != nil {
 		return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
 	}
 
-	if link == model.Nil {
+	if link.IsNil() {
 		return nil, huma.NewError(http.StatusNotFound, "Link not found")
 	}
 
@@ -111,6 +122,7 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 		ctx,
 		shortenedurls.RecordViewInput{
 			ShortLinkID: link.ShortID,
+			Domain:      domain,
 			UserID:      userID,
 			IP:          clientIp,
 			UserAgent:   clientAgent,
@@ -125,6 +137,7 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 
 	_, err = r.service.Update(
 		ctx,
+		domain,
 		link.ShortID,
 		shortenedurls.UpdateInput{
 			Views: &newViews,
@@ -143,7 +156,7 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 			City:        city,
 			CreatedAt:   time.Now(),
 		}
-		_ = r.service.PublishViewUpdate(link.ShortID, newViews, lastView)
+		_ = r.service.PublishViewUpdate(domain, link.ShortID, newViews, lastView)
 	}()
 
 	return &redirectResponseDto{
@@ -158,4 +171,42 @@ func (r *redirect) Register(api huma.API) {
 		r.GetMeta(),
 		r.Handler,
 	)
+}
+
+func isDefaultDomain(defaultHost, host string) bool {
+	baseHost := resolveBaseHost(defaultHost)
+	if baseHost == "" || host == "" {
+		return false
+	}
+
+	host = strings.ToLower(host)
+
+	if host == baseHost {
+		return true
+	}
+
+	if strings.HasPrefix(baseHost, "cf.") {
+		return host == strings.TrimPrefix(baseHost, "cf.")
+	}
+
+	return host == "cf."+baseHost
+}
+
+func resolveBaseHost(siteBaseURL string) string {
+	parsed, err := url.Parse(siteBaseURL)
+	if err == nil && parsed.Hostname() != "" {
+		return strings.ToLower(parsed.Hostname())
+	}
+
+	trimmed := strings.TrimSpace(siteBaseURL)
+	trimmed = strings.TrimPrefix(trimmed, "http://")
+	trimmed = strings.TrimPrefix(trimmed, "https://")
+	if trimmed == "" {
+		return ""
+	}
+
+	trimmed = strings.Split(trimmed, "/")[0]
+	trimmed = strings.Split(trimmed, ":")[0]
+
+	return strings.ToLower(trimmed)
 }

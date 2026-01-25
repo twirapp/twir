@@ -2,6 +2,7 @@ package shortlinks
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -14,38 +15,42 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
+	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"go.uber.org/fx"
 )
 
 var _ httpbase.Route[*createLinkInput, *httpbase.BaseOutputJson[linkOutputDto]] = (*create)(nil)
 
 type create struct {
-	config      config.Config
-	service     *shortenedurls.Service
-	sessions    *auth.Auth
-	logger      *slog.Logger
-	middlewares *middlewares.Middlewares
+	config               config.Config
+	service              *shortenedurls.Service
+	customDomainsService *shortlinkscustomdomains.Service
+	sessions             *auth.Auth
+	logger               *slog.Logger
+	middlewares          *middlewares.Middlewares
 }
 
 type CreateOpts struct {
 	fx.In
 
-	Config      config.Config
-	Service     *shortenedurls.Service
-	Sessions    *auth.Auth
-	Logger      *slog.Logger
-	Middlewares *middlewares.Middlewares
+	Config               config.Config
+	Service              *shortenedurls.Service
+	CustomDomainsService *shortlinkscustomdomains.Service
+	Sessions             *auth.Auth
+	Logger               *slog.Logger
+	Middlewares          *middlewares.Middlewares
 }
 
 func newCreate(opts CreateOpts) *create {
 	return &create{
-		config:      opts.Config,
-		service:     opts.Service,
-		sessions:    opts.Sessions,
-		logger:      opts.Logger,
-		middlewares: opts.Middlewares,
+		config:               opts.Config,
+		service:              opts.Service,
+		customDomainsService: opts.CustomDomainsService,
+		sessions:             opts.Sessions,
+		logger:               opts.Logger,
+		middlewares:          opts.Middlewares,
 	}
 }
 
@@ -73,8 +78,9 @@ type createLinkInput struct {
 }
 
 type createLinkInputDto struct {
-	Url   string `json:"url"   required:"true"  format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
-	Alias string `json:"alias" required:"false"              minLength:"3" maxLength:"30"   example:"stream"              pattern:"^[a-zA-Z0-9]+$"`
+	Url             string `json:"url"   required:"true"  format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
+	Alias           string `json:"alias" required:"false"              minLength:"3" maxLength:"30"   example:"stream"              pattern:"^[a-zA-Z0-9]+$"`
+	UseCustomDomain *bool  `json:"use_custom_domain,omitempty"`
 }
 
 func (c *create) Handler(
@@ -86,21 +92,51 @@ func (c *create) Handler(
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get base URL", err)
 	}
 
+	var customDomain *string
+	var createdByUserID *string
+	useCustomDomain := input.Body.UseCustomDomain != nil && *input.Body.UseCustomDomain
+	user, _ := c.sessions.GetAuthenticatedUserModel(ctx)
+	if user != nil {
+		createdByUserID = &user.ID
+
+		userDomain, err := c.customDomainsService.GetByUserID(ctx, user.ID)
+		if err == nil && !userDomain.IsNil() && userDomain.Verified {
+			if input.Body.UseCustomDomain == nil || useCustomDomain {
+				customDomain = &userDomain.Domain
+			}
+		} else if useCustomDomain {
+			return nil, huma.NewError(http.StatusBadRequest, "Custom domain is not available")
+		}
+	} else if useCustomDomain {
+		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
 	if input.Body.Alias == "" {
-		existedLink, err := c.service.GetByUrl(ctx, input.Body.Url)
+		existedLink, err := c.service.GetByUrl(ctx, customDomain, input.Body.Url)
 		if err != nil {
 			return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
 		}
 
-		if existedLink != model.Nil {
-			parsedBaseUrl, _ := url.Parse(baseUrl)
-			parsedBaseUrl.Path = "/s/" + existedLink.ShortID
+		if !existedLink.IsNil() {
+			var shortURL string
+			if customDomain != nil {
+				shortURL = "https://" + *customDomain + "/" + existedLink.ShortID
+			} else {
+				parsedBaseUrl, _ := url.Parse(baseUrl)
+				parsedBaseUrl.Path = "/s/" + existedLink.ShortID
+				shortURL = parsedBaseUrl.String()
+			}
+
+			sessionKey := shortenedurls.EncodeShortLinkKey(customDomain, existedLink.ShortID)
+			if err := c.sessions.AddLatestShortenerUrlsId(ctx, sessionKey); err != nil {
+				c.logger.Warn("Cannot save latest short links ids to session: " + err.Error())
+			}
 
 			return httpbase.CreateBaseOutputJson(
 				linkOutputDto{
 					Id:        existedLink.ShortID,
 					Url:       existedLink.URL,
-					ShortUrl:  parsedBaseUrl.String(),
+					ShortUrl:  shortURL,
 					Views:     existedLink.Views,
 					CreatedAt: existedLink.CreatedAt,
 				},
@@ -109,20 +145,14 @@ func (c *create) Handler(
 	}
 
 	if input.Body.Alias != "" {
-		existedLink, err := c.service.GetByShortID(ctx, input.Body.Alias)
+		existedLink, err := c.service.GetByShortID(ctx, customDomain, input.Body.Alias)
 		if err != nil {
 			return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
 		}
 
-		if existedLink != model.Nil {
+		if !existedLink.IsNil() {
 			return nil, huma.NewError(http.StatusConflict, "Alias already in use")
 		}
-	}
-
-	var createdByUserID *string
-	user, _ := c.sessions.GetAuthenticatedUserModel(ctx)
-	if user != nil {
-		createdByUserID = &user.ID
 	}
 
 	clientIp, err := humahelpers.GetClientIpFromCtx(ctx)
@@ -150,16 +180,27 @@ func (c *create) Handler(
 			URL:             input.Body.Url,
 			UserIp:          &clientIp,
 			UserAgent:       &clientAgent,
+			Domain:          customDomain,
 		},
 	)
 	if err != nil {
+		if errors.Is(err, shortenedurlsrepository.ErrShortIDAlreadyExists) {
+			return nil, huma.NewError(http.StatusConflict, "Alias already in use", err)
+		}
 		return nil, huma.NewError(http.StatusNotFound, "Cannot generate short id", err)
 	}
 
-	parsedBaseUrl, _ := url.Parse(baseUrl)
-	parsedBaseUrl.Path = "/s/" + link.ShortID
+	var shortURL string
+	if customDomain != nil {
+		shortURL = "https://" + *customDomain + "/" + link.ShortID
+	} else {
+		parsedBaseUrl, _ := url.Parse(baseUrl)
+		parsedBaseUrl.Path = "/s/" + link.ShortID
+		shortURL = parsedBaseUrl.String()
+	}
 
-	if err := c.sessions.AddLatestShortenerUrlsId(ctx, link.ShortID); err != nil {
+	sessionKey := shortenedurls.EncodeShortLinkKey(customDomain, link.ShortID)
+	if err := c.sessions.AddLatestShortenerUrlsId(ctx, sessionKey); err != nil {
 		c.logger.Warn("Cannot save latest short links ids to session: " + err.Error())
 	}
 
@@ -167,7 +208,7 @@ func (c *create) Handler(
 		linkOutputDto{
 			Id:        link.ShortID,
 			Url:       link.URL,
-			ShortUrl:  parsedBaseUrl.String(),
+			ShortUrl:  shortURL,
 			Views:     link.Views,
 			CreatedAt: link.CreatedAt,
 		},

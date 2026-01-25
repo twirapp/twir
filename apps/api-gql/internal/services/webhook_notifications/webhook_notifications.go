@@ -19,7 +19,6 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/webhook_notifications"
 	channelsmoduleswebhooks "github.com/twirapp/twir/libs/repositories/channels_modules_webhooks"
-	shortenedurlsmodel "github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"go.uber.org/fx"
 )
 
@@ -665,13 +664,13 @@ func (s *Service) shortenUrl(ctx context.Context, rawURL string) string {
 		return rawURL
 	}
 
-	link, err := s.shortenedUrls.GetByUrl(ctx, rawURL)
+	link, err := s.shortenedUrls.GetByUrl(ctx, nil, rawURL)
 	if err != nil {
 		s.logger.Warn("failed to get short link", slog.String("url", rawURL), slog.Any("error", err))
 		return rawURL
 	}
 
-	if link == shortenedurlsmodel.Nil {
+	if link.IsNil() {
 		link, err = s.shortenedUrls.Create(
 			ctx,
 			shortenedurls.CreateInput{

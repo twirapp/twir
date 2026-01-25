@@ -14,6 +14,7 @@ import ViewsHistoryDialog from './views-history-dialog.vue';
 import TopCountriesDialog from './top-countries-dialog.vue';
 import EditLinkDialog from './edit-link-dialog.vue';
 import DeleteLinkDialog from './delete-link-dialog.vue';
+import QrCodeDialog from './qr-code-dialog.vue';
 import { useMetaExtractor } from '../../composables/use-meta-extractor';
 import { useShortLinkViewsSubscription } from '../../composables/use-short-link-views-subscription';
 
@@ -24,18 +25,14 @@ const props = defineProps<{
 const shortId = computed(() => props.link.id);
 const { statistics, range, isDayRange, isLoading, refetch } = useShortLinkStatistics(shortId);
 
-// Subscribe to real-time view updates
 const { totalViews: liveViews, lastView } = useShortLinkViewsSubscription(shortId);
 
-// Use live views if available, otherwise fall back to initial link views
 const displayViews = computed(() => liveViews.value ?? props.link.views);
 
-// Throttled refetch to update chart smoothly without overwhelming the backend
-// Refetch at most once per 10 seconds
 let lastRefetchTime = 0;
 let pendingRefetch = false;
 let refetchTimeout: ReturnType<typeof setTimeout> | null = null;
-const REFETCH_THROTTLE = 10000; // 10 seconds
+const REFETCH_THROTTLE = 10000;
 
 watch(liveViews, (newViews, oldViews) => {
 	if (newViews !== null && oldViews !== null && newViews > oldViews) {
@@ -43,12 +40,10 @@ watch(liveViews, (newViews, oldViews) => {
 		const timeSinceLastRefetch = now - lastRefetchTime;
 
 		if (timeSinceLastRefetch >= REFETCH_THROTTLE) {
-			// Enough time has passed, refetch immediately
 			refetch();
 			lastRefetchTime = now;
 			pendingRefetch = false;
 		} else if (!pendingRefetch) {
-			// Schedule a refetch for when the throttle period ends
 			pendingRefetch = true;
 			const delay = REFETCH_THROTTLE - timeSinceLastRefetch;
 
@@ -66,26 +61,17 @@ watch(liveViews, (newViews, oldViews) => {
 	}
 });
 
-// Cleanup timeout on unmount
 onUnmounted(() => {
 	if (refetchTimeout) {
 		clearTimeout(refetchTimeout);
 	}
 });
 
-// Views history dialog
 const showViewsDialog = ref(false);
-
-// Top countries dialog
 const showTopCountriesDialog = ref(false);
-
-// Edit dialog
 const showEditDialog = ref(false);
-
-// Delete dialog
 const showDeleteDialog = ref(false);
 
-// Emit to parent to refresh list when link is updated/deleted
 const emit = defineEmits<{
 	(e: "updated"): void;
 	(e: "deleted"): void;
@@ -174,6 +160,16 @@ watch(
 						>
 							<Icon name="lucide:copy" class="w-3.5 h-3.5" />
 						</button>
+						<QrCodeDialog :short-url="link.short_url">
+							<template #trigger>
+								<button
+									class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
+									title="Show QR code"
+								>
+									<Icon name="lucide:qr-code" class="w-3.5 h-3.5" />
+								</button>
+							</template>
+						</QrCodeDialog>
 						<button
 							@click="showEditDialog = true"
 							class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
@@ -289,6 +285,7 @@ watch(
 				v-model:open="showEditDialog"
 				:link-id="link.id"
 				:current-short-id="link.id"
+				:current-short-url="link.short_url"
 				:current-url="link.url"
 				@updated="emit('updated')"
 			/>

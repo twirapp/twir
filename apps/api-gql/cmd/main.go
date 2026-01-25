@@ -72,6 +72,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
@@ -151,6 +152,8 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
+	shortlinkscustomdomainsrepository "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
+	shortlinkscustomdomainsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_custom_domains/pgx"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	shortlinksviewsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/short_links_views/datasources/clickhouse"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
@@ -368,6 +371,10 @@ func main() {
 				fx.As(new(shortenedurlsrepository.Repository)),
 			),
 			fx.Annotate(
+				shortlinkscustomdomainsrepositorypgx.NewFx,
+				fx.As(new(shortlinkscustomdomainsrepository.Repository)),
+			),
+			fx.Annotate(
 				channelsgiveawaysparticipantsrepositorypgx.NewFx,
 				fx.As(new(channelsgiveawaysparticipantsrepository.Repository)),
 			),
@@ -524,6 +531,7 @@ func main() {
 			scheduledvips.New,
 			chat_wall.New,
 			chat_translation.New,
+			shortlinkscustomdomains.New,
 			shortenedurls.New,
 			giveaways.New,
 			overlays_dudes.New,
