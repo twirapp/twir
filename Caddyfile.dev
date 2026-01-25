@@ -1,4 +1,13 @@
-{$SITE_BASE_URL} dev.twir.app http://localhost:3005  {
+{
+	email tls@twir.app
+	on_demand_tls {
+		ask http://localhost:3009/v1/short-links/custom-domain/allow
+	}
+	debug
+}
+
+
+{$SITE_BASE_URL}, dev.twir.app, twir.localhost  {
 		bind 0.0.0.0
     reverse_proxy http://127.0.0.1:3010
     tls internal
@@ -34,4 +43,21 @@
 				rewrite * /v1/short-links{path}
 				reverse_proxy http://127.0.0.1:3009
 		}
+}
+
+:443 {
+	@customDomain not host {$SITE_BASE_URL} twir.localhost dev.twir.app
+
+	tls {
+		on_demand
+	}
+
+	handle @customDomain {
+		rewrite * /v1/short-links{path}
+
+		reverse_proxy http://localhost:3009 {
+			header_up Host {host}
+			header_up X-Custom-Domain true
+		}
+	}
 }

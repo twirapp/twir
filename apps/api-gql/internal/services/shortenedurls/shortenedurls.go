@@ -94,6 +94,14 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.Shortene
 	shortId := input.ShortID
 	if input.ShortID == "" {
 		shortId = genId()
+	} else {
+		existing, err := c.GetByShortID(ctx, input.Domain, input.ShortID)
+		if err != nil {
+			return model.Nil, err
+		}
+		if !existing.IsNil() {
+			return model.Nil, shortenedurlsrepository.ErrShortIDAlreadyExists
+		}
 	}
 
 	return c.repository.Create(

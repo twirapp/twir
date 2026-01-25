@@ -2,6 +2,7 @@ package shortlinks
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -16,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
+	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"go.uber.org/fx"
 )
 
@@ -76,8 +78,9 @@ type createLinkInput struct {
 }
 
 type createLinkInputDto struct {
-	Url   string `json:"url"   required:"true"  format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
-	Alias string `json:"alias" required:"false"              minLength:"3" maxLength:"30"   example:"stream"              pattern:"^[a-zA-Z0-9]+$"`
+	Url             string `json:"url"   required:"true"  format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
+	Alias           string `json:"alias" required:"false"              minLength:"3" maxLength:"30"   example:"stream"              pattern:"^[a-zA-Z0-9]+$"`
+	UseCustomDomain *bool  `json:"use_custom_domain,omitempty"`
 }
 
 func (c *create) Handler(
@@ -91,13 +94,21 @@ func (c *create) Handler(
 
 	var customDomain *string
 	var createdByUserID *string
+	useCustomDomain := input.Body.UseCustomDomain != nil && *input.Body.UseCustomDomain
 	user, _ := c.sessions.GetAuthenticatedUserModel(ctx)
 	if user != nil {
 		createdByUserID = &user.ID
 
-		if userDomain, err := c.customDomainsService.GetByUserID(ctx, user.ID); err == nil && !userDomain.IsNil() && userDomain.Verified {
-			customDomain = &userDomain.Domain
+		userDomain, err := c.customDomainsService.GetByUserID(ctx, user.ID)
+		if err == nil && !userDomain.IsNil() && userDomain.Verified {
+			if input.Body.UseCustomDomain == nil || useCustomDomain {
+				customDomain = &userDomain.Domain
+			}
+		} else if useCustomDomain {
+			return nil, huma.NewError(http.StatusBadRequest, "Custom domain is not available")
 		}
+	} else if useCustomDomain {
+		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
 	if input.Body.Alias == "" {
@@ -114,6 +125,11 @@ func (c *create) Handler(
 				parsedBaseUrl, _ := url.Parse(baseUrl)
 				parsedBaseUrl.Path = "/s/" + existedLink.ShortID
 				shortURL = parsedBaseUrl.String()
+			}
+
+			sessionKey := shortenedurls.EncodeShortLinkKey(customDomain, existedLink.ShortID)
+			if err := c.sessions.AddLatestShortenerUrlsId(ctx, sessionKey); err != nil {
+				c.logger.Warn("Cannot save latest short links ids to session: " + err.Error())
 			}
 
 			return httpbase.CreateBaseOutputJson(
@@ -168,6 +184,9 @@ func (c *create) Handler(
 		},
 	)
 	if err != nil {
+		if errors.Is(err, shortenedurlsrepository.ErrShortIDAlreadyExists) {
+			return nil, huma.NewError(http.StatusConflict, "Alias already in use", err)
+		}
 		return nil, huma.NewError(http.StatusNotFound, "Cannot generate short id", err)
 	}
 

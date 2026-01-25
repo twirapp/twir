@@ -2,6 +2,7 @@ package shortlinks
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/url"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
+	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"go.uber.org/fx"
 )
 
@@ -127,6 +129,9 @@ func (u *updateRoute) Handler(
 
 	updatedLink, err := u.service.Update(ctx, domain, input.ShortId, updateInput)
 	if err != nil {
+		if errors.Is(err, shortenedurlsrepository.ErrShortIDAlreadyExists) {
+			return nil, huma.NewError(http.StatusConflict, "Short ID already exists", err)
+		}
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot update link", err)
 	}
 

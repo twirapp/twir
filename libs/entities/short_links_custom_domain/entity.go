@@ -31,7 +31,7 @@ var Nil = Entity{
 }
 
 func (c Entity) GetVerificationTarget() string {
-	return "short-" + c.VerificationToken + ".twir.app"
+	return c.VerificationToken + ".shortener.twir.app"
 }
 
 func (c Entity) Validate() error {

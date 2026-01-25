@@ -23,11 +23,12 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 	const customDomain = ref<CustomDomainOutputDto | null>(null)
 	const isCustomDomainLoading = ref(false)
 
-	async function shortUrl(opts: { url: string; alias?: string }) {
+	async function shortUrl(opts: { url: string; alias?: string; useCustomDomain?: boolean }) {
 		try {
 			const response = await api.v1.shortUrlCreate({
 				url: opts.url,
 				alias: opts.alias,
+				use_custom_domain: opts.useCustomDomain,
 			})
 
 			latestShortenedUrls.value = [response.data.data, ...latestShortenedUrls.value.slice(0, 2)]
@@ -152,16 +153,23 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		opts: { page?: number; perPage?: number; sortBy?: ShortUrlProfileParamsSortByEnum } = {
 			page: 0,
 			perPage: 3,
-			sortBy: 'views' as ShortUrlProfileParamsSortByEnum,
+			sortBy: 'created_at' as ShortUrlProfileParamsSortByEnum,
 		}
 	) {
-		const response = await api.v1.shortUrlProfile(opts)
+		try {
+			const response = await api.v1.shortUrlProfile(opts)
 
-		latestShortenedUrls.value = response.data.data.items
+			latestShortenedUrls.value = response.data.data.items
 
-		return {
-			data: response.data?.data,
-			error: response.error,
+			return {
+				data: response.data?.data,
+				error: response.error,
+			}
+		} catch (e) {
+			return {
+				data: null,
+				error: await parseApiError(e),
+			}
 		}
 	}
 

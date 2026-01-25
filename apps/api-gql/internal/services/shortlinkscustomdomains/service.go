@@ -84,11 +84,13 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (shortlinkscust
 		return shortlinkscustomdomain.Nil, shortlinkscustomdomainsrepo.ErrUserAlreadyHasDomain
 	}
 
-	created, err := s.repository.Create(ctx, shortlinkscustomdomainsrepo.CreateInput{
-		UserID:            input.UserID,
-		Domain:            normalizedDomain,
-		VerificationToken: token,
-	})
+	created, err := s.repository.Create(
+		ctx, shortlinkscustomdomainsrepo.CreateInput{
+			UserID:            input.UserID,
+			Domain:            normalizedDomain,
+			VerificationToken: token,
+		},
+	)
 	if err != nil {
 		return shortlinkscustomdomain.Nil, err
 	}
@@ -148,6 +150,28 @@ func (s *Service) GetByDomain(ctx context.Context, domain string) (shortlinkscus
 	}
 
 	return mapToEntity(customDomain), nil
+}
+
+func (s *Service) IsDomainAllowed(ctx context.Context, domain string) (bool, error) {
+	normalizedDomain, err := normalizeDomain(domain)
+	if err != nil {
+		return false, nil
+	}
+
+	if _, ok := reservedDomains[normalizedDomain]; ok {
+		return false, nil
+	}
+
+	customDomain, err := s.repository.GetByDomain(ctx, normalizedDomain)
+	if err != nil {
+		if errors.Is(err, shortlinkscustomdomainsrepo.ErrNotFound) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return customDomain.Verified, nil
 }
 
 func (s *Service) Delete(ctx context.Context, userID string) error {

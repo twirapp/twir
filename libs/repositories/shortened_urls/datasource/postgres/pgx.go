@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls"
@@ -153,7 +154,7 @@ func (c *Pgx) Update(
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
-		return model.Nil, err
+		return model.Nil, mapUniqueError(err)
 	}
 
 	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ShortenedUrl])
@@ -254,7 +255,7 @@ RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user
 		},
 	)
 	if err != nil {
-		return model.Nil, err
+		return model.Nil, mapUniqueError(err)
 	}
 
 	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ShortenedUrl])
@@ -346,4 +347,22 @@ func (c *Pgx) GetList(ctx context.Context, input shortened_urls.GetListInput) (
 		Items: models,
 		Total: int(count),
 	}, nil
+}
+
+func mapUniqueError(err error) error {
+	var pgErr *pgconn.PgError
+	if !errors.As(err, &pgErr) {
+		return err
+	}
+
+	if pgErr.Code != "23505" {
+		return err
+	}
+
+	switch pgErr.ConstraintName {
+	case "shortened_urls_domain_short_id_unique_idx", "shortened_urls_pkey", "shortened_urls_short_id_key":
+		return shortened_urls.ErrShortIDAlreadyExists
+	default:
+		return fmt.Errorf("unique constraint error: %w", err)
+	}
 }

@@ -14,6 +14,7 @@ import ViewsHistoryDialog from './views-history-dialog.vue';
 import TopCountriesDialog from './top-countries-dialog.vue';
 import EditLinkDialog from './edit-link-dialog.vue';
 import DeleteLinkDialog from './delete-link-dialog.vue';
+import QrCodeDialog from './qr-code-dialog.vue';
 import { useMetaExtractor } from '../../composables/use-meta-extractor';
 import { useShortLinkViewsSubscription } from '../../composables/use-short-link-views-subscription';
 
@@ -78,6 +79,9 @@ const showViewsDialog = ref(false);
 
 // Top countries dialog
 const showTopCountriesDialog = ref(false);
+
+// QR code dialog
+const showQrDialog = ref(false);
 
 // Edit dialog
 const showEditDialog = ref(false);
@@ -173,6 +177,13 @@ watch(
 							title="Copy short URL"
 						>
 							<Icon name="lucide:copy" class="w-3.5 h-3.5" />
+						</button>
+						<button
+							@click="showQrDialog = true"
+							class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
+							title="Show QR code"
+						>
+							<Icon name="lucide:qr-code" class="w-3.5 h-3.5" />
 						</button>
 						<button
 							@click="showEditDialog = true"
@@ -282,6 +293,11 @@ watch(
 			:short-link-id="link.id"
 			:short-url="displayShortUrl"
 		/>
+
+		<!-- QR Code Dialog -->
+		<ClientOnly>
+			<QrCodeDialog v-model:open="showQrDialog" :short-url="link.short_url" />
+		</ClientOnly>
 
 		<!-- Edit Link Dialog -->
 		<ClientOnly>

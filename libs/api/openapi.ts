@@ -9,6 +9,10 @@
  * ---------------------------------------------------------------
  */
 
+export interface AllowCustomDomainOutput {
+  allowed: boolean;
+}
+
 export interface AuthBody {
   /**
    * A URL to the JSON Schema for this object.
@@ -31,6 +35,15 @@ export interface BadgeWithUsers {
   name: string;
   url: string;
   users: string[];
+}
+
+export interface BaseOutputBodyJsonAllowCustomDomainOutput {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: AllowCustomDomainOutput;
 }
 
 export interface BaseOutputBodyJsonAuthResponseDto {
@@ -279,6 +292,7 @@ export interface CreateLinkInputDto {
    * @pattern ^https?://.*
    */
   url: string;
+  use_custom_domain?: boolean;
 }
 
 export interface CreateRequestDtoBody {
@@ -1372,6 +1386,31 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksCustomDomainAllow
+     * @summary Check if custom domain is allowed for TLS
+     * @request GET:/v1/short-links/custom-domain/allow
+     * @response `200` `BaseOutputBodyJsonAllowCustomDomainOutput` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksCustomDomainAllow: (
+      query: {
+        /** @minLength 1 */
+        domain: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonAllowCustomDomainOutput, any>({
+        path: `/v1/short-links/custom-domain/allow`,
+        method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
