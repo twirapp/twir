@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -53,6 +54,22 @@ func New(opts Opts) (*Server, error) {
 	r.Use(gin.Recovery())
 	r.Use(gincontext.Middleware())
 	r.Use(opts.Middlewares.RateLimit("global", 1000, 60*time.Second))
+
+	r.NoRoute(
+		func(c *gin.Context) {
+			c.JSON(
+				http.StatusNotFound, gin.H{
+					"error":   "Not Found",
+					"message": "The requested route does not exist",
+					"path":    c.Request.URL.Path,
+					"host":    c.Request.Host,
+					"method":  c.Request.Method,
+					"ip":      c.ClientIP(),
+				},
+			)
+			return
+		},
+	)
 
 	server := &Server{
 		r,
