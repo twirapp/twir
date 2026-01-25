@@ -99,19 +99,25 @@ watch(
 				</div>
 			</div>
 			<div class="flex items-center gap-2">
+				<ClientOnly>
+					<UrlShortenerQrCodeDialog v-model:open="showQrDialog" :short-url="props.url.short_url">
+						<template #trigger>
+							<button
+								class="flex items-center justify-center rounded-lg border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] p-1.5 text-[hsl(240,11%,80%)] hover:border-[hsl(240,11%,40%)] hover:bg-[hsl(240,11%,25%)] transition-colors"
+								title="Show QR code"
+								@click="showQrDialog = true"
+							>
+								<Icon name="lucide:qr-code" class="h-3.5 w-3.5" />
+							</button>
+						</template>
+					</UrlShortenerQrCodeDialog>
+				</ClientOnly>
 				<button
 					class="flex items-center justify-center rounded-lg border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] p-1.5 text-[hsl(240,11%,80%)] hover:border-[hsl(240,11%,40%)] hover:bg-[hsl(240,11%,25%)] transition-colors"
 					title="Copy short URL"
 					@click="copyShortUrl"
 				>
 					<Icon name="lucide:copy" class="h-3.5 w-3.5" />
-				</button>
-				<button
-					class="flex items-center justify-center rounded-lg border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] p-1.5 text-[hsl(240,11%,80%)] hover:border-[hsl(240,11%,40%)] hover:bg-[hsl(240,11%,25%)] transition-colors"
-					title="Show QR code"
-					@click="showQrDialog = true"
-				>
-					<Icon name="lucide:qr-code" class="h-3.5 w-3.5" />
 				</button>
 				<a
 					:href="props.url.short_url"
@@ -126,9 +132,5 @@ watch(
 		<p v-if="createdAt" class="text-xs text-[hsl(240,11%,55%)]">
 			Created {{ createdAt }}
 		</p>
-
-		<ClientOnly>
-			<UrlShortenerQrCodeDialog v-model:open="showQrDialog" :short-url="props.url.short_url" />
-		</ClientOnly>
 	</div>
 </template>

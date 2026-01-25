@@ -25,18 +25,14 @@ const props = defineProps<{
 const shortId = computed(() => props.link.id);
 const { statistics, range, isDayRange, isLoading, refetch } = useShortLinkStatistics(shortId);
 
-// Subscribe to real-time view updates
 const { totalViews: liveViews, lastView } = useShortLinkViewsSubscription(shortId);
 
-// Use live views if available, otherwise fall back to initial link views
 const displayViews = computed(() => liveViews.value ?? props.link.views);
 
-// Throttled refetch to update chart smoothly without overwhelming the backend
-// Refetch at most once per 10 seconds
 let lastRefetchTime = 0;
 let pendingRefetch = false;
 let refetchTimeout: ReturnType<typeof setTimeout> | null = null;
-const REFETCH_THROTTLE = 10000; // 10 seconds
+const REFETCH_THROTTLE = 10000;
 
 watch(liveViews, (newViews, oldViews) => {
 	if (newViews !== null && oldViews !== null && newViews > oldViews) {
@@ -44,12 +40,10 @@ watch(liveViews, (newViews, oldViews) => {
 		const timeSinceLastRefetch = now - lastRefetchTime;
 
 		if (timeSinceLastRefetch >= REFETCH_THROTTLE) {
-			// Enough time has passed, refetch immediately
 			refetch();
 			lastRefetchTime = now;
 			pendingRefetch = false;
 		} else if (!pendingRefetch) {
-			// Schedule a refetch for when the throttle period ends
 			pendingRefetch = true;
 			const delay = REFETCH_THROTTLE - timeSinceLastRefetch;
 
@@ -67,29 +61,17 @@ watch(liveViews, (newViews, oldViews) => {
 	}
 });
 
-// Cleanup timeout on unmount
 onUnmounted(() => {
 	if (refetchTimeout) {
 		clearTimeout(refetchTimeout);
 	}
 });
 
-// Views history dialog
 const showViewsDialog = ref(false);
-
-// Top countries dialog
 const showTopCountriesDialog = ref(false);
-
-// QR code dialog
-const showQrDialog = ref(false);
-
-// Edit dialog
 const showEditDialog = ref(false);
-
-// Delete dialog
 const showDeleteDialog = ref(false);
 
-// Emit to parent to refresh list when link is updated/deleted
 const emit = defineEmits<{
 	(e: "updated"): void;
 	(e: "deleted"): void;
@@ -178,13 +160,16 @@ watch(
 						>
 							<Icon name="lucide:copy" class="w-3.5 h-3.5" />
 						</button>
-						<button
-							@click="showQrDialog = true"
-							class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
-							title="Show QR code"
-						>
-							<Icon name="lucide:qr-code" class="w-3.5 h-3.5" />
-						</button>
+						<QrCodeDialog :short-url="link.short_url">
+							<template #trigger>
+								<button
+									class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
+									title="Show QR code"
+								>
+									<Icon name="lucide:qr-code" class="w-3.5 h-3.5" />
+								</button>
+							</template>
+						</QrCodeDialog>
 						<button
 							@click="showEditDialog = true"
 							class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
@@ -293,11 +278,6 @@ watch(
 			:short-link-id="link.id"
 			:short-url="displayShortUrl"
 		/>
-
-		<!-- QR Code Dialog -->
-		<ClientOnly>
-			<QrCodeDialog v-model:open="showQrDialog" :short-url="link.short_url" />
-		</ClientOnly>
 
 		<!-- Edit Link Dialog -->
 		<ClientOnly>

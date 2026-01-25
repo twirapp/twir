@@ -3,12 +3,9 @@
 	on_demand_tls {
 		ask http://localhost:3009/v1/short-links/custom-domain/allow
 	}
-	debug
 }
 
-
-{$SITE_BASE_URL}, dev.twir.app, twir.localhost  {
-		bind 0.0.0.0
+{$SITE_BASE_URL} dev.twir.app http://localhost:3005 {
     reverse_proxy http://127.0.0.1:3010
     tls internal
 
@@ -46,7 +43,7 @@
 }
 
 :443 {
-	@customDomain not host {$SITE_BASE_URL} twir.localhost dev.twir.app
+	@customDomain not host {$SITE_BASE_URL} dev.twir.app http://localhost:3005
 
 	tls {
 		on_demand
@@ -60,4 +57,8 @@
 			header_up X-Custom-Domain true
 		}
 	}
+
+	handle {
+		respond "Host not configured" 404
+ 	}
 }

@@ -2,6 +2,7 @@ package shortlinks
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -71,6 +72,8 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 	if host, err := humahelpers.GetHostFromCtx(ctx); err == nil && !isDefaultDomain(host) {
 		domain = &host
 	}
+
+	fmt.Println(domain, input.ShortId)
 
 	link, err := r.service.GetByShortID(ctx, domain, input.ShortId)
 	if err != nil {

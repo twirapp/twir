@@ -1,107 +1,105 @@
 <script setup lang="ts">
-import Dialog from '@/components/ui/dialog/Dialog.vue'
-import DialogContent from '@/components/ui/dialog/DialogContent.vue'
-import DialogDescription from '@/components/ui/dialog/DialogDescription.vue'
-import DialogHeader from '@/components/ui/dialog/DialogHeader.vue'
-import DialogTitle from '@/components/ui/dialog/DialogTitle.vue'
-import Button from '@/components/ui/button/Button.vue'
-
 import { useQRCode } from '../../composables/use-qr-code'
+import PixelBlast from '~/components/ui/bits/backgrounds/PixelBlast/pixel-blast.vue';
+import { TwirLogo } from '@twir/brand'
+import { render } from 'vue';
 
 const props = defineProps<{
-	open: boolean
 	shortUrl: string
 }>()
 
-const emit = defineEmits<{
-	(e: 'update:open', value: boolean): void
-}>()
-
 const { generateQRCode, downloadQR } = useQRCode()
-const qrCode = ref<string | null>(null)
-const isLoading = ref(false)
-const errorMessage = ref<string | null>(null)
-
-const downloadFileName = computed(() => {
-	if (!props.shortUrl) return 'twir-qrcode.png'
-
-	const cleaned = props.shortUrl
-		.replace(/^https?:\/\//, '')
-		.replace(/[^a-zA-Z0-9-_]+/g, '-')
-		.replace(/-+/g, '-')
-		.replace(/^-|-$/g, '')
-
-	if (!cleaned) return 'twir-qrcode.png'
-
-	return `twir-${cleaned}.png`
+const qrCodeUrl = ref<string>('')
+const qrSettings = reactive({
+	showLogo: true,
+	color: '#ffffff',
+	backgroundColor: '#00000000',
 })
 
-watch(
-	() => [props.open, props.shortUrl],
-	async ([isOpen]) => {
-		if (!isOpen || !props.shortUrl) return
-		if (!import.meta.client) return
+onMounted(async () => {
+	await generateQR()
+})
 
-		isLoading.value = true
-		errorMessage.value = null
+const logoContainer = document.createElement('div')
+const logoVnode = h(TwirLogo)
+render(logoVnode, logoContainer)
 
-		try {
-			qrCode.value = await generateQRCode({ url: props.shortUrl })
-		} catch (error) {
-			console.error('Failed to generate QR code:', error)
-			qrCode.value = null
-			errorMessage.value = 'Failed to generate QR code'
-		} finally {
-			isLoading.value = false
-		}
-	}
-)
+async function generateQR() {
+	if (!props.shortUrl) return
 
-function handleDownload() {
-	if (!qrCode.value) return
-	downloadQR(qrCode.value, downloadFileName.value)
+	qrCodeUrl.value = await generateQRCode({
+		url: props.shortUrl,
+		color: qrSettings.color,
+		backgroundColor: qrSettings.backgroundColor,
+		logoComponent: qrSettings.showLogo ? logoContainer  : null,
+		logoSize: 70,
+		size: 400,
+	})
 }
 
-function closeDialog() {
-	emit('update:open', false)
+async function handleDownloadQR() {
+	if (!qrCodeUrl.value) return
+	await downloadQR(qrCodeUrl.value, `twir-qrcode.png`)
 }
+
+watch([() => qrSettings.showLogo, () => qrSettings.color], async () => {
+	await generateQR()
+})
 </script>
 
 <template>
-	<Dialog :open="open" @update:open="closeDialog">
-		<DialogContent class="max-w-sm">
-			<DialogHeader>
-				<DialogTitle>QR Code</DialogTitle>
-				<DialogDescription>
-					Scan to open
-					<span class="break-all">{{ shortUrl }}</span>
-				</DialogDescription>
-			</DialogHeader>
+	<UiDialog>
+		<UiDialogTrigger as-child>
+			<slot name="trigger" />
+		</UiDialogTrigger>
+		<UiDialogContent class="max-w-lg">
+			<UiDialogHeader>
+				<UiDialogTitle>QR Code Settings</UiDialogTitle>
+			</UiDialogHeader>
 
-			<div class="mt-4 flex items-center justify-center">
-				<div
-					class="flex h-48 w-48 items-center justify-center rounded-2xl border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,12%)] p-3 shadow-[0px_0px_20px_hsl(240,11%,6%)]"
-				>
-					<Icon v-if="isLoading" name="lucide:loader-2" class="h-8 w-8 animate-spin" />
-					<Icon v-else-if="errorMessage" name="lucide:alert-triangle" class="h-8 w-8 text-red-500" />
-					<img v-else-if="qrCode" :src="qrCode" alt="QR code" class="h-full w-full" />
-					<Icon v-else name="lucide:qr-code" class="h-8 w-8 text-[hsl(240,11%,50%)]" />
+			<div class="flex flex-col gap-5">
+				<div class="flex flex-col gap-2">
+					<div class="flex items-center justify-between">
+						<span class="text-sm font-semibold">Preview</span>
+						<div class="flex gap-1 items-center">
+							<UiButton class="size-7" variant="ghost" size="default" @click="handleDownloadQR">
+								<Icon name="lucide:download" class="size-4" />
+							</UiButton>
+						</div>
+					</div>
+					<PixelBlast
+						:pixel-size="5"
+						:pattern-scale="3.5"
+						:pattern-density="1.75"
+						:pixel-jiter="2"
+						:speed="0.25"
+						:edge-fade="0.32"
+						:enable-ripples="false"
+						class="flex justify-center p-6 rounded-lg border"
+					>
+						<div class="flex border bg-black/10 backdrop-blur rounded-md">
+							<img
+								v-if="qrCodeUrl"
+								:src="qrCodeUrl"
+								alt="QR Code"
+								class="w-full max-w-[180px] rounded-lg p-3"
+							/>
+						</div>
+					</PixelBlast>
+				</div>
+
+				<div class="flex flex-col gap-4">
+					<div class="flex flex-row items-center justify-between">
+						<label class="text-sm font-medium">Show Twir Logo</label>
+						<UiSwitchToggle v-model="qrSettings.showLogo" />
+					</div>
+
+					<div class="flex flex-row items-center justify-between">
+						<label class="text-sm font-medium">QR Code Color</label>
+						<UiColorPicker v-model="qrSettings.color" class="size-6" />
+					</div>
 				</div>
 			</div>
-
-			<p v-if="errorMessage" class="mt-3 text-sm text-red-400">
-				{{ errorMessage }}
-			</p>
-
-			<div class="mt-4 flex items-center justify-between gap-2">
-				<Button variant="outline" size="sm" :disabled="!qrCode || isLoading" @click="handleDownload">
-					<Icon name="lucide:download" class="mr-2 h-4 w-4" />
-					Download
-				</Button>
-				<Button variant="outline" size="sm" @click="closeDialog">
-					Close
-				</Button>
-			</div>
-		</DialogContent>
-	</Dialog>
+		</UiDialogContent>
+	</UiDialog>
 </template>

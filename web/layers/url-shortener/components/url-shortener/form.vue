@@ -92,16 +92,14 @@ const onSubmit = form.handleSubmit(async (values) => {
 		return
 	}
 
-	if (data?.data) {
-		currentUrl.value = data.data
-		form.resetForm({
-			values: {
-				url: '',
-				customAlias: '',
-				useCustomDomain: values.useCustomDomain ?? false,
-			},
-		})
-	}
+	currentUrl.value = data.data
+	form.resetForm({
+		values: {
+			url: '',
+			customAlias: '',
+			useCustomDomain: values.useCustomDomain ?? false,
+		},
+	})
 })
 </script>
 
