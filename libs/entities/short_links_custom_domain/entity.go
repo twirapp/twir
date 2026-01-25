@@ -3,6 +3,7 @@ package shortlinkscustomdomain
 import (
 	"errors"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -30,8 +31,11 @@ var Nil = Entity{
 	isNil: true,
 }
 
-func (c Entity) GetVerificationTarget() string {
-	return c.VerificationToken + ".shortener.twir.app"
+func (c Entity) GetVerificationTarget(base string) string {
+	base = strings.Replace(base, "http://", "", 1)
+	base = strings.Replace(base, "https://", "", 1)
+
+	return c.VerificationToken + "." + base
 }
 
 func (c Entity) Validate() error {

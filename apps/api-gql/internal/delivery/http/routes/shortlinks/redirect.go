@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -173,10 +174,39 @@ func (r *redirect) Register(api huma.API) {
 }
 
 func isDefaultDomain(defaultHost, host string) bool {
-	defaultHost = strings.Replace(defaultHost, "http://", "", 1)
-	defaultHost = strings.Replace(defaultHost, "https://", "", 1)
-	host = strings.Replace(host, "http://", "", 1)
-	host = strings.Replace(host, "https://", "", 1)
+	baseHost := resolveBaseHost(defaultHost)
+	if baseHost == "" || host == "" {
+		return false
+	}
 
-	return host == defaultHost || host == "localhost"
+	host = strings.ToLower(host)
+
+	if host == baseHost {
+		return true
+	}
+
+	if strings.HasPrefix(baseHost, "cf.") {
+		return host == strings.TrimPrefix(baseHost, "cf.")
+	}
+
+	return host == "cf."+baseHost
+}
+
+func resolveBaseHost(siteBaseURL string) string {
+	parsed, err := url.Parse(siteBaseURL)
+	if err == nil && parsed.Hostname() != "" {
+		return strings.ToLower(parsed.Hostname())
+	}
+
+	trimmed := strings.TrimSpace(siteBaseURL)
+	trimmed = strings.TrimPrefix(trimmed, "http://")
+	trimmed = strings.TrimPrefix(trimmed, "https://")
+	if trimmed == "" {
+		return ""
+	}
+
+	trimmed = strings.Split(trimmed, "/")[0]
+	trimmed = strings.Split(trimmed, ":")[0]
+
+	return strings.ToLower(trimmed)
 }

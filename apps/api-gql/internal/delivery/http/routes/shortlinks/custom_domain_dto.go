@@ -15,13 +15,13 @@ type customDomainOutputDto struct {
 	CreatedAt          time.Time `json:"created_at"`
 }
 
-func mapCustomDomainOutput(entity shortlinkscustomdomain.Entity) customDomainOutputDto {
+func mapCustomDomainOutput(entity shortlinkscustomdomain.Entity, baseUrl string) customDomainOutputDto {
 	return customDomainOutputDto{
 		ID:                 entity.ID,
 		Domain:             entity.Domain,
 		Verified:           entity.Verified,
 		VerificationToken:  entity.VerificationToken,
-		VerificationTarget: entity.GetVerificationTarget(),
+		VerificationTarget: entity.GetVerificationTarget(baseUrl),
 		CreatedAt:          entity.CreatedAt,
 	}
 }

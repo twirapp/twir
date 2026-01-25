@@ -117,6 +117,26 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.Shortene
 	)
 }
 
+func (c *Service) MoveLinksToDefaultDomain(
+	ctx context.Context,
+	userID string,
+	domain string,
+) error {
+	if userID == "" || domain == "" {
+		return errors.New("user ID and domain are required")
+	}
+
+	conflicts, err := c.repository.CountDomainShortIDConflicts(ctx, domain, userID)
+	if err != nil {
+		return err
+	}
+	if conflicts > 0 {
+		return shortenedurlsrepository.ErrShortIDAlreadyExists
+	}
+
+	return c.repository.ClearDomainForUser(ctx, domain, userID)
+}
+
 func (c *Service) GetByShortID(
 	ctx context.Context,
 	domain *string,
@@ -150,10 +170,11 @@ func (c *Service) GetByUrl(
 }
 
 type UpdateInput struct {
-	Views   *int
-	ShortID *string
-	URL     *string
-	Domain  *string
+	Views       *int
+	ShortID     *string
+	URL         *string
+	Domain      *string
+	ClearDomain bool
 }
 
 func (c *Service) Update(
@@ -167,10 +188,11 @@ func (c *Service) Update(
 		domain,
 		id,
 		shortenedurlsrepository.UpdateInput{
-			Views:   input.Views,
-			ShortID: input.ShortID,
-			URL:     input.URL,
-			Domain:  input.Domain,
+			Views:       input.Views,
+			ShortID:     input.ShortID,
+			URL:         input.URL,
+			Domain:      input.Domain,
+			ClearDomain: input.ClearDomain,
 		},
 	)
 	if err != nil {

@@ -20,8 +20,9 @@ import (
 type updateRequestDto struct {
 	ShortId string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
 	Body    struct {
-		NewShortId *string `json:"new_short_id,omitempty" minLength:"3" maxLength:"50" pattern:"^[a-zA-Z0-9]+$"`
-		Url        *string `json:"url,omitempty" minLength:"1" maxLength:"2048" format:"uri"`
+		NewShortId      *string `json:"new_short_id,omitempty" minLength:"3" maxLength:"50" pattern:"^[a-zA-Z0-9]+$"`
+		Url             *string `json:"url,omitempty" minLength:"1" maxLength:"2048" format:"uri"`
+		UseCustomDomain *bool   `json:"use_custom_domain,omitempty"`
 	}
 }
 
@@ -82,9 +83,15 @@ func (u *updateRoute) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized", err)
 	}
 
-	var domain *string
+	var (
+		domain            *string
+		hasCustomDomain   bool
+		customDomainValue string
+	)
 	if userDomain, err := u.customDomainsService.GetByUserID(ctx, user.ID); err == nil && !userDomain.IsNil() && userDomain.Verified {
-		domain = &userDomain.Domain
+		hasCustomDomain = true
+		customDomainValue = userDomain.Domain
+		domain = &customDomainValue
 	}
 
 	// Get the link to verify ownership
@@ -102,6 +109,7 @@ func (u *updateRoute) Handler(
 	if link.IsNil() {
 		return nil, huma.NewError(http.StatusNotFound, "Link not found")
 	}
+	currentDomain := link.Domain
 
 	// Check if user owns this link
 	if link.CreatedByUserId == nil || *link.CreatedByUserId != user.ID {
@@ -109,25 +117,60 @@ func (u *updateRoute) Handler(
 	}
 
 	// Validate at least one field is provided
-	if input.Body.NewShortId == nil && input.Body.Url == nil {
+	if input.Body.NewShortId == nil && input.Body.Url == nil && input.Body.UseCustomDomain == nil {
 		return nil, huma.NewError(http.StatusBadRequest, "At least one field must be provided")
 	}
 
-	// Check if new short ID already exists
-	if input.Body.NewShortId != nil && *input.Body.NewShortId != input.ShortId {
-		existingLink, err := u.service.GetByShortID(ctx, domain, *input.Body.NewShortId)
-		if err == nil && !existingLink.IsNil() {
+	targetDomain := currentDomain
+	if input.Body.UseCustomDomain != nil {
+		if *input.Body.UseCustomDomain {
+			if !hasCustomDomain {
+				return nil, huma.NewError(http.StatusBadRequest, "Custom domain is not available")
+			}
+			targetDomain = &customDomainValue
+		} else {
+			targetDomain = nil
+		}
+	}
+
+	targetShortID := link.ShortID
+	shortIDChanged := input.Body.NewShortId != nil && *input.Body.NewShortId != link.ShortID
+	if shortIDChanged {
+		targetShortID = *input.Body.NewShortId
+	}
+
+	domainChanged := (currentDomain == nil) != (targetDomain == nil)
+	if !domainChanged && currentDomain != nil && targetDomain != nil {
+		domainChanged = *currentDomain != *targetDomain
+	}
+
+	if shortIDChanged || domainChanged {
+		existingLink, err := u.service.GetByShortID(ctx, targetDomain, targetShortID)
+		if err != nil {
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get link", err)
+		}
+		if !existingLink.IsNil() {
 			return nil, huma.NewError(http.StatusConflict, "Short ID already exists")
 		}
 	}
 
 	// Update the link
 	updateInput := shortenedurls.UpdateInput{
-		ShortID: input.Body.NewShortId,
-		URL:     input.Body.Url,
+		URL: input.Body.Url,
+	}
+	if shortIDChanged {
+		updateInput.ShortID = input.Body.NewShortId
+	}
+	if domainChanged {
+		if targetDomain == nil {
+			updateInput.ClearDomain = true
+		} else {
+			domainValue := *targetDomain
+			updateInput.Domain = &domainValue
+		}
 	}
 
-	updatedLink, err := u.service.Update(ctx, domain, input.ShortId, updateInput)
+	updatedLink, err := u.service.Update(ctx, currentDomain, input.ShortId, updateInput)
 	if err != nil {
 		if errors.Is(err, shortenedurlsrepository.ErrShortIDAlreadyExists) {
 			return nil, huma.NewError(http.StatusConflict, "Short ID already exists", err)

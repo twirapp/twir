@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
+	config "github.com/twirapp/twir/libs/config"
 	shortlinkscustomdomainsrepo "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
 	"go.uber.org/fx"
 )
@@ -16,6 +17,7 @@ import (
 type createCustomDomain struct {
 	customDomainsService *shortlinkscustomdomains.Service
 	sessions             *auth.Auth
+	config               config.Config
 }
 
 type CreateCustomDomainOpts struct {
@@ -23,12 +25,14 @@ type CreateCustomDomainOpts struct {
 
 	CustomDomainsService *shortlinkscustomdomains.Service
 	Sessions             *auth.Auth
+	Config               config.Config
 }
 
 func newCreateCustomDomain(opts CreateCustomDomainOpts) *createCustomDomain {
 	return &createCustomDomain{
 		customDomainsService: opts.CustomDomainsService,
 		sessions:             opts.Sessions,
+		config:               opts.Config,
 	}
 }
 
@@ -60,10 +64,12 @@ func (c *createCustomDomain) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	customDomain, err := c.customDomainsService.Create(ctx, shortlinkscustomdomains.CreateInput{
-		UserID: user.ID,
-		Domain: input.Body.Domain,
-	})
+	customDomain, err := c.customDomainsService.Create(
+		ctx, shortlinkscustomdomains.CreateInput{
+			UserID: user.ID,
+			Domain: input.Body.Domain,
+		},
+	)
 	if err != nil {
 		switch {
 		case errors.Is(err, shortlinkscustomdomainsrepo.ErrUserAlreadyHasDomain):
@@ -75,7 +81,12 @@ func (c *createCustomDomain) Handler(
 		}
 	}
 
-	return httpbase.CreateBaseOutputJson(mapCustomDomainOutput(customDomain)), nil
+	return httpbase.CreateBaseOutputJson(
+		mapCustomDomainOutput(
+			customDomain,
+			c.config.SiteBaseUrl,
+		),
+	), nil
 }
 
 func (c *createCustomDomain) Register(api huma.API) {

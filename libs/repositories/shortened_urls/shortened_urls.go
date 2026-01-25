@@ -14,6 +14,8 @@ type Repository interface {
 	Update(ctx context.Context, domain *string, id string, input UpdateInput) (model.ShortenedUrl, error)
 	GetList(ctx context.Context, input GetListInput) (GetListOutput, error)
 	Delete(ctx context.Context, domain *string, id string) error
+	ClearDomainForUser(ctx context.Context, domain string, userID string) error
+	CountDomainShortIDConflicts(ctx context.Context, domain string, userID string) (int64, error)
 	Count(ctx context.Context, input CountInput) (int64, error)
 }
 
@@ -27,10 +29,11 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
-	Views   *int
-	ShortID *string
-	URL     *string
-	Domain  *string
+	Views       *int
+	ShortID     *string
+	URL         *string
+	Domain      *string
+	ClearDomain bool
 }
 
 type GetListInput struct {

@@ -8,12 +8,14 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
+	config "github.com/twirapp/twir/libs/config"
 	"go.uber.org/fx"
 )
 
 type verifyCustomDomain struct {
 	customDomainsService *shortlinkscustomdomains.Service
 	sessions             *auth.Auth
+	config               config.Config
 }
 
 type VerifyCustomDomainOpts struct {
@@ -21,12 +23,14 @@ type VerifyCustomDomainOpts struct {
 
 	CustomDomainsService *shortlinkscustomdomains.Service
 	Sessions             *auth.Auth
+	Config               config.Config
 }
 
 func newVerifyCustomDomain(opts VerifyCustomDomainOpts) *verifyCustomDomain {
 	return &verifyCustomDomain{
 		customDomainsService: opts.CustomDomainsService,
 		sessions:             opts.Sessions,
+		config:               opts.Config,
 	}
 }
 
@@ -62,7 +66,12 @@ func (c *verifyCustomDomain) Handler(
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get custom domain", err)
 	}
 
-	return httpbase.CreateBaseOutputJson(mapCustomDomainOutput(customDomain)), nil
+	return httpbase.CreateBaseOutputJson(
+		mapCustomDomainOutput(
+			customDomain,
+			c.config.SiteBaseUrl,
+		),
+	), nil
 }
 
 func (c *verifyCustomDomain) Register(api huma.API) {

@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strings"
 
+	config "github.com/twirapp/twir/libs/config"
 	shortlinkscustomdomain "github.com/twirapp/twir/libs/entities/short_links_custom_domain"
 	"github.com/twirapp/twir/libs/repositories/plans"
 	shortlinkscustomdomainsrepo "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
@@ -29,18 +30,21 @@ type Opts struct {
 
 	Repository      shortlinkscustomdomainsrepo.Repository
 	PlansRepository plans.Repository
+	Config          config.Config
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		repository:      opts.Repository,
 		plansRepository: opts.PlansRepository,
+		config:          opts.Config,
 	}
 }
 
 type Service struct {
 	repository      shortlinkscustomdomainsrepo.Repository
 	plansRepository plans.Repository
+	config          config.Config
 }
 
 type CreateInput struct {
@@ -112,7 +116,7 @@ func (s *Service) VerifyDomain(ctx context.Context, userID string) error {
 		return nil
 	}
 
-	expectedTarget := strings.ToLower(mapToEntity(customDomain).GetVerificationTarget())
+	expectedTarget := strings.ToLower(mapToEntity(customDomain).GetVerificationTarget(s.config.SiteBaseUrl))
 	cname, err := net.LookupCNAME(customDomain.Domain)
 	if err != nil {
 		return errors.New("DNS lookup failed: " + err.Error())

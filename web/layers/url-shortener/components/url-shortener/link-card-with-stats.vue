@@ -285,6 +285,7 @@ watch(
 				v-model:open="showEditDialog"
 				:link-id="link.id"
 				:current-short-id="link.id"
+				:current-short-url="link.short_url"
 				:current-url="link.url"
 				@updated="emit('updated')"
 			/>

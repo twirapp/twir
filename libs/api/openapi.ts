@@ -673,6 +673,7 @@ export interface UpdateRequestDtoBody {
    * @maxLength 2048
    */
   url?: string;
+  use_custom_domain?: boolean;
 }
 
 export enum CommandResponseDtoCooldownTypeEnum {

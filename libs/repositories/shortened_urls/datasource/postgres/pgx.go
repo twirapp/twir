@@ -113,6 +113,37 @@ WHERE short_id = $1
 	return err
 }
 
+func (c *Pgx) ClearDomainForUser(ctx context.Context, domain string, userID string) error {
+	query := `
+UPDATE shortened_urls
+SET domain = NULL, updated_at = NOW()
+WHERE domain = $1 AND created_by_user_id = $2
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	_, err := conn.Exec(ctx, query, domain, userID)
+	return err
+}
+
+func (c *Pgx) CountDomainShortIDConflicts(ctx context.Context, domain string, userID string) (int64, error) {
+	query := `
+SELECT COUNT(*)
+FROM shortened_urls AS custom
+JOIN shortened_urls AS defaults
+	ON defaults.domain IS NULL
+	AND defaults.short_id = custom.short_id
+WHERE custom.domain = $1 AND custom.created_by_user_id = $2
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	var count int64
+	if err := conn.QueryRow(ctx, query, domain, userID).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (c *Pgx) Update(
 	ctx context.Context,
 	domain *string,
@@ -144,6 +175,8 @@ func (c *Pgx) Update(
 
 	if input.Domain != nil {
 		updateBuilder = updateBuilder.Set("domain", *input.Domain)
+	} else if input.ClearDomain {
+		updateBuilder = updateBuilder.Set("domain", nil)
 	}
 
 	query, args, err := updateBuilder.ToSql()
