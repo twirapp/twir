@@ -50,7 +50,16 @@ func (c *Manager) tryTick(id TimerID) {
 	}
 
 	isOffline := stream == nil
-	if isOffline && !t.dbRow.OfflineEnabled {
+	if !isOffline {
+		t.offlineMessageNumber = 0
+		t.lastTriggerOfflineNumber = 0
+	}
+
+	if isOffline {
+		if !t.dbRow.OfflineEnabled {
+			return
+		}
+	} else if !t.dbRow.OnlineEnabled {
 		return
 	}
 
@@ -76,8 +85,6 @@ func (c *Manager) tryTick(id TimerID) {
 
 		currentMessageNumber = streamParsedMessages
 		lastTriggerMessageCount = t.lastTriggerMessageNumber
-		t.offlineMessageNumber = 0
-		t.lastTriggerOfflineNumber = 0
 	}
 
 	var (

@@ -49,6 +49,7 @@ const { resetForm, handleSubmit, controlledValues, errors, setValues } = useForm
 		messageInterval: 0,
 		responses: [{ text: "", isAnnounce: false, count: 1 }],
 		offlineEnabled: false,
+		onlineEnabled: true,
 	},
 });
 
@@ -201,6 +202,23 @@ const responsesHasError = computed(() => {
 									Choose when the timer is allowed to send messages.
 								</p>
 							</div>
+
+							<FormField v-slot="{ value, handleChange }" name="onlineEnabled">
+								<FormItem class="space-y-2 rounded-lg border p-4">
+									<div class="flex items-center justify-between gap-4">
+										<div class="space-y-1">
+											<FormLabel>Send while online</FormLabel>
+											<FormDescription>
+												Allow this timer to trigger when the channel is live.
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch :model-value="value" @update:model-value="handleChange" />
+										</FormControl>
+									</div>
+									<FormMessage />
+								</FormItem>
+							</FormField>
 
 							<FormField v-slot="{ value, handleChange }" name="offlineEnabled">
 								<FormItem class="space-y-2 rounded-lg border p-4">

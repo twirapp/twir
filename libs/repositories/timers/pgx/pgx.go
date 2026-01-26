@@ -48,6 +48,7 @@ type scanModel struct {
 	Name                     string
 	Enabled                  bool
 	OfflineEnabled           bool
+	OnlineEnabled            bool
 	TimeInterval             int
 	MessageInterval          int
 	LastTriggerMessageNumber int
@@ -82,6 +83,7 @@ func (c scanModel) toEntity() timersentity.Timer {
 		Name:                     c.Name,
 		Enabled:                  c.Enabled,
 		OfflineEnabled:           c.OfflineEnabled,
+		OnlineEnabled:            c.OnlineEnabled,
 		TimeInterval:             c.TimeInterval,
 		MessageInterval:          c.MessageInterval,
 		LastTriggerMessageNumber: c.LastTriggerMessageNumber,
@@ -91,7 +93,7 @@ func (c scanModel) toEntity() timersentity.Timer {
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (timersentity.Timer, error) {
 	query := `
-SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
+SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."online_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
 			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
@@ -121,6 +123,7 @@ ORDER BY t.id;
 			&timer.Name,
 			&timer.Enabled,
 			&timer.OfflineEnabled,
+			&timer.OnlineEnabled,
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
@@ -169,9 +172,9 @@ func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, erro
 
 func (c *Pgx) Create(ctx context.Context, data timers.CreateInput) (timersentity.Timer, error) {
 	createQuery := `
-INSERT INTO "channels_timers" ("channelId", "name", "enabled", "offline_enabled", "timeInterval", "messageInterval")
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING "id", "channelId", "name", "enabled", "offline_enabled", "timeInterval", "messageInterval"
+INSERT INTO "channels_timers" ("channelId", "name", "enabled", "offline_enabled", "online_enabled", "timeInterval", "messageInterval")
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING "id", "channelId", "name", "enabled", "offline_enabled", "online_enabled", "timeInterval", "messageInterval"
 `
 	createResponseQuery := `
 INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count, "announce_color")
@@ -193,6 +196,7 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 		data.Name,
 		data.Enabled,
 		data.OfflineEnabled,
+		data.OnlineEnabled,
 		data.TimeInterval,
 		data.MessageInterval,
 	).Scan(
@@ -201,6 +205,7 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 		&newTimer.Name,
 		&newTimer.Enabled,
 		&newTimer.OfflineEnabled,
+		&newTimer.OnlineEnabled,
 		&newTimer.TimeInterval,
 		&newTimer.MessageInterval,
 	); err != nil {
@@ -241,7 +246,7 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 
 func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]timersentity.Timer, error) {
 	query := `
-SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
+SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."online_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
 			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
@@ -272,6 +277,7 @@ ORDER BY t."id";
 			&timer.Name,
 			&timer.Enabled,
 			&timer.OfflineEnabled,
+			&timer.OnlineEnabled,
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
@@ -333,6 +339,10 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 
 	if data.OfflineEnabled != nil {
 		updateBuilder = updateBuilder.Set(`"offline_enabled"`, *data.OfflineEnabled)
+	}
+
+	if data.OnlineEnabled != nil {
+		updateBuilder = updateBuilder.Set(`"online_enabled"`, *data.OnlineEnabled)
 	}
 
 	if data.TimeInterval != nil {
@@ -440,6 +450,7 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]timerse
 		"t.name",
 		"t.enabled",
 		`t."offline_enabled"`,
+		`t."online_enabled"`,
 		`t."timeInterval"`,
 		`t."messageInterval"`,
 		`t."lastTriggerMessageNumber"`,
@@ -502,6 +513,7 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]timerse
 			&timer.Name,
 			&timer.Enabled,
 			&timer.OfflineEnabled,
+			&timer.OnlineEnabled,
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,

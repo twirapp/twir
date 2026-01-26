@@ -785,6 +785,7 @@ func (s *Service) ImportTimers(
 				ActorID:         actorID,
 				Name:            timer.Name,
 				Enabled:         timer.Enabled,
+				OnlineEnabled:   true,
 				TimeInterval:    parsedInterval,
 				MessageInterval: timer.Lines,
 				Responses: []timers.CreateResponse{

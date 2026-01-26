@@ -72,7 +72,6 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 			Window:          30 * time.Second,
 		},
 	)
-
 	if err != nil {
 		return err
 	}
@@ -287,12 +286,16 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	return nil
 }
 
+const MAX_TWITCH_MESSAGE_LENGTH = 465
+
 func splitTextByLength(text string) []string {
 	var parts []string
 
-	i := 500
+	i := MAX_TWITCH_MESSAGE_LENGTH
 	for utf8.RuneCountInString(text) > 0 {
-		if utf8.RuneCountInString(text) < 500 {
+		// the max twitch length of nickname is 32, and when we are replying to a message in chat,
+		// and here is a reply, we need to reserve some space for that
+		if utf8.RuneCountInString(text) < MAX_TWITCH_MESSAGE_LENGTH {
 			parts = append(parts, text)
 			break
 		}

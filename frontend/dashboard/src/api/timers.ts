@@ -22,6 +22,7 @@ export const useTimersApi = createGlobalState(() => {
 					name
 					enabled
 					offlineEnabled
+					onlineEnabled
 					timeInterval
 					messageInterval
 					responses {

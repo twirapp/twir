@@ -22,6 +22,7 @@ export const formSchema = object({
 	).min(1),
 	enabled: boolean().default(true),
 	offlineEnabled: boolean().default(false),
+	onlineEnabled: boolean().default(true),
 })
 
 type FormSchema = TypeOf<typeof formSchema>

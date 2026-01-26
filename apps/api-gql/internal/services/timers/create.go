@@ -22,6 +22,7 @@ type CreateInput struct {
 	Name            string
 	Enabled         bool
 	OfflineEnabled  bool
+	OnlineEnabled   bool
 	TimeInterval    int
 	MessageInterval int
 	Responses       []CreateResponse
@@ -77,6 +78,7 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (timersentity.Ti
 			Name:            data.Name,
 			Enabled:         data.Enabled,
 			OfflineEnabled:  data.OfflineEnabled,
+			OnlineEnabled:   data.OnlineEnabled,
 			TimeInterval:    data.TimeInterval,
 			MessageInterval: data.MessageInterval,
 			Responses:       responses,

@@ -23,6 +23,7 @@ type CreateInput struct {
 	Name            string
 	Enabled         bool
 	OfflineEnabled  bool
+	OnlineEnabled   bool
 	TimeInterval    int
 	MessageInterval int
 	Responses       []CreateResponse
@@ -39,6 +40,7 @@ type UpdateInput struct {
 	Name            *string
 	Enabled         *bool
 	OfflineEnabled  *bool
+	OnlineEnabled   *bool
 	TimeInterval    *int
 	MessageInterval *int
 	Responses       []CreateResponse

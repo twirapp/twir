@@ -12,6 +12,7 @@ type Timer struct {
 	Name                     string
 	Enabled                  bool
 	OfflineEnabled           bool
+	OnlineEnabled            bool
 	TimeInterval             int
 	MessageInterval          int
 	LastTriggerMessageNumber int

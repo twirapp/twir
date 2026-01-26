@@ -27,6 +27,7 @@ func TimerEntityToGql(m timersentity.Timer) gqlmodel.Timer {
 		Name:            m.Name,
 		Enabled:         m.Enabled,
 		OfflineEnabled:  m.OfflineEnabled,
+		OnlineEnabled:   m.OnlineEnabled,
 		TimeInterval:    m.TimeInterval,
 		MessageInterval: m.MessageInterval,
 		Responses:       responses,
