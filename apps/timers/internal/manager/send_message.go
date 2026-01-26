@@ -5,7 +5,7 @@ import (
 
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
-	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
+	timersentity "github.com/twirapp/twir/libs/entities/timers"
 )
 
 func (c *Manager) sendMessage(
@@ -13,7 +13,7 @@ func (c *Manager) sendMessage(
 	channelId,
 	text string,
 	isAnnounce bool,
-	announceColor timersmodel.AnnounceColor,
+	announceColor timersentity.AnnounceColor,
 	count int,
 ) error {
 	parseReq, err := c.twirBus.Parser.ParseVariablesInText.Request(

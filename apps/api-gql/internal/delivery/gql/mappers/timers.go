@@ -2,12 +2,12 @@ package mappers
 
 import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
 
-func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
+func TimerEntityToGql(m timersentity.Timer) gqlmodel.Timer {
 	responses := make([]gqlmodel.TimerResponse, 0, len(m.Responses))
 	for _, r := range m.Responses {
 		responses = append(
@@ -17,7 +17,7 @@ func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
 				Text:          r.Text,
 				IsAnnounce:    r.IsAnnounce,
 				Count:         r.Count,
-				AnnounceColor: AnnounceColorToGql(r.AnnounceColor),
+				AnnounceColor: AnnounceColorToGql(bots.AnnounceColor(r.AnnounceColor)),
 			},
 		)
 	}
@@ -26,6 +26,7 @@ func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
 		ID:              m.ID,
 		Name:            m.Name,
 		Enabled:         m.Enabled,
+		OfflineEnabled:  m.OfflineEnabled,
 		TimeInterval:    m.TimeInterval,
 		MessageInterval: m.MessageInterval,
 		Responses:       responses,

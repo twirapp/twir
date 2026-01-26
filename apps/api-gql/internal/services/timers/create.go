@@ -7,13 +7,12 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
+	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
-	"github.com/twirapp/twir/libs/repositories/timers/model"
 )
 
 type CreateInput struct {
@@ -22,6 +21,7 @@ type CreateInput struct {
 
 	Name            string
 	Enabled         bool
+	OfflineEnabled  bool
 	TimeInterval    int
 	MessageInterval int
 	Responses       []CreateResponse
@@ -34,22 +34,22 @@ type CreateResponse struct {
 	AnnounceColor bots.AnnounceColor
 }
 
-func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, error) {
+func (c *Service) Create(ctx context.Context, data CreateInput) (timersentity.Timer, error) {
 	plan, err := c.plansRepository.GetByChannelID(ctx, data.ChannelID)
 	if err != nil {
-		return entity.TimerNil, fmt.Errorf("failed to get plan: %w", err)
+		return timersentity.Nil, fmt.Errorf("failed to get plan: %w", err)
 	}
 	if plan.IsNil() {
-		return entity.TimerNil, fmt.Errorf("plan not found for channel")
+		return timersentity.Nil, fmt.Errorf("plan not found for channel")
 	}
 
 	createdCount, err := c.timersRepository.CountByChannelID(ctx, data.ChannelID)
 	if err != nil {
-		return entity.TimerNil, err
+		return timersentity.Nil, err
 	}
 
 	if createdCount >= plan.MaxTimers {
-		return entity.TimerNil, fmt.Errorf("you can have only %v timers", plan.MaxTimers)
+		return timersentity.Nil, fmt.Errorf("you can have only %v timers", plan.MaxTimers)
 	}
 
 	responses := make([]timersrepository.CreateResponse, 0, len(data.Responses))
@@ -65,7 +65,7 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 				Text:          response.Text,
 				IsAnnounce:    response.IsAnnounce,
 				Count:         count,
-				AnnounceColor: model.AnnounceColor(response.AnnounceColor),
+				AnnounceColor: timersentity.AnnounceColor(response.AnnounceColor),
 			},
 		)
 	}
@@ -76,13 +76,14 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 			ChannelID:       data.ChannelID,
 			Name:            data.Name,
 			Enabled:         data.Enabled,
+			OfflineEnabled:  data.OfflineEnabled,
 			TimeInterval:    data.TimeInterval,
 			MessageInterval: data.MessageInterval,
 			Responses:       responses,
 		},
 	)
 	if err != nil {
-		return entity.TimerNil, err
+		return timersentity.Nil, err
 	}
 
 	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
@@ -109,7 +110,7 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 		},
 	)
 
-	return c.dbToModel(timer), nil
+	return timer, nil
 }
 
 func (c *Service) CreateMany(ctx context.Context, data []CreateInput) (bool, error) {

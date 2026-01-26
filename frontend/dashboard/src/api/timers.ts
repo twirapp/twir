@@ -21,6 +21,7 @@ export const useTimersApi = createGlobalState(() => {
 					id
 					name
 					enabled
+					offlineEnabled
 					timeInterval
 					messageInterval
 					responses {

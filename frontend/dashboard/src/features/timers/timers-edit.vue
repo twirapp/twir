@@ -29,6 +29,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import Switch from "@/components/ui/switch/Switch.vue";
 import VariableInput from "@/components/variable-input.vue";
 import { formSchema, useTimersEdit } from "@/features/timers/composables/use-timers-edit.js";
 import { TwitchAnnounceColor } from "@/gql/graphql.js";
@@ -47,6 +48,7 @@ const { resetForm, handleSubmit, controlledValues, errors, setValues } = useForm
 		timeInterval: 1,
 		messageInterval: 0,
 		responses: [{ text: "", isAnnounce: false, count: 1 }],
+		offlineEnabled: false,
 	},
 });
 
@@ -188,6 +190,34 @@ const responsesHasError = computed(() => {
 									</div>
 								</div>
 							</div>
+						</CardContent>
+					</Card>
+
+					<Card class="p-0">
+						<CardContent class="py-4 space-y-4">
+							<div class="space-y-2">
+								<h3 class="text-lg font-semibold">Delivery</h3>
+								<p class="text-sm text-muted-foreground">
+									Choose when the timer is allowed to send messages.
+								</p>
+							</div>
+
+							<FormField v-slot="{ value, handleChange }" name="offlineEnabled">
+								<FormItem class="space-y-2 rounded-lg border p-4">
+									<div class="flex items-center justify-between gap-4">
+										<div class="space-y-1">
+											<FormLabel>Send while offline</FormLabel>
+											<FormDescription>
+												Allow this timer to trigger when the channel is offline.
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch :model-value="value" @update:model-value="handleChange" />
+										</FormControl>
+									</div>
+									<FormMessage />
+								</FormItem>
+							</FormField>
 						</CardContent>
 					</Card>
 

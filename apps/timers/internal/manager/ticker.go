@@ -9,10 +9,10 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
+	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
-	timersmodel "github.com/twirapp/twir/libs/repositories/timers/model"
 )
 
 func (c *Manager) tryTick(id TimerID) {
@@ -49,29 +49,57 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	if stream == nil {
-		return
-	}
-
-	streamParsedMessages, err := c.getStreamChatLines(ctx, stream.ID)
-	if err != nil {
-		c.logger.Error(
-			"[tick] cannot get stream parsed messages",
-			logger.Error(err),
-			slog.String("channelId", t.dbRow.ChannelID),
-			slog.String("timerId", id.String()),
-		)
+	isOffline := stream == nil
+	if isOffline && !t.dbRow.OfflineEnabled {
 		return
 	}
 
 	var (
-		now               = time.Now()
-		shouldSend        bool
-		timeInterval      = time.Duration(t.dbRow.TimeInterval) * time.Minute
-		messageInterval   = t.dbRow.MessageInterval
-		messagesSinceLast = streamParsedMessages - t.lastTriggerMessageNumber
-		secondsSinceLast  = now.Sub(t.lastTriggerTimestamp).Seconds() + 1 // https://go.dev/pkg/time/?m=old#hdr-Timer_Resolution
+		currentMessageNumber    int
+		lastTriggerMessageCount int
 	)
+
+	if isOffline {
+		currentMessageNumber = t.offlineMessageNumber
+		lastTriggerMessageCount = t.lastTriggerOfflineNumber
+	} else {
+		streamParsedMessages, err := c.getStreamChatLines(ctx, stream.ID)
+		if err != nil {
+			c.logger.Error(
+				"[tick] cannot get stream parsed messages",
+				logger.Error(err),
+				slog.String("channelId", t.dbRow.ChannelID),
+				slog.String("timerId", id.String()),
+			)
+			return
+		}
+
+		currentMessageNumber = streamParsedMessages
+		lastTriggerMessageCount = t.lastTriggerMessageNumber
+		t.offlineMessageNumber = 0
+		t.lastTriggerOfflineNumber = 0
+	}
+
+	var (
+		now              = time.Now()
+		shouldSend       bool
+		timeInterval     = time.Duration(t.dbRow.TimeInterval) * time.Minute
+		messageInterval  = t.dbRow.MessageInterval
+		secondsSinceLast = now.Sub(t.lastTriggerTimestamp).
+					Seconds() +
+			1 // https://go.dev/pkg/time/?m=old#hdr-Timer_Resolution
+	)
+
+	if currentMessageNumber < lastTriggerMessageCount {
+		if isOffline {
+			t.lastTriggerOfflineNumber = currentMessageNumber
+		} else {
+			t.lastTriggerMessageNumber = currentMessageNumber
+		}
+		lastTriggerMessageCount = currentMessageNumber
+	}
+
+	messagesSinceLast := currentMessageNumber - lastTriggerMessageCount
 
 	switch {
 	case timeInterval == 0 && messageInterval > 0:
@@ -102,10 +130,14 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	t.lastTriggerMessageNumber = streamParsedMessages
+	if isOffline {
+		t.lastTriggerOfflineNumber = currentMessageNumber
+	} else {
+		t.lastTriggerMessageNumber = currentMessageNumber
+	}
 	t.lastTriggerTimestamp = now
 
-	var response timersmodel.Response
+	var response timersentity.Response
 	for index, r := range t.dbRow.Responses {
 		if index == t.currentResponseIndex {
 			response = r

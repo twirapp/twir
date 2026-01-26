@@ -11,8 +11,8 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/repositories/timers"
-	"github.com/twirapp/twir/libs/repositories/timers/model"
 )
 
 type Opts struct {
@@ -33,16 +33,65 @@ func NewFx(pgxpool *pgxpool.Pool) *Pgx {
 	)
 }
 
-var _ timers.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  timers.Repository = (*Pgx)(nil)
+	sq                   = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool *pgxpool.Pool
 }
 
-func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Timer, error) {
+type scanModel struct {
+	ID                       uuid.UUID
+	ChannelID                string
+	Name                     string
+	Enabled                  bool
+	OfflineEnabled           bool
+	TimeInterval             int
+	MessageInterval          int
+	LastTriggerMessageNumber int
+	Responses                []scanModelResponse `db:"responses"`
+}
+
+type scanModelResponse struct {
+	ID            uuid.UUID
+	Text          string
+	IsAnnounce    bool
+	TimerID       uuid.UUID
+	Count         int
+	AnnounceColor int
+}
+
+func (c scanModel) toEntity() timersentity.Timer {
+	responses := make([]timersentity.Response, len(c.Responses))
+	for i, r := range c.Responses {
+		responses[i] = timersentity.Response{
+			ID:            r.ID,
+			Text:          r.Text,
+			IsAnnounce:    r.IsAnnounce,
+			TimerID:       r.TimerID,
+			Count:         r.Count,
+			AnnounceColor: timersentity.AnnounceColor(r.AnnounceColor),
+		}
+	}
+
+	return timersentity.Timer{
+		ID:                       c.ID,
+		ChannelID:                c.ChannelID,
+		Name:                     c.Name,
+		Enabled:                  c.Enabled,
+		OfflineEnabled:           c.OfflineEnabled,
+		TimeInterval:             c.TimeInterval,
+		MessageInterval:          c.MessageInterval,
+		LastTriggerMessageNumber: c.LastTriggerMessageNumber,
+		Responses:                responses,
+	}
+}
+
+func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (timersentity.Timer, error) {
 	query := `
-SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
+SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
 			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
@@ -52,12 +101,11 @@ ORDER BY t.id;
 `
 	rows, err := c.pool.Query(ctx, query, id)
 	if err != nil {
-		return model.Nil, err
+		return timersentity.Nil, err
 	}
-
 	defer rows.Close()
 
-	var timer model.Timer
+	var timer scanModel
 	for rows.Next() {
 		var (
 			responseID, responseTimerID sql.Null[uuid.UUID]
@@ -72,6 +120,7 @@ ORDER BY t.id;
 			&timer.ChannelID,
 			&timer.Name,
 			&timer.Enabled,
+			&timer.OfflineEnabled,
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
@@ -82,24 +131,28 @@ ORDER BY t.id;
 			&responseCount,
 			&responseAnnounceColor,
 		); err != nil {
-			return model.Nil, err
+			return timersentity.Nil, err
 		}
 
 		if responseID.Valid {
 			timer.Responses = append(
-				timer.Responses, model.Response{
+				timer.Responses, scanModelResponse{
 					ID:            responseID.V,
 					Text:          responseText.V,
 					IsAnnounce:    responseIsAnnounce.V,
 					TimerID:       responseTimerID.V,
 					Count:         responseCount.V,
-					AnnounceColor: model.AnnounceColor(responseAnnounceColor.V),
+					AnnounceColor: responseAnnounceColor.V,
 				},
 			)
 		}
 	}
 
-	return timer, nil
+	if rows.Err() != nil {
+		return timersentity.Nil, rows.Err()
+	}
+
+	return timer.toEntity(), nil
 }
 
 func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, error) {
@@ -114,11 +167,11 @@ func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, erro
 	return count, nil
 }
 
-func (c *Pgx) Create(ctx context.Context, data timers.CreateInput) (model.Timer, error) {
+func (c *Pgx) Create(ctx context.Context, data timers.CreateInput) (timersentity.Timer, error) {
 	createQuery := `
-INSERT INTO "channels_timers" ("channelId", "name", "enabled", "timeInterval", "messageInterval")
-VALUES ($1, $2, $3, $4, $5)
-RETURNING "id", "channelId", "name", "enabled", "timeInterval", "messageInterval"
+INSERT INTO "channels_timers" ("channelId", "name", "enabled", "offline_enabled", "timeInterval", "messageInterval")
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING "id", "channelId", "name", "enabled", "offline_enabled", "timeInterval", "messageInterval"
 `
 	createResponseQuery := `
 INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count, "announce_color")
@@ -127,19 +180,19 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 `
 	tx, err := c.pool.Begin(ctx)
 	if err != nil {
-		return model.Nil, err
+		return timersentity.Nil, err
 	}
 
 	defer tx.Rollback(ctx)
 
-	var newTimer model.Timer
-
+	var newTimer scanModel
 	if err := tx.QueryRow(
 		ctx,
 		createQuery,
 		data.ChannelID,
 		data.Name,
 		data.Enabled,
+		data.OfflineEnabled,
 		data.TimeInterval,
 		data.MessageInterval,
 	).Scan(
@@ -147,14 +200,15 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 		&newTimer.ChannelID,
 		&newTimer.Name,
 		&newTimer.Enabled,
+		&newTimer.OfflineEnabled,
 		&newTimer.TimeInterval,
 		&newTimer.MessageInterval,
 	); err != nil {
-		return model.Nil, fmt.Errorf("cannot create timer: %w", err)
+		return timersentity.Nil, fmt.Errorf("cannot create timer: %w", err)
 	}
 
 	for _, r := range data.Responses {
-		var newResponse model.Response
+		var newResponse scanModelResponse
 
 		if err := tx.QueryRow(
 			ctx,
@@ -173,21 +227,21 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 			&newResponse.Count,
 			&newResponse.AnnounceColor,
 		); err != nil {
-			return model.Nil, fmt.Errorf("cannot create response for timer: %w", err)
+			return timersentity.Nil, fmt.Errorf("cannot create response for timer: %w", err)
 		}
 		newTimer.Responses = append(newTimer.Responses, newResponse)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return model.Nil, err
+		return timersentity.Nil, err
 	}
 
-	return newTimer, nil
+	return newTimer.toEntity(), nil
 }
 
-func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Timer, error) {
+func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]timersentity.Timer, error) {
 	query := `
-SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
+SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
 			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
@@ -201,9 +255,9 @@ ORDER BY t."id";
 	}
 	defer rows.Close()
 
-	var timersMap = make(map[uuid.UUID]*model.Timer)
+	timersMap := make(map[uuid.UUID]*timersentity.Timer)
 	for rows.Next() {
-		var timer model.Timer
+		var timer scanModel
 		var (
 			responseID, responseTimerID sql.Null[uuid.UUID]
 			responseText                sql.Null[string]
@@ -217,6 +271,7 @@ ORDER BY t."id";
 			&timer.ChannelID,
 			&timer.Name,
 			&timer.Enabled,
+			&timer.OfflineEnabled,
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
@@ -230,30 +285,31 @@ ORDER BY t."id";
 			return nil, fmt.Errorf("failed to scan row: %v, %w", timer.ID, err)
 		}
 		if _, ok := timersMap[timer.ID]; !ok {
-			timersMap[timer.ID] = &timer
+			e := timer.toEntity()
+			timersMap[timer.ID] = &e
 		}
 
 		if responseID.Valid {
 			timersMap[timer.ID].Responses = append(
-				timersMap[timer.ID].Responses, model.Response{
+				timersMap[timer.ID].Responses, timersentity.Response{
 					ID:            responseID.V,
 					Text:          responseText.V,
 					IsAnnounce:    responseIsAnnounce.V,
 					TimerID:       responseTimerID.V,
 					Count:         responseCount.V,
-					AnnounceColor: model.AnnounceColor(responseAnnounceColor.V),
+					AnnounceColor: timersentity.AnnounceColor(responseAnnounceColor.V),
 				},
 			)
 		}
 	}
 
-	result := make([]model.Timer, 0, len(timersMap))
+	result := make([]timersentity.Timer, 0, len(timersMap))
 	for _, timer := range timersMap {
 		result = append(result, *timer)
 	}
 
 	slices.SortFunc(
-		result, func(i, j model.Timer) int {
+		result, func(i, j timersentity.Timer) int {
 			return cmp.Compare(i.ID.String(), j.ID.String())
 		},
 	)
@@ -262,7 +318,7 @@ ORDER BY t."id";
 }
 
 func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateInput) (
-	model.Timer,
+	timersentity.Timer,
 	error,
 ) {
 	updateBuilder := sq.Update("channels_timers")
@@ -273,6 +329,10 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 
 	if data.Enabled != nil {
 		updateBuilder = updateBuilder.Set("enabled", *data.Enabled)
+	}
+
+	if data.OfflineEnabled != nil {
+		updateBuilder = updateBuilder.Set(`"offline_enabled"`, *data.OfflineEnabled)
 	}
 
 	if data.TimeInterval != nil {
@@ -287,27 +347,27 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {
-		return model.Nil, err
+		return timersentity.Nil, err
 	}
 
 	tx, err := c.pool.Begin(ctx)
 	if err != nil {
-		return model.Nil, err
+		return timersentity.Nil, err
 	}
 	defer tx.Rollback(ctx)
 
 	result, err := tx.Exec(ctx, query, args...)
 	if err != nil {
-		return model.Nil, err
+		return timersentity.Nil, err
 	}
 	if result.RowsAffected() == 0 {
-		return model.Nil, timers.ErrTimerNotFound
+		return timersentity.Nil, timers.ErrTimerNotFound
 	}
 
 	if len(data.Responses) > 0 {
 		_, err = tx.Exec(ctx, `DELETE FROM channels_timers_responses WHERE "timerId" = $1`, id)
 		if err != nil {
-			return model.Nil, err
+			return timersentity.Nil, err
 		}
 		for _, r := range data.Responses {
 			_, err := tx.Exec(
@@ -321,13 +381,13 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 				int(r.AnnounceColor),
 			)
 			if err != nil {
-				return model.Nil, err
+				return timersentity.Nil, err
 			}
 		}
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return model.Nil, err
+		return timersentity.Nil, err
 	}
 
 	return c.GetByID(ctx, id)
@@ -373,12 +433,13 @@ func (c *Pgx) Count(ctx context.Context, input timers.CountInput) (int64, error)
 	return count, nil
 }
 
-func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]model.Timer, error) {
+func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]timersentity.Timer, error) {
 	qb := sq.Select(
 		"t.id",
 		`t."channelId"`,
 		"t.name",
 		"t.enabled",
+		`t."offline_enabled"`,
 		`t."timeInterval"`,
 		`t."messageInterval"`,
 		`t."lastTriggerMessageNumber"`,
@@ -427,11 +488,11 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]model.T
 	}
 	defer rows.Close()
 
-	var result []model.Timer
+	var result []timersentity.Timer
 
 	for rows.Next() {
 		var (
-			timer        model.Timer
+			timer        scanModel
 			rawResponses []byte
 		)
 
@@ -440,6 +501,7 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]model.T
 			&timer.ChannelID,
 			&timer.Name,
 			&timer.Enabled,
+			&timer.OfflineEnabled,
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
@@ -448,13 +510,13 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]model.T
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		var responses []model.Response
+		var responses []scanModelResponse
 		if err := json.Unmarshal(rawResponses, &responses); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal responses JSON: %w", err)
 		}
 		timer.Responses = responses
 
-		result = append(result, timer)
+		result = append(result, timer.toEntity())
 	}
 
 	return result, nil

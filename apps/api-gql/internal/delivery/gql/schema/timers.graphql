@@ -13,6 +13,7 @@ type Timer {
 	id: UUID!
 	name: String!
 	enabled: Boolean!
+	offlineEnabled: Boolean!
 	timeInterval: Int!
 	messageInterval: Int!
 	responses: [TimerResponse!]!
@@ -29,6 +30,7 @@ type TimerResponse {
 input TimerCreateInput {
 	name: String! @validate(constraint: "max=50")
 	enabled: Boolean!
+	offlineEnabled: Boolean!
 	timeInterval: Int! @validate(constraint: "min=0,max=999999")
 	messageInterval: Int! @validate(constraint: "min=0,max=999999")
 	responses: [TimerResponseCreateInput!]!
@@ -44,6 +46,7 @@ input TimerResponseCreateInput {
 input TimerUpdateInput {
 	name: String @validate(constraint: "max=50")
 	enabled: Boolean
+	offlineEnabled: Boolean
 	timeInterval: Int @validate(constraint: "min=1,max=999999")
 	messageInterval: Int @validate(constraint: "min=0,max=999999")
 	responses: [TimerResponseUpdateInput!]

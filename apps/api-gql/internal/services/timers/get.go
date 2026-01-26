@@ -3,19 +3,14 @@ package timers
 import (
 	"context"
 
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	timersentity "github.com/twirapp/twir/libs/entities/timers"
 )
 
-func (c *Service) GetAllByChannelID(ctx context.Context, channelID string) ([]entity.Timer, error) {
+func (c *Service) GetAllByChannelID(ctx context.Context, channelID string) ([]timersentity.Timer, error) {
 	timers, err := c.timersRepository.GetAllByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}
 
-	converted := make([]entity.Timer, 0, len(timers))
-	for _, timer := range timers {
-		converted = append(converted, c.dbToModel(timer))
-	}
-
-	return converted, nil
+	return timers, nil
 }

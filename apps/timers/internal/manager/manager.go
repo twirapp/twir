@@ -12,10 +12,10 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
+	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/timers"
-	"github.com/twirapp/twir/libs/repositories/timers/model"
 	"go.uber.org/fx"
 )
 
@@ -128,7 +128,9 @@ func (c *Manager) initialize(ctx context.Context) error {
 					break
 				}
 			}
-			if foundChannel == channelmodel.Nil || foundChannel.ID == "" || !foundChannel.IsBotMod || foundChannel.IsTwitchBanned || !foundChannel.IsEnabled {
+			if foundChannel == channelmodel.Nil || foundChannel.ID == "" || !foundChannel.IsBotMod ||
+				foundChannel.IsTwitchBanned ||
+				!foundChannel.IsEnabled {
 				continue
 			}
 
@@ -141,7 +143,7 @@ func (c *Manager) initialize(ctx context.Context) error {
 	return nil
 }
 
-func (c *Manager) addTimer(dbRow model.Timer) {
+func (c *Manager) addTimer(dbRow timersentity.Timer) {
 	timerId := TimerID(dbRow.ID)
 
 	c.RemoveTimerById(timerId)
@@ -154,7 +156,7 @@ func (c *Manager) addTimer(dbRow model.Timer) {
 	}
 
 	if dbRow.TimeInterval != 0 {
-		timer.ticker = time.NewTicker(time.Duration(dbRow.TimeInterval) * time.Minute)
+		timer.ticker = time.NewTicker(time.Duration(dbRow.TimeInterval) * time.Second)
 
 		go func() {
 			for {
@@ -213,6 +215,10 @@ func (c *Manager) OnChatMessage(channelId string) {
 	for _, t := range c.timers {
 		if t.dbRow.ChannelID != channelId {
 			continue
+		}
+
+		if t.dbRow.OfflineEnabled {
+			t.offlineMessageNumber++
 		}
 
 		go c.tryTick(t.id)

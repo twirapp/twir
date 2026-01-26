@@ -1,4 +1,4 @@
-package model
+package timersentity
 
 import (
 	"database/sql/driver"
@@ -11,10 +11,17 @@ type Timer struct {
 	ChannelID                string
 	Name                     string
 	Enabled                  bool
+	OfflineEnabled           bool
 	TimeInterval             int
 	MessageInterval          int
 	LastTriggerMessageNumber int
-	Responses                []Response `db:"responses"`
+	Responses                []Response
+
+	isNil bool
+}
+
+var Nil = Timer{
+	isNil: true,
 }
 
 type Response struct {
@@ -24,9 +31,21 @@ type Response struct {
 	TimerID       uuid.UUID
 	Count         int
 	AnnounceColor AnnounceColor
+
+	isNil bool
 }
 
-var Nil = Timer{}
+var NilResponse = Response{
+	isNil: true,
+}
+
+func (c Timer) IsNil() bool {
+	return c.isNil
+}
+
+func (c Response) IsNil() bool {
+	return c.isNil
+}
 
 type AnnounceColor int
 
