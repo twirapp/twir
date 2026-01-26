@@ -49,14 +49,14 @@ const formSchema = z.object({
 })
 
 const { handleSubmit, setFieldValue, resetForm } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		useCustomDomain: false,
 	},
 })
 
-const hasVerifiedCustomDomain = computed(
-	() => Boolean(customDomain.value?.domain && customDomain.value?.verified)
+const hasVerifiedCustomDomain = computed(() =>
+	Boolean(customDomain.value?.domain && customDomain.value?.verified)
 )
 const customDomainLabel = computed(() => customDomain.value?.domain ?? '')
 const currentShortHost = computed(() => {

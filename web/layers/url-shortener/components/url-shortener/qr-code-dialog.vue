@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useQRCode } from '../../composables/use-qr-code'
-import PixelBlast from '~/components/ui/bits/backgrounds/PixelBlast/pixel-blast.vue';
+import PixelBlast from '~/components/ui/bits/backgrounds/PixelBlast/pixel-blast.vue'
 import { TwirLogo } from '@twir/brand'
-import { render } from 'vue';
+import { render } from 'vue'
 
 const props = defineProps<{
 	shortUrl: string
@@ -16,13 +16,16 @@ const qrSettings = reactive({
 	backgroundColor: '#00000000',
 })
 
+const logoContainer = ref<HTMLDivElement | null>(null)
+
 onMounted(async () => {
+	const container = document.createElement('div')
+	const logoVnode = h(TwirLogo)
+	render(logoVnode, container)
+	logoContainer.value = container
+
 	await generateQR()
 })
-
-const logoContainer = document.createElement('div')
-const logoVnode = h(TwirLogo)
-render(logoVnode, logoContainer)
 
 async function generateQR() {
 	if (!props.shortUrl) return
@@ -31,7 +34,7 @@ async function generateQR() {
 		url: props.shortUrl,
 		color: qrSettings.color,
 		backgroundColor: qrSettings.backgroundColor,
-		logoComponent: qrSettings.showLogo ? logoContainer  : null,
+		logoComponent: qrSettings.showLogo && logoContainer.value ? logoContainer.value : null,
 		logoSize: 70,
 		size: 400,
 	})
@@ -62,8 +65,16 @@ watch([() => qrSettings.showLogo, () => qrSettings.color], async () => {
 					<div class="flex items-center justify-between">
 						<span class="text-sm font-semibold">Preview</span>
 						<div class="flex gap-1 items-center">
-							<UiButton class="size-7" variant="ghost" size="default" @click="handleDownloadQR">
-								<Icon name="lucide:download" class="size-4" />
+							<UiButton
+								class="size-7"
+								variant="ghost"
+								size="default"
+								@click="handleDownloadQR"
+							>
+								<Icon
+									name="lucide:download"
+									class="size-4"
+								/>
 							</UiButton>
 						</div>
 					</div>
@@ -96,7 +107,10 @@ watch([() => qrSettings.showLogo, () => qrSettings.color], async () => {
 
 					<div class="flex flex-row items-center justify-between">
 						<label class="text-sm font-medium">QR Code Color</label>
-						<UiColorPicker v-model="qrSettings.color" class="size-6" />
+						<UiColorPicker
+							v-model="qrSettings.color"
+							class="size-6"
+						/>
 					</div>
 				</div>
 			</div>
