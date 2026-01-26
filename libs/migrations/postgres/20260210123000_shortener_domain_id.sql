@@ -3,7 +3,7 @@
 SELECT 'up SQL query';
 
 ALTER TABLE shortened_urls
-	ADD COLUMN domain_id UUID;
+	ADD COLUMN domain_id text;
 
 UPDATE shortened_urls
 SET domain_id = domains.id
