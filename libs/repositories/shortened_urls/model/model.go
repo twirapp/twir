@@ -14,6 +14,7 @@ type ShortenedUrl struct {
 	Views           int
 	UserAgent       *string
 	UserIp          *netip.Addr
+	DomainID        *string
 	Domain          *string
 
 	isNil bool

@@ -10,6 +10,7 @@ import (
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	shortlinkscustomdomainsrepo "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
@@ -20,17 +21,19 @@ import (
 type Opts struct {
 	fx.In
 
-	Repository      shortenedurlsrepository.Repository
-	ViewsRepository shortlinksviewsrepository.Repository
-	WsRouter        wsrouter.WsRouter
+	Repository              shortenedurlsrepository.Repository
+	ViewsRepository         shortlinksviewsrepository.Repository
+	CustomDomainsRepository shortlinkscustomdomainsrepo.Repository
+	WsRouter                wsrouter.WsRouter
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repository:      opts.Repository,
-		viewsRepository: opts.ViewsRepository,
-		wsRouter:        opts.WsRouter,
-		viewsSubs:       make(map[string]struct{}),
+		repository:              opts.Repository,
+		viewsRepository:         opts.ViewsRepository,
+		customDomainsRepository: opts.CustomDomainsRepository,
+		wsRouter:                opts.WsRouter,
+		viewsSubs:               make(map[string]struct{}),
 	}
 }
 
@@ -74,11 +77,39 @@ func DecodeShortLinkKey(value string) (*string, string) {
 }
 
 type Service struct {
-	repository      shortenedurlsrepository.Repository
-	viewsRepository shortlinksviewsrepository.Repository
-	wsRouter        wsrouter.WsRouter
-	viewsSubs       map[string]struct{}
-	viewsSubsMu     sync.RWMutex
+	repository              shortenedurlsrepository.Repository
+	viewsRepository         shortlinksviewsrepository.Repository
+	customDomainsRepository shortlinkscustomdomainsrepo.Repository
+	wsRouter                wsrouter.WsRouter
+	viewsSubs               map[string]struct{}
+	viewsSubsMu             sync.RWMutex
+}
+
+func (c *Service) resolveDomainID(ctx context.Context, domain *string) (*string, error) {
+	if domain == nil || *domain == "" {
+		return nil, nil
+	}
+
+	customDomain, err := c.customDomainsRepository.GetByDomain(ctx, *domain)
+	if err != nil {
+		if errors.Is(err, shortlinkscustomdomainsrepo.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &customDomain.ID, nil
+}
+
+func (c *Service) resolveDomainIDRequired(ctx context.Context, domain *string) (*string, error) {
+	domainID, err := c.resolveDomainID(ctx, domain)
+	if err != nil {
+		return nil, err
+	}
+	if domain != nil && domainID == nil {
+		return nil, shortlinkscustomdomainsrepo.ErrNotFound
+	}
+	return domainID, nil
 }
 
 type CreateInput struct {
@@ -91,15 +122,20 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (model.ShortenedUrl, error) {
+	domainID, err := c.resolveDomainIDRequired(ctx, input.Domain)
+	if err != nil {
+		return model.Nil, err
+	}
+
 	shortId := input.ShortID
 	if input.ShortID == "" {
 		shortId = genId()
 	} else {
-		existing, err := c.GetByShortID(ctx, input.Domain, input.ShortID)
-		if err != nil {
+		existing, err := c.repository.GetByShortID(ctx, domainID, input.ShortID)
+		if err != nil && !errors.Is(err, shortenedurlsrepository.ErrNotFound) {
 			return model.Nil, err
 		}
-		if !existing.IsNil() {
+		if err == nil && !existing.IsNil() {
 			return model.Nil, shortenedurlsrepository.ErrShortIDAlreadyExists
 		}
 	}
@@ -112,7 +148,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.Shortene
 			CreatedByUserID: input.CreatedByUserID,
 			UserIp:          input.UserIp,
 			UserAgent:       input.UserAgent,
-			Domain:          input.Domain,
+			DomainID:        domainID,
 		},
 	)
 }
@@ -126,7 +162,12 @@ func (c *Service) MoveLinksToDefaultDomain(
 		return errors.New("user ID and domain are required")
 	}
 
-	conflicts, err := c.repository.CountDomainShortIDConflicts(ctx, domain, userID)
+	domainID, err := c.resolveDomainIDRequired(ctx, &domain)
+	if err != nil {
+		return err
+	}
+
+	conflicts, err := c.repository.CountDomainShortIDConflicts(ctx, *domainID, userID)
 	if err != nil {
 		return err
 	}
@@ -134,7 +175,7 @@ func (c *Service) MoveLinksToDefaultDomain(
 		return shortenedurlsrepository.ErrShortIDAlreadyExists
 	}
 
-	return c.repository.ClearDomainForUser(ctx, domain, userID)
+	return c.repository.ClearDomainForUser(ctx, *domainID, userID)
 }
 
 func (c *Service) GetByShortID(
@@ -142,7 +183,15 @@ func (c *Service) GetByShortID(
 	domain *string,
 	id string,
 ) (model.ShortenedUrl, error) {
-	link, err := c.repository.GetByShortID(ctx, domain, id)
+	domainID, err := c.resolveDomainID(ctx, domain)
+	if err != nil {
+		return model.Nil, err
+	}
+	if domain != nil && domainID == nil {
+		return model.Nil, nil
+	}
+
+	link, err := c.repository.GetByShortID(ctx, domainID, id)
 	if err != nil {
 		if errors.Is(err, shortenedurlsrepository.ErrNotFound) {
 			return model.Nil, nil
@@ -158,7 +207,15 @@ func (c *Service) GetByUrl(
 	domain *string,
 	url string,
 ) (model.ShortenedUrl, error) {
-	link, err := c.repository.GetByUrl(ctx, domain, url)
+	domainID, err := c.resolveDomainID(ctx, domain)
+	if err != nil {
+		return model.Nil, err
+	}
+	if domain != nil && domainID == nil {
+		return model.Nil, nil
+	}
+
+	link, err := c.repository.GetByUrl(ctx, domainID, url)
 	if err != nil {
 		if errors.Is(err, shortenedurlsrepository.ErrNotFound) {
 			return model.Nil, nil
@@ -183,15 +240,31 @@ func (c *Service) Update(
 	id string,
 	input UpdateInput,
 ) (entity.ShortenedUrl, error) {
+	domainID, err := c.resolveDomainID(ctx, domain)
+	if err != nil {
+		return entity.Nil, err
+	}
+	if domain != nil && domainID == nil {
+		return entity.Nil, shortenedurlsrepository.ErrNotFound
+	}
+
+	var targetDomainID *string
+	if input.Domain != nil {
+		targetDomainID, err = c.resolveDomainIDRequired(ctx, input.Domain)
+		if err != nil {
+			return entity.Nil, err
+		}
+	}
+
 	updatedModel, err := c.repository.Update(
 		ctx,
-		domain,
+		domainID,
 		id,
 		shortenedurlsrepository.UpdateInput{
 			Views:       input.Views,
 			ShortID:     input.ShortID,
 			URL:         input.URL,
-			Domain:      input.Domain,
+			DomainID:    targetDomainID,
 			ClearDomain: input.ClearDomain,
 		},
 	)
@@ -268,7 +341,15 @@ func (c *Service) GetList(ctx context.Context, input GetListInput) (GetListOutpu
 }
 
 func (c *Service) Delete(ctx context.Context, domain *string, id string) error {
-	return c.repository.Delete(ctx, domain, id)
+	domainID, err := c.resolveDomainID(ctx, domain)
+	if err != nil {
+		return err
+	}
+	if domain != nil && domainID == nil {
+		return nil
+	}
+
+	return c.repository.Delete(ctx, domainID, id)
 }
 
 func (c *Service) GetManyByShortIDs(ctx context.Context, ids []string) ([]model.ShortenedUrl, error) {
@@ -305,7 +386,14 @@ func (c *Service) GetManyByShortIDs(ctx context.Context, ids []string) ([]model.
 			continue
 		}
 		domainValue := domain
-		links, err := c.repository.GetManyByShortIDs(ctx, &domainValue, domainIDs)
+		domainID, err := c.resolveDomainID(ctx, &domainValue)
+		if err != nil {
+			return nil, err
+		}
+		if domainID == nil {
+			continue
+		}
+		links, err := c.repository.GetManyByShortIDs(ctx, domainID, domainIDs)
 		if err != nil {
 			return nil, err
 		}
