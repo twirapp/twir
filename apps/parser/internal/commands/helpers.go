@@ -17,7 +17,7 @@ func (c *Commands) shouldCheckCooldown(
 	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 	userRoles []model.ChannelRole,
 ) bool {
-	if command.Cooldown == nil || *command.Cooldown == 0 {
+	if msg.IsChatterBroadcaster() {
 		return false
 	}
 
@@ -25,8 +25,8 @@ func (c *Commands) shouldCheckCooldown(
 		return true
 	}
 
-	if msg.IsChatterBroadcaster() {
-		return false
+	if command.Cooldown != nil || *command.Cooldown >= 0 {
+		return true
 	}
 
 	for _, role := range command.RoleCooldowns {
