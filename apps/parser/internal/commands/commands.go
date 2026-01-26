@@ -635,7 +635,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 
 			finalRedisKey := redisKey.String()
 			rErr := c.services.Redis.Get(ctx, finalRedisKey).Err()
-			if errors.Is(rErr, redis.Nil) && *cooldown > 0 {
+			if errors.Is(rErr, redis.Nil) {
 				c.services.Redis.Set(ctx, finalRedisKey, "", time.Duration(*cooldown)*time.Second)
 			} else if rErr != nil {
 				c.services.Logger.Sugar().Error(rErr)
