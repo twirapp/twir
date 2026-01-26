@@ -90,9 +90,9 @@ const editable = computed(() => !command.value?.default)
 										<FormControl>
 											<div class="w-full">
 												<div
-													class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle"
+													class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 drag-handle z-10 border cursor-move"
 												>
-													<GripVertical class="my-auto size-6" />
+													<GripVertical class="my-auto size-6 cursor-move" />
 												</div>
 												<VariableInput
 													input-type="textarea"

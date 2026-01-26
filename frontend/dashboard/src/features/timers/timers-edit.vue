@@ -257,7 +257,7 @@ const responsesHasError = computed(() => {
 							<div v-for="(field, index) in fields" :key="`responses-text-${field.key}`">
 								<Card class="relative flex items-center p-0">
 									<div
-										class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle"
+										class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle z-10 border cursor-move"
 									>
 										<GripVertical class="my-auto size-6" />
 									</div>
