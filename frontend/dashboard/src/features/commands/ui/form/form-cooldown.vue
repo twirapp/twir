@@ -121,7 +121,8 @@ function getRoleCooldown(roleId: string): number {
 									<Label for="allRoles" class="capitalize">Everyone</Label>
 								</div>
 								<Input
-									v-model="values.cooldown"
+									:model-value="values.cooldown ?? 0"
+									@update:model-value="(v) => Number.isNaN(Number(v)) ? setFieldValue('cooldown', 0) : setFieldValue('cooldown', Number(v))"
 									min="0"
 									max="86400"
 									class="w-auto"
