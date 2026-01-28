@@ -138,6 +138,7 @@ func New(opts *Opts) *Variables {
 			user.Reputation,
 			weather.Weather,
 			channel.Name,
+			channel.ID,
 			seventv.ProfileLink,
 			seventv.EmoteSetLink,
 			seventv.EmoteSetName,
