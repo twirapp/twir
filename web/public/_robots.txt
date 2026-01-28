@@ -1,1 +1,7 @@
-
+User-agent: *
+Disallow: /s
+Disallow: /s/**
+Disallow: /dashboard
+Disallow: /dashboard/**
+Disallow: /overlays
+Disallow: /overlays/**

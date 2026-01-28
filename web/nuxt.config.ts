@@ -120,7 +120,16 @@ export default defineNuxtConfig({
 
 	robots: {
 		blockAiBots: true,
-		disallow: ['/s', '/dashboard', '/s/**', '/h', '/h/**', '/overlays/**', '/overlays'],
+		disallow: [
+			'/s',
+			'/dashboard',
+			'/dashboard/**',
+			'/s/**',
+			'/h',
+			'/h/**',
+			'/overlays/**',
+			'/overlays',
+		],
 	},
 
 	telemetry: {
