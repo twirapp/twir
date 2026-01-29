@@ -54,7 +54,7 @@ function updateRoleCooldown(roleId: string, cooldown: number) {
 }
 
 function getRoleCooldown(roleId: string): number {
-	return roleCooldowns.value.get(roleId) ?? 0;
+	return roleCooldowns.value.get(roleId) ?? 5;
 }
 </script>
 
@@ -118,7 +118,7 @@ function getRoleCooldown(roleId: string): number {
 							<div class="flex flex-row items-center gap-2 space-y-0">
 								<div class="flex flex-row gap-2 bg-accent px-3 py-2 rounded-md leading w-56 min-w-56">
 									<Checkbox id="allRoles" :model-value="true" disabled />
-									<Label for="allRoles" class="capitalize">Everyone</Label>
+									<Label for="allRoles" class="capitalize">Viewer</Label>
 								</div>
 								<Input
 									:model-value="values.cooldown ?? 0"
