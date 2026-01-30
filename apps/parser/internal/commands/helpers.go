@@ -5,10 +5,12 @@ import (
 	"context"
 	"fmt"
 	"slices"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/entities/commandrolecooldownentity"
@@ -191,6 +193,92 @@ func (c *Commands) isCooldown(
 	}
 
 	return false, nil
+}
+
+type CooldownCheckResult struct {
+	OnCooldown    bool
+	RemainingTime int64
+}
+
+func (c *Commands) checkRoleBasedCooldown(
+	ctx context.Context,
+	command commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
+	userId string,
+	channelId string,
+	userRoles []model.ChannelRole,
+) (*CooldownCheckResult, error) {
+	now := time.Now().Unix()
+
+	cooldownDuration := c.getCooldownForUser(command, userRoles)
+
+	if cooldownDuration == 0 {
+		return &CooldownCheckResult{OnCooldown: false, RemainingTime: 0}, nil
+	}
+
+	redisKey := fmt.Sprintf("cd:%s:%s:last_used", channelId, command.ID)
+
+	lastUsedStr, err := c.services.Redis.Get(ctx, redisKey).Result()
+	if err != nil && err != redis.Nil {
+		return nil, fmt.Errorf("failed to get last_used from redis: %w", err)
+	}
+
+	var lastUsed int64
+	if lastUsedStr == "" {
+		lastUsed = 0
+	} else {
+		lastUsed, err = strconv.ParseInt(lastUsedStr, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse last_used: %w", err)
+		}
+	}
+
+	elapsed := now - lastUsed
+
+	if elapsed < cooldownDuration {
+		remaining := cooldownDuration - elapsed
+		return &CooldownCheckResult{
+			OnCooldown:    true,
+			RemainingTime: remaining,
+		}, nil
+	}
+
+	if err := c.services.Redis.Set(
+		ctx,
+		redisKey,
+		strconv.FormatInt(now, 10),
+		time.Duration(cooldownDuration)*time.Second,
+	).Err(); err != nil {
+		return nil, fmt.Errorf("failed to set last_used in redis: %w", err)
+	}
+
+	return &CooldownCheckResult{OnCooldown: false, RemainingTime: 0}, nil
+}
+
+func (c *Commands) getCooldownForUser(
+	command commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
+	userRoles []model.ChannelRole,
+) int64 {
+	if len(command.RoleCooldowns) == 0 {
+		if command.Cooldown != nil {
+			return int64(*command.Cooldown)
+		}
+		return 0
+	}
+
+	minCooldown := int64(60)
+
+	for _, role := range userRoles {
+		for _, roleCooldown := range command.RoleCooldowns {
+			if role.ID == roleCooldown.RoleID.String() {
+				roleCooldownInt := int64(roleCooldown.Cooldown)
+				if roleCooldownInt < minCooldown {
+					minCooldown = roleCooldownInt
+				}
+			}
+		}
+	}
+
+	return minCooldown
 }
 
 // todo: move to eventsub
