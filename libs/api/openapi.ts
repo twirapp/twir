@@ -280,9 +280,9 @@ export interface CreateLinkInputDto {
    */
   $schema?: string;
   /**
-   * @minLength 3
+   * @minLength 2
    * @maxLength 30
-   * @pattern ^[a-zA-Z0-9]+$
+   * @pattern ^[a-zA-Z0-9_-]+$
    */
   alias?: string;
   /**
@@ -662,9 +662,9 @@ export interface UpdateRequestDtoBody {
    */
   $schema?: string;
   /**
-   * @minLength 3
+   * @minLength 2
    * @maxLength 50
-   * @pattern ^[a-zA-Z0-9]+$
+   * @pattern ^[a-zA-Z0-9_-]+$
    */
   new_short_id?: string;
   /**

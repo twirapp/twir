@@ -41,9 +41,9 @@ const initialUseCustomDomain = ref(false)
 const formSchema = z.object({
 	shortId: z
 		.string()
-		.min(3, 'Short ID must be at least 3 characters')
-		.max(50, 'Short ID must be at most 50 characters')
-		.regex(/^[a-zA-Z0-9]+$/, 'Short ID can only contain letters and numbers'),
+		.min(2, 'Short ID must be at least 2 characters')
+		.max(30, 'Short ID must be at most 30 characters')
+		.regex(/^[a-zA-Z0-9-_]+$/, 'Short ID can only contain letters and numbers and -_'),
 	url: z.string().url('Must be a valid URL').min(1, 'URL is required'),
 	useCustomDomain: z.boolean().default(false),
 })

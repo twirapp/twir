@@ -18,9 +18,9 @@ const schema = z.object({
 		.default(''),
 	customAlias: z
 		.string()
-		.min(3, 'Custom alias must be at least 3 characters')
+		.min(2, 'Custom alias must be at least 2 characters')
 		.max(30, 'Custom alias must be at most 30 characters')
-		.regex(/^[a-zA-Z0-9]*$/, 'Custom alias can only contain letters and numbers')
+		.regex(/^[a-zA-Z0-9-_]*$/, 'Custom alias can only contain letters and numbers and -_')
 		.optional()
 		.or(z.literal('')),
 	useCustomDomain: z.boolean().default(false),

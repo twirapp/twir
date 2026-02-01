@@ -78,8 +78,8 @@ type createLinkInput struct {
 }
 
 type createLinkInputDto struct {
-	Url             string `json:"url"   required:"true"  format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
-	Alias           string `json:"alias" required:"false"              minLength:"3" maxLength:"30"   example:"stream"              pattern:"^[a-zA-Z0-9]+$"`
+	Url             string `json:"url"                         required:"true"  format:"uri" minLength:"1" maxLength:"2000" example:"https://example.com" pattern:"^https?://.*"`
+	Alias           string `json:"alias"                       required:"false"              minLength:"2" maxLength:"30"   example:"stream"              pattern:"^[a-zA-Z0-9_-]+$"`
 	UseCustomDomain *bool  `json:"use_custom_domain,omitempty"`
 }
 

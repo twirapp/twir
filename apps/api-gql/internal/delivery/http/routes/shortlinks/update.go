@@ -18,9 +18,9 @@ import (
 )
 
 type updateRequestDto struct {
-	ShortId string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+	ShortId string `path:"shortId" minLength:"2" maxLength:"30" pattern:"^[a-zA-Z0-9_-]+$" required:"true"`
 	Body    struct {
-		NewShortId      *string `json:"new_short_id,omitempty" minLength:"3" maxLength:"50" pattern:"^[a-zA-Z0-9]+$"`
+		NewShortId      *string `json:"new_short_id,omitempty" minLength:"2" maxLength:"30" pattern:"^[a-zA-Z0-9_-]+$"`
 		Url             *string `json:"url,omitempty" minLength:"1" maxLength:"2048" format:"uri"`
 		UseCustomDomain *bool   `json:"use_custom_domain,omitempty"`
 	}
@@ -88,7 +88,10 @@ func (u *updateRoute) Handler(
 		hasCustomDomain   bool
 		customDomainValue string
 	)
-	if userDomain, err := u.customDomainsService.GetByUserID(ctx, user.ID); err == nil && !userDomain.IsNil() && userDomain.Verified {
+	if userDomain, err := u.customDomainsService.GetByUserID(
+		ctx,
+		user.ID,
+	); err == nil && !userDomain.IsNil() && userDomain.Verified {
 		hasCustomDomain = true
 		customDomainValue = userDomain.Domain
 		domain = &customDomainValue
