@@ -28,7 +28,7 @@ errors:
   voteban_cannot_find_user: Nepodarilo sa nájsť cieľového používateľa
   voteban_cannot_set_vote: Nepodarilo sa nastaviť hlasovanie
   voteban_cannot_set_vote_expiration: Nepodarilo sa nastaviť vypršanie hlasovania
-  voteban_cannot_timeout_moderator: Cannot start voteban on moderator
+  voteban_cannot_timeout_moderator: Nie je možné spustiť voteban proti moderátorovi
 info:
   # Duel
   user_not_participate: Nie si zapojený do žiadneho duelu
