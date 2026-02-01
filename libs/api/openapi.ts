@@ -663,7 +663,7 @@ export interface UpdateRequestDtoBody {
   $schema?: string;
   /**
    * @minLength 2
-   * @maxLength 50
+   * @maxLength 30
    * @pattern ^[a-zA-Z0-9_-]+$
    */
   new_short_id?: string;
