@@ -186,14 +186,14 @@
           "user": "Individuálne (na používateľa)"
         },
         "roleCooldowns": {
-          "title": "Role-Based Cooldowns",
-          "add": "Add Role Cooldown",
-          "empty": "No role-based cooldowns configured. Add one to set custom cooldowns for specific roles.",
-          "role": "Role",
-          "cooldownValue": "Cooldown (seconds)",
-          "description": "Set custom cooldowns for each role. Leave at 0 to disable the command for that role. The 'Everyone' cooldown applies to users without specific role overrides."
+          "title": "Cooldowny podľa roly",
+          "add": "Pridať cooldown pre rolu",
+          "empty": "Zatiaľ nie sú nastavené žiadne cooldowny podľa roly. Pridaním môžeš nastaviť vlastné cooldowny pre vybrané roly.",
+          "role": "Rola",
+          "cooldownValue": "Cooldown (sekundy)",
+          "description": "Nastav vlastné cooldowny pre každú rolu. Daj 0, ak chceš príkaz pre vybranú rolu vypnúť. Cooldown „Everyone“ platí pre tých, čo nemajú špeciálnu rolu."
         },
-        "affectedRolesInfo": "Role-based cooldowns are configured for"
+        "affectedRolesInfo": "Cooldowny podľa roly sú nastavené pre"
       },
       "settings": {
         "divider": "Nastavenia",
@@ -246,7 +246,7 @@
         "title": "Názov streamu",
         "category": "Kategória"
       },
-      "addWidget": "Add Widget",
+      "addWidget": "Pridať Widget",
       "uptime": "Vysielanie",
       "followers": "Sledovatelia",
       "messages": "Správy",
@@ -597,7 +597,7 @@
       "generalSettings": "Všeobecné nastavenia",
       "fontSettings": "Nastavenia písma",
       "colorSettings": "Nastavenie farieb",
-      "timingSettings": "Timing Settings",
+      "timingSettings": "Nastavenie časovania",
       "animation": "Animácia",
       "noPresets": "Zatiaľ žiadne presety",
       "noPresetsDescription": "Začni vytvorením svojho prvého presetu pre chat overlay.",
@@ -635,10 +635,10 @@
       "nameBoxStroke": "Farba obrysu",
       "nameStrokeThickness": "Hrúbka ohraničenia",
       "nameBoxLineJoin": "Stroke line join",
-      "nameBoxDropShadow": "Drop shadow-sm",
+      "nameBoxDropShadow": "Tieň-sm",
       "nameBoxDropShadowColor": "Farba tieňa",
       "nameBoxDropShadowAlpha": "Shadow alpha",
-      "nameBoxDropShadowBlur": "Shadow blur-sm",
+      "nameBoxDropShadowBlur": "Malé rozmazanie tieňa",
       "nameBoxDropShadowDistance": "Vzdialenosť tieňa",
       "nameBoxDropShadowAngle": "Uhol tieňa",
       "messageBoxIgnoreCommands": "Ignorovať príkazy",
