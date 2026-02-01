@@ -1,7 +1,7 @@
 info:
   # Watchtime
-  watching_stream: You're watching stream for {userWatching} hours
-  watching_stream_mentioned: "{userName} is watching stream for {userWatching} hours"
+  watching_stream: Sleduješ stream {userWatching} hodín
+  watching_stream_mentioned: "{userName} sleduje stream {userWatching} hodín"
 me:
   watched: "sledoval"
   messages: "správy"
