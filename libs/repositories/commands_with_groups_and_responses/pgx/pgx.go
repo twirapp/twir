@@ -58,8 +58,10 @@ func init() {
 			 'text', r.text,
 			 'commandId', r."commandId",
 			 'order', r."order",
-			 'twitch_category_id', r."twitch_category_id"
-												 )), '[]'::json)
+			 'twitch_category_id', r."twitch_category_id",
+				'online_only', r."online_only",
+				'offline_only', r."offline_only"
+)), '[]'::json)
 FROM channels_commands_responses r
 WHERE r."commandId" = c.id) as responses
 `,

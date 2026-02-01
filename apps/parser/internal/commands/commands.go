@@ -617,7 +617,12 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	shouldCheckCooldown := c.shouldCheckCooldown(data, cmd.Cmd, userRoles)
 
 	if shouldCheckCooldown {
-		cdResult, err := c.checkRoleBasedCooldown(ctx, *cmd.Cmd, data.ChatterUserId, data.BroadcasterUserId, userRoles)
+		cdResult, err := c.checkRoleBasedCooldown(
+			ctx,
+			*cmd.Cmd,
+			data.BroadcasterUserId,
+			userRoles,
+		)
 		if err != nil {
 			return nil, err
 		}

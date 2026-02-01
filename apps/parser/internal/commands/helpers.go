@@ -1,19 +1,14 @@
 package commands
 
 import (
-	"cmp"
 	"context"
 	"fmt"
 	"slices"
-	"strconv"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/entities/commandrolecooldownentity"
 	model "github.com/twirapp/twir/libs/gomodels"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )
@@ -23,9 +18,9 @@ func (c *Commands) shouldCheckCooldown(
 	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 	userRoles []model.ChannelRole,
 ) bool {
-	if msg.IsChatterBroadcaster() {
-		return false
-	}
+	//if msg.IsChatterBroadcaster() {
+	//	return false
+	//}
 
 	for _, role := range command.RoleCooldowns {
 		hasRoleForCheck := lo.SomeBy(
@@ -48,153 +43,6 @@ func (c *Commands) shouldCheckCooldown(
 	return false
 }
 
-func (c *Commands) isCooldown(
-	ctx context.Context,
-	command commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
-	userId string,
-	userRoles []model.ChannelRole,
-) (bool, error) {
-	globalRedisKey := fmt.Sprintf("commands:%s:cooldowns:global", command.ID)
-
-	var isShouldSetGlobalRedisCooldown bool
-	defer func() {
-		if isShouldSetGlobalRedisCooldown {
-			c.services.Redis.Set(ctx, globalRedisKey, "", time.Duration(*command.Cooldown)*time.Second)
-		}
-	}()
-
-	var userChannelRoleUser *model.ChannelRole
-	var cooldownRole *commandrolecooldownentity.CommandRoleCooldown
-
-	// roles with the lowest cooldown should be first in userRoles
-	slices.SortFunc(
-		userRoles, func(a, b model.ChannelRole) int {
-			var q, w *commandrolecooldownentity.CommandRoleCooldown
-
-			for _, role := range command.RoleCooldowns {
-				if role.ID.String() == a.ID {
-					q = &role
-				}
-
-				if role.ID.String() == b.ID {
-					w = &role
-				}
-			}
-
-			if q == nil && w == nil {
-				return 0
-			}
-			if q == nil {
-				return 1
-			}
-			if w == nil {
-				return -1
-			}
-
-			return cmp.Compare(q.Cooldown, w.Cooldown)
-		},
-	)
-
-	// roles with the lowest cooldown should be first in command.RoleCooldowns
-	slices.SortFunc(
-		command.RoleCooldowns, func(a, b commandrolecooldownentity.CommandRoleCooldown) int {
-			return cmp.Compare(a.Cooldown, b.Cooldown)
-		},
-	)
-
-	for _, role := range command.RoleCooldowns {
-		for _, ur := range userRoles {
-			if role.ID.String() == ur.ID {
-				userChannelRoleUser = &ur
-				break
-			}
-		}
-	}
-
-	if userChannelRoleUser != nil {
-		for _, cr := range command.RoleCooldowns {
-			if cr.RoleID.String() == userChannelRoleUser.ID {
-				cooldownRole = &cr
-				break
-			}
-		}
-	}
-
-	if command.CooldownType == "PER_USER" {
-		redisKey := fmt.Sprintf("commands:%d:cooldowns:user:%s", command.ID, userId)
-		exists, err := c.services.Redis.Exists(ctx, redisKey).Result()
-		if err != nil {
-			return false, err
-		}
-		if exists == 1 {
-			return true, nil
-		}
-		var ttl int64
-		if cooldownRole != nil {
-			ttl = int64(cooldownRole.Cooldown)
-		} else {
-			ttl = int64(*command.Cooldown)
-		}
-
-		if err := c.services.Redis.Set(
-			ctx,
-			redisKey,
-			"1",
-			time.Duration(ttl)*time.Second,
-		).Err(); err != nil {
-			return false, err
-		}
-
-		return false, nil
-	}
-
-	globalCooldown, _ := c.services.Redis.TTL(ctx, globalRedisKey).Result()
-	rolesCooldownsTTLs := make(map[string]time.Duration, len(command.RoleCooldowns))
-
-	var cdwg sync.WaitGroup
-
-	for _, role := range command.RoleCooldowns {
-		cdwg.Go(
-			func() {
-				ttl, err := c.services.Redis.TTL(
-					ctx,
-					fmt.Sprintf("commands:%d:cooldowns:role:%s", command.ID, role.RoleID),
-				).Result()
-				if err != nil {
-					return
-				}
-				// key does not exists
-				if ttl == -2 {
-					rolesCooldownsTTLs[role.ID.String()] = 0
-					return
-				}
-
-				rolesCooldownsTTLs[role.ID.String()] = ttl
-			},
-		)
-	}
-
-	cdwg.Wait()
-
-	// probably this logic incorrect
-	passedFromGlobalCooldown := int(globalCooldown.Seconds()) - *command.Cooldown
-	if userChannelRoleUser != nil && cooldownRole != nil {
-		passedFromRoleCooldown := int(rolesCooldownsTTLs[userChannelRoleUser.ID].Seconds()) - cooldownRole.Cooldown
-		isShouldSetGlobalRedisCooldown = true
-
-		c.services.Redis.Set(
-			ctx,
-			fmt.Sprintf("commands:%d:cooldowns:role:%s", command.ID, userChannelRoleUser.ID),
-			"",
-			time.Duration(cooldownRole.Cooldown)*time.Second,
-		)
-
-		return passedFromGlobalCooldown > 0 || passedFromRoleCooldown > 0, nil
-	}
-
-	return false, nil
-}
-
 type CooldownCheckResult struct {
 	OnCooldown    bool
 	RemainingTime int64
@@ -203,82 +51,101 @@ type CooldownCheckResult struct {
 func (c *Commands) checkRoleBasedCooldown(
 	ctx context.Context,
 	command commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
-	userId string,
 	channelId string,
 	userRoles []model.ChannelRole,
 ) (*CooldownCheckResult, error) {
 	now := time.Now().Unix()
-
 	cooldownDuration := c.getCooldownForUser(command, userRoles)
-
-	if cooldownDuration == 0 {
-		return &CooldownCheckResult{OnCooldown: false, RemainingTime: 0}, nil
-	}
 
 	redisKey := fmt.Sprintf("cd:%s:%s:last_used", channelId, command.ID)
 
-	lastUsedStr, err := c.services.Redis.Get(ctx, redisKey).Result()
-	if err != nil && err != redis.Nil {
-		return nil, fmt.Errorf("failed to get last_used from redis: %w", err)
-	}
-
-	var lastUsed int64
-	if lastUsedStr == "" {
-		lastUsed = 0
-	} else {
-		lastUsed, err = strconv.ParseInt(lastUsedStr, 10, 64)
+	if cooldownDuration == 0 {
+		err := c.services.Redis.Set(
+			ctx,
+			redisKey,
+			now,
+			time.Hour*24,
+		).Err()
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse last_used: %w", err)
+			return nil, fmt.Errorf("failed to set last_used in redis: %w", err)
 		}
+		return &CooldownCheckResult{OnCooldown: false, RemainingTime: 0}, nil
 	}
 
-	elapsed := now - lastUsed
+	// Atomic check and update using Lua script to prevent race conditions
+	luaScript := `
+		local key = KEYS[1]
+		local now = tonumber(ARGV[1])
+		local cooldown = tonumber(ARGV[2])
 
-	if elapsed < cooldownDuration {
-		remaining := cooldownDuration - elapsed
-		return &CooldownCheckResult{
-			OnCooldown:    true,
-			RemainingTime: remaining,
-		}, nil
-	}
+		local last_used = redis.call('GET', key)
+		if not last_used then
+			last_used = 0
+		else
+			last_used = tonumber(last_used)
+		end
 
-	if err := c.services.Redis.Set(
+		local elapsed = now - last_used
+
+		if elapsed < cooldown then
+			-- On cooldown
+			return {1, cooldown - elapsed}
+		else
+			-- Can execute, update timestamp
+			redis.call('SET', key, tostring(now), 'EX', 86400)
+			return {0, 0}
+		end
+	`
+
+	result, err := c.services.Redis.Eval(
 		ctx,
-		redisKey,
-		strconv.FormatInt(now, 10),
-		time.Duration(cooldownDuration)*time.Second,
-	).Err(); err != nil {
-		return nil, fmt.Errorf("failed to set last_used in redis: %w", err)
+		luaScript,
+		[]string{redisKey},
+		now,
+		cooldownDuration,
+	).Result()
+	if err != nil {
+		return nil, fmt.Errorf("failed to check cooldown: %w", err)
 	}
 
-	return &CooldownCheckResult{OnCooldown: false, RemainingTime: 0}, nil
+	resultArr := result.([]interface{})
+	onCooldown := resultArr[0].(int64) == 1
+	remaining := resultArr[1].(int64)
+
+	return &CooldownCheckResult{
+		OnCooldown:    onCooldown,
+		RemainingTime: remaining,
+	}, nil
 }
 
 func (c *Commands) getCooldownForUser(
 	command commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 	userRoles []model.ChannelRole,
 ) int64 {
-	if len(command.RoleCooldowns) == 0 {
-		if command.Cooldown != nil {
-			return int64(*command.Cooldown)
-		}
-		return 0
-	}
+	if len(command.RoleCooldowns) > 0 {
+		minCooldown := int64(-1)
 
-	minCooldown := int64(60)
-
-	for _, role := range userRoles {
-		for _, roleCooldown := range command.RoleCooldowns {
-			if role.ID == roleCooldown.RoleID.String() {
-				roleCooldownInt := int64(roleCooldown.Cooldown)
-				if roleCooldownInt < minCooldown {
-					minCooldown = roleCooldownInt
+		for _, role := range userRoles {
+			for _, roleCooldown := range command.RoleCooldowns {
+				if role.ID == roleCooldown.RoleID.String() {
+					roleCooldownInt := int64(roleCooldown.Cooldown)
+					if minCooldown == -1 || roleCooldownInt < minCooldown {
+						minCooldown = roleCooldownInt
+					}
 				}
 			}
 		}
+
+		if minCooldown != -1 {
+			return minCooldown
+		}
 	}
 
-	return minCooldown
+	if command.Cooldown != nil {
+		return int64(*command.Cooldown)
+	}
+
+	return 0
 }
 
 // todo: move to eventsub

@@ -168,7 +168,6 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 				}
 			}
 
-			// Create role cooldowns if any
 			for _, roleCooldown := range input.RoleCooldowns {
 				roleID, err := uuid.Parse(roleCooldown.RoleID)
 				if err != nil {
