@@ -191,7 +191,7 @@
           "empty": "No role-based cooldowns configured. Add one to set custom cooldowns for specific roles.",
           "role": "Role",
           "cooldownValue": "Cooldown (seconds)",
-          "description": "Set custom cooldowns for each role. Leave at 0 to disable the command for that role. The 'Everyone' cooldown applies to users without specific role overrides."
+          "description": "Set custom cooldowns for each role. The 'Viewer' means 'All users', cooldown applies without specific role overrides."
         },
         "affectedRolesInfo": "Role-based cooldowns are configured for"
       },
