@@ -17,16 +17,13 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import CommunityRolesModal from "@/features/community-roles/community-roles-modal.vue";
-import type {
-	FormSchema} from '@/features/commands/composables/use-command-edit-v2.ts';
-import {
-	useCommandEditV2,
-} from '@/features/commands/composables/use-command-edit-v2.ts';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import type { FormSchema } from "@/features/commands/composables/use-command-edit-v2.ts";
+import { useCommandEditV2 } from "@/features/commands/composables/use-command-edit-v2.ts";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const { t } = useI18n();
-const { channelRoles } = useCommandEditV2()
+const { channelRoles } = useCommandEditV2();
 const { values, setFieldValue } = useFormContext<FormSchema>();
 
 const roleCooldowns = computed({
@@ -35,17 +32,15 @@ const roleCooldowns = computed({
 		return new Map(cooldowns.map((rc) => [rc.roleId, rc.cooldown]));
 	},
 	set: (map: Map<string, number>) => {
-		const cooldowns = Array.from(map.entries())
-			.filter(([_, cooldown]) => cooldown > 0)
-			.map(([roleId, cooldown]) => ({ roleId, cooldown }));
+		const cooldowns = Array.from(map.entries()).map(([roleId, cooldown]) => ({ roleId, cooldown }));
 
 		setFieldValue("roleCooldowns", cooldowns);
 	},
 });
 
-function updateRoleCooldown(roleId: string, cooldown: number) {
+function updateRoleCooldown(roleId: string, cooldown: number | null) {
 	const map = new Map(roleCooldowns.value);
-	if (cooldown > 0) {
+	if (cooldown !== null) {
 		map.set(roleId, cooldown);
 	} else {
 		map.delete(roleId);
@@ -116,13 +111,20 @@ function getRoleCooldown(roleId: string): number {
 					<div class="@container w-full max-w-2xl">
 						<div class="grid grid-cols-1 gap-1 xl:max-w-[50%]">
 							<div class="flex flex-row items-center gap-2 space-y-0">
-								<div class="flex flex-row gap-2 bg-accent px-3 py-2 rounded-md leading w-56 min-w-56">
+								<div
+									class="flex flex-row gap-2 bg-accent px-3 py-2 rounded-md leading w-56 min-w-56"
+								>
 									<Checkbox id="allRoles" :model-value="true" disabled />
-									<Label for="allRoles" class="capitalize">Everyone</Label>
+									<Label for="allRoles" class="capitalize">Viewer</Label>
 								</div>
 								<Input
 									:model-value="values.cooldown ?? 0"
-									@update:model-value="(v) => Number.isNaN(Number(v)) ? setFieldValue('cooldown', 0) : setFieldValue('cooldown', Number(v))"
+									@update:model-value="
+										(v) =>
+											Number.isNaN(Number(v))
+												? setFieldValue('cooldown', 0)
+												: setFieldValue('cooldown', Number(v))
+									"
 									min="0"
 									max="86400"
 									class="w-auto"
@@ -132,24 +134,33 @@ function getRoleCooldown(roleId: string): number {
 							</div>
 
 							<div
-								v-for="(role) in channelRoles?.roles"
+								v-for="role in channelRoles?.roles"
 								:key="role!.id"
 								class="flex flex-row items-center gap-2 space-y-0"
 							>
-								<div class="flex flex-row fle flex-wrap gap-2 space-y-0 bg-accent px-3 py-2 rounded-md leading w-56 min-w-56">
+								<div
+									class="flex flex-row fle flex-wrap gap-2 space-y-0 bg-accent px-3 py-2 rounded-md leading w-56 min-w-56"
+								>
 									<Checkbox
 										:model-value="roleCooldowns.has(role.id)"
-										@update:model-value="roleCooldowns.has(role.id) ? updateRoleCooldown(role.id, 0) : updateRoleCooldown(role.id, 5)"
+										@update:model-value="
+											roleCooldowns.has(role.id)
+												? updateRoleCooldown(role.id, null)
+												: updateRoleCooldown(role.id, 0)
+										"
 										:id="`cooldown-${role.id}`"
 									/>
-									<Label :for="`cooldown-${role.id}`" class="cursor-pointer text-ellipsis overflow-hidden">
+									<Label
+										:for="`cooldown-${role.id}`"
+										class="cursor-pointer text-ellipsis overflow-hidden"
+									>
 										{{ role.name }}
 									</Label>
 								</div>
 								<Input
 									:disabled="!roleCooldowns.has(role.id)"
 									:model-value="getRoleCooldown(role.id)"
-									@update:model-value="(val) => updateRoleCooldown(role.id, Number(val) ?? 5)"
+									@update:model-value="(val) => updateRoleCooldown(role.id, Number(val) ?? 0)"
 									min="0"
 									max="86400"
 									class="w-auto"

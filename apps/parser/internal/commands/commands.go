@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
@@ -618,31 +617,18 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	shouldCheckCooldown := c.shouldCheckCooldown(data, cmd.Cmd, userRoles)
 
 	if shouldCheckCooldown {
-		roleId, cooldown := c.getRoleCooldown(cmd.Cmd, userRoles)
-		if cooldown != nil && *cooldown > 0 {
-			var redisKey strings.Builder
-			redisKey.WriteString("commands:")
-			redisKey.WriteString(cmd.Cmd.ID.String())
-			redisKey.WriteString(":cooldowns:")
-			redisKey.WriteString(cmd.Cmd.CooldownType)
-			if cmd.Cmd.CooldownType == "PER_USER" {
-				redisKey.WriteString(fmt.Sprintf("user:%s:", data.ChatterUserId))
-			}
+		cdResult, err := c.checkRoleBasedCooldown(
+			ctx,
+			*cmd.Cmd,
+			data.BroadcasterUserId,
+			userRoles,
+		)
+		if err != nil {
+			return nil, err
+		}
 
-			if roleId != nil {
-				redisKey.WriteString(fmt.Sprintf("role:%s", *roleId))
-			}
-
-			finalRedisKey := redisKey.String()
-			rErr := c.services.Redis.Get(ctx, finalRedisKey).Err()
-			if errors.Is(rErr, redis.Nil) {
-				c.services.Redis.Set(ctx, finalRedisKey, "", time.Duration(*cooldown)*time.Second)
-			} else if rErr != nil {
-				c.services.Logger.Sugar().Error(rErr)
-				return nil, errors.New("error while setting redis cooldown for command")
-			} else {
-				return nil, nil
-			}
+		if cdResult.OnCooldown {
+			return nil, nil
 		}
 	}
 

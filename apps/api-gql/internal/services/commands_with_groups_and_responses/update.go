@@ -195,14 +195,10 @@ func (c *Service) Update(
 					return fmt.Errorf("failed to delete existing role cooldowns: %w", err)
 				}
 
-				// Create new role cooldowns (only those with cooldown > 0)
+				// Create new role cooldowns (including those with cooldown = 0)
 				if len(input.RoleCooldowns) > 0 {
 					createInputs := make([]command_role_cooldown.CreateInput, 0, len(input.RoleCooldowns))
 					for _, rc := range input.RoleCooldowns {
-						if rc.Cooldown == 0 {
-							continue
-						}
-
 						roleID, err := uuid.Parse(rc.RoleID)
 						if err != nil {
 							return fmt.Errorf("invalid role ID %s: %w", rc.RoleID, err)
