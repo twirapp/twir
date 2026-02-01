@@ -1,6 +1,6 @@
 hints:
   user: '@username'
-  unvip_in: 'can be time in format: 1w1h30m, 2d5h; or can be stream_end to unvip when stream ends (delayed for 10 mins in case of stream crash). Leave it empty for permanent vip.'
+  unvip_in: 'môže byť čas vo formáte: 1w1h30m, 2d5h; alebo stream_end, aby sa VIP odstránil po skončení streamu (oneskorené o 10 minút v prípade pádu streamu). Nechajte prázdne pre trvalého VIP.'
 errors:
   invalid_duration: 'Neplatný formát času. Použi formáty ako <1h>, <30m> alebo <2d>'
   already_have_role: '{user} už je VIP alebo moderátor!'
