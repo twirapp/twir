@@ -200,9 +200,6 @@ const onSubmit = form.handleSubmit(async (values) => {
 											</label>
 										</div>
 									</UiFormControl>
-									<UiFormDescription class="text-xs text-[hsl(240,11%,50%)]">
-										Custom alias for your shortened URL. Must be between 3 and 30 characters.
-									</UiFormDescription>
 									<p
 										v-if="customDomain && !customDomain.verified"
 										class="text-xs text-yellow-300/80"
