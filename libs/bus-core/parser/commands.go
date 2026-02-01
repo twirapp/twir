@@ -1,5 +1,7 @@
 package parser
 
+import "github.com/twirapp/twir/libs/bus-core/twitch"
+
 type CommandParseResponse struct {
 	Responses         []string
 	IsReply           bool
@@ -16,6 +18,7 @@ type ParseVariablesInTextRequest struct {
 	UserName      string
 	IsCommand     bool
 	IsInCustomVar bool
+	Mentions      []twitch.ChatMessageMessageFragmentMention
 }
 
 type ParseVariablesInTextResponse struct {

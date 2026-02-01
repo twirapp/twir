@@ -19,6 +19,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/variables/donations/top_donate_stream"
 	"github.com/twirapp/twir/apps/parser/internal/variables/followers"
 	"github.com/twirapp/twir/apps/parser/internal/variables/keywords"
+	"github.com/twirapp/twir/apps/parser/internal/variables/mentions"
 	"github.com/twirapp/twir/apps/parser/internal/variables/random"
 	"github.com/twirapp/twir/apps/parser/internal/variables/repeat"
 	"github.com/twirapp/twir/apps/parser/internal/variables/request"
@@ -133,6 +134,9 @@ func New(opts *Opts) *Variables {
 			followers.Count,
 			subscribers.Count,
 			subscribers.LatestSubscriberUsername,
+			mentions.ID,
+			mentions.Login,
+			mentions.DisplayName,
 			request.Request,
 			chat_eval.ChatEval,
 			user.Reputation,

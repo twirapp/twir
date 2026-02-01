@@ -242,6 +242,22 @@ func (c *MessageHandler) keywordsParseResponse(
 		return ""
 	}
 
+	mentions := make(
+		[]twitch.ChatMessageMessageFragmentMention,
+		0,
+		len(msg.Message.Fragments),
+	)
+	if msg.Message != nil {
+		for _, f := range msg.Message.Fragments {
+			if f.Type != twitch.FragmentType_MENTION {
+				continue
+			}
+			if f.Mention != nil {
+				mentions = append(mentions, *f.Mention)
+			}
+		}
+	}
+
 	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
 			ChannelID:   msg.BroadcasterUserId,
@@ -250,6 +266,7 @@ func (c *MessageHandler) keywordsParseResponse(
 			UserID:      msg.ChatterUserId,
 			UserLogin:   msg.ChatterUserLogin,
 			UserName:    msg.ChatterUserName,
+			Mentions:    mentions,
 		},
 	)
 	if err != nil {

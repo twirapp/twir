@@ -5,6 +5,8 @@ definePageMeta({
 </script>
 
 <template>
+	<div class="sm:px-8 px-4">
+
 	<div class="text-white container mx-auto mb-4 flex flex-col gap-4">
 		<h1 class="text-4xl mt-4">Terms of Service</h1>
 
@@ -179,5 +181,6 @@ definePageMeta({
 
 		<h2 class="text-2xl">Contact Us</h2>
 		<p>If you have any questions about these Terms, please contact us. <b>contact@twir.app</b></p>
+	</div>
 	</div>
 </template>

@@ -125,7 +125,7 @@ func (c *CommandsBus) Subscribe() error {
 					Channel:       channel,
 					Sender:        sender,
 					Emotes:        nil,
-					Mentions:      nil,
+					Mentions:      data.Mentions,
 					Text:          &data.Text,
 					RawText:       data.Text,
 					IsCommand:     data.IsCommand,

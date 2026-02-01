@@ -103,6 +103,7 @@ var CustomVar = &types.Variable{
 					UserName:      parseCtx.Sender.DisplayName,
 					IsCommand:     true,
 					IsInCustomVar: true,
+					Mentions:      parseCtx.Mentions,
 				},
 			)
 			if err != nil {
