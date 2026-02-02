@@ -16,7 +16,7 @@ import (
 )
 
 type statisticsRequestDto struct {
-	ShortId  string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+	ShortId  string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9-_]+$" required:"true"`
 	From     int64  `                                                      required:"true" query:"from"`
 	To       int64  `                                                      required:"true" query:"to"`
 	Interval string `                                                                      query:"interval" enum:"hour,day" default:"day"`

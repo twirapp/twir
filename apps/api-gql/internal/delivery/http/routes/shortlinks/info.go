@@ -15,7 +15,7 @@ import (
 )
 
 type infoRequestDto struct {
-	ShortId string `query:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+	ShortId string `query:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9-_]+$" required:"true"`
 }
 
 var _ httpbase.Route[*infoRequestDto, *httpbase.BaseOutputJson[linkOutputDto]] = (*info)(nil)

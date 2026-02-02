@@ -21,7 +21,7 @@ import (
 )
 
 type redirectRequestDto struct {
-	ShortID string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+	ShortID string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9-_]+$" required:"true"`
 }
 
 type redirectResponseDto struct {

@@ -13,7 +13,7 @@ import (
 )
 
 type deleteRequestDto struct {
-	ShortId string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+	ShortId string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9-_]+$" required:"true"`
 }
 
 var _ httpbase.Route[*deleteRequestDto, *httpbase.BaseOutputJson[any]] = (*deleteRoute)(nil)
