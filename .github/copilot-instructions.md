@@ -23,6 +23,7 @@ adhere to these guidelines strictly to maintain code consistency and quality.
   - Please avoid searching the internet for library documentation, always use mcp if NEEDED.
   - If you need to search the internet for some library documentation, please inform the reviewer.
   - Let me know when you using mcp, always type about that.
+
 ---
 
 ### **2. Vue.js Frontend Development (Dashboard & Web)**
@@ -354,3 +355,7 @@ var Nil = SomeModel{
 - **Error Handling:**
   - Use `fmt.Errorf` with `%w` for wrapping errors.
   - Create custom error types if needed for specific domain error handling.
+- **Loging**
+  - Use \*Context where we have `ctx` field, so for example InfoContext(ctx, ...)
+  - For errors use `logger.Error(err)`, which is available under logger lib. It's a shortcut.
+  - Use `logger.String` and other methods, instead of inline arguments.

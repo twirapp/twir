@@ -43,6 +43,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/clientinfo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
@@ -498,6 +499,7 @@ func main() {
 			},
 			executron.New,
 			dashboard_widget_events.New,
+			clientinfo.New,
 			variables.New,
 			timers.New,
 			keywords.New,

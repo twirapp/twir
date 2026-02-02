@@ -13,7 +13,7 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
-	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/clientinfo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
@@ -30,6 +30,7 @@ type create struct {
 	sessions             *auth.Auth
 	logger               *slog.Logger
 	middlewares          *middlewares.Middlewares
+	clientInfoService    *clientinfo.Service
 }
 
 type CreateOpts struct {
@@ -41,6 +42,7 @@ type CreateOpts struct {
 	Sessions             *auth.Auth
 	Logger               *slog.Logger
 	Middlewares          *middlewares.Middlewares
+	ClientInfoService    *clientinfo.Service
 }
 
 func newCreate(opts CreateOpts) *create {
@@ -51,6 +53,7 @@ func newCreate(opts CreateOpts) *create {
 		sessions:             opts.Sessions,
 		logger:               opts.Logger,
 		middlewares:          opts.Middlewares,
+		clientInfoService:    opts.ClientInfoService,
 	}
 }
 
@@ -155,16 +158,7 @@ func (c *create) Handler(
 		}
 	}
 
-	clientIp, err := humahelpers.GetClientIpFromCtx(ctx)
-	if err != nil {
-		return nil, huma.NewError(
-			http.StatusInternalServerError,
-			"Internal error on getting your information",
-			err,
-		)
-	}
-
-	clientAgent, err := humahelpers.GetClientUserAgentFromCtx(ctx)
+	clientInfo, err := c.clientInfoService.GetClientInfo(ctx)
 	if err != nil {
 		return nil, huma.NewError(
 			http.StatusInternalServerError,
@@ -178,8 +172,8 @@ func (c *create) Handler(
 			CreatedByUserID: createdByUserID,
 			ShortID:         input.Body.Alias,
 			URL:             input.Body.Url,
-			UserIp:          &clientIp,
-			UserAgent:       &clientAgent,
+			UserIp:          &clientInfo.IP,
+			UserAgent:       &clientInfo.UserAgent,
 			Domain:          customDomain,
 		},
 	)

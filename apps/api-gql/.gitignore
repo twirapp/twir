@@ -1,2 +1,5 @@
 internal/delivery/gql/graph
 internal/delivery/gql/gqlmodel
+!assets/geo-db/.gitkeep
+assets/geo-db/*.json
+assets/geo-db/*.mmdb

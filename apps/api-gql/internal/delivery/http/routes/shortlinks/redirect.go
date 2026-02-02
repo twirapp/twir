@@ -12,14 +12,16 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/clientinfo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/logger"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	"go.uber.org/fx"
 )
 
 type redirectRequestDto struct {
-	ShortId string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
+	ShortID string `path:"shortId" minLength:"1" pattern:"^[a-zA-Z0-9]+$" required:"true"`
 }
 
 type redirectResponseDto struct {
@@ -32,26 +34,29 @@ var _ httpbase.Route[*redirectRequestDto, *redirectResponseDto] = (*redirect)(ni
 type RedirectOpts struct {
 	fx.In
 
-	Service  *shortenedurls.Service
-	Config   config.Config
-	Sessions *auth.Auth
-	Logger   *slog.Logger
+	Service           *shortenedurls.Service
+	Config            config.Config
+	Sessions          *auth.Auth
+	Logger            *slog.Logger
+	ClientInfoService *clientinfo.Service
 }
 
 func newRedirect(opts RedirectOpts) *redirect {
 	return &redirect{
-		service:  opts.Service,
-		config:   opts.Config,
-		sessions: opts.Sessions,
-		logger:   opts.Logger,
+		service:           opts.Service,
+		config:            opts.Config,
+		sessions:          opts.Sessions,
+		logger:            opts.Logger,
+		clientInfoService: opts.ClientInfoService,
 	}
 }
 
 type redirect struct {
-	service  *shortenedurls.Service
-	config   config.Config
-	sessions *auth.Auth
-	logger   *slog.Logger
+	service           *shortenedurls.Service
+	config            config.Config
+	sessions          *auth.Auth
+	logger            *slog.Logger
+	clientInfoService *clientinfo.Service
 }
 
 func (r *redirect) GetMeta() huma.Operation {
@@ -61,7 +66,7 @@ func (r *redirect) GetMeta() huma.Operation {
 		Path:          "/v1/short-links/{shortId}",
 		Tags:          []string{"Short links"},
 		Summary:       "Redirect to url",
-		DefaultStatus: 301,
+		DefaultStatus: http.StatusMovedPermanently,
 	}
 }
 
@@ -79,7 +84,7 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 		domain = &host
 	}
 
-	link, err := r.service.GetByShortID(ctx, domain, input.ShortId)
+	link, err := r.service.GetByShortID(ctx, domain, input.ShortID)
 	if err != nil {
 		return nil, huma.NewError(http.StatusNotFound, "Cannot get link", err)
 	}
@@ -94,28 +99,24 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 		userID = &user.ID
 	}
 
-	var clientIp *string
-	if ip, err := humahelpers.GetClientIpFromCtx(ctx); err == nil {
-		clientIp = &ip
+	var clientIP, clientUserAgent *string
+	if info, err := r.clientInfoService.GetClientInfo(ctx); err == nil {
+		clientIP = &info.IP
+		clientUserAgent = &info.UserAgent
 	} else {
-		r.logger.Warn("Cannot get client IP", "error", err)
-	}
-
-	var clientAgent *string
-	if agent, err := humahelpers.GetClientUserAgentFromCtx(ctx); err == nil {
-		clientAgent = &agent
-	} else {
-		r.logger.Warn("Cannot get client user agent", "error", err)
+		r.logger.Warn("Cannot get client info", "error", err)
 	}
 
 	var country *string
-	if cfCountry, err := humahelpers.GetCloudflareCountryFromCtx(ctx); err == nil && cfCountry != "" {
-		country = &cfCountry
-	}
-
 	var city *string
-	if cfCity, err := humahelpers.GetCloudflareCityFromCtx(ctx); err == nil && cfCity != "" {
-		city = &cfCity
+	if clientIP != nil {
+		location, err := r.clientInfoService.LookupIP(ctx, *clientIP)
+		if err != nil {
+			r.logger.WarnContext(ctx, "Cannot resolve GeoIP location", "error", err)
+		} else {
+			country = location.Country
+			city = location.City
+		}
 	}
 
 	if err := r.service.RecordView(
@@ -124,13 +125,13 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 			ShortLinkID: link.ShortID,
 			Domain:      domain,
 			UserID:      userID,
-			IP:          clientIp,
-			UserAgent:   clientAgent,
+			IP:          clientIP,
+			UserAgent:   clientUserAgent,
 			Country:     country,
 			City:        city,
 		},
 	); err != nil {
-		r.logger.Warn("Cannot record view", "error", err)
+		r.logger.WarnContext(ctx, "Cannot record view", logger.Error(err))
 	}
 
 	newViews := link.Views + 1
