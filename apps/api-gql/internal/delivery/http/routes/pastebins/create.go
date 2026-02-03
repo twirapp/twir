@@ -8,6 +8,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/clientinfo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"go.uber.org/fx"
 )
@@ -24,20 +25,23 @@ var _ httpbase.Route[*pasteBinCreateRequestDto, *httpbase.BaseOutputJson[pasteBi
 type CreateOpts struct {
 	fx.In
 
-	Service  *pastebins.Service
-	Sessions *auth.Auth
+	Service           *pastebins.Service
+	Sessions          *auth.Auth
+	ClientInfoService *clientinfo.Service
 }
 
 func newCreate(opts CreateOpts) *create {
 	return &create{
-		service:  opts.Service,
-		sessions: opts.Sessions,
+		service:           opts.Service,
+		sessions:          opts.Sessions,
+		clientInfoService: opts.ClientInfoService,
 	}
 }
 
 type create struct {
-	service  *pastebins.Service
-	sessions *auth.Auth
+	service           *pastebins.Service
+	sessions          *auth.Auth
+	clientInfoService *clientinfo.Service
 }
 
 func (c *create) GetMeta() huma.Operation {
@@ -62,6 +66,12 @@ func (c *create) Handler(
 	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err == nil && user != nil {
 		createInput.OwnerUserID = &user.ID
+	}
+
+	userInfo, err := c.clientInfoService.GetClientInfo(ctx)
+	if err == nil {
+		createInput.UserIP = &userInfo.IP
+		createInput.UserAgent = &userInfo.UserAgent
 	}
 
 	bin, err := c.service.Create(ctx, createInput)

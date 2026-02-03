@@ -24,6 +24,8 @@ type CreateInput struct {
 	Content     string
 	ExpireAt    *time.Time
 	OwnerUserID *string
+	UserIP      *string
+	UserAgent   *string
 }
 
 type GetManyInput struct {

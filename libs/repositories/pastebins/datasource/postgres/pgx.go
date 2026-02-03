@@ -27,8 +27,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ pastebins.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  pastebins.Repository = (*Pgx)(nil)
+	sq                      = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -59,9 +61,9 @@ func (c *Pgx) Count(ctx context.Context, input pastebins.CountInput) (int64, err
 
 func (c *Pgx) Create(ctx context.Context, input pastebins.CreateInput) (model.Pastebin, error) {
 	query := `
-INSERT INTO pastebins (id, content, "expire_at", "owner_user_id")
-VALUES ($1, $2, $3, $4)
-RETURNING id, created_at, content, "expire_at", "owner_user_id"
+INSERT INTO pastebins (id, content, "expire_at", "owner_user_id", "user_ip", "user_agent")
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, created_at, content, "expire_at", "owner_user_id", "user_ip", "user_agent"
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -80,7 +82,7 @@ RETURNING id, created_at, content, "expire_at", "owner_user_id"
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.Pastebin, error) {
 	query := `
-SELECT id, created_at, content, "expire_at", "owner_user_id"
+SELECT id, created_at, content, "expire_at", "owner_user_id", "user_ip", "user_agent"
 FROM pastebins
 WHERE id = $1
 `
@@ -123,6 +125,8 @@ func (c *Pgx) GetManyByOwner(ctx context.Context, input pastebins.GetManyInput) 
 		"content",
 		"expire_at",
 		"owner_user_id",
+		"user_ip",
+		"user_agent",
 	).From("pastebins").
 		Where(squirrel.Eq{"owner_user_id": input.OwnerUserID}).
 		OrderBy("created_at DESC")

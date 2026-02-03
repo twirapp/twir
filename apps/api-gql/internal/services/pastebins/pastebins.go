@@ -132,6 +132,8 @@ type CreateInput struct {
 	Content     string
 	ExpireAt    *time.Time
 	OwnerUserID *string
+	UserIP      *string
+	UserAgent   *string
 }
 
 func (c *Service) generateID() string {
@@ -146,6 +148,8 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Pastebi
 			Content:     input.Content,
 			ExpireAt:    input.ExpireAt,
 			OwnerUserID: input.OwnerUserID,
+			UserIP:      input.UserIP,
+			UserAgent:   input.UserAgent,
 		},
 	)
 	if err != nil {
