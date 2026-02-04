@@ -67,7 +67,7 @@ RETURNING id, created_at, content, "expire_at", "owner_user_id", "user_ip", "use
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, input.ID, input.Content, input.ExpireAt, input.OwnerUserID)
+	rows, err := conn.Query(ctx, query, input.ID, input.Content, input.ExpireAt, input.OwnerUserID, input.UserIP, input.UserAgent)
 	if err != nil {
 		return model.Nil, err
 	}
