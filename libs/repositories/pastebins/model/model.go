@@ -1,6 +1,7 @@
 package model
 
 import (
+	"net"
 	"time"
 )
 
@@ -10,7 +11,7 @@ type Pastebin struct {
 	Content     string
 	ExpireAt    *time.Time
 	OwnerUserID *string
-	UserIP      *string
+	UserIP      *net.IP
 	UserAgent   *string
 }
 
