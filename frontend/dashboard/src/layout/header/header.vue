@@ -197,14 +197,18 @@ function onDragEnd() {
 			<CommandMenu v-if="!isDesktop" :icon-only="true" />
 
 			<!-- Stream info widget -->
-			<div v-if="isDesktop" class="header-widget cursor-pointer" @click="openInfoEditor">
+			<div
+				v-if="isDesktop"
+				class="header-widget header-widget-stream cursor-pointer"
+				@click="openInfoEditor"
+			>
 				<div class="header-widget-content">
 					<div class="flex items-center gap-2">
-						<div class="flex flex-col flex-1">
-							<p class="header-widget-value">
+						<div class="flex flex-col flex-1 min-w-0">
+							<p class="header-widget-value truncate">
 								{{ stats?.title ?? "No title" }}
 							</p>
-							<p class="header-widget-label">
+							<p class="header-widget-label truncate">
 								{{ stats?.categoryName ?? "No category" }}
 							</p>
 						</div>
@@ -327,6 +331,10 @@ function onDragEnd() {
 	padding: 0.5rem 0.75rem;
 	transition: all 150ms;
 	border: 1px solid oklch(1 0 0 / 10%);
+}
+
+.header-widget-stream {
+	max-width: 300px;
 }
 
 .header-widget[draggable="true"] {
