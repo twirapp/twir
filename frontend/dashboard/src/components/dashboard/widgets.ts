@@ -8,7 +8,11 @@ import {
 	useDashboardWidgetsLayoutUpdate,
 } from '@/api/dashboard-widgets-layout.ts';
 
-export type WidgetItem = LayoutItem & { visible: boolean };
+export type WidgetItem = LayoutItem & {
+	visible: boolean;
+	stackId?: string;
+	stackOrder: number;
+};
 
 const defaultWidgets: WidgetItem[] = [
 	{
@@ -20,6 +24,7 @@ const defaultWidgets: WidgetItem[] = [
 		minW: 3,
 		minH: 8,
 		visible: true,
+		stackOrder: 0,
 	},
 	{
 		x: 3,
@@ -30,6 +35,7 @@ const defaultWidgets: WidgetItem[] = [
 		minW: 3,
 		minH: 8,
 		visible: true,
+		stackOrder: 0,
 	},
 	{
 		x: 0,
@@ -40,6 +46,7 @@ const defaultWidgets: WidgetItem[] = [
 		minW: 3,
 		minH: 8,
 		visible: true,
+		stackOrder: 0,
 	},
 	{
 		x: 0,
@@ -50,6 +57,7 @@ const defaultWidgets: WidgetItem[] = [
 		minW: 3,
 		minH: 8,
 		visible: true,
+		stackOrder: 0,
 	},
 ];
 
@@ -59,6 +67,8 @@ export function useWidgets() {
 	const subscription = useDashboardWidgetsLayoutSubscription();
 	const updateMutation = useDashboardWidgetsLayoutUpdate();
 
+	// Flag to prevent sending updates before initial load from server
+	let isInitialized = false;
 	// Flag to prevent recursion when updating from server
 	let isUpdatingFromServer = false;
 
@@ -68,7 +78,7 @@ export function useWidgets() {
 		(serverLayout) => {
 			if (!fetching.value && serverLayout.length > 0) {
 				isUpdatingFromServer = true;
-				widgets.value = serverLayout.map((item: any) => ({
+				widgets.value = serverLayout.map((item) => ({
 					x: item.x,
 					y: item.y,
 					w: item.w,
@@ -77,7 +87,11 @@ export function useWidgets() {
 					minW: item.minW,
 					minH: item.minH,
 					visible: item.visible,
+					stackId: item.stackId ?? undefined,
+					stackOrder: item.stackOrder,
 				}));
+				// Mark as initialized after first server load
+				isInitialized = true;
 				// Reset flag on next tick to allow user changes
 				setTimeout(() => {
 					isUpdatingFromServer = false;
@@ -93,7 +107,7 @@ export function useWidgets() {
 		(serverLayout) => {
 			if (serverLayout.length > 0) {
 				isUpdatingFromServer = true;
-				widgets.value = serverLayout.map((item: any) => ({
+				widgets.value = serverLayout.map((item) => ({
 					x: item.x,
 					y: item.y,
 					w: item.w,
@@ -102,6 +116,8 @@ export function useWidgets() {
 					minW: item.minW,
 					minH: item.minH,
 					visible: item.visible,
+					stackId: item.stackId ?? undefined,
+					stackOrder: item.stackOrder,
 				}));
 				// Reset flag on next tick to allow user changes
 				setTimeout(() => {
@@ -117,6 +133,11 @@ export function useWidgets() {
 	watch(
 		widgets,
 		(newWidgets) => {
+			// Skip if not yet initialized (waiting for server data)
+			if (!isInitialized) {
+				return;
+			}
+
 			// Skip if this update came from server to prevent recursion
 			if (isUpdatingFromServer) {
 				return;
@@ -138,6 +159,8 @@ export function useWidgets() {
 						minW: w.minW ?? 3,
 						minH: w.minH ?? 8,
 						visible: w.visible,
+						stackId: w.stackId ?? null,
+						stackOrder: w.stackOrder,
 					})),
 				});
 			}, 1000);

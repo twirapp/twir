@@ -18,6 +18,8 @@ const dashboardWidgetsLayoutQuery = graphql(`
 			minW
 			minH
 			visible
+			stackId
+			stackOrder
 		}
 	}
 `);
@@ -49,6 +51,8 @@ const dashboardWidgetsLayoutSubscription = graphql(`
 				minW
 				minH
 				visible
+				stackId
+				stackOrder
 			}
 		}
 	}
@@ -84,6 +88,8 @@ export function useDashboardWidgetsLayoutUpdate() {
 					minW
 					minH
 					visible
+					stackId
+					stackOrder
 				}
 			}
 		`),

@@ -28,6 +28,9 @@ type DashboardWidgetLayout {
 	minW: Int!
 	minH: Int!
 	visible: Boolean!
+	# Stack support - widgets with same stackId are displayed as tabs
+	stackId: String
+	stackOrder: Int!
 }
 
 input DashboardWidgetLayoutInput {
@@ -39,4 +42,7 @@ input DashboardWidgetLayoutInput {
 	minW: Int!
 	minH: Int!
 	visible: Boolean!
+	# Stack support - widgets with same stackId are displayed as tabs
+	stackId: String
+	stackOrder: Int!
 }

@@ -13,8 +13,12 @@ type DashboardWidget struct {
 	MinW      int
 	MinH      int
 	Visible   bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	// StackId groups widgets into tabs - widgets with same StackId are displayed as tabs
+	StackId *string
+	// StackOrder determines the order of tabs within a stack (0, 1, 2, etc.)
+	StackOrder int
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 
 	isNil bool
 }
