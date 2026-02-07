@@ -51,6 +51,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	dashboard_widgets "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widgets"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/discord_integration"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
@@ -253,6 +254,9 @@ import (
 
 	streamlabsrepository "github.com/twirapp/twir/libs/repositories/streamlabs_integration"
 	streamlabsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streamlabs_integration/datasource/postgres"
+
+	dashboardwidgetsrepository "github.com/twirapp/twir/libs/repositories/dashboard_widgets"
+	dashboardwidgetsrepositorypgx "github.com/twirapp/twir/libs/repositories/dashboard_widgets/pgx"
 )
 
 func main() {
@@ -412,6 +416,10 @@ func main() {
 				fx.As(new(plansrepository.Repository)),
 			),
 			fx.Annotate(
+				dashboardwidgetsrepositorypgx.NewFx,
+				fx.As(new(dashboardwidgetsrepository.Repository)),
+			),
+			fx.Annotate(
 				channelsemotesusagesrepositoryclickhouse.NewFx,
 				fx.As(new(channelsemotesusagesrepository.Repository)),
 			),
@@ -499,6 +507,7 @@ func main() {
 			},
 			executron.New,
 			dashboard_widget_events.New,
+			dashboard_widgets.New,
 			clientinfo.New,
 			variables.New,
 			timers.New,

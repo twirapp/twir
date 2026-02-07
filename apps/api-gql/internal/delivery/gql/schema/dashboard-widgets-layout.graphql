@@ -1,0 +1,42 @@
+extend type Query {
+	dashboardWidgetsLayout: [DashboardWidgetLayout!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	dashboardWidgetsLayoutUpdate(input: [DashboardWidgetLayoutInput!]!): [DashboardWidgetLayout!]!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+}
+
+extend type Subscription {
+	dashboardWidgetsLayoutChanged: DashboardWidgetsLayoutChangedPayload!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+}
+
+type DashboardWidgetsLayoutChangedPayload {
+	layout: [DashboardWidgetLayout!]!
+}
+
+type DashboardWidgetLayout {
+	id: ID!
+	widgetId: String!
+	x: Int!
+	y: Int!
+	w: Int!
+	h: Int!
+	minW: Int!
+	minH: Int!
+	visible: Boolean!
+}
+
+input DashboardWidgetLayoutInput {
+	widgetId: String!
+	x: Int!
+	y: Int!
+	w: Int!
+	h: Int!
+	minW: Int!
+	minH: Int!
+	visible: Boolean!
+}
