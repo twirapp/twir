@@ -244,7 +244,8 @@
         "editStreamInfo": "Edit Stream Information",
         "editStreamInfoDescription": "Update your stream title and category",
         "title": "Título da Transmissão",
-        "category": "Categoria"
+        "category": "Categoria",
+        "titleMaxLength": "Title must be 140 characters or less"
       },
       "addWidget": "Add Widget",
       "uptime": "Tempo da Transmissão",
