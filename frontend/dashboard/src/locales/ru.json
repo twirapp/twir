@@ -244,7 +244,8 @@
         "editStreamInfo": "Edit Stream Information",
         "editStreamInfoDescription": "Update your stream title and category",
         "title": "Название трансляции",
-        "category": "Категория"
+        "category": "Категория",
+        "titleMaxLength": "Название должно быть не более 140 символов"
       },
       "addWidget": "Add Widget",
       "uptime": "Длительность трансляции",
