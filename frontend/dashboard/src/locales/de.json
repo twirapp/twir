@@ -244,7 +244,8 @@
         "editStreamInfo": "Edit Stream Information",
         "editStreamInfoDescription": "Update your stream title and category",
         "title": "Stream-Titel",
-        "category": "Kategorie"
+        "category": "Kategorie",
+        "titleMaxLength": "Title must be 140 characters or less"
       },
       "addWidget": "Add Widget",
       "uptime": "Laufzeit",
