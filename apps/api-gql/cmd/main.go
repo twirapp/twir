@@ -201,6 +201,9 @@ import (
 	channelsgiveawaysparticipantsrepository "github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	channelsgiveawaysparticipantsrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways_participants/pgx"
 
+	channelsgiveawayssettingsrepository "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
+	channelsgiveawayssettingsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings/pgx"
+
 	channelsmoderationsettingsrepository "github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	channelsmoderationsettingsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/datasource/postgres"
 
@@ -386,6 +389,10 @@ func main() {
 			fx.Annotate(
 				channelsgiveawaysrepositorypgx.NewFx,
 				fx.As(new(channelsgiveawaysrepository.Repository)),
+			),
+			fx.Annotate(
+				channelsgiveawayssettingsrepositorypgx.New,
+				fx.As(new(channelsgiveawayssettingsrepository.Repository)),
 			),
 			fx.Annotate(
 				channelsmoderationsettingsrepositorypostgres.NewFx,

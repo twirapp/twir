@@ -3,6 +3,7 @@ package mappers
 import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/entities/channels_giveaways_settings"
 )
 
 func GiveawayEntityTo(e entity.ChannelGiveaway) gqlmodel.ChannelGiveaway {
@@ -37,5 +38,15 @@ func GiveawayWinnerEntityTo(
 		DisplayName: e.DisplayName,
 		UserID:      e.UserID,
 		UserLogin:   e.UserLogin,
+	}
+}
+
+func GiveawaySettingsEntityTo(
+	e channels_giveaways_settings.Settings,
+) gqlmodel.GiveawaysSettings {
+	return gqlmodel.GiveawaysSettings{
+		ID:            e.ID,
+		ChannelID:     e.ChannelID,
+		WinnerMessage: e.WinnerMessage,
 	}
 }

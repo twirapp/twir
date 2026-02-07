@@ -5,15 +5,19 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways/model"
 	giveawaysmodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
@@ -29,20 +33,24 @@ type Opts struct {
 
 	GiveawaysRepository             giveaways.Repository
 	GiveawaysParticipantsRepository giveaways_participants.Repository
+	GiveawaysSettingsRepository     channels_giveaways_settings.Repository
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]model.ChannelGiveaway]
 	TwirBus                         *buscore.Bus
 	Logger                          *slog.Logger
 	WsRouter                        wsrouter.WsRouter
+	TwitchCache                     *twitchcache.CachedTwitchClient
 }
 
 func New(opts Opts) *Service {
 	s := &Service{
 		giveawaysRepository:             opts.GiveawaysRepository,
 		giveawaysParticipantsRepository: opts.GiveawaysParticipantsRepository,
+		giveawaysSettingsRepository:     opts.GiveawaysSettingsRepository,
 		giveawaysCacher:                 opts.GiveawaysCacher,
 		twirBus:                         opts.TwirBus,
 		logger:                          opts.Logger,
 		wsRouter:                        opts.WsRouter,
+		twitchCache:                     opts.TwitchCache,
 	}
 
 	opts.LC.Append(
@@ -70,10 +78,12 @@ func New(opts Opts) *Service {
 type Service struct {
 	giveawaysRepository             giveaways.Repository
 	giveawaysParticipantsRepository giveaways_participants.Repository
+	giveawaysSettingsRepository     channels_giveaways_settings.Repository
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]model.ChannelGiveaway]
 	twirBus                         *buscore.Bus
 	logger                          *slog.Logger
 	wsRouter                        wsrouter.WsRouter
+	twitchCache                     *twitchcache.CachedTwitchClient
 }
 
 type CreateInput struct {
@@ -226,6 +236,12 @@ func (c *Service) ChooseWinners(
 		c.logger.Error("Cannot update winners cache", logger.Error(err))
 		return nil, err
 	}
+
+	go func() {
+		if err := c.sendWinnerMessage(context.Background(), channelID, result); err != nil {
+			c.logger.Error("Cannot send winner message", logger.Error(err))
+		}
+	}()
 
 	return result, nil
 }
@@ -461,6 +477,48 @@ func (c *Service) updateGiveawaysCacheForChannel(ctx context.Context, channelID 
 	err = c.giveawaysCacher.SetValue(ctx, channelID, dbGiveaways)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (c *Service) sendWinnerMessage(
+	ctx context.Context,
+	channelID string,
+	winners []entity.ChannelGiveawayWinner,
+) error {
+	settings, err := c.giveawaysSettingsRepository.GetByChannelID(ctx, channelID)
+	if err != nil {
+		c.logger.ErrorContext(ctx, "Cannot get giveaways settings", logger.Error(err))
+		return err
+	}
+
+	if settings.IsNil() {
+		c.logger.WarnContext(ctx, "Giveaways settings not found for channel", "channelId", channelID)
+		return nil
+	}
+
+	for _, winner := range winners {
+		message := strings.ReplaceAll(settings.WinnerMessage, "{winner}", winner.UserLogin)
+
+		err := c.twirBus.Bots.SendMessage.Publish(
+			ctx,
+			botsbus.SendMessageRequest{
+				ChannelId:      channelID,
+				Message:        message,
+				SkipRateLimits: true,
+			},
+		)
+		if err != nil {
+			c.logger.ErrorContext(
+				ctx,
+				"Cannot send winner message",
+				logger.Error(err),
+				"winner",
+				winner.UserLogin,
+			)
+			return err
+		}
 	}
 
 	return nil

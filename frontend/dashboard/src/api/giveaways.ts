@@ -1,16 +1,16 @@
-import { useMutation, useQuery, useSubscription } from '@urql/vue'
-import { createGlobalState } from '@vueuse/core'
-import { unref } from 'vue'
+import { useMutation, useQuery, useSubscription } from '@urql/vue';
+import { createGlobalState } from '@vueuse/core';
+import { unref } from 'vue';
 
 import type {
 	ChannelGiveawaySubscriptionParticipant,
 	GiveawayFragment,
 	GiveawayParticipantFragment,
 	GiveawayWinnerFragment,
-} from '@/gql/graphql.ts'
-import type { MaybeRef } from 'vue'
+} from '@/gql/graphql.ts';
+import type { MaybeRef } from 'vue';
 
-import { graphql } from '@/gql'
+import { graphql } from '@/gql';
 
 graphql(`
 	fragment Giveaway on ChannelGiveaway {
@@ -53,12 +53,18 @@ graphql(`
 		isWinner
 		giveawayId
 	}
-`)
 
-export type Giveaway = GiveawayFragment
-export type GiveawayParticipant = GiveawayParticipantFragment
-export type GiveawayWinner = GiveawayWinnerFragment
-export type GiveawaySubscriptionParticipant = ChannelGiveawaySubscriptionParticipant
+	fragment GiveawaysSettings on GiveawaysSettings {
+		id
+		channelId
+		winnerMessage
+	}
+`);
+
+export type Giveaway = GiveawayFragment;
+export type GiveawayParticipant = GiveawayParticipantFragment;
+export type GiveawayWinner = GiveawayWinnerFragment;
+export type GiveawaySubscriptionParticipant = ChannelGiveawaySubscriptionParticipant;
 
 export const useGiveawaysApi = createGlobalState(() => {
 	// Queries
@@ -71,7 +77,7 @@ export const useGiveawaysApi = createGlobalState(() => {
 					}
 				}
 			`),
-		})
+		});
 
 	const useGiveaway = (giveawayId: MaybeRef<string | null>) => {
 		return useQuery({
@@ -86,12 +92,23 @@ export const useGiveawaysApi = createGlobalState(() => {
 				}
 			`),
 			get variables() {
-				return { giveawayId: unref(giveawayId)! }
+				return { giveawayId: unref(giveawayId)! };
 			},
 			pause: true,
 			requestPolicy: 'cache-and-network',
-		})
-	}
+		});
+	};
+
+	const useGiveawaysSettings = () =>
+		useQuery({
+			query: graphql(`
+				query GiveawaysSettings {
+					giveawaysSettings {
+						...GiveawaysSettings
+					}
+				}
+			`),
+		});
 
 	// Mutations
 	const useMutationCreateGiveaway = () =>
@@ -102,8 +119,8 @@ export const useGiveawaysApi = createGlobalState(() => {
 						...Giveaway
 					}
 				}
-			`)
-		)
+			`),
+		);
 
 	const useMutationUpdateGiveaway = () =>
 		useMutation(
@@ -113,8 +130,8 @@ export const useGiveawaysApi = createGlobalState(() => {
 						...Giveaway
 					}
 				}
-			`)
-		)
+			`),
+		);
 
 	const useMutationRemoveGiveaway = () =>
 		useMutation(
@@ -124,8 +141,8 @@ export const useGiveawaysApi = createGlobalState(() => {
 						...Giveaway
 					}
 				}
-			`)
-		)
+			`),
+		);
 
 	const useMutationStartGiveaway = () =>
 		useMutation(
@@ -135,8 +152,8 @@ export const useGiveawaysApi = createGlobalState(() => {
 						...Giveaway
 					}
 				}
-			`)
-		)
+			`),
+		);
 
 	const useMutationStopGiveaway = () =>
 		useMutation(
@@ -146,8 +163,8 @@ export const useGiveawaysApi = createGlobalState(() => {
 						...Giveaway
 					}
 				}
-			`)
-		)
+			`),
+		);
 
 	const useMutationChooseWinners = () =>
 		useMutation(
@@ -157,8 +174,19 @@ export const useGiveawaysApi = createGlobalState(() => {
 						...GiveawayWinner
 					}
 				}
-			`)
-		)
+			`),
+		);
+
+	const useMutationUpdateSettings = () =>
+		useMutation(
+			graphql(`
+				mutation UpdateGiveawaysSettings($opts: GiveawaysSettingsUpdateInput!) {
+					giveawaysSettingsUpdate(opts: $opts) {
+						...GiveawaysSettings
+					}
+				}
+			`),
+		);
 
 	// Subscriptions
 	const useSubscriptionGiveawayParticipants = (giveawayId: MaybeRef<string | null>) => {
@@ -171,16 +199,17 @@ export const useGiveawaysApi = createGlobalState(() => {
 				}
 			`),
 			get variables() {
-				return { giveawayId: unref(giveawayId)! }
+				return { giveawayId: unref(giveawayId)! };
 			},
 			pause: true,
-		})
-	}
+		});
+	};
 
 	return {
 		// Queries
 		useGiveawaysList,
 		useGiveaway,
+		useGiveawaysSettings,
 
 		// Mutations
 		useMutationCreateGiveaway,
@@ -189,8 +218,9 @@ export const useGiveawaysApi = createGlobalState(() => {
 		useMutationStartGiveaway,
 		useMutationStopGiveaway,
 		useMutationChooseWinners,
+		useMutationUpdateSettings,
 
 		// Subscriptions
 		useSubscriptionGiveawayParticipants,
-	}
-})
+	};
+});

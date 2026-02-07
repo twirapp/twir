@@ -76,6 +76,7 @@ import (
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	channels_giveaways_settings "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
@@ -97,10 +98,11 @@ type Deps struct {
 	AuditRecorder audit.Recorder
 	WsRouter      wsrouter.WsRouter
 
-	SpotifyRepository       channelsintegrationsspotify.Repository
-	LastfmRepository        channelsintegrationslastfm.Repository
-	VKIntegrationRepository vkintegrationrepo.Repository
-	PlansRepository         plansrepository.Repository
+	SpotifyRepository           channelsintegrationsspotify.Repository
+	LastfmRepository            channelsintegrationslastfm.Repository
+	VKIntegrationRepository     vkintegrationrepo.Repository
+	PlansRepository             plansrepository.Repository
+	GiveawaysSettingsRepository channels_giveaways_settings.Repository
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB

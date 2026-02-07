@@ -1,19 +1,51 @@
 extend type Query {
-	giveaways: [ChannelGiveaway!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
-	giveaway(giveawayId: String!): ChannelGiveaway!  @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+	giveaways: [ChannelGiveaway!]!
+		@isAuthenticated
+		@hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+	giveaway(giveawayId: String!): ChannelGiveaway!
+		@isAuthenticated
+		@hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+	giveawaysSettings: GiveawaysSettings!
+		@isAuthenticated
+		@hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
 }
 
 extend type Mutation {
-	giveawaysCreate(opts: GiveawaysCreateInput!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
-	giveawaysUpdate(id: String!, opts: GiveawaysUpdateInput!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
-	giveawaysRemove(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
-	giveawaysStart(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
-	giveawaysStop(id: String!): ChannelGiveaway! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
-	giveawaysChooseWinners(id: String!): [ChannelGiveawayWinner!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysCreate(opts: GiveawaysCreateInput!): ChannelGiveaway!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysUpdate(id: String!, opts: GiveawaysUpdateInput!): ChannelGiveaway!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysRemove(id: String!): ChannelGiveaway!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysStart(id: String!): ChannelGiveaway!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysStop(id: String!): ChannelGiveaway!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysChooseWinners(id: String!): [ChannelGiveawayWinner!]!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
+	giveawaysSettingsUpdate(opts: GiveawaysSettingsUpdateInput!): GiveawaysSettings!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_GIVEAWAYS)
 }
 
 extend type Subscription {
-	giveawaysParticipants(giveawayId: String!): ChannelGiveawaySubscriptionParticipant! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
+	giveawaysParticipants(giveawayId: String!): ChannelGiveawaySubscriptionParticipant!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
 }
 
 input GiveawaysCreateInput {
@@ -61,4 +93,14 @@ type ChannelGiveawaySubscriptionParticipant {
 	userDisplayName: String!
 	isWinner: Boolean!
 	giveawayId: String!
+}
+
+input GiveawaysSettingsUpdateInput {
+	winnerMessage: String! @validate(constraint: "min=1,max=500")
+}
+
+type GiveawaysSettings {
+	id: UUID!
+	channelId: String!
+	winnerMessage: String!
 }

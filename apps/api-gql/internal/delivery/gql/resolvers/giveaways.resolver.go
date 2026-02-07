@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
+	"github.com/twirapp/twir/libs/entities/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/logger"
 )
 
@@ -223,6 +224,26 @@ func (r *mutationResolver) GiveawaysChooseWinners(ctx context.Context, id string
 	return mappedWinners, nil
 }
 
+// GiveawaysSettingsUpdate is the resolver for the giveawaysSettingsUpdate field.
+func (r *mutationResolver) GiveawaysSettingsUpdate(ctx context.Context, opts gqlmodel.GiveawaysSettingsUpdateInput) (*gqlmodel.GiveawaysSettings, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	settings, err := r.deps.GiveawaysSettingsRepository.Update(
+		ctx, dashboardId, channels_giveaways_settings.Settings{
+			WinnerMessage: opts.WinnerMessage,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.GiveawaySettingsEntityTo(settings)
+	return &converted, nil
+}
+
 // Giveaways is the resolver for the giveaways field.
 func (r *queryResolver) Giveaways(ctx context.Context) ([]gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
@@ -262,6 +283,22 @@ func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (*gqlmo
 	}
 
 	converted := mappers.GiveawayEntityTo(dbGiveaway)
+	return &converted, nil
+}
+
+// GiveawaysSettings is the resolver for the giveawaysSettings field.
+func (r *queryResolver) GiveawaysSettings(ctx context.Context) (*gqlmodel.GiveawaysSettings, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	settings, err := r.deps.GiveawaysSettingsRepository.GetByChannelID(ctx, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.GiveawaySettingsEntityTo(settings)
 	return &converted, nil
 }
 
