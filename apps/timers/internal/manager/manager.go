@@ -217,10 +217,6 @@ func (c *Manager) OnChatMessage(channelId string) {
 			continue
 		}
 
-		if t.dbRow.OfflineEnabled {
-			t.offlineMessageNumber++
-		}
-
 		go c.tryTick(t.id)
 	}
 }
