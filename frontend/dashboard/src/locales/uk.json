@@ -244,7 +244,8 @@
         "editStreamInfo": "Edit Stream Information",
         "editStreamInfoDescription": "Update your stream title and category",
         "title": "Назва трансляції",
-        "category": "Категорія"
+        "category": "Категорія",
+        "titleMaxLength": "Назва має бути не більше 140 символів"
       },
       "addWidget": "Add Widget",
       "uptime": "Час трансляції",
