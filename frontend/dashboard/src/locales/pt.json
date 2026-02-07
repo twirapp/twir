@@ -1478,6 +1478,24 @@
         "participants": "Participantes",
         "winners": "Vencedores"
       }
+    },
+    "settings": {
+      "title": "Settings",
+      "dialogTitle": "Giveaway Settings",
+      "dialogDescription": "Configure global settings for all giveaways",
+      "hint": "Use the {winner} placeholder to insert the winner's name in your message",
+      "messageLabel": "Winner Message",
+      "messagePlaceholder": "Enter your winner announcement message...",
+      "create": "Create Settings",
+      "update": "Update Settings",
+      "success": "Settings saved",
+      "successDescription": "Giveaway settings have been updated successfully",
+      "error": "Error saving settings",
+      "validation": {
+        "required": "Winner message is required",
+        "minLength": "Winner message must be at least 1 character",
+        "maxLength": "Winner message must be less than 500 characters"
+      }
     }
   }
 }
