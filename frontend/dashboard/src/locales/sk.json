@@ -244,7 +244,8 @@
         "editStreamInfo": "Upraviť informácie o streame",
         "editStreamInfoDescription": "Aktualizuj názov a kategóriu streamu",
         "title": "Názov streamu",
-        "category": "Kategória"
+        "category": "Kategória",
+        "titleMaxLength": "Title must be 140 characters or less"
       },
       "addWidget": "Pridať Widget",
       "uptime": "Vysielanie",
