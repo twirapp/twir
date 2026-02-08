@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 
 import type { LayoutItem } from 'grid-layout-plus';
 
@@ -77,32 +77,37 @@ export function useWidgets() {
 	// Load from server on mount
 	watch(
 		layout,
-		(serverLayout) => {
-			if (!fetching.value && serverLayout.length > 0) {
+		async (serverLayout) => {
+			if (!fetching.value) {
 				isUpdatingFromServer = true;
 
-				// Map server layout to widgets - all data is now in the layout including custom fields
-				widgets.value = serverLayout.map((item) => ({
-					x: item.x,
-					y: item.y,
-					w: item.w,
-					h: item.h,
-					i: item.widgetId,
-					minW: item.minW,
-					minH: item.minH,
-					visible: item.visible,
-					stackId: item.stackId ?? undefined,
-					stackOrder: item.stackOrder,
-					customUrl: item.customUrl ?? undefined,
-					displayName: item.customName ?? undefined,
-				}));
+				// If server has data, load it
+				if (serverLayout.length > 0) {
+					// Map server layout to widgets - all data is now in the layout including custom fields
+					widgets.value = serverLayout.map((item) => ({
+						x: item.x,
+						y: item.y,
+						w: item.w,
+						h: item.h,
+						i: item.widgetId,
+						minW: item.minW,
+						minH: item.minH,
+						visible: item.visible,
+						stackId: item.stackId ?? undefined,
+						stackOrder: item.stackOrder,
+						customUrl: item.customUrl ?? undefined,
+						displayName: item.customName ?? undefined,
+					}));
+				}
 
-				// Mark as initialized after first server load
+				// Mark as initialized after first server load (even if empty)
+				// This allows saving when user starts from empty dashboard
 				isInitialized = true;
+
 				// Reset flag on next tick to allow user changes
-				setTimeout(() => {
-					isUpdatingFromServer = false;
-				}, 0);
+				await nextTick();
+				isUpdatingFromServer = false;
+				;
 			}
 		},
 		{ immediate: true },

@@ -196,6 +196,12 @@ function onDragEnd(widgetId: string | number) {
 	}
 
 	dropTargetWidgetId.value = null;
+	// Layout will be auto-saved by watcher in widgets.ts
+}
+
+// Handle resize end - layout will be auto-saved by watcher
+function onResized(_widgetId: string | number) {
+	// Layout will be auto-saved by watcher in widgets.ts
 }
 
 // Handle move event - detect overlap for stacking
@@ -255,6 +261,7 @@ function handleTabChange(stackId: string, widgetId: string | number) {
 // Handle unstack
 function handleUnstack(widgetId: string | number) {
 	unstackWidget(widgetId);
+	// Layout will be auto-saved by watcher in widgets.ts
 }
 
 // Check if widget is a drop target for stacking
@@ -295,6 +302,7 @@ onBeforeUnmount(() => {
 				drag-allow-from=".widgets-draggable-handle"
 				@move="(i, x, y) => onMove(i, x, y)"
 				@moved="(i) => onDragEnd(i)"
+				@resized="(i) => onResized(i)"
 				@mousedown="onDragStart(item.i)"
 			>
 				<!-- Drop target indicator -->

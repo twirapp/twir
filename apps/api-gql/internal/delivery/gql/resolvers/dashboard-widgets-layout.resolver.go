@@ -39,9 +39,22 @@ func (r *mutationResolver) DashboardWidgetsLayoutUpdate(ctx context.Context, inp
 		widgets[i] = mappers.DashboardWidgetGQLToEntity(item)
 
 		if existing, ok := existingMap[item.WidgetID]; ok {
+			// Preserve existing type and custom fields
 			widgets[i].Type = existing.Type
 			widgets[i].CustomName = existing.CustomName
 			widgets[i].CustomUrl = existing.CustomUrl
+		} else {
+			// New widget - determine type by widgetId pattern
+			// Custom widgets start with "custom-", system widgets are predefined IDs
+			if len(item.WidgetID) > 7 && item.WidgetID[:7] == "custom-" {
+				widgets[i].Type = dashboard_widget.WidgetTypeCustom
+				// Custom fields should already be set for new custom widgets
+			} else {
+				// System widget (chat, stream, events, audit-logs, etc.)
+				widgets[i].Type = dashboard_widget.WidgetTypeSystem
+				widgets[i].CustomName = nil
+				widgets[i].CustomUrl = nil
+			}
 		}
 	}
 
