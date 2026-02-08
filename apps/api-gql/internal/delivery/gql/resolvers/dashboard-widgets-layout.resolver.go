@@ -15,7 +15,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	dashboardwidgetsservice "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widgets"
 	"github.com/twirapp/twir/libs/entities/dashboard_widget"
-	"github.com/twirapp/twir/libs/logger"
 )
 
 // DashboardWidgetsLayoutUpdate is the resolver for the dashboardWidgetsLayoutUpdate field.
@@ -25,9 +24,25 @@ func (r *mutationResolver) DashboardWidgetsLayoutUpdate(ctx context.Context, inp
 		return nil, err
 	}
 
+	existingWidgets, err := r.deps.DashboardWidgetsService.GetByChannelID(ctx, dashboardID)
+	if err != nil {
+		return nil, err
+	}
+
+	existingMap := make(map[string]dashboard_widget.DashboardWidget)
+	for _, widget := range existingWidgets {
+		existingMap[widget.WidgetID] = widget
+	}
+
 	widgets := make([]dashboard_widget.DashboardWidget, len(input))
 	for i, item := range input {
 		widgets[i] = mappers.DashboardWidgetGQLToEntity(item)
+
+		if existing, ok := existingMap[item.WidgetID]; ok {
+			widgets[i].Type = existing.Type
+			widgets[i].CustomName = existing.CustomName
+			widgets[i].CustomUrl = existing.CustomUrl
+		}
 	}
 
 	updatedWidgets, err := r.deps.DashboardWidgetsService.Update(
@@ -48,19 +63,79 @@ func (r *mutationResolver) DashboardWidgetsLayoutUpdate(ctx context.Context, inp
 		},
 	)
 
-	payload := &gqlmodel.DashboardWidgetsLayoutChangedPayload{
-		Layout: gqlLayout,
-	}
-	go func() {
-		if err := r.deps.WsRouter.Publish(
-			dashboardWidgetsLayoutSubscriptionKeyCreate(dashboardID),
-			payload,
-		); err != nil {
-			r.deps.Logger.Error("failed to publish dashboard widgets layout update", logger.Error(err))
-		}
-	}()
-
 	return gqlLayout, nil
+}
+
+// DashboardWidgetsCreateCustom is the resolver for the dashboardWidgetsCreateCustom field.
+func (r *mutationResolver) DashboardWidgetsCreateCustom(ctx context.Context, input gqlmodel.DashboardWidgetCreateCustomInput) (*gqlmodel.DashboardWidgetLayout, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	widget, err := r.deps.DashboardWidgetsService.CreateCustom(
+		ctx,
+		dashboardwidgetsservice.CreateCustomInput{
+			ChannelID: dashboardID,
+			Name:      input.Name,
+			URL:       input.URL,
+			X:         input.X,
+			Y:         input.Y,
+			W:         input.W,
+			H:         input.H,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	gqlWidget := mappers.DashboardWidgetEntityToGQL(widget)
+	return &gqlWidget, nil
+}
+
+// DashboardWidgetsUpdateCustom is the resolver for the dashboardWidgetsUpdateCustom field.
+func (r *mutationResolver) DashboardWidgetsUpdateCustom(ctx context.Context, input gqlmodel.DashboardWidgetUpdateCustomInput) (*gqlmodel.DashboardWidgetLayout, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	widget, err := r.deps.DashboardWidgetsService.UpdateCustom(
+		ctx,
+		dashboardwidgetsservice.UpdateCustomInput{
+			ChannelID: dashboardID,
+			WidgetID:  input.WidgetID,
+			Name:      input.Name,
+			URL:       input.URL,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	gqlWidget := mappers.DashboardWidgetEntityToGQL(widget)
+	return &gqlWidget, nil
+}
+
+// DashboardWidgetsDelete is the resolver for the dashboardWidgetsDelete field.
+func (r *mutationResolver) DashboardWidgetsDelete(ctx context.Context, widgetID string) (bool, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.deps.DashboardWidgetsService.Delete(
+		ctx,
+		dashboardwidgetsservice.DeleteInput{
+			ChannelID: dashboardID,
+			WidgetID:  widgetID,
+		},
+	)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // DashboardWidgetsLayout is the resolver for the dashboardWidgetsLayout field.
@@ -124,12 +199,19 @@ func (r *subscriptionResolver) DashboardWidgetsLayoutChanged(ctx context.Context
 			case <-ctx.Done():
 				return
 			case data := <-sub.GetChannel():
-				var payload gqlmodel.DashboardWidgetsLayoutChangedPayload
-				if err := json.Unmarshal(data, &payload); err != nil {
+				var widgets []dashboard_widget.DashboardWidget
+				if err := json.Unmarshal(data, &widgets); err != nil {
 					panic(fmt.Errorf("failed to unmarshal dashboard widgets layout: %w", err))
 				}
 
-				channel <- &payload
+				gqlLayout := make([]gqlmodel.DashboardWidgetLayout, len(widgets))
+				for i, item := range widgets {
+					gqlLayout[i] = mappers.DashboardWidgetEntityToGQL(item)
+				}
+
+				channel <- &gqlmodel.DashboardWidgetsLayoutChangedPayload{
+					Layout: gqlLayout,
+				}
 			}
 		}
 	}()

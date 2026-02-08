@@ -12,6 +12,8 @@ export type WidgetItem = LayoutItem & {
 	visible: boolean;
 	stackId?: string;
 	stackOrder: number;
+	customUrl?: string;
+	displayName?: string;
 };
 
 const defaultWidgets: WidgetItem[] = [
@@ -78,6 +80,8 @@ export function useWidgets() {
 		(serverLayout) => {
 			if (!fetching.value && serverLayout.length > 0) {
 				isUpdatingFromServer = true;
+
+				// Map server layout to widgets - all data is now in the layout including custom fields
 				widgets.value = serverLayout.map((item) => ({
 					x: item.x,
 					y: item.y,
@@ -89,7 +93,10 @@ export function useWidgets() {
 					visible: item.visible,
 					stackId: item.stackId ?? undefined,
 					stackOrder: item.stackOrder,
+					customUrl: item.customUrl ?? undefined,
+					displayName: item.customName ?? undefined,
 				}));
+
 				// Mark as initialized after first server load
 				isInitialized = true;
 				// Reset flag on next tick to allow user changes
@@ -107,6 +114,7 @@ export function useWidgets() {
 		(serverLayout) => {
 			if (serverLayout.length > 0) {
 				isUpdatingFromServer = true;
+
 				widgets.value = serverLayout.map((item) => ({
 					x: item.x,
 					y: item.y,
@@ -118,6 +126,8 @@ export function useWidgets() {
 					visible: item.visible,
 					stackId: item.stackId ?? undefined,
 					stackOrder: item.stackOrder,
+					customUrl: item.customUrl ?? undefined,
+					displayName: item.customName ?? undefined,
 				}));
 				// Reset flag on next tick to allow user changes
 				setTimeout(() => {

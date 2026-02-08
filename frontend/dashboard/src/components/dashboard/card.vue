@@ -1,35 +1,35 @@
 <script lang="ts" setup>
-import { EyeOff, GripVertical } from 'lucide-vue-next'
-import { useAttrs } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { EyeOff, GripVertical } from "lucide-vue-next";
+import { useAttrs } from "vue";
+import { useI18n } from "vue-i18n";
 
-import { type WidgetItem, useWidgets } from './widgets.js'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { type WidgetItem, useWidgets } from "./widgets.js";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 defineProps<{
-	popup?: boolean
-}>()
+	popup?: boolean;
+}>();
 
 defineSlots<{
-	default: any
-	action?: any
-	'header-extra'?: any
-}>()
+	default: any;
+	action?: any;
+	"header-extra"?: any;
+}>();
 
-const widgets = useWidgets()
+const widgets = useWidgets();
 
-const attrs = useAttrs() as { item: WidgetItem; [x: string]: unknown } | undefined
+const attrs = useAttrs() as { item: WidgetItem; [x: string]: unknown } | undefined;
 
 function hideItem() {
-	if (!attrs) return
+	if (!attrs) return;
 
-	const item = widgets.value.find((item) => item.i === attrs.item.i)
-	if (!item) return
-	item.visible = false
+	const item = widgets.value.find((item) => item.i === attrs.item.i);
+	if (!item) return;
+	item.visible = false;
 }
 
-const { t } = useI18n()
+const { t } = useI18n();
 </script>
 
 <template>
@@ -38,7 +38,12 @@ const { t } = useI18n()
 			<div class="flex flex-row justify-between items-center h-10">
 				<div class="widgets-draggable-handle flex items-center">
 					<GripVertical class="w-5 h-5" />
-					{{ t(`dashboard.widgets.${attrs?.item.i}.title`) }}
+					<template v-if="attrs?.item.displayName">
+						{{ attrs.item.displayName }}
+					</template>
+					<template v-else>
+						{{ t(`dashboard.widgets.${attrs?.item.i}.title`) }}
+					</template>
 				</div>
 
 				<div v-if="!popup" class="flex gap-2">

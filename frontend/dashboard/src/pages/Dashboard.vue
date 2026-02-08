@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { GridItem, GridLayout } from "grid-layout-plus";
-import { Layers, SquarePen } from "lucide-vue-next";
+import { Layers, SquarePen, Plus } from "lucide-vue-next";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 import AuditLogs from "@/components/dashboard/audit-logs.vue";
 import Chat from "@/components/dashboard/chat.vue";
+import CustomWidget from "@/components/dashboard/custom-widget.vue";
 import Events from "@/components/dashboard/events.vue";
 import Stream from "@/components/dashboard/stream.vue";
 import WidgetStackTabs from "@/components/dashboard/widget-stack-tabs.vue";
@@ -15,9 +16,24 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useIsMobile } from "@/composables/use-is-mobile";
+import { useDashboardWidgetsCreateCustom } from "@/api/dashboard-widgets-layout.ts";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { z } from "zod";
+import { toast } from "vue-sonner";
 
 const { isMobile } = useIsMobile();
 const widgets = useWidgets();
@@ -95,6 +111,52 @@ watch(
 );
 
 const invisibleWidgets = computed(() => widgets.value.filter((v) => !v.visible));
+
+const isCreateWidgetDialogOpen = ref(false);
+const createMutation = useDashboardWidgetsCreateCustom();
+
+const formSchema = z.object({
+	name: z.string().min(2, "Name must be at least 2 characters."),
+	url: z.string().url("Must be a valid URL"),
+});
+
+const { handleSubmit, resetForm } = useForm({
+	validationSchema: toTypedSchema(formSchema),
+});
+
+const onSubmitWidget = handleSubmit(async (values) => {
+	const result = await createMutation.executeMutation({
+		input: {
+			name: values.name,
+			url: values.url,
+			x: 0,
+			y: 0,
+			w: 4,
+			h: 8,
+		},
+	});
+
+	if (result.error) {
+		toast.error("Failed to create widget", {
+			description: result.error.message,
+		});
+	} else {
+		const widgetId = result.data?.dashboardWidgetsCreateCustom.widgetId;
+		console.log("[Dashboard] Widget created with ID:", widgetId);
+		console.log("[Dashboard] Full result:", result.data);
+
+		if (widgetId) {
+			// The widget is already added via WebSocket subscription
+			// Just need to make it visible
+			await nextTick();
+			addWidget(widgetId);
+			toast.success("Widget added to dashboard");
+		}
+
+		resetForm();
+		isCreateWidgetDialogOpen.value = false;
+	}
+});
 
 function addWidget(key: string | number) {
 	const item = widgets.value.find((v) => v.i === key);
@@ -275,6 +337,13 @@ onBeforeUnmount(() => {
 							:item="stackWidget"
 							class="h-full"
 						/>
+						<CustomWidget
+							v-if="String(stackWidget.i).startsWith('custom-') && stackWidget.customUrl"
+							v-show="isActiveInStack(stackWidget.i)"
+							:item="stackWidget"
+							:url="stackWidget.customUrl"
+							class="h-full"
+						/>
 					</template>
 				</template>
 
@@ -284,6 +353,12 @@ onBeforeUnmount(() => {
 					<Stream v-if="item.i === 'stream'" :item="item" class="h-full" />
 					<Events v-if="item.i === 'events'" :item="item" class="h-full" />
 					<AuditLogs v-if="item.i === 'audit-logs'" :item="item" class="h-full" />
+					<CustomWidget
+						v-if="String(item.i).startsWith('custom-') && item.customUrl"
+						:item="item"
+						:url="item.customUrl"
+						class="h-full"
+					/>
 				</template>
 
 				<!-- Stack tabs -->
@@ -298,11 +373,7 @@ onBeforeUnmount(() => {
 			</GridItem>
 		</GridLayout>
 
-		<div
-			v-if="invisibleWidgets.length"
-			class="fixed right-8 bottom-8 z-50"
-			:class="[{ 'right-24!': isMobile }]"
-		>
+		<div class="fixed right-8 bottom-8 z-50" :class="[{ 'right-24!': isMobile }]">
 			<DropdownMenu>
 				<DropdownMenuTrigger as-child>
 					<Button variant="secondary" class="h-14 w-14" size="icon">
@@ -310,16 +381,64 @@ onBeforeUnmount(() => {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
+					<DropdownMenuItem @click="isCreateWidgetDialogOpen = true">
+						<Plus class="h-4 w-4 mr-2" />
+						Create Custom Widget
+					</DropdownMenuItem>
+					<DropdownMenuSeparator v-if="invisibleWidgets.length" />
 					<DropdownMenuItem
 						v-for="widget in invisibleWidgets"
 						:key="widget.i"
 						@click="addWidget(widget.i)"
 					>
-						{{ String(widget.i) }}
+						{{ widget.displayName || String(widget.i) }}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>
+
+		<!-- Create Custom Widget Dialog -->
+		<Dialog v-model:open="isCreateWidgetDialogOpen">
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Create Custom Widget</DialogTitle>
+					<DialogDescription>
+						Add a new custom widget to your dashboard by providing a name and URL.
+					</DialogDescription>
+				</DialogHeader>
+
+				<form @submit="onSubmitWidget" class="space-y-4">
+					<FormField v-slot="{ componentField }" name="name">
+						<FormItem>
+							<FormLabel>Widget Name</FormLabel>
+							<FormControl>
+								<Input v-bind="componentField" placeholder="My Custom Widget" />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+
+					<FormField v-slot="{ componentField }" name="url">
+						<FormItem>
+							<FormLabel>Website URL</FormLabel>
+							<FormControl>
+								<Input v-bind="componentField" placeholder="https://example.com" />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+
+					<div class="flex justify-end gap-2">
+						<Button type="button" variant="outline" @click="isCreateWidgetDialogOpen = false">
+							Cancel
+						</Button>
+						<Button type="submit" :disabled="createMutation.fetching.value">
+							{{ createMutation.fetching.value ? "Creating..." : "Create Widget" }}
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	</div>
 </template>
 

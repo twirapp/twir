@@ -6,6 +6,11 @@ import (
 )
 
 func DashboardWidgetEntityToGQL(entity dashboard_widget.DashboardWidget) gqlmodel.DashboardWidgetLayout {
+	widgetType := gqlmodel.DashboardWidgetTypeSystem
+	if entity.Type == dashboard_widget.WidgetTypeCustom {
+		widgetType = gqlmodel.DashboardWidgetTypeCustom
+	}
+
 	return gqlmodel.DashboardWidgetLayout{
 		ID:         entity.ID,
 		WidgetID:   entity.WidgetID,
@@ -18,6 +23,9 @@ func DashboardWidgetEntityToGQL(entity dashboard_widget.DashboardWidget) gqlmode
 		Visible:    entity.Visible,
 		StackID:    entity.StackId,
 		StackOrder: entity.StackOrder,
+		Type:       widgetType,
+		CustomName: entity.CustomName,
+		CustomURL:  entity.CustomUrl,
 	}
 }
 

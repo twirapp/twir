@@ -2,6 +2,13 @@ package dashboard_widget
 
 import "time"
 
+type WidgetType string
+
+const (
+	WidgetTypeSystem WidgetType = "system"
+	WidgetTypeCustom WidgetType = "custom"
+)
+
 type DashboardWidget struct {
 	ID        string
 	ChannelID string
@@ -17,8 +24,14 @@ type DashboardWidget struct {
 	StackId *string
 	// StackOrder determines the order of tabs within a stack (0, 1, 2, etc.)
 	StackOrder int
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	// Type indicates whether this is a system or custom widget
+	Type WidgetType
+	// CustomName is the display name for custom widgets (only for Type = custom)
+	CustomName *string
+	// CustomUrl is the iframe URL for custom widgets (only for Type = custom)
+	CustomUrl *string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	isNil bool
 }

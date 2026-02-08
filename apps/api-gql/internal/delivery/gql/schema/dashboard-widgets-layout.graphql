@@ -6,6 +6,13 @@ extend type Mutation {
 	dashboardWidgetsLayoutUpdate(input: [DashboardWidgetLayoutInput!]!): [DashboardWidgetLayout!]!
 		@isAuthenticated
 		@hasAccessToSelectedDashboard
+	dashboardWidgetsCreateCustom(input: DashboardWidgetCreateCustomInput!): DashboardWidgetLayout!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+	dashboardWidgetsUpdateCustom(input: DashboardWidgetUpdateCustomInput!): DashboardWidgetLayout!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+	dashboardWidgetsDelete(widgetId: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
 extend type Subscription {
@@ -28,9 +35,18 @@ type DashboardWidgetLayout {
 	minW: Int!
 	minH: Int!
 	visible: Boolean!
-	# Stack support - widgets with same stackId are displayed as tabs
+	# stacking
 	stackId: String
 	stackOrder: Int!
+	# custom widgets
+	type: DashboardWidgetType!
+	customName: String
+	customUrl: String
+}
+
+enum DashboardWidgetType {
+	SYSTEM
+	CUSTOM
 }
 
 input DashboardWidgetLayoutInput {
@@ -42,7 +58,22 @@ input DashboardWidgetLayoutInput {
 	minW: Int!
 	minH: Int!
 	visible: Boolean!
-	# Stack support - widgets with same stackId are displayed as tabs
+	# stacking
 	stackId: String
 	stackOrder: Int!
+}
+
+input DashboardWidgetCreateCustomInput {
+	name: String!
+	url: String!
+	x: Int!
+	y: Int!
+	w: Int!
+	h: Int!
+}
+
+input DashboardWidgetUpdateCustomInput {
+	widgetId: String!
+	name: String!
+	url: String!
 }

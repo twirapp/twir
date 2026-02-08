@@ -34,20 +34,23 @@ type Pgx struct {
 }
 
 type model struct {
-	ID         string    `db:"id"`
-	ChannelID  string    `db:"channel_id"`
-	WidgetID   string    `db:"widget_id"`
-	X          int       `db:"x"`
-	Y          int       `db:"y"`
-	W          int       `db:"w"`
-	H          int       `db:"h"`
-	MinW       int       `db:"min_w"`
-	MinH       int       `db:"min_h"`
-	Visible    bool      `db:"visible"`
-	StackId    *string   `db:"stack_id"`
-	StackOrder int       `db:"stack_order"`
-	CreatedAt  time.Time `db:"created_at"`
-	UpdatedAt  time.Time `db:"updated_at"`
+	ID         string                      `db:"id"`
+	ChannelID  string                      `db:"channel_id"`
+	WidgetID   string                      `db:"widget_id"`
+	X          int                         `db:"x"`
+	Y          int                         `db:"y"`
+	W          int                         `db:"w"`
+	H          int                         `db:"h"`
+	MinW       int                         `db:"min_w"`
+	MinH       int                         `db:"min_h"`
+	Visible    bool                        `db:"visible"`
+	StackId    *string                     `db:"stack_id"`
+	StackOrder int                         `db:"stack_order"`
+	Type       dashboard_widget.WidgetType `db:"type"`
+	CustomName *string                     `db:"custom_name"`
+	CustomUrl  *string                     `db:"custom_url"`
+	CreatedAt  time.Time                   `db:"created_at"`
+	UpdatedAt  time.Time                   `db:"updated_at"`
 
 	isNil bool
 }
@@ -58,7 +61,7 @@ func (m model) IsNil() bool {
 
 func (c *Pgx) GetByChannelID(ctx context.Context, channelID string) ([]dashboard_widget.DashboardWidget, error) {
 	query := `
-SELECT id, channel_id, widget_id, x, y, w, h, min_w, min_h, visible, stack_id, stack_order, created_at, updated_at
+SELECT id, channel_id, widget_id, x, y, w, h, min_w, min_h, visible, stack_id, stack_order, type, custom_name, custom_url, created_at, updated_at
 FROM channels_dashboard_widgets
 WHERE channel_id = $1
 ORDER BY widget_id
@@ -89,8 +92,8 @@ func (c *Pgx) UpsertMany(ctx context.Context, channelID string, widgets []dashbo
 	// Use ON CONFLICT to handle upserts properly
 	if len(widgets) > 0 {
 		query := `
-INSERT INTO channels_dashboard_widgets (channel_id, widget_id, x, y, w, h, min_w, min_h, visible, stack_id, stack_order)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+INSERT INTO channels_dashboard_widgets (channel_id, widget_id, x, y, w, h, min_w, min_h, visible, stack_id, stack_order, type, custom_name, custom_url)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 ON CONFLICT (channel_id, widget_id) DO UPDATE SET
 	x = EXCLUDED.x,
 	y = EXCLUDED.y,
@@ -101,6 +104,9 @@ ON CONFLICT (channel_id, widget_id) DO UPDATE SET
 	visible = EXCLUDED.visible,
 	stack_id = EXCLUDED.stack_id,
 	stack_order = EXCLUDED.stack_order,
+	type = EXCLUDED.type,
+	custom_name = EXCLUDED.custom_name,
+	custom_url = EXCLUDED.custom_url,
 	updated_at = NOW()
 `
 		for _, widget := range widgets {
@@ -118,6 +124,9 @@ ON CONFLICT (channel_id, widget_id) DO UPDATE SET
 				widget.Visible,
 				widget.StackId,
 				widget.StackOrder,
+				widget.Type,
+				widget.CustomName,
+				widget.CustomUrl,
 			)
 			if err != nil {
 				return err
@@ -142,5 +151,8 @@ func (m model) toEntity() dashboard_widget.DashboardWidget {
 		Visible:    m.Visible,
 		StackId:    m.StackId,
 		StackOrder: m.StackOrder,
+		Type:       m.Type,
+		CustomName: m.CustomName,
+		CustomUrl:  m.CustomUrl,
 	}
 }

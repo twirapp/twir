@@ -20,6 +20,9 @@ const dashboardWidgetsLayoutQuery = graphql(`
 			visible
 			stackId
 			stackOrder
+			type
+			customName
+			customUrl
 		}
 	}
 `);
@@ -53,6 +56,9 @@ const dashboardWidgetsLayoutSubscription = graphql(`
 				visible
 				stackId
 				stackOrder
+				type
+				customName
+				customUrl
 			}
 		}
 	}
@@ -90,7 +96,73 @@ export function useDashboardWidgetsLayoutUpdate() {
 					visible
 					stackId
 					stackOrder
+					type
+					customName
+					customUrl
 				}
+			}
+		`),
+		[dashboardWidgetsLayoutCacheKey],
+	);
+}
+
+export function useDashboardWidgetsCreateCustom() {
+	return useMutation(
+		graphql(`
+			mutation DashboardWidgetsCreateCustom($input: DashboardWidgetCreateCustomInput!) {
+				dashboardWidgetsCreateCustom(input: $input) {
+					id
+					widgetId
+					x
+					y
+					w
+					h
+					minW
+					minH
+					visible
+					stackId
+					stackOrder
+					type
+					customName
+					customUrl
+				}
+			}
+		`),
+		[dashboardWidgetsLayoutCacheKey],
+	);
+}
+
+export function useDashboardWidgetsUpdateCustom() {
+	return useMutation(
+		graphql(`
+			mutation DashboardWidgetsUpdateCustom($input: DashboardWidgetUpdateCustomInput!) {
+				dashboardWidgetsUpdateCustom(input: $input) {
+					id
+					widgetId
+					x
+					y
+					w
+					h
+					minW
+					minH
+					visible
+					stackId
+					stackOrder
+					type
+					customName
+					customUrl
+				}
+			}
+		`),
+		[dashboardWidgetsLayoutCacheKey],
+	);
+}
+
+export function useDashboardWidgetsDelete() {
+	return useMutation(
+		graphql(`
+			mutation DashboardWidgetsDelete($widgetId: String!) {
+				dashboardWidgetsDelete(widgetId: $widgetId)
 			}
 		`),
 		[dashboardWidgetsLayoutCacheKey],

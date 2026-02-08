@@ -11,15 +11,18 @@ export function useWidgetStacks(
 		const stacks = new Map<string, WidgetItem[]>();
 		const standalone: WidgetItem[] = [];
 
-		widgets.value.forEach((widget) => {
-			if (widget.stackId) {
-				const stack = stacks.get(widget.stackId) || [];
-				stack.push(widget);
-				stacks.set(widget.stackId, stack);
-			} else {
-				standalone.push(widget);
-			}
-		});
+		// Only process visible widgets
+		widgets.value
+			.filter((w) => w.visible)
+			.forEach((widget) => {
+				if (widget.stackId) {
+					const stack = stacks.get(widget.stackId) || [];
+					stack.push(widget);
+					stacks.set(widget.stackId, stack);
+				} else {
+					standalone.push(widget);
+				}
+			});
 
 		// Sort each stack by stackOrder
 		stacks.forEach((stack) => {

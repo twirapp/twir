@@ -1,9 +1,9 @@
-import { type RouteRecordRaw, createRouter, createWebHistory } from 'vue-router'
+import { type RouteRecordRaw, createRouter, createWebHistory } from 'vue-router';
 
-import { profileQuery, userAccessFlagChecker } from '@/api/auth.js'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { profileQuery, userAccessFlagChecker } from '@/api/auth.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js';
 
-import { urqlClient } from './urql.js'
+import { urqlClient } from './urql.js';
 
 export function newRouter() {
 	const routes: ReadonlyArray<RouteRecordRaw> = [
@@ -300,6 +300,11 @@ export function newRouter() {
 					meta: { noPadding: true },
 				},
 				{
+					name: 'CustomWidgets',
+					path: '/dashboard/settings/custom-widgets',
+					component: () => import('@/pages/settings/custom-widgets.vue'),
+				},
+				{
 					name: 'AdminPanel',
 					path: '/dashboard/admin',
 					component: () => import('@/pages/admin-panel.vue'),
@@ -330,39 +335,39 @@ export function newRouter() {
 				},
 			],
 		},
-	]
+	];
 
 	const router = createRouter({
 		history: createWebHistory(),
 		routes,
-	})
+	});
 
 	router.beforeEach(async (to, _, next) => {
-		if (to.path.startsWith('/dashboard/popup')) return next()
+		if (to.path.startsWith('/dashboard/popup')) return next();
 
 		try {
-			const profileRequest = await urqlClient.value.executeQuery(profileQuery)
+			const profileRequest = await urqlClient.value.executeQuery(profileQuery);
 			if (!profileRequest.data) {
-				return window.location.replace('/')
+				return window.location.replace('/');
 			}
 
 			if (to.meta.adminOnly && !profileRequest.data.authenticatedUser.isBotAdmin) {
-				return next({ name: 'NotFound' })
+				return next({ name: 'NotFound' });
 			}
 
-			if (!to.meta.neededPermission) return next()
+			if (!to.meta.neededPermission) return next();
 
-			const hasAccess = await userAccessFlagChecker(to.meta.neededPermission)
+			const hasAccess = await userAccessFlagChecker(to.meta.neededPermission);
 			if (hasAccess) {
-				return next()
+				return next();
 			}
 
-			return next({ name: 'Forbidden' })
+			return next({ name: 'Forbidden' });
 		} catch (error) {
-			console.log(error)
-			window.location.replace('/')
+			console.log(error);
+			window.location.replace('/');
 		}
-	})
+	});
 
-	return router
+	return router;
 }

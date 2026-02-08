@@ -15,14 +15,19 @@ const emit = defineEmits<{
 	(e: "unstack", widgetId: string | number): void;
 }>();
 
-function getWidgetLabel(widgetId: string | number): string {
+function getWidgetLabel(widget: WidgetItem): string {
+	// For custom widgets, use displayName
+	if (widget.displayName) {
+		return widget.displayName;
+	}
+
 	const labels: Record<string, string> = {
 		chat: "Chat",
 		stream: "Stream",
 		events: "Events",
 		"audit-logs": "Audit Logs",
 	};
-	return labels[String(widgetId)] || String(widgetId);
+	return labels[String(widget.i)] || String(widget.i);
 }
 </script>
 
@@ -39,7 +44,7 @@ function getWidgetLabel(widgetId: string | number): string {
 			]"
 			@click="emit('tabChange', widget.i)"
 		>
-			<span>{{ getWidgetLabel(widget.i) }}</span>
+			<span>{{ getWidgetLabel(widget) }}</span>
 			<button
 				class="ml-1 hover:text-destructive transition-colors"
 				@click.stop="emit('unstack', widget.i)"
