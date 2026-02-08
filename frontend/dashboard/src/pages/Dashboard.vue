@@ -125,14 +125,45 @@ const { handleSubmit, resetForm } = useForm({
 });
 
 const onSubmitWidget = handleSubmit(async (values) => {
+	// Calculate free position before creating widget
+	const visibleWidgets = widgets.value.filter((w) => w.visible);
+
+	// Find the lowest Y position that doesn't overlap with existing widgets
+	let newY = 0;
+	let newX = 0;
+	const newW = 4;
+	const newH = 8;
+
+	// Try to find a spot in the grid
+	let found = false;
+	for (let y = 0; y < 100 && !found; y++) {
+		for (let x = 0; x <= 12 - newW && !found; x++) {
+			// Check if this position overlaps with any existing widget
+			const overlaps = visibleWidgets.some((widget) => {
+				return !(
+					x + newW <= widget.x ||
+					x >= widget.x + widget.w ||
+					y + newH <= widget.y ||
+					y >= widget.y + widget.h
+				);
+			});
+
+			if (!overlaps) {
+				newX = x;
+				newY = y;
+				found = true;
+			}
+		}
+	}
+
 	const result = await createMutation.executeMutation({
 		input: {
 			name: values.name,
 			url: values.url,
-			x: 0,
-			y: 0,
-			w: 4,
-			h: 8,
+			x: newX,
+			y: newY,
+			w: newW,
+			h: newH,
 		},
 	});
 
@@ -141,18 +172,7 @@ const onSubmitWidget = handleSubmit(async (values) => {
 			description: result.error.message,
 		});
 	} else {
-		const widgetId = result.data?.dashboardWidgetsCreateCustom.widgetId;
-		console.log("[Dashboard] Widget created with ID:", widgetId);
-		console.log("[Dashboard] Full result:", result.data);
-
-		if (widgetId) {
-			// The widget is already added via WebSocket subscription
-			// Just need to make it visible
-			await nextTick();
-			addWidget(widgetId);
-			toast.success("Widget added to dashboard");
-		}
-
+		toast.success("Widget added to dashboard");
 		resetForm();
 		isCreateWidgetDialogOpen.value = false;
 	}

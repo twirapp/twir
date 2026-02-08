@@ -98,6 +98,24 @@ export function useWidgets() {
 						customUrl: item.customUrl ?? undefined,
 						displayName: item.customName ?? undefined,
 					}));
+				} else {
+					// Server is empty - save default widgets immediately
+					// This ensures system widgets are persisted from the start
+					// Important: do this before setting isInitialized to prevent recursion
+					await updateMutation.executeMutation({
+						input: defaultWidgets.map((w) => ({
+							widgetId: String(w.i),
+							x: w.x,
+							y: w.y,
+							w: w.w,
+							h: w.h,
+							minW: w.minW ?? 3,
+							minH: w.minH ?? 8,
+							visible: w.visible,
+							stackId: w.stackId ?? null,
+							stackOrder: w.stackOrder,
+						})),
+					});
 				}
 
 				// Mark as initialized after first server load (even if empty)
@@ -107,7 +125,6 @@ export function useWidgets() {
 				// Reset flag on next tick to allow user changes
 				await nextTick();
 				isUpdatingFromServer = false;
-				;
 			}
 		},
 		{ immediate: true },
