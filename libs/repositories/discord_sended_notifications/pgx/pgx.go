@@ -41,6 +41,7 @@ var selectColumns = []string{
 	"discord_channel_id",
 	"created_at",
 	"updated_at",
+	"last_updated_at",
 }
 
 var selectColumnsStr = strings.Join(selectColumns, ", ")
@@ -239,5 +240,13 @@ func (p *Pgx) DeleteByGuildID(ctx context.Context, guildID string) error {
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
 	_, err := conn.Exec(ctx, query, pgx.NamedArgs{"guild_id": guildID})
+	return err
+}
+
+func (p *Pgx) UpdateLastUpdatedAt(ctx context.Context, messageID string) error {
+	query := `UPDATE discord_sended_notifications SET last_updated_at = now() WHERE message_id = @message_id`
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	_, err := conn.Exec(ctx, query, pgx.NamedArgs{"message_id": messageID})
 	return err
 }

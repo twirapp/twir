@@ -2,16 +2,18 @@ package sended_messages_store
 
 import (
 	"context"
+	"time"
 
 	discordsendednotifications "github.com/twirapp/twir/libs/repositories/discord_sended_notifications"
 	"go.uber.org/fx"
 )
 
 type Message struct {
-	GuildID          string `redis:"guildId"`
-	MessageID        string `redis:"messageId"`
-	TwitchChannelID  string `redis:"channelId"`
-	DiscordChannelID string `redis:"discordChannelId"`
+	GuildID          string     `redis:"guildId"`
+	MessageID        string     `redis:"messageId"`
+	TwitchChannelID  string     `redis:"channelId"`
+	DiscordChannelID string     `redis:"discordChannelId"`
+	LastUpdatedAt    *time.Time `redis:"lastUpdatedAt"`
 }
 
 type SendedMessagesStore struct {
@@ -64,6 +66,7 @@ func (c *SendedMessagesStore) GetByMessageId(ctx context.Context, messageID stri
 		MessageID:        entity.MessageID,
 		TwitchChannelID:  entity.TwitchChannelID,
 		DiscordChannelID: entity.DiscordChannelID,
+		LastUpdatedAt:    entity.LastUpdatedAt,
 	}, nil
 }
 
@@ -84,6 +87,7 @@ func (c *SendedMessagesStore) GetByChannelId(ctx context.Context, channelId stri
 				MessageID:        e.MessageID,
 				TwitchChannelID:  e.TwitchChannelID,
 				DiscordChannelID: e.DiscordChannelID,
+				LastUpdatedAt:    e.LastUpdatedAt,
 			},
 		)
 	}
@@ -108,6 +112,7 @@ func (c *SendedMessagesStore) GetByGuildId(ctx context.Context, guildID string) 
 				MessageID:        e.MessageID,
 				TwitchChannelID:  e.TwitchChannelID,
 				DiscordChannelID: e.DiscordChannelID,
+				LastUpdatedAt:    e.LastUpdatedAt,
 			},
 		)
 	}
@@ -141,9 +146,14 @@ func (c *SendedMessagesStore) GetAll(ctx context.Context) ([]Message, error) {
 				MessageID:        entity.MessageID,
 				TwitchChannelID:  entity.TwitchChannelID,
 				DiscordChannelID: entity.DiscordChannelID,
+				LastUpdatedAt:    entity.LastUpdatedAt,
 			},
 		)
 	}
 
 	return messages, nil
+}
+
+func (c *SendedMessagesStore) UpdateLastUpdatedAt(ctx context.Context, messageID string) error {
+	return c.repo.UpdateLastUpdatedAt(ctx, messageID)
 }

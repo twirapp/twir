@@ -1,6 +1,7 @@
 package discordmessagesupdater
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/nicklaw5/helix/v2"
@@ -44,6 +45,16 @@ func New(opts Opts) (*MessagesUpdater, error) {
 		twirBus:      opts.Bus,
 		discordRepo:  opts.DiscordRepo,
 	}
+
+	// Start periodic updater in background
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				go updater.StartPeriodicUpdater(ctx)
+				return nil
+			},
+		},
+	)
 
 	return updater, nil
 }

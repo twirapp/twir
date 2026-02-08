@@ -1,14 +1,35 @@
 extend type Query {
-	discordIntegrationData: DiscordIntegrationData! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
-	discordIntegrationAuthLink: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
-	discordIntegrationGuildChannels(guildId: String!): [DiscordGuildChannel!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
-	discordIntegrationGuildInfo(guildId: String!): DiscordGuildInfo @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	discordIntegrationData: DiscordIntegrationData!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	discordIntegrationAuthLink: String!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	discordIntegrationGuildChannels(guildId: String!): [DiscordGuildChannel!]!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	discordIntegrationGuildInfo(guildId: String!): DiscordGuildInfo
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 }
 
 extend type Mutation {
-	discordIntegrationConnectGuild(code: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
-	discordIntegrationDisconnectGuild(guildId: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
-	discordIntegrationUpdateGuild(guildId: String!, input: DiscordGuildUpdateInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	discordIntegrationConnectGuild(code: String!): Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	discordIntegrationDisconnectGuild(guildId: String!): Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	discordIntegrationUpdateGuild(guildId: String!, input: DiscordGuildUpdateInput!): Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
 }
 
 type DiscordIntegrationData {

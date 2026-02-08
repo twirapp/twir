@@ -14,6 +14,7 @@ type Repository interface {
 	DeleteByMessageID(ctx context.Context, messageID string) error
 	DeleteByChannelID(ctx context.Context, channelID string) error
 	DeleteByGuildID(ctx context.Context, guildID string) error
+	UpdateLastUpdatedAt(ctx context.Context, messageID string) error
 }
 
 type CreateInput struct {
