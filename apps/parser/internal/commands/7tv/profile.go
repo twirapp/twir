@@ -2,6 +2,7 @@ package seventv
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -62,15 +63,15 @@ var Profile = &types.DefaultCommand{
 					ctx, locales.Translations.Commands.Seventv.ProfileInfo.Response.
 						SetVars(
 							locales.KeysCommandsSeventvProfileInfoResponseVars{
-								ProfileName:      seventvvariables.ProfileLink.Name,
-								PaintName:        seventvvariables.Paint.Name,
-								UnlockedPaints:   seventvvariables.UnlockedPaints.Name,
-								Roles:            seventvvariables.Roles.Name,
-								EditorCount:      seventvvariables.EditorForCount.Name,
-								EmoteSetName:     seventvvariables.EmoteSetName.Name,
-								EmoteSetCount:    seventvvariables.EmoteSetCount.Name,
-								EmoteSetCapacity: seventvvariables.EmoteSetCapacity.Name,
-								ProfileCreatedAt: seventvvariables.ProfileCreatedAt.Name,
+								ProfileLink:      fmt.Sprintf("$(%s)", seventvvariables.ProfileLink.Name),
+								PaintName:        fmt.Sprintf("$(%s)", seventvvariables.Paint.Name),
+								UnlockedPaints:   fmt.Sprintf("$(%s)", seventvvariables.UnlockedPaints.Name),
+								Roles:            fmt.Sprintf("$(%s)", seventvvariables.Roles.Name),
+								EditorCount:      fmt.Sprintf("$(%s)", seventvvariables.EditorForCount.Name),
+								EmoteSetName:     fmt.Sprintf("$(%s)", seventvvariables.EmoteSetName.Name),
+								EmoteSetCount:    fmt.Sprintf("$(%s)", seventvvariables.EmoteSetCount.Name),
+								EmoteSetCapacity: fmt.Sprintf("$(%s)", seventvvariables.EmoteSetCapacity.Name),
+								ProfileCreatedAt: fmt.Sprintf("$(%s)", seventvvariables.ProfileCreatedAt.Name),
 							},
 						),
 				),
