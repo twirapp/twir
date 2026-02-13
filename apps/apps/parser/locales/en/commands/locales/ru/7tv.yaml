@@ -24,7 +24,7 @@ rename:
 emote_info:
   response: '{name}: {link} · Added by @{addedByUserName} {addedByTime} ago · Author {emoteAuthor}'
 profile_info:
-  response: '{profileName} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}'
+  response: '{profileLink} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}'
 hints:
   emoteForCopyArgName: Name of emote to copy
   copySetChannelName: '@channelName'
