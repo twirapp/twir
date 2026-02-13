@@ -24,7 +24,7 @@ rename:
 emote_info:
   response: '{name}: {link} · Pridal @{addedByUserName} pred {addedByTime} · Autor {emoteAuthor}'
 profile_info:
-  response: '{profileName} · Farba: {paintName} ({unlockedPaints} odomknutých) · Role: {roles} · Editor pre {editorCount} · Sada: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Vytvorené: {profileCreatedAt}'
+  response: '{profileLink} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}'
 hints:
   emoteForCopyArgName: Názov emotu na skopírovanie
   copySetChannelName: '@channelName'
