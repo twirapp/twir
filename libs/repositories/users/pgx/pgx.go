@@ -182,19 +182,31 @@ func (c *Pgx) GetOnlineUsersWithFilters(
 
 	// Apply filters
 	if input.MinWatchedTime != nil {
-		queryBuilder = queryBuilder.Where(squirrel.GtOrEq{"users_stats.watched": *input.MinWatchedTime})
+		// Use COALESCE so users without stats (NULL watched) are treated as 0
+		queryBuilder = queryBuilder.Where(
+			squirrel.Expr("COALESCE(users_stats.watched, 0) >= ?", *input.MinWatchedTime),
+		)
 	}
 
 	if input.MinMessages != nil {
-		queryBuilder = queryBuilder.Where(squirrel.GtOrEq{"users_stats.messages": *input.MinMessages})
+		// Use COALESCE so users without stats (NULL messages) are treated as 0
+		queryBuilder = queryBuilder.Where(
+			squirrel.Expr("COALESCE(users_stats.messages, 0) >= ?", *input.MinMessages),
+		)
 	}
 
 	if input.MinUsedChannelPoints != nil {
-		queryBuilder = queryBuilder.Where(squirrel.GtOrEq{`users_stats."usedChannelPoints"`: *input.MinUsedChannelPoints})
+		// Use COALESCE so users without stats (NULL usedChannelPoints) are treated as 0
+		queryBuilder = queryBuilder.Where(
+			squirrel.Expr(`COALESCE(users_stats."usedChannelPoints", 0) >= ?`, *input.MinUsedChannelPoints),
+		)
 	}
 
 	if input.RequireSubscription {
-		queryBuilder = queryBuilder.Where(squirrel.Eq{`users_stats."isSubscriber"`: true})
+		// Treat missing stats as non-subscribers by default
+		queryBuilder = queryBuilder.Where(
+			squirrel.Expr(`COALESCE(users_stats."isSubscriber", FALSE) = TRUE`),
+		)
 	}
 
 	query, args, err := queryBuilder.ToSql()
