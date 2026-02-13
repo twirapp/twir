@@ -16,11 +16,17 @@ graphql(`
 	fragment Giveaway on ChannelGiveaway {
 		id
 		channelId
+		type
 		createdAt
 		updatedAt
 		startedAt
 		stoppedAt
 		keyword
+		minWatchedTime
+		minMessages
+		minUsedChannelPoints
+		minFollowDuration
+		requireSubscription
 		createdByUserId
 		winners {
 			...GiveawayWinner

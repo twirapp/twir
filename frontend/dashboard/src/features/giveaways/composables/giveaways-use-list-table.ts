@@ -1,42 +1,50 @@
-import type { ColumnDef } from '@tanstack/vue-table'
+import type { ColumnDef } from '@tanstack/vue-table';
 
-import { getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { createGlobalState } from '@vueuse/core'
-import { BanIcon, EyeIcon, PlayIcon } from 'lucide-vue-next'
-import { computed, h, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import { createGlobalState } from '@vueuse/core';
+import { BanIcon, EyeIcon, PlayIcon } from 'lucide-vue-next';
+import { computed, h, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import type { Giveaway } from '@/api/giveaways.ts'
+import type { Giveaway } from '@/api/giveaways.ts';
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import { Button } from '@/components/ui/button'
-import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
-import GiveawaysCreateDialog from '@/features/giveaways/ui/giveaways-create-dialog.vue'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.ts'
+import { useUserAccessFlagChecker } from '@/api/auth';
+import { Button } from '@/components/ui/button';
+import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts';
+import GiveawaysCreateDialog from '@/features/giveaways/ui/giveaways-create-dialog.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql.ts';
 
 export const useGiveawaysListTable = createGlobalState(() => {
-	const { t } = useI18n()
+	const { t } = useI18n();
 	const { activeGiveaways, giveawaysListFetching, viewGiveaway, startGiveaway, stopGiveaway } =
-		useGiveaways()
+		useGiveaways();
 
-	const canManageGiveaways = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGiveaways)
+	const canManageGiveaways = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGiveaways);
 
-	const showCreateDialog = ref(false)
+	const showCreateDialog = ref(false);
 
 	const tableColumns = computed<ColumnDef<Giveaway>[]>(() => {
 		return [
+			{
+				accessorKey: 'type',
+				size: 15,
+				header: () => h('div', {}, t('giveaways.type')),
+				cell: ({ row }) =>
+					h(
+						'span',
+						{},
+						row.original.type === 'KEYWORD'
+							? t('giveaways.typeKeyword')
+							: t('giveaways.typeOnlineChatters'),
+					),
+			},
 			{
 				accessorKey: 'keyword',
 				size: 20,
 				header: () => h('div', {}, t('giveaways.keyword')),
 				cell: ({ row }) =>
 					h('div', { class: 'flex items-center gap-2' }, [
-						h('span', {}, row.original.keyword),
-						// row.original.startedAt && !row.original.stoppedAt && !row.original.endedAt
-						// 	? h(Badge, { variant: 'success' }, () => 'Active')
-						// 	: row.original.stoppedAt
-						// 		? h(Badge, { variant: 'secondary' }, () => 'Stopped')
-						// 		: h(Badge, { variant: 'outline' }, () => 'Created'),
+						h('span', {}, row.original.keyword || '-'),
 					]),
 			},
 			{
@@ -53,7 +61,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 					h(
 						'span',
 						{},
-						row.original.startedAt ? new Date(row.original.startedAt).toLocaleString() : '-'
+						row.original.startedAt ? new Date(row.original.startedAt).toLocaleString() : '-',
 					),
 			},
 			{
@@ -73,7 +81,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 							},
 							{
 								default: () => [h(EyeIcon, { class: 'size-4' }), t('giveaways.view')],
-							}
+							},
 						),
 
 						// Start button (if not started)
@@ -89,7 +97,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 									},
 									{
 										default: () => [h(PlayIcon, { class: 'size-4' }), t('giveaways.start')],
-									}
+									},
 								)
 							: null,
 
@@ -106,27 +114,27 @@ export const useGiveawaysListTable = createGlobalState(() => {
 									},
 									{
 										default: () => [h(BanIcon, { class: 'size-4' }), t('giveaways.stop')],
-									}
+									},
 								)
 							: null,
 					]),
 			},
-		]
-	})
+		];
+	});
 
 	const table = useVueTable({
 		get data() {
-			return activeGiveaways.value
+			return activeGiveaways.value;
 		},
 		get columns() {
-			return tableColumns.value
+			return tableColumns.value;
 		},
 		getCoreRowModel: getCoreRowModel(),
-	})
+	});
 
 	return {
 		isLoading: giveawaysListFetching,
 		table,
 		showCreateDialog,
-	}
-})
+	};
+});

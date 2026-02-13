@@ -1,167 +1,172 @@
-import { createGlobalState } from '@vueuse/core'
-import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { createGlobalState } from '@vueuse/core';
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 import type {
 	Giveaway,
 	GiveawayParticipant,
 	GiveawaySubscriptionParticipant,
 	GiveawayWinner,
-} from '@/api/giveaways.js'
+} from '@/api/giveaways.js';
+import type { GiveawaysCreateInput } from '@/gql/graphql.js';
 
-import { useGiveawaysApi } from '@/api/giveaways.js'
-import { toast } from 'vue-sonner'
+import { useGiveawaysApi } from '@/api/giveaways.js';
+import { toast } from 'vue-sonner';
 
 export const useGiveaways = createGlobalState(() => {
-	const giveawaysApi = useGiveawaysApi()
-	const { data: giveaways, fetching: giveawaysListFetching } = giveawaysApi.useGiveawaysList()
-	const router = useRouter()
-	const { t } = useI18n()
+	const giveawaysApi = useGiveawaysApi();
+	const { data: giveaways, fetching: giveawaysListFetching } = giveawaysApi.useGiveawaysList();
+	const router = useRouter();
+	const { t } = useI18n();
 
 	// Current giveaway state
-	const currentGiveawayId = ref<string | null>(null)
-	const participants = ref<GiveawayParticipant[]>([])
-	const winners = ref<GiveawayWinner[]>([])
+	const currentGiveawayId = ref<string | null>(null);
+	const participants = ref<GiveawayParticipant[]>([]);
+	const winners = ref<GiveawayWinner[]>([]);
 
 	// Computed values
 	const giveawaysList = computed<Giveaway[]>(() => {
-		return (giveaways.value?.giveaways as Giveaway[]) ?? []
-	})
+		return (giveaways.value?.giveaways as Giveaway[]) ?? [];
+	});
 
 	const activeGiveaways = computed<Giveaway[]>(() => {
-		return giveawaysList.value.filter((g) => !g.stoppedAt)
-	})
+		return giveawaysList.value.filter((g) => !g.stoppedAt);
+	});
 
 	const archivedGiveaways = computed<Giveaway[]>(() => {
-		return giveawaysList.value.filter((g) => g.stoppedAt)
-	})
+		return giveawaysList.value.filter((g) => g.stoppedAt);
+	});
 
 	const currentGiveaway = computed(() => {
-		if (!currentGiveawayId.value) return null
-		return giveawaysList.value.find((g) => g.id === currentGiveawayId.value) as Giveaway
-	})
+		if (!currentGiveawayId.value) return null;
+		return giveawaysList.value.find((g) => g.id === currentGiveawayId.value) as Giveaway;
+	});
 
 	// Mutations
-	const createGiveawayMutation = giveawaysApi.useMutationCreateGiveaway()
-	const startGiveawayMutation = giveawaysApi.useMutationStartGiveaway()
-	const stopGiveawayMutation = giveawaysApi.useMutationStopGiveaway()
-	const chooseWinnersMutation = giveawaysApi.useMutationChooseWinners()
+	const createGiveawayMutation = giveawaysApi.useMutationCreateGiveaway();
+	const startGiveawayMutation = giveawaysApi.useMutationStartGiveaway();
+	const stopGiveawayMutation = giveawaysApi.useMutationStopGiveaway();
+	const chooseWinnersMutation = giveawaysApi.useMutationChooseWinners();
 
 	// Actions
-	async function createGiveaway(keyword: string) {
+	async function createGiveaway(opts: GiveawaysCreateInput) {
 		try {
-			const result = await createGiveawayMutation.executeMutation({ opts: { keyword } })
+			const result = await createGiveawayMutation.executeMutation({ opts });
 			if (result.error) {
-				throw new Error(result.error.message)
+				throw new Error(result.error.message);
 			}
+			const description =
+				opts.type === 'KEYWORD'
+					? t('giveaways.notifications.createdDescription', { keyword: opts.keyword })
+					: t('giveaways.notifications.createdDescriptionOnlineChatters');
 			toast.success(t('giveaways.notifications.created'), {
-				description: t('giveaways.notifications.createdDescription', { keyword }),
-			})
-			return result.data?.giveawaysCreate
+				description,
+			});
+			return result.data?.giveawaysCreate;
 		} catch (error) {
 			toast.error(t('giveaways.notifications.error'), {
 				description: error instanceof Error ? error.message : 'Unknown error',
-			})
-			return null
+			});
+			return null;
 		}
 	}
 
 	async function startGiveaway(id: string) {
 		try {
-			const result = await startGiveawayMutation.executeMutation({ id })
+			const result = await startGiveawayMutation.executeMutation({ id });
 			if (result.error) {
-				throw new Error(result.error.message)
+				throw new Error(result.error.message);
 			}
 			toast.success('Giveaway started', {
 				description: 'The giveaway has been started successfully',
-			})
-			return result.data?.giveawaysStart
+			});
+			return result.data?.giveawaysStart;
 		} catch (error) {
 			toast.error('Error starting giveaway', {
 				description: error instanceof Error ? error.message : 'Unknown error',
-			})
-			return null
+			});
+			return null;
 		}
 	}
 
 	async function stopGiveaway(id: string) {
 		try {
-			const result = await stopGiveawayMutation.executeMutation({ id })
+			const result = await stopGiveawayMutation.executeMutation({ id });
 			if (result.error) {
-				throw new Error(result.error.message)
+				throw new Error(result.error.message);
 			}
 			toast.success('Giveaway stopped', {
 				description: 'The giveaway has been stopped successfully',
-			})
-			return result.data?.giveawaysStop
+			});
+			return result.data?.giveawaysStop;
 		} catch (error) {
 			toast.error('Error stopping giveaway', {
 				description: error instanceof Error ? error.message : 'Unknown error',
-			})
-			return null
+			});
+			return null;
 		}
 	}
 
 	async function chooseWinners(id: string) {
 		try {
-			const result = await chooseWinnersMutation.executeMutation({ id })
+			const result = await chooseWinnersMutation.executeMutation({ id });
 			if (result.error) {
-				throw new Error(result.error.message)
+				throw new Error(result.error.message);
 			}
-			winners.value.push(...((result.data?.giveawaysChooseWinners as GiveawayWinner[]) || []))
+			winners.value.push(...((result.data?.giveawaysChooseWinners as GiveawayWinner[]) || []));
 			toast.success(t('giveaways.notifications.winnersChosen'), {
 				description: t('giveaways.notifications.winnersChosenDescription', {
 					count: winners.value.length,
 				}),
-			})
-			return winners.value
+			});
+			return winners.value;
 		} catch (error) {
 			toast.error(t('giveaways.notifications.errorChoosingWinners'), {
 				description: error instanceof Error ? error.message : 'Unknown error',
-			})
-			return []
+			});
+			return [];
 		}
 	}
 
 	// Navigation
 	function viewGiveaway(id: string) {
-		router.push(`/dashboard/giveaways/view/${id}`)
+		router.push(`/dashboard/giveaways/view/${id}`);
 	}
 
 	// Use the API with reactive giveaway ID directly
 	const { data: giveawayData, executeQuery: fetchCurrentGiveaway } =
-		giveawaysApi.useGiveaway(currentGiveawayId)
+		giveawaysApi.useGiveaway(currentGiveawayId);
 	const {
 		data: participantsSubscriptionData,
 		executeSubscription: subscribeToParticipants,
 		pause: closeSubscription,
-	} = giveawaysApi.useSubscriptionGiveawayParticipants(currentGiveawayId)
+	} = giveawaysApi.useSubscriptionGiveawayParticipants(currentGiveawayId);
 
 	// Watch for giveaway data changes
 	watch(
 		giveawayData,
 		(giveawayData) => {
-			if (!giveawayData?.giveaway) return
-			const g = giveawayData.giveaway as unknown as Giveaway
+			if (!giveawayData?.giveaway) return;
+			const g = giveawayData.giveaway as unknown as Giveaway;
 			if (g?.winners && g.winners.length > 0) {
-				winners.value = g.winners as GiveawayWinner[]
+				winners.value = g.winners as GiveawayWinner[];
 			}
 
-			participants.value = giveawayData.giveaway.participants as GiveawayParticipant[]
+			participants.value = giveawayData.giveaway.participants as GiveawayParticipant[];
 		},
-		{ immediate: true }
-	)
+		{ immediate: true },
+	);
 
 	// Watch for new participants from subscription
 	watch(participantsSubscriptionData, (data) => {
-		if (!data) return
-		const newParticipant = data.giveawaysParticipants
-		const participant = newParticipant as unknown as GiveawaySubscriptionParticipant
+		if (!data) return;
+		const newParticipant = data.giveawaysParticipants;
+		const participant = newParticipant as unknown as GiveawaySubscriptionParticipant;
 
-		if (participant.giveawayId !== currentGiveawayId.value) return
+		if (participant.giveawayId !== currentGiveawayId.value) return;
 
-		const exists = participants.value.some((p) => p.userId === participant.userId)
+		const exists = participants.value.some((p) => p.userId === participant.userId);
 		if (!exists) {
 			// Add new participant
 			participants.value.push({
@@ -170,32 +175,32 @@ export const useGiveaways = createGlobalState(() => {
 				userId: participant.userId,
 				displayName: participant.userDisplayName,
 				isWinner: participant.isWinner,
-			})
+			});
 		}
-	})
+	});
 
 	// Function to set the current giveaway ID
 	async function loadParticipants(giveawayId: string) {
-		if (!giveawayId) return
-		currentGiveawayId.value = giveawayId
-		await nextTick()
-		await fetchCurrentGiveaway({ requestPolicy: 'cache-and-network' })
-		subscribeToParticipants()
+		if (!giveawayId) return;
+		currentGiveawayId.value = giveawayId;
+		await nextTick();
+		await fetchCurrentGiveaway({ requestPolicy: 'cache-and-network' });
+		subscribeToParticipants();
 	}
 
 	onUnmounted(() => {
-		closeSubscription()
-	})
+		closeSubscription();
+	});
 
 	const participantsWithFixedWinners = computed(() => {
 		return participants.value.map((p) => {
-			const isWinner = winners.value.some((w) => w.userId === p.userId)
+			const isWinner = winners.value.some((w) => w.userId === p.userId);
 			return {
 				...p,
 				isWinner,
-			}
-		})
-	})
+			};
+		});
+	});
 
 	return {
 		// State
@@ -215,5 +220,5 @@ export const useGiveaways = createGlobalState(() => {
 		chooseWinners,
 		viewGiveaway,
 		loadParticipants,
-	}
-})
+	};
+});

@@ -72,10 +72,42 @@ async function handleChooseWinners() {
 				<CardHeader
 					class="flex flex-row items-center justify-between border-b border-border border-solid"
 				>
-					<CardTitle class="flex items-center text-3xl">
-						<span>
-							{{ currentGiveaway?.keyword }}
-						</span>
+					<CardTitle class="flex flex-col gap-1">
+						<div class="flex items-center gap-2 text-3xl">
+							<span v-if="currentGiveaway?.type === 'KEYWORD'">
+								{{ currentGiveaway?.keyword }}
+							</span>
+							<span v-else>
+								{{ t("giveaways.typeOnlineChatters") }}
+							</span>
+						</div>
+						<div class="text-sm font-normal text-muted-foreground flex flex-wrap gap-2">
+							<span
+								>{{ t("giveaways.type") }}:
+								{{
+									currentGiveaway?.type === "KEYWORD"
+										? t("giveaways.typeKeyword")
+										: t("giveaways.typeOnlineChatters")
+								}}</span
+							>
+							<span v-if="currentGiveaway?.minWatchedTime"
+								>• {{ t("giveaways.minWatchedTime") }}: {{ currentGiveaway.minWatchedTime }}m</span
+							>
+							<span v-if="currentGiveaway?.minMessages"
+								>• {{ t("giveaways.minMessages") }}: {{ currentGiveaway.minMessages }}</span
+							>
+							<span v-if="currentGiveaway?.minUsedChannelPoints"
+								>• {{ t("giveaways.minUsedChannelPoints") }}:
+								{{ currentGiveaway.minUsedChannelPoints }}</span
+							>
+							<span v-if="currentGiveaway?.minFollowDuration"
+								>• {{ t("giveaways.minFollowDuration") }}:
+								{{ currentGiveaway.minFollowDuration }}d</span
+							>
+							<span v-if="currentGiveaway?.requireSubscription"
+								>• {{ t("giveaways.requireSubscription") }}</span
+							>
+						</div>
 					</CardTitle>
 					<div class="ml-2 flex flex-row gap-1">
 						<Button
