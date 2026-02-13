@@ -71,3 +71,52 @@ func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 
 	return followsReq.Data.Total, nil
 }
+
+// GetUserFollowDuration returns the duration a user has been following a channel
+// Returns nil if the user is not following the channel
+func (c *CachedTwitchClient) GetUserFollowDuration(
+	ctx context.Context,
+	userID string,
+	channelID string,
+) (*time.Duration, error) {
+	if userID == "" || channelID == "" {
+		return nil, nil
+	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("twitch.userId", userID),
+		attribute.String("twitch.channelId", channelID),
+	)
+
+	twitchClient, err := twitch.NewUserClient(channelID, c.config, c.twirBus)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create twitch client: %w", err)
+	}
+
+	// Use GetUsersFollows to check if a specific user is following
+	followsReq, err := twitchClient.GetUsersFollows(
+		&helix.UsersFollowsParams{
+			FromID: userID,
+			ToID:   channelID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if followsReq.ErrorMessage != "" {
+		return nil, fmt.Errorf("cannot get user follow: %s", followsReq.ErrorMessage)
+	}
+
+	// User is not following
+	if len(followsReq.Data.Follows) == 0 {
+		return nil, nil
+	}
+
+	followedAt := followsReq.Data.Follows[0].FollowedAt
+	duration := time.Since(followedAt)
+
+	return &duration, nil
+}

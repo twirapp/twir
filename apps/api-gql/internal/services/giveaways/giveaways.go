@@ -10,17 +10,15 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
+	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
-	"github.com/twirapp/twir/libs/repositories/giveaways/model"
-	giveawaysmodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	giveawaysparticipantsmodel "github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
 	"github.com/twirapp/twir/libs/wsrouter"
@@ -34,7 +32,7 @@ type Opts struct {
 	GiveawaysRepository             giveaways.Repository
 	GiveawaysParticipantsRepository giveaways_participants.Repository
 	GiveawaysSettingsRepository     channels_giveaways_settings.Repository
-	GiveawaysCacher                 *generic_cacher.GenericCacher[[]model.ChannelGiveaway]
+	GiveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	TwirBus                         *buscore.Bus
 	Logger                          *slog.Logger
 	WsRouter                        wsrouter.WsRouter
@@ -79,7 +77,7 @@ type Service struct {
 	giveawaysRepository             giveaways.Repository
 	giveawaysParticipantsRepository giveaways_participants.Repository
 	giveawaysSettingsRepository     channels_giveaways_settings.Repository
-	giveawaysCacher                 *generic_cacher.GenericCacher[[]model.ChannelGiveaway]
+	giveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	twirBus                         *buscore.Bus
 	logger                          *slog.Logger
 	wsRouter                        wsrouter.WsRouter
@@ -87,9 +85,15 @@ type Service struct {
 }
 
 type CreateInput struct {
-	ChannelID       string
-	Keyword         string
-	CreatedByUserID string
+	ChannelID            string
+	Type                 channels_giveaways.GiveawayType
+	Keyword              *string
+	MinWatchedTime       *int64
+	MinMessages          *int32
+	MinUsedChannelPoints *int64
+	MinFollowDuration    *int64
+	RequireSubscription  bool
+	CreatedByUserID      string
 }
 
 func (c *Service) handleNewParticipants(
@@ -111,14 +115,14 @@ func (c *Service) Start(
 	ctx context.Context,
 	giveawayID uuid.UUID,
 	channelID string,
-) (entity.ChannelGiveaway, error) {
+) (channels_giveaways.Giveaway, error) {
 	dbGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
-	if dbGiveaway == entity.ChannelGiveawayNil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Giveaway doesnt exists")
+	if dbGiveaway == channels_giveaways.GiveawayNil {
+		return channels_giveaways.GiveawayNil, fmt.Errorf("Giveaway doesnt exists")
 	}
 
 	if dbGiveaway.StoppedAt != nil {
@@ -132,14 +136,14 @@ func (c *Service) Start(
 			},
 		)
 		if err != nil {
-			return entity.ChannelGiveawayNil, err
+			return channels_giveaways.GiveawayNil, err
 		}
 
 		return dbGiveaway, nil
 	}
 
 	if dbGiveaway.StartedAt != nil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Giveaway already started and not stopped")
+		return channels_giveaways.GiveawayNil, fmt.Errorf("Giveaway already started and not stopped")
 	}
 
 	if dbGiveaway.StartedAt == nil {
@@ -152,7 +156,7 @@ func (c *Service) Start(
 			},
 		)
 		if err != nil {
-			return entity.ChannelGiveawayNil, err
+			return channels_giveaways.GiveawayNil, err
 		}
 
 		return dbGiveaway, nil
@@ -165,22 +169,22 @@ func (c *Service) Stop(
 	ctx context.Context,
 	giveawayID uuid.UUID,
 	channelID string,
-) (entity.ChannelGiveaway, error) {
+) (channels_giveaways.Giveaway, error) {
 	dbGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
-	if dbGiveaway == entity.ChannelGiveawayNil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Giveaway doesnt exists")
+	if dbGiveaway == channels_giveaways.GiveawayNil {
+		return channels_giveaways.GiveawayNil, fmt.Errorf("Giveaway doesnt exists")
 	}
 
 	if dbGiveaway.StartedAt == nil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Cannot stop not started giveaway")
+		return channels_giveaways.GiveawayNil, fmt.Errorf("Cannot stop not started giveaway")
 	}
 
 	if dbGiveaway.StoppedAt != nil {
-		return entity.ChannelGiveawayNil, fmt.Errorf("Giveaway already stopped")
+		return channels_giveaways.GiveawayNil, fmt.Errorf("Giveaway already stopped")
 	}
 
 	dbGiveaway, err = c.GiveawayUpdateStatus(
@@ -192,7 +196,7 @@ func (c *Service) Stop(
 		},
 	)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
 	return dbGiveaway, nil
@@ -202,13 +206,13 @@ func (c *Service) ChooseWinners(
 	ctx context.Context,
 	giveawayID uuid.UUID,
 	channelID string,
-) ([]entity.ChannelGiveawayWinner, error) {
+) ([]channels_giveaways.GiveawayWinner, error) {
 	dbGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
 	if err != nil {
 		return nil, err
 	}
 
-	if dbGiveaway == entity.ChannelGiveawayNil {
+	if dbGiveaway == channels_giveaways.GiveawayNil {
 		return nil, fmt.Errorf("Giveaway doesnt exists")
 	}
 
@@ -226,7 +230,7 @@ func (c *Service) ChooseWinners(
 		return nil, fmt.Errorf("Cannot choose winner, probably there is no more participants?")
 	}
 
-	var result []entity.ChannelGiveawayWinner
+	var result []channels_giveaways.GiveawayWinner
 	for _, winner := range winners.Data.Winners {
 		result = append(result, c.giveawayWinnerBusModelToEntity(winner))
 	}
@@ -246,40 +250,54 @@ func (c *Service) ChooseWinners(
 	return result, nil
 }
 
-func (c *Service) Create(ctx context.Context, input CreateInput) (entity.ChannelGiveaway, error) {
-	dbGiveaway, err := c.giveawaysRepository.GetByChannelIDAndKeyword(
-		ctx,
-		input.ChannelID,
-		input.Keyword,
-	)
-	if err != nil && !errors.Is(err, giveaways.ErrNotFound) {
-		return entity.ChannelGiveawayNil, err
+func (c *Service) Create(ctx context.Context, input CreateInput) (channels_giveaways.Giveaway, error) {
+	// Validate that keyword is present for KEYWORD type
+	if input.Type == channels_giveaways.GiveawayTypeKeyword && (input.Keyword == nil || *input.Keyword == "") {
+		return channels_giveaways.GiveawayNil, fmt.Errorf("keyword is required for KEYWORD type giveaway")
 	}
 
-	if dbGiveaway != model.ChannelGiveawayNil {
-		return entity.ChannelGiveawayNil, fmt.Errorf(
-			"Giveaways with same keyword already exists on this channel",
+	// Check for duplicate keyword giveaway
+	if input.Type == channels_giveaways.GiveawayTypeKeyword && input.Keyword != nil {
+		dbGiveaway, err := c.giveawaysRepository.GetByChannelIDAndKeyword(
+			ctx,
+			input.ChannelID,
+			*input.Keyword,
 		)
+		if err != nil && !errors.Is(err, giveaways.ErrNotFound) {
+			return channels_giveaways.GiveawayNil, err
+		}
+
+		if !dbGiveaway.IsNil() {
+			return channels_giveaways.GiveawayNil, fmt.Errorf(
+				"Giveaways with same keyword already exists on this channel",
+			)
+		}
 	}
 
 	giveaway, err := c.giveawaysRepository.Create(
 		ctx,
 		giveaways.CreateInput{
-			ChannelID:       input.ChannelID,
-			Keyword:         input.Keyword,
-			CreatedByUserID: input.CreatedByUserID,
+			ChannelID:            input.ChannelID,
+			Type:                 channels_giveaways.GiveawayType(input.Type),
+			Keyword:              input.Keyword,
+			MinWatchedTime:       input.MinWatchedTime,
+			MinMessages:          input.MinMessages,
+			MinUsedChannelPoints: input.MinUsedChannelPoints,
+			MinFollowDuration:    input.MinFollowDuration,
+			RequireSubscription:  input.RequireSubscription,
+			CreatedByUserID:      input.CreatedByUserID,
 		},
 	)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
 	err = c.updateGiveawaysCacheForChannel(ctx, input.ChannelID)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
-	return c.giveawayModelToEntity(giveaway), nil
+	return giveaway, nil
 }
 
 type GetParticipantsInput struct {
@@ -290,7 +308,7 @@ func (c *Service) GetParticipantsForGiveaway(
 	ctx context.Context,
 	giveawayID uuid.UUID,
 	input GetParticipantsInput,
-) ([]entity.ChannelGiveawayParticipant, error) {
+) ([]channels_giveaways.GiveawayParticipant, error) {
 	participants, err := c.giveawaysParticipantsRepository.GetManyByGiveawayID(
 		ctx,
 		giveawayID.String(),
@@ -302,7 +320,7 @@ func (c *Service) GetParticipantsForGiveaway(
 		return nil, err
 	}
 
-	mappedParticipants := make([]entity.ChannelGiveawayParticipant, 0, len(participants))
+	mappedParticipants := make([]channels_giveaways.GiveawayParticipant, 0, len(participants))
 	for _, participant := range participants {
 		mappedParticipants = append(mappedParticipants, c.giveawayParticipantModelToEntity(participant))
 	}
@@ -314,36 +332,36 @@ func (c *Service) GiveawayGet(
 	ctx context.Context,
 	giveawayID uuid.UUID,
 	channelID string,
-) (entity.ChannelGiveaway, error) {
+) (channels_giveaways.Giveaway, error) {
 	giveaway, err := c.giveawaysRepository.GetByID(ctx, giveawayID)
 	if err != nil && !errors.Is(err, giveaways.ErrNotFound) {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
-	if giveaway == giveawaysmodel.ChannelGiveawayNil {
-		return entity.ChannelGiveawayNil, nil
+	if giveaway.IsNil() {
+		return channels_giveaways.GiveawayNil, nil
 	}
 
 	err = c.updateGiveawaysCacheForChannel(ctx, channelID)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
-	return c.giveawayModelToEntity(giveaway), nil
+	return giveaway, nil
 }
 
 func (c *Service) GiveawaysGetMany(
 	ctx context.Context,
 	channelID string,
-) ([]entity.ChannelGiveaway, error) {
+) ([]channels_giveaways.Giveaway, error) {
 	dbGiveaways, err := c.giveawaysRepository.GetManyByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}
 
-	mappedGiveaways := make([]entity.ChannelGiveaway, 0, len(dbGiveaways))
+	mappedGiveaways := make([]channels_giveaways.Giveaway, 0, len(dbGiveaways))
 	for _, giveaway := range dbGiveaways {
-		mappedGiveaways = append(mappedGiveaways, c.giveawayModelToEntity(giveaway))
+		mappedGiveaways = append(mappedGiveaways, giveaway)
 	}
 
 	return mappedGiveaways, nil
@@ -365,9 +383,14 @@ func (c *Service) GiveawayRemove(
 }
 
 type UpdateInput struct {
-	StartedAt *time.Time
-	Keyword   *string
-	StoppedAt *time.Time
+	StartedAt            *time.Time
+	Keyword              *string
+	StoppedAt            *time.Time
+	MinWatchedTime       *int64
+	MinMessages          *int32
+	MinUsedChannelPoints *int64
+	MinFollowDuration    *int64
+	RequireSubscription  *bool
 }
 
 func (c *Service) GiveawayUpdate(
@@ -375,24 +398,29 @@ func (c *Service) GiveawayUpdate(
 	giveawayID uuid.UUID,
 	channelID string,
 	input UpdateInput,
-) (entity.ChannelGiveaway, error) {
+) (channels_giveaways.Giveaway, error) {
 	dbGiveaway, err := c.giveawaysRepository.Update(
 		ctx, giveawayID, giveaways.UpdateInput{
-			StartedAt: input.StartedAt,
-			Keyword:   input.Keyword,
-			StoppedAt: input.StoppedAt,
+			StartedAt:            input.StartedAt,
+			Keyword:              input.Keyword,
+			StoppedAt:            input.StoppedAt,
+			MinWatchedTime:       input.MinWatchedTime,
+			MinMessages:          input.MinMessages,
+			MinUsedChannelPoints: input.MinUsedChannelPoints,
+			MinFollowDuration:    input.MinFollowDuration,
+			RequireSubscription:  input.RequireSubscription,
 		},
 	)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
 	err = c.updateGiveawaysCacheForChannel(ctx, channelID)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
-	return c.giveawayModelToEntity(dbGiveaway), nil
+	return dbGiveaway, nil
 }
 
 type UpdateStatusInput struct {
@@ -405,7 +433,7 @@ func (c *Service) GiveawayUpdateStatus(
 	giveawayID uuid.UUID,
 	channelID string,
 	input UpdateStatusInput,
-) (entity.ChannelGiveaway, error) {
+) (channels_giveaways.Giveaway, error) {
 	dbGiveaway, err := c.giveawaysRepository.UpdateStatuses(
 		ctx,
 		giveawayID,
@@ -415,34 +443,21 @@ func (c *Service) GiveawayUpdateStatus(
 		},
 	)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
 	err = c.updateGiveawaysCacheForChannel(ctx, channelID)
 	if err != nil {
-		return entity.ChannelGiveawayNil, err
+		return channels_giveaways.GiveawayNil, err
 	}
 
-	return c.giveawayModelToEntity(dbGiveaway), nil
-}
-
-func (c *Service) giveawayModelToEntity(m giveawaysmodel.ChannelGiveaway) entity.ChannelGiveaway {
-	return entity.ChannelGiveaway{
-		ID:              m.ID,
-		ChannelID:       m.ChannelID,
-		CreatedAt:       m.CreatedAt,
-		UpdatedAt:       m.UpdatedAt,
-		StartedAt:       m.StartedAt,
-		Keyword:         m.Keyword,
-		CreatedByUserID: m.CreatedByUserID,
-		StoppedAt:       m.StoppedAt,
-	}
+	return dbGiveaway, nil
 }
 
 func (c *Service) giveawayParticipantModelToEntity(
 	m giveawaysparticipantsmodel.ChannelGiveawayParticipant,
-) entity.ChannelGiveawayParticipant {
-	return entity.ChannelGiveawayParticipant{
+) channels_giveaways.GiveawayParticipant {
+	return channels_giveaways.GiveawayParticipant{
 		UserLogin:   m.UserLogin,
 		DisplayName: m.DisplayName,
 		UserID:      m.UserID,
@@ -454,8 +469,8 @@ func (c *Service) giveawayParticipantModelToEntity(
 
 func (c *Service) giveawayWinnerBusModelToEntity(
 	m giveawaysbus.Winner,
-) entity.ChannelGiveawayWinner {
-	return entity.ChannelGiveawayWinner{
+) channels_giveaways.GiveawayWinner {
+	return channels_giveaways.GiveawayWinner{
 		UserID:      m.UserID,
 		UserLogin:   m.UserLogin,
 		DisplayName: m.UserDisplayName,
@@ -485,7 +500,7 @@ func (c *Service) updateGiveawaysCacheForChannel(ctx context.Context, channelID 
 func (c *Service) sendWinnerMessage(
 	ctx context.Context,
 	channelID string,
-	winners []entity.ChannelGiveawayWinner,
+	winners []channels_giveaways.GiveawayWinner,
 ) error {
 	settings, err := c.giveawaysSettingsRepository.GetByChannelID(ctx, channelID)
 	if err != nil {

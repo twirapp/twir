@@ -165,6 +165,56 @@ func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]mod
 	return result, nil
 }
 
+func (c *Pgx) GetOnlineUsersWithFilters(
+	ctx context.Context,
+	input users.GetOnlineUsersWithFiltersInput,
+) ([]model.OnlineUser, error) {
+	queryBuilder := sq.Select(
+		"users_online.id",
+		`"users_online"."channelId"`,
+		`"users_online"."userId"`,
+		`"users_online"."userName"`,
+	).
+		From("users_online").
+		LeftJoin(`users_stats ON users_stats."userId" = "users_online"."userId" AND users_stats."channelId" = "users_online"."channelId"`).
+		Where(squirrel.Eq{`"users_online"."channelId"`: input.ChannelID}).
+		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_online"."userId")`)
+
+	// Apply filters
+	if input.MinWatchedTime != nil {
+		queryBuilder = queryBuilder.Where(squirrel.GtOrEq{"users_stats.watched": *input.MinWatchedTime})
+	}
+
+	if input.MinMessages != nil {
+		queryBuilder = queryBuilder.Where(squirrel.GtOrEq{"users_stats.messages": *input.MinMessages})
+	}
+
+	if input.MinUsedChannelPoints != nil {
+		queryBuilder = queryBuilder.Where(squirrel.GtOrEq{`users_stats."usedChannelPoints"`: *input.MinUsedChannelPoints})
+	}
+
+	if input.RequireSubscription {
+		queryBuilder = queryBuilder.Where(squirrel.Eq{`users_stats."isSubscriber"`: true})
+	}
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := c.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.OnlineUser])
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) Update(ctx context.Context, id string, input users.UpdateInput) (model.User, error) {
 	updateBuilder := sq.Update("users").Where(squirrel.Eq{"id": id})
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/repositories/giveaways/model"
+	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -29,7 +29,7 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg twitch.TwitchC
 		Here we can try to check info in database but for premium users only.
 	*/
 	for _, giveaway := range giveaways {
-		if giveaway == model.ChannelGiveawayNil {
+		if giveaway.IsNil() {
 			continue
 		}
 
@@ -41,8 +41,14 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg twitch.TwitchC
 			continue
 		}
 
-		if !strings.Contains(strings.ToLower(msg.Message.Text), strings.ToLower(giveaway.Keyword)) {
-			return nil
+		// Skip keyword-based giveaways if this is an ONLINE_CHATTERS giveaway
+		if giveaway.Type == channels_giveaways.GiveawayTypeOnlineChatters {
+			continue
+		}
+
+		// For KEYWORD giveaways, check if message contains the keyword
+		if giveaway.Keyword == nil || !strings.Contains(strings.ToLower(msg.Message.Text), strings.ToLower(*giveaway.Keyword)) {
+			continue
 		}
 
 		err := c.giveawaysService.TryAddParticipant(
