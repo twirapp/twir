@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/twitch
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/nicklaw5/helix/v2 v2.32.0

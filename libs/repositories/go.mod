@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/repositories
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/Masterminds/squirrel v1.5.4

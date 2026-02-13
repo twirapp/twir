@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/otel
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/twirapp/twir/libs/config v0.0.0

@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/emotes-cacher
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/avast/retry-go/v4 v4.7.0
