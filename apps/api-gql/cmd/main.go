@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
@@ -111,7 +110,6 @@ import (
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	valorantintegration "github.com/twirapp/twir/libs/integrations/valorant"
-	"github.com/twirapp/twir/libs/logger"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
@@ -634,7 +632,6 @@ func main() {
 			valorant.New,
 			stream.New,
 			func(l *slog.Logger) {
-				l.Error("test", logger.Error(errors.New("test")))
 				l.Info("🚀 API-GQL is running")
 			},
 		),
