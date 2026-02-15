@@ -1438,6 +1438,9 @@
     "title": "Giveaways",
     "createNew": "Create New Giveaway",
     "keyword": "Keyword",
+    "type": "Type",
+    "typeKeyword": "Keyword",
+    "typeOnlineChatters": "Online Chatters",
     "createdAt": "Created At",
     "startedAt": "Started At",
     "stoppedAt": "Stopped At",
@@ -1446,6 +1449,15 @@
     "start": "Start",
     "stop": "Stop",
     "chooseWinner": "Choose winner",
+    "minWatchedTime": "Min. Watch Time",
+    "minMessages": "Min. Messages",
+    "minUsedChannelPoints": "Min. Channel Points",
+    "minFollowDuration": "Min. Follow Duration",
+    "requireSubscription": "Subscription Required",
+    "onlineChatterNotice": {
+      "title": "Online Chatters Giveaway",
+      "description": "For this type of giveaway, participants are determined automatically when winners are chosen. The list shows only users who have already been selected or participated via keyword."
+    },
     "pages": {
       "list": {
         "title": "Active Giveaways"
@@ -1456,15 +1468,29 @@
     },
     "createDialog": {
       "title": "Create New Giveaway",
-      "description": "Enter a keyword for your giveaway. Users will use this keyword to participate.",
+      "description": "Choose a giveaway type and configure filters to control who can participate.",
+      "typeLabel": "Giveaway Type",
+      "typeKeyword": "Keyword - Users type a keyword in chat to enter",
+      "typeOnlineChatters": "Online Chatters - All active chatters are automatically entered",
       "keywordLabel": "Keyword",
       "keywordPlaceholder": "Enter keyword (e.g. '!giveaway' or 'raffle')",
+      "filtersTitle": "Participation Filters (Optional)",
+      "minWatchedTime": "Minimum Watch Time (minutes)",
+      "minWatchedTimePlaceholder": "e.g. 60 for 1 hour",
+      "minMessages": "Minimum Messages Sent",
+      "minMessagesPlaceholder": "e.g. 10",
+      "minUsedChannelPoints": "Minimum Channel Points Used",
+      "minUsedChannelPointsPlaceholder": "e.g. 1000",
+      "minFollowDuration": "Minimum Follow Duration (days)",
+      "minFollowDurationPlaceholder": "e.g. 7 for 1 week",
+      "requireSubscription": "Require Subscription",
       "cancel": "Cancel",
       "create": "Create"
     },
     "notifications": {
       "created": "Giveaway created",
       "createdDescription": "Giveaway with keyword \"{keyword}\" has been created",
+      "createdDescriptionOnlineChatters": "Online chatters giveaway has been created",
       "error": "Error creating giveaway",
       "winnersChosen": "Winners chosen",
       "winnersChosenDescription": "{count} winners have been chosen",

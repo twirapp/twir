@@ -48,24 +48,46 @@ extend type Subscription {
 		@hasChannelRolesDashboardPermission(permission: VIEW_GIVEAWAYS)
 }
 
+enum GiveawayType {
+	KEYWORD
+	ONLINE_CHATTERS
+}
+
+input GiveawaysFiltersInput {
+	minWatchedTime: Int
+	minMessages: Int
+	minUsedChannelPoints: Int
+	minFollowDuration: Int
+	requireSubscription: Boolean
+}
+
 input GiveawaysCreateInput {
-	keyword: String! @validate(constraint: "min=3,max=100")
+	type: GiveawayType!
+	keyword: String @validate(constraint: "omitempty,min=3,max=100")
+	filters: GiveawaysFiltersInput
 }
 
 input GiveawaysUpdateInput {
 	startedAt: Time
 	keyword: String
 	stoppedAt: Time
+	filters: GiveawaysFiltersInput
 }
 
 type ChannelGiveaway {
 	id: String!
 	channelId: String!
+	type: GiveawayType!
 	createdAt: Time!
 	updatedAt: Time!
 	startedAt: Time
 	stoppedAt: Time
-	keyword: String!
+	keyword: String
+	minWatchedTime: Int
+	minMessages: Int
+	minUsedChannelPoints: Int
+	minFollowDuration: Int
+	requireSubscription: Boolean!
 	createdByUserId: String!
 
 	winners: [ChannelGiveawayWinner!]! @goField(forceResolver: true)

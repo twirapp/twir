@@ -15,9 +15,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
+	channelsgiveawayentity "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/entities/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/logger"
 )
@@ -97,11 +97,44 @@ func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.Gi
 		return nil, err
 	}
 
+	var minWatchedTime, minUsedChannelPoints, minFollowDuration *int64
+	var minMessages *int32
+	var requireSubscription bool
+
+	if opts.Filters.IsSet() && opts.Filters.Value() != nil {
+		filters := opts.Filters.Value()
+		if filters.MinWatchedTime.IsSet() && filters.MinWatchedTime.Value() != nil {
+			val := int64(*filters.MinWatchedTime.Value())
+			minWatchedTime = &val
+		}
+		if filters.MinMessages.IsSet() && filters.MinMessages.Value() != nil {
+			val := int32(*filters.MinMessages.Value())
+			minMessages = &val
+		}
+		if filters.MinUsedChannelPoints.IsSet() && filters.MinUsedChannelPoints.Value() != nil {
+			val := int64(*filters.MinUsedChannelPoints.Value())
+			minUsedChannelPoints = &val
+		}
+		if filters.MinFollowDuration.IsSet() && filters.MinFollowDuration.Value() != nil {
+			val := int64(*filters.MinFollowDuration.Value())
+			minFollowDuration = &val
+		}
+		if filters.RequireSubscription.IsSet() && filters.RequireSubscription.Value() != nil {
+			requireSubscription = *filters.RequireSubscription.Value()
+		}
+	}
+
 	dbGiveaway, err := r.deps.GiveawaysService.Create(
 		ctx, giveaways.CreateInput{
-			ChannelID:       dashboardId,
-			Keyword:         opts.Keyword,
-			CreatedByUserID: user.ID,
+			ChannelID:            dashboardId,
+			Type:                 channelsgiveawayentity.GiveawayType(opts.Type),
+			Keyword:              opts.Keyword.Value(),
+			MinWatchedTime:       minWatchedTime,
+			MinMessages:          minMessages,
+			MinUsedChannelPoints: minUsedChannelPoints,
+			MinFollowDuration:    minFollowDuration,
+			RequireSubscription:  requireSubscription,
+			CreatedByUserID:      user.ID,
 		},
 	)
 	if err != nil {
@@ -124,11 +157,43 @@ func (r *mutationResolver) GiveawaysUpdate(ctx context.Context, id string, opts 
 		return nil, err
 	}
 
+	var minWatchedTime, minUsedChannelPoints, minFollowDuration *int64
+	var minMessages *int32
+	var requireSubscription *bool
+
+	if opts.Filters.IsSet() && opts.Filters.Value() != nil {
+		filters := opts.Filters.Value()
+		if filters.MinWatchedTime.IsSet() && filters.MinWatchedTime.Value() != nil {
+			val := int64(*filters.MinWatchedTime.Value())
+			minWatchedTime = &val
+		}
+		if filters.MinMessages.IsSet() && filters.MinMessages.Value() != nil {
+			val := int32(*filters.MinMessages.Value())
+			minMessages = &val
+		}
+		if filters.MinUsedChannelPoints.IsSet() && filters.MinUsedChannelPoints.Value() != nil {
+			val := int64(*filters.MinUsedChannelPoints.Value())
+			minUsedChannelPoints = &val
+		}
+		if filters.MinFollowDuration.IsSet() && filters.MinFollowDuration.Value() != nil {
+			val := int64(*filters.MinFollowDuration.Value())
+			minFollowDuration = &val
+		}
+		if filters.RequireSubscription.IsSet() && filters.RequireSubscription.Value() != nil {
+			requireSubscription = filters.RequireSubscription.Value()
+		}
+	}
+
 	dbGiveaway, err := r.deps.GiveawaysService.GiveawayUpdate(
 		ctx, parsedID, dashboardId, giveaways.UpdateInput{
-			StartedAt: opts.StartedAt.Value(),
-			Keyword:   opts.Keyword.Value(),
-			StoppedAt: opts.StoppedAt.Value(),
+			StartedAt:            opts.StartedAt.Value(),
+			Keyword:              opts.Keyword.Value(),
+			StoppedAt:            opts.StoppedAt.Value(),
+			MinWatchedTime:       minWatchedTime,
+			MinMessages:          minMessages,
+			MinUsedChannelPoints: minUsedChannelPoints,
+			MinFollowDuration:    minFollowDuration,
+			RequireSubscription:  requireSubscription,
 		},
 	)
 	if err != nil {
@@ -257,7 +322,7 @@ func (r *queryResolver) Giveaways(ctx context.Context) ([]gqlmodel.ChannelGiveaw
 	}
 
 	converted := lo.Map(
-		dbGiveaways, func(item entity.ChannelGiveaway, _ int) gqlmodel.ChannelGiveaway {
+		dbGiveaways, func(item channelsgiveawayentity.Giveaway, _ int) gqlmodel.ChannelGiveaway {
 			return mappers.GiveawayEntityTo(item)
 		},
 	)

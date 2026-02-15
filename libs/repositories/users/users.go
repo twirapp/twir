@@ -11,6 +11,7 @@ type Repository interface {
 	GetManyByIDS(ctx context.Context, input GetManyInput) ([]model.User, error)
 	Update(ctx context.Context, id string, input UpdateInput) (model.User, error)
 	GetRandomOnlineUser(ctx context.Context, input GetRandomOnlineUserInput) (model.OnlineUser, error)
+	GetOnlineUsersWithFilters(ctx context.Context, input GetOnlineUsersWithFiltersInput) ([]model.OnlineUser, error)
 	GetByApiKey(ctx context.Context, apiKey string) (model.User, error)
 	Create(ctx context.Context, input CreateInput) (model.User, error)
 }
@@ -33,6 +34,14 @@ type UpdateInput struct {
 
 type GetRandomOnlineUserInput struct {
 	ChannelID string
+}
+
+type GetOnlineUsersWithFiltersInput struct {
+	ChannelID            string
+	MinWatchedTime       *int64
+	MinMessages          *int32
+	MinUsedChannelPoints *int64
+	RequireSubscription  bool
 }
 
 type CreateInput struct {

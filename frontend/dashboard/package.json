@@ -46,7 +46,7 @@
     "@vee-validate/zod": "4.15.1",
     "@vuepic/vue-datepicker": "12.1.0",
     "@vueuse/components": "catalog:",
-    "@vueuse/core": "14.2.0",
+    "@vueuse/core": "14.2.1",
     "@vueuse/router": "catalog:",
     "@zero-dependency/utils": "1.7.7",
     "class-variance-authority": "0.7.1",

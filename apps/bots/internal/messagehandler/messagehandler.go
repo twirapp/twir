@@ -24,6 +24,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
+	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -32,7 +33,6 @@ import (
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
-	giveawaysmodel "github.com/twirapp/twir/libs/repositories/giveaways/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -69,7 +69,7 @@ type Opts struct {
 	ChatWallRepository               chatwallrepository.Repository
 	ChatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 	ChannelsRepository               channelsrepository.Repository
-	GiveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
+	GiveawaysCacher                  *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	VotebanService                   *voteban.Service
 	ChatTranslatorService            *chattranslationsservice.Service
@@ -97,7 +97,7 @@ type MessageHandler struct {
 	chatWallCacher                   *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
 	chatWallRepository               chatwallrepository.Repository
 	chatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
-	giveawaysCacher                  *generic_cacher.GenericCacher[[]giveawaysmodel.ChannelGiveaway]
+	giveawaysCacher                  *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	votebanService                   *voteban.Service
 	chatTranslatorService            *chattranslationsservice.Service
