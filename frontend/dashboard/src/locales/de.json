@@ -1438,6 +1438,9 @@
     "title": "Gewinnspiele",
     "createNew": "Neues Gewinnspiel erstellen",
     "keyword": "Schlüsselwort",
+    "type": "Type",
+    "typeKeyword": "Keyword",
+    "typeOnlineChatters": "Online Chatters",
     "createdAt": "Erstellt am",
     "startedAt": "Gestartet um",
     "stoppedAt": "Gestoppt bei",
@@ -1446,6 +1449,15 @@
     "start": "Start",
     "stop": "Stopp",
     "chooseWinner": "Gewinner auswählen",
+    "minWatchedTime": "Min. Watch Time",
+    "minMessages": "Min. Messages",
+    "minUsedChannelPoints": "Min. Channel Points",
+    "minFollowDuration": "Min. Follow Duration",
+    "requireSubscription": "Subscription Required",
+    "onlineChatterNotice": {
+      "title": "Online Chatters Giveaway",
+      "description": "For this type of giveaway, participants are determined automatically when winners are chosen. The list shows only users who have already been selected or participated via keyword."
+    },
     "pages": {
       "list": {
         "title": "Aktive Gewinnspiele"
@@ -1456,15 +1468,29 @@
     },
     "createDialog": {
       "title": "Neues Gewinnspiel erstellen",
-      "description": "Gebe ein Schlüsselwort für ein Giveaway ein. Benutzer verwenden dieses Schlüsselwort um daran teilzunehmen.",
+      "description": "Choose a giveaway type and configure filters to control who can participate.",
+      "typeLabel": "Giveaway Type",
+      "typeKeyword": "Keyword - Users type a keyword in chat to enter",
+      "typeOnlineChatters": "Online Chatters - All active chatters are automatically entered",
       "keywordLabel": "Schlüsselwort",
       "keywordPlaceholder": "Schlüsselwort eingeben (z.B. '!giveaway' oder 'Tombola')",
+      "filtersTitle": "Participation Filters (Optional)",
+      "minWatchedTime": "Minimum Watch Time (minutes)",
+      "minWatchedTimePlaceholder": "e.g. 60 for 1 hour",
+      "minMessages": "Minimum Messages Sent",
+      "minMessagesPlaceholder": "e.g. 10",
+      "minUsedChannelPoints": "Minimum Channel Points Used",
+      "minUsedChannelPointsPlaceholder": "e.g. 1000",
+      "minFollowDuration": "Minimum Follow Duration (days)",
+      "minFollowDurationPlaceholder": "e.g. 7 for 1 week",
+      "requireSubscription": "Require Subscription",
       "cancel": "Abbrechen",
       "create": "Erstelle"
     },
     "notifications": {
       "created": "Gewinnspiel erstellt",
       "createdDescription": "Gewinnspiel mit dem Schlüsselwort \"{keyword}\" wurde erstellt",
+      "createdDescriptionOnlineChatters": "Online chatters giveaway has been created",
       "error": "Fehler beim Erstellen des Gewinnspiels",
       "winnersChosen": "Gewählte Gewinner",
       "winnersChosenDescription": "{count} Gewinner wurden ausgewählt",
