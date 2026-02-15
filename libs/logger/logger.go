@@ -7,7 +7,6 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
-	slogmulti "github.com/samber/slog-multi"
 	slogsentry "github.com/samber/slog-sentry/v2"
 	slogzerolog "github.com/samber/slog-zerolog/v2"
 )
@@ -31,7 +30,9 @@ func New(options Options, additionalHandlers ...slog.Handler) *slog.Logger {
 	handlers = append(handlers, additionalHandlers...)
 
 	logger := slog.New(
-		slogmulti.Fanout(handlers...),
+		slog.NewMultiHandler(
+			handlers...,
+		),
 	)
 
 	if options.AppName != "" {

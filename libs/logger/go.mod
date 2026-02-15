@@ -5,7 +5,6 @@ go 1.26.0
 require (
 	github.com/getsentry/sentry-go v0.40.0 // indirect
 	github.com/rs/zerolog v1.34.0
-	github.com/samber/slog-multi v1.6.0
 	github.com/samber/slog-sentry/v2 v2.10.1
 	github.com/samber/slog-zerolog/v2 v2.9.0
 	go.uber.org/fx v1.24.0

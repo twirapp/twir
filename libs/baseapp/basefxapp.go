@@ -40,7 +40,6 @@ func CreateBaseApp(opts Opts) fx.Option {
 		//}),
 		fx.Provide(
 			config.NewFx,
-			twirsentry.NewFx(twirsentry.NewFxOpts{Service: opts.AppName}),
 			otel.NewFx(opts.AppName),
 			newRedis,
 			newPgxPool,
@@ -79,7 +78,20 @@ func CreateBaseApp(opts Opts) fx.Option {
 				},
 			),
 		),
-		fx.Invoke(otel.NewFx(opts.AppName)),
+		fx.Invoke(
+			twirsentry.NewFx(twirsentry.NewFxOpts{Service: opts.AppName}),
+			otel.NewFx(opts.AppName),
+		),
+		fx.Invoke(
+			func() {
+				logger.SetDefault(
+					logger.Options{
+						AppName: opts.AppName,
+						Level:   slog.LevelInfo,
+					},
+				)
+			},
+		),
 	)
 }
 
