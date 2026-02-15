@@ -1438,6 +1438,9 @@
     "title": "Sorteios",
     "createNew": "Criar Novo Sorteio",
     "keyword": "Palavra-chave",
+    "type": "Type",
+    "typeKeyword": "Keyword",
+    "typeOnlineChatters": "Online Chatters",
     "createdAt": "Criado em",
     "startedAt": "Iniciado em",
     "stoppedAt": "Parado em",
@@ -1446,6 +1449,15 @@
     "start": "Iniciar",
     "stop": "Parar",
     "chooseWinner": "Escolher vencedor",
+    "minWatchedTime": "Min. Watch Time",
+    "minMessages": "Min. Messages",
+    "minUsedChannelPoints": "Min. Channel Points",
+    "minFollowDuration": "Min. Follow Duration",
+    "requireSubscription": "Subscription Required",
+    "onlineChatterNotice": {
+      "title": "Online Chatters Giveaway",
+      "description": "For this type of giveaway, participants are determined automatically when winners are chosen. The list shows only users who have already been selected or participated via keyword."
+    },
     "pages": {
       "list": {
         "title": "Sorteios Ativos"
@@ -1456,15 +1468,29 @@
     },
     "createDialog": {
       "title": "Criar Novo Sorteio",
-      "description": "Insira uma palavra-chave para seu sorteio. Os usuários usarão essa palavra-chave para participar.",
+      "description": "Choose a giveaway type and configure filters to control who can participate.",
+      "typeLabel": "Giveaway Type",
+      "typeKeyword": "Keyword - Users type a keyword in chat to enter",
+      "typeOnlineChatters": "Online Chatters - All active chatters are automatically entered",
       "keywordLabel": "Palavra-chave",
       "keywordPlaceholder": "Insira a palavra-chave (por exemplo, '!sorteio' ou 'rifa')",
+      "filtersTitle": "Participation Filters (Optional)",
+      "minWatchedTime": "Minimum Watch Time (minutes)",
+      "minWatchedTimePlaceholder": "e.g. 60 for 1 hour",
+      "minMessages": "Minimum Messages Sent",
+      "minMessagesPlaceholder": "e.g. 10",
+      "minUsedChannelPoints": "Minimum Channel Points Used",
+      "minUsedChannelPointsPlaceholder": "e.g. 1000",
+      "minFollowDuration": "Minimum Follow Duration (days)",
+      "minFollowDurationPlaceholder": "e.g. 7 for 1 week",
+      "requireSubscription": "Require Subscription",
       "cancel": "Cancelar",
       "create": "Criar"
     },
     "notifications": {
       "created": "Sorteio criado",
       "createdDescription": "Sorteio com a palavra-chave \"{keyword}\" foi criado",
+      "createdDescriptionOnlineChatters": "Online chatters giveaway has been created",
       "error": "Erro ao criar sorteio",
       "winnersChosen": "Vencedores escolhidos",
       "winnersChosenDescription": "{count} vencedores foram escolhidos",
