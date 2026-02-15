@@ -1438,6 +1438,9 @@
     "title": "Розіграші",
     "createNew": "Створити новий розіграш",
     "keyword": "Ключове слово",
+    "type": "Type",
+    "typeKeyword": "Keyword",
+    "typeOnlineChatters": "Online Chatters",
     "createdAt": "Створено",
     "startedAt": "Розпочато",
     "stoppedAt": "Зупинено",
@@ -1446,6 +1449,15 @@
     "start": "Старт",
     "stop": "Стоп",
     "chooseWinner": "Оберіть переможця",
+    "minWatchedTime": "Min. Watch Time",
+    "minMessages": "Min. Messages",
+    "minUsedChannelPoints": "Min. Channel Points",
+    "minFollowDuration": "Min. Follow Duration",
+    "requireSubscription": "Subscription Required",
+    "onlineChatterNotice": {
+      "title": "Online Chatters Giveaway",
+      "description": "For this type of giveaway, participants are determined automatically when winners are chosen. The list shows only users who have already been selected or participated via keyword."
+    },
     "pages": {
       "list": {
         "title": "Активні розіграші"
@@ -1456,15 +1468,29 @@
     },
     "createDialog": {
       "title": "Створити новий розіграш",
-      "description": "Введіть ключове слово для роздачі. Користувачі будуть використовувати це ключове слово для участі.",
+      "description": "Choose a giveaway type and configure filters to control who can participate.",
+      "typeLabel": "Giveaway Type",
+      "typeKeyword": "Keyword - Users type a keyword in chat to enter",
+      "typeOnlineChatters": "Online Chatters - All active chatters are automatically entered",
       "keywordLabel": "Ключове слово",
       "keywordPlaceholder": "Введіть ключове слово (напр. '!giveaway' або 'raffle')",
+      "filtersTitle": "Participation Filters (Optional)",
+      "minWatchedTime": "Minimum Watch Time (minutes)",
+      "minWatchedTimePlaceholder": "e.g. 60 for 1 hour",
+      "minMessages": "Minimum Messages Sent",
+      "minMessagesPlaceholder": "e.g. 10",
+      "minUsedChannelPoints": "Minimum Channel Points Used",
+      "minUsedChannelPointsPlaceholder": "e.g. 1000",
+      "minFollowDuration": "Minimum Follow Duration (days)",
+      "minFollowDurationPlaceholder": "e.g. 7 for 1 week",
+      "requireSubscription": "Require Subscription",
       "cancel": "Скасувати",
       "create": "Створити"
     },
     "notifications": {
       "created": "Розіграш створений",
       "createdDescription": "Розіграш з ключовим словом \"{keyword}\" було створено",
+      "createdDescriptionOnlineChatters": "Online chatters giveaway has been created",
       "error": "При створенні розіграшу виникла помилка",
       "winnersChosen": "Вибрано переможців",
       "winnersChosenDescription": "{count} переможців обрано",
