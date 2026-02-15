@@ -2,6 +2,9 @@
 min_pool_size = 1
 default_pool_size = 90
 pooler_mode = "transaction"
+load_balancing_strategy = "round_robin"
+lsn_check_delay = 0
+dns_ttl = 1_000
 
 [admin]
 password = "twir"
@@ -10,3 +13,13 @@ password = "twir"
 name = "twir"
 host = "postgres"
 port = 5432
+role = "auto"
+
+# Read replica 1
+[[databases]]
+name = "twir"
+host = "postgres-replica"
+port = 5432
+role = "auto"
+min_pool_size = 40
+pool_size = 80
