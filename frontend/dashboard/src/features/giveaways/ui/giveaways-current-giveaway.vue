@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { BanIcon, PlayIcon, ShuffleIcon, TrophyIcon, UsersIcon } from "lucide-vue-next";
-import { computed, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
+import { BanIcon, PlayIcon, ShuffleIcon, TrophyIcon, UsersIcon } from 'lucide-vue-next';
+import { computed, ref, watch, watchEffect } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { useProfile } from "@/api/auth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGiveaways } from "@/features/giveaways/composables/giveaways-use-giveaways.ts";
-import GiveawaysCurrentGiveawayParticipants from "@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue";
-import GiveawaysCurrentGiveawayWinners from "@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners.vue";
+import { useProfile } from '@/api/auth';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts';
+import GiveawaysCurrentGiveawayParticipants
+	from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue';
+import GiveawaysCurrentGiveawayWinners
+	from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners.vue';
+import { Badge } from '@/components/ui/badge';
 
 const { t } = useI18n();
 
@@ -36,8 +39,21 @@ const chatUrl = computed(() => {
 	return `https://www.twitch.tv/embed/${selectedDashboardTwitchUser.value.login}/chat?parent=${window.location.host}&darkpopout`;
 });
 
-// Tab state
+const isOnlineChatterGiveaway = computed(() => currentGiveaway.value?.type === "ONLINE_CHATTERS");
+
+// Tab state - для ONLINE_CHATTERS открываем сразу winners
 const activeTab = ref("participants");
+
+// Устанавливаем правильную вкладку при загрузке или смене гива
+watchEffect(() => {
+	if (isOnlineChatterGiveaway.value) {
+		activeTab.value = "winners";
+	} else if (winners.value.length > 0) {
+		activeTab.value = "winners";
+	} else {
+		activeTab.value = "participants";
+	}
+});
 
 // Watch for winners and switch to winners tab when they are chosen
 watch(winners, (newWinners) => {
@@ -81,37 +97,42 @@ async function handleChooseWinners() {
 								{{ t("giveaways.typeOnlineChatters") }}
 							</span>
 						</div>
-						<div class="text-sm font-normal text-muted-foreground flex flex-wrap gap-2">
-							<span
-								>{{ t("giveaways.type") }}:
+						<div class="text-sm font-normal text-muted-foreground flex flex-col flex-wrap gap-2">
+							<span>
+								{{ t("giveaways.type") }}:
 								{{
 									currentGiveaway?.type === "KEYWORD"
 										? t("giveaways.typeKeyword")
 										: t("giveaways.typeOnlineChatters")
-								}}</span
-							>
-							<span v-if="currentGiveaway?.minWatchedTime"
-								>• {{ t("giveaways.minWatchedTime") }}: {{ currentGiveaway.minWatchedTime }}m</span
-							>
-							<span v-if="currentGiveaway?.minMessages"
-								>• {{ t("giveaways.minMessages") }}: {{ currentGiveaway.minMessages }}</span
-							>
-							<span v-if="currentGiveaway?.minUsedChannelPoints"
-								>• {{ t("giveaways.minUsedChannelPoints") }}:
-								{{ currentGiveaway.minUsedChannelPoints }}</span
-							>
-							<span v-if="currentGiveaway?.minFollowDuration"
-								>• {{ t("giveaways.minFollowDuration") }}:
-								{{ currentGiveaway.minFollowDuration }}d</span
-							>
-							<span v-if="currentGiveaway?.requireSubscription"
-								>• {{ t("giveaways.requireSubscription") }}</span
-							>
+								}}
+							</span>
+							<div class="flex flex-wrap gap-2">
+								<Badge class="bg-blue-500 text-white" v-if="currentGiveaway?.minWatchedTime">
+									{{ t("giveaways.minWatchedTime") }}: {{ currentGiveaway.minWatchedTime }}m
+								</Badge>
+								<Badge class="bg-blue-500 text-white" v-if="currentGiveaway?.minMessages">
+									{{ t("giveaways.minMessages") }}: {{ currentGiveaway.minMessages }}
+								</Badge>
+								<Badge class="bg-blue-500 text-white" v-if="currentGiveaway?.minUsedChannelPoints"
+									>{{ t("giveaways.minUsedChannelPoints") }}:
+									{{ currentGiveaway.minUsedChannelPoints }}
+								</Badge>
+								<Badge class="bg-blue-500 text-white" v-if="currentGiveaway?.minFollowDuration">
+									{{ t("giveaways.minFollowDuration") }}:
+									{{ currentGiveaway.minFollowDuration }}d
+								</Badge>
+								<Badge class="bg-blue-500 text-white" v-if="currentGiveaway?.requireSubscription"
+								>{{ t("giveaways.requireSubscription") }}
+								</Badge>
+							</div>
 						</div>
 					</CardTitle>
+
+					<div class="flex gap-2 place-self-start items-center justify-center">
 					<div class="ml-2 flex flex-row gap-1">
+						<!-- Для KEYWORD гивов показываем кнопку Start/Stop -->
 						<Button
-							v-if="!currentGiveaway?.startedAt"
+							v-if="!isOnlineChatterGiveaway && !currentGiveaway?.startedAt"
 							size="sm"
 							class="flex gap-2 items-center"
 							@click="handleStartGiveaway"
@@ -130,21 +151,24 @@ async function handleChooseWinners() {
 							{{ t("giveaways.stop") }}
 						</Button>
 
-						<!--						<Button -->
-						<!--							v-if="!archived" -->
-						<!--							size="sm" -->
-						<!--							variant="destructive" -->
-						<!--							class="flex gap-2 items-center" -->
-						<!--							@click="handleArchiveGiveaway" -->
-						<!--						> -->
-						<!--							<ArchiveIcon class="size-4" /> -->
-						<!--							Archive -->
-						<!--						</Button> -->
+						<!-- Для ONLINE_CHATTERS показываем сразу кнопку выбора победителя -->
+						<Button
+							v-if="isOnlineChatterGiveaway && !currentGiveaway?.stoppedAt"
+							size="sm"
+							variant="secondary"
+							class="flex gap-2 items-center"
+							@click="handleChooseWinners"
+						>
+							<ShuffleIcon class="size-4" />
+							{{ t("giveaways.chooseWinner") }}
+						</Button>
 					</div>
-
-					<div>
 						<TabsList>
-							<TabsTrigger value="participants" class="flex flex-row gap-2">
+							<TabsTrigger
+								value="participants"
+								class="flex flex-row gap-2"
+								:disabled="isOnlineChatterGiveaway"
+							>
 								<UsersIcon class="size-4 inline" />
 								{{ t("giveaways.currentGiveaway.tabs.participants") }}
 								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
@@ -178,7 +202,10 @@ async function handleChooseWinners() {
 									size="sm"
 									variant="secondary"
 									class="flex gap-2 items-center"
-									:disabled="participants.length === 0 || winners.length === participants.length"
+									:disabled="
+										!isOnlineChatterGiveaway &&
+										(participants.length === 0 || winners.length === participants.length)
+									"
 									@click="handleChooseWinners"
 								>
 									<ShuffleIcon class="size-4" />

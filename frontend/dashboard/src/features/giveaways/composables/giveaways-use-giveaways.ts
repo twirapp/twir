@@ -63,7 +63,15 @@ export const useGiveaways = createGlobalState(() => {
 			toast.success(t('giveaways.notifications.created'), {
 				description,
 			});
-			return result.data?.giveawaysCreate;
+
+			const createdGiveaway = result.data?.giveawaysCreate as Giveaway | undefined;
+
+			// Для ONLINE_CHATTERS сразу запускаем гив
+			if (createdGiveaway && opts.type === 'ONLINE_CHATTERS') {
+				await startGiveaway(createdGiveaway.id);
+			}
+
+			return createdGiveaway;
 		} catch (error) {
 			toast.error(t('giveaways.notifications.error'), {
 				description: error instanceof Error ? error.message : 'Unknown error',
@@ -182,6 +190,11 @@ export const useGiveaways = createGlobalState(() => {
 	// Function to set the current giveaway ID
 	async function loadParticipants(giveawayId: string) {
 		if (!giveawayId) return;
+
+		// Очищаем старые данные перед загрузкой нового гива
+		participants.value = [];
+		winners.value = [];
+
 		currentGiveawayId.value = giveawayId;
 		await nextTick();
 		await fetchCurrentGiveaway({ requestPolicy: 'cache-and-network' });
