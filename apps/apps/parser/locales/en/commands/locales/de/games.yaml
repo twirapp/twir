@@ -28,7 +28,7 @@ errors:
   voteban_cannot_find_user: Zielnutzer nicht gefunden
   voteban_cannot_set_vote: Abstimmung kann nicht festgelegt werden
   voteban_cannot_set_vote_expiration: Ablaufdatum der Abstimmung kann nicht festgelegt werden
-  voteban_cannot_timeout_moderator: Cannot start voteban on moderator
+  voteban_cannot_timeout_moderator: Abstimmungsbann für Moderatoren kann nicht gestartet werden
 info:
   # Duel
   user_not_participate: Du nimmst an keinem Duell teil
