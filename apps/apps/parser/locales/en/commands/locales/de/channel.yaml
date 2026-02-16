@@ -1,24 +1,24 @@
 hints:
-  gameArgName: Category name or created category alias
+  gameArgName: Kategoriename oder erstellter Kategorie-Alias
 add:
   category_change: '✅ {categoryName}'
 errors:
   # Twitch-channel
-  broadcaster_twitch_client_cannot_create: Cannot create broadcaster twitch client
-  broadcaster_twitch_api_client: 'Cannot create broadcaster twitch api client: {reason}'
+  broadcaster_twitch_client_cannot_create: Broadcaster Twitch-Client kann nicht erstellt werden
+  broadcaster_twitch_api_client: 'Broadcaster Twitch API Client kann nicht erstellt werden: {reason}'
   # Channel
-  channel_cannot_get_information: Cannot get channel information
-  channel_not_found: Channel not found
+  channel_cannot_get_information: Kanalinformationen konnten nicht abgerufen werden
+  channel_not_found: Kanal nicht gefunden
   # Alias
-  alias_cannot_get_category: Cannot get category aliases
+  alias_cannot_get_category: Kategorie-Aliase können nicht abgerufen werden
   # Category
-  category_not_found: Category not found
-  category_cannot_get: Cannot get category
-  category_cannot_get_error: 'Cannot get category: {errorMessage}'
-  category_cannot_change: Cannot change category
-  category_cannot_change_error: 'Cannot change category: {errorMessage}'
+  category_not_found: Kategorie nicht gefunden
+  category_cannot_get: Kategorie kann nicht abgerufen werden
+  category_cannot_get_error: 'Kategorie kann nicht abgerufen werden: {errorMessage}'
+  category_cannot_change: Kategorie kann nicht geändert werden
+  category_cannot_change_error: 'Kategorie kann nicht geändert werden: {errorMessage}'
   # Game
-  game_not_found: Game not found on twitch
+  game_not_found: Spiel wurde nicht auf Twitch gefunden
   # History
-  history_game_message: Cannot find used games in database
-  history_title_message: 'Cannot get history of titles from database: {reason}'
+  history_game_message: Bereits gespielte Spiele konnten nicht von der Datenbank abgerufen werden
+  history_title_message: 'Verlauf der Titel aus der Datenbank kann nicht abgerufen werden: {reason}'
