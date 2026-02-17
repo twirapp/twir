@@ -3,4 +3,4 @@ errors:
   profile_not_found: 'Fehler beim Abrufen des 7TV Profils: {reason}'
   emote_not_found: 'Emote {name} wurde nicht gefunden'
   no_paint: Kein Paint
-  no_roles: Keine Rolle
+  no_roles: Keine Rollen
