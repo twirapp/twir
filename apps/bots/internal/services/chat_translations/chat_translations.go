@@ -214,7 +214,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 	res, err := c.translate(
 		ctx,
 		translateRequest{
-			Text:          msg.Message.Text,
+			Text:          textForDetect,
 			SrcLang:       msgLang.Language,
 			DestLang:      channelTranslationSettings.TargetLanguage,
 			ExcludedWords: excludedWords,
@@ -228,7 +228,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 		return nil
 	}
 
-	if res.TranslatedText[0] == msg.Message.Text {
+	if res.TranslatedText[0] == textForDetect {
 		return nil
 	}
 
