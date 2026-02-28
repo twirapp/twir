@@ -82,7 +82,24 @@ services:
 
   postgres:
     image: postgres:18.1
-    command: postgres -c max_connections=1000 -c shared_buffers=2GB -c effective_cache_size=6GB -c maintenance_work_mem=512MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200 -c work_mem=32MB -c huge_pages=off -c min_wal_size=1GB -c max_wal_size=4GB -c shared_preload_libraries='pg_stat_statements'
+    command: >
+      bash -c "
+      export POSTGRES_USER=$(cat /run/secrets/twir_postgres_user);
+      export POSTGRES_PASSWORD=$(cat /run/secrets/twir_postgres_password);
+      export POSTGRES_DB=$(cat /run/secrets/twir_postgres_db);
+
+      docker-entrypoint.sh postgres -c max_connections=1000 -c shared_buffers=2GB -c effective_cache_size=6GB -c maintenance_work_mem=512MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200 -c work_mem=32MB -c huge_pages=off -c min_wal_size=1GB -c max_wal_size=4GB -c shared_preload_libraries='pg_stat_statements' -c wal_level=replica -c max_wal_senders=10 &
+      PG_PID=\$!;
+
+      until pg_isready -U \$POSTGRES_USER 2>/dev/null; do sleep 1; done;
+
+      if ! grep -q 'host replication replicator all scram-sha-256' /var/lib/postgresql/18/docker/pg_hba.conf 2>/dev/null; then
+        echo 'host replication replicator all scram-sha-256' >> /var/lib/postgresql/18/docker/pg_hba.conf;
+        psql -U \$POSTGRES_USER -d \$POSTGRES_DB -c 'SELECT pg_reload_conf();' 2>/dev/null || true;
+      fi;
+
+      wait \$PG_PID
+      "
     environment:
       POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
@@ -93,6 +110,9 @@ services:
       - twir_postgres_db
     volumes:
       - pg18-data:/var/lib/postgresql
+    configs:
+      - source: postgres_primary_init
+        target: /docker-entrypoint-initdb.d/init.sql
     networks:
       - twir
     deploy:
@@ -104,6 +124,49 @@ services:
       placement:
         constraints:
           - node.labels.databases-1 == true
+
+  postgres-replica:
+    image: postgres:18.1
+    command: >
+      bash -c "
+      export POSTGRES_USER=$(cat /run/secrets/twir_postgres_user);
+      export POSTGRES_PASSWORD=$(cat /run/secrets/twir_postgres_password);
+      export POSTGRES_DB=$(cat /run/secrets/twir_postgres_db);
+      export REPLICATOR_PASSWORD=$(cat /run/secrets/twir_replicator_password);
+
+      echo 'Waiting for primary...';
+      until pg_isready -h postgres -p 5432 -U \$POSTGRES_USER; do sleep 2; done;
+
+      echo 'Primary ready. Checking replica state...';
+      if [ ! -s /var/lib/postgresql/18/docker/PG_VERSION ]; then
+        echo 'Initializing replica with pg_basebackup...';
+        mkdir -p /var/lib/postgresql/18;
+        rm -rf /var/lib/postgresql/18/docker;
+
+        PGPASSWORD=replicator pg_basebackup -h postgres -U replicator -D /var/lib/postgresql/18/docker -Fp -Xs -R -P || exit 1;
+
+        echo 'Basebackup complete';
+      else
+        echo 'Replica already initialized, skipping basebackup';
+      fi;
+
+      echo 'Starting PostgreSQL in standby mode...';
+      exec postgres -c max_connections=1000 -c shared_buffers=2GB -c effective_cache_size=6GB -c maintenance_work_mem=512MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200 -c work_mem=32MB -c huge_pages=off -c min_wal_size=1GB -c max_wal_size=4GB -c hot_standby=on
+      "
+    secrets:
+      - twir_postgres_user
+      - twir_postgres_password
+      - twir_postgres_db
+      - twir_replicator_password
+    networks:
+      - twir
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
 
   postgres-backup:
     image: registry.twir.app/twirapp/postgres-backup:latest
@@ -767,6 +830,9 @@ configs:
     file: ./configs/pgdog/pgdog.prod.toml
   pgdog_start_script:
     file: ./configs/pgdog/start.sh
+
+  postgres_primary_init:
+    file: ./configs/postgres/primary-init.sql
 
 volumes:
   pg18-data:
