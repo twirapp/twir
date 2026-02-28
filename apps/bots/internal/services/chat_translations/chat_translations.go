@@ -187,22 +187,26 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 		return nil
 	}
 
-	textForDetect := msg.Message.Text
+	textForTranslate := msg.Message.Text
 	for emoteName := range msg.EnrichedData.UsedEmotesWithThirdParty {
-		textForDetect = strings.ReplaceAll(textForDetect, emoteName, "")
+		textForTranslate = strings.ReplaceAll(textForTranslate, emoteName, "")
 	}
 
-	if utf8.RuneCountInString(textForDetect) < 5 {
+	if utf8.RuneCountInString(textForTranslate) < 5 {
 		return nil
 	}
 
-	msgLang, err := c.detectLanguage(ctx, textForDetect)
+	msgLang, err := c.detectLanguage(ctx, textForTranslate)
 	if err != nil {
 		c.logger.Error("cannot detect language", logger.Error(err))
 		return err
 	}
 
 	if msgLang.Language == channelTranslationSettings.TargetLanguage {
+		return nil
+	}
+
+	if slices.Contains(channelTranslationSettings.ExcludedLanguages, msgLang.Language) {
 		return nil
 	}
 
@@ -214,7 +218,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 	res, err := c.translate(
 		ctx,
 		translateRequest{
-			Text:          textForDetect,
+			Text:          textForTranslate,
 			SrcLang:       msgLang.Language,
 			DestLang:      channelTranslationSettings.TargetLanguage,
 			ExcludedWords: excludedWords,
@@ -228,7 +232,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 		return nil
 	}
 
-	if res.TranslatedText[0] == textForDetect {
+	if res.TranslatedText[0] == textForTranslate {
 		return nil
 	}
 
