@@ -278,7 +278,6 @@
         "@nuxtjs/fontaine": "0.5.0",
         "@nuxtjs/seo": "3.4.0",
         "@pinia/nuxt": "0.11.3",
-        "@std/async": "npm:@jsr/std__async",
         "@tailwindcss/vite": "4.1.18",
         "@tanstack/vue-table": "8.21.3",
         "@twir/api": "workspace:*",
@@ -1381,8 +1380,6 @@
     "@standard-schema/spec": ["@standard-schema/spec@1.0.0", "", {}, "sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA=="],
 
     "@standard-schema/utils": ["@standard-schema/utils@0.3.0", "", {}, "sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g=="],
-
-    "@std/async": ["@jsr/std__async@1.0.15", "https://npm.jsr.io/~/11/@jsr/std__async/1.0.15.tgz", {}, "sha512-GW6tMWwF79kKKVths4SWcju1cFykhcE+jiV6/k2IOW45611ji+Yomm0MZuW7JR4Oug+GXF0POrsAiSqL8k/9PQ=="],
 
     "@swc/helpers": ["@swc/helpers@0.5.17", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-5IKx/Y13RsYd+sauPb2x+U/xZikHjolzfuDgTAl/Tdf3Q8rslRvC19NKDLgAJQ6wsqADk10ntlv08nPFw/gO/A=="],
 

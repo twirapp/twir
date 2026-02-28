@@ -3,6 +3,7 @@ package baseapp
 import (
 	"context"
 	"log/slog"
+	"os"
 	"time"
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -25,6 +26,7 @@ import (
 	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
 	twirsentry "github.com/twirapp/twir/libs/sentry"
 	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
 )
 
 type Opts struct {
@@ -35,9 +37,9 @@ type Opts struct {
 
 func CreateBaseApp(opts Opts) fx.Option {
 	return fx.Options(
-		//fx.WithLogger(func() fxevent.Logger {
-		//	return &errorOnlyFxLogger{}
-		//}),
+		fx.WithLogger(func() fxevent.Logger {
+			return logger.NewFxLogger(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{})))
+		}),
 		fx.Provide(
 			config.NewFx,
 			otel.NewFx(opts.AppName),
