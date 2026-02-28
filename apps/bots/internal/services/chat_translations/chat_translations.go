@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	googletranslate "cloud.google.com/go/translate"
 	redislimiter "github.com/aidenwallis/go-ratelimiting/redis"
@@ -137,9 +138,13 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 		return nil
 	}
 
-	// if msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
-	// 	return struct{}{}
-	// }
+	if utf8.RuneCountInString(msg.Message.Text) < 5 {
+		return nil
+	}
+
+	if msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
+		return nil
+	}
 
 	resp, err := c.rateLimiter.Use(
 		ctx, &redislimiter.SlidingWindowOptions{
@@ -187,23 +192,17 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 		textForDetect = strings.ReplaceAll(textForDetect, emoteName, "")
 	}
 
+	if utf8.RuneCountInString(textForDetect) < 5 {
+		return nil
+	}
+
 	msgLang, err := c.detectLanguage(ctx, textForDetect)
 	if err != nil {
 		c.logger.Error("cannot detect language", logger.Error(err))
 		return err
 	}
 
-	if len(msgLang.DetectedLanguages) == 0 {
-		return nil
-	}
-
-	if msgLang.DetectedLanguages[0].Language == channelTranslationSettings.TargetLanguage {
-		return nil
-	}
-
-	bestDetected := msgLang.DetectedLanguages[0]
-
-	if slices.Contains(channelTranslationSettings.ExcludedLanguages, bestDetected.Language) {
+	if msgLang.Language == channelTranslationSettings.TargetLanguage {
 		return nil
 	}
 
@@ -216,7 +215,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 		ctx,
 		translateRequest{
 			Text:          msg.Message.Text,
-			SrcLang:       bestDetected.Language,
+			SrcLang:       msgLang.Language,
 			DestLang:      channelTranslationSettings.TargetLanguage,
 			ExcludedWords: excludedWords,
 		},

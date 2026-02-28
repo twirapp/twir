@@ -1,42 +1,44 @@
 package chat_translations
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 )
 
-type detectedLang struct {
-	Language    string  `json:"language"`
-	Probability float64 `json:"probability"`
+type detectedLangRequest struct {
+	Text   string `json:"text"`
+	Method string `json:"method,omitempty"`
 }
 
-type langDetectResult struct {
-	Text              string         `json:"text"`
-	CleanedText       string         `json:"cleaned_text"`
-	DetectedLanguages []detectedLang `json:"detected_languages"`
+type detectedLangResponse struct {
+	Language   string  `json:"language"`
+	Confidence float64 `json:"confidence"`
+	Method     string  `json:"method"`
 }
 
-func (c *Service) detectLanguage(ctx context.Context, text string) (*langDetectResult, error) {
+func (c *Service) detectLanguage(ctx context.Context, text string) (*detectedLangResponse, error) {
 	var reqUrl string
 	if c.config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-processor:3012/detect")
+		reqUrl = "http://language-processor:3000/detect"
 	} else {
 		reqUrl = "http://localhost:3012/detect"
 	}
 
-	u, err := url.Parse(reqUrl)
-	if err != nil {
+	requestBody := detectedLangRequest{
+		Text:   text,
+		Method: "mediapipe",
+	}
+
+	body := new(bytes.Buffer)
+	if err := json.NewEncoder(body).Encode(requestBody); err != nil {
 		return nil, err
 	}
-	q := u.Query()
-	q.Set("text", text)
-	u.RawQuery = q.Encode()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, reqUrl, body)
 	if err != nil {
 		return nil, err
 	}
@@ -47,17 +49,17 @@ func (c *Service) detectLanguage(ctx context.Context, text string) (*langDetectR
 	}
 	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
+	responseBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("cannot detect language: %s", string(body))
+		return nil, fmt.Errorf("cannot detect language: %s", string(responseBody))
 	}
 
-	var resp langDetectResult
-	if err := json.Unmarshal(body, &resp); err != nil {
+	var resp detectedLangResponse
+	if err := json.Unmarshal(responseBody, &resp); err != nil {
 		return nil, err
 	}
 

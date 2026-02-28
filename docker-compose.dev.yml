@@ -50,10 +50,10 @@ services:
       - twir-dev
 
   language-processor:
-    image: twirapp/language-processor:latest
+    image: twirapp/language-processor-py:latest
     restart: unless-stopped
     ports:
-      - "3012:3012"
+      - "3012:3000"
     environment:
       - APP_ENV=development
 

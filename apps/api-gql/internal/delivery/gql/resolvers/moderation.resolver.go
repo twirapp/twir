@@ -141,7 +141,7 @@ func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Contex
 
 	var reqUrl string
 	if r.deps.Config.AppEnv == "production" {
-		reqUrl = fmt.Sprint("http://language-processor:3012")
+		reqUrl = fmt.Sprint("http://language-processor:3000")
 	} else {
 		reqUrl = "http://localhost:3012"
 	}
