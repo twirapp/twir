@@ -35,6 +35,7 @@ adhere to these guidelines strictly to maintain code consistency and quality.
   syntax. Do not use the `setup()` function within the `export default` block.
 - **Type Definitions:** Use `defineProps`, `defineEmits`, and `defineSlots` with explicit TypeScript
   types for clear, type-safe component interfaces.
+- **Model instead of emit update** Use new vue syntax for shorter code, for example instaed of `emit('open:update', value)` use `defineModel`
 
 **Example:**
 
@@ -45,13 +46,12 @@ import { computed } from "vue";
 // Use interface or type for props definition
 interface Props {
   title: string;
-  isActive?: boolean;
   items: string[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  isActive: false,
-});
+const props = withDefaults(defineProps<Props>(), {});
+
+const isActive = defineModel<boolean>({ default: false })
 
 const emit = defineEmits<{
   (e: "itemSelected", item: string): void;
@@ -60,6 +60,7 @@ const emit = defineEmits<{
 
 const handleItemClick = (item: string) => {
   emit("itemSelected", item);
+	isActive.value = false
 };
 
 const titleDisplay = computed(() => props.title.toUpperCase());
