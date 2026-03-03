@@ -46,11 +46,17 @@ func New(opts Opts) (*MessagesUpdater, error) {
 		discordRepo:  opts.DiscordRepo,
 	}
 
+	closeCtx, closeFunc := context.WithCancel(context.Background())
+
 	// Start periodic updater in background
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				go updater.StartPeriodicUpdater(ctx)
+				go updater.StartPeriodicUpdater(closeCtx)
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				closeFunc()
 				return nil
 			},
 		},
