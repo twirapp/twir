@@ -8,12 +8,25 @@
 	"quoteProps": "as-needed",
 	"singleQuote": true,
 	"bracketSpacing": true,
-	"experimentalSortImports": {
-		"enabled": true,
-		"order": "asc",
-		"ignoreCase": true,
+	"bracketSameLine": true,
+	"insertFinalNewline": true,
+	"embeddedLanguageFormatting": "auto",
+	"sortImports": {
 		"newlinesBetween": true,
+		"ignoreCase": true,
+		"groups": [
+			["value-builtin", "value-external"],
+			["value-internal", "value-parent", "value-sibling", "value-index"],
+			{ "newlinesBetween": true },
+			"type-import",
+			"unknown"
+		]
+	},
+	"sortTailwindcss": {
+		"functions": ["clsx", "cn"],
+		"preserveWhitespace": true,
+		"preserveDuplicates": true
 	},
 	"singleAttributePerLine": true,
-	"ignorePatterns": ["dist/**", "node_modules/**", "build/**", ".output", ".nuxt"],
+	"ignorePatterns": ["dist/**", "node_modules/**", "build/**", ".output", ".nuxt"]
 }
