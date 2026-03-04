@@ -8,7 +8,7 @@
 	"quoteProps": "as-needed",
 	"singleQuote": true,
 	"bracketSpacing": true,
-	"bracketSameLine": true,
+	"bracketSameLine": false,
 	"insertFinalNewline": true,
 	"embeddedLanguageFormatting": "auto",
 	"sortImports": {

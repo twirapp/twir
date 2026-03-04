@@ -159,7 +159,8 @@ onMounted(() => {
 				v-if="!iconOnly"
 				variant="outline"
 				class="text-muted-foreground relative h-9 w-full justify-start text-sm sm:pr-12 md:w-48 lg:w-64"
-				@click="open = true">
+				@click="open = true"
+			>
 				<Command class="mr-2 h-4 w-4" />
 				<span class="hidden lg:inline-flex">Search...</span>
 				<span class="inline-flex lg:hidden">Search...</span>
@@ -173,20 +174,23 @@ onMounted(() => {
 				variant="ghost"
 				size="icon"
 				class="h-9 w-9"
-				@click="open = true">
+				@click="open = true"
+			>
 				<Search class="h-5 w-5" />
 			</Button>
 		</DialogTrigger>
 		<DialogContent
 			class="gap-0 p-0"
-			:show-close-button="false">
+			:show-close-button="false"
+		>
 			<DialogHeader class="sr-only">
 				<DialogTitle>Command Menu</DialogTitle>
 				<DialogDescription>Search for pages and entities</DialogDescription>
 			</DialogHeader>
 			<CommandRoot
 				class="rounded-lg border-none shadow-md"
-				v-model="selectedValue">
+				v-model="selectedValue"
+			>
 				<CommandInput placeholder="Type to search..." />
 				<CommandList class="max-h-[400px]">
 					<CommandEmpty class="text-muted-foreground py-6 text-center text-sm">
@@ -201,29 +205,34 @@ onMounted(() => {
 							:value="`page ${route.displayName}`"
 							:is-active="route.path === $route.path"
 							@select="() => runCommand(() => router.push(route.path))"
-							class="cursor-pointer">
+							class="cursor-pointer"
+						>
 							<component
 								:is="route.icon"
-								class="mr-2 h-4 w-4 flex-shrink-0" />
+								class="mr-2 h-4 w-4 flex-shrink-0"
+							/>
 							<span class="truncate">{{ route.displayName }}</span>
 						</CommandMenuItem>
 					</CommandGroup>
 
 					<!-- Dashboards -->
 					<CommandGroup
-						v-if="availableDashboards.length > 1"
-						heading="Dashboards">
+						v-if="profile?.availableDashboards && profile.availableDashboards.length > 1"
+						heading="Dashboards"
+					>
 						<CommandMenuItem
-							v-for="dashboard in availableDashboards"
+							v-for="dashboard in profile.availableDashboards"
 							:key="dashboard.id"
 							:value="`dashboard ${dashboard.twitchProfile.login} ${dashboard.twitchProfile.displayName}`"
 							:is-active="dashboard.id === currentDashboard?.id"
 							@select="() => runCommand(() => setDashboard(dashboard.id))"
-							class="cursor-pointer">
+							class="cursor-pointer"
+						>
 							<Avatar class="mr-2 h-4 w-4 flex-shrink-0">
 								<AvatarImage
 									:src="dashboard.twitchProfile.profileImageUrl"
-									:alt="dashboard.twitchProfile.displayName" />
+									:alt="dashboard.twitchProfile.displayName"
+								/>
 								<AvatarFallback>
 									<User class="h-3 w-3" />
 								</AvatarFallback>
@@ -238,7 +247,8 @@ onMounted(() => {
 					<!-- Footer Links -->
 					<CommandGroup
 						v-if="footerRoutes.length > 0"
-						heading="Links">
+						heading="Links"
+					>
 						<CommandMenuItem
 							v-for="item in footerRoutes"
 							:key="item.href"
@@ -249,10 +259,12 @@ onMounted(() => {
 										? openExternalLink(item.href)
 										: runCommand(() => router.push(item.href))
 							"
-							class="cursor-pointer">
+							class="cursor-pointer"
+						>
 							<component
 								:is="item.icon"
-								class="mr-2 h-4 w-4 flex-shrink-0" />
+								class="mr-2 h-4 w-4 flex-shrink-0"
+							/>
 							<span class="truncate">{{ item.displayName }}</span>
 						</CommandMenuItem>
 					</CommandGroup>
@@ -260,7 +272,8 @@ onMounted(() => {
 					<!-- Commands -->
 					<CommandGroup
 						v-if="commands.length > 0"
-						heading="Commands">
+						heading="Commands"
+					>
 						<CommandMenuItem
 							v-for="command in commands.filter((c) => c.enabled)"
 							:key="command.id"
@@ -268,12 +281,14 @@ onMounted(() => {
 							@select="
 								() => runCommand(() => router.push(`/dashboard/commands/custom/${command.id}`))
 							"
-							class="cursor-pointer">
+							class="cursor-pointer"
+						>
 							<Command class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ command.name }}</span>
 							<span
 								v-if="command.description"
-								class="text-muted-foreground ml-auto max-w-[200px] truncate text-xs">
+								class="text-muted-foreground ml-auto max-w-[200px] truncate text-xs"
+							>
 								{{ command.description }}
 							</span>
 						</CommandMenuItem>
@@ -282,13 +297,15 @@ onMounted(() => {
 					<!-- Keywords -->
 					<CommandGroup
 						v-if="keywords.length > 0"
-						heading="Keywords">
+						heading="Keywords"
+					>
 						<CommandMenuItem
 							v-for="keyword in keywords.filter((k) => k.enabled)"
 							:key="keyword.id"
 							:value="`keyword ${keyword.text}`"
 							@select="() => runCommand(() => router.push(`/dashboard/keywords`))"
-							class="cursor-pointer">
+							class="cursor-pointer"
+						>
 							<Hash class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ keyword.text }}</span>
 						</CommandMenuItem>
@@ -297,18 +314,21 @@ onMounted(() => {
 					<!-- Variables -->
 					<CommandGroup
 						v-if="variables.length > 0"
-						heading="Variables">
+						heading="Variables"
+					>
 						<CommandMenuItem
 							v-for="variable in variables"
 							:key="variable.id"
 							:value="`variable ${variable.name} ${variable.description || ''}`"
 							@select="() => runCommand(() => router.push(`/dashboard/variables/${variable.id}`))"
-							class="cursor-pointer">
+							class="cursor-pointer"
+						>
 							<Variable class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ variable.name }}</span>
 							<span
 								v-if="variable.description"
-								class="text-muted-foreground ml-auto max-w-[200px] truncate text-xs">
+								class="text-muted-foreground ml-auto max-w-[200px] truncate text-xs"
+							>
 								{{ variable.description }}
 							</span>
 						</CommandMenuItem>
@@ -324,14 +344,16 @@ onMounted(() => {
 				</div>
 				<Separator
 					orientation="vertical"
-					class="h-4" />
+					class="h-4"
+				/>
 				<div class="flex items-center gap-1">
 					<CommandMenuKbd>Enter</CommandMenuKbd>
 					<span>to select</span>
 				</div>
 				<Separator
 					orientation="vertical"
-					class="h-4" />
+					class="h-4"
+				/>
 				<div class="flex items-center gap-1">
 					<CommandMenuKbd>Esc</CommandMenuKbd>
 					<span>to close</span>
