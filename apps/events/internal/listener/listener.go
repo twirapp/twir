@@ -837,7 +837,6 @@ func (c *EventsGrpcImplementation) Donate(
 					ChannelID: msg.BaseInfo.ChannelID,
 				},
 			)
-
 			if err != nil {
 				c.logger.Error("Error processing donation", logger.Error(err))
 			}
@@ -1217,25 +1216,26 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 	ctx context.Context, msg events.StreamFirstUserJoinMessage,
 ) (struct{}, error) {
-	wg := utils.NewGoroutinesGroup()
-
-	wg.Go(
-		func() {
-			err := c.eventsWorkflow.Execute(
-				ctx,
-				model.EventTypeFirstUserMessage,
-				shared.EventData{
-					ChannelID: msg.BaseInfo.ChannelID,
-					UserName:  msg.UserLogin,
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error execute workflow", logger.Error(err))
-			}
-		},
-	)
-
-	wg.Wait()
+	// todo: there is no StreamFirstUserJoin in model, need to implement
+	//wg := utils.NewGoroutinesGroup()
+	//
+	//wg.Go(
+	//	func() {
+	//		err := c.eventsWorkflow.Execute(
+	//			ctx,
+	//			model.EventTypeFirstUserMessage,
+	//			shared.EventData{
+	//				ChannelID: msg.BaseInfo.ChannelID,
+	//				UserName:  msg.UserLogin,
+	//			},
+	//		)
+	//		if err != nil {
+	//			c.logger.Error("Error execute workflow", logger.Error(err))
+	//		}
+	//	},
+	//)
+	//
+	//wg.Wait()
 
 	return struct{}{}, nil
 }

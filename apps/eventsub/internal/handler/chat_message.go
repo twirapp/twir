@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -114,11 +115,12 @@ func (c *Handler) HandleChannelChatMessage(
 			ChannelID:                &data.BroadcasterUserId,
 			Badges:                   data.Badges,
 			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,
-			ShouldUpdateStats:        data.EnrichedData.ChannelStream != nil && data.EnrichedData.ChannelStream.ID != "",
-			IsBroadcaster:            data.IsChatterBroadcaster(),
-			IsModerator:              data.IsChatterModerator(),
-			IsVip:                    data.IsChatterVip(),
-			IsSubscriber:             data.IsChatterSubscriber(),
+			ShouldUpdateStats: data.EnrichedData.ChannelStream != nil &&
+				data.EnrichedData.ChannelStream.ID != "",
+			IsBroadcaster: data.IsChatterBroadcaster(),
+			IsModerator:   data.IsChatterModerator(),
+			IsVip:         data.IsChatterVip(),
+			IsSubscriber:  data.IsChatterSubscriber(),
 		},
 	)
 	if err != nil {
@@ -151,19 +153,53 @@ func (c *Handler) HandleChannelChatMessage(
 		UpdatedAt:         ensuredUserStats.UpdatedAt,
 	}
 
-	if err := c.twirBus.ChatMessages.Publish(ctx, data); err != nil {
-		c.logger.Error("cannot publish message for handle", logger.Error(err))
-	}
+	var wg sync.WaitGroup
 
-	isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
-	// ignore bot himself from chat commands
-	if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
-		return
-	} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
-		if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
-			c.logger.Error("cannot publish process command", logger.Error(err))
-		}
-	}
+	wg.Go(
+		func() {
+			// first message
+			if data.MessageType == "user_intro" {
+				if err := c.twirBus.Events.FirstUserMessage.Publish(
+					ctx, events.FirstUserMessageMessage{
+						BaseInfo: events.BaseInfo{
+							ChannelID:   data.BroadcasterUserId,
+							ChannelName: data.BroadcasterUserLogin,
+						},
+						UserID:          data.ChatterUserId,
+						UserName:        data.ChatterUserLogin,
+						UserDisplayName: data.ChatterUserName,
+						MessageID:       data.MessageId,
+					},
+				); err != nil {
+					c.logger.Error("cannot publish first user message", logger.Error(err))
+				}
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			if err := c.twirBus.ChatMessages.Publish(ctx, data); err != nil {
+				c.logger.Error("cannot publish message for handle", logger.Error(err))
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
+			// ignore bot himself from chat commands
+			if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
+				return
+			} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
+				if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
+					c.logger.Error("cannot publish process command", logger.Error(err))
+				}
+			}
+		},
+	)
+
+	wg.Wait()
 }
 
 func (c *Handler) HandleChannelChatMessageDelete(
