@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
@@ -19,7 +20,7 @@ import (
 func (r *mutationResolver) SevenTvUpdate(ctx context.Context, input gqlmodel.SevenTvUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.SevenTvIntegrationService.CreateOrUpdateSevenTvData(
@@ -42,7 +43,7 @@ func (r *mutationResolver) SevenTvUpdate(ctx context.Context, input gqlmodel.Sev
 func (r *subscriptionResolver) SevenTvData(ctx context.Context) (<-chan *gqlmodel.SevenTvIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.SevenTvIntegration, 1)

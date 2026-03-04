@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -43,7 +44,7 @@ func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.Va
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.VariableModelToGql(variable)
@@ -84,7 +85,7 @@ func (r *mutationResolver) VariablesUpdate(ctx context.Context, id uuid.UUID, op
 
 	updatedVariable, err := r.deps.VariablesService.Update(ctx, input)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.VariableModelToGql(updatedVariable)
@@ -104,7 +105,7 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id uuid.UUID) (b
 	}
 
 	if err := r.deps.VariablesService.Delete(ctx, id, dashboardId, user.ID); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -117,13 +118,18 @@ func (r *mutationResolver) ExecuteScript(ctx context.Context, script string, lan
 		return "", err
 	}
 
-	return r.deps.VariablesService.EvaluateScript(
+	result, err := r.deps.VariablesService.EvaluateScript(
 		ctx,
 		dashboardID,
 		script,
 		mappers.VariableScriptLanguageToEntity(language),
 		testAsUserName,
 	)
+	if err != nil {
+		return "", gqlerrors.HandleError(err)
+	}
+
+	return result, nil
 }
 
 // Variables is the resolver for the variables field.

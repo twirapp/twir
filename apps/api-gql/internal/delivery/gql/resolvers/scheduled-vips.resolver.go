@@ -10,6 +10,7 @@ import (
 	"time"
 
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -21,7 +22,7 @@ import (
 func (r *mutationResolver) ScheduledVipsCreate(ctx context.Context, input gqlmodel.ScheduledVipsCreateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	var removeAt *time.Time
@@ -53,7 +54,7 @@ func (r *mutationResolver) ScheduledVipsCreate(ctx context.Context, input gqlmod
 		},
 	)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -63,7 +64,7 @@ func (r *mutationResolver) ScheduledVipsCreate(ctx context.Context, input gqlmod
 func (r *mutationResolver) ScheduledVipsRemove(ctx context.Context, id string, input gqlmodel.ScheduledVipsRemoveInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.ScheduledVipsService.Remove(
@@ -75,7 +76,7 @@ func (r *mutationResolver) ScheduledVipsRemove(ctx context.Context, id string, i
 		},
 	)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -85,7 +86,7 @@ func (r *mutationResolver) ScheduledVipsRemove(ctx context.Context, id string, i
 func (r *mutationResolver) ScheduledVipsUpdate(ctx context.Context, id string, input gqlmodel.ScheduledVipsUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	newRemoveAt := time.UnixMilli(int64(input.RemoveAt))
@@ -97,7 +98,7 @@ func (r *mutationResolver) ScheduledVipsUpdate(ctx context.Context, id string, i
 		&newRemoveAt,
 	)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -107,12 +108,12 @@ func (r *mutationResolver) ScheduledVipsUpdate(ctx context.Context, id string, i
 func (r *queryResolver) ScheduledVips(ctx context.Context) ([]gqlmodel.ScheduledVip, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	vips, err := r.deps.ScheduledVipsService.GetScheduledVips(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedVips := make([]gqlmodel.ScheduledVip, 0, len(vips))

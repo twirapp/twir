@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/logger"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 )
@@ -38,19 +39,21 @@ type CreateResponse struct {
 func (c *Service) Create(ctx context.Context, data CreateInput) (timersentity.Timer, error) {
 	plan, err := c.plansRepository.GetByChannelID(ctx, data.ChannelID)
 	if err != nil {
-		return timersentity.Nil, fmt.Errorf("failed to get plan: %w", err)
+		return timersentity.Nil, errors.NewInternalError("Failed to get plan", err)
 	}
 	if plan.IsNil() {
-		return timersentity.Nil, fmt.Errorf("plan not found for channel")
+		return timersentity.Nil, errors.NewNotFoundError("Plan configuration not found for your channel")
 	}
 
 	createdCount, err := c.timersRepository.CountByChannelID(ctx, data.ChannelID)
 	if err != nil {
-		return timersentity.Nil, err
+		return timersentity.Nil, errors.NewInternalError("Failed to count timers", err)
 	}
 
 	if createdCount >= plan.MaxTimers {
-		return timersentity.Nil, fmt.Errorf("you can have only %v timers", plan.MaxTimers)
+		return timersentity.Nil, errors.NewBadRequestError(
+			fmt.Sprintf("You have reached the maximum limit of %v timers", plan.MaxTimers),
+		)
 	}
 
 	responses := make([]timersrepository.CreateResponse, 0, len(data.Responses))
@@ -85,7 +88,7 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (timersentity.Ti
 		},
 	)
 	if err != nil {
-		return timersentity.Nil, err
+		return timersentity.Nil, errors.NewInternalError("Failed to create timer", err)
 	}
 
 	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
@@ -130,7 +133,7 @@ func (c *Service) CreateMany(ctx context.Context, data []CreateInput) (bool, err
 		},
 	)
 	if txErr != nil {
-		return false, fmt.Errorf("failed to create timers: %w", txErr)
+		return false, errors.NewInternalError("Failed to create timers", txErr)
 	}
 
 	return false, nil

@@ -9,6 +9,7 @@ import (
 	"context"
 
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -84,7 +85,7 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 
 	logs, err := r.deps.AuditLogsService.GetMany(ctx, logsInput)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	gqllogs := make([]gqlmodel.AdminAuditLog, 0, len(logs))
@@ -106,7 +107,7 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 
 	total, err := r.deps.AuditLogsService.Count(ctx, audit_logs.GetCountInput{})
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &gqlmodel.AdminAuditLogResponse{

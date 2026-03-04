@@ -2,20 +2,16 @@ package gamesvoteban
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"go.uber.org/fx"
-
 	"github.com/twirapp/twir/libs/audit"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
+	apperrors "github.com/twirapp/twir/libs/errors"
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
+	"go.uber.org/fx"
 )
-
-var ErrDuplicateWords = errors.New("vote options words must be unique")
 
 type Opts struct {
 	fx.In
@@ -62,11 +58,11 @@ func (s *Service) GetByChannelID(ctx context.Context, channelID string) (
 ) {
 	result, err := s.repository.GetOrCreateByChannelID(ctx, channelID, defaultSettings)
 	if err != nil {
-		return votebanentity.Nil, fmt.Errorf("failed to get or create games voteban: %w", err)
+		return votebanentity.Nil, apperrors.NewInternalError("Failed to get or create voteban settings", err)
 	}
 
 	if err = s.cacher.Invalidate(ctx, result.ChannelID); err != nil {
-		return votebanentity.Nil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return votebanentity.Nil, apperrors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return result, nil
@@ -95,14 +91,20 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (votebanentity.
 	// Get current entity first (or create with defaults)
 	currentEntity, err := s.repository.GetOrCreateByChannelID(ctx, input.ChannelID, defaultSettings)
 	if err != nil {
-		return votebanentity.Nil, fmt.Errorf("failed to get or create games voteban: %w", err)
+		return votebanentity.Nil, apperrors.NewInternalError("Failed to get or create voteban settings", err)
 	}
 
 	// Check if vote options words are unique (usually there are no more than 2-3 of them)
 	for _, positive := range input.ChatVotesWordsPositive {
 		for _, negative := range input.ChatVotesWordsNegative {
 			if negative == positive {
-				return votebanentity.Voteban{}, ErrDuplicateWords
+				return votebanentity.Voteban{}, apperrors.NewValidationError(
+					"Vote option words must be unique",
+					map[string]any{
+						"positive": input.ChatVotesWordsPositive,
+						"negative": input.ChatVotesWordsNegative,
+					},
+				)
 			}
 		}
 	}
@@ -126,7 +128,7 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (votebanentity.
 
 	updatedEntity, err := s.repository.Update(ctx, currentEntity.ID, updateInput)
 	if err != nil {
-		return votebanentity.Nil, fmt.Errorf("failed to update games voteban: %w", err)
+		return votebanentity.Nil, apperrors.NewInternalError("Failed to update voteban settings", err)
 	}
 
 	_ = s.auditRecorder.RecordUpdateOperation(
@@ -144,7 +146,7 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (votebanentity.
 	)
 
 	if err := s.cacher.Invalidate(ctx, input.ChannelID); err != nil {
-		return votebanentity.Nil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return votebanentity.Nil, apperrors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return updatedEntity, nil

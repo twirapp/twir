@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
 
 import {
 	type GreetingsCreateInputInput,
 	GreetingsCreateInputSchema,
 	type GreetingsUpdateInputInput,
 	GreetingsUpdateInputSchema,
-} from '@/gql/validation-schemas.js'
-import { type Greetings, useGreetingsApi } from '@/api/greetings'
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
-import TwitchUserSelect from '@/components/twitchUsers/twitch-user-select.vue'
-import { Button } from '@/components/ui/button'
+} from '@/gql/validation-schemas.js';
+import { type Greetings, useGreetingsApi } from '@/api/greetings';
+import DialogOrSheet from '@/components/dialog-or-sheet.vue';
+import TwitchUserSelect from '@/components/twitchUsers/twitch-user-select.vue';
+import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from '@/components/ui/dialog'
-import VariableInput from '@/components/variable-input.vue'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Switch } from '@/components/ui/switch'
-import { toast } from 'vue-sonner'
+} from '@/components/ui/dialog';
+import VariableInput from '@/components/variable-input.vue';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'vue-sonner';
 
 const props = defineProps<{
 	greeting?: Greetings | null
@@ -63,20 +63,25 @@ function isUpdate(
 
 const onSubmit = greetingForm.handleSubmit(async (values) => {
 	try {
+		let e: unknown
 		if (isUpdate(values)) {
-			await greetingsUpdate.executeMutation({
+			const { error } = await greetingsUpdate.executeMutation({
 				id: props.greeting!.id,
 				opts: values,
 			})
+			e = error
 		} else {
-			await greetingsCreate.executeMutation({ opts: values })
+			const { error } = await greetingsCreate.executeMutation({ opts: values })
+			e = error
 		}
-		emits('close')
-		open.value = false
 
-		toast.success('Saved', {
-			duration: 2500,
-		})
+		if (!e) {
+			toast.success('Saved', {
+				duration: 2500,
+			})
+			emits('close')
+			open.value = false
+		}
 	} catch (e) {
 		console.error(e)
 

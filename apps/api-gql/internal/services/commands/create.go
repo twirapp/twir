@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/libs/audit"
 	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
@@ -60,15 +61,15 @@ type CreateInputRoleCooldown struct {
 func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrelationentity.Command, error) {
 	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return commandwithrelationentity.CommandNil, fmt.Errorf("failed to get plan: %w", err)
+		return commandwithrelationentity.CommandNil, errors.NewInternalError("failed to get plan", err)
 	}
 	if plan.IsNil() {
-		return commandwithrelationentity.CommandNil, fmt.Errorf("plan not found for channel")
+		return commandwithrelationentity.CommandNil, errors.NewNotFoundError("Plan configuration not found for your channel")
 	}
 
 	cmds, err := c.commandsRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return commandwithrelationentity.CommandNil, fmt.Errorf("failed to get commands: %w", err)
+		return commandwithrelationentity.CommandNil, errors.NewInternalError("failed to get commands", err)
 	}
 
 	var createdCommands int
@@ -79,13 +80,14 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 	}
 
 	if createdCommands >= plan.MaxCommands {
-		return commandwithrelationentity.CommandNil, fmt.Errorf("maximum commands limit reached")
+		return commandwithrelationentity.CommandNil, errors.NewBadRequestError(
+			fmt.Sprintf("You have reached the maximum limit of %d commands", plan.MaxCommands),
+		)
 	}
 
 	if len(input.Responses) > plan.MaxCommandsResponses {
-		return commandwithrelationentity.CommandNil, fmt.Errorf(
-			"you can have only %v responses per command",
-			plan.MaxCommandsResponses,
+		return commandwithrelationentity.CommandNil, errors.NewBadRequestError(
+			fmt.Sprintf("You have reached the maximum limit of %d responses per command", plan.MaxCommandsResponses),
 		)
 	}
 
@@ -96,10 +98,10 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 		nil,
 	)
 	if err != nil {
-		return commandwithrelationentity.CommandNil, err
+		return commandwithrelationentity.CommandNil, errors.NewInternalError("failed to check name conflict", err)
 	}
 	if isNameConflict {
-		return commandwithrelationentity.CommandNil, fmt.Errorf("command with this name or alias already exists")
+		return commandwithrelationentity.CommandNil, errors.NewConflictError("A command with this name or alias already exists")
 	}
 
 	aliases := make([]string, 0, len(input.Aliases))
@@ -146,7 +148,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 				},
 			)
 			if err != nil {
-				return fmt.Errorf("failed to create command: %w", err)
+				return errors.NewInternalError("failed to create command", err)
 			}
 
 			dbCmd = newCommand
@@ -164,14 +166,14 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 					},
 				)
 				if err != nil {
-					return fmt.Errorf("failed to create command response: %w", err)
+					return errors.NewInternalError("failed to create command response", err)
 				}
 			}
 
 			for _, roleCooldown := range input.RoleCooldowns {
 				roleID, err := uuid.Parse(roleCooldown.RoleID)
 				if err != nil {
-					return fmt.Errorf("failed to parse role ID: %w", err)
+					return errors.NewBadRequestError(fmt.Sprintf("invalid role ID: %s", roleCooldown.RoleID))
 				}
 
 				_, err = c.commandRoleCooldownsRepository.Create(
@@ -183,19 +185,19 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 					},
 				)
 				if err != nil {
-					return fmt.Errorf("failed to create role cooldown: %w", err)
+					return errors.NewInternalError("failed to create role cooldown", err)
 				}
 			}
 
 			if err := c.cachedCommandsClient.Invalidate(ctx, input.ChannelID); err != nil {
-				return fmt.Errorf("failed to invalidate cached commands: %w", err)
+				return errors.NewInternalError("failed to invalidate cached commands", err)
 			}
 
 			return nil
 		},
 	)
 	if trErr != nil {
-		return commandwithrelationentity.CommandNil, fmt.Errorf("failed to create command: %w", trErr)
+		return commandwithrelationentity.CommandNil, trErr
 	}
 
 	convertedCommand := c.modelToEntity(dbCmd)

@@ -8,6 +8,7 @@ package resolvers
 import (
 	"context"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 )
@@ -15,7 +16,7 @@ import (
 // DropAllAuthSessions is the resolver for the dropAllAuthSessions field.
 func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error) {
 	if err := r.deps.AdminActionsService.DropAllAuthSessions(ctx); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -31,7 +32,7 @@ func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.
 		},
 	)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -40,7 +41,7 @@ func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.
 // RescheduleTimers is the resolver for the rescheduleTimers field.
 func (r *mutationResolver) RescheduleTimers(ctx context.Context) (bool, error) {
 	if err := r.deps.AdminActionsService.RescheduleTimers(ctx); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -49,7 +50,7 @@ func (r *mutationResolver) RescheduleTimers(ctx context.Context) (bool, error) {
 // EventsubInitChannels is the resolver for the eventsubInitChannels field.
 func (r *mutationResolver) EventsubInitChannels(ctx context.Context) (bool, error) {
 	if err := r.deps.AdminActionsService.EventsubReinitChannels(ctx); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil

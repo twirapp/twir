@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/webhook_notifications"
@@ -21,12 +22,12 @@ import (
 func (r *mutationResolver) WebhookNotificationsCreate(ctx context.Context, input gqlmodel.WebhookNotificationsCreateInput) (*gqlmodel.WebhookNotificationsSettings, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	settings, err := r.deps.WebhookNotificationsService.Create(
@@ -41,7 +42,7 @@ func (r *mutationResolver) WebhookNotificationsCreate(ctx context.Context, input
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := mappers.WebhookNotificationsEntityToGql(settings)
@@ -52,12 +53,12 @@ func (r *mutationResolver) WebhookNotificationsCreate(ctx context.Context, input
 func (r *mutationResolver) WebhookNotificationsUpdate(ctx context.Context, id string, input gqlmodel.WebhookNotificationsUpdateInput) (*gqlmodel.WebhookNotificationsSettings, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	parsedID, err := uuid.Parse(id)
@@ -78,7 +79,7 @@ func (r *mutationResolver) WebhookNotificationsUpdate(ctx context.Context, id st
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := mappers.WebhookNotificationsEntityToGql(settings)
@@ -89,12 +90,12 @@ func (r *mutationResolver) WebhookNotificationsUpdate(ctx context.Context, id st
 func (r *mutationResolver) WebhookNotificationsDelete(ctx context.Context, id string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	parsedID, err := uuid.Parse(id)
@@ -110,7 +111,7 @@ func (r *mutationResolver) WebhookNotificationsDelete(ctx context.Context, id st
 			ActorID:   user.ID,
 		},
 	); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -120,7 +121,7 @@ func (r *mutationResolver) WebhookNotificationsDelete(ctx context.Context, id st
 func (r *queryResolver) WebhookNotifications(ctx context.Context) (*gqlmodel.WebhookNotificationsSettings, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	settings, err := r.deps.WebhookNotificationsService.GetByChannelID(ctx, dashboardID)
@@ -128,7 +129,7 @@ func (r *queryResolver) WebhookNotifications(ctx context.Context) (*gqlmodel.Web
 		if errors.Is(err, channelsmoduleswebhooks.ErrSettingsNotFound) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := mappers.WebhookNotificationsEntityToGql(settings)

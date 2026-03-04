@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/dashboard_widget"
+	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/dashboard_widgets"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
@@ -137,13 +138,14 @@ func (s *Service) UpdateCustom(ctx context.Context, input UpdateCustomInput) (da
 	}
 
 	if targetWidget == nil {
-		return dashboard_widget.DashboardWidget{}, fmt.Errorf("widget not found: %s", input.WidgetID)
+		return dashboard_widget.DashboardWidget{}, apperrors.NewNotFoundError(
+			"Widget with this ID was not found for your channel",
+		)
 	}
 
 	if targetWidget.Type != dashboard_widget.WidgetTypeCustom {
-		return dashboard_widget.DashboardWidget{}, fmt.Errorf(
-			"widget is not a custom widget: %s",
-			input.WidgetID,
+		return dashboard_widget.DashboardWidget{}, apperrors.NewBadRequestError(
+			"This widget is not a custom widget and cannot be edited",
 		)
 	}
 
@@ -196,7 +198,7 @@ func (s *Service) Delete(ctx context.Context, input DeleteInput) error {
 	}
 
 	if !found {
-		return fmt.Errorf("widget not found: %s", input.WidgetID)
+		return apperrors.NewNotFoundError("Widget with this ID was not found for your channel")
 	}
 
 	for i := range widgets {

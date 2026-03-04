@@ -10,6 +10,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
@@ -20,12 +21,12 @@ import (
 func (r *mutationResolver) ChatTranslationCreate(ctx context.Context, input gqlmodel.ChatTranslationCreateInput) (*gqlmodel.ChatTranslation, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	createInput := chat_translation.CreateInput{
@@ -40,7 +41,7 @@ func (r *mutationResolver) ChatTranslationCreate(ctx context.Context, input gqlm
 
 	translation, err := r.deps.ChatTranslationService.Create(ctx, createInput)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := mappers.ChatTranslationEntityTo(translation)
@@ -51,12 +52,12 @@ func (r *mutationResolver) ChatTranslationCreate(ctx context.Context, input gqlm
 func (r *mutationResolver) ChatTranslationUpdate(ctx context.Context, id string, input gqlmodel.ChatTranslationUpdateInput) (*gqlmodel.ChatTranslation, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	updateInput := chat_translation.UpdateInput{
@@ -87,12 +88,12 @@ func (r *mutationResolver) ChatTranslationUpdate(ctx context.Context, id string,
 
 	parsedId, err := uuid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	translation, err := r.deps.ChatTranslationService.Update(ctx, parsedId, updateInput)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := mappers.ChatTranslationEntityTo(translation)
@@ -103,17 +104,17 @@ func (r *mutationResolver) ChatTranslationUpdate(ctx context.Context, id string,
 func (r *mutationResolver) ChatTranslationDelete(ctx context.Context, id string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	parsedId, err := uuid.Parse(id)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if err := r.deps.ChatTranslationService.Delete(
@@ -123,7 +124,7 @@ func (r *mutationResolver) ChatTranslationDelete(ctx context.Context, id string)
 			ActorID:   user.ID,
 		},
 	); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -133,7 +134,7 @@ func (r *mutationResolver) ChatTranslationDelete(ctx context.Context, id string)
 func (r *queryResolver) ChatTranslation(ctx context.Context) (*gqlmodel.ChatTranslation, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	translation, err := r.deps.ChatTranslationService.GetByChannelID(ctx, dashboardID)
@@ -141,7 +142,7 @@ func (r *queryResolver) ChatTranslation(ctx context.Context) (*gqlmodel.ChatTran
 		if errors.Is(err, repo.ErrSettingsNotFound) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := mappers.ChatTranslationEntityTo(translation)

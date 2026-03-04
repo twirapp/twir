@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
@@ -17,7 +18,7 @@ import (
 func (r *mutationResolver) SpotifyPostCode(ctx context.Context, input gqlmodel.SpotifyPostCodeInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.SpotifyIntegrationService.PostCode(ctx, dashboardID, input.Code)
@@ -32,7 +33,7 @@ func (r *mutationResolver) SpotifyPostCode(ctx context.Context, input gqlmodel.S
 func (r *mutationResolver) SpotifyLogout(ctx context.Context) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.SpotifyIntegrationService.Logout(ctx, dashboardID)
@@ -47,7 +48,7 @@ func (r *mutationResolver) SpotifyLogout(ctx context.Context) (bool, error) {
 func (r *queryResolver) SpotifyData(ctx context.Context) (*gqlmodel.SpotifyIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	data, err := r.deps.SpotifyIntegrationService.GetSpotifyData(ctx, dashboardID)

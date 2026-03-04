@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	"github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
@@ -69,7 +70,7 @@ func (c *Service) GetByID(ctx context.Context, id uuid.UUID) (
 ) {
 	item, err := c.repo.GetByID(ctx, id)
 	if err != nil {
-		return entity.ChannelModerationSettings{}, err
+		return entity.ChannelModerationSettings{}, errors.NewInternalError("Failed to fetch moderation settings", err)
 	}
 
 	return c.modelToEntity(item), nil
@@ -81,7 +82,7 @@ func (c *Service) GetByChannelID(ctx context.Context, channelID string) (
 ) {
 	items, err := c.repo.GetByChannelID(ctx, channelID)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewInternalError("Failed to fetch channel moderation settings", err)
 	}
 
 	converted := make([]entity.ChannelModerationSettings, len(items))
@@ -121,19 +122,19 @@ func (c *Service) Create(
 ) (entity.ChannelModerationSettings, error) {
 	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.ChannelModerationSettings{}, fmt.Errorf("failed to get plan: %w", err)
+		return entity.ChannelModerationSettings{}, errors.NewInternalError("Failed to fetch plan", err)
 	}
 	if plan.IsNil() {
-		return entity.ChannelModerationSettings{}, fmt.Errorf("plan not found for channel")
+		return entity.ChannelModerationSettings{}, errors.NewNotFoundError("Plan configuration not found for your channel")
 	}
 
 	existingSettings, err := c.repo.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.ChannelModerationSettings{}, fmt.Errorf("failed to get moderation settings: %w", err)
+		return entity.ChannelModerationSettings{}, errors.NewInternalError("Failed to fetch moderation settings", err)
 	}
 
 	if len(existingSettings) >= plan.MaxModerationRules {
-		return entity.ChannelModerationSettings{}, fmt.Errorf("you can have only %v moderation rules", plan.MaxModerationRules)
+		return entity.ChannelModerationSettings{}, errors.NewBadRequestError(fmt.Sprintf("You have reached the maximum limit of %v moderation rules", plan.MaxModerationRules))
 	}
 
 	item, err := c.repo.Create(
@@ -162,11 +163,11 @@ func (c *Service) Create(
 		},
 	)
 	if err != nil {
-		return entity.ChannelModerationSettings{}, err
+		return entity.ChannelModerationSettings{}, errors.NewInternalError("Failed to create moderation settings", err)
 	}
 
 	if err := c.cacher.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.ChannelModerationSettings{}, err
+		return entity.ChannelModerationSettings{}, errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return c.modelToEntity(item), nil
@@ -208,11 +209,11 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input CreateOrUpdate
 		},
 	)
 	if err != nil {
-		return entity.ChannelModerationSettings{}, err
+		return entity.ChannelModerationSettings{}, errors.NewInternalError("Failed to update moderation settings", err)
 	}
 
 	if err := c.cacher.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.ChannelModerationSettings{}, err
+		return entity.ChannelModerationSettings{}, errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return c.modelToEntity(newItem), nil
@@ -221,16 +222,20 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input CreateOrUpdate
 func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID string) error {
 	item, err := c.repo.GetByID(ctx, id)
 	if err != nil {
-		return err
+		return errors.NewInternalError("Failed to fetch moderation settings", err)
 	}
 
 	if item.ChannelID != channelID {
-		return fmt.Errorf("item not found")
+		return errors.NewNotFoundError("Moderation settings with this ID were not found for your channel")
 	}
 
 	if err := c.cacher.Invalidate(ctx, channelID); err != nil {
-		return err
+		return errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
-	return c.repo.Delete(ctx, id)
+	if err := c.repo.Delete(ctx, id); err != nil {
+		return errors.NewInternalError("Failed to delete moderation settings", err)
+	}
+
+	return nil
 }

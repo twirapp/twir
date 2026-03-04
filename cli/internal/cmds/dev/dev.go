@@ -40,8 +40,21 @@ func CreateDevCommand() *cli.Command {
 				Name:  "debug",
 				Usage: "run backend in debug mode",
 			},
+			&cli.BoolFlag{
+				Name:  "skip-docker",
+				Usage: "skip docker compose check and startup",
+			},
 		},
 		Action: func(c *cli.Context) error {
+			// Ensure docker compose is running before starting anything
+			skipDocker := c.Bool("skip-docker")
+			if !skipDocker {
+				if err := helpers.EnsureDockerComposeRunning(c.Context); err != nil {
+					pterm.Fatal.Println("Failed to start docker compose:", err)
+					return err
+				}
+			}
+
 			proxyStartedChan, err := proxy.StartProxy(false)
 			if err != nil {
 				pterm.Fatal.Println(err)

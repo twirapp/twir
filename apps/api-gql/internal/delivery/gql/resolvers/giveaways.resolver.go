@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -26,7 +27,7 @@ import (
 func (r *channelGiveawayResolver) Winners(ctx context.Context, obj *gqlmodel.ChannelGiveaway) ([]gqlmodel.ChannelGiveawayWinner, error) {
 	parsedID, err := uuid.Parse(obj.ID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	winners, err := r.deps.GiveawaysService.GetParticipantsForGiveaway(
@@ -35,7 +36,7 @@ func (r *channelGiveawayResolver) Winners(ctx context.Context, obj *gqlmodel.Cha
 		giveaways.GetParticipantsInput{OnlyWinners: true},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedWinners := make([]gqlmodel.ChannelGiveawayWinner, 0, len(winners))
@@ -57,7 +58,7 @@ func (r *channelGiveawayResolver) Winners(ctx context.Context, obj *gqlmodel.Cha
 func (r *channelGiveawayResolver) Participants(ctx context.Context, obj *gqlmodel.ChannelGiveaway) ([]gqlmodel.ChannelGiveawayParticipants, error) {
 	parsedID, err := uuid.Parse(obj.ID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	dbParticipants, err := r.deps.GiveawaysService.GetParticipantsForGiveaway(
@@ -66,7 +67,7 @@ func (r *channelGiveawayResolver) Participants(ctx context.Context, obj *gqlmode
 		giveaways.GetParticipantsInput{},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedParticipants := make([]gqlmodel.ChannelGiveawayParticipants, 0, len(dbParticipants))
@@ -89,12 +90,12 @@ func (r *channelGiveawayWinnerResolver) TwitchProfile(ctx context.Context, obj *
 func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.GiveawaysCreateInput) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	var minWatchedTime, minUsedChannelPoints, minFollowDuration *int64
@@ -138,7 +139,7 @@ func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.Gi
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GiveawayEntityTo(dbGiveaway)
@@ -149,12 +150,12 @@ func (r *mutationResolver) GiveawaysCreate(ctx context.Context, opts gqlmodel.Gi
 func (r *mutationResolver) GiveawaysUpdate(ctx context.Context, id string, opts gqlmodel.GiveawaysUpdateInput) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	var minWatchedTime, minUsedChannelPoints, minFollowDuration *int64
@@ -197,7 +198,7 @@ func (r *mutationResolver) GiveawaysUpdate(ctx context.Context, id string, opts 
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GiveawayEntityTo(dbGiveaway)
@@ -208,12 +209,12 @@ func (r *mutationResolver) GiveawaysUpdate(ctx context.Context, id string, opts 
 func (r *mutationResolver) GiveawaysRemove(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return nil, r.deps.GiveawaysService.GiveawayRemove(ctx, parsedID, dashboardId)
@@ -223,17 +224,17 @@ func (r *mutationResolver) GiveawaysRemove(ctx context.Context, id string) (*gql
 func (r *mutationResolver) GiveawaysStart(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	dbGiveaway, err := r.deps.GiveawaysService.Start(ctx, parsedID, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GiveawayEntityTo(dbGiveaway)
@@ -244,17 +245,17 @@ func (r *mutationResolver) GiveawaysStart(ctx context.Context, id string) (*gqlm
 func (r *mutationResolver) GiveawaysStop(ctx context.Context, id string) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	dbGiveaway, err := r.deps.GiveawaysService.Stop(ctx, parsedID, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GiveawayEntityTo(dbGiveaway)
@@ -265,17 +266,17 @@ func (r *mutationResolver) GiveawaysStop(ctx context.Context, id string) (*gqlmo
 func (r *mutationResolver) GiveawaysChooseWinners(ctx context.Context, id string) ([]gqlmodel.ChannelGiveawayWinner, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	winners, err := r.deps.GiveawaysService.ChooseWinners(ctx, parsedID, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedWinners := make([]gqlmodel.ChannelGiveawayWinner, 0, len(winners))
@@ -293,7 +294,7 @@ func (r *mutationResolver) GiveawaysChooseWinners(ctx context.Context, id string
 func (r *mutationResolver) GiveawaysSettingsUpdate(ctx context.Context, opts gqlmodel.GiveawaysSettingsUpdateInput) (*gqlmodel.GiveawaysSettings, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	settings, err := r.deps.GiveawaysSettingsRepository.Update(
@@ -302,7 +303,7 @@ func (r *mutationResolver) GiveawaysSettingsUpdate(ctx context.Context, opts gql
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GiveawaySettingsEntityTo(settings)
@@ -313,12 +314,12 @@ func (r *mutationResolver) GiveawaysSettingsUpdate(ctx context.Context, opts gql
 func (r *queryResolver) Giveaways(ctx context.Context) ([]gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	dbGiveaways, err := r.deps.GiveawaysService.GiveawaysGetMany(ctx, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := lo.Map(
@@ -334,17 +335,17 @@ func (r *queryResolver) Giveaways(ctx context.Context) ([]gqlmodel.ChannelGiveaw
 func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (*gqlmodel.ChannelGiveaway, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	parsedID, err := uuid.Parse(giveawayID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	dbGiveaway, err := r.deps.GiveawaysService.GiveawayGet(ctx, parsedID, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GiveawayEntityTo(dbGiveaway)
@@ -355,12 +356,12 @@ func (r *queryResolver) Giveaway(ctx context.Context, giveawayID string) (*gqlmo
 func (r *queryResolver) GiveawaysSettings(ctx context.Context) (*gqlmodel.GiveawaysSettings, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	settings, err := r.deps.GiveawaysSettingsRepository.GetByChannelID(ctx, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GiveawaySettingsEntityTo(settings)

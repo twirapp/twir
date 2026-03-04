@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -24,7 +25,7 @@ import (
 func (r *mutationResolver) OverlaysTTSUpdate(ctx context.Context, input gqlmodel.TTSUpdateInput) (*gqlmodel.TTSOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	updateInput := entity.TTSOverlaySettings{
@@ -61,7 +62,7 @@ func (r *mutationResolver) OverlaysTTSUpdate(ctx context.Context, input gqlmodel
 func (r *mutationResolver) OverlaysTTSUsersDelete(ctx context.Context, userIds []string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if err := r.deps.TTSService.DeleteUsersSettings(ctx, dashboardID, userIds); err != nil {
@@ -75,7 +76,7 @@ func (r *mutationResolver) OverlaysTTSUsersDelete(ctx context.Context, userIds [
 func (r *queryResolver) OverlaysTts(ctx context.Context) (*gqlmodel.TTSOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	overlay, err := r.deps.TTSService.GetOrCreate(ctx, dashboardID)
@@ -115,7 +116,7 @@ func (r *queryResolver) OverlaysTTSGetInfo(ctx context.Context) (*gqlmodel.TTSVo
 func (r *queryResolver) OverlaysTTSUsersSettings(ctx context.Context) ([]gqlmodel.TTSUserSettings, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	settings, err := r.deps.TTSService.GetTTSUsersSettings(ctx, dashboardID)

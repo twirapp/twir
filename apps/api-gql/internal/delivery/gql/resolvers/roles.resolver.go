@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -24,12 +25,12 @@ import (
 func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	permissions := make([]string, len(opts.Permissions))
@@ -60,7 +61,7 @@ func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesC
 		},
 	)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -70,12 +71,12 @@ func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesC
 func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	permissions := make([]string, len(opts.Permissions))
@@ -107,7 +108,7 @@ func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts g
 			Users: users,
 		},
 	); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -117,12 +118,12 @@ func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts g
 func (r *mutationResolver) RolesRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if err := r.deps.RolesService.Delete(
@@ -133,7 +134,7 @@ func (r *mutationResolver) RolesRemove(ctx context.Context, id uuid.UUID) (bool,
 			ID:        id,
 		},
 	); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -143,12 +144,12 @@ func (r *mutationResolver) RolesRemove(ctx context.Context, id uuid.UUID) (bool,
 func (r *queryResolver) Roles(ctx context.Context) ([]gqlmodel.Role, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entities, err := r.deps.RolesService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := make([]gqlmodel.Role, len(entities))
@@ -167,7 +168,7 @@ func (r *roleResolver) Users(ctx context.Context, obj *gqlmodel.Role) ([]gqlmode
 
 	users, err := r.deps.RolesUsersService.GetManyByRoleID(ctx, obj.ID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	ids := make([]string, 0, len(users))
@@ -177,7 +178,7 @@ func (r *roleResolver) Users(ctx context.Context, obj *gqlmodel.Role) ([]gqlmode
 
 	profiles, err := data_loader.GetHelixUsersByIds(ctx, ids)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch twitch profiles: %w", err)
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to fetch twitch profiles: %w", err))
 	}
 
 	res := make([]gqlmodel.TwirUserTwitchInfo, 0, len(profiles))

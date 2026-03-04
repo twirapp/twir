@@ -9,6 +9,7 @@ import (
 	"context"
 
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -31,7 +32,7 @@ func (r *emoteStatisticUserUsageResolver) TwitchProfile(ctx context.Context, obj
 func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.EmotesStatisticsOpts) (*gqlmodel.EmotesStatisticResponse, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	statisticInput := channelsemotesusages.GetEmotesStatisticsInput{
@@ -51,7 +52,7 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 
 	statistic, err := r.deps.ChannelsEmotesUsagesService.GetEmotesStatistics(ctx, statisticInput)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	emotesNames := make([]string, len(statistic))
@@ -82,7 +83,7 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 		emoteRange,
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	models := make([]gqlmodel.EmotesStatistic, 0, len(statistic))
@@ -114,7 +115,7 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &gqlmodel.EmotesStatisticResponse{
@@ -131,7 +132,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	emoteRange := channels_emotes_usages.EmoteStatisticRangeLastDay
@@ -165,7 +166,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 				},
 			)
 			if err != nil {
-				return err
+				return gqlerrors.HandleError(err)
 			}
 
 			emotesStatistic = s
@@ -183,7 +184,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 				emoteRange,
 			)
 			if err != nil {
-				return err
+				return gqlerrors.HandleError(err)
 			}
 
 			ranges = emotesUsages[opts.EmoteName]
@@ -231,7 +232,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 				},
 			)
 			if err != nil {
-				return err
+				return gqlerrors.HandleError(err)
 			}
 
 			topUsers = u
@@ -253,7 +254,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 				},
 			)
 			if err != nil {
-				return err
+				return gqlerrors.HandleError(err)
 			}
 
 			usagesHistory = u
@@ -264,7 +265,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 	)
 
 	if err := wg.Wait(); err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	graphicUsages := make([]gqlmodel.EmoteStatisticUsage, len(ranges))

@@ -10,6 +10,7 @@ import (
 
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
@@ -19,7 +20,7 @@ import (
 func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlmodel.TwitchRedemptionsOpts) (*gqlmodel.TwitchRedemptionResponse, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channelIdForRequest := dashboardId
@@ -50,12 +51,12 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 
 	history, err := r.deps.ChannelsRedemptionsHistoryService.GetMany(ctx, serviceInput)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	rewards, err := r.Query().TwitchRewards(ctx, &channelIdForRequest)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	res := make([]gqlmodel.TwitchRedemption, 0, len(history.Items))
@@ -101,7 +102,7 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 func (r *subscriptionResolver) RewardsActivation(ctx context.Context) (<-chan *gqlmodel.TwitchRedemption, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	subscription := r.deps.CommunityRedemptionsService.Subscribe(dashboardID)

@@ -8,6 +8,7 @@ package resolvers
 import (
 	"context"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	donationalertsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 )
@@ -16,12 +17,12 @@ import (
 func (r *mutationResolver) DonationAlertsPostCode(ctx context.Context, code string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.DonationAlertsIntegrationService.PostCode(ctx, dashboardID, code)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -31,12 +32,12 @@ func (r *mutationResolver) DonationAlertsPostCode(ctx context.Context, code stri
 func (r *mutationResolver) DonationAlertsLogout(ctx context.Context) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.DonationAlertsIntegrationService.Logout(ctx, dashboardID)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -46,12 +47,12 @@ func (r *mutationResolver) DonationAlertsLogout(ctx context.Context) (bool, erro
 func (r *queryResolver) DonationAlerts(ctx context.Context) (*gqlmodel.DonationAlertsIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entity, err := r.deps.DonationAlertsIntegrationService.GetIntegrationData(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return donationalertsintegration.MapEntityToGQLModel(entity), nil
@@ -61,7 +62,7 @@ func (r *queryResolver) DonationAlerts(ctx context.Context) (*gqlmodel.DonationA
 func (r *queryResolver) DonationAlertsAuthLink(ctx context.Context) (string, error) {
 	authLink, err := r.deps.DonationAlertsIntegrationService.GetAuthLink(ctx)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	return authLink.Link, nil

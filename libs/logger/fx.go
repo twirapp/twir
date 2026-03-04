@@ -41,6 +41,8 @@ func NewFxLogger(logger *slog.Logger) fxevent.Logger {
 
 func (l *fxLogger) LogEvent(event fxevent.Event) {
 	switch e := event.(type) {
+	case *fxevent.OnStartExecuting, *fxevent.OnStopExecuting:
+		return
 	case *fxevent.OnStartExecuted:
 		if e.Err != nil {
 			l.logger.Error(

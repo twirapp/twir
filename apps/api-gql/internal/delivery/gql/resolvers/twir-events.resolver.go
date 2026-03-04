@@ -11,6 +11,7 @@ import (
 	"log/slog"
 
 	"github.com/goccy/go-json"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
@@ -29,7 +30,7 @@ func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<
 
 	wsSubscription, err := r.deps.WsRouter.Subscribe([]string{twir_events.CreateSubscribeKey(user.ID)})
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	go func() {

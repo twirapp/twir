@@ -14,6 +14,7 @@ import (
 	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/libs/audit"
@@ -27,12 +28,12 @@ import (
 func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.ChatAlertsInput) (*gqlmodel.ChatAlerts, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	// Check plan limits for total messages count
@@ -102,33 +103,33 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 				Type:      "chat_alerts",
 			}
 		} else {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 	}
 	var entityCopy model.ChannelModulesSettings
 	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	inputBytes, err := json.Marshal(input)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	patch, err := jsonpatch.MergePatch(entity.Settings, inputBytes)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entity.Settings, err = jsonpatch.MergePatch(entity.Settings, patch)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	_ = r.deps.AuditRecorder.RecordUpdateOperation(
@@ -156,7 +157,7 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 func (r *queryResolver) ChatAlerts(ctx context.Context) (*gqlmodel.ChatAlerts, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entity := model.ChannelModulesSettings{}
@@ -169,12 +170,12 @@ func (r *queryResolver) ChatAlerts(ctx context.Context) (*gqlmodel.ChatAlerts, e
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return &gqlmodel.ChatAlerts{}, nil
 		}
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	parsedSettings := gqlmodel.ChatAlerts{}
 	if err := json.Unmarshal(entity.Settings, &parsedSettings); err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &parsedSettings, nil

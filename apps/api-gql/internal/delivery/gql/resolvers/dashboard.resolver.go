@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
@@ -20,7 +21,7 @@ import (
 func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.BotJoinLeaveAction) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	var convertedAction string
@@ -42,7 +43,7 @@ func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.Bot
 func (r *subscriptionResolver) DashboardStats(ctx context.Context) (<-chan *gqlmodel.DashboardStats, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 	channel := make(chan *gqlmodel.DashboardStats, 1)
 
@@ -79,7 +80,7 @@ func (r *subscriptionResolver) DashboardStats(ctx context.Context) (<-chan *gqlm
 func (r *subscriptionResolver) BotStatus(ctx context.Context) (<-chan *gqlmodel.BotStatus, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.BotStatus, 1)

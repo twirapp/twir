@@ -9,6 +9,7 @@ import (
 	"context"
 	"slices"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 )
@@ -17,7 +18,7 @@ import (
 func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([]gqlmodel.TwitchReward, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channelIdForRequest := dashboardId
@@ -27,7 +28,7 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 
 	rewards, err := r.deps.CachedTwitchClient.GetChannelRewards(ctx, channelIdForRequest)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	var gqlRewards []gqlmodel.TwitchReward
@@ -46,7 +47,7 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 			},
 		)
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 
 		gqlRewards = append(

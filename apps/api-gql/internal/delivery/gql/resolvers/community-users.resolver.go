@@ -15,6 +15,7 @@ import (
 	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -30,12 +31,12 @@ func (r *communityUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel
 func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlmodel.CommunityUsersResetType) (bool, error) {
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if user.ID != dashboardId {
@@ -64,7 +65,7 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		Where(`"channelId" = ?`, dashboardId).
 		Update(field, 0).Error
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -90,7 +91,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		Joins("User").
 		First(channel).Error
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	queryBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
@@ -114,7 +115,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	if opts.Search.IsSet() {
 		channels, err := r.deps.CachedTwitchClient.SearchChannels(ctx, *opts.Search.Value())
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 
 		foundTwitchChannels = channels
@@ -180,7 +181,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			slog.String("query", query),
 			slog.Any("args", args),
 		)
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	var dbUsers []model.UsersStats
@@ -203,7 +204,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			&dbUser.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 
 		dbUsers = append(dbUsers, dbUser)
@@ -215,7 +216,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		Where(`"channelId" = ?`, opts.ChannelID).
 		Count(&totalStats).Error
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedUsers := make([]gqlmodel.CommunityUser, 0, len(dbUsers))

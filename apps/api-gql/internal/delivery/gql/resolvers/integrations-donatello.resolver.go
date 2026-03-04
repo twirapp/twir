@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
@@ -16,12 +17,12 @@ import (
 func (r *queryResolver) Donatello(ctx context.Context) (*gqlmodel.DonatelloIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	id, err := r.deps.DonatelloIntegrationService.GetIDByChannelID(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	if id == nil {

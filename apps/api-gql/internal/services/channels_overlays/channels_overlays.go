@@ -12,6 +12,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
+	apperrors "github.com/twirapp/twir/libs/errors"
 	channels_overlays "github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
@@ -156,19 +157,21 @@ type CreateInput struct {
 func (s *Service) Create(ctx context.Context, input CreateInput) (customoverlayentity.ChannelOverlay, error) {
 	plan, err := s.plansRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("failed to get plan: %w", err)
+		return customoverlayentity.ChannelOverlayNil, apperrors.NewInternalError("Failed to retrieve plan information", err)
 	}
 	if plan.IsNil() {
-		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("plan not found for channel")
+		return customoverlayentity.ChannelOverlayNil, apperrors.NewNotFoundError("Plan not found for this channel")
 	}
 
 	existingOverlays, err := s.overlaysRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("failed to get overlays: %w", err)
+		return customoverlayentity.ChannelOverlayNil, apperrors.NewInternalError("Failed to retrieve existing overlays", err)
 	}
 
 	if len(existingOverlays) >= plan.MaxCustomOverlays {
-		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("you can have only %v custom overlays", plan.MaxCustomOverlays)
+		return customoverlayentity.ChannelOverlayNil, apperrors.NewBadRequestError(
+			fmt.Sprintf("You have reached the maximum limit of %d custom overlays for your plan", plan.MaxCustomOverlays),
+		)
 	}
 
 	repoLayers := make([]channels_overlays.CreateLayerInput, len(input.Layers))
@@ -245,7 +248,7 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 	}
 
 	if dbOverlay.ChannelID != input.ChannelID {
-		return customoverlayentity.ChannelOverlayNil, fmt.Errorf("overlay not found")
+		return customoverlayentity.ChannelOverlayNil, apperrors.NewNotFoundError("Overlay with this ID was not found for your channel")
 	}
 
 	repoLayers := make([]channels_overlays.UpdateLayerInputWithID, len(input.Layers))
@@ -322,7 +325,7 @@ func (s *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 	}
 
 	if dbOverlay.ChannelID != channelID {
-		return fmt.Errorf("overlay not found")
+		return apperrors.NewNotFoundError("Overlay with this ID was not found for your channel")
 	}
 
 	if err := s.overlaysRepository.Delete(ctx, id); err != nil {

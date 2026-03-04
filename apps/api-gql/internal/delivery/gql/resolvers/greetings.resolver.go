@@ -7,10 +7,10 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -48,7 +48,7 @@ func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.Gr
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create greeting: %w", err)
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GreetingEntityTo(newGreeting)
@@ -81,7 +81,7 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id uuid.UUID, op
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot update greeting: %w", err)
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.GreetingEntityTo(newGreeting)
@@ -108,7 +108,7 @@ func (r *mutationResolver) GreetingsRemove(ctx context.Context, id uuid.UUID) (b
 		},
 	)
 	if err != nil {
-		return false, fmt.Errorf("cannot delete greeting: %w", err)
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -123,7 +123,7 @@ func (r *queryResolver) Greetings(ctx context.Context) ([]gqlmodel.Greeting, err
 
 	entities, err := r.deps.GreetingsService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get greetings: %w", err)
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := make([]gqlmodel.Greeting, len(entities))

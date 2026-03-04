@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
@@ -19,7 +20,7 @@ import (
 func (r *mutationResolver) TwitchSetChannelInformation(ctx context.Context, categoryID *string, title *string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if categoryID == nil && title == nil {
@@ -32,7 +33,7 @@ func (r *mutationResolver) TwitchSetChannelInformation(ctx context.Context, cate
 		Title:      title,
 	})
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -69,7 +70,7 @@ func (r *queryResolver) TwitchGetUsers(ctx context.Context, ids []string, names 
 	if ids != nil && len(ids) > 0 {
 		usersByIds, err := dataloader.GetHelixUsersByIds(ctx, ids)
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 		users = append(users, usersByIds...)
 	}
@@ -78,7 +79,7 @@ func (r *queryResolver) TwitchGetUsers(ctx context.Context, ids []string, names 
 	if names != nil && len(names) > 0 {
 		usersByNames, err := dataloader.GetHelixUsersByName(ctx, names)
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 		users = append(users, usersByNames...)
 	}
@@ -117,7 +118,7 @@ func (r *queryResolver) TwitchSearchChannels(ctx context.Context, query string, 
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedChannels := make([]gqlmodel.TwitchChannel, 0, len(channels))
@@ -147,7 +148,7 @@ func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *
 	if channelID == nil {
 		dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 		channelId = dashboardId
 	} else {
@@ -160,7 +161,7 @@ func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *
 
 	rewards, err := r.deps.TwitchService.GetRewardsByChannelID(ctx, channelId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedRewards := make([]gqlmodel.TwirTwitchChannelReward, 0, len(rewards.Rewards))
@@ -182,7 +183,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 	} else {
 		dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 		userId = dashboardId
 	}
@@ -193,7 +194,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 
 	badges, err := r.deps.TwitchService.GetChannelChatBadges(ctx, userId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedBadges := make([]gqlmodel.TwitchBadge, 0, len(badges))
@@ -210,7 +211,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 func (r *queryResolver) TwitchGetGlobalBadges(ctx context.Context) (*gqlmodel.TwirTwitchGlobalBadgeResponse, error) {
 	badges, err := r.deps.TwitchService.GetGlobalChatBadges(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedBadges := make([]gqlmodel.TwitchBadge, 0, len(badges))
@@ -238,7 +239,7 @@ func (r *queryResolver) TwitchSearchCategories(ctx context.Context, query string
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedCategories := make([]gqlmodel.TwitchCategory, 0, len(categories))
@@ -272,7 +273,7 @@ func (r *queryResolver) TwitchGetCategories(ctx context.Context, ids []string) (
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedCategories := make([]gqlmodel.TwitchCategory, 0, len(games))

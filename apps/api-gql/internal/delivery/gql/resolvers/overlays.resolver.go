@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
@@ -48,7 +49,7 @@ func (r *mutationResolver) NowPlayingOverlayDelete(ctx context.Context, id strin
 func (r *queryResolver) ChatOverlays(ctx context.Context) ([]gqlmodel.ChatOverlay, error) {
 	overlays, err := r.chatOverlays(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return overlays, nil
@@ -58,7 +59,7 @@ func (r *queryResolver) ChatOverlays(ctx context.Context) ([]gqlmodel.ChatOverla
 func (r *queryResolver) ChatOverlaysByID(ctx context.Context, id string) (*gqlmodel.ChatOverlay, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return r.getChatOverlaySettings(ctx, id, dashboardId)
@@ -73,7 +74,7 @@ func (r *queryResolver) NowPlayingOverlays(ctx context.Context) ([]gqlmodel.NowP
 func (r *queryResolver) NowPlayingOverlaysByID(ctx context.Context, id string) (*gqlmodel.NowPlayingOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return r.getNowPlayingOverlaySettings(ctx, id, dashboardID)

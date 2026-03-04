@@ -9,6 +9,7 @@ import (
 	"context"
 
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -22,7 +23,7 @@ func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bo
 	user, err := r.deps.UsersService.GetByID(ctx, userID)
 	if err != nil {
 		r.deps.Logger.Error("failed to get user by id", logger.Error(err))
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	isBanned := !user.IsBanned
@@ -35,7 +36,7 @@ func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bo
 	)
 	if err != nil {
 		r.deps.Logger.Error("failed to update user", logger.Error(err))
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -46,7 +47,7 @@ func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (
 	user, err := r.deps.UsersService.GetByID(ctx, userID)
 	if err != nil {
 		r.deps.Logger.Error("failed to get user by id", logger.Error(err))
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	isBotAdmin := !user.IsBotAdmin
@@ -59,7 +60,7 @@ func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (
 	)
 	if err != nil {
 		r.deps.Logger.Error("failed to update user", logger.Error(err))
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -95,7 +96,7 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 	dbUsers, err := r.deps.TwirUsersService.GetMany(ctx, manyInput)
 	if err != nil {
 		r.deps.Logger.Error("failed to get many users", logger.Error(err))
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedUsers := make([]gqlmodel.TwirAdminUser, 0, len(dbUsers.Users))

@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/libs/audit"
@@ -23,12 +24,12 @@ import (
 func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmodel.CommandsGroupsCreateOpts) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	var createdCount int64
@@ -38,7 +39,7 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 		Where(`"channelId" = ?`, dashboardId).
 		Count(&createdCount).
 		Error; err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if createdCount >= 10 {
@@ -53,7 +54,7 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 	}
 
 	if err := r.deps.Gorm.WithContext(ctx).Create(&entity).Error; err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	_ = r.deps.AuditRecorder.RecordCreateOperation(
@@ -76,12 +77,12 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsGroupsUpdateOpts) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	entity := model.ChannelCommandGroup{}
@@ -95,7 +96,7 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 
 	var entityCopy model.ChannelCommandGroup
 	if err := utils.DeepCopy(entity, &entityCopy); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if opts.Name.IsSet() {
@@ -107,7 +108,7 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 	}
 
 	if err := r.deps.Gorm.WithContext(ctx).Save(&entity).Error; err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if err := r.deps.CachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
@@ -135,12 +136,12 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	entity := model.ChannelCommandGroup{}
@@ -156,7 +157,7 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 		WithContext(ctx).
 		Delete(&entity).
 		Error; err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if err := r.deps.CachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
@@ -183,7 +184,7 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 func (r *queryResolver) CommandsGroups(ctx context.Context) ([]gqlmodel.CommandGroup, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	var entities []model.ChannelCommandGroup
@@ -192,7 +193,7 @@ func (r *queryResolver) CommandsGroups(ctx context.Context) ([]gqlmodel.CommandG
 		Where(`"channelId" = ?`, dashboardId).
 		Find(&entities).
 		Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	var result []gqlmodel.CommandGroup

@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
@@ -16,7 +17,7 @@ import (
 func (r *mutationResolver) IntegrationsDonateStreamPostSecret(ctx context.Context, input gqlmodel.DonateStreamPostSecret) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.DonateStreamIntegrationService.PostCode(ctx, dashboardID, input.Secret)
@@ -31,12 +32,12 @@ func (r *mutationResolver) IntegrationsDonateStreamPostSecret(ctx context.Contex
 func (r *queryResolver) IntegrationsDonateStream(ctx context.Context) (*gqlmodel.DonateStreamResponse, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	id, err := r.deps.DonateStreamIntegrationService.GetIDByChannelID(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	if id == nil {

@@ -19,6 +19,7 @@ use (
 	./libs/config
 	./libs/crypto
 	./libs/entities
+	./libs/errors
 	./libs/gomodels
 	./libs/grpc
 	./libs/i18n

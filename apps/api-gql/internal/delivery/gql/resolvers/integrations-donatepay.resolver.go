@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 )
@@ -18,7 +19,7 @@ import (
 func (r *mutationResolver) DonatePayIntegration(ctx context.Context, apiKey string, enabled bool) (*gqlmodel.DonatePayIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.DonatePayService.CreateOrUpdate(ctx, dashboardID, apiKey, enabled)
@@ -41,7 +42,7 @@ func (r *mutationResolver) DonatePayIntegration(ctx context.Context, apiKey stri
 func (r *queryResolver) DonatePayIntegration(ctx context.Context) (*gqlmodel.DonatePayIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	data, err := r.deps.DonatePayService.GetByChannelID(ctx, dashboardID)

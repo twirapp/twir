@@ -11,6 +11,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -22,7 +23,7 @@ import (
 func (r *mutationResolver) DudesUpdate(ctx context.Context, id uuid.UUID, input gqlmodel.DudesOverlaySettingsInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if dashboardID == "" {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	updateInput := overlays_dudes.UpdateInput{
@@ -82,7 +83,7 @@ func (r *mutationResolver) DudesUpdate(ctx context.Context, id uuid.UUID, input 
 
 	_, err = r.deps.OverlaysDudesService.Update(ctx, id, updateInput)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -92,7 +93,7 @@ func (r *mutationResolver) DudesUpdate(ctx context.Context, id uuid.UUID, input 
 func (r *mutationResolver) DudesCreate(ctx context.Context, input gqlmodel.DudesOverlaySettingsInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if dashboardID == "" {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	createInput := overlays_dudes.CreateInput{
@@ -153,7 +154,7 @@ func (r *mutationResolver) DudesCreate(ctx context.Context, input gqlmodel.Dudes
 
 	_, err = r.deps.OverlaysDudesService.Create(ctx, createInput)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -163,12 +164,12 @@ func (r *mutationResolver) DudesCreate(ctx context.Context, input gqlmodel.Dudes
 func (r *mutationResolver) DudesDelete(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if dashboardID == "" {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.OverlaysDudesService.Delete(ctx, id)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -178,12 +179,12 @@ func (r *mutationResolver) DudesDelete(ctx context.Context, id uuid.UUID) (bool,
 func (r *queryResolver) DudesGetByID(ctx context.Context, id uuid.UUID) (*gqlmodel.DudesOverlaySettings, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if dashboardID == "" {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	e, err := r.deps.OverlaysDudesService.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := mappers.DudesOverlaySettingsEntityToGql(e)
@@ -194,12 +195,12 @@ func (r *queryResolver) DudesGetByID(ctx context.Context, id uuid.UUID) (*gqlmod
 func (r *queryResolver) DudesGetAll(ctx context.Context) ([]gqlmodel.DudesOverlaySettings, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if dashboardID == "" {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entities, err := r.deps.OverlaysDudesService.GetManyByChannelID(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return lo.Map(
@@ -213,19 +214,19 @@ func (r *queryResolver) DudesGetAll(ctx context.Context) ([]gqlmodel.DudesOverla
 func (r *subscriptionResolver) DudesSettings(ctx context.Context, id uuid.UUID, apiKey string) (<-chan *gqlmodel.DudesSettingsSubscriptionData, error) {
 	user, err := r.deps.UsersService.GetByApiKey(ctx, apiKey)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.DudesSettingsSubscriptionData)
 
 	twitchChannel, err := r.deps.CachedTwitchClient.GetUserById(ctx, user.ID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	initialSettings, err := r.deps.OverlaysDudesService.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	go func() {

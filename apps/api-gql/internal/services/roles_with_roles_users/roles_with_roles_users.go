@@ -2,7 +2,6 @@ package roles_with_roles_users
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
@@ -10,6 +9,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
+	"github.com/twirapp/twir/libs/errors"
 	"go.uber.org/fx"
 )
 
@@ -75,7 +75,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to create role with users: %w", err)
+		return errors.NewInternalError("Failed to create role with users", err)
 	}
 
 	return nil
@@ -93,11 +93,11 @@ type UpdateInput struct {
 func (c *Service) Update(ctx context.Context, input UpdateInput) error {
 	dbRole, err := c.rolesService.GetByID(ctx, input.ID)
 	if err != nil {
-		return fmt.Errorf("failed to get role: %w", err)
+		return errors.NewInternalError("Failed to get role", err)
 	}
 
 	if dbRole.ChannelID != input.ChannelID {
-		return fmt.Errorf("role doesn't belong to the channel")
+		return errors.NewForbiddenError("You don't have permission to access this role")
 	}
 
 	var newRole entity.ChannelRole
@@ -147,7 +147,7 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) error {
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("failed to update role with users: %w", err)
+		return errors.NewInternalError("Failed to update role with users", err)
 	}
 
 	return nil

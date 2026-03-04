@@ -10,7 +10,6 @@ require (
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/config v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
 	go.uber.org/fx v1.24.0
 	gorm.io/gorm v1.31.1
@@ -27,8 +26,8 @@ require (
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 )
 
 require (
@@ -41,7 +40,7 @@ require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/exaring/otelpgx v0.9.3 // indirect
-	github.com/getsentry/sentry-go v0.40.0 // indirect
+	github.com/getsentry/sentry-go v0.42.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -81,6 +80,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twirapp/kv v0.5.1 // indirect
 	github.com/twirapp/twir/libs/audit v0.0.0-20251127124349-67ad7fa0003f // indirect
+	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/pubsub v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/sentry v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20251127124349-67ad7fa0003f // indirect
@@ -103,8 +103,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.39.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.46.0 // indirect
-	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/crypto v0.47.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect

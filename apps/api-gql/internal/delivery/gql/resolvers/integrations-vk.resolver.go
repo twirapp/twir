@@ -8,6 +8,7 @@ package resolvers
 import (
 	"context"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	"github.com/twirapp/twir/libs/logger"
@@ -17,12 +18,12 @@ import (
 func (r *mutationResolver) VkPostCode(ctx context.Context, code string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.VKIntegrationService.PostCode(ctx, dashboardID, code)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -32,12 +33,12 @@ func (r *mutationResolver) VkPostCode(ctx context.Context, code string) (bool, e
 func (r *mutationResolver) VkLogout(ctx context.Context) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.VKIntegrationService.Logout(ctx, dashboardID)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -47,12 +48,12 @@ func (r *mutationResolver) VkLogout(ctx context.Context) (bool, error) {
 func (r *queryResolver) Vk(ctx context.Context) (*gqlmodel.VKIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entity, err := r.deps.VKIntegrationService.GetIntegrationData(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return vkintegration.MapEntityToGQLModel(entity), nil

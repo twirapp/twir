@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
@@ -28,7 +29,7 @@ func (r *adminShortUrlResolver) UserProfile(ctx context.Context, obj *gqlmodel.A
 func (r *mutationResolver) AdminShortURLCreate(ctx context.Context, input gqlmodel.AdminShortURLCreateInput) (bool, error) {
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	var shortId string

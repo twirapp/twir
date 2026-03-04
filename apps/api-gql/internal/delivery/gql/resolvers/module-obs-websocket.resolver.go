@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/obs_websocket_module"
@@ -20,7 +21,7 @@ import (
 func (r *mutationResolver) ObsWebsocketUpdate(ctx context.Context, input gqlmodel.ObsWebsocketUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.ObsWebsocketModuleService.UpdateObsWebsocket(
@@ -71,7 +72,7 @@ func (r *mutationResolver) ObsWebsocketSetConnected(ctx context.Context, apiKey 
 func (r *queryResolver) ObsWebsocketData(ctx context.Context) (*gqlmodel.ObsWebsocketModule, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	data, err := r.deps.ObsWebsocketModuleService.GetObsWebsocketData(ctx, dashboardID)
@@ -160,7 +161,7 @@ func (r *subscriptionResolver) ObsWebsocketCommands(ctx context.Context, apiKey 
 func (r *subscriptionResolver) ObsWebsocketIsConnected(ctx context.Context) (<-chan bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	chann := make(chan bool, 1)

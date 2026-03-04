@@ -1,11 +1,11 @@
-import { createGlobalState } from '@vueuse/core'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import { type TypeOf, array, boolean, nativeEnum, number, object, string } from 'zod'
+import { createGlobalState } from '@vueuse/core';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import { type TypeOf, array, boolean, nativeEnum, number, object, string } from 'zod';
 
-import { useTimersApi } from '@/api/timers'
-import { toast } from 'vue-sonner'
-import { TwitchAnnounceColor } from '@/gql/graphql.ts'
+import { useTimersApi } from '@/api/timers';
+import { toast } from 'vue-sonner';
+import { TwitchAnnounceColor } from '@/gql/graphql.ts';
 
 export const formSchema = object({
 	id: string().optional(),
@@ -18,33 +18,33 @@ export const formSchema = object({
 			isAnnounce: boolean(),
 			count: number().int().min(1).max(20).default(1),
 			announceColor: nativeEnum(TwitchAnnounceColor).default(TwitchAnnounceColor.Primary),
-		})
+		}),
 	).min(1),
 	enabled: boolean().default(true),
 	offlineEnabled: boolean().default(false),
 	onlineEnabled: boolean().default(true),
-})
+});
 
-type FormSchema = TypeOf<typeof formSchema>
+type FormSchema = TypeOf<typeof formSchema>;
 
 export const useTimersEdit = createGlobalState(() => {
-	const { t } = useI18n()
-	const router = useRouter()
+	const { t } = useI18n();
+	const router = useRouter();
 
-	const timersApi = useTimersApi()
-	const timers = timersApi.useQueryTimers()
-	const updateMutation = timersApi.useMutationUpdateTimer()
-	const createMutation = timersApi.useMutationCreateTimer()
+	const timersApi = useTimersApi();
+	const timers = timersApi.useQueryTimers();
+	const updateMutation = timersApi.useMutationUpdateTimer();
+	const createMutation = timersApi.useMutationCreateTimer();
 
 	async function findTimer(id: string) {
-		if (id === 'create') return
+		if (id === 'create') return;
 
-		const fetchedData = await timers.then((timers) => timers)
-		const timer = fetchedData.data?.value?.timers.find((timer) => timer.id === id)
+		const fetchedData = await timers.then((timers) => timers);
+		const timer = fetchedData.data?.value?.timers.find((timer) => timer.id === id);
 
-		if (!timer) throw new Error('Timer not found')
+		if (!timer) throw new Error('Timer not found');
 
-		return timer
+		return timer;
 	}
 
 	async function submit(data: FormSchema) {
@@ -58,17 +58,14 @@ export const useTimersEdit = createGlobalState(() => {
 					// @ts-expect-error
 					id: undefined,
 				},
-			})
+			});
 		} else {
 			const result = await createMutation.executeMutation({
 				opts: data,
-			})
+			});
 
 			if (result.error) {
-				toast.error(result.error.graphQLErrors?.map((e) => e.message).join(', ') ?? 'error', {
-					duration: 5000,
-				})
-				return
+				return;
 			}
 
 			await router.push({
@@ -76,17 +73,17 @@ export const useTimersEdit = createGlobalState(() => {
 				state: {
 					noTransition: true,
 				},
-			})
+			});
 		}
 
 		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
-		})
+		});
 	}
 
 	return {
 		findTimer,
 		timers,
 		submit,
-	}
-})
+	};
+});

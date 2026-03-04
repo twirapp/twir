@@ -10,6 +10,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/badges"
 	"github.com/twirapp/twir/libs/repositories/badges/model"
 	"go.uber.org/fx"
@@ -56,10 +57,10 @@ func (c *Service) modelToEntity(b model.Badge) entity.Badge {
 func (c *Service) computeBadgeFileName(file entity.Upload, fileID uuid.UUID) (string, error) {
 	fileExtension := filepath.Ext(file.Filename)
 	if fileExtension == "" {
-		return "", fmt.Errorf("file extension is empty")
+		return "", errors.NewBadRequestError("File must have a valid extension")
 	}
 	if !strings.HasPrefix(file.ContentType, "image/") {
-		return "", fmt.Errorf("file is not an image")
+		return "", errors.NewBadRequestError("Only image files are allowed")
 	}
 
 	fileExtension = strings.ToLower(fileExtension)
@@ -79,7 +80,7 @@ func (c *Service) computeBadgeUrl(fileName string) string {
 func (c *Service) GetByID(ctx context.Context, id uuid.UUID) (entity.Badge, error) {
 	b, err := c.badgesRepository.GetByID(ctx, id)
 	if err != nil {
-		return entity.BadgeNil, err
+		return entity.BadgeNil, errors.NewInternalError("Failed to fetch badge", err)
 	}
 
 	return c.modelToEntity(b), nil
@@ -93,7 +94,7 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.Bad
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewInternalError("Failed to fetch badges", err)
 	}
 
 	result := make([]entity.Badge, 0, len(selectedBadges))
@@ -111,7 +112,7 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	if err := c.badgesRepository.Delete(ctx, id); err != nil {
-		return err
+		return errors.NewInternalError("Failed to delete badge", err)
 	}
 
 	if err := c.minioClient.RemoveObject(
@@ -120,7 +121,7 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID) error {
 		"badges/"+b.FileName,
 		minio.RemoveObjectOptions{},
 	); err != nil {
-		return err
+		return errors.NewInternalError("Failed to delete badge file", err)
 	}
 
 	return nil
@@ -150,7 +151,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Badge, 
 		},
 	)
 	if err != nil {
-		return entity.BadgeNil, fmt.Errorf("cannot create badge in db: %w", err)
+		return entity.BadgeNil, errors.NewInternalError("Failed to create badge in database", err)
 	}
 
 	_, err = c.minioClient.PutObject(
@@ -164,7 +165,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Badge, 
 		},
 	)
 	if err != nil {
-		return entity.BadgeNil, fmt.Errorf("cannot upload badge file: %w", err)
+		return entity.BadgeNil, errors.NewInternalError("Failed to upload badge file", err)
 	}
 
 	return c.modelToEntity(newBadge), nil
@@ -183,7 +184,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 ) {
 	b, err := c.badgesRepository.GetByID(ctx, id)
 	if err != nil {
-		return entity.BadgeNil, err
+		return entity.BadgeNil, errors.NewInternalError("Failed to fetch badge", err)
 	}
 
 	updateInput := badges.UpdateInput{
@@ -197,7 +198,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		file := *input.File
 		fileName, err := c.computeBadgeFileName(file, b.ID)
 		if err != nil {
-			return entity.BadgeNil, fmt.Errorf("cannot compute badge file name: %w", err)
+			return entity.BadgeNil, err
 		}
 
 		if b.FileName != fileName {
@@ -207,7 +208,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 				fmt.Sprintf("badges/%s", b.FileName),
 				minio.RemoveObjectOptions{},
 			); err != nil {
-				return entity.BadgeNil, fmt.Errorf("cannot delete old badge file: %w", err)
+				return entity.BadgeNil, errors.NewInternalError("Failed to delete old badge file", err)
 			}
 		}
 
@@ -222,7 +223,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 			},
 		)
 		if err != nil {
-			return entity.BadgeNil, fmt.Errorf("cannot upload badge file: %w", err)
+			return entity.BadgeNil, errors.NewInternalError("Failed to upload badge file", err)
 		}
 
 		updateInput.FileName = &fileName
@@ -230,7 +231,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 
 	newBadge, err := c.badgesRepository.Update(ctx, id, updateInput)
 	if err != nil {
-		return entity.BadgeNil, fmt.Errorf("cannot update badge in db: %w", err)
+		return entity.BadgeNil, errors.NewInternalError("Failed to update badge in database", err)
 	}
 
 	return c.modelToEntity(newBadge), nil

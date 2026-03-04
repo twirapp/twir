@@ -9,6 +9,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
@@ -17,7 +18,7 @@ import (
 func (r *subscriptionResolver) DashboardWidgetsEvents(ctx context.Context) (<-chan *gqlmodel.DashboardEventListPayload, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.DashboardEventListPayload, 1)

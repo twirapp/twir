@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -69,19 +70,19 @@ func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gql
 func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (*gqlmodel.CommandCreatePayload, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	createInput := mappers.CommandGqlInputToService(dashboardId, user.ID, opts)
 
 	newCmd, err := r.deps.CommandsService.Create(ctx, createInput)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &gqlmodel.CommandCreatePayload{ID: newCmd.ID.String()}, nil
@@ -202,12 +203,12 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.CommandsService.Delete(
@@ -218,7 +219,7 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bo
 		},
 	)
 	if err != nil {
-		return false, fmt.Errorf("cannot delete command: %w", err)
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil

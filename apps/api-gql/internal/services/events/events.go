@@ -2,12 +2,12 @@ package events
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/events"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
@@ -88,7 +88,7 @@ func (s *Service) mapToEntity(m model.Event) entity.Event {
 func (s *Service) GetAll(ctx context.Context, channelID string) ([]entity.Event, error) {
 	channelEvents, err := s.eventsRepository.GetManyByChannelID(ctx, channelID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get channelEvents: %w", err)
+		return nil, errors.NewInternalError("Failed to fetch events", err)
 	}
 
 	result := make([]entity.Event, 0, len(channelEvents))
@@ -102,10 +102,10 @@ func (s *Service) GetAll(ctx context.Context, channelID string) ([]entity.Event,
 func (s *Service) GetByID(ctx context.Context, id string) (entity.Event, error) {
 	event, err := s.eventsRepository.GetByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, events.ErrNotFound) {
-			return entity.EventNil, fmt.Errorf("event not found")
+		if err == events.ErrNotFound {
+			return entity.EventNil, errors.NewNotFoundError("Event with this ID was not found")
 		}
-		return entity.EventNil, fmt.Errorf("failed to get event: %w", err)
+		return entity.EventNil, errors.NewInternalError("Failed to fetch event", err)
 	}
 
 	return s.mapToEntity(event), nil
@@ -114,19 +114,19 @@ func (s *Service) GetByID(ctx context.Context, id string) (entity.Event, error) 
 func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, error) {
 	plan, err := s.plansRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.EventNil, fmt.Errorf("failed to get plan: %w", err)
+		return entity.EventNil, errors.NewInternalError("Failed to fetch plan", err)
 	}
 	if plan.IsNil() {
-		return entity.EventNil, fmt.Errorf("plan not found for channel")
+		return entity.EventNil, errors.NewNotFoundError("Plan configuration not found for your channel")
 	}
 
 	channelEvents, err := s.eventsRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.EventNil, fmt.Errorf("failed to get channelEvents: %w", err)
+		return entity.EventNil, errors.NewInternalError("Failed to fetch events", err)
 	}
 
 	if len(channelEvents) >= plan.MaxEvents {
-		return entity.EventNil, fmt.Errorf("you can have only %v events", plan.MaxEvents)
+		return entity.EventNil, errors.NewBadRequestError(fmt.Sprintf("You have reached the maximum limit of %v events", plan.MaxEvents))
 	}
 
 	repoInput := events.CreateInput{
@@ -171,11 +171,11 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, 
 
 	event, err := s.eventsRepository.Create(ctx, repoInput)
 	if err != nil {
-		return entity.EventNil, fmt.Errorf("failed to create event: %w", err)
+		return entity.EventNil, errors.NewInternalError("Failed to create event", err)
 	}
 
 	if err := s.cacher.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.EventNil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return entity.EventNil, errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return s.mapToEntity(event), nil
@@ -231,14 +231,14 @@ func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 
 	event, err := s.eventsRepository.Update(ctx, id, repoInput)
 	if err != nil {
-		if errors.Is(err, events.ErrNotFound) {
-			return entity.EventNil, fmt.Errorf("event not found")
+		if err == events.ErrNotFound {
+			return entity.EventNil, errors.NewNotFoundError("Event with this ID was not found")
 		}
-		return entity.EventNil, fmt.Errorf("failed to update event: %w", err)
+		return entity.EventNil, errors.NewInternalError("Failed to update event", err)
 	}
 
 	if err := s.cacher.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.EventNil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return entity.EventNil, errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return s.mapToEntity(event), nil
@@ -247,11 +247,11 @@ func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 func (s *Service) Delete(ctx context.Context, id, channelID string) error {
 	err := s.eventsRepository.Delete(ctx, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete event: %w", err)
+		return errors.NewInternalError("Failed to delete event", err)
 	}
 
 	if err := s.cacher.Invalidate(ctx, channelID); err != nil {
-		return fmt.Errorf("failed to invalidate cache: %w", err)
+		return errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return nil

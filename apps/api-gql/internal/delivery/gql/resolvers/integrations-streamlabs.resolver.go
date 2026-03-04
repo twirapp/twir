@@ -8,6 +8,7 @@ package resolvers
 import (
 	"context"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	streamlabsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/streamlabs_integration"
 )
@@ -16,12 +17,12 @@ import (
 func (r *mutationResolver) StreamlabsPostCode(ctx context.Context, code string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.StreamlabsIntegrationService.PostCode(ctx, dashboardID, code)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -31,12 +32,12 @@ func (r *mutationResolver) StreamlabsPostCode(ctx context.Context, code string) 
 func (r *mutationResolver) StreamlabsLogout(ctx context.Context) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.StreamlabsIntegrationService.Logout(ctx, dashboardID)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -46,12 +47,12 @@ func (r *mutationResolver) StreamlabsLogout(ctx context.Context) (bool, error) {
 func (r *queryResolver) Streamlabs(ctx context.Context) (*gqlmodel.StreamlabsIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entity, err := r.deps.StreamlabsIntegrationService.GetIntegrationData(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return streamlabsintegration.MapEntityToGQLModel(entity), nil
@@ -61,7 +62,7 @@ func (r *queryResolver) Streamlabs(ctx context.Context) (*gqlmodel.StreamlabsInt
 func (r *queryResolver) StreamlabsAuthLink(ctx context.Context) (string, error) {
 	authLink, err := r.deps.StreamlabsIntegrationService.GetAuthLink(ctx)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	return authLink.Link, nil

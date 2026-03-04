@@ -12,6 +12,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -28,7 +29,7 @@ func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.
 func (r *mutationResolver) OverlaysBeRightBackUpdate(ctx context.Context, input gqlmodel.BeRightBackUpdateInput) (*gqlmodel.BeRightBackOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	updateInput := entity.BeRightBackOverlaySettings{
@@ -63,7 +64,7 @@ func (r *mutationResolver) OverlaysBeRightBackUpdate(ctx context.Context, input 
 func (r *queryResolver) OverlaysBeRightBack(ctx context.Context) (*gqlmodel.BeRightBackOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	overlay, err := r.deps.BeRightBackService.GetOrCreate(ctx, dashboardID)
@@ -79,7 +80,7 @@ func (r *queryResolver) OverlaysBeRightBack(ctx context.Context) (*gqlmodel.BeRi
 func (r *subscriptionResolver) OverlaysBeRightBack(ctx context.Context, apiKey string) (<-chan *gqlmodel.BeRightBackOverlay, error) {
 	updateChan, err := r.deps.BeRightBackService.SettingsSubscriptionSignalerByApiKey(ctx, apiKey)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	outputChan := make(chan *gqlmodel.BeRightBackOverlay, 1)
@@ -108,7 +109,7 @@ func (r *subscriptionResolver) OverlaysBeRightBack(ctx context.Context, apiKey s
 func (r *subscriptionResolver) OverlaysBeRightBackStart(ctx context.Context, apiKey string) (<-chan *gqlmodel.BeRightBackOverlayStartMessage, error) {
 	updateChan, err := r.deps.BeRightBackService.StartSubscriptionSignalerByApiKey(ctx, apiKey)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	outputChan := make(chan *gqlmodel.BeRightBackOverlayStartMessage, 1)
@@ -140,7 +141,7 @@ func (r *subscriptionResolver) OverlaysBeRightBackStart(ctx context.Context, api
 func (r *subscriptionResolver) OverlaysBeRightBackStop(ctx context.Context, apiKey string) (<-chan *time.Time, error) {
 	updateChan, err := r.deps.BeRightBackService.StopSubscriptionSignalerByApiKey(ctx, apiKey)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	outputChan := make(chan *time.Time, 1)

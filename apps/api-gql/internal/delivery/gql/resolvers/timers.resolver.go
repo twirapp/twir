@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -52,7 +53,7 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.TimerEntityToGql(timer)
@@ -102,7 +103,11 @@ func (r *mutationResolver) TimersCreateMany(ctx context.Context, opts []gqlmodel
 		)
 	}
 
-	return r.deps.TimersService.CreateMany(ctx, inputs)
+	result, err := r.deps.TimersService.CreateMany(ctx, inputs)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+	return result, nil
 }
 
 // TimersUpdate is the resolver for the timersUpdate field.
@@ -146,7 +151,7 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.TimerEntityToGql(timer)
@@ -167,7 +172,7 @@ func (r *mutationResolver) TimersRemove(ctx context.Context, id uuid.UUID) (bool
 
 	err = r.deps.TimersService.Delete(ctx, id, dashboardId, user.ID)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil

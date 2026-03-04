@@ -11,6 +11,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -34,14 +35,14 @@ func (r *kappagenTriggerPayloadResolver) Channel(ctx context.Context, obj *gqlmo
 func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gqlmodel.KappagenUpdateInput) (*gqlmodel.KappagenOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	animations := make([]entity.KappagenOverlayAnimationsSettings, 0, len(input.Animations))
 	for _, a := range input.Animations {
 		animationStyle, err := mappers.MapGqlKappagenAnimationStyleToEntity(a.Style)
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 
 		prefs := &entity.KappagenOverlayAnimationsPrefsSettings{}
@@ -141,7 +142,7 @@ func (r *mutationResolver) OverlaysKappagenUpdate(ctx context.Context, input gql
 func (r *queryResolver) OverlaysKappagen(ctx context.Context) (*gqlmodel.KappagenOverlay, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	overlay, err := r.deps.KappagenService.GetOrCreate(ctx, dashboardID)
@@ -169,7 +170,7 @@ func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context, apiKey stri
 
 	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateSettingsSubscriptionKey(user.ID)})
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	chann := make(chan *gqlmodel.KappagenOverlay, 1)
@@ -216,7 +217,7 @@ func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiK
 	}
 	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateTriggerSubscriptionKey(user.ID)})
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	chann := make(chan *gqlmodel.KappagenTriggerPayload, 1)

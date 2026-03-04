@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -39,7 +40,7 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text *string
 	}
 
 	if err := r.deps.Gorm.WithContext(ctx).Create(&entity).Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	userNotification := gqlmodel.UserNotification{
@@ -72,7 +73,7 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text *string
 	if adminNotification.UserID != nil {
 		twitchUser, err := r.deps.CachedTwitchClient.GetUserById(ctx, *adminNotification.UserID)
 		if err != nil {
-			return nil, err
+			return nil, gqlerrors.HandleError(err)
 		}
 
 		adminNotification.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
@@ -90,7 +91,7 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text *string
 func (r *mutationResolver) NotificationsUpdate(ctx context.Context, id string, opts gqlmodel.NotificationUpdateOpts) (*gqlmodel.AdminNotification, error) {
 	entity := model.Notifications{}
 	if err := r.deps.Gorm.WithContext(ctx).Where("id = ?", id).First(&entity).Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	if opts.Text.IsSet() {
@@ -102,7 +103,7 @@ func (r *mutationResolver) NotificationsUpdate(ctx context.Context, id string, o
 	}
 
 	if err := r.deps.Gorm.WithContext(ctx).Save(&entity).Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	notification := gqlmodel.AdminNotification{
@@ -122,7 +123,7 @@ func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (
 		"id = ?",
 		id,
 	).Delete(&model.Notifications{}).Error; err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -132,7 +133,7 @@ func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (
 func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error) {
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	var entities []model.Notifications
@@ -140,7 +141,7 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.Use
 		`"userId" = ? OR "userId" IS NULL`,
 		user.ID,
 	).Order(`"createdAt" DESC`).Find(&entities).Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	notifications := make([]gqlmodel.UserNotification, len(entities))
@@ -185,7 +186,7 @@ func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.
 
 	var total int64
 	if err := query.Model(&model.Notifications{}).Count(&total).Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	var entities []model.Notifications
@@ -194,7 +195,7 @@ func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.
 		Offset(page * perPage).
 		Order(`"createdAt" DESC`).
 		Find(&entities).Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	notifications := make([]gqlmodel.AdminNotification, len(entities))
@@ -218,7 +219,7 @@ func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.
 func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gqlmodel.UserNotification, error) {
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.UserNotification, 1)

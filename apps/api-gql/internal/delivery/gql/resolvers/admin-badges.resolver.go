@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -28,7 +29,7 @@ func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]strin
 	)
 	if err != nil {
 		r.deps.Logger.Error("cannot get badge users", logger.Error(err))
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	userIds := make([]string, 0, len(users))
@@ -43,7 +44,7 @@ func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]strin
 func (r *mutationResolver) BadgesDelete(ctx context.Context, id uuid.UUID) (bool, error) {
 	if err := r.deps.BadgesService.Delete(ctx, id); err != nil {
 		r.deps.Logger.Error("cannot delete badge", logger.Error(err))
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -71,7 +72,7 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id uuid.UUID, opts 
 	newBadge, err := r.deps.BadgesService.Update(ctx, id, input)
 	if err != nil {
 		r.deps.Logger.Error("cannot update badge", logger.Error(err))
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.BadgeEntityToGql(newBadge)
@@ -99,7 +100,7 @@ func (r *mutationResolver) BadgesCreate(ctx context.Context, opts gqlmodel.TwirB
 	newBadge, err := r.deps.BadgesService.Create(ctx, input)
 	if err != nil {
 		r.deps.Logger.Error("cannot create badge", logger.Error(err))
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.BadgeEntityToGql(newBadge)
@@ -117,7 +118,7 @@ func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, user
 	)
 	if err != nil {
 		r.deps.Logger.Error("cannot add user to badge", logger.Error(err))
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -134,7 +135,7 @@ func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, u
 	)
 	if err != nil {
 		r.deps.Logger.Error("cannot remove user from badge", logger.Error(err))
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -147,7 +148,7 @@ func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error
 		badges.GetManyInput{},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := make([]gqlmodel.Badge, 0, len(entities))

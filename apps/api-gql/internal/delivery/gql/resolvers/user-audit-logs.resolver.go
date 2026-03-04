@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -28,7 +29,7 @@ func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*g
 func (r *queryResolver) AuditLog(ctx context.Context) ([]gqlmodel.AuditLog, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	logs, err := r.deps.AuditLogsService.GetMany(
@@ -39,7 +40,7 @@ func (r *queryResolver) AuditLog(ctx context.Context) ([]gqlmodel.AuditLog, erro
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := make([]gqlmodel.AuditLog, 0, len(logs))
@@ -54,12 +55,12 @@ func (r *queryResolver) AuditLog(ctx context.Context) ([]gqlmodel.AuditLog, erro
 func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.AuditLog, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	logsChannel, err := r.deps.AuditLogsService.Subscribe(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.AuditLog)

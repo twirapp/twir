@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
@@ -18,7 +19,7 @@ import (
 func (r *mutationResolver) CommandsPrefixUpdate(ctx context.Context, input gqlmodel.CommandsPrefixUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	_, err = r.deps.ChannelsCommandsPrefix.Update(
@@ -39,7 +40,7 @@ func (r *mutationResolver) CommandsPrefixUpdate(ctx context.Context, input gqlmo
 func (r *mutationResolver) CommandsPrefixReset(ctx context.Context) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	if err = r.deps.ChannelsCommandsPrefix.Delete(ctx, dashboardID); err != nil {
@@ -53,7 +54,7 @@ func (r *mutationResolver) CommandsPrefixReset(ctx context.Context) (bool, error
 func (r *queryResolver) ChannelsCommandsPrefix(ctx context.Context) (string, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	prefix, err := r.deps.ChannelsCommandsPrefix.GetByChannelID(ctx, dashboardID)

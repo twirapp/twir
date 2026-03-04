@@ -14,6 +14,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	config "github.com/twirapp/twir/libs/config"
+	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/channels_files"
 	"github.com/twirapp/twir/libs/repositories/channels_files/model"
 	"go.uber.org/fx"
@@ -95,11 +96,13 @@ var acceptedMimeTypes = []string{"audio", "image"}
 
 func (c *Service) validateUpload(ctx context.Context, channelID string, file entity.Upload) error {
 	if file.Size > bytesRestriction {
-		return fmt.Errorf("file cannot be bigger than 10mb, got: %v", file.Size)
+		return apperrors.NewBadRequestError(
+			fmt.Sprintf("File size cannot exceed 10 MB. Your file is %d bytes", file.Size),
+		)
 	}
 
 	if utf8.RuneCountInString(file.Filename) > 100 {
-		return fmt.Errorf("file name is too long")
+		return apperrors.NewBadRequestError("File name is too long (maximum 100 characters)")
 	}
 
 	var isCorrectMimeType bool
@@ -111,16 +114,18 @@ func (c *Service) validateUpload(ctx context.Context, channelID string, file ent
 	}
 
 	if !isCorrectMimeType {
-		return fmt.Errorf("unsupported file type")
+		return apperrors.NewBadRequestError("Only audio and image files are allowed")
 	}
 
 	totalUploaded, err := c.filesRepo.GetTotalChannelUploadedSizeBytes(ctx, channelID)
 	if err != nil {
-		return err
+		return apperrors.NewInternalError("Failed to check storage usage", err)
 	}
 
 	if totalUploaded+file.Size > bytesRestriction*10 {
-		return fmt.Errorf("limit of storage reached")
+		return apperrors.NewBadRequestError(
+			fmt.Sprintf("Storage limit of 100 MB reached. Current usage: %d MB", totalUploaded/(1<<20)),
+		)
 	}
 
 	return nil
@@ -188,7 +193,7 @@ func (c *Service) Upload(
 		},
 	)
 	if trErr != nil {
-		return entity.ChannelFileNil, fmt.Errorf("cannot upload file: %w", trErr)
+		return entity.ChannelFileNil, apperrors.NewInternalError("Failed to upload file", trErr)
 	}
 
 	return createdFile, nil
@@ -224,7 +229,7 @@ func (c *Service) DeleteById(ctx context.Context, channelID string, id uuid.UUID
 	}
 
 	if file.ChannelID != channelID {
-		return fmt.Errorf("file not found")
+		return apperrors.NewNotFoundError("File with this ID was not found for your channel")
 	}
 
 	trErr := c.trmManager.Do(
@@ -245,7 +250,7 @@ func (c *Service) DeleteById(ctx context.Context, channelID string, id uuid.UUID
 		},
 	)
 	if trErr != nil {
-		return fmt.Errorf("cannot delete file: %w", err)
+		return apperrors.NewInternalError("Failed to delete file", trErr)
 	}
 
 	return nil
@@ -268,12 +273,12 @@ func (c *Service) GetFileContent(ctx context.Context, channelID string, fileID u
 		minio.GetObjectOptions{},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get file: %w", err)
+		return nil, apperrors.NewInternalError("Failed to retrieve file from storage", err)
 	}
 
 	content, err := io.ReadAll(object)
 	if err != nil {
-		return nil, fmt.Errorf("cannot read file: %w", err)
+		return nil, apperrors.NewInternalError("Failed to read file content", err)
 	}
 
 	c.filesContentCache[fileID.String()] = &cachedFile{

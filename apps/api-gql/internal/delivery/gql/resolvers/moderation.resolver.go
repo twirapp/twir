@@ -14,6 +14,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
@@ -23,7 +24,7 @@ import (
 func (r *mutationResolver) ModerationSettingsCreate(ctx context.Context, input gqlmodel.ModerationSettingsCreateOrUpdateInput) (*gqlmodel.ModerationSettingsItem, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	createInput := channels_moderation_settings.CreateOrUpdateInput{
@@ -51,7 +52,7 @@ func (r *mutationResolver) ModerationSettingsCreate(ctx context.Context, input g
 
 	newItem, err := r.deps.ChannelsModerationSettingsService.Create(ctx, createInput)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedItem := mappers.ModerationSettingsEntityToGql(newItem)
@@ -62,7 +63,7 @@ func (r *mutationResolver) ModerationSettingsCreate(ctx context.Context, input g
 func (r *mutationResolver) ModerationSettingsUpdate(ctx context.Context, id uuid.UUID, input gqlmodel.ModerationSettingsCreateOrUpdateInput) (*gqlmodel.ModerationSettingsItem, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	createInput := channels_moderation_settings.CreateOrUpdateInput{
@@ -90,7 +91,7 @@ func (r *mutationResolver) ModerationSettingsUpdate(ctx context.Context, id uuid
 
 	newItem, err := r.deps.ChannelsModerationSettingsService.Update(ctx, id, createInput)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedItem := mappers.ModerationSettingsEntityToGql(newItem)
@@ -101,12 +102,12 @@ func (r *mutationResolver) ModerationSettingsUpdate(ctx context.Context, id uuid
 func (r *mutationResolver) ModerationSettingsDelete(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.ChannelsModerationSettingsService.Delete(ctx, id, dashboardID)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -116,12 +117,12 @@ func (r *mutationResolver) ModerationSettingsDelete(ctx context.Context, id uuid
 func (r *queryResolver) ModerationSettings(ctx context.Context) ([]gqlmodel.ModerationSettingsItem, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	items, err := r.deps.ChannelsModerationSettingsService.GetByChannelID(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := make([]gqlmodel.ModerationSettingsItem, 0, len(items))
@@ -148,18 +149,18 @@ func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Contex
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqUrl+"/detect/languages", nil)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
@@ -168,7 +169,7 @@ func (r *queryResolver) ModerationLanguagesAvailableLanguages(ctx context.Contex
 
 	var resp []availableLanguage
 	if err := json.Unmarshal(body, &resp); err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	gqlResp := &gqlmodel.ModerationLanguagesAvailableLanguagesOutput{

@@ -16,6 +16,7 @@ import (
 	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
@@ -56,7 +57,7 @@ func (r *dashboardResolver) Plan(ctx context.Context, obj *gqlmodel.Dashboard) (
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
 func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
 	if err := r.deps.Sessions.SetSessionSelectedDashboard(ctx, dashboardID); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -66,7 +67,7 @@ func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context,
 func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, opts gqlmodel.UserUpdateSettingsInput) (bool, error) {
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	entity := &model.Users{}
@@ -94,7 +95,7 @@ func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, 
 func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context) (string, error) {
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	entity := &model.Users{}
@@ -120,7 +121,7 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context, opts gqlmodel.UserUpdatePublicSettingsInput) (bool, error) {
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	currentSettings := &model.ChannelPublicSettings{}
@@ -153,7 +154,7 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 					Where("settings_id = ?", currentSettings.ID).
 					Delete(&model.ChannelPublicSettingsSocialLink{}).
 					Error; err != nil {
-					return err
+					return gqlerrors.HandleError(err)
 				}
 
 				links := make([]model.ChannelPublicSettingsSocialLink, 0, len(opts.SocialLinks.Value()))
@@ -186,7 +187,7 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	if err := r.deps.Sessions.SessionLogout(ctx); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -201,7 +202,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user := model.Users{}
@@ -255,7 +256,7 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 		).
 		Preload("SocialLinks").
 		Find(entity).Error; err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	settings := &gqlmodel.PublicSettings{
@@ -278,7 +279,7 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string, error) {
 	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, r.deps.Config.SiteBaseUrl)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	if redirectTo == "" {
@@ -342,7 +343,7 @@ func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string
 func (r *queryResolver) ChannelUserInfo(ctx context.Context, userID string) (*gqlmodel.ChannelUserInfo, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	info, err := r.deps.UsersService.GetChannelUserInfo(
@@ -352,7 +353,7 @@ func (r *queryResolver) ChannelUserInfo(ctx context.Context, userID string) (*gq
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &gqlmodel.ChannelUserInfo{

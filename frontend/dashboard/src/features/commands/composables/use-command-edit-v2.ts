@@ -1,15 +1,15 @@
-import type { TypeOf } from 'zod'
+import type { TypeOf } from 'zod';
 
-import { createGlobalState } from '@vueuse/core'
-import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import { toast } from 'vue-sonner'
-import { array, boolean, nativeEnum, number, object, string } from 'zod'
+import { createGlobalState } from '@vueuse/core';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import { toast } from 'vue-sonner';
+import { array, boolean, nativeEnum, number, object, string } from 'zod';
 
-import { type Command, useCommandsApi } from '@/api/commands/commands'
-import { useRoles } from '@/api/roles'
-import { CommandExpiresType } from '@/gql/graphql'
+import { type Command, useCommandsApi } from '@/api/commands/commands';
+import { useRoles } from '@/api/roles';
+import { CommandExpiresType } from '@/gql/graphql';
 
 export const formSchema = object({
 	id: string().optional(),
@@ -20,7 +20,7 @@ export const formSchema = object({
 	aliases: array(
 		string()
 			.max(50)
-			.refine((val) => !val.startsWith('!'), { message: 'Alias cannot start with "!"' })
+			.refine((val) => !val.startsWith('!'), { message: 'Alias cannot start with "!"' }),
 	).max(50),
 	enabled: boolean(),
 	responses: array(
@@ -29,7 +29,7 @@ export const formSchema = object({
 			twitchCategoriesIds: array(string()).max(100),
 			onlineOnly: boolean(),
 			offlineOnly: boolean(),
-		})
+		}),
 	)
 		.max(3)
 		.default([]),
@@ -46,7 +46,7 @@ export const formSchema = object({
 		object({
 			roleId: string(),
 			cooldown: number().int().min(0).max(84600),
-		})
+		}),
 	)
 		.max(100)
 		.default([]),
@@ -65,55 +65,55 @@ export const formSchema = object({
 	}).refine(
 		(data) => {
 			if (data.expiresAt && !data.expiresType) {
-				return false
+				return false;
 			}
 
 			if (!data.expiresAt && data.expiresType) {
-				return false
+				return false;
 			}
 
-			return true
+			return true;
 		},
 		{
 			message: 'ExpiresAt and ExpiresType must be both set or both not set',
 			path: ['expiresAt', 'expiresType'],
-		}
-	)
-)
+		},
+	),
+);
 
-export type FormSchema = TypeOf<typeof formSchema>
+export type FormSchema = TypeOf<typeof formSchema>;
 
 export const useCommandEditV2 = createGlobalState(() => {
-	const { t } = useI18n()
-	const router = useRouter()
+	const { t } = useI18n();
+	const router = useRouter();
 
-	const commandsApi = useCommandsApi()
-	const commands = commandsApi.useQueryCommands()
-	const update = commandsApi.useMutationUpdateCommand()
-	const create = commandsApi.useMutationCreateCommand()
+	const commandsApi = useCommandsApi();
+	const commands = commandsApi.useQueryCommands();
+	const update = commandsApi.useMutationUpdateCommand();
+	const create = commandsApi.useMutationCreateCommand();
 
-	const rolesManager = useRoles()
-	const { data: roles } = rolesManager.useRolesQuery()
+	const rolesManager = useRoles();
+	const { data: roles } = rolesManager.useRolesQuery();
 
-	const command = ref<Command | null>(null)
+	const command = ref<Command | null>(null);
 	const isCustom = computed(() => {
-		return !command.value?.default
-	})
+		return !command.value?.default;
+	});
 
 	async function findCommand(id: string) {
-		command.value = null
-		if (id === 'create') return
+		command.value = null;
+		if (id === 'create') return;
 
-		const fetchedData = await commands.then((c) => c)
-		const foundCmd = fetchedData.data?.value?.commands.find((command) => command.id === id)
+		const fetchedData = await commands.then((c) => c);
+		const foundCmd = fetchedData.data?.value?.commands.find((command) => command.id === id);
 
 		if (!foundCmd) {
-			throw new Error('Command not found')
+			throw new Error('Command not found');
 		}
 
-		command.value = foundCmd
+		command.value = foundCmd;
 
-		return foundCmd
+		return foundCmd;
 	}
 
 	async function submit(data: FormSchema) {
@@ -127,17 +127,14 @@ export const useCommandEditV2 = createGlobalState(() => {
 					id: undefined,
 					module: undefined,
 				},
-			})
+			});
 		} else {
 			const result = await create.executeMutation({
 				opts: data,
-			})
+			});
 
 			if (result.error) {
-				toast.error(result.error.graphQLErrors?.map((e) => e.message).join(', ') ?? 'error', {
-					duration: 5000,
-				})
-				return
+				return;
 			}
 
 			await router.push({
@@ -145,12 +142,12 @@ export const useCommandEditV2 = createGlobalState(() => {
 				state: {
 					noTransition: true,
 				},
-			})
+			});
 		}
 
 		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
-		})
+		});
 	}
 
 	return {
@@ -159,5 +156,5 @@ export const useCommandEditV2 = createGlobalState(() => {
 		channelRoles: roles,
 		command,
 		isCustom,
-	}
-})
+	};
+});

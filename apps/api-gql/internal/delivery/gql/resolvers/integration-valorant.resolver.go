@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
@@ -17,7 +18,7 @@ import (
 func (r *mutationResolver) ValorantPostCode(ctx context.Context, code string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.ValorantIntegrationService.PostCode(ctx, dashboardID, code)
@@ -32,7 +33,7 @@ func (r *mutationResolver) ValorantPostCode(ctx context.Context, code string) (b
 func (r *mutationResolver) ValorantLogout(ctx context.Context) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.ValorantIntegrationService.Logout(ctx, dashboardID)
@@ -47,7 +48,7 @@ func (r *mutationResolver) ValorantLogout(ctx context.Context) (bool, error) {
 func (r *queryResolver) ValorantData(ctx context.Context) (*gqlmodel.ValorantIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	data, err := r.deps.ValorantIntegrationService.GetData(ctx, dashboardID)

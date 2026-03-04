@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
@@ -18,12 +19,12 @@ import (
 func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmodel.ChannelAlertCreateInput) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	volume := 100
@@ -45,6 +46,9 @@ func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmod
 			KeywordsIDS:  input.KeywordsIds.Value(),
 		},
 	)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
 
 	converted := mappers.AlertEntityTo(alert)
 	return &converted, nil
@@ -54,12 +58,12 @@ func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmod
 func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id uuid.UUID, input gqlmodel.ChannelAlertUpdateInput) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	alert, err := r.deps.AlertsService.Update(
@@ -77,6 +81,9 @@ func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id uuid.UUID
 			KeywordsIDS:  input.KeywordsIds.Value(),
 		},
 	)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
 
 	converted := mappers.AlertEntityTo(alert)
 	return &converted, nil
@@ -86,17 +93,17 @@ func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id uuid.UUID
 func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.AlertsService.Delete(ctx, id, dashboardId, user.ID)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -106,12 +113,12 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id uuid.UUID
 func (r *queryResolver) ChannelAlerts(ctx context.Context) ([]gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	dbAlerts, err := r.deps.AlertsService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := make([]gqlmodel.ChannelAlert, 0, len(dbAlerts))

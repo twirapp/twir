@@ -3,7 +3,6 @@ package pastebins
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/pastebins"
 	pastebinsmodel "github.com/twirapp/twir/libs/repositories/pastebins/model"
@@ -40,8 +40,6 @@ type Service struct {
 	kv     kv.KV
 	logger *slog.Logger
 }
-
-var ErrNotFound = fmt.Errorf("pastebin not found")
 
 func (c *Service) mapToEntity(m pastebinsmodel.Pastebin) entity.Pastebin {
 	return entity.Pastebin{
@@ -80,7 +78,7 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, erro
 		if deleted, err := c.deleteIfNeed(ctx, bin); err != nil {
 			return entity.PastebinNil, err
 		} else if deleted {
-			return entity.PastebinNil, ErrNotFound
+			return entity.PastebinNil, apperrors.NewNotFoundError("Pastebin not found or has expired")
 		}
 
 		return bin, nil
@@ -89,7 +87,7 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, erro
 	bin, err := c.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, pastebins.ErrNotFound) {
-			return entity.PastebinNil, ErrNotFound
+			return entity.PastebinNil, apperrors.NewNotFoundError("Pastebin not found or has expired")
 		}
 
 		return entity.PastebinNil, err
@@ -98,7 +96,7 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.Pastebin, erro
 	if deleted, err := c.deleteIfNeed(ctx, c.mapToEntity(bin)); err != nil {
 		return entity.PastebinNil, err
 	} else if deleted {
-		return entity.PastebinNil, ErrNotFound
+		return entity.PastebinNil, apperrors.NewNotFoundError("Pastebin not found or has expired")
 	}
 
 	var cacheTime time.Duration

@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/discord_integration"
@@ -18,7 +19,7 @@ import (
 func (r *mutationResolver) DiscordIntegrationConnectGuild(ctx context.Context, code string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.DiscordIntegrationService.ConnectGuild(ctx, dashboardID, code)
@@ -33,7 +34,7 @@ func (r *mutationResolver) DiscordIntegrationConnectGuild(ctx context.Context, c
 func (r *mutationResolver) DiscordIntegrationDisconnectGuild(ctx context.Context, guildID string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.DiscordIntegrationService.DisconnectGuild(ctx, dashboardID, guildID)
@@ -48,7 +49,7 @@ func (r *mutationResolver) DiscordIntegrationDisconnectGuild(ctx context.Context
 func (r *mutationResolver) DiscordIntegrationUpdateGuild(ctx context.Context, guildID string, input gqlmodel.DiscordGuildUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	var (
@@ -95,7 +96,7 @@ func (r *mutationResolver) DiscordIntegrationUpdateGuild(ctx context.Context, gu
 func (r *queryResolver) DiscordIntegrationData(ctx context.Context) (*gqlmodel.DiscordIntegrationData, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	data, err := r.deps.DiscordIntegrationService.GetData(ctx, dashboardID)

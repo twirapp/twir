@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	dashboardwidgetsservice "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widgets"
@@ -21,12 +22,12 @@ import (
 func (r *mutationResolver) DashboardWidgetsLayoutUpdate(ctx context.Context, input []gqlmodel.DashboardWidgetLayoutInput) ([]gqlmodel.DashboardWidgetLayout, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	existingWidgets, err := r.deps.DashboardWidgetsService.GetByChannelID(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	existingMap := make(map[string]dashboard_widget.DashboardWidget)
@@ -66,7 +67,7 @@ func (r *mutationResolver) DashboardWidgetsLayoutUpdate(ctx context.Context, inp
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	gqlLayout := lo.Map(
@@ -83,7 +84,7 @@ func (r *mutationResolver) DashboardWidgetsLayoutUpdate(ctx context.Context, inp
 func (r *mutationResolver) DashboardWidgetsCreateCustom(ctx context.Context, input gqlmodel.DashboardWidgetCreateCustomInput) (*gqlmodel.DashboardWidgetLayout, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	widget, err := r.deps.DashboardWidgetsService.CreateCustom(
@@ -99,7 +100,7 @@ func (r *mutationResolver) DashboardWidgetsCreateCustom(ctx context.Context, inp
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	gqlWidget := mappers.DashboardWidgetEntityToGQL(widget)
@@ -110,7 +111,7 @@ func (r *mutationResolver) DashboardWidgetsCreateCustom(ctx context.Context, inp
 func (r *mutationResolver) DashboardWidgetsUpdateCustom(ctx context.Context, input gqlmodel.DashboardWidgetUpdateCustomInput) (*gqlmodel.DashboardWidgetLayout, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	widget, err := r.deps.DashboardWidgetsService.UpdateCustom(
@@ -123,7 +124,7 @@ func (r *mutationResolver) DashboardWidgetsUpdateCustom(ctx context.Context, inp
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	gqlWidget := mappers.DashboardWidgetEntityToGQL(widget)
@@ -134,7 +135,7 @@ func (r *mutationResolver) DashboardWidgetsUpdateCustom(ctx context.Context, inp
 func (r *mutationResolver) DashboardWidgetsDelete(ctx context.Context, widgetID string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.DashboardWidgetsService.Delete(
@@ -145,7 +146,7 @@ func (r *mutationResolver) DashboardWidgetsDelete(ctx context.Context, widgetID 
 		},
 	)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -155,12 +156,12 @@ func (r *mutationResolver) DashboardWidgetsDelete(ctx context.Context, widgetID 
 func (r *queryResolver) DashboardWidgetsLayout(ctx context.Context) ([]gqlmodel.DashboardWidgetLayout, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	widgets, err := r.deps.DashboardWidgetsService.GetByChannelID(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := make([]gqlmodel.DashboardWidgetLayout, len(widgets))
@@ -176,7 +177,7 @@ func (r *queryResolver) DashboardWidgetsLayout(ctx context.Context) ([]gqlmodel.
 func (r *subscriptionResolver) DashboardWidgetsLayoutChanged(ctx context.Context) (<-chan *gqlmodel.DashboardWidgetsLayoutChangedPayload, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.DashboardWidgetsLayoutChangedPayload)

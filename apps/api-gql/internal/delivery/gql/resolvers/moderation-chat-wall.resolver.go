@@ -10,6 +10,7 @@ import (
 	"errors"
 
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -25,7 +26,7 @@ func (r *chatWallLogResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.C
 func (r *mutationResolver) ChatWallSettingsUpdate(ctx context.Context, opts gqlmodel.ChatWallSettingsUpdateInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.ChatWallService.UpdateChannelSettings(
@@ -35,7 +36,7 @@ func (r *mutationResolver) ChatWallSettingsUpdate(ctx context.Context, opts gqlm
 		opts.MuteVips,
 	)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -45,12 +46,12 @@ func (r *mutationResolver) ChatWallSettingsUpdate(ctx context.Context, opts gqlm
 func (r *queryResolver) ChatWalls(ctx context.Context) ([]gqlmodel.ChatWall, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	chatWalls, err := r.deps.ChatWallService.GetChatWalls(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := make([]gqlmodel.ChatWall, len(chatWalls))
@@ -65,7 +66,7 @@ func (r *queryResolver) ChatWalls(ctx context.Context) ([]gqlmodel.ChatWall, err
 func (r *queryResolver) ChatWallSettings(ctx context.Context) (*gqlmodel.ChatWallSettings, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	settings, err := r.deps.ChatWallService.GetChannelSettings(ctx, dashboardID)
@@ -76,7 +77,7 @@ func (r *queryResolver) ChatWallSettings(ctx context.Context) (*gqlmodel.ChatWal
 				MuteVips:        false,
 			}, nil
 		}
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &gqlmodel.ChatWallSettings{
@@ -89,12 +90,12 @@ func (r *queryResolver) ChatWallSettings(ctx context.Context) (*gqlmodel.ChatWal
 func (r *queryResolver) ChatWallLogs(ctx context.Context, id string) ([]gqlmodel.ChatWallLog, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	logs, err := r.deps.ChatWallService.GetLogs(ctx, dashboardID, id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := make([]gqlmodel.ChatWallLog, len(logs))

@@ -2,7 +2,7 @@ package greetings
 
 import (
 	"context"
-	"errors"
+	goerrors "errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/greetings/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
@@ -101,10 +102,10 @@ type CreateInput struct {
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greeting, error) {
 	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.GreetingNil, fmt.Errorf("failed to get plan: %w", err)
+		return entity.GreetingNil, errors.NewInternalError("Failed to get plan", err)
 	}
 	if plan.IsNil() {
-		return entity.GreetingNil, fmt.Errorf("plan not found for channel")
+		return entity.GreetingNil, errors.NewNotFoundError("Plan configuration not found for your channel")
 	}
 
 	existingGreetings, err := c.greetingsRepository.GetManyByChannelID(
@@ -113,11 +114,13 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 		greetings.GetManyInput{},
 	)
 	if err != nil {
-		return entity.GreetingNil, fmt.Errorf("failed to get greetings: %w", err)
+		return entity.GreetingNil, errors.NewInternalError("Failed to get greetings", err)
 	}
 
 	if len(existingGreetings) >= plan.MaxGreetings {
-		return entity.GreetingNil, fmt.Errorf("you can have only %v greetings", plan.MaxGreetings)
+		return entity.GreetingNil, errors.NewBadRequestError(
+			fmt.Sprintf("You have reached the maximum limit of %v greetings", plan.MaxGreetings),
+		)
 	}
 
 	greeting, err := c.greetingsRepository.GetOneByChannelAndUserID(
@@ -127,12 +130,14 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 			UserID:    input.UserID,
 		},
 	)
-	if err != nil && !errors.Is(err, greetings.ErrNotFound) {
-		return entity.GreetingNil, err
+	if err != nil && !goerrors.Is(err, greetings.ErrNotFound) {
+		return entity.GreetingNil, errors.NewInternalError("Failed to check existing greeting", err)
 	}
 
 	if greeting != model.GreetingNil {
-		return entity.GreetingNil, fmt.Errorf("greeting for user %s already exists", input.UserID)
+		return entity.GreetingNil, errors.NewConflictError(
+			"A greeting for this user already exists on your channel",
+		)
 	}
 
 	newGreeting, err := c.greetingsRepository.Create(
@@ -147,7 +152,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 		},
 	)
 	if err != nil {
-		return entity.GreetingNil, err
+		return entity.GreetingNil, errors.NewInternalError("Failed to create greeting", err)
 	}
 
 	_ = c.auditRecorder.RecordCreateOperation(
@@ -164,7 +169,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 	)
 
 	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.GreetingNil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return entity.GreetingNil, errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return c.mapToEntity(newGreeting), nil
@@ -187,15 +192,11 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 ) {
 	dbGreeting, err := c.greetingsRepository.GetByID(ctx, id)
 	if err != nil {
-		return entity.GreetingNil, err
+		return entity.GreetingNil, errors.NewInternalError("Failed to get greeting", err)
 	}
 
 	if dbGreeting.ChannelID != input.ChannelID {
-		return entity.GreetingNil, fmt.Errorf(
-			"greeting with id %s does not belong to channel %s",
-			id,
-			input.ChannelID,
-		)
+		return entity.GreetingNil, errors.NewNotFoundError("Greeting with this ID was not found for your channel")
 	}
 
 	newGreeting, err := c.greetingsRepository.Update(
@@ -209,7 +210,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		},
 	)
 	if err != nil {
-		return entity.GreetingNil, err
+		return entity.GreetingNil, errors.NewInternalError("Failed to update greeting", err)
 	}
 
 	_ = c.auditRecorder.RecordUpdateOperation(
@@ -227,7 +228,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 	)
 
 	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.GreetingNil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return entity.GreetingNil, errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return c.mapToEntity(newGreeting), nil
@@ -239,27 +240,23 @@ type DeleteInput struct {
 	ID        uuid.UUID
 }
 
-var ErrGreetingNotFound = errors.New("greeting not found")
+var ErrGreetingNotFound = errors.NewNotFoundError("Greeting with this ID was not found")
 
 func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 	dbGreeting, err := c.greetingsRepository.GetByID(ctx, input.ID)
 	if err != nil {
-		if errors.Is(err, greetings.ErrNotFound) {
+		if goerrors.Is(err, greetings.ErrNotFound) {
 			return ErrGreetingNotFound
 		}
-		return err
+		return errors.NewInternalError("Failed to get greeting", err)
 	}
 
 	if dbGreeting.ChannelID != input.ChannelID {
-		return fmt.Errorf(
-			"greeting with id %s does not belong to channel %s",
-			input.ID,
-			input.ChannelID,
-		)
+		return errors.NewNotFoundError("Greeting with this ID was not found for your channel")
 	}
 
 	if err := c.greetingsRepository.Delete(ctx, input.ID); err != nil {
-		return err
+		return errors.NewInternalError("Failed to delete greeting", err)
 	}
 
 	_ = c.auditRecorder.RecordDeleteOperation(
@@ -276,7 +273,7 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 	)
 
 	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return fmt.Errorf("failed to invalidate cache: %w", err)
+		return errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return nil

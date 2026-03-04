@@ -18,6 +18,7 @@ import (
 	"github.com/samber/lo"
 	loParallel "github.com/samber/lo/parallel"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -30,12 +31,12 @@ import (
 func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel.SongRequestsSettingsOpts) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	entity := model.ChannelSongRequestsSettings{
@@ -128,7 +129,7 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequestsSettings, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entity := model.ChannelSongRequestsSettings{}
@@ -284,7 +285,7 @@ func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, op
 func (r *queryResolver) SongRequestsPublicQueue(ctx context.Context, channelID string) ([]gqlmodel.SongRequestPublic, error) {
 	queue, err := r.deps.SongRequestsService.GetPublicQueue(ctx, channelID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	mapped := make([]gqlmodel.SongRequestPublic, 0, len(queue))

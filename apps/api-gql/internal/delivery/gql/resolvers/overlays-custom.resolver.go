@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_overlays"
@@ -22,12 +23,12 @@ import (
 func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmodel.ChannelOverlayCreateInput) (*gqlmodel.ChannelOverlay, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	layers := make([]channels_overlays.CreateLayerInput, len(input.Layers))
@@ -66,7 +67,7 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.ChannelOverlayEntityToGql(overlay)
@@ -77,12 +78,12 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUID, input gqlmodel.ChannelOverlayUpdateInput) (*gqlmodel.ChannelOverlay, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	layers := make([]channels_overlays.UpdateLayerInput, len(input.Layers))
@@ -128,7 +129,7 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.ChannelOverlayEntityToGql(overlay)
@@ -139,17 +140,17 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 func (r *mutationResolver) ChannelOverlayDelete(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.ChannelOverlaysService.Delete(ctx, id, dashboardId, user.ID)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -159,7 +160,7 @@ func (r *mutationResolver) ChannelOverlayDelete(ctx context.Context, id uuid.UUI
 func (r *mutationResolver) ChannelOverlayParseHTML(ctx context.Context, html string) (string, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	result, err := r.deps.ChannelOverlaysService.ParseHtml(
@@ -170,7 +171,7 @@ func (r *mutationResolver) ChannelOverlayParseHTML(ctx context.Context, html str
 		},
 	)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	return result, nil
@@ -180,12 +181,12 @@ func (r *mutationResolver) ChannelOverlayParseHTML(ctx context.Context, html str
 func (r *queryResolver) ChannelOverlays(ctx context.Context) ([]gqlmodel.ChannelOverlay, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	overlays, err := r.deps.ChannelOverlaysService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result := make([]gqlmodel.ChannelOverlay, len(overlays))
@@ -200,12 +201,12 @@ func (r *queryResolver) ChannelOverlays(ctx context.Context) ([]gqlmodel.Channel
 func (r *queryResolver) ChannelOverlayByID(ctx context.Context, id uuid.UUID) (*gqlmodel.ChannelOverlay, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	overlay, err := r.deps.ChannelOverlaysService.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	if overlay.ChannelID != dashboardId {
@@ -220,7 +221,7 @@ func (r *queryResolver) ChannelOverlayByID(ctx context.Context, id uuid.UUID) (*
 func (r *subscriptionResolver) CustomOverlaySettings(ctx context.Context, id uuid.UUID, apiKey string) (<-chan *gqlmodel.ChannelOverlay, error) {
 	user, err := r.deps.UsersService.GetByApiKey(ctx, apiKey)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.ChannelOverlay)
@@ -228,7 +229,7 @@ func (r *subscriptionResolver) CustomOverlaySettings(ctx context.Context, id uui
 	// Get initial overlay data
 	initialOverlay, err := r.deps.ChannelOverlaysService.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	// Verify that the overlay belongs to the user's channel

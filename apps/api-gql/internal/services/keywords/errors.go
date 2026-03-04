@@ -1,7 +1,7 @@
 package keywords
 
 import (
-	"errors"
+	"github.com/twirapp/twir/libs/errors"
 )
 
-var ErrKeywordNotFound = errors.New("keyword not found")
+var ErrKeywordNotFound = errors.NewNotFoundError("Keyword with this ID was not found")

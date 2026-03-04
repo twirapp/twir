@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/errors"
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
 )
@@ -29,19 +30,21 @@ type CreateInput struct {
 func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVariable, error) {
 	plan, err := c.plansRepository.GetByChannelID(ctx, data.ChannelID)
 	if err != nil {
-		return entity.CustomVarNil, fmt.Errorf("failed to get plan: %w", err)
+		return entity.CustomVarNil, errors.NewInternalError("Failed to get plan", err)
 	}
 	if plan.IsNil() {
-		return entity.CustomVarNil, fmt.Errorf("plan not found for channel")
+		return entity.CustomVarNil, errors.NewNotFoundError("Plan configuration not found for your channel")
 	}
 
 	createdCount, err := c.variablesRepository.CountByChannelID(ctx, data.ChannelID)
 	if err != nil {
-		return entity.CustomVarNil, err
+		return entity.CustomVarNil, errors.NewInternalError("Failed to count variables", err)
 	}
 
 	if createdCount >= plan.MaxVariables {
-		return entity.CustomVarNil, fmt.Errorf("you can have only %v variables", plan.MaxVariables)
+		return entity.CustomVarNil, errors.NewBadRequestError(
+			fmt.Sprintf("You have reached the maximum limit of %v variables", plan.MaxVariables),
+		)
 	}
 
 	variable, err := c.variablesRepository.Create(
@@ -56,7 +59,7 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVa
 		},
 	)
 	if err != nil {
-		return entity.CustomVarNil, err
+		return entity.CustomVarNil, errors.NewInternalError("Failed to create variable", err)
 	}
 
 	_ = c.auditRecorder.RecordCreateOperation(

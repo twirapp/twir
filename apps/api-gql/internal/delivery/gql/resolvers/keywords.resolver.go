@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -62,7 +63,7 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 
 	k, err := r.deps.KeywordsService.Create(ctx, input)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.KeywordsFrom(k)
@@ -129,7 +130,7 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts
 
 	keyword, err := r.deps.KeywordsService.Update(ctx, input)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.KeywordsFrom(keyword)
@@ -149,7 +150,7 @@ func (r *mutationResolver) KeywordRemove(ctx context.Context, id uuid.UUID) (boo
 	}
 
 	if err := r.deps.KeywordsService.Delete(ctx, dashboardId, user.ID, id); err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -164,7 +165,7 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 
 	channelKeywords, err := r.deps.KeywordsService.GetAllByChannelID(ctx, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := make([]gqlmodel.Keyword, 0, len(channelKeywords))

@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
 	genericcacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/alerts"
 	"github.com/twirapp/twir/libs/repositories/alerts/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
@@ -62,7 +63,7 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 ) {
 	dbAlerts, err := c.alertsRepository.GetManyByChannelID(ctx, channelID)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewInternalError("Failed to fetch alerts", err)
 	}
 
 	entities := make([]entity.Alert, 0, len(dbAlerts))
@@ -89,19 +90,21 @@ type CreateInput struct {
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Alert, error) {
 	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.AlertNil, fmt.Errorf("failed to get plan: %w", err)
+		return entity.AlertNil, errors.NewInternalError("Failed to check plan limits", err)
 	}
 	if plan.IsNil() {
-		return entity.AlertNil, fmt.Errorf("plan not found for channel")
+		return entity.AlertNil, errors.NewInternalError("Plan not found for channel", fmt.Errorf("plan not found"))
 	}
 
 	existingAlerts, err := c.alertsRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.AlertNil, fmt.Errorf("failed to get alerts: %w", err)
+		return entity.AlertNil, errors.NewInternalError("Failed to fetch existing alerts", err)
 	}
 
 	if len(existingAlerts) >= plan.MaxAlerts {
-		return entity.AlertNil, fmt.Errorf("you can have only %v alerts", plan.MaxAlerts)
+		return entity.AlertNil, errors.NewBadRequestError(
+			fmt.Sprintf("You have reached the maximum limit of %v alerts", plan.MaxAlerts),
+		)
 	}
 
 	alert, err := c.alertsRepository.Create(
@@ -118,7 +121,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Alert, 
 		},
 	)
 	if err != nil {
-		return entity.AlertNil, err
+		return entity.AlertNil, errors.NewInternalError("Failed to create alert", err)
 	}
 
 	_ = c.auditRecorder.RecordCreateOperation(
@@ -135,7 +138,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Alert, 
 	)
 
 	if err = c.alertsCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.AlertNil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return entity.AlertNil, errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return c.modelToEntity(alert), nil
@@ -160,11 +163,11 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 ) {
 	dbAlert, err := c.alertsRepository.GetByID(ctx, id)
 	if err != nil {
-		return entity.AlertNil, err
+		return entity.AlertNil, errors.NewInternalError("Failed to fetch alert", err)
 	}
 
 	if dbAlert.ChannelID != input.ChannelID {
-		return entity.AlertNil, fmt.Errorf("alert not found")
+		return entity.AlertNil, errors.NewNotFoundError("Alert with this ID was not found for your channel")
 	}
 
 	newAlert, err := c.alertsRepository.Update(
@@ -181,7 +184,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		},
 	)
 	if err != nil {
-		return entity.AlertNil, err
+		return entity.AlertNil, errors.NewInternalError("Failed to update alert", err)
 	}
 
 	_ = c.auditRecorder.RecordUpdateOperation(
@@ -199,7 +202,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 	)
 
 	if err = c.alertsCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.AlertNil, fmt.Errorf("failed to invalidate cache: %w", err)
+		return entity.AlertNil, errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	return c.modelToEntity(newAlert), nil
@@ -208,19 +211,19 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID string) error {
 	dbAlert, err := c.alertsRepository.GetByID(ctx, id)
 	if err != nil {
-		return err
+		return errors.NewInternalError("Failed to fetch alert", err)
 	}
 
 	if dbAlert.ChannelID != channelID {
-		return fmt.Errorf("alert not found")
+		return errors.NewNotFoundError("Alert with this ID was not found for your channel")
 	}
 
 	if err := c.alertsRepository.Delete(ctx, id); err != nil {
-		return err
+		return errors.NewInternalError("Failed to delete alert", err)
 	}
 
 	if err = c.alertsCache.Invalidate(ctx, channelID); err != nil {
-		return fmt.Errorf("failed to invalidate cache: %w", err)
+		return errors.NewInternalError("Failed to invalidate cache", err)
 	}
 
 	_ = c.auditRecorder.RecordDeleteOperation(

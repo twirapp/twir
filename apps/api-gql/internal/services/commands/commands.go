@@ -2,7 +2,6 @@ package commands
 
 import (
 	"context"
-	"fmt"
 	"slices"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
@@ -101,23 +101,23 @@ type DeleteInput struct {
 func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 	command, err := c.commandsRepository.GetByID(ctx, input.ID)
 	if err != nil {
-		return err
+		return errors.NewInternalError("failed to get command", err)
 	}
 
 	if command.Default {
-		return fmt.Errorf("default command cannot be deleted")
+		return errors.NewBadRequestError("Cannot delete default commands, only custom commands can be deleted")
 	}
 
 	if command.ChannelID != input.ChannelID {
-		return fmt.Errorf("command does not belong to the channel")
+		return errors.NewForbiddenError("You don't have permission to access this command")
 	}
 
 	if err := c.commandsRepository.Delete(ctx, input.ID); err != nil {
-		return err
+		return errors.NewInternalError("failed to delete command", err)
 	}
 
 	if err := c.cachedCommandsClient.Invalidate(ctx, input.ChannelID); err != nil {
-		return err
+		return errors.NewInternalError("failed to invalidate cache", err)
 	}
 
 	_ = c.auditRecorder.RecordDeleteOperation(

@@ -2,13 +2,13 @@ package keywords
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/errors"
 )
 
 func (c *Service) Delete(ctx context.Context, channelID, actorID string, id uuid.UUID) error {
@@ -18,7 +18,7 @@ func (c *Service) Delete(ctx context.Context, channelID, actorID string, id uuid
 	}
 
 	if keyword.ChannelID != channelID {
-		return fmt.Errorf("keyword not found")
+		return errors.NewNotFoundError("Keyword with this ID was not found for your channel")
 	}
 
 	if err := c.keywordsRepository.Delete(ctx, id); err != nil {

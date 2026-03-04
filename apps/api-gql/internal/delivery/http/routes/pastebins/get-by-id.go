@@ -8,6 +8,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
+	apperrors "github.com/twirapp/twir/libs/errors"
 	"go.uber.org/fx"
 )
 
@@ -49,7 +50,8 @@ func (g *getById) Handler(
 ) (*httpbase.BaseOutputJson[pasteBinOutputDto], error) {
 	bin, err := g.service.GetByID(ctx, input.ID)
 	if err != nil {
-		if errors.Is(err, pastebins.ErrNotFound) {
+		var appErr *apperrors.AppError
+		if errors.As(err, &appErr) && appErr.Code == apperrors.ErrorCodeNotFound {
 			return nil, huma.NewError(http.StatusNotFound, "Cannot get pastebin", err)
 		}
 

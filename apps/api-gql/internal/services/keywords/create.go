@@ -35,7 +35,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword
 		return entity.KeywordNil, fmt.Errorf("failed to get plan: %w", err)
 	}
 	if plan.IsNil() {
-		return entity.KeywordNil, fmt.Errorf("plan not found for channel")
+		return entity.KeywordNil, fmt.Errorf("plan configuration not found for your channel")
 	}
 
 	createdCount, err := c.keywordsRepository.CountByChannelID(ctx, input.ChannelID)
@@ -44,7 +44,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword
 	}
 
 	if createdCount >= plan.MaxKeywords {
-		return entity.KeywordNil, fmt.Errorf("you can have only %v keywords", plan.MaxKeywords)
+		return entity.KeywordNil, fmt.Errorf("you have reached the maximum limit of %v keywords", plan.MaxKeywords)
 	}
 
 	k, err := c.keywordsRepository.Create(

@@ -2,10 +2,10 @@ package roles_users
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/roles_users"
 	"github.com/twirapp/twir/libs/repositories/roles_users/model"
 	"go.uber.org/fx"
@@ -48,7 +48,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 		},
 	)
 	if err != nil {
-		return entity.ChannelRoleUserNil, fmt.Errorf("cannot create role user: %w", err)
+		return entity.ChannelRoleUserNil, errors.NewInternalError("Failed to create role user", err)
 	}
 
 	return c.mapToEntity(user), nil
@@ -72,7 +72,7 @@ func (c *Service) CreateMany(ctx context.Context, inputs []CreateInput) (
 
 	users, err := c.rolesUsersRepository.CreateMany(ctx, convertedInputs)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create role users: %w", err)
+		return nil, errors.NewInternalError("Failed to create role users", err)
 	}
 
 	result := make([]entity.ChannelRoleUser, len(users))
@@ -85,7 +85,7 @@ func (c *Service) CreateMany(ctx context.Context, inputs []CreateInput) (
 
 func (c *Service) DeleteManyByRoleID(ctx context.Context, roleID uuid.UUID) error {
 	if err := c.rolesUsersRepository.DeleteManyByRoleID(ctx, roleID); err != nil {
-		return fmt.Errorf("cannot delete role users by role ID: %w", err)
+		return errors.NewInternalError("Failed to delete role users by role ID", err)
 	}
 
 	return nil
@@ -97,7 +97,7 @@ func (c *Service) GetManyByRoleID(ctx context.Context, roleID uuid.UUID) (
 ) {
 	users, err := c.rolesUsersRepository.GetManyByRoleID(ctx, roleID)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get role users by role ID: %w", err)
+		return nil, errors.NewInternalError("Failed to fetch role users by role ID", err)
 	}
 
 	result := make([]entity.ChannelRoleUser, len(users))

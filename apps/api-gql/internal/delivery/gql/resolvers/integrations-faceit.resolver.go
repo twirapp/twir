@@ -8,6 +8,7 @@ package resolvers
 import (
 	"context"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
@@ -15,12 +16,12 @@ import (
 func (r *mutationResolver) FaceitPostCode(ctx context.Context, code string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.FaceitIntegrationService.PostCode(ctx, dashboardID, code)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -30,12 +31,12 @@ func (r *mutationResolver) FaceitPostCode(ctx context.Context, code string) (boo
 func (r *mutationResolver) FaceitUpdate(ctx context.Context, game string) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.FaceitIntegrationService.UpdateGame(ctx, dashboardID, game)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -45,12 +46,12 @@ func (r *mutationResolver) FaceitUpdate(ctx context.Context, game string) (bool,
 func (r *mutationResolver) FaceitLogout(ctx context.Context) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.FaceitIntegrationService.Logout(ctx, dashboardID)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -60,12 +61,12 @@ func (r *mutationResolver) FaceitLogout(ctx context.Context) (bool, error) {
 func (r *queryResolver) Faceit(ctx context.Context) (*gqlmodel.FaceitIntegration, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	entity, err := r.deps.FaceitIntegrationService.GetIntegrationData(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &gqlmodel.FaceitIntegration{
@@ -81,12 +82,12 @@ func (r *queryResolver) Faceit(ctx context.Context) (*gqlmodel.FaceitIntegration
 func (r *queryResolver) FaceitAuthLink(ctx context.Context) (string, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	authLink, err := r.deps.FaceitIntegrationService.GetAuthLink(ctx, dashboardID)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	return authLink.Link, nil

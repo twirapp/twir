@@ -8,6 +8,7 @@ package resolvers
 import (
 	"context"
 
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
@@ -16,12 +17,12 @@ import (
 func (r *mutationResolver) NightbotPostCode(ctx context.Context, input gqlmodel.NightbotPostCodeInput) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.NightbotIntegrationService.PostCode(ctx, dashboardId, input.Code)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -31,12 +32,12 @@ func (r *mutationResolver) NightbotPostCode(ctx context.Context, input gqlmodel.
 func (r *mutationResolver) NightbotLogout(ctx context.Context) (bool, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.NightbotIntegrationService.Logout(ctx, dashboardId)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -46,17 +47,17 @@ func (r *mutationResolver) NightbotLogout(ctx context.Context) (bool, error) {
 func (r *mutationResolver) NightbotImportCommands(ctx context.Context) (*gqlmodel.NightbotImportCommandsOutput, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result, err := r.deps.NightbotIntegrationService.ImportCommands(ctx, dashboardId, user.ID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &gqlmodel.NightbotImportCommandsOutput{
@@ -70,17 +71,17 @@ func (r *mutationResolver) NightbotImportCommands(ctx context.Context) (*gqlmode
 func (r *mutationResolver) NightbotImportTimers(ctx context.Context) (*gqlmodel.NightbotImportTimersOutput, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	result, err := r.deps.NightbotIntegrationService.ImportTimers(ctx, dashboardId, user.ID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	return &gqlmodel.NightbotImportTimersOutput{
@@ -94,7 +95,7 @@ func (r *mutationResolver) NightbotImportTimers(ctx context.Context) (*gqlmodel.
 func (r *queryResolver) StreamelementsGetAuthorizationURL(ctx context.Context) (string, error) {
 	link, err := r.deps.StreamElementsService.GetAuthLink()
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	return link, nil
@@ -104,7 +105,7 @@ func (r *queryResolver) StreamelementsGetAuthorizationURL(ctx context.Context) (
 func (r *queryResolver) StreamelementsExchangeDataByCode(ctx context.Context, code string) (*gqlmodel.StreamElementsImportDataOutput, error) {
 	data, err := r.deps.StreamElementsService.ExchangeDataByCode(ctx, code)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	convertedCommands := make([]gqlmodel.StreamElementsCommand, 0, len(data.Commands))
@@ -128,7 +129,7 @@ func (r *queryResolver) StreamelementsExchangeDataByCode(ctx context.Context, co
 func (r *queryResolver) NightbotGetAuthLink(ctx context.Context) (string, error) {
 	link, err := r.deps.NightbotIntegrationService.GetAuthLink(ctx)
 	if err != nil {
-		return "", err
+		return "", gqlerrors.HandleError(err)
 	}
 
 	return link, nil
@@ -138,12 +139,12 @@ func (r *queryResolver) NightbotGetAuthLink(ctx context.Context) (string, error)
 func (r *queryResolver) NightbotGetData(ctx context.Context) (*gqlmodel.NightbotIntegration, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	data, err := r.deps.NightbotIntegrationService.GetData(ctx, dashboardId)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	if data == nil {

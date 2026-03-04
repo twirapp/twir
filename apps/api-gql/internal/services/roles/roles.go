@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/roles"
 	"github.com/twirapp/twir/libs/repositories/roles/model"
 	"github.com/twirapp/twir/libs/repositories/roles_users"
@@ -61,7 +62,7 @@ func (c *Service) modelToEntity(m model.Role) entity.ChannelRole {
 func (c *Service) GetManyByIDS(ctx context.Context, ids []uuid.UUID) ([]entity.ChannelRole, error) {
 	dbRoles, err := c.rolesRepository.GetManyByIDS(ctx, ids)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewInternalError("Failed to fetch roles", err)
 	}
 
 	entities := make([]entity.ChannelRole, len(dbRoles))
@@ -78,7 +79,7 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 ) {
 	dbRoles, err := c.rolesRepository.GetManyByChannelID(ctx, channelID)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewInternalError("Failed to fetch channel roles", err)
 	}
 
 	entities := make([]entity.ChannelRole, len(dbRoles))
@@ -113,11 +114,11 @@ type CreateInput struct {
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.ChannelRole, error) {
 	dbRoles, err := c.rolesRepository.GetManyByChannelID(ctx, input.ChannelID)
 	if err != nil {
-		return entity.ChannelRoleNil, err
+		return entity.ChannelRoleNil, errors.NewInternalError("Failed to fetch channel roles", err)
 	}
 
 	if len(dbRoles) >= maxRoles {
-		return entity.ChannelRoleNil, fmt.Errorf("maximum number of roles reached")
+		return entity.ChannelRoleNil, errors.NewBadRequestError(fmt.Sprintf("You have reached the maximum limit of %d roles", maxRoles))
 	}
 
 	dbRole, err := c.rolesRepository.Create(
@@ -132,7 +133,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 		},
 	)
 	if err != nil {
-		return entity.ChannelRole{}, err
+		return entity.ChannelRole{}, errors.NewInternalError("Failed to create role", err)
 	}
 
 	_ = c.auditRecorder.RecordCreateOperation(
@@ -149,7 +150,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 	)
 
 	if err := c.rolesCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.ChannelRoleNil, fmt.Errorf("failed to invalidate roles cache: %w", err)
+		return entity.ChannelRoleNil, errors.NewInternalError("Failed to invalidate roles cache", err)
 	}
 
 	return c.modelToEntity(dbRole), nil
@@ -173,11 +174,11 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 ) {
 	dbRole, err := c.rolesRepository.GetByID(ctx, id)
 	if err != nil {
-		return entity.ChannelRoleNil, err
+		return entity.ChannelRoleNil, errors.NewInternalError("Failed to fetch role", err)
 	}
 
 	if dbRole.ChannelID != input.ChannelID {
-		return entity.ChannelRoleNil, fmt.Errorf("role doesn't belong to the channel")
+		return entity.ChannelRoleNil, errors.NewForbiddenError("You don't have permission to access this role")
 	}
 
 	updateInput := roles.UpdateInput{
@@ -190,7 +191,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 
 	newRole, err := c.rolesRepository.Update(ctx, id, updateInput)
 	if err != nil {
-		return entity.ChannelRole{}, err
+		return entity.ChannelRole{}, errors.NewInternalError("Failed to update role", err)
 	}
 
 	_ = c.auditRecorder.RecordUpdateOperation(
@@ -208,7 +209,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 	)
 
 	if err := c.rolesCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return entity.ChannelRoleNil, fmt.Errorf("failed to invalidate roles cache: %w", err)
+		return entity.ChannelRoleNil, errors.NewInternalError("Failed to invalidate roles cache", err)
 	}
 
 	return c.modelToEntity(newRole), nil
@@ -223,19 +224,19 @@ type DeleteInput struct {
 func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 	dbRole, err := c.rolesRepository.GetByID(ctx, input.ID)
 	if err != nil {
-		return err
+		return errors.NewInternalError("Failed to fetch role", err)
 	}
 
 	if dbRole.ChannelID != input.ChannelID {
-		return fmt.Errorf("role doesn't belong to the channel")
+		return errors.NewForbiddenError("You don't have permission to access this role")
 	}
 
 	if dbRole.Type != model.ChannelRoleTypeCustom {
-		return fmt.Errorf("cannot remove default roles")
+		return errors.NewBadRequestError("Cannot delete default roles, only custom roles can be deleted")
 	}
 
 	if err := c.rolesRepository.Delete(ctx, input.ID); err != nil {
-		return err
+		return errors.NewInternalError("Failed to delete role", err)
 	}
 
 	_ = c.auditRecorder.RecordDeleteOperation(
@@ -252,7 +253,7 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 	)
 
 	if err := c.rolesCache.Invalidate(ctx, input.ChannelID); err != nil {
-		return fmt.Errorf("failed to invalidate roles cache: %w", err)
+		return errors.NewInternalError("Failed to invalidate roles cache", err)
 	}
 
 	return nil
@@ -261,7 +262,7 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 func (c *Service) GetByID(ctx context.Context, id uuid.UUID) (entity.ChannelRole, error) {
 	dbRole, err := c.rolesRepository.GetByID(ctx, id)
 	if err != nil {
-		return entity.ChannelRoleNil, err
+		return entity.ChannelRoleNil, errors.NewInternalError("Failed to fetch role", err)
 	}
 
 	return c.modelToEntity(dbRole), nil

@@ -10,6 +10,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -19,7 +20,7 @@ import (
 func (r *mutationResolver) FilesUpload(ctx context.Context, file graphql.Upload) (*gqlmodel.ChannelFile, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	newFile, err := r.deps.ChannelsFilesService.Upload(
@@ -33,7 +34,7 @@ func (r *mutationResolver) FilesUpload(ctx context.Context, file graphql.Upload)
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := mappers.MapChannelFileToGql(newFile)
@@ -44,12 +45,12 @@ func (r *mutationResolver) FilesUpload(ctx context.Context, file graphql.Upload)
 func (r *mutationResolver) FilesRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	err = r.deps.ChannelsFilesService.DeleteById(ctx, dashboardID, id)
 	if err != nil {
-		return false, err
+		return false, gqlerrors.HandleError(err)
 	}
 
 	return true, nil
@@ -59,12 +60,12 @@ func (r *mutationResolver) FilesRemove(ctx context.Context, id uuid.UUID) (bool,
 func (r *queryResolver) Files(ctx context.Context) ([]gqlmodel.ChannelFile, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	files, err := r.deps.ChannelsFilesService.GetMany(ctx, dashboardID)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.HandleError(err)
 	}
 
 	converted := make([]gqlmodel.ChannelFile, len(files))

@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/libs/audit"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
+	"github.com/twirapp/twir/libs/errors"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 )
 
@@ -30,11 +31,11 @@ type UpdateInput struct {
 func (c *Service) Update(ctx context.Context, data UpdateInput) (timersentity.Timer, error) {
 	timer, err := c.timersRepository.GetByID(ctx, data.ID)
 	if err != nil {
-		return timersentity.Nil, err
+		return timersentity.Nil, errors.NewInternalError("Failed to get timer", err)
 	}
 
 	if timer.ChannelID != data.ChannelID {
-		return timersentity.Nil, ErrTimerNotFound
+		return timersentity.Nil, errors.NewNotFoundError("Timer with this ID was not found for your channel")
 	}
 
 	responses := make([]timersrepository.CreateResponse, 0, len(data.Responses))
@@ -69,7 +70,7 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (timersentity.Ti
 		},
 	)
 	if err != nil {
-		return timersentity.Nil, err
+		return timersentity.Nil, errors.NewInternalError("Failed to update timer", err)
 	}
 
 	_ = c.auditRecorder.RecordUpdateOperation(
