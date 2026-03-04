@@ -1,29 +1,28 @@
 <script setup lang="ts">
-import {
-	getCoreRowModel,
-	getExpandedRowModel,
-	useVueTable,
-} from '@tanstack/vue-table'
-import { type Rgb, colorBrightness, hexToRgb, rgbToHex } from '@zero-dependency/utils'
+import { getCoreRowModel, getExpandedRowModel, useVueTable } from '@tanstack/vue-table'
+import { colorBrightness, hexToRgb, type Rgb, rgbToHex } from '@zero-dependency/utils'
 import { ChevronDownIcon, ChevronRightIcon } from 'lucide-vue-next'
 import { computed, h } from 'vue'
 
 import ColumnActions from './list-actions.vue'
-import { type Group, createGroups, isCommand } from './list-groups.js'
+import { createGroups, type Group, isCommand } from './list-groups.js'
+import Table from '@/components/table.vue'
+import TextWithVariables from '@/components/text-with-variables.vue'
 
 import type { Command } from '@/gql/graphql'
 import type { ColumnDef } from '@tanstack/vue-table'
 
-import Table from '@/components/table.vue'
-
-const props = withDefaults(defineProps<{
-	commands: Command[]
-	enableGroups?: boolean
-	showBackground?: boolean
-}>(), {
-	showHeader: false,
-	enableGroups: false,
-})
+const props = withDefaults(
+	defineProps<{
+		commands: Command[]
+		enableGroups?: boolean
+		showBackground?: boolean
+	}>(),
+	{
+		showHeader: false,
+		enableGroups: false,
+	}
+)
 
 const columns: ColumnDef<Command | Group>[] = [
 	{
@@ -31,14 +30,15 @@ const columns: ColumnDef<Command | Group>[] = [
 		size: 10,
 		header: () => h('div', {}, 'Name'),
 		cell: ({ row }) => {
-			const chevron = row.getCanExpand() ? h(row.getIsExpanded() ? ChevronDownIcon : ChevronRightIcon) : null
+			const chevron = row.getCanExpand()
+				? h(row.getIsExpanded() ? ChevronDownIcon : ChevronRightIcon)
+				: null
 
 			if (isCommand(row.original)) {
-				return h(
-					'div',
-					{ class: 'flex gap-2 items-center' },
-					[chevron, `!${row.getValue('name')}` as string],
-				)
+				return h('div', { class: 'flex gap-2 items-center' }, [
+					chevron,
+					`!${row.getValue('name')}` as string,
+				])
 			}
 
 			let rgbColor: Rgb | null = null
@@ -47,29 +47,27 @@ const columns: ColumnDef<Command | Group>[] = [
 			}
 
 			const color = rgbColor
-				? (colorBrightness(rgbColor) >= 128 ? '#000' : '#fff')
+				? colorBrightness(rgbColor) >= 128
+					? '#000'
+					: '#fff'
 				: 'var(--n-text-color)'
 
-			return h(
-				'div',
-				{ class: 'flex gap-2 items-center select-none' },
-				[
-					chevron,
-					h(
-						'span',
-						{
-							class: 'p-1 rounded',
-							style: `background-color: ${row.original.color}; color: ${color}`,
-						},
-						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1),
-					),
-				],
-			)
+			return h('div', { class: 'flex gap-2 items-center select-none' }, [
+				chevron,
+				h(
+					'span',
+					{
+						class: 'p-1 rounded',
+						style: `background-color: ${row.original.color}; color: ${color}`,
+					},
+					row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1)
+				),
+			])
 		},
 	},
 	{
 		accessorKey: 'responses',
-		header: () => h('div', { }, 'Responses'),
+		header: () => h('div', {}, 'Responses'),
 		size: 85,
 		cell: ({ row }) => {
 			if (!isCommand(row.original)) {
@@ -81,7 +79,11 @@ const columns: ColumnDef<Command | Group>[] = [
 				return row.original.description
 			}
 
-			const mappedResponses = responses.map((r) => h('span', { class: 'truncate md:whitespace-normal' }, r.text))
+			const mappedResponses = responses.map((r) =>
+				h('div', { class: 'truncate md:whitespace-normal' }, [
+					h(TextWithVariables, { text: r.text }),
+				])
+			)
 			return h('div', { class: 'flex flex-col' }, mappedResponses)
 		},
 	},
@@ -93,17 +95,16 @@ const columns: ColumnDef<Command | Group>[] = [
 				return
 			}
 
-			return h(
-				ColumnActions,
-				{
-					row: row.original,
-				},
-			)
+			return h(ColumnActions, {
+				row: row.original,
+			})
 		},
 	},
 ]
 
-const tableValue = computed(() => props.enableGroups ? createGroups(props.commands) : props.commands)
+const tableValue = computed(() =>
+	props.enableGroups ? createGroups(props.commands) : props.commands
+)
 
 const table = useVueTable({
 	get data() {
@@ -123,5 +124,8 @@ const table = useVueTable({
 </script>
 
 <template>
-	<Table :table="table" :is-loading="false" />
+	<Table
+		:table="table"
+		:is-loading="false"
+	/>
 </template>
