@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { ChevronRight, Command, Hash, Search, Variable } from 'lucide-vue-next'
+import { ChevronRight, Command, Hash, Search, User, Variable } from 'lucide-vue-next'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import CommandMenuItem from './CommandMenuItem.vue'
 import CommandMenuKbd from './CommandMenuKbd.vue'
-
+import { useDashboard, useProfile } from '@/api/auth'
 import { useCommandMenuData } from '@/api/command-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
+	Command as CommandRoot,
 	CommandEmpty,
 	CommandGroup,
 	CommandInput,
 	CommandList,
-	Command as CommandRoot,
 } from '@/components/ui/command'
 import {
 	Dialog,
@@ -26,15 +27,15 @@ import {
 } from '@/components/ui/dialog'
 import { Kbd } from '@/components/ui/kbd'
 import { Separator } from '@/components/ui/separator'
-import { footerNavigationItems, getFlatNavigationItems } from '@/config/navigation'
 import { useIsMac } from '@/composables/useIsMac'
+import { footerNavigationItems, getFlatNavigationItems } from '@/config/navigation'
 import { usePublicPageHref } from '@/layout/use-public-page-href'
 
 interface Props {
 	iconOnly?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
 	iconOnly: false,
 })
 
@@ -47,6 +48,21 @@ const isMac = useIsMac()
 const publicPageHref = usePublicPageHref()
 
 const { commands, keywords, variables } = useCommandMenuData()
+const { data: profile } = useProfile()
+const { setDashboard } = useDashboard()
+
+// Get available dashboards
+const availableDashboards = computed(() => {
+	return profile.value?.availableDashboards ?? []
+})
+
+// Get current dashboard
+const currentDashboard = computed(() => {
+	const dashboard = profile.value?.availableDashboards.find(
+		(dashboard) => dashboard.id === profile.value?.selectedDashboardId
+	)
+	return dashboard ?? null
+})
 
 // Get navigation routes from shared config with translations
 const navRoutes = computed(() => {
@@ -120,6 +136,7 @@ function openExternalLink(url: string) {
 	window.open(url, '_blank')
 	open.value = false
 }
+
 onMounted(() => {
 	const down = (e: KeyboardEvent) => {
 		if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
@@ -146,9 +163,8 @@ onMounted(() => {
 			<Button
 				v-if="!iconOnly"
 				variant="outline"
-				class="relative h-9 w-full justify-start text-sm text-muted-foreground sm:pr-12 md:w-48 lg:w-64"
-				@click="open = true"
-			>
+				class="text-muted-foreground relative h-9 w-full justify-start text-sm sm:pr-12 md:w-48 lg:w-64"
+				@click="open = true">
 				<Command class="mr-2 h-4 w-4" />
 				<span class="hidden lg:inline-flex">Search...</span>
 				<span class="inline-flex lg:hidden">Search...</span>
@@ -162,26 +178,23 @@ onMounted(() => {
 				variant="ghost"
 				size="icon"
 				class="h-9 w-9"
-				@click="open = true"
-			>
+				@click="open = true">
 				<Search class="h-5 w-5" />
 			</Button>
 		</DialogTrigger>
 		<DialogContent
 			class="gap-0 p-0"
-			:show-close-button="false"
-		>
+			:show-close-button="false">
 			<DialogHeader class="sr-only">
 				<DialogTitle>Command Menu</DialogTitle>
 				<DialogDescription>Search for pages and entities</DialogDescription>
 			</DialogHeader>
 			<CommandRoot
 				class="rounded-lg border-none shadow-md"
-				v-model="selectedValue"
-			>
+				v-model="selectedValue">
 				<CommandInput placeholder="Type to search..." />
 				<CommandList class="max-h-[400px]">
-					<CommandEmpty class="py-6 text-center text-sm text-muted-foreground">
+					<CommandEmpty class="text-muted-foreground py-6 text-center text-sm">
 						No results found.
 					</CommandEmpty>
 
@@ -193,21 +206,44 @@ onMounted(() => {
 							:value="`page ${route.displayName}`"
 							:is-active="route.path === $route.path"
 							@select="() => runCommand(() => router.push(route.path))"
-							class="cursor-pointer"
-						>
+							class="cursor-pointer">
 							<component
 								:is="route.icon"
-								class="mr-2 h-4 w-4 flex-shrink-0"
-							/>
+								class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ route.displayName }}</span>
+						</CommandMenuItem>
+					</CommandGroup>
+
+					<!-- Dashboards -->
+					<CommandGroup
+						v-if="availableDashboards.length > 1"
+						heading="Dashboards">
+						<CommandMenuItem
+							v-for="dashboard in availableDashboards"
+							:key="dashboard.id"
+							:value="`dashboard ${dashboard.twitchProfile.login} ${dashboard.twitchProfile.displayName}`"
+							:is-active="dashboard.id === currentDashboard?.id"
+							@select="() => runCommand(() => setDashboard(dashboard.id))"
+							class="cursor-pointer">
+							<Avatar class="mr-2 h-4 w-4 flex-shrink-0">
+								<AvatarImage
+									:src="dashboard.twitchProfile.profileImageUrl"
+									:alt="dashboard.twitchProfile.displayName" />
+								<AvatarFallback>
+									<User class="h-3 w-3" />
+								</AvatarFallback>
+							</Avatar>
+							<span class="truncate">{{ dashboard.twitchProfile.displayName }}</span>
+							<span class="text-muted-foreground ml-2 truncate text-xs">
+								@{{ dashboard.twitchProfile.login }}
+							</span>
 						</CommandMenuItem>
 					</CommandGroup>
 
 					<!-- Footer Links -->
 					<CommandGroup
 						v-if="footerRoutes.length > 0"
-						heading="Links"
-					>
+						heading="Links">
 						<CommandMenuItem
 							v-for="item in footerRoutes"
 							:key="item.href"
@@ -218,12 +254,10 @@ onMounted(() => {
 										? openExternalLink(item.href)
 										: runCommand(() => router.push(item.href))
 							"
-							class="cursor-pointer"
-						>
+							class="cursor-pointer">
 							<component
 								:is="item.icon"
-								class="mr-2 h-4 w-4 flex-shrink-0"
-							/>
+								class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ item.displayName }}</span>
 						</CommandMenuItem>
 					</CommandGroup>
@@ -231,8 +265,7 @@ onMounted(() => {
 					<!-- Commands -->
 					<CommandGroup
 						v-if="commands.length > 0"
-						heading="Commands"
-					>
+						heading="Commands">
 						<CommandMenuItem
 							v-for="command in commands.filter((c) => c.enabled)"
 							:key="command.id"
@@ -240,14 +273,12 @@ onMounted(() => {
 							@select="
 								() => runCommand(() => router.push(`/dashboard/commands/custom/${command.id}`))
 							"
-							class="cursor-pointer"
-						>
+							class="cursor-pointer">
 							<Command class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ command.name }}</span>
 							<span
 								v-if="command.description"
-								class="ml-auto text-xs text-muted-foreground truncate max-w-[200px]"
-							>
+								class="text-muted-foreground ml-auto max-w-[200px] truncate text-xs">
 								{{ command.description }}
 							</span>
 						</CommandMenuItem>
@@ -256,15 +287,13 @@ onMounted(() => {
 					<!-- Keywords -->
 					<CommandGroup
 						v-if="keywords.length > 0"
-						heading="Keywords"
-					>
+						heading="Keywords">
 						<CommandMenuItem
 							v-for="keyword in keywords.filter((k) => k.enabled)"
 							:key="keyword.id"
 							:value="`keyword ${keyword.text}`"
 							@select="() => runCommand(() => router.push(`/dashboard/keywords`))"
-							class="cursor-pointer"
-						>
+							class="cursor-pointer">
 							<Hash class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ keyword.text }}</span>
 						</CommandMenuItem>
@@ -273,28 +302,25 @@ onMounted(() => {
 					<!-- Variables -->
 					<CommandGroup
 						v-if="variables.length > 0"
-						heading="Variables"
-					>
+						heading="Variables">
 						<CommandMenuItem
 							v-for="variable in variables"
 							:key="variable.id"
 							:value="`variable ${variable.name} ${variable.description || ''}`"
 							@select="() => runCommand(() => router.push(`/dashboard/variables/${variable.id}`))"
-							class="cursor-pointer"
-						>
+							class="cursor-pointer">
 							<Variable class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ variable.name }}</span>
 							<span
 								v-if="variable.description"
-								class="ml-auto text-xs text-muted-foreground truncate max-w-[200px]"
-							>
+								class="text-muted-foreground ml-auto max-w-[200px] truncate text-xs">
 								{{ variable.description }}
 							</span>
 						</CommandMenuItem>
 					</CommandGroup>
 				</CommandList>
 			</CommandRoot>
-			<div class="flex items-center gap-2 border-t px-4 py-3 text-xs text-muted-foreground">
+			<div class="text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-xs">
 				<div class="flex items-center gap-1">
 					<CommandMenuKbd>
 						<ChevronRight class="h-3 w-3" />
@@ -303,16 +329,14 @@ onMounted(() => {
 				</div>
 				<Separator
 					orientation="vertical"
-					class="h-4"
-				/>
+					class="h-4" />
 				<div class="flex items-center gap-1">
 					<CommandMenuKbd>Enter</CommandMenuKbd>
 					<span>to select</span>
 				</div>
 				<Separator
 					orientation="vertical"
-					class="h-4"
-				/>
+					class="h-4" />
 				<div class="flex items-center gap-1">
 					<CommandMenuKbd>Esc</CommandMenuKbd>
 					<span>to close</span>

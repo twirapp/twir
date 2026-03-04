@@ -2,5 +2,18 @@
 <project version="4">
   <component name="OxfmtSettings">
     <option name="fixAllOnSave" value="true" />
+    <option name="supportedExtensions">
+      <list>
+        <option value=".js" />
+        <option value=".jsx" />
+        <option value=".cjs" />
+        <option value=".mjs" />
+        <option value=".ts" />
+        <option value=".tsx" />
+        <option value=".cts" />
+        <option value=".mts" />
+        <option value=".vue" />
+      </list>
+    </option>
   </component>
 </project>
