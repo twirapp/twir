@@ -1451,9 +1451,9 @@
     "chooseWinner": "Vybrať víťaza",
     "minWatchedTime": "Min. odsledovaný čas",
     "minMessages": "Min. počet správ",
-    "minUsedChannelPoints": "Min. Channel Points",
-    "minFollowDuration": "Min. Follow Duration",
-    "requireSubscription": "Subscription Required",
+    "minUsedChannelPoints": "Min. vernostné body kanála",
+    "minFollowDuration": "Minimálna doba sledovania kanála",
+    "requireSubscription": "Len pre predplatiteľov",
     "onlineChatterNotice": {
       "title": "Online Chatters Giveaway",
       "description": "For this type of giveaway, participants are determined automatically when winners are chosen. The list shows only users who have already been selected or participated via keyword."
