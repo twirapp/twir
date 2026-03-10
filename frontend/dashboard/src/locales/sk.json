@@ -191,7 +191,7 @@
           "empty": "Zatiaľ nie sú nastavené žiadne cooldowny podľa roly. Pridaním môžeš nastaviť vlastné cooldowny pre vybrané roly.",
           "role": "Rola",
           "cooldownValue": "Cooldown (sekundy)",
-          "description": "Set custom cooldowns for each role. The 'Viewer' means 'All users', cooldown applies without specific role overrides."
+          "description": "Nastav vlastné cooldowny pre každú rolu. „Viewer“ znamená „Všetci používatelia“, cooldown sa uplatní, ak neexistuje špecifické prepísanie pre inú rolu."
         },
         "affectedRolesInfo": "Cooldowny podľa roly sú nastavené pre"
       },
@@ -245,7 +245,7 @@
         "editStreamInfoDescription": "Aktualizuj názov a kategóriu streamu",
         "title": "Názov streamu",
         "category": "Kategória",
-        "titleMaxLength": "Title must be 140 characters or less"
+        "titleMaxLength": "Názov musí mať maximálne 140 znakov"
       },
       "addWidget": "Pridať Widget",
       "uptime": "Vysielanie",
@@ -1438,8 +1438,8 @@
     "title": "Giveawaye",
     "createNew": "Vytvoriť nový giveaway",
     "keyword": "Kľúčové slovo",
-    "type": "Type",
-    "typeKeyword": "Keyword",
+    "type": "Typ",
+    "typeKeyword": "Kľúčové slovo",
     "typeOnlineChatters": "Online Chatters",
     "createdAt": "Vytvorené o",
     "startedAt": "Začiatok",
@@ -1449,8 +1449,8 @@
     "start": "Spustiť",
     "stop": "Zastaviť",
     "chooseWinner": "Vybrať víťaza",
-    "minWatchedTime": "Min. Watch Time",
-    "minMessages": "Min. Messages",
+    "minWatchedTime": "Min. odsledovaný čas",
+    "minMessages": "Min. počet správ",
     "minUsedChannelPoints": "Min. Channel Points",
     "minFollowDuration": "Min. Follow Duration",
     "requireSubscription": "Subscription Required",
@@ -1475,8 +1475,8 @@
       "keywordLabel": "Kľúčové slovo",
       "keywordPlaceholder": "Zadaj kľúčové slovo (napr. „!giveaway\" alebo „raffle\")",
       "filtersTitle": "Participation Filters (Optional)",
-      "minWatchedTime": "Minimum Watch Time (minutes)",
-      "minWatchedTimePlaceholder": "e.g. 60 for 1 hour",
+      "minWatchedTime": "Minimálny odsledovaný čas (minúty)",
+      "minWatchedTimePlaceholder": "napr. 60 pre 1 hodinu",
       "minMessages": "Minimum Messages Sent",
       "minMessagesPlaceholder": "e.g. 10",
       "minUsedChannelPoints": "Minimum Channel Points Used",
