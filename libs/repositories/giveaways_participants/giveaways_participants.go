@@ -34,6 +34,7 @@ type CreateInput struct {
 	UserID          string
 	UserLogin       string
 	UserDisplayName string
+	IsWinner        bool
 }
 
 type GetManyInput struct {

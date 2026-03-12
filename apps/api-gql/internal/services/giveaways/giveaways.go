@@ -143,7 +143,9 @@ func (c *Service) Start(
 	}
 
 	if dbGiveaway.StartedAt != nil {
-		return channels_giveaways.GiveawayNil, errors.NewBadRequestError("This giveaway has already been started and is not stopped yet")
+		return channels_giveaways.GiveawayNil, errors.NewBadRequestError(
+			"This giveaway has already been started and is not stopped yet",
+		)
 	}
 
 	if dbGiveaway.StartedAt == nil {
@@ -180,7 +182,9 @@ func (c *Service) Stop(
 	}
 
 	if dbGiveaway.StartedAt == nil {
-		return channels_giveaways.GiveawayNil, errors.NewBadRequestError("Cannot stop a giveaway that has not been started yet")
+		return channels_giveaways.GiveawayNil, errors.NewBadRequestError(
+			"Cannot stop a giveaway that has not been started yet",
+		)
 	}
 
 	if dbGiveaway.StoppedAt != nil {
@@ -253,7 +257,9 @@ func (c *Service) ChooseWinners(
 func (c *Service) Create(ctx context.Context, input CreateInput) (channels_giveaways.Giveaway, error) {
 	// Validate that keyword is present for KEYWORD type
 	if input.Type == channels_giveaways.GiveawayTypeKeyword && (input.Keyword == nil || *input.Keyword == "") {
-		return channels_giveaways.GiveawayNil, errors.NewBadRequestError("Keyword is required when creating a KEYWORD type giveaway")
+		return channels_giveaways.GiveawayNil, errors.NewBadRequestError(
+			"Keyword is required when creating a KEYWORD type giveaway",
+		)
 	}
 
 	// Check for duplicate keyword giveaway
@@ -264,11 +270,16 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (channels_givea
 			*input.Keyword,
 		)
 		if err != nil && err != giveaways.ErrNotFound {
-			return channels_giveaways.GiveawayNil, errors.NewInternalError("Failed to check for duplicate giveaway", err)
+			return channels_giveaways.GiveawayNil, errors.NewInternalError(
+				"Failed to check for duplicate giveaway",
+				err,
+			)
 		}
 
 		if !dbGiveaway.IsNil() {
-			return channels_giveaways.GiveawayNil, errors.NewConflictError("A giveaway with this keyword already exists on your channel")
+			return channels_giveaways.GiveawayNil, errors.NewConflictError(
+				"A giveaway with this keyword already exists and runed on your channel",
+			)
 		}
 	}
 

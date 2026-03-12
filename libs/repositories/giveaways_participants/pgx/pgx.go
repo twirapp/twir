@@ -29,8 +29,10 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ giveaways_participants.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+var (
+	_  giveaways_participants.Repository = (*Pgx)(nil)
+	sq                                   = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -58,7 +60,7 @@ func (p *Pgx) Create(
 	input giveaways_participants.CreateInput,
 ) (model.ChannelGiveawayParticipant, error) {
 	query := `
-INSERT INTO channels_giveaways_participants("giveaway_id", "display_name", "user_id", "user_login") VALUES ($1, $2, $3, $4)
+INSERT INTO channels_giveaways_participants("giveaway_id", "display_name", "user_id", "user_login", "is_winner") VALUES ($1, $2, $3, $4, $5)
 RETURNING id, giveaway_id, is_winner, display_name, user_id, user_login
 	`
 
@@ -70,6 +72,7 @@ RETURNING id, giveaway_id, is_winner, display_name, user_id, user_login
 		input.UserDisplayName,
 		input.UserID,
 		input.UserLogin,
+		input.IsWinner,
 	)
 	if err != nil {
 		return model.ChannelGiveawayParticipantNil, err

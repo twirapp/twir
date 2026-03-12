@@ -9,7 +9,6 @@ import (
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
-	"github.com/guregu/null"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -242,7 +241,11 @@ func (c *Service) chooseWinner(
 		// Filter by follow duration if required
 		for _, user := range onlineUsers {
 			if giveaway.MinFollowDuration != nil {
-				followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, user.UserID, giveaway.ChannelID)
+				followDuration, err := c.twitchCache.GetUserFollowDuration(
+					ctx,
+					user.UserID,
+					giveaway.ChannelID,
+				)
 				if err != nil {
 					c.logger.Error("cannot get user follow duration", logger.Error(err))
 					continue
@@ -253,17 +256,22 @@ func (c *Service) chooseWinner(
 			}
 
 			// Convert to participant model
-			eligibleParticipants = append(eligibleParticipants, model.ChannelGiveawayParticipant{
-				UserID:      user.UserID,
-				UserLogin:   user.UserName, // UserName is actually the login
-				DisplayName: user.UserName,
-				GiveawayID:  parsedGiveawayId,
-				IsWinner:    false,
-			})
+			eligibleParticipants = append(
+				eligibleParticipants, model.ChannelGiveawayParticipant{
+					UserID:      user.UserID,
+					UserLogin:   user.UserName, // UserName is actually the login
+					DisplayName: user.UserName,
+					GiveawayID:  parsedGiveawayId,
+					IsWinner:    false,
+				},
+			)
 		}
 
 	default:
-		return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("unknown giveaway type: %s", giveaway.Type)
+		return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf(
+			"unknown giveaway type: %s",
+			giveaway.Type,
+		)
 	}
 
 	if len(eligibleParticipants) == 0 {
@@ -288,23 +296,11 @@ func (c *Service) chooseWinner(
 						UserID:          winnerData.UserID,
 						UserLogin:       winnerData.UserLogin,
 						UserDisplayName: winnerData.DisplayName,
+						IsWinner:        true,
 					},
 				)
 				if err != nil {
 					c.logger.Error("create winner error", logger.Error(err))
-					return err
-				}
-
-				// Mark as winner
-				winner, err = c.giveawaysParticipantsRepository.Update(
-					txCtx,
-					winner.ID.String(),
-					giveaways_participants.UpdateInput{
-						IsWinner: lo.ToPtr(true),
-					},
-				)
-				if err != nil {
-					c.logger.Error("update winner error", logger.Error(err))
 					return err
 				}
 			} else {
@@ -323,18 +319,6 @@ func (c *Service) chooseWinner(
 			}
 
 			winners = append(winners, winner)
-
-			_, err = c.giveawaysRepository.UpdateStatuses(
-				txCtx,
-				winner.GiveawayID,
-				giveaways.UpdateStatusInput{
-					StoppedAt: null.NewTime(time.Now(), true),
-				},
-			)
-			if err != nil {
-				c.logger.Error("update error", logger.Error(err))
-				return err
-			}
 
 			return nil
 		},
