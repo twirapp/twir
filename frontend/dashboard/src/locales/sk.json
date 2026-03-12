@@ -1512,15 +1512,15 @@
       "hint": "Použi {winner} na vloženie mena výhercu do správy",
       "messageLabel": "Správa pre výhercu",
       "messagePlaceholder": "Zadaj správu o vyhlásení víťaza...",
-      "create": "Create Settings",
-      "update": "Update Settings",
-      "success": "Settings saved",
-      "successDescription": "Giveaway settings have been updated successfully",
-      "error": "Error saving settings",
+      "create": "Vytvoriť nastavenia",
+      "update": "Aktualizovať nastavenia",
+      "success": "Nastavenia uložené",
+      "successDescription": "Nastavenia giveawayu boli úspešne aktualizované",
+      "error": "Chyba pri ukladaní nastavení",
       "validation": {
-        "required": "Winner message is required",
-        "minLength": "Winner message must be at least 1 character",
-        "maxLength": "Winner message must be less than 500 characters"
+        "required": "Správa pre výhercu je povinná",
+        "minLength": "Správa pre výhercu musí mať aspoň 1 znak",
+        "maxLength": "Správa pre výhercu musí mať menej ako 500 znakov"
       }
     }
   }
