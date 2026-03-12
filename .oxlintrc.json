@@ -230,14 +230,6 @@
             "ts-ignore": "allow-with-description"
           }
         ],
-        "@typescript-eslint/ban-types": [
-          "error",
-          {
-            "types": {
-              "Function": false
-            }
-          }
-        ],
         "@typescript-eslint/no-duplicate-enum-values": "error",
         "@typescript-eslint/no-dynamic-delete": "off",
         "@typescript-eslint/no-explicit-any": "off",
