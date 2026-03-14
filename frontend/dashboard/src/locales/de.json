@@ -394,7 +394,8 @@
         "vipSlots": "VIP Slots Anzahl",
         "username": "Benutzername (unterstützt Variablen)",
         "variableValue": "Neuer Variablenwert (unterstützt Variablen)",
-        "variableIncrementDecrement": "Wert inkrementieren/dekrementieren (unterstützt Variablen)"
+        "variableIncrementDecrement": "Wert inkrementieren/dekrementieren (unterstützt Variablen)",
+        "webhookUrl": "Webhook URL"
       },
       "banMessage": "Ban-Nachricht",
       "banTime": "Banndauer",
@@ -1468,7 +1469,7 @@
     },
     "createDialog": {
       "title": "Neues Gewinnspiel erstellen",
-      "description": "Choose a giveaway type and configure filters to control who can participate.",
+      "description": "Gebe ein Schlüsselwort für ein Giveaway ein. Benutzer verwenden dieses Schlüsselwort um daran teilzunehmen.",
       "typeLabel": "Giveaway Type",
       "typeKeyword": "Keyword - Users type a keyword in chat to enter",
       "typeOnlineChatters": "Online Chatters - All active chatters are automatically entered",
