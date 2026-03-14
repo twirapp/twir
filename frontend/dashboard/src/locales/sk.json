@@ -394,7 +394,8 @@
         "vipSlots": "Množstvo VIP slotov",
         "username": "Používateľské meno (podporuje premenné)",
         "variableValue": "Nová hodnota premennej (podporuje premenné)",
-        "variableIncrementDecrement": "Zvyšuje/znižuje hodnotu (podporuje premenné)"
+        "variableIncrementDecrement": "Zvyšuje/znižuje hodnotu (podporuje premenné)",
+        "webhookUrl": "URL webhooku"
       },
       "banMessage": "Správa o zablokovaní",
       "banTime": "Čas banu",
