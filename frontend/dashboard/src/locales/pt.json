@@ -394,7 +394,8 @@
         "vipSlots": "Quantidade de Espaços VIP",
         "username": "Nome de Usuário (suporta variáveis)",
         "variableValue": "Novo Valor de Variável (suporta variáveis)",
-        "variableIncrementDecrement": "Valor de Acréscimo/Redução (suporta variáveis)"
+        "variableIncrementDecrement": "Valor de Acréscimo/Redução (suporta variáveis)",
+        "webhookUrl": "URL do webhook"
       },
       "banMessage": "Mensagem de Banimento",
       "banTime": "Tempo de Banimento",
@@ -1468,7 +1469,7 @@
     },
     "createDialog": {
       "title": "Criar Novo Sorteio",
-      "description": "Choose a giveaway type and configure filters to control who can participate.",
+      "description": "Insira uma palavra-chave para seu sorteio. Os usuários usarão essa palavra-chave para participar.",
       "typeLabel": "Giveaway Type",
       "typeKeyword": "Keyword - Users type a keyword in chat to enter",
       "typeOnlineChatters": "Online Chatters - All active chatters are automatically entered",
