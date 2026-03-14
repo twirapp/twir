@@ -394,7 +394,8 @@
         "vipSlots": "Кількість VIP-слотів",
         "username": "Ім'я користувача (підтримує змінні)",
         "variableValue": "Нове значення змінної (підтримує змінні)",
-        "variableIncrementDecrement": "Збільшує/Зменшує значення (підтримує змінні)"
+        "variableIncrementDecrement": "Збільшує/Зменшує значення (підтримує змінні)",
+        "webhookUrl": "URL вебхука"
       },
       "banMessage": "Повідомлення про блокування",
       "banTime": "Час блокування",
@@ -1468,7 +1469,7 @@
     },
     "createDialog": {
       "title": "Створити новий розіграш",
-      "description": "Choose a giveaway type and configure filters to control who can participate.",
+      "description": "Введіть ключове слово для роздачі. Користувачі будуть використовувати це ключове слово для участі.",
       "typeLabel": "Giveaway Type",
       "typeKeyword": "Keyword - Users type a keyword in chat to enter",
       "typeOnlineChatters": "Online Chatters - All active chatters are automatically entered",
