@@ -1,13 +1,12 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { PlusIcon } from 'lucide-vue-next'
 import { useField, useFieldArray } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import OperationFilter from './filter.vue'
-
-import type { EventFilter, EventOperation } from '@/api/events'
-
+import { useCommandsApi } from '@/api/commands/commands.ts'
+import { useVariablesApi } from '@/api/variables.ts'
 import { Button } from '@/components/ui/button'
 import {
 	FormControl,
@@ -17,6 +16,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
 	Select,
 	SelectContent,
@@ -25,7 +25,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import VariableInput from '@/components/variable-input.vue'
@@ -34,8 +33,8 @@ import OperationInputAlert from '@/features/events/components/operation-input-al
 import OperationInputObsSelector from '@/features/events/components/operation-input-obs-selector.vue'
 import { flatOperations } from '@/features/events/constants/helpers'
 import { EventOperationType } from '@/gql/graphql'
-import { useVariablesApi } from '@/api/variables.ts'
-import { useCommandsApi } from '@/api/commands/commands.ts'
+
+import type { EventFilter, EventOperation } from '@/api/events'
 
 const props = withDefaults(
 	defineProps<{
@@ -85,11 +84,17 @@ function onRemoveFilter(filterIndex: number) {
 
 <template>
 	<div class="min-h-[50dvh]">
-		<div v-if="currentOperation" class="space-y-4">
+		<div
+			v-if="currentOperation"
+			class="space-y-4"
+		>
 			<OperationActionSelector :current-operation-index="operationIndex" />
 
 			<div v-if="flatOperations[currentOperation?.type]?.haveInput">
-				<FormField v-slot="{ componentField }" :name="`operations[${operationIndex}].input`">
+				<FormField
+					v-slot="{ componentField }"
+					:name="`operations[${operationIndex}].input`"
+				>
 					<FormItem>
 						<FormLabel>
 							{{
@@ -100,33 +105,57 @@ function onRemoveFilter(filterIndex: number) {
 							}}
 						</FormLabel>
 						<FormControl>
-							<VariableInput v-bind="componentField" input-type="textarea" />
+							<Input
+								v-if="currentOperation?.type === EventOperationType.SendHttpRequest"
+								placeholder="https://example.com/webhook"
+								type="url"
+								v-bind="componentField"
+							/>
+							<VariableInput
+								v-else
+								input-type="textarea"
+								v-bind="componentField"
+							/>
 						</FormControl>
+						<FormDescription v-if="currentOperation?.type === EventOperationType.SendHttpRequest">
+							A POST request will be sent to this URL with the event data as JSON body. The event
+							type will be in the <code>X-Twir-Event-Type</code> header.
+						</FormDescription>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 			</div>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<FormField v-slot="{ componentField }" :name="`operations.${operationIndex}.delay`">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<FormField
+					v-slot="{ componentField }"
+					:name="`operations.${operationIndex}.delay`"
+				>
 					<FormItem>
 						<FormLabel>{{ t('events.delay') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" type="number" min="0" />
+							<Input
+								min="0"
+								type="number"
+								v-bind="componentField"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" :name="`operations.${operationIndex}.repeat`">
+				<FormField
+					v-slot="{ componentField }"
+					:name="`operations.${operationIndex}.repeat`"
+				>
 					<FormItem>
 						<FormLabel>{{ t('events.repeat') }}</FormLabel>
 						<FormControl>
 							<Input
-								v-bind="componentField"
-								type="number"
-								min="0"
 								:placeholder="t('events.repeatPlaceholder')"
+								min="0"
+								type="number"
+								v-bind="componentField"
 							/>
 						</FormControl>
 						<FormMessage />
@@ -146,7 +175,10 @@ function onRemoveFilter(filterIndex: number) {
 							<FormLabel>Use announce</FormLabel>
 						</div>
 						<FormControl>
-							<Switch :model-value="value" @update:model-value="handleChange" />
+							<Switch
+								:model-value="value"
+								@update:model-value="handleChange"
+							/>
 						</FormControl>
 					</FormItem>
 				</FormField>
@@ -176,15 +208,18 @@ function onRemoveFilter(filterIndex: number) {
 			</div>
 
 			<div v-if="flatOperations[currentOperation?.type]?.additionalValues?.includes('timeoutTime')">
-				<FormField v-slot="{ componentField }" :name="`operations.${operationIndex}.timeoutTime`">
+				<FormField
+					v-slot="{ componentField }"
+					:name="`operations.${operationIndex}.timeoutTime`"
+				>
 					<FormItem>
 						<FormLabel>{{ t('events.operations.banTime') }}</FormLabel>
 						<FormControl>
 							<Input
-								v-bind="componentField"
-								type="number"
-								min="0"
 								:placeholder="t('events.operations.banTime')"
+								min="0"
+								type="number"
+								v-bind="componentField"
 							/>
 						</FormControl>
 						<FormMessage />
@@ -202,7 +237,11 @@ function onRemoveFilter(filterIndex: number) {
 					<FormItem>
 						<FormLabel>{{ t('events.operations.banMessage') }}</FormLabel>
 						<FormControl>
-							<VariableInput v-bind="componentField" input-type="textarea" class="relative" />
+							<VariableInput
+								class="relative"
+								input-type="textarea"
+								v-bind="componentField"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -232,7 +271,10 @@ function onRemoveFilter(filterIndex: number) {
 							</FormControl>
 							<SelectContent>
 								<SelectGroup>
-									<SelectItem v-for="variable of customVariables" :value="variable.id">
+									<SelectItem
+										v-for="variable of customVariables"
+										:value="variable.id"
+									>
 										{{ variable.name }}
 									</SelectItem>
 								</SelectGroup>
@@ -265,7 +307,10 @@ function onRemoveFilter(filterIndex: number) {
 							</FormControl>
 							<SelectContent>
 								<SelectGroup>
-									<SelectItem v-for="command of commands?.commands" :value="command.id">
+									<SelectItem
+										v-for="command of commands?.commands"
+										:value="command.id"
+									>
 										{{ command.name }}
 									</SelectItem>
 								</SelectGroup>
@@ -275,11 +320,18 @@ function onRemoveFilter(filterIndex: number) {
 					</FormItem>
 				</FormField>
 
-				<FormField v-else v-slot="{ componentField }" :name="`operations.${operationIndex}.target`">
+				<FormField
+					v-else
+					v-slot="{ componentField }"
+					:name="`operations.${operationIndex}.target`"
+				>
 					<FormItem>
 						<FormLabel>{{ t('events.target') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" :placeholder="t('events.targetPlaceholder')" />
+							<Input
+								:placeholder="t('events.targetPlaceholder')"
+								v-bind="componentField"
+							/>
 						</FormControl>
 						<FormDescription>{{ t('events.targetDescription') }}</FormDescription>
 						<FormMessage />
@@ -287,7 +339,10 @@ function onRemoveFilter(filterIndex: number) {
 				</FormField>
 			</div>
 
-			<FormField v-slot="{ value, handleChange }" :name="`operations.${operationIndex}.enabled`">
+			<FormField
+				v-slot="{ value, handleChange }"
+				:name="`operations.${operationIndex}.enabled`"
+			>
 				<FormItem
 					class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs"
 				>
@@ -295,7 +350,10 @@ function onRemoveFilter(filterIndex: number) {
 						<FormLabel>{{ t('sharedTexts.enabled') }}?</FormLabel>
 					</div>
 					<FormControl>
-						<Switch :model-value="value" @update:model-value="handleChange" />
+						<Switch
+							:model-value="value"
+							@update:model-value="handleChange"
+						/>
 					</FormControl>
 				</FormItem>
 			</FormField>
@@ -303,19 +361,24 @@ function onRemoveFilter(filterIndex: number) {
 			<Separator />
 
 			<div class="mt-6">
-				<div class="flex justify-between items-center mb-4">
+				<div class="mb-4 flex items-center justify-between">
 					<h3 class="text-lg font-medium">
 						{{ t('events.operations.filters.label') }}
 					</h3>
-					<Button type="button" variant="outline" size="sm" @click="() => onAddFilter()">
-						<PlusIcon class="h-4 w-4 mr-2" />
+					<Button
+						size="sm"
+						type="button"
+						variant="outline"
+						@click="() => onAddFilter()"
+					>
+						<PlusIcon class="mr-2 h-4 w-4" />
 						{{ t('sharedTexts.create') }}
 					</Button>
 				</div>
 
 				<div
 					v-if="currentOperation.filters?.length === 0"
-					class="text-center p-4 border rounded-md"
+					class="rounded-md border p-4 text-center"
 				>
 					<p class="text-muted-foreground">
 						{{ t('events.operations.filters.description') }}
@@ -336,7 +399,7 @@ function onRemoveFilter(filterIndex: number) {
 
 		<div
 			v-else
-			class="flex flex-col grow items-center justify-center border-2 rounded-md p-4 border-dashed"
+			class="flex grow flex-col items-center justify-center rounded-md border-2 border-dashed p-4"
 		>
 			Create operation.
 		</div>

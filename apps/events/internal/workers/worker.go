@@ -72,6 +72,7 @@ func NewEventsWorker(opts EventsWorkerOpts) error {
 	temporalWorker.RegisterActivity(opts.Activities.TriggerAlert)
 	temporalWorker.RegisterActivity(opts.Activities.ShoutoutChannel)
 	temporalWorker.RegisterActivity(opts.Activities.MessageDelete)
+	temporalWorker.RegisterActivity(opts.Activities.SendHttpRequest)
 
 	opts.Lc.Append(
 		fx.Hook{

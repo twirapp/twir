@@ -146,6 +146,7 @@ const (
 	EventOperationTypeTtsDisable               EventOperationType = "TTS_DISABLE"
 	EventOperationTypeAllowCommandToUser       EventOperationType = "ALLOW_COMMAND_TO_USER"
 	EventOperationTypeRemoveAllowCommandToUser EventOperationType = "REMOVE_ALLOW_COMMAND_TO_USER"
+	EventOperationTypeSendHttpRequest          EventOperationType = "SEND_HTTP_REQUEST"
 )
 
 var AllEventOperationType = []EventOperationType{
@@ -174,11 +175,12 @@ var AllEventOperationType = []EventOperationType{
 	EventOperationTypeTtsDisable,
 	EventOperationTypeAllowCommandToUser,
 	EventOperationTypeRemoveAllowCommandToUser,
+	EventOperationTypeSendHttpRequest,
 }
 
 func (e EventOperationType) IsValid() bool {
 	switch e {
-	case EventOperationTypeSendMessage, EventOperationTypeMessageDelete, EventOperationTypeTriggerAlert, EventOperationTypeTimeout, EventOperationTypeTimeoutRandom, EventOperationTypeBan, EventOperationTypeUnban, EventOperationTypeBanRandom, EventOperationTypeVip, EventOperationTypeUnvip, EventOperationTypeUnvipRandom, EventOperationTypeUnvipRandomIfNoSlots, EventOperationTypeMod, EventOperationTypeUnmod, EventOperationTypeRaidChannel, EventOperationTypeChangeVariable, EventOperationTypeIncrementVariable, EventOperationTypeDecrementVariable, EventOperationTypeTtsSay, EventOperationTypeTtsSkip, EventOperationTypeTtsEnable, EventOperationTypeTtsDisable, EventOperationTypeAllowCommandToUser, EventOperationTypeRemoveAllowCommandToUser, EventOperationTypeUnmodRandom:
+	case EventOperationTypeSendMessage, EventOperationTypeMessageDelete, EventOperationTypeTriggerAlert, EventOperationTypeTimeout, EventOperationTypeTimeoutRandom, EventOperationTypeBan, EventOperationTypeUnban, EventOperationTypeBanRandom, EventOperationTypeVip, EventOperationTypeUnvip, EventOperationTypeUnvipRandom, EventOperationTypeUnvipRandomIfNoSlots, EventOperationTypeMod, EventOperationTypeUnmod, EventOperationTypeRaidChannel, EventOperationTypeChangeVariable, EventOperationTypeIncrementVariable, EventOperationTypeDecrementVariable, EventOperationTypeTtsSay, EventOperationTypeTtsSkip, EventOperationTypeTtsEnable, EventOperationTypeTtsDisable, EventOperationTypeAllowCommandToUser, EventOperationTypeRemoveAllowCommandToUser, EventOperationTypeUnmodRandom, EventOperationTypeSendHttpRequest:
 		return true
 	}
 	return false

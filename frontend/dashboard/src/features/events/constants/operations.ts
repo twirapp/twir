@@ -1,15 +1,15 @@
-import { EventOperationType } from '@/gql/graphql.ts'
+import { EventOperationType } from '@/gql/graphql.ts';
 
 export interface Operation {
-	name: string
-	haveInput?: boolean
-	additionalValues?: Array<string>
-	producedVariables?: Array<string>
-	dependsOnEvents?: string[]
-	color?: 'default' | 'success' | 'error' | 'warning' | 'info'
-	type?: 'group'
-	childrens?: Partial<Record<EventOperationType, Operation>>
-	inputKeyTranslatePath?: string
+	name: string;
+	haveInput?: boolean;
+	additionalValues?: Array<string>;
+	producedVariables?: Array<string>;
+	dependsOnEvents?: string[];
+	color?: 'default' | 'success' | 'error' | 'warning' | 'info';
+	type?: 'group';
+	childrens?: Partial<Record<EventOperationType, Operation>>;
+	inputKeyTranslatePath?: string;
 }
 
 export const EventOperations: Record<EventOperationType | string, Operation> = {
@@ -176,8 +176,7 @@ export const EventOperations: Record<EventOperationType | string, Operation> = {
 	},
 
 	[EventOperationType.CreateGreeting]: {
-		name:
-			'Create greeting for user. Available only for rewards event, and requires user input.',
+		name: 'Create greeting for user. Available only for rewards event, and requires user input.',
 		dependsOnEvents: ['REDEMPTION_CREATED'],
 		color: 'info',
 	},
@@ -368,4 +367,11 @@ export const EventOperations: Record<EventOperationType | string, Operation> = {
 		haveInput: true,
 		color: 'info',
 	},
-}
+
+	[EventOperationType.SendHttpRequest]: {
+		name: 'Send HTTP request (Webhook)',
+		haveInput: true,
+		color: 'info',
+		inputKeyTranslatePath: 'events.operations.inputs.webhookUrl',
+	},
+};

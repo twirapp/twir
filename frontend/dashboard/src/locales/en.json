@@ -394,7 +394,8 @@
         "vipSlots": "VIP Slots Amount",
         "username": "Username (supports variables)",
         "variableValue": "New Variable Value (supports variables)",
-        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)",
+        "webhookUrl": "Webhook URL"
       },
       "banMessage": "Ban Message",
       "banTime": "Ban Time",

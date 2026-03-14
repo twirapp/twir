@@ -136,6 +136,9 @@ func (c *EventWorkflow) Flow(
 
 	workflow.GetLogger(ctx).Info("Got operations", "size", len(operations))
 
+	// populate event type into data so activities can reference it
+	data.EventType = string(eventType)
+
 	// execute event operations
 	for _, operation := range operations {
 		if !operation.Enabled {
@@ -382,6 +385,13 @@ func (c *EventWorkflow) Flow(
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.MessageDelete,
+					operation,
+					data,
+				).Get(ctx, nil)
+			case model.EventOperationTypeSendHttpRequest:
+				operationErr = workflow.ExecuteActivity(
+					ctx,
+					c.eventsActivity.SendHttpRequest,
 					operation,
 					data,
 				).Get(ctx, nil)

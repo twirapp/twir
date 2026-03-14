@@ -1,7 +1,7 @@
-import { toTypedSchema } from '@vee-validate/zod'
-import * as z from 'zod'
+import { toTypedSchema } from '@vee-validate/zod';
+import * as z from 'zod';
 
-import { EventOperationType, EventType } from '@/gql/graphql.ts'
+import { EventOperationType, EventType } from '@/gql/graphql.ts';
 
 export const eventFormSchema = toTypedSchema(
 	z
@@ -31,35 +31,35 @@ export const eventFormSchema = toTypedSchema(
 									type: z.string().max(1000).min(1),
 									left: z.string().max(1000).min(1),
 									right: z.string().max(1000).min(1),
-								})
+								}),
 							)
 							.max(10)
 							.default([]),
-					})
+					}),
 				)
 				.max(10)
 				.default([]),
 		})
 		.superRefine((data, ctx) => {
-			let success = true
+			let success = true;
 
 			if (data.type === EventType.CommandUsed && !data.commandId) {
 				ctx.addIssue({
 					code: 'custom',
 					message: 'Command ID is required',
 					path: ['commandId'],
-				})
+				});
 
-				success = false
+				success = false;
 			}
 			if (data.type === EventType.KeywordMatched && !data.keywordId) {
 				ctx.addIssue({
 					code: 'custom',
 					message: 'Keyword ID is required',
 					path: ['keywordId'],
-				})
+				});
 
-				success = false
+				success = false;
 			}
 
 			if (data.type === EventType.KeywordMatched && data.keywordId) {
@@ -67,13 +67,13 @@ export const eventFormSchema = toTypedSchema(
 					code: 'custom',
 					message: 'Keyword ID is required',
 					path: ['keywordId'],
-				})
+				});
 
-				success = false
+				success = false;
 			}
 
 			for (const operation of data.operations) {
-				const index = data.operations.indexOf(operation)
+				const index = data.operations.indexOf(operation);
 
 				if (
 					[
@@ -87,8 +87,8 @@ export const eventFormSchema = toTypedSchema(
 							code: 'custom',
 							message: 'Target is required for variable operations',
 							path: [`operations[${index}].target`],
-						})
-						success = false
+						});
+						success = false;
 					}
 
 					if (!operation.input) {
@@ -96,8 +96,8 @@ export const eventFormSchema = toTypedSchema(
 							code: 'custom',
 							message: 'Input is required for variable operations',
 							path: [`operations[${index}].input`],
-						})
-						success = false
+						});
+						success = false;
 					}
 				}
 
@@ -114,8 +114,8 @@ export const eventFormSchema = toTypedSchema(
 							code: 'custom',
 							message: 'Target is required for command operations',
 							path: [`operations[${index}].target`],
-						})
-						success = false
+						});
+						success = false;
 					}
 
 					if (!operation.input) {
@@ -123,8 +123,8 @@ export const eventFormSchema = toTypedSchema(
 							code: 'custom',
 							message: 'Input is required for command operations',
 							path: [`operations[${index}].input`],
-						})
-						success = false
+						});
+						success = false;
 					}
 				}
 
@@ -134,13 +134,38 @@ export const eventFormSchema = toTypedSchema(
 							code: 'custom',
 							message: 'Target is required for alert operations',
 							path: [`operations[${index}].target`],
-						})
+						});
 
-						success = false
+						success = false;
+					}
+				}
+
+				if (operation.type === EventOperationType.SendHttpRequest) {
+					if (!operation.input) {
+						ctx.addIssue({
+							code: 'custom',
+							message: 'Webhook URL is required',
+							path: [`operations[${index}].input`],
+						});
+						success = false;
+					} else {
+						try {
+							const url = new URL(operation.input);
+							if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+								throw new Error('Invalid protocol');
+							}
+						} catch {
+							ctx.addIssue({
+								code: 'custom',
+								message: 'Input must be a valid HTTP or HTTPS URL',
+								path: [`operations[${index}].input`],
+							});
+							success = false;
+						}
 					}
 				}
 			}
 
-			return success
-		})
-)
+			return success;
+		}),
+);

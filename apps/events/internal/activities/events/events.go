@@ -1,6 +1,8 @@
 package events
 
 import (
+	"log/slog"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/events/internal/hydrator"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
@@ -28,6 +30,7 @@ type Opts struct {
 	VariablesRepository variables.Repository
 	TTSRepository       overlays_tts.Repository
 	TTSCache            *generic_cacher.GenericCacher[modules.TTSSettings]
+	Logger              *slog.Logger
 }
 
 func New(opts Opts) *Activity {
@@ -42,6 +45,7 @@ func New(opts Opts) *Activity {
 		variablesRepository: opts.VariablesRepository,
 		ttsRepository:       opts.TTSRepository,
 		ttsCache:            opts.TTSCache,
+		logger:              opts.Logger,
 	}
 }
 
@@ -56,4 +60,5 @@ type Activity struct {
 	variablesRepository variables.Repository
 	ttsRepository       overlays_tts.Repository
 	ttsCache            *generic_cacher.GenericCacher[modules.TTSSettings]
+	logger              *slog.Logger
 }

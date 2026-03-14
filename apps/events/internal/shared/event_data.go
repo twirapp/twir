@@ -2,6 +2,7 @@ package shared
 
 type EventData struct {
 	ChannelID string `json:"channelId"`
+	EventType string `json:"eventType,omitempty"`
 
 	//
 	UserName        string `json:"userName,omitempty"`

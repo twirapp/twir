@@ -1,13 +1,31 @@
 extend type Query {
-	events: [Event!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_EVENTS)
-	eventById(id: String!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_EVENTS)
+	events: [Event!]!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_EVENTS)
+	eventById(id: String!): Event!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_EVENTS)
 }
 
 extend type Mutation {
-	eventCreate(input: EventCreateInput!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
-	eventUpdate(id: String!, input: EventUpdateInput!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
-	eventDelete(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
-	eventEnableOrDisable(id: String!, enabled: Boolean!): Event! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventCreate(input: EventCreateInput!): Event!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventUpdate(id: String!, input: EventUpdateInput!): Event!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventDelete(id: String!): Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
+	eventEnableOrDisable(id: String!, enabled: Boolean!): Event!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_EVENTS)
 }
 
 enum EventOperationType {
@@ -61,6 +79,7 @@ enum EventOperationType {
 	SEVENTV_ADD_EMOTE
 	SEVENTV_REMOVE_EMOTE
 	SHOUTOUT_CHANNEL
+	SEND_HTTP_REQUEST
 }
 
 enum EventType {
