@@ -124,19 +124,19 @@ type ValorantMatch struct {
 	}
 	Players  ValorantMatchPlayers `json:"players"`
 	MetaData struct {
-		Map              string  `json:"map"`
-		GameVersion      string  `json:"game_version"`
-		GameStartPatched string  `json:"game_start_patched"`
-		Mode             string  `json:"mode"`
-		Queue            string  `json:"queue"`
-		SeasonID         string  `json:"season_id"`
-		Platform         string  `json:"platform"`
-		MatchID          string  `json:"match_id"`
-		Region           string  `json:"region"`
-		Cluster          string  `json:"cluster"`
-		GameLength       float64 `json:"game_length"`
-		GameStart        float64 `json:"game_start"`
-		RoundsPlayed     float64 `json:"rounds_played"`
+		Map              string `json:"map"`
+		GameVersion      string `json:"game_version"`
+		GameStartPatched string `json:"game_start_patched"`
+		Mode             string `json:"mode"`
+		Queue            string `json:"queue"`
+		SeasonID         string `json:"season_id"`
+		Platform         string `json:"platform"`
+		MatchID          string `json:"match_id"`
+		Region           string `json:"region"`
+		Cluster          string `json:"cluster"`
+		GameLength       int    `json:"game_length"`
+		GameStart        int    `json:"game_start"`
+		RoundsPlayed     int    `json:"rounds_played"`
 	}
 }
 
