@@ -44,7 +44,7 @@ var Matches = &types.Variable{
 		if parseCtx.ChannelStream != nil {
 			streamMatches := lo.Filter(matches, func(match types.ValorantMatch, _ int) bool {
 				t := time.Unix(int64(match.MetaData.GameStart), 0)
-				return t.Before(parseCtx.ChannelStream.StartedAt) && t.After(parseCtx.ChannelStream.StartedAt.Add(-time.Hour))
+				return t.After(parseCtx.ChannelStream.StartedAt.Add(-time.Hour))
 			})
 
 			if len(streamMatches) > 0 {
@@ -126,7 +126,7 @@ var MatchesSimple = &types.Variable{
 		if parseCtx.ChannelStream != nil {
 			streamMatches := lo.Filter(matches, func(match types.ValorantMatch, _ int) bool {
 				t := time.Unix(int64(match.MetaData.GameStart), 0)
-				return t.Before(parseCtx.ChannelStream.StartedAt) && t.After(parseCtx.ChannelStream.StartedAt.Add(-time.Hour))
+				return t.After(parseCtx.ChannelStream.StartedAt.Add(-time.Hour))
 			})
 
 			if len(streamMatches) > 0 {
