@@ -104,6 +104,7 @@ func New(opts *Opts) *Variables {
 			top.EmotesUsers,
 			to_user.ToUser,
 			valorant.Matches,
+			valorant.MatchesSimple,
 			valorant.Elo,
 			valorant.EloLastChange,
 			valorant.RR,
