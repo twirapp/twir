@@ -80,7 +80,10 @@ const columns: ColumnDef<Command | Group>[] = [
 			}
 
 			const mappedResponses = responses.map((r) =>
-				h(TextWithVariables, { text: r.text, class: "truncate md:whitespace-normal block" }),
+				h(TextWithVariables, {
+					text: r.text,
+					class: "truncate md:whitespace-normal md:break-words",
+				}),
 			);
 			return h("div", { class: "flex flex-col gap-1" }, mappedResponses);
 		},
