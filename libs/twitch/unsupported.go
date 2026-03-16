@@ -12,7 +12,7 @@ import (
 
 const twitchOfficialClientId = "kimne78kx3ncx6brgo4mv6wki5h1ko"
 
-const categorySearchQuery = `[{"operationName":"EditBroadcastCategoryDropdownSearch","variables":{"query":"%s"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"ccad6fa3d84008d710f2d69f7f9bcbd30d6b54ed1cecea5fd9a0a28e3f2508c7"}}}]`
+const categorySearchQuery = `[{"operationName":"EditBroadcastCategoryDropdownSearch","variables":{"query":"%s"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"00ebae2e5aeb23782c1214c9c4ca2d838769657b62c515c68a4cfb2277b30dcc"}}}]`
 
 type TwitchGqlSearchCategoryResponse struct {
 	Data *struct {
