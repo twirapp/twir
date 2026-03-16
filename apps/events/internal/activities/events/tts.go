@@ -7,7 +7,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	ttsrepository "github.com/twirapp/twir/libs/repositories/overlays_tts"
 	ttsmodel "github.com/twirapp/twir/libs/repositories/overlays_tts/model"
@@ -57,9 +57,9 @@ func (c *Activity) TtsSay(
 		},
 	).Else(channelSettings.Pitch)
 
-	_, err = c.websocketsGrpc.TextToSpeechSay(
+	_, err = c.bus.Api.TriggerTtsSay.Request(
 		ctx,
-		&websockets.TTSMessage{
+		api.TriggerTtsSay{
 			ChannelId: data.ChannelID,
 			Text:      msg,
 			Voice:     voice,
@@ -82,9 +82,9 @@ func (c *Activity) TtsSkip(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	_, err := c.websocketsGrpc.TextToSpeechSkip(
+	_, err := c.bus.Api.TriggerTtsSkip.Request(
 		ctx,
-		&websockets.TTSSkipMessage{
+		api.TriggerTtsSkip{
 			ChannelId: data.ChannelID,
 		},
 	)

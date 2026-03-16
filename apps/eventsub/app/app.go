@@ -19,6 +19,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/otel"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -44,7 +45,6 @@ import (
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
 	userswithstatsrepository "github.com/twirapp/twir/libs/repositories/userswithstats"
 	userswithstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/userswithstats/datasource/postgres"
-	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 
 	twitchconduitsrepository "github.com/twirapp/twir/libs/repositories/twitch_conduits"

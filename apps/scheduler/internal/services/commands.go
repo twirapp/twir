@@ -45,8 +45,8 @@ func NewCommands(
 }
 
 type channelWithCommandsToCreate struct {
-	ChannelID        string         `gorm:"column:channelId" db:"channelId"`
-	CommandsToCreate pq.StringArray `gorm:"column:commandsToCreate" db:"commandsToCreate"`
+	ChannelID        string   `gorm:"column:channelId"        db:"channelId"`
+	CommandsToCreate []string `gorm:"column:commandsToCreate" db:"commandsToCreate"`
 }
 
 func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
