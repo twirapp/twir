@@ -149,8 +149,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:model-value="value"
-												@update:model-value="handleChange"
+												:checked="value"
+												@update:checked="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -175,8 +175,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:model-value="value"
-												@update:model-value="handleChange"
+												:checked="value"
+												@update:checked="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -235,8 +235,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:model-value="value"
-												@update:model-value="handleChange"
+												:checked="value"
+												@update:checked="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -265,8 +265,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:model-value="value"
-												@update:model-value="handleChange"
+												:checked="value"
+												@update:checked="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -319,8 +319,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:model-value="value"
-												@update:model-value="handleChange"
+												:checked="value"
+												@update:checked="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -347,8 +347,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:model-value="value"
-												@update:model-value="handleChange"
+												:checked="value"
+												@update:checked="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
