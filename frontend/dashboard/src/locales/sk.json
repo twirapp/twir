@@ -1061,15 +1061,39 @@
           "title": "GitHub",
           "issues": {
             "label": "Issues",
-            "description": "Upozorňovať na nové issues"
+            "description": "Upozorňovať na nové issues",
+            "online": {
+              "label": "Send when online",
+              "description": "Send issue notifications while the channel is live"
+            },
+            "offline": {
+              "label": "Send when offline",
+              "description": "Send issue notifications while the channel is offline"
+            }
           },
           "pullRequests": {
             "label": "Pull requests",
-            "description": "Upozorňovať na nové pull requesty"
+            "description": "Upozorňovať na nové pull requesty",
+            "online": {
+              "label": "Send when online",
+              "description": "Send pull request notifications while the channel is live"
+            },
+            "offline": {
+              "label": "Send when offline",
+              "description": "Send pull request notifications while the channel is offline"
+            }
           },
           "commits": {
             "label": "Commits",
-            "description": "Upozornenia na nové commity"
+            "description": "Upozornenia na nové commity",
+            "online": {
+              "label": "Send when online",
+              "description": "Send commit notifications while the channel is live"
+            },
+            "offline": {
+              "label": "Send when offline",
+              "description": "Send commit notifications while the channel is offline"
+            }
           }
         },
         "buttons": {
