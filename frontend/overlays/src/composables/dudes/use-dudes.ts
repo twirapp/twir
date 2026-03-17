@@ -1,16 +1,15 @@
-import type { MessageChunk } from '@twir/frontend-chat'
-import type DudesOverlay from '@twirapp/dudes-vue'
-import type { Dude } from '@twirapp/dudes-vue/types'
-
 import { DudesSprite } from '@twir/types'
 import { DudesLayers } from '@twirapp/dudes-vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import { randomRgbColor } from '@/helpers.js'
-
 import { getSprite } from './dudes-config.js'
 import { useDudesSettings } from './use-dudes-settings.js'
+import { randomRgbColor } from '@/helpers.js'
+
+import type { MessageChunk } from '@twir/frontend-chat'
+import type DudesOverlay from '@twirapp/dudes-vue'
+import type { Dude } from '@twirapp/dudes-vue/types'
 
 export const useDudes = createGlobalState(() => {
 	const { dudesSettings, dudesUserSettings } = useDudesSettings()
@@ -120,10 +119,12 @@ export const useDudes = createGlobalState(() => {
 
 		dude.addMessage(message)
 
-		const emotes = messageChunks.filter((chunk) => chunk.type !== 'text').map(getProxiedEmoteUrl)
+		if (dudesSettings.value?.dudes.emote.enabled) {
+			const emotes = messageChunks.filter((chunk) => chunk.type !== 'text').map(getProxiedEmoteUrl)
 
-		if (emotes.length) {
-			dude.addEmotes([...new Set(emotes)])
+			if (emotes.length) {
+				dude.addEmotes([...new Set(emotes)])
+			}
 		}
 	}
 
