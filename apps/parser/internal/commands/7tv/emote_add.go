@@ -80,7 +80,9 @@ var EmoteAdd = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
-					locales.Translations.Commands.Seventv.Errors.EmotesetNotActive,
+					locales.Translations.Commands.Seventv.Errors.EmoteFailedToAdd.SetVars(
+						locales.KeysCommandsSeventvErrorsEmoteFailedToAddVars{Reason: err.Error()},
+					),
 				),
 				Err: err,
 			}
