@@ -132,7 +132,7 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 							<div class="space-y-2 border-l pl-4">
 								<FormField
 									v-slot="{ value, handleChange }"
-									name="githubIssuesOnlineEnabled"
+									name="githubIssuesOnline"
 								>
 									<FormItem class="flex flex-row items-center justify-between">
 										<div class="space-y-0.5">
@@ -149,8 +149,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:checked="value"
-												@update:checked="handleChange"
+												:model-value="value"
+												@update:model-value="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -158,7 +158,7 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 								</FormField>
 								<FormField
 									v-slot="{ value, handleChange }"
-									name="githubIssuesOfflineEnabled"
+									name="githubIssuesOffline"
 								>
 									<FormItem class="flex flex-row items-center justify-between">
 										<div class="space-y-0.5">
@@ -175,8 +175,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:checked="value"
-												@update:checked="handleChange"
+												:model-value="value"
+												@update:model-value="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -214,7 +214,7 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 							<div class="space-y-2 border-l pl-4">
 								<FormField
 									v-slot="{ value, handleChange }"
-									name="githubPullRequestsOnlineEnabled"
+									name="githubPullRequestsOnline"
 								>
 									<FormItem class="flex flex-row items-center justify-between">
 										<div class="space-y-0.5">
@@ -235,8 +235,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:checked="value"
-												@update:checked="handleChange"
+												:model-value="value"
+												@update:model-value="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -244,7 +244,7 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 								</FormField>
 								<FormField
 									v-slot="{ value, handleChange }"
-									name="githubPullRequestsOfflineEnabled"
+									name="githubPullRequestsOffline"
 								>
 									<FormItem class="flex flex-row items-center justify-between">
 										<div class="space-y-0.5">
@@ -265,8 +265,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:checked="value"
-												@update:checked="handleChange"
+												:model-value="value"
+												@update:model-value="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -302,7 +302,7 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 							<div class="space-y-2 border-l pl-4">
 								<FormField
 									v-slot="{ value, handleChange }"
-									name="githubCommitsOnlineEnabled"
+									name="githubCommitsOnline"
 								>
 									<FormItem class="flex flex-row items-center justify-between">
 										<div class="space-y-0.5">
@@ -319,8 +319,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:checked="value"
-												@update:checked="handleChange"
+												:model-value="value"
+												@update:model-value="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
@@ -328,7 +328,7 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 								</FormField>
 								<FormField
 									v-slot="{ value, handleChange }"
-									name="githubCommitsOfflineEnabled"
+									name="githubCommitsOffline"
 								>
 									<FormItem class="flex flex-row items-center justify-between">
 										<div class="space-y-0.5">
@@ -347,8 +347,8 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 										</div>
 										<FormControl>
 											<Switch
-												:checked="value"
-												@update:checked="handleChange"
+												:model-value="value"
+												@update:model-value="handleChange"
 											/>
 										</FormControl>
 										<FormMessage />
