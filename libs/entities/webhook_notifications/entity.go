@@ -9,8 +9,16 @@ type Settings struct {
 	GithubIssuesEnabled       bool
 	GithubPullRequestsEnabled bool
 	GithubCommitsEnabled      bool
-	CreatedAt                 time.Time
-	UpdatedAt                 time.Time
+
+	GithubIssuesOnlineEnabled        bool
+	GithubIssuesOfflineEnabled       bool
+	GithubPullRequestsOnlineEnabled  bool
+	GithubPullRequestsOfflineEnabled bool
+	GithubCommitsOnlineEnabled       bool
+	GithubCommitsOfflineEnabled      bool
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	isNil bool
 }

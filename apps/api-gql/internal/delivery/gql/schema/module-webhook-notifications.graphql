@@ -6,11 +6,16 @@ extend type Query {
 }
 
 extend type Mutation {
-	webhookNotificationsCreate(input: WebhookNotificationsCreateInput!): WebhookNotificationsSettings!
+	webhookNotificationsCreate(
+		input: WebhookNotificationsCreateInput!
+	): WebhookNotificationsSettings!
 		@isAuthenticated
 		@hasAccessToSelectedDashboard
 		@hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
-	webhookNotificationsUpdate(id: String!, input: WebhookNotificationsUpdateInput!): WebhookNotificationsSettings!
+	webhookNotificationsUpdate(
+		id: String!
+		input: WebhookNotificationsUpdateInput!
+	): WebhookNotificationsSettings!
 		@isAuthenticated
 		@hasAccessToSelectedDashboard
 		@hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
@@ -27,6 +32,12 @@ type WebhookNotificationsSettings {
 	githubIssues: Boolean!
 	githubPullRequests: Boolean!
 	githubCommits: Boolean!
+	githubIssuesOnline: Boolean!
+	githubIssuesOffline: Boolean!
+	githubPullRequestsOnline: Boolean!
+	githubPullRequestsOffline: Boolean!
+	githubCommitsOnline: Boolean!
+	githubCommitsOffline: Boolean!
 	createdAt: Time!
 	updatedAt: Time!
 }
@@ -36,6 +47,12 @@ input WebhookNotificationsCreateInput {
 	githubIssues: Boolean!
 	githubPullRequests: Boolean!
 	githubCommits: Boolean!
+	githubIssuesOnline: Boolean!
+	githubIssuesOffline: Boolean!
+	githubPullRequestsOnline: Boolean!
+	githubPullRequestsOffline: Boolean!
+	githubCommitsOnline: Boolean!
+	githubCommitsOffline: Boolean!
 }
 
 input WebhookNotificationsUpdateInput {
@@ -43,4 +60,10 @@ input WebhookNotificationsUpdateInput {
 	githubIssues: Boolean
 	githubPullRequests: Boolean
 	githubCommits: Boolean
+	githubIssuesOnline: Boolean
+	githubIssuesOffline: Boolean
+	githubPullRequestsOnline: Boolean
+	githubPullRequestsOffline: Boolean
+	githubCommitsOnline: Boolean
+	githubCommitsOffline: Boolean
 }

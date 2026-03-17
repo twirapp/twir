@@ -19,6 +19,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/webhook_notifications"
 	channelsmoduleswebhooks "github.com/twirapp/twir/libs/repositories/channels_modules_webhooks"
+	"github.com/twirapp/twir/libs/repositories/streams"
 	"go.uber.org/fx"
 )
 
@@ -30,6 +31,7 @@ type Opts struct {
 	fx.In
 
 	Repository    channelsmoduleswebhooks.Repository
+	StreamsRepo   streams.Repository
 	AuditRecorder audit.Recorder
 	Bus           *buscore.Bus
 	Logger        *slog.Logger
@@ -39,6 +41,7 @@ type Opts struct {
 
 type Service struct {
 	repo          channelsmoduleswebhooks.Repository
+	streamsRepo   streams.Repository
 	auditRecorder audit.Recorder
 	bus           *buscore.Bus
 	logger        *slog.Logger
@@ -49,6 +52,7 @@ type Service struct {
 func New(opts Opts) *Service {
 	return &Service{
 		repo:          opts.Repository,
+		streamsRepo:   opts.StreamsRepo,
 		auditRecorder: opts.AuditRecorder,
 		bus:           opts.Bus,
 		logger:        opts.Logger,
@@ -77,6 +81,13 @@ type CreateInput struct {
 	GithubIssuesEnabled       bool
 	GithubPullRequestsEnabled bool
 	GithubCommitsEnabled      bool
+
+	GithubIssuesOnlineEnabled        bool
+	GithubIssuesOfflineEnabled       bool
+	GithubPullRequestsOnlineEnabled  bool
+	GithubPullRequestsOfflineEnabled bool
+	GithubCommitsOnlineEnabled       bool
+	GithubCommitsOfflineEnabled      bool
 }
 
 func (s *Service) Create(ctx context.Context, input CreateInput) (
@@ -86,11 +97,17 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (
 	settings, err := s.repo.Create(
 		ctx,
 		channelsmoduleswebhooks.CreateInput{
-			ChannelID:                 input.ChannelID,
-			Enabled:                   input.Enabled,
-			GithubIssuesEnabled:       input.GithubIssuesEnabled,
-			GithubPullRequestsEnabled: input.GithubPullRequestsEnabled,
-			GithubCommitsEnabled:      input.GithubCommitsEnabled,
+			ChannelID:                        input.ChannelID,
+			Enabled:                          input.Enabled,
+			GithubIssuesEnabled:              input.GithubIssuesEnabled,
+			GithubPullRequestsEnabled:        input.GithubPullRequestsEnabled,
+			GithubCommitsEnabled:             input.GithubCommitsEnabled,
+			GithubIssuesOnlineEnabled:        input.GithubIssuesOnlineEnabled,
+			GithubIssuesOfflineEnabled:       input.GithubIssuesOfflineEnabled,
+			GithubPullRequestsOnlineEnabled:  input.GithubPullRequestsOnlineEnabled,
+			GithubPullRequestsOfflineEnabled: input.GithubPullRequestsOfflineEnabled,
+			GithubCommitsOnlineEnabled:       input.GithubCommitsOnlineEnabled,
+			GithubCommitsOfflineEnabled:      input.GithubCommitsOfflineEnabled,
 		},
 	)
 	if err != nil {
@@ -121,6 +138,13 @@ type UpdateInput struct {
 	GithubIssuesEnabled       *bool
 	GithubPullRequestsEnabled *bool
 	GithubCommitsEnabled      *bool
+
+	GithubIssuesOnlineEnabled        *bool
+	GithubIssuesOfflineEnabled       *bool
+	GithubPullRequestsOnlineEnabled  *bool
+	GithubPullRequestsOfflineEnabled *bool
+	GithubCommitsOnlineEnabled       *bool
+	GithubCommitsOfflineEnabled      *bool
 }
 
 func (s *Service) Update(
@@ -144,10 +168,16 @@ func (s *Service) Update(
 		ctx,
 		id,
 		channelsmoduleswebhooks.UpdateInput{
-			Enabled:                   input.Enabled,
-			GithubIssuesEnabled:       input.GithubIssuesEnabled,
-			GithubPullRequestsEnabled: input.GithubPullRequestsEnabled,
-			GithubCommitsEnabled:      input.GithubCommitsEnabled,
+			Enabled:                          input.Enabled,
+			GithubIssuesEnabled:              input.GithubIssuesEnabled,
+			GithubPullRequestsEnabled:        input.GithubPullRequestsEnabled,
+			GithubCommitsEnabled:             input.GithubCommitsEnabled,
+			GithubIssuesOnlineEnabled:        input.GithubIssuesOnlineEnabled,
+			GithubIssuesOfflineEnabled:       input.GithubIssuesOfflineEnabled,
+			GithubPullRequestsOnlineEnabled:  input.GithubPullRequestsOnlineEnabled,
+			GithubPullRequestsOfflineEnabled: input.GithubPullRequestsOfflineEnabled,
+			GithubCommitsOnlineEnabled:       input.GithubCommitsOnlineEnabled,
+			GithubCommitsOfflineEnabled:      input.GithubCommitsOfflineEnabled,
 		},
 	)
 	if err != nil {
@@ -278,11 +308,25 @@ func (s *Service) handleGithubIssues(
 		message = fmt.Sprintf("%s - %s", message, issueURL)
 	}
 
+	if err := s.sendMessageToEnabledChannels(
+		ctx,
+		channelsmoduleswebhooks.GetEnabledChannelsInput{
+			GithubIssuesEnabled:       lo.ToPtr(true),
+			GithubIssuesOnlineEnabled: lo.ToPtr(true),
+		},
+		sendOnlineOfflineFilter{sendWhenOnline: true},
+		[]string{message},
+	); err != nil {
+		return err
+	}
+
 	return s.sendMessageToEnabledChannels(
 		ctx,
 		channelsmoduleswebhooks.GetEnabledChannelsInput{
-			GithubIssuesEnabled: lo.ToPtr(true),
+			GithubIssuesEnabled:        lo.ToPtr(true),
+			GithubIssuesOfflineEnabled: lo.ToPtr(true),
 		},
+		sendOnlineOfflineFilter{sendWhenOffline: true},
 		[]string{message},
 	)
 }
@@ -328,11 +372,25 @@ func (s *Service) handleGithubIssueComment(
 		message = fmt.Sprintf("%s - %s", message, commentURL)
 	}
 
+	if err := s.sendMessageToEnabledChannels(
+		ctx,
+		channelsmoduleswebhooks.GetEnabledChannelsInput{
+			GithubIssuesEnabled:       lo.ToPtr(true),
+			GithubIssuesOnlineEnabled: lo.ToPtr(true),
+		},
+		sendOnlineOfflineFilter{sendWhenOnline: true},
+		[]string{message},
+	); err != nil {
+		return err
+	}
+
 	return s.sendMessageToEnabledChannels(
 		ctx,
 		channelsmoduleswebhooks.GetEnabledChannelsInput{
-			GithubIssuesEnabled: lo.ToPtr(true),
+			GithubIssuesEnabled:        lo.ToPtr(true),
+			GithubIssuesOfflineEnabled: lo.ToPtr(true),
 		},
+		sendOnlineOfflineFilter{sendWhenOffline: true},
 		[]string{message},
 	)
 }
@@ -385,11 +443,25 @@ func (s *Service) handleGithubPullRequest(
 		message = fmt.Sprintf("%s - %s", message, pullRequestURL)
 	}
 
+	if err := s.sendMessageToEnabledChannels(
+		ctx,
+		channelsmoduleswebhooks.GetEnabledChannelsInput{
+			GithubPullRequestsEnabled:       lo.ToPtr(true),
+			GithubPullRequestsOnlineEnabled: lo.ToPtr(true),
+		},
+		sendOnlineOfflineFilter{sendWhenOnline: true},
+		[]string{message},
+	); err != nil {
+		return err
+	}
+
 	return s.sendMessageToEnabledChannels(
 		ctx,
 		channelsmoduleswebhooks.GetEnabledChannelsInput{
-			GithubPullRequestsEnabled: lo.ToPtr(true),
+			GithubPullRequestsEnabled:        lo.ToPtr(true),
+			GithubPullRequestsOfflineEnabled: lo.ToPtr(true),
 		},
+		sendOnlineOfflineFilter{sendWhenOffline: true},
 		[]string{message},
 	)
 }
@@ -450,13 +522,35 @@ func (s *Service) handleGithubPush(
 		messages = append(messages, message)
 	}
 
+	if err := s.sendMessageToEnabledChannels(
+		ctx,
+		channelsmoduleswebhooks.GetEnabledChannelsInput{
+			GithubCommitsEnabled:       lo.ToPtr(true),
+			GithubCommitsOnlineEnabled: lo.ToPtr(true),
+		},
+		sendOnlineOfflineFilter{sendWhenOnline: true},
+		messages,
+	); err != nil {
+		return err
+	}
+
 	return s.sendMessageToEnabledChannels(
 		ctx,
 		channelsmoduleswebhooks.GetEnabledChannelsInput{
-			GithubCommitsEnabled: lo.ToPtr(true),
+			GithubCommitsEnabled:        lo.ToPtr(true),
+			GithubCommitsOfflineEnabled: lo.ToPtr(true),
 		},
+		sendOnlineOfflineFilter{sendWhenOffline: true},
 		messages,
 	)
+}
+
+// sendOnlineOfflineFilter controls which channels receive a message based on their stream status.
+type sendOnlineOfflineFilter struct {
+	// sendWhenOnline: send to channels that are currently live.
+	sendWhenOnline bool
+	// sendWhenOffline: send to channels that are currently offline.
+	sendWhenOffline bool
 }
 
 func (s *Service) sendMessage(ctx context.Context, channelID string, message string) error {
@@ -505,6 +599,7 @@ func (s *Service) sendMessageToChannels(
 func (s *Service) sendMessageToEnabledChannels(
 	ctx context.Context,
 	input channelsmoduleswebhooks.GetEnabledChannelsInput,
+	filter sendOnlineOfflineFilter,
 	messages []string,
 ) error {
 	if len(messages) == 0 {
@@ -526,6 +621,7 @@ func (s *Service) sendMessageToEnabledChannels(
 	return s.withEnabledChannelsPaged(
 		ctx,
 		input,
+		filter,
 		func(channels []string) error {
 			for _, message := range filtered {
 				if err := s.sendMessageToChannels(ctx, channels, message); err != nil {
@@ -540,6 +636,7 @@ func (s *Service) sendMessageToEnabledChannels(
 func (s *Service) withEnabledChannelsPaged(
 	ctx context.Context,
 	input channelsmoduleswebhooks.GetEnabledChannelsInput,
+	filter sendOnlineOfflineFilter,
 	handle func([]string) error,
 ) error {
 	perPage := input.PerPage
@@ -565,8 +662,16 @@ func (s *Service) withEnabledChannelsPaged(
 			return nil
 		}
 
-		if err := handle(channels); err != nil {
+		// Filter channels by online/offline status if needed.
+		filtered, err := s.filterChannelsByStatus(ctx, channels, filter)
+		if err != nil {
 			return err
+		}
+
+		if len(filtered) > 0 {
+			if err := handle(filtered); err != nil {
+				return err
+			}
 		}
 
 		if len(channels) < perPage {
@@ -575,6 +680,42 @@ func (s *Service) withEnabledChannelsPaged(
 
 		page++
 	}
+}
+
+// filterChannelsByStatus filters channelIDs based on whether a stream exists for each channel.
+// If both sendWhenOnline and sendWhenOffline are true, all channels are returned unfiltered.
+func (s *Service) filterChannelsByStatus(
+	ctx context.Context,
+	channelIDs []string,
+	filter sendOnlineOfflineFilter,
+) ([]string, error) {
+	if filter.sendWhenOnline && filter.sendWhenOffline {
+		return channelIDs, nil
+	}
+
+	result := make([]string, 0, len(channelIDs))
+	for _, channelID := range channelIDs {
+		stream, err := s.streamsRepo.GetByChannelID(ctx, channelID)
+		if err != nil {
+			s.logger.WarnContext(
+				ctx,
+				"failed to get stream for channel during webhook notification",
+				slog.String("channel_id", channelID),
+				slog.Any("error", err),
+			)
+			continue
+		}
+
+		isOnline := !stream.IsNil()
+
+		if isOnline && filter.sendWhenOnline {
+			result = append(result, channelID)
+		} else if !isOnline && filter.sendWhenOffline {
+			result = append(result, channelID)
+		}
+	}
+
+	return result, nil
 }
 
 type githubRepo struct {

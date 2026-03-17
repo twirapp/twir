@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { SettingsIcon, Webhook } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserAccessFlagChecker } from '@/api/auth'
 import Card from '@/components/card/card.vue'
 import { Button } from '@/components/ui/button'
-import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardContent, CardHeader, CardTitle, Card as UICard } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
 	FormControl,
@@ -33,15 +33,15 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 
 <template>
 	<Card
-		:title="t('modules.webhookNotifications.title')"
-		:is-loading="fetching"
+		:description="t('modules.webhookNotifications.description')"
 		:icon="Webhook"
+		:is-loading="fetching"
+		:title="t('modules.webhookNotifications.title')"
 		icon-height="30px"
 		icon-width="30px"
-		:description="t('modules.webhookNotifications.description')"
 	>
 		<template #content>
-			<p class="text-sm text-muted-foreground">
+			<p class="text-muted-foreground text-sm">
 				{{
 					isEnabled
 						? t('modules.webhookNotifications.status.enabled')
@@ -52,9 +52,9 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 
 		<template #footer>
 			<Button
-				class="flex gap-2 items-center"
-				variant="secondary"
 				:disabled="!canManageModules"
+				class="flex items-center gap-2"
+				variant="secondary"
 				@click="showSettings = !showSettings"
 			>
 				{{ t('sharedTexts.settings') }}
@@ -69,12 +69,18 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 				<DialogTitle>{{ t('modules.webhookNotifications.settings.title') }}</DialogTitle>
 			</DialogHeader>
 
-			<form class="space-y-6" @submit.prevent="handleSubmit">
-				<p class="text-sm text-muted-foreground">
+			<form
+				class="space-y-6"
+				@submit.prevent="handleSubmit"
+			>
+				<p class="text-muted-foreground text-sm">
 					{{ t('modules.webhookNotifications.settings.info') }}
 				</p>
 
-				<FormField v-slot="{ value, handleChange }" name="enabled">
+				<FormField
+					v-slot="{ value, handleChange }"
+					name="enabled"
+				>
 					<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 						<div class="space-y-0.5">
 							<FormLabel class="text-base">
@@ -85,7 +91,10 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 							</FormDescription>
 						</div>
 						<FormControl>
-							<Switch :model-value="value" @update:model-value="handleChange" />
+							<Switch
+								:model-value="value"
+								@update:model-value="handleChange"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -96,61 +105,265 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 						<CardTitle>{{ t('modules.webhookNotifications.settings.github.title') }}</CardTitle>
 					</CardHeader>
 					<CardContent class="space-y-4">
-						<FormField v-slot="{ value, handleChange }" name="githubIssues">
-							<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
-								<div class="space-y-0.5">
-									<FormLabel class="text-base">
-										{{ t('modules.webhookNotifications.settings.github.issues.label') }}
-									</FormLabel>
-									<FormDescription>
-										{{ t('modules.webhookNotifications.settings.github.issues.description') }}
-									</FormDescription>
-								</div>
-								<FormControl>
-									<Switch :model-value="value" @update:model-value="handleChange" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
+						<!-- Issues -->
+						<div class="space-y-3 rounded-lg border p-4">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="githubIssues"
+							>
+								<FormItem class="flex flex-row items-center justify-between">
+									<div class="space-y-0.5">
+										<FormLabel class="text-base">
+											{{ t('modules.webhookNotifications.settings.github.issues.label') }}
+										</FormLabel>
+										<FormDescription>
+											{{ t('modules.webhookNotifications.settings.github.issues.description') }}
+										</FormDescription>
+									</div>
+									<FormControl>
+										<Switch
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							</FormField>
+							<div class="space-y-2 border-l pl-4">
+								<FormField
+									v-slot="{ value, handleChange }"
+									name="githubIssuesOnlineEnabled"
+								>
+									<FormItem class="flex flex-row items-center justify-between">
+										<div class="space-y-0.5">
+											<FormLabel>
+												{{ t('modules.webhookNotifications.settings.github.issues.online.label') }}
+											</FormLabel>
+											<FormDescription>
+												{{
+													t(
+														'modules.webhookNotifications.settings.github.issues.online.description'
+													)
+												}}
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												:model-value="value"
+												@update:model-value="handleChange"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								</FormField>
+								<FormField
+									v-slot="{ value, handleChange }"
+									name="githubIssuesOfflineEnabled"
+								>
+									<FormItem class="flex flex-row items-center justify-between">
+										<div class="space-y-0.5">
+											<FormLabel>
+												{{ t('modules.webhookNotifications.settings.github.issues.offline.label') }}
+											</FormLabel>
+											<FormDescription>
+												{{
+													t(
+														'modules.webhookNotifications.settings.github.issues.offline.description'
+													)
+												}}
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												:model-value="value"
+												@update:model-value="handleChange"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								</FormField>
+							</div>
+						</div>
 
-						<FormField v-slot="{ value, handleChange }" name="githubPullRequests">
-							<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
-								<div class="space-y-0.5">
-									<FormLabel class="text-base">
-										{{ t('modules.webhookNotifications.settings.github.pullRequests.label') }}
-									</FormLabel>
-									<FormDescription>
-										{{ t('modules.webhookNotifications.settings.github.pullRequests.description') }}
-									</FormDescription>
-								</div>
-								<FormControl>
-									<Switch :model-value="value" @update:model-value="handleChange" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
+						<!-- Pull Requests -->
+						<div class="space-y-3 rounded-lg border p-4">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="githubPullRequests"
+							>
+								<FormItem class="flex flex-row items-center justify-between">
+									<div class="space-y-0.5">
+										<FormLabel class="text-base">
+											{{ t('modules.webhookNotifications.settings.github.pullRequests.label') }}
+										</FormLabel>
+										<FormDescription>
+											{{
+												t('modules.webhookNotifications.settings.github.pullRequests.description')
+											}}
+										</FormDescription>
+									</div>
+									<FormControl>
+										<Switch
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							</FormField>
+							<div class="space-y-2 border-l pl-4">
+								<FormField
+									v-slot="{ value, handleChange }"
+									name="githubPullRequestsOnlineEnabled"
+								>
+									<FormItem class="flex flex-row items-center justify-between">
+										<div class="space-y-0.5">
+											<FormLabel>
+												{{
+													t(
+														'modules.webhookNotifications.settings.github.pullRequests.online.label'
+													)
+												}}
+											</FormLabel>
+											<FormDescription>
+												{{
+													t(
+														'modules.webhookNotifications.settings.github.pullRequests.online.description'
+													)
+												}}
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												:model-value="value"
+												@update:model-value="handleChange"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								</FormField>
+								<FormField
+									v-slot="{ value, handleChange }"
+									name="githubPullRequestsOfflineEnabled"
+								>
+									<FormItem class="flex flex-row items-center justify-between">
+										<div class="space-y-0.5">
+											<FormLabel>
+												{{
+													t(
+														'modules.webhookNotifications.settings.github.pullRequests.offline.label'
+													)
+												}}
+											</FormLabel>
+											<FormDescription>
+												{{
+													t(
+														'modules.webhookNotifications.settings.github.pullRequests.offline.description'
+													)
+												}}
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												:model-value="value"
+												@update:model-value="handleChange"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								</FormField>
+							</div>
+						</div>
 
-						<FormField v-slot="{ value, handleChange }" name="githubCommits">
-							<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
-								<div class="space-y-0.5">
-									<FormLabel class="text-base">
-										{{ t('modules.webhookNotifications.settings.github.commits.label') }}
-									</FormLabel>
-									<FormDescription>
-										{{ t('modules.webhookNotifications.settings.github.commits.description') }}
-									</FormDescription>
-								</div>
-								<FormControl>
-									<Switch :model-value="value" @update:model-value="handleChange" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
+						<!-- Commits -->
+						<div class="space-y-3 rounded-lg border p-4">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="githubCommits"
+							>
+								<FormItem class="flex flex-row items-center justify-between">
+									<div class="space-y-0.5">
+										<FormLabel class="text-base">
+											{{ t('modules.webhookNotifications.settings.github.commits.label') }}
+										</FormLabel>
+										<FormDescription>
+											{{ t('modules.webhookNotifications.settings.github.commits.description') }}
+										</FormDescription>
+									</div>
+									<FormControl>
+										<Switch
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							</FormField>
+							<div class="space-y-2 border-l pl-4">
+								<FormField
+									v-slot="{ value, handleChange }"
+									name="githubCommitsOnlineEnabled"
+								>
+									<FormItem class="flex flex-row items-center justify-between">
+										<div class="space-y-0.5">
+											<FormLabel>
+												{{ t('modules.webhookNotifications.settings.github.commits.online.label') }}
+											</FormLabel>
+											<FormDescription>
+												{{
+													t(
+														'modules.webhookNotifications.settings.github.commits.online.description'
+													)
+												}}
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												:model-value="value"
+												@update:model-value="handleChange"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								</FormField>
+								<FormField
+									v-slot="{ value, handleChange }"
+									name="githubCommitsOfflineEnabled"
+								>
+									<FormItem class="flex flex-row items-center justify-between">
+										<div class="space-y-0.5">
+											<FormLabel>
+												{{
+													t('modules.webhookNotifications.settings.github.commits.offline.label')
+												}}
+											</FormLabel>
+											<FormDescription>
+												{{
+													t(
+														'modules.webhookNotifications.settings.github.commits.offline.description'
+													)
+												}}
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												:model-value="value"
+												@update:model-value="handleChange"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								</FormField>
+							</div>
+						</div>
 					</CardContent>
 				</UICard>
 
 				<div class="flex justify-end">
-					<Button type="submit" :disabled="isLoading">
+					<Button
+						:disabled="isLoading"
+						type="submit"
+					>
 						{{
 							exists
 								? t('modules.webhookNotifications.settings.buttons.update')

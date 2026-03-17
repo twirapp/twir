@@ -26,6 +26,13 @@ type CreateInput struct {
 	GithubIssuesEnabled       bool
 	GithubPullRequestsEnabled bool
 	GithubCommitsEnabled      bool
+
+	GithubIssuesOnlineEnabled        bool
+	GithubIssuesOfflineEnabled       bool
+	GithubPullRequestsOnlineEnabled  bool
+	GithubPullRequestsOfflineEnabled bool
+	GithubCommitsOnlineEnabled       bool
+	GithubCommitsOfflineEnabled      bool
 }
 
 type UpdateInput struct {
@@ -33,12 +40,27 @@ type UpdateInput struct {
 	GithubIssuesEnabled       *bool
 	GithubPullRequestsEnabled *bool
 	GithubCommitsEnabled      *bool
+
+	GithubIssuesOnlineEnabled        *bool
+	GithubIssuesOfflineEnabled       *bool
+	GithubPullRequestsOnlineEnabled  *bool
+	GithubPullRequestsOfflineEnabled *bool
+	GithubCommitsOnlineEnabled       *bool
+	GithubCommitsOfflineEnabled      *bool
 }
 
 type GetEnabledChannelsInput struct {
 	GithubIssuesEnabled       *bool
 	GithubPullRequestsEnabled *bool
 	GithubCommitsEnabled      *bool
-	Page                      int
-	PerPage                   int
+
+	GithubIssuesOnlineEnabled        *bool
+	GithubIssuesOfflineEnabled       *bool
+	GithubPullRequestsOnlineEnabled  *bool
+	GithubPullRequestsOfflineEnabled *bool
+	GithubCommitsOnlineEnabled       *bool
+	GithubCommitsOfflineEnabled      *bool
+
+	Page    int
+	PerPage int
 }

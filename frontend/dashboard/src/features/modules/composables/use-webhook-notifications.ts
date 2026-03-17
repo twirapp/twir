@@ -2,10 +2,10 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 import * as z from 'zod'
 
 import { useWebhookNotificationsApi } from '@/api/webhook-notifications'
-import { toast } from 'vue-sonner'
 
 export const formSchema = z.object({
 	id: z.string().optional(),
@@ -13,6 +13,12 @@ export const formSchema = z.object({
 	githubIssues: z.boolean().default(true),
 	githubPullRequests: z.boolean().default(true),
 	githubCommits: z.boolean().default(true),
+	githubIssuesOnline: z.boolean().default(true),
+	githubIssuesOffline: z.boolean().default(true),
+	githubPullRequestsOnline: z.boolean().default(true),
+	githubPullRequestsOffline: z.boolean().default(true),
+	githubCommitsOnline: z.boolean().default(true),
+	githubCommitsOffline: z.boolean().default(true),
 })
 
 export type FormSchema = z.infer<typeof formSchema>
@@ -36,6 +42,12 @@ export function useWebhookNotifications() {
 			githubIssues: true,
 			githubPullRequests: true,
 			githubCommits: true,
+			githubIssuesOnline: true,
+			githubIssuesOffline: true,
+			githubPullRequestsOnline: true,
+			githubPullRequestsOffline: true,
+			githubCommitsOnline: true,
+			githubCommitsOffline: true,
 		},
 		validateOnMount: false,
 		keepValuesOnUnmount: true,
@@ -50,6 +62,12 @@ export function useWebhookNotifications() {
 			githubIssues: settings.value.githubIssues,
 			githubPullRequests: settings.value.githubPullRequests,
 			githubCommits: settings.value.githubCommits,
+			githubIssuesOnline: settings.value.githubIssuesOnline,
+			githubIssuesOffline: settings.value.githubIssuesOffline,
+			githubPullRequestsOnline: settings.value.githubPullRequestsOnline,
+			githubPullRequestsOffline: settings.value.githubPullRequestsOffline,
+			githubCommitsOnline: settings.value.githubCommitsOnline,
+			githubCommitsOffline: settings.value.githubCommitsOffline,
 		})
 	}
 
@@ -70,6 +88,12 @@ export function useWebhookNotifications() {
 						githubIssues: values.githubIssues,
 						githubPullRequests: values.githubPullRequests,
 						githubCommits: values.githubCommits,
+						githubIssuesOnline: values.githubIssuesOnline,
+						githubIssuesOffline: values.githubIssuesOffline,
+						githubPullRequestsOnline: values.githubPullRequestsOnline,
+						githubPullRequestsOffline: values.githubPullRequestsOffline,
+						githubCommitsOnline: values.githubCommitsOnline,
+						githubCommitsOffline: values.githubCommitsOffline,
 					},
 				})
 
@@ -84,6 +108,12 @@ export function useWebhookNotifications() {
 						githubIssues: values.githubIssues,
 						githubPullRequests: values.githubPullRequests,
 						githubCommits: values.githubCommits,
+						githubIssuesOnline: values.githubIssuesOnline,
+						githubIssuesOffline: values.githubIssuesOffline,
+						githubPullRequestsOnline: values.githubPullRequestsOnline,
+						githubPullRequestsOffline: values.githubPullRequestsOffline,
+						githubCommitsOnline: values.githubCommitsOnline,
+						githubCommitsOffline: values.githubCommitsOffline,
 					},
 				})
 

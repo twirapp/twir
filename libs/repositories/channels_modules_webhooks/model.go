@@ -12,6 +12,13 @@ type Settings struct {
 	CreatedAt                 time.Time `db:"created_at"`
 	UpdatedAt                 time.Time `db:"updated_at"`
 
+	GithubIssuesOnlineEnabled        bool `db:"github_issues_online_enabled"`
+	GithubIssuesOfflineEnabled       bool `db:"github_issues_offline_enabled"`
+	GithubPullRequestsOnlineEnabled  bool `db:"github_pull_requests_online_enabled"`
+	GithubPullRequestsOfflineEnabled bool `db:"github_pull_requests_offline_enabled"`
+	GithubCommitsOnlineEnabled       bool `db:"github_commits_online_enabled"`
+	GithubCommitsOfflineEnabled      bool `db:"github_commits_offline_enabled"`
+
 	isNil bool
 }
 

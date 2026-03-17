@@ -49,6 +49,12 @@ var selectColumns = []string{
 	"github_commits_enabled",
 	"created_at",
 	"updated_at",
+	"github_issues_online_enabled",
+	"github_issues_offline_enabled",
+	"github_pull_requests_online_enabled",
+	"github_pull_requests_offline_enabled",
+	"github_commits_online_enabled",
+	"github_commits_offline_enabled",
 }
 
 var selectColumnsStr = strings.Join(selectColumns, ", ")
@@ -59,14 +65,20 @@ func mapModelToEntity(m channelsmoduleswebhooks.Settings) webhook_notifications.
 	}
 
 	return webhook_notifications.Settings{
-		ID:                        m.ID,
-		ChannelID:                 m.ChannelID,
-		Enabled:                   m.Enabled,
-		GithubIssuesEnabled:       m.GithubIssuesEnabled,
-		GithubPullRequestsEnabled: m.GithubPullRequestsEnabled,
-		GithubCommitsEnabled:      m.GithubCommitsEnabled,
-		CreatedAt:                 m.CreatedAt,
-		UpdatedAt:                 m.UpdatedAt,
+		ID:                               m.ID,
+		ChannelID:                        m.ChannelID,
+		Enabled:                          m.Enabled,
+		GithubIssuesEnabled:              m.GithubIssuesEnabled,
+		GithubPullRequestsEnabled:        m.GithubPullRequestsEnabled,
+		GithubCommitsEnabled:             m.GithubCommitsEnabled,
+		GithubIssuesOnlineEnabled:        m.GithubIssuesOnlineEnabled,
+		GithubIssuesOfflineEnabled:       m.GithubIssuesOfflineEnabled,
+		GithubPullRequestsOnlineEnabled:  m.GithubPullRequestsOnlineEnabled,
+		GithubPullRequestsOfflineEnabled: m.GithubPullRequestsOfflineEnabled,
+		GithubCommitsOnlineEnabled:       m.GithubCommitsOnlineEnabled,
+		GithubCommitsOfflineEnabled:      m.GithubCommitsOfflineEnabled,
+		CreatedAt:                        m.CreatedAt,
+		UpdatedAt:                        m.UpdatedAt,
 	}
 }
 
@@ -151,6 +163,44 @@ func (c *Pgx) GetEnabledChannels(
 		builder = builder.Where(squirrel.Eq{"github_commits_enabled": *input.GithubCommitsEnabled})
 	}
 
+	if input.GithubIssuesOnlineEnabled != nil {
+		builder = builder.Where(
+			squirrel.Eq{"github_issues_online_enabled": *input.GithubIssuesOnlineEnabled},
+		)
+	}
+
+	if input.GithubIssuesOfflineEnabled != nil {
+		builder = builder.Where(
+			squirrel.Eq{"github_issues_offline_enabled": *input.GithubIssuesOfflineEnabled},
+		)
+	}
+
+	if input.GithubPullRequestsOnlineEnabled != nil {
+		builder = builder.Where(
+			squirrel.Eq{"github_pull_requests_online_enabled": *input.GithubPullRequestsOnlineEnabled},
+		)
+	}
+
+	if input.GithubPullRequestsOfflineEnabled != nil {
+		builder = builder.Where(
+			squirrel.Eq{
+				"github_pull_requests_offline_enabled": *input.GithubPullRequestsOfflineEnabled,
+			},
+		)
+	}
+
+	if input.GithubCommitsOnlineEnabled != nil {
+		builder = builder.Where(
+			squirrel.Eq{"github_commits_online_enabled": *input.GithubCommitsOnlineEnabled},
+		)
+	}
+
+	if input.GithubCommitsOfflineEnabled != nil {
+		builder = builder.Where(
+			squirrel.Eq{"github_commits_offline_enabled": *input.GithubCommitsOfflineEnabled},
+		)
+	}
+
 	builder = builder.OrderBy("channel_id")
 
 	if input.PerPage > 0 {
@@ -199,9 +249,15 @@ INSERT INTO channels_modules_webhooks (
 	enabled,
 	github_issues_enabled,
 	github_pull_requests_enabled,
-	github_commits_enabled
+	github_commits_enabled,
+	github_issues_online_enabled,
+	github_issues_offline_enabled,
+	github_pull_requests_online_enabled,
+	github_pull_requests_offline_enabled,
+	github_commits_online_enabled,
+	github_commits_offline_enabled
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING ` + selectColumnsStr + `;
 `
 
@@ -214,6 +270,12 @@ RETURNING ` + selectColumnsStr + `;
 		input.GithubIssuesEnabled,
 		input.GithubPullRequestsEnabled,
 		input.GithubCommitsEnabled,
+		input.GithubIssuesOnlineEnabled,
+		input.GithubIssuesOfflineEnabled,
+		input.GithubPullRequestsOnlineEnabled,
+		input.GithubPullRequestsOfflineEnabled,
+		input.GithubCommitsOnlineEnabled,
+		input.GithubCommitsOfflineEnabled,
 	)
 	if err != nil {
 		return webhook_notifications.Nil, fmt.Errorf("query err: %w", err)
@@ -253,6 +315,36 @@ func (c *Pgx) Update(
 
 	if input.GithubCommitsEnabled != nil {
 		builder = builder.Set("github_commits_enabled", *input.GithubCommitsEnabled)
+	}
+
+	if input.GithubIssuesOnlineEnabled != nil {
+		builder = builder.Set("github_issues_online_enabled", *input.GithubIssuesOnlineEnabled)
+	}
+
+	if input.GithubIssuesOfflineEnabled != nil {
+		builder = builder.Set("github_issues_offline_enabled", *input.GithubIssuesOfflineEnabled)
+	}
+
+	if input.GithubPullRequestsOnlineEnabled != nil {
+		builder = builder.Set(
+			"github_pull_requests_online_enabled",
+			*input.GithubPullRequestsOnlineEnabled,
+		)
+	}
+
+	if input.GithubPullRequestsOfflineEnabled != nil {
+		builder = builder.Set(
+			"github_pull_requests_offline_enabled",
+			*input.GithubPullRequestsOfflineEnabled,
+		)
+	}
+
+	if input.GithubCommitsOnlineEnabled != nil {
+		builder = builder.Set("github_commits_online_enabled", *input.GithubCommitsOnlineEnabled)
+	}
+
+	if input.GithubCommitsOfflineEnabled != nil {
+		builder = builder.Set("github_commits_offline_enabled", *input.GithubCommitsOfflineEnabled)
 	}
 
 	query, args, err := builder.ToSql()
