@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import { computed, reactive, ref, toRaw } from 'vue'
 
 import { ChannelOverlayLayerType } from '@/gql/graphql'
@@ -91,7 +90,7 @@ export function useOverlayBuilder() {
 	// Layer operations
 	function addLayer(type: ChannelOverlayLayerType, options?: Partial<Layer>) {
 		const newLayer: Layer = {
-			id: nanoid(),
+			id: crypto.randomUUID(),
 			type,
 			name: `${type} Layer ${project.layers.length + 1}`,
 			posX: options?.posX ?? 100,
@@ -170,7 +169,7 @@ export function useOverlayBuilder() {
 		saveToHistory()
 		const duplicated: Layer = {
 			...JSON.parse(JSON.stringify(toRaw(layer))),
-			id: nanoid(),
+			id: crypto.randomUUID(),
 			name: `${layer.name} (Copy)`,
 			posX: layer.posX + 20,
 			posY: layer.posY + 20,
@@ -191,7 +190,7 @@ export function useOverlayBuilder() {
 
 			const duplicated: Layer = {
 				...JSON.parse(JSON.stringify(toRaw(layer))),
-				id: nanoid(),
+				id: crypto.randomUUID(),
 				name: `${layer.name} (Copy)`,
 				posX: layer.posX + 20,
 				posY: layer.posY + 20,
@@ -304,7 +303,7 @@ export function useOverlayBuilder() {
 		canvasState.clipboardLayers.forEach((layer) => {
 			const pasted: Layer = {
 				...JSON.parse(JSON.stringify(toRaw(layer))),
-				id: nanoid(),
+				id: crypto.randomUUID(),
 				name: `${layer.name} (Pasted)`,
 				posX: layer.posX + 20,
 				posY: layer.posY + 20,
