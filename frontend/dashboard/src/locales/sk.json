@@ -1063,36 +1063,36 @@
             "label": "Issues",
             "description": "Upozorňovať na nové issues",
             "online": {
-              "label": "Send when online",
-              "description": "Odosielať notifikácie o issues počas živého vysielania kanála"
+              "label": "Odosielať, ak je kanál online",
+              "description": "Odosielať notifikácie o issues, keď je kanál live"
             },
             "offline": {
-              "label": "Send when offline",
-              "description": "Send issue notifications while the channel is offline"
+              "label": "Odosielať, ak je kanál offline",
+              "description": "Odosielať notifikácie o issues, keď je kanál offline"
             }
           },
           "pullRequests": {
             "label": "Pull requests",
             "description": "Upozorňovať na nové pull requesty",
             "online": {
-              "label": "Send when online",
-              "description": "Send pull request notifications while the channel is live"
+              "label": "Odosielať, ak je kanál online",
+              "description": "Odosielať notifikácie o pull requestoch, keď je kanál live"
             },
             "offline": {
-              "label": "Send when offline",
-              "description": "Send pull request notifications while the channel is offline"
+              "label": "Odosielať, ak je kanál offline",
+              "description": "Odosielať notifikácie o pull requestoch, keď je kanál offline"
             }
           },
           "commits": {
             "label": "Commits",
             "description": "Upozornenia na nové commity",
             "online": {
-              "label": "Send when online",
-              "description": "Send commit notifications while the channel is live"
+              "label": "Odosielať, ak je kanál online",
+              "description": "Odosielať notifikácie o commitoch, keď je kanál live"
             },
             "offline": {
-              "label": "Send when offline",
-              "description": "Send commit notifications while the channel is offline"
+              "label": "Odosielať, ak je kanál offline",
+              "description": "Odosielať notifikácie o commitoch, keď je kanál offline"
             }
           }
         },
