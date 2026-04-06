@@ -1064,7 +1064,7 @@
             "description": "Upozorňovať na nové issues",
             "online": {
               "label": "Send when online",
-              "description": "Send issue notifications while the channel is live"
+              "description": "Odosielať notifikácie o issues počas živého vysielania kanála"
             },
             "offline": {
               "label": "Send when offline",
