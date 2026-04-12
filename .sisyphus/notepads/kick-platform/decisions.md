@@ -21,3 +21,4 @@
 - **UUID generation**: Always use `uuidv7()` (NOT `gen_random_uuid()`) for new UUID PKs in migrations. Project runs on Postgres 18+ which ships `uuidv7()` natively. UUIDv7 is time-sortable (better index locality). This applies to all new tables and columns added in this branch and any future work.
 - Implemented Kick OAuth code exchange as a dedicated /auth/kick/code route while keeping legacy Twitch /auth handler untouched for backward compatibility.
 - Kick bus topics should mirror the existing Twitch package pattern: one subject constant plus one exported message struct per file, under `libs/bus-core/kick/`.
+- For 7TV Kick profile lookups, use the existing GraphQL `userByConnection(platform: KICK, id: $id)` pattern in both v2 and v3 clients instead of the REST URL mentioned in the plan.

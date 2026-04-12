@@ -15,6 +15,7 @@
 - `libs/bus-core/bus.go` wires `ChatMessagesGeneric` to `chat.messages.generic` and `Parser.ProcessGenericMessage` to `parser.process_generic_message` without touching the existing Twitch queues.
 - `apps/parser/internal/types/ParseContext` now carries a `Platform` string, and parser constructors should populate it from the originating message platform.
 - Shared platform filtering is easiest to keep consistent with a small helper on `libs/entities/platform`, then reuse it in parser/timer/keyword execution paths.
+- GraphQL auth schema additions for Kick should use `@goField(forceResolver: true)` on nullable/derived fields so gqlgen generates resolver stubs without adding business logic.
 
 ## [T5] PlatformProvider interface + Twitch implementation
 - `platform.PlatformProvider` interface lives in `apps/api-gql/internal/platform/provider.go`; Twitch impl in `internal/platform/twitch/provider.go`.
@@ -30,6 +31,7 @@
 - Kick bus-core topics live in a dedicated `libs/bus-core/kick` package with raw event structs and subject constants; `go build ./libs/bus-core/...` passes after adding them.
 - `apps/eventsub/internal/bus-listener/bus-listener.go` can branch on `channel.Platform` after `channelsRepo.GetByID`: Twitch keeps legacy topic-based EventSub subscription flow, while Kick uses `user_platform_accounts.GetByUserIDAndPlatform` plus `kick.SubscriptionManager.SubscribeAll`.
 - Twitch EventSub chat handling can dual-publish into generic queues by mapping `eventsub.ChannelChatMessageEvent` into `generic.ChatMessage`; guard `data.Message` before reading `.Text` and keep legacy Twitch bus publishes intact.
+- 7TV integration clients use genqlient GraphQL operations in `gql/operations.graphqls`; adding a new profile lookup requires both the query and the corresponding generated method name to match the operation exactly.
 
 ## T20: Kick Resubscribe Job
 

@@ -2234,7 +2234,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ---
 
-- [ ] 24. Command/Timer/Keyword Platform Filtering in Execution
+- [x] 24. Command/Timer/Keyword Platform Filtering in Execution
 
   **What to do**:
   - In the parser's command, timer, and keyword execution logic, apply platform filtering using the

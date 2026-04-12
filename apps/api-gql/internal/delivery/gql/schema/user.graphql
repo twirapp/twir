@@ -13,6 +13,22 @@ extend type Mutation {
 	logout: Boolean! @isAuthenticated
 }
 
+type KickProfile {
+	id: String!
+	slug: String!
+	displayName: String!
+	profilePicture: String
+	isLive: Boolean!
+	followersCount: Int!
+}
+
+type LinkedAccount {
+	platform: String!
+	platformUserId: String!
+	platformLogin: String!
+	platformAvatar: String
+}
+
 type AuthenticatedUser implements TwirUser {
 	id: ID!
 	isBotAdmin: Boolean!
@@ -26,6 +42,9 @@ type AuthenticatedUser implements TwirUser {
 	selectedDashboardId: String!
 	availableDashboards: [Dashboard!]! @goField(forceResolver: true)
 	planId: String
+	kickProfile: KickProfile @goField(forceResolver: true)
+	linkedAccounts: [LinkedAccount!]! @goField(forceResolver: true)
+	currentPlatform: String! @goField(forceResolver: true)
 }
 
 type Dashboard {

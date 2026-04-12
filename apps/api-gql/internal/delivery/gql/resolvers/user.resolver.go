@@ -35,6 +35,21 @@ func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj
 	return r.getAvailableDashboards(ctx, obj)
 }
 
+// KickProfile is the resolver for the kickProfile field.
+func (r *authenticatedUserResolver) KickProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.KickProfile, error) {
+	panic(fmt.Errorf("not implemented: KickProfile - kickProfile"))
+}
+
+// LinkedAccounts is the resolver for the linkedAccounts field.
+func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gqlmodel.AuthenticatedUser) ([]gqlmodel.LinkedAccount, error) {
+	panic(fmt.Errorf("not implemented: LinkedAccounts - linkedAccounts"))
+}
+
+// CurrentPlatform is the resolver for the currentPlatform field.
+func (r *authenticatedUserResolver) CurrentPlatform(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (string, error) {
+	panic(fmt.Errorf("not implemented: CurrentPlatform - currentPlatform"))
+}
+
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *channelUserInfoResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChannelUserInfo) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
