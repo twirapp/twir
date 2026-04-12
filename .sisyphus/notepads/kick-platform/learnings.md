@@ -38,3 +38,57 @@
 - `ResubscribeJob` lifecycle: OnStart fires `go j.Start(ctx)` — goroutine exits on ctx cancellation (ticker.Stop + select on ctx.Done)
 - Existing `handlers_test.go` mock needed `GetAllByPlatform` added when the interface was extended
 - `allEventTypesPresent` uses a map for O(n) lookup over all 4 EventTypes
+
+## T22: Dual-subscribe ProcessMessageAsCommand + ProcessGenericMessage with Redis dedup
+
+### Redis dedup pattern
+- Key: `parser:dedup:{messageID}`
+- `redis.SetNX(ctx, key, "1", 60*time.Second)` — returns `true` if key was SET (new msg), `false` if existed (dup)
+- So: `isDuplicate = !set` 
+- On Redis error: log and proceed (don't drop message)
+- Empty messageID: skip dedup (return false, nil)
+
+### CommandsBus.redis field
+- Added `redis *redis.Client` field to `CommandsBus` struct
+- Populated from `s.Redis` in `New()` — no signature change needed
+
+### generic.ChatMessage field mapping to TwitchChatMessage
+- `msg.ChannelID` → `BroadcasterUserId`
+- `msg.PlatformChannelID` → `BroadcasterUserLogin` / `BroadcasterUserName`
+- `msg.UserID` → `ChatterUserId`
+- `msg.SenderLogin` → `ChatterUserLogin`
+- `msg.SenderDisplayName` → `ChatterUserName`
+- `msg.MessageID` → `MessageId`
+- `msg.Badges[].SetID` → `twitch.ChatMessageBadge.SetId`
+- `msg.Badges[].Text` → `twitch.ChatMessageBadge.Info`
+- `msg.Text` → `Message.Text`
+
+### Important caveat
+- `ProcessChatMessage` checks `data.EnrichedData.DbUser == nil` and returns error if nil
+- For Kick messages (no enriched data), `ProcessChatMessage` will return an error — full Kick command execution requires a separate enrichment step (future task)
+- The subscription + dedup infrastructure is in place; Kick command execution needs enrichment pipeline
+
+### Unsubscribe
+- Must add `c.bus.Parser.ProcessGenericMessage.Unsubscribe()` to `Unsubscribe()` method
+
+### TODO comment required by spec
+```go
+// TODO(Phase-2): remove ProcessMessageAsCommand subscription once all consumers migrated off it
+```
+
+## T22-fix: Propagate platform from generic message into ParseContext
+
+### Problem
+`ParseCommandResponses` hardcoded `Platform: "twitch"` in the `ParseContext` it builds at line 339-360 of `commands.go`. All calls via `ProcessGenericMessage` for Kick messages would incorrectly get `Platform: "twitch"`.
+
+### Fix (Option A — explicit parameter)
+- Added `platform string` parameter to both `ParseCommandResponses` and `ProcessChatMessage` signatures
+- `ParseCommandResponses` uses `platform` instead of hardcoded `"twitch"` 
+- `ProcessChatMessage` receives `platform` and forwards it to `ParseCommandResponses`
+- Call sites in `commands-bus.go`:
+  - `GetCommandResponse` handler: passes `"twitch"`
+  - `ProcessMessageAsCommand` handler: passes `"twitch"`
+  - `ProcessGenericMessage` handler: passes `msg.Platform` (the correct value from the generic message)
+
+### Note on `GetCommandResponse`
+This handler (used by variable parsing path) also calls `ProcessChatMessage` — updated to pass `"twitch"` since it only receives `TwitchChatMessage`.
