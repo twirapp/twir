@@ -36,6 +36,19 @@ var FxModule = fx.Provide(
 	httpbase.AsFxRoute(newVerifyCustomDomain),
 	httpbase.AsFxRoute(newDeleteCustomDomain),
 	httpbase.AsFxRoute(newAllowCustomDomain),
+	httpbase.AsFxRoute(newListPresets),
+	httpbase.AsFxRoute(newCreatePreset),
+	httpbase.AsFxRoute(newUpdatePreset),
+	httpbase.AsFxRoute(newDeletePreset),
+	httpbase.AsFxRoute(newListPresetPatterns),
+	httpbase.AsFxRoute(newCreatePresetPattern),
+	httpbase.AsFxRoute(newDeletePresetPattern),
+	httpbase.AsFxRoute(newListLinkPresets),
+	httpbase.AsFxRoute(newApplyPresetToLink),
+	httpbase.AsFxRoute(newRemovePresetFromLink),
+	httpbase.AsFxRoute(newListLinkBannedUserAgents),
+	httpbase.AsFxRoute(newCreateLinkBannedUserAgent),
+	httpbase.AsFxRoute(newDeleteLinkBannedUserAgent),
 )
 
 type linkOutputDto struct {

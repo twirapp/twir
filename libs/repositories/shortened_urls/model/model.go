@@ -6,16 +6,17 @@ import (
 )
 
 type ShortenedUrl struct {
-	ShortID         string
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-	URL             string
-	CreatedByUserId *string
-	Views           int
-	UserAgent       *string
-	UserIp          *netip.Addr
-	DomainID        *string
-	Domain          *string
+	ShortID          string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	URL              string
+	CreatedByUserId  *string
+	Views            int
+	UserAgent        *string
+	UserIp           *netip.Addr
+	DomainID         *string
+	Domain           *string
+	IgnoreGlobalBans bool
 
 	isNil bool
 }

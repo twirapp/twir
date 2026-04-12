@@ -43,6 +43,7 @@ var (
 		"shortened_urls.user_ip",
 		"shortened_urls.user_agent",
 		"shortened_urls.domain_id",
+		"shortened_urls.ignore_global_bans",
 		"domains.domain",
 	}
 	selectColumnsStr = strings.Join(selectColumns, ", ")
@@ -56,6 +57,7 @@ var (
 		"updated.user_ip",
 		"updated.user_agent",
 		"updated.domain_id",
+		"updated.ignore_global_bans",
 		"domains.domain",
 	}
 	selectColumnsCteStr  = strings.Join(selectColumnsCte, ", ")
@@ -69,6 +71,7 @@ var (
 		"created.user_ip",
 		"created.user_agent",
 		"created.domain_id",
+		"created.ignore_global_bans",
 		"domains.domain",
 	}
 	selectColumnsCreatedStr = strings.Join(selectColumnsCreated, ", ")
@@ -322,9 +325,9 @@ func (c *Pgx) Create(ctx context.Context, input shortened_urls.CreateInput) (
 ) {
 	query := `
 WITH created AS (
-	INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent, domain_id)
-	VALUES (@short_id, @url, @created_by_user_id, @user_ip, @user_agent, @domain_id)
-	RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id
+	INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent, domain_id, ignore_global_bans)
+	VALUES (@short_id, @url, @created_by_user_id, @user_ip, @user_agent, @domain_id, @ignore_global_bans)
+	RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id, ignore_global_bans
 )
 SELECT ` + selectColumnsCreatedStr + `
 FROM created
@@ -343,6 +346,7 @@ LEFT JOIN short_links_custom_domains AS domains
 			"user_ip":            input.UserIp,
 			"user_agent":         input.UserAgent,
 			"domain_id":          input.DomainID,
+			"ignore_global_bans": input.IgnoreGlobalBans,
 		},
 	)
 	if err != nil {

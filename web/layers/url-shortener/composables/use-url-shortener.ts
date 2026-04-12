@@ -17,11 +17,52 @@ type CustomDomainResponseDto = {
 	data: CustomDomainOutputDto
 }
 
+export type BannedUserAgentDto = {
+	id: string
+	pattern: string
+	description: string | null
+	created_at: string
+}
+
+type BannedUserAgentsListResponseDto = {
+	$schema?: string
+	data: BannedUserAgentDto[]
+}
+
+type BannedUserAgentResponseDto = {
+	$schema?: string
+	data: BannedUserAgentDto
+}
+
+export type LinkBannedUserAgentDto = {
+	id: string
+	link_id: string
+	pattern: string
+	description: string | null
+	created_at: string
+}
+
+type LinkBannedUserAgentsListResponseDto = {
+	$schema?: string
+	data: LinkBannedUserAgentDto[]
+}
+
+type LinkBannedUserAgentResponseDto = {
+	$schema?: string
+	data: LinkBannedUserAgentDto
+}
+
 export const useUrlShortener = defineStore('url-shortener', () => {
 	const api = useOapi()
 	const latestShortenedUrls = ref<LinkOutputDto[]>([])
 	const customDomain = ref<CustomDomainOutputDto | null>(null)
 	const isCustomDomainLoading = ref(false)
+
+	const globalBannedUserAgents = ref<BannedUserAgentDto[]>([])
+	const isGlobalBannedUserAgentsLoading = ref(false)
+
+	const perLinkBannedUserAgents = ref<Map<string, LinkBannedUserAgentDto[]>>(new Map())
+	const isPerLinkBannedUserAgentsLoading = ref<Map<string, boolean>>(new Map())
 
 	async function shortUrl(opts: { url: string; alias?: string; useCustomDomain?: boolean }) {
 		try {
@@ -173,6 +214,108 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		}
 	}
 
+	async function fetchGlobalBannedUserAgents() {
+		isGlobalBannedUserAgentsLoading.value = true
+		try {
+			const response = await api.http.request<BannedUserAgentsListResponseDto, ErrorModel>({
+				path: '/v1/short-links/banned-user-agents',
+				method: 'GET',
+				format: 'json',
+			})
+			globalBannedUserAgents.value = response.data.data
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		} finally {
+			isGlobalBannedUserAgentsLoading.value = false
+		}
+	}
+
+	async function createGlobalBannedUserAgent(opts: { pattern: string; description?: string | null }) {
+		try {
+			const response = await api.http.request<BannedUserAgentResponseDto, ErrorModel>({
+				path: '/v1/short-links/banned-user-agents',
+				method: 'POST',
+				type: ContentType.Json,
+				format: 'json',
+				body: {
+					pattern: opts.pattern,
+					description: opts.description,
+				},
+			})
+			globalBannedUserAgents.value = [...globalBannedUserAgents.value, response.data.data]
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function deleteGlobalBannedUserAgent(id: string) {
+		try {
+			const response = await api.http.request<Record<string, never>, ErrorModel>({
+				path: `/v1/short-links/banned-user-agents/${id}`,
+				method: 'DELETE',
+				format: 'json',
+			})
+			globalBannedUserAgents.value = globalBannedUserAgents.value.filter((item) => item.id !== id)
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function fetchPerLinkBannedUserAgents(linkId: string) {
+		isPerLinkBannedUserAgentsLoading.value.set(linkId, true)
+		try {
+			const response = await api.http.request<LinkBannedUserAgentsListResponseDto, ErrorModel>({
+				path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
+				method: 'GET',
+				format: 'json',
+			})
+			perLinkBannedUserAgents.value.set(linkId, response.data.data)
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		} finally {
+			isPerLinkBannedUserAgentsLoading.value.set(linkId, false)
+		}
+	}
+
+	async function createPerLinkBannedUserAgent(linkId: string, opts: { pattern: string; description?: string | null }) {
+		try {
+			const response = await api.http.request<LinkBannedUserAgentResponseDto, ErrorModel>({
+				path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
+				method: 'POST',
+				type: ContentType.Json,
+				format: 'json',
+				body: {
+					pattern: opts.pattern,
+					description: opts.description,
+				},
+			})
+			const current = perLinkBannedUserAgents.value.get(linkId) || []
+			perLinkBannedUserAgents.value.set(linkId, [...current, response.data.data])
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function deletePerLinkBannedUserAgent(linkId: string, id: string) {
+		try {
+			const response = await api.http.request<Record<string, never>, ErrorModel>({
+				path: `/v1/short-links/by-id/${linkId}/banned-user-agents/${id}`,
+				method: 'DELETE',
+				format: 'json',
+			})
+			const current = perLinkBannedUserAgents.value.get(linkId) || []
+			perLinkBannedUserAgents.value.set(linkId, current.filter((item) => item.id !== id))
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
 	return {
 		shortUrl,
 		refetchLatestShortenedUrls,
@@ -183,18 +326,36 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		deleteCustomDomain,
 		customDomain,
 		isCustomDomainLoading,
+		globalBannedUserAgents,
+		isGlobalBannedUserAgentsLoading,
+		fetchGlobalBannedUserAgents,
+		createGlobalBannedUserAgent,
+		deleteGlobalBannedUserAgent,
+		perLinkBannedUserAgents,
+		isPerLinkBannedUserAgentsLoading,
+		fetchPerLinkBannedUserAgents,
+		createPerLinkBannedUserAgent,
+		deletePerLinkBannedUserAgent,
 	}
 })
 
 async function parseApiError(error: unknown) {
 	if (error instanceof Response) {
-		const errorData = (await error.json()) as ErrorModel
-		return (
-			errorData.detail ??
-			errorData.errors?.map((err) => err.message)?.join(', ') ??
-			errorData.title ??
-			'Unknown error'
-		)
+		try {
+			const errorData = (await error.json()) as ErrorModel
+			return (
+				errorData.detail ??
+				errorData.errors?.map((err) => err.message)?.join(', ') ??
+				errorData.title ??
+				'Unknown error'
+			)
+		} catch {
+			return `HTTP ${error.status}: ${error.statusText || 'Unknown error'}`
+		}
+	}
+
+	if (error instanceof Error) {
+		return error.message
 	}
 
 	return 'Unknown error'

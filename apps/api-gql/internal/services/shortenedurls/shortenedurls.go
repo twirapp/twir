@@ -4,13 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	shortlinksbanneduapresetpatternsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_preset_patterns"
+	shortlinksbanneduapresetsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_presets"
 	shortlinkscustomdomainsrepo "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
+	shortlinkslinkbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_banned_user_agents"
+	shortlinkslinkpresetsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_presets"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
@@ -21,19 +27,27 @@ import (
 type Opts struct {
 	fx.In
 
-	Repository              shortenedurlsrepository.Repository
-	ViewsRepository         shortlinksviewsrepository.Repository
-	CustomDomainsRepository shortlinkscustomdomainsrepo.Repository
-	WsRouter                wsrouter.WsRouter
+	Repository                     shortenedurlsrepository.Repository
+	ViewsRepository                shortlinksviewsrepository.Repository
+	CustomDomainsRepository        shortlinkscustomdomainsrepo.Repository
+	PresetsRepository              shortlinksbanneduapresetsrepository.Repository
+	PresetPatternsRepository       shortlinksbanneduapresetpatternsrepository.Repository
+	LinkPresetsRepository          shortlinkslinkpresetsrepository.Repository
+	LinkBannedUserAgentsRepository shortlinkslinkbannedusaragentsrepository.Repository
+	WsRouter                       wsrouter.WsRouter
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repository:              opts.Repository,
-		viewsRepository:         opts.ViewsRepository,
-		customDomainsRepository: opts.CustomDomainsRepository,
-		wsRouter:                opts.WsRouter,
-		viewsSubs:               make(map[string]struct{}),
+		repository:                     opts.Repository,
+		viewsRepository:                opts.ViewsRepository,
+		customDomainsRepository:        opts.CustomDomainsRepository,
+		presetsRepository:              opts.PresetsRepository,
+		presetPatternsRepository:       opts.PresetPatternsRepository,
+		linkPresetsRepository:          opts.LinkPresetsRepository,
+		linkBannedUserAgentsRepository: opts.LinkBannedUserAgentsRepository,
+		wsRouter:                       opts.WsRouter,
+		viewsSubs:                      make(map[string]struct{}),
 	}
 }
 
@@ -77,12 +91,16 @@ func DecodeShortLinkKey(value string) (*string, string) {
 }
 
 type Service struct {
-	repository              shortenedurlsrepository.Repository
-	viewsRepository         shortlinksviewsrepository.Repository
-	customDomainsRepository shortlinkscustomdomainsrepo.Repository
-	wsRouter                wsrouter.WsRouter
-	viewsSubs               map[string]struct{}
-	viewsSubsMu             sync.RWMutex
+	repository                     shortenedurlsrepository.Repository
+	viewsRepository                shortlinksviewsrepository.Repository
+	customDomainsRepository        shortlinkscustomdomainsrepo.Repository
+	presetsRepository              shortlinksbanneduapresetsrepository.Repository
+	presetPatternsRepository       shortlinksbanneduapresetpatternsrepository.Repository
+	linkPresetsRepository          shortlinkslinkpresetsrepository.Repository
+	linkBannedUserAgentsRepository shortlinkslinkbannedusaragentsrepository.Repository
+	wsRouter                       wsrouter.WsRouter
+	viewsSubs                      map[string]struct{}
+	viewsSubsMu                    sync.RWMutex
 }
 
 func (c *Service) resolveDomainID(ctx context.Context, domain *string) (*string, error) {
@@ -635,4 +653,141 @@ func (c *Service) GetTopCountries(ctx context.Context, input GetTopCountriesInpu
 	}
 
 	return output, nil
+}
+
+func (c *Service) IsUserAgentBanned(
+	ctx context.Context,
+	link model.ShortenedUrl,
+	userAgent string,
+) (bool, error) {
+	if userAgent == "" {
+		return false, nil
+	}
+
+	if link.ShortID != "" {
+		directPatterns, err := c.linkBannedUserAgentsRepository.GetByLinkID(ctx, link.ShortID)
+		if err != nil {
+			return false, fmt.Errorf("failed to get direct link banned patterns: %w", err)
+		}
+
+		for _, p := range directPatterns {
+			re, err := regexp.Compile(p.Pattern)
+			if err != nil {
+				continue
+			}
+			if re.MatchString(userAgent) {
+				return true, nil
+			}
+		}
+	}
+
+	if link.ShortID != "" {
+		linkPresets, err := c.linkPresetsRepository.GetByLinkID(ctx, link.ShortID)
+		if err != nil {
+			return false, fmt.Errorf("failed to get link presets: %w", err)
+		}
+
+		for _, lp := range linkPresets {
+			presetPatterns, err := c.presetPatternsRepository.GetByPresetID(ctx, lp.PresetID)
+			if err != nil {
+				continue
+			}
+
+			for _, p := range presetPatterns {
+				re, err := regexp.Compile(p.Pattern)
+				if err != nil {
+					continue
+				}
+				if re.MatchString(userAgent) {
+					return true, nil
+				}
+			}
+		}
+	}
+
+	return false, nil
+}
+
+func (c *Service) GetPresets(ctx context.Context, userID string) ([]shortlinksbanneduapresetsrepository.Preset, error) {
+	return c.presetsRepository.GetByUserID(ctx, userID)
+}
+
+func (c *Service) GetPresetByID(ctx context.Context, id string) (shortlinksbanneduapresetsrepository.Preset, error) {
+	return c.presetsRepository.GetByID(ctx, id)
+}
+
+func (c *Service) CreatePreset(
+	ctx context.Context,
+	input shortlinksbanneduapresetsrepository.CreateInput,
+) (shortlinksbanneduapresetsrepository.Preset, error) {
+	return c.presetsRepository.Create(ctx, input)
+}
+
+func (c *Service) UpdatePreset(
+	ctx context.Context,
+	id string,
+	input shortlinksbanneduapresetsrepository.UpdateInput,
+) (shortlinksbanneduapresetsrepository.Preset, error) {
+	return c.presetsRepository.Update(ctx, id, input)
+}
+
+func (c *Service) DeletePreset(ctx context.Context, id, userID string) error {
+	return c.presetsRepository.Delete(ctx, id, userID)
+}
+
+func (c *Service) GetPresetPatterns(
+	ctx context.Context,
+	presetID string,
+) ([]shortlinksbanneduapresetpatternsrepository.Pattern, error) {
+	return c.presetPatternsRepository.GetByPresetID(ctx, presetID)
+}
+
+func (c *Service) CreatePresetPattern(
+	ctx context.Context,
+	input shortlinksbanneduapresetpatternsrepository.CreateInput,
+) (shortlinksbanneduapresetpatternsrepository.Pattern, error) {
+	if _, err := regexp.Compile(input.Pattern); err != nil {
+		return shortlinksbanneduapresetpatternsrepository.Nil, fmt.Errorf("invalid regex pattern: %w", err)
+	}
+	return c.presetPatternsRepository.Create(ctx, input)
+}
+
+func (c *Service) DeletePresetPattern(ctx context.Context, id, presetID string) error {
+	return c.presetPatternsRepository.Delete(ctx, id, presetID)
+}
+
+func (c *Service) GetLinkPresets(ctx context.Context, linkID string) ([]shortlinkslinkpresetsrepository.LinkPreset, error) {
+	return c.linkPresetsRepository.GetByLinkID(ctx, linkID)
+}
+
+func (c *Service) ApplyPresetToLink(
+	ctx context.Context,
+	input shortlinkslinkpresetsrepository.CreateInput,
+) (shortlinkslinkpresetsrepository.LinkPreset, error) {
+	return c.linkPresetsRepository.Create(ctx, input)
+}
+
+func (c *Service) RemovePresetFromLink(ctx context.Context, linkID, presetID string) error {
+	return c.linkPresetsRepository.DeleteByLinkAndPreset(ctx, linkID, presetID)
+}
+
+func (c *Service) GetLinkBannedUserAgents(
+	ctx context.Context,
+	linkID string,
+) ([]shortlinkslinkbannedusaragentsrepository.BannedUserAgent, error) {
+	return c.linkBannedUserAgentsRepository.GetByLinkID(ctx, linkID)
+}
+
+func (c *Service) CreateLinkBannedUserAgent(
+	ctx context.Context,
+	input shortlinkslinkbannedusaragentsrepository.CreateInput,
+) (shortlinkslinkbannedusaragentsrepository.BannedUserAgent, error) {
+	if _, err := regexp.Compile(input.Pattern); err != nil {
+		return shortlinkslinkbannedusaragentsrepository.Nil, fmt.Errorf("invalid regex pattern: %w", err)
+	}
+	return c.linkBannedUserAgentsRepository.Create(ctx, input)
+}
+
+func (c *Service) DeleteLinkBannedUserAgent(ctx context.Context, id, linkID string) error {
+	return c.linkBannedUserAgentsRepository.Delete(ctx, id, linkID)
 }
