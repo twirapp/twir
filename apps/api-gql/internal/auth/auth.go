@@ -9,6 +9,7 @@ import (
 	"github.com/alexedwards/scs/goredisstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -35,6 +36,8 @@ func NewSessions(opts Opts) *Auth {
 
 	gob.Register(model.Users{})
 	gob.Register(helix.User{})
+	gob.Register(uuid.UUID{})
+	gob.Register(KickSessionUser{})
 
 	return &Auth{
 		sessionManager: sessionManager,
