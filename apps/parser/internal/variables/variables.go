@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/variables/followers"
 	"github.com/twirapp/twir/apps/parser/internal/variables/keywords"
 	"github.com/twirapp/twir/apps/parser/internal/variables/mentions"
+	"github.com/twirapp/twir/apps/parser/internal/variables/platform"
 	"github.com/twirapp/twir/apps/parser/internal/variables/random"
 	"github.com/twirapp/twir/apps/parser/internal/variables/repeat"
 	"github.com/twirapp/twir/apps/parser/internal/variables/request"
@@ -138,6 +139,7 @@ func New(opts *Opts) *Variables {
 			mentions.ID,
 			mentions.Login,
 			mentions.DisplayName,
+			platform.Platform,
 			request.Request,
 			chat_eval.ChatEval,
 			user.Reputation,
