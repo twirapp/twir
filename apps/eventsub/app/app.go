@@ -1,10 +1,12 @@
 package app
 
 import (
+	"context"
 	"log/slog"
 
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
+	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -123,11 +125,18 @@ var App = fx.Options(
 		channelsintegrationssettingsseventvcache.New,
 		manager.NewManager,
 		handler.New,
+		httpserver.New,
 	),
 	fx.Invoke(
 		otel.NewFx("eventsub"),
 		handler.New,
 		bus_listener.New,
+		func(s *httpserver.Server, lc fx.Lifecycle) {
+			lc.Append(fx.Hook{
+				OnStart: func(_ context.Context) error { return s.Start() },
+				OnStop:  func(ctx context.Context) error { return s.Stop(ctx) },
+			})
+		},
 		func(l *slog.Logger) {
 			l.Info("🚀 EventSub App started")
 		},
