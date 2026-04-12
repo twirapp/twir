@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-redsync/redsync/v4"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
@@ -187,7 +188,12 @@ func (c *tokensImpl) RequestUserToken(
 	mu.Lock()
 	defer mu.Unlock()
 
-	token, err := c.tokensRepository.GetByUserID(ctx, data.UserId)
+	userID, err := uuid.Parse(data.UserId)
+	if err != nil {
+		return tokens.TokenResponse{}, fmt.Errorf("cannot parse user id: %w", err)
+	}
+
+	token, err := c.tokensRepository.GetByUserID(ctx, userID)
 	if err != nil {
 		return tokens.TokenResponse{}, fmt.Errorf(
 			"cannot get user token from repository: %w",

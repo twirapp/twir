@@ -61,7 +61,7 @@ WHERE id = $1
 	return &result, nil
 }
 
-func (c *Pgx) GetByUserID(ctx context.Context, userID string) (*tokenmodel.Token, error) {
+func (c *Pgx) GetByUserID(ctx context.Context, userID uuid.UUID) (*tokenmodel.Token, error) {
 	query := `
 SELECT token.id, "accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes
 FROM users

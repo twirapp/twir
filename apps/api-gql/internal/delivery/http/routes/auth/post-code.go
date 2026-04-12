@@ -122,7 +122,12 @@ func (a *Auth) handleAuthPostCode(
 		dbUser = newUser
 	}
 
-	currentToken, err := a.tokensRepository.GetByUserID(ctx, dbUser.ID)
+	userID, err := uuid.Parse(dbUser.ID)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Cannot parse user id", err)
+	}
+
+	currentToken, err := a.tokensRepository.GetByUserID(ctx, userID)
 	if err != nil && !errors.Is(err, tokensrepository.ErrNotFound) {
 		return nil, huma.Error500InternalServerError("Cannot get user token", err)
 	}
@@ -145,7 +150,7 @@ func (a *Auth) handleAuthPostCode(
 	} else {
 		newToken, err := a.tokensRepository.CreateUserToken(
 			ctx, tokensrepository.CreateInput{
-				UserID:              dbUser.ID,
+				UserID:              userID,
 				AccessToken:         accessToken,
 				RefreshToken:        refreshToken,
 				ExpiresIn:           tokens.Data.ExpiresIn,
