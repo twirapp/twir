@@ -81,7 +81,7 @@ func (c *Manager) ensureConduit(ctx context.Context) (*conduitsResponseConduit, 
 		return nil, err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.twitch.tv/helix/eventsub/conduits", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.apiBaseUrl+"/helix/eventsub/conduits", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *Manager) ensureConduit(ctx context.Context) (*conduitsResponseConduit, 
 	req.Header.Set("Authorization", "Bearer "+appToken.Data.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +172,7 @@ func (c *Manager) twitchCreateConduit(ctx context.Context) (*conduitsResponseCon
 		return nil, fmt.Errorf("failed to marshal create conduit request: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://api.twitch.tv/helix/eventsub/conduits", bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.apiBaseUrl+"/helix/eventsub/conduits", bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (c *Manager) twitchCreateConduit(ctx context.Context) (*conduitsResponseCon
 	req.Header.Set("Authorization", "Bearer "+appToken.Data.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create conduit: %w", err)
 	}
@@ -253,7 +253,7 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 		return fmt.Errorf("failed to marshal update conduit shard request: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, "https://api.twitch.tv/helix/eventsub/conduits/shards", bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, c.apiBaseUrl+"/helix/eventsub/conduits/shards", bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		return err
 	}
@@ -261,7 +261,7 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 	req.Header.Set("Authorization", "Bearer "+appToken.Data.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to update conduit shard: %w", err)
 	}

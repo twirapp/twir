@@ -202,6 +202,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				"Message sent",
 				slog.String("channel_id", opts.BroadcasterID),
 				slog.String("sender_id", opts.SenderID),
+				slog.String("message", message),
 				rateLimitGroup,
 			)
 

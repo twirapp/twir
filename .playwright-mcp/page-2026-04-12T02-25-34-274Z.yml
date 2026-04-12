@@ -1,0 +1,360 @@
+- generic:
+  - generic:
+    - banner:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: /
+              - img
+              - generic: Twir dev
+          - navigation:
+            - link:
+              - /url: /#features
+              - text: Features
+            - link:
+              - /url: /#integrations
+              - text: Integrations
+            - link:
+              - /url: /url-shortener
+              - text: URL Shortener
+            - link:
+              - /url: /h
+              - text: Hastebin
+            - link:
+              - /url: /terms
+              - text: Terms of Service
+          - button [expanded]:
+            - generic:
+              - img
+              - generic: mockstreamer
+              - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - link:
+                - /url: https://discord.gg/Q9NBZq3zVV
+                - text: 🚀 View latest updates
+                - img
+              - heading [level=1]: Engage your audience like never before
+              - paragraph: Our Twitch bot is the ultimate all-in-one solution for streamers looking to take their channel to the next level.
+              - generic:
+                - link:
+                  - /url: "#"
+                  - text: Learn more
+                - link:
+                  - /url: /dashboard
+                  - text: Dashboard
+            - generic:
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: Hello, World
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "Message from timer: follow to my socials!"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "!title Playling League of Legends with my friend"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: ✅ Title succesfully changed.
+              - generic:
+                - generic:
+                  - generic: "melkam activated channel reward: timeout chatter (1000 🪙)"
+                  - generic: Satont
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: melkam disabled chat for Satont for 5 minutes
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "!song"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: Linkin Park — Numb
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "!category LOL"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: ✅ Category changed to League of Legends.
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "!game Minecraft"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: ✅ Game changed to Minecraft
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "!song"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: Linkin Park — Numb
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "!watchtime"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: You're watching stream for 210.2h
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "!top time"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: Jon × 210.3h · Mike × 167.2h · Alice × 125.9h · Ivan × 96.1h · Brian × 80.8h
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: "!top messages"
+              - generic:
+                - img
+                - generic:
+                  - img
+                  - generic: Jon × 3086 · Mike × 2647 · Alice × 2529 · Ivan × 2105 · Brian × 1500
+      - generic:
+        - generic:
+          - generic: "0"
+          - generic: Active Channels
+        - generic:
+          - generic: "0"
+          - generic: Created Commands
+        - generic:
+          - generic: "1"
+          - generic: Users Seen
+        - generic:
+          - generic: "0"
+          - generic: Messages Processed
+        - generic:
+          - generic: "0"
+          - generic: Emotes Processed
+        - generic:
+          - generic: "0"
+          - generic: Commands Processed
+      - generic:
+        - generic:
+          - heading [level=2]: Features
+          - generic:
+            - heading [level=3]: Explore our bot's awesome features
+            - paragraph: Uncover a treasure trove of features that'll take your stream to the next level. Our bot got the tools to transform your stream adventure!
+          - list:
+            - listitem:
+              - generic:
+                - img
+              - generic: Music Recognition
+              - paragraph: Shazam for your twitch stream! Free, without the need to connect any music services
+            - listitem:
+              - generic:
+                - img
+              - generic: Vips
+              - paragraph: Manage your vips through bot, schedule vips to be removed at a specific time
+            - listitem:
+              - generic:
+                - img
+              - generic: Giveaways
+              - paragraph: Create giveaways, manage participants, choose winners, and archive giveaways for future reference
+            - listitem:
+              - generic:
+                - img
+              - generic: Commands
+              - paragraph: A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling
+            - listitem:
+              - generic:
+                - img
+              - generic: Custom variables
+              - paragraph: Write custom variables with JavaScript or Python for expand bot functionality
+            - listitem:
+              - generic:
+                - img
+              - generic: Timers
+              - paragraph: A simple system, but with verve, has become a popular announcement system from Twitch
+            - listitem:
+              - generic:
+                - img
+              - generic: Greetings
+              - paragraph: Do you want to somehow highlight your favorite viewers? Add a greeting!
+            - listitem:
+              - generic:
+                - img
+              - generic: Song requests
+              - paragraph: Viewers request songs via chat commands. Bot manages queue, plays songs, and offers controls. Enhances stream with viewer engagement
+            - listitem:
+              - generic:
+                - img
+              - generic: Keywords
+              - paragraph: Identifies specified keywords in chat, triggers automated messages for engagement or information. Enhances interaction and delivers targeted content during live stream
+            - listitem:
+              - generic:
+                - img
+              - generic: Events
+              - paragraph: With this powerful tool, you can easily set up customized listeners to keep track of specific events happening in the chat, or even trigger actions based on system events
+            - listitem:
+              - generic:
+                - img
+              - generic: Moderation
+              - paragraph: Create and manage chat filters to keep safe and kind communication
+            - listitem:
+              - generic:
+                - img
+              - generic: OBS Websockets
+              - paragraph: Highly integrate with obs studio via websockets. Change scenes, mute audio, toggle source visibility via bot
+            - listitem:
+              - generic:
+                - img
+              - generic: Stats tracking
+              - paragraph: Track users watch time, messages, used channel points
+            - listitem:
+              - generic:
+                - img
+              - generic: Overlays
+              - paragraph: An assortment of pre-designed overlays, including Faceit Stats, Valorant Stats, Now Playing, Chat, Emote Wall, Pixel Dudes, and AFK displays
+            - listitem:
+              - generic:
+                - img
+              - generic: Alerts
+              - paragraph: Want to sound alerts on rewards? We got you covered! Create custom alerts for your channel points, commands, keywords triggers
+            - listitem:
+              - generic:
+                - img
+              - generic: Games
+              - paragraph: Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment
+            - listitem:
+              - generic:
+                - img
+              - generic: Short urls
+              - paragraph: Shrink and share links instantly with Twir's sleek URL shortener – over 0 created and counting
+            - listitem:
+              - generic:
+                - img
+              - generic: HasteBins
+              - paragraph: Create and share quick, secure text snippets with HasteBins – 0 created and growing
+          - generic:
+            - paragraph: This is by no means an exhaustive list of the bot's capabilities; it will be continuously updated for you as we strive to bring forth new and innovative features.
+            - link:
+              - /url: https://discord.gg/Q9NBZq3zVV
+              - img
+              - text: Join our Discord server to stay up to date
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+              - heading [level=2]: Integrations
+              - heading [level=3]: Power-up your stream with seamless integrations
+              - generic: Connect with your favorite tools and platforms to supercharge your stream's performance and engagement. Twir's integrations provide endless possibilities.
+            - list:
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+              - tooltip:
+                - listitem
+    - contentinfo:
+      - generic:
+        - generic:
+          - generic:
+            - img
+            - generic: Twir
+          - navigation:
+            - list:
+              - link:
+                - /url: /#features
+                - text: Features
+              - link:
+                - /url: /#integrations
+                - text: Integrations
+              - link:
+                - /url: /url-shortener
+                - text: URL Shortener
+              - link:
+                - /url: /h
+                - text: Hastebin
+              - link:
+                - /url: /terms
+                - text: Terms of Service
+        - generic:
+          - generic: © 2023 - 2026 TwirApp. All rights reserved.
+          - generic:
+            - link:
+              - /url: https://github.com/twirapp/twir
+              - img
+            - link:
+              - /url: https://discord.gg/Q9NBZq3zVV
+              - img
+    - region "Notifications alt+T":
+      - list
+  - generic:
+    - img
+  - generic [ref=e359]:
+    - button [ref=e387] [cursor=pointer]:
+      - img [ref=e361]
+    - generic [ref=e388]:
+      - generic [ref=e365]: "78"
+      - generic [ref=e366]: ms
+    - button [ref=e389] [cursor=pointer]:
+      - img [ref=e369]
+  - menu "MockStreamer mockstreamer" [active] [ref=e390]:
+    - menuitem "Dashboard" [ref=e391] [cursor=pointer]:
+      - img
+      - text: Dashboard
+    - separator [ref=e392]
+    - menuitem "Logout" [ref=e393] [cursor=pointer]:
+      - img
+      - text: Logout

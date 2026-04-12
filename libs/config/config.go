@@ -100,6 +100,10 @@ type Config struct {
 	GoogleTranslateServiceAccountJson string `required:"false" envconfig:"GOOGLE_TRANSLATE_SERVICE_ACCOUNT_JSON"`
 
 	StreamlabsClientId     string `required:"false" envconfig:"STREAMLABS_CLIENT_ID"`
+	TwitchMockEnabled      bool   `required:"false" default:"false" envconfig:"TWITCH_MOCK_ENABLED"`
+	TwitchMockApiUrl       string `required:"false" default:"http://twitch-mock:7777/helix" envconfig:"TWITCH_MOCK_API_URL"`
+	TwitchMockAuthUrl      string `required:"false" default:"http://twitch-mock:7777" envconfig:"TWITCH_MOCK_AUTH_URL"`
+	TwitchMockWsUrl        string `required:"false" default:"ws://twitch-mock:8081/ws" envconfig:"TWITCH_MOCK_WS_URL"`
 	StreamlabsClientSecret string `required:"false" envconfig:"STREAMLABS_CLIENT_SECRET"`
 }
 

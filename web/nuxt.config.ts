@@ -1,10 +1,10 @@
-import tailwindcss from '@tailwindcss/vite'
-import path from 'node:path'
-import process from 'node:process'
+import tailwindcss from '@tailwindcss/vite';
+import path from 'node:path';
+import process from 'node:process';
 
-import gqlcodegen from './modules/gql-codegen'
+import gqlcodegen from './modules/gql-codegen';
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -64,6 +64,12 @@ export default defineNuxtConfig({
 
 	nitro: {
 		preset: 'bun',
+		devProxy: {
+			'/api': {
+				target: 'http://127.0.0.1:3009',
+				changeOrigin: true,
+			},
+		},
 	},
 
 	app: {
@@ -136,4 +142,4 @@ export default defineNuxtConfig({
 		enabled: true,
 		consent: 1,
 	},
-})
+});

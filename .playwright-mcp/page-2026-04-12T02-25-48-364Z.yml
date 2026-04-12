@@ -1,0 +1,234 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - heading "404" [level=1] [ref=e5]
+    - 'heading "Page not found: /dashboard" [level=2] [ref=e6]'
+    - paragraph [ref=e7]: "Page not found: /dashboard"
+    - link "Go back home" [ref=e9] [cursor=pointer]:
+      - /url: /
+  - status [ref=e10]
+  - iframe [ref=e11]:
+    - generic [ref=f5e2]:
+      - banner [ref=f5e3]:
+        - generic [ref=f5e5]:
+          - checkbox [ref=f5e6]
+          - generic "Light mode" [ref=f5e8] [cursor=pointer]:
+            - img [ref=f5e9]
+      - generic [ref=f5e13]:
+        - heading "Error" [level=4] [ref=f5e14]
+        - heading "An error has occurred" [level=1] [ref=f5e15]
+      - 'heading "Page not found: /dashboard Copy error message to clipboard" [level=2] [ref=f5e19]':
+        - img [ref=f5e21]
+        - generic [ref=f5e23]: "Page not found: /dashboard"
+        - button "Copy error message to clipboard" [ref=f5e24] [cursor=pointer]:
+          - img [ref=f5e25]
+      - generic [ref=f5e30]:
+        - heading "Stack Trace" [level=3] [ref=f5e33]
+        - generic [ref=f5e35]:
+          - generic [ref=f5e36]:
+            - generic [ref=f5e38]:
+              - checkbox "View All Frames" [ref=f5e39]
+              - generic [ref=f5e40]: View All Frames
+            - generic [ref=f5e42]:
+              - button "Pretty" [ref=f5e43]
+              - button "Raw" [ref=f5e44]
+          - list [ref=f5e47]:
+            - listitem [ref=f5e48]:
+              - generic [ref=f5e49]:
+                - button "/home/satont/Projects/twir/node_modules/.bun/h3@1.15.6/node_modules/h3/dist/index.mjs in createError at line 71:19" [ref=f5e50]:
+                  - link "/home/satont/Projects/twir/node_modules/.bun/h3@1.15.6/node_modules/h3/dist/index.mjs" [ref=f5e51] [cursor=pointer]:
+                    - /url: vscode://file//home/satont/Projects/twir/node_modules/.bun/h3@1.15.6/node_modules/h3/dist/index.mjs:71
+                  - generic [ref=f5e52]:
+                    - text: in
+                    - code [ref=f5e53]: createError
+                  - generic [ref=f5e54]:
+                    - text: at line
+                    - code [ref=f5e55]: 71:19
+                - button [ref=f5e57]:
+                  - img [ref=f5e58]
+              - code [ref=f5e62]:
+                - generic [ref=f5e76]: "return new H3Error(input); } if (isError(input)) { return input; } const err = new H3Error(input.message ?? input.statusMessage ?? \"\", { cause: input.cause || input }); if (hasProp(input, \"stack\")) { try { Object.defineProperty(err, \"stack\", {"
+            - listitem [ref=f5e77]:
+              - generic [ref=f5e78]:
+                - button "/home/satont/Projects/twir/node_modules/.bun/nuxt@4.4.2+ac61b94357df856a/node_modules/nuxt/dist/app/composables/error.js in createError at line 45:58" [ref=f5e79]:
+                  - link "/home/satont/Projects/twir/node_modules/.bun/nuxt@4.4.2+ac61b94357df856a/node_modules/nuxt/dist/app/composables/error.js" [ref=f5e80] [cursor=pointer]:
+                    - /url: vscode://file//home/satont/Projects/twir/node_modules/.bun/nuxt@4.4.2+ac61b94357df856a/node_modules/nuxt/dist/app/composables/error.js:45
+                  - generic [ref=f5e81]:
+                    - text: in
+                    - code [ref=f5e82]: createError
+                  - generic [ref=f5e83]:
+                    - text: at line
+                    - code [ref=f5e84]: 45:58
+                - button [ref=f5e86]:
+                  - img [ref=f5e87]
+            - listitem [ref=f5e89]:
+              - generic [ref=f5e90]:
+                - button "/home/satont/Projects/twir/node_modules/.bun/nuxt@4.4.2+ac61b94357df856a/node_modules/nuxt/dist/pages/runtime/plugins/router.js in <anonymous> at line 221:118" [ref=f5e91]:
+                  - link "/home/satont/Projects/twir/node_modules/.bun/nuxt@4.4.2+ac61b94357df856a/node_modules/nuxt/dist/pages/runtime/plugins/router.js" [ref=f5e92] [cursor=pointer]:
+                    - /url: vscode://file//home/satont/Projects/twir/node_modules/.bun/nuxt@4.4.2+ac61b94357df856a/node_modules/nuxt/dist/pages/runtime/plugins/router.js:221
+                  - generic [ref=f5e93]:
+                    - text: in
+                    - code [ref=f5e94]: <anonymous>
+                  - generic [ref=f5e95]:
+                    - text: at line
+                    - code [ref=f5e96]: 221:118
+                - button [ref=f5e98]:
+                  - img [ref=f5e99]
+            - listitem [ref=f5e101]:
+              - generic [ref=f5e102]:
+                - button "/home/satont/Projects/twir/node_modules/.bun/unctx@2.5.0/node_modules/unctx/dist/index.mjs in callAsync at line 68:55" [ref=f5e103]:
+                  - link "/home/satont/Projects/twir/node_modules/.bun/unctx@2.5.0/node_modules/unctx/dist/index.mjs" [ref=f5e104] [cursor=pointer]:
+                    - /url: vscode://file//home/satont/Projects/twir/node_modules/.bun/unctx@2.5.0/node_modules/unctx/dist/index.mjs:68
+                  - generic [ref=f5e105]:
+                    - text: in
+                    - code [ref=f5e106]: callAsync
+                  - generic [ref=f5e107]:
+                    - text: at line
+                    - code [ref=f5e108]: 68:55
+                - button [ref=f5e110]:
+                  - img [ref=f5e111]
+            - listitem [ref=f5e113]:
+              - generic [ref=f5e114]:
+                - button "/home/satont/Projects/twir/node_modules/.bun/@vue+runtime-core@3.5.25/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js in runWithContext at line 4043:18" [ref=f5e115]:
+                  - link "/home/satont/Projects/twir/node_modules/.bun/@vue+runtime-core@3.5.25/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js" [ref=f5e116] [cursor=pointer]:
+                    - /url: vscode://file//home/satont/Projects/twir/node_modules/.bun/@vue+runtime-core@3.5.25/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4043
+                  - generic [ref=f5e117]:
+                    - text: in
+                    - code [ref=f5e118]: runWithContext
+                  - generic [ref=f5e119]:
+                    - text: at line
+                    - code [ref=f5e120]: 4043:18
+                - button [ref=f5e122]:
+                  - img [ref=f5e123]
+            - listitem [ref=f5e125]:
+              - generic [ref=f5e126]:
+                - button "/home/satont/Projects/twir/node_modules/.bun/@vue+runtime-core@3.5.25/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js in runWithContext at line 4043:18" [ref=f5e127]:
+                  - link "/home/satont/Projects/twir/node_modules/.bun/@vue+runtime-core@3.5.25/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js" [ref=f5e128] [cursor=pointer]:
+                    - /url: vscode://file//home/satont/Projects/twir/node_modules/.bun/@vue+runtime-core@3.5.25/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4043
+                  - generic [ref=f5e129]:
+                    - text: in
+                    - code [ref=f5e130]: runWithContext
+                  - generic [ref=f5e131]:
+                    - text: at line
+                    - code [ref=f5e132]: 4043:18
+                - button [ref=f5e134]:
+                  - img [ref=f5e135]
+            - listitem [ref=f5e137]:
+              - generic [ref=f5e138]:
+                - button "/home/satont/Projects/twir/node_modules/.bun/vue-router@4.6.4+f899f459d7ee6a31/node_modules/vue-router/dist/vue-router.mjs in triggerAfterEach at line 1374:22" [ref=f5e139]:
+                  - link "/home/satont/Projects/twir/node_modules/.bun/vue-router@4.6.4+f899f459d7ee6a31/node_modules/vue-router/dist/vue-router.mjs" [ref=f5e140] [cursor=pointer]:
+                    - /url: vscode://file//home/satont/Projects/twir/node_modules/.bun/vue-router@4.6.4+f899f459d7ee6a31/node_modules/vue-router/dist/vue-router.mjs:1374
+                  - generic [ref=f5e141]:
+                    - text: in
+                    - code [ref=f5e142]: triggerAfterEach
+                  - generic [ref=f5e143]:
+                    - text: at line
+                    - code [ref=f5e144]: 1374:22
+                - button [ref=f5e146]:
+                  - img [ref=f5e147]
+            - listitem [ref=f5e149]:
+              - generic [ref=f5e150]:
+                - button "/home/satont/Projects/twir/node_modules/.bun/vue-router@4.6.4+f899f459d7ee6a31/node_modules/vue-router/dist/vue-router.mjs in <anonymous> at line 1317:4" [ref=f5e151]:
+                  - link "/home/satont/Projects/twir/node_modules/.bun/vue-router@4.6.4+f899f459d7ee6a31/node_modules/vue-router/dist/vue-router.mjs" [ref=f5e152] [cursor=pointer]:
+                    - /url: vscode://file//home/satont/Projects/twir/node_modules/.bun/vue-router@4.6.4+f899f459d7ee6a31/node_modules/vue-router/dist/vue-router.mjs:1317
+                  - generic [ref=f5e153]:
+                    - text: in
+                    - code [ref=f5e154]: <anonymous>
+                  - generic [ref=f5e155]:
+                    - text: at line
+                    - code [ref=f5e156]: 1317:4
+                - button [ref=f5e158]:
+                  - img [ref=f5e159]
+      - generic [ref=f5e162]:
+        - heading "Error Cause" [level=3] [ref=f5e165]
+        - code [ref=f5e170]:
+          - generic [ref=f5e171]:
+            - text: "Object {"
+            - button "▼" [ref=f5e172]:
+              - generic [ref=f5e173]: ▼
+            - text: "}"
+      - generic [ref=f5e175]:
+        - heading "Request" [level=3] [ref=f5e177]
+        - generic [ref=f5e178]:
+          - generic [ref=f5e179]:
+            - heading "url" [level=4] [ref=f5e180]
+            - text: http://localhost:3010/dashboard
+          - generic [ref=f5e181]:
+            - heading "method" [level=4] [ref=f5e182]
+            - text: GET
+          - generic [ref=f5e183]:
+            - heading "headers" [level=4] [ref=f5e184]
+            - table [ref=f5e185]:
+              - rowgroup [ref=f5e186]:
+                - row "accept text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7" [ref=f5e187]:
+                  - cell "accept" [ref=f5e188]
+                  - cell "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7" [ref=f5e189]
+                - row "accept-encoding gzip, deflate, br, zstd" [ref=f5e190]:
+                  - cell "accept-encoding" [ref=f5e191]
+                  - cell "gzip, deflate, br, zstd" [ref=f5e192]
+                - row "accept-language en-US,en;q=0.9" [ref=f5e193]:
+                  - cell "accept-language" [ref=f5e194]
+                  - cell "en-US,en;q=0.9" [ref=f5e195]
+                - row "connection close" [ref=f5e196]:
+                  - cell "connection" [ref=f5e197]
+                  - cell "close" [ref=f5e198]
+                - 'row "cookie Object { ▼ }" [ref=f5e199]':
+                  - cell "cookie" [ref=f5e200]
+                  - 'cell "Object { ▼ }" [ref=f5e201]':
+                    - code [ref=f5e204]:
+                      - generic [ref=f5e205]:
+                        - text: "Object {"
+                        - button "▼" [ref=f5e206]:
+                          - generic [ref=f5e207]: ▼
+                        - text: "}"
+                - row "host localhost:3010" [ref=f5e208]:
+                  - cell "host" [ref=f5e209]
+                  - cell "localhost:3010" [ref=f5e210]
+                - row "referer http://localhost:3010/login?code=mock_code_1234567890&state=L2Rhc2hib2FyZA==" [ref=f5e211]:
+                  - cell "referer" [ref=f5e212]
+                  - cell "http://localhost:3010/login?code=mock_code_1234567890&state=L2Rhc2hib2FyZA==" [ref=f5e213]
+                - row "sec-fetch-dest document" [ref=f5e214]:
+                  - cell "sec-fetch-dest" [ref=f5e215]
+                  - cell "document" [ref=f5e216]
+                - row "sec-fetch-mode navigate" [ref=f5e217]:
+                  - cell "sec-fetch-mode" [ref=f5e218]
+                  - cell "navigate" [ref=f5e219]
+                - row "upgrade-insecure-requests 1" [ref=f5e220]:
+                  - cell "upgrade-insecure-requests" [ref=f5e221]
+                  - cell "1" [ref=f5e222]
+                - row "user-agent Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" [ref=f5e223]:
+                  - cell "user-agent" [ref=f5e224]
+                  - cell "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" [ref=f5e225]
+                - row "sec-ch-ua \"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Google Chrome\";v=\"146\"" [ref=f5e226]:
+                  - cell "sec-ch-ua" [ref=f5e227]
+                  - cell "\"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Google Chrome\";v=\"146\"" [ref=f5e228]
+                - row "sec-ch-ua-mobile ?0" [ref=f5e229]:
+                  - cell "sec-ch-ua-mobile" [ref=f5e230]
+                  - cell "?0" [ref=f5e231]
+                - row "sec-ch-ua-platform \"Linux\"" [ref=f5e232]:
+                  - cell "sec-ch-ua-platform" [ref=f5e233]
+                  - cell "\"Linux\"" [ref=f5e234]
+                - row "sec-fetch-site same-origin" [ref=f5e235]:
+                  - cell "sec-fetch-site" [ref=f5e236]
+                  - cell "same-origin" [ref=f5e237]
+                - row "x-forwarded-for 127.0.0.1" [ref=f5e238]:
+                  - cell "x-forwarded-for" [ref=f5e239]
+                  - cell "127.0.0.1" [ref=f5e240]
+                - row "x-forwarded-port 3010" [ref=f5e241]:
+                  - cell "x-forwarded-port" [ref=f5e242]
+                  - cell "3010" [ref=f5e243]
+                - row "x-forwarded-proto http" [ref=f5e244]:
+                  - cell "x-forwarded-proto" [ref=f5e245]
+                  - cell "http" [ref=f5e246]
+  - button "Toggle detailed error view Hide error overlay" [ref=e12]:
+    - generic [ref=e13]: Toggle detailed error view
+    - button "Hide error overlay" [ref=e14] [cursor=pointer]: ×
+  - generic:
+    - img
+  - generic [ref=e15]:
+    - button "Toggle Nuxt DevTools" [ref=e16] [cursor=pointer]:
+      - img [ref=e17]
+    - generic "App load time" [ref=e20]:
+      - generic [ref=e21]: "243"
+      - generic [ref=e22]: ms
+    - button "Toggle Component Inspector" [ref=e24] [cursor=pointer]:
+      - img [ref=e25]

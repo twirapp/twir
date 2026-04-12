@@ -3,6 +3,7 @@ package twitch
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/nicklaw5/helix/v2"
@@ -63,6 +64,13 @@ func NewAppClientWithContext(
 		return nil, err
 	}
 
+	httpClient := createHttpClient()
+	apiBaseURL := ""
+	if config.TwitchMockEnabled {
+		httpClient = &http.Client{Transport: NewMockRoundTripper(httpClient.Transport, config)}
+		apiBaseURL = config.TwitchMockApiUrl
+	}
+
 	client, err := helix.NewClientWithContext(
 		ctx, &helix.Options{
 			ClientID:       config.TwitchClientId,
@@ -70,7 +78,8 @@ func NewAppClientWithContext(
 			RedirectURI:    config.GetTwitchCallbackUrl(),
 			RateLimitFunc:  rateLimitCallback,
 			AppAccessToken: appToken.Data.AccessToken,
-			HTTPClient:     createHttpClient(),
+			APIBaseURL:     apiBaseURL,
+			HTTPClient:     httpClient,
 		},
 	)
 	if err != nil {
@@ -110,6 +119,13 @@ func NewUserClientWithContext(
 		return nil, fmt.Errorf("cannot request user token from tokens service: %w", err)
 	}
 
+	httpClient := createHttpClient()
+	apiBaseURL := ""
+	if config.TwitchMockEnabled {
+		httpClient = &http.Client{Transport: NewMockRoundTripper(httpClient.Transport, config)}
+		apiBaseURL = config.TwitchMockApiUrl
+	}
+
 	client, err := helix.NewClientWithContext(
 		ctx,
 		&helix.Options{
@@ -118,7 +134,8 @@ func NewUserClientWithContext(
 			RedirectURI:     config.GetTwitchCallbackUrl(),
 			RateLimitFunc:   rateLimitCallback,
 			UserAccessToken: userToken.Data.AccessToken,
-			HTTPClient:      createHttpClient(),
+			APIBaseURL:      apiBaseURL,
+			HTTPClient:      httpClient,
 		},
 	)
 	if err != nil {
@@ -155,6 +172,13 @@ func NewBotClientWithContext(
 		return nil, err
 	}
 
+	httpClient := createHttpClient()
+	apiBaseURL := ""
+	if config.TwitchMockEnabled {
+		httpClient = &http.Client{Transport: NewMockRoundTripper(httpClient.Transport, config)}
+		apiBaseURL = config.TwitchMockApiUrl
+	}
+
 	client, err := helix.NewClientWithContext(
 		ctx, &helix.Options{
 			ClientID:        config.TwitchClientId,
@@ -162,7 +186,8 @@ func NewBotClientWithContext(
 			RedirectURI:     config.GetTwitchCallbackUrl(),
 			RateLimitFunc:   rateLimitCallback,
 			UserAccessToken: botToken.Data.AccessToken,
-			HTTPClient:      createHttpClient(),
+			APIBaseURL:      apiBaseURL,
+			HTTPClient:      httpClient,
 		},
 	)
 	if err != nil {

@@ -1,28 +1,36 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "bun": {
-      "type": "local",
-      "command": ["bunx", "-y", "mcp-bun@latest"],
-      "environment": {
-        "DISABLE_NOTIFICATIONS": "true",
-      },
-      "enabled": true,
-    },
-    "shadcnVue": {
-      "type": "local",
-      "enabled": true,
-      "command": ["bunx", "shadcn-vue@latest", "mcp"],
-    },
-    "postgres": {
-      "type": "local",
-      "enabled": true,
-      "command": [
-        "bunx",
-        "-y",
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://localhost/mydb",
-      ],
-    },
-  },
+	"$schema": "https://opencode.ai/config.json",
+	"mcp": {
+		"bun": {
+			"type": "local",
+			"command": [
+				"bunx",
+				"-y",
+				"mcp-bun@latest"
+			],
+			"environment": {
+				"DISABLE_NOTIFICATIONS": "true"
+			},
+			"enabled": true
+		},
+		"shadcnVue": {
+			"type": "local",
+			"enabled": true,
+			"command": [
+				"bunx",
+				"shadcn-vue@latest",
+				"mcp"
+			]
+		},
+		"postgres": {
+			"type": "local",
+			"enabled": true,
+			"command": [
+				"bunx",
+				"-y",
+				"@modelcontextprotocol/server-postgres",
+				"postgres://twir:twir@127.0.0.1:6432/twir?sslmode=disable"
+			]
+		}
+	}
 }

@@ -1,0 +1,100 @@
+- generic [active] [ref=e1]:
+  - heading "Twitch Mock Admin" [level=1] [ref=e2]
+  - paragraph [ref=e3]:
+    - text: "POST trigger API:"
+    - code [ref=e4]: "http://localhost:3333/admin/trigger/{event_type}"
+  - heading "Mock State Controls" [level=2] [ref=e5]
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - heading "Stream State" [level=2] [ref=e8]
+      - generic [ref=e9]:
+        - checkbox "Stream Online" [checked] [ref=e10]
+        - generic [ref=e11]: Stream Online
+      - generic [ref=e12]:
+        - generic [ref=e13]: Title
+        - textbox "Title" [ref=e14]: Playing Minecraft
+      - generic [ref=e15]:
+        - generic [ref=e16]: Category ID
+        - textbox "Category ID" [ref=e17]: "27471"
+      - generic [ref=e18]:
+        - generic [ref=e19]: Category Name
+        - textbox "Category Name" [ref=e20]: Minecraft
+      - generic [ref=e21]:
+        - generic [ref=e22]: Viewer Count
+        - spinbutton "Viewer Count" [ref=e23]: "420"
+      - button "Save" [ref=e24] [cursor=pointer]
+      - generic [ref=e25]: Loaded stream state
+    - generic [ref=e26]:
+      - heading "Followers" [level=2] [ref=e27]
+      - generic [ref=e28]:
+        - generic [ref=e29]: Total Follower Count
+        - spinbutton "Total Follower Count" [ref=e30]: "1500"
+      - generic [ref=e31]:
+        - generic [ref=e32]: Followed User IDs (one per line)
+        - textbox "Followed User IDs (one per line)" [ref=e33]: 11111 67890 99999
+      - button "Save" [ref=e34] [cursor=pointer]
+      - generic [ref=e35]: Loaded follower state
+    - generic [ref=e36]:
+      - heading "Moderators" [level=2] [ref=e37]
+      - generic [ref=e38]:
+        - generic [ref=e39]: Moderator User IDs (one per line)
+        - textbox "Moderator User IDs (one per line)" [ref=e40]: "67890"
+      - button "Save" [ref=e41] [cursor=pointer]
+      - generic [ref=e42]: Loaded moderator state
+  - generic [ref=e43]:
+    - generic [ref=e44]:
+      - heading "channel.follow" [level=2] [ref=e45]
+      - textbox [ref=e46]: "{\"user_id\":\"99999\",\"user_login\":\"testfollower\",\"user_name\":\"TestFollower\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"followed_at\":\"2026-04-12T00:00:00Z\"}"
+      - button "Trigger" [ref=e47] [cursor=pointer]
+    - generic [ref=e48]:
+      - heading "channel.subscribe" [level=2] [ref=e49]
+      - textbox [ref=e50]: "{\"user_id\":\"99999\",\"user_login\":\"subscriber\",\"user_name\":\"Subscriber\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"tier\":\"1000\",\"is_gift\":false}"
+      - button "Trigger" [ref=e51] [cursor=pointer]
+    - generic [ref=e52]:
+      - heading "channel.raid" [level=2] [ref=e53]
+      - textbox [ref=e54]: "{\"from_broadcaster_user_id\":\"99999\",\"from_broadcaster_user_login\":\"raider\",\"from_broadcaster_user_name\":\"Raider\",\"to_broadcaster_user_id\":\"12345\",\"to_broadcaster_user_login\":\"mockstreamer\",\"to_broadcaster_user_name\":\"MockStreamer\",\"viewers\":42}"
+      - button "Trigger" [ref=e55] [cursor=pointer]
+    - generic [ref=e56]:
+      - heading "stream.online" [level=2] [ref=e57]
+      - textbox [ref=e58]: "{\"id\":\"mock-stream-id\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"type\":\"live\",\"started_at\":\"2026-04-12T00:00:00Z\"}"
+      - button "Trigger" [ref=e59] [cursor=pointer]
+    - generic [ref=e60]:
+      - heading "stream.offline" [level=2] [ref=e61]
+      - textbox [ref=e62]: "{\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\"}"
+      - button "Trigger" [ref=e63] [cursor=pointer]
+    - generic [ref=e64]:
+      - heading "channel.chat.message" [level=2] [ref=e65]
+      - textbox [ref=e66]: "{\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"chatter_user_id\":\"99999\",\"chatter_user_login\":\"viewer\",\"chatter_user_name\":\"Viewer\",\"message_id\":\"msg-1\",\"message\":{\"text\":\"hello mock world\",\"fragments\":[{\"type\":\"text\",\"text\":\"hello mock world\"}]},\"message_type\":\"text\"}"
+      - button "Trigger" [ref=e67] [cursor=pointer]
+    - generic [ref=e68]:
+      - heading "channel.ban" [level=2] [ref=e69]
+      - textbox [ref=e70]: "{\"user_id\":\"99999\",\"user_login\":\"badviewer\",\"user_name\":\"BadViewer\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"moderator_user_id\":\"67890\",\"moderator_user_login\":\"mockbot\",\"moderator_user_name\":\"MockBot\",\"reason\":\"mock reason\",\"banned_at\":\"2026-04-12T00:00:00Z\"}"
+      - button "Trigger" [ref=e71] [cursor=pointer]
+    - generic [ref=e72]:
+      - heading "channel.unban" [level=2] [ref=e73]
+      - textbox [ref=e74]: "{\"user_id\":\"99999\",\"user_login\":\"viewer\",\"user_name\":\"Viewer\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"moderator_user_id\":\"67890\",\"moderator_user_login\":\"mockbot\",\"moderator_user_name\":\"MockBot\"}"
+      - button "Trigger" [ref=e75] [cursor=pointer]
+    - generic [ref=e76]:
+      - heading "channel.cheer" [level=2] [ref=e77]
+      - textbox [ref=e78]: "{\"is_anonymous\":false,\"user_id\":\"99999\",\"user_login\":\"cheerer\",\"user_name\":\"Cheerer\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"message\":\"pog\",\"bits\":500}"
+      - button "Trigger" [ref=e79] [cursor=pointer]
+    - generic [ref=e80]:
+      - heading "channel.prediction.begin" [level=2] [ref=e81]
+      - textbox [ref=e82]: "{\"id\":\"prediction-1\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"title\":\"Who wins?\",\"outcomes\":[{\"id\":\"o1\",\"title\":\"Yes\",\"color\":\"BLUE\",\"users\":0,\"channel_points\":0},{\"id\":\"o2\",\"title\":\"No\",\"color\":\"PINK\",\"users\":0,\"channel_points\":0}],\"started_at\":\"2026-04-12T00:00:00Z\",\"locks_at\":\"2026-04-12T00:05:00Z\"}"
+      - button "Trigger" [ref=e83] [cursor=pointer]
+    - generic [ref=e84]:
+      - heading "channel.prediction.end" [level=2] [ref=e85]
+      - textbox [ref=e86]: "{\"id\":\"prediction-1\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"title\":\"Who wins?\",\"status\":\"resolved\",\"winning_outcome_id\":\"o1\",\"ended_at\":\"2026-04-12T00:05:00Z\"}"
+      - button "Trigger" [ref=e87] [cursor=pointer]
+    - generic [ref=e88]:
+      - heading "channel.poll.begin" [level=2] [ref=e89]
+      - textbox [ref=e90]: "{\"id\":\"poll-1\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"title\":\"Best snack?\",\"choices\":[{\"id\":\"c1\",\"title\":\"Pizza\",\"bits_votes\":0,\"channel_points_votes\":0,\"votes\":0},{\"id\":\"c2\",\"title\":\"Burger\",\"bits_votes\":0,\"channel_points_votes\":0,\"votes\":0}],\"started_at\":\"2026-04-12T00:00:00Z\",\"ends_at\":\"2026-04-12T00:01:00Z\"}"
+      - button "Trigger" [ref=e91] [cursor=pointer]
+    - generic [ref=e92]:
+      - heading "channel.poll.end" [level=2] [ref=e93]
+      - textbox [ref=e94]: "{\"id\":\"poll-1\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"title\":\"Best snack?\",\"status\":\"completed\",\"ended_at\":\"2026-04-12T00:01:00Z\"}"
+      - button "Trigger" [ref=e95] [cursor=pointer]
+    - generic [ref=e96]:
+      - heading "channel.channel_points_custom_reward_redemption.add" [level=2] [ref=e97]
+      - textbox [ref=e98]: "{\"id\":\"reward-redemption-1\",\"broadcaster_user_id\":\"12345\",\"broadcaster_user_login\":\"mockstreamer\",\"broadcaster_user_name\":\"MockStreamer\",\"user_id\":\"99999\",\"user_login\":\"viewer\",\"user_name\":\"Viewer\",\"user_input\":\"hydrate\",\"status\":\"unfulfilled\",\"redeemed_at\":\"2026-04-12T00:00:00Z\",\"reward\":{\"id\":\"reward-1\",\"title\":\"Hydrate\",\"cost\":1000,\"prompt\":\"Drink water\"}}"
+      - button "Trigger" [ref=e99] [cursor=pointer]

@@ -2,11 +2,9 @@ package manager
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"time"
 
-	"github.com/kr/pretty"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/logger"
 	"go.opentelemetry.io/otel"
@@ -14,10 +12,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-// todo: signal for shutdown
 func (c *Manager) startWebSocket() {
 	wsCtx := context.TODO()
-	ws := c.eventsub.Websocket(eventsub.WebsocketWithKeepalive(30))
+	wsOptions := append([]eventsub.WebsocketOption{eventsub.WebsocketWithKeepalive(30)}, c.wsOpts...)
+	ws := c.eventsub.Websocket(wsOptions...)
 
 	ws.OnWelcome(
 		func(message eventsub.WebsocketWelcomeMessage) {
@@ -35,13 +33,13 @@ func (c *Manager) startWebSocket() {
 
 	ws.OnReconnect(
 		func(message eventsub.WebsocketReconnectMessage) {
-			pretty.Println(message)
+			c.logger.Info("websocket reconnect received", slog.Any("message", message))
 		},
 	)
 
 	ws.OnError(
 		func(err error) {
-			fmt.Println(err)
+			c.logger.Error("websocket error", logger.Error(err))
 		},
 	)
 

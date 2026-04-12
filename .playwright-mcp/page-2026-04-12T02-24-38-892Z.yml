@@ -1,0 +1,4 @@
+- generic [active]:
+  - generic:
+    - region "Notifications alt+T":
+      - list

@@ -1,0 +1,10 @@
+  twitch-mock:
+    # DEV ONLY — NEVER IN PRODUCTION
+    build:
+      context: .
+      dockerfile: apps/twitch-mock/Dockerfile
+    ports:
+      - "7777:7777" # HTTP (OAuth + Helix)
+      - "8081:8081" # WebSocket EventSub
+      - "3333:3333" # Admin UI
+    environment:

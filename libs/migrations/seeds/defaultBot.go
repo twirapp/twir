@@ -48,7 +48,11 @@ func CreateDefaultBot(db *sql.DB, config *cfg.Config) error {
 		return err
 	}
 
-	req, err := http.NewRequest("GET", "https://id.twitch.tv/oauth2/validate", nil)
+	validateURL := "https://id.twitch.tv/oauth2/validate"
+	if config.TwitchMockEnabled {
+		validateURL = config.TwitchMockAuthUrl + "/oauth2/validate"
+	}
+	req, err := http.NewRequest("GET", validateURL, nil)
 	if err != nil {
 		return err
 	}

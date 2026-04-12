@@ -1,0 +1,8 @@
+EventSub Trigger Test
+======================
+Command: curl -s -o /tmp/trigger.json -w "%{http_code}" -X POST http://localhost:3333/admin/trigger/channel.follow -H "Content-Type: application/json" -d '{"from_user_id":"99999","from_user_login":"testfollower","followed_at":"2026-04-12T00:00:00Z"}'
+
+HTTP Status: 200
+Response Body: {"event_type":"channel.follow","status":"ok"}
+
+RESULT: PASS
