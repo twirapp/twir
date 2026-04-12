@@ -67,12 +67,12 @@ BEGIN
     ALTER TABLE channels ADD COLUMN id UUID;
 
     UPDATE channels
-    SET id = gen_random_uuid()
+    SET id = uuidv7()
     WHERE id IS NULL;
 
     ALTER TABLE channels
         ALTER COLUMN id SET NOT NULL,
-        ALTER COLUMN id SET DEFAULT gen_random_uuid();
+        ALTER COLUMN id SET DEFAULT uuidv7();
 
     ALTER TABLE channels ADD PRIMARY KEY (id);
 

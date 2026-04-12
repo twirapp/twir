@@ -1,10 +1,10 @@
 -- +goose Up
 -- +goose StatementBegin
 ALTER TABLE users
-    ADD COLUMN internal_id UUID DEFAULT gen_random_uuid();
+    ADD COLUMN internal_id UUID DEFAULT uuidv7();
 
 UPDATE users
-SET internal_id = gen_random_uuid()
+SET internal_id = uuidv7()
 WHERE internal_id IS NULL;
 
 ALTER TABLE users
@@ -195,7 +195,7 @@ BEGIN
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
     CREATE TABLE user_platform_accounts (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id UUID PRIMARY KEY DEFAULT uuidv7(),
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         platform platform NOT NULL,
         platform_user_id TEXT NOT NULL,

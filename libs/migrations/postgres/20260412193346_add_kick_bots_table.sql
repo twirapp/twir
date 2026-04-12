@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE kick_bots (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
     type TEXT NOT NULL DEFAULT 'DEFAULT',
     access_token TEXT NOT NULL,
     refresh_token TEXT NOT NULL,
