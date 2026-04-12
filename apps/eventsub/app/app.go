@@ -134,6 +134,8 @@ var App = fx.Options(
 		handler.New,
 		httpserver.New,
 		kick.New,
+		kick.NewHandlers,
+		kick.NewResubscribeJob,
 	),
 	fx.Invoke(
 		otel.NewFx("eventsub"),

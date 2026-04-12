@@ -181,6 +181,28 @@ RETURNING ` + selectColumns
 	return modelToEntity(result), nil
 }
 
+func (r *Pgx) GetAllByPlatform(ctx context.Context, plat platform.Platform) ([]entity.UserPlatformAccount, error) {
+	query := `SELECT ` + selectColumns + ` FROM user_platform_accounts WHERE platform = $1::platform`
+
+	conn := r.getter.DefaultTrOrDB(ctx, r.pool)
+	rows, err := conn.Query(ctx, query, plat)
+	if err != nil {
+		return nil, err
+	}
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[dbModel])
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]entity.UserPlatformAccount, len(models))
+	for i, m := range models {
+		result[i] = modelToEntity(m)
+	}
+
+	return result, nil
+}
+
 func (r *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `DELETE FROM user_platform_accounts WHERE id = $1`
 

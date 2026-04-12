@@ -69,6 +69,10 @@ func (m *mockUserPlatformAccountsRepo) Delete(_ context.Context, _ uuid.UUID) er
 	return nil
 }
 
+func (m *mockUserPlatformAccountsRepo) GetAllByPlatform(_ context.Context, _ platform.Platform) ([]entity.UserPlatformAccount, error) {
+	return nil, nil
+}
+
 type mockChannelsRepo struct {
 	channel channelsmodel.Channel
 	err     error

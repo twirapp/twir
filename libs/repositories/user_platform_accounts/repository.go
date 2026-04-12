@@ -14,6 +14,7 @@ type Repository interface {
 	GetByUserIDAndPlatform(ctx context.Context, userID uuid.UUID, platform platform.Platform) (entity.UserPlatformAccount, error)
 	GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]entity.UserPlatformAccount, error)
 	GetByPlatformUserID(ctx context.Context, plat platform.Platform, platformUserID string) (entity.UserPlatformAccount, error)
+	GetAllByPlatform(ctx context.Context, plat platform.Platform) ([]entity.UserPlatformAccount, error)
 	Upsert(ctx context.Context, input UpsertInput) (entity.UserPlatformAccount, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
