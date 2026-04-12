@@ -26,6 +26,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
+	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	twitchplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
@@ -535,6 +536,7 @@ func main() {
 		),
 		// services
 		fx.Provide(
+			kickplatform.New,
 			fx.Annotate(
 				twitchplatform.New,
 				fx.As(new(platform.PlatformProvider)),

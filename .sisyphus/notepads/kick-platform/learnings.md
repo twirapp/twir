@@ -19,3 +19,6 @@
 - `ExchangeCode` ignores `codeVerifier` param — pass `_` to satisfy interface.
 - Registered in `cmd/main.go` via `fx.Annotate(twitchplatform.New, fx.As(new(platform.PlatformProvider)))`.
 - `TwitchMockEnabled` → `apiBaseURL` override pattern mirrors libs/twitch/twitch.go.
+
+- Kick provider uses exported PKCE helpers so the authorize route can store a session-only verifier and return a Kick OAuth URL with S256 challenge params.
+- Kick config now supports KICK_CLIENT_ID, KICK_CLIENT_SECRET, and optional KICK_REDIRECT_URL; default callback falls back to {SITE_BASE_URL}/login/kick.
