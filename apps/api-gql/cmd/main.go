@@ -25,6 +25,8 @@ import (
 	ttsroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
+	"github.com/twirapp/twir/apps/api-gql/internal/platform"
+	twitchplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
@@ -533,6 +535,10 @@ func main() {
 		),
 		// services
 		fx.Provide(
+			fx.Annotate(
+				twitchplatform.New,
+				fx.As(new(platform.PlatformProvider)),
+			),
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
 				return valorantintegration.NewHenrikApiClient(c.Valorant.HenrikApiKey)
 			},
