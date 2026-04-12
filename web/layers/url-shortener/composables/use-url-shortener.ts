@@ -341,13 +341,21 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 
 async function parseApiError(error: unknown) {
 	if (error instanceof Response) {
-		const errorData = (await error.json()) as ErrorModel
-		return (
-			errorData.detail ??
-			errorData.errors?.map((err) => err.message)?.join(', ') ??
-			errorData.title ??
-			'Unknown error'
-		)
+		try {
+			const errorData = (await error.json()) as ErrorModel
+			return (
+				errorData.detail ??
+				errorData.errors?.map((err) => err.message)?.join(', ') ??
+				errorData.title ??
+				'Unknown error'
+			)
+		} catch {
+			return `HTTP ${error.status}: ${error.statusText || 'Unknown error'}`
+		}
+	}
+
+	if (error instanceof Error) {
+		return error.message
 	}
 
 	return 'Unknown error'
