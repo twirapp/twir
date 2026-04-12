@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"time"
 
 	"github.com/go-redsync/redsync/v4"
@@ -17,6 +18,7 @@ import (
 	"gorm.io/gorm"
 
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
+	twitchlib "github.com/twirapp/twir/libs/twitch"
 )
 
 var appTokenScopes []string
@@ -71,13 +73,24 @@ func rateLimitFunc(lastResponse *helix.Response) error {
 }
 
 func NewTokens(opts Opts) error {
+	httpClient := &http.Client{}
+	if opts.Config.TwitchMockEnabled {
+		httpClient.Transport = twitchlib.NewMockRoundTripper(http.DefaultTransport, opts.Config)
+	}
+
+	helixOpts := &helix.Options{
+		ClientID:      opts.Config.TwitchClientId,
+		ClientSecret:  opts.Config.TwitchClientSecret,
+		RedirectURI:   opts.Config.GetTwitchCallbackUrl(),
+		RateLimitFunc: rateLimitFunc,
+		HTTPClient:    httpClient,
+	}
+	if opts.Config.TwitchMockEnabled {
+		helixOpts.APIBaseURL = opts.Config.TwitchMockApiUrl
+	}
+
 	helixClient, err := helix.NewClient(
-		&helix.Options{
-			ClientID:      opts.Config.TwitchClientId,
-			ClientSecret:  opts.Config.TwitchClientSecret,
-			RedirectURI:   opts.Config.GetTwitchCallbackUrl(),
-			RateLimitFunc: rateLimitFunc,
-		},
+		helixOpts,
 	)
 	if err != nil {
 		return err

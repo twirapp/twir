@@ -2,6 +2,7 @@ package discordmessagesupdater
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -85,7 +86,7 @@ func (c *MessagesUpdater) updateMessagesForStream(
 	stream model.ChannelsStreams,
 ) error {
 	integrations, err := c.getChannelDiscordIntegrations(ctx, stream.UserId)
-	if err != nil {
+	if err != nil && !errors.Is(err, ErrIntegrationNotFound) {
 		return err
 	}
 
@@ -174,7 +175,6 @@ func (c *MessagesUpdater) updateSingleMessage(
 		},
 		retry.Attempts(3),
 	)
-
 	if err != nil {
 		return err
 	}

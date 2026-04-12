@@ -113,7 +113,7 @@ func (c *Manager) SubscribeWithLimits(
 			req, err := http.NewRequestWithContext(
 				ctx,
 				http.MethodPost,
-				"https://api.twitch.tv/helix/eventsub/subscriptions",
+				c.apiBaseUrl+"/helix/eventsub/subscriptions",
 				bytes.NewBuffer(requestBytes),
 			)
 			if err != nil {
@@ -124,7 +124,7 @@ func (c *Manager) SubscribeWithLimits(
 			req.Header.Set("Client-Id", c.config.TwitchClientId)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			resp, err := http.DefaultClient.Do(req)
+			resp, err := c.httpClient.Do(req)
 			if err != nil {
 				return err
 			}

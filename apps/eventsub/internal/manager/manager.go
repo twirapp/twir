@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/go-redsync/redsync/v4"
@@ -16,6 +18,7 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
+	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -30,6 +33,10 @@ type Manager struct {
 	redSync            *redsync.Redsync
 	eventsub           eventsub.EventSub
 	handler            *handler.Handler
+
+	httpClient *http.Client
+	apiBaseUrl string
+	wsOpts     []eventsub.WebsocketOption
 
 	wsCurrentSessionId *string
 	currentConduit     *conduitsResponseConduit
@@ -49,6 +56,21 @@ type Opts struct {
 }
 
 func NewManager(opts Opts) (*Manager, error) {
+	var httpClient *http.Client
+	var apiBaseUrl string
+	var wsOpts []eventsub.WebsocketOption
+
+	if opts.Config.TwitchMockEnabled {
+		httpClient = &http.Client{
+			Transport: twitchlib.NewMockRoundTripper(http.DefaultTransport, opts.Config),
+		}
+		apiBaseUrl = strings.TrimSuffix(opts.Config.TwitchMockApiUrl, "/helix")
+		wsOpts = append(wsOpts, eventsub.WebsocketWithServerURL(opts.Config.TwitchMockWsUrl))
+	} else {
+		httpClient = http.DefaultClient
+		apiBaseUrl = "https://api.twitch.tv"
+	}
+
 	manager := &Manager{
 		config:             opts.Config,
 		logger:             opts.Logger,
@@ -58,6 +80,9 @@ func NewManager(opts Opts) (*Manager, error) {
 		redSync:            redsync.New(goredis.NewPool(opts.Redis)),
 		eventsub:           eventsub.New(),
 		handler:            opts.Handler,
+		httpClient:         httpClient,
+		apiBaseUrl:         apiBaseUrl,
+		wsOpts:             wsOpts,
 		wsCurrentSessionId: nil,
 		currentConduit:     nil,
 	}

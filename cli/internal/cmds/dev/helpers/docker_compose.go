@@ -18,7 +18,7 @@ func EnsureDockerComposeRunning(ctx context.Context) error {
 	// This command is idempotent - it will start only stopped containers
 	pterm.Info.Println("Starting docker compose services...")
 
-	upCmd := exec.CommandContext(ctx, "docker", "compose", "-f", composeFile, "up", "-d")
+	upCmd := exec.CommandContext(ctx, "docker", "compose", "-f", composeFile, "up", "-d", "--build")
 	output, err := upCmd.CombinedOutput()
 
 	if err != nil {

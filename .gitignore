@@ -42,3 +42,6 @@ vite.config.ts.timestamp-*.mjs
 configs/otel/otel-collector.yaml
 
 apps/*/main
+
+.sisyphus/evidence/*
+.sisyphus/drafts/*

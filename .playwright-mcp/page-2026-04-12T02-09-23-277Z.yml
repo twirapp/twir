@@ -1,0 +1,264 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "Twir dev" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img [ref=e8]
+          - generic [ref=e12]: Twir dev
+        - navigation [ref=e13]:
+          - link "Features" [ref=e14] [cursor=pointer]:
+            - /url: /#features
+          - link "Integrations" [ref=e15] [cursor=pointer]:
+            - /url: /#integrations
+          - link "URL Shortener" [ref=e16] [cursor=pointer]:
+            - /url: /url-shortener
+          - link "Hastebin" [ref=e17] [cursor=pointer]:
+            - /url: /h
+          - link "Terms of Service" [ref=e18] [cursor=pointer]:
+            - /url: /terms
+        - button "MockStreamer mockstreamer" [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]:
+            - img "MockStreamer" [ref=e21]
+            - generic [ref=e22]: mockstreamer
+            - img [ref=e23]
+    - generic [ref=e25]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - link "🚀 View latest updates" [ref=e30] [cursor=pointer]:
+            - /url: https://discord.gg/Q9NBZq3zVV
+            - text: 🚀 View latest updates
+            - img [ref=e31]
+          - heading "Engage your audience like never before" [level=1] [ref=e33]
+          - paragraph [ref=e34]: Our Twitch bot is the ultimate all-in-one solution for streamers looking to take their channel to the next level.
+          - generic [ref=e35]:
+            - link "Learn more" [ref=e36] [cursor=pointer]:
+              - /url: "#"
+            - link "Dashboard" [ref=e37] [cursor=pointer]:
+              - /url: /dashboard
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - img [ref=e40]
+            - generic [ref=e43]:
+              - img [ref=e44]
+              - generic [ref=e46]: Hello, World
+          - generic [ref=e47]:
+            - img [ref=e48]
+            - generic [ref=e49]:
+              - img [ref=e50]
+              - generic [ref=e52]: "Message from timer: follow to my socials!"
+          - generic [ref=e53]:
+            - img [ref=e54]
+            - generic [ref=e57]:
+              - img [ref=e58]
+              - generic [ref=e60]: "!title Playling League of Legends with my friend"
+          - generic [ref=e61]:
+            - img [ref=e62]
+            - generic [ref=e63]:
+              - img [ref=e64]
+              - generic [ref=e66]: ✅ Title succesfully changed.
+          - generic [ref=e68]:
+            - generic [ref=e69]: "melkam activated channel reward: timeout chatter (1000 🪙)"
+            - generic [ref=e70]: Satont
+          - generic [ref=e72]:
+            - img [ref=e73]
+            - generic [ref=e74]:
+              - img [ref=e75]
+              - generic [ref=e77]: melkam disabled chat for Satont for 5 minutes
+          - generic [ref=e78]:
+            - img [ref=e79]
+            - generic [ref=e82]:
+              - img [ref=e83]
+              - generic [ref=e85]: "!song"
+          - generic [ref=e86]:
+            - img [ref=e87]
+            - generic [ref=e88]:
+              - img [ref=e89]
+              - generic [ref=e91]: Linkin Park — Numb
+          - generic [ref=e92]:
+            - img [ref=e93]
+            - generic [ref=e96]:
+              - img [ref=e97]
+              - generic [ref=e99]: "!category LOL"
+          - generic [ref=e100]:
+            - img [ref=e101]
+            - generic [ref=e102]:
+              - img [ref=e103]
+              - generic [ref=e105]: ✅ Category changed to League of Legends.
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - generic [ref=e108]: "0"
+          - generic [ref=e109]: Active Channels
+        - generic [ref=e110]:
+          - generic [ref=e111]: "0"
+          - generic [ref=e112]: Created Commands
+        - generic [ref=e113]:
+          - generic [ref=e114]: "1"
+          - generic [ref=e115]: Users Seen
+        - generic [ref=e116]:
+          - generic [ref=e117]: "0"
+          - generic [ref=e118]: Messages Processed
+        - generic [ref=e119]:
+          - generic [ref=e120]: "0"
+          - generic [ref=e121]: Emotes Processed
+        - generic [ref=e122]:
+          - generic [ref=e123]: "0"
+          - generic [ref=e124]: Commands Processed
+      - generic [ref=e126]:
+        - heading "Features" [level=2] [ref=e127]
+        - generic [ref=e128]:
+          - heading "Explore our bot's awesome features" [level=3] [ref=e129]
+          - paragraph [ref=e130]: Uncover a treasure trove of features that'll take your stream to the next level. Our bot got the tools to transform your stream adventure!
+        - list [ref=e131]:
+          - listitem [ref=e132]:
+            - img [ref=e134]
+            - generic [ref=e136]: Music Recognition
+            - paragraph [ref=e137]: Shazam for your twitch stream! Free, without the need to connect any music services
+          - listitem [ref=e138]:
+            - img [ref=e140]
+            - generic [ref=e144]: Vips
+            - paragraph [ref=e145]: Manage your vips through bot, schedule vips to be removed at a specific time
+          - listitem [ref=e146]:
+            - img [ref=e148]
+            - generic [ref=e152]: Giveaways
+            - paragraph [ref=e153]: Create giveaways, manage participants, choose winners, and archive giveaways for future reference
+          - listitem [ref=e154]:
+            - img [ref=e156]
+            - generic [ref=e158]: Commands
+            - paragraph [ref=e159]: A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling
+          - listitem [ref=e160]:
+            - img [ref=e162]
+            - generic [ref=e164]: Custom variables
+            - paragraph [ref=e165]: Write custom variables with JavaScript or Python for expand bot functionality
+          - listitem [ref=e166]:
+            - img [ref=e168]
+            - generic [ref=e170]: Timers
+            - paragraph [ref=e171]: A simple system, but with verve, has become a popular announcement system from Twitch
+          - listitem [ref=e172]:
+            - img [ref=e174]
+            - generic [ref=e177]: Greetings
+            - paragraph [ref=e178]: Do you want to somehow highlight your favorite viewers? Add a greeting!
+          - listitem [ref=e179]:
+            - img [ref=e181]
+            - generic [ref=e185]: Song requests
+            - paragraph [ref=e186]: Viewers request songs via chat commands. Bot manages queue, plays songs, and offers controls. Enhances stream with viewer engagement
+          - listitem [ref=e187]:
+            - img [ref=e189]
+            - generic [ref=e192]: Keywords
+            - paragraph [ref=e193]: Identifies specified keywords in chat, triggers automated messages for engagement or information. Enhances interaction and delivers targeted content during live stream
+          - listitem [ref=e194]:
+            - img [ref=e196]
+            - generic [ref=e200]: Events
+            - paragraph [ref=e201]: With this powerful tool, you can easily set up customized listeners to keep track of specific events happening in the chat, or even trigger actions based on system events
+          - listitem [ref=e202]:
+            - img [ref=e204]
+            - generic [ref=e207]: Moderation
+            - paragraph [ref=e208]: Create and manage chat filters to keep safe and kind communication
+          - listitem [ref=e209]:
+            - img [ref=e211]
+            - generic [ref=e214]: OBS Websockets
+            - paragraph [ref=e215]: Highly integrate with obs studio via websockets. Change scenes, mute audio, toggle source visibility via bot
+          - listitem [ref=e216]:
+            - img [ref=e218]
+            - generic [ref=e221]: Stats tracking
+            - paragraph [ref=e222]: Track users watch time, messages, used channel points
+          - listitem [ref=e223]:
+            - img [ref=e225]
+            - generic [ref=e229]: Overlays
+            - paragraph [ref=e230]: An assortment of pre-designed overlays, including Faceit Stats, Valorant Stats, Now Playing, Chat, Emote Wall, Pixel Dudes, and AFK displays
+          - listitem [ref=e231]:
+            - img [ref=e233]
+            - generic [ref=e236]: Alerts
+            - paragraph [ref=e237]: Want to sound alerts on rewards? We got you covered! Create custom alerts for your channel points, commands, keywords triggers
+          - listitem [ref=e238]:
+            - img [ref=e240]
+            - generic [ref=e246]: Games
+            - paragraph [ref=e247]: Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment
+          - listitem [ref=e248]:
+            - img [ref=e250]
+            - generic [ref=e254]: Short urls
+            - paragraph [ref=e255]: Shrink and share links instantly with Twir's sleek URL shortener – over 0 created and counting
+          - listitem [ref=e256]:
+            - img [ref=e258]
+            - generic [ref=e262]: HasteBins
+            - paragraph [ref=e263]: Create and share quick, secure text snippets with HasteBins – 0 created and growing
+        - generic [ref=e264]:
+          - paragraph [ref=e265]: This is by no means an exhaustive list of the bot's capabilities; it will be continuously updated for you as we strive to bring forth new and innovative features.
+          - link "Join our Discord server to stay up to date" [ref=e266] [cursor=pointer]:
+            - /url: https://discord.gg/Q9NBZq3zVV
+            - img [ref=e267]
+            - text: Join our Discord server to stay up to date
+      - generic [ref=e271]:
+        - generic [ref=e272]:
+          - img [ref=e273]
+          - heading "Integrations" [level=2] [ref=e275]
+          - heading "Power-up your stream with seamless integrations" [level=3] [ref=e276]
+          - generic [ref=e277]: Connect with your favorite tools and platforms to supercharge your stream's performance and engagement. Twir's integrations provide endless possibilities.
+        - list [ref=e278]:
+          - 'tooltip "{integration.label}" [ref=e279] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e280]'
+          - 'tooltip "{integration.label}" [ref=e283] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e284]'
+          - 'tooltip "{integration.label}" [ref=e287] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e288]'
+          - 'tooltip "{integration.label}" [ref=e291] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e292]'
+          - 'tooltip "{integration.label}" [ref=e294] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e295]'
+          - 'tooltip "{integration.label}" [ref=e297] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e298]'
+          - 'tooltip "{integration.label}" [ref=e302] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e303]'
+          - 'tooltip "{integration.label}" [ref=e305] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e306]'
+          - 'tooltip "{integration.label}" [ref=e308] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e309]'
+          - 'tooltip "{integration.label}" [ref=e311] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e312]'
+          - 'tooltip "{integration.label}" [ref=e315] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e316]'
+          - 'tooltip "{integration.label}" [ref=e318] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e319]'
+          - 'tooltip "{integration.label}" [ref=e321] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e322]'
+          - 'tooltip "{integration.label}" [ref=e324] [cursor=pointer]':
+            - 'listitem "{integration.label}" [ref=e325]'
+    - contentinfo [ref=e327]:
+      - generic [ref=e328]:
+        - generic [ref=e329]:
+          - generic [ref=e330]:
+            - img [ref=e331]
+            - generic [ref=e334]: Twir
+          - navigation "Footer Navigation" [ref=e335]:
+            - list [ref=e336]:
+              - link "Features" [ref=e337] [cursor=pointer]:
+                - /url: /#features
+              - link "Integrations" [ref=e338] [cursor=pointer]:
+                - /url: /#integrations
+              - link "URL Shortener" [ref=e339] [cursor=pointer]:
+                - /url: /url-shortener
+              - link "Hastebin" [ref=e340] [cursor=pointer]:
+                - /url: /h
+              - link "Terms of Service" [ref=e341] [cursor=pointer]:
+                - /url: /terms
+        - generic [ref=e342]:
+          - generic [ref=e343]: © 2023 - 2026 TwirApp. All rights reserved.
+          - generic [ref=e344]:
+            - link "Github repository" [ref=e345] [cursor=pointer]:
+              - /url: https://github.com/twirapp/twir
+              - img [ref=e346]
+            - link "Discord channel for asking a question and keeping up with updates" [ref=e348] [cursor=pointer]:
+              - /url: https://discord.gg/Q9NBZq3zVV
+              - img [ref=e349]
+    - region "Notifications alt+T":
+      - list
+  - generic:
+    - img
+  - generic [ref=e351]:
+    - button "Toggle Nuxt DevTools" [ref=e352] [cursor=pointer]:
+      - img [ref=e353]
+    - generic "App load time" [ref=e356]:
+      - generic [ref=e357]: "346"
+      - generic [ref=e358]: ms
+    - button "Toggle Component Inspector" [ref=e360] [cursor=pointer]:
+      - img [ref=e361]

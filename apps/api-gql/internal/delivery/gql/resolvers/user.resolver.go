@@ -303,6 +303,21 @@ func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string
 
 	state := base64.StdEncoding.EncodeToString([]byte(redirectTo))
 
+	if r.deps.Config.TwitchMockEnabled {
+		siteURL, err := url.Parse(r.deps.Config.SiteBaseUrl)
+		if err != nil {
+			return "", fmt.Errorf("failed to parse site base url: %w", err)
+		}
+		mockAuthUrl := fmt.Sprintf(
+			"%s/oauth2/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=&state=%s",
+			r.deps.Config.TwitchMockAuthUrl,
+			r.deps.Config.TwitchClientId,
+			url.QueryEscape(siteURL.JoinPath("login").String()),
+			url.QueryEscape(state),
+		)
+		return mockAuthUrl, nil
+	}
+
 	twitchScopes := []string{
 		"moderation:read",
 		"channel:manage:broadcast",

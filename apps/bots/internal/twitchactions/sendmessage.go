@@ -91,13 +91,6 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		opts.SenderID = channel.BotID
 	}
 
-	c.logger.Info(
-		"Sending message",
-		slog.String("channel_id", opts.BroadcasterID),
-		slog.String("sender_id", opts.SenderID),
-		slog.Bool("is_announce", opts.IsAnnounce),
-	)
-
 	if strings.HasPrefix(opts.Message, "/timeout") || strings.HasPrefix(opts.Message, "/ban") {
 		return c.timeoutFromMessage(ctx, channel, opts)
 	}
@@ -199,9 +192,11 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 			}
 
 			c.logger.Info(
-				"Message sent",
+				"✅ Message sent",
 				slog.String("channel_id", opts.BroadcasterID),
+				slog.String("text", message),
 				slog.String("sender_id", opts.SenderID),
+				slog.Bool("is_announce", opts.IsAnnounce),
 				rateLimitGroup,
 			)
 
