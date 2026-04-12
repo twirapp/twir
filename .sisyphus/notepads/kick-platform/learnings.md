@@ -26,3 +26,14 @@
 - Kick config now supports KICK_CLIENT_ID, KICK_CLIENT_SECRET, and optional KICK_REDIRECT_URL; default callback falls back to {SITE_BASE_URL}/login/kick.
 - Kick /auth/kick/code needs session code verifier retrieval via Auth.Get plus explicit Auth.Commit after multiple Put calls to avoid per-key helper proliferation.
 - Kick bus-core topics live in a dedicated `libs/bus-core/kick` package with raw event structs and subject constants; `go build ./libs/bus-core/...` passes after adding them.
+- `apps/eventsub/internal/bus-listener/bus-listener.go` can branch on `channel.Platform` after `channelsRepo.GetByID`: Twitch keeps legacy topic-based EventSub subscription flow, while Kick uses `user_platform_accounts.GetByUserIDAndPlatform` plus `kick.SubscriptionManager.SubscribeAll`.
+- Twitch EventSub chat handling can dual-publish into generic queues by mapping `eventsub.ChannelChatMessageEvent` into `generic.ChatMessage`; guard `data.Message` before reading `.Text` and keep legacy Twitch bus publishes intact.
+
+## T20: Kick Resubscribe Job
+
+- `GetAllByPlatform` added to `user_platform_accounts.Repository` interface + pgx impl using `WHERE platform = $1::platform` pattern
+- `SubscriptionLister` interface defined in `kick` package so `*SubscriptionManager` satisfies it for tests (Option A from plan)
+- fx wiring: `ResubscribeJobOpts.SubManager` uses concrete `*SubscriptionManager` so fx can resolve it; the `ResubscribeJob.subManager` field holds the interface
+- `ResubscribeJob` lifecycle: OnStart fires `go j.Start(ctx)` — goroutine exits on ctx cancellation (ticker.Stop + select on ctx.Done)
+- Existing `handlers_test.go` mock needed `GetAllByPlatform` added when the interface was extended
+- `allEventTypesPresent` uses a map for O(n) lookup over all 4 EventTypes
