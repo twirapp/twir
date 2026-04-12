@@ -41,7 +41,7 @@ func (c *deleteLinkBannedUserAgent) GetMeta() huma.Operation {
 	return huma.Operation{
 		OperationID: "short-links-delete-link-banned-user-agent",
 		Method:      http.MethodDelete,
-		Path:        "/v1/short-links/{linkId}/banned-user-agents/{id}",
+		Path:        "/v1/short-links/by-id/{linkId}/banned-user-agents/{id}",
 		Tags:        []string{"Short links"},
 		Summary:     "Delete banned user agent pattern for a specific link",
 		Security: []map[string][]string{

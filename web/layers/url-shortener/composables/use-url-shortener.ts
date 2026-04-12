@@ -268,7 +268,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		isPerLinkBannedUserAgentsLoading.value.set(linkId, true)
 		try {
 			const response = await api.http.request<LinkBannedUserAgentsListResponseDto, ErrorModel>({
-				path: `/v1/short-links/${linkId}/banned-user-agents`,
+				path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
 				method: 'GET',
 				format: 'json',
 			})
@@ -284,7 +284,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 	async function createPerLinkBannedUserAgent(linkId: string, opts: { pattern: string; description?: string | null }) {
 		try {
 			const response = await api.http.request<LinkBannedUserAgentResponseDto, ErrorModel>({
-				path: `/v1/short-links/${linkId}/banned-user-agents`,
+				path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
 				method: 'POST',
 				type: ContentType.Json,
 				format: 'json',
@@ -304,7 +304,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 	async function deletePerLinkBannedUserAgent(linkId: string, id: string) {
 		try {
 			const response = await api.http.request<Record<string, never>, ErrorModel>({
-				path: `/v1/short-links/${linkId}/banned-user-agents/${id}`,
+				path: `/v1/short-links/by-id/${linkId}/banned-user-agents/${id}`,
 				method: 'DELETE',
 				format: 'json',
 			})

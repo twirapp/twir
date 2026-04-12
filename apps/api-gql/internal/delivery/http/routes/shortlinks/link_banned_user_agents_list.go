@@ -47,7 +47,7 @@ func (c *listLinkBannedUserAgents) GetMeta() huma.Operation {
 	return huma.Operation{
 		OperationID: "short-links-list-link-banned-user-agents",
 		Method:      http.MethodGet,
-		Path:        "/v1/short-links/{linkId}/banned-user-agents",
+		Path:        "/v1/short-links/by-id/{linkId}/banned-user-agents",
 		Tags:        []string{"Short links"},
 		Summary:     "List banned user agent patterns for a specific link",
 		Security: []map[string][]string{
