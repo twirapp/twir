@@ -325,9 +325,9 @@ func (c *Pgx) Create(ctx context.Context, input shortened_urls.CreateInput) (
 ) {
 	query := `
 WITH created AS (
-	INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent, domain_id)
-	VALUES (@short_id, @url, @created_by_user_id, @user_ip, @user_agent, @domain_id)
-	RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id
+	INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent, domain_id, ignore_global_bans)
+	VALUES (@short_id, @url, @created_by_user_id, @user_ip, @user_agent, @domain_id, @ignore_global_bans)
+	RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id, ignore_global_bans
 )
 SELECT ` + selectColumnsCreatedStr + `
 FROM created
@@ -346,6 +346,7 @@ LEFT JOIN short_links_custom_domains AS domains
 			"user_ip":            input.UserIp,
 			"user_agent":         input.UserAgent,
 			"domain_id":          input.DomainID,
+			"ignore_global_bans": input.IgnoreGlobalBans,
 		},
 	)
 	if err != nil {

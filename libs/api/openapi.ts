@@ -99,6 +99,15 @@ export interface BaseOutputBodyJsonInterface {
   data: any;
 }
 
+export interface BaseOutputBodyJsonLinkBannedUserAgentDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: LinkBannedUserAgentDto;
+}
+
 export interface BaseOutputBodyJsonLinkOutputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -142,6 +151,15 @@ export interface BaseOutputBodyJsonListCountryStatsDto {
    */
   $schema?: string;
   data: CountryStatsDto[];
+}
+
+export interface BaseOutputBodyJsonListLinkBannedUserAgentDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: LinkBannedUserAgentDto[];
 }
 
 export interface BaseOutputBodyJsonListStatisticsPointDto {
@@ -314,6 +332,21 @@ export interface CreateCustomDomainInputBody {
   domain: string;
 }
 
+export interface CreateLinkBannedUserAgentInputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /** @maxLength 256 */
+  description?: string;
+  /**
+   * @minLength 1
+   * @maxLength 512
+   */
+  pattern: string;
+}
+
 export interface CreateLinkInputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -440,6 +473,15 @@ export interface LeaderboardPlacementStruct {
   rank: number;
   /** @format date-time */
   updated_at: string;
+}
+
+export interface LinkBannedUserAgentDto {
+  /** @format date-time */
+  created_at: string;
+  description: string | null;
+  id: string;
+  link_id: string;
+  pattern: string;
 }
 
 export interface LinkOutputDto {
@@ -1426,6 +1468,72 @@ export class Api<SecurityDataType extends unknown> {
     shortLinksDeleteBannedUserAgent: (id: string, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonInterface, any>({
         path: `/v1/short-links/banned-user-agents/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksListLinkBannedUserAgents
+     * @summary List banned user agent patterns for a specific link
+     * @request GET:/v1/short-links/by-id/{linkId}/banned-user-agents
+     * @secure
+     * @response `200` `BaseOutputBodyJsonListLinkBannedUserAgentDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksListLinkBannedUserAgents: (linkId: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonListLinkBannedUserAgentDto, any>({
+        path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksCreateLinkBannedUserAgent
+     * @summary Create banned user agent pattern for a specific link
+     * @request POST:/v1/short-links/by-id/{linkId}/banned-user-agents
+     * @secure
+     * @response `200` `BaseOutputBodyJsonLinkBannedUserAgentDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksCreateLinkBannedUserAgent: (
+      linkId: string,
+      data: CreateLinkBannedUserAgentInputBody,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonLinkBannedUserAgentDto, any>({
+        path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksDeleteLinkBannedUserAgent
+     * @summary Delete banned user agent pattern for a specific link
+     * @request DELETE:/v1/short-links/by-id/{linkId}/banned-user-agents/{id}
+     * @secure
+     * @response `200` `BaseOutputBodyJsonInterface` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksDeleteLinkBannedUserAgent: (linkId: string, id: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonInterface, any>({
+        path: `/v1/short-links/by-id/${linkId}/banned-user-agents/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",

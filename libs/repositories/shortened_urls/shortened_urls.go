@@ -20,12 +20,13 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	ShortID         string
-	URL             string
-	CreatedByUserID *string
-	UserIp          *string
-	UserAgent       *string
-	DomainID        *string
+	ShortID          string
+	URL              string
+	CreatedByUserID  *string
+	UserIp           *string
+	UserAgent        *string
+	DomainID         *string
+	IgnoreGlobalBans bool
 }
 
 type UpdateInput struct {
