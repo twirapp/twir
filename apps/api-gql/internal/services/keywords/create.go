@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/keywords"
 )
 
@@ -28,6 +29,7 @@ type CreateInput struct {
 	IsRegular        bool
 	Usages           int
 	RolesIDs         []uuid.UUID
+	Platforms        []platform.Platform
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword, error) {
@@ -60,6 +62,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword
 			IsRegular:        input.IsRegular,
 			Usages:           input.Usages,
 			RolesIDs:         input.RolesIDs,
+			Platforms:        input.Platforms,
 		},
 	)
 	if err != nil {

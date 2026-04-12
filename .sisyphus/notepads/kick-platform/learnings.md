@@ -95,3 +95,39 @@
 
 ### Note on `GetCommandResponse`
 This handler (used by variable parsing path) also calls `ProcessChatMessage` — updated to pass `"twitch"` since it only receives `TwitchChatMessage`.
+
+## unlinkPlatformAccount mutation (T26)
+- Added `unlinkPlatformAccount(platform: String!): Boolean! @isAuthenticated` to `extend type Mutation` in `user.graphql`
+- `user_platform_accounts.Repository` was NOT previously in `Deps` struct of `resolver.go` — had to add it manually with import `user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"`
+- The repo was already fx-wired in `cmd/main.go` (lines 459-460) so no main.go changes needed
+- Platform import alias: `platformentity "github.com/twirapp/twir/libs/entities/platform"` to avoid collision with the `platform` param name
+- Resolver logic: GetInternalUserID → GetAllByUserID → guard len<=1 → find by Platform → Delete(id)
+- `Delete` takes `uuid.UUID` account ID, not (userID, platform)
+
+## T27: kickProfile and linkedAccounts resolvers (user.resolver.go)
+
+- `UserPlatformAccountsRepository` was already in `Deps` struct (added in T26) — no resolver.go change needed
+- `GetSessionKickUser` returns `(KickSessionUser, error)` — return `nil, nil` (not error) when no Kick session
+- `KickSessionUser` struct: `{ID string, Login string, Avatar string}` — map `Login` to both `Slug` and `DisplayName`
+- `gqlmodel.KickProfile` fields: `ID string, Slug string, DisplayName string, ProfilePicture *string, IsLive bool, FollowersCount int`
+- `gqlmodel.LinkedAccount` fields: `Platform string, PlatformUserID string, PlatformLogin string, PlatformAvatar *string`
+- `UserPlatformAccount.PlatformAvatar` is `string` (not pointer); take local copy inside loop before taking address: `avatar := acc.PlatformAvatar; &avatar`
+- `GetInternalUserID` returns `(uuid.UUID, error)` — error means unauthenticated; wrap with `fmt.Errorf`
+- `platformentity` import alias was already in the file (used by `unlinkPlatformAccount` resolver at line 265)
+
+## Session 2 — Completed remaining wiring
+
+### What was done
+- Added `Platforms []platform.Platform` to `timers.CreateInput` and `timers.UpdateInput` in `apps/api-gql/internal/services/timers/create.go` and `update.go`, wired to `timersrepository.CreateInput.Platforms` and `timersrepository.UpdateInput.Platforms`.
+- Added `Platforms []platform.Platform` to `keywords.CreateInput` and `keywords.UpdateInput` in `apps/api-gql/internal/services/keywords/create.go` and `update.go`, wired to `keywordsrepository.CreateInput.Platforms` and `keywordsrepository.UpdateInput.Platforms`.
+- Updated `mappers.TimerEntityToGql()` — added `Platforms: PlatformsToStrings(m.Platforms)`.
+- Updated `mappers.KeywordsFrom()` — added `Platforms: PlatformsToStrings(k.Platforms)`.
+- Updated `resolvers/commands.resolver.go` `CommandsUpdate` — added `if opts.Platforms.IsSet() { updateInput.Platforms = mappers.StringsToPlatforms(opts.Platforms.Value()) }`.
+- Updated `resolvers/timers.resolver.go` `TimersCreate`, `TimersCreateMany`, `TimersUpdate` — added `Platforms: mappers.StringsToPlatforms(opts.Platforms.Value())`.
+- Updated `resolvers/keywords.resolver.go` `KeywordCreate` and `KeywordUpdate` — added `if opts.Platforms.IsSet() { input.Platforms = mappers.StringsToPlatforms(opts.Platforms.Value()) }`.
+- `go build ./apps/api-gql/...` passes with zero errors.
+
+### Key patterns confirmed
+- `TimerCreateInput.Platforms` is `graphql.Omittable[[]string]` — use `.Value()` directly (returns nil if not set, `StringsToPlatforms(nil)` returns `[]platform.Platform{}`).
+- `KeywordCreateInput.Platforms` and `KeywordUpdateInput.Platforms` are `graphql.Omittable[[]string]` — check `.IsSet()` before assigning.
+- All repository `UpdateInput.Platforms` fields accept `[]platform.Platform` and are already handled by the pgx layer.

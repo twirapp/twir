@@ -35,7 +35,7 @@ func New(opts Opts) error {
 		sevenTvApiClient:                 seventv.NewClient(opts.Config.SevenTvToken),
 		logger:                           opts.Logger,
 		emotesStore:                      opts.EmotesStore,
-		registeredChannelsWithEmoteSetId: make(channelsWithEmotesSetsIds),
+		registeredChannelsWithEmoteSetId: make(map[string]string),
 	}
 
 	opts.LC.Append(
@@ -64,7 +64,7 @@ type Service struct {
 
 	gorm                             *gorm.DB
 	sevenTvApiClient                 seventv.Client
-	registeredChannelsWithEmoteSetId channelsWithEmotesSetsIds
+	registeredChannelsWithEmoteSetId map[string]string
 	logger                           *slog.Logger
 	emotesStore                      *emotes_store.EmotesStore
 }

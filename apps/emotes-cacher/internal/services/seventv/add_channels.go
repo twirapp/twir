@@ -3,11 +3,14 @@ package seventv
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/avast/retry-go/v4"
 	dispatchtypes "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
+	seventvapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error {
@@ -55,8 +58,13 @@ var emoteSetSubTypes = []string{"create", "delete"}
 func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []connSubscription {
 	subMessages := make([]connSubscription, 0, len(data))
 
-	for channelId, emoteSetId := range data {
+	for channelId, channelData := range data {
 		for _, emoteSetSubType := range emoteSetSubTypes {
+			platform := "TWITCH"
+			if strings.EqualFold(channelData.Platform, "kick") {
+				platform = "KICK"
+			}
+
 			subMessages = append(
 				subMessages,
 				connSubscription{
@@ -64,19 +72,19 @@ func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []connSubscr
 					conditions: map[string]string{
 						"readCtx":  "channel",
 						"id":       channelId,
-						"platform": "TWITCH",
+						"platform": platform,
 					},
 				},
 			)
 		}
 
-		if emoteSetId != "" {
+		if channelData.EmoteSetID != "" {
 			subMessages = append(
 				subMessages,
 				connSubscription{
 					subType: string(dispatchtypes.UpdateEmoteSet),
 					conditions: map[string]string{
-						"object_id": emoteSetId,
+						"object_id": channelData.EmoteSetID,
 					},
 				},
 			)
@@ -87,7 +95,12 @@ func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []connSubscr
 	return subMessages
 }
 
-type channelsWithEmotesSetsIds map[string]string
+type channelWithEmoteSet struct {
+	EmoteSetID string
+	Platform   string
+}
+
+type channelsWithEmotesSetsIds map[string]channelWithEmoteSet
 
 func (c *Service) getChannelsWithEmotesSets(
 	ctx context.Context,
@@ -103,7 +116,7 @@ func (c *Service) getChannelsWithEmotesSets(
 			continue
 		}
 
-		channelsWithEmoteSets[channel] = ""
+		channelsWithEmoteSets[channel] = channelWithEmoteSet{EmoteSetID: "", Platform: ""}
 		c.registeredChannelsWithEmoteSetId[channel] = ""
 
 		wg.Add(1)
@@ -112,7 +125,34 @@ func (c *Service) getChannelsWithEmotesSets(
 			defer wg.Done()
 			retry.Do(
 				func() error {
-					profile, err := c.sevenTvApiClient.GetProfileByTwitchId(ctx, channel)
+					var channelLookup struct {
+						Platform string
+					}
+
+					if err := c.gorm.WithContext(ctx).
+						Model(&model.Channel{}).
+						Select("platform").
+						Where("id = ?", channel).
+						Scan(&channelLookup).Error; err != nil {
+						return fmt.Errorf(
+							"failed to fetch platform for channel %s: %w",
+							channel,
+							err,
+						)
+					}
+
+					var profile any
+					var err error
+
+					switch strings.ToLower(channelLookup.Platform) {
+					case "kick":
+						profile, err = c.sevenTvApiClient.GetProfileByKickId(ctx, channel)
+					case "twitch":
+						profile, err = c.sevenTvApiClient.GetProfileByTwitchId(ctx, channel)
+					default:
+						return fmt.Errorf("unsupported channel platform %q for channel %s", channelLookup.Platform, channel)
+					}
+
 					if err != nil {
 						return fmt.Errorf(
 							"failed to fetch profile for channel %s: %w",
@@ -120,13 +160,32 @@ func (c *Service) getChannelsWithEmotesSets(
 							err,
 						)
 					}
-					if profile == nil || profile.Users.UserByConnection == nil || profile.Users.UserByConnection.Style.ActiveEmoteSet == nil {
+
+					if profile == nil {
+						return nil
+					}
+
+					var activeEmoteSetID string
+					switch p := profile.(type) {
+					case *seventvapi.GetProfileByTwitchIdResponse:
+						if p.Users.UserByConnection != nil && p.Users.UserByConnection.Style.ActiveEmoteSet != nil {
+							activeEmoteSetID = p.Users.UserByConnection.Style.ActiveEmoteSet.Id
+						}
+					case *seventvapi.GetProfileByKickIdResponse:
+						if p.Users.UserByConnection != nil && p.Users.UserByConnection.Style.ActiveEmoteSet != nil {
+							activeEmoteSetID = p.Users.UserByConnection.Style.ActiveEmoteSet.Id
+						}
+					default:
+						return fmt.Errorf("unexpected profile type %T for channel %s", profile, channel)
+					}
+
+					if activeEmoteSetID == "" {
 						return nil
 					}
 
 					mu.Lock()
-					channelsWithEmoteSets[channel] = profile.Users.UserByConnection.Style.ActiveEmoteSet.Id
-					c.registeredChannelsWithEmoteSetId[channel] = profile.Users.UserByConnection.Style.ActiveEmoteSet.Id
+					channelsWithEmoteSets[channel] = channelWithEmoteSet{EmoteSetID: activeEmoteSetID, Platform: channelLookup.Platform}
+					c.registeredChannelsWithEmoteSetId[channel] = activeEmoteSetID
 					mu.Unlock()
 
 					return nil

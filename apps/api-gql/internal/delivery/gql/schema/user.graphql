@@ -11,6 +11,7 @@ extend type Mutation {
 	authenticatedUserRegenerateApiKey: String! @isAuthenticated
 	authenticatedUserUpdatePublicPage(opts: UserUpdatePublicSettingsInput!): Boolean! @isAuthenticated
 	logout: Boolean! @isAuthenticated
+	unlinkPlatformAccount(platform: String!): Boolean! @isAuthenticated
 }
 
 type KickProfile {

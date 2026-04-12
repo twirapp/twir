@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
@@ -37,17 +38,54 @@ func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj
 
 // KickProfile is the resolver for the kickProfile field.
 func (r *authenticatedUserResolver) KickProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.KickProfile, error) {
-	panic(fmt.Errorf("not implemented: KickProfile - kickProfile"))
+	kickUser, err := r.deps.Sessions.GetSessionKickUser(ctx)
+	if err != nil {
+		return nil, nil
+	}
+
+	var profilePicture *string
+	if kickUser.Avatar != "" {
+		profilePicture = &kickUser.Avatar
+	}
+
+	return &gqlmodel.KickProfile{
+		ID:             kickUser.ID,
+		Slug:           kickUser.Login,
+		DisplayName:    kickUser.Login,
+		ProfilePicture: profilePicture,
+		IsLive:         false,
+		FollowersCount: 0,
+	}, nil
 }
 
 // LinkedAccounts is the resolver for the linkedAccounts field.
 func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gqlmodel.AuthenticatedUser) ([]gqlmodel.LinkedAccount, error) {
-	panic(fmt.Errorf("not implemented: LinkedAccounts - linkedAccounts"))
+	userID, err := r.deps.Sessions.GetInternalUserID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("not authenticated: %w", err)
+	}
+
+	accounts, err := r.deps.UserPlatformAccountsRepository.GetAllByUserID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get linked accounts: %w", err)
+	}
+
+	result := make([]gqlmodel.LinkedAccount, len(accounts))
+	for i, acc := range accounts {
+		avatar := acc.PlatformAvatar
+		result[i] = gqlmodel.LinkedAccount{
+			Platform:       string(acc.Platform),
+			PlatformUserID: acc.PlatformUserID,
+			PlatformLogin:  acc.PlatformLogin,
+			PlatformAvatar: &avatar,
+		}
+	}
+	return result, nil
 }
 
 // CurrentPlatform is the resolver for the currentPlatform field.
 func (r *authenticatedUserResolver) CurrentPlatform(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (string, error) {
-	panic(fmt.Errorf("not implemented: CurrentPlatform - currentPlatform"))
+	return r.deps.Sessions.GetCurrentPlatform(ctx)
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
@@ -203,6 +241,43 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	if err := r.deps.Sessions.SessionLogout(ctx); err != nil {
 		return false, gqlerrors.HandleError(err)
+	}
+
+	return true, nil
+}
+
+// UnlinkPlatformAccount is the resolver for the unlinkPlatformAccount field.
+func (r *mutationResolver) UnlinkPlatformAccount(ctx context.Context, platform string) (bool, error) {
+	userID, err := r.deps.Sessions.GetInternalUserID(ctx)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	accounts, err := r.deps.UserPlatformAccountsRepository.GetAllByUserID(ctx, userID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get platform accounts: %w", err)
+	}
+
+	if len(accounts) <= 1 {
+		return false, fmt.Errorf("cannot unlink the only remaining platform account")
+	}
+
+	targetPlatform := platformentity.Platform(platform)
+	var accountID *uuid.UUID
+	for _, acc := range accounts {
+		if acc.Platform == targetPlatform {
+			id := acc.ID
+			accountID = &id
+			break
+		}
+	}
+
+	if accountID == nil {
+		return false, fmt.Errorf("platform account not found")
+	}
+
+	if err := r.deps.UserPlatformAccountsRepository.Delete(ctx, *accountID); err != nil {
+		return false, fmt.Errorf("failed to delete platform account: %w", err)
 	}
 
 	return true, nil

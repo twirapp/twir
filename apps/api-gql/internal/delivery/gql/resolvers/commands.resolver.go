@@ -188,6 +188,10 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 
 	}
 
+	if opts.Platforms.IsSet() {
+		updateInput.Platforms = mappers.StringsToPlatforms(opts.Platforms.Value())
+	}
+
 	if _, err := r.deps.CommandsWithGroupsAndResponsesService.Update(
 		ctx,
 		id,
