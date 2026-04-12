@@ -98,7 +98,7 @@ func (c *CommandsBus) Subscribe() error {
 	c.bus.Parser.GetCommandResponse.SubscribeGroup(
 		"parser",
 		func(ctx context.Context, data twitch.TwitchChatMessage) (parser.CommandParseResponse, error) {
-			res, err := c.commandService.ProcessChatMessage(ctx, data)
+			res, err := c.commandService.ProcessChatMessage(ctx, data, "twitch")
 			if err != nil {
 				return parser.CommandParseResponse{}, err
 			}
@@ -183,7 +183,7 @@ func (c *CommandsBus) Subscribe() error {
 				return struct{}{}, nil
 			}
 
-			res, err := c.commandService.ProcessChatMessage(ctx, data)
+			res, err := c.commandService.ProcessChatMessage(ctx, data, "twitch")
 			if err != nil {
 				zap.S().Error(err)
 				return struct{}{}, err
@@ -260,7 +260,7 @@ func (c *CommandsBus) Subscribe() error {
 				},
 			}
 
-			res, err := c.commandService.ProcessChatMessage(ctx, twitchMsg)
+			res, err := c.commandService.ProcessChatMessage(ctx, twitchMsg, msg.Platform)
 			if err != nil {
 				zap.S().Error(err)
 				return struct{}{}, err
