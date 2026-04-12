@@ -3,6 +3,7 @@ package commands_with_groups_and_responses
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -229,7 +230,7 @@ func (c *Service) Update(
 	}
 
 	if err := c.cachedCommandsClient.Invalidate(ctx, input.ChannelID); err != nil {
-		c.logger.Error("failed to invalidate cached commands", err)
+		c.logger.Error("failed to invalidate cached commands", slog.Any("error", err))
 	}
 
 	_ = c.auditRecorder.RecordUpdateOperation(

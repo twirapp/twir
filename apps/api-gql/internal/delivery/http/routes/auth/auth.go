@@ -5,12 +5,16 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/jackc/pgx/v5/pgxpool"
 	sessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	botsrepo "github.com/twirapp/twir/libs/repositories/bots"
+	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/tokens"
+	userplatformaccountsrepo "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -18,32 +22,44 @@ import (
 type Opts struct {
 	fx.In
 
-	Huma             huma.API
-	Gorm             *gorm.DB
-	Config           config.Config
-	Bus              *buscore.Bus
-	Sessions         *sessions.Auth
-	TokensRepository tokens.Repository
-	KickProvider     *kickplatform.Provider
+	Huma                     huma.API
+	Gorm                     *gorm.DB
+	Config                   config.Config
+	Bus                      *buscore.Bus
+	Sessions                 *sessions.Auth
+	TokensRepository         tokens.Repository
+	UserPlatformAccountsRepo userplatformaccountsrepo.Repository
+	ChannelsRepo             channelsrepo.Repository
+	BotsRepo                 botsrepo.Repository
+	PgxPool                  *pgxpool.Pool
+	KickProvider             *kickplatform.Provider
 }
 
 type Auth struct {
-	gorm             *gorm.DB
-	config           config.Config
-	bus              *buscore.Bus
-	sessions         *sessions.Auth
-	tokensRepository tokens.Repository
-	kickProvider     *kickplatform.Provider
+	gorm                     *gorm.DB
+	config                   config.Config
+	bus                      *buscore.Bus
+	sessions                 *sessions.Auth
+	tokensRepository         tokens.Repository
+	userPlatformAccountsRepo userplatformaccountsrepo.Repository
+	channelsRepo             channelsrepo.Repository
+	botsRepo                 botsrepo.Repository
+	pgxPool                  *pgxpool.Pool
+	kickProvider             *kickplatform.Provider
 }
 
 func New(opts Opts) *Auth {
 	p := &Auth{
-		gorm:             opts.Gorm,
-		config:           opts.Config,
-		bus:              opts.Bus,
-		sessions:         opts.Sessions,
-		tokensRepository: opts.TokensRepository,
-		kickProvider:     opts.KickProvider,
+		gorm:                     opts.Gorm,
+		config:                   opts.Config,
+		bus:                      opts.Bus,
+		sessions:                 opts.Sessions,
+		tokensRepository:         opts.TokensRepository,
+		userPlatformAccountsRepo: opts.UserPlatformAccountsRepo,
+		channelsRepo:             opts.ChannelsRepo,
+		botsRepo:                 opts.BotsRepo,
+		pgxPool:                  opts.PgxPool,
+		kickProvider:             opts.KickProvider,
 	}
 
 	huma.Register(
@@ -61,6 +77,24 @@ func New(opts Opts) *Auth {
 			},
 		) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
 			return p.handleAuthPostCode(ctx, i.Body)
+		},
+	)
+
+	huma.Register(
+		opts.Huma,
+		huma.Operation{
+			OperationID: "auth-kick-code",
+			Method:      http.MethodPost,
+			Path:        "/auth/kick/code",
+			Tags:        []string{"Auth"},
+			Summary:     "Kick OAuth code exchange",
+		},
+		func(
+			ctx context.Context, i *struct {
+				Body kickCodeBody
+			},
+		) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
+			return p.handleKickCode(ctx, i.Body)
 		},
 	)
 

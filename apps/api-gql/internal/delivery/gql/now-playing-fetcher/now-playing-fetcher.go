@@ -207,7 +207,7 @@ type Track struct {
 	Artist    string `json:"artist"`
 	Title     string `json:"title"`
 	ImageUrl  string `json:"image_url,omitempty"`
-	fromCache bool   `json:"from_cache,omitempty"`
+	fromCache bool
 }
 
 func (i Track) MarshalBinary() ([]byte, error) {

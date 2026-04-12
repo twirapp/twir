@@ -3,6 +3,7 @@ package keywords
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -79,7 +80,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword
 	)
 
 	if err := c.keywordsCacher.Invalidate(ctx, input.ChannelID); err != nil {
-		c.logger.Error("failed to invalidate keywords cache", err)
+		c.logger.Error("failed to invalidate keywords cache", slog.Any("error", err))
 	}
 
 	return c.dbToModel(k), nil

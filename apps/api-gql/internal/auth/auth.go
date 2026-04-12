@@ -87,3 +87,16 @@ func (s *Auth) Put(ctx context.Context, key string, val interface{}) {
 	s.sessionManager.Put(ctx, key, val)
 	s.sessionManager.Commit(ctx)
 }
+
+func (s *Auth) Get(ctx context.Context, key string) interface{} {
+	return s.sessionManager.Get(ctx, key)
+}
+
+func (s *Auth) Commit(ctx context.Context) error {
+	_, _, err := s.sessionManager.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("cannot commit session: %w", err)
+	}
+
+	return nil
+}

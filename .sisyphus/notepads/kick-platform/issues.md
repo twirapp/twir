@@ -9,3 +9,4 @@
 - `tokens` repo `GetByUserID(userID string)` currently queries by Twitch ID — must be updated to use internal UUID post-migration.
 - EventSub app currently uses Twitch WebSocket conduits — does NOT have an HTTP endpoint for webhooks yet.
 - FK ordering in migration is critical: cannot add FKs to `users.internal_id` until UNIQUE constraint added.
+- go vet on apps/api-gql failed on pre-existing slog.Error argument patterns and one invalid json tag on an unexported field; fixed them alongside auth work to satisfy required verification.

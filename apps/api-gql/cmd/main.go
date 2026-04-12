@@ -175,6 +175,8 @@ import (
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
+	userplatformaccountsrepository "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	userplatformaccountsrepositorypgx "github.com/twirapp/twir/libs/repositories/user_platform_accounts/pgx"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	userswithchannelrepository "github.com/twirapp/twir/libs/repositories/users_with_channel"
@@ -476,6 +478,10 @@ func main() {
 			fx.Annotate(
 				tokensrepositorypgx.NewFx,
 				fx.As(new(tokensrepository.Repository)),
+			),
+			fx.Annotate(
+				userplatformaccountsrepositorypgx.NewFx,
+				fx.As(new(userplatformaccountsrepository.Repository)),
 			),
 			fx.Annotate(
 				channelsintegrationsvalorantpostgres.NewFx,
