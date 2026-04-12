@@ -37,6 +37,14 @@ export interface BadgeWithUsers {
   users: string[];
 }
 
+export interface BannedUserAgentDto {
+  /** @format date-time */
+  created_at: string;
+  description: string | null;
+  id: string;
+  pattern: string;
+}
+
 export interface BaseOutputBodyJsonAllowCustomDomainOutput {
   /**
    * A URL to the JSON Schema for this object.
@@ -53,6 +61,15 @@ export interface BaseOutputBodyJsonAuthResponseDto {
    */
   $schema?: string;
   data: AuthResponseDto;
+}
+
+export interface BaseOutputBodyJsonBannedUserAgentDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: BannedUserAgentDto;
 }
 
 export interface BaseOutputBodyJsonCustomDomainOutputDto {
@@ -98,6 +115,15 @@ export interface BaseOutputBodyJsonLinksProfileOutputDto {
    */
   $schema?: string;
   data: LinksProfileOutputDto;
+}
+
+export interface BaseOutputBodyJsonListBannedUserAgentDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: BannedUserAgentDto[];
 }
 
 export interface BaseOutputBodyJsonListCommandResponseDto {
@@ -258,6 +284,21 @@ export interface CountryStatsDto {
    */
   count: number;
   country: string;
+}
+
+export interface CreateBannedUserAgentInputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /** @maxLength 256 */
+  description?: string;
+  /**
+   * @minLength 1
+   * @maxLength 512
+   */
+  pattern: string;
 }
 
 export interface CreateCustomDomainInputBody {
@@ -1325,6 +1366,68 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksListBannedUserAgents
+     * @summary List banned user agent patterns
+     * @request GET:/v1/short-links/banned-user-agents
+     * @secure
+     * @response `200` `BaseOutputBodyJsonListBannedUserAgentDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksListBannedUserAgents: (params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonListBannedUserAgentDto, any>({
+        path: `/v1/short-links/banned-user-agents`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksCreateBannedUserAgent
+     * @summary Create banned user agent pattern
+     * @request POST:/v1/short-links/banned-user-agents
+     * @secure
+     * @response `200` `BaseOutputBodyJsonBannedUserAgentDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksCreateBannedUserAgent: (data: CreateBannedUserAgentInputBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonBannedUserAgentDto, any>({
+        path: `/v1/short-links/banned-user-agents`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksDeleteBannedUserAgent
+     * @summary Delete banned user agent pattern
+     * @request DELETE:/v1/short-links/banned-user-agents/{id}
+     * @secure
+     * @response `200` `BaseOutputBodyJsonInterface` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksDeleteBannedUserAgent: (id: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonInterface, any>({
+        path: `/v1/short-links/banned-user-agents/${id}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
