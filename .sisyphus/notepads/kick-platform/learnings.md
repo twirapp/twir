@@ -11,6 +11,8 @@
 - Channels multi-platform migration can safely reuse `channels.id` as the legacy-to-new UUID mapping source after renaming it to `user_id`, then re-point all child FKs by updating UUID values before re-adding the original FK definitions.
 - QA for the new `(user_id, platform)` uniqueness must copy required non-null channel fields like `botId` from an existing Twitch row; bare `INSERT (user_id, platform)` will fail on existing table constraints unrelated to the new schema.
 - Tokens repository callers now need to parse legacy string user IDs into `uuid.UUID` at the boundary before hitting the pgx repository API.
+- Bus-core generic chat messages now live in `libs/bus-core/generic/chat-message.go`; `ChannelID` is the internal surrogate `channels.id` and `UserID` is the internal `users.id`.
+- `libs/bus-core/bus.go` wires `ChatMessagesGeneric` to `chat.messages.generic` and `Parser.ProcessGenericMessage` to `parser.process_generic_message` without touching the existing Twitch queues.
 
 ## [T5] PlatformProvider interface + Twitch implementation
 - `platform.PlatformProvider` interface lives in `apps/api-gql/internal/platform/provider.go`; Twitch impl in `internal/platform/twitch/provider.go`.
