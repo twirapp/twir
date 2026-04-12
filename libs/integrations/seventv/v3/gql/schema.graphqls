@@ -1,0 +1,660 @@
+scalar ActiveEmoteFlagModel
+
+scalar ArbitraryMap
+
+scalar AuditLogChangeFormat
+
+scalar AuditLogKind
+
+scalar BanEffect
+
+scalar ConnectionPlatform
+
+scalar CosmeticKind
+
+scalar CosmeticPaintCanvasRepeat
+
+scalar CosmeticPaintFunction
+
+scalar CosmeticPaintShape
+
+scalar CosmeticPaintTextTransform
+
+scalar DateTime
+
+scalar EmoteFlagsModel
+
+scalar EmoteLifecycleModel
+
+scalar EmoteSetFlagModel
+
+scalar EmoteVersionState
+
+scalar Id
+
+scalar ImageFormat
+
+scalar ObjectID
+
+scalar StringMap
+
+scalar UserEditorModelPermission
+
+scalar UserTypeModel
+
+enum EmoteSearchCategory {
+  TOP
+  TRENDING_DAY
+  TRENDING_WEEK
+  TRENDING_MONTH
+  FEATURED
+  NEW
+  GLOBAL
+}
+
+enum EmoteSetName {
+  GLOBAL
+}
+
+enum ListItemAction {
+  ADD
+  UPDATE
+  REMOVE
+}
+
+enum MessageKind {
+  EMOTE_COMMENT
+  MOD_REQUEST
+  INBOX
+  NEWS
+}
+
+enum ReportStatus {
+  OPEN
+  ASSIGNED
+  CLOSED
+}
+
+enum SortOrder {
+  ASCENDING
+  DESCENDING
+}
+
+enum SubscriptionPeriodKind {
+  yearly
+  monthly
+}
+
+type ActiveEmote {
+  id: ObjectID!
+  timestamp: DateTime!
+  name: String!
+  flags: ActiveEmoteFlagModel!
+  origin_id: ObjectID
+  data: EmotePartial!
+  actor: UserPartial
+}
+
+type AuditLog {
+  id: ObjectID!
+  actor_id: ObjectID!
+  kind: AuditLogKind!
+  target_id: ObjectID!
+  target_kind: Int!
+  created_at: DateTime!
+  changes: [AuditLogChange!]!
+  reason: String!
+  actor: UserPartial!
+}
+
+type AuditLogChange {
+  format: AuditLogChangeFormat!
+  key: String!
+  value: ArbitraryMap
+  array_value: AuditLogChangeArray
+}
+
+type AuditLogChangeArray {
+  added: [ArbitraryMap!]!
+  removed: [ArbitraryMap!]!
+  updated: [ArbitraryMap!]!
+}
+
+type Ban {
+  id: ObjectID!
+  reason: String!
+  effects: BanEffect!
+  expire_at: DateTime!
+  created_at: DateTime!
+  victim_id: ObjectID!
+  actor_id: ObjectID!
+  victim: User!
+  actor: User!
+}
+
+type CosmeticBadge {
+  id: Id!
+  name: String!
+  tag: String!
+  tooltip: String!
+  host: ImageHost!
+  kind: CosmeticKind!
+}
+
+type CosmeticOps {
+  id: ObjectID!
+  updatePaint(definition: CosmeticPaintInput!): CosmeticPaint!
+}
+
+type CosmeticPaint {
+  id: Id!
+  name: String!
+  color: Int
+  gradients: [CosmeticPaintGradient!]!
+  shadows: [CosmeticPaintShadow!]!
+  text: CosmeticPaintText
+  function: CosmeticPaintFunction! @deprecated(reason: "No longer supported")
+  repeat: Boolean! @deprecated(reason: "No longer supported")
+  angle: Int! @deprecated(reason: "No longer supported")
+  shape: CosmeticPaintShape! @deprecated(reason: "No longer supported")
+  image_url: String! @deprecated(reason: "No longer supported")
+  stops: [CosmeticPaintStop!]! @deprecated(reason: "No longer supported")
+  kind: CosmeticKind!
+}
+
+type CosmeticPaintGradient {
+  function: CosmeticPaintFunction!
+  canvas_repeat: CosmeticPaintCanvasRepeat!
+  canvas_size: [Float!]!
+  at: [Float!]!
+  stops: [CosmeticPaintStop!]!
+  image_url: String!
+  shape: CosmeticPaintShape
+  angle: Int!
+  repeat: Boolean!
+}
+
+type CosmeticPaintShadow {
+  x_offset: Float!
+  y_offset: Float!
+  radius: Float!
+  color: Int!
+}
+
+type CosmeticPaintStop {
+  at: Float!
+  color: Int!
+  center_at: [Float!]!
+}
+
+type CosmeticPaintStroke {
+  color: Int!
+  width: Float!
+}
+
+type CosmeticPaintText {
+  weight: Int!
+  shadows: [CosmeticPaintShadow!]!
+  transform: CosmeticPaintTextTransform
+  stroke: CosmeticPaintStroke
+  variant: String!
+}
+
+type CosmeticReprocessResult {
+  id: ObjectID!
+  success: Boolean!
+  error: String
+}
+
+type CosmeticReprocessResults {
+  paints: [CosmeticReprocessResult!]!
+  badges: [CosmeticReprocessResult!]!
+}
+
+type CosmeticsQuery {
+  paints: [CosmeticPaint!]!
+  badges: [CosmeticBadge!]!
+}
+
+type CreateSubscriptionPeriodResponse {
+  success: Boolean!
+  invoiceId: String
+  paymentDeclined: Boolean!
+}
+
+type Emote {
+  id: ObjectID!
+  name: String!
+  flags: EmoteFlagsModel!
+  lifecycle: EmoteLifecycleModel!
+  tags: [String!]!
+  animated: Boolean!
+  owner_id: ObjectID!
+  host: ImageHost!
+  versions: [EmoteVersion!]!
+  state: [EmoteVersionState!]!
+  listed: Boolean!
+  personal_use: Boolean!
+  created_at: DateTime!
+  owner: UserPartial!
+  channels(page: Int, limit: Int): UserSearchResult!
+  common_names: [EmoteCommonName!]!
+  trending: Int
+  activity(limit: Int): [AuditLog!]!
+  reports: [Report!]!
+}
+
+type EmoteCommonName {
+  name: String!
+  count: Int!
+}
+
+type EmoteOps {
+  id: ObjectID!
+  update(params: EmoteUpdate!, reason: String): Emote!
+  merge(target_id: ObjectID!, reason: String): Emote!
+  rerun: Emote
+}
+
+type EmotePartial {
+  id: ObjectID!
+  name: String!
+  flags: EmoteFlagsModel!
+  lifecycle: EmoteLifecycleModel!
+  tags: [String!]!
+  animated: Boolean!
+  owner_id: ObjectID!
+  host: ImageHost!
+  state: [EmoteVersionState!]!
+  listed: Boolean!
+  created_at: DateTime!
+  owner: UserPartial!
+}
+
+type EmoteSearchResult {
+  count: Int!
+  max_page: Int!
+  items: [Emote!]!
+}
+
+type EmoteSet {
+  id: ObjectID!
+  name: String!
+  flags: EmoteSetFlagModel!
+  tags: [String!]!
+  origins: [EmoteSetOrigin!]!
+  owner_id: ObjectID
+  capacity: Int!
+  emotes(limit: Int, origins: Boolean): [ActiveEmote!]!
+  emote_count: Int!
+  owner: UserPartial
+}
+
+type EmoteSetOps {
+  id: ObjectID!
+  emotes(id: ObjectID!, action: ListItemAction!, name: String): [ActiveEmote!]!
+  update(data: UpdateEmoteSetInput!): EmoteSet!
+  delete: Boolean!
+}
+
+type EmoteSetOrigin {
+  id: ObjectID!
+  weight: Int!
+  slices: [Int!]!
+}
+
+type EmoteVersion {
+  id: ObjectID!
+  name: String!
+  description: String!
+  host: ImageHost!
+  lifecycle: EmoteLifecycleModel!
+  error: String
+  state: [EmoteVersionState!]!
+  listed: Boolean!
+  created_at: DateTime!
+}
+
+type Image {
+  name: String!
+  static_name: String!
+  width: Int!
+  height: Int!
+  frame_count: Int!
+  size: Int!
+  format: ImageFormat!
+}
+
+type ImageHost {
+  url: String!
+  files(formats: [ImageFormat!]): [Image!]!
+}
+
+type InboxMessage {
+  id: ObjectID!
+  kind: MessageKind!
+  created_at: DateTime!
+  author_id: ObjectID
+  read: Boolean!
+  read_at: DateTime
+  subject: String!
+  content: String!
+  important: Boolean!
+  starred: Boolean!
+  pinned: Boolean!
+  placeholders: StringMap!
+}
+
+type ModRequestMessage {
+  id: ObjectID!
+  kind: MessageKind!
+  author_id: ObjectID
+  read: Boolean!
+  read_at: DateTime
+  target_kind: Int!
+  target_id: ObjectID!
+  wish: String!
+  actor_country_name: String!
+  actor_country_code: String!
+  created_at: DateTime!
+}
+
+type ModRequestMessageList {
+  messages: [ModRequestMessage!]!
+  total: Int!
+}
+
+type Mutation {
+  createBan(victim_id: ObjectID!, reason: String!, effects: BanEffect!, expire_at: DateTime, anonymous: Boolean): Ban
+  editBan(ban_id: ObjectID!, reason: String, effects: BanEffect, expire_at: DateTime): Ban
+  createCosmeticPaint(definition: CosmeticPaintInput!): ObjectID!
+  cosmetics(id: ObjectID!): CosmeticOps!
+  reprocessCosmeticImage(paint_ids: [ObjectID!], badge_ids: [ObjectID!]): CosmeticReprocessResults!
+  emoteSet(id: ObjectID!): EmoteSetOps
+  createEmoteSet(user_id: ObjectID!, data: CreateEmoteSetInput!): EmoteSet!
+  emote(id: ObjectID!): EmoteOps!
+  readMessages(message_ids: [ObjectID!]!, read: Boolean!, approved: Boolean!): Int!
+  sendInboxMessage(recipients: [ObjectID!]!, subject: String!, content: String!, important: Boolean, anonymous: Boolean): InboxMessage
+  dismissVoidTargetModRequests(object: Int!): Int!
+  createReport(data: CreateReportInput!): Report!
+  editReport(report_id: ObjectID!, data: EditReportInput!): Report!
+  createRole(data: CreateRoleInput!): Role!
+  editRole(role_id: ObjectID!, data: EditRoleInput!): Role!
+  deleteRole(role_id: ObjectID!): String!
+  user(id: ObjectID!): UserOps!
+}
+
+type Query {
+  cosmetics(list: [ObjectID!]): CosmeticsQuery!
+  emoteSet(id: ObjectID!): EmoteSet!
+  emoteSetsByID(list: [ObjectID!]!): [EmoteSet!]!
+  namedEmoteSet(name: EmoteSetName!): EmoteSet!
+  emote(id: ObjectID!): Emote
+  emotesByID(list: [ObjectID!]!): [EmotePartial!]!
+  emotes(query: String!, page: Int, limit: Int, filter: EmoteSearchFilter, sort: Sort): EmoteSearchResult!
+  announcement: String!
+  inbox: [InboxMessage!]!
+  modRequests(page: Int, limit: Int, wish: String, country: [String!]): ModRequestMessageList!
+  reports(status: ReportStatus, limit: Int, page: Int): [Report!]!
+  report(id: ObjectID!): Report
+  roles: [Role!]!
+  role(id: ObjectID!): Role
+  actor: User
+  user(id: ObjectID!): User!
+  userByConnection(platform: ConnectionPlatform!, id: String!): User!
+  users(query: String!, page: Int, limit: Int): [UserPartial!]!
+  usersByID(list: [ObjectID!]!): [UserPartial!]!
+  _service: _Service!
+}
+
+type Report {
+  id: ObjectID!
+  target_kind: Int!
+  target_id: ObjectID!
+  actor_id: ObjectID!
+  subject: String!
+  body: String!
+  priority: Int!
+  status: ReportStatus!
+  notes: [String!]!
+  actor: User!
+  assignees: [User!]!
+  created_at: DateTime!
+}
+
+type Role {
+  id: ObjectID!
+  name: String!
+  color: Int!
+  position: Int!
+  invisible: Boolean!
+  created_at: DateTime!
+  allowed: String!
+  denied: String!
+  members(page: Int, limit: Int): [User!]!
+}
+
+type User {
+  id: ObjectID!
+  type: UserTypeModel!
+  username: String!
+  display_name: String!
+  avatar_url: String!
+  biography: String!
+  inbox_unread_count: Int!
+  created_at: DateTime!
+  style: UserStyle!
+  editors: [UserEditor!]!
+  editor_of: [UserEditor!]!
+  cosmetics: [UserCosmetic!]!
+  roles: [ObjectID!]!
+  emote_sets(entitled: Boolean): [EmoteSet!]!
+  owned_emotes: [Emote!]!
+  activity(limit: Int): [AuditLog!]!
+  connections: [UserConnection!]!
+  reports: [Report!]!
+}
+
+type UserConnection {
+  id: String!
+  platform: ConnectionPlatform!
+  username: String!
+  display_name: String!
+  linked_at: DateTime!
+  emote_capacity: Int!
+  emote_set_id: ObjectID
+}
+
+type UserCosmetic {
+  id: ObjectID!
+  selected: Boolean!
+  kind: CosmeticKind!
+}
+
+type UserEditor {
+  id: ObjectID!
+  permissions: UserEditorModelPermission!
+  visible: Boolean!
+  added_at: DateTime!
+  user: UserPartial!
+}
+
+type UserOps {
+  id: ObjectID!
+  connections(id: String!, data: UserConnectionUpdate!): [UserConnection]
+  editors(editor_id: ObjectID!, data: UserEditorUpdate!): [UserEditor]
+  cosmetics(update: UserCosmeticUpdate!): Boolean!
+  roles(role_id: ObjectID!, action: ListItemAction!): [ObjectID!]!
+  merge(id: ObjectID!): Boolean!
+  delete: Boolean!
+  createSubscriptionPeriod(create: SubscriptionPeriodCreate!): CreateSubscriptionPeriodResponse!
+  refreshSubscriptions: Boolean!
+}
+
+type UserPartial {
+  id: ObjectID!
+  type: UserTypeModel!
+  username: String!
+  display_name: String!
+  avatar_url: String!
+  biography: String!
+  created_at: DateTime!
+  style: UserStyle!
+  roles: [ObjectID!]!
+  connections: [UserConnection!]!
+  emote_sets(entitled: Boolean): [EmoteSet!]!
+}
+
+type UserSearchResult {
+  total: Int!
+  items: [UserPartial!]!
+}
+
+type UserStyle {
+  color: Int!
+  paint_id: ObjectID
+  badge_id: ObjectID
+  paint: CosmeticPaint
+  badge: CosmeticBadge
+}
+
+type _Service {
+  sdl: String
+}
+
+input CosmeticPaintInput {
+  name: String!
+  function: CosmeticPaintFunction!
+  color: Int
+  angle: Int
+  shape: CosmeticPaintShape
+  image_url: String
+  repeat: Boolean!
+  stops: [CosmeticPaintStopInput!]!
+  shadows: [CosmeticPaintShadowInput!]!
+}
+
+input CosmeticPaintShadowInput {
+  x_offset: String!
+  y_offset: String!
+  radius: String!
+  color: Int!
+}
+
+input CosmeticPaintStopInput {
+  at: Float!
+  color: Int!
+}
+
+input CreateEmoteSetInput {
+  name: String!
+  privileged: Boolean
+}
+
+input CreateReportInput {
+  target_kind: Int!
+  target_id: ObjectID!
+  subject: String!
+  body: String!
+}
+
+input CreateRoleInput {
+  name: String!
+  color: Int!
+  allowed: String!
+  denied: String!
+}
+
+input EditReportInput {
+  priority: Int
+  status: ReportStatus
+  assignee: String
+  note: EditReportNoteInput
+}
+
+input EditReportNoteInput {
+  timestamp: String
+  content: String
+  internal: Boolean
+  reply: String
+}
+
+input EditRoleInput {
+  name: String
+  color: Int
+  allowed: String
+  denied: String
+  position: Int
+}
+
+input EmoteSearchFilter {
+  category: EmoteSearchCategory
+  case_sensitive: Boolean
+  exact_match: Boolean
+  ignore_tags: Boolean
+  animated: Boolean
+  zero_width: Boolean
+  authentic: Boolean
+  aspect_ratio: String
+  personal_use: Boolean
+}
+
+input EmoteSetOriginInput {
+  id: ObjectID!
+  weight: Int
+  slices: [Int!]
+}
+
+input EmoteUpdate {
+  name: String
+  version_name: String
+  version_description: String
+  flags: EmoteFlagsModel
+  owner_id: ObjectID
+  tags: [String!]
+  listed: Boolean
+  personal_use: Boolean
+  deleted: Boolean
+}
+
+input Sort {
+  value: String!
+  order: SortOrder!
+}
+
+input SubscriptionPeriodCreate {
+  product_id: ObjectID!
+  kind: SubscriptionPeriodKind!
+  start: DateTime!
+  end: DateTime!
+  reason: String!
+  invoice: SubscriptionPeriodCreateInvoiceData
+}
+
+input SubscriptionPeriodCreateInvoiceData {
+  price: Float!
+  currency: String
+}
+
+input UpdateEmoteSetInput {
+  name: String
+  capacity: Int
+  origins: [EmoteSetOriginInput!]
+}
+
+input UserConnectionUpdate {
+  emote_set_id: ObjectID
+  unlink: Boolean
+}
+
+input UserCosmeticUpdate {
+  id: ObjectID!
+  kind: CosmeticKind!
+  selected: Boolean!
+}
+
+input UserEditorUpdate {
+  permissions: UserEditorModelPermission
+  visible: Boolean
+}
+
