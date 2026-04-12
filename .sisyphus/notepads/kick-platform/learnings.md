@@ -10,3 +10,12 @@
 - pgx scanning/writing worked with the new platforms field in repository code, and the repo-level build checks passed in the affected Go modules.
 - Channels multi-platform migration can safely reuse `channels.id` as the legacy-to-new UUID mapping source after renaming it to `user_id`, then re-point all child FKs by updating UUID values before re-adding the original FK definitions.
 - QA for the new `(user_id, platform)` uniqueness must copy required non-null channel fields like `botId` from an existing Twitch row; bare `INSERT (user_id, platform)` will fail on existing table constraints unrelated to the new schema.
+- Tokens repository callers now need to parse legacy string user IDs into `uuid.UUID` at the boundary before hitting the pgx repository API.
+
+## [T5] PlatformProvider interface + Twitch implementation
+- `platform.PlatformProvider` interface lives in `apps/api-gql/internal/platform/provider.go`; Twitch impl in `internal/platform/twitch/provider.go`.
+- Twitch provider creates a plain `helix.Client` (no bus/app-token) using only ClientID, ClientSecret, RedirectURI — sufficient for OAuth exchange flows.
+- `GetAuthURL` ignores `codeChallenge` (Twitch doesn't use PKCE); scopes are embedded in the provider.
+- `ExchangeCode` ignores `codeVerifier` param — pass `_` to satisfy interface.
+- Registered in `cmd/main.go` via `fx.Annotate(twitchplatform.New, fx.As(new(platform.PlatformProvider)))`.
+- `TwitchMockEnabled` → `apiBaseURL` override pattern mirrors libs/twitch/twitch.go.
