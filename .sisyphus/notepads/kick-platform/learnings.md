@@ -23,3 +23,4 @@
 - Kick provider uses exported PKCE helpers so the authorize route can store a session-only verifier and return a Kick OAuth URL with S256 challenge params.
 - Kick config now supports KICK_CLIENT_ID, KICK_CLIENT_SECRET, and optional KICK_REDIRECT_URL; default callback falls back to {SITE_BASE_URL}/login/kick.
 - Kick /auth/kick/code needs session code verifier retrieval via Auth.Get plus explicit Auth.Commit after multiple Put calls to avoid per-key helper proliferation.
+- Kick bus-core topics live in a dedicated `libs/bus-core/kick` package with raw event structs and subject constants; `go build ./libs/bus-core/...` passes after adding them.
