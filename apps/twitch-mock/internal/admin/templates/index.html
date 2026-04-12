@@ -151,6 +151,24 @@
 		</div>
 
 		<div class="grid">
+			<form class="card" id="chat-message-form">
+				<h2>channel.chat.message</h2>
+				<div class="form-row">
+					<label for="chat-user-id">Chatter User ID</label>
+					<input id="chat-user-id" type="text" value="99999" />
+				</div>
+				<div class="form-row">
+					<label for="chat-user-name">Chatter Display Name</label>
+					<input id="chat-user-name" type="text" value="Viewer" />
+				</div>
+				<div class="form-row">
+					<label for="chat-message-text">Message</label>
+					<input id="chat-message-text" type="text" value="hello mock world" />
+				</div>
+				<button type="submit">Trigger</button>
+				<div class="result" id="chat-message-result"></div>
+			</form>
+
 			<form class="card" data-event="channel.follow">
 				<h2>channel.follow</h2>
 				<textarea>
@@ -194,24 +212,6 @@
 				>
 				<button type="submit">Trigger</button>
 				<div class="result"></div>
-			</form>
-
-			<form class="card" id="chat-message-form">
-				<h2>channel.chat.message</h2>
-				<div class="form-row">
-					<label for="chat-user-id">Chatter User ID</label>
-					<input id="chat-user-id" type="text" value="99999" />
-				</div>
-				<div class="form-row">
-					<label for="chat-user-name">Chatter Display Name</label>
-					<input id="chat-user-name" type="text" value="Viewer" />
-				</div>
-				<div class="form-row">
-					<label for="chat-message-text">Message</label>
-					<input id="chat-message-text" type="text" value="hello mock world" />
-				</div>
-				<button type="submit">Trigger</button>
-				<div class="result" id="chat-message-result"></div>
 			</form>
 
 			<form class="card" data-event="channel.ban">

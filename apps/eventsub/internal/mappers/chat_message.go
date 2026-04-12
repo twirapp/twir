@@ -104,8 +104,8 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) twitch.Twi
 		BroadcasterUserName:  event.BroadcasterUserName,
 		BroadcasterUserLogin: event.BroadcasterUserLogin,
 		ChatterUserId:        event.ChatterUserId,
-		ChatterUserName:      event.ChatterUserName,
-		ChatterUserLogin:     event.ChatterUserLogin,
+		ChatterUserName:      event.ChatterUserLogin,
+		ChatterUserLogin:     event.ChatterUserName,
 		MessageId:            event.MessageId,
 		Message: &twitch.ChatMessageMessage{
 			Text:      event.Message.Text,

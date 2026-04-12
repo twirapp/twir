@@ -17,14 +17,14 @@ func (s *Server) token(c *gin.Context) {
 			"access_token": config.MockAppToken,
 			"token_type":   "bearer",
 			"expires_in":   99999999,
-			"scope":        "",
+			"scope":        []string{},
 		})
 	case "authorization_code", "refresh_token":
 		c.JSON(http.StatusOK, gin.H{
 			"access_token":  config.MockUserToken,
 			"token_type":    "bearer",
 			"expires_in":    99999999,
-			"scope":         "",
+			"scope":         []string{},
 			"refresh_token": "mock-user-refresh",
 		})
 	default:

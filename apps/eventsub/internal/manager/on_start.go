@@ -163,8 +163,13 @@ func (c *Manager) twitchCreateConduit(ctx context.Context) (*conduitsResponseCon
 		return nil, err
 	}
 
+	shardCount := 3 // how many replicas of eventsub i runed in prod
+	if c.config.TwitchMockEnabled {
+		shardCount = 1
+	}
+
 	createReq := createConduitRequest{
-		ShardCount: 3, // how many replicas of eventsub i runed in prod
+		ShardCount: shardCount,
 	}
 
 	bodyBytes, err := json.Marshal(createReq)

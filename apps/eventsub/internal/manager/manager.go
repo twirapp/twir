@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/go-redsync/redsync/v4"
@@ -63,7 +64,7 @@ func NewManager(opts Opts) (*Manager, error) {
 		httpClient = &http.Client{
 			Transport: twitchlib.NewMockRoundTripper(http.DefaultTransport, opts.Config),
 		}
-		apiBaseUrl = opts.Config.TwitchMockApiUrl
+		apiBaseUrl = strings.TrimSuffix(opts.Config.TwitchMockApiUrl, "/helix")
 		wsOpts = append(wsOpts, eventsub.WebsocketWithServerURL(opts.Config.TwitchMockWsUrl))
 	} else {
 		httpClient = http.DefaultClient

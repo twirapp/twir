@@ -106,7 +106,14 @@ func (s *Server) Handler() http.Handler {
 
 func (s *Server) Broadcast(eventType string, eventData map[string]any) {
 	clients := s.snapshotClients()
+	activeSessionIDs := s.activeShardSessionIDs()
 	for _, currentClient := range clients {
+		if len(activeSessionIDs) > 0 {
+			if _, ok := activeSessionIDs[currentClient.id]; !ok {
+				continue
+			}
+		}
+
 		message := s.buildNotification(currentClient.id, eventType, eventData)
 		if err := currentClient.writeJSON(message); err != nil {
 			s.logger.Warn("failed to broadcast websocket notification", slog.String("session_id", currentClient.id), slog.Any("error", err))
@@ -261,6 +268,23 @@ func (s *Server) snapshotClients() []*client {
 	result := make([]*client, 0, len(s.clients))
 	for _, currentClient := range s.clients {
 		result = append(result, currentClient)
+	}
+
+	return result
+}
+
+func (s *Server) activeShardSessionIDs() map[string]struct{} {
+	conduits := s.state.ListConduits()
+	result := make(map[string]struct{})
+
+	for _, conduit := range conduits {
+		for _, shard := range conduit.Shards {
+			if shard.Transport.SessionID == "" {
+				continue
+			}
+
+			result[shard.Transport.SessionID] = struct{}{}
+		}
 	}
 
 	return result
