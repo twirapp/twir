@@ -161,9 +161,15 @@ so that future platforms can be added with minimal friction.
 - 7TV `GetProfileByKickId`
 - `KickProfile` in GraphQL
 - Frontend Kick login + linked accounts UI
+- **Platform as enum everywhere**: platform values (`twitch`, `kick`) must be typed enums, not raw strings, at every layer:
+  - **DB**: `CREATE TYPE platform AS ENUM ('twitch', 'kick');` — all `platform` columns use this type (not `TEXT`)
+  - **Go**: `type Platform string` with `const PlatformTwitch Platform = "twitch"` and `const PlatformKick Platform = "kick"` defined in `libs/entities/platform/platform.go`; all Go code (entities, repositories, bus types, services) uses `entities/platform.Platform` — never bare `string`
+  - **GraphQL schema**: `enum Platform { TWITCH KICK }` — used on all types that expose platform
+  - **TypeScript/Frontend**: generated GraphQL enum `Platform` used throughout; no raw `"twitch"` / `"kick"` string literals
 
 ### Must NOT Have (Guardrails)
 
+- **No raw platform strings** — never use bare `"twitch"` / `"kick"` string literals where a typed enum is available; always use `platform.PlatformTwitch` / `platform.PlatformKick` in Go, and the GraphQL `Platform` enum in schema/frontend
 - **No GORM in new code** — all new Go code uses pgx via `libs/repositories` only
 - **No `libs/gomodels` in new code** — use `libs/entities` for new domain objects
 - **No removal of `twitch.TwitchChatMessage` NATS queue** until ALL consumers (bots, timers, parser,
@@ -209,6 +215,9 @@ Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 ### Parallel Execution Waves
 
 ```
+Wave 0 — Platform Enum Foundation (must complete before everything else):
+└── Task 0: platform enum (Go type + DB ENUM + GraphQL enum) [quick]
+
 Wave 1 — DB Foundation (independent migrations, run in parallel):
 ├── Task 1: users.id → internal UUID migration + user_platform_accounts table [deep]
 ├── Task 2: kick_bots table + bots table platform column [quick]
@@ -274,7 +283,8 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ### Dependency Matrix
 
-- **Task 1**: none → blocks 5,6,7,8,10,11,13,16
+- **Task 0**: none → blocks T1, T2, T3, T4 (and transitively all tasks)
+- **Task 1**: T0 → blocks 5,6,7,8,10,11,13,16
 - **Task 2**: none → blocks 12,33
 - **Task 3**: none → blocks 24
 - **Task 4**: none → blocks 10,15,26
@@ -314,6 +324,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ### Agent Dispatch Summary
 
+- **Wave 0 (1 task)**: T0→`quick`
 - **Wave 1 (4 tasks)**: T1→`deep`, T2→`quick`, T3→`quick`, T4→`quick`
 - **Wave 2 (4 tasks)**: T5→`unspecified-high`, T6→`quick`, T7→`quick`, T8→`unspecified-high`
 - **Wave 3 (4 tasks)**: T9→`deep`, T10→`deep`, T11→`unspecified-high`, T12→`quick`
@@ -331,6 +342,85 @@ Wave FINAL — Review (after ALL implementation tasks):
 ---
 
 ## TODOs
+
+- [x] 0. Platform Enum Foundation
+
+  **What to do**:
+  - Create `libs/entities/platform/platform.go`:
+
+    ```go
+    package platform
+
+    type Platform string
+
+    const (
+    	PlatformTwitch Platform = "twitch"
+    	PlatformKick   Platform = "kick"
+    )
+
+    // IsValid returns true if the platform is a known value.
+    func (p Platform) IsValid() bool {
+    	switch p {
+    	case PlatformTwitch, PlatformKick:
+    		return true
+    	}
+    	return false
+    }
+
+    func (p Platform) String() string { return string(p) }
+    ```
+
+  - Create DB migration for the Postgres enum type:
+    `bun cli migrations create --name add_platform_enum_type --db postgres --type sql`
+    ```sql
+    -- up
+    CREATE TYPE platform AS ENUM ('twitch', 'kick');
+    -- down
+    DROP TYPE platform;
+    ```
+    > Note: subsequent migrations (T1, T3, T4) that add `platform` columns must use this type, not TEXT.
+  - Add `enum Platform { TWITCH KICK }` to `apps/api-gql/schema/platform.graphql` (new file).
+    After adding, run `bun cli build gql` to regenerate resolvers.
+
+  **Must NOT do**:
+  - Do NOT scatter raw `"twitch"` / `"kick"` string literals across the codebase — always import from `libs/entities/platform`
+  - Do NOT use `TEXT` for any new `platform` column — use the `platform` Postgres enum type
+
+  **Recommended Agent Profile**:
+  - **Category**: `quick`
+  - **Skills**: []
+
+  **Parallelization**:
+  - **Can Run In Parallel**: NO — must complete before Wave 1 (T1–T4 depend on the DB enum type and Go enum existing)
+  - **Parallel Group**: Wave 0 (pre-Wave 1)
+  - **Blocks**: T1, T2, T3, T4 (and transitively everything else)
+  - **Blocked By**: None
+
+  **References**:
+  - `libs/entities/` — existing entity patterns to follow
+  - `libs/migrations/postgres/` — recent migration for syntax reference
+
+  **Acceptance Criteria**:
+
+  **QA Scenarios**:
+
+  ```
+  Scenario: Platform enum compiles and DB type created
+    Tool: Bash
+    Steps:
+      1. go build ./libs/entities/platform/...
+      2. bun cli migrations run
+      3. SELECT enum_range(NULL::platform); -- should return {twitch,kick}
+    Expected Result: Zero build errors; enum values present in DB
+    Evidence: .sisyphus/evidence/task-0-platform-enum.txt
+  ```
+
+  **Evidence to Capture**:
+  - [ ] task-0-platform-enum.txt
+
+  **Commit**: YES
+  - Message: `feat(entities): add Platform enum type (Go + DB + GraphQL)`
+  - Files: `libs/entities/platform/platform.go`, `libs/migrations/postgres/{timestamp}_add_platform_enum_type.sql`, `apps/api-gql/schema/platform.graphql`
 
 - [ ]
   1.  DB Migration: users.id → Internal UUID + user_platform_accounts table
