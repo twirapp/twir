@@ -202,7 +202,7 @@ func (c *Pgx) Update(
 	updateBuilder := sq.Update("shortened_urls").
 		Where(squirrel.Eq{"short_id": id}).
 		Set("updated_at", squirrel.Expr("NOW()")).
-		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id")
+		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id, ignore_global_bans")
 
 	if domainID == nil {
 		updateBuilder = updateBuilder.Where("domain_id IS NULL")
