@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useGiveaways } from "@/features/giveaways/composables/giveaways-use-giveaways.ts";
-import { ChannelRolePermissionEnum, GiveawayType } from "@/gql/graphql.ts";
+import type { GiveawayType } from "@/gql/graphql.ts";
+import { ChannelRolePermissionEnum } from "@/gql/graphql.ts";
 
 const { t } = useI18n();
 const open = ref(false);

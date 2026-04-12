@@ -1,4 +1,4 @@
-import { computed, ref, type ComputedRef, type Ref, type WritableComputedRef } from 'vue';
+import { type ComputedRef, type Ref, type WritableComputedRef, computed, ref } from 'vue';
 import type { WidgetItem } from './widgets.ts';
 
 export function useWidgetStacks(
