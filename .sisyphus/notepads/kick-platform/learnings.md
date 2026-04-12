@@ -8,3 +8,5 @@
 
 - Added platforms[] columns for commands/timers/keywords using the shared platform enum; migration runner completed successfully.
 - pgx scanning/writing worked with the new platforms field in repository code, and the repo-level build checks passed in the affected Go modules.
+- Channels multi-platform migration can safely reuse `channels.id` as the legacy-to-new UUID mapping source after renaming it to `user_id`, then re-point all child FKs by updating UUID values before re-adding the original FK definitions.
+- QA for the new `(user_id, platform)` uniqueness must copy required non-null channel fields like `botId` from an existing Twitch row; bare `INSERT (user_id, platform)` will fail on existing table constraints unrelated to the new schema.

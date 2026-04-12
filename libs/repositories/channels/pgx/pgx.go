@@ -6,8 +6,10 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 )
@@ -58,9 +60,9 @@ WHERE "isEnabled" = true
 
 func (c *Pgx) GetByID(ctx context.Context, channelID string) (model.Channel, error) {
 	query := `
-SELECT "id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
+SELECT "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
 FROM channels
-WHERE "id" = $1
+WHERE "id" = $1::uuid
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -79,10 +81,35 @@ WHERE "id" = $1
 	return result, nil
 }
 
+func (c *Pgx) GetByUserIDAndPlatform(ctx context.Context, userID uuid.UUID, platformVal platform.Platform) (model.Channel, error) {
+	query := `
+SELECT "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
+FROM channels
+WHERE "user_id" = $1 AND "platform" = $2
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, userID, platformVal)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model.Channel, error) {
 	selectBuilder := sq.
 		Select(
-			"id",
+			`"id"::text AS "id"`,
+			"platform",
+			"user_id",
 			`"isEnabled"`,
 			`"isTwitchBanned"`,
 			`"isBotMod"`,
