@@ -17,6 +17,7 @@ import (
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -153,6 +154,11 @@ func (c *Handler) HandleChannelChatMessage(
 		UpdatedAt:         ensuredUserStats.UpdatedAt,
 	}
 
+	messageText := ""
+	if data.Message != nil {
+		messageText = data.Message.Text
+	}
+
 	var wg sync.WaitGroup
 
 	wg.Go(
@@ -194,6 +200,73 @@ func (c *Handler) HandleChannelChatMessage(
 			} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
 				if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
 					c.logger.Error("cannot publish process command", logger.Error(err))
+				}
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			genericMsg := generic.ChatMessage{
+				Platform:          "twitch",
+				ChannelID:         data.BroadcasterUserId,
+				PlatformChannelID: data.BroadcasterUserId,
+				UserID:            data.ChatterUserId,
+				SenderID:          data.ChatterUserId,
+				SenderLogin:       data.ChatterUserLogin,
+				SenderDisplayName: data.ChatterUserName,
+				MessageID:         data.MessageId,
+				Text:              messageText,
+				Color:             data.Color,
+			}
+
+			for _, b := range data.Badges {
+				genericMsg.Badges = append(genericMsg.Badges, generic.ChatMessageBadge{
+					SetID: b.SetId,
+					Text:  b.Id,
+				})
+			}
+
+			if data.Message != nil {
+				for _, f := range data.Message.Fragments {
+					if f.Emote != nil {
+						genericMsg.Emotes = append(genericMsg.Emotes, generic.ChatMessageEmote{
+							ID:   f.Emote.Id,
+							Text: f.Text,
+						})
+					}
+				}
+			}
+
+			if err := c.twirBus.ChatMessagesGeneric.Publish(ctx, genericMsg); err != nil {
+				c.logger.Error("cannot publish generic chat message", logger.Error(err))
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			isCommand := strings.HasPrefix(messageText, data.EnrichedData.ChannelCommandPrefix)
+			if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
+				return
+			}
+
+			if isCommand && data.EnrichedData.DbChannel.IsEnabled {
+				genericMsg := generic.ChatMessage{
+					Platform:          "twitch",
+					ChannelID:         data.BroadcasterUserId,
+					PlatformChannelID: data.BroadcasterUserId,
+					UserID:            data.ChatterUserId,
+					SenderID:          data.ChatterUserId,
+					SenderLogin:       data.ChatterUserLogin,
+					SenderDisplayName: data.ChatterUserName,
+					MessageID:         data.MessageId,
+					Text:              messageText,
+					Color:             data.Color,
+				}
+
+				if err := c.twirBus.Parser.ProcessGenericMessage.Publish(ctx, genericMsg); err != nil {
+					c.logger.Error("cannot publish generic process command", logger.Error(err))
 				}
 			}
 		},

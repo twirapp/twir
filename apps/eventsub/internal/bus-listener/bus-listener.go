@@ -7,13 +7,16 @@ import (
 	"sync"
 
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
+	"github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
@@ -21,34 +24,40 @@ import (
 )
 
 type BusListener struct {
-	eventSubClient *manager.Manager
-	gorm           *gorm.DB
-	bus            *buscore.Bus
-	logger         *slog.Logger
-	channelsRepo   channels.Repository
-	config         config.Config
+	eventSubClient           *manager.Manager
+	kickSubManager           *kick.SubscriptionManager
+	gorm                     *gorm.DB
+	bus                      *buscore.Bus
+	logger                   *slog.Logger
+	channelsRepo             channels.Repository
+	userPlatformAccountsRepo user_platform_accounts.Repository
+	config                   config.Config
 }
 
 type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Manager      *manager.Manager
-	Gorm         *gorm.DB
-	Bus          *buscore.Bus
-	Logger       *slog.Logger
-	ChannelsRepo channels.Repository
-	Config       config.Config
+	Manager                  *manager.Manager
+	KickSubManager           *kick.SubscriptionManager
+	Gorm                     *gorm.DB
+	Bus                      *buscore.Bus
+	Logger                   *slog.Logger
+	ChannelsRepo             channels.Repository
+	UserPlatformAccountsRepo user_platform_accounts.Repository
+	Config                   config.Config
 }
 
 func New(opts Opts) (*BusListener, error) {
 	impl := &BusListener{
-		eventSubClient: opts.Manager,
-		gorm:           opts.Gorm,
-		bus:            opts.Bus,
-		logger:         opts.Logger,
-		channelsRepo:   opts.ChannelsRepo,
-		config:         opts.Config,
+		eventSubClient:           opts.Manager,
+		kickSubManager:           opts.KickSubManager,
+		gorm:                     opts.Gorm,
+		bus:                      opts.Bus,
+		logger:                   opts.Logger,
+		channelsRepo:             opts.ChannelsRepo,
+		userPlatformAccountsRepo: opts.UserPlatformAccountsRepo,
+		config:                   opts.Config,
 	}
 
 	opts.Lc.Append(
@@ -110,6 +119,45 @@ func (c *BusListener) subscribeToAllEvents(
 		c.logger.Warn(
 			"channel is not enabled or bot ID is missing",
 			slog.String("channel_id", msg.ChannelID),
+		)
+		return struct{}{}, nil
+	}
+
+	switch channel.Platform {
+	case platform.PlatformKick:
+		account, err := c.userPlatformAccountsRepo.GetByUserIDAndPlatform(ctx, channel.UserID, platform.PlatformKick)
+		if err != nil {
+			c.logger.Error(
+				"error getting kick platform account",
+				logger.Error(err),
+				slog.String("channel_id", msg.ChannelID),
+			)
+			return struct{}{}, err
+		}
+
+		if err := c.kickSubManager.SubscribeAll(ctx, account.PlatformUserID, account.AccessToken); err != nil {
+			c.logger.Error(
+				"error subscribing to kick events",
+				logger.Error(err),
+				slog.String("channel_id", msg.ChannelID),
+				slog.String("kick_channel_id", account.PlatformUserID),
+			)
+			return struct{}{}, err
+		}
+
+		c.logger.Info(
+			"subscribed to kick events",
+			slog.String("channel_id", msg.ChannelID),
+			slog.String("kick_channel_id", account.PlatformUserID),
+		)
+
+		return struct{}{}, nil
+	case platform.PlatformTwitch:
+	default:
+		c.logger.Warn(
+			"unsupported channel platform for eventsub subscription",
+			slog.String("channel_id", msg.ChannelID),
+			slog.String("platform", channel.Platform.String()),
 		)
 		return struct{}{}, nil
 	}
