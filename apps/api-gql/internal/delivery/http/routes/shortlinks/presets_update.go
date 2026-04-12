@@ -33,8 +33,8 @@ func newUpdatePreset(opts UpdatePresetOpts) *updatePreset {
 }
 
 type updatePresetInput struct {
-	ID   string `path:"id" minLength:"1" required:"true"`
-	Body struct {
+	PresetID string `path:"presetId" minLength:"1" required:"true"`
+	Body     struct {
 		Name        *string `json:"name,omitempty" minLength:"1" maxLength:"100"`
 		Description *string `json:"description,omitempty" maxLength:"256"`
 	}
@@ -44,7 +44,7 @@ func (c *updatePreset) GetMeta() huma.Operation {
 	return huma.Operation{
 		OperationID: "short-links-update-preset",
 		Method:      http.MethodPatch,
-		Path:        "/v1/short-links/presets/{id}",
+		Path:        "/v1/short-links/presets/{presetId}",
 		Tags:        []string{"Short links"},
 		Summary:     "Update banned UA preset",
 		Security: []map[string][]string{
@@ -64,7 +64,7 @@ func (c *updatePreset) Handler(
 
 	item, err := c.service.UpdatePreset(
 		ctx,
-		input.ID,
+		input.PresetID,
 		shortlinksbanneduapresetsrepository.UpdateInput{
 			Name:        input.Body.Name,
 			Description: input.Body.Description,

@@ -33,14 +33,14 @@ func newDeletePreset(opts DeletePresetOpts) *deletePreset {
 }
 
 type deletePresetInput struct {
-	ID string `path:"id" minLength:"1" required:"true"`
+	PresetID string `path:"presetId" minLength:"1" required:"true"`
 }
 
 func (c *deletePreset) GetMeta() huma.Operation {
 	return huma.Operation{
 		OperationID: "short-links-delete-preset",
 		Method:      http.MethodDelete,
-		Path:        "/v1/short-links/presets/{id}",
+		Path:        "/v1/short-links/presets/{presetId}",
 		Tags:        []string{"Short links"},
 		Summary:     "Delete banned UA preset",
 		Security: []map[string][]string{
@@ -58,7 +58,7 @@ func (c *deletePreset) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	if err := c.service.DeletePreset(ctx, input.ID, user.ID); err != nil {
+	if err := c.service.DeletePreset(ctx, input.PresetID, user.ID); err != nil {
 		switch {
 		case errors.Is(err, shortlinksbanneduapresetsrepository.ErrNotFound):
 			return nil, huma.NewError(http.StatusNotFound, "Preset not found")

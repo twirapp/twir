@@ -13,6 +13,15 @@ export interface AllowCustomDomainOutput {
   allowed: boolean;
 }
 
+export interface ApplyPresetToLinkInputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  preset_id: string;
+}
+
 export interface AuthBody {
   /**
    * A URL to the JSON Schema for this object.
@@ -37,14 +46,6 @@ export interface BadgeWithUsers {
   users: string[];
 }
 
-export interface BannedUserAgentDto {
-  /** @format date-time */
-  created_at: string;
-  description: string | null;
-  id: string;
-  pattern: string;
-}
-
 export interface BaseOutputBodyJsonAllowCustomDomainOutput {
   /**
    * A URL to the JSON Schema for this object.
@@ -61,15 +62,6 @@ export interface BaseOutputBodyJsonAuthResponseDto {
    */
   $schema?: string;
   data: AuthResponseDto;
-}
-
-export interface BaseOutputBodyJsonBannedUserAgentDto {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
-  data: BannedUserAgentDto;
 }
 
 export interface BaseOutputBodyJsonCustomDomainOutputDto {
@@ -117,6 +109,15 @@ export interface BaseOutputBodyJsonLinkOutputDto {
   data: LinkOutputDto;
 }
 
+export interface BaseOutputBodyJsonLinkPresetDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: LinkPresetDto;
+}
+
 export interface BaseOutputBodyJsonLinksProfileOutputDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -124,15 +125,6 @@ export interface BaseOutputBodyJsonLinksProfileOutputDto {
    */
   $schema?: string;
   data: LinksProfileOutputDto;
-}
-
-export interface BaseOutputBodyJsonListBannedUserAgentDto {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
-  data: BannedUserAgentDto[];
 }
 
 export interface BaseOutputBodyJsonListCommandResponseDto {
@@ -162,6 +154,33 @@ export interface BaseOutputBodyJsonListLinkBannedUserAgentDto {
   data: LinkBannedUserAgentDto[];
 }
 
+export interface BaseOutputBodyJsonListLinkPresetDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: LinkPresetDto[];
+}
+
+export interface BaseOutputBodyJsonListPresetDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: PresetDto[];
+}
+
+export interface BaseOutputBodyJsonListPresetPatternDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: PresetPatternDto[];
+}
+
 export interface BaseOutputBodyJsonListStatisticsPointDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -178,6 +197,24 @@ export interface BaseOutputBodyJsonPasteBinOutputDto {
    */
   $schema?: string;
   data: PasteBinOutputDto;
+}
+
+export interface BaseOutputBodyJsonPresetDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: PresetDto;
+}
+
+export interface BaseOutputBodyJsonPresetPatternDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: PresetPatternDto;
 }
 
 export interface BaseOutputBodyJsonProfileResponseDto {
@@ -304,21 +341,6 @@ export interface CountryStatsDto {
   country: string;
 }
 
-export interface CreateBannedUserAgentInputBody {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
-  /** @maxLength 256 */
-  description?: string;
-  /**
-   * @minLength 1
-   * @maxLength 512
-   */
-  pattern: string;
-}
-
 export interface CreateCustomDomainInputBody {
   /**
    * A URL to the JSON Schema for this object.
@@ -367,6 +389,36 @@ export interface CreateLinkInputDto {
    */
   url: string;
   use_custom_domain?: boolean;
+}
+
+export interface CreatePresetInputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /** @maxLength 256 */
+  description?: string;
+  /**
+   * @minLength 1
+   * @maxLength 100
+   */
+  name: string;
+}
+
+export interface CreatePresetPatternInputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /** @maxLength 256 */
+  description?: string;
+  /**
+   * @minLength 1
+   * @maxLength 512
+   */
+  pattern: string;
 }
 
 export interface CreateRequestDtoBody {
@@ -494,6 +546,14 @@ export interface LinkOutputDto {
   views: number;
 }
 
+export interface LinkPresetDto {
+  /** @format date-time */
+  created_at: string;
+  id: string;
+  link_id: string;
+  preset_id: string;
+}
+
 export interface LinksProfileOutputDto {
   items: LinkOutputDto[];
   /** @format int64 */
@@ -569,6 +629,25 @@ export interface PasteBinOutputDto {
   expire_at: string | null;
   id: string;
   owner_user_id: string | null;
+}
+
+export interface PresetDto {
+  /** @format date-time */
+  created_at: string;
+  description: string | null;
+  id: string;
+  name: string;
+  /** @format date-time */
+  updated_at: string;
+}
+
+export interface PresetPatternDto {
+  /** @format date-time */
+  created_at: string;
+  description: string | null;
+  id: string;
+  pattern: string;
+  preset_id: string;
 }
 
 export interface ProfileResponseDto {
@@ -736,6 +815,21 @@ export interface TwirStatsResponseBody {
   used_emotes: number;
   /** @format int64 */
   viewers: number;
+}
+
+export interface UpdatePresetInputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /** @maxLength 256 */
+  description?: string;
+  /**
+   * @minLength 1
+   * @maxLength 100
+   */
+  name?: string;
 }
 
 export interface UpdateRequestDtoBody {
@@ -1416,68 +1510,6 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Short links
-     * @name ShortLinksListBannedUserAgents
-     * @summary List banned user agent patterns
-     * @request GET:/v1/short-links/banned-user-agents
-     * @secure
-     * @response `200` `BaseOutputBodyJsonListBannedUserAgentDto` OK
-     * @response `default` `ErrorModel` Error
-     */
-    shortLinksListBannedUserAgents: (params: RequestParams = {}) =>
-      this.http.request<BaseOutputBodyJsonListBannedUserAgentDto, any>({
-        path: `/v1/short-links/banned-user-agents`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Short links
-     * @name ShortLinksCreateBannedUserAgent
-     * @summary Create banned user agent pattern
-     * @request POST:/v1/short-links/banned-user-agents
-     * @secure
-     * @response `200` `BaseOutputBodyJsonBannedUserAgentDto` OK
-     * @response `default` `ErrorModel` Error
-     */
-    shortLinksCreateBannedUserAgent: (data: CreateBannedUserAgentInputBody, params: RequestParams = {}) =>
-      this.http.request<BaseOutputBodyJsonBannedUserAgentDto, any>({
-        path: `/v1/short-links/banned-user-agents`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Short links
-     * @name ShortLinksDeleteBannedUserAgent
-     * @summary Delete banned user agent pattern
-     * @request DELETE:/v1/short-links/banned-user-agents/{id}
-     * @secure
-     * @response `200` `BaseOutputBodyJsonInterface` OK
-     * @response `default` `ErrorModel` Error
-     */
-    shortLinksDeleteBannedUserAgent: (id: string, params: RequestParams = {}) =>
-      this.http.request<BaseOutputBodyJsonInterface, any>({
-        path: `/v1/short-links/banned-user-agents/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Short links
      * @name ShortLinksListLinkBannedUserAgents
      * @summary List banned user agent patterns for a specific link
      * @request GET:/v1/short-links/by-id/{linkId}/banned-user-agents
@@ -1534,6 +1566,68 @@ export class Api<SecurityDataType extends unknown> {
     shortLinksDeleteLinkBannedUserAgent: (linkId: string, id: string, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonInterface, any>({
         path: `/v1/short-links/by-id/${linkId}/banned-user-agents/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksListLinkPresets
+     * @summary List presets applied to a link
+     * @request GET:/v1/short-links/by-id/{linkId}/presets
+     * @secure
+     * @response `200` `BaseOutputBodyJsonListLinkPresetDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksListLinkPresets: (linkId: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonListLinkPresetDto, any>({
+        path: `/v1/short-links/by-id/${linkId}/presets`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksApplyPresetToLink
+     * @summary Apply preset to link
+     * @request POST:/v1/short-links/by-id/{linkId}/presets
+     * @secure
+     * @response `200` `BaseOutputBodyJsonLinkPresetDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksApplyPresetToLink: (linkId: string, data: ApplyPresetToLinkInputBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonLinkPresetDto, any>({
+        path: `/v1/short-links/by-id/${linkId}/presets`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksRemovePresetFromLink
+     * @summary Remove preset from link
+     * @request DELETE:/v1/short-links/by-id/{linkId}/presets/{presetId}
+     * @secure
+     * @response `200` `BaseOutputBodyJsonInterface` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksRemovePresetFromLink: (linkId: string, presetId: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonInterface, any>({
+        path: `/v1/short-links/by-id/${linkId}/presets/${presetId}`,
         method: "DELETE",
         secure: true,
         format: "json",
@@ -1642,6 +1736,152 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<BaseOutputBodyJsonCustomDomainOutputDto, any>({
         path: `/v1/short-links/custom-domain/verify`,
         method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksListPresets
+     * @summary List banned UA presets
+     * @request GET:/v1/short-links/presets
+     * @secure
+     * @response `200` `BaseOutputBodyJsonListPresetDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksListPresets: (params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonListPresetDto, any>({
+        path: `/v1/short-links/presets`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksCreatePreset
+     * @summary Create banned UA preset
+     * @request POST:/v1/short-links/presets
+     * @secure
+     * @response `200` `BaseOutputBodyJsonPresetDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksCreatePreset: (data: CreatePresetInputBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonPresetDto, any>({
+        path: `/v1/short-links/presets`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksDeletePreset
+     * @summary Delete banned UA preset
+     * @request DELETE:/v1/short-links/presets/{presetId}
+     * @secure
+     * @response `200` `BaseOutputBodyJsonInterface` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksDeletePreset: (presetId: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonInterface, any>({
+        path: `/v1/short-links/presets/${presetId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksUpdatePreset
+     * @summary Update banned UA preset
+     * @request PATCH:/v1/short-links/presets/{presetId}
+     * @secure
+     * @response `200` `BaseOutputBodyJsonPresetDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksUpdatePreset: (presetId: string, data: UpdatePresetInputBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonPresetDto, any>({
+        path: `/v1/short-links/presets/${presetId}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksListPresetPatterns
+     * @summary List patterns in a preset
+     * @request GET:/v1/short-links/presets/{presetId}/patterns
+     * @secure
+     * @response `200` `BaseOutputBodyJsonListPresetPatternDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksListPresetPatterns: (presetId: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonListPresetPatternDto, any>({
+        path: `/v1/short-links/presets/${presetId}/patterns`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksCreatePresetPattern
+     * @summary Add pattern to preset
+     * @request POST:/v1/short-links/presets/{presetId}/patterns
+     * @secure
+     * @response `200` `BaseOutputBodyJsonPresetPatternDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksCreatePresetPattern: (presetId: string, data: CreatePresetPatternInputBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonPresetPatternDto, any>({
+        path: `/v1/short-links/presets/${presetId}/patterns`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Short links
+     * @name ShortLinksDeletePresetPattern
+     * @summary Remove pattern from preset
+     * @request DELETE:/v1/short-links/presets/{presetId}/patterns/{id}
+     * @secure
+     * @response `200` `BaseOutputBodyJsonInterface` OK
+     * @response `default` `ErrorModel` Error
+     */
+    shortLinksDeletePresetPattern: (presetId: string, id: string, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonInterface, any>({
+        path: `/v1/short-links/presets/${presetId}/patterns/${id}`,
+        method: "DELETE",
         secure: true,
         format: "json",
         ...params,
