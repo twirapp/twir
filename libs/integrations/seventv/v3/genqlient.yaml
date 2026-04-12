@@ -1,0 +1,62 @@
+schema: gql/schema.graphqls
+operations:
+  - gql/operations.graphqls
+generated: api/generated.go
+optional: pointer
+bindings:
+  ObjectID:
+    type: string
+  DateTime:
+    type: time.Time
+  EmoteFlagsModel:
+    type: int
+  EmoteLifecycleModel:
+    type: int
+  EmoteSetFlagModel:
+    type: int
+  ActiveEmoteFlagModel:
+    type: int
+  Id:
+    type: string
+  ImageFormat:
+    type: string
+  ConnectionPlatform:
+    type: string
+  CosmeticKind:
+    type: string
+  UserTypeModel:
+    type: string
+  EmoteSearchCategory:
+    type: string
+  ListItemAction:
+    type: string
+  SortOrder:
+    type: string
+  SubscriptionPeriodKind:
+    type: string
+  ReportStatus:
+    type: string
+  MessageKind:
+    type: string
+  EmoteVersionState:
+    type: string
+  UserEditorModelPermission:
+    type: int
+  BanEffect:
+    type: int
+  AuditLogChangeFormat:
+    type: string
+  AuditLogKind:
+    type: string
+  ArbitraryMap:
+    type: "map[string]interface{}"
+  StringMap:
+    type: "map[string]string"
+  CosmeticPaintCanvasRepeat:
+    type: string
+  CosmeticPaintFunction:
+    type: string
+  CosmeticPaintShape:
+    type: string
+  CosmeticPaintTextTransform:
+    type: string

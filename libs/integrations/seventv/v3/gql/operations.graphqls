@@ -1,0 +1,142 @@
+fragment TwirSeventvV3User on User {
+	id
+	type
+	username
+	display_name
+	avatar_url
+	created_at
+	roles
+	connections {
+		id
+		platform
+		username
+		display_name
+		linked_at
+		emote_capacity
+		emote_set_id
+	}
+	emote_sets(entitled: true) {
+		id
+		name
+		flags
+		capacity
+		emote_count
+		emotes(limit: 0) {
+			id
+			name
+			flags
+			data {
+				id
+				name
+				flags
+				host {
+					url
+					files {
+						name
+						format
+						width
+						height
+					}
+				}
+				owner {
+					id
+					username
+					display_name
+				}
+			}
+		}
+	}
+	style {
+		paint {
+			id
+			name
+		}
+		badge {
+			id
+			name
+		}
+	}
+}
+
+fragment TwirSeventvV3Emote on Emote {
+	id
+	name
+	animated
+	flags
+	lifecycle
+	listed
+	personal_use
+	created_at
+	host {
+		url
+		files(formats: [WEBP, AVIF, PNG]) {
+			name
+			static_name
+			width
+			height
+			frame_count
+			size
+			format
+		}
+	}
+	owner {
+		id
+		username
+		display_name
+		avatar_url
+	}
+}
+
+query SearchEmoteByNameV3($query: String!) {
+	emotes(query: $query, limit: 10, filter: {}) {
+		count
+		items {
+			...TwirSeventvV3Emote
+		}
+	}
+}
+
+query GetOneEmoteByIdV3($id: ObjectID!) {
+	emote(id: $id) {
+		...TwirSeventvV3Emote
+	}
+}
+
+mutation AddEmoteToSetV3($emoteSetId: ObjectID!, $emoteId: ObjectID!, $name: String) {
+	emoteSet(id: $emoteSetId) {
+		emotes(id: $emoteId, action: ADD, name: $name) {
+			id
+			name
+		}
+	}
+}
+
+mutation DeleteEmoteFromSetV3($emoteSetId: ObjectID!, $emoteId: ObjectID!) {
+	emoteSet(id: $emoteSetId) {
+		emotes(id: $emoteId, action: REMOVE) {
+			id
+			name
+		}
+	}
+}
+
+query GetProfileByTwitchIdV3($id: String!) {
+	userByConnection(platform: TWITCH, id: $id) {
+		...TwirSeventvV3User
+	}
+}
+
+query GetProfileByIdV3($id: ObjectID!) {
+	user(id: $id) {
+		...TwirSeventvV3User
+	}
+}
+
+mutation RenameEmoteV3($emoteSetId: ObjectID!, $emoteId: ObjectID!, $name: String!) {
+	emoteSet(id: $emoteSetId) {
+		emotes(id: $emoteId, action: UPDATE, name: $name) {
+			id
+			name
+		}
+	}
+}

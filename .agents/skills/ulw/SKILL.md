@@ -16,7 +16,7 @@ compatibility: opencode
 1. Reads the current task from this session's conversation history
 2. Generates a conventional-commit-style branch name
 3. Creates a git worktree at `./worktrees/<branch>` (inside the project, gitignored)
-4. Symlinks `node_modules`, copies `.env`, and desktop `.env`
+4. Symlinks `node_modules`, copies `.env`
 5. Continues ALL implementation work inside the worktree — **same terminal, no new window**
 
 ---
@@ -26,7 +26,8 @@ compatibility: opencode
 Analyze the conversation in this session. Identify:
 
 - The type of change (feature / bug fix / refactor / etc.)
-- The area or module being changed (e.g., `twitch-auth`, `chat-aggregator`, `youtube-adapter`, `overlay`)
+- The area or module being changed (e.g., `twitch-auth`, `chat-aggregator`, `youtube-adapter`,
+  `overlay`)
 - A concise, specific 2–5 word description of the change
 
 If there is no prior conversation context, use `chore/new-session`.
@@ -38,7 +39,7 @@ If there is no prior conversation context, use `chore/new-session`.
 Format: `<type>/<short-description>` or `<type>/<scope>/<short-description>`
 
 | Type       | When to use                           |
-| ---------- | ------------------------------------- |
+|------------|---------------------------------------|
 | `feat`     | New feature or capability             |
 | `fix`      | Bug fix                               |
 | `refactor` | Restructuring without behavior change |
