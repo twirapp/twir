@@ -17,11 +17,30 @@ type CustomDomainResponseDto = {
 	data: CustomDomainOutputDto
 }
 
+export type BannedUserAgentDto = {
+	id: string
+	pattern: string
+	description: string | null
+	created_at: string
+}
+
+type BannedUserAgentsListResponseDto = {
+	$schema?: string
+	data: BannedUserAgentDto[]
+}
+
+type BannedUserAgentResponseDto = {
+	$schema?: string
+	data: BannedUserAgentDto
+}
+
 export const useUrlShortener = defineStore('url-shortener', () => {
 	const api = useOapi()
 	const latestShortenedUrls = ref<LinkOutputDto[]>([])
 	const customDomain = ref<CustomDomainOutputDto | null>(null)
 	const isCustomDomainLoading = ref(false)
+	const bannedUserAgents = ref<BannedUserAgentDto[]>([])
+	const isBannedUserAgentsLoading = ref(false)
 
 	async function shortUrl(opts: { url: string; alias?: string; useCustomDomain?: boolean }) {
 		try {
@@ -173,6 +192,56 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		}
 	}
 
+	async function fetchBannedUserAgents() {
+		isBannedUserAgentsLoading.value = true
+		try {
+			const response = await api.http.request<BannedUserAgentsListResponseDto, ErrorModel>({
+				path: '/v1/short-links/banned-user-agents',
+				method: 'GET',
+				format: 'json',
+			})
+			bannedUserAgents.value = response.data.data
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		} finally {
+			isBannedUserAgentsLoading.value = false
+		}
+	}
+
+	async function createBannedUserAgent(opts: { pattern: string; description?: string | null }) {
+		try {
+			const response = await api.http.request<BannedUserAgentResponseDto, ErrorModel>({
+				path: '/v1/short-links/banned-user-agents',
+				method: 'POST',
+				type: ContentType.Json,
+				format: 'json',
+				body: {
+					pattern: opts.pattern,
+					description: opts.description,
+				},
+			})
+			bannedUserAgents.value = [...bannedUserAgents.value, response.data.data]
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function deleteBannedUserAgent(id: string) {
+		try {
+			const response = await api.http.request<Record<string, never>, ErrorModel>({
+				path: `/v1/short-links/banned-user-agents/${id}`,
+				method: 'DELETE',
+				format: 'json',
+			})
+			bannedUserAgents.value = bannedUserAgents.value.filter((item) => item.id !== id)
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
 	return {
 		shortUrl,
 		refetchLatestShortenedUrls,
@@ -183,6 +252,11 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		deleteCustomDomain,
 		customDomain,
 		isCustomDomainLoading,
+		bannedUserAgents,
+		isBannedUserAgentsLoading,
+		fetchBannedUserAgents,
+		createBannedUserAgent,
+		deleteBannedUserAgent,
 	}
 })
 

@@ -154,6 +154,8 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
+	shortlinksbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents"
+	shortlinksbannedusaragentsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents/datasource/postgres"
 	shortlinkscustomdomainsrepository "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
 	shortlinkscustomdomainsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_custom_domains/pgx"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
@@ -381,6 +383,10 @@ func main() {
 			fx.Annotate(
 				shortlinkscustomdomainsrepositorypgx.NewFx,
 				fx.As(new(shortlinkscustomdomainsrepository.Repository)),
+			),
+			fx.Annotate(
+				shortlinksbannedusaragentsrepositorypgx.NewFx,
+				fx.As(new(shortlinksbannedusaragentsrepository.Repository)),
 			),
 			fx.Annotate(
 				channelsgiveawaysparticipantsrepositorypgx.NewFx,

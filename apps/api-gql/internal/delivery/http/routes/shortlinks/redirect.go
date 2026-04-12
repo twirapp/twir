@@ -93,18 +93,27 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 		return nil, huma.NewError(http.StatusNotFound, "Link not found")
 	}
 
-	var userID *string
-	user, _ := r.sessions.GetAuthenticatedUserModel(ctx)
-	if user != nil {
-		userID = &user.ID
-	}
-
 	var clientIP, clientUserAgent *string
 	if info, err := r.clientInfoService.GetClientInfo(ctx); err == nil {
 		clientIP = &info.IP
 		clientUserAgent = &info.UserAgent
 	} else {
 		r.logger.Warn("Cannot get client info", "error", err)
+	}
+
+	if link.CreatedByUserId != nil && clientUserAgent != nil {
+		banned, err := r.service.IsUserAgentBanned(ctx, *link.CreatedByUserId, *clientUserAgent)
+		if err != nil {
+			r.logger.WarnContext(ctx, "Cannot check user agent ban", logger.Error(err))
+		} else if banned {
+			return nil, huma.NewError(http.StatusNotFound, "Link not found")
+		}
+	}
+
+	var userID *string
+	user, _ := r.sessions.GetAuthenticatedUserModel(ctx)
+	if user != nil {
+		userID = &user.ID
 	}
 
 	var country *string

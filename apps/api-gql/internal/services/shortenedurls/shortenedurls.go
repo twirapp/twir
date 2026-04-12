@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	shortlinksbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents"
 	shortlinkscustomdomainsrepo "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
@@ -21,19 +24,21 @@ import (
 type Opts struct {
 	fx.In
 
-	Repository              shortenedurlsrepository.Repository
-	ViewsRepository         shortlinksviewsrepository.Repository
-	CustomDomainsRepository shortlinkscustomdomainsrepo.Repository
-	WsRouter                wsrouter.WsRouter
+	Repository                 shortenedurlsrepository.Repository
+	ViewsRepository            shortlinksviewsrepository.Repository
+	CustomDomainsRepository    shortlinkscustomdomainsrepo.Repository
+	BannedUserAgentsRepository shortlinksbannedusaragentsrepository.Repository
+	WsRouter                   wsrouter.WsRouter
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repository:              opts.Repository,
-		viewsRepository:         opts.ViewsRepository,
-		customDomainsRepository: opts.CustomDomainsRepository,
-		wsRouter:                opts.WsRouter,
-		viewsSubs:               make(map[string]struct{}),
+		repository:                 opts.Repository,
+		viewsRepository:            opts.ViewsRepository,
+		customDomainsRepository:    opts.CustomDomainsRepository,
+		bannedUserAgentsRepository: opts.BannedUserAgentsRepository,
+		wsRouter:                   opts.WsRouter,
+		viewsSubs:                  make(map[string]struct{}),
 	}
 }
 
@@ -77,12 +82,13 @@ func DecodeShortLinkKey(value string) (*string, string) {
 }
 
 type Service struct {
-	repository              shortenedurlsrepository.Repository
-	viewsRepository         shortlinksviewsrepository.Repository
-	customDomainsRepository shortlinkscustomdomainsrepo.Repository
-	wsRouter                wsrouter.WsRouter
-	viewsSubs               map[string]struct{}
-	viewsSubsMu             sync.RWMutex
+	repository                 shortenedurlsrepository.Repository
+	viewsRepository            shortlinksviewsrepository.Repository
+	customDomainsRepository    shortlinkscustomdomainsrepo.Repository
+	bannedUserAgentsRepository shortlinksbannedusaragentsrepository.Repository
+	wsRouter                   wsrouter.WsRouter
+	viewsSubs                  map[string]struct{}
+	viewsSubsMu                sync.RWMutex
 }
 
 func (c *Service) resolveDomainID(ctx context.Context, domain *string) (*string, error) {
@@ -635,4 +641,49 @@ func (c *Service) GetTopCountries(ctx context.Context, input GetTopCountriesInpu
 	}
 
 	return output, nil
+}
+
+func (c *Service) IsUserAgentBanned(ctx context.Context, createdByUserID, userAgent string) (bool, error) {
+	if createdByUserID == "" || userAgent == "" {
+		return false, nil
+	}
+
+	patterns, err := c.bannedUserAgentsRepository.GetByUserID(ctx, createdByUserID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get banned user agents: %w", err)
+	}
+
+	for _, p := range patterns {
+		re, err := regexp.Compile(p.Pattern)
+		if err != nil {
+			// skip invalid regex patterns
+			continue
+		}
+		if re.MatchString(userAgent) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func (c *Service) GetBannedUserAgents(
+	ctx context.Context,
+	userID string,
+) ([]shortlinksbannedusaragentsrepository.BannedUserAgent, error) {
+	return c.bannedUserAgentsRepository.GetByUserID(ctx, userID)
+}
+
+func (c *Service) CreateBannedUserAgent(
+	ctx context.Context,
+	input shortlinksbannedusaragentsrepository.CreateInput,
+) (shortlinksbannedusaragentsrepository.BannedUserAgent, error) {
+	if _, err := regexp.Compile(input.Pattern); err != nil {
+		return shortlinksbannedusaragentsrepository.Nil, fmt.Errorf("invalid regex pattern: %w", err)
+	}
+	return c.bannedUserAgentsRepository.Create(ctx, input)
+}
+
+func (c *Service) DeleteBannedUserAgent(ctx context.Context, id, userID string) error {
+	return c.bannedUserAgentsRepository.Delete(ctx, id, userID)
 }
