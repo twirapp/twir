@@ -8,7 +8,9 @@ import (
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
@@ -84,6 +86,7 @@ var SelectColumns = []string{
 	`online_only`,
 	`offline_only`,
 	`enabled_categories`,
+	`platforms`,
 	`"requiredWatchTime"`,
 	`"requiredMessages"`,
 	`"requiredUsedChannelPoints"`,
@@ -141,6 +144,7 @@ func (c *Pgx) Create(ctx context.Context, input commands.CreateInput) (model.Com
 				"online_only":                 input.OnlineOnly,
 				"offline_only":                input.OfflineOnly,
 				`"enabled_categories"`:        input.EnabledCategories,
+				"platforms":                   platformsOrEmpty(input.Platforms),
 				`"requiredWatchTime"`:         input.RequiredWatchTime,
 				`"requiredMessages"`:          input.RequiredMessages,
 				`"requiredUsedChannelPoints"`: input.RequiredUsedChannelPoints,
@@ -206,6 +210,7 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input commands.UpdateInp
 			"online_only":                 input.OnlineOnly,
 			`"offline_only"`:              input.OfflineOnly,
 			`"enabled_categories"`:        input.EnabledCategories,
+			"platforms":                   platformsOrEmpty(input.Platforms),
 			`"requiredWatchTime"`:         input.RequiredWatchTime,
 			`"requiredMessages"`:          input.RequiredMessages,
 			`"requiredUsedChannelPoints"`: input.RequiredUsedChannelPoints,
@@ -231,4 +236,11 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input commands.UpdateInp
 	}
 
 	return c.GetByID(ctx, id)
+}
+
+func platformsOrEmpty(platforms pgtype.FlatArray[platform.Platform]) pgtype.FlatArray[platform.Platform] {
+	if platforms == nil {
+		return pgtype.FlatArray[platform.Platform]{}
+	}
+	return platforms
 }
