@@ -154,12 +154,16 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
+	shortlinksbanneduapresetpatternsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_preset_patterns"
+	shortlinksbanneduapresetpatternsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_preset_patterns/datasource/postgres"
+	shortlinksbanneduapresetsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_presets"
+	shortlinksbanneduapresetsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_presets/datasource/postgres"
 	shortlinkscustomdomainsrepository "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
 	shortlinkscustomdomainsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_custom_domains/pgx"
-	shortlinksglobalbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_global_banned_user_agents"
-	shortlinksglobalbannedusaragentsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_global_banned_user_agents/datasource/postgres"
 	shortlinkslinkbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_banned_user_agents"
 	shortlinkslinkbannedusaragentsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_link_banned_user_agents/datasource/postgres"
+	shortlinkslinkpresetsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_presets"
+	shortlinkslinkpresetsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_link_presets/datasource/postgres"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	shortlinksviewsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/short_links_views/datasources/clickhouse"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
@@ -387,8 +391,16 @@ func main() {
 				fx.As(new(shortlinkscustomdomainsrepository.Repository)),
 			),
 			fx.Annotate(
-				shortlinksglobalbannedusaragentsrepositorypgx.NewFx,
-				fx.As(new(shortlinksglobalbannedusaragentsrepository.Repository)),
+				shortlinksbanneduapresetsrepositorypgx.NewFx,
+				fx.As(new(shortlinksbanneduapresetsrepository.Repository)),
+			),
+			fx.Annotate(
+				shortlinksbanneduapresetpatternsrepositorypgx.NewFx,
+				fx.As(new(shortlinksbanneduapresetpatternsrepository.Repository)),
+			),
+			fx.Annotate(
+				shortlinkslinkpresetsrepositorypgx.NewFx,
+				fx.As(new(shortlinkslinkpresetsrepository.Repository)),
 			),
 			fx.Annotate(
 				shortlinkslinkbannedusaragentsrepositorypgx.NewFx,

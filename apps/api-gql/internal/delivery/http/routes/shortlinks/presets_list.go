@@ -12,72 +12,74 @@ import (
 	"go.uber.org/fx"
 )
 
-type bannedUserAgentDto struct {
+type presetDto struct {
 	ID          string    `json:"id"`
-	Pattern     string    `json:"pattern"`
+	Name        string    `json:"name"`
 	Description *string   `json:"description"`
 	CreatedAt   time.Time `json:"created_at" format:"date-time"`
+	UpdatedAt   time.Time `json:"updated_at" format:"date-time"`
 }
 
-type listBannedUserAgents struct {
+type listPresets struct {
 	service  *shortenedurls.Service
 	sessions *auth.Auth
 }
 
-type ListBannedUserAgentsOpts struct {
+type ListPresetsOpts struct {
 	fx.In
 
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }
 
-func newListBannedUserAgents(opts ListBannedUserAgentsOpts) *listBannedUserAgents {
-	return &listBannedUserAgents{
+func newListPresets(opts ListPresetsOpts) *listPresets {
+	return &listPresets{
 		service:  opts.Service,
 		sessions: opts.Sessions,
 	}
 }
 
-func (c *listBannedUserAgents) GetMeta() huma.Operation {
+func (c *listPresets) GetMeta() huma.Operation {
 	return huma.Operation{
-		OperationID: "short-links-list-banned-user-agents",
+		OperationID: "short-links-list-presets",
 		Method:      http.MethodGet,
-		Path:        "/v1/short-links/banned-user-agents",
+		Path:        "/v1/short-links/presets",
 		Tags:        []string{"Short links"},
-		Summary:     "List banned user agent patterns",
+		Summary:     "List banned UA presets",
 		Security: []map[string][]string{
 			{"bearer": {}},
 		},
 	}
 }
 
-func (c *listBannedUserAgents) Handler(
+func (c *listPresets) Handler(
 	ctx context.Context,
 	input *struct{},
-) (*httpbase.BaseOutputJson[[]bannedUserAgentDto], error) {
+) (*httpbase.BaseOutputJson[[]presetDto], error) {
 	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	items, err := c.service.GetGlobalBannedUserAgents(ctx, user.ID)
+	items, err := c.service.GetPresets(ctx, user.ID)
 	if err != nil {
-		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get banned user agents", err)
+		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get presets", err)
 	}
 
-	result := make([]bannedUserAgentDto, 0, len(items))
+	result := make([]presetDto, 0, len(items))
 	for _, item := range items {
-		result = append(result, bannedUserAgentDto{
+		result = append(result, presetDto{
 			ID:          item.ID,
-			Pattern:     item.Pattern,
+			Name:        item.Name,
 			Description: item.Description,
 			CreatedAt:   item.CreatedAt,
+			UpdatedAt:   item.UpdatedAt,
 		})
 	}
 
 	return httpbase.CreateBaseOutputJson(result), nil
 }
 
-func (c *listBannedUserAgents) Register(api huma.API) {
+func (c *listPresets) Register(api huma.API) {
 	huma.Register(api, c.GetMeta(), c.Handler)
 }
