@@ -7,6 +7,7 @@ import (
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
+	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -126,6 +127,7 @@ var App = fx.Options(
 		manager.NewManager,
 		handler.New,
 		httpserver.New,
+		kick.New,
 	),
 	fx.Invoke(
 		otel.NewFx("eventsub"),
