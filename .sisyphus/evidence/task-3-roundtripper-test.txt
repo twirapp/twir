@@ -1,4 +1,0 @@
-=== RUN   TestMockRoundTripper
---- PASS: TestMockRoundTripper (0.00s)
-PASS
-ok  	github.com/twirapp/twir/libs/twitch	0.002s

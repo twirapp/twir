@@ -1,3 +1,0 @@
-	validateURL := "https://id.twitch.tv/oauth2/validate"
-	if config.TwitchMockEnabled {
-		validateURL = config.TwitchMockAuthUrl + "/oauth2/validate"
