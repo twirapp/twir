@@ -39,6 +39,9 @@ var FxModule = fx.Provide(
 	httpbase.AsFxRoute(newListBannedUserAgents),
 	httpbase.AsFxRoute(newCreateBannedUserAgent),
 	httpbase.AsFxRoute(newDeleteBannedUserAgent),
+	httpbase.AsFxRoute(newListLinkBannedUserAgents),
+	httpbase.AsFxRoute(newCreateLinkBannedUserAgent),
+	httpbase.AsFxRoute(newDeleteLinkBannedUserAgent),
 )
 
 type linkOutputDto struct {
