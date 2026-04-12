@@ -12,6 +12,7 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -25,25 +26,26 @@ import (
 )
 
 type Bus struct {
-	AuditLogs        *auditLogsBus
-	Parser           *parserBus
-	Websocket        *websocketBus
-	Channel          *channelBus
-	Bots             *botsBus
-	EmotesCacher     *emotesCacherBus
-	Timers           *timersBus
-	EventSub         *eventSubBus
-	Scheduler        *schedulerBus
-	Giveaways        *giveawaysBus
-	ChatMessages     Queue[twitch.TwitchChatMessage, struct{}]
-	RedemptionAdd    Queue[twitch.ActivatedRedemption, struct{}]
-	Events           *eventsBus
-	YTSRSearch       Queue[ytsr.SearchRequest, ytsr.SearchResponse]
-	Tokens           *tokensBus
-	Integrations     *integrationsBus
-	Api              *apiBus
-	CacheInvalidator Queue[cache_invalidator.InvalidateRequest, struct{}]
-	Discord          *discordBus
+	AuditLogs           *auditLogsBus
+	Parser              *parserBus
+	Websocket           *websocketBus
+	Channel             *channelBus
+	Bots                *botsBus
+	EmotesCacher        *emotesCacherBus
+	Timers              *timersBus
+	EventSub            *eventSubBus
+	Scheduler           *schedulerBus
+	Giveaways           *giveawaysBus
+	ChatMessages        Queue[twitch.TwitchChatMessage, struct{}]
+	ChatMessagesGeneric Queue[generic.ChatMessage, struct{}]
+	RedemptionAdd       Queue[twitch.ActivatedRedemption, struct{}]
+	Events              *eventsBus
+	YTSRSearch          Queue[ytsr.SearchRequest, ytsr.SearchResponse]
+	Tokens              *tokensBus
+	Integrations        *integrationsBus
+	Api                 *apiBus
+	CacheInvalidator    Queue[cache_invalidator.InvalidateRequest, struct{}]
+	Discord             *discordBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -89,6 +91,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			ProcessMessageAsCommand: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
 				nc,
 				PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT,
+				30*time.Minute,
+				GobEncoder,
+			),
+
+			ProcessGenericMessage: NewNatsQueue[generic.ChatMessage, struct{}](
+				nc,
+				PARSER_PROCESS_GENERIC_MESSAGE_SUBJECT,
 				30*time.Minute,
 				GobEncoder,
 			),
@@ -283,6 +292,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		ChatMessages: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
 			nc,
 			CHAT_MESSAGES_SUBJECT,
+			30*time.Minute,
+			JsonEncoder,
+		),
+
+		ChatMessagesGeneric: NewNatsQueue[generic.ChatMessage, struct{}](
+			nc,
+			CHAT_MESSAGES_GENERIC_SUBJECT,
 			30*time.Minute,
 			JsonEncoder,
 		),
