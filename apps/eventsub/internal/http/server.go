@@ -2,12 +2,13 @@ package httpserver
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
 
+	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	cfg "github.com/twirapp/twir/libs/config"
 )
 
@@ -18,7 +19,7 @@ type Server struct {
 }
 
 // New creates a new Server and registers all routes.
-func New(config cfg.Config, logger *slog.Logger) *Server {
+func New(config cfg.Config, logger *slog.Logger, redisClient *redis.Client) *Server {
 	mux := http.NewServeMux()
 
 	s := &Server{
@@ -29,8 +30,10 @@ func New(config cfg.Config, logger *slog.Logger) *Server {
 		logger: logger,
 	}
 
+	kickMiddleware := kick.NewMiddleware(redisClient, logger)
+
 	mux.HandleFunc("GET /health", s.handleHealth)
-	mux.HandleFunc("POST /webhook/kick", s.handleWebhookKick)
+	mux.Handle("POST /webhook/kick", kickMiddleware.Handler(http.HandlerFunc(s.handleWebhookKick)))
 
 	return s
 }
@@ -63,8 +66,12 @@ func (s *Server) handleHealth(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) handleWebhookKick(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func (s *Server) handleWebhookKick(w http.ResponseWriter, r *http.Request) {
+	messageID := kick.KickMessageIDFromContext(r.Context())
+	eventType := kick.KickEventTypeFromContext(r.Context())
+	s.logger.InfoContext(r.Context(), "kick webhook received",
+		slog.String("message_id", messageID),
+		slog.String("event_type", eventType),
+	)
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 }
