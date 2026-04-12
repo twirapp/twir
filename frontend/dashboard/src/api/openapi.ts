@@ -1,4 +1,4 @@
-import { Api, HttpClient, type FullRequestParams, type HttpResponse } from '@twir/api/openapi';
+import { Api, type FullRequestParams, HttpClient, type HttpResponse } from '@twir/api/openapi';
 import { toast } from 'vue-sonner';
 
 // Create a wrapper that intercepts requests and handles errors

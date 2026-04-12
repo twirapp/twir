@@ -1,4 +1,4 @@
-import { computed, ref, watch, nextTick } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
 import type { LayoutItem } from 'grid-layout-plus';
 

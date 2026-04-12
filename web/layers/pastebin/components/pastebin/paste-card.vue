@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { PasteBinOutputDto } from '@twir/api/openapi';
-import { toast } from 'vue-sonner';
-import Button from '@/components/ui/button/Button.vue';
-import DeletePasteDialog from './delete-paste-dialog.vue';
+import type { PasteBinOutputDto } from "@twir/api/openapi";
+import { toast } from "vue-sonner";
+import Button from "@/components/ui/button/Button.vue";
+import DeletePasteDialog from "./delete-paste-dialog.vue";
 
 const props = defineProps<{
 	paste: PasteBinOutputDto;
@@ -34,7 +34,7 @@ function formatDate(date: string) {
 const previewContent = computed(() => {
 	const maxLength = 200;
 	if (props.paste.content.length > maxLength) {
-		return props.paste.content.slice(0, maxLength) + "...";
+		return `${props.paste.content.slice(0, maxLength)}...`;
 	}
 	return props.paste.content;
 });
@@ -101,7 +101,8 @@ const isExpired = computed(() => {
 								:class="{ 'text-red-400': isExpired }"
 							/>
 							<span :class="{ 'text-red-400': isExpired }">
-								{{ isExpired ? "Expired" : "Expires" }}: {{ paste.expire_at ? formatDate(paste.expire_at) : '' }}
+								{{ isExpired ? "Expired" : "Expires" }}:
+								{{ paste.expire_at ? formatDate(paste.expire_at) : "" }}
 							</span>
 						</span>
 					</div>

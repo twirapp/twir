@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Trash2, Plus } from "lucide-vue-next";
-import { ref, computed } from "vue";
+import { Plus, Trash2 } from "lucide-vue-next";
+import { computed, ref } from "vue";
 
 import {
 	useDashboardWidgetsCreateCustom,

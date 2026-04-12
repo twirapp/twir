@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { GridItem, GridLayout } from "grid-layout-plus";
-import { Layers, SquarePen, Plus } from "lucide-vue-next";
+import { Layers, Plus, SquarePen } from "lucide-vue-next";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 import AuditLogs from "@/components/dashboard/audit-logs.vue";
@@ -10,7 +10,7 @@ import Events from "@/components/dashboard/events.vue";
 import Stream from "@/components/dashboard/stream.vue";
 import WidgetStackTabs from "@/components/dashboard/widget-stack-tabs.vue";
 import { useWidgetStacks } from "@/components/dashboard/widget-stacks.ts";
-import { useWidgets, type WidgetItem } from "@/components/dashboard/widgets.ts";
+import { type WidgetItem, useWidgets } from "@/components/dashboard/widgets.ts";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,

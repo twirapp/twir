@@ -11,11 +11,11 @@ import { useCommandMenuData } from '@/api/command-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
-	Command as CommandRoot,
 	CommandEmpty,
 	CommandGroup,
 	CommandInput,
 	CommandList,
+	Command as CommandRoot,
 } from '@/components/ui/command'
 import {
 	Dialog,

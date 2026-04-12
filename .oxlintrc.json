@@ -248,10 +248,7 @@
         "@typescript-eslint/prefer-as-const": "error",
         "@typescript-eslint/prefer-literal-enum-member": "error",
         "@typescript-eslint/triple-slash-reference": "off",
-        "@typescript-eslint/consistent-type-definitions": [
-          "error",
-          "interface"
-        ],
+        "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
         "@typescript-eslint/consistent-type-imports": "error",
         "@typescript-eslint/no-import-type-side-effects": "error",
         "@typescript-eslint/no-require-imports": "error",
@@ -312,6 +309,15 @@
         "vue/no-multiple-slot-args": "warn"
       },
       "plugins": ["vue"]
+    },
+    {
+      "files": [
+        "frontend/dashboard/src/components/dashboard/custom-widget.vue",
+        "frontend/dashboard/src/pages/settings/custom-widgets.vue"
+      ],
+      "rules": {
+        "no-alert": "off"
+      }
     }
   ]
 }

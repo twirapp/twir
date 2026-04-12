@@ -1,17 +1,17 @@
 <script setup lang="ts">
 const props = defineProps<{
-	name: string
-	aliases: string[]
-}>()
+	name: string;
+	aliases: string[];
+}>();
 
-const mappedAliases = props.aliases.join(', ')
+const mappedAliases = props.aliases.join(", ");
 </script>
 
 <template>
 	<UiTooltip v-if="aliases.length">
 		<UiTooltipTrigger>
 			<span>{{ name }}</span>
-		</UITooltipTrigger>
+		</UiTooltipTrigger>
 		<UiTooltipContent>
 			{{ mappedAliases }}
 		</UiTooltipContent>

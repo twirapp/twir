@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { getCoreRowModel, getExpandedRowModel, useVueTable } from "@tanstack/vue-table";
-import { colorBrightness, hexToRgb, type Rgb, rgbToHex } from "@zero-dependency/utils";
+import { type Rgb, colorBrightness, hexToRgb, rgbToHex } from "@zero-dependency/utils";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-vue-next";
 import { computed, h } from "vue";
 
 import ColumnActions from "./list-actions.vue";
-import { createGroups, type Group, isCommand } from "./list-groups.js";
+import { type Group, createGroups, isCommand } from "./list-groups.js";
 import Table from "@/components/table.vue";
 import TextWithVariables from "@/components/text-with-variables.vue";
 

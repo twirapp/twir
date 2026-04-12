@@ -6,8 +6,8 @@ import { toast } from "vue-sonner";
 import Card from "./card.vue";
 import type { WidgetItem } from "@/components/dashboard/widgets.ts";
 import {
-	useDashboardWidgetsUpdateCustom,
 	useDashboardWidgetsDelete,
+	useDashboardWidgetsUpdateCustom,
 } from "@/api/dashboard-widgets-layout.ts";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";

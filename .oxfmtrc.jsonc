@@ -14,19 +14,25 @@
 	"sortImports": {
 		"newlinesBetween": true,
 		"ignoreCase": true,
+		"order": "asc",
+		"internalPattern": ["~/", "@/"],
 		"groups": [
-			["value-builtin", "value-external"],
-			["value-internal", "value-parent", "value-sibling", "value-index"],
+			["type-builtin", "type-external"],
+			"value-builtin",
+			"value-external",
 			{ "newlinesBetween": true },
-			"type-import",
-			"unknown"
-		]
+			"type-internal",
+			"value-internal",
+			["type-parent", "type-sibling", "type-index"],
+			["value-parent", "value-sibling", "value-index"],
+			"unknown",
+		],
 	},
 	"sortTailwindcss": {
 		"functions": ["clsx", "cn"],
 		"preserveWhitespace": true,
-		"preserveDuplicates": true
+		"preserveDuplicates": true,
 	},
 	"singleAttributePerLine": true,
-	"ignorePatterns": ["dist/**", "node_modules/**", "build/**", ".output", ".nuxt"]
+	"ignorePatterns": ["dist/**", "node_modules/**", "build/**", ".output", ".nuxt"],
 }
