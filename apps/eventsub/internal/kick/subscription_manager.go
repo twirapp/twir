@@ -14,7 +14,9 @@ import (
 
 	goredis "github.com/redis/go-redis/v9"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	"go.uber.org/fx"
 )
 
@@ -32,28 +34,32 @@ var EventTypes = []string{
 }
 
 type SubscriptionManager struct {
-	config     cfg.Config
-	redis      *goredis.Client
-	httpClient *http.Client
-	logger     *slog.Logger
-	apiBaseURL string
+	config                   cfg.Config
+	redis                    *goredis.Client
+	httpClient               *http.Client
+	logger                   *slog.Logger
+	apiBaseURL               string
+	userPlatformAccountsRepo user_platform_accounts.Repository
 }
 
+// Opts is the fx dependency injection options.
 type Opts struct {
 	fx.In
 
-	Config cfg.Config
-	Redis  *goredis.Client
-	Logger *slog.Logger
+	Config                   cfg.Config
+	Redis                    *goredis.Client
+	Logger                   *slog.Logger
+	UserPlatformAccountsRepo user_platform_accounts.Repository
 }
 
 func New(opts Opts) *SubscriptionManager {
 	return &SubscriptionManager{
-		config:     opts.Config,
-		redis:      opts.Redis,
-		httpClient: http.DefaultClient,
-		logger:     opts.Logger,
-		apiBaseURL: kickAPIBase,
+		config:                   opts.Config,
+		redis:                    opts.Redis,
+		httpClient:               http.DefaultClient,
+		logger:                   opts.Logger,
+		apiBaseURL:               kickAPIBase,
+		userPlatformAccountsRepo: opts.UserPlatformAccountsRepo,
 	}
 }
 
@@ -223,7 +229,18 @@ func (m *SubscriptionManager) unsubscribe(
 	return nil
 }
 
-func (m *SubscriptionManager) UnsubscribeAll(ctx context.Context, kickChannelID string, broadcasterToken string) error {
+func (m *SubscriptionManager) UnsubscribeAll(ctx context.Context, kickChannelID string) error {
+	account, err := m.userPlatformAccountsRepo.GetByPlatformUserID(
+		ctx,
+		platform.PlatformKick,
+		kickChannelID,
+	)
+	if err != nil {
+		return fmt.Errorf("kick: get platform account for channel %s: %w", kickChannelID, err)
+	}
+
+	broadcasterToken := account.AccessToken
+
 	for _, eventType := range EventTypes {
 		key := redisKey(kickChannelID, eventType)
 
@@ -235,20 +252,18 @@ func (m *SubscriptionManager) UnsubscribeAll(ctx context.Context, kickChannelID 
 			return fmt.Errorf("failed to fetch subscription ID for %q from Redis: %w", eventType, err)
 		}
 
-		if broadcasterToken != "" {
-			if err := m.unsubscribe(ctx, subID, broadcasterToken); err != nil {
-				m.logger.InfoContext(
-					ctx,
-					"Failed to unsubscribe Kick EventSub (continuing cleanup)",
-					slog.String("kick_channel_id", kickChannelID),
-					slog.String("event_type", eventType),
-					logger.Error(err),
-				)
-			}
+		if err := m.unsubscribe(ctx, subID, broadcasterToken); err != nil {
+			m.logger.WarnContext(
+				ctx,
+				"Failed to unsubscribe Kick EventSub (continuing cleanup)",
+				slog.String("kick_channel_id", kickChannelID),
+				slog.String("event_type", eventType),
+				logger.Error(err),
+			)
 		}
 
 		if err := m.redis.Del(ctx, key).Err(); err != nil {
-			m.logger.InfoContext(
+			m.logger.WarnContext(
 				ctx,
 				"Failed to delete Kick subscription ID from Redis",
 				slog.String("key", key),
