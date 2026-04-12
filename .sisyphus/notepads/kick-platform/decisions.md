@@ -12,6 +12,7 @@
 - **user_platform_accounts**: New table storing platform identity + tokens per platform. FK → users.internal_id (→ renamed users.id)
 - **channels schema**: One row per platform per user (e.g., Twitch channel + Kick channel = 2 rows per user)
 - **Platform switchers**: `platforms platform[] DEFAULT '{}'` on commands/timers/keywords. Empty = all platforms.
+- Execution-layer filtering should be applied after loading models, not in SQL, so empty platform lists stay backward compatible.
 - **Kick EventSub**: Official Kick EventSub Webhooks via HTTP. Broadcaster must authorize Twir; broadcaster's own token used for subscriptions.
 - **Kick bot**: Single `kick_bots` table; bot account sends via `POST /public/v1/chat` with bot token.
 - **NATS bus**: Parallel queue strategy — keep `twitch.TwitchChatMessage` alongside new generic `ChatMessage`. Do NOT remove old queue until ALL consumers migrated.

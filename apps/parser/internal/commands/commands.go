@@ -48,6 +48,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/i18n"
@@ -603,6 +604,10 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				return nil, nil
 			}
 		}
+	}
+
+	if !platformentity.ShouldExecute(cmd.Cmd.Platforms, platformentity.Platform(platform)) {
+		return nil, nil
 	}
 
 	_, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(

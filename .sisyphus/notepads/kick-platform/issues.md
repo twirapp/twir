@@ -11,3 +11,4 @@
 - FK ordering in migration is critical: cannot add FKs to `users.internal_id` until UNIQUE constraint added.
 - go vet on apps/api-gql failed on pre-existing slog.Error argument patterns and one invalid json tag on an unexported field; fixed them alongside auth work to satisfy required verification.
 - `go build ./libs/bus-core/...` succeeded after adding the new Kick bus package; no extra bus-core wiring was needed for compile coverage.
+- Keyword execution lives in `apps/bots/internal/messagehandler`, not parser, so platform filtering for keywords had to be applied there too.

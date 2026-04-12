@@ -9,6 +9,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -135,6 +136,10 @@ func (c *Manager) tryTick(id TimerID) {
 	}
 
 	if !shouldSend {
+		return
+	}
+
+	if !platformentity.ShouldExecute(t.dbRow.Platforms, channel.Platform) {
 		return
 	}
 

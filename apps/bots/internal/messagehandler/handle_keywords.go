@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
@@ -84,6 +85,10 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 		}
 
 		if isOnCooldown {
+			continue
+		}
+
+		if !platformentity.ShouldExecute(k.Platforms, platformentity.Platform(msg.EnrichedData.DbChannel.Platform)) {
 			continue
 		}
 
