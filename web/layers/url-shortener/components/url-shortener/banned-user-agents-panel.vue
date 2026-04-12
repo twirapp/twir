@@ -9,7 +9,7 @@ const userStore = useAuth()
 await callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())
 
 const urlShortener = useUrlShortener()
-const { bannedUserAgents, isBannedUserAgentsLoading } = storeToRefs(urlShortener)
+const { globalBannedUserAgents, isGlobalBannedUserAgentsLoading } = storeToRefs(urlShortener)
 
 const patternInput = ref('')
 const descriptionInput = ref('')
@@ -22,7 +22,7 @@ const isAuthenticated = computed(() => Boolean(userStore.userWithoutDashboards))
 async function refresh() {
 	errorMessage.value = null
 	if (!isAuthenticated.value) return
-	const { error } = await urlShortener.fetchBannedUserAgents()
+	const { error } = await urlShortener.fetchGlobalBannedUserAgents()
 	if (error) {
 		errorMessage.value = error.toString()
 	}
@@ -34,7 +34,7 @@ watch(
 	() => isAuthenticated.value,
 	(value) => {
 		if (!value) {
-			bannedUserAgents.value = []
+			globalBannedUserAgents.value = []
 			return
 		}
 		refresh()
@@ -58,7 +58,7 @@ async function handleCreate() {
 	isCreating.value = true
 	errorMessage.value = null
 
-	const { error } = await urlShortener.createBannedUserAgent({
+	const { error } = await urlShortener.createGlobalBannedUserAgent({
 		pattern,
 		description: descriptionInput.value.trim() || null,
 	})
@@ -81,7 +81,7 @@ async function handleDelete(id: string) {
 	deletingId.value = id
 	errorMessage.value = null
 
-	const { error } = await urlShortener.deleteBannedUserAgent(id)
+	const { error } = await urlShortener.deleteGlobalBannedUserAgent(id)
 	if (error) {
 		errorMessage.value = error.toString()
 	} else {
@@ -112,7 +112,7 @@ async function handleDelete(id: string) {
 						v-if="isAuthenticated"
 						class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold border-[hsl(240,11%,24%)] text-[hsl(240,11%,70%)]"
 					>
-						{{ bannedUserAgents.length }} pattern{{ bannedUserAgents.length === 1 ? '' : 's' }}
+						{{ globalBannedUserAgents.length }} pattern{{ globalBannedUserAgents.length === 1 ? '' : 's' }}
 					</span>
 					<Icon
 						name="lucide:chevron-down"
@@ -133,23 +133,21 @@ async function handleDelete(id: string) {
 				</div>
 
 				<div v-else class="space-y-4">
-					<!-- Loading state -->
 					<div
-						v-if="isBannedUserAgentsLoading"
+						v-if="isGlobalBannedUserAgentsLoading"
 						class="rounded-xl border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,12%)] p-4"
 					>
 						<p class="text-sm text-[hsl(240,11%,70%)]">Loading patterns...</p>
 					</div>
 
-					<!-- List of existing patterns -->
 					<div
-						v-else-if="bannedUserAgents.length > 0"
+						v-else-if="globalBannedUserAgents.length > 0"
 						class="rounded-xl border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,12%)] p-4 space-y-2"
 					>
 						<p class="text-xs uppercase tracking-wide text-[hsl(240,11%,60%)]">Active patterns</p>
 						<ul class="space-y-2">
 							<li
-								v-for="agent in bannedUserAgents"
+								v-for="agent in globalBannedUserAgents"
 								:key="agent.id"
 								class="flex items-start justify-between gap-3 rounded-lg border border-[hsl(240,11%,20%)] bg-[hsl(240,11%,15%)] px-3 py-2"
 							>
