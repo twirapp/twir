@@ -9,7 +9,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
-	shortlinksbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents"
+	shortlinksglobalbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_global_banned_user_agents"
 	"go.uber.org/fx"
 )
 
@@ -58,9 +58,9 @@ func (c *deleteBannedUserAgent) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	if err := c.service.DeleteBannedUserAgent(ctx, input.ID, user.ID); err != nil {
+	if err := c.service.DeleteGlobalBannedUserAgent(ctx, input.ID, user.ID); err != nil {
 		switch {
-		case errors.Is(err, shortlinksbannedusaragentsrepository.ErrNotFound):
+		case errors.Is(err, shortlinksglobalbannedusaragentsrepository.ErrNotFound):
 			return nil, huma.NewError(http.StatusNotFound, "Banned user agent not found")
 		default:
 			return nil, huma.NewError(http.StatusInternalServerError, "Cannot delete banned user agent", err)

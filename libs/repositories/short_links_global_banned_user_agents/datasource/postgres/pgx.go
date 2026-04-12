@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	repo "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents"
+	repo "github.com/twirapp/twir/libs/repositories/short_links_global_banned_user_agents"
 )
 
 type Opts struct {
@@ -40,7 +40,7 @@ type Pgx struct {
 func (c *Pgx) GetByUserID(ctx context.Context, userID string) ([]repo.BannedUserAgent, error) {
 	query, args, err := sq.
 		Select("id", "user_id", "pattern", "description", "created_at").
-		From("short_links_banned_user_agents").
+		From("short_links_global_banned_user_agents").
 		Where(squirrel.Eq{"user_id": userID}).
 		OrderBy("created_at ASC").
 		ToSql()
@@ -67,7 +67,7 @@ func (c *Pgx) GetByUserID(ctx context.Context, userID string) ([]repo.BannedUser
 
 func (c *Pgx) Create(ctx context.Context, input repo.CreateInput) (repo.BannedUserAgent, error) {
 	query, args, err := sq.
-		Insert("short_links_banned_user_agents").
+		Insert("short_links_global_banned_user_agents").
 		Columns("user_id", "pattern", "description").
 		Values(input.UserID, input.Pattern, input.Description).
 		Suffix("RETURNING id, user_id, pattern, description, created_at").
@@ -92,7 +92,7 @@ func (c *Pgx) Create(ctx context.Context, input repo.CreateInput) (repo.BannedUs
 
 func (c *Pgx) Delete(ctx context.Context, id string, userID string) error {
 	query, args, err := sq.
-		Delete("short_links_banned_user_agents").
+		Delete("short_links_global_banned_user_agents").
 		Where(squirrel.Eq{"id": id, "user_id": userID}).
 		ToSql()
 	if err != nil {

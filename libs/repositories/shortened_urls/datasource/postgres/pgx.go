@@ -43,6 +43,7 @@ var (
 		"shortened_urls.user_ip",
 		"shortened_urls.user_agent",
 		"shortened_urls.domain_id",
+		"shortened_urls.ignore_global_bans",
 		"domains.domain",
 	}
 	selectColumnsStr = strings.Join(selectColumns, ", ")
@@ -56,6 +57,7 @@ var (
 		"updated.user_ip",
 		"updated.user_agent",
 		"updated.domain_id",
+		"updated.ignore_global_bans",
 		"domains.domain",
 	}
 	selectColumnsCteStr  = strings.Join(selectColumnsCte, ", ")
@@ -69,6 +71,7 @@ var (
 		"created.user_ip",
 		"created.user_agent",
 		"created.domain_id",
+		"created.ignore_global_bans",
 		"domains.domain",
 	}
 	selectColumnsCreatedStr = strings.Join(selectColumnsCreated, ", ")

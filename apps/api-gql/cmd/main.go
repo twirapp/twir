@@ -154,10 +154,12 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
 	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
-	shortlinksbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents"
-	shortlinksbannedusaragentsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents/datasource/postgres"
 	shortlinkscustomdomainsrepository "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
 	shortlinkscustomdomainsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_custom_domains/pgx"
+	shortlinksglobalbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_global_banned_user_agents"
+	shortlinksglobalbannedusaragentsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_global_banned_user_agents/datasource/postgres"
+	shortlinkslinkbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_banned_user_agents"
+	shortlinkslinkbannedusaragentsrepositorypgx "github.com/twirapp/twir/libs/repositories/short_links_link_banned_user_agents/datasource/postgres"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	shortlinksviewsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/short_links_views/datasources/clickhouse"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
@@ -385,8 +387,12 @@ func main() {
 				fx.As(new(shortlinkscustomdomainsrepository.Repository)),
 			),
 			fx.Annotate(
-				shortlinksbannedusaragentsrepositorypgx.NewFx,
-				fx.As(new(shortlinksbannedusaragentsrepository.Repository)),
+				shortlinksglobalbannedusaragentsrepositorypgx.NewFx,
+				fx.As(new(shortlinksglobalbannedusaragentsrepository.Repository)),
+			),
+			fx.Annotate(
+				shortlinkslinkbannedusaragentsrepositorypgx.NewFx,
+				fx.As(new(shortlinkslinkbannedusaragentsrepository.Repository)),
 			),
 			fx.Annotate(
 				channelsgiveawaysparticipantsrepositorypgx.NewFx,

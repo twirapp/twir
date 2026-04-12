@@ -9,7 +9,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
-	shortlinksbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents"
+	shortlinksglobalbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_global_banned_user_agents"
 	"go.uber.org/fx"
 )
 
@@ -61,9 +61,9 @@ func (c *createBannedUserAgent) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	item, err := c.service.CreateBannedUserAgent(
+	item, err := c.service.CreateGlobalBannedUserAgent(
 		ctx,
-		shortlinksbannedusaragentsrepository.CreateInput{
+		shortlinksglobalbannedusaragentsrepository.CreateInput{
 			UserID:      user.ID,
 			Pattern:     input.Body.Pattern,
 			Description: input.Body.Description,
@@ -71,7 +71,7 @@ func (c *createBannedUserAgent) Handler(
 	)
 	if err != nil {
 		switch {
-		case errors.Is(err, shortlinksbannedusaragentsrepository.ErrAlreadyExists):
+		case errors.Is(err, shortlinksglobalbannedusaragentsrepository.ErrAlreadyExists):
 			return nil, huma.NewError(http.StatusConflict, "Pattern already exists", err)
 		default:
 			return nil, huma.NewError(http.StatusBadRequest, "Cannot create banned user agent", err)

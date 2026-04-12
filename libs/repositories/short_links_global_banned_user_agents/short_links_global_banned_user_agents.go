@@ -1,4 +1,4 @@
-package short_links_banned_user_agents
+package short_links_global_banned_user_agents
 
 import (
 	"context"

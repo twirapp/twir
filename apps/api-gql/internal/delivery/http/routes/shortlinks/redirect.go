@@ -102,7 +102,7 @@ func (r *redirect) Handler(ctx context.Context, input *redirectRequestDto) (
 	}
 
 	if link.CreatedByUserId != nil && clientUserAgent != nil {
-		banned, err := r.service.IsUserAgentBanned(ctx, *link.CreatedByUserId, *clientUserAgent)
+		banned, err := r.service.IsUserAgentBanned(ctx, link, *clientUserAgent)
 		if err != nil {
 			r.logger.WarnContext(ctx, "Cannot check user agent ban", logger.Error(err))
 		} else if banned {

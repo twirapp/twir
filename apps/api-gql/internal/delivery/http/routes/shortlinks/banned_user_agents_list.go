@@ -60,7 +60,7 @@ func (c *listBannedUserAgents) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	items, err := c.service.GetBannedUserAgents(ctx, user.ID)
+	items, err := c.service.GetGlobalBannedUserAgents(ctx, user.ID)
 	if err != nil {
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get banned user agents", err)
 	}

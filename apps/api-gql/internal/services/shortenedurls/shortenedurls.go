@@ -12,8 +12,9 @@ import (
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	shortlinksbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_user_agents"
 	shortlinkscustomdomainsrepo "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
+	shortlinksglobalbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_global_banned_user_agents"
+	shortlinkslinkbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_banned_user_agents"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
@@ -24,21 +25,23 @@ import (
 type Opts struct {
 	fx.In
 
-	Repository                 shortenedurlsrepository.Repository
-	ViewsRepository            shortlinksviewsrepository.Repository
-	CustomDomainsRepository    shortlinkscustomdomainsrepo.Repository
-	BannedUserAgentsRepository shortlinksbannedusaragentsrepository.Repository
-	WsRouter                   wsrouter.WsRouter
+	Repository                       shortenedurlsrepository.Repository
+	ViewsRepository                  shortlinksviewsrepository.Repository
+	CustomDomainsRepository          shortlinkscustomdomainsrepo.Repository
+	GlobalBannedUserAgentsRepository shortlinksglobalbannedusaragentsrepository.Repository
+	LinkBannedUserAgentsRepository   shortlinkslinkbannedusaragentsrepository.Repository
+	WsRouter                         wsrouter.WsRouter
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		repository:                 opts.Repository,
-		viewsRepository:            opts.ViewsRepository,
-		customDomainsRepository:    opts.CustomDomainsRepository,
-		bannedUserAgentsRepository: opts.BannedUserAgentsRepository,
-		wsRouter:                   opts.WsRouter,
-		viewsSubs:                  make(map[string]struct{}),
+		repository:                       opts.Repository,
+		viewsRepository:                  opts.ViewsRepository,
+		customDomainsRepository:          opts.CustomDomainsRepository,
+		globalBannedUserAgentsRepository: opts.GlobalBannedUserAgentsRepository,
+		linkBannedUserAgentsRepository:   opts.LinkBannedUserAgentsRepository,
+		wsRouter:                         opts.WsRouter,
+		viewsSubs:                        make(map[string]struct{}),
 	}
 }
 
@@ -82,13 +85,14 @@ func DecodeShortLinkKey(value string) (*string, string) {
 }
 
 type Service struct {
-	repository                 shortenedurlsrepository.Repository
-	viewsRepository            shortlinksviewsrepository.Repository
-	customDomainsRepository    shortlinkscustomdomainsrepo.Repository
-	bannedUserAgentsRepository shortlinksbannedusaragentsrepository.Repository
-	wsRouter                   wsrouter.WsRouter
-	viewsSubs                  map[string]struct{}
-	viewsSubsMu                sync.RWMutex
+	repository                       shortenedurlsrepository.Repository
+	viewsRepository                  shortlinksviewsrepository.Repository
+	customDomainsRepository          shortlinkscustomdomainsrepo.Repository
+	globalBannedUserAgentsRepository shortlinksglobalbannedusaragentsrepository.Repository
+	linkBannedUserAgentsRepository   shortlinkslinkbannedusaragentsrepository.Repository
+	wsRouter                         wsrouter.WsRouter
+	viewsSubs                        map[string]struct{}
+	viewsSubsMu                      sync.RWMutex
 }
 
 func (c *Service) resolveDomainID(ctx context.Context, domain *string) (*string, error) {
@@ -643,47 +647,90 @@ func (c *Service) GetTopCountries(ctx context.Context, input GetTopCountriesInpu
 	return output, nil
 }
 
-func (c *Service) IsUserAgentBanned(ctx context.Context, createdByUserID, userAgent string) (bool, error) {
-	if createdByUserID == "" || userAgent == "" {
+func (c *Service) IsUserAgentBanned(
+	ctx context.Context,
+	link model.ShortenedUrl,
+	userAgent string,
+) (bool, error) {
+	if userAgent == "" {
 		return false, nil
 	}
 
-	patterns, err := c.bannedUserAgentsRepository.GetByUserID(ctx, createdByUserID)
-	if err != nil {
-		return false, fmt.Errorf("failed to get banned user agents: %w", err)
+	if link.ShortID != "" {
+		linkPatterns, err := c.linkBannedUserAgentsRepository.GetByLinkID(ctx, link.ShortID)
+		if err != nil {
+			return false, fmt.Errorf("failed to get link banned user agents: %w", err)
+		}
+
+		for _, p := range linkPatterns {
+			re, err := regexp.Compile(p.Pattern)
+			if err != nil {
+				continue
+			}
+			if re.MatchString(userAgent) {
+				return true, nil
+			}
+		}
 	}
 
-	for _, p := range patterns {
-		re, err := regexp.Compile(p.Pattern)
+	if !link.IgnoreGlobalBans && link.CreatedByUserId != nil {
+		globalPatterns, err := c.globalBannedUserAgentsRepository.GetByUserID(ctx, *link.CreatedByUserId)
 		if err != nil {
-			// skip invalid regex patterns
-			continue
+			return false, fmt.Errorf("failed to get global banned user agents: %w", err)
 		}
-		if re.MatchString(userAgent) {
-			return true, nil
+
+		for _, p := range globalPatterns {
+			re, err := regexp.Compile(p.Pattern)
+			if err != nil {
+				continue
+			}
+			if re.MatchString(userAgent) {
+				return true, nil
+			}
 		}
 	}
 
 	return false, nil
 }
 
-func (c *Service) GetBannedUserAgents(
+func (c *Service) GetGlobalBannedUserAgents(
 	ctx context.Context,
 	userID string,
-) ([]shortlinksbannedusaragentsrepository.BannedUserAgent, error) {
-	return c.bannedUserAgentsRepository.GetByUserID(ctx, userID)
+) ([]shortlinksglobalbannedusaragentsrepository.BannedUserAgent, error) {
+	return c.globalBannedUserAgentsRepository.GetByUserID(ctx, userID)
 }
 
-func (c *Service) CreateBannedUserAgent(
+func (c *Service) CreateGlobalBannedUserAgent(
 	ctx context.Context,
-	input shortlinksbannedusaragentsrepository.CreateInput,
-) (shortlinksbannedusaragentsrepository.BannedUserAgent, error) {
+	input shortlinksglobalbannedusaragentsrepository.CreateInput,
+) (shortlinksglobalbannedusaragentsrepository.BannedUserAgent, error) {
 	if _, err := regexp.Compile(input.Pattern); err != nil {
-		return shortlinksbannedusaragentsrepository.Nil, fmt.Errorf("invalid regex pattern: %w", err)
+		return shortlinksglobalbannedusaragentsrepository.Nil, fmt.Errorf("invalid regex pattern: %w", err)
 	}
-	return c.bannedUserAgentsRepository.Create(ctx, input)
+	return c.globalBannedUserAgentsRepository.Create(ctx, input)
 }
 
-func (c *Service) DeleteBannedUserAgent(ctx context.Context, id, userID string) error {
-	return c.bannedUserAgentsRepository.Delete(ctx, id, userID)
+func (c *Service) DeleteGlobalBannedUserAgent(ctx context.Context, id, userID string) error {
+	return c.globalBannedUserAgentsRepository.Delete(ctx, id, userID)
+}
+
+func (c *Service) GetLinkBannedUserAgents(
+	ctx context.Context,
+	linkID string,
+) ([]shortlinkslinkbannedusaragentsrepository.BannedUserAgent, error) {
+	return c.linkBannedUserAgentsRepository.GetByLinkID(ctx, linkID)
+}
+
+func (c *Service) CreateLinkBannedUserAgent(
+	ctx context.Context,
+	input shortlinkslinkbannedusaragentsrepository.CreateInput,
+) (shortlinkslinkbannedusaragentsrepository.BannedUserAgent, error) {
+	if _, err := regexp.Compile(input.Pattern); err != nil {
+		return shortlinkslinkbannedusaragentsrepository.Nil, fmt.Errorf("invalid regex pattern: %w", err)
+	}
+	return c.linkBannedUserAgentsRepository.Create(ctx, input)
+}
+
+func (c *Service) DeleteLinkBannedUserAgent(ctx context.Context, id, linkID string) error {
+	return c.linkBannedUserAgentsRepository.Delete(ctx, id, linkID)
 }
