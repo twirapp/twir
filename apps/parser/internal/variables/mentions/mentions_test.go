@@ -14,6 +14,7 @@ func TestMentionsID(t *testing.T) {
 	t.Run("returns first mention ID by default", func(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
+				Platform: "twitch",
 				Mentions: []twitch.ChatMessageMessageFragmentMention{
 					{UserId: "123", UserName: "User1", UserLogin: "user1"},
 					{UserId: "456", UserName: "User2", UserLogin: "user2"},
@@ -33,6 +34,7 @@ func TestMentionsID(t *testing.T) {
 	t.Run("returns Nth mention ID when index provided", func(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
+				Platform: "twitch",
 				Mentions: []twitch.ChatMessageMessageFragmentMention{
 					{UserId: "123", UserName: "User1", UserLogin: "user1"},
 					{UserId: "456", UserName: "User2", UserLogin: "user2"},
@@ -54,6 +56,7 @@ func TestMentionsID(t *testing.T) {
 	t.Run("returns empty string when no mentions", func(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
+				Platform: "twitch",
 				Mentions: []twitch.ChatMessageMessageFragmentMention{},
 			},
 		}
@@ -70,6 +73,7 @@ func TestMentionsID(t *testing.T) {
 	t.Run("returns empty string when index out of bounds", func(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
+				Platform: "twitch",
 				Mentions: []twitch.ChatMessageMessageFragmentMention{
 					{UserId: "123", UserName: "User1", UserLogin: "user1"},
 				},
@@ -92,6 +96,7 @@ func TestMentionsLogin(t *testing.T) {
 	t.Run("returns first mention login by default", func(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
+				Platform: "twitch",
 				Mentions: []twitch.ChatMessageMessageFragmentMention{
 					{UserId: "123", UserName: "User1", UserLogin: "user1"},
 					{UserId: "456", UserName: "User2", UserLogin: "user2"},
@@ -113,6 +118,7 @@ func TestMentionsDisplayName(t *testing.T) {
 	t.Run("returns first mention display name by default", func(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
+				Platform: "twitch",
 				Mentions: []twitch.ChatMessageMessageFragmentMention{
 					{UserId: "123", UserName: "User1", UserLogin: "user1"},
 					{UserId: "456", UserName: "User2", UserLogin: "user2"},

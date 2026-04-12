@@ -122,6 +122,7 @@ func (c *CommandsBus) Subscribe() error {
 				ctx,
 				&types.ParseContext{
 					MessageId:     "",
+					Platform:      "twitch",
 					Channel:       channel,
 					Sender:        sender,
 					Emotes:        nil,

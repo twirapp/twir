@@ -41,9 +41,10 @@ type ParseContextEmote struct {
 }
 
 type ParseContext struct {
-	Cacher  DataCacher
-	Channel *ParseContextChannel
-	Sender  *ParseContextSender
+	Cacher   DataCacher
+	Platform string
+	Channel  *ParseContextChannel
+	Sender   *ParseContextSender
 
 	Text *string
 

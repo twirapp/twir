@@ -13,6 +13,7 @@
 - Tokens repository callers now need to parse legacy string user IDs into `uuid.UUID` at the boundary before hitting the pgx repository API.
 - Bus-core generic chat messages now live in `libs/bus-core/generic/chat-message.go`; `ChannelID` is the internal surrogate `channels.id` and `UserID` is the internal `users.id`.
 - `libs/bus-core/bus.go` wires `ChatMessagesGeneric` to `chat.messages.generic` and `Parser.ProcessGenericMessage` to `parser.process_generic_message` without touching the existing Twitch queues.
+- `apps/parser/internal/types/ParseContext` now carries a `Platform` string, and parser constructors should populate it from the originating message platform.
 
 ## [T5] PlatformProvider interface + Twitch implementation
 - `platform.PlatformProvider` interface lives in `apps/api-gql/internal/platform/provider.go`; Twitch impl in `internal/platform/twitch/provider.go`.

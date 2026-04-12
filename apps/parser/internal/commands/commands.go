@@ -338,6 +338,7 @@ func (c *Commands) ParseCommandResponses(
 
 	parseCtx := &types.ParseContext{
 		MessageId: requestData.MessageId,
+		Platform:  "twitch",
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,
