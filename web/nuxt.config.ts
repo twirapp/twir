@@ -59,6 +59,16 @@ export default defineNuxtConfig({
 
 	vite: {
 		plugins: [tailwindcss()],
+		optimizeDeps: {
+	      include: [
+	        '@urql/vue',
+	        'graphql-ws',
+	        'lucide-vue-next',
+	        'vue-sonner',
+	        'clsx',
+	        'tailwind-merge',
+	      ]
+	    }
 	},
 	css: ['~/assets/css/tailwind.css', '~/assets/css/global.css'],
 
