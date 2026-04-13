@@ -7,14 +7,22 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 </script>
 
 <template>
-	<button
-		v-if="!userStore.userWithoutDashboards"
-		class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
-		@click="() => userStore.login()"
-	>
-		Login
-		<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
-	</button>
+	<div v-if="!userStore.userWithoutDashboards" class="flex flex-row items-center gap-2">
+		<button
+			class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
+			@click="() => userStore.login()"
+		>
+			Twitch
+			<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
+		</button>
+		<button
+			class="flex flex-row px-4 py-2 items-center gap-2 bg-[#53FC18] text-black rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 cursor-pointer hover:bg-[#53FC18]/80 transition-shadow"
+			@click="() => userStore.loginWithKick()"
+		>
+			Kick
+			<Icon name="lucide:tv" class="w-5 h-5 text-black" />
+		</button>
+	</div>
 
 	<UiDropdownMenu v-else-if="userStore.userWithoutDashboards">
 		<UiDropdownMenuTrigger

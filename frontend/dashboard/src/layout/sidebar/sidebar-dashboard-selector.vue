@@ -59,8 +59,8 @@ const options = computed(() => {
 	return (
 		profile.value?.availableDashboards.filter(
 			(p) =>
-				contains(p.twitchProfile.login, search.value) ||
-				contains(p.twitchProfile.displayName, search.value)
+				contains(p.twitchProfile?.login ?? '', search.value) ||
+				contains(p.twitchProfile?.displayName ?? '', search.value)
 		) ?? []
 	)
 })
@@ -85,11 +85,11 @@ const {
 						class="flex justify-start items-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
 						<div class="flex aspect-square size-8 items-center justify-center">
-							<img :src="currentDashboard.twitchProfile.profileImageUrl" class="rounded-full" />
+							<img v-if="currentDashboard.twitchProfile?.profileImageUrl" :src="currentDashboard.twitchProfile.profileImageUrl" class="rounded-full" />
 						</div>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-semibold">{{
-								currentDashboard.twitchProfile.displayName
+								currentDashboard.twitchProfile?.displayName ?? ''
 							}}</span>
 							<span class="truncate text-xs">{{ t(`dashboard.header.managingUser`) }}</span>
 						</div>
@@ -116,14 +116,14 @@ const {
 							>
 								<Avatar class="size-4">
 									<AvatarImage
-										:src="option.data.twitchProfile.profileImageUrl"
-										:alt="option.data.twitchProfile.displayName"
+										:src="option.data.twitchProfile?.profileImageUrl ?? undefined"
+										:alt="option.data.twitchProfile?.displayName ?? ''"
 									/>
 									<AvatarFallback>
-										{{ option.data.twitchProfile.displayName.slice(0, 2).toUpperCase() }}
+										{{ option.data.twitchProfile?.displayName?.slice(0, 2).toUpperCase() ?? '' }}
 									</AvatarFallback>
 								</Avatar>
-								{{ option.data.twitchProfile.login }}
+								{{ option.data.twitchProfile?.login ?? '' }}
 							</Button>
 						</div>
 					</div>

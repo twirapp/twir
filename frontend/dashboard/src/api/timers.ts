@@ -31,6 +31,7 @@ export const useTimersApi = createGlobalState(() => {
 						count
 						announceColor
 					}
+					platforms
 				}
 			}
 		`),

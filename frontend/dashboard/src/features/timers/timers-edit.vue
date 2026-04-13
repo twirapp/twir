@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
 import { BadgePlus, GripVertical, TrashIcon } from "lucide-vue-next";
-import { FieldArray, useForm } from "vee-validate";
+import { FieldArray, useField, useForm } from "vee-validate";
 import { computed, onMounted, ref, toRaw } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
@@ -50,6 +50,7 @@ const { resetForm, handleSubmit, controlledValues, errors, setValues } = useForm
 		responses: [{ text: "", isAnnounce: false, count: 1 }],
 		offlineEnabled: false,
 		onlineEnabled: true,
+		platforms: [],
 	},
 });
 
@@ -67,6 +68,17 @@ onMounted(async () => {
 });
 
 const onSubmit = handleSubmit(submit);
+
+const { value: platforms, setValue: setPlatforms } = useField<string[]>("platforms");
+
+function togglePlatform(platform: string, checked: boolean) {
+	const current = platforms.value ?? [];
+	if (checked) {
+		setPlatforms([...current, platform]);
+	} else {
+		setPlatforms(current.filter((p) => p !== platform));
+	}
+}
 
 const responsesHasError = computed(() => {
 	return Object.keys(errors.value).some((key) => key.startsWith("responses"));
@@ -236,6 +248,33 @@ const responsesHasError = computed(() => {
 									<FormMessage />
 								</FormItem>
 							</FormField>
+						</CardContent>
+					</Card>
+
+					<Card class="p-0">
+						<CardContent class="py-4 space-y-4">
+							<div class="space-y-2">
+								<h3 class="text-lg font-semibold">Platforms</h3>
+								<p class="text-sm text-muted-foreground">
+									Select which platforms this timer runs on. If none selected, it runs on all platforms.
+								</p>
+							</div>
+							<div class="flex gap-4">
+								<FormItem class="flex items-center gap-2 space-y-0">
+									<Checkbox
+										:model-value="platforms?.includes('twitch')"
+										@update:model-value="(checked) => togglePlatform('twitch', !!checked)"
+									/>
+									<FormLabel class="font-normal">Twitch</FormLabel>
+								</FormItem>
+								<FormItem class="flex items-center gap-2 space-y-0">
+									<Checkbox
+										:model-value="platforms?.includes('kick')"
+										@update:model-value="(checked) => togglePlatform('kick', !!checked)"
+									/>
+									<FormLabel class="font-normal">Kick</FormLabel>
+								</FormItem>
+							</div>
 						</CardContent>
 					</Card>
 

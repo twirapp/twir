@@ -58,6 +58,7 @@ export const formSchema = object({
 	groupId: string().nullable().optional().default(null),
 	enabledCategories: array(string()).max(100),
 	module: string().optional(),
+	platforms: array(string()).default([]),
 }).and(
 	object({
 		expiresAt: number().nullable().optional(),

@@ -47,9 +47,14 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 						<UiButton v-if="userStore.userWithoutDashboards" href="/dashboard" variant="primary">
 							Dashboard
 						</UiButton>
-						<UiButton v-else as="button" variant="primary" @click="userStore.login()">
-							Start for free
-						</UiButton>
+						<template v-else>
+							<UiButton as="button" variant="primary" @click="userStore.login()">
+								Start with Twitch
+							</UiButton>
+							<UiButton as="button" class="bg-[#53FC18] text-black hover:bg-[#53FC18]/80" @click="userStore.loginWithKick()">
+								Start with Kick
+							</UiButton>
+						</template>
 					</div>
 				</div>
 

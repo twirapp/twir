@@ -110,6 +110,18 @@ export const useAuth = defineStore('auth-store', () => {
 		window.location.replace(data.value.authLink)
 	}
 
+	async function loginWithKick() {
+		const api = useOapi()
+		try {
+			const res = await api.auth.authKickAuthorize({ redirect_to: redirectTo.value })
+			if (res.data && res.data.url) {
+				window.location.replace(res.data.url)
+			}
+		} catch (err) {
+			console.error('Kick login failed:', err)
+		}
+	}
+
 	return {
 		userWithoutDashboards,
 		isLoading: fetching,
@@ -117,6 +129,7 @@ export const useAuth = defineStore('auth-store', () => {
 		getUserDataWithoutDashboards,
 		logout,
 		login,
+		loginWithKick,
 	}
 })
 

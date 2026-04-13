@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { InfoIcon } from 'lucide-vue-next'
-import { useForm } from 'vee-validate'
+import { useField, useForm } from 'vee-validate'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
@@ -13,10 +13,11 @@ import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'vue-sonner'
 import VariableInput from '@/components/variable-input.vue'
@@ -46,6 +47,7 @@ const keywordsForm = useForm({
 			usageCount: z.number().min(0).optional(),
 			rolesIds: z.array(z.string()).optional(),
 			enabled: z.boolean().optional().default(true),
+			platforms: z.array(z.string()).default([]),
 		})
 	),
 	initialValues: {
@@ -57,6 +59,7 @@ const keywordsForm = useForm({
 		isReply: true,
 		response: null,
 		rolesIds: [],
+		platforms: [],
 	},
 	keepValuesOnUnmount: true,
 })
@@ -72,6 +75,7 @@ function resetFormValue() {
 			isReply: true,
 			response: null,
 			rolesIds: [],
+			platforms: [],
 		},
 	})
 }
@@ -90,6 +94,17 @@ watch(
 const keywordsApi = useKeywordsApi()
 const updateMutation = keywordsApi.useMutationUpdateKeyword()
 const createMutation = keywordsApi.useMutationCreateKeyword()
+
+const { value: platforms, setValue: setPlatforms } = useField<string[]>('platforms')
+
+function togglePlatform(platform: string, checked: boolean) {
+	const current = platforms.value ?? []
+	if (checked) {
+		setPlatforms([...current, platform])
+	} else {
+		setPlatforms(current.filter((p) => p !== platform))
+	}
+}
 
 const save = keywordsForm.handleSubmit(async (values) => {
 	try {
@@ -211,6 +226,29 @@ const save = keywordsForm.handleSubmit(async (values) => {
 				<div class="flex flex-col gap-2">
 					<Label class="flex gap-2"> Roles </Label>
 					<FormRolesSelector class="xl:w-full xl:max-w-full" field-name="rolesIds" />
+				</div>
+
+				<div class="flex flex-col gap-2 mt-2">
+					<FormLabel>Platforms</FormLabel>
+					<FormDescription class="mb-2">
+						Select which platforms this keyword runs on. If none selected, it runs on all platforms.
+					</FormDescription>
+					<div class="flex gap-4">
+						<FormItem class="flex items-center gap-2 space-y-0">
+							<Checkbox
+								:model-value="platforms?.includes('twitch')"
+								@update:model-value="(checked) => togglePlatform('twitch', !!checked)"
+							/>
+							<FormLabel class="font-normal">Twitch</FormLabel>
+						</FormItem>
+						<FormItem class="flex items-center gap-2 space-y-0">
+							<Checkbox
+								:model-value="platforms?.includes('kick')"
+								@update:model-value="(checked) => togglePlatform('kick', !!checked)"
+							/>
+							<FormLabel class="font-normal">Kick</FormLabel>
+						</FormItem>
+					</div>
 				</div>
 
 				<FormField v-slot="{ componentField }" name="cooldown">

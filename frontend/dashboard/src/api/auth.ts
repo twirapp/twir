@@ -26,6 +26,21 @@ export const profileQuery = createRequest(
 					login
 					profileImageUrl
 				}
+				kickProfile {
+					id
+					slug
+					displayName
+					profilePicture
+					isLive
+					followersCount
+				}
+				linkedAccounts {
+					platform
+					platformUserId
+					platformLogin
+					platformAvatar
+				}
+				currentPlatform
 				selectedDashboardId
 				availableDashboards {
 					id
@@ -79,11 +94,16 @@ export const useProfile = createGlobalState(() => {
 		const user = response.value?.authenticatedUser
 		if (!user) return null
 
+		const isKick = user.currentPlatform === 'kick'
+
 		return {
 			id: user.id,
-			avatar: user.twitchProfile.profileImageUrl,
-			login: user.twitchProfile.login,
-			displayName: user.twitchProfile.displayName,
+			avatar: isKick ? (user.kickProfile?.profilePicture ?? '') : user.twitchProfile.profileImageUrl,
+			login: isKick ? (user.kickProfile?.slug ?? '') : user.twitchProfile.login,
+			displayName: isKick ? (user.kickProfile?.displayName ?? '') : user.twitchProfile.displayName,
+			kickProfile: user.kickProfile,
+			linkedAccounts: user.linkedAccounts,
+			currentPlatform: user.currentPlatform,
 			apiKey: user.apiKey,
 			isBotAdmin: user.isBotAdmin,
 			isEnabled: user.isEnabled,
@@ -130,6 +150,16 @@ export function useLogout() {
 
 	return execute
 }
+
+export const useUnlinkPlatformAccount = () =>
+	useMutation(
+		graphql(`
+			mutation UnlinkPlatformAccount($platform: String!) {
+				unlinkPlatformAccount(platform: $platform)
+			}
+		`),
+		[userInvalidateQueryKey]
+	)
 
 export const useUserSettings = createGlobalState(() => {
 	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey'

@@ -131,3 +131,26 @@ This handler (used by variable parsing path) also calls `ProcessChatMessage` —
 - `TimerCreateInput.Platforms` is `graphql.Omittable[[]string]` — use `.Value()` directly (returns nil if not set, `StringsToPlatforms(nil)` returns `[]platform.Platform{}`).
 - `KeywordCreateInput.Platforms` and `KeywordUpdateInput.Platforms` are `graphql.Omittable[[]string]` — check `.IsSet()` before assigning.
 - All repository `UpdateInput.Platforms` fields accept `[]platform.Platform` and are already handled by the pgx layer.
+
+## T32: Frontend Profile/Sidebar Platform-Awareness
+- `profileQuery` in `frontend/dashboard/src/api/auth.ts` requires both `kickProfile` and `currentPlatform` to derive platform-aware avatar, login, and displayName in `computedUser`.
+- `computedUser` maps `avatar`, `login`, `displayName` cleanly based on `user.currentPlatform === 'kick'`.
+- The dashboard type currently only has `twitchProfile` because channels are inherently platform-bound and Kick dashboards aren't fully represented in the GraphQL schema yet.
+- Modifying `sidebar-dashboard-selector.vue` to use optional chaining (`p.twitchProfile?.login`) ensures backward-compatible safety for users lacking Twitch profiles.
+- Any components reading `profile.value?.avatar` or `profile.value?.displayName` automatically benefit from the `computedUser` logic without individual component updates.
+
+### T30 - Dashboard Linked Accounts
+- Implemented `LinkedAccounts` tab in `user-settings`.
+- Leveraged `urql` queries/mutations to interact with `profileQuery` and `unlinkPlatformAccount`.
+- Found that `profile.value.linkedAccounts` can contain multiple platforms (including Kick).
+- Redirect to `/api/auth/kick/authorize?redirect_to=/dashboard/user-settings` is a clean way to authenticate without frontend handling OAuth code logic directly.
+- Adding fields to existing `profileQuery` then re-running GraphQL codegen correctly updates types for frontend components relying on `useProfile`.
+
+### T29 - Frontend Kick Login Integration
+- To add a new authentication provider (Kick) alongside Twitch, updated the central auth store (`web/app/stores/user.ts`) with a `loginWithKick()` method using `$fetch` directly to the `GET /api/auth/kick/authorize` endpoint.
+- For the Kick OAuth callback, created a dedicated Nuxt page at `web/layers/landing/pages/login/kick.client.vue` which detects the callback and hits `POST /api/auth/kick/code` (credentials included) to complete login.
+- Nuxt layer pattern used throughout `web/`: had to locate `userStore.login` usage across multiple layers (`landing`, `pastebin`, `public`, `url-shortener`) and replace the standalone Twitch button with dual Twitch/Kick login buttons.
+- The `UiButton` component provides standard styling, while specific brand colors can be applied via inline classes (e.g. `bg-[#53FC18] text-black` for Kick).
+- Noticed `ELOOP` error during `bun run build` which is a known Bun/Nuxt Nitro issue during the copy phase of `node_modules`. The client and server build succeeded before this copy error.
+
+Added platforms selection to Command, Timer, and Keyword forms. Used vee-validate useField and togglePlatform logic. Required mapping emitted checked state to boolean (!!checked) to satisfy TS.
