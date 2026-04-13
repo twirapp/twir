@@ -15,6 +15,7 @@ func (c *Manager) sendMessage(
 	isAnnounce bool,
 	announceColor timersentity.AnnounceColor,
 	count int,
+	platform string,
 ) error {
 	parseReq, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx,
@@ -32,6 +33,7 @@ func (c *Manager) sendMessage(
 			ctx,
 			bots.SendMessageRequest{
 				ChannelId:      channelId,
+				Platform:       platform,
 				Message:        parseReq.Data.Text,
 				IsAnnounce:     isAnnounce,
 				SkipRateLimits: true,

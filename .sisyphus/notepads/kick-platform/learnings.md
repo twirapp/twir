@@ -159,3 +159,5 @@ Added platforms selection to Command, Timer, and Keyword forms. Used vee-validat
 - Kick chat sending works cleanly with a small concrete client: `repo.GetDefault()` for the bot token, `Authorization: Bearer`, JSON body with integer `broadcaster_user_id`, retry once after 401 refresh, and treat 429 as warn-and-drop.
 - Parser platform-aware variable updates can stay low-risk by adding early `parseCtx.Platform != "twitch"` guards only around handlers or fallback branches that actually hit Twitch-only APIs.
 - The parser 7TV variable set is easiest to keep consistent with a small shared helper that branches between `GetSeventvProfileGetKickId` and `GetSeventvProfileGetTwitchId` based on `parseCtx.Platform`.
+- `bots.SendMessageRequest.Platform` can be introduced backward-compatibly because existing publishers keep the zero value and the bots service can treat `""` the same as `"twitch"`.
+- For Kick send-message routing, the generic parser path already carries the broadcaster platform user ID in `SendMessageRequest.ChannelName`; using that value avoids needing a new bus field immediately.

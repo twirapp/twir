@@ -165,6 +165,7 @@ func (c *Manager) tryTick(id TimerID) {
 		response.IsAnnounce,
 		response.AnnounceColor,
 		response.Count,
+		string(channel.Platform),
 	)
 	if err != nil {
 		c.logger.Error(

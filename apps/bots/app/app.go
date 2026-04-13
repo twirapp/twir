@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
 	"github.com/twirapp/twir/apps/bots/internal/discord/messages_updater"
 	"github.com/twirapp/twir/apps/bots/internal/discord/sended_messages_store"
+	kickchat "github.com/twirapp/twir/apps/bots/internal/kick"
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
@@ -73,6 +74,8 @@ import (
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
 	overlays_tts_repository "github.com/twirapp/twir/libs/repositories/overlays_tts"
 	overlays_tts_pgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
@@ -174,6 +177,10 @@ var App = fx.Module(
 			discordsendednotificationspgx.NewFx,
 			fx.As(new(discordsendednotifications.Repository)),
 		),
+		fx.Annotate(
+			kickbotsrepositorypgx.NewFx,
+			fx.As(new(kickbotsrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -201,6 +208,7 @@ var App = fx.Module(
 		greetingscache.New,
 		channelcache.New,
 		twitchactions.New,
+		kickchat.NewChatClient,
 		channelsmoderationsettingscache.New,
 		channelsgamesvotebancache.New,
 		moderationhelpers.New,

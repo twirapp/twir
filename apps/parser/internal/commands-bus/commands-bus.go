@@ -201,6 +201,7 @@ func (c *CommandsBus) Subscribe() error {
 				params := bots.SendMessageRequest{
 					ChannelName:       &data.BroadcasterUserLogin,
 					ChannelId:         data.BroadcasterUserId,
+					Platform:          "twitch",
 					Message:           r,
 					ReplyTo:           replyTo,
 					SkipRateLimits:    false,
@@ -279,6 +280,7 @@ func (c *CommandsBus) Subscribe() error {
 				params := bots.SendMessageRequest{
 					ChannelName:       &channelName,
 					ChannelId:         msg.ChannelID,
+					Platform:          msg.Platform,
 					Message:           r,
 					ReplyTo:           replyTo,
 					SkipRateLimits:    false,
