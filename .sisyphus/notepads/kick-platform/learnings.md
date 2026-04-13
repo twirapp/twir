@@ -154,3 +154,8 @@ This handler (used by variable parsing path) also calls `ProcessChatMessage` —
 - Noticed `ELOOP` error during `bun run build` which is a known Bun/Nuxt Nitro issue during the copy phase of `node_modules`. The client and server build succeeded before this copy error.
 
 Added platforms selection to Command, Timer, and Keyword forms. Used vee-validate useField and togglePlatform logic. Required mapping emitted checked state to boolean (!!checked) to satisfy TS.
+
+- `apps/bots/internal/kick/chat_client.go` can mirror the API-gql Kick provider token parsing: Kick refresh responses may return either `scopes` array or space-delimited `scope`, so preserve fallback logic before persisting refreshed bot tokens.
+- Kick chat sending works cleanly with a small concrete client: `repo.GetDefault()` for the bot token, `Authorization: Bearer`, JSON body with integer `broadcaster_user_id`, retry once after 401 refresh, and treat 429 as warn-and-drop.
+- Parser platform-aware variable updates can stay low-risk by adding early `parseCtx.Platform != "twitch"` guards only around handlers or fallback branches that actually hit Twitch-only APIs.
+- The parser 7TV variable set is easiest to keep consistent with a small shared helper that branches between `GetSeventvProfileGetKickId` and `GetSeventvProfileGetTwitchId` based on `parseCtx.Platform`.

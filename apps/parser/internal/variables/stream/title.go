@@ -21,6 +21,11 @@ var Title = &types.Variable{
 		if parseCtx.ChannelStream != nil {
 			result.Result = parseCtx.ChannelStream.Title
 		} else {
+			if parseCtx.Platform != "twitch" {
+				result.Result = "not supported on this platform"
+				return &result, nil
+			}
+
 			channelInfo := parseCtx.Cacher.GetTwitchChannel(ctx)
 			if channelInfo != nil {
 				result.Result = channelInfo.Title

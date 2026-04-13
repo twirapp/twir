@@ -22,3 +22,5 @@
 - Implemented Kick OAuth code exchange as a dedicated /auth/kick/code route while keeping legacy Twitch /auth handler untouched for backward compatibility.
 - Kick bus topics should mirror the existing Twitch package pattern: one subject constant plus one exported message struct per file, under `libs/bus-core/kick/`.
 - For 7TV Kick profile lookups, use the existing GraphQL `userByConnection(platform: KICK, id: $id)` pattern in both v2 and v3 clients instead of the REST URL mentioned in the plan.
+- Parser-side Twitch-only variables should return the literal fallback `"not supported on this platform"` for Kick instead of attempting partial emulation.
+- Parser `top.*` variables now treat the helper as the platform boundary so all top variants share one Twitch-only guard path.

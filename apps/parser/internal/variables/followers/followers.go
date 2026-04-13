@@ -52,6 +52,11 @@ var Count = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		if parseCtx.Platform != "twitch" {
+			result.Result = "not supported on this platform"
+			return result, nil
+		}
+
 		twitchClient, err := twitch.NewUserClientWithContext(
 			ctx,
 			parseCtx.Channel.ID,

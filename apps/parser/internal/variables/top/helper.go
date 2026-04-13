@@ -24,7 +24,11 @@ func getTop(
 	topType string,
 	page *int,
 	limit int,
-) []*userStats {
+) ([]*userStats, bool) {
+	if parseCtx.Platform != "twitch" {
+		return nil, true
+	}
+
 	twitchClient, err := twitch.NewAppClientWithContext(
 		ctx,
 		*parseCtx.Services.Config,
@@ -33,7 +37,7 @@ func getTop(
 
 	if err != nil {
 		parseCtx.Services.Logger.Sugar().Error(err)
-		return nil
+		return nil, false
 	}
 
 	if page == nil {
@@ -50,7 +54,7 @@ func getTop(
 		Find(channel).Error
 	if err != nil || channel.ID == "" {
 		parseCtx.Services.Logger.Sugar().Error(err)
-		return nil
+		return nil, false
 	}
 
 	query, args, err := squirrel.
@@ -74,7 +78,7 @@ func getTop(
 
 	if err != nil {
 		parseCtx.Services.Logger.Sugar().Error(err)
-		return nil
+		return nil, false
 	}
 
 	records := []model.UsersStats{}
@@ -82,7 +86,7 @@ func getTop(
 	err = parseCtx.Services.Sqlx.Select(&records, query, args...)
 	if err != nil {
 		parseCtx.Services.Logger.Sugar().Error(err)
-		return nil
+		return nil, false
 	}
 
 	ids := lo.Map(
@@ -98,7 +102,7 @@ func getTop(
 	)
 
 	if err != nil || len(twitchUsers.Data.Users) == 0 {
-		return nil
+		return nil, false
 	}
 
 	var stats []*userStats
@@ -137,5 +141,5 @@ func getTop(
 		stats = append(stats, res)
 	}
 
-	return stats
+	return stats, false
 }

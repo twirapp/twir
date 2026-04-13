@@ -44,7 +44,11 @@ var ChannelPoints = &types.Variable{
 			limit = 10
 		}
 
-		topUsers := getTop(ctx, parseCtx, "usedChannelPoints", &page, limit)
+		topUsers, notSupported := getTop(ctx, parseCtx, "usedChannelPoints", &page, limit)
+		if notSupported {
+			result.Result = "not supported on this platform"
+			return result, nil
+		}
 
 		if topUsers == nil || len(topUsers) == 0 {
 			return result, nil

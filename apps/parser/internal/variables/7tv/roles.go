@@ -19,7 +19,7 @@ var Roles = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		profile, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, parseCtx.Channel.ID)
+		profile, err := getProfile(ctx, parseCtx)
 		if err != nil {
 			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Seventv.Errors.ProfileNotFound.SetVars(locales.KeysVariablesSeventvErrorsProfileNotFoundVars{Reason: err.Error()}))
 			return &result, nil
