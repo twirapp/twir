@@ -12,6 +12,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
@@ -135,7 +136,18 @@ func (c *BusListener) subscribeToAllEvents(
 			return struct{}{}, err
 		}
 
-		if err := c.kickSubManager.SubscribeAll(ctx, account.PlatformUserID, account.AccessToken); err != nil {
+		accessToken, err := crypto.Decrypt(account.AccessToken, c.config.TokensCipherKey)
+		if err != nil {
+			c.logger.Error(
+				"error decrypting kick access token",
+				logger.Error(err),
+				slog.String("channel_id", msg.ChannelID),
+				slog.String("kick_channel_id", account.PlatformUserID),
+			)
+			return struct{}{}, err
+		}
+
+		if err := c.kickSubManager.SubscribeAll(ctx, account.PlatformUserID, accessToken); err != nil {
 			c.logger.Error(
 				"error subscribing to kick events",
 				logger.Error(err),

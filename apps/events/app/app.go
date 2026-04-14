@@ -18,13 +18,15 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/otel"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistpostgres "github.com/twirapp/twir/libs/repositories/channels_events_list/datasources/postgres"
+	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
+	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	overlaysttspgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
-	"github.com/twirapp/twir/libs/otel"
 	"go.uber.org/fx"
 
 	eventsrepository "github.com/twirapp/twir/libs/repositories/events"
@@ -48,6 +50,10 @@ var App = fx.Module(
 		fx.Annotate(
 			channelsrepositorypostgres.NewFx,
 			fx.As(new(channelsrepository.Repository)),
+		),
+		fx.Annotate(
+			commandsrepositorypgx.NewFx,
+			fx.As(new(commandsrepository.Repository)),
 		),
 		fx.Annotate(
 			eventsrepositorypostgres.NewFx,

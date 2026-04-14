@@ -39,7 +39,12 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		return false, gqlerrors.HandleError(err)
 	}
 
-	if user.ID != dashboardId {
+	var channel model.Channels
+	if err := r.deps.Gorm.WithContext(ctx).Where("id = ?", dashboardId).First(&channel).Error; err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	if channel.UserID != user.ID {
 		return false, fmt.Errorf("you cannot reset stats for this user")
 	}
 

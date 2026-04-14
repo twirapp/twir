@@ -20,16 +20,19 @@ onMounted(async () => {
 	}
 
 	if (!code || !state) {
-		error.value = `Something unexpected happened, because authorization code wasn't provided. Please try to log in again`
+		error.value = `[kick] Something unexpected happened, because authorization code wasn't provided. Please try to log in again`
 		return
 	}
 
 	try {
-		const res = await $fetch<{ data: { redirect_to: string } }>(`${window.location.origin}/api/auth/kick/code`, {
-			method: 'POST',
-			body: { code, state },
-			credentials: 'include',
-		})
+		const res = await $fetch<{ data: { redirect_to: string } }>(
+			`${window.location.origin}/api/auth/kick/code`,
+			{
+				method: 'POST',
+				body: { code, state },
+				credentials: 'include',
+			}
+		)
 
 		window.location.replace(res.data.redirect_to)
 	} catch (requestError) {
@@ -43,27 +46,40 @@ onMounted(async () => {
 
 <template>
 	<span
-		class="absolute content-[''] h-[482px] rounded-full pointer-events-none purple-gradient -z-20 -top-[220px] right-0 left-0 mx-auto"
+		class="purple-gradient pointer-events-none absolute -top-[220px] right-0 left-0 -z-20 mx-auto h-[482px] rounded-full content-['']"
 	></span>
-	<div class="flex justify-center items-center h-screen px-3">
-		<div v-if="error" class="flex flex-col gap-2 items-center">
-			<span class="font-medium text-red-400 text-center">{{ error }}</span>
+	<div class="flex h-screen items-center justify-center px-3">
+		<div
+			v-if="error"
+			class="flex flex-col items-center gap-2"
+		>
+			<span class="text-center font-medium text-red-400">{{ error }}</span>
 			<NuxtLink
 				v-slot="{ navigate, href }"
 				to="/"
 				custom
 			>
-				<UiButton :href="href" variant="primary" role="link" @click="navigate">
+				<UiButton
+					:href="href"
+					variant="primary"
+					role="link"
+					@click="navigate"
+				>
 					Back to home
 				</UiButton>
 			</NuxtLink>
 		</div>
 
-		<div v-else-if="loading" role="status">
+		<div
+			v-else-if="loading"
+			role="status"
+		>
 			<svg
 				aria-hidden="true"
-				class="w-12 h-12 mr-2 animate-spin text-gray-600 fill-[#53FC18]"
-				viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"
+				class="mr-2 h-12 w-12 animate-spin fill-[#53FC18] text-gray-600"
+				viewBox="0 0 100 101"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
 			>
 				<path
 					d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"

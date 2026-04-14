@@ -9,6 +9,7 @@ import type { PopoverContentProps } from 'reka-ui'
 
 import { useDashboard, useProfile } from '@/api/auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
 	SidebarMenu,
@@ -55,12 +56,34 @@ const popoverProps = computed((): PopoverContentProps & { class?: string } => {
 const search = ref('')
 
 const { contains } = useFilter({ sensitivity: 'base' })
+
+function getDashboardName(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
+	if (dashboard.platform === 'kick') {
+		return dashboard.kickProfile?.displayName ?? dashboard.kickProfile?.slug ?? ''
+	}
+	return dashboard.twitchProfile?.displayName ?? ''
+}
+
+function getDashboardLogin(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
+	if (dashboard.platform === 'kick') {
+		return dashboard.kickProfile?.slug ?? ''
+	}
+	return dashboard.twitchProfile?.login ?? ''
+}
+
+function getDashboardAvatar(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
+	if (dashboard.platform === 'kick') {
+		return dashboard.kickProfile?.profilePicture ?? ''
+	}
+	return dashboard.twitchProfile?.profileImageUrl ?? ''
+}
+
 const options = computed(() => {
 	return (
 		profile.value?.availableDashboards.filter(
 			(p) =>
-				contains(p.twitchProfile?.login ?? '', search.value) ||
-				contains(p.twitchProfile?.displayName ?? '', search.value)
+				contains(getDashboardLogin(p), search.value) ||
+				contains(getDashboardName(p), search.value)
 		) ?? []
 	)
 })
@@ -84,15 +107,17 @@ const {
 						size="lg"
 						class="flex justify-start items-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
-						<div class="flex aspect-square size-8 items-center justify-center">
-							<img v-if="currentDashboard.twitchProfile?.profileImageUrl" :src="currentDashboard.twitchProfile.profileImageUrl" class="rounded-full" />
-						</div>
-						<div class="grid flex-1 text-left text-sm leading-tight">
-							<span class="truncate font-semibold">{{
-								currentDashboard.twitchProfile?.displayName ?? ''
-							}}</span>
-							<span class="truncate text-xs">{{ t(`dashboard.header.managingUser`) }}</span>
-						</div>
+					<div class="flex aspect-square size-8 items-center justify-center">
+						<img v-if="getDashboardAvatar(currentDashboard)" :src="getDashboardAvatar(currentDashboard)" class="rounded-full" />
+					</div>
+					<div class="grid flex-1 text-left text-sm leading-tight">
+						<span class="truncate font-semibold">{{ getDashboardName(currentDashboard) }}</span>
+						<span class="truncate text-xs flex items-center gap-1">
+							{{ t(`dashboard.header.managingUser`) }}
+							<Badge v-if="currentDashboard.platform === 'kick'" variant="outline" class="uppercase text-[10px] px-1 py-0 h-4">K</Badge>
+							<Badge v-else variant="outline" class="uppercase text-[10px] px-1 py-0 h-4">T</Badge>
+						</span>
+					</div>
 						<ChevronsUpDown class="ml-auto" />
 					</SidebarMenuButton>
 				</PopoverTrigger>
@@ -116,14 +141,24 @@ const {
 							>
 								<Avatar class="size-4">
 									<AvatarImage
-										:src="option.data.twitchProfile?.profileImageUrl ?? undefined"
-										:alt="option.data.twitchProfile?.displayName ?? ''"
+										:src="getDashboardAvatar(option.data)"
+										:alt="getDashboardName(option.data)"
 									/>
 									<AvatarFallback>
-										{{ option.data.twitchProfile?.displayName?.slice(0, 2).toUpperCase() ?? '' }}
+										{{ getDashboardName(option.data).slice(0, 2).toUpperCase() }}
 									</AvatarFallback>
 								</Avatar>
-								{{ option.data.twitchProfile?.login ?? '' }}
+								<span class="truncate">{{ getDashboardLogin(option.data) }}</span>
+								<Badge
+									v-if="option.data.platform === 'kick'"
+									variant="outline"
+									class="uppercase text-[10px] px-1 py-0 h-4 ml-auto"
+								>K</Badge>
+								<Badge
+									v-else
+									variant="outline"
+									class="uppercase text-[10px] px-1 py-0 h-4 ml-auto"
+								>T</Badge>
 							</Button>
 						</div>
 					</div>

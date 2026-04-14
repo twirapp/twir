@@ -7,9 +7,12 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/events/internal/shared"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channels "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.temporal.io/sdk/activity"
 )
@@ -145,13 +148,64 @@ func (c *Activity) getChannelDbEntity(ctx context.Context, channelId string) (
 	model.Channels,
 	error,
 ) {
-	channel := model.Channels{}
-	err := c.db.WithContext(ctx).Where(`"id" = ?`, channelId).First(&channel).Error
+	channelInfo, err := c.getChannelRuntimeInfo(ctx, channelId)
 	if err != nil {
-		return channel, err
+		return model.Channels{}, err
 	}
 
-	return channel, nil
+	return model.Channels{
+		ID:    channelInfo.BroadcasterUserID,
+		BotID: channelInfo.BotID,
+	}, nil
+}
+
+func (c *Activity) getChannelRuntimeInfo(ctx context.Context, channelId string) (channelRuntimeInfo, error) {
+	channelUUID, err := uuid.Parse(channelId)
+	if err == nil {
+		return c.getChannelRuntimeInfoByChannelUUID(ctx, channelUUID)
+	}
+
+	return c.getChannelRuntimeInfoByTwitchBroadcasterID(ctx, channelId)
+}
+
+func (c *Activity) getChannelRuntimeInfoByChannelUUID(
+	ctx context.Context,
+	channelUUID uuid.UUID,
+) (channelRuntimeInfo, error) {
+	channel, err := c.channelsRepo.GetByID(ctx, channelUUID.String())
+	if err != nil {
+		if errors.Is(err, channels.ErrNotFound) {
+			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
+		}
+
+		return channelRuntimeInfo{}, err
+	}
+
+	return channelRuntimeInfo{
+		ChannelID:         channel.ID,
+		BroadcasterUserID: channel.UserID.String(),
+		BotID:             channel.BotID,
+	}, nil
+}
+
+func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
+	ctx context.Context,
+	twitchBroadcasterID string,
+) (channelRuntimeInfo, error) {
+	channel, err := c.channelsRepo.GetByPlatformUserID(ctx, platform.PlatformTwitch, twitchBroadcasterID)
+	if err != nil {
+		if errors.Is(err, channels.ErrNotFound) {
+			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
+		}
+
+		return channelRuntimeInfo{}, err
+	}
+
+	return channelRuntimeInfo{
+		ChannelID:         channel.ID,
+		BroadcasterUserID: channel.UserID.String(),
+		BotID:             channel.BotID,
+	}, nil
 }
 
 func (c *Activity) getHelixUserByLogin(client *helix.Client, userLogin string) (helix.User, error) {

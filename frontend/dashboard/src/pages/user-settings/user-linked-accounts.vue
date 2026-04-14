@@ -15,6 +15,7 @@ const accounts = computed(() => profile.value?.linkedAccounts || [])
 const currentPlatform = computed(() => profile.value?.currentPlatform || '')
 
 const isKickLinked = computed(() => accounts.value.some((a) => a.platform === 'kick'))
+const isTwitchLinked = computed(() => accounts.value.some((a) => a.platform === 'twitch'))
 
 async function handleUnlink(platform: string) {
 	if (platform === currentPlatform.value) return
@@ -24,6 +25,10 @@ async function handleUnlink(platform: string) {
 
 function handleConnectKick() {
 	window.location.href = '/api/auth/kick/authorize?redirect_to=/dashboard/user-settings'
+}
+
+function handleConnectTwitch() {
+	window.location.href = '/api/auth/twitch/authorize?redirect_to=/dashboard/user-settings'
 }
 </script>
 
@@ -55,6 +60,24 @@ function handleConnectKick() {
 					>
 						<UnlinkIcon class="w-4 h-4 mr-2" />
 						Disconnect
+					</Button>
+				</CardContent>
+			</Card>
+
+			<Card v-if="!isTwitchLinked">
+				<CardContent class="flex items-center justify-between p-4">
+					<div class="flex items-center gap-4">
+						<Avatar>
+							<AvatarFallback>T</AvatarFallback>
+						</Avatar>
+						<div class="flex flex-col">
+							<span class="font-semibold">Twitch</span>
+							<span class="text-sm text-muted-foreground">Not connected</span>
+						</div>
+					</div>
+					<Button variant="default" size="sm" @click="handleConnectTwitch">
+						<LinkIcon class="w-4 h-4 mr-2" />
+						Connect Twitch
 					</Button>
 				</CardContent>
 			</Card>

@@ -6,7 +6,9 @@ import (
 	"time"
 
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/logger"
 	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	"go.uber.org/fx"
 )
@@ -20,6 +22,7 @@ type ResubscribeJob struct {
 	subManager               SubscriptionLister
 	userPlatformAccountsRepo user_platform_accounts.Repository
 	logger                   *slog.Logger
+	config                   cfg.Config
 	interval                 time.Duration
 }
 
@@ -39,6 +42,7 @@ func NewResubscribeJob(opts ResubscribeJobOpts) *ResubscribeJob {
 		subManager:               opts.SubManager,
 		userPlatformAccountsRepo: opts.UserPlatformAccountsRepo,
 		logger:                   opts.Logger,
+		config:                   opts.Config,
 		interval:                 23 * time.Hour,
 	}
 
@@ -77,7 +81,18 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 	}
 
 	for _, account := range accounts {
-		subs, err := j.subManager.ListSubscriptions(ctx, account.AccessToken)
+		accessToken, err := crypto.Decrypt(account.AccessToken, j.config.TokensCipherKey)
+		if err != nil {
+			j.logger.ErrorContext(
+				ctx,
+				"resubscribe job: failed to decrypt kick access token",
+				slog.String("kick_channel_id", account.PlatformUserID),
+				logger.Error(err),
+			)
+			continue
+		}
+
+		subs, err := j.subManager.ListSubscriptions(ctx, accessToken)
 		if err != nil {
 			j.logger.ErrorContext(
 				ctx,
@@ -92,7 +107,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		if err := j.subManager.SubscribeAll(ctx, account.PlatformUserID, account.AccessToken); err != nil {
+		if err := j.subManager.SubscribeAll(ctx, account.PlatformUserID, accessToken); err != nil {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to re-subscribe kick eventsub",

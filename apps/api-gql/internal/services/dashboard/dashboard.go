@@ -14,12 +14,16 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	"github.com/twirapp/twir/libs/repositories/streams"
+	userplatformaccountsrepository "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -29,55 +33,80 @@ import (
 type Opts struct {
 	fx.In
 
-	Gorm                    *gorm.DB
-	CachedTwitchClient      *twitchcache.CachedTwitchClient
-	KV                      kv.KV
-	Config                  config.Config
-	Logger                  *slog.Logger
-	TwirBus                 *buscore.Bus
-	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
-	ChannelEmotesUsagesRepo channelsemotesusagesrepository.Repository
-	StreamsRepository       streams.Repository
+	Gorm                     *gorm.DB
+	CachedTwitchClient       *twitchcache.CachedTwitchClient
+	KV                       kv.KV
+	Config                   config.Config
+	Logger                   *slog.Logger
+	TwirBus                  *buscore.Bus
+	ChannelsCache            *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsRepo             channelsrepository.Repository
+	ChannelEmotesUsagesRepo  channelsemotesusagesrepository.Repository
+	StreamsRepository        streams.Repository
+	UserPlatformAccountsRepo userplatformaccountsrepository.Repository
+	KickBotsRepo             kickbotsrepository.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		gorm:                    opts.Gorm,
-		cachedTwitchClient:      opts.CachedTwitchClient,
-		kv:                      opts.KV,
-		config:                  opts.Config,
-		logger:                  opts.Logger,
-		twirBus:                 opts.TwirBus,
-		channelsCache:           opts.ChannelsCache,
-		channelEmotesUsagesRepo: opts.ChannelEmotesUsagesRepo,
-		streamsRepository:       opts.StreamsRepository,
+		gorm:                     opts.Gorm,
+		cachedTwitchClient:       opts.CachedTwitchClient,
+		kv:                       opts.KV,
+		config:                   opts.Config,
+		logger:                   opts.Logger,
+		twirBus:                  opts.TwirBus,
+		channelsCache:            opts.ChannelsCache,
+		channelsRepo:             opts.ChannelsRepo,
+		channelEmotesUsagesRepo:  opts.ChannelEmotesUsagesRepo,
+		streamsRepository:        opts.StreamsRepository,
+		userPlatformAccountsRepo: opts.UserPlatformAccountsRepo,
+		kickBotsRepo:             opts.KickBotsRepo,
 	}
 }
 
 type Service struct {
-	gorm                    *gorm.DB
-	cachedTwitchClient      *twitchcache.CachedTwitchClient
-	kv                      kv.KV
-	config                  config.Config
-	logger                  *slog.Logger
-	twirBus                 *buscore.Bus
-	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
-	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
-	streamsRepository       streams.Repository
+	gorm                     *gorm.DB
+	cachedTwitchClient       *twitchcache.CachedTwitchClient
+	kv                       kv.KV
+	config                   config.Config
+	logger                   *slog.Logger
+	twirBus                  *buscore.Bus
+	channelsCache            *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsRepo             channelsrepository.Repository
+	channelEmotesUsagesRepo  channelsemotesusagesrepository.Repository
+	streamsRepository        streams.Repository
+	userPlatformAccountsRepo userplatformaccountsrepository.Repository
+	kickBotsRepo             kickbotsrepository.Repository
+}
+
+func (c *Service) getChannelTwitchID(ctx context.Context, channel channelmodel.Channel) (string, error) {
+	if channel.Platform != platformentity.PlatformTwitch {
+		return "", nil
+	}
+
+	account, err := c.userPlatformAccountsRepo.GetByUserIDAndPlatform(ctx, channel.UserID, platformentity.PlatformTwitch)
+	if err != nil {
+		return "", fmt.Errorf("get twitch platform account: %w", err)
+	}
+
+	return account.PlatformUserID, nil
 }
 
 func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	*entity.DashboardStats,
 	error,
 ) {
-	channelTwitchClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		channelID,
-		c.config,
-		c.twirBus,
-	)
+	channel, err := c.channelsRepo.GetByID(ctx, channelID)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get channel twitch client: %w", err)
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() {
+		return nil, fmt.Errorf("channel not found")
+	}
+
+	twitchChannelID, err := c.getChannelTwitchID(ctx, channel)
+	if err != nil {
+		return nil, fmt.Errorf("get channel twitch id: %w", err)
 	}
 
 	stream, err := c.streamsRepository.GetByChannelID(
@@ -90,9 +119,74 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 
 	result := entity.DashboardStats{}
 
+	if twitchChannelID == "" {
+		if !stream.IsNil() {
+			result.StreamViewers = &stream.ViewerCount
+			result.StreamCategoryID = stream.GameId
+			result.StreamCategoryName = stream.GameName
+			result.StreamTitle = stream.Title
+			result.StreamStartedAt = &stream.StartedAt
+
+			parsedMessages, _ := c.kv.Get(
+				ctx,
+				redis_keys.StreamParsedMessages(stream.ID),
+			).Int()
+			result.StreamChatMessages = int(parsedMessages)
+
+			var errgrp errgroup.Group
+			var usedEmotes int64
+			var requestedSongs int64
+
+			errgrp.Go(func() error {
+				emotesCount, err := c.channelEmotesUsagesRepo.Count(
+					ctx,
+					channelsemotesusagesrepository.CountInput{
+						ChannelID: &channelID,
+						TimeAfter: &stream.StartedAt,
+					},
+				)
+				if err != nil {
+					return fmt.Errorf("get count of used emotes: %w", err)
+				}
+				usedEmotes = int64(emotesCount)
+				return nil
+			})
+
+			errgrp.Go(func() error {
+				if err = c.gorm.
+					WithContext(ctx).
+					Model(&model.RequestedSong{}).
+					Where(`"channelId" = ? AND "createdAt" >= ?`, channelID, stream.StartedAt).
+					Count(&requestedSongs).Error; err != nil {
+					return fmt.Errorf("get count of requested songs: %w", err)
+				}
+				return nil
+			})
+
+			if err := errgrp.Wait(); err != nil {
+				return nil, err
+			}
+
+			result.UsedEmotes = int(usedEmotes)
+			result.RequestedSongs = int(requestedSongs)
+		}
+
+		return &result, nil
+	}
+
+	channelTwitchClient, err := twitch.NewUserClientWithContext(
+		ctx,
+		channel.UserID.String(),
+		c.config,
+		c.twirBus,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get channel twitch client: %w", err)
+	}
+
 	if stream.IsNil() {
 		channelInformation, err := channelTwitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
-			BroadcasterIDs: []string{channelID},
+			BroadcasterIDs: []string{twitchChannelID},
 		})
 		if err != nil {
 			return nil, fmt.Errorf("get channel information: %w", err)
@@ -119,7 +213,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	wg.Go(func() {
 		followers, err := channelTwitchClient.GetChannelFollows(
 			&helix.GetChannelFollowsParams{
-				BroadcasterID: channelID,
+				BroadcasterID: twitchChannelID,
 			},
 		)
 		if err != nil {
@@ -137,7 +231,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	wg.Go(func() {
 		subs, err := c.cachedTwitchClient.GetChannelSubscribersCountByChannelId(
 			ctx,
-			channelID,
+			twitchChannelID,
 		)
 		if err != nil {
 			result.Subs = subs
@@ -148,7 +242,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		wg.Go(func() {
 			channelInformation, err := c.cachedTwitchClient.GetChannelInformationById(
 				ctx,
-				channelID,
+				twitchChannelID,
 			)
 			if err != nil {
 				return
@@ -227,39 +321,59 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 }
 
 func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.BotStatus, error) {
-	dbUser := &model.Users{}
-	err := c.gorm.WithContext(ctx).Where("id = ?", channelID).Preload("Channel").First(dbUser).Error
+	channel, err := c.channelsRepo.GetByID(ctx, channelID)
 	if err != nil {
-		return entity.BotStatus{}, fmt.Errorf("get user: %w", err)
+		return entity.BotStatus{}, fmt.Errorf("get channel: %w", err)
 	}
 
-	if dbUser.ID == "" || dbUser.Channel == nil {
-		return entity.BotStatus{}, fmt.Errorf("user not found")
+	if channel.IsNil() {
+		return entity.BotStatus{}, fmt.Errorf("channel not found")
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelID, c.config, c.twirBus)
+	result := entity.BotStatus{
+		Enabled: channel.IsEnabled,
+		IsMod:   channel.IsBotMod,
+		BotID:   channel.BotID,
+	}
+
+	if channel.Platform == platformentity.PlatformKick {
+		bot, err := c.kickBotsRepo.GetDefault(ctx)
+		if err != nil {
+			c.logger.Error("cannot get default kick bot", logger.Error(err))
+		} else {
+			result.BotName = bot.KickUserLogin
+			result.BotID = bot.KickUserID
+		}
+		return result, nil
+	}
+
+	twitchChannelID, err := c.getChannelTwitchID(ctx, channel)
 	if err != nil {
 		return entity.BotStatus{}, err
 	}
 
-	result := entity.BotStatus{
-		Enabled: dbUser.Channel.IsEnabled,
-		IsMod:   false,
+	if twitchChannelID == "" {
+		return result, nil
+	}
+
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, channel.UserID.String(), c.config, c.twirBus)
+	if err != nil {
+		return entity.BotStatus{}, err
 	}
 
 	var errgrp errgroup.Group
 
 	errgrp.Go(
 		func() error {
-			if channelID == dbUser.Channel.BotID {
+			if twitchChannelID == channel.BotID {
 				result.IsMod = true
 				return nil
 			}
 
 			mods, err := twitchClient.GetModerators(
 				&helix.GetModeratorsParams{
-					BroadcasterID: channelID,
-					UserIDs:       []string{dbUser.Channel.BotID},
+					BroadcasterID: twitchChannelID,
+					UserIDs:       []string{channel.BotID},
 				},
 			)
 			if err != nil {
@@ -281,7 +395,7 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 		func() error {
 			infoReq, err := twitchClient.GetUsers(
 				&helix.UsersParams{
-					IDs: []string{dbUser.Channel.BotID},
+					IDs: []string{channel.BotID},
 				},
 			)
 			if err != nil {
@@ -301,15 +415,9 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 		return entity.BotStatus{}, fmt.Errorf("cannot get bot info: %w", err)
 	}
 
-	go func() {
-		err := c.gorm.Model(&model.Channels{}).Where("id = ?", dbUser.ID).Update(
-			`"isBotMod"`,
-			result.IsMod,
-		).Error
-		if err != nil {
-			c.logger.Error("cannot update channel", slog.String("channelId", dbUser.ID))
-		}
-	}()
+	if _, err := c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsBotMod: &result.IsMod}); err != nil {
+		c.logger.Error("cannot update channel", logger.Error(err), slog.String("channelId", channel.ID))
+	}
 
 	return result, nil
 }
@@ -320,16 +428,40 @@ const (
 )
 
 func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (bool, error) {
-	dbChannel := &model.Channels{}
-	err := c.gorm.WithContext(ctx).Where("id = ?", channelID).First(dbChannel).Error
+	channel, err := c.channelsRepo.GetByID(ctx, channelID)
 	if err != nil {
 		return false, err
 	}
 
+	if channel.IsNil() {
+		return false, fmt.Errorf("channel not found")
+	}
+
+	isEnabled := action == BotJoinLeaveActionJoin
+
+	_, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsEnabled: &isEnabled})
+	if err != nil {
+		return false, fmt.Errorf("update channel enabled state: %w", err)
+	}
+
+	channel.IsEnabled = isEnabled
+
+	if channel.Platform != platformentity.PlatformTwitch {
+		c.channelsCache.Invalidate(ctx, channelID)
+		return true, nil
+	}
+
+	twitchChannelID, err := c.getChannelTwitchID(ctx, channel)
+	if err != nil {
+		return false, err
+	}
+
+	if twitchChannelID == "" {
+		return false, fmt.Errorf("twitch channel id not found")
+	}
+
 	if action == BotJoinLeaveActionJoin {
-		dbChannel.IsEnabled = true
-	} else {
-		dbChannel.IsEnabled = false
+		channel.IsEnabled = true
 	}
 
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
@@ -338,17 +470,13 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 	}
 
 	twitchUsers, err := twitchClient.GetUsers(
-		&helix.UsersParams{IDs: []string{channelID}},
+		&helix.UsersParams{IDs: []string{twitchChannelID}},
 	)
 	if err != nil || twitchUsers.ErrorMessage != "" || len(twitchUsers.Data.Users) == 0 {
 		return false, fmt.Errorf("user not found on twitch")
 	}
 
-	if err := c.gorm.Where(`"id" = ?`, channelID).Select("*").Save(dbChannel).Error; err != nil {
-		return false, err
-	}
-
-	if dbChannel.IsEnabled {
+	if channel.IsEnabled {
 		c.twirBus.EventSub.SubscribeToAllEvents.Publish(
 			ctx,
 			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID},
@@ -357,7 +485,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 
 	broadcasterClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		channelID,
+		channel.UserID.String(),
 		c.config,
 		c.twirBus,
 	)
@@ -368,9 +496,9 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 	if action == BotJoinLeaveActionJoin {
 		unbanResp, err := broadcasterClient.UnbanUser(
 			&helix.UnbanUserParams{
-				BroadcasterID: channelID,
-				ModeratorID:   channelID,
-				UserID:        dbChannel.BotID,
+				BroadcasterID: twitchChannelID,
+				ModeratorID:   twitchChannelID,
+				UserID:        channel.BotID,
 			},
 		)
 		if err != nil {
@@ -383,8 +511,8 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 
 		addModResp, err := broadcasterClient.AddChannelModerator(
 			&helix.AddChannelModeratorParams{
-				BroadcasterID: channelID,
-				UserID:        dbChannel.BotID,
+				BroadcasterID: twitchChannelID,
+				UserID:        channel.BotID,
 			},
 		)
 		if err != nil {

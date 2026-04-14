@@ -76,6 +76,7 @@ import (
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channels_giveaways_settings "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
@@ -105,6 +106,7 @@ type Deps struct {
 	PlansRepository                plansrepository.Repository
 	GiveawaysSettingsRepository    channels_giveaways_settings.Repository
 	UserPlatformAccountsRepository user_platform_accounts.Repository
+	ChannelsRepository             channelsrepository.Repository
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB

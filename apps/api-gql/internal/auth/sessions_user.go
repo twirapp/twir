@@ -56,21 +56,31 @@ func (s *Auth) GetAuthenticatedUserModel(ctx context.Context) (*model.Users, err
 		return userByApyKey, nil
 	}
 
-	user, ok := s.sessionManager.Get(ctx, dbUserKey).(model.Users)
-	if !ok {
+	userID, err := s.GetInternalUserID(ctx)
+	if err != nil {
 		return nil, fmt.Errorf("not authenticated")
 	}
 
-	freshUser := model.Users{}
-	if err := s.gorm.First(&freshUser, user.ID).Error; err != nil {
+	dbUser, err := s.usersRepo.GetByID(ctx, userID.String())
+	if err != nil {
 		return nil, fmt.Errorf("cannot get user from db: %w", err)
+	}
+
+	freshUser := &model.Users{
+		ID:                dbUser.ID,
+		TokenID:           dbUser.TokenID.NullString,
+		IsBotAdmin:        dbUser.IsBotAdmin,
+		ApiKey:            dbUser.ApiKey,
+		IsBanned:          dbUser.IsBanned,
+		HideOnLandingPage: dbUser.HideOnLandingPage,
+		CreatedAt:         dbUser.CreatedAt,
 	}
 
 	if freshUser.IsBanned {
 		return nil, fmt.Errorf("forbidden")
 	}
 
-	return &freshUser, nil
+	return freshUser, nil
 }
 
 func (s *Auth) SetSessionAuthenticatedUser(ctx context.Context, user model.Users) error {

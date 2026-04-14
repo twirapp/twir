@@ -8,6 +8,7 @@ package resolvers
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/url"
 
@@ -23,12 +24,30 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	userplatformaccountsrepository "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	"gorm.io/gorm"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.ID)
+	userID, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user id: %w", err)
+	}
+
+	account, err := r.deps.UserPlatformAccountsRepository.GetByUserIDAndPlatform(
+		ctx,
+		userID,
+		platformentity.PlatformTwitch,
+	)
+	if err != nil {
+		if errors.Is(err, userplatformaccountsrepository.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get twitch platform account: %w", err)
+	}
+
+	return data_loader.GetHelixUserById(ctx, account.PlatformUserID)
 }
 
 // AvailableDashboards is the resolver for the availableDashboards field.
@@ -95,7 +114,27 @@ func (r *channelUserInfoResolver) TwitchProfile(ctx context.Context, obj *gqlmod
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.ID)
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() {
+		return nil, nil
+	}
+
+	account, err := r.deps.UserPlatformAccountsRepository.GetByUserIDAndPlatform(
+		ctx,
+		channel.UserID,
+		platformentity.PlatformTwitch,
+	)
+	if err != nil {
+		if errors.Is(err, userplatformaccountsrepository.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get twitch platform account: %w", err)
+	}
+
+	return data_loader.GetHelixUserById(ctx, account.PlatformUserID)
 }
 
 // Plan is the resolver for the plan field.
@@ -301,6 +340,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		Where("id = ?", sessionUser.ID).
 		Preload("Channel").
 		First(&user).Error; err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	authedUser := &gqlmodel.AuthenticatedUser{

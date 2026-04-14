@@ -2,12 +2,16 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	platform "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 )
 
 func (c *Handler) HandleChannelModeratorAdd(
@@ -21,7 +25,7 @@ func (c *Handler) HandleChannelModeratorAdd(
 		slog.String("userId", event.UserId),
 		slog.String("userName", event.UserLogin),
 	)
-	c.updateBotStatus(ctx, event.BroadcasterUserId, event.UserId, true)
+	c.updateBotStatus(ctx, event.BroadcasterUserId, true)
 
 	c.twirBus.Events.ModeratorAdded.Publish(
 		ctx,
@@ -52,7 +56,7 @@ func (c *Handler) HandleChannelModeratorRemove(
 		slog.String("userId", event.UserId),
 		slog.String("userName", event.UserLogin),
 	)
-	c.updateBotStatus(ctx, event.BroadcasterUserId, event.UserId, false)
+	c.updateBotStatus(ctx, event.BroadcasterUserId, false)
 
 	c.twirBus.Events.ModeratorRemoved.Publish(
 		ctx,
@@ -94,27 +98,39 @@ func (c *Handler) updateUserModStatus(
 func (c *Handler) updateBotStatus(
 	ctx context.Context,
 	channelId string,
-	userId string,
 	newStatus bool,
 ) {
-	channel := model.Channels{}
-	err := c.gorm.WithContext(ctx).Where("id = ?", channelId).First(&channel).Error
+	account, err := c.userPlatformAccountsRepo.GetByPlatformUserID(
+		ctx,
+		platform.PlatformTwitch,
+		channelId,
+	)
 	if err != nil {
-		c.logger.Error(err.Error(), logger.Error(err))
-		return
-	}
-
-	if userId != channel.BotID {
-		return
-	}
-
-	channel.IsBotMod = newStatus
-	err = c.gorm.Save(&channel).Error
-	if err != nil {
-		c.logger.Error(err.Error(), logger.Error(err))
-	} else {
-		if err = c.channelsCache.Invalidate(ctx, channelId); err != nil {
-			c.logger.Error(err.Error(), logger.Error(err))
+		if errors.Is(err, user_platform_accounts.ErrNotFound) {
+			c.logger.Error("cannot find platform account", logger.Error(err))
+		} else {
+			c.logger.Error("cannot resolve broadcaster platform account", logger.Error(err))
 		}
+		return
+	}
+
+	channel, err := c.channelsRepo.GetByUserIDAndPlatform(ctx, account.UserID, platform.PlatformTwitch)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return
+		}
+
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+
+	channel, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsBotMod: &newStatus})
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+
+	if err = c.channelsCache.Invalidate(ctx, channel.ID); err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }

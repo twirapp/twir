@@ -167,8 +167,9 @@ func (c *UserCreatorService) ensureUserExists(ctx context.Context, userID string
 			// User not found, create a new one.
 			return c.createUser(
 				ctx, users.CreateInput{
-					ID:     userID,
-					ApiKey: lo.ToPtr(uuid.NewString()),
+					ID:       userID,
+					TwitchID: &userID,
+					ApiKey:   lo.ToPtr(uuid.NewString()),
 				},
 			)
 		}

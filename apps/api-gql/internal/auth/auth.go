@@ -13,6 +13,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	model "github.com/twirapp/twir/libs/gomodels"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -20,13 +21,15 @@ import (
 type Opts struct {
 	fx.In
 
-	Redis *redis.Client
-	Gorm  *gorm.DB
+	Redis     *redis.Client
+	Gorm      *gorm.DB
+	UsersRepo usersrepository.Repository
 }
 
 type Auth struct {
 	sessionManager *scs.SessionManager
 	gorm           *gorm.DB
+	usersRepo      usersrepository.Repository
 }
 
 func NewSessions(opts Opts) *Auth {
@@ -42,6 +45,7 @@ func NewSessions(opts Opts) *Auth {
 	return &Auth{
 		sessionManager: sessionManager,
 		gorm:           opts.Gorm,
+		usersRepo:      opts.UsersRepo,
 	}
 }
 

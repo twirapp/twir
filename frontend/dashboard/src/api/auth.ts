@@ -44,11 +44,18 @@ export const profileQuery = createRequest(
 				selectedDashboardId
 				availableDashboards {
 					id
+					platform
 					flags
 					twitchProfile {
 						login
 						displayName
 						profileImageUrl
+					}
+					kickProfile {
+						id
+						slug
+						displayName
+						profilePicture
 					}
 					apiKey
 					plan {
@@ -318,10 +325,6 @@ export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {
 	return computed(() => {
 		if (!profile.value?.availableDashboards || !profile.value?.selectedDashboardId) return false
 
-		if (profile.value.id === profile.value.selectedDashboardId) {
-			return true
-		}
-
 		if (profile.value.isBotAdmin) return true
 
 		const dashboard = profile.value?.availableDashboards.find((dashboard) => {
@@ -339,7 +342,6 @@ export async function userAccessFlagChecker(flag: ChannelRolePermissionEnum) {
 
 	if (profile?.authenticatedUser.isBotAdmin) return true
 	if (!profile || !profile?.authenticatedUser.selectedDashboardId) return false
-	if (profile.authenticatedUser.selectedDashboardId === profile.authenticatedUser.id) return true
 
 	const dashboard = profile.authenticatedUser.availableDashboards.find((dashboard) => {
 		return dashboard.id === profile.authenticatedUser.selectedDashboardId

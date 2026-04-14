@@ -35,7 +35,6 @@ type Config struct {
 	TwitchClientSecret string `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
 	KickClientId       string `required:"false"                                       envconfig:"KICK_CLIENT_ID"`
 	KickClientSecret   string `required:"false"                                       envconfig:"KICK_CLIENT_SECRET"`
-	KickRedirectUrl    string `required:"false"                                       envconfig:"KICK_REDIRECT_URL"`
 	DatabaseUrl        string `required:"true"                                        envconfig:"DATABASE_URL"`
 	ClickhouseUrl      string `required:"true"  default:"clickhouse://twir:twir@127.0.0.1:9000/twir" envconfig:"CLICKHOUSE_URL"`
 	AppEnv             string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
@@ -129,10 +128,6 @@ func (c *Config) GetTwitchCallbackUrl() string {
 }
 
 func (c *Config) GetKickCallbackUrl() string {
-	if c.KickRedirectUrl != "" {
-		return c.KickRedirectUrl
-	}
-
 	u, err := url.Parse(c.SiteBaseUrl)
 	if err != nil {
 		panic(err)

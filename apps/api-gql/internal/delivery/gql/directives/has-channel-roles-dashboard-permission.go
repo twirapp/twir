@@ -26,7 +26,12 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 		return nil, err
 	}
 
-	if user.ID == dashboardId || user.IsBotAdmin {
+	var channel model.Channels
+	if err := c.gorm.WithContext(ctx).Where("id = ?", dashboardId).First(&channel).Error; err != nil {
+		return nil, fmt.Errorf("cannot get channel: %w", err)
+	}
+
+	if channel.UserID == user.ID || user.IsBotAdmin {
 		return next(ctx)
 	}
 

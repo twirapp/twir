@@ -46,6 +46,7 @@ type GetOnlineUsersWithFiltersInput struct {
 
 type CreateInput struct {
 	ID                string
+	TwitchID          *string
 	ApiKey            *string
 	IsBotAdmin        bool
 	IsBanned          bool

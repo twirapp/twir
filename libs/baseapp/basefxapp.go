@@ -2,6 +2,7 @@ package baseapp
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -10,6 +11,8 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/exaring/otelpgx"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
@@ -136,6 +139,29 @@ func newPgxPool(cfg config.Config) (PgxResult, error) {
 	connConfig.HealthCheckPeriod = 30 * time.Second
 	connConfig.ConnConfig.Config.ConnectTimeout = 5 * time.Second
 	// connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+
+	connConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		var scalarOID, arrayOID uint32
+		err := conn.QueryRow(ctx,
+			"SELECT t.oid, t.typarray FROM pg_type t WHERE t.typname = 'platform'",
+		).Scan(&scalarOID, &arrayOID)
+		if err != nil {
+			return fmt.Errorf("load platform enum OID: %w", err)
+		}
+
+		scalarType := &pgtype.Type{
+			Name:  "platform",
+			OID:   scalarOID,
+			Codec: &pgtype.EnumCodec{},
+		}
+		conn.TypeMap().RegisterType(scalarType)
+		conn.TypeMap().RegisterType(&pgtype.Type{
+			Name:  "_platform",
+			OID:   arrayOID,
+			Codec: &pgtype.ArrayCodec{ElementType: scalarType},
+		})
+		return nil
+	}
 
 	pool, err := pgxpool.NewWithConfig(
 		context.Background(),

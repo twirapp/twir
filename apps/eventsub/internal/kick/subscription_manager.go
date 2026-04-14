@@ -14,6 +14,7 @@ import (
 
 	goredis "github.com/redis/go-redis/v9"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
@@ -239,7 +240,10 @@ func (m *SubscriptionManager) UnsubscribeAll(ctx context.Context, kickChannelID 
 		return fmt.Errorf("kick: get platform account for channel %s: %w", kickChannelID, err)
 	}
 
-	broadcasterToken := account.AccessToken
+	broadcasterToken, err := crypto.Decrypt(account.AccessToken, m.config.TokensCipherKey)
+	if err != nil {
+		return fmt.Errorf("kick: decrypt access token for channel %s: %w", kickChannelID, err)
+	}
 
 	for _, eventType := range EventTypes {
 		key := redisKey(kickChannelID, eventType)

@@ -17,6 +17,8 @@ var (
 
 type Channels struct {
 	ID             string    `gorm:"primaryKey;column:id;type:TEXT;"               json:"id"`
+	UserID         string    `gorm:"column:user_id;type:UUID;"                      json:"userId"`
+	Platform       string    `gorm:"column:platform;type:platform;"                 json:"platform"`
 	IsEnabled      bool      `gorm:"column:isEnabled;type:BOOL;"       json:"isEnabled"`
 	IsTwitchBanned bool      `gorm:"column:isTwitchBanned;type:BOOL;" json:"isTwitchBanned"`
 	IsBotMod       bool      `gorm:"column:isBotMod;type:BOOL;" json:"isBotMod"`
@@ -26,7 +28,7 @@ type Channels struct {
 
 	Commands []ChannelsCommands `gorm:"foreignKey:ChannelID" json:"commands"`
 	Roles    []*ChannelRole     `gorm:"foreignKey:ChannelID" json:"roles"`
-	User     *Users             `gorm:"foreignKey:ID" json:"user"`
+	User     *Users             `gorm:"foreignKey:UserID" json:"user"`
 }
 
 func (c *Channels) TableName() string {

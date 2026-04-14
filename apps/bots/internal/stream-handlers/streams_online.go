@@ -6,7 +6,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 )
@@ -15,8 +14,8 @@ func (c *PubSubHandlers) streamsOnline(
 	ctx context.Context,
 	data twitch.StreamOnlineMessage,
 ) (struct{}, error) {
-	channel := model.Channels{}
-	if err := c.db.WithContext(ctx).Where("id = ?", data.ChannelID).Find(&channel).Error; err != nil {
+	channel, found, err := c.findTwitchChannelByPlatformUserID(ctx, data.ChannelID)
+	if err != nil {
 		c.logger.Error(
 			"cannot find channel",
 			slog.String("channelId", data.ChannelID),
@@ -24,11 +23,11 @@ func (c *PubSubHandlers) streamsOnline(
 		return struct{}{}, err
 	}
 
-	if channel.ID == "" {
+	if !found {
 		return struct{}{}, nil
 	}
 
-	err := c.greetingsRepository.UpdateManyByChannelID(
+	err = c.greetingsRepository.UpdateManyByChannelID(
 		ctx, greetings.UpdateManyInput{
 			ChannelID: channel.ID,
 			Processed: lo.ToPtr(false),

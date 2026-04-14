@@ -1159,10 +1159,16 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `KickAuthorizeResponse` OK
      * @response `default` `ErrorModel` Error
      */
-    authKickAuthorize: (params: RequestParams = {}) =>
+    authKickAuthorize: (
+      query?: {
+        redirect_to?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.http.request<KickAuthorizeResponse, any>({
         path: `/auth/kick/authorize`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),

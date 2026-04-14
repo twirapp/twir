@@ -39,7 +39,7 @@ type AuthenticatedUser implements TwirUser {
 	apiKey: String!
 	hideOnLandingPage: Boolean!
 	botId: ID
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
 	selectedDashboardId: String!
 	availableDashboards: [Dashboard!]! @goField(forceResolver: true)
 	planId: String
@@ -50,8 +50,10 @@ type AuthenticatedUser implements TwirUser {
 
 type Dashboard {
 	id: String!
+	platform: String!
 	flags: [ChannelRolePermissionEnum!]!
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
+	kickProfile: KickProfile
 	apiKey: String!
 	planId: String
 	plan: Plan @goField(forceResolver: true)

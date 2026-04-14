@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
@@ -41,9 +42,17 @@ func (c *Activity) CommandAllowOrRemoveUserPermission(
 		return fmt.Errorf("cannot get user %w", userErr)
 	}
 
-	command := &deprecatedgormmodel.ChannelsCommands{}
-	commandErr := c.db.Where("id = ?", *operation.Target).First(command).Error
+	commandID, err := uuid.Parse(*operation.Target)
+	if err != nil {
+		return fmt.Errorf("invalid command id: %w", err)
+	}
+
+	command, commandErr := c.commandsRepo.GetByID(ctx, commandID)
 	if commandErr != nil {
+		if commandErr == context.Canceled || commandErr == context.DeadlineExceeded {
+			return commandErr
+		}
+
 		return fmt.Errorf("command not found")
 	}
 
@@ -64,7 +73,15 @@ func (c *Activity) CommandAllowOrRemoveUserPermission(
 		)
 	}
 
-	return c.db.Save(command).Error
+	_, err = c.commandsRepo.Update(
+		ctx,
+		commandID,
+		commandsrepository.UpdateInput{
+			AllowedUsersIDS: command.AllowedUsersIDS,
+			DeniedUsersIDS:  command.DeniedUsersIDS,
+		},
+	)
+	return err
 }
 
 func (c *Activity) CommandDenyOrRemoveUserPermission(
@@ -97,10 +114,18 @@ func (c *Activity) CommandDenyOrRemoveUserPermission(
 		return userErr
 	}
 
-	command := &deprecatedgormmodel.ChannelsCommands{}
-	commandErr := c.db.Where("id = ?", *operation.Target).First(command).Error
+	commandID, err := uuid.Parse(*operation.Target)
+	if err != nil {
+		return fmt.Errorf("invalid command id: %w", err)
+	}
+
+	command, commandErr := c.commandsRepo.GetByID(ctx, commandID)
 	if commandErr != nil {
-		return fmt.Errorf("command not found: %w", commandErr)
+		if commandErr == context.Canceled || commandErr == context.DeadlineExceeded {
+			return commandErr
+		}
+
+		return fmt.Errorf("command not found")
 	}
 
 	if operation.Type == model.EventOperationTypeDenyCommandToUser {
@@ -120,5 +145,13 @@ func (c *Activity) CommandDenyOrRemoveUserPermission(
 		)
 	}
 
-	return c.db.Save(command).Error
+	_, err = c.commandsRepo.Update(
+		ctx,
+		commandID,
+		commandsrepository.UpdateInput{
+			AllowedUsersIDS: command.AllowedUsersIDS,
+			DeniedUsersIDS:  command.DeniedUsersIDS,
+		},
+	)
+	return err
 }

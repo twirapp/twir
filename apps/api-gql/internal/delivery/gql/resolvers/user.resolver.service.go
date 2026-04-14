@@ -5,6 +5,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
@@ -13,6 +14,24 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	obj *gqlmodel.AuthenticatedUser,
 ) ([]gqlmodel.Dashboard, error) {
 	dashboardsEntities := make(map[string]gqlmodel.Dashboard)
+
+	kickAccounts, _ := r.deps.UserPlatformAccountsRepository.GetAllByPlatform(ctx, platformentity.PlatformKick)
+	kickProfileByUserID := make(map[string]gqlmodel.KickProfile)
+	for _, acc := range kickAccounts {
+		var pic *string
+		if acc.PlatformAvatar != "" {
+			pic = &acc.PlatformAvatar
+		}
+		kickProfileByUserID[acc.UserID.String()] = gqlmodel.KickProfile{
+			ID:             acc.PlatformUserID,
+			Slug:           acc.PlatformLogin,
+			DisplayName:    acc.PlatformDisplayName,
+			ProfilePicture: pic,
+			IsLive:         false,
+			FollowersCount: 0,
+		}
+	}
+
 	if obj.IsBotAdmin {
 		var channels []model.Channels
 		if err := r.deps.Gorm.WithContext(ctx).Preload("User").Find(&channels).Error; err != nil {
@@ -21,7 +40,8 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 
 		for _, channel := range channels {
 			dashboard := gqlmodel.Dashboard{
-				ID: channel.ID,
+				ID:       channel.ID,
+				Platform: channel.Platform,
 				Flags: []gqlmodel.ChannelRolePermissionEnum{
 					gqlmodel.ChannelRolePermissionEnumCanAccessDashboard,
 				},
@@ -32,14 +52,36 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 				dashboard.APIKey = channel.User.ApiKey
 			}
 
+			if channel.Platform == string(platformentity.PlatformKick) && channel.User != nil {
+				if kp, ok := kickProfileByUserID[channel.User.ID]; ok {
+					dashboard.KickProfile = &kp
+				}
+			}
+
 			dashboardsEntities[channel.ID] = dashboard
 		}
 	} else {
-		dashboardsEntities[obj.ID] = gqlmodel.Dashboard{
-			ID:     obj.ID,
-			Flags:  []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
-			APIKey: obj.APIKey,
-			PlanID: obj.PlanID,
+		var ownChannels []model.Channels
+		if err := r.deps.Gorm.WithContext(ctx).Where("user_id = ?", obj.ID).Find(&ownChannels).Error; err != nil {
+			return nil, err
+		}
+
+		for _, channel := range ownChannels {
+			dashboard := gqlmodel.Dashboard{
+				ID:       channel.ID,
+				Platform: channel.Platform,
+				Flags:    []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
+				APIKey:   obj.APIKey,
+				PlanID:   channel.PlanID,
+			}
+
+			if channel.Platform == string(platformentity.PlatformKick) {
+				if kp, ok := kickProfileByUserID[obj.ID]; ok {
+					dashboard.KickProfile = &kp
+				}
+			}
+
+			dashboardsEntities[channel.ID] = dashboard
 		}
 
 		var roles []model.ChannelRoleUser
@@ -67,11 +109,14 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 				flags = append(flags, gqlmodel.ChannelRolePermissionEnum(flag))
 			}
 
+			existing := dashboardsEntities[role.Role.Channel.ID]
 			dashboard := gqlmodel.Dashboard{
-				ID:     role.Role.Channel.ID,
-				Flags:  append(dashboardsEntities[role.Role.Channel.ID].Flags, flags...),
-				PlanID: role.Role.Channel.PlanID,
-				APIKey: role.Role.Channel.User.ApiKey,
+				ID:          role.Role.Channel.ID,
+				Platform:    existing.Platform,
+				Flags:       append(existing.Flags, flags...),
+				PlanID:      role.Role.Channel.PlanID,
+				APIKey:      role.Role.Channel.User.ApiKey,
+				KickProfile: existing.KickProfile,
 			}
 
 			if role.Role.Channel.User != nil {
@@ -131,9 +176,12 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		}
 
 		if role.ID != "" && len(flags) > 0 {
+			existing := dashboardsEntities[role.ChannelID]
 			dashboard := gqlmodel.Dashboard{
-				ID:    role.ChannelID,
-				Flags: append(dashboardsEntities[role.ChannelID].Flags, flags...),
+				ID:          role.ChannelID,
+				Platform:    existing.Platform,
+				Flags:       append(existing.Flags, flags...),
+				KickProfile: existing.KickProfile,
 			}
 
 			if role.Channel != nil && role.Channel.User != nil {

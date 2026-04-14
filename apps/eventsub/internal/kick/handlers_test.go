@@ -94,6 +94,18 @@ func (m *mockChannelsRepo) GetCount(_ context.Context, _ channelsrepository.GetC
 	return 0, nil
 }
 
+func (m *mockChannelsRepo) GetByPlatformUserID(_ context.Context, _ platform.Platform, _ string) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+func (m *mockChannelsRepo) Update(_ context.Context, _ string, _ channelsrepository.UpdateInput) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+func (m *mockChannelsRepo) Create(_ context.Context, _ channelsrepository.CreateInput) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
 func buildTestHandlers(
 	t *testing.T,
 	chatMessagesGeneric *mockQueue[generic.ChatMessage, struct{}],

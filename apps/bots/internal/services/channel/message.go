@@ -8,14 +8,21 @@ import (
 
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	userplatformaccountsrepository "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 )
 
 var ErrNoChannelId = errors.New("channel id is not provided")
+
+type deleteMessageChannel struct {
+	BotID         string
+	BroadcasterID string
+}
 
 func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) error {
 	return s.workersPool.SubmitErr(
@@ -83,8 +90,7 @@ func (s *Service) sendKickMessage(ctx context.Context, req bots.SendMessageReque
 func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageRequest) error {
 	return s.workersPool.SubmitErr(
 		func() error {
-			var channel model.Channels
-			err := s.gorm.WithContext(ctx).Where("id = ?", req.ChannelId).Find(&channel).Error
+			channel, found, err := s.getDeleteMessageChannel(ctx, req.ChannelId)
 			if err != nil {
 				s.logger.Error(
 					"cannot find channel to delete messages from",
@@ -93,7 +99,7 @@ func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageReque
 				return fmt.Errorf("find channel: %w", err)
 			}
 
-			if channel.ID == "" {
+			if !found {
 				return nil
 			}
 
@@ -105,7 +111,7 @@ func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageReque
 						deleteErr := s.twitchActions.DeleteMessage(
 							ctx,
 							twitchactions.DeleteMessageOpts{
-								BroadcasterID: req.ChannelId,
+								BroadcasterID: channel.BroadcasterID,
 								ModeratorID:   channel.BotID,
 								MessageID:     msgId,
 							},
@@ -122,4 +128,29 @@ func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageReque
 
 			return wg.Wait()
 		}).Wait()
+}
+
+func (s *Service) getDeleteMessageChannel(ctx context.Context, channelID string) (deleteMessageChannel, bool, error) {
+	channel, err := s.channelsRepo.GetByID(ctx, channelID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return deleteMessageChannel{}, false, nil
+		}
+
+		return deleteMessageChannel{}, false, err
+	}
+
+	account, err := s.userPlatformAccountsRepo.GetByUserIDAndPlatform(ctx, channel.UserID, platform.PlatformTwitch)
+	if err != nil {
+		if errors.Is(err, userplatformaccountsrepository.ErrNotFound) {
+			return deleteMessageChannel{}, false, nil
+		}
+
+		return deleteMessageChannel{}, false, err
+	}
+
+	return deleteMessageChannel{
+		BotID:         channel.BotID,
+		BroadcasterID: account.PlatformUserID,
+	}, true, nil
 }

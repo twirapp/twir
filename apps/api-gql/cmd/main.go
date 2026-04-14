@@ -199,6 +199,9 @@ import (
 	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
 	integrationspostgres "github.com/twirapp/twir/libs/repositories/integrations/datasource/postgres"
 
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
+
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallpostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
 
@@ -376,12 +379,16 @@ func main() {
 				fx.As(new(integrationsrepository.Repository)),
 			),
 			fx.Annotate(
-				scheduledvipsrepositorypostgres.NewFx,
-				fx.As(new(scheduledvipsrepository.Repository)),
+				kickbotsrepositorypgx.NewFx,
+				fx.As(new(kickbotsrepository.Repository)),
 			),
 			fx.Annotate(
 				chatwallpostgres.NewFx,
 				fx.As(new(chatwallrepository.Repository)),
+			),
+			fx.Annotate(
+				scheduledvipsrepositorypostgres.NewFx,
+				fx.As(new(scheduledvipsrepository.Repository)),
 			),
 			fx.Annotate(
 				chattranslationpostgres.NewFx,

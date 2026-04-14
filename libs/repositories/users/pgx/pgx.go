@@ -36,14 +36,15 @@ type Pgx struct {
 
 func (c *Pgx) Create(ctx context.Context, input users.CreateInput) (model.User, error) {
 	query := `
-INSERT INTO users (id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO users (id, twitch_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at;
 `
 
 	rows, err := c.pool.Query(
 		ctx, query,
 		input.ID,
+		input.TwitchID,
 		input.TokenID,
 		input.IsBotAdmin,
 		input.ApiKey,

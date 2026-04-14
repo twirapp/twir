@@ -38,7 +38,19 @@ func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(hu
 		return
 	}
 
-	if user.ID == dashboardId || user.IsBotAdmin {
+	var channel model.Channels
+	if err := c.gorm.WithContext(ctx).Where("id = ?", dashboardId).First(&channel).Error; err != nil {
+		huma.WriteErr(
+			c.huma,
+			hc,
+			http.StatusInternalServerError,
+			"Cannot get channel",
+			err,
+		)
+		return
+	}
+
+	if channel.UserID == user.ID || user.IsBotAdmin {
 		next(hc)
 		return
 	}

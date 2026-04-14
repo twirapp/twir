@@ -37,6 +37,27 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
+	query := `
+INSERT INTO channels (user_id, platform, "botId")
+VALUES ($1, $2, $3)
+RETURNING "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, input.UserID, input.Platform, input.BotID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, error) {
 	query := `
 SELECT COUNT(*)
@@ -99,6 +120,68 @@ WHERE "user_id" = $1 AND "platform" = $2
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Nil, channels.ErrNotFound
 		}
+	}
+
+	return result, nil
+}
+
+func (c *Pgx) GetByPlatformUserID(ctx context.Context, plat platform.Platform, platformUserID string) (model.Channel, error) {
+	query := `
+SELECT c."id"::text AS "id", c."platform", c."user_id", c."isEnabled", c."isTwitchBanned", c."isBotMod", c."botId"
+FROM user_platform_accounts upa
+JOIN channels c ON c.user_id = upa.user_id AND c.platform = $1
+WHERE upa.platform = $1 AND upa.platform_user_id = $2
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, plat, platformUserID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
+func (c *Pgx) Update(ctx context.Context, channelID string, input channels.UpdateInput) (model.Channel, error) {
+	updateBuilder := sq.Update("channels").Where(`"id" = ?::uuid`, channelID)
+
+	if input.IsEnabled != nil {
+		updateBuilder = updateBuilder.Set(`"isEnabled"`, *input.IsEnabled)
+	}
+
+	if input.IsBotMod != nil {
+		updateBuilder = updateBuilder.Set(`"isBotMod"`, *input.IsBotMod)
+	}
+
+	updateBuilder = updateBuilder.Suffix(
+		`RETURNING "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"`,
+	)
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return model.Nil, err
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+		return model.Nil, err
 	}
 
 	return result, nil

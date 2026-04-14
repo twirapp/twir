@@ -14,6 +14,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
@@ -22,6 +23,7 @@ import (
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/streams"
+	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -35,6 +37,7 @@ type Handler struct {
 	websocketsGrpc               websockets.WebsocketClient
 	tracer                       trace.Tracer
 	scheduledVipsRepo            scheduledvipsrepository.Repository
+	channelsRepo                 channelsrepository.Repository
 	channelsCache                *generic_cacher.GenericCacher[channelmodel.Channel]
 	channelsInfoHistoryRepo      channelsinfohistory.Repository
 	streamsrepository            streams.Repository
@@ -43,8 +46,9 @@ type Handler struct {
 
 	userCreatorService *user_creator.UserCreatorService
 
-	gorm        *gorm.DB
-	redisClient *redis.Client
+	gorm                     *gorm.DB
+	redisClient              *redis.Client
+	userPlatformAccountsRepo user_platform_accounts.Repository
 
 	twirBus                             *bus_core.Bus
 	prefixCache                         *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
@@ -64,6 +68,7 @@ type Opts struct {
 	Logger *slog.Logger
 
 	WebsocketsGrpc                      websockets.WebsocketClient
+	ChannelsRepository                  channelsrepository.Repository
 	ScheduledVipsRepo                   scheduledvipsrepository.Repository
 	ChannelsRepo                        *generic_cacher.GenericCacher[channelmodel.Channel]
 	ChannelsInfoHistoryRepo             channelsinfohistory.Repository
@@ -75,9 +80,10 @@ type Opts struct {
 	ChannelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
 	UserCreatorService                  *user_creator.UserCreatorService
 
-	Tracer trace.Tracer
-	Gorm   *gorm.DB
-	Redis  *redis.Client
+	Tracer                   trace.Tracer
+	Gorm                     *gorm.DB
+	Redis                    *redis.Client
+	UserPlatformAccountsRepo user_platform_accounts.Repository
 
 	Bus                *bus_core.Bus
 	PrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
@@ -92,11 +98,13 @@ func New(opts Opts) *Handler {
 		config:                              opts.Config,
 		gorm:                                opts.Gorm,
 		redisClient:                         opts.Redis,
+		userPlatformAccountsRepo:            opts.UserPlatformAccountsRepo,
 		websocketsGrpc:                      opts.WebsocketsGrpc,
 		tracer:                              opts.Tracer,
 		twirBus:                             opts.Bus,
 		prefixCache:                         opts.PrefixCache,
 		scheduledVipsRepo:                   opts.ScheduledVipsRepo,
+		channelsRepo:                        opts.ChannelsRepository,
 		channelsCache:                       opts.ChannelsRepo,
 		channelsInfoHistoryRepo:             opts.ChannelsInfoHistoryRepo,
 		streamsrepository:                   opts.StreamsRepository,
