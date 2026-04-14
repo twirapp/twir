@@ -33,3 +33,11 @@ export function useMutationEventSubInitChannels() {
 		}
 	`))
 }
+
+export function useMutationKickBotSetupLink() {
+	return useMutation(graphql(`
+		mutation KickBotSetupLink {
+			kickBotSetupLink
+		}
+	`))
+}

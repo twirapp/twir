@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
@@ -117,6 +118,7 @@ type Deps struct {
 	TwirBus                          *bus_core.Bus
 	KV                               kv.KV
 	TwirStats                        *twir_stats.TwirStats
+	KickProvider                     *kickplatform.Provider
 
 	DashboardWidgetEventsService          *dashboard_widget_events.Service
 	DashboardWidgetsService               *dashboard_widgets.Service

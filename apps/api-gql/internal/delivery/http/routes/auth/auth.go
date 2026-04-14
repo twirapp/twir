@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/twirapp/kv"
 	sessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
@@ -13,6 +14,7 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	botsrepo "github.com/twirapp/twir/libs/repositories/bots"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
+	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 	"github.com/twirapp/twir/libs/repositories/tokens"
 	userplatformaccountsrepo "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -35,6 +37,8 @@ type Opts struct {
 	BotsRepo                 botsrepo.Repository
 	UsersRepo                usersrepository.Repository
 	KickProvider             *kickplatform.Provider
+	KickBotsRepo             kickbotsrepo.Repository
+	KV                       kv.KV
 }
 
 type Auth struct {
@@ -49,6 +53,8 @@ type Auth struct {
 	botsRepo                 botsrepo.Repository
 	usersRepo                usersrepository.Repository
 	kickProvider             *kickplatform.Provider
+	kickBotsRepo             kickbotsrepo.Repository
+	kv                       kv.KV
 }
 
 func New(opts Opts) *Auth {
@@ -64,6 +70,8 @@ func New(opts Opts) *Auth {
 		botsRepo:                 opts.BotsRepo,
 		usersRepo:                opts.UsersRepo,
 		kickProvider:             opts.KickProvider,
+		kickBotsRepo:             opts.KickBotsRepo,
+		kv:                       opts.KV,
 	}
 
 	huma.Register(
@@ -116,6 +124,24 @@ func New(opts Opts) *Auth {
 		},
 		) (*kickAuthorizeOutput, error) {
 			return p.handleKickAuthorize(ctx, kickAuthorizeInput{RedirectTo: i.RedirectTo})
+		},
+	)
+
+	huma.Register(
+		opts.Huma,
+		huma.Operation{
+			OperationID: "auth-kick-bot-callback",
+			Method:      http.MethodGet,
+			Path:        "/auth/kick/bot-callback",
+			Tags:        []string{"Auth"},
+			Summary:     "Kick bot setup callback",
+		},
+		func(ctx context.Context, i *struct {
+			Code  string `query:"code"`
+			State string `query:"state"`
+		},
+		) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
+			return p.handleKickBotCallback(ctx, kickBotCallbackInput{Code: i.Code, State: i.State})
 		},
 	)
 

@@ -46,9 +46,22 @@ func (p *Provider) Name() string {
 }
 
 func (p *Provider) GetAuthURL(state, codeChallenge string) string {
+	return p.buildAuthURL(state, codeChallenge, p.config.GetKickCallbackUrl())
+}
+
+func (p *Provider) GetBotSetupAuthURL(state, codeChallenge string) string {
+	u, err := url.Parse(p.config.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return p.buildAuthURL(state, codeChallenge, u.JoinPath("api", "auth", "kick", "bot-callback").String())
+}
+
+func (p *Provider) buildAuthURL(state, codeChallenge, redirectURI string) string {
 	query := url.Values{}
 	query.Set("client_id", p.config.KickClientId)
-	query.Set("redirect_uri", p.config.GetKickCallbackUrl())
+	query.Set("redirect_uri", redirectURI)
 	query.Set("response_type", "code")
 	query.Set("scope", strings.Join(scopes, " "))
 	query.Set("state", state)
@@ -59,13 +72,26 @@ func (p *Provider) GetAuthURL(state, codeChallenge string) string {
 }
 
 func (p *Provider) ExchangeCode(ctx context.Context, code, codeVerifier string) (*platform.PlatformTokens, error) {
+	return p.exchangeCodeWithRedirectURI(ctx, code, codeVerifier, p.config.GetKickCallbackUrl())
+}
+
+func (p *Provider) ExchangeBotSetupCode(ctx context.Context, code, codeVerifier string) (*platform.PlatformTokens, error) {
+	u, err := url.Parse(p.config.SiteBaseUrl)
+	if err != nil {
+		return nil, err
+	}
+	redirectURI := u.JoinPath("api", "auth", "kick", "bot-callback").String()
+	return p.exchangeCodeWithRedirectURI(ctx, code, codeVerifier, redirectURI)
+}
+
+func (p *Provider) exchangeCodeWithRedirectURI(ctx context.Context, code, codeVerifier, redirectURI string) (*platform.PlatformTokens, error) {
 	form := url.Values{}
 	form.Set("grant_type", "authorization_code")
 	form.Set("client_id", p.config.KickClientId)
 	form.Set("client_secret", p.config.KickClientSecret)
 	form.Set("code", code)
 	form.Set("code_verifier", codeVerifier)
-	form.Set("redirect_uri", p.config.GetKickCallbackUrl())
+	form.Set("redirect_uri", redirectURI)
 
 	return p.requestTokens(ctx, form)
 }

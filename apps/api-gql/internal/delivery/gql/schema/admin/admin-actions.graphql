@@ -3,6 +3,7 @@ extend type Mutation {
 	eventsubSubscribe(opts: EventsubSubscribeInput!): Boolean! @isAuthenticated @isAdmin
 	rescheduleTimers: Boolean! @isAuthenticated @isAdmin
 	eventsubInitChannels: Boolean! @isAuthenticated @isAdmin
+	kickBotSetupLink: String! @isAuthenticated @isAdmin
 }
 
 input EventsubSubscribeInput {
