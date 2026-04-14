@@ -105,9 +105,9 @@ export const useProfile = createGlobalState(() => {
 
 		return {
 			id: user.id,
-			avatar: isKick ? (user.kickProfile?.profilePicture ?? '') : user.twitchProfile.profileImageUrl,
-			login: isKick ? (user.kickProfile?.slug ?? '') : user.twitchProfile.login,
-			displayName: isKick ? (user.kickProfile?.displayName ?? '') : user.twitchProfile.displayName,
+			avatar: isKick ? (user.kickProfile?.profilePicture ?? '') : (user.twitchProfile?.profileImageUrl ?? ''),
+			login: isKick ? (user.kickProfile?.slug ?? '') : (user.twitchProfile?.login ?? ''),
+			displayName: isKick ? (user.kickProfile?.displayName ?? '') : (user.twitchProfile?.displayName ?? ''),
 			kickProfile: user.kickProfile,
 			linkedAccounts: user.linkedAccounts,
 			currentPlatform: user.currentPlatform,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { InfoIcon } from 'lucide-vue-next'
-import { useField, useForm } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
@@ -17,11 +17,11 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescripti
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'vue-sonner'
 import VariableInput from '@/components/variable-input.vue'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
+import PlatformSelector from '@/components/platform-selector.vue'
 
 const props = defineProps<{
 	keyword?: Omit<KeywordResponse, 'id'> & { id?: string }
@@ -94,17 +94,6 @@ watch(
 const keywordsApi = useKeywordsApi()
 const updateMutation = keywordsApi.useMutationUpdateKeyword()
 const createMutation = keywordsApi.useMutationCreateKeyword()
-
-const { value: platforms, setValue: setPlatforms } = useField<string[]>('platforms')
-
-function togglePlatform(platform: string, checked: boolean) {
-	const current = platforms.value ?? []
-	if (checked) {
-		setPlatforms([...current, platform])
-	} else {
-		setPlatforms(current.filter((p) => p !== platform))
-	}
-}
 
 const save = keywordsForm.handleSubmit(async (values) => {
 	try {
@@ -228,28 +217,21 @@ const save = keywordsForm.handleSubmit(async (values) => {
 					<FormRolesSelector class="xl:w-full xl:max-w-full" field-name="rolesIds" />
 				</div>
 
-				<div class="flex flex-col gap-2 mt-2">
-					<FormLabel>Platforms</FormLabel>
-					<FormDescription class="mb-2">
-						Select which platforms this keyword runs on. If none selected, it runs on all platforms.
-					</FormDescription>
-					<div class="flex gap-4">
-						<FormItem class="flex items-center gap-2 space-y-0">
-							<Checkbox
-								:model-value="platforms?.includes('twitch')"
-								@update:model-value="(checked) => togglePlatform('twitch', !!checked)"
-							/>
-							<FormLabel class="font-normal">Twitch</FormLabel>
-						</FormItem>
-						<FormItem class="flex items-center gap-2 space-y-0">
-							<Checkbox
-								:model-value="platforms?.includes('kick')"
-								@update:model-value="(checked) => togglePlatform('kick', !!checked)"
-							/>
-							<FormLabel class="font-normal">Kick</FormLabel>
-						</FormItem>
-					</div>
-				</div>
+				<FormField v-slot="{ field }" name="platforms">
+					<FormItem class="flex flex-col gap-2 mt-2">
+						<FormLabel>Platforms</FormLabel>
+						<FormDescription class="mb-2">
+							Select which platforms this keyword runs on. If none selected, it runs on all platforms.
+						</FormDescription>
+						<FormControl>
+							<PlatformSelector
+							:model-value="field.value"
+							@update:model-value="field['onUpdate:modelValue']"
+						/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
 				<FormField v-slot="{ componentField }" name="cooldown">
 					<FormItem>

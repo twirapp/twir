@@ -85,6 +85,7 @@ func (c *Service) mapToEntity(
 			RolesIDS:                  m.Command.RolesIDS,
 			OnlineOnly:                m.Command.OnlineOnly,
 			EnabledCategories:         m.Command.EnabledCategories,
+			Platforms:                 m.Command.Platforms,
 			RequiredWatchTime:         m.Command.RequiredWatchTime,
 			RequiredMessages:          m.Command.RequiredMessages,
 			RequiredUsedChannelPoints: m.Command.RequiredUsedChannelPoints,

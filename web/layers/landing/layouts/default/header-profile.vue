@@ -30,14 +30,14 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 			as="button"
 		>
 			<div class="flex items-center gap-3 min-w-0">
-				<img
-					:src="userStore.userWithoutDashboards.twitchProfile.profileImageUrl"
-					:alt="userStore.userWithoutDashboards.twitchProfile.displayName"
-					class="w-8 h-8 rounded-full shrink-0"
-				/>
-				<span class="max-[600px]:hidden truncate">
-					{{ userStore.userWithoutDashboards?.twitchProfile.login }}
-				</span>
+			<img
+				:src="userStore.userWithoutDashboards.twitchProfile?.profileImageUrl ?? ''"
+				:alt="userStore.userWithoutDashboards.twitchProfile?.displayName ?? ''"
+				class="w-8 h-8 rounded-full shrink-0"
+			/>
+			<span class="max-[600px]:hidden truncate">
+				{{ userStore.userWithoutDashboards?.twitchProfile?.login ?? '' }}
+			</span>
 				<Icon name="lucide:chevron-down" class="w-4 h-4 shrink-0" />
 			</div>
 		</UiDropdownMenuTrigger>

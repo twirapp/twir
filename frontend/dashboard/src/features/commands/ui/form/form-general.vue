@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EditIcon, WrenchIcon, XIcon } from 'lucide-vue-next'
-import { useField } from 'vee-validate'
+
 import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
@@ -11,8 +11,8 @@ import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import PlatformSelector from '@/components/platform-selector.vue'
 import {
 	FormControl,
 	FormDescription,
@@ -45,16 +45,7 @@ const groupsApi = useCommandsGroupsApi()
 const { data: groups } = groupsApi.useQueryGroups()
 const { isCustom } = useCommandEditV2()
 
-const { value: platforms, setValue: setPlatforms } = useField<string[]>('platforms')
 
-function togglePlatform(platform: string, checked: boolean) {
-	const current = platforms.value ?? []
-	if (checked) {
-		setPlatforms([...current, platform])
-	} else {
-		setPlatforms(current.filter((p) => p !== platform))
-	}
-}
 
 function computeSelectedGroupColor(id: string) {
 	if (!groups?.value?.commandsGroups) {
@@ -201,28 +192,21 @@ function computeSelectedGroupColor(id: string) {
 				</FormItem>
 			</FormField>
 
-			<div>
-				<FormLabel>Platforms</FormLabel>
-				<FormDescription class="mb-2">
-					Select which platforms this command runs on. If none selected, it runs on all platforms.
-				</FormDescription>
-				<div class="flex gap-4">
-					<FormItem class="flex items-center gap-2 space-y-0">
-						<Checkbox
-							:model-value="platforms?.includes('twitch')"
-							@update:model-value="(checked) => togglePlatform('twitch', !!checked)"
+			<FormField v-slot="{ field }" name="platforms">
+				<FormItem>
+					<FormLabel>Platforms</FormLabel>
+					<FormDescription class="mb-2">
+						Select which platforms this command runs on. If none selected, it runs on all platforms.
+					</FormDescription>
+					<FormControl>
+						<PlatformSelector
+							:model-value="field.value"
+							@update:model-value="field['onUpdate:modelValue']"
 						/>
-						<FormLabel class="font-normal">Twitch</FormLabel>
-					</FormItem>
-					<FormItem class="flex items-center gap-2 space-y-0">
-						<Checkbox
-							:model-value="platforms?.includes('kick')"
-							@update:model-value="(checked) => togglePlatform('kick', !!checked)"
-						/>
-						<FormLabel class="font-normal">Kick</FormLabel>
-					</FormItem>
-				</div>
-			</div>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			</FormField>
 		</CardContent>
 	</Card>
 </template>
