@@ -18,9 +18,8 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	userplatformaccountsrepo "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
-	usersrepo "github.com/twirapp/twir/libs/repositories/users"
+	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type kickCodeBody struct {
@@ -43,11 +42,6 @@ func (a *Auth) handleKickCode(
 	if a.kickProvider == nil {
 		a.logger.ErrorContext(ctx, "kick auth: kick provider is nil")
 		return nil, huma.Error500InternalServerError("Kick provider is not configured", fmt.Errorf("kick provider is nil"))
-	}
-
-	if a.userPlatformAccountsRepo == nil {
-		a.logger.ErrorContext(ctx, "kick auth: user platform accounts repo is nil")
-		return nil, huma.Error500InternalServerError("User platform accounts repository is not configured", fmt.Errorf("user platform accounts repo is nil"))
 	}
 
 	if a.channelsRepo == nil {
@@ -81,21 +75,21 @@ func (a *Auth) handleKickCode(
 	}
 	a.logger.InfoContext(ctx, "kick auth: got user from kick", slog.String("kick_user_id", platformUser.ID), slog.String("kick_login", platformUser.Login))
 
-	encryptedAccess, err := crypto.Encrypt(tokens.AccessToken, a.config.TokensCipherKey)
+	accessToken, err := crypto.Encrypt(tokens.AccessToken, a.config.TokensCipherKey)
 	if err != nil {
 		a.logger.ErrorContext(ctx, "kick auth: failed to encrypt access token", logger.Error(err))
 		return nil, huma.Error500InternalServerError("Cannot encrypt user access token", err)
 	}
 
-	encryptedRefresh, err := crypto.Encrypt(tokens.RefreshToken, a.config.TokensCipherKey)
+	refreshToken, err := crypto.Encrypt(tokens.RefreshToken, a.config.TokensCipherKey)
 	if err != nil {
 		a.logger.ErrorContext(ctx, "kick auth: failed to encrypt refresh token", logger.Error(err))
 		return nil, huma.Error500InternalServerError("Cannot encrypt user refresh token", err)
 	}
 
-	account, err := a.userPlatformAccountsRepo.GetByPlatformUserID(ctx, platform.PlatformKick, platformUser.ID)
-	accountNotFound := errors.Is(err, userplatformaccountsrepo.ErrNotFound)
-	if err != nil && !accountNotFound {
+	existingUser, err := a.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, platformUser.ID)
+	userNotFound := errors.Is(err, usersmodel.ErrNotFound)
+	if err != nil && !userNotFound {
 		a.logger.ErrorContext(ctx, "kick auth: failed to get platform account", logger.Error(err))
 		return nil, huma.Error500InternalServerError("Cannot get user platform account", err)
 	}
@@ -112,10 +106,9 @@ func (a *Auth) handleKickCode(
 
 	userID := uuid.Nil
 	createdUser := false
-	if accountNotFound {
+	if userNotFound {
 		a.logger.InfoContext(ctx, "kick auth: no existing platform account, creating new user")
-		emptyTwitchID := ""
-		userID, err = a.createUser(ctx, &emptyTwitchID)
+		userID, err = a.createUser(ctx, platform.PlatformKick, platformUser.ID)
 		if err != nil {
 			a.logger.ErrorContext(ctx, "kick auth: failed to create user", logger.Error(err))
 			return nil, huma.Error500InternalServerError("Cannot create user", err)
@@ -123,67 +116,101 @@ func (a *Auth) handleKickCode(
 		createdUser = true
 		a.logger.InfoContext(ctx, "kick auth: created new user", slog.String("user_id", userID.String()))
 	} else {
-		userID = account.UserID
+		userID = uuid.MustParse(existingUser.ID)
 		a.logger.InfoContext(ctx, "kick auth: found existing platform account", slog.String("user_id", userID.String()))
 	}
 
-	_, err = a.userPlatformAccountsRepo.Upsert(ctx, userplatformaccountsrepo.UpsertInput{
-		UserID:              userID,
-		Platform:            platform.PlatformKick,
-		PlatformUserID:      platformUser.ID,
-		PlatformLogin:       platformUser.Login,
-		PlatformDisplayName: platformUser.DisplayName,
-		PlatformAvatar:      platformUser.Avatar,
-		AccessToken:         encryptedAccess,
-		RefreshToken:        encryptedRefresh,
-		Scopes:              tokens.Scopes,
-		ExpiresIn:           tokens.ExpiresIn,
-		ObtainmentTimestamp: time.Now().UTC(),
-	})
+	dbUser, err := a.usersRepo.GetByID(ctx, userID.String())
 	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to upsert platform account", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot upsert user platform account", err)
+		a.logger.ErrorContext(ctx, "kick auth: failed to get user", logger.Error(err))
+		return nil, huma.Error500InternalServerError("Cannot get user", err)
 	}
-	a.logger.InfoContext(ctx, "kick auth: upserted platform account")
+	if dbUser.IsBanned {
+		return nil, huma.Error403Forbidden("Forbidden", nil)
+	}
 
-	channel, err := a.channelsRepo.GetByUserIDAndPlatform(ctx, userID, platform.PlatformKick)
+	currentToken, err := a.tokensRepository.GetByUserID(ctx, userID)
+	if err != nil && !errors.Is(err, tokensrepository.ErrNotFound) {
+		a.logger.ErrorContext(ctx, "kick auth: failed to get user token", logger.Error(err))
+		return nil, huma.Error500InternalServerError("Cannot get user token", err)
+	}
+
+	tokenExpires := tokens.ExpiresIn
+	tokenCreatedAt := time.Now().UTC()
+	if currentToken != nil {
+		_, err = a.tokensRepository.UpdateTokenByID(
+			ctx,
+			currentToken.ID,
+			tokensrepository.UpdateTokenInput{
+				AccessToken:         &accessToken,
+				RefreshToken:        &refreshToken,
+				ExpiresIn:           &tokenExpires,
+				ObtainmentTimestamp: &tokenCreatedAt,
+				Scopes:              tokens.Scopes,
+			},
+		)
+		if err != nil {
+			a.logger.ErrorContext(ctx, "kick auth: failed to update user token", logger.Error(err))
+			return nil, huma.Error500InternalServerError("Cannot update user token", err)
+		}
+	} else {
+		_, err = a.tokensRepository.CreateUserToken(
+			ctx,
+			tokensrepository.CreateInput{
+				UserID:              userID,
+				AccessToken:         accessToken,
+				RefreshToken:        refreshToken,
+				ExpiresIn:           tokens.ExpiresIn,
+				ObtainmentTimestamp: tokenCreatedAt,
+				Scopes:              tokens.Scopes,
+			},
+		)
+		if err != nil {
+			a.logger.ErrorContext(ctx, "kick auth: failed to create user token", logger.Error(err))
+			return nil, huma.Error500InternalServerError("Cannot create user token", err)
+		}
+	}
+
+	channel, err := a.channelsRepo.GetByKickUserID(ctx, userID)
 	if err != nil {
 		if !errors.Is(err, channelsrepo.ErrNotFound) {
 			a.logger.ErrorContext(ctx, "kick auth: failed to get channel", logger.Error(err))
 			return nil, huma.Error500InternalServerError("Cannot get channel", err)
 		}
 
-		channel, err = a.createChannel(ctx, userID, defaultBot.ID, platform.PlatformKick)
+		channel, err = a.createChannel(ctx, nil, &userID, defaultBot.ID)
 		if err != nil {
 			a.logger.ErrorContext(ctx, "kick auth: failed to create channel", logger.Error(err))
 			return nil, huma.Error500InternalServerError("Cannot create channel", err)
 		}
-		a.logger.InfoContext(ctx, "kick auth: created channel", slog.String("channel_id", channel.ID))
+		a.logger.InfoContext(ctx, "kick auth: created channel", slog.String("channel_id", channel.ID.String()))
 	} else {
-		a.logger.InfoContext(ctx, "kick auth: found existing channel", slog.String("channel_id", channel.ID))
+		a.logger.InfoContext(ctx, "kick auth: found existing channel", slog.String("channel_id", channel.ID.String()))
 	}
+
+	channelIDStr := channel.ID.String()
 
 	if createdUser {
 		if err = a.bus.Scheduler.CreateDefaultRoles.Publish(
 			ctx,
-			scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{channel.ID}},
+			scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{channelIDStr}},
 		); err != nil {
-			a.logger.ErrorContext(ctx, "cannot publish create default roles", logger.Error(err), slog.String("channel_id", channel.ID))
+			a.logger.ErrorContext(ctx, "cannot publish create default roles", logger.Error(err), slog.String("channel_id", channelIDStr))
 		}
 
 		if err = a.bus.Scheduler.CreateDefaultCommands.Publish(
 			ctx,
-			scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{channel.ID}},
+			scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{channelIDStr}},
 		); err != nil {
-			a.logger.ErrorContext(ctx, "cannot publish create default commands", logger.Error(err), slog.String("channel_id", channel.ID))
+			a.logger.ErrorContext(ctx, "cannot publish create default commands", logger.Error(err), slog.String("channel_id", channelIDStr))
 		}
 	}
 
 	if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
 		ctx,
-		buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channel.ID},
+		buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelIDStr},
 	); err != nil {
-		a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channel.ID))
+		a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channelIDStr))
 	}
 
 	if err := a.sessions.SetSessionInternalUserID(ctx, userID); err != nil {
@@ -196,7 +223,7 @@ func (a *Auth) handleKickCode(
 		return nil, huma.Error500InternalServerError("Cannot set current platform", err)
 	}
 
-	if err := a.sessions.SetSessionSelectedDashboard(ctx, channel.ID); err != nil {
+	if err := a.sessions.SetSessionSelectedDashboard(ctx, channelIDStr); err != nil {
 		a.logger.ErrorContext(ctx, "kick auth: failed to set selected dashboard", logger.Error(err))
 		return nil, huma.Error500InternalServerError("Cannot set selected dashboard", err)
 	}
@@ -210,7 +237,7 @@ func (a *Auth) handleKickCode(
 		return nil, huma.Error500InternalServerError("Cannot set kick user", err)
 	}
 
-	a.logger.InfoContext(ctx, "kick auth: completed successfully", slog.String("redirect_to", string(redirectTo)), slog.String("user_id", userID.String()), slog.String("channel_id", channel.ID))
+	a.logger.InfoContext(ctx, "kick auth: completed successfully", slog.String("redirect_to", string(redirectTo)), slog.String("user_id", userID.String()), slog.String("channel_id", channelIDStr))
 
 	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: string(redirectTo)}), nil
 }
@@ -246,50 +273,4 @@ func (a *Auth) getKickCodeVerifier(ctx context.Context) (string, error) {
 	}
 
 	return codeVerifier, nil
-}
-
-func (a *Auth) createUser(ctx context.Context, twitchID *string) (uuid.UUID, error) {
-	newID, err := uuid.NewV7()
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("generate user id: %w", err)
-	}
-
-	apiKey := uuid.New().String()
-
-	finalTwitchID := twitchID
-	if finalTwitchID == nil || *finalTwitchID == "" {
-		idStr := newID.String()
-		finalTwitchID = &idStr
-	}
-
-	user, err := a.usersRepo.Create(ctx, usersrepo.CreateInput{
-		ID:         newID.String(),
-		TwitchID:   finalTwitchID,
-		ApiKey:     &apiKey,
-		IsBotAdmin: false,
-		IsBanned:   false,
-	})
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("create user: %w", err)
-	}
-
-	return uuid.MustParse(user.ID), nil
-}
-
-func (a *Auth) createChannel(
-	ctx context.Context,
-	userID uuid.UUID,
-	botID string,
-	platformVal platform.Platform,
-) (channelsmodel.Channel, error) {
-	channel, err := a.channelsRepo.Create(ctx, channelsrepo.CreateInput{
-		UserID:   userID,
-		BotID:    botID,
-		Platform: platformVal,
-	})
-	if err != nil {
-		return channelsmodel.Nil, fmt.Errorf("create channel: %w", err)
-	}
-
-	return channel, nil
 }

@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	userplatformaccountsrepository "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
@@ -130,8 +131,22 @@ func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageReque
 		}).Wait()
 }
 
-func (s *Service) getDeleteMessageChannel(ctx context.Context, channelID string) (deleteMessageChannel, bool, error) {
-	channel, err := s.channelsRepo.GetByID(ctx, channelID)
+func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID string) (deleteMessageChannel, bool, error) {
+	user, err := s.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchUserID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return deleteMessageChannel{}, false, nil
+		}
+
+		return deleteMessageChannel{}, false, err
+	}
+
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return deleteMessageChannel{}, false, err
+	}
+
+	channel, err := s.channelsRepo.GetByTwitchUserID(ctx, userUUID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return deleteMessageChannel{}, false, nil
@@ -140,17 +155,8 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, channelID string)
 		return deleteMessageChannel{}, false, err
 	}
 
-	account, err := s.userPlatformAccountsRepo.GetByUserIDAndPlatform(ctx, channel.UserID, platform.PlatformTwitch)
-	if err != nil {
-		if errors.Is(err, userplatformaccountsrepository.ErrNotFound) {
-			return deleteMessageChannel{}, false, nil
-		}
-
-		return deleteMessageChannel{}, false, err
-	}
-
 	return deleteMessageChannel{
 		BotID:         channel.BotID,
-		BroadcasterID: account.PlatformUserID,
+		BroadcasterID: twitchUserID,
 	}, true, nil
 }

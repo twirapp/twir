@@ -54,7 +54,7 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 			return
 		}
 
-		if channel.UserID == user.ID || user.IsBotAdmin {
+		if channel.IsOwner(user.ID) || user.IsBotAdmin {
 			next(hc)
 			return
 		}

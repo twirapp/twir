@@ -13,6 +13,7 @@ import (
 	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
@@ -35,6 +36,7 @@ type Opts struct {
 	TTSRepository       overlays_tts.Repository
 	TTSCache            *generic_cacher.GenericCacher[modules.TTSSettings]
 	Logger              *slog.Logger
+	UsersRepository     usersrepository.Repository
 }
 
 func New(opts Opts) *Activity {
@@ -52,6 +54,7 @@ func New(opts Opts) *Activity {
 		ttsRepository:       opts.TTSRepository,
 		ttsCache:            opts.TTSCache,
 		logger:              opts.Logger,
+		usersRepo:           opts.UsersRepository,
 	}
 }
 
@@ -69,6 +72,7 @@ type Activity struct {
 	ttsRepository       overlays_tts.Repository
 	ttsCache            *generic_cacher.GenericCacher[modules.TTSSettings]
 	logger              *slog.Logger
+	usersRepo           usersrepository.Repository
 }
 
 type channelRuntimeInfo struct {

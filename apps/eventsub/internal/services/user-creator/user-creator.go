@@ -6,9 +6,8 @@ import (
 	"fmt"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	"github.com/google/uuid"
-	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users"
 	usermodel "github.com/twirapp/twir/libs/repositories/users/model"
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
@@ -87,7 +86,6 @@ func (c *UserCreatorService) handleUserWithChannel(
 			ChannelID: *input.ChannelID,
 		},
 	)
-
 	// Handle case where the user OR stats are not found.
 	if err != nil {
 		if errors.Is(err, userswithstatsrepository.ErrNotFound) {
@@ -148,7 +146,6 @@ func (c *UserCreatorService) findUserAndCreateStats(
 			return nil
 		},
 	)
-
 	if err != nil {
 		return nil, nil, fmt.Errorf("UnsureUser transaction failed: %w", err)
 	}
@@ -167,9 +164,8 @@ func (c *UserCreatorService) ensureUserExists(ctx context.Context, userID string
 			// User not found, create a new one.
 			return c.createUser(
 				ctx, users.CreateInput{
-					ID:       userID,
-					TwitchID: &userID,
-					ApiKey:   lo.ToPtr(uuid.NewString()),
+					Platform:   platform.PlatformTwitch,
+					PlatformID: userID,
 				},
 			)
 		}

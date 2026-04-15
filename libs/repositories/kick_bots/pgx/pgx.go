@@ -43,7 +43,7 @@ type dbModel struct {
 	Scopes              []string  `db:"scopes"`
 	ExpiresIn           int       `db:"expires_in"`
 	ObtainmentTimestamp time.Time `db:"obtainment_timestamp"`
-	KickUserID          string    `db:"kick_user_id"`
+	KickUserID          uuid.UUID `db:"kick_user_id"`
 	KickUserLogin       string    `db:"kick_user_login"`
 	CreatedAt           time.Time `db:"created_at"`
 
@@ -108,6 +108,67 @@ func (r *Pgx) GetByID(ctx context.Context, id uuid.UUID) (entity.KickBot, error)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return entity.Nil, kick_bots.ErrNotFound
 		}
+		return entity.Nil, err
+	}
+
+	return modelToEntity(result), nil
+}
+
+func (r *Pgx) GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (entity.KickBot, error) {
+	query := `SELECT ` + selectColumns + ` FROM kick_bots WHERE kick_user_id = $1 LIMIT 1`
+
+	conn := r.getter.DefaultTrOrDB(ctx, r.pool)
+	rows, err := conn.Query(ctx, query, kickUserID)
+	if err != nil {
+		return entity.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[dbModel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return entity.Nil, kick_bots.ErrNotFound
+		}
+		return entity.Nil, err
+	}
+
+	return modelToEntity(result), nil
+}
+
+func (r *Pgx) Upsert(ctx context.Context, input kick_bots.UpsertInput) (entity.KickBot, error) {
+	query := `
+INSERT INTO kick_bots (
+	type, access_token, refresh_token, scopes, expires_in, obtainment_timestamp,
+	kick_user_id, kick_user_login
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+ON CONFLICT (kick_user_id) DO UPDATE SET
+	type = EXCLUDED.type,
+	access_token = EXCLUDED.access_token,
+	refresh_token = EXCLUDED.refresh_token,
+	scopes = EXCLUDED.scopes,
+	expires_in = EXCLUDED.expires_in,
+	obtainment_timestamp = EXCLUDED.obtainment_timestamp,
+	kick_user_login = EXCLUDED.kick_user_login
+RETURNING ` + selectColumns
+
+	conn := r.getter.DefaultTrOrDB(ctx, r.pool)
+	rows, err := conn.Query(
+		ctx,
+		query,
+		input.Type,
+		input.AccessToken,
+		input.RefreshToken,
+		input.Scopes,
+		input.ExpiresIn,
+		input.ObtainmentTimestamp,
+		input.KickUserID,
+		input.KickUserLogin,
+	)
+	if err != nil {
+		return entity.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[dbModel])
+	if err != nil {
 		return entity.Nil, err
 	}
 

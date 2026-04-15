@@ -15,10 +15,10 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/entities/platform"
-	entity "github.com/twirapp/twir/libs/entities/user_platform_account"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type mockQueue[Req, Res any] struct {
@@ -44,49 +44,62 @@ func (m *mockQueue[Req, Res]) Subscribe(_ buscore.QueueSubscribeCallback[Req, Re
 
 func (m *mockQueue[Req, Res]) Unsubscribe() {}
 
-type mockUserPlatformAccountsRepo struct {
-	account entity.UserPlatformAccount
-	err     error
+type mockUsersRepo struct {
+	user usersmodel.User
+	err  error
 }
 
-func (m *mockUserPlatformAccountsRepo) GetByUserIDAndPlatform(_ context.Context, _ uuid.UUID, _ platform.Platform) (entity.UserPlatformAccount, error) {
-	return m.account, m.err
+func (m *mockUsersRepo) GetByID(_ context.Context, _ string) (usersmodel.User, error) {
+	return m.user, m.err
 }
 
-func (m *mockUserPlatformAccountsRepo) GetAllByUserID(_ context.Context, _ uuid.UUID) ([]entity.UserPlatformAccount, error) {
+func (m *mockUsersRepo) GetByPlatformID(_ context.Context, _ platform.Platform, _ string) (usersmodel.User, error) {
+	return m.user, m.err
+}
+
+func (m *mockUsersRepo) GetManyByIDS(_ context.Context, _ usersrepository.GetManyInput) ([]usersmodel.User, error) {
 	return nil, nil
 }
 
-func (m *mockUserPlatformAccountsRepo) GetByPlatformUserID(_ context.Context, _ platform.Platform, _ string) (entity.UserPlatformAccount, error) {
-	return m.account, m.err
+func (m *mockUsersRepo) Update(_ context.Context, _ string, _ usersrepository.UpdateInput) (usersmodel.User, error) {
+	return m.user, m.err
 }
 
-func (m *mockUserPlatformAccountsRepo) Upsert(_ context.Context, _ user_platform_accounts.UpsertInput) (entity.UserPlatformAccount, error) {
-	return entity.Nil, nil
+func (m *mockUsersRepo) GetRandomOnlineUser(_ context.Context, _ usersrepository.GetRandomOnlineUserInput) (usersmodel.OnlineUser, error) {
+	return usersmodel.NilOnlineUser, nil
 }
 
-func (m *mockUserPlatformAccountsRepo) Delete(_ context.Context, _ uuid.UUID) error {
-	return nil
-}
-
-func (m *mockUserPlatformAccountsRepo) GetAllByPlatform(_ context.Context, _ platform.Platform) ([]entity.UserPlatformAccount, error) {
+func (m *mockUsersRepo) GetOnlineUsersWithFilters(_ context.Context, _ usersrepository.GetOnlineUsersWithFiltersInput) ([]usersmodel.OnlineUser, error) {
 	return nil, nil
+}
+
+func (m *mockUsersRepo) GetByApiKey(_ context.Context, _ string) (usersmodel.User, error) {
+	return m.user, m.err
+}
+
+func (m *mockUsersRepo) Create(_ context.Context, _ usersrepository.CreateInput) (usersmodel.User, error) {
+	return m.user, m.err
 }
 
 type mockChannelsRepo struct {
-	channel channelsmodel.Channel
-	err     error
+	channel  channelsmodel.Channel
+	channels []channelsmodel.Channel
+	err      error
 }
 
 func (m *mockChannelsRepo) GetMany(_ context.Context, _ channelsrepository.GetManyInput) ([]channelsmodel.Channel, error) {
-	return nil, nil
+	return m.channels, m.err
 }
 
-func (m *mockChannelsRepo) GetByID(_ context.Context, _ string) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepo) GetByID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
 	return m.channel, m.err
 }
 
-func (m *mockChannelsRepo) GetByUserIDAndPlatform(_ context.Context, _ uuid.UUID, _ platform.Platform) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepo) GetByTwitchUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+func (m *mockChannelsRepo) GetByKickUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
 	return m.channel, m.err
 }
 
@@ -94,11 +107,7 @@ func (m *mockChannelsRepo) GetCount(_ context.Context, _ channelsrepository.GetC
 	return 0, nil
 }
 
-func (m *mockChannelsRepo) GetByPlatformUserID(_ context.Context, _ platform.Platform, _ string) (channelsmodel.Channel, error) {
-	return m.channel, m.err
-}
-
-func (m *mockChannelsRepo) Update(_ context.Context, _ string, _ channelsrepository.UpdateInput) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepo) Update(_ context.Context, _ uuid.UUID, _ channelsrepository.UpdateInput) (channelsmodel.Channel, error) {
 	return m.channel, m.err
 }
 
@@ -111,7 +120,7 @@ func buildTestHandlers(
 	chatMessagesGeneric *mockQueue[generic.ChatMessage, struct{}],
 	processGenericMessage *mockQueue[generic.ChatMessage, struct{}],
 	followQueue *mockQueue[events.FollowMessage, struct{}],
-	userPlatformAccountsRepo user_platform_accounts.Repository,
+	usersRepo usersrepository.Repository,
 	channelsRepo channelsrepository.Repository,
 ) (*Handlers, redismock.ClientMock) {
 	t.Helper()
@@ -119,13 +128,13 @@ func buildTestHandlers(
 	db, redisMock := redismock.NewClientMock()
 
 	h := &Handlers{
-		logger:                   slog.Default(),
-		redis:                    db,
-		chatMessagesGeneric:      chatMessagesGeneric,
-		processGenericMessage:    processGenericMessage,
-		eventsFollow:             followQueue,
-		channelsRepo:             channelsRepo,
-		userPlatformAccountsRepo: userPlatformAccountsRepo,
+		logger:                slog.Default(),
+		redis:                 db,
+		chatMessagesGeneric:   chatMessagesGeneric,
+		processGenericMessage: processGenericMessage,
+		eventsFollow:          followQueue,
+		channelsRepo:          channelsRepo,
+		usersRepo:             usersRepo,
 	}
 
 	return h, redisMock
@@ -145,30 +154,28 @@ func makeRequest(t *testing.T, messageID, eventType string, payload any) *http.R
 }
 
 func TestHandleChatMessage(t *testing.T) {
+	userID := uuid.New().String()
 	channelUUID := uuid.New()
-	userUUID := uuid.New()
-	channelID := uuid.New().String()
 
 	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
 	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
 	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
 
-	accountsRepo := &mockUserPlatformAccountsRepo{
-		account: entity.UserPlatformAccount{
-			ID:             channelUUID,
-			UserID:         userUUID,
-			Platform:       platform.PlatformKick,
-			PlatformUserID: "broadcaster-123",
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "broadcaster-123",
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
 		channel: channelsmodel.Channel{
-			ID:     channelID,
-			UserID: userUUID,
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, accountsRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
 
 	msgID := "msg-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, "1", idempotencyTTL).SetVal(true)
@@ -199,8 +206,8 @@ func TestHandleChatMessage(t *testing.T) {
 	if msg.Platform != string(platform.PlatformKick) {
 		t.Errorf("expected platform %q, got %q", platform.PlatformKick, msg.Platform)
 	}
-	if msg.ChannelID != channelID {
-		t.Errorf("expected channelID %q, got %q", channelID, msg.ChannelID)
+	if msg.ChannelID != channelUUID.String() {
+		t.Errorf("expected channelID %q, got %q", channelUUID.String(), msg.ChannelID)
 	}
 	if msg.Text != "Hello world" {
 		t.Errorf("expected text %q, got %q", "Hello world", msg.Text)
@@ -219,28 +226,28 @@ func TestHandleChatMessage(t *testing.T) {
 }
 
 func TestHandleChatMessageIdempotency(t *testing.T) {
-	userUUID := uuid.New()
-	channelID := uuid.New().String()
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
 
 	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
 	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
 	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
 
-	accountsRepo := &mockUserPlatformAccountsRepo{
-		account: entity.UserPlatformAccount{
-			UserID:         userUUID,
-			Platform:       platform.PlatformKick,
-			PlatformUserID: "broadcaster-999",
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "broadcaster-999",
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
 		channel: channelsmodel.Channel{
-			ID:     channelID,
-			UserID: userUUID,
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, accountsRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
 
 	msgID := "dup-msg-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, "1", idempotencyTTL).SetVal(false)
@@ -270,28 +277,28 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 }
 
 func TestHandleChannelFollow(t *testing.T) {
-	userUUID := uuid.New()
-	channelID := uuid.New().String()
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
 
 	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
 	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
 	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
 
-	accountsRepo := &mockUserPlatformAccountsRepo{
-		account: entity.UserPlatformAccount{
-			UserID:         userUUID,
-			Platform:       platform.PlatformKick,
-			PlatformUserID: "broadcaster-777",
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "broadcaster-777",
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
 		channel: channelsmodel.Channel{
-			ID:     channelID,
-			UserID: userUUID,
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, accountsRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
 
 	msgID := "follow-evt-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, "1", idempotencyTTL).SetVal(true)
@@ -315,8 +322,8 @@ func TestHandleChannelFollow(t *testing.T) {
 		t.Fatalf("expected 1 follow event published, got %d", len(followQueue.published))
 	}
 	follow := followQueue.published[0]
-	if follow.BaseInfo.ChannelID != channelID {
-		t.Errorf("expected channelID %q, got %q", channelID, follow.BaseInfo.ChannelID)
+	if follow.BaseInfo.ChannelID != channelUUID.String() {
+		t.Errorf("expected channelID %q, got %q", channelUUID.String(), follow.BaseInfo.ChannelID)
 	}
 	if follow.UserName != "followerlogin" {
 		t.Errorf("expected UserName %q, got %q", "followerlogin", follow.UserName)

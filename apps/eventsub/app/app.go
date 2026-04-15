@@ -38,12 +38,12 @@ import (
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
-	userplatformaccountsrepository "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
-	userplatformaccountspgx "github.com/twirapp/twir/libs/repositories/user_platform_accounts/pgx"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
@@ -115,8 +115,8 @@ var App = fx.Options(
 			fx.As(new(usersrepository.Repository)),
 		),
 		fx.Annotate(
-			userplatformaccountspgx.NewFx,
-			fx.As(new(userplatformaccountsrepository.Repository)),
+			kickbotsrepositorypgx.NewFx,
+			fx.As(new(kickbotsrepository.Repository)),
 		),
 		channelcache.New,
 		func(

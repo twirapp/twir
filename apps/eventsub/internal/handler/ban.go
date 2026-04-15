@@ -7,6 +7,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	platform "github.com/twirapp/twir/libs/entities/platform"
@@ -15,7 +16,7 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func (c *Handler) handleModerateActionBan(
@@ -36,21 +37,27 @@ func (c *Handler) handleModerateActionBan(
 	}
 
 	go func() {
-		account, err := c.userPlatformAccountsRepo.GetByPlatformUserID(
+		user, err := c.usersRepo.GetByPlatformID(
 			ctx,
 			platform.PlatformTwitch,
 			event.BroadcasterUserID,
 		)
 		if err != nil {
-			if errors.Is(err, user_platform_accounts.ErrNotFound) {
-				c.logger.Error("cannot find platform account", logger.Error(err))
+			if errors.Is(err, usersmodel.ErrNotFound) {
+				c.logger.Error("cannot find user for broadcaster", logger.Error(err))
 			} else {
-				c.logger.Error("cannot resolve broadcaster platform account", logger.Error(err))
+				c.logger.Error("cannot resolve broadcaster user", logger.Error(err))
 			}
 			return
 		}
 
-		channel, err := c.channelsRepo.GetByUserIDAndPlatform(ctx, account.UserID, platform.PlatformTwitch)
+		userUUID, err := uuid.Parse(user.ID)
+		if err != nil {
+			c.logger.Error("cannot parse user ID as UUID", logger.Error(err))
+			return
+		}
+
+		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
 		if err != nil {
 			if errors.Is(err, channelsrepository.ErrNotFound) {
 				return
@@ -68,7 +75,7 @@ func (c *Handler) handleModerateActionBan(
 			return
 		}
 
-		if err := c.channelsCache.Invalidate(ctx, channel.ID); err != nil {
+		if err := c.channelsCache.Invalidate(ctx, channel.ID.String()); err != nil {
 			c.logger.Error("failed to invalidate channel cache", logger.Error(err))
 		}
 	}()

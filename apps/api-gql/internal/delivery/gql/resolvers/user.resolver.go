@@ -8,7 +8,6 @@ package resolvers
 import (
 	"context"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"net/url"
 
@@ -22,32 +21,22 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
-	userplatformaccountsrepository "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"gorm.io/gorm"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
-	userID, err := uuid.Parse(obj.ID)
+	user, err := r.deps.UsersRepository.GetByID(ctx, obj.ID)
 	if err != nil {
-		return nil, fmt.Errorf("invalid user id: %w", err)
-	}
-
-	account, err := r.deps.UserPlatformAccountsRepository.GetByUserIDAndPlatform(
-		ctx,
-		userID,
-		platformentity.PlatformTwitch,
-	)
-	if err != nil {
-		if errors.Is(err, userplatformaccountsrepository.ErrNotFound) {
+		if err == usersmodel.ErrNotFound {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("get twitch platform account: %w", err)
+		return nil, fmt.Errorf("get user: %w", err)
 	}
 
-	return data_loader.GetHelixUserById(ctx, account.PlatformUserID)
+	return data_loader.GetHelixUserById(ctx, user.PlatformID)
 }
 
 // AvailableDashboards is the resolver for the availableDashboards field.
@@ -84,22 +73,17 @@ func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gql
 		return nil, fmt.Errorf("not authenticated: %w", err)
 	}
 
-	accounts, err := r.deps.UserPlatformAccountsRepository.GetAllByUserID(ctx, userID)
+	user, err := r.deps.UsersRepository.GetByID(ctx, userID.String())
 	if err != nil {
-		return nil, fmt.Errorf("failed to get linked accounts: %w", err)
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	result := make([]gqlmodel.LinkedAccount, len(accounts))
-	for i, acc := range accounts {
-		avatar := acc.PlatformAvatar
-		result[i] = gqlmodel.LinkedAccount{
-			Platform:       string(acc.Platform),
-			PlatformUserID: acc.PlatformUserID,
-			PlatformLogin:  acc.PlatformLogin,
-			PlatformAvatar: &avatar,
-		}
-	}
-	return result, nil
+	return []gqlmodel.LinkedAccount{
+		{
+			Platform:       "twitch",
+			PlatformUserID: user.PlatformID,
+		},
+	}, nil
 }
 
 // CurrentPlatform is the resolver for the currentPlatform field.
@@ -114,27 +98,68 @@ func (r *channelUserInfoResolver) TwitchProfile(ctx context.Context, obj *gqlmod
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.TwirUserTwitchInfo, error) {
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, obj.ID)
+	channelID, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() {
+	if channel.IsNil() || channel.TwitchUserID == nil {
 		return nil, nil
 	}
 
-	account, err := r.deps.UserPlatformAccountsRepository.GetByUserIDAndPlatform(
-		ctx,
-		channel.UserID,
-		platformentity.PlatformTwitch,
-	)
+	user, err := r.deps.UsersRepository.GetByID(ctx, channel.TwitchUserID.String())
 	if err != nil {
-		if errors.Is(err, userplatformaccountsrepository.ErrNotFound) {
+		if err == usersmodel.ErrNotFound {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("get twitch platform account: %w", err)
+		return nil, fmt.Errorf("get user: %w", err)
 	}
 
-	return data_loader.GetHelixUserById(ctx, account.PlatformUserID)
+	return data_loader.GetHelixUserById(ctx, user.PlatformID)
+}
+
+// KickProfile is the resolver for the kickProfile field.
+func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.KickProfile, error) {
+	channelID, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || channel.KickUserID == nil {
+		return nil, nil
+	}
+
+	currentUserID, err := r.deps.Sessions.GetInternalUserID(ctx)
+	if err != nil || *channel.KickUserID != currentUserID {
+		return nil, nil
+	}
+
+	kickUser, err := r.deps.Sessions.GetSessionKickUser(ctx)
+	if err != nil {
+		return nil, nil
+	}
+
+	var profilePicture *string
+	if kickUser.Avatar != "" {
+		profilePicture = &kickUser.Avatar
+	}
+
+	return &gqlmodel.KickProfile{
+		ID:             kickUser.ID,
+		Slug:           kickUser.Login,
+		DisplayName:    kickUser.Login,
+		ProfilePicture: profilePicture,
+		IsLive:         false,
+		FollowersCount: 0,
+	}, nil
 }
 
 // Plan is the resolver for the plan field.
@@ -287,39 +312,7 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // UnlinkPlatformAccount is the resolver for the unlinkPlatformAccount field.
 func (r *mutationResolver) UnlinkPlatformAccount(ctx context.Context, platform string) (bool, error) {
-	userID, err := r.deps.Sessions.GetInternalUserID(ctx)
-	if err != nil {
-		return false, gqlerrors.HandleError(err)
-	}
-
-	accounts, err := r.deps.UserPlatformAccountsRepository.GetAllByUserID(ctx, userID)
-	if err != nil {
-		return false, fmt.Errorf("failed to get platform accounts: %w", err)
-	}
-
-	if len(accounts) <= 1 {
-		return false, fmt.Errorf("cannot unlink the only remaining platform account")
-	}
-
-	targetPlatform := platformentity.Platform(platform)
-	var accountID *uuid.UUID
-	for _, acc := range accounts {
-		if acc.Platform == targetPlatform {
-			id := acc.ID
-			accountID = &id
-			break
-		}
-	}
-
-	if accountID == nil {
-		return false, fmt.Errorf("platform account not found")
-	}
-
-	if err := r.deps.UserPlatformAccountsRepository.Delete(ctx, *accountID); err != nil {
-		return false, fmt.Errorf("failed to delete platform account: %w", err)
-	}
-
-	return true, nil
+	return false, fmt.Errorf("unlinking platform accounts is not supported in multi-platform mode")
 }
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.

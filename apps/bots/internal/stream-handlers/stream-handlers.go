@@ -9,17 +9,17 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
 
 type PubSubHandlers struct {
-	logger                   *slog.Logger
-	bus                      *bus_core.Bus
-	channelsRepo             channelsrepository.Repository
-	greetingsRepository      greetings.Repository
-	greetingsCacher          *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
-	userPlatformAccountsRepo user_platform_accounts.Repository
+	logger              *slog.Logger
+	bus                 *bus_core.Bus
+	channelsRepo        channelsrepository.Repository
+	greetingsRepository greetings.Repository
+	greetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+	usersRepo           usersrepository.Repository
 }
 
 type Opts struct {
@@ -27,22 +27,22 @@ type Opts struct {
 
 	LC fx.Lifecycle
 
-	Bus                      *bus_core.Bus
-	ChannelsRepo             channelsrepository.Repository
-	Logger                   *slog.Logger
-	GreetingsRepository      greetings.Repository
-	GreetingsCacher          *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
-	UserPlatformAccountsRepo user_platform_accounts.Repository
+	Bus                 *bus_core.Bus
+	ChannelsRepo        channelsrepository.Repository
+	Logger              *slog.Logger
+	GreetingsRepository greetings.Repository
+	GreetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+	UsersRepo           usersrepository.Repository
 }
 
 func New(opts Opts) {
 	service := &PubSubHandlers{
-		logger:                   opts.Logger,
-		bus:                      opts.Bus,
-		channelsRepo:             opts.ChannelsRepo,
-		greetingsRepository:      opts.GreetingsRepository,
-		greetingsCacher:          opts.GreetingsCacher,
-		userPlatformAccountsRepo: opts.UserPlatformAccountsRepo,
+		logger:              opts.Logger,
+		bus:                 opts.Bus,
+		channelsRepo:        opts.ChannelsRepo,
+		greetingsRepository: opts.GreetingsRepository,
+		greetingsCacher:     opts.GreetingsCacher,
+		usersRepo:           opts.UsersRepo,
 	}
 
 	opts.LC.Append(

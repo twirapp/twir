@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type twitchChannelLookupResult struct {
@@ -18,16 +19,21 @@ func (c *PubSubHandlers) findTwitchChannelByPlatformUserID(
 	ctx context.Context,
 	platformUserID string,
 ) (twitchChannelLookupResult, bool, error) {
-	account, err := c.userPlatformAccountsRepo.GetByPlatformUserID(ctx, platform.PlatformTwitch, platformUserID)
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, platformUserID)
 	if err != nil {
-		if errors.Is(err, user_platform_accounts.ErrNotFound) {
+		if errors.Is(err, usersmodel.ErrNotFound) {
 			return twitchChannelLookupResult{}, false, nil
 		}
 
 		return twitchChannelLookupResult{}, false, err
 	}
 
-	channel, err := c.channelsRepo.GetByUserIDAndPlatform(ctx, account.UserID, platform.PlatformTwitch)
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return twitchChannelLookupResult{}, false, err
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return twitchChannelLookupResult{}, false, nil
@@ -36,5 +42,5 @@ func (c *PubSubHandlers) findTwitchChannelByPlatformUserID(
 		return twitchChannelLookupResult{}, false, err
 	}
 
-	return twitchChannelLookupResult{ID: channel.ID, BotID: channel.BotID}, true, nil
+	return twitchChannelLookupResult{ID: channel.ID.String(), BotID: channel.BotID}, true, nil
 }

@@ -11,8 +11,12 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/libs/crypto"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
+	usersrepo "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 const kickBotSetupKvPrefix = "kick_bot_setup"
@@ -59,6 +63,18 @@ func (a *Auth) handleKickBotCallback(
 		return nil, huma.Error500InternalServerError("Cannot get user data from kick", err)
 	}
 
+	encryptedAccessToken, err := crypto.Encrypt(tokens.AccessToken, a.config.TokensCipherKey)
+	if err != nil {
+		a.logger.ErrorContext(ctx, "kick bot callback: failed to encrypt access token", logger.Error(err))
+		return nil, huma.Error500InternalServerError("Cannot encrypt access token", err)
+	}
+
+	encryptedRefreshToken, err := crypto.Encrypt(tokens.RefreshToken, a.config.TokensCipherKey)
+	if err != nil {
+		a.logger.ErrorContext(ctx, "kick bot callback: failed to encrypt refresh token", logger.Error(err))
+		return nil, huma.Error500InternalServerError("Cannot encrypt refresh token", err)
+	}
+
 	existingBot, err := a.kickBotsRepo.GetDefault(ctx)
 	if err != nil && !errors.Is(err, kickbotsrepo.ErrNotFound) {
 		a.logger.ErrorContext(ctx, "kick bot callback: failed to get default bot", logger.Error(err))
@@ -66,14 +82,36 @@ func (a *Auth) handleKickBotCallback(
 	}
 
 	if errors.Is(err, kickbotsrepo.ErrNotFound) {
+		internalUser, userErr := a.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, platformUser.ID)
+		if userErr != nil && !errors.Is(userErr, usersmodel.ErrNotFound) {
+			a.logger.ErrorContext(ctx, "kick bot callback: failed to get internal user", logger.Error(userErr))
+			return nil, huma.Error500InternalServerError("Cannot get internal user", userErr)
+		}
+
+		if errors.Is(userErr, usersmodel.ErrNotFound) {
+			internalUser, userErr = a.usersRepo.Create(ctx, usersrepo.CreateInput{
+				Platform:   platform.PlatformKick,
+				PlatformID: platformUser.ID,
+			})
+			if userErr != nil {
+				a.logger.ErrorContext(ctx, "kick bot callback: failed to create internal user", logger.Error(userErr))
+				return nil, huma.Error500InternalServerError("Cannot create internal user", userErr)
+			}
+		}
+
+		kickUserID, parseErr := uuid.Parse(internalUser.ID)
+		if parseErr != nil {
+			a.logger.ErrorContext(ctx, "kick bot callback: failed to parse internal user id", logger.Error(parseErr))
+			return nil, huma.Error500InternalServerError("Invalid internal user id", parseErr)
+		}
 		_, err = a.kickBotsRepo.Create(ctx, kickbotsrepo.CreateInput{
 			Type:                "DEFAULT",
-			AccessToken:         tokens.AccessToken,
-			RefreshToken:        tokens.RefreshToken,
+			AccessToken:         encryptedAccessToken,
+			RefreshToken:        encryptedRefreshToken,
 			Scopes:              tokens.Scopes,
 			ExpiresIn:           tokens.ExpiresIn,
 			ObtainmentTimestamp: time.Now().UTC(),
-			KickUserID:          platformUser.ID,
+			KickUserID:          kickUserID,
 			KickUserLogin:       platformUser.Login,
 		})
 		if err != nil {
@@ -87,8 +125,8 @@ func (a *Auth) handleKickBotCallback(
 			return nil, huma.Error500InternalServerError("Invalid bot id", err)
 		}
 		_, err = a.kickBotsRepo.UpdateToken(ctx, botID, kickbotsrepo.UpdateTokenInput{
-			AccessToken:         tokens.AccessToken,
-			RefreshToken:        tokens.RefreshToken,
+			AccessToken:         encryptedAccessToken,
+			RefreshToken:        encryptedRefreshToken,
 			Scopes:              tokens.Scopes,
 			ExpiresIn:           tokens.ExpiresIn,
 			ObtainmentTimestamp: time.Now().UTC(),

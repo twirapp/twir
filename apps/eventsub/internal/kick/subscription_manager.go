@@ -12,12 +12,13 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	goredis "github.com/redis/go-redis/v9"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/crypto"
-	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
 
@@ -35,32 +36,34 @@ var EventTypes = []string{
 }
 
 type SubscriptionManager struct {
-	config                   cfg.Config
-	redis                    *goredis.Client
-	httpClient               *http.Client
-	logger                   *slog.Logger
-	apiBaseURL               string
-	userPlatformAccountsRepo user_platform_accounts.Repository
+	config       cfg.Config
+	redis        *goredis.Client
+	httpClient   *http.Client
+	logger       *slog.Logger
+	apiBaseURL   string
+	kickBotsRepo kickbotsrepository.Repository
+	usersRepo    usersrepository.Repository
 }
 
-// Opts is the fx dependency injection options.
 type Opts struct {
 	fx.In
 
-	Config                   cfg.Config
-	Redis                    *goredis.Client
-	Logger                   *slog.Logger
-	UserPlatformAccountsRepo user_platform_accounts.Repository
+	Config       cfg.Config
+	Redis        *goredis.Client
+	Logger       *slog.Logger
+	KickBotsRepo kickbotsrepository.Repository
+	UsersRepo    usersrepository.Repository
 }
 
 func New(opts Opts) *SubscriptionManager {
 	return &SubscriptionManager{
-		config:                   opts.Config,
-		redis:                    opts.Redis,
-		httpClient:               http.DefaultClient,
-		logger:                   opts.Logger,
-		apiBaseURL:               kickAPIBase,
-		userPlatformAccountsRepo: opts.UserPlatformAccountsRepo,
+		config:       opts.Config,
+		redis:        opts.Redis,
+		httpClient:   http.DefaultClient,
+		logger:       opts.Logger,
+		apiBaseURL:   kickAPIBase,
+		kickBotsRepo: opts.KickBotsRepo,
+		usersRepo:    opts.UsersRepo,
 	}
 }
 
@@ -170,9 +173,19 @@ func (m *SubscriptionManager) SubscribeAll(
 	kickChannelID string,
 	broadcasterToken string,
 ) error {
-	broadcasterUserID, err := strconv.Atoi(kickChannelID)
+	kickUserUUID, err := uuid.Parse(kickChannelID)
 	if err != nil {
-		return fmt.Errorf("failed to parse kick channel ID %q as int: %w", kickChannelID, err)
+		return fmt.Errorf("failed to parse kick channel ID %q as UUID: %w", kickChannelID, err)
+	}
+
+	user, err := m.usersRepo.GetByID(ctx, kickUserUUID.String())
+	if err != nil {
+		return fmt.Errorf("failed to get user for kick channel ID %q: %w", kickChannelID, err)
+	}
+
+	broadcasterUserID, err := strconv.Atoi(user.PlatformID)
+	if err != nil {
+		return fmt.Errorf("failed to parse kick platform user ID %q as int: %w", user.PlatformID, err)
 	}
 
 	for _, eventType := range EventTypes {
@@ -231,16 +244,17 @@ func (m *SubscriptionManager) unsubscribe(
 }
 
 func (m *SubscriptionManager) UnsubscribeAll(ctx context.Context, kickChannelID string) error {
-	account, err := m.userPlatformAccountsRepo.GetByPlatformUserID(
-		ctx,
-		platform.PlatformKick,
-		kickChannelID,
-	)
+	kickUserUUID, err := uuid.Parse(kickChannelID)
 	if err != nil {
-		return fmt.Errorf("kick: get platform account for channel %s: %w", kickChannelID, err)
+		return fmt.Errorf("kick: parse kick channel ID %s as UUID: %w", kickChannelID, err)
 	}
 
-	broadcasterToken, err := crypto.Decrypt(account.AccessToken, m.config.TokensCipherKey)
+	kickBot, err := m.kickBotsRepo.GetByKickUserID(ctx, kickUserUUID)
+	if err != nil {
+		return fmt.Errorf("kick: get kick bot for channel %s: %w", kickChannelID, err)
+	}
+
+	broadcasterToken, err := crypto.Decrypt(kickBot.AccessToken, m.config.TokensCipherKey)
 	if err != nil {
 		return fmt.Errorf("kick: decrypt access token for channel %s: %w", kickChannelID, err)
 	}

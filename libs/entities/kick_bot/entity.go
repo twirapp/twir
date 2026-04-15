@@ -1,6 +1,10 @@
 package kick_bot
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type KickBot struct {
 	ID                  string
@@ -10,7 +14,7 @@ type KickBot struct {
 	Scopes              []string
 	ExpiresIn           int
 	ObtainmentTimestamp time.Time
-	KickUserID          string
+	KickUserID          uuid.UUID
 	KickUserLogin       string
 	CreatedAt           time.Time
 

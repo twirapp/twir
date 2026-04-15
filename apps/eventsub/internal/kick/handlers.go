@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -16,7 +17,8 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"go.uber.org/fx"
 )
 
@@ -59,34 +61,34 @@ type kickStreamOfflinePayload struct {
 }
 
 type Handlers struct {
-	logger                   *slog.Logger
-	redis                    *redis.Client
-	chatMessagesGeneric      bus_core.Queue[generic.ChatMessage, struct{}]
-	processGenericMessage    bus_core.Queue[generic.ChatMessage, struct{}]
-	eventsFollow             bus_core.Queue[events.FollowMessage, struct{}]
-	channelsRepo             channelsrepository.Repository
-	userPlatformAccountsRepo user_platform_accounts.Repository
+	logger                *slog.Logger
+	redis                 *redis.Client
+	chatMessagesGeneric   bus_core.Queue[generic.ChatMessage, struct{}]
+	processGenericMessage bus_core.Queue[generic.ChatMessage, struct{}]
+	eventsFollow          bus_core.Queue[events.FollowMessage, struct{}]
+	channelsRepo          channelsrepository.Repository
+	usersRepo             usersrepository.Repository
 }
 
 type HandlersOpts struct {
 	fx.In
 
-	Logger                   *slog.Logger
-	Redis                    *redis.Client
-	Bus                      *bus_core.Bus
-	ChannelsRepo             channelsrepository.Repository
-	UserPlatformAccountsRepo user_platform_accounts.Repository
+	Logger       *slog.Logger
+	Redis        *redis.Client
+	Bus          *bus_core.Bus
+	ChannelsRepo channelsrepository.Repository
+	UsersRepo    usersrepository.Repository
 }
 
 func NewHandlers(opts HandlersOpts) *Handlers {
 	return &Handlers{
-		logger:                   opts.Logger,
-		redis:                    opts.Redis,
-		chatMessagesGeneric:      opts.Bus.ChatMessagesGeneric,
-		processGenericMessage:    opts.Bus.Parser.ProcessGenericMessage,
-		eventsFollow:             opts.Bus.Events.Follow,
-		channelsRepo:             opts.ChannelsRepo,
-		userPlatformAccountsRepo: opts.UserPlatformAccountsRepo,
+		logger:                opts.Logger,
+		redis:                 opts.Redis,
+		chatMessagesGeneric:   opts.Bus.ChatMessagesGeneric,
+		processGenericMessage: opts.Bus.Parser.ProcessGenericMessage,
+		eventsFollow:          opts.Bus.Events.Follow,
+		channelsRepo:          opts.ChannelsRepo,
+		usersRepo:             opts.UsersRepo,
 	}
 }
 
@@ -275,21 +277,26 @@ func (h *Handlers) handleStreamOffline(w http.ResponseWriter, r *http.Request, b
 func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (string, string, error) {
 	ctx := r.Context()
 
-	account, err := h.userPlatformAccountsRepo.GetByPlatformUserID(ctx, platform.PlatformKick, broadcasterUserID)
+	user, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, broadcasterUserID)
 	if err != nil {
-		if errors.Is(err, user_platform_accounts.ErrNotFound) {
-			return "", "", fmt.Errorf("no kick platform account for broadcaster_user_id=%s", broadcasterUserID)
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return "", "", fmt.Errorf("no kick user for broadcaster_user_id=%s", broadcasterUserID)
 		}
-		return "", "", fmt.Errorf("get platform account: %w", err)
+		return "", "", fmt.Errorf("get user by platform id: %w", err)
 	}
 
-	channel, err := h.channelsRepo.GetByUserIDAndPlatform(ctx, account.UserID, platform.PlatformKick)
+	userUUID, err := uuid.Parse(user.ID)
 	if err != nil {
-		return "", "", fmt.Errorf("get channel by user_id and platform: %w", err)
-	}
-	if channel.IsNil() {
-		return "", "", fmt.Errorf("channel not found for user_id=%s platform=kick", account.UserID)
+		return "", "", fmt.Errorf("parse user id as uuid: %w", err)
 	}
 
-	return channel.ID, account.UserID.String(), nil
+	channel, err := h.channelsRepo.GetByKickUserID(ctx, userUUID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return "", "", fmt.Errorf("channel not found for user_id=%s platform=kick", user.ID)
+		}
+		return "", "", fmt.Errorf("get channel by kick user id: %w", err)
+	}
+
+	return channel.ID.String(), user.ID, nil
 }

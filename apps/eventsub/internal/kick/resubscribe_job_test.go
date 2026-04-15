@@ -8,9 +8,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/entities/platform"
-	entity "github.com/twirapp/twir/libs/entities/user_platform_account"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/crypto"
+	entity "github.com/twirapp/twir/libs/entities/kick_bot"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	kick_bots "github.com/twirapp/twir/libs/repositories/kick_bots"
 )
 
 type mockSubManager struct {
@@ -29,36 +31,49 @@ func (m *mockSubManager) SubscribeAll(_ context.Context, _ string, _ string) err
 	return m.subscribeErr
 }
 
-type mockPlatformAccountsRepo struct {
-	accounts []entity.UserPlatformAccount
-	err      error
+type mockKickBotsRepo struct {
+	bot entity.KickBot
+	err error
 }
 
-func (m *mockPlatformAccountsRepo) GetAllByPlatform(_ context.Context, _ platform.Platform) ([]entity.UserPlatformAccount, error) {
-	return m.accounts, m.err
-}
-
-func (m *mockPlatformAccountsRepo) GetByUserIDAndPlatform(_ context.Context, _ uuid.UUID, _ platform.Platform) (entity.UserPlatformAccount, error) {
+func (m *mockKickBotsRepo) GetDefault(_ context.Context) (entity.KickBot, error) {
 	return entity.Nil, nil
 }
 
-func (m *mockPlatformAccountsRepo) GetAllByUserID(_ context.Context, _ uuid.UUID) ([]entity.UserPlatformAccount, error) {
-	return nil, nil
-}
-
-func (m *mockPlatformAccountsRepo) GetByPlatformUserID(_ context.Context, _ platform.Platform, _ string) (entity.UserPlatformAccount, error) {
+func (m *mockKickBotsRepo) GetByID(_ context.Context, _ uuid.UUID) (entity.KickBot, error) {
 	return entity.Nil, nil
 }
 
-func (m *mockPlatformAccountsRepo) Upsert(_ context.Context, _ user_platform_accounts.UpsertInput) (entity.UserPlatformAccount, error) {
+func (m *mockKickBotsRepo) GetByKickUserID(_ context.Context, _ uuid.UUID) (entity.KickBot, error) {
+	return m.bot, m.err
+}
+
+func (m *mockKickBotsRepo) Create(_ context.Context, _ kick_bots.CreateInput) (entity.KickBot, error) {
 	return entity.Nil, nil
 }
 
-func (m *mockPlatformAccountsRepo) Delete(_ context.Context, _ uuid.UUID) error {
-	return nil
+func (m *mockKickBotsRepo) Upsert(_ context.Context, _ kick_bots.UpsertInput) (entity.KickBot, error) {
+	return entity.Nil, nil
+}
+
+func (m *mockKickBotsRepo) UpdateToken(_ context.Context, _ uuid.UUID, _ kick_bots.UpdateTokenInput) (entity.KickBot, error) {
+	return entity.Nil, nil
+}
+
+const testCipherKey = "pnyfwfiulmnqlhkvixaeligpprcnlyke"
+
+func mustEncrypt(t *testing.T, plaintext string) string {
+	t.Helper()
+	enc, err := crypto.Encrypt(plaintext, testCipherKey)
+	if err != nil {
+		t.Fatalf("failed to encrypt: %v", err)
+	}
+	return enc
 }
 
 func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
+	kickUserID := uuid.New()
+
 	subMgr := &mockSubManager{
 		listResult: []SubscriptionInfo{
 			{Type: "chat.message.sent"},
@@ -66,20 +81,29 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 		},
 	}
 
-	accountsRepo := &mockPlatformAccountsRepo{
-		accounts: []entity.UserPlatformAccount{
+	chRepo := &mockChannelsRepo{
+		channels: []channelsmodel.Channel{
 			{
-				PlatformUserID: "12345",
-				AccessToken:    "token-abc",
+				ID:         uuid.New(),
+				KickUserID: &kickUserID,
 			},
 		},
 	}
 
+	botsRepo := &mockKickBotsRepo{
+		bot: entity.KickBot{
+			KickUserID:  kickUserID,
+			AccessToken: mustEncrypt(t, "token-abc"),
+		},
+	}
+
 	job := &ResubscribeJob{
-		subManager:               subMgr,
-		userPlatformAccountsRepo: accountsRepo,
-		logger:                   slog.Default(),
-		interval:                 23 * time.Hour,
+		subManager:   subMgr,
+		channelsRepo: chRepo,
+		kickBotsRepo: botsRepo,
+		logger:       slog.Default(),
+		config:       cfg.Config{TokensCipherKey: testCipherKey},
+		interval:     23 * time.Hour,
 	}
 
 	job.run(context.Background())
@@ -90,6 +114,8 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 }
 
 func TestResubscribeJob_AllPresent(t *testing.T) {
+	kickUserID := uuid.New()
+
 	subMgr := &mockSubManager{
 		listResult: []SubscriptionInfo{
 			{Type: "chat.message.sent"},
@@ -99,20 +125,29 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 		},
 	}
 
-	accountsRepo := &mockPlatformAccountsRepo{
-		accounts: []entity.UserPlatformAccount{
+	chRepo := &mockChannelsRepo{
+		channels: []channelsmodel.Channel{
 			{
-				PlatformUserID: "67890",
-				AccessToken:    "token-xyz",
+				ID:         uuid.New(),
+				KickUserID: &kickUserID,
 			},
 		},
 	}
 
+	botsRepo := &mockKickBotsRepo{
+		bot: entity.KickBot{
+			KickUserID:  kickUserID,
+			AccessToken: mustEncrypt(t, "token-xyz"),
+		},
+	}
+
 	job := &ResubscribeJob{
-		subManager:               subMgr,
-		userPlatformAccountsRepo: accountsRepo,
-		logger:                   slog.Default(),
-		interval:                 23 * time.Hour,
+		subManager:   subMgr,
+		channelsRepo: chRepo,
+		kickBotsRepo: botsRepo,
+		logger:       slog.Default(),
+		config:       cfg.Config{TokensCipherKey: testCipherKey},
+		interval:     23 * time.Hour,
 	}
 
 	job.run(context.Background())
@@ -123,24 +158,35 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 }
 
 func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
+	kickUserID := uuid.New()
+
 	subMgr := &mockSubManager{
 		listErr: errors.New("network error"),
 	}
 
-	accountsRepo := &mockPlatformAccountsRepo{
-		accounts: []entity.UserPlatformAccount{
+	chRepo := &mockChannelsRepo{
+		channels: []channelsmodel.Channel{
 			{
-				PlatformUserID: "11111",
-				AccessToken:    "token-err",
+				ID:         uuid.New(),
+				KickUserID: &kickUserID,
 			},
 		},
 	}
 
+	botsRepo := &mockKickBotsRepo{
+		bot: entity.KickBot{
+			KickUserID:  kickUserID,
+			AccessToken: mustEncrypt(t, "token-err"),
+		},
+	}
+
 	job := &ResubscribeJob{
-		subManager:               subMgr,
-		userPlatformAccountsRepo: accountsRepo,
-		logger:                   slog.Default(),
-		interval:                 23 * time.Hour,
+		subManager:   subMgr,
+		channelsRepo: chRepo,
+		kickBotsRepo: botsRepo,
+		logger:       slog.Default(),
+		config:       cfg.Config{TokensCipherKey: testCipherKey},
+		interval:     23 * time.Hour,
 	}
 
 	job.run(context.Background())

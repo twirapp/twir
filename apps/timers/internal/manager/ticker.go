@@ -139,7 +139,13 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	if !platformentity.ShouldExecute(t.dbRow.Platforms, channel.Platform) {
+	var channelPlatform platformentity.Platform
+	if channel.TwitchUserID != nil {
+		channelPlatform = platformentity.PlatformTwitch
+	} else if channel.KickUserID != nil {
+		channelPlatform = platformentity.PlatformKick
+	}
+	if !platformentity.ShouldExecute(t.dbRow.Platforms, channelPlatform) {
 		return
 	}
 
@@ -160,12 +166,12 @@ func (c *Manager) tryTick(id TimerID) {
 
 	err = c.sendMessage(
 		ctx,
-		channel.ID,
+		channel.ID.String(),
 		response.Text,
 		response.IsAnnounce,
 		response.AnnounceColor,
 		response.Count,
-		string(channel.Platform),
+		string(channelPlatform),
 	)
 	if err != nil {
 		c.logger.Error(

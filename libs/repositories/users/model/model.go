@@ -9,6 +9,8 @@ import (
 
 type User struct {
 	ID                string
+	Platform          string
+	PlatformID        string
 	TokenID           null.String
 	IsBotAdmin        bool
 	ApiKey            string

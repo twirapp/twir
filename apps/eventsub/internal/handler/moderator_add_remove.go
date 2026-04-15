@@ -5,13 +5,14 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
-	platform "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func (c *Handler) HandleChannelModeratorAdd(
@@ -100,21 +101,23 @@ func (c *Handler) updateBotStatus(
 	channelId string,
 	newStatus bool,
 ) {
-	account, err := c.userPlatformAccountsRepo.GetByPlatformUserID(
-		ctx,
-		platform.PlatformTwitch,
-		channelId,
-	)
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, channelId)
 	if err != nil {
-		if errors.Is(err, user_platform_accounts.ErrNotFound) {
-			c.logger.Error("cannot find platform account", logger.Error(err))
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			c.logger.Error("cannot find user by platform ID", logger.Error(err))
 		} else {
-			c.logger.Error("cannot resolve broadcaster platform account", logger.Error(err))
+			c.logger.Error("cannot resolve broadcaster user", logger.Error(err))
 		}
 		return
 	}
 
-	channel, err := c.channelsRepo.GetByUserIDAndPlatform(ctx, account.UserID, platform.PlatformTwitch)
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		c.logger.Error("cannot parse user ID as UUID", logger.Error(err))
+		return
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return
@@ -130,7 +133,7 @@ func (c *Handler) updateBotStatus(
 		return
 	}
 
-	if err = c.channelsCache.Invalidate(ctx, channel.ID); err != nil {
+	if err = c.channelsCache.Invalidate(ctx, channel.ID.String()); err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }

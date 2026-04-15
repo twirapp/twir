@@ -44,7 +44,7 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		return false, gqlerrors.HandleError(err)
 	}
 
-	if channel.UserID != user.ID {
+	if !channel.IsOwner(user.ID) {
 		return false, fmt.Errorf("you cannot reset stats for this user")
 	}
 
@@ -93,7 +93,6 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("channels.id = ?", opts.ChannelID).
-		Joins("User").
 		First(channel).Error
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)

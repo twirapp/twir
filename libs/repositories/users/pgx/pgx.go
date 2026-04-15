@@ -8,6 +8,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 )
@@ -36,18 +37,17 @@ type Pgx struct {
 
 func (c *Pgx) Create(ctx context.Context, input users.CreateInput) (model.User, error) {
 	query := `
-INSERT INTO users (id, twitch_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at;
+INSERT INTO users (platform, platform_id, "tokenId", "isBotAdmin", is_banned, hide_on_landing_page)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at;
 `
 
 	rows, err := c.pool.Query(
 		ctx, query,
-		input.ID,
-		input.TwitchID,
+		input.Platform,
+		input.PlatformID,
 		input.TokenID,
 		input.IsBotAdmin,
-		input.ApiKey,
 		input.IsBanned,
 		input.HideOnLandingPage,
 	)
@@ -68,7 +68,7 @@ RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page
 
 func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.User, error) {
 	query := `
-SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
+SELECT id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
 FROM users
 WHERE "apiKey" = $1
 LIMIT 1;
@@ -91,7 +91,7 @@ LIMIT 1;
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.User, error) {
 	query := `
-SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
+SELECT id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
 FROM users
 WHERE id = $1
 `
@@ -112,9 +112,35 @@ WHERE id = $1
 	return user, nil
 }
 
+func (c *Pgx) GetByPlatformID(ctx context.Context, plat platform.Platform, platformUserID string) (model.User, error) {
+	query := `
+SELECT id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
+FROM users
+WHERE platform = $1 AND platform_id = $2
+LIMIT 1
+`
+
+	rows, err := c.pool.Query(ctx, query, plat, platformUserID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	user, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.User])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, model.ErrNotFound
+		}
+		return model.Nil, err
+	}
+
+	return user, nil
+}
+
 func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]model.User, error) {
 	selectBuilder := sq.Select(
 		"id",
+		"platform",
+		"platform_id",
 		`"tokenId"`,
 		`"isBotAdmin"`,
 		`"apiKey"`,
@@ -251,7 +277,7 @@ func (c *Pgx) Update(ctx context.Context, id string, input users.UpdateInput) (m
 		updateBuilder = updateBuilder.Set(`"tokenId"`, input.TokenID)
 	}
 
-	updateBuilder = updateBuilder.Suffix(`RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page`)
+	updateBuilder = updateBuilder.Suffix(`RETURNING id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page`)
 
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {

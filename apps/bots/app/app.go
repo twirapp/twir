@@ -84,8 +84,6 @@ import (
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
-	userplatformaccountsrepository "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
-	userplatformaccountsrepositorypgx "github.com/twirapp/twir/libs/repositories/user_platform_accounts/pgx"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
@@ -118,10 +116,6 @@ var App = fx.Module(
 		fx.Annotate(
 			toxicmessagesrepositorypgx.NewFx,
 			fx.As(new(toxicmessagesrepository.Repository)),
-		),
-		fx.Annotate(
-			userplatformaccountsrepositorypgx.NewFx,
-			fx.As(new(userplatformaccountsrepository.Repository)),
 		),
 		fx.Annotate(
 			chatmessagesrepositoryclickhouse.NewFx,
@@ -212,7 +206,7 @@ var App = fx.Module(
 		ttscache.NewTTSSettings,
 		keywordscache.New,
 		greetingscache.New,
-		channelcache.New,
+		channelcache.NewByTwitchUserID,
 		twitchactions.New,
 		kickchat.NewChatClient,
 		channelsmoderationsettingscache.New,

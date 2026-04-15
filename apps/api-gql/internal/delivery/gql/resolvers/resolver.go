@@ -83,7 +83,7 @@ import (
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
-	user_platform_accounts "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
@@ -101,13 +101,13 @@ type Deps struct {
 	AuditRecorder audit.Recorder
 	WsRouter      wsrouter.WsRouter
 
-	SpotifyRepository              channelsintegrationsspotify.Repository
-	LastfmRepository               channelsintegrationslastfm.Repository
-	VKIntegrationRepository        vkintegrationrepo.Repository
-	PlansRepository                plansrepository.Repository
-	GiveawaysSettingsRepository    channels_giveaways_settings.Repository
-	UserPlatformAccountsRepository user_platform_accounts.Repository
-	ChannelsRepository             channelsrepository.Repository
+	SpotifyRepository           channelsintegrationsspotify.Repository
+	LastfmRepository            channelsintegrationslastfm.Repository
+	VKIntegrationRepository     vkintegrationrepo.Repository
+	PlansRepository             plansrepository.Repository
+	GiveawaysSettingsRepository channels_giveaways_settings.Repository
+	ChannelsRepository          channelsrepository.Repository
+	UsersRepository             usersrepository.Repository
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB

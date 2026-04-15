@@ -1,7 +1,9 @@
 package entity
 
+import "github.com/google/uuid"
+
 type Channel struct {
-	ID             string
+	ID             uuid.UUID
 	IsEnabled      bool
 	IsTwitchBanned bool
 	IsBotMod       bool

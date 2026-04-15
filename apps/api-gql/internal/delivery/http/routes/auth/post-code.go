@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
@@ -18,9 +17,12 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
-	userplatformaccountsrepo "github.com/twirapp/twir/libs/repositories/user_platform_accounts"
+	usersrepo "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/twitch"
+	"time"
 )
 
 type authBody struct {
@@ -83,9 +85,9 @@ func (a *Auth) handleAuthPostCode(
 		return nil, huma.Error500InternalServerError("Cannot encrypt user refresh token", err)
 	}
 
-	account, err := a.userPlatformAccountsRepo.GetByPlatformUserID(ctx, platform.PlatformTwitch, twitchUser.ID)
-	accountNotFound := errors.Is(err, userplatformaccountsrepo.ErrNotFound)
-	if err != nil && !accountNotFound {
+	existingUser, err := a.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchUser.ID)
+	userNotFound := errors.Is(err, usersmodel.ErrNotFound)
+	if err != nil && !userNotFound {
 		return nil, huma.Error500InternalServerError("Cannot get user platform account", err)
 	}
 
@@ -99,31 +101,14 @@ func (a *Auth) handleAuthPostCode(
 
 	userID := uuid.Nil
 	createdUser := false
-	if accountNotFound {
-		userID, err = a.createUser(ctx, &twitchUser.ID)
+	if userNotFound {
+		userID, err = a.createUser(ctx, platform.PlatformTwitch, twitchUser.ID)
 		if err != nil {
 			return nil, huma.Error500InternalServerError("Cannot create user", err)
 		}
 		createdUser = true
 	} else {
-		userID = account.UserID
-	}
-
-	_, err = a.userPlatformAccountsRepo.Upsert(ctx, userplatformaccountsrepo.UpsertInput{
-		UserID:              userID,
-		Platform:            platform.PlatformTwitch,
-		PlatformUserID:      twitchUser.ID,
-		PlatformLogin:       twitchUser.Login,
-		PlatformDisplayName: twitchUser.DisplayName,
-		PlatformAvatar:      twitchUser.ProfileImageURL,
-		AccessToken:         accessToken,
-		RefreshToken:        refreshToken,
-		Scopes:              tokens.Data.Scopes,
-		ExpiresIn:           tokens.Data.ExpiresIn,
-		ObtainmentTimestamp: time.Now().UTC(),
-	})
-	if err != nil {
-		return nil, huma.Error500InternalServerError("Cannot upsert user platform account", err)
+		userID = uuid.MustParse(existingUser.ID)
 	}
 
 	dbUser, err := a.usersRepo.GetByID(ctx, userID.String())
@@ -174,39 +159,41 @@ func (a *Auth) handleAuthPostCode(
 		}
 	}
 
-	channel, err := a.channelsRepo.GetByUserIDAndPlatform(ctx, userID, platform.PlatformTwitch)
+	channel, err := a.channelsRepo.GetByTwitchUserID(ctx, userID)
 	if err != nil {
 		if !errors.Is(err, channelsrepo.ErrNotFound) {
 			return nil, huma.Error500InternalServerError("Cannot get channel", err)
 		}
 
-		channel, err = a.createChannel(ctx, userID, defaultBot.ID, platform.PlatformTwitch)
+		channel, err = a.createChannel(ctx, &userID, nil, defaultBot.ID)
 		if err != nil {
 			return nil, huma.Error500InternalServerError("Cannot create channel", err)
 		}
 	}
 
+	channelIDStr := channel.ID.String()
+
 	if createdUser {
 		if err = a.bus.Scheduler.CreateDefaultRoles.Publish(
 			ctx,
-			scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{channel.ID}},
+			scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{channelIDStr}},
 		); err != nil {
-			a.logger.ErrorContext(ctx, "cannot publish create default roles", logger.Error(err), slog.String("channel_id", channel.ID))
+			a.logger.ErrorContext(ctx, "cannot publish create default roles", logger.Error(err), slog.String("channel_id", channelIDStr))
 		}
 
 		if err = a.bus.Scheduler.CreateDefaultCommands.Publish(
 			ctx,
-			scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{channel.ID}},
+			scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{channelIDStr}},
 		); err != nil {
-			a.logger.ErrorContext(ctx, "cannot publish create default commands", logger.Error(err), slog.String("channel_id", channel.ID))
+			a.logger.ErrorContext(ctx, "cannot publish create default commands", logger.Error(err), slog.String("channel_id", channelIDStr))
 		}
 	}
 
 	if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
 		ctx,
-		buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channel.ID},
+		buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelIDStr},
 	); err != nil {
-		a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channel.ID))
+		a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channelIDStr))
 	}
 
 	if err := a.sessions.SetSessionInternalUserID(ctx, userID); err != nil {
@@ -217,7 +204,7 @@ func (a *Auth) handleAuthPostCode(
 		return nil, huma.Error500InternalServerError("Cannot set current platform", err)
 	}
 
-	if err := a.sessions.SetSessionSelectedDashboard(ctx, channel.ID); err != nil {
+	if err := a.sessions.SetSessionSelectedDashboard(ctx, channelIDStr); err != nil {
 		return nil, huma.Error500InternalServerError("Cannot set selected dashboard", err)
 	}
 
@@ -226,4 +213,36 @@ func (a *Auth) handleAuthPostCode(
 	}
 
 	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: string(redirectTo)}), nil
+}
+
+func (a *Auth) createUser(ctx context.Context, plat platform.Platform, platformID string) (uuid.UUID, error) {
+	user, err := a.usersRepo.Create(ctx, usersrepo.CreateInput{
+		Platform:   plat,
+		PlatformID: platformID,
+		IsBotAdmin: false,
+		IsBanned:   false,
+	})
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("create user: %w", err)
+	}
+
+	return uuid.MustParse(user.ID), nil
+}
+
+func (a *Auth) createChannel(
+	ctx context.Context,
+	twitchUserID *uuid.UUID,
+	kickUserID *uuid.UUID,
+	botID string,
+) (channelsmodel.Channel, error) {
+	channel, err := a.channelsRepo.Create(ctx, channelsrepo.CreateInput{
+		TwitchUserID: twitchUserID,
+		KickUserID:   kickUserID,
+		BotID:        botID,
+	})
+	if err != nil {
+		return channelsmodel.Nil, fmt.Errorf("create channel: %w", err)
+	}
+
+	return channel, nil
 }

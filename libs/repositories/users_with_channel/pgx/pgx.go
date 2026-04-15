@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -38,7 +39,9 @@ type Pgx struct {
 
 func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 	userWithChannel := model.UserWithChannel{}
-	var channelID, channelBotID sql.Null[string]
+	var channelID sql.Null[uuid.UUID]
+	var channelTwitchUserID, channelKickUserID sql.Null[uuid.UUID]
+	var channelBotID sql.Null[string]
 	var channelIsBotMod, channelIsEnabled, channelIsTwitchBanned sql.Null[bool]
 
 	err := row.Scan(
@@ -49,6 +52,8 @@ func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 		&userWithChannel.User.HideOnLandingPage,
 		&userWithChannel.User.IsBanned,
 		&channelID,
+		&channelTwitchUserID,
+		&channelKickUserID,
 		&channelIsBotMod,
 		&channelIsEnabled,
 		&channelIsTwitchBanned,
@@ -59,13 +64,20 @@ func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 	}
 
 	if channelID.Valid {
-		userWithChannel.Channel = &channelmodel.Channel{
+		ch := &channelmodel.Channel{
 			ID:             channelID.V,
 			IsBotMod:       channelIsBotMod.V,
 			IsEnabled:      channelIsEnabled.V,
 			IsTwitchBanned: channelIsTwitchBanned.V,
 			BotID:          channelBotID.V,
 		}
+		if channelTwitchUserID.Valid {
+			ch.TwitchUserID = &channelTwitchUserID.V
+		}
+		if channelKickUserID.Valid {
+			ch.KickUserID = &channelKickUserID.V
+		}
+		userWithChannel.Channel = ch
 	}
 
 	return userWithChannel, err
@@ -74,11 +86,11 @@ func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.UserWithChannel, error) {
 	query := `
 SELECT u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned,
-			 uc.id, uc."isBotMod", uc."isEnabled", uc."isTwitchBanned", uc."botId"
+       uc.id, uc.twitch_user_id, uc.kick_user_id, uc."isBotMod", uc."isEnabled", uc."isTwitchBanned", uc."botId"
 FROM users u
-LEFT JOIN channels uc ON u.id = uc.id
+LEFT JOIN channels uc ON uc.twitch_user_id = u.id OR uc.kick_user_id = u.id
 WHERE u.id = $1
-GROUP BY u.id
+GROUP BY u.id, uc.id
 LIMIT 1
 `
 
@@ -108,13 +120,15 @@ func (c *Pgx) GetManyByIDS(
 			"u.hide_on_landing_page",
 			"u.is_banned",
 			"uc.id AS channel_id",
+			"uc.twitch_user_id AS channel_twitch_user_id",
+			"uc.kick_user_id AS channel_kick_user_id",
 			`uc."isBotMod" AS channel_is_bot_mod`,
 			`uc."isEnabled" AS channel_is_enabled`,
 			`uc."isTwitchBanned" AS channel_is_twitch_banned`,
 			`uc."botId" AS channel_bot_id`,
 		).
 		From("users u").
-		LeftJoin("channels uc ON u.id = uc.id").
+		LeftJoin("channels uc ON uc.twitch_user_id = u.id OR uc.kick_user_id = u.id").
 		LeftJoin("badges_users bu ON u.id = bu.user_id").
 		OrderBy("u.id asc")
 
@@ -189,7 +203,7 @@ func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetMany
 	}
 
 	if input.ChannelIsBotAdmin != nil || input.ChannelEnabled != nil {
-		selectQuery = selectQuery.LeftJoin("channels uc ON u.id = uc.id")
+		selectQuery = selectQuery.LeftJoin("channels uc ON uc.twitch_user_id = u.id OR uc.kick_user_id = u.id")
 	}
 
 	if input.ChannelEnabled != nil {
@@ -206,7 +220,7 @@ func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetMany
 
 	if len(input.HasBadgesIDS) > 0 {
 		selectQuery = selectQuery.
-			LeftJoin("channels uc ON u.id = uc.id").
+			LeftJoin("badges_users bu ON u.id = bu.user_id").
 			Where(squirrel.Eq{"bu.badge_id": input.HasBadgesIDS})
 	}
 

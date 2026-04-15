@@ -31,7 +31,7 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 		return nil, fmt.Errorf("cannot get channel: %w", err)
 	}
 
-	if channel.UserID == user.ID || user.IsBotAdmin {
+	if channel.IsOwner(user.ID) || user.IsBotAdmin {
 		return next(ctx)
 	}
 

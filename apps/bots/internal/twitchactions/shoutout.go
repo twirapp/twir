@@ -14,7 +14,7 @@ type ShoutOutInput struct {
 }
 
 func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error {
-	channel, err := c.channelsRepository.GetByID(ctx, input.BroadcasterID)
+	channel, err := c.channelsByTwitchIDCache.Get(ctx, input.BroadcasterID)
 	if err != nil {
 		return fmt.Errorf("cannot get channel: %w", err)
 	}

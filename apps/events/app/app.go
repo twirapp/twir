@@ -35,6 +35,9 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels/pgx"
 
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	variablesrepositorypostgres "github.com/twirapp/twir/libs/repositories/variables/pgx"
 )
@@ -70,6 +73,10 @@ var App = fx.Module(
 		fx.Annotate(
 			overlaysttspgx.NewFx,
 			fx.As(new(overlays_tts.Repository)),
+		),
+		fx.Annotate(
+			usersrepositorypgx.NewFx,
+			fx.As(new(usersrepository.Repository)),
 		),
 
 		channel.New,

@@ -50,7 +50,7 @@ func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(hu
 		return
 	}
 
-	if channel.UserID == user.ID || user.IsBotAdmin {
+	if channel.IsOwner(user.ID) || user.IsBotAdmin {
 		next(hc)
 		return
 	}

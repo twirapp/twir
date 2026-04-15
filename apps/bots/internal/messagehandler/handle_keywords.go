@@ -88,7 +88,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 			continue
 		}
 
-		if !platformentity.ShouldExecute(k.Platforms, platformentity.Platform(msg.EnrichedData.DbChannel.Platform)) {
+		if !platformentity.ShouldExecute(k.Platforms, platformentity.PlatformTwitch) {
 			continue
 		}
 

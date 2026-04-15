@@ -2,10 +2,14 @@ package bus_listener
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/go-redsync/redsync/v4"
@@ -15,10 +19,12 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/crypto"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 )
 
@@ -40,10 +46,12 @@ type Opts struct {
 	Logger           *slog.Logger
 	TwirBus          *buscore.Bus
 	TokensRepository tokensrepository.Repository
+	UsersRepository  usersrepository.Repository
 }
 
 type tokensImpl struct {
 	globalClient   *helix.Client
+	httpClient     *http.Client
 	appAccessToken *appToken
 
 	config           cfg.Config
@@ -51,6 +59,7 @@ type tokensImpl struct {
 	redSync          *redsync.Redsync
 	twirBus          *buscore.Bus
 	tokensRepository tokensrepository.Repository
+	usersRepository  usersrepository.Repository
 }
 
 func rateLimitFunc(lastResponse *helix.Response) error {
@@ -103,6 +112,7 @@ func NewTokens(opts Opts) error {
 
 	impl := &tokensImpl{
 		globalClient: helixClient,
+		httpClient:   httpClient,
 		appAccessToken: &appToken{
 			AccessToken:    appAccessToken.Data.AccessToken,
 			ObtainmentTime: time.Now().UTC(),
@@ -114,6 +124,7 @@ func NewTokens(opts Opts) error {
 		redSync:          opts.Redsync,
 		twirBus:          opts.TwirBus,
 		tokensRepository: opts.TokensRepository,
+		usersRepository:  opts.UsersRepository,
 	}
 
 	opts.Lc.Append(
@@ -211,27 +222,51 @@ func (c *tokensImpl) RequestUserToken(
 	}
 
 	if isTokenExpired(token.ExpiresIn, token.ObtainmentTimestamp) {
-		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
+		user, err := c.usersRepository.GetByID(ctx, data.UserId)
+		if err != nil {
+			return tokens.TokenResponse{}, fmt.Errorf("cannot get user: %w", err)
+		}
+
+		var refreshedAccessToken, refreshedRefreshToken string
+		var refreshedExpiresIn int
+		var refreshedScopes []string
+
+		switch platformentity.Platform(user.Platform) {
+		case platformentity.PlatformKick:
+			kickTokens, err := c.refreshKickToken(ctx, decryptedRefreshToken)
+			if err != nil {
+				return tokens.TokenResponse{}, fmt.Errorf("kick refresh token: %w", err)
+			}
+			refreshedAccessToken = kickTokens.AccessToken
+			refreshedRefreshToken = kickTokens.RefreshToken
+			refreshedExpiresIn = kickTokens.ExpiresIn
+			refreshedScopes = kickTokens.Scopes
+		default:
+			newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
+			if err != nil {
+				return tokens.TokenResponse{}, err
+			}
+			if newToken.ErrorMessage != "" {
+				return tokens.TokenResponse{}, fmt.Errorf("refresh token error: %s", newToken.ErrorMessage)
+			}
+			if newToken.StatusCode != 200 || newToken.Data.AccessToken == "" {
+				return tokens.TokenResponse{}, fmt.Errorf(
+					"refresh token status code: %d",
+					newToken.StatusCode,
+				)
+			}
+			refreshedAccessToken = newToken.Data.AccessToken
+			refreshedRefreshToken = newToken.Data.RefreshToken
+			refreshedExpiresIn = newToken.Data.ExpiresIn
+			refreshedScopes = newToken.Data.Scopes
+		}
+
+		newRefreshToken, err := crypto.Encrypt(refreshedRefreshToken, c.config.TokensCipherKey)
 		if err != nil {
 			return tokens.TokenResponse{}, err
 		}
-		if newToken.ErrorMessage != "" {
-			return tokens.TokenResponse{}, fmt.Errorf("refresh token error: %s", newToken.ErrorMessage)
-		}
 
-		if newToken.StatusCode != 200 || newToken.Data.AccessToken == "" {
-			return tokens.TokenResponse{}, fmt.Errorf(
-				"refresh token status code: %d",
-				newToken.StatusCode,
-			)
-		}
-
-		newRefreshToken, err := crypto.Encrypt(newToken.Data.RefreshToken, c.config.TokensCipherKey)
-		if err != nil {
-			return tokens.TokenResponse{}, err
-		}
-
-		newAccessToken, err := crypto.Encrypt(newToken.Data.AccessToken, c.config.TokensCipherKey)
+		newAccessToken, err := crypto.Encrypt(refreshedAccessToken, c.config.TokensCipherKey)
 		if err != nil {
 			return tokens.TokenResponse{}, err
 		}
@@ -242,9 +277,9 @@ func (c *tokensImpl) RequestUserToken(
 			ctx, token.ID, tokensrepository.UpdateTokenInput{
 				AccessToken:         &newAccessToken,
 				RefreshToken:        &newRefreshToken,
-				ExpiresIn:           &newToken.Data.ExpiresIn,
+				ExpiresIn:           &refreshedExpiresIn,
 				ObtainmentTimestamp: &timeStamp,
-				Scopes:              newToken.Data.Scopes,
+				Scopes:              refreshedScopes,
 			},
 		)
 		if err != nil {
@@ -259,9 +294,8 @@ func (c *tokensImpl) RequestUserToken(
 		c.log.Info(
 			"user token refreshed",
 			slog.String("user_id", data.UserId),
+			slog.String("platform", user.Platform),
 			slog.Int("expires_in", token.ExpiresIn),
-			slog.String("access_token", newAccessToken),
-			slog.String("refresh_token", newRefreshToken),
 		)
 	}
 
@@ -273,6 +307,72 @@ func (c *tokensImpl) RequestUserToken(
 	return tokens.TokenResponse{
 		AccessToken: decryptedAccessToken,
 		Scopes:      token.Scopes,
+	}, nil
+}
+
+type kickTokenResponse struct {
+	AccessToken  string
+	RefreshToken string
+	ExpiresIn    int
+	Scopes       []string
+}
+
+func (c *tokensImpl) refreshKickToken(ctx context.Context, refreshToken string) (*kickTokenResponse, error) {
+	form := url.Values{}
+	form.Set("grant_type", "refresh_token")
+	form.Set("client_id", c.config.KickClientId)
+	form.Set("client_secret", c.config.KickClientSecret)
+	form.Set("refresh_token", refreshToken)
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://id.kick.com/oauth/token",
+		strings.NewReader(form.Encode()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create kick refresh request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("do kick refresh request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read kick refresh response: %w", err)
+	}
+
+	if resp.StatusCode >= http.StatusBadRequest {
+		return nil, fmt.Errorf("kick refresh failed with status %d: %s", resp.StatusCode, string(body))
+	}
+
+	var parsed struct {
+		AccessToken  string   `json:"access_token"`
+		RefreshToken string   `json:"refresh_token"`
+		ExpiresIn    int      `json:"expires_in"`
+		Scope        string   `json:"scope"`
+		Scopes       []string `json:"scopes"`
+	}
+
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return nil, fmt.Errorf("decode kick refresh response: %w", err)
+	}
+
+	responseScopes := parsed.Scopes
+	if len(responseScopes) == 0 && parsed.Scope != "" {
+		responseScopes = strings.Fields(parsed.Scope)
+	}
+
+	return &kickTokenResponse{
+		AccessToken:  parsed.AccessToken,
+		RefreshToken: parsed.RefreshToken,
+		ExpiresIn:    parsed.ExpiresIn,
+		Scopes:       responseScopes,
 	}, nil
 }
 

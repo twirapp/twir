@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 )
@@ -37,15 +36,16 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+const selectCols = `"id", "twitch_user_id", "kick_user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"`
+
 func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
 	query := `
-INSERT INTO channels (user_id, platform, "botId")
+INSERT INTO channels (twitch_user_id, kick_user_id, "botId")
 VALUES ($1, $2, $3)
-RETURNING "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
-`
+RETURNING ` + selectCols
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, input.UserID, input.Platform, input.BotID)
+	rows, err := conn.Query(ctx, query, input.TwitchUserID, input.KickUserID, input.BotID)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -59,15 +59,9 @@ RETURNING "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanne
 }
 
 func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, error) {
-	query := `
-SELECT COUNT(*)
-FROM channels
-`
-
+	query := `SELECT COUNT(*) FROM channels`
 	if input.OnlyEnabled {
-		query += `
-WHERE "isEnabled" = true
-`
+		query += ` WHERE "isEnabled" = true`
 	}
 
 	var count int
@@ -79,12 +73,8 @@ WHERE "isEnabled" = true
 	return count, nil
 }
 
-func (c *Pgx) GetByID(ctx context.Context, channelID string) (model.Channel, error) {
-	query := `
-SELECT "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
-FROM channels
-WHERE "id" = $1::uuid
-`
+func (c *Pgx) GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, error) {
+	query := `SELECT ` + selectCols + ` FROM channels WHERE "id" = $1`
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, channelID)
@@ -97,44 +87,17 @@ WHERE "id" = $1::uuid
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Nil, channels.ErrNotFound
 		}
-	}
-
-	return result, nil
-}
-
-func (c *Pgx) GetByUserIDAndPlatform(ctx context.Context, userID uuid.UUID, platformVal platform.Platform) (model.Channel, error) {
-	query := `
-SELECT "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
-FROM channels
-WHERE "user_id" = $1 AND "platform" = $2
-`
-
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, userID, platformVal)
-	if err != nil {
 		return model.Nil, err
 	}
 
-	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Nil, channels.ErrNotFound
-		}
-	}
-
 	return result, nil
 }
 
-func (c *Pgx) GetByPlatformUserID(ctx context.Context, plat platform.Platform, platformUserID string) (model.Channel, error) {
-	query := `
-SELECT c."id"::text AS "id", c."platform", c."user_id", c."isEnabled", c."isTwitchBanned", c."isBotMod", c."botId"
-FROM user_platform_accounts upa
-JOIN channels c ON c.user_id = upa.user_id AND c.platform = $1
-WHERE upa.platform = $1 AND upa.platform_user_id = $2
-`
+func (c *Pgx) GetByTwitchUserID(ctx context.Context, twitchUserID uuid.UUID) (model.Channel, error) {
+	query := `SELECT ` + selectCols + ` FROM channels WHERE twitch_user_id = $1`
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, plat, platformUserID)
+	rows, err := conn.Query(ctx, query, twitchUserID)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -150,8 +113,28 @@ WHERE upa.platform = $1 AND upa.platform_user_id = $2
 	return result, nil
 }
 
-func (c *Pgx) Update(ctx context.Context, channelID string, input channels.UpdateInput) (model.Channel, error) {
-	updateBuilder := sq.Update("channels").Where(`"id" = ?::uuid`, channelID)
+func (c *Pgx) GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (model.Channel, error) {
+	query := `SELECT ` + selectCols + ` FROM channels WHERE kick_user_id = $1`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, kickUserID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
+func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.UpdateInput) (model.Channel, error) {
+	updateBuilder := sq.Update("channels").Where(`"id" = ?`, channelID)
 
 	if input.IsEnabled != nil {
 		updateBuilder = updateBuilder.Set(`"isEnabled"`, *input.IsEnabled)
@@ -161,9 +144,7 @@ func (c *Pgx) Update(ctx context.Context, channelID string, input channels.Updat
 		updateBuilder = updateBuilder.Set(`"isBotMod"`, *input.IsBotMod)
 	}
 
-	updateBuilder = updateBuilder.Suffix(
-		`RETURNING "id"::text AS "id", "platform", "user_id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"`,
-	)
+	updateBuilder = updateBuilder.Suffix(`RETURNING ` + selectCols)
 
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {
@@ -190,9 +171,9 @@ func (c *Pgx) Update(ctx context.Context, channelID string, input channels.Updat
 func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model.Channel, error) {
 	selectBuilder := sq.
 		Select(
-			`"id"::text AS "id"`,
-			"platform",
-			"user_id",
+			`"id"`,
+			"twitch_user_id",
+			"kick_user_id",
 			`"isEnabled"`,
 			`"isTwitchBanned"`,
 			`"isBotMod"`,
@@ -204,12 +185,18 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 		selectBuilder = selectBuilder.Where(`"isEnabled" = ?`, *input.Enabled)
 	}
 
-	// not need to use defaults because i wanna select all channels
+	if input.HasKickUserID != nil && *input.HasKickUserID {
+		selectBuilder = selectBuilder.Where("kick_user_id IS NOT NULL")
+	}
+
+	if input.HasTwitchUserID != nil && *input.HasTwitchUserID {
+		selectBuilder = selectBuilder.Where("twitch_user_id IS NOT NULL")
+	}
+
 	if input.PerPage > 0 {
 		selectBuilder = selectBuilder.Limit(uint64(input.PerPage))
 	}
 
-	// not need to use defaults because i wanna select all channels
 	if input.Page > 0 {
 		selectBuilder = selectBuilder.Offset(uint64(input.Page * input.PerPage))
 	}

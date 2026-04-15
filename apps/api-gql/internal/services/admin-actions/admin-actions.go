@@ -77,7 +77,7 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 			c.twirbus.EventSub.Subscribe.Publish(
 				ctx,
 				eventsub.EventsubSubscribeRequest{
-					ChannelID: channel.ID,
+					ChannelID: channel.ID.String(),
 					Topic:     input.Type,
 					Version:   input.Version,
 				},

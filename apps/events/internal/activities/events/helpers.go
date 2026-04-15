@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channels "github.com/twirapp/twir/libs/repositories/channels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.temporal.io/sdk/activity"
 )
@@ -172,7 +173,7 @@ func (c *Activity) getChannelRuntimeInfoByChannelUUID(
 	ctx context.Context,
 	channelUUID uuid.UUID,
 ) (channelRuntimeInfo, error) {
-	channel, err := c.channelsRepo.GetByID(ctx, channelUUID.String())
+	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
 	if err != nil {
 		if errors.Is(err, channels.ErrNotFound) {
 			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
@@ -181,9 +182,14 @@ func (c *Activity) getChannelRuntimeInfoByChannelUUID(
 		return channelRuntimeInfo{}, err
 	}
 
+	var broadcasterUserID string
+	if channel.TwitchUserID != nil {
+		broadcasterUserID = channel.TwitchUserID.String()
+	}
+
 	return channelRuntimeInfo{
-		ChannelID:         channel.ID,
-		BroadcasterUserID: channel.UserID.String(),
+		ChannelID:         channel.ID.String(),
+		BroadcasterUserID: broadcasterUserID,
 		BotID:             channel.BotID,
 	}, nil
 }
@@ -192,7 +198,21 @@ func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
 	ctx context.Context,
 	twitchBroadcasterID string,
 ) (channelRuntimeInfo, error) {
-	channel, err := c.channelsRepo.GetByPlatformUserID(ctx, platform.PlatformTwitch, twitchBroadcasterID)
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchBroadcasterID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
+		}
+
+		return channelRuntimeInfo{}, err
+	}
+
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return channelRuntimeInfo{}, fmt.Errorf("parse user id: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
 	if err != nil {
 		if errors.Is(err, channels.ErrNotFound) {
 			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
@@ -202,8 +222,8 @@ func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
 	}
 
 	return channelRuntimeInfo{
-		ChannelID:         channel.ID,
-		BroadcasterUserID: channel.UserID.String(),
+		ChannelID:         channel.ID.String(),
+		BroadcasterUserID: twitchBroadcasterID,
 		BotID:             channel.BotID,
 	}, nil
 }

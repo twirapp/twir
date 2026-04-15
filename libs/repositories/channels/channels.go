@@ -4,24 +4,23 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 type Repository interface {
 	GetMany(ctx context.Context, input GetManyInput) ([]model.Channel, error)
-	GetByID(ctx context.Context, channelID string) (model.Channel, error)
-	GetByUserIDAndPlatform(ctx context.Context, userID uuid.UUID, platformVal platform.Platform) (model.Channel, error)
-	GetByPlatformUserID(ctx context.Context, plat platform.Platform, platformUserID string) (model.Channel, error)
+	GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, error)
+	GetByTwitchUserID(ctx context.Context, twitchUserID uuid.UUID) (model.Channel, error)
+	GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (model.Channel, error)
 	GetCount(ctx context.Context, input GetCountInput) (int, error)
-	Update(ctx context.Context, channelID string, input UpdateInput) (model.Channel, error)
+	Update(ctx context.Context, channelID uuid.UUID, input UpdateInput) (model.Channel, error)
 	Create(ctx context.Context, input CreateInput) (model.Channel, error)
 }
 
 type CreateInput struct {
-	UserID   uuid.UUID
-	BotID    string
-	Platform platform.Platform
+	TwitchUserID *uuid.UUID
+	KickUserID   *uuid.UUID
+	BotID        string
 }
 
 type UpdateInput struct {
@@ -30,9 +29,11 @@ type UpdateInput struct {
 }
 
 type GetManyInput struct {
-	Enabled *bool
-	PerPage int
-	Page    int
+	Enabled         *bool
+	HasKickUserID   *bool
+	HasTwitchUserID *bool
+	PerPage         int
+	Page            int
 }
 
 type GetCountInput struct {

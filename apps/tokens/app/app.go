@@ -14,6 +14,9 @@ import (
 
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 	tokensrepositorypostgres "github.com/twirapp/twir/libs/repositories/tokens/datasources/postgres"
+
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 )
 
 var App = fx.Module(
@@ -27,6 +30,10 @@ var App = fx.Module(
 		fx.Annotate(
 			tokensrepositorypostgres.NewFx,
 			fx.As(new(tokensrepository.Repository)),
+		),
+		fx.Annotate(
+			usersrepositorypgx.NewFx,
+			fx.As(new(usersrepository.Repository)),
 		),
 		redis.NewRedisLock,
 	),

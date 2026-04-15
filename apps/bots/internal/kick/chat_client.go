@@ -15,6 +15,7 @@ import (
 
 	"github.com/google/uuid"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/crypto"
 	kick_bots_entity "github.com/twirapp/twir/libs/entities/kick_bot"
 	"github.com/twirapp/twir/libs/repositories/kick_bots"
 )
@@ -70,7 +71,12 @@ func (c *ChatClient) sendMessagePart(
 	bot *kick_bots_entity.KickBot,
 	allowRefresh bool,
 ) error {
-	statusCode, responseBody, err := c.doSendMessageRequest(ctx, broadcasterUserID, text, bot.AccessToken)
+	decryptedAccessToken, err := crypto.Decrypt(bot.AccessToken, c.config.TokensCipherKey)
+	if err != nil {
+		return fmt.Errorf("decrypt kick bot access token: %w", err)
+	}
+
+	statusCode, responseBody, err := c.doSendMessageRequest(ctx, broadcasterUserID, text, decryptedAccessToken)
 	if err != nil {
 		return err
 	}
@@ -148,9 +154,14 @@ func (c *ChatClient) doSendMessageRequest(
 }
 
 func (c *ChatClient) refreshBotToken(ctx context.Context, bot *kick_bots_entity.KickBot) error {
+	decryptedRefreshToken, err := crypto.Decrypt(bot.RefreshToken, c.config.TokensCipherKey)
+	if err != nil {
+		return fmt.Errorf("decrypt kick bot refresh token: %w", err)
+	}
+
 	form := url.Values{}
 	form.Set("grant_type", "refresh_token")
-	form.Set("refresh_token", bot.RefreshToken)
+	form.Set("refresh_token", decryptedRefreshToken)
 	form.Set("client_id", c.config.KickClientId)
 	form.Set("client_secret", c.config.KickClientSecret)
 
@@ -196,7 +207,17 @@ func (c *ChatClient) refreshBotToken(ctx context.Context, bot *kick_bots_entity.
 
 	refreshToken := parsed.RefreshToken
 	if refreshToken == "" {
-		refreshToken = bot.RefreshToken
+		refreshToken = decryptedRefreshToken
+	}
+
+	encryptedAccessToken, err := crypto.Encrypt(parsed.AccessToken, c.config.TokensCipherKey)
+	if err != nil {
+		return fmt.Errorf("encrypt kick bot access token: %w", err)
+	}
+
+	encryptedRefreshToken, err := crypto.Encrypt(refreshToken, c.config.TokensCipherKey)
+	if err != nil {
+		return fmt.Errorf("encrypt kick bot refresh token: %w", err)
 	}
 
 	botID, err := uuid.Parse(bot.ID)
@@ -208,8 +229,8 @@ func (c *ChatClient) refreshBotToken(ctx context.Context, bot *kick_bots_entity.
 		ctx,
 		botID,
 		kick_bots.UpdateTokenInput{
-			AccessToken:         parsed.AccessToken,
-			RefreshToken:        refreshToken,
+			AccessToken:         encryptedAccessToken,
+			RefreshToken:        encryptedRefreshToken,
 			Scopes:              responseScopes,
 			ExpiresIn:           parsed.ExpiresIn,
 			ObtainmentTimestamp: time.Now(),
@@ -225,7 +246,7 @@ func (c *ChatClient) refreshBotToken(ctx context.Context, bot *kick_bots_entity.
 		ctx,
 		"kick bot token refreshed",
 		slog.String("kick_bot_id", bot.ID),
-		slog.String("kick_user_id", bot.KickUserID),
+		slog.String("kick_user_id", bot.KickUserID.String()),
 	)
 
 	return nil

@@ -53,7 +53,7 @@ type Dashboard {
 	platform: String!
 	flags: [ChannelRolePermissionEnum!]!
 	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
-	kickProfile: KickProfile
+	kickProfile: KickProfile @goField(forceResolver: true)
 	apiKey: String!
 	planId: String
 	plan: Plan @goField(forceResolver: true)

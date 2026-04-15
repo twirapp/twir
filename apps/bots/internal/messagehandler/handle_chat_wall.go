@@ -25,7 +25,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	if msg.Message == nil ||
-		msg.ChatterUserId == msg.EnrichedData.DbChannel.ID ||
+		msg.ChatterUserId == msg.BroadcasterUserId ||
 		msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
 		return nil
 	}
