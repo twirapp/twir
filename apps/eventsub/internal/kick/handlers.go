@@ -225,7 +225,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 	ctx := r.Context()
 
 	h.logger.InfoContext(ctx, "kick: handling chat message",
-		slog.String("body", string(body)),
+		slog.Int("body_size", len(body)),
 	)
 
 	var payload kickChatMessagePayload
@@ -238,7 +238,6 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 		slog.String("broadcaster_username", payload.Broadcaster.Username),
 		slog.Int("sender_user_id", payload.Sender.UserID),
 		slog.String("sender_username", payload.Sender.Username),
-		slog.String("content", payload.Content),
 	)
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)

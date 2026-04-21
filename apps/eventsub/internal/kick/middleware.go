@@ -273,6 +273,9 @@ func (m *Middleware) getPublicKey(ctx context.Context) (*rsa.PublicKey, error) {
 }
 
 func (m *Middleware) fetchPublicKeyFromAPI(ctx context.Context) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, kickPublicKeyURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("create request: %w", err)

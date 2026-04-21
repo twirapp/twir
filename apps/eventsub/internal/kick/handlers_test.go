@@ -356,3 +356,121 @@ func TestHandleChannelFollow(t *testing.T) {
 		t.Errorf("redis expectations not met: %v", err)
 	}
 }
+
+func TestHandleChatMessageConcurrentDelivery(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+
+	msgID := "concurrent-msg-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if len(chatQueue.published) != 1 {
+		t.Fatalf("expected 1 chat message published, got %d", len(chatQueue.published))
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+
+	msgID := "duplicate-processing-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessing)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200 for duplicate during processing, got %d", w.Code)
+	}
+
+	if len(chatQueue.published) != 0 {
+		t.Fatalf("expected 0 chat messages for duplicate, got %d", len(chatQueue.published))
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}

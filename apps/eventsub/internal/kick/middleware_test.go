@@ -1,6 +1,7 @@
 package kick
 
 import (
+	"bytes"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -113,6 +114,121 @@ func TestHandlerWithoutVerification_MissingHeaders(t *testing.T) {
 				t.Fatalf("expected status code %d, got %d", http.StatusBadRequest, w.Code)
 			}
 		})
+	}
+}
+
+func TestHandlerWithoutVerification_MissingEventType(t *testing.T) {
+	middleware := newTestMiddleware(t)
+	timestamp := time.Now().UTC().Format(time.RFC3339)
+
+	nextCalled := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/webhook", nil)
+	req.Header.Set("Kick-Event-Message-Id", "message-123")
+	req.Header.Set("Kick-Event-Message-Timestamp", timestamp)
+	// Missing Kick-Event-Type
+
+	w := httptest.NewRecorder()
+
+	middleware.HandlerWithoutVerification(next).ServeHTTP(w, req)
+
+	if nextCalled {
+		t.Fatal("expected next handler not to be called")
+	}
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestHandlerWithoutVerification_StaleTimestamp(t *testing.T) {
+	middleware := newTestMiddleware(t)
+	staleTimestamp := time.Now().UTC().Add(-10 * time.Minute).Format(time.RFC3339)
+
+	nextCalled := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/webhook", nil)
+	req.Header.Set("Kick-Event-Message-Id", "message-123")
+	req.Header.Set("Kick-Event-Message-Timestamp", staleTimestamp)
+	req.Header.Set("Kick-Event-Type", "chat.message.sent")
+
+	w := httptest.NewRecorder()
+
+	middleware.HandlerWithoutVerification(next).ServeHTTP(w, req)
+
+	if nextCalled {
+		t.Fatal("expected next handler not to be called")
+	}
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestHandlerWithoutVerification_FutureTimestamp(t *testing.T) {
+	middleware := newTestMiddleware(t)
+	futureTimestamp := time.Now().UTC().Add(5 * time.Minute).Format(time.RFC3339)
+
+	nextCalled := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/webhook", nil)
+	req.Header.Set("Kick-Event-Message-Id", "message-123")
+	req.Header.Set("Kick-Event-Message-Timestamp", futureTimestamp)
+	req.Header.Set("Kick-Event-Type", "chat.message.sent")
+
+	w := httptest.NewRecorder()
+
+	middleware.HandlerWithoutVerification(next).ServeHTTP(w, req)
+
+	if nextCalled {
+		t.Fatal("expected next handler not to be called")
+	}
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestHandlerWithoutVerification_BodyTooLarge(t *testing.T) {
+	middleware := newTestMiddleware(t)
+	timestamp := time.Now().UTC().Format(time.RFC3339)
+
+	nextCalled := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	// Create a body larger than 1MB
+	largeBody := make([]byte, maxBodySize+1)
+
+	req := httptest.NewRequest(http.MethodPost, "/webhook", bytes.NewReader(largeBody))
+	req.Header.Set("Kick-Event-Message-Id", "message-123")
+	req.Header.Set("Kick-Event-Message-Timestamp", timestamp)
+	req.Header.Set("Kick-Event-Type", "chat.message.sent")
+
+	w := httptest.NewRecorder()
+
+	middleware.HandlerWithoutVerification(next).ServeHTTP(w, req)
+
+	if nextCalled {
+		t.Fatal("expected next handler not to be called")
+	}
+
+	if w.Code != http.StatusRequestEntityTooLarge {
+		t.Fatalf("expected status code %d, got %d", http.StatusRequestEntityTooLarge, w.Code)
 	}
 }
 
