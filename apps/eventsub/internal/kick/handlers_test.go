@@ -178,8 +178,8 @@ func TestHandleChatMessage(t *testing.T) {
 	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
 
 	msgID := "msg-001"
-	redisMock.ExpectExists(idempotencyKeyPrefix + msgID).SetVal(0)
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, "1", idempotencyTTL).SetVal(true)
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,
@@ -260,7 +260,8 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
 
 	msgID := "dup-msg-001"
-	redisMock.ExpectExists(idempotencyKeyPrefix + msgID).SetVal(1)
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessed)
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,
@@ -314,8 +315,8 @@ func TestHandleChannelFollow(t *testing.T) {
 	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
 
 	msgID := "follow-evt-001"
-	redisMock.ExpectExists(idempotencyKeyPrefix + msgID).SetVal(0)
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, "1", idempotencyTTL).SetVal(true)
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
 
 	payload := kickFollowPayload{
 		Broadcaster: kickUser{

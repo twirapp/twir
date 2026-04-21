@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/go-redis/redismock/v9"
 )
@@ -19,6 +20,7 @@ func newTestMiddleware(t *testing.T) *Middleware {
 
 func TestHandlerWithoutVerification_Success(t *testing.T) {
 	middleware := newTestMiddleware(t)
+	timestamp := time.Now().UTC().Format(time.RFC3339)
 
 	nextCalled := false
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -36,8 +38,8 @@ func TestHandlerWithoutVerification_Success(t *testing.T) {
 		if got := r.Context().Value(ctxKeySubscriptionID); got != "sub-123" {
 			t.Fatalf("expected subscription ID in context %q, got %v", "sub-123", got)
 		}
-		if got := r.Context().Value(ctxKeyTimestamp); got != "2026-04-21T10:00:00Z" {
-			t.Fatalf("expected timestamp in context %q, got %v", "2026-04-21T10:00:00Z", got)
+		if got := r.Context().Value(ctxKeyTimestamp); got != timestamp {
+			t.Fatalf("expected timestamp in context %q, got %v", timestamp, got)
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -45,7 +47,7 @@ func TestHandlerWithoutVerification_Success(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/webhook", nil)
 	req.Header.Set("Kick-Event-Message-Id", "message-123")
-	req.Header.Set("Kick-Event-Message-Timestamp", "2026-04-21T10:00:00Z")
+	req.Header.Set("Kick-Event-Message-Timestamp", timestamp)
 	req.Header.Set("Kick-Event-Type", "channel.followed")
 	req.Header.Set("Kick-Event-Version", "1")
 	req.Header.Set("Kick-Event-Subscription-Id", "sub-123")
@@ -64,6 +66,8 @@ func TestHandlerWithoutVerification_Success(t *testing.T) {
 }
 
 func TestHandlerWithoutVerification_MissingHeaders(t *testing.T) {
+	timestamp := time.Now().UTC().Format(time.RFC3339)
+
 	tests := []struct {
 		name    string
 		headers map[string]string
@@ -71,7 +75,7 @@ func TestHandlerWithoutVerification_MissingHeaders(t *testing.T) {
 		{
 			name: "missing message id",
 			headers: map[string]string{
-				"Kick-Event-Message-Timestamp": "2026-04-21T10:00:00Z",
+				"Kick-Event-Message-Timestamp": timestamp,
 			},
 		},
 		{
@@ -114,6 +118,7 @@ func TestHandlerWithoutVerification_MissingHeaders(t *testing.T) {
 
 func TestHandlerWithoutVerification_ContextValues(t *testing.T) {
 	middleware := newTestMiddleware(t)
+	timestamp := time.Now().UTC().Format(time.RFC3339)
 
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if got := KickMessageIDFromContext(r.Context()); got != "message-ctx" {
@@ -128,8 +133,8 @@ func TestHandlerWithoutVerification_ContextValues(t *testing.T) {
 		if got := KickSubscriptionIDFromContext(r.Context()); got != "sub-ctx" {
 			t.Fatalf("expected KickSubscriptionIDFromContext %q, got %q", "sub-ctx", got)
 		}
-		if got := KickMessageTimestampFromContext(r.Context()); got != "2026-04-21T12:00:00Z" {
-			t.Fatalf("expected KickMessageTimestampFromContext %q, got %q", "2026-04-21T12:00:00Z", got)
+		if got := KickMessageTimestampFromContext(r.Context()); got != timestamp {
+			t.Fatalf("expected KickMessageTimestampFromContext %q, got %q", timestamp, got)
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -137,7 +142,7 @@ func TestHandlerWithoutVerification_ContextValues(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/webhook", nil)
 	req.Header.Set("Kick-Event-Message-Id", "message-ctx")
-	req.Header.Set("Kick-Event-Message-Timestamp", "2026-04-21T12:00:00Z")
+	req.Header.Set("Kick-Event-Message-Timestamp", timestamp)
 	req.Header.Set("Kick-Event-Type", "livestream.status.updated")
 	req.Header.Set("Kick-Event-Version", "2")
 	req.Header.Set("Kick-Event-Subscription-Id", "sub-ctx")

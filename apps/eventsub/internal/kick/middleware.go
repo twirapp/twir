@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -23,6 +24,9 @@ import (
 const (
 	redisPublicKeyKey = "kick:public_key"
 	publicKeyTTL      = time.Hour
+	maxBodySize       = 1 << 20
+	maxRequestAge     = 5 * time.Minute
+	maxFutureSkew     = time.Minute
 
 	kickPublicKeyURL = "https://api.kick.com/public/v1/public-key"
 
@@ -99,18 +103,23 @@ func (m *Middleware) Handler(next http.Handler) http.Handler {
 		subscriptionID := r.Header.Get("Kick-Event-Subscription-Id")
 		sigHeader := r.Header.Get("Kick-Event-Signature")
 
-		if messageID == "" || timestamp == "" || sigHeader == "" {
+		if messageID == "" || timestamp == "" || eventType == "" || sigHeader == "" {
+			m.logger.WarnContext(r.Context(), "missing required kick webhook headers")
 			http.Error(w, "missing required headers", http.StatusBadRequest)
 			return
 		}
 
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			m.logger.ErrorContext(r.Context(), "failed to read request body", logger.Error(err))
-			http.Error(w, "failed to read body", http.StatusInternalServerError)
+		if _, err := validateTimestamp(timestamp, time.Now()); err != nil {
+			m.logger.WarnContext(r.Context(), "invalid kick webhook timestamp", logger.Error(err))
+			http.Error(w, "invalid timestamp", http.StatusBadRequest)
 			return
 		}
-		r.Body = io.NopCloser(bytes.NewReader(body))
+
+		body, err := readLimitedRequestBody(w, r)
+		if err != nil {
+			m.logBodyReadError(r.Context(), err)
+			return
+		}
 
 		signedString := messageID + "." + timestamp + "." + string(body)
 
@@ -155,8 +164,20 @@ func (m *Middleware) HandlerWithoutVerification(next http.Handler) http.Handler 
 		eventVersion := r.Header.Get("Kick-Event-Version")
 		subscriptionID := r.Header.Get("Kick-Event-Subscription-Id")
 
-		if messageID == "" || timestamp == "" {
+		if messageID == "" || timestamp == "" || eventType == "" {
+			m.logger.WarnContext(r.Context(), "missing required kick webhook headers")
 			http.Error(w, "missing required headers", http.StatusBadRequest)
+			return
+		}
+
+		if _, err := validateTimestamp(timestamp, time.Now()); err != nil {
+			m.logger.WarnContext(r.Context(), "invalid kick webhook timestamp", logger.Error(err))
+			http.Error(w, "invalid timestamp", http.StatusBadRequest)
+			return
+		}
+
+		if _, err := readLimitedRequestBody(w, r); err != nil {
+			m.logBodyReadError(r.Context(), err)
 			return
 		}
 
@@ -177,6 +198,53 @@ func decodeBase64Signature(sig string) ([]byte, error) {
 		return b, nil
 	}
 	return base64.RawStdEncoding.DecodeString(sig)
+}
+
+func readLimitedRequestBody(w http.ResponseWriter, r *http.Request) ([]byte, error) {
+	r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		var maxBytesErr *http.MaxBytesError
+		if errors.As(err, &maxBytesErr) {
+			http.Error(w, "request body too large", http.StatusRequestEntityTooLarge)
+			return nil, err
+		}
+
+		http.Error(w, "failed to read body", http.StatusInternalServerError)
+		return nil, err
+	}
+
+	r.Body = io.NopCloser(bytes.NewReader(body))
+
+	return body, nil
+}
+
+func (m *Middleware) logBodyReadError(ctx context.Context, err error) {
+	var maxBytesErr *http.MaxBytesError
+	if errors.As(err, &maxBytesErr) {
+		m.logger.WarnContext(ctx, "kick webhook request body exceeds size limit", logger.Error(err))
+		return
+	}
+
+	m.logger.ErrorContext(ctx, "failed to read kick webhook request body", logger.Error(err))
+}
+
+func validateTimestamp(timestamp string, now time.Time) (time.Time, error) {
+	parsed, err := time.Parse(time.RFC3339, timestamp)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("parse timestamp: %w", err)
+	}
+
+	if parsed.Before(now.Add(-maxRequestAge)) {
+		return time.Time{}, fmt.Errorf("timestamp older than %s", maxRequestAge)
+	}
+
+	if parsed.After(now.Add(maxFutureSkew)) {
+		return time.Time{}, fmt.Errorf("timestamp more than %s in future", maxFutureSkew)
+	}
+
+	return parsed, nil
 }
 
 type kickPublicKeyResponse struct {

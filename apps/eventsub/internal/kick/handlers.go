@@ -25,8 +25,11 @@ import (
 )
 
 const (
-	idempotencyTTL       = 10 * time.Minute
-	idempotencyKeyPrefix = "kick:event:"
+	idempotencyProcessingTTL = 30 * time.Second
+	idempotencyTTL           = 10 * time.Minute
+	idempotencyKeyPrefix     = "kick:event:"
+	idempotencyStatusProcessing = "processing"
+	idempotencyStatusProcessed  = "processed"
 )
 
 type kickUser struct {
@@ -122,9 +125,9 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	eventType := KickEventTypeFromContext(ctx)
 
 	idempotencyKey := idempotencyKeyPrefix + messageID
-	exists, err := h.redis.Exists(ctx, idempotencyKey).Result()
+	ok, err := h.redis.SetNX(ctx, idempotencyKey, idempotencyStatusProcessing, idempotencyProcessingTTL).Result()
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to check idempotency key",
+		h.logger.ErrorContext(ctx, "kick: failed to claim idempotency key",
 			slog.String("message_id", messageID),
 			slog.String("event_type", eventType),
 			logger.Error(err),
@@ -133,11 +136,37 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if exists > 0 {
-		h.logger.InfoContext(ctx, "kick: duplicate event, skipping",
-			slog.String("message_id", messageID),
-			slog.String("event_type", eventType),
-		)
+	if !ok {
+		status, err := h.redis.Get(ctx, idempotencyKey).Result()
+		if err != nil && !errors.Is(err, redis.Nil) {
+			h.logger.ErrorContext(ctx, "kick: failed to read idempotency status",
+				slog.String("message_id", messageID),
+				slog.String("event_type", eventType),
+				logger.Error(err),
+			)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		switch status {
+		case idempotencyStatusProcessed:
+			h.logger.InfoContext(ctx, "kick: duplicate processed event, skipping",
+				slog.String("message_id", messageID),
+				slog.String("event_type", eventType),
+			)
+		case idempotencyStatusProcessing:
+			h.logger.InfoContext(ctx, "kick: event already processing, skipping",
+				slog.String("message_id", messageID),
+				slog.String("event_type", eventType),
+			)
+		default:
+			h.logger.InfoContext(ctx, "kick: idempotency key already exists, skipping",
+				slog.String("message_id", messageID),
+				slog.String("event_type", eventType),
+				slog.String("status", status),
+			)
+		}
+
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -178,22 +207,15 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ok, err := h.redis.SetNX(ctx, idempotencyKey, "1", idempotencyTTL).Result()
+	err = h.redis.Set(ctx, idempotencyKey, idempotencyStatusProcessed, idempotencyTTL).Err()
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to set idempotency key",
+		h.logger.ErrorContext(ctx, "kick: failed to mark event as processed",
 			slog.String("message_id", messageID),
 			slog.String("event_type", eventType),
 			logger.Error(err),
 		)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-
-	if !ok {
-		h.logger.InfoContext(ctx, "kick: event marked as processed concurrently",
-			slog.String("message_id", messageID),
-			slog.String("event_type", eventType),
-		)
 	}
 
 	w.WriteHeader(http.StatusOK)
