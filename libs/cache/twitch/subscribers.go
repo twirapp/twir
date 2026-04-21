@@ -14,18 +14,19 @@ import (
 const channelSubscribersCountCacheKey = "cache:twir:twitch:subscribersCount:"
 const channelSubscribersCountCacheDuration = 10 * time.Minute
 
-func buildChannelSubscribersCountCacheKeyForId(userId string) string {
-	return channelSubscribersCountCacheKey + userId
+func buildChannelSubscribersCountCacheKeyForId(twitchPlatformID string) string {
+	return channelSubscribersCountCacheKey + twitchPlatformID
 }
 
 func (c *CachedTwitchClient) GetChannelSubscribersCountByChannelId(
 	ctx context.Context,
-	channelId string,
+	twitchUserID string,
+	twitchPlatformID string,
 ) (
 	int,
 	error,
 ) {
-	if channelId == "" {
+	if twitchUserID == "" || twitchPlatformID == "" {
 		return 0, nil
 	}
 
@@ -33,24 +34,25 @@ func (c *CachedTwitchClient) GetChannelSubscribersCountByChannelId(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("channelId", channelId),
+		attribute.String("twitchUserID", twitchUserID),
+		attribute.String("twitchPlatformID", twitchPlatformID),
 	)
 
 	if subscribers, err := c.redis.Get(
 		ctx,
-		buildChannelSubscribersCountCacheKeyForId(channelId),
+		buildChannelSubscribersCountCacheKeyForId(twitchPlatformID),
 	).Int(); err == nil {
 		return subscribers, nil
 	}
 
-	twitchClient, err := twitch.NewUserClient(channelId, c.config, c.twirBus)
+	twitchClient, err := twitch.NewUserClient(twitchUserID, c.config, c.twirBus)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create twitch client: %w", err)
 	}
 
 	subscribersReq, err := twitchClient.GetSubscriptions(
 		&helix.SubscriptionsParams{
-			BroadcasterID: channelId,
+			BroadcasterID: twitchPlatformID,
 		},
 	)
 	if err != nil {
@@ -62,7 +64,7 @@ func (c *CachedTwitchClient) GetChannelSubscribersCountByChannelId(
 
 	if err := c.redis.Set(
 		ctx,
-		buildChannelSubscribersCountCacheKeyForId(channelId),
+		buildChannelSubscribersCountCacheKeyForId(twitchPlatformID),
 		subscribersReq.Data.Total,
 		channelSubscribersCountCacheDuration,
 	).Err(); err != nil {

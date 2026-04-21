@@ -61,7 +61,7 @@ var SrCommand = &types.DefaultCommand{
 
 		moduleSettings := &model.ChannelSongRequestsSettings{}
 		err := parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channel_id" = ?`, parseCtx.Channel.ID).
+			Where(`"channel_id" = ?::uuid`, parseCtx.Channel.ID).
 			First(moduleSettings).Error
 
 		if err != nil {
@@ -111,7 +111,7 @@ var SrCommand = &types.DefaultCommand{
 		latestSong := &model.RequestedSong{}
 
 		err = parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ? AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
 			Order(`"createdAt" desc`).
 			Find(&latestSong).Error
 		if err != nil {
@@ -126,7 +126,7 @@ var SrCommand = &types.DefaultCommand{
 
 		var currentQueueCount int64
 		err = parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ? AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
 			Model(&model.RequestedSong{}).
 			Count(&currentQueueCount).
 			Error
@@ -219,7 +219,7 @@ func validate(
 ) error {
 	alreadyRequestedSong := &model.RequestedSong{}
 	services.Gorm.WithContext(ctx).Where(
-		`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`,
+		`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?::uuid`,
 		song.Id,
 		channelId,
 	).
@@ -309,7 +309,7 @@ func validate(
 	if settings.MaxRequests != 0 {
 		var count int64
 		services.Gorm.WithContext(ctx).Model(&model.RequestedSong{}).
-			Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelId).
+			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, channelId).
 			Count(&count)
 		if count >= int64(settings.MaxRequests) {
 			message := fasttemplate.ExecuteString(
@@ -372,7 +372,7 @@ func validate(
 		var count int64
 		services.Gorm.WithContext(ctx).
 			Model(&model.RequestedSong{}).
-			Where(`"orderedById" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, userId, channelId).
+			Where(`"orderedById" = ? AND "channelId" = ?::uuid AND "deletedAt" IS NULL`, userId, channelId).
 			Count(&count)
 		if count >= int64(settings.UserMaxRequests) {
 			message := fasttemplate.ExecuteString(
@@ -389,7 +389,7 @@ func validate(
 
 	if settings.UserMinMessages != 0 || settings.UserMinWatchTime != 0 {
 		user := &model.Users{}
-		services.Gorm.WithContext(ctx).Where("id = ?", userId).Preload("Stats").First(&user)
+		services.Gorm.WithContext(ctx).Where("id = ?::uuid", userId).Preload("Stats").First(&user)
 		if user.ID == "" {
 			return errors.New(
 				i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Validate.Errors.RestrictionsOnUser),

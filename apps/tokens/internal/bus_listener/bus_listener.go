@@ -294,7 +294,7 @@ func (c *tokensImpl) RequestUserToken(
 		c.log.Info(
 			"user token refreshed",
 			slog.String("user_id", data.UserId),
-			slog.String("platform", user.Platform),
+			slog.String("platform", string(user.Platform)),
 			slog.Int("expires_in", token.ExpiresIn),
 		)
 	}

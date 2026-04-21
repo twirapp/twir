@@ -18,6 +18,11 @@ type userStats struct {
 	Value       int
 }
 
+type userStatsPlatform struct {
+	model.UsersStats
+	PlatformID string `db:"platform_id"`
+}
+
 func getTop(
 	ctx context.Context,
 	parseCtx *types.VariableParseContext,
@@ -57,22 +62,35 @@ func getTop(
 		return nil, false
 	}
 
-	query, args, err := squirrel.
-		Select("users_stats.*").
+	qb := squirrel.
+		Select(`"users_stats".*`, `"users"."platform_id"`).
 		From("users_stats").
+		Join(`users ON users.id = "users_stats"."userId"`).
 		Where(
 			squirrel.And{
-				squirrel.Eq{`"channelId"`: parseCtx.Channel.ID},
-				squirrel.NotEq{`"userId"`: channel.BotID},
-				squirrel.NotEq{`"userId"`: parseCtx.Channel.ID},
-				squirrel.Gt{"messages": 0},
+				squirrel.Eq{`"users_stats"."channelId"`: parseCtx.Channel.ID},
+				squirrel.Gt{`"users_stats"."messages"`: 0},
 			},
 		).
-		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
-		Where(`NOT EXISTS (select 1 from bots where "id" = "users_stats"."userId")`).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform_id = ui.id WHERE u.id = "users_stats"."userId")`).
+		Where(`NOT EXISTS (SELECT 1 FROM bots b JOIN users u ON u.platform_id = b.id AND u.platform = 'twitch' WHERE u.id = "users_stats"."userId")`)
+
+	if channel.BotID != "" {
+		qb = qb.Where(
+			squirrel.Expr(
+				`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+				channel.BotID,
+			),
+		)
+	}
+	if channel.TwitchUserID != nil {
+		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: *channel.TwitchUserID})
+	}
+
+	query, args, err := qb.
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).
-		OrderBy(fmt.Sprintf(`"%s" DESC`, topType)).
+		OrderBy(fmt.Sprintf(`"users_stats"."%s" DESC`, topType)).
 		ToSql()
 	query = parseCtx.Services.Sqlx.Rebind(query)
 
@@ -81,7 +99,7 @@ func getTop(
 		return nil, false
 	}
 
-	records := []model.UsersStats{}
+	records := []userStatsPlatform{}
 
 	err = parseCtx.Services.Sqlx.Select(&records, query, args...)
 	if err != nil {
@@ -90,8 +108,8 @@ func getTop(
 	}
 
 	ids := lo.Map(
-		records, func(record model.UsersStats, _ int) string {
-			return record.UserID
+		records, func(record userStatsPlatform, _ int) string {
+			return record.PlatformID
 		},
 	)
 
@@ -109,7 +127,7 @@ func getTop(
 	for _, record := range records {
 		twitchUser, ok := lo.Find(
 			twitchUsers.Data.Users, func(user helix.User) bool {
-				return user.ID == record.UserID
+				return user.ID == record.PlatformID
 			},
 		)
 

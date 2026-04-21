@@ -65,11 +65,11 @@ func (c *Activity) setWorkflowExecutionState(
 	return nil
 }
 
-func (c *Activity) getHelixChannelApiClient(ctx context.Context, channelId string) (
+func (c *Activity) getHelixChannelApiClient(ctx context.Context, twitchUserID string) (
 	*helix.Client,
 	error,
 ) {
-	return twitch.NewUserClientWithContext(ctx, channelId, c.cfg, c.bus)
+	return twitch.NewUserClientWithContext(ctx, twitchUserID, c.cfg, c.bus)
 }
 
 func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
@@ -80,7 +80,7 @@ func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
 }
 
 // should be used with broadcaster channel client, otherwise it will return error
-func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
+func (c *Activity) getChannelMods(client *helix.Client, twitchPlatformID string) (
 	[]helix.Moderator,
 	error,
 ) {
@@ -90,7 +90,7 @@ func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
 	for {
 		modsReq, err := client.GetModerators(
 			&helix.GetModeratorsParams{
-				BroadcasterID: channelId,
+				BroadcasterID: twitchPlatformID,
 				After:         cursor,
 			},
 		)
@@ -113,7 +113,7 @@ func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
 	return moderators, nil
 }
 
-func (c *Activity) getChannelVips(client *helix.Client, channelId string) (
+func (c *Activity) getChannelVips(client *helix.Client, twitchPlatformID string) (
 	[]helix.ChannelVips,
 	error,
 ) {
@@ -123,7 +123,7 @@ func (c *Activity) getChannelVips(client *helix.Client, channelId string) (
 	for {
 		vipsReq, err := client.GetChannelVips(
 			&helix.GetChannelVipsParams{
-				BroadcasterID: channelId,
+				BroadcasterID: twitchPlatformID,
 				After:         cursor,
 			},
 		)
@@ -184,12 +184,18 @@ func (c *Activity) getChannelRuntimeInfoByChannelUUID(
 
 	var broadcasterUserID string
 	if channel.TwitchUserID != nil {
-		broadcasterUserID = channel.TwitchUserID.String()
+		broadcasterUserID = *channel.TwitchPlatformID
+	}
+
+	var twitchPlatformID string
+	if channel.TwitchPlatformID != nil {
+		twitchPlatformID = *channel.TwitchPlatformID
 	}
 
 	return channelRuntimeInfo{
 		ChannelID:         channel.ID.String(),
 		BroadcasterUserID: broadcasterUserID,
+		TwitchPlatformID:  twitchPlatformID,
 		BotID:             channel.BotID,
 	}, nil
 }
@@ -223,7 +229,8 @@ func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
 
 	return channelRuntimeInfo{
 		ChannelID:         channel.ID.String(),
-		BroadcasterUserID: twitchBroadcasterID,
+		BroadcasterUserID: user.ID,
+		TwitchPlatformID:  twitchBroadcasterID,
 		BotID:             channel.BotID,
 	}, nil
 }

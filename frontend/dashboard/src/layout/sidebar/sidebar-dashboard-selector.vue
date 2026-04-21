@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/sidebar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import KickIcon from '@/components/kick-icon.vue'
 
 const { t } = useI18n()
 const { open: sidebarOpen } = useSidebar()
@@ -114,7 +115,7 @@ const {
 						<span class="truncate font-semibold">{{ getDashboardName(currentDashboard) }}</span>
 						<span class="truncate text-xs flex items-center gap-1">
 							{{ t(`dashboard.header.managingUser`) }}
-							<Badge v-if="currentDashboard.platform === 'kick'" variant="outline" class="uppercase text-[10px] px-1 py-0 h-4">K</Badge>
+							<KickIcon v-if="currentDashboard.platform === 'kick'" class="text-[#53FC18]" />
 							<Badge v-else variant="outline" class="uppercase text-[10px] px-1 py-0 h-4">T</Badge>
 						</span>
 					</div>
@@ -149,11 +150,10 @@ const {
 									</AvatarFallback>
 								</Avatar>
 								<span class="truncate">{{ getDashboardLogin(option.data) }}</span>
-								<Badge
+								<KickIcon
 									v-if="option.data.platform === 'kick'"
-									variant="outline"
-									class="uppercase text-[10px] px-1 py-0 h-4 ml-auto"
-								>K</Badge>
+									class="text-[#53FC18] ml-auto"
+								/>
 								<Badge
 									v-else
 									variant="outline"

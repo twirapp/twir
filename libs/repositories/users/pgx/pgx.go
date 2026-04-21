@@ -205,7 +205,7 @@ func (c *Pgx) GetOnlineUsersWithFilters(
 		From("users_online").
 		LeftJoin(`users_stats ON users_stats."userId" = "users_online"."userId" AND users_stats."channelId" = "users_online"."channelId"`).
 		Where(squirrel.Eq{`"users_online"."channelId"`: input.ChannelID}).
-		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_online"."userId")`)
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform_id = ui.id WHERE u.id = "users_online"."userId")`)
 
 	// Apply filters
 	if input.MinWatchedTime != nil {
@@ -320,7 +320,7 @@ func (c *Pgx) GetRandomOnlineUser(
 	).
 		From("users_online").
 		Where(squirrel.Eq{`"users_online"."channelId"`: input.ChannelID}).
-		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_online"."userId")`).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform_id = ui.id WHERE u.id = "users_online"."userId")`).
 		Limit(1).
 		Offset(uint64(randCount))
 

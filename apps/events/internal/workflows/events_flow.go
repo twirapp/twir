@@ -64,6 +64,8 @@ func (c *EventWorkflow) Flow(
 		return errors.New("channel not found")
 	}
 
+	data.ChannelDBID = channel.ID.String()
+
 	var operations []model.EventOperation
 
 	for _, entity := range channelEvents {
@@ -138,6 +140,11 @@ func (c *EventWorkflow) Flow(
 
 	// populate event type into data so activities can reference it
 	data.EventType = string(eventType)
+
+	// populate channel twitch user ID (internal UUID) for token lookups
+	if channel.TwitchUserID != nil {
+		data.ChannelTwitchUserID = *channel.TwitchPlatformID
+	}
 
 	// execute event operations
 	for _, operation := range operations {
@@ -412,8 +419,8 @@ func (c *EventWorkflow) filtersOk(
 	data shared.EventData,
 ) bool {
 	for _, filter := range filters {
-		hydratedRight, _ := c.hydrator.HydrateStringWithData(channelId, filter.Right, data)
-		hydratedLeft, _ := c.hydrator.HydrateStringWithData(channelId, filter.Left, data)
+		hydratedRight, _ := c.hydrator.HydrateStringWithData(channelId, data.ChannelTwitchUserID, data.ChannelDBID, filter.Right, data)
+		hydratedLeft, _ := c.hydrator.HydrateStringWithData(channelId, data.ChannelTwitchUserID, data.ChannelDBID, filter.Left, data)
 
 		numericRight, _ := strconv.Atoi(hydratedRight)
 		numericLeft, _ := strconv.Atoi(hydratedLeft)

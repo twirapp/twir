@@ -46,7 +46,7 @@ func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model
 
 	query, args, err := sq.Select(SelectColumns...).
 		From("channels_commands").
-		Where(squirrel.Eq{`"channelId"`: channelID}).
+		Where(squirrel.Expr(`"channelId" = ?::uuid`, channelID)).
 		ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("GetManyByChannelID: failed to build select query: %w", err)

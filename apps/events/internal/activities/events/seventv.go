@@ -28,6 +28,8 @@ func (c *Activity) SevenTvEmoteManage(
 
 	hydratedString, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)

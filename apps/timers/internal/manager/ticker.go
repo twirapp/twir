@@ -164,8 +164,20 @@ func (c *Manager) tryTick(id TimerID) {
 		}
 	}
 
+	var twitchUserID string
+	if channel.TwitchUserID != nil {
+		twitchUserID = *channel.TwitchPlatformID
+	}
+
+	var twitchPlatformID string
+	if channel.TwitchPlatformID != nil {
+		twitchPlatformID = *channel.TwitchPlatformID
+	}
+
 	err = c.sendMessage(
 		ctx,
+		twitchPlatformID,
+		twitchUserID,
 		channel.ID.String(),
 		response.Text,
 		response.IsAnnounce,

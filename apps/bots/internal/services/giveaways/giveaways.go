@@ -17,6 +17,8 @@ import (
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/channels"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
@@ -35,6 +37,7 @@ type Opts struct {
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	UsersRepository                 users.Repository
 	UsersStatsRepository            usersstats.Repository
+	ChannelsRepository              channels.Repository
 	TwitchCache                     *twitchcache.CachedTwitchClient
 	Logger                          *slog.Logger
 	Redis                           *redis.Client
@@ -49,6 +52,7 @@ func New(opts Opts) *Service {
 		giveawaysCacher:                 opts.GiveawaysCacher,
 		usersRepository:                 opts.UsersRepository,
 		usersStatsRepository:            opts.UsersStatsRepository,
+		channelsRepository:              opts.ChannelsRepository,
 		twitchCache:                     opts.TwitchCache,
 		logger:                          opts.Logger,
 		redis:                           opts.Redis,
@@ -81,6 +85,7 @@ type Service struct {
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	usersRepository                 users.Repository
 	usersStatsRepository            usersstats.Repository
+	channelsRepository              channels.Repository
 	twitchCache                     *twitchcache.CachedTwitchClient
 	logger                          *slog.Logger
 	redis                           *redis.Client
@@ -143,7 +148,19 @@ func (c *Service) TryAddParticipant(
 
 		// Check follow duration if required
 		if giveaway.MinFollowDuration != nil {
-			followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, userID, giveaway.ChannelID)
+			parsedChannelID, parseErr := uuid.Parse(giveaway.ChannelID)
+			if parseErr != nil {
+				return parseErr
+			}
+			ch, chErr := c.channelsRepository.GetByID(ctx, parsedChannelID)
+			if chErr != nil {
+				c.logger.Error("cannot get channel for follow duration check", logger.Error(chErr))
+				return nil
+			}
+			if ch.TwitchUserID == nil || ch.TwitchPlatformID == nil {
+				return nil
+			}
+			followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, ch.TwitchUserID.String(), userID, *ch.TwitchPlatformID)
 			if err != nil {
 				c.logger.Error("cannot get user follow duration", logger.Error(err))
 				return nil
@@ -238,13 +255,38 @@ func (c *Service) chooseWinner(
 			return giveawaysbusmodel.ChooseWinnerResponse{}, err
 		}
 
+		// Resolve channel for follow duration checks (once, outside the loop)
+		var channelForFollowCheck *channelmodel.Channel
+		if giveaway.MinFollowDuration != nil {
+			parsedChannelID, parseErr := uuid.Parse(giveaway.ChannelID)
+			if parseErr != nil {
+				return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("cannot parse channel id: %w", parseErr)
+			}
+			ch, chErr := c.channelsRepository.GetByID(ctx, parsedChannelID)
+			if chErr != nil {
+				return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("cannot get channel: %w", chErr)
+			}
+			if ch.TwitchUserID != nil && ch.TwitchPlatformID != nil {
+				channelForFollowCheck = &ch
+			}
+		}
+
 		// Filter by follow duration if required
 		for _, user := range onlineUsers {
 			if giveaway.MinFollowDuration != nil {
+				if channelForFollowCheck == nil {
+					continue
+				}
+				userModel, userErr := c.usersRepository.GetByID(ctx, user.UserID)
+				if userErr != nil {
+					c.logger.Error("cannot get user for follow duration check", logger.Error(userErr))
+					continue
+				}
 				followDuration, err := c.twitchCache.GetUserFollowDuration(
 					ctx,
-					user.UserID,
-					giveaway.ChannelID,
+					channelForFollowCheck.TwitchUserID.String(),
+					userModel.PlatformID,
+					*channelForFollowCheck.TwitchPlatformID,
 				)
 				if err != nil {
 					c.logger.Error("cannot get user follow duration", logger.Error(err))

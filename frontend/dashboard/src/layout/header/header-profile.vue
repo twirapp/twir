@@ -31,6 +31,7 @@ import {
 import { useTheme } from '@/composables/use-theme.ts'
 import { AVAILABLE_LOCALES } from '@/plugins/i18n.ts'
 import { Button } from '@/components/ui/button'
+import KickIcon from '@/components/kick-icon.vue'
 import type { DropdownMenuContentProps } from 'reka-ui'
 
 const { t, locale } = useI18n()
@@ -64,6 +65,10 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 					</AvatarFallback>
 				</Avatar>
 				<span class="truncate font-semibold">{{ profileData.displayName }}</span>
+				<KickIcon
+					v-if="profileData.currentPlatform === 'KICK'"
+					class="text-[#53FC18] size-4"
+				/>
 				<ChevronsUpDown class="ml-auto size-4" />
 			</Button>
 		</DropdownMenuTrigger>

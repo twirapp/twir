@@ -36,13 +36,14 @@ var EventTypes = []string{
 }
 
 type SubscriptionManager struct {
-	config       cfg.Config
-	redis        *goredis.Client
-	httpClient   *http.Client
-	logger       *slog.Logger
-	apiBaseURL   string
-	kickBotsRepo kickbotsrepository.Repository
-	usersRepo    usersrepository.Repository
+	config          cfg.Config
+	redis           *goredis.Client
+	httpClient      *http.Client
+	logger          *slog.Logger
+	apiBaseURL      string
+	kickBotsRepo    kickbotsrepository.Repository
+	usersRepo       usersrepository.Repository
+	callbackBaseURL string
 }
 
 type Opts struct {
@@ -98,14 +99,27 @@ type SubscriptionInfo struct {
 	CreatedAt         string
 }
 
+func (m *SubscriptionManager) Name() string {
+	return "kick"
+}
+
+func (m *SubscriptionManager) SetCallbackBaseURL(baseURL string) {
+	m.callbackBaseURL = baseURL
+}
+
 func redisKey(kickChannelID, eventType string) string {
 	return redisKeyPrefix + kickChannelID + ":" + eventType
 }
 
 func (m *SubscriptionManager) getWebhookCallbackURL() string {
-	u, err := url.Parse(m.config.SiteBaseUrl)
+	baseURL := m.callbackBaseURL
+	if baseURL == "" {
+		baseURL = m.config.SiteBaseUrl
+	}
+
+	u, err := url.Parse(baseURL)
 	if err != nil {
-		return m.config.SiteBaseUrl + "/webhook/kick"
+		return baseURL + "/webhook/kick"
 	}
 	return u.JoinPath("webhook", "kick").String()
 }

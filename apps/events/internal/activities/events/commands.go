@@ -25,6 +25,8 @@ func (c *Activity) CommandAllowOrRemoveUserPermission(
 
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -97,6 +99,8 @@ func (c *Activity) CommandDenyOrRemoveUserPermission(
 
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)

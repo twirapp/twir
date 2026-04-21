@@ -78,5 +78,6 @@ type Activity struct {
 type channelRuntimeInfo struct {
 	ChannelID         string
 	BroadcasterUserID string
+	TwitchPlatformID  string
 	BotID             string
 }

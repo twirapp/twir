@@ -7,7 +7,6 @@ import (
 
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -43,25 +42,28 @@ func NewWatched(opts WatchedOpts) {
 							ticker.Stop()
 							return
 						case <-ticker.C:
-							var streams []model.ChannelsStreams
-							if err := opts.Gorm.WithContext(ctx).Select(`"userId"`).Find(&streams).Error; err != nil {
-								opts.Logger.Error("cannot get streams", logger.Error(err))
+							var channelIDs []struct {
+								ID string `gorm:"column:id"`
+							}
+							if err := opts.Gorm.WithContext(ctx).Raw(`
+								SELECT DISTINCT c.id
+								FROM channels_streams cs
+								JOIN users u ON u.platform_id = cs."userId" AND u.platform = 'twitch'
+								JOIN channels c ON c.twitch_user_id = u.id
+							`).Scan(&channelIDs).Error; err != nil {
+								opts.Logger.Error("cannot get stream channel IDs", logger.Error(err))
 								continue
 							}
 
-							for _, s := range streams {
-								err := opts.Gorm.WithContext(ctx).Model(&model.UsersStats{}).
-									WithContext(ctx).
-									Where(
-										`"channelId" = ? AND "userId" IN (?)`,
-										s.UserId,
-										opts.Gorm.Table("users_online").Where(
-											`"channelId" = ?`,
-											s.UserId,
-										).Select(`"userId"`),
-									).
-									Update("watched", gorm.Expr("watched + ?", timeTick.Milliseconds())).Error
-								if err != nil {
+							for _, ch := range channelIDs {
+								if err := opts.Gorm.WithContext(ctx).Exec(`
+									UPDATE users_stats
+									SET watched = watched + $1
+									WHERE "channelId" = $2::uuid
+									  AND "userId" IN (
+									      SELECT "userId" FROM users_online WHERE "channelId" = $2::uuid
+									  )
+								`, timeTick.Milliseconds(), ch.ID).Error; err != nil {
 									opts.Logger.Error("cannot update watched", logger.Error(err))
 								}
 							}

@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"gorm.io/gorm"
@@ -34,6 +35,10 @@ func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlm
 			return nil, nil
 		}
 		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	if user.Platform != platformentity.PlatformTwitch {
+		return nil, nil
 	}
 
 	return data_loader.GetHelixUserById(ctx, user.PlatformID)
@@ -80,7 +85,7 @@ func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gql
 
 	return []gqlmodel.LinkedAccount{
 		{
-			Platform:       "twitch",
+			Platform:       string(platformentity.PlatformTwitch),
 			PlatformUserID: user.PlatformID,
 		},
 	}, nil
@@ -111,7 +116,7 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 		return nil, nil
 	}
 
-	user, err := r.deps.UsersRepository.GetByID(ctx, channel.TwitchUserID.String())
+	user, err := r.deps.UsersRepository.GetByID(ctx, *channel.TwitchPlatformID)
 	if err != nil {
 		if err == usersmodel.ErrNotFound {
 			return nil, nil

@@ -114,7 +114,7 @@ func (c *cacher) GetEnabledChannelIntegrations(ctx context.Context) []*model.Cha
 	}
 
 	var result []*model.ChannelsIntegrations
-	err = c.services.Gorm.Where(`"channelId" = ? AND enabled = ?`, dbChannel.ChannelID, true).
+	err = c.services.Gorm.Where(`"channelId" = ?::uuid AND enabled = ?`, dbChannel.ChannelID, true).
 		WithContext(ctx).
 		Preload("Integration").
 		Find(&result).

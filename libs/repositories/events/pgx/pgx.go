@@ -87,7 +87,7 @@ SELECT
         '[]'::json
     ) as operations
 FROM channels_events e
-WHERE e."channelId" = $1
+WHERE e."channelId" = $1::uuid
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)

@@ -46,7 +46,7 @@ var ShoutOut = &types.DefaultCommand{
 		token, err := parseCtx.Services.Bus.Tokens.RequestUserToken.Request(
 			ctx,
 			tokens.GetUserTokenRequest{
-				UserId: parseCtx.Channel.ID,
+				UserId: parseCtx.Channel.TwitchUserID,
 			},
 		)
 		if err != nil {
@@ -78,7 +78,7 @@ var ShoutOut = &types.DefaultCommand{
 
 		twitchClient, err := twitch.NewUserClientWithContext(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)

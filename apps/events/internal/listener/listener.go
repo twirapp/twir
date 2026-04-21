@@ -16,12 +16,14 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/utils"
 	"go.uber.org/fx"
@@ -44,6 +46,7 @@ type Opts struct {
 	SongRequest            *song_request.SongRequest
 	TwirBus                *buscore.Bus
 	ChannelsEventsListRepo channelseventslist.Repository
+	UsersRepo              usersrepository.Repository
 }
 
 func New(opts Opts) error {
@@ -58,6 +61,7 @@ func New(opts Opts) error {
 		songsRequest:           opts.SongRequest,
 		twirBus:                opts.TwirBus,
 		channelsEventsListRepo: opts.ChannelsEventsListRepo,
+		usersRepo:              opts.UsersRepo,
 	}
 
 	opts.Lc.Append(
@@ -284,6 +288,7 @@ type EventsGrpcImplementation struct {
 	songsRequest           *song_request.SongRequest
 	twirBus                *buscore.Bus
 	channelsEventsListRepo channelseventslist.Repository
+	usersRepo              usersrepository.Repository
 }
 
 func (c *EventsGrpcImplementation) Follow(
@@ -320,9 +325,15 @@ func (c *EventsGrpcImplementation) Follow(
 				streamFollowersCount = count
 			}
 
+			user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, msg.BaseInfo.ChannelID)
+			if err != nil {
+				c.logger.Error("Error get user by platform ID", logger.Error(err))
+				return
+			}
+
 			twitchClient, err := twitchlib.NewUserClientWithContext(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				user.ID,
 				c.cfg,
 				c.twirBus,
 			)
@@ -346,6 +357,7 @@ func (c *EventsGrpcImplementation) Follow(
 				model.EventTypeFollow,
 				shared.EventData{
 					ChannelID:              msg.BaseInfo.ChannelID,
+					ChannelTwitchUserID:    user.ID,
 					UserName:               msg.UserName,
 					UserDisplayName:        msg.UserDisplayName,
 					UserID:                 msg.UserID,

@@ -33,7 +33,7 @@ type Hydrator struct {
 	twirBus *bus_core.Bus
 }
 
-func (c *Hydrator) HydrateStringWithData(channelId string, str string, data any) (string, error) {
+func (c *Hydrator) HydrateStringWithData(channelId, channelTwitchUserID, channelDBID, str string, data any) (string, error) {
 	template := fasttemplate.New(str, "{", "}")
 
 	bytes, err := json.Marshal(data)
@@ -94,12 +94,14 @@ func (c *Hydrator) HydrateStringWithData(channelId string, str string, data any)
 
 	resp, _ := c.twirBus.Parser.ParseVariablesInText.Request(
 		context.Background(), parser.ParseVariablesInTextRequest{
-			ChannelID:   channelId,
-			ChannelName: "",
-			Text:        s,
-			UserID:      userId,
-			UserLogin:   userName,
-			UserName:    userLogin,
+			ChannelID:           channelId,
+			ChannelName:         "",
+			ChannelTwitchUserID: channelTwitchUserID,
+			ChannelDBID:         channelDBID,
+			Text:                s,
+			UserID:              userId,
+			UserLogin:           userName,
+			UserName:            userLogin,
 		},
 	)
 

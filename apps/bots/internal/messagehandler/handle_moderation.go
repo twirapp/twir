@@ -57,7 +57,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg twitch.Twitch
 		return nil
 	}
 
-	settings, err := c.getChannelModerationSettings(ctx, msg.BroadcasterUserId)
+	settings, err := c.getChannelModerationSettings(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return fmt.Errorf("cannot get moderation settings: %w", err)
 	}
@@ -170,8 +170,8 @@ func (c *MessageHandler) moderationHandleResult(
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 ) *moderationHandleResult {
 	var channelRoles []model.ChannelRole
-	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?`, msg.ChatterUserId).Where(
-		`"channelId" = ?`,
+	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?::uuid`, msg.EnrichedData.DbUser.ID).Where(
+		`"channelId" = ?::uuid`,
 		settings.ChannelID,
 	).
 		Find(&channelRoles).
@@ -269,9 +269,9 @@ func (c *MessageHandler) moderationLinksParser(
 
 	permit := model.ChannelsPermits{}
 	err := c.gorm.WithContext(ctx).Where(
-		`"channelId" = ? AND "userId" = ?`,
+		`"channelId" = ?::uuid AND "userId" = ?::uuid`,
 		settings.ChannelID,
-		msg.ChatterUserId,
+		msg.EnrichedData.DbUser.ID,
 	).
 		Find(&permit).
 		Error

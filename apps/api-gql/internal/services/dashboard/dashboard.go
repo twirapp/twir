@@ -79,22 +79,6 @@ type Service struct {
 	kickBotsRepo            kickbotsrepository.Repository
 }
 
-// getChannelTwitchPlatformID returns the Twitch platform_id (e.g. "12345678") for a channel
-// by looking up the user linked as twitch_user_id.
-// Returns "" if the channel has no TwitchUserID set.
-func (c *Service) getChannelTwitchPlatformID(ctx context.Context, channel channelmodel.Channel) (string, error) {
-	if channel.TwitchUserID == nil {
-		return "", nil
-	}
-
-	user, err := c.usersRepo.GetByID(ctx, channel.TwitchUserID.String())
-	if err != nil {
-		return "", fmt.Errorf("get user for twitch platform id: %w", err)
-	}
-
-	return user.PlatformID, nil
-}
-
 func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	*entity.DashboardStats,
 	error,
@@ -112,11 +96,6 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return nil, fmt.Errorf("channel not found")
 	}
 
-	twitchChannelID, err := c.getChannelTwitchPlatformID(ctx, channel)
-	if err != nil {
-		return nil, fmt.Errorf("get channel twitch id: %w", err)
-	}
-
 	stream, err := c.streamsRepository.GetByChannelID(
 		ctx,
 		channelID,
@@ -127,7 +106,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 
 	result := entity.DashboardStats{}
 
-	if twitchChannelID == "" {
+	if !channel.TwitchConnected() {
 		if !stream.IsNil() {
 			result.StreamViewers = &stream.ViewerCount
 			result.StreamCategoryID = stream.GameId
@@ -184,7 +163,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 
 	channelTwitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		twitchChannelID,
+		*channel.TwitchPlatformID,
 		c.config,
 		c.twirBus,
 	)
@@ -192,9 +171,11 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return nil, fmt.Errorf("cannot get channel twitch client: %w", err)
 	}
 
+	twitchPlatformID := *channel.TwitchPlatformID
+
 	if stream.IsNil() {
 		channelInformation, err := channelTwitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
-			BroadcasterIDs: []string{twitchChannelID},
+			BroadcasterIDs: []string{twitchPlatformID},
 		})
 		if err != nil {
 			return nil, fmt.Errorf("get channel information: %w", err)
@@ -221,7 +202,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	wg.Go(func() {
 		followers, err := channelTwitchClient.GetChannelFollows(
 			&helix.GetChannelFollowsParams{
-				BroadcasterID: twitchChannelID,
+				BroadcasterID: twitchPlatformID,
 			},
 		)
 		if err != nil {
@@ -239,7 +220,8 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	wg.Go(func() {
 		subs, err := c.cachedTwitchClient.GetChannelSubscribersCountByChannelId(
 			ctx,
-			twitchChannelID,
+			*channel.TwitchPlatformID,
+			twitchPlatformID,
 		)
 		if err != nil {
 			result.Subs = subs
@@ -250,7 +232,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		wg.Go(func() {
 			channelInformation, err := c.cachedTwitchClient.GetChannelInformationById(
 				ctx,
-				twitchChannelID,
+				twitchPlatformID,
 			)
 			if err != nil {
 				return
@@ -360,16 +342,13 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 		return result, nil
 	}
 
-	twitchChannelID, err := c.getChannelTwitchPlatformID(ctx, channel)
-	if err != nil {
-		return entity.BotStatus{}, err
-	}
-
-	if twitchChannelID == "" {
+	if !channel.TwitchConnected() {
 		return result, nil
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, twitchChannelID, c.config, c.twirBus)
+	twitchPlatformID := *channel.TwitchPlatformID
+
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, *channel.TwitchPlatformID, c.config, c.twirBus)
 	if err != nil {
 		return entity.BotStatus{}, err
 	}
@@ -378,14 +357,14 @@ func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.Bo
 
 	errgrp.Go(
 		func() error {
-			if twitchChannelID == channel.BotID {
+			if twitchPlatformID == channel.BotID {
 				result.IsMod = true
 				return nil
 			}
 
 			mods, err := twitchClient.GetModerators(
 				&helix.GetModeratorsParams{
-					BroadcasterID: twitchChannelID,
+					BroadcasterID: twitchPlatformID,
 					UserIDs:       []string{channel.BotID},
 				},
 			)
@@ -470,14 +449,11 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 		return true, nil
 	}
 
-	twitchChannelID, err := c.getChannelTwitchPlatformID(ctx, channel)
-	if err != nil {
-		return false, err
-	}
-
-	if twitchChannelID == "" {
+	if !channel.TwitchConnected() {
 		return false, fmt.Errorf("twitch channel id not found")
 	}
+
+	twitchPlatformID := *channel.TwitchPlatformID
 
 	if action == BotJoinLeaveActionJoin {
 		channel.IsEnabled = true
@@ -489,7 +465,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 	}
 
 	twitchUsers, err := twitchClient.GetUsers(
-		&helix.UsersParams{IDs: []string{twitchChannelID}},
+		&helix.UsersParams{IDs: []string{twitchPlatformID}},
 	)
 	if err != nil || twitchUsers.ErrorMessage != "" || len(twitchUsers.Data.Users) == 0 {
 		return false, fmt.Errorf("user not found on twitch")
@@ -504,7 +480,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 
 	broadcasterClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		twitchChannelID,
+		*channel.TwitchPlatformID,
 		c.config,
 		c.twirBus,
 	)
@@ -515,8 +491,8 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 	if action == BotJoinLeaveActionJoin {
 		unbanResp, err := broadcasterClient.UnbanUser(
 			&helix.UnbanUserParams{
-				BroadcasterID: twitchChannelID,
-				ModeratorID:   twitchChannelID,
+				BroadcasterID: twitchPlatformID,
+				ModeratorID:   twitchPlatformID,
 				UserID:        channel.BotID,
 			},
 		)
@@ -530,7 +506,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 
 		addModResp, err := broadcasterClient.AddChannelModerator(
 			&helix.AddChannelModeratorParams{
-				BroadcasterID: twitchChannelID,
+				BroadcasterID: twitchPlatformID,
 				UserID:        channel.BotID,
 			},
 		)

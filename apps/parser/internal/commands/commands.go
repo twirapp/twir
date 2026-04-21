@@ -287,9 +287,16 @@ func (c *Commands) ParseCommandResponses(
 		},
 	)
 
+	var twitchUserID string
+	if requestData.EnrichedData.DbChannel.TwitchUserID != nil {
+		twitchUserID = requestData.EnrichedData.DbChannel.TwitchUserID.String()
+	}
+
 	parseCtxChannel := &types.ParseContextChannel{
-		ID:   requestData.BroadcasterUserId,
-		Name: requestData.BroadcasterUserLogin,
+		ID:           requestData.BroadcasterUserId,
+		Name:         requestData.BroadcasterUserLogin,
+		TwitchUserID: twitchUserID,
+		DBChannelID:  requestData.EnrichedData.DbChannel.ID.String(),
 	}
 
 	parseCtxSender := &types.ParseContextSender{
@@ -521,7 +528,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		return nil, nil
 	}
 
-	cmds, err := c.GetChannelCommands(ctx, data.BroadcasterUserId)
+	cmds, err := c.GetChannelCommands(ctx, data.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return nil, err
 	}
@@ -547,7 +554,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				return nil, err
 			}
 
-			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+			if err := c.services.CommandsCache.Invalidate(ctx, data.EnrichedData.DbChannel.ID.String()); err != nil {
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
@@ -561,7 +568,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				return nil, err
 			}
 
-			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+			if err := c.services.CommandsCache.Invalidate(ctx, data.EnrichedData.DbChannel.ID.String()); err != nil {
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}

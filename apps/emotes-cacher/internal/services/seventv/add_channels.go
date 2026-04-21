@@ -138,7 +138,14 @@ func (c *Service) getChannelsWithEmotesSets(
 						return fmt.Errorf("failed to fetch channel %s: %w", channel, err)
 					}
 
-					platforms := channelModel.Platforms()
+					var platforms []platformentity.Platform
+					if channelModel.TwitchUserID != nil {
+						platforms = append(platforms, platformentity.PlatformTwitch)
+					}
+					if channelModel.KickUserID != nil {
+						platforms = append(platforms, platformentity.PlatformKick)
+					}
+
 					if len(platforms) == 0 {
 						return fmt.Errorf("channel %s has no connected platform", channel)
 					}

@@ -14,11 +14,18 @@ export const userProfileWithoutDashboards = createRequest(
 				hideOnLandingPage
 				botId
 				apiKey
+				currentPlatform
 				twitchProfile {
 					description
 					displayName
 					login
 					profileImageUrl
+				}
+				kickProfile {
+					id
+					slug
+					displayName
+					profilePicture
 				}
 			}
 		}
@@ -113,7 +120,7 @@ export const useAuth = defineStore('auth-store', () => {
 	async function loginWithKick() {
 		const api = useOapi()
 		try {
-			const res = await api.auth.authKickAuthorize({ query: { redirect_to: redirectTo.value } })
+			const res = await api.auth.authKickAuthorize({ redirect_to: redirectTo.value })
 			if (res.data && res.data.authorize_url) {
 				window.location.replace(res.data.authorize_url)
 			}

@@ -4,20 +4,21 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
 type SearchCategoriesInput struct {
-	Query   string
+	Query string
 }
 
 type GetCategoriesInput struct {
-	IDs    []string
+	IDs []string
 }
 
 type SetChannelInformationInput struct {
-	ChannelID     string
+	ChannelID  string
 	CategoryID *string
 	Title      *string
 }
@@ -87,9 +88,22 @@ func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInf
 		return fmt.Errorf("at least one of categoryID or title must be provided")
 	}
 
+	parsedID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := s.channelsRepository.GetByID(ctx, parsedID)
+	if err != nil {
+		return fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || !channel.TwitchConnected() {
+		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		input.ChannelID,
+		*channel.TwitchPlatformID,
 		s.config,
 		s.twirBus,
 	)
@@ -98,7 +112,7 @@ func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInf
 	}
 
 	params := &helix.EditChannelInformationParams{
-		BroadcasterID: input.ChannelID,
+		BroadcasterID: *channel.TwitchPlatformID,
 	}
 
 	if input.CategoryID != nil {

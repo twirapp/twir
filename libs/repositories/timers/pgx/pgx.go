@@ -163,7 +163,7 @@ ORDER BY t.id;
 }
 
 func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, error) {
-	query := `SELECT count(*) from "channels_timers" where "channelId" = $1`
+	query := `SELECT count(*) from "channels_timers" where "channelId" = $1::uuid`
 
 	var count int
 	err := c.pool.QueryRow(ctx, query, channelID).Scan(&count)
@@ -256,7 +256,7 @@ SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."onl
 			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
-WHERE t."channelId" = $1
+WHERE t."channelId" = $1::uuid
 ORDER BY t."id";
 `
 
@@ -433,7 +433,7 @@ func (c *Pgx) Count(ctx context.Context, input timers.CountInput) (int64, error)
 	qb := sq.Select("COUNT(*)").From("channels_timers")
 
 	if input.ChannelID != nil {
-		qb = qb.Where(squirrel.Eq{`"channelId"`: *input.ChannelID})
+		qb = qb.Where(squirrel.Expr(`"channelId" = ?::uuid`, *input.ChannelID))
 	}
 
 	if input.Enabled != nil {
@@ -484,7 +484,7 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]timerse
 		GroupBy("t.id")
 
 	if input.ChannelID != nil {
-		qb = qb.Where(squirrel.Eq{"t.channelId": *input.ChannelID})
+		qb = qb.Where(squirrel.Expr(`t."channelId" = ?::uuid`, *input.ChannelID))
 	}
 	if input.Enabled != nil {
 		qb = qb.Where(squirrel.Eq{"t.enabled": *input.Enabled})

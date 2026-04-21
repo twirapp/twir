@@ -36,7 +36,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg twitch.TwitchChatMes
 
 	ttsCommand := &model.ChannelsCommands{}
 	err = c.gorm.WithContext(ctx).
-		Where(`"channelId" = ?`, msg.BroadcasterUserId).
+		Where(`"channelId" = ?::uuid`, msg.EnrichedData.DbChannel.ID.String()).
 		Where(`"module" = ?`, "TTS").
 		Where(`"defaultName" = ?`, "tts").
 		Find(&ttsCommand).

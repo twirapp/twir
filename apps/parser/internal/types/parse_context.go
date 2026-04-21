@@ -24,8 +24,10 @@ type ParseContextSender struct {
 }
 
 type ParseContextChannel struct {
-	ID   string
-	Name string
+	ID           string // Platform-specific ID (e.g. Twitch numeric ID for Helix API)
+	Name         string
+	TwitchUserID string // Internal UUID for token lookup via NewUserClientWithContext
+	DBChannelID  string // Internal DB UUID (channels.id) for Postgres queries
 }
 
 type ParseContextEmotePosition struct {

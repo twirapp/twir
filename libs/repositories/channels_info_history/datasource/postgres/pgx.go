@@ -53,7 +53,7 @@ func (p *Pgx) GetMany(
 		`id`, `"channelId"`, `"createdAt"`, `title`, `category`,
 	).
 		From("channels_info_history").
-		Where(`"channelId" = ?`, input.ChannelID).
+		Where(`"channelId" = ?::uuid`, input.ChannelID).
 		Limit(uint64(limit))
 
 	if input.UniqueBy != nil {

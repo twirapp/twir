@@ -14,18 +14,19 @@ import (
 const channelFollowersCountCacheKey = "cache:twir:twitch:followersCount:"
 const channelFollowersCountCacheDuration = 10 * time.Minute
 
-func buildChannelFollowersCountCacheKeyForId(userId string) string {
-	return channelFollowersCountCacheKey + userId
+func buildChannelFollowersCountCacheKeyForId(twitchPlatformID string) string {
+	return channelFollowersCountCacheKey + twitchPlatformID
 }
 
 func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 	ctx context.Context,
-	channelId string,
+	twitchUserID string,
+	twitchPlatformID string,
 ) (
 	int,
 	error,
 ) {
-	if channelId == "" {
+	if twitchUserID == "" || twitchPlatformID == "" {
 		return 0, nil
 	}
 
@@ -33,24 +34,25 @@ func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("twitch.channelId", channelId),
+		attribute.String("twitch.twitchUserID", twitchUserID),
+		attribute.String("twitch.twitchPlatformID", twitchPlatformID),
 	)
 
 	if followers, err := c.redis.Get(
 		ctx,
-		buildChannelFollowersCountCacheKeyForId(channelId),
+		buildChannelFollowersCountCacheKeyForId(twitchPlatformID),
 	).Int(); err == nil {
 		return followers, nil
 	}
 
-	twitchClient, err := twitch.NewUserClient(channelId, c.config, c.twirBus)
+	twitchClient, err := twitch.NewUserClient(twitchUserID, c.config, c.twirBus)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create twitch client: %w", err)
 	}
 
 	followsReq, err := twitchClient.GetChannelFollows(
 		&helix.GetChannelFollowsParams{
-			BroadcasterID: channelId,
+			BroadcasterID: twitchPlatformID,
 		},
 	)
 	if err != nil {
@@ -62,7 +64,7 @@ func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 
 	if err := c.redis.Set(
 		ctx,
-		buildChannelFollowersCountCacheKeyForId(channelId),
+		buildChannelFollowersCountCacheKeyForId(twitchPlatformID),
 		followsReq.Data.Total,
 		channelFollowersCountCacheDuration,
 	).Err(); err != nil {
@@ -76,10 +78,11 @@ func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 // Returns nil if the user is not following the channel
 func (c *CachedTwitchClient) GetUserFollowDuration(
 	ctx context.Context,
-	userID string,
-	channelID string,
+	twitchUserID string,
+	followerPlatformID string,
+	channelPlatformID string,
 ) (*time.Duration, error) {
-	if userID == "" || channelID == "" {
+	if twitchUserID == "" || followerPlatformID == "" || channelPlatformID == "" {
 		return nil, nil
 	}
 
@@ -87,11 +90,12 @@ func (c *CachedTwitchClient) GetUserFollowDuration(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("twitch.userId", userID),
-		attribute.String("twitch.channelId", channelID),
+		attribute.String("twitch.twitchUserID", twitchUserID),
+		attribute.String("twitch.followerPlatformID", followerPlatformID),
+		attribute.String("twitch.channelPlatformID", channelPlatformID),
 	)
 
-	twitchClient, err := twitch.NewUserClient(channelID, c.config, c.twirBus)
+	twitchClient, err := twitch.NewUserClient(twitchUserID, c.config, c.twirBus)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create twitch client: %w", err)
 	}
@@ -99,8 +103,8 @@ func (c *CachedTwitchClient) GetUserFollowDuration(
 	// Use GetUsersFollows to check if a specific user is following
 	followsReq, err := twitchClient.GetUsersFollows(
 		&helix.UsersFollowsParams{
-			FromID: userID,
-			ToID:   channelID,
+			FromID: followerPlatformID,
+			ToID:   channelPlatformID,
 		},
 	)
 	if err != nil {

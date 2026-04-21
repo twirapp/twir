@@ -89,7 +89,7 @@ SELECT u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.
        uc.id, uc.twitch_user_id, uc.kick_user_id, uc."isBotMod", uc."isEnabled", uc."isTwitchBanned", uc."botId"
 FROM users u
 LEFT JOIN channels uc ON uc.twitch_user_id = u.id OR uc.kick_user_id = u.id
-WHERE u.id = $1
+WHERE u.id = $1::uuid
 GROUP BY u.id, uc.id
 LIMIT 1
 `
@@ -133,7 +133,15 @@ func (c *Pgx) GetManyByIDS(
 		OrderBy("u.id asc")
 
 	if len(input.IDs) > 0 {
-		selectQuery = selectQuery.Where(squirrel.Eq{"u.id": input.IDs})
+		uuids := make([]uuid.UUID, 0, len(input.IDs))
+		for _, id := range input.IDs {
+			if parsed, err := uuid.Parse(id); err == nil {
+				uuids = append(uuids, parsed)
+			}
+		}
+		if len(uuids) > 0 {
+			selectQuery = selectQuery.Where(squirrel.Eq{"u.id": uuids})
+		}
 	}
 
 	if len(input.HasBadgesIDS) > 0 {
@@ -199,7 +207,15 @@ func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetMany
 		From("users u")
 
 	if len(input.IDs) > 0 {
-		selectQuery = selectQuery.Where(squirrel.Eq{"u.id": input.IDs})
+		uuids := make([]uuid.UUID, 0, len(input.IDs))
+		for _, id := range input.IDs {
+			if parsed, err := uuid.Parse(id); err == nil {
+				uuids = append(uuids, parsed)
+			}
+		}
+		if len(uuids) > 0 {
+			selectQuery = selectQuery.Where(squirrel.Eq{"u.id": uuids})
+		}
 	}
 
 	if input.ChannelIsBotAdmin != nil || input.ChannelEnabled != nil {

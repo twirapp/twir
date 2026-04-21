@@ -22,6 +22,8 @@ func (c *Activity) ObsSetScene(
 	}
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -55,6 +57,8 @@ func (c *Activity) ObsToggleSource(
 	}
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Target,
 		data,
 	)
@@ -87,6 +91,8 @@ func (c *Activity) ObsToggleAudio(
 	}
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Target,
 		data,
 	)
@@ -118,7 +124,7 @@ func (c *Activity) ObsAudioChangeVolume(
 	if operation.Target == nil || *operation.Target == "" {
 		return errors.New("target is required for operation ObsAudioChangeVolume")
 	}
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Target, data)
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, data.ChannelTwitchUserID, data.ChannelDBID, *operation.Target, data)
 	if err != nil {
 		return err
 	}
@@ -161,7 +167,7 @@ func (c *Activity) ObsAudioSetVolume(
 	if operation.Target == nil || *operation.Target == "" {
 		return errors.New("target is required for operation ObsAudioSetVolume")
 	}
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Target, data)
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, data.ChannelTwitchUserID, data.ChannelDBID, *operation.Target, data)
 	if err != nil {
 		return err
 	}

@@ -21,10 +21,13 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
 		return nil
 	}
+	if channel.TwitchUserID == nil {
+		return fmt.Errorf("channel has no twitch user id for broadcaster %s", input.BroadcasterID)
+	}
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		input.BroadcasterID,
+		*channel.TwitchPlatformID,
 		c.config,
 		c.twirBus,
 	)

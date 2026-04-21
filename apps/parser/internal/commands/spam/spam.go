@@ -47,7 +47,7 @@ var Command = &types.DefaultCommand{
 		text := parseCtx.ArgsParser.Get(spamMessageArgName).String()
 
 		var commandsPrefix string
-		commandPrefixEntity, _ := parseCtx.Services.CommandsPrefixCache.Get(ctx, parseCtx.Channel.ID)
+		commandPrefixEntity, _ := parseCtx.Services.CommandsPrefixCache.Get(ctx, parseCtx.Channel.DBChannelID)
 		if commandPrefixEntity != channelscommandsprefixmodel.Nil {
 			commandsPrefix = commandPrefixEntity.Prefix
 		} else {
@@ -63,7 +63,7 @@ var Command = &types.DefaultCommand{
 			return result, nil
 		}
 
-		cmds, err := parseCtx.Services.CommandsCache.Get(ctx, parseCtx.Channel.ID)
+		cmds, err := parseCtx.Services.CommandsCache.Get(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil {
 			return nil, err
 		}

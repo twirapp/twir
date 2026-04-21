@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 	apperrors "github.com/twirapp/twir/libs/errors"
+	"github.com/twirapp/twir/libs/repositories/channels"
 	channels_overlays "github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
@@ -24,6 +25,7 @@ type Opts struct {
 	fx.In
 
 	OverlaysRepository channels_overlays.Repository
+	ChannelsRepository channels.Repository
 	PlansRepository    plans.Repository
 	AuditRecorder      audit.Recorder
 	Bus                *buscore.Bus
@@ -33,6 +35,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		overlaysRepository: opts.OverlaysRepository,
+		channelsRepository: opts.ChannelsRepository,
 		plansRepository:    opts.PlansRepository,
 		auditRecorder:      opts.AuditRecorder,
 		bus:                opts.Bus,
@@ -42,6 +45,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	overlaysRepository channels_overlays.Repository
+	channelsRepository channels.Repository
 	plansRepository    plans.Repository
 	auditRecorder      audit.Recorder
 	bus                *buscore.Bus
@@ -354,10 +358,31 @@ type ParseHtmlInput struct {
 }
 
 func (s *Service) ParseHtml(ctx context.Context, input ParseHtmlInput) (string, error) {
+	parsedChannelID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return "", fmt.Errorf("cannot parse channel id: %w", err)
+	}
+
+	channel, err := s.channelsRepository.GetByID(ctx, parsedChannelID)
+	if err != nil {
+		return "", fmt.Errorf("cannot get channel: %w", err)
+	}
+
+	var channelTwitchUserID string
+	if channel.TwitchUserID != nil {
+		channelTwitchUserID = *channel.TwitchPlatformID
+	}
+
+	var channelPlatformID string
+	if channel.TwitchPlatformID != nil {
+		channelPlatformID = *channel.TwitchPlatformID
+	}
+
 	res, err := s.bus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID: input.ChannelID,
-			Text:      input.Html,
+			ChannelID:           channelPlatformID,
+			ChannelTwitchUserID: channelTwitchUserID,
+			Text:                input.Html,
 		},
 	)
 	if err != nil {

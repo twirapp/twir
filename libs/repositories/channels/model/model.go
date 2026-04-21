@@ -6,13 +6,15 @@ import (
 )
 
 type Channel struct {
-	ID             uuid.UUID
-	TwitchUserID   *uuid.UUID
-	KickUserID     *uuid.UUID
-	IsEnabled      bool
-	IsTwitchBanned bool
-	IsBotMod       bool
-	BotID          string
+	ID               uuid.UUID
+	TwitchUserID     *uuid.UUID
+	TwitchPlatformID *string `db:"twitch_platform_id"`
+	KickUserID       *uuid.UUID
+	KickPlatformID   *string `db:"kick_platform_id"`
+	IsEnabled        bool
+	IsTwitchBanned   bool
+	IsBotMod         bool
+	BotID            string
 
 	isNil bool
 }
@@ -22,11 +24,11 @@ func (c Channel) IsNil() bool {
 }
 
 func (c Channel) TwitchConnected() bool {
-	return c.TwitchUserID != nil
+	return c.TwitchUserID != nil && c.TwitchPlatformID != nil
 }
 
 func (c Channel) KickConnected() bool {
-	return c.KickUserID != nil
+	return c.KickUserID != nil && c.KickPlatformID != nil
 }
 
 func (c Channel) Platforms() []platformentity.Platform {

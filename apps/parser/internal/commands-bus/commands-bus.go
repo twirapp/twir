@@ -128,8 +128,10 @@ func (c *CommandsBus) Subscribe() error {
 			}
 
 			channel := &types.ParseContextChannel{
-				ID:   data.ChannelID,
-				Name: data.ChannelName,
+				ID:           data.ChannelID,
+				Name:         data.ChannelName,
+				TwitchUserID: data.ChannelTwitchUserID,
+				DBChannelID:  data.ChannelDBID,
 			}
 			sender := &types.ParseContextSender{
 				ID:          data.UserID,

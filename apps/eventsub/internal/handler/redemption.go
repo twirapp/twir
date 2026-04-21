@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 	"slices"
@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
@@ -24,6 +25,8 @@ import (
 
 	"github.com/google/uuid"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type userForIncrementUsedEmotes struct {
@@ -208,8 +211,16 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 		return
 	}
 
+	chatUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.UserId)
+	if err != nil {
+		if !errors.Is(err, usersmodel.ErrNotFound) {
+			c.logger.Error(err.Error(), logger.Error(err))
+		}
+		return
+	}
+
 	userStats := &model.UsersStats{}
-	err := c.gorm.WithContext(ctx).Where(`"userId" = ?`, event.UserId).Find(userStats).Error
+	err = c.gorm.WithContext(ctx).Where(`"userId" = ?::uuid`, chatUser.ID).Find(userStats).Error
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 		return
@@ -230,37 +241,43 @@ func (c *Handler) countUserChannelPoints(
 	userId, channelId string,
 	count int,
 ) error {
+	chatUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, userId)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot resolve user: %w", err)
+	}
+
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, channelId)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
+	}
+
+	broadcasterUUID, err := uuid.Parse(broadcasterUser.ID)
+	if err != nil {
+		return fmt.Errorf("cannot parse broadcaster UUID: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUUID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot get channel: %w", err)
+	}
+
 	user := &model.Users{}
-	err := c.gorm.
+	err = c.gorm.
 		WithContext(ctx).
-		Where("id = ?", userId).
-		Preload("Stats", `"channelId" = ?`, channelId).
+		Where("id = ?::uuid", chatUser.ID).
+		Preload("Stats", `"channelId" = ?::uuid`, channel.ID.String()).
 		First(user).Error
 	if err != nil {
 		return err
-	}
-
-	if user.ID == "" {
-		user = &model.Users{
-			ID:         "",
-			TokenID:    sql.NullString{},
-			IsBotAdmin: false,
-			ApiKey:     uuid.New().String(),
-			Stats: &model.UsersStats{
-				ID:                uuid.New().String(),
-				UserID:            userId,
-				ChannelID:         channelId,
-				Messages:          0,
-				Watched:           0,
-				UsedChannelPoints: int64(count),
-				Emotes:            0,
-			},
-		}
-
-		err = c.gorm.Error
-		if err != nil {
-			return err
-		}
 	}
 
 	if user.Stats != nil {
@@ -272,8 +289,8 @@ func (c *Handler) countUserChannelPoints(
 	} else {
 		user.Stats = &model.UsersStats{
 			ID:                uuid.New().String(),
-			UserID:            userId,
-			ChannelID:         channelId,
+			UserID:            chatUser.ID,
+			ChannelID:         channel.ID.String(),
 			Messages:          0,
 			Watched:           0,
 			UsedChannelPoints: int64(count),

@@ -35,8 +35,8 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	} else {
 		var ownChannels []model.Channels
 		if err := r.deps.Gorm.WithContext(ctx).
-			Where("twitch_user_id = (SELECT id FROM users WHERE id = ? LIMIT 1)", obj.ID).
-			Or("kick_user_id = (SELECT id FROM users WHERE id = ? LIMIT 1)", obj.ID).
+			Where("twitch_user_id = (SELECT id FROM users WHERE id = ?::uuid LIMIT 1)", obj.ID).
+			Or("kick_user_id = (SELECT id FROM users WHERE id = ?::uuid LIMIT 1)", obj.ID).
 			Find(&ownChannels).Error; err != nil {
 			return nil, err
 		}
@@ -57,7 +57,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		if err := r.deps.Gorm.
 			WithContext(ctx).
 			Where(
-				`"userId" = ?`,
+				`"userId" = ?::uuid`,
 				obj.ID,
 			).
 			Preload("Role").
@@ -93,7 +93,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	var usersStats []model.UsersStats
 	if err := r.deps.Gorm.
 		WithContext(ctx).
-		Where(`"userId" = ?`, obj.ID).
+		Where(`"userId" = ?::uuid`, obj.ID).
 		Find(&usersStats).Error; err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	for _, stat := range usersStats {
 		var channelRoles []model.ChannelRole
 		if err := r.deps.Gorm.WithContext(ctx).Where(
-			`"channelId" = ?`,
+			`"channelId" = ?::uuid`,
 			stat.ChannelID,
 		).Find(&channelRoles).
 			Error; err != nil {

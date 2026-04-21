@@ -21,7 +21,7 @@ func (c *Activity) SendMessage(
 		return fmt.Errorf("input is required for send message operation")
 	}
 
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Input, data)
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, data.ChannelTwitchUserID, data.ChannelDBID, *operation.Input, data)
 	if err != nil {
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}

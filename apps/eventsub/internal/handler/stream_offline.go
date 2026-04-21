@@ -12,6 +12,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
@@ -102,9 +103,14 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 		return nil
 	}
 
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
+	if err != nil {
+		return fmt.Errorf("failed to get user by platform id: %w", err)
+	}
+
 	twitchClient, err := twitchlib.NewUserClientWithContext(
 		ctx,
-		event.BroadcasterUserId,
+		user.ID,
 		c.config,
 		c.twirBus,
 	)

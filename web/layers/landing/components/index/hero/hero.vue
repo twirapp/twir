@@ -5,6 +5,7 @@ import HeroChat from './hero-chat.vue'
 
 import { UserStoreKey } from '~/stores/user'
 import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
+import KickIcon from '~~/layers/landing/components/kick-icon.vue'
 
 const userStore = useAuth()
 
@@ -51,9 +52,13 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 							<UiButton as="button" variant="primary" @click="userStore.login()">
 								Start with Twitch
 							</UiButton>
-							<UiButton as="button" class="bg-[#53FC18] text-black hover:bg-[#53FC18]/80" @click="userStore.loginWithKick()">
+							<button
+								class="inline-flex justify-center items-center py-3 px-7 xs:py-4 font-semibold text-white rounded-lg transition-[background,box-shadow] text-base sm:text-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 text-center whitespace-nowrap bg-[#27272a] hover:bg-[#27272a]/80 gap-2"
+								@click="userStore.loginWithKick()"
+							>
 								Start with Kick
-							</UiButton>
+								<KickIcon class="text-[#53FC18]" />
+							</button>
 						</template>
 					</div>
 				</div>

@@ -88,6 +88,11 @@ type Config struct {
 	EventSubDisableSignatureVerification bool `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
 	EventsubHttpPort                     int  `required:"false" default:"3030"  envconfig:"EVENTSUB_HTTP_PORT"`
 
+	TunnelEnabled    bool   `required:"false" default:"false" envconfig:"TUNNEL_ENABLED"`
+	TunnelType       string `required:"false" default:"pinggy" envconfig:"TUNNEL_TYPE"`
+	TunnelSshHost    string `required:"false" default:"a.pinggy.io" envconfig:"TUNNEL_SSH_HOST"`
+	TunnelSshPort    int    `required:"false" default:"443" envconfig:"TUNNEL_SSH_PORT"`
+
 	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
 	DonationAlertsSecret   string `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
 

@@ -35,7 +35,7 @@ var CustomVar = &types.Variable{
 		v := &model.ChannelsCustomvars{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ? AND "name" = ?`, parseCtx.Channel.ID, variableData.Params).
+			Where(`"channelId" = ?::uuid AND "name" = ?`, parseCtx.Channel.DBChannelID, variableData.Params).
 			Find(v).Error
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
@@ -94,16 +94,18 @@ var CustomVar = &types.Variable{
 
 			filledWithVariablesValue, err := parseCtx.Services.Bus.Parser.ParseVariablesInText.Request(
 				requestCtx,
-				parser.ParseVariablesInTextRequest{
-					ChannelID:     parseCtx.Channel.ID,
-					ChannelName:   parseCtx.Channel.Name,
-					Text:          text,
-					UserID:        parseCtx.Sender.ID,
-					UserLogin:     parseCtx.Sender.Name,
-					UserName:      parseCtx.Sender.DisplayName,
-					IsCommand:     true,
-					IsInCustomVar: true,
-					Mentions:      parseCtx.Mentions,
+			parser.ParseVariablesInTextRequest{
+				ChannelID:           parseCtx.Channel.ID,
+				ChannelName:         parseCtx.Channel.Name,
+				ChannelTwitchUserID: parseCtx.Channel.TwitchUserID,
+				ChannelDBID:         parseCtx.Channel.DBChannelID,
+				Text:                text,
+					UserID:              parseCtx.Sender.ID,
+					UserLogin:           parseCtx.Sender.Name,
+					UserName:            parseCtx.Sender.DisplayName,
+					IsCommand:           true,
+					IsInCustomVar:       true,
+					Mentions:            parseCtx.Mentions,
 				},
 			)
 			if err != nil {

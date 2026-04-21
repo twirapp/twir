@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/parser/pkg/executron"
@@ -13,6 +14,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/plans"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
@@ -32,6 +34,7 @@ type Opts struct {
 	VariablesRepository variables.Repository
 	Executron           executron.Executron
 	PlansRepository     plans.Repository
+	ChannelsRepository  channels.Repository
 }
 
 type Service struct {
@@ -43,6 +46,7 @@ type Service struct {
 	variablesRepository variables.Repository
 	executron           executron.Executron
 	plansRepository     plans.Repository
+	channelsRepository  channels.Repository
 }
 
 func New(opts Opts) *Service {
@@ -55,6 +59,7 @@ func New(opts Opts) *Service {
 		variablesRepository: opts.VariablesRepository,
 		executron:           opts.Executron,
 		plansRepository:     opts.PlansRepository,
+		channelsRepository:  opts.ChannelsRepository,
 	}
 }
 
@@ -80,13 +85,32 @@ func (c *Service) EvaluateScript(
 	language entity.CustomVarScriptLanguage,
 	testAsUserName *string,
 ) (string, error) {
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return "", fmt.Errorf("cannot parse channel id: %w", err)
+	}
+
+	channel, err := c.channelsRepository.GetByID(ctx, parsedChannelID)
+	if err != nil {
+		return "", fmt.Errorf("cannot get channel: %w", err)
+	}
+
+	var channelTwitchUserID string
+	if channel.TwitchUserID != nil {
+		channelTwitchUserID = *channel.TwitchPlatformID
+	}
+
 	if testAsUserName != nil && *testAsUserName != "" {
+		if channel.TwitchPlatformID == nil {
+			return "", fmt.Errorf("channel has no twitch platform ID")
+		}
+
 		var channelUser, user helix.User
 		var wg errgroup.Group
 
 		wg.Go(
 			func() error {
-				u, err := c.cachedTwitchClient.GetUserById(ctx, channelID)
+				u, err := c.cachedTwitchClient.GetUserById(ctx, *channel.TwitchPlatformID)
 				if err != nil {
 					return fmt.Errorf("cannot get channel user: %w", err)
 				}
@@ -115,14 +139,15 @@ func (c *Service) EvaluateScript(
 
 		preparedEvalValue, err := c.twirbus.Parser.ParseVariablesInText.Request(
 			ctx, parser.ParseVariablesInTextRequest{
-				ChannelID:     channelUser.ID,
-				ChannelName:   channelUser.Login,
-				Text:          script,
-				UserID:        user.ID,
-				UserLogin:     user.Login,
-				UserName:      user.DisplayName,
-				IsCommand:     true,
-				IsInCustomVar: true,
+				ChannelID:           channelUser.ID,
+				ChannelName:         channelUser.Login,
+				ChannelTwitchUserID: channelTwitchUserID,
+				Text:                script,
+				UserID:              user.ID,
+				UserLogin:           user.Login,
+				UserName:            user.DisplayName,
+				IsCommand:           true,
+				IsInCustomVar:       true,
 			},
 		)
 		if err != nil {

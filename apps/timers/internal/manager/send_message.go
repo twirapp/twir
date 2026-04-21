@@ -11,6 +11,8 @@ import (
 func (c *Manager) sendMessage(
 	ctx context.Context,
 	channelId,
+	channelTwitchUserID,
+	channelDBID,
 	text string,
 	isAnnounce bool,
 	announceColor timersentity.AnnounceColor,
@@ -20,8 +22,10 @@ func (c *Manager) sendMessage(
 	parseReq, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx,
 		busparser.ParseVariablesInTextRequest{
-			ChannelID: channelId,
-			Text:      text,
+			ChannelID:           channelId,
+			ChannelTwitchUserID: channelTwitchUserID,
+			ChannelDBID:         channelDBID,
+			Text:                text,
 		},
 	)
 	if err != nil {

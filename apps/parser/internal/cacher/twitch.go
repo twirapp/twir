@@ -73,7 +73,7 @@ func (c *cacher) GetGbUserStats(ctx context.Context, userId string) *model.Users
 
 	err = c.services.Gorm.
 		WithContext(ctx).
-		Where(`"userId" = ? AND "channelId" = ?`, userId, dbChannel.ChannelID).
+		Where(`"userId" = ?::uuid AND "channelId" = ?::uuid`, userId, dbChannel.ChannelID).
 		Find(result).
 		Error
 	if err == nil {

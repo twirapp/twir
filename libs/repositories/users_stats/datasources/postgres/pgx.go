@@ -224,7 +224,7 @@ func (c *Pgx) GetByUserAndChannelID(
 		`
 SELECT %s
 FROM users_stats
-WHERE "userId" = $1 AND "channelId" = $2
+WHERE "userId" = $1::uuid AND "channelId" = $2::uuid
 LIMIT 1
 `, selectFieldsJoined,
 	)

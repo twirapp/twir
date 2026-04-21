@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
@@ -92,11 +93,24 @@ var Command = &types.DefaultCommand{
 		}
 
 		var usersStats []model.UsersStats
+		usersIDsForCheckUUIDs := make([]uuid.UUID, 0, len(usersIdsForCheck))
+		for _, userID := range usersIdsForCheck {
+			parsedUserID, err := uuid.Parse(userID)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetUsersStats),
+					Err:     err,
+				}
+			}
+
+			usersIDsForCheckUUIDs = append(usersIDsForCheckUUIDs, parsedUserID)
+		}
+
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"userId" IN ? AND "channelId" = ?`, usersIdsForCheck, parseCtx.Channel.ID).
+			Where(`"userId" IN ? AND "channelId" = ?::uuid`, usersIDsForCheckUUIDs, parseCtx.Channel.ID).
 			Where(`"is_mod" = ? AND "is_vip" = ? AND "is_subscriber" = ?`, false, false, false).
-			Where(`"userId" != ?`, parseCtx.Channel.ID).
+			Where(`"userId" != ?::uuid`, parseCtx.Channel.ID).
 			Find(&usersStats).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetUsersStats),

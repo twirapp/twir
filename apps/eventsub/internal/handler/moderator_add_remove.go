@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -83,10 +84,39 @@ func (c *Handler) updateUserModStatus(
 	userId string,
 	newStatus bool,
 ) error {
+	chatUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, userId)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot resolve moderator user: %w", err)
+	}
+
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, channelId)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
+	}
+
+	broadcasterUUID, err := uuid.Parse(broadcasterUser.ID)
+	if err != nil {
+		return fmt.Errorf("cannot parse broadcaster UUID: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUUID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot get channel: %w", err)
+	}
+
 	userStats := model.UsersStats{}
 	if err := c.gorm.
 		WithContext(ctx).
-		Where(`"userId" = ? and "channelId" = ?`, userId, channelId).
+		Where(`"userId" = ?::uuid and "channelId" = ?::uuid`, chatUser.ID, channel.ID.String()).
 		First(&userStats).Error; err != nil {
 		return err
 	}

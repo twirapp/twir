@@ -59,7 +59,7 @@ var AddCommand = &types.DefaultCommand{
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Model(&model.ChannelsCommands{}).
-			Where(`"channelId" = ?`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid`, parseCtx.Channel.DBChannelID).
 			Find(&commands).Error
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -91,7 +91,7 @@ var AddCommand = &types.DefaultCommand{
 			Description:  null.String{},
 			DefaultName:  null.String{},
 			Visible:      true,
-			ChannelID:    parseCtx.Channel.ID,
+			ChannelID:    parseCtx.Channel.DBChannelID,
 			Default:      false,
 			Module:       "CUSTOM",
 			Responses: []*model.ChannelsCommandsResponses{
@@ -116,7 +116,7 @@ var AddCommand = &types.DefaultCommand{
 			}
 		}
 
-		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Add.CommandAdd)}
 		return result, nil

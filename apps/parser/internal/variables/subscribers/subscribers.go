@@ -31,7 +31,7 @@ var LatestSubscriberUsername = &types.Variable{
 
 		twitchClient, err := twitch.NewUserClientWithContext(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)
@@ -83,7 +83,7 @@ var Count = &types.Variable{
 
 		twitchClient, err := twitch.NewUserClientWithContext(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)

@@ -10,15 +10,17 @@ type CommandParseResponse struct {
 }
 
 type ParseVariablesInTextRequest struct {
-	ChannelID     string
-	ChannelName   string
-	Text          string
-	UserID        string
-	UserLogin     string
-	UserName      string
-	IsCommand     bool
-	IsInCustomVar bool
-	Mentions      []twitch.ChatMessageMessageFragmentMention
+	ChannelID           string
+	ChannelName         string
+	ChannelTwitchUserID string
+	ChannelDBID         string
+	Text                string
+	UserID              string
+	UserLogin           string
+	UserName            string
+	IsCommand           bool
+	IsInCustomVar       bool
+	Mentions            []twitch.ChatMessageMessageFragmentMention
 }
 
 type ParseVariablesInTextResponse struct {

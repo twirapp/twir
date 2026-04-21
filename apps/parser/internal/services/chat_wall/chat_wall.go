@@ -7,6 +7,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -183,16 +184,29 @@ func (c *Service) HandlePastMessages(
 		isVipsMuted = false
 	}
 
+	messageUserIDs := lo.Map(
+		messages, func(item chatmessagemodel.ChatMessage, _ int) uuid.UUID {
+			id, err := uuid.Parse(item.UserID)
+			if err != nil {
+				return uuid.Nil
+			}
+
+			return id
+		},
+	)
+	messageUserIDs = lo.Filter(
+		messageUserIDs, func(item uuid.UUID, _ int) bool {
+			return item != uuid.Nil
+		},
+	)
+
 	var usersStats []deprecatedgormmodel.UsersStats
 	if err := c.gorm.
 		WithContext(ctx).
 		Where(
-			`"userId" IN ? AND "channelId" = ?`,
-			lo.Map(
-				messages, func(item chatmessagemodel.ChatMessage, _ int) string {
-					return item.UserID
-				},
-			), input.ChannelID,
+			`"userId" IN ? AND "channelId" = ?::uuid`,
+			messageUserIDs,
+			input.ChannelID,
 		).
 		Find(&usersStats).Error; err != nil {
 		return fmt.Errorf(

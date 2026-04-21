@@ -1,8 +1,10 @@
 package shared
 
 type EventData struct {
-	ChannelID string `json:"channelId"`
-	EventType string `json:"eventType,omitempty"`
+	ChannelID           string `json:"channelId"`
+	ChannelTwitchUserID string `json:"channelTwitchUserId,omitempty"`
+	ChannelDBID         string `json:"channelDbId,omitempty"`
+	EventType           string `json:"eventType,omitempty"`
 
 	//
 	UserName        string `json:"userName,omitempty"`
