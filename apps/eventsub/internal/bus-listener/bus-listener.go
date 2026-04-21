@@ -329,8 +329,61 @@ func (c *BusListener) reinitChannels(
 
 func (c *BusListener) unsubscribe(ctx context.Context, userId string) (struct{}, error) {
 	if err := c.eventSubClient.UnsubscribeChannel(ctx, userId); err != nil {
-		c.logger.Error("error unsubscribe channel", err)
+		c.logger.Error("error unsubscribe twitch channel", logger.Error(err))
 		return struct{}{}, err
+	}
+
+	channelUUID, err := uuid.Parse(userId)
+	if err != nil {
+		c.logger.Error("error parsing channel ID for kick unsubscribe", slog.String("channel_id", userId))
+		return struct{}{}, fmt.Errorf("parse channel UUID: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
+	if err != nil {
+		c.logger.Error("error getting channel for kick unsubscribe", slog.String("channel_id", userId), logger.Error(err))
+		return struct{}{}, err
+	}
+
+	if channel.KickUserID != nil && channel.KickBotID != nil {
+		kickBot, err := c.kickBotsRepo.GetByID(ctx, *channel.KickBotID)
+		if err != nil {
+			c.logger.Error(
+				"error getting kick bot for unsubscribe",
+				logger.Error(err),
+				slog.String("channel_id", userId),
+				slog.String("kick_bot_id", channel.KickBotID.String()),
+			)
+			return struct{}{}, err
+		}
+
+		accessToken, err := crypto.Decrypt(kickBot.AccessToken, c.config.TokensCipherKey)
+		if err != nil {
+			c.logger.Error(
+				"error decrypting kick access token for unsubscribe",
+				logger.Error(err),
+				slog.String("channel_id", userId),
+				slog.String("kick_bot_id", channel.KickBotID.String()),
+			)
+			return struct{}{}, err
+		}
+
+		kickUserIDStr := channel.KickUserID.String()
+		if err := c.kickSubManager.UnsubscribeAll(ctx, kickUserIDStr, accessToken, *channel.KickBotID, kickBot.RefreshToken); err != nil {
+			c.logger.Error(
+				"error unsubscribing from kick events",
+				logger.Error(err),
+				slog.String("channel_id", userId),
+				slog.String("kick_user_id", kickUserIDStr),
+			)
+			return struct{}{}, err
+		}
+
+		c.logger.Info(
+			"unsubscribed from kick events",
+			slog.String("channel_id", userId),
+			slog.String("kick_user_id", kickUserIDStr),
+		)
 	}
 
 	return struct{}{}, nil
