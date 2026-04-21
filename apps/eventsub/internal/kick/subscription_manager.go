@@ -481,15 +481,53 @@ func (m *SubscriptionManager) UnsubscribeAll(
 	botID uuid.UUID,
 	encryptedRefreshToken string,
 ) error {
+	kickUserUUID, err := uuid.Parse(kickChannelID)
+	if err != nil {
+		return fmt.Errorf("failed to parse kick channel ID %q as UUID: %w", kickChannelID, err)
+	}
+
+	user, err := m.usersRepo.GetByID(ctx, kickUserUUID.String())
+	if err != nil {
+		return fmt.Errorf("failed to get user for kick channel ID %q: %w", kickChannelID, err)
+	}
+
+	broadcasterUserID, err := strconv.Atoi(user.PlatformID)
+	if err != nil {
+		return fmt.Errorf("failed to parse kick platform user ID %q as int: %w", user.PlatformID, err)
+	}
+
 	for _, eventType := range EventTypes {
 		key := redisKey(kickChannelID, eventType)
 
 		subID, err := m.redis.Get(ctx, key).Result()
 		if err != nil {
 			if err == goredis.Nil {
-				continue
+				subs, listErr := m.ListSubscriptions(ctx, broadcasterToken, botID, encryptedRefreshToken, broadcasterUserID)
+				if listErr != nil {
+					m.logger.WarnContext(
+						ctx,
+						"Failed to list Kick subscriptions for cleanup fallback",
+						slog.String("kick_channel_id", kickChannelID),
+						slog.String("event_type", eventType),
+						logger.Error(listErr),
+					)
+					continue
+				}
+
+				var found bool
+				for _, sub := range subs {
+					if sub.Event == eventType {
+						subID = sub.SubscriptionID
+						found = true
+						break
+					}
+				}
+				if !found {
+					continue
+				}
+			} else {
+				return fmt.Errorf("failed to fetch subscription ID for %q from Redis: %w", eventType, err)
 			}
-			return fmt.Errorf("failed to fetch subscription ID for %q from Redis: %w", eventType, err)
 		}
 
 		if err := m.unsubscribe(ctx, subID, broadcasterToken); err != nil {
