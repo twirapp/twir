@@ -295,7 +295,7 @@ func (c *Pgx) Update(ctx context.Context, id string, input users.UpdateInput) (m
 		updateBuilder = updateBuilder.Set("avatar", input.Avatar)
 	}
 
-	updateBuilder = updateBuilder.Suffix(`RETURNING id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, login, display_name, avatar`)
+	updateBuilder = updateBuilder.Suffix(`RETURNING id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at, login, display_name, avatar`)
 
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {

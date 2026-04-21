@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/google/uuid"
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -18,8 +19,8 @@ import (
 
 type Platform interface {
 	Name() string
-	SubscribeAll(ctx context.Context, channelID string, token string) error
-	UnsubscribeAll(ctx context.Context, channelID string, token string) error
+	SubscribeAll(ctx context.Context, channelID string, token string, botID uuid.UUID, encryptedRefreshToken string) error
+	UnsubscribeAll(ctx context.Context, channelID string, token string, botID uuid.UUID, encryptedRefreshToken string) error
 	SetCallbackBaseURL(baseURL string)
 }
 
@@ -71,6 +72,14 @@ func NewManager(opts Opts) *Manager {
 func (m *Manager) start(ctx context.Context) error {
 	callbackBaseURL := m.config.SiteBaseUrl
 
+	m.logger.InfoContext(
+		ctx,
+		"webhook manager: starting",
+		slog.String("callback_base_url", callbackBaseURL),
+		slog.Bool("is_development", m.config.IsDevelopment()),
+		slog.Int("platforms_count", len(m.platforms)),
+	)
+
 	for _, p := range m.platforms {
 		p.SetCallbackBaseURL(callbackBaseURL)
 	}
@@ -85,6 +94,8 @@ func (m *Manager) start(ctx context.Context) error {
 	if err := m.subscribeAllPlatforms(ctx); err != nil {
 		m.logger.ErrorContext(ctx, "webhook manager: subscribe all failed", logger.Error(err))
 	}
+
+	m.logger.InfoContext(ctx, "webhook manager: started successfully")
 
 	return nil
 }
@@ -164,7 +175,7 @@ func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
 			continue
 		}
 
-		if err := m.kickSubMgr.UnsubscribeAll(ctx, ch.KickUserID.String(), accessToken); err != nil {
+		if err := m.kickSubMgr.UnsubscribeAll(ctx, ch.KickUserID.String(), accessToken, *ch.KickBotID, kickBot.RefreshToken); err != nil {
 			m.logger.WarnContext(
 				ctx,
 				"webhook manager: failed to unsubscribe kick",
@@ -186,6 +197,12 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("list kick channels: %w", err)
 	}
+
+	m.logger.InfoContext(
+		ctx,
+		"webhook manager: subscribing to kick events",
+		slog.Int("channels_count", len(kickChannels)),
+	)
 
 	for _, ch := range kickChannels {
 		if ch.KickUserID == nil {
@@ -235,7 +252,7 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 			continue
 		}
 
-		if err := m.kickSubMgr.SubscribeAll(ctx, ch.KickUserID.String(), accessToken); err != nil {
+		if err := m.kickSubMgr.SubscribeAll(ctx, ch.KickUserID.String(), accessToken, *ch.KickBotID, kickBot.RefreshToken); err != nil {
 			m.logger.ErrorContext(
 				ctx,
 				"webhook manager: failed to subscribe kick",
@@ -253,6 +270,12 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 			slog.String("kick_user_id", ch.KickUserID.String()),
 		)
 	}
+
+	m.logger.InfoContext(
+		ctx,
+		"webhook manager: finished subscribing to kick events",
+		slog.Int("channels_count", len(kickChannels)),
+	)
 
 	return nil
 }

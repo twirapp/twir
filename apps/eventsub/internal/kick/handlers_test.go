@@ -165,7 +165,7 @@ func TestHandleChatMessage(t *testing.T) {
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
 			ID:         userID,
-			PlatformID: "broadcaster-123",
+			PlatformID: "123",
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
@@ -181,13 +181,22 @@ func TestHandleChatMessage(t *testing.T) {
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, "1", idempotencyTTL).SetVal(true)
 
 	payload := kickChatMessagePayload{
-		MessageID:         msgID,
-		BroadcasterUserID: "broadcaster-123",
-		SenderUserID:      "sender-456",
-		SenderUserLogin:   "senderlogin",
-		SenderDisplayName: "SenderDisplay",
-		Content:           "Hello world",
-		Color:             "#ff0000",
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+			Identity: &kickIdentity{
+				UsernameColor: "#ff0000",
+				Badges: []kickBadge{
+					{Text: "Moderator", Type: "moderator"},
+				},
+			},
+		},
+		Content: "Hello world",
 	}
 
 	req := makeRequest(t, msgID, "chat.message.sent", payload)
@@ -237,7 +246,7 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
 			ID:         userID,
-			PlatformID: "broadcaster-999",
+			PlatformID: "999",
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
@@ -253,9 +262,12 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, "1", idempotencyTTL).SetVal(false)
 
 	payload := kickChatMessagePayload{
-		MessageID:         msgID,
-		BroadcasterUserID: "broadcaster-999",
-		Content:           "duplicate",
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   999,
+			Username: "broadcaster999",
+		},
+		Content: "duplicate",
 	}
 
 	req := makeRequest(t, msgID, "chat.message.sent", payload)
@@ -288,7 +300,7 @@ func TestHandleChannelFollow(t *testing.T) {
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
 			ID:         userID,
-			PlatformID: "broadcaster-777",
+			PlatformID: "777",
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
@@ -304,12 +316,17 @@ func TestHandleChannelFollow(t *testing.T) {
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, "1", idempotencyTTL).SetVal(true)
 
 	payload := kickFollowPayload{
-		BroadcasterUserID: "broadcaster-777",
-		FollowerUserID:    "follower-111",
-		FollowerUserLogin: "followerlogin",
+		Broadcaster: kickUser{
+			UserID:   777,
+			Username: "broadcaster777",
+		},
+		Follower: kickUser{
+			UserID:   111,
+			Username: "followerlogin",
+		},
 	}
 
-	req := makeRequest(t, msgID, "channel.follow", payload)
+	req := makeRequest(t, msgID, "channel.followed", payload)
 	w := httptest.NewRecorder()
 
 	h.HandleWebhook(w, req)
@@ -328,8 +345,8 @@ func TestHandleChannelFollow(t *testing.T) {
 	if follow.UserName != "followerlogin" {
 		t.Errorf("expected UserName %q, got %q", "followerlogin", follow.UserName)
 	}
-	if follow.UserID != "follower-111" {
-		t.Errorf("expected UserID %q, got %q", "follower-111", follow.UserID)
+	if follow.UserID != "111" {
+		t.Errorf("expected UserID %q, got %q", "111", follow.UserID)
 	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {

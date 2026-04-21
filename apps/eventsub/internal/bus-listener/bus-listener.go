@@ -164,7 +164,7 @@ func (c *BusListener) subscribeToAllEvents(
 		}
 
 		kickUserIDStr := channel.KickUserID.String()
-		if err := c.kickSubManager.SubscribeAll(ctx, kickUserIDStr, accessToken); err != nil {
+		if err := c.kickSubManager.SubscribeAll(ctx, kickUserIDStr, accessToken, *channel.KickBotID, kickBot.RefreshToken); err != nil {
 			c.logger.Error(
 				"error subscribing to kick events",
 				logger.Error(err),

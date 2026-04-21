@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
+	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
@@ -46,6 +47,8 @@ type Bus struct {
 	Api                 *apiBus
 	CacheInvalidator    Queue[cache_invalidator.InvalidateRequest, struct{}]
 	Discord             *discordBus
+	KickStreamOnline    Queue[kickbus.KickStreamOnline, struct{}]
+	KickStreamOffline   Queue[kickbus.KickStreamOffline, struct{}]
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -308,6 +311,20 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			twitch.RedemptionAddSubject,
 			30*time.Minute,
 			GobEncoder,
+		),
+
+		KickStreamOnline: NewNatsQueue[kickbus.KickStreamOnline, struct{}](
+			nc,
+			kickbus.KickStreamOnlineSubject,
+			1*time.Minute,
+			JsonEncoder,
+		),
+
+		KickStreamOffline: NewNatsQueue[kickbus.KickStreamOffline, struct{}](
+			nc,
+			kickbus.KickStreamOfflineSubject,
+			1*time.Minute,
+			JsonEncoder,
 		),
 
 		Events: &eventsBus{

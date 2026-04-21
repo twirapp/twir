@@ -194,6 +194,35 @@ func (a *Auth) handleKickCode(
 		}
 	}
 
+	if !userNotFound {
+		existingKickBot, kickBotByUserErr := a.kickBotsRepo.GetByKickUserID(ctx, userID)
+		if kickBotByUserErr != nil && !errors.Is(kickBotByUserErr, kickbotsrepo.ErrNotFound) {
+			a.logger.ErrorContext(ctx, "kick auth: failed to get kick bot by user id", logger.Error(kickBotByUserErr))
+		}
+
+		if kickBotByUserErr == nil {
+			existingBotID, parseErr := uuid.Parse(existingKickBot.ID)
+			if parseErr == nil {
+				_, updateErr := a.kickBotsRepo.UpdateToken(
+					ctx,
+					existingBotID,
+					kickbotsrepo.UpdateTokenInput{
+						AccessToken:         accessToken,
+						RefreshToken:        refreshToken,
+						Scopes:              tokens.Scopes,
+						ExpiresIn:           tokens.ExpiresIn,
+						ObtainmentTimestamp: tokenCreatedAt,
+					},
+				)
+				if updateErr != nil {
+					a.logger.ErrorContext(ctx, "kick auth: failed to update kick bot token on re-login", logger.Error(updateErr))
+				} else {
+					a.logger.InfoContext(ctx, "kick auth: updated kick bot token on re-login", slog.String("kick_bot_id", existingKickBot.ID))
+				}
+			}
+		}
+	}
+
 	channel, err := a.channelsRepo.GetByKickUserID(ctx, userID)
 	if err != nil {
 		if !errors.Is(err, channelsrepo.ErrNotFound) {

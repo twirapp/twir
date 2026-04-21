@@ -13,6 +13,7 @@ import (
 	entity "github.com/twirapp/twir/libs/entities/kick_bot"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	kick_bots "github.com/twirapp/twir/libs/repositories/kick_bots"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type mockSubManager struct {
@@ -22,11 +23,11 @@ type mockSubManager struct {
 	subscribeAllCalls int
 }
 
-func (m *mockSubManager) ListSubscriptions(_ context.Context, _ string) ([]SubscriptionInfo, error) {
+func (m *mockSubManager) ListSubscriptions(_ context.Context, _ string, _ uuid.UUID, _ string, _ int) ([]SubscriptionInfo, error) {
 	return m.listResult, m.listErr
 }
 
-func (m *mockSubManager) SubscribeAll(_ context.Context, _ string, _ string) error {
+func (m *mockSubManager) SubscribeAll(_ context.Context, _ string, _ string, _ uuid.UUID, _ string) error {
 	m.subscribeAllCalls++
 	return m.subscribeErr
 }
@@ -77,8 +78,8 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 
 	subMgr := &mockSubManager{
 		listResult: []SubscriptionInfo{
-			{Type: "chat.message.sent"},
-			{Type: "channel.follow"},
+			{Event: "chat.message.sent"},
+			{Event: "channel.followed"},
 		},
 	}
 
@@ -100,10 +101,18 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 		},
 	}
 
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         kickUserID.String(),
+			PlatformID: "12345",
+		},
+	}
+
 	job := &ResubscribeJob{
 		subManager:   subMgr,
 		channelsRepo: chRepo,
 		kickBotsRepo: botsRepo,
+		usersRepo:    usersRepo,
 		logger:       slog.Default(),
 		config:       cfg.Config{TokensCipherKey: testCipherKey},
 		interval:     23 * time.Hour,
@@ -122,10 +131,9 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 
 	subMgr := &mockSubManager{
 		listResult: []SubscriptionInfo{
-			{Type: "chat.message.sent"},
-			{Type: "channel.follow"},
-			{Type: "stream.online"},
-			{Type: "stream.offline"},
+			{Event: "chat.message.sent"},
+			{Event: "channel.followed"},
+			{Event: "livestream.status.updated"},
 		},
 	}
 
@@ -147,10 +155,18 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 		},
 	}
 
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         kickUserID.String(),
+			PlatformID: "12345",
+		},
+	}
+
 	job := &ResubscribeJob{
 		subManager:   subMgr,
 		channelsRepo: chRepo,
 		kickBotsRepo: botsRepo,
+		usersRepo:    usersRepo,
 		logger:       slog.Default(),
 		config:       cfg.Config{TokensCipherKey: testCipherKey},
 		interval:     23 * time.Hour,
@@ -189,10 +205,18 @@ func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
 		},
 	}
 
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         kickUserID.String(),
+			PlatformID: "12345",
+		},
+	}
+
 	job := &ResubscribeJob{
 		subManager:   subMgr,
 		channelsRepo: chRepo,
 		kickBotsRepo: botsRepo,
+		usersRepo:    usersRepo,
 		logger:       slog.Default(),
 		config:       cfg.Config{TokensCipherKey: testCipherKey},
 		interval:     23 * time.Hour,

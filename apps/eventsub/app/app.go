@@ -148,6 +148,7 @@ var App = fx.Options(
 				OnStop:  func(ctx context.Context) error { return s.Stop(ctx) },
 			})
 		},
+		func(_ *webhook.Manager) {},
 		func(l *slog.Logger) {
 			l.Info("🚀 EventSub App started")
 		},

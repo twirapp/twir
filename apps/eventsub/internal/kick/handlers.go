@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,6 +15,7 @@ import (
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
+	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -27,37 +29,54 @@ const (
 	idempotencyKeyPrefix = "kick:event:"
 )
 
-type kickChatMessagePayload struct {
-	MessageID            string      `json:"message_id"`
-	BroadcasterUserID    string      `json:"broadcaster_user_id"`
-	BroadcasterUserLogin string      `json:"broadcaster_user_login"`
-	SenderUserID         string      `json:"sender_user_id"`
-	SenderUserLogin      string      `json:"sender_user_login"`
-	SenderDisplayName    string      `json:"sender_display_name"`
-	Content              string      `json:"content"`
-	Color                string      `json:"color"`
-	Badges               []kickBadge `json:"badges,omitempty"`
+type kickUser struct {
+	UserID       int            `json:"user_id"`
+	Username     string         `json:"username"`
+	ChannelSlug  string         `json:"channel_slug"`
+	IsVerified   bool           `json:"is_verified"`
+	ProfilePicture string       `json:"profile_picture"`
+	Identity     *kickIdentity  `json:"identity,omitempty"`
+}
+
+type kickIdentity struct {
+	UsernameColor string     `json:"username_color"`
+	Badges        []kickBadge `json:"badges,omitempty"`
 }
 
 type kickBadge struct {
-	SetID string `json:"set_id"`
 	Text  string `json:"text"`
+	Type  string `json:"type"`
+	Count int    `json:"count,omitempty"`
+}
+
+type kickChatMessagePayload struct {
+	MessageID string    `json:"message_id"`
+	Broadcaster kickUser `json:"broadcaster"`
+	Sender    kickUser   `json:"sender"`
+	Content   string     `json:"content"`
+	Emotes    []kickEmote `json:"emotes,omitempty"`
+	CreatedAt string      `json:"created_at"`
+}
+
+type kickEmote struct {
+	EmoteID   string `json:"emote_id"`
+	Positions []struct {
+		S int `json:"s"`
+		E int `json:"e"`
+	} `json:"positions"`
 }
 
 type kickFollowPayload struct {
-	BroadcasterUserID string `json:"broadcaster_user_id"`
-	FollowerUserID    string `json:"follower_user_id"`
-	FollowerUserLogin string `json:"follower_user_login"`
+	Broadcaster kickUser `json:"broadcaster"`
+	Follower    kickUser `json:"follower"`
 }
 
-type kickStreamOnlinePayload struct {
-	BroadcasterUserID    string `json:"broadcaster_user_id"`
-	BroadcasterUserLogin string `json:"broadcaster_user_login"`
-}
-
-type kickStreamOfflinePayload struct {
-	BroadcasterUserID    string `json:"broadcaster_user_id"`
-	BroadcasterUserLogin string `json:"broadcaster_user_login"`
+type kickLivestreamStatusPayload struct {
+	Broadcaster kickUser `json:"broadcaster"`
+	IsLive      bool     `json:"is_live"`
+	Title       string   `json:"title"`
+	StartedAt   string   `json:"started_at"`
+	EndedAt     *string  `json:"ended_at,omitempty"`
 }
 
 type Handlers struct {
@@ -66,6 +85,8 @@ type Handlers struct {
 	chatMessagesGeneric   bus_core.Queue[generic.ChatMessage, struct{}]
 	processGenericMessage bus_core.Queue[generic.ChatMessage, struct{}]
 	eventsFollow          bus_core.Queue[events.FollowMessage, struct{}]
+	streamOnline          bus_core.Queue[kickbus.KickStreamOnline, struct{}]
+	streamOffline         bus_core.Queue[kickbus.KickStreamOffline, struct{}]
 	channelsRepo          channelsrepository.Repository
 	usersRepo             usersrepository.Repository
 }
@@ -87,6 +108,8 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		chatMessagesGeneric:   opts.Bus.ChatMessagesGeneric,
 		processGenericMessage: opts.Bus.Parser.ProcessGenericMessage,
 		eventsFollow:          opts.Bus.Events.Follow,
+		streamOnline:          opts.Bus.KickStreamOnline,
+		streamOffline:         opts.Bus.KickStreamOffline,
 		channelsRepo:          opts.ChannelsRepo,
 		usersRepo:             opts.UsersRepo,
 	}
@@ -122,15 +145,19 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.logger.InfoContext(ctx, "kick: received webhook event",
+		slog.String("event_type", eventType),
+		slog.String("message_id", messageID),
+		slog.Int("body_size", len(body)),
+	)
+
 	switch eventType {
 	case "chat.message.sent":
 		h.handleChatMessage(w, r, body)
-	case "channel.follow":
+	case "channel.followed":
 		h.handleChannelFollow(w, r, body)
-	case "stream.online":
-		h.handleStreamOnline(w, r, body)
-	case "stream.offline":
-		h.handleStreamOffline(w, r, body)
+	case "livestream.status.updated":
+		h.handleLivestreamStatus(w, r, body)
 	default:
 		h.logger.InfoContext(ctx, "kick: unknown event type, ignoring",
 			slog.String("event_type", eventType),
@@ -143,41 +170,63 @@ func (h *Handlers) handleChatMessage(w http.ResponseWriter, r *http.Request, bod
 	ctx := r.Context()
 	defer w.WriteHeader(http.StatusOK)
 
+	h.logger.InfoContext(ctx, "kick: handling chat message",
+		slog.String("body", string(body)),
+	)
+
 	var payload kickChatMessagePayload
 	if err := json.Unmarshal(body, &payload); err != nil {
 		h.logger.ErrorContext(ctx, "kick: failed to unmarshal chat message payload", logger.Error(err))
 		return
 	}
 
-	channelID, userID, err := h.resolveIDs(r, payload.BroadcasterUserID)
+	h.logger.InfoContext(ctx, "kick: parsed chat message payload",
+		slog.Int("broadcaster_user_id", payload.Broadcaster.UserID),
+		slog.String("broadcaster_username", payload.Broadcaster.Username),
+		slog.Int("sender_user_id", payload.Sender.UserID),
+		slog.String("sender_username", payload.Sender.Username),
+		slog.String("content", payload.Content),
+	)
+
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, userID, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		h.logger.ErrorContext(ctx, "kick: failed to resolve IDs for chat message",
-			slog.String("broadcaster_user_id", payload.BroadcasterUserID),
+			slog.String("broadcaster_user_id", broadcasterUserID),
 			logger.Error(err),
 		)
 		return
 	}
 
-	badges := make([]generic.ChatMessageBadge, 0, len(payload.Badges))
-	for _, b := range payload.Badges {
-		badges = append(badges, generic.ChatMessageBadge{
-			SetID: b.SetID,
-			Text:  b.Text,
-		})
+	h.logger.InfoContext(ctx, "kick: resolved IDs for chat message",
+		slog.String("channel_id", channelID),
+		slog.String("user_id", userID),
+	)
+
+	var color string
+	var badges []generic.ChatMessageBadge
+	if payload.Sender.Identity != nil {
+		color = payload.Sender.Identity.UsernameColor
+		for _, b := range payload.Sender.Identity.Badges {
+			badges = append(badges, generic.ChatMessageBadge{
+				SetID: b.Type,
+				Text:  b.Text,
+			})
+		}
 	}
 
 	genericMsg := generic.ChatMessage{
 		Platform:          string(platform.PlatformKick),
 		ChannelID:         channelID,
 		UserID:            userID,
-		PlatformChannelID: payload.BroadcasterUserID,
-		SenderID:          payload.SenderUserID,
-		SenderLogin:       payload.SenderUserLogin,
-		SenderDisplayName: payload.SenderDisplayName,
+		PlatformChannelID: broadcasterUserID,
+		SenderID:          strconv.Itoa(payload.Sender.UserID),
+		SenderLogin:       payload.Sender.Username,
+		SenderDisplayName: payload.Sender.Username,
 		MessageID:         payload.MessageID,
 		Text:              payload.Content,
 		Badges:            badges,
-		Color:             payload.Color,
+		Color:             color,
 	}
 
 	if err := h.chatMessagesGeneric.Publish(ctx, genericMsg); err != nil {
@@ -199,10 +248,11 @@ func (h *Handlers) handleChannelFollow(w http.ResponseWriter, r *http.Request, b
 		return
 	}
 
-	channelID, _, err := h.resolveIDs(r, payload.BroadcasterUserID)
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		h.logger.ErrorContext(ctx, "kick: failed to resolve IDs for follow",
-			slog.String("broadcaster_user_id", payload.BroadcasterUserID),
+			slog.String("broadcaster_user_id", broadcasterUserID),
 			logger.Error(err),
 		)
 		return
@@ -214,64 +264,60 @@ func (h *Handlers) handleChannelFollow(w http.ResponseWriter, r *http.Request, b
 			BaseInfo: events.BaseInfo{
 				ChannelID: channelID,
 			},
-			UserID:   payload.FollowerUserID,
-			UserName: payload.FollowerUserLogin,
+			UserID:   strconv.Itoa(payload.Follower.UserID),
+			UserName: payload.Follower.Username,
 		},
 	); err != nil {
 		h.logger.ErrorContext(ctx, "kick: failed to publish follow event", logger.Error(err))
 	}
 }
 
-func (h *Handlers) handleStreamOnline(w http.ResponseWriter, r *http.Request, body []byte) {
+func (h *Handlers) handleLivestreamStatus(w http.ResponseWriter, r *http.Request, body []byte) {
 	ctx := r.Context()
 	defer w.WriteHeader(http.StatusOK)
 
-	var payload kickStreamOnlinePayload
+	var payload kickLivestreamStatusPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to unmarshal stream.online payload", logger.Error(err))
+		h.logger.ErrorContext(ctx, "kick: failed to unmarshal livestream.status.updated payload", logger.Error(err))
 		return
 	}
 
-	channelID, _, err := h.resolveIDs(r, payload.BroadcasterUserID)
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to resolve IDs for stream.online",
-			slog.String("broadcaster_user_id", payload.BroadcasterUserID),
+		h.logger.ErrorContext(ctx, "kick: failed to resolve IDs for livestream.status.updated",
+			slog.String("broadcaster_user_id", broadcasterUserID),
 			logger.Error(err),
 		)
 		return
 	}
 
-	// TODO: publish to generic stream online/offline bus topic when available
-	h.logger.InfoContext(ctx, "kick: stream online",
-		slog.String("channel_id", channelID),
-		slog.String("broadcaster_user_id", payload.BroadcasterUserID),
-	)
-}
-
-func (h *Handlers) handleStreamOffline(w http.ResponseWriter, r *http.Request, body []byte) {
-	ctx := r.Context()
-	defer w.WriteHeader(http.StatusOK)
-
-	var payload kickStreamOfflinePayload
-	if err := json.Unmarshal(body, &payload); err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to unmarshal stream.offline payload", logger.Error(err))
-		return
-	}
-
-	channelID, _, err := h.resolveIDs(r, payload.BroadcasterUserID)
-	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to resolve IDs for stream.offline",
-			slog.String("broadcaster_user_id", payload.BroadcasterUserID),
-			logger.Error(err),
+	if payload.IsLive {
+		h.logger.InfoContext(ctx, "kick: stream online",
+			slog.String("channel_id", channelID),
+			slog.String("broadcaster_user_id", broadcasterUserID),
+			slog.String("title", payload.Title),
 		)
-		return
-	}
 
-	// TODO: publish to generic stream online/offline bus topic when available
-	h.logger.InfoContext(ctx, "kick: stream offline",
-		slog.String("channel_id", channelID),
-		slog.String("broadcaster_user_id", payload.BroadcasterUserID),
-	)
+		if err := h.streamOnline.Publish(ctx, kickbus.KickStreamOnline{
+			BroadcasterUserID:    broadcasterUserID,
+			BroadcasterUserLogin: payload.Broadcaster.Username,
+		}); err != nil {
+			h.logger.ErrorContext(ctx, "kick: failed to publish stream online event", logger.Error(err))
+		}
+	} else {
+		h.logger.InfoContext(ctx, "kick: stream offline",
+			slog.String("channel_id", channelID),
+			slog.String("broadcaster_user_id", broadcasterUserID),
+		)
+
+		if err := h.streamOffline.Publish(ctx, kickbus.KickStreamOffline{
+			BroadcasterUserID:    broadcasterUserID,
+			BroadcasterUserLogin: payload.Broadcaster.Username,
+		}); err != nil {
+			h.logger.ErrorContext(ctx, "kick: failed to publish stream offline event", logger.Error(err))
+		}
+	}
 }
 
 func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (string, string, error) {
