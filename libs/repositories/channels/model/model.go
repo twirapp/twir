@@ -15,6 +15,7 @@ type Channel struct {
 	IsTwitchBanned   bool
 	IsBotMod         bool
 	BotID            string
+	KickBotID        *uuid.UUID
 
 	isNil bool
 }

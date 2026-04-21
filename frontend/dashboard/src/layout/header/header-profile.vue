@@ -66,7 +66,7 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 				</Avatar>
 				<span class="truncate font-semibold">{{ profileData.displayName }}</span>
 				<KickIcon
-					v-if="profileData.currentPlatform === 'KICK'"
+					v-if="profileData.currentPlatform === 'kick'"
 					class="text-[#53FC18] size-4"
 				/>
 				<ChevronsUpDown class="ml-auto size-4" />

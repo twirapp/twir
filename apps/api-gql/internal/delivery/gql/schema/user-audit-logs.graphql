@@ -16,6 +16,7 @@ type AuditLog {
 	createdAt: Time!
 
 	user: TwirUserTwitchInfo @goField(forceResolver: true)
+	platform: String @goField(forceResolver: true)
 }
 
 enum AuditLogSystem {

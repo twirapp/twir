@@ -41,7 +41,7 @@ func (m *mockKickBotsRepo) GetDefault(_ context.Context) (entity.KickBot, error)
 }
 
 func (m *mockKickBotsRepo) GetByID(_ context.Context, _ uuid.UUID) (entity.KickBot, error) {
-	return entity.Nil, nil
+	return m.bot, m.err
 }
 
 func (m *mockKickBotsRepo) GetByKickUserID(_ context.Context, _ uuid.UUID) (entity.KickBot, error) {
@@ -73,6 +73,7 @@ func mustEncrypt(t *testing.T, plaintext string) string {
 
 func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 	kickUserID := uuid.New()
+	kickBotID := uuid.New()
 
 	subMgr := &mockSubManager{
 		listResult: []SubscriptionInfo{
@@ -86,12 +87,14 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 			{
 				ID:         uuid.New(),
 				KickUserID: &kickUserID,
+				KickBotID:  &kickBotID,
 			},
 		},
 	}
 
 	botsRepo := &mockKickBotsRepo{
 		bot: entity.KickBot{
+			ID:          kickBotID.String(),
 			KickUserID:  kickUserID,
 			AccessToken: mustEncrypt(t, "token-abc"),
 		},
@@ -115,6 +118,7 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 
 func TestResubscribeJob_AllPresent(t *testing.T) {
 	kickUserID := uuid.New()
+	kickBotID := uuid.New()
 
 	subMgr := &mockSubManager{
 		listResult: []SubscriptionInfo{
@@ -130,12 +134,14 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 			{
 				ID:         uuid.New(),
 				KickUserID: &kickUserID,
+				KickBotID:  &kickBotID,
 			},
 		},
 	}
 
 	botsRepo := &mockKickBotsRepo{
 		bot: entity.KickBot{
+			ID:          kickBotID.String(),
 			KickUserID:  kickUserID,
 			AccessToken: mustEncrypt(t, "token-xyz"),
 		},
@@ -159,6 +165,7 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 
 func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
 	kickUserID := uuid.New()
+	kickBotID := uuid.New()
 
 	subMgr := &mockSubManager{
 		listErr: errors.New("network error"),
@@ -169,12 +176,14 @@ func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
 			{
 				ID:         uuid.New(),
 				KickUserID: &kickUserID,
+				KickBotID:  &kickBotID,
 			},
 		},
 	}
 
 	botsRepo := &mockKickBotsRepo{
 		bot: entity.KickBot{
+			ID:          kickBotID.String(),
 			KickUserID:  kickUserID,
 			AccessToken: mustEncrypt(t, "token-err"),
 		},

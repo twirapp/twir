@@ -18,6 +18,9 @@ type User struct {
 	IsBanned          bool
 	HideOnLandingPage bool
 	CreatedAt         time.Time
+	Login             string
+	DisplayName       string
+	Avatar            string
 
 	isNil bool
 }

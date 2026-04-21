@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	"github.com/twirapp/twir/cli/internal/shell"
 )
@@ -37,12 +38,36 @@ func newApplication(name string) (*twirApp, error) {
 }
 
 func (c *twirApp) stop() error {
-	if c.cmd != nil && c.cmd.Process != nil {
-		if err := c.cmd.Process.Signal(syscall.SIGTERM); err != nil {
-			return err
-		}
+	if c.cmd == nil || c.cmd.Process == nil {
+		return nil
 	}
 
+	pid := c.cmd.Process.Pid
+
+	pgid, err := syscall.Getpgid(pid)
+	if err == nil {
+		syscall.Kill(-pgid, syscall.SIGTERM)
+	} else {
+		c.cmd.Process.Signal(syscall.SIGTERM)
+	}
+
+	done := make(chan error, 1)
+	go func() {
+		done <- c.cmd.Wait()
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		if pgid != 0 {
+			syscall.Kill(-pgid, syscall.SIGKILL)
+		} else {
+			c.cmd.Process.Kill()
+		}
+		<-done
+	}
+
+	c.cmd = nil
 	return nil
 }
 
@@ -59,6 +84,8 @@ func (c *twirApp) createAppCommand() (*exec.Cmd, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	return cmd, nil
 }

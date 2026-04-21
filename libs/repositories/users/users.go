@@ -32,6 +32,9 @@ type UpdateInput struct {
 	ApiKey            *string
 	HideOnLandingPage *bool
 	TokenID           *string
+	Login             *string
+	DisplayName       *string
+	Avatar            *string
 }
 
 type GetRandomOnlineUserInput struct {
@@ -53,4 +56,7 @@ type CreateInput struct {
 	IsBanned          bool
 	HideOnLandingPage bool
 	TokenID           *string
+	Login             string
+	DisplayName       string
+	Avatar            string
 }

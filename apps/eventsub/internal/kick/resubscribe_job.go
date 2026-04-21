@@ -2,6 +2,7 @@ package kick
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -91,14 +92,34 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		kickBot, err := j.kickBotsRepo.GetByKickUserID(ctx, *ch.KickUserID)
-		if err != nil {
-			j.logger.ErrorContext(
+		if ch.KickBotID == nil {
+			j.logger.InfoContext(
 				ctx,
-				"resubscribe job: failed to get kick bot",
+				"resubscribe job: channel has no kick bot assigned, skipping",
+				slog.String("channel_id", ch.ID.String()),
 				slog.String("kick_user_id", ch.KickUserID.String()),
-				logger.Error(err),
 			)
+			continue
+		}
+
+		kickBot, err := j.kickBotsRepo.GetByID(ctx, *ch.KickBotID)
+		if err != nil {
+			if errors.Is(err, kickbotsrepository.ErrNotFound) {
+				j.logger.InfoContext(
+					ctx,
+					"resubscribe job: kick bot not found, skipping",
+					slog.String("channel_id", ch.ID.String()),
+					slog.String("kick_bot_id", ch.KickBotID.String()),
+				)
+			} else {
+				j.logger.ErrorContext(
+					ctx,
+					"resubscribe job: failed to get kick bot",
+					slog.String("channel_id", ch.ID.String()),
+					slog.String("kick_bot_id", ch.KickBotID.String()),
+					logger.Error(err),
+				)
+			}
 			continue
 		}
 
@@ -107,7 +128,8 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to decrypt kick access token",
-				slog.String("kick_user_id", ch.KickUserID.String()),
+				slog.String("channel_id", ch.ID.String()),
+				slog.String("kick_bot_id", ch.KickBotID.String()),
 				logger.Error(err),
 			)
 			continue
@@ -120,6 +142,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to list kick subscriptions",
+				slog.String("channel_id", ch.ID.String()),
 				slog.String("kick_user_id", kickChannelID),
 				logger.Error(err),
 			)
@@ -134,6 +157,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to re-subscribe kick eventsub",
+				slog.String("channel_id", ch.ID.String()),
 				slog.String("kick_user_id", kickChannelID),
 				logger.Error(err),
 			)
@@ -143,6 +167,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 		j.logger.InfoContext(
 			ctx,
 			"re-subscribed kick eventsub for channel",
+			slog.String("channel_id", ch.ID.String()),
 			slog.String("kick_user_id", kickChannelID),
 		)
 	}

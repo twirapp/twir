@@ -9,8 +9,8 @@ import (
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
-	"github.com/twirapp/twir/apps/eventsub/internal/webhook"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
+	"github.com/twirapp/twir/apps/eventsub/internal/webhook"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
@@ -141,9 +141,7 @@ var App = fx.Options(
 	),
 	fx.Invoke(
 		otel.NewFx("eventsub"),
-		handler.New,
 		bus_listener.New,
-		func(m *webhook.Manager) {},
 		func(s *httpserver.Server, lc fx.Lifecycle) {
 			lc.Append(fx.Hook{
 				OnStart: func(_ context.Context) error { return s.Start() },

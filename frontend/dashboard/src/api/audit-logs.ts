@@ -20,7 +20,9 @@ graphql(`
 			profileImageUrl
 			displayName
 			login
+			notFound
 		}
+		platform
 	}
 `)
 

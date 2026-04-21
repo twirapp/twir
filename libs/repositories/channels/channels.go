@@ -21,11 +21,13 @@ type CreateInput struct {
 	TwitchUserID *uuid.UUID
 	KickUserID   *uuid.UUID
 	BotID        string
+	KickBotID    *uuid.UUID
 }
 
 type UpdateInput struct {
 	IsEnabled *bool
 	IsBotMod  *bool
+	KickBotID *uuid.UUID
 }
 
 type GetManyInput struct {

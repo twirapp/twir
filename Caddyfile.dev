@@ -36,6 +36,11 @@
         reverse_proxy http://127.0.0.1:3006
     }
 
+    handle_path /webhooks/kick* {
+				rewrite * /webhooks/kick{path}
+				reverse_proxy http://127.0.0.1:3030
+    }
+
     handle_path /s* {
 				rewrite * /v1/short-links{path}
 				reverse_proxy http://127.0.0.1:3009

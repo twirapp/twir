@@ -38,13 +38,9 @@ func (c *GoApps) Start(ctx context.Context) error {
 	for _, app := range c.apps {
 		app := app
 
-		for i := 0; i < 3; i++ {
-			pterm.Info.Println("Starting " + app.Name)
-			if err := app.Start(); err != nil {
-				return err
-			}
-
-			break
+		pterm.Info.Println("Starting " + app.Name)
+		if err := app.Start(); err != nil {
+			return err
 		}
 
 		go func() {
@@ -65,9 +61,13 @@ func (c *GoApps) Start(ctx context.Context) error {
 	return nil
 }
 
-func (c *GoApps) Stop() {
+func (c *GoApps) Stop() error {
 	for _, app := range c.apps {
 		app.Watcher.Stop()
-		app.Stop()
+		if err := app.Stop(); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

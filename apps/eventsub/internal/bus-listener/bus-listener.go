@@ -132,12 +132,22 @@ func (c *BusListener) subscribeToAllEvents(
 	}
 
 	if channel.KickUserID != nil {
-		kickBot, err := c.kickBotsRepo.GetByKickUserID(ctx, *channel.KickUserID)
+		if channel.KickBotID == nil {
+			c.logger.Warn(
+				"channel has kick user but no kick bot assigned, skipping kick eventsub subscription",
+				slog.String("channel_id", msg.ChannelID),
+				slog.String("kick_user_id", channel.KickUserID.String()),
+			)
+			return struct{}{}, nil
+		}
+
+		kickBot, err := c.kickBotsRepo.GetByID(ctx, *channel.KickBotID)
 		if err != nil {
 			c.logger.Error(
 				"error getting kick bot",
 				logger.Error(err),
 				slog.String("channel_id", msg.ChannelID),
+				slog.String("kick_bot_id", channel.KickBotID.String()),
 			)
 			return struct{}{}, err
 		}
@@ -148,7 +158,7 @@ func (c *BusListener) subscribeToAllEvents(
 				"error decrypting kick access token",
 				logger.Error(err),
 				slog.String("channel_id", msg.ChannelID),
-				slog.String("kick_user_id", channel.KickUserID.String()),
+				slog.String("kick_bot_id", channel.KickBotID.String()),
 			)
 			return struct{}{}, err
 		}
@@ -168,6 +178,7 @@ func (c *BusListener) subscribeToAllEvents(
 			"subscribed to kick events",
 			slog.String("channel_id", msg.ChannelID),
 			slog.String("kick_user_id", kickUserIDStr),
+			slog.String("kick_bot_id", channel.KickBotID.String()),
 		)
 
 		return struct{}{}, nil
@@ -203,7 +214,6 @@ func (c *BusListener) subscribe(
 	ctx context.Context,
 	msg eventsub.EventsubSubscribeRequest,
 ) (struct{}, error) {
-
 	if err := c.eventSubClient.SubscribeToEvent(
 		ctx,
 		msg.Topic,

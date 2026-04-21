@@ -2,12 +2,12 @@ package webhook
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
-	"github.com/twirapp/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/logger"
@@ -19,14 +19,13 @@ import (
 type Platform interface {
 	Name() string
 	SubscribeAll(ctx context.Context, channelID string, token string) error
-	UnsubscribeAll(ctx context.Context, channelID string) error
+	UnsubscribeAll(ctx context.Context, channelID string, token string) error
 	SetCallbackBaseURL(baseURL string)
 }
 
 type Manager struct {
 	config       cfg.Config
 	logger       *slog.Logger
-	tunnelMgr    tunnel.Manager
 	kickSubMgr   *kick.SubscriptionManager
 	channelsRepo channels.Repository
 	kickBotsRepo kickbotsrepository.Repository
@@ -55,10 +54,6 @@ func NewManager(opts Opts) *Manager {
 		kickBotsRepo: opts.KickBotsRepo,
 	}
 
-	if opts.Config.IsDevelopment() && opts.Config.TunnelEnabled {
-		m.tunnelMgr = tunnel.NewPinggyManager(opts.Config, opts.Logger)
-	}
-
 	m.platforms = []Platform{m.kickSubMgr}
 
 	opts.Lc.Append(fx.Hook{
@@ -66,9 +61,6 @@ func NewManager(opts Opts) *Manager {
 			return m.start(ctx)
 		},
 		OnStop: func(ctx context.Context) error {
-			if m.tunnelMgr != nil {
-				return m.tunnelMgr.Stop(ctx)
-			}
 			return nil
 		},
 	})
@@ -79,19 +71,12 @@ func NewManager(opts Opts) *Manager {
 func (m *Manager) start(ctx context.Context) error {
 	callbackBaseURL := m.config.SiteBaseUrl
 
-	if m.config.IsDevelopment() && m.tunnelMgr != nil {
-		publicURL, err := m.tunnelMgr.Start(ctx)
-		if err != nil {
-			return fmt.Errorf("webhook manager: start tunnel: %w", err)
-		}
-		callbackBaseURL = publicURL
-	}
-
 	for _, p := range m.platforms {
 		p.SetCallbackBaseURL(callbackBaseURL)
 	}
 
 	if m.config.IsDevelopment() {
+		m.logKickWebhookInstructions(ctx, callbackBaseURL)
 		if err := m.unsubscribeAllPlatforms(ctx); err != nil {
 			m.logger.ErrorContext(ctx, "webhook manager: unsubscribe all failed", logger.Error(err))
 		}
@@ -102,6 +87,23 @@ func (m *Manager) start(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (m *Manager) logKickWebhookInstructions(ctx context.Context, callbackBaseURL string) {
+	webhookURL := callbackBaseURL + "/webhook/kick"
+	m.logger.WarnContext(ctx,
+		"============================================================\n"+
+			"KICK WEBHOOK SETUP REQUIRED IF YOU WANT TO RECEIVE EVENTS\n"+
+			"============================================================\n"+
+			"1. Go to https://kick.com/settings/developer\n"+
+			"2. Open your app settings\n"+
+			"3. Enable 'Webhooks' toggle\n"+
+			"4. Set Webhook URL to: "+webhookURL+"\n"+
+			"5. Save changes\n"+
+			"6. Restart eventsub if needed\n"+
+			"============================================================",
+		slog.String("webhook_url", webhookURL),
+	)
 }
 
 func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
@@ -118,10 +120,55 @@ func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
 			continue
 		}
 
-		if err := m.kickSubMgr.UnsubscribeAll(ctx, ch.KickUserID.String()); err != nil {
+		if ch.KickBotID == nil {
+			m.logger.InfoContext(
+				ctx,
+				"webhook manager: channel has no kick bot assigned, skipping unsubscribe",
+				slog.String("channel_id", ch.ID.String()),
+				slog.String("kick_user_id", ch.KickUserID.String()),
+			)
+			continue
+		}
+
+		kickBot, err := m.kickBotsRepo.GetByID(ctx, *ch.KickBotID)
+		if err != nil {
+			if errors.Is(err, kickbotsrepository.ErrNotFound) {
+				m.logger.InfoContext(
+					ctx,
+					"webhook manager: kick bot not found, skipping unsubscribe",
+					slog.String("channel_id", ch.ID.String()),
+					slog.String("kick_bot_id", ch.KickBotID.String()),
+				)
+				continue
+			}
+
+			m.logger.WarnContext(
+				ctx,
+				"webhook manager: failed to get kick bot for unsubscribe",
+				slog.String("channel_id", ch.ID.String()),
+				slog.String("kick_bot_id", ch.KickBotID.String()),
+				logger.Error(err),
+			)
+			continue
+		}
+
+		accessToken, err := crypto.Decrypt(kickBot.AccessToken, m.config.TokensCipherKey)
+		if err != nil {
+			m.logger.WarnContext(
+				ctx,
+				"webhook manager: failed to decrypt kick token for unsubscribe",
+				slog.String("channel_id", ch.ID.String()),
+				slog.String("kick_bot_id", ch.KickBotID.String()),
+				logger.Error(err),
+			)
+			continue
+		}
+
+		if err := m.kickSubMgr.UnsubscribeAll(ctx, ch.KickUserID.String(), accessToken); err != nil {
 			m.logger.WarnContext(
 				ctx,
 				"webhook manager: failed to unsubscribe kick",
+				slog.String("channel_id", ch.ID.String()),
 				slog.String("kick_user_id", ch.KickUserID.String()),
 				logger.Error(err),
 			)
@@ -145,14 +192,34 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 			continue
 		}
 
-		kickBot, err := m.kickBotsRepo.GetByKickUserID(ctx, *ch.KickUserID)
-		if err != nil {
-			m.logger.WarnContext(
+		if ch.KickBotID == nil {
+			m.logger.InfoContext(
 				ctx,
-				"webhook manager: failed to get kick bot for subscribe",
+				"webhook manager: channel has no kick bot assigned, skipping subscribe",
+				slog.String("channel_id", ch.ID.String()),
 				slog.String("kick_user_id", ch.KickUserID.String()),
-				logger.Error(err),
 			)
+			continue
+		}
+
+		kickBot, err := m.kickBotsRepo.GetByID(ctx, *ch.KickBotID)
+		if err != nil {
+			if errors.Is(err, kickbotsrepository.ErrNotFound) {
+				m.logger.InfoContext(
+					ctx,
+					"webhook manager: kick bot not found, skipping subscribe",
+					slog.String("channel_id", ch.ID.String()),
+					slog.String("kick_bot_id", ch.KickBotID.String()),
+				)
+			} else {
+				m.logger.WarnContext(
+					ctx,
+					"webhook manager: failed to get kick bot for subscribe",
+					slog.String("channel_id", ch.ID.String()),
+					slog.String("kick_bot_id", ch.KickBotID.String()),
+					logger.Error(err),
+				)
+			}
 			continue
 		}
 
@@ -161,7 +228,8 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 			m.logger.WarnContext(
 				ctx,
 				"webhook manager: failed to decrypt token for kick subscribe",
-				slog.String("kick_user_id", ch.KickUserID.String()),
+				slog.String("channel_id", ch.ID.String()),
+				slog.String("kick_bot_id", ch.KickBotID.String()),
 				logger.Error(err),
 			)
 			continue
@@ -171,6 +239,7 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 			m.logger.ErrorContext(
 				ctx,
 				"webhook manager: failed to subscribe kick",
+				slog.String("channel_id", ch.ID.String()),
 				slog.String("kick_user_id", ch.KickUserID.String()),
 				logger.Error(err),
 			)
@@ -180,6 +249,7 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 		m.logger.InfoContext(
 			ctx,
 			"webhook manager: subscribed kick eventsub",
+			slog.String("channel_id", ch.ID.String()),
 			slog.String("kick_user_id", ch.KickUserID.String()),
 		)
 	}

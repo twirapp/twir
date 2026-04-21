@@ -8,7 +8,6 @@ package resolvers
 import (
 	"context"
 
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
@@ -22,7 +21,23 @@ func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*g
 		return nil, nil
 	}
 
-	return dataloader.GetHelixUserById(ctx, *obj.UserID)
+	profile, _, err := resolveUserProfile(ctx, r.Resolver, *obj.UserID)
+	return profile, err
+}
+
+// Platform is the resolver for the platform field.
+func (r *auditLogResolver) Platform(ctx context.Context, obj *gqlmodel.AuditLog) (*string, error) {
+	if obj.UserID == nil {
+		return nil, nil
+	}
+
+	_, platform, err := resolveUserProfile(ctx, r.Resolver, *obj.UserID)
+	if err != nil || platform == "" {
+		return nil, err
+	}
+
+	platformStr := platform
+	return &platformStr, nil
 }
 
 // AuditLog is the resolver for the auditLog field.

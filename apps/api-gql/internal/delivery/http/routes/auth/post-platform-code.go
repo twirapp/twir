@@ -18,7 +18,9 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
+	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
+	usersrepo "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -108,7 +110,7 @@ func (a *Auth) handleKickCode(
 	createdUser := false
 	if userNotFound {
 		a.logger.InfoContext(ctx, "kick auth: no existing platform account, creating new user")
-		userID, err = a.createUser(ctx, platform.PlatformKick, platformUser.ID)
+		userID, err = a.createUser(ctx, platform.PlatformKick, platformUser.ID, platformUser.Login, platformUser.DisplayName, platformUser.Avatar)
 		if err != nil {
 			a.logger.ErrorContext(ctx, "kick auth: failed to create user", logger.Error(err))
 			return nil, huma.Error500InternalServerError("Cannot create user", err)
@@ -117,6 +119,14 @@ func (a *Auth) handleKickCode(
 		a.logger.InfoContext(ctx, "kick auth: created new user", slog.String("user_id", userID.String()))
 	} else {
 		userID = uuid.MustParse(existingUser.ID)
+		_, updateErr := a.usersRepo.Update(ctx, userID.String(), usersrepo.UpdateInput{
+			Login:       &platformUser.Login,
+			DisplayName: &platformUser.DisplayName,
+			Avatar:      &platformUser.Avatar,
+		})
+		if updateErr != nil {
+			a.logger.ErrorContext(ctx, "kick auth: failed to update user profile", logger.Error(updateErr))
+		}
 		a.logger.InfoContext(ctx, "kick auth: found existing platform account", slog.String("user_id", userID.String()))
 	}
 
@@ -171,6 +181,19 @@ func (a *Auth) handleKickCode(
 		}
 	}
 
+	defaultKickBot, kickBotErr := a.kickBotsRepo.GetDefault(ctx)
+	if kickBotErr != nil && !errors.Is(kickBotErr, kickbotsrepo.ErrNotFound) {
+		a.logger.ErrorContext(ctx, "kick auth: failed to get default kick bot", logger.Error(kickBotErr))
+	}
+
+	var defaultKickBotID *uuid.UUID
+	if kickBotErr == nil {
+		botID, parseErr := uuid.Parse(defaultKickBot.ID)
+		if parseErr == nil {
+			defaultKickBotID = &botID
+		}
+	}
+
 	channel, err := a.channelsRepo.GetByKickUserID(ctx, userID)
 	if err != nil {
 		if !errors.Is(err, channelsrepo.ErrNotFound) {
@@ -178,13 +201,22 @@ func (a *Auth) handleKickCode(
 			return nil, huma.Error500InternalServerError("Cannot get channel", err)
 		}
 
-		channel, err = a.createChannel(ctx, nil, &userID, defaultBot.ID)
+		channel, err = a.createChannel(ctx, nil, &userID, defaultBot.ID, defaultKickBotID)
 		if err != nil {
 			a.logger.ErrorContext(ctx, "kick auth: failed to create channel", logger.Error(err))
 			return nil, huma.Error500InternalServerError("Cannot create channel", err)
 		}
-		a.logger.InfoContext(ctx, "kick auth: created channel", slog.String("channel_id", channel.ID.String()))
+		a.logger.InfoContext(ctx, "kick auth: created channel", slog.String("channel_id", channel.ID.String()), slog.String("kick_bot_id", defaultKickBot.ID))
 	} else {
+		if defaultKickBotID != nil && channel.KickBotID == nil {
+			updatedChannel, updateErr := a.channelsRepo.Update(ctx, channel.ID, channelsrepo.UpdateInput{KickBotID: defaultKickBotID})
+			if updateErr != nil {
+				a.logger.ErrorContext(ctx, "kick auth: failed to update channel kick bot", logger.Error(updateErr))
+			} else {
+				channel = updatedChannel
+				a.logger.InfoContext(ctx, "kick auth: updated channel with kick bot", slog.String("channel_id", channel.ID.String()), slog.String("kick_bot_id", defaultKickBot.ID))
+			}
+		}
 		a.logger.InfoContext(ctx, "kick auth: found existing channel", slog.String("channel_id", channel.ID.String()))
 	}
 

@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	goredis "github.com/redis/go-redis/v9"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/logger"
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -257,22 +256,7 @@ func (m *SubscriptionManager) unsubscribe(
 	return nil
 }
 
-func (m *SubscriptionManager) UnsubscribeAll(ctx context.Context, kickChannelID string) error {
-	kickUserUUID, err := uuid.Parse(kickChannelID)
-	if err != nil {
-		return fmt.Errorf("kick: parse kick channel ID %s as UUID: %w", kickChannelID, err)
-	}
-
-	kickBot, err := m.kickBotsRepo.GetByKickUserID(ctx, kickUserUUID)
-	if err != nil {
-		return fmt.Errorf("kick: get kick bot for channel %s: %w", kickChannelID, err)
-	}
-
-	broadcasterToken, err := crypto.Decrypt(kickBot.AccessToken, m.config.TokensCipherKey)
-	if err != nil {
-		return fmt.Errorf("kick: decrypt access token for channel %s: %w", kickChannelID, err)
-	}
-
+func (m *SubscriptionManager) UnsubscribeAll(ctx context.Context, kickChannelID string, broadcasterToken string) error {
 	for _, eventType := range EventTypes {
 		key := redisKey(kickChannelID, eventType)
 
@@ -366,3 +350,5 @@ func (m *SubscriptionManager) ListSubscriptions(
 
 	return result, nil
 }
+
+

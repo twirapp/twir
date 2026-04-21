@@ -102,13 +102,21 @@ func (a *Auth) handleAuthPostCode(
 	userID := uuid.Nil
 	createdUser := false
 	if userNotFound {
-		userID, err = a.createUser(ctx, platform.PlatformTwitch, twitchUser.ID)
+		userID, err = a.createUser(ctx, platform.PlatformTwitch, twitchUser.ID, twitchUser.Login, twitchUser.DisplayName, twitchUser.ProfileImageURL)
 		if err != nil {
 			return nil, huma.Error500InternalServerError("Cannot create user", err)
 		}
 		createdUser = true
 	} else {
 		userID = uuid.MustParse(existingUser.ID)
+		_, updateErr := a.usersRepo.Update(ctx, userID.String(), usersrepo.UpdateInput{
+			Login:       &twitchUser.Login,
+			DisplayName: &twitchUser.DisplayName,
+			Avatar:      &twitchUser.ProfileImageURL,
+		})
+		if updateErr != nil {
+			a.logger.ErrorContext(ctx, "cannot update user profile", logger.Error(updateErr))
+		}
 	}
 
 	dbUser, err := a.usersRepo.GetByID(ctx, userID.String())
@@ -165,7 +173,7 @@ func (a *Auth) handleAuthPostCode(
 			return nil, huma.Error500InternalServerError("Cannot get channel", err)
 		}
 
-		channel, err = a.createChannel(ctx, &userID, nil, defaultBot.ID)
+		channel, err = a.createChannel(ctx, &userID, nil, defaultBot.ID, nil)
 		if err != nil {
 			return nil, huma.Error500InternalServerError("Cannot create channel", err)
 		}
@@ -215,12 +223,15 @@ func (a *Auth) handleAuthPostCode(
 	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: string(redirectTo)}), nil
 }
 
-func (a *Auth) createUser(ctx context.Context, plat platform.Platform, platformID string) (uuid.UUID, error) {
+func (a *Auth) createUser(ctx context.Context, plat platform.Platform, platformID string, login, displayName, avatar string) (uuid.UUID, error) {
 	user, err := a.usersRepo.Create(ctx, usersrepo.CreateInput{
-		Platform:   plat,
-		PlatformID: platformID,
-		IsBotAdmin: false,
-		IsBanned:   false,
+		Platform:    plat,
+		PlatformID:  platformID,
+		IsBotAdmin:  false,
+		IsBanned:    false,
+		Login:       login,
+		DisplayName: displayName,
+		Avatar:      avatar,
 	})
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("create user: %w", err)
@@ -234,11 +245,13 @@ func (a *Auth) createChannel(
 	twitchUserID *uuid.UUID,
 	kickUserID *uuid.UUID,
 	botID string,
+	kickBotID *uuid.UUID,
 ) (channelsmodel.Channel, error) {
 	channel, err := a.channelsRepo.Create(ctx, channelsrepo.CreateInput{
 		TwitchUserID: twitchUserID,
 		KickUserID:   kickUserID,
 		BotID:        botID,
+		KickBotID:    kickBotID,
 	})
 	if err != nil {
 		return channelsmodel.Nil, fmt.Errorf("create channel: %w", err)

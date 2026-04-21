@@ -46,7 +46,8 @@ SELECT
 	c."isEnabled",
 	c."isTwitchBanned",
 	c."isBotMod",
-	c."botId"
+	c."botId",
+	c.kick_bot_id
 FROM channels c
 LEFT JOIN users tu ON tu.id = c.twitch_user_id
 LEFT JOIN users ku ON ku.id = c.kick_user_id`
@@ -54,8 +55,8 @@ LEFT JOIN users ku ON ku.id = c.kick_user_id`
 func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
 	query := `
 WITH inserted AS (
-	INSERT INTO channels (twitch_user_id, kick_user_id, "botId")
-	VALUES ($1, $2, $3)
+	INSERT INTO channels (twitch_user_id, kick_user_id, "botId", kick_bot_id)
+	VALUES ($1, $2, $3, $4)
 	RETURNING *
 )
 SELECT
@@ -67,13 +68,14 @@ SELECT
 	i."isEnabled",
 	i."isTwitchBanned",
 	i."isBotMod",
-	i."botId"
+	i."botId",
+	i.kick_bot_id
 FROM inserted i
 LEFT JOIN users tu ON tu.id = i.twitch_user_id
 LEFT JOIN users ku ON ku.id = i.kick_user_id`
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, input.TwitchUserID, input.KickUserID, input.BotID)
+	rows, err := conn.Query(ctx, query, input.TwitchUserID, input.KickUserID, input.BotID, input.KickBotID)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -172,6 +174,10 @@ func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.Up
 		updateBuilder = updateBuilder.Set(`"isBotMod"`, *input.IsBotMod)
 	}
 
+	if input.KickBotID != nil {
+		updateBuilder = updateBuilder.Set("kick_bot_id", *input.KickBotID)
+	}
+
 	updateBuilder = updateBuilder.Suffix(`RETURNING *`)
 
 	innerQuery, args, err := updateBuilder.ToSql()
@@ -190,7 +196,8 @@ SELECT
 	u."isEnabled",
 	u."isTwitchBanned",
 	u."isBotMod",
-	u."botId"
+	u."botId",
+	u.kick_bot_id
 FROM updated u
 LEFT JOIN users tu ON tu.id = u.twitch_user_id
 LEFT JOIN users ku ON ku.id = u.kick_user_id`
@@ -224,6 +231,7 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 			`c."isTwitchBanned"`,
 			`c."isBotMod"`,
 			`c."botId"`,
+			"c.kick_bot_id",
 		).
 		From("channels c").
 		LeftJoin("users tu ON tu.id = c.twitch_user_id").
