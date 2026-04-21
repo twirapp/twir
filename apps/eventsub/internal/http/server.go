@@ -31,13 +31,18 @@ func New(config cfg.Config, logger *slog.Logger, redisClient *redis.Client, kick
 	mux.HandleFunc("GET /health", s.handleHealth)
 
 	if config.EventSubDisableSignatureVerification {
-		logger.Warn("kick webhook signature verification is disabled")
-		kickMiddleware := kick.NewMiddleware(redisClient, logger)
-		mux.Handle("POST /webhook/kick", kickMiddleware.HandlerWithoutVerification(http.HandlerFunc(kickHandlers.HandleWebhook)))
-	} else {
-		kickMiddleware := kick.NewMiddleware(redisClient, logger)
-		mux.Handle("POST /webhook/kick", kickMiddleware.Handler(http.HandlerFunc(kickHandlers.HandleWebhook)))
+		if config.AppEnv != "development" {
+			logger.Error("EVENTSUB_DISABLE_SIGNATURE_VERIFICATION is set but APP_ENV is not development, forcing signature verification")
+		} else {
+			logger.Warn("kick webhook signature verification is disabled")
+			kickMiddleware := kick.NewMiddleware(redisClient, logger)
+			mux.Handle("POST /webhook/kick", kickMiddleware.HandlerWithoutVerification(http.HandlerFunc(kickHandlers.HandleWebhook)))
+			return s
+		}
 	}
+
+	kickMiddleware := kick.NewMiddleware(redisClient, logger)
+	mux.Handle("POST /webhook/kick", kickMiddleware.Handler(http.HandlerFunc(kickHandlers.HandleWebhook)))
 
 	return s
 }

@@ -122,14 +122,18 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	eventType := KickEventTypeFromContext(ctx)
 
 	idempotencyKey := idempotencyKeyPrefix + messageID
-	ok, err := h.redis.SetNX(ctx, idempotencyKey, "1", idempotencyTTL).Result()
+	exists, err := h.redis.Exists(ctx, idempotencyKey).Result()
 	if err != nil {
 		h.logger.ErrorContext(ctx, "kick: failed to check idempotency key",
 			slog.String("message_id", messageID),
 			slog.String("event_type", eventType),
 			logger.Error(err),
 		)
-	} else if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if exists > 0 {
 		h.logger.InfoContext(ctx, "kick: duplicate event, skipping",
 			slog.String("message_id", messageID),
 			slog.String("event_type", eventType),
@@ -141,7 +145,7 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		h.logger.ErrorContext(ctx, "kick: failed to read request body", logger.Error(err))
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -153,22 +157,50 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	switch eventType {
 	case "chat.message.sent":
-		h.handleChatMessage(w, r, body)
+		err = h.handleChatMessage(r, body)
 	case "channel.followed":
-		h.handleChannelFollow(w, r, body)
+		err = h.handleChannelFollow(r, body)
 	case "livestream.status.updated":
-		h.handleLivestreamStatus(w, r, body)
+		err = h.handleLivestreamStatus(r, body)
 	default:
 		h.logger.InfoContext(ctx, "kick: unknown event type, ignoring",
 			slog.String("event_type", eventType),
 		)
-		w.WriteHeader(http.StatusOK)
 	}
+
+	if err != nil {
+		h.logger.ErrorContext(ctx, "kick: failed to process webhook event",
+			slog.String("message_id", messageID),
+			slog.String("event_type", eventType),
+			logger.Error(err),
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	ok, err := h.redis.SetNX(ctx, idempotencyKey, "1", idempotencyTTL).Result()
+	if err != nil {
+		h.logger.ErrorContext(ctx, "kick: failed to set idempotency key",
+			slog.String("message_id", messageID),
+			slog.String("event_type", eventType),
+			logger.Error(err),
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if !ok {
+		h.logger.InfoContext(ctx, "kick: event marked as processed concurrently",
+			slog.String("message_id", messageID),
+			slog.String("event_type", eventType),
+		)
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handlers) handleChatMessage(w http.ResponseWriter, r *http.Request, body []byte) {
+func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 	ctx := r.Context()
-	defer w.WriteHeader(http.StatusOK)
 
 	h.logger.InfoContext(ctx, "kick: handling chat message",
 		slog.String("body", string(body)),
@@ -176,8 +208,7 @@ func (h *Handlers) handleChatMessage(w http.ResponseWriter, r *http.Request, bod
 
 	var payload kickChatMessagePayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to unmarshal chat message payload", logger.Error(err))
-		return
+		return fmt.Errorf("unmarshal chat message payload: %w", err)
 	}
 
 	h.logger.InfoContext(ctx, "kick: parsed chat message payload",
@@ -191,11 +222,7 @@ func (h *Handlers) handleChatMessage(w http.ResponseWriter, r *http.Request, bod
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelID, userID, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to resolve IDs for chat message",
-			slog.String("broadcaster_user_id", broadcasterUserID),
-			logger.Error(err),
-		)
-		return
+		return fmt.Errorf("resolve ids for chat message broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 
 	h.logger.InfoContext(ctx, "kick: resolved IDs for chat message",
@@ -230,32 +257,28 @@ func (h *Handlers) handleChatMessage(w http.ResponseWriter, r *http.Request, bod
 	}
 
 	if err := h.chatMessagesGeneric.Publish(ctx, genericMsg); err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to publish to ChatMessagesGeneric", logger.Error(err))
+		return fmt.Errorf("publish chat message to ChatMessagesGeneric: %w", err)
 	}
 
 	if err := h.processGenericMessage.Publish(ctx, genericMsg); err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to publish to Parser.ProcessGenericMessage", logger.Error(err))
+		return fmt.Errorf("publish chat message to Parser.ProcessGenericMessage: %w", err)
 	}
+
+	return nil
 }
 
-func (h *Handlers) handleChannelFollow(w http.ResponseWriter, r *http.Request, body []byte) {
+func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) error {
 	ctx := r.Context()
-	defer w.WriteHeader(http.StatusOK)
 
 	var payload kickFollowPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to unmarshal follow payload", logger.Error(err))
-		return
+		return fmt.Errorf("unmarshal follow payload: %w", err)
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to resolve IDs for follow",
-			slog.String("broadcaster_user_id", broadcasterUserID),
-			logger.Error(err),
-		)
-		return
+		return fmt.Errorf("resolve ids for follow broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 
 	if err := h.eventsFollow.Publish(
@@ -268,28 +291,24 @@ func (h *Handlers) handleChannelFollow(w http.ResponseWriter, r *http.Request, b
 			UserName: payload.Follower.Username,
 		},
 	); err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to publish follow event", logger.Error(err))
+		return fmt.Errorf("publish follow event: %w", err)
 	}
+
+	return nil
 }
 
-func (h *Handlers) handleLivestreamStatus(w http.ResponseWriter, r *http.Request, body []byte) {
+func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) error {
 	ctx := r.Context()
-	defer w.WriteHeader(http.StatusOK)
 
 	var payload kickLivestreamStatusPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to unmarshal livestream.status.updated payload", logger.Error(err))
-		return
+		return fmt.Errorf("unmarshal livestream.status.updated payload: %w", err)
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to resolve IDs for livestream.status.updated",
-			slog.String("broadcaster_user_id", broadcasterUserID),
-			logger.Error(err),
-		)
-		return
+		return fmt.Errorf("resolve ids for livestream.status.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 
 	if payload.IsLive {
@@ -303,7 +322,7 @@ func (h *Handlers) handleLivestreamStatus(w http.ResponseWriter, r *http.Request
 			BroadcasterUserID:    broadcasterUserID,
 			BroadcasterUserLogin: payload.Broadcaster.Username,
 		}); err != nil {
-			h.logger.ErrorContext(ctx, "kick: failed to publish stream online event", logger.Error(err))
+			return fmt.Errorf("publish stream online event: %w", err)
 		}
 	} else {
 		h.logger.InfoContext(ctx, "kick: stream offline",
@@ -315,9 +334,11 @@ func (h *Handlers) handleLivestreamStatus(w http.ResponseWriter, r *http.Request
 			BroadcasterUserID:    broadcasterUserID,
 			BroadcasterUserLogin: payload.Broadcaster.Username,
 		}); err != nil {
-			h.logger.ErrorContext(ctx, "kick: failed to publish stream offline event", logger.Error(err))
+			return fmt.Errorf("publish stream offline event: %w", err)
 		}
 	}
+
+	return nil
 }
 
 func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (string, string, error) {
