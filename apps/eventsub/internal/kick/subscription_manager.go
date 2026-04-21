@@ -341,7 +341,57 @@ func (m *SubscriptionManager) SubscribeAll(
 		return fmt.Errorf("failed to parse kick platform user ID %q as int: %w", user.PlatformID, err)
 	}
 
+	// List existing subscriptions to avoid duplicates
+	existingSubs, err := m.ListSubscriptions(ctx, broadcasterToken, botID, encryptedRefreshToken, broadcasterUserID)
+	if err != nil {
+		m.logger.WarnContext(ctx, "failed to list existing kick subscriptions, continuing with blind subscribe",
+			slog.String("kick_channel_id", kickChannelID),
+			logger.Error(err),
+		)
+		existingSubs = nil
+	}
+
+	// Build map of existing active subscriptions by event type
+	existingByEvent := make(map[string][]string)
+	for _, sub := range existingSubs {
+		if sub.Status == "active" {
+			existingByEvent[sub.Event] = append(existingByEvent[sub.Event], sub.SubscriptionID)
+		}
+	}
+
 	for _, eventType := range EventTypes {
+		// Check if we already have an active subscription for this event type
+		if existingSubIDs, ok := existingByEvent[eventType]; ok && len(existingSubIDs) > 0 {
+			// Use the first existing subscription and store it
+			subID := existingSubIDs[0]
+			key := redisKey(kickChannelID, eventType)
+			if err := m.redis.Set(ctx, key, subID, redisTTL).Err(); err != nil {
+				return fmt.Errorf("failed to store existing subscription ID for %q in Redis: %w", eventType, err)
+			}
+
+			m.logger.InfoContext(
+				ctx,
+				"Kick EventSub subscription already exists, reusing",
+				slog.String("kick_channel_id", kickChannelID),
+				slog.String("event_type", eventType),
+				slog.String("subscription_id", subID),
+			)
+
+			// If there are duplicate subscriptions, clean them up
+			for i := 1; i < len(existingSubIDs); i++ {
+				if err := m.unsubscribe(ctx, existingSubIDs[i], broadcasterToken); err != nil {
+					m.logger.WarnContext(ctx, "failed to clean up duplicate kick subscription",
+						slog.String("kick_channel_id", kickChannelID),
+						slog.String("event_type", eventType),
+						slog.String("subscription_id", existingSubIDs[i]),
+						logger.Error(err),
+					)
+				}
+			}
+
+			continue
+		}
+
 		subID, err := m.subscribe(ctx, broadcasterUserID, eventType, broadcasterToken)
 		if err != nil {
 			var apiErr *kickAPIError

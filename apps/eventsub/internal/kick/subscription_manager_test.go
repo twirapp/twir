@@ -168,6 +168,13 @@ func TestSubscribeAll_NoTokenRefreshOn400Error(t *testing.T) {
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
+		if r.Method == http.MethodGet {
+			// ListSubscriptions returns empty list
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(listResponse{Data: []subscriptionData{}})
+			return
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(`{"data":{},"message":"Invalid request"}`))
 	}))
@@ -187,9 +194,9 @@ func TestSubscribeAll_NoTokenRefreshOn400Error(t *testing.T) {
 		t.Fatal("expected error from SubscribeAll with 400 response, got nil")
 	}
 
-	// Should only be called once (first event fails with 400, no retry, stops processing)
-	if callCount != 1 {
-		t.Errorf("expected 1 API call (no retry on 400), got %d", callCount)
+	// Should be 1 GET (list) + 1 POST (first event fails with 400, no retry, stops processing)
+	if callCount != 2 {
+		t.Errorf("expected 2 API calls (1 list + 1 subscribe), got %d", callCount)
 	}
 }
 
