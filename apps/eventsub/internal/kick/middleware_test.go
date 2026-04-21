@@ -324,6 +324,33 @@ func TestHandlerWithoutVerification_StaleTimestamp(t *testing.T) {
 	}
 }
 
+func TestHandlerWithoutVerification_MalformedTimestamp(t *testing.T) {
+	middleware := newTestMiddleware(t)
+
+	nextCalled := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/webhook", nil)
+	req.Header.Set("Kick-Event-Message-Id", "message-123")
+	req.Header.Set("Kick-Event-Message-Timestamp", "not-a-timestamp")
+	req.Header.Set("Kick-Event-Type", "chat.message.sent")
+
+	w := httptest.NewRecorder()
+
+	middleware.HandlerWithoutVerification(next).ServeHTTP(w, req)
+
+	if nextCalled {
+		t.Fatal("expected next handler not to be called")
+	}
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
 func TestHandlerWithoutVerification_FutureTimestamp(t *testing.T) {
 	middleware := newTestMiddleware(t)
 	futureTimestamp := time.Now().UTC().Add(5 * time.Minute).Format(time.RFC3339)

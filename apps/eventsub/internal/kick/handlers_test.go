@@ -17,6 +17,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
+	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -153,6 +154,8 @@ func buildTestHandlers(
 	chatMessagesGeneric *mockQueue[generic.ChatMessage, struct{}],
 	processGenericMessage *mockQueue[generic.ChatMessage, struct{}],
 	followQueue *mockQueue[events.FollowMessage, struct{}],
+	streamOnline *mockQueue[kickbus.KickStreamOnline, struct{}],
+	streamOffline *mockQueue[kickbus.KickStreamOffline, struct{}],
 	usersRepo usersrepository.Repository,
 	channelsRepo channelsrepository.Repository,
 ) (*Handlers, redismock.ClientMock) {
@@ -166,6 +169,8 @@ func buildTestHandlers(
 		chatMessagesGeneric:   chatMessagesGeneric,
 		processGenericMessage: processGenericMessage,
 		eventsFollow:          followQueue,
+		streamOnline:          streamOnline,
+		streamOffline:         streamOffline,
 		channelsRepo:          channelsRepo,
 		usersRepo:             usersRepo,
 	}
@@ -208,7 +213,16 @@ func TestHandleChatMessage(t *testing.T) {
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+	)
 
 	msgID := "msg-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
@@ -290,7 +304,16 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+	)
 
 	msgID := "dup-msg-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
@@ -345,7 +368,16 @@ func TestHandleChannelFollow(t *testing.T) {
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+	)
 
 	msgID := "follow-evt-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
@@ -390,6 +422,160 @@ func TestHandleChannelFollow(t *testing.T) {
 	}
 }
 
+func TestHandleLivestreamStatusOnline(t *testing.T) {
+	userID := uuid.New().String()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+	streamOnlineQueue := &mockQueue[kickbus.KickStreamOnline, struct{}]{}
+	streamOfflineQueue := &mockQueue[kickbus.KickStreamOffline, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "555",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         uuid.New(),
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		streamOnlineQueue,
+		streamOfflineQueue,
+		usersRepo,
+		channelsRepo,
+	)
+
+	msgID := "stream-online-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickLivestreamStatusPayload{
+		Broadcaster: kickUser{
+			UserID:   555,
+			Username: "broadcaster555",
+		},
+		IsLive: true,
+		Title:  "Going live",
+	}
+
+	req := makeRequest(t, msgID, "livestream.status.updated", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if streamOnlineQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 stream online event published, got %d", streamOnlineQueue.PublishedCount())
+	}
+
+	if streamOfflineQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 stream offline events published, got %d", streamOfflineQueue.PublishedCount())
+	}
+
+	event := streamOnlineQueue.FirstPublished()
+	if event.BroadcasterUserID != "555" {
+		t.Errorf("expected broadcaster user id %q, got %q", "555", event.BroadcasterUserID)
+	}
+	if event.BroadcasterUserLogin != "broadcaster555" {
+		t.Errorf("expected broadcaster login %q, got %q", "broadcaster555", event.BroadcasterUserLogin)
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleLivestreamStatusOffline(t *testing.T) {
+	userID := uuid.New().String()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+	streamOnlineQueue := &mockQueue[kickbus.KickStreamOnline, struct{}]{}
+	streamOfflineQueue := &mockQueue[kickbus.KickStreamOffline, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "556",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         uuid.New(),
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		streamOnlineQueue,
+		streamOfflineQueue,
+		usersRepo,
+		channelsRepo,
+	)
+
+	msgID := "stream-offline-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickLivestreamStatusPayload{
+		Broadcaster: kickUser{
+			UserID:   556,
+			Username: "broadcaster556",
+		},
+		IsLive: false,
+		Title:  "Wrapping up",
+	}
+
+	req := makeRequest(t, msgID, "livestream.status.updated", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if streamOfflineQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 stream offline event published, got %d", streamOfflineQueue.PublishedCount())
+	}
+
+	if streamOnlineQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 stream online events published, got %d", streamOnlineQueue.PublishedCount())
+	}
+
+	event := streamOfflineQueue.FirstPublished()
+	if event.BroadcasterUserID != "556" {
+		t.Errorf("expected broadcaster user id %q, got %q", "556", event.BroadcasterUserID)
+	}
+	if event.BroadcasterUserLogin != "broadcaster556" {
+		t.Errorf("expected broadcaster login %q, got %q", "broadcaster556", event.BroadcasterUserLogin)
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
 func TestHandleChatMessageRealConcurrent(t *testing.T) {
 	userID := uuid.New().String()
 	channelUUID := uuid.New()
@@ -422,7 +608,16 @@ func TestHandleChatMessageRealConcurrent(t *testing.T) {
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+	)
 	redisMock.MatchExpectationsInOrder(false)
 
 	msgID := "concurrent-msg-001"
@@ -529,7 +724,16 @@ func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+	)
 
 	msgID := "duplicate-processing-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
@@ -574,7 +778,16 @@ func TestHandleChatMessageResolveIDsFailure(t *testing.T) {
 	usersRepo := &mockUsersRepo{err: errors.New("users repo failed")}
 	channelsRepo := &mockChannelsRepo{}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+	)
 
 	msgID := "resolve-failure-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
@@ -614,6 +827,68 @@ func TestHandleChatMessageResolveIDsFailure(t *testing.T) {
 	}
 }
 
+func TestHandleChatMessageFailureCleanup(t *testing.T) {
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	usersRepo := &mockUsersRepo{err: errors.New("users repo failed")}
+	channelsRepo := &mockChannelsRepo{}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+	)
+
+	msgID := "cleanup-failure-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectDel(idempotencyKeyPrefix + msgID).SetVal(1)
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectDel(idempotencyKeyPrefix + msgID).SetVal(1)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	for range 2 {
+		req := makeRequest(t, msgID, "chat.message.sent", payload)
+		w := httptest.NewRecorder()
+
+		h.HandleWebhook(w, req)
+
+		if w.Code != http.StatusInternalServerError {
+			t.Fatalf("expected 500, got %d", w.Code)
+		}
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 parser messages published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
 func TestHandleChatMessagePublishFailure(t *testing.T) {
 	userID := uuid.New().String()
 	channelUUID := uuid.New()
@@ -638,7 +913,16 @@ func TestHandleChatMessagePublishFailure(t *testing.T) {
 		},
 	}
 
-	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+	)
 
 	msgID := "publish-failure-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
