@@ -4,7 +4,7 @@
   "private": true,
   "author": "Satont <satontworldwide@gmail.com>",
   "scripts": {
-    "dev": "bun run cli dev",
+    "dev": "go run ./cli/main.go dev",
     "build": "bun run cli build",
     "cli": "go run ./cli/main.go",
     "lint": "bunx --bun oxlint",
