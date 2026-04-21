@@ -205,6 +205,12 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 			slog.String("event_type", eventType),
 			logger.Error(err),
 		)
+		if delErr := h.redis.Del(ctx, idempotencyKey).Err(); delErr != nil {
+			h.logger.ErrorContext(ctx, "kick: failed to clean up processing key after error",
+				slog.String("message_id", messageID),
+				logger.Error(delErr),
+			)
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
