@@ -154,20 +154,22 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 				slog.String("message_id", messageID),
 				slog.String("event_type", eventType),
 			)
+			w.WriteHeader(http.StatusOK)
 		case idempotencyStatusProcessing:
-			h.logger.InfoContext(ctx, "kick: event already processing, skipping",
+			h.logger.InfoContext(ctx, "kick: event already processing, deferring",
 				slog.String("message_id", messageID),
 				slog.String("event_type", eventType),
 			)
+			w.WriteHeader(http.StatusAccepted)
 		default:
 			h.logger.InfoContext(ctx, "kick: idempotency key already exists, skipping",
 				slog.String("message_id", messageID),
 				slog.String("event_type", eventType),
 				slog.String("status", status),
 			)
+			w.WriteHeader(http.StatusOK)
 		}
 
-		w.WriteHeader(http.StatusOK)
 		return
 	}
 

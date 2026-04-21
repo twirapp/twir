@@ -462,8 +462,8 @@ func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
 
 	h.HandleWebhook(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200 for duplicate during processing, got %d", w.Code)
+	if w.Code != http.StatusAccepted {
+		t.Fatalf("expected 202 for duplicate during processing, got %d", w.Code)
 	}
 
 	if len(chatQueue.published) != 0 {
