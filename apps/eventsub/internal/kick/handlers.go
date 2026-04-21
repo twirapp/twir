@@ -25,9 +25,9 @@ import (
 )
 
 const (
-	idempotencyProcessingTTL = 30 * time.Second
-	idempotencyTTL           = 10 * time.Minute
-	idempotencyKeyPrefix     = "kick:event:"
+	idempotencyProcessingTTL    = 30 * time.Second
+	idempotencyTTL              = 10 * time.Minute
+	idempotencyKeyPrefix        = "kick:event:"
 	idempotencyStatusProcessing = "processing"
 	idempotencyStatusProcessed  = "processed"
 )
