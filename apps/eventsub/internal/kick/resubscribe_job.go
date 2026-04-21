@@ -56,12 +56,14 @@ func NewResubscribeJob(opts ResubscribeJobOpts) *ResubscribeJob {
 		interval:     23 * time.Hour,
 	}
 
+	stopCh := make(chan struct{})
 	opts.Lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			go j.Start(ctx)
+		OnStart: func(_ context.Context) error {
+			go j.Start(stopCh)
 			return nil
 		},
 		OnStop: func(_ context.Context) error {
+			close(stopCh)
 			return nil
 		},
 	})
@@ -69,16 +71,16 @@ func NewResubscribeJob(opts ResubscribeJobOpts) *ResubscribeJob {
 	return j
 }
 
-func (j *ResubscribeJob) Start(ctx context.Context) {
+func (j *ResubscribeJob) Start(stopCh <-chan struct{}) {
 	ticker := time.NewTicker(j.interval)
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-ctx.Done():
+		case <-stopCh:
 			return
 		case <-ticker.C:
-			j.run(ctx)
+			j.run(context.Background())
 		}
 	}
 }

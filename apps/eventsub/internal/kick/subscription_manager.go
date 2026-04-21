@@ -499,6 +499,8 @@ func (m *SubscriptionManager) UnsubscribeAll(
 	for _, eventType := range EventTypes {
 		key := redisKey(kickChannelID, eventType)
 
+		subIDs := make([]string, 0, 1)
+
 		subID, err := m.redis.Get(ctx, key).Result()
 		if err != nil {
 			if err == goredis.Nil {
@@ -514,69 +516,70 @@ func (m *SubscriptionManager) UnsubscribeAll(
 					continue
 				}
 
-				var found bool
 				for _, sub := range subs {
 					if sub.Event == eventType {
-						subID = sub.SubscriptionID
-						found = true
-						break
+						subIDs = append(subIDs, sub.SubscriptionID)
 					}
 				}
-				if !found {
+				if len(subIDs) == 0 {
 					continue
 				}
 			} else {
 				return fmt.Errorf("failed to fetch subscription ID for %q from Redis: %w", eventType, err)
 			}
+		} else {
+			subIDs = append(subIDs, subID)
 		}
 
-		if err := m.unsubscribe(ctx, subID, broadcasterToken); err != nil {
-			var apiErr *kickAPIError
-			shouldRefresh := encryptedRefreshToken != "" && errors.As(err, &apiErr) && apiErr.isAuthError()
+		for _, id := range subIDs {
+			if err := m.unsubscribe(ctx, id, broadcasterToken); err != nil {
+				var apiErr *kickAPIError
+				shouldRefresh := encryptedRefreshToken != "" && errors.As(err, &apiErr) && apiErr.isAuthError()
 
-			if !shouldRefresh {
-				m.logger.WarnContext(
-					ctx,
-					"Failed to unsubscribe Kick EventSub (continuing cleanup)",
-					slog.String("kick_channel_id", kickChannelID),
-					slog.String("event_type", eventType),
-					logger.Error(err),
-				)
-				continue
-			}
+				if !shouldRefresh {
+					m.logger.WarnContext(
+						ctx,
+						"Failed to unsubscribe Kick EventSub (continuing cleanup)",
+						slog.String("kick_channel_id", kickChannelID),
+						slog.String("event_type", eventType),
+						logger.Error(err),
+					)
+					continue
+				}
 
-			decryptedRefreshToken, decryptErr := crypto.Decrypt(encryptedRefreshToken, m.config.TokensCipherKey)
-			if decryptErr != nil {
-				m.logger.WarnContext(
-					ctx,
-					"Failed to unsubscribe Kick EventSub (continuing cleanup)",
-					slog.String("kick_channel_id", kickChannelID),
-					slog.String("event_type", eventType),
-					logger.Error(err),
-				)
-				continue
-			}
+				decryptedRefreshToken, decryptErr := crypto.Decrypt(encryptedRefreshToken, m.config.TokensCipherKey)
+				if decryptErr != nil {
+					m.logger.WarnContext(
+						ctx,
+						"Failed to unsubscribe Kick EventSub (continuing cleanup)",
+						slog.String("kick_channel_id", kickChannelID),
+						slog.String("event_type", eventType),
+						logger.Error(err),
+					)
+					continue
+				}
 
-			newAccessToken, _, refreshErr := m.refreshBotToken(ctx, botID, decryptedRefreshToken)
-			if refreshErr != nil {
-				m.logger.WarnContext(
-					ctx,
-					"Failed to unsubscribe Kick EventSub (continuing cleanup)",
-					slog.String("kick_channel_id", kickChannelID),
-					slog.String("event_type", eventType),
-					logger.Error(err),
-				)
-				continue
-			}
+				newAccessToken, _, refreshErr := m.refreshBotToken(ctx, botID, decryptedRefreshToken)
+				if refreshErr != nil {
+					m.logger.WarnContext(
+						ctx,
+						"Failed to unsubscribe Kick EventSub (continuing cleanup)",
+						slog.String("kick_channel_id", kickChannelID),
+						slog.String("event_type", eventType),
+						logger.Error(err),
+					)
+					continue
+				}
 
-			if err := m.unsubscribe(ctx, subID, newAccessToken); err != nil {
-				m.logger.WarnContext(
-					ctx,
-					"Failed to unsubscribe Kick EventSub after token refresh (continuing cleanup)",
-					slog.String("kick_channel_id", kickChannelID),
-					slog.String("event_type", eventType),
-					logger.Error(err),
-				)
+				if err := m.unsubscribe(ctx, id, newAccessToken); err != nil {
+					m.logger.WarnContext(
+						ctx,
+						"Failed to unsubscribe Kick EventSub after token refresh (continuing cleanup)",
+						slog.String("kick_channel_id", kickChannelID),
+						slog.String("event_type", eventType),
+						logger.Error(err),
+					)
+				}
 			}
 		}
 
