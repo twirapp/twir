@@ -146,6 +146,31 @@ func (m *Middleware) Handler(next http.Handler) http.Handler {
 	})
 }
 
+// HandlerWithoutVerification extracts headers and populates context without verifying the signature.
+func (m *Middleware) HandlerWithoutVerification(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		messageID := r.Header.Get("Kick-Event-Message-Id")
+		timestamp := r.Header.Get("Kick-Event-Message-Timestamp")
+		eventType := r.Header.Get("Kick-Event-Type")
+		eventVersion := r.Header.Get("Kick-Event-Version")
+		subscriptionID := r.Header.Get("Kick-Event-Subscription-Id")
+
+		if messageID == "" || timestamp == "" {
+			http.Error(w, "missing required headers", http.StatusBadRequest)
+			return
+		}
+
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, ctxKeyMessageID, messageID)
+		ctx = context.WithValue(ctx, ctxKeyEventType, eventType)
+		ctx = context.WithValue(ctx, ctxKeyEventVersion, eventVersion)
+		ctx = context.WithValue(ctx, ctxKeySubscriptionID, subscriptionID)
+		ctx = context.WithValue(ctx, ctxKeyTimestamp, timestamp)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func decodeBase64Signature(sig string) ([]byte, error) {
 	b, err := base64.StdEncoding.DecodeString(sig)
 	if err == nil {
