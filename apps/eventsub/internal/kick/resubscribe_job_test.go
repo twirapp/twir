@@ -89,6 +89,7 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 				ID:         uuid.New(),
 				KickUserID: &kickUserID,
 				KickBotID:  &kickBotID,
+				IsEnabled:  true,
 			},
 		},
 	}

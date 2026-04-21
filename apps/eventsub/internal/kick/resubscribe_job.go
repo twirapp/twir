@@ -96,7 +96,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 	}
 
 	for _, ch := range kickChannels {
-		if ch.KickUserID == nil {
+		if ch.KickUserID == nil || !ch.IsEnabled {
 			continue
 		}
 
