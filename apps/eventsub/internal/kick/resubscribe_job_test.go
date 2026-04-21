@@ -131,9 +131,9 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 
 	subMgr := &mockSubManager{
 		listResult: []SubscriptionInfo{
-			{Event: "chat.message.sent"},
-			{Event: "channel.followed"},
-			{Event: "livestream.status.updated"},
+			{Event: "chat.message.sent", Status: "active"},
+			{Event: "channel.followed", Status: "active"},
+			{Event: "livestream.status.updated", Status: "active"},
 		},
 	}
 
