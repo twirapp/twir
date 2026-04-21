@@ -25,6 +25,8 @@ type TwirGoApp struct {
 	OnPortReady  func()
 	DebugPort    int
 	mu           sync.Mutex
+	stdout       *shell.PrefixWriter
+	stderr       *shell.PrefixWriter
 }
 
 func NewApplication(name string, enableDebug bool, port *int, debugPort int, onPortReady func()) (
@@ -45,6 +47,8 @@ func NewApplication(name string, enableDebug bool, port *int, debugPort int, onP
 		Port:         port,
 		OnPortReady:  onPortReady,
 		DebugPort:    debugPort,
+		stdout:       shell.StdoutFor(name),
+		stderr:       shell.StderrFor(name),
 	}
 
 	cmd, err := app.CreateAppCommand()
@@ -122,6 +126,13 @@ func (c *TwirGoApp) stopLocked() {
 
 	orphanKill := exec.Command("pkill", "-9", "-f", c.getAppPath())
 	orphanKill.Run()
+
+	if c.stdout != nil {
+		c.stdout.Flush()
+	}
+	if c.stderr != nil {
+		c.stderr.Flush()
+	}
 
 	c.Cmd = nil
 }

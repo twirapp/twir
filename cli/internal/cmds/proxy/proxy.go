@@ -25,8 +25,10 @@ var Cmd = &cli.Command{
 }
 
 type Proxy struct {
-	cmd  *exec.Cmd
-	done chan struct{}
+	cmd    *exec.Cmd
+	done   chan struct{}
+	stdout *shell.PrefixWriter
+	stderr *shell.PrefixWriter
 }
 
 func (p *Proxy) Stop() error {
@@ -52,6 +54,13 @@ func (p *Proxy) Stop() error {
 			p.cmd.Process.Kill()
 		}
 		<-p.done
+	}
+
+	if p.stdout != nil {
+		p.stdout.Flush()
+	}
+	if p.stderr != nil {
+		p.stderr.Flush()
 	}
 
 	p.cmd = nil
@@ -120,11 +129,14 @@ func StartProxy(block bool) (<-chan struct{},
 		close(startChannel)
 	}()
 
+	stdout := shell.StdoutFor("proxy")
+	stderr := shell.StderrFor("proxy")
+
 	cmd, err := shell.CreateCommand(
 		shell.ExecCommandOpts{
 			Command: "go tool github.com/caddyserver/caddy/v2/cmd/caddy run --watch --config Caddyfile.dev --envfile .env",
-			Stdout:  os.Stdout,
-			Stderr:  os.Stderr,
+			Stdout:  stdout,
+			Stderr:  stderr,
 			Pwd:     wd,
 		},
 	)
@@ -134,7 +146,7 @@ func StartProxy(block bool) (<-chan struct{},
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
-	p := &Proxy{cmd: cmd, done: make(chan struct{})}
+	p := &Proxy{cmd: cmd, done: make(chan struct{}), stdout: stdout, stderr: stderr}
 
 	if block {
 		if err := cmd.Start(); err != nil {

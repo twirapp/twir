@@ -11,9 +11,11 @@ import (
 )
 
 type twirApp struct {
-	name string
-	cmd  *exec.Cmd
-	path string
+	name   string
+	cmd    *exec.Cmd
+	path   string
+	stdout *shell.PrefixWriter
+	stderr *shell.PrefixWriter
 }
 
 func newApplication(name string) (*twirApp, error) {
@@ -23,9 +25,11 @@ func newApplication(name string) (*twirApp, error) {
 	}
 
 	app := twirApp{
-		name: name,
-		cmd:  nil,
-		path: filepath.Join(wd, "apps", name),
+		name:   name,
+		cmd:    nil,
+		path:   filepath.Join(wd, "apps", name),
+		stdout: shell.StdoutFor(name),
+		stderr: shell.StderrFor(name),
 	}
 
 	cmd, err := app.createAppCommand()
@@ -67,6 +71,13 @@ func (c *twirApp) stop() error {
 		<-done
 	}
 
+	if c.stdout != nil {
+		c.stdout.Flush()
+	}
+	if c.stderr != nil {
+		c.stderr.Flush()
+	}
+
 	c.cmd = nil
 	return nil
 }
@@ -76,8 +87,8 @@ func (c *twirApp) createAppCommand() (*exec.Cmd, error) {
 		shell.ExecCommandOpts{
 			Command: "bun run dev",
 			Pwd:     c.path,
-			Stdout:  os.Stdout,
-			Stderr:  os.Stderr,
+			Stdout:  c.stdout,
+			Stderr:  c.stderr,
 		},
 	)
 
