@@ -219,9 +219,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 func allEventTypesPresent(subs []SubscriptionInfo) bool {
 	present := make(map[string]struct{}, len(subs))
 	for _, s := range subs {
-		if s.Status == "active" {
-			present[s.Event] = struct{}{}
-		}
+		present[s.Event] = struct{}{}
 	}
 	for _, et := range EventTypes {
 		if _, ok := present[et]; !ok {

@@ -351,12 +351,9 @@ func (m *SubscriptionManager) SubscribeAll(
 		existingSubs = nil
 	}
 
-	// Build map of existing active subscriptions by event type
 	existingByEvent := make(map[string][]string)
 	for _, sub := range existingSubs {
-		if sub.Status == "active" {
-			existingByEvent[sub.Event] = append(existingByEvent[sub.Event], sub.SubscriptionID)
-		}
+		existingByEvent[sub.Event] = append(existingByEvent[sub.Event], sub.SubscriptionID)
 	}
 
 	for _, eventType := range EventTypes {
