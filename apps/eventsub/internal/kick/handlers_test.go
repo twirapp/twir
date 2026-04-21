@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/go-redis/redismock/v9"
 	"github.com/google/uuid"
@@ -22,11 +25,27 @@ import (
 )
 
 type mockQueue[Req, Res any] struct {
+	mu          sync.Mutex
 	published []Req
+	publishErr  error
+	publishHook func(context.Context, Req) error
 }
 
-func (m *mockQueue[Req, Res]) Publish(_ context.Context, data Req) error {
+
+func (m *mockQueue[Req, Res]) Publish(ctx context.Context, data Req) error {
+	if m.publishHook != nil {
+		if err := m.publishHook(ctx, data); err != nil {
+			return err
+		}
+	}
+
+	if m.publishErr != nil {
+		return m.publishErr
+	}
+
+	m.mu.Lock()
 	m.published = append(m.published, data)
+	m.mu.Unlock()
 	return nil
 }
 
@@ -43,6 +62,20 @@ func (m *mockQueue[Req, Res]) Subscribe(_ buscore.QueueSubscribeCallback[Req, Re
 }
 
 func (m *mockQueue[Req, Res]) Unsubscribe() {}
+
+func (m *mockQueue[Req, Res]) PublishedCount() int {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	return len(m.published)
+}
+
+func (m *mockQueue[Req, Res]) FirstPublished() Req {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	return m.published[0]
+}
 
 type mockUsersRepo struct {
 	user usersmodel.User
@@ -209,10 +242,10 @@ func TestHandleChatMessage(t *testing.T) {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
 
-	if len(chatQueue.published) != 1 {
-		t.Fatalf("expected 1 chat message published, got %d", len(chatQueue.published))
+	if chatQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 chat message published, got %d", chatQueue.PublishedCount())
 	}
-	msg := chatQueue.published[0]
+	msg := chatQueue.FirstPublished()
 	if msg.Platform != string(platform.PlatformKick) {
 		t.Errorf("expected platform %q, got %q", platform.PlatformKick, msg.Platform)
 	}
@@ -226,8 +259,8 @@ func TestHandleChatMessage(t *testing.T) {
 		t.Errorf("expected messageID %q, got %q", msgID, msg.MessageID)
 	}
 
-	if len(parserQueue.published) != 1 {
-		t.Fatalf("expected 1 parser message published, got %d", len(parserQueue.published))
+	if parserQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 parser message published, got %d", parserQueue.PublishedCount())
 	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {
@@ -281,8 +314,8 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
 
-	if len(chatQueue.published) != 0 {
-		t.Errorf("expected 0 published messages for duplicate, got %d", len(chatQueue.published))
+	if chatQueue.PublishedCount() != 0 {
+		t.Errorf("expected 0 published messages for duplicate, got %d", chatQueue.PublishedCount())
 	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {
@@ -338,10 +371,10 @@ func TestHandleChannelFollow(t *testing.T) {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
 
-	if len(followQueue.published) != 1 {
-		t.Fatalf("expected 1 follow event published, got %d", len(followQueue.published))
+	if followQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 follow event published, got %d", followQueue.PublishedCount())
 	}
-	follow := followQueue.published[0]
+	follow := followQueue.FirstPublished()
 	if follow.BaseInfo.ChannelID != channelUUID.String() {
 		t.Errorf("expected channelID %q, got %q", channelUUID.String(), follow.BaseInfo.ChannelID)
 	}
@@ -357,11 +390,21 @@ func TestHandleChannelFollow(t *testing.T) {
 	}
 }
 
-func TestHandleChatMessageConcurrentDelivery(t *testing.T) {
+func TestHandleChatMessageRealConcurrent(t *testing.T) {
 	userID := uuid.New().String()
 	channelUUID := uuid.New()
 
-	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	publishStarted := make(chan struct{})
+	releasePublish := make(chan struct{})
+	var publishStartedOnce sync.Once
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{
+		publishHook: func(_ context.Context, _ generic.ChatMessage) error {
+			publishStartedOnce.Do(func() { close(publishStarted) })
+			<-releasePublish
+			return nil
+		},
+	}
 	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
 	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
 
@@ -380,9 +423,12 @@ func TestHandleChatMessageConcurrentDelivery(t *testing.T) {
 	}
 
 	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+	redisMock.MatchExpectationsInOrder(false)
 
 	msgID := "concurrent-msg-001"
 	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessing)
 	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
 
 	payload := kickChatMessagePayload{
@@ -398,17 +444,62 @@ func TestHandleChatMessageConcurrentDelivery(t *testing.T) {
 		Content: "Hello world",
 	}
 
-	req := makeRequest(t, msgID, "chat.message.sent", payload)
-	w := httptest.NewRecorder()
+	start := make(chan struct{})
+	statuses := make(chan int, 2)
 
-	h.HandleWebhook(w, req)
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d", w.Code)
+	for range 2 {
+		go func() {
+			defer wg.Done()
+
+			<-start
+			req := makeRequest(t, msgID, "chat.message.sent", payload)
+			w := httptest.NewRecorder()
+			h.HandleWebhook(w, req)
+			statuses <- w.Code
+		}()
 	}
 
-	if len(chatQueue.published) != 1 {
-		t.Fatalf("expected 1 chat message published, got %d", len(chatQueue.published))
+	close(start)
+
+	select {
+	case <-publishStarted:
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for first request to start publishing")
+	}
+
+	var duplicateStatus int
+	select {
+	case duplicateStatus = <-statuses:
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for duplicate request to finish")
+	}
+
+	if duplicateStatus != http.StatusAccepted {
+		t.Fatalf("expected duplicate request to return 202, got %d", duplicateStatus)
+	}
+
+	close(releasePublish)
+	wg.Wait()
+	close(statuses)
+
+	var remainingStatuses []int
+	for status := range statuses {
+		remainingStatuses = append(remainingStatuses, status)
+	}
+
+	if len(remainingStatuses) != 1 || remainingStatuses[0] != http.StatusOK {
+		t.Fatalf("expected processing request to return 200, got %v", remainingStatuses)
+	}
+
+	if chatQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 chat message published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 parser message published, got %d", parserQueue.PublishedCount())
 	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {
@@ -466,8 +557,120 @@ func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
 		t.Fatalf("expected 202 for duplicate during processing, got %d", w.Code)
 	}
 
-	if len(chatQueue.published) != 0 {
-		t.Fatalf("expected 0 chat messages for duplicate, got %d", len(chatQueue.published))
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages for duplicate, got %d", chatQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageResolveIDsFailure(t *testing.T) {
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	usersRepo := &mockUsersRepo{err: errors.New("users repo failed")}
+	channelsRepo := &mockChannelsRepo{}
+
+	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+
+	msgID := "resolve-failure-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 parser messages published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessagePublishFailure(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{
+		publishErr: errors.New("publish failed"),
+	}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(t, chatQueue, parserQueue, followQueue, usersRepo, channelsRepo)
+
+	msgID := "publish-failure-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 parser messages published, got %d", parserQueue.PublishedCount())
 	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {
