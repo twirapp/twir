@@ -33,16 +33,16 @@ const (
 )
 
 type kickUser struct {
-	UserID       int            `json:"user_id"`
-	Username     string         `json:"username"`
-	ChannelSlug  string         `json:"channel_slug"`
-	IsVerified   bool           `json:"is_verified"`
-	ProfilePicture string       `json:"profile_picture"`
-	Identity     *kickIdentity  `json:"identity,omitempty"`
+	UserID         int           `json:"user_id"`
+	Username       string        `json:"username"`
+	ChannelSlug    string        `json:"channel_slug"`
+	IsVerified     bool          `json:"is_verified"`
+	ProfilePicture string        `json:"profile_picture"`
+	Identity       *kickIdentity `json:"identity,omitempty"`
 }
 
 type kickIdentity struct {
-	UsernameColor string     `json:"username_color"`
+	UsernameColor string      `json:"username_color"`
 	Badges        []kickBadge `json:"badges,omitempty"`
 }
 
@@ -53,12 +53,12 @@ type kickBadge struct {
 }
 
 type kickChatMessagePayload struct {
-	MessageID string    `json:"message_id"`
-	Broadcaster kickUser `json:"broadcaster"`
-	Sender    kickUser   `json:"sender"`
-	Content   string     `json:"content"`
-	Emotes    []kickEmote `json:"emotes,omitempty"`
-	CreatedAt string      `json:"created_at"`
+	MessageID   string      `json:"message_id"`
+	Broadcaster kickUser    `json:"broadcaster"`
+	Sender      kickUser    `json:"sender"`
+	Content     string      `json:"content"`
+	Emotes      []kickEmote `json:"emotes,omitempty"`
+	CreatedAt   string      `json:"created_at"`
 }
 
 type kickEmote struct {
@@ -123,6 +123,11 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	messageID := KickMessageIDFromContext(ctx)
 	eventType := KickEventTypeFromContext(ctx)
+
+	h.logger.Info("recieved webhook from kick",
+		slog.String("message_id", messageID),
+		slog.String("event_type", eventType),
+	)
 
 	idempotencyKey := idempotencyKeyPrefix + messageID
 	ok, err := h.redis.SetNX(ctx, idempotencyKey, idempotencyStatusProcessing, idempotencyProcessingTTL).Result()

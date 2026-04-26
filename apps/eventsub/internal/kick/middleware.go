@@ -15,6 +15,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -231,6 +232,14 @@ func (m *Middleware) logBodyReadError(ctx context.Context, err error) {
 }
 
 func validateTimestamp(timestamp string, now time.Time) (time.Time, error) {
+	// Kick sometimes sends duplicated dates like: 2026-04-26T2026-04-26T11:27:44Z
+	if strings.Count(timestamp, "T") == 2 {
+		parts := strings.SplitN(timestamp, "T", 2)
+		if len(parts) == 2 && strings.HasPrefix(parts[1], parts[0]+"T") {
+			timestamp = parts[0] + "T" + strings.TrimPrefix(parts[1], parts[0]+"T")
+		}
+	}
+
 	parsed, err := time.Parse(time.RFC3339, timestamp)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("parse timestamp: %w", err)

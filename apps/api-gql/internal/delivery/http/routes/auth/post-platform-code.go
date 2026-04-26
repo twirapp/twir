@@ -244,6 +244,13 @@ func (a *Auth) handleKickCode(
 			} else {
 				channel = updatedChannel
 				a.logger.InfoContext(ctx, "kick auth: updated channel with kick bot", slog.String("channel_id", channel.ID.String()), slog.String("kick_bot_id", defaultKickBot.ID))
+
+				if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
+					ctx,
+					buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channel.ID.String()},
+				); err != nil {
+					a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe after kick bot join", logger.Error(err), slog.String("channel_id", channel.ID.String()))
+				}
 			}
 		}
 		a.logger.InfoContext(ctx, "kick auth: found existing channel", slog.String("channel_id", channel.ID.String()))

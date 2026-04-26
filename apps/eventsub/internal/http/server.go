@@ -28,21 +28,32 @@ func New(config cfg.Config, logger *slog.Logger, redisClient *redis.Client, kick
 		logger: logger,
 	}
 
-	mux.HandleFunc("GET /health", s.handleHealth)
-
-	if config.EventSubDisableSignatureVerification {
-		if config.AppEnv != "development" {
-			logger.Error("EVENTSUB_DISABLE_SIGNATURE_VERIFICATION is set but APP_ENV is not development, forcing signature verification")
-		} else {
-			logger.Warn("kick webhook signature verification is disabled")
-			kickMiddleware := kick.NewMiddleware(redisClient, logger)
-			mux.Handle("POST /webhook/kick", kickMiddleware.HandlerWithoutVerification(http.HandlerFunc(kickHandlers.HandleWebhook)))
-			return s
-		}
-	}
+	mux.HandleFunc("/health", s.handleHealth)
 
 	kickMiddleware := kick.NewMiddleware(redisClient, logger)
-	mux.Handle("POST /webhook/kick", kickMiddleware.Handler(http.HandlerFunc(kickHandlers.HandleWebhook)))
+	if config.EventSubDisableSignatureVerification && config.AppEnv == "development" {
+		logger.Warn("kick webhook signature verification is disabled")
+		mux.Handle("/webhook/kick", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			kickMiddleware.HandlerWithoutVerification(http.HandlerFunc(kickHandlers.HandleWebhook)).ServeHTTP(w, r)
+		}))
+		return s
+	}
+
+	if config.EventSubDisableSignatureVerification && config.AppEnv != "development" {
+		logger.Error("EVENTSUB_DISABLE_SIGNATURE_VERIFICATION is set but APP_ENV is not development, forcing signature verification")
+	}
+
+	mux.Handle("/webhook/kick", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		kickMiddleware.Handler(http.HandlerFunc(kickHandlers.HandleWebhook)).ServeHTTP(w, r)
+	}))
 
 	return s
 }

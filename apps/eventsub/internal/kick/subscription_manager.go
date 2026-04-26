@@ -674,5 +674,3 @@ func (m *SubscriptionManager) ListSubscriptions(
 
 	return result, nil
 }
-
-
