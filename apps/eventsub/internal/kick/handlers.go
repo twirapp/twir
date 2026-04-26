@@ -185,12 +185,6 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.logger.InfoContext(ctx, "kick: received webhook event",
-		slog.String("event_type", eventType),
-		slog.String("message_id", messageID),
-		slog.Int("body_size", len(body)),
-	)
-
 	switch eventType {
 	case "chat.message.sent":
 		err = h.handleChatMessage(r, body)

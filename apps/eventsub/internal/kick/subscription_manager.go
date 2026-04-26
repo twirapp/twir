@@ -2,21 +2,17 @@ package kick
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/scorfly/gokick"
 	goredis "github.com/redis/go-redis/v9"
+	"github.com/scorfly/gokick"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/logger"
-	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
@@ -42,28 +38,27 @@ type SubscriptionManager struct {
 	config          cfg.Config
 	redis           *goredis.Client
 	logger          *slog.Logger
-	kickBotsRepo    kickbotsrepository.Repository
 	usersRepo       usersrepository.Repository
 	callbackBaseURL string
+	appAccessToken  string
+	appTokenExpires time.Time
 }
 
 type Opts struct {
 	fx.In
 
-	Config       cfg.Config
-	Redis        *goredis.Client
-	Logger       *slog.Logger
-	KickBotsRepo kickbotsrepository.Repository
-	UsersRepo    usersrepository.Repository
+	Config    cfg.Config
+	Redis     *goredis.Client
+	Logger    *slog.Logger
+	UsersRepo usersrepository.Repository
 }
 
 func New(opts Opts) *SubscriptionManager {
 	return &SubscriptionManager{
-		config:       opts.Config,
-		redis:        opts.Redis,
-		logger:       opts.Logger,
-		kickBotsRepo: opts.KickBotsRepo,
-		usersRepo:    opts.UsersRepo,
+		config:    opts.Config,
+		redis:     opts.Redis,
+		logger:    opts.Logger,
+		usersRepo: opts.UsersRepo,
 	}
 }
 
@@ -99,11 +94,11 @@ func (m *SubscriptionManager) getWebhookCallbackURL() string {
 	return u.JoinPath("webhook", "kick").String()
 }
 
-func (m *SubscriptionManager) refreshBotToken(
-	ctx context.Context,
-	botID uuid.UUID,
-	refreshToken string,
-) (string, string, error) {
+func (m *SubscriptionManager) getAppAccessToken(ctx context.Context) (string, error) {
+	if m.appAccessToken != "" && time.Now().Before(m.appTokenExpires) {
+		return m.appAccessToken, nil
+	}
+
 	client, err := gokick.NewClient(
 		&gokick.ClientOptions{
 			ClientID:     m.config.KickClientId,
@@ -111,69 +106,42 @@ func (m *SubscriptionManager) refreshBotToken(
 		},
 	)
 	if err != nil {
-		return "", "", fmt.Errorf("create kick client: %w", err)
+		return "", fmt.Errorf("create kick client: %w", err)
 	}
 
-	parsed, err := client.RefreshToken(ctx, refreshToken)
+	resp, err := client.GetAppAccessToken(ctx)
 	if err != nil {
-		return "", "", fmt.Errorf("kick token refresh: %w", err)
+		return "", fmt.Errorf("get kick app access token: %w", err)
 	}
 
-	newRefreshToken := parsed.RefreshToken
-	if newRefreshToken == "" {
-		newRefreshToken = refreshToken
-	}
+	m.appAccessToken = resp.AccessToken
+	m.appTokenExpires = time.Now().Add(time.Duration(resp.ExpiresIn) * time.Second).Add(-5 * time.Minute)
 
-	encryptedAccessToken, err := crypto.Encrypt(parsed.AccessToken, m.config.TokensCipherKey)
-	if err != nil {
-		return "", "", fmt.Errorf("encrypt refreshed access token: %w", err)
-	}
-
-	encryptedRefreshToken, err := crypto.Encrypt(newRefreshToken, m.config.TokensCipherKey)
-	if err != nil {
-		return "", "", fmt.Errorf("encrypt refreshed refresh token: %w", err)
-	}
-
-	responseScopes := strings.Fields(parsed.Scope)
-
-	_, err = m.kickBotsRepo.UpdateToken(
-		ctx,
-		botID,
-		kickbotsrepository.UpdateTokenInput{
-			AccessToken:         encryptedAccessToken,
-			RefreshToken:        encryptedRefreshToken,
-			Scopes:              responseScopes,
-			ExpiresIn:           parsed.ExpiresIn,
-			ObtainmentTimestamp: time.Now(),
-		},
-	)
-	if err != nil {
-		return "", "", fmt.Errorf("persist refreshed token: %w", err)
-	}
-
-	m.logger.InfoContext(
-		ctx,
-		"kick bot token refreshed",
-		slog.String("kick_bot_id", botID.String()),
+	m.logger.InfoContext(ctx, "kick app access token obtained",
+		slog.Time("expires_at", m.appTokenExpires),
 	)
 
-	return parsed.AccessToken, newRefreshToken, nil
+	return m.appAccessToken, nil
 }
 
 func (m *SubscriptionManager) subscribe(
 	ctx context.Context,
 	broadcasterUserID int,
 	eventType string,
-	broadcasterToken string,
 ) (string, error) {
 	subName, ok := eventTypeToSubscriptionName[eventType]
 	if !ok {
 		return "", fmt.Errorf("unknown event type: %s", eventType)
 	}
 
+	appToken, err := m.getAppAccessToken(ctx)
+	if err != nil {
+		return "", err
+	}
+
 	client, err := gokick.NewClient(
 		&gokick.ClientOptions{
-			UserAccessToken: broadcasterToken,
+			AppAccessToken: appToken,
 		},
 	)
 	if err != nil {
@@ -191,11 +159,7 @@ func (m *SubscriptionManager) subscribe(
 		&broadcasterUserID,
 	)
 	if err != nil {
-		var apiErr gokick.Error
-		if errors.As(err, &apiErr) {
-			return "", &kickAPIError{StatusCode: apiErr.Code(), Body: apiErr.Error()}
-		}
-		return "", err
+		return "", fmt.Errorf("kick create subscription: %w", err)
 	}
 
 	if len(response.Result) == 0 {
@@ -214,26 +178,35 @@ func (m *SubscriptionManager) subscribe(
 	return first.SubscriptionID, nil
 }
 
-// kickAPIError wraps HTTP status codes from Kick API calls.
-type kickAPIError struct {
-	StatusCode int
-	Body       string
-}
+func (m *SubscriptionManager) unsubscribe(
+	ctx context.Context,
+	subscriptionID string,
+) error {
+	appToken, err := m.getAppAccessToken(ctx)
+	if err != nil {
+		return err
+	}
 
-func (e *kickAPIError) Error() string {
-	return fmt.Sprintf("kick API returned status %d: %s", e.StatusCode, e.Body)
-}
+	client, err := gokick.NewClient(
+		&gokick.ClientOptions{
+			AppAccessToken: appToken,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("create kick client: %w", err)
+	}
 
-func (e *kickAPIError) isAuthError() bool {
-	return e.StatusCode == 401 || e.StatusCode == 403
+	_, err = client.DeleteSubscriptions(ctx, gokick.NewSubscriptionToDeleteFilter().SetIDs([]string{subscriptionID}))
+	if err != nil {
+		return fmt.Errorf("kick delete subscription: %w", err)
+	}
+
+	return nil
 }
 
 func (m *SubscriptionManager) SubscribeAll(
 	ctx context.Context,
 	kickChannelID string,
-	broadcasterToken string,
-	botID uuid.UUID,
-	encryptedRefreshToken string,
 ) error {
 	kickUserUUID, err := uuid.Parse(kickChannelID)
 	if err != nil {
@@ -250,8 +223,7 @@ func (m *SubscriptionManager) SubscribeAll(
 		return fmt.Errorf("failed to parse kick platform user ID %q as int: %w", user.PlatformID, err)
 	}
 
-	// List existing subscriptions to avoid duplicates
-	existingSubs, err := m.ListSubscriptions(ctx, broadcasterToken, botID, encryptedRefreshToken, broadcasterUserID)
+	existingSubs, err := m.ListSubscriptions(ctx, broadcasterUserID)
 	if err != nil {
 		m.logger.WarnContext(ctx, "failed to list existing kick subscriptions, continuing with blind subscribe",
 			slog.String("kick_channel_id", kickChannelID),
@@ -283,7 +255,7 @@ func (m *SubscriptionManager) SubscribeAll(
 			)
 
 			for i := 1; i < len(subs); i++ {
-				if err := m.unsubscribe(ctx, subs[i].SubscriptionID, broadcasterToken); err != nil {
+				if err := m.unsubscribe(ctx, subs[i].SubscriptionID); err != nil {
 					m.logger.WarnContext(ctx, "failed to clean up duplicate kick subscription",
 						slog.String("kick_channel_id", kickChannelID),
 						slog.String("event_type", eventType),
@@ -296,29 +268,9 @@ func (m *SubscriptionManager) SubscribeAll(
 			continue
 		}
 
-		subID, err := m.subscribe(ctx, broadcasterUserID, eventType, broadcasterToken)
+		subID, err := m.subscribe(ctx, broadcasterUserID, eventType)
 		if err != nil {
-			var apiErr *kickAPIError
-			if encryptedRefreshToken == "" || !errors.As(err, &apiErr) || !apiErr.isAuthError() {
-				return fmt.Errorf("failed to subscribe to %q: %w", eventType, err)
-			}
-
-			decryptedRefreshToken, decryptErr := crypto.Decrypt(encryptedRefreshToken, m.config.TokensCipherKey)
-			if decryptErr != nil {
-				return fmt.Errorf("failed to subscribe to %q: %w", eventType, err)
-			}
-
-			newAccessToken, _, refreshErr := m.refreshBotToken(ctx, botID, decryptedRefreshToken)
-			if refreshErr != nil {
-				return fmt.Errorf("failed to subscribe to %q: %w", eventType, err)
-			}
-
-			subID, err = m.subscribe(ctx, broadcasterUserID, eventType, newAccessToken)
-			if err != nil {
-				return fmt.Errorf("failed to subscribe to %q after token refresh: %w", eventType, err)
-			}
-
-			broadcasterToken = newAccessToken
+			return fmt.Errorf("failed to subscribe to %q: %w", eventType, err)
 		}
 
 		key := redisKey(kickChannelID, eventType)
@@ -338,38 +290,9 @@ func (m *SubscriptionManager) SubscribeAll(
 	return nil
 }
 
-func (m *SubscriptionManager) unsubscribe(
-	ctx context.Context,
-	subscriptionID string,
-	broadcasterToken string,
-) error {
-	client, err := gokick.NewClient(
-		&gokick.ClientOptions{
-			UserAccessToken: broadcasterToken,
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("create kick client: %w", err)
-	}
-
-	_, err = client.DeleteSubscriptions(ctx, gokick.NewSubscriptionToDeleteFilter().SetIDs([]string{subscriptionID}))
-	if err != nil {
-		var apiErr gokick.Error
-		if errors.As(err, &apiErr) {
-			return &kickAPIError{StatusCode: apiErr.Code(), Body: apiErr.Error()}
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *SubscriptionManager) UnsubscribeAll(
 	ctx context.Context,
 	kickChannelID string,
-	broadcasterToken string,
-	botID uuid.UUID,
-	encryptedRefreshToken string,
 ) error {
 	kickUserUUID, err := uuid.Parse(kickChannelID)
 	if err != nil {
@@ -394,7 +317,7 @@ func (m *SubscriptionManager) UnsubscribeAll(
 		subID, err := m.redis.Get(ctx, key).Result()
 		if err != nil {
 			if err == goredis.Nil {
-				subs, listErr := m.ListSubscriptions(ctx, broadcasterToken, botID, encryptedRefreshToken, broadcasterUserID)
+				subs, listErr := m.ListSubscriptions(ctx, broadcasterUserID)
 				if listErr != nil {
 					m.logger.WarnContext(
 						ctx,
@@ -422,54 +345,14 @@ func (m *SubscriptionManager) UnsubscribeAll(
 		}
 
 		for _, id := range subIDs {
-			if err := m.unsubscribe(ctx, id, broadcasterToken); err != nil {
-				var apiErr *kickAPIError
-				shouldRefresh := encryptedRefreshToken != "" && errors.As(err, &apiErr) && apiErr.isAuthError()
-
-				if !shouldRefresh {
-					m.logger.WarnContext(
-						ctx,
-						"Failed to unsubscribe Kick EventSub (continuing cleanup)",
-						slog.String("kick_channel_id", kickChannelID),
-						slog.String("event_type", eventType),
-						logger.Error(err),
-					)
-					continue
-				}
-
-				decryptedRefreshToken, decryptErr := crypto.Decrypt(encryptedRefreshToken, m.config.TokensCipherKey)
-				if decryptErr != nil {
-					m.logger.WarnContext(
-						ctx,
-						"Failed to unsubscribe Kick EventSub (continuing cleanup)",
-						slog.String("kick_channel_id", kickChannelID),
-						slog.String("event_type", eventType),
-						logger.Error(err),
-					)
-					continue
-				}
-
-				newAccessToken, _, refreshErr := m.refreshBotToken(ctx, botID, decryptedRefreshToken)
-				if refreshErr != nil {
-					m.logger.WarnContext(
-						ctx,
-						"Failed to unsubscribe Kick EventSub (continuing cleanup)",
-						slog.String("kick_channel_id", kickChannelID),
-						slog.String("event_type", eventType),
-						logger.Error(err),
-					)
-					continue
-				}
-
-				if err := m.unsubscribe(ctx, id, newAccessToken); err != nil {
-					m.logger.WarnContext(
-						ctx,
-						"Failed to unsubscribe Kick EventSub after token refresh (continuing cleanup)",
-						slog.String("kick_channel_id", kickChannelID),
-						slog.String("event_type", eventType),
-						logger.Error(err),
-					)
-				}
+			if err := m.unsubscribe(ctx, id); err != nil {
+				m.logger.WarnContext(
+					ctx,
+					"Failed to unsubscribe Kick EventSub (continuing cleanup)",
+					slog.String("kick_channel_id", kickChannelID),
+					slog.String("event_type", eventType),
+					logger.Error(err),
+				)
 			}
 		}
 
@@ -488,14 +371,16 @@ func (m *SubscriptionManager) UnsubscribeAll(
 
 func (m *SubscriptionManager) ListSubscriptions(
 	ctx context.Context,
-	broadcasterToken string,
-	botID uuid.UUID,
-	encryptedRefreshToken string,
 	broadcasterUserID int,
 ) ([]SubscriptionInfo, error) {
+	appToken, err := m.getAppAccessToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	client, err := gokick.NewClient(
 		&gokick.ClientOptions{
-			UserAccessToken: broadcasterToken,
+			AppAccessToken: appToken,
 		},
 	)
 	if err != nil {
@@ -504,27 +389,19 @@ func (m *SubscriptionManager) ListSubscriptions(
 
 	response, err := client.GetSubscriptions(ctx)
 	if err != nil {
-		var apiErr gokick.Error
-		if errors.As(err, &apiErr) && (apiErr.Code() == 401 || apiErr.Code() == 403) && encryptedRefreshToken != "" {
-			decryptedRefreshToken, decryptErr := crypto.Decrypt(encryptedRefreshToken, m.config.TokensCipherKey)
-			if decryptErr == nil {
-				newAccessToken, _, refreshErr := m.refreshBotToken(ctx, botID, decryptedRefreshToken)
-				if refreshErr == nil {
-					return m.ListSubscriptions(ctx, newAccessToken, botID, "", broadcasterUserID)
-				}
-			}
-		}
 		return nil, fmt.Errorf("list kick subscriptions: %w", err)
 	}
 
 	result := make([]SubscriptionInfo, 0, len(response.Result))
 	for _, d := range response.Result {
-		result = append(result, SubscriptionInfo{
-			SubscriptionID:    d.ID,
-			Event:             d.Event,
-			BroadcasterUserID: d.BroadcasterUserID,
-			CreatedAt:         d.CreatedAt,
-		})
+		if d.BroadcasterUserID == broadcasterUserID {
+			result = append(result, SubscriptionInfo{
+				SubscriptionID:    d.ID,
+				Event:             d.Event,
+				BroadcasterUserID: d.BroadcasterUserID,
+				CreatedAt:         d.CreatedAt,
+			})
+		}
 	}
 
 	return result, nil

@@ -2,30 +2,26 @@ package kick
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
 
 type SubscriptionLister interface {
-	ListSubscriptions(ctx context.Context, broadcasterToken string, botID uuid.UUID, encryptedRefreshToken string, broadcasterUserID int) ([]SubscriptionInfo, error)
-	SubscribeAll(ctx context.Context, kickChannelID string, broadcasterToken string, botID uuid.UUID, encryptedRefreshToken string) error
+	ListSubscriptions(ctx context.Context, broadcasterUserID int) ([]SubscriptionInfo, error)
+	SubscribeAll(ctx context.Context, kickChannelID string) error
 }
 
 type ResubscribeJob struct {
 	subManager   SubscriptionLister
 	channelsRepo channels.Repository
-	kickBotsRepo kickbotsrepository.Repository
 	usersRepo    usersrepository.Repository
 	logger       *slog.Logger
 	config       cfg.Config
@@ -39,7 +35,6 @@ type ResubscribeJobOpts struct {
 
 	SubManager   *SubscriptionManager
 	ChannelsRepo channels.Repository
-	KickBotsRepo kickbotsrepository.Repository
 	UsersRepo    usersrepository.Repository
 	Logger       *slog.Logger
 	Config       cfg.Config
@@ -49,7 +44,6 @@ func NewResubscribeJob(opts ResubscribeJobOpts) *ResubscribeJob {
 	j := &ResubscribeJob{
 		subManager:   opts.SubManager,
 		channelsRepo: opts.ChannelsRepo,
-		kickBotsRepo: opts.KickBotsRepo,
 		usersRepo:    opts.UsersRepo,
 		logger:       opts.Logger,
 		config:       opts.Config,
@@ -100,51 +94,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		if ch.KickBotID == nil {
-			j.logger.InfoContext(
-				ctx,
-				"resubscribe job: channel has no kick bot assigned, skipping",
-				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", ch.KickUserID.String()),
-			)
-			continue
-		}
-
-		kickBot, err := j.kickBotsRepo.GetByID(ctx, *ch.KickBotID)
-		if err != nil {
-			if errors.Is(err, kickbotsrepository.ErrNotFound) {
-				j.logger.InfoContext(
-					ctx,
-					"resubscribe job: kick bot not found, skipping",
-					slog.String("channel_id", ch.ID.String()),
-					slog.String("kick_bot_id", ch.KickBotID.String()),
-				)
-			} else {
-				j.logger.ErrorContext(
-					ctx,
-					"resubscribe job: failed to get kick bot",
-					slog.String("channel_id", ch.ID.String()),
-					slog.String("kick_bot_id", ch.KickBotID.String()),
-					logger.Error(err),
-				)
-			}
-			continue
-		}
-
-		accessToken, err := crypto.Decrypt(kickBot.AccessToken, j.config.TokensCipherKey)
-		if err != nil {
-			j.logger.ErrorContext(
-				ctx,
-				"resubscribe job: failed to decrypt kick access token",
-				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_bot_id", ch.KickBotID.String()),
-				logger.Error(err),
-			)
-			continue
-		}
-
 		kickChannelID := ch.KickUserID.String()
-		botID := *ch.KickBotID
 
 		kickUserUUID, err := uuid.Parse(kickChannelID)
 		if err != nil {
@@ -182,7 +132,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		subs, err := j.subManager.ListSubscriptions(ctx, accessToken, botID, kickBot.RefreshToken, broadcasterUserID)
+		subs, err := j.subManager.ListSubscriptions(ctx, broadcasterUserID)
 		if err != nil {
 			j.logger.ErrorContext(
 				ctx,
@@ -198,7 +148,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		if err := j.subManager.SubscribeAll(ctx, kickChannelID, accessToken, botID, kickBot.RefreshToken); err != nil {
+		if err := j.subManager.SubscribeAll(ctx, kickChannelID); err != nil {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to re-subscribe kick eventsub",

@@ -14,11 +14,9 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/crypto"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
@@ -32,7 +30,6 @@ type BusListener struct {
 	bus            *buscore.Bus
 	logger         *slog.Logger
 	channelsRepo   channels.Repository
-	kickBotsRepo   kickbotsrepository.Repository
 	config         config.Config
 }
 
@@ -46,7 +43,6 @@ type Opts struct {
 	Bus            *buscore.Bus
 	Logger         *slog.Logger
 	ChannelsRepo   channels.Repository
-	KickBotsRepo   kickbotsrepository.Repository
 	Config         config.Config
 }
 
@@ -58,7 +54,6 @@ func New(opts Opts) (*BusListener, error) {
 		bus:            opts.Bus,
 		logger:         opts.Logger,
 		channelsRepo:   opts.ChannelsRepo,
-		kickBotsRepo:   opts.KickBotsRepo,
 		config:         opts.Config,
 	}
 
@@ -141,30 +136,8 @@ func (c *BusListener) subscribeToAllEvents(
 			return struct{}{}, nil
 		}
 
-		kickBot, err := c.kickBotsRepo.GetByID(ctx, *channel.KickBotID)
-		if err != nil {
-			c.logger.Error(
-				"error getting kick bot",
-				logger.Error(err),
-				slog.String("channel_id", msg.ChannelID),
-				slog.String("kick_bot_id", channel.KickBotID.String()),
-			)
-			return struct{}{}, err
-		}
-
-		accessToken, err := crypto.Decrypt(kickBot.AccessToken, c.config.TokensCipherKey)
-		if err != nil {
-			c.logger.Error(
-				"error decrypting kick access token",
-				logger.Error(err),
-				slog.String("channel_id", msg.ChannelID),
-				slog.String("kick_bot_id", channel.KickBotID.String()),
-			)
-			return struct{}{}, err
-		}
-
 		kickUserIDStr := channel.KickUserID.String()
-		if err := c.kickSubManager.SubscribeAll(ctx, kickUserIDStr, accessToken, *channel.KickBotID, kickBot.RefreshToken); err != nil {
+		if err := c.kickSubManager.SubscribeAll(ctx, kickUserIDStr); err != nil {
 			c.logger.Error(
 				"error subscribing to kick events",
 				logger.Error(err),
@@ -345,31 +318,9 @@ func (c *BusListener) unsubscribe(ctx context.Context, userId string) (struct{},
 		return struct{}{}, err
 	}
 
-	if channel.KickUserID != nil && channel.KickBotID != nil {
-		kickBot, err := c.kickBotsRepo.GetByID(ctx, *channel.KickBotID)
-		if err != nil {
-			c.logger.Error(
-				"error getting kick bot for unsubscribe",
-				logger.Error(err),
-				slog.String("channel_id", userId),
-				slog.String("kick_bot_id", channel.KickBotID.String()),
-			)
-			return struct{}{}, err
-		}
-
-		accessToken, err := crypto.Decrypt(kickBot.AccessToken, c.config.TokensCipherKey)
-		if err != nil {
-			c.logger.Error(
-				"error decrypting kick access token for unsubscribe",
-				logger.Error(err),
-				slog.String("channel_id", userId),
-				slog.String("kick_bot_id", channel.KickBotID.String()),
-			)
-			return struct{}{}, err
-		}
-
+	if channel.KickUserID != nil {
 		kickUserIDStr := channel.KickUserID.String()
-		if err := c.kickSubManager.UnsubscribeAll(ctx, kickUserIDStr, accessToken, *channel.KickBotID, kickBot.RefreshToken); err != nil {
+		if err := c.kickSubManager.UnsubscribeAll(ctx, kickUserIDStr); err != nil {
 			c.logger.Error(
 				"error unsubscribing from kick events",
 				logger.Error(err),
