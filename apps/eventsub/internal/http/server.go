@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	cfg "github.com/twirapp/twir/libs/config"
 )
@@ -17,7 +16,7 @@ type Server struct {
 	logger     *slog.Logger
 }
 
-func New(config cfg.Config, logger *slog.Logger, redisClient *redis.Client, kickHandlers *kick.Handlers) *Server {
+func New(config cfg.Config, logger *slog.Logger, kickHandlers *kick.Handlers) *Server {
 	mux := http.NewServeMux()
 
 	s := &Server{
@@ -30,7 +29,7 @@ func New(config cfg.Config, logger *slog.Logger, redisClient *redis.Client, kick
 
 	mux.HandleFunc("/health", s.handleHealth)
 
-	kickMiddleware := kick.NewMiddleware(redisClient, logger)
+	kickMiddleware := kick.NewMiddleware(logger)
 	if config.EventSubDisableSignatureVerification && config.AppEnv == "development" {
 		logger.Warn("kick webhook signature verification is disabled")
 		mux.Handle("/webhook/kick", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

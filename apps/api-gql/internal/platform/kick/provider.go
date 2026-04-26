@@ -2,26 +2,24 @@ package kickplatform
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 
+	"github.com/scorfly/gokick"
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"go.uber.org/fx"
 )
 
-const (
-	oauthBaseURL = "https://id.kick.com"
-	apiBaseURL   = "https://api.kick.com"
-)
-
-var scopes = []string{"user:read", "events:subscribe", "chat:write", "channel:read"}
+var scopes = []gokick.Scope{
+	gokick.ScopeUserRead,
+	gokick.ScopeEventSubscribe,
+	gokick.ScopeChatWrite,
+	gokick.ScopeChannelRead,
+}
 
 type Opts struct {
 	fx.In
@@ -30,14 +28,20 @@ type Opts struct {
 }
 
 type Provider struct {
-	config     cfg.Config
-	httpClient *http.Client
+	config cfg.Config
+	client *gokick.Client
 }
 
 func New(opts Opts) *Provider {
+	client, _ := gokick.NewClient(
+		&gokick.ClientOptions{
+			ClientID:     opts.Config.KickClientId,
+			ClientSecret: opts.Config.KickClientSecret,
+		})
+
 	return &Provider{
-		config:     opts.Config,
-		httpClient: &http.Client{},
+		config: opts.Config,
+		client: client,
 	}
 }
 
@@ -59,16 +63,13 @@ func (p *Provider) GetBotSetupAuthURL(state, codeChallenge string) string {
 }
 
 func (p *Provider) buildAuthURL(state, codeChallenge, redirectURI string) string {
-	query := url.Values{}
-	query.Set("client_id", p.config.KickClientId)
-	query.Set("redirect_uri", redirectURI)
-	query.Set("response_type", "code")
-	query.Set("scope", strings.Join(scopes, " "))
-	query.Set("state", state)
-	query.Set("code_challenge", codeChallenge)
-	query.Set("code_challenge_method", "S256")
-
-	return oauthBaseURL + "/oauth/authorize?" + query.Encode()
+	authURL, _ := p.client.GetAuthorize(
+		redirectURI,
+		state,
+		codeChallenge,
+		scopes,
+	)
+	return authURL
 }
 
 func (p *Provider) ExchangeCode(ctx context.Context, code, codeVerifier string) (*platform.PlatformTokens, error) {
@@ -85,68 +86,52 @@ func (p *Provider) ExchangeBotSetupCode(ctx context.Context, code, codeVerifier 
 }
 
 func (p *Provider) exchangeCodeWithRedirectURI(ctx context.Context, code, codeVerifier, redirectURI string) (*platform.PlatformTokens, error) {
-	form := url.Values{}
-	form.Set("grant_type", "authorization_code")
-	form.Set("client_id", p.config.KickClientId)
-	form.Set("client_secret", p.config.KickClientSecret)
-	form.Set("code", code)
-	form.Set("code_verifier", codeVerifier)
-	form.Set("redirect_uri", redirectURI)
+	token, err := p.client.GetToken(ctx, redirectURI, code, codeVerifier)
+	if err != nil {
+		return nil, fmt.Errorf("kick token exchange: %w", err)
+	}
 
-	return p.requestTokens(ctx, form)
+	return &platform.PlatformTokens{
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		ExpiresIn:    token.ExpiresIn,
+		Scopes:       parseScopes(token.Scope),
+	}, nil
 }
 
 func (p *Provider) RefreshToken(ctx context.Context, refreshToken string) (*platform.PlatformTokens, error) {
-	form := url.Values{}
-	form.Set("grant_type", "refresh_token")
-	form.Set("client_id", p.config.KickClientId)
-	form.Set("client_secret", p.config.KickClientSecret)
-	form.Set("refresh_token", refreshToken)
+	token, err := p.client.RefreshToken(ctx, refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("kick token refresh: %w", err)
+	}
 
-	return p.requestTokens(ctx, form)
+	return &platform.PlatformTokens{
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		ExpiresIn:    token.ExpiresIn,
+		Scopes:       parseScopes(token.Scope),
+	}, nil
 }
 
 func (p *Provider) GetUser(ctx context.Context, accessToken string) (*platform.PlatformUser, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiBaseURL+"/public/v1/users", nil)
+	client, err := gokick.NewClient(
+		&gokick.ClientOptions{
+			UserAccessToken: accessToken,
+		})
 	if err != nil {
-		return nil, fmt.Errorf("create kick user request: %w", err)
+		return nil, fmt.Errorf("create kick client: %w", err)
 	}
 
-	req.Header.Set("Authorization", "Bearer "+accessToken)
-
-	resp, err := p.httpClient.Do(req)
+	response, err := client.GetUsers(ctx, gokick.NewUserListFilter())
 	if err != nil {
-		return nil, fmt.Errorf("do kick user request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read kick user response: %w", err)
+		return nil, fmt.Errorf("kick get user: %w", err)
 	}
 
-	if resp.StatusCode >= http.StatusBadRequest {
-		return nil, fmt.Errorf("kick get user failed with status %d: %s", resp.StatusCode, string(body))
-	}
-
-	var parsed struct {
-		Data []struct {
-			UserID         int    `json:"user_id"`
-			Name           string `json:"name"`
-			Email          string `json:"email"`
-			ProfilePicture string `json:"profile_picture"`
-		} `json:"data"`
-	}
-
-	if err := json.Unmarshal(body, &parsed); err != nil {
-		return nil, fmt.Errorf("decode kick user response: %w", err)
-	}
-
-	if len(parsed.Data) == 0 {
+	if len(response.Result) == 0 {
 		return nil, fmt.Errorf("kick user not found")
 	}
 
-	user := parsed.Data[0]
+	user := response.Result[0]
 
 	return &platform.PlatformUser{
 		ID:          strconv.Itoa(user.UserID),
@@ -156,55 +141,9 @@ func (p *Provider) GetUser(ctx context.Context, accessToken string) (*platform.P
 	}, nil
 }
 
-func (p *Provider) requestTokens(ctx context.Context, form url.Values) (*platform.PlatformTokens, error) {
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		oauthBaseURL+"/oauth/token",
-		strings.NewReader(form.Encode()),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("create kick token request: %w", err)
+func parseScopes(scope string) []string {
+	if scope == "" {
+		return nil
 	}
-
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := p.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("do kick token request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read kick token response: %w", err)
-	}
-
-	if resp.StatusCode >= http.StatusBadRequest {
-		return nil, fmt.Errorf("kick token request failed with status %d: %s", resp.StatusCode, string(body))
-	}
-
-	var parsed struct {
-		AccessToken  string   `json:"access_token"`
-		RefreshToken string   `json:"refresh_token"`
-		ExpiresIn    int      `json:"expires_in"`
-		Scope        string   `json:"scope"`
-		Scopes       []string `json:"scopes"`
-	}
-
-	if err := json.Unmarshal(body, &parsed); err != nil {
-		return nil, fmt.Errorf("decode kick token response: %w", err)
-	}
-
-	responseScopes := parsed.Scopes
-	if len(responseScopes) == 0 && parsed.Scope != "" {
-		responseScopes = strings.Fields(parsed.Scope)
-	}
-
-	return &platform.PlatformTokens{
-		AccessToken:  parsed.AccessToken,
-		RefreshToken: parsed.RefreshToken,
-		ExpiresIn:    parsed.ExpiresIn,
-		Scopes:       responseScopes,
-	}, nil
+	return strings.Fields(scope)
 }

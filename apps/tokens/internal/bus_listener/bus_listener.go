@@ -2,19 +2,17 @@ package bus_listener
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/scorfly/gokick"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -318,61 +316,26 @@ type kickTokenResponse struct {
 }
 
 func (c *tokensImpl) refreshKickToken(ctx context.Context, refreshToken string) (*kickTokenResponse, error) {
-	form := url.Values{}
-	form.Set("grant_type", "refresh_token")
-	form.Set("client_id", c.config.KickClientId)
-	form.Set("client_secret", c.config.KickClientSecret)
-	form.Set("refresh_token", refreshToken)
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		"https://id.kick.com/oauth/token",
-		strings.NewReader(form.Encode()),
+	client, err := gokick.NewClient(
+		&gokick.ClientOptions{
+			ClientID:     c.config.KickClientId,
+			ClientSecret: c.config.KickClientSecret,
+		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("create kick refresh request: %w", err)
+		return nil, fmt.Errorf("create kick client: %w", err)
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := c.httpClient.Do(req)
+	res, err := client.RefreshToken(ctx, refreshToken)
 	if err != nil {
-		return nil, fmt.Errorf("do kick refresh request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read kick refresh response: %w", err)
-	}
-
-	if resp.StatusCode >= http.StatusBadRequest {
-		return nil, fmt.Errorf("kick refresh failed with status %d: %s", resp.StatusCode, string(body))
-	}
-
-	var parsed struct {
-		AccessToken  string   `json:"access_token"`
-		RefreshToken string   `json:"refresh_token"`
-		ExpiresIn    int      `json:"expires_in"`
-		Scope        string   `json:"scope"`
-		Scopes       []string `json:"scopes"`
-	}
-
-	if err := json.Unmarshal(body, &parsed); err != nil {
-		return nil, fmt.Errorf("decode kick refresh response: %w", err)
-	}
-
-	responseScopes := parsed.Scopes
-	if len(responseScopes) == 0 && parsed.Scope != "" {
-		responseScopes = strings.Fields(parsed.Scope)
+		return nil, fmt.Errorf("refresh kick token: %w", err)
 	}
 
 	return &kickTokenResponse{
-		AccessToken:  parsed.AccessToken,
-		RefreshToken: parsed.RefreshToken,
-		ExpiresIn:    parsed.ExpiresIn,
-		Scopes:       responseScopes,
+		AccessToken:  res.AccessToken,
+		RefreshToken: res.RefreshToken,
+		ExpiresIn:    res.ExpiresIn,
+		Scopes:       strings.Fields(res.Scope),
 	}, nil
 }
 

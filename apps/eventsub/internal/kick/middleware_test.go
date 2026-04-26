@@ -2,144 +2,16 @@ package kick
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/base64"
-	"encoding/pem"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
-
-	"github.com/go-redis/redismock/v9"
 )
 
 func newTestMiddleware(t *testing.T) *Middleware {
 	t.Helper()
-
-	redisClient, _ := redismock.NewClientMock()
-
-	return NewMiddleware(redisClient, slog.Default())
-}
-
-func newTestMiddlewareWithRedisMock(t *testing.T) (*Middleware, redismock.ClientMock) {
-	t.Helper()
-
-	redisClient, redisMock := redismock.NewClientMock()
-
-	return NewMiddleware(redisClient, slog.Default()), redisMock
-}
-
-func generateTestKeyPair(t *testing.T) (*rsa.PrivateKey, string) {
-	t.Helper()
-
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		t.Fatalf("generate rsa key: %v", err)
-	}
-
-	publicKeyDER, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
-	if err != nil {
-		t.Fatalf("marshal public key: %v", err)
-	}
-
-	publicKeyPEM := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: publicKeyDER})
-
-	return privateKey, string(publicKeyPEM)
-}
-
-func signKickRequest(t *testing.T, privateKey *rsa.PrivateKey, messageID, timestamp string, body []byte) string {
-	t.Helper()
-
-	hash := sha256.Sum256([]byte(messageID + "." + timestamp + "." + string(body)))
-
-	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hash[:])
-	if err != nil {
-		t.Fatalf("sign request: %v", err)
-	}
-
-	return base64.StdEncoding.EncodeToString(signature)
-}
-
-func TestHandler_ValidSignature(t *testing.T) {
-	middleware, redisMock := newTestMiddlewareWithRedisMock(t)
-	privateKey, publicKeyPEM := generateTestKeyPair(t)
-	body := []byte(`{"message":"hello"}`)
-	timestamp := time.Now().UTC().Format(time.RFC3339)
-	signature := signKickRequest(t, privateKey, "message-valid", timestamp, body)
-
-	redisMock.ExpectGet(redisPublicKeyKey).SetVal(publicKeyPEM)
-
-	nextCalled := false
-	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		nextCalled = true
-		w.WriteHeader(http.StatusOK)
-	})
-
-	req := httptest.NewRequest(http.MethodPost, "/webhook", bytes.NewReader(body))
-	req.Header.Set("Kick-Event-Message-Id", "message-valid")
-	req.Header.Set("Kick-Event-Message-Timestamp", timestamp)
-	req.Header.Set("Kick-Event-Type", "channel.followed")
-	req.Header.Set("Kick-Event-Version", "1")
-	req.Header.Set("Kick-Event-Subscription-Id", "sub-123")
-	req.Header.Set("Kick-Event-Signature", signature)
-
-	w := httptest.NewRecorder()
-
-	middleware.Handler(next).ServeHTTP(w, req)
-
-	if !nextCalled {
-		t.Fatal("expected next handler to be called")
-	}
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected status code %d, got %d", http.StatusOK, w.Code)
-	}
-
-	if err := redisMock.ExpectationsWereMet(); err != nil {
-		t.Fatalf("redis expectations not met: %v", err)
-	}
-}
-
-func TestHandler_InvalidSignature(t *testing.T) {
-	middleware, redisMock := newTestMiddlewareWithRedisMock(t)
-	_, publicKeyPEM := generateTestKeyPair(t)
-	body := []byte(`{"message":"hello"}`)
-	timestamp := time.Now().UTC().Format(time.RFC3339)
-
-	redisMock.ExpectGet(redisPublicKeyKey).SetVal(publicKeyPEM)
-
-	nextCalled := false
-	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		nextCalled = true
-		w.WriteHeader(http.StatusOK)
-	})
-
-	req := httptest.NewRequest(http.MethodPost, "/webhook", bytes.NewReader(body))
-	req.Header.Set("Kick-Event-Message-Id", "message-invalid")
-	req.Header.Set("Kick-Event-Message-Timestamp", timestamp)
-	req.Header.Set("Kick-Event-Type", "channel.followed")
-	req.Header.Set("Kick-Event-Signature", base64.StdEncoding.EncodeToString([]byte("wrong-signature")))
-
-	w := httptest.NewRecorder()
-
-	middleware.Handler(next).ServeHTTP(w, req)
-
-	if nextCalled {
-		t.Fatal("expected next handler not to be called")
-	}
-
-	if w.Code != http.StatusForbidden {
-		t.Fatalf("expected status code %d, got %d", http.StatusForbidden, w.Code)
-	}
-
-	if err := redisMock.ExpectationsWereMet(); err != nil {
-		t.Fatalf("redis expectations not met: %v", err)
-	}
+	return NewMiddleware(slog.Default())
 }
 
 func TestHandler_MissingSignature(t *testing.T) {
@@ -389,7 +261,6 @@ func TestHandlerWithoutVerification_BodyTooLarge(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	// Create a body larger than 1MB
 	largeBody := make([]byte, maxBodySize+1)
 
 	req := httptest.NewRequest(http.MethodPost, "/webhook", bytes.NewReader(largeBody))
@@ -447,5 +318,20 @@ func TestHandlerWithoutVerification_ContextValues(t *testing.T) {
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+}
+
+func TestValidateTimestamp_DuplicatedDate(t *testing.T) {
+	now := time.Date(2026, 4, 26, 11, 30, 0, 0, time.UTC)
+	malformed := "2026-04-26T2026-04-26T11:27:44Z"
+
+	parsed, err := validateTimestamp(malformed, now)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := time.Date(2026, 4, 26, 11, 27, 44, 0, time.UTC)
+	if !parsed.Equal(expected) {
+		t.Fatalf("expected %v, got %v", expected, parsed)
 	}
 }

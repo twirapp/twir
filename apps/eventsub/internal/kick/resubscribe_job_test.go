@@ -130,13 +130,13 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 	kickUserID := uuid.New()
 	kickBotID := uuid.New()
 
-	subMgr := &mockSubManager{
-		listResult: []SubscriptionInfo{
-			{Event: "chat.message.sent", Status: "active"},
-			{Event: "channel.followed", Status: "active"},
-			{Event: "livestream.status.updated", Status: "active"},
-		},
-	}
+		subMgr := &mockSubManager{
+			listResult: []SubscriptionInfo{
+				{Event: "chat.message.sent"},
+				{Event: "channel.followed"},
+				{Event: "livestream.status.updated"},
+			},
+		}
 
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{

@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/tokens
 
-go 1.26.0
+go 1.26.1
 
 require (
 	github.com/go-redsync/redsync/v4 v4.14.1
@@ -76,6 +76,7 @@ require (
 	github.com/samber/slog-multi v1.6.0 // indirect
 	github.com/samber/slog-sentry/v2 v2.10.1 // indirect
 	github.com/samber/slog-zerolog/v2 v2.9.0 // indirect
+	github.com/scorfly/gokick v1.17.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twirapp/kv v0.5.1 // indirect
