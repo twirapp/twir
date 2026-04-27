@@ -32,13 +32,18 @@ func (m *mockSubManager) SubscribeAll(_ context.Context, _ string) error {
 func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 	kickUserID := uuid.New()
 
-		subMgr := &mockSubManager{
-			listResult: []SubscriptionInfo{
-				{Event: "chat.message.sent"},
-				{Event: "channel.followed"},
-				{Event: "livestream.status.updated"},
-			},
-		}
+	subMgr := &mockSubManager{
+		listResult: []SubscriptionInfo{
+			{Event: "chat.message.sent"},
+			{Event: "channel.followed"},
+			{Event: "channel.subscription.new"},
+			{Event: "channel.subscription.renewal"},
+			{Event: "channel.subscription.gifts"},
+			{Event: "channel.reward.redemption.updated"},
+			{Event: "livestream.status.updated"},
+			{Event: "moderation.banned"},
+		},
+	}
 
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{
@@ -76,14 +81,19 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 func TestResubscribeJob_AllPresent(t *testing.T) {
 	kickUserID := uuid.New()
 
-		subMgr := &mockSubManager{
-			listResult: []SubscriptionInfo{
-				{Event: "chat.message.sent"},
-				{Event: "channel.followed"},
-				{Event: "livestream.status.updated"},
-				{Event: "livestream.metadata.updated"},
-			},
-		}
+	subMgr := &mockSubManager{
+		listResult: []SubscriptionInfo{
+			{Event: "chat.message.sent"},
+			{Event: "channel.followed"},
+			{Event: "channel.subscription.new"},
+			{Event: "channel.subscription.renewal"},
+			{Event: "channel.subscription.gifts"},
+			{Event: "channel.reward.redemption.updated"},
+			{Event: "livestream.status.updated"},
+			{Event: "livestream.metadata.updated"},
+			{Event: "moderation.banned"},
+		},
+	}
 
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{

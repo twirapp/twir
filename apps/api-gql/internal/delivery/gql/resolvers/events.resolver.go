@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 // EventCreate is the resolver for the eventCreate field.
@@ -55,6 +56,7 @@ func (r *mutationResolver) EventCreate(ctx context.Context, input gqlmodel.Event
 	event, err := r.deps.EventsService.Create(
 		ctx, events.CreateInput{
 			ChannelID:   dashboardID,
+			Platforms:   mappers.StringsToPlatforms(input.Platforms),
 			Type:        entity.EventType(input.Type),
 			RewardID:    input.RewardID.Value(),
 			CommandID:   input.CommandID.Value(),
@@ -117,8 +119,15 @@ func (r *mutationResolver) EventUpdate(ctx context.Context, id string, input gql
 		convertedType = (*entity.EventType)(input.Type.Value())
 	}
 
+	var convertedPlatforms *[]platform.Platform
+	if input.Platforms.IsSet() {
+		platforms := mappers.StringsToPlatforms(input.Platforms.Value())
+		convertedPlatforms = &platforms
+	}
+
 	event, err := r.deps.EventsService.Update(
 		ctx, id, events.UpdateInput{
+			Platforms:   convertedPlatforms,
 			Type:        convertedType,
 			RewardID:    input.RewardID.Value(),
 			CommandID:   input.CommandID.Value(),

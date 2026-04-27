@@ -7,6 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/i18n"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
@@ -31,11 +32,17 @@ var Followers = &types.Variable{
 			channelID = parseCtx.Channel.ID
 		}
 
+		eventPlatform := parseCtx.Platform
+		if eventPlatform == "" {
+			eventPlatform = platform.PlatformTwitch
+		}
+
 		t := model.ChannelEventListItemTypeFollow
 		count, err := parseCtx.Services.ChannelEventListsRepo.CountBy(
 			ctx,
 			channelseventslist.CountByInput{
 				ChannelID:    &channelID,
+				Platform:     &eventPlatform,
 				CreatedAtGTE: &parseCtx.ChannelStream.StartedAt,
 				Type:         &t,
 			},

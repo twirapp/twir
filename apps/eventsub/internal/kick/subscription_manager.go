@@ -28,15 +28,25 @@ const (
 var EventTypes = []string{
 	"chat.message.sent",
 	"channel.followed",
+	"channel.subscription.new",
+	"channel.subscription.renewal",
+	"channel.subscription.gifts",
+	"channel.reward.redemption.updated",
 	"livestream.status.updated",
 	"livestream.metadata.updated",
+	"moderation.banned",
 }
 
 var eventTypeToSubscriptionName = map[string]gokick.SubscriptionName{
-	"chat.message.sent":         gokick.SubscriptionNameChatMessage,
-	"channel.followed":          gokick.SubscriptionNameChannelFollow,
-	"livestream.status.updated": gokick.SubscriptionNameLivestreamStatusUpdated,
-	"livestream.metadata.updated": gokick.SubscriptionNameLivestreamMetadataUpdated,
+	"chat.message.sent":                 gokick.SubscriptionNameChatMessage,
+	"channel.followed":                  gokick.SubscriptionNameChannelFollow,
+	"channel.subscription.new":          gokick.SubscriptionNameChannelSubscriptionCreated,
+	"channel.subscription.renewal":      gokick.SubscriptionNameChannelSubscriptionRenewal,
+	"channel.subscription.gifts":        gokick.SubscriptionNameChannelSubscriptionGifts,
+	"channel.reward.redemption.updated": gokick.SubscriptionNameChannelRewardRedemptionUpdated,
+	"livestream.status.updated":         gokick.SubscriptionNameLivestreamStatusUpdated,
+	"livestream.metadata.updated":       gokick.SubscriptionNameLivestreamMetadataUpdated,
+	"moderation.banned":                 gokick.SubscriptionNameModerationBanned,
 }
 
 type SubscriptionManager struct {

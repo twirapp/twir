@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels_redemptions_history/model"
 )
 
@@ -17,6 +18,7 @@ type Repository interface {
 type CreateInput struct {
 	ChannelID    string
 	UserID       string
+	Platform     platform.Platform
 	RewardID     uuid.UUID
 	RewardPrompt *string
 	RewardTitle  string
@@ -25,6 +27,7 @@ type CreateInput struct {
 
 type GetManyInput struct {
 	ChannelID  string
+	Platform   *platform.Platform
 	Page       int
 	PerPage    int
 	UserIDs    []string
@@ -38,5 +41,6 @@ type GetManyPayload struct {
 
 type CountInput struct {
 	ChannelID  *string
+	Platform   *platform.Platform
 	RewardsIDs []string
 }

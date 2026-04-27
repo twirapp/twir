@@ -40,6 +40,7 @@ func MapEventToGQL(event entity.Event) gqlmodel.Event {
 	return gqlmodel.Event{
 		ID:          event.ID,
 		ChannelID:   event.ChannelID,
+		Platforms:   PlatformsToStrings(event.Platforms),
 		Type:        gqlmodel.EventType(event.Type),
 		RewardID:    event.RewardID,
 		CommandID:   event.CommandID,

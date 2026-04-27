@@ -57,10 +57,10 @@ var History = &types.DefaultCommand{
 			Raw(
 				`SELECT * FROM (
 				SELECT DISTINCT ON (title) * FROM "channels_info_history"
-				                             WHERE "channelId" = ?
+				                             WHERE "channelId" = ? AND platform = ?
 				                             ORDER BY "title", "createdAt"
 				                             DESC
-				) subquery ORDER BY "createdAt" DESC LIMIT ?`, parseCtx.Channel.ID, limit,
+				) subquery ORDER BY "createdAt" DESC LIMIT ?`, parseCtx.Channel.ID, parseCtx.Platform, limit,
 			).
 			Find(&histories).
 			Error

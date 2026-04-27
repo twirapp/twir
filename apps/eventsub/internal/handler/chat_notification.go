@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
@@ -47,6 +48,7 @@ func (c *Handler) _notificationSubGift(
 		ctx,
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserId,
+			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeSubGift,
 			Data: &model.ChannelsEventsListItemData{
 				SubGiftUserName:              event.ChatterUserLogin,
@@ -65,6 +67,7 @@ func (c *Handler) _notificationSubGift(
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
+				Platform:    platformentity.PlatformTwitch,
 			},
 			SenderUserID:      event.ChatterUserId,
 			SenderUserName:    event.ChatterUserLogin,

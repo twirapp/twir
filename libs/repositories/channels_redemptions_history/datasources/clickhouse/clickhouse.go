@@ -41,6 +41,10 @@ func (c *Clickhouse) Count(
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"channel_id": *input.ChannelID})
 	}
 
+	if input.Platform != nil {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"platform": *input.Platform})
+	}
+
 	if len(input.RewardsIDs) > 0 {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"reward_id": input.RewardsIDs})
 	}
@@ -64,8 +68,8 @@ func (c *Clickhouse) Create(
 	input channelsredemptionshistory.CreateInput,
 ) error {
 	query := `
-INSERT INTO channels_redemptions_history(channel_id, user_id, reward_id, reward_title, reward_prompt, reward_cost)
-VALUES (?, ?, ?, ?, ?, ?);
+INSERT INTO channels_redemptions_history(channel_id, user_id, platform, reward_id, reward_title, reward_prompt, reward_cost)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 `
 
 	err := c.client.Exec(
@@ -73,6 +77,7 @@ VALUES (?, ?, ?, ?, ?, ?);
 		query,
 		input.ChannelID,
 		input.UserID,
+		input.Platform,
 		input.RewardID,
 		input.RewardTitle,
 		input.RewardPrompt,
@@ -91,7 +96,7 @@ func (c *Clickhouse) createBatch(
 
 	batch, err := c.client.PrepareBatch(
 		ctx,
-		"INSERT INTO channels_redemptions_history(channel_id, user_id, reward_id, reward_title, reward_prompt, reward_cost)",
+		"INSERT INTO channels_redemptions_history(channel_id, user_id, platform, reward_id, reward_title, reward_prompt, reward_cost)",
 	)
 	if err != nil {
 		return fmt.Errorf("prepare batch failed: %w", err)
@@ -101,6 +106,7 @@ func (c *Clickhouse) createBatch(
 		err := batch.Append(
 			i.ChannelID,
 			i.UserID,
+			i.Platform,
 			i.RewardID,
 			i.RewardTitle,
 			i.RewardPrompt,
@@ -149,6 +155,7 @@ func (c *Clickhouse) GetMany(
 	queryBuilder := sq.Select(
 		"channel_id",
 		"user_id",
+		"platform",
 		"reward_id",
 		"reward_prompt",
 		"reward_title",
@@ -157,6 +164,10 @@ func (c *Clickhouse) GetMany(
 	).From("channels_redemptions_history").
 		Where(squirrel.Eq{"channel_id": input.ChannelID}).
 		OrderBy("created_at DESC")
+
+	if input.Platform != nil {
+		queryBuilder = queryBuilder.Where(squirrel.Eq{"platform": *input.Platform})
+	}
 
 	if len(input.UserIDs) > 0 {
 		queryBuilder = queryBuilder.Where(squirrel.Eq{"user_id": input.UserIDs})
@@ -194,6 +205,7 @@ func (c *Clickhouse) GetMany(
 		err := rows.Scan(
 			&item.ChannelID,
 			&item.UserID,
+			&item.Platform,
 			&item.RewardID,
 			&item.RewardPrompt,
 			&item.RewardTitle,
@@ -215,9 +227,14 @@ func (c *Clickhouse) GetMany(
 SELECT COUNT(*) FROM channels_redemptions_history
 WHERE channel_id = ?
 `
+	totalArgs := []any{input.ChannelID}
+	if input.Platform != nil {
+		totalQuery += " AND platform = ?"
+		totalArgs = append(totalArgs, *input.Platform)
+	}
 
 	var total uint64
-	err = c.client.QueryRow(ctx, totalQuery, input.ChannelID).Scan(&total)
+	err = c.client.QueryRow(ctx, totalQuery, totalArgs...).Scan(&total)
 	if err != nil {
 		return channelsredemptionshistory.GetManyPayload{}, err
 	}

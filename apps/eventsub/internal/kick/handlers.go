@@ -9,33 +9,38 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"github.com/samber/lo"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	streams "github.com/twirapp/twir/libs/repositories/streams"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
-	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
-	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
-	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 )
 
 const (
@@ -88,6 +93,56 @@ type kickFollowPayload struct {
 	Follower    kickUser `json:"follower"`
 }
 
+type kickSubscriptionPayload struct {
+	Broadcaster kickUser `json:"broadcaster"`
+	Subscriber  kickUser `json:"subscriber"`
+	Duration    int      `json:"duration"`
+	CreatedAt   string   `json:"created_at"`
+	ExpiresAt   string   `json:"expires_at"`
+}
+
+type kickSubscriptionGiftsPayload struct {
+	Broadcaster kickUser   `json:"broadcaster"`
+	Gifter      kickUser   `json:"gifter"`
+	Giftees     []kickUser `json:"giftees"`
+	CreatedAt   string     `json:"created_at"`
+	ExpiresAt   string     `json:"expires_at"`
+}
+
+type kickRewardRedemptionPayload struct {
+	ID         string `json:"id"`
+	UserInput  string `json:"user_input"`
+	Status     string `json:"status"`
+	RedeemedAt string `json:"redeemed_at"`
+	Reward     struct {
+		ID          string `json:"id"`
+		Title       string `json:"title"`
+		Cost        int    `json:"cost"`
+		Description string `json:"description"`
+	} `json:"reward"`
+	Redeemer struct {
+		UserID      int    `json:"user_id"`
+		Username    string `json:"username"`
+		ChannelSlug string `json:"channel_slug"`
+	} `json:"redeemer"`
+	Broadcaster struct {
+		UserID      int    `json:"user_id"`
+		Username    string `json:"username"`
+		ChannelSlug string `json:"channel_slug"`
+	} `json:"broadcaster"`
+}
+
+type kickModerationBannedPayload struct {
+	Broadcaster kickUser `json:"broadcaster"`
+	Moderator   kickUser `json:"moderator"`
+	BannedUser  kickUser `json:"banned_user"`
+	Metadata    struct {
+		Reason    string  `json:"reason"`
+		CreatedAt string  `json:"created_at"`
+		ExpiresAt *string `json:"expires_at"`
+	} `json:"metadata"`
+}
+
 type kickLivestreamStatusPayload struct {
 	Broadcaster kickUser `json:"broadcaster"`
 	IsLive      bool     `json:"is_live"`
@@ -111,53 +166,69 @@ type kickLivestreamMetadataPayload struct {
 }
 
 type Handlers struct {
-	logger                *slog.Logger
-	redis                 *redis.Client
-	chatMessagesGeneric   bus_core.Queue[generic.ChatMessage, struct{}]
-	processGenericMessage bus_core.Queue[generic.ChatMessage, struct{}]
-	eventsFollow          bus_core.Queue[events.FollowMessage, struct{}]
-	streamOnline          bus_core.Queue[kickbus.KickStreamOnline, struct{}]
-	streamOffline         bus_core.Queue[kickbus.KickStreamOffline, struct{}]
-	channelsRepo          channelsrepository.Repository
-	usersRepo             usersrepository.Repository
-	kickBotsRepo          kickbotsrepository.Repository
+	logger                  *slog.Logger
+	redis                   *redis.Client
+	chatMessagesGeneric     bus_core.Queue[generic.ChatMessage, struct{}]
+	processGenericMessage   bus_core.Queue[generic.ChatMessage, struct{}]
+	eventsFollow            bus_core.Queue[events.FollowMessage, struct{}]
+	eventsSubscribe         bus_core.Queue[events.SubscribeMessage, struct{}]
+	eventsReSubscribe       bus_core.Queue[events.ReSubscribeMessage, struct{}]
+	eventsSubGift           bus_core.Queue[events.SubGiftMessage, struct{}]
+	eventsRedemptionCreated bus_core.Queue[events.RedemptionCreatedMessage, struct{}]
+	eventsChannelBan        bus_core.Queue[events.ChannelBanMessage, struct{}]
+	streamOnline            bus_core.Queue[kickbus.KickStreamOnline, struct{}]
+	streamOffline           bus_core.Queue[kickbus.KickStreamOffline, struct{}]
+	channelsRepo            channelsrepository.Repository
+	usersRepo               usersrepository.Repository
+	kickBotsRepo            kickbotsrepository.Repository
+	eventsListRepo          channelseventslist.Repository
 	channelsInfoHistoryRepo channelsinfohistory.Repository
-	streamsRepo           streamsrepository.Repository
-	userCreatorService    *user_creator.UserCreatorService
-	prefixCache           *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	redemptionsHistoryRepo  channelsredemptionshistory.Repository
+	streamsRepo             streamsrepository.Repository
+	userCreatorService      *user_creator.UserCreatorService
+	prefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 }
 
 type HandlersOpts struct {
 	fx.In
 
-	Logger             *slog.Logger
-	Redis              *redis.Client
-	Bus                *bus_core.Bus
-	ChannelsRepo       channelsrepository.Repository
-	UsersRepo          usersrepository.Repository
-	KickBotsRepo       kickbotsrepository.Repository
+	Logger                  *slog.Logger
+	Redis                   *redis.Client
+	Bus                     *bus_core.Bus
+	ChannelsRepo            channelsrepository.Repository
+	UsersRepo               usersrepository.Repository
+	KickBotsRepo            kickbotsrepository.Repository
+	EventsListRepo          channelseventslist.Repository
 	ChannelsInfoHistoryRepo channelsinfohistory.Repository
-	StreamsRepo        streamsrepository.Repository
-	UserCreatorService *user_creator.UserCreatorService
-	PrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	RedemptionsHistoryRepo  channelsredemptionshistory.Repository
+	StreamsRepo             streamsrepository.Repository
+	UserCreatorService      *user_creator.UserCreatorService
+	PrefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 }
 
 func NewHandlers(opts HandlersOpts) *Handlers {
 	return &Handlers{
-		logger:                opts.Logger,
-		redis:                 opts.Redis,
-		chatMessagesGeneric:   opts.Bus.ChatMessagesGeneric,
-		processGenericMessage: opts.Bus.Parser.ProcessGenericMessage,
-		eventsFollow:          opts.Bus.Events.Follow,
-		streamOnline:          opts.Bus.KickStreamOnline,
-		streamOffline:         opts.Bus.KickStreamOffline,
-		channelsRepo:          opts.ChannelsRepo,
-		usersRepo:             opts.UsersRepo,
-		kickBotsRepo:          opts.KickBotsRepo,
+		logger:                  opts.Logger,
+		redis:                   opts.Redis,
+		chatMessagesGeneric:     opts.Bus.ChatMessagesGeneric,
+		processGenericMessage:   opts.Bus.Parser.ProcessGenericMessage,
+		eventsFollow:            opts.Bus.Events.Follow,
+		eventsSubscribe:         opts.Bus.Events.Subscribe,
+		eventsReSubscribe:       opts.Bus.Events.ReSubscribe,
+		eventsSubGift:           opts.Bus.Events.SubGift,
+		eventsRedemptionCreated: opts.Bus.Events.RedemptionCreated,
+		eventsChannelBan:        opts.Bus.Events.ChannelBan,
+		streamOnline:            opts.Bus.KickStreamOnline,
+		streamOffline:           opts.Bus.KickStreamOffline,
+		channelsRepo:            opts.ChannelsRepo,
+		usersRepo:               opts.UsersRepo,
+		kickBotsRepo:            opts.KickBotsRepo,
+		eventsListRepo:          opts.EventsListRepo,
 		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
-		streamsRepo:           opts.StreamsRepo,
-		userCreatorService:    opts.UserCreatorService,
-		prefixCache:           opts.PrefixCache,
+		redemptionsHistoryRepo:  opts.RedemptionsHistoryRepo,
+		streamsRepo:             opts.StreamsRepo,
+		userCreatorService:      opts.UserCreatorService,
+		prefixCache:             opts.PrefixCache,
 	}
 }
 
@@ -233,10 +304,20 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		eventLogAttrs, err = h.handleChatMessage(r, body)
 	case "channel.followed":
 		eventLogAttrs, err = h.handleChannelFollow(r, body)
+	case "channel.subscription.new":
+		eventLogAttrs, err = h.handleSubscriptionNew(r, body)
+	case "channel.subscription.renewal":
+		eventLogAttrs, err = h.handleSubscriptionRenewal(r, body)
+	case "channel.subscription.gifts":
+		eventLogAttrs, err = h.handleSubscriptionGifts(r, body)
+	case "channel.reward.redemption.updated":
+		eventLogAttrs, err = h.handleRewardRedemptionUpdated(r, body)
 	case "livestream.status.updated":
 		eventLogAttrs, err = h.handleLivestreamStatus(r, body)
 	case "livestream.metadata.updated":
 		eventLogAttrs, err = h.handleLivestreamMetadata(r, body)
+	case "moderation.banned":
+		eventLogAttrs, err = h.handleModerationBanned(r, body)
 	default:
 		h.logger.InfoContext(ctx, "kick: unknown event type, ignoring",
 			slog.String("event_type", eventType),
@@ -323,6 +404,7 @@ func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) ([]slo
 	if h.channelsInfoHistoryRepo != nil && payload.Metadata.Category.Name != "" {
 		if err := h.channelsInfoHistoryRepo.Create(ctx, channelsinfohistory.CreateInput{
 			ChannelID: channelID,
+			Platform:  platform.PlatformKick,
 			Title:     payload.Metadata.Title,
 			Category:  payload.Metadata.Category.Name,
 		}); err != nil {
@@ -396,17 +478,17 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	}
 
 	var (
-		channel         channelsmodel.Channel
-		stream          *streamsmodel.Stream
-		commandsPrefix  string
+		channel        channelsmodel.Channel
+		stream         *streamsmodel.Stream
+		commandsPrefix string
 	)
 
 	var errwg errgroup.Group
 
-		errwg.Go(func() error {
-			var err error
-			channel, err = h.channelsRepo.GetByID(ctx, uuid.MustParse(channelID))
-			if err != nil {
+	errwg.Go(func() error {
+		var err error
+		channel, err = h.channelsRepo.GetByID(ctx, uuid.MustParse(channelID))
+		if err != nil {
 			return fmt.Errorf("get channel by id: %w", err)
 		}
 		return nil
@@ -596,7 +678,9 @@ func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Att
 		ctx,
 		events.FollowMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID: channelID,
+				ChannelID:   channelID,
+				ChannelName: kickChannelName(payload.Broadcaster),
+				Platform:    platform.PlatformKick,
 			},
 			UserID:   strconv.Itoa(payload.Follower.UserID),
 			UserName: payload.Follower.Username,
@@ -611,6 +695,374 @@ func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Att
 		slog.String("broadcaster_username", payload.Broadcaster.Username),
 		slog.String("follower_user_id", strconv.Itoa(payload.Follower.UserID)),
 		slog.String("follower_username", payload.Follower.Username),
+	}, nil
+}
+
+func normalizeKickRedemptionStatus(status string) string {
+	return strings.ToLower(strings.TrimSpace(status))
+}
+
+func isKickRedemptionPending(status string) bool {
+	switch normalizeKickRedemptionStatus(status) {
+	case "pending", "new":
+		return true
+	default:
+		return false
+	}
+}
+
+func kickRewardHistoryUUID(rewardID string) uuid.UUID {
+	if parsed, err := uuid.Parse(rewardID); err == nil {
+		return parsed
+	}
+
+	return uuid.NewSHA1(uuid.NameSpaceOID, []byte("kick-reward:"+rewardID))
+}
+
+func kickChannelName(user kickUser) string {
+	if user.ChannelSlug != "" {
+		return user.ChannelSlug
+	}
+
+	return user.Username
+}
+
+func (h *Handlers) handleSubscriptionNew(r *http.Request, body []byte) ([]slog.Attr, error) {
+	ctx := r.Context()
+
+	var payload kickSubscriptionPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		return nil, fmt.Errorf("unmarshal channel.subscription.new payload: %w", err)
+	}
+
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	if err != nil {
+		return nil, fmt.Errorf("resolve ids for channel.subscription.new broadcaster_user_id=%s: %w", broadcasterUserID, err)
+	}
+
+	subscriberUserID := strconv.Itoa(payload.Subscriber.UserID)
+	if h.eventsListRepo != nil {
+		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
+			ChannelID: channelID,
+			UserID:    &subscriberUserID,
+			Platform:  platform.PlatformKick,
+			Type:      channelseventslistmodel.ChannelEventListItemTypeSubscribe,
+			Data: &channelseventslistmodel.ChannelsEventsListItemData{
+				SubUserName:        payload.Subscriber.Username,
+				SubUserDisplayName: payload.Subscriber.Username,
+			},
+		}); err != nil {
+			return nil, fmt.Errorf("create kick subscribe event list item: %w", err)
+		}
+	}
+
+	if err := h.eventsSubscribe.Publish(ctx, events.SubscribeMessage{
+		BaseInfo: events.BaseInfo{
+			ChannelID:   channelID,
+			ChannelName: kickChannelName(payload.Broadcaster),
+			Platform:    platform.PlatformKick,
+		},
+		UserID:          subscriberUserID,
+		UserName:        payload.Subscriber.Username,
+		UserDisplayName: payload.Subscriber.Username,
+		Level:           "",
+	}); err != nil {
+		return nil, fmt.Errorf("publish kick subscribe event: %w", err)
+	}
+
+	return []slog.Attr{
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("subscriber_user_id", subscriberUserID),
+		slog.String("subscriber_username", payload.Subscriber.Username),
+		slog.Int("duration", payload.Duration),
+	}, nil
+}
+
+func (h *Handlers) handleSubscriptionRenewal(r *http.Request, body []byte) ([]slog.Attr, error) {
+	ctx := r.Context()
+
+	var payload kickSubscriptionPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		return nil, fmt.Errorf("unmarshal channel.subscription.renewal payload: %w", err)
+	}
+
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	if err != nil {
+		return nil, fmt.Errorf("resolve ids for channel.subscription.renewal broadcaster_user_id=%s: %w", broadcasterUserID, err)
+	}
+
+	subscriberUserID := strconv.Itoa(payload.Subscriber.UserID)
+	months := max(payload.Duration, 0)
+	if h.eventsListRepo != nil {
+		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
+			ChannelID: channelID,
+			UserID:    &subscriberUserID,
+			Platform:  platform.PlatformKick,
+			Type:      channelseventslistmodel.ChannelEventListItemTypeReSubscribe,
+			Data: &channelseventslistmodel.ChannelsEventsListItemData{
+				ReSubUserName:        payload.Subscriber.Username,
+				ReSubUserDisplayName: payload.Subscriber.Username,
+				ReSubMonths:          strconv.Itoa(months),
+				ReSubStreak:          "0",
+			},
+		}); err != nil {
+			return nil, fmt.Errorf("create kick resubscribe event list item: %w", err)
+		}
+	}
+
+	if err := h.eventsReSubscribe.Publish(ctx, events.ReSubscribeMessage{
+		BaseInfo: events.BaseInfo{
+			ChannelID:   channelID,
+			ChannelName: kickChannelName(payload.Broadcaster),
+			Platform:    platform.PlatformKick,
+		},
+		UserID:          subscriberUserID,
+		UserName:        payload.Subscriber.Username,
+		UserDisplayName: payload.Subscriber.Username,
+		Months:          int64(months),
+		Streak:          0,
+		IsPrime:         false,
+		Message:         "",
+		Level:           "",
+	}); err != nil {
+		return nil, fmt.Errorf("publish kick resubscribe event: %w", err)
+	}
+
+	return []slog.Attr{
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("subscriber_user_id", subscriberUserID),
+		slog.String("subscriber_username", payload.Subscriber.Username),
+		slog.Int("duration", payload.Duration),
+	}, nil
+}
+
+func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog.Attr, error) {
+	ctx := r.Context()
+
+	var payload kickSubscriptionGiftsPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		return nil, fmt.Errorf("unmarshal channel.subscription.gifts payload: %w", err)
+	}
+
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	if err != nil {
+		return nil, fmt.Errorf("resolve ids for channel.subscription.gifts broadcaster_user_id=%s: %w", broadcasterUserID, err)
+	}
+
+	gifterUserID := strconv.Itoa(payload.Gifter.UserID)
+	for _, giftee := range payload.Giftees {
+		gifteeUserID := strconv.Itoa(giftee.UserID)
+
+		if h.eventsListRepo != nil {
+			if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
+				ChannelID: channelID,
+				UserID:    &gifterUserID,
+				Platform:  platform.PlatformKick,
+				Type:      channelseventslistmodel.ChannelEventListItemTypeSubGift,
+				Data: &channelseventslistmodel.ChannelsEventsListItemData{
+					SubGiftUserName:              payload.Gifter.Username,
+					SubGiftUserDisplayName:       payload.Gifter.Username,
+					SubGiftTargetUserName:        giftee.Username,
+					SubGiftTargetUserDisplayName: giftee.Username,
+				},
+			}); err != nil {
+				return nil, fmt.Errorf("create kick subgift event list item for giftee %s: %w", gifteeUserID, err)
+			}
+		}
+
+		if err := h.eventsSubGift.Publish(ctx, events.SubGiftMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   channelID,
+				ChannelName: kickChannelName(payload.Broadcaster),
+				Platform:    platform.PlatformKick,
+			},
+			SenderUserID:      gifterUserID,
+			SenderUserName:    payload.Gifter.Username,
+			SenderDisplayName: payload.Gifter.Username,
+			TargetUserName:    giftee.Username,
+			TargetDisplayName: giftee.Username,
+			Level:             "",
+		}); err != nil {
+			return nil, fmt.Errorf("publish kick subgift event for giftee %s: %w", gifteeUserID, err)
+		}
+	}
+
+	return []slog.Attr{
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("gifter_user_id", gifterUserID),
+		slog.String("gifter_username", payload.Gifter.Username),
+		slog.Int("giftee_count", len(payload.Giftees)),
+	}, nil
+}
+
+func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) ([]slog.Attr, error) {
+	ctx := r.Context()
+
+	var payload kickRewardRedemptionPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		return nil, fmt.Errorf("unmarshal channel.reward.redemption.updated payload: %w", err)
+	}
+
+	status := normalizeKickRedemptionStatus(payload.Status)
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	if err != nil {
+		return nil, fmt.Errorf("resolve ids for channel.reward.redemption.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
+	}
+
+	if !isKickRedemptionPending(payload.Status) {
+		return []slog.Attr{
+			slog.String("channel_id", channelID),
+			slog.String("broadcaster_user_id", broadcasterUserID),
+			slog.String("reward_id", payload.Reward.ID),
+			slog.String("status", status),
+			slog.Bool("ignored", true),
+		}, nil
+	}
+
+	redeemerUserID := strconv.Itoa(payload.Redeemer.UserID)
+	if h.redemptionsHistoryRepo != nil {
+		if err := h.redemptionsHistoryRepo.Create(ctx, channelsredemptionshistory.CreateInput{
+			ChannelID:    channelID,
+			UserID:       redeemerUserID,
+			Platform:     platform.PlatformKick,
+			RewardID:     kickRewardHistoryUUID(payload.Reward.ID),
+			RewardPrompt: lo.If(payload.UserInput != "", &payload.UserInput).Else(nil),
+			RewardTitle:  payload.Reward.Title,
+			RewardCost:   payload.Reward.Cost,
+		}); err != nil {
+			return nil, fmt.Errorf("create kick redemption history: %w", err)
+		}
+	}
+
+	if h.eventsListRepo != nil {
+		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
+			ChannelID: channelID,
+			UserID:    &redeemerUserID,
+			Platform:  platform.PlatformKick,
+			Type:      channelseventslistmodel.ChannelEventListItemTypeRedemptionCreated,
+			Data: &channelseventslistmodel.ChannelsEventsListItemData{
+				RedemptionInput:           payload.UserInput,
+				RedemptionTitle:           payload.Reward.Title,
+				RedemptionUserName:        payload.Redeemer.Username,
+				RedemptionUserDisplayName: payload.Redeemer.Username,
+				RedemptionCost:            strconv.Itoa(payload.Reward.Cost),
+			},
+		}); err != nil {
+			return nil, fmt.Errorf("create kick redemption event list item: %w", err)
+		}
+	}
+
+	if err := h.eventsRedemptionCreated.Publish(ctx, events.RedemptionCreatedMessage{
+		ID: payload.Reward.ID,
+		BaseInfo: events.BaseInfo{
+			ChannelID:   channelID,
+			ChannelName: kickChannelName(kickUser{Username: payload.Broadcaster.Username, ChannelSlug: payload.Broadcaster.ChannelSlug}),
+			Platform:    platform.PlatformKick,
+		},
+		UserID:          redeemerUserID,
+		UserName:        payload.Redeemer.Username,
+		UserDisplayName: payload.Redeemer.Username,
+		RewardName:      payload.Reward.Title,
+		RewardCost:      strconv.Itoa(payload.Reward.Cost),
+		Input:           lo.If(payload.UserInput != "", &payload.UserInput).Else(nil),
+	}); err != nil {
+		return nil, fmt.Errorf("publish kick redemption created event: %w", err)
+	}
+
+	return []slog.Attr{
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("redeemer_user_id", redeemerUserID),
+		slog.String("redeemer_username", payload.Redeemer.Username),
+		slog.String("reward_id", payload.Reward.ID),
+		slog.String("reward_title", payload.Reward.Title),
+		slog.String("status", status),
+	}, nil
+}
+
+func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.Attr, error) {
+	ctx := r.Context()
+
+	var payload kickModerationBannedPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		return nil, fmt.Errorf("unmarshal moderation.banned payload: %w", err)
+	}
+
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	if err != nil {
+		return nil, fmt.Errorf("resolve ids for moderation.banned broadcaster_user_id=%s: %w", broadcasterUserID, err)
+	}
+
+	bannedUserID := strconv.Itoa(payload.BannedUser.UserID)
+	moderatorUserID := strconv.Itoa(payload.Moderator.UserID)
+	endsAt := "permanent"
+	isPermanent := true
+	if payload.Metadata.ExpiresAt != nil && *payload.Metadata.ExpiresAt != "" {
+		isPermanent = false
+		if expiresAt, err := time.Parse(time.RFC3339, *payload.Metadata.ExpiresAt); err == nil {
+			minutes := int(time.Until(expiresAt).Round(time.Minute).Minutes())
+			if minutes <= 0 {
+				minutes = 1
+			}
+			endsAt = strconv.Itoa(minutes)
+		}
+	}
+
+	if err := h.eventsChannelBan.Publish(ctx, events.ChannelBanMessage{
+		BaseInfo: events.BaseInfo{
+			ChannelID:   channelID,
+			ChannelName: kickChannelName(payload.Broadcaster),
+			Platform:    platform.PlatformKick,
+		},
+		UserID:               bannedUserID,
+		UserName:             payload.BannedUser.Username,
+		UserLogin:            payload.BannedUser.Username,
+		BroadcasterUserName:  payload.Broadcaster.Username,
+		BroadcasterUserLogin: payload.Broadcaster.Username,
+		ModeratorUserID:      moderatorUserID,
+		ModeratorUserName:    payload.Moderator.Username,
+		ModeratorUserLogin:   payload.Moderator.Username,
+		Reason:               payload.Metadata.Reason,
+		EndsAt:               endsAt,
+		IsPermanent:          isPermanent,
+	}); err != nil {
+		return nil, fmt.Errorf("publish kick channel ban event: %w", err)
+	}
+
+	if h.eventsListRepo != nil {
+		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
+			ChannelID: channelID,
+			UserID:    &bannedUserID,
+			Platform:  platform.PlatformKick,
+			Type:      channelseventslistmodel.ChannelEventListItemTypeChannelBan,
+			Data: &channelseventslistmodel.ChannelsEventsListItemData{
+				BanReason:            payload.Metadata.Reason,
+				BanEndsInMinutes:     endsAt,
+				BannedUserLogin:      payload.BannedUser.Username,
+				BannedUserName:       payload.BannedUser.Username,
+				ModeratorDisplayName: payload.Moderator.Username,
+				ModeratorName:        payload.Moderator.Username,
+			},
+		}); err != nil {
+			return nil, fmt.Errorf("create kick channel ban event list item: %w", err)
+		}
+	}
+
+	return []slog.Attr{
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("moderator_user_id", moderatorUserID),
+		slog.String("banned_user_id", bannedUserID),
+		slog.String("reason", payload.Metadata.Reason),
+		slog.Bool("is_permanent", isPermanent),
 	}, nil
 }
 

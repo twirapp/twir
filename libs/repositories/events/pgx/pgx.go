@@ -43,6 +43,7 @@ func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model
 SELECT
     e.id,
     e."channelId",
+    e.platforms,
     e."type",
     e."rewardId",
     e."commandId",
@@ -105,6 +106,7 @@ WHERE e."channelId" = $1::uuid
 		err := rows.Scan(
 			&event.ID,
 			&event.ChannelID,
+			&event.Platforms,
 			&event.Type,
 			&event.RewardID,
 			&event.CommandID,
@@ -137,6 +139,7 @@ func (c *Pgx) GetByID(ctx context.Context, id string) (model.Event, error) {
 SELECT
     e.id,
     e."channelId",
+    e.platforms,
     e.type,
     e."rewardId",
     e."commandId",
@@ -193,6 +196,7 @@ WHERE e.id = $1
 	err := row.Scan(
 		&event.ID,
 		&event.ChannelID,
+		&event.Platforms,
 		&event.Type,
 		&event.RewardID,
 		&event.CommandID,
@@ -226,8 +230,8 @@ func (c *Pgx) Create(ctx context.Context, input events.CreateInput) (model.Event
 	// Create event
 	eventID := uuid.New().String()
 	query := `
-INSERT INTO channels_events (id, "channelId", "type", "rewardId", "commandId", "keywordId", description, enabled, online_only)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+INSERT INTO channels_events (id, "channelId", platforms, "type", "rewardId", "commandId", "keywordId", description, enabled, online_only)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id
 `
 
@@ -236,6 +240,7 @@ RETURNING id
 		query,
 		eventID,
 		input.ChannelID,
+		input.Platforms,
 		input.Type,
 		input.RewardID,
 		input.CommandID,
@@ -323,6 +328,9 @@ func (c *Pgx) Update(ctx context.Context, id string, input events.UpdateInput) (
 
 	if input.Type != nil {
 		updateBuilder = updateBuilder.Set(`"type"`, *input.Type)
+	}
+	if input.Platforms != nil {
+		updateBuilder = updateBuilder.Set(`platforms`, *input.Platforms)
 	}
 	if input.RewardID != nil {
 		updateBuilder = updateBuilder.Set(`"rewardId"`, *input.RewardID)

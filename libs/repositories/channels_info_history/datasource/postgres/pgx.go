@@ -50,11 +50,15 @@ func (p *Pgx) GetMany(
 	}
 
 	builder := sq.Select(
-		`id`, `"channelId"`, `"createdAt"`, `title`, `category`,
+		`id`, `"channelId"`, `platform`, `"createdAt"`, `title`, `category`,
 	).
 		From("channels_info_history").
 		Where(`"channelId" = ?::uuid`, input.ChannelID).
 		Limit(uint64(limit))
+
+	if input.Platform != nil {
+		builder = builder.Where(`platform = ?`, *input.Platform)
+	}
 
 	if input.UniqueBy != nil {
 		switch *input.UniqueBy {
@@ -99,12 +103,12 @@ func (p *Pgx) GetMany(
 
 func (p *Pgx) Create(ctx context.Context, input channels_info_history.CreateInput) error {
 	query := `
-INSERT INTO channels_info_history ("channelId", title, category)
-VALUES ($1, $2, $3)
+INSERT INTO channels_info_history ("channelId", platform, title, category)
+VALUES ($1, $2, $3, $4)
 `
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	_, err := conn.Exec(ctx, query, input.ChannelID, input.Title, input.Category)
+	_, err := conn.Exec(ctx, query, input.ChannelID, input.Platform, input.Title, input.Category)
 	if err != nil {
 		return fmt.Errorf("create error: %w", err)
 	}

@@ -31,6 +31,7 @@ var CategoryTime = &types.Variable{
 			ctx,
 			channelsinfohistory.GetManyInput{
 				ChannelID: parseCtx.Channel.ID,
+				Platform:  &parseCtx.Platform,
 				After:     parseCtx.ChannelStream.StartedAt,
 				Limit:     100,
 			},

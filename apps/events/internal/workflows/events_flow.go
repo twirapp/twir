@@ -9,6 +9,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/apps/events/internal/shared"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -82,6 +83,10 @@ func (c *EventWorkflow) Flow(
 		}
 
 		if entity.Type != eventType {
+			continue
+		}
+
+		if !platformentity.ShouldExecute(entity.Platforms, data.Platform) {
 			continue
 		}
 

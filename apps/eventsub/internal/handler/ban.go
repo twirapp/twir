@@ -103,6 +103,7 @@ func (c *Handler) handleModerateActionBan(
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
 				ChannelName: event.BroadcasterUserLogin,
+				Platform:    platform.PlatformTwitch,
 			},
 			UserName:             userName,
 			UserLogin:            userLogin,
@@ -121,6 +122,7 @@ func (c *Handler) handleModerateActionBan(
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &userId,
+			Platform:  platform.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeChannelBan,
 			Data: &model.ChannelsEventsListItemData{
 				BanReason:            reason,

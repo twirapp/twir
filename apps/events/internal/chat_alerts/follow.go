@@ -42,10 +42,15 @@ func (c *ChatAlerts) follow(
 	var followersCount int64
 	if stream != nil && stream.ID != "" {
 		t := model.ChannelEventListItemTypeFollow
+		eventPlatform := req.BaseInfo.Platform
+		if eventPlatform == "" {
+			eventPlatform = platform.PlatformTwitch
+		}
 		count, err := c.channelEventListsRepo.CountBy(
 			ctx,
 			channelseventslist.CountByInput{
 				ChannelID:    &req.BaseInfo.ChannelID,
+				Platform:     &eventPlatform,
 				CreatedAtGTE: &stream.StartedAt,
 				Type:         &t,
 			},
@@ -59,26 +64,30 @@ func (c *ChatAlerts) follow(
 
 	text = strings.ReplaceAll(text, "{streamFollowers}", fmt.Sprint(followersCount))
 
-	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, req.BaseInfo.ChannelID)
-	if err != nil {
-		return fmt.Errorf("cannot get user by platform id: %w", err)
-	}
+	if req.BaseInfo.Platform == "" || req.BaseInfo.Platform == platform.PlatformTwitch {
+		user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, req.BaseInfo.ChannelID)
+		if err != nil {
+			return fmt.Errorf("cannot get user by platform id: %w", err)
+		}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, user.ID, c.cfg, c.bus)
-	if err != nil {
-		return err
-	}
+		twitchClient, err := twitch.NewUserClientWithContext(ctx, user.ID, c.cfg, c.bus)
+		if err != nil {
+			return err
+		}
 
-	followersReq, err := twitchClient.GetChannelFollows(
-		&helix.GetChannelFollowsParams{
-			BroadcasterID: req.BaseInfo.ChannelID,
-		},
-	)
-	if err != nil {
-		return err
-	}
+		followersReq, err := twitchClient.GetChannelFollows(
+			&helix.GetChannelFollowsParams{
+				BroadcasterID: req.BaseInfo.ChannelID,
+			},
+		)
+		if err != nil {
+			return err
+		}
 
-	text = strings.ReplaceAll(text, "{followers}", fmt.Sprint(followersReq.Data.Total))
+		text = strings.ReplaceAll(text, "{followers}", fmt.Sprint(followersReq.Data.Total))
+	} else {
+		text = strings.ReplaceAll(text, "{followers}", "0")
+	}
 
 	if text == "" {
 		return nil
@@ -87,7 +96,9 @@ func (c *ChatAlerts) follow(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
+			ChannelName:      lo.If(req.BaseInfo.ChannelName != "", &req.BaseInfo.ChannelName).Else(nil),
 			ChannelId:      req.BaseInfo.ChannelID,
+			Platform:       req.BaseInfo.Platform.String(),
 			Message:        text,
 			SkipRateLimits: true,
 		},

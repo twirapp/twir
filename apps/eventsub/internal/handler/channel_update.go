@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -35,7 +36,7 @@ func (c *Handler) HandleChannelUpdate(
 	c.twirBus.Events.TitleOrCategoryChanged.Publish(
 		ctx,
 		events.TitleOrCategoryChangedMessage{
-			BaseInfo:    events.BaseInfo{ChannelID: event.BroadcasterUserId},
+			BaseInfo:    events.BaseInfo{ChannelID: event.BroadcasterUserId, Platform: platformentity.PlatformTwitch},
 			NewTitle:    event.Title,
 			NewCategory: event.CategoryName,
 		},
@@ -45,6 +46,7 @@ func (c *Handler) HandleChannelUpdate(
 		ctx,
 		channelsinfohistory.CreateInput{
 			ChannelID: event.BroadcasterUserId,
+			Platform:  platformentity.PlatformTwitch,
 			Title:     event.Title,
 			Category:  event.CategoryName,
 		},
