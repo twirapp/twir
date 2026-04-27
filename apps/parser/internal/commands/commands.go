@@ -522,13 +522,14 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		return nil, fmt.Errorf("db user or user channel stats is nil")
 	}
 
+	channelDBID := data.EnrichedData.DbChannel.ID.String()
 	commandsPrefix := data.EnrichedData.ChannelCommandPrefix
 
 	if !strings.HasPrefix(data.Message.Text, commandsPrefix) {
 		return nil, nil
 	}
 
-	cmds, err := c.GetChannelCommands(ctx, data.EnrichedData.DbChannel.ID.String())
+	cmds, err := c.GetChannelCommands(ctx, channelDBID)
 	if err != nil {
 		return nil, err
 	}
@@ -554,7 +555,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				return nil, err
 			}
 
-			if err := c.services.CommandsCache.Invalidate(ctx, data.EnrichedData.DbChannel.ID.String()); err != nil {
+			if err := c.services.CommandsCache.Invalidate(ctx, channelDBID); err != nil {
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
@@ -568,7 +569,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				return nil, err
 			}
 
-			if err := c.services.CommandsCache.Invalidate(ctx, data.EnrichedData.DbChannel.ID.String()); err != nil {
+			if err := c.services.CommandsCache.Invalidate(ctx, channelDBID); err != nil {
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
@@ -592,16 +593,8 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	if len(cmd.Cmd.EnabledCategories) != 0 {
-		stream := &model.ChannelsStreams{}
-		err = c.services.Gorm.
-			WithContext(ctx).
-			Where(`"userId" = ?`, data.BroadcasterUserId).
-			Find(stream).Error
-		if err != nil {
-			return nil, err
-		}
-
-		if stream.ID != "" {
+		stream := data.EnrichedData.ChannelStream
+		if stream != nil && stream.ID != "" {
 			if !lo.ContainsBy(
 				cmd.Cmd.EnabledCategories,
 				func(category string) bool {
@@ -619,8 +612,8 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 
 	_, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
 		ctx,
-		data.ChatterUserId,
-		data.BroadcasterUserId,
+		data.EnrichedData.DbUser.ID,
+		channelDBID,
 		data,
 		cmd.Cmd,
 	)
@@ -634,7 +627,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		cdResult, err := c.checkRoleBasedCooldown(
 			ctx,
 			*cmd.Cmd,
-			data.BroadcasterUserId,
+			channelDBID,
 			userRoles,
 		)
 		if err != nil {
@@ -690,7 +683,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 			withoutCancel,
 			events.CommandUsedMessage{
 				BaseInfo: events.BaseInfo{
-					ChannelID:   data.BroadcasterUserId,
+					ChannelID:   channelDBID,
 					ChannelName: data.BroadcasterUserLogin,
 				},
 				CommandID:          cmd.Cmd.ID.String(),
@@ -708,7 +701,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		alert := model.ChannelAlert{}
 		if err := c.services.Gorm.WithContext(withoutCancel).Where(
 			"channel_id = ? AND command_ids && ?",
-			data.BroadcasterUserId,
+			channelDBID,
 			pq.StringArray{cmd.Cmd.ID.String()},
 		).Find(&alert).Error; err != nil {
 			zap.S().Error(err)
@@ -721,7 +714,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		c.services.GrpcClients.WebSockets.TriggerAlert(
 			withoutCancel,
 			&websockets.TriggerAlertRequest{
-				ChannelId: data.BroadcasterUserId,
+				ChannelId: channelDBID,
 				AlertId:   alert.ID,
 			},
 		)

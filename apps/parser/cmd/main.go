@@ -37,6 +37,7 @@ import (
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/otel"
@@ -138,6 +139,24 @@ func main() {
 	connConfig.MinConns = 1
 	connConfig.HealthCheckPeriod = time.Minute
 	connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+
+	connConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		platformType, err := conn.LoadType(ctx, "platform")
+		if err != nil {
+			return fmt.Errorf("load platform type: %w", err)
+		}
+		conn.TypeMap().RegisterType(platformType)
+
+		platformArrayType, err := conn.LoadType(ctx, "_platform")
+		if err != nil {
+			return fmt.Errorf("load _platform type: %w", err)
+		}
+		conn.TypeMap().RegisterType(platformArrayType)
+
+		conn.TypeMap().RegisterDefaultPgType(platform.Platform(""), "platform")
+		conn.TypeMap().RegisterDefaultPgType([]platform.Platform{}, "_platform")
+		return nil
+	}
 
 	pgxconn, err := pgxpool.NewWithConfig(
 		context.Background(),

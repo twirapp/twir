@@ -43,6 +43,8 @@ type UserCreatorService struct {
 
 type CreateUserInput struct {
 	UserID                   string
+	PlatformID               string
+	Platform                 platform.Platform
 	ChannelID                *string
 	Badges                   []twitch.ChatMessageBadge
 	UsedEmotesWithThirdParty *int
@@ -64,7 +66,7 @@ func (c *UserCreatorService) UnsureUser(ctx context.Context, input CreateUserInp
 
 	// If there's no channel context, we only need to ensure the base user exists.
 	if input.ChannelID == nil {
-		user, err := c.ensureUserExists(ctx, input.UserID)
+		user, err := c.ensureUserExists(ctx, input)
 		if err != nil {
 			return nil, nil, fmt.Errorf("UnsureUser: failed to ensure user without channelID: %w", err)
 		}
@@ -133,7 +135,7 @@ func (c *UserCreatorService) findUserAndCreateStats(
 		ctx, func(trCtx context.Context) error {
 			var err error
 			// This will find the user or create them if they don't exist.
-			ensuredUser, err = c.ensureUserExists(trCtx, input.UserID)
+			ensuredUser, err = c.ensureUserExists(trCtx, input)
 			if err != nil {
 				return fmt.Errorf("failed to ensure user exists in transaction: %w", err)
 			}
@@ -154,18 +156,37 @@ func (c *UserCreatorService) findUserAndCreateStats(
 }
 
 // ensureUserExists gets a user by ID or creates them if they are not found.
-func (c *UserCreatorService) ensureUserExists(ctx context.Context, userID string) (
+func (c *UserCreatorService) ensureUserExists(ctx context.Context, input CreateUserInput) (
 	*usermodel.User,
 	error,
 ) {
-	user, err := c.usersRepo.GetByID(ctx, userID)
+	user, err := c.usersRepo.GetByID(ctx, input.UserID)
 	if err != nil {
 		if errors.Is(err, usermodel.ErrNotFound) {
+			// If PlatformID is provided, try to find by platform ID first.
+			if input.PlatformID != "" {
+				user, err = c.usersRepo.GetByPlatformID(ctx, input.Platform, input.PlatformID)
+				if err == nil {
+					return &user, nil
+				}
+				if !errors.Is(err, usermodel.ErrNotFound) {
+					return nil, err
+				}
+			}
+
 			// User not found, create a new one.
+			plat := input.Platform
+			if plat == "" {
+				plat = platform.PlatformTwitch
+			}
+			platformID := input.PlatformID
+			if platformID == "" {
+				platformID = input.UserID
+			}
 			return c.createUser(
 				ctx, users.CreateInput{
-					Platform:   platform.PlatformTwitch,
-					PlatformID: userID,
+					Platform:   plat,
+					PlatformID: platformID,
 				},
 			)
 		}

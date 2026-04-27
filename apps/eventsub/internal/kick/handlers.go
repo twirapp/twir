@@ -12,16 +12,26 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/redis_keys"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"go.uber.org/fx"
+	"golang.org/x/sync/errgroup"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"context"
 )
 
 const (
@@ -92,16 +102,22 @@ type Handlers struct {
 	streamOffline         bus_core.Queue[kickbus.KickStreamOffline, struct{}]
 	channelsRepo          channelsrepository.Repository
 	usersRepo             usersrepository.Repository
+	streamsRepo           streamsrepository.Repository
+	userCreatorService    *user_creator.UserCreatorService
+	prefixCache           *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 }
 
 type HandlersOpts struct {
 	fx.In
 
-	Logger       *slog.Logger
-	Redis        *redis.Client
-	Bus          *bus_core.Bus
-	ChannelsRepo channelsrepository.Repository
-	UsersRepo    usersrepository.Repository
+	Logger             *slog.Logger
+	Redis              *redis.Client
+	Bus                *bus_core.Bus
+	ChannelsRepo       channelsrepository.Repository
+	UsersRepo          usersrepository.Repository
+	StreamsRepo        streamsrepository.Repository
+	UserCreatorService *user_creator.UserCreatorService
+	PrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 }
 
 func NewHandlers(opts HandlersOpts) *Handlers {
@@ -115,6 +131,9 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		streamOffline:         opts.Bus.KickStreamOffline,
 		channelsRepo:          opts.ChannelsRepo,
 		usersRepo:             opts.UsersRepo,
+		streamsRepo:           opts.StreamsRepo,
+		userCreatorService:    opts.UserCreatorService,
+		prefixCache:           opts.PrefixCache,
 	}
 }
 
@@ -248,18 +267,16 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 	)
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, userID, err := h.resolveIDs(r, broadcasterUserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return fmt.Errorf("resolve ids for chat message broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 
-	h.logger.InfoContext(ctx, "kick: resolved IDs for chat message",
-		slog.String("channel_id", channelID),
-		slog.String("user_id", userID),
-	)
+	senderPlatformID := strconv.Itoa(payload.Sender.UserID)
 
 	var color string
 	var badges []generic.ChatMessageBadge
+	var isBroadcaster, isModerator, isVip, isSubscriber bool
 	if payload.Sender.Identity != nil {
 		color = payload.Sender.Identity.UsernameColor
 		for _, b := range payload.Sender.Identity.Badges {
@@ -267,21 +284,142 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 				SetID: b.Type,
 				Text:  b.Text,
 			})
+			switch b.Type {
+			case "broadcaster":
+				isBroadcaster = true
+			case "moderator":
+				isModerator = true
+			case "vip":
+				isVip = true
+			case "subscriber":
+				isSubscriber = true
+			}
 		}
+	}
+
+	if senderPlatformID == broadcasterUserID {
+		isBroadcaster = true
+	}
+
+	var (
+		channel         channelsmodel.Channel
+		stream          *streamsmodel.Stream
+		commandsPrefix  string
+	)
+
+	var errwg errgroup.Group
+
+	errwg.Go(func() error {
+		var err error
+		channel, err = h.channelsRepo.GetByID(ctx, uuid.MustParse(channelID))
+		if err != nil {
+			return fmt.Errorf("get channel by id: %w", err)
+		}
+		return nil
+	})
+
+	errwg.Go(func() error {
+		var err error
+		stream, err = h.getChannelStream(ctx, channelID)
+		if err != nil {
+			return fmt.Errorf("get channel stream: %w", err)
+		}
+		return nil
+	})
+
+	errwg.Go(func() error {
+		var err error
+		commandsPrefix, err = h.getChannelCommandPrefix(ctx, channelID)
+		if err != nil {
+			return fmt.Errorf("get channel command prefix: %w", err)
+		}
+		return nil
+	})
+
+	if err := errwg.Wait(); err != nil {
+		return err
+	}
+
+	senderUser, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, senderPlatformID)
+	if err != nil {
+		if !errors.Is(err, usersmodel.ErrNotFound) {
+			return fmt.Errorf("get sender user by platform id: %w", err)
+		}
+		createdUser, createErr := h.usersRepo.Create(ctx, usersrepository.CreateInput{
+			Platform:    platform.PlatformKick,
+			PlatformID:  senderPlatformID,
+			Login:       payload.Sender.Username,
+			DisplayName: payload.Sender.Username,
+		})
+		if createErr != nil {
+			return fmt.Errorf("create sender user: %w", createErr)
+		}
+		senderUser = createdUser
+	}
+
+	_, senderStats, err := h.userCreatorService.UnsureUser(
+		ctx,
+		user_creator.CreateUserInput{
+			UserID:            senderUser.ID,
+			PlatformID:        senderPlatformID,
+			Platform:          platform.PlatformKick,
+			ChannelID:         &channelID,
+			IsBroadcaster:     isBroadcaster,
+			IsModerator:       isModerator,
+			IsVip:             isVip,
+			IsSubscriber:      isSubscriber,
+			ShouldUpdateStats: stream != nil && stream.ID != "",
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("ensure sender user stats: %w", err)
 	}
 
 	genericMsg := generic.ChatMessage{
 		Platform:          string(platform.PlatformKick),
 		ChannelID:         channelID,
-		UserID:            userID,
+		UserID:            senderUser.ID,
 		PlatformChannelID: broadcasterUserID,
-		SenderID:          strconv.Itoa(payload.Sender.UserID),
+		SenderID:          senderPlatformID,
 		SenderLogin:       payload.Sender.Username,
 		SenderDisplayName: payload.Sender.Username,
 		MessageID:         payload.MessageID,
 		Text:              payload.Content,
 		Badges:            badges,
 		Color:             color,
+		EnrichedData: generic.ChatMessageEnrichedData{
+			ChannelCommandPrefix: commandsPrefix,
+			DbChannel:            channel,
+			ChannelStream:        stream,
+			DbUser: &generic.DbUser{
+				ID:                senderUser.ID,
+				TokenID:           senderUser.TokenID.Ptr(),
+				IsBotAdmin:        senderUser.IsBotAdmin,
+				ApiKey:            senderUser.ApiKey,
+				IsBanned:          senderUser.IsBanned,
+				HideOnLandingPage: senderUser.HideOnLandingPage,
+				CreatedAt:         senderUser.CreatedAt,
+			},
+			DbUserChannelStat: &generic.DbUserChannelStat{
+				ID:                senderStats.ID,
+				UserID:            senderStats.UserID,
+				ChannelID:         senderStats.ChannelID,
+				Messages:          senderStats.Messages,
+				Watched:           senderStats.Watched,
+				UsedChannelPoints: senderStats.UsedChannelPoints,
+				IsMod:             senderStats.IsMod,
+				IsVip:             senderStats.IsVip,
+				IsSubscriber:      senderStats.IsSubscriber,
+				Reputation:        senderStats.Reputation,
+				Emotes:            senderStats.Emotes,
+				CreatedAt:         senderStats.CreatedAt,
+				UpdatedAt:         senderStats.UpdatedAt,
+			},
+			IsChatterBroadcaster: isBroadcaster,
+			IsChatterModerator:   isModerator,
+			IsChatterVip:         isVip,
+			IsChatterSubscriber:  isSubscriber,
+		},
 	}
 
 	if err := h.chatMessagesGeneric.Publish(ctx, genericMsg); err != nil {
@@ -394,4 +532,79 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (string
 	}
 
 	return channel.ID.String(), user.ID, nil
+}
+
+func (h *Handlers) getChannelCommandPrefix(ctx context.Context, channelId string) (
+	string,
+	error,
+) {
+	commandsPrefix := "!"
+	fetchedCommandsPrefix, err := h.prefixCache.Get(ctx, channelId)
+	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+		return "", err
+	}
+
+	if fetchedCommandsPrefix != channelscommandsprefixmodel.Nil {
+		commandsPrefix = fetchedCommandsPrefix.Prefix
+	} else {
+		prefixCtx := context.WithoutCancel(ctx)
+
+		go func() {
+			if err := h.prefixCache.SetValue(
+				prefixCtx,
+				channelId,
+				channelscommandsprefixmodel.ChannelsCommandsPrefix{
+					ID:        uuid.New(),
+					ChannelID: channelId,
+					Prefix:    commandsPrefix,
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			); err != nil {
+				h.logger.Error("cannot set default command prefix", logger.Error(err))
+			}
+		}()
+	}
+
+	return commandsPrefix, nil
+}
+
+func (h *Handlers) getChannelStream(
+	ctx context.Context,
+	channelId string,
+) (*streamsmodel.Stream, error) {
+	cacheKey := redis_keys.StreamByChannelID(channelId)
+	cachedBytes, err := h.redis.Get(ctx, cacheKey).Bytes()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return nil, fmt.Errorf("failed to get stream cache: %w", err)
+	}
+
+	if len(cachedBytes) > 0 {
+		var stream streamsmodel.Stream
+		if err := json.Unmarshal(cachedBytes, &stream); err != nil {
+			return nil, err
+		}
+
+		return &stream, nil
+	}
+
+	stream, err := h.streamsRepo.GetByChannelID(ctx, channelId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get stream by channel id: %w", err)
+	}
+
+	if stream.ID == "" {
+		return nil, nil
+	}
+
+	streamBytes, err := json.Marshal(stream)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal stream: %w", err)
+	}
+
+	if err := h.redis.Set(ctx, cacheKey, streamBytes, 30*time.Second).Err(); err != nil {
+		return nil, fmt.Errorf("failed to set stream cache: %w", err)
+	}
+
+	return &stream, nil
 }

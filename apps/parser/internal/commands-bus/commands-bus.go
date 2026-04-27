@@ -250,10 +250,10 @@ func (c *CommandsBus) Subscribe() error {
 			}
 
 			twitchMsg := twitch.TwitchChatMessage{
-				BroadcasterUserId:    msg.ChannelID,
+				BroadcasterUserId:    msg.PlatformChannelID,
 				BroadcasterUserLogin: msg.PlatformChannelID,
 				BroadcasterUserName:  msg.PlatformChannelID,
-				ChatterUserId:        msg.UserID,
+				ChatterUserId:        msg.SenderID,
 				ChatterUserLogin:     msg.SenderLogin,
 				ChatterUserName:      msg.SenderDisplayName,
 				MessageId:            msg.MessageID,
@@ -261,6 +261,40 @@ func (c *CommandsBus) Subscribe() error {
 				Message: &twitch.ChatMessageMessage{
 					Text: msg.Text,
 				},
+			}
+
+			if msg.EnrichedData.DbUser != nil {
+				twitchMsg.EnrichedData.DbUser = &twitch.DbUser{
+					ID:                msg.EnrichedData.DbUser.ID,
+					TokenID:           msg.EnrichedData.DbUser.TokenID,
+					IsBotAdmin:        msg.EnrichedData.DbUser.IsBotAdmin,
+					ApiKey:            msg.EnrichedData.DbUser.ApiKey,
+					IsBanned:          msg.EnrichedData.DbUser.IsBanned,
+					HideOnLandingPage: msg.EnrichedData.DbUser.HideOnLandingPage,
+					CreatedAt:         msg.EnrichedData.DbUser.CreatedAt,
+				}
+				twitchMsg.EnrichedData.DbUserChannelStat = &twitch.DbUserChannelStat{
+					ID:                msg.EnrichedData.DbUserChannelStat.ID,
+					UserID:            msg.EnrichedData.DbUserChannelStat.UserID,
+					ChannelID:         msg.EnrichedData.DbUserChannelStat.ChannelID,
+					Messages:          msg.EnrichedData.DbUserChannelStat.Messages,
+					Watched:           msg.EnrichedData.DbUserChannelStat.Watched,
+					UsedChannelPoints: msg.EnrichedData.DbUserChannelStat.UsedChannelPoints,
+					IsMod:             msg.EnrichedData.DbUserChannelStat.IsMod,
+					IsVip:             msg.EnrichedData.DbUserChannelStat.IsVip,
+					IsSubscriber:      msg.EnrichedData.DbUserChannelStat.IsSubscriber,
+					Reputation:        msg.EnrichedData.DbUserChannelStat.Reputation,
+					Emotes:            msg.EnrichedData.DbUserChannelStat.Emotes,
+					CreatedAt:         msg.EnrichedData.DbUserChannelStat.CreatedAt,
+					UpdatedAt:         msg.EnrichedData.DbUserChannelStat.UpdatedAt,
+				}
+				twitchMsg.EnrichedData.DbChannel = msg.EnrichedData.DbChannel
+				twitchMsg.EnrichedData.ChannelStream = msg.EnrichedData.ChannelStream
+				twitchMsg.EnrichedData.ChannelCommandPrefix = msg.EnrichedData.ChannelCommandPrefix
+				twitchMsg.EnrichedData.IsChatterBroadcaster = msg.EnrichedData.IsChatterBroadcaster
+				twitchMsg.EnrichedData.IsChatterModerator = msg.EnrichedData.IsChatterModerator
+				twitchMsg.EnrichedData.IsChatterVip = msg.EnrichedData.IsChatterVip
+				twitchMsg.EnrichedData.IsChatterSubscriber = msg.EnrichedData.IsChatterSubscriber
 			}
 
 			res, err := c.commandService.ProcessChatMessage(ctx, twitchMsg, msg.Platform)
