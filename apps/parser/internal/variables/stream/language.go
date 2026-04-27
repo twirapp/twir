@@ -2,7 +2,6 @@ package stream
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
@@ -12,23 +11,15 @@ import (
 	"github.com/twirapp/twir/libs/i18n"
 )
 
-var Viewers = &types.Variable{
-	Name:                "stream.viewers",
-	Description:         lo.ToPtr("Stream viewers"),
+var Language = &types.Variable{
+	Name:                "stream.language",
+	Description:         lo.ToPtr("Stream language"),
 	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
-		result := types.VariableHandlerResult{}
-
-		if parseCtx.ChannelStream != nil {
-			result.Result = strconv.Itoa(parseCtx.ChannelStream.ViewerCount)
-			return &result, nil
-		}
-
-		if parseCtx.Platform != shared.PlatformKick {
-			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Stream.Errors.Offline)
-			return &result, nil
+		if parseCtx.ChannelStream != nil && parseCtx.ChannelStream.Language != "" {
+			return &types.VariableHandlerResult{Result: parseCtx.ChannelStream.Language}, nil
 		}
 
 		return shared.HandlerByPlatform(map[platformentity.Platform]types.VariableHandler{
@@ -43,11 +34,11 @@ var Viewers = &types.Variable{
 					return &types.VariableHandlerResult{Result: i18n.GetCtx(ctx, locales.Translations.Variables.Stream.Errors.Error)}, nil
 				}
 
-				if channelInfo == nil || !channelInfo.Stream.IsLive {
-					return &types.VariableHandlerResult{Result: i18n.GetCtx(ctx, locales.Translations.Variables.Stream.Errors.Offline)}, nil
+				if channelInfo == nil || channelInfo.Stream.Language == "" {
+					return &types.VariableHandlerResult{Result: i18n.GetCtx(ctx, locales.Translations.Variables.Stream.Errors.Error)}, nil
 				}
 
-				return &types.VariableHandlerResult{Result: strconv.Itoa(channelInfo.Stream.ViewerCount)}, nil
+				return &types.VariableHandlerResult{Result: channelInfo.Stream.Language}, nil
 			},
 		})(ctx, parseCtx, variableData)
 	},

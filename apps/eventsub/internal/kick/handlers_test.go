@@ -21,6 +21,10 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	channelsinfohistorymodel "github.com/twirapp/twir/libs/repositories/channels_info_history/model"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
@@ -149,6 +153,90 @@ func (m *mockChannelsRepo) Create(_ context.Context, _ channelsrepository.Create
 	return m.channel, m.err
 }
 
+type mockStreamsRepo struct {
+	stream      streamsmodel.Stream
+	err         error
+	saved       []streamsrepository.SaveInput
+	updated     []streamsrepository.UpdateInput
+	deletedByID []string
+}
+
+func (m *mockStreamsRepo) GetByChannelID(_ context.Context, _ string) (streamsmodel.Stream, error) {
+	return m.stream, m.err
+}
+
+func (m *mockStreamsRepo) GetList(_ context.Context) ([]streamsmodel.Stream, error) {
+	return nil, m.err
+}
+
+func (m *mockStreamsRepo) Save(_ context.Context, input streamsrepository.SaveInput) error {
+	m.saved = append(m.saved, input)
+	m.stream = streamsmodel.Stream{
+		ID:           input.ID,
+		UserId:       input.UserId,
+		UserLogin:    input.UserLogin,
+		UserName:     input.UserName,
+		GameId:       input.GameId,
+		GameName:     input.GameName,
+		CommunityIds: input.CommunityIds,
+		Type:         input.Type,
+		Title:        input.Title,
+		ViewerCount:  input.ViewerCount,
+		StartedAt:    input.StartedAt,
+		Language:     input.Language,
+		ThumbnailUrl: input.ThumbnailUrl,
+		TagIds:       input.TagIds,
+		Tags:         input.Tags,
+		IsMature:     input.IsMature,
+	}
+	return m.err
+}
+
+func (m *mockStreamsRepo) DeleteByChannelID(_ context.Context, channelID string) error {
+	m.deletedByID = append(m.deletedByID, channelID)
+	return m.err
+}
+
+func (m *mockStreamsRepo) Update(_ context.Context, _ string, input streamsrepository.UpdateInput) error {
+	m.updated = append(m.updated, input)
+	if input.Title != nil {
+		m.stream.Title = *input.Title
+	}
+	if input.GameName != nil {
+		m.stream.GameName = *input.GameName
+	}
+	if input.GameId != nil {
+		m.stream.GameId = *input.GameId
+	}
+	if input.Language != nil {
+		m.stream.Language = *input.Language
+	}
+	if input.ThumbnailUrl != nil {
+		m.stream.ThumbnailUrl = *input.ThumbnailUrl
+	}
+	if input.IsMature != nil {
+		m.stream.IsMature = *input.IsMature
+	}
+	if input.Tags != nil {
+		m.stream.Tags = input.Tags
+	}
+	return m.err
+}
+
+type mockChannelsInfoHistoryRepo struct {
+	created []channelsinfohistory.CreateInput
+	err     error
+}
+
+func (m *mockChannelsInfoHistoryRepo) GetMany(_ context.Context, _ channelsinfohistory.GetManyInput) ([]channelsinfohistorymodel.ChannelInfoHistory, error) {
+	return nil, m.err
+}
+
+func (m *mockChannelsInfoHistoryRepo) Create(_ context.Context, input channelsinfohistory.CreateInput) error {
+	m.created = append(m.created, input)
+	return m.err
+}
+
 func buildTestHandlers(
 	t *testing.T,
 	chatMessagesGeneric *mockQueue[generic.ChatMessage, struct{}],
@@ -158,10 +246,18 @@ func buildTestHandlers(
 	streamOffline *mockQueue[kickbus.KickStreamOffline, struct{}],
 	usersRepo usersrepository.Repository,
 	channelsRepo channelsrepository.Repository,
+	streamsRepo ...streamsrepository.Repository,
 ) (*Handlers, redismock.ClientMock) {
 	t.Helper()
 
 	db, redisMock := redismock.NewClientMock()
+
+	var streamRepo streamsrepository.Repository
+	var infoHistoryRepo channelsinfohistory.Repository
+	if len(streamsRepo) > 0 && streamsRepo[0] != nil {
+		streamRepo = streamsRepo[0]
+	}
+	infoHistoryRepo = &mockChannelsInfoHistoryRepo{}
 
 	h := &Handlers{
 		logger:                slog.Default(),
@@ -171,6 +267,8 @@ func buildTestHandlers(
 		eventsFollow:          followQueue,
 		streamOnline:          streamOnline,
 		streamOffline:         streamOffline,
+		streamsRepo:           streamRepo,
+		channelsInfoHistoryRepo: infoHistoryRepo,
 		channelsRepo:          channelsRepo,
 		usersRepo:             usersRepo,
 	}
@@ -430,6 +528,7 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
 	streamOnlineQueue := &mockQueue[kickbus.KickStreamOnline, struct{}]{}
 	streamOfflineQueue := &mockQueue[kickbus.KickStreamOffline, struct{}]{}
+	streamsRepo := &mockStreamsRepo{}
 
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
@@ -454,6 +553,7 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 		streamOfflineQueue,
 		usersRepo,
 		channelsRepo,
+		streamsRepo,
 	)
 
 	msgID := "stream-online-001"
@@ -493,6 +593,12 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 	if event.BroadcasterUserLogin != "broadcaster555" {
 		t.Errorf("expected broadcaster login %q, got %q", "broadcaster555", event.BroadcasterUserLogin)
 	}
+	if len(streamsRepo.saved) != 1 {
+		t.Fatalf("expected 1 stream save, got %d", len(streamsRepo.saved))
+	}
+	if streamsRepo.saved[0].Title != "Going live" {
+		t.Fatalf("expected saved title %q, got %q", "Going live", streamsRepo.saved[0].Title)
+	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {
 		t.Errorf("redis expectations not met: %v", err)
@@ -507,6 +613,7 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
 	streamOnlineQueue := &mockQueue[kickbus.KickStreamOnline, struct{}]{}
 	streamOfflineQueue := &mockQueue[kickbus.KickStreamOffline, struct{}]{}
+	streamsRepo := &mockStreamsRepo{}
 
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
@@ -531,6 +638,7 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 		streamOfflineQueue,
 		usersRepo,
 		channelsRepo,
+		streamsRepo,
 	)
 
 	msgID := "stream-offline-001"
@@ -569,6 +677,93 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 	}
 	if event.BroadcasterUserLogin != "broadcaster556" {
 		t.Errorf("expected broadcaster login %q, got %q", "broadcaster556", event.BroadcasterUserLogin)
+	}
+	if len(streamsRepo.deletedByID) != 1 {
+		t.Fatalf("expected 1 stream delete, got %d", len(streamsRepo.deletedByID))
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleLivestreamMetadataUpdated(t *testing.T) {
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+	streamOnlineQueue := &mockQueue[kickbus.KickStreamOnline, struct{}]{}
+	streamOfflineQueue := &mockQueue[kickbus.KickStreamOffline, struct{}]{}
+	streamsRepo := &mockStreamsRepo{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.New().String(),
+			PlatformID: "557",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         uuid.New(),
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		streamOnlineQueue,
+		streamOfflineQueue,
+		usersRepo,
+		channelsRepo,
+		streamsRepo,
+	)
+
+	msgID := "stream-meta-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := map[string]any{
+		"broadcaster": map[string]any{
+			"user_id":      557,
+			"username":     "broadcaster557",
+			"channel_slug": "kick-slug",
+		},
+		"metadata": map[string]any{
+			"title":              "New title",
+			"language":           "en",
+			"has_mature_content": false,
+			"category": map[string]any{
+				"id":        15,
+				"name":      "Gaming",
+				"thumbnail": "thumb",
+			},
+		},
+	}
+
+	req := makeRequest(t, msgID, "livestream.metadata.updated", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if streamOnlineQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 stream online events published, got %d", streamOnlineQueue.PublishedCount())
+	}
+
+	if streamOfflineQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 stream offline events published, got %d", streamOfflineQueue.PublishedCount())
+	}
+	if len(streamsRepo.updated) != 1 {
+		t.Fatalf("expected 1 stream update, got %d", len(streamsRepo.updated))
+	}
+	if streamsRepo.stream.GameName != "Gaming" {
+		t.Fatalf("expected updated game name %q, got %q", "Gaming", streamsRepo.stream.GameName)
 	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {

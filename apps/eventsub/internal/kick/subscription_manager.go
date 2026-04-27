@@ -11,7 +11,10 @@ import (
 	"github.com/google/uuid"
 	goredis "github.com/redis/go-redis/v9"
 	"github.com/scorfly/gokick"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
@@ -26,12 +29,14 @@ var EventTypes = []string{
 	"chat.message.sent",
 	"channel.followed",
 	"livestream.status.updated",
+	"livestream.metadata.updated",
 }
 
 var eventTypeToSubscriptionName = map[string]gokick.SubscriptionName{
 	"chat.message.sent":         gokick.SubscriptionNameChatMessage,
 	"channel.followed":          gokick.SubscriptionNameChannelFollow,
 	"livestream.status.updated": gokick.SubscriptionNameLivestreamStatusUpdated,
+	"livestream.metadata.updated": gokick.SubscriptionNameLivestreamMetadataUpdated,
 }
 
 type SubscriptionManager struct {
@@ -39,9 +44,8 @@ type SubscriptionManager struct {
 	redis           *goredis.Client
 	logger          *slog.Logger
 	usersRepo       usersrepository.Repository
+	twirBus         *buscore.Bus
 	callbackBaseURL string
-	appAccessToken  string
-	appTokenExpires time.Time
 }
 
 type Opts struct {
@@ -50,6 +54,7 @@ type Opts struct {
 	Config    cfg.Config
 	Redis     *goredis.Client
 	Logger    *slog.Logger
+	TwirBus   *buscore.Bus
 	UsersRepo usersrepository.Repository
 }
 
@@ -58,6 +63,7 @@ func New(opts Opts) *SubscriptionManager {
 		config:    opts.Config,
 		redis:     opts.Redis,
 		logger:    opts.Logger,
+		twirBus:   opts.TwirBus,
 		usersRepo: opts.UsersRepo,
 	}
 }
@@ -95,33 +101,15 @@ func (m *SubscriptionManager) getWebhookCallbackURL() string {
 }
 
 func (m *SubscriptionManager) getAppAccessToken(ctx context.Context) (string, error) {
-	if m.appAccessToken != "" && time.Now().Before(m.appTokenExpires) {
-		return m.appAccessToken, nil
-	}
-
-	client, err := gokick.NewClient(
-		&gokick.ClientOptions{
-			ClientID:     m.config.KickClientId,
-			ClientSecret: m.config.KickClientSecret,
-		},
+	resp, err := m.twirBus.Tokens.RequestAppToken.Request(
+		ctx,
+		bustokens.GetAppTokenRequest{Platform: platformentity.PlatformKick},
 	)
 	if err != nil {
-		return "", fmt.Errorf("create kick client: %w", err)
+		return "", fmt.Errorf("request kick app token: %w", err)
 	}
 
-	resp, err := client.GetAppAccessToken(ctx)
-	if err != nil {
-		return "", fmt.Errorf("get kick app access token: %w", err)
-	}
-
-	m.appAccessToken = resp.AccessToken
-	m.appTokenExpires = time.Now().Add(time.Duration(resp.ExpiresIn) * time.Second).Add(-5 * time.Minute)
-
-	m.logger.InfoContext(ctx, "kick app access token obtained",
-		slog.Time("expires_at", m.appTokenExpires),
-	)
-
-	return m.appAccessToken, nil
+	return resp.Data.AccessToken, nil
 }
 
 func (m *SubscriptionManager) subscribe(

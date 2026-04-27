@@ -1,6 +1,7 @@
 package kick
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,18 +21,20 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
+	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	streams "github.com/twirapp/twir/libs/repositories/streams"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"context"
 )
 
 const (
@@ -92,6 +95,20 @@ type kickLivestreamStatusPayload struct {
 	EndedAt     *string  `json:"ended_at,omitempty"`
 }
 
+type kickLivestreamMetadataPayload struct {
+	Broadcaster kickUser `json:"broadcaster"`
+	Metadata    struct {
+		Title            string `json:"title"`
+		Language         string `json:"language"`
+		HasMatureContent bool   `json:"has_mature_content"`
+		Category         struct {
+			ID        int    `json:"id"`
+			Name      string `json:"name"`
+			Thumbnail string `json:"thumbnail"`
+		} `json:"category"`
+	} `json:"metadata"`
+}
+
 type Handlers struct {
 	logger                *slog.Logger
 	redis                 *redis.Client
@@ -102,6 +119,7 @@ type Handlers struct {
 	streamOffline         bus_core.Queue[kickbus.KickStreamOffline, struct{}]
 	channelsRepo          channelsrepository.Repository
 	usersRepo             usersrepository.Repository
+	channelsInfoHistoryRepo channelsinfohistory.Repository
 	streamsRepo           streamsrepository.Repository
 	userCreatorService    *user_creator.UserCreatorService
 	prefixCache           *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
@@ -115,6 +133,7 @@ type HandlersOpts struct {
 	Bus                *bus_core.Bus
 	ChannelsRepo       channelsrepository.Repository
 	UsersRepo          usersrepository.Repository
+	ChannelsInfoHistoryRepo channelsinfohistory.Repository
 	StreamsRepo        streamsrepository.Repository
 	UserCreatorService *user_creator.UserCreatorService
 	PrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
@@ -131,6 +150,7 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		streamOffline:         opts.Bus.KickStreamOffline,
 		channelsRepo:          opts.ChannelsRepo,
 		usersRepo:             opts.UsersRepo,
+		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
 		streamsRepo:           opts.StreamsRepo,
 		userCreatorService:    opts.UserCreatorService,
 		prefixCache:           opts.PrefixCache,
@@ -211,6 +231,8 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		err = h.handleChannelFollow(r, body)
 	case "livestream.status.updated":
 		err = h.handleLivestreamStatus(r, body)
+	case "livestream.metadata.updated":
+		err = h.handleLivestreamMetadata(r, body)
 	default:
 		h.logger.InfoContext(ctx, "kick: unknown event type, ignoring",
 			slog.String("event_type", eventType),
@@ -245,6 +267,55 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) error {
+	ctx := r.Context()
+
+	var payload kickLivestreamMetadataPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		return fmt.Errorf("unmarshal livestream.metadata.updated payload: %w", err)
+	}
+
+	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
+	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	if err != nil {
+		return fmt.Errorf("resolve ids for livestream.metadata.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
+	}
+
+	if h.streamsRepo != nil {
+		categoryID := strconv.Itoa(payload.Metadata.Category.ID)
+		thumbnailURL := payload.Metadata.Category.Thumbnail
+		if err := h.streamsRepo.Update(ctx, channelID, streams.UpdateInput{
+			GameId:       &categoryID,
+			GameName:     &payload.Metadata.Category.Name,
+			Title:        &payload.Metadata.Title,
+			Language:     &payload.Metadata.Language,
+			ThumbnailUrl: &thumbnailURL,
+			IsMature:     &payload.Metadata.HasMatureContent,
+		}); err != nil {
+			return fmt.Errorf("update kick current stream metadata: %w", err)
+		}
+	}
+	if h.channelsInfoHistoryRepo != nil && payload.Metadata.Category.Name != "" {
+		if err := h.channelsInfoHistoryRepo.Create(ctx, channelsinfohistory.CreateInput{
+			ChannelID: channelID,
+			Title:     payload.Metadata.Title,
+			Category:  payload.Metadata.Category.Name,
+		}); err != nil {
+			return fmt.Errorf("create kick channel info history: %w", err)
+		}
+	}
+
+	h.logger.InfoContext(ctx, "kick: livestream metadata updated",
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("title", payload.Metadata.Title),
+		slog.String("language", payload.Metadata.Language),
+		slog.String("category", payload.Metadata.Category.Name),
+	)
+
+	return nil
 }
 
 func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
@@ -357,22 +428,28 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 		senderUser = createdUser
 	}
 
-	_, senderStats, err := h.userCreatorService.UnsureUser(
-		ctx,
-		user_creator.CreateUserInput{
-			UserID:            senderUser.ID,
-			PlatformID:        senderPlatformID,
-			Platform:          platform.PlatformKick,
-			ChannelID:         &channelID,
-			IsBroadcaster:     isBroadcaster,
-			IsModerator:       isModerator,
-			IsVip:             isVip,
-			IsSubscriber:      isSubscriber,
-			ShouldUpdateStats: stream != nil && stream.ID != "",
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("ensure sender user stats: %w", err)
+	senderStats := &usersstatsmodel.UserStat{}
+	if h.userCreatorService != nil {
+		_, senderStats, err = h.userCreatorService.UnsureUser(
+			ctx,
+			user_creator.CreateUserInput{
+				UserID:            senderUser.ID,
+				PlatformID:        senderPlatformID,
+				Platform:          platform.PlatformKick,
+				ChannelID:         &channelID,
+				IsBroadcaster:     isBroadcaster,
+				IsModerator:       isModerator,
+				IsVip:             isVip,
+				IsSubscriber:      isSubscriber,
+				ShouldUpdateStats: stream != nil && stream.ID != "",
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("ensure sender user stats: %w", err)
+		}
+		if senderStats == nil {
+			senderStats = &usersstatsmodel.UserStat{}
+		}
 	}
 
 	genericMsg := generic.ChatMessage{
@@ -478,6 +555,27 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) error {
 	}
 
 	if payload.IsLive {
+		startedAt := time.Now().UTC()
+		if payload.StartedAt != "" {
+			if parsedStartedAt, err := time.Parse(time.RFC3339, payload.StartedAt); err == nil {
+				startedAt = parsedStartedAt
+			}
+		}
+
+		if h.streamsRepo != nil {
+			if err := h.streamsRepo.Save(ctx, streams.SaveInput{
+				ID:        channelID,
+				UserId:    channelID,
+				UserLogin: payload.Broadcaster.ChannelSlug,
+				UserName:  payload.Broadcaster.Username,
+				Type:      "live",
+				Title:     payload.Title,
+				StartedAt: startedAt,
+			}); err != nil {
+				return fmt.Errorf("save kick current stream: %w", err)
+			}
+		}
+
 		h.logger.InfoContext(ctx, "kick: stream online",
 			slog.String("channel_id", channelID),
 			slog.String("broadcaster_user_id", broadcasterUserID),
@@ -491,6 +589,12 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) error {
 			return fmt.Errorf("publish stream online event: %w", err)
 		}
 	} else {
+		if h.streamsRepo != nil {
+			if err := h.streamsRepo.DeleteByChannelID(ctx, channelID); err != nil {
+				return fmt.Errorf("delete kick current stream: %w", err)
+			}
+		}
+
 		h.logger.InfoContext(ctx, "kick: stream offline",
 			slog.String("channel_id", channelID),
 			slog.String("broadcaster_user_id", broadcasterUserID),
@@ -539,6 +643,10 @@ func (h *Handlers) getChannelCommandPrefix(ctx context.Context, channelId string
 	error,
 ) {
 	commandsPrefix := "!"
+	if h.prefixCache == nil {
+		return commandsPrefix, nil
+	}
+
 	fetchedCommandsPrefix, err := h.prefixCache.Get(ctx, channelId)
 	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
 		return "", err
@@ -573,6 +681,10 @@ func (h *Handlers) getChannelStream(
 	ctx context.Context,
 	channelId string,
 ) (*streamsmodel.Stream, error) {
+	if h.streamsRepo == nil {
+		return nil, nil
+	}
+
 	cacheKey := redis_keys.StreamByChannelID(channelId)
 	cachedBytes, err := h.redis.Get(ctx, cacheKey).Bytes()
 	if err != nil && !errors.Is(err, redis.Nil) {

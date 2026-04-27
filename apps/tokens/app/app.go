@@ -17,6 +17,14 @@ import (
 
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
+	channelsintegrationsrepository "github.com/twirapp/twir/libs/repositories/channels_integrations"
+	channelsintegrationsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_integrations/datasource/postgres"
+	channelsintegrationsspotifyrepository "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	channelsintegrationsspotifyrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
+	integrationsrepositorypgx "github.com/twirapp/twir/libs/repositories/integrations/datasource/postgres"
 )
 
 var App = fx.Module(
@@ -34,6 +42,22 @@ var App = fx.Module(
 		fx.Annotate(
 			usersrepositorypgx.NewFx,
 			fx.As(new(usersrepository.Repository)),
+		),
+		fx.Annotate(
+			kickbotsrepositorypgx.NewFx,
+			fx.As(new(kickbotsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelsintegrationsrepositorypgx.NewFx,
+			fx.As(new(channelsintegrationsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelsintegrationsspotifyrepositorypgx.NewFx,
+			fx.As(new(channelsintegrationsspotifyrepository.Repository)),
+		),
+		fx.Annotate(
+			integrationsrepositorypgx.NewFx,
+			fx.As(new(integrationsrepository.Repository)),
 		),
 		redis.NewRedisLock,
 	),

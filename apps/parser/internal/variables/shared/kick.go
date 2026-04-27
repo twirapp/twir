@@ -5,82 +5,57 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"sync"
-	"time"
 
 	"github.com/scorfly/gokick"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 var (
-	kickAppTokenMu      sync.Mutex
-	kickAppToken        string
-	kickAppTokenExpires time.Time
-
 	kickHTTPClient  *http.Client
 	kickAPIBaseURL  string
 	kickAuthBaseURL string
+	kickAppTokenRequester = func(ctx context.Context, parseCtx *types.VariableParseContext) (string, error) {
+		resp, err := parseCtx.Services.Bus.Tokens.RequestAppToken.Request(
+			ctx,
+			bustokens.GetAppTokenRequest{Platform: platformentity.PlatformKick},
+		)
+		if err != nil {
+			return "", fmt.Errorf("request kick app token: %w", err)
+		}
+
+		return resp.Data.AccessToken, nil
+	}
 )
 
 func SetKickClientOptionsForTests(httpClient *http.Client, apiBaseURL, authBaseURL string) func() {
-	kickAppTokenMu.Lock()
 	oldHTTPClient := kickHTTPClient
 	oldAPIBaseURL := kickAPIBaseURL
 	oldAuthBaseURL := kickAuthBaseURL
-	oldToken := kickAppToken
-	oldExpires := kickAppTokenExpires
 
 	kickHTTPClient = httpClient
 	kickAPIBaseURL = apiBaseURL
 	kickAuthBaseURL = authBaseURL
-	kickAppToken = ""
-	kickAppTokenExpires = time.Time{}
-	kickAppTokenMu.Unlock()
 
 	return func() {
-		kickAppTokenMu.Lock()
-		defer kickAppTokenMu.Unlock()
-
 		kickHTTPClient = oldHTTPClient
 		kickAPIBaseURL = oldAPIBaseURL
 		kickAuthBaseURL = oldAuthBaseURL
-		kickAppToken = oldToken
-		kickAppTokenExpires = oldExpires
 	}
 }
 
-func getKickAppAccessToken(ctx context.Context, parseCtx *types.VariableParseContext) (string, error) {
-	kickAppTokenMu.Lock()
-	defer kickAppTokenMu.Unlock()
+func SetKickAppTokenRequesterForTests(requester func(ctx context.Context, parseCtx *types.VariableParseContext) (string, error)) func() {
+	oldRequester := kickAppTokenRequester
+	kickAppTokenRequester = requester
 
-	if kickAppToken != "" && time.Now().Before(kickAppTokenExpires) {
-		return kickAppToken, nil
+	return func() {
+		kickAppTokenRequester = oldRequester
 	}
-
-	client, err := gokick.NewClient(&gokick.ClientOptions{
-		ClientID:     parseCtx.Services.Config.KickClientId,
-		ClientSecret: parseCtx.Services.Config.KickClientSecret,
-		HTTPClient:   kickHTTPClient,
-		APIBaseURL:   kickAPIBaseURL,
-		AuthBaseURL:  kickAuthBaseURL,
-	})
-	if err != nil {
-		return "", fmt.Errorf("create kick auth client: %w", err)
-	}
-
-	resp, err := client.GetAppAccessToken(ctx)
-	if err != nil {
-		return "", fmt.Errorf("get kick app access token: %w", err)
-	}
-
-	kickAppToken = resp.AccessToken
-	kickAppTokenExpires = time.Now().Add(time.Duration(resp.ExpiresIn) * time.Second).Add(-5 * time.Minute)
-
-	return kickAppToken, nil
 }
 
 func newKickAppClient(ctx context.Context, parseCtx *types.VariableParseContext) (*gokick.Client, error) {
-	accessToken, err := getKickAppAccessToken(ctx, parseCtx)
+	accessToken, err := kickAppTokenRequester(ctx, parseCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -124,4 +99,18 @@ func GetKickChannel(ctx context.Context, parseCtx *types.VariableParseContext) (
 	}
 
 	return &resp.Result[0], nil
+}
+
+func GetKickKicksLeaderboard(ctx context.Context, parseCtx *types.VariableParseContext, top int) (*gokick.KicksLeaderboardResponse, error) {
+	client, err := newKickAppClient(ctx, parseCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.GetKicksLeaderboard(ctx, gokick.NewKicksLeaderboardFilter().SetTop(top))
+	if err != nil {
+		return nil, fmt.Errorf("get kick kicks leaderboard: %w", err)
+	}
+
+	return &resp.Result, nil
 }

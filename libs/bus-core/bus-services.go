@@ -85,10 +85,11 @@ type giveawaysBus struct {
 }
 
 type tokensBus struct {
-	RequestAppToken  Queue[struct{}, tokens.TokenResponse]
-	RequestUserToken Queue[tokens.GetUserTokenRequest, tokens.TokenResponse]
-	RequestBotToken  Queue[tokens.GetBotTokenRequest, tokens.TokenResponse]
-	UpdateToken      Queue[tokens.UpdateTokenRequest, struct{}]
+	RequestAppToken                Queue[tokens.GetAppTokenRequest, tokens.TokenResponse]
+	RequestUserToken               Queue[tokens.GetUserTokenRequest, tokens.TokenResponse]
+	RequestBotToken                Queue[tokens.GetBotTokenRequest, tokens.TokenResponse]
+	RequestChannelIntegrationToken Queue[tokens.GetChannelIntegrationTokenRequest, tokens.TokenResponse]
+	UpdateToken                    Queue[tokens.UpdateTokenRequest, struct{}]
 }
 
 type integrationsBus struct {

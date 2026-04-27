@@ -516,7 +516,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			JsonEncoder,
 		),
 		Tokens: &tokensBus{
-			RequestAppToken: NewNatsQueue[struct{}, tokens.TokenResponse](
+			RequestAppToken: NewNatsQueue[tokens.GetAppTokenRequest, tokens.TokenResponse](
 				nc,
 				tokens.RequestAppTokenSubject,
 				1*time.Minute,
@@ -531,6 +531,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			RequestBotToken: NewNatsQueue[tokens.GetBotTokenRequest, tokens.TokenResponse](
 				nc,
 				tokens.RequestBotTokenSubject,
+				1*time.Minute,
+				JsonEncoder,
+			),
+			RequestChannelIntegrationToken: NewNatsQueue[tokens.GetChannelIntegrationTokenRequest, tokens.TokenResponse](
+				nc,
+				tokens.RequestChannelIntegrationTokenSubject,
 				1*time.Minute,
 				JsonEncoder,
 			),

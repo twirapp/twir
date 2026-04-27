@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"github.com/lib/pq"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -79,6 +80,64 @@ FROM channels_streams
 	}
 
 	return result, nil
+}
+
+func (c *Pgx) Save(ctx context.Context, input streams.SaveInput) error {
+	query := `
+INSERT INTO channels_streams (
+	id, "userId", "userLogin", "userName", "gameId", "gameName", "communityIds", type,
+	title, "viewerCount", "startedAt", language, "thumbnailUrl", "tagIds", tags, "isMature"
+) VALUES (
+	$1, $2, $3, $4, $5, $6, $7, $8,
+	$9, $10, $11, $12, $13, $14, $15, $16
+)
+ON CONFLICT (id) DO UPDATE SET
+	"userId" = EXCLUDED."userId",
+	"userLogin" = EXCLUDED."userLogin",
+	"userName" = EXCLUDED."userName",
+	"gameId" = EXCLUDED."gameId",
+	"gameName" = EXCLUDED."gameName",
+	"communityIds" = EXCLUDED."communityIds",
+	type = EXCLUDED.type,
+	title = EXCLUDED.title,
+	"viewerCount" = EXCLUDED."viewerCount",
+	"startedAt" = EXCLUDED."startedAt",
+	language = EXCLUDED.language,
+	"thumbnailUrl" = EXCLUDED."thumbnailUrl",
+	"tagIds" = EXCLUDED."tagIds",
+	tags = EXCLUDED.tags,
+	"isMature" = EXCLUDED."isMature"
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	_, err := conn.Exec(
+		ctx,
+		query,
+		input.ID,
+		input.UserId,
+		input.UserLogin,
+		input.UserName,
+		input.GameId,
+		input.GameName,
+		pq.Array(input.CommunityIds),
+		input.Type,
+		input.Title,
+		input.ViewerCount,
+		input.StartedAt,
+		input.Language,
+		input.ThumbnailUrl,
+		pq.Array(input.TagIds),
+		pq.Array(input.Tags),
+		input.IsMature,
+	)
+	return err
+}
+
+func (c *Pgx) DeleteByChannelID(ctx context.Context, channelID string) error {
+	query := `DELETE FROM channels_streams WHERE "userId" = $1`
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	_, err := conn.Exec(ctx, query, channelID)
+	return err
 }
 
 func (c *Pgx) Update(ctx context.Context, channelID string, input streams.UpdateInput) error {

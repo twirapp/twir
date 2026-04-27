@@ -10,27 +10,30 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/scorfly/gokick"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/crypto"
-	kick_bots_entity "github.com/twirapp/twir/libs/entities/kick_bot"
-	"github.com/twirapp/twir/libs/repositories/kick_bots"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
-type ChatClient struct {
-	repo       kick_bots.Repository
-	config     cfg.Config
-	httpClient *http.Client
-	logger     *slog.Logger
+type botTokenRequester interface {
+	Request(ctx context.Context, data buscoretokens.GetBotTokenRequest) (*buscore.QueueResponse[buscoretokens.TokenResponse], error)
 }
 
-func NewChatClient(repo kick_bots.Repository, config cfg.Config) *ChatClient {
+type ChatClient struct {
+	config          cfg.Config
+	httpClient      *http.Client
+	logger          *slog.Logger
+	requestBotToken botTokenRequester
+}
+
+func NewChatClient(twirBus *buscore.Bus, config cfg.Config) *ChatClient {
 	return &ChatClient{
-		repo:       repo,
-		config:     config,
-		httpClient: &http.Client{Timeout: 10 * time.Second},
-		logger:     slog.Default(),
+		config:          config,
+		httpClient:      &http.Client{Timeout: 10 * time.Second},
+		logger:          slog.Default(),
+		requestBotToken: twirBus.Tokens.RequestBotToken,
 	}
 }
 
@@ -40,13 +43,8 @@ func (c *ChatClient) SendMessage(ctx context.Context, broadcasterKickID string, 
 		return fmt.Errorf("parse broadcaster kick id: %w", err)
 	}
 
-	bot, err := c.repo.GetDefault(ctx)
-	if err != nil {
-		return fmt.Errorf("get default kick bot: %w", err)
-	}
-
 	for _, part := range splitMessage(text) {
-		err = c.sendMessagePart(ctx, broadcasterUserID, broadcasterKickID, part, &bot, true)
+		err = c.sendMessagePart(ctx, broadcasterUserID, broadcasterKickID, part)
 		if err != nil {
 			return err
 		}
@@ -60,16 +58,14 @@ func (c *ChatClient) sendMessagePart(
 	broadcasterUserID int,
 	broadcasterKickID string,
 	text string,
-	bot *kick_bots_entity.KickBot,
-	allowRefresh bool,
 ) error {
-	decryptedAccessToken, err := crypto.Decrypt(bot.AccessToken, c.config.TokensCipherKey)
+	tokenResp, err := c.requestBotToken.Request(ctx, buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformKick})
 	if err != nil {
-		return fmt.Errorf("decrypt kick bot access token: %w", err)
+		return fmt.Errorf("request kick bot token: %w", err)
 	}
 
 	kickClient, err := gokick.NewClient(&gokick.ClientOptions{
-		UserAccessToken: decryptedAccessToken,
+		UserAccessToken: tokenResp.Data.AccessToken,
 		HTTPClient:      c.httpClient,
 		ClientID:        c.config.KickClientId,
 		ClientSecret:    c.config.KickClientSecret,
@@ -83,16 +79,6 @@ func (c *ChatClient) sendMessagePart(
 		var apiErr gokick.Error
 		if errors.As(err, &apiErr) {
 			switch apiErr.Code() {
-			case http.StatusUnauthorized:
-				if !allowRefresh {
-					return fmt.Errorf("kick chat request failed with status %d: %w", apiErr.Code(), apiErr)
-				}
-
-				if err := c.refreshBotToken(ctx, bot); err != nil {
-					return fmt.Errorf("refresh kick bot token: %w", err)
-				}
-
-				return c.sendMessagePart(ctx, broadcasterUserID, broadcasterKickID, text, bot, false)
 			case http.StatusTooManyRequests:
 				c.logger.WarnContext(
 					ctx,
@@ -108,10 +94,7 @@ func (c *ChatClient) sendMessagePart(
 					"kick chat forbidden",
 					slog.String("broadcaster_kick_id", broadcasterKickID),
 					slog.Int("broadcaster_user_id", broadcasterUserID),
-					slog.String("bot_id", bot.ID),
-					slog.String("bot_kick_login", bot.KickUserLogin),
-					slog.String("bot_kick_user_id", bot.KickUserID.String()),
-					slog.Any("bot_scopes", bot.Scopes),
+					slog.Any("bot_scopes", tokenResp.Data.Scopes),
 					slog.Int("status_code", apiErr.Code()),
 					slog.Any("error", err),
 				)
@@ -126,81 +109,6 @@ func (c *ChatClient) sendMessagePart(
 	return nil
 }
 
-func (c *ChatClient) refreshBotToken(ctx context.Context, bot *kick_bots_entity.KickBot) error {
-	decryptedRefreshToken, err := crypto.Decrypt(bot.RefreshToken, c.config.TokensCipherKey)
-	if err != nil {
-		return fmt.Errorf("decrypt kick bot refresh token: %w", err)
-	}
-
-	kickClient, err := gokick.NewClient(&gokick.ClientOptions{
-		HTTPClient:   c.httpClient,
-		ClientID:     c.config.KickClientId,
-		ClientSecret: c.config.KickClientSecret,
-	})
-	if err != nil {
-		return fmt.Errorf("create gokick client: %w", err)
-	}
-
-	tokenResp, err := kickClient.RefreshToken(ctx, decryptedRefreshToken)
-	if err != nil {
-		return fmt.Errorf("kick token refresh failed: %w", err)
-	}
-
-	responseScopes := bot.Scopes
-	if tokenResp.Scope != "" {
-		responseScopes = strings.Fields(tokenResp.Scope)
-	}
-
-	refreshToken := tokenResp.RefreshToken
-	if refreshToken == "" {
-		refreshToken = decryptedRefreshToken
-	}
-
-	encryptedAccessToken, err := crypto.Encrypt(tokenResp.AccessToken, c.config.TokensCipherKey)
-	if err != nil {
-		return fmt.Errorf("encrypt kick bot access token: %w", err)
-	}
-
-	encryptedRefreshToken, err := crypto.Encrypt(refreshToken, c.config.TokensCipherKey)
-	if err != nil {
-		return fmt.Errorf("encrypt kick bot refresh token: %w", err)
-	}
-
-	botID, err := uuid.Parse(bot.ID)
-	if err != nil {
-		return fmt.Errorf("parse kick bot id: %w", err)
-	}
-
-	updatedBot, err := c.repo.UpdateToken(
-		ctx,
-		botID,
-		kick_bots.UpdateTokenInput{
-			AccessToken:         encryptedAccessToken,
-			RefreshToken:        encryptedRefreshToken,
-			Scopes:              responseScopes,
-			ExpiresIn:           tokenResp.ExpiresIn,
-			ObtainmentTimestamp: time.Now(),
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("persist kick bot token: %w", err)
-	}
-
-	*bot = updatedBot
-
-	c.logger.InfoContext(
-		ctx,
-		"kick bot token refreshed",
-		slog.String("kick_bot_id", bot.ID),
-		slog.String("kick_user_id", bot.KickUserID.String()),
-		slog.String("kick_user_login", bot.KickUserLogin),
-		slog.Any("scopes", responseScopes),
-		slog.Int("expires_in", tokenResp.ExpiresIn),
-	)
-
-	return nil
-}
-
 func splitMessage(text string) []string {
 	normalizedText := strings.ReplaceAll(text, "\n", " ")
 	if normalizedText == "" {
@@ -211,16 +119,30 @@ func splitMessage(text string) []string {
 		return []string{normalizedText}
 	}
 
-	runes := []rune(normalizedText)
-	parts := make([]string, 0, (len(runes)/gokick.ChatMessageContentMaxRunes)+1)
-	for len(runes) > 0 {
-		end := gokick.ChatMessageContentMaxRunes
-		if len(runes) < gokick.ChatMessageContentMaxRunes {
-			end = len(runes)
+	parts := make([]string, 0, (len(normalizedText)/gokick.ChatMessageContentMaxRunes)+1)
+	for len(normalizedText) > 0 {
+		if len(normalizedText) <= gokick.ChatMessageContentMaxRunes {
+			parts = append(parts, normalizedText)
+			break
 		}
 
-		parts = append(parts, string(runes[:end]))
-		runes = runes[end:]
+		end := 0
+		for i := range normalizedText {
+			if i == 0 {
+				continue
+			}
+			if i > gokick.ChatMessageContentMaxRunes {
+				break
+			}
+			end = i
+		}
+
+		if end == 0 {
+			end = gokick.ChatMessageContentMaxRunes
+		}
+
+		parts = append(parts, normalizedText[:end])
+		normalizedText = normalizedText[end:]
 	}
 
 	return parts
