@@ -102,6 +102,20 @@ func (c *ChatClient) sendMessagePart(
 					slog.Any("error", err),
 				)
 				return nil
+			case http.StatusForbidden:
+				c.logger.WarnContext(
+					ctx,
+					"kick chat forbidden",
+					slog.String("broadcaster_kick_id", broadcasterKickID),
+					slog.Int("broadcaster_user_id", broadcasterUserID),
+					slog.String("bot_id", bot.ID),
+					slog.String("bot_kick_login", bot.KickUserLogin),
+					slog.String("bot_kick_user_id", bot.KickUserID.String()),
+					slog.Any("bot_scopes", bot.Scopes),
+					slog.Int("status_code", apiErr.Code()),
+					slog.Any("error", err),
+				)
+				return fmt.Errorf("kick chat request failed with status %d: %w", apiErr.Code(), apiErr)
 			default:
 				return fmt.Errorf("kick chat request failed with status %d: %w", apiErr.Code(), apiErr)
 			}
@@ -179,6 +193,9 @@ func (c *ChatClient) refreshBotToken(ctx context.Context, bot *kick_bots_entity.
 		"kick bot token refreshed",
 		slog.String("kick_bot_id", bot.ID),
 		slog.String("kick_user_id", bot.KickUserID.String()),
+		slog.String("kick_user_login", bot.KickUserLogin),
+		slog.Any("scopes", responseScopes),
+		slog.Int("expires_in", tokenResp.ExpiresIn),
 	)
 
 	return nil
