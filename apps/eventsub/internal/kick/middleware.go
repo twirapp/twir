@@ -81,7 +81,7 @@ func (m *Middleware) Handler(next http.Handler) http.Handler {
 		subscriptionID := r.Header.Get("Kick-Event-Subscription-Id")
 		sigHeader := r.Header.Get("Kick-Event-Signature")
 
-		m.logger.InfoContext(r.Context(), "incoming kick webhook request",
+		m.logger.DebugContext(r.Context(), "incoming kick webhook request",
 			slog.String("remote_addr", r.RemoteAddr),
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),
@@ -134,7 +134,7 @@ func (m *Middleware) HandlerWithoutVerification(next http.Handler) http.Handler 
 		eventVersion := r.Header.Get("Kick-Event-Version")
 		subscriptionID := r.Header.Get("Kick-Event-Subscription-Id")
 
-		m.logger.InfoContext(r.Context(), "incoming kick webhook request (no sig verify)",
+		m.logger.DebugContext(r.Context(), "incoming kick webhook request (no sig verify)",
 			slog.String("remote_addr", r.RemoteAddr),
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),

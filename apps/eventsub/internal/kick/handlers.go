@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	streams "github.com/twirapp/twir/libs/repositories/streams"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -119,6 +120,7 @@ type Handlers struct {
 	streamOffline         bus_core.Queue[kickbus.KickStreamOffline, struct{}]
 	channelsRepo          channelsrepository.Repository
 	usersRepo             usersrepository.Repository
+	kickBotsRepo          kickbotsrepository.Repository
 	channelsInfoHistoryRepo channelsinfohistory.Repository
 	streamsRepo           streamsrepository.Repository
 	userCreatorService    *user_creator.UserCreatorService
@@ -133,6 +135,7 @@ type HandlersOpts struct {
 	Bus                *bus_core.Bus
 	ChannelsRepo       channelsrepository.Repository
 	UsersRepo          usersrepository.Repository
+	KickBotsRepo       kickbotsrepository.Repository
 	ChannelsInfoHistoryRepo channelsinfohistory.Repository
 	StreamsRepo        streamsrepository.Repository
 	UserCreatorService *user_creator.UserCreatorService
@@ -150,6 +153,7 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		streamOffline:         opts.Bus.KickStreamOffline,
 		channelsRepo:          opts.ChannelsRepo,
 		usersRepo:             opts.UsersRepo,
+		kickBotsRepo:          opts.KickBotsRepo,
 		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
 		streamsRepo:           opts.StreamsRepo,
 		userCreatorService:    opts.UserCreatorService,
@@ -162,11 +166,9 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	messageID := KickMessageIDFromContext(ctx)
 	eventType := KickEventTypeFromContext(ctx)
-
-	h.logger.Info("recieved webhook from kick",
-		slog.String("message_id", messageID),
-		slog.String("event_type", eventType),
-	)
+	eventVersion := KickEventVersionFromContext(ctx)
+	subscriptionID := KickSubscriptionIDFromContext(ctx)
+	timestamp := KickMessageTimestampFromContext(ctx)
 
 	idempotencyKey := idempotencyKeyPrefix + messageID
 	ok, err := h.redis.SetNX(ctx, idempotencyKey, idempotencyStatusProcessing, idempotencyProcessingTTL).Result()
@@ -224,15 +226,17 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var eventLogAttrs []slog.Attr
+
 	switch eventType {
 	case "chat.message.sent":
-		err = h.handleChatMessage(r, body)
+		eventLogAttrs, err = h.handleChatMessage(r, body)
 	case "channel.followed":
-		err = h.handleChannelFollow(r, body)
+		eventLogAttrs, err = h.handleChannelFollow(r, body)
 	case "livestream.status.updated":
-		err = h.handleLivestreamStatus(r, body)
+		eventLogAttrs, err = h.handleLivestreamStatus(r, body)
 	case "livestream.metadata.updated":
-		err = h.handleLivestreamMetadata(r, body)
+		eventLogAttrs, err = h.handleLivestreamMetadata(r, body)
 	default:
 		h.logger.InfoContext(ctx, "kick: unknown event type, ignoring",
 			slog.String("event_type", eventType),
@@ -266,21 +270,40 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logAttrs := []slog.Attr{
+		slog.String("message_id", messageID),
+		slog.String("event_type", eventType),
+		slog.String("method", r.Method),
+		slog.String("path", r.URL.Path),
+	}
+	if eventVersion != "" {
+		logAttrs = append(logAttrs, slog.String("event_version", eventVersion))
+	}
+	if subscriptionID != "" {
+		logAttrs = append(logAttrs, slog.String("subscription_id", subscriptionID))
+	}
+	if timestamp != "" {
+		logAttrs = append(logAttrs, slog.String("timestamp", timestamp))
+	}
+	logAttrs = append(logAttrs, eventLogAttrs...)
+
+	h.logger.LogAttrs(ctx, slog.LevelInfo, "received kick webhook event", logAttrs...)
+
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) error {
+func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) ([]slog.Attr, error) {
 	ctx := r.Context()
 
 	var payload kickLivestreamMetadataPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		return fmt.Errorf("unmarshal livestream.metadata.updated payload: %w", err)
+		return nil, fmt.Errorf("unmarshal livestream.metadata.updated payload: %w", err)
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return fmt.Errorf("resolve ids for livestream.metadata.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf("resolve ids for livestream.metadata.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 
 	if h.streamsRepo != nil {
@@ -294,7 +317,7 @@ func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) error 
 			ThumbnailUrl: &thumbnailURL,
 			IsMature:     &payload.Metadata.HasMatureContent,
 		}); err != nil {
-			return fmt.Errorf("update kick current stream metadata: %w", err)
+			return nil, fmt.Errorf("update kick current stream metadata: %w", err)
 		}
 	}
 	if h.channelsInfoHistoryRepo != nil && payload.Metadata.Category.Name != "" {
@@ -303,34 +326,34 @@ func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) error 
 			Title:     payload.Metadata.Title,
 			Category:  payload.Metadata.Category.Name,
 		}); err != nil {
-			return fmt.Errorf("create kick channel info history: %w", err)
+			return nil, fmt.Errorf("create kick channel info history: %w", err)
 		}
 	}
 
-	h.logger.InfoContext(ctx, "kick: livestream metadata updated",
+	return []slog.Attr{
 		slog.String("channel_id", channelID),
 		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("broadcaster_username", payload.Broadcaster.Username),
 		slog.String("title", payload.Metadata.Title),
 		slog.String("language", payload.Metadata.Language),
 		slog.String("category", payload.Metadata.Category.Name),
-	)
-
-	return nil
+		slog.Int("category_id", payload.Metadata.Category.ID),
+	}, nil
 }
 
-func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
+func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr, error) {
 	ctx := r.Context()
 
-	h.logger.InfoContext(ctx, "kick: handling chat message",
+	h.logger.DebugContext(ctx, "kick: handling chat message",
 		slog.Int("body_size", len(body)),
 	)
 
 	var payload kickChatMessagePayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		return fmt.Errorf("unmarshal chat message payload: %w", err)
+		return nil, fmt.Errorf("unmarshal chat message payload: %w", err)
 	}
 
-	h.logger.InfoContext(ctx, "kick: parsed chat message payload",
+	h.logger.DebugContext(ctx, "kick: parsed chat message payload",
 		slog.Int("broadcaster_user_id", payload.Broadcaster.UserID),
 		slog.String("broadcaster_username", payload.Broadcaster.Username),
 		slog.Int("sender_user_id", payload.Sender.UserID),
@@ -340,7 +363,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return fmt.Errorf("resolve ids for chat message broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf("resolve ids for chat message broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 
 	senderPlatformID := strconv.Itoa(payload.Sender.UserID)
@@ -380,10 +403,10 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 
 	var errwg errgroup.Group
 
-	errwg.Go(func() error {
-		var err error
-		channel, err = h.channelsRepo.GetByID(ctx, uuid.MustParse(channelID))
-		if err != nil {
+		errwg.Go(func() error {
+			var err error
+			channel, err = h.channelsRepo.GetByID(ctx, uuid.MustParse(channelID))
+			if err != nil {
 			return fmt.Errorf("get channel by id: %w", err)
 		}
 		return nil
@@ -408,13 +431,13 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 	})
 
 	if err := errwg.Wait(); err != nil {
-		return err
+		return nil, err
 	}
 
 	senderUser, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, senderPlatformID)
 	if err != nil {
 		if !errors.Is(err, usersmodel.ErrNotFound) {
-			return fmt.Errorf("get sender user by platform id: %w", err)
+			return nil, fmt.Errorf("get sender user by platform id: %w", err)
 		}
 		createdUser, createErr := h.usersRepo.Create(ctx, usersrepository.CreateInput{
 			Platform:    platform.PlatformKick,
@@ -423,9 +446,26 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 			DisplayName: payload.Sender.Username,
 		})
 		if createErr != nil {
-			return fmt.Errorf("create sender user: %w", createErr)
+			return nil, fmt.Errorf("create sender user: %w", createErr)
 		}
 		senderUser = createdUser
+	}
+
+	eventAttrs := []slog.Attr{
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("broadcaster_username", payload.Broadcaster.Username),
+		slog.String("sender_user_id", senderPlatformID),
+		slog.String("sender_username", payload.Sender.Username),
+		slog.String("sender_twir_user_id", senderUser.ID),
+		slog.Bool("is_broadcaster", isBroadcaster),
+		slog.Bool("is_moderator", isModerator),
+		slog.Bool("is_vip", isVip),
+		slog.Bool("is_subscriber", isSubscriber),
+	}
+
+	if h.shouldIgnoreBotSelfMessage(ctx, channel, senderUser, payload.Sender.Username) {
+		return append(eventAttrs, slog.Bool("ignored_self_message", true)), nil
 	}
 
 	senderStats := &usersstatsmodel.UserStat{}
@@ -445,7 +485,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 			},
 		)
 		if err != nil {
-			return fmt.Errorf("ensure sender user stats: %w", err)
+			return nil, fmt.Errorf("ensure sender user stats: %w", err)
 		}
 		if senderStats == nil {
 			senderStats = &usersstatsmodel.UserStat{}
@@ -500,28 +540,56 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) error {
 	}
 
 	if err := h.chatMessagesGeneric.Publish(ctx, genericMsg); err != nil {
-		return fmt.Errorf("publish chat message to ChatMessagesGeneric: %w", err)
+		return nil, fmt.Errorf("publish chat message to ChatMessagesGeneric: %w", err)
 	}
 
 	if err := h.processGenericMessage.Publish(ctx, genericMsg); err != nil {
-		return fmt.Errorf("publish chat message to Parser.ProcessGenericMessage: %w", err)
+		return nil, fmt.Errorf("publish chat message to Parser.ProcessGenericMessage: %w", err)
 	}
 
-	return nil
+	return append(eventAttrs, slog.Bool("ignored_self_message", false)), nil
 }
 
-func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) error {
+func (h *Handlers) shouldIgnoreBotSelfMessage(
+	ctx context.Context,
+	channel channelsmodel.Channel,
+	senderUser usersmodel.User,
+	senderUsername string,
+) bool {
+	if h.kickBotsRepo == nil || channel.KickBotID == nil {
+		return false
+	}
+
+	bot, err := h.kickBotsRepo.GetByID(ctx, *channel.KickBotID)
+	if err != nil {
+		if errors.Is(err, kickbotsrepository.ErrNotFound) {
+			return false
+		}
+
+		h.logger.DebugContext(ctx, "kick: failed to resolve assigned bot for self-message guard",
+			slog.String("channel_id", channel.ID.String()),
+			slog.String("kick_bot_id", channel.KickBotID.String()),
+			slog.String("sender_username", senderUsername),
+			logger.Error(err),
+		)
+		return false
+	}
+
+	return bot.KickUserID.String() == senderUser.ID
+}
+
+func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Attr, error) {
 	ctx := r.Context()
 
 	var payload kickFollowPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		return fmt.Errorf("unmarshal follow payload: %w", err)
+		return nil, fmt.Errorf("unmarshal follow payload: %w", err)
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return fmt.Errorf("resolve ids for follow broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf("resolve ids for follow broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 
 	if err := h.eventsFollow.Publish(
@@ -534,24 +602,30 @@ func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) error {
 			UserName: payload.Follower.Username,
 		},
 	); err != nil {
-		return fmt.Errorf("publish follow event: %w", err)
+		return nil, fmt.Errorf("publish follow event: %w", err)
 	}
 
-	return nil
+	return []slog.Attr{
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("broadcaster_username", payload.Broadcaster.Username),
+		slog.String("follower_user_id", strconv.Itoa(payload.Follower.UserID)),
+		slog.String("follower_username", payload.Follower.Username),
+	}, nil
 }
 
-func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) error {
+func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) ([]slog.Attr, error) {
 	ctx := r.Context()
 
 	var payload kickLivestreamStatusPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		return fmt.Errorf("unmarshal livestream.status.updated payload: %w", err)
+		return nil, fmt.Errorf("unmarshal livestream.status.updated payload: %w", err)
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return fmt.Errorf("resolve ids for livestream.status.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf("resolve ids for livestream.status.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 
 	if payload.IsLive {
@@ -572,43 +646,38 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) error {
 				Title:     payload.Title,
 				StartedAt: startedAt,
 			}); err != nil {
-				return fmt.Errorf("save kick current stream: %w", err)
+				return nil, fmt.Errorf("save kick current stream: %w", err)
 			}
 		}
-
-		h.logger.InfoContext(ctx, "kick: stream online",
-			slog.String("channel_id", channelID),
-			slog.String("broadcaster_user_id", broadcasterUserID),
-			slog.String("title", payload.Title),
-		)
 
 		if err := h.streamOnline.Publish(ctx, kickbus.KickStreamOnline{
 			BroadcasterUserID:    broadcasterUserID,
 			BroadcasterUserLogin: payload.Broadcaster.Username,
 		}); err != nil {
-			return fmt.Errorf("publish stream online event: %w", err)
+			return nil, fmt.Errorf("publish stream online event: %w", err)
 		}
 	} else {
 		if h.streamsRepo != nil {
 			if err := h.streamsRepo.DeleteByChannelID(ctx, channelID); err != nil {
-				return fmt.Errorf("delete kick current stream: %w", err)
+				return nil, fmt.Errorf("delete kick current stream: %w", err)
 			}
 		}
-
-		h.logger.InfoContext(ctx, "kick: stream offline",
-			slog.String("channel_id", channelID),
-			slog.String("broadcaster_user_id", broadcasterUserID),
-		)
 
 		if err := h.streamOffline.Publish(ctx, kickbus.KickStreamOffline{
 			BroadcasterUserID:    broadcasterUserID,
 			BroadcasterUserLogin: payload.Broadcaster.Username,
 		}); err != nil {
-			return fmt.Errorf("publish stream offline event: %w", err)
+			return nil, fmt.Errorf("publish stream offline event: %w", err)
 		}
 	}
 
-	return nil
+	return []slog.Attr{
+		slog.String("channel_id", channelID),
+		slog.String("broadcaster_user_id", broadcasterUserID),
+		slog.String("broadcaster_username", payload.Broadcaster.Username),
+		slog.Bool("is_live", payload.IsLive),
+		slog.String("title", payload.Title),
+	}, nil
 }
 
 func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (string, string, error) {
