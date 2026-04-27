@@ -5,11 +5,12 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type userStats struct {
@@ -19,8 +20,10 @@ type userStats struct {
 }
 
 type userStatsPlatform struct {
-	model.UsersStats
-	PlatformID string `db:"platform_id"`
+	UserID            string `db:"userId"`
+	Messages          int64  `db:"messages"`
+	Watched           int64  `db:"watched"`
+	UsedChannelPoints int64  `db:"usedChannelPoints"`
 }
 
 func getTop(
@@ -30,21 +33,6 @@ func getTop(
 	page *int,
 	limit int,
 ) ([]*userStats, bool) {
-	if parseCtx.Platform != "twitch" {
-		return nil, true
-	}
-
-	twitchClient, err := twitch.NewAppClientWithContext(
-		ctx,
-		*parseCtx.Services.Config,
-		parseCtx.Services.Bus,
-	)
-
-	if err != nil {
-		parseCtx.Services.Logger.Sugar().Error(err)
-		return nil, false
-	}
-
 	if page == nil {
 		newPage := 1
 		page = &newPage
@@ -52,40 +40,31 @@ func getTop(
 
 	offset := (*page - 1) * limit
 
-	channel := &model.Channels{}
-	err = parseCtx.Services.Gorm.
-		WithContext(ctx).
-		Where(`"id" = ?`, parseCtx.Channel.ID).
-		Find(channel).Error
-	if err != nil || channel.ID == "" {
+	channelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+	if err != nil {
+		parseCtx.Services.Logger.Sugar().Error(err)
+		return nil, false
+	}
+
+	channel, err := parseCtx.Services.ChannelsRepo.GetByID(ctx, channelID)
+	if err != nil || channel.IsNil() {
 		parseCtx.Services.Logger.Sugar().Error(err)
 		return nil, false
 	}
 
 	qb := squirrel.
-		Select(`"users_stats".*`, `"users"."platform_id"`).
+		Select(`"users_stats"."userId"`, `"users_stats"."messages"`, `"users_stats"."watched"`, `"users_stats"."usedChannelPoints"`).
 		From("users_stats").
-		Join(`users ON users.id = "users_stats"."userId"`).
 		Where(
 			squirrel.And{
-				squirrel.Eq{`"users_stats"."channelId"`: parseCtx.Channel.ID},
+				squirrel.Eq{`"users_stats"."channelId"`: parseCtx.Channel.DBChannelID},
 				squirrel.Gt{`"users_stats"."messages"`: 0},
 			},
 		).
 		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform_id = ui.id WHERE u.id = "users_stats"."userId")`).
 		Where(`NOT EXISTS (SELECT 1 FROM bots b JOIN users u ON u.platform_id = b.id AND u.platform = 'twitch' WHERE u.id = "users_stats"."userId")`)
 
-	if channel.BotID != "" {
-		qb = qb.Where(
-			squirrel.Expr(
-				`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
-				channel.BotID,
-			),
-		)
-	}
-	if channel.TwitchUserID != nil {
-		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: *channel.TwitchUserID})
-	}
+	qb = applyTopChannelBotFilters(qb, channel)
 
 	query, args, err := qb.
 		Limit(uint64(limit)).
@@ -107,37 +86,34 @@ func getTop(
 		return nil, false
 	}
 
-	ids := lo.Map(
-		records, func(record userStatsPlatform, _ int) string {
-			return record.PlatformID
-		},
-	)
-
-	twitchUsers, err := twitchClient.GetUsers(
-		&helix.UsersParams{
-			IDs: ids,
-		},
-	)
-
-	if err != nil || len(twitchUsers.Data.Users) == 0 {
+	if len(records) == 0 {
 		return nil, false
 	}
 
+	ids := lo.Map(records, func(record userStatsPlatform, _ int) string {
+		return record.UserID
+	})
+
+	users, err := parseCtx.Services.UsersRepo.GetManyByIDS(ctx, usersrepository.GetManyInput{IDs: ids, PerPage: len(ids)})
+	if err != nil {
+		parseCtx.Services.Logger.Sugar().Error(err)
+		return nil, false
+	}
+
+	usersByID := lo.SliceToMap(users, func(user usersmodel.User) (string, usersmodel.User) {
+		return user.ID, user
+	})
+
 	var stats []*userStats
 	for _, record := range records {
-		twitchUser, ok := lo.Find(
-			twitchUsers.Data.Users, func(user helix.User) bool {
-				return user.ID == record.PlatformID
-			},
-		)
-
+		user, ok := usersByID[record.UserID]
 		if !ok {
 			continue
 		}
 
 		res := &userStats{
-			DisplayName: twitchUser.DisplayName,
-			UserName:    twitchUser.Login,
+			DisplayName: user.DisplayName,
+			UserName:    user.Login,
 		}
 
 		if topType == "messages" {
@@ -160,4 +136,29 @@ func getTop(
 	}
 
 	return stats, false
+}
+
+func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelmodel.Channel) squirrel.SelectBuilder {
+	if channel.BotID != "" {
+		qb = qb.Where(
+			squirrel.Expr(
+				`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+				channel.BotID,
+			),
+		)
+	}
+
+	if channel.KickBotID != nil {
+		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickBotID.String()})
+	}
+
+	if channel.TwitchUserID != nil {
+		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: *channel.TwitchUserID})
+	}
+
+	if channel.KickUserID != nil {
+		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickUserID.String()})
+	}
+
+	return qb
 }

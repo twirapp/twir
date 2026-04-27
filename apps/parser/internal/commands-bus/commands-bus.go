@@ -17,6 +17,7 @@ import (
 	generic "github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"go.uber.org/zap"
@@ -98,7 +99,7 @@ func (c *CommandsBus) Subscribe() error {
 	c.bus.Parser.GetCommandResponse.SubscribeGroup(
 		"parser",
 		func(ctx context.Context, data twitch.TwitchChatMessage) (parser.CommandParseResponse, error) {
-			res, err := c.commandService.ProcessChatMessage(ctx, data, "twitch")
+			res, err := c.commandService.ProcessChatMessage(ctx, data, platformentity.PlatformTwitch)
 			if err != nil {
 				return parser.CommandParseResponse{}, err
 			}
@@ -142,7 +143,7 @@ func (c *CommandsBus) Subscribe() error {
 				ctx,
 				&types.ParseContext{
 					MessageId:     "",
-					Platform:      "twitch",
+					Platform:      platformentity.PlatformTwitch,
 					Channel:       channel,
 					Sender:        sender,
 					Emotes:        nil,
@@ -185,7 +186,7 @@ func (c *CommandsBus) Subscribe() error {
 				return struct{}{}, nil
 			}
 
-			res, err := c.commandService.ProcessChatMessage(ctx, data, "twitch")
+			res, err := c.commandService.ProcessChatMessage(ctx, data, platformentity.PlatformTwitch)
 			if err != nil {
 				zap.S().Error(err)
 				return struct{}{}, err
@@ -297,7 +298,7 @@ func (c *CommandsBus) Subscribe() error {
 				twitchMsg.EnrichedData.IsChatterSubscriber = msg.EnrichedData.IsChatterSubscriber
 			}
 
-			res, err := c.commandService.ProcessChatMessage(ctx, twitchMsg, msg.Platform)
+			res, err := c.commandService.ProcessChatMessage(ctx, twitchMsg, platformentity.Platform(msg.Platform))
 			if err != nil {
 				zap.S().Error(err)
 				return struct{}{}, err

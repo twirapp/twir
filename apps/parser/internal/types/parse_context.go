@@ -4,6 +4,7 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
@@ -44,7 +45,7 @@ type ParseContextEmote struct {
 
 type ParseContext struct {
 	Cacher   DataCacher
-	Platform string
+	Platform platform.Platform
 	Channel  *ParseContextChannel
 	Sender   *ParseContextSender
 

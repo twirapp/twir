@@ -22,13 +22,17 @@ var LatestFollowerUsername = &types.Variable{
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
+		channelID := parseCtx.Channel.DBChannelID
+		if channelID == "" {
+			channelID = parseCtx.Channel.ID
+		}
 
 		entity := model.ChannelsEventsListItem{}
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Where(
 				"channel_id = ? AND type = ?",
-				parseCtx.Channel.ID,
+				channelID,
 				model.ChannelEventListItemTypeFollow,
 			).
 			Order(`"created_at" DESC`).First(&entity).Error; err != nil {

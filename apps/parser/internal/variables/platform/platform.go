@@ -13,6 +13,6 @@ var Platform = &types.Variable{
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
-		return &types.VariableHandlerResult{Result: parseCtx.Platform}, nil
+		return &types.VariableHandlerResult{Result: string(parseCtx.Platform)}, nil
 	},
 }

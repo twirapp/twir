@@ -9,6 +9,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/internal/variables/shared"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type sevenTVEmote struct {
@@ -25,17 +27,21 @@ var SevenTv = &types.Variable{
 	Name:                "emotes.7tv",
 	Description:         lo.ToPtr("Emotes of channel from https://7tv.app"),
 	CanBeUsedInRegistry: true,
-	Handler: func(
-		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	Handler: shared.HandlerByPlatform(map[platformentity.Platform]types.VariableHandler{
+		shared.PlatformTwitch: sevenTVHandler(shared.PlatformTwitch),
+		shared.PlatformKick:   sevenTVHandler(shared.PlatformKick),
+	}),
+}
+
+func sevenTVHandler(platform platformentity.Platform) types.VariableHandler {
+	return func(
+		ctx context.Context,
+		parseCtx *types.VariableParseContext,
+		variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		if parseCtx.Platform != "twitch" {
-			result.Result = "not supported on this platform"
-			return result, nil
-		}
-
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://7tv.io/v3/users/twitch/"+parseCtx.Channel.ID, nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://7tv.io/v3/users/"+string(platform)+"/"+parseCtx.Channel.ID, nil)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 			return result, nil
@@ -73,5 +79,5 @@ var SevenTv = &types.Variable{
 		result.Result = strings.Join(mapped, " ")
 
 		return result, nil
-	},
+	}
 }

@@ -26,11 +26,16 @@ var Followers = &types.Variable{
 			return &result, nil
 		}
 
+		channelID := parseCtx.Channel.DBChannelID
+		if channelID == "" {
+			channelID = parseCtx.Channel.ID
+		}
+
 		t := model.ChannelEventListItemTypeFollow
 		count, err := parseCtx.Services.ChannelEventListsRepo.CountBy(
 			ctx,
 			channelseventslist.CountByInput{
-				ChannelID:    &parseCtx.Channel.ID,
+				ChannelID:    &channelID,
 				CreatedAtGTE: &parseCtx.ChannelStream.StartedAt,
 				Type:         &t,
 			},

@@ -242,7 +242,7 @@ func (c *Commands) ParseCommandResponses(
 	ctx context.Context,
 	command *FindByMessageResult,
 	requestData twitch.TwitchChatMessage,
-	platform string,
+	plat platformentity.Platform,
 	userRoles []model.ChannelRole,
 	userChannelStats *model.UsersStats,
 	dbUser *model.Users,
@@ -347,7 +347,7 @@ func (c *Commands) ParseCommandResponses(
 
 	parseCtx := &types.ParseContext{
 		MessageId: requestData.MessageId,
-		Platform:  platform,
+		Platform:  plat,
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,
@@ -514,7 +514,7 @@ func (c *Commands) ParseCommandResponses(
 	return result
 }
 
-func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchChatMessage, platform string) (
+func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchChatMessage, plat platformentity.Platform) (
 	*busparser.CommandParseResponse,
 	error,
 ) {
@@ -606,7 +606,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		}
 	}
 
-	if !platformentity.ShouldExecute(cmd.Cmd.Platforms, platformentity.Platform(platform)) {
+	if !platformentity.ShouldExecute(cmd.Cmd.Platforms, plat) {
 		return nil, nil
 	}
 
@@ -725,7 +725,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		ctx,
 		cmd,
 		data,
-		platform,
+		plat,
 		userRoles,
 		dbUser.Stats,
 		dbUser,
