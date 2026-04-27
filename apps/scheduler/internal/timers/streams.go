@@ -287,17 +287,26 @@ type kickChannelRow struct {
 	KickPlatformID *string `gorm:"column:kick_platform_id"`
 }
 
-func (c *streams) processKickStreams(ctx context.Context, existedStreams []model.ChannelsStreams) error {
-	var channels []kickChannelRow
-	err := c.gorm.
+const (
+	kickChannelsSelectClause      = `channels.id, users.platform_id AS kick_platform_id`
+	kickChannelsJoinClause        = `LEFT JOIN users ON users.id = channels.kick_user_id`
+	kickChannelsPlatformIDIsNotNull = `users.platform_id IS NOT NULL`
+)
+
+func buildKickChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
+	return db.
 		WithContext(ctx).
 		Table("channels").
-		Select(`channels.id, channels.kick_platform_id`).
-		Joins(`LEFT JOIN users ON users.id = channels.kick_user_id`).
+		Select(kickChannelsSelectClause).
+		Joins(kickChannelsJoinClause).
 		Where(`channels."isEnabled" = ?`, true).
-		Where(`channels.kick_platform_id IS NOT NULL`).
-		Where(`COALESCE(users.is_banned, false) = false`).
-		Scan(&channels).Error
+		Where(kickChannelsPlatformIDIsNotNull).
+		Where(`COALESCE(users.is_banned, false) = false`)
+}
+
+func (c *streams) processKickStreams(ctx context.Context, existedStreams []model.ChannelsStreams) error {
+	var channels []kickChannelRow
+	err := buildKickChannelsQuery(c.gorm, ctx).Scan(&channels).Error
 	if err != nil {
 		return err
 	}
