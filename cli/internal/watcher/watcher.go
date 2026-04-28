@@ -21,23 +21,6 @@ func New() *Watcher {
 func (c *Watcher) Start(path string) (chan struct{}, error) {
 	watchPath := path + "..."
 
-	// gomodFile, err := os.ReadFile(filepath.Join(path, "go.mod"))
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// parsedModFile, err := modfile.Parse("go.mod", gomodFile, nil)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// for _, req := range parsedModFile.Replace {
-	// 	folderPath := filepath.Join(path, req.New.Path)
-	// 	if err := notify.Watch(folderPath+"...", c.chann, notify.All); err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
 	updateChannel := make(chan struct{}, 1)
 
 	if err := notify.Watch(watchPath, c.chann, notify.All); err != nil {
@@ -64,6 +47,67 @@ func (c *Watcher) Start(path string) (chan struct{}, error) {
 	return updateChannel, nil
 }
 
+func (c *Watcher) StartWithPaths(paths []string) (chan string, error) {
+	updateChannel := make(chan string, 1)
+
+	for _, path := range paths {
+		watchPath := path + "..."
+		if err := notify.Watch(watchPath, c.chann, notify.All); err != nil {
+			return nil, err
+		}
+	}
+
+	reload, _ := lo.NewDebounce(
+		1*time.Second,
+		func() {
+			updateChannel <- ""
+		},
+	)
+
+	var lastEventPath string
+
+	go func() {
+		for event := range c.chann {
+			if strings.HasSuffix(event.Path(), "~") || strings.Contains(event.Path(), ".out") {
+				continue
+			}
+
+			lastEventPath = event.Path()
+			reload()
+		}
+	}()
+
+	go func() {
+		for range updateChannel {
+			if lastEventPath != "" {
+				updateChannel <- lastEventPath
+				lastEventPath = ""
+			}
+		}
+	}()
+
+	return updateChannel, nil
+}
+
 func (c *Watcher) Stop() {
 	notify.Stop(c.chann)
+}
+
+func (c *Watcher) WatchPaths(paths []string) error {
+	for _, path := range paths {
+		watchPath := path + "..."
+		if err := notify.Watch(watchPath, c.chann, notify.All); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Watcher) GetEventPath() string {
+	select {
+	case event := <-c.chann:
+		return event.Path()
+	default:
+		return ""
+	}
 }

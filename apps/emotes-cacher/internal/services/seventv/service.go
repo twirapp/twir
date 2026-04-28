@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -26,16 +27,19 @@ type Opts struct {
 	Config      config.Config
 	Logger      *slog.Logger
 	EmotesStore *emotes_store.EmotesStore
+	UsersRepo   usersrepository.Repository
 }
 
 func New(opts Opts) error {
 	s := Service{
-		sockets:                          nil,
-		gorm:                             opts.Gorm,
-		sevenTvApiClient:                 seventv.NewClient(opts.Config.SevenTvToken),
-		logger:                           opts.Logger,
-		emotesStore:                      opts.EmotesStore,
-		registeredChannelsWithEmoteSetId: make(channelsWithEmotesSetsIds),
+		sockets:              nil,
+		gorm:                 opts.Gorm,
+		sevenTvApiClient:     seventv.NewClient(opts.Config.SevenTvToken),
+		logger:               opts.Logger,
+		emotesStore:          opts.EmotesStore,
+		usersRepo:            opts.UsersRepo,
+		registeredChannelIDs: make(map[string]bool),
+		emoteSetToChannelID:  make(map[string]string),
 	}
 
 	opts.LC.Append(
@@ -62,11 +66,13 @@ type socketInstance struct {
 type Service struct {
 	sockets []*socketInstance
 
-	gorm                             *gorm.DB
-	sevenTvApiClient                 seventv.Client
-	registeredChannelsWithEmoteSetId channelsWithEmotesSetsIds
-	logger                           *slog.Logger
-	emotesStore                      *emotes_store.EmotesStore
+	gorm                 *gorm.DB
+	usersRepo            usersrepository.Repository
+	sevenTvApiClient     seventv.Client
+	registeredChannelIDs map[string]bool
+	emoteSetToChannelID  map[string]string
+	logger               *slog.Logger
+	emotesStore          *emotes_store.EmotesStore
 }
 
 func (c *Service) start(ctx context.Context) error {
@@ -144,14 +150,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			continue
 		}
 
-		var channelID string
-		for key, value := range c.registeredChannelsWithEmoteSetId {
-			if value == data.Body.Id {
-				channelID = key
-				break
-			}
-		}
-
+		channelID := c.emoteSetToChannelID[data.Body.Id]
 		if channelID == "" {
 
 		}
@@ -181,14 +180,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			continue
 		}
 
-		var channelID string
-		for key, value := range c.registeredChannelsWithEmoteSetId {
-			if value == data.Body.Id {
-				channelID = key
-				break
-			}
-		}
-
+		channelID := c.emoteSetToChannelID[data.Body.Id]
 		if channelID == "" {
 			continue
 		}
@@ -219,13 +211,7 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			continue
 		}
 
-		var channelID string
-		for key, value := range c.registeredChannelsWithEmoteSetId {
-			if value == data.Body.Id {
-				channelID = key
-				break
-			}
-		}
+		channelID := c.emoteSetToChannelID[data.Body.Id]
 
 		if channelID == "" {
 			continue

@@ -2,19 +2,26 @@ package cacher
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
 type locks struct {
 	stream      sync.Mutex
 	dbUserStats sync.Mutex
+	dbChannel   sync.Mutex
 
 	twitchFollow            sync.Mutex
 	twitchChannel           sync.Mutex
@@ -32,6 +39,7 @@ type locks struct {
 type cache struct {
 	stream      *model.ChannelsStreams
 	dbUserStats *model.UsersStats
+	dbChannel   *dbChannelInfo
 
 	twitchUserFollows       map[string]*helix.ChannelFollow
 	twitchChannel           *helix.ChannelInformation
@@ -60,6 +68,12 @@ type cacher struct {
 	parseCtxText    *string
 	cache           *cache
 	locks           *locks
+}
+
+type dbChannelInfo struct {
+	ChannelID         string
+	BroadcasterUserID string
+	BotID             string
 }
 
 type CacherOpts struct {
@@ -93,8 +107,14 @@ func (c *cacher) GetEnabledChannelIntegrations(ctx context.Context) []*model.Cha
 		return c.cache.channelIntegrations
 	}
 
+	dbChannel, err := c.getDbChannel(ctx)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+
 	var result []*model.ChannelsIntegrations
-	err := c.services.Gorm.Where(`"channelId" = ? AND enabled = ?`, c.parseCtxChannel.ID, true).
+	err = c.services.Gorm.Where(`"channelId" = ?::uuid AND enabled = ?`, dbChannel.ChannelID, true).
 		WithContext(ctx).
 		Preload("Integration").
 		Find(&result).
@@ -105,4 +125,49 @@ func (c *cacher) GetEnabledChannelIntegrations(ctx context.Context) []*model.Cha
 	}
 
 	return c.cache.channelIntegrations
+}
+
+func (c *cacher) getDbChannel(ctx context.Context) (*dbChannelInfo, error) {
+	c.locks.dbChannel.Lock()
+	defer c.locks.dbChannel.Unlock()
+
+	if c.cache.dbChannel != nil {
+		return c.cache.dbChannel, nil
+	}
+
+	user, err := c.services.UsersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, c.parseCtxChannel.ID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil, errors.New("user not found for platform ID")
+		}
+		return nil, err
+	}
+
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("parse user id as uuid: %w", err)
+	}
+
+	ch, err := c.services.ChannelsRepo.GetByTwitchUserID(ctx, userUUID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return nil, errors.New("channel not found")
+		}
+		return nil, err
+	}
+
+	var broadcasterUserID string
+	if ch.TwitchUserID != nil {
+		broadcasterUserID = ch.TwitchUserID.String()
+	}
+
+	channel := &dbChannelInfo{
+		ChannelID:         ch.ID.String(),
+		BroadcasterUserID: broadcasterUserID,
+		BotID:             ch.BotID,
+	}
+
+	c.cache.dbChannel = channel
+
+	return channel, nil
 }

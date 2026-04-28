@@ -53,11 +53,11 @@ SELECT
     cr.required_used_channel_points
 FROM public.channels_roles AS cr
          LEFT JOIN public.channels_roles_users AS cru
-                   ON cr.id = cru."roleId" AND cru."userId" = @user_id
+                   ON cr.id = cru."roleId" AND cru."userId" = @user_id::uuid
          LEFT JOIN public.users_stats AS us
-                   ON cr."channelId" = us."channelId" AND us."userId" = @user_id
+                   ON cr."channelId" = us."channelId" AND us."userId" = @user_id::uuid
 WHERE
-    cr."channelId" = @channel_id
+    cr."channelId" = @channel_id::uuid
 		AND (
 			cru."userId" IS NOT NULL OR (
 				(cr.required_messages > 0 AND us.messages >= cr.required_messages) OR
@@ -151,7 +151,7 @@ func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model
 	query := `
 SELECT id, "channelId", name, type, permissions, required_messages, required_used_channel_points, required_watch_time
 FROM channels_roles
-WHERE "channelId" = $1
+WHERE "channelId" = $1::uuid
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)

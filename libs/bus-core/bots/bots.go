@@ -23,6 +23,7 @@ const (
 type SendMessageRequest struct {
 	ChannelName       *string
 	ChannelId         string
+	Platform          string
 	Message           string
 	ReplyTo           string
 	IsAnnounce        bool

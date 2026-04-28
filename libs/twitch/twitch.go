@@ -10,6 +10,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -58,7 +59,7 @@ func NewAppClientWithContext(
 
 	appToken, err := twirBus.Tokens.RequestAppToken.Request(
 		ctx,
-		struct{}{},
+		tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch},
 	)
 	if err != nil {
 		return nil, err

@@ -8,8 +8,19 @@ import EventsTableActions from '../ui/events-table-actions.vue'
 import type { Event , EventType } from '@/api/events'
 
 import { useEventsApi } from '@/api/events'
+import { Badge } from '@/components/ui/badge'
 import { flatEvents, getEventName } from '@/features/events/constants/helpers'
 import EventsTableOperations from '@/features/events/ui/events-table-operations.vue'
+
+function getPlatformBadges(platforms: string[]) {
+	if (platforms.length === 0) {
+		return [h(Badge, { variant: 'outline' }, () => 'All')]
+	}
+
+	return platforms.map((platform) =>
+		h(Badge, { variant: 'outline' }, () => platform.charAt(0).toUpperCase() + platform.slice(1)),
+	)
+}
 
 export const useEventsTable = createGlobalState(() => {
 	const { t } = useI18n()
@@ -48,6 +59,13 @@ export const useEventsTable = createGlobalState(() => {
 			size: 20,
 			header: () => h('div', {}, t('events.description')),
 			cell: ({ row }) => h('span', row.original.description),
+		},
+		{
+			accessorKey: 'platforms',
+			size: 15,
+			header: () => h('div', {}, t('sharedTexts.platforms')),
+			cell: ({ row }) =>
+				h('div', { class: 'flex flex-wrap gap-1' }, getPlatformBadges(row.original.platforms ?? [])),
 		},
 		{
 			accessorKey: 'operations',

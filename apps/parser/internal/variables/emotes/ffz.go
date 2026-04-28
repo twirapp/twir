@@ -31,6 +31,11 @@ var FrankerFaceZ = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		if parseCtx.Platform != "twitch" {
+			result.Result = "not supported on this platform"
+			return result, nil
+		}
+
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.frankerfacez.com/v1/room/id/"+parseCtx.Channel.ID, nil)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)

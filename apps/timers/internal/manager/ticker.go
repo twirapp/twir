@@ -9,6 +9,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -138,6 +139,16 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
+	var channelPlatform platformentity.Platform
+	if channel.TwitchUserID != nil {
+		channelPlatform = platformentity.PlatformTwitch
+	} else if channel.KickUserID != nil {
+		channelPlatform = platformentity.PlatformKick
+	}
+	if !platformentity.ShouldExecute(t.dbRow.Platforms, channelPlatform) {
+		return
+	}
+
 	if isOffline {
 		t.lastTriggerOfflineNumber = currentMessageNumber
 	} else {
@@ -153,13 +164,26 @@ func (c *Manager) tryTick(id TimerID) {
 		}
 	}
 
+	var twitchUserID string
+	if channel.TwitchUserID != nil {
+		twitchUserID = *channel.TwitchPlatformID
+	}
+
+	var twitchPlatformID string
+	if channel.TwitchPlatformID != nil {
+		twitchPlatformID = *channel.TwitchPlatformID
+	}
+
 	err = c.sendMessage(
 		ctx,
-		channel.ID,
+		twitchPlatformID,
+		twitchUserID,
+		channel.ID.String(),
 		response.Text,
 		response.IsAnnounce,
 		response.AnnounceColor,
 		response.Count,
+		string(channelPlatform),
 	)
 	if err != nil {
 		c.logger.Error(

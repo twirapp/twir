@@ -11,6 +11,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/repositories/timers"
 )
@@ -52,6 +53,7 @@ type scanModel struct {
 	TimeInterval             int
 	MessageInterval          int
 	LastTriggerMessageNumber int
+	Platforms                []platform.Platform
 	Responses                []scanModelResponse `db:"responses"`
 }
 
@@ -87,13 +89,14 @@ func (c scanModel) toEntity() timersentity.Timer {
 		TimeInterval:             c.TimeInterval,
 		MessageInterval:          c.MessageInterval,
 		LastTriggerMessageNumber: c.LastTriggerMessageNumber,
+		Platforms:                c.Platforms,
 		Responses:                responses,
 	}
 }
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (timersentity.Timer, error) {
 	query := `
-SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."online_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
+SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."online_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber", t.platforms,
 			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
@@ -127,6 +130,7 @@ ORDER BY t.id;
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
+			&timer.Platforms,
 			&responseID,
 			&responseText,
 			&responseIsAnnounce,
@@ -159,7 +163,7 @@ ORDER BY t.id;
 }
 
 func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, error) {
-	query := `SELECT count(*) from "channels_timers" where "channelId" = $1`
+	query := `SELECT count(*) from "channels_timers" where "channelId" = $1::uuid`
 
 	var count int
 	err := c.pool.QueryRow(ctx, query, channelID).Scan(&count)
@@ -172,9 +176,9 @@ func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, erro
 
 func (c *Pgx) Create(ctx context.Context, data timers.CreateInput) (timersentity.Timer, error) {
 	createQuery := `
-INSERT INTO "channels_timers" ("channelId", "name", "enabled", "offline_enabled", "online_enabled", "timeInterval", "messageInterval")
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING "id", "channelId", "name", "enabled", "offline_enabled", "online_enabled", "timeInterval", "messageInterval"
+INSERT INTO "channels_timers" ("channelId", "name", "enabled", "offline_enabled", "online_enabled", "timeInterval", "messageInterval", platforms)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING "id", "channelId", "name", "enabled", "offline_enabled", "online_enabled", "timeInterval", "messageInterval", platforms
 `
 	createResponseQuery := `
 INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId", count, "announce_color")
@@ -199,6 +203,7 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 		data.OnlineEnabled,
 		data.TimeInterval,
 		data.MessageInterval,
+		data.Platforms,
 	).Scan(
 		&newTimer.ID,
 		&newTimer.ChannelID,
@@ -208,6 +213,7 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 		&newTimer.OnlineEnabled,
 		&newTimer.TimeInterval,
 		&newTimer.MessageInterval,
+		&newTimer.Platforms,
 	); err != nil {
 		return timersentity.Nil, fmt.Errorf("cannot create timer: %w", err)
 	}
@@ -246,11 +252,11 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 
 func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]timersentity.Timer, error) {
 	query := `
-SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."online_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
+SELECT t."id", t."channelId", t."name", t."enabled", t."offline_enabled", t."online_enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber", t.platforms,
 			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id, r.count response_count, r."announce_color" response_announce_color
 FROM "channels_timers" t
 LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
-WHERE t."channelId" = $1
+WHERE t."channelId" = $1::uuid
 ORDER BY t."id";
 `
 
@@ -281,6 +287,7 @@ ORDER BY t."id";
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
+			&timer.Platforms,
 			&responseID,
 			&responseText,
 			&responseIsAnnounce,
@@ -353,6 +360,10 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 		updateBuilder = updateBuilder.Set(`"messageInterval"`, *data.MessageInterval)
 	}
 
+	if data.Platforms != nil {
+		updateBuilder = updateBuilder.Set("platforms", data.Platforms)
+	}
+
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})
 
 	query, args, err := updateBuilder.ToSql()
@@ -422,7 +433,7 @@ func (c *Pgx) Count(ctx context.Context, input timers.CountInput) (int64, error)
 	qb := sq.Select("COUNT(*)").From("channels_timers")
 
 	if input.ChannelID != nil {
-		qb = qb.Where(squirrel.Eq{`"channelId"`: *input.ChannelID})
+		qb = qb.Where(squirrel.Expr(`"channelId" = ?::uuid`, *input.ChannelID))
 	}
 
 	if input.Enabled != nil {
@@ -473,7 +484,7 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]timerse
 		GroupBy("t.id")
 
 	if input.ChannelID != nil {
-		qb = qb.Where(squirrel.Eq{"t.channelId": *input.ChannelID})
+		qb = qb.Where(squirrel.Expr(`t."channelId" = ?::uuid`, *input.ChannelID))
 	}
 	if input.Enabled != nil {
 		qb = qb.Where(squirrel.Eq{"t.enabled": *input.Enabled})
@@ -517,6 +528,7 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]timerse
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
+			&timer.Platforms,
 			&rawResponses, // responses JSON
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)

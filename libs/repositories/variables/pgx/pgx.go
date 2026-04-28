@@ -43,7 +43,7 @@ func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) (
 	query := `
 SELECT id, "channelId", description, "evalValue", name, response, "type", script_language
 FROM channels_customvars
-WHERE "channelId" = $1
+WHERE "channelId" = $1::uuid
 `
 
 	rows, err := c.pool.Query(ctx, query, channelID)
@@ -63,7 +63,7 @@ func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, erro
 	query := `
 SELECT COUNT(*)
 FROM channels_customvars
-WHERE "channelId" = $1
+WHERE "channelId" = $1::uuid
 `
 
 	var count int

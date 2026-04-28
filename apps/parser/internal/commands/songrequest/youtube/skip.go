@@ -33,7 +33,7 @@ var SkipCommand = &types.DefaultCommand{
 
 		moduleSettings := &model.ChannelSongRequestsSettings{}
 		err := parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channel_id" = ?`, parseCtx.Channel.ID).
+			Where(`"channel_id" = ?::uuid`, parseCtx.Channel.ID).
 			First(moduleSettings).Error
 
 		if err != nil {
@@ -53,7 +53,7 @@ var SkipCommand = &types.DefaultCommand{
 
 		currentSong := &model.RequestedSong{}
 		err = parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ? AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
 			Order(`"createdAt" asc`).
 			Limit(1).
 			Find(&currentSong).
@@ -73,7 +73,7 @@ var SkipCommand = &types.DefaultCommand{
 
 		var onlineUsersCount int64
 		err = parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ?`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid`, parseCtx.Channel.ID).
 			Model(&model.UsersOnline{}).
 			Count(&onlineUsersCount).
 			Error

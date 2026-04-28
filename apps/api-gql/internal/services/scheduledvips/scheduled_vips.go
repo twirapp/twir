@@ -13,6 +13,7 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
@@ -22,6 +23,7 @@ type Opts struct {
 	fx.In
 
 	ScheduledVipsRepository scheduledvipsrepository.Repository
+	ChannelsRepository      channelsrepository.Repository
 	Config                  config.Config
 	Bus                     *buscore.Bus
 	Logger                  *slog.Logger
@@ -29,18 +31,20 @@ type Opts struct {
 
 func New(opts Opts) *Service {
 	return &Service{
-		repo:   opts.ScheduledVipsRepository,
-		config: opts.Config,
-		bus:    opts.Bus,
-		logger: opts.Logger,
+		repo:         opts.ScheduledVipsRepository,
+		channelsRepo: opts.ChannelsRepository,
+		config:       opts.Config,
+		bus:          opts.Bus,
+		logger:       opts.Logger,
 	}
 }
 
 type Service struct {
-	repo   scheduledvipsrepository.Repository
-	config config.Config
-	bus    *buscore.Bus
-	logger *slog.Logger
+	repo         scheduledvipsrepository.Repository
+	channelsRepo channelsrepository.Repository
+	config       config.Config
+	bus          *buscore.Bus
+	logger       *slog.Logger
 }
 
 func (c *Service) GetScheduledVips(ctx context.Context, channelID string) (
@@ -99,8 +103,21 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return fmt.Errorf("vip does not belong to the channel")
 	}
 
+	parsedChannelID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByID(ctx, parsedChannelID)
+	if err != nil {
+		return fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || !channel.TwitchConnected() {
+		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
 	twitchClient, err := twitch.NewUserClient(
-		input.ChannelID,
+		*channel.TwitchPlatformID,
 		c.config,
 		c.bus,
 	)
@@ -115,7 +132,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 
 	vipResp, err := twitchClient.RemoveChannelVip(
 		&helix.RemoveChannelVipParams{
-			BroadcasterID: input.ChannelID,
+			BroadcasterID: *channel.TwitchPlatformID,
 			UserID:        vip.UserID,
 		},
 	)
@@ -160,9 +177,21 @@ type CreateWithTwitchVipInput struct {
 }
 
 func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitchVipInput) error {
-	// Create Twitch client for the broadcaster
+	parsedChannelID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByID(ctx, parsedChannelID)
+	if err != nil {
+		return fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || !channel.TwitchConnected() {
+		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
 	twitchClient, err := twitch.NewUserClient(
-		input.ChannelID,
+		*channel.TwitchPlatformID,
 		c.config,
 		c.bus,
 	)
@@ -170,10 +199,9 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 		return fmt.Errorf("cannot create twitch client: %w", err)
 	}
 
-	// Add VIP on Twitch
 	vipResp, err := twitchClient.AddChannelVip(
 		&helix.AddChannelVipParams{
-			BroadcasterID: input.ChannelID,
+			BroadcasterID: *channel.TwitchPlatformID,
 			UserID:        input.UserID,
 		},
 	)
@@ -184,7 +212,6 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 		return fmt.Errorf("twitch error: %s", vipResp.ErrorMessage)
 	}
 
-	// Create scheduled VIP in database
 	err = c.repo.Create(
 		ctx,
 		scheduledvipsrepository.CreateInput{

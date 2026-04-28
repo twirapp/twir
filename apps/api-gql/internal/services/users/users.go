@@ -4,15 +4,17 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	config "github.com/twirapp/twir/libs/config"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	config "github.com/twirapp/twir/libs/config"
+	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
+	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -20,26 +22,29 @@ import (
 type Opts struct {
 	fx.In
 
-	UsersRepository users.Repository
-	Gorm            *gorm.DB
-	Config          config.Config
-	TwirBus         *buscore.Bus
+	UsersRepository    users.Repository
+	ChannelsRepository channelsrepository.Repository
+	Gorm               *gorm.DB
+	Config             config.Config
+	TwirBus            *buscore.Bus
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		usersRepository: opts.UsersRepository,
-		gorm:            opts.Gorm,
-		config:          opts.Config,
-		twirBus:         opts.TwirBus,
+		usersRepository:    opts.UsersRepository,
+		channelsRepository: opts.ChannelsRepository,
+		gorm:               opts.Gorm,
+		config:             opts.Config,
+		twirBus:            opts.TwirBus,
 	}
 }
 
 type Service struct {
-	usersRepository users.Repository
-	gorm            *gorm.DB
-	config          config.Config
-	twirBus         *buscore.Bus
+	usersRepository    users.Repository
+	channelsRepository channelsrepository.Repository
+	gorm               *gorm.DB
+	config             config.Config
+	twirBus            *buscore.Bus
 }
 
 type UpdateInput struct {
@@ -144,11 +149,29 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		return entity.ChannelUserInfo{}, fmt.Errorf("channel_id and user_id are required")
 	}
 
+	parsedChannelID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return entity.ChannelUserInfo{}, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := c.channelsRepository.GetByID(ctx, parsedChannelID)
+	if err != nil {
+		return entity.ChannelUserInfo{}, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || !channel.TwitchConnected() {
+		return entity.ChannelUserInfo{}, fmt.Errorf("channel not found or twitch not connected")
+	}
+
+	user, err := c.usersRepository.GetByID(ctx, input.UserID)
+	if err != nil {
+		return entity.ChannelUserInfo{}, fmt.Errorf("get user: %w", err)
+	}
+
 	dbUserInfo := deprecatedgormmodel.Users{}
 	if err := c.gorm.
 		WithContext(ctx).
-		Where("id = ?", input.UserID).
-		Preload("Stats", `"channelId" = ? AND "userId" = ?`, input.ChannelID, input.UserID).
+		Where("id = ?::uuid", input.UserID).
+		Preload("Stats", `"channelId" = ?::uuid AND "userId" = ?::uuid`, input.ChannelID, input.UserID).
 		First(&dbUserInfo).
 		Error; err != nil {
 		return entity.ChannelUserInfo{}, err
@@ -178,7 +201,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 
 	channelTwitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		input.ChannelID,
+		*channel.TwitchPlatformID,
 		c.config,
 		c.twirBus,
 	)
@@ -188,8 +211,8 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 
 	follows, err := channelTwitchClient.GetChannelFollows(
 		&helix.GetChannelFollowsParams{
-			BroadcasterID: input.ChannelID,
-			UserID:        input.UserID,
+			BroadcasterID: *channel.TwitchPlatformID,
+			UserID:        user.PlatformID,
 		},
 	)
 	if err != nil {
@@ -214,6 +237,6 @@ func (c *Service) GetByApiKey(ctx context.Context, apiKey string) (entity.User, 
 	if err != nil {
 		return entity.User{}, err
 	}
-	
+
 	return c.modelToEntity(user), nil
 }

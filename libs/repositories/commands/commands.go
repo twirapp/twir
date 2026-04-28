@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 )
 
@@ -33,6 +34,7 @@ type CreateInput struct {
 	OnlineOnly                bool
 	OfflineOnly               bool
 	EnabledCategories         []string
+	Platforms                 []platform.Platform
 	RequiredWatchTime         int
 	RequiredMessages          int
 	RequiredUsedChannelPoints int
@@ -57,6 +59,7 @@ type UpdateInput struct {
 	OnlineOnly                *bool
 	OfflineOnly               *bool
 	EnabledCategories         []string
+	Platforms                 []platform.Platform
 	RequiredWatchTime         *int
 	RequiredMessages          *int
 	RequiredUsedChannelPoints *int

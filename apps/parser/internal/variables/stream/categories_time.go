@@ -22,7 +22,7 @@ var CategoryTime = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		if parseCtx.ChannelStream != nil {
+		if parseCtx.ChannelStream == nil {
 			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Stream.Info.Offline)
 			return &result, nil
 		}
@@ -31,6 +31,7 @@ var CategoryTime = &types.Variable{
 			ctx,
 			channelsinfohistory.GetManyInput{
 				ChannelID: parseCtx.Channel.ID,
+				Platform:  &parseCtx.Platform,
 				After:     parseCtx.ChannelStream.StartedAt,
 				Limit:     100,
 			},

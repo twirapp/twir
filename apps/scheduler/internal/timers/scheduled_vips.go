@@ -9,8 +9,10 @@ import (
 	"github.com/samber/lo"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 )
@@ -24,6 +26,7 @@ type ScheduledVipsOpts struct {
 	TwirBus *buscore.Bus
 
 	ScheduledVipsRepo scheduledvipsrepository.Repository
+	UsersRepo         usersrepository.Repository
 }
 
 func NewScheduledVips(opts ScheduledVipsOpts) {
@@ -40,6 +43,7 @@ func NewScheduledVips(opts ScheduledVipsOpts) {
 		logger:            opts.Logger,
 		twirBus:           opts.TwirBus,
 		scheduledVipsRepo: opts.ScheduledVipsRepo,
+		usersRepo:         opts.UsersRepo,
 	}
 
 	opts.LC.Append(
@@ -72,6 +76,7 @@ type scheduledVips struct {
 	logger            *slog.Logger
 	twirBus           *buscore.Bus
 	scheduledVipsRepo scheduledvipsrepository.Repository
+	usersRepo         usersrepository.Repository
 }
 
 func (s *scheduledVips) process(ctx context.Context) {
@@ -89,9 +94,19 @@ func (s *scheduledVips) process(ctx context.Context) {
 	// create twitch clients for channels
 	for _, vip := range vips {
 		if cachedChannelsTwitchClients[vip.ChannelID] == nil {
+			user, err := s.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, vip.ChannelID)
+			if err != nil {
+				s.logger.Error(
+					"failed to get user by platform id",
+					slog.String("channel_id", vip.ChannelID),
+					logger.Error(err),
+				)
+				continue
+			}
+
 			twitchClient, err := twitch.NewUserClientWithContext(
 				ctx,
-				vip.ChannelID,
+				user.ID,
 				s.config,
 				s.twirBus,
 			)

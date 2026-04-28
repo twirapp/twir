@@ -2,6 +2,7 @@ package baseapp
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/exaring/otelpgx"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
@@ -21,6 +23,7 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/otel"
+	"github.com/twirapp/twir/libs/entities/platform"
 	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
@@ -136,6 +139,24 @@ func newPgxPool(cfg config.Config) (PgxResult, error) {
 	connConfig.HealthCheckPeriod = 30 * time.Second
 	connConfig.ConnConfig.Config.ConnectTimeout = 5 * time.Second
 	// connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+
+	connConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		platformType, err := conn.LoadType(ctx, "platform")
+		if err != nil {
+			return fmt.Errorf("load platform type: %w", err)
+		}
+		conn.TypeMap().RegisterType(platformType)
+
+		platformArrayType, err := conn.LoadType(ctx, "_platform")
+		if err != nil {
+			return fmt.Errorf("load _platform type: %w", err)
+		}
+		conn.TypeMap().RegisterType(platformArrayType)
+
+		conn.TypeMap().RegisterDefaultPgType(platform.Platform(""), "platform")
+		conn.TypeMap().RegisterDefaultPgType([]platform.Platform{}, "_platform")
+		return nil
+	}
 
 	pool, err := pgxpool.NewWithConfig(
 		context.Background(),

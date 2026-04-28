@@ -25,7 +25,7 @@ func (c *Activity) TtsSay(
 		return fmt.Errorf("input is required for TTS operation")
 	}
 
-	msg, hydrateErr := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Input, data)
+	msg, hydrateErr := c.hydrator.HydrateStringWithData(data.ChannelID, data.ChannelTwitchUserID, data.ChannelDBID, *operation.Input, data)
 	if hydrateErr != nil {
 		return fmt.Errorf("cannot hydrate string %s", hydrateErr)
 	}

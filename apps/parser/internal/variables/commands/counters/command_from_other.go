@@ -30,7 +30,7 @@ var CommandFromOtherCounter = &types.Variable{
 		cmd := model.ChannelsCommands{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ? AND "name" = ?`, parseCtx.Channel.ID, *variableData.Params).
+			Where(`"channelId" = ?::uuid AND "name" = ?`, parseCtx.Channel.DBChannelID, *variableData.Params).
 			First(&cmd).Error
 
 		if err != nil || cmd.ID == "" {

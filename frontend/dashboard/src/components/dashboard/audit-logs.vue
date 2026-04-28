@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '@/api/auth'
 import { mapOperationTypeToTranslate, mapSystemToTranslate, useAuditLogs } from '@/api/audit-logs'
+import AuditLogUser from '@/components/dashboard/audit-log-user.vue'
 import Card from '@/components/dashboard/card.vue'
 import { Badge, type BadgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -45,6 +46,8 @@ function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVaria
 			return 'default'
 	}
 }
+
+
 
 const { data: profile } = useProfile()
 
@@ -109,16 +112,11 @@ function openPopup() {
 									{{ timeAgo }}
 								</UseTimeAgo>
 							</Badge>
-							<div
+							<AuditLogUser
 								v-if="log.user"
-								class="flex gap-2 items-center shrink-0"
-							>
-								<img
-									class="size-4 rounded-full"
-									:src="log.user.profileImageUrl"
-								/>
-								<span class="truncate">{{ log.user.displayName }}</span>
-							</div>
+								:user="log.user"
+								:platform="log.platform"
+							/>
 							<Badge
 								:variant="computeOperationBadgeVariant(log.operationType)"
 								class="shrink-0"

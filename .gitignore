@@ -46,3 +46,4 @@ apps/*/main
 .sisyphus/evidence/*
 .sisyphus/drafts/*
 worktrees
+.local.md

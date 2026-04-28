@@ -8,6 +8,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 )
@@ -36,19 +37,22 @@ type Pgx struct {
 
 func (c *Pgx) Create(ctx context.Context, input users.CreateInput) (model.User, error) {
 	query := `
-INSERT INTO users (id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at;
+INSERT INTO users (platform, platform_id, "tokenId", "isBotAdmin", is_banned, hide_on_landing_page, login, display_name, avatar)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at, login, display_name, avatar;
 `
 
 	rows, err := c.pool.Query(
 		ctx, query,
-		input.ID,
+		input.Platform,
+		input.PlatformID,
 		input.TokenID,
 		input.IsBotAdmin,
-		input.ApiKey,
 		input.IsBanned,
 		input.HideOnLandingPage,
+		input.Login,
+		input.DisplayName,
+		input.Avatar,
 	)
 	if err != nil {
 		return model.Nil, err
@@ -67,7 +71,7 @@ RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page
 
 func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.User, error) {
 	query := `
-SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
+SELECT id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at, login, display_name, avatar
 FROM users
 WHERE "apiKey" = $1
 LIMIT 1;
@@ -90,7 +94,7 @@ LIMIT 1;
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.User, error) {
 	query := `
-SELECT id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at
+SELECT id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at, login, display_name, avatar
 FROM users
 WHERE id = $1
 `
@@ -111,15 +115,44 @@ WHERE id = $1
 	return user, nil
 }
 
+func (c *Pgx) GetByPlatformID(ctx context.Context, plat platform.Platform, platformUserID string) (model.User, error) {
+	query := `
+SELECT id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at, login, display_name, avatar
+FROM users
+WHERE platform = $1 AND platform_id = $2
+LIMIT 1
+`
+
+	rows, err := c.pool.Query(ctx, query, plat, platformUserID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	user, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.User])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, model.ErrNotFound
+		}
+		return model.Nil, err
+	}
+
+	return user, nil
+}
+
 func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]model.User, error) {
 	selectBuilder := sq.Select(
 		"id",
+		"platform",
+		"platform_id",
 		`"tokenId"`,
 		`"isBotAdmin"`,
 		`"apiKey"`,
 		"is_banned",
 		"hide_on_landing_page",
 		"created_at",
+		"login",
+		"display_name",
+		"avatar",
 	).From("users")
 
 	var page int
@@ -178,7 +211,7 @@ func (c *Pgx) GetOnlineUsersWithFilters(
 		From("users_online").
 		LeftJoin(`users_stats ON users_stats."userId" = "users_online"."userId" AND users_stats."channelId" = "users_online"."channelId"`).
 		Where(squirrel.Eq{`"users_online"."channelId"`: input.ChannelID}).
-		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_online"."userId")`)
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform_id = ui.id WHERE u.id = "users_online"."userId")`)
 
 	// Apply filters
 	if input.MinWatchedTime != nil {
@@ -250,7 +283,19 @@ func (c *Pgx) Update(ctx context.Context, id string, input users.UpdateInput) (m
 		updateBuilder = updateBuilder.Set(`"tokenId"`, input.TokenID)
 	}
 
-	updateBuilder = updateBuilder.Suffix(`RETURNING id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page`)
+	if input.Login != nil {
+		updateBuilder = updateBuilder.Set("login", input.Login)
+	}
+
+	if input.DisplayName != nil {
+		updateBuilder = updateBuilder.Set("display_name", input.DisplayName)
+	}
+
+	if input.Avatar != nil {
+		updateBuilder = updateBuilder.Set("avatar", input.Avatar)
+	}
+
+	updateBuilder = updateBuilder.Suffix(`RETURNING id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at, login, display_name, avatar`)
 
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {
@@ -293,7 +338,7 @@ func (c *Pgx) GetRandomOnlineUser(
 	).
 		From("users_online").
 		Where(squirrel.Eq{`"users_online"."channelId"`: input.ChannelID}).
-		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_online"."userId")`).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform_id = ui.id WHERE u.id = "users_online"."userId")`).
 		Limit(1).
 		Offset(uint64(randCount))
 

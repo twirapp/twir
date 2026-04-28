@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 )
 
@@ -28,6 +29,7 @@ type CreateInput struct {
 	IsRegular        bool
 	Usages           int
 	RolesIDs         []uuid.UUID
+	Platforms        []platform.Platform
 }
 
 type UpdateInput struct {
@@ -40,4 +42,5 @@ type UpdateInput struct {
 	IsRegular        *bool
 	Usages           *int
 	RolesIDs         *[]uuid.UUID
+	Platforms        []platform.Platform
 }

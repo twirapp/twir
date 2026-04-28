@@ -54,7 +54,7 @@ var EmotesUsers = &types.Variable{
 		query := `
 SELECT "userId", "emotes"
 FROM users_stats
-WHERE "channelId" = ? AND emotes > 0
+WHERE "channelId" = ?::uuid AND emotes > 0
 ORDER BY emotes DESC
 LIMIT ?
 OFFSET ?

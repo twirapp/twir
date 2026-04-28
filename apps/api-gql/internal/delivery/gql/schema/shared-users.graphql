@@ -1,6 +1,6 @@
 interface TwirUser {
 	id: ID!
-	twitchProfile: TwirUserTwitchInfo!
+	twitchProfile: TwirUserTwitchInfo
 }
 
 type TwirUserTwitchInfo {

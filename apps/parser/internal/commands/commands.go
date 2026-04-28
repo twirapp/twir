@@ -48,6 +48,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/i18n"
@@ -241,6 +242,7 @@ func (c *Commands) ParseCommandResponses(
 	ctx context.Context,
 	command *FindByMessageResult,
 	requestData twitch.TwitchChatMessage,
+	plat platformentity.Platform,
 	userRoles []model.ChannelRole,
 	userChannelStats *model.UsersStats,
 	dbUser *model.Users,
@@ -285,9 +287,16 @@ func (c *Commands) ParseCommandResponses(
 		},
 	)
 
+	var twitchUserID string
+	if requestData.EnrichedData.DbChannel.TwitchUserID != nil {
+		twitchUserID = requestData.EnrichedData.DbChannel.TwitchUserID.String()
+	}
+
 	parseCtxChannel := &types.ParseContextChannel{
-		ID:   requestData.BroadcasterUserId,
-		Name: requestData.BroadcasterUserLogin,
+		ID:           requestData.BroadcasterUserId,
+		Name:         requestData.BroadcasterUserLogin,
+		TwitchUserID: twitchUserID,
+		DBChannelID:  requestData.EnrichedData.DbChannel.ID.String(),
 	}
 
 	parseCtxSender := &types.ParseContextSender{
@@ -338,6 +347,7 @@ func (c *Commands) ParseCommandResponses(
 
 	parseCtx := &types.ParseContext{
 		MessageId: requestData.MessageId,
+		Platform:  plat,
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,
@@ -504,7 +514,7 @@ func (c *Commands) ParseCommandResponses(
 	return result
 }
 
-func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchChatMessage) (
+func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchChatMessage, plat platformentity.Platform) (
 	*busparser.CommandParseResponse,
 	error,
 ) {
@@ -512,13 +522,14 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		return nil, fmt.Errorf("db user or user channel stats is nil")
 	}
 
+	channelDBID := data.EnrichedData.DbChannel.ID.String()
 	commandsPrefix := data.EnrichedData.ChannelCommandPrefix
 
 	if !strings.HasPrefix(data.Message.Text, commandsPrefix) {
 		return nil, nil
 	}
 
-	cmds, err := c.GetChannelCommands(ctx, data.BroadcasterUserId)
+	cmds, err := c.GetChannelCommands(ctx, channelDBID)
 	if err != nil {
 		return nil, err
 	}
@@ -544,7 +555,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				return nil, err
 			}
 
-			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+			if err := c.services.CommandsCache.Invalidate(ctx, channelDBID); err != nil {
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
@@ -558,7 +569,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				return nil, err
 			}
 
-			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+			if err := c.services.CommandsCache.Invalidate(ctx, channelDBID); err != nil {
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
@@ -582,16 +593,8 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	}
 
 	if len(cmd.Cmd.EnabledCategories) != 0 {
-		stream := &model.ChannelsStreams{}
-		err = c.services.Gorm.
-			WithContext(ctx).
-			Where(`"userId" = ?`, data.BroadcasterUserId).
-			Find(stream).Error
-		if err != nil {
-			return nil, err
-		}
-
-		if stream.ID != "" {
+		stream := data.EnrichedData.ChannelStream
+		if stream != nil && stream.ID != "" {
 			if !lo.ContainsBy(
 				cmd.Cmd.EnabledCategories,
 				func(category string) bool {
@@ -603,10 +606,14 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		}
 	}
 
+	if !platformentity.ShouldExecute(cmd.Cmd.Platforms, plat) {
+		return nil, nil
+	}
+
 	_, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
 		ctx,
-		data.ChatterUserId,
-		data.BroadcasterUserId,
+		data.EnrichedData.DbUser.ID,
+		channelDBID,
 		data,
 		cmd.Cmd,
 	)
@@ -620,7 +627,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		cdResult, err := c.checkRoleBasedCooldown(
 			ctx,
 			*cmd.Cmd,
-			data.BroadcasterUserId,
+			channelDBID,
 			userRoles,
 		)
 		if err != nil {
@@ -676,7 +683,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 			withoutCancel,
 			events.CommandUsedMessage{
 				BaseInfo: events.BaseInfo{
-					ChannelID:   data.BroadcasterUserId,
+					ChannelID:   channelDBID,
 					ChannelName: data.BroadcasterUserLogin,
 				},
 				CommandID:          cmd.Cmd.ID.String(),
@@ -694,7 +701,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		alert := model.ChannelAlert{}
 		if err := c.services.Gorm.WithContext(withoutCancel).Where(
 			"channel_id = ? AND command_ids && ?",
-			data.BroadcasterUserId,
+			channelDBID,
 			pq.StringArray{cmd.Cmd.ID.String()},
 		).Find(&alert).Error; err != nil {
 			zap.S().Error(err)
@@ -707,7 +714,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		c.services.GrpcClients.WebSockets.TriggerAlert(
 			withoutCancel,
 			&websockets.TriggerAlertRequest{
-				ChannelId: data.BroadcasterUserId,
+				ChannelId: channelDBID,
 				AlertId:   alert.ID,
 			},
 		)
@@ -718,6 +725,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		ctx,
 		cmd,
 		data,
+		plat,
 		userRoles,
 		dbUser.Stats,
 		dbUser,

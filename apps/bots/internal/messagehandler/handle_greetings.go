@@ -75,15 +75,22 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		}
 	}
 
+	var twitchUserID string
+	if msg.EnrichedData.DbChannel.TwitchUserID != nil {
+		twitchUserID = msg.EnrichedData.DbChannel.TwitchUserID.String()
+	}
+
 	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID:   msg.BroadcasterUserId,
-			ChannelName: msg.BroadcasterUserLogin,
-			Text:        greeting.Text,
-			UserID:      msg.ChatterUserId,
-			UserLogin:   msg.ChatterUserLogin,
-			UserName:    msg.ChatterUserName,
-			Mentions:    mentions,
+			ChannelID:           msg.BroadcasterUserId,
+			ChannelName:         msg.BroadcasterUserLogin,
+			ChannelTwitchUserID: twitchUserID,
+			ChannelDBID:         msg.EnrichedData.DbChannel.ID.String(),
+			Text:                greeting.Text,
+			UserID:              msg.ChatterUserId,
+			UserLogin:           msg.ChatterUserLogin,
+			UserName:            msg.ChatterUserName,
+			Mentions:            mentions,
 		},
 	)
 	if err != nil {

@@ -7,9 +7,13 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/events/internal/shared"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channels "github.com/twirapp/twir/libs/repositories/channels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.temporal.io/sdk/activity"
 )
@@ -61,11 +65,11 @@ func (c *Activity) setWorkflowExecutionState(
 	return nil
 }
 
-func (c *Activity) getHelixChannelApiClient(ctx context.Context, channelId string) (
+func (c *Activity) getHelixChannelApiClient(ctx context.Context, twitchUserID string) (
 	*helix.Client,
 	error,
 ) {
-	return twitch.NewUserClientWithContext(ctx, channelId, c.cfg, c.bus)
+	return twitch.NewUserClientWithContext(ctx, twitchUserID, c.cfg, c.bus)
 }
 
 func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
@@ -76,7 +80,7 @@ func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
 }
 
 // should be used with broadcaster channel client, otherwise it will return error
-func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
+func (c *Activity) getChannelMods(client *helix.Client, twitchPlatformID string) (
 	[]helix.Moderator,
 	error,
 ) {
@@ -86,7 +90,7 @@ func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
 	for {
 		modsReq, err := client.GetModerators(
 			&helix.GetModeratorsParams{
-				BroadcasterID: channelId,
+				BroadcasterID: twitchPlatformID,
 				After:         cursor,
 			},
 		)
@@ -109,7 +113,7 @@ func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
 	return moderators, nil
 }
 
-func (c *Activity) getChannelVips(client *helix.Client, channelId string) (
+func (c *Activity) getChannelVips(client *helix.Client, twitchPlatformID string) (
 	[]helix.ChannelVips,
 	error,
 ) {
@@ -119,7 +123,7 @@ func (c *Activity) getChannelVips(client *helix.Client, channelId string) (
 	for {
 		vipsReq, err := client.GetChannelVips(
 			&helix.GetChannelVipsParams{
-				BroadcasterID: channelId,
+				BroadcasterID: twitchPlatformID,
 				After:         cursor,
 			},
 		)
@@ -145,13 +149,90 @@ func (c *Activity) getChannelDbEntity(ctx context.Context, channelId string) (
 	model.Channels,
 	error,
 ) {
-	channel := model.Channels{}
-	err := c.db.WithContext(ctx).Where(`"id" = ?`, channelId).First(&channel).Error
+	channelInfo, err := c.getChannelRuntimeInfo(ctx, channelId)
 	if err != nil {
-		return channel, err
+		return model.Channels{}, err
 	}
 
-	return channel, nil
+	return model.Channels{
+		ID:    channelInfo.BroadcasterUserID,
+		BotID: channelInfo.BotID,
+	}, nil
+}
+
+func (c *Activity) getChannelRuntimeInfo(ctx context.Context, channelId string) (channelRuntimeInfo, error) {
+	channelUUID, err := uuid.Parse(channelId)
+	if err == nil {
+		return c.getChannelRuntimeInfoByChannelUUID(ctx, channelUUID)
+	}
+
+	return c.getChannelRuntimeInfoByTwitchBroadcasterID(ctx, channelId)
+}
+
+func (c *Activity) getChannelRuntimeInfoByChannelUUID(
+	ctx context.Context,
+	channelUUID uuid.UUID,
+) (channelRuntimeInfo, error) {
+	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
+	if err != nil {
+		if errors.Is(err, channels.ErrNotFound) {
+			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
+		}
+
+		return channelRuntimeInfo{}, err
+	}
+
+	var broadcasterUserID string
+	if channel.TwitchUserID != nil {
+		broadcasterUserID = *channel.TwitchPlatformID
+	}
+
+	var twitchPlatformID string
+	if channel.TwitchPlatformID != nil {
+		twitchPlatformID = *channel.TwitchPlatformID
+	}
+
+	return channelRuntimeInfo{
+		ChannelID:         channel.ID.String(),
+		BroadcasterUserID: broadcasterUserID,
+		TwitchPlatformID:  twitchPlatformID,
+		BotID:             channel.BotID,
+	}, nil
+}
+
+func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
+	ctx context.Context,
+	twitchBroadcasterID string,
+) (channelRuntimeInfo, error) {
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchBroadcasterID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
+		}
+
+		return channelRuntimeInfo{}, err
+	}
+
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return channelRuntimeInfo{}, fmt.Errorf("parse user id: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
+	if err != nil {
+		if errors.Is(err, channels.ErrNotFound) {
+			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
+		}
+
+		return channelRuntimeInfo{}, err
+	}
+
+	return channelRuntimeInfo{
+		ChannelID:         channel.ID.String(),
+		BroadcasterUserID: user.ID,
+		TwitchPlatformID:  twitchBroadcasterID,
+		BotID:             channel.BotID,
+	}, nil
 }
 
 func (c *Activity) getHelixUserByLogin(client *helix.Client, userLogin string) (helix.User, error) {

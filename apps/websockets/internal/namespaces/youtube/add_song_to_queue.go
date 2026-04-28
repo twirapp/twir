@@ -16,7 +16,7 @@ func (c *YouTube) AddSongToQueue(_ context.Context, msg *websockets.YoutubeAddSo
 	*emptypb.Empty, error,
 ) {
 	song := &model.RequestedSong{}
-	err := c.gorm.Where("id = ?", msg.EntityId).First(song).Error
+	err := c.gorm.Where("id = ?::uuid", msg.EntityId).First(song).Error
 
 	if err != nil {
 		c.logger.Error(err.Error())

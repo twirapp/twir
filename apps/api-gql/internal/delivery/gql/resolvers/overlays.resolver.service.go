@@ -701,7 +701,6 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 
 	npService, err := now_playing_fetcher.New(
 		now_playing_fetcher.Opts{
-			Gorm:              r.deps.Gorm,
 			ChannelID:         user.ID,
 			Kv:                r.deps.KV,
 			Logger:            r.deps.Logger,
@@ -709,6 +708,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 			LastfmRepository:  r.deps.LastfmRepository,
 			VKRepository:      r.deps.VKIntegrationRepository,
 			Config:            r.deps.Config,
+			TwirBus:           r.deps.TwirBus,
 		},
 	)
 	if err != nil {

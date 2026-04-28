@@ -5,16 +5,22 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 type User struct {
 	ID                string
+	Platform          platform.Platform
+	PlatformID        string
 	TokenID           null.String
 	IsBotAdmin        bool
 	ApiKey            string
 	IsBanned          bool
 	HideOnLandingPage bool
 	CreatedAt         time.Time
+	Login             string
+	DisplayName       string
+	Avatar            string
 
 	isNil bool
 }

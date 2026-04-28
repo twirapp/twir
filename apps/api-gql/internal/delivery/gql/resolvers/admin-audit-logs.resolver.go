@@ -8,7 +8,6 @@ package resolvers
 import (
 	"context"
 
-	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
@@ -23,7 +22,22 @@ func (r *adminAuditLogResolver) User(ctx context.Context, obj *gqlmodel.AdminAud
 		return nil, nil
 	}
 
-	return data_loader.GetHelixUserById(ctx, *obj.UserID)
+	profile, _, err := resolveUserProfile(ctx, r.Resolver, *obj.UserID)
+	return profile, err
+}
+
+// UserPlatform is the resolver for the userPlatform field.
+func (r *adminAuditLogResolver) UserPlatform(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*string, error) {
+	if obj.UserID == nil {
+		return nil, nil
+	}
+
+	_, platform, err := resolveUserProfile(ctx, r.Resolver, *obj.UserID)
+	if err != nil || platform == "" {
+		return nil, err
+	}
+
+	return &platform, nil
 }
 
 // Channel is the resolver for the channel field.
@@ -32,7 +46,22 @@ func (r *adminAuditLogResolver) Channel(ctx context.Context, obj *gqlmodel.Admin
 		return nil, nil
 	}
 
-	return data_loader.GetHelixUserById(ctx, *obj.ChannelID)
+	profile, _, err := resolveChannelProfile(ctx, r.Resolver, *obj.ChannelID)
+	return profile, err
+}
+
+// ChannelPlatform is the resolver for the channelPlatform field.
+func (r *adminAuditLogResolver) ChannelPlatform(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*string, error) {
+	if obj.ChannelID == nil {
+		return nil, nil
+	}
+
+	_, platform, err := resolveChannelProfile(ctx, r.Resolver, *obj.ChannelID)
+	if err != nil || platform == "" {
+		return nil, err
+	}
+
+	return &platform, nil
 }
 
 // AdminAuditLogs is the resolver for the adminAuditLogs field.
@@ -40,11 +69,11 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 	var page int
 	perPage := 20
 
-	if input.Page.IsSet() {
+	if input.Page.IsSet() && input.Page.Value() != nil && *input.Page.Value() >= 0 {
 		page = *input.Page.Value()
 	}
 
-	if input.PerPage.IsSet() {
+	if input.PerPage.IsSet() && input.PerPage.Value() != nil && *input.PerPage.Value() > 0 {
 		perPage = *input.PerPage.Value()
 	}
 
@@ -68,7 +97,7 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 	if input.System.IsSet() {
 		systems := make([]string, 0, len(input.System.Value()))
 		for _, s := range input.System.Value() {
-			systems = append(systems, s.String())
+			systems = append(systems, mappers.AuditSystemToTableName(s))
 		}
 
 		logsInput.Systems = systems
@@ -105,7 +134,17 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 		)
 	}
 
-	total, err := r.deps.AuditLogsService.Count(ctx, audit_logs.GetCountInput{})
+	countInput := audit_logs.GetCountInput{
+		ChannelID: logsInput.ChannelID,
+		ActorID:   logsInput.ActorID,
+		ObjectID:  logsInput.ObjectID,
+		Systems:   logsInput.Systems,
+	}
+	if len(logsInput.OperationTypes) > 0 {
+		countInput.OperationTypes = logsInput.OperationTypes
+	}
+
+	total, err := r.deps.AuditLogsService.Count(ctx, countInput)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}

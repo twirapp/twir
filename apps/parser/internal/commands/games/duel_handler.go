@@ -42,7 +42,7 @@ func (c *duelHandler) getChannelSettings(ctx context.Context) (
 
 func (c *duelHandler) createHelixClient() (*helix.Client, error) {
 	client, err := twitch.NewUserClient(
-		c.parseCtx.Channel.ID,
+		c.parseCtx.Channel.TwitchUserID,
 		*c.parseCtx.Services.Config,
 		c.parseCtx.Services.Bus,
 	)

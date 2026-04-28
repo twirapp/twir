@@ -9,6 +9,7 @@ import (
 	"context"
 	"slices"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
@@ -26,7 +27,20 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 		channelIdForRequest = *channelID
 	}
 
-	rewards, err := r.deps.CachedTwitchClient.GetChannelRewards(ctx, channelIdForRequest)
+	parsedID, err := uuid.Parse(channelIdForRequest)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+	if channel.IsNil() || !channel.TwitchConnected() {
+		return nil, nil
+	}
+
+	rewards, err := r.deps.CachedTwitchClient.GetChannelRewards(ctx, *channel.TwitchPlatformID, *channel.TwitchPlatformID)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}

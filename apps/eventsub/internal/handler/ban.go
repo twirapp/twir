@@ -2,17 +2,21 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
-	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
+	platform "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func (c *Handler) handleModerateActionBan(
@@ -33,23 +37,46 @@ func (c *Handler) handleModerateActionBan(
 	}
 
 	go func() {
-		channel := deprecatedmodel.Channels{}
-		if err := c.gorm.
-			WithContext(ctx).
-			Where(`"id" = ?`, event.BroadcasterUserID).
-			First(&channel).
-			Error; err != nil {
-			c.logger.Error("channel not found", logger.Error(err))
+		user, err := c.usersRepo.GetByPlatformID(
+			ctx,
+			platform.PlatformTwitch,
+			event.BroadcasterUserID,
+		)
+		if err != nil {
+			if errors.Is(err, usersmodel.ErrNotFound) {
+				c.logger.Error("cannot find user for broadcaster", logger.Error(err))
+			} else {
+				c.logger.Error("cannot resolve broadcaster user", logger.Error(err))
+			}
 			return
 		}
 
-		if channel.BotID == userId {
-			channel.IsEnabled = false
-			if err := c.gorm.WithContext(ctx).Save(&channel).Error; err != nil {
-				c.logger.Error("failed to disable channel", logger.Error(err))
+		userUUID, err := uuid.Parse(user.ID)
+		if err != nil {
+			c.logger.Error("cannot parse user ID as UUID", logger.Error(err))
+			return
+		}
+
+		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
+		if err != nil {
+			if errors.Is(err, channelsrepository.ErrNotFound) {
+				return
 			}
 
+			c.logger.Error("failed to get channel", logger.Error(err))
 			return
+		}
+
+		isEnabled := false
+
+		channel, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsEnabled: &isEnabled})
+		if err != nil {
+			c.logger.Error("failed to disable channel", logger.Error(err))
+			return
+		}
+
+		if err := c.channelsCache.Invalidate(ctx, channel.ID.String()); err != nil {
+			c.logger.Error("failed to invalidate channel cache", logger.Error(err))
 		}
 	}()
 
@@ -76,6 +103,7 @@ func (c *Handler) handleModerateActionBan(
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserID,
 				ChannelName: event.BroadcasterUserLogin,
+				Platform:    platform.PlatformTwitch,
 			},
 			UserName:             userName,
 			UserLogin:            userLogin,
@@ -94,6 +122,7 @@ func (c *Handler) handleModerateActionBan(
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserID,
 			UserID:    &userId,
+			Platform:  platform.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeChannelBan,
 			Data: &model.ChannelsEventsListItemData{
 				BanReason:            reason,

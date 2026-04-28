@@ -22,6 +22,21 @@ type Spotify struct {
 	isRetry            bool
 }
 
+func NewStatic(accessToken string, scopes []string) *Spotify {
+	if accessToken == "" {
+		return nil
+	}
+
+	service := Spotify{
+		channelIntegration: model.ChannelIntegrationSpotify{
+			AccessToken: accessToken,
+			Scopes:      scopes,
+		},
+	}
+
+	return &service
+}
+
 func New(
 	integration deprecatedgormmodel.Integrations,
 	channelIntegration model.ChannelIntegrationSpotify,
@@ -47,6 +62,10 @@ type spotifyRefreshResponse struct {
 }
 
 func (c *Spotify) refreshToken(ctx context.Context) error {
+	if !c.canRefresh() {
+		return fmt.Errorf("spotify token refresh is not available")
+	}
+
 	formData := url.Values{}
 	formData.Set("grant_type", "refresh_token")
 	formData.Set("refresh_token", c.channelIntegration.RefreshToken)
@@ -102,4 +121,10 @@ func (c *Spotify) refreshToken(ctx context.Context) error {
 	c.channelIntegration.AccessToken = data.AccessToken
 
 	return nil
+}
+
+func (c *Spotify) canRefresh() bool {
+	return c.repo != nil &&
+		c.channelIntegration.RefreshToken != "" &&
+		c.integration.ClientID.Valid && c.integration.ClientSecret.Valid
 }

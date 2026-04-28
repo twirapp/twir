@@ -18,6 +18,7 @@ import { usePagination } from '@/composables/use-pagination.js'
 import AuditTableValue from '@/features/admin-panel/audit-logs/ui/audit-table-value.vue'
 import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 import { AuditOperationType } from '@/gql/graphql'
+import { resolveProfile } from '@/helpers/resolveProfile.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
 function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVariants['variant'] {
@@ -71,15 +72,20 @@ export const useAuditTable = createGlobalState(() => {
 					return null
 				}
 
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.channel.login}`,
-					target: '_blank',
-				}, h(UsersTableCellUser, {
-					avatar: row.original.channel.profileImageUrl,
-					name: row.original.channel.login,
-					displayName: row.original.channel.displayName,
-				}))
+			const profile = resolveProfile({
+				profileImageUrl: row.original.channel.profileImageUrl,
+				displayName: row.original.channel.displayName,
+				login: row.original.channel.login,
+				platform: row.original.channelPlatform ?? undefined,
+				notFound: row.original.channel.notFound,
+			})
+
+				return h(UsersTableCellUser, {
+					avatar: profile.avatar,
+					name: profile.login,
+					displayName: profile.displayName,
+					url: profile.url,
+				})
 			},
 		},
 		{
@@ -92,15 +98,20 @@ export const useAuditTable = createGlobalState(() => {
 					return null
 				}
 
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.user.login}`,
-					target: '_blank',
-				}, h(UsersTableCellUser, {
-					avatar: row.original.user.profileImageUrl,
-					name: row.original.user.login,
-					displayName: row.original.user.displayName,
-				}))
+			const profile = resolveProfile({
+				profileImageUrl: row.original.user.profileImageUrl,
+				displayName: row.original.user.displayName,
+				login: row.original.user.login,
+				platform: row.original.userPlatform ?? undefined,
+				notFound: row.original.user.notFound,
+			})
+
+				return h(UsersTableCellUser, {
+					avatar: profile.avatar,
+					name: profile.login,
+					displayName: profile.displayName,
+					url: profile.url,
+				})
 			},
 		},
 		{

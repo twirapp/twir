@@ -6,7 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sync"
 	"syscall"
+	"time"
 
 	"github.com/pterm/pterm"
 	"github.com/twirapp/twir/cli/internal/shell"
@@ -22,6 +24,9 @@ type TwirGoApp struct {
 	Port         *int
 	OnPortReady  func()
 	DebugPort    int
+	mu           sync.Mutex
+	stdout       *shell.PrefixWriter
+	stderr       *shell.PrefixWriter
 }
 
 func NewApplication(name string, enableDebug bool, port *int, debugPort int, onPortReady func()) (
@@ -42,6 +47,8 @@ func NewApplication(name string, enableDebug bool, port *int, debugPort int, onP
 		Port:         port,
 		OnPortReady:  onPortReady,
 		DebugPort:    debugPort,
+		stdout:       shell.StdoutFor(name),
+		stderr:       shell.StderrFor(name),
 	}
 
 	cmd, err := app.CreateAppCommand()
@@ -54,18 +61,19 @@ func NewApplication(name string, enableDebug bool, port *int, debugPort int, onP
 }
 
 func (c *TwirGoApp) Stop() error {
-	if c.Cmd != nil && c.Cmd.Process != nil {
-		if err := c.Cmd.Process.Signal(syscall.SIGTERM); err != nil {
-			return err
-		}
-	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
+	c.stopLocked()
 	return nil
 }
 
 func (c *TwirGoApp) Start() error {
-	if err := c.Stop(); err != nil {
-		return err
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.Cmd != nil {
+		c.stopLocked()
 	}
 
 	if err := c.Build(); err != nil {
@@ -84,6 +92,49 @@ func (c *TwirGoApp) Start() error {
 	}()
 
 	return c.Cmd.Start()
+}
+
+func (c *TwirGoApp) stopLocked() {
+	if c.Cmd == nil || c.Cmd.Process == nil {
+		return
+	}
+
+	pid := c.Cmd.Process.Pid
+
+	pgid, err := syscall.Getpgid(pid)
+	if err == nil {
+		syscall.Kill(-pgid, syscall.SIGTERM)
+	} else {
+		c.Cmd.Process.Signal(syscall.SIGTERM)
+	}
+
+	done := make(chan error, 1)
+	go func() {
+		done <- c.Cmd.Wait()
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		if pgid != 0 {
+			syscall.Kill(-pgid, syscall.SIGKILL)
+		} else {
+			c.Cmd.Process.Kill()
+		}
+		<-done
+	}
+
+	orphanKill := exec.Command("pkill", "-9", "-f", c.getAppPath())
+	orphanKill.Run()
+
+	if c.stdout != nil {
+		c.stdout.Flush()
+	}
+	if c.stderr != nil {
+		c.stderr.Flush()
+	}
+
+	c.Cmd = nil
 }
 
 func (c *TwirGoApp) getAppPath() string {
@@ -140,6 +191,8 @@ func (c *TwirGoApp) CreateAppCommand() (*exec.Cmd, error) {
 		return nil, err
 	}
 
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
 	return cmd, nil
 }
 
@@ -151,6 +204,7 @@ func (c *TwirGoApp) waitPortReady() {
 	for {
 		_, err := net.Dial("tcp", fmt.Sprintf("127.0.0.1:%d", *c.Port))
 		if err != nil {
+			time.Sleep(100 * time.Millisecond)
 			continue
 		}
 

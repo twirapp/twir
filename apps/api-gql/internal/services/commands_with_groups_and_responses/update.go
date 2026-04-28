@@ -3,6 +3,7 @@ package commands_with_groups_and_responses
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/libs/audit"
 	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	commandmodel "github.com/twirapp/twir/libs/repositories/commands/model"
@@ -46,6 +48,7 @@ type UpdateInput struct {
 	ExpiresType               *string
 	Responses                 []UpdateInputResponse
 	RoleCooldowns             []UpdateInputRoleCooldown
+	Platforms                 []platform.Platform
 }
 
 type UpdateInputResponse struct {
@@ -146,6 +149,7 @@ func (c *Service) Update(
 		GroupID:                   input.GroupID,
 		ExpiresAt:                 input.ExpiresAt,
 		ExpiresType:               input.ExpiresType,
+		Platforms:                 input.Platforms,
 	}
 
 	var newCmd model.CommandWithGroupAndResponses
@@ -229,7 +233,7 @@ func (c *Service) Update(
 	}
 
 	if err := c.cachedCommandsClient.Invalidate(ctx, input.ChannelID); err != nil {
-		c.logger.Error("failed to invalidate cached commands", err)
+		c.logger.Error("failed to invalidate cached commands", slog.Any("error", err))
 	}
 
 	_ = c.auditRecorder.RecordUpdateOperation(

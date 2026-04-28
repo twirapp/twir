@@ -40,7 +40,7 @@ var Remove = &types.DefaultCommand{
 		error,
 	) {
 		twitchClient, err := twitch.NewUserClient(
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)

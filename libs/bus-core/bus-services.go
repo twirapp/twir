@@ -8,6 +8,7 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -25,6 +26,7 @@ type auditLogsBus struct {
 type parserBus struct {
 	GetCommandResponse      Queue[twitch.TwitchChatMessage, parser.CommandParseResponse]
 	ProcessMessageAsCommand Queue[twitch.TwitchChatMessage, struct{}]
+	ProcessGenericMessage   Queue[generic.ChatMessage, struct{}]
 	ParseVariablesInText    Queue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
 	GetBuiltInVariables     Queue[struct{}, []parser.BuiltInVariable]
 	GetDefaultCommands      Queue[struct{}, parser.GetDefaultCommandsResponse]
@@ -83,10 +85,11 @@ type giveawaysBus struct {
 }
 
 type tokensBus struct {
-	RequestAppToken  Queue[struct{}, tokens.TokenResponse]
-	RequestUserToken Queue[tokens.GetUserTokenRequest, tokens.TokenResponse]
-	RequestBotToken  Queue[tokens.GetBotTokenRequest, tokens.TokenResponse]
-	UpdateToken      Queue[tokens.UpdateTokenRequest, struct{}]
+	RequestAppToken                Queue[tokens.GetAppTokenRequest, tokens.TokenResponse]
+	RequestUserToken               Queue[tokens.GetUserTokenRequest, tokens.TokenResponse]
+	RequestBotToken                Queue[tokens.GetBotTokenRequest, tokens.TokenResponse]
+	RequestChannelIntegrationToken Queue[tokens.GetChannelIntegrationTokenRequest, tokens.TokenResponse]
+	UpdateToken                    Queue[tokens.UpdateTokenRequest, struct{}]
 }
 
 type integrationsBus struct {

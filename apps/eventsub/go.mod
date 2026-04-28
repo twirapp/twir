@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/eventsub
 
-go 1.26.0
+go 1.26.1
 
 require (
 	github.com/avast/retry-go/v4 v4.7.0
@@ -55,6 +55,7 @@ require (
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-redis/redismock/v9 v9.2.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/mock v1.7.0-rc.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.4 // indirect
@@ -98,6 +99,7 @@ require (
 	github.com/samber/slog-sentry/v2 v2.10.1 // indirect
 	github.com/samber/slog-zerolog/v2 v2.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/scorfly/gokick v1.17.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twirapp/kv v0.5.1 // indirect

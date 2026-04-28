@@ -3,11 +3,13 @@ package users
 import (
 	"context"
 
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type Repository interface {
 	GetByID(ctx context.Context, id string) (model.User, error)
+	GetByPlatformID(ctx context.Context, plat platform.Platform, platformUserID string) (model.User, error)
 	GetManyByIDS(ctx context.Context, input GetManyInput) ([]model.User, error)
 	Update(ctx context.Context, id string, input UpdateInput) (model.User, error)
 	GetRandomOnlineUser(ctx context.Context, input GetRandomOnlineUserInput) (model.OnlineUser, error)
@@ -30,6 +32,9 @@ type UpdateInput struct {
 	ApiKey            *string
 	HideOnLandingPage *bool
 	TokenID           *string
+	Login             *string
+	DisplayName       *string
+	Avatar            *string
 }
 
 type GetRandomOnlineUserInput struct {
@@ -45,10 +50,13 @@ type GetOnlineUsersWithFiltersInput struct {
 }
 
 type CreateInput struct {
-	ID                string
-	ApiKey            *string
+	Platform          platform.Platform
+	PlatformID        string
 	IsBotAdmin        bool
 	IsBanned          bool
 	HideOnLandingPage bool
 	TokenID           *string
+	Login             string
+	DisplayName       string
+	Avatar            string
 }

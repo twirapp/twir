@@ -8,6 +8,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
@@ -40,6 +41,7 @@ func (c *Handler) HandleChannelFollow(
 		channelseventslist.CreateInput{
 			ChannelID: event.BroadcasterUserId,
 			UserID:    &event.UserId,
+			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeFollow,
 			Data: &model.ChannelsEventsListItemData{
 				FollowUserName:        event.UserLogin,
@@ -56,6 +58,7 @@ func (c *Handler) HandleChannelFollow(
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserId,
 				ChannelName: event.BroadcasterUserLogin,
+				Platform:    platformentity.PlatformTwitch,
 			},
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,

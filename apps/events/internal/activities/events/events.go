@@ -9,8 +9,11 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
@@ -26,11 +29,14 @@ type Opts struct {
 	WebsocketsGrpc      websockets.WebsocketClient
 	Hydrator            *hydrator.Hydrator
 	Bus                 *bus_core.Bus
+	ChannelsRepository  channelsrepository.Repository
+	CommandsRepository  commandsrepository.Repository
 	GreetingsRepository greetings.Repository
 	VariablesRepository variables.Repository
 	TTSRepository       overlays_tts.Repository
 	TTSCache            *generic_cacher.GenericCacher[modules.TTSSettings]
 	Logger              *slog.Logger
+	UsersRepository     usersrepository.Repository
 }
 
 func New(opts Opts) *Activity {
@@ -41,11 +47,14 @@ func New(opts Opts) *Activity {
 		websocketsGrpc:      opts.WebsocketsGrpc,
 		bus:                 opts.Bus,
 		hydrator:            opts.Hydrator,
+		channelsRepo:        opts.ChannelsRepository,
+		commandsRepo:        opts.CommandsRepository,
 		greetingsRepository: opts.GreetingsRepository,
 		variablesRepository: opts.VariablesRepository,
 		ttsRepository:       opts.TTSRepository,
 		ttsCache:            opts.TTSCache,
 		logger:              opts.Logger,
+		usersRepo:           opts.UsersRepository,
 	}
 }
 
@@ -56,9 +65,19 @@ type Activity struct {
 	websocketsGrpc      websockets.WebsocketClient
 	hydrator            *hydrator.Hydrator
 	bus                 *bus_core.Bus
+	channelsRepo        channelsrepository.Repository
+	commandsRepo        commandsrepository.Repository
 	greetingsRepository greetings.Repository
 	variablesRepository variables.Repository
 	ttsRepository       overlays_tts.Repository
 	ttsCache            *generic_cacher.GenericCacher[modules.TTSSettings]
 	logger              *slog.Logger
+	usersRepo           usersrepository.Repository
+}
+
+type channelRuntimeInfo struct {
+	ChannelID         string
+	BroadcasterUserID string
+	TwitchPlatformID  string
+	BotID             string
 }

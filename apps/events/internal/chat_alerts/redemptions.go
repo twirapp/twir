@@ -41,7 +41,9 @@ func (c *ChatAlerts) redemption(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
+			ChannelName:      lo.If(req.BaseInfo.ChannelName != "", &req.BaseInfo.ChannelName).Else(nil),
 			ChannelId:      req.BaseInfo.ChannelID,
+			Platform:       req.BaseInfo.Platform.String(),
 			Message:        text,
 			SkipRateLimits: true,
 		},

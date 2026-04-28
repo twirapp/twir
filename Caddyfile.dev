@@ -5,9 +5,8 @@
 	}
 }
 
-{$SITE_BASE_URL} dev.twir.app http://localhost:3005 {
+{$SITE_BASE_URL} http://localhost:3005 {
     reverse_proxy http://127.0.0.1:3010
-    tls internal
 
     handle_path /api/* {
         reverse_proxy 127.0.0.1:3009
@@ -36,6 +35,11 @@
         reverse_proxy http://127.0.0.1:3006
     }
 
+    handle_path /webhook/kick* {
+				rewrite * /webhook/kick{path}
+				reverse_proxy http://127.0.0.1:3030
+    }
+
     handle_path /s* {
 				rewrite * /v1/short-links{path}
 				reverse_proxy http://127.0.0.1:3009
@@ -43,7 +47,7 @@
 }
 
 :443 {
-	@customDomain not host {$SITE_BASE_URL} dev.twir.app http://localhost:3005
+	@customDomain not host {$SITE_BASE_URL} http://localhost:3005
 
 	tls {
 		on_demand

@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
@@ -349,77 +350,11 @@ func (s *Service) Logout(ctx context.Context, channelID string) error {
 	return nil
 }
 
-func (s *Service) refreshNightbotTokens(
-	ctx context.Context,
-	integration integrationsmodel.Integration,
-	channelIntegration channelsintegrationsmodel.ChannelIntegration,
-) error {
-	if channelIntegration.RefreshToken == nil {
-		return fmt.Errorf("no refresh token available")
-	}
-
-	formData := url.Values{}
-	formData.Set("grant_type", "refresh_token")
-	formData.Set("client_id", *integration.ClientID)
-	formData.Set("client_secret", *integration.ClientSecret)
-	formData.Set("refresh_token", *channelIntegration.RefreshToken)
-
-	httpReq, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		"https://api.nightbot.tv/oauth2/token",
-		strings.NewReader(formData.Encode()),
-	)
-	if err != nil {
-		return fmt.Errorf("failed to create refresh request: %w", err)
-	}
-	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := http.DefaultClient.Do(httpReq)
-	if err != nil {
-		return fmt.Errorf("failed to refresh tokens: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("nightbot refresh error: %s", string(bodyBytes))
-	}
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read refresh response: %w", err)
-	}
-
-	refreshData := nightbotTokensResponse{}
-	if err := json.Unmarshal(bodyBytes, &refreshData); err != nil {
-		return fmt.Errorf("failed to unmarshal refresh response: %w", err)
-	}
-
-	err = s.channelIntegrationsRepo.Update(
-		ctx, channelIntegration.ID, channelsintegrations.UpdateInput{
-			Enabled:      lo.ToPtr(true),
-			AccessToken:  &refreshData.AccessToken,
-			RefreshToken: &refreshData.RefreshToken,
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to update tokens: %w", err)
-	}
-
-	return nil
-}
-
 func (s *Service) ImportCommands(
 	ctx context.Context,
 	channelID string,
 	actorID string,
 ) (*ImportCommandsResult, error) {
-	integration, err := s.integrationsRepo.GetByService(ctx, integrationsmodel.ServiceNightbot)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get integration: %w", err)
-	}
-
 	channelIntegration, err := s.channelIntegrationsRepo.GetByChannelAndService(
 		ctx,
 		channelID,
@@ -433,6 +368,21 @@ func (s *Service) ImportCommands(
 		return nil, fmt.Errorf("enable nightbot integration first")
 	}
 
+	accessToken := *channelIntegration.AccessToken
+	if channelIntegration.RefreshToken != nil {
+		tokenResp, err := s.twirBus.Tokens.RequestChannelIntegrationToken.Request(
+			ctx,
+			buscoretokens.GetChannelIntegrationTokenRequest{
+				ChannelID: channelID,
+				Service:   integrationsmodel.ServiceNightbot,
+			},
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get nightbot token: %w", err)
+		}
+		accessToken = tokenResp.Data.AccessToken
+	}
+
 	httpReq, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
@@ -442,20 +392,13 @@ func (s *Service) ImportCommands(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create commands request: %w", err)
 	}
-	httpReq.Header.Set("Authorization", "Bearer "+*channelIntegration.AccessToken)
+	httpReq.Header.Set("Authorization", "Bearer "+accessToken)
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get commands: %w", err)
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusUnauthorized {
-		if err := s.refreshNightbotTokens(ctx, integration, channelIntegration); err != nil {
-			return nil, fmt.Errorf("failed to refresh tokens: %w", err)
-		}
-		return s.ImportCommands(ctx, channelID, actorID)
-	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		bodyBytes, _ := io.ReadAll(resp.Body)
@@ -651,11 +594,6 @@ func (s *Service) ImportTimers(
 	channelID string,
 	actorID string,
 ) (*ImportTimersResult, error) {
-	integration, err := s.integrationsRepo.GetByService(ctx, integrationsmodel.ServiceNightbot)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get integration: %w", err)
-	}
-
 	channelIntegration, err := s.channelIntegrationsRepo.GetByChannelAndService(
 		ctx,
 		channelID,
@@ -669,6 +607,21 @@ func (s *Service) ImportTimers(
 		return nil, fmt.Errorf("enable nightbot integration first")
 	}
 
+	accessToken := *channelIntegration.AccessToken
+	if channelIntegration.RefreshToken != nil {
+		tokenResp, err := s.twirBus.Tokens.RequestChannelIntegrationToken.Request(
+			ctx,
+			buscoretokens.GetChannelIntegrationTokenRequest{
+				ChannelID: channelID,
+				Service:   integrationsmodel.ServiceNightbot,
+			},
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get nightbot token: %w", err)
+		}
+		accessToken = tokenResp.Data.AccessToken
+	}
+
 	httpReq, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
@@ -678,20 +631,13 @@ func (s *Service) ImportTimers(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create timers request: %w", err)
 	}
-	httpReq.Header.Set("Authorization", "Bearer "+*channelIntegration.AccessToken)
+	httpReq.Header.Set("Authorization", "Bearer "+accessToken)
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get timers: %w", err)
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusUnauthorized {
-		if err := s.refreshNightbotTokens(ctx, integration, channelIntegration); err != nil {
-			return nil, fmt.Errorf("failed to refresh tokens: %w", err)
-		}
-		return s.ImportTimers(ctx, channelID, actorID)
-	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		bodyBytes, _ := io.ReadAll(resp.Body)

@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
@@ -84,6 +85,10 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 		}
 
 		if isOnCooldown {
+			continue
+		}
+
+		if !platformentity.ShouldExecute(k.Platforms, platformentity.PlatformTwitch) {
 			continue
 		}
 
@@ -258,15 +263,22 @@ func (c *MessageHandler) keywordsParseResponse(
 		}
 	}
 
+	var twitchUserID string
+	if msg.EnrichedData.DbChannel.TwitchUserID != nil {
+		twitchUserID = msg.EnrichedData.DbChannel.TwitchUserID.String()
+	}
+
 	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID:   msg.BroadcasterUserId,
-			ChannelName: msg.BroadcasterUserLogin,
-			Text:        keyword.Response,
-			UserID:      msg.ChatterUserId,
-			UserLogin:   msg.ChatterUserLogin,
-			UserName:    msg.ChatterUserName,
-			Mentions:    mentions,
+			ChannelID:           msg.BroadcasterUserId,
+			ChannelName:         msg.BroadcasterUserLogin,
+			ChannelTwitchUserID: twitchUserID,
+			ChannelDBID:         msg.EnrichedData.DbChannel.ID.String(),
+			Text:                keyword.Response,
+			UserID:              msg.ChatterUserId,
+			UserLogin:           msg.ChatterUserLogin,
+			UserName:            msg.ChatterUserName,
+			Mentions:            mentions,
 		},
 	)
 	if err != nil {

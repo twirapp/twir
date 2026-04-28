@@ -44,7 +44,7 @@ var WrongCommand = &types.DefaultCommand{
 		var songs []*model.RequestedSong
 		err := parseCtx.Services.Gorm.WithContext(ctx).
 			Where(
-				`"channelId" = ? AND "orderedById" = ? AND "deletedAt" IS NULL`,
+				`"channelId" = ?::uuid AND "orderedById" = ? AND "deletedAt" IS NULL`,
 				parseCtx.Channel.ID,
 				parseCtx.Sender.ID,
 			).
