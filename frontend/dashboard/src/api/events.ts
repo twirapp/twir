@@ -29,6 +29,7 @@ export const useEventsApi = createGlobalState(() => {
           description
           enabled
           onlineOnly
+          platforms
           operations {
             id
             type
@@ -70,6 +71,7 @@ export const useEventsApi = createGlobalState(() => {
           description
           enabled
           onlineOnly
+          platforms
           operations {
             id
             type
