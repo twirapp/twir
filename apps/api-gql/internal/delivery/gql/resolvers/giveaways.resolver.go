@@ -7,6 +7,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -21,6 +22,7 @@ import (
 	channelsgiveawayentity "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/entities/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/logger"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 // Winners is the resolver for the winners field.
@@ -83,7 +85,15 @@ func (r *channelGiveawayResolver) Participants(ctx context.Context, obj *gqlmode
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *channelGiveawayWinnerResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChannelGiveawayWinner) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.UserID)
+	user, err := r.deps.UsersRepository.GetByID(ctx, obj.UserID)
+	if err != nil {
+		if err == usersmodel.ErrNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	return data_loader.GetHelixUserById(ctx, user.PlatformID)
 }
 
 // GiveawaysCreate is the resolver for the giveawaysCreate field.

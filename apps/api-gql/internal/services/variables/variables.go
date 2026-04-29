@@ -96,7 +96,7 @@ func (c *Service) EvaluateScript(
 	}
 
 	var channelTwitchUserID string
-	if channel.TwitchUserID != nil {
+	if channel.TwitchPlatformID != nil {
 		channelTwitchUserID = *channel.TwitchPlatformID
 	}
 

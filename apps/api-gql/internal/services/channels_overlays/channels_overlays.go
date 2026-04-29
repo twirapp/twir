@@ -369,7 +369,7 @@ func (s *Service) ParseHtml(ctx context.Context, input ParseHtmlInput) (string, 
 	}
 
 	var channelTwitchUserID string
-	if channel.TwitchUserID != nil {
+	if channel.TwitchPlatformID != nil {
 		channelTwitchUserID = *channel.TwitchPlatformID
 	}
 

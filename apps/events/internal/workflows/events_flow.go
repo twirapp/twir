@@ -43,7 +43,16 @@ func (c *EventWorkflow) Flow(
 	eventsCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	channelEvents, err := c.channelsEventsWithOperationsCache.Get(eventsCtx, data.ChannelID)
+	channel, err := c.channelsCache.Get(eventsCtx, data.ChannelDBID)
+	if err != nil {
+		return err
+	}
+
+	if channel == channelmodel.Nil {
+		return errors.New("channel not found")
+	}
+
+	channelEvents, err := c.channelsEventsWithOperationsCache.Get(eventsCtx, data.ChannelDBID)
 	if err != nil {
 		return err
 	}
@@ -54,15 +63,6 @@ func (c *EventWorkflow) Flow(
 		Find(&stream).Error
 	if err != nil {
 		return err
-	}
-
-	channel, err := c.channelsCache.Get(eventsCtx, data.ChannelID)
-	if err != nil {
-		return err
-	}
-
-	if channel == channelmodel.Nil {
-		return errors.New("channel not found")
 	}
 
 	data.ChannelDBID = channel.ID.String()
@@ -148,7 +148,7 @@ func (c *EventWorkflow) Flow(
 
 	// populate channel twitch user ID (internal UUID) for token lookups
 	if channel.TwitchUserID != nil {
-		data.ChannelTwitchUserID = *channel.TwitchPlatformID
+		data.ChannelTwitchUserID = channel.TwitchUserID.String()
 	}
 
 	// execute event operations

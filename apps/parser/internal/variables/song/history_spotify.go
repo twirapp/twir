@@ -26,7 +26,7 @@ var HistorySpotify = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		spotifyEntity, err := parseCtx.Services.SpotifyRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		spotifyEntity, err := parseCtx.Services.SpotifyRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil {
 			result.Result = i18n.GetCtx(
 				ctx,
@@ -43,7 +43,7 @@ var HistorySpotify = &types.Variable{
 		spotifyToken, err := parseCtx.Services.Bus.Tokens.RequestChannelIntegrationToken.Request(
 			ctx,
 			buscoretokens.GetChannelIntegrationTokenRequest{
-				ChannelID: parseCtx.Channel.ID,
+					ChannelID: parseCtx.Channel.DBChannelID,
 				Service:   integrationsmodel.ServiceSpotify,
 			},
 		)

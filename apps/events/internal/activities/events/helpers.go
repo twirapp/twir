@@ -183,7 +183,7 @@ func (c *Activity) getChannelRuntimeInfoByChannelUUID(
 	}
 
 	var broadcasterUserID string
-	if channel.TwitchUserID != nil {
+	if channel.TwitchPlatformID != nil {
 		broadcasterUserID = *channel.TwitchPlatformID
 	}
 

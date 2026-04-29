@@ -30,7 +30,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 	var lastfmService *lastfm.Lastfm
 	if lfmIntegration, err := c.services.LastfmRepo.GetByChannelID(
 		ctx,
-		c.parseCtxChannel.ID,
+		c.parseCtxChannel.DBChannelID,
 	); err == nil && !lfmIntegration.IsNil() && lfmIntegration.SessionKey != nil {
 		s, lfmErr := lastfm.New(
 			lastfm.Opts{
@@ -47,7 +47,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 	}
 
 	var spotifyService *spotify.Spotify
-	spotifyEntity, err := c.services.SpotifyRepo.GetByChannelID(ctx, c.parseCtxChannel.ID)
+	spotifyEntity, err := c.services.SpotifyRepo.GetByChannelID(ctx, c.parseCtxChannel.DBChannelID)
 	if err != nil {
 		c.services.Logger.Error("failed to get spotify entity", zap.Error(err))
 		return nil
@@ -56,7 +56,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		spotifyToken, err := c.services.Bus.Tokens.RequestChannelIntegrationToken.Request(
 			ctx,
 			buscoretokens.GetChannelIntegrationTokenRequest{
-				ChannelID: c.parseCtxChannel.ID,
+					ChannelID: c.parseCtxChannel.DBChannelID,
 				Service:   integrationsmodel.ServiceSpotify,
 			},
 		)
@@ -68,7 +68,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 	}
 
 	var vkService *vk.VK
-	vkEntity, err := c.services.VKRepo.GetByChannelID(ctx, c.parseCtxChannel.ID)
+	vkEntity, err := c.services.VKRepo.GetByChannelID(ctx, c.parseCtxChannel.DBChannelID)
 	if err == nil && !vkEntity.IsNil() && vkEntity.Enabled && vkEntity.AccessToken != "" {
 		v, vkErr := vk.New(
 			vk.Opts{
@@ -158,7 +158,7 @@ checkServices:
 		case "YOUTUBE_SR":
 			redisData, err := c.services.Redis.Get(
 				context.Background(),
-				fmt.Sprintf("songrequests:youtube:%s:currentPlaying", c.parseCtxChannel.ID),
+				fmt.Sprintf("songrequests:youtube:%s:currentPlaying", c.parseCtxChannel.DBChannelID),
 			).Result()
 			if err == redis.Nil {
 				continue

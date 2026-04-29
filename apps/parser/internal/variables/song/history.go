@@ -38,7 +38,7 @@ var History = &types.Variable{
 
 		// Try to get lastfm integration from the new repository
 		var lastfmService *lastfm.Lastfm
-		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
 		if err == nil && !lastfmIntegration.IsNil() && lastfmIntegration.Enabled && lastfmIntegration.SessionKey != nil {
 			i, err := lastfm.New(
 				lastfm.Opts{
@@ -53,14 +53,14 @@ var History = &types.Variable{
 		}
 
 		var spotifyService *spotify.Spotify
-		spotifyEntity, err := parseCtx.Services.SpotifyRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		spotifyEntity, err := parseCtx.Services.SpotifyRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil {
 			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.GetSpotifyEntity), zap.Error(err))
 		} else if spotifyEntity.AccessToken != "" {
 			spotifyToken, err := parseCtx.Services.Bus.Tokens.RequestChannelIntegrationToken.Request(
 				ctx,
 				buscoretokens.GetChannelIntegrationTokenRequest{
-					ChannelID: parseCtx.Channel.ID,
+					ChannelID: parseCtx.Channel.DBChannelID,
 					Service:   integrationsmodel.ServiceSpotify,
 				},
 			)
