@@ -102,6 +102,7 @@ const (
 
 type VotebanRegisterRequest struct {
 	Data                 votebanentity.Voteban
+	PlatformChannelID    string
 	TargerUser           twitch.ChatMessageMessageFragmentMention
 	InitiatorUserID      string
 	InitiatorUserLogin   string

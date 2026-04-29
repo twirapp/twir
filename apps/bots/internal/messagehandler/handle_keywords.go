@@ -32,7 +32,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
-	entities, err := c.keywordsService.GetManyByChannelID(ctx, msg.BroadcasterUserId)
+	entities, err := c.keywordsService.GetManyByChannelID(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return err
 	}
@@ -104,12 +104,12 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 			defer wg.Done()
 
 			if len(k.RolesIDs) > 0 {
-				channelRoles, err := c.keywordsService.GetChannelRoles(ctx, msg.BroadcasterUserId)
+				channelRoles, err := c.keywordsService.GetChannelRoles(ctx, msg.EnrichedData.DbChannel.ID.String())
 				if err != nil {
 					c.logger.Error(
 						"cannot get channel roles",
 						logger.Error(err),
-						slog.String("channelId", msg.BroadcasterUserId),
+						slog.String("channelId", msg.EnrichedData.DbChannel.ID.String()),
 					)
 					return
 				}
@@ -130,15 +130,15 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 				if !hasRole {
 					userRoles, err := c.keywordsService.GetUserAccessibleRoles(
 						ctx,
-						msg.BroadcasterUserId,
-						msg.ChatterUserId,
+						msg.EnrichedData.DbChannel.ID.String(),
+						msg.EnrichedData.DbUser.ID,
 					)
 					if err != nil {
 						c.logger.Error(
 							"cannot get user roles",
 							logger.Error(err),
-							slog.String("channelId", msg.BroadcasterUserId),
-							slog.String("userId", msg.ChatterUserId),
+							slog.String("channelId", msg.EnrichedData.DbChannel.ID.String()),
+							slog.String("userId", msg.EnrichedData.DbUser.ID),
 						)
 						return
 					}

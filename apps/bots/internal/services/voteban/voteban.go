@@ -97,7 +97,7 @@ func (s *Service) tryRegisterVote(msg twitch.TwitchChatMessage) bool {
 
 func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, bool) {
 	s.mu.RLock()
-	if _, ok := s.inProgressVotebans[req.Data.ChannelID]; ok {
+	if _, ok := s.inProgressVotebans[req.PlatformChannelID]; ok {
 		s.mu.RUnlock()
 		return bots.VotebanRegisterResponse{
 			AlreadyInProgress: true,
@@ -110,17 +110,18 @@ func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.Vote
 		req.TargerUser.UserId,
 		req.TargerUser.UserLogin,
 		req.InitiatorIsModerator,
+		req.PlatformChannelID,
 	)
 
 	s.mu.Lock()
-	if _, ok := s.inProgressVotebans[req.Data.ChannelID]; ok {
+	if _, ok := s.inProgressVotebans[req.PlatformChannelID]; ok {
 		s.mu.Unlock()
 		return bots.VotebanRegisterResponse{
 			AlreadyInProgress: true,
 		}, false
 	}
 
-	s.inProgressVotebans[req.Data.ChannelID] = sess
+	s.inProgressVotebans[req.PlatformChannelID] = sess
 	s.mu.Unlock()
 
 	s.logger.Info(
@@ -136,7 +137,7 @@ func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.Vote
 	go func() {
 		defer func() {
 			s.mu.Lock()
-			delete(s.inProgressVotebans, req.Data.ChannelID)
+			delete(s.inProgressVotebans, req.PlatformChannelID)
 			s.mu.Unlock()
 		}()
 
@@ -180,7 +181,7 @@ func (s *Service) processSessionResult(result sessionResult) error {
 		func() error {
 			if err := s.channelService.SendMessage(
 				ctx, bots.SendMessageRequest{
-					ChannelId:         result.channelId,
+					ChannelId:         result.platformChannelId,
 					Message:           result.message,
 					IsAnnounce:        true,
 					SkipRateLimits:    true,
@@ -200,7 +201,7 @@ func (s *Service) processSessionResult(result sessionResult) error {
 			func() error {
 				if err := s.channelService.Ban(
 					ctx, bots.BanRequest{
-						ChannelID:      result.channelId,
+						ChannelID:      result.platformChannelId,
 						UserID:         result.targetUserId,
 						Reason:         result.message,
 						BanTime:        result.banDuration,

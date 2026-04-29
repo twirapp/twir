@@ -92,25 +92,43 @@ var Command = &types.DefaultCommand{
 			usersIdsForCheck = append(usersIdsForCheck, m.UserID)
 		}
 
-		var usersStats []model.UsersStats
-		usersIDsForCheckUUIDs := make([]uuid.UUID, 0, len(usersIdsForCheck))
-		for _, userID := range usersIdsForCheck {
-			parsedUserID, err := uuid.Parse(userID)
+		type userPlatformRef struct {
+			ID         string `gorm:"column:id"`
+			PlatformID string `gorm:"column:platform_id"`
+		}
+
+		var userRefs []userPlatformRef
+		if err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Table("users").
+			Select("id", "platform_id").
+			Where("platform = ? AND platform_id IN ?", parseCtx.Platform, usersIdsForCheck).
+			Find(&userRefs).Error; err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetUsersStats),
+				Err:     err,
+			}
+		}
+
+		usersIDsForCheckUUIDs := make([]uuid.UUID, 0, len(userRefs))
+		platformUserIDByInternalID := make(map[string]string, len(userRefs))
+		for _, ref := range userRefs {
+			parsedUserID, err := uuid.Parse(ref.ID)
 			if err != nil {
-				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetUsersStats),
-					Err:     err,
-				}
+				continue
 			}
 
 			usersIDsForCheckUUIDs = append(usersIDsForCheckUUIDs, parsedUserID)
+			platformUserIDByInternalID[ref.ID] = ref.PlatformID
 		}
+
+		var usersStats []model.UsersStats
 
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"userId" IN ? AND "channelId" = ?::uuid`, usersIDsForCheckUUIDs, parseCtx.Channel.ID).
+			Where(`"userId" IN ? AND "channelId" = ?::uuid`, usersIDsForCheckUUIDs, parseCtx.Channel.DBChannelID).
 			Where(`"is_mod" = ? AND "is_vip" = ? AND "is_subscriber" = ?`, false, false, false).
-			Where(`"userId" != ?::uuid`, parseCtx.Channel.ID).
+			Where(`"userId" != ?::uuid`, parseCtx.Channel.TwitchUserID).
 			Find(&usersStats).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetUsersStats),
@@ -120,7 +138,7 @@ var Command = &types.DefaultCommand{
 
 		handledMessagesIds, err := parseCtx.Services.Redis.SMembers(
 			ctx,
-			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID),
+			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.DBChannelID),
 		).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
 			return nil, &types.CommandHandlerError{
@@ -140,7 +158,7 @@ var Command = &types.DefaultCommand{
 
 			if !slices.ContainsFunc(
 				usersStats, func(stats model.UsersStats) bool {
-					return m.UserID == stats.UserID
+					return platformUserIDByInternalID[stats.UserID] == m.UserID
 				},
 			) {
 				continue
@@ -204,12 +222,12 @@ var Command = &types.DefaultCommand{
 
 		parseCtx.Services.Redis.SAdd(
 			ctx,
-			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID),
+			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.DBChannelID),
 			mappedMessagesIDs,
 		)
 		parseCtx.Services.Redis.Expire(
 			ctx,
-			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.ID),
+			fmt.Sprintf(nukeRedisPrefix, parseCtx.Channel.DBChannelID),
 			20*time.Minute,
 		)
 

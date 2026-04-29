@@ -42,7 +42,7 @@ var VolumeCommand = &types.DefaultCommand{
 
 		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -71,7 +71,7 @@ var VolumeCommand = &types.DefaultCommand{
 
 		err = parseCtx.Services.TTSService.UpdateChannelSettings(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 			channelSettings,
 		)
 		if err != nil {
@@ -83,7 +83,7 @@ var VolumeCommand = &types.DefaultCommand{
 
 		result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Info.ChangeVolume.SetVars(locales.KeysCommandsTtsInfoChangeVolumeVars{UserVolume: volume}))}
 
-		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		return result, nil
 	},

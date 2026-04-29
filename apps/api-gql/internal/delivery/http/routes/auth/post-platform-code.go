@@ -12,16 +12,11 @@ import (
 	"github.com/google/uuid"
 	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
-	"github.com/twirapp/twir/libs/bus-core/scheduler"
+	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
-	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
-	usersrepo "github.com/twirapp/twir/libs/repositories/users"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type kickCodeBody struct {
@@ -61,39 +56,17 @@ func (a *Auth) handleKickCode(
 		a.logger.ErrorContext(ctx, "kick auth: failed to get code verifier", logger.Error(err))
 		return nil, huma.Error400BadRequest("Cannot get code verifier", err)
 	}
-	a.logger.InfoContext(ctx, "kick auth: code verifier retrieved")
 
 	tokens, err := a.kickProvider.ExchangeCode(ctx, input.Code, codeVerifier)
 	if err != nil {
 		a.logger.ErrorContext(ctx, "kick auth: failed to exchange code", logger.Error(err))
 		return nil, huma.Error500InternalServerError("Cannot exchange code", err)
 	}
-	a.logger.InfoContext(ctx, "kick auth: token exchange successful")
 
 	platformUser, err := a.kickProvider.GetUser(ctx, tokens.AccessToken)
 	if err != nil {
 		a.logger.ErrorContext(ctx, "kick auth: failed to get user from kick", logger.Error(err))
 		return nil, huma.Error500InternalServerError("Cannot get user data from kick", err)
-	}
-	a.logger.InfoContext(ctx, "kick auth: got user from kick", slog.String("kick_user_id", platformUser.ID), slog.String("kick_login", platformUser.Login))
-
-	accessToken, err := crypto.Encrypt(tokens.AccessToken, a.config.TokensCipherKey)
-	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to encrypt access token", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot encrypt user access token", err)
-	}
-
-	refreshToken, err := crypto.Encrypt(tokens.RefreshToken, a.config.TokensCipherKey)
-	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to encrypt refresh token", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot encrypt user refresh token", err)
-	}
-
-	existingUser, err := a.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, platformUser.ID)
-	userNotFound := errors.Is(err, usersmodel.ErrNotFound)
-	if err != nil && !userNotFound {
-		a.logger.ErrorContext(ctx, "kick auth: failed to get platform account", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot get user platform account", err)
 	}
 
 	defaultBot, err := a.botsRepo.GetDefault(ctx)
@@ -104,81 +77,6 @@ func (a *Auth) handleKickCode(
 	if defaultBot.ID == "" {
 		a.logger.ErrorContext(ctx, "kick auth: no default bot found")
 		return nil, huma.Error500InternalServerError("Cannot find default bot", fmt.Errorf("no default bot found"))
-	}
-
-	userID := uuid.Nil
-	createdUser := false
-	if userNotFound {
-		a.logger.InfoContext(ctx, "kick auth: no existing platform account, creating new user")
-		userID, err = a.createUser(ctx, platform.PlatformKick, platformUser.ID, platformUser.Login, platformUser.DisplayName, platformUser.Avatar)
-		if err != nil {
-			a.logger.ErrorContext(ctx, "kick auth: failed to create user", logger.Error(err))
-			return nil, huma.Error500InternalServerError("Cannot create user", err)
-		}
-		createdUser = true
-		a.logger.InfoContext(ctx, "kick auth: created new user", slog.String("user_id", userID.String()))
-	} else {
-		userID = uuid.MustParse(existingUser.ID)
-		_, updateErr := a.usersRepo.Update(ctx, userID.String(), usersrepo.UpdateInput{
-			Login:       &platformUser.Login,
-			DisplayName: &platformUser.DisplayName,
-			Avatar:      &platformUser.Avatar,
-		})
-		if updateErr != nil {
-			a.logger.ErrorContext(ctx, "kick auth: failed to update user profile", logger.Error(updateErr))
-		}
-		a.logger.InfoContext(ctx, "kick auth: found existing platform account", slog.String("user_id", userID.String()))
-	}
-
-	dbUser, err := a.usersRepo.GetByID(ctx, userID.String())
-	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to get user", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot get user", err)
-	}
-	if dbUser.IsBanned {
-		return nil, huma.Error403Forbidden("Forbidden", nil)
-	}
-
-	currentToken, err := a.tokensRepository.GetByUserID(ctx, userID)
-	if err != nil && !errors.Is(err, tokensrepository.ErrNotFound) {
-		a.logger.ErrorContext(ctx, "kick auth: failed to get user token", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot get user token", err)
-	}
-
-	tokenExpires := tokens.ExpiresIn
-	tokenCreatedAt := time.Now().UTC()
-	if currentToken != nil {
-		_, err = a.tokensRepository.UpdateTokenByID(
-			ctx,
-			currentToken.ID,
-			tokensrepository.UpdateTokenInput{
-				AccessToken:         &accessToken,
-				RefreshToken:        &refreshToken,
-				ExpiresIn:           &tokenExpires,
-				ObtainmentTimestamp: &tokenCreatedAt,
-				Scopes:              tokens.Scopes,
-			},
-		)
-		if err != nil {
-			a.logger.ErrorContext(ctx, "kick auth: failed to update user token", logger.Error(err))
-			return nil, huma.Error500InternalServerError("Cannot update user token", err)
-		}
-	} else {
-		_, err = a.tokensRepository.CreateUserToken(
-			ctx,
-			tokensrepository.CreateInput{
-				UserID:              userID,
-				AccessToken:         accessToken,
-				RefreshToken:        refreshToken,
-				ExpiresIn:           tokens.ExpiresIn,
-				ObtainmentTimestamp: tokenCreatedAt,
-				Scopes:              tokens.Scopes,
-			},
-		)
-		if err != nil {
-			a.logger.ErrorContext(ctx, "kick auth: failed to create user token", logger.Error(err))
-			return nil, huma.Error500InternalServerError("Cannot create user token", err)
-		}
 	}
 
 	defaultKickBot, kickBotErr := a.kickBotsRepo.GetDefault(ctx)
@@ -194,106 +92,71 @@ func (a *Auth) handleKickCode(
 		}
 	}
 
-	if !userNotFound {
-		existingKickBot, kickBotByUserErr := a.kickBotsRepo.GetByKickUserID(ctx, userID)
-		if kickBotByUserErr != nil && !errors.Is(kickBotByUserErr, kickbotsrepo.ErrNotFound) {
-			a.logger.ErrorContext(ctx, "kick auth: failed to get kick bot by user id", logger.Error(kickBotByUserErr))
-		}
-
-		if kickBotByUserErr == nil {
-			existingBotID, parseErr := uuid.Parse(existingKickBot.ID)
-			if parseErr == nil {
-				_, updateErr := a.kickBotsRepo.UpdateToken(
-					ctx,
-					existingBotID,
-					kickbotsrepo.UpdateTokenInput{
-						AccessToken:         accessToken,
-						RefreshToken:        refreshToken,
-						Scopes:              tokens.Scopes,
-						ExpiresIn:           tokens.ExpiresIn,
-						ObtainmentTimestamp: tokenCreatedAt,
-					},
-				)
-				if updateErr != nil {
-					a.logger.ErrorContext(ctx, "kick auth: failed to update kick bot token on re-login", logger.Error(updateErr))
-				} else {
-					a.logger.InfoContext(ctx, "kick auth: updated kick bot token on re-login", slog.String("kick_bot_id", existingKickBot.ID))
-				}
-			}
-		}
-	}
-
-	channel, err := a.channelsRepo.GetByKickUserID(ctx, userID)
+	result, err := a.completePlatformAuth(ctx, completePlatformAuthInput{
+		Platform: platform.PlatformKick,
+		PlatformUser: &appplatform.PlatformUser{
+			ID:          platformUser.ID,
+			Login:       platformUser.Login,
+			DisplayName: platformUser.DisplayName,
+			Avatar:      platformUser.Avatar,
+		},
+		Tokens: &appplatform.PlatformTokens{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+			ExpiresIn:    tokens.ExpiresIn,
+			Scopes:       tokens.Scopes,
+		},
+		DefaultBotID:     defaultBot.ID,
+		DefaultKickBotID: defaultKickBotID,
+	})
 	if err != nil {
-		if !errors.Is(err, channelsrepo.ErrNotFound) {
-			a.logger.ErrorContext(ctx, "kick auth: failed to get channel", logger.Error(err))
-			return nil, huma.Error500InternalServerError("Cannot get channel", err)
+		if errors.Is(err, errAuthForbidden) {
+			return nil, huma.Error403Forbidden("Forbidden", nil)
 		}
 
-		channel, err = a.createChannel(ctx, nil, &userID, defaultBot.ID, defaultKickBotID)
-		if err != nil {
-			a.logger.ErrorContext(ctx, "kick auth: failed to create channel", logger.Error(err))
-			return nil, huma.Error500InternalServerError("Cannot create channel", err)
+		if errors.Is(err, errPlatformConflict) {
+			return nil, huma.Error409Conflict("Platform account already linked to another dashboard", err)
 		}
-		a.logger.InfoContext(ctx, "kick auth: created channel", slog.String("channel_id", channel.ID.String()), slog.String("kick_bot_id", defaultKickBot.ID))
-	} else {
-		if defaultKickBotID != nil && channel.KickBotID == nil {
-			updatedChannel, updateErr := a.channelsRepo.Update(ctx, channel.ID, channelsrepo.UpdateInput{KickBotID: defaultKickBotID})
-			if updateErr != nil {
-				a.logger.ErrorContext(ctx, "kick auth: failed to update channel kick bot", logger.Error(updateErr))
+
+		a.logger.ErrorContext(ctx, "kick auth: failed to complete auth", logger.Error(err))
+		return nil, huma.Error500InternalServerError("Cannot complete auth", err)
+	}
+
+	if !result.CreatedUser {
+		accessToken, encryptAccessErr := crypto.Encrypt(tokens.AccessToken, a.config.TokensCipherKey)
+		if encryptAccessErr != nil {
+			a.logger.ErrorContext(ctx, "kick auth: failed to encrypt access token for kick bot update", logger.Error(encryptAccessErr))
+		} else {
+			refreshToken, encryptRefreshErr := crypto.Encrypt(tokens.RefreshToken, a.config.TokensCipherKey)
+			if encryptRefreshErr != nil {
+				a.logger.ErrorContext(ctx, "kick auth: failed to encrypt refresh token for kick bot update", logger.Error(encryptRefreshErr))
 			} else {
-				channel = updatedChannel
-				a.logger.InfoContext(ctx, "kick auth: updated channel with kick bot", slog.String("channel_id", channel.ID.String()), slog.String("kick_bot_id", defaultKickBot.ID))
+				existingKickBot, kickBotByUserErr := a.kickBotsRepo.GetByKickUserID(ctx, result.PlatformUserID)
+				if kickBotByUserErr != nil && !errors.Is(kickBotByUserErr, kickbotsrepo.ErrNotFound) {
+					a.logger.ErrorContext(ctx, "kick auth: failed to get kick bot by user id", logger.Error(kickBotByUserErr))
+				}
 
-				if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
-					ctx,
-					buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channel.ID.String()},
-				); err != nil {
-					a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe after kick bot join", logger.Error(err), slog.String("channel_id", channel.ID.String()))
+				if kickBotByUserErr == nil {
+					existingBotID, parseErr := uuid.Parse(existingKickBot.ID)
+					if parseErr == nil {
+						_, updateErr := a.kickBotsRepo.UpdateToken(
+							ctx,
+							existingBotID,
+							kickbotsrepo.UpdateTokenInput{
+								AccessToken:         accessToken,
+								RefreshToken:        refreshToken,
+								Scopes:              tokens.Scopes,
+								ExpiresIn:           tokens.ExpiresIn,
+								ObtainmentTimestamp: time.Now().UTC(),
+							},
+						)
+						if updateErr != nil {
+							a.logger.ErrorContext(ctx, "kick auth: failed to update kick bot token on re-login", logger.Error(updateErr))
+						}
+					}
 				}
 			}
 		}
-		a.logger.InfoContext(ctx, "kick auth: found existing channel", slog.String("channel_id", channel.ID.String()))
-	}
-
-	channelIDStr := channel.ID.String()
-
-	if createdUser {
-		if err = a.bus.Scheduler.CreateDefaultRoles.Publish(
-			ctx,
-			scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{channelIDStr}},
-		); err != nil {
-			a.logger.ErrorContext(ctx, "cannot publish create default roles", logger.Error(err), slog.String("channel_id", channelIDStr))
-		}
-
-		if err = a.bus.Scheduler.CreateDefaultCommands.Publish(
-			ctx,
-			scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{channelIDStr}},
-		); err != nil {
-			a.logger.ErrorContext(ctx, "cannot publish create default commands", logger.Error(err), slog.String("channel_id", channelIDStr))
-		}
-	}
-
-	if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
-		ctx,
-		buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelIDStr},
-	); err != nil {
-		a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channelIDStr))
-	}
-
-	if err := a.sessions.SetSessionInternalUserID(ctx, userID); err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to set internal user id", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot set internal user id", err)
-	}
-
-	if err := a.sessions.SetSessionCurrentPlatform(ctx, platform.PlatformKick.String()); err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to set current platform", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot set current platform", err)
-	}
-
-	if err := a.sessions.SetSessionSelectedDashboard(ctx, channelIDStr); err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to set selected dashboard", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot set selected dashboard", err)
 	}
 
 	if err := a.sessions.SetSessionKickUser(ctx, authsessions.KickSessionUser{
@@ -305,7 +168,7 @@ func (a *Auth) handleKickCode(
 		return nil, huma.Error500InternalServerError("Cannot set kick user", err)
 	}
 
-	a.logger.InfoContext(ctx, "kick auth: completed successfully", slog.String("redirect_to", string(redirectTo)), slog.String("user_id", userID.String()), slog.String("channel_id", channelIDStr))
+	a.logger.InfoContext(ctx, "kick auth: completed successfully", slog.String("redirect_to", string(redirectTo)), slog.String("user_id", result.SessionUserID.String()), slog.String("channel_id", result.Channel.ID.String()))
 
 	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: string(redirectTo)}), nil
 }

@@ -27,6 +27,8 @@ type CreateInput struct {
 type UpdateInput struct {
 	IsEnabled *bool
 	IsBotMod  *bool
+	TwitchUserID *uuid.UUID
+	KickUserID   *uuid.UUID
 	KickBotID *uuid.UUID
 }
 

@@ -38,7 +38,7 @@ var Marker = &types.DefaultCommand{
 		error,
 	) {
 		dbChannel := &model.Channels{}
-		if err := parseCtx.Services.Gorm.First(dbChannel, parseCtx.Channel.ID).Error; err != nil {
+		if err := parseCtx.Services.Gorm.First(dbChannel, parseCtx.Channel.DBChannelID).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
@@ -65,7 +65,7 @@ var Marker = &types.DefaultCommand{
 		}
 
 		params := helix.CreateStreamMarkerParams{
-			UserID:      dbChannel.ID,
+			UserID:      parseCtx.Channel.ID,
 			Description: "",
 		}
 

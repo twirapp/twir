@@ -174,6 +174,14 @@ func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.Up
 		updateBuilder = updateBuilder.Set(`"isBotMod"`, *input.IsBotMod)
 	}
 
+	if input.TwitchUserID != nil {
+		updateBuilder = updateBuilder.Set("twitch_user_id", *input.TwitchUserID)
+	}
+
+	if input.KickUserID != nil {
+		updateBuilder = updateBuilder.Set("kick_user_id", *input.KickUserID)
+	}
+
 	if input.KickBotID != nil {
 		updateBuilder = updateBuilder.Set("kick_bot_id", *input.KickBotID)
 	}

@@ -2,11 +2,37 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
+
+func (r *authenticatedUserResolver) getAuthenticatedUserChannel(ctx context.Context) (channelsmodel.Channel, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return channelsmodel.Nil, fmt.Errorf("get selected dashboard: %w", err)
+	}
+
+	if dashboardID == "" {
+		return channelsmodel.Nil, nil
+	}
+
+	parsedDashboardID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return channelsmodel.Nil, fmt.Errorf("parse selected dashboard id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedDashboardID)
+	if err != nil {
+		return channelsmodel.Nil, fmt.Errorf("get selected dashboard channel: %w", err)
+	}
+
+	return channel, nil
+}
 
 func (r *authenticatedUserResolver) getAvailableDashboards(
 	ctx context.Context,

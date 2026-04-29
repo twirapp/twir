@@ -61,7 +61,7 @@ var SrCommand = &types.DefaultCommand{
 
 		moduleSettings := &model.ChannelSongRequestsSettings{}
 		err := parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channel_id" = ?::uuid`, parseCtx.Channel.ID).
+			Where(`"channel_id" = ?::uuid`, parseCtx.Channel.DBChannelID).
 			First(moduleSettings).Error
 
 		if err != nil {
@@ -111,7 +111,7 @@ var SrCommand = &types.DefaultCommand{
 		latestSong := &model.RequestedSong{}
 
 		err = parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.DBChannelID).
 			Order(`"createdAt" desc`).
 			Find(&latestSong).Error
 		if err != nil {
@@ -126,7 +126,7 @@ var SrCommand = &types.DefaultCommand{
 
 		var currentQueueCount int64
 		err = parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.DBChannelID).
 			Model(&model.RequestedSong{}).
 			Count(&currentQueueCount).
 			Error
@@ -142,6 +142,7 @@ var SrCommand = &types.DefaultCommand{
 			err = validate(
 				ctx,
 				parseCtx.Services,
+				parseCtx.Channel.DBChannelID,
 				parseCtx.Channel.ID,
 				parseCtx.Sender.ID,
 				*moduleSettings,
@@ -158,7 +159,7 @@ var SrCommand = &types.DefaultCommand{
 			} else {
 				model := &model.RequestedSong{
 					ID:                   uuid.NewV4().String(),
-					ChannelID:            parseCtx.Channel.ID,
+					ChannelID:            parseCtx.Channel.DBChannelID,
 					OrderedById:          parseCtx.Sender.ID,
 					OrderedByName:        parseCtx.Sender.Name,
 					OrderedByDisplayName: null.StringFrom(parseCtx.Sender.DisplayName),
@@ -200,7 +201,7 @@ var SrCommand = &types.DefaultCommand{
 			parseCtx.Services.GrpcClients.WebSockets.YoutubeAddSongToQueue(
 				context.Background(),
 				&websockets.YoutubeAddSongToQueueRequest{
-					ChannelId: parseCtx.Channel.ID,
+					ChannelId: parseCtx.Channel.DBChannelID,
 					EntityId:  song.ID,
 				},
 			)
@@ -213,7 +214,7 @@ var SrCommand = &types.DefaultCommand{
 func validate(
 	ctx context.Context,
 	services *services.Services,
-	channelId, userId string,
+	dbChannelID, platformChannelID, userId string,
 	settings model.ChannelSongRequestsSettings,
 	song ytsr.Song,
 ) error {
@@ -221,7 +222,7 @@ func validate(
 	services.Gorm.WithContext(ctx).Where(
 		`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?::uuid`,
 		song.Id,
-		channelId,
+		dbChannelID,
 	).
 		Find(&alreadyRequestedSong)
 
@@ -309,7 +310,7 @@ func validate(
 	if settings.MaxRequests != 0 {
 		var count int64
 		services.Gorm.WithContext(ctx).Model(&model.RequestedSong{}).
-			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, channelId).
+			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, dbChannelID).
 			Count(&count)
 		if count >= int64(settings.MaxRequests) {
 			message := fasttemplate.ExecuteString(
@@ -372,7 +373,7 @@ func validate(
 		var count int64
 		services.Gorm.WithContext(ctx).
 			Model(&model.RequestedSong{}).
-			Where(`"orderedById" = ? AND "channelId" = ?::uuid AND "deletedAt" IS NULL`, userId, channelId).
+			Where(`"orderedById" = ? AND "channelId" = ?::uuid AND "deletedAt" IS NULL`, userId, dbChannelID).
 			Count(&count)
 		if count >= int64(settings.UserMaxRequests) {
 			message := fasttemplate.ExecuteString(
@@ -429,7 +430,7 @@ func validate(
 		followReq, err := twitchClient.GetUsersFollows(
 			&helix.UsersFollowsParams{
 				FromID: userId,
-				ToID:   channelId,
+				ToID:   platformChannelID,
 			},
 		)
 		if err != nil {

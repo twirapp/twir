@@ -50,7 +50,7 @@ var Sprite = &types.DefaultCommand{
 		entity := model.ChannelsOverlaysDudesUserSettings{}
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`channel_id = ? AND user_id = ?`, parseCtx.Channel.ID, parseCtx.Sender.ID).
+			Where(`channel_id = ? AND user_id = ?`, parseCtx.Channel.DBChannelID, parseCtx.Sender.ID).
 			Find(&entity).Error; err != nil {
 			return nil, err
 		}
@@ -86,7 +86,7 @@ var Sprite = &types.DefaultCommand{
 
 		if entity.UserID == "" {
 			entity.ID = uuid.New()
-			entity.ChannelID = parseCtx.Channel.ID
+			entity.ChannelID = parseCtx.Channel.DBChannelID
 			entity.UserID = parseCtx.Sender.ID
 		}
 
@@ -111,7 +111,7 @@ var Sprite = &types.DefaultCommand{
 		err := parseCtx.Services.Bus.Websocket.DudesUserSettings.Publish(
 			ctx,
 			websockets.DudesChangeUserSettingsRequest{
-				ChannelID: parseCtx.Channel.ID,
+				ChannelID: parseCtx.Channel.DBChannelID,
 				UserID:    parseCtx.Sender.ID,
 			},
 		)

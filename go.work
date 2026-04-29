@@ -13,7 +13,6 @@ use (
 	./apps/twitch-mock
 	./apps/websockets
 	./cli
-	./gokick
 	./libs/audit
 	./libs/baseapp
 	./libs/bus-core

@@ -57,7 +57,7 @@ var Add = &types.DefaultCommand{
 
 		categories, err := parseCtx.Services.CategoriesAliasesRepo.GetManyByChannelID(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -104,7 +104,7 @@ var Add = &types.DefaultCommand{
 		err = parseCtx.Services.CategoriesAliasesRepo.Create(
 			ctx,
 			categoriesaliasesrepository.CreateInput{
-				ChannelID:  parseCtx.Channel.ID,
+				ChannelID:  parseCtx.Channel.DBChannelID,
 				Alias:      alias,
 				CategoryID: foundTwitchCategory.ID,
 			},

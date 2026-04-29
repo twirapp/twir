@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
@@ -55,7 +56,7 @@ var Voteban = &types.DefaultCommand{
 
 		entity, err := parseCtx.Services.ChannelsGamesVotebanRepo.GetByChannelID(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			if errors.Is(err, channelsgamesvoteban.ErrNotFound) {
@@ -81,11 +82,22 @@ var Voteban = &types.DefaultCommand{
 
 		targetUser := parseCtx.Mentions[0]
 
+		targetDbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, targetUser.UserId)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotFindUserDb,
+				),
+				Err: err,
+			}
+		}
+
 		// Fetch channel to check BotID
 		dbChannel := model.Channels{}
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"id" = ?`, parseCtx.Channel.ID).
+			Where(`"id" = ?`, parseCtx.Channel.DBChannelID).
 			First(&dbChannel).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -103,8 +115,8 @@ var Voteban = &types.DefaultCommand{
 
 		targerUserDbStats, err := parseCtx.Services.UsersWithStatsRepository.GetByUserAndChannelID(
 			ctx, userswithstats.GetByUserAndChannelIDInput{
-				UserID:    targetUser.UserId,
-				ChannelID: parseCtx.Channel.ID,
+				UserID:    targetDbUser.ID,
+				ChannelID: parseCtx.Channel.DBChannelID,
 			},
 		)
 		if err != nil {
@@ -132,6 +144,7 @@ var Voteban = &types.DefaultCommand{
 		res, err := parseCtx.Services.Bus.Bots.VotebanRegister.Request(
 			ctx, bots.VotebanRegisterRequest{
 				Data:                 entity,
+				PlatformChannelID:    parseCtx.Channel.ID,
 				TargerUser:           targetUser,
 				InitiatorUserID:      parseCtx.Sender.ID,
 				InitiatorUserLogin:   parseCtx.Sender.Name,

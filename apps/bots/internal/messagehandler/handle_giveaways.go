@@ -16,7 +16,7 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg twitch.TwitchC
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
-	giveaways, err := c.giveawaysCacher.Get(ctx, msg.BroadcasterUserId)
+	giveaways, err := c.giveawaysCacher.Get(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return err
 	}
@@ -53,6 +53,7 @@ func (c *MessageHandler) handleGiveaways(ctx context.Context, msg twitch.TwitchC
 
 		err := c.giveawaysService.TryAddParticipant(
 			ctx,
+			msg.EnrichedData.DbUser.ID,
 			msg.ChatterUserId,
 			msg.ChatterUserLogin,
 			msg.ChatterUserName,

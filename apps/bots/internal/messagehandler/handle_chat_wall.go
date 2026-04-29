@@ -34,7 +34,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 		return nil
 	}
 
-	walls, err := c.chatWallCacher.Get(ctx, msg.BroadcasterUserId)
+	walls, err := c.chatWallCacher.Get(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 		return nil
 	}
 
-	wallSettings, err := c.chatWallSettingsCacher.Get(ctx, msg.BroadcasterUserId)
+	wallSettings, err := c.chatWallSettingsCacher.Get(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil && !errors.Is(err, chatwallrepository.ErrSettingsNotFound) {
 		return err
 	}
@@ -92,7 +92,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 
 		alreadyHandled, err := c.redis.SIsMember(
 			ctx,
-			fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.BroadcasterUserId),
+			fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.EnrichedData.DbChannel.ID.String()),
 			msg.ID,
 		).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
@@ -138,7 +138,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 			ctx,
 			chatwallrepository.CreateLogInput{
 				WallID: wall.ID,
-				UserID: msg.ChatterUserId,
+				UserID: msg.EnrichedData.DbUser.ID,
 				Text:   msg.Message.Text,
 			},
 		); err != nil {
@@ -149,14 +149,14 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 			ctx, func(p redis.Pipeliner) error {
 				if err := p.SAdd(
 					ctx,
-					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.BroadcasterUserId),
+					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.EnrichedData.DbChannel.ID.String()),
 					msg.ID,
 				).Err(); err != nil {
 					return err
 				}
 				if err := p.Expire(
 					ctx,
-					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.BroadcasterUserId),
+					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.EnrichedData.DbChannel.ID.String()),
 					20*time.Minute,
 				).Err(); err != nil {
 					return err
@@ -173,7 +173,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 	}
 
 	if shouldInvalidate {
-		if err := c.chatWallCacher.Invalidate(ctx, msg.BroadcasterUserId); err != nil {
+		if err := c.chatWallCacher.Invalidate(ctx, msg.EnrichedData.DbChannel.ID.String()); err != nil {
 			return err
 		}
 	}

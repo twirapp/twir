@@ -28,7 +28,7 @@ var Jump = &types.DefaultCommand{
 	) {
 		_, err := parseCtx.Services.GrpcClients.WebSockets.DudesJump(
 			ctx, &websockets.DudesJumpRequest{
-				ChannelId:       parseCtx.Channel.ID,
+				ChannelId:       parseCtx.Channel.DBChannelID,
 				UserId:          parseCtx.Sender.ID,
 				UserDisplayName: parseCtx.Sender.DisplayName,
 				UserName:        parseCtx.Sender.Name,

@@ -42,7 +42,7 @@ var Stop = &types.DefaultCommand{
 		err := parseCtx.Services.ChatWallService.Stop(
 			ctx,
 			chatwallservice.StopInput{
-				ChannelID: parseCtx.Channel.ID,
+				DBChannelID: parseCtx.Channel.DBChannelID,
 				Phrase:    phrase,
 			},
 		)

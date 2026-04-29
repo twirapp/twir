@@ -28,14 +28,14 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		return nil
 	}
 
-	allGreetings, err := c.greetingsCache.Get(ctx, msg.BroadcasterUserId)
+	allGreetings, err := c.greetingsCache.Get(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return err
 	}
 
 	var greeting *greetingsmodel.Greeting
 	for _, g := range allGreetings {
-		if g.UserID == msg.ChatterUserId && g.Enabled && !g.Processed {
+		if g.UserID == msg.EnrichedData.DbUser.ID && g.Enabled && !g.Processed {
 			greeting = &g
 			break
 		}
@@ -55,7 +55,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		return err
 	}
 
-	if err = c.greetingsCache.Invalidate(ctx, msg.BroadcasterUserId); err != nil {
+	if err = c.greetingsCache.Invalidate(ctx, msg.EnrichedData.DbChannel.ID.String()); err != nil {
 		return err
 	}
 
@@ -113,7 +113,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 			ctx,
 			twitchactions.ShoutOutInput{
 				BroadcasterID: msg.BroadcasterUserId,
-				TargetID:      greeting.UserID,
+				TargetID:      msg.ChatterUserId,
 			},
 		)
 	}
@@ -140,7 +140,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		WithContext(ctx).
 		Where(
 			"channel_id = ? AND greetings_ids && ?",
-			msg.BroadcasterUserId,
+			msg.EnrichedData.DbChannel.ID.String(),
 			pq.StringArray{greeting.ID.String()},
 		).Find(&alert).Error; err != nil {
 		c.logger.Error("cannot find channel alert", logger.Error(err))
@@ -151,7 +151,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		c.websocketsGrpc.TriggerAlert(
 			ctx,
 			&websockets.TriggerAlertRequest{
-				ChannelId: msg.BroadcasterUserId,
+				ChannelId: msg.EnrichedData.DbChannel.ID.String(),
 				AlertId:   alert.ID,
 			},
 		)

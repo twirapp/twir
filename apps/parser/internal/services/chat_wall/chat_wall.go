@@ -15,6 +15,7 @@ import (
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -60,7 +61,7 @@ type Service struct {
 }
 
 type CreateInput struct {
-	ChannelID       string
+	DBChannelID     string
 	Phrase          string
 	Enabled         bool
 	Action          model.ChatWallAction
@@ -73,7 +74,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 	currentChatWalls, err := c.repo.GetMany(
 		ctx,
 		chatwallrepository.GetManyInput{
-			ChannelID: input.ChannelID,
+			ChannelID: input.DBChannelID,
 			Enabled:   &currentChatWallsEnabledParam,
 		},
 	)
@@ -101,7 +102,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 	wall, err := c.repo.Create(
 		ctx,
 		chatwallrepository.CreateInput{
-			ChannelID:       input.ChannelID,
+			ChannelID:       input.DBChannelID,
 			Phrase:          input.Phrase,
 			Enabled:         true,
 			Action:          input.Action,
@@ -119,13 +120,15 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 		)
 	}
 
-	c.chatWallCache.Invalidate(ctx, input.ChannelID)
+	c.chatWallCache.Invalidate(ctx, input.DBChannelID)
 
 	return wall, nil
 }
 
 type HandlePastMessagesInput struct {
-	ChannelID       string
+	DBChannelID     string
+	PlatformChannelID string
+	Platform        platformentity.Platform
 	Phrase          string
 	Action          model.ChatWallAction
 	TimeoutDuration *time.Duration
@@ -136,7 +139,7 @@ func (c *Service) HandlePastMessages(
 	wall model.ChatWall,
 	input HandlePastMessagesInput,
 ) error {
-	chatWallSettings, err := c.repo.GetChannelSettings(ctx, input.ChannelID)
+	chatWallSettings, err := c.repo.GetChannelSettings(ctx, input.DBChannelID)
 	if err != nil && !errors.Is(err, chatwallrepository.ErrSettingsNotFound) {
 		return fmt.Errorf(
 			i18n.GetCtx(
@@ -156,7 +159,7 @@ func (c *Service) HandlePastMessages(
 	messages, err := c.chatMessagesRepo.GetMany(
 		ctx,
 		chatmessagesrepository.GetManyInput{
-			ChannelID: &input.ChannelID,
+			ChannelID: &input.PlatformChannelID,
 			TextLike:  &input.Phrase,
 			Page:      0,
 			PerPage:   1000,
@@ -184,21 +187,44 @@ func (c *Service) HandlePastMessages(
 		isVipsMuted = false
 	}
 
-	messageUserIDs := lo.Map(
-		messages, func(item chatmessagemodel.ChatMessage, _ int) uuid.UUID {
-			id, err := uuid.Parse(item.UserID)
-			if err != nil {
-				return uuid.Nil
-			}
+	type userPlatformRef struct {
+		ID         string `gorm:"column:id"`
+		PlatformID string `gorm:"column:platform_id"`
+	}
 
-			return id
-		},
-	)
-	messageUserIDs = lo.Filter(
-		messageUserIDs, func(item uuid.UUID, _ int) bool {
-			return item != uuid.Nil
-		},
-	)
+	messagePlatformUserIDs := lo.Map(messages, func(item chatmessagemodel.ChatMessage, _ int) string {
+		return item.UserID
+	})
+
+	var userRefs []userPlatformRef
+	if err := c.gorm.
+		WithContext(ctx).
+		Table("users").
+		Select("id", "platform_id").
+		Where("platform = ? AND platform_id IN ?", input.Platform, messagePlatformUserIDs).
+		Find(&userRefs).Error; err != nil {
+		return fmt.Errorf(
+			i18n.GetCtx(
+				ctx,
+				locales.Translations.Services.ChatWall.Errors.GetUsersStats.
+					SetVars(locales.KeysServicesChatWallErrorsGetUsersStatsVars{Reason: err.Error()}),
+			),
+		)
+	}
+
+	messageUserIDs := make([]uuid.UUID, 0, len(userRefs))
+	platformUserIDByInternalID := make(map[string]string, len(userRefs))
+	internalUserIDByPlatformID := make(map[string]string, len(userRefs))
+	for _, ref := range userRefs {
+		parsedUserID, err := uuid.Parse(ref.ID)
+		if err != nil {
+			continue
+		}
+
+		messageUserIDs = append(messageUserIDs, parsedUserID)
+		platformUserIDByInternalID[ref.ID] = ref.PlatformID
+		internalUserIDByPlatformID[ref.PlatformID] = ref.ID
+	}
 
 	var usersStats []deprecatedgormmodel.UsersStats
 	if err := c.gorm.
@@ -206,7 +232,7 @@ func (c *Service) HandlePastMessages(
 		Where(
 			`"userId" IN ? AND "channelId" = ?::uuid`,
 			messageUserIDs,
-			input.ChannelID,
+			input.DBChannelID,
 		).
 		Find(&usersStats).Error; err != nil {
 		return fmt.Errorf(
@@ -223,7 +249,7 @@ func (c *Service) HandlePastMessages(
 		func(item chatmessagemodel.ChatMessage, _ int) bool {
 			var foundUserStats *deprecatedgormmodel.UsersStats
 			for _, userStats := range usersStats {
-				if userStats.UserID == item.UserID {
+				if platformUserIDByInternalID[userStats.UserID] == item.UserID {
 					foundUserStats = &userStats
 					break
 				}
@@ -247,7 +273,7 @@ func (c *Service) HandlePastMessages(
 
 	alreadyHandledMessagesIds, err := c.redis.SMembers(
 		ctx,
-		fmt.Sprintf(redis_keys.NukeRedisPrefix, input.ChannelID),
+		fmt.Sprintf(redis_keys.NukeRedisPrefix, input.DBChannelID),
 	).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return fmt.Errorf(
@@ -271,11 +297,11 @@ func (c *Service) HandlePastMessages(
 			return nil
 		}
 
-		err = c.twirBus.Bots.DeleteMessage.Publish(
-			ctx,
-			botsservice.DeleteMessageRequest{
-				ChannelId:  input.ChannelID,
-				MessageIds: mappedMessagesIDs,
+			err = c.twirBus.Bots.DeleteMessage.Publish(
+				ctx,
+				botsservice.DeleteMessageRequest{
+					ChannelId:  input.PlatformChannelID,
+					MessageIds: mappedMessagesIDs,
 			},
 		)
 		if err != nil {
@@ -303,7 +329,7 @@ func (c *Service) HandlePastMessages(
 			request = append(
 				request,
 				botsservice.BanRequest{
-					ChannelID: input.ChannelID,
+					ChannelID: input.PlatformChannelID,
 					UserID:    m.UserID,
 					Reason: i18n.GetCtx(
 						ctx,
@@ -344,7 +370,7 @@ func (c *Service) HandlePastMessages(
 			logs,
 			chatwallrepository.CreateLogInput{
 				WallID: wall.ID,
-				UserID: m.UserID,
+				UserID: internalUserIDByPlatformID[m.UserID],
 				Text:   m.Text,
 			},
 		)
@@ -364,14 +390,14 @@ func (c *Service) HandlePastMessages(
 		ctx, func(p redis.Pipeliner) error {
 			if err := p.SAdd(
 				ctx,
-				fmt.Sprintf(redis_keys.NukeRedisPrefix, input.ChannelID),
+				fmt.Sprintf(redis_keys.NukeRedisPrefix, input.DBChannelID),
 				newHandledMessagesIds,
 			).Err(); err != nil {
 				return err
 			}
 			if err := p.Expire(
 				ctx,
-				fmt.Sprintf(redis_keys.NukeRedisPrefix, input.ChannelID),
+				fmt.Sprintf(redis_keys.NukeRedisPrefix, input.DBChannelID),
 				20*time.Minute,
 			).Err(); err != nil {
 				return err
@@ -394,7 +420,7 @@ func (c *Service) HandlePastMessages(
 }
 
 type StopInput struct {
-	ChannelID string
+	DBChannelID string
 	Phrase    string
 }
 
@@ -406,7 +432,7 @@ func (c *Service) Stop(ctx context.Context, input StopInput) error {
 	walls, err := c.repo.GetMany(
 		ctx,
 		chatwallrepository.GetManyInput{
-			ChannelID: input.ChannelID,
+			ChannelID: input.DBChannelID,
 			Enabled:   &enabled,
 		},
 	)
@@ -439,7 +465,7 @@ func (c *Service) Stop(ctx context.Context, input StopInput) error {
 				)
 			}
 
-			c.chatWallCache.Invalidate(ctx, input.ChannelID)
+			c.chatWallCache.Invalidate(ctx, input.DBChannelID)
 			return nil
 		}
 	}

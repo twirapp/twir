@@ -32,7 +32,7 @@ func (c *duelHandler) getChannelSettings(ctx context.Context) (
 
 	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Where(
 		`"channel_id" = ?`,
-		c.parseCtx.Channel.ID,
+		c.parseCtx.Channel.DBChannelID,
 	).First(&entity).Error; err != nil {
 		return entity, err
 	}
@@ -85,7 +85,7 @@ func (c *duelHandler) getDbChannel(ctx context.Context) (model.Channels, error) 
 	channel := model.Channels{}
 	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Where(
 		`"id" = ?`,
-		c.parseCtx.Channel.ID,
+		c.parseCtx.Channel.DBChannelID,
 	).First(&channel).Error; err != nil {
 		return model.Channels{}, err
 	}
@@ -102,7 +102,7 @@ func (c *duelHandler) getUserCurrentDuel(ctx context.Context, userId string) (
 	err := c.parseCtx.Services.Gorm.
 		WithContext(ctx).
 		Debug().
-		Where(`channel_id = ?`, c.parseCtx.Channel.ID).
+		Where(`channel_id = ?`, c.parseCtx.Channel.DBChannelID).
 		Where("finished_at is null").
 		Where("available_until >= now()").
 		Where("sender_id = ? OR target_id = ?", userId, userId).
@@ -211,7 +211,7 @@ func (c *duelHandler) saveDuelData(
 
 	entity := model.ChannelDuel{
 		ID:              uuid.New(),
-		ChannelID:       c.parseCtx.Channel.ID,
+		ChannelID:       c.parseCtx.Channel.DBChannelID,
 		SenderID:        null.StringFrom(c.parseCtx.Sender.ID),
 		SenderModerator: senderModerator,
 		SenderLogin:     c.parseCtx.Sender.Name,

@@ -12,6 +12,7 @@ import (
 type (
 	sessionResult struct {
 		channelId    string
+		platformChannelId string
 		isModerator  bool
 		isBan        bool
 		targetUserId string
@@ -33,6 +34,7 @@ type (
 		targetUserId          string
 		targetUserLogin       string
 		isTargetUserModerator bool
+		platformChannelID     string
 	}
 )
 
@@ -41,6 +43,7 @@ func newSession(
 	targetUserId string,
 	targetUserLogin string,
 	isTargetUserModerator bool,
+	platformChannelID string,
 ) *session {
 	sess := session{
 		words:                 make(map[string]bool),
@@ -50,6 +53,7 @@ func newSession(
 		targetUserId:          targetUserId,
 		targetUserLogin:       targetUserLogin,
 		isTargetUserModerator: isTargetUserModerator,
+		platformChannelID:     platformChannelID,
 	}
 
 	for _, word := range voteban.ChatVotesWordsPositive {
@@ -116,6 +120,7 @@ func (s *session) writeResult() {
 				yesVotes:     s.yesVotes,
 				noVotes:      s.noVotes,
 				channelId:    s.voteban.ChannelID,
+				platformChannelId: s.platformChannelID,
 				banDuration:  s.voteban.TimeoutSeconds,
 			}
 			close(s.result)

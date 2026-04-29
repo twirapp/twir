@@ -97,6 +97,7 @@ const redisParticipantKey = "giveaways:%s:participants:%s"
 func (c *Service) TryAddParticipant(
 	ctx context.Context,
 	userID string,
+	platformUserID string,
 	userLogin string,
 	userDisplayName string,
 	giveawayID string,
@@ -160,7 +161,7 @@ func (c *Service) TryAddParticipant(
 			if ch.TwitchUserID == nil || ch.TwitchPlatformID == nil {
 				return nil
 			}
-			followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, ch.TwitchUserID.String(), userID, *ch.TwitchPlatformID)
+			followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, ch.TwitchUserID.String(), platformUserID, *ch.TwitchPlatformID)
 			if err != nil {
 				c.logger.Error("cannot get user follow duration", logger.Error(err))
 				return nil

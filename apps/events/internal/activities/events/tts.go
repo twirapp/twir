@@ -7,6 +7,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	ttsrepository "github.com/twirapp/twir/libs/repositories/overlays_tts"
@@ -30,7 +31,7 @@ func (c *Activity) TtsSay(
 		return fmt.Errorf("cannot hydrate string %s", hydrateErr)
 	}
 
-	channelSettings, err := c.ttsCache.Get(ctx, data.ChannelID)
+	channelSettings, err := c.ttsCache.Get(ctx, data.ChannelDBID)
 	if err != nil {
 		return fmt.Errorf("cannot get tts settings %s", err)
 	}
@@ -39,7 +40,11 @@ func (c *Activity) TtsSay(
 		return nil
 	}
 
-	userSettings, _ := c.ttsRepository.GetUserSettings(ctx, data.ChannelID, data.UserID)
+	userSettings := ttsmodel.NilUserSettings
+	dbUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, data.UserID)
+	if err == nil {
+		userSettings, _ = c.ttsRepository.GetUserSettings(ctx, data.ChannelDBID, dbUser.ID)
+	}
 
 	voice := lo.IfF(
 		userSettings != ttsmodel.NilUserSettings, func() string {
@@ -60,7 +65,7 @@ func (c *Activity) TtsSay(
 	_, err = c.bus.Api.TriggerTtsSay.Request(
 		ctx,
 		api.TriggerTtsSay{
-			ChannelId: data.ChannelID,
+			ChannelId: data.ChannelDBID,
 			Text:      msg,
 			Voice:     voice,
 			Rate:      strconv.Itoa(rate),
@@ -85,7 +90,7 @@ func (c *Activity) TtsSkip(
 	_, err := c.bus.Api.TriggerTtsSkip.Request(
 		ctx,
 		api.TriggerTtsSkip{
-			ChannelId: data.ChannelID,
+			ChannelId: data.ChannelDBID,
 		},
 	)
 	if err != nil {
@@ -102,7 +107,7 @@ func (c *Activity) TtsChangeState(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	currentSettings, err := c.ttsCache.Get(ctx, data.ChannelID)
+	currentSettings, err := c.ttsCache.Get(ctx, data.ChannelDBID)
 	if err != nil {
 		return fmt.Errorf("cannot get tts settings %s", err)
 	}
@@ -116,7 +121,7 @@ func (c *Activity) TtsChangeState(
 
 	_, err = c.ttsRepository.Update(
 		ctx,
-		data.ChannelID,
+		data.ChannelDBID,
 		ttsrepository.UpdateInput{
 			Settings: ttsmodel.TTSOverlaySettings{
 				Enabled:                            newState,
@@ -139,7 +144,7 @@ func (c *Activity) TtsChangeState(
 		return fmt.Errorf("cannot update tts settings %s", err)
 	}
 
-	if err := c.ttsCache.Invalidate(ctx, data.ChannelID); err != nil {
+	if err := c.ttsCache.Invalidate(ctx, data.ChannelDBID); err != nil {
 		return fmt.Errorf("cannot invalidate tts cache %s", err)
 	}
 
@@ -153,7 +158,7 @@ func (c *Activity) TtsChangeAutoReadState(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	currentSettings, err := c.ttsCache.Get(ctx, data.ChannelID)
+	currentSettings, err := c.ttsCache.Get(ctx, data.ChannelDBID)
 	if err != nil {
 		return fmt.Errorf("cannot get tts settings %s", err)
 	}
@@ -169,7 +174,7 @@ func (c *Activity) TtsChangeAutoReadState(
 
 	_, err = c.ttsRepository.Update(
 		ctx,
-		data.ChannelID,
+		data.ChannelDBID,
 		ttsrepository.UpdateInput{
 			Settings: ttsmodel.TTSOverlaySettings{
 				Enabled:                            currentSettings.Enabled != nil && *currentSettings.Enabled,
@@ -192,7 +197,7 @@ func (c *Activity) TtsChangeAutoReadState(
 		return fmt.Errorf("cannot update tts settings %s", err)
 	}
 
-	if err := c.ttsCache.Invalidate(ctx, data.ChannelID); err != nil {
+	if err := c.ttsCache.Invalidate(ctx, data.ChannelDBID); err != nil {
 		return fmt.Errorf("cannot invalidate tts cache %s", err)
 	}
 

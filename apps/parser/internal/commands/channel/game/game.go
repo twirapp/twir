@@ -101,7 +101,7 @@ var SetCommand = &types.DefaultCommand{
 
 		categoryAliases, err := parseCtx.Services.CategoriesAliasesRepo.GetManyByChannelID(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{

@@ -45,7 +45,7 @@ var WrongCommand = &types.DefaultCommand{
 		err := parseCtx.Services.Gorm.WithContext(ctx).
 			Where(
 				`"channelId" = ?::uuid AND "orderedById" = ? AND "deletedAt" IS NULL`,
-				parseCtx.Channel.ID,
+				parseCtx.Channel.DBChannelID,
 				parseCtx.Sender.ID,
 			).
 			Limit(5).
@@ -95,7 +95,7 @@ var WrongCommand = &types.DefaultCommand{
 		_, err = parseCtx.Services.GrpcClients.WebSockets.YoutubeRemoveSongToQueue(
 			ctx,
 			&websockets.YoutubeRemoveSongFromQueueRequest{
-				ChannelId: parseCtx.Channel.ID,
+				ChannelId: parseCtx.Channel.DBChannelID,
 				EntityId:  choosedSong.ID,
 			},
 		)

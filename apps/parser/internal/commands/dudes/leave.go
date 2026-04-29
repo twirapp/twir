@@ -31,7 +31,7 @@ var Leave = &types.DefaultCommand{
 		err := parseCtx.Services.Bus.Websocket.DudesLeave.Publish(
 			ctx,
 			websockets.DudesLeaveRequest{
-				ChannelID: parseCtx.Channel.ID,
+				ChannelID: parseCtx.Channel.DBChannelID,
 				UserID:    parseCtx.Sender.ID,
 			},
 		)
