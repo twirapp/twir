@@ -58,25 +58,48 @@ const search = ref('')
 
 const { contains } = useFilter({ sensitivity: 'base' })
 
-function getDashboardName(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
-	if (dashboard.platform === 'kick') {
-		return dashboard.kickProfile?.displayName ?? dashboard.kickProfile?.slug ?? ''
+function getDashboardProfile(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
+	if (dashboard.platform === 'kick' && dashboard.kickProfile) {
+		return {
+			name: dashboard.kickProfile.displayName ?? dashboard.kickProfile.slug ?? '',
+			login: dashboard.kickProfile.slug ?? '',
+			avatar: dashboard.kickProfile.profilePicture ?? '',
+		}
 	}
-	return dashboard.twitchProfile?.displayName ?? ''
+
+	if (dashboard.twitchProfile) {
+		return {
+			name: dashboard.twitchProfile.displayName ?? '',
+			login: dashboard.twitchProfile.login ?? '',
+			avatar: dashboard.twitchProfile.profileImageUrl ?? '',
+		}
+	}
+
+	if (dashboard.kickProfile) {
+		return {
+			name: dashboard.kickProfile.displayName ?? dashboard.kickProfile.slug ?? '',
+			login: dashboard.kickProfile.slug ?? '',
+			avatar: dashboard.kickProfile.profilePicture ?? '',
+		}
+	}
+
+	return {
+		name: '',
+		login: '',
+		avatar: '',
+	}
+}
+
+function getDashboardName(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
+	return getDashboardProfile(dashboard).name
 }
 
 function getDashboardLogin(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
-	if (dashboard.platform === 'kick') {
-		return dashboard.kickProfile?.slug ?? ''
-	}
-	return dashboard.twitchProfile?.login ?? ''
+	return getDashboardProfile(dashboard).login
 }
 
 function getDashboardAvatar(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
-	if (dashboard.platform === 'kick') {
-		return dashboard.kickProfile?.profilePicture ?? ''
-	}
-	return dashboard.twitchProfile?.profileImageUrl ?? ''
+	return getDashboardProfile(dashboard).avatar
 }
 
 const options = computed(() => {

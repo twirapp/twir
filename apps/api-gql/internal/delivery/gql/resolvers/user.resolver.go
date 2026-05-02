@@ -361,7 +361,30 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // UnlinkPlatformAccount is the resolver for the unlinkPlatformAccount field.
 func (r *mutationResolver) UnlinkPlatformAccount(ctx context.Context, platform string) (bool, error) {
-	return false, fmt.Errorf("unlinking platform accounts is not supported in multi-platform mode")
+	channel, err := (&authenticatedUserResolver{r.Resolver}).getAuthenticatedUserChannel(ctx)
+	if err != nil {
+		return false, fmt.Errorf("get authenticated user channel: %w", err)
+	}
+
+	currentPlatform, err := r.deps.Sessions.GetCurrentPlatform(ctx)
+	if err != nil {
+		return false, fmt.Errorf("get current platform: %w", err)
+	}
+
+	updates, err := unlinkPlatformUpdates(
+		channel,
+		platformentity.Platform(currentPlatform),
+		platformentity.Platform(platform),
+	)
+	if err != nil {
+		return false, err
+	}
+
+	if err := r.deps.Gorm.WithContext(ctx).Model(&model.Channels{}).Where("id = ?", channel.ID).Updates(updates).Error; err != nil {
+		return false, fmt.Errorf("unlink platform account: %w", err)
+	}
+
+	return true, nil
 }
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.

@@ -7,9 +7,63 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
+
+var errCannotUnlinkCurrentPlatform = fmt.Errorf("cannot unlink current platform account")
+var errCannotUnlinkLastPlatform = fmt.Errorf("cannot unlink the last linked platform account")
+
+func unlinkPlatformUpdates(
+	channel channelsmodel.Channel,
+	currentPlatform platformentity.Platform,
+	targetPlatform platformentity.Platform,
+) (map[string]any, error) {
+	if !targetPlatform.IsValid() {
+		return nil, fmt.Errorf("unsupported platform: %s", targetPlatform)
+	}
+
+	if currentPlatform == targetPlatform {
+		return nil, errCannotUnlinkCurrentPlatform
+	}
+
+	if len(channel.Platforms()) < 2 {
+		return nil, errCannotUnlinkLastPlatform
+	}
+
+	switch targetPlatform {
+	case platformentity.PlatformTwitch:
+		if !channel.TwitchConnected() {
+			return nil, fmt.Errorf("platform %s is not linked", targetPlatform)
+		}
+
+		return map[string]any{"twitch_user_id": nil}, nil
+	case platformentity.PlatformKick:
+		if !channel.KickConnected() {
+			return nil, fmt.Errorf("platform %s is not linked", targetPlatform)
+		}
+
+		return map[string]any{
+			"kick_user_id": nil,
+			"kick_bot_id":  nil,
+		}, nil
+	default:
+		return nil, fmt.Errorf("unsupported platform: %s", targetPlatform)
+	}
+}
+
+func getDashboardPlatform(channel model.Channels, userID string) string {
+	if channel.KickUserID != nil && *channel.KickUserID == userID {
+		return "kick"
+	}
+
+	if channel.TwitchUserID != nil && *channel.TwitchUserID == userID {
+		return "twitch"
+	}
+
+	return channel.Platform()
+}
 
 func (r *authenticatedUserResolver) getAuthenticatedUserChannel(ctx context.Context) (channelsmodel.Channel, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
@@ -70,7 +124,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		for _, channel := range ownChannels {
 			dashboard := gqlmodel.Dashboard{
 				ID:       channel.ID,
-				Platform: channel.Platform(),
+				Platform: getDashboardPlatform(channel, obj.ID),
 				Flags:    []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
 				APIKey:   obj.APIKey,
 				PlanID:   channel.PlanID,
@@ -104,10 +158,16 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			}
 
 			existing := dashboardsEntities[role.Role.Channel.ID]
+			platform := existing.Platform
+			if platform == "" {
+				platform = role.Role.Channel.Platform()
+			}
+
 			dashboard := gqlmodel.Dashboard{
 				ID:          role.Role.Channel.ID,
-				Platform:    existing.Platform,
+				Platform:    platform,
 				Flags:       append(existing.Flags, flags...),
+				APIKey:      existing.APIKey,
 				PlanID:      role.Role.Channel.PlanID,
 				KickProfile: existing.KickProfile,
 			}
@@ -166,10 +226,17 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 
 		if role.ID != "" && len(flags) > 0 {
 			existing := dashboardsEntities[role.ChannelID]
+			platform := existing.Platform
+			if platform == "" {
+				platform = role.Channel.Platform()
+			}
+
 			dashboard := gqlmodel.Dashboard{
 				ID:          role.ChannelID,
-				Platform:    existing.Platform,
+				Platform:    platform,
 				Flags:       append(existing.Flags, flags...),
+				APIKey:      existing.APIKey,
+				PlanID:      existing.PlanID,
 				KickProfile: existing.KickProfile,
 			}
 

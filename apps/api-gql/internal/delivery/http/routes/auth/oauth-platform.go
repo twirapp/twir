@@ -374,7 +374,7 @@ func (a *Auth) upsertPlatformUserToken(
 		return nil
 	}
 
-	_, err = a.tokensRepository.CreateUserToken(
+	createdToken, err := a.tokensRepository.CreateUserToken(
 		ctx,
 		tokensrepository.CreateInput{
 			UserID:              userID,
@@ -387,6 +387,12 @@ func (a *Auth) upsertPlatformUserToken(
 	)
 	if err != nil {
 		return fmt.Errorf("create user token: %w", err)
+	}
+
+	tokenID := createdToken.ID.String()
+	_, err = a.usersRepo.Update(ctx, userID, usersrepo.UpdateInput{TokenID: &tokenID})
+	if err != nil {
+		return fmt.Errorf("bind user token: %w", err)
 	}
 
 	return nil
