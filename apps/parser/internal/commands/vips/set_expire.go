@@ -103,7 +103,7 @@ var SetExpire = &types.DefaultCommand{
 
 		vip, err := parseCtx.Services.ScheduledVipsRepo.GetByUserAndChannelID(
 			ctx,
-			targetDbUser.ID,
+			targetDbUser.ID.String(),
 			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
@@ -117,7 +117,7 @@ var SetExpire = &types.DefaultCommand{
 				ctx,
 				scheduledvipsrepository.CreateInput{
 					ChannelID:  parseCtx.Channel.DBChannelID,
-					UserID:     targetDbUser.ID,
+					UserID:     targetDbUser.ID.String(),
 					RemoveType: unvipType,
 					RemoveAt:   unvipAt,
 				},

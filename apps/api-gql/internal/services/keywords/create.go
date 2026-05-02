@@ -41,7 +41,12 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword
 		return entity.KeywordNil, fmt.Errorf("plan configuration not found for your channel")
 	}
 
-	createdCount, err := c.keywordsRepository.CountByChannelID(ctx, input.ChannelID)
+	parsedChannelID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return entity.KeywordNil, err
+	}
+
+	createdCount, err := c.keywordsRepository.CountByChannelID(ctx, parsedChannelID)
 	if err != nil {
 		return entity.KeywordNil, err
 	}
@@ -52,7 +57,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Keyword
 
 	k, err := c.keywordsRepository.Create(
 		ctx, keywords.CreateInput{
-			ChannelID:        input.ChannelID,
+			ChannelID:        parsedChannelID,
 			Text:             input.Text,
 			Response:         input.Response,
 			Enabled:          input.Enabled,

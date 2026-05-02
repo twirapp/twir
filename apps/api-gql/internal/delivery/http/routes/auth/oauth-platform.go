@@ -67,10 +67,7 @@ func (a *Auth) completePlatformAuth(
 		return completePlatformAuthResult{}, errAuthForbidden
 	}
 
-	platformUserID, err := uuid.Parse(platformUser.ID)
-	if err != nil {
-		return completePlatformAuthResult{}, fmt.Errorf("parse platform user id: %w", err)
-	}
+	platformUserID := platformUser.ID
 
 	var (
 		channel        channelsmodel.Channel
@@ -83,10 +80,7 @@ func (a *Auth) completePlatformAuth(
 			return completePlatformAuthResult{}, errAuthForbidden
 		}
 
-		sessionUserID, err = uuid.Parse(sessionUser.ID)
-		if err != nil {
-			return completePlatformAuthResult{}, fmt.Errorf("parse session user id: %w", err)
-		}
+		sessionUserID = sessionUser.ID
 
 		channel, createdChannel, err = a.getOrCreateChannelForUser(
 			ctx,
@@ -189,7 +183,7 @@ func (a *Auth) getLiveSessionUser(ctx context.Context) (usersmodel.User, bool, e
 		return usersmodel.Nil, false, nil
 	}
 
-	user, err := a.usersRepo.GetByID(ctx, userID.String())
+	user, err := a.usersRepo.GetByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, usersmodel.ErrNotFound) {
 			return usersmodel.Nil, false, nil
@@ -235,7 +229,7 @@ func (a *Auth) getOrCreatePlatformUser(
 		Avatar:      &platformUser.Avatar,
 	})
 	if updateErr != nil {
-		a.logger.ErrorContext(ctx, "cannot update platform user profile", logger.Error(updateErr), slog.String("user_id", user.ID), slog.String("platform", platform.String()))
+		a.logger.ErrorContext(ctx, "cannot update platform user profile", logger.Error(updateErr), slog.String("user_id", user.ID.String()), slog.String("platform", platform.String()))
 	}
 
 	return user, false, nil

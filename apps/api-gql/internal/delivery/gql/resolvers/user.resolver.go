@@ -31,7 +31,12 @@ import (
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := r.deps.UsersRepository.GetByID(ctx, obj.ID)
+	parsedUserID, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
 		if err == usersmodel.ErrNotFound {
 			return nil, nil
@@ -83,7 +88,7 @@ func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gql
 	accounts := make([]gqlmodel.LinkedAccount, 0, 2)
 
 	if channel.TwitchUserID != nil {
-		twitchUser, err := r.deps.UsersRepository.GetByID(ctx, channel.TwitchUserID.String())
+		twitchUser, err := r.deps.UsersRepository.GetByID(ctx, *channel.TwitchUserID)
 		if err != nil {
 			return nil, fmt.Errorf("get linked twitch user: %w", err)
 		}
@@ -101,7 +106,7 @@ func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gql
 	}
 
 	if channel.KickUserID != nil {
-		kickUser, err := r.deps.UsersRepository.GetByID(ctx, channel.KickUserID.String())
+		kickUser, err := r.deps.UsersRepository.GetByID(ctx, *channel.KickUserID)
 		if err != nil {
 			return nil, fmt.Errorf("get linked kick user: %w", err)
 		}
@@ -128,7 +133,12 @@ func (r *authenticatedUserResolver) CurrentPlatform(ctx context.Context, obj *gq
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *channelUserInfoResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChannelUserInfo) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := r.deps.UsersRepository.GetByID(ctx, obj.UserID)
+	parsedUserID, err := uuid.Parse(obj.UserID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
 		if err == usersmodel.ErrNotFound {
 			return nil, nil
@@ -407,12 +417,7 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 		}
 
 		if err == nil {
-			parsedUserID, err := uuid.Parse(user.ID)
-			if err != nil {
-				return nil, fmt.Errorf("parse internal twitch user id: %w", err)
-			}
-
-			channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, parsedUserID)
+			channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
 			if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
 				return nil, fmt.Errorf("get channel by twitch user id: %w", err)
 			}

@@ -12,7 +12,7 @@ import (
 var ErrSettingsNotFound = fmt.Errorf("channel settings not found")
 
 type Repository interface {
-	GetChannelSettings(ctx context.Context, channelID string) (model.ChatWallSettings, error)
+	GetChannelSettings(ctx context.Context, channelID uuid.UUID) (model.ChatWallSettings, error)
 	UpdateChannelSettings(ctx context.Context, input UpdateChannelSettingsInput) error
 	GetByID(ctx context.Context, id uuid.UUID) (model.ChatWall, error)
 	GetMany(ctx context.Context, input GetManyInput) ([]model.ChatWall, error)
@@ -25,12 +25,12 @@ type Repository interface {
 }
 
 type GetManyInput struct {
-	ChannelID string
+	ChannelID uuid.UUID
 	Enabled   *bool
 }
 
 type CreateInput struct {
-	ChannelID       string
+	ChannelID       uuid.UUID
 	Phrase          string
 	Enabled         bool
 	Action          model.ChatWallAction
@@ -48,12 +48,12 @@ type UpdateInput struct {
 
 type CreateLogInput struct {
 	WallID uuid.UUID
-	UserID string
+	UserID uuid.UUID
 	Text   string
 }
 
 type UpdateChannelSettingsInput struct {
-	ChannelID       string
+	ChannelID       uuid.UUID
 	MuteSubscribers bool
 	MuteVips        bool
 }

@@ -7,7 +7,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	platform "github.com/twirapp/twir/libs/entities/platform"
@@ -51,13 +50,7 @@ func (c *Handler) handleModerateActionBan(
 			return
 		}
 
-		userUUID, err := uuid.Parse(user.ID)
-		if err != nil {
-			c.logger.Error("cannot parse user ID as UUID", logger.Error(err))
-			return
-		}
-
-		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
+		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
 		if err != nil {
 			if errors.Is(err, channelsrepository.ErrNotFound) {
 				return

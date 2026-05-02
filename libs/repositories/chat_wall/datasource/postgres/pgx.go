@@ -97,13 +97,17 @@ func (c *Pgx) UpdateChannelSettings(
 }
 
 func (c *Pgx) CreateManyLogs(ctx context.Context, inputs []chat_wall.CreateLogInput) error {
+	if len(inputs) == 0 {
+		return nil
+	}
+
 	insertBuilder := sq.Insert("channels_chat_wall_log").
 		Columns("wall_id", "user_id", "text")
 
 	for _, input := range inputs {
 		insertBuilder = insertBuilder.Values(
 			input.WallID.String(),
-			input.UserID,
+			input.UserID.String(),
 			input.Text,
 		)
 	}
@@ -129,11 +133,11 @@ VALUES ($1, $2, $3)
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err := conn.Exec(ctx, query, input.WallID.String(), input.UserID, input.Text)
+	_, err := conn.Exec(ctx, query, input.WallID.String(), input.UserID.String(), input.Text)
 	return err
 }
 
-func (c *Pgx) GetChannelSettings(ctx context.Context, channelID string) (
+func (c *Pgx) GetChannelSettings(ctx context.Context, channelID uuid.UUID) (
 	model.ChatWallSettings,
 	error,
 ) {
@@ -287,7 +291,7 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input chat_wall.UpdateIn
 	}
 
 	if input.Duration != nil {
-		queryBuilder = queryBuilder.Set("duration_seconds", *input.Duration)
+		queryBuilder = queryBuilder.Set("duration_seconds", int(input.Duration.Seconds()))
 	}
 
 	if input.TimeoutDuration != nil {

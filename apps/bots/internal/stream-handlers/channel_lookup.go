@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
@@ -28,12 +27,7 @@ func (c *PubSubHandlers) findTwitchChannelByPlatformUserID(
 		return twitchChannelLookupResult{}, false, err
 	}
 
-	userUUID, err := uuid.Parse(user.ID)
-	if err != nil {
-		return twitchChannelLookupResult{}, false, err
-	}
-
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return twitchChannelLookupResult{}, false, nil

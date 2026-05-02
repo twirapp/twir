@@ -9,7 +9,7 @@ import (
 
 type Keyword struct {
 	ID               uuid.UUID
-	ChannelID        string
+	ChannelID        uuid.UUID
 	Text             string
 	Response         string
 	Enabled          bool

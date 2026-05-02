@@ -92,7 +92,7 @@ type mockUsersRepo struct {
 	err  error
 }
 
-func (m *mockUsersRepo) GetByID(_ context.Context, _ string) (usersmodel.User, error) {
+func (m *mockUsersRepo) GetByID(_ context.Context, _ uuid.UUID) (usersmodel.User, error) {
 	return m.user, m.err
 }
 
@@ -104,7 +104,7 @@ func (m *mockUsersRepo) GetManyByIDS(_ context.Context, _ usersrepository.GetMan
 	return nil, nil
 }
 
-func (m *mockUsersRepo) Update(_ context.Context, _ string, _ usersrepository.UpdateInput) (usersmodel.User, error) {
+func (m *mockUsersRepo) Update(_ context.Context, _ uuid.UUID, _ usersrepository.UpdateInput) (usersmodel.User, error) {
 	return m.user, m.err
 }
 
@@ -381,7 +381,7 @@ func buildKickEventHandler(
 		&mockQueue[events.FollowMessage, struct{}]{},
 		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
-		&mockUsersRepo{user: usersmodel.User{ID: uuid.New().String(), PlatformID: broadcasterPlatformID}},
+		&mockUsersRepo{user: usersmodel.User{ID: uuid.New(), PlatformID: broadcasterPlatformID}},
 		&mockChannelsRepo{channel: channelsmodel.Channel{ID: channelUUID, KickUserID: &kickUserUUID}},
 		nil,
 	)
@@ -426,7 +426,7 @@ func TestHandleChatMessage(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -518,7 +518,7 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "999",
 		},
 	}
@@ -583,7 +583,7 @@ func TestHandleChannelFollow(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "777",
 		},
 	}
@@ -867,7 +867,7 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "555",
 		},
 	}
@@ -953,7 +953,7 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "556",
 		},
 	}
@@ -1034,7 +1034,7 @@ func TestHandleLivestreamMetadataUpdated(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         uuid.New().String(),
+		ID:         uuid.New(),
 			PlatformID: "557",
 		},
 	}
@@ -1129,7 +1129,7 @@ func TestHandleChatMessageRealConcurrent(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -1248,7 +1248,7 @@ func TestHandleChatMessageIgnoresAssignedKickBotMessages(t *testing.T) {
 
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         senderUserID.String(),
+		ID:         senderUserID,
 			PlatformID: "456",
 		},
 	}
@@ -1322,7 +1322,7 @@ func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -1514,7 +1514,7 @@ func TestHandleChatMessagePublishFailure(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -1588,7 +1588,7 @@ func TestHandleChatMessagePartialSuccess(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -1661,7 +1661,7 @@ func TestHandleChatMessageMarkProcessedFailure(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         userID,
+		ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}

@@ -9,17 +9,17 @@ import (
 
 type Repository interface {
 	GetManyByIDS(ctx context.Context, ids []uuid.UUID) ([]model.Role, error)
-	GetManyByChannelID(ctx context.Context, channelID string) ([]model.Role, error)
+	GetManyByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.Role, error)
 	Create(ctx context.Context, input CreateInput) (model.Role, error)
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.Role, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (model.Role, error)
 
-	GetUserAccessibleRoles(ctx context.Context, channelID, userID string) ([]model.Role, error)
+	GetUserAccessibleRoles(ctx context.Context, channelID, userID uuid.UUID) ([]model.Role, error)
 }
 
 type CreateInput struct {
-	ChannelID                 string
+	ChannelID                 uuid.UUID
 	Name                      string
 	Type                      model.ChannelRoleEnum
 	Permissions               []string

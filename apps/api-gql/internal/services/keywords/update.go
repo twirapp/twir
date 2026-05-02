@@ -38,8 +38,18 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword
 		return entity.KeywordNil, err
 	}
 
-	if keyword.ChannelID != input.ChannelID {
+	if keyword.ChannelID.String() != input.ChannelID {
 		return entity.KeywordNil, ErrKeywordNotFound
+	}
+
+	var rolesIDs *[]uuid.UUID
+	if input.RolesIDs != nil {
+		rolesIDs = &input.RolesIDs
+	}
+
+	platforms := keyword.Platforms
+	if input.Platforms != nil {
+		platforms = input.Platforms
 	}
 
 	newKeyword, err := c.keywordsRepository.Update(
@@ -54,8 +64,8 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword
 			IsReply:          input.IsReply,
 			IsRegular:        input.IsRegular,
 			Usages:           input.Usages,
-			RolesIDs:         &input.RolesIDs,
-			Platforms:        input.Platforms,
+			RolesIDs:         rolesIDs,
+			Platforms:        platforms,
 		},
 	)
 	if err != nil {

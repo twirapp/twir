@@ -11,10 +11,13 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 )
@@ -24,6 +27,7 @@ type Opts struct {
 
 	ScheduledVipsRepository scheduledvipsrepository.Repository
 	ChannelsRepository      channelsrepository.Repository
+	UsersRepository         usersrepository.Repository
 	Config                  config.Config
 	Bus                     *buscore.Bus
 	Logger                  *slog.Logger
@@ -33,6 +37,7 @@ func New(opts Opts) *Service {
 	return &Service{
 		repo:         opts.ScheduledVipsRepository,
 		channelsRepo: opts.ChannelsRepository,
+		usersRepo:    opts.UsersRepository,
 		config:       opts.Config,
 		bus:          opts.Bus,
 		logger:       opts.Logger,
@@ -42,9 +47,14 @@ func New(opts Opts) *Service {
 type Service struct {
 	repo         scheduledvipsrepository.Repository
 	channelsRepo channelsrepository.Repository
+	usersRepo    usersrepository.Repository
 	config       config.Config
 	bus          *buscore.Bus
 	logger       *slog.Logger
+}
+
+func (c *Service) GetUserByPlatformID(ctx context.Context, platformUserID string) (usersmodel.User, error) {
+	return c.usersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, platformUserID)
 }
 
 func (c *Service) GetScheduledVips(ctx context.Context, channelID string) (
@@ -116,6 +126,16 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
+	vipUserUUID, err := uuid.Parse(vip.UserID)
+	if err != nil {
+		return fmt.Errorf("invalid vip user id: %w", err)
+	}
+
+	vipUser, err := c.usersRepo.GetByID(ctx, vipUserUUID)
+	if err != nil {
+		return fmt.Errorf("get vip user: %w", err)
+	}
+
 	twitchClient, err := twitch.NewUserClient(
 		*channel.TwitchPlatformID,
 		c.config,
@@ -130,10 +150,14 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return err
 	}
 
+	if input.KeepVip != nil && *input.KeepVip {
+		return nil
+	}
+
 	vipResp, err := twitchClient.RemoveChannelVip(
 		&helix.RemoveChannelVipParams{
 			BroadcasterID: *channel.TwitchPlatformID,
-			UserID:        vip.UserID,
+			UserID:        vipUser.PlatformID,
 		},
 	)
 	if err != nil {
@@ -146,7 +170,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 	return nil
 }
 
-func (c *Service) Update(ctx context.Context, id, channelID string, removeAt *time.Time) error {
+func (c *Service) Update(ctx context.Context, id, channelID string, removeAt *time.Time, removeType *scheduledvipsentity.RemoveType) error {
 	vipID, err := uuid.Parse(id)
 	if err != nil {
 		return err
@@ -164,7 +188,8 @@ func (c *Service) Update(ctx context.Context, id, channelID string, removeAt *ti
 		ctx,
 		vipID,
 		scheduledvipsrepository.UpdateInput{
-			RemoveAt: removeAt,
+			RemoveAt:   removeAt,
+			RemoveType: removeType,
 		},
 	)
 }
@@ -188,6 +213,11 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 	}
 	if channel.IsNil() || !channel.TwitchConnected() {
 		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
+	targetDbUser, err := c.usersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, input.UserID)
+	if err != nil {
+		return fmt.Errorf("cannot get user by platform id: %w", err)
 	}
 
 	twitchClient, err := twitch.NewUserClient(
@@ -216,7 +246,7 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 		ctx,
 		scheduledvipsrepository.CreateInput{
 			ChannelID:  input.ChannelID,
-			UserID:     input.UserID,
+			UserID:     targetDbUser.ID.String(),
 			RemoveAt:   input.RemoveAt,
 			RemoveType: input.RemoveType,
 		},

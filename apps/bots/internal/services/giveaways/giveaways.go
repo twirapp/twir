@@ -108,6 +108,11 @@ func (c *Service) TryAddParticipant(
 		return nil
 	}
 
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return err
+	}
+
 	// Get giveaway to check filters
 	parsedGiveawayID, err := uuid.Parse(giveawayID)
 	if err != nil {
@@ -124,8 +129,10 @@ func (c *Service) TryAddParticipant(
 
 	// For KEYWORD giveaways, check filters before adding participant
 	if giveaway.Type == channels_giveaways.GiveawayTypeKeyword {
+		parsedChannelID := giveaway.ChannelID
+
 		// Check user stats
-		userStats, err := c.usersStatsRepository.GetByUserAndChannelID(ctx, userID, giveaway.ChannelID)
+		userStats, err := c.usersStatsRepository.GetByUserAndChannelID(ctx, parsedUserID, parsedChannelID)
 		if err != nil && userStats == nil {
 			// If user stats don't exist, user doesn't meet any filter requirements
 			return nil
@@ -149,10 +156,6 @@ func (c *Service) TryAddParticipant(
 
 		// Check follow duration if required
 		if giveaway.MinFollowDuration != nil {
-			parsedChannelID, parseErr := uuid.Parse(giveaway.ChannelID)
-			if parseErr != nil {
-				return parseErr
-			}
 			ch, chErr := c.channelsRepository.GetByID(ctx, parsedChannelID)
 			if chErr != nil {
 				c.logger.Error("cannot get channel for follow duration check", logger.Error(chErr))
@@ -175,8 +178,8 @@ func (c *Service) TryAddParticipant(
 	_, err = c.giveawaysParticipantsRepository.Create(
 		ctx,
 		giveaways_participants.CreateInput{
-			GiveawayID:      giveawayID,
-			UserID:          userID,
+			GiveawayID:      parsedGiveawayID,
+			UserID:          parsedUserID,
 			UserLogin:       userLogin,
 			UserDisplayName: userDisplayName,
 		},
@@ -189,7 +192,7 @@ func (c *Service) TryAddParticipant(
 		ctx,
 		giveawaysbusmodel.NewParticipant{
 			GiveawayID:      giveawayID,
-			UserID:          userID,
+			UserID:          parsedUserID.String(),
 			UserLogin:       userLogin,
 			UserDisplayName: userDisplayName,
 		},
@@ -228,7 +231,7 @@ func (c *Service) chooseWinner(
 		// For KEYWORD giveaways, get existing participants (filters already applied at join time)
 		participants, err := c.giveawaysParticipantsRepository.GetManyByGiveawayID(
 			ctx,
-			req.GiveawayID,
+			parsedGiveawayId,
 			giveaways_participants.GetManyInput{
 				IgnoreWinners: true,
 			},
@@ -240,11 +243,13 @@ func (c *Service) chooseWinner(
 		eligibleParticipants = participants
 
 	case channels_giveaways.GiveawayTypeOnlineChatters:
+		parsedChannelID := giveaway.ChannelID
+
 		// For ONLINE_CHATTERS, fetch online users with filters applied via SQL
 		onlineUsers, err := c.usersRepository.GetOnlineUsersWithFilters(
 			ctx,
 			users.GetOnlineUsersWithFiltersInput{
-				ChannelID:            giveaway.ChannelID,
+				ChannelID:            parsedChannelID,
 				MinWatchedTime:       giveaway.MinWatchedTime,
 				MinMessages:          giveaway.MinMessages,
 				MinUsedChannelPoints: giveaway.MinUsedChannelPoints,
@@ -259,10 +264,6 @@ func (c *Service) chooseWinner(
 		// Resolve channel for follow duration checks (once, outside the loop)
 		var channelForFollowCheck *channelmodel.Channel
 		if giveaway.MinFollowDuration != nil {
-			parsedChannelID, parseErr := uuid.Parse(giveaway.ChannelID)
-			if parseErr != nil {
-				return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("cannot parse channel id: %w", parseErr)
-			}
 			ch, chErr := c.channelsRepository.GetByID(ctx, parsedChannelID)
 			if chErr != nil {
 				return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("cannot get channel: %w", chErr)
@@ -335,7 +336,7 @@ func (c *Service) chooseWinner(
 				winner, err = c.giveawaysParticipantsRepository.Create(
 					txCtx,
 					giveaways_participants.CreateInput{
-						GiveawayID:      req.GiveawayID,
+						GiveawayID:      parsedGiveawayId,
 						UserID:          winnerData.UserID,
 						UserLogin:       winnerData.UserLogin,
 						UserDisplayName: winnerData.DisplayName,
@@ -350,7 +351,7 @@ func (c *Service) chooseWinner(
 				// For KEYWORD giveaways, update existing participant
 				winner, err = c.giveawaysParticipantsRepository.Update(
 					txCtx,
-					winnerData.ID.String(),
+					winnerData.ID,
 					giveaways_participants.UpdateInput{
 						IsWinner: lo.ToPtr(true),
 					},
@@ -371,7 +372,7 @@ func (c *Service) chooseWinner(
 		return giveawaysbusmodel.ChooseWinnerResponse{}, err
 	}
 
-	if err := c.giveawaysCacher.Invalidate(ctx, giveaway.ChannelID); err != nil {
+	if err := c.giveawaysCacher.Invalidate(ctx, giveaway.ChannelID.String()); err != nil {
 		c.logger.Error("cannot invalidate giveaways cache", logger.Error(err))
 	}
 
@@ -380,7 +381,7 @@ func (c *Service) chooseWinner(
 		mappedWinners = append(
 			mappedWinners,
 			giveawaysbusmodel.Winner{
-				UserID:          winner.UserID,
+				UserID:          winner.UserID.String(),
 				UserLogin:       winner.UserLogin,
 				UserDisplayName: winner.DisplayName,
 			},

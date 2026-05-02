@@ -121,7 +121,7 @@ func (c *Pgx) GetOneByChannelAndUserID(
 
 func (c *Pgx) GetManyByChannelID(
 	ctx context.Context,
-	channelID string,
+	channelID uuid.UUID,
 	input greetings.GetManyInput,
 ) ([]model.Greeting, error) {
 	selectBuilder := sq.

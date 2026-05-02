@@ -18,7 +18,7 @@ func (c *Service) Delete(ctx context.Context, channelID, actorID string, id uuid
 		return err
 	}
 
-	if keyword.ChannelID != channelID {
+	if keyword.ChannelID.String() != channelID {
 		return errors.NewNotFoundError("Keyword with this ID was not found for your channel")
 	}
 

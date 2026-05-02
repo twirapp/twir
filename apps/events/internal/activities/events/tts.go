@@ -43,7 +43,7 @@ func (c *Activity) TtsSay(
 	userSettings := ttsmodel.NilUserSettings
 	dbUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, data.UserID)
 	if err == nil {
-		userSettings, _ = c.ttsRepository.GetUserSettings(ctx, data.ChannelDBID, dbUser.ID)
+		userSettings, _ = c.ttsRepository.GetUserSettings(ctx, data.ChannelDBID, dbUser.ID.String())
 	}
 
 	voice := lo.IfF(

@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -21,7 +22,12 @@ import (
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *chatWallLogResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChatWallLog) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := r.deps.UsersRepository.GetByID(ctx, obj.UserID)
+	parsedUserID, err := uuid.Parse(obj.UserID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
 		if err == usersmodel.ErrNotFound {
 			return nil, nil

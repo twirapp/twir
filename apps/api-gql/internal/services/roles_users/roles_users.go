@@ -28,14 +28,14 @@ type Service struct {
 }
 
 type CreateInput struct {
-	UserID string
+	UserID uuid.UUID
 	RoleID uuid.UUID
 }
 
 func (c *Service) mapToEntity(m model.RoleUser) entity.ChannelRoleUser {
 	return entity.ChannelRoleUser{
 		ID:     m.ID,
-		UserID: m.UserID,
+		UserID: m.UserID.String(),
 		RoleID: m.RoleID,
 	}
 }

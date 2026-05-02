@@ -37,7 +37,7 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
-func (c *Pgx) GetUserAccessibleRoles(ctx context.Context, channelID, userID string) (
+func (c *Pgx) GetUserAccessibleRoles(ctx context.Context, channelID, userID uuid.UUID) (
 	[]model.Role,
 	error,
 ) {
@@ -147,7 +147,7 @@ WHERE id = ANY($1)
 	return result, nil
 }
 
-func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model.Role, error) {
+func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.Role, error) {
 	query := `
 SELECT id, "channelId", name, type, permissions, required_messages, required_used_channel_points, required_watch_time
 FROM channels_roles

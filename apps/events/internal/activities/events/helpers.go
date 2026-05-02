@@ -213,12 +213,7 @@ func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
 		return channelRuntimeInfo{}, err
 	}
 
-	userUUID, err := uuid.Parse(user.ID)
-	if err != nil {
-		return channelRuntimeInfo{}, fmt.Errorf("parse user id: %w", err)
-	}
-
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(err, channels.ErrNotFound) {
 			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
@@ -229,7 +224,7 @@ func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
 
 	return channelRuntimeInfo{
 		ChannelID:         channel.ID.String(),
-		BroadcasterUserID: user.ID,
+		BroadcasterUserID: twitchBroadcasterID,
 		TwitchPlatformID:  twitchBroadcasterID,
 		BotID:             channel.BotID,
 	}, nil

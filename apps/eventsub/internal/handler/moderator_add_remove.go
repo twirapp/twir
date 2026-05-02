@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -100,12 +99,7 @@ func (c *Handler) updateUserModStatus(
 		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	broadcasterUUID, err := uuid.Parse(broadcasterUser.ID)
-	if err != nil {
-		return fmt.Errorf("cannot parse broadcaster UUID: %w", err)
-	}
-
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUUID)
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil
@@ -141,13 +135,7 @@ func (c *Handler) updateBotStatus(
 		return
 	}
 
-	userUUID, err := uuid.Parse(user.ID)
-	if err != nil {
-		c.logger.Error("cannot parse user ID as UUID", logger.Error(err))
-		return
-	}
-
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, userUUID)
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return

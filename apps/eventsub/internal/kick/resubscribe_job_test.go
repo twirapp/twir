@@ -57,7 +57,7 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         kickUserID.String(),
+		ID:         kickUserID,
 			PlatformID: "12345",
 		},
 	}
@@ -107,7 +107,7 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         kickUserID.String(),
+		ID:         kickUserID,
 			PlatformID: "12345",
 		},
 	}
@@ -147,7 +147,7 @@ func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
 
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-			ID:         kickUserID.String(),
+		ID:         kickUserID,
 			PlatformID: "12345",
 		},
 	}

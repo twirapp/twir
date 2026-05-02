@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
@@ -81,7 +82,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 			continue
 		}
 
-		if wallSettings.ChannelID != "" {
+		if wallSettings.ChannelID != uuid.Nil {
 			if !wallSettings.MuteSubscribers && msg.IsChatterSubscriber() {
 				continue
 			}
@@ -138,7 +139,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 			ctx,
 			chatwallrepository.CreateLogInput{
 				WallID: wall.ID,
-				UserID: msg.EnrichedData.DbUser.ID,
+				UserID: uuid.MustParse(msg.EnrichedData.DbUser.ID),
 				Text:   msg.Message.Text,
 			},
 		); err != nil {

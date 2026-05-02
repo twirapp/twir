@@ -9,6 +9,8 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back/model"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -24,6 +26,7 @@ type Opts struct {
 	TwirBus         *buscore.Bus
 	Logger          *slog.Logger
 	UsersRepository users.Repository
+	ChannelsRepository channelsrepository.Repository
 }
 
 func New(opts Opts) *Service {
@@ -32,6 +35,7 @@ func New(opts Opts) *Service {
 		wsRouter:        opts.WsRouter,
 		twirBus:         opts.TwirBus,
 		usersRepository: opts.UsersRepository,
+		channelsRepository: opts.ChannelsRepository,
 	}
 
 	opts.LC.Append(
@@ -77,6 +81,32 @@ type Service struct {
 	twirBus    *buscore.Bus
 
 	usersRepository users.Repository
+	channelsRepository channelsrepository.Repository
+}
+
+func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {
+	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		return "", err
+	}
+	if user.IsNil() {
+		return "", errors.New("user not found for provided api key")
+	}
+
+	switch user.Platform {
+	case platformentity.PlatformKick:
+		channel, err := s.channelsRepository.GetByKickUserID(ctx, user.ID)
+		if err != nil {
+			return "", err
+		}
+		return channel.ID.String(), nil
+	default:
+		channel, err := s.channelsRepository.GetByTwitchUserID(ctx, user.ID)
+		if err != nil {
+			return "", err
+		}
+		return channel.ID.String(), nil
+	}
 }
 
 // GetOrCreate gets the be right back overlay for the given channel ID or creates a new one with default settings if it doesn't exist

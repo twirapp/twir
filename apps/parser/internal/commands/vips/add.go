@@ -160,7 +160,7 @@ var Add = &types.DefaultCommand{
 					}
 				}
 
-				if unvipAt == nil {
+				if unvipType == nil {
 					return nil
 				}
 
@@ -168,7 +168,7 @@ var Add = &types.DefaultCommand{
 					trCtx,
 					scheduledvipsrepository.CreateInput{
 						ChannelID:  parseCtx.Channel.DBChannelID,
-						UserID:     targetDbUser.ID,
+						UserID:     targetDbUser.ID.String(),
 						RemoveAt:   unvipAt,
 						RemoveType: unvipType,
 					},

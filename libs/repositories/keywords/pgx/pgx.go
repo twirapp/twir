@@ -33,7 +33,7 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
-func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Keyword, error) {
+func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.Keyword, error) {
 	query := `
 SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids, platforms
 FROM channels_keywords
@@ -54,7 +54,7 @@ WHERE "channelId" = $1
 	return result, nil
 }
 
-func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, error) {
+func (c *Pgx) CountByChannelID(ctx context.Context, channelID uuid.UUID) (int, error) {
 	query := `
 SELECT COUNT(*)
 FROM channels_keywords

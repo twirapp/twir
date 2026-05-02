@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
@@ -68,6 +69,7 @@ func (d *deleteRoute) Handler(
 		scheduledvips.RemoveInput{
 			ID:        input.ID,
 			ChannelID: dashboardID,
+			KeepVip:   lo.ToPtr(true),
 		},
 	)
 	if err != nil {

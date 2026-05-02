@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -141,12 +140,7 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 		return deleteMessageChannel{}, false, err
 	}
 
-	userUUID, err := uuid.Parse(user.ID)
-	if err != nil {
-		return deleteMessageChannel{}, false, err
-	}
-
-	channel, err := s.channelsRepo.GetByTwitchUserID(ctx, userUUID)
+	channel, err := s.channelsRepo.GetByTwitchUserID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return deleteMessageChannel{}, false, nil

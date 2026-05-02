@@ -55,11 +55,25 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			slog.String("channelId", event.BroadcasterUserId),
 		)
 
+		broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
+		if err != nil {
+			c.logger.Error("cannot resolve broadcaster user", logger.Error(err))
+			continue
+		}
+
+		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+		if err != nil {
+			c.logger.Error("cannot resolve channel by broadcaster user", logger.Error(err))
+			continue
+		}
+
 		c.userCreatorService.UnsureUser(
 			ctx, user_creator.CreateUserInput{
-				UserID:    event.UserId,
-				ChannelID: &event.BroadcasterUserId,
-				Badges:    nil,
+				UserID:     event.UserId,
+				PlatformID: event.UserId,
+				Platform:   platform.PlatformTwitch,
+				ChannelID:  lo.ToPtr(channel.ID.String()),
+				Badges:     nil,
 			},
 		)
 
@@ -87,7 +101,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			},
 		}
 
-		err := c.twirBus.Events.RedemptionCreated.Publish(
+		err = c.twirBus.Events.RedemptionCreated.Publish(
 			ctx,
 			events.RedemptionCreatedMessage{
 				ID: event.Reward.Id,
@@ -222,8 +236,26 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 		return
 	}
 
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
+	if err != nil {
+		if !errors.Is(err, usersmodel.ErrNotFound) {
+			c.logger.Error(err.Error(), logger.Error(err))
+		}
+		return
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	if err != nil {
+		if !errors.Is(err, channelsrepository.ErrNotFound) {
+			c.logger.Error(err.Error(), logger.Error(err))
+		}
+		return
+	}
+
 	userStats := &model.UsersStats{}
-	err = c.gorm.WithContext(ctx).Where(`"userId" = ?::uuid`, chatUser.ID).Find(userStats).Error
+	err = c.gorm.WithContext(ctx).
+		Where(`"userId" = ?::uuid AND "channelId" = ?::uuid`, chatUser.ID, channel.ID).
+		Find(userStats).Error
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 		return
@@ -260,12 +292,7 @@ func (c *Handler) countUserChannelPoints(
 		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	broadcasterUUID, err := uuid.Parse(broadcasterUser.ID)
-	if err != nil {
-		return fmt.Errorf("cannot parse broadcaster UUID: %w", err)
-	}
-
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUUID)
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil
@@ -292,7 +319,7 @@ func (c *Handler) countUserChannelPoints(
 	} else {
 		user.Stats = &model.UsersStats{
 			ID:                uuid.New().String(),
-			UserID:            chatUser.ID,
+			UserID:            chatUser.ID.String(),
 			ChannelID:         channel.ID.String(),
 			Messages:          0,
 			Watched:           0,

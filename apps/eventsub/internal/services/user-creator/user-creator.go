@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -82,10 +83,20 @@ func (c *UserCreatorService) handleUserWithChannel(
 	ctx context.Context,
 	input CreateUserInput,
 ) (*usermodel.User, *usersstatsmodel.UserStat, error) {
-	userWithStats, err := c.usersWithStatsRepo.GetByUserAndChannelID(
+	ensuredUser, err := c.ensureUserExists(ctx, input)
+	if err != nil {
+		return nil, nil, fmt.Errorf("UnsureUser: failed to ensure user exists: %w", err)
+	}
+
+	parsedChannelID, err := uuid.Parse(*input.ChannelID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("UnsureUser: failed to parse channel id: %w", err)
+	}
+
+	_, err = c.usersWithStatsRepo.GetByUserAndChannelID(
 		ctx, userswithstatsrepository.GetByUserAndChannelIDInput{
-			UserID:    input.UserID,
-			ChannelID: *input.ChannelID,
+			UserID:    ensuredUser.ID,
+			ChannelID: parsedChannelID,
 		},
 	)
 	// Handle case where the user OR stats are not found.
@@ -93,8 +104,10 @@ func (c *UserCreatorService) handleUserWithChannel(
 		if errors.Is(err, userswithstatsrepository.ErrNotFound) {
 			// This means the user might exist, but their stats for this channel do not.
 			// Or the user doesn't exist at all. This function handles both cases.
-			return c.findUserAndCreateStats(
+			return c.createStatsForExistingUser(
 				ctx,
+				ensuredUser,
+				parsedChannelID,
 				input,
 				input.IsModerator,
 				input.IsVip,
@@ -105,9 +118,10 @@ func (c *UserCreatorService) handleUserWithChannel(
 	}
 
 	// User and stats record were found, proceed with updating stats.
-	ensuredUser := &userWithStats.User
 	ensuredStats, err := c.updateUserStats(
 		ctx,
+		ensuredUser.ID,
+		parsedChannelID,
 		input,
 		input.IsModerator,
 		input.IsVip,
@@ -122,26 +136,20 @@ func (c *UserCreatorService) handleUserWithChannel(
 
 // findUserAndCreateStats handles the scenario where stats for a user in a channel do not exist.
 // It first ensures the base user record exists, then creates the stats record.
-func (c *UserCreatorService) findUserAndCreateStats(
+func (c *UserCreatorService) createStatsForExistingUser(
 	ctx context.Context,
+	ensuredUser *usermodel.User,
+	channelID uuid.UUID,
 	input CreateUserInput,
 	isMod, isVip, isSubscriber bool,
 ) (*usermodel.User, *usersstatsmodel.UserStat, error) {
-	// Using a transaction to ensure both user creation (if needed) and stats creation succeed together.
-	var ensuredUser *usermodel.User
+	// Using a transaction to ensure stats creation succeeds consistently.
 	var ensuredStats *usersstatsmodel.UserStat
 
 	err := c.trManager.Do(
 		ctx, func(trCtx context.Context) error {
 			var err error
-			// This will find the user or create them if they don't exist.
-			ensuredUser, err = c.ensureUserExists(trCtx, input)
-			if err != nil {
-				return fmt.Errorf("failed to ensure user exists in transaction: %w", err)
-			}
-
-			// Now that we're sure the user exists, create their stats for the channel.
-			ensuredStats, err = c.createUserStats(trCtx, input, isMod, isVip, isSubscriber)
+			ensuredStats, err = c.createUserStats(trCtx, ensuredUser.ID, channelID, input, isMod, isVip, isSubscriber)
 			if err != nil {
 				return fmt.Errorf("failed to create stats in transaction: %w", err)
 			}
@@ -160,49 +168,51 @@ func (c *UserCreatorService) ensureUserExists(ctx context.Context, input CreateU
 	*usermodel.User,
 	error,
 ) {
-	user, err := c.usersRepo.GetByID(ctx, input.UserID)
-	if err != nil {
-		if errors.Is(err, usermodel.ErrNotFound) {
-			// If PlatformID is provided, try to find by platform ID first.
-			if input.PlatformID != "" {
-				user, err = c.usersRepo.GetByPlatformID(ctx, input.Platform, input.PlatformID)
-				if err == nil {
-					return &user, nil
-				}
-				if !errors.Is(err, usermodel.ErrNotFound) {
-					return nil, err
-				}
-			}
-
-			// User not found, create a new one.
-			plat := input.Platform
-			if plat == "" {
-				plat = platform.PlatformTwitch
-			}
-			platformID := input.PlatformID
-			if platformID == "" {
-				platformID = input.UserID
-			}
-			return c.createUser(
-				ctx, users.CreateInput{
-					Platform:   plat,
-					PlatformID: platformID,
-				},
-			)
+	if parsedUserID, parseErr := uuid.Parse(input.UserID); parseErr == nil {
+		user, err := c.usersRepo.GetByID(ctx, parsedUserID)
+		if err == nil {
+			return &user, nil
 		}
-		// Another error occurred.
-		return nil, err
+		if !errors.Is(err, usermodel.ErrNotFound) {
+			return nil, err
+		}
 	}
-	return &user, nil
+
+	plat := input.Platform
+	if plat == "" {
+		plat = platform.PlatformTwitch
+	}
+
+	platformID := input.PlatformID
+	if platformID == "" {
+		platformID = input.UserID
+	}
+
+	if platformID != "" {
+		user, err := c.usersRepo.GetByPlatformID(ctx, plat, platformID)
+		if err == nil {
+			return &user, nil
+		}
+		if !errors.Is(err, usermodel.ErrNotFound) {
+			return nil, err
+		}
+	}
+
+	return c.createUser(
+		ctx, users.CreateInput{
+			Platform:   plat,
+			PlatformID: platformID,
+		},
+	)
 }
 
-// createUserStats creates a new user statistics record.
 func (c *UserCreatorService) createUserStats(
 	ctx context.Context,
+	userID uuid.UUID,
+	channelID uuid.UUID,
 	input CreateUserInput,
 	isMod, isVip, isSubscriber bool,
 ) (*usersstatsmodel.UserStat, error) {
-	// On creation, set initial values. If the user sent a message, count starts at 1.
 	initialMessages := 0
 	if input.ShouldUpdateStats {
 		initialMessages = 1
@@ -215,8 +225,8 @@ func (c *UserCreatorService) createUserStats(
 
 	return c.usersStatsRepo.Create(
 		ctx, usersstats.CreateInput{
-			UserID:            input.UserID,
-			ChannelID:         *input.ChannelID,
+			UserID:            userID,
+			ChannelID:         channelID,
 			Messages:          int32(initialMessages),
 			Emotes:            initialEmotes,
 			IsMod:             isMod,
@@ -229,9 +239,12 @@ func (c *UserCreatorService) createUserStats(
 	)
 }
 
+// createUserStats creates a new user statistics record.
 // updateUserStats updates an existing user statistics record.
 func (c *UserCreatorService) updateUserStats(
 	ctx context.Context,
+	userID uuid.UUID,
+	channelID uuid.UUID,
 	input CreateUserInput,
 	isMod, isVip, isSubscriber bool,
 ) (*usersstatsmodel.UserStat, error) {
@@ -253,7 +266,7 @@ func (c *UserCreatorService) updateUserStats(
 
 	// Call the repository to update the record.
 	return c.usersStatsRepo.CreateOrUpdate(
-		ctx, input.UserID, *input.ChannelID, usersstats.UpdateInput{
+		ctx, userID, channelID, usersstats.UpdateInput{
 			NumberFields: numberFields,
 			IsMod:        &isMod,
 			IsVip:        &isVip,

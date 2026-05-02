@@ -47,7 +47,7 @@ func (r *channelGiveawayResolver) Winners(ctx context.Context, obj *gqlmodel.Cha
 			mappedWinners,
 			gqlmodel.ChannelGiveawayWinner{
 				DisplayName: winner.DisplayName,
-				UserID:      winner.UserID,
+				UserID:      winner.UserID.String(),
 				UserLogin:   winner.UserLogin,
 			},
 		)
@@ -85,7 +85,12 @@ func (r *channelGiveawayResolver) Participants(ctx context.Context, obj *gqlmode
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *channelGiveawayWinnerResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChannelGiveawayWinner) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := r.deps.UsersRepository.GetByID(ctx, obj.UserID)
+	parsedUserID, err := uuid.Parse(obj.UserID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
 		if err == usersmodel.ErrNotFound {
 			return nil, nil
@@ -227,7 +232,13 @@ func (r *mutationResolver) GiveawaysRemove(ctx context.Context, id string) (*gql
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	return nil, r.deps.GiveawaysService.GiveawayRemove(ctx, parsedID, dashboardId)
+	deleted, err := r.deps.GiveawaysService.GiveawayRemove(ctx, parsedID, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := mappers.GiveawayEntityTo(deleted)
+	return &converted, nil
 }
 
 // GiveawaysStart is the resolver for the giveawaysStart field.

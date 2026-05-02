@@ -99,11 +99,6 @@ func (a *Auth) handleKickBotCallback(
 			}
 		}
 
-		kickUserID, parseErr := uuid.Parse(internalUser.ID)
-		if parseErr != nil {
-			a.logger.ErrorContext(ctx, "kick bot callback: failed to parse internal user id", logger.Error(parseErr))
-			return nil, huma.Error500InternalServerError("Invalid internal user id", parseErr)
-		}
 		_, err = a.kickBotsRepo.Create(ctx, kickbotsrepo.CreateInput{
 			Type:                "DEFAULT",
 			AccessToken:         encryptedAccessToken,
@@ -111,7 +106,7 @@ func (a *Auth) handleKickBotCallback(
 			Scopes:              tokens.Scopes,
 			ExpiresIn:           tokens.ExpiresIn,
 			ObtainmentTimestamp: time.Now().UTC(),
-			KickUserID:          kickUserID,
+			KickUserID:          internalUser.ID,
 			KickUserLogin:       platformUser.Login,
 		})
 		if err != nil {

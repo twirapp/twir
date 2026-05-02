@@ -61,13 +61,13 @@ func (s *Auth) GetAuthenticatedUserModel(ctx context.Context) (*model.Users, err
 		return nil, fmt.Errorf("not authenticated")
 	}
 
-	dbUser, err := s.usersRepo.GetByID(ctx, userID.String())
+	dbUser, err := s.usersRepo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get user from db: %w", err)
 	}
 
 	freshUser := &model.Users{
-		ID:                dbUser.ID,
+		ID:                dbUser.ID.String(),
 		TokenID:           dbUser.TokenID.NullString,
 		IsBotAdmin:        dbUser.IsBotAdmin,
 		ApiKey:            dbUser.ApiKey,

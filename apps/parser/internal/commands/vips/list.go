@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
@@ -66,9 +67,14 @@ var List = &types.DefaultCommand{
 			return result, nil
 		}
 
-		usersIds := make([]string, 0, len(scheduledVips))
+		usersIds := make([]uuid.UUID, 0, len(scheduledVips))
 		for _, vip := range scheduledVips {
-			usersIds = append(usersIds, vip.UserID)
+			parsedID, err := uuid.Parse(vip.UserID)
+			if err != nil {
+				continue
+			}
+
+			usersIds = append(usersIds, parsedID)
 		}
 
 		dbUsers, err := parseCtx.Services.UsersRepo.GetManyByIDS(
@@ -91,7 +97,7 @@ var List = &types.DefaultCommand{
 		dbUsersByID := make(map[string]string, len(dbUsers))
 		for _, user := range dbUsers {
 			platformIDs = append(platformIDs, user.PlatformID)
-			dbUsersByID[user.ID] = user.PlatformID
+			dbUsersByID[user.ID.String()] = user.PlatformID
 		}
 
 		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, platformIDs)

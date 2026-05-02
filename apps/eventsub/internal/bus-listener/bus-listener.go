@@ -174,7 +174,7 @@ func (c *BusListener) subscribeToAllEvents(
 	if err := c.eventSubClient.SubscribeToNeededEvents(
 		ctx,
 		topics,
-		msg.ChannelID,
+		*channel.TwitchPlatformID,
 		channel.BotID,
 	); err != nil {
 		return struct{}{}, err
@@ -301,11 +301,6 @@ func (c *BusListener) reinitChannels(
 }
 
 func (c *BusListener) unsubscribe(ctx context.Context, userId string) (struct{}, error) {
-	if err := c.eventSubClient.UnsubscribeChannel(ctx, userId); err != nil {
-		c.logger.Error("error unsubscribe twitch channel", logger.Error(err))
-		return struct{}{}, err
-	}
-
 	channelUUID, err := uuid.Parse(userId)
 	if err != nil {
 		c.logger.Error("error parsing channel ID for kick unsubscribe", slog.String("channel_id", userId))
@@ -316,6 +311,13 @@ func (c *BusListener) unsubscribe(ctx context.Context, userId string) (struct{},
 	if err != nil {
 		c.logger.Error("error getting channel for kick unsubscribe", slog.String("channel_id", userId), logger.Error(err))
 		return struct{}{}, err
+	}
+
+	if channel.TwitchPlatformID != nil {
+		if err := c.eventSubClient.UnsubscribeChannel(ctx, *channel.TwitchPlatformID); err != nil {
+			c.logger.Error("error unsubscribe twitch channel", logger.Error(err))
+			return struct{}{}, err
+		}
 	}
 
 	if channel.KickUserID != nil {

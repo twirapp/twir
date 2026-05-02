@@ -6,7 +6,7 @@ import (
 
 type RoleUser struct {
 	ID     uuid.UUID
-	UserID string
+	UserID uuid.UUID
 	RoleID uuid.UUID
 }
 

@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -88,10 +89,22 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 		return nil
 	}
 
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
+	if err != nil {
+		return fmt.Errorf("failed to get user by platform id: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	if err != nil {
+		return fmt.Errorf("failed to get channel by broadcaster user: %w", err)
+	}
+
+	channelID := channel.ID.String()
+
 	vips, err := c.scheduledVipsRepo.GetMany(
 		ctx,
 		scheduledvipsrepository.GetManyInput{
-			ChannelID:  &event.BroadcasterUserId,
+			ChannelID:  &channelID,
 			RemoveType: lo.ToPtr(scheduledvipsentity.RemoveTypeStreamEnd),
 		},
 	)
@@ -103,14 +116,9 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 		return nil
 	}
 
-	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
-	if err != nil {
-		return fmt.Errorf("failed to get user by platform id: %w", err)
-	}
-
 	twitchClient, err := twitchlib.NewUserClientWithContext(
 		ctx,
-		user.ID,
+		user.ID.String(),
 		c.config,
 		c.twirBus,
 	)
@@ -123,12 +131,29 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 	for _, vip := range vips {
 		wg.Add(1)
 
-		go func() {
+		go func(vip scheduledvipsentity.ScheduledVip) {
 			defer wg.Done()
+
+			vipUserID, err := uuid.Parse(vip.UserID)
+			if err != nil {
+				c.logger.Error("failed to parse vip user id", slog.String("userId", vip.UserID), logger.Error(err))
+				return
+			}
+
+			vipUser, err := c.usersRepo.GetByID(ctx, vipUserID)
+			if err != nil {
+				c.logger.Error("failed to get vip user by id", slog.String("userId", vip.UserID), logger.Error(err))
+				return
+			}
+			if vipUser.IsNil() {
+				c.logger.Error("vip user not found", slog.String("userId", vip.UserID))
+				return
+			}
+
 			resp, err := twitchClient.RemoveChannelVip(
 				&helix.RemoveChannelVipParams{
-					BroadcasterID: vip.ChannelID,
-					UserID:        vip.UserID,
+					BroadcasterID: event.BroadcasterUserId,
+					UserID:        vipUser.PlatformID,
 				},
 			)
 			if err != nil {
@@ -149,7 +174,7 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 				slog.String("userId", vip.UserID),
 				slog.String("channelId", vip.ChannelID),
 			)
-		}()
+		}(vip)
 
 	}
 

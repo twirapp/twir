@@ -350,7 +350,7 @@ func (c *EventsGrpcImplementation) Follow(
 
 				twitchClient, err := twitchlib.NewUserClientWithContext(
 					ctx,
-					user.ID,
+					user.ID.String(),
 					c.cfg,
 					c.twirBus,
 				)

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -93,6 +94,16 @@ var Voteban = &types.DefaultCommand{
 			}
 		}
 
+		targetDbUserID := targetDbUser.ID
+
+		channelDBID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.VotebanCannotFindSettings),
+				Err:     err,
+			}
+		}
+
 		// Fetch channel to check BotID
 		dbChannel := model.Channels{}
 		if err := parseCtx.Services.Gorm.
@@ -115,8 +126,8 @@ var Voteban = &types.DefaultCommand{
 
 		targerUserDbStats, err := parseCtx.Services.UsersWithStatsRepository.GetByUserAndChannelID(
 			ctx, userswithstats.GetByUserAndChannelIDInput{
-				UserID:    targetDbUser.ID,
-				ChannelID: parseCtx.Channel.DBChannelID,
+				UserID:    targetDbUserID,
+				ChannelID: channelDBID,
 			},
 		)
 		if err != nil {

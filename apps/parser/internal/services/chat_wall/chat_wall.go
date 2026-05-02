@@ -70,11 +70,16 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall, error) {
+	parsedChannelID, err := uuid.Parse(input.DBChannelID)
+	if err != nil {
+		return model.ChatWall{}, err
+	}
+
 	currentChatWallsEnabledParam := true
 	currentChatWalls, err := c.repo.GetMany(
 		ctx,
 		chatwallrepository.GetManyInput{
-			ChannelID: input.DBChannelID,
+			ChannelID: parsedChannelID,
 			Enabled:   &currentChatWallsEnabledParam,
 		},
 	)
@@ -102,11 +107,11 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 	wall, err := c.repo.Create(
 		ctx,
 		chatwallrepository.CreateInput{
-			ChannelID:       input.DBChannelID,
+			ChannelID:       parsedChannelID,
 			Phrase:          input.Phrase,
 			Enabled:         true,
 			Action:          input.Action,
-			Duration:        10 * time.Minute,
+			Duration:        input.Duration,
 			TimeoutDuration: input.TimeoutDuration,
 		},
 	)
@@ -139,7 +144,12 @@ func (c *Service) HandlePastMessages(
 	wall model.ChatWall,
 	input HandlePastMessagesInput,
 ) error {
-	chatWallSettings, err := c.repo.GetChannelSettings(ctx, input.DBChannelID)
+	parsedChannelID, err := uuid.Parse(input.DBChannelID)
+	if err != nil {
+		return err
+	}
+
+	chatWallSettings, err := c.repo.GetChannelSettings(ctx, parsedChannelID)
 	if err != nil && !errors.Is(err, chatwallrepository.ErrSettingsNotFound) {
 		return fmt.Errorf(
 			i18n.GetCtx(
@@ -214,7 +224,7 @@ func (c *Service) HandlePastMessages(
 
 	messageUserIDs := make([]uuid.UUID, 0, len(userRefs))
 	platformUserIDByInternalID := make(map[string]string, len(userRefs))
-	internalUserIDByPlatformID := make(map[string]string, len(userRefs))
+	internalUserIDByPlatformID := make(map[string]uuid.UUID, len(userRefs))
 	for _, ref := range userRefs {
 		parsedUserID, err := uuid.Parse(ref.ID)
 		if err != nil {
@@ -223,7 +233,7 @@ func (c *Service) HandlePastMessages(
 
 		messageUserIDs = append(messageUserIDs, parsedUserID)
 		platformUserIDByInternalID[ref.ID] = ref.PlatformID
-		internalUserIDByPlatformID[ref.PlatformID] = ref.ID
+		internalUserIDByPlatformID[ref.PlatformID] = parsedUserID
 	}
 
 	var usersStats []deprecatedgormmodel.UsersStats
@@ -232,7 +242,7 @@ func (c *Service) HandlePastMessages(
 		Where(
 			`"userId" IN ? AND "channelId" = ?::uuid`,
 			messageUserIDs,
-			input.DBChannelID,
+			parsedChannelID,
 		).
 		Find(&usersStats).Error; err != nil {
 		return fmt.Errorf(
@@ -364,13 +374,21 @@ func (c *Service) HandlePastMessages(
 		return nil
 	}
 
-	logs := make([]chatwallrepository.CreateLogInput, 0, len(messages))
+	logs := make([]chatwallrepository.CreateLogInput, 0, len(newHandledMessagesIds))
 	for _, m := range messages {
+		if slices.Contains(alreadyHandledMessagesIds, m.ID.String()) {
+			continue
+		}
+
+		internalUserID, ok := internalUserIDByPlatformID[m.UserID]
+		if !ok || internalUserID == uuid.Nil {
+			continue
+		}
 		logs = append(
 			logs,
 			chatwallrepository.CreateLogInput{
 				WallID: wall.ID,
-				UserID: internalUserIDByPlatformID[m.UserID],
+				UserID: internalUserID,
 				Text:   m.Text,
 			},
 		)
@@ -421,18 +439,23 @@ func (c *Service) HandlePastMessages(
 
 type StopInput struct {
 	DBChannelID string
-	Phrase    string
+	Phrase      string
 }
 
 var ErrChatWallNotFound = errors.New("chat wall not found")
 
 func (c *Service) Stop(ctx context.Context, input StopInput) error {
+	parsedChannelID, err := uuid.Parse(input.DBChannelID)
+	if err != nil {
+		return err
+	}
+
 	enabled := true
 
 	walls, err := c.repo.GetMany(
 		ctx,
 		chatwallrepository.GetManyInput{
-			ChannelID: input.DBChannelID,
+			ChannelID: parsedChannelID,
 			Enabled:   &enabled,
 		},
 	)

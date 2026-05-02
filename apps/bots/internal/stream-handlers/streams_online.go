@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/logger"
@@ -27,9 +28,14 @@ func (c *PubSubHandlers) streamsOnline(
 		return struct{}{}, nil
 	}
 
+	channelID, err := uuid.Parse(channel.ID)
+	if err != nil {
+		return struct{}{}, err
+	}
+
 	err = c.greetingsRepository.UpdateManyByChannelID(
 		ctx, greetings.UpdateManyInput{
-			ChannelID: channel.ID,
+			ChannelID: channelID,
 			Processed: lo.ToPtr(false),
 		},
 	)

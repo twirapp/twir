@@ -108,7 +108,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		user, err := j.usersRepo.GetByID(ctx, kickUserUUID.String())
+		user, err := j.usersRepo.GetByID(ctx, kickUserUUID)
 		if err != nil {
 			j.logger.ErrorContext(
 				ctx,

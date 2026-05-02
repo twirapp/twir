@@ -539,7 +539,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		slog.String("broadcaster_username", payload.Broadcaster.Username),
 		slog.String("sender_user_id", senderPlatformID),
 		slog.String("sender_username", payload.Sender.Username),
-		slog.String("sender_twir_user_id", senderUser.ID),
+		slog.String("sender_twir_user_id", senderUser.ID.String()),
 		slog.Bool("is_broadcaster", isBroadcaster),
 		slog.Bool("is_moderator", isModerator),
 		slog.Bool("is_vip", isVip),
@@ -555,7 +555,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		_, senderStats, err = h.userCreatorService.UnsureUser(
 			ctx,
 			user_creator.CreateUserInput{
-				UserID:            senderUser.ID,
+				UserID:            senderUser.ID.String(),
 				PlatformID:        senderPlatformID,
 				Platform:          platform.PlatformKick,
 				ChannelID:         &channelID,
@@ -577,7 +577,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	genericMsg := generic.ChatMessage{
 		Platform:          string(platform.PlatformKick),
 		ChannelID:         channelID,
-		UserID:            senderUser.ID,
+		UserID:            senderUser.ID.String(),
 		PlatformChannelID: broadcasterUserID,
 		SenderID:          senderPlatformID,
 		SenderLogin:       payload.Sender.Username,
@@ -591,7 +591,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 			DbChannel:            channel,
 			ChannelStream:        stream,
 			DbUser: &generic.DbUser{
-				ID:                senderUser.ID,
+				ID:                senderUser.ID.String(),
 				TokenID:           senderUser.TokenID.Ptr(),
 				IsBotAdmin:        senderUser.IsBotAdmin,
 				ApiKey:            senderUser.ApiKey,
@@ -601,8 +601,8 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 			},
 			DbUserChannelStat: &generic.DbUserChannelStat{
 				ID:                senderStats.ID,
-				UserID:            senderStats.UserID,
-				ChannelID:         senderStats.ChannelID,
+				UserID:            senderStats.UserID.String(),
+				ChannelID:         senderStats.ChannelID.String(),
 				Messages:          senderStats.Messages,
 				Watched:           senderStats.Watched,
 				UsedChannelPoints: senderStats.UsedChannelPoints,
@@ -657,7 +657,7 @@ func (h *Handlers) shouldIgnoreBotSelfMessage(
 		return false
 	}
 
-	return bot.KickUserID.String() == senderUser.ID
+	return bot.KickUserID.String() == senderUser.ID.String()
 }
 
 func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Attr, error) {
@@ -1143,12 +1143,7 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (string
 		return "", "", fmt.Errorf("get user by platform id: %w", err)
 	}
 
-	userUUID, err := uuid.Parse(user.ID)
-	if err != nil {
-		return "", "", fmt.Errorf("parse user id as uuid: %w", err)
-	}
-
-	channel, err := h.channelsRepo.GetByKickUserID(ctx, userUUID)
+	channel, err := h.channelsRepo.GetByKickUserID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return "", "", fmt.Errorf("channel not found for user_id=%s platform=kick", user.ID)
@@ -1156,7 +1151,7 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (string
 		return "", "", fmt.Errorf("get channel by kick user id: %w", err)
 	}
 
-	return channel.ID.String(), user.ID, nil
+	return channel.ID.String(), user.ID.String(), nil
 }
 
 func (h *Handlers) getChannelCommandPrefix(ctx context.Context, channelId string) (

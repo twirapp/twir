@@ -44,12 +44,12 @@ type Pgx struct {
 
 type userStatScanJsonRow struct {
 	ID             uuid.UUID `json:"id"`
-	UserID         string    `json:"user_id"`
-	ChannelID      string    `json:"channel_id"`
+	UserID         uuid.UUID `json:"user_id"`
+	ChannelID      uuid.UUID `json:"channel_id"`
 	Messages       int       `json:"messages"`
 	Emotes         int       `json:"emotes"`
 	Watched        int       `json:"watched"`
-	UsedChannelPts int       `json:"used_channel_emotes"`
+	UsedChannelPts int       `json:"used_channel_points"`
 	IsMod          bool      `json:"is_mod"`
 	IsVip          bool      `json:"is_vip"`
 	IsSubscriber   bool      `json:"is_subscriber"`
@@ -74,9 +74,9 @@ SELECT
       'messages', us."messages",
       'emotes', us."emotes",
       'watched', us."watched",
-      'used_channel_emotes', us."usedChannelPoints",
+			'used_channel_points', us."usedChannelPoints",
       'is_mod', us."is_mod",
-      'isVip', us."is_vip",
+			'is_vip', us."is_vip",
       'is_subscriber', us."is_subscriber",
       'reputation', us."reputation",
       'created_at', us."created_at",

@@ -8,7 +8,7 @@ import (
 )
 
 type Repository interface {
-	GetManyByChannelID(ctx context.Context, channelID string, filters GetManyInput) (
+	GetManyByChannelID(ctx context.Context, channelID uuid.UUID, filters GetManyInput) (
 		[]model.Greeting,
 		error,
 	)
@@ -26,8 +26,8 @@ type GetManyInput struct {
 }
 
 type CreateInput struct {
-	ChannelID    string
-	UserID       string
+	ChannelID    uuid.UUID
+	UserID       uuid.UUID
 	Enabled      bool
 	Text         string
 	IsReply      bool
@@ -36,7 +36,7 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
-	UserID       *string
+	UserID       *uuid.UUID
 	Enabled      *bool
 	Text         *string
 	IsReply      *bool
@@ -45,15 +45,15 @@ type UpdateInput struct {
 }
 
 type GetOneInput struct {
-	ChannelID string
-	UserID    string
+	ChannelID uuid.UUID
+	UserID    uuid.UUID
 
 	Enabled   *bool
 	Processed *bool
 }
 
 type UpdateManyInput struct {
-	ChannelID string
+	ChannelID uuid.UUID
 
 	Processed *bool
 }

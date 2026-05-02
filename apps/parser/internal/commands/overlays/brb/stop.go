@@ -30,7 +30,7 @@ var Stop = &types.DefaultCommand{
 
 		err := parseCtx.Services.Bus.Api.TriggerBrbStop.Publish(
 			ctx, api.TriggerBrbStop{
-				ChannelId: parseCtx.Channel.ID,
+				ChannelId: parseCtx.Channel.DBChannelID,
 			},
 		)
 		if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
@@ -19,7 +20,12 @@ func New(
 			KV:        kv,
 			KeyPrefix: "cache:twir:giveaways:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]channels_giveaways.Giveaway, error) {
-				return repo.GetManyActiveByChannelID(ctx, key)
+				parsedKey, err := uuid.Parse(key)
+				if err != nil {
+					return nil, err
+				}
+
+				return repo.GetManyActiveByChannelID(ctx, parsedKey)
 			},
 			Ttl: 24 * 7 * time.Hour,
 		},

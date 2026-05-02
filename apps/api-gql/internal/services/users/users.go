@@ -57,7 +57,7 @@ type UpdateInput struct {
 
 func (c *Service) modelToEntity(m model.User) entity.User {
 	return entity.User{
-		ID:                m.ID,
+		ID:                m.ID.String(),
 		TokenID:           m.TokenID.Ptr(),
 		IsBotAdmin:        m.IsBotAdmin,
 		ApiKey:            m.ApiKey,
@@ -67,9 +67,14 @@ func (c *Service) modelToEntity(m model.User) entity.User {
 }
 
 func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (entity.User, error) {
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		return entity.UserNil, fmt.Errorf("parse user id: %w", err)
+	}
+
 	newUser, err := c.usersRepository.Update(
 		ctx,
-		id,
+		parsedID,
 		users.UpdateInput{
 			IsBanned:          input.IsBanned,
 			IsBotAdmin:        input.IsBotAdmin,
@@ -82,7 +87,7 @@ func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 		return entity.UserNil, err
 	}
 
-	if input.IsBanned != nil && *input.IsBanned {
+	if input.IsBanned != nil {
 		if *input.IsBanned {
 			c.twirBus.EventSub.Unsubscribe.Publish(ctx, id)
 		} else {
@@ -97,7 +102,12 @@ func (c *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 }
 
 func (c *Service) GetByID(ctx context.Context, id string) (entity.User, error) {
-	user, err := c.usersRepository.GetByID(ctx, id)
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		return entity.UserNil, fmt.Errorf("parse user id: %w", err)
+	}
+
+	user, err := c.usersRepository.GetByID(ctx, parsedID)
 	if err != nil {
 		return entity.UserNil, err
 	}
@@ -114,12 +124,22 @@ type GetManyInput struct {
 }
 
 func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.User, error) {
+	parsedIDs := make([]uuid.UUID, 0, len(input.IDs))
+	for _, id := range input.IDs {
+		parsedID, err := uuid.Parse(id)
+		if err != nil {
+			return nil, fmt.Errorf("parse user id: %w", err)
+		}
+
+		parsedIDs = append(parsedIDs, parsedID)
+	}
+
 	dbUsers, err := c.usersRepository.GetManyByIDS(
 		ctx,
 		users.GetManyInput{
 			Page:       input.Page,
 			PerPage:    input.PerPage,
-			IDs:        input.IDs,
+			IDs:        parsedIDs,
 			IsBotAdmin: input.IsBotAdmin,
 			IsBanned:   input.IsBanned,
 		},
@@ -162,7 +182,12 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		return entity.ChannelUserInfo{}, fmt.Errorf("channel not found or twitch not connected")
 	}
 
-	user, err := c.usersRepository.GetByID(ctx, input.UserID)
+	parsedUserID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return entity.ChannelUserInfo{}, fmt.Errorf("invalid user id: %w", err)
+	}
+
+	user, err := c.usersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("get user: %w", err)
 	}

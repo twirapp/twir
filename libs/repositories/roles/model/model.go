@@ -6,7 +6,7 @@ import (
 
 type Role struct {
 	ID                        uuid.UUID
-	ChannelID                 string
+	ChannelID                 uuid.UUID
 	Name                      string
 	Type                      ChannelRoleEnum
 	Permissions               []string

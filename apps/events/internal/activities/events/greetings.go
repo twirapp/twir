@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -42,9 +43,14 @@ func (c *Activity) CreateGreeting(
 		return err
 	}
 
+	channelDBID, err := uuid.Parse(data.ChannelDBID)
+	if err != nil {
+		return err
+	}
+
 	_, err = c.greetingsRepository.Create(
 		ctx, greetings.CreateInput{
-			ChannelID: data.ChannelDBID,
+			ChannelID: channelDBID,
 			UserID:    dbUser.ID,
 			Enabled:   true,
 			Text:      *data.RewardInput,

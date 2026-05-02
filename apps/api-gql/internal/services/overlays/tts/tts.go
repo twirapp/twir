@@ -9,7 +9,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/wsrouter"
@@ -108,10 +107,7 @@ func (s *Service) ResolveChannelIDByAPIKey(ctx context.Context, apiKey string) (
 		return "", fmt.Errorf("user not found for provided api key")
 	}
 
-	parsedUserID, err := uuid.Parse(user.ID)
-	if err != nil {
-		return "", fmt.Errorf("parse internal user id: %w", err)
-	}
+	parsedUserID := user.ID
 
 	switch user.Platform {
 	case platformentity.PlatformKick:

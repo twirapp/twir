@@ -35,7 +35,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 
 	var greeting *greetingsmodel.Greeting
 	for _, g := range allGreetings {
-		if g.UserID == msg.EnrichedData.DbUser.ID && g.Enabled && !g.Processed {
+		if g.UserID.String() == msg.EnrichedData.DbUser.ID && g.Enabled && !g.Processed {
 			greeting = &g
 			break
 		}

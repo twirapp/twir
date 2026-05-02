@@ -58,13 +58,8 @@ func NewByTwitchUserID(
 						return channelmodel.Nil, usersmodel.ErrNotFound
 					}
 
-					userUUID, err := uuid.Parse(user.ID)
-					if err != nil {
-						return channelmodel.Nil, fmt.Errorf("invalid user id: %w", err)
-					}
-
-					return channelsRepo.GetByTwitchUserID(ctx, userUUID)
-				},
+				return channelsRepo.GetByTwitchUserID(ctx, user.ID)
+			},
 				Ttl: 24 * time.Hour,
 			},
 		),

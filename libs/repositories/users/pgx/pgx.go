@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -92,7 +93,7 @@ LIMIT 1;
 	return user, nil
 }
 
-func (c *Pgx) GetByID(ctx context.Context, id string) (model.User, error) {
+func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.User, error) {
 	query := `
 SELECT id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at, login, display_name, avatar
 FROM users
@@ -238,7 +239,7 @@ func (c *Pgx) GetOnlineUsersWithFilters(
 	if input.RequireSubscription {
 		// Treat missing stats as non-subscribers by default
 		queryBuilder = queryBuilder.Where(
-			squirrel.Expr(`COALESCE(users_stats."isSubscriber", FALSE) = TRUE`),
+			squirrel.Expr(`COALESCE(users_stats.is_subscriber, FALSE) = TRUE`),
 		)
 	}
 
@@ -260,7 +261,7 @@ func (c *Pgx) GetOnlineUsersWithFilters(
 	return result, nil
 }
 
-func (c *Pgx) Update(ctx context.Context, id string, input users.UpdateInput) (model.User, error) {
+func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input users.UpdateInput) (model.User, error) {
 	updateBuilder := sq.Update("users").Where(squirrel.Eq{"id": id})
 
 	if input.IsBotAdmin != nil {
@@ -326,6 +327,10 @@ func (c *Pgx) GetRandomOnlineUser(
 		input.ChannelID,
 	).Scan(&onlineCount); err != nil {
 		return model.NilOnlineUser, err
+	}
+
+	if onlineCount == 0 {
+		return model.NilOnlineUser, nil
 	}
 
 	randCount := rand.IntN(int(onlineCount)-0) + 0

@@ -12,7 +12,12 @@ import (
 )
 
 func resolveUserProfile(ctx context.Context, r *Resolver, userID string) (*gqlmodel.TwirUserTwitchInfo, string, error) {
-	user, err := r.deps.UsersRepository.GetByID(ctx, userID)
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, "", nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
 		if err == usersmodel.ErrNotFound {
 			return nil, "", nil

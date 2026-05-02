@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -36,12 +35,7 @@ func (c *Handler) resolveUserAndChannel(
 		return "", "", fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	broadcasterUUID, err := uuid.Parse(broadcasterUser.ID)
-	if err != nil {
-		return "", "", fmt.Errorf("cannot parse broadcaster UUID: %w", err)
-	}
-
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUUID)
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return "", "", nil
@@ -49,7 +43,7 @@ func (c *Handler) resolveUserAndChannel(
 		return "", "", fmt.Errorf("cannot get channel: %w", err)
 	}
 
-	return chatUser.ID, channel.ID.String(), nil
+	return chatUser.ID.String(), channel.ID.String(), nil
 }
 
 func (c *Handler) HandleChannelVipAdd(
@@ -141,7 +135,7 @@ func (c *Handler) HandleChannelVipRemove(
 		return
 	}
 
-	if scheduledVip.IsNil() {
+	if !scheduledVip.IsNil() {
 		if err := c.scheduledVipsRepo.Delete(ctx, scheduledVip.ID); err != nil {
 			c.logger.Error(err.Error(), logger.Error(err))
 		}

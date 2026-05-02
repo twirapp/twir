@@ -143,12 +143,12 @@ func (c *cacher) getDbChannel(ctx context.Context) (*dbChannelInfo, error) {
 		return nil, err
 	}
 
-	userUUID, err := uuid.Parse(user.ID)
+	userID, err := uuid.Parse(fmt.Sprint(user.ID))
 	if err != nil {
 		return nil, fmt.Errorf("parse user id as uuid: %w", err)
 	}
 
-	ch, err := c.services.ChannelsRepo.GetByTwitchUserID(ctx, userUUID)
+	ch, err := c.services.ChannelsRepo.GetByTwitchUserID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil, errors.New("channel not found")

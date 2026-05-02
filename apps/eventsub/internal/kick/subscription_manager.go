@@ -211,7 +211,7 @@ func (m *SubscriptionManager) SubscribeAll(
 		return fmt.Errorf("failed to parse kick channel ID %q as UUID: %w", kickChannelID, err)
 	}
 
-	user, err := m.usersRepo.GetByID(ctx, kickUserUUID.String())
+	user, err := m.usersRepo.GetByID(ctx, kickUserUUID)
 	if err != nil {
 		return fmt.Errorf("failed to get user for kick channel ID %q: %w", kickChannelID, err)
 	}
@@ -297,7 +297,7 @@ func (m *SubscriptionManager) UnsubscribeAll(
 		return fmt.Errorf("failed to parse kick channel ID %q as UUID: %w", kickChannelID, err)
 	}
 
-	user, err := m.usersRepo.GetByID(ctx, kickUserUUID.String())
+	user, err := m.usersRepo.GetByID(ctx, kickUserUUID)
 	if err != nil {
 		return fmt.Errorf("failed to get user for kick channel ID %q: %w", kickChannelID, err)
 	}

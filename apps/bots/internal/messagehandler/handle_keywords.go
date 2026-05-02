@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -121,7 +122,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 				}
 
 				for _, r := range channelRoles {
-					if r.Type != rolesmodel.ChannelRoleTypeCustom && msg.HasRoleFromDbByType(r.Type.String()) {
+					if r.Type != rolesmodel.ChannelRoleTypeCustom && slices.Contains(k.RolesIDs, r.ID) && msg.HasRoleFromDbByType(r.Type.String()) {
 						hasRole = true
 						break
 					}
@@ -144,10 +145,9 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 					}
 
 					for _, r := range userRoles {
-						for _, id := range k.RolesIDs {
-							fmt.Println(r.ID.String(), id.String())
-							if id.String() == r.ID.String() {
-								hasRole = true
+					for _, id := range k.RolesIDs {
+						if id.String() == r.ID.String() {
+							hasRole = true
 								break
 							}
 						}

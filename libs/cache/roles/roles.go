@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/libs/repositories/roles"
 	"github.com/twirapp/twir/libs/repositories/roles/model"
@@ -20,7 +21,12 @@ func New(
 			KV:        kv,
 			KeyPrefix: "cache:twir:roles:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]model.Role, error) {
-				return repo.GetManyByChannelID(ctx, key)
+				parsedKey, err := uuid.Parse(key)
+				if err != nil {
+					return nil, err
+				}
+
+				return repo.GetManyByChannelID(ctx, parsedKey)
 			},
 			Ttl: 24 * time.Hour,
 		},

@@ -6,9 +6,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 )
 
 type emotesUsersRow struct {
@@ -65,7 +67,7 @@ OFFSET ?
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Raw(
-				query, parseCtx.Channel.ID, limit, limit*(page-1),
+				query, parseCtx.Channel.DBChannelID, limit, limit*(page-1),
 			).
 			Scan(&usages).
 			Error
@@ -73,12 +75,29 @@ OFFSET ?
 			return nil, err
 		}
 
-		usersIds := make([]string, 0, len(usages))
+		usersIds := make([]uuid.UUID, 0, len(usages))
 		for _, usage := range usages {
-			usersIds = append(usersIds, usage.UserID)
+			parsedUserID, err := uuid.Parse(usage.UserID)
+			if err != nil {
+				continue
+			}
+			usersIds = append(usersIds, parsedUserID)
 		}
 
-		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, usersIds)
+		dbUsers, err := parseCtx.Services.UsersRepo.GetManyByIDS(ctx, usersrepository.GetManyInput{IDs: usersIds, PerPage: len(usersIds)})
+		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+			return nil, err
+		}
+
+		platformIDByInternalID := make(map[string]string, len(dbUsers))
+		platformIDs := make([]string, 0, len(dbUsers))
+		for _, user := range dbUsers {
+			platformIDByInternalID[user.ID.String()] = user.PlatformID
+			platformIDs = append(platformIDs, user.PlatformID)
+		}
+
+		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, platformIDs)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 			return nil, err
@@ -89,7 +108,7 @@ OFFSET ?
 		for _, usage := range usages {
 			user, ok := lo.Find(
 				twitchUsers, func(item twitch.TwitchUser) bool {
-					return item.ID == usage.UserID
+					return item.ID == platformIDByInternalID[usage.UserID]
 				},
 			)
 

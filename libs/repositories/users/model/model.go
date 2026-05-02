@@ -9,7 +9,7 @@ import (
 )
 
 type User struct {
-	ID                string
+	ID                uuid.UUID
 	Platform          platform.Platform
 	PlatformID        string
 	TokenID           null.String
@@ -35,8 +35,8 @@ var Nil = User{
 
 type OnlineUser struct {
 	ID        uuid.UUID
-	ChannelID string
-	UserID    string
+	ChannelID uuid.UUID
+	UserID    uuid.UUID
 	UserName  string
 
 	isNil bool

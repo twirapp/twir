@@ -302,7 +302,12 @@ func (r *tTSUserSettingsResolver) TwitchProfile(ctx context.Context, obj *gqlmod
 		return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
 	}
 
-	user, err := r.deps.UsersRepository.GetByID(ctx, obj.UserID)
+	parsedUserID, err := uuid.Parse(obj.UserID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
 		if err == usersmodel.ErrNotFound {
 			return nil, nil

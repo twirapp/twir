@@ -90,8 +90,13 @@ func getTop(
 		return nil, false
 	}
 
-	ids := lo.Map(records, func(record userStatsPlatform, _ int) string {
-		return record.UserID
+	ids := lo.FilterMap(records, func(record userStatsPlatform, _ int) (uuid.UUID, bool) {
+		parsedID, err := uuid.Parse(record.UserID)
+		if err != nil {
+			return uuid.Nil, false
+		}
+
+		return parsedID, true
 	})
 
 	users, err := parseCtx.Services.UsersRepo.GetManyByIDS(ctx, usersrepository.GetManyInput{IDs: ids, PerPage: len(ids)})
@@ -101,7 +106,7 @@ func getTop(
 	}
 
 	usersByID := lo.SliceToMap(users, func(user usersmodel.User) (string, usersmodel.User) {
-		return user.ID, user
+		return user.ID.String(), user
 	})
 
 	var stats []*userStats

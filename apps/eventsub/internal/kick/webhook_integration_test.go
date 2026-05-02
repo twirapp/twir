@@ -59,7 +59,7 @@ type mockUsersRepoWebhook struct {
 	err  error
 }
 
-func (m *mockUsersRepoWebhook) GetByID(_ context.Context, _ string) (usersmodel.User, error) {
+func (m *mockUsersRepoWebhook) GetByID(_ context.Context, _ uuid.UUID) (usersmodel.User, error) {
 	return m.user, m.err
 }
 
@@ -71,7 +71,7 @@ func (m *mockUsersRepoWebhook) GetManyByIDS(_ context.Context, _ usersrepository
 	return nil, nil
 }
 
-func (m *mockUsersRepoWebhook) Update(_ context.Context, _ string, _ usersrepository.UpdateInput) (usersmodel.User, error) {
+func (m *mockUsersRepoWebhook) Update(_ context.Context, _ uuid.UUID, _ usersrepository.UpdateInput) (usersmodel.User, error) {
 	return usersmodel.Nil, nil
 }
 
@@ -99,7 +99,7 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 
 	usersRepo := &mockUsersRepoWebhook{
 		user: usersmodel.User{
-			ID:         channelID.String(),
+		ID:         channelID,
 			PlatformID: kickUserID,
 		},
 	}
@@ -168,7 +168,7 @@ func TestWebhookHandler_LivestreamStatus(t *testing.T) {
 
 	usersRepo := &mockUsersRepoWebhook{
 		user: usersmodel.User{
-			ID:         channelID.String(),
+		ID:         channelID,
 			PlatformID: kickUserID,
 		},
 	}

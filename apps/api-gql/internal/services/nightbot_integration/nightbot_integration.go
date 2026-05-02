@@ -423,7 +423,12 @@ func (s *Service) ImportCommands(
 		}, nil
 	}
 
-	channelRoles, err := s.rolesRepository.GetManyByChannelID(ctx, channelID)
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse channel id: %w", err)
+	}
+
+	channelRoles, err := s.rolesRepository.GetManyByChannelID(ctx, parsedChannelID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get channel roles: %w", err)
 	}

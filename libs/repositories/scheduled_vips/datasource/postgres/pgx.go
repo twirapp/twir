@@ -75,6 +75,14 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input scheduled_vips.Upd
 		updateBuilder = updateBuilder.Set("remove_at", *input.RemoveAt)
 	}
 
+	if input.RemoveType != nil {
+		updateBuilder = updateBuilder.Set("remove_type", *input.RemoveType)
+
+		if *input.RemoveType == scheduledvipsentity.RemoveTypeStreamEnd {
+			updateBuilder = updateBuilder.Set("remove_at", nil)
+		}
+	}
+
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {
 		return err

@@ -13,12 +13,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/redis/go-redis/v9"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/eventsub/internal/mappers"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -113,7 +115,9 @@ func (c *Handler) HandleChannelChatMessage(
 	ensuredUser, ensuredUserStats, err := c.userCreatorService.UnsureUser(
 		ctx, user_creator.CreateUserInput{
 			UserID:                   data.ChatterUserId,
-			ChannelID:                &data.BroadcasterUserId,
+			PlatformID:               data.ChatterUserId,
+			Platform:                 platform.PlatformTwitch,
+			ChannelID:                lo.ToPtr(data.EnrichedData.DbChannel.ID.String()),
 			Badges:                   data.Badges,
 			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,
 			ShouldUpdateStats: data.EnrichedData.ChannelStream != nil &&
@@ -130,7 +134,7 @@ func (c *Handler) HandleChannelChatMessage(
 	}
 
 	data.EnrichedData.DbUser = &twitch.DbUser{
-		ID:                ensuredUser.ID,
+		ID:                ensuredUser.ID.String(),
 		TokenID:           ensuredUser.TokenID.Ptr(),
 		IsBotAdmin:        ensuredUser.IsBotAdmin,
 		ApiKey:            ensuredUser.ApiKey,
@@ -140,8 +144,8 @@ func (c *Handler) HandleChannelChatMessage(
 	}
 	data.EnrichedData.DbUserChannelStat = &twitch.DbUserChannelStat{
 		ID:                ensuredUserStats.ID,
-		UserID:            ensuredUserStats.UserID,
-		ChannelID:         ensuredUserStats.ChannelID,
+		UserID:            ensuredUserStats.UserID.String(),
+		ChannelID:         ensuredUserStats.ChannelID.String(),
 		Messages:          ensuredUserStats.Messages,
 		Watched:           ensuredUserStats.Watched,
 		UsedChannelPoints: ensuredUserStats.UsedChannelPoints,

@@ -70,7 +70,7 @@ func (c *ChatAlerts) follow(
 			return fmt.Errorf("cannot get user by platform id: %w", err)
 		}
 
-		twitchClient, err := twitch.NewUserClientWithContext(ctx, user.ID, c.cfg, c.bus)
+		twitchClient, err := twitch.NewUserClientWithContext(ctx, user.ID.String(), c.cfg, c.bus)
 		if err != nil {
 			return err
 		}
