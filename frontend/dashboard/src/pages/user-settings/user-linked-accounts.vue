@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
-const userSettingsPath = '/dashboard/user-settings'
+const userSettingsPath = '/dashboard/settings'
 const { data: profile, executeQuery } = useProfile()
 const unlinkAccount = useUnlinkPlatformAccount()
 const { data: twitchAuthLinkData, fetching: twitchAuthLinkFetching } = useAuthLink(userSettingsPath)
@@ -41,18 +41,32 @@ function handleConnectTwitch() {
 		<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">Linked Accounts</h4>
 
 		<div class="flex flex-col gap-4">
-			<Card v-for="account in accounts" :key="account.platform">
+			<Card
+				v-for="account in accounts"
+				:key="account.platform"
+			>
 				<CardContent class="flex items-center justify-between p-4">
 					<div class="flex items-center gap-4">
 						<Avatar>
-							<AvatarImage :src="account.platformAvatar || ''" :alt="account.platformLogin" />
+							<AvatarImage
+								:src="account.platformAvatar || ''"
+								:alt="account.platformLogin"
+							/>
 							<AvatarFallback>{{ account.platformLogin.slice(0, 2).toUpperCase() }}</AvatarFallback>
 						</Avatar>
 						<div class="flex flex-col">
 							<div class="flex items-center gap-2">
 								<span class="font-semibold">{{ account.platformLogin }}</span>
-								<Badge variant="secondary" class="uppercase">{{ account.platform }}</Badge>
-								<Badge v-if="account.platform === currentPlatform" variant="default">Primary</Badge>
+								<Badge
+									variant="secondary"
+									class="uppercase"
+									>{{ account.platform }}</Badge
+								>
+								<Badge
+									v-if="account.platform === currentPlatform"
+									variant="default"
+									>Primary</Badge
+								>
 							</div>
 						</div>
 					</div>
@@ -62,7 +76,7 @@ function handleConnectTwitch() {
 						size="sm"
 						@click="handleUnlink(account.platform)"
 					>
-						<UnlinkIcon class="w-4 h-4 mr-2" />
+						<UnlinkIcon class="mr-2 h-4 w-4" />
 						Disconnect
 					</Button>
 				</CardContent>
@@ -76,7 +90,7 @@ function handleConnectTwitch() {
 						</Avatar>
 						<div class="flex flex-col">
 							<span class="font-semibold">Twitch</span>
-							<span class="text-sm text-muted-foreground">Not connected</span>
+							<span class="text-muted-foreground text-sm">Not connected</span>
 						</div>
 					</div>
 					<Button
@@ -85,7 +99,7 @@ function handleConnectTwitch() {
 						:disabled="twitchAuthLinkFetching || !twitchAuthLink"
 						@click="handleConnectTwitch"
 					>
-						<LinkIcon class="w-4 h-4 mr-2" />
+						<LinkIcon class="mr-2 h-4 w-4" />
 						Connect Twitch
 					</Button>
 				</CardContent>
@@ -99,11 +113,15 @@ function handleConnectTwitch() {
 						</Avatar>
 						<div class="flex flex-col">
 							<span class="font-semibold">Kick</span>
-							<span class="text-sm text-muted-foreground">Not connected</span>
+							<span class="text-muted-foreground text-sm">Not connected</span>
 						</div>
 					</div>
-					<Button variant="default" size="sm" @click="handleConnectKick">
-						<LinkIcon class="w-4 h-4 mr-2" />
+					<Button
+						variant="default"
+						size="sm"
+						@click="handleConnectKick"
+					>
+						<LinkIcon class="mr-2 h-4 w-4" />
 						Connect Kick
 					</Button>
 				</CardContent>
