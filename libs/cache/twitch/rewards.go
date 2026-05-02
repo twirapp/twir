@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.opentelemetry.io/otel/attribute"
@@ -24,13 +25,13 @@ func BuildRewardsCacheKeyForId(twitchPlatformID string) string {
 
 func (c *CachedTwitchClient) GetChannelRewards(
 	ctx context.Context,
-	twitchUserID string,
+	twitchUserID uuid.UUID,
 	twitchPlatformID string,
 ) (
 	[]helix.ChannelCustomReward,
 	error,
 ) {
-	if twitchUserID == "" || twitchPlatformID == "" {
+	if twitchUserID == uuid.Nil || twitchPlatformID == "" {
 		return nil, nil
 	}
 
@@ -38,7 +39,7 @@ func (c *CachedTwitchClient) GetChannelRewards(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("twitchUserID", twitchUserID),
+		attribute.String("twitchUserID", twitchUserID.String()),
 		attribute.String("twitchPlatformID", twitchPlatformID),
 	)
 

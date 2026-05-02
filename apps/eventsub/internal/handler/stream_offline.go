@@ -118,7 +118,7 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 
 	twitchClient, err := twitchlib.NewUserClientWithContext(
 		ctx,
-		user.ID.String(),
+		user.ID,
 		c.config,
 		c.twirBus,
 	)

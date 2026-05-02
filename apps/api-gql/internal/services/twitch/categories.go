@@ -103,7 +103,7 @@ func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInf
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		s.config,
 		s.twirBus,
 	)

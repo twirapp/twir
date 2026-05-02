@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
@@ -287,9 +288,9 @@ func (c *Commands) ParseCommandResponses(
 		},
 	)
 
-	var twitchUserID string
+	var twitchUserID uuid.UUID
 	if requestData.EnrichedData.DbChannel.TwitchUserID != nil {
-		twitchUserID = requestData.EnrichedData.DbChannel.TwitchUserID.String()
+		twitchUserID = *requestData.EnrichedData.DbChannel.TwitchUserID
 	}
 
 	parseCtxChannel := &types.ParseContextChannel{

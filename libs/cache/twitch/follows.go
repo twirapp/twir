@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.opentelemetry.io/otel/attribute"
@@ -20,13 +21,13 @@ func buildChannelFollowersCountCacheKeyForId(twitchPlatformID string) string {
 
 func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 	ctx context.Context,
-	twitchUserID string,
+	twitchUserID uuid.UUID,
 	twitchPlatformID string,
 ) (
 	int,
 	error,
 ) {
-	if twitchUserID == "" || twitchPlatformID == "" {
+	if twitchUserID == uuid.Nil || twitchPlatformID == "" {
 		return 0, nil
 	}
 
@@ -34,7 +35,7 @@ func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("twitch.twitchUserID", twitchUserID),
+		attribute.String("twitch.twitchUserID", twitchUserID.String()),
 		attribute.String("twitch.twitchPlatformID", twitchPlatformID),
 	)
 
@@ -78,11 +79,11 @@ func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 // Returns nil if the user is not following the channel
 func (c *CachedTwitchClient) GetUserFollowDuration(
 	ctx context.Context,
-	twitchUserID string,
+	twitchUserID uuid.UUID,
 	followerPlatformID string,
 	channelPlatformID string,
 ) (*time.Duration, error) {
-	if twitchUserID == "" || followerPlatformID == "" || channelPlatformID == "" {
+	if twitchUserID == uuid.Nil || followerPlatformID == "" || channelPlatformID == "" {
 		return nil, nil
 	}
 
@@ -90,7 +91,7 @@ func (c *CachedTwitchClient) GetUserFollowDuration(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("twitch.twitchUserID", twitchUserID),
+		attribute.String("twitch.twitchUserID", twitchUserID.String()),
 		attribute.String("twitch.followerPlatformID", followerPlatformID),
 		attribute.String("twitch.channelPlatformID", channelPlatformID),
 	)

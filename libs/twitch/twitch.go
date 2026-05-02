@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
@@ -90,7 +91,7 @@ func NewAppClientWithContext(
 	return client, nil
 }
 
-func NewUserClient(userID string, config cfg.Config, twirBus *buscore.Bus) (
+func NewUserClient(userID uuid.UUID, config cfg.Config, twirBus *buscore.Bus) (
 	*helix.Client,
 	error,
 ) {
@@ -99,7 +100,7 @@ func NewUserClient(userID string, config cfg.Config, twirBus *buscore.Bus) (
 
 func NewUserClientWithContext(
 	ctx context.Context,
-	userID string,
+	userID uuid.UUID,
 	config cfg.Config,
 	twirBus *buscore.Bus,
 ) (*helix.Client, error) {
@@ -107,7 +108,7 @@ func NewUserClientWithContext(
 	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(
 		attribute.String("twitch.client.type", "user"),
-		attribute.String("twitch.client.user_id", userID),
+		attribute.String("twitch.client.user_id", userID.String()),
 		attribute.String("twitch.client.client_id", config.TwitchClientId),
 		attribute.String("twitch.client.redirect_uri", config.GetTwitchCallbackUrl()),
 	)

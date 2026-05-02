@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/go-redsync/redsync/v4"
-	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/scorfly/gokick"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -44,17 +43,17 @@ type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Config           cfg.Config
-	Gorm             *gorm.DB
-	Redsync          *redsync.Redsync
-	Logger           *slog.Logger
-	TwirBus          *buscore.Bus
-	KickBotsRepo     kickbotsrepository.Repository
-	IntegrationsRepo integrationsrepository.Repository
+	Config                  cfg.Config
+	Gorm                    *gorm.DB
+	Redsync                 *redsync.Redsync
+	Logger                  *slog.Logger
+	TwirBus                 *buscore.Bus
+	KickBotsRepo            kickbotsrepository.Repository
+	IntegrationsRepo        integrationsrepository.Repository
 	ChannelIntegrationsRepo channelsintegrationsrepository.Repository
 	SpotifyIntegrationsRepo channelsintegrationsspotifyrepository.Repository
-	TokensRepository tokensrepository.Repository
-	UsersRepository  usersrepository.Repository
+	TokensRepository        tokensrepository.Repository
+	UsersRepository         usersrepository.Repository
 }
 
 type lockableMutex interface {
@@ -72,20 +71,20 @@ type tokensImpl struct {
 	appAccessToken *appToken
 	kickAppToken   *appToken
 
-	config           cfg.Config
-	log              *slog.Logger
-	redSync          *redsync.Redsync
-	twirBus          *buscore.Bus
-	kickBotsRepo     kickbotsrepository.Repository
-	integrationsRepo integrationsrepository.Repository
+	config                  cfg.Config
+	log                     *slog.Logger
+	redSync                 *redsync.Redsync
+	twirBus                 *buscore.Bus
+	kickBotsRepo            kickbotsrepository.Repository
+	integrationsRepo        integrationsrepository.Repository
 	channelIntegrationsRepo channelsintegrationsrepository.Repository
 	spotifyIntegrationsRepo channelsintegrationsspotifyrepository.Repository
-	tokensRepository tokensrepository.Repository
-	usersRepository  usersrepository.Repository
-	newMutex         func(name string) lockableMutex
-	newKickTokenRefresher func() (kickTokenRefresher, error)
-	spotifyTokenURL  string
-	nightbotTokenURL string
+	tokensRepository        tokensrepository.Repository
+	usersRepository         usersrepository.Repository
+	newMutex                func(name string) lockableMutex
+	newKickTokenRefresher   func() (kickTokenRefresher, error)
+	spotifyTokenURL         string
+	nightbotTokenURL        string
 }
 
 func rateLimitFunc(lastResponse *helix.Response) error {
@@ -145,16 +144,16 @@ func NewTokens(opts Opts) error {
 			ExpiresIn:      appAccessToken.Data.ExpiresIn,
 		},
 
-		config:           opts.Config,
-		log:              opts.Logger,
-		redSync:          opts.Redsync,
-		twirBus:          opts.TwirBus,
-		kickBotsRepo:     opts.KickBotsRepo,
-		integrationsRepo: opts.IntegrationsRepo,
+		config:                  opts.Config,
+		log:                     opts.Logger,
+		redSync:                 opts.Redsync,
+		twirBus:                 opts.TwirBus,
+		kickBotsRepo:            opts.KickBotsRepo,
+		integrationsRepo:        opts.IntegrationsRepo,
 		channelIntegrationsRepo: opts.ChannelIntegrationsRepo,
 		spotifyIntegrationsRepo: opts.SpotifyIntegrationsRepo,
-		tokensRepository: opts.TokensRepository,
-		usersRepository:  opts.UsersRepository,
+		tokensRepository:        opts.TokensRepository,
+		usersRepository:         opts.UsersRepository,
 		newMutex: func(name string) lockableMutex {
 			return opts.Redsync.NewMutex(name)
 		},
@@ -290,16 +289,11 @@ func (c *tokensImpl) RequestUserToken(
 	ctx context.Context,
 	data tokens.GetUserTokenRequest,
 ) (tokens.TokenResponse, error) {
-	mu := c.redSync.NewMutex("tokens-users-lock-" + data.UserId)
+	mu := c.redSync.NewMutex("tokens-users-lock-" + data.UserId.String())
 	mu.Lock()
 	defer mu.Unlock()
 
-	userID, err := uuid.Parse(data.UserId)
-	if err != nil {
-		return tokens.TokenResponse{}, fmt.Errorf("cannot parse user id: %w", err)
-	}
-
-	token, err := c.tokensRepository.GetByUserID(ctx, userID)
+	token, err := c.tokensRepository.GetByUserID(ctx, data.UserId)
 	if err != nil {
 		return tokens.TokenResponse{}, fmt.Errorf(
 			"cannot get user token from repository: %w",
@@ -317,7 +311,7 @@ func (c *tokensImpl) RequestUserToken(
 	}
 
 	if isTokenExpired(token.ExpiresIn, token.ObtainmentTimestamp) {
-		user, err := c.usersRepository.GetByID(ctx, userID)
+		user, err := c.usersRepository.GetByID(ctx, data.UserId)
 		if err != nil {
 			return tokens.TokenResponse{}, fmt.Errorf("cannot get user: %w", err)
 		}
@@ -391,7 +385,7 @@ func (c *tokensImpl) RequestUserToken(
 
 		c.log.Info(
 			"user token refreshed",
-			slog.String("user_id", data.UserId),
+			slog.String("user_id", data.UserId.String()),
 			slog.String("platform", string(user.Platform)),
 			slog.Int("expires_in", token.ExpiresIn),
 		)

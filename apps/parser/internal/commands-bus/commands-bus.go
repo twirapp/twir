@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
 	"github.com/twirapp/twir/apps/parser/internal/commands"
@@ -128,10 +129,11 @@ func (c *CommandsBus) Subscribe() error {
 				stream = &foundStream
 			}
 
+			twitchUserID, _ := uuid.Parse(data.ChannelTwitchUserID)
 			channel := &types.ParseContextChannel{
 				ID:           data.ChannelID,
 				Name:         data.ChannelName,
-				TwitchUserID: data.ChannelTwitchUserID,
+				TwitchUserID: twitchUserID,
 				DBChannelID:  data.ChannelDBID,
 			}
 			sender := &types.ParseContextSender{

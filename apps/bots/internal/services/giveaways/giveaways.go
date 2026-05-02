@@ -164,7 +164,7 @@ func (c *Service) TryAddParticipant(
 			if ch.TwitchUserID == nil || ch.TwitchPlatformID == nil {
 				return nil
 			}
-			followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, ch.TwitchUserID.String(), platformUserID, *ch.TwitchPlatformID)
+			followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, *ch.TwitchUserID, platformUserID, *ch.TwitchPlatformID)
 			if err != nil {
 				c.logger.Error("cannot get user follow duration", logger.Error(err))
 				return nil
@@ -286,7 +286,7 @@ func (c *Service) chooseWinner(
 				}
 				followDuration, err := c.twitchCache.GetUserFollowDuration(
 					ctx,
-					channelForFollowCheck.TwitchUserID.String(),
+					*channelForFollowCheck.TwitchUserID,
 					userModel.PlatformID,
 					*channelForFollowCheck.TwitchPlatformID,
 				)

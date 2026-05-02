@@ -168,6 +168,18 @@ export const useUnlinkPlatformAccount = () =>
 		[userInvalidateQueryKey]
 	)
 
+export const useAuthLink = (redirectTo: string) =>
+	useQuery({
+		query: graphql(`
+			query AuthLink($redirectTo: String!) {
+				authLink(redirectTo: $redirectTo)
+			}
+		`),
+		variables: {
+			redirectTo,
+		},
+	})
+
 export const useUserSettings = createGlobalState(() => {
 	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey'
 

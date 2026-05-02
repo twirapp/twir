@@ -27,7 +27,7 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)

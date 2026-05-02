@@ -161,17 +161,50 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return &result, nil
 	}
 
+	twitchPlatformID := *channel.TwitchPlatformID
+	if !stream.IsNil() {
+		result.StreamViewers = &stream.ViewerCount
+		result.StreamCategoryID = stream.GameId
+		result.StreamCategoryName = stream.GameName
+		result.StreamTitle = stream.Title
+		result.StreamStartedAt = &stream.StartedAt
+	}
+
 	channelTwitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get channel twitch client: %w", err)
-	}
+		appClient, appClientErr := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+		if appClientErr != nil {
+			c.logger.Error("cannot get fallback twitch app client", logger.Error(appClientErr))
+			return &result, nil
+		}
 
-	twitchPlatformID := *channel.TwitchPlatformID
+		if stream.IsNil() {
+			channelInformation, infoErr := appClient.GetChannelInformation(&helix.GetChannelInformationParams{
+				BroadcasterIDs: []string{twitchPlatformID},
+			})
+			if infoErr != nil {
+				c.logger.Error("cannot get channel information with app client", logger.Error(infoErr))
+				return &result, nil
+			}
+			if channelInformation.ErrorMessage != "" {
+				c.logger.Error("cannot get channel information with app client", slog.String("error", channelInformation.ErrorMessage))
+				return &result, nil
+			}
+			if len(channelInformation.Data.Channels) > 0 {
+				c := channelInformation.Data.Channels[0]
+				result.StreamCategoryName = c.GameName
+				result.StreamTitle = c.Title
+				result.StreamCategoryID = c.GameID
+			}
+		}
+
+		return &result, nil
+	}
 
 	if stream.IsNil() {
 		channelInformation, err := channelTwitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
@@ -220,7 +253,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	wg.Go(func() {
 		subs, err := c.cachedTwitchClient.GetChannelSubscribersCountByChannelId(
 			ctx,
-			*channel.TwitchPlatformID,
+			*channel.TwitchUserID,
 			twitchPlatformID,
 		)
 		if err != nil {
@@ -311,44 +344,117 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 }
 
 func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.BotStatus, error) {
+	statuses, err := c.GetBotStatuses(ctx, channelID)
+	if err != nil {
+		return entity.BotStatus{}, err
+	}
+
+	if len(statuses) == 0 {
+		return entity.BotStatus{}, nil
+	}
+
+	return statuses[0], nil
+}
+
+func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entity.BotStatus, error) {
 	parsedID, err := uuid.Parse(channelID)
 	if err != nil {
-		return entity.BotStatus{}, fmt.Errorf("invalid channel id: %w", err)
+		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
 	channel, err := c.channelsRepo.GetByID(ctx, parsedID)
 	if err != nil {
-		return entity.BotStatus{}, fmt.Errorf("get channel: %w", err)
+		return nil, fmt.Errorf("get channel: %w", err)
 	}
 
 	if channel.IsNil() {
-		return entity.BotStatus{}, fmt.Errorf("channel not found")
+		return nil, fmt.Errorf("channel not found")
 	}
 
-	result := entity.BotStatus{
-		Enabled: channel.IsEnabled,
-		IsMod:   channel.IsBotMod,
-		BotID:   channel.BotID,
-	}
+	statuses := make([]entity.BotStatus, 0, 2)
 
-	if channel.KickUserID != nil {
-		bot, err := c.kickBotsRepo.GetDefault(ctx)
+	if channel.TwitchConnected() {
+		status, err := c.getTwitchBotStatus(ctx, channel)
 		if err != nil {
-			c.logger.Error("cannot get default kick bot", logger.Error(err))
-		} else {
-			result.BotName = bot.KickUserLogin
-			result.BotID = bot.KickUserID.String()
+			c.logger.Error("cannot get twitch bot status", logger.Error(err), slog.String("channelId", channel.ID.String()))
+			status = c.getBasicTwitchBotStatus(ctx, channel)
 		}
-		return result, nil
+		statuses = append(statuses, status)
 	}
 
-	if !channel.TwitchConnected() {
-		return result, nil
+	if channel.KickConnected() {
+		statuses = append(statuses, c.getKickBotStatus(ctx, channel))
 	}
+
+	if len(statuses) == 0 {
+		statuses = append(statuses, entity.BotStatus{
+			DashboardID: channel.ID.String(),
+			Enabled:     channel.IsEnabled,
+			IsMod:       channel.IsBotMod,
+			BotID:       channel.BotID,
+		})
+	}
+
+	return statuses, nil
+}
+
+func (c *Service) getKickBotStatus(ctx context.Context, channel channelmodel.Channel) entity.BotStatus {
+	result := entity.BotStatus{
+		DashboardID: channel.ID.String(),
+		Platform:    "kick",
+		ChannelName: c.getChannelName(ctx, channel.KickUserID),
+		Enabled:     channel.IsEnabled,
+		IsMod:       true,
+		BotID:       channel.BotID,
+	}
+
+	bot, err := c.kickBotsRepo.GetDefault(ctx)
+	if err != nil {
+		c.logger.Error("cannot get default kick bot", logger.Error(err))
+		return result
+	}
+
+	result.BotName = bot.KickUserLogin
+	result.BotID = bot.KickUserID.String()
+	return result
+}
+
+func (c *Service) getChannelName(ctx context.Context, userID *uuid.UUID) string {
+	if userID == nil {
+		return ""
+	}
+
+	user, err := c.usersRepo.GetByID(ctx, *userID)
+	if err != nil {
+		c.logger.Error("cannot get channel user for bot status", logger.Error(err), slog.String("userId", userID.String()))
+		return ""
+	}
+
+	if user.Login != "" {
+		return user.Login
+	}
+
+	return user.DisplayName
+}
+
+func (c *Service) getBasicTwitchBotStatus(ctx context.Context, channel channelmodel.Channel) entity.BotStatus {
+	return entity.BotStatus{
+		DashboardID: channel.ID.String(),
+		Platform:    "twitch",
+		ChannelName: c.getChannelName(ctx, channel.TwitchUserID),
+		Enabled:     channel.IsEnabled,
+		IsMod:       channel.IsBotMod,
+		BotID:       channel.BotID,
+		BotName:     "TwirBot",
+	}
+}
+
+func (c *Service) getTwitchBotStatus(ctx context.Context, channel channelmodel.Channel) (entity.BotStatus, error) {
+	result := c.getBasicTwitchBotStatus(ctx, channel)
 
 	twitchPlatformID := *channel.TwitchPlatformID
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, *channel.TwitchPlatformID, c.config, c.twirBus)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, *channel.TwitchUserID, c.config, c.twirBus)
 	if err != nil {
 		return entity.BotStatus{}, err
 	}
@@ -419,7 +525,7 @@ const (
 	BotJoinLeaveActionLeave = "LEAVE"
 )
 
-func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (bool, error) {
+func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform string) (bool, error) {
 	parsedID, err := uuid.Parse(channelID)
 	if err != nil {
 		return false, fmt.Errorf("invalid channel id: %w", err)
@@ -443,7 +549,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 
 	channel.IsEnabled = isEnabled
 
-	if channel.TwitchUserID == nil {
+	if platform == "kick" || channel.TwitchUserID == nil {
 		// Non-Twitch channel (e.g. Kick) — just invalidate cache and return
 		c.channelsCache.Invalidate(ctx, channelID)
 		return true, nil
@@ -480,7 +586,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action string) (b
 
 	broadcasterClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)

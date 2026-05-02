@@ -31,7 +31,7 @@ func (c *Service) GetRewardsByChannelID(
 		return CustomRewardsResult{}, nil
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, *channel.TwitchPlatformID, c.config, c.twirBus)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, *channel.TwitchUserID, c.config, c.twirBus)
 	if err != nil {
 		return CustomRewardsResult{}, fmt.Errorf("failed to create twitch client: %w", err)
 	}

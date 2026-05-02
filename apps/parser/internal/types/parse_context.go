@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/google/uuid"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -27,8 +28,8 @@ type ParseContextSender struct {
 type ParseContextChannel struct {
 	ID           string // Platform-specific ID (e.g. Twitch numeric ID for Helix API)
 	Name         string
-	TwitchUserID string // Internal UUID for token lookup via NewUserClientWithContext
-	DBChannelID  string // Internal DB UUID (channels.id) for Postgres queries
+	TwitchUserID uuid.UUID // Internal UUID for token lookup via NewUserClientWithContext
+	DBChannelID  string    // Internal DB UUID (channels.id) for Postgres queries
 }
 
 type ParseContextEmotePosition struct {

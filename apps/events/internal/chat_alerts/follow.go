@@ -70,7 +70,7 @@ func (c *ChatAlerts) follow(
 			return fmt.Errorf("cannot get user by platform id: %w", err)
 		}
 
-		twitchClient, err := twitch.NewUserClientWithContext(ctx, user.ID.String(), c.cfg, c.bus)
+		twitchClient, err := twitch.NewUserClientWithContext(ctx, user.ID, c.cfg, c.bus)
 		if err != nil {
 			return err
 		}
@@ -96,7 +96,7 @@ func (c *ChatAlerts) follow(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelName:      lo.If(req.BaseInfo.ChannelName != "", &req.BaseInfo.ChannelName).Else(nil),
+			ChannelName:    lo.If(req.BaseInfo.ChannelName != "", &req.BaseInfo.ChannelName).Else(nil),
 			ChannelId:      req.BaseInfo.ChannelID,
 			Platform:       req.BaseInfo.Platform.String(),
 			Message:        text,

@@ -2,6 +2,7 @@ package listener
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"strings"
 
@@ -350,7 +351,7 @@ func (c *EventsGrpcImplementation) Follow(
 
 				twitchClient, err := twitchlib.NewUserClientWithContext(
 					ctx,
-					user.ID.String(),
+					user.ID,
 					c.cfg,
 					c.twirBus,
 				)
@@ -734,11 +735,28 @@ func (c *EventsGrpcImplementation) StreamOffline(
 
 	wg.Go(
 		func() {
+			channel := struct {
+				ID string `gorm:"column:id"`
+			}{}
+			if err := c.db.WithContext(ctx).
+				Table("channels").
+				Select("channels.id").
+				Joins(`JOIN users ON users.id::text = channels.twitch_user_id::text`).
+				Where(`users.platform = ? AND users.platform_id = ?`, platform.PlatformTwitch, msg.ChannelID).
+				First(&channel).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return
+				}
+				c.logger.Error("Error get channel by twitch platform ID", logger.Error(err))
+				return
+			}
+
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeStreamOffline,
 				shared.EventData{
-					ChannelID: msg.ChannelID,
+					ChannelID:   msg.ChannelID,
+					ChannelDBID: channel.ID,
 				},
 			)
 			if err != nil {

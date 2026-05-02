@@ -137,7 +137,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 	}
 
 	twitchClient, err := twitch.NewUserClient(
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		c.config,
 		c.bus,
 	)
@@ -221,7 +221,7 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 	}
 
 	twitchClient, err := twitch.NewUserClient(
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		c.config,
 		c.bus,
 	)

@@ -125,9 +125,14 @@ func (c *onlineUsers) updateStreamUsers(
 	broadcasterID := stream.UserId
 	channelUUID := stream.Channel.ID
 
+	twitchUserID, err := uuid.Parse(stream.Channel.User.ID)
+	if err != nil {
+		return fmt.Errorf("parse twitch user id: %w", err)
+	}
+
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		stream.Channel.User.ID,
+		twitchUserID,
 		c.config,
 		c.twirBus,
 	)

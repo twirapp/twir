@@ -1,62 +1,158 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { ChevronsUpDown } from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
+import { ChevronsUpDown, LogIn, LogOut } from 'lucide-vue-next'
 
-import { useBotJoinPart, useBotStatus } from '@/api/dashboard'
+import { useBotJoinPart, useBotStatuses } from '@/api/dashboard'
 import { BotJoinLeaveAction } from '@/gql/graphql.ts'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import KickIcon from '@/components/kick-icon.vue'
 import CircleSvg from '@/assets/images/circle.svg?use'
 
-const { botStatus, executeSubscription } = useBotStatus()
+const { botStatuses, executeSubscription } = useBotStatuses()
 const stateMutation = useBotJoinPart()
 
-const waitingBotStatusData = ref(true)
+const pendingStatusKeys = ref<Set<string>>(new Set())
+const hasReceivedStatus = ref(false)
 
-watch(botStatus, () => {
-	waitingBotStatusData.value = false
+const sortedBotStatuses = computed(() => {
+	return [...botStatuses.value].sort((a, b) => {
+		if (a.platform === b.platform) return a.botName.localeCompare(b.botName)
+		if (a.platform === 'twitch') return -1
+		if (b.platform === 'twitch') return 1
+		return a.platform.localeCompare(b.platform)
+	})
 })
 
-async function changeChatState() {
-	const action = botStatus.value?.enabled ? BotJoinLeaveAction.Leave : BotJoinLeaveAction.Join
+const enabledStatusesCount = computed(() => {
+	return sortedBotStatuses.value.filter((status) => status.enabled).length
+})
 
-	waitingBotStatusData.value = true
-	await stateMutation.executeMutation({ action })
+const allStatusesEnabled = computed(() => {
+	return sortedBotStatuses.value.length > 0 && enabledStatusesCount.value === sortedBotStatuses.value.length
+})
+
+const statusSummary = computed(() => {
+	if (!hasReceivedStatus.value) return 'Bot status'
+	if (sortedBotStatuses.value.length === 0) return 'Bot offline'
+
+	if (sortedBotStatuses.value.length === 1) {
+		const status = sortedBotStatuses.value[0]
+		return `${formatPlatformName(status.platform)} ${status.enabled ? 'online' : 'disabled'}`
+	}
+
+	if (enabledStatusesCount.value === 0) return 'All bots disabled'
+	if (allStatusesEnabled.value) return `${sortedBotStatuses.value.length} platforms online`
+	return `${enabledStatusesCount.value}/${sortedBotStatuses.value.length} platforms online`
+})
+
+watch(botStatuses, () => {
+	hasReceivedStatus.value = true
+	pendingStatusKeys.value = new Set()
+})
+
+function statusKey(status: { dashboardId: string; platform: string }) {
+	return `${status.dashboardId}:${status.platform}`
+}
+
+function formatPlatformName(platform: string) {
+	if (platform === 'kick') return 'Kick'
+	if (platform === 'twitch') return 'Twitch'
+	return platform || 'Bot'
+}
+
+function isStatusPending(status: { dashboardId: string; platform: string }) {
+	return pendingStatusKeys.value.has(statusKey(status))
+}
+
+async function changeChatState(status: { dashboardId: string; platform: string; channelName: string; enabled: boolean }) {
+	const key = statusKey(status)
+	const nextPending = new Set(pendingStatusKeys.value)
+	nextPending.add(key)
+	pendingStatusKeys.value = nextPending
+
+	const action = status.enabled ? BotJoinLeaveAction.Leave : BotJoinLeaveAction.Join
+	await stateMutation.executeMutation({
+		action,
+		dashboardId: status.dashboardId,
+		platform: status.platform,
+	})
 	executeSubscription()
 }
 </script>
 
 <template>
-	<Button
-		v-if="!botStatus?.enabled"
-		:disabled="waitingBotStatusData"
-		@click="changeChatState"
-		class="flex items-center gap-0.5"
-		variant="secondary"
-	>
-		<CircleSvg class="circle text-red-400" />
-		{{ botStatus?.botName ?? 'Bot' }} disabled, click to join channel
-	</Button>
-	<DropdownMenu v-else>
+	<DropdownMenu>
 		<DropdownMenuTrigger as-child>
 			<Button
 				variant="secondary"
-				:disabled="waitingBotStatusData"
-				class="flex items-center gap-0.5"
+				:disabled="!hasReceivedStatus"
+				class="flex items-center gap-2"
 			>
-				<CircleSvg class="circle text-green-400" />
-				{{ botStatus?.botName ?? 'Bot' }} online
-				<ChevronsUpDown class="ml-2 size-4" />
+				<CircleSvg
+					class="circle"
+					:class="allStatusesEnabled ? 'text-green-400' : 'text-red-400'"
+				/>
+				<div class="flex items-center gap-1">
+					<template v-for="status in sortedBotStatuses" :key="statusKey(status)">
+						<KickIcon v-if="status.platform === 'kick'" class="size-4 text-[#53FC18]" />
+						<Badge
+							v-else-if="status.platform === 'twitch'"
+							variant="outline"
+							class="h-4 px-1 text-[10px]"
+						>
+							T
+						</Badge>
+					</template>
+				</div>
+				<span class="max-w-44 truncate">{{ statusSummary }}</span>
+				<ChevronsUpDown class="size-4" />
 			</Button>
 		</DropdownMenuTrigger>
-		<DropdownMenuContent>
-			<DropdownMenuItem class="text-red-700" @click="changeChatState">
-				Leave channel
+		<DropdownMenuContent align="end" class="w-72">
+			<DropdownMenuLabel>Bot platforms</DropdownMenuLabel>
+			<DropdownMenuSeparator />
+			<DropdownMenuItem
+				v-for="status in sortedBotStatuses"
+				:key="statusKey(status)"
+				class="flex items-center gap-3"
+				:disabled="isStatusPending(status)"
+				@click="changeChatState(status)"
+			>
+				<div class="flex size-7 items-center justify-center rounded-md border border-border bg-background">
+					<KickIcon v-if="status.platform === 'kick'" class="size-4 text-[#53FC18]" />
+					<Badge
+						v-else-if="status.platform === 'twitch'"
+						variant="outline"
+						class="h-4 px-1 text-[10px]"
+					>
+						T
+					</Badge>
+				</div>
+				<div class="min-w-0 flex-1">
+					<p class="truncate text-sm font-medium">
+						{{ formatPlatformName(status.platform) }}
+						<span class="text-muted-foreground">{{ status.channelName || status.botName || 'Bot' }}</span>
+					</p>
+					<p class="flex items-center gap-1 text-xs text-muted-foreground">
+						<CircleSvg
+							class="size-3"
+							:class="status.enabled ? 'text-green-400' : 'text-red-400'"
+						/>
+						{{ status.enabled ? 'Online' : 'Disabled' }}
+						<span v-if="status.botName" class="truncate">via {{ status.botName }}</span>
+					</p>
+				</div>
+				<LogOut v-if="status.enabled" class="size-4 text-red-500" />
+				<LogIn v-else class="size-4 text-green-500" />
 			</DropdownMenuItem>
 		</DropdownMenuContent>
 	</DropdownMenu>
@@ -65,27 +161,7 @@ async function changeChatState() {
 <style>
 @reference '@/assets/index.css';
 
-.stats-item {
-	@apply flex flex-col justify-between min-w-8 rounded-md;
-}
-
-.stats-type {
-	@apply text-xs;
-}
-
-.stats-display {
-	@apply text-base tabular-nums;
-}
-
 .circle {
-	@apply size-6;
-}
-
-@keyframes ping {
-	75%,
-	100% {
-		transform: scale(2);
-		opacity: 0;
-	}
+	@apply size-4;
 }
 </style>

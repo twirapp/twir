@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.opentelemetry.io/otel/attribute"
@@ -20,13 +21,13 @@ func buildChannelSubscribersCountCacheKeyForId(twitchPlatformID string) string {
 
 func (c *CachedTwitchClient) GetChannelSubscribersCountByChannelId(
 	ctx context.Context,
-	twitchUserID string,
+	twitchUserID uuid.UUID,
 	twitchPlatformID string,
 ) (
 	int,
 	error,
 ) {
-	if twitchUserID == "" || twitchPlatformID == "" {
+	if twitchUserID == uuid.Nil || twitchPlatformID == "" {
 		return 0, nil
 	}
 
@@ -34,7 +35,7 @@ func (c *CachedTwitchClient) GetChannelSubscribersCountByChannelId(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("twitchUserID", twitchUserID),
+		attribute.String("twitchUserID", twitchUserID.String()),
 		attribute.String("twitchPlatformID", twitchPlatformID),
 	)
 

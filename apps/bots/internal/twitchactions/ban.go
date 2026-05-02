@@ -33,7 +33,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 	if channel.TwitchUserID == nil {
 		return fmt.Errorf("channel has no twitch user id for broadcaster %s", opts.BroadcasterID)
 	}
-	twitchUserID := *channel.TwitchPlatformID
+	twitchUserID := *channel.TwitchUserID
 
 	broadcasterHelixClient, err := twitch.NewUserClientWithContext(
 		ctx,

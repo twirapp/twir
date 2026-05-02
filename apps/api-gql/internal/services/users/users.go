@@ -226,7 +226,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 
 	channelTwitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)

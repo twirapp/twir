@@ -1,6 +1,7 @@
 package tokens
 
 import (
+	"github.com/google/uuid"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 )
@@ -13,12 +14,12 @@ const (
 )
 
 type GetUserTokenRequest struct {
-	UserId string `json:"userId"`
+	UserId uuid.UUID `json:"userId"`
 }
 
 type GetBotTokenRequest struct {
-	BotId    string                    `json:"botId"`
-	Platform platformentity.Platform   `json:"platform"`
+	BotId    string                  `json:"botId"`
+	Platform platformentity.Platform `json:"platform"`
 }
 
 type GetAppTokenRequest struct {

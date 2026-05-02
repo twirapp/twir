@@ -69,7 +69,16 @@ func (c *Activity) getHelixChannelApiClient(ctx context.Context, twitchUserID st
 	*helix.Client,
 	error,
 ) {
-	return twitch.NewUserClientWithContext(ctx, twitchUserID, c.cfg, c.bus)
+	parsedUserID, err := uuid.Parse(twitchUserID)
+	if err != nil {
+		user, userErr := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchUserID)
+		if userErr != nil {
+			return nil, fmt.Errorf("resolve twitch user id: %w", userErr)
+		}
+		parsedUserID = user.ID
+	}
+
+	return twitch.NewUserClientWithContext(ctx, parsedUserID, c.cfg, c.bus)
 }
 
 func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (

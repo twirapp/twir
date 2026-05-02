@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -92,14 +93,19 @@ var CustomVar = &types.Variable{
 				text = strings.ReplaceAll(text, "$(command.param)", "")
 			}
 
+			channelTwitchUserID := ""
+			if parseCtx.Channel.TwitchUserID != uuid.Nil {
+				channelTwitchUserID = parseCtx.Channel.TwitchUserID.String()
+			}
+
 			filledWithVariablesValue, err := parseCtx.Services.Bus.Parser.ParseVariablesInText.Request(
 				requestCtx,
-			parser.ParseVariablesInTextRequest{
-				ChannelID:           parseCtx.Channel.ID,
-				ChannelName:         parseCtx.Channel.Name,
-				ChannelTwitchUserID: parseCtx.Channel.TwitchUserID,
-				ChannelDBID:         parseCtx.Channel.DBChannelID,
-				Text:                text,
+				parser.ParseVariablesInTextRequest{
+					ChannelID:           parseCtx.Channel.ID,
+					ChannelName:         parseCtx.Channel.Name,
+					ChannelTwitchUserID: channelTwitchUserID,
+					ChannelDBID:         parseCtx.Channel.DBChannelID,
+					Text:                text,
 					UserID:              parseCtx.Sender.ID,
 					UserLogin:           parseCtx.Sender.Name,
 					UserName:            parseCtx.Sender.DisplayName,

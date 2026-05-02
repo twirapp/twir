@@ -40,7 +40,7 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 		return nil, nil
 	}
 
-	rewards, err := r.deps.CachedTwitchClient.GetChannelRewards(ctx, *channel.TwitchPlatformID, *channel.TwitchPlatformID)
+	rewards, err := r.deps.CachedTwitchClient.GetChannelRewards(ctx, *channel.TwitchUserID, *channel.TwitchPlatformID)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}

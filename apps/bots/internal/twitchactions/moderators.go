@@ -19,7 +19,7 @@ func (c *TwitchActions) AddModerator(ctx context.Context, broadcasterID, userID 
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)
@@ -54,7 +54,7 @@ func (c *TwitchActions) RemoveModerator(ctx context.Context, broadcasterID, user
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchPlatformID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)

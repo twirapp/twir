@@ -18,8 +18,11 @@ type DashboardStats struct {
 }
 
 type BotStatus struct {
-	IsMod   bool
-	BotID   string
-	BotName string
-	Enabled bool
+	DashboardID string
+	Platform    string
+	ChannelName string
+	IsMod       bool
+	BotID       string
+	BotName     string
+	Enabled     bool
 }

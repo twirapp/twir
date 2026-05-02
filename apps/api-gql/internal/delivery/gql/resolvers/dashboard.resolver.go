@@ -18,10 +18,16 @@ import (
 )
 
 // BotJoinLeave is the resolver for the botJoinLeave field.
-func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.BotJoinLeaveAction) (bool, error) {
-	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
-	if err != nil {
-		return false, gqlerrors.HandleError(err)
+func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.BotJoinLeaveAction, dashboardID *string, platform *string) (bool, error) {
+	targetDashboardID := ""
+	if dashboardID != nil {
+		targetDashboardID = *dashboardID
+	} else {
+		selectedDashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+		if err != nil {
+			return false, gqlerrors.HandleError(err)
+		}
+		targetDashboardID = selectedDashboardID
 	}
 
 	var convertedAction string
@@ -31,7 +37,12 @@ func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.Bot
 		convertedAction = dashboard.BotJoinLeaveActionLeave
 	}
 
-	_, err = r.deps.DashboardService.BotJoinLeave(ctx, dashboardID, convertedAction)
+	targetPlatform := ""
+	if platform != nil {
+		targetPlatform = *platform
+	}
+
+	_, err := r.deps.DashboardService.BotJoinLeave(ctx, targetDashboardID, convertedAction, targetPlatform)
 	if err != nil {
 		return false, fmt.Errorf("cannot join/leave bot: %w", err)
 	}
@@ -102,6 +113,45 @@ func (r *subscriptionResolver) BotStatus(ctx context.Context) (<-chan *gqlmodel.
 				convertedBotStatus := mappers.DashboardBotInfoEntityToGql(botStatus)
 
 				channel <- &convertedBotStatus
+
+				time.Sleep(5 * time.Second)
+			}
+		}
+	}()
+
+	return channel, nil
+}
+
+// BotStatuses is the resolver for the botStatuses field.
+func (r *subscriptionResolver) BotStatuses(ctx context.Context) (<-chan []gqlmodel.BotStatus, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	channel := make(chan []gqlmodel.BotStatus, 1)
+
+	go func() {
+		defer close(channel)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			default:
+				botStatuses, err := r.deps.DashboardService.GetBotStatuses(ctx, dashboardID)
+				if err != nil {
+					return
+				}
+
+				convertedBotStatuses := make([]gqlmodel.BotStatus, 0, len(botStatuses))
+				for _, botStatus := range botStatuses {
+					convertedBotStatus := mappers.DashboardBotInfoEntityToGql(botStatus)
+					convertedBotStatuses = append(convertedBotStatuses, convertedBotStatus)
+				}
+
+				channel <- convertedBotStatuses
 
 				time.Sleep(5 * time.Second)
 			}

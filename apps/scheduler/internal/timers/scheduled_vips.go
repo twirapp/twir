@@ -130,7 +130,7 @@ func (s *scheduledVips) process(ctx context.Context) {
 
 			twitchClient, err := twitch.NewUserClientWithContext(
 				ctx,
-				ownerUser.ID.String(),
+				ownerUser.ID,
 				s.config,
 				s.twirBus,
 			)
@@ -168,12 +168,12 @@ func (s *scheduledVips) process(ctx context.Context) {
 			continue
 		}
 
-			resp, err := twitchClient.RemoveChannelVip(
-				&helix.RemoveChannelVipParams{
-					BroadcasterID: channelPlatformIDs[vip.ChannelID],
-					UserID:        userPlatformIDs[vip.UserID],
-				},
-			)
+		resp, err := twitchClient.RemoveChannelVip(
+			&helix.RemoveChannelVipParams{
+				BroadcasterID: channelPlatformIDs[vip.ChannelID],
+				UserID:        userPlatformIDs[vip.UserID],
+			},
+		)
 		if err != nil {
 			s.logger.Error("failed to remove vip", logger.Error(err))
 			continue
