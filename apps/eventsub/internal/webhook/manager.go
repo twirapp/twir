@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/google/uuid"
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -15,8 +16,8 @@ import (
 
 type Platform interface {
 	Name() string
-	SubscribeAll(ctx context.Context, channelID string) error
-	UnsubscribeAll(ctx context.Context, channelID string) error
+	SubscribeAll(ctx context.Context, channelID uuid.UUID) error
+	UnsubscribeAll(ctx context.Context, channelID uuid.UUID) error
 	SetCallbackBaseURL(baseURL string)
 }
 
@@ -124,7 +125,7 @@ func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
 			continue
 		}
 
-		if err := m.kickSubMgr.UnsubscribeAll(ctx, ch.KickUserID.String()); err != nil {
+		if err := m.kickSubMgr.UnsubscribeAll(ctx, *ch.KickUserID); err != nil {
 			m.logger.WarnContext(
 				ctx,
 				"webhook manager: failed to unsubscribe kick",
@@ -158,7 +159,7 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 			continue
 		}
 
-		if err := m.kickSubMgr.SubscribeAll(ctx, ch.KickUserID.String()); err != nil {
+		if err := m.kickSubMgr.SubscribeAll(ctx, *ch.KickUserID); err != nil {
 			m.logger.ErrorContext(
 				ctx,
 				"webhook manager: failed to subscribe kick",

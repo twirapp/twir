@@ -16,7 +16,7 @@ import (
 
 type SubscriptionLister interface {
 	ListSubscriptions(ctx context.Context, broadcasterUserID int) ([]SubscriptionInfo, error)
-	SubscribeAll(ctx context.Context, kickChannelID string) error
+	SubscribeAll(ctx context.Context, kickChannelID uuid.UUID) error
 }
 
 type ResubscribeJob struct {
@@ -96,25 +96,13 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 
 		kickChannelID := ch.KickUserID.String()
 
-		kickUserUUID, err := uuid.Parse(kickChannelID)
-		if err != nil {
-			j.logger.ErrorContext(
-				ctx,
-				"resubscribe job: failed to parse kick channel ID",
-				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", kickChannelID),
-				logger.Error(err),
-			)
-			continue
-		}
-
-		user, err := j.usersRepo.GetByID(ctx, kickUserUUID)
+		user, err := j.usersRepo.GetByID(ctx, *ch.KickUserID)
 		if err != nil {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to get user for kick channel",
 				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", kickChannelID),
+				slog.String("kick_user_id", ch.KickUserID.String()),
 				logger.Error(err),
 			)
 			continue
@@ -126,7 +114,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 				ctx,
 				"resubscribe job: failed to parse kick platform user ID",
 				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", kickChannelID),
+				slog.String("kick_user_id", ch.KickUserID.String()),
 				logger.Error(err),
 			)
 			continue
@@ -148,7 +136,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		if err := j.subManager.SubscribeAll(ctx, kickChannelID); err != nil {
+		if err := j.subManager.SubscribeAll(ctx, *ch.KickUserID); err != nil {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to re-subscribe kick eventsub",

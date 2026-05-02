@@ -8,6 +8,8 @@ import (
 	"github.com/twirapp/twir/apps/scheduler/internal/timers"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/otel"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	"go.uber.org/fx"
@@ -37,6 +39,10 @@ var App = fx.Module(
 		fx.Annotate(
 			usersrepositorypgx.NewFx,
 			fx.As(new(usersrepository.Repository)),
+		),
+		fx.Annotate(
+			channelsrepositorypgx.NewFx,
+			fx.As(new(channelsrepository.Repository)),
 		),
 	),
 	fx.Invoke(

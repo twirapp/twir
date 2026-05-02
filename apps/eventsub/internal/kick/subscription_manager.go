@@ -204,16 +204,13 @@ func (m *SubscriptionManager) unsubscribe(
 
 func (m *SubscriptionManager) SubscribeAll(
 	ctx context.Context,
-	kickChannelID string,
+	kickChannelID uuid.UUID,
 ) error {
-	kickUserUUID, err := uuid.Parse(kickChannelID)
-	if err != nil {
-		return fmt.Errorf("failed to parse kick channel ID %q as UUID: %w", kickChannelID, err)
-	}
+	kickChannelIDStr := kickChannelID.String()
 
-	user, err := m.usersRepo.GetByID(ctx, kickUserUUID)
+	user, err := m.usersRepo.GetByID(ctx, kickChannelID)
 	if err != nil {
-		return fmt.Errorf("failed to get user for kick channel ID %q: %w", kickChannelID, err)
+		return fmt.Errorf("failed to get user for kick channel ID %q: %w", kickChannelIDStr, err)
 	}
 
 	broadcasterUserID, err := strconv.Atoi(user.PlatformID)
@@ -224,7 +221,7 @@ func (m *SubscriptionManager) SubscribeAll(
 	existingSubs, err := m.ListSubscriptions(ctx, broadcasterUserID)
 	if err != nil {
 		m.logger.WarnContext(ctx, "failed to list existing kick subscriptions, continuing with blind subscribe",
-			slog.String("kick_channel_id", kickChannelID),
+			slog.String("kick_channel_id", kickChannelIDStr),
 			logger.Error(err),
 		)
 		existingSubs = nil
@@ -239,7 +236,7 @@ func (m *SubscriptionManager) SubscribeAll(
 		subs, ok := existingByEvent[eventType]
 		if ok && len(subs) > 0 {
 			firstSub := &subs[0]
-			key := redisKey(kickChannelID, eventType)
+			key := redisKey(kickChannelIDStr, eventType)
 			if err := m.redis.Set(ctx, key, firstSub.SubscriptionID, redisTTL).Err(); err != nil {
 				return fmt.Errorf("failed to store existing subscription ID for %q in Redis: %w", eventType, err)
 			}
@@ -247,7 +244,7 @@ func (m *SubscriptionManager) SubscribeAll(
 			m.logger.InfoContext(
 				ctx,
 				"Kick EventSub subscription already exists, reusing",
-				slog.String("kick_channel_id", kickChannelID),
+				slog.String("kick_channel_id", kickChannelIDStr),
 				slog.String("event_type", eventType),
 				slog.String("subscription_id", firstSub.SubscriptionID),
 			)
@@ -255,7 +252,7 @@ func (m *SubscriptionManager) SubscribeAll(
 			for i := 1; i < len(subs); i++ {
 				if err := m.unsubscribe(ctx, subs[i].SubscriptionID); err != nil {
 					m.logger.WarnContext(ctx, "failed to clean up duplicate kick subscription",
-						slog.String("kick_channel_id", kickChannelID),
+						slog.String("kick_channel_id", kickChannelIDStr),
 						slog.String("event_type", eventType),
 						slog.String("subscription_id", subs[i].SubscriptionID),
 						logger.Error(err),
@@ -271,7 +268,7 @@ func (m *SubscriptionManager) SubscribeAll(
 			return fmt.Errorf("failed to subscribe to %q: %w", eventType, err)
 		}
 
-		key := redisKey(kickChannelID, eventType)
+		key := redisKey(kickChannelIDStr, eventType)
 		if err := m.redis.Set(ctx, key, subID, redisTTL).Err(); err != nil {
 			return fmt.Errorf("failed to store subscription ID for %q in Redis: %w", eventType, err)
 		}
@@ -279,7 +276,7 @@ func (m *SubscriptionManager) SubscribeAll(
 		m.logger.InfoContext(
 			ctx,
 			"Kick EventSub subscription created",
-			slog.String("kick_channel_id", kickChannelID),
+			slog.String("kick_channel_id", kickChannelIDStr),
 			slog.String("event_type", eventType),
 			slog.String("subscription_id", subID),
 		)
@@ -290,16 +287,13 @@ func (m *SubscriptionManager) SubscribeAll(
 
 func (m *SubscriptionManager) UnsubscribeAll(
 	ctx context.Context,
-	kickChannelID string,
+	kickChannelID uuid.UUID,
 ) error {
-	kickUserUUID, err := uuid.Parse(kickChannelID)
-	if err != nil {
-		return fmt.Errorf("failed to parse kick channel ID %q as UUID: %w", kickChannelID, err)
-	}
+	kickChannelIDStr := kickChannelID.String()
 
-	user, err := m.usersRepo.GetByID(ctx, kickUserUUID)
+	user, err := m.usersRepo.GetByID(ctx, kickChannelID)
 	if err != nil {
-		return fmt.Errorf("failed to get user for kick channel ID %q: %w", kickChannelID, err)
+		return fmt.Errorf("failed to get user for kick channel ID %q: %w", kickChannelIDStr, err)
 	}
 
 	broadcasterUserID, err := strconv.Atoi(user.PlatformID)
@@ -308,7 +302,7 @@ func (m *SubscriptionManager) UnsubscribeAll(
 	}
 
 	for _, eventType := range EventTypes {
-		key := redisKey(kickChannelID, eventType)
+		key := redisKey(kickChannelIDStr, eventType)
 
 		subIDs := make([]string, 0, 1)
 
@@ -317,13 +311,13 @@ func (m *SubscriptionManager) UnsubscribeAll(
 			if err == goredis.Nil {
 				subs, listErr := m.ListSubscriptions(ctx, broadcasterUserID)
 				if listErr != nil {
-					m.logger.WarnContext(
-						ctx,
-						"Failed to list Kick subscriptions for cleanup fallback",
-						slog.String("kick_channel_id", kickChannelID),
-						slog.String("event_type", eventType),
-						logger.Error(listErr),
-					)
+				m.logger.WarnContext(
+					ctx,
+					"Failed to list Kick subscriptions for cleanup fallback",
+					slog.String("kick_channel_id", kickChannelIDStr),
+					slog.String("event_type", eventType),
+					logger.Error(listErr),
+				)
 					continue
 				}
 
@@ -347,7 +341,7 @@ func (m *SubscriptionManager) UnsubscribeAll(
 				m.logger.WarnContext(
 					ctx,
 					"Failed to unsubscribe Kick EventSub (continuing cleanup)",
-					slog.String("kick_channel_id", kickChannelID),
+					slog.String("kick_channel_id", kickChannelIDStr),
 					slog.String("event_type", eventType),
 					logger.Error(err),
 				)

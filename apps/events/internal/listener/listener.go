@@ -555,6 +555,7 @@ func (c *EventsGrpcImplementation) CommandUsed(
 				model.EventTypeCommandUsed,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     msg.BaseInfo.ChannelID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					CommandName:     msg.CommandName,

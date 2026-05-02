@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/avast/retry-go/v4"
+	"github.com/google/uuid"
 	dispatchtypes "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	seventvapi "github.com/twirapp/twir/libs/integrations/seventv/api"
@@ -151,17 +152,17 @@ func (c *Service) getChannelsWithEmotesSets(
 					}
 
 					for _, platform := range platforms {
-						var userIDStr string
+						var userID uuid.UUID
 						switch platform {
 						case platformentity.PlatformKick:
-							userIDStr = channelModel.KickUserID.String()
+							userID = *channelModel.KickUserID
 						case platformentity.PlatformTwitch:
-							userIDStr = channelModel.TwitchUserID.String()
+							userID = *channelModel.TwitchUserID
 						default:
 							return fmt.Errorf("unsupported platform %q for channel %s", platform, channel)
 						}
 
-						platformUser, err := c.usersRepo.GetByID(ctx, userIDStr)
+						platformUser, err := c.usersRepo.GetByID(ctx, userID)
 						if err != nil {
 							return fmt.Errorf(
 								"failed to fetch user for channel %s platform %s: %w",

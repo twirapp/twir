@@ -86,10 +86,8 @@ func (a *Auth) handleKickCode(
 
 	var defaultKickBotID *uuid.UUID
 	if kickBotErr == nil {
-		botID, parseErr := uuid.Parse(defaultKickBot.ID)
-		if parseErr == nil {
-			defaultKickBotID = &botID
-		}
+		botID := defaultKickBot.ID
+		defaultKickBotID = &botID
 	}
 
 	result, err := a.completePlatformAuth(ctx, completePlatformAuthInput{
@@ -137,22 +135,19 @@ func (a *Auth) handleKickCode(
 				}
 
 				if kickBotByUserErr == nil {
-					existingBotID, parseErr := uuid.Parse(existingKickBot.ID)
-					if parseErr == nil {
-						_, updateErr := a.kickBotsRepo.UpdateToken(
-							ctx,
-							existingBotID,
-							kickbotsrepo.UpdateTokenInput{
-								AccessToken:         accessToken,
-								RefreshToken:        refreshToken,
-								Scopes:              tokens.Scopes,
-								ExpiresIn:           tokens.ExpiresIn,
-								ObtainmentTimestamp: time.Now().UTC(),
-							},
-						)
-						if updateErr != nil {
-							a.logger.ErrorContext(ctx, "kick auth: failed to update kick bot token on re-login", logger.Error(updateErr))
-						}
+					_, updateErr := a.kickBotsRepo.UpdateToken(
+						ctx,
+						existingKickBot.ID,
+						kickbotsrepo.UpdateTokenInput{
+							AccessToken:         accessToken,
+							RefreshToken:        refreshToken,
+							Scopes:              tokens.Scopes,
+							ExpiresIn:           tokens.ExpiresIn,
+							ObtainmentTimestamp: time.Now().UTC(),
+						},
+					)
+					if updateErr != nil {
+						a.logger.ErrorContext(ctx, "kick auth: failed to update kick bot token on re-login", logger.Error(updateErr))
 					}
 				}
 			}

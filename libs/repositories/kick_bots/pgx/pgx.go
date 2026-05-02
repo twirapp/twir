@@ -56,7 +56,7 @@ var Nil = &dbModel{isNil: true}
 
 func modelToEntity(m dbModel) entity.KickBot {
 	return entity.KickBot{
-		ID:                  m.ID.String(),
+		ID:                  m.ID,
 		Type:                m.Type,
 		AccessToken:         m.AccessToken,
 		RefreshToken:        m.RefreshToken,

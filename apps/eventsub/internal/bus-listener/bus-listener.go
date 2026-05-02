@@ -112,16 +112,25 @@ func (c *BusListener) subscribeToAllEvents(
 		return struct{}{}, fmt.Errorf("parse channel UUID: %w", err)
 	}
 
+	return c.subscribeToAllEventsByChannelID(ctx, channelUUID)
+}
+
+func (c *BusListener) subscribeToAllEventsByChannelID(
+	ctx context.Context,
+	channelUUID uuid.UUID,
+) (struct{}, error) {
+	channelID := channelUUID.String()
+
 	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
 	if err != nil {
-		c.logger.Error("error getting channel by ID", slog.String("channel_id", msg.ChannelID))
+		c.logger.Error("error getting channel by ID", slog.String("channel_id", channelID))
 		return struct{}{}, err
 	}
 
 	if channel.BotID == "" || !channel.IsEnabled {
 		c.logger.Warn(
 			"channel is not enabled or bot ID is missing",
-			slog.String("channel_id", msg.ChannelID),
+			slog.String("channel_id", channelID),
 		)
 		return struct{}{}, nil
 	}
@@ -130,18 +139,18 @@ func (c *BusListener) subscribeToAllEvents(
 		if channel.KickBotID == nil {
 			c.logger.Warn(
 				"channel has kick user but no kick bot assigned, skipping kick eventsub subscription",
-				slog.String("channel_id", msg.ChannelID),
+				slog.String("channel_id", channelID),
 				slog.String("kick_user_id", channel.KickUserID.String()),
 			)
 			return struct{}{}, nil
 		}
 
 		kickUserIDStr := channel.KickUserID.String()
-		if err := c.kickSubManager.SubscribeAll(ctx, kickUserIDStr); err != nil {
+		if err := c.kickSubManager.SubscribeAll(ctx, *channel.KickUserID); err != nil {
 			c.logger.Error(
 				"error subscribing to kick events",
 				logger.Error(err),
-				slog.String("channel_id", msg.ChannelID),
+				slog.String("channel_id", channelID),
 				slog.String("kick_user_id", kickUserIDStr),
 			)
 			return struct{}{}, err
@@ -149,7 +158,7 @@ func (c *BusListener) subscribeToAllEvents(
 
 		c.logger.Info(
 			"subscribed to kick events",
-			slog.String("channel_id", msg.ChannelID),
+			slog.String("channel_id", channelID),
 			slog.String("kick_user_id", kickUserIDStr),
 			slog.String("kick_bot_id", channel.KickBotID.String()),
 		)
@@ -160,7 +169,7 @@ func (c *BusListener) subscribeToAllEvents(
 	if channel.TwitchUserID == nil {
 		c.logger.Warn(
 			"channel has no platform user ID for eventsub subscription",
-			slog.String("channel_id", msg.ChannelID),
+			slog.String("channel_id", channelID),
 		)
 		return struct{}{}, nil
 	}
@@ -282,12 +291,7 @@ func (c *BusListener) reinitChannels(
 
 		go func() {
 			defer wg.Done()
-			if _, err := c.subscribeToAllEvents(
-				ctx,
-				eventsub.EventsubSubscribeToAllEventsRequest{
-					ChannelID: channel.ID.String(),
-				},
-			); err != nil {
+			if _, err := c.subscribeToAllEventsByChannelID(ctx, channel.ID); err != nil {
 				c.logger.Error("error subscribing to all events", logger.Error(err))
 			}
 		}()
@@ -322,7 +326,7 @@ func (c *BusListener) unsubscribe(ctx context.Context, userId string) (struct{},
 
 	if channel.KickUserID != nil {
 		kickUserIDStr := channel.KickUserID.String()
-		if err := c.kickSubManager.UnsubscribeAll(ctx, kickUserIDStr); err != nil {
+		if err := c.kickSubManager.UnsubscribeAll(ctx, *channel.KickUserID); err != nil {
 			c.logger.Error(
 				"error unsubscribing from kick events",
 				logger.Error(err),

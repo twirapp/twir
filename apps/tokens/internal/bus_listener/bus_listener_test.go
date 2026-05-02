@@ -93,7 +93,7 @@ func TestRequestBotToken_KickRefreshesDefaultBot(t *testing.T) {
 
 	kickRepo := &fakeKickBotsRepository{
 		defaultBot: kickbotentity.KickBot{
-			ID:                  uuid.NewString(),
+			ID:                  uuid.New(),
 			AccessToken:         accessToken,
 			RefreshToken:        refreshToken,
 			Scopes:              []string{"chat:write"},

@@ -24,7 +24,7 @@ func (m *mockSubManager) ListSubscriptions(_ context.Context, _ int) ([]Subscrip
 	return m.listResult, m.listErr
 }
 
-func (m *mockSubManager) SubscribeAll(_ context.Context, _ string) error {
+func (m *mockSubManager) SubscribeAll(_ context.Context, _ uuid.UUID) error {
 	m.subscribeAllCalls++
 	return m.subscribeErr
 }

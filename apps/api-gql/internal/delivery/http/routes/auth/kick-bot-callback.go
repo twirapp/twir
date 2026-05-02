@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/google/uuid"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -114,12 +113,7 @@ func (a *Auth) handleKickBotCallback(
 			return nil, huma.Error500InternalServerError("Cannot create kick bot", err)
 		}
 	} else {
-		botID, err := uuid.Parse(existingBot.ID)
-		if err != nil {
-			a.logger.ErrorContext(ctx, "kick bot callback: failed to parse bot id", logger.Error(err))
-			return nil, huma.Error500InternalServerError("Invalid bot id", err)
-		}
-		_, err = a.kickBotsRepo.UpdateToken(ctx, botID, kickbotsrepo.UpdateTokenInput{
+		_, err = a.kickBotsRepo.UpdateToken(ctx, existingBot.ID, kickbotsrepo.UpdateTokenInput{
 			AccessToken:         encryptedAccessToken,
 			RefreshToken:        encryptedRefreshToken,
 			Scopes:              tokens.Scopes,

@@ -317,7 +317,7 @@ func (c *tokensImpl) RequestUserToken(
 	}
 
 	if isTokenExpired(token.ExpiresIn, token.ObtainmentTimestamp) {
-		user, err := c.usersRepository.GetByID(ctx, data.UserId)
+		user, err := c.usersRepository.GetByID(ctx, userID)
 		if err != nil {
 			return tokens.TokenResponse{}, fmt.Errorf("cannot get user: %w", err)
 		}
@@ -566,14 +566,9 @@ func (c *tokensImpl) requestKickBotToken(ctx context.Context) (tokens.TokenRespo
 			return tokens.TokenResponse{}, fmt.Errorf("encrypt kick bot refresh token: %w", err)
 		}
 
-		botID, err := uuid.Parse(bot.ID)
-		if err != nil {
-			return tokens.TokenResponse{}, fmt.Errorf("parse kick bot id: %w", err)
-		}
-
 		updatedBot, err := c.kickBotsRepo.UpdateToken(
 			ctx,
-			botID,
+			bot.ID,
 			kickbotsrepository.UpdateTokenInput{
 				AccessToken:         encryptedAccessToken,
 				RefreshToken:        encryptedRefreshToken,
@@ -587,7 +582,7 @@ func (c *tokensImpl) requestKickBotToken(ctx context.Context) (tokens.TokenRespo
 		}
 
 		bot = updatedBot
-		c.log.Info("kick bot token refreshed", slog.String("kick_bot_id", bot.ID))
+		c.log.Info("kick bot token refreshed", slog.String("kick_bot_id", bot.ID.String()))
 	}
 
 	decryptedAccessToken, err := crypto.Decrypt(bot.AccessToken, c.config.TokensCipherKey)

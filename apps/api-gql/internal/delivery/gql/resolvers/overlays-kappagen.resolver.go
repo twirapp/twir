@@ -17,8 +17,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 // Channel is the resolver for the channel field.

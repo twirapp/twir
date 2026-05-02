@@ -7,7 +7,7 @@ import (
 )
 
 type KickBot struct {
-	ID                  string
+	ID                  uuid.UUID
 	Type                string
 	AccessToken         string
 	RefreshToken        string

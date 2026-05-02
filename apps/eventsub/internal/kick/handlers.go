@@ -382,10 +382,11 @@ func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) ([]slo
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for livestream.metadata.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	if h.streamsRepo != nil {
 		categoryID := strconv.Itoa(payload.Metadata.Category.ID)
@@ -443,10 +444,11 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	)
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for chat message broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	senderPlatformID := strconv.Itoa(payload.Sender.UserID)
 
@@ -487,7 +489,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 
 	errwg.Go(func() error {
 		var err error
-		channel, err = h.channelsRepo.GetByID(ctx, uuid.MustParse(channelID))
+		channel, err = h.channelsRepo.GetByID(ctx, channelUUID)
 		if err != nil {
 			return fmt.Errorf("get channel by id: %w", err)
 		}
@@ -669,10 +671,11 @@ func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Att
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for follow broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	if err := h.eventsFollow.Publish(
 		ctx,
@@ -736,10 +739,11 @@ func (h *Handlers) handleSubscriptionNew(r *http.Request, body []byte) ([]slog.A
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for channel.subscription.new broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	subscriberUserID := strconv.Itoa(payload.Subscriber.UserID)
 	if h.eventsListRepo != nil {
@@ -789,10 +793,11 @@ func (h *Handlers) handleSubscriptionRenewal(r *http.Request, body []byte) ([]sl
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for channel.subscription.renewal broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	subscriberUserID := strconv.Itoa(payload.Subscriber.UserID)
 	months := max(payload.Duration, 0)
@@ -849,10 +854,11 @@ func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for channel.subscription.gifts broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	gifterUserID := strconv.Itoa(payload.Gifter.UserID)
 	for _, giftee := range payload.Giftees {
@@ -911,10 +917,11 @@ func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) (
 
 	status := normalizeKickRedemptionStatus(payload.Status)
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for channel.reward.redemption.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	if !isKickRedemptionPending(payload.Status) {
 		return []slog.Attr{
@@ -996,10 +1003,11 @@ func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for moderation.banned broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	bannedUserID := strconv.Itoa(payload.BannedUser.UserID)
 	moderatorUserID := strconv.Itoa(payload.Moderator.UserID)
@@ -1075,10 +1083,11 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) ([]slog.
 	}
 
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
-	channelID, _, err := h.resolveIDs(r, broadcasterUserID)
+	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve ids for livestream.status.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
+	channelID := channelUUID.String()
 
 	if payload.IsLive {
 		startedAt := time.Now().UTC()
@@ -1132,26 +1141,26 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) ([]slog.
 	}, nil
 }
 
-func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (string, string, error) {
+func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.UUID, uuid.UUID, error) {
 	ctx := r.Context()
 
 	user, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, broadcasterUserID)
 	if err != nil {
 		if errors.Is(err, usersmodel.ErrNotFound) {
-			return "", "", fmt.Errorf("no kick user for broadcaster_user_id=%s", broadcasterUserID)
+			return uuid.Nil, uuid.Nil, fmt.Errorf("no kick user for broadcaster_user_id=%s", broadcasterUserID)
 		}
-		return "", "", fmt.Errorf("get user by platform id: %w", err)
+		return uuid.Nil, uuid.Nil, fmt.Errorf("get user by platform id: %w", err)
 	}
 
 	channel, err := h.channelsRepo.GetByKickUserID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
-			return "", "", fmt.Errorf("channel not found for user_id=%s platform=kick", user.ID)
+			return uuid.Nil, uuid.Nil, fmt.Errorf("channel not found for user_id=%s platform=kick", user.ID)
 		}
-		return "", "", fmt.Errorf("get channel by kick user id: %w", err)
+		return uuid.Nil, uuid.Nil, fmt.Errorf("get channel by kick user id: %w", err)
 	}
 
-	return channel.ID.String(), user.ID.String(), nil
+	return channel.ID, user.ID, nil
 }
 
 func (h *Handlers) getChannelCommandPrefix(ctx context.Context, channelId string) (

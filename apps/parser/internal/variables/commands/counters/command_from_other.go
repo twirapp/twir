@@ -27,13 +27,17 @@ var CommandFromOtherCounter = &types.Variable{
 			return result, nil
 		}
 
-		cmd := model.ChannelsCommands{}
+		cmd := struct {
+			ID uuid.UUID `gorm:"column:id"`
+		}{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
+			Model(&model.ChannelsCommands{}).
+			Select("id").
 			Where(`"channelId" = ?::uuid AND "name" = ?`, parseCtx.Channel.DBChannelID, *variableData.Params).
 			First(&cmd).Error
 
-		if err != nil || cmd.ID == "" {
+		if err != nil || cmd.ID == uuid.Nil {
 			result.Result = i18n.GetCtx(
 				ctx,
 				locales.Translations.Variables.Commands.Info.CommandWithNameNotFound.
@@ -42,17 +46,10 @@ var CommandFromOtherCounter = &types.Variable{
 			return result, nil
 		}
 
-		commandUUID, err := uuid.Parse(cmd.ID)
-		if err != nil {
-			parseCtx.Services.Logger.Sugar().Error(err)
-			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Commands.Info.GetCount)
-			return result, nil
-		}
-
 		count, err := parseCtx.Services.ChannelsCommandsUsagesRepo.Count(
 			ctx, channelscommandsusages.CountInput{
 				ChannelID: &parseCtx.Channel.ID,
-				CommandID: &commandUUID,
+				CommandID: &cmd.ID,
 			},
 		)
 		if err != nil {

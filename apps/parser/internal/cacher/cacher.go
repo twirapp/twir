@@ -3,10 +3,8 @@ package cacher
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 
-	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
@@ -143,12 +141,7 @@ func (c *cacher) getDbChannel(ctx context.Context) (*dbChannelInfo, error) {
 		return nil, err
 	}
 
-	userID, err := uuid.Parse(fmt.Sprint(user.ID))
-	if err != nil {
-		return nil, fmt.Errorf("parse user id as uuid: %w", err)
-	}
-
-	ch, err := c.services.ChannelsRepo.GetByTwitchUserID(ctx, userID)
+	ch, err := c.services.ChannelsRepo.GetByTwitchUserID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil, errors.New("channel not found")
