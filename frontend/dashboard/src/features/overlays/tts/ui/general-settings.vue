@@ -30,19 +30,18 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()
 const { form, onSubmit, isLoading, isSaving } = useTTSForm()
 const { voices } = useTTSVoices()
 
-const { data: profile } = useProfile()
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
-const { copyOverlayLink } = useCopyOverlayLink('tts')
+const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('tts')
 
 const canCopyLink = computed(() => {
-	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays.value
+	return canCopyOverlayLink.value && userCanEditOverlays.value
 })
 
 const previewText = ref('Hello world, this is a test message')
