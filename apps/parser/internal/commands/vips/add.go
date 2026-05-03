@@ -104,7 +104,7 @@ var Add = &types.DefaultCommand{
 
 		user := parseCtx.Mentions[0]
 
-		targetDbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, user.UserId)
+		targetDbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, user.UserID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -145,7 +145,7 @@ var Add = &types.DefaultCommand{
 				vipResp, err := twitchClient.AddChannelVip(
 					&helix.AddChannelVipParams{
 						BroadcasterID: parseCtx.Channel.ID,
-						UserID:        user.UserId,
+						UserID:        user.UserID,
 					},
 				)
 				if err != nil {

@@ -4,14 +4,14 @@ import (
 	"context"
 	"strings"
 
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleGiveaways(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *MessageHandler) handleGiveaways(ctx context.Context, msg generic.ChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))

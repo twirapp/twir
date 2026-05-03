@@ -14,6 +14,7 @@ import (
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -373,15 +374,21 @@ func (c *Handler) handleYoutubeSongRequests(
 
 	res, err := c.twirBus.Parser.GetCommandResponse.Request(
 		ctx,
-		twitch.TwitchChatMessage{
+		generic.ChatMessage{
 			BroadcasterUserId:    event.BroadcasterUserId,
 			BroadcasterUserName:  event.BroadcasterUserName,
 			BroadcasterUserLogin: event.BroadcasterUserLogin,
 			ChatterUserId:        event.UserId,
 			ChatterUserName:      event.UserName,
 			ChatterUserLogin:     event.UserLogin,
-			MessageId:            event.Id,
-			Message: &twitch.ChatMessageMessage{
+			MessageID:            event.Id,
+			PlatformChannelID:    event.BroadcasterUserId,
+			ChannelID:            event.BroadcasterUserId,
+			UserID:               event.UserId,
+			SenderID:             event.UserId,
+			SenderLogin:          event.UserLogin,
+			SenderDisplayName:    event.UserName,
+			Message: &generic.ChatMessageMessage{
 				Text: fmt.Sprintf("!%s %s", foundCommand.Name, event.UserInput),
 			},
 		},

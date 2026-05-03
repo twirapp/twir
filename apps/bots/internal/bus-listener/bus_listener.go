@@ -14,6 +14,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
@@ -250,13 +251,13 @@ type BusListener struct {
 
 func (c *BusListener) handleChatMessage(
 	ctx context.Context,
-	req twitch.TwitchChatMessage,
+	req generic.ChatMessage,
 ) (struct{}, error) {
 	span := trace.SpanFromContext(ctx)
 	// End the span when the operation we are measuring is done.
 	defer span.End()
 	span.SetAttributes(
-		attribute.String("message_id", req.MessageId),
+		attribute.String("message_id", req.MessageID),
 		attribute.String("channel_id", req.BroadcasterUserId),
 	)
 

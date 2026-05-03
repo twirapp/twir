@@ -18,7 +18,7 @@ var ID = &types.Variable{
 		targetUserId := lo.
 			IfF(
 				len(parseCtx.Mentions) > 0, func() string {
-					return parseCtx.Mentions[0].UserId
+					return parseCtx.Mentions[0].UserID
 				},
 			).
 			Else(parseCtx.Sender.ID)

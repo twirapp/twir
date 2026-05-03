@@ -17,7 +17,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	generic "github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
@@ -99,8 +98,8 @@ func (c *CommandsBus) Subscribe() error {
 
 	c.bus.Parser.GetCommandResponse.SubscribeGroup(
 		"parser",
-		func(ctx context.Context, data twitch.TwitchChatMessage) (parser.CommandParseResponse, error) {
-			res, err := c.commandService.ProcessChatMessage(ctx, data, platformentity.PlatformTwitch)
+		func(ctx context.Context, data generic.ChatMessage) (parser.CommandParseResponse, error) {
+			res, err := c.commandService.ProcessChatMessage(ctx, data, platformentity.Platform(data.Platform))
 			if err != nil {
 				return parser.CommandParseResponse{}, err
 			}
@@ -179,16 +178,16 @@ func (c *CommandsBus) Subscribe() error {
 		"parser",
 		func(
 			ctx context.Context,
-			data twitch.TwitchChatMessage,
+			data generic.ChatMessage,
 		) (struct{}, error) {
-			isDup, err := c.dedupMessage(ctx, data.MessageId)
+			isDup, err := c.dedupMessage(ctx, data.MessageID)
 			if err != nil {
 				zap.S().Error(err)
 			} else if isDup {
 				return struct{}{}, nil
 			}
 
-			res, err := c.commandService.ProcessChatMessage(ctx, data, platformentity.PlatformTwitch)
+			res, err := c.commandService.ProcessChatMessage(ctx, data, platformentity.Platform(data.Platform))
 			if err != nil {
 				zap.S().Error(err)
 				return struct{}{}, err
@@ -199,17 +198,21 @@ func (c *CommandsBus) Subscribe() error {
 
 			var replyTo string
 			if res.IsReply {
-				replyTo = data.MessageId
+				replyTo = data.MessageID
 			}
 
 			for _, r := range res.Responses {
 				internalChannelID := data.EnrichedData.DbChannel.ID
+				channelName := data.BroadcasterUserLogin
+				if channelName == "" {
+					channelName = data.PlatformChannelID
+				}
 				params := bots.SendMessageRequest{
-					ChannelName:       &data.BroadcasterUserLogin,
-					ChannelId:         data.BroadcasterUserId,
+					ChannelName:       &channelName,
+					ChannelId:         data.PlatformChannelID,
 					InternalChannelID: &internalChannelID,
-					PlatformChannelID: data.BroadcasterUserId,
-					Platform:          "twitch",
+					PlatformChannelID: data.PlatformChannelID,
+					Platform:          data.Platform,
 					Message:           r,
 					ReplyTo:           replyTo,
 					SkipRateLimits:    false,
@@ -234,121 +237,8 @@ func (c *CommandsBus) Subscribe() error {
 		},
 	)
 
-	c.bus.Parser.ProcessGenericMessage.SubscribeGroup(
-		"parser",
-		func(
-			ctx context.Context,
-			msg generic.ChatMessage,
-		) (struct{}, error) {
-			isDup, err := c.dedupMessage(ctx, msg.MessageID)
-			if err != nil {
-				zap.S().Error(err)
-			} else if isDup {
-				return struct{}{}, nil
-			}
-
-			badges := make([]twitch.ChatMessageBadge, 0, len(msg.Badges))
-			for _, b := range msg.Badges {
-				badges = append(badges, twitch.ChatMessageBadge{
-					SetId: b.SetID,
-					Info:  b.Text,
-				})
-			}
-
-			twitchMsg := genericToLegacyTwitchChatMessage(msg, badges)
-
-			if msg.EnrichedData.DbUser != nil {
-				twitchMsg.EnrichedData.DbUser = &twitch.DbUser{
-					ID:                msg.EnrichedData.DbUser.ID,
-					TokenID:           msg.EnrichedData.DbUser.TokenID,
-					IsBotAdmin:        msg.EnrichedData.DbUser.IsBotAdmin,
-					ApiKey:            msg.EnrichedData.DbUser.ApiKey,
-					IsBanned:          msg.EnrichedData.DbUser.IsBanned,
-					HideOnLandingPage: msg.EnrichedData.DbUser.HideOnLandingPage,
-					CreatedAt:         msg.EnrichedData.DbUser.CreatedAt,
-				}
-				twitchMsg.EnrichedData.DbUserChannelStat = &twitch.DbUserChannelStat{
-					ID:                msg.EnrichedData.DbUserChannelStat.ID,
-					UserID:            msg.EnrichedData.DbUserChannelStat.UserID,
-					ChannelID:         msg.EnrichedData.DbUserChannelStat.ChannelID,
-					Messages:          msg.EnrichedData.DbUserChannelStat.Messages,
-					Watched:           msg.EnrichedData.DbUserChannelStat.Watched,
-					UsedChannelPoints: msg.EnrichedData.DbUserChannelStat.UsedChannelPoints,
-					IsMod:             msg.EnrichedData.DbUserChannelStat.IsMod,
-					IsVip:             msg.EnrichedData.DbUserChannelStat.IsVip,
-					IsSubscriber:      msg.EnrichedData.DbUserChannelStat.IsSubscriber,
-					Reputation:        msg.EnrichedData.DbUserChannelStat.Reputation,
-					Emotes:            msg.EnrichedData.DbUserChannelStat.Emotes,
-					CreatedAt:         msg.EnrichedData.DbUserChannelStat.CreatedAt,
-					UpdatedAt:         msg.EnrichedData.DbUserChannelStat.UpdatedAt,
-				}
-				twitchMsg.EnrichedData.DbChannel = msg.EnrichedData.DbChannel
-				twitchMsg.EnrichedData.ChannelStream = msg.EnrichedData.ChannelStream
-				twitchMsg.EnrichedData.ChannelCommandPrefix = msg.EnrichedData.ChannelCommandPrefix
-				twitchMsg.EnrichedData.IsChatterBroadcaster = msg.EnrichedData.IsChatterBroadcaster
-				twitchMsg.EnrichedData.IsChatterModerator = msg.EnrichedData.IsChatterModerator
-				twitchMsg.EnrichedData.IsChatterVip = msg.EnrichedData.IsChatterVip
-				twitchMsg.EnrichedData.IsChatterSubscriber = msg.EnrichedData.IsChatterSubscriber
-			}
-
-			res, err := c.commandService.ProcessChatMessage(ctx, twitchMsg, platformentity.Platform(msg.Platform))
-			if err != nil {
-				zap.S().Error(err)
-				return struct{}{}, err
-			}
-			if res == nil {
-				return struct{}{}, nil
-			}
-
-			var replyTo string
-			if res.IsReply {
-				replyTo = msg.MessageID
-			}
-
-			channelName := msg.PlatformChannelID
-			for _, r := range res.Responses {
-				params := genericToSendMessageRequest(msg, &channelName, r, replyTo, res.SkipToxicityCheck)
-
-				if res.KeepOrder {
-					if _, err := c.bus.Bots.SendMessage.Request(ctx, params); err != nil {
-						zap.S().Error(err)
-					}
-				} else {
-					withoutCancel := context.WithoutCancel(ctx)
-					go func() {
-						if err := c.bus.Bots.SendMessage.Publish(withoutCancel, params); err != nil {
-							zap.S().Error(err)
-						}
-					}()
-				}
-			}
-
-			return struct{}{}, nil
-		},
-	)
-
 	return nil
 }
-
-func genericToLegacyTwitchChatMessage(
-	msg generic.ChatMessage,
-	badges []twitch.ChatMessageBadge,
-) twitch.TwitchChatMessage {
-	return twitch.TwitchChatMessage{
-		BroadcasterUserId:    msg.PlatformChannelID,
-		BroadcasterUserLogin: msg.PlatformChannelID,
-		BroadcasterUserName:  msg.PlatformChannelID,
-		ChatterUserId:        msg.SenderID,
-		ChatterUserLogin:     msg.SenderLogin,
-		ChatterUserName:      msg.SenderDisplayName,
-		MessageId:            msg.MessageID,
-		Badges:               badges,
-		Message: &twitch.ChatMessageMessage{
-			Text: msg.Text,
-		},
-	}
-}
-
 func genericToSendMessageRequest(
 	msg generic.ChatMessage,
 	channelName *string,
@@ -378,6 +268,5 @@ func (c *CommandsBus) Unsubscribe() {
 	c.bus.Parser.GetCommandResponse.Unsubscribe()
 	c.bus.Parser.ParseVariablesInText.Unsubscribe()
 	c.bus.Parser.ProcessMessageAsCommand.Unsubscribe()
-	c.bus.Parser.ProcessGenericMessage.Unsubscribe()
 	c.bus.Parser.GetDefaultCommands.Unsubscribe()
 }

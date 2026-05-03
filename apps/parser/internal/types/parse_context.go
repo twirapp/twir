@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
@@ -62,7 +62,7 @@ type ParseContext struct {
 	MessageId string
 	RawText   string
 	Emotes    []*ParseContextEmote
-	Mentions  []twitch.ChatMessageMessageFragmentMention
+	Mentions  []generic.ChatMessageMessageFragmentMention
 
 	IsCommand     bool
 	IsInCustomVar bool

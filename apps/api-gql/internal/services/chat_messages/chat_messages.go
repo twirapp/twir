@@ -10,12 +10,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
 
@@ -83,13 +83,22 @@ func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 	}
 }
 
-func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessage) (
+func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 	struct{},
 	error,
 ) {
 	textBuilder := strings.Builder{}
-	for _, fragment := range data.Message.Fragments {
-		textBuilder.WriteString(fragment.Text)
+	if data.Message != nil {
+		for _, fragment := range data.Message.Fragments {
+			textBuilder.WriteString(fragment.Text)
+		}
+	}
+	if textBuilder.Len() == 0 {
+		if data.Message != nil {
+			textBuilder.WriteString(data.Message.Text)
+		} else {
+			textBuilder.WriteString(data.Text)
+		}
 	}
 	msg := entity.ChatMessage{
 		ID:              uuid.New(),

@@ -10,7 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -47,7 +47,7 @@ func New(opts Opts) *Service {
 				}
 
 				if err := s.twirBus.ChatMessages.Subscribe(
-					func(ctx context.Context, msg twitch.TwitchChatMessage) (struct{}, error) {
+					func(ctx context.Context, msg generic.ChatMessage) (struct{}, error) {
 						_ = s.tryRegisterVote(msg)
 						return struct{}{}, nil
 					},
@@ -78,7 +78,7 @@ type Service struct {
 	channelService     *channel.Service
 }
 
-func (s *Service) tryRegisterVote(msg twitch.TwitchChatMessage) bool {
+func (s *Service) tryRegisterVote(msg generic.ChatMessage) bool {
 	if msg.Message == nil {
 		return false
 	}
@@ -107,7 +107,7 @@ func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.Vote
 
 	sess := newSession(
 		req.Data,
-		req.TargerUser.UserId,
+		req.TargerUser.UserID,
 		req.TargerUser.UserLogin,
 		req.InitiatorIsModerator,
 		req.PlatformChannelID,
@@ -129,7 +129,7 @@ func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.Vote
 		slog.String("channel_id", req.Data.ChannelID),
 		slog.Group(
 			"user",
-			slog.String("id", req.TargerUser.UserId),
+			slog.String("id", req.TargerUser.UserID),
 			slog.String("name", req.TargerUser.UserLogin),
 		),
 	)

@@ -62,7 +62,7 @@ var Command = &types.DefaultCommand{
 		}
 
 		user := parseCtx.Mentions[0]
-		dbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, parseCtx.Platform, user.UserId)
+		dbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, parseCtx.Platform, user.UserID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.UserNotFound),

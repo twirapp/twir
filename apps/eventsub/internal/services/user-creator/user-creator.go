@@ -7,7 +7,7 @@ import (
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users"
 	usermodel "github.com/twirapp/twir/libs/repositories/users/model"
@@ -47,7 +47,7 @@ type CreateUserInput struct {
 	PlatformID               string
 	Platform                 platform.Platform
 	ChannelID                *string
-	Badges                   []twitch.ChatMessageBadge
+	Badges                   []generic.ChatMessageBadge
 	UsedEmotesWithThirdParty *int
 	ShouldUpdateStats        bool
 	IsBroadcaster            bool

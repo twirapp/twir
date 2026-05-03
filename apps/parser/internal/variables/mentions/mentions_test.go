@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/variables/mentions"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
@@ -16,9 +16,9 @@ func TestMentionsID(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
 				Platform: platformentity.PlatformTwitch,
-				Mentions: []twitch.ChatMessageMessageFragmentMention{
-					{UserId: "123", UserName: "User1", UserLogin: "user1"},
-					{UserId: "456", UserName: "User2", UserLogin: "user2"},
+				Mentions: []generic.ChatMessageMessageFragmentMention{
+					{UserID: "123", UserName: "User1", UserLogin: "user1"},
+					{UserID: "456", UserName: "User2", UserLogin: "user2"},
 				},
 			},
 		}
@@ -36,9 +36,9 @@ func TestMentionsID(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
 				Platform: platformentity.PlatformTwitch,
-				Mentions: []twitch.ChatMessageMessageFragmentMention{
-					{UserId: "123", UserName: "User1", UserLogin: "user1"},
-					{UserId: "456", UserName: "User2", UserLogin: "user2"},
+				Mentions: []generic.ChatMessageMessageFragmentMention{
+					{UserID: "123", UserName: "User1", UserLogin: "user1"},
+					{UserID: "456", UserName: "User2", UserLogin: "user2"},
 				},
 			},
 		}
@@ -58,7 +58,7 @@ func TestMentionsID(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
 				Platform: platformentity.PlatformTwitch,
-				Mentions: []twitch.ChatMessageMessageFragmentMention{},
+				Mentions: []generic.ChatMessageMessageFragmentMention{},
 			},
 		}
 
@@ -75,8 +75,8 @@ func TestMentionsID(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
 				Platform: platformentity.PlatformTwitch,
-				Mentions: []twitch.ChatMessageMessageFragmentMention{
-					{UserId: "123", UserName: "User1", UserLogin: "user1"},
+				Mentions: []generic.ChatMessageMessageFragmentMention{
+					{UserID: "123", UserName: "User1", UserLogin: "user1"},
 				},
 			},
 		}
@@ -98,9 +98,9 @@ func TestMentionsLogin(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
 				Platform: platformentity.PlatformTwitch,
-				Mentions: []twitch.ChatMessageMessageFragmentMention{
-					{UserId: "123", UserName: "User1", UserLogin: "user1"},
-					{UserId: "456", UserName: "User2", UserLogin: "user2"},
+				Mentions: []generic.ChatMessageMessageFragmentMention{
+					{UserID: "123", UserName: "User1", UserLogin: "user1"},
+					{UserID: "456", UserName: "User2", UserLogin: "user2"},
 				},
 			},
 		}
@@ -120,9 +120,9 @@ func TestMentionsDisplayName(t *testing.T) {
 		parseCtx := &types.VariableParseContext{
 			ParseContext: &types.ParseContext{
 				Platform: "twitch",
-				Mentions: []twitch.ChatMessageMessageFragmentMention{
-					{UserId: "123", UserName: "User1", UserLogin: "user1"},
-					{UserId: "456", UserName: "User2", UserLogin: "user2"},
+				Mentions: []generic.ChatMessageMessageFragmentMention{
+					{UserID: "123", UserName: "User1", UserLogin: "user1"},
+					{UserID: "456", UserName: "User2", UserLogin: "user2"},
 				},
 			},
 		}

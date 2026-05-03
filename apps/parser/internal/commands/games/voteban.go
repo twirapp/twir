@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/go-redsync/redsync/v4"
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
@@ -83,7 +83,7 @@ var Voteban = &types.DefaultCommand{
 
 		targetUser := parseCtx.Mentions[0]
 
-		targetDbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, targetUser.UserId)
+		targetDbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, targetUser.UserID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -119,8 +119,8 @@ var Voteban = &types.DefaultCommand{
 			}
 		}
 
-		if targetUser.UserId == parseCtx.Channel.ID ||
-			targetUser.UserId == dbChannel.BotID {
+		if targetUser.UserID == parseCtx.Channel.ID ||
+			targetUser.UserID == dbChannel.BotID {
 			return nil, nil
 		}
 

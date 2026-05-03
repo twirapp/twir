@@ -37,8 +37,7 @@ type Bus struct {
 	EventSub            *eventSubBus
 	Scheduler           *schedulerBus
 	Giveaways           *giveawaysBus
-	ChatMessages        Queue[twitch.TwitchChatMessage, struct{}]
-	ChatMessagesGeneric Queue[generic.ChatMessage, struct{}]
+	ChatMessages        Queue[generic.ChatMessage, struct{}]
 	RedemptionAdd       Queue[twitch.ActivatedRedemption, struct{}]
 	Events              *eventsBus
 	YTSRSearch          Queue[ytsr.SearchRequest, ytsr.SearchResponse]
@@ -77,7 +76,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		},
 
 		Parser: &parserBus{
-			GetCommandResponse: NewNatsQueue[twitch.TwitchChatMessage, parser.CommandParseResponse](
+			GetCommandResponse: NewNatsQueue[generic.ChatMessage, parser.CommandParseResponse](
 				nc,
 				PARSER_COMMANDS_SUBJECT,
 				30*time.Minute,
@@ -91,16 +90,9 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				GobEncoder,
 			),
 
-			ProcessMessageAsCommand: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
+			ProcessMessageAsCommand: NewNatsQueue[generic.ChatMessage, struct{}](
 				nc,
 				PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT,
-				30*time.Minute,
-				GobEncoder,
-			),
-
-			ProcessGenericMessage: NewNatsQueue[generic.ChatMessage, struct{}](
-				nc,
-				PARSER_PROCESS_GENERIC_MESSAGE_SUBJECT,
 				30*time.Minute,
 				GobEncoder,
 			),
@@ -292,16 +284,9 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			),
 		},
 
-		ChatMessages: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
+		ChatMessages: NewNatsQueue[generic.ChatMessage, struct{}](
 			nc,
 			CHAT_MESSAGES_SUBJECT,
-			30*time.Minute,
-			JsonEncoder,
-		),
-
-		ChatMessagesGeneric: NewNatsQueue[generic.ChatMessage, struct{}](
-			nc,
-			CHAT_MESSAGES_GENERIC_SUBJECT,
 			30*time.Minute,
 			JsonEncoder,
 		),

@@ -47,8 +47,8 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/variables"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -242,7 +242,7 @@ func (c *Commands) FindChannelCommandInInput(
 func (c *Commands) ParseCommandResponses(
 	ctx context.Context,
 	command *FindByMessageResult,
-	requestData twitch.TwitchChatMessage,
+	requestData generic.ChatMessage,
 	plat platformentity.Platform,
 	userRoles []model.ChannelRole,
 	userChannelStats *model.UsersStats,
@@ -315,12 +315,12 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	mentions := make(
-		[]twitch.ChatMessageMessageFragmentMention,
+		[]generic.ChatMessageMessageFragmentMention,
 		0,
 		len(requestData.Message.Fragments),
 	)
 	for _, f := range requestData.Message.Fragments {
-		if f.Type != twitch.FragmentType_MENTION {
+		if f.Type != generic.FragmentType_MENTION {
 			continue
 		}
 		mentions = append(mentions, *f.Mention)
@@ -328,13 +328,13 @@ func (c *Commands) ParseCommandResponses(
 
 	emotes := make([]*types.ParseContextEmote, 0, len(requestData.Message.Fragments))
 	for _, f := range requestData.Message.Fragments {
-		if f.Type != twitch.FragmentType_EMOTE {
+		if f.Type != generic.FragmentType_EMOTE {
 			continue
 		}
 		emotes = append(
 			emotes, &types.ParseContextEmote{
 				Name:  f.Text,
-				ID:    f.Emote.Id,
+				ID:    f.Emote.ID,
 				Count: 1,
 				Positions: []*types.ParseContextEmotePosition{
 					{
@@ -347,7 +347,7 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	parseCtx := &types.ParseContext{
-		MessageId: requestData.MessageId,
+		MessageId: requestData.MessageID,
 		Platform:  plat,
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
@@ -515,10 +515,14 @@ func (c *Commands) ParseCommandResponses(
 	return result
 }
 
-func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchChatMessage, plat platformentity.Platform) (
+func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMessage, plat platformentity.Platform) (
 	*busparser.CommandParseResponse,
 	error,
 ) {
+	if data.Message == nil {
+		return nil, fmt.Errorf("message is nil")
+	}
+
 	if data.EnrichedData.DbUser == nil || data.EnrichedData.DbUserChannelStat == nil {
 		return nil, fmt.Errorf("db user or user channel stats is nil")
 	}
@@ -695,7 +699,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				UserID:             data.ChatterUserId,
 				IsDefault:          cmd.Cmd.Default,
 				DefaultCommandName: cmd.Cmd.DefaultName,
-				MessageID:          data.MessageId,
+				MessageID:          data.MessageID,
 			},
 		)
 

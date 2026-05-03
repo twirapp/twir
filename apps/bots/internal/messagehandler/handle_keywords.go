@@ -16,8 +16,8 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -28,7 +28,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -145,9 +145,9 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 					}
 
 					for _, r := range userRoles {
-					for _, id := range k.RolesIDs {
-						if id.String() == r.ID.String() {
-							hasRole = true
+						for _, id := range k.RolesIDs {
+							if id.String() == r.ID.String() {
+								hasRole = true
 								break
 							}
 						}
@@ -167,7 +167,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 					BroadcasterID:        msg.BroadcasterUserId,
 					SenderID:             msg.EnrichedData.DbChannel.BotID,
 					Message:              response,
-					ReplyParentMessageID: lo.If(k.IsReply, msg.MessageId).Else(""),
+					ReplyParentMessageID: lo.If(k.IsReply, msg.MessageID).Else(""),
 				},
 			)
 			c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID.String()])
@@ -209,7 +209,7 @@ func (c *MessageHandler) keywordsIncrementStats(
 
 func (c *MessageHandler) keywordsTriggerEvent(
 	ctx context.Context,
-	msg twitch.TwitchChatMessage,
+	msg generic.ChatMessage,
 	keyword entity.Keyword,
 	response string,
 ) {
@@ -240,7 +240,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 
 func (c *MessageHandler) keywordsParseResponse(
 	ctx context.Context,
-	msg twitch.TwitchChatMessage,
+	msg generic.ChatMessage,
 	keyword entity.Keyword,
 ) string {
 	if keyword.Response == "" {
@@ -248,13 +248,13 @@ func (c *MessageHandler) keywordsParseResponse(
 	}
 
 	mentions := make(
-		[]twitch.ChatMessageMessageFragmentMention,
+		[]generic.ChatMessageMessageFragmentMention,
 		0,
 		len(msg.Message.Fragments),
 	)
 	if msg.Message != nil {
 		for _, f := range msg.Message.Fragments {
-			if f.Type != twitch.FragmentType_MENTION {
+			if f.Type != generic.FragmentType_MENTION {
 				continue
 			}
 			if f.Mention != nil {

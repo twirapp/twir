@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	"github.com/twirapp/twir/libs/utils"
@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleTts(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *MessageHandler) handleTts(ctx context.Context, msg generic.ChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))

@@ -4,7 +4,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 )
 
@@ -111,7 +111,7 @@ const (
 type VotebanRegisterRequest struct {
 	Data                 votebanentity.Voteban
 	PlatformChannelID    string
-	TargerUser           twitch.ChatMessageMessageFragmentMention
+	TargerUser           generic.ChatMessageMessageFragmentMention
 	InitiatorUserID      string
 	InitiatorUserLogin   string
 	InitiatorIsModerator bool

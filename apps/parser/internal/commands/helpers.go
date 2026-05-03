@@ -8,13 +8,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	model "github.com/twirapp/twir/libs/gomodels"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )
 
 func (c *Commands) shouldCheckCooldown(
-	msg twitch.TwitchChatMessage,
+	msg generic.ChatMessage,
 	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 	userRoles []model.ChannelRole,
 ) bool {
@@ -153,7 +153,7 @@ func (c *Commands) prepareCooldownAndPermissionsCheck(
 	ctx context.Context,
 	userId,
 	channelId string,
-	msg twitch.TwitchChatMessage,
+	msg generic.ChatMessage,
 	command *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses,
 ) (
 	channelRoles []model.ChannelRole,

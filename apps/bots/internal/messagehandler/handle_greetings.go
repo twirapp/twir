@@ -7,8 +7,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
@@ -19,7 +19,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -60,13 +60,13 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 	}
 
 	mentions := make(
-		[]twitch.ChatMessageMessageFragmentMention,
+		[]generic.ChatMessageMessageFragmentMention,
 		0,
 		len(msg.Message.Fragments),
 	)
 	if msg.Message != nil {
 		for _, f := range msg.Message.Fragments {
-			if f.Type != twitch.FragmentType_MENTION {
+			if f.Type != generic.FragmentType_MENTION {
 				continue
 			}
 			if f.Mention != nil {
@@ -103,7 +103,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 				BroadcasterID:        msg.BroadcasterUserId,
 				SenderID:             msg.EnrichedData.DbChannel.BotID,
 				Message:              res.Data.Text,
-				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageId).Else(""),
+				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageID).Else(""),
 			},
 		)
 	}

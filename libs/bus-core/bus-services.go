@@ -24,9 +24,8 @@ type auditLogsBus struct {
 }
 
 type parserBus struct {
-	GetCommandResponse      Queue[twitch.TwitchChatMessage, parser.CommandParseResponse]
-	ProcessMessageAsCommand Queue[twitch.TwitchChatMessage, struct{}]
-	ProcessGenericMessage   Queue[generic.ChatMessage, struct{}]
+	GetCommandResponse      Queue[generic.ChatMessage, parser.CommandParseResponse]
+	ProcessMessageAsCommand Queue[generic.ChatMessage, struct{}]
 	ParseVariablesInText    Queue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
 	GetBuiltInVariables     Queue[struct{}, []parser.BuiltInVariable]
 	GetDefaultCommands      Queue[struct{}, parser.GetDefaultCommandsResponse]

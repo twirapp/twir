@@ -115,8 +115,8 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 		redis:                 redisClient,
 		channelsRepo:          channelsRepo,
 		usersRepo:             usersRepo,
-		chatMessagesGeneric:   &mockQueue[generic.ChatMessage, struct{}]{},
-		processGenericMessage: &mockQueue[generic.ChatMessage, struct{}]{},
+		chatMessages:          &mockQueue[generic.ChatMessage, struct{}]{},
+		processMessageAsCommand: &mockQueue[generic.ChatMessage, struct{}]{},
 	}
 
 	payload := kickChatMessagePayload{

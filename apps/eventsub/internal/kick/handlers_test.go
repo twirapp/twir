@@ -316,8 +316,8 @@ func (m *mockRedemptionsHistoryRepo) Count(_ context.Context, _ channelsredempti
 
 func buildTestHandlers(
 	t *testing.T,
-	chatMessagesGeneric *mockQueue[generic.ChatMessage, struct{}],
-	processGenericMessage *mockQueue[generic.ChatMessage, struct{}],
+	chatMessages *mockQueue[generic.ChatMessage, struct{}],
+	processMessageAsCommand *mockQueue[generic.ChatMessage, struct{}],
 	followQueue *mockQueue[events.FollowMessage, struct{}],
 	streamOnline *mockQueue[kickbus.KickStreamOnline, struct{}],
 	streamOffline *mockQueue[kickbus.KickStreamOffline, struct{}],
@@ -340,8 +340,8 @@ func buildTestHandlers(
 	h := &Handlers{
 		logger:                  slog.Default(),
 		redis:                   db,
-		chatMessagesGeneric:     chatMessagesGeneric,
-		processGenericMessage:   processGenericMessage,
+		chatMessages:            chatMessages,
+		processMessageAsCommand: processMessageAsCommand,
 		eventsFollow:            followQueue,
 		eventsSubscribe:         &mockQueue[events.SubscribeMessage, struct{}]{},
 		eventsReSubscribe:       &mockQueue[events.ReSubscribeMessage, struct{}]{},

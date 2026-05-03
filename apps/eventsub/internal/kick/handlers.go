@@ -168,8 +168,8 @@ type kickLivestreamMetadataPayload struct {
 type Handlers struct {
 	logger                  *slog.Logger
 	redis                   *redis.Client
-	chatMessagesGeneric     bus_core.Queue[generic.ChatMessage, struct{}]
-	processGenericMessage   bus_core.Queue[generic.ChatMessage, struct{}]
+	chatMessages            bus_core.Queue[generic.ChatMessage, struct{}]
+	processMessageAsCommand bus_core.Queue[generic.ChatMessage, struct{}]
 	eventsFollow            bus_core.Queue[events.FollowMessage, struct{}]
 	eventsSubscribe         bus_core.Queue[events.SubscribeMessage, struct{}]
 	eventsReSubscribe       bus_core.Queue[events.ReSubscribeMessage, struct{}]
@@ -210,8 +210,8 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 	return &Handlers{
 		logger:                  opts.Logger,
 		redis:                   opts.Redis,
-		chatMessagesGeneric:     opts.Bus.ChatMessagesGeneric,
-		processGenericMessage:   opts.Bus.Parser.ProcessGenericMessage,
+		chatMessages:            opts.Bus.ChatMessages,
+		processMessageAsCommand: opts.Bus.Parser.ProcessMessageAsCommand,
 		eventsFollow:            opts.Bus.Events.Follow,
 		eventsSubscribe:         opts.Bus.Events.Subscribe,
 		eventsReSubscribe:       opts.Bus.Events.ReSubscribe,
@@ -577,7 +577,24 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	}
 
 	genericMsg := generic.ChatMessage{
+		Message: &generic.ChatMessageMessage{
+			Text: payload.Content,
+			Fragments: []generic.ChatMessageMessageFragment{
+				{
+					Type: generic.FragmentType_TEXT,
+					Text: payload.Content,
+				},
+			},
+		},
 		Platform:          string(platform.PlatformKick),
+		ID:                payload.MessageID,
+		BroadcasterUserId: broadcasterUserID,
+		BroadcasterUserName: payload.Broadcaster.Username,
+		BroadcasterUserLogin: payload.Broadcaster.Username,
+		ChatterUserId:        senderPlatformID,
+		ChatterUserName:      payload.Sender.Username,
+		ChatterUserLogin:     payload.Sender.Username,
+		MessageType:          "text",
 		ChannelID:         channelID,
 		UserID:            senderUser.ID.String(),
 		PlatformChannelID: broadcasterUserID,
@@ -623,12 +640,12 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		},
 	}
 
-	if err := h.chatMessagesGeneric.Publish(ctx, genericMsg); err != nil {
-		return nil, fmt.Errorf("publish chat message to ChatMessagesGeneric: %w", err)
+	if err := h.chatMessages.Publish(ctx, genericMsg); err != nil {
+		return nil, fmt.Errorf("publish chat message to ChatMessages: %w", err)
 	}
 
-	if err := h.processGenericMessage.Publish(ctx, genericMsg); err != nil {
-		return nil, fmt.Errorf("publish chat message to Parser.ProcessGenericMessage: %w", err)
+	if err := h.processMessageAsCommand.Publish(ctx, genericMsg); err != nil {
+		return nil, fmt.Errorf("publish chat message to Parser.ProcessMessageAsCommand: %w", err)
 	}
 
 	return append(eventAttrs, slog.Bool("ignored_self_message", false)), nil
