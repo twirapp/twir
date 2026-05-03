@@ -61,8 +61,12 @@ func (c *Handler) handleModerateActionBan(
 		}
 
 		isEnabled := false
+		overallEnabled := channel.KickBotJoined()
 
-		channel, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsEnabled: &isEnabled})
+		channel, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
+			IsEnabled:        &overallEnabled,
+			TwitchBotEnabled: &isEnabled,
+		})
 		if err != nil {
 			c.logger.Error("failed to disable channel", logger.Error(err))
 			return

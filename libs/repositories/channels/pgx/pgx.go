@@ -41,8 +41,10 @@ SELECT
 	c."id",
 	c."twitch_user_id",
 	tu.platform_id AS twitch_platform_id,
+	c.twitch_bot_enabled,
 	c."kick_user_id",
 	ku.platform_id AS kick_platform_id,
+	c.kick_bot_enabled,
 	c."isEnabled",
 	c."isTwitchBanned",
 	c."isBotMod",
@@ -55,16 +57,18 @@ LEFT JOIN users ku ON ku.id = c.kick_user_id`
 func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
 	query := `
 WITH inserted AS (
-	INSERT INTO channels (twitch_user_id, kick_user_id, "botId", kick_bot_id)
-	VALUES ($1, $2, $3, $4)
+	INSERT INTO channels (twitch_user_id, kick_user_id, twitch_bot_enabled, kick_bot_enabled, "botId", kick_bot_id)
+	VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING *
 )
 SELECT
 	i."id",
 	i."twitch_user_id",
 	tu.platform_id AS twitch_platform_id,
+	i.twitch_bot_enabled,
 	i."kick_user_id",
 	ku.platform_id AS kick_platform_id,
+	i.kick_bot_enabled,
 	i."isEnabled",
 	i."isTwitchBanned",
 	i."isBotMod",
@@ -75,7 +79,7 @@ LEFT JOIN users tu ON tu.id = i.twitch_user_id
 LEFT JOIN users ku ON ku.id = i.kick_user_id`
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, input.TwitchUserID, input.KickUserID, input.BotID, input.KickBotID)
+	rows, err := conn.Query(ctx, query, input.TwitchUserID, input.KickUserID, input.TwitchBotEnabled, input.KickBotEnabled, input.BotID, input.KickBotID)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -90,7 +94,9 @@ LEFT JOIN users ku ON ku.id = i.kick_user_id`
 
 func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, error) {
 	query := `SELECT COUNT(*) FROM channels`
-	if input.OnlyEnabled {
+	if input.OnlyTwitchEnabled {
+		query += ` WHERE twitch_bot_enabled = true`
+	} else if input.OnlyEnabled {
 		query += ` WHERE "isEnabled" = true`
 	}
 
@@ -182,6 +188,14 @@ func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.Up
 		updateBuilder = updateBuilder.Set("kick_user_id", *input.KickUserID)
 	}
 
+	if input.TwitchBotEnabled != nil {
+		updateBuilder = updateBuilder.Set("twitch_bot_enabled", *input.TwitchBotEnabled)
+	}
+
+	if input.KickBotEnabled != nil {
+		updateBuilder = updateBuilder.Set("kick_bot_enabled", *input.KickBotEnabled)
+	}
+
 	if input.KickBotID != nil {
 		updateBuilder = updateBuilder.Set("kick_bot_id", *input.KickBotID)
 	}
@@ -199,8 +213,10 @@ SELECT
 	u."id",
 	u."twitch_user_id",
 	tu.platform_id AS twitch_platform_id,
+	u.twitch_bot_enabled,
 	u."kick_user_id",
 	ku.platform_id AS kick_platform_id,
+	u.kick_bot_enabled,
 	u."isEnabled",
 	u."isTwitchBanned",
 	u."isBotMod",
@@ -233,8 +249,10 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 			`c."id"`,
 			"c.twitch_user_id",
 			"tu.platform_id AS twitch_platform_id",
+			"c.twitch_bot_enabled",
 			"c.kick_user_id",
 			"ku.platform_id AS kick_platform_id",
+			"c.kick_bot_enabled",
 			`c."isEnabled"`,
 			`c."isTwitchBanned"`,
 			`c."isBotMod"`,

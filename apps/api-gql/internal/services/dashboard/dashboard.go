@@ -389,7 +389,7 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 	if len(statuses) == 0 {
 		statuses = append(statuses, entity.BotStatus{
 			DashboardID: channel.ID.String(),
-			Enabled:     channel.IsEnabled,
+			Enabled:     channel.AnyBotJoined(),
 			IsMod:       channel.IsBotMod,
 			BotID:       channel.BotID,
 		})
@@ -403,7 +403,7 @@ func (c *Service) getKickBotStatus(ctx context.Context, channel channelmodel.Cha
 		DashboardID: channel.ID.String(),
 		Platform:    "kick",
 		ChannelName: c.getChannelName(ctx, channel.KickUserID),
-		Enabled:     channel.IsEnabled,
+		Enabled:     channel.KickBotJoined(),
 		IsMod:       true,
 		BotID:       channel.BotID,
 	}
@@ -412,6 +412,14 @@ func (c *Service) getKickBotStatus(ctx context.Context, channel channelmodel.Cha
 	if err != nil {
 		c.logger.Error("cannot get default kick bot", logger.Error(err))
 		return result
+	}
+
+	if channel.KickBotID == nil {
+		if _, updateErr := c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{KickBotID: &bot.ID}); updateErr != nil {
+			c.logger.Error("cannot repair kick bot assignment", logger.Error(updateErr), slog.String("channelId", channel.ID.String()))
+		} else {
+			channel.KickBotID = &bot.ID
+		}
 	}
 
 	result.BotName = bot.KickUserLogin
@@ -442,7 +450,7 @@ func (c *Service) getBasicTwitchBotStatus(ctx context.Context, channel channelmo
 		DashboardID: channel.ID.String(),
 		Platform:    "twitch",
 		ChannelName: c.getChannelName(ctx, channel.TwitchUserID),
-		Enabled:     channel.IsEnabled,
+		Enabled:     channel.TwitchBotJoined(),
 		IsMod:       channel.IsBotMod,
 		BotID:       channel.BotID,
 		BotName:     "TwirBot",
@@ -540,24 +548,63 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		return false, fmt.Errorf("channel not found")
 	}
 
+	targetPlatform := platform
+	if targetPlatform == "" {
+		switch {
+		case channel.TwitchConnected():
+			targetPlatform = "twitch"
+		case channel.KickConnected():
+			targetPlatform = "kick"
+		default:
+			return false, fmt.Errorf("channel has no connected platform")
+		}
+	}
+
 	isEnabled := action == BotJoinLeaveActionJoin
 
-	_, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsEnabled: &isEnabled})
-	if err != nil {
-		return false, fmt.Errorf("update channel enabled state: %w", err)
-	}
+	switch targetPlatform {
+	case "kick":
+		if !channel.KickConnected() {
+			return false, fmt.Errorf("kick channel id not found")
+		}
 
-	channel.IsEnabled = isEnabled
+		overallEnabled := channel.TwitchBotJoined() || isEnabled
+		_, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
+			IsEnabled:      &overallEnabled,
+			KickBotEnabled: &isEnabled,
+		})
+		if err != nil {
+			return false, fmt.Errorf("update kick channel enabled state: %w", err)
+		}
 
-	if platform == "kick" || channel.TwitchUserID == nil {
-		// Non-Twitch channel (e.g. Kick) — just invalidate cache and return
+		if isEnabled {
+			c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+				ctx,
+				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID},
+			)
+		}
+
 		c.channelsCache.Invalidate(ctx, channelID)
 		return true, nil
+	case "twitch":
+		if !channel.TwitchConnected() {
+			return false, fmt.Errorf("twitch channel id not found")
+		}
+	default:
+		return false, fmt.Errorf("unsupported platform: %s", targetPlatform)
 	}
 
-	if !channel.TwitchConnected() {
-		return false, fmt.Errorf("twitch channel id not found")
+	overallEnabled := channel.KickBotJoined() || isEnabled
+	_, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
+		IsEnabled:        &overallEnabled,
+		TwitchBotEnabled: &isEnabled,
+	})
+	if err != nil {
+		return false, fmt.Errorf("update twitch channel enabled state: %w", err)
 	}
+
+	channel.IsEnabled = overallEnabled
+	channel.TwitchBotEnabled = isEnabled
 
 	twitchPlatformID := *channel.TwitchPlatformID
 
@@ -577,7 +624,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		return false, fmt.Errorf("user not found on twitch")
 	}
 
-	if channel.IsEnabled {
+	if channel.TwitchBotJoined() {
 		c.twirBus.EventSub.SubscribeToAllEvents.Publish(
 			ctx,
 			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID},

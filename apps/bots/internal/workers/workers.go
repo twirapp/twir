@@ -76,7 +76,7 @@ const (
 func (c *Pool) setSize(ctx context.Context) {
 	channelsCount, err := c.channelsRepository.GetCount(
 		ctx, channelsrepository.GetCountInput{
-			OnlyEnabled: true,
+			OnlyTwitchEnabled: true,
 		},
 	)
 	if err != nil {

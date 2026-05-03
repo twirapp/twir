@@ -20,8 +20,8 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/scorfly/gokick"
 	"github.com/samber/lo"
+	"github.com/scorfly/gokick"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/twitch"
 )
@@ -91,7 +91,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 	var channels []model.Channels
 	err := c.gorm.
 		WithContext(ctx).
-		Where(`"channels"."isEnabled" = ? and "User"."is_banned" = ?`, true, false).
+		Where(`"channels".twitch_bot_enabled = ? and "User"."is_banned" = ?`, true, false).
 		Joins("User").
 		Find(&channels).Error
 	if err != nil {
@@ -100,7 +100,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 	usersIds := make([]string, len(channels))
 	for i, channel := range channels {
-		if !channel.IsEnabled && !channel.User.IsBanned {
+		if !channel.TwitchBotEnabled && !channel.User.IsBanned {
 			continue
 		}
 
@@ -288,8 +288,8 @@ type kickChannelRow struct {
 }
 
 const (
-	kickChannelsSelectClause      = `channels.id, users.platform_id AS kick_platform_id`
-	kickChannelsJoinClause        = `LEFT JOIN users ON users.id = channels.kick_user_id`
+	kickChannelsSelectClause        = `channels.id, users.platform_id AS kick_platform_id`
+	kickChannelsJoinClause          = `LEFT JOIN users ON users.id = channels.kick_user_id`
 	kickChannelsPlatformIDIsNotNull = `users.platform_id IS NOT NULL`
 )
 

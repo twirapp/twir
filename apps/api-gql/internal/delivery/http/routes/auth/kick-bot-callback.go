@@ -9,9 +9,11 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/google/uuid"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/libs/crypto"
 	"github.com/twirapp/twir/libs/entities/platform"
+	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 	usersrepo "github.com/twirapp/twir/libs/repositories/users"
@@ -98,7 +100,7 @@ func (a *Auth) handleKickBotCallback(
 			}
 		}
 
-		_, err = a.kickBotsRepo.Create(ctx, kickbotsrepo.CreateInput{
+		createdBot, createErr := a.kickBotsRepo.Create(ctx, kickbotsrepo.CreateInput{
 			Type:                "DEFAULT",
 			AccessToken:         encryptedAccessToken,
 			RefreshToken:        encryptedRefreshToken,
@@ -108,9 +110,13 @@ func (a *Auth) handleKickBotCallback(
 			KickUserID:          internalUser.ID,
 			KickUserLogin:       platformUser.Login,
 		})
-		if err != nil {
-			a.logger.ErrorContext(ctx, "kick bot callback: failed to create bot", logger.Error(err))
-			return nil, huma.Error500InternalServerError("Cannot create kick bot", err)
+		if createErr != nil {
+			a.logger.ErrorContext(ctx, "kick bot callback: failed to create bot", logger.Error(createErr))
+			return nil, huma.Error500InternalServerError("Cannot create kick bot", createErr)
+		}
+
+		if repairErr := a.assignDefaultKickBotToChannels(ctx, createdBot.ID); repairErr != nil {
+			a.logger.ErrorContext(ctx, "kick bot callback: failed to backfill channels with default kick bot", logger.Error(repairErr))
 		}
 	} else {
 		_, err = a.kickBotsRepo.UpdateToken(ctx, existingBot.ID, kickbotsrepo.UpdateTokenInput{
@@ -124,9 +130,21 @@ func (a *Auth) handleKickBotCallback(
 			a.logger.ErrorContext(ctx, "kick bot callback: failed to update bot token", logger.Error(err))
 			return nil, huma.Error500InternalServerError("Cannot update kick bot token", err)
 		}
+
+		if repairErr := a.assignDefaultKickBotToChannels(ctx, existingBot.ID); repairErr != nil {
+			a.logger.ErrorContext(ctx, "kick bot callback: failed to backfill channels with default kick bot", logger.Error(repairErr))
+		}
 	}
 
 	_ = a.kv.Delete(ctx, kickBotSetupKvPrefix+":"+input.State)
 
 	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: "/dashboard/admin-panel"}), nil
+}
+
+func (a *Auth) assignDefaultKickBotToChannels(ctx context.Context, kickBotID uuid.UUID) error {
+	return a.gorm.WithContext(ctx).
+		Model(&model.Channels{}).
+		Where("kick_user_id IS NOT NULL").
+		Where("kick_bot_id IS NULL").
+		Updates(map[string]any{"kick_bot_id": kickBotID}).Error
 }

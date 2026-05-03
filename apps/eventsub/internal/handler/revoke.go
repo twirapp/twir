@@ -3,12 +3,14 @@ package handler
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log/slog"
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 )
 
 func (c *Handler) HandleUserAuthorizationRevoke(
@@ -28,11 +30,23 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 		return
 	}
 
-	if err := c.gorm.WithContext(ctx).Model(&model.Channels{}).
-		Where("twitch_user_id = ?", user.ID).
-		Update(`"isBotMod"`, false).
-		Update(`"isEnabled"`, false).Error; err != nil {
-		c.logger.Error("failed to update channel", logger.Error(err))
+	channel, channelErr := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	if channelErr != nil {
+		if !errors.Is(channelErr, channelsrepository.ErrNotFound) {
+			c.logger.Error("failed to get channel", logger.Error(channelErr))
+		}
+	} else {
+		isBotMod := false
+		twitchEnabled := false
+		overallEnabled := channel.KickBotJoined()
+
+		if _, updateErr := c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
+			IsBotMod:         &isBotMod,
+			IsEnabled:        &overallEnabled,
+			TwitchBotEnabled: &twitchEnabled,
+		}); updateErr != nil {
+			c.logger.Error("failed to update channel", logger.Error(updateErr))
+		}
 	}
 
 	legacyUser := &model.Users{ID: user.ID.String(), TokenID: user.TokenID.NullString}

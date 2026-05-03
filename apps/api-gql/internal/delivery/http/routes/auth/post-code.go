@@ -10,8 +10,8 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -121,10 +121,12 @@ func (a *Auth) createChannel(
 	kickBotID *uuid.UUID,
 ) (channelsmodel.Channel, error) {
 	channel, err := a.channelsRepo.Create(ctx, channelsrepo.CreateInput{
-		TwitchUserID: twitchUserID,
-		KickUserID:   kickUserID,
-		BotID:        botID,
-		KickBotID:    kickBotID,
+		TwitchUserID:     twitchUserID,
+		KickUserID:       kickUserID,
+		TwitchBotEnabled: twitchUserID != nil,
+		KickBotEnabled:   kickUserID != nil,
+		BotID:            botID,
+		KickBotID:        kickBotID,
 	})
 	if err != nil {
 		return channelsmodel.Nil, fmt.Errorf("create channel: %w", err)

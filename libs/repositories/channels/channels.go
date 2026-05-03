@@ -18,18 +18,22 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	TwitchUserID *uuid.UUID
-	KickUserID   *uuid.UUID
-	BotID        string
-	KickBotID    *uuid.UUID
+	TwitchUserID     *uuid.UUID
+	KickUserID       *uuid.UUID
+	TwitchBotEnabled bool
+	KickBotEnabled   bool
+	BotID            string
+	KickBotID        *uuid.UUID
 }
 
 type UpdateInput struct {
-	IsEnabled *bool
-	IsBotMod  *bool
-	TwitchUserID *uuid.UUID
-	KickUserID   *uuid.UUID
-	KickBotID *uuid.UUID
+	IsEnabled        *bool
+	IsBotMod         *bool
+	TwitchUserID     *uuid.UUID
+	KickUserID       *uuid.UUID
+	TwitchBotEnabled *bool
+	KickBotEnabled   *bool
+	KickBotID        *uuid.UUID
 }
 
 type GetManyInput struct {
@@ -41,5 +45,6 @@ type GetManyInput struct {
 }
 
 type GetCountInput struct {
-	OnlyEnabled bool
+	OnlyEnabled       bool
+	OnlyTwitchEnabled bool
 }

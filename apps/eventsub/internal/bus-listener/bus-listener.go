@@ -135,58 +135,70 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		return struct{}{}, nil
 	}
 
-	if channel.KickUserID != nil {
+	hasActiveSubscription := false
+
+	if channel.KickBotJoined() {
 		if channel.KickBotID == nil {
 			c.logger.Warn(
 				"channel has kick user but no kick bot assigned, skipping kick eventsub subscription",
 				slog.String("channel_id", channelID),
 				slog.String("kick_user_id", channel.KickUserID.String()),
 			)
+		} else {
+			kickUserIDStr := channel.KickUserID.String()
+			if err := c.kickSubManager.SubscribeAll(ctx, *channel.KickUserID); err != nil {
+				c.logger.Error(
+					"error subscribing to kick events",
+					logger.Error(err),
+					slog.String("channel_id", channelID),
+					slog.String("kick_user_id", kickUserIDStr),
+				)
+				return struct{}{}, err
+			}
+
+			c.logger.Info(
+				"subscribed to kick events",
+				slog.String("channel_id", channelID),
+				slog.String("kick_user_id", kickUserIDStr),
+				slog.String("kick_bot_id", channel.KickBotID.String()),
+			)
+			hasActiveSubscription = true
+		}
+	}
+
+	if channel.TwitchBotJoined() {
+		if channel.TwitchUserID == nil {
+			c.logger.Warn(
+				"channel has no platform user ID for eventsub subscription",
+				slog.String("channel_id", channelID),
+			)
 			return struct{}{}, nil
 		}
 
-		kickUserIDStr := channel.KickUserID.String()
-		if err := c.kickSubManager.SubscribeAll(ctx, *channel.KickUserID); err != nil {
-			c.logger.Error(
-				"error subscribing to kick events",
-				logger.Error(err),
-				slog.String("channel_id", channelID),
-				slog.String("kick_user_id", kickUserIDStr),
-			)
+		var topics []model.EventsubTopic
+		if err := c.gorm.WithContext(ctx).Find(&topics).Error; err != nil {
+			c.logger.Error("error getting topics", slog.String("error", err.Error()))
 			return struct{}{}, err
 		}
 
-		c.logger.Info(
-			"subscribed to kick events",
-			slog.String("channel_id", channelID),
-			slog.String("kick_user_id", kickUserIDStr),
-			slog.String("kick_bot_id", channel.KickBotID.String()),
-		)
+		if err := c.eventSubClient.SubscribeToNeededEvents(
+			ctx,
+			topics,
+			*channel.TwitchPlatformID,
+			channel.BotID,
+		); err != nil {
+			return struct{}{}, err
+		}
 
-		return struct{}{}, nil
+		hasActiveSubscription = true
 	}
 
-	if channel.TwitchUserID == nil {
+	if !hasActiveSubscription {
 		c.logger.Warn(
-			"channel has no platform user ID for eventsub subscription",
+			"channel has no active platform bot subscriptions",
 			slog.String("channel_id", channelID),
 		)
 		return struct{}{}, nil
-	}
-
-	var topics []model.EventsubTopic
-	if err := c.gorm.WithContext(ctx).Find(&topics).Error; err != nil {
-		c.logger.Error("error getting topics", slog.String("error", err.Error()))
-		return struct{}{}, err
-	}
-
-	if err := c.eventSubClient.SubscribeToNeededEvents(
-		ctx,
-		topics,
-		*channel.TwitchPlatformID,
-		channel.BotID,
-	); err != nil {
-		return struct{}{}, err
 	}
 
 	return struct{}{}, nil
@@ -202,7 +214,7 @@ func (c *BusListener) subscribe(
 		msg.Version,
 		msg.ChannelID,
 	); err != nil {
-		c.logger.Error("error subscribing to event", err)
+		c.logger.Error("error subscribing to event", logger.Error(err))
 		return struct{}{}, err
 	}
 
@@ -217,7 +229,7 @@ func (c *BusListener) reinitChannels(
 
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.bus)
 	if err != nil {
-		c.logger.Error("error creating Twitch app client", err)
+		c.logger.Error("error creating Twitch app client", logger.Error(err))
 		return struct{}{}, err
 	}
 
@@ -230,7 +242,7 @@ func (c *BusListener) reinitChannels(
 			},
 		)
 		if err != nil {
-			c.logger.Error("error getting subscriptions from Twitch", err)
+			c.logger.Error("error getting subscriptions from Twitch", logger.Error(err))
 			return struct{}{}, err
 		}
 		if subs.ErrorMessage != "" {
@@ -247,7 +259,7 @@ func (c *BusListener) reinitChannels(
 				defer wg.Done()
 				resp, err := twitchClient.RemoveEventSubSubscription(sub.ID)
 				if err != nil {
-					c.logger.Error("error removing subscription", err, slog.String("subscription_id", sub.ID))
+					c.logger.Error("error removing subscription", logger.Error(err), slog.String("subscription_id", sub.ID))
 					return
 				}
 				if resp.ErrorMessage != "" {

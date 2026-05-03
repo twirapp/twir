@@ -426,7 +426,7 @@ func TestHandleChatMessage(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -518,7 +518,7 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "999",
 		},
 	}
@@ -583,7 +583,7 @@ func TestHandleChannelFollow(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "777",
 		},
 	}
@@ -867,7 +867,7 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "555",
 		},
 	}
@@ -953,7 +953,7 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "556",
 		},
 	}
@@ -1034,7 +1034,7 @@ func TestHandleLivestreamMetadataUpdated(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.New(),
+			ID:         uuid.New(),
 			PlatformID: "557",
 		},
 	}
@@ -1129,7 +1129,7 @@ func TestHandleChatMessageRealConcurrent(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -1248,7 +1248,7 @@ func TestHandleChatMessageIgnoresAssignedKickBotMessages(t *testing.T) {
 
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         senderUserID,
+			ID:         senderUserID,
 			PlatformID: "456",
 		},
 	}
@@ -1261,7 +1261,7 @@ func TestHandleChatMessageIgnoresAssignedKickBotMessages(t *testing.T) {
 	}
 	kickBotsRepo := &mockKickBotsRepo{
 		bot: kickbotentity.KickBot{
-			ID:         kickBotID.String(),
+			ID:         kickBotID,
 			KickUserID: senderUserID,
 		},
 	}
@@ -1322,7 +1322,7 @@ func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -1514,7 +1514,7 @@ func TestHandleChatMessagePublishFailure(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -1588,7 +1588,7 @@ func TestHandleChatMessagePartialSuccess(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}
@@ -1661,7 +1661,7 @@ func TestHandleChatMessageMarkProcessedFailure(t *testing.T) {
 	kickUserUUID := uuid.New()
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         uuid.MustParse(userID),
+			ID:         uuid.MustParse(userID),
 			PlatformID: "123",
 		},
 	}

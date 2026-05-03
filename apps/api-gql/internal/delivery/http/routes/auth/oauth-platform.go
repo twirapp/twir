@@ -244,6 +244,19 @@ func (a *Auth) getOrCreateChannelForUser(
 ) (channelsmodel.Channel, bool, error) {
 	channel, err := a.getChannelByPlatformUserID(ctx, platform, userID)
 	if err == nil {
+		if platform == platformentity.PlatformKick && channel.KickBotID == nil && defaultKickBotID != nil {
+			updatedChannel, updateErr := a.channelsRepo.Update(
+				ctx,
+				channel.ID,
+				channelsrepo.UpdateInput{KickBotID: defaultKickBotID},
+			)
+			if updateErr != nil {
+				return channelsmodel.Nil, false, fmt.Errorf("repair kick bot assignment: %w", updateErr)
+			}
+
+			channel = updatedChannel
+		}
+
 		return channel, false, nil
 	}
 
@@ -310,8 +323,12 @@ func (a *Auth) linkPlatformToChannel(
 	switch platform {
 	case platformentity.PlatformTwitch:
 		updateInput.TwitchUserID = &platformUserID
+		isEnabled := true
+		updateInput.TwitchBotEnabled = &isEnabled
 	case platformentity.PlatformKick:
 		updateInput.KickUserID = &platformUserID
+		isEnabled := true
+		updateInput.KickBotEnabled = &isEnabled
 		if channel.KickBotID == nil && defaultKickBotID != nil {
 			updateInput.KickBotID = defaultKickBotID
 		}
