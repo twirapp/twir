@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ChevronsUpDown, LogIn, LogOut } from 'lucide-vue-next'
+import { ChevronsUpDown, Loader2, LogIn, LogOut } from 'lucide-vue-next'
 
 import { useBotJoinPart, useBotStatuses } from '@/api/dashboard'
 import { BotJoinLeaveAction } from '@/gql/graphql.ts'
@@ -75,16 +75,28 @@ function isStatusPending(status: { dashboardId: string; platform: string }) {
 
 async function changeChatState(status: { dashboardId: string; platform: string; channelName: string; enabled: boolean }) {
 	const key = statusKey(status)
+	if (pendingStatusKeys.value.has(key)) {
+		return
+	}
+
 	const nextPending = new Set(pendingStatusKeys.value)
 	nextPending.add(key)
 	pendingStatusKeys.value = nextPending
 
 	const action = status.enabled ? BotJoinLeaveAction.Leave : BotJoinLeaveAction.Join
-	await stateMutation.executeMutation({
+	const result = await stateMutation.executeMutation({
 		action,
 		dashboardId: status.dashboardId,
 		platform: status.platform,
 	})
+
+	if (result.error) {
+		const pendingAfterError = new Set(pendingStatusKeys.value)
+		pendingAfterError.delete(key)
+		pendingStatusKeys.value = pendingAfterError
+		return
+	}
+
 	executeSubscription()
 }
 </script>
@@ -117,16 +129,17 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 				<ChevronsUpDown class="size-4" />
 			</Button>
 		</DropdownMenuTrigger>
-		<DropdownMenuContent align="end" class="w-72">
-			<DropdownMenuLabel>Bot platforms</DropdownMenuLabel>
-			<DropdownMenuSeparator />
-			<DropdownMenuItem
-				v-for="status in sortedBotStatuses"
-				:key="statusKey(status)"
-				class="flex items-center gap-3"
-				:disabled="isStatusPending(status)"
-				@click="changeChatState(status)"
-			>
+			<DropdownMenuContent align="end" class="w-72">
+				<DropdownMenuLabel>Bot platforms</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					v-for="status in sortedBotStatuses"
+					:key="statusKey(status)"
+					class="flex items-center gap-3"
+					:disabled="isStatusPending(status)"
+					@select.prevent
+					@click="changeChatState(status)"
+				>
 				<div class="flex size-7 items-center justify-center rounded-md border border-border bg-background">
 					<KickIcon v-if="status.platform === 'kick'" class="size-4 text-[#53FC18]" />
 					<Badge
@@ -151,11 +164,12 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 						<span v-if="status.botName" class="truncate">via {{ status.botName }}</span>
 					</p>
 				</div>
-				<LogOut v-if="status.enabled" class="size-4 text-red-500" />
-				<LogIn v-else class="size-4 text-green-500" />
-			</DropdownMenuItem>
-		</DropdownMenuContent>
-	</DropdownMenu>
+					<Loader2 v-if="isStatusPending(status)" class="size-4 animate-spin text-muted-foreground" />
+					<LogOut v-else-if="status.enabled" class="size-4 text-red-500" />
+					<LogIn v-else class="size-4 text-green-500" />
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
 </template>
 
 <style>
