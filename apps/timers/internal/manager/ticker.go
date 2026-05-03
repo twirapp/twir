@@ -9,7 +9,6 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -139,22 +138,10 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	var channelPlatform platformentity.Platform
-	if channel.TwitchUserID != nil {
-		channelPlatform = platformentity.PlatformTwitch
-	} else if channel.KickUserID != nil {
-		channelPlatform = platformentity.PlatformKick
-	}
-	if !platformentity.ShouldExecute(t.dbRow.Platforms, channelPlatform) {
+	targets := getTimerSendTargets(channel, t.dbRow.Platforms)
+	if len(targets) == 0 {
 		return
 	}
-
-	if isOffline {
-		t.lastTriggerOfflineNumber = currentMessageNumber
-	} else {
-		t.lastTriggerMessageNumber = currentMessageNumber
-	}
-	t.lastTriggerTimestamp = now
 
 	var response timersentity.Response
 	for index, r := range t.dbRow.Responses {
@@ -166,34 +153,46 @@ func (c *Manager) tryTick(id TimerID) {
 
 	var twitchUserID string
 	if channel.TwitchUserID != nil {
-		twitchUserID = *channel.TwitchPlatformID
+		twitchUserID = channel.TwitchUserID.String()
 	}
 
-	var twitchPlatformID string
-	if channel.TwitchPlatformID != nil {
-		twitchPlatformID = *channel.TwitchPlatformID
-	}
-
-	err = c.sendMessage(
-		ctx,
-		twitchPlatformID,
-		twitchUserID,
-		channel.ID.String(),
-		response.Text,
-		response.IsAnnounce,
-		response.AnnounceColor,
-		response.Count,
-		string(channelPlatform),
-	)
-	if err != nil {
-		c.logger.Error(
-			"[tick] cannot send timer message",
-			logger.Error(err),
-			slog.String("channelId", t.dbRow.ChannelID),
-			slog.String("timerId", id.String()),
+	wasSent := false
+	for _, target := range targets {
+		err = c.sendMessage(
+			ctx,
+			target.channelID,
+			twitchUserID,
+			channel.ID.String(),
+			response.Text,
+			response.IsAnnounce,
+			response.AnnounceColor,
+			response.Count,
+			string(target.platform),
 		)
+		if err != nil {
+			c.logger.Error(
+				"[tick] cannot send timer message",
+				logger.Error(err),
+				slog.String("channelId", t.dbRow.ChannelID),
+				slog.String("timerId", id.String()),
+				slog.String("platform", target.platform.String()),
+			)
+			continue
+		}
+
+		wasSent = true
+	}
+
+	if !wasSent {
 		return
 	}
+
+	if isOffline {
+		t.lastTriggerOfflineNumber = currentMessageNumber
+	} else {
+		t.lastTriggerMessageNumber = currentMessageNumber
+	}
+	t.lastTriggerTimestamp = now
 
 	nextIndex := t.currentResponseIndex + 1
 
