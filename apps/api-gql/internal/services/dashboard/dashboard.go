@@ -15,6 +15,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -580,7 +581,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		if isEnabled {
 			c.twirBus.EventSub.SubscribeToAllEvents.Publish(
 				ctx,
-				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID},
+				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformKick},
 			)
 		}
 
@@ -627,7 +628,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 	if channel.TwitchBotJoined() {
 		c.twirBus.EventSub.SubscribeToAllEvents.Publish(
 			ctx,
-			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID},
+			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
 		)
 	}
 

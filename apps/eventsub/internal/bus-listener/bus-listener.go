@@ -14,6 +14,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
@@ -106,18 +107,23 @@ func (c *BusListener) subscribeToAllEvents(
 	ctx context.Context,
 	msg eventsub.EventsubSubscribeToAllEventsRequest,
 ) (struct{}, error) {
+	if msg.Platform != "" && !msg.Platform.IsValid() {
+		return struct{}{}, fmt.Errorf("invalid platform: %s", msg.Platform)
+	}
+
 	channelUUID, err := uuid.Parse(msg.ChannelID)
 	if err != nil {
 		c.logger.Error("error parsing channel ID as UUID", slog.String("channel_id", msg.ChannelID))
 		return struct{}{}, fmt.Errorf("parse channel UUID: %w", err)
 	}
 
-	return c.subscribeToAllEventsByChannelID(ctx, channelUUID)
+	return c.subscribeToAllEventsByChannelID(ctx, channelUUID, msg.Platform)
 }
 
 func (c *BusListener) subscribeToAllEventsByChannelID(
 	ctx context.Context,
 	channelUUID uuid.UUID,
+	platform platformentity.Platform,
 ) (struct{}, error) {
 	channelID := channelUUID.String()
 
@@ -137,7 +143,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 
 	hasActiveSubscription := false
 
-	if channel.KickBotJoined() {
+	if (platform == "" || platform == platformentity.PlatformKick) && channel.KickBotJoined() {
 		if channel.KickBotID == nil {
 			c.logger.Warn(
 				"channel has kick user but no kick bot assigned, skipping kick eventsub subscription",
@@ -166,7 +172,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		}
 	}
 
-	if channel.TwitchBotJoined() {
+	if (platform == "" || platform == platformentity.PlatformTwitch) && channel.TwitchBotJoined() {
 		if channel.TwitchUserID == nil {
 			c.logger.Warn(
 				"channel has no platform user ID for eventsub subscription",
@@ -303,7 +309,7 @@ func (c *BusListener) reinitChannels(
 
 		go func() {
 			defer wg.Done()
-			if _, err := c.subscribeToAllEventsByChannelID(ctx, channel.ID); err != nil {
+			if _, err := c.subscribeToAllEventsByChannelID(ctx, channel.ID, ""); err != nil {
 				c.logger.Error("error subscribing to all events", logger.Error(err))
 			}
 		}()

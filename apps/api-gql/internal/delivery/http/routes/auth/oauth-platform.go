@@ -145,7 +145,7 @@ func (a *Auth) completePlatformAuth(
 
 	if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
 		ctx,
-		buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channel.ID.String()},
+		buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channel.ID.String(), Platform: input.Platform},
 	); err != nil {
 		a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channel.ID.String()))
 	}
