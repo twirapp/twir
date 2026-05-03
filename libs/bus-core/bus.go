@@ -269,7 +269,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				GobEncoder,
 			),
-			Unsubscribe: NewNatsQueue[string, struct{}](
+			Unsubscribe: NewNatsQueue[eventsub.EventsubUnsubscribeRequest, struct{}](
 				nc,
 				eventsub.EventsubUnsubscribeSubject,
 				1*time.Minute,

@@ -583,6 +583,11 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 				ctx,
 				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformKick},
 			)
+		} else {
+			c.twirBus.EventSub.Unsubscribe.Publish(
+				ctx,
+				eventsub.EventsubUnsubscribeRequest{ChannelID: channelID, Platform: platformentity.PlatformKick},
+			)
 		}
 
 		c.channelsCache.Invalidate(ctx, channelID)
@@ -625,12 +630,17 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		return false, fmt.Errorf("user not found on twitch")
 	}
 
-	if channel.TwitchBotJoined() {
-		c.twirBus.EventSub.SubscribeToAllEvents.Publish(
-			ctx,
-			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
-		)
-	}
+		if channel.TwitchBotJoined() {
+			c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+				ctx,
+				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
+			)
+		} else {
+			c.twirBus.EventSub.Unsubscribe.Publish(
+				ctx,
+				eventsub.EventsubUnsubscribeRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
+			)
+		}
 
 	broadcasterClient, err := twitch.NewUserClientWithContext(
 		ctx,

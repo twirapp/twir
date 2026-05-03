@@ -79,16 +79,6 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
-	stream, err := c.streamsrepository.GetByChannelID(ctx, event.BroadcasterUserId)
-	if err != nil {
-		return fmt.Errorf("failed to get stream by channel id: %w", err)
-	}
-
-	if !stream.IsNil() {
-		// Stream is live again, do not remove VIPs
-		return nil
-	}
-
 	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
 	if err != nil {
 		return fmt.Errorf("failed to get user by platform id: %w", err)
@@ -100,6 +90,16 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 	}
 
 	channelID := channel.ID.String()
+
+	stream, err := c.streamsrepository.GetByChannelID(ctx, channelID)
+	if err != nil {
+		return fmt.Errorf("failed to get stream by channel id: %w", err)
+	}
+
+	if !stream.IsNil() {
+		// Stream is live again, do not remove VIPs
+		return nil
+	}
 
 	vips, err := c.scheduledVipsRepo.GetMany(
 		ctx,

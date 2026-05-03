@@ -114,10 +114,19 @@ func (c *Handler) handleModerateActionBan(
 		},
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserID)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserID,
+			ChannelID: channelID,
 			UserID:    &userId,
 			Platform:  platform.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeChannelBan,

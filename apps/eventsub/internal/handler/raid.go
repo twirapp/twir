@@ -26,10 +26,19 @@ func (c *Handler) HandleChannelRaid(
 		slog.Int("viewers", event.Viewers),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.ToBroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.ToBroadcasterUserId,
+			ChannelID: channelID,
 			UserID:    &event.FromBroadcasterUserId,
 			Type:      model.ChannelEventListItemTypeRaided,
 			Data: &model.ChannelsEventsListItemData{

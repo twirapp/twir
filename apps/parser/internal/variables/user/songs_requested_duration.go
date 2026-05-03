@@ -34,7 +34,7 @@ var SongsRequestedDuration = &types.Variable{
 			WithContext(ctx).
 			Table("channels_requested_songs").
 			Select("sum(duration) as sum").
-			Where(`"channelId" = ?::uuid AND "orderedById" = ?`, parseCtx.Channel.ID, targetUserId).
+			Where(`"channelId" = ?::uuid AND "orderedById" = ?`, parseCtx.Channel.DBChannelID, targetUserId).
 			Scan(&sum).
 			Error
 

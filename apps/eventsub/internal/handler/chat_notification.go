@@ -44,10 +44,19 @@ func (c *Handler) _notificationSubGift(
 		slog.String("level", string(event.SubGift.SubTier)),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channelID,
 			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeSubGift,
 			Data: &model.ChannelsEventsListItemData{

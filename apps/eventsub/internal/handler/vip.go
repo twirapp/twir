@@ -46,6 +46,31 @@ func (c *Handler) resolveUserAndChannel(
 	return chatUser.ID.String(), channel.ID.String(), nil
 }
 
+func (c *Handler) resolveChannelIDByTwitchBroadcasterID(
+	ctx context.Context,
+	broadcasterPlatformID string,
+) (string, error) {
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, broadcasterPlatformID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return "", nil
+		}
+
+		return "", fmt.Errorf("cannot resolve broadcaster user: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return "", nil
+		}
+
+		return "", fmt.Errorf("cannot get channel: %w", err)
+	}
+
+	return channel.ID.String(), nil
+}
+
 func (c *Handler) HandleChannelVipAdd(
 	ctx context.Context,
 	event eventsub.ChannelVipAddEvent,

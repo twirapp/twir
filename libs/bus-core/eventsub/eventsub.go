@@ -19,3 +19,8 @@ type EventsubSubscribeRequest struct {
 	Topic     string
 	Version   string
 }
+
+type EventsubUnsubscribeRequest struct {
+	ChannelID string
+	Platform  platformentity.Platform
+}

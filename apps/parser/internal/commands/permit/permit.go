@@ -2,7 +2,6 @@ package permit
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -63,14 +62,21 @@ var Command = &types.DefaultCommand{
 		}
 
 		user := parseCtx.Mentions[0]
+		dbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, parseCtx.Platform, user.UserId)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.UserNotFound),
+				Err:     err,
+			}
+		}
 
 		txErr := parseCtx.Services.Gorm.WithContext(ctx).Transaction(
 			func(tx *gorm.DB) error {
 				for i := 0; i < count; i++ {
 					permit := model.ChannelsPermits{
 						ID:        uuid.NewV4().String(),
-						ChannelID: parseCtx.Channel.ID,
-						UserID:    user.UserId,
+						ChannelID: parseCtx.Channel.DBChannelID,
+						UserID:    dbUser.ID.String(),
 					}
 					err := tx.Create(&permit).Error
 					if err != nil {
@@ -90,11 +96,10 @@ var Command = &types.DefaultCommand{
 		}
 
 		result.Result = []string{
-			fmt.Sprintf(i18n.GetCtx(
+			i18n.GetCtx(
 				ctx,
 				locales.Translations.Commands.Permit.Success.AddedPermit.
 					SetVars(locales.KeysCommandsPermitSuccessAddedPermitVars{CountPermit: count, UserName: user.UserName})),
-			),
 		}
 		return result, nil
 	},

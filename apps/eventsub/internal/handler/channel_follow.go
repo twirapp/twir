@@ -36,10 +36,19 @@ func (c *Handler) HandleChannelFollow(
 		slog.String("userName", event.UserLogin),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channelID,
 			UserID:    &event.UserId,
 			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeFollow,

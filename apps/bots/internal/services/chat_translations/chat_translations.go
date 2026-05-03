@@ -163,7 +163,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 
 	channelTranslationSettings, err := c.channelsTranslationsCache.Get(
 		ctx,
-		msg.BroadcasterUserId,
+		msg.EnrichedData.DbChannel.ID.String(),
 	)
 	if err != nil {
 		if errors.Is(err, channelschattrenslationsrepository.ErrSettingsNotFound) {

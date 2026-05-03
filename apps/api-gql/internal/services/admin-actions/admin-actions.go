@@ -130,7 +130,7 @@ func (c *Service) BanUser(ctx context.Context, userId string) error {
 		return err
 	}
 
-	if err := c.twirbus.EventSub.Unsubscribe.Publish(ctx, userId); err != nil {
+	if err := c.twirbus.EventSub.Unsubscribe.Publish(ctx, eventsub.EventsubUnsubscribeRequest{ChannelID: userId}); err != nil {
 		return err
 	}
 

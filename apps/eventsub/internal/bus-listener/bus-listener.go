@@ -343,33 +343,33 @@ func (c *BusListener) reinitChannels(
 	return struct{}{}, nil
 }
 
-func (c *BusListener) unsubscribe(ctx context.Context, userId string) (struct{}, error) {
-	channelUUID, err := uuid.Parse(userId)
+func (c *BusListener) unsubscribe(ctx context.Context, msg eventsub.EventsubUnsubscribeRequest) (struct{}, error) {
+	channelUUID, err := uuid.Parse(msg.ChannelID)
 	if err != nil {
-		c.logger.Error("error parsing channel ID for kick unsubscribe", slog.String("channel_id", userId))
+		c.logger.Error("error parsing channel ID for unsubscribe", slog.String("channel_id", msg.ChannelID))
 		return struct{}{}, fmt.Errorf("parse channel UUID: %w", err)
 	}
 
 	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
 	if err != nil {
-		c.logger.Error("error getting channel for kick unsubscribe", slog.String("channel_id", userId), logger.Error(err))
+		c.logger.Error("error getting channel for unsubscribe", slog.String("channel_id", msg.ChannelID), logger.Error(err))
 		return struct{}{}, err
 	}
 
-	if channel.TwitchPlatformID != nil {
+	if (msg.Platform == "" || msg.Platform == platformentity.PlatformTwitch) && channel.TwitchPlatformID != nil {
 		if err := c.eventSubClient.UnsubscribeChannel(ctx, *channel.TwitchPlatformID); err != nil {
 			c.logger.Error("error unsubscribe twitch channel", logger.Error(err))
 			return struct{}{}, err
 		}
 	}
 
-	if channel.KickUserID != nil {
+	if (msg.Platform == "" || msg.Platform == platformentity.PlatformKick) && channel.KickUserID != nil {
 		kickUserIDStr := channel.KickUserID.String()
 		if err := c.kickSubManager.UnsubscribeAll(ctx, *channel.KickUserID); err != nil {
 			c.logger.Error(
 				"error unsubscribing from kick events",
 				logger.Error(err),
-				slog.String("channel_id", userId),
+				slog.String("channel_id", msg.ChannelID),
 				slog.String("kick_user_id", kickUserIDStr),
 			)
 			return struct{}{}, err
@@ -377,7 +377,7 @@ func (c *BusListener) unsubscribe(ctx context.Context, userId string) (struct{},
 
 		c.logger.Info(
 			"unsubscribed from kick events",
-			slog.String("channel_id", userId),
+			slog.String("channel_id", msg.ChannelID),
 			slog.String("kick_user_id", kickUserIDStr),
 		)
 	}

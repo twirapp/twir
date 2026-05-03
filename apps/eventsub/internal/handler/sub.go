@@ -40,10 +40,19 @@ func (c *Handler) HandleChannelSubscribe(
 		slog.String("level", level),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channelID,
 			UserID:    &event.UserId,
 			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeSubscribe,
@@ -90,10 +99,19 @@ func (c *Handler) HandleChannelSubscriptionMessage(
 		slog.Int("months", event.CumulativeTotal),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channelID,
 			UserID:    &event.UserId,
 			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeReSubscribe,

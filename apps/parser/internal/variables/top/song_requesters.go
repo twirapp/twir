@@ -60,7 +60,7 @@ var SongRequesters = &types.Variable{
 		query, args, err := squirrel.
 			Select(`"orderedById"`, "COUNT(*) as count").
 			From("channels_requested_songs").
-			Where(`"channelId" = ?::uuid`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid`, parseCtx.Channel.DBChannelID).
 			GroupBy(`"orderedById"`).
 			OrderBy("count desc").
 			Limit(uint64(limit)).

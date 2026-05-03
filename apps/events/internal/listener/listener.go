@@ -3,6 +3,7 @@ package listener
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 
@@ -21,6 +22,7 @@ import (
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -46,6 +48,7 @@ type Opts struct {
 	EventsWorkflow         *workflows.EventWorkflow
 	SongRequest            *song_request.SongRequest
 	TwirBus                *buscore.Bus
+	ChannelsRepo           channelsrepository.Repository
 	ChannelsEventsListRepo channelseventslist.Repository
 	UsersRepo              usersrepository.Repository
 }
@@ -61,6 +64,7 @@ func New(opts Opts) error {
 		eventsWorkflow:         opts.EventsWorkflow,
 		songsRequest:           opts.SongRequest,
 		twirBus:                opts.TwirBus,
+		channelsRepo:           opts.ChannelsRepo,
 		channelsEventsListRepo: opts.ChannelsEventsListRepo,
 		usersRepo:              opts.UsersRepo,
 	}
@@ -288,6 +292,7 @@ type EventsGrpcImplementation struct {
 	eventsWorkflow         *workflows.EventWorkflow
 	songsRequest           *song_request.SongRequest
 	twirBus                *buscore.Bus
+	channelsRepo           channelsrepository.Repository
 	channelsEventsListRepo channelseventslist.Repository
 	usersRepo              usersrepository.Repository
 }
@@ -303,6 +308,32 @@ func normalizeEventPlatform(p platform.Platform) platform.Platform {
 func withPlatform(p platform.Platform, data shared.EventData) shared.EventData {
 	data.Platform = normalizeEventPlatform(p)
 	return data
+}
+
+func (c *EventsGrpcImplementation) resolveInternalChannelID(
+	ctx context.Context,
+	plat platform.Platform,
+	platformChannelID string,
+) (string, error) {
+	user, err := c.usersRepo.GetByPlatformID(ctx, plat, platformChannelID)
+	if err != nil {
+		return "", fmt.Errorf("resolve user by platform id: %w", err)
+	}
+
+	switch plat {
+	case platform.PlatformKick:
+		channel, err := c.channelsRepo.GetByKickUserID(ctx, user.ID)
+		if err != nil {
+			return "", fmt.Errorf("resolve channel by kick user id: %w", err)
+		}
+		return channel.ID.String(), nil
+	default:
+		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+		if err != nil {
+			return "", fmt.Errorf("resolve channel by twitch user id: %w", err)
+		}
+		return channel.ID.String(), nil
+	}
 }
 
 func (c *EventsGrpcImplementation) Follow(
@@ -323,11 +354,17 @@ func (c *EventsGrpcImplementation) Follow(
 
 			var streamFollowersCount int64
 			if stream != nil && stream.ID != "" {
+				channelID, err := c.resolveInternalChannelID(ctx, eventPlatform, msg.BaseInfo.ChannelID)
+				if err != nil {
+					c.logger.Error("Error resolve internal channel id", logger.Error(err))
+					return
+				}
+
 				t := channelseventslistmodel.ChannelEventListItemTypeFollow
 				count, err := c.channelsEventsListRepo.CountBy(
 					ctx,
 					channelseventslist.CountByInput{
-						ChannelID:    &msg.BaseInfo.ChannelID,
+						ChannelID:    &channelID,
 						Platform:     &eventPlatform,
 						CreatedAtGTE: &stream.StartedAt,
 						Type:         &t,

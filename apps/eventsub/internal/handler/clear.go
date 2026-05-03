@@ -22,10 +22,19 @@ func (c *Handler) HandleChannelChatClear(
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channelID,
 			UserID:    nil,
 			Type:      model.ChannelEventListItemTypeChatClear,
 			Data:      &model.ChannelsEventsListItemData{},

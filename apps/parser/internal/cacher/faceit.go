@@ -138,7 +138,7 @@ func (c *cacher) GetFaceitUserData(ctx context.Context) (*types.FaceitUser, erro
 
 	c.cache.faceitData = &types.FaceitResult{}
 
-	integration, err := c.services.FaceitRepo.GetByChannelID(ctx, c.parseCtxChannel.ID)
+	integration, err := c.services.FaceitRepo.GetByChannelID(ctx, c.parseCtxChannel.DBChannelID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get faceit integration: %w", err)
 	}

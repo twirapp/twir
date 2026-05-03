@@ -71,7 +71,7 @@ type eventSubBus struct {
 	Subscribe            Queue[eventsub.EventsubSubscribeRequest, struct{}]
 	// Init channels is dangerous, only use it if you know what you're doing
 	InitChannels Queue[struct{}, struct{}]
-	Unsubscribe  Queue[string, struct{}]
+	Unsubscribe  Queue[eventsub.EventsubUnsubscribeRequest, struct{}]
 }
 
 type schedulerBus struct {

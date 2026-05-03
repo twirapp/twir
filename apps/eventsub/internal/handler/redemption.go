@@ -78,7 +78,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 		)
 
 		itemsForHistoryCreate[i] = channelredemptionshistory.CreateInput{
-			ChannelID:    event.BroadcasterUserId,
+			ChannelID:    channel.ID.String(),
 			UserID:       event.UserId,
 			Platform:     platform.PlatformTwitch,
 			RewardID:     uuid.MustParse(event.Reward.Id),
@@ -88,7 +88,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 		}
 
 		itemsForEventsCreate[i] = channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channel.ID.String(),
 			UserID:    &event.UserId,
 			Platform:  platform.PlatformTwitch,
 			Type:      channelseventslistmodel.ChannelEventListItemTypeRedemptionCreated,

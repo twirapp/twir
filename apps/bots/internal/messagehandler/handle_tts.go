@@ -22,7 +22,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg twitch.TwitchChatMes
 		return nil
 	}
 
-	settings, err := c.ttsService.GetChannelTTSSettings(ctx, msg.BroadcasterUserId)
+	settings, err := c.ttsService.GetChannelTTSSettings(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		if errors.Is(err, overlays_tts.ErrNotFound) {
 			return nil
