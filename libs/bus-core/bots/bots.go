@@ -3,6 +3,7 @@ package bots
 import (
 	"math/rand/v2"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 )
@@ -21,8 +22,15 @@ const (
 )
 
 type SendMessageRequest struct {
+	// ChannelId is a legacy field kept for backward compatibility.
+	// For platform chat delivery, prefer PlatformChannelID.
 	ChannelName       *string
 	ChannelId         string
+	// InternalChannelID is the Twir DB channel UUID (`channels.id`).
+	InternalChannelID *uuid.UUID
+	// PlatformChannelID is the platform-native broadcaster/channel identifier
+	// (e.g. Twitch broadcaster user ID, Kick broadcaster user ID).
+	PlatformChannelID string
 	Platform          string
 	Message           string
 	ReplyTo           string

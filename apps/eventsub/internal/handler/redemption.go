@@ -398,10 +398,11 @@ func (c *Handler) handleYoutubeSongRequests(
 		c.twirBus.Bots.SendMessage.Publish(
 			ctx,
 			bots.SendMessageRequest{
-				ChannelId:      event.BroadcasterUserId,
-				ChannelName:    &event.BroadcasterUserLogin,
-				Message:        fmt.Sprintf("@%s %s", event.UserLogin, response),
-				SkipRateLimits: true,
+				ChannelId:         event.BroadcasterUserId,
+				ChannelName:       &event.BroadcasterUserLogin,
+				PlatformChannelID: event.BroadcasterUserId,
+				Message:           fmt.Sprintf("@%s %s", event.UserLogin, response),
+				SkipRateLimits:    true,
 			},
 		)
 	}

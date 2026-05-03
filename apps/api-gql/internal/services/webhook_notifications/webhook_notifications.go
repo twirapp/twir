@@ -558,12 +558,18 @@ func (s *Service) sendMessage(ctx context.Context, channelID string, message str
 		return nil
 	}
 
+	var internalChannelID *uuid.UUID
+	if parsedChannelID, err := uuid.Parse(channelID); err == nil {
+		internalChannelID = &parsedChannelID
+	}
+
 	if err := s.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:      channelID,
-			Message:        message,
-			SkipRateLimits: true,
+			ChannelId:         channelID,
+			InternalChannelID: internalChannelID,
+			Message:           message,
+			SkipRateLimits:    true,
 		},
 	); err != nil {
 		s.logger.Error("failed to send webhook notification message", slog.String("channel_id", channelID), slog.String("message", message), slog.Any("error", err))

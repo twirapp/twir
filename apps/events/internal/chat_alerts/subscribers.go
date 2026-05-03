@@ -44,11 +44,12 @@ func (c *ChatAlerts) subscribe(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelName: lo.If(req.ChannelName != "", &req.ChannelName).Else(nil),
-			ChannelId:      req.ChannelId,
-			Platform:       req.Platform.String(),
-			Message:        sample,
-			SkipRateLimits: true,
+			ChannelName:       lo.If(req.ChannelName != "", &req.ChannelName).Else(nil),
+			ChannelId:         req.ChannelId,
+			PlatformChannelID: req.ChannelId,
+			Platform:          req.Platform.String(),
+			Message:           sample,
+			SkipRateLimits:    true,
 		},
 	)
 }

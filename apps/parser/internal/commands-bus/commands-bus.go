@@ -203,9 +203,12 @@ func (c *CommandsBus) Subscribe() error {
 			}
 
 			for _, r := range res.Responses {
+				internalChannelID := data.EnrichedData.DbChannel.ID
 				params := bots.SendMessageRequest{
 					ChannelName:       &data.BroadcasterUserLogin,
 					ChannelId:         data.BroadcasterUserId,
+					InternalChannelID: &internalChannelID,
+					PlatformChannelID: data.BroadcasterUserId,
 					Platform:          "twitch",
 					Message:           r,
 					ReplyTo:           replyTo,
@@ -252,19 +255,7 @@ func (c *CommandsBus) Subscribe() error {
 				})
 			}
 
-			twitchMsg := twitch.TwitchChatMessage{
-				BroadcasterUserId:    msg.PlatformChannelID,
-				BroadcasterUserLogin: msg.PlatformChannelID,
-				BroadcasterUserName:  msg.PlatformChannelID,
-				ChatterUserId:        msg.SenderID,
-				ChatterUserLogin:     msg.SenderLogin,
-				ChatterUserName:      msg.SenderDisplayName,
-				MessageId:            msg.MessageID,
-				Badges:               badges,
-				Message: &twitch.ChatMessageMessage{
-					Text: msg.Text,
-				},
-			}
+			twitchMsg := genericToLegacyTwitchChatMessage(msg, badges)
 
 			if msg.EnrichedData.DbUser != nil {
 				twitchMsg.EnrichedData.DbUser = &twitch.DbUser{
@@ -316,15 +307,7 @@ func (c *CommandsBus) Subscribe() error {
 
 			channelName := msg.PlatformChannelID
 			for _, r := range res.Responses {
-				params := bots.SendMessageRequest{
-					ChannelName:       &channelName,
-					ChannelId:         msg.ChannelID,
-					Platform:          msg.Platform,
-					Message:           r,
-					ReplyTo:           replyTo,
-					SkipRateLimits:    false,
-					SkipToxicityCheck: res.SkipToxicityCheck,
-				}
+				params := genericToSendMessageRequest(msg, &channelName, r, replyTo, res.SkipToxicityCheck)
 
 				if res.KeepOrder {
 					if _, err := c.bus.Bots.SendMessage.Request(ctx, params); err != nil {
@@ -345,6 +328,50 @@ func (c *CommandsBus) Subscribe() error {
 	)
 
 	return nil
+}
+
+func genericToLegacyTwitchChatMessage(
+	msg generic.ChatMessage,
+	badges []twitch.ChatMessageBadge,
+) twitch.TwitchChatMessage {
+	return twitch.TwitchChatMessage{
+		BroadcasterUserId:    msg.PlatformChannelID,
+		BroadcasterUserLogin: msg.PlatformChannelID,
+		BroadcasterUserName:  msg.PlatformChannelID,
+		ChatterUserId:        msg.SenderID,
+		ChatterUserLogin:     msg.SenderLogin,
+		ChatterUserName:      msg.SenderDisplayName,
+		MessageId:            msg.MessageID,
+		Badges:               badges,
+		Message: &twitch.ChatMessageMessage{
+			Text: msg.Text,
+		},
+	}
+}
+
+func genericToSendMessageRequest(
+	msg generic.ChatMessage,
+	channelName *string,
+	message string,
+	replyTo string,
+	skipToxicityCheck bool,
+) bots.SendMessageRequest {
+	var internalChannelID *uuid.UUID
+	if parsedChannelID, err := uuid.Parse(msg.ChannelID); err == nil {
+		internalChannelID = &parsedChannelID
+	}
+
+	return bots.SendMessageRequest{
+		ChannelName:       channelName,
+		ChannelId:         msg.PlatformChannelID,
+		InternalChannelID: internalChannelID,
+		PlatformChannelID: msg.PlatformChannelID,
+		Platform:          msg.Platform,
+		Message:           message,
+		ReplyTo:           replyTo,
+		SkipRateLimits:    false,
+		SkipToxicityCheck: skipToxicityCheck,
+	}
 }
 
 func (c *CommandsBus) Unsubscribe() {

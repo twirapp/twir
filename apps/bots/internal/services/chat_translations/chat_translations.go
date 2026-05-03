@@ -247,6 +247,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 		bots.SendMessageRequest{
 			ChannelName:       &msg.BroadcasterUserLogin,
 			ChannelId:         msg.BroadcasterUserId,
+			PlatformChannelID: msg.BroadcasterUserId,
 			Message:           resultText.String(),
 			SkipToxicityCheck: false,
 		},

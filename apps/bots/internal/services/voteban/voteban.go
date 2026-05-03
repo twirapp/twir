@@ -182,6 +182,7 @@ func (s *Service) processSessionResult(result sessionResult) error {
 			if err := s.channelService.SendMessage(
 				ctx, bots.SendMessageRequest{
 					ChannelId:         result.platformChannelId,
+					PlatformChannelID: result.platformChannelId,
 					Message:           result.message,
 					IsAnnounce:        true,
 					SkipRateLimits:    true,

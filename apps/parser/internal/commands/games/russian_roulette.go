@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
@@ -33,6 +34,11 @@ var RussianRoulette = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{},
+		}
+
+		internalChannelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+		if err != nil {
+			return nil, err
 		}
 
 		entity := model.ChannelGamesRussianRoulette{}
@@ -79,16 +85,18 @@ var RussianRoulette = &types.DefaultCommand{
 			},
 		).Else("")
 
-		err := parseCtx.Services.Bus.Bots.SendMessage.Publish(
-			ctx,
-			bots.SendMessageRequest{
-				ChannelId:      parseCtx.Channel.ID,
-				ChannelName:    &parseCtx.Channel.Name,
-				Message:        initMessage,
-				SkipRateLimits: true,
-				ReplyTo:        replyTo,
-			},
-		)
+		err = parseCtx.Services.Bus.Bots.SendMessage.Publish(
+				ctx,
+				bots.SendMessageRequest{
+					ChannelId:         parseCtx.Channel.ID,
+					ChannelName:       &parseCtx.Channel.Name,
+					InternalChannelID: &internalChannelID,
+					PlatformChannelID: parseCtx.Channel.ID,
+					Message:           initMessage,
+					SkipRateLimits:    true,
+					ReplyTo:           replyTo,
+				},
+			)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -116,11 +124,13 @@ var RussianRoulette = &types.DefaultCommand{
 			parseCtx.Services.Bus.Bots.SendMessage.Publish(
 				ctx,
 				bots.SendMessageRequest{
-					ChannelId:      parseCtx.Channel.ID,
-					ChannelName:    &parseCtx.Channel.Name,
-					Message:        deathMessage,
-					SkipRateLimits: true,
-					ReplyTo:        replyTo,
+					ChannelId:         parseCtx.Channel.ID,
+					ChannelName:       &parseCtx.Channel.Name,
+					InternalChannelID: &internalChannelID,
+					PlatformChannelID: parseCtx.Channel.ID,
+					Message:           deathMessage,
+					SkipRateLimits:    true,
+					ReplyTo:           replyTo,
 				},
 			)
 			if err != nil {

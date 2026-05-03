@@ -32,12 +32,22 @@ func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) 
 
 			span.SetAttributes(
 				attribute.String("channel_id", req.ChannelId),
+				attribute.String("platform_channel_id", req.PlatformChannelID),
 				attribute.String("platform", req.Platform),
 				attribute.String("message", req.Message),
 				attribute.String("reply_to", req.ReplyTo),
 			)
 
-			if req.ChannelId == "" {
+			if req.InternalChannelID != nil {
+				span.SetAttributes(attribute.String("internal_channel_id", req.InternalChannelID.String()))
+			}
+
+			platformChannelID := req.PlatformChannelID
+			if platformChannelID == "" {
+				platformChannelID = req.ChannelId
+			}
+
+			if platformChannelID == "" {
 				return ErrNoChannelId
 			}
 
@@ -45,12 +55,12 @@ func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) 
 
 			switch req.Platform {
 			case "kick":
-				err = s.sendKickMessage(ctx, req)
+				err = s.sendKickMessage(ctx, req, platformChannelID)
 			case "", "twitch":
 				err = s.twitchActions.SendMessage(
 					ctx,
 					twitchactions.SendMessageOpts{
-						BroadcasterID:        req.ChannelId,
+						BroadcasterID:        platformChannelID,
 						SenderID:             "",
 						Message:              req.Message,
 						ReplyParentMessageID: req.ReplyTo,
@@ -75,8 +85,13 @@ func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) 
 	).Wait()
 }
 
-func (s *Service) sendKickMessage(ctx context.Context, req bots.SendMessageRequest) error {
-	if req.ChannelName == nil || *req.ChannelName == "" {
+func (s *Service) sendKickMessage(ctx context.Context, req bots.SendMessageRequest, platformChannelID string) error {
+	kickChannelID := platformChannelID
+	if kickChannelID == "" && req.ChannelName != nil {
+		kickChannelID = *req.ChannelName
+	}
+
+	if kickChannelID == "" {
 		return fmt.Errorf("kick channel id is not provided")
 	}
 
@@ -84,7 +99,7 @@ func (s *Service) sendKickMessage(ctx context.Context, req bots.SendMessageReque
 		return fmt.Errorf("kick chat client is not configured")
 	}
 
-	return s.kickChatClient.SendMessage(ctx, *req.ChannelName, req.Message)
+	return s.kickChatClient.SendMessage(ctx, kickChannelID, req.Message)
 }
 
 func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageRequest) error {
