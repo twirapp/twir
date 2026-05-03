@@ -111,6 +111,17 @@ func (c *BusListener) subscribeToAllEvents(
 		return struct{}{}, fmt.Errorf("invalid platform: %s", msg.Platform)
 	}
 
+	platformLabel := msg.Platform.String()
+	if platformLabel == "" {
+		platformLabel = "all"
+	}
+
+	c.logger.Info(
+		"received subscribe to all events request",
+		slog.String("channel_id", msg.ChannelID),
+		slog.String("platform", platformLabel),
+	)
+
 	channelUUID, err := uuid.Parse(msg.ChannelID)
 	if err != nil {
 		c.logger.Error("error parsing channel ID as UUID", slog.String("channel_id", msg.ChannelID))
@@ -126,6 +137,10 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 	platform platformentity.Platform,
 ) (struct{}, error) {
 	channelID := channelUUID.String()
+	platformLabel := platform.String()
+	if platformLabel == "" {
+		platformLabel = "all"
+	}
 
 	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
 	if err != nil {
@@ -137,6 +152,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		c.logger.Warn(
 			"channel is not enabled or bot ID is missing",
 			slog.String("channel_id", channelID),
+			slog.String("platform", platformLabel),
 		)
 		return struct{}{}, nil
 	}
@@ -148,6 +164,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 			c.logger.Warn(
 				"channel has kick user but no kick bot assigned, skipping kick eventsub subscription",
 				slog.String("channel_id", channelID),
+				slog.String("platform", platformLabel),
 				slog.String("kick_user_id", channel.KickUserID.String()),
 			)
 		} else {
@@ -157,6 +174,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 					"error subscribing to kick events",
 					logger.Error(err),
 					slog.String("channel_id", channelID),
+					slog.String("platform", platformLabel),
 					slog.String("kick_user_id", kickUserIDStr),
 				)
 				return struct{}{}, err
@@ -165,6 +183,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 			c.logger.Info(
 				"subscribed to kick events",
 				slog.String("channel_id", channelID),
+				slog.String("platform", platformLabel),
 				slog.String("kick_user_id", kickUserIDStr),
 				slog.String("kick_bot_id", channel.KickBotID.String()),
 			)
@@ -177,13 +196,14 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 			c.logger.Warn(
 				"channel has no platform user ID for eventsub subscription",
 				slog.String("channel_id", channelID),
+				slog.String("platform", platformLabel),
 			)
 			return struct{}{}, nil
 		}
 
 		var topics []model.EventsubTopic
 		if err := c.gorm.WithContext(ctx).Find(&topics).Error; err != nil {
-			c.logger.Error("error getting topics", slog.String("error", err.Error()))
+			c.logger.Error("error getting topics", slog.String("error", err.Error()), slog.String("platform", platformLabel))
 			return struct{}{}, err
 		}
 
@@ -203,6 +223,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		c.logger.Warn(
 			"channel has no active platform bot subscriptions",
 			slog.String("channel_id", channelID),
+			slog.String("platform", platformLabel),
 		)
 		return struct{}{}, nil
 	}

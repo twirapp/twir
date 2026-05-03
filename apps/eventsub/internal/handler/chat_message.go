@@ -23,9 +23,11 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"go.opentelemetry.io/otel/attribute"
 	"golang.org/x/sync/errgroup"
 )
@@ -53,6 +55,31 @@ func (c *Handler) HandleChannelChatMessage(
 	data.EnrichedData.IsChatterVip = data.IsChatterVip()
 	data.EnrichedData.IsChatterSubscriber = data.IsChatterSubscriber()
 
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, data.BroadcasterUserId)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			c.logger.Warn("cannot find broadcaster user for chat message", slog.String("broadcaster_user_id", data.BroadcasterUserId))
+			return
+		}
+
+		c.logger.Error("cannot resolve broadcaster user for chat message", logger.Error(err))
+		return
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			c.logger.Warn("cannot find channel for chat message", slog.String("broadcaster_user_id", data.BroadcasterUserId))
+			return
+		}
+
+		c.logger.Error("cannot resolve channel for chat message", logger.Error(err))
+		return
+	}
+
+	channelID := channel.ID.String()
+	data.EnrichedData.DbChannel = channel
+
 	errwg.Go(
 		func() error {
 			emotes, emotesErr := c.chatMessageCountEmotes(ctx, data)
@@ -67,7 +94,7 @@ func (c *Handler) HandleChannelChatMessage(
 
 	errwg.Go(
 		func() error {
-			commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, data.BroadcasterUserId)
+			commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, channelID)
 			if err != nil {
 				return err
 			}
@@ -79,19 +106,7 @@ func (c *Handler) HandleChannelChatMessage(
 
 	errwg.Go(
 		func() error {
-			channel, err := c.channelsCache.Get(ctx, data.BroadcasterUserId)
-			if err != nil {
-				return err
-			}
-			data.EnrichedData.DbChannel = channel
-
-			return nil
-		},
-	)
-
-	errwg.Go(
-		func() error {
-			stream, err := c.chatMessageGetChannelStream(ctx, data.BroadcasterUserId)
+			stream, err := c.chatMessageGetChannelStream(ctx, channelID)
 			if err != nil {
 				return err
 			}
@@ -213,7 +228,7 @@ func (c *Handler) HandleChannelChatMessage(
 		func() {
 			genericMsg := generic.ChatMessage{
 				Platform:          "twitch",
-				ChannelID:         data.BroadcasterUserId,
+				ChannelID:         channelID,
 				PlatformChannelID: data.BroadcasterUserId,
 				UserID:            data.ChatterUserId,
 				SenderID:          data.ChatterUserId,
@@ -222,6 +237,40 @@ func (c *Handler) HandleChannelChatMessage(
 				MessageID:         data.MessageId,
 				Text:              messageText,
 				Color:             data.Color,
+				EnrichedData: generic.ChatMessageEnrichedData{
+					UsedEmotesWithThirdParty: data.EnrichedData.UsedEmotesWithThirdParty,
+					ChannelCommandPrefix:     data.EnrichedData.ChannelCommandPrefix,
+					DbChannel:                data.EnrichedData.DbChannel,
+					ChannelStream:            data.EnrichedData.ChannelStream,
+					DbUser: &generic.DbUser{
+						ID:                data.EnrichedData.DbUser.ID,
+						TokenID:           data.EnrichedData.DbUser.TokenID,
+						IsBotAdmin:        data.EnrichedData.DbUser.IsBotAdmin,
+						ApiKey:            data.EnrichedData.DbUser.ApiKey,
+						IsBanned:          data.EnrichedData.DbUser.IsBanned,
+						HideOnLandingPage: data.EnrichedData.DbUser.HideOnLandingPage,
+						CreatedAt:         data.EnrichedData.DbUser.CreatedAt,
+					},
+					DbUserChannelStat: &generic.DbUserChannelStat{
+						ID:                data.EnrichedData.DbUserChannelStat.ID,
+						UserID:            data.EnrichedData.DbUserChannelStat.UserID,
+						ChannelID:         data.EnrichedData.DbUserChannelStat.ChannelID,
+						Messages:          data.EnrichedData.DbUserChannelStat.Messages,
+						Watched:           data.EnrichedData.DbUserChannelStat.Watched,
+						UsedChannelPoints: data.EnrichedData.DbUserChannelStat.UsedChannelPoints,
+						IsMod:             data.EnrichedData.DbUserChannelStat.IsMod,
+						IsVip:             data.EnrichedData.DbUserChannelStat.IsVip,
+						IsSubscriber:      data.EnrichedData.DbUserChannelStat.IsSubscriber,
+						Reputation:        data.EnrichedData.DbUserChannelStat.Reputation,
+						Emotes:            data.EnrichedData.DbUserChannelStat.Emotes,
+						CreatedAt:         data.EnrichedData.DbUserChannelStat.CreatedAt,
+						UpdatedAt:         data.EnrichedData.DbUserChannelStat.UpdatedAt,
+					},
+					IsChatterBroadcaster: data.EnrichedData.IsChatterBroadcaster,
+					IsChatterModerator:   data.EnrichedData.IsChatterModerator,
+					IsChatterVip:         data.EnrichedData.IsChatterVip,
+					IsChatterSubscriber:  data.EnrichedData.IsChatterSubscriber,
+				},
 			}
 
 			for _, b := range data.Badges {
@@ -258,7 +307,7 @@ func (c *Handler) HandleChannelChatMessage(
 			if isCommand && data.EnrichedData.DbChannel.IsEnabled {
 				genericMsg := generic.ChatMessage{
 					Platform:          "twitch",
-					ChannelID:         data.BroadcasterUserId,
+					ChannelID:         channelID,
 					PlatformChannelID: data.BroadcasterUserId,
 					UserID:            data.ChatterUserId,
 					SenderID:          data.ChatterUserId,
@@ -267,6 +316,40 @@ func (c *Handler) HandleChannelChatMessage(
 					MessageID:         data.MessageId,
 					Text:              messageText,
 					Color:             data.Color,
+					EnrichedData: generic.ChatMessageEnrichedData{
+						UsedEmotesWithThirdParty: data.EnrichedData.UsedEmotesWithThirdParty,
+						ChannelCommandPrefix:     data.EnrichedData.ChannelCommandPrefix,
+						DbChannel:                data.EnrichedData.DbChannel,
+						ChannelStream:            data.EnrichedData.ChannelStream,
+						DbUser: &generic.DbUser{
+							ID:                data.EnrichedData.DbUser.ID,
+							TokenID:           data.EnrichedData.DbUser.TokenID,
+							IsBotAdmin:        data.EnrichedData.DbUser.IsBotAdmin,
+							ApiKey:            data.EnrichedData.DbUser.ApiKey,
+							IsBanned:          data.EnrichedData.DbUser.IsBanned,
+							HideOnLandingPage: data.EnrichedData.DbUser.HideOnLandingPage,
+							CreatedAt:         data.EnrichedData.DbUser.CreatedAt,
+						},
+						DbUserChannelStat: &generic.DbUserChannelStat{
+							ID:                data.EnrichedData.DbUserChannelStat.ID,
+							UserID:            data.EnrichedData.DbUserChannelStat.UserID,
+							ChannelID:         data.EnrichedData.DbUserChannelStat.ChannelID,
+							Messages:          data.EnrichedData.DbUserChannelStat.Messages,
+							Watched:           data.EnrichedData.DbUserChannelStat.Watched,
+							UsedChannelPoints: data.EnrichedData.DbUserChannelStat.UsedChannelPoints,
+							IsMod:             data.EnrichedData.DbUserChannelStat.IsMod,
+							IsVip:             data.EnrichedData.DbUserChannelStat.IsVip,
+							IsSubscriber:      data.EnrichedData.DbUserChannelStat.IsSubscriber,
+							Reputation:        data.EnrichedData.DbUserChannelStat.Reputation,
+							Emotes:            data.EnrichedData.DbUserChannelStat.Emotes,
+							CreatedAt:         data.EnrichedData.DbUserChannelStat.CreatedAt,
+							UpdatedAt:         data.EnrichedData.DbUserChannelStat.UpdatedAt,
+						},
+						IsChatterBroadcaster: data.EnrichedData.IsChatterBroadcaster,
+						IsChatterModerator:   data.EnrichedData.IsChatterModerator,
+						IsChatterVip:         data.EnrichedData.IsChatterVip,
+						IsChatterSubscriber:  data.EnrichedData.IsChatterSubscriber,
+					},
 				}
 
 				if err := c.twirBus.Parser.ProcessGenericMessage.Publish(ctx, genericMsg); err != nil {
