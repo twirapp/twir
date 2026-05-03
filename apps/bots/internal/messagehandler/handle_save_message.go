@@ -20,13 +20,14 @@ func (c *MessageHandler) handleSaveMessageBatched(ctx context.Context, data []ge
 
 	for index, msg := range data {
 		createMessageInputs[index] = chatmessages.CreateInput{
-			ID:              msg.ID,
-			ChannelID:       msg.BroadcasterUserId,
-			UserID:          msg.ChatterUserId,
-			Text:            msg.Message.Text,
-			UserName:        msg.ChatterUserLogin,
-			UserDisplayName: msg.ChatterUserName,
-			UserColor:       msg.Color,
+			ID:                msg.ID,
+			Platform:          msg.Platform,
+			PlatformChannelID: msg.PlatformChannelID,
+			UserID:            msg.ChatterUserId,
+			Text:              msg.Message.Text,
+			UserName:          msg.ChatterUserLogin,
+			UserDisplayName:   msg.ChatterUserName,
+			UserColor:         msg.Color,
 		}
 	}
 

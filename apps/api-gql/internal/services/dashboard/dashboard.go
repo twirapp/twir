@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/kv"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -36,6 +37,7 @@ type Opts struct {
 
 	Gorm                    *gorm.DB
 	CachedTwitchClient      *twitchcache.CachedTwitchClient
+	AuthService             *auth.Auth
 	KV                      kv.KV
 	Config                  config.Config
 	Logger                  *slog.Logger
@@ -52,6 +54,7 @@ func New(opts Opts) *Service {
 	return &Service{
 		gorm:                    opts.Gorm,
 		cachedTwitchClient:      opts.CachedTwitchClient,
+		authService:             opts.AuthService,
 		kv:                      opts.KV,
 		config:                  opts.Config,
 		logger:                  opts.Logger,
@@ -68,6 +71,7 @@ func New(opts Opts) *Service {
 type Service struct {
 	gorm                    *gorm.DB
 	cachedTwitchClient      *twitchcache.CachedTwitchClient
+	authService             *auth.Auth
 	kv                      kv.KV
 	config                  config.Config
 	logger                  *slog.Logger
@@ -78,6 +82,32 @@ type Service struct {
 	streamsRepository       streams.Repository
 	usersRepo               usersrepository.Repository
 	kickBotsRepo            kickbotsrepository.Repository
+}
+
+func (c *Service) resolveAnalyticsIdentity(ctx context.Context, channel channelmodel.Channel) (string, string) {
+	currentPlatform, err := c.authService.GetCurrentPlatform(ctx)
+	if err == nil {
+		switch currentPlatform {
+		case string(platformentity.PlatformKick):
+			if channel.KickPlatformID != nil && *channel.KickPlatformID != "" {
+				return currentPlatform, *channel.KickPlatformID
+			}
+		case string(platformentity.PlatformTwitch):
+			if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
+				return currentPlatform, *channel.TwitchPlatformID
+			}
+		}
+	}
+
+	if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
+		return string(platformentity.PlatformTwitch), *channel.TwitchPlatformID
+	}
+
+	if channel.KickPlatformID != nil && *channel.KickPlatformID != "" {
+		return string(platformentity.PlatformKick), *channel.KickPlatformID
+	}
+
+	return "", ""
 }
 
 func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
@@ -106,6 +136,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	}
 
 	result := entity.DashboardStats{}
+	analyticsPlatform, analyticsPlatformChannelID := c.resolveAnalyticsIdentity(ctx, channel)
 
 	if !channel.TwitchConnected() {
 		if !stream.IsNil() {
@@ -126,11 +157,17 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 			var requestedSongs int64
 
 			errgrp.Go(func() error {
+				if analyticsPlatform == "" || analyticsPlatformChannelID == "" {
+					usedEmotes = 0
+					return nil
+				}
+
 				emotesCount, err := c.channelEmotesUsagesRepo.Count(
 					ctx,
 					channelsemotesusagesrepository.CountInput{
-						ChannelID: &channelID,
-						TimeAfter: &stream.StartedAt,
+						Platform:          &analyticsPlatform,
+						PlatformChannelID: &analyticsPlatformChannelID,
+						TimeAfter:         &stream.StartedAt,
 					},
 				)
 				if err != nil {
@@ -303,13 +340,19 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	var errgrp errgroup.Group
 	errgrp.Go(
 		func() error {
+			if analyticsPlatform == "" || analyticsPlatformChannelID == "" {
+				usedEmotes = 0
+				return nil
+			}
+
 			emotesCount, err := c.channelEmotesUsagesRepo.Count(
 				ctx,
 				channelsemotesusagesrepository.CountInput{
-					ChannelID: &channelID,
-					TimeAfter: &stream.StartedAt,
-				},
-			)
+				Platform:          &analyticsPlatform,
+				PlatformChannelID: &analyticsPlatformChannelID,
+				TimeAfter:         &stream.StartedAt,
+			},
+		)
 			if err != nil {
 				return fmt.Errorf("get count of used emotes: %w", err)
 			}

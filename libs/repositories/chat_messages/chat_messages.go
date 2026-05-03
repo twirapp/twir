@@ -15,7 +15,8 @@ type Repository interface {
 
 type CreateInput struct {
 	ID              string
-	ChannelID       string
+	Platform        string
+	PlatformChannelID string
 	UserID          string
 	Text            string
 	UserName        string
@@ -27,7 +28,8 @@ type GetManyInput struct {
 	Page    int
 	PerPage int
 
-	ChannelID    *string
+	Platform          *string
+	PlatformChannelID *string
 	UserNameLike *string
 	TextLike     *string
 	UserIDs      []string

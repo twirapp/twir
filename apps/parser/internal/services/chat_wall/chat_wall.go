@@ -169,11 +169,12 @@ func (c *Service) HandlePastMessages(
 	messages, err := c.chatMessagesRepo.GetMany(
 		ctx,
 		chatmessagesrepository.GetManyInput{
-			ChannelID: &input.PlatformChannelID,
-			TextLike:  &input.Phrase,
-			Page:      0,
-			PerPage:   1000,
-			TimeGte:   &timeGte,
+			Platform:          lo.ToPtr(string(input.Platform)),
+			PlatformChannelID: &input.PlatformChannelID,
+			TextLike:          &input.Phrase,
+			Page:              0,
+			PerPage:           1000,
+			TimeGte:           &timeGte,
 		},
 	)
 	if err != nil {

@@ -3,6 +3,7 @@ package dataloader
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
@@ -15,6 +16,37 @@ func (c *dataLoader) getEmoteStatistic(
 	dashboardID, err := c.deps.AuthService.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, []error{err}
+	}
+
+	currentPlatform, err := c.deps.AuthService.GetCurrentPlatform(ctx)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	parsedDashboardID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	channel, err := c.deps.ChannelsRepository.GetByID(ctx, parsedDashboardID)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	var platformChannelID string
+	switch currentPlatform {
+	case "kick":
+		if channel.KickPlatformID == nil || *channel.KickPlatformID == "" {
+			return nil, []error{fmt.Errorf("kick platform channel id not found")}
+		}
+		platformChannelID = *channel.KickPlatformID
+	case "twitch":
+		if channel.TwitchPlatformID == nil || *channel.TwitchPlatformID == "" {
+			return nil, []error{fmt.Errorf("twitch platform channel id not found")}
+		}
+		platformChannelID = *channel.TwitchPlatformID
+	default:
+		return nil, []error{fmt.Errorf("unknown platform: %s", currentPlatform)}
 	}
 
 	emotesNames := make([]string, 0, len(emotes))
@@ -40,7 +72,8 @@ func (c *dataLoader) getEmoteStatistic(
 
 	ranges, err := c.deps.EmoteStatisticService.GetEmotesRanges(
 		ctx,
-		dashboardID,
+		currentPlatform,
+		platformChannelID,
 		emotesNames,
 		emoteRange,
 	)

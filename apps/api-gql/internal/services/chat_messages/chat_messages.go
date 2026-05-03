@@ -34,8 +34,8 @@ const (
 	chatMessagesSubscriptionKeyAll = chatMessagesSubscriptionKey + ".All"
 )
 
-func chatMessagesSubscriptionKeyCreate(channelId string) string {
-	return chatMessagesSubscriptionKey + "." + channelId
+func chatMessagesSubscriptionKeyCreate(platform string, channelId string) string {
+	return chatMessagesSubscriptionKey + "." + platform + "." + channelId
 }
 
 func New(opts Opts) *Service {
@@ -102,7 +102,7 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 	}
 	msg := entity.ChatMessage{
 		ID:              uuid.New(),
-		ChannelID:       data.BroadcasterUserId,
+		ChannelID:       data.PlatformChannelID,
 		ChannelLogin:    data.BroadcasterUserLogin,
 		ChannelName:     data.BroadcasterUserName,
 		UserID:          data.ChatterUserId,
@@ -113,9 +113,10 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 		CreatedAt:       time.Now(),
 	}
 
+	channelSubKey := chatMessagesSubscriptionKeyCreate(data.Platform, data.PlatformChannelID)
 	c.chanSubsMu.RLock()
-	if _, ok := c.chanSubs[data.BroadcasterUserId]; ok {
-		err := c.wsRouter.Publish(chatMessagesSubscriptionKeyCreate(data.BroadcasterUserId), msg)
+	if _, ok := c.chanSubs[channelSubKey]; ok {
+		err := c.wsRouter.Publish(channelSubKey, msg)
 		if err != nil {
 			c.logger.Error(
 				"cannot publish some message to separate broadcaster messages",
@@ -136,17 +137,19 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 
 func (c *Service) SubscribeToNewMessagesByChannelID(
 	ctx context.Context,
+	platform string,
 	channelID string,
 ) <-chan entity.ChatMessage {
+	channelSubKey := chatMessagesSubscriptionKeyCreate(platform, channelID)
 	c.chanSubsMu.Lock()
-	c.chanSubs[channelID] = struct{}{}
+	c.chanSubs[channelSubKey] = struct{}{}
 	c.chanSubsMu.Unlock()
 
 	channel := make(chan entity.ChatMessage)
 	go func() {
 		sub, err := c.wsRouter.Subscribe(
 			[]string{
-				chatMessagesSubscriptionKeyCreate(channelID),
+				channelSubKey,
 			},
 		)
 		if err != nil {
@@ -154,7 +157,7 @@ func (c *Service) SubscribeToNewMessagesByChannelID(
 		}
 		defer func() {
 			c.chanSubsMu.Lock()
-			delete(c.chanSubs, channelID)
+			delete(c.chanSubs, channelSubKey)
 			c.chanSubsMu.Unlock()
 			sub.Unsubscribe()
 			close(channel)

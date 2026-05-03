@@ -16,18 +16,19 @@ import (
 
 // ChatMessages is the resolver for the chatMessages field.
 func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMessageInput) ([]gqlmodel.ChatMessage, error) {
-	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	platform, platformChannelID, err := resolveSelectedDashboardAnalyticsIdentity(ctx, r.deps)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get selected dashboard: %w", err)
+		return nil, fmt.Errorf("failed to resolve selected dashboard analytics identity: %w", err)
 	}
 
 	messagesInput := chat_messages.GetManyInput{
-		Page:         0,
-		PerPage:      20,
-		ChannelID:    &dashboardID,
-		UserNameLike: input.UserNameLike.Value(),
-		TextLike:     input.TextLike.Value(),
-		UserIDs:      input.UserIDIn.Value(),
+		Page:              0,
+		PerPage:           20,
+		Platform:          &platform,
+		PlatformChannelID: &platformChannelID,
+		UserNameLike:      input.UserNameLike.Value(),
+		TextLike:          input.TextLike.Value(),
+		UserIDs:           input.UserIDIn.Value(),
 	}
 
 	if input.Page.IsSet() {
@@ -53,12 +54,12 @@ func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMes
 
 // ChatMessages is the resolver for the chatMessages field.
 func (r *subscriptionResolver) ChatMessages(ctx context.Context) (<-chan *gqlmodel.ChatMessage, error) {
-	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	platform, platformChannelID, err := resolveSelectedDashboardAnalyticsIdentity(ctx, r.deps)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get selected dashboard: %w", err)
+		return nil, fmt.Errorf("failed to resolve selected dashboard analytics identity: %w", err)
 	}
 
-	ch := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelID(ctx, dashboardID)
+	ch := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelID(ctx, platform, platformChannelID)
 	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {

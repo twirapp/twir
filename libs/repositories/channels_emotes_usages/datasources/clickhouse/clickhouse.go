@@ -45,13 +45,13 @@ func (c *Clickhouse) GetUserMostUsedEmotes(
 	query := `
 SELECT emote, COUNT(*)
 FROM channels_emotes_usages
-WHERE "channel_id" = ? AND "user_id" = ?
+WHERE "platform" = ? AND "platform_channel_id" = ? AND "user_id" = ?
 GROUP BY emote
 ORDER BY COUNT(*)
 DESC LIMIT ?
 `
 
-	rows, err := c.client.Query(ctx, query, input.ChannelID, input.UserID, limit)
+	rows, err := c.client.Query(ctx, query, input.Platform, input.PlatformChannelID, input.UserID, limit)
 	if err != nil {
 		return nil, fmt.Errorf("query execution failed: %w", err)
 	}
@@ -92,7 +92,7 @@ func (c *Clickhouse) createBatch(
 
 	batch, err := c.client.PrepareBatch(
 		ctx,
-		"INSERT INTO channels_emotes_usages(channel_id, user_id, emote)",
+		"INSERT INTO channels_emotes_usages(platform, platform_channel_id, user_id, emote)",
 	)
 	if err != nil {
 		return fmt.Errorf("prepare batch failed: %w", err)
@@ -100,7 +100,8 @@ func (c *Clickhouse) createBatch(
 
 	for _, i := range input {
 		err := batch.Append(
-			i.ChannelID,
+			i.Platform,
+			i.PlatformChannelID,
 			i.UserID,
 			i.Emote,
 		)
@@ -146,8 +147,12 @@ func (c *Clickhouse) Count(ctx context.Context, input channelsemotesusagesreposi
 ) {
 	selectBuilder := sq.Select("COUNT(*)").From("channels_emotes_usages")
 
-	if input.ChannelID != nil && *input.ChannelID != "" {
-		selectBuilder = selectBuilder.Where(squirrel.Eq{"channel_id": *input.ChannelID})
+	if input.Platform != nil && *input.Platform != "" {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"platform": *input.Platform})
+	}
+
+	if input.PlatformChannelID != nil && *input.PlatformChannelID != "" {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"platform_channel_id": *input.PlatformChannelID})
 	}
 
 	if input.UserID != nil && *input.UserID != "" {
@@ -179,7 +184,8 @@ func (c *Clickhouse) GetEmotesStatistics(
 	selectBuilder := sq.
 		Select("emote", "count(*) as count", "max(created_at) as last_used").
 		From("channels_emotes_usages").
-		Where(squirrel.Eq{"channel_id": input.ChannelID}).
+		Where(squirrel.Eq{"platform": input.Platform}).
+		Where(squirrel.Eq{"platform_channel_id": input.PlatformChannelID}).
 		GroupBy("emote")
 
 	if input.Sort == channelsemotesusagesrepository.SortAsc {
@@ -243,7 +249,8 @@ func (c *Clickhouse) GetEmotesStatistics(
 
 func (c *Clickhouse) GetEmotesRanges(
 	ctx context.Context,
-	channelID string,
+	platform string,
+	platformChannelID string,
 	emotesNames []string,
 	rangeType channelsemotesusagesrepository.EmoteStatisticRange,
 ) (
@@ -314,7 +321,7 @@ func (c *Clickhouse) GetEmotesRanges(
 		return make(map[string][]model.EmoteRange), nil
 	}
 
-	// Dynamically build the dimensions CTE (channel_id, emote combinations)
+	// Dynamically build the dimensions CTE (platform_channel_id, emote combinations)
 	var emoteDimensionsBuilder strings.Builder
 	for i, emote := range emotesNames {
 		if i > 0 {
@@ -325,8 +332,8 @@ func (c *Clickhouse) GetEmotesRanges(
 		// If not, consider `strings.ReplaceAll(value, "'", "''")` for robustness.
 		emoteDimensionsBuilder.WriteString(
 			fmt.Sprintf(
-				"SELECT '%s' AS channel_id, '%s' AS emote",
-				channelID,
+				"SELECT '%s' AS platform_channel_id, '%s' AS emote",
+				platformChannelID,
 				emote,
 			),
 		)
@@ -348,26 +355,27 @@ func (c *Clickhouse) GetEmotesRanges(
     )
     SELECT
         ts.time_bucket,
-        d.channel_id,
-        d.emote,
-        COALESCE(tce.cnt, 0) AS cnt
+	        d.platform_channel_id,
+	        d.emote,
+	        COALESCE(tce.cnt, 0) AS cnt
     FROM time_series AS ts
     CROSS JOIN dimensions AS d
     LEFT JOIN (
         SELECT
-            channel_id,
-            emote,
-            %s(created_at) AS time_bucket,
-            COUNT(*) AS cnt
-        FROM twir.channels_emotes_usages
-        WHERE created_at >= toDateTime(?) -- Use original startTime for filtering raw data
-          AND channel_id = ?
-          AND emote IN (?)
-        GROUP BY channel_id, emote, time_bucket
-    ) AS tce ON ts.time_bucket = tce.time_bucket
-            AND d.channel_id = tce.channel_id
-            AND d.emote = tce.emote
-    ORDER BY ts.time_bucket ASC, d.channel_id ASC, d.emote ASC;
+	            platform_channel_id,
+	            emote,
+	            %s(created_at) AS time_bucket,
+	            COUNT(*) AS cnt
+	        FROM twir.channels_emotes_usages
+	        WHERE created_at >= toDateTime(?) -- Use original startTime for filtering raw data
+	          AND platform = ?
+	          AND platform_channel_id = ?
+	          AND emote IN (?)
+	        GROUP BY platform_channel_id, emote, time_bucket
+	    ) AS tce ON ts.time_bucket = tce.time_bucket
+	            AND d.platform_channel_id = tce.platform_channel_id
+	            AND d.emote = tce.emote
+	    ORDER BY ts.time_bucket ASC, d.platform_channel_id ASC, d.emote ASC;
     `,
 		timeBucketFunc,  // 1. For time_series CTE (e.g., toStartOfHour)
 		intervalUnit,    // 2. For time_series CTE (e.g., HOUR)
@@ -380,9 +388,10 @@ func (c *Clickhouse) GetEmotesRanges(
 	// The parameters map to the '?' placeholders in order:
 	// 1. `startBucketTime` for the `toDateTime(?)` in the `time_series` CTE.
 	// 2. `startTime` (original) for the `created_at >= toDateTime(?)` in the inner subquery.
-	// 3. `channelID` for the `channel_id = ?` in the inner subquery.
+	// 3. `platform` for the `platform = ?` in the inner subquery.
+	// 4. `platformChannelID` for the `platform_channel_id = ?` in the inner subquery.
 	// 4. `emotesNames` for the `emote IN (?)` in the inner subquery.
-	rows, err := c.client.Query(ctx, query, startBucketTime, startTime, channelID, emotesNames)
+	rows, err := c.client.Query(ctx, query, startBucketTime, startTime, platform, platformChannelID, emotesNames)
 	if err != nil {
 		return nil, fmt.Errorf("query execution failed: %w", err)
 	}
@@ -392,11 +401,11 @@ func (c *Clickhouse) GetEmotesRanges(
 	result := make(map[string][]model.EmoteRange)
 
 	for rows.Next() {
-		var currentChannelID, emote string // Scan into separate variables to avoid modifying the outer channelID
+		var currentPlatformChannelID, emote string
 		var timestamp time.Time
 		var count uint64
 
-		if err := rows.Scan(&timestamp, &currentChannelID, &emote, &count); err != nil {
+		if err := rows.Scan(&timestamp, &currentPlatformChannelID, &emote, &count); err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
 
@@ -433,17 +442,17 @@ func (c *Clickhouse) GetChannelEmoteUsageHistory(
 
 	query := `
 		SELECT
-			channel_id,
+			platform_channel_id,
 			emote,
 			user_id,
 			created_at
 		FROM channels_emotes_usages
-		WHERE channel_id = ? AND emote = ?
+		WHERE platform = ? AND platform_channel_id = ? AND emote = ?
 		ORDER BY created_at DESC
 		LIMIT ? OFFSET ?
 	`
 
-	rows, err := c.client.Query(ctx, query, input.ChannelID, input.EmoteName, perPage, offset)
+	rows, err := c.client.Query(ctx, query, input.Platform, input.PlatformChannelID, input.EmoteName, perPage, offset)
 	if err != nil {
 		return nil, 0, fmt.Errorf("query execution failed: %w", err)
 	}
@@ -466,11 +475,11 @@ func (c *Clickhouse) GetChannelEmoteUsageHistory(
 
 	totalQuery := `
 		SELECT COUNT(*) FROM channels_emotes_usages
-		WHERE channel_id = ? AND emote = ?
+		WHERE platform = ? AND platform_channel_id = ? AND emote = ?
 `
 
 	var total uint64
-	err = c.client.QueryRow(ctx, totalQuery, input.ChannelID, input.EmoteName).Scan(&total)
+	err = c.client.QueryRow(ctx, totalQuery, input.Platform, input.PlatformChannelID, input.EmoteName).Scan(&total)
 	if err != nil {
 		return nil, 0, fmt.Errorf("total query error: %w", err)
 	}
@@ -495,14 +504,15 @@ func (c *Clickhouse) GetChannelUsageTopUsers(
 
 	queryBuilder := sq.
 		Select(
-			"channel_id",
+			"platform_channel_id",
 			"user_id",
 			"COUNT(*) AS count",
 		).
 		From("channels_emotes_usages").
-		Where(squirrel.Eq{"channel_id": input.ChannelID}).
+		Where(squirrel.Eq{"platform": input.Platform}).
+		Where(squirrel.Eq{"platform_channel_id": input.PlatformChannelID}).
 		Where(squirrel.Eq{"emote": input.EmoteName}).
-		GroupBy("channel_id", "user_id").
+		GroupBy("platform_channel_id", "user_id").
 		OrderBy("count DESC").
 		Limit(uint64(perPage)).
 		Offset(uint64(offset))
@@ -539,11 +549,11 @@ func (c *Clickhouse) GetChannelUsageTopUsers(
 
 	totalQuery := `
 		SELECT COUNT(DISTINCT user_id) FROM channels_emotes_usages
-		WHERE channel_id = ? AND emote = ?
+		WHERE platform = ? AND platform_channel_id = ? AND emote = ?
 `
 
 	var total uint64
-	err = c.client.QueryRow(ctx, totalQuery, input.ChannelID, input.EmoteName).Scan(&total)
+	err = c.client.QueryRow(ctx, totalQuery, input.Platform, input.PlatformChannelID, input.EmoteName).Scan(&total)
 	if err != nil {
 		return nil, 0, fmt.Errorf("total query error: %w", err)
 	}
@@ -554,7 +564,7 @@ func (c *Clickhouse) GetChannelUsageTopUsers(
 func (c *Clickhouse) DeleteRowsByChannelID(ctx context.Context, channelID string) error {
 	query := `
 		DELETE FROM channels_emotes_usages
-		WHERE channel_id = ?
+		WHERE platform_channel_id = ?
 	`
 
 	err := c.client.Exec(ctx, query, channelID)

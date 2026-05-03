@@ -25,25 +25,28 @@ type Service struct {
 }
 
 type CountInput struct {
-	ChannelID *string
-	UserID    *string
+	Platform          *string
+	PlatformChannelID *string
+	UserID            *string
 }
 
 func (c *Service) Count(ctx context.Context, input CountInput) (uint64, error) {
 	return c.channelsEmotesUsagesRepository.Count(
 		ctx,
 		channelsemotesusagesrepository.CountInput{
-			ChannelID: input.ChannelID,
-			UserID:    input.UserID,
+			Platform:          input.Platform,
+			PlatformChannelID: input.PlatformChannelID,
+			UserID:            input.UserID,
 		},
 	)
 }
 
 type GetEmotesStatisticsInput struct {
-	ChannelID   string
-	EmoteSearch *string
-	Page        int
-	PerPage     int
+	Platform          string
+	PlatformChannelID string
+	EmoteSearch       *string
+	Page              int
+	PerPage           int
 }
 
 func (c *Service) GetEmotesStatistics(ctx context.Context, input GetEmotesStatisticsInput) (
@@ -52,11 +55,12 @@ func (c *Service) GetEmotesStatistics(ctx context.Context, input GetEmotesStatis
 ) {
 	entities, err := c.channelsEmotesUsagesRepository.GetEmotesStatistics(
 		ctx, channelsemotesusagesrepository.GetEmotesStatisticsInput{
-			ChannelID: input.ChannelID,
-			Search:    input.EmoteSearch,
-			Sort:      channelsemotesusagesrepository.SortDesc,
-			Page:      input.Page,
-			PerPage:   input.PerPage,
+			Platform:          input.Platform,
+			PlatformChannelID: input.PlatformChannelID,
+			Search:            input.EmoteSearch,
+			Sort:              channelsemotesusagesrepository.SortDesc,
+			Page:              input.Page,
+			PerPage:           input.PerPage,
 		},
 	)
 	if err != nil {
@@ -80,13 +84,15 @@ func (c *Service) GetEmotesStatistics(ctx context.Context, input GetEmotesStatis
 
 func (c *Service) GetEmotesRanges(
 	ctx context.Context,
-	channelID string,
+	platform string,
+	platformChannelID string,
 	emotesNames []string,
 	rangeType channelsemotesusagesrepository.EmoteStatisticRange,
 ) (map[string][]entity.EmoteRange, error) {
 	ranges, err := c.channelsEmotesUsagesRepository.GetEmotesRanges(
 		ctx,
-		channelID,
+		platform,
+		platformChannelID,
 		emotesNames,
 		rangeType,
 	)
@@ -109,10 +115,11 @@ func (c *Service) GetEmotesRanges(
 }
 
 type GetChannelEmoteUsageHistoryInput struct {
-	ChannelID string
-	EmoteName string
-	Page      int
-	PerPage   int
+	Platform          string
+	PlatformChannelID string
+	EmoteName         string
+	Page              int
+	PerPage           int
 }
 
 func (c *Service) GetChannelEmoteUsageTopUsers(
@@ -122,10 +129,11 @@ func (c *Service) GetChannelEmoteUsageTopUsers(
 	topUsers, total, err := c.channelsEmotesUsagesRepository.GetChannelUsageTopUsers(
 		ctx,
 		channelsemotesusagesrepository.EmotesUsersTopOrHistoryInput{
-			ChannelID: input.ChannelID,
-			EmoteName: input.EmoteName,
-			Page:      input.Page,
-			PerPage:   input.PerPage,
+			Platform:          input.Platform,
+			PlatformChannelID: input.PlatformChannelID,
+			EmoteName:         input.EmoteName,
+			Page:              input.Page,
+			PerPage:           input.PerPage,
 		},
 	)
 	if err != nil {
@@ -150,10 +158,11 @@ func (c *Service) GetChannelEmoteUsageHistory(
 	usages, total, err := c.channelsEmotesUsagesRepository.GetChannelEmoteUsageHistory(
 		ctx,
 		channelsemotesusagesrepository.EmotesUsersTopOrHistoryInput{
-			ChannelID: input.ChannelID,
-			EmoteName: input.EmoteName,
-			Page:      input.Page,
-			PerPage:   input.PerPage,
+			Platform:          input.Platform,
+			PlatformChannelID: input.PlatformChannelID,
+			EmoteName:         input.EmoteName,
+			Page:              input.Page,
+			PerPage:           input.PerPage,
 		},
 	)
 	if err != nil {

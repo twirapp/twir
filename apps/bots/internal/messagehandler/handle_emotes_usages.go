@@ -20,9 +20,10 @@ func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []g
 				createEmoteUsageInputs = append(
 					createEmoteUsageInputs,
 					channelsemotesusages.ChannelEmoteUsageInput{
-						ChannelID: msg.BroadcasterUserId,
-						UserID:    msg.ChatterUserId,
-						Emote:     key,
+						Platform:          msg.Platform,
+						PlatformChannelID: msg.PlatformChannelID,
+						UserID:            msg.ChatterUserId,
+						Emote:             key,
 					},
 				)
 			}

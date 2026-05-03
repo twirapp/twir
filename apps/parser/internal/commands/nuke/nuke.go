@@ -13,6 +13,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
+	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -70,11 +71,12 @@ var Command = &types.DefaultCommand{
 		messages, err := parseCtx.Services.ChatMessagesRepo.GetMany(
 			ctx,
 			chat_messages.GetManyInput{
-				ChannelID: &parseCtx.Channel.ID,
-				TextLike:  &phrase,
-				Page:      0,
-				PerPage:   1000,
-				TimeGte:   &timeGte,
+				Platform:          lo.ToPtr(string(parseCtx.Platform)),
+				PlatformChannelID: &parseCtx.Channel.ID,
+				TextLike:          &phrase,
+				Page:              0,
+				PerPage:           1000,
+				TimeGte:           &timeGte,
 			},
 		)
 		if err != nil {

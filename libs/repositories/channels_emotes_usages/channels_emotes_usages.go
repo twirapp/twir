@@ -16,7 +16,8 @@ type Repository interface {
 	)
 	GetEmotesRanges(
 		ctx context.Context,
-		channelID string,
+		platform string,
+		platformChannelID string,
 		emotesNames []string,
 		rangeType EmoteStatisticRange,
 	) (map[string][]model.EmoteRange, error)
@@ -36,29 +37,33 @@ type Repository interface {
 }
 
 type UserMostUsedEmotesInput struct {
-	ChannelID string
-	UserID    string
-	Limit     int
+	Platform          string
+	PlatformChannelID string
+	UserID            string
+	Limit             int
 }
 
 type ChannelEmoteUsageInput struct {
-	ChannelID string
-	UserID    string
-	Emote     string
+	Platform          string
+	PlatformChannelID string
+	UserID            string
+	Emote             string
 }
 
 type CountInput struct {
-	ChannelID *string
-	UserID    *string
-	TimeAfter *time.Time
+	Platform          *string
+	PlatformChannelID *string
+	UserID            *string
+	TimeAfter         *time.Time
 }
 
 type GetEmotesStatisticsInput struct {
-	ChannelID string
-	Search    *string
-	Sort      Sort
-	Page      int
-	PerPage   int
+	Platform          string
+	PlatformChannelID string
+	Search            *string
+	Sort              Sort
+	Page              int
+	PerPage           int
 }
 
 type GetEmotesRangesInput struct {
@@ -77,10 +82,11 @@ const (
 )
 
 type EmotesUsersTopOrHistoryInput struct {
-	ChannelID string
-	EmoteName string
-	Page      int
-	PerPage   int
+	Platform          string
+	PlatformChannelID string
+	EmoteName         string
+	Page              int
+	PerPage           int
 }
 
 type Sort string
