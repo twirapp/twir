@@ -9,6 +9,7 @@ import (
 )
 
 type GetManyInput struct {
+	ChannelPairs      []chat_messages.PlatformChannelIdentity
 	Platform          *string
 	PlatformChannelID *string
 	UserNameLike      *string
@@ -22,6 +23,7 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.Cha
 	messages, err := c.chatMessagesRepository.GetMany(
 		ctx,
 		chat_messages.GetManyInput{
+			ChannelPairs:      input.ChannelPairs,
 			Page:              input.Page,
 			PerPage:           input.PerPage,
 			Platform:          input.Platform,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useChatMessagesFilters } from '../composables/use-filters'
 
+import PlatformSelector from '@/components/platform-selector.vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -8,7 +9,7 @@ const filters = useChatMessagesFilters()
 </script>
 
 <template>
-	<div>
+	<div class="flex flex-col gap-4">
 		<div class="flex flex-row flex-wrap gap-4 justify-between">
 			<div class="flex flex-col gap-2 w-[48%]">
 				<Label for="username">
@@ -22,6 +23,10 @@ const filters = useChatMessagesFilters()
 				</Label>
 				<Input id="text" v-model="filters.textSearchInput.value" placeholder="Search by text" />
 			</div>
+		</div>
+		<div class="flex flex-col gap-2">
+			<Label>Platform</Label>
+			<PlatformSelector v-model="filters.platforms.value" />
 		</div>
 	</div>
 </template>

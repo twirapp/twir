@@ -124,6 +124,7 @@ func (c *Clickhouse) GetMany(
 
 	builder := sq.Select(
 		"id",
+		"platform",
 		"platform_channel_id",
 		"user_id",
 		"user_name",
@@ -133,7 +134,16 @@ func (c *Clickhouse) GetMany(
 		"created_at",
 	).From("chat_messages")
 
-	if input.Platform != nil {
+	if len(input.ChannelPairs) > 0 {
+		pairConditions := make(squirrel.Or, 0, len(input.ChannelPairs))
+		for _, pair := range input.ChannelPairs {
+			pairConditions = append(pairConditions, squirrel.And{
+				squirrel.Eq{"platform": pair.Platform},
+				squirrel.Eq{"platform_channel_id": pair.PlatformChannelID},
+			})
+		}
+		builder = builder.Where(pairConditions)
+	} else if input.Platform != nil {
 		builder = builder.Where(squirrel.Eq{"platform": *input.Platform})
 	}
 
@@ -177,6 +187,7 @@ func (c *Clickhouse) GetMany(
 		var m model.ChatMessage
 		err := rows.Scan(
 			&m.ID,
+			&m.Platform,
 			&m.ChannelID,
 			&m.UserID,
 			&m.UserName,

@@ -73,6 +73,7 @@ type Service struct {
 func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 	return entity.ChatMessage{
 		ID:              m.ID,
+		Platform:        m.Platform,
 		ChannelID:       m.ChannelID,
 		UserID:          m.UserID,
 		UserName:        m.UserName,
@@ -102,6 +103,7 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 	}
 	msg := entity.ChatMessage{
 		ID:              uuid.New(),
+		Platform:        data.Platform,
 		ChannelID:       data.PlatformChannelID,
 		ChannelLogin:    data.BroadcasterUserLogin,
 		ChannelName:     data.BroadcasterUserName,
@@ -135,29 +137,32 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 	return struct{}{}, nil
 }
 
-func (c *Service) SubscribeToNewMessagesByChannelID(
+func (c *Service) SubscribeToNewMessagesByChannelIDs(
 	ctx context.Context,
-	platform string,
-	channelID string,
+	channelPairs []chat_messages.PlatformChannelIdentity,
 ) <-chan entity.ChatMessage {
-	channelSubKey := chatMessagesSubscriptionKeyCreate(platform, channelID)
+	channelSubKeys := make([]string, 0, len(channelPairs))
+	for _, pair := range channelPairs {
+		channelSubKeys = append(channelSubKeys, chatMessagesSubscriptionKeyCreate(pair.Platform, pair.PlatformChannelID))
+	}
+
 	c.chanSubsMu.Lock()
-	c.chanSubs[channelSubKey] = struct{}{}
+	for _, channelSubKey := range channelSubKeys {
+		c.chanSubs[channelSubKey] = struct{}{}
+	}
 	c.chanSubsMu.Unlock()
 
 	channel := make(chan entity.ChatMessage)
 	go func() {
-		sub, err := c.wsRouter.Subscribe(
-			[]string{
-				channelSubKey,
-			},
-		)
+		sub, err := c.wsRouter.Subscribe(channelSubKeys)
 		if err != nil {
 			panic(err)
 		}
 		defer func() {
 			c.chanSubsMu.Lock()
-			delete(c.chanSubs, channelSubKey)
+			for _, channelSubKey := range channelSubKeys {
+				delete(c.chanSubs, channelSubKey)
+			}
 			c.chanSubsMu.Unlock()
 			sub.Unsubscribe()
 			close(channel)

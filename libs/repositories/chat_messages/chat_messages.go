@@ -13,6 +13,11 @@ type Repository interface {
 	GetMany(ctx context.Context, input GetManyInput) ([]model.ChatMessage, error)
 }
 
+type PlatformChannelIdentity struct {
+	Platform          string
+	PlatformChannelID string
+}
+
 type CreateInput struct {
 	ID              string
 	Platform        string
@@ -28,6 +33,7 @@ type GetManyInput struct {
 	Page    int
 	PerPage int
 
+	ChannelPairs      []PlatformChannelIdentity
 	Platform          *string
 	PlatformChannelID *string
 	UserNameLike *string
