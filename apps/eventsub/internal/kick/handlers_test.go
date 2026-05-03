@@ -469,7 +469,18 @@ func TestHandleChatMessage(t *testing.T) {
 				},
 			},
 		},
-		Content: "Hello world",
+		Content: "Hi [emote:4148074:KEKW] there",
+		Emotes: []kickEmote{
+			{
+				EmoteID: "4148074",
+				Positions: []struct {
+					S int `json:"s"`
+					E int `json:"e"`
+				}{
+					{S: 3, E: 22},
+				},
+			},
+		},
 	}
 
 	req := makeRequest(t, msgID, "chat.message.sent", payload)
@@ -491,11 +502,30 @@ func TestHandleChatMessage(t *testing.T) {
 	if msg.ChannelID != channelUUID.String() {
 		t.Errorf("expected channelID %q, got %q", channelUUID.String(), msg.ChannelID)
 	}
-	if msg.Text != "Hello world" {
-		t.Errorf("expected text %q, got %q", "Hello world", msg.Text)
+	if msg.Text != "Hi KEKW there" {
+		t.Errorf("expected text %q, got %q", "Hi KEKW there", msg.Text)
 	}
 	if msg.MessageID != msgID {
 		t.Errorf("expected messageID %q, got %q", msgID, msg.MessageID)
+	}
+	if msg.Message == nil {
+		t.Fatalf("expected message payload to be populated")
+	}
+	foundKickEmote := false
+	for _, fragment := range msg.Message.Fragments {
+		if fragment.Type != generic.FragmentType_EMOTE {
+			continue
+		}
+		if fragment.Text == "KEKW" && fragment.Emote != nil && fragment.Emote.ID == "4148074" {
+			foundKickEmote = true
+			break
+		}
+	}
+	if !foundKickEmote {
+		t.Fatalf("expected kick emote fragment KEKW/4148074 to be present")
+	}
+	if !msg.IsChatterModerator() {
+		t.Fatalf("expected moderator role to be detected from kick badge")
 	}
 
 	if parserQueue.PublishedCount() != 1 {

@@ -8,15 +8,19 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
@@ -187,6 +191,7 @@ type Handlers struct {
 	streamsRepo             streamsrepository.Repository
 	userCreatorService      *user_creator.UserCreatorService
 	prefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
+	channelEmotes           bus_core.Queue[emotes_cacher.GetChannelEmotesRequest, emotes_cacher.Response]
 }
 
 type HandlersOpts struct {
@@ -229,7 +234,182 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		streamsRepo:             opts.StreamsRepo,
 		userCreatorService:      opts.UserCreatorService,
 		prefixCache:             opts.PrefixCache,
+		channelEmotes:           opts.Bus.EmotesCacher.GetChannelEmotes,
 	}
+}
+
+type kickEmoteSpan struct {
+	start int
+	end   int
+	id    string
+	text  string
+}
+
+func kickContentSlice(runes []rune, start, end int) string {
+	if start < 0 || end < start || end >= len(runes) {
+		return ""
+	}
+
+	return string(runes[start : end+1])
+}
+
+func extractKickEmoteName(token string) string {
+	if strings.HasPrefix(token, "[emote:") && strings.HasSuffix(token, "]") {
+		parts := strings.SplitN(strings.TrimSuffix(strings.TrimPrefix(token, "[emote:"), "]"), ":", 2)
+		if len(parts) == 2 && parts[1] != "" {
+			return parts[1]
+		}
+	}
+
+	return token
+}
+
+func appendKickFragment(
+	fragments []generic.ChatMessageMessageFragment,
+	position *int,
+	fragmentType generic.FragmentType,
+	text string,
+	emoteID string,
+) []generic.ChatMessageMessageFragment {
+	if text == "" {
+		return fragments
+	}
+
+	fragment := generic.ChatMessageMessageFragment{
+		Type: fragmentType,
+		Text: text,
+		Position: generic.ChatMessageMessageFragmentPosition{
+			Start: *position,
+			End:   *position + utf8.RuneCountInString(text),
+		},
+	}
+	if fragmentType == generic.FragmentType_EMOTE {
+		fragment.Emote = &generic.ChatMessageMessageFragmentEmote{ID: emoteID}
+	}
+
+	*position += utf8.RuneCountInString(text)
+
+	return append(fragments, fragment)
+}
+
+func splitTextIntoKickFragments(
+	text string,
+	channelEmoteNames map[string]string,
+	position *int,
+	fragments []generic.ChatMessageMessageFragment,
+) []generic.ChatMessageMessageFragment {
+	runes := []rune(text)
+	for i := 0; i < len(runes); {
+		if unicode.IsSpace(runes[i]) {
+			j := i + 1
+			for j < len(runes) && unicode.IsSpace(runes[j]) {
+				j++
+			}
+			fragments = appendKickFragment(fragments, position, generic.FragmentType_TEXT, string(runes[i:j]), "")
+			i = j
+			continue
+		}
+
+		j := i + 1
+		for j < len(runes) && !unicode.IsSpace(runes[j]) {
+			j++
+		}
+
+		token := string(runes[i:j])
+		if emoteID, ok := channelEmoteNames[token]; ok {
+			fragments = appendKickFragment(fragments, position, generic.FragmentType_EMOTE, token, emoteID)
+		} else {
+			fragments = appendKickFragment(fragments, position, generic.FragmentType_TEXT, token, "")
+		}
+
+		i = j
+	}
+
+	return fragments
+}
+
+func (h *Handlers) buildKickMessageContent(
+	ctx context.Context,
+	channelID string,
+	content string,
+	emotes []kickEmote,
+) (string, []generic.ChatMessageMessageFragment, []generic.ChatMessageEmote, error) {
+	channelEmoteNames := map[string]string{}
+	if h.channelEmotes != nil {
+		lookupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
+		defer cancel()
+
+		resp, err := h.channelEmotes.Request(lookupCtx, emotes_cacher.GetChannelEmotesRequest{ChannelID: channelID})
+		if err == nil {
+			for _, emote := range resp.Data.Emotes {
+				channelEmoteNames[emote.Name] = emote.ID
+			}
+		} else {
+			h.logger.DebugContext(ctx, "kick: failed to get channel emotes for message normalization",
+				slog.String("channel_id", channelID),
+				logger.Error(err),
+			)
+		}
+	}
+
+	contentRunes := []rune(content)
+	spans := make([]kickEmoteSpan, 0)
+	for _, emote := range emotes {
+		for _, pos := range emote.Positions {
+			rawToken := kickContentSlice(contentRunes, pos.S, pos.E)
+			if rawToken == "" {
+				continue
+			}
+			spans = append(spans, kickEmoteSpan{start: pos.S, end: pos.E, id: emote.EmoteID, text: extractKickEmoteName(rawToken)})
+		}
+	}
+	sort.Slice(spans, func(i, j int) bool {
+		if spans[i].start == spans[j].start {
+			return spans[i].end < spans[j].end
+		}
+		return spans[i].start < spans[j].start
+	})
+
+	fragments := make([]generic.ChatMessageMessageFragment, 0)
+	parsedEmotes := make([]generic.ChatMessageEmote, 0)
+	var normalized strings.Builder
+	current := 0
+	normalizedPosition := 0
+	for _, span := range spans {
+		if span.start < current || span.end < span.start || span.end >= len(contentRunes) {
+			continue
+		}
+
+		plainText := string(contentRunes[current:span.start])
+		fragments = splitTextIntoKickFragments(plainText, channelEmoteNames, &normalizedPosition, fragments)
+		normalized.WriteString(plainText)
+
+		fragments = appendKickFragment(fragments, &normalizedPosition, generic.FragmentType_EMOTE, span.text, span.id)
+		normalized.WriteString(span.text)
+		parsedEmotes = append(parsedEmotes, generic.ChatMessageEmote{ID: span.id, Text: span.text})
+		current = span.end + 1
+	}
+
+	trailing := string(contentRunes[current:])
+	fragments = splitTextIntoKickFragments(trailing, channelEmoteNames, &normalizedPosition, fragments)
+	normalized.WriteString(trailing)
+
+	for _, fragment := range fragments {
+		if fragment.Type == generic.FragmentType_EMOTE && fragment.Emote != nil {
+			if fragment.Emote.ID == "" {
+				if emoteID, ok := channelEmoteNames[fragment.Text]; ok {
+					fragment.Emote.ID = emoteID
+				}
+			}
+		}
+	}
+
+	if len(fragments) == 0 {
+		fragments = appendKickFragment(fragments, &normalizedPosition, generic.FragmentType_TEXT, content, "")
+		normalized.WriteString(content)
+	}
+
+	return normalized.String(), fragments, parsedEmotes, nil
 }
 
 func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
@@ -330,7 +510,7 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 			slog.String("event_type", eventType),
 			logger.Error(err),
 		)
-		if delErr := h.redis.Del(ctx, idempotencyKey).Err(); delErr != nil {
+		if delErr := h.redis.Del(context.WithoutCancel(ctx), idempotencyKey).Err(); delErr != nil {
 			h.logger.ErrorContext(ctx, "kick: failed to clean up processing key after error",
 				slog.String("message_id", messageID),
 				logger.Error(delErr),
@@ -459,7 +639,9 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		color = payload.Sender.Identity.UsernameColor
 		for _, b := range payload.Sender.Identity.Badges {
 			badges = append(badges, generic.ChatMessageBadge{
+				ID:    b.Type,
 				SetID: b.Type,
+				Info:  b.Text,
 				Text:  b.Text,
 			})
 			switch b.Type {
@@ -477,6 +659,11 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 
 	if senderPlatformID == broadcasterUserID {
 		isBroadcaster = true
+	}
+
+	normalizedText, fragments, parsedEmotes, err := h.buildKickMessageContent(ctx, channelID, payload.Content, payload.Emotes)
+	if err != nil {
+		return nil, fmt.Errorf("build kick message content: %w", err)
 	}
 
 	var (
@@ -578,13 +765,8 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 
 	genericMsg := generic.ChatMessage{
 		Message: &generic.ChatMessageMessage{
-			Text: payload.Content,
-			Fragments: []generic.ChatMessageMessageFragment{
-				{
-					Type: generic.FragmentType_TEXT,
-					Text: payload.Content,
-				},
-			},
+			Text:      normalizedText,
+			Fragments: fragments,
 		},
 		Platform:          string(platform.PlatformKick),
 		ID:                payload.MessageID,
@@ -602,9 +784,10 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		SenderLogin:       payload.Sender.Username,
 		SenderDisplayName: payload.Sender.Username,
 		MessageID:         payload.MessageID,
-		Text:              payload.Content,
+		Text:              normalizedText,
 		Badges:            badges,
 		Color:             color,
+		Emotes:            parsedEmotes,
 		EnrichedData: generic.ChatMessageEnrichedData{
 			ChannelCommandPrefix: commandsPrefix,
 			DbChannel:            channel,

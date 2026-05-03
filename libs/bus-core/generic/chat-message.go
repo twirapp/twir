@@ -48,9 +48,11 @@ const (
 )
 
 func (c ChatMessage) IsChatterBroadcaster() bool {
-	flag := c.EnrichedData.IsChatterBroadcaster || slices.ContainsFunc(
+	flag := c.EnrichedData.IsChatterBroadcaster ||
+		(c.ChatterUserId != "" && c.BroadcasterUserId != "" && c.ChatterUserId == c.BroadcasterUserId) ||
+		(c.SenderID != "" && c.PlatformChannelID != "" && c.SenderID == c.PlatformChannelID) || slices.ContainsFunc(
 		c.Badges, func(b ChatMessageBadge) bool {
-			return b.SetID == broadcasterBadgeId
+			return badgeMatchesAny(b, broadcasterBadgeId)
 		},
 	)
 
@@ -62,7 +64,7 @@ func (c ChatMessage) IsChatterBroadcaster() bool {
 func (c ChatMessage) IsChatterVip() bool {
 	flag := c.EnrichedData.IsChatterVip || slices.ContainsFunc(
 		c.Badges, func(b ChatMessageBadge) bool {
-			return b.SetID == vipBadgeId
+			return badgeMatchesAny(b, vipBadgeId)
 		},
 	)
 
@@ -72,9 +74,9 @@ func (c ChatMessage) IsChatterVip() bool {
 }
 
 func (c ChatMessage) IsChatterSubscriber() bool {
-	flag := c.EnrichedData.IsChatterBroadcaster || slices.ContainsFunc(
+	flag := c.EnrichedData.IsChatterSubscriber || slices.ContainsFunc(
 		c.Badges, func(b ChatMessageBadge) bool {
-			return b.SetID == subscriberBadgeId || b.SetID == subscriberFounderBadgeId
+			return badgeMatchesAny(b, subscriberBadgeId, subscriberFounderBadgeId)
 		},
 	)
 
@@ -84,9 +86,9 @@ func (c ChatMessage) IsChatterSubscriber() bool {
 }
 
 func (c ChatMessage) IsChatterModerator() bool {
-	flag := slices.ContainsFunc(
+	flag := c.EnrichedData.IsChatterModerator || slices.ContainsFunc(
 		c.Badges, func(b ChatMessageBadge) bool {
-			return b.SetID == moderatorBadgeId || b.SetID == leadModeratorBadgeId
+			return badgeMatchesAny(b, moderatorBadgeId, leadModeratorBadgeId)
 		},
 	)
 
@@ -108,6 +110,17 @@ func (c ChatMessage) HasRoleFromDbByType(roleType string) bool {
 	default:
 		return false
 	}
+}
+
+func badgeMatchesAny(b ChatMessageBadge, values ...string) bool {
+	for _, value := range values {
+		if strings.EqualFold(b.SetID, value) || strings.EqualFold(b.ID, value) ||
+			strings.EqualFold(b.Info, value) || strings.EqualFold(b.Text, value) {
+			return true
+		}
+	}
+
+	return false
 }
 
 type ChatMessageEnrichedData struct {
