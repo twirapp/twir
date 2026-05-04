@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
@@ -17,6 +18,7 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	"github.com/twirapp/twir/libs/repositories/users"
 )
 
 var List = &types.DefaultCommand{
@@ -39,7 +41,7 @@ var List = &types.DefaultCommand{
 		scheduledVips, err := parseCtx.Services.ScheduledVipsRepo.GetMany(
 			ctx,
 			scheduledvipsrepository.GetManyInput{
-				ChannelID: &parseCtx.Channel.ID,
+				ChannelID: &parseCtx.Channel.DBChannelID,
 			},
 		)
 		if err != nil {
@@ -65,12 +67,40 @@ var List = &types.DefaultCommand{
 			return result, nil
 		}
 
-		usersIds := make([]string, 0, len(scheduledVips))
+		usersIds := make([]uuid.UUID, 0, len(scheduledVips))
 		for _, vip := range scheduledVips {
-			usersIds = append(usersIds, vip.UserID)
+			parsedID, err := uuid.Parse(vip.UserID)
+			if err != nil {
+				continue
+			}
+
+			usersIds = append(usersIds, parsedID)
 		}
 
-		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, usersIds)
+		dbUsers, err := parseCtx.Services.UsersRepo.GetManyByIDS(
+			ctx,
+			users.GetManyInput{
+				IDs: usersIds,
+			},
+		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotFindUserDb,
+				),
+				Err: err,
+			}
+		}
+
+		platformIDs := make([]string, 0, len(dbUsers))
+		dbUsersByID := make(map[string]string, len(dbUsers))
+		for _, user := range dbUsers {
+			platformIDs = append(platformIDs, user.PlatformID)
+			dbUsersByID[user.ID.String()] = user.PlatformID
+		}
+
+		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, platformIDs)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -83,9 +113,14 @@ var List = &types.DefaultCommand{
 
 		scheduledVipsWithUsers := make([]scheduledVip, 0, len(scheduledVips))
 		for _, vip := range scheduledVips {
+			platformUserID, ok := dbUsersByID[vip.UserID]
+			if !ok {
+				continue
+			}
+
 			twitchUser, twitchUserOk := lo.Find(
 				twitchUsers, func(user twitch.TwitchUser) bool {
-					return user.ID == vip.UserID
+					return user.ID == platformUserID
 				},
 			)
 

@@ -7,10 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/redis_keys"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
@@ -19,13 +20,13 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *MessageHandler) handleChatWall(ctx context.Context, msg generic.ChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	if msg.Message == nil ||
-		msg.ChatterUserId == msg.EnrichedData.DbChannel.ID ||
+		msg.ChatterUserId == msg.BroadcasterUserId ||
 		msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
 		return nil
 	}
@@ -34,7 +35,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 		return nil
 	}
 
-	walls, err := c.chatWallCacher.Get(ctx, msg.BroadcasterUserId)
+	walls, err := c.chatWallCacher.Get(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return err
 	}
@@ -43,7 +44,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 		return nil
 	}
 
-	wallSettings, err := c.chatWallSettingsCacher.Get(ctx, msg.BroadcasterUserId)
+	wallSettings, err := c.chatWallSettingsCacher.Get(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil && !errors.Is(err, chatwallrepository.ErrSettingsNotFound) {
 		return err
 	}
@@ -81,7 +82,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 			continue
 		}
 
-		if wallSettings.ChannelID != "" {
+		if wallSettings.ChannelID != uuid.Nil {
 			if !wallSettings.MuteSubscribers && msg.IsChatterSubscriber() {
 				continue
 			}
@@ -92,7 +93,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 
 		alreadyHandled, err := c.redis.SIsMember(
 			ctx,
-			fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.BroadcasterUserId),
+			fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.EnrichedData.DbChannel.ID.String()),
 			msg.ID,
 		).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
@@ -138,7 +139,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 			ctx,
 			chatwallrepository.CreateLogInput{
 				WallID: wall.ID,
-				UserID: msg.ChatterUserId,
+				UserID: uuid.MustParse(msg.EnrichedData.DbUser.ID),
 				Text:   msg.Message.Text,
 			},
 		); err != nil {
@@ -149,14 +150,14 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 			ctx, func(p redis.Pipeliner) error {
 				if err := p.SAdd(
 					ctx,
-					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.BroadcasterUserId),
+					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.EnrichedData.DbChannel.ID.String()),
 					msg.ID,
 				).Err(); err != nil {
 					return err
 				}
 				if err := p.Expire(
 					ctx,
-					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.BroadcasterUserId),
+					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.EnrichedData.DbChannel.ID.String()),
 					20*time.Minute,
 				).Err(); err != nil {
 					return err
@@ -173,7 +174,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg twitch.TwitchCh
 	}
 
 	if shouldInvalidate {
-		if err := c.chatWallCacher.Invalidate(ctx, msg.BroadcasterUserId); err != nil {
+		if err := c.chatWallCacher.Invalidate(ctx, msg.EnrichedData.DbChannel.ID.String()); err != nil {
 			return err
 		}
 	}

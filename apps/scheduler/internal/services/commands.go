@@ -113,7 +113,7 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
 	for _, channel := range channelsWithCommandsToCreate {
 		var channelRoles []model.ChannelRole
 		if err := c.db.Where(
-			`"channelId" = ?`,
+			`"channelId" = ?::uuid`,
 			channel.ChannelID,
 		).Find(&channelRoles).Error; err != nil {
 			return fmt.Errorf("cannot get channel roles: %w", err)

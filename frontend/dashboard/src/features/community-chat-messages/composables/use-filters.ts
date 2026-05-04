@@ -10,6 +10,8 @@ export const useChatMessagesFilters = createGlobalState(() => {
 	const textSearchInput = ref('')
 	const debouncedTextSearchInput = refDebounced(textSearchInput, 500)
 
+	const platforms = ref<string[]>([])
+
 	const page = ref(0)
 	const perPage = ref(500)
 
@@ -19,12 +21,14 @@ export const useChatMessagesFilters = createGlobalState(() => {
 			perPage: 500,
 			userNameLike: debouncedUserSearchInput.value,
 			textLike: debouncedTextSearchInput.value,
-		}
+			platformIn: platforms.value.length > 0 ? platforms.value : undefined,
+		} as ChatMessageInput
 	})
 
 	return {
 		userSearchInput,
 		textSearchInput,
+		platforms,
 		computedFilters,
 		page,
 		perPage,

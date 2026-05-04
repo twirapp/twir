@@ -29,7 +29,7 @@ func GiveawayEntityTo(e entity.Giveaway) gqlmodel.ChannelGiveaway {
 
 	return gqlmodel.ChannelGiveaway{
 		ID:                   e.ID.String(),
-		ChannelID:            e.ChannelID,
+		ChannelID:            e.ChannelID.String(),
 		Type:                 gqlmodel.GiveawayType(e.Type),
 		CreatedAt:            e.CreatedAt,
 		UpdatedAt:            e.UpdatedAt,
@@ -41,7 +41,7 @@ func GiveawayEntityTo(e entity.Giveaway) gqlmodel.ChannelGiveaway {
 		MinUsedChannelPoints: minUsedChannelPoints,
 		MinFollowDuration:    minFollowDuration,
 		RequireSubscription:  e.RequireSubscription,
-		CreatedByUserID:      e.CreatedByUserID,
+		CreatedByUserID:      e.CreatedByUserID.String(),
 	}
 }
 
@@ -50,7 +50,7 @@ func GiveawayParticipantEntityTo(
 ) gqlmodel.ChannelGiveawayParticipants {
 	return gqlmodel.ChannelGiveawayParticipants{
 		DisplayName: e.DisplayName,
-		UserID:      e.UserID,
+		UserID:      e.UserID.String(),
 		IsWinner:    e.IsWinner,
 		ID:          e.ID.String(),
 		GiveawayID:  e.GiveawayID.String(),
@@ -62,7 +62,7 @@ func GiveawayWinnerEntityTo(
 ) gqlmodel.ChannelGiveawayWinner {
 	return gqlmodel.ChannelGiveawayWinner{
 		DisplayName: e.DisplayName,
-		UserID:      e.UserID,
+		UserID:      e.UserID.String(),
 		UserLogin:   e.UserLogin,
 	}
 }

@@ -138,7 +138,7 @@ func (c *Spotify) GetRecentTracks(ctx context.Context, input GetRecentTracksInpu
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 401 && !c.isRetry {
+	if resp.StatusCode == 401 && !c.isRetry && c.canRefresh() {
 		c.isRetry = true
 		c.refreshToken(ctx)
 		return c.GetRecentTracks(ctx, input)

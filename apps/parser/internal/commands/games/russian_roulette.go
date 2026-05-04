@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
@@ -35,10 +36,15 @@ var RussianRoulette = &types.DefaultCommand{
 			Result: []string{},
 		}
 
+		internalChannelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+		if err != nil {
+			return nil, err
+		}
+
 		entity := model.ChannelGamesRussianRoulette{}
 		if err := parseCtx.Services.Gorm.WithContext(ctx).Where(
 			`"channel_id" = ?`,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		).First(&entity).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return result, nil
@@ -79,16 +85,18 @@ var RussianRoulette = &types.DefaultCommand{
 			},
 		).Else("")
 
-		err := parseCtx.Services.Bus.Bots.SendMessage.Publish(
-			ctx,
-			bots.SendMessageRequest{
-				ChannelId:      parseCtx.Channel.ID,
-				ChannelName:    &parseCtx.Channel.Name,
-				Message:        initMessage,
-				SkipRateLimits: true,
-				ReplyTo:        replyTo,
-			},
-		)
+		err = parseCtx.Services.Bus.Bots.SendMessage.Publish(
+				ctx,
+				bots.SendMessageRequest{
+					ChannelId:         parseCtx.Channel.ID,
+					ChannelName:       &parseCtx.Channel.Name,
+					InternalChannelID: &internalChannelID,
+					PlatformChannelID: parseCtx.Channel.ID,
+					Message:           initMessage,
+					SkipRateLimits:    true,
+					ReplyTo:           replyTo,
+				},
+			)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -116,11 +124,13 @@ var RussianRoulette = &types.DefaultCommand{
 			parseCtx.Services.Bus.Bots.SendMessage.Publish(
 				ctx,
 				bots.SendMessageRequest{
-					ChannelId:      parseCtx.Channel.ID,
-					ChannelName:    &parseCtx.Channel.Name,
-					Message:        deathMessage,
-					SkipRateLimits: true,
-					ReplyTo:        replyTo,
+					ChannelId:         parseCtx.Channel.ID,
+					ChannelName:       &parseCtx.Channel.Name,
+					InternalChannelID: &internalChannelID,
+					PlatformChannelID: parseCtx.Channel.ID,
+					Message:           deathMessage,
+					SkipRateLimits:    true,
+					ReplyTo:           replyTo,
 				},
 			)
 			if err != nil {

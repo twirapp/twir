@@ -5,10 +5,11 @@ import { graphql } from '@/gql'
 export function useAllChatMessagesSubscription() {
 	return useSubscription({
 		query: graphql(`
-			subscription AdminChatMessageSubscription {
-				adminChatMessages {
-					id
-					channelId
+				subscription AdminChatMessageSubscription {
+					adminChatMessages {
+						id
+						platform
+						channelId
 					channelLogin
 					channelName
 					userID

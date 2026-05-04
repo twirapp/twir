@@ -46,7 +46,7 @@ var ShoutOut = &types.DefaultCommand{
 		token, err := parseCtx.Services.Bus.Tokens.RequestUserToken.Request(
 			ctx,
 			tokens.GetUserTokenRequest{
-				UserId: parseCtx.Channel.ID,
+				UserId: parseCtx.Channel.TwitchUserID,
 			},
 		)
 		if err != nil {
@@ -78,7 +78,7 @@ var ShoutOut = &types.DefaultCommand{
 
 		twitchClient, err := twitch.NewUserClientWithContext(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)
@@ -107,14 +107,14 @@ var ShoutOut = &types.DefaultCommand{
 		go twitchClient.SendShoutout(
 			&helix.SendShoutoutParams{
 				FromBroadcasterID: parseCtx.Channel.ID,
-				ToBroadcasterID:   user.UserId,
+				ToBroadcasterID:   user.UserID,
 				ModeratorID:       parseCtx.Channel.ID,
 			},
 		)
 
 		streamsReq, err := twitchClient.GetStreams(
 			&helix.StreamsParams{
-				UserIDs: []string{user.UserId},
+				UserIDs: []string{user.UserID},
 			},
 		)
 		if err != nil {
@@ -157,7 +157,7 @@ var ShoutOut = &types.DefaultCommand{
 		} else {
 			channelReq, err := twitchClient.GetChannelInformation(
 				&helix.GetChannelInformationParams{
-					BroadcasterIDs: []string{user.UserId},
+					BroadcasterIDs: []string{user.UserID},
 				},
 			)
 			if err != nil {

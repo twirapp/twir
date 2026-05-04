@@ -2,12 +2,17 @@ package handler
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func (c *Handler) HandleChannelModeratorAdd(
@@ -21,7 +26,7 @@ func (c *Handler) HandleChannelModeratorAdd(
 		slog.String("userId", event.UserId),
 		slog.String("userName", event.UserLogin),
 	)
-	c.updateBotStatus(ctx, event.BroadcasterUserId, event.UserId, true)
+	c.updateBotStatus(ctx, event.BroadcasterUserId, true)
 
 	c.twirBus.Events.ModeratorAdded.Publish(
 		ctx,
@@ -52,7 +57,7 @@ func (c *Handler) HandleChannelModeratorRemove(
 		slog.String("userId", event.UserId),
 		slog.String("userName", event.UserLogin),
 	)
-	c.updateBotStatus(ctx, event.BroadcasterUserId, event.UserId, false)
+	c.updateBotStatus(ctx, event.BroadcasterUserId, false)
 
 	c.twirBus.Events.ModeratorRemoved.Publish(
 		ctx,
@@ -78,10 +83,34 @@ func (c *Handler) updateUserModStatus(
 	userId string,
 	newStatus bool,
 ) error {
+	chatUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, userId)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot resolve moderator user: %w", err)
+	}
+
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, channelId)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return nil
+		}
+		return fmt.Errorf("cannot get channel: %w", err)
+	}
+
 	userStats := model.UsersStats{}
 	if err := c.gorm.
 		WithContext(ctx).
-		Where(`"userId" = ? and "channelId" = ?`, userId, channelId).
+		Where(`"userId" = ?::uuid and "channelId" = ?::uuid`, chatUser.ID, channel.ID.String()).
 		First(&userStats).Error; err != nil {
 		return err
 	}
@@ -94,27 +123,35 @@ func (c *Handler) updateUserModStatus(
 func (c *Handler) updateBotStatus(
 	ctx context.Context,
 	channelId string,
-	userId string,
 	newStatus bool,
 ) {
-	channel := model.Channels{}
-	err := c.gorm.WithContext(ctx).Where("id = ?", channelId).First(&channel).Error
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, channelId)
 	if err != nil {
-		c.logger.Error(err.Error(), logger.Error(err))
-		return
-	}
-
-	if userId != channel.BotID {
-		return
-	}
-
-	channel.IsBotMod = newStatus
-	err = c.gorm.Save(&channel).Error
-	if err != nil {
-		c.logger.Error(err.Error(), logger.Error(err))
-	} else {
-		if err = c.channelsCache.Invalidate(ctx, channelId); err != nil {
-			c.logger.Error(err.Error(), logger.Error(err))
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			c.logger.Error("cannot find user by platform ID", logger.Error(err))
+		} else {
+			c.logger.Error("cannot resolve broadcaster user", logger.Error(err))
 		}
+		return
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return
+		}
+
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+
+	channel, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsBotMod: &newStatus})
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+
+	if err = c.channelsCache.Invalidate(ctx, channel.ID.String()); err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
 	}
 }

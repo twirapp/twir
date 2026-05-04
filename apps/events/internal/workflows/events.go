@@ -2,6 +2,7 @@ package workflows
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -74,7 +75,15 @@ func (c *EventWorkflow) Execute(
 	eventType model.EventType,
 	data shared.EventData,
 ) error {
-	channelEvents, err := c.channelsEventsWithOperationsCache.Get(ctx, data.ChannelID)
+	channel, err := c.channelsCache.Get(ctx, data.ChannelDBID)
+	if err != nil {
+		return err
+	}
+	if channel == channelmodel.Nil {
+		return errors.New("channel not found")
+	}
+
+	channelEvents, err := c.channelsEventsWithOperationsCache.Get(ctx, data.ChannelDBID)
 	if err != nil {
 		return err
 	}

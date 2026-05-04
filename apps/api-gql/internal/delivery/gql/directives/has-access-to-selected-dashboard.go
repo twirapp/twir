@@ -25,15 +25,20 @@ func (c *Directives) HasAccessToSelectedDashboard(
 		return nil, err
 	}
 
-	if user.ID == dashboardId || user.IsBotAdmin {
+	var channel model.Channels
+	if err := c.gorm.WithContext(ctx).Where("id = ?::uuid", dashboardId).First(&channel).Error; err != nil {
+		return nil, fmt.Errorf("cannot get channel: %w", err)
+	}
+
+	if channel.IsOwner(user.ID) || user.IsBotAdmin {
 		return next(ctx)
 	}
 
 	var channelRoles []model.ChannelRole
 	if err := c.gorm.
 		WithContext(ctx).
-		Where(`"channelId" = ?`, dashboardId).
-		Preload("Users", `"userId" = ?`, user.ID).
+		Where(`"channelId" = ?::uuid`, dashboardId).
+		Preload("Users", `"userId" = ?::uuid`, user.ID).
 		Find(&channelRoles).
 		Error; err != nil {
 		return nil, fmt.Errorf("cannot get channel roles: %w", err)
@@ -42,7 +47,7 @@ func (c *Directives) HasAccessToSelectedDashboard(
 	var userStat model.UsersStats
 	if err := c.gorm.
 		WithContext(ctx).
-		Where(`"userId" = ? AND "channelId" = ?`, user.ID, dashboardId).
+		Where(`"userId" = ?::uuid AND "channelId" = ?::uuid`, user.ID, dashboardId).
 		First(&userStat).
 		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("cannot get user stats: %w", err)

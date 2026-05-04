@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories"
@@ -40,7 +41,7 @@ type Pgx struct {
 }
 
 func (p *Pgx) ResetWinners(
-	ctx context.Context, participantsIds ...string,
+	ctx context.Context, participantsIds ...uuid.UUID,
 ) error {
 	query := `
 UPDATE channels_giveaways_participants
@@ -89,7 +90,7 @@ RETURNING id, giveaway_id, is_winner, display_name, user_id, user_login
 	return result, nil
 }
 
-func (p *Pgx) Delete(ctx context.Context, id string) error {
+func (p *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `
 DELETE FROM channels_giveaways_participants WHERE id = $1
 	`
@@ -107,7 +108,7 @@ DELETE FROM channels_giveaways_participants WHERE id = $1
 	return nil
 }
 
-func (p *Pgx) GetByID(ctx context.Context, id string) (model.ChannelGiveawayParticipant, error) {
+func (p *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.ChannelGiveawayParticipant, error) {
 	query := `
 SELECT id, giveaway_id, is_winner, display_name, user_id, user_login FROM channels_giveaways_participants WHERE id = $1
 	`
@@ -135,7 +136,7 @@ SELECT id, giveaway_id, is_winner, display_name, user_id, user_login FROM channe
 
 func (p *Pgx) GetManyByGiveawayID(
 	ctx context.Context,
-	giveawayID string,
+	giveawayID uuid.UUID,
 	input giveaways_participants.GetManyInput,
 ) ([]model.ChannelGiveawayParticipant, error) {
 	selectBuilder := sq.Select(
@@ -176,7 +177,7 @@ func (p *Pgx) GetManyByGiveawayID(
 
 func (p *Pgx) GetWinnerForGiveaway(
 	ctx context.Context,
-	giveawayID string,
+	giveawayID uuid.UUID,
 ) (model.ChannelGiveawayParticipant, error) {
 	query := `
 SELECT id, giveaway_id, is_winner, display_name, user_id, user_login FROM channels_giveaways_participants WHERE giveaway_id = $1 AND is_winner = true
@@ -205,7 +206,7 @@ SELECT id, giveaway_id, is_winner, display_name, user_id, user_login FROM channe
 
 func (p *Pgx) Update(
 	ctx context.Context,
-	id string,
+	id uuid.UUID,
 	input giveaways_participants.UpdateInput,
 ) (model.ChannelGiveawayParticipant, error) {
 	updateBuilder := sq.Update("channels_giveaways_participants").

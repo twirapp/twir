@@ -12,8 +12,10 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
+	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
@@ -25,25 +27,27 @@ import (
 )
 
 type Bus struct {
-	AuditLogs        *auditLogsBus
-	Parser           *parserBus
-	Websocket        *websocketBus
-	Channel          *channelBus
-	Bots             *botsBus
-	EmotesCacher     *emotesCacherBus
-	Timers           *timersBus
-	EventSub         *eventSubBus
-	Scheduler        *schedulerBus
-	Giveaways        *giveawaysBus
-	ChatMessages     Queue[twitch.TwitchChatMessage, struct{}]
-	RedemptionAdd    Queue[twitch.ActivatedRedemption, struct{}]
-	Events           *eventsBus
-	YTSRSearch       Queue[ytsr.SearchRequest, ytsr.SearchResponse]
-	Tokens           *tokensBus
-	Integrations     *integrationsBus
-	Api              *apiBus
-	CacheInvalidator Queue[cache_invalidator.InvalidateRequest, struct{}]
-	Discord          *discordBus
+	AuditLogs           *auditLogsBus
+	Parser              *parserBus
+	Websocket           *websocketBus
+	Channel             *channelBus
+	Bots                *botsBus
+	EmotesCacher        *emotesCacherBus
+	Timers              *timersBus
+	EventSub            *eventSubBus
+	Scheduler           *schedulerBus
+	Giveaways           *giveawaysBus
+	ChatMessages        Queue[generic.ChatMessage, struct{}]
+	RedemptionAdd       Queue[twitch.ActivatedRedemption, struct{}]
+	Events              *eventsBus
+	YTSRSearch          Queue[ytsr.SearchRequest, ytsr.SearchResponse]
+	Tokens              *tokensBus
+	Integrations        *integrationsBus
+	Api                 *apiBus
+	CacheInvalidator    Queue[cache_invalidator.InvalidateRequest, struct{}]
+	Discord             *discordBus
+	KickStreamOnline    Queue[kickbus.KickStreamOnline, struct{}]
+	KickStreamOffline   Queue[kickbus.KickStreamOffline, struct{}]
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -72,7 +76,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		},
 
 		Parser: &parserBus{
-			GetCommandResponse: NewNatsQueue[twitch.TwitchChatMessage, parser.CommandParseResponse](
+			GetCommandResponse: NewNatsQueue[generic.ChatMessage, parser.CommandParseResponse](
 				nc,
 				PARSER_COMMANDS_SUBJECT,
 				30*time.Minute,
@@ -86,7 +90,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				GobEncoder,
 			),
 
-			ProcessMessageAsCommand: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
+			ProcessMessageAsCommand: NewNatsQueue[generic.ChatMessage, struct{}](
 				nc,
 				PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT,
 				30*time.Minute,
@@ -257,7 +261,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				GobEncoder,
 			),
-			Unsubscribe: NewNatsQueue[string, struct{}](
+			Unsubscribe: NewNatsQueue[eventsub.EventsubUnsubscribeRequest, struct{}](
 				nc,
 				eventsub.EventsubUnsubscribeSubject,
 				1*time.Minute,
@@ -280,7 +284,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			),
 		},
 
-		ChatMessages: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
+		ChatMessages: NewNatsQueue[generic.ChatMessage, struct{}](
 			nc,
 			CHAT_MESSAGES_SUBJECT,
 			30*time.Minute,
@@ -292,6 +296,20 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			twitch.RedemptionAddSubject,
 			30*time.Minute,
 			GobEncoder,
+		),
+
+		KickStreamOnline: NewNatsQueue[kickbus.KickStreamOnline, struct{}](
+			nc,
+			kickbus.KickStreamOnlineSubject,
+			1*time.Minute,
+			JsonEncoder,
+		),
+
+		KickStreamOffline: NewNatsQueue[kickbus.KickStreamOffline, struct{}](
+			nc,
+			kickbus.KickStreamOfflineSubject,
+			1*time.Minute,
+			JsonEncoder,
 		),
 
 		Events: &eventsBus{
@@ -483,7 +501,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			JsonEncoder,
 		),
 		Tokens: &tokensBus{
-			RequestAppToken: NewNatsQueue[struct{}, tokens.TokenResponse](
+			RequestAppToken: NewNatsQueue[tokens.GetAppTokenRequest, tokens.TokenResponse](
 				nc,
 				tokens.RequestAppTokenSubject,
 				1*time.Minute,
@@ -498,6 +516,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			RequestBotToken: NewNatsQueue[tokens.GetBotTokenRequest, tokens.TokenResponse](
 				nc,
 				tokens.RequestBotTokenSubject,
+				1*time.Minute,
+				JsonEncoder,
+			),
+			RequestChannelIntegrationToken: NewNatsQueue[tokens.GetChannelIntegrationTokenRequest, tokens.TokenResponse](
+				nc,
+				tokens.RequestChannelIntegrationTokenSubject,
 				1*time.Minute,
 				JsonEncoder,
 			),

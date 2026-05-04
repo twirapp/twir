@@ -57,6 +57,28 @@ const updateMutation = api.useMutationUpdateBeRightBack()
 
 const isSettingsError = computed(() => !!settingsError.value)
 
+const selectedDashboard = computed(() => {
+	return profile.value?.availableDashboards.find(
+		(dashboard) => dashboard.id === profile.value?.selectedDashboardId
+	)
+})
+
+const selectedDashboardApiKey = computed(() => {
+	return selectedDashboard.value?.apiKey || profile.value?.apiKey || ''
+})
+
+const selectedDashboardChannelName = computed(() => {
+	if (selectedDashboard.value?.platform === 'kick') {
+		return selectedDashboard.value.kickProfile?.slug ?? ''
+	}
+
+	return selectedDashboard.value?.twitchProfile?.login ?? ''
+})
+
+const selectedDashboardChannelId = computed(() => {
+	return selectedDashboard.value?.id ?? profile.value?.selectedDashboardId ?? ''
+})
+
 watch(
 	settings,
 	(v) => {
@@ -80,9 +102,9 @@ watch(
 
 const brbIframeRef = ref<HTMLIFrameElement | null>(null)
 const brbIframeUrl = computed(() => {
-	if (!profile.value) return null
+	if (!selectedDashboardApiKey.value) return null
 
-	return `${window.location.origin}/overlays/${profile.value.apiKey}/brb`
+	return `${window.location.origin}/overlays/${selectedDashboardApiKey.value}/brb`
 })
 
 function sendIframeMessage(key: string, data?: any) {
@@ -101,8 +123,8 @@ function sendSettings() {
 	const values = brbForm.values
 	sendIframeMessage('settings', {
 		...toRaw(values),
-		channelName: profile.value?.login,
-		channelId: profile.value?.id,
+		channelName: selectedDashboardChannelName.value,
+		channelId: selectedDashboardChannelId.value,
 	})
 }
 
@@ -127,7 +149,7 @@ watch(
 	{ deep: true }
 )
 
-const { copyOverlayLink } = useCopyOverlayLink('brb')
+const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('brb')
 
 const save = brbForm.handleSubmit(async (values) => {
 	try {
@@ -156,7 +178,7 @@ const save = brbForm.handleSubmit(async (values) => {
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
 const canCopyLink = computed(() => {
-	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays
+	return canCopyOverlayLink.value && userCanEditOverlays.value
 })
 
 function setDefaultSettings() {

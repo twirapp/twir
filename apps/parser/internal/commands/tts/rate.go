@@ -41,7 +41,7 @@ var RateCommand = &types.DefaultCommand{
 
 		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -57,7 +57,7 @@ var RateCommand = &types.DefaultCommand{
 
 		userSettings, _, err := parseCtx.Services.TTSService.GetUserSettings(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 			parseCtx.Sender.ID,
 		)
 		if err != nil {
@@ -92,7 +92,7 @@ var RateCommand = &types.DefaultCommand{
 			channelSettings.Rate = rate
 			err := parseCtx.Services.TTSService.UpdateChannelSettings(
 				ctx,
-				parseCtx.Channel.ID,
+				parseCtx.Channel.DBChannelID,
 				channelSettings,
 			)
 			if err != nil {
@@ -106,7 +106,7 @@ var RateCommand = &types.DefaultCommand{
 			if userSettings == nil {
 				_, err := parseCtx.Services.TTSService.CreateUserSettings(
 					ctx,
-					parseCtx.Channel.ID,
+					parseCtx.Channel.DBChannelID,
 					parseCtx.Sender.ID,
 					rate,
 					50,
@@ -122,7 +122,7 @@ var RateCommand = &types.DefaultCommand{
 				userSettings.Rate = rate
 				err := parseCtx.Services.TTSService.UpdateUserSettings(
 					ctx,
-					parseCtx.Channel.ID,
+					parseCtx.Channel.DBChannelID,
 					parseCtx.Sender.ID,
 					userSettings,
 				)
@@ -141,7 +141,7 @@ var RateCommand = &types.DefaultCommand{
 				SetVars(locales.KeysCommandsTtsInfoChangeRateVars{NewRate: rate}),
 		))
 
-		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		return result, nil
 	},

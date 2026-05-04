@@ -20,14 +20,22 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 </script>
 
 <template>
-	<UiSidebarMenuButton
-		v-if="!userStore.userWithoutDashboards"
-		size="lg"
-		class="items-center justify-center"
-		@click="userStore.login"
-	>
-		Login with Twitch
-	</UiSidebarMenuButton>
+	<div v-if="!userStore.userWithoutDashboards" class="flex flex-col gap-2">
+		<UiSidebarMenuButton
+			size="lg"
+			class="items-center justify-center bg-[#5D58F5] text-white hover:bg-[#6964FF] hover:text-white"
+			@click="userStore.login"
+		>
+			Login with Twitch
+		</UiSidebarMenuButton>
+		<UiSidebarMenuButton
+			size="lg"
+			class="items-center justify-center bg-[#53FC18] text-black hover:bg-[#53FC18]/80 hover:text-black"
+			@click="userStore.loginWithKick"
+		>
+			Login with Kick
+		</UiSidebarMenuButton>
+	</div>
 
 	<UiDropdownMenu v-else>
 		<UiDropdownMenuTrigger as-child>

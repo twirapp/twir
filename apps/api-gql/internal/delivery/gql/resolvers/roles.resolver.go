@@ -19,6 +19,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 // RolesCreate is the resolver for the rolesCreate field.
@@ -101,7 +102,7 @@ func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts g
 				ActorID:                   user.ID,
 				Name:                      &opts.Name,
 				Permissions:               permissions,
-				RequiredWatchTime:         lo.ToPtr(int64(opts.Settings.RequiredMessages)),
+				RequiredWatchTime:         lo.ToPtr(int64(opts.Settings.RequiredWatchTime)),
 				RequiredMessages:          lo.ToPtr(int32(opts.Settings.RequiredMessages)),
 				RequiredUsedChannelPoints: lo.ToPtr(int64(opts.Settings.RequiredUserChannelPoints)),
 			},
@@ -173,7 +174,20 @@ func (r *roleResolver) Users(ctx context.Context, obj *gqlmodel.Role) ([]gqlmode
 
 	ids := make([]string, 0, len(users))
 	for _, user := range users {
-		ids = append(ids, user.UserID)
+		parsedUserID, err := uuid.Parse(user.UserID)
+		if err != nil {
+			continue
+		}
+
+		dbUser, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+		if err != nil {
+			if err == usersmodel.ErrNotFound {
+				continue
+			}
+			return nil, gqlerrors.HandleError(fmt.Errorf("failed to fetch user: %w", err))
+		}
+
+		ids = append(ids, dbUser.PlatformID)
 	}
 
 	profiles, err := data_loader.GetHelixUsersByIds(ctx, ids)

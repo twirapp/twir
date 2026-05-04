@@ -33,6 +33,8 @@ func (c *Activity) VipOrUnvip(
 
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -46,7 +48,7 @@ func (c *Activity) VipOrUnvip(
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
 	var errWg errgroup.Group
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelTwitchUserID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -168,7 +170,7 @@ func (c *Activity) UnvipRandom(
 		return errors.New("input is empty")
 	}
 
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(context.TODO(), data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(context.TODO(), data.ChannelTwitchUserID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -15,8 +16,9 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
@@ -26,12 +28,12 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
-	entities, err := c.keywordsService.GetManyByChannelID(ctx, msg.BroadcasterUserId)
+	entities, err := c.keywordsService.GetManyByChannelID(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return err
 	}
@@ -87,6 +89,10 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 			continue
 		}
 
+		if !platformentity.ShouldExecute(k.Platforms, platformentity.PlatformTwitch) {
+			continue
+		}
+
 		matchedKeywords = append(matchedKeywords, k)
 	}
 
@@ -99,12 +105,12 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 			defer wg.Done()
 
 			if len(k.RolesIDs) > 0 {
-				channelRoles, err := c.keywordsService.GetChannelRoles(ctx, msg.BroadcasterUserId)
+				channelRoles, err := c.keywordsService.GetChannelRoles(ctx, msg.EnrichedData.DbChannel.ID.String())
 				if err != nil {
 					c.logger.Error(
 						"cannot get channel roles",
 						logger.Error(err),
-						slog.String("channelId", msg.BroadcasterUserId),
+						slog.String("channelId", msg.EnrichedData.DbChannel.ID.String()),
 					)
 					return
 				}
@@ -116,7 +122,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 				}
 
 				for _, r := range channelRoles {
-					if r.Type != rolesmodel.ChannelRoleTypeCustom && msg.HasRoleFromDbByType(r.Type.String()) {
+					if r.Type != rolesmodel.ChannelRoleTypeCustom && slices.Contains(k.RolesIDs, r.ID) && msg.HasRoleFromDbByType(r.Type.String()) {
 						hasRole = true
 						break
 					}
@@ -125,22 +131,21 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 				if !hasRole {
 					userRoles, err := c.keywordsService.GetUserAccessibleRoles(
 						ctx,
-						msg.BroadcasterUserId,
-						msg.ChatterUserId,
+						msg.EnrichedData.DbChannel.ID.String(),
+						msg.EnrichedData.DbUser.ID,
 					)
 					if err != nil {
 						c.logger.Error(
 							"cannot get user roles",
 							logger.Error(err),
-							slog.String("channelId", msg.BroadcasterUserId),
-							slog.String("userId", msg.ChatterUserId),
+							slog.String("channelId", msg.EnrichedData.DbChannel.ID.String()),
+							slog.String("userId", msg.EnrichedData.DbUser.ID),
 						)
 						return
 					}
 
 					for _, r := range userRoles {
 						for _, id := range k.RolesIDs {
-							fmt.Println(r.ID.String(), id.String())
 							if id.String() == r.ID.String() {
 								hasRole = true
 								break
@@ -162,7 +167,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg twitch.TwitchCh
 					BroadcasterID:        msg.BroadcasterUserId,
 					SenderID:             msg.EnrichedData.DbChannel.BotID,
 					Message:              response,
-					ReplyParentMessageID: lo.If(k.IsReply, msg.MessageId).Else(""),
+					ReplyParentMessageID: lo.If(k.IsReply, msg.MessageID).Else(""),
 				},
 			)
 			c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID.String()])
@@ -204,7 +209,7 @@ func (c *MessageHandler) keywordsIncrementStats(
 
 func (c *MessageHandler) keywordsTriggerEvent(
 	ctx context.Context,
-	msg twitch.TwitchChatMessage,
+	msg generic.ChatMessage,
 	keyword entity.Keyword,
 	response string,
 ) {
@@ -235,7 +240,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 
 func (c *MessageHandler) keywordsParseResponse(
 	ctx context.Context,
-	msg twitch.TwitchChatMessage,
+	msg generic.ChatMessage,
 	keyword entity.Keyword,
 ) string {
 	if keyword.Response == "" {
@@ -243,13 +248,13 @@ func (c *MessageHandler) keywordsParseResponse(
 	}
 
 	mentions := make(
-		[]twitch.ChatMessageMessageFragmentMention,
+		[]generic.ChatMessageMessageFragmentMention,
 		0,
 		len(msg.Message.Fragments),
 	)
 	if msg.Message != nil {
 		for _, f := range msg.Message.Fragments {
-			if f.Type != twitch.FragmentType_MENTION {
+			if f.Type != generic.FragmentType_MENTION {
 				continue
 			}
 			if f.Mention != nil {
@@ -258,15 +263,22 @@ func (c *MessageHandler) keywordsParseResponse(
 		}
 	}
 
+	var twitchUserID string
+	if msg.EnrichedData.DbChannel.TwitchUserID != nil {
+		twitchUserID = msg.EnrichedData.DbChannel.TwitchUserID.String()
+	}
+
 	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID:   msg.BroadcasterUserId,
-			ChannelName: msg.BroadcasterUserLogin,
-			Text:        keyword.Response,
-			UserID:      msg.ChatterUserId,
-			UserLogin:   msg.ChatterUserLogin,
-			UserName:    msg.ChatterUserName,
-			Mentions:    mentions,
+			ChannelID:           msg.BroadcasterUserId,
+			ChannelName:         msg.BroadcasterUserLogin,
+			ChannelTwitchUserID: twitchUserID,
+			ChannelDBID:         msg.EnrichedData.DbChannel.ID.String(),
+			Text:                keyword.Response,
+			UserID:              msg.ChatterUserId,
+			UserLogin:           msg.ChatterUserLogin,
+			UserName:            msg.ChatterUserName,
+			Mentions:            mentions,
 		},
 	)
 	if err != nil {

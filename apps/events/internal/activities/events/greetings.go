@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/events/internal/shared"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"go.temporal.io/sdk/activity"
@@ -36,10 +38,20 @@ func (c *Activity) CreateGreeting(
 		return userErr
 	}
 
-	_, err := c.greetingsRepository.Create(
+	dbUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, user.ID)
+	if err != nil {
+		return err
+	}
+
+	channelDBID, err := uuid.Parse(data.ChannelDBID)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.greetingsRepository.Create(
 		ctx, greetings.CreateInput{
-			ChannelID: data.ChannelID,
-			UserID:    user.ID,
+			ChannelID: channelDBID,
+			UserID:    dbUser.ID,
 			Enabled:   true,
 			Text:      *data.RewardInput,
 			IsReply:   true,

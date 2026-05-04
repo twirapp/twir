@@ -6,21 +6,19 @@ import (
 
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/logger"
-
-	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *PubSubHandlers) streamsOffline(
 	ctx context.Context,
 	data twitch.StreamOfflineMessage,
 ) (struct{}, error) {
-	channel := model.Channels{}
-	if err := c.db.WithContext(ctx).Where("id = ?", data.ChannelID).Find(&channel).Error; err != nil {
+	channel, found, err := c.findTwitchChannelByPlatformUserID(ctx, data.ChannelID)
+	if err != nil {
 		c.logger.Error("cannot find channel", slog.String("channelId", data.ChannelID))
 		return struct{}{}, err
 	}
 
-	if channel.ID == "" {
+	if !found {
 		return struct{}{}, nil
 	}
 

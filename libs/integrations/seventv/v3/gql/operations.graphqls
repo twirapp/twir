@@ -126,6 +126,12 @@ query GetProfileByTwitchIdV3($id: String!) {
 	}
 }
 
+query GetProfileByKickIdV3($id: String!) {
+	userByConnection(platform: KICK, id: $id) {
+		...TwirSeventvV3User
+	}
+}
+
 query GetProfileByIdV3($id: ObjectID!) {
 	user(id: $id) {
 		...TwirSeventvV3User

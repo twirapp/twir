@@ -9,17 +9,17 @@ import (
 
 type Repository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*model.UserStat, error)
-	GetByUserAndChannelID(ctx context.Context, userID, channelID string) (*model.UserStat, error)
+	GetByUserAndChannelID(ctx context.Context, userID, channelID uuid.UUID) (*model.UserStat, error)
 	Create(ctx context.Context, input CreateInput) (*model.UserStat, error)
-	CreateOrUpdate(ctx context.Context, userID, channelID string, input UpdateInput) (
+	CreateOrUpdate(ctx context.Context, userID, channelID uuid.UUID, input UpdateInput) (
 		*model.UserStat,
 		error,
 	)
 }
 
 type CreateInput struct {
-	UserID            string
-	ChannelID         string
+	UserID            uuid.UUID
+	ChannelID         uuid.UUID
 	Messages          int32
 	Watched           int64
 	UsedChannelPoints int64

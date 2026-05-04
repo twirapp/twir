@@ -30,7 +30,9 @@ type AdminAuditLog {
   createdAt: Time!
 
   user: TwirUserTwitchInfo @goField(forceResolver: true)
+  userPlatform: String @goField(forceResolver: true)
   channel: TwirUserTwitchInfo @goField(forceResolver: true)
+  channelPlatform: String @goField(forceResolver: true)
 }
 
 enum AuditOperationType {

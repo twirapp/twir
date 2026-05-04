@@ -1,0 +1,1754 @@
+package kick
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"log/slog"
+	"net/http"
+	"net/http/httptest"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/go-redis/redismock/v9"
+	"github.com/google/uuid"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
+	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
+	kickbotentity "github.com/twirapp/twir/libs/entities/kick_bot"
+	"github.com/twirapp/twir/libs/entities/platform"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
+	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
+	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	channelsinfohistorymodel "github.com/twirapp/twir/libs/repositories/channels_info_history/model"
+	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
+	channelsredemptionshistorymodel "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/model"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+)
+
+type mockQueue[Req, Res any] struct {
+	mu          sync.Mutex
+	published   []Req
+	publishErr  error
+	publishHook func(context.Context, Req) error
+}
+
+func (m *mockQueue[Req, Res]) Publish(ctx context.Context, data Req) error {
+	if m.publishHook != nil {
+		if err := m.publishHook(ctx, data); err != nil {
+			return err
+		}
+	}
+
+	if m.publishErr != nil {
+		return m.publishErr
+	}
+
+	m.mu.Lock()
+	m.published = append(m.published, data)
+	m.mu.Unlock()
+	return nil
+}
+
+func (m *mockQueue[Req, Res]) Request(_ context.Context, _ Req) (*buscore.QueueResponse[Res], error) {
+	return nil, nil
+}
+
+func (m *mockQueue[Req, Res]) SubscribeGroup(_ string, _ buscore.QueueSubscribeCallback[Req, Res]) error {
+	return nil
+}
+
+func (m *mockQueue[Req, Res]) Subscribe(_ buscore.QueueSubscribeCallback[Req, Res]) error {
+	return nil
+}
+
+func (m *mockQueue[Req, Res]) Unsubscribe() {}
+
+func (m *mockQueue[Req, Res]) PublishedCount() int {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	return len(m.published)
+}
+
+func (m *mockQueue[Req, Res]) FirstPublished() Req {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	return m.published[0]
+}
+
+type mockUsersRepo struct {
+	user usersmodel.User
+	err  error
+}
+
+func (m *mockUsersRepo) GetByID(_ context.Context, _ uuid.UUID) (usersmodel.User, error) {
+	return m.user, m.err
+}
+
+func (m *mockUsersRepo) GetByPlatformID(_ context.Context, _ platform.Platform, _ string) (usersmodel.User, error) {
+	return m.user, m.err
+}
+
+func (m *mockUsersRepo) GetManyByIDS(_ context.Context, _ usersrepository.GetManyInput) ([]usersmodel.User, error) {
+	return nil, nil
+}
+
+func (m *mockUsersRepo) Update(_ context.Context, _ uuid.UUID, _ usersrepository.UpdateInput) (usersmodel.User, error) {
+	return m.user, m.err
+}
+
+func (m *mockUsersRepo) GetRandomOnlineUser(_ context.Context, _ usersrepository.GetRandomOnlineUserInput) (usersmodel.OnlineUser, error) {
+	return usersmodel.NilOnlineUser, nil
+}
+
+func (m *mockUsersRepo) GetOnlineUsersWithFilters(_ context.Context, _ usersrepository.GetOnlineUsersWithFiltersInput) ([]usersmodel.OnlineUser, error) {
+	return nil, nil
+}
+
+func (m *mockUsersRepo) GetByApiKey(_ context.Context, _ string) (usersmodel.User, error) {
+	return m.user, m.err
+}
+
+func (m *mockUsersRepo) Create(_ context.Context, _ usersrepository.CreateInput) (usersmodel.User, error) {
+	return m.user, m.err
+}
+
+type mockChannelsRepo struct {
+	channel  channelsmodel.Channel
+	channels []channelsmodel.Channel
+	err      error
+}
+
+func (m *mockChannelsRepo) GetMany(_ context.Context, _ channelsrepository.GetManyInput) ([]channelsmodel.Channel, error) {
+	return m.channels, m.err
+}
+
+func (m *mockChannelsRepo) GetByID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+func (m *mockChannelsRepo) GetByTwitchUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+func (m *mockChannelsRepo) GetByKickUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+func (m *mockChannelsRepo) GetCount(_ context.Context, _ channelsrepository.GetCountInput) (int, error) {
+	return 0, nil
+}
+
+func (m *mockChannelsRepo) Update(_ context.Context, _ uuid.UUID, _ channelsrepository.UpdateInput) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+func (m *mockChannelsRepo) Create(_ context.Context, _ channelsrepository.CreateInput) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+type mockStreamsRepo struct {
+	stream      streamsmodel.Stream
+	err         error
+	saved       []streamsrepository.SaveInput
+	updated     []streamsrepository.UpdateInput
+	deletedByID []string
+}
+
+func (m *mockStreamsRepo) GetByChannelID(_ context.Context, _ string) (streamsmodel.Stream, error) {
+	return m.stream, m.err
+}
+
+func (m *mockStreamsRepo) GetList(_ context.Context) ([]streamsmodel.Stream, error) {
+	return nil, m.err
+}
+
+func (m *mockStreamsRepo) Save(_ context.Context, input streamsrepository.SaveInput) error {
+	m.saved = append(m.saved, input)
+	m.stream = streamsmodel.Stream{
+		ID:           input.ID,
+		UserId:       input.UserId,
+		UserLogin:    input.UserLogin,
+		UserName:     input.UserName,
+		GameId:       input.GameId,
+		GameName:     input.GameName,
+		CommunityIds: input.CommunityIds,
+		Type:         input.Type,
+		Title:        input.Title,
+		ViewerCount:  input.ViewerCount,
+		StartedAt:    input.StartedAt,
+		Language:     input.Language,
+		ThumbnailUrl: input.ThumbnailUrl,
+		TagIds:       input.TagIds,
+		Tags:         input.Tags,
+		IsMature:     input.IsMature,
+	}
+	return m.err
+}
+
+func (m *mockStreamsRepo) DeleteByChannelID(_ context.Context, channelID string) error {
+	m.deletedByID = append(m.deletedByID, channelID)
+	return m.err
+}
+
+func (m *mockStreamsRepo) Update(_ context.Context, _ string, input streamsrepository.UpdateInput) error {
+	m.updated = append(m.updated, input)
+	if input.Title != nil {
+		m.stream.Title = *input.Title
+	}
+	if input.GameName != nil {
+		m.stream.GameName = *input.GameName
+	}
+	if input.GameId != nil {
+		m.stream.GameId = *input.GameId
+	}
+	if input.Language != nil {
+		m.stream.Language = *input.Language
+	}
+	if input.ThumbnailUrl != nil {
+		m.stream.ThumbnailUrl = *input.ThumbnailUrl
+	}
+	if input.IsMature != nil {
+		m.stream.IsMature = *input.IsMature
+	}
+	if input.Tags != nil {
+		m.stream.Tags = input.Tags
+	}
+	return m.err
+}
+
+type mockChannelsInfoHistoryRepo struct {
+	created []channelsinfohistory.CreateInput
+	err     error
+}
+
+type mockEventsListRepo struct {
+	created []channelseventslist.CreateInput
+	err     error
+}
+
+type mockRedemptionsHistoryRepo struct {
+	created []channelsredemptionshistory.CreateInput
+	err     error
+}
+
+type mockKickBotsRepo struct {
+	bot kickbotentity.KickBot
+	err error
+}
+
+func (m *mockKickBotsRepo) GetDefault(_ context.Context) (kickbotentity.KickBot, error) {
+	return m.bot, m.err
+}
+
+func (m *mockKickBotsRepo) GetByID(_ context.Context, _ uuid.UUID) (kickbotentity.KickBot, error) {
+	return m.bot, m.err
+}
+
+func (m *mockKickBotsRepo) GetByKickUserID(_ context.Context, _ uuid.UUID) (kickbotentity.KickBot, error) {
+	return m.bot, m.err
+}
+
+func (m *mockKickBotsRepo) Create(_ context.Context, _ kickbotsrepository.CreateInput) (kickbotentity.KickBot, error) {
+	return m.bot, m.err
+}
+
+func (m *mockKickBotsRepo) Upsert(_ context.Context, _ kickbotsrepository.UpsertInput) (kickbotentity.KickBot, error) {
+	return m.bot, m.err
+}
+
+func (m *mockKickBotsRepo) UpdateToken(_ context.Context, _ uuid.UUID, _ kickbotsrepository.UpdateTokenInput) (kickbotentity.KickBot, error) {
+	return m.bot, m.err
+}
+
+func (m *mockChannelsInfoHistoryRepo) GetMany(_ context.Context, _ channelsinfohistory.GetManyInput) ([]channelsinfohistorymodel.ChannelInfoHistory, error) {
+	return nil, m.err
+}
+
+func (m *mockChannelsInfoHistoryRepo) Create(_ context.Context, input channelsinfohistory.CreateInput) error {
+	m.created = append(m.created, input)
+	return m.err
+}
+
+func (m *mockEventsListRepo) Create(_ context.Context, input channelseventslist.CreateInput) error {
+	m.created = append(m.created, input)
+	return m.err
+}
+
+func (m *mockEventsListRepo) CreateMany(_ context.Context, inputs []channelseventslist.CreateInput) error {
+	m.created = append(m.created, inputs...)
+	return m.err
+}
+
+func (m *mockEventsListRepo) CountBy(_ context.Context, _ channelseventslist.CountByInput) (int64, error) {
+	return int64(len(m.created)), m.err
+}
+
+func (m *mockRedemptionsHistoryRepo) Create(_ context.Context, input channelsredemptionshistory.CreateInput) error {
+	m.created = append(m.created, input)
+	return m.err
+}
+
+func (m *mockRedemptionsHistoryRepo) CreateMany(_ context.Context, input []channelsredemptionshistory.CreateInput) error {
+	m.created = append(m.created, input...)
+	return m.err
+}
+
+func (m *mockRedemptionsHistoryRepo) GetMany(_ context.Context, _ channelsredemptionshistory.GetManyInput) (channelsredemptionshistory.GetManyPayload, error) {
+	items := make([]channelsredemptionshistorymodel.ChannelsRedemptionHistoryItem, 0, len(m.created))
+	return channelsredemptionshistory.GetManyPayload{Items: items, Total: uint64(len(m.created))}, m.err
+}
+
+func (m *mockRedemptionsHistoryRepo) Count(_ context.Context, _ channelsredemptionshistory.CountInput) (uint64, error) {
+	return uint64(len(m.created)), m.err
+}
+
+func buildTestHandlers(
+	t *testing.T,
+	chatMessages *mockQueue[generic.ChatMessage, struct{}],
+	processMessageAsCommand *mockQueue[generic.ChatMessage, struct{}],
+	followQueue *mockQueue[events.FollowMessage, struct{}],
+	streamOnline *mockQueue[kickbus.KickStreamOnline, struct{}],
+	streamOffline *mockQueue[kickbus.KickStreamOffline, struct{}],
+	usersRepo usersrepository.Repository,
+	channelsRepo channelsrepository.Repository,
+	kickBotsRepo kickbotsrepository.Repository,
+	streamsRepo ...streamsrepository.Repository,
+) (*Handlers, redismock.ClientMock) {
+	t.Helper()
+
+	db, redisMock := redismock.NewClientMock()
+
+	var streamRepo streamsrepository.Repository
+	var infoHistoryRepo channelsinfohistory.Repository
+	if len(streamsRepo) > 0 && streamsRepo[0] != nil {
+		streamRepo = streamsRepo[0]
+	}
+	infoHistoryRepo = &mockChannelsInfoHistoryRepo{}
+
+	h := &Handlers{
+		logger:                  slog.Default(),
+		redis:                   db,
+		chatMessages:            chatMessages,
+		processMessageAsCommand: processMessageAsCommand,
+		eventsFollow:            followQueue,
+		eventsSubscribe:         &mockQueue[events.SubscribeMessage, struct{}]{},
+		eventsReSubscribe:       &mockQueue[events.ReSubscribeMessage, struct{}]{},
+		eventsSubGift:           &mockQueue[events.SubGiftMessage, struct{}]{},
+		eventsRedemptionCreated: &mockQueue[events.RedemptionCreatedMessage, struct{}]{},
+		eventsChannelBan:        &mockQueue[events.ChannelBanMessage, struct{}]{},
+		streamOnline:            streamOnline,
+		streamOffline:           streamOffline,
+		streamsRepo:             streamRepo,
+		eventsListRepo:          &mockEventsListRepo{},
+		channelsInfoHistoryRepo: infoHistoryRepo,
+		redemptionsHistoryRepo:  &mockRedemptionsHistoryRepo{},
+		channelsRepo:            channelsRepo,
+		usersRepo:               usersRepo,
+		kickBotsRepo:            kickBotsRepo,
+	}
+
+	return h, redisMock
+}
+
+func buildKickEventHandler(
+	t *testing.T,
+	broadcasterPlatformID string,
+	subscribeQueue *mockQueue[events.SubscribeMessage, struct{}],
+	resubscribeQueue *mockQueue[events.ReSubscribeMessage, struct{}],
+	subgiftQueue *mockQueue[events.SubGiftMessage, struct{}],
+	redemptionQueue *mockQueue[events.RedemptionCreatedMessage, struct{}],
+) (*Handlers, redismock.ClientMock) {
+	t.Helper()
+
+	channelUUID := uuid.New()
+	kickUserUUID := uuid.New()
+	h, redisMock := buildTestHandlers(
+		t,
+		&mockQueue[generic.ChatMessage, struct{}]{},
+		&mockQueue[generic.ChatMessage, struct{}]{},
+		&mockQueue[events.FollowMessage, struct{}]{},
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		&mockUsersRepo{user: usersmodel.User{ID: uuid.New(), PlatformID: broadcasterPlatformID}},
+		&mockChannelsRepo{channel: channelsmodel.Channel{ID: channelUUID, KickUserID: &kickUserUUID}},
+		nil,
+	)
+
+	if subscribeQueue != nil {
+		h.eventsSubscribe = subscribeQueue
+	}
+	if resubscribeQueue != nil {
+		h.eventsReSubscribe = resubscribeQueue
+	}
+	if subgiftQueue != nil {
+		h.eventsSubGift = subgiftQueue
+	}
+	if redemptionQueue != nil {
+		h.eventsRedemptionCreated = redemptionQueue
+	}
+
+	return h, redisMock
+}
+
+func makeRequest(t *testing.T, messageID, eventType string, payload any) *http.Request {
+	t.Helper()
+	body, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+	req := httptest.NewRequest(http.MethodPost, "/webhook", bytes.NewReader(body))
+	ctx := req.Context()
+	ctx = context.WithValue(ctx, ctxKeyMessageID, messageID)
+	ctx = context.WithValue(ctx, ctxKeyEventType, eventType)
+	return req.WithContext(ctx)
+}
+
+func TestHandleChatMessage(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "msg-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+			Identity: &kickIdentity{
+				UsernameColor: "#ff0000",
+				Badges: []kickBadge{
+					{Text: "Moderator", Type: "moderator"},
+				},
+			},
+		},
+		Content: "Hi [emote:4148074:KEKW] there",
+		Emotes: []kickEmote{
+			{
+				EmoteID: "4148074",
+				Positions: []struct {
+					S int `json:"s"`
+					E int `json:"e"`
+				}{
+					{S: 3, E: 22},
+				},
+			},
+		},
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 chat message published, got %d", chatQueue.PublishedCount())
+	}
+	msg := chatQueue.FirstPublished()
+	if msg.Platform != string(platform.PlatformKick) {
+		t.Errorf("expected platform %q, got %q", platform.PlatformKick, msg.Platform)
+	}
+	if msg.ChannelID != channelUUID.String() {
+		t.Errorf("expected channelID %q, got %q", channelUUID.String(), msg.ChannelID)
+	}
+	if msg.Text != "Hi KEKW there" {
+		t.Errorf("expected text %q, got %q", "Hi KEKW there", msg.Text)
+	}
+	if msg.MessageID != msgID {
+		t.Errorf("expected messageID %q, got %q", msgID, msg.MessageID)
+	}
+	if msg.Message == nil {
+		t.Fatalf("expected message payload to be populated")
+	}
+	foundKickEmote := false
+	for _, fragment := range msg.Message.Fragments {
+		if fragment.Type != generic.FragmentType_EMOTE {
+			continue
+		}
+		if fragment.Text == "KEKW" && fragment.Emote != nil && fragment.Emote.ID == "4148074" {
+			foundKickEmote = true
+			break
+		}
+	}
+	if !foundKickEmote {
+		t.Fatalf("expected kick emote fragment KEKW/4148074 to be present")
+	}
+	if !msg.IsChatterModerator() {
+		t.Fatalf("expected moderator role to be detected from kick badge")
+	}
+
+	if parserQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 parser message published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageIdempotency(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "999",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "dup-msg-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessed)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   999,
+			Username: "broadcaster999",
+		},
+		Content: "duplicate",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Errorf("expected 0 published messages for duplicate, got %d", chatQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChannelFollow(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "777",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "follow-evt-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickFollowPayload{
+		Broadcaster: kickUser{
+			UserID:   777,
+			Username: "broadcaster777",
+		},
+		Follower: kickUser{
+			UserID:   111,
+			Username: "followerlogin",
+		},
+	}
+
+	req := makeRequest(t, msgID, "channel.followed", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if followQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 follow event published, got %d", followQueue.PublishedCount())
+	}
+	follow := followQueue.FirstPublished()
+	if follow.BaseInfo.ChannelID != channelUUID.String() {
+		t.Errorf("expected channelID %q, got %q", channelUUID.String(), follow.BaseInfo.ChannelID)
+	}
+	if follow.UserName != "followerlogin" {
+		t.Errorf("expected UserName %q, got %q", "followerlogin", follow.UserName)
+	}
+	if follow.UserID != "111" {
+		t.Errorf("expected UserID %q, got %q", "111", follow.UserID)
+	}
+	if follow.BaseInfo.Platform != platform.PlatformKick {
+		t.Errorf("expected platform %q, got %q", platform.PlatformKick, follow.BaseInfo.Platform)
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleSubscriptionNew(t *testing.T) {
+	subscribeQueue := &mockQueue[events.SubscribeMessage, struct{}]{}
+	h, redisMock := buildKickEventHandler(t, "901", subscribeQueue, nil, nil, nil)
+
+	msgID := "kick-sub-new-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	req := makeRequest(t, msgID, "channel.subscription.new", kickSubscriptionPayload{
+		Broadcaster: kickUser{UserID: 901, Username: "broadcaster901"},
+		Subscriber:  kickUser{UserID: 902, Username: "subscriber902"},
+		Duration:    1,
+	})
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	if subscribeQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 subscribe event published, got %d", subscribeQueue.PublishedCount())
+	}
+	published := subscribeQueue.FirstPublished()
+	if published.BaseInfo.Platform != platform.PlatformKick {
+		t.Fatalf("expected platform %q, got %q", platform.PlatformKick, published.BaseInfo.Platform)
+	}
+	eventsListRepo := h.eventsListRepo.(*mockEventsListRepo)
+	if len(eventsListRepo.created) != 1 {
+		t.Fatalf("expected 1 event list item, got %d", len(eventsListRepo.created))
+	}
+	if eventsListRepo.created[0].Type != channelseventslistmodel.ChannelEventListItemTypeSubscribe {
+		t.Fatalf("expected subscribe event list type, got %q", eventsListRepo.created[0].Type)
+	}
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleSubscriptionRenewal(t *testing.T) {
+	resubscribeQueue := &mockQueue[events.ReSubscribeMessage, struct{}]{}
+	h, redisMock := buildKickEventHandler(t, "911", nil, resubscribeQueue, nil, nil)
+
+	msgID := "kick-resub-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	req := makeRequest(t, msgID, "channel.subscription.renewal", kickSubscriptionPayload{
+		Broadcaster: kickUser{UserID: 911, Username: "broadcaster911"},
+		Subscriber:  kickUser{UserID: 912, Username: "subscriber912"},
+		Duration:    3,
+	})
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	if resubscribeQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 resubscribe event published, got %d", resubscribeQueue.PublishedCount())
+	}
+	published := resubscribeQueue.FirstPublished()
+	if published.Months != 3 {
+		t.Fatalf("expected 3 months, got %d", published.Months)
+	}
+	eventsListRepo := h.eventsListRepo.(*mockEventsListRepo)
+	if len(eventsListRepo.created) != 1 || eventsListRepo.created[0].Type != channelseventslistmodel.ChannelEventListItemTypeReSubscribe {
+		t.Fatalf("expected one resubscribe event list item, got %+v", eventsListRepo.created)
+	}
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleSubscriptionGifts(t *testing.T) {
+	subgiftQueue := &mockQueue[events.SubGiftMessage, struct{}]{}
+	h, redisMock := buildKickEventHandler(t, "921", nil, nil, subgiftQueue, nil)
+
+	msgID := "kick-subgift-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	req := makeRequest(t, msgID, "channel.subscription.gifts", kickSubscriptionGiftsPayload{
+		Broadcaster: kickUser{UserID: 921, Username: "broadcaster921"},
+		Gifter:      kickUser{UserID: 922, Username: "gifter922"},
+		Giftees:     []kickUser{{UserID: 923, Username: "giftee923"}, {UserID: 924, Username: "giftee924"}},
+	})
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	if subgiftQueue.PublishedCount() != 2 {
+		t.Fatalf("expected 2 subgift events published, got %d", subgiftQueue.PublishedCount())
+	}
+	eventsListRepo := h.eventsListRepo.(*mockEventsListRepo)
+	if len(eventsListRepo.created) != 2 {
+		t.Fatalf("expected 2 event list items, got %d", len(eventsListRepo.created))
+	}
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleRewardRedemptionUpdatedPending(t *testing.T) {
+	redemptionQueue := &mockQueue[events.RedemptionCreatedMessage, struct{}]{}
+	h, redisMock := buildKickEventHandler(t, "931", nil, nil, nil, redemptionQueue)
+
+	msgID := "kick-redemption-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	req := makeRequest(t, msgID, "channel.reward.redemption.updated", kickRewardRedemptionPayload{
+		ID:        "01KBHE78QE4HZY1617DK5FC7YD",
+		UserInput: "hello",
+		Status:    "pending",
+		Reward: struct {
+			ID          string `json:"id"`
+			Title       string `json:"title"`
+			Cost        int    `json:"cost"`
+			Description string `json:"description"`
+		}{ID: "01KBHE7RZNHB0SKDV1H86CD4F3", Title: "Reward", Cost: 100, Description: "desc"},
+		Redeemer: struct {
+			UserID      int    `json:"user_id"`
+			Username    string `json:"username"`
+			ChannelSlug string `json:"channel_slug"`
+		}{UserID: 932, Username: "redeemer932", ChannelSlug: "redeemer932"},
+		Broadcaster: struct {
+			UserID      int    `json:"user_id"`
+			Username    string `json:"username"`
+			ChannelSlug string `json:"channel_slug"`
+		}{UserID: 931, Username: "broadcaster931", ChannelSlug: "broadcaster931"},
+	})
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	if redemptionQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 redemption event published, got %d", redemptionQueue.PublishedCount())
+	}
+	eventsListRepo := h.eventsListRepo.(*mockEventsListRepo)
+	if len(eventsListRepo.created) != 1 || eventsListRepo.created[0].Type != channelseventslistmodel.ChannelEventListItemTypeRedemptionCreated {
+		t.Fatalf("expected one redemption event list item, got %+v", eventsListRepo.created)
+	}
+	redemptionsRepo := h.redemptionsHistoryRepo.(*mockRedemptionsHistoryRepo)
+	if len(redemptionsRepo.created) != 1 {
+		t.Fatalf("expected 1 redemption history item, got %d", len(redemptionsRepo.created))
+	}
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleModerationBanned(t *testing.T) {
+	banQueue := &mockQueue[events.ChannelBanMessage, struct{}]{}
+	h, redisMock := buildKickEventHandler(t, "941", nil, nil, nil, nil)
+	h.eventsChannelBan = banQueue
+
+	msgID := "kick-ban-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	expiresAt := time.Now().UTC().Add(10 * time.Minute).Format(time.RFC3339)
+	req := makeRequest(t, msgID, "moderation.banned", kickModerationBannedPayload{
+		Broadcaster: kickUser{UserID: 941, Username: "broadcaster941"},
+		Moderator:   kickUser{UserID: 942, Username: "moderator942"},
+		BannedUser:  kickUser{UserID: 943, Username: "banned943"},
+		Metadata: struct {
+			Reason    string  `json:"reason"`
+			CreatedAt string  `json:"created_at"`
+			ExpiresAt *string `json:"expires_at"`
+		}{Reason: "spam", CreatedAt: time.Now().UTC().Format(time.RFC3339), ExpiresAt: &expiresAt},
+	})
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	if banQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 channel ban event published, got %d", banQueue.PublishedCount())
+	}
+	published := banQueue.FirstPublished()
+	if published.BaseInfo.Platform != platform.PlatformKick {
+		t.Fatalf("expected platform %q, got %q", platform.PlatformKick, published.BaseInfo.Platform)
+	}
+	eventsListRepo := h.eventsListRepo.(*mockEventsListRepo)
+	if len(eventsListRepo.created) != 1 || eventsListRepo.created[0].Type != channelseventslistmodel.ChannelEventListItemTypeChannelBan {
+		t.Fatalf("expected one channel ban event list item, got %+v", eventsListRepo.created)
+	}
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleLivestreamStatusOnline(t *testing.T) {
+	userID := uuid.New().String()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+	streamOnlineQueue := &mockQueue[kickbus.KickStreamOnline, struct{}]{}
+	streamOfflineQueue := &mockQueue[kickbus.KickStreamOffline, struct{}]{}
+	streamsRepo := &mockStreamsRepo{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "555",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         uuid.New(),
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		streamOnlineQueue,
+		streamOfflineQueue,
+		usersRepo,
+		channelsRepo,
+		nil,
+		streamsRepo,
+	)
+
+	msgID := "stream-online-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickLivestreamStatusPayload{
+		Broadcaster: kickUser{
+			UserID:   555,
+			Username: "broadcaster555",
+		},
+		IsLive: true,
+		Title:  "Going live",
+	}
+
+	req := makeRequest(t, msgID, "livestream.status.updated", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if streamOnlineQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 stream online event published, got %d", streamOnlineQueue.PublishedCount())
+	}
+
+	if streamOfflineQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 stream offline events published, got %d", streamOfflineQueue.PublishedCount())
+	}
+
+	event := streamOnlineQueue.FirstPublished()
+	if event.BroadcasterUserID != "555" {
+		t.Errorf("expected broadcaster user id %q, got %q", "555", event.BroadcasterUserID)
+	}
+	if event.BroadcasterUserLogin != "broadcaster555" {
+		t.Errorf("expected broadcaster login %q, got %q", "broadcaster555", event.BroadcasterUserLogin)
+	}
+	if len(streamsRepo.saved) != 1 {
+		t.Fatalf("expected 1 stream save, got %d", len(streamsRepo.saved))
+	}
+	if streamsRepo.saved[0].Title != "Going live" {
+		t.Fatalf("expected saved title %q, got %q", "Going live", streamsRepo.saved[0].Title)
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleLivestreamStatusOffline(t *testing.T) {
+	userID := uuid.New().String()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+	streamOnlineQueue := &mockQueue[kickbus.KickStreamOnline, struct{}]{}
+	streamOfflineQueue := &mockQueue[kickbus.KickStreamOffline, struct{}]{}
+	streamsRepo := &mockStreamsRepo{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "556",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         uuid.New(),
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		streamOnlineQueue,
+		streamOfflineQueue,
+		usersRepo,
+		channelsRepo,
+		nil,
+		streamsRepo,
+	)
+
+	msgID := "stream-offline-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickLivestreamStatusPayload{
+		Broadcaster: kickUser{
+			UserID:   556,
+			Username: "broadcaster556",
+		},
+		IsLive: false,
+		Title:  "Wrapping up",
+	}
+
+	req := makeRequest(t, msgID, "livestream.status.updated", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if streamOfflineQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 stream offline event published, got %d", streamOfflineQueue.PublishedCount())
+	}
+
+	if streamOnlineQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 stream online events published, got %d", streamOnlineQueue.PublishedCount())
+	}
+
+	event := streamOfflineQueue.FirstPublished()
+	if event.BroadcasterUserID != "556" {
+		t.Errorf("expected broadcaster user id %q, got %q", "556", event.BroadcasterUserID)
+	}
+	if event.BroadcasterUserLogin != "broadcaster556" {
+		t.Errorf("expected broadcaster login %q, got %q", "broadcaster556", event.BroadcasterUserLogin)
+	}
+	if len(streamsRepo.deletedByID) != 1 {
+		t.Fatalf("expected 1 stream delete, got %d", len(streamsRepo.deletedByID))
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleLivestreamMetadataUpdated(t *testing.T) {
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+	streamOnlineQueue := &mockQueue[kickbus.KickStreamOnline, struct{}]{}
+	streamOfflineQueue := &mockQueue[kickbus.KickStreamOffline, struct{}]{}
+	streamsRepo := &mockStreamsRepo{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.New(),
+			PlatformID: "557",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         uuid.New(),
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		streamOnlineQueue,
+		streamOfflineQueue,
+		usersRepo,
+		channelsRepo,
+		nil,
+		streamsRepo,
+	)
+
+	msgID := "stream-meta-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := map[string]any{
+		"broadcaster": map[string]any{
+			"user_id":      557,
+			"username":     "broadcaster557",
+			"channel_slug": "kick-slug",
+		},
+		"metadata": map[string]any{
+			"title":              "New title",
+			"language":           "en",
+			"has_mature_content": false,
+			"category": map[string]any{
+				"id":        15,
+				"name":      "Gaming",
+				"thumbnail": "thumb",
+			},
+		},
+	}
+
+	req := makeRequest(t, msgID, "livestream.metadata.updated", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if streamOnlineQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 stream online events published, got %d", streamOnlineQueue.PublishedCount())
+	}
+
+	if streamOfflineQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 stream offline events published, got %d", streamOfflineQueue.PublishedCount())
+	}
+	if len(streamsRepo.updated) != 1 {
+		t.Fatalf("expected 1 stream update, got %d", len(streamsRepo.updated))
+	}
+	if streamsRepo.stream.GameName != "Gaming" {
+		t.Fatalf("expected updated game name %q, got %q", "Gaming", streamsRepo.stream.GameName)
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageRealConcurrent(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	publishStarted := make(chan struct{})
+	releasePublish := make(chan struct{})
+	var publishStartedOnce sync.Once
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{
+		publishHook: func(_ context.Context, _ generic.ChatMessage) error {
+			publishStartedOnce.Do(func() { close(publishStarted) })
+			<-releasePublish
+			return nil
+		},
+	}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	redisMock.MatchExpectationsInOrder(false)
+
+	msgID := "concurrent-msg-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessing)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	start := make(chan struct{})
+	statuses := make(chan int, 2)
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	for range 2 {
+		go func() {
+			defer wg.Done()
+
+			<-start
+			req := makeRequest(t, msgID, "chat.message.sent", payload)
+			w := httptest.NewRecorder()
+			h.HandleWebhook(w, req)
+			statuses <- w.Code
+		}()
+	}
+
+	close(start)
+
+	select {
+	case <-publishStarted:
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for first request to start publishing")
+	}
+
+	var duplicateStatus int
+	select {
+	case duplicateStatus = <-statuses:
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for duplicate request to finish")
+	}
+
+	if duplicateStatus != http.StatusAccepted {
+		t.Fatalf("expected duplicate request to return 202, got %d", duplicateStatus)
+	}
+
+	close(releasePublish)
+	wg.Wait()
+	close(statuses)
+
+	var remainingStatuses []int
+	for status := range statuses {
+		remainingStatuses = append(remainingStatuses, status)
+	}
+
+	if len(remainingStatuses) != 1 || remainingStatuses[0] != http.StatusOK {
+		t.Fatalf("expected processing request to return 200, got %v", remainingStatuses)
+	}
+
+	if chatQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 chat message published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 parser message published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageIgnoresAssignedKickBotMessages(t *testing.T) {
+	channelUUID := uuid.New()
+	kickUserUUID := uuid.New()
+	kickBotID := uuid.New()
+	senderUserID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         senderUserID,
+			PlatformID: "456",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+			KickBotID:  &kickBotID,
+		},
+	}
+	kickBotsRepo := &mockKickBotsRepo{
+		bot: kickbotentity.KickBot{
+			ID:         kickBotID,
+			KickUserID: senderUserID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		kickBotsRepo,
+	)
+
+	msgID := "msg-self-bot-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+
+	payload := kickChatMessagePayload{
+		MessageID:   msgID,
+		Broadcaster: kickUser{UserID: 123, Username: "broadcaster123"},
+		Sender:      kickUser{UserID: 456, Username: "TwirBot"},
+		Content:     "bot message",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 parser messages published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "duplicate-processing-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessing)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusAccepted {
+		t.Fatalf("expected 202 for duplicate during processing, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages for duplicate, got %d", chatQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageResolveIDsFailure(t *testing.T) {
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	usersRepo := &mockUsersRepo{err: errors.New("users repo failed")}
+	channelsRepo := &mockChannelsRepo{}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "resolve-failure-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 parser messages published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageFailureCleanup(t *testing.T) {
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	usersRepo := &mockUsersRepo{err: errors.New("users repo failed")}
+	channelsRepo := &mockChannelsRepo{}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "cleanup-failure-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectDel(idempotencyKeyPrefix + msgID).SetVal(1)
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectDel(idempotencyKeyPrefix + msgID).SetVal(1)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	for range 2 {
+		req := makeRequest(t, msgID, "chat.message.sent", payload)
+		w := httptest.NewRecorder()
+
+		h.HandleWebhook(w, req)
+
+		if w.Code != http.StatusInternalServerError {
+			t.Fatalf("expected 500, got %d", w.Code)
+		}
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 parser messages published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessagePublishFailure(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{
+		publishErr: errors.New("publish failed"),
+	}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "publish-failure-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 chat messages published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 parser messages published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessagePartialSuccess(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{
+		publishErr: errors.New("parser publish failed"),
+	}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "partial-success-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectDel(idempotencyKeyPrefix + msgID).SetVal(1)
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 chat message published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 0 {
+		t.Fatalf("expected 0 parser messages published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}
+
+func TestHandleChatMessageMarkProcessedFailure(t *testing.T) {
+	userID := uuid.New().String()
+	channelUUID := uuid.New()
+
+	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	parserQueue := &mockQueue[generic.ChatMessage, struct{}]{}
+	followQueue := &mockQueue[events.FollowMessage, struct{}]{}
+
+	kickUserUUID := uuid.New()
+	usersRepo := &mockUsersRepo{
+		user: usersmodel.User{
+			ID:         uuid.MustParse(userID),
+			PlatformID: "123",
+		},
+	}
+	channelsRepo := &mockChannelsRepo{
+		channel: channelsmodel.Channel{
+			ID:         channelUUID,
+			KickUserID: &kickUserUUID,
+		},
+	}
+
+	h, redisMock := buildTestHandlers(
+		t,
+		chatQueue,
+		parserQueue,
+		followQueue,
+		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		usersRepo,
+		channelsRepo,
+		nil,
+	)
+
+	msgID := "mark-processed-failure-001"
+	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetErr(errors.New("redis set failed"))
+
+	payload := kickChatMessagePayload{
+		MessageID: msgID,
+		Broadcaster: kickUser{
+			UserID:   123,
+			Username: "broadcaster123",
+		},
+		Sender: kickUser{
+			UserID:   456,
+			Username: "senderlogin",
+		},
+		Content: "Hello world",
+	}
+
+	req := makeRequest(t, msgID, "chat.message.sent", payload)
+	w := httptest.NewRecorder()
+
+	h.HandleWebhook(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
+
+	if chatQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 chat message published, got %d", chatQueue.PublishedCount())
+	}
+
+	if parserQueue.PublishedCount() != 1 {
+		t.Fatalf("expected 1 parser message published, got %d", parserQueue.PublishedCount())
+	}
+
+	if err := redisMock.ExpectationsWereMet(); err != nil {
+		t.Errorf("redis expectations not met: %v", err)
+	}
+}

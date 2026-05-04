@@ -34,7 +34,7 @@ var List = &types.DefaultCommand{
 	) {
 		categories, err := parseCtx.Services.CategoriesAliasesRepo.GetManyByChannelID(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{

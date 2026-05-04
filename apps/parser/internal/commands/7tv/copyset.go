@@ -64,7 +64,7 @@ var CopySet = &types.DefaultCommand{
 			}
 		}
 
-		profile, err := client.GetProfileByTwitchId(ctx, parseCtx.Mentions[0].UserId)
+		profile, err := client.GetProfileByTwitchId(ctx, parseCtx.Mentions[0].UserID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(

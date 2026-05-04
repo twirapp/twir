@@ -6,8 +6,8 @@ import (
 
 type Greeting struct {
 	ID           uuid.UUID
-	ChannelID    string
-	UserID       string
+	ChannelID    uuid.UUID
+	UserID       uuid.UUID
 	Enabled      bool
 	Text         string
 	IsReply      bool

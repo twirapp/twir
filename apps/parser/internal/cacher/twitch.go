@@ -18,12 +18,7 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 		return c.cache.twitchUserFollows[userID]
 	}
 
-	channel := model.Channels{}
-	err := c.services.Gorm.
-		WithContext(ctx).
-		Where(`"id" = ?`, c.parseCtxChannel.ID).
-		First(&channel).
-		Error
+	dbChannel, err := c.getDbChannel(ctx)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil
@@ -31,7 +26,7 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 
 	twitchClient, err := twitch.NewBotClientWithContext(
 		ctx,
-		channel.BotID,
+		dbChannel.BotID,
 		*c.services.Config,
 		c.services.Bus,
 	)
@@ -70,10 +65,15 @@ func (c *cacher) GetGbUserStats(ctx context.Context, userId string) *model.Users
 	}
 
 	result := &model.UsersStats{}
+	dbChannel, err := c.getDbChannel(ctx)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
 
-	err := c.services.Gorm.
+	err = c.services.Gorm.
 		WithContext(ctx).
-		Where(`"userId" = ? AND "channelId" = ?`, userId, c.parseCtxChannel.ID).
+		Where(`"userId" = ?::uuid AND "channelId" = ?::uuid`, userId, dbChannel.ChannelID).
 		Find(result).
 		Error
 	if err == nil {

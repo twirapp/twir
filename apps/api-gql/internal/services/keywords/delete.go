@@ -2,6 +2,7 @@ package keywords
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -17,7 +18,7 @@ func (c *Service) Delete(ctx context.Context, channelID, actorID string, id uuid
 		return err
 	}
 
-	if keyword.ChannelID != channelID {
+	if keyword.ChannelID.String() != channelID {
 		return errors.NewNotFoundError("Keyword with this ID was not found for your channel")
 	}
 
@@ -26,7 +27,7 @@ func (c *Service) Delete(ctx context.Context, channelID, actorID string, id uuid
 	}
 
 	if err := c.keywordsCacher.Invalidate(ctx, channelID); err != nil {
-		c.logger.Error("failed to invalidate keywords cache", err)
+		c.logger.Error("failed to invalidate keywords cache", slog.Any("error", err))
 	}
 
 	_ = c.auditRecorder.RecordDeleteOperation(

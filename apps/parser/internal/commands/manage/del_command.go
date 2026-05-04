@@ -49,33 +49,33 @@ var DelCommand = &types.DefaultCommand{
 		var cmd *model.ChannelsCommands = nil
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, name).
-			First(&cmd).
-			Error
+		Where(`"channelId" = ?::uuid AND name = ?`, parseCtx.Channel.DBChannelID, name).
+		First(&cmd).
+		Error
 
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandNotFound))
-				return result, nil
-			} else {
-				return nil, &types.CommandHandlerError{
-					Message: i18n.Get(locales.Translations.Commands.Manage.Errors.CommandCannotGet),
-					Err:     err,
-				}
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandNotFound))
+			return result, nil
+		} else {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.Get(locales.Translations.Commands.Manage.Errors.CommandCannotGet),
+				Err:     err,
 			}
 		}
+	}
 
-		if cmd.Default {
-			result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotDeleteDefault))
-			return result, nil
-		}
+	if cmd.Default {
+		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Errors.CommandCannotDeleteDefault))
+		return result, nil
+	}
 
-		parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, name).
-			Delete(&model.ChannelsCommands{})
+	parseCtx.Services.Gorm.
+		WithContext(ctx).
+		Where(`"channelId" = ?::uuid AND name = ?`, parseCtx.Channel.DBChannelID, name).
+		Delete(&model.ChannelsCommands{})
 
-		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+	parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Remove.CommandRemoved))
 		return result, nil

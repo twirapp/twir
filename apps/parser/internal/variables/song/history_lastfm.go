@@ -35,7 +35,7 @@ var HistoryLastfm = &types.Variable{
 			limit = 10
 		}
 
-		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil || lastfmIntegration.IsNil() || !lastfmIntegration.Enabled || lastfmIntegration.SessionKey == nil {
 			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.LastfmIntegration)
 			return result, nil

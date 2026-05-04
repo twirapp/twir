@@ -60,8 +60,8 @@ func (c *Pgx) GetMany(ctx context.Context, input chat_messages.GetManyInput) (
 		"updated_at",
 	).From("chat_messages")
 
-	if input.ChannelID != nil {
-		builder = builder.Where(squirrel.Eq{"channel_id": *input.ChannelID})
+	if input.PlatformChannelID != nil {
+		builder = builder.Where(squirrel.Expr("channel_id = ?::uuid", *input.PlatformChannelID))
 	}
 
 	if input.UserNameLike != nil && *input.UserNameLike != "" {
@@ -110,7 +110,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7);
 		ctx,
 		query,
 		input.ID,
-		input.ChannelID,
+		input.PlatformChannelID,
 		input.UserID,
 		input.Text,
 		input.UserName,
@@ -131,7 +131,7 @@ func (c *Pgx) CreateMany(ctx context.Context, inputs []chat_messages.CreateInput
 			func(i int) ([]any, error) {
 				return []any{
 					inputs[i].ID,
-					inputs[i].ChannelID,
+					inputs[i].PlatformChannelID,
 					inputs[i].UserID,
 					inputs[i].Text,
 					inputs[i].UserName,

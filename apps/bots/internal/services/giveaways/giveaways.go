@@ -17,6 +17,8 @@ import (
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/channels"
+	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
@@ -35,6 +37,7 @@ type Opts struct {
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	UsersRepository                 users.Repository
 	UsersStatsRepository            usersstats.Repository
+	ChannelsRepository              channels.Repository
 	TwitchCache                     *twitchcache.CachedTwitchClient
 	Logger                          *slog.Logger
 	Redis                           *redis.Client
@@ -49,6 +52,7 @@ func New(opts Opts) *Service {
 		giveawaysCacher:                 opts.GiveawaysCacher,
 		usersRepository:                 opts.UsersRepository,
 		usersStatsRepository:            opts.UsersStatsRepository,
+		channelsRepository:              opts.ChannelsRepository,
 		twitchCache:                     opts.TwitchCache,
 		logger:                          opts.Logger,
 		redis:                           opts.Redis,
@@ -81,6 +85,7 @@ type Service struct {
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	usersRepository                 users.Repository
 	usersStatsRepository            usersstats.Repository
+	channelsRepository              channels.Repository
 	twitchCache                     *twitchcache.CachedTwitchClient
 	logger                          *slog.Logger
 	redis                           *redis.Client
@@ -92,6 +97,7 @@ const redisParticipantKey = "giveaways:%s:participants:%s"
 func (c *Service) TryAddParticipant(
 	ctx context.Context,
 	userID string,
+	platformUserID string,
 	userLogin string,
 	userDisplayName string,
 	giveawayID string,
@@ -100,6 +106,11 @@ func (c *Service) TryAddParticipant(
 	exists, _ := c.redis.Exists(ctx, cacheKey).Result()
 	if exists >= 1 {
 		return nil
+	}
+
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return err
 	}
 
 	// Get giveaway to check filters
@@ -118,8 +129,10 @@ func (c *Service) TryAddParticipant(
 
 	// For KEYWORD giveaways, check filters before adding participant
 	if giveaway.Type == channels_giveaways.GiveawayTypeKeyword {
+		parsedChannelID := giveaway.ChannelID
+
 		// Check user stats
-		userStats, err := c.usersStatsRepository.GetByUserAndChannelID(ctx, userID, giveaway.ChannelID)
+		userStats, err := c.usersStatsRepository.GetByUserAndChannelID(ctx, parsedUserID, parsedChannelID)
 		if err != nil && userStats == nil {
 			// If user stats don't exist, user doesn't meet any filter requirements
 			return nil
@@ -143,7 +156,15 @@ func (c *Service) TryAddParticipant(
 
 		// Check follow duration if required
 		if giveaway.MinFollowDuration != nil {
-			followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, userID, giveaway.ChannelID)
+			ch, chErr := c.channelsRepository.GetByID(ctx, parsedChannelID)
+			if chErr != nil {
+				c.logger.Error("cannot get channel for follow duration check", logger.Error(chErr))
+				return nil
+			}
+			if ch.TwitchUserID == nil || ch.TwitchPlatformID == nil {
+				return nil
+			}
+			followDuration, err := c.twitchCache.GetUserFollowDuration(ctx, *ch.TwitchUserID, platformUserID, *ch.TwitchPlatformID)
 			if err != nil {
 				c.logger.Error("cannot get user follow duration", logger.Error(err))
 				return nil
@@ -157,8 +178,8 @@ func (c *Service) TryAddParticipant(
 	_, err = c.giveawaysParticipantsRepository.Create(
 		ctx,
 		giveaways_participants.CreateInput{
-			GiveawayID:      giveawayID,
-			UserID:          userID,
+			GiveawayID:      parsedGiveawayID,
+			UserID:          parsedUserID,
 			UserLogin:       userLogin,
 			UserDisplayName: userDisplayName,
 		},
@@ -171,7 +192,7 @@ func (c *Service) TryAddParticipant(
 		ctx,
 		giveawaysbusmodel.NewParticipant{
 			GiveawayID:      giveawayID,
-			UserID:          userID,
+			UserID:          parsedUserID.String(),
 			UserLogin:       userLogin,
 			UserDisplayName: userDisplayName,
 		},
@@ -210,7 +231,7 @@ func (c *Service) chooseWinner(
 		// For KEYWORD giveaways, get existing participants (filters already applied at join time)
 		participants, err := c.giveawaysParticipantsRepository.GetManyByGiveawayID(
 			ctx,
-			req.GiveawayID,
+			parsedGiveawayId,
 			giveaways_participants.GetManyInput{
 				IgnoreWinners: true,
 			},
@@ -222,11 +243,13 @@ func (c *Service) chooseWinner(
 		eligibleParticipants = participants
 
 	case channels_giveaways.GiveawayTypeOnlineChatters:
+		parsedChannelID := giveaway.ChannelID
+
 		// For ONLINE_CHATTERS, fetch online users with filters applied via SQL
 		onlineUsers, err := c.usersRepository.GetOnlineUsersWithFilters(
 			ctx,
 			users.GetOnlineUsersWithFiltersInput{
-				ChannelID:            giveaway.ChannelID,
+				ChannelID:            parsedChannelID,
 				MinWatchedTime:       giveaway.MinWatchedTime,
 				MinMessages:          giveaway.MinMessages,
 				MinUsedChannelPoints: giveaway.MinUsedChannelPoints,
@@ -238,13 +261,34 @@ func (c *Service) chooseWinner(
 			return giveawaysbusmodel.ChooseWinnerResponse{}, err
 		}
 
+		// Resolve channel for follow duration checks (once, outside the loop)
+		var channelForFollowCheck *channelmodel.Channel
+		if giveaway.MinFollowDuration != nil {
+			ch, chErr := c.channelsRepository.GetByID(ctx, parsedChannelID)
+			if chErr != nil {
+				return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("cannot get channel: %w", chErr)
+			}
+			if ch.TwitchUserID != nil && ch.TwitchPlatformID != nil {
+				channelForFollowCheck = &ch
+			}
+		}
+
 		// Filter by follow duration if required
 		for _, user := range onlineUsers {
 			if giveaway.MinFollowDuration != nil {
+				if channelForFollowCheck == nil {
+					continue
+				}
+				userModel, userErr := c.usersRepository.GetByID(ctx, user.UserID)
+				if userErr != nil {
+					c.logger.Error("cannot get user for follow duration check", logger.Error(userErr))
+					continue
+				}
 				followDuration, err := c.twitchCache.GetUserFollowDuration(
 					ctx,
-					user.UserID,
-					giveaway.ChannelID,
+					*channelForFollowCheck.TwitchUserID,
+					userModel.PlatformID,
+					*channelForFollowCheck.TwitchPlatformID,
 				)
 				if err != nil {
 					c.logger.Error("cannot get user follow duration", logger.Error(err))
@@ -292,7 +336,7 @@ func (c *Service) chooseWinner(
 				winner, err = c.giveawaysParticipantsRepository.Create(
 					txCtx,
 					giveaways_participants.CreateInput{
-						GiveawayID:      req.GiveawayID,
+						GiveawayID:      parsedGiveawayId,
 						UserID:          winnerData.UserID,
 						UserLogin:       winnerData.UserLogin,
 						UserDisplayName: winnerData.DisplayName,
@@ -307,7 +351,7 @@ func (c *Service) chooseWinner(
 				// For KEYWORD giveaways, update existing participant
 				winner, err = c.giveawaysParticipantsRepository.Update(
 					txCtx,
-					winnerData.ID.String(),
+					winnerData.ID,
 					giveaways_participants.UpdateInput{
 						IsWinner: lo.ToPtr(true),
 					},
@@ -328,7 +372,7 @@ func (c *Service) chooseWinner(
 		return giveawaysbusmodel.ChooseWinnerResponse{}, err
 	}
 
-	if err := c.giveawaysCacher.Invalidate(ctx, giveaway.ChannelID); err != nil {
+	if err := c.giveawaysCacher.Invalidate(ctx, giveaway.ChannelID.String()); err != nil {
 		c.logger.Error("cannot invalidate giveaways cache", logger.Error(err))
 	}
 
@@ -337,7 +381,7 @@ func (c *Service) chooseWinner(
 		mappedWinners = append(
 			mappedWinners,
 			giveawaysbusmodel.Winner{
-				UserID:          winner.UserID,
+				UserID:          winner.UserID.String(),
 				UserLogin:       winner.UserLogin,
 				UserDisplayName: winner.DisplayName,
 			},

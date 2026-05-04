@@ -16,9 +16,12 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/api"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	ttsmodel "github.com/twirapp/twir/libs/repositories/overlays_tts/model"
 	"github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/fx"
 )
@@ -33,6 +36,7 @@ type Opts struct {
 	TwirBus         *buscore.Bus
 	Logger          *slog.Logger
 	UsersRepository users.Repository
+	ChannelsRepository channelsrepository.Repository
 	Cacher          *generic_cacher.GenericCacher[modules.TTSSettings]
 }
 
@@ -43,6 +47,7 @@ func New(opts Opts) *Service {
 		config:          opts.Config,
 		twirBus:         opts.TwirBus,
 		usersRepository: opts.UsersRepository,
+		channelsRepository: opts.ChannelsRepository,
 		cacher:          opts.Cacher,
 	}
 
@@ -89,7 +94,35 @@ type Service struct {
 	config          config.Config
 	twirBus         *buscore.Bus
 	usersRepository users.Repository
+	channelsRepository channelsrepository.Repository
 	cacher          *generic_cacher.GenericCacher[modules.TTSSettings]
+}
+
+func (s *Service) ResolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {
+	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		return "", fmt.Errorf("failed to get user by api key: %w", err)
+	}
+	if user == usersmodel.Nil {
+		return "", fmt.Errorf("user not found for provided api key")
+	}
+
+	parsedUserID := user.ID
+
+	switch user.Platform {
+	case platformentity.PlatformKick:
+		resolvedChannel, err := s.channelsRepository.GetByKickUserID(ctx, parsedUserID)
+		if err != nil {
+			return "", fmt.Errorf("failed to get channel by kick user id: %w", err)
+		}
+		return resolvedChannel.ID.String(), nil
+	default:
+		resolvedChannel, err := s.channelsRepository.GetByTwitchUserID(ctx, parsedUserID)
+		if err != nil {
+			return "", fmt.Errorf("failed to get channel by twitch user id: %w", err)
+		}
+		return resolvedChannel.ID.String(), nil
+	}
 }
 
 // GetOrCreate gets the TTS overlay for the given channel ID or creates a new one with default settings if it doesn't exist

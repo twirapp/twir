@@ -3,13 +3,16 @@ package users
 import (
 	"context"
 
+	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type Repository interface {
-	GetByID(ctx context.Context, id string) (model.User, error)
+	GetByID(ctx context.Context, id uuid.UUID) (model.User, error)
+	GetByPlatformID(ctx context.Context, plat platform.Platform, platformUserID string) (model.User, error)
 	GetManyByIDS(ctx context.Context, input GetManyInput) ([]model.User, error)
-	Update(ctx context.Context, id string, input UpdateInput) (model.User, error)
+	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.User, error)
 	GetRandomOnlineUser(ctx context.Context, input GetRandomOnlineUserInput) (model.OnlineUser, error)
 	GetOnlineUsersWithFilters(ctx context.Context, input GetOnlineUsersWithFiltersInput) ([]model.OnlineUser, error)
 	GetByApiKey(ctx context.Context, apiKey string) (model.User, error)
@@ -19,7 +22,7 @@ type Repository interface {
 type GetManyInput struct {
 	Page       int
 	PerPage    int
-	IDs        []string
+	IDs        []uuid.UUID
 	IsBotAdmin *bool
 	IsBanned   *bool
 }
@@ -30,14 +33,17 @@ type UpdateInput struct {
 	ApiKey            *string
 	HideOnLandingPage *bool
 	TokenID           *string
+	Login             *string
+	DisplayName       *string
+	Avatar            *string
 }
 
 type GetRandomOnlineUserInput struct {
-	ChannelID string
+	ChannelID uuid.UUID
 }
 
 type GetOnlineUsersWithFiltersInput struct {
-	ChannelID            string
+	ChannelID            uuid.UUID
 	MinWatchedTime       *int64
 	MinMessages          *int32
 	MinUsedChannelPoints *int64
@@ -45,10 +51,13 @@ type GetOnlineUsersWithFiltersInput struct {
 }
 
 type CreateInput struct {
-	ID                string
-	ApiKey            *string
+	Platform          platform.Platform
+	PlatformID        string
 	IsBotAdmin        bool
 	IsBanned          bool
 	HideOnLandingPage bool
 	TokenID           *string
+	Login             string
+	DisplayName       string
+	Avatar            string
 }

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -18,7 +19,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
-	model "github.com/twirapp/twir/libs/gomodels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 // OverlaysTTSUpdate is the resolver for the overlaysTTSUpdate field.
@@ -149,13 +150,13 @@ func (r *queryResolver) TtsPublicUsersSettings(ctx context.Context, channelID st
 
 // OverlaysTts is the resolver for the overlaysTTS field.
 func (r *subscriptionResolver) OverlaysTts(ctx context.Context, apiKey string) (<-chan *gqlmodel.TTSOverlay, error) {
-	user := model.Users{}
-	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
+	channelID, err := r.deps.TTSService.ResolveChannelIDByAPIKey(ctx, apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve channel by api key: %w", err)
 	}
 
-	createTTSSettingsSubscriptionKey := func(userID string) string {
-		return fmt.Sprintf("overlays:tts:settings:%s", userID)
+	createTTSSettingsSubscriptionKey := func(channelID string) string {
+		return fmt.Sprintf("overlays:tts:settings:%s", channelID)
 	}
 
 	outputChan := make(chan *gqlmodel.TTSOverlay, 1)
@@ -163,7 +164,7 @@ func (r *subscriptionResolver) OverlaysTts(ctx context.Context, apiKey string) (
 	go func() {
 		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
-				createTTSSettingsSubscriptionKey(user.ID),
+				createTTSSettingsSubscriptionKey(channelID),
 			},
 		)
 		if err != nil {
@@ -174,7 +175,7 @@ func (r *subscriptionResolver) OverlaysTts(ctx context.Context, apiKey string) (
 			close(outputChan)
 		}()
 
-		initialSettings, err := r.deps.TTSService.GetOrCreate(ctx, user.ID)
+		initialSettings, err := r.deps.TTSService.GetOrCreate(ctx, channelID)
 		if err == nil {
 			converted := mappers.MapTTSOverlayEntityToGQL(initialSettings)
 			outputChan <- &converted
@@ -266,12 +267,55 @@ func (r *subscriptionResolver) OverlaysTTSSkip(ctx context.Context, apiKey strin
 
 // Channel is the resolver for the channel field.
 func (r *tTSOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.TTSOverlay) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return dataloader.GetHelixUserById(ctx, obj.ChannelID)
+	channelID, err := uuid.Parse(obj.ChannelID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || channel.TwitchPlatformID == nil {
+		return nil, nil
+	}
+
+	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *tTSUserSettingsResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.TTSUserSettings) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return dataloader.GetHelixUserById(ctx, obj.UserID)
+	if obj.IsChannelOwner {
+		channelID, err := uuid.Parse(obj.UserID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid owner channel id: %w", err)
+		}
+
+		channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+		if err != nil {
+			return nil, fmt.Errorf("get owner channel: %w", err)
+		}
+		if channel.IsNil() || channel.TwitchPlatformID == nil {
+			return nil, nil
+		}
+
+		return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+	}
+
+	parsedUserID, err := uuid.Parse(obj.UserID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+	if err != nil {
+		if err == usersmodel.ErrNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	return dataloader.GetHelixUserById(ctx, user.PlatformID)
 }
 
 // TTSOverlay returns graph.TTSOverlayResolver implementation.

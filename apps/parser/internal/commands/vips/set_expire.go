@@ -11,6 +11,7 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
@@ -57,7 +58,7 @@ var SetExpire = &types.DefaultCommand{
 		}
 
 		channelTwitchClient, err := twitch.NewUserClient(
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)
@@ -92,10 +93,18 @@ var SetExpire = &types.DefaultCommand{
 
 		user := parseCtx.Mentions[0]
 
+		targetDbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, user.UserID)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotFindUserDb),
+				Err:     err,
+			}
+		}
+
 		vip, err := parseCtx.Services.ScheduledVipsRepo.GetByUserAndChannelID(
 			ctx,
-			user.UserId,
-			parseCtx.Channel.ID,
+			targetDbUser.ID.String(),
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -107,8 +116,8 @@ var SetExpire = &types.DefaultCommand{
 			err := parseCtx.Services.ScheduledVipsRepo.Create(
 				ctx,
 				scheduledvipsrepository.CreateInput{
-					ChannelID:  parseCtx.Channel.ID,
-					UserID:     user.UserId,
+					ChannelID:  parseCtx.Channel.DBChannelID,
+					UserID:     targetDbUser.ID.String(),
 					RemoveType: unvipType,
 					RemoveAt:   unvipAt,
 				},
@@ -143,7 +152,7 @@ var SetExpire = &types.DefaultCommand{
 		channelTwitchClient.AddChannelVip(
 			&helix.AddChannelVipParams{
 				BroadcasterID: parseCtx.Channel.ID,
-				UserID:        user.UserId,
+				UserID:        user.UserID,
 			},
 		)
 

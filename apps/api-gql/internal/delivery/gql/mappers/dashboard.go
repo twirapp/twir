@@ -22,9 +22,12 @@ func DashboardStatsEntityToGql(e entity.DashboardStats) gqlmodel.DashboardStats 
 
 func DashboardBotInfoEntityToGql(e entity.BotStatus) gqlmodel.BotStatus {
 	return gqlmodel.BotStatus{
-		IsMod:   e.IsMod,
-		BotID:   e.BotID,
-		BotName: e.BotName,
-		Enabled: e.Enabled,
+		DashboardID: e.DashboardID,
+		Platform:    e.Platform,
+		ChannelName: e.ChannelName,
+		IsMod:       e.IsMod,
+		BotID:       e.BotID,
+		BotName:     e.BotName,
+		Enabled:     e.Enabled,
 	}
 }

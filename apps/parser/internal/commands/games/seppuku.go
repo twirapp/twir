@@ -31,7 +31,7 @@ var Seppuku = &types.DefaultCommand{
 		entity := model.ChannelGamesSeppuku{}
 		if err := parseCtx.Services.Gorm.WithContext(ctx).Where(
 			`"channel_id" = ?`,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		).First(&entity).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, nil

@@ -8,6 +8,7 @@ package resolvers
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/url"
 
@@ -21,13 +22,33 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"gorm.io/gorm"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.ID)
+	parsedUserID, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+	if err != nil {
+		if err == usersmodel.ErrNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	if user.Platform != platformentity.PlatformTwitch {
+		return nil, nil
+	}
+
+	return data_loader.GetHelixUserById(ctx, user.PlatformID)
 }
 
 // AvailableDashboards is the resolver for the availableDashboards field.
@@ -35,14 +56,155 @@ func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj
 	return r.getAvailableDashboards(ctx, obj)
 }
 
+// KickProfile is the resolver for the kickProfile field.
+func (r *authenticatedUserResolver) KickProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.KickProfile, error) {
+	kickUser, err := r.deps.Sessions.GetSessionKickUser(ctx)
+	if err != nil {
+		return nil, nil
+	}
+
+	var profilePicture *string
+	if kickUser.Avatar != "" {
+		profilePicture = &kickUser.Avatar
+	}
+
+	return &gqlmodel.KickProfile{
+		ID:             kickUser.ID,
+		Slug:           kickUser.Login,
+		DisplayName:    kickUser.Login,
+		ProfilePicture: profilePicture,
+		IsLive:         false,
+		FollowersCount: 0,
+	}, nil
+}
+
+// LinkedAccounts is the resolver for the linkedAccounts field.
+func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gqlmodel.AuthenticatedUser) ([]gqlmodel.LinkedAccount, error) {
+	channel, err := r.getAuthenticatedUserChannel(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get authenticated user channel: %w", err)
+	}
+
+	accounts := make([]gqlmodel.LinkedAccount, 0, 2)
+
+	if channel.TwitchUserID != nil {
+		twitchUser, err := r.deps.UsersRepository.GetByID(ctx, *channel.TwitchUserID)
+		if err != nil {
+			return nil, fmt.Errorf("get linked twitch user: %w", err)
+		}
+
+		account := gqlmodel.LinkedAccount{
+			Platform:       string(platformentity.PlatformTwitch),
+			PlatformUserID: twitchUser.PlatformID,
+			PlatformLogin:  twitchUser.Login,
+		}
+		if twitchUser.Avatar != "" {
+			account.PlatformAvatar = &twitchUser.Avatar
+		}
+
+		accounts = append(accounts, account)
+	}
+
+	if channel.KickUserID != nil {
+		kickUser, err := r.deps.UsersRepository.GetByID(ctx, *channel.KickUserID)
+		if err != nil {
+			return nil, fmt.Errorf("get linked kick user: %w", err)
+		}
+
+		account := gqlmodel.LinkedAccount{
+			Platform:       string(platformentity.PlatformKick),
+			PlatformUserID: kickUser.PlatformID,
+			PlatformLogin:  kickUser.Login,
+		}
+		if kickUser.Avatar != "" {
+			account.PlatformAvatar = &kickUser.Avatar
+		}
+
+		accounts = append(accounts, account)
+	}
+
+	return accounts, nil
+}
+
+// CurrentPlatform is the resolver for the currentPlatform field.
+func (r *authenticatedUserResolver) CurrentPlatform(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (string, error) {
+	return r.deps.Sessions.GetCurrentPlatform(ctx)
+}
+
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *channelUserInfoResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChannelUserInfo) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.UserID)
+	parsedUserID, err := uuid.Parse(obj.UserID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+	if err != nil {
+		if err == usersmodel.ErrNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	return data_loader.GetHelixUserById(ctx, user.PlatformID)
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.ID)
+	channelID, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || channel.TwitchUserID == nil {
+		return nil, nil
+	}
+
+	return data_loader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+}
+
+// KickProfile is the resolver for the kickProfile field.
+func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.KickProfile, error) {
+	channelID, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || channel.KickUserID == nil {
+		return nil, nil
+	}
+
+	currentUserID, err := r.deps.Sessions.GetInternalUserID(ctx)
+	if err != nil || *channel.KickUserID != currentUserID {
+		return nil, nil
+	}
+
+	kickUser, err := r.deps.Sessions.GetSessionKickUser(ctx)
+	if err != nil {
+		return nil, nil
+	}
+
+	var profilePicture *string
+	if kickUser.Avatar != "" {
+		profilePicture = &kickUser.Avatar
+	}
+
+	return &gqlmodel.KickProfile{
+		ID:             kickUser.ID,
+		Slug:           kickUser.Login,
+		DisplayName:    kickUser.Login,
+		ProfilePicture: profilePicture,
+		IsLive:         false,
+		FollowersCount: 0,
+	}, nil
 }
 
 // Plan is the resolver for the plan field.
@@ -119,9 +281,13 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
 func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context, opts gqlmodel.UserUpdatePublicSettingsInput) (bool, error) {
-	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, gqlerrors.HandleError(err)
+	}
+
+	if dashboardID == "" {
+		return false, fmt.Errorf("selected dashboard is not set")
 	}
 
 	currentSettings := &model.ChannelPublicSettings{}
@@ -129,14 +295,14 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 		WithContext(ctx).
 		Where(
 			"channel_id = ?",
-			user.ID,
+			dashboardID,
 		).
 		Preload("SocialLinks").
 		// init default settings
 		FirstOrInit(
 			currentSettings,
 			&model.ChannelPublicSettings{
-				ChannelID: user.ID,
+				ChannelID: dashboardID,
 			},
 		).
 		Error; err != nil {
@@ -193,6 +359,34 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
+// UnlinkPlatformAccount is the resolver for the unlinkPlatformAccount field.
+func (r *mutationResolver) UnlinkPlatformAccount(ctx context.Context, platform string) (bool, error) {
+	channel, err := (&authenticatedUserResolver{r.Resolver}).getAuthenticatedUserChannel(ctx)
+	if err != nil {
+		return false, fmt.Errorf("get authenticated user channel: %w", err)
+	}
+
+	currentPlatform, err := r.deps.Sessions.GetCurrentPlatform(ctx)
+	if err != nil {
+		return false, fmt.Errorf("get current platform: %w", err)
+	}
+
+	updates, err := unlinkPlatformUpdates(
+		channel,
+		platformentity.Platform(currentPlatform),
+		platformentity.Platform(platform),
+	)
+	if err != nil {
+		return false, err
+	}
+
+	if err := r.deps.Gorm.WithContext(ctx).Model(&model.Channels{}).Where("id = ?", channel.ID).Updates(updates).Error; err != nil {
+		return false, fmt.Errorf("unlink platform account: %w", err)
+	}
+
+	return true, nil
+}
+
 // AuthenticatedUser is the resolver for the authenticatedUser field.
 func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
 	sessionUser, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
@@ -211,6 +405,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		Where("id = ?", sessionUser.ID).
 		Preload("Channel").
 		First(&user).Error; err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	authedUser := &gqlmodel.AuthenticatedUser{
@@ -237,10 +432,36 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 	dashboardId, _ := r.deps.Sessions.GetSelectedDashboard(ctx)
 
 	var idForFetch string
+	var channelID *string
 	if userID != nil {
-		idForFetch = *userID
+		user, err := r.deps.UsersRepository.GetByPlatformID(ctx, platformentity.PlatformTwitch, *userID)
+		if err != nil && !errors.Is(err, usersmodel.ErrNotFound) {
+			return nil, fmt.Errorf("get user by twitch platform id: %w", err)
+		}
+
+		if err == nil {
+			channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+			if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
+				return nil, fmt.Errorf("get channel by twitch user id: %w", err)
+			}
+
+			if err == nil {
+				resolvedChannelID := channel.ID.String()
+				idForFetch = resolvedChannelID
+				channelID = &resolvedChannelID
+			}
+		}
+
+		if idForFetch == "" {
+			return &gqlmodel.PublicSettings{
+				ChannelID:   nil,
+				Description: nil,
+				SocialLinks: []gqlmodel.SocialLink{},
+			}, nil
+		}
 	} else if dashboardId != "" {
 		idForFetch = dashboardId
+		channelID = &dashboardId
 	}
 
 	if idForFetch == "" {
@@ -260,6 +481,7 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 	}
 
 	settings := &gqlmodel.PublicSettings{
+		ChannelID:   channelID,
 		Description: entity.Description.Ptr(),
 		SocialLinks: lo.Map(
 			entity.SocialLinks,

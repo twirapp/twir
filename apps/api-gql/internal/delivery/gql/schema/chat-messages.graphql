@@ -8,6 +8,7 @@ extend type Subscription {
 }
 
 input ChatMessageInput {
+	platformIn: [String!]
 	userIdIn: [String!]
 	userNameLike: String @validate(constraint: "max=40")
 	textLike: String @validate(constraint: "max=500")
@@ -17,6 +18,7 @@ input ChatMessageInput {
 
 type ChatMessage {
 	id: UUID!
+	platform: String!
 	channelId: String!
 	channelLogin: String!
 	channelName: String!

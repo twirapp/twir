@@ -8,7 +8,7 @@ import (
 
 type ChatWallSettings struct {
 	ID              uuid.UUID
-	ChannelID       string
+	ChannelID       uuid.UUID
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	MuteSubscribers bool
@@ -35,7 +35,7 @@ const (
 
 type ChatWall struct {
 	ID                     uuid.UUID
-	ChannelID              string
+	ChannelID              uuid.UUID
 	CreatedAt              time.Time
 	UpdatedAt              time.Time
 	Phrase                 string
@@ -59,7 +59,7 @@ var ChatWallNil = ChatWall{
 type ChatWallLog struct {
 	ID        uuid.UUID
 	WallID    uuid.UUID
-	UserID    string
+	UserID    uuid.UUID
 	Text      string
 	CreatedAt time.Time
 }

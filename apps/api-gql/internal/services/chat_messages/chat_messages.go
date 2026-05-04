@@ -10,12 +10,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
 
@@ -34,8 +34,8 @@ const (
 	chatMessagesSubscriptionKeyAll = chatMessagesSubscriptionKey + ".All"
 )
 
-func chatMessagesSubscriptionKeyCreate(channelId string) string {
-	return chatMessagesSubscriptionKey + "." + channelId
+func chatMessagesSubscriptionKeyCreate(platform string, channelId string) string {
+	return chatMessagesSubscriptionKey + "." + platform + "." + channelId
 }
 
 func New(opts Opts) *Service {
@@ -73,6 +73,7 @@ type Service struct {
 func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 	return entity.ChatMessage{
 		ID:              m.ID,
+		Platform:        m.Platform,
 		ChannelID:       m.ChannelID,
 		UserID:          m.UserID,
 		UserName:        m.UserName,
@@ -83,17 +84,27 @@ func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 	}
 }
 
-func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessage) (
+func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 	struct{},
 	error,
 ) {
 	textBuilder := strings.Builder{}
-	for _, fragment := range data.Message.Fragments {
-		textBuilder.WriteString(fragment.Text)
+	if data.Message != nil {
+		for _, fragment := range data.Message.Fragments {
+			textBuilder.WriteString(fragment.Text)
+		}
+	}
+	if textBuilder.Len() == 0 {
+		if data.Message != nil {
+			textBuilder.WriteString(data.Message.Text)
+		} else {
+			textBuilder.WriteString(data.Text)
+		}
 	}
 	msg := entity.ChatMessage{
 		ID:              uuid.New(),
-		ChannelID:       data.BroadcasterUserId,
+		Platform:        data.Platform,
+		ChannelID:       data.PlatformChannelID,
 		ChannelLogin:    data.BroadcasterUserLogin,
 		ChannelName:     data.BroadcasterUserName,
 		UserID:          data.ChatterUserId,
@@ -104,9 +115,10 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 		CreatedAt:       time.Now(),
 	}
 
+	channelSubKey := chatMessagesSubscriptionKeyCreate(data.Platform, data.PlatformChannelID)
 	c.chanSubsMu.RLock()
-	if _, ok := c.chanSubs[data.BroadcasterUserId]; ok {
-		err := c.wsRouter.Publish(chatMessagesSubscriptionKeyCreate(data.BroadcasterUserId), msg)
+	if _, ok := c.chanSubs[channelSubKey]; ok {
+		err := c.wsRouter.Publish(channelSubKey, msg)
 		if err != nil {
 			c.logger.Error(
 				"cannot publish some message to separate broadcaster messages",
@@ -125,27 +137,32 @@ func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessag
 	return struct{}{}, nil
 }
 
-func (c *Service) SubscribeToNewMessagesByChannelID(
+func (c *Service) SubscribeToNewMessagesByChannelIDs(
 	ctx context.Context,
-	channelID string,
+	channelPairs []chat_messages.PlatformChannelIdentity,
 ) <-chan entity.ChatMessage {
+	channelSubKeys := make([]string, 0, len(channelPairs))
+	for _, pair := range channelPairs {
+		channelSubKeys = append(channelSubKeys, chatMessagesSubscriptionKeyCreate(pair.Platform, pair.PlatformChannelID))
+	}
+
 	c.chanSubsMu.Lock()
-	c.chanSubs[channelID] = struct{}{}
+	for _, channelSubKey := range channelSubKeys {
+		c.chanSubs[channelSubKey] = struct{}{}
+	}
 	c.chanSubsMu.Unlock()
 
 	channel := make(chan entity.ChatMessage)
 	go func() {
-		sub, err := c.wsRouter.Subscribe(
-			[]string{
-				chatMessagesSubscriptionKeyCreate(channelID),
-			},
-		)
+		sub, err := c.wsRouter.Subscribe(channelSubKeys)
 		if err != nil {
 			panic(err)
 		}
 		defer func() {
 			c.chanSubsMu.Lock()
-			delete(c.chanSubs, channelID)
+			for _, channelSubKey := range channelSubKeys {
+				delete(c.chanSubs, channelSubKey)
+			}
 			c.chanSubsMu.Unlock()
 			sub.Unsubscribe()
 			close(channel)

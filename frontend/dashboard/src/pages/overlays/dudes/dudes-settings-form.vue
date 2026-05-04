@@ -20,7 +20,7 @@ import { toast } from 'vue-sonner'
 import { useDudesForm } from './use-dudes-form.js'
 import { useDudesIframe } from './use-dudes-frame.js'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import { useDudesOverlayManager } from '@/api/overlays/dudes'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
 import SelectTwitchUsers from '@/components/twitchUsers/twitch-users-select.vue'
@@ -49,10 +49,9 @@ import { Switch } from '@/components/ui/switch'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()
-const { copyOverlayLink } = useCopyOverlayLink('dudes')
+const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('dudes')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
-const { data: profile } = useProfile()
 const { data: formValue, reset } = useDudesForm()
 const { sendIframeMessage } = useDudesIframe()
 
@@ -81,7 +80,7 @@ watch(
 )
 
 const canCopyLink = computed(() => {
-	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays
+	return canCopyOverlayLink.value && userCanEditOverlays.value
 })
 
 const manager = useDudesOverlayManager()

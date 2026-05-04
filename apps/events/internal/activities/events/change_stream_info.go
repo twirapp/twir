@@ -25,6 +25,8 @@ func (c *Activity) ChangeCategory(
 
 	hydratedCategory, err := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -33,7 +35,7 @@ func (c *Activity) ChangeCategory(
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelTwitchUserID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -73,6 +75,8 @@ func (c *Activity) ChangeTitle(
 
 	hydratedTitle, err := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -81,7 +85,7 @@ func (c *Activity) ChangeTitle(
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelTwitchUserID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}

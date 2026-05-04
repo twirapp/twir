@@ -41,7 +41,7 @@ const greetingForm = useForm({
 	keepValuesOnUnmount: true,
 	validateOnMount: false,
 	initialValues: {
-		userId: props.greeting?.userId ?? '',
+		userId: props.greeting?.twitchProfile?.id ?? props.greeting?.userId ?? '',
 		text: props.greeting?.text,
 		enabled: props.greeting?.enabled ?? true,
 		isReply: props.greeting?.isReply ?? true,
@@ -56,9 +56,9 @@ const greetingsUpdate = greetingsApi.useMutationUpdateGreetings()
 const greetingsCreate = greetingsApi.useMutationCreateGreetings()
 
 function isUpdate(
-	values: GreetingsCreateInputInput | GreetingsUpdateInputInput
-): values is GreetingsUpdateInputInput {
-	return !props.greeting?.id && Object.values(values).some((v) => v === undefined)
+	_values: GreetingsCreateInputInput | GreetingsUpdateInputInput
+): _values is GreetingsUpdateInputInput {
+	return !!props.greeting?.id
 }
 
 const onSubmit = greetingForm.handleSubmit(async (values) => {

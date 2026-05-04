@@ -123,14 +123,27 @@ func (c *Service) Subscribe(ctx context.Context, channelID string) (chan entity.
 }
 
 type GetCountInput struct {
-	ChannelID *string
+	ChannelID      *string
+	ActorID        *string
+	ObjectID       *string
+	Systems        []string
+	OperationTypes []entity.AuditOperationType
 }
 
 func (c *Service) Count(ctx context.Context, input GetCountInput) (uint64, error) {
+	operationTypes := make([]model.AuditOperationType, 0, len(input.OperationTypes))
+	for _, t := range input.OperationTypes {
+		operationTypes = append(operationTypes, model.AuditOperationType(t))
+	}
+
 	return c.auditLogsRepository.Count(
 		ctx,
 		auditlogsrepository.GetCountInput{
-			ChannelID: input.ChannelID,
+			ChannelID:      input.ChannelID,
+			ActorID:        input.ActorID,
+			ObjectID:       input.ObjectID,
+			Systems:        input.Systems,
+			OperationTypes: operationTypes,
 		},
 	)
 }

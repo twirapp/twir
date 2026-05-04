@@ -34,9 +34,10 @@ func (c *ChatAlerts) messageDelete(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelID,
-			Message:        text,
-			SkipRateLimits: true,
+			ChannelId:         req.BaseInfo.ChannelID,
+			PlatformChannelID: req.BaseInfo.ChannelID,
+			Message:           text,
+			SkipRateLimits:    true,
 		},
 	)
 }

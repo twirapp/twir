@@ -9,9 +9,11 @@ import (
 	"github.com/alexedwards/scs/goredisstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	model "github.com/twirapp/twir/libs/gomodels"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -19,13 +21,15 @@ import (
 type Opts struct {
 	fx.In
 
-	Redis *redis.Client
-	Gorm  *gorm.DB
+	Redis     *redis.Client
+	Gorm      *gorm.DB
+	UsersRepo usersrepository.Repository
 }
 
 type Auth struct {
 	sessionManager *scs.SessionManager
 	gorm           *gorm.DB
+	usersRepo      usersrepository.Repository
 }
 
 func NewSessions(opts Opts) *Auth {
@@ -35,10 +39,13 @@ func NewSessions(opts Opts) *Auth {
 
 	gob.Register(model.Users{})
 	gob.Register(helix.User{})
+	gob.Register(uuid.UUID{})
+	gob.Register(KickSessionUser{})
 
 	return &Auth{
 		sessionManager: sessionManager,
 		gorm:           opts.Gorm,
+		usersRepo:      opts.UsersRepo,
 	}
 }
 
@@ -83,4 +90,17 @@ func (s *Auth) Middleware() gin.HandlerFunc {
 func (s *Auth) Put(ctx context.Context, key string, val interface{}) {
 	s.sessionManager.Put(ctx, key, val)
 	s.sessionManager.Commit(ctx)
+}
+
+func (s *Auth) Get(ctx context.Context, key string) interface{} {
+	return s.sessionManager.Get(ctx, key)
+}
+
+func (s *Auth) Commit(ctx context.Context) error {
+	_, _, err := s.sessionManager.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("cannot commit session: %w", err)
+	}
+
+	return nil
 }

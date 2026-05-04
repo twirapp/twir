@@ -64,12 +64,12 @@ export const useUsersTable = createGlobalState(() => {
 			cell: ({ row }) => {
 				return h('a', {
 					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
+					href: `https://twitch.tv/${row.original.twitchProfile?.login ?? ''}`,
 					target: '_blank',
 				}, h(UsersTableCellUser, {
-					avatar: row.original.twitchProfile.profileImageUrl,
-					name: row.original.twitchProfile.login,
-					displayName: row.original.twitchProfile.displayName,
+					avatar: row.original.twitchProfile?.profileImageUrl ?? '',
+					name: row.original.twitchProfile?.login ?? '',
+					displayName: row.original.twitchProfile?.displayName ?? '',
 				}))
 			},
 		},

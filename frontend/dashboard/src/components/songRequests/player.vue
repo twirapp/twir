@@ -133,6 +133,34 @@ function handleVolumeChange(value: number[] | undefined) {
 
 const { data: profile } = useProfile()
 const { t } = useI18n()
+
+const selectedDashboard = computed(() => {
+	return profile.value?.availableDashboards.find(
+		(dashboard) => dashboard.id === profile.value?.selectedDashboardId
+	)
+})
+
+const canUsePlayer = computed(() => {
+	if (!profile.value || !selectedDashboard.value) {
+		return false
+	}
+
+	return profile.value.linkedAccounts.some((account) => {
+		if (account.platform !== selectedDashboard.value?.platform) {
+			return false
+		}
+
+		if (account.platform === 'twitch') {
+			return account.platformLogin === selectedDashboard.value.twitchProfile?.login
+		}
+
+		if (account.platform === 'kick') {
+			return account.platformUserId === String(selectedDashboard.value.kickProfile?.id)
+		}
+
+		return false
+	})
+})
 </script>
 
 <template>
@@ -145,17 +173,18 @@ const { t } = useI18n()
 						variant="outline"
 						size="icon"
 						class="size-8"
+						:disabled="!canUsePlayer"
 						@click="playerVisible = !playerVisible"
 					>
 						<EyeOff v-if="playerVisible" class="size-4" />
 						<Eye v-else class="size-4" />
 					</Button>
-					<Button variant="outline" size="icon" class="size-8" @click="openSettingsModal">
+					<Button variant="outline" size="icon" class="size-8" :disabled="!canUsePlayer" @click="openSettingsModal">
 						<Settings class="size-4" />
 					</Button>
 				</div>
 			</div>
-			<div v-if="profile?.id !== profile?.selectedDashboardId" class="p-6 text-center">
+			<div v-if="!canUsePlayer" class="p-6 text-center">
 				<p class="text-muted-foreground">{{ t('songRequests.player.noAccess') }}</p>
 			</div>
 

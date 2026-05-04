@@ -7,6 +7,10 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
+// InternalCauseKey is a private extensions key used to pass the original error to the
+// ErrorPresenter for logging. It is stripped from the response before sending to the client.
+const InternalCauseKey = "_internal_cause"
+
 // ToGQLError преобразует ошибку приложения в GraphQL ошибку
 func ToGQLError(err error) error {
 	if err == nil {
@@ -15,11 +19,13 @@ func ToGQLError(err error) error {
 
 	appErr, ok := apperrors.AsAppError(err)
 	if !ok {
-		// Если это не AppError, возвращаем как внутреннюю ошибку
+		// Если это не AppError, возвращаем как внутреннюю ошибку.
+		// Оригинальная ошибка сохраняется под приватным ключом для логирования в ErrorPresenter.
 		return &gqlerror.Error{
 			Message: "Internal server error",
 			Extensions: map[string]interface{}{
-				"code": string(apperrors.ErrorCodeInternal),
+				"code":           string(apperrors.ErrorCodeInternal),
+				InternalCauseKey: err,
 			},
 		}
 	}

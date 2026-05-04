@@ -8,6 +8,7 @@ import (
 func ChatMessageToGQL(input entity.ChatMessage) gqlmodel.ChatMessage {
 	return gqlmodel.ChatMessage{
 		ID:              input.ID,
+		Platform:        input.Platform,
 		ChannelID:       input.ChannelID,
 		ChannelName:     input.ChannelName,
 		ChannelLogin:    input.ChannelLogin,

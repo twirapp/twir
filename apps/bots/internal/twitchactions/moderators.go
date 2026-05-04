@@ -9,9 +9,17 @@ import (
 )
 
 func (c *TwitchActions) AddModerator(ctx context.Context, broadcasterID, userID string) error {
+	channel, err := c.channelsByTwitchIDCache.Get(ctx, broadcasterID)
+	if err != nil {
+		return fmt.Errorf("cannot get channel by twitch id: %w", err)
+	}
+	if channel.TwitchUserID == nil {
+		return fmt.Errorf("channel has no twitch user id for broadcaster %s", broadcasterID)
+	}
+
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		broadcasterID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)
@@ -36,9 +44,17 @@ func (c *TwitchActions) AddModerator(ctx context.Context, broadcasterID, userID 
 }
 
 func (c *TwitchActions) RemoveModerator(ctx context.Context, broadcasterID, userID string) error {
+	channel, err := c.channelsByTwitchIDCache.Get(ctx, broadcasterID)
+	if err != nil {
+		return fmt.Errorf("cannot get channel by twitch id: %w", err)
+	}
+	if channel.TwitchUserID == nil {
+		return fmt.Errorf("channel has no twitch user id for broadcaster %s", broadcasterID)
+	}
+
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		broadcasterID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)

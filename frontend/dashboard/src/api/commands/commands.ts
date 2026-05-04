@@ -66,6 +66,7 @@ export const useCommandsApi = createGlobalState(() => {
 							roleId
 							cooldown
 						}
+						platforms
 					}
 				}
 			`),

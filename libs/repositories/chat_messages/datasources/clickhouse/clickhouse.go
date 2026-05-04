@@ -33,15 +33,16 @@ type Clickhouse struct {
 
 func (c *Clickhouse) Create(ctx context.Context, input chat_messages.CreateInput) error {
 	query := `
-INSERT INTO chat_messages (id, channel_id, user_id, text, user_name, user_display_name, user_color)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT INTO chat_messages (id, platform, platform_channel_id, user_id, text, user_name, user_display_name, user_color)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 `
 
 	err := c.client.Exec(
 		ctx,
 		query,
 		input.ID,
-		input.ChannelID,
+		input.Platform,
+		input.PlatformChannelID,
 		input.UserID,
 		input.Text,
 		input.UserName,
@@ -78,7 +79,7 @@ func (c *Clickhouse) createBatch(ctx context.Context, input []chat_messages.Crea
 
 	batch, err := c.client.PrepareBatch(
 		ctx,
-		"INSERT INTO chat_messages (id, channel_id, user_id, text, user_name, user_display_name, user_color)",
+		"INSERT INTO chat_messages (id, platform, platform_channel_id, user_id, text, user_name, user_display_name, user_color)",
 	)
 	if err != nil {
 		return fmt.Errorf("prepare batch failed: %w", err)
@@ -87,7 +88,8 @@ func (c *Clickhouse) createBatch(ctx context.Context, input []chat_messages.Crea
 	for _, i := range input {
 		err := batch.Append(
 			i.ID,
-			i.ChannelID,
+			i.Platform,
+			i.PlatformChannelID,
 			i.UserID,
 			i.Text,
 			i.UserName,
@@ -122,7 +124,8 @@ func (c *Clickhouse) GetMany(
 
 	builder := sq.Select(
 		"id",
-		"channel_id",
+		"platform",
+		"platform_channel_id",
 		"user_id",
 		"user_name",
 		"user_display_name",
@@ -131,8 +134,21 @@ func (c *Clickhouse) GetMany(
 		"created_at",
 	).From("chat_messages")
 
-	if input.ChannelID != nil {
-		builder = builder.Where(squirrel.Eq{"channel_id": *input.ChannelID})
+	if len(input.ChannelPairs) > 0 {
+		pairConditions := make(squirrel.Or, 0, len(input.ChannelPairs))
+		for _, pair := range input.ChannelPairs {
+			pairConditions = append(pairConditions, squirrel.And{
+				squirrel.Eq{"platform": pair.Platform},
+				squirrel.Eq{"platform_channel_id": pair.PlatformChannelID},
+			})
+		}
+		builder = builder.Where(pairConditions)
+	} else if input.Platform != nil {
+		builder = builder.Where(squirrel.Eq{"platform": *input.Platform})
+	}
+
+	if input.PlatformChannelID != nil {
+		builder = builder.Where(squirrel.Eq{"platform_channel_id": *input.PlatformChannelID})
 	}
 
 	if input.UserNameLike != nil && *input.UserNameLike != "" {
@@ -171,6 +187,7 @@ func (c *Clickhouse) GetMany(
 		var m model.ChatMessage
 		err := rows.Scan(
 			&m.ID,
+			&m.Platform,
 			&m.ChannelID,
 			&m.UserID,
 			&m.UserName,

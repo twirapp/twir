@@ -23,7 +23,7 @@ func (p *RedisTaskProcessor) ProcessDistributeMod(
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		payload.ChannelID,
+		payload.TwitchUserID,
 		p.config,
 		p.twirBus,
 	)

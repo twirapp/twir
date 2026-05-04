@@ -8,10 +8,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
@@ -77,7 +79,19 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
-	stream, err := c.streamsrepository.GetByChannelID(ctx, event.BroadcasterUserId)
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
+	if err != nil {
+		return fmt.Errorf("failed to get user by platform id: %w", err)
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	if err != nil {
+		return fmt.Errorf("failed to get channel by broadcaster user: %w", err)
+	}
+
+	channelID := channel.ID.String()
+
+	stream, err := c.streamsrepository.GetByChannelID(ctx, channelID)
 	if err != nil {
 		return fmt.Errorf("failed to get stream by channel id: %w", err)
 	}
@@ -90,7 +104,7 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 	vips, err := c.scheduledVipsRepo.GetMany(
 		ctx,
 		scheduledvipsrepository.GetManyInput{
-			ChannelID:  &event.BroadcasterUserId,
+			ChannelID:  &channelID,
 			RemoveType: lo.ToPtr(scheduledvipsentity.RemoveTypeStreamEnd),
 		},
 	)
@@ -104,7 +118,7 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 
 	twitchClient, err := twitchlib.NewUserClientWithContext(
 		ctx,
-		event.BroadcasterUserId,
+		user.ID,
 		c.config,
 		c.twirBus,
 	)
@@ -117,12 +131,29 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 	for _, vip := range vips {
 		wg.Add(1)
 
-		go func() {
+		go func(vip scheduledvipsentity.ScheduledVip) {
 			defer wg.Done()
+
+			vipUserID, err := uuid.Parse(vip.UserID)
+			if err != nil {
+				c.logger.Error("failed to parse vip user id", slog.String("userId", vip.UserID), logger.Error(err))
+				return
+			}
+
+			vipUser, err := c.usersRepo.GetByID(ctx, vipUserID)
+			if err != nil {
+				c.logger.Error("failed to get vip user by id", slog.String("userId", vip.UserID), logger.Error(err))
+				return
+			}
+			if vipUser.IsNil() {
+				c.logger.Error("vip user not found", slog.String("userId", vip.UserID))
+				return
+			}
+
 			resp, err := twitchClient.RemoveChannelVip(
 				&helix.RemoveChannelVipParams{
-					BroadcasterID: vip.ChannelID,
-					UserID:        vip.UserID,
+					BroadcasterID: event.BroadcasterUserId,
+					UserID:        vipUser.PlatformID,
 				},
 			)
 			if err != nil {
@@ -143,7 +174,7 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 				slog.String("userId", vip.UserID),
 				slog.String("channelId", vip.ChannelID),
 			)
-		}()
+		}(vip)
 
 	}
 

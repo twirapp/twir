@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -32,10 +33,19 @@ func (c *Handler) HandleChannelUpdate(
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	c.twirBus.Events.TitleOrCategoryChanged.Publish(
 		ctx,
 		events.TitleOrCategoryChangedMessage{
-			BaseInfo:    events.BaseInfo{ChannelID: event.BroadcasterUserId},
+			BaseInfo:    events.BaseInfo{ChannelID: event.BroadcasterUserId, Platform: platformentity.PlatformTwitch},
 			NewTitle:    event.Title,
 			NewCategory: event.CategoryName,
 		},
@@ -44,7 +54,8 @@ func (c *Handler) HandleChannelUpdate(
 	if err := c.channelsInfoHistoryRepo.Create(
 		ctx,
 		channelsinfohistory.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channelID,
+			Platform:  platformentity.PlatformTwitch,
 			Title:     event.Title,
 			Category:  event.CategoryName,
 		},
@@ -52,7 +63,7 @@ func (c *Handler) HandleChannelUpdate(
 		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
-	err := c.gorm.
+	err = c.gorm.
 		WithContext(ctx).
 		Model(&model.ChannelsStreams{}).
 		Where(`"userId" = ?`, event.BroadcasterUserId).

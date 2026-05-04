@@ -28,6 +28,8 @@ func (c *Activity) ModOrUnmod(
 
 	hydratedName, hydrationErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -38,7 +40,7 @@ func (c *Activity) ModOrUnmod(
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
 	var errWg errgroup.Group
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelTwitchUserID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -148,7 +150,7 @@ func (c *Activity) UnmodRandom(
 		return dbChannelErr
 	}
 
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelTwitchUserID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}

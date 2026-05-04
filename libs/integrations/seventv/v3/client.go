@@ -74,6 +74,14 @@ func (c *Client) GetProfileByTwitchId(
 	return res, unwrapGqlErrorsList(err)
 }
 
+func (c *Client) GetProfileByKickId(
+	ctx context.Context,
+	id string,
+) (*api.GetProfileByKickIdV3Response, error) {
+	res, err := api.GetProfileByKickIdV3(ctx, c.client, id)
+	return res, unwrapGqlErrorsList(err)
+}
+
 func (c *Client) GetOneEmoteById(ctx context.Context, id string) (
 	*api.GetOneEmoteByIdV3Response,
 	error,

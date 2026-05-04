@@ -27,7 +27,7 @@ var EnableCommand = &types.DefaultCommand{
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		err := parseCtx.Services.TTSService.ToggleChannelEnabled(ctx, parseCtx.Channel.ID, true)
+		err := parseCtx.Services.TTSService.ToggleChannelEnabled(ctx, parseCtx.Channel.DBChannelID, true)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.WhileEnable),
@@ -37,7 +37,7 @@ var EnableCommand = &types.DefaultCommand{
 
 		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Info.Enabled))
 
-		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		return result, nil
 	},

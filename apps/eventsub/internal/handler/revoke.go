@@ -3,11 +3,14 @@ package handler
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log/slog"
 
 	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 )
 
 func (c *Handler) HandleUserAuthorizationRevoke(
@@ -21,28 +24,39 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 		slog.String("user_login", event.UserLogin),
 	)
 
-	if err := c.gorm.WithContext(ctx).Model(&model.Channels{}).
-		Where("id = ?", event.UserId).
-		Update(`"isBotMod"`, false).
-		Update(`"isEnabled"`, false).Error; err != nil {
-		c.logger.Error("failed to update channel", logger.Error(err))
-	}
-
-	user := &model.Users{}
-	if err := c.gorm.
-		WithContext(ctx).
-		Where("id = ?", event.UserId).
-		First(user).Error; err != nil {
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.UserId)
+	if err != nil {
 		c.logger.Error("failed to get user", logger.Error(err))
+		return
 	}
 
-	if user.TokenID.Valid {
+	channel, channelErr := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	if channelErr != nil {
+		if !errors.Is(channelErr, channelsrepository.ErrNotFound) {
+			c.logger.Error("failed to get channel", logger.Error(channelErr))
+		}
+	} else {
+		isBotMod := false
+		twitchEnabled := false
+		overallEnabled := channel.KickBotJoined()
+
+		if _, updateErr := c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
+			IsBotMod:         &isBotMod,
+			IsEnabled:        &overallEnabled,
+			TwitchBotEnabled: &twitchEnabled,
+		}); updateErr != nil {
+			c.logger.Error("failed to update channel", logger.Error(updateErr))
+		}
+	}
+
+	legacyUser := &model.Users{ID: user.ID.String(), TokenID: user.TokenID.NullString}
+	if legacyUser.TokenID.Valid {
 		if err := c.gorm.
 			WithContext(ctx).
 			Delete(
 				&model.Tokens{},
 				"id = ?",
-				user.TokenID.String,
+				legacyUser.TokenID.String,
 			).Error; err != nil {
 			c.logger.Error(
 				"failed to delete token",
@@ -50,8 +64,8 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 			)
 		}
 
-		user.TokenID = sql.NullString{}
-		if err := c.gorm.WithContext(ctx).Save(&user).Error; err != nil {
+		legacyUser.TokenID = sql.NullString{}
+		if err := c.gorm.WithContext(ctx).Save(&legacyUser).Error; err != nil {
 			c.logger.Error("failed to update user", logger.Error(err))
 		}
 	}

@@ -127,7 +127,7 @@ func (c *Pgx) Create(ctx context.Context, input usersstats.CreateInput) (*model.
 
 func (c *Pgx) CreateOrUpdate(
 	ctx context.Context,
-	userID, channelID string,
+	userID, channelID uuid.UUID,
 	input usersstats.UpdateInput,
 ) (*model.UserStat, error) {
 	queryInsert := `
@@ -163,8 +163,13 @@ INSERT INTO users_stats (
 		"updated_at = NOW()",
 	}
 	setMap := pgx.NamedArgs{
-		`user_id`:    userID,
-		`channel_id`: channelID,
+		`user_id`:            userID,
+		`channel_id`:         channelID,
+		`messages`:           0,
+		`watched`:            0,
+		`usedChannelPoints`:  0,
+		`reputation`:         0,
+		`emotes`:             0,
 	}
 
 	for field, update := range input.NumberFields {
@@ -177,6 +182,7 @@ INSERT INTO users_stats (
 				fmt.Sprintf(`"%s" = users_stats."%s" + @%s`, fieldName, fieldName, paramName),
 			)
 			setMap[paramName] = update.Count
+			setMap[fieldName] = update.Count
 		} else {
 			setClauses = append(setClauses, fmt.Sprintf(`"%s" = @%s`, fieldName, paramName))
 			setMap[paramName] = update.Count
@@ -218,13 +224,13 @@ INSERT INTO users_stats (
 
 func (c *Pgx) GetByUserAndChannelID(
 	ctx context.Context,
-	userID, channelID string,
+	userID, channelID uuid.UUID,
 ) (*model.UserStat, error) {
 	query := fmt.Sprintf(
 		`
 SELECT %s
 FROM users_stats
-WHERE "userId" = $1 AND "channelId" = $2
+WHERE "userId" = $1::uuid AND "channelId" = $2::uuid
 LIMIT 1
 `, selectFieldsJoined,
 	)

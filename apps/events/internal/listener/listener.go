@@ -2,6 +2,8 @@ package listener
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 
@@ -16,12 +18,15 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/utils"
 	"go.uber.org/fx"
@@ -43,7 +48,9 @@ type Opts struct {
 	EventsWorkflow         *workflows.EventWorkflow
 	SongRequest            *song_request.SongRequest
 	TwirBus                *buscore.Bus
+	ChannelsRepo           channelsrepository.Repository
 	ChannelsEventsListRepo channelseventslist.Repository
+	UsersRepo              usersrepository.Repository
 }
 
 func New(opts Opts) error {
@@ -57,7 +64,9 @@ func New(opts Opts) error {
 		eventsWorkflow:         opts.EventsWorkflow,
 		songsRequest:           opts.SongRequest,
 		twirBus:                opts.TwirBus,
+		channelsRepo:           opts.ChannelsRepo,
 		channelsEventsListRepo: opts.ChannelsEventsListRepo,
+		usersRepo:              opts.UsersRepo,
 	}
 
 	opts.Lc.Append(
@@ -283,7 +292,48 @@ type EventsGrpcImplementation struct {
 	eventsWorkflow         *workflows.EventWorkflow
 	songsRequest           *song_request.SongRequest
 	twirBus                *buscore.Bus
+	channelsRepo           channelsrepository.Repository
 	channelsEventsListRepo channelseventslist.Repository
+	usersRepo              usersrepository.Repository
+}
+
+func normalizeEventPlatform(p platform.Platform) platform.Platform {
+	if p == "" {
+		return platform.PlatformTwitch
+	}
+
+	return p
+}
+
+func withPlatform(p platform.Platform, data shared.EventData) shared.EventData {
+	data.Platform = normalizeEventPlatform(p)
+	return data
+}
+
+func (c *EventsGrpcImplementation) resolveInternalChannelID(
+	ctx context.Context,
+	plat platform.Platform,
+	platformChannelID string,
+) (string, error) {
+	user, err := c.usersRepo.GetByPlatformID(ctx, plat, platformChannelID)
+	if err != nil {
+		return "", fmt.Errorf("resolve user by platform id: %w", err)
+	}
+
+	switch plat {
+	case platform.PlatformKick:
+		channel, err := c.channelsRepo.GetByKickUserID(ctx, user.ID)
+		if err != nil {
+			return "", fmt.Errorf("resolve channel by kick user id: %w", err)
+		}
+		return channel.ID.String(), nil
+	default:
+		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+		if err != nil {
+			return "", fmt.Errorf("resolve channel by twitch user id: %w", err)
+		}
+		return channel.ID.String(), nil
+	}
 }
 
 func (c *EventsGrpcImplementation) Follow(
@@ -291,6 +341,7 @@ func (c *EventsGrpcImplementation) Follow(
 	msg events.FollowMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
 
 	wg.Go(
 		func() {
@@ -303,11 +354,18 @@ func (c *EventsGrpcImplementation) Follow(
 
 			var streamFollowersCount int64
 			if stream != nil && stream.ID != "" {
+				channelID, err := c.resolveInternalChannelID(ctx, eventPlatform, msg.BaseInfo.ChannelID)
+				if err != nil {
+					c.logger.Error("Error resolve internal channel id", logger.Error(err))
+					return
+				}
+
 				t := channelseventslistmodel.ChannelEventListItemTypeFollow
 				count, err := c.channelsEventsListRepo.CountBy(
 					ctx,
 					channelseventslist.CountByInput{
-						ChannelID:    &msg.BaseInfo.ChannelID,
+						ChannelID:    &channelID,
+						Platform:     &eventPlatform,
 						CreatedAtGTE: &stream.StartedAt,
 						Type:         &t,
 					},
@@ -320,38 +378,49 @@ func (c *EventsGrpcImplementation) Follow(
 				streamFollowersCount = count
 			}
 
-			twitchClient, err := twitchlib.NewUserClientWithContext(
-				ctx,
-				msg.BaseInfo.ChannelID,
-				c.cfg,
-				c.twirBus,
-			)
-			if err != nil {
-				c.logger.Error("Error create twitch client", logger.Error(err))
-				return
+			var totalFollowers int64
+			if eventPlatform == platform.PlatformTwitch {
+				user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, msg.BaseInfo.ChannelID)
+				if err != nil {
+					c.logger.Error("Error get user by platform ID", logger.Error(err))
+					return
+				}
+
+				twitchClient, err := twitchlib.NewUserClientWithContext(
+					ctx,
+					user.ID,
+					c.cfg,
+					c.twirBus,
+				)
+				if err != nil {
+					c.logger.Error("Error create twitch client", logger.Error(err))
+					return
+				}
+
+				followersReq, err := twitchClient.GetChannelFollows(
+					&helix.GetChannelFollowsParams{
+						BroadcasterID: msg.BaseInfo.ChannelID,
+					},
+				)
+				if err != nil {
+					c.logger.Error("Error get channel followers", logger.Error(err))
+					return
+				}
+
+				totalFollowers = int64(followersReq.Data.Total)
 			}
 
-			followersReq, err := twitchClient.GetChannelFollows(
-				&helix.GetChannelFollowsParams{
-					BroadcasterID: msg.BaseInfo.ChannelID,
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error get channel followers", logger.Error(err))
-				return
-			}
-
-			err = c.eventsWorkflow.Execute(
+			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeFollow,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:              msg.BaseInfo.ChannelID,
 					UserName:               msg.UserName,
 					UserDisplayName:        msg.UserDisplayName,
 					UserID:                 msg.UserID,
-					ChannelFollowers:       int64(followersReq.Data.Total),
+					ChannelFollowers:       totalFollowers,
 					ChannelStreamFollowers: streamFollowersCount,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -380,18 +449,19 @@ func (c *EventsGrpcImplementation) Subscribe(
 	msg events.SubscribeMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeSubscribe,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
 					UserDisplayName: msg.UserDisplayName,
 					SubLevel:        msg.Level,
 					UserID:          msg.UserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -406,9 +476,11 @@ func (c *EventsGrpcImplementation) Subscribe(
 				msg.BaseInfo.ChannelID,
 				model.EventTypeSubscribe,
 				chat_alerts.SubscribeMessage{
-					UserName:  msg.UserName,
-					Months:    0,
-					ChannelId: msg.BaseInfo.ChannelID,
+					UserName:    msg.UserName,
+					Months:      0,
+					ChannelId:   msg.BaseInfo.ChannelID,
+					ChannelName: msg.BaseInfo.ChannelName,
+					Platform:    eventPlatform,
 				},
 			)
 		},
@@ -424,13 +496,14 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 	msg events.ReSubscribeMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeResubscribe,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
 					UserDisplayName: msg.UserDisplayName,
 					SubLevel:        msg.Level,
@@ -438,7 +511,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 					ResubMonths:     msg.Months,
 					ResubStreak:     msg.Streak,
 					UserID:          msg.UserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -467,13 +540,14 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 	msg events.RedemptionCreatedMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeRedemptionCreated,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -482,7 +556,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 					RewardName:      msg.RewardName,
 					RewardID:        msg.ID,
 					UserID:          msg.UserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -519,6 +593,7 @@ func (c *EventsGrpcImplementation) CommandUsed(
 				model.EventTypeCommandUsed,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     msg.BaseInfo.ChannelID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					CommandName:     msg.CommandName,
@@ -697,11 +772,28 @@ func (c *EventsGrpcImplementation) StreamOffline(
 
 	wg.Go(
 		func() {
+			channel := struct {
+				ID string `gorm:"column:id"`
+			}{}
+			if err := c.db.WithContext(ctx).
+				Table("channels").
+				Select("channels.id").
+				Joins(`JOIN users ON users.id::text = channels.twitch_user_id::text`).
+				Where(`users.platform = ? AND users.platform_id = ?`, platform.PlatformTwitch, msg.ChannelID).
+				First(&channel).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return
+				}
+				c.logger.Error("Error get channel by twitch platform ID", logger.Error(err))
+				return
+			}
+
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeStreamOffline,
 				shared.EventData{
-					ChannelID: msg.ChannelID,
+					ChannelID:   msg.ChannelID,
+					ChannelDBID: channel.ID,
 				},
 			)
 			if err != nil {
@@ -731,19 +823,20 @@ func (c *EventsGrpcImplementation) SubGift(
 	msg events.SubGiftMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeSubGift,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:             msg.BaseInfo.ChannelID,
 					TargetUserName:        msg.TargetUserName,
 					TargetUserDisplayName: msg.TargetDisplayName,
 					SubLevel:              msg.Level,
 					UserID:                msg.SenderUserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -1245,20 +1338,21 @@ func (c *EventsGrpcImplementation) ChannelBan(
 	msg events.ChannelBanMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeChannelBan,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:            msg.BaseInfo.ChannelID,
 					UserDisplayName:      msg.UserName,
 					ModeratorDisplayName: msg.ModeratorUserName,
 					ModeratorName:        msg.ModeratorUserLogin,
 					BanReason:            msg.Reason,
 					BanEndsInMinutes:     msg.EndsAt,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))

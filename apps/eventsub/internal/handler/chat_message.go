@@ -13,16 +13,20 @@ import (
 	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/redis/go-redis/v9"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/eventsub/internal/mappers"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"go.opentelemetry.io/otel/attribute"
 	"golang.org/x/sync/errgroup"
 )
@@ -50,6 +54,31 @@ func (c *Handler) HandleChannelChatMessage(
 	data.EnrichedData.IsChatterVip = data.IsChatterVip()
 	data.EnrichedData.IsChatterSubscriber = data.IsChatterSubscriber()
 
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, data.BroadcasterUserId)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			c.logger.Warn("cannot find broadcaster user for chat message", slog.String("broadcaster_user_id", data.BroadcasterUserId))
+			return
+		}
+
+		c.logger.Error("cannot resolve broadcaster user for chat message", logger.Error(err))
+		return
+	}
+
+	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			c.logger.Warn("cannot find channel for chat message", slog.String("broadcaster_user_id", data.BroadcasterUserId))
+			return
+		}
+
+		c.logger.Error("cannot resolve channel for chat message", logger.Error(err))
+		return
+	}
+
+	channelID := channel.ID.String()
+	data.EnrichedData.DbChannel = channel
+
 	errwg.Go(
 		func() error {
 			emotes, emotesErr := c.chatMessageCountEmotes(ctx, data)
@@ -64,7 +93,7 @@ func (c *Handler) HandleChannelChatMessage(
 
 	errwg.Go(
 		func() error {
-			commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, data.BroadcasterUserId)
+			commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, channelID)
 			if err != nil {
 				return err
 			}
@@ -76,19 +105,7 @@ func (c *Handler) HandleChannelChatMessage(
 
 	errwg.Go(
 		func() error {
-			channel, err := c.channelsCache.Get(ctx, data.BroadcasterUserId)
-			if err != nil {
-				return err
-			}
-			data.EnrichedData.DbChannel = channel
-
-			return nil
-		},
-	)
-
-	errwg.Go(
-		func() error {
-			stream, err := c.chatMessageGetChannelStream(ctx, data.BroadcasterUserId)
+			stream, err := c.chatMessageGetChannelStream(ctx, channelID)
 			if err != nil {
 				return err
 			}
@@ -112,7 +129,9 @@ func (c *Handler) HandleChannelChatMessage(
 	ensuredUser, ensuredUserStats, err := c.userCreatorService.UnsureUser(
 		ctx, user_creator.CreateUserInput{
 			UserID:                   data.ChatterUserId,
-			ChannelID:                &data.BroadcasterUserId,
+			PlatformID:               data.ChatterUserId,
+			Platform:                 platform.PlatformTwitch,
+			ChannelID:                lo.ToPtr(data.EnrichedData.DbChannel.ID.String()),
 			Badges:                   data.Badges,
 			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,
 			ShouldUpdateStats: data.EnrichedData.ChannelStream != nil &&
@@ -128,8 +147,10 @@ func (c *Handler) HandleChannelChatMessage(
 		return
 	}
 
-	data.EnrichedData.DbUser = &twitch.DbUser{
-		ID:                ensuredUser.ID,
+	data.ChannelID = channelID
+
+	data.EnrichedData.DbUser = &generic.DbUser{
+		ID:                ensuredUser.ID.String(),
 		TokenID:           ensuredUser.TokenID.Ptr(),
 		IsBotAdmin:        ensuredUser.IsBotAdmin,
 		ApiKey:            ensuredUser.ApiKey,
@@ -137,10 +158,10 @@ func (c *Handler) HandleChannelChatMessage(
 		HideOnLandingPage: ensuredUser.HideOnLandingPage,
 		CreatedAt:         ensuredUser.CreatedAt,
 	}
-	data.EnrichedData.DbUserChannelStat = &twitch.DbUserChannelStat{
+	data.EnrichedData.DbUserChannelStat = &generic.DbUserChannelStat{
 		ID:                ensuredUserStats.ID,
-		UserID:            ensuredUserStats.UserID,
-		ChannelID:         ensuredUserStats.ChannelID,
+		UserID:            ensuredUserStats.UserID.String(),
+		ChannelID:         ensuredUserStats.ChannelID.String(),
 		Messages:          ensuredUserStats.Messages,
 		Watched:           ensuredUserStats.Watched,
 		UsedChannelPoints: ensuredUserStats.UsedChannelPoints,
@@ -151,6 +172,11 @@ func (c *Handler) HandleChannelChatMessage(
 		Emotes:            ensuredUserStats.Emotes,
 		CreatedAt:         ensuredUserStats.CreatedAt,
 		UpdatedAt:         ensuredUserStats.UpdatedAt,
+	}
+
+	messageText := ""
+	if data.Message != nil {
+		messageText = data.Message.Text
 	}
 
 	var wg sync.WaitGroup
@@ -168,7 +194,7 @@ func (c *Handler) HandleChannelChatMessage(
 						UserID:          data.ChatterUserId,
 						UserName:        data.ChatterUserLogin,
 						UserDisplayName: data.ChatterUserName,
-						MessageID:       data.MessageId,
+						MessageID:       data.MessageID,
 					},
 				); err != nil {
 					c.logger.Error("cannot publish first user message", logger.Error(err))
@@ -192,6 +218,21 @@ func (c *Handler) HandleChannelChatMessage(
 			if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 				return
 			} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
+				if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
+					c.logger.Error("cannot publish process command", logger.Error(err))
+				}
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			isCommand := strings.HasPrefix(messageText, data.EnrichedData.ChannelCommandPrefix)
+			if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
+				return
+			}
+
+			if isCommand && data.EnrichedData.DbChannel.IsEnabled {
 				if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
 					c.logger.Error("cannot publish process command", logger.Error(err))
 				}
@@ -236,7 +277,7 @@ func (c *Handler) HandleChannelChatMessageDelete(
 
 func (c *Handler) chatMessageCountEmotes(
 	ctx context.Context,
-	msg twitch.TwitchChatMessage,
+	msg generic.ChatMessage,
 ) (map[string]int, error) {
 	if msg.Message == nil {
 		return nil, nil
@@ -291,7 +332,7 @@ func (c *Handler) chatMessageCountEmotes(
 	}
 
 	for _, f := range msg.Message.Fragments {
-		if f.Type != twitch.FragmentType_EMOTE || f.Text == "" || f.Text == " " {
+		if f.Type != generic.FragmentType_EMOTE || f.Text == "" || f.Text == " " {
 			continue
 		}
 		emotes[f.Text] += 1

@@ -11,6 +11,23 @@ extend type Mutation {
 	authenticatedUserRegenerateApiKey: String! @isAuthenticated
 	authenticatedUserUpdatePublicPage(opts: UserUpdatePublicSettingsInput!): Boolean! @isAuthenticated
 	logout: Boolean! @isAuthenticated
+	unlinkPlatformAccount(platform: String!): Boolean! @isAuthenticated
+}
+
+type KickProfile {
+	id: String!
+	slug: String!
+	displayName: String!
+	profilePicture: String
+	isLive: Boolean!
+	followersCount: Int!
+}
+
+type LinkedAccount {
+	platform: String!
+	platformUserId: String!
+	platformLogin: String!
+	platformAvatar: String
 }
 
 type AuthenticatedUser implements TwirUser {
@@ -22,16 +39,21 @@ type AuthenticatedUser implements TwirUser {
 	apiKey: String!
 	hideOnLandingPage: Boolean!
 	botId: ID
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
 	selectedDashboardId: String!
 	availableDashboards: [Dashboard!]! @goField(forceResolver: true)
 	planId: String
+	kickProfile: KickProfile @goField(forceResolver: true)
+	linkedAccounts: [LinkedAccount!]! @goField(forceResolver: true)
+	currentPlatform: String! @goField(forceResolver: true)
 }
 
 type Dashboard {
 	id: String!
+	platform: String!
 	flags: [ChannelRolePermissionEnum!]!
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
+	kickProfile: KickProfile @goField(forceResolver: true)
 	apiKey: String!
 	planId: String
 	plan: Plan @goField(forceResolver: true)
@@ -59,6 +81,7 @@ input UserUpdateSettingsInput {
 }
 
 type PublicSettings {
+	channelId: String
 	description: String
 	socialLinks: [SocialLink!]!
 }

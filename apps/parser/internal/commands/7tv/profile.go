@@ -43,7 +43,7 @@ var Profile = &types.DefaultCommand{
 	) {
 		userIdForCheck := parseCtx.Channel.ID
 		if parseCtx.ArgsParser.Get(profileArg) != nil && len(parseCtx.Mentions) >= 1 {
-			userIdForCheck = parseCtx.Mentions[0].UserId
+			userIdForCheck = parseCtx.Mentions[0].UserID
 		}
 
 		if _, err := parseCtx.Cacher.GetSeventvProfileGetTwitchId(ctx, userIdForCheck); err != nil {

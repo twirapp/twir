@@ -310,6 +310,138 @@ func (v *GetProfileByIdV3User) __premarshalJSON() (*__premarshalGetProfileByIdV3
 	return &retval, nil
 }
 
+// GetProfileByKickIdV3Response is returned by GetProfileByKickIdV3 on success.
+type GetProfileByKickIdV3Response struct {
+	UserByConnection GetProfileByKickIdV3UserByConnectionUser `json:"userByConnection"`
+}
+
+// GetUserByConnection returns GetProfileByKickIdV3Response.UserByConnection, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3Response) GetUserByConnection() GetProfileByKickIdV3UserByConnectionUser {
+	return v.UserByConnection
+}
+
+// GetProfileByKickIdV3UserByConnectionUser includes the requested fields of the GraphQL type User.
+type GetProfileByKickIdV3UserByConnectionUser struct {
+	TwirSeventvV3User `json:"-"`
+}
+
+// GetId returns GetProfileByKickIdV3UserByConnectionUser.Id, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetId() string { return v.TwirSeventvV3User.Id }
+
+// GetType returns GetProfileByKickIdV3UserByConnectionUser.Type, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetType() string { return v.TwirSeventvV3User.Type }
+
+// GetUsername returns GetProfileByKickIdV3UserByConnectionUser.Username, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetUsername() string {
+	return v.TwirSeventvV3User.Username
+}
+
+// GetDisplay_name returns GetProfileByKickIdV3UserByConnectionUser.Display_name, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetDisplay_name() string {
+	return v.TwirSeventvV3User.Display_name
+}
+
+// GetAvatar_url returns GetProfileByKickIdV3UserByConnectionUser.Avatar_url, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetAvatar_url() string {
+	return v.TwirSeventvV3User.Avatar_url
+}
+
+// GetCreated_at returns GetProfileByKickIdV3UserByConnectionUser.Created_at, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetCreated_at() time.Time {
+	return v.TwirSeventvV3User.Created_at
+}
+
+// GetRoles returns GetProfileByKickIdV3UserByConnectionUser.Roles, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetRoles() []string {
+	return v.TwirSeventvV3User.Roles
+}
+
+// GetConnections returns GetProfileByKickIdV3UserByConnectionUser.Connections, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetConnections() []TwirSeventvV3UserConnectionsUserConnection {
+	return v.TwirSeventvV3User.Connections
+}
+
+// GetEmote_sets returns GetProfileByKickIdV3UserByConnectionUser.Emote_sets, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetEmote_sets() []TwirSeventvV3UserEmote_setsEmoteSet {
+	return v.TwirSeventvV3User.Emote_sets
+}
+
+// GetStyle returns GetProfileByKickIdV3UserByConnectionUser.Style, and is useful for accessing the field via an interface.
+func (v *GetProfileByKickIdV3UserByConnectionUser) GetStyle() TwirSeventvV3UserStyle {
+	return v.TwirSeventvV3User.Style
+}
+
+func (v *GetProfileByKickIdV3UserByConnectionUser) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*GetProfileByKickIdV3UserByConnectionUser
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.GetProfileByKickIdV3UserByConnectionUser = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.TwirSeventvV3User)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalGetProfileByKickIdV3UserByConnectionUser struct {
+	Id string `json:"id"`
+
+	Type string `json:"type"`
+
+	Username string `json:"username"`
+
+	Display_name string `json:"display_name"`
+
+	Avatar_url string `json:"avatar_url"`
+
+	Created_at time.Time `json:"created_at"`
+
+	Roles []string `json:"roles"`
+
+	Connections []TwirSeventvV3UserConnectionsUserConnection `json:"connections"`
+
+	Emote_sets []TwirSeventvV3UserEmote_setsEmoteSet `json:"emote_sets"`
+
+	Style TwirSeventvV3UserStyle `json:"style"`
+}
+
+func (v *GetProfileByKickIdV3UserByConnectionUser) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *GetProfileByKickIdV3UserByConnectionUser) __premarshalJSON() (*__premarshalGetProfileByKickIdV3UserByConnectionUser, error) {
+	var retval __premarshalGetProfileByKickIdV3UserByConnectionUser
+
+	retval.Id = v.TwirSeventvV3User.Id
+	retval.Type = v.TwirSeventvV3User.Type
+	retval.Username = v.TwirSeventvV3User.Username
+	retval.Display_name = v.TwirSeventvV3User.Display_name
+	retval.Avatar_url = v.TwirSeventvV3User.Avatar_url
+	retval.Created_at = v.TwirSeventvV3User.Created_at
+	retval.Roles = v.TwirSeventvV3User.Roles
+	retval.Connections = v.TwirSeventvV3User.Connections
+	retval.Emote_sets = v.TwirSeventvV3User.Emote_sets
+	retval.Style = v.TwirSeventvV3User.Style
+	return &retval, nil
+}
+
 // GetProfileByTwitchIdV3Response is returned by GetProfileByTwitchIdV3 on success.
 type GetProfileByTwitchIdV3Response struct {
 	UserByConnection GetProfileByTwitchIdV3UserByConnectionUser `json:"userByConnection"`
@@ -1046,6 +1178,14 @@ type __GetProfileByIdV3Input struct {
 // GetId returns __GetProfileByIdV3Input.Id, and is useful for accessing the field via an interface.
 func (v *__GetProfileByIdV3Input) GetId() string { return v.Id }
 
+// __GetProfileByKickIdV3Input is used internally by genqlient
+type __GetProfileByKickIdV3Input struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __GetProfileByKickIdV3Input.Id, and is useful for accessing the field via an interface.
+func (v *__GetProfileByKickIdV3Input) GetId() string { return v.Id }
+
 // __GetProfileByTwitchIdV3Input is used internally by genqlient
 type __GetProfileByTwitchIdV3Input struct {
 	Id string `json:"id"`
@@ -1302,6 +1442,99 @@ func GetProfileByIdV3(
 	}
 
 	data_ = &GetProfileByIdV3Response{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetProfileByKickIdV3.
+const GetProfileByKickIdV3_Operation = `
+query GetProfileByKickIdV3 ($id: String!) {
+	userByConnection(platform: KICK, id: $id) {
+		... TwirSeventvV3User
+	}
+}
+fragment TwirSeventvV3User on User {
+	id
+	type
+	username
+	display_name
+	avatar_url
+	created_at
+	roles
+	connections {
+		id
+		platform
+		username
+		display_name
+		linked_at
+		emote_capacity
+		emote_set_id
+	}
+	emote_sets(entitled: true) {
+		id
+		name
+		flags
+		capacity
+		emote_count
+		emotes(limit: 0) {
+			id
+			name
+			flags
+			data {
+				id
+				name
+				flags
+				host {
+					url
+					files {
+						name
+						format
+						width
+						height
+					}
+				}
+				owner {
+					id
+					username
+					display_name
+				}
+			}
+		}
+	}
+	style {
+		paint {
+			id
+			name
+		}
+		badge {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetProfileByKickIdV3(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	id string,
+) (data_ *GetProfileByKickIdV3Response, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetProfileByKickIdV3",
+		Query:  GetProfileByKickIdV3_Operation,
+		Variables: &__GetProfileByKickIdV3Input{
+			Id: id,
+		},
+	}
+
+	data_ = &GetProfileByKickIdV3Response{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

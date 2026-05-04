@@ -69,10 +69,18 @@ func (c scanModel) toEntity() scheduledvipsentity.ScheduledVip {
 
 func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input scheduled_vips.UpdateInput) error {
 	updateBuilder := sq.Update("channels_scheduled_vips").
-		Where(squirrel.Eq{"id": id.String()})
+		Where(squirrel.Expr("id = ?::uuid", id.String()))
 
 	if input.RemoveAt != nil {
 		updateBuilder = updateBuilder.Set("remove_at", *input.RemoveAt)
+	}
+
+	if input.RemoveType != nil {
+		updateBuilder = updateBuilder.Set("remove_type", *input.RemoveType)
+
+		if *input.RemoveType == scheduledvipsentity.RemoveTypeStreamEnd {
+			updateBuilder = updateBuilder.Set("remove_at", nil)
+		}
 	}
 
 	query, args, err := updateBuilder.ToSql()
@@ -89,7 +97,7 @@ func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (scheduledvipsentity.Sc
 	query := `
 SELECT id, channel_id, user_id, created_at, remove_at, remove_type
 FROM channels_scheduled_vips
-WHERE id = $1
+WHERE id = $1::uuid
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -116,7 +124,7 @@ func (c *Pgx) GetByUserAndChannelID(
 	query := `
 SELECT id, channel_id, user_id, created_at, remove_at, remove_type
 FROM channels_scheduled_vips
-WHERE channel_id = $1 AND user_id = $2
+WHERE channel_id = $1::uuid AND user_id = $2::uuid
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -162,7 +170,7 @@ func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
 	}
 
 	if input.ChannelID != nil {
-		builder = builder.Where(squirrel.Eq{"channel_id": *input.ChannelID})
+		builder = builder.Where(squirrel.Expr("channel_id = ?::uuid", *input.ChannelID))
 	}
 
 	query, args, err := builder.ToSql()
@@ -195,7 +203,7 @@ func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
 func (c *Pgx) Create(ctx context.Context, input scheduled_vips.CreateInput) error {
 	query := `
 INSERT INTO channels_scheduled_vips (channel_id, user_id, remove_at, remove_type)
-VALUES ($1, $2, $3, $4)
+VALUES ($1::uuid, $2::uuid, $3, $4)
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -206,7 +214,7 @@ VALUES ($1, $2, $3, $4)
 func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `
 DELETE FROM channels_scheduled_vips
-WHERE id = $1
+WHERE id = $1::uuid
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)

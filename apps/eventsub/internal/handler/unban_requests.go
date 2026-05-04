@@ -26,10 +26,19 @@ func (c *Handler) HandleChannelUnbanRequestCreate(
 		slog.Group("user", slog.String("id", event.UserId), slog.String("login", event.UserLogin)),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channelID,
 			UserID:    &event.UserId,
 			Type:      model.ChannelEventListItemTypeChannelUnbanRequestCreate,
 			Data: &model.ChannelsEventsListItemData{
@@ -79,10 +88,19 @@ func (c *Handler) HandleChannelUnbanRequestResolve(
 		slog.String("status", string(event.Status)),
 	)
 
+	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	if channelID == "" {
+		return
+	}
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
-			ChannelID: event.BroadcasterUserId,
+			ChannelID: channelID,
 			UserID:    &event.UserId,
 			Type:      model.ChannelEventListItemTypeChannelUnbanRequestResolve,
 			Data: &model.ChannelsEventsListItemData{

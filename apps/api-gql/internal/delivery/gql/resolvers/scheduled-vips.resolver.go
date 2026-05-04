@@ -9,6 +9,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -16,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 // ScheduledVipsCreate is the resolver for the scheduledVipsCreate field.
@@ -89,13 +91,26 @@ func (r *mutationResolver) ScheduledVipsUpdate(ctx context.Context, id string, i
 		return false, gqlerrors.HandleError(err)
 	}
 
-	newRemoveAt := time.UnixMilli(int64(input.RemoveAt))
+	var newRemoveAt *time.Time
+
+	var removeType *scheduledvipsentity.RemoveType
+	switch input.RemoveType {
+	case gqlmodel.ScheduledVipRemoveTypeStreamEnd:
+		rt := scheduledvipsentity.RemoveTypeStreamEnd
+		removeType = &rt
+	case gqlmodel.ScheduledVipRemoveTypeTime:
+		rt := scheduledvipsentity.RemoveTypeTime
+		removeType = &rt
+		t := time.UnixMilli(int64(input.RemoveAt))
+		newRemoveAt = &t
+	}
 
 	err = r.deps.ScheduledVipsService.Update(
 		ctx,
 		id,
 		dashboardID,
-		&newRemoveAt,
+		newRemoveAt,
+		removeType,
 	)
 	if err != nil {
 		return false, gqlerrors.HandleError(err)
@@ -126,7 +141,20 @@ func (r *queryResolver) ScheduledVips(ctx context.Context) ([]gqlmodel.Scheduled
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *scheduledVipResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ScheduledVip) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.UserID)
+	userID, err := uuid.Parse(obj.UserID)
+	if err != nil {
+		return nil, nil
+	}
+
+	dbUser, err := r.deps.UsersRepository.GetByID(ctx, userID)
+	if err != nil {
+		if err == usersmodel.ErrNotFound {
+			return nil, nil
+		}
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	return data_loader.GetHelixUserById(ctx, dbUser.PlatformID)
 }
 
 // ScheduledVip returns graph.ScheduledVipResolver implementation.

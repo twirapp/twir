@@ -26,6 +26,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Switch } from '@/components/ui/switch'
 import { EventsOptions } from '@/features/events/constants/events.ts'
 import { getEventName } from '@/features/events/constants/helpers.ts'
+import PlatformSelector from '@/components/platform-selector.vue'
 import { cn } from '@/lib/utils'
 
 const { t } = useI18n()
@@ -169,6 +170,16 @@ const opened = ref(false)
 					<FormLabel>{{ t('events.description') }}</FormLabel>
 					<FormControl>
 						<Input v-bind="componentField" />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			</FormField>
+
+			<FormField v-slot="{ value, handleChange }" name="platforms">
+				<FormItem>
+					<FormLabel>{{ t('sharedTexts.platforms') }}</FormLabel>
+					<FormControl>
+						<PlatformSelector :model-value="value" @update:model-value="handleChange" />
 					</FormControl>
 					<FormMessage />
 				</FormItem>

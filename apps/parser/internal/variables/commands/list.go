@@ -20,7 +20,7 @@ var Variable = &types.Variable{
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Model(&model.ChannelsCommands{}).
-			Where(`"channelId" = ?`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid`, parseCtx.Channel.DBChannelID).
 			Select("enabled", "visible", "name").
 			Find(&cmds).Error
 		if err != nil {

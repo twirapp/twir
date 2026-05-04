@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -21,17 +22,25 @@ func (c *Activity) SendMessage(
 		return fmt.Errorf("input is required for send message operation")
 	}
 
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, *operation.Input, data)
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, data.ChannelTwitchUserID, data.ChannelDBID, *operation.Input, data)
 	if err != nil {
 		return fmt.Errorf("cannot hydrate string %w", err)
+	}
+
+	var internalChannelID *uuid.UUID
+	if parsedChannelID, err := uuid.Parse(data.ChannelDBID); err == nil {
+		internalChannelID = &parsedChannelID
 	}
 
 	if err = c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:  data.ChannelID,
-			Message:    msg,
-			IsAnnounce: operation.UseAnnounce,
+			ChannelId:         data.ChannelID,
+			InternalChannelID: internalChannelID,
+			PlatformChannelID: data.ChannelID,
+			Platform:          data.Platform.String(),
+			Message:           msg,
+			IsAnnounce:        operation.UseAnnounce,
 		},
 	); err != nil {
 		return fmt.Errorf("cannot send message %w", err)

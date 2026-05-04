@@ -3,7 +3,8 @@ package bots
 import (
 	"math/rand/v2"
 
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 )
 
@@ -21,8 +22,16 @@ const (
 )
 
 type SendMessageRequest struct {
+	// ChannelId is a legacy field kept for backward compatibility.
+	// For platform chat delivery, prefer PlatformChannelID.
 	ChannelName       *string
 	ChannelId         string
+	// InternalChannelID is the Twir DB channel UUID (`channels.id`).
+	InternalChannelID *uuid.UUID
+	// PlatformChannelID is the platform-native broadcaster/channel identifier
+	// (e.g. Twitch broadcaster user ID, Kick broadcaster user ID).
+	PlatformChannelID string
+	Platform          string
 	Message           string
 	ReplyTo           string
 	IsAnnounce        bool
@@ -101,7 +110,8 @@ const (
 
 type VotebanRegisterRequest struct {
 	Data                 votebanentity.Voteban
-	TargerUser           twitch.ChatMessageMessageFragmentMention
+	PlatformChannelID    string
+	TargerUser           generic.ChatMessageMessageFragmentMention
 	InitiatorUserID      string
 	InitiatorUserLogin   string
 	InitiatorIsModerator bool

@@ -20,10 +20,15 @@ var FollowSince = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		if parseCtx.Platform != "twitch" {
+			result.Result = "not supported on this platform"
+			return result, nil
+		}
+
 		targetUserId := lo.
 			IfF(
 				len(parseCtx.Mentions) > 0, func() string {
-					return parseCtx.Mentions[0].UserId
+					return parseCtx.Mentions[0].UserID
 				},
 			).
 			Else(parseCtx.Sender.ID)

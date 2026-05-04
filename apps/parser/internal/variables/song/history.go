@@ -12,10 +12,11 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
-	model "github.com/twirapp/twir/libs/gomodels"
+	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
+	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 	"go.uber.org/zap"
 )
 
@@ -37,7 +38,7 @@ var History = &types.Variable{
 
 		// Try to get lastfm integration from the new repository
 		var lastfmService *lastfm.Lastfm
-		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
 		if err == nil && !lastfmIntegration.IsNil() && lastfmIntegration.Enabled && lastfmIntegration.SessionKey != nil {
 			i, err := lastfm.New(
 				lastfm.Opts{
@@ -52,22 +53,21 @@ var History = &types.Variable{
 		}
 
 		var spotifyService *spotify.Spotify
-		spotifyEntity, err := parseCtx.Services.SpotifyRepo.GetByChannelID(ctx, parseCtx.Channel.ID)
+		spotifyEntity, err := parseCtx.Services.SpotifyRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil {
 			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.GetSpotifyEntity), zap.Error(err))
 		} else if spotifyEntity.AccessToken != "" {
-			spotifyIntegration := model.Integrations{}
-			if err := parseCtx.Services.Gorm.
-				Where("service = ?", "SPOTIFY").
-				First(&spotifyIntegration).
-				Error; err != nil {
+			spotifyToken, err := parseCtx.Services.Bus.Tokens.RequestChannelIntegrationToken.Request(
+				ctx,
+				buscoretokens.GetChannelIntegrationTokenRequest{
+					ChannelID: parseCtx.Channel.DBChannelID,
+					Service:   integrationsmodel.ServiceSpotify,
+				},
+			)
+			if err != nil {
 				parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.FailedGetSpotifyIntegration), zap.Error(err))
 			} else {
-				spotifyService = spotify.New(
-					spotifyIntegration,
-					spotifyEntity,
-					parseCtx.Services.SpotifyRepo,
-				)
+				spotifyService = spotify.NewStatic(spotifyToken.Data.AccessToken, spotifyEntity.Scopes)
 			}
 		}
 

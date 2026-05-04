@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/libs/audit"
 	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
 	"github.com/twirapp/twir/libs/repositories/commands"
@@ -43,6 +44,7 @@ type CreateInput struct {
 	ExpiresType               *string
 	Responses                 []CreateInputResponse
 	RoleCooldowns             []CreateInputRoleCooldown
+	Platforms                 []platform.Platform
 }
 
 type CreateInputResponse struct {
@@ -145,6 +147,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 					GroupID:                   input.GroupID,
 					ExpiresAt:                 expiresAt,
 					ExpiresType:               input.ExpiresType,
+					Platforms:                 input.Platforms,
 				},
 			)
 			if err != nil {

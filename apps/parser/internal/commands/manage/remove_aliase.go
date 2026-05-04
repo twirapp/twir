@@ -57,7 +57,7 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 		cmd := model.ChannelsCommands{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, commandName).
+			Where(`"channelId" = ?::uuid AND name = ?`, parseCtx.Channel.DBChannelID, commandName).
 			First(&cmd).Error
 
 		if err != nil || cmd.ID == "" {
@@ -84,7 +84,7 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 			}
 		}
 
-		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Remove.AliasRemoved))
 		return result, nil
