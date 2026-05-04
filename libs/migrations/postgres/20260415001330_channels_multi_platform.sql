@@ -69,7 +69,9 @@ BEGIN
 
     SELECT conname INTO chan_pkey FROM pg_constraint
     WHERE conrelid = 'channels'::regclass AND contype = 'p';
-    EXECUTE format('ALTER TABLE channels DROP CONSTRAINT %I', chan_pkey);
+    IF chan_pkey IS NOT NULL THEN
+        EXECUTE format('ALTER TABLE channels DROP CONSTRAINT %I', chan_pkey);
+    END IF;
 
     ALTER TABLE channels DROP CONSTRAINT channels_new_id_unique;
     ALTER TABLE channels DROP COLUMN id;

@@ -1,6 +1,12 @@
 -- +goose Up
 -- +goose StatementBegin
 
+DROP INDEX IF EXISTS channels_dashboard_widgets_channel_id_idx;
+DROP INDEX IF EXISTS channels_dashboard_widgets_stack_id_idx;
+
+ALTER TABLE channels_dashboard_widgets
+    DROP CONSTRAINT IF EXISTS channels_dashboard_widgets_channel_id_fkey;
+
 UPDATE channels_dashboard_widgets cdw
 SET channel_id = c.id
 FROM channels c
@@ -8,12 +14,6 @@ WHERE c.twitch_user_id = cdw.channel_id;
 
 DELETE FROM channels_dashboard_widgets
 WHERE channel_id NOT IN (SELECT id FROM channels);
-
-DROP INDEX IF EXISTS channels_dashboard_widgets_channel_id_idx;
-DROP INDEX IF EXISTS channels_dashboard_widgets_stack_id_idx;
-
-ALTER TABLE channels_dashboard_widgets
-    DROP CONSTRAINT channels_dashboard_widgets_channel_id_fkey;
 
 ALTER TABLE channels_dashboard_widgets
     ADD CONSTRAINT channels_dashboard_widgets_channel_id_fkey

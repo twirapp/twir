@@ -117,6 +117,28 @@ BEGIN
 
     IF EXISTS (
         SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'channels' AND column_name = 'id'
+          AND udt_name <> 'uuid'
+    ) THEN
+        IF EXISTS (
+            SELECT 1
+            FROM channels ch
+            LEFT JOIN tmp_user_id_map m ON m.old_id = ch.id::text
+            WHERE m.new_id IS NULL
+        ) THEN
+            RAISE EXCEPTION 'cannot migrate channels.id: some channel ids have no matching users.id';
+        END IF;
+
+        UPDATE channels
+        SET id = m.new_id::text
+        FROM tmp_user_id_map m
+        WHERE m.old_id = channels.id::text;
+
+        ALTER TABLE channels ALTER COLUMN id TYPE UUID USING id::uuid;
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
         WHERE table_schema = 'public' AND table_name = 'tokens' AND column_name = 'user_id'
         AND udt_name <> 'uuid'
     ) THEN
@@ -126,7 +148,9 @@ BEGIN
 
     SELECT conname INTO users_pkey FROM pg_constraint
     WHERE conrelid = 'users'::regclass AND contype = 'p';
-    EXECUTE format('ALTER TABLE users DROP CONSTRAINT %I', users_pkey);
+    IF users_pkey IS NOT NULL THEN
+        EXECUTE format('ALTER TABLE users DROP CONSTRAINT %I', users_pkey);
+    END IF;
 
     ALTER TABLE users DROP CONSTRAINT users_new_id_unique;
 
