@@ -1,0 +1,13 @@
+[    8312ms] [ERROR] Failed to load resource: net::ERR_TOO_MANY_REDIRECTS @ https://rybbit.twir.app/api/script.js:0
+[ 3608155ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777864386655:0
+[ 3608169ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777864386655:0
+[ 7208237ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777867986683:0
+[ 7208300ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777867986683:0
+[10808964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777871587307:0
+[10809071ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777871587307:0
+[14409008ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777875187384:0
+[14409428ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777875187384:0
+[18009432ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777878787402:0
+[18010932ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777878787402:0
+[21612168ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777882390348:0
+[21613708ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_nuxt/builds/latest.json?1777882390348:0

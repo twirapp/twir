@@ -46,6 +46,8 @@ type TwirStats struct {
 
 type Stats struct {
 	Channels        int
+	TwitchChannels  int
+	KickChannels    int
 	CreatedCommands int
 	Viewers         int
 	Messages        int
@@ -103,6 +105,29 @@ func (c *TwirStats) cacheCounts() {
 			false,
 		).Joins("User").Count(&count)
 		c.cachedResponse.Channels = int(count)
+	})
+
+	wg.Go(func() {
+		var count int64
+		c.gorm.Model(&model.Channels{}).Where(
+			`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ? AND "channels"."twitch_user_id" IS NOT NULL`,
+			true,
+			false,
+			false,
+		).Joins("User").Count(&count)
+		c.cachedResponse.TwitchChannels = int(count)
+	})
+
+	wg.Go(func() {
+		var count int64
+		c.gorm.Model(&model.Channels{}).Joins(
+			`LEFT JOIN users ON users.id = channels.kick_user_id`,
+		).Where(
+			`"channels"."isEnabled" = ? AND "channels"."kick_user_id" IS NOT NULL AND "users"."is_banned" = ?`,
+			true,
+			false,
+		).Count(&count)
+		c.cachedResponse.KickChannels = int(count)
 	})
 
 	wg.Go(func() {
