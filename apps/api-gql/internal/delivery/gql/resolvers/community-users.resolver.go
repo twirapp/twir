@@ -107,7 +107,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		From("users_stats").
 		Join(`users ON users.id = "users_stats"."userId"`).
 		Where(squirrel.Eq{`"users_stats"."channelId"`: opts.ChannelID}).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform_id = ui.id WHERE u.id = "users_stats"."userId")`).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = "users_stats"."userId")`).
 		Limit(uint64(perPage)).
 		Offset(uint64(page*perPage)).
 		GroupBy(`"users_stats"."id"`, `users.platform_id`)

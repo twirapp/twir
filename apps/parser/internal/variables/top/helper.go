@@ -61,7 +61,7 @@ func getTop(
 				squirrel.Gt{`"users_stats"."messages"`: 0},
 			},
 		).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform_id = ui.id WHERE u.id = "users_stats"."userId")`).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = "users_stats"."userId")`).
 		Where(`NOT EXISTS (SELECT 1 FROM bots b JOIN users u ON u.platform_id = b.id AND u.platform = 'twitch' WHERE u.id = "users_stats"."userId")`)
 
 	qb = applyTopChannelBotFilters(qb, channel)
