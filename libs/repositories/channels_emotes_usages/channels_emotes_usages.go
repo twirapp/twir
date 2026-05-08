@@ -29,7 +29,7 @@ type Repository interface {
 		ctx context.Context,
 		input EmotesUsersTopOrHistoryInput,
 	) ([]model.EmoteUsageTopUser, uint64, error)
-	DeleteRowsByChannelID(ctx context.Context, channelID string) error
+	DeleteRowsByChannelID(ctx context.Context, platform string, channelID string) error
 	GetUserMostUsedEmotes(
 		ctx context.Context,
 		input UserMostUsedEmotesInput,

@@ -51,8 +51,8 @@ SELECT
 	c."botId",
 	c.kick_bot_id
 FROM channels c
-LEFT JOIN users tu ON tu.id = c.twitch_user_id
-LEFT JOIN users ku ON ku.id = c.kick_user_id`
+LEFT JOIN users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'
+LEFT JOIN users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'`
 
 func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
 	query := `
@@ -75,8 +75,8 @@ SELECT
 	i."botId",
 	i.kick_bot_id
 FROM inserted i
-LEFT JOIN users tu ON tu.id = i.twitch_user_id
-LEFT JOIN users ku ON ku.id = i.kick_user_id`
+LEFT JOIN users tu ON tu.id = i.twitch_user_id AND tu.platform = 'twitch'
+LEFT JOIN users ku ON ku.id = i.kick_user_id AND ku.platform = 'kick'`
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, input.TwitchUserID, input.KickUserID, input.TwitchBotEnabled, input.KickBotEnabled, input.BotID, input.KickBotID)
@@ -223,8 +223,8 @@ SELECT
 	u."botId",
 	u.kick_bot_id
 FROM updated u
-LEFT JOIN users tu ON tu.id = u.twitch_user_id
-LEFT JOIN users ku ON ku.id = u.kick_user_id`
+LEFT JOIN users tu ON tu.id = u.twitch_user_id AND tu.platform = 'twitch'
+LEFT JOIN users ku ON ku.id = u.kick_user_id AND ku.platform = 'kick'`
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, args...)
@@ -260,8 +260,8 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 			"c.kick_bot_id",
 		).
 		From("channels c").
-		LeftJoin("users tu ON tu.id = c.twitch_user_id").
-		LeftJoin("users ku ON ku.id = c.kick_user_id")
+		LeftJoin("users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'").
+		LeftJoin("users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'")
 
 	if input.Enabled != nil {
 		selectBuilder = selectBuilder.Where(`c."isEnabled" = ?`, *input.Enabled)

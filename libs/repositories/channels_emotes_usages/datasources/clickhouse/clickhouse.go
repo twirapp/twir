@@ -561,12 +561,12 @@ func (c *Clickhouse) GetChannelUsageTopUsers(
 	return result, total, nil
 }
 
-func (c *Clickhouse) DeleteRowsByChannelID(ctx context.Context, channelID string) error {
+func (c *Clickhouse) DeleteRowsByChannelID(ctx context.Context, platform string, channelID string) error {
 	query := `
 		DELETE FROM channels_emotes_usages
-		WHERE platform_channel_id = ?
+		WHERE platform = ? AND platform_channel_id = ?
 	`
 
-	err := c.client.Exec(ctx, query, channelID)
+	err := c.client.Exec(ctx, query, platform, channelID)
 	return err
 }

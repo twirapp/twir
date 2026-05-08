@@ -180,6 +180,6 @@ func (c *Service) GetChannelEmoteUsageHistory(
 	return convertedUsages, total, nil
 }
 
-func (c *Service) DeleteRowsByChannelID(ctx context.Context, channelID string) error {
-	return c.channelsEmotesUsagesRepository.DeleteRowsByChannelID(ctx, channelID)
+func (c *Service) DeleteRowsByChannelID(ctx context.Context, platform string, channelID string) error {
+	return c.channelsEmotesUsagesRepository.DeleteRowsByChannelID(ctx, platform, channelID)
 }
