@@ -37,6 +37,8 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
+const channelOwnershipJoinCondition = `(u.platform = 'twitch' AND uc.twitch_user_id = u.id) OR (u.platform = 'kick' AND uc.kick_user_id = u.id)`
+
 func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 	userWithChannel := model.UserWithChannel{}
 	var channelID sql.Null[uuid.UUID]
@@ -88,7 +90,7 @@ func (c *Pgx) GetByID(ctx context.Context, id string) (model.UserWithChannel, er
 SELECT u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned,
        uc.id, uc.twitch_user_id, uc.kick_user_id, uc."isBotMod", uc."isEnabled", uc."isTwitchBanned", uc."botId"
 FROM users u
-LEFT JOIN channels uc ON uc.twitch_user_id = u.id OR uc.kick_user_id = u.id
+LEFT JOIN channels uc ON ` + channelOwnershipJoinCondition + `
 WHERE u.id = $1::uuid
 GROUP BY u.id, uc.id
 LIMIT 1
@@ -128,20 +130,14 @@ func (c *Pgx) GetManyByIDS(
 			`uc."botId" AS channel_bot_id`,
 		).
 		From("users u").
-		LeftJoin("channels uc ON uc.twitch_user_id = u.id OR uc.kick_user_id = u.id").
+		LeftJoin("channels uc ON " + channelOwnershipJoinCondition).
 		LeftJoin("badges_users bu ON u.id = bu.user_id").
 		OrderBy("u.id asc")
 
 	if len(input.IDs) > 0 {
-		uuids := make([]uuid.UUID, 0, len(input.IDs))
-		for _, id := range input.IDs {
-			if parsed, err := uuid.Parse(id); err == nil {
-				uuids = append(uuids, parsed)
-			}
-		}
-		if len(uuids) > 0 {
-			selectQuery = selectQuery.Where(squirrel.Eq{"u.id": uuids})
-		}
+		selectQuery = selectQuery.
+			Where(squirrel.Eq{"u.platform": "twitch"}).
+			Where(squirrel.Eq{"u.platform_id": input.IDs})
 	}
 
 	if len(input.HasBadgesIDS) > 0 {
@@ -203,23 +199,17 @@ func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetMany
 	error,
 ) {
 	selectQuery := sq.
-		Select("COUNT(*)").
+		Select("COUNT(DISTINCT u.id)").
 		From("users u")
 
 	if len(input.IDs) > 0 {
-		uuids := make([]uuid.UUID, 0, len(input.IDs))
-		for _, id := range input.IDs {
-			if parsed, err := uuid.Parse(id); err == nil {
-				uuids = append(uuids, parsed)
-			}
-		}
-		if len(uuids) > 0 {
-			selectQuery = selectQuery.Where(squirrel.Eq{"u.id": uuids})
-		}
+		selectQuery = selectQuery.
+			Where(squirrel.Eq{"u.platform": "twitch"}).
+			Where(squirrel.Eq{"u.platform_id": input.IDs})
 	}
 
 	if input.ChannelIsBotAdmin != nil || input.ChannelEnabled != nil {
-		selectQuery = selectQuery.LeftJoin("channels uc ON uc.twitch_user_id = u.id OR uc.kick_user_id = u.id")
+		selectQuery = selectQuery.LeftJoin("channels uc ON " + channelOwnershipJoinCondition)
 	}
 
 	if input.ChannelEnabled != nil {
