@@ -27,11 +27,11 @@ export const useCommunityUsersApi = createGlobalState(() => {
 					total
 					users {
 						id
-						twitchProfile {
-							login
-							displayName
-							profileImageUrl
-						}
+						platform
+						platformId
+						login
+						displayName
+						avatar
 						watchedMs
 						messages
 						usedEmotes

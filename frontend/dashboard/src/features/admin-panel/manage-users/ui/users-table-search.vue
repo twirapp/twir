@@ -43,7 +43,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 					<ListFilterIcon class="mr-2 h-4 w-4" />
 					{{ t('adminPanel.manageUsers.filters') }}
 
-					<template v-if="usersTableFilters.selectedFiltersCount">
+					<template v-if="usersTableFilters.selectedFiltersCount.value">
 						<Separator orientation="vertical" class="mx-2 h-4" />
 						<Badge
 							variant="secondary"
@@ -82,7 +82,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 							</CommandItem>
 						</CommandGroup>
 
-						<template v-if="usersTableFilters.selectedFiltersCount">
+						<template v-if="usersTableFilters.selectedFiltersCount.value">
 							<CommandSeparator />
 							<CommandGroup>
 								<CommandItem

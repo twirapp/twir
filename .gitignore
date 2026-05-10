@@ -47,3 +47,4 @@ apps/*/main
 .sisyphus/drafts/*
 worktrees
 .local.md
+.playwright-mcp

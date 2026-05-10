@@ -192,7 +192,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 	}
 
 	if (platform == "" || platform == platformentity.PlatformTwitch) && channel.TwitchBotJoined() {
-		if channel.TwitchUserID == nil {
+		if channel.TwitchPlatformID == nil || *channel.TwitchPlatformID == "" {
 			c.logger.Warn(
 				"channel has no platform user ID for eventsub subscription",
 				slog.String("channel_id", channelID),

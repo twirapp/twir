@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
 	userswithchannelmodel "github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 	"go.uber.org/fx"
@@ -13,19 +13,16 @@ import (
 type Opts struct {
 	fx.In
 
-	TwitchService               *twitch.Service
 	UsersWithChannelsRepository users_with_channel.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		twitchService:               opts.TwitchService,
 		usersWithChannelsRepository: opts.UsersWithChannelsRepository,
 	}
 }
 
 type Service struct {
-	twitchService               *twitch.Service
 	usersWithChannelsRepository users_with_channel.Repository
 }
 
@@ -33,11 +30,16 @@ func (c *Service) modelToEntity(m userswithchannelmodel.UserWithChannel) entity.
 	e := entity.UserWithChannel{
 		User: entity.User{
 			ID:                m.User.ID.String(),
+			Platform:          m.User.Platform,
+			PlatformID:        m.User.PlatformID,
 			TokenID:           m.User.TokenID.Ptr(),
 			IsBotAdmin:        m.User.IsBotAdmin,
 			ApiKey:            m.User.ApiKey,
 			IsBanned:          m.User.IsBanned,
 			HideOnLandingPage: m.User.HideOnLandingPage,
+			Login:             m.User.Login,
+			DisplayName:       m.User.DisplayName,
+			Avatar:            m.User.Avatar,
 		},
 	}
 
@@ -62,6 +64,7 @@ type GetManyInput struct {
 	ChannelIsBotAdmin *bool
 	UserIsBanned      *bool
 	HasBadges         []string
+	Platforms         []platformentity.Platform
 }
 
 type GetManyOutput struct {
@@ -73,11 +76,6 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 	GetManyOutput,
 	error,
 ) {
-	twitchUsers, err := c.twitchService.SearchByName(ctx, input.SearchQuery)
-	if err != nil {
-		return GetManyOutput{}, err
-	}
-
 	var page int
 	perPage := 10
 
@@ -93,17 +91,13 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 		Page:              page,
 		PerPage:           perPage,
 		IDs:               nil,
+		SearchQuery:       input.SearchQuery,
+		Platforms:         input.Platforms,
 		ChannelEnabled:    input.ChannelIsEnabled,
 		ChannelIsBotAdmin: input.ChannelIsBotAdmin,
 		IsBanned:          input.UserIsBanned,
 		HasBadgesIDS:      input.HasBadges,
 	}
-
-	twitchUserIDs := make([]string, 0, len(twitchUsers))
-	for _, user := range twitchUsers {
-		twitchUserIDs = append(twitchUserIDs, user.ID)
-	}
-	usersInput.IDs = twitchUserIDs
 
 	dbUsers, err := c.usersWithChannelsRepository.GetManyByIDS(ctx, usersInput)
 	if err != nil {

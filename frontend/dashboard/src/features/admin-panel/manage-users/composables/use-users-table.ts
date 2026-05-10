@@ -18,6 +18,7 @@ import type { User } from '@/api/admin/users.js'
 import type { TwirUsersSearchParams } from '@/gql/graphql'
 
 import { usePagination } from '@/composables/use-pagination.js'
+import { resolveProfile } from '@/helpers/resolveProfile.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
 export const useUsersTable = createGlobalState(() => {
@@ -28,17 +29,24 @@ export const useUsersTable = createGlobalState(() => {
 	const tableFilters = useUsersTableFilters()
 
 	const tableParams = computed<TwirUsersSearchParams>((prevParams) => {
+		const currentSearch = tableFilters.debounceSearchInput.value
+		const currentPlatforms = tableFilters.selectedPlatforms.value
+
 		// reset pagination on search change
-		if (prevParams?.search !== tableFilters.debounceSearchInput.value) {
+		if (
+			prevParams?.search !== currentSearch
+			|| JSON.stringify(prevParams?.platforms ?? []) !== JSON.stringify(currentPlatforms)
+		) {
 			pagination.value.pageIndex = 0
 		}
 
 		return {
 			...tableFilters.selectedStatuses.value,
-			search: tableFilters.debounceSearchInput.value,
+			search: currentSearch,
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
 			badges: tableFilters.selectedBadges.value,
+			platforms: [...currentPlatforms],
 		}
 	})
 
@@ -62,15 +70,20 @@ export const useUsersTable = createGlobalState(() => {
 			size: 60,
 			header: () => h('div', {}, t('adminPanel.manageUsers.user')),
 			cell: ({ row }) => {
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile?.login ?? ''}`,
-					target: '_blank',
-				}, h(UsersTableCellUser, {
-					avatar: row.original.twitchProfile?.profileImageUrl ?? '',
-					name: row.original.twitchProfile?.login ?? '',
-					displayName: row.original.twitchProfile?.displayName ?? '',
-				}))
+				const profile = resolveProfile({
+					profileImageUrl: row.original.avatar,
+					login: row.original.login,
+					displayName: row.original.displayName,
+					platform: row.original.platform,
+				})
+
+				return h(UsersTableCellUser, {
+					avatar: profile.avatar,
+					name: profile.login,
+					displayName: profile.displayName,
+					url: profile.url,
+					platform: row.original.platform,
+				})
 			},
 		},
 		{

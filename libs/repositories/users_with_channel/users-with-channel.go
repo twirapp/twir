@@ -3,6 +3,7 @@ package users_with_channel
 import (
 	"context"
 
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 )
 
@@ -16,6 +17,8 @@ type GetManyInput struct {
 	Page         int
 	PerPage      int
 	IDs          []string
+	SearchQuery  string
+	Platforms    []platformentity.Platform
 	HasBadgesIDS []string
 
 	ChannelEnabled    *bool

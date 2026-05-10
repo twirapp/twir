@@ -26,14 +26,14 @@ export function useAdminUsers() {
 					total
 					users {
 						id
+						platform
+						platformId
+						login
+						displayName
+						avatar
 						isBanned
 						isBotAdmin
 						isBotEnabled
-						twitchProfile {
-							login
-							displayName
-							profileImageUrl
-						}
 					}
 				}
 			}

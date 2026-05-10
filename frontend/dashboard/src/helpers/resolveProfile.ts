@@ -23,7 +23,7 @@ function fallback<T>(value: T | null | undefined, defaultValue: T): T {
 }
 
 export function resolveProfile(profile: ProfileInput): ResolvedProfile {
-	const platform = profile.platform ?? 'twitch'
+	const platform = (profile.platform ?? 'twitch').toLowerCase()
 	const login = fallback(profile.login, '')
 	const displayName = fallback(profile.displayName, login)
 	const avatar = fallback(profile.profileImageUrl, '')

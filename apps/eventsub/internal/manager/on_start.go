@@ -57,7 +57,7 @@ func (c *Manager) createConduit() error {
 			ConduitId: conduit.Id,
 		},
 		"1",
-		"", // channelId, not needed for this event
+		"", // broadcasterId, not needed for this event
 		"", // botId, not needed for this event
 	); err != nil {
 		c.logger.Error("Failed to subscribe to UserAuthorizationRevoke event", logger.Error(err))

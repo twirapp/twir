@@ -4,7 +4,9 @@ import { useI18n } from 'vue-i18n'
 
 import { useBadges } from '../../manage-badges/composables/use-badges.js'
 
-export type FilterType = 'status' | 'badge'
+import { Platform } from '@/gql/graphql'
+
+export type FilterType = 'status' | 'badge' | 'platform'
 
 interface Filter {
 	group: string
@@ -26,9 +28,10 @@ export const useUsersTableFilters = createGlobalState(() => {
 
 	const selectedStatuses = ref<Record<string, true | undefined>>({})
 	const selectedBadges = ref<string[]>([])
+	const selectedPlatforms = ref<Platform[]>([])
 
 	const selectedFiltersCount = computed(() => {
-		return Object.keys(selectedStatuses.value).length + selectedBadges.value.length
+		return Object.keys(selectedStatuses.value).length + selectedBadges.value.length + selectedPlatforms.value.length
 	})
 
 	const filtersList = computed<Filter[]>(() => [
@@ -51,6 +54,20 @@ export const useUsersTableFilters = createGlobalState(() => {
 			],
 		},
 		{
+			group: 'Platforms',
+			type: 'platform',
+			list: [
+				{
+					label: 'Twitch',
+					key: Platform.Twitch,
+				},
+				{
+					label: 'Kick',
+					key: Platform.Kick,
+				},
+			],
+		},
+		{
 			group: t('adminPanel.manageUsers.badgesGroup'),
 			type: 'badge',
 			list: badges.value.map((badge) => ({
@@ -64,6 +81,7 @@ export const useUsersTableFilters = createGlobalState(() => {
 	function clearFilters() {
 		selectedStatuses.value = {}
 		selectedBadges.value = []
+		selectedPlatforms.value = []
 	}
 
 	function setFilterValue(filterKey: string, type: FilterType) {
@@ -84,6 +102,16 @@ export const useUsersTableFilters = createGlobalState(() => {
 
 			selectedBadges.value.push(filterKey)
 		}
+
+		if (type === 'platform') {
+			const platform = filterKey as Platform
+			if (selectedPlatforms.value.includes(platform)) {
+				selectedPlatforms.value = selectedPlatforms.value.filter((item) => item !== platform)
+				return
+			}
+
+			selectedPlatforms.value = [...selectedPlatforms.value, platform]
+		}
 	}
 
 	function isFilterApplied(filterKey: string, type: FilterType): boolean {
@@ -93,6 +121,10 @@ export const useUsersTableFilters = createGlobalState(() => {
 
 		if (type === 'badge') {
 			return selectedBadges.value.includes(filterKey)
+		}
+
+		if (type === 'platform') {
+			return selectedPlatforms.value.includes(filterKey as Platform)
 		}
 
 		return false
@@ -108,5 +140,6 @@ export const useUsersTableFilters = createGlobalState(() => {
 		isFilterApplied,
 		clearFilters,
 		selectedBadges,
+		selectedPlatforms,
 	}
 })
