@@ -1,0 +1,37 @@
+services:
+  clickhouse-backup:
+    image: altinity/clickhouse-backup:latest
+    container_name: clickhouse-backup
+    restart: unless-stopped
+    networks:
+      - twir
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    env_file: .env
+    entrypoint: ["clickhouse-backup"]
+    command: ["watch"]
+
+networks:
+  twir:
+    external: true
+
+volumes:
+  clickhouse_data:
+    external: true
+    name: twir_clickhouse-data
+# CLICKHOUSE_HOST=twir_clickhouse
+# CLICKHOUSE_PORT=9000
+# CLICKHOUSE_USERNAME=twir
+# CLICKHOUSE_PASSWORD=twir
+
+# REMOTE_STORAGE=s3
+# S3_BUCKET=twir-backups
+# S3_ENDPOINT=https://storage.yandexcloud.net
+# S3_PATH=clickhouse
+# S3_REGION=auto
+# S3_ACCESS_KEY=
+# S3_SECRET_KEY=
+
+# BACKUPS_TO_KEEP_REMOTE=7
+# WATCH_INTERVAL=6h
+# FULL_INTERVAL=24h
