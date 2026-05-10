@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/bots
 
-go 1.26.0
+go 1.26.1
 
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5
@@ -97,6 +97,7 @@ require (
 	github.com/samber/slog-sentry/v2 v2.10.1 // indirect
 	github.com/samber/slog-zerolog/v2 v2.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/scorfly/gokick v1.17.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twirapp/twir/libs/audit v0.0.0-20251217140736-48670d138d86 // indirect

@@ -15,6 +15,7 @@ import (
 	"github.com/avast/retry-go/v4"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type ErrRateLimit struct {
@@ -80,7 +81,7 @@ func (c *Manager) SubscribeWithLimits(
 	case eventsub.ConduitTransport:
 		appToken, err := c.twirBus.Tokens.RequestAppToken.Request(
 			ctx,
-			struct{}{},
+			tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch},
 		)
 		if err != nil {
 			return err
@@ -100,7 +101,7 @@ func (c *Manager) SubscribeWithLimits(
 	case eventsub.WebhookTransport:
 		appToken, err := c.twirBus.Tokens.RequestAppToken.Request(
 			ctx,
-			struct{}{},
+			tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch},
 		)
 		if err != nil {
 			return err

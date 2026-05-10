@@ -45,7 +45,11 @@ var Watched = &types.Variable{
 			limit = 10
 		}
 
-		topUsers := getTop(ctx, parseCtx, "watched", &page, limit)
+		topUsers, notSupported := getTop(ctx, parseCtx, "watched", &page, limit)
+		if notSupported {
+			result.Result = "not supported on this platform"
+			return result, nil
+		}
 
 		if len(topUsers) == 0 {
 			return result, nil

@@ -8,8 +8,8 @@ import (
 
 type UserStat struct {
 	ID                uuid.UUID
-	UserID            string
-	ChannelID         string
+	UserID            uuid.UUID
+	ChannelID         uuid.UUID
 	Messages          int32
 	Watched           int64
 	UsedChannelPoints int64

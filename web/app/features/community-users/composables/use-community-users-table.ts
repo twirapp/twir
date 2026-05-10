@@ -88,15 +88,15 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 			size: 20,
 			header: () => h('div', {}, 'User'),
 			cell: ({ row }) => {
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank',
-				}, h(UserCell, {
-					avatar: row.original.twitchProfile.profileImageUrl,
-					name: row.original.twitchProfile.login,
-					displayName: row.original.twitchProfile.displayName,
-				}))
+			return h('a', {
+				class: 'flex flex-col',
+				href: `https://twitch.tv/${row.original.twitchProfile?.login ?? ''}`,
+				target: '_blank',
+			}, h(UserCell, {
+				avatar: row.original.twitchProfile?.profileImageUrl ?? '',
+				name: row.original.twitchProfile?.login ?? '',
+				displayName: row.original.twitchProfile?.displayName ?? '',
+			}))
 			},
 		},
 		{

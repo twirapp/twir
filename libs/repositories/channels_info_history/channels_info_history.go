@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels_info_history/model"
 )
 
@@ -21,6 +22,7 @@ const (
 
 type GetManyInput struct {
 	ChannelID string
+	Platform  *platform.Platform
 	After     time.Time // Optional
 	Limit     int
 	UniqueBy  *UniqueBy
@@ -28,6 +30,7 @@ type GetManyInput struct {
 
 type CreateInput struct {
 	ChannelID string
+	Platform  platform.Platform
 	Title     string
 	Category  string
 }

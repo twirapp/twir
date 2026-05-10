@@ -21,7 +21,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
@@ -109,9 +109,9 @@ type MessageHandler struct {
 	workersPool     *workers.Pool
 	trmManager      trm.Manager
 
-	messagesSaveBatcher    *batchprocessor.BatchProcessor[twitch.TwitchChatMessage]
-	messagesLurkersBatcher *batchprocessor.BatchProcessor[twitch.TwitchChatMessage]
-	messagesEmotesBatcher  *batchprocessor.BatchProcessor[twitch.TwitchChatMessage]
+	messagesSaveBatcher    *batchprocessor.BatchProcessor[generic.ChatMessage]
+	messagesLurkersBatcher *batchprocessor.BatchProcessor[generic.ChatMessage]
+	messagesEmotesBatcher  *batchprocessor.BatchProcessor[generic.ChatMessage]
 }
 
 var messageHandlerTracer = otel.Tracer("message-handler")
@@ -119,7 +119,7 @@ var messageHandlerTracer = otel.Tracer("message-handler")
 var handlersForExecute = []func(
 	c *MessageHandler,
 	ctx context.Context,
-	msg twitch.TwitchChatMessage,
+	msg generic.ChatMessage,
 ) error{
 	(*MessageHandler).handleSaveMessage,
 	(*MessageHandler).handleIncrementStreamMessages,
@@ -168,22 +168,22 @@ func New(opts Opts) *MessageHandler {
 
 	batcherCtx, batcherCancel := context.WithCancel(context.Background())
 
-	handler.messagesSaveBatcher = batchprocessor.NewBatchProcessor[twitch.TwitchChatMessage](
-		batchprocessor.BatchProcessorOpts[twitch.TwitchChatMessage]{
+	handler.messagesSaveBatcher = batchprocessor.NewBatchProcessor[generic.ChatMessage](
+		batchprocessor.BatchProcessorOpts[generic.ChatMessage]{
 			Interval:  500 * time.Millisecond,
 			BatchSize: 1000,
 			Callback:  handler.handleSaveMessageBatched,
 		},
 	)
-	handler.messagesLurkersBatcher = batchprocessor.NewBatchProcessor[twitch.TwitchChatMessage](
-		batchprocessor.BatchProcessorOpts[twitch.TwitchChatMessage]{
+	handler.messagesLurkersBatcher = batchprocessor.NewBatchProcessor[generic.ChatMessage](
+		batchprocessor.BatchProcessorOpts[generic.ChatMessage]{
 			Interval:  100 * time.Millisecond,
 			BatchSize: 100,
 			Callback:  handler.handleRemoveLurkerBatched,
 		},
 	)
-	handler.messagesEmotesBatcher = batchprocessor.NewBatchProcessor[twitch.TwitchChatMessage](
-		batchprocessor.BatchProcessorOpts[twitch.TwitchChatMessage]{
+	handler.messagesEmotesBatcher = batchprocessor.NewBatchProcessor[generic.ChatMessage](
+		batchprocessor.BatchProcessorOpts[generic.ChatMessage]{
 			Interval:  500 * time.Millisecond,
 			BatchSize: 1000,
 			Callback:  handler.handleEmotesUsagesBatched,
@@ -228,7 +228,7 @@ func New(opts Opts) *MessageHandler {
 
 	handlersForExecute = append(
 		handlersForExecute,
-		func(c *MessageHandler, ctx context.Context, msg twitch.TwitchChatMessage) error {
+		func(c *MessageHandler, ctx context.Context, msg generic.ChatMessage) error {
 			return c.chatTranslatorService.Handle(ctx, msg)
 		},
 	)
@@ -236,7 +236,7 @@ func New(opts Opts) *MessageHandler {
 	return handler
 }
 
-func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {
+func (c *MessageHandler) Handle(ctx context.Context, req generic.ChatMessage) error {
 	newCtx, span := messageHandlerTracer.Start(ctx, "handle")
 	ctx = newCtx
 	defer span.End()
@@ -250,6 +250,10 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	)
 
 	if !req.EnrichedData.DbChannel.IsEnabled {
+		return nil
+	}
+
+	if req.Message == nil {
 		return nil
 	}
 

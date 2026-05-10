@@ -2,9 +2,9 @@ package channels
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
@@ -39,15 +39,15 @@ func (c *Service) mapToEntity(m model.Channel) entity.Channel {
 	}
 }
 
-func (c *Service) GetByID(ctx context.Context, channelID string) (entity.Channel, error) {
+func (c *Service) GetByID(ctx context.Context, channelID uuid.UUID) (entity.Channel, error) {
 	channel, err := c.channelsRepository.GetByID(ctx, channelID)
 	if err != nil {
-		if errors.Is(err, channels.ErrNotFound) {
+		if err == channels.ErrNotFound {
 			return entity.ChannelNil, ErrNotFound
 		}
 
 		return entity.ChannelNil, err
 	}
-	
+
 	return c.mapToEntity(channel), nil
 }

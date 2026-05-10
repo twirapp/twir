@@ -32,6 +32,10 @@ type DataCacher interface {
 		ctx context.Context,
 		userId string,
 	) (*seventvintegrationapi.TwirSeventvUser, error)
+	GetSeventvProfileGetKickId(
+		ctx context.Context,
+		userId string,
+	) (*seventvintegrationapi.TwirSeventvUser, error)
 
 	GetSubAgeInfo(ctx context.Context, channelName, userName string) (
 		*twitch.UserSubscribePayload,

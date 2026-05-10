@@ -59,7 +59,7 @@ var AddAliaseCommand = &types.DefaultCommand{
 		var existedCommands []*model.ChannelsCommands
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ?`, parseCtx.Channel.ID).
+			Where(`"channelId" = ?::uuid`, parseCtx.Channel.DBChannelID).
 			Select(`"channelId"`, "name", "aliases").
 			Find(&existedCommands).
 			Error
@@ -90,7 +90,7 @@ var AddAliaseCommand = &types.DefaultCommand{
 		cmd := model.ChannelsCommands{}
 		err = parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, commandName).
+			Where(`"channelId" = ?::uuid AND name = ?`, parseCtx.Channel.DBChannelID, commandName).
 			Preload(`Responses`).
 			First(&cmd).Error
 		if err != nil {
@@ -118,7 +118,7 @@ var AddAliaseCommand = &types.DefaultCommand{
 			}
 		}
 
-		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Add.AliasAdd))
 		return result, nil

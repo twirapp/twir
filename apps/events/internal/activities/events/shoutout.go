@@ -24,6 +24,8 @@ func (c *Activity) ShoutoutChannel(
 
 	shoutoutTarget, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -33,7 +35,7 @@ func (c *Activity) ShoutoutChannel(
 
 	shoutoutTarget = strings.TrimSpace(strings.ReplaceAll(shoutoutTarget, "@", ""))
 
-	twitchClient, err := c.getHelixChannelApiClient(ctx, data.ChannelID)
+	twitchClient, err := c.getHelixChannelApiClient(ctx, data.ChannelTwitchUserID)
 	if err != nil {
 		return err
 	}

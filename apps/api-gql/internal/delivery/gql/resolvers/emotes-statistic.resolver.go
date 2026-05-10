@@ -30,16 +30,17 @@ func (r *emoteStatisticUserUsageResolver) TwitchProfile(ctx context.Context, obj
 
 // EmotesStatistics is the resolver for the emotesStatistics field.
 func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.EmotesStatisticsOpts) (*gqlmodel.EmotesStatisticResponse, error) {
-	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	platform, platformChannelID, err := resolveSelectedDashboardAnalyticsIdentity(ctx, r.deps)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
 
 	statisticInput := channelsemotesusages.GetEmotesStatisticsInput{
-		ChannelID:   dashboardId,
-		EmoteSearch: opts.Search.Value(),
-		Page:        0,
-		PerPage:     0,
+		Platform:          platform,
+		PlatformChannelID: platformChannelID,
+		EmoteSearch:       opts.Search.Value(),
+		Page:              0,
+		PerPage:           0,
 	}
 
 	if opts.Page.IsSet() {
@@ -78,7 +79,8 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 
 	emotesUsages, err := r.deps.ChannelsEmotesUsagesService.GetEmotesRanges(
 		ctx,
-		dashboardId,
+		platform,
+		platformChannelID,
 		emotesNames,
 		emoteRange,
 	)
@@ -111,7 +113,8 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 	totalCount, err := r.deps.ChannelsEmotesUsagesService.Count(
 		ctx,
 		channelsemotesusages.CountInput{
-			ChannelID: &dashboardId,
+			Platform:          &platform,
+			PlatformChannelID: &platformChannelID,
 		},
 	)
 	if err != nil {
@@ -130,7 +133,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 		return nil, nil
 	}
 
-	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	platform, platformChannelID, err := resolveSelectedDashboardAnalyticsIdentity(ctx, r.deps)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
@@ -159,10 +162,11 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 			s, err := r.deps.ChannelsEmotesUsagesService.GetEmotesStatistics(
 				wgCtx,
 				channelsemotesusages.GetEmotesStatisticsInput{
-					ChannelID:   dashboardId,
-					EmoteSearch: &opts.EmoteName,
-					Page:        0,
-					PerPage:     1,
+					Platform:          platform,
+					PlatformChannelID: platformChannelID,
+					EmoteSearch:       &opts.EmoteName,
+					Page:              0,
+					PerPage:           1,
 				},
 			)
 			if err != nil {
@@ -179,7 +183,8 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 		func() error {
 			emotesUsages, err := r.deps.ChannelsEmotesUsagesService.GetEmotesRanges(
 				wgCtx,
-				dashboardId,
+				platform,
+				platformChannelID,
 				[]string{opts.EmoteName},
 				emoteRange,
 			)
@@ -225,10 +230,11 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 			u, total, err := r.deps.ChannelsEmotesUsagesService.GetChannelEmoteUsageTopUsers(
 				wgCtx,
 				channelsemotesusages.GetChannelEmoteUsageHistoryInput{
-					ChannelID: dashboardId,
-					EmoteName: opts.EmoteName,
-					Page:      topUsersPage,
-					PerPage:   topUsersPerPage,
+					Platform:          platform,
+					PlatformChannelID: platformChannelID,
+					EmoteName:         opts.EmoteName,
+					Page:              topUsersPage,
+					PerPage:           topUsersPerPage,
 				},
 			)
 			if err != nil {
@@ -247,10 +253,11 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 			u, total, err := r.deps.ChannelsEmotesUsagesService.GetChannelEmoteUsageHistory(
 				wgCtx,
 				channelsemotesusages.GetChannelEmoteUsageHistoryInput{
-					ChannelID: dashboardId,
-					EmoteName: opts.EmoteName,
-					Page:      usagesByUsersPage,
-					PerPage:   usagesByUsersPerPage,
+					Platform:          platform,
+					PlatformChannelID: platformChannelID,
+					EmoteName:         opts.EmoteName,
+					Page:              usagesByUsersPage,
+					PerPage:           usagesByUsersPerPage,
 				},
 			)
 			if err != nil {

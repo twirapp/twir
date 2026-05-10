@@ -106,7 +106,7 @@ var EmoteCopy = &types.DefaultCommand{
 
 		wg.Go(
 			func() error {
-				targetSeventvProfile, err := client.GetProfileByTwitchId(ctx, parseCtx.Mentions[0].UserId)
+				targetSeventvProfile, err := client.GetProfileByTwitchId(ctx, parseCtx.Mentions[0].UserID)
 				if err != nil {
 					return fmt.Errorf(
 						i18n.GetCtx(

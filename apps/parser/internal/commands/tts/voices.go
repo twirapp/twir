@@ -29,7 +29,7 @@ var VoicesCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		voices, err := parseCtx.Services.TTSService.GetFilteredVoices(ctx, parseCtx.Channel.ID)
+		voices, err := parseCtx.Services.TTSService.GetFilteredVoices(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Errors.WhileGettingVoices),

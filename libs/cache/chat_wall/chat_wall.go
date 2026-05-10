@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	kvotter "github.com/twirapp/kv/stores/otter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -26,7 +27,7 @@ func NewEnabledOnly(
 				return repo.GetMany(
 					ctx,
 					chat_wall.GetManyInput{
-						ChannelID: key,
+						ChannelID: uuid.MustParse(key),
 						Enabled:   &enabled,
 					},
 				)
@@ -48,7 +49,7 @@ func NewSettings(
 			LoadFn: func(ctx context.Context, key string) (model.ChatWallSettings, error) {
 				result, err := repo.GetChannelSettings(
 					ctx,
-					key,
+					uuid.MustParse(key),
 				)
 				if err != nil && !errors.Is(err, chat_wall.ErrSettingsNotFound) {
 					return model.ChatWallSettingsNil, err

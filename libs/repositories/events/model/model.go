@@ -1,18 +1,21 @@
 package model
 
+import "github.com/twirapp/twir/libs/entities/platform"
+
 var Nil = Event{}
 
 type Event struct {
-	ID          string           `json:"id"`
-	ChannelID   string           `json:"channelId"`
-	Type        EventType        `json:"type"`
-	RewardID    *string          `json:"rewardId"`
-	CommandID   *string          `json:"commandId"`
-	KeywordID   *string          `json:"keywordId"`
-	Description string           `json:"description"`
-	Enabled     bool             `json:"enabled"`
-	OnlineOnly  bool             `json:"onlineOnly"`
-	Operations  []EventOperation `json:"operations"`
+	ID          string              `json:"id"`
+	ChannelID   string              `json:"channelId"`
+	Platforms   []platform.Platform `json:"platforms"`
+	Type        EventType           `json:"type"`
+	RewardID    *string             `json:"rewardId"`
+	CommandID   *string             `json:"commandId"`
+	KeywordID   *string             `json:"keywordId"`
+	Description string              `json:"description"`
+	Enabled     bool                `json:"enabled"`
+	OnlineOnly  bool                `json:"onlineOnly"`
+	Operations  []EventOperation    `json:"operations"`
 }
 
 type EventOperation struct {

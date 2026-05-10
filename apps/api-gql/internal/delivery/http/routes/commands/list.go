@@ -54,7 +54,12 @@ func (l *listById) Handler(
 	ctx context.Context,
 	input *listRouteRequestDto,
 ) (*httpbase.BaseOutputJson[[]commandResponseDto], error) {
-	_, err := l.channelService.GetByID(ctx, input.ChannelID)
+	channelUUID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return nil, huma.NewError(http.StatusBadRequest, "Invalid channel ID")
+	}
+
+	_, err = l.channelService.GetByID(ctx, channelUUID)
 	if err != nil {
 		if errors.Is(err, channels.ErrNotFound) {
 			return nil, huma.NewError(http.StatusNotFound, "Channel not found")

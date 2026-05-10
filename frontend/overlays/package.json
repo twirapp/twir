@@ -36,7 +36,7 @@
     "@graphql-typed-document-node/core": "catalog:",
     "@twir/types": "workspace:*",
     "@types/tmi.js": "1.8.6",
-    "@vitejs/plugin-vue": "5.0.4",
+    "@vitejs/plugin-vue": "6.0.6",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-watch": "0.3.1",

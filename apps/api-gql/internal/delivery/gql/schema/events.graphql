@@ -115,6 +115,7 @@ enum EventType {
 type Event {
 	id: String!
 	channelId: String!
+	platforms: [String!]!
 	type: EventType!
 	rewardId: String
 	commandId: String
@@ -147,6 +148,7 @@ type EventOperationFilter {
 }
 
 input EventCreateInput {
+	platforms: [String!]!
 	type: EventType! @validate(constraint: "required")
 	rewardId: String @validate(constraint: "uuid,omitempty")
 	commandId: String @validate(constraint: "uuid,omitempty")
@@ -158,6 +160,7 @@ input EventCreateInput {
 }
 
 input EventUpdateInput {
+	platforms: [String!]
 	type: EventType
 	rewardId: String @validate(constraint: "uuid,omitempty")
 	commandId: String @validate(constraint: "uuid,omitempty")

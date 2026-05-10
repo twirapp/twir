@@ -520,6 +520,26 @@ export interface Item {
   wins: number;
 }
 
+export interface KickAuthorizeResponse {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  authorize_url: string;
+}
+
+export interface KickCodeBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /** @minLength 1 */
+  code: string;
+  state: string;
+}
+
 export interface LeaderboardPlacementStruct {
   /** @format int64 */
   rank: number;
@@ -932,7 +952,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "https://twir.localhost/api";
+  public baseUrl: string = "https://dev.twir.app/api";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -1099,7 +1119,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Twir Api
  * @version 1.0.0
- * @baseUrl https://twir.localhost/api
+ * @baseUrl https://dev.twir.app/api
  */
 export class Api<SecurityDataType extends unknown> {
   http: HttpClient<SecurityDataType>;
@@ -1122,6 +1142,75 @@ export class Api<SecurityDataType extends unknown> {
     authPostCode: (data: AuthBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonAuthResponseDto, any>({
         path: `/auth`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthKickAuthorize
+     * @summary Get Kick OAuth authorize URL
+     * @request GET:/auth/kick/authorize
+     * @response `200` `KickAuthorizeResponse` OK
+     * @response `default` `ErrorModel` Error
+     */
+    authKickAuthorize: (
+      query?: {
+        redirect_to?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<KickAuthorizeResponse, any>({
+        path: `/auth/kick/authorize`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthKickBotCallback
+     * @summary Kick bot setup callback
+     * @request GET:/auth/kick/bot-callback
+     * @response `200` `BaseOutputBodyJsonAuthResponseDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    authKickBotCallback: (
+      query?: {
+        code?: string;
+        state?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonAuthResponseDto, any>({
+        path: `/auth/kick/bot-callback`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthKickCode
+     * @summary Kick OAuth code exchange
+     * @request POST:/auth/kick/code
+     * @response `200` `BaseOutputBodyJsonAuthResponseDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    authKickCode: (data: KickCodeBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonAuthResponseDto, any>({
+        path: `/auth/kick/code`,
         method: "POST",
         body: data,
         type: ContentType.Json,

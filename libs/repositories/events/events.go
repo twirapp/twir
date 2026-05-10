@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 )
 
@@ -17,6 +18,7 @@ type Repository interface {
 
 type CreateInput struct {
 	ChannelID   string
+	Platforms   []platform.Platform
 	Type        model.EventType
 	RewardID    *string
 	CommandID   *string
@@ -28,6 +30,7 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
+	Platforms   *[]platform.Platform
 	Type        *model.EventType
 	RewardID    *string
 	CommandID   *string

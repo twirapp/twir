@@ -40,7 +40,7 @@ var Remove = &types.DefaultCommand{
 		error,
 	) {
 		twitchClient, err := twitch.NewUserClient(
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)
@@ -68,7 +68,7 @@ var Remove = &types.DefaultCommand{
 		vipResp, err := twitchClient.RemoveChannelVip(
 			&helix.RemoveChannelVipParams{
 				BroadcasterID: parseCtx.Channel.ID,
-				UserID:        user.UserId,
+				UserID:        user.UserID,
 			},
 		)
 		if err != nil {

@@ -28,6 +28,7 @@ export default defineConfig({
 	server: {
 		host: true,
 		port: 3008,
+		allowedHosts: ['dev.twir.app'],
 	},
 	clearScreen: false,
 

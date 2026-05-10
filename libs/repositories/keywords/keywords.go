@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 )
 
 type Repository interface {
-	GetAllByChannelID(ctx context.Context, channelID string) ([]model.Keyword, error)
-	CountByChannelID(ctx context.Context, channelID string) (int, error)
+	GetAllByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.Keyword, error)
+	CountByChannelID(ctx context.Context, channelID uuid.UUID) (int, error)
 	GetByID(ctx context.Context, id uuid.UUID) (model.Keyword, error)
 	Create(ctx context.Context, input CreateInput) (model.Keyword, error)
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.Keyword, error)
@@ -18,7 +19,7 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	ChannelID        string
+	ChannelID        uuid.UUID
 	Text             string
 	Response         string
 	Enabled          bool
@@ -28,6 +29,7 @@ type CreateInput struct {
 	IsRegular        bool
 	Usages           int
 	RolesIDs         []uuid.UUID
+	Platforms        []platform.Platform
 }
 
 type UpdateInput struct {
@@ -40,4 +42,5 @@ type UpdateInput struct {
 	IsRegular        *bool
 	Usages           *int
 	RolesIDs         *[]uuid.UUID
+	Platforms        []platform.Platform
 }

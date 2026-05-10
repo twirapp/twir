@@ -1,9 +1,11 @@
 package types
 
 import (
+	"github.com/google/uuid"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
@@ -24,8 +26,10 @@ type ParseContextSender struct {
 }
 
 type ParseContextChannel struct {
-	ID   string
-	Name string
+	ID           string // Platform-specific ID (e.g. Twitch numeric ID for Helix API)
+	Name         string
+	TwitchUserID uuid.UUID // Internal UUID for token lookup via NewUserClientWithContext
+	DBChannelID  string    // Internal DB UUID (channels.id) for Postgres queries
 }
 
 type ParseContextEmotePosition struct {
@@ -41,9 +45,10 @@ type ParseContextEmote struct {
 }
 
 type ParseContext struct {
-	Cacher  DataCacher
-	Channel *ParseContextChannel
-	Sender  *ParseContextSender
+	Cacher   DataCacher
+	Platform platform.Platform
+	Channel  *ParseContextChannel
+	Sender   *ParseContextSender
 
 	Text *string
 
@@ -57,7 +62,7 @@ type ParseContext struct {
 	MessageId string
 	RawText   string
 	Emotes    []*ParseContextEmote
-	Mentions  []twitch.ChatMessageMessageFragmentMention
+	Mentions  []generic.ChatMessageMessageFragmentMention
 
 	IsCommand     bool
 	IsInCustomVar bool

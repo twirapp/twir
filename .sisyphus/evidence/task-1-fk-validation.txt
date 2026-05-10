@@ -1,0 +1,11 @@
+Unvalidated foreign key check
+=============================
+Query: SELECT conname, conrelid::regclass FROM pg_constraint WHERE contype='f' AND NOT convalidated;
+
+Result
+======
+(0 rows)
+
+Status
+======
+- Zero unvalidated foreign key constraints after migration: PASS

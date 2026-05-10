@@ -50,6 +50,7 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 			TimeInterval:    opts.TimeInterval,
 			MessageInterval: opts.MessageInterval,
 			Responses:       responses,
+			Platforms:       mappers.StringsToPlatforms(opts.Platforms.Value()),
 		},
 	)
 	if err != nil {
@@ -99,6 +100,7 @@ func (r *mutationResolver) TimersCreateMany(ctx context.Context, opts []gqlmodel
 				TimeInterval:    opt.TimeInterval,
 				MessageInterval: opt.MessageInterval,
 				Responses:       responses,
+				Platforms:       mappers.StringsToPlatforms(opt.Platforms.Value()),
 			},
 		)
 	}
@@ -148,6 +150,7 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 			TimeInterval:    opts.TimeInterval.Value(),
 			MessageInterval: opts.MessageInterval.Value(),
 			Responses:       responses,
+			Platforms:       mappers.StringsToPlatforms(opts.Platforms.Value()),
 		},
 	)
 	if err != nil {

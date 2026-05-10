@@ -9,7 +9,7 @@ import { useRoute } from "vue-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import PlatformSelector from "@/components/platform-selector.vue";
 import {
 	FormControl,
 	FormDescription,
@@ -50,6 +50,7 @@ const { resetForm, handleSubmit, controlledValues, errors, setValues } = useForm
 		responses: [{ text: "", isAnnounce: false, count: 1 }],
 		offlineEnabled: false,
 		onlineEnabled: true,
+		platforms: [],
 	},
 });
 
@@ -67,6 +68,8 @@ onMounted(async () => {
 });
 
 const onSubmit = handleSubmit(submit);
+
+
 
 const responsesHasError = computed(() => {
 	return Object.keys(errors.value).some((key) => key.startsWith("responses"));
@@ -236,6 +239,28 @@ const responsesHasError = computed(() => {
 									<FormMessage />
 								</FormItem>
 							</FormField>
+						</CardContent>
+					</Card>
+
+					<Card class="p-0">
+						<CardContent class="py-4 space-y-4">
+						<FormField v-slot="{ field }" name="platforms">
+							<FormItem>
+								<div class="space-y-2">
+									<h3 class="text-lg font-semibold">Platforms</h3>
+									<p class="text-sm text-muted-foreground">
+										Select which platforms this timer runs on. If none selected, it runs on all platforms.
+									</p>
+								</div>
+								<FormControl>
+									<PlatformSelector
+								:model-value="field.value"
+								@update:model-value="field['onUpdate:modelValue']"
+							/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						</FormField>
 						</CardContent>
 					</Card>
 

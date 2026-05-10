@@ -25,7 +25,7 @@ var SongsRequestedDuration = &types.Variable{
 		targetUserId := lo.
 			IfF(
 				len(parseCtx.Mentions) > 0, func() string {
-					return parseCtx.Mentions[0].UserId
+					return parseCtx.Mentions[0].UserID
 				},
 			).
 			Else(parseCtx.Sender.ID)
@@ -34,7 +34,7 @@ var SongsRequestedDuration = &types.Variable{
 			WithContext(ctx).
 			Table("channels_requested_songs").
 			Select("sum(duration) as sum").
-			Where(`"channelId" = ? AND "orderedById" = ?`, parseCtx.Channel.ID, targetUserId).
+			Where(`"channelId" = ?::uuid AND "orderedById" = ?`, parseCtx.Channel.DBChannelID, targetUserId).
 			Scan(&sum).
 			Error
 

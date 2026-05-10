@@ -14,17 +14,20 @@ type ShoutOutInput struct {
 }
 
 func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error {
-	channel, err := c.channelsRepository.GetByID(ctx, input.BroadcasterID)
+	channel, err := c.channelsByTwitchIDCache.Get(ctx, input.BroadcasterID)
 	if err != nil {
 		return fmt.Errorf("cannot get channel: %w", err)
 	}
 	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
 		return nil
 	}
+	if channel.TwitchUserID == nil {
+		return fmt.Errorf("channel has no twitch user id for broadcaster %s", input.BroadcasterID)
+	}
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		input.BroadcasterID,
+		*channel.TwitchUserID,
 		c.config,
 		c.twirBus,
 	)

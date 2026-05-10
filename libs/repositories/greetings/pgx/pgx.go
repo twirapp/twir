@@ -41,7 +41,7 @@ type Pgx struct {
 func (c *Pgx) UpdateManyByChannelID(ctx context.Context, input greetings.UpdateManyInput) error {
 	updateBuilder := sq.
 		Update("channels_greetings").
-		Where(squirrel.Eq{`"channelId"`: input.ChannelID}).
+		Where(squirrel.Expr(`"channelId" = ?::uuid`, input.ChannelID)).
 		Suffix(`RETURNING id, "channelId", "userId", enabled, text, "isReply", processed, with_shoutout`)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,
@@ -85,7 +85,8 @@ func (c *Pgx) GetOneByChannelAndUserID(
 			"with_shoutout",
 		).
 		From("channels_greetings").
-		Where(squirrel.Eq{`"channelId"`: input.ChannelID, `"userId"`: input.UserID})
+		Where(squirrel.Expr(`"channelId" = ?::uuid`, input.ChannelID)).
+		Where(squirrel.Expr(`"userId" = ?::uuid`, input.UserID))
 
 	if input.Enabled != nil {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"enabled": *input.Enabled})
@@ -120,7 +121,7 @@ func (c *Pgx) GetOneByChannelAndUserID(
 
 func (c *Pgx) GetManyByChannelID(
 	ctx context.Context,
-	channelID string,
+	channelID uuid.UUID,
 	input greetings.GetManyInput,
 ) ([]model.Greeting, error) {
 	selectBuilder := sq.
@@ -135,7 +136,7 @@ func (c *Pgx) GetManyByChannelID(
 			"with_shoutout",
 		).
 		From("channels_greetings").
-		Where(squirrel.Eq{`"channelId"`: channelID})
+		Where(squirrel.Expr(`"channelId" = ?::uuid`, channelID))
 
 	if input.Enabled != nil {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"enabled": *input.Enabled})

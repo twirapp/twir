@@ -7,7 +7,7 @@ import (
 	"log/slog"
 
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
@@ -96,7 +96,7 @@ func (c *SongRequest) ProcessFromDonation(
 	for _, song := range ytsrResult.Data.Songs {
 		err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(
 			ctx,
-			twitch.TwitchChatMessage{
+			generic.ChatMessage{
 				ID:                   "",
 				BroadcasterUserId:    input.ChannelID,
 				BroadcasterUserName:  "",
@@ -104,8 +104,12 @@ func (c *SongRequest) ProcessFromDonation(
 				ChatterUserId:        input.ChannelID,
 				ChatterUserName:      "",
 				ChatterUserLogin:     "",
-				MessageId:            "",
-				Message: &twitch.ChatMessageMessage{
+				MessageID:            "",
+				PlatformChannelID:    input.ChannelID,
+				ChannelID:            input.ChannelID,
+				UserID:               input.ChannelID,
+				SenderID:             input.ChannelID,
+				Message: &generic.ChatMessageMessage{
 					Text: fmt.Sprintf(
 						"!%s https://youtu.be/%s",
 						srCommand.Name,
@@ -114,11 +118,12 @@ func (c *SongRequest) ProcessFromDonation(
 					Fragments: nil,
 				},
 				Color: "",
-				Badges: []twitch.ChatMessageBadge{
+				Badges: []generic.ChatMessageBadge{
 					{
-						Id:    "broadcaster",
-						SetId: "broadcaster",
+						ID:    "broadcaster",
+						SetID: "broadcaster",
 						Info:  "broadcaster",
+						Text:  "broadcaster",
 					},
 				},
 				MessageType:                 "",

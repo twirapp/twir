@@ -6,7 +6,7 @@ import { toast } from 'vue-sonner'
 
 import { useNowPlayingForm } from './use-now-playing-form'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
+import { useUserAccessFlagChecker } from '@/api/auth'
 import { useNowPlayingOverlayApi } from '@/api/overlays/now-playing'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import { Button } from '@/components/ui/button'
@@ -37,14 +37,13 @@ import { Switch } from '@/components/ui/switch'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()
-const { copyOverlayLink } = useCopyOverlayLink('now-playing')
+const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('now-playing')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
-const { data: profile } = useProfile()
 const { data: formValue } = useNowPlayingForm()
 
 const canCopyLink = computed(() => {
-	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays
+	return canCopyOverlayLink.value && userCanEditOverlays.value
 })
 
 const manager = useNowPlayingOverlayApi()

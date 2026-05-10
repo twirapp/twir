@@ -28,6 +28,8 @@ func (c *Activity) SevenTvEmoteManage(
 
 	hydratedString, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -57,7 +59,7 @@ func (c *Activity) SevenTvEmoteManage(
 	settings := &deprecatedgormmodel.ChannelsIntegrationsSettingsSeventv{}
 	err = c.db.
 		WithContext(ctx).
-		Where(`"channel_id" = ?`, data.ChannelID).
+		Where(`"channel_id" = ?`, data.ChannelDBID).
 		First(settings).
 		Error
 	if err != nil {

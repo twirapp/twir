@@ -54,6 +54,7 @@ type Command {
   expiresAt: Int
   expiresType: CommandExpiresType
   roleCooldowns: [CommandRoleCooldown!]!
+  platforms: [String!]!
 }
 
 type CommandResponse {
@@ -117,6 +118,7 @@ input CommandsCreateOpts {
   expiresType: CommandExpiresType
   roleCooldowns: [CommandRoleCooldownInput!]!
     @validate(constraint: "dive,max=500")
+  platforms: [String!]
 }
 
 input CommandsUpdateOpts {
@@ -146,6 +148,7 @@ input CommandsUpdateOpts {
   offlineOnly: Boolean
   roleCooldowns: [CommandRoleCooldownInput!]
     @validate(constraint: "dive,omitempty")
+  platforms: [String!]
 }
 
 input CreateOrUpdateCommandResponseInput {

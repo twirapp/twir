@@ -49,7 +49,7 @@ var maxRoles = 20
 func (c *Service) modelToEntity(m model.Role) entity.ChannelRole {
 	return entity.ChannelRole{
 		ID:                        m.ID,
-		ChannelID:                 m.ChannelID,
+		ChannelID:                 m.ChannelID.String(),
 		Name:                      m.Name,
 		Type:                      entity.ChannelRoleEnum(m.Type.String()),
 		Permissions:               m.Permissions,
@@ -77,7 +77,12 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 	[]entity.ChannelRole,
 	error,
 ) {
-	dbRoles, err := c.rolesRepository.GetManyByChannelID(ctx, channelID)
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, errors.NewInternalError("Failed to parse channel id", err)
+	}
+
+	dbRoles, err := c.rolesRepository.GetManyByChannelID(ctx, parsedChannelID)
 	if err != nil {
 		return nil, errors.NewInternalError("Failed to fetch channel roles", err)
 	}
@@ -112,7 +117,12 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.ChannelRole, error) {
-	dbRoles, err := c.rolesRepository.GetManyByChannelID(ctx, input.ChannelID)
+	parsedChannelID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return entity.ChannelRoleNil, errors.NewInternalError("Failed to parse channel id", err)
+	}
+
+	dbRoles, err := c.rolesRepository.GetManyByChannelID(ctx, parsedChannelID)
 	if err != nil {
 		return entity.ChannelRoleNil, errors.NewInternalError("Failed to fetch channel roles", err)
 	}
@@ -123,7 +133,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Channel
 
 	dbRole, err := c.rolesRepository.Create(
 		ctx, roles.CreateInput{
-			ChannelID:                 input.ChannelID,
+			ChannelID:                 parsedChannelID,
 			Name:                      input.Name,
 			Type:                      model.ChannelRoleEnum(input.Type.String()),
 			Permissions:               input.Permissions,
@@ -177,7 +187,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		return entity.ChannelRoleNil, errors.NewInternalError("Failed to fetch role", err)
 	}
 
-	if dbRole.ChannelID != input.ChannelID {
+	if dbRole.ChannelID.String() != input.ChannelID {
 		return entity.ChannelRoleNil, errors.NewForbiddenError("You don't have permission to access this role")
 	}
 
@@ -227,7 +237,7 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 		return errors.NewInternalError("Failed to fetch role", err)
 	}
 
-	if dbRole.ChannelID != input.ChannelID {
+	if dbRole.ChannelID.String() != input.ChannelID {
 		return errors.NewForbiddenError("You don't have permission to access this role")
 	}
 

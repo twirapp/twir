@@ -11,6 +11,7 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
@@ -78,7 +79,7 @@ var Add = &types.DefaultCommand{
 		}
 
 		twitchClient, err := twitch.NewUserClient(
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)
@@ -103,11 +104,22 @@ var Add = &types.DefaultCommand{
 
 		user := parseCtx.Mentions[0]
 
+		targetDbUser, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, platformentity.PlatformTwitch, user.UserID)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotFindUserDb,
+				),
+				Err: err,
+			}
+		}
+
 		var dbUser model.Users
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"id" = ?`, user.UserId).
-			Preload("Stats", `"channelId" = ? AND "userId" = ?`, parseCtx.Channel.ID, user.UserId).
+			Where(`"id" = ?`, targetDbUser.ID).
+			Preload("Stats", `"channelId" = ? AND "userId" = ?`, parseCtx.Channel.DBChannelID, targetDbUser.ID).
 			First(&dbUser).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -133,7 +145,7 @@ var Add = &types.DefaultCommand{
 				vipResp, err := twitchClient.AddChannelVip(
 					&helix.AddChannelVipParams{
 						BroadcasterID: parseCtx.Channel.ID,
-						UserID:        user.UserId,
+						UserID:        user.UserID,
 					},
 				)
 				if err != nil {
@@ -148,15 +160,15 @@ var Add = &types.DefaultCommand{
 					}
 				}
 
-				if unvipAt == nil {
+				if unvipType == nil {
 					return nil
 				}
 
 				err = parseCtx.Services.ScheduledVipsRepo.Create(
 					trCtx,
 					scheduledvipsrepository.CreateInput{
-						ChannelID:  parseCtx.Channel.ID,
-						UserID:     user.UserId,
+						ChannelID:  parseCtx.Channel.DBChannelID,
+						UserID:     targetDbUser.ID.String(),
 						RemoveAt:   unvipAt,
 						RemoveType: unvipType,
 					},

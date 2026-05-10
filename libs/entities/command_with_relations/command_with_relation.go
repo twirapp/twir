@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/commandrolecooldownentity"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 type Command struct {
@@ -28,6 +29,7 @@ type Command struct {
 	OnlineOnly                bool
 	OfflineOnly               bool
 	EnabledCategories         []string
+	Platforms                 []platform.Platform
 	RequiredWatchTime         int
 	RequiredMessages          int
 	RequiredUsedChannelPoints int

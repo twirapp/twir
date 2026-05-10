@@ -52,7 +52,7 @@ var SayCommand = &types.DefaultCommand{
 
 		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -67,7 +67,7 @@ var SayCommand = &types.DefaultCommand{
 
 		userSettings, _, err := parseCtx.Services.TTSService.GetUserSettings(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 			parseCtx.Sender.ID,
 		)
 		if err != nil {
@@ -216,7 +216,7 @@ var SayCommand = &types.DefaultCommand{
 		err = parseCtx.Services.Bus.Api.TriggerTtsSay.Publish(
 			ctx,
 			api.TriggerTtsSay{
-				ChannelId: parseCtx.Channel.ID,
+				ChannelId: parseCtx.Channel.DBChannelID,
 				Text:      resultedText,
 				Voice:     voice,
 				Rate:      strconv.Itoa(rate),

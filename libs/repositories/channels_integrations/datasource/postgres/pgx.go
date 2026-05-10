@@ -62,7 +62,7 @@ SELECT
     ci.data->>'avatar' AS "avatar"
 FROM channels_integrations ci
 JOIN integrations i ON ci."integrationId" = i.id
-WHERE ci."channelId" = $1 AND i.service = $2
+WHERE ci."channelId" = $1::uuid AND i.service = $2
 LIMIT 1
 `
 

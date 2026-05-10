@@ -1,0 +1,40 @@
+[     678ms] [ERROR] Mixed Content: The page at 'https://dev.twir.app/dashboard/community?tab=chat-logs' was loaded over HTTPS, but attempted to connect to the insecure WebSocket endpoint 'ws://dev.twir.app/dashboard/?token=PVAVgRxE0zYV'. This request has been blocked; this endpoint must be available over WSS. @ https://dev.twir.app/dashboard/@vite/client:840
+[    1303ms] [ERROR] Failed to load resource: net::ERR_TOO_MANY_REDIRECTS @ https://rybbit.twir.app/api/script.js:0
+[    1345ms] [WARNING] [Vue warn]: injection "$urql" not found. 
+  at <App> @ https://dev.twir.app/dashboard/node_modules/.vite/deps/vue.esm-bundler-CLzaTbD_.js?v=e6d4c18c:1776
+[    1351ms] [WARNING] [Vue warn]: injection "$urql" not found. 
+  at <App> @ https://dev.twir.app/dashboard/node_modules/.vite/deps/vue.esm-bundler-CLzaTbD_.js?v=e6d4c18c:1776
+[    1351ms] [WARNING] [Vue warn]: injection "$urql" not found. 
+  at <App> @ https://dev.twir.app/dashboard/node_modules/.vite/deps/vue.esm-bundler-CLzaTbD_.js?v=e6d4c18c:1776
+[    1386ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://dev.twir.app/dashboard/favicon.ico:0
+[    1472ms] [WARNING] [Vue Router warn]: The "next" callback was never called inside of :
+async (to, _, next) => {
+		if (to.path.startsWith("/dashboard/popup")) return next();
+		try {
+			const profileRequest = await urqlClient.value.executeQuery(profileQuery);
+			if (!profileRequest.data) {
+				return window.location.replace("/");
+			}
+			if (to.meta.adminOnly && !profileRequest.data.authenticatedUser.isBotAdmin) {
+				return next({ name: "NotFound" });
+			}
+			if (!to.meta.neededPermission) return next();
+			const hasAccess = await userAccessFlagChecker(to.meta.neededPermission);
+			if (hasAccess) {
+				return next();
+			}
+			return next({ name: "Forbidden" });
+		} catch (error) {
+			console.log(error);
+			window.location.replace("/");
+		}
+	}
+. If you are returning a value instead of calling "next", make sure to remove the "next" parameter from your function. @ https://dev.twir.app/dashboard/node_modules/.vite/deps/vue-router.js?v=e6d4c18c:29
+[    1473ms] [WARNING] [Vue Router warn]: uncaught error during route navigation: @ https://dev.twir.app/dashboard/node_modules/.vite/deps/vue-router.js?v=e6d4c18c:29
+[    1473ms] [ERROR] Error: Invalid navigation guard
+    at https://dev.twir.app/dashboard/node_modules/.vite/deps/vue-router.js?v=e6d4c18c:1463:44 @ https://dev.twir.app/dashboard/node_modules/.vite/deps/vue-router.js?v=e6d4c18c:2388
+[    1475ms] [WARNING] [Vue Router warn]: Unexpected error when starting the router: Error: Invalid navigation guard
+    at https://dev.twir.app/dashboard/node_modules/.vite/deps/vue-router.js?v=e6d4c18c:1463:44 @ https://dev.twir.app/dashboard/node_modules/.vite/deps/vue-router.js?v=e6d4c18c:29
+[    1481ms] Error: Invalid navigation guard
+    at https://dev.twir.app/dashboard/node_modules/.vite/deps/vue-router.js?v=e6d4c18c:1463:44
+[    1914ms] [ERROR] Failed to load resource: net::ERR_TOO_MANY_REDIRECTS @ https://rybbit.twir.app/api/script.js:0

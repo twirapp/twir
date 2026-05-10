@@ -55,12 +55,11 @@ func CreateDevCommand() *cli.Command {
 				}
 			}
 
-			proxyStartedChan, err := proxy.StartProxy(false)
+			proxyStartedChan, proxyInstance, err := proxy.StartProxy(false)
 			if err != nil {
 				pterm.Fatal.Println(err)
 				return err
 			}
-			// wait proxy to up
 			<-proxyStartedChan
 
 			skipDeps := c.Bool("skip-deps")
@@ -121,12 +120,21 @@ func CreateDevCommand() *cli.Command {
 			}
 
 			exitSignal := make(chan os.Signal, 1)
-			signal.Notify(exitSignal, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+			signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 
 			<-exitSignal
-			golangApps.Stop()
-			frontendApps.Stop()
-			nodejsApps.Stop()
+			if err := golangApps.Stop(); err != nil {
+				pterm.Error.Println("Failed to stop golang apps:", err)
+			}
+			if err := frontendApps.Stop(); err != nil {
+				pterm.Error.Println("Failed to stop frontend apps:", err)
+			}
+			if err := nodejsApps.Stop(); err != nil {
+				pterm.Error.Println("Failed to stop nodejs apps:", err)
+			}
+			if err := proxyInstance.Stop(); err != nil {
+				pterm.Error.Println("Failed to stop proxy:", err)
+			}
 
 			return nil
 		},

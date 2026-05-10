@@ -84,7 +84,7 @@ func (c *Service) CreateOrUpdate(
 		err = c.twirBus.Integrations.Remove.Publish(
 			ctx,
 			integrations.Request{
-				ID:      data.ID.String(),
+				ID:      data.ChannelID,
 				Service: integrations.DonatePay,
 			},
 		)

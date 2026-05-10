@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
 )
 
@@ -29,6 +30,7 @@ type Opts struct {
 	fx.In
 
 	AuthService              *auth.Auth
+	ChannelsRepository       channelsrepository.Repository
 	CachedTwitchClient       *twitch.CachedTwitchClient
 	CommandsGroupsService    *commands_groups.Service
 	CommandsResponsesService *commands_responses.Service

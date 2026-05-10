@@ -61,6 +61,10 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		input.RolesIDs = opts.RolesIds.Value()
 	}
 
+	if opts.Platforms.IsSet() {
+		input.Platforms = mappers.StringsToPlatforms(opts.Platforms.Value())
+	}
+
 	k, err := r.deps.KeywordsService.Create(ctx, input)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
@@ -126,6 +130,10 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts
 
 	if opts.RolesIds.IsSet() {
 		input.RolesIDs = opts.RolesIds.Value()
+	}
+
+	if opts.Platforms.IsSet() {
+		input.Platforms = mappers.StringsToPlatforms(opts.Platforms.Value())
 	}
 
 	keyword, err := r.deps.KeywordsService.Update(ctx, input)

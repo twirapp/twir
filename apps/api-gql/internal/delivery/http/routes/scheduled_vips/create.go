@@ -112,10 +112,15 @@ func (c *create) Handler(
 		return nil, huma.NewError(http.StatusInternalServerError, "VIP created but cannot fetch details", err)
 	}
 
+	targetDbUser, err := c.service.GetUserByPlatformID(ctx, input.Body.UserID)
+	if err != nil {
+		return nil, huma.NewError(http.StatusInternalServerError, "VIP created but cannot resolve user", err)
+	}
+
 	// Find the created VIP
 	var createdVip *scheduledvipsentity.ScheduledVip
 	for i := range vips {
-		if vips[i].UserID == input.Body.UserID {
+		if vips[i].UserID == targetDbUser.ID.String() {
 			createdVip = &vips[i]
 			break
 		}

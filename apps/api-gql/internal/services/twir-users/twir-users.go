@@ -32,7 +32,7 @@ type Service struct {
 func (c *Service) modelToEntity(m userswithchannelmodel.UserWithChannel) entity.UserWithChannel {
 	e := entity.UserWithChannel{
 		User: entity.User{
-			ID:                m.User.ID,
+			ID:                m.User.ID.String(),
 			TokenID:           m.User.TokenID.Ptr(),
 			IsBotAdmin:        m.User.IsBotAdmin,
 			ApiKey:            m.User.ApiKey,

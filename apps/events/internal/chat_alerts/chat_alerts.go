@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -29,6 +30,7 @@ type ChatAlerts struct {
 	bus                   *buscore.Bus
 	chatAlertsCache       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
 	channelEventListsRepo channelseventslist.Repository
+	usersRepo             usersrepository.Repository
 }
 
 type Opts struct {
@@ -42,6 +44,7 @@ type Opts struct {
 	Bus                   *buscore.Bus
 	ChatAlertsCache       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
 	ChannelEventListsRepo channelseventslist.Repository
+	UsersRepo             usersrepository.Repository
 }
 
 func New(opts Opts) (*ChatAlerts, error) {
@@ -54,6 +57,7 @@ func New(opts Opts) (*ChatAlerts, error) {
 		websocketsGrpc:        opts.WebsocketsGrpc,
 		chatAlertsCache:       opts.ChatAlertsCache,
 		channelEventListsRepo: opts.ChannelEventListsRepo,
+		usersRepo:             opts.UsersRepo,
 	}, nil
 }
 

@@ -33,6 +33,7 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 	const fetchPublicSettings = (streamerId: string) => urqlClient.query(graphql(`
 		query StreamerPublicSettings($streamerId: String!) {
 			userPublicSettings(userId: $streamerId) {
+				channelId
 				socialLinks {
 					title
 					href
@@ -44,12 +45,15 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 
 	async function fetchProfile() {
 		const { data } = await executeFetchStreamer()
-		if (!data.value?.twitchGetUserByName?.id) return
+		if (!data.value?.twitchGetUserByName?.id) {
+			currentChannelId.value = null
+			publicProfile.value = undefined
+			return
+		}
 
-		currentChannelId.value = data.value?.twitchGetUserByName?.id
-
-		const { data: publicData } = await fetchPublicSettings(currentChannelId.value)
+		const { data: publicData } = await fetchPublicSettings(data.value.twitchGetUserByName.id)
 		publicProfile.value = publicData
+		currentChannelId.value = publicData?.userPublicSettings?.channelId ?? null
 	}
 
 	return {

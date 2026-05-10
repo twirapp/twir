@@ -58,13 +58,22 @@ function handlePasteDeleted() {
 					<h1 class="text-3xl font-bold">Authentication Required</h1>
 					<p class="text-[hsl(240,11%,65%)]">You need to be logged in to view your pastes</p>
 				</div>
-				<button
-					class="flex flex-row px-6 py-3 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-all"
-					@click="() => userStore.login()"
-				>
-					Login with Twitch
-					<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
-				</button>
+				<div class="flex flex-row items-center gap-4">
+					<button
+						class="flex flex-row px-6 py-3 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-all"
+						@click="() => userStore.login()"
+					>
+						Login with Twitch
+						<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
+					</button>
+					<button
+						class="flex flex-row px-6 py-3 items-center gap-2 bg-[#53FC18] text-black rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 cursor-pointer hover:bg-[#53FC18]/80 transition-all"
+						@click="() => userStore.loginWithKick()"
+					>
+						Login with Kick
+						<Icon name="lucide:tv" class="w-5 h-5 text-black" />
+					</button>
+				</div>
 			</div>
 
 			<!-- Logged in state -->

@@ -17,6 +17,7 @@ import (
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
@@ -32,6 +33,7 @@ type Opts struct {
 	GiveawaysRepository             giveaways.Repository
 	GiveawaysParticipantsRepository giveaways_participants.Repository
 	GiveawaysSettingsRepository     channels_giveaways_settings.Repository
+	ChannelsRepository              channelsrepository.Repository
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	TwirBus                         *buscore.Bus
 	Logger                          *slog.Logger
@@ -44,6 +46,7 @@ func New(opts Opts) *Service {
 		giveawaysRepository:             opts.GiveawaysRepository,
 		giveawaysParticipantsRepository: opts.GiveawaysParticipantsRepository,
 		giveawaysSettingsRepository:     opts.GiveawaysSettingsRepository,
+		channelsRepository:              opts.ChannelsRepository,
 		giveawaysCacher:                 opts.GiveawaysCacher,
 		twirBus:                         opts.TwirBus,
 		logger:                          opts.Logger,
@@ -77,6 +80,7 @@ type Service struct {
 	giveawaysRepository             giveaways.Repository
 	giveawaysParticipantsRepository giveaways_participants.Repository
 	giveawaysSettingsRepository     channels_giveaways_settings.Repository
+	channelsRepository              channelsrepository.Repository
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	twirBus                         *buscore.Bus
 	logger                          *slog.Logger
@@ -255,6 +259,16 @@ func (c *Service) ChooseWinners(
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (channels_giveaways.Giveaway, error) {
+	parsedChannelID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return channels_giveaways.GiveawayNil, errors.NewInternalError("Failed to parse channel id", err)
+	}
+
+	parsedCreatedByUserID, err := uuid.Parse(input.CreatedByUserID)
+	if err != nil {
+		return channels_giveaways.GiveawayNil, errors.NewInternalError("Failed to parse created by user id", err)
+	}
+
 	// Validate that keyword is present for KEYWORD type
 	if input.Type == channels_giveaways.GiveawayTypeKeyword && (input.Keyword == nil || *input.Keyword == "") {
 		return channels_giveaways.GiveawayNil, errors.NewBadRequestError(
@@ -266,7 +280,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (channels_givea
 	if input.Type == channels_giveaways.GiveawayTypeKeyword && input.Keyword != nil {
 		dbGiveaway, err := c.giveawaysRepository.GetByChannelIDAndKeyword(
 			ctx,
-			input.ChannelID,
+			parsedChannelID,
 			*input.Keyword,
 		)
 		if err != nil && err != giveaways.ErrNotFound {
@@ -286,7 +300,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (channels_givea
 	giveaway, err := c.giveawaysRepository.Create(
 		ctx,
 		giveaways.CreateInput{
-			ChannelID:            input.ChannelID,
+			ChannelID:            parsedChannelID,
 			Type:                 channels_giveaways.GiveawayType(input.Type),
 			Keyword:              input.Keyword,
 			MinWatchedTime:       input.MinWatchedTime,
@@ -294,7 +308,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (channels_givea
 			MinUsedChannelPoints: input.MinUsedChannelPoints,
 			MinFollowDuration:    input.MinFollowDuration,
 			RequireSubscription:  input.RequireSubscription,
-			CreatedByUserID:      input.CreatedByUserID,
+			CreatedByUserID:      parsedCreatedByUserID,
 		},
 	)
 	if err != nil {
@@ -320,7 +334,7 @@ func (c *Service) GetParticipantsForGiveaway(
 ) ([]channels_giveaways.GiveawayParticipant, error) {
 	participants, err := c.giveawaysParticipantsRepository.GetManyByGiveawayID(
 		ctx,
-		giveawayID.String(),
+		giveawayID,
 		giveaways_participants.GetManyInput{
 			OnlyWinners: input.OnlyWinners,
 		},
@@ -342,12 +356,21 @@ func (c *Service) GiveawayGet(
 	giveawayID uuid.UUID,
 	channelID string,
 ) (channels_giveaways.Giveaway, error) {
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return channels_giveaways.GiveawayNil, err
+	}
+
 	giveaway, err := c.giveawaysRepository.GetByID(ctx, giveawayID)
 	if err != nil && err != giveaways.ErrNotFound {
 		return channels_giveaways.GiveawayNil, errors.NewInternalError("Failed to fetch giveaway", err)
 	}
 
 	if giveaway.IsNil() {
+		return channels_giveaways.GiveawayNil, nil
+	}
+
+	if giveaway.ChannelID != parsedChannelID {
 		return channels_giveaways.GiveawayNil, nil
 	}
 
@@ -363,7 +386,12 @@ func (c *Service) GiveawaysGetMany(
 	ctx context.Context,
 	channelID string,
 ) ([]channels_giveaways.Giveaway, error) {
-	dbGiveaways, err := c.giveawaysRepository.GetManyByChannelID(ctx, channelID)
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	dbGiveaways, err := c.giveawaysRepository.GetManyByChannelID(ctx, parsedChannelID)
 	if err != nil {
 		return nil, err
 	}
@@ -380,15 +408,23 @@ func (c *Service) GiveawayRemove(
 	ctx context.Context,
 	giveawayID uuid.UUID,
 	channelID string,
-) error {
-	err := c.giveawaysRepository.Delete(ctx, giveawayID)
+) (channels_giveaways.Giveaway, error) {
+	dbGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
 	if err != nil {
-		return nil
+		return channels_giveaways.GiveawayNil, err
+	}
+	if dbGiveaway.IsNil() {
+		return channels_giveaways.GiveawayNil, errors.NewNotFoundError("Giveaway with this ID was not found")
+	}
+
+	err = c.giveawaysRepository.Delete(ctx, giveawayID)
+	if err != nil {
+		return channels_giveaways.GiveawayNil, err
 	}
 
 	err = c.updateGiveawaysCacheForChannel(ctx, channelID)
 
-	return err
+	return dbGiveaway, err
 }
 
 type UpdateInput struct {
@@ -408,6 +444,14 @@ func (c *Service) GiveawayUpdate(
 	channelID string,
 	input UpdateInput,
 ) (channels_giveaways.Giveaway, error) {
+	currentGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
+	if err != nil {
+		return channels_giveaways.GiveawayNil, err
+	}
+	if currentGiveaway.IsNil() {
+		return channels_giveaways.GiveawayNil, errors.NewNotFoundError("Giveaway with this ID was not found")
+	}
+
 	dbGiveaway, err := c.giveawaysRepository.Update(
 		ctx, giveawayID, giveaways.UpdateInput{
 			StartedAt:            input.StartedAt,
@@ -443,6 +487,14 @@ func (c *Service) GiveawayUpdateStatus(
 	channelID string,
 	input UpdateStatusInput,
 ) (channels_giveaways.Giveaway, error) {
+	currentGiveaway, err := c.GiveawayGet(ctx, giveawayID, channelID)
+	if err != nil {
+		return channels_giveaways.GiveawayNil, err
+	}
+	if currentGiveaway.IsNil() {
+		return channels_giveaways.GiveawayNil, errors.NewNotFoundError("Giveaway with this ID was not found")
+	}
+
 	dbGiveaway, err := c.giveawaysRepository.UpdateStatuses(
 		ctx,
 		giveawayID,
@@ -480,7 +532,7 @@ func (c *Service) giveawayWinnerBusModelToEntity(
 	m giveawaysbus.Winner,
 ) channels_giveaways.GiveawayWinner {
 	return channels_giveaways.GiveawayWinner{
-		UserID:      m.UserID,
+		UserID:      uuid.MustParse(m.UserID),
 		UserLogin:   m.UserLogin,
 		DisplayName: m.UserDisplayName,
 	}
@@ -493,7 +545,12 @@ so we are do probably some unnecessarily work here but provide better consistenc
 Also, limits for max giveaways per channel is low, so it will be fast, I suppose.
 */
 func (c *Service) updateGiveawaysCacheForChannel(ctx context.Context, channelID string) error {
-	dbGiveaways, err := c.giveawaysRepository.GetManyActiveByChannelID(ctx, channelID)
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return err
+	}
+
+	dbGiveaways, err := c.giveawaysRepository.GetManyActiveByChannelID(ctx, parsedChannelID)
 	if err != nil {
 		return err
 	}
@@ -511,6 +568,11 @@ func (c *Service) sendWinnerMessage(
 	channelID string,
 	winners []channels_giveaways.GiveawayWinner,
 ) error {
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return err
+	}
+
 	settings, err := c.giveawaysSettingsRepository.GetByChannelID(ctx, channelID)
 	if err != nil {
 		c.logger.ErrorContext(ctx, "Cannot get giveaways settings", logger.Error(err))
@@ -522,13 +584,21 @@ func (c *Service) sendWinnerMessage(
 		return nil
 	}
 
+	channel, err := c.channelsRepository.GetByID(ctx, parsedChannelID)
+	if err != nil {
+		return err
+	}
+	if channel.TwitchPlatformID == nil {
+		return fmt.Errorf("channel has no twitch platform id")
+	}
+
 	for _, winner := range winners {
 		message := strings.ReplaceAll(settings.WinnerMessage, "{winner}", winner.UserLogin)
 
 		err := c.twirBus.Bots.SendMessage.Publish(
 			ctx,
 			botsbus.SendMessageRequest{
-				ChannelId:      channelID,
+				ChannelId:      *channel.TwitchPlatformID,
 				Message:        message,
 				SkipRateLimits: true,
 			},

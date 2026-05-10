@@ -119,7 +119,7 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 	)
 
 	if err := r.deps.ChannelSongRequestsSettingsCache.Invalidate(ctx, dashboardId); err != nil {
-		r.deps.Logger.Error("failed to invalidate song requests settings cache", err)
+		r.deps.Logger.Error("failed to invalidate song requests settings cache", slog.Any("error", err))
 	}
 
 	return true, nil

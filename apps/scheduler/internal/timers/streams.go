@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"sync"
 	"time"
 
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	buskick "github.com/twirapp/twir/libs/bus-core/kick"
+	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -17,6 +21,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	"github.com/scorfly/gokick"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/twitch"
 )
@@ -86,7 +91,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 	var channels []model.Channels
 	err := c.gorm.
 		WithContext(ctx).
-		Where(`"channels"."isEnabled" = ? and "User"."is_banned" = ?`, true, false).
+		Where(`"channels".twitch_bot_enabled = ? and "User"."is_banned" = ?`, true, false).
 		Joins("User").
 		Find(&channels).Error
 	if err != nil {
@@ -95,7 +100,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 	usersIds := make([]string, len(channels))
 	for i, channel := range channels {
-		if !channel.IsEnabled && !channel.User.IsBanned {
+		if !channel.TwitchBotEnabled && !channel.User.IsBanned {
 			continue
 		}
 
@@ -269,6 +274,155 @@ func (c *streams) processStreams(ctx context.Context) error {
 	}
 
 	wg.Wait()
+
+	if err := c.processKickStreams(ctx, existedStreams); err != nil {
+		return fmt.Errorf("cannot process kick streams: %w", err)
+	}
+
+	return nil
+}
+
+type kickChannelRow struct {
+	ID             string  `gorm:"column:id"`
+	KickPlatformID *string `gorm:"column:kick_platform_id"`
+}
+
+const (
+	kickChannelsSelectClause        = `channels.id, users.platform_id AS kick_platform_id`
+	kickChannelsJoinClause          = `LEFT JOIN users ON users.id = channels.kick_user_id`
+	kickChannelsPlatformIDIsNotNull = `users.platform_id IS NOT NULL`
+)
+
+func buildKickChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
+	return db.
+		WithContext(ctx).
+		Table("channels").
+		Select(kickChannelsSelectClause).
+		Joins(kickChannelsJoinClause).
+		Where(`channels."isEnabled" = ?`, true).
+		Where(kickChannelsPlatformIDIsNotNull).
+		Where(`COALESCE(users.is_banned, false) = false`)
+}
+
+func (c *streams) processKickStreams(ctx context.Context, existedStreams []model.ChannelsStreams) error {
+	var channels []kickChannelRow
+	err := buildKickChannelsQuery(c.gorm, ctx).Scan(&channels).Error
+	if err != nil {
+		return err
+	}
+
+	if len(channels) == 0 {
+		return nil
+	}
+
+	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, bustokens.GetAppTokenRequest{Platform: platformentity.PlatformKick})
+	if err != nil {
+		return fmt.Errorf("request kick app token: %w", err)
+	}
+
+	kickClient, err := gokick.NewClient(&gokick.ClientOptions{AppAccessToken: appToken.Data.AccessToken})
+	if err != nil {
+		return fmt.Errorf("create kick client: %w", err)
+	}
+
+	validChannels := lo.Filter(channels, func(channel kickChannelRow, _ int) bool {
+		return channel.KickPlatformID != nil && *channel.KickPlatformID != ""
+	})
+
+	chunks := lo.Chunk(validChannels, 50)
+	for _, chunk := range chunks {
+		platformIDs := make([]int, 0, len(chunk))
+		byPlatformID := make(map[string]kickChannelRow, len(chunk))
+		for _, channel := range chunk {
+			platformIDInt, convErr := strconv.Atoi(*channel.KickPlatformID)
+			if convErr != nil {
+				c.logger.Error("cannot parse kick platform id", slog.Any("err", convErr), slog.String("channel_id", channel.ID))
+				continue
+			}
+			platformIDs = append(platformIDs, platformIDInt)
+			byPlatformID[*channel.KickPlatformID] = channel
+		}
+
+		if len(platformIDs) == 0 {
+			continue
+		}
+
+		resp, reqErr := kickClient.GetChannels(ctx, gokick.NewChannelListFilter().SetBroadcasterUserIDs(platformIDs))
+		if reqErr != nil {
+			return fmt.Errorf("get kick channels: %w", reqErr)
+		}
+
+		channelsByPlatformID := make(map[string]gokick.ChannelResponse, len(resp.Result))
+		for _, item := range resp.Result {
+			channelsByPlatformID[strconv.Itoa(item.BroadcasterUserID)] = item
+		}
+
+		for _, channel := range chunk {
+			platformID := *channel.KickPlatformID
+			kickChannel, exists := channelsByPlatformID[platformID]
+			dbStream, dbStreamExists := lo.Find(existedStreams, func(stream model.ChannelsStreams) bool {
+				return stream.UserId == channel.ID
+			})
+
+			if exists && kickChannel.Stream.IsLive {
+				startedAt := time.Now().UTC()
+				if kickChannel.Stream.StartTime != "" {
+					if parsedStartedAt, parseErr := time.Parse(time.RFC3339, kickChannel.Stream.StartTime); parseErr == nil {
+						startedAt = parsedStartedAt
+					}
+				}
+
+				tags := &pq.StringArray{}
+				for _, tag := range kickChannel.Stream.CustomTags {
+					*tags = append(*tags, tag)
+				}
+
+				channelStream := &model.ChannelsStreams{
+					ID:           channel.ID,
+					UserId:       channel.ID,
+					UserLogin:    kickChannel.Slug,
+					UserName:     kickChannel.Slug,
+					GameId:       strconv.Itoa(kickChannel.Category.ID),
+					GameName:     kickChannel.Category.Name,
+					CommunityIds: nil,
+					Type:         "live",
+					Title:        kickChannel.StreamTitle,
+					ViewerCount:  kickChannel.Stream.ViewerCount,
+					StartedAt:    startedAt,
+					Language:     kickChannel.Stream.Language,
+					ThumbnailUrl: kickChannel.Stream.Thumbnail,
+					TagIds:       nil,
+					Tags:         tags,
+					IsMature:     kickChannel.Stream.IsMature,
+				}
+
+				if result := c.gorm.WithContext(ctx).Where(`"userId" = ?`, channel.ID).Save(channelStream); result.Error != nil {
+					c.logger.Error("cannot save kick stream", slog.Any("err", result.Error))
+					continue
+				}
+
+				if !dbStreamExists {
+					c.twirBus.KickStreamOnline.Publish(ctx, buskick.KickStreamOnline{
+						BroadcasterUserID:    platformID,
+						BroadcasterUserLogin: kickChannel.Slug,
+					})
+				}
+				continue
+			}
+
+			if dbStreamExists {
+				if err := c.gorm.WithContext(ctx).Where(`"userId" = ?`, channel.ID).Delete(&model.ChannelsStreams{}).Error; err != nil {
+					c.logger.Error("cannot delete kick stream", logger.Error(err))
+					continue
+				}
+
+				c.twirBus.KickStreamOffline.Publish(ctx, buskick.KickStreamOffline{
+					BroadcasterUserID:    platformID,
+					BroadcasterUserLogin: dbStream.UserLogin,
+				})
+			}
+		}
+	}
 
 	return nil
 }

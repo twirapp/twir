@@ -41,7 +41,7 @@ type CommunityUsersResponse {
 
 type CommunityUser implements TwirUser {
 	id: ID!
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
 	watchedMs: Int!
 	messages: Int!
 	usedEmotes: Int!

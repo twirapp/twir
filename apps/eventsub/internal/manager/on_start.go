@@ -12,6 +12,8 @@ import (
 	"strconv"
 
 	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/tokens"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
 )
@@ -76,7 +78,7 @@ func (c *Manager) ensureConduit(ctx context.Context) (*conduitsResponseConduit, 
 	}
 	defer mu.Unlock()
 
-	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, struct{}{})
+	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch})
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +160,7 @@ func (c *Manager) ensureConduit(ctx context.Context) (*conduitsResponseConduit, 
 }
 
 func (c *Manager) twitchCreateConduit(ctx context.Context) (*conduitsResponseConduit, error) {
-	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, struct{}{})
+	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch})
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +237,7 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 		shardId = parsed - 1 // REPLICA is 1-based, but shardId is 0-based
 	}
 
-	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, struct{}{})
+	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch})
 	if err != nil {
 		return err
 	}

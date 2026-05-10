@@ -9,7 +9,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
 
@@ -19,6 +21,7 @@ type Opts struct {
 	TrmManager        trm.Manager
 	RolesService      *roles.Service
 	RolesUsersService *roles_users.Service
+	UsersRepository   usersrepository.Repository
 	Logger            *slog.Logger
 }
 
@@ -27,6 +30,7 @@ func New(opts Opts) *Service {
 		trmManager:        opts.TrmManager,
 		rolesService:      opts.RolesService,
 		rolesUsersService: opts.RolesUsersService,
+		usersRepository:   opts.UsersRepository,
 		logger:            opts.Logger,
 	}
 }
@@ -35,6 +39,7 @@ type Service struct {
 	trmManager        trm.Manager
 	rolesService      *roles.Service
 	rolesUsersService *roles_users.Service
+	usersRepository   usersrepository.Repository
 	logger            *slog.Logger
 }
 
@@ -57,9 +62,13 @@ func (c *Service) Create(ctx context.Context, input CreateInput) error {
 
 			usersInputs := make([]roles_users.CreateInput, 0, len(input.Users))
 			for _, user := range input.Users {
+				dbUser, err := c.usersRepository.GetByPlatformID(txCtx, platformentity.PlatformTwitch, user.UserID)
+				if err != nil {
+					return err
+				}
 				usersInputs = append(
 					usersInputs, roles_users.CreateInput{
-						UserID: user.UserID,
+						UserID: dbUser.ID,
 						RoleID: role.ID,
 					},
 				)
@@ -130,9 +139,13 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) error {
 
 			usersInputs := make([]roles_users.CreateInput, 0, len(input.Users))
 			for _, user := range input.Users {
+				dbUser, err := c.usersRepository.GetByPlatformID(txCtx, platformentity.PlatformTwitch, user.UserID)
+				if err != nil {
+					return err
+				}
 				usersInputs = append(
 					usersInputs, roles_users.CreateInput{
-						UserID: user.UserID,
+						UserID: dbUser.ID,
 						RoleID: newRole.ID,
 					},
 				)

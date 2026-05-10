@@ -35,6 +35,8 @@ watch(
 
 const subscription = useChatMessagesSubscription()
 
+const selectedPlatforms = computed(() => filters.platforms.value)
+
 onMounted(() => {
 	executeQuery({ requestPolicy: 'cache-and-network' })
 })
@@ -63,6 +65,9 @@ async function scrollToBottom() {
 }
 watch(subscription.data, (v) => {
 	if (!v?.chatMessages) return
+	if (selectedPlatforms.value.length > 0 && !selectedPlatforms.value.includes(v.chatMessages.platform)) {
+		return
+	}
 
 	messages.value.push(v.chatMessages)
 	if (isAutoScrolling.value) {

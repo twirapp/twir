@@ -1,4 +1,4 @@
-go 1.26.0
+go 1.26.1
 
 use (
 	./apps/api-gql
@@ -9,8 +9,8 @@ use (
 	./apps/parser
 	./apps/scheduler
 	./apps/timers
-	./apps/twitch-mock
 	./apps/tokens
+	./apps/twitch-mock
 	./apps/websockets
 	./cli
 	./libs/audit

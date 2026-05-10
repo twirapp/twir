@@ -63,7 +63,7 @@ var Timeout = &types.DefaultCommand{
 		wall, err := parseCtx.Services.ChatWallService.Create(
 			ctx,
 			chatwallservice.CreateInput{
-				ChannelID:       parseCtx.Channel.ID,
+				DBChannelID:     parseCtx.Channel.DBChannelID,
 				Phrase:          phrase,
 				Enabled:         true,
 				Action:          chatwallmodel.ChatWallActionTimeout,
@@ -82,7 +82,9 @@ var Timeout = &types.DefaultCommand{
 			ctx,
 			wall,
 			chatwallservice.HandlePastMessagesInput{
-				ChannelID:       parseCtx.Channel.ID,
+				DBChannelID:       parseCtx.Channel.DBChannelID,
+				PlatformChannelID: parseCtx.Channel.ID,
+				Platform:          parseCtx.Platform,
 				Phrase:          phrase,
 				Action:          chatwallmodel.ChatWallActionTimeout,
 				TimeoutDuration: &timeoutDuration,

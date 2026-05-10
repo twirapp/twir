@@ -19,7 +19,7 @@ import (
 	"github.com/twirapp/kv"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
@@ -130,7 +130,7 @@ type Service struct {
 	googleTranslateClient *googletranslate.Client
 }
 
-func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *Service) Handle(ctx context.Context, msg generic.ChatMessage) error {
 	if msg.Message == nil || strings.HasPrefix(
 		msg.Message.Text,
 		msg.EnrichedData.ChannelCommandPrefix,
@@ -163,7 +163,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 
 	channelTranslationSettings, err := c.channelsTranslationsCache.Get(
 		ctx,
-		msg.BroadcasterUserId,
+		msg.EnrichedData.DbChannel.ID.String(),
 	)
 	if err != nil {
 		if errors.Is(err, channelschattrenslationsrepository.ErrSettingsNotFound) {
@@ -247,6 +247,7 @@ func (c *Service) Handle(ctx context.Context, msg twitch.TwitchChatMessage) erro
 		bots.SendMessageRequest{
 			ChannelName:       &msg.BroadcasterUserLogin,
 			ChannelId:         msg.BroadcasterUserId,
+			PlatformChannelID: msg.BroadcasterUserId,
 			Message:           resultText.String(),
 			SkipToxicityCheck: false,
 		},

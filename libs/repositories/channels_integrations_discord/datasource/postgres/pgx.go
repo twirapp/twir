@@ -62,7 +62,7 @@ func (p *Pgx) GetByChannelID(
 	query, args, err := sq.
 		Select(selectColumnsStr).
 		From("channels_integrations_discord").
-		Where(squirrel.Eq{"channel_id": channelID}).
+		Where(squirrel.Expr("channel_id = ?::uuid", channelID)).
 		OrderBy("id").
 		ToSql()
 	if err != nil {
@@ -97,9 +97,9 @@ func (p *Pgx) GetByChannelIDAndGuildID(
 		Select(selectColumnsStr).
 		From("channels_integrations_discord").
 		Where(
-			squirrel.Eq{
-				"channel_id": channelID,
-				"guild_id":   guildID,
+			squirrel.And{
+				squirrel.Expr("channel_id = ?::uuid", channelID),
+				squirrel.Eq{"guild_id": guildID},
 			},
 		).
 		Limit(1).
@@ -334,7 +334,7 @@ func (p *Pgx) DeleteByChannelIDAndGuildID(
 	ctx context.Context,
 	channelID, guildID string,
 ) error {
-	query := `DELETE FROM channels_integrations_discord WHERE channel_id = @channel_id AND guild_id = @guild_id`
+	query := `DELETE FROM channels_integrations_discord WHERE channel_id = @channel_id::uuid AND guild_id = @guild_id`
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
 	_, err := conn.Exec(

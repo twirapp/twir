@@ -31,9 +31,10 @@ func (c *ChatAlerts) chatCleared(
 	err := c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelID,
-			Message:        sample.Text,
-			SkipRateLimits: true,
+			ChannelId:         req.BaseInfo.ChannelID,
+			PlatformChannelID: req.BaseInfo.ChannelID,
+			Message:           sample.Text,
+			SkipRateLimits:    true,
 		},
 	)
 

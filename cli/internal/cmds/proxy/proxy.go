@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/pterm/pterm"
@@ -18,48 +19,90 @@ var Cmd = &cli.Command{
 	Name:  "proxy",
 	Usage: "Run https proxy",
 	Action: func(context *cli.Context) error {
-		_, err := StartProxy(true)
+		_, _, err := StartProxy(true)
 		return err
 	},
 }
 
-func StartProxy(block bool) (<-chan struct{}, error) {
+type Proxy struct {
+	cmd    *exec.Cmd
+	done   chan struct{}
+	stdout *shell.PrefixWriter
+	stderr *shell.PrefixWriter
+}
+
+func (p *Proxy) Stop() error {
+	if p.cmd == nil || p.cmd.Process == nil {
+		return nil
+	}
+
+	pid := p.cmd.Process.Pid
+
+	pgid, err := syscall.Getpgid(pid)
+	if err == nil {
+		syscall.Kill(-pgid, syscall.SIGTERM)
+	} else {
+		p.cmd.Process.Signal(syscall.SIGTERM)
+	}
+
+	select {
+	case <-p.done:
+	case <-time.After(5 * time.Second):
+		if pgid != 0 {
+			syscall.Kill(-pgid, syscall.SIGKILL)
+		} else {
+			p.cmd.Process.Kill()
+		}
+		<-p.done
+	}
+
+	if p.stdout != nil {
+		p.stdout.Flush()
+	}
+	if p.stderr != nil {
+		p.stderr.Flush()
+	}
+
+	p.cmd = nil
+	return nil
+}
+
+func StartProxy(block bool) (<-chan struct{},
+	*Proxy,
+	error,
+) {
 	startChannel := make(chan struct{})
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return startChannel, err
+		return startChannel, nil, err
 	}
 
 	caddyFindCmd := exec.Command(
 		"go",
 		"tool",
-		"-n", // -n prints the command without running it, giving us the path
+		"-n",
 		"github.com/caddyserver/caddy/v2/cmd/caddy",
 	)
 	caddyFindCmd.Dir = wd
 	caddyPathBytes, err := caddyFindCmd.Output()
 	if err != nil {
-		return startChannel, fmt.Errorf("failed to find Caddy path: %v", err)
+		return startChannel, nil, fmt.Errorf("failed to find Caddy path: %v", err)
 	}
 	caddyPath := strings.TrimSpace(string(caddyPathBytes))
 
 	if runtime.GOOS == "linux" {
-		// Check if the capability is already set
 		getcapCmd := exec.Command("getcap", caddyPath)
 		getcapCmd.Dir = wd
 		getcapOutput, err := getcapCmd.Output()
 		if err != nil {
-			// If getcap fails (e.g., command not found), proceed cautiously
 			pterm.Warning.Println("Could not check capabilities; assuming they need to be set")
 		}
 
-		// Check if cap_net_bind_service is present
 		if !strings.Contains(string(getcapOutput), "cap_net_bind_service") {
 			pterm.Warning.Println("!!! ATTENTION !!!")
 			pterm.Warning.Println("We need your sudo password to bind web server to port 443 (this is a one-time setup)")
 
-			// Set the capability if missing
 			setcapCmd := fmt.Sprintf("sudo setcap 'cap_net_bind_service=+ep' %s", caddyPath)
 			if err := shell.ExecCommand(
 				shell.ExecCommandOpts{
@@ -69,7 +112,7 @@ func StartProxy(block bool) (<-chan struct{}, error) {
 					Pwd:     wd,
 				},
 			); err != nil {
-				return startChannel, fmt.Errorf("failed to set capability: %v", err)
+				return startChannel, nil, fmt.Errorf("failed to set capability: %v", err)
 			}
 			pterm.Success.Println("Capability set successfully; no further sudo prompts needed unless Caddy binary changes")
 		}
@@ -86,32 +129,56 @@ func StartProxy(block bool) (<-chan struct{}, error) {
 		close(startChannel)
 	}()
 
-	commandOpts := shell.ExecCommandOpts{
-		Command: "go tool github.com/caddyserver/caddy/v2/cmd/caddy run --watch --config Caddyfile.dev --envfile .env",
-		Stdout:  os.Stdout,
-		Stderr:  os.Stderr,
-		Pwd:     wd,
+	stdout := shell.StdoutFor("proxy")
+	stderr := shell.StderrFor("proxy")
+
+	cmd, err := shell.CreateCommand(
+		shell.ExecCommandOpts{
+			Command: "go tool github.com/caddyserver/caddy/v2/cmd/caddy run --watch --config Caddyfile.dev --envfile .env",
+			Stdout:  stdout,
+			Stderr:  stderr,
+			Pwd:     wd,
+		},
+	)
+	if err != nil {
+		return startChannel, nil, err
 	}
 
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	p := &Proxy{cmd: cmd, done: make(chan struct{}), stdout: stdout, stderr: stderr}
+
 	if block {
-		err = shell.ExecCommand(commandOpts)
-		if err != nil {
-			panic(err)
+		if err := cmd.Start(); err != nil {
+			return startChannel, p, err
 		}
+		if err := cmd.Wait(); err != nil {
+			close(p.done)
+			return startChannel, p, err
+		}
+		close(p.done)
 	} else {
+		if err := cmd.Start(); err != nil {
+			return startChannel, p, err
+		}
 		go func() {
-			err = shell.ExecCommand(commandOpts)
-			if err != nil {
-				panic(err)
+			err := cmd.Wait()
+			close(p.done)
+			if err != nil && !isSignalTermination(err) {
+				pterm.Error.Println("Proxy exited with error:", err)
 			}
 		}()
 	}
 
-	go func() {
+	return startChannel, p, nil
+}
 
-	}()
-
-	return startChannel, err
+func isSignalTermination(err error) bool {
+	exitErr, ok := err.(*exec.ExitError)
+	if !ok {
+		return false
+	}
+	return exitErr.ProcessState != nil && exitErr.ProcessState.ExitCode() < 0
 }
 
 func checkIsProxyStarted(port int) bool {

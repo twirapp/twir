@@ -29,7 +29,7 @@ var Counter = &types.Variable{
 		var keyword *model.ChannelsKeywords
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ? AND "id" = ?`, parseCtx.Channel.ID, variableData.Params).
+			Where(`"channelId" = ?::uuid AND "id" = ?::uuid`, parseCtx.Channel.DBChannelID, variableData.Params).
 			Find(&keyword).Error
 
 		if err != nil {

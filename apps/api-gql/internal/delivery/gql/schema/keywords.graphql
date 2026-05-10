@@ -18,6 +18,7 @@ type Keyword {
 	isRegularExpression: Boolean!
 	usageCount: Int!
 	rolesIds: [UUID!]!
+	platforms: [String!]!
 }
 
 input KeywordCreateInput {
@@ -29,6 +30,7 @@ input KeywordCreateInput {
 	isRegularExpression: Boolean
 	isReply: Boolean
 	rolesIds: [UUID!]
+	platforms: [String!]
 }
 
 input KeywordUpdateInput {
@@ -40,4 +42,5 @@ input KeywordUpdateInput {
 	isRegularExpression: Boolean
 	isReply: Boolean
 	rolesIds: [UUID!]
+	platforms: [String!]
 }

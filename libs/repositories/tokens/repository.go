@@ -10,7 +10,7 @@ import (
 
 type Repository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*model.Token, error)
-	GetByUserID(ctx context.Context, userID string) (*model.Token, error)
+	GetByUserID(ctx context.Context, userID uuid.UUID) (*model.Token, error)
 	GetByBotID(ctx context.Context, botID string) (*model.Token, error)
 	CreateUserToken(ctx context.Context, input CreateInput) (*model.Token, error)
 	UpdateTokenByID(ctx context.Context, id uuid.UUID, input UpdateTokenInput) (
@@ -20,7 +20,7 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	UserID              string
+	UserID              uuid.UUID
 	AccessToken         string
 	RefreshToken        string
 	ExpiresIn           int

@@ -9,24 +9,28 @@ import (
 )
 
 type GetManyInput struct {
-	ChannelID    *string
-	UserNameLike *string
-	TextLike     *string
-	Page         int
-	PerPage      int
-	UserIDs      []string
+	ChannelPairs      []chat_messages.PlatformChannelIdentity
+	Platform          *string
+	PlatformChannelID *string
+	UserNameLike      *string
+	TextLike          *string
+	Page              int
+	PerPage           int
+	UserIDs           []string
 }
 
 func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.ChatMessage, error) {
 	messages, err := c.chatMessagesRepository.GetMany(
 		ctx,
 		chat_messages.GetManyInput{
-			Page:         input.Page,
-			PerPage:      input.PerPage,
-			ChannelID:    input.ChannelID,
-			UserNameLike: input.UserNameLike,
-			TextLike:     input.TextLike,
-			UserIDs:      input.UserIDs,
+			ChannelPairs:      input.ChannelPairs,
+			Page:              input.Page,
+			PerPage:           input.PerPage,
+			Platform:          input.Platform,
+			PlatformChannelID: input.PlatformChannelID,
+			UserNameLike:      input.UserNameLike,
+			TextLike:          input.TextLike,
+			UserIDs:           input.UserIDs,
 		},
 	)
 	if err != nil {
