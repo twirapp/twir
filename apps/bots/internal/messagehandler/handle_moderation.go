@@ -170,7 +170,7 @@ func (c *MessageHandler) moderationHandleResult(
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 ) *moderationHandleResult {
 	var channelRoles []model.ChannelRole
-	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?::uuid`, msg.EnrichedData.DbUser.ID).Where(
+	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?`, msg.EnrichedData.DbUser.ID).Where(
 		`"channelId" = ?::uuid`,
 		settings.ChannelID,
 	).
@@ -269,7 +269,7 @@ func (c *MessageHandler) moderationLinksParser(
 
 	permit := model.ChannelsPermits{}
 	err := c.gorm.WithContext(ctx).Where(
-		`"channelId" = ?::uuid AND "userId" = ?::uuid`,
+		`"channelId" = ?::uuid AND "userId" = ?`,
 		settings.ChannelID,
 		msg.EnrichedData.DbUser.ID,
 	).

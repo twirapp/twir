@@ -59,7 +59,7 @@ func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(hu
 	if err := c.gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ?::uuid`, dashboardId).
-		Preload("Users", `"userId" = ?::uuid`, user.ID).
+		Preload("Users", `"userId" = ?`, user.ID).
 		Find(&channelRoles).
 		Error; err != nil {
 		huma.WriteErr(
@@ -76,7 +76,7 @@ func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(hu
 	var userStat model.UsersStats
 	if err := c.gorm.
 		WithContext(ctx).
-		Where(`"userId" = ?::uuid AND "channelId" = ?::uuid`, user.ID, dashboardId).
+		Where(`"userId" = ? AND "channelId" = ?::uuid`, user.ID, dashboardId).
 		First(&userStat).
 		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 

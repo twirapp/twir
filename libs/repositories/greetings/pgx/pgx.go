@@ -86,7 +86,7 @@ func (c *Pgx) GetOneByChannelAndUserID(
 		).
 		From("channels_greetings").
 		Where(squirrel.Expr(`"channelId" = ?::uuid`, input.ChannelID)).
-		Where(squirrel.Expr(`"userId" = ?::uuid`, input.UserID))
+		Where(squirrel.Expr(`"userId" = ?`, input.UserID))
 
 	if input.Enabled != nil {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"enabled": *input.Enabled})

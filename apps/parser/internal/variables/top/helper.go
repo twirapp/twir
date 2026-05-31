@@ -61,8 +61,8 @@ func getTop(
 				squirrel.Gt{`"users_stats"."messages"`: 0},
 			},
 		).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = "users_stats"."userId")`).
-		Where(`NOT EXISTS (SELECT 1 FROM bots b JOIN users u ON u.platform_id = b.id AND u.platform = 'twitch' WHERE u.id = "users_stats"."userId")`)
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = "users_stats"."userId")`).
+		Where(`NOT EXISTS (SELECT 1 FROM bots b JOIN users u ON u.platform_id = b.id AND u.platform = 'twitch' WHERE u.id::text = "users_stats"."userId")`)
 
 	qb = applyTopChannelBotFilters(qb, channel)
 
@@ -147,7 +147,7 @@ func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelmodel.C
 	if channel.BotID != "" {
 		qb = qb.Where(
 			squirrel.Expr(
-				`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+				`"users_stats"."userId" NOT IN (SELECT id::text FROM users WHERE platform_id = ? AND platform = 'twitch')`,
 				channel.BotID,
 			),
 		)
@@ -158,7 +158,7 @@ func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelmodel.C
 	}
 
 	if channel.TwitchUserID != nil {
-		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: *channel.TwitchUserID})
+		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.TwitchUserID.String()})
 	}
 
 	if channel.KickUserID != nil {

@@ -110,7 +110,7 @@ func (c *Handler) updateUserModStatus(
 	userStats := model.UsersStats{}
 	if err := c.gorm.
 		WithContext(ctx).
-		Where(`"userId" = ?::uuid and "channelId" = ?::uuid`, chatUser.ID, channel.ID.String()).
+		Where(`"userId" = ? and "channelId" = ?::uuid`, chatUser.ID.String(), channel.ID.String()).
 		First(&userStats).Error; err != nil {
 		return err
 	}

@@ -137,7 +137,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		if err := r.deps.Gorm.
 			WithContext(ctx).
 			Where(
-				`"userId" = ?::uuid`,
+				`"userId" = ?`,
 				obj.ID,
 			).
 			Preload("Role").
@@ -179,7 +179,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	var usersStats []model.UsersStats
 	if err := r.deps.Gorm.
 		WithContext(ctx).
-		Where(`"userId" = ?::uuid`, obj.ID).
+		Where(`"userId" = ?`, obj.ID).
 		Find(&usersStats).Error; err != nil {
 		return nil, err
 	}

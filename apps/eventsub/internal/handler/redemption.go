@@ -255,7 +255,7 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 
 	userStats := &model.UsersStats{}
 	err = c.gorm.WithContext(ctx).
-		Where(`"userId" = ?::uuid AND "channelId" = ?::uuid`, chatUser.ID, channel.ID).
+		Where(`"userId" = ? AND "channelId" = ?::uuid`, chatUser.ID.String(), channel.ID).
 		Find(userStats).Error
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))

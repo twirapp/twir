@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -35,7 +34,6 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 }
 
 var _ userswithstats.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -84,7 +82,7 @@ SELECT
     )
   END AS stats
 FROM users as u
-LEFT JOIN users_stats us ON us."userId" = u.id AND us."channelId" = $2::uuid
+LEFT JOIN users_stats us ON us."userId" = $1::text AND us."channelId" = $2::uuid
 WHERE u.id = $1::uuid
 LIMIT 1;
 `

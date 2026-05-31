@@ -163,13 +163,13 @@ INSERT INTO users_stats (
 		"updated_at = NOW()",
 	}
 	setMap := pgx.NamedArgs{
-		`user_id`:            userID,
-		`channel_id`:         channelID,
-		`messages`:           0,
-		`watched`:            0,
-		`usedChannelPoints`:  0,
-		`reputation`:         0,
-		`emotes`:             0,
+		`user_id`:           userID,
+		`channel_id`:        channelID,
+		`messages`:          0,
+		`watched`:           0,
+		`usedChannelPoints`: 0,
+		`reputation`:        0,
+		`emotes`:            0,
 	}
 
 	for field, update := range input.NumberFields {
@@ -230,7 +230,7 @@ func (c *Pgx) GetByUserAndChannelID(
 		`
 SELECT %s
 FROM users_stats
-WHERE "userId" = $1::uuid AND "channelId" = $2::uuid
+WHERE "userId" = $1::text AND "channelId" = $2::uuid
 LIMIT 1
 `, selectFieldsJoined,
 	)

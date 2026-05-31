@@ -48,3 +48,4 @@ apps/*/main
 worktrees
 .local.md
 .playwright-mcp
+.omo/run-continuation

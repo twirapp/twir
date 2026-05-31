@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { LinkIcon, UnlinkIcon } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { useAuthLink, useProfile, useUnlinkPlatformAccount } from '@/api/auth'
+import { openApi } from '@/api/openapi'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,17 @@ const twitchAuthLink = computed(() => twitchAuthLinkData.value?.authLink ?? null
 
 const isKickLinked = computed(() => accounts.value.some((a) => a.platform === 'kick'))
 const isTwitchLinked = computed(() => accounts.value.some((a) => a.platform === 'twitch'))
+const kickAuthLink = ref('')
+
+onMounted(async () => {
+	const response = await openApi.auth.authKickAuthorize({ redirect_to: userSettingsPath })
+	if (!response.ok) {
+		console.error('Failed to fetch Kick auth link')
+		return
+	}
+
+	kickAuthLink.value = response.data.authorize_url
+})
 
 async function handleUnlink(platform: string) {
 	if (platform === currentPlatform.value) return

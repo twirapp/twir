@@ -189,7 +189,7 @@ func (c *Pgx) GetManyByIDS(
 		).
 		From("users u").
 		LeftJoin("channels uc ON " + channelOwnershipJoinCondition).
-		LeftJoin("badges_users bu ON u.id = bu.user_id").
+		LeftJoin("badges_users bu ON u.id::text = bu.user_id").
 		OrderBy("u.id asc")
 
 	selectQuery = applyFilters(selectQuery, input)
@@ -248,7 +248,7 @@ func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetMany
 
 	if len(input.HasBadgesIDS) > 0 {
 		selectQuery = selectQuery.
-			LeftJoin("badges_users bu ON u.id = bu.user_id").
+			LeftJoin("badges_users bu ON u.id::text = bu.user_id").
 			Where(squirrel.Eq{"bu.badge_id": input.HasBadgesIDS})
 	}
 

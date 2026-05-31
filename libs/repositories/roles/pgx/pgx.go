@@ -53,9 +53,9 @@ SELECT
     cr.required_used_channel_points
 FROM public.channels_roles AS cr
          LEFT JOIN public.channels_roles_users AS cru
-                   ON cr.id = cru."roleId" AND cru."userId" = @user_id::uuid
+                    ON cr.id = cru."roleId" AND cru."userId" = @user_id::text
          LEFT JOIN public.users_stats AS us
-                   ON cr."channelId" = us."channelId" AND us."userId" = @user_id::uuid
+                    ON cr."channelId" = us."channelId" AND us."userId" = @user_id::text
 WHERE
     cr."channelId" = @channel_id::uuid
 		AND (

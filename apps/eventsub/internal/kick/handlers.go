@@ -55,6 +55,8 @@ const (
 	idempotencyStatusProcessed  = "processed"
 )
 
+var errKickWebhookUnknownBroadcaster = errors.New("kick webhook unknown broadcaster")
+
 type kickUser struct {
 	UserID         int           `json:"user_id"`
 	Username       string        `json:"username"`
@@ -505,6 +507,17 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
+		if errors.Is(err, errKickWebhookUnknownBroadcaster) {
+			h.logger.InfoContext(ctx, "kick: ignoring webhook for unknown broadcaster mapping",
+				slog.String("message_id", messageID),
+				slog.String("event_type", eventType),
+				logger.Error(err),
+			)
+			err = nil
+		}
+	}
+
+	if err != nil {
 		h.logger.ErrorContext(ctx, "kick: failed to process webhook event",
 			slog.String("message_id", messageID),
 			slog.String("event_type", eventType),
@@ -768,26 +781,26 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 			Text:      normalizedText,
 			Fragments: fragments,
 		},
-		Platform:          string(platform.PlatformKick),
-		ID:                payload.MessageID,
-		BroadcasterUserId: broadcasterUserID,
-		BroadcasterUserName: payload.Broadcaster.Username,
+		Platform:             string(platform.PlatformKick),
+		ID:                   payload.MessageID,
+		BroadcasterUserId:    broadcasterUserID,
+		BroadcasterUserName:  payload.Broadcaster.Username,
 		BroadcasterUserLogin: payload.Broadcaster.Username,
 		ChatterUserId:        senderPlatformID,
 		ChatterUserName:      payload.Sender.Username,
 		ChatterUserLogin:     payload.Sender.Username,
 		MessageType:          "text",
-		ChannelID:         channelID,
-		UserID:            senderUser.ID.String(),
-		PlatformChannelID: broadcasterUserID,
-		SenderID:          senderPlatformID,
-		SenderLogin:       payload.Sender.Username,
-		SenderDisplayName: payload.Sender.Username,
-		MessageID:         payload.MessageID,
-		Text:              normalizedText,
-		Badges:            badges,
-		Color:             color,
-		Emotes:            parsedEmotes,
+		ChannelID:            channelID,
+		UserID:               senderUser.ID.String(),
+		PlatformChannelID:    broadcasterUserID,
+		SenderID:             senderPlatformID,
+		SenderLogin:          payload.Sender.Username,
+		SenderDisplayName:    payload.Sender.Username,
+		MessageID:            payload.MessageID,
+		Text:                 normalizedText,
+		Badges:               badges,
+		Color:                color,
+		Emotes:               parsedEmotes,
 		EnrichedData: generic.ChatMessageEnrichedData{
 			ChannelCommandPrefix: commandsPrefix,
 			DbChannel:            channel,
@@ -1347,7 +1360,7 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.U
 	user, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, broadcasterUserID)
 	if err != nil {
 		if errors.Is(err, usersmodel.ErrNotFound) {
-			return uuid.Nil, uuid.Nil, fmt.Errorf("no kick user for broadcaster_user_id=%s", broadcasterUserID)
+			return uuid.Nil, uuid.Nil, fmt.Errorf("%w: no kick user for broadcaster_user_id=%s: %w", errKickWebhookUnknownBroadcaster, broadcasterUserID, err)
 		}
 		return uuid.Nil, uuid.Nil, fmt.Errorf("get user by platform id: %w", err)
 	}
@@ -1355,7 +1368,7 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.U
 	channel, err := h.channelsRepo.GetByKickUserID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
-			return uuid.Nil, uuid.Nil, fmt.Errorf("channel not found for user_id=%s platform=kick", user.ID)
+			return uuid.Nil, uuid.Nil, fmt.Errorf("%w: channel not found for user_id=%s platform=kick: %w", errKickWebhookUnknownBroadcaster, user.ID, err)
 		}
 		return uuid.Nil, uuid.Nil, fmt.Errorf("get channel by kick user id: %w", err)
 	}
